@@ -338,6 +338,8 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 		fake    func(t *testing.T) *fakePMM
 		args    map[string]any
 		wantErr bool
+		// check inspects the fake PMM and the error text of a case that wants an error.
+		check func(t *testing.T, fake *fakePMM, text string)
 	}
 	routed := func(routes map[string]fixture) func(t *testing.T) *fakePMM {
 		return func(t *testing.T) *fakePMM {
@@ -389,10 +391,18 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 		},
 		"pmm_get_explain": {
 			{
-				name:    "NoStoredPlan",
-				fake:    routed(withRoutes(qanRoutes(), map[string]fixture{"GET /v1/qan/query/QID-PG/plan": {file: "plan_empty.json"}})),
+				name: "NoStoredPlan",
+				fake: routed(withRoutes(qanRoutes(), map[string]fixture{
+					"POST " + reportPath:            {file: "report_by_service_postgres.json"},
+					"GET /v1/qan/query/QID-PG/plan": {file: "plan_empty.json"},
+				})),
 				args:    map[string]any{"service_id": "svc-2", "queryid": "QID-PG"},
 				wantErr: true,
+				check: func(t *testing.T, fake *fakePMM, text string) {
+					t.Helper()
+					assert.Len(t, fake.requestsTo("/v1/qan/query/QID-PG/plan"), 1, "the resolver passed and the plan was looked up")
+					assert.True(t, strings.HasPrefix(text, "error: not_found\nno stored plan for queryid 'QID-PG'"), text)
+				},
 			},
 			{
 				name: "PollFails",
@@ -462,10 +472,14 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				t.Run(sc.name, func(t *testing.T) {
 					t.Parallel()
 
-					res := callTool(t, connect(t, newQANService(t, sc.fake(t), false)), name, sc.args)
+					fake := sc.fake(t)
+					res := callTool(t, connect(t, newQANService(t, fake, false)), name, sc.args)
 					text := textOf(t, res)
 					require.Equal(t, sc.wantErr, res.IsError, text)
 					if sc.wantErr {
+						if sc.check != nil {
+							sc.check(t, fake, text)
+						}
 						return
 					}
 					require.NotNil(t, res.StructuredContent, text)

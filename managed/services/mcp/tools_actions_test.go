@@ -292,10 +292,12 @@ func TestExplainTool(t *testing.T) {
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
 		session := connect(t, newQANService(t, fake, true))
 
-		ref := map[string]any{"queryid": "QID-AAA", "service_id": "svc-1", "period_from": "2026-09-14T11:00:00Z", "period_to": "2026-09-14T12:00:00Z"}
+		from, to := testNow.Add(-3*time.Hour), testNow.Add(-2*time.Hour)
+		ref := map[string]any{"queryid": "QID-AAA", "service_id": "svc-1", "period_from": from.Format(time.RFC3339), "period_to": to.Format(time.RFC3339)}
 		res := callTool(t, session, "pmm_get_explain", map[string]any{"query_ref": ref})
 		got := structured[explainResult](t, res)
-		assert.Equal(t, &queryRef{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow}, got.QueryRef)
+		assert.Equal(t, &queryRef{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: from, PeriodTo: to}, got.QueryRef)
+		assert.Contains(t, got.PMMURL, "from="+ms(from)+"&query_selected=true&to="+ms(to))
 	})
 
 	t.Run("QueryRefWithQueryID", func(t *testing.T) {
@@ -322,6 +324,21 @@ func TestExplainTool(t *testing.T) {
 		body := unmarshalBody[actions_service.StartServiceActionBody](t, fake.requestsTo("/v1/actions:startServiceAction")[0])
 		require.NotNil(t, body.MysqlExplainJSON)
 		assert.Equal(t, "other", body.MysqlExplainJSON.Database)
+		assert.Equal(t, "svc-1", body.MysqlExplainJSON.ServiceID, "the resolved service")
+	})
+
+	t.Run("PostgreSQLIgnoresDetailError", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
+		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan/query:getExample" })
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-PG"})
+		got := structured[explainResult](t, res)
+		assert.Equal(t, enginePostgreSQL, got.Engine)
+		assert.Contains(t, got.Plan, "Seq Scan on customers")
 	})
 
 	t.Run("PlaceholdersCountError", func(t *testing.T) {
@@ -333,8 +350,10 @@ func TestExplainTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nEXPLAIN could not run on the fingerprint (placeholder syntax): "), text)
-		assert.Contains(t, text, "pass placeholders")
+		assert.Equal(t, "error: invalid_input\nthe number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, "+
+			"in order, or none when QAN stored a query example", text)
+		assert.Contains(t, text, "placeholders")
+		assert.NotContains(t, text, "EXPLAIN could not run")
 	})
 
 	t.Run("PlaceholderError", func(t *testing.T) {

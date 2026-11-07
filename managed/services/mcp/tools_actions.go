@@ -222,10 +222,9 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		if resolved.DetailErr != nil {
 			return explainResult{}, resolved.DetailErr
 		}
-		// PMM resolves the placeholder values from the stored query example, so
-		// the service and queryid are enough; explicit placeholders override.
-		// Without an example PMM EXPLAINs the raw ? fingerprint and MySQL
-		// answers 1064, mapped below.
+		// With a stored query example the service and queryid are enough, and
+		// pmm-managed rejects placeholders that do not match it. Without one
+		// PMM EXPLAINs the raw ? fingerprint and MySQL answers 1064, mapped below.
 		database := cmp.Or(in.Database, resolved.Database)
 		if format == formatTraditional {
 			body.MysqlExplain = &actions_service.StartServiceActionParamsBodyMysqlExplain{
@@ -266,9 +265,12 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 
 	output, err := s.runAction(ctx, auth, body, !raw)
 	var te *toolError
-	if errors.As(err, &te) && te.code == codeInvalidInput &&
-		(strings.HasPrefix(te.message, "Error 1064 ") || strings.Contains(te.message, placeholdersCountError)) {
-		// No concrete statement was available: EXPLAIN ran on the ? fingerprint.
+	if errors.As(err, &te) && te.code == codeInvalidInput && strings.Contains(te.message, placeholdersCountError) {
+		return explainResult{}, newToolError(codeInvalidInput, "%s", placeholdersCountMessage)
+	}
+	if errors.As(err, &te) && te.code == codeInvalidInput && strings.HasPrefix(te.message, "Error 1064 ") {
+		// MySQL answered 1064: EXPLAIN ran on the ? fingerprint because no
+		// concrete statement was available.
 		return explainResult{}, newToolError(codeInvalidInput,
 			"EXPLAIN could not run on the fingerprint (placeholder syntax): %s. "+
 				"Enable query examples for this service in PMM, or pass placeholders (one value per ?, in order) and database.", te.message)
@@ -594,6 +596,8 @@ const (
 		"pick another query, or raise max-query-length on the agent"
 	// pmm-managed's 400 for a MySQL explain whose placeholder values do not fit the statement.
 	placeholdersCountError   = "placeholders count is not correct"
+	placeholdersCountMessage = "the number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, " +
+		"in order, or none when QAN stored a query example"
 	mongoReadOnlyRemediation = "MongoDB can explain read operations only (find, aggregate, count, distinct); " +
 		"pick a read query from pmm_top_queries"
 )
