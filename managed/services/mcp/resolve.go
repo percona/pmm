@@ -69,7 +69,7 @@ func refFromInput(ref *queryRefInput, queryID, serviceID, periodFrom, periodTo s
 			"pass query_ref, as pmm_top_queries or pmm_query_detail return it, or pass queryid")
 	case ref != nil && flat:
 		return queryRef{}, newToolError(codeInvalidInput,
-			"pass query_ref alone: it carries its own queryid, service_id and window, so queryid, service_id, period_from and period_to must be left out")
+			"pass query_ref alone, without queryid, service_id, period_from or period_to; to choose a service, set service_id inside query_ref")
 	case ref != nil:
 		if ref.QueryID == "" || ref.PeriodFrom == "" || ref.PeriodTo == "" {
 			return queryRef{}, newToolError(codeInvalidInput,
