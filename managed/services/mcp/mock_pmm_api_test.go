@@ -218,6 +218,66 @@ func (_m *mockPmmAPI) GetReport(ctx context.Context, auth callerAuth, body qan_s
 	return r0, r1
 }
 
+// LabelValues provides a mock function with given fields: ctx, auth, uid, label, match, start, end, limit
+func (_m *mockPmmAPI) LabelValues(ctx context.Context, auth callerAuth, uid string, label string, match []string, start time.Time, end time.Time, limit int) ([]string, error) {
+	ret := _m.Called(ctx, auth, uid, label, match, start, end, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LabelValues")
+	}
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, string, []string, time.Time, time.Time, int) ([]string, error)); ok {
+		return rf(ctx, auth, uid, label, match, start, end, limit)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, string, []string, time.Time, time.Time, int) []string); ok {
+		r0 = rf(ctx, auth, uid, label, match, start, end, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string, string, []string, time.Time, time.Time, int) error); ok {
+		r1 = rf(ctx, auth, uid, label, match, start, end, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Labels provides a mock function with given fields: ctx, auth, uid, match, start, end, limit
+func (_m *mockPmmAPI) Labels(ctx context.Context, auth callerAuth, uid string, match []string, start time.Time, end time.Time, limit int) ([]string, error) {
+	ret := _m.Called(ctx, auth, uid, match, start, end, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Labels")
+	}
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, []string, time.Time, time.Time, int) ([]string, error)); ok {
+		return rf(ctx, auth, uid, match, start, end, limit)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, []string, time.Time, time.Time, int) []string); ok {
+		r0 = rf(ctx, auth, uid, match, start, end, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string, []string, time.Time, time.Time, int) error); ok {
+		r1 = rf(ctx, auth, uid, match, start, end, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListNodes provides a mock function with given fields: ctx, auth
 func (_m *mockPmmAPI) ListNodes(ctx context.Context, auth callerAuth) (*nodes_service.ListNodesOKBody, error) {
 	ret := _m.Called(ctx, auth)
@@ -308,9 +368,9 @@ func (_m *mockPmmAPI) QANServiceTypes(ctx context.Context, auth callerAuth, from
 	return r0, r1
 }
 
-// QueryInstant provides a mock function with given fields: ctx, auth, datasourceUID, promql, at
-func (_m *mockPmmAPI) QueryInstant(ctx context.Context, auth callerAuth, datasourceUID string, promql string, at time.Time) ([]metricSample, error) {
-	ret := _m.Called(ctx, auth, datasourceUID, promql, at)
+// QueryInstant provides a mock function with given fields: ctx, auth, uid, r
+func (_m *mockPmmAPI) QueryInstant(ctx context.Context, auth callerAuth, uid string, r promRequest) ([]metricSample, error) {
+	ret := _m.Called(ctx, auth, uid, r)
 
 	if len(ret) == 0 {
 		panic("no return value specified for QueryInstant")
@@ -318,19 +378,79 @@ func (_m *mockPmmAPI) QueryInstant(ctx context.Context, auth callerAuth, datasou
 
 	var r0 []metricSample
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, string, time.Time) ([]metricSample, error)); ok {
-		return rf(ctx, auth, datasourceUID, promql, at)
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, promRequest) ([]metricSample, error)); ok {
+		return rf(ctx, auth, uid, r)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, string, time.Time) []metricSample); ok {
-		r0 = rf(ctx, auth, datasourceUID, promql, at)
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, promRequest) []metricSample); ok {
+		r0 = rf(ctx, auth, uid, r)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]metricSample)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string, string, time.Time) error); ok {
-		r1 = rf(ctx, auth, datasourceUID, promql, at)
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string, promRequest) error); ok {
+		r1 = rf(ctx, auth, uid, r)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// QueryRange provides a mock function with given fields: ctx, auth, uid, r
+func (_m *mockPmmAPI) QueryRange(ctx context.Context, auth callerAuth, uid string, r promRequest) ([]metricSeries, error) {
+	ret := _m.Called(ctx, auth, uid, r)
+
+	if len(ret) == 0 {
+		panic("no return value specified for QueryRange")
+	}
+
+	var r0 []metricSeries
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, promRequest) ([]metricSeries, error)); ok {
+		return rf(ctx, auth, uid, r)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, promRequest) []metricSeries); ok {
+		r0 = rf(ctx, auth, uid, r)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]metricSeries)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string, promRequest) error); ok {
+		r1 = rf(ctx, auth, uid, r)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Series provides a mock function with given fields: ctx, auth, uid, match, start, end, limit
+func (_m *mockPmmAPI) Series(ctx context.Context, auth callerAuth, uid string, match []string, start time.Time, end time.Time, limit int) ([]map[string]string, error) {
+	ret := _m.Called(ctx, auth, uid, match, start, end, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Series")
+	}
+
+	var r0 []map[string]string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, []string, time.Time, time.Time, int) ([]map[string]string, error)); ok {
+		return rf(ctx, auth, uid, match, start, end, limit)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, string, []string, time.Time, time.Time, int) []map[string]string); ok {
+		r0 = rf(ctx, auth, uid, match, start, end, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]map[string]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string, []string, time.Time, time.Time, int) error); ok {
+		r1 = rf(ctx, auth, uid, match, start, end, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -403,8 +523,7 @@ func (_m *mockPmmAPI) Version(ctx context.Context, auth callerAuth) (*server_ser
 func newMockPmmAPI(t interface {
 	mock.TestingT
 	Cleanup(func())
-},
-) *mockPmmAPI {
+}) *mockPmmAPI {
 	mock := &mockPmmAPI{}
 	mock.Mock.Test(t)
 

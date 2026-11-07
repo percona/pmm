@@ -95,12 +95,16 @@ func (e *statusError) Error() string {
 
 // mapError converts any error raised by the PMM API client into a toolError.
 // HTTP 401/403 become unauthorized with PMM's own message passed through,
-// 404 not_found, 400 invalid_input; everything else is pmm_unavailable except
+// 404 not_found, 400 and 422 invalid_input; everything else is pmm_unavailable except
 // deadlines, which are timeout.
 func mapError(err error) *toolError {
 	te, ok := errors.AsType[*toolError](err)
 	if ok {
 		return te
+	}
+
+	if errors.Is(err, errResponseTooLarge) {
+		return newToolError(codePMMUnavailable, "%s", err)
 	}
 
 	se, ok := errors.AsType[*statusError](err)
@@ -110,7 +114,7 @@ func mapError(err error) *toolError {
 			return newToolError(codeUnauthorized, "%s", se.Error())
 		case http.StatusNotFound:
 			return newToolError(codeNotFound, "%s", se.Error())
-		case http.StatusBadRequest:
+		case http.StatusBadRequest, http.StatusUnprocessableEntity:
 			return newToolError(codeInvalidInput, "%s", se.Error())
 		default:
 			return newToolError(codePMMUnavailable, "%s", se.Error())

@@ -53,8 +53,11 @@ const (
 	defaultVMSearchMaxSamplesPerQuery   = "1500000000"
 	defaultVMSearchMaxQueueDuration     = "30s"
 	defaultVMSearchMaxQueryDuration     = "90s"
-	defaultVMSearchLogSlowQueryDuration = "30s"
-	defaultVMPromscrapeStreamParse      = "true"
+	// VictoriaMetrics' own default, min(2*CPUs, 16) on the smallest supported server of 4 CPUs.
+	// Keep equal to defaultVMSearchMaxConcurrentRequests in managed/services/mcp.
+	defaultVMSearchMaxConcurrentRequests = "8"
+	defaultVMSearchLogSlowQueryDuration  = "30s"
+	defaultVMPromscrapeStreamParse       = "true"
 	// 0 keeps VictoriaMetrics' native default of no ingestion rate limit. A hard cap risks
 	// pausing ingestion on large legitimate fleets, so the limit is left opt-in via the
 	// VM_maxIngestionRate environment variable for deployments that need to throttle bursts.
@@ -232,6 +235,7 @@ command =
 		--search.maxQueueDuration={{ .VMSearchMaxQueueDuration }}
 		--search.logSlowQueryDuration={{ .VMSearchLogSlowQueryDuration }}
 		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
+		--search.maxConcurrentRequests={{ .VMSearchMaxConcurrentRequests }}
 		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
 		--maxIngestionRate={{ .VMMaxIngestionRate }}
 		--http.pathPrefix=/prometheus
@@ -429,36 +433,38 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmSearchMaxSamplesPerQuery := envvars.GetEnv("VM_search_maxSamplesPerQuery", defaultVMSearchMaxSamplesPerQuery)
 	vmSearchMaxQueueDuration := envvars.GetEnv("VM_search_maxQueueDuration", defaultVMSearchMaxQueueDuration)
 	vmSearchMaxQueryDuration := envvars.GetEnv("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
+	vmSearchMaxConcurrentRequests := envvars.GetEnv("VM_search_maxConcurrentRequests", defaultVMSearchMaxConcurrentRequests)
 	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
 	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
 	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
 	templateParams := map[string]any{
-		"DataRetentionDays":            settings.DataRetentionDays(),
-		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
-		"VMSearchDisableCache":         vmSearchDisableCache,
-		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
-		"VMSearchLatencyOffset":        vmSearchLatencyOffset,
-		"VMSearchMaxUniqueTimeseries":  vmSearchMaxUniqueTimeseries,
-		"VMSearchMaxSamplesPerQuery":   vmSearchMaxSamplesPerQuery,
-		"VMSearchMaxQueueDuration":     vmSearchMaxQueueDuration,
-		"VMSearchMaxQueryDuration":     vmSearchMaxQueryDuration,
-		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
-		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
-		"VMMaxIngestionRate":           vmMaxIngestionRate,
-		"VMURL":                        s.vmParams.URL(),
-		"ExternalVM":                   s.vmParams.ExternalVM(),
-		"NomadEnabled":                 settings.IsNomadEnabled(),
-		"InterfaceToBind":              envvars.GetInterfaceToBind(),
-		"ClickhouseAddr":               clickhouseAddr,
-		"ClickhouseDatabase":           clickhouseDatabase,
-		"ClickhouseHost":               clickhouseAddrPair[0],
-		"ClickhousePort":               clickhouseAddrPair[1],
-		"ClickhouseUser":               clickhouseUser,
-		"ClickhousePassword":           clickhousePassword,
-		"ClickhouseDatasourceUser":     clickhouseDatasourceUser,
-		"ClickhouseDatasourcePassword": clickhouseDatasourcePassword,
-		"PMMServerHost":                "",
+		"DataRetentionDays":             settings.DataRetentionDays(),
+		"VMAlertFlags":                  s.vmParams.VMAlertFlags,
+		"VMSearchDisableCache":          vmSearchDisableCache,
+		"VMSearchMaxQueryLen":           vmSearchMaxQueryLen,
+		"VMSearchLatencyOffset":         vmSearchLatencyOffset,
+		"VMSearchMaxUniqueTimeseries":   vmSearchMaxUniqueTimeseries,
+		"VMSearchMaxSamplesPerQuery":    vmSearchMaxSamplesPerQuery,
+		"VMSearchMaxQueueDuration":      vmSearchMaxQueueDuration,
+		"VMSearchMaxQueryDuration":      vmSearchMaxQueryDuration,
+		"VMSearchMaxConcurrentRequests": vmSearchMaxConcurrentRequests,
+		"VMSearchLogSlowQueryDuration":  vmSearchLogSlowQueryDuration,
+		"VMPromscrapeStreamParse":       vmPromscrapeStreamParse,
+		"VMMaxIngestionRate":            vmMaxIngestionRate,
+		"VMURL":                         s.vmParams.URL(),
+		"ExternalVM":                    s.vmParams.ExternalVM(),
+		"NomadEnabled":                  settings.IsNomadEnabled(),
+		"InterfaceToBind":               envvars.GetInterfaceToBind(),
+		"ClickhouseAddr":                clickhouseAddr,
+		"ClickhouseDatabase":            clickhouseDatabase,
+		"ClickhouseHost":                clickhouseAddrPair[0],
+		"ClickhousePort":                clickhouseAddrPair[1],
+		"ClickhouseUser":                clickhouseUser,
+		"ClickhousePassword":            clickhousePassword,
+		"ClickhouseDatasourceUser":      clickhouseDatasourceUser,
+		"ClickhouseDatasourcePassword":  clickhouseDatasourcePassword,
+		"PMMServerHost":                 "",
 	}
 
 	s.addPostgresParams(templateParams)

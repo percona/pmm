@@ -22,8 +22,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -52,12 +54,72 @@ const (
 	// Bound of a single PMM API request.
 	callTimeout = 30 * time.Second
 
+	// Bound of a VictoriaMetrics query, below callTimeout so that VictoriaMetrics answers first.
+	metricsTimeout = 25 * time.Second
+
+	// Bound of any datasource-proxy response read into memory.
+	maxVMResponseBytes = 4 << 20
+
+	// VictoriaMetrics' -search.maxConcurrentRequests on 4 CPUs (min(2*CPUs, 16)), app/victoria-metrics/main.go at v1.154.0.
+	// Keep equal to defaultVMSearchMaxConcurrentRequests in managed/services/supervisord.
+	defaultVMSearchMaxConcurrentRequests = 8
+
+	// VictoriaMetrics' slots MCP may use: one in vmReplicaShare.
+	vmReplicaShare = 2
+
 	// Bound of an error response body kept for the message.
 	maxErrorBody = 4 << 10
 
 	// A Prometheus vector sample is [<unix timestamp>, "<value>"].
 	vectorSampleLen = 2
 )
+
+// errResponseTooLarge is returned when a datasource-proxy response is longer than maxVMResponseBytes.
+var errResponseTooLarge = errors.New("response from the metrics datasource is larger than the 4 MiB limit")
+
+// promRequest holds the arguments of a VictoriaMetrics query; zero ones are not sent.
+type promRequest struct {
+	Query      string
+	Time       time.Time
+	Start, End time.Time
+	Step       time.Duration
+	Timeout    time.Duration
+}
+
+func (r promRequest) values() url.Values {
+	v := url.Values{}
+	if r.Query != "" {
+		v.Set("query", r.Query)
+	}
+	if !r.Time.IsZero() {
+		v.Set("time", strconv.FormatInt(r.Time.Unix(), 10))
+	}
+	if !r.Start.IsZero() {
+		v.Set("start", strconv.FormatInt(r.Start.Unix(), 10))
+	}
+	if !r.End.IsZero() {
+		v.Set("end", strconv.FormatInt(r.End.Unix(), 10))
+	}
+	if r.Step > 0 {
+		v.Set("step", strconv.FormatInt(int64(r.Step/time.Second), 10))
+	}
+	if r.Timeout > 0 {
+		v.Set("timeout", r.Timeout.String())
+	}
+	return v
+}
+
+// point is one sample of a range query.
+type point struct {
+	T time.Time
+	V float64
+}
+
+// metricSeries is one series of a range query.
+type metricSeries struct {
+	Labels map[string]string
+	Points []point
+}
 
 // client implements pmmAPI over the generated go-swagger clients (PMM's /v1
 // API) and net/http (Grafana paths), all through the nginx loopback.
@@ -70,6 +132,22 @@ type client struct {
 	inventory *inventoryClient.PMMInventoryAPI
 	qan       *qanClient.PMMQANAPI
 	actions   *actionsClient.PMMActionsAPI
+
+	vmSlots chan struct{}
+}
+
+// maxVMRequestsPerReplica is half of VictoriaMetrics' -search.maxConcurrentRequests, so that
+// dashboards and alert evaluation keep the other half.
+func maxVMRequestsPerReplica() int {
+	limit := defaultVMSearchMaxConcurrentRequests
+	v, ok := os.LookupEnv("VM_search_maxConcurrentRequests")
+	if ok && v != "" {
+		n, err := strconv.Atoi(v)
+		if err == nil && n > 0 {
+			limit = n
+		}
+	}
+	return max(limit/vmReplicaShare, 1)
 }
 
 // newClient builds a pmmAPI implementation against the given base URL.
@@ -111,6 +189,7 @@ func newClient(baseURL string) (*client, error) {
 		inventory: inventoryClient.New(swagger, nil),
 		qan:       qanClient.New(swagger, nil),
 		actions:   actionsClient.New(swagger, nil),
+		vmSlots:   make(chan struct{}, maxVMRequestsPerReplica()),
 	}, nil
 }
 
@@ -342,13 +421,7 @@ func (c *client) GetDatasourceByName(ctx context.Context, auth callerAuth, name 
 // QueryInstant runs an instant PromQL query through the Grafana datasource
 // proxy (uid-based path), which is Viewer-accessible and LBAC-filtered, unlike
 // the raw /prometheus path that requires admin.
-func (c *client) QueryInstant(ctx context.Context, auth callerAuth, datasourceUID, promql string, at time.Time) ([]metricSample, error) {
-	query := url.Values{"query": {promql}}
-	if !at.IsZero() {
-		query.Set("time", strconv.FormatInt(at.Unix(), 10))
-	}
-	path := "graph/api/datasources/proxy/uid/" + url.PathEscape(datasourceUID) + "/api/v1/query"
-
+func (c *client) QueryInstant(ctx context.Context, auth callerAuth, uid string, r promRequest) ([]metricSample, error) {
 	var resp struct {
 		Status string `json:"status"`
 		Data   struct {
@@ -358,7 +431,7 @@ func (c *client) QueryInstant(ctx context.Context, auth callerAuth, datasourceUI
 			} `json:"result"`
 		} `json:"data"`
 	}
-	err := c.getJSON(ctx, auth, path, query, &resp)
+	err := c.getVM(ctx, auth, uid, "api/v1/query", r.values(), &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -367,22 +440,147 @@ func (c *client) QueryInstant(ctx context.Context, auth callerAuth, datasourceUI
 	}
 
 	samples := make([]metricSample, 0, len(resp.Data.Result))
-	for _, r := range resp.Data.Result {
-		if len(r.Value) != vectorSampleLen {
+	for _, res := range resp.Data.Result {
+		if len(res.Value) != vectorSampleLen {
 			continue
 		}
-		var raw string
-		err := json.Unmarshal(r.Value[1], &raw)
-		if err != nil {
+		v, ok := parseSampleValue(res.Value[1])
+		if !ok {
 			continue
 		}
-		v, err := strconv.ParseFloat(raw, 64)
-		if err != nil {
-			continue
-		}
-		samples = append(samples, metricSample{Labels: r.Metric, Value: v})
+		samples = append(samples, metricSample{Labels: res.Metric, Value: v})
 	}
 	return samples, nil
+}
+
+// QueryRange runs a range PromQL query through the Grafana datasource proxy.
+func (c *client) QueryRange(ctx context.Context, auth callerAuth, uid string, r promRequest) ([]metricSeries, error) {
+	var resp struct {
+		Status string `json:"status"`
+		Data   struct {
+			Result []struct {
+				Metric map[string]string   `json:"metric"`
+				Values [][]json.RawMessage `json:"values"`
+			} `json:"result"`
+		} `json:"data"`
+	}
+	err := c.getVM(ctx, auth, uid, "api/v1/query_range", r.values(), &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != "success" {
+		return nil, newToolError(codePMMUnavailable, "metrics query failed with status '%s'", resp.Status)
+	}
+
+	out := make([]metricSeries, 0, len(resp.Data.Result))
+	for _, res := range resp.Data.Result {
+		points := make([]point, 0, len(res.Values))
+		for _, val := range res.Values {
+			if len(val) != vectorSampleLen {
+				continue
+			}
+			var ts float64
+			err := json.Unmarshal(val[0], &ts)
+			if err != nil {
+				continue
+			}
+			v, ok := parseSampleValue(val[1])
+			if !ok {
+				continue
+			}
+			sec, frac := math.Modf(ts)
+			points = append(points, point{T: time.Unix(int64(sec), int64(frac*float64(time.Second))).UTC(), V: v})
+		}
+		out = append(out, metricSeries{Labels: res.Metric, Points: points})
+	}
+	return out, nil
+}
+
+// LabelValues lists the values of a label of the series matching match.
+func (c *client) LabelValues(ctx context.Context, auth callerAuth, uid, label string, match []string, start, end time.Time, limit int) ([]string, error) {
+	return c.listStrings(ctx, auth, uid, "api/v1/label/"+url.PathEscape(label)+"/values", match, start, end, limit)
+}
+
+// Labels lists the label names of the series matching match.
+func (c *client) Labels(ctx context.Context, auth callerAuth, uid string, match []string, start, end time.Time, limit int) ([]string, error) {
+	return c.listStrings(ctx, auth, uid, "api/v1/labels", match, start, end, limit)
+}
+
+// Series lists the label sets of the series matching match.
+func (c *client) Series(ctx context.Context, auth callerAuth, uid string, match []string, start, end time.Time, limit int) ([]map[string]string, error) {
+	var resp struct {
+		Status string              `json:"status"`
+		Data   []map[string]string `json:"data"`
+	}
+	err := c.getVM(ctx, auth, uid, "api/v1/series", listValues(match, start, end, limit), &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != "success" {
+		return nil, newToolError(codePMMUnavailable, "metrics series request failed with status '%s'", resp.Status)
+	}
+	return resp.Data, nil
+}
+
+func (c *client) listStrings(ctx context.Context, auth callerAuth, uid, endpoint string, match []string, start, end time.Time, limit int) ([]string, error) {
+	var resp struct {
+		Status string   `json:"status"`
+		Data   []string `json:"data"`
+	}
+	err := c.getVM(ctx, auth, uid, endpoint, listValues(match, start, end, limit), &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != "success" {
+		return nil, newToolError(codePMMUnavailable, "metrics list request failed with status '%s'", resp.Status)
+	}
+	return resp.Data, nil
+}
+
+// listValues is the argument set of the label, label-values and series endpoints.
+func listValues(match []string, start, end time.Time, limit int) url.Values {
+	v := url.Values{}
+	if len(match) > 0 {
+		v["match[]"] = match
+	}
+	if !start.IsZero() {
+		v.Set("start", strconv.FormatInt(start.Unix(), 10))
+	}
+	if !end.IsZero() {
+		v.Set("end", strconv.FormatInt(end.Unix(), 10))
+	}
+	if limit > 0 {
+		v.Set("limit", strconv.Itoa(limit))
+	}
+	return v
+}
+
+// parseSampleValue reads a Prometheus sample value, a JSON string that may be NaN or Inf.
+func parseSampleValue(raw json.RawMessage) (float64, bool) {
+	var s string
+	err := json.Unmarshal(raw, &s)
+	if err != nil {
+		return 0, false
+	}
+	v, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0, false
+	}
+	return v, true
+}
+
+// getVM sends one request to VictoriaMetrics through the datasource proxy. It holds one of the replica's
+// VictoriaMetrics slots until the response is read, and reads at most maxVMResponseBytes of it.
+func (c *client) getVM(ctx context.Context, auth callerAuth, uid, endpoint string, query url.Values, out any) error {
+	select {
+	case c.vmSlots <- struct{}{}:
+		defer func() { <-c.vmSlots }()
+	case <-ctx.Done():
+		return newToolError(codeTimeout, "no free metrics request slot before the deadline: %s", ctx.Err())
+	}
+
+	path := "graph/api/datasources/proxy/uid/" + url.PathEscape(uid) + "/" + endpoint
+	return c.doJSONLimited(ctx, auth, http.MethodGet, path, query, nil, out, maxVMResponseBytes)
 }
 
 // getJSON performs an authenticated GET on a path relative to the base URL and
@@ -401,6 +599,12 @@ func (c *client) postJSON(ctx context.Context, auth callerAuth, path string, bod
 }
 
 func (c *client) doJSON(ctx context.Context, auth callerAuth, method, path string, query url.Values, body []byte, out any) error {
+	return c.doJSONLimited(ctx, auth, method, path, query, body, out, 0)
+}
+
+// doJSONLimited is doJSON that fails with errResponseTooLarge when the response is longer than
+// maxBytes; zero means no limit.
+func (c *client) doJSONLimited(ctx context.Context, auth callerAuth, method, path string, query url.Values, body []byte, out any, maxBytes int64) error {
 	ctx, cancel := context.WithTimeout(ctx, callTimeout)
 	defer cancel()
 
@@ -429,7 +633,19 @@ func (c *client) doJSON(ctx context.Context, auth callerAuth, method, path strin
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	err = json.NewDecoder(resp.Body).Decode(out)
+	var src io.Reader = resp.Body
+	if maxBytes > 0 {
+		b, err := io.ReadAll(io.LimitReader(resp.Body, maxBytes+1))
+		if err != nil {
+			return fmt.Errorf("reading response of %s %s: %w", method, path, err)
+		}
+		if int64(len(b)) > maxBytes {
+			return errResponseTooLarge
+		}
+		src = bytes.NewReader(b)
+	}
+
+	err = json.NewDecoder(src).Decode(out)
 	if err != nil {
 		return fmt.Errorf("decoding response of %s %s: %w", method, path, err)
 	}

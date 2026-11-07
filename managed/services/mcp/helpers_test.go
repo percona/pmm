@@ -23,6 +23,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 
@@ -33,9 +34,13 @@ import (
 // testToken is the caller credential every fixture test forwards.
 const testToken = "Bearer glsa_test_token"
 
-// fixture is one canned PMM API response, keyed by "METHOD /path".
+// fixture is one canned PMM API response, keyed by "METHOD /path" or by
+// "METHOD /path ?TEXT". The second form matches a request whose query parameter
+// contains TEXT, beats the plain key, and the longest TEXT wins. Body is served
+// instead of file when set.
 type fixture struct {
 	file   string
+	body   []byte
 	status int
 }
 
@@ -79,7 +84,7 @@ func (f *fakePMM) serve(rw http.ResponseWriter, req *http.Request) {
 		header: req.Header.Clone(),
 		body:   body,
 	})
-	fx, ok := f.routes[req.Method+" "+req.URL.Path]
+	fx, ok := f.route(req)
 	f.mu.Unlock()
 
 	if !ok {
@@ -95,7 +100,36 @@ func (f *fakePMM) serve(rw http.ResponseWriter, req *http.Request) {
 	}
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(status)
+	if fx.body != nil {
+		_, _ = rw.Write(fx.body)
+		return
+	}
 	_, _ = rw.Write(readFixture(f.t, fx.file))
+}
+
+// route finds the fixture for a request: the longest matching "?<text>" key, else the plain key.
+func (f *fakePMM) route(req *http.Request) (fixture, bool) {
+	prefix := req.Method + " " + req.URL.Path + " ?"
+	query := req.URL.Query().Get("query")
+
+	best := ""
+	var found fixture
+	matched := false
+	for key, fx := range f.routes {
+		text, ok := strings.CutPrefix(key, prefix)
+		if !ok || !strings.Contains(query, text) {
+			continue
+		}
+		if !matched || len(text) > len(best) {
+			best, found, matched = text, fx, true
+		}
+	}
+	if matched {
+		return found, true
+	}
+
+	fx, ok := f.routes[req.Method+" "+req.URL.Path]
+	return fx, ok
 }
 
 // requestsTo returns the recorded requests for a path, in order.
