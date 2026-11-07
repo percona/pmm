@@ -339,7 +339,7 @@ The limits are per caller, identified by a hash of the credential, and per PMM S
 | Live-inspection calls in flight, per service and replica | The same calls | 1 |
 | Live-inspection call rate, per caller | The same calls | 10 a minute, 4 at once |
 
-A call of `pmm_query_metrics`, `pmm_list_metrics` or `pmm_service_health` counts once, however many queries it runs. In addition, every request that MCP sends to VictoriaMetrics takes one of the replica's slots. The replica has half of the `-search.maxConcurrentRequests` of PMM's VictoriaMetrics, so dashboards and alert evaluation keep the other half. A request waits for a slot until the deadline of its call.
+A call of `pmm_query_metrics`, `pmm_list_metrics` or `pmm_service_health` counts once, however many queries it runs. In addition, every request that MCP sends to VictoriaMetrics takes one of the replica's slots. The replica has half of VictoriaMetrics' limit on concurrent queries, at least 1, so dashboards and alert evaluation keep the other half. VictoriaMetrics' own default for that limit is twice the number of CPUs, at most 16. The environment variable `VM_search_maxConcurrentRequests` sets the limit instead (see [VictoriaMetrics environment variables](../reference/third-party/victoria.md#environment-variables)), and MCP takes half of the value it sets. A request waits for a slot until the deadline of its call.
 
 A call refused for its rate is `rate_limited` and says in the message how many seconds to wait. `_meta["com.percona/error"]` carries the wait as `retry_after`, in whole seconds, at least 1. A call refused for the calls in flight is `rate_limited` without `retry_after`.
 

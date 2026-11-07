@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -295,15 +296,44 @@ func TestVMRequestLimit(t *testing.T) {
 	assert.EqualValues(t, 3, arrived.Load(), "the waiting request ran once a slot was free")
 }
 
+func TestVMDefaultMaxConcurrentRequests(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		cpus int
+		want int
+	}{
+		{cpus: 1, want: 2},
+		{cpus: 2, want: 4},
+		{cpus: 4, want: 8},
+		{cpus: 6, want: 12},
+		{cpus: 8, want: 16},
+		{cpus: 9, want: 16},
+		{cpus: 64, want: 16},
+	} {
+		assert.Equal(t, tc.want, vmDefaultMaxConcurrentRequests(tc.cpus), "%d CPUs", tc.cpus)
+	}
+}
+
 func TestVMRequestLimitDefault(t *testing.T) {
+	half := max(vmDefaultMaxConcurrentRequests(runtime.GOMAXPROCS(0))/2, 1)
+
 	t.Setenv("VM_search_maxConcurrentRequests", "")
-	assert.Equal(t, 4, maxVMRequestsPerReplica())
+	assert.Equal(t, half, maxVMRequestsPerReplica(), "half of VictoriaMetrics' default on this host's CPUs")
+
+	for _, invalid := range []string{"0", "-4", "eight", "8.5"} {
+		t.Setenv("VM_search_maxConcurrentRequests", invalid)
+		assert.Equal(t, half, maxVMRequestsPerReplica(), "'%s' falls back to the default", invalid)
+	}
 
 	t.Setenv("VM_search_maxConcurrentRequests", "1")
 	assert.Equal(t, 1, maxVMRequestsPerReplica(), "at least one slot")
 
 	t.Setenv("VM_search_maxConcurrentRequests", "16")
 	assert.Equal(t, 8, maxVMRequestsPerReplica())
+
+	t.Setenv("VM_search_maxConcurrentRequests", "40")
+	assert.Equal(t, 20, maxVMRequestsPerReplica(), "a setting above the default's cap holds")
 }
 
 func TestLabelValuesRefusesAPathLabel(t *testing.T) {

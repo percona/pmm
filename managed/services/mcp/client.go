@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	goruntime "runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -61,9 +62,9 @@ const (
 	// Bound of any datasource-proxy response read into memory.
 	maxVMResponseBytes = 4 << 20
 
-	// VictoriaMetrics' -search.maxConcurrentRequests on 4 CPUs (min(2*CPUs, 16)), app/victoria-metrics/main.go at v1.154.0.
-	// Keep equal to defaultVMSearchMaxConcurrentRequests in managed/services/supervisord.
-	defaultVMSearchMaxConcurrentRequests = 8
+	// VictoriaMetrics' default -search.maxConcurrentRequests is vmRequestsPerCPU per CPU, at most maxVMDefaultRequests.
+	vmRequestsPerCPU     = 2
+	maxVMDefaultRequests = 16
 
 	// VictoriaMetrics' slots MCP may use: one in vmReplicaShare.
 	vmReplicaShare = 2
@@ -137,10 +138,17 @@ type client struct {
 	vmSlots chan struct{}
 }
 
+// vmDefaultMaxConcurrentRequests is VictoriaMetrics' default -search.maxConcurrentRequests on cpus CPUs, as
+// getDefaultMaxConcurrentRequests in app/victoria-metrics/main.go computes it at v1.154.0.
+func vmDefaultMaxConcurrentRequests(cpus int) int {
+	return min(vmRequestsPerCPU*cpus, maxVMDefaultRequests)
+}
+
 // maxVMRequestsPerReplica is half of VictoriaMetrics' -search.maxConcurrentRequests, so that
 // dashboards and alert evaluation keep the other half.
 func maxVMRequestsPerReplica() int {
-	limit := defaultVMSearchMaxConcurrentRequests
+	// VictoriaMetrics counts the CPUs as GOMAXPROCS, which it sets from the container's CPU quota.
+	limit := vmDefaultMaxConcurrentRequests(goruntime.GOMAXPROCS(0))
 	v, ok := os.LookupEnv("VM_search_maxConcurrentRequests")
 	if ok && v != "" {
 		n, err := strconv.Atoi(v)

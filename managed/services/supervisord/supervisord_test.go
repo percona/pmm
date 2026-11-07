@@ -100,7 +100,6 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	t.Setenv("VM_search_maxQueueDuration", "100s")
 	t.Setenv("VM_search_logSlowQueryDuration", "300s")
 	t.Setenv("VM_search_maxQueryDuration", "9s")
-	t.Setenv("VM_search_maxConcurrentRequests", "6")
 	t.Setenv("VM_promscrape_streamParse", "false")
 	t.Setenv("VM_maxIngestionRate", "5000000")
 
