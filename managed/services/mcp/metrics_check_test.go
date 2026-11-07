@@ -58,7 +58,7 @@ func TestCheckExpr(t *testing.T) {
 		{expr: `rate(mysql_global_status_questions[7d])`},
 		{
 			expr: `rate(mysql_global_status_questions[5m])`, span: 7 * day,
-			want: []string{"reads 7d5m", capped, "the query reads 7d5m (range 7d + lookbehind 5m); the cap is 7d"},
+			want: []string{"reads 7d5m", capped, "the query reads 7d5m3s (range 7d + lookbehind 5m3s); the cap is 7d"},
 		},
 		{expr: `{__name__=~".+"}`, span: time.Hour, want: []string{"metric name"}},
 		{expr: `{job="mysql"}`, span: time.Hour, want: []string{"metric name"}},
@@ -77,7 +77,7 @@ func TestCheckExpr(t *testing.T) {
 		{name: "rate without a window over 6d at step 2d", expr: `rate(mysql_global_status_questions)`, span: 6 * day, step: 2 * day, want: []string{capped}},
 		{name: "a bare selector over 6d at step 2d", expr: `mysql_global_status_questions`, span: 6 * day, step: 2 * day, want: []string{capped}},
 		{expr: `max_over_time(rate(up[5m])[30d:5m])`, want: []string{capped}},
-		{expr: `max_over_time(rate(mysql_global_status_questions[4d])[4d:1h])`, want: []string{"reads 8d", "reads 8d1h5m (range 0s + lookbehind 8d1h5m)"}},
+		{expr: `max_over_time(rate(mysql_global_status_questions[4d])[4d:1h])`, want: []string{"reads 8d", "reads 8d2h5m (range 0s + lookbehind 8d2h5m)"}},
 		{expr: `rate(mysql_global_status_questions[4d]) + rate(mysql_global_status_queries[4d])`},
 		{expr: `rate(mysql_global_status_questions[4d] offset 4d)`, want: []string{"reads 8d", "reads 8d (range 0s + lookbehind 8d)"}},
 		{expr: `up offset 8d`, want: []string{capped}},
@@ -121,17 +121,17 @@ func TestCheckExpr(t *testing.T) {
 		},
 		{expr: `sum without (job) (mysql_up{service_name="db1"})`, span: time.Hour},
 
-		// A subquery reads at its own step, from its range + step + 5m back.
-		{name: "100i inside a subquery is 100 subquery steps", expr: `max_over_time(rate(mysql_global_status_questions[100i])[1h:1d])`, want: []string{capped, "reads 101d1h5m"}},
-		{name: "a bare selector inside a subquery reads one subquery step", expr: `max_over_time(mysql_global_status_questions[1h:30d])`, want: []string{capped, "reads 60d1h5m"}},
-		{expr: `max_over_time(rate(mysql_global_status_questions[1i])[1h:365d])`, want: []string{capped, "reads 730d1h5m"}},
-		{name: "a 7d subquery also reads its step and lead", expr: `max_over_time(mysql_global_status_questions[7d:5m])`, want: []string{capped, "reads 7d15m"}},
+		// A subquery reads at its own step, from its range + 2 steps + 5m back.
+		{name: "100i inside a subquery is 100 subquery steps", expr: `max_over_time(rate(mysql_global_status_questions[100i])[1h:1d])`, want: []string{capped, "reads 102d1h5m"}},
+		{name: "a bare selector inside a subquery reads one subquery step", expr: `max_over_time(mysql_global_status_questions[1h:30d])`, want: []string{capped, "reads 90d1h5m"}},
+		{expr: `max_over_time(rate(mysql_global_status_questions[1i])[1h:365d])`, want: []string{capped, "reads 1095d1h5m"}},
+		{name: "a 7d subquery also reads its step and lead", expr: `max_over_time(mysql_global_status_questions[7d:5m])`, want: []string{capped, "reads 7d20m"}},
 		{
 			name: "a rollup of an aggregation is an implicit subquery",
 			expr: `rate(sum(mysql_up{service_name="db1"}))`, span: 6 * day, step: 12 * time.Hour,
-			want: []string{"reads 7d5m (range 6d + lookbehind 1d5m)"},
+			want: []string{"reads 7d12h5m (range 6d + lookbehind 1d12h5m)"},
 		},
-		{name: "a window over an aggregation is an implicit subquery", expr: `max_over_time(sum(mysql_up{service_name="db1"})[7d])`, want: []string{capped, "reads 7d15m"}},
+		{name: "a window over an aggregation is an implicit subquery", expr: `max_over_time(sum(mysql_up{service_name="db1"})[7d])`, want: []string{capped, "reads 7d20m"}},
 
 		// Nothing that metricsql.Parse would expand reaches it.
 		{name: "a dotted capital I spells WITH", expr: `WİTH (q = mysql_up{service_name="db1"}) q`, span: time.Hour, want: []string{"non-ASCII character at byte 1"}},
@@ -156,6 +156,32 @@ func TestCheckExpr(t *testing.T) {
 			name: "the selector count comes before the selector rules",
 			expr: `{job="x"} + ` + joined(10, `mysql_up{service_name="db1"}`), span: time.Hour,
 			want: []string{"10 selectors"},
+		},
+
+		// A window shorter than the step reads one step back.
+		{
+			name: "a 1s window at step 8760h reads the step",
+			expr: `rate(mysql_global_status_questions[1s])`, span: time.Hour, step: 8760 * time.Hour,
+			want: []string{capped, "reads 365d1h (range 1h + lookbehind 365d)"},
+		},
+		{
+			name: "a 1s window inside a 6d-step subquery reads the subquery step",
+			expr: `max_over_time(rate(mysql_global_status_questions[1s])[1s:6d])`,
+			want: []string{capped, "reads 18d5m1s"},
+		},
+		{
+			name: "a subquery's start aligns down by one more step",
+			expr: `max_over_time(mysql_global_status_questions[1s:3d])`,
+			want: []string{capped, "reads 9d5m1s"},
+		},
+		{
+			name: "an implicit subquery over 6d at step 260s passes, reading 6d1h18m40s",
+			expr: `max_over_time(sum by (service_name) (rate(mysql_global_status_questions{service_name="db1"}[5m]))[1h])`,
+			span: 6 * day, step: 260 * time.Second,
+		},
+		{
+			name: "an implicit subquery over 30m at step 1s passes, reading 35m3s",
+			expr: `rate(sum(mysql_up{service_name="db1"}))`, span: 30 * time.Minute, step: time.Second,
 		},
 	} {
 		name := tc.name
@@ -200,35 +226,52 @@ func TestWalkSelectors(t *testing.T) {
 			expr: `max_over_time(rate(a[1h] offset 30m)[1d:5m]) / on() b{x="1" or x="2"} + c[10m] offset -1h - rate(sum(d))`,
 			step: 2 * time.Minute,
 			want: []string{
-				`{__name__="a"} 1d1h40m`,
+				`{__name__="a"} 1d1h45m`,
 				`{__name__="b", x="1"} 2m`,
 				`{__name__="b", x="2"} 2m`,
 				`{__name__="c"} 1h10m`,
-				`{__name__="d"} 9m`,
+				`{__name__="d"} 11m`,
 			},
-			steps: []time.Duration{5 * time.Minute, 2 * time.Minute},
+			steps: []time.Duration{5 * time.Minute},
 		},
 		{
 			// [1h:] takes the enclosing subquery's step, not the query's.
 			expr: `max_over_time(max_over_time(e[1h:])[1d:1h])`, step: 2 * time.Minute,
-			want: []string{`{__name__="e"} 1d4h10m`}, steps: []time.Duration{time.Hour, time.Hour},
+			want: []string{`{__name__="e"} 1d6h10m`}, steps: []time.Duration{time.Hour, time.Hour},
 		},
 		{
 			expr: `max_over_time(rate(f[100i])[1h:1d])`, step: 5 * time.Minute,
-			want: []string{`{__name__="f"} 101d1h5m`}, steps: []time.Duration{day},
+			want: []string{`{__name__="f"} 102d1h5m`}, steps: []time.Duration{day},
 		},
 		{
 			expr: `max_over_time(sum(g)[7d])`, step: 5 * time.Minute,
-			want: []string{`{__name__="g"} 7d15m`}, steps: []time.Duration{5 * time.Minute},
+			// A window over an aggregation is a subquery, though none is written, so its step is not recorded.
+			want: []string{`{__name__="g"} 7d20m`},
 		},
 		{
 			expr: `max_over_time(h[1h:1m] offset 1d)`, step: 5 * time.Minute,
-			want: []string{`{__name__="h"} 1d1h7m`}, steps: []time.Duration{time.Minute},
+			want: []string{`{__name__="h"} 1d1h8m`}, steps: []time.Duration{time.Minute},
 		},
 		{
 			// Only quantile_over_time's second argument is read over the window.
 			expr: `quantile_over_time(scalar(i), j[5m])`, step: time.Minute,
 			want: []string{`{__name__="i"} 1m`, `{__name__="j"} 5m`},
+		},
+		{
+			expr: `rate(k[1s])`, step: time.Hour,
+			want: []string{`{__name__="k"} 1h`},
+		},
+		{
+			expr: `max_over_time(rate(l[1s])[1s:6d])`, step: 5 * time.Minute,
+			want: []string{`{__name__="l"} 18d5m1s`}, steps: []time.Duration{6 * day},
+		},
+		{
+			expr: `max_over_time(sum by (service_name) (rate(m{service_name="db1"}[5m]))[1h])`, step: 260 * time.Second,
+			want: []string{`{__name__="m", service_name="db1"} 1h18m40s`},
+		},
+		{
+			expr: `rate(sum(n{service_name="db1"}))`, step: time.Second,
+			want: []string{`{__name__="n", service_name="db1"} 5m3s`},
 		},
 	} {
 		t.Run(tc.expr, func(t *testing.T) {
@@ -246,6 +289,26 @@ func TestWalkSelectors(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 			assert.Equal(t, tc.steps, w.subquerySteps)
 		})
+	}
+}
+
+func TestCheckExprStepDefaultsToInstant(t *testing.T) {
+	t.Parallel()
+
+	for _, step := range []time.Duration{0, -time.Second} {
+		for _, tc := range []struct {
+			expr string
+			span time.Duration
+			want string
+		}{
+			{expr: `rate(mysql_global_status_questions[3000i])`, want: "reads 10d10h (range 0s + lookbehind 10d10h)"},
+			{expr: `mysql_global_status_questions`, span: 7 * day, want: "reads 7d5m (range 7d + lookbehind 5m)"},
+		} {
+			te, ok := errors.AsType[*toolError](checkExpr(tc.expr, tc.span, step))
+			require.True(t, ok, "%s at step %s passes", tc.expr, step)
+			assert.Equal(t, codeInvalidInput, te.code)
+			assert.Contains(t, te.message, tc.want)
+		}
 	}
 }
 

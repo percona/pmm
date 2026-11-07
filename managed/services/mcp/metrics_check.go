@@ -55,9 +55,12 @@ var scopeLabels = []string{"service_id", "service_name", "node_id", "node_name"}
 // built-in templates, which repeat their arguments.
 var templateKeywords = []string{"with", "ttf", "ru", "range_median", "alias"}
 
-// checkExpr refuses, before any request, an expression that would read more
-// than 7 days or select too broadly; an instant query has span 0 and step instantStep.
+// checkExpr refuses, before any request, an expression that would read more than 7 days
+// or select too broadly; an instant query has span 0, and a step of 0 or less is instantStep.
 func checkExpr(expr string, span, step time.Duration) error {
+	if step <= 0 {
+		step = instantStep
+	}
 	if len(expr) > maxExprBytes {
 		return newToolError(codeInvalidInput, "the expression is %d bytes; the cap is 4 KiB (%d bytes): query fewer metrics per call", len(expr), maxExprBytes)
 	}
@@ -134,7 +137,7 @@ func (s selector) String() string {
 // exprWalk is what a parsed expression reads, path by path, as VictoriaMetrics evaluates it.
 type exprWalk struct {
 	selectors []selector
-	// subquerySteps holds the step of each subquery, explicit or implicit, in the order met.
+	// subquerySteps holds the step of each subquery written as [range:step] or [range:], in the order met.
 	subquerySteps []time.Duration
 }
 
@@ -217,11 +220,8 @@ func (w *exprWalk) rollup(re *metricsql.RollupExpr, step, lookbehind time.Durati
 
 	me, ok := re.Expr.(*metricsql.MetricExpr)
 	if ok && !re.ForSubquery() {
-		// A zero window reads one step back, as no window does.
-		if window == 0 {
-			window = step
-		}
-		w.metric(me, addCapped(lookbehind, window))
+		// VictoriaMetrics reads at least one step back, whatever the window.
+		w.metric(me, addCapped(lookbehind, max(window, step)))
 		return nil
 	}
 
@@ -229,14 +229,17 @@ func (w *exprWalk) rollup(re *metricsql.RollupExpr, step, lookbehind time.Durati
 	if inner == 0 {
 		inner = step
 	}
+	if re.ForSubquery() {
+		w.subquerySteps = append(w.subquerySteps, inner)
+	}
 	return w.subquery(re.Expr, window, inner, lookbehind)
 }
 
-// subquery walks e evaluated at its own step, starting window + step + subqueryLead before each outer point.
+// subquery walks e evaluated at its own step from window + 2 steps + subqueryLead before each outer
+// point: VictoriaMetrics starts it one step and subqueryLead early, then aligns that start down to the step.
 func (w *exprWalk) subquery(e metricsql.Expr, window, step, lookbehind time.Duration) error {
-	w.subquerySteps = append(w.subquerySteps, step)
-	lookbehind = addCapped(lookbehind, addCapped(window, addCapped(step, subqueryLead)))
-	return w.expr(e, step, lookbehind)
+	lead := addCapped(window, addCapped(addCapped(step, step), subqueryLead))
+	return w.expr(e, step, addCapped(lookbehind, lead))
 }
 
 func (w *exprWalk) metric(me *metricsql.MetricExpr, lookbehind time.Duration) {
