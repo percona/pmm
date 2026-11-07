@@ -569,8 +569,7 @@ func TestListMetricsSearch(t *testing.T) {
 		assert.Zero(t, out.Page.Total)
 	})
 
-	// The plan words this as page.total <= 1001 for kind names, but names beyond limit come back as groups, so that cannot fail;
-	// kind values counts the raw entries VictoriaMetrics returned.
+	// Counts raw values, since names beyond limit come back as groups.
 	t.Run("LimitHonoured", func(t *testing.T) {
 		const limit = 5
 		var out struct {

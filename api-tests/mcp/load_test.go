@@ -65,10 +65,10 @@ const (
 	vmMemoryQuery       = `process_resident_memory_bytes{job="victoriametrics"}`
 )
 
-// ruleFailureMetrics are the rule-evaluation failure counters of PMM's scrape of Grafana alerting and of VMAlert, by job.
+// ruleFailureMetrics are the rule-evaluation failure counters that PMM scrapes from Grafana alerting and from VMAlert, by job.
 var ruleFailureMetrics = map[string][]string{
 	"grafana": {"grafana_alerting_rule_evaluation_failures_total"},
-	"vmalert": {"vmalert_alerting_rules_errors_total", "vmalert_recording_rules_errors_total", "vmalert_execution_errors_total"},
+	"vmalert": {"vmalert_execution_errors_total"},
 }
 
 const (
