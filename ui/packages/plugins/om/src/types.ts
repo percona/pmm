@@ -123,6 +123,8 @@ export interface OmService {
   installed_version?: string | null;
   config_path?: string | null;
   argv?: string | null;
+  /** When the newest live field on this row was observed; absent when none is. */
+  observed_at?: string | null;
   /**
    * When a down service was last seen up, from metrics. Absent while it is up, and on
    * a down one not up at any point in the last {@link METRICS_LOOKBACK}.
@@ -227,6 +229,12 @@ export interface OmServiceRow extends OmService {
  */
 export type OmClusterHealth = 'healthy' | 'degraded' | 'down' | 'unknown';
 
+/** One replica set's running versions, for reading version drift. */
+export interface OmVersionSet {
+  replication_set: string;
+  versions: string[];
+}
+
 export interface OmClusterRow {
   env_name?: string | null;
   cluster_name?: string | null;
@@ -242,8 +250,19 @@ export interface OmClusterRow {
   by_process_role: Partial<Record<OmProcessRole, number>>;
   /** Replica-set member states, counted. Empty for routers and standalones. */
   by_state: Record<string, number>;
-  /** Distinct running versions. More than one is a mixed-version cluster. */
+  type: OmClusterType;
+  /** Distinct running versions, oldest first. */
   versions: string[];
+  /** Each replica set's distinct versions among its data-bearing members. */
+  version_sets: OmVersionSet[];
+  /** Whether any replica set runs more than one version: the "Mixed" case. */
+  version_drift: boolean;
+  /** The oldest member `observed_at`, so one stale member shows; null when none has one. */
+  last_seen_at: string | null;
+  /** The busiest member's CPU, and the tightest member's free connections; null when
+   * no member measures them. */
+  max_cpu_percent: number | null;
+  min_connections_free_percent: number | null;
   /**
    * The worst lag in the cluster, and the tightest oplog window.
    *
