@@ -22,7 +22,7 @@ Before you start, make sure that:
 
 - You have the **Admin** role.
 - Percona Alerting is enabled.
-- The alert rule was created in PMM 3.10.0 or later from a template with a **Dynamic** badge, such as `pmm_node_high_cpu_load`. To create one, see [Add an alert rule based on a template](alert_rules.md#create-an-alert-rule-from-a-template).
+- The alert rule was created in PMM 3.10.0 or later from a template with a **Dynamic** badge, such as `pmm_node_high_cpu_load`. To create one, see [Add an alert rule based on a template](alert_rules.md#create-an-alert-rule).
 
 ## Override a threshold for a node
 

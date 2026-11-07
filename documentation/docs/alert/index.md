@@ -8,7 +8,7 @@ These options enable you to create alerts based on a set of Percona-supplied tem
 
 Some templates also support [per-node threshold overrides](alert-thresholds.md), letting you set a different threshold for individual nodes without editing the rule.
 
-You can also [alert on slow queries](alert_rules.md#alert-on-query-performance) using the query data that Query Analytics collects.
+You can also [alert on slow queries](alert_rules.md#set-up-query-performance-alerts) using the query data that Query Analytics collects.
 
 ## Alert types
 

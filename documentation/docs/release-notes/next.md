@@ -19,7 +19,7 @@ In addition to alerting you about server and database health based on the metric
 
 The new built-in [**QAN slow queries**](../alert/templates_list.md#qan_alerts) template covers the most common case: it alerts you when the slowest query on a MySQL, PostgreSQL or MongoDB service runs longer than 10 seconds.
 
-To get started, [set up alerts on Query Analytics data](../alert/alert_rules.md#alert-on-query-performance) using the built-in template or your own.
+To get started, [set up alerts on Query Analytics data](../alert/alert_rules.md#set-up-query-performance-alerts) using the built-in template or your own.
 
 ## 🔒 Security updates
 

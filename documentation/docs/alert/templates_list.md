@@ -1,6 +1,6 @@
 # List of available alert templates
 
-Use these templates to get alerted about common problems, such as high CPU load or a database going down, without writing the alert rules yourself. You [create an alert rule from a template](alert_rules.md#create-an-alert-rule-from-a-template) and adjust the values if you need to. Some templates, such as the ones for PMM itself, are [already turned on for you](built_in_alerts.md).
+Use these templates to get alerted about common problems, such as high CPU load or a database going down, without writing the alert rules yourself. You [create an alert rule from a template](alert_rules.md#create-an-alert-rule) and adjust the values if you need to. Some templates, such as the ones for PMM itself, are [already turned on for you](built_in_alerts.md).
 
 ## Template catalog
 
@@ -91,7 +91,7 @@ Whether the component alerts fire depends on which component fails and how:
 <a id="qan_alerts"></a>
 ### Query Analytics templates
 
-Use these templates to get alerted when queries slow down on your services, based on the data that Query Analytics collects. You can also [write your own Query Analytics template](alert_rules.md#alert-on-query-performance).
+Use these templates to get alerted when queries slow down on your services, based on the data that Query Analytics collects. You can also [write your own Query Analytics template](alert_rules.md#set-up-query-performance-alerts).
 
 | Area | Template name | Description | Database technology |
 | :----|:------------- | :---------- | :------------------ |
