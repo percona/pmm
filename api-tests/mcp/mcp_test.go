@@ -546,19 +546,25 @@ func TestListMetricsSearch(t *testing.T) {
 		Names []struct {
 			Name string `json:"name"`
 		} `json:"names"`
+		Groups []struct {
+			Prefix string `json:"prefix"`
+		} `json:"groups"`
 		Page struct {
 			Total int `json:"total"`
 		} `json:"page"`
 	}
 
 	t.Run("Substring", func(t *testing.T) {
+		// The MongoDB exporter has about 175 names with this text, few enough to come back as names, not groups.
+		const search = "mongodb_ss_wt_cache"
 		var out listed
-		callResult(t, session, "pmm_list_metrics", map[string]any{"search": "mongodb", "limit": 1000}, &out)
+		callResult(t, session, "pmm_list_metrics", map[string]any{"search": search, "limit": 1000}, &out)
+		require.Empty(t, out.Groups, "names came back as groups, so the substring filter is not tested")
 		if len(out.Names) == 0 {
-			t.Skip("no metric names containing mongodb, or more than 1000 of them, which are listed as groups")
+			t.Skip("no MongoDB metric names")
 		}
 		for _, n := range out.Names {
-			assert.Contains(t, n.Name, "mongodb")
+			assert.Contains(t, n.Name, search)
 		}
 	})
 

@@ -36,6 +36,7 @@ const (
 
 const (
 	nodeHiddenNote  = "no_data on a node signal can mean that an Access Role that filters on service labels hides the node's series, as well as that the node sent none."
+	allNoDataNote   = "no_data on every signal can mean that an Access Role hides the series of the service and its node, as well as that they sent none in the window."
 	nodeUnknownNote = "The service's node name is unknown, so its node signals were not queried."
 	nanNote         = "A null value is NaN or infinite, for example a ratio whose denominator is 0."
 )
@@ -342,13 +343,17 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 
 	results, errs := s.runSignals(signalCtx, rangeRequest{auth: auth, uid: uid, start: start, end: end, step: step}, signals, queries, skipNode)
 	var notes []string
+	allNoData := !slices.ContainsFunc(results, func(r signalResult) bool { return !r.NoData })
+	if allNoData {
+		notes = append(notes, allNoDataNote)
+	}
 	failed := 0
 	for j := range results {
 		switch {
 		case errs[j] != nil:
 			failed++
 			res.Partial = true
-		case results[j].NoData && signals[j].Node && !skipNode:
+		case results[j].NoData && signals[j].Node && !skipNode && !allNoData:
 			notes = appendOnce(notes, nodeHiddenNote)
 		case results[j].Last == nil && !results[j].NoData:
 			notes = appendOnce(notes, nanNote)

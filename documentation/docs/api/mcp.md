@@ -276,7 +276,7 @@ Use the tools in this order:
 
 Each signal reports `min`, `avg`, `max`, `last` and `last_at`, the time of the newest sample, with its unit and the metric it reads. A signal that returns no series is `no_data`. A signal whose query fails carries its own `error`, and the result sets `partial`. If every query fails, the call fails with the first error. A value that is `null` is NaN or infinite, for example a ratio whose denominator is 0. If a query returns several series, the signal reports the one with the largest maximum, and the note says how many there were.
 
-The tool doesn't judge: it has no healthy or unhealthy verdict and no stale state. `no_data` on a node signal can also mean that an Access Role that filters on service labels hides the node's series.
+The tool doesn't judge: it has no healthy or unhealthy verdict and no stale state. `no_data` on a node signal can also mean that an Access Role that filters on service labels hides the node's series. When every signal is `no_data`, the note says that the service and its node sent no metrics in the window, or that an Access Role hides their series.
 
 ### Execution budget
 

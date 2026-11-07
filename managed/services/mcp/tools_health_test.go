@@ -225,11 +225,28 @@ func TestServiceHealthTool(t *testing.T) {
 		assert.Nil(t, sig.Min)
 		assert.Nil(t, sig.Last)
 		assert.Nil(t, sig.LastAt)
-		assert.Contains(t, res.Note, "Access Role")
+		assert.Contains(t, res.Note, nodeHiddenNote)
+		assert.NotContains(t, res.Note, allNoDataNote, "other signals have data")
 		assert.Contains(t, text, "load1: no_data")
 		assert.Contains(t, text, "Access Role")
 		assert.False(t, res.Partial, "no data is not a failure")
 		assert.NotNil(t, signalByName(t, res, "cpu_busy").Last)
+	})
+
+	t.Run("EverySignalIsNoData", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{vmQueryRange: {body: healthEmpty}}))
+		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		require.False(t, isError, text)
+
+		require.Len(t, res.Signals, len(healthSignals[engineMySQL])+len(healthSignals[engineNode]))
+		for _, sig := range res.Signals {
+			assert.True(t, sig.NoData, sig.Name)
+		}
+		assert.Equal(t, allNoDataNote, res.Note, "the note covers the node signals, so nodeHiddenNote is left out")
+		assert.Contains(t, text, allNoDataNote)
+		assert.False(t, res.Partial)
 	})
 
 	t.Run("EmptyServiceSignalIsNoDataWithoutTheNote", func(t *testing.T) {
