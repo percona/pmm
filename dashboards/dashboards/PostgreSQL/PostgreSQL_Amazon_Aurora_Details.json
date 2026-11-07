@@ -474,7 +474,7 @@
                             "mode": "off"
                         }
                     },
-                    "decimals": 4,
+                    "decimals": 2,
                     "links": [],
                     "mappings": [],
                     "min": 0,
