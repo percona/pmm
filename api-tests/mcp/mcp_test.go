@@ -416,3 +416,136 @@ func TestSchemaFromQueryID(t *testing.T) {
 	assert.Empty(t, schema.Unresolved)
 	assert.NotEmpty(t, schema.Note, "tables from a live plan are labelled")
 }
+
+// maxMetricsBytes is the budget of one metrics response: its text and structured content together.
+const maxMetricsBytes = 16 << 10
+
+// monitoredService returns the id and name of a registered service of the engine, skipping the test when there is none.
+func monitoredService(t *testing.T, engine string) (string, string) {
+	t.Helper()
+
+	res, err := inventoryClient.Default.ServicesService.ListServices(&services_service.ListServicesParams{Context: pmmapitests.Context})
+	require.NoError(t, err)
+	switch engine {
+	case "mysql":
+		for _, svc := range res.Payload.Mysql {
+			return svc.ServiceID, svc.ServiceName
+		}
+	case "postgresql":
+		for _, svc := range res.Payload.Postgresql {
+			if svc.ServiceName == "pmm-server-postgresql" {
+				continue
+			}
+			return svc.ServiceID, svc.ServiceName
+		}
+	case "mongodb":
+		for _, svc := range res.Payload.Mongodb {
+			return svc.ServiceID, svc.ServiceName
+		}
+	}
+	t.Skipf("no %s service registered", engine)
+	return "", ""
+}
+
+func TestServiceHealth(t *testing.T) {
+	t.Parallel()
+
+	session := connect(t)
+	for _, engine := range []string{"mysql", "postgresql", "mongodb"} {
+		t.Run(engine, func(t *testing.T) {
+			t.Parallel()
+
+			serviceID, serviceName := monitoredService(t, engine)
+
+			var health struct {
+				ServiceID   string `json:"service_id"`
+				ServiceName string `json:"service_name"`
+				Engine      string `json:"engine"`
+				Signals     []struct {
+					Name   string `json:"name"`
+					LastAt string `json:"last_at"`
+					NoData bool   `json:"no_data"`
+					Error  any    `json:"error"`
+				} `json:"signals"`
+			}
+			args := map[string]any{"service_id": serviceID, "period_from": "now-6h"}
+			callResult(t, session, "pmm_service_health", args, &health)
+
+			assert.Equal(t, serviceID, health.ServiceID)
+			assert.Equal(t, serviceName, health.ServiceName)
+			assert.Equal(t, engine, health.Engine)
+			require.NotEmpty(t, health.Signals)
+			for _, sig := range health.Signals {
+				assert.Nil(t, sig.Error, "signal %s", sig.Name)
+				assert.True(t, sig.LastAt != "" || sig.NoData, "signal %s has neither last_at nor no_data", sig.Name)
+			}
+		})
+	}
+}
+
+func TestQueryMetricsBudget(t *testing.T) {
+	t.Parallel()
+
+	_, serviceName := monitoredService(t, "mysql")
+	session := connect(t)
+
+	query := `{__name__=~"mysql_global_status_.*", service_name="` + serviceName + `"}`
+	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-6h"})
+	require.False(t, res.IsError, text)
+
+	structured, err := json.Marshal(res.StructuredContent)
+	require.NoError(t, err)
+	var out struct {
+		Summarized  bool `json:"summarized"`
+		TotalSeries int  `json:"total_series"`
+	}
+	require.NoError(t, json.Unmarshal(structured, &out))
+
+	assert.True(t, out.Summarized, "6 hours of many series must come back as summaries")
+	assert.Greater(t, out.TotalSeries, 1)
+	assert.LessOrEqual(t, len(text)+len(structured), maxMetricsBytes)
+}
+
+func TestListMetricsSearch(t *testing.T) {
+	t.Parallel()
+
+	session := connect(t)
+	type listed struct {
+		Names []struct {
+			Name string `json:"name"`
+		} `json:"names"`
+		Page struct {
+			Total int `json:"total"`
+		} `json:"page"`
+	}
+
+	t.Run("Substring", func(t *testing.T) {
+		t.Parallel()
+
+		var out listed
+		callResult(t, session, "pmm_list_metrics", map[string]any{"search": "mongodb", "limit": 1000}, &out)
+		if len(out.Names) == 0 {
+			t.Skip("no MongoDB metrics yet")
+		}
+		for _, n := range out.Names {
+			assert.Contains(t, n.Name, "mongodb")
+		}
+	})
+
+	t.Run("RegexIsLiteral", func(t *testing.T) {
+		t.Parallel()
+
+		var out listed
+		callResult(t, session, "pmm_list_metrics", map[string]any{"search": ".*"}, &out)
+		assert.Empty(t, out.Names)
+		assert.Zero(t, out.Page.Total)
+	})
+
+	t.Run("LimitHonoured", func(t *testing.T) {
+		t.Parallel()
+
+		var out listed
+		callResult(t, session, "pmm_list_metrics", map[string]any{}, &out)
+		assert.LessOrEqual(t, out.Page.Total, 1001)
+	})
+}
