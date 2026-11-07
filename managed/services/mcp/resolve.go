@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"slices"
@@ -55,6 +56,8 @@ type resolvedQuery struct {
 	Tables   []string
 	// Example is the stored statement as QAN holds it, empty when QAN has none for this service.
 	Example string
+	// DetailErr is the failure of the metrics or example call that Database, Tables and Example come from.
+	DetailErr error
 }
 
 // refFromInput builds a query reference from query_ref or from the flat queryid, service_id and period fields.
@@ -140,6 +143,7 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	if err != nil {
 		return nil, err
 	}
+	out.DetailErr = cmp.Or(d.metricsErr, d.exampleErr)
 
 	var schema, database string
 	if d.metrics != nil && d.metrics.Metadata != nil {
