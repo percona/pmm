@@ -1,11 +1,11 @@
 import {
+  PMM_ADD_SERVICE_PATH,
   PMM_LOGIN_URL,
   PMM_LOGOUT_URL,
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
-  PMM_ADD_SERVICE_URL,
   PMM_INVENTORY_NODES_PATH,
   PMM_INVENTORY_PATH,
   PMM_INVENTORY_SERVICES_PATH,
@@ -607,9 +607,9 @@ export const NAV_INVENTORY: NavItem = {
   children: [
     {
       id: 'add-instance',
-      url: PMM_ADD_SERVICE_URL,
+      url: PMM_ADD_SERVICE_PATH,
       text: 'Add service',
-      matches: [`${PMM_ADD_SERVICE_URL}/:type`],
+      matches: [`${PMM_ADD_SERVICE_PATH}/:type`],
     },
     {
       id: 'inventory-services',

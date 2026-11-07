@@ -47,9 +47,9 @@ You can add your Valkey or Redis service to PMM either through the user interfac
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to **Inventory > Services > Add Service**.
+    1. Go to **Inventory > Add service**.
     
-    2. Select **Valkey/Redis** service type.
+    2. Select **Valkey** service type.
     
     3. Fill in the **Main details** section:
 
@@ -71,9 +71,9 @@ You can add your Valkey or Redis service to PMM either through the user interfac
 
     5. Configure **Additional options**:
         
-        - Check **Skip connection check** to bypass connectivity validation.
-        - Check **Use TLS for database connections** to enable TLS.
-        - Check **Skip TLS certificate and hostname validation** to turn off certificate verification. Don't use this in production. For self-signed certificates, see [TLS certificate validation](#tls-certificate-validation) instead. 
+        - Turn on **Skip connection check** to bypass connectivity validation.
+        - Turn on **Use TLS for database connections** to enable TLS.
+        - After you turn on TLS, turn on **Skip TLS certificate and hostname validation** to turn off certificate verification. Don't use this in production. For self-signed certificates, see [TLS certificate validation](#tls-certificate-validation) instead. 
     6. Click **Add service** to complete the setup.
 
 === ":material-console: Via command line"

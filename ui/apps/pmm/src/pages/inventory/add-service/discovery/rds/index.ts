@@ -1,0 +1,1 @@
+export { RdsDiscovery } from './RdsDiscovery';

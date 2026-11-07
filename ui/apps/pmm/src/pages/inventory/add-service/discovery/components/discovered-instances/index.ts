@@ -1,0 +1,1 @@
+export { DiscoveredInstances } from './DiscoveredInstances';

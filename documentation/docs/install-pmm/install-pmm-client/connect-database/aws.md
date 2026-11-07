@@ -179,20 +179,27 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
 
     ![!image](../../../images/PMM_Add_Instance_AWS_RDS.png)
 
-2. Enter the access key ID and the secret access key of your IAM user or leave these fields empty if an IAM role was created.
+    When the page opens, PMM lists the instances that PMM Server can find with its own AWS identity, for example an instance profile.
 
-3. Click the **Discover** button for PMM to retrieve the available Amazon RDS
-instances.
+2. Enter the credentials that PMM uses to find your instances:
+
+    - To use an IAM user, enter its access key ID and secret access key.
+    - To use an IAM role, enter its ARN in **AWS IAM role ARN**. PMM Server assumes the role with its own AWS identity.
+    - To use PMM Server's own AWS identity, leave all three fields empty.
+
+    Use either an access key and secret key, or a role ARN, not both.
+
+3. Click **Discover** to list the Amazon RDS instances that these credentials can access.
 
     ![!image](../../../images/PMM_Add_Instance_AWS_RDS_Discover.png)
 
-4. For the instance that you would like to monitor, select the **Start monitoring** button.
+4. For the instance that you want to monitor, click **Start monitoring**.
 
-5. You will see a new page with the number of fields. The list is divided into the following groups: **Main details**, **RDS database**, **Labels**, and **Additional options**. Some already known data, such as already entered **AWS access key**, are filled in automatically, and some fields are optional.
+5. Fill in the form, which has three sections: **Main details**, **Labels**, and **Additional options**. PMM fills in what it discovered, such as the hostname, port, instance ID, region, and availability zone. Required fields are marked with an asterisk (*).
 
     ![!](../../../images/PMM_Add_Instance_AWS_RDS_Main_Details.png)
 
-    The **Main details** section allows you to specify the DNS hostname of your instance, the service name to use within PMM, the port your service is listening on, the database user name and password, and optionally the **Instance ID** to match your RDS instance between PMM and the AWS console.    
+    The **Main details** section shows the DNS hostname of your instance, which PMM takes from AWS. In this section, you set the service name to use within PMM, the node and agent that monitor the instance, the port your service is listening on, the database username and password, and the **Instance ID** that matches your RDS instance between PMM and the AWS console. Set **Connection timeout** to control how long PMM waits when connecting to the instance. Leave empty to use the default of 2s.
 
     ![!image](../../../images/PMM_Add_Instance_AWS_RDS_Labels.png)
 
@@ -204,19 +211,20 @@ instances.
 
     - Skip connection check.
     - Use TLS for the database connection.
-    - Skip TLS certificate and hostname validation.
+    - Skip TLS certificate and hostname validation. This option appears after you turn on TLS.
     - Disable basic and/or enhanced metrics collection for the RDS instance to reduce costs.
-    - Set **Connection timeout** to control how long PMM waits when connecting to the instance. Leave empty to use the default of 5s.
 
     Also this section contains a database-specific flag, which would allow Query Analytics for the selected remote database:
 
     - when adding some remote MySQL, AWS RDS MySQL or Aurora MySQL instance, you will be able to choose using performance schema for the database monitoring;
 
-    - when adding a PostgreSQL instance, you will be able to activate using `pg_stat_statements` extension;
+    - when adding a PostgreSQL instance, you will be able to select **PG Stat Statements** under **Stat tracking options** to use the `pg_stat_statements` extension;
 
     - when adding a MongoDB instance, you will be able to choose using Query Analytics MongoDB profiler.
 
-6. Finally press the **Add service** button to start monitoring your instance.
+6. Click **Add service** to start monitoring your instance.
+
+    To go back to the list of discovered instances without adding the service, click **Cancel** or **Discovered instances** at the top of the page.
 
 ### Adding an RDS instance via command line
 
@@ -286,7 +294,7 @@ For PostgreSQL, use the same method described above.
 
     ![!image](../../../images/PMM_rds_postgre_02_discover.png)
 
-2. Follow steps 4 to 6 as in the previous section. Fill the form and remember to select `PG Stat Statement` to enable Query Analytics.
+2. Follow steps 4 to 6 as in the previous section. Fill in the form and keep **PG Stat Statements** selected under **Stat tracking options** to enable Query Analytics.
 
     To get queries for Query Analytics, you need to enable `pg_stat_statements` in `postgres` database of your instance by running:
 

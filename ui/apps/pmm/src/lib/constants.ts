@@ -19,6 +19,7 @@ export const GRAFANA_HOME_PATHS: string[] = [
 export const PMM_SETTINGS_URL = `${PMM_BASE_PATH}/settings`;
 export const PMM_HELP_PATH = `${PMM_NEW_NAV_PATH}/help`;
 export const PMM_NEW_NAV_UPDATES_PATH = `${PMM_NEW_NAV_PATH}/updates`;
+export const PMM_ADD_SERVICE_PATH = `${PMM_NEW_NAV_PATH}/add-instance`;
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
 export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
@@ -28,7 +29,6 @@ export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
 export const PMM_INVENTORY_PATH = `${PMM_NEW_NAV_PATH}/inventory`;
 export const PMM_INVENTORY_SERVICES_PATH = `${PMM_INVENTORY_PATH}/services`;
 export const PMM_INVENTORY_NODES_PATH = `${PMM_INVENTORY_PATH}/nodes`;
-export const PMM_ADD_SERVICE_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`;
 export const PMM_QAN_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`;
 
 // PMM Extensions apps mounted as native PMM routes. Shared by the router (route paths and
@@ -103,6 +103,9 @@ export const UPDATE_SNOOZE_DURATION_OVERRIDE_KEY =
 export const DOCS_URLS = {
   qan: 'https://per.co.na/QAN',
   forums: 'https://per.co.na/PMM3_forums',
+  rdsCredentials: 'https://per.co.na/iam_user_with_permission',
+  rdsIamRole: 'https://per.co.na/iam_role',
+  azureCredentials: 'https://per.co.na/QcYQRx',
   editingLabels: 'https://per.co.na/editing_labels',
 };
 

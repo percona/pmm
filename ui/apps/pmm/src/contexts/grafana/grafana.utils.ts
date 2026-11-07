@@ -9,10 +9,12 @@ export const getLocationUrl = (location: Path) => {
   return pathname + location.search + location.hash;
 };
 
+// Grafana pages with a native replacement; the router redirects them.
 const MIGRATED_PAGES = [
   '/graph/settings',
   '/graph/inventory',
   '/graph/edit-instance',
+  '/graph/add-instance',
 ];
 
 export const isMigratedPage = (src: string) =>
