@@ -1,0 +1,18 @@
+{
+  "total_rows": 0,
+  "offset": 0,
+  "limit": 100,
+  "rows": [
+    {
+      "rank": 0,
+      "dimension": "",
+      "database": "",
+      "metrics": {},
+      "sparkline": [],
+      "fingerprint": "",
+      "num_queries": 1,
+      "qps": 0.1,
+      "load": 0.1
+    }
+  ]
+}
