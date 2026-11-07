@@ -277,7 +277,8 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-does-not-exist"})
 		assert.True(t, isError)
-		assert.Contains(t, text, "not_found")
+		assert.Equal(t, "error: not_found\n"+notInServiceList+"; use pmm_inventory to list service ids", text)
+		assert.NotContains(t, text, "svc-does-not-exist")
 	})
 
 	t.Run("EngineComesFromTheService", func(t *testing.T) {

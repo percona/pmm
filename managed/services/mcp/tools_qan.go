@@ -522,7 +522,12 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
-	d, err := s.fetchQueryDetail(ctx, auth, in, from, to)
+	serviceIDs, err := s.callerServiceIDs(ctx, auth, in.ServiceID)
+	if err != nil {
+		return queryDetailResult{}, err
+	}
+
+	d, err := s.fetchQueryDetail(ctx, auth, in, serviceIDs, from, to)
 	if err != nil {
 		return queryDetailResult{}, err
 	}
@@ -533,13 +538,38 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 			return queryDetailResult{}, failed
 		}
 		return queryDetailResult{}, newToolError(codeNotFound,
-			"no data for queryid '%s' in the selected window; widen period_from or check the id with pmm_top_queries", in.QueryID)
+			"no data for this query in %s; widen period_from or check the id with pmm_top_queries", windowText(window{From: from, To: to}))
 	}
 	if d.engine != "" {
 		d.version = s.serviceVersion(ctx, auth, d.engine, d.serviceName)
 	}
 
 	return d.result(s.rawSQL(), s.publicBaseURL(ctx, req.Extra.Header), from, to), nil
+}
+
+// callerServiceIDs returns the ids of the caller's services that QAN may be asked about:
+// the given one, which must be in the list, else every one that passes checkQANValue.
+func (s *Service) callerServiceIDs(ctx context.Context, auth callerAuth, serviceID string) ([]string, error) {
+	services, err := s.listServices(ctx, auth, false)
+	if err != nil {
+		return nil, err
+	}
+	ids := make([]string, 0, len(services))
+	for _, svc := range services {
+		if checkQANValue("service_id", svc.ServiceID) == nil {
+			ids = append(ids, svc.ServiceID)
+		}
+	}
+	if serviceID != "" {
+		if !slices.Contains(ids, serviceID) {
+			return nil, newToolError(codeNotFound, "%s", notInServiceList)
+		}
+		return []string{serviceID}, nil
+	}
+	if len(ids) == 0 {
+		return nil, newToolError(codeNotFound, "%s", notInServiceList)
+	}
+	return ids, nil
 }
 
 // queryDetail is the merged view of qan:getMetrics and qan/query:getExample
@@ -564,15 +594,14 @@ type queryDetail struct {
 
 // fetchQueryDetail runs the two QAN calls, each tolerated independently so
 // partial data still returns with the other's error; it fails only when both fail.
-func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in queryDetailInput, from, to time.Time) (*queryDetail, error) {
+// Both calls are limited to serviceIDs, which the caller has checked against the service list.
+func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in queryDetailInput, serviceIDs []string, from, to time.Time) (*queryDetail, error) {
 	l := s.l.WithField("tool", "pmm_query_detail")
 
 	labels := []*qan_service.GetMetricsParamsBodyLabelsItems0{{Key: groupByQuery, Value: []string{in.QueryID}}}
 	exampleLabels := []*qan_service.GetQueryExampleParamsBodyLabelsItems0{{Key: groupByQuery, Value: []string{in.QueryID}}}
-	if in.ServiceID != "" {
-		labels = append(labels, &qan_service.GetMetricsParamsBodyLabelsItems0{Key: "service_id", Value: []string{in.ServiceID}})
-		exampleLabels = append(exampleLabels, &qan_service.GetQueryExampleParamsBodyLabelsItems0{Key: "service_id", Value: []string{in.ServiceID}})
-	}
+	labels = append(labels, &qan_service.GetMetricsParamsBodyLabelsItems0{Key: "service_id", Value: serviceIDs})
+	exampleLabels = append(exampleLabels, &qan_service.GetQueryExampleParamsBodyLabelsItems0{Key: "service_id", Value: serviceIDs})
 
 	metrics, metricsErr := s.api.GetMetrics(ctx, auth, qan_service.GetMetricsBody{
 		PeriodStartFrom: strfmt.DateTime(from),
@@ -898,7 +927,7 @@ func (s *Service) engineOf(ctx context.Context, auth callerAuth, serviceID strin
 	}
 	i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceID == serviceID })
 	if i < 0 {
-		return serviceInfo{}, newToolError(codeNotFound, "service '%s' not found; use pmm_inventory to list service ids", serviceID)
+		return serviceInfo{}, newToolError(codeNotFound, "%s; use pmm_inventory to list service ids", notInServiceList)
 	}
 	return services[i], nil
 }

@@ -139,7 +139,7 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	ref.ServiceID = svc.ServiceID
 	out := &resolvedQuery{Service: svc, Ref: ref}
 
-	d, err := s.fetchQueryDetail(ctx, auth, queryDetailInput{QueryID: ref.QueryID, ServiceID: svc.ServiceID}, ref.PeriodFrom, ref.PeriodTo)
+	d, err := s.fetchQueryDetail(ctx, auth, queryDetailInput{QueryID: ref.QueryID, ServiceID: svc.ServiceID}, []string{svc.ServiceID}, ref.PeriodFrom, ref.PeriodTo)
 	if err != nil {
 		return nil, err
 	}
