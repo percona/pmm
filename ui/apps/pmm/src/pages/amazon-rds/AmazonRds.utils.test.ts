@@ -427,7 +427,31 @@ describe('AmazonRds.utils: formatting and links', () => {
     }
   );
 
-  it.each([['aurora-postgresql' as const], ['postgres' as const]])(
+  it('links an Aurora PostgreSQL instance to its details, with PostgreSQL and OS links', () => {
+    expect(getInstanceLinks(instance({ engine: 'aurora-postgresql' }))).toEqual(
+      {
+        service: {
+          label: 'db-1',
+          title: 'PostgreSQL Amazon Aurora Details for db-1',
+          url: '/graph/d/postgresql-amazonaurora/postgresql-amazon-aurora-details?var-service_name=db-1',
+        },
+        dashboards: [
+          {
+            label: 'PostgreSQL',
+            title: 'PostgreSQL Instance Summary for db-1',
+            url: '/graph/d/postgresql-instance-summary/postgresql-instance-summary?var-service_name=db-1',
+          },
+          {
+            label: 'OS',
+            title: 'Node Summary for db-1',
+            url: '/graph/d/node-instance-summary/node-summary?var-node_name=db-1',
+          },
+        ],
+      }
+    );
+  });
+
+  it.each([['postgres' as const]])(
     'links a %s instance to its PostgreSQL Instance Summary',
     (engine) => {
       const { service, dashboards } = getInstanceLinks(instance({ engine }));

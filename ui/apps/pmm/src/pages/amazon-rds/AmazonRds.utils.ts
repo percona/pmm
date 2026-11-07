@@ -423,6 +423,32 @@ export const getInstanceLinks = ({
     };
   }
 
+  if (engine === 'aurora-postgresql') {
+    return {
+      service: {
+        label: serviceName,
+        title: Messages.links.postgresqlDetails(serviceName),
+        url: getDashboardUrl(
+          DASHBOARD_URLS.auroraPostgresqlDetails,
+          'var-service_name',
+          serviceName
+        ),
+      },
+      dashboards: [
+        {
+          label: Messages.links.postgresql,
+          title: Messages.links.postgresqlSummary(serviceName),
+          url: getDashboardUrl(
+            DASHBOARD_URLS.postgresqlSummary,
+            'var-service_name',
+            serviceName
+          ),
+        },
+        os,
+      ],
+    };
+  }
+
   if (getFamily(engine) === 'postgresql') {
     return {
       service: {
