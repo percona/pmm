@@ -35,11 +35,6 @@ import (
 const (
 	// Series one selector may match over the span a query reads.
 	maxSeriesPerSelector = 2000
-
-	// Metric calls one caller may have in flight.
-	maxMetricCallsPerCaller = 4
-	// Metric calls one pmm-managed replica may have in flight.
-	maxMetricCallsPerReplica = 8
 )
 
 type queryMetricsInput struct {
@@ -192,7 +187,7 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 	}
 
 	auth := callerAuthFromHeader(req.Extra.Header)
-	release, err := s.startMetrics(auth)
+	release, err := s.startMetricCall(auth)
 	if err != nil {
 		return metricsResult{}, err
 	}
@@ -247,21 +242,6 @@ func narrowIfTooLarge(err error, expr string) error {
 	}
 	return newToolError(codeInvalidInput,
 		"the answer is larger than 4 MiB: narrow the query with a service_name or node_name matcher, and aggregate, as in sum by (service_name) (%s)", expr)
-}
-
-// startMetrics takes a metric-call slot for the caller, or answers rate_limited.
-func (s *Service) startMetrics(a callerAuth) (func(), error) {
-	release, hit := s.metrics.acquire(callerKey(a))
-	switch hit {
-	case limitPerCaller:
-		return nil, newToolError(codeRateLimited,
-			"at most %d metric calls can be in flight for these credentials; retry when one finishes", maxMetricCallsPerCaller)
-	case limitPerReplica:
-		return nil, newToolError(codeRateLimited,
-			"this replica already has %d metric calls in flight; retry when one finishes", maxMetricCallsPerReplica)
-	case limitNone:
-	}
-	return release, nil
 }
 
 // selectorsOf returns each selector of expr, one per OR group, in MetricsQL form, as walked at step.
@@ -530,7 +510,7 @@ func (s *Service) listMetrics(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 
 	auth := callerAuthFromHeader(req.Extra.Header)
-	release, err := s.startMetrics(auth)
+	release, err := s.startMetricCall(auth)
 	if err != nil {
 		return listMetricsResult{}, err
 	}

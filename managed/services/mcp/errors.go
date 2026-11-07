@@ -19,8 +19,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -47,6 +49,13 @@ const (
 type toolError struct {
 	code    errorCode
 	message string
+	// retryAfter is how long to wait before a rate-limited call may succeed; zero when not set.
+	retryAfter time.Duration
+}
+
+// retryAfterSeconds rounds a wait up to whole seconds, at least one.
+func retryAfterSeconds(d time.Duration) int {
+	return max(1, int(math.Ceil(d.Seconds())))
 }
 
 func (e *toolError) Error() string {
@@ -66,13 +75,17 @@ func (e *toolError) retryable() bool {
 // errorResult is the failed tool result: text "error: <code>\n<message>" and
 // the code and retryable flag in _meta, without structured content.
 func errorResult(te *toolError) *mcp.CallToolResult {
+	meta := map[string]any{
+		"code":      string(te.code),
+		"retryable": te.retryable(),
+	}
+	if te.retryAfter > 0 {
+		meta["retry_after"] = retryAfterSeconds(te.retryAfter)
+	}
 	return &mcp.CallToolResult{
 		IsError: true,
 		Content: []mcp.Content{&mcp.TextContent{Text: te.Error()}},
-		Meta: mcp.Meta{"com.percona/error": map[string]any{
-			"code":      string(te.code),
-			"retryable": te.retryable(),
-		}},
+		Meta:    mcp.Meta{"com.percona/error": meta},
 	}
 }
 

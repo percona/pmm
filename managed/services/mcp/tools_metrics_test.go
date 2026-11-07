@@ -316,6 +316,8 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		fake := newFakePMM(t, metricsRoutes(nil))
 		s := newQANService(t, fake, false)
+		// This test counts slots, not tokens: its calls outnumber the burst on a frozen clock.
+		s.metricRate = newRateLimiter(60000, 1000)
 		for range 2 * maxMetricCallsPerCaller {
 			_, text, isError := metricsCall(t, s, map[string]any{"query": questions})
 			require.False(t, isError, text)

@@ -82,6 +82,8 @@ type Service struct {
 	live          *limiter
 	liveByService *limiter
 	metrics       *limiter
+	liveRate      *rateLimiter
+	metricRate    *rateLimiter
 
 	// warnPeer logs the first non-loopback rejection at the default level.
 	warnPeer sync.Once
@@ -132,6 +134,8 @@ func New(params Params) (*Service, error) {
 		live:          newLimiter(maxLiveCallsPerCaller, maxLiveCallsPerReplica),
 		liveByService: newLimiter(maxLiveCallsPerService, maxLiveCallsPerReplica),
 		metrics:       newLimiter(maxMetricCallsPerCaller, maxMetricCallsPerReplica),
+		liveRate:      newRateLimiter(liveCallsPerMinute, liveCallsBurst),
+		metricRate:    newRateLimiter(metricCallsPerMinute, metricCallsBurst),
 	}
 	// Both switches default to off when the caller supplies no callback, so a
 	// wiring mistake cannot expose the endpoint or un-redact its output. This

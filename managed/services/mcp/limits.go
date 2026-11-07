@@ -22,6 +22,7 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/percona/pmm/managed/utils/auth"
 )
@@ -33,6 +34,17 @@ const (
 	maxLiveCallsPerReplica = 8
 	// Live-inspection calls one service may have in flight on a replica.
 	maxLiveCallsPerService = 1
+	// Metric and QAN calls one caller may have in flight.
+	maxMetricCallsPerCaller = 4
+	// Metric and QAN calls one pmm-managed replica may have in flight.
+	maxMetricCallsPerReplica = 8
+
+	// Live-inspection calls per minute one caller may start, and how many it may start at once.
+	liveCallsPerMinute = 10
+	liveCallsBurst     = 4
+	// Metric calls per minute one caller may start, and how many it may start at once.
+	metricCallsPerMinute = 60
+	metricCallsBurst     = 10
 
 	sessionCookieName = "pmm_session"
 )
@@ -89,6 +101,69 @@ func (l *limiter) acquire(key string) (func(), limitHit) {
 	}, limitNone
 }
 
+// rateLimiter is a token bucket per key. A bucket that has refilled to its burst is dropped,
+// so the map holds only recent callers.
+type rateLimiter struct {
+	mu      sync.Mutex
+	rate    float64
+	burst   float64
+	buckets map[string]*bucket
+}
+
+type bucket struct {
+	tokens float64
+	last   time.Time
+}
+
+func newRateLimiter(perMinute, burst int) *rateLimiter {
+	return &rateLimiter{
+		rate:    float64(perMinute) / time.Minute.Seconds(),
+		burst:   float64(burst),
+		buckets: map[string]*bucket{},
+	}
+}
+
+// take takes one token for key. It returns true, or the wait until the next token and false.
+func (r *rateLimiter) take(key string, now time.Time) (time.Duration, bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	for k, b := range r.buckets {
+		if r.refilled(b, now) >= r.burst {
+			delete(r.buckets, k)
+		}
+	}
+
+	b, ok := r.buckets[key]
+	if !ok {
+		b = &bucket{tokens: r.burst, last: now}
+		r.buckets[key] = b
+	}
+	b.tokens = r.refilled(b, now)
+	b.last = now
+
+	if b.tokens < 1 {
+		return time.Duration((1 - b.tokens) / r.rate * float64(time.Second)), false
+	}
+	b.tokens--
+	return 0, true
+}
+
+func (r *rateLimiter) refilled(b *bucket, now time.Time) float64 {
+	return min(r.burst, b.tokens+max(0, now.Sub(b.last).Seconds())*r.rate)
+}
+
+// takeToken takes one token from r for the caller, or answers rate_limited with retry_after.
+func (s *Service) takeToken(r *rateLimiter, a callerAuth) error {
+	wait, ok := r.take(callerKey(a), s.now())
+	if ok {
+		return nil
+	}
+	te := newToolError(codeRateLimited, "too many calls for these credentials; retry in %d s", retryAfterSeconds(wait))
+	te.retryAfter = wait
+	return te
+}
+
 // callerKey identifies the caller by a hash of its credential, so that the same
 // token sent as Bearer or Basic, with or without a cookie, counts as one caller.
 func callerKey(a callerAuth) string {
@@ -128,8 +203,12 @@ func hashKey(s string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// startLive takes a live-inspection slot for the caller, or answers rate_limited.
+// startLive takes a token and a live-inspection slot for the caller, or answers rate_limited.
 func (s *Service) startLive(a callerAuth) (func(), error) {
+	err := s.takeToken(s.liveRate, a)
+	if err != nil {
+		return nil, err
+	}
 	release, hit := s.live.acquire(callerKey(a))
 	switch hit {
 	case limitPerCaller:
@@ -153,6 +232,30 @@ func (s *Service) startLiveOn(serviceID string) (func(), error) {
 	case limitPerReplica:
 		return nil, newToolError(codeRateLimited,
 			"this replica already has %d live-inspection calls in flight; retry when one finishes", maxLiveCallsPerReplica)
+	case limitNone:
+	}
+	return release, nil
+}
+
+// startMetricCall takes a metric token and then a metric slot for the caller, or answers rate_limited.
+func (s *Service) startMetricCall(a callerAuth) (func(), error) {
+	err := s.takeToken(s.metricRate, a)
+	if err != nil {
+		return nil, err
+	}
+	return s.startMetrics(a)
+}
+
+// startMetrics takes a metric-call slot for the caller, or answers rate_limited.
+func (s *Service) startMetrics(a callerAuth) (func(), error) {
+	release, hit := s.metrics.acquire(callerKey(a))
+	switch hit {
+	case limitPerCaller:
+		return nil, newToolError(codeRateLimited,
+			"at most %d metric calls can be in flight for these credentials; retry when one finishes", maxMetricCallsPerCaller)
+	case limitPerReplica:
+		return nil, newToolError(codeRateLimited,
+			"this replica already has %d metric calls in flight; retry when one finishes", maxMetricCallsPerReplica)
 	case limitNone:
 	}
 	return release, nil

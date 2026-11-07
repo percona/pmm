@@ -286,7 +286,7 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		return healthResult{}, err
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
-	release, err := s.startMetrics(auth)
+	release, err := s.startMetricCall(auth)
 	if err != nil {
 		return healthResult{}, err
 	}
