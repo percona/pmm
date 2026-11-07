@@ -89,8 +89,8 @@ func connect(t *testing.T) *mcp.ClientSession {
 	return session
 }
 
-// callText calls a tool and returns its text content and error flag.
-func callText(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) (string, bool) {
+// callTool calls a tool and returns its result and text content.
+func callTool(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) (*mcp.CallToolResult, string) {
 	t.Helper()
 
 	res, err := session.CallTool(pmmapitests.Context, &mcp.CallToolParams{Name: name, Arguments: args})
@@ -99,7 +99,27 @@ func callText(t *testing.T, session *mcp.ClientSession, name string, args map[st
 	text, ok := res.Content[0].(*mcp.TextContent)
 	require.True(t, ok, "unexpected content %T", res.Content[0])
 	t.Logf("%s -> isError=%v\n%s", name, res.IsError, text.Text)
-	return text.Text, res.IsError
+	return res, text.Text
+}
+
+// callText calls a tool and returns its text content and error flag.
+func callText(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) (string, bool) {
+	t.Helper()
+
+	res, text := callTool(t, session, name, args)
+	return text, res.IsError
+}
+
+// callResult calls a tool that must succeed, decodes its structured content into out and returns its text.
+func callResult(t *testing.T, session *mcp.ClientSession, name string, args map[string]any, out any) string {
+	t.Helper()
+
+	res, text := callTool(t, session, name, args)
+	require.False(t, res.IsError, text)
+	b, err := json.Marshal(res.StructuredContent)
+	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal(b, out))
+	return text
 }
 
 func TestUnauthenticated(t *testing.T) {
@@ -325,4 +345,74 @@ func TestTopQueriesGroupBy(t *testing.T) {
 	text, isError = callText(t, session, "pmm_top_queries", args)
 	require.False(t, isError, text)
 	assert.Regexp(t, `^(Rows 2-2 of \d+|No rows at offset 1; the report has 1\.)`, text)
+}
+
+// TestSchemaFromQueryID fetches a known join's tables from its query_ref, which pmm_get_schema finds in a live EXPLAIN plan.
+func TestSchemaFromQueryID(t *testing.T) {
+	if !pmmapitests.RunMCPWorkloadTests {
+		t.Skip("Needs a known workload whose join has a query example in QAN: load managed/services/mcp/testdata/explain/schema.sql " +
+			"into a MySQL 8.0 service monitored with perfschema and query examples on, then run join-aliases.sql from the same " +
+			"folder 100 times in one mysql session (database shop) that ends with SELECT SLEEP(10). pmm-agent reads the example " +
+			"from performance_schema.events_statements_history (consumer events_statements_history, on by default) every 5 " +
+			"seconds, and that table drops a session's statements when it closes. Wait 2 minutes for QAN, then set " +
+			"-pmm.run-mcp-workload-tests [PMM_RUN_MCP_WORKLOAD_TESTS].")
+	}
+	t.Parallel()
+
+	session := connect(t)
+	res, err := inventoryClient.Default.ServicesService.ListServices(&services_service.ListServicesParams{Context: pmmapitests.Context})
+	require.NoError(t, err)
+
+	// The join of join-aliases.sql; schema.sql names both tables too, but joins nothing.
+	join := regexp.MustCompile(`(?is)\borders\b.*\bjoin\b.*\bcustomers\b`)
+	var ref map[string]any
+	for _, svc := range res.Payload.Mysql {
+		var top struct {
+			Rows []struct {
+				Fingerprint string         `json:"fingerprint"`
+				QueryRef    map[string]any `json:"query_ref"`
+			} `json:"rows"`
+		}
+		args := map[string]any{"service_name": svc.ServiceName, "search": "customers", "period_from": "now-12h", "limit": 100}
+		callResult(t, session, "pmm_top_queries", args, &top)
+		for _, row := range top.Rows {
+			if row.QueryRef != nil && join.MatchString(row.Fingerprint) {
+				ref = row.QueryRef
+				break
+			}
+		}
+		if ref != nil {
+			break
+		}
+	}
+	require.NotNil(t, ref, "no pmm_top_queries row joins orders and customers: load the workload of testdata/explain first")
+
+	var schema struct {
+		Tables []struct {
+			Database   string `json:"database"`
+			Name       string `json:"name"`
+			Definition string `json:"definition"`
+		} `json:"tables"`
+		Unresolved []string `json:"unresolved"`
+		Note       string   `json:"note"`
+	}
+	called, text := callTool(t, session, "pmm_get_schema", map[string]any{"query_ref": ref})
+	if called.IsError && strings.HasPrefix(text, "error: invalid_input\n") && strings.Contains(text, "placeholders") {
+		require.FailNow(t, "no query example stored for the join; keep the workload's mysql session open past pmm-agent's "+
+			"5-second read of events_statements_history, with query examples on, and wait for QAN, as the skip message says", text)
+	}
+	require.False(t, called.IsError, text)
+	b, err := json.Marshal(called.StructuredContent)
+	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal(b, &schema))
+	names := make([]string, 0, len(schema.Tables))
+	for _, tbl := range schema.Tables {
+		names = append(names, tbl.Database+"."+tbl.Name)
+		assert.Contains(t, tbl.Definition, "CREATE TABLE", tbl.Name)
+	}
+	assert.ElementsMatch(t, []string{"shop.orders", "shop.customers"}, names)
+	assert.Equal(t, 1, strings.Count(text, "### shop.orders\n"))
+	assert.Equal(t, 1, strings.Count(text, "### shop.customers\n"))
+	assert.Empty(t, schema.Unresolved)
+	assert.NotEmpty(t, schema.Note, "tables from a live plan are labelled")
 }

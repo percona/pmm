@@ -1,0 +1,69 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "1.47"
+    },
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "customers",
+          "access_type": "index",
+          "possible_keys": [
+            "PRIMARY"
+          ],
+          "key": "idx_region",
+          "used_key_parts": [
+            "region"
+          ],
+          "key_length": "66",
+          "rows_examined_per_scan": 3,
+          "rows_produced_per_join": 3,
+          "filtered": "100.00",
+          "using_index": true,
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.30",
+            "prefix_cost": "0.55",
+            "data_read_per_join": "984"
+          },
+          "used_columns": [
+            "id"
+          ]
+        }
+      },
+      {
+        "table": {
+          "table_name": "orders",
+          "access_type": "ALL",
+          "possible_keys": [
+            "idx_customer"
+          ],
+          "rows_examined_per_scan": 4,
+          "rows_produced_per_join": 3,
+          "filtered": "25.00",
+          "first_match": "customers",
+          "using_join_buffer": "hash join",
+          "cost_info": {
+            "read_cost": "0.52",
+            "eval_cost": "0.30",
+            "prefix_cost": "1.47",
+            "data_read_per_join": "240"
+          },
+          "used_columns": [
+            "customer_id",
+            "total"
+          ],
+          "attached_condition": "((`shop`.`orders`.`customer_id` = `shop`.`customers`.`id`) and (`shop`.`orders`.`total` > 10.00))"
+        }
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "Level": "Note",
+      "Code": 1003,
+      "Message": "/* select#1 */ select `shop`.`customers`.`id` AS `id` from `shop`.`customers` semi join (`shop`.`orders`) where ((`shop`.`orders`.`customer_id` = `shop`.`customers`.`id`) and (`shop`.`orders`.`total` > 10.00))"
+    }
+  ]
+}

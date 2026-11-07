@@ -531,6 +531,73 @@ func TestQueryDetailTool(t *testing.T) {
 		text, isError := callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-ZZZ"})
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: not_found\n"), text)
+		assert.Contains(t, text, "no data for this query in 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z;")
+		assert.NotContains(t, text, "QID-ZZZ")
+	})
+
+	t.Run("ServiceOutsideList", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA", "service_id": "svc-foreign"})
+		assert.True(t, res.IsError)
+		assert.Equal(t, "error: not_found\n"+notInServiceList, textOf(t, res))
+		assert.Empty(t, fake.requestsTo("/v1/qan:getMetrics"))
+		assert.Empty(t, fake.requestsTo("/v1/qan/query:getExample"))
+	})
+
+	t.Run("NoServiceIDCarriesTheList", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
+		require.False(t, res.IsError, textOf(t, res))
+
+		want := []string{"svc-1", "svc-2", "svc-pmm-pg"}
+		metrics := fake.requestsTo("/v1/qan:getMetrics")
+		require.Len(t, metrics, 1)
+		mb := unmarshalBody[qan_service.GetMetricsBody](t, metrics[0])
+		require.Len(t, mb.Labels, 2)
+		assert.Equal(t, "service_id", mb.Labels[1].Key)
+		assert.ElementsMatch(t, want, mb.Labels[1].Value)
+
+		examples := fake.requestsTo("/v1/qan/query:getExample")
+		require.Len(t, examples, 1)
+		eb := unmarshalBody[qan_service.GetQueryExampleBody](t, examples[0])
+		require.Len(t, eb.Labels, 2)
+		assert.Equal(t, "service_id", eb.Labels[1].Key)
+		assert.ElementsMatch(t, want, eb.Labels[1].Value)
+	})
+
+	t.Run("GivenServiceIDCarriesOnlyIt", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA", "service_id": "svc-2"})
+		require.False(t, res.IsError, textOf(t, res))
+		mb := unmarshalBody[qan_service.GetMetricsBody](t, fake.requestsTo("/v1/qan:getMetrics")[0])
+		assert.Equal(t, []string{"svc-2"}, mb.Labels[1].Value)
+		eb := unmarshalBody[qan_service.GetQueryExampleBody](t, fake.requestsTo("/v1/qan/query:getExample")[0])
+		assert.Equal(t, []string{"svc-2"}, eb.Labels[1].Value)
+	})
+
+	t.Run("EmptyServiceList", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{"GET /v1/inventory/services": {file: "empty.json"}}))
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, res.IsError)
+		assert.Equal(t, "error: not_found\n"+notInServiceList, textOf(t, res))
+		assert.Empty(t, fake.requestsTo("/v1/qan:getMetrics"))
+		assert.Empty(t, fake.requestsTo("/v1/qan/query:getExample"))
 	})
 
 	t.Run("FailedPartAndNoOtherData", func(t *testing.T) {
@@ -670,7 +737,7 @@ func TestQueryDetailTool(t *testing.T) {
 			s, err := New(Params{API: api, Enabled: func() bool { return true }})
 			require.NoError(t, err)
 
-			d, err := s.fetchQueryDetail(t.Context(), callerAuth{}, queryDetailInput{QueryID: "Q", ServiceID: tc.serviceID}, from, testNow)
+			d, err := s.fetchQueryDetail(t.Context(), callerAuth{}, queryDetailInput{QueryID: "Q", ServiceID: tc.serviceID}, []string{"svc-a"}, from, testNow)
 			require.NoError(t, err)
 			ref := d.result(true, "", from, testNow).QueryRef
 			assert.Equal(t, queryRef{QueryID: "Q", ServiceID: tc.want, PeriodFrom: from, PeriodTo: testNow}, ref, tc.name)

@@ -164,7 +164,7 @@ func TestUntrustedFieldsMarked(t *testing.T) {
 		"pmm_get_explain": {"service_name", "plan"},
 		"pmm_get_schema": {
 			"tables[].database", "tables[].name", "tables[].definition", "tables[].indexes",
-			"tables[].definition_error.message", "tables[].indexes_error.message",
+			"tables[].definition_error.message", "tables[].indexes_error.message", "unresolved", "not_fetched",
 		},
 		"pmm_get_config": {"service_name", "version", "variables[].value"},
 		"pmm_catalog":    {},
@@ -293,13 +293,27 @@ func TestRedactionInBothRenderings(t *testing.T) {
 				return []string{envelope.ExplainedQuery, string(plan)}
 			},
 		},
+		// DDL comes back unmasked (ADR-07); the statement EXPLAIN ran to find the tables must not.
+		"pmm_get_schema": {
+			fake: func(t *testing.T) *fakePMM {
+				t.Helper()
+				fake, stub := newActionStub(t, 0)
+				stub.explain, _ = secretExplain(t)
+				return fake
+			},
+			args: map[string]any{"queryid": "QID-AAA"},
+			sql: func(t *testing.T) []string {
+				t.Helper()
+				_, sql := secretExplain(t)
+				return sql
+			},
+		},
 	}
 	exempt := map[string]string{
 		"pmm_version":    "returns no statement text",
 		"pmm_inventory":  "returns no statement text",
 		"pmm_catalog":    "returns no statement text",
 		"pmm_get_config": "returns no statement text",
-		"pmm_get_schema": "returns DDL unmasked (ADR-07)",
 	}
 	requireEntries(t, listedTools(t), slices.Concat(slices.Collect(maps.Keys(cases)), slices.Collect(maps.Keys(exempt))))
 
@@ -338,6 +352,8 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 		fake    func(t *testing.T) *fakePMM
 		args    map[string]any
 		wantErr bool
+		// check inspects the fake PMM and the error text of a case that wants an error.
+		check func(t *testing.T, fake *fakePMM, text string)
 	}
 	routed := func(routes map[string]fixture) func(t *testing.T) *fakePMM {
 		return func(t *testing.T) *fakePMM {
@@ -389,10 +405,19 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 		},
 		"pmm_get_explain": {
 			{
-				name:    "NoStoredPlan",
-				fake:    routed(withRoutes(qanRoutes(), map[string]fixture{"GET /v1/qan/query/QID-PG/plan": {file: "plan_empty.json"}})),
+				name: "NoStoredPlan",
+				fake: routed(withRoutes(qanRoutes(), map[string]fixture{
+					"POST " + reportPath:            {file: "report_by_service_postgres.json"},
+					"GET /v1/qan/query/QID-PG/plan": {file: "plan_empty.json"},
+				})),
 				args:    map[string]any{"service_id": "svc-2", "queryid": "QID-PG"},
 				wantErr: true,
+				check: func(t *testing.T, fake *fakePMM, text string) {
+					t.Helper()
+					assert.Len(t, fake.requestsTo("/v1/qan/query/QID-PG/plan"), 1, "the resolver passed and the plan was looked up")
+					assert.True(t, strings.HasPrefix(text, "error: not_found\nno stored plan for this query. "), text)
+					assert.NotContains(t, text, "QID-PG")
+				},
 			},
 			{
 				name: "PollFails",
@@ -416,6 +441,16 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 					return fake
 				},
 				args: schemaArgs,
+			},
+			{
+				name: "PlanWithoutTables",
+				fake: func(t *testing.T) *fakePMM {
+					t.Helper()
+					fake, stub := newActionStub(t, 0)
+					stub.explain = explainOutput(t, []byte(`{"query_block": {"select_id": 1, "message": "No tables used"}}`), "SELECT 1")
+					return fake
+				},
+				args: map[string]any{"queryid": "QID-AAA", "info_types": "all"},
 			},
 			{
 				name: "IndexPollFails",
@@ -462,10 +497,14 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				t.Run(sc.name, func(t *testing.T) {
 					t.Parallel()
 
-					res := callTool(t, connect(t, newQANService(t, sc.fake(t), false)), name, sc.args)
+					fake := sc.fake(t)
+					res := callTool(t, connect(t, newQANService(t, fake, false)), name, sc.args)
 					text := textOf(t, res)
 					require.Equal(t, sc.wantErr, res.IsError, text)
 					if sc.wantErr {
+						if sc.check != nil {
+							sc.check(t, fake, text)
+						}
 						return
 					}
 					require.NotNil(t, res.StructuredContent, text)

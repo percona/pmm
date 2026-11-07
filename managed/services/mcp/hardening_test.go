@@ -277,7 +277,8 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-does-not-exist"})
 		assert.True(t, isError)
-		assert.Contains(t, text, "not_found")
+		assert.Equal(t, "error: not_found\n"+notInServiceList+"; use pmm_inventory to list service ids", text)
+		assert.NotContains(t, text, "svc-does-not-exist")
 	})
 
 	t.Run("EngineComesFromTheService", func(t *testing.T) {
@@ -333,9 +334,7 @@ func TestStoredPlanProbe(t *testing.T) {
 	t.Run("UnknownServiceRejectedBeforeAnyPlanLookup", func(t *testing.T) {
 		t.Parallel()
 
-		routes := qanRoutes()
-		routes["GET /v1/qan/query/QID-AAA/plan"] = fixture{file: "plan.json"}
-		fake := newFakePMM(t, routes)
+		fake := newFakePMM(t, explainRoutes(reportOne, map[string]fixture{"GET /v1/qan/query/QID-AAA/plan": {file: "plan.json"}}))
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain",
@@ -362,6 +361,7 @@ func TestStoredPlanProbe(t *testing.T) {
 		t.Parallel()
 
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
 		session := connect(t, newQANService(t, fake, true))
 
 		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
@@ -383,7 +383,7 @@ func TestStoredPlanProbe(t *testing.T) {
 	t.Run("PostgreSQLProbeErrorIsSurfaced", func(t *testing.T) {
 		t.Parallel()
 
-		routes := qanRoutes()
+		routes := explainRoutes("report_by_service_postgres.json", nil)
 		routes["GET /v1/qan/query/QID-PG/plan"] = fixture{file: "error_403.json", status: http.StatusInternalServerError}
 		fake := newFakePMM(t, routes)
 		session := connect(t, newQANService(t, fake, true))
@@ -399,7 +399,7 @@ func TestStoredPlanProbe(t *testing.T) {
 	t.Run("PostgreSQLWithoutAPlanGivesTheSetupHint", func(t *testing.T) {
 		t.Parallel()
 
-		routes := qanRoutes()
+		routes := explainRoutes("report_by_service_postgres.json", nil)
 		routes["GET /v1/qan/query/QID-PG/plan"] = fixture{file: "plan_empty.json"}
 		fake := newFakePMM(t, routes)
 		session := connect(t, newQANService(t, fake, true))
@@ -408,17 +408,6 @@ func TestStoredPlanProbe(t *testing.T) {
 		assert.True(t, isError)
 		assert.Contains(t, text, "not_found")
 		assert.Contains(t, text, "pgsm_enable_query_plan")
-	})
-
-	t.Run("PostgreSQLNeedsAQueryID", func(t *testing.T) {
-		t.Parallel()
-
-		fake := newFakePMM(t, qanRoutes())
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "query": "SELECT 1"})
-		assert.True(t, isError)
-		assert.Contains(t, text, "invalid_input")
 	})
 }
 
@@ -451,6 +440,7 @@ func TestExplainMasksLiteralsWhenRawSQLIsOff(t *testing.T) {
 		t.Parallel()
 
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
 		session := connect(t, newQANService(t, fake, false))
 
 		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})

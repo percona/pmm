@@ -1,0 +1,13 @@
+{
+  "metrics": {},
+  "text_metrics": {},
+  "sparkline": [],
+  "totals": {},
+  "fingerprint": "db.c.find()",
+  "metadata": {
+    "service_name": "shop-mongo",
+    "database": "shop_mongo",
+    "schema": "",
+    "service_type": "mongodb"
+  }
+}

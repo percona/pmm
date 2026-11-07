@@ -1,0 +1,139 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "4.50"
+    },
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "c",
+          "access_type": "ALL",
+          "possible_keys": [
+            "PRIMARY"
+          ],
+          "rows_examined_per_scan": 3,
+          "rows_produced_per_join": 3,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.30",
+            "prefix_cost": "0.55",
+            "data_read_per_join": "984"
+          },
+          "used_columns": [
+            "id",
+            "name"
+          ]
+        }
+      },
+      {
+        "table": {
+          "table_name": "r",
+          "access_type": "ref",
+          "possible_keys": [
+            "idx_customer"
+          ],
+          "key": "idx_customer",
+          "used_key_parts": [
+            "customer_id"
+          ],
+          "key_length": "4",
+          "ref": [
+            "shop.c.id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 4,
+          "filtered": "100.00",
+          "using_index": true,
+          "cost_info": {
+            "read_cost": "0.75",
+            "eval_cost": "0.40",
+            "prefix_cost": "1.70",
+            "data_read_per_join": "320"
+          },
+          "used_columns": [
+            "customer_id"
+          ]
+        }
+      },
+      {
+        "table": {
+          "table_name": "orders",
+          "access_type": "ref",
+          "possible_keys": [
+            "<auto_key0>"
+          ],
+          "key": "<auto_key0>",
+          "used_key_parts": [
+            "customer_id"
+          ],
+          "key_length": "4",
+          "ref": [
+            "shop.c.id"
+          ],
+          "rows_examined_per_scan": 2,
+          "rows_produced_per_join": 8,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2.00",
+            "eval_cost": "0.80",
+            "prefix_cost": "4.50",
+            "data_read_per_join": "256"
+          },
+          "used_columns": [
+            "customer_id",
+            "s"
+          ],
+          "materialized_from_subquery": {
+            "using_temporary_table": true,
+            "dependent": false,
+            "cacheable": true,
+            "query_block": {
+              "select_id": 2,
+              "cost_info": {
+                "query_cost": "0.65"
+              },
+              "grouping_operation": {
+                "using_filesort": false,
+                "table": {
+                  "table_name": "orders",
+                  "access_type": "index",
+                  "possible_keys": [
+                    "idx_customer"
+                  ],
+                  "key": "idx_customer",
+                  "used_key_parts": [
+                    "customer_id"
+                  ],
+                  "key_length": "4",
+                  "rows_examined_per_scan": 4,
+                  "rows_produced_per_join": 4,
+                  "filtered": "100.00",
+                  "cost_info": {
+                    "read_cost": "0.25",
+                    "eval_cost": "0.40",
+                    "prefix_cost": "0.65",
+                    "data_read_per_join": "320"
+                  },
+                  "used_columns": [
+                    "id",
+                    "customer_id",
+                    "total"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "Level": "Note",
+      "Code": 1003,
+      "Message": "with `orders` as (/* select#2 */ select `shop`.`orders`.`customer_id` AS `customer_id`,sum(`shop`.`orders`.`total`) AS `s` from `shop`.`orders` group by `shop`.`orders`.`customer_id`) /* select#1 */ select `shop`.`c`.`name` AS `name`,`orders`.`s` AS `s` from `orders` join `shop`.`customers` `c` join `shop`.`orders` `r` where ((`shop`.`r`.`customer_id` = `shop`.`c`.`id`) and (`orders`.`customer_id` = `shop`.`c`.`id`))"
+    }
+  ]
+}

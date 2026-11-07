@@ -522,7 +522,12 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
-	d, err := s.fetchQueryDetail(ctx, auth, in, from, to)
+	_, serviceIDs, err := s.callerServices(ctx, auth, in.ServiceID)
+	if err != nil {
+		return queryDetailResult{}, err
+	}
+
+	d, err := s.fetchQueryDetail(ctx, auth, in, serviceIDs, from, to)
 	if err != nil {
 		return queryDetailResult{}, err
 	}
@@ -533,7 +538,7 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 			return queryDetailResult{}, failed
 		}
 		return queryDetailResult{}, newToolError(codeNotFound,
-			"no data for queryid '%s' in the selected window; widen period_from or check the id with pmm_top_queries", in.QueryID)
+			"no data for this query in %s; widen period_from or check the id with pmm_top_queries", windowText(window{From: from, To: to}))
 	}
 	if d.engine != "" {
 		d.version = s.serviceVersion(ctx, auth, d.engine, d.serviceName)
@@ -564,15 +569,12 @@ type queryDetail struct {
 
 // fetchQueryDetail runs the two QAN calls, each tolerated independently so
 // partial data still returns with the other's error; it fails only when both fail.
-func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in queryDetailInput, from, to time.Time) (*queryDetail, error) {
-	l := s.l.WithField("tool", "pmm_query_detail")
-
+// Both calls are limited to serviceIDs, which the caller has checked against the service list.
+func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in queryDetailInput, serviceIDs []string, from, to time.Time) (*queryDetail, error) {
 	labels := []*qan_service.GetMetricsParamsBodyLabelsItems0{{Key: groupByQuery, Value: []string{in.QueryID}}}
 	exampleLabels := []*qan_service.GetQueryExampleParamsBodyLabelsItems0{{Key: groupByQuery, Value: []string{in.QueryID}}}
-	if in.ServiceID != "" {
-		labels = append(labels, &qan_service.GetMetricsParamsBodyLabelsItems0{Key: "service_id", Value: []string{in.ServiceID}})
-		exampleLabels = append(exampleLabels, &qan_service.GetQueryExampleParamsBodyLabelsItems0{Key: "service_id", Value: []string{in.ServiceID}})
-	}
+	labels = append(labels, &qan_service.GetMetricsParamsBodyLabelsItems0{Key: "service_id", Value: serviceIDs})
+	exampleLabels = append(exampleLabels, &qan_service.GetQueryExampleParamsBodyLabelsItems0{Key: "service_id", Value: serviceIDs})
 
 	metrics, metricsErr := s.api.GetMetrics(ctx, auth, qan_service.GetMetricsBody{
 		PeriodStartFrom: strfmt.DateTime(from),
@@ -583,7 +585,7 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 		Totals:          false,
 	})
 	if metricsErr != nil {
-		l.Debugf("qan:getMetrics failed: %s.", metricsErr)
+		s.l.Debugf("qan:getMetrics failed: %s.", metricsErr)
 	}
 	examples, exampleErr := s.api.GetQueryExample(ctx, auth, qan_service.GetQueryExampleBody{
 		PeriodStartFrom: strfmt.DateTime(from),
@@ -594,7 +596,7 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 		Limit:           1,
 	})
 	if exampleErr != nil {
-		l.Debugf("qan/query:getExample failed: %s.", exampleErr)
+		s.l.Debugf("qan/query:getExample failed: %s.", exampleErr)
 	}
 	if metricsErr != nil && exampleErr != nil {
 		return nil, metricsErr
@@ -675,7 +677,7 @@ func (d *queryDetail) result(rawSQL bool, base string, from, to time.Time) query
 
 // windowLine renders a result's window for its text, in RFC 3339 UTC like the structured window.
 func windowLine(w window) string {
-	return "Window: " + w.From.UTC().Format(time.RFC3339) + " – " + w.To.UTC().Format(time.RFC3339)
+	return "Window: " + windowText(w)
 }
 
 // checkQANValue rejects a QAN filter value with a quote or a backslash (PMM-15715).
@@ -898,7 +900,7 @@ func (s *Service) engineOf(ctx context.Context, auth callerAuth, serviceID strin
 	}
 	i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceID == serviceID })
 	if i < 0 {
-		return serviceInfo{}, newToolError(codeNotFound, "service '%s' not found; use pmm_inventory to list service ids", serviceID)
+		return serviceInfo{}, newToolError(codeNotFound, "%s; use pmm_inventory to list service ids", notInServiceList)
 	}
 	return services[i], nil
 }

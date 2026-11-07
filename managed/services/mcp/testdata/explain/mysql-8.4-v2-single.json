@@ -1,0 +1,20 @@
+{
+  "query": "/* select#1 */ select `shop`.`orders`.`id` AS `id`,`shop`.`orders`.`total` AS `total` from `shop`.`orders` where (`shop`.`orders`.`customer_id` = 1)",
+  "covering": false,
+  "operation": "Index lookup on orders using idx_customer (customer_id=1)",
+  "index_name": "idx_customer",
+  "query_type": "select",
+  "table_name": "orders",
+  "access_type": "index",
+  "schema_name": "shop",
+  "used_columns": [
+    "id",
+    "customer_id",
+    "total"
+  ],
+  "estimated_rows": 2.0,
+  "lookup_condition": "customer_id=1",
+  "index_access_type": "index_lookup",
+  "estimated_total_cost": 0.7,
+  "warnings": []
+}

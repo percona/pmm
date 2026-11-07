@@ -65,6 +65,7 @@ type client struct {
 	base *url.URL
 	http *http.Client
 
+	swagger   *httptransport.Runtime
 	server    *serverClient.PMMServerAPI
 	inventory *inventoryClient.PMMInventoryAPI
 	qan       *qanClient.PMMQANAPI
@@ -98,10 +99,14 @@ func newClient(baseURL string) (*client, error) {
 	// client in pmm-managed, and it races when clients are built concurrently.
 	swagger := httptransport.New(base.Host, base.Path, []string{base.Scheme})
 	swagger.Transport = rt
+	// SWAGGER_DEBUG and DEBUG make go-openapi dump whole requests, Authorization and cookies included. Set the field,
+	// not SetDebug: that writes a package global, which races between clients.
+	swagger.Debug = false
 
 	return &client{
 		base:      base,
 		http:      &http.Client{Transport: rt},
+		swagger:   swagger,
 		server:    serverClient.New(swagger, nil),
 		inventory: inventoryClient.New(swagger, nil),
 		qan:       qanClient.New(swagger, nil),

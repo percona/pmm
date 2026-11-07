@@ -28,11 +28,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/percona/pmm/api/actions/v1/json/client/actions_service"
-	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 )
 
 const (
@@ -48,6 +46,10 @@ const (
 	formatTraditional = "traditional"
 	// The format of pg_stat_monitor's stored plans.
 	formatText = "text"
+
+	livePlanNote = "Live plan: what the database would choose now, not during the window."
+	// The note of tables found in a live MySQL plan.
+	liveTablesNote = "Tables found in a live plan: what the database would choose now, not during the window."
 
 	infoDefinition = "definition"
 	infoIndexes    = "indexes"
@@ -66,19 +68,26 @@ const (
 )
 
 type explainInput struct {
-	ServiceID    string   `json:"service_id" jsonschema:"Service id from pmm_inventory"`
-	QueryID      string   `json:"queryid,omitempty" jsonschema:"Query id from pmm_top_queries (MySQL, PostgreSQL stored plans, MongoDB via the stored example)"`
-	Query        string   `json:"query,omitempty" jsonschema:"Explicit statement to explain (MongoDB only; MySQL is addressed by queryid)"`
-	Database     string   `json:"database,omitempty" jsonschema:"Schema the query runs in (from pmm_query_detail); MySQL only"`
-	Placeholders []string `json:"placeholders,omitempty" jsonschema:"Values for ? placeholders in the fingerprint, in order; MySQL only"`
-	Format       string   `json:"format,omitempty" jsonschema:"json (default) or traditional; MySQL only"`
+	QueryRef     *queryRefInput `json:"query_ref,omitempty" jsonschema:"The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid"`
+	QueryID      string         `json:"queryid,omitempty" jsonschema:"Query id from pmm_top_queries, instead of query_ref"`
+	ServiceID    string         `json:"service_id,omitempty" jsonschema:"Service id from pmm_inventory; needed only when the queryid ran on several of your services"`
+	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid"`
+	PeriodTo     string         `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now); with queryid"`
+	Database     string         `json:"database,omitempty" jsonschema:"Schema the query runs in, to override the one QAN recorded; MySQL only"`
+	Placeholders []string       `json:"placeholders,omitempty" jsonschema:"Values for ? placeholders in the fingerprint, in order; MySQL only"`
+	Format       string         `json:"format,omitempty" jsonschema:"json (default) or traditional; MySQL only"`
 }
 
 type schemaInput struct {
-	ServiceID string   `json:"service_id" jsonschema:"Service id from pmm_inventory"`
-	Database  string   `json:"database" jsonschema:"Database / schema name"`
-	Tables    []string `json:"tables" jsonschema:"1 to 10 table names"`
-	InfoTypes string   `json:"info_types,omitempty" jsonschema:"definition (default), indexes or all"`
+	QueryRef     *queryRefInput `json:"query_ref,omitempty" jsonschema:"The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid"`
+	QueryID      string         `json:"queryid,omitempty" jsonschema:"Query id from pmm_top_queries, instead of query_ref, to fetch its tables"`
+	ServiceID    string         `json:"service_id,omitempty" jsonschema:"Service id from pmm_inventory; with tables, or when a queryid ran on several services"`
+	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid"`
+	PeriodTo     string         `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now); with queryid"`
+	Database     string         `json:"database,omitempty" jsonschema:"Database / schema name; with service_id and tables"`
+	Tables       []string       `json:"tables,omitempty" jsonschema:"1 to 10 table names; with service_id and database"`
+	Placeholders []string       `json:"placeholders,omitempty" jsonschema:"Values for ? placeholders in the fingerprint, in order; MySQL, with query_ref or queryid"`
+	InfoTypes    string         `json:"info_types,omitempty" jsonschema:"definition (default), indexes or all"`
 }
 
 // explainResult is the result of pmm_get_explain.
@@ -89,13 +98,12 @@ type explainResult struct {
 	Plan        string    `json:"plan" jsonschema:"Untrusted. Execution plan, its literals masked when raw SQL is off; cut at 64 KiB."`
 	Truncated   bool      `json:"truncated" jsonschema:"Set when the plan was cut at 64 KiB."`
 	Live        bool      `json:"live" jsonschema:"Set when the PMM agent produced the plan now (MySQL, MongoDB); unset for pg_stat_monitor's stored plan."`
+	Note        string    `json:"note,omitempty" jsonschema:"Set for a live plan: it is what the database would choose now, not during the window."`
 	QueryRef    *queryRef `json:"query_ref,omitempty" jsonschema:"Identifies the query and the window it was read in."`
-	PMMURL      string    `json:"pmm_url" jsonschema:"Link to the query in PMM Query Analytics, or to the service over the last hour when the call has no queryid."`
+	PMMURL      string    `json:"pmm_url" jsonschema:"Link to the query in PMM Query Analytics."`
 
 	// planID is pg_stat_monitor's id of a stored plan.
 	planID string
-	// serviceLink is set when PMMURL links the service rather than the query.
-	serviceLink bool
 }
 
 func (r explainResult) render() string {
@@ -107,20 +115,27 @@ func (r explainResult) render() string {
 	if r.Truncated {
 		text += "\n" + cutNote("plan", maxPlanBytes)
 	}
-	label := "View this query in PMM QAN"
-	if r.serviceLink {
-		label = "View this service in PMM QAN"
+	if r.Note != "" {
+		text += "\n" + r.Note
 	}
-	return text + "\n\n" + link(label, r.PMMURL)
+	return text + "\n\n" + link("View this query in PMM QAN", r.PMMURL)
 }
 
 // schemaResult is the result of pmm_get_schema.
 type schemaResult struct {
-	Tables  []tableResult `json:"tables" jsonschema:"The tables, in input order."`
+	Tables  []tableResult `json:"tables" jsonschema:"The tables, in input order, or in the order of the plan (MySQL) or QAN (PostgreSQL) for a query."`
 	Partial bool          `json:"partial" jsonschema:"Set when some actions failed and others succeeded; a table's failures are in definition_error and indexes_error."`
+
+	// The query forms set these.
+	Unresolved []string  `json:"unresolved,omitempty" jsonschema:"Untrusted. Plan names not tied to a table, such as derived tables, CTEs and unions; not fetched."`
+	NotFetched []string  `json:"not_fetched,omitempty" jsonschema:"Untrusted. Tables past the 10-table cap: database.table, in plan (MySQL) or QAN (PostgreSQL) order."`
+	QueryRef   *queryRef `json:"query_ref,omitempty" jsonschema:"Identifies the query and the window it was read in; set when the tables come from a query."`
+	Note       string    `json:"note,omitempty" jsonschema:"Set when the tables come from a live plan: what the database would choose now, not during the window."`
 
 	// definitions and indexes are the parts info_types asked for.
 	definitions, indexes bool
+	// service names the resolved service of a query form in the text, as engine and name.
+	service serviceInfo
 }
 
 // tableResult is one table of a pmm_get_schema result.
@@ -138,7 +153,14 @@ type tableResult struct {
 }
 
 func (r schemaResult) render() string {
-	blocks := make([]string, 0, len(r.Tables))
+	var parts []string
+	if r.QueryRef != nil {
+		parts = append(parts, "queryid: "+r.QueryRef.QueryID+"\n"+windowLine(window{From: r.QueryRef.PeriodFrom, To: r.QueryRef.PeriodTo})+
+			"\nservice: "+r.service.ServiceName+" ("+r.service.Engine+")")
+		if len(r.Tables) == 0 {
+			parts = append(parts, "No base table found in the plan.")
+		}
+	}
 	for _, t := range r.Tables {
 		block := "### " + t.Database + "." + t.Name
 		if r.definitions {
@@ -147,9 +169,25 @@ func (r schemaResult) render() string {
 		if r.indexes {
 			block += "\n" + schemaPart(true, t.Indexes, t.indexesCut, t.IndexesError)
 		}
-		blocks = append(blocks, block)
+		parts = append(parts, block)
 	}
-	return strings.Join(blocks, "\n\n")
+
+	var notes []string
+	if len(r.NotFetched) > 0 {
+		notes = append(notes, fmt.Sprintf("Not fetched, the %d-table cap was reached: %s; pass them as service_id, database and tables.",
+			maxSchemaTables, strings.Join(r.NotFetched, ", ")))
+	}
+	if len(r.Unresolved) > 0 {
+		notes = append(notes, "Unresolved, not fetched (derived tables, CTEs, unions and names the plan doesn't tie to a table): "+
+			strings.Join(r.Unresolved, ", ")+"; pass the tables behind them as service_id, database and tables.")
+	}
+	if r.Note != "" {
+		notes = append(notes, r.Note)
+	}
+	if len(notes) > 0 {
+		parts = append(parts, strings.Join(notes, "\n"))
+	}
+	return strings.Join(parts, "\n\n")
 }
 
 // cutNote is the text's note that a capped text was cut.
@@ -161,12 +199,15 @@ func (s *Service) registerActionTools(server *mcp.Server) {
 	addTool(s, server, &mcp.Tool{
 		Name:  "pmm_get_explain",
 		Title: "Execution plan",
-		Description: "Return the execution plan for a query addressed by queryid. PostgreSQL plans come from " +
+		Description: "Return the execution plan for a query addressed by its query_ref (as pmm_top_queries and " +
+			"pmm_query_detail return it) or by queryid; the service is resolved from your service list, and " +
+			"service_id is needed only when the queryid ran on several services. PostgreSQL plans come from " +
 			"pg_stat_monitor's stored plan (needs pgsm_enable_query_plan=on). MySQL plans are produced live by " +
 			"the PMM agent with a non-executing EXPLAIN (never EXPLAIN ANALYZE). MongoDB plans are produced live " +
 			"with explain, which runs the query's candidate plans to collect execution statistics but never " +
-			"modifies data. If a MySQL fingerprint has ? placeholders and no query example is stored, pass " +
-			"placeholders and database.",
+			"modifies data, and only the example QAN stored is explained. A live plan is what the database would " +
+			"choose now, not during the window. If a MySQL fingerprint has ? placeholders and no query example is " +
+			"stored, pass placeholders and database.",
 		Annotations: readOnly("Execution plan"),
 	}, s.explain)
 
@@ -174,22 +215,16 @@ func (s *Service) registerActionTools(server *mcp.Server) {
 		Name:  "pmm_get_schema",
 		Title: "Table DDL",
 		Description: "Return SHOW CREATE TABLE (MySQL or PostgreSQL) and/or the indexes of up to 10 tables via the PMM agent, " +
-			"fetched in parallel. A table that fails shows its error inline; the others still return.",
+			"fetched in parallel. Name the tables with service_id, database and tables, or pass a query's query_ref (as " +
+			"pmm_top_queries and pmm_query_detail return it) or queryid to fetch the tables it uses: PostgreSQL's come from " +
+			"QAN, MySQL's from a live, non-executing EXPLAIN of the query (best effort: names the plan doesn't tie to a table " +
+			"are listed in unresolved, and tables beyond 10 in not_fetched). If a MySQL fingerprint has ? placeholders and no " +
+			"query example is stored, pass placeholders. A table that fails shows its error inline; the others still return.",
 		Annotations: readOnly("Table DDL"),
 	}, s.schema)
 }
 
 func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in explainInput) (explainResult, error) {
-	if in.ServiceID == "" {
-		return explainResult{}, newToolError(codeInvalidInput, "service_id is required")
-	}
-	if in.QueryID == "" && in.Query == "" {
-		return explainResult{}, newToolError(codeInvalidInput, "queryid or query is required")
-	}
-	err := checkQANValue("queryid", in.QueryID)
-	if err != nil {
-		return explainResult{}, err
-	}
 	format := in.Format
 	if format == "" {
 		format = formatJSON
@@ -200,55 +235,58 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	auth := callerAuthFromHeader(req.Extra.Header)
 	base := s.publicBaseURL(ctx, req.Extra.Header)
 	now := s.now()
+	ref, err := refFromInput(in.QueryRef, in.QueryID, in.ServiceID, in.PeriodFrom, in.PeriodTo, now)
+	if err != nil {
+		return explainResult{}, err
+	}
 	// One PMM_MCP_ACTION_TIMEOUT bounds the whole call, lookups and actions alike.
 	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
 	defer cancel()
 	// Read once: each read is a settings query, and two reads could disagree.
 	raw := s.rawSQL()
 
-	// Resolve the service before anything else: the engine decides where the
-	// plan comes from, and an unknown service_id must fail before any plan is
-	// fetched.
-	svc, err := s.engineOf(ctx, auth, in.ServiceID)
+	resolved, err := s.resolveQuery(ctx, auth, ref)
 	if err != nil {
 		return explainResult{}, err
 	}
+	svc := resolved.Service
+	resolvedRef := resolved.Ref
+	pmmURL := qanQueryURL(base, resolvedRef.QueryID, svc.ServiceName, resolvedRef.PeriodFrom, resolvedRef.PeriodTo, "explain")
 
-	// PostgreSQL has no live EXPLAIN action; its plans come only from
-	// pg_stat_monitor. MySQL and MongoDB never have stored plans, so they skip
-	// the probe rather than paying for a lookup that cannot succeed.
+	// PostgreSQL has no live EXPLAIN action; its plans come only from pg_stat_monitor.
 	if svc.Engine == enginePostgreSQL {
-		return s.storedPlan(ctx, auth, in.QueryID, svc, base, now, raw)
+		return s.storedPlan(ctx, auth, resolvedRef, svc, pmmURL, raw)
 	}
 
 	var body actions_service.StartServiceActionBody
 	switch svc.Engine {
 	case engineMySQL:
-		if in.QueryID == "" {
-			return explainResult{}, newToolError(codeInvalidInput, "MySQL EXPLAIN is addressed by queryid; pass the queryid from pmm_top_queries")
+		if resolved.DetailErr != nil {
+			return explainResult{}, resolved.DetailErr
 		}
-		// PMM resolves the placeholder values from the stored query example, so
-		// service_id + queryid (+ database) is enough; explicit placeholders
-		// override. Without an example PMM EXPLAINs the raw ? fingerprint and
-		// MySQL answers 1064, mapped below.
+		// With a stored query example the service and queryid are enough, and
+		// pmm-managed rejects placeholders that do not match it. Without one
+		// PMM EXPLAINs the raw ? fingerprint and MySQL answers 1064, mapped below.
+		database := cmp.Or(in.Database, resolved.Database)
 		if format == formatTraditional {
 			body.MysqlExplain = &actions_service.StartServiceActionParamsBodyMysqlExplain{
-				ServiceID: in.ServiceID, QueryID: in.QueryID, Database: in.Database, Placeholders: in.Placeholders,
+				ServiceID: svc.ServiceID, QueryID: resolvedRef.QueryID, Database: database, Placeholders: in.Placeholders,
 			}
 		} else {
 			body.MysqlExplainJSON = &actions_service.StartServiceActionParamsBodyMysqlExplainJSON{
-				ServiceID: in.ServiceID, QueryID: in.QueryID, Database: in.Database, Placeholders: in.Placeholders,
+				ServiceID: svc.ServiceID, QueryID: resolvedRef.QueryID, Database: database, Placeholders: in.Placeholders,
 			}
 		}
 	case engineMongoDB:
-		query := in.Query
-		if query == "" {
-			query, err = s.storedExample(ctx, auth, in.QueryID, in.ServiceID, now)
-			if err != nil {
-				return explainResult{}, err
-			}
+		if resolved.DetailErr != nil {
+			return explainResult{}, resolved.DetailErr
 		}
-		body.MongodbExplain = &actions_service.StartServiceActionParamsBodyMongodbExplain{ServiceID: in.ServiceID, Query: query}
+		if resolved.Example == "" {
+			return explainResult{}, newToolError(codeNoQuerySource,
+				"no stored query example for queryid '%s' in %s; enable query examples for the service, or pick a window in which QAN stored one",
+				resolvedRef.QueryID, windowText(window{From: resolvedRef.PeriodFrom, To: resolvedRef.PeriodTo}))
+		}
+		body.MongodbExplain = &actions_service.StartServiceActionParamsBodyMongodbExplain{ServiceID: svc.ServiceID, Query: resolved.Example}
 		// format is MySQL's; MongoDB's explain always answers JSON.
 		format = formatJSON
 	default:
@@ -261,51 +299,40 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	}
 	defer release()
 
-	output, err := s.runAction(ctx, auth, body, !raw)
-	var te *toolError
-	if errors.As(err, &te) && te.code == codeInvalidInput && strings.HasPrefix(te.message, "Error 1064 ") {
-		// MySQL answered 1064: EXPLAIN ran on the ? fingerprint because no
-		// concrete statement was available.
-		return explainResult{}, newToolError(codeInvalidInput,
-			"EXPLAIN could not run on the fingerprint (placeholder syntax): %s. "+
-				"Enable query examples for this service in PMM, or pass placeholders (one value per ?, in order) and database.", te.message)
-	}
+	releaseService, err := s.startLiveOn(svc.ServiceID)
 	if err != nil {
 		return explainResult{}, err
+	}
+	defer releaseService()
+
+	output, err := s.runAction(ctx, auth, body, !raw)
+	if err != nil {
+		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "")
 	}
 
 	plan, decoded := decodeExplainOutput(output, raw)
 	if !raw {
 		plan = redactPlan(svc.Engine, format, plan, decoded)
 	}
-	r := explainResult{Engine: svc.Engine, ServiceName: svc.ServiceName, Format: format, Live: true}
+	r := explainResult{Engine: svc.Engine, ServiceName: svc.ServiceName, Format: format, Live: true, Note: livePlanNote, QueryRef: &resolvedRef, PMMURL: pmmURL}
 	r.Plan, r.Truncated = capText(plan, maxPlanBytes)
-	if in.QueryID != "" {
-		r.PMMURL = qanQueryURL(base, in.QueryID, svc.ServiceName, now.Add(-time.Hour), now, "explain")
-	} else {
-		r.PMMURL, r.serviceLink = qanOverviewURL(base, svc.ServiceName, now.Add(-time.Hour), now), true
-	}
 	return r, nil
 }
 
 // storedPlan returns pg_stat_monitor's stored plan for a digest, or none on 200 {};
 // qan-api2 ignores the service_id it is sent until PMM-15697.
 func (s *Service) storedPlan(
-	ctx context.Context, auth callerAuth, queryID string, svc serviceInfo, base string, now time.Time, raw bool,
+	ctx context.Context, auth callerAuth, ref queryRef, svc serviceInfo, pmmURL string, raw bool,
 ) (explainResult, error) {
-	if queryID == "" {
-		return explainResult{}, newToolError(codeInvalidInput, "PostgreSQL EXPLAIN is addressed by queryid; pass the queryid from pmm_top_queries")
-	}
-
-	plan, err := s.api.GetQueryPlan(ctx, auth, queryID, svc.ServiceID)
+	plan, err := s.api.GetQueryPlan(ctx, auth, ref.QueryID, svc.ServiceID)
 	if err != nil {
 		return explainResult{}, err
 	}
 	if plan == nil || plan.QueryPlan == "" {
 		return explainResult{}, newToolError(codeNotFound,
-			"no stored plan for queryid '%s'. PMM has no live EXPLAIN action for PostgreSQL, so plans come only from "+
+			"no stored plan for this query. PMM has no live EXPLAIN action for PostgreSQL, so plans come only from "+
 				"pg_stat_monitor: monitor the service with pg_stat_monitor and pg_stat_monitor.pgsm_enable_query_plan=on, "+
-				"then retry once the query has run again", queryID)
+				"then retry once the query has run again")
 	}
 
 	body := plan.QueryPlan
@@ -316,38 +343,12 @@ func (s *Service) storedPlan(
 		Engine:      svc.Engine,
 		ServiceName: svc.ServiceName,
 		Format:      formatText,
-		PMMURL:      qanQueryURL(base, queryID, svc.ServiceName, now.Add(-time.Hour), now, "explain"),
+		QueryRef:    &ref,
+		PMMURL:      pmmURL,
 		planID:      plan.Planid,
 	}
 	r.Plan, r.Truncated = capText(body, maxPlanBytes)
 	return r, nil
-}
-
-// storedExample returns the stored example statement for a queryid, which is
-// the natural input of mongodb_explain.
-func (s *Service) storedExample(ctx context.Context, auth callerAuth, queryID, serviceID string, now time.Time) (string, error) {
-	if queryID == "" {
-		return "", newToolError(codeInvalidInput, "queryid or query is required")
-	}
-	res, err := s.api.GetQueryExample(ctx, auth, qan_service.GetQueryExampleBody{
-		PeriodStartFrom: strfmt.DateTime(now.Add(-day)),
-		PeriodStartTo:   strfmt.DateTime(now),
-		FilterBy:        queryID,
-		GroupBy:         groupByQuery,
-		Labels: []*qan_service.GetQueryExampleParamsBodyLabelsItems0{
-			{Key: groupByQuery, Value: []string{queryID}},
-			{Key: "service_id", Value: []string{serviceID}},
-		},
-		Limit: 1,
-	})
-	if err != nil {
-		return "", err
-	}
-	if len(res.QueryExamples) == 0 || res.QueryExamples[0].Example == "" {
-		return "", newToolError(codeNoQuerySource,
-			"no stored query example for queryid '%s' in the last 24h; enable query examples for the service or pass an explicit query", queryID)
-	}
-	return res.QueryExamples[0].Example, nil
 }
 
 func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schemaInput) (schemaResult, error) {
@@ -355,20 +356,28 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 	if !slices.Contains([]string{infoDefinition, infoIndexes, infoAll}, infoTypes) {
 		return schemaResult{}, newToolError(codeInvalidInput, "info_types must be definition, indexes or all; got '%s'", in.InfoTypes)
 	}
+	queryForm := in.QueryRef != nil || in.QueryID != ""
+	switch {
+	case queryForm && (in.Database != "" || in.Tables != nil):
+		return schemaResult{}, newToolError(codeInvalidInput,
+			"database and tables name the tables themselves: pass them with service_id, without query_ref or queryid")
+	case !queryForm && len(in.Placeholders) > 0:
+		return schemaResult{}, newToolError(codeInvalidInput, "placeholders go with query_ref or queryid, for a MySQL query")
+	case !queryForm && (in.PeriodFrom != "" || in.PeriodTo != ""):
+		return schemaResult{}, newToolError(codeInvalidInput, "period_from and period_to go with queryid")
+	case !queryForm && (in.ServiceID == "" || in.Database == "" || len(in.Tables) == 0):
+		return schemaResult{}, newToolError(codeInvalidInput,
+			"pass query_ref or queryid to fetch a query's tables, or service_id, database and tables to name them")
+	}
+	auth := callerAuthFromHeader(req.Extra.Header)
+	if queryForm {
+		return s.queryTables(ctx, auth, in, infoTypes)
+	}
+
 	tables, err := checkTables(in.Tables)
 	if err != nil {
 		return schemaResult{}, err
 	}
-	if in.ServiceID == "" || in.Database == "" {
-		return schemaResult{}, newToolError(codeInvalidInput, "service_id and database are required")
-	}
-	auth := callerAuthFromHeader(req.Extra.Header)
-	release, err := s.startLive(auth)
-	if err != nil {
-		return schemaResult{}, err
-	}
-	defer release()
-
 	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
 	defer cancel()
 
@@ -376,11 +385,137 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 	if err != nil {
 		return schemaResult{}, err
 	}
+	err = checkSchemaEngine(svc.Engine)
+	if err != nil {
+		return schemaResult{}, err
+	}
+
+	release, err := s.startLive(auth)
+	if err != nil {
+		return schemaResult{}, err
+	}
+	defer release()
+
+	releaseService, err := s.startLiveOn(svc.ServiceID)
+	if err != nil {
+		return schemaResult{}, err
+	}
+	defer releaseService()
+
 	refs := make([]tableRef, len(tables))
 	for i, t := range tables {
 		refs[i] = tableRef{database: in.Database, name: t}
 	}
 	return s.tableInfo(ctx, auth, svc, refs, infoTypes)
+}
+
+// queryTables fetches the tables of a query: PostgreSQL's from QAN's example, MySQL's from a live EXPLAIN plan.
+func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInput, infoTypes string) (schemaResult, error) {
+	ref, err := refFromInput(in.QueryRef, in.QueryID, in.ServiceID, in.PeriodFrom, in.PeriodTo, s.now())
+	if err != nil {
+		return schemaResult{}, err
+	}
+	// One PMM_MCP_ACTION_TIMEOUT bounds the whole call, lookups and actions alike.
+	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
+	defer cancel()
+
+	resolved, err := s.resolveQuery(ctx, auth, ref)
+	if err != nil {
+		return schemaResult{}, err
+	}
+	svc := resolved.Service
+	resolvedRef := resolved.Ref
+	err = checkSchemaEngine(svc.Engine)
+	if err != nil {
+		return schemaResult{}, err
+	}
+	// A failed metrics or example call can drop the database, or PostgreSQL's tables: its error is the answer.
+	if resolved.DetailErr != nil {
+		return schemaResult{}, resolved.DetailErr
+	}
+
+	var tables []tableRef
+	if svc.Engine == enginePostgreSQL {
+		for _, name := range resolved.Tables {
+			t := tableRef{database: resolved.Database, name: name}
+			if strings.TrimSpace(name) != "" && !slices.Contains(tables, t) {
+				tables = append(tables, t)
+			}
+		}
+		if len(tables) == 0 {
+			return schemaResult{}, newToolError(codeNoQuerySource, "QAN has no tables for queryid '%s' in %s; pass service_id, database and tables to name them",
+				resolvedRef.QueryID, windowText(window{From: resolvedRef.PeriodFrom, To: resolvedRef.PeriodTo}))
+		}
+	}
+
+	release, err := s.startLive(auth)
+	if err != nil {
+		return schemaResult{}, err
+	}
+	defer release()
+
+	releaseService, err := s.startLiveOn(svc.ServiceID)
+	if err != nil {
+		return schemaResult{}, err
+	}
+	defer releaseService()
+
+	var unresolved []string
+	var note string
+	if svc.Engine == engineMySQL {
+		tables, unresolved, err = s.planTablesOf(ctx, auth, resolved, in.Placeholders)
+		if err != nil {
+			return schemaResult{}, err
+		}
+		note = liveTablesNote
+	}
+
+	fetch := tables[:min(len(tables), maxSchemaTables)]
+	r := schemaResult{Tables: []tableResult{}}
+	if len(fetch) > 0 {
+		r, err = s.tableInfo(ctx, auth, svc, fetch, infoTypes)
+		if err != nil {
+			return schemaResult{}, err
+		}
+	}
+	for _, t := range tables[len(fetch):] {
+		r.NotFetched = append(r.NotFetched, t.database+"."+t.name)
+	}
+	r.Unresolved, r.QueryRef, r.Note, r.service = unresolved, &resolvedRef, note, svc
+	return r, nil
+}
+
+// planTablesOf runs one live EXPLAIN of a MySQL query and returns the tables of its plan, in plan order,
+// and the plan's names that are not tied to a table.
+func (s *Service) planTablesOf(ctx context.Context, auth callerAuth, resolved *resolvedQuery, placeholders []string) ([]tableRef, []string, error) {
+	body := actions_service.StartServiceActionBody{
+		MysqlExplainJSON: &actions_service.StartServiceActionParamsBodyMysqlExplainJSON{
+			ServiceID: resolved.Service.ServiceID, QueryID: resolved.Ref.QueryID, Database: resolved.Database, Placeholders: placeholders,
+		},
+	}
+	output, err := s.runAction(ctx, auth, body, !s.rawSQL())
+	if err != nil {
+		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative)
+	}
+	// Only the plan is read: the explained statement can be the stored example, literals included.
+	plan, err := decodeExplainEnvelope(output)
+	if err != nil {
+		return nil, nil, newToolError(codePMMUnavailable, "cannot read the EXPLAIN output: %s", err)
+	}
+	entries, err := planTables(plan)
+	if err != nil {
+		return nil, nil, newToolError(codePMMUnavailable, "cannot read the EXPLAIN plan: %s", err)
+	}
+	tables, unresolved := resolveTables(entries, aliasMap(plan), resolved.Database)
+	return tables, unresolved, nil
+}
+
+// checkSchemaEngine refuses the engines that have no table definition actions.
+func checkSchemaEngine(engine string) error {
+	if engine != engineMySQL && engine != enginePostgreSQL {
+		return newToolError(codeInvalidInput, "SHOW CREATE TABLE is not available for engine '%s'", engine)
+	}
+	return nil
 }
 
 // tableRef names one table.
@@ -416,11 +551,8 @@ type schemaJob struct {
 
 // tableInfo runs the DDL and index actions of tables, at most maxActionsInFlight
 // at a time and all under ctx's one deadline, and returns the tables in input
-// order. It fails only when every action fails.
+// order. It fails only when every action fails. Callers run checkSchemaEngine first.
 func (s *Service) tableInfo(ctx context.Context, auth callerAuth, svc serviceInfo, tables []tableRef, infoTypes string) (schemaResult, error) {
-	if svc.Engine != engineMySQL && svc.Engine != enginePostgreSQL {
-		return schemaResult{}, newToolError(codeInvalidInput, "SHOW CREATE TABLE is not available for engine '%s'", svc.Engine)
-	}
 	var jobs []schemaJob
 	for i, t := range tables {
 		ddl, idx := schemaBodies(svc, t)
@@ -615,9 +747,35 @@ func mapActionStartError(err error) error {
 	return te
 }
 
+// mysqlExplainError gives a failed MySQL EXPLAIN action's placeholder errors their remediation: hint follows a 1064,
+// and alternative follows the placeholder-count message.
+func mysqlExplainError(err error, hint, alternative string) error {
+	te, ok := errors.AsType[*toolError](err)
+	if !ok || te.code != codeInvalidInput {
+		return err
+	}
+	switch {
+	case strings.Contains(te.message, placeholdersCountError):
+		return newToolError(codeInvalidInput, "%s%s", placeholdersCountMessage, alternative)
+	case strings.HasPrefix(te.message, "Error 1064 "):
+		// MySQL answered 1064: EXPLAIN ran on the ? fingerprint because no concrete statement was available.
+		return newToolError(codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): %s. %s", te.message, hint)
+	default:
+		return err
+	}
+}
+
 const (
+	explainPlaceholderHint = "Enable query examples for this service in PMM, or pass placeholders (one value per ?, in order) and database."
+	schemaPlaceholderHint  = "Enable query examples for this service in PMM, or pass placeholders (one value per ?, in order), " +
+		"or pass service_id, database and tables in place of the query."
+	schemaCountAlternative  = "; or pass service_id, database and tables instead of a query reference"
 	trimmedQueryRemediation = "QAN stored this query trimmed (pmm-agent max-query-length), so it can't be explained; " +
 		"pick another query, or raise max-query-length on the agent"
+	// pmm-managed's 400 for a MySQL explain whose placeholder values do not fit the statement.
+	placeholdersCountError   = "placeholders count is not correct"
+	placeholdersCountMessage = "the number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, " +
+		"in order, or none when QAN stored a query example"
 	mongoReadOnlyRemediation = "MongoDB can explain read operations only (find, aggregate, count, distinct); " +
 		"pick a read query from pmm_top_queries"
 )
