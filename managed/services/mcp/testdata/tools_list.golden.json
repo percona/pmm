@@ -436,7 +436,7 @@
       "additionalProperties": false,
       "properties": {
         "not_fetched": {
-          "description": "Untrusted. Tables of the query beyond the 10-table cap, as database.table in plan order.",
+          "description": "Untrusted. Tables past the 10-table cap: database.table, in plan (MySQL) or QAN (PostgreSQL) order.",
           "items": {
             "type": "string"
           },

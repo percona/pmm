@@ -128,12 +128,14 @@ type schemaResult struct {
 
 	// The query forms set these.
 	Unresolved []string  `json:"unresolved,omitempty" jsonschema:"Untrusted. Plan names not tied to a table, such as derived tables, CTEs and unions; not fetched."`
-	NotFetched []string  `json:"not_fetched,omitempty" jsonschema:"Untrusted. Tables of the query beyond the 10-table cap, as database.table in plan order."`
+	NotFetched []string  `json:"not_fetched,omitempty" jsonschema:"Untrusted. Tables past the 10-table cap: database.table, in plan (MySQL) or QAN (PostgreSQL) order."`
 	QueryRef   *queryRef `json:"query_ref,omitempty" jsonschema:"Identifies the query and the window it was read in; set when the tables come from a query."`
 	Note       string    `json:"note,omitempty" jsonschema:"Set when the tables come from a live plan: what the database would choose now, not during the window."`
 
 	// definitions and indexes are the parts info_types asked for.
 	definitions, indexes bool
+	// service names the resolved service of a query form in the text, as engine and name.
+	service serviceInfo
 }
 
 // tableResult is one table of a pmm_get_schema result.
@@ -153,7 +155,8 @@ type tableResult struct {
 func (r schemaResult) render() string {
 	var parts []string
 	if r.QueryRef != nil {
-		parts = append(parts, "queryid: "+r.QueryRef.QueryID+"\n"+windowLine(window{From: r.QueryRef.PeriodFrom, To: r.QueryRef.PeriodTo}))
+		parts = append(parts, "queryid: "+r.QueryRef.QueryID+"\n"+windowLine(window{From: r.QueryRef.PeriodFrom, To: r.QueryRef.PeriodTo})+
+			"\nservice: "+r.service.ServiceName+" ("+r.service.Engine+")")
 		if len(r.Tables) == 0 {
 			parts = append(parts, "No base table found in the plan.")
 		}
@@ -176,7 +179,7 @@ func (r schemaResult) render() string {
 	}
 	if len(r.Unresolved) > 0 {
 		notes = append(notes, "Unresolved, not fetched (derived tables, CTEs, unions and names the plan doesn't tie to a table): "+
-			strings.Join(r.Unresolved, ", "))
+			strings.Join(r.Unresolved, ", ")+"; pass the tables behind them as service_id, database and tables.")
 	}
 	if r.Note != "" {
 		notes = append(notes, r.Note)
@@ -304,7 +307,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 
 	output, err := s.runAction(ctx, auth, body, !raw)
 	if err != nil {
-		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint)
+		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "")
 	}
 
 	plan, decoded := decodeExplainOutput(output, raw)
@@ -355,7 +358,7 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 	}
 	queryForm := in.QueryRef != nil || in.QueryID != ""
 	switch {
-	case queryForm && (in.Database != "" || len(in.Tables) > 0):
+	case queryForm && (in.Database != "" || in.Tables != nil):
 		return schemaResult{}, newToolError(codeInvalidInput,
 			"database and tables name the tables themselves: pass them with service_id, without query_ref or queryid")
 	case !queryForm && len(in.Placeholders) > 0:
@@ -415,8 +418,6 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 	// One PMM_MCP_ACTION_TIMEOUT bounds the whole call, lookups and actions alike.
 	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
 	defer cancel()
-	// Read once: each read is a settings query, and two reads could disagree.
-	raw := s.rawSQL()
 
 	resolved, err := s.resolveQuery(ctx, auth, ref)
 	if err != nil {
@@ -462,7 +463,7 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 	var unresolved []string
 	var note string
 	if svc.Engine == engineMySQL {
-		tables, unresolved, err = s.planTablesOf(ctx, auth, resolved, in.Placeholders, raw)
+		tables, unresolved, err = s.planTablesOf(ctx, auth, resolved, in.Placeholders)
 		if err != nil {
 			return schemaResult{}, err
 		}
@@ -480,21 +481,21 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 	for _, t := range tables[len(fetch):] {
 		r.NotFetched = append(r.NotFetched, t.database+"."+t.name)
 	}
-	r.Unresolved, r.QueryRef, r.Note = unresolved, &resolvedRef, note
+	r.Unresolved, r.QueryRef, r.Note, r.service = unresolved, &resolvedRef, note, svc
 	return r, nil
 }
 
 // planTablesOf runs one live EXPLAIN of a MySQL query and returns the tables of its plan, in plan order,
 // and the plan's names that are not tied to a table.
-func (s *Service) planTablesOf(ctx context.Context, auth callerAuth, resolved *resolvedQuery, placeholders []string, raw bool) ([]tableRef, []string, error) {
+func (s *Service) planTablesOf(ctx context.Context, auth callerAuth, resolved *resolvedQuery, placeholders []string) ([]tableRef, []string, error) {
 	body := actions_service.StartServiceActionBody{
 		MysqlExplainJSON: &actions_service.StartServiceActionParamsBodyMysqlExplainJSON{
 			ServiceID: resolved.Service.ServiceID, QueryID: resolved.Ref.QueryID, Database: resolved.Database, Placeholders: placeholders,
 		},
 	}
-	output, err := s.runAction(ctx, auth, body, !raw)
+	output, err := s.runAction(ctx, auth, body, !s.rawSQL())
 	if err != nil {
-		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint)
+		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative)
 	}
 	// Only the plan is read: the explained statement can be the stored example, literals included.
 	plan, err := decodeExplainEnvelope(output)
@@ -550,7 +551,7 @@ type schemaJob struct {
 
 // tableInfo runs the DDL and index actions of tables, at most maxActionsInFlight
 // at a time and all under ctx's one deadline, and returns the tables in input
-// order. It fails only when every action fails.
+// order. It fails only when every action fails. Callers run checkSchemaEngine first.
 func (s *Service) tableInfo(ctx context.Context, auth callerAuth, svc serviceInfo, tables []tableRef, infoTypes string) (schemaResult, error) {
 	var jobs []schemaJob
 	for i, t := range tables {
@@ -746,15 +747,16 @@ func mapActionStartError(err error) error {
 	return te
 }
 
-// mysqlExplainError gives a failed MySQL EXPLAIN action's placeholder errors their remediation; hint says what to pass instead.
-func mysqlExplainError(err error, hint string) error {
+// mysqlExplainError gives a failed MySQL EXPLAIN action's placeholder errors their remediation: hint follows a 1064,
+// and alternative follows the placeholder-count message.
+func mysqlExplainError(err error, hint, alternative string) error {
 	te, ok := errors.AsType[*toolError](err)
 	if !ok || te.code != codeInvalidInput {
 		return err
 	}
 	switch {
 	case strings.Contains(te.message, placeholdersCountError):
-		return newToolError(codeInvalidInput, "%s", placeholdersCountMessage)
+		return newToolError(codeInvalidInput, "%s%s", placeholdersCountMessage, alternative)
 	case strings.HasPrefix(te.message, "Error 1064 "):
 		// MySQL answered 1064: EXPLAIN ran on the ? fingerprint because no concrete statement was available.
 		return newToolError(codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): %s. %s", te.message, hint)
@@ -767,6 +769,7 @@ const (
 	explainPlaceholderHint = "Enable query examples for this service in PMM, or pass placeholders (one value per ?, in order) and database."
 	schemaPlaceholderHint  = "Enable query examples for this service in PMM, or pass placeholders (one value per ?, in order), " +
 		"or pass service_id, database and tables in place of the query."
+	schemaCountAlternative  = "; or pass service_id, database and tables instead of a query reference"
 	trimmedQueryRemediation = "QAN stored this query trimmed (pmm-agent max-query-length), so it can't be explained; " +
 		"pick another query, or raise max-query-length on the agent"
 	// pmm-managed's 400 for a MySQL explain whose placeholder values do not fit the statement.
