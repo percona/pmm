@@ -183,6 +183,44 @@ func TestCheckExpr(t *testing.T) {
 			name: "an implicit subquery over 30m at step 1s passes, reading 35m3s",
 			expr: `rate(sum(mysql_up{service_name="db1"}))`, span: 30 * time.Minute, step: time.Second,
 		},
+
+		// An instant query's root subquery resolves i at its own step.
+		{expr: `rate(mysql_global_status_questions[5m])[1151i:1d]`, want: []string{capped, "reads 1154d5m"}},
+		{expr: `rate(mysql_global_status_questions[5m])[1900i:1h]`, want: []string{capped, "reads 79d7h5m"}},
+		{expr: `mysql_global_status_questions[1h:1d] offset 1000i`, want: []string{capped, "reads 1003d1h5m"}},
+
+		// A subquery no step was written for may take at most 4,000 points per series at the query's step.
+		{
+			expr: `max_over_time(sum by (service_name) (mysql_up{service_name="db1"})[2d])`, span: time.Hour, step: 2 * time.Second,
+			want: []string{"at the query's step of 2s", "88352 points per series", "the cap is 4000", "raise step to at least 45s"},
+		},
+		{
+			name: "an implicit subquery of exactly 4,000 points passes",
+			expr: `max_over_time(sum by (service_name) (mysql_up{service_name="db1"})[4096s])`, span: time.Hour, step: 2 * time.Second,
+		},
+		{
+			name: "an implicit subquery of 4,001 points",
+			expr: `max_over_time(sum by (service_name) (mysql_up{service_name="db1"})[4097s])`, span: time.Hour, step: 2 * time.Second,
+			want: []string{"4001 points per series", "raise step to at least 3s"},
+		},
+		{
+			name: "the hint's minimum step counts the alignment steps it adds",
+			expr: `max_over_time(sum by (service_name) (mysql_up{service_name="db1"})[4098s])`, span: time.Hour, step: time.Second,
+			want: []string{"8000 points per series", "raise step to at least 3s"},
+		},
+		{
+			name: "the 4098s window still takes 4,001 points at 2s",
+			expr: `max_over_time(sum by (service_name) (mysql_up{service_name="db1"})[4098s])`, span: time.Hour, step: 2 * time.Second,
+			want: []string{"4001 points per series"},
+		},
+		{
+			name: "the 2d window passes at the step its hint names",
+			expr: `max_over_time(sum by (service_name) (mysql_up{service_name="db1"})[2d])`, span: time.Hour, step: 45 * time.Second,
+		},
+		{
+			name: "the 4097s window passes at the step its hint names",
+			expr: `max_over_time(sum by (service_name) (mysql_up{service_name="db1"})[4097s])`, span: time.Hour, step: 3 * time.Second,
+		},
 	} {
 		name := tc.name
 		if name == "" {
@@ -217,10 +255,11 @@ func TestWalkSelectors(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
-		expr  string
-		step  time.Duration
-		want  []string
-		steps []time.Duration
+		expr     string
+		step     time.Duration
+		want     []string
+		steps    []time.Duration
+		implicit []string
 	}{
 		{
 			expr: `max_over_time(rate(a[1h] offset 30m)[1d:5m]) / on() b{x="1" or x="2"} + c[10m] offset -1h - rate(sum(d))`,
@@ -232,7 +271,8 @@ func TestWalkSelectors(t *testing.T) {
 				`{__name__="c"} 1h10m`,
 				`{__name__="d"} 11m`,
 			},
-			steps: []time.Duration{5 * time.Minute},
+			steps:    []time.Duration{5 * time.Minute},
+			implicit: []string{"2m 9m"},
 		},
 		{
 			// [1h:] takes the enclosing subquery's step, not the query's.
@@ -246,7 +286,7 @@ func TestWalkSelectors(t *testing.T) {
 		{
 			expr: `max_over_time(sum(g)[7d])`, step: 5 * time.Minute,
 			// A window over an aggregation is a subquery, though none is written, so its step is not recorded.
-			want: []string{`{__name__="g"} 7d20m`},
+			want: []string{`{__name__="g"} 7d20m`}, implicit: []string{"5m 7d15m"},
 		},
 		{
 			expr: `max_over_time(h[1h:1m] offset 1d)`, step: 5 * time.Minute,
@@ -267,11 +307,25 @@ func TestWalkSelectors(t *testing.T) {
 		},
 		{
 			expr: `max_over_time(sum by (service_name) (rate(m{service_name="db1"}[5m]))[1h])`, step: 260 * time.Second,
-			want: []string{`{__name__="m", service_name="db1"} 1h18m40s`},
+			want: []string{`{__name__="m", service_name="db1"} 1h18m40s`}, implicit: []string{"4m20s 1h13m40s"},
 		},
 		{
 			expr: `rate(sum(n{service_name="db1"}))`, step: time.Second,
-			want: []string{`{__name__="n", service_name="db1"} 5m3s`},
+			want: []string{`{__name__="n", service_name="db1"} 5m3s`}, implicit: []string{"1s 5m2s"},
+		},
+		{
+			// The implicit subquery is evaluated over the explicit one's range, which the offset shifts but does not lengthen.
+			expr: `max_over_time(max_over_time(sum(o)[1h])[1d:1h] offset 1d)`, step: 5 * time.Minute,
+			want: []string{`{__name__="o"} 2d6h10m`}, steps: []time.Duration{time.Hour}, implicit: []string{"1h 1d5h10m"},
+		},
+		{
+			// An instant query's root subquery resolves i in its window and offset at its own step.
+			expr: `rate(p[5m])[1151i:1d]`, step: 5 * time.Minute,
+			want: []string{`{__name__="p"} 1154d5m`}, steps: []time.Duration{day},
+		},
+		{
+			expr: `q[1h:1d] offset 1000i`, step: 5 * time.Minute,
+			want: []string{`{__name__="q"} 1003d1h5m`}, steps: []time.Duration{day},
 		},
 	} {
 		t.Run(tc.expr, func(t *testing.T) {
@@ -288,6 +342,11 @@ func TestWalkSelectors(t *testing.T) {
 			}
 			assert.Equal(t, tc.want, got)
 			assert.Equal(t, tc.steps, w.subquerySteps)
+			var implicit []string
+			for _, sq := range w.implicitSubqueries {
+				implicit = append(implicit, formatSpan(sq.step)+" "+formatSpan(sq.reach))
+			}
+			assert.Equal(t, tc.implicit, implicit)
 		})
 	}
 }

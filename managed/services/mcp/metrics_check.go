@@ -39,8 +39,15 @@ const (
 // maxSubquerySteps bounds the steps a subquery takes over the span the query reads.
 const maxSubquerySteps = 2000
 
+// maxImplicitPoints bounds the points per series of a subquery VictoriaMetrics runs, at the step
+// in effect, for a rollup over anything but a selector.
+const maxImplicitPoints = 4000
+
 // instantStep is the step an instant query is checked with: VictoriaMetrics' default.
 const instantStep = 5 * time.Minute
+
+// subqueryLeadSteps is how many of its own steps a subquery starts early: one, and one more as its start aligns down to the step.
+const subqueryLeadSteps = 2
 
 // subqueryLead is how much further back than its range and step VictoriaMetrics starts a subquery: its default maxSilenceInterval.
 const subqueryLead = 5 * time.Minute
@@ -108,7 +115,20 @@ func checkExpr(expr string, span, step time.Duration) error {
 		if s < minStep {
 			return newToolError(codeInvalidInput,
 				"the subquery step %s is too small: the query reads %s, so a subquery step must be at least %s (the span read ÷ %d)",
-				formatSpan(s), formatSpan(read), formatSpan((minStep + time.Second - 1).Truncate(time.Second)), maxSubquerySteps)
+				formatSpan(s), formatSpan(read), formatSpan(ceilSecond(minStep)), maxSubquerySteps)
+		}
+	}
+
+	for _, sq := range w.implicitSubqueries {
+		evaluated := addCapped(span, sq.reach)
+		points := float64(evaluated) / float64(sq.step)
+		if points > maxImplicitPoints {
+			// The lead steps in reach grow with the step, so they come out before dividing.
+			minStep := (evaluated - subqueryLeadSteps*sq.step) / (maxImplicitPoints - subqueryLeadSteps)
+			return newToolError(codeInvalidInput,
+				"at the query's step of %s, a rollup over an expression that is not a selector runs as a subquery of %d points per series; "+
+					"the cap is %d: raise step to at least %s, or shorten that rollup's window",
+				formatSpan(sq.step), int64(math.Ceil(points)), maxImplicitPoints, formatSpan(ceilSecond(minStep)))
 		}
 	}
 	return nil
@@ -139,25 +159,44 @@ type exprWalk struct {
 	selectors []selector
 	// subquerySteps holds the step of each subquery written as [range:step] or [range:], in the order met.
 	subquerySteps []time.Duration
+	// implicitSubqueries holds each subquery VictoriaMetrics runs for a rollup over anything but a selector.
+	implicitSubqueries []implicitSubquery
+}
+
+// implicitSubquery is a subquery no step was written for, run at the step in effect where it stands.
+type implicitSubquery struct {
+	step time.Duration
+	// reach is how much longer than the query's range its inner expression is evaluated over.
+	reach time.Duration
+}
+
+// path is what the walk carries down one branch of the expression.
+type path struct {
+	// step is the step the branch is evaluated at.
+	step time.Duration
+	// lookbehind is how far back from each point of the query the branch has read so far.
+	lookbehind time.Duration
+	// extent is how much longer than the query's range the branch is evaluated over; offsets shift it, not lengthen it.
+	extent time.Duration
 }
 
 // walkSelectors walks e evaluated at step, and refuses `@` and any node it cannot measure.
 func walkSelectors(e metricsql.Expr, step time.Duration) (exprWalk, error) {
 	var w exprWalk
-	err := w.expr(e, step, 0)
+	err := w.expr(e, path{step: step})
 	return w, err
 }
 
-// expr walks e evaluated at step, its path having read lookbehind so far.
-func (w *exprWalk) expr(e metricsql.Expr, step, lookbehind time.Duration) error {
+// expr walks e along p.
+func (w *exprWalk) expr(e metricsql.Expr, p path) error {
 	switch e := e.(type) {
 	case *metricsql.MetricExpr:
 		// A selector without a window reads one step back.
-		w.metric(e, addCapped(lookbehind, step))
+		w.metric(e, addCapped(p.lookbehind, p.step))
 		return nil
 
 	case *metricsql.RollupExpr:
-		return w.rollup(e, step, lookbehind)
+		return w.rollup(e, p)
 
 	case *metricsql.FuncExpr:
 		rollupArg := metricsql.GetRollupArgIdx(e)
@@ -166,7 +205,7 @@ func (w *exprWalk) expr(e metricsql.Expr, step, lookbehind time.Duration) error 
 			if i == rollupArg {
 				walk = w.rollupArg
 			}
-			err := walk(arg, step, lookbehind)
+			err := walk(arg, p)
 			if err != nil {
 				return err
 			}
@@ -175,7 +214,7 @@ func (w *exprWalk) expr(e metricsql.Expr, step, lookbehind time.Duration) error 
 
 	case *metricsql.AggrFuncExpr:
 		for _, arg := range e.Args {
-			err := w.expr(arg, step, lookbehind)
+			err := w.expr(arg, p)
 			if err != nil {
 				return err
 			}
@@ -183,11 +222,11 @@ func (w *exprWalk) expr(e metricsql.Expr, step, lookbehind time.Duration) error 
 		return nil
 
 	case *metricsql.BinaryOpExpr:
-		err := w.expr(e.Left, step, lookbehind)
+		err := w.expr(e.Left, p)
 		if err != nil {
 			return err
 		}
-		return w.expr(e.Right, step, lookbehind)
+		return w.expr(e.Right, p)
 
 	case *metricsql.NumberExpr, *metricsql.StringExpr, *metricsql.DurationExpr:
 		return nil
@@ -199,47 +238,53 @@ func (w *exprWalk) expr(e metricsql.Expr, step, lookbehind time.Duration) error 
 }
 
 // rollupArg walks what a rollup function reads over its window, which VictoriaMetrics
-// evaluates as a subquery at step unless it is a selector or a rollup.
-func (w *exprWalk) rollupArg(e metricsql.Expr, step, lookbehind time.Duration) error {
+// evaluates as a subquery at p.step unless it is a selector or a rollup.
+func (w *exprWalk) rollupArg(e metricsql.Expr, p path) error {
 	switch e.(type) {
 	case *metricsql.MetricExpr, *metricsql.RollupExpr:
-		return w.expr(e, step, lookbehind)
+		return w.expr(e, p)
 	default:
-		return w.subquery(e, 0, step, lookbehind)
+		return w.subquery(e, 0, p.step, false, p)
 	}
 }
 
 // rollup walks re: a selector read over a window and offset, or else a subquery, explicit or not.
-func (w *exprWalk) rollup(re *metricsql.RollupExpr, step, lookbehind time.Duration) error {
+func (w *exprWalk) rollup(re *metricsql.RollupExpr, p path) error {
 	if re.At != nil {
 		return newToolError(codeInvalidInput,
 			"the @ modifier is not accepted: it reads outside the query's time range; set the query's time or period instead")
 	}
-	lookbehind = addCapped(lookbehind, durationOf(re.Offset, step))
-	window := durationOf(re.Window, step)
 
 	me, ok := re.Expr.(*metricsql.MetricExpr)
 	if ok && !re.ForSubquery() {
+		lookbehind := addCapped(p.lookbehind, durationOf(re.Offset, p.step))
 		// VictoriaMetrics reads at least one step back, whatever the window.
-		w.metric(me, addCapped(lookbehind, max(window, step)))
+		w.metric(me, addCapped(lookbehind, max(durationOf(re.Window, p.step), p.step)))
 		return nil
 	}
 
-	inner := durationOf(re.Step, step)
+	inner := durationOf(re.Step, p.step)
 	if inner == 0 {
-		inner = step
+		inner = p.step
 	}
-	if re.ForSubquery() {
-		w.subquerySteps = append(w.subquerySteps, inner)
-	}
-	return w.subquery(re.Expr, window, inner, lookbehind)
+	// A nested subquery resolves i in its window and offset at the enclosing step, while an
+	// instant query's root subquery runs as a range query at its own step; the larger covers both.
+	units := max(p.step, inner)
+	p.lookbehind = addCapped(p.lookbehind, durationOf(re.Offset, units))
+	return w.subquery(re.Expr, durationOf(re.Window, units), inner, re.ForSubquery(), p)
 }
 
 // subquery walks e evaluated at its own step from window + 2 steps + subqueryLead before each outer
 // point: VictoriaMetrics starts it one step and subqueryLead early, then aligns that start down to the step.
-func (w *exprWalk) subquery(e metricsql.Expr, window, step, lookbehind time.Duration) error {
+func (w *exprWalk) subquery(e metricsql.Expr, window, step time.Duration, explicit bool, p path) error {
 	lead := addCapped(window, addCapped(addCapped(step, step), subqueryLead))
-	return w.expr(e, step, addCapped(lookbehind, lead))
+	inner := path{step: step, lookbehind: addCapped(p.lookbehind, lead), extent: addCapped(p.extent, lead)}
+	if explicit {
+		w.subquerySteps = append(w.subquerySteps, step)
+	} else {
+		w.implicitSubqueries = append(w.implicitSubqueries, implicitSubquery{step: step, reach: inner.extent})
+	}
+	return w.expr(e, inner)
 }
 
 func (w *exprWalk) metric(me *metricsql.MetricExpr, lookbehind time.Duration) {
@@ -432,6 +477,11 @@ func durationOf(d *metricsql.DurationExpr, step time.Duration) time.Duration {
 		return math.MaxInt64
 	}
 	return time.Duration(max(ms, -ms)) * time.Millisecond
+}
+
+// ceilSecond rounds d up to a whole second.
+func ceilSecond(d time.Duration) time.Duration {
+	return (d + time.Second - 1).Truncate(time.Second)
 }
 
 // addCapped adds two non-negative durations, capped at the largest time.Duration.
