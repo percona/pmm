@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"math"
 	"net/http"
 	"net/url"
@@ -64,21 +65,29 @@ const (
 	vmMemoryQuery       = `process_resident_memory_bytes{job="victoriametrics"}`
 )
 
-// ruleFailureMetrics are the rule-evaluation failure counters of PMM's own scrape of Grafana's alerting and of VMAlert, by job.
-// The names are the ones documented for Grafana unified alerting and VMAlert; check them on the Feature Build (PMM-15790).
+// ruleFailureMetrics are the rule-evaluation failure counters of PMM's scrape of Grafana alerting and of VMAlert, by job.
 var ruleFailureMetrics = map[string][]string{
 	"grafana": {"grafana_alerting_rule_evaluation_failures_total"},
 	"vmalert": {"vmalert_alerting_rules_errors_total", "vmalert_recording_rules_errors_total", "vmalert_execution_errors_total"},
 }
 
-var rangeQueries = []string{
-	`rate(mysql_global_status_questions[5m])`,
-	`rate(mysql_global_status_questions[6d])`,
-	`{__name__=~"mysql_global_status_.*", service_name=~"db1|db2|db3|db4|db5|db6|db7|db8|db9|db10"}`,
+const (
+	rangeQuery   = `rate(mysql_global_status_questions[5m])`
+	instantQuery = `rate(mysql_global_status_questions[6d])`
+	maxSeries    = 2000
+	queryLabels  = "range_rate_5m,instant_rate_6d,range_selector"
+)
+
+// selectorQuery is the third query shape over the first n of the db services.
+func selectorQuery(n int) string {
+	names := make([]string, n)
+	for i := range names {
+		names[i] = "db" + strconv.Itoa(i+1)
+	}
+	return `{__name__=~"mysql_global_status_.*", service_name=~"` + strings.Join(names, "|") + `"}`
 }
 
-// mysqlSignalQueries are the MySQL signals of pmm_service_health, as the dashboards run them; %[1]s takes the service selector.
-// They are kept in step with healthSignals in managed/services/mcp/tools_health.go.
+// mysqlSignalQueries are the MySQL signals of healthSignals in managed/services/mcp/tools_health.go, with %[1]s for the service selector.
 var mysqlSignalQueries = []string{
 	`avg by (service_name) (rate(mysql_global_status_queries{%[1]s}[5m]) or irate(mysql_global_status_queries{%[1]s}[5m]))`,
 	`avg by (service_name) (max(max_over_time(mysql_global_status_threads_connected{%[1]s}[5m]) or max_over_time(mysql_global_status_threads_connected{%[1]s}[5m])))`,
@@ -103,11 +112,21 @@ type probeSummary struct {
 	P95Ms    float64 `json:"p95_ms"`
 }
 
-type mcpSummary struct {
+// callStats counts the calls of one tool or one query by result code.
+type callStats struct {
 	Calls       int            `json:"calls"`
-	P95Ms       float64        `json:"p95_ms"`
-	Codes       map[string]int `json:"codes"`
+	Ok          int            `json:"ok"`
 	RateLimited int            `json:"rate_limited"`
+	Other       map[string]int `json:"other_codes"`
+	P95Ms       float64        `json:"p95_ms"`
+	OkP95Ms     float64        `json:"ok_p95_ms"`
+}
+
+type mcpSummary struct {
+	callStats
+
+	ByTool  map[string]callStats `json:"by_tool"`
+	ByQuery map[string]callStats `json:"by_query"`
 }
 
 // runSummary is what one run, the baseline or the loaded one, measured.
@@ -132,6 +151,8 @@ type loadReport struct {
 	ExtraRuleFailures  float64    `json:"extra_rule_failures"`
 	NoExtraRuleFailure bool       `json:"no_extra_rule_failures"`
 	DashboardWithinCap bool       `json:"dashboard_p95_within_2x"`
+	ThirdQueryServices []string   `json:"third_query_services"`
+	Failures           []string   `json:"failures,omitempty"`
 	Pass               bool       `json:"pass"`
 }
 
@@ -292,11 +313,11 @@ func (a *admin) rangeQuery(ctx context.Context, expr string, start, end time.Tim
 	})
 }
 
-// instant returns the sum of the values of an instant query, 0 when it returns no series.
-func (a *admin) instant(ctx context.Context, expr string, at time.Time) (float64, error) {
+// instant returns the sum of the values of an instant query and whether it returned any series.
+func (a *admin) instant(ctx context.Context, expr string, at time.Time) (float64, bool, error) {
 	series, err := a.query(ctx, "query", url.Values{"query": {expr}, "time": {strconv.FormatInt(at.Unix(), 10)}})
 	if err != nil {
-		return 0, err
+		return 0, false, err
 	}
 	var sum float64
 	for _, s := range series {
@@ -304,7 +325,53 @@ func (a *admin) instant(ctx context.Context, expr string, at time.Time) (float64
 			sum += sampleValue(s.Value[1])
 		}
 	}
-	return sum, nil
+	return sum, len(series) > 0, nil
+}
+
+// seriesCount counts the series a selector matches over [start, end], up to maxSeries+1.
+func (a *admin) seriesCount(ctx context.Context, selector string, start, end time.Time) (int, error) {
+	b, err := a.get(ctx, "graph/api/datasources/proxy/uid/"+a.uid+"/api/v1/series", url.Values{
+		"match[]": {selector},
+		"start":   {strconv.FormatInt(start.Unix(), 10)},
+		"end":     {strconv.FormatInt(end.Unix(), 10)},
+		"limit":   {strconv.Itoa(maxSeries + 1)},
+	})
+	if err != nil {
+		return 0, err
+	}
+	var out struct {
+		Status string           `json:"status"`
+		Data   []map[string]any `json:"data"`
+	}
+	err = json.Unmarshal(b, &out)
+	if err != nil {
+		return 0, fmt.Errorf("decoding series: %w", err)
+	}
+	if out.Status != "success" {
+		return 0, fmt.Errorf("series failed: %s", b)
+	}
+	return len(out.Data), nil
+}
+
+// thirdQueryServices returns how many of db1 to db10, as a prefix, the third query shape selects within the series cap.
+func thirdQueryServices(ctx context.Context, t *testing.T, a *admin) int {
+	t.Helper()
+
+	end := time.Now()
+	start := end.Add(-6*24*time.Hour - 10*time.Minute)
+	chosen := 0
+	for n := 1; n <= monitoredCount; n++ {
+		count, err := a.seriesCount(ctx, selectorQuery(n), start, end)
+		require.NoError(t, err)
+		t.Logf("third query over db1..db%d matches %d series (cap %d)", n, count, maxSeries)
+		if count > maxSeries {
+			break
+		}
+		chosen = n
+	}
+	require.Positive(t, chosen, "the third query over db1 alone matches more than %d series, so pmm_query_metrics refuses it", maxSeries)
+	t.Logf("third query runs over db1..db%d", chosen)
+	return chosen
 }
 
 func sampleValue(v any) float64 {
@@ -319,14 +386,14 @@ func sampleValue(v any) float64 {
 	return f
 }
 
-// percentile is the nearest-rank percentile p (0 to 100) of values; 0 when there are none.
-func percentile(values []float64, p float64) float64 {
+// p95 is the nearest-rank 95th percentile of values; 0 when there are none.
+func p95(values []float64) float64 {
 	if len(values) == 0 {
 		return 0
 	}
 	sorted := slices.Clone(values)
 	slices.Sort(sorted)
-	rank := int(math.Ceil(p / 100 * float64(len(sorted))))
+	rank := int(math.Ceil(0.95 * float64(len(sorted))))
 	return sorted[max(rank, 1)-1]
 }
 
@@ -342,7 +409,7 @@ func durationsMs(ds []time.Duration) []float64 {
 	return out
 }
 
-// probe runs the MySQL signal queries of db1 as Admin every probeInterval until ctx ends.
+// probe runs the nine MySQL signal queries of db1 in sequence, then waits out the rest of probeInterval, so slow queries stretch the cadence.
 type probe struct {
 	admin *admin
 
@@ -391,13 +458,14 @@ func (p *probe) once(ctx context.Context, expr string) {
 func (p *probe) summary() probeSummary {
 	p.mu.Lock()
 	defer p.mu.Unlock()
-	return probeSummary{Requests: len(p.latencies), Errors: p.errors, P95Ms: percentile(durationsMs(p.latencies), 95)}
+	return probeSummary{Requests: len(p.latencies), Errors: p.errors, P95Ms: p95(durationsMs(p.latencies))}
 }
 
-// call is one MCP call: its latency and result code, ok or the error code.
+// call is one MCP call: its tool, query label, latency and result code.
 type call struct {
-	latency time.Duration
-	code    string
+	tool, query string
+	latency     time.Duration
+	code        string
 }
 
 type recorder struct {
@@ -411,17 +479,43 @@ func (r *recorder) add(c call) {
 	r.calls = append(r.calls, c)
 }
 
+func statsOf(calls []call) callStats {
+	s := callStats{Calls: len(calls), Other: map[string]int{}}
+	all := make([]float64, 0, len(calls))
+	var ok []float64
+	for _, c := range calls {
+		ms := millis(c.latency)
+		all = append(all, ms)
+		switch c.code {
+		case "ok":
+			s.Ok++
+			ok = append(ok, ms)
+		case "rate_limited":
+			s.RateLimited++
+		default:
+			s.Other[c.code]++
+		}
+	}
+	s.P95Ms, s.OkP95Ms = p95(all), p95(ok)
+	return s
+}
+
 func (r *recorder) summary() *mcpSummary {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	s := &mcpSummary{Calls: len(r.calls), Codes: map[string]int{}}
-	latencies := make([]float64, len(r.calls))
-	for i, c := range r.calls {
-		latencies[i] = millis(c.latency)
-		s.Codes[c.code]++
+	byTool := map[string][]call{}
+	byQuery := map[string][]call{}
+	for _, c := range r.calls {
+		byTool[c.tool] = append(byTool[c.tool], c)
+		byQuery[c.query] = append(byQuery[c.query], c)
 	}
-	s.P95Ms = percentile(latencies, 95)
-	s.RateLimited = s.Codes["rate_limited"]
+	s := &mcpSummary{callStats: statsOf(r.calls), ByTool: map[string]callStats{}, ByQuery: map[string]callStats{}}
+	for k, v := range byTool {
+		s.ByTool[k] = statsOf(v)
+	}
+	for k, v := range byQuery {
+		s.ByQuery[k] = statsOf(v)
+	}
 	return s
 }
 
@@ -446,12 +540,19 @@ func resultCode(res *mcp.CallToolResult, err error) string {
 	return "error"
 }
 
-// callLoop calls a tool in turn with the arguments next returns, back to back until ctx ends.
-func callLoop(ctx context.Context, session *mcp.ClientSession, rec *recorder, name string, next func(i int) map[string]any, first int) {
+// request is what a loop sends on its i-th call, with the label its counts are kept under.
+type request struct {
+	args  map[string]any
+	query string
+}
+
+// callLoop calls a tool in turn with the requests next returns, back to back until ctx ends.
+func callLoop(ctx context.Context, session *mcp.ClientSession, rec *recorder, name string, next func(i int) request, first int) {
 	for i := first; ctx.Err() == nil; i++ {
+		req := next(i)
 		callCtx, cancel := context.WithTimeout(ctx, callTimeout)
 		started := time.Now()
-		res, err := session.CallTool(callCtx, &mcp.CallToolParams{Name: name, Arguments: next(i)})
+		res, err := session.CallTool(callCtx, &mcp.CallToolParams{Name: name, Arguments: req.args})
 		elapsed := time.Since(started)
 		cancel()
 		if ctx.Err() != nil {
@@ -459,7 +560,7 @@ func callLoop(ctx context.Context, session *mcp.ClientSession, rec *recorder, na
 		}
 
 		code := resultCode(res, err)
-		rec.add(call{latency: elapsed, code: code})
+		rec.add(call{tool: name, query: req.query, latency: elapsed, code: code})
 		if code == "rate_limited" {
 			select {
 			case <-ctx.Done():
@@ -470,26 +571,33 @@ func callLoop(ctx context.Context, session *mcp.ClientSession, rec *recorder, na
 	}
 }
 
-func queryArgs(i int) map[string]any {
-	q := rangeQueries[i%len(rangeQueries)]
-	if i%len(rangeQueries) == 1 {
-		return map[string]any{"query": q}
+// queryRequest is the i-th call of a pmm_query_metrics loop: the three query shapes in turn.
+func queryRequest(selector string) func(i int) request {
+	labels := strings.Split(queryLabels, ",")
+	return func(i int) request {
+		switch i % len(labels) {
+		case 0:
+			return request{args: map[string]any{"query": rangeQuery, "period_from": "now-6d"}, query: labels[0]}
+		case 1:
+			return request{args: map[string]any{"query": instantQuery}, query: labels[1]}
+		default:
+			return request{args: map[string]any{"query": selector, "period_from": "now-6d"}, query: labels[2]}
+		}
 	}
-	return map[string]any{"query": q, "period_from": "now-6d"}
 }
 
 // runCallers starts the loops of every caller and returns when ctx ends.
-func runCallers(ctx context.Context, sessions []*mcp.ClientSession, serviceIDs []string, rec *recorder) {
+func runCallers(ctx context.Context, sessions []*mcp.ClientSession, serviceIDs []string, selector string, rec *recorder) {
 	var wg sync.WaitGroup
 	for _, session := range sessions {
 		for loop := range loopsPerCaller {
 			wg.Go(func() {
-				callLoop(ctx, session, rec, "pmm_query_metrics", queryArgs, loop)
+				callLoop(ctx, session, rec, "pmm_query_metrics", queryRequest(selector), loop)
 			})
 		}
 		wg.Go(func() {
-			callLoop(ctx, session, rec, "pmm_service_health", func(i int) map[string]any {
-				return map[string]any{"service_id": serviceIDs[i%len(serviceIDs)], "period_from": "now-6h"}
+			callLoop(ctx, session, rec, "pmm_service_health", func(i int) request {
+				return request{args: map[string]any{"service_id": serviceIDs[i%len(serviceIDs)], "period_from": "now-6h"}, query: "service_health"}
 			}, 0)
 		})
 	}
@@ -497,7 +605,7 @@ func runCallers(ctx context.Context, sessions []*mcp.ClientSession, serviceIDs [
 }
 
 // runOnce measures one run of d: the probe alone, or with the callers when sessions is not empty.
-func runOnce(ctx context.Context, t *testing.T, a *admin, name string, d time.Duration, sessions []*mcp.ClientSession, ids []string) runSummary {
+func runOnce(ctx context.Context, t *testing.T, a *admin, name string, d time.Duration, sessions []*mcp.ClientSession, ids []string, selector string) runSummary {
 	t.Helper()
 
 	t.Logf("run %s: %s", name, d)
@@ -510,7 +618,7 @@ func runOnce(ctx context.Context, t *testing.T, a *admin, name string, d time.Du
 	var wg sync.WaitGroup
 	wg.Go(func() { p.run(runCtx) })
 	if len(sessions) > 0 {
-		wg.Go(func() { runCallers(runCtx, sessions, ids, rec) })
+		wg.Go(func() { runCallers(runCtx, sessions, ids, selector, rec) })
 	}
 	wg.Wait()
 	end := time.Now()
@@ -536,19 +644,22 @@ func readMetrics(ctx context.Context, a *admin, s *runSummary) {
 	}
 
 	window := int(math.Ceil(s.End.Sub(s.Start).Seconds()))
-	for job, names := range ruleFailureMetrics {
-		for _, name := range names {
+	for _, job := range slices.Sorted(maps.Keys(ruleFailureMetrics)) {
+		for _, name := range ruleFailureMetrics[job] {
 			expr := fmt.Sprintf(`sum(increase(%s{job="%s"}[%ds]))`, name, job, window)
-			v, qerr := a.instant(ctx, expr, s.End)
-			if qerr != nil {
+			v, found, qerr := a.instant(ctx, expr, s.End)
+			switch {
+			case qerr != nil:
 				s.MetricsReadFail = append(s.MetricsReadFail, name+": "+qerr.Error())
-				continue
+			case !found:
+				s.MetricsReadFail = append(s.MetricsReadFail, name+": no series for job "+job+": the metric is absent or the job is not scraped")
+			default:
+				if math.IsNaN(v) {
+					v = 0
+				}
+				s.RuleFailures[name] = v
+				s.RuleFailureSum += v
 			}
-			if math.IsNaN(v) {
-				v = 0
-			}
-			s.RuleFailures[name] = v
-			s.RuleFailureSum += v
 		}
 	}
 }
@@ -573,7 +684,11 @@ func rangeStat(ctx context.Context, a *admin, expr string, start, end time.Time)
 	if len(values) == 0 {
 		return stat{}, fmt.Errorf("no samples for %s", expr)
 	}
-	return stat{Max: slices.Max(values), P95: percentile(values, 95)}, nil
+	return stat{Max: slices.Max(values), P95: p95(values)}, nil
+}
+
+func (c callStats) line() string {
+	return fmt.Sprintf("calls %d  ok %d  rate_limited %d  other %v  p95 %.0f ms  ok p95 %.0f ms", c.Calls, c.Ok, c.RateLimited, c.Other, c.P95Ms, c.OkP95Ms)
 }
 
 func (s runSummary) show(t *testing.T) {
@@ -587,8 +702,13 @@ func (s runSummary) show(t *testing.T) {
 		fmt.Sprintf("Rule-evaluation failures      +%.0f  %v", s.RuleFailureSum, s.RuleFailures),
 	}
 	if s.MCP != nil {
-		lines = append(lines,
-			fmt.Sprintf("MCP calls                     %d  p95 %.0f ms  rate_limited %d  codes %v", s.MCP.Calls, s.MCP.P95Ms, s.MCP.RateLimited, s.MCP.Codes))
+		lines = append(lines, "MCP calls                     "+s.MCP.line())
+		for _, k := range slices.Sorted(maps.Keys(s.MCP.ByTool)) {
+			lines = append(lines, "  tool "+k+": "+s.MCP.ByTool[k].line())
+		}
+		for _, k := range slices.Sorted(maps.Keys(s.MCP.ByQuery)) {
+			lines = append(lines, "  query "+k+": "+s.MCP.ByQuery[k].line())
+		}
 	}
 	for _, f := range s.MetricsReadFail {
 		lines = append(lines, "METRICS READ FAILED: "+f)
@@ -596,8 +716,29 @@ func (s runSummary) show(t *testing.T) {
 	fmt.Fprintln(os.Stdout, strings.Join(lines, "\n"))
 }
 
-// TestMetricsLoad is the acceptance run of the metrics tools (spec 7.4): the dashboard probe alone as the baseline,
-// then with five callers of three loops each. It needs a long-running server with db1 to db10 registered.
+// failures lists why a run does not count: a probe error, a metrics read failure, or a tool with no ok call.
+func (s runSummary) failures() []string {
+	var out []string
+	if s.Dashboard.Requests == 0 {
+		out = append(out, s.Name+": the dashboard probe made no request")
+	}
+	if s.Dashboard.Errors > 0 {
+		out = append(out, fmt.Sprintf("%s: %d dashboard probe errors", s.Name, s.Dashboard.Errors))
+	}
+	for _, f := range s.MetricsReadFail {
+		out = append(out, s.Name+": metrics read failed: "+f)
+	}
+	if s.MCP != nil {
+		for _, tool := range []string{"pmm_query_metrics", "pmm_service_health"} {
+			if s.MCP.ByTool[tool].Ok == 0 {
+				out = append(out, fmt.Sprintf("%s: no ok call of %s", s.Name, tool))
+			}
+		}
+	}
+	return out
+}
+
+// TestMetricsLoad is the acceptance run of the metrics tools (spec 7.4): the dashboard probe alone, then with five callers of three loops each.
 func TestMetricsLoad(t *testing.T) {
 	tokens := readTokens(t)
 	outPath := os.Getenv(envLoadOut)
@@ -608,6 +749,8 @@ func TestMetricsLoad(t *testing.T) {
 	ctx := pmmapitests.Context
 	a, err := newAdmin(ctx)
 	require.NoError(t, err)
+	chosen := thirdQueryServices(ctx, t, a)
+	selector := selectorQuery(chosen)
 
 	sessions := make([]*mcp.ClientSession, len(tokens))
 	for i, token := range tokens {
@@ -617,9 +760,12 @@ func TestMetricsLoad(t *testing.T) {
 	}
 
 	report := loadReport{Duration: d.String()}
-	report.Baseline = runOnce(ctx, t, a, "baseline", d, nil, ids)
+	for i := range chosen {
+		report.ThirdQueryServices = append(report.ThirdQueryServices, "db"+strconv.Itoa(i+1))
+	}
+	report.Baseline = runOnce(ctx, t, a, "baseline", d, nil, ids, selector)
 	report.Baseline.show(t)
-	report.Loaded = runOnce(ctx, t, a, "loaded", d, sessions, ids)
+	report.Loaded = runOnce(ctx, t, a, "loaded", d, sessions, ids, selector)
 	report.Loaded.show(t)
 
 	report.ExtraRuleFailures = report.Loaded.RuleFailureSum - report.Baseline.RuleFailureSum
@@ -628,17 +774,20 @@ func TestMetricsLoad(t *testing.T) {
 		report.DashboardP95Ratio = report.Loaded.Dashboard.P95Ms / report.Baseline.Dashboard.P95Ms
 	}
 	report.DashboardWithinCap = report.Baseline.Dashboard.P95Ms > 0 && report.DashboardP95Ratio <= maxDashboardRatio
-	report.Pass = report.NoExtraRuleFailure && report.DashboardWithinCap &&
-		len(report.Baseline.MetricsReadFail) == 0 && len(report.Loaded.MetricsReadFail) == 0
+	report.Failures = slices.Concat(report.Baseline.failures(), report.Loaded.failures())
+	report.Pass = report.NoExtraRuleFailure && report.DashboardWithinCap && len(report.Failures) == 0
 
-	fmt.Fprintf(os.Stdout, "== verdict: pass=%v  dashboard p95 ratio %.2f (cap %.1f)  extra rule-evaluation failures %.0f\n",
-		report.Pass, report.DashboardP95Ratio, maxDashboardRatio, report.ExtraRuleFailures)
+	fmt.Fprintf(os.Stdout, "== verdict: pass=%v  dashboard p95 ratio %.2f (cap %.1f)  extra rule-evaluation failures %.0f  third query over %v\n",
+		report.Pass, report.DashboardP95Ratio, maxDashboardRatio, report.ExtraRuleFailures, report.ThirdQueryServices)
+	for _, f := range report.Failures {
+		fmt.Fprintln(os.Stdout, "FAIL: "+f)
+	}
 
 	b, err := json.MarshalIndent(report, "", "  ")
 	require.NoError(t, err)
 	require.NoError(t, os.WriteFile(outPath, append(b, '\n'), 0o600))
 
 	if !report.Pass {
-		t.Errorf("the loaded run did not pass: see the verdict above")
+		t.Errorf("the run did not pass: see the verdict above")
 	}
 }

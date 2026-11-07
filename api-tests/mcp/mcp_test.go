@@ -24,6 +24,7 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
@@ -89,12 +90,43 @@ func connect(t *testing.T) *mcp.ClientSession {
 	return session
 }
 
+const (
+	maxRateLimitedTries = 8
+	errorMetaKey        = "com.percona/error"
+)
+
+// callRetrying calls a tool, sleeping retry_after (1 s when absent) and trying again while it answers rate_limited, up to maxRateLimitedTries calls.
+func callRetrying(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) *mcp.CallToolResult {
+	t.Helper()
+
+	for range maxRateLimitedTries {
+		res, err := session.CallTool(pmmapitests.Context, &mcp.CallToolParams{Name: name, Arguments: args})
+		require.NoError(t, err)
+		meta, _ := res.Meta[errorMetaKey].(map[string]any)
+		if !res.IsError || meta["code"] != "rate_limited" {
+			return res
+		}
+		wait := time.Second
+		seconds, ok := meta["retry_after"].(float64)
+		if ok && seconds >= 1 {
+			wait = time.Duration(seconds) * time.Second
+		}
+		t.Logf("%s was rate limited; retrying in %s", name, wait)
+		select {
+		case <-pmmapitests.Context.Done():
+			require.FailNow(t, "canceled while waiting to retry")
+		case <-time.After(wait):
+		}
+	}
+	require.FailNow(t, "still rate limited", "%s answered rate_limited %d times in a row", name, maxRateLimitedTries)
+	return nil
+}
+
 // callTool calls a tool and returns its result and text content.
 func callTool(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) (*mcp.CallToolResult, string) {
 	t.Helper()
 
-	res, err := session.CallTool(pmmapitests.Context, &mcp.CallToolParams{Name: name, Arguments: args})
-	require.NoError(t, err)
+	res := callRetrying(t, session, name, args)
 	require.NotEmpty(t, res.Content)
 	text, ok := res.Content[0].(*mcp.TextContent)
 	require.True(t, ok, "unexpected content %T", res.Content[0])
@@ -448,13 +480,9 @@ func monitoredService(t *testing.T, engine string) (string, string) {
 }
 
 func TestServiceHealth(t *testing.T) {
-	t.Parallel()
-
 	session := connect(t)
 	for _, engine := range []string{"mysql", "postgresql", "mongodb"} {
 		t.Run(engine, func(t *testing.T) {
-			t.Parallel()
-
 			serviceID, serviceName := monitoredService(t, engine)
 
 			var health struct {
@@ -475,17 +503,20 @@ func TestServiceHealth(t *testing.T) {
 			assert.Equal(t, serviceName, health.ServiceName)
 			assert.Equal(t, engine, health.Engine)
 			require.NotEmpty(t, health.Signals)
+			withData := 0
 			for _, sig := range health.Signals {
 				assert.Nil(t, sig.Error, "signal %s", sig.Name)
 				assert.True(t, sig.LastAt != "" || sig.NoData, "signal %s has neither last_at nor no_data", sig.Name)
+				if sig.LastAt != "" {
+					withData++
+				}
 			}
+			assert.Positive(t, withData, "no signal has data")
 		})
 	}
 }
 
 func TestQueryMetricsBudget(t *testing.T) {
-	t.Parallel()
-
 	_, serviceName := monitoredService(t, "mysql")
 	session := connect(t)
 
@@ -501,14 +532,15 @@ func TestQueryMetricsBudget(t *testing.T) {
 	}
 	require.NoError(t, json.Unmarshal(structured, &out))
 
+	if out.TotalSeries == 0 {
+		t.Skipf("no mysql_global_status_ series for %s yet", serviceName)
+	}
 	assert.True(t, out.Summarized, "6 hours of many series must come back as summaries")
 	assert.Greater(t, out.TotalSeries, 1)
 	assert.LessOrEqual(t, len(text)+len(structured), maxMetricsBytes)
 }
 
 func TestListMetricsSearch(t *testing.T) {
-	t.Parallel()
-
 	session := connect(t)
 	type listed struct {
 		Names []struct {
@@ -520,12 +552,10 @@ func TestListMetricsSearch(t *testing.T) {
 	}
 
 	t.Run("Substring", func(t *testing.T) {
-		t.Parallel()
-
 		var out listed
 		callResult(t, session, "pmm_list_metrics", map[string]any{"search": "mongodb", "limit": 1000}, &out)
 		if len(out.Names) == 0 {
-			t.Skip("no MongoDB metrics yet")
+			t.Skip("no metric names containing mongodb, or more than 1000 of them, which are listed as groups")
 		}
 		for _, n := range out.Names {
 			assert.Contains(t, n.Name, "mongodb")
@@ -533,19 +563,31 @@ func TestListMetricsSearch(t *testing.T) {
 	})
 
 	t.Run("RegexIsLiteral", func(t *testing.T) {
-		t.Parallel()
-
 		var out listed
 		callResult(t, session, "pmm_list_metrics", map[string]any{"search": ".*"}, &out)
 		assert.Empty(t, out.Names)
 		assert.Zero(t, out.Page.Total)
 	})
 
+	// The plan words this as page.total <= 1001 for kind names, but names beyond limit come back as groups, so that cannot fail;
+	// kind values counts the raw entries VictoriaMetrics returned.
 	t.Run("LimitHonoured", func(t *testing.T) {
-		t.Parallel()
-
-		var out listed
-		callResult(t, session, "pmm_list_metrics", map[string]any{}, &out)
-		assert.LessOrEqual(t, out.Page.Total, 1001)
+		const limit = 5
+		var out struct {
+			Values []string `json:"values"`
+			Page   struct {
+				Total     int  `json:"total"`
+				Limit     int  `json:"limit"`
+				Truncated bool `json:"truncated"`
+			} `json:"page"`
+		}
+		callResult(t, session, "pmm_list_metrics", map[string]any{"kind": "values", "label": "__name__", "limit": limit}, &out)
+		if out.Page.Total <= limit {
+			t.Skipf("only %d metric names", out.Page.Total)
+		}
+		assert.LessOrEqual(t, len(out.Values), limit)
+		assert.Equal(t, limit, out.Page.Limit)
+		assert.True(t, out.Page.Truncated)
+		assert.LessOrEqual(t, out.Page.Total, 1001, "VictoriaMetrics must honour the limit the tool sends")
 	})
 }
