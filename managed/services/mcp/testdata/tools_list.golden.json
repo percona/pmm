@@ -1,16 +1,16 @@
 [
   {
     "name": "pmm_catalog",
-    "description": "List the names a PMM tool accepts. kind qan_columns lists the QAN metrics that pmm_top_queries takes in columns and order_by, with the engine each belongs to (none for a metric every engine has) and whether QAN reports it as a sum or a per-call average. engine keeps one engine's entries plus the all-engine ones.",
+    "description": "List the names a PMM tool accepts. kind qan_columns lists the QAN metrics that pmm_top_queries takes in columns and order_by, with the engine each belongs to (none for a metric every engine has) and whether QAN reports it as a sum or a per-call average; engine keeps one engine's entries plus the all-engine ones. kind metrics lists the PMM metrics for mysql, postgresql, mongodb and node, each with its meaning, unit, type (counter or gauge), labels and a ready MetricsQL query to run with pmm_query_metrics after replacing <service> (or <node>); engine keeps one engine's metrics.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
         "engine": {
-          "description": "Keep the entries of one engine plus those every engine has: mysql, postgresql or mongodb",
+          "description": "Keep one engine's entries: mysql, postgresql, mongodb, plus all-engine ones (qan_columns); node too for metrics",
           "type": "string"
         },
         "kind": {
-          "description": "Catalogue to read: qan_columns, the metric names pmm_top_queries takes in columns and order_by",
+          "description": "Catalogue: qan_columns, the names pmm_top_queries takes in columns and order_by; or metrics, the PMM metrics",
           "type": "string"
         }
       },
@@ -32,15 +32,41 @@
             "additionalProperties": false,
             "properties": {
               "aggregation": {
-                "description": "How QAN reports the metric: sum, or avg for a per-call average.",
+                "description": "How QAN reports the metric: sum, or avg for a per-call average (qan_columns).",
                 "type": "string"
               },
               "engine": {
                 "description": "Engine the entry belongs to; left out for an entry every engine has.",
                 "type": "string"
               },
+              "labels": {
+                "description": "Label names on the metric's samples as the exporter exposes them; PMM adds its own (metrics).",
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "meaning": {
+                "description": "What the metric measures (metrics).",
+                "type": "string"
+              },
               "name": {
                 "description": "Entry name.",
+                "type": "string"
+              },
+              "query": {
+                "description": "A ready MetricsQL expression for pmm_query_metrics; replace <service> (or <node>) with a name (metrics).",
+                "type": "string"
+              },
+              "type": {
+                "description": "counter, which only grows (query it with rate), or gauge (metrics).",
+                "type": "string"
+              },
+              "unit": {
+                "description": "Unit of the value query returns, as Grafana names it: short, ops, bytes, Bps, s or none (metrics).",
                 "type": "string"
               }
             },
