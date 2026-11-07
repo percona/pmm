@@ -75,16 +75,21 @@ const (
 	rangeQuery   = `rate(mysql_global_status_questions[5m])`
 	instantQuery = `rate(mysql_global_status_questions[6d])`
 	maxSeries    = 2000
-	queryLabels  = "range_rate_5m,instant_rate_6d,range_selector"
+	queryLabels  = "range_rate_5m,instant_rate_6d,range_sum_rate"
 )
 
-// selectorQuery is the third query shape over the first n of the db services.
+// selectorQuery is the series selector of the third query shape over the first n of the db services.
 func selectorQuery(n int) string {
 	names := make([]string, n)
 	for i := range names {
 		names[i] = "db" + strconv.Itoa(i+1)
 	}
 	return `{__name__=~"mysql_global_status_.*", service_name=~"` + strings.Join(names, "|") + `"}`
+}
+
+// sumRateQuery is the third query shape: the per-service rate of the selector.
+func sumRateQuery(selector string) string {
+	return `sum by (service_name) (rate(` + selector + `[5m]))`
 }
 
 // mysqlSignalQueries are the MySQL signals of healthSignals in managed/services/mcp/tools_health.go, with %[1]s for the service selector.
@@ -581,7 +586,7 @@ func queryRequest(selector string) func(i int) request {
 		case 1:
 			return request{args: map[string]any{"query": instantQuery}, query: labels[1]}
 		default:
-			return request{args: map[string]any{"query": selector, "period_from": "now-6d"}, query: labels[2]}
+			return request{args: map[string]any{"query": sumRateQuery(selector), "period_from": "now-6d"}, query: labels[2]}
 		}
 	}
 }
@@ -716,7 +721,7 @@ func (s runSummary) show(t *testing.T) {
 	fmt.Fprintln(os.Stdout, strings.Join(lines, "\n"))
 }
 
-// failures lists why a run does not count: a probe error, a metrics read failure, or a tool with no ok call.
+// failures lists why a run does not count: a probe error, a metrics read failure, a tool with no ok call, or a query shape with no ok call.
 func (s runSummary) failures() []string {
 	var out []string
 	if s.Dashboard.Requests == 0 {
@@ -732,6 +737,11 @@ func (s runSummary) failures() []string {
 		for _, tool := range []string{"pmm_query_metrics", "pmm_service_health"} {
 			if s.MCP.ByTool[tool].Ok == 0 {
 				out = append(out, fmt.Sprintf("%s: no ok call of %s", s.Name, tool))
+			}
+		}
+		for label := range strings.SplitSeq(queryLabels, ",") {
+			if s.MCP.ByQuery[label].Ok == 0 {
+				out = append(out, fmt.Sprintf("%s: no ok call of the %s query shape", s.Name, label))
 			}
 		}
 	}
