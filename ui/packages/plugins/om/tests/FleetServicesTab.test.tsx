@@ -243,6 +243,16 @@ describe('FleetServicesTab', () => {
     expect(router.state.historyAction).toBe('REPLACE');
   });
 
+  it('never shows the failing filter column', () => {
+    serve(ordersEstate());
+    scanned('2026-10-06T09:00:00Z');
+    renderTab();
+
+    expect(
+      screen.queryByRole('columnheader', { name: /Failing a scan/ })
+    ).toBeNull();
+  });
+
   it('writes the failing filter as a peak-ui column filter', async () => {
     serve(ordersEstate());
     scanned('2026-10-06T09:00:00Z');

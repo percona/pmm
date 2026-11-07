@@ -122,6 +122,8 @@ const HIDDEN_BY_DEFAULT = {
   argv: false,
   node_id: false,
   cluster_id: false,
+  // The failing chip's filter column, never shown.
+  failing: false,
 };
 
 /** The failing chip's filter, on a column that is never shown. */
