@@ -185,6 +185,12 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 	if err != nil {
 		return metricsResult{}, err
 	}
+	if plan.instant {
+		err = checkInstantRoot(in.Query)
+		if err != nil {
+			return metricsResult{}, err
+		}
+	}
 
 	auth := callerAuthFromHeader(req.Extra.Header)
 	release, err := s.startMetricCall(auth)
@@ -242,6 +248,22 @@ func narrowIfTooLarge(err error, expr string) error {
 	}
 	return newToolError(codeInvalidInput,
 		"the answer is larger than 4 MiB: narrow the query with a service_name or node_name matcher, and aggregate, as in sum by (service_name) (%s)", expr)
+}
+
+// checkInstantRoot refuses an instant query whose root is a range selector or a subquery, which
+// VictoriaMetrics answers with a range of samples per series rather than one value.
+func checkInstantRoot(expr string) error {
+	e, err := metricsql.Parse(expr)
+	if err != nil {
+		return newToolError(codeInvalidInput, "cannot parse the expression: %s", echo(err.Error()))
+	}
+	re, ok := e.(*metricsql.RollupExpr)
+	if !ok || re.Window == nil {
+		return nil
+	}
+	return newToolError(codeInvalidInput,
+		"an instant query returns one value per series, so it can't be a range selector or a subquery such as x[5m] or x[1h:1m]: "+
+			"wrap it in a rollup such as last_over_time() or rate(), or send a range query with period_from and period_to")
 }
 
 // selectorsOf returns each selector of expr, one per OR group, in MetricsQL form, as walked at step.

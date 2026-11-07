@@ -292,6 +292,7 @@ The server refuses these expressions before it sends any request. Every refusal 
 - **Series per value.** Functions that create a series for each distinct value are refused: `count_values`, `count_values_over_time` and `histogram_over_time`.
 - **Characters.** A non-ASCII character or a backslash outside a quoted string is refused. Label values and other strings can hold both.
 - **Subquery step.** The step of a subquery, written as `[range:step]`, is at least the time read divided by 2,000. A subquery without a step takes the step of the query and is checked the same way.
+- **Instant range.** An instant `pmm_query_metrics` query can't be a range selector or a subquery, such as `x[5m]` or `x[1h:1m]`, with or without `offset`, since VictoriaMetrics answers it with a range of samples. Wrap it in a rollup such as `last_over_time()` or `rate()`, or send a range query.
 
 The lookbehind of a path is the sum of what the path passes through:
 

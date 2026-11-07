@@ -210,6 +210,48 @@ func TestQueryMetricsTool(t *testing.T) {
 		requireInvalid(t, newQANService(t, fake, false), fake, map[string]any{"query": "rate("}, "cannot parse")
 	})
 
+	t.Run("InstantRangeIsRefused", func(t *testing.T) {
+		t.Parallel()
+
+		ranges := []string{
+			`mysql_up{service_name="db1"}[5m]`,
+			`(mysql_up{service_name="db1"}[5m])`,
+			`mysql_up{service_name="db1"}[5m] offset 1h`,
+			`rate(mysql_global_status_questions{service_name="db1"}[5m])[1h:1m]`,
+			`rate(mysql_global_status_questions{service_name="db1"}[5m])[1h:]`,
+			`rate(mysql_global_status_questions{service_name="db1"}[5m])[1h:1m] offset 1h`,
+			`rate(mysql_global_status_questions{service_name="db1"}[5m])[1h]`,
+		}
+		for _, q := range ranges {
+			fake := newFakePMM(t, metricsRoutes(nil))
+			s := newQANService(t, fake, false)
+			requireInvalid(t, s, fake, map[string]any{"query": q, "time": "now-1h"}, "wrap it in a rollup such as last_over_time() or rate(), or send a range query")
+
+			s.metricRate.mu.Lock()
+			assert.Empty(t, s.metricRate.buckets, "%s took a token", q)
+			s.metricRate.mu.Unlock()
+		}
+
+		for _, q := range []string{
+			`last_over_time(mysql_up{service_name="db1"}[5m])`,
+			`sum(mysql_up{service_name="db1"}[5m])`,
+			`mysql_up{service_name="db1"} offset 1h`,
+			`max_over_time(rate(mysql_global_status_questions{service_name="db1"}[5m])[1h:1m])`,
+		} {
+			fake := newFakePMM(t, metricsRoutes(nil))
+			_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": q})
+			require.False(t, isError, "%s: %s", q, text)
+			assert.Len(t, fake.requestsTo(vmAPI+"query"), 1, q)
+		}
+
+		for _, q := range ranges {
+			fake := newFakePMM(t, metricsRoutes(nil))
+			_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": q, "period_from": "now-1h", "step": "1m"})
+			require.False(t, isError, "a range query of %s: %s", q, text)
+			assert.Len(t, fake.requestsTo(vmAPI+"query_range"), 1, q)
+		}
+	})
+
 	t.Run("CutToTwentySeries", func(t *testing.T) {
 		t.Parallel()
 
