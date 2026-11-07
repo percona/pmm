@@ -1425,7 +1425,7 @@
                 "type": "string"
               },
               "no_data": {
-                "description": "True when the query returned no series.",
+                "description": "True when the query returned no series, or was not run because the service's node name is unknown.",
                 "type": "boolean"
               },
               "source": {

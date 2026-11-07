@@ -61,11 +61,11 @@ func healthRoutes(extra map[string]fixture) map[string]fixture {
 // onQuery routes the range queries whose text contains text.
 func onQuery(text string) string { return vmQueryRange + " ?" + text }
 
-func healthCall(t *testing.T, s *Service, args map[string]any) (res healthResult, text string, isError bool) {
+func healthCall(t *testing.T, s *Service, args map[string]any) (healthResult, string, bool) {
 	t.Helper()
 
 	r := callTool(t, connect(t, s), "pmm_service_health", args)
-	text = textOf(t, r)
+	text := textOf(t, r)
 	if r.IsError {
 		return healthResult{}, text, true
 	}
@@ -312,6 +312,41 @@ func TestServiceHealthTool(t *testing.T) {
 		assert.Contains(t, text, "NaN")
 	})
 
+	t.Run("ZeroLagIsAValue", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, withRoutes(healthRoutes(map[string]fixture{
+			onQuery("mongodb_mongod_replset_member_replication_lag"): {body: healthMatrix(testNow, "0", "0")},
+		}), map[string]fixture{"GET /v1/inventory/services": {file: "services_with_mongo.json"}}))
+		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-mongo"})
+		require.False(t, isError, text)
+
+		lag := signalByName(t, res, "replication_lag")
+		assert.False(t, lag.NoData)
+		require.NotNil(t, lag.Max)
+		require.NotNil(t, lag.Last)
+		assert.InDelta(t, 0, *lag.Max, 1e-9)
+		assert.InDelta(t, 0, *lag.Last, 1e-9)
+		assert.NotContains(t, signalLagQuery(t), "> 0")
+	})
+
+	t.Run("SeveralSeriesAreSaid", func(t *testing.T) {
+		t.Parallel()
+
+		two := `{"status":"success","data":{"resultType":"matrix","result":[` +
+			`{"metric":{"a":"1"},"values":[[` + unixOf(testNow) + `,"2"]]},{"metric":{"a":"2"},"values":[[` + unixOf(testNow) + `,"9"]]}]}}`
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{onQuery("mysql_global_status_threads_running"): {body: []byte(two)}}))
+		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		require.False(t, isError, text)
+
+		sig := signalByName(t, res, "threads_running")
+		require.NotNil(t, sig.Max)
+		assert.InDelta(t, 9, *sig.Max, 1e-9)
+		assert.Contains(t, res.Note, "threads_running: the largest of 2 series.")
+		assert.Contains(t, text, "threads_running: the largest of 2 series.")
+		assert.NotContains(t, strings.ReplaceAll(res.Note, "threads_running: the largest of 2 series.", ""), "series", "one series says nothing")
+	})
+
 	t.Run("NotInTheServiceList", func(t *testing.T) {
 		t.Parallel()
 
@@ -380,6 +415,9 @@ func TestServiceHealthTool(t *testing.T) {
 func jsonTags(typ reflect.Type) []string {
 	var out []string
 	for f := range typ.Fields() {
+		if !f.IsExported() {
+			continue
+		}
 		name, _, _ := strings.Cut(f.Tag.Get("json"), ",")
 		out = append(out, name)
 	}
@@ -435,6 +473,28 @@ func TestServiceHealthDeadline(t *testing.T) {
 		}
 	}
 	assert.NoError(t, ctx.Err(), "the result was built before the call's own deadline")
+}
+
+func TestServiceHealthEverySignalTimesOut(t *testing.T) {
+	t.Parallel()
+
+	fake := newFakePMM(t, healthRoutes(map[string]fixture{vmQueryRange: {block: true}}))
+	s := newQANService(t, fake, false)
+	req := &mcp.CallToolRequest{Extra: &mcp.RequestExtra{Header: http.Header{"Authorization": {testToken}}}}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 11*time.Second)
+	defer cancel()
+	_, err := s.serviceHealth(ctx, req, serviceHealthInput{ServiceID: "svc-1"})
+	require.Error(t, err)
+	assert.Equal(t, codeTimeout, mapError(err).code)
+}
+
+func signalLagQuery(t *testing.T) string {
+	t.Helper()
+
+	i := slices.IndexFunc(healthSignals[engineMongoDB], func(s signal) bool { return s.Name == "replication_lag" })
+	require.GreaterOrEqual(t, i, 0)
+	return healthSignals[engineMongoDB][i].Query
 }
 
 func TestServiceHealthLimits(t *testing.T) {

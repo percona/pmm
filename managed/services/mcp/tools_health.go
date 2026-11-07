@@ -156,6 +156,7 @@ var healthSignals = map[string][]signal{
 	},
 	engineMongoDB: {
 		{
+			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (Task 6 fixture).
 			Name: "qps", Unit: "ops", Source: "mongodb_op_counters_total",
 			Query: `sum(rate(mongodb_op_counters_total{%[1]s,type!="command"}[5m]) or irate(mongodb_op_counters_total{%[1]s,type!="command"}[5m]))`,
 		},
@@ -164,6 +165,7 @@ var healthSignals = map[string][]signal{
 			Query: `avg by (service_name) (rate(mongodb_mongod_op_latencies_latency_total{%[1]s,type="command"}[5m]) / (rate(mongodb_mongod_op_latencies_ops_total{%[1]s,type="command"}[5m]) > 0) or irate(mongodb_mongod_op_latencies_latency_total{%[1]s,type="command"}[5m]) / (irate(mongodb_mongod_op_latencies_ops_total{%[1]s,type="command"}[5m]) > 0))`,
 		},
 		{
+			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (Task 6 fixture).
 			Name: "connections", Unit: "short", Source: "mongodb_connections",
 			Query: `avg by (service_name) (mongodb_connections{%[1]s, state="current"})`,
 		},
@@ -176,10 +178,12 @@ var healthSignals = map[string][]signal{
 			Query: `(sum(rate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned"}[5m]))/ sum(rate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned_objects"}[5m])) or sum(irate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned"}[5m]))/ sum(irate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned_objects"}[5m])))`,
 		},
 		{
+			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (Task 6 fixture).
 			Name: "asserts", Unit: "short", Source: "mongodb_asserts_total",
 			Query: `sum by (service_name) (avg by (service_name,type) (rate(mongodb_asserts_total{%[1]s}[5m]) or irate(mongodb_asserts_total{%[1]s}[5m])))`,
 		},
 		{
+			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (Task 6 fixture).
 			Name: "page_faults", Unit: "short", Source: "mongodb_extra_info_page_faults_total",
 			Query: `avg by (service_name) (rate(mongodb_extra_info_page_faults_total{%[1]s}[5m]) or irate(mongodb_extra_info_page_faults_total{%[1]s}[5m]))`,
 		},
@@ -189,7 +193,7 @@ var healthSignals = map[string][]signal{
 		},
 		{
 			Name: "replication_lag", Unit: "s", Source: "mongodb_mongod_replset_member_replication_lag",
-			Query: `max_over_time(mongodb_mongod_replset_member_replication_lag{environment=~".*",cluster=~".*",set=~".*",self=~"|1",%[1]s}[5m]) > 0`,
+			Query: `max by (service_name) (max_over_time(mongodb_mongod_replset_member_replication_lag{environment=~".*",cluster=~".*",set=~".*",self=~"|1",%[1]s}[5m]))`,
 		},
 	},
 }
@@ -212,8 +216,11 @@ type signalResult struct {
 	Max    *float64   `json:"max" jsonschema:"Largest finite value; null when there is none."`
 	Last   *float64   `json:"last" jsonschema:"Last value; null when it is NaN or infinite, or the signal has no data or an error."`
 	LastAt *time.Time `json:"last_at,omitempty" jsonschema:"Time of the newest sample."`
-	NoData bool       `json:"no_data,omitempty" jsonschema:"True when the query returned no series."`
+	NoData bool       `json:"no_data,omitempty" jsonschema:"True when the query returned no series, or was not run because the service's node name is unknown."`
 	Error  *partError `json:"error,omitempty" jsonschema:"Why this signal could not be read."`
+
+	// series is how many series the query returned.
+	series int
 }
 
 // healthResult is the result of pmm_service_health.
@@ -346,6 +353,9 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		case results[j].Last == nil && !results[j].NoData:
 			notes = appendOnce(notes, nanNote)
 		}
+		if results[j].series > 1 {
+			notes = append(notes, fmt.Sprintf("%s: the largest of %d series.", results[j].Name, results[j].series))
+		}
 	}
 	if skipNode {
 		notes = append(notes, nodeUnknownNote)
@@ -414,6 +424,7 @@ func (s *Service) runSignal(ctx context.Context, rr rangeRequest, sig signal, qu
 		return res, err
 	}
 
+	res.series = len(series)
 	var best *rankedSeries
 	for _, sr := range series {
 		if len(sr.Points) == 0 {
