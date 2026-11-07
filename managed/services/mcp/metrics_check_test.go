@@ -233,7 +233,7 @@ func TestCheckExpr(t *testing.T) {
 			if step == 0 {
 				step = instantStep
 				if tc.span > 0 {
-					step = max(time.Second, (tc.span/maxSubquerySteps + time.Second - 1).Truncate(time.Second))
+					step = max(time.Second, (tc.span/maxPoints + time.Second - 1).Truncate(time.Second))
 				}
 			}
 			err := checkExpr(tc.expr, tc.span, step)

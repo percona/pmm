@@ -36,9 +36,6 @@ const (
 	minNamePrefix = 3
 )
 
-// maxSubquerySteps bounds the steps a subquery takes over the span the query reads.
-const maxSubquerySteps = 2000
-
 // maxImplicitPoints bounds the points per series of a subquery VictoriaMetrics runs, at the step
 // in effect, for a rollup over anything but a selector.
 const maxImplicitPoints = 4000
@@ -110,12 +107,12 @@ func checkExpr(expr string, span, step time.Duration) error {
 			formatSpan(read), formatSpan(span), formatSpan(lookbehind), formatSpan(maxSpan))
 	}
 
-	minStep := read / maxSubquerySteps
+	minStep := read / maxPoints
 	for _, s := range w.subquerySteps {
 		if s < minStep {
 			return newToolError(codeInvalidInput,
 				"the subquery step %s is too small: the query reads %s, so a subquery step must be at least %s (the span read ÷ %d)",
-				formatSpan(s), formatSpan(read), formatSpan(ceilSecond(minStep)), maxSubquerySteps)
+				formatSpan(s), formatSpan(read), formatSpan(ceilSecond(minStep)), maxPoints)
 		}
 	}
 
