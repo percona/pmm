@@ -18,6 +18,7 @@ package mcp
 import (
 	"encoding/json"
 	"io"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -170,13 +171,20 @@ func newTestService(t *testing.T, fake *fakePMM) *Service {
 func connect(t *testing.T, s *Service) *mcp.ClientSession {
 	t.Helper()
 
+	return connectWithHeaders(t, s, nil)
+}
+
+// connectWithHeaders is connect with header sent in place of the test token.
+func connectWithHeaders(t *testing.T, s *Service, header http.Header) *mcp.ClientSession {
+	t.Helper()
+
 	srv := httptest.NewServer(s.Handler())
 	t.Cleanup(srv.Close)
 
 	client := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "0"}, nil)
 	session, err := client.Connect(t.Context(), &mcp.StreamableClientTransport{
 		Endpoint:   srv.URL + "/mcp",
-		HTTPClient: &http.Client{Transport: &headerTransport{next: http.DefaultTransport}},
+		HTTPClient: &http.Client{Transport: &headerTransport{next: http.DefaultTransport, header: header}},
 	}, nil)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = session.Close() })
@@ -184,14 +192,18 @@ func connect(t *testing.T, s *Service) *mcp.ClientSession {
 	return session
 }
 
-// headerTransport adds the test token to every MCP request.
+// headerTransport adds header, or the test token when it is nil, to every MCP request.
 type headerTransport struct {
-	next http.RoundTripper
+	next   http.RoundTripper
+	header http.Header
 }
 
 func (h *headerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req = req.Clone(req.Context())
-	req.Header.Set("Authorization", testToken)
+	if h.header == nil {
+		req.Header.Set("Authorization", testToken)
+	}
+	maps.Copy(req.Header, h.header)
 	return h.next.RoundTrip(req)
 }
 
