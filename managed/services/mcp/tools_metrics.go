@@ -74,6 +74,8 @@ func (s *Service) registerMetricsTools(server *mcp.Server) {
 			"VictoriaMetrics, and pages with offset and limit (default 100, at most 1000); series are also held to 16 KiB.",
 		Annotations: readOnly("List metrics"),
 	}, s.listMetrics)
+
+	s.registerHealthTool(server)
 }
 
 // metricsPlan is a validated call of pmm_query_metrics.

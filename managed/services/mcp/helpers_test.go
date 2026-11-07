@@ -37,11 +37,12 @@ const testToken = "Bearer glsa_test_token"
 // fixture is one canned PMM API response, keyed by "METHOD /path" or by
 // "METHOD /path ?TEXT". The second form matches a request whose query parameter
 // contains TEXT, beats the plain key, and the longest TEXT wins. Body is served
-// instead of file when set.
+// instead of file when set. A block fixture never answers: the request waits until its caller gives up.
 type fixture struct {
 	file   string
 	body   []byte
 	status int
+	block  bool
 }
 
 // recordedRequest is what the fake PMM received for one call.
@@ -91,6 +92,11 @@ func (f *fakePMM) serve(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusNotFound)
 		_, _ = rw.Write([]byte(`{"code":5,"error":"no fixture for ` + req.Method + " " + req.URL.Path + `","message":"not found"}`))
+		return
+	}
+
+	if fx.block {
+		<-req.Context().Done()
 		return
 	}
 

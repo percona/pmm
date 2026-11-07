@@ -56,7 +56,7 @@ func TestInitializeAndListTools(t *testing.T) {
 		require.NotNil(t, tool.Annotations.DestructiveHint, "tool %s", tool.Name)
 		assert.False(t, *tool.Annotations.DestructiveHint, "tool %s", tool.Name)
 	}
-	assert.Equal(t, []string{"pmm_catalog", "pmm_get_config", "pmm_get_explain", "pmm_get_schema", "pmm_inventory", "pmm_list_metrics", "pmm_query_detail", "pmm_query_metrics", "pmm_top_queries", "pmm_version"}, names)
+	assert.Equal(t, []string{"pmm_catalog", "pmm_get_config", "pmm_get_explain", "pmm_get_schema", "pmm_inventory", "pmm_list_metrics", "pmm_query_detail", "pmm_query_metrics", "pmm_service_health", "pmm_top_queries", "pmm_version"}, names)
 }
 
 func TestDisabled(t *testing.T) {
