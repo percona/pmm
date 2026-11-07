@@ -40,7 +40,7 @@ Shows how much disk was loaded for reads or writes as the average number of outs
 
 ## Disk IO Utilization
 
-Shows disk utilization as the percentage of time when there was at least one IO request in flight. It is designed to match utilization available in the iostat tool. It is not a very good measure of true IO capacity utilization. Consider looking at the **Disk Latency** and **Disk Load** panels instead.
+Shows disk utilization as the percentage of time when there was at least one IO request in flight. It is designed to match utilization available in the iostat tool. When more than one device is selected, the panel shows the busiest device. It is not a very good measure of true IO capacity utilization. Consider looking at the **Disk Latency** and **Disk Load** panels instead.
 
 ## Avg Disks Operations Merge Ratio
 
