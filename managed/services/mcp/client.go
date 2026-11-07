@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -496,8 +497,18 @@ func (c *client) QueryRange(ctx context.Context, auth callerAuth, uid string, r 
 	return out, nil
 }
 
+// labelNamePattern is what a label name may look like; url.PathEscape leaves a name such as '..' alone, so the path segment is checked.
+var labelNamePattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+
+func errBadLabel(label string) error {
+	return newToolError(codeInvalidInput, "label '%s' is not a label name: use letters, digits and underscores, not starting with a digit", echo(label))
+}
+
 // LabelValues lists the values of a label of the series matching match.
 func (c *client) LabelValues(ctx context.Context, auth callerAuth, uid, label string, match []string, start, end time.Time, limit int) ([]string, error) {
+	if !labelNamePattern.MatchString(label) {
+		return nil, errBadLabel(label)
+	}
 	return c.listStrings(ctx, auth, uid, "api/v1/label/"+url.PathEscape(label)+"/values", match, start, end, limit)
 }
 

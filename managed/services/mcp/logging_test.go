@@ -65,6 +65,7 @@ func TestNoCredentialsInLogs(t *testing.T) {
 		"pmm_get_config":    {{"service_id": "svc-1"}},
 		"pmm_catalog":       {{"kind": "bogus"}},
 		"pmm_query_metrics": {{"query": "mysql_up"}},
+		"pmm_list_metrics":  {{"kind": "labels"}},
 	}
 	requireEntries(t, listedTools(t), slices.Collect(maps.Keys(calls)))
 

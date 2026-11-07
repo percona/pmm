@@ -305,3 +305,25 @@ func TestVMRequestLimitDefault(t *testing.T) {
 	t.Setenv("VM_search_maxConcurrentRequests", "16")
 	assert.Equal(t, 8, maxVMRequestsPerReplica())
 }
+
+func TestLabelValuesRefusesAPathLabel(t *testing.T) {
+	t.Parallel()
+
+	fake := newFakePMM(t, map[string]fixture{
+		"GET " + vmProxy + "api/v1/label/mysql_up/values": {body: []byte(`{"status":"success","data":["a"]}`)},
+	})
+	c, err := newClient(fake.server.URL + "/")
+	require.NoError(t, err)
+
+	for _, label := range []string{"..", "a/b", "../query", "", "1a", "a b", "a%2Fb"} {
+		_, err = c.LabelValues(t.Context(), testAuth, "metrics-uid", label, nil, time.Time{}, time.Time{}, 0)
+		require.Error(t, err, label)
+		assert.Equal(t, codeInvalidInput, mapError(err).code, label)
+	}
+	assert.Zero(t, fake.requestCount(), "a refused label sends no request")
+
+	got, err := c.LabelValues(t.Context(), testAuth, "metrics-uid", "mysql_up", nil, time.Time{}, time.Time{}, 0)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"a"}, got)
+	assert.Equal(t, 1, fake.requestCount())
+}

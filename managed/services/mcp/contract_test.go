@@ -169,6 +169,7 @@ func TestUntrustedFieldsMarked(t *testing.T) {
 		"pmm_get_config":    {"service_name", "version", "variables[].value"},
 		"pmm_catalog":       {},
 		"pmm_query_metrics": {"series[].labels", "shared_labels"},
+		"pmm_list_metrics":  {"labels", "values", "series"},
 	}
 	tools := listedTools(t)
 	requireEntries(t, tools, slices.Collect(maps.Keys(untrusted)))
@@ -196,6 +197,7 @@ func TestErrorsCarryNoStructuredContent(t *testing.T) {
 		"pmm_get_config":    {"service_id": "svc-1"},
 		"pmm_catalog":       {"kind": "bogus"},
 		"pmm_query_metrics": {"query": "mysql_up"},
+		"pmm_list_metrics":  nil,
 	}
 	requireEntries(t, listedTools(t), slices.Collect(maps.Keys(calls)))
 
@@ -317,6 +319,7 @@ func TestRedactionInBothRenderings(t *testing.T) {
 		"pmm_catalog":       "returns no statement text",
 		"pmm_get_config":    "returns no statement text",
 		"pmm_query_metrics": "returns no statement text",
+		"pmm_list_metrics":  "returns metric names, label names and values, no statement text",
 	}
 	requireEntries(t, listedTools(t), slices.Concat(slices.Collect(maps.Keys(cases)), slices.Collect(maps.Keys(exempt))))
 
@@ -517,6 +520,34 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				wantErr: true,
 			},
 		},
+		"pmm_list_metrics": {
+			{name: "NoNames", fake: routed(listRoutes(map[string]fixture{vmNames: {body: stringsBody(nil)}}))},
+			{
+				name: "NoSeries",
+				fake: routed(listRoutes(map[string]fixture{vmSeries: {body: seriesBody(0)}})),
+				args: map[string]any{"kind": "series", "match": []string{"mysql_up"}},
+			},
+			{
+				name: "NoValues",
+				fake: routed(listRoutes(map[string]fixture{vmValues: {body: stringsBody(nil)}})),
+				args: map[string]any{"kind": "values", "label": "service_name"},
+			},
+			{
+				name: "NoLabels",
+				fake: routed(listRoutes(map[string]fixture{vmLabels: {body: stringsBody(nil)}})),
+				args: map[string]any{"kind": "labels"},
+			},
+			{
+				name:    "Failed",
+				fake:    routed(listRoutes(map[string]fixture{vmNames: failed})),
+				wantErr: true,
+			},
+			{
+				name:    "NoDatasource",
+				fake:    routed(nil),
+				wantErr: true,
+			},
+		},
 	}
 	tools := listedTools(t)
 	requireEntries(t, tools, slices.Collect(maps.Keys(scenarios)))
@@ -602,6 +633,7 @@ func TestResultMapsAreOmitempty(t *testing.T) {
 		"pmm_get_config":    reflect.TypeFor[configResult](),
 		"pmm_catalog":       reflect.TypeFor[catalogResult](),
 		"pmm_query_metrics": reflect.TypeFor[metricsResult](),
+		"pmm_list_metrics":  reflect.TypeFor[listMetricsResult](),
 	}
 	// Map fields without omitempty that their constructors always set, as "type.Field", each covered by
 	// TestEmptyAndDegradedResults.
