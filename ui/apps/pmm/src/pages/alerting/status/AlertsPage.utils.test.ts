@@ -5,8 +5,11 @@ import {
 } from 'types/alerting.types';
 import {
   buildSilenceMap,
+  findLinkedAlert,
   flattenAlertRules,
+  getAlertLinkParams,
   groupAlertsByNode,
+  withAlertLink,
 } from './AlertsPage.utils';
 import { AlertRow } from './AlertsPage.types';
 
@@ -454,5 +457,110 @@ describe('flattenAlertRules', () => {
     expect(grouped[0].state).toBe('Alerting');
     expect(grouped[0].alerts).toHaveLength(2);
     expect(grouped[0].alerts[0].type).toBe('alert');
+  });
+});
+
+describe('alert links', () => {
+  const createLinkedRow = (
+    id: string,
+    ruleGroupUid: string,
+    labels: Record<string, string>
+  ) =>
+    createAlertRow({
+      type: 'alert',
+      id,
+      alertName: id,
+      ruleName: id,
+      ruleGroupUid,
+      state: 'Alerting',
+      nodeId: '',
+      serviceName: '',
+      summary: '',
+      age: '1m',
+      labels,
+    });
+
+  const cpuOnNode1 = createLinkedRow('cpu-node-1', 'rule-cpu', {
+    node_name: 'node-1',
+    alertname: 'High CPU',
+    __alert_rule_uid__: 'rule-cpu',
+    __grafana_origin: 'plugin/percona',
+  });
+  const cpuOnNode2 = createLinkedRow('cpu-node-2', 'rule-cpu', {
+    node_name: 'node-2',
+    alertname: 'High CPU',
+  });
+
+  it('builds the link from the rule uid and the sorted visible labels', () => {
+    expect(getAlertLinkParams(cpuOnNode1).toString()).toBe(
+      'rule=rule-cpu&matcher=alertname%3DHigh+CPU&matcher=node_name%3Dnode-1'
+    );
+  });
+
+  it('finds the alert a link points to', () => {
+    const params = getAlertLinkParams(cpuOnNode2);
+
+    expect(findLinkedAlert([cpuOnNode1, cpuOnNode2], params)).toBe(cpuOnNode2);
+  });
+
+  it('still finds the alert after a label is added to it', () => {
+    const params = getAlertLinkParams(cpuOnNode1);
+    const withNewLabel = createLinkedRow('cpu-node-1', 'rule-cpu', {
+      ...cpuOnNode1.labels,
+      environment: 'prod',
+    });
+
+    expect(findLinkedAlert([withNewLabel], params)).toBe(withNewLabel);
+  });
+
+  it('does not match an alert of another rule with the same labels', () => {
+    const params = getAlertLinkParams(cpuOnNode1);
+    const otherRule = createLinkedRow(
+      'other',
+      'rule-memory',
+      cpuOnNode1.labels
+    );
+
+    expect(findLinkedAlert([otherRule], params)).toBeUndefined();
+  });
+
+  it('does not match when a linked label has a different value', () => {
+    const params = getAlertLinkParams(cpuOnNode1);
+
+    expect(findLinkedAlert([cpuOnNode2], params)).toBeUndefined();
+  });
+
+  it('round-trips label values with spaces, brackets, & and =', () => {
+    const tricky = createLinkedRow('tricky', 'rule-cpu', {
+      service_name: '[no value]',
+      query: 'a=b&c=d',
+    });
+    const params = new URLSearchParams(getAlertLinkParams(tricky).toString());
+
+    expect(findLinkedAlert([cpuOnNode1, tricky], params)).toBe(tricky);
+  });
+
+  it('sets the link, keeping other params and the tab last', () => {
+    const params = new URLSearchParams(
+      'kiosk=true&tab=raw-data&rule=old&matcher=node_name%3Dold'
+    );
+
+    expect(withAlertLink(params, cpuOnNode2).toString()).toBe(
+      'kiosk=true&rule=rule-cpu&matcher=alertname%3DHigh+CPU&matcher=node_name%3Dnode-2&tab=raw-data'
+    );
+  });
+
+  it('removes the link and tab without an alert', () => {
+    const params = new URLSearchParams(
+      'kiosk=true&rule=rule-cpu&matcher=node_name%3Dnode-1&tab=raw-data'
+    );
+
+    expect(withAlertLink(params).toString()).toBe('kiosk=true');
+  });
+
+  it('finds nothing without a rule param', () => {
+    expect(
+      findLinkedAlert([cpuOnNode1], new URLSearchParams('kiosk=true'))
+    ).toBeUndefined();
   });
 });
