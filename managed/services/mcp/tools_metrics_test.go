@@ -221,6 +221,9 @@ func TestQueryMetricsTool(t *testing.T) {
 			`rate(mysql_global_status_questions{service_name="db1"}[5m])[1h:]`,
 			`rate(mysql_global_status_questions{service_name="db1"}[5m])[1h:1m] offset 1h`,
 			`rate(mysql_global_status_questions{service_name="db1"}[5m])[1h]`,
+			`mysql_up{service_name="db1"}[:1m]`,
+			`mysql_up{service_name="db1"}[:]`,
+			`(mysql_up{service_name="db1"}[:1m]) offset 5m`,
 		}
 		for _, q := range ranges {
 			fake := newFakePMM(t, metricsRoutes(nil))

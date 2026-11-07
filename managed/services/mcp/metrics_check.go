@@ -60,7 +60,7 @@ var scopeLabels = []string{"service_id", "service_name", "node_id", "node_name"}
 var templateKeywords = []string{"with", "ttf", "ru", "range_median", "alias"}
 
 // seriesPerValueFuncs are the functions that create a series for each distinct sample value.
-var seriesPerValueFuncs = []string{"count_values", "count_values_over_time", "histogram_over_time"}
+var seriesPerValueFuncs = []string{"count_values", "count_values_over_time", "histogram", "histogram_over_time"}
 
 // stepTooSmallError is the refusal of a step too small for a rollup over an expression that is not a selector.
 type stepTooSmallError struct {
@@ -215,6 +215,10 @@ func (w *exprWalk) expr(e metricsql.Expr, p path) error {
 		if err != nil {
 			return err
 		}
+		err = checkRollupNames(e)
+		if err != nil {
+			return err
+		}
 		rollupArg := metricsql.GetRollupArgIdx(e)
 		for i, arg := range e.Args {
 			walk := w.expr
@@ -265,6 +269,39 @@ func checkFunc(name string) error {
 	return newToolError(codeInvalidInput,
 		"%s() is not accepted: it creates a series for each distinct value, so its result can't be bounded; "+
 			"summarise the values with quantile_over_time(), max_over_time() or count_over_time() instead", name)
+}
+
+// checkRollupNames refuses an aggr_over_time call that names a refused rollup function in a string argument.
+func checkRollupNames(e *metricsql.FuncExpr) error {
+	if !strings.EqualFold(e.Name, "aggr_over_time") {
+		return nil
+	}
+	for _, arg := range e.Args {
+		err := checkRollupName(arg)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// checkRollupName refuses a string, or a parenthesised list of strings, that names a refused function.
+func checkRollupName(e metricsql.Expr) error {
+	switch e := e.(type) {
+	case *metricsql.StringExpr:
+		return checkFunc(e.S)
+	case *metricsql.FuncExpr:
+		if e.Name != "" {
+			return nil
+		}
+		for _, arg := range e.Args {
+			err := checkRollupName(arg)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // rollupArg walks what a rollup function reads over its window, which VictoriaMetrics

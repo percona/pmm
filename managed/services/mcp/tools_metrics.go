@@ -257,9 +257,15 @@ func checkInstantRoot(expr string) error {
 	if err != nil {
 		return newToolError(codeInvalidInput, "cannot parse the expression: %s", echo(err.Error()))
 	}
-	re, ok := e.(*metricsql.RollupExpr)
-	if !ok || re.Window == nil {
-		return nil
+	for {
+		re, ok := e.(*metricsql.RollupExpr)
+		if !ok {
+			return nil
+		}
+		if re.Window != nil || re.ForSubquery() {
+			break
+		}
+		e = re.Expr
 	}
 	return newToolError(codeInvalidInput,
 		"an instant query returns one value per series, so it can't be a range selector or a subquery such as x[5m] or x[1h:1m]: "+
