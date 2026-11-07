@@ -59,6 +59,9 @@ var scopeLabels = []string{"service_id", "service_name", "node_id", "node_name"}
 // built-in templates, which repeat their arguments.
 var templateKeywords = []string{"with", "ttf", "ru", "range_median", "alias"}
 
+// seriesPerValueFuncs are the functions that create a series for each distinct sample value.
+var seriesPerValueFuncs = []string{"count_values", "count_values_over_time", "histogram_over_time"}
+
 // stepTooSmallError is the refusal of a step too small for a rollup over an expression that is not a selector.
 type stepTooSmallError struct {
 	*toolError
@@ -208,6 +211,10 @@ func (w *exprWalk) expr(e metricsql.Expr, p path) error {
 		return w.rollup(e, p)
 
 	case *metricsql.FuncExpr:
+		err := checkFunc(e.Name)
+		if err != nil {
+			return err
+		}
 		rollupArg := metricsql.GetRollupArgIdx(e)
 		for i, arg := range e.Args {
 			walk := w.expr
@@ -222,6 +229,10 @@ func (w *exprWalk) expr(e metricsql.Expr, p path) error {
 		return nil
 
 	case *metricsql.AggrFuncExpr:
+		err := checkFunc(e.Name)
+		if err != nil {
+			return err
+		}
 		for _, arg := range e.Args {
 			err := w.expr(arg, p)
 			if err != nil {
@@ -244,6 +255,16 @@ func (w *exprWalk) expr(e metricsql.Expr, p path) error {
 		return newToolError(codeInvalidInput,
 			"cannot check '%s'; write the expression with selectors, functions, aggregations and operators", echo(string(e.AppendString(nil))))
 	}
+}
+
+// checkFunc refuses a function that creates a series for each distinct value, whose result no budget bounds.
+func checkFunc(name string) error {
+	if !slices.Contains(seriesPerValueFuncs, strings.ToLower(name)) {
+		return nil
+	}
+	return newToolError(codeInvalidInput,
+		"%s() is not accepted: it creates a series for each distinct value, so its result can't be bounded; "+
+			"summarise the values with quantile_over_time(), max_over_time() or count_over_time() instead", name)
 }
 
 // rollupArg walks what a rollup function reads over its window, which VictoriaMetrics

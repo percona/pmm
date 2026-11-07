@@ -36,8 +36,9 @@ func TestCheckExpr(t *testing.T) {
 	require.Len(t, long, 5000)
 
 	const (
-		scope  = "service_id, service_name, node_id or node_name"
-		capped = "the cap is 7d"
+		scope    = "service_id, service_name, node_id or node_name"
+		capped   = "the cap is 7d"
+		perValue = "it creates a series for each distinct value, so its result can't be bounded"
 	)
 	for _, tc := range []struct {
 		name string
@@ -145,6 +146,31 @@ func TestCheckExpr(t *testing.T) {
 		{expr: `range_median(mysql_up{service_name="db1"})`, span: time.Hour, want: []string{"template range_median()"}},
 		{expr: `alias(mysql_up{service_name="db1"}, "up")`, span: time.Hour, want: []string{"template alias()"}},
 		{name: "an escaped name spells ttf", expr: `t\x74f(mysql_up{service_name="db1"})`, span: time.Hour, want: []string{"backslash at byte 1"}},
+
+		{expr: `count_values("v", mysql_up{service_name="db1"})`, span: time.Hour, want: []string{"count_values() is not accepted", perValue}},
+		{
+			expr: `count_values_over_time("v", mysql_global_status_questions{service_name="db1"}[5m])`, span: time.Hour,
+			want: []string{"count_values_over_time() is not accepted", perValue},
+		},
+		{expr: `histogram_over_time(mysql_global_status_questions{service_name="db1"}[5m])`, span: time.Hour, want: []string{"histogram_over_time() is not accepted", perValue}},
+		{
+			name: "count_values inside an aggregation and an operator",
+			expr: `1 + sum(count_values("v", mysql_up{service_name="db1"}))`, span: time.Hour,
+			want: []string{"count_values() is not accepted"},
+		},
+		{
+			name: "count_values_over_time inside a subquery",
+			expr: `max_over_time(sum(count_values_over_time("v", mysql_up{service_name="db1"}[5m]))[1h:5m])`, span: time.Hour,
+			want: []string{"count_values_over_time() is not accepted"},
+		},
+		{
+			name: "histogram_over_time inside a function",
+			expr: `histogram_quantile(0.9, histogram_over_time(mysql_global_status_questions{service_name="db1"}[5m]))`, span: time.Hour,
+			want: []string{"histogram_over_time() is not accepted"},
+		},
+		{name: "an upper-case aggregation", expr: `COUNT_VALUES("v", mysql_up{service_name="db1"})`, span: time.Hour, want: []string{"count_values() is not accepted"}},
+		{name: "an upper-case function", expr: `HISTOGRAM_OVER_TIME(mysql_up{service_name="db1"}[5m])`, span: time.Hour, want: []string{"HISTOGRAM_OVER_TIME() is not accepted"}},
+		{name: "a subquery without a selector reads no storage", expr: `max_over_time(time()[100d:1s])`},
 		{expr: `mysql\_up{service_name="db1"}`, span: time.Hour, want: []string{"backslash at byte 5"}},
 		{expr: `mysql_up{service_name="db1"} # café`, span: time.Hour, want: []string{"non-ASCII character at byte 34"}},
 		{name: "non-ASCII inside a label value passes", expr: `mysql_up{service_name="dbé"}`, span: time.Hour},

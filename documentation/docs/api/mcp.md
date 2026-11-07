@@ -289,6 +289,7 @@ The server refuses these expressions before it sends any request. Every refusal 
 - **Time read.** An expression reads at most 7 days. The time read is the range of the query plus the largest lookbehind of any path from the query to a selector. An instant query has a range of 0.
 - **`@`.** The `@` modifier is refused, since it reads outside the query's time range.
 - **Templates.** A MetricsQL `WITH` template and the built-in templates `ttf`, `ru`, `range_median` and `alias` are refused, because they expand before the checks run.
+- **Series per value.** Functions that create a series for each distinct value are refused: `count_values`, `count_values_over_time` and `histogram_over_time`.
 - **Characters.** A non-ASCII character or a backslash outside a quoted string is refused. Label values and other strings can hold both.
 - **Subquery step.** The step of a subquery, written as `[range:step]`, is at least the time read divided by 2,000. A subquery without a step takes the step of the query and is checked the same way.
 
