@@ -895,6 +895,206 @@
     }
   },
   {
+    "name": "pmm_query_metrics",
+    "description": "Run a MetricsQL query (PromQL-compatible) on PMM's metrics, instant at time (default now) or over a range with period_from and period_to (default the last hour). Aggregate first: ask for sum by (service_name) (rate(mysql_global_status_questions[5m])) or topk(10, ...) rather than raw series. Every selector needs a metric name, and a regex name also a service_* or node_* matcher; an expression reads at most 7 days and a selector may match at most 2000 series, or the query is refused with the reason. A result holds the top limit series (default 20, at most 100) by maximum, in at most 2000 points and 16 KiB: raw points when they fit, summaries (min, avg, max, last) when they don't. NaN and infinite values are null.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "description": "Maximum series to return, the largest by maximum first: 1 to 100, default 20",
+          "type": "integer"
+        },
+        "period_from": {
+          "description": "Range query: start, RFC3339 or relative such as now-6h; default now-1h when only period_to is given",
+          "type": "string"
+        },
+        "period_to": {
+          "description": "Range query: end, RFC3339 or relative; default now",
+          "type": "string"
+        },
+        "query": {
+          "description": "MetricsQL expression, for example sum by (service_name) (rate(mysql_global_status_questions[5m]))",
+          "type": "string"
+        },
+        "step": {
+          "description": "Range query only: step in whole seconds, such as 30s or 5m; default keeps the range within 2000 points",
+          "type": "string"
+        },
+        "time": {
+          "description": "Instant query: evaluation time, RFC3339 or relative such as now-1h; default now. Not with a period",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "hint": {
+          "description": "How to narrow the query, when series are left out.",
+          "type": "string"
+        },
+        "note": {
+          "description": "Values returned as null.",
+          "type": "string"
+        },
+        "query": {
+          "description": "The expression that ran.",
+          "type": "string"
+        },
+        "series": {
+          "description": "The series, the largest maximum first.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "avg": {
+                "description": "Average of the finite values; null when there is none.",
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "labels": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Untrusted. The series' labels other than shared_labels and PMM's internal ones; empty when there are none.",
+                "type": "object"
+              },
+              "last": {
+                "description": "Last value; null when it is NaN or infinite.",
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "last_at": {
+                "description": "Time of the last value.",
+                "type": "string"
+              },
+              "max": {
+                "description": "Largest finite value; null when there is none.",
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "min": {
+                "description": "Smallest finite value; null when there is none.",
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "points": {
+                "description": "The raw points; left out when the result is summarized.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "t": {
+                      "description": "Sample time.",
+                      "type": "string"
+                    },
+                    "v": {
+                      "description": "Sample value; null when it is NaN or infinite.",
+                      "type": [
+                        "null",
+                        "number"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "t",
+                    "v"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              }
+            },
+            "required": [
+              "labels",
+              "min",
+              "avg",
+              "max",
+              "last",
+              "last_at"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "shared_labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Untrusted. Labels with the same value on every series shown.",
+          "type": "object"
+        },
+        "step": {
+          "description": "The step of a range query.",
+          "type": "string"
+        },
+        "summarized": {
+          "description": "True when the series carry no raw points.",
+          "type": "boolean"
+        },
+        "total_series": {
+          "description": "Series the query returned, shown or not.",
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "True when some series are left out.",
+          "type": "boolean"
+        },
+        "window": {
+          "additionalProperties": false,
+          "description": "The time range a range query covers.",
+          "properties": {
+            "period_from": {
+              "type": "string"
+            },
+            "period_to": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "period_from",
+            "period_to"
+          ],
+          "type": [
+            "null",
+            "object"
+          ]
+        }
+      },
+      "required": [
+        "query",
+        "series",
+        "total_series",
+        "truncated",
+        "summarized"
+      ],
+      "type": "object"
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Query metrics"
+    }
+  },
+  {
     "name": "pmm_top_queries",
     "description": "Rank queries, or another QAN dimension (group_by: service_name, database, schema, username, client_host, application_name, cmd_type), over a time window, from PMM Query Analytics (QAN). order_by load and total_query_time rank by total time, avg_query_time by the slowest calls, count by frequency, and a column by its value (- for descending): ranked by the total, or by the per-call average for time metrics, as QAN does, and printed as both. Rows carry load, calls and timing plus the requested columns; queryid rows (the default) also carry the fingerprint, and the queryid goes to pmm_query_detail or pmm_get_explain. Page with offset. The names that columns and order_by take are listed by pmm_catalog with kind qan_columns.",
     "inputSchema": {

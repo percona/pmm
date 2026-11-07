@@ -59,30 +59,41 @@ var scopeLabels = []string{"service_id", "service_name", "node_id", "node_name"}
 // built-in templates, which repeat their arguments.
 var templateKeywords = []string{"with", "ttf", "ru", "range_median", "alias"}
 
+// stepTooSmallError is the refusal of a step too small for a rollup over an expression that is not a selector.
+type stepTooSmallError struct {
+	*toolError
+
+	// minStep is the smallest step, in whole seconds, that the rollup accepts.
+	minStep time.Duration
+}
+
+func (e *stepTooSmallError) Unwrap() error { return e.toolError }
+
 // checkExpr refuses, before any request, an expression that would read more than 7 days
-// or select too broadly; an instant query has span 0, and a step of 0 or less is instantStep.
-func checkExpr(expr string, span, step time.Duration) error {
+// or select too broadly, and returns the span it reads: the range plus the largest lookbehind.
+// An instant query has span 0, and a step of 0 or less is instantStep.
+func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
 	if step <= 0 {
 		step = instantStep
 	}
 	if len(expr) > maxExprBytes {
-		return newToolError(codeInvalidInput, "the expression is %d bytes; the cap is 4 KiB (%d bytes): query fewer metrics per call", len(expr), maxExprBytes)
+		return 0, newToolError(codeInvalidInput, "the expression is %d bytes; the cap is 4 KiB (%d bytes): query fewer metrics per call", len(expr), maxExprBytes)
 	}
 	err := checkBeforeParse(expr)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	e, err := metricsql.Parse(expr)
 	if err != nil {
-		return newToolError(codeInvalidInput, "cannot parse the expression: %s", echo(err.Error()))
+		return 0, newToolError(codeInvalidInput, "cannot parse the expression: %s", echo(err.Error()))
 	}
 
 	w, err := walkSelectors(e, step)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if len(w.selectors) > maxSelectors {
-		return newToolError(codeInvalidInput,
+		return 0, newToolError(codeInvalidInput,
 			"the expression has %d selectors, each OR group inside braces counting as one; the cap is %d selectors: query fewer metrics per call",
 			len(w.selectors), maxSelectors)
 	}
@@ -90,19 +101,19 @@ func checkExpr(expr string, span, step time.Duration) error {
 	for _, s := range w.selectors {
 		err = checkSelector(s)
 		if err != nil {
-			return err
+			return 0, err
 		}
 		lookbehind = max(lookbehind, s.lookbehind)
 	}
 
 	read := addCapped(span, lookbehind)
 	if read == math.MaxInt64 {
-		return newToolError(codeInvalidInput,
+		return 0, newToolError(codeInvalidInput,
 			"the query reads more than %[1]s; the cap is %[1]s: shorten the range, or the rollup windows, subquery ranges, subquery steps and offsets",
 			formatSpan(maxSpan))
 	}
 	if read > maxSpan {
-		return newToolError(codeInvalidInput,
+		return 0, newToolError(codeInvalidInput,
 			"the query reads %s (range %s + lookbehind %s); the cap is %s: shorten the range, or the rollup windows, subquery ranges, subquery steps and offsets",
 			formatSpan(read), formatSpan(span), formatSpan(lookbehind), formatSpan(maxSpan))
 	}
@@ -110,7 +121,7 @@ func checkExpr(expr string, span, step time.Duration) error {
 	minStep := read / maxPoints
 	for _, s := range w.subquerySteps {
 		if s < minStep {
-			return newToolError(codeInvalidInput,
+			return 0, newToolError(codeInvalidInput,
 				"the subquery step %s is too small: the query reads %s, so a subquery step must be at least %s (the span read ÷ %d)",
 				formatSpan(s), formatSpan(read), formatSpan(ceilSecond(minStep)), maxPoints)
 		}
@@ -122,13 +133,14 @@ func checkExpr(expr string, span, step time.Duration) error {
 		if points > maxImplicitPoints {
 			// The lead steps in reach grow with the step, so they come out before dividing.
 			minStep := (evaluated - subqueryLeadSteps*sq.step) / (maxImplicitPoints - subqueryLeadSteps)
-			return newToolError(codeInvalidInput,
+			te := newToolError(codeInvalidInput,
 				"at the query's step of %s, a rollup over an expression that is not a selector runs as a subquery of %d points per series; "+
 					"the cap is %d: raise step to at least %s, or shorten that rollup's window",
 				formatSpan(sq.step), int64(math.Ceil(points)), maxImplicitPoints, formatSpan(ceilSecond(minStep)))
+			return 0, &stepTooSmallError{toolError: te, minStep: ceilSecond(minStep)}
 		}
 	}
-	return nil
+	return read, nil
 }
 
 // selector is one OR group of a MetricExpr's label filters, which VictoriaMetrics

@@ -236,7 +236,7 @@ func TestCheckExpr(t *testing.T) {
 					step = max(time.Second, (tc.span/maxPoints + time.Second - 1).Truncate(time.Second))
 				}
 			}
-			err := checkExpr(tc.expr, tc.span, step)
+			_, err := checkExpr(tc.expr, tc.span, step)
 			if tc.want == nil {
 				require.NoError(t, err)
 				return
@@ -363,7 +363,8 @@ func TestCheckExprStepDefaultsToInstant(t *testing.T) {
 			{expr: `rate(mysql_global_status_questions[3000i])`, want: "reads 10d10h (range 0s + lookbehind 10d10h)"},
 			{expr: `mysql_global_status_questions`, span: 7 * day, want: "reads 7d5m (range 7d + lookbehind 5m)"},
 		} {
-			te, ok := errors.AsType[*toolError](checkExpr(tc.expr, tc.span, step))
+			_, err := checkExpr(tc.expr, tc.span, step)
+			te, ok := errors.AsType[*toolError](err)
 			require.True(t, ok, "%s at step %s passes", tc.expr, step)
 			assert.Equal(t, codeInvalidInput, te.code)
 			assert.Contains(t, te.message, tc.want)
@@ -408,7 +409,7 @@ func TestCheckExprHintSize(t *testing.T) {
 		fill(`{__name__=~"mysql_`, `"}`),
 	} {
 		require.Len(t, expr, maxExprBytes)
-		err := checkExpr(expr, time.Hour, 2*time.Second)
+		_, err := checkExpr(expr, time.Hour, 2*time.Second)
 		te, ok := errors.AsType[*toolError](err)
 		require.True(t, ok, "want a *toolError, got %v", err)
 		assert.LessOrEqual(t, len(te.message), 512, te.message[:min(len(te.message), 100)])

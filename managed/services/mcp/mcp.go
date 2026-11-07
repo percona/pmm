@@ -81,6 +81,7 @@ type Service struct {
 	now           func() time.Time
 	live          *limiter
 	liveByService *limiter
+	metrics       *limiter
 
 	// warnPeer logs the first non-loopback rejection at the default level.
 	warnPeer sync.Once
@@ -130,6 +131,7 @@ func New(params Params) (*Service, error) {
 		now:           time.Now,
 		live:          newLimiter(maxLiveCallsPerCaller, maxLiveCallsPerReplica),
 		liveByService: newLimiter(maxLiveCallsPerService, maxLiveCallsPerReplica),
+		metrics:       newLimiter(maxMetricCallsPerCaller, maxMetricCallsPerReplica),
 	}
 	// Both switches default to off when the caller supplies no callback, so a
 	// wiring mistake cannot expose the endpoint or un-redact its output. This
@@ -214,4 +216,5 @@ func (s *Service) registerTools(server *mcp.Server) {
 	s.registerCatalogTools(server)
 	s.registerActionTools(server)
 	s.registerConfigTools(server)
+	s.registerMetricsTools(server)
 }

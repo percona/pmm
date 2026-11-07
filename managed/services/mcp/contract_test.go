@@ -166,8 +166,9 @@ func TestUntrustedFieldsMarked(t *testing.T) {
 			"tables[].database", "tables[].name", "tables[].definition", "tables[].indexes",
 			"tables[].definition_error.message", "tables[].indexes_error.message", "unresolved", "not_fetched",
 		},
-		"pmm_get_config": {"service_name", "version", "variables[].value"},
-		"pmm_catalog":    {},
+		"pmm_get_config":    {"service_name", "version", "variables[].value"},
+		"pmm_catalog":       {},
+		"pmm_query_metrics": {"series[].labels", "shared_labels"},
 	}
 	tools := listedTools(t)
 	requireEntries(t, tools, slices.Collect(maps.Keys(untrusted)))
@@ -186,14 +187,15 @@ func TestErrorsCarryNoStructuredContent(t *testing.T) {
 	// Each call passes the input schema and fails in the tool: pmm_catalog on its kind, the others on a backing
 	// call to a fake PMM without routes.
 	calls := map[string]map[string]any{
-		"pmm_version":      nil,
-		"pmm_inventory":    nil,
-		"pmm_top_queries":  nil,
-		"pmm_query_detail": {"queryid": "QID-AAA"},
-		"pmm_get_explain":  {"service_id": "svc-1", "queryid": "QID-AAA"},
-		"pmm_get_schema":   {"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}},
-		"pmm_get_config":   {"service_id": "svc-1"},
-		"pmm_catalog":      {"kind": "bogus"},
+		"pmm_version":       nil,
+		"pmm_inventory":     nil,
+		"pmm_top_queries":   nil,
+		"pmm_query_detail":  {"queryid": "QID-AAA"},
+		"pmm_get_explain":   {"service_id": "svc-1", "queryid": "QID-AAA"},
+		"pmm_get_schema":    {"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}},
+		"pmm_get_config":    {"service_id": "svc-1"},
+		"pmm_catalog":       {"kind": "bogus"},
+		"pmm_query_metrics": {"query": "mysql_up"},
 	}
 	requireEntries(t, listedTools(t), slices.Collect(maps.Keys(calls)))
 
@@ -310,10 +312,11 @@ func TestRedactionInBothRenderings(t *testing.T) {
 		},
 	}
 	exempt := map[string]string{
-		"pmm_version":    "returns no statement text",
-		"pmm_inventory":  "returns no statement text",
-		"pmm_catalog":    "returns no statement text",
-		"pmm_get_config": "returns no statement text",
+		"pmm_version":       "returns no statement text",
+		"pmm_inventory":     "returns no statement text",
+		"pmm_catalog":       "returns no statement text",
+		"pmm_get_config":    "returns no statement text",
+		"pmm_query_metrics": "returns no statement text",
 	}
 	requireEntries(t, listedTools(t), slices.Concat(slices.Collect(maps.Keys(cases)), slices.Collect(maps.Keys(exempt))))
 
@@ -485,6 +488,35 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 		"pmm_catalog": {
 			{name: "NoBackingCalls", fake: routed(nil), args: map[string]any{"kind": "qan_columns", "engine": "mongodb"}},
 		},
+		"pmm_query_metrics": {
+			{name: "NoSeries", fake: routed(metricsRoutes(map[string]fixture{vmQuery: {body: vectorBody(0)}})), args: map[string]any{"query": "mysql_up"}},
+			{
+				name: "SeriesWithoutLabels",
+				fake: routed(metricsRoutes(map[string]fixture{
+					vmQuery: {body: []byte(`{"status":"success","data":{"resultType":"vector","result":[{"metric":{},"value":[1700000000,"NaN"]}]}}`)},
+				})),
+				args: map[string]any{"query": "sum(mysql_up)"},
+			},
+			{name: "RangeWithNaN", fake: routed(metricsRoutes(nil)), args: map[string]any{"query": "mysql_up", "period_from": "now-1h"}},
+			{
+				name:    "QueryFailed",
+				fake:    routed(metricsRoutes(map[string]fixture{vmQuery: failed})),
+				args:    map[string]any{"query": "mysql_up"},
+				wantErr: true,
+			},
+			{
+				name:    "SeriesFailed",
+				fake:    routed(metricsRoutes(map[string]fixture{vmSeries: failed})),
+				args:    map[string]any{"query": "mysql_up"},
+				wantErr: true,
+			},
+			{
+				name:    "NoDatasource",
+				fake:    routed(nil),
+				args:    map[string]any{"query": "mysql_up"},
+				wantErr: true,
+			},
+		},
 	}
 	tools := listedTools(t)
 	requireEntries(t, tools, slices.Collect(maps.Keys(scenarios)))
@@ -561,18 +593,19 @@ func TestResultMapsAreOmitempty(t *testing.T) {
 	t.Parallel()
 
 	results := map[string]reflect.Type{
-		"pmm_version":      reflect.TypeFor[versionResult](),
-		"pmm_inventory":    reflect.TypeFor[inventoryResult](),
-		"pmm_top_queries":  reflect.TypeFor[topQueriesResult](),
-		"pmm_query_detail": reflect.TypeFor[queryDetailResult](),
-		"pmm_get_explain":  reflect.TypeFor[explainResult](),
-		"pmm_get_schema":   reflect.TypeFor[schemaResult](),
-		"pmm_get_config":   reflect.TypeFor[configResult](),
-		"pmm_catalog":      reflect.TypeFor[catalogResult](),
+		"pmm_version":       reflect.TypeFor[versionResult](),
+		"pmm_inventory":     reflect.TypeFor[inventoryResult](),
+		"pmm_top_queries":   reflect.TypeFor[topQueriesResult](),
+		"pmm_query_detail":  reflect.TypeFor[queryDetailResult](),
+		"pmm_get_explain":   reflect.TypeFor[explainResult](),
+		"pmm_get_schema":    reflect.TypeFor[schemaResult](),
+		"pmm_get_config":    reflect.TypeFor[configResult](),
+		"pmm_catalog":       reflect.TypeFor[catalogResult](),
+		"pmm_query_metrics": reflect.TypeFor[metricsResult](),
 	}
 	// Map fields without omitempty that their constructors always set, as "type.Field", each covered by
 	// TestEmptyAndDegradedResults.
-	alwaysSet := map[string]bool{}
+	alwaysSet := map[string]bool{"seriesSummary.Labels": true}
 	tools := listedTools(t)
 	requireEntries(t, tools, slices.Collect(maps.Keys(results)))
 
