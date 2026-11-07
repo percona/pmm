@@ -19,8 +19,15 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"sync"
 	"testing"
+	"time"
 
+	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -138,6 +145,262 @@ func TestCallerKey(t *testing.T) {
 			for _, secret := range []string{"secrettoken", "aliceuser", "sessionvalue"} {
 				assert.NotContains(t, key, secret)
 			}
+		}
+	})
+}
+
+func TestRateLimiter(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	r := newRateLimiter(60, 3)
+
+	for range 3 {
+		_, ok := r.take("a", now)
+		require.True(t, ok)
+	}
+	wait, ok := r.take("a", now)
+	assert.False(t, ok)
+	assert.Equal(t, time.Second, wait)
+
+	wait, ok = r.take("a", now.Add(400*time.Millisecond))
+	assert.False(t, ok)
+	assert.Equal(t, 600*time.Millisecond, wait)
+
+	_, ok = r.take("a", now.Add(time.Second))
+	assert.True(t, ok, "a token comes back after the wait")
+	_, ok = r.take("a", now.Add(time.Second))
+	assert.False(t, ok)
+
+	for range 3 {
+		_, ok = r.take("b", now)
+		assert.True(t, ok, "another key has its own bucket")
+	}
+	assert.Len(t, r.buckets, 2)
+
+	_, ok = r.take("c", now.Add(time.Hour))
+	require.True(t, ok)
+	assert.Len(t, r.buckets, 1, "buckets refilled to the burst are deleted")
+	assert.Contains(t, r.buckets, "c")
+}
+
+func TestRateLimitedRetryAfter(t *testing.T) {
+	const questions = `rate(mysql_global_status_questions{service_name="db1"}[5m])`
+	t.Parallel()
+
+	retryAfter := func(t *testing.T, res *mcp.CallToolResult) (int, string) {
+		t.Helper()
+
+		text := textOf(t, res)
+		require.True(t, res.IsError, text)
+		require.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		meta, ok := res.Meta["com.percona/error"].(map[string]any)
+		require.True(t, ok, "%v", res.Meta)
+		assert.Equal(t, "rate_limited", meta["code"])
+		assert.Equal(t, true, meta["retryable"])
+		n, ok := meta["retry_after"].(float64)
+		require.True(t, ok, "%v", meta)
+		return int(n), text
+	}
+	other := http.Header{"Authorization": {"Bearer glsa_other_token"}}
+
+	t.Run("Live", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		args := map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}}
+
+		for range liveCallsBurst {
+			text, isError := callText(t, session, "pmm_get_schema", args)
+			require.False(t, isError, text)
+		}
+		n, text := retryAfter(t, callTool(t, session, "pmm_get_schema", args))
+		assert.Equal(t, 6, n)
+		assert.Contains(t, text, "too many calls for these credentials; retry in 6 s")
+
+		text, isError := callText(t, connectWithHeaders(t, s, other), "pmm_get_schema", args)
+		assert.False(t, isError, text)
+	})
+
+	t.Run("Metric", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, metricsRoutes(nil))
+		s := newQANService(t, fake, false)
+		session := connect(t, s)
+		args := map[string]any{"query": questions}
+
+		for range metricCallsBurst {
+			text, isError := callText(t, session, "pmm_query_metrics", args)
+			require.False(t, isError, text)
+		}
+		before := fake.requestCount()
+		n, text := retryAfter(t, callTool(t, session, "pmm_query_metrics", args))
+		assert.Equal(t, 1, n)
+		assert.Contains(t, text, "too many calls for these credentials; retry in 1 s")
+		assert.Equal(t, before, fake.requestCount(), "a refused call reaches no backend")
+
+		n, _ = retryAfter(t, callTool(t, session, "pmm_list_metrics", map[string]any{}))
+		assert.Equal(t, 1, n, "metric tools share one bucket")
+
+		text, isError := callText(t, connectWithHeaders(t, s, other), "pmm_query_metrics", args)
+		assert.False(t, isError, text)
+	})
+
+	t.Run("RefusedInputTakesNoToken", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, metricsRoutes(nil))
+		s := newQANService(t, fake, false)
+		session := connect(t, s)
+
+		for range 2 * metricCallsBurst {
+			text, isError := callText(t, session, "pmm_query_metrics", map[string]any{"query": "up", "period_from": "now-30d"})
+			require.True(t, isError)
+			require.True(t, strings.HasPrefix(text, "error: invalid_input"), text)
+		}
+		s.metricRate.mu.Lock()
+		defer s.metricRate.mu.Unlock()
+		assert.Empty(t, s.metricRate.buckets)
+	})
+}
+
+func TestRetryAfterSeconds(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, 1, retryAfterSeconds(time.Millisecond))
+	assert.Equal(t, 1, retryAfterSeconds(time.Second))
+	assert.Equal(t, 2, retryAfterSeconds(1001*time.Millisecond))
+
+	res := errorResult(&toolError{code: codeRateLimited, retryAfter: 1500 * time.Millisecond})
+	meta, ok := res.Meta["com.percona/error"].(map[string]any)
+	require.True(t, ok)
+	assert.Equal(t, 2, meta["retry_after"])
+	assert.Equal(t, true, meta["retryable"])
+
+	res = errorResult(&toolError{code: codeRateLimited})
+	meta, ok = res.Meta["com.percona/error"].(map[string]any)
+	require.True(t, ok)
+	assert.NotContains(t, meta, "retry_after")
+}
+
+func TestQANWindowCap(t *testing.T) {
+	t.Parallel()
+
+	fake := newFakePMM(t, qanRoutes())
+	s := newQANService(t, fake, true)
+	session := connect(t, s)
+	detail := map[string]any{"queryid": "QID-AAA", "service_id": "svc-1"}
+
+	for _, tc := range []struct {
+		name string
+		args map[string]any
+	}{
+		{"pmm_top_queries", map[string]any{"period_from": "now-31d"}},
+		{"pmm_query_detail", map[string]any{"queryid": "QID-AAA", "period_from": "now-31d"}},
+	} {
+		text, isError := callText(t, session, tc.name, tc.args)
+		assert.True(t, isError, tc.name)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Contains(t, text, "30 days", tc.name)
+	}
+	assert.Zero(t, fake.requestCount(), "a refused window reaches no backend")
+	s.metrics.mu.Lock()
+	assert.Empty(t, s.metrics.byKey)
+	s.metrics.mu.Unlock()
+
+	detail["period_from"] = "now-30d"
+	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-30d"})
+	assert.False(t, isError, text)
+	text, isError = callText(t, session, "pmm_query_detail", detail)
+	assert.False(t, isError, text)
+}
+
+func TestQANCallsShareMetricSlots(t *testing.T) {
+	t.Parallel()
+
+	key := callerKey(callerAuth{authorization: testToken})
+	args := map[string]map[string]any{
+		"pmm_top_queries":  {"period_from": "now-1h"},
+		"pmm_query_detail": {"queryid": "QID-AAA", "period_from": "now-1h"},
+	}
+
+	t.Run("PerCaller", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		rels := make([]func(), 0, maxMetricCallsPerCaller)
+		for range maxMetricCallsPerCaller {
+			rel, hit := s.metrics.acquire(key)
+			require.Equal(t, limitNone, hit)
+			rels = append(rels, rel)
+		}
+
+		for name, a := range args {
+			text, isError := callText(t, session, name, a)
+			assert.True(t, isError, name)
+			assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+			assert.Contains(t, text, "at most 4 metric calls can be in flight for these credentials", name)
+		}
+		assert.Zero(t, fake.requestCount())
+
+		rels[0]()
+		for name, a := range args {
+			text, isError := callText(t, session, name, a)
+			assert.False(t, isError, "%s: %s", name, text)
+		}
+		s.metricRate.mu.Lock()
+		assert.Empty(t, s.metricRate.buckets, "QAN calls take no token")
+		s.metricRate.mu.Unlock()
+	})
+
+	t.Run("PerReplica", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		for i := range maxMetricCallsPerReplica {
+			_, hit := s.metrics.acquire("other-" + strconv.Itoa(i))
+			require.Equal(t, limitNone, hit)
+		}
+		for name, a := range args {
+			text, isError := callText(t, session, name, a)
+			assert.True(t, isError, name)
+			assert.Contains(t, text, "this replica already has 8 metric calls in flight", name)
+		}
+	})
+
+	t.Run("DetailTakesOneSlot", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		s := newQANService(t, fake, true)
+		var mu sync.Mutex
+		var held []int
+		next := fake.server.Config.Handler
+		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+			s.metrics.mu.Lock()
+			n := s.metrics.byKey[key]
+			s.metrics.mu.Unlock()
+			mu.Lock()
+			held = append(held, n)
+			mu.Unlock()
+			next.ServeHTTP(rw, r)
+		})
+
+		text, isError := callText(t, connect(t, s), "pmm_query_detail", args["pmm_query_detail"])
+		require.False(t, isError, text)
+
+		mu.Lock()
+		defer mu.Unlock()
+		require.GreaterOrEqual(t, len(held), 2, "the call makes several backend requests")
+		for _, n := range held {
+			assert.Equal(t, 1, n, fmt.Sprint(held))
 		}
 	})
 }

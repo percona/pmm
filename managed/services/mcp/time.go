@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -104,7 +105,12 @@ func fmtNum(f float64) string {
 
 // fmtNum3 rounds to three decimals before rendering.
 func fmtNum3(f float64) string {
-	return fmtNum(float64(int64(f*1000+0.5)) / 1000) //nolint:mnd
+	r := math.Round(f*1000) / 1000 //nolint:mnd
+	// math.Round(-0.4) is negative zero, which would render as "-0".
+	if r == 0 {
+		return "0"
+	}
+	return fmtNum(r)
 }
 
 func fmtSeconds(f float64) string {

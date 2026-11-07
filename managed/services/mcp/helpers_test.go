@@ -23,6 +23,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 
@@ -33,10 +34,15 @@ import (
 // testToken is the caller credential every fixture test forwards.
 const testToken = "Bearer glsa_test_token"
 
-// fixture is one canned PMM API response, keyed by "METHOD /path".
+// fixture is one canned PMM API response, keyed by "METHOD /path", or by "METHOD /path ?TEXT" to answer only a request
+// whose query contains TEXT, ahead of the plain key and of any shorter TEXT.
 type fixture struct {
-	file   string
+	file string
+	// body is served instead of file when set.
+	body   []byte
 	status int
+	// block makes the fixture never answer: the request waits until its caller gives up.
+	block bool
 }
 
 // recordedRequest is what the fake PMM received for one call.
@@ -79,7 +85,7 @@ func (f *fakePMM) serve(rw http.ResponseWriter, req *http.Request) {
 		header: req.Header.Clone(),
 		body:   body,
 	})
-	fx, ok := f.routes[req.Method+" "+req.URL.Path]
+	fx, ok := f.route(req)
 	f.mu.Unlock()
 
 	if !ok {
@@ -89,13 +95,47 @@ func (f *fakePMM) serve(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if fx.block {
+		<-req.Context().Done()
+		return
+	}
+
 	status := fx.status
 	if status == 0 {
 		status = http.StatusOK
 	}
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(status)
+	if fx.body != nil {
+		_, _ = rw.Write(fx.body)
+		return
+	}
 	_, _ = rw.Write(readFixture(f.t, fx.file))
+}
+
+// route finds the fixture for a request: the longest matching "?<text>" key, else the plain key.
+func (f *fakePMM) route(req *http.Request) (fixture, bool) {
+	prefix := req.Method + " " + req.URL.Path + " ?"
+	query := req.URL.Query().Get("query")
+
+	best := ""
+	var found fixture
+	matched := false
+	for key, fx := range f.routes {
+		text, ok := strings.CutPrefix(key, prefix)
+		if !ok || !strings.Contains(query, text) {
+			continue
+		}
+		if !matched || len(text) > len(best) {
+			best, found, matched = text, fx, true
+		}
+	}
+	if matched {
+		return found, true
+	}
+
+	fx, ok := f.routes[req.Method+" "+req.URL.Path]
+	return fx, ok
 }
 
 // requestsTo returns the recorded requests for a path, in order.

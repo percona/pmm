@@ -1079,7 +1079,7 @@ func TestConfigTool(t *testing.T) {
 
 	queries := fake.requestsTo("/graph/api/datasources/proxy/uid/metrics-uid/api/v1/query")
 	require.Len(t, queries, 2)
-	assert.Equal(t, `query=%7B__name__%3D~%22mysql_global_variables_.%2B%22%2C+service_name%3D%22shop-mysql%22%7D&time=`+strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10), queries[0].query)
+	assert.Equal(t, `query=%7B__name__%3D~%22mysql_global_variables_.%2B%22%2C+service_name%3D%22shop-mysql%22%7D&time=`+strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10)+`&timeout=25s`, queries[0].query)
 
 	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "filter": "innodb"})
 	assert.False(t, isError)
