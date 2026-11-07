@@ -39,7 +39,11 @@ func TestInitializeAndListTools(t *testing.T) {
 	assert.Contains(t, init.Instructions, "pmm_catalog")
 	assert.Contains(t, init.Instructions, "offset")
 	assert.Contains(t, init.Instructions, "Untrusted")
-	assert.Less(t, strings.Count(init.Instructions, "\n"), 25)
+	assert.Contains(t, init.Instructions, "query_ref")
+	assert.Contains(t, init.Instructions, "client host")
+	assert.Contains(t, init.Instructions, "environment")
+	assert.Contains(t, init.Instructions, "PMM's remediation in the message")
+	assert.Less(t, strings.Count(init.Instructions, "\n"), 28)
 
 	res, err := session.ListTools(t.Context(), nil)
 	require.NoError(t, err)

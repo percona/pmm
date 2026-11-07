@@ -164,7 +164,7 @@ func TestUntrustedFieldsMarked(t *testing.T) {
 		"pmm_get_explain": {"service_name", "plan"},
 		"pmm_get_schema": {
 			"tables[].database", "tables[].name", "tables[].definition", "tables[].indexes",
-			"tables[].definition_error.message", "tables[].indexes_error.message",
+			"tables[].definition_error.message", "tables[].indexes_error.message", "unresolved", "not_fetched",
 		},
 		"pmm_get_config": {"service_name", "version", "variables[].value"},
 		"pmm_catalog":    {},
@@ -293,13 +293,27 @@ func TestRedactionInBothRenderings(t *testing.T) {
 				return []string{envelope.ExplainedQuery, string(plan)}
 			},
 		},
+		// DDL comes back unmasked (ADR-07); the statement EXPLAIN ran to find the tables must not.
+		"pmm_get_schema": {
+			fake: func(t *testing.T) *fakePMM {
+				t.Helper()
+				fake, stub := newActionStub(t, 0)
+				stub.explain, _ = secretExplain(t)
+				return fake
+			},
+			args: map[string]any{"queryid": "QID-AAA"},
+			sql: func(t *testing.T) []string {
+				t.Helper()
+				_, sql := secretExplain(t)
+				return sql
+			},
+		},
 	}
 	exempt := map[string]string{
 		"pmm_version":    "returns no statement text",
 		"pmm_inventory":  "returns no statement text",
 		"pmm_catalog":    "returns no statement text",
 		"pmm_get_config": "returns no statement text",
-		"pmm_get_schema": "returns DDL unmasked (ADR-07)",
 	}
 	requireEntries(t, listedTools(t), slices.Concat(slices.Collect(maps.Keys(cases)), slices.Collect(maps.Keys(exempt))))
 
@@ -426,6 +440,16 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 					return fake
 				},
 				args: schemaArgs,
+			},
+			{
+				name: "PlanWithoutTables",
+				fake: func(t *testing.T) *fakePMM {
+					t.Helper()
+					fake, stub := newActionStub(t, 0)
+					stub.explain = explainOutput(t, []byte(`{"query_block": {"select_id": 1, "message": "No tables used"}}`), "SELECT 1")
+					return fake
+				},
+				args: map[string]any{"queryid": "QID-AAA", "info_types": "all"},
 			},
 			{
 				name: "IndexPollFails",

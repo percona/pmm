@@ -17,6 +17,7 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -34,6 +35,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/api/actions/v1/json/client/actions_service"
+	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 )
 
 // sequenceFixtures answers a path with successive fixtures (polling).
@@ -482,8 +484,64 @@ func TestExplainTool(t *testing.T) {
 	})
 }
 
+// explainOutput is the output of a mysql_explain_json action that explained query with plan.
+func explainOutput(t *testing.T, plan []byte, query string) string {
+	t.Helper()
+
+	return string(mustJSON(t, map[string]any{
+		"explain_result":  base64.StdEncoding.EncodeToString(plan),
+		"explained_query": query,
+		"is_dml":          false,
+	}))
+}
+
+// secretRegion is the literal that secretExplain's statement and its plan's Note 1003 hold.
+const secretRegion = "region-secret-42"
+
+// secretExplain returns the explain output of a two-table join whose statement and Note 1003 hold
+// secretRegion, and those two texts.
+func secretExplain(t *testing.T) (string, []string) {
+	t.Helper()
+
+	query := "SELECT o.id, c.name FROM orders o JOIN customers c ON c.id = o.customer_id WHERE c.region = '" + secretRegion + "'"
+	plan := strings.ReplaceAll(string(readFixture(t, "explain/mysql-8.0-join-aliases.json")), "'eu'", "'"+secretRegion+"'")
+	require.Contains(t, plan, secretRegion)
+	return explainOutput(t, []byte(plan), query), []string{query, plan}
+}
+
+// postgresQuery makes a fake PMM resolve QID-AAA to the PostgreSQL service, whose example names two tables.
+func postgresQuery(fake *fakePMM) {
+	fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
+	fake.routes["POST /v1/qan:getMetrics"] = fixture{file: "metrics_pg.json"}
+	fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_pg.json"}
+}
+
+// ddlTables returns the table names of the SHOW CREATE TABLE actions in starts, and fails on any other action.
+func ddlTables(t *testing.T, starts []actions_service.StartServiceActionBody, serviceID, database string) []string {
+	t.Helper()
+
+	var out []string
+	for _, b := range starts {
+		switch {
+		case b.MysqlShowCreateTable != nil:
+			assert.Equal(t, serviceID, b.MysqlShowCreateTable.ServiceID)
+			assert.Equal(t, database, b.MysqlShowCreateTable.Database)
+			out = append(out, b.MysqlShowCreateTable.TableName)
+		case b.PostgresShowCreateTable != nil:
+			assert.Equal(t, serviceID, b.PostgresShowCreateTable.ServiceID)
+			assert.Equal(t, database, b.PostgresShowCreateTable.Database)
+			out = append(out, b.PostgresShowCreateTable.TableName)
+		default:
+			require.FailNow(t, "not a SHOW CREATE TABLE action", "%+v", b)
+		}
+	}
+	return out
+}
+
 func TestSchemaTool(t *testing.T) {
 	t.Parallel()
+
+	const lastHour = "queryid: QID-AAA\nWindow: 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z\n\n"
 
 	t.Run("MySQL", func(t *testing.T) {
 		t.Parallel()
@@ -505,6 +563,8 @@ func TestSchemaTool(t *testing.T) {
 		require.NotNil(t, body.MysqlShowCreateTable)
 		assert.Equal(t, "customers", body.MysqlShowCreateTable.TableName)
 		assert.Equal(t, "shop", body.MysqlShowCreateTable.Database)
+		assert.Empty(t, fake.requestsTo(reportPath), "the tables are named: no query to resolve")
+		assert.Empty(t, fake.requestsTo("/v1/qan:getMetrics"))
 	})
 
 	t.Run("PostgreSQLWithIndexes", func(t *testing.T) {
@@ -547,7 +607,7 @@ func TestSchemaTool(t *testing.T) {
 	})
 
 	// A syntax error from SHOW CREATE TABLE is not EXPLAIN's placeholder
-	// problem, and pmm_get_schema takes no placeholders.
+	// problem, and the named-tables form takes no placeholders.
 	t.Run("SyntaxErrorHasNoExplainAdvice", func(t *testing.T) {
 		t.Parallel()
 
@@ -560,26 +620,325 @@ func TestSchemaTool(t *testing.T) {
 		assert.NotContains(t, text, "placeholders")
 	})
 
+	t.Run("QueryIDAloneReachesTheResolver", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-join-aliases.json"), "SELECT 1")
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		require.False(t, isError, text)
+		reports := fake.requestsTo(reportPath)
+		require.Len(t, reports, 1)
+		body := unmarshalBody[qan_service.GetReportBody](t, reports[0])
+		assert.Equal(t, testNow.Add(-time.Hour), time.Time(body.PeriodStartFrom).UTC(), "a queryid alone searches the last hour")
+		assert.Equal(t, testNow, time.Time(body.PeriodStartTo).UTC())
+		labels := map[string][]string{}
+		for _, l := range body.Labels {
+			labels[l.Key] = l.Value
+		}
+		assert.Equal(t, []string{"QID-AAA"}, labels["queryid"])
+		assert.ElementsMatch(t, []string{"svc-1", "svc-2", "svc-pmm-pg"}, labels["service_id"], "the caller's service list")
+		assert.True(t, strings.HasPrefix(text, lastHour), text)
+	})
+
+	t.Run("PostgreSQLByQueryID", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		postgresQuery(fake)
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA", "placeholders": []string{"ignored"}})
+		assert.Equal(t, schemaResult{
+			Tables: []tableResult{
+				{Database: "shop_pg", Name: "orders", Definition: "CREATE TABLE `orders` (`id` int)"},
+				{Database: "shop_pg", Name: "customers", Definition: "CREATE TABLE `customers` (`id` int)"},
+			},
+			QueryRef: &queryRef{QueryID: "QID-AAA", ServiceID: "svc-2", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow},
+		}, structured[schemaResult](t, res), "the example's tables, in its order, and no live-plan note")
+		assert.Equal(t, lastHour+
+			"### shop_pg.orders\n```sql\nCREATE TABLE `orders` (`id` int)\n```\n\n"+
+			"### shop_pg.customers\n```sql\nCREATE TABLE `customers` (`id` int)\n```", textOf(t, res))
+		assert.ElementsMatch(t, []string{"orders", "customers"}, ddlTables(t, stub.starts, "svc-2", "shop_pg"), "no EXPLAIN for PostgreSQL")
+	})
+
+	t.Run("PostgreSQLWithoutTables", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		postgresQuery(fake)
+		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_pg_no_tables.json"}
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assert.Equal(t, "error: no_query_source\nQAN has no tables for queryid 'QID-AAA' in 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z; "+
+			"pass service_id, database and tables to name them", text)
+		assert.Empty(t, stub.starts)
+	})
+
+	// A failed example call is not an example without tables: its error is the answer.
+	t.Run("PostgreSQLExampleFetchFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		postgresQuery(fake)
+		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan/query:getExample" })
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
+		assert.Empty(t, stub.starts)
+	})
+
+	t.Run("MySQLByQueryID", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-derived-table.json"), "SELECT 1")
+		session := connect(t, newQANService(t, fake, true))
+
+		from, to := testNow.Add(-3*time.Hour), testNow.Add(-2*time.Hour)
+		res := callTool(t, session, "pmm_get_schema", map[string]any{
+			"queryid": "QID-AAA", "period_from": from.Format(time.RFC3339), "period_to": to.Format(time.RFC3339), "placeholders": []string{"7"},
+		})
+		assert.Equal(t, schemaResult{
+			Tables: []tableResult{
+				{Database: "shop", Name: "customers", Definition: "CREATE TABLE `customers` (`id` int)"},
+				{Database: "shop", Name: "orders", Definition: "CREATE TABLE `orders` (`id` int)"},
+			},
+			Unresolved: []string{"d"},
+			QueryRef:   &queryRef{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: from, PeriodTo: to},
+			Note:       liveTablesNote,
+		}, structured[schemaResult](t, res), "the plan's tables in plan order, its derived table unresolved, the window used")
+		assert.Equal(t, "queryid: QID-AAA\nWindow: 2026-09-14T09:00:00Z – 2026-09-14T10:00:00Z\n\n"+
+			"### shop.customers\n```sql\nCREATE TABLE `customers` (`id` int)\n```\n\n"+
+			"### shop.orders\n```sql\nCREATE TABLE `orders` (`id` int)\n```\n\n"+
+			"Unresolved, not fetched (derived tables, CTEs, unions and names the plan doesn't tie to a table): d\n"+
+			"Tables found in a live plan: what the database would choose now, not during the window.", textOf(t, res))
+
+		require.Len(t, stub.starts, 3)
+		assert.Equal(t, &actions_service.StartServiceActionParamsBodyMysqlExplainJSON{
+			ServiceID: "svc-1", QueryID: "QID-AAA", Database: "shop", Placeholders: []string{"7"},
+		}, stub.starts[0].MysqlExplainJSON, "one EXPLAIN first, on the resolved service and database")
+		assert.ElementsMatch(t, []string{"customers", "orders"}, ddlTables(t, stub.starts[1:], "svc-1", "shop"))
+
+		reports := fake.requestsTo(reportPath)
+		require.Len(t, reports, 1)
+		body := unmarshalBody[qan_service.GetReportBody](t, reports[0])
+		assert.Equal(t, from, time.Time(body.PeriodStartFrom).UTC(), "the resolver searched the window passed")
+	})
+
+	t.Run("MySQLQueryRef", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.4-v2-join-aliases.json"), "SELECT 1")
+		session := connect(t, newQANService(t, fake, true))
+
+		from, to := testNow.Add(-5*time.Hour), testNow.Add(-4*time.Hour)
+		ref := map[string]any{"queryid": "QID-AAA", "service_id": "svc-1", "period_from": from.Format(time.RFC3339), "period_to": to.Format(time.RFC3339)}
+		got := structured[schemaResult](t, callTool(t, session, "pmm_get_schema", map[string]any{"query_ref": ref, "info_types": "indexes"}))
+		assert.Equal(t, &queryRef{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: from, PeriodTo: to}, got.QueryRef)
+		assert.Equal(t, []tableResult{
+			{Database: "shop", Name: "customers", Indexes: "index of customers"},
+			{Database: "shop", Name: "orders", Indexes: "index of orders"},
+		}, got.Tables)
+		assert.Empty(t, got.Unresolved)
+		require.Len(t, stub.starts, 3)
+		require.NotNil(t, stub.starts[0].MysqlExplainJSON)
+	})
+
+	t.Run("MySQLPlaceholderError", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explainErr = "Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server " +
+			"version for the right syntax to use near '?' at line 1"
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		text := textOf(t, res)
+		assert.True(t, res.IsError)
+		assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"])
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nEXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064"), text)
+		assert.Contains(t, text, "pass placeholders (one value per ?, in order), or pass service_id, database and tables")
+		require.Len(t, stub.starts, 1, "no DDL action after a failed EXPLAIN")
+		assert.NotNil(t, stub.starts[0].MysqlExplainJSON)
+	})
+
+	t.Run("MySQLPlaceholdersCountError", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake.routes["POST /v1/actions:startServiceAction"] = fixture{file: "error_400_placeholders.json", status: http.StatusBadRequest}
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA", "placeholders": []string{"1", "2"}})
+		assert.True(t, isError)
+		assert.Equal(t, "error: invalid_input\n"+placeholdersCountMessage, text)
+		assert.Len(t, fake.requestsTo("/v1/actions:startServiceAction"), 1)
+	})
+
+	// The explained statement only feeds the alias map: even with raw SQL on it is not returned.
+	t.Run("MySQLStatementNeverRendered", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain, _ = secretExplain(t)
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		got := structured[schemaResult](t, res)
+		require.Len(t, got.Tables, 2, "the join's tables were found")
+		assert.NotContains(t, textOf(t, res), secretRegion)
+		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), secretRegion)
+	})
+
+	t.Run("MySQLPlanWithoutTables", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = explainOutput(t, []byte(`{"query_block": {"select_id": 1, "message": "No tables used"}}`), "SELECT 1")
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		got := structured[schemaResult](t, res)
+		assert.Empty(t, got.Tables)
+		assert.Contains(t, string(mustJSON(t, res.StructuredContent)), `"tables":[]`)
+		assert.Equal(t, lastHour+"No base table found in the plan.\n\n"+liveTablesNote, textOf(t, res))
+		require.Len(t, stub.starts, 1, "the EXPLAIN only")
+	})
+
+	t.Run("TwelveTables", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = explainOutput(t, readFixture(t, "explain_join_12.json"), "SELECT 1")
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		got := structured[schemaResult](t, res)
+		names := make([]string, 0, len(got.Tables))
+		for _, tbl := range got.Tables {
+			names = append(names, tbl.Name)
+		}
+		assert.Equal(t, strings.Split("t01,t02,t03,t04,t05,t06,t07,t08,t09,t10", ","), names, "the first 10, in plan order")
+		assert.Equal(t, []string{"shop.t11", "shop.t12"}, got.NotFetched)
+		assert.Empty(t, got.Unresolved)
+
+		text := textOf(t, res)
+		assert.Len(t, headers(text), 10)
+		assert.Contains(t, text, "\n\nNot fetched, the 10-table cap was reached: shop.t11, shop.t12; pass them as service_id, database and tables.\n"+liveTablesNote)
+		assert.Len(t, ddlTables(t, stub.starts[1:], "svc-1", "shop"), 10)
+	})
+
+	// MongoDB is refused before any slot is taken: a busy service or caller does not turn it into rate_limited.
+	t.Run("MongoDB", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		mongoExplain(fake)
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		key := callerKey(callerAuth{authorization: testToken})
+		relService, hit := s.liveByService.acquire("svc-mongo")
+		require.Equal(t, limitNone, hit)
+		defer relService()
+		rel1, hit := s.live.acquire(key)
+		require.Equal(t, limitNone, hit)
+		defer rel1()
+		rel2, hit := s.live.acquire(key)
+		require.Equal(t, limitNone, hit)
+		defer rel2()
+
+		for _, args := range []map[string]any{
+			{"queryid": "QID-AAA"},
+			{"service_id": "svc-mongo", "database": "shop", "tables": []string{"customers"}},
+		} {
+			res := callTool(t, session, "pmm_get_schema", args)
+			text := textOf(t, res)
+			assert.True(t, res.IsError, "%v", args)
+			assert.Equal(t, "error: invalid_input\nSHOW CREATE TABLE is not available for engine 'mongodb'", text, "%v", args)
+		}
+		assert.Empty(t, stub.starts)
+	})
+
+	t.Run("RateLimitedBeforeAnyAction", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-join-aliases.json"), "SELECT 1")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		key := callerKey(callerAuth{authorization: testToken})
+		rel1, hit := s.live.acquire(key)
+		require.Equal(t, limitNone, hit)
+		rel2, hit := s.live.acquire(key)
+		require.Equal(t, limitNone, hit)
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assert.Contains(t, text, "these credentials")
+		assert.Empty(t, stub.starts)
+		rel1()
+		rel2()
+
+		held, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+		text, isError = callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited\na live-inspection call on this service is already in flight"), text)
+		assert.Empty(t, stub.starts)
+		held()
+
+		text, isError = callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.False(t, isError, text)
+		assert.Len(t, stub.starts, 3)
+	})
+
 	t.Run("Validation", func(t *testing.T) {
 		t.Parallel()
 
 		fake, stub := newActionStub(t, 0)
 		session := connect(t, newQANService(t, fake, true))
+		ref := map[string]any{"queryid": "QID-AAA", "period_from": "2026-09-14T11:00:00Z", "period_to": "2026-09-14T12:00:00Z"}
+		const needsForm = "pass query_ref or queryid to fetch a query's tables, or service_id, database and tables to name them"
+		const noTablesWithQuery = "database and tables name the tables themselves: pass them with service_id, without query_ref or queryid"
 		for _, tc := range []struct {
 			args   map[string]any
 			prefix string
 		}{
-			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{}}, "tables takes 1 to 10 names; got 0"},
+			{map[string]any{}, needsForm},
+			{map[string]any{"service_id": "svc-1", "database": "shop"}, needsForm},
+			{map[string]any{"service_id": "svc-1", "tables": []string{"a"}}, needsForm},
+			{map[string]any{"database": "shop", "tables": []string{"a"}}, needsForm},
+			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{}}, needsForm},
 			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": strings.Split("a,b,c,d,e,f,g,h,i,j,k", ",")}, "tables takes 1 to 10 names; got 11"},
 			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a", " "}}, "tables must not contain an empty name"},
 			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a"}, "info_types": "ddl"}, "info_types must be"},
-			{map[string]any{"service_id": "svc-1", "database": "", "tables": []string{"a"}}, "service_id and database are required"},
+			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a"}, "placeholders": []string{"1"}}, "placeholders go with query_ref or queryid"},
+			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a"}, "period_from": "now-2h"}, "period_from and period_to go with queryid"},
+			{map[string]any{"queryid": "QID-AAA", "tables": []string{"a"}}, noTablesWithQuery},
+			{map[string]any{"queryid": "QID-AAA", "database": "shop"}, noTablesWithQuery},
+			{map[string]any{"query_ref": ref, "database": "shop", "tables": []string{"a"}}, noTablesWithQuery},
+			{map[string]any{"query_ref": ref, "queryid": "QID-AAA"}, "pass query_ref alone"},
+			{map[string]any{"queryid": "QID-AAA", "info_types": "ddl"}, "info_types must be"},
 		} {
-			text, isError := callText(t, session, "pmm_get_schema", tc.args)
-			assert.True(t, isError, "%v", tc.args)
+			res := callTool(t, session, "pmm_get_schema", tc.args)
+			text := textOf(t, res)
+			assert.True(t, res.IsError, "%v", tc.args)
+			assert.Nil(t, res.StructuredContent, "%v", tc.args)
+			assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"], "the handler's envelope, not an SDK refusal: %v", tc.args)
 			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"+tc.prefix), "%v: %s", tc.args, text)
 		}
 		assert.Empty(t, stub.starts)
+		assert.Empty(t, fake.requestsTo(reportPath))
+		assert.Empty(t, fake.requestsTo("/v1/inventory/services"))
 	})
 }
 

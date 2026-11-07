@@ -355,24 +355,72 @@
   },
   {
     "name": "pmm_get_schema",
-    "description": "Return SHOW CREATE TABLE (MySQL or PostgreSQL) and/or the indexes of up to 10 tables via the PMM agent, fetched in parallel. A table that fails shows its error inline; the others still return.",
+    "description": "Return SHOW CREATE TABLE (MySQL or PostgreSQL) and/or the indexes of up to 10 tables via the PMM agent, fetched in parallel. Name the tables with service_id, database and tables, or pass a query's query_ref (as pmm_top_queries and pmm_query_detail return it) or queryid to fetch the tables it uses: PostgreSQL's come from QAN, MySQL's from a live, non-executing EXPLAIN of the query (best effort: names the plan doesn't tie to a table are listed in unresolved, and tables beyond 10 in not_fetched). If a MySQL fingerprint has ? placeholders and no query example is stored, pass placeholders. A table that fails shows its error inline; the others still return.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
         "database": {
-          "description": "Database / schema name",
+          "description": "Database / schema name; with service_id and tables",
           "type": "string"
         },
         "info_types": {
           "description": "definition (default), indexes or all",
           "type": "string"
         },
+        "period_from": {
+          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid",
+          "type": "string"
+        },
+        "period_to": {
+          "description": "Window end: RFC3339 or relative (default now); with queryid",
+          "type": "string"
+        },
+        "placeholders": {
+          "description": "Values for ? placeholders in the fingerprint, in order; MySQL, with query_ref or queryid",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "query_ref": {
+          "additionalProperties": false,
+          "description": "The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid",
+          "properties": {
+            "period_from": {
+              "description": "Start of the window the query was seen in.",
+              "type": "string"
+            },
+            "period_to": {
+              "description": "End of the window the query was seen in.",
+              "type": "string"
+            },
+            "queryid": {
+              "description": "Query id.",
+              "type": "string"
+            },
+            "service_id": {
+              "description": "Service id the query ran on.",
+              "type": "string"
+            }
+          },
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "queryid": {
+          "description": "Query id from pmm_top_queries, instead of query_ref, to fetch its tables",
+          "type": "string"
+        },
         "service_id": {
-          "description": "Service id from pmm_inventory",
+          "description": "Service id from pmm_inventory; with tables, or when a queryid ran on several services",
           "type": "string"
         },
         "tables": {
-          "description": "1 to 10 table names",
+          "description": "1 to 10 table names; with service_id and database",
           "items": {
             "type": "string"
           },
@@ -382,22 +430,58 @@
           ]
         }
       },
-      "required": [
-        "service_id",
-        "database",
-        "tables"
-      ],
       "type": "object"
     },
     "outputSchema": {
       "additionalProperties": false,
       "properties": {
+        "not_fetched": {
+          "description": "Untrusted. Tables of the query beyond the 10-table cap, as database.table in plan order.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "note": {
+          "description": "Set when the tables come from a live plan: what the database would choose now, not during the window.",
+          "type": "string"
+        },
         "partial": {
           "description": "Set when some actions failed and others succeeded; a table's failures are in definition_error and indexes_error.",
           "type": "boolean"
         },
+        "query_ref": {
+          "additionalProperties": false,
+          "description": "Identifies the query and the window it was read in; set when the tables come from a query.",
+          "properties": {
+            "period_from": {
+              "type": "string"
+            },
+            "period_to": {
+              "type": "string"
+            },
+            "queryid": {
+              "type": "string"
+            },
+            "service_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "queryid",
+            "period_from",
+            "period_to"
+          ],
+          "type": [
+            "null",
+            "object"
+          ]
+        },
         "tables": {
-          "description": "The tables, in input order.",
+          "description": "The tables, in input order, or in the order of the plan (MySQL) or QAN (PostgreSQL) for a query.",
           "items": {
             "additionalProperties": false,
             "properties": {
@@ -472,6 +556,16 @@
               "truncated"
             ],
             "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "unresolved": {
+          "description": "Untrusted. Plan names not tied to a table, such as derived tables, CTEs and unions; not fetched.",
+          "items": {
+            "type": "string"
           },
           "type": [
             "null",

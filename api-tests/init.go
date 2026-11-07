@@ -70,6 +70,9 @@ var (
 
 	// RunAdvisorTests is true if Advisor tests should be run.
 	RunAdvisorTests bool
+
+	// RunMCPWorkloadTests is true if MCP tests that need a known QAN workload should be run.
+	RunMCPWorkloadTests bool
 )
 
 // Transport returns configured Swagger transport for given URL.
@@ -101,17 +104,20 @@ func init() {
 
 	// FIXME we should rethink it once https://jira.percona.com/browse/PMM-5106 is implemented
 	flag.BoolVar(&RunAdvisorTests, "pmm.run-advisor-tests", false, "Run Advisor tests that require connected clients [PMM_RUN_ADVISOR_TESTS].")
+	flag.BoolVar(&RunMCPWorkloadTests, "pmm.run-mcp-workload-tests", false,
+		"Run MCP tests that require a known QAN workload on a MySQL service [PMM_RUN_MCP_WORKLOAD_TESTS].")
 
 	testing.Init()
 	flag.Parse()
 
 	for envVar, f := range map[string]*flag.Flag{
-		"PMM_DEBUG":               flag.Lookup("pmm.debug"),
-		"PMM_TRACE":               flag.Lookup("pmm.trace"),
-		"PMM_SERVER_URL":          flag.Lookup("pmm.server-url"),
-		"PMM_SERVER_INSECURE_TLS": flag.Lookup("pmm.server-insecure-tls"),
-		"PMM_RUN_UPDATE_TEST":     flag.Lookup("pmm.run-update-test"),
-		"PMM_RUN_ADVISOR_TESTS":   flag.Lookup("pmm.run-advisor-tests"),
+		"PMM_DEBUG":                  flag.Lookup("pmm.debug"),
+		"PMM_TRACE":                  flag.Lookup("pmm.trace"),
+		"PMM_SERVER_URL":             flag.Lookup("pmm.server-url"),
+		"PMM_SERVER_INSECURE_TLS":    flag.Lookup("pmm.server-insecure-tls"),
+		"PMM_RUN_UPDATE_TEST":        flag.Lookup("pmm.run-update-test"),
+		"PMM_RUN_ADVISOR_TESTS":      flag.Lookup("pmm.run-advisor-tests"),
+		"PMM_RUN_MCP_WORKLOAD_TESTS": flag.Lookup("pmm.run-mcp-workload-tests"),
 	} {
 		env, ok := os.LookupEnv(envVar)
 		if ok {
