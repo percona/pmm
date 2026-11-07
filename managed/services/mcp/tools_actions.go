@@ -261,6 +261,12 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	}
 	defer release()
 
+	releaseService, err := s.startLiveOn(in.ServiceID)
+	if err != nil {
+		return explainResult{}, err
+	}
+	defer releaseService()
+
 	output, err := s.runAction(ctx, auth, body, !raw)
 	var te *toolError
 	if errors.As(err, &te) && te.code == codeInvalidInput && strings.HasPrefix(te.message, "Error 1064 ") {
@@ -376,6 +382,12 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 	if err != nil {
 		return schemaResult{}, err
 	}
+	releaseService, err := s.startLiveOn(in.ServiceID)
+	if err != nil {
+		return schemaResult{}, err
+	}
+	defer releaseService()
+
 	refs := make([]tableRef, len(tables))
 	for i, t := range tables {
 		refs[i] = tableRef{database: in.Database, name: t}

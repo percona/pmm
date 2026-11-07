@@ -985,6 +985,76 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		}
 	})
 
+	t.Run("PerService", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		held, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+
+		text, isError := callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited"), text)
+		assert.Contains(t, text, "a live-inspection call on this service is already in flight; retry when it finishes")
+		assert.NotContains(t, text, "svc-1")
+		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
+
+		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "database": "shop"})
+		assert.True(t, isError)
+		assert.Contains(t, text, "already in flight")
+		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
+
+		text, isError = callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-2", "database": "shop", "tables": []string{"customers"}})
+		assert.False(t, isError, text)
+
+		held()
+		text, isError = callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.False(t, isError, text)
+		_, hit = s.liveByService.acquire("svc-1")
+		assert.Equal(t, limitNone, hit)
+	})
+
+	t.Run("PerServiceTwoCallers", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0, "ddl-customers")
+		s := newQANService(t, fake, true)
+
+		ctx, cancel := context.WithCancel(t.Context())
+		defer cancel()
+		req := &mcp.CallToolRequest{Extra: &mcp.RequestExtra{Header: http.Header{"Authorization": {testToken}}}}
+		done := make(chan error, 1)
+		go func() {
+			_, err := s.schema(ctx, req, schemaInput{ServiceID: "svc-1", Database: "shop", Tables: []string{"customers"}})
+			done <- err
+		}()
+		require.Eventually(t, func() bool {
+			stub.mu.Lock()
+			defer stub.mu.Unlock()
+			return stub.polls > 0
+		}, 5*time.Second, 10*time.Millisecond)
+
+		other := &mcp.CallToolRequest{Extra: &mcp.RequestExtra{Header: http.Header{"Authorization": {"Bearer other_token"}}}}
+		_, err := s.schema(t.Context(), other, schemaInput{ServiceID: "svc-1", Database: "shop", Tables: []string{"customers"}})
+		var te *toolError
+		require.ErrorAs(t, err, &te)
+		assert.Equal(t, codeRateLimited, te.code)
+		assert.NotContains(t, te.message, "svc-1")
+
+		cancel()
+		select {
+		case err := <-done:
+			require.Error(t, err)
+		case <-time.After(5 * time.Second):
+			require.FailNow(t, "the cancelled call did not return")
+		}
+		rel, hit := s.liveByService.acquire("svc-1")
+		assert.Equal(t, limitNone, hit)
+		rel()
+	})
+
 	t.Run("FailedCallReleases", func(t *testing.T) {
 		t.Parallel()
 
@@ -998,6 +1068,9 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		rel2 := take(t, s, key)
 		rel1()
 		rel2()
+		rel, hit := s.liveByService.acquire("svc-1")
+		assert.Equal(t, limitNone, hit)
+		rel()
 	})
 
 	t.Run("CancelledCallReleases", func(t *testing.T) {

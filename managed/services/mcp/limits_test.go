@@ -53,6 +53,25 @@ func TestLimiter(t *testing.T) {
 	require.Zero(t, l.total)
 }
 
+func TestLimiterPerService(t *testing.T) {
+	t.Parallel()
+
+	l := newLimiter(maxLiveCallsPerService, maxLiveCallsPerReplica)
+	rel1, hit := l.acquire("svc-1")
+	require.Equal(t, limitNone, hit)
+	_, hit = l.acquire("svc-1")
+	assert.Equal(t, limitPerCaller, hit)
+	rel2, hit := l.acquire("svc-2")
+	require.Equal(t, limitNone, hit)
+
+	rel1()
+	rel3, hit := l.acquire("svc-1")
+	assert.Equal(t, limitNone, hit)
+	rel2()
+	rel3()
+	assert.Empty(t, l.byKey)
+}
+
 func TestCallerKey(t *testing.T) {
 	t.Parallel()
 

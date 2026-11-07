@@ -31,6 +31,8 @@ const (
 	maxLiveCallsPerCaller = 2
 	// Live-inspection calls one pmm-managed replica may have in flight.
 	maxLiveCallsPerReplica = 8
+	// Live-inspection calls one service may have in flight on a replica.
+	maxLiveCallsPerService = 1
 
 	sessionCookieName = "pmm_session"
 )
@@ -133,6 +135,21 @@ func (s *Service) startLive(a callerAuth) (func(), error) {
 	case limitPerCaller:
 		return nil, newToolError(codeRateLimited,
 			"at most %d live-inspection calls can be in flight for these credentials; retry when one finishes", maxLiveCallsPerCaller)
+	case limitPerReplica:
+		return nil, newToolError(codeRateLimited,
+			"this replica already has %d live-inspection calls in flight; retry when one finishes", maxLiveCallsPerReplica)
+	case limitNone:
+	}
+	return release, nil
+}
+
+// startLiveOn takes the live-inspection slot of a service, or answers rate_limited.
+func (s *Service) startLiveOn(serviceID string) (func(), error) {
+	release, hit := s.liveByService.acquire(serviceID)
+	switch hit {
+	case limitPerCaller:
+		return nil, newToolError(codeRateLimited,
+			"a live-inspection call on this service is already in flight; retry when it finishes")
 	case limitPerReplica:
 		return nil, newToolError(codeRateLimited,
 			"this replica already has %d live-inspection calls in flight; retry when one finishes", maxLiveCallsPerReplica)
