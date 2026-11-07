@@ -601,6 +601,11 @@ export const FleetServicesTab = () => {
       ...filters.filter(({ id }) => id !== FAILING_FILTER.id),
       ...(failingOnly ? [] : [FAILING_FILTER]),
     ]);
+  // Opened by the reader or by a column filter in the link, never by the chip's own:
+  // peak-ui opens the filter row for any active column filter.
+  const [showColumnFilters, setShowColumnFilters] = useState(() =>
+    tableProps.state.columnFilters.some(({ id }) => id !== FAILING_FILTER.id)
+  );
   const [grouping, setGrouping] = useSessionGrouping<string>(
     'om.fleet.services.grouping',
     GROUP_BY_OPTIONS,
@@ -741,8 +746,10 @@ export const FleetServicesTab = () => {
             setSelectedId(row.original.service_id ?? null);
           },
     }),
+    onShowColumnFiltersChange: setShowColumnFilters,
     state: {
       ...tableProps.state,
+      showColumnFilters,
       grouping: grouping === NO_GROUPING ? [] : [grouping],
       columnSizing: grouping === NO_GROUPING ? {} : GROUPED_COLUMN_SIZING,
     },

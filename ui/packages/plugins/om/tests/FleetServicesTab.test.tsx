@@ -253,6 +253,18 @@ describe('FleetServicesTab', () => {
     ).toBeNull();
   });
 
+  it('opens a failing link without the column filter row', () => {
+    serve(ordersEstate());
+    scanned('2026-10-06T09:00:00Z');
+    render(
+      <MemoryRouter initialEntries={['/?services.f.failing=true']}>
+        <FleetServicesTab />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByPlaceholderText(/^Filter by/)).toBeNull();
+  });
+
   it('writes the failing filter as a peak-ui column filter', async () => {
     serve(ordersEstate());
     scanned('2026-10-06T09:00:00Z');
