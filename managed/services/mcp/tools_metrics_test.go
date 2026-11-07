@@ -792,6 +792,35 @@ func TestListMetricsTool(t *testing.T) {
 		requireListInvalid(t, map[string]any{"period_from": "2026-09-01T00:00:00Z"}, "the cap is 7d")
 	})
 
+	t.Run("MatchWithSevenDays", func(t *testing.T) {
+		t.Parallel()
+
+		for _, args := range []map[string]any{
+			{"kind": "labels", "match": []string{"mysql_up"}},
+			{"kind": "values", "label": "service_name", "match": []string{"mysql_up"}},
+			{"kind": "series", "match": []string{"mysql_up"}},
+		} {
+			args["period_from"] = "now-7d"
+			fake := newFakePMM(t, listRoutes(nil))
+			_, text, isError := listCall(t, newQANService(t, fake, false), args)
+			require.False(t, isError, "%v: %s", args, text)
+			assert.Equal(t, 1, fake.requestCount()-len(fake.requestsTo("/graph/api/datasources/name/Metrics")), "%v", args)
+
+			args["period_from"] = "now-8d"
+			requireListInvalid(t, args, "the cap is 7d")
+		}
+	})
+
+	t.Run("VictoriaMetricsRefusal", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: []byte(`{"status":"error","error":"bad matcher"}`), status: 422}}))
+		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"search": "mysql"})
+		require.True(t, isError, text)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Contains(t, text, "bad matcher")
+	})
+
 	t.Run("TooLargeAnswerAsksToNarrow", func(t *testing.T) {
 		t.Parallel()
 

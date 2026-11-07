@@ -453,8 +453,9 @@ func (s *Service) planList(in listMetricsInput) (listPlan, error) {
 		return listPlan{}, newToolError(codeInvalidInput,
 			"period_from looks back %s; the cap is %s: use a later start", formatSpan(lookback), formatSpan(maxListLookback))
 	}
+	// The list endpoints read the index over the window, not samples, so a selector has no lookbehind: span 0.
 	for _, sel := range in.Match {
-		_, err = checkExpr(sel, lookback, instantStep)
+		_, err = checkExpr(sel, 0, instantStep)
 		if err != nil {
 			return listPlan{}, err
 		}
@@ -635,6 +636,9 @@ func pageNames(res listMetricsResult, names []string, offset, limit int) (listMe
 		return res, err
 	}
 	names, res.Page, err = paginate(names, offset, limit, defaultListLimit, maxListed)
+	if err != nil {
+		return res, err
+	}
 	res.Names = make([]metricName, len(names))
 	for i, n := range names {
 		res.Names[i] = metricName{Name: n}
@@ -646,7 +650,7 @@ func pageNames(res listMetricsResult, names []string, offset, limit int) (listMe
 	if len(res.Names) == 0 {
 		res.Names = nil
 	}
-	return res, err
+	return res, nil
 }
 
 // pageSeries sets the series of one page, fewer than the page when they would not fit maxMetricsBytes.
