@@ -523,7 +523,8 @@ func (_m *mockPmmAPI) Version(ctx context.Context, auth callerAuth) (*server_ser
 func newMockPmmAPI(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockPmmAPI {
+},
+) *mockPmmAPI {
 	mock := &mockPmmAPI{}
 	mock.Mock.Test(t)
 
