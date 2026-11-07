@@ -631,7 +631,7 @@ func applyMultiExpressionFields(t *alerting.Template, at *alert.Template) {
 
 	queries := make([]*alerting.TemplateQuery, 0, len(at.Queries))
 	for _, q := range at.Queries {
-		queries = append(queries, &alerting.TemplateQuery{RefId: q.RefID, Expr: q.Expr})
+		queries = append(queries, &alerting.TemplateQuery{RefId: q.RefID, Expr: q.Expr, Datasource: convertDatasource(q.Datasource)})
 	}
 
 	expressions := make([]*alerting.TemplateExpression, 0, len(at.Expressions))
@@ -640,6 +640,7 @@ func applyMultiExpressionFields(t *alerting.Template, at *alert.Template) {
 			RefId:      e.RefID,
 			Type:       e.Type,
 			Expression: e.Expression,
+			Reducer:    e.Reducer,
 		})
 	}
 
@@ -712,10 +713,9 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified.")
 	}
 
-	// The datasource name is defined in `build/ansible/roles/grafana/files/datasources.yml`
-	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, "Metrics")
+	err = validateFilters(req.Filters)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid filter: %v.", err)
 	}
 
 	sourceTemplate, ok := s.GetTemplates()[req.TemplateName]
@@ -761,7 +761,23 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		}
 	}
 
-	built, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, ruleID, paramsValues.AsStringMap(), req.Filters)
+	// Metrics is always needed for threshold steps; ClickHouse only when a query runs on it.
+	metricsUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, metricsDatasourceName)
+	if err != nil {
+		return nil, err
+	}
+
+	datasourceUIDs := map[alert.Datasource]string{alert.Metrics: metricsUID}
+	if alertTemplate.UsesDatasource(alert.ClickHouse) {
+		clickhouseUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, clickhouseDatasourceName)
+		if err != nil {
+			return nil, err
+		}
+
+		datasourceUIDs[alert.ClickHouse] = clickhouseUID
+	}
+
+	built, err := buildGrafanaRuleData(alertTemplate, datasourceUIDs, ruleID, paramsValues.AsStringMap(), req.Filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build alert rule data: %w", err)
 	}
@@ -956,6 +972,12 @@ func ensureRuleLabel(labels map[string]string, key, value string) {
 }
 
 func queryRefForRuleLabels(t *alert.Template) string {
+	// $values holds a ClickHouse time series only once reduced, while the condition always
+	// carries the alert instance's own labels.
+	if t.UsesDatasource(alert.ClickHouse) {
+		return t.Condition
+	}
+
 	if len(t.Queries) > 0 && t.Queries[0].RefID != "" {
 		return t.Queries[0].RefID
 	}
@@ -971,6 +993,19 @@ func buildRuleLabelTemplate(labelName, refID string) string {
 		refID,
 		labelName,
 	)
+}
+
+func convertDatasource(d alert.Datasource) alerting.DatasourceType {
+	switch d {
+	case "", alert.Metrics:
+		return alerting.DatasourceType_DATASOURCE_TYPE_METRICS
+	case alert.ClickHouse:
+		return alerting.DatasourceType_DATASOURCE_TYPE_CLICKHOUSE
+	}
+
+	// do not add `default:` to make exhaustive linter do its job
+
+	return alerting.DatasourceType_DATASOURCE_TYPE_UNSPECIFIED
 }
 
 func convertParamUnit(u models.ParamUnit) alerting.ParamUnit {

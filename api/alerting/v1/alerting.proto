@@ -68,22 +68,35 @@ enum TemplateSource {
   TEMPLATE_SOURCE_USER_API = 4;
 }
 
-// TemplateQuery represents a PromQL query step in a multi-query alert template.
+// DatasourceType is the built-in Grafana datasource a template query runs against.
+enum DatasourceType {
+  DATASOURCE_TYPE_UNSPECIFIED = 0;
+  // VictoriaMetrics, queried with MetricsQL.
+  DATASOURCE_TYPE_METRICS = 1;
+  // ClickHouse (QAN data), queried with SQL as a time series.
+  DATASOURCE_TYPE_CLICKHOUSE = 2;
+}
+
+// TemplateQuery represents a query step in a multi-query alert template.
 message TemplateQuery {
   // Reference ID of the query (e.g. "A").
   string ref_id = 1;
-  // PromQL query expression with templating parameters (placeholders kept intact).
+  // Query expression with templating parameters (placeholders kept intact).
   string expr = 2;
+  // Datasource the query runs against.
+  DatasourceType datasource = 3;
 }
 
 // TemplateExpression represents a server-side expression step in a multi-query alert template.
 message TemplateExpression {
   // Reference ID of the expression (e.g. "C").
   string ref_id = 1;
-  // Expression type. Currently only "math" is supported.
+  // Expression type: "math" or "reduce".
   string type = 2;
-  // Expression body referencing other steps by ref ID (e.g. "$A > $B").
+  // Expression body referencing other steps by ref ID (e.g. "$A > $B", or "$A" for reduce).
   string expression = 3;
+  // Reducer of a "reduce" expression (e.g. "max").
+  string reducer = 4;
 }
 
 // Template represents Alert Template that is used to create Alert Rule.
@@ -92,7 +105,7 @@ message Template {
   string name = 1;
   // Short human-readable summary.
   string summary = 2;
-  // PromQL query expression with templating parameters.
+  // Query expression with templating parameters; for multi-query templates, a copy of queries[0].expr.
   string expr = 3;
   // Query parameters definitions.
   repeated ParamDefinition params = 4;
@@ -110,7 +123,7 @@ message Template {
   google.protobuf.Timestamp created_at = 10;
   // YAML template file content. Empty for built-in and SaaS templates.
   string yaml = 11;
-  // PromQL query steps for multi-query templates. Empty for single-expression templates.
+  // Query steps for multi-query templates. Empty for single-expression templates.
   repeated TemplateQuery queries = 12;
   // Server-side expression steps for multi-query templates. Empty for single-expression templates.
   repeated TemplateExpression expressions = 13;
