@@ -72,7 +72,7 @@ func TestShapeSeries(t *testing.T) {
 		}
 		series[7] = mkSeries(map[string]string{"service_name": "huge"}, 3, constant(1e6))
 
-		got := shapeSeries("rate(x[5m])", series, 0)
+		got := shapeSeries("rate(x[5m])", series, 0, nil, "")
 
 		require.Len(t, got.Series, defaultSeries)
 		assert.Equal(t, "huge", got.Series[0].Labels["service_name"])
@@ -96,17 +96,17 @@ func TestShapeSeries(t *testing.T) {
 			series[i] = mkSeries(map[string]string{"n": strconv.Itoa(i)}, 1, constant(float64(i)))
 		}
 
-		got := shapeSeries("x", series, 1000)
+		got := shapeSeries("x", series, 1000, nil, "")
 
 		assert.LessOrEqual(t, len(got.Series), maxSeriesShown)
 		assert.Greater(t, len(got.Series), defaultSeries)
-		assert.Len(t, shapeSeries("x", series, 5).Series, 5)
+		assert.Len(t, shapeSeries("x", series, 5, nil, "").Series, 5)
 	})
 
 	t.Run("FewSeriesAreNotTruncated", func(t *testing.T) {
 		t.Parallel()
 
-		got := shapeSeries("x", []metricSeries{mkSeries(map[string]string{"a": "1"}, 3, constant(1))}, 0)
+		got := shapeSeries("x", []metricSeries{mkSeries(map[string]string{"a": "1"}, 3, constant(1))}, 0, nil, "")
 
 		assert.False(t, got.Truncated)
 		assert.Empty(t, got.Hint)
@@ -128,7 +128,7 @@ func TestShapeSeries(t *testing.T) {
 			series[i] = mkSeries(labels, 2, constant(float64(i)))
 		}
 
-		got := shapeSeries("x", series, 0)
+		got := shapeSeries("x", series, 0, nil, "")
 
 		assert.Equal(t, map[string]string{"env": "prod"}, got.SharedLabels)
 		for _, s := range got.Series {
@@ -152,7 +152,7 @@ func TestShapeSeries(t *testing.T) {
 			series[i] = mkSeries(map[string]string{"n": strconv.Itoa(i)}, 50, constant(float64(i)))
 		}
 
-		got := shapeSeries("x", series, 0)
+		got := shapeSeries("x", series, 0, nil, "")
 
 		assert.False(t, got.Summarized)
 		for _, s := range got.Series {
@@ -171,7 +171,7 @@ func TestShapeSeries(t *testing.T) {
 			series[i] = mkSeries(map[string]string{"n": strconv.Itoa(i)}, 200, constant(float64(i)))
 		}
 
-		got := shapeSeries("x", series, 0)
+		got := shapeSeries("x", series, 0, nil, "")
 
 		assert.True(t, got.Summarized)
 		assert.Len(t, got.Series, 20)
@@ -190,7 +190,7 @@ func TestShapeSeries(t *testing.T) {
 			mkSeries(map[string]string{"n": "1"}, 1000, constant(2.5)),
 		}
 
-		got := shapeSeries("x", series, 0)
+		got := shapeSeries("x", series, 0, nil, "")
 
 		assert.True(t, got.Summarized, "2,000 points are within maxPoints but far over 16 KiB")
 		assert.Len(t, got.Series, 2)
@@ -208,7 +208,7 @@ func TestShapeSeries(t *testing.T) {
 			series[i] = mkSeries(map[string]string{"query": label}, 2, constant(float64(i)))
 		}
 
-		got := shapeSeries("x", series, maxSeriesShown)
+		got := shapeSeries("x", series, maxSeriesShown, nil, "")
 
 		assert.True(t, got.Summarized)
 		assert.Less(t, len(got.Series), 100)
@@ -228,7 +228,7 @@ func TestShapeSeries(t *testing.T) {
 		values := []float64{1, math.NaN(), math.Inf(1), 3}
 		series := []metricSeries{mkSeries(map[string]string{"a": "1"}, len(values), func(i int) float64 { return values[i] })}
 
-		got := shapeSeries("x", series, 0)
+		got := shapeSeries("x", series, 0, nil, "")
 
 		b, err := json.Marshal(got)
 		require.NoError(t, err)
@@ -240,7 +240,45 @@ func TestShapeSeries(t *testing.T) {
 		assert.InDelta(t, 3, *s.Max, 0)
 		assert.InDelta(t, 3, *s.Last, 0)
 		assert.Contains(t, got.Note, "2 values")
+		assert.Contains(t, got.Note, "null in points")
 		assert.Contains(t, got.render(), "2 values")
+		validateMetricsOutput(t, got)
+	})
+
+	t.Run("NonFiniteSummarizedNote", func(t *testing.T) {
+		t.Parallel()
+
+		series := make([]metricSeries, 3)
+		for i := range series {
+			series[i] = mkSeries(map[string]string{"n": strconv.Itoa(i)}, 1000, func(j int) float64 {
+				if j == 999 && i == 0 {
+					return math.NaN()
+				}
+				return 1
+			})
+		}
+
+		got := shapeSeries("x", series, 0, nil, "")
+
+		require.True(t, got.Summarized)
+		assert.Contains(t, got.Note, "1 non-finite values")
+		assert.NotContains(t, got.Note, "in points")
+		assert.Nil(t, got.Series[0].Last)
+	})
+
+	t.Run("OversizedSeriesLeavesNone", func(t *testing.T) {
+		t.Parallel()
+
+		series := []metricSeries{mkSeries(map[string]string{"query": strings.Repeat("x", 20<<10)}, 2, constant(1))}
+
+		got := shapeSeries("x", series, 0, nil, "")
+
+		assert.Empty(t, got.Series)
+		assert.NotNil(t, got.Series)
+		assert.True(t, got.Truncated)
+		assert.Equal(t, 1, got.TotalSeries)
+		assert.Contains(t, got.Hint, "labels are too large to show")
+		assert.LessOrEqual(t, sizeOf(t, got), maxMetricsBytes)
 		validateMetricsOutput(t, got)
 	})
 
@@ -253,7 +291,7 @@ func TestShapeSeries(t *testing.T) {
 			mkSeries(map[string]string{"a": "ok"}, 2, constant(1)),
 		}
 
-		got := shapeSeries("x", series, 0)
+		got := shapeSeries("x", series, 0, nil, "")
 
 		require.Len(t, got.Series, 3)
 		assert.Equal(t, []string{"tail", "ok", "nan"}, []string{got.Series[0].Labels["a"], got.Series[1].Labels["a"], got.Series[2].Labels["a"]})
@@ -272,7 +310,7 @@ func TestShapeSeries(t *testing.T) {
 
 		series := []metricSeries{mkSeries(map[string]string{"agent_id": "a", "job": "j"}, 2, constant(1))}
 
-		got := shapeSeries("x", series, 0)
+		got := shapeSeries("x", series, 0, nil, "")
 
 		require.Len(t, got.Series, 1)
 		assert.NotNil(t, got.Series[0].Labels)
@@ -287,7 +325,7 @@ func TestShapeSeries(t *testing.T) {
 		t.Parallel()
 
 		for _, in := range [][]metricSeries{nil, {}} {
-			got := shapeSeries("x", in, 0)
+			got := shapeSeries("x", in, 0, nil, "")
 
 			assert.NotNil(t, got.Series)
 			assert.Zero(t, got.TotalSeries)
@@ -306,12 +344,56 @@ func TestShapeSeries(t *testing.T) {
 			series[i] = mkSeries(map[string]string{"n": strconv.Itoa(i)}, 2, constant(float64(i)))
 		}
 
-		got := shapeSeries(expr, series, 40)
+		got := shapeSeries(expr, series, 40, nil, "")
 
 		assert.LessOrEqual(t, sizeOf(t, got), maxMetricsBytes)
 		assert.Contains(t, got.Hint, "topk(10, <expr>)")
 		assert.NotEmpty(t, got.Series)
 	})
+}
+
+func TestShapeSeriesBudgetIncludesWindowAndStep(t *testing.T) {
+	t.Parallel()
+
+	series := make([]metricSeries, 100)
+	for i := range series {
+		label := fmt.Sprintf("%03d-%s", i, strings.Repeat("x", 400))
+		series[i] = mkSeries(map[string]string{"query": label}, 2, constant(float64(i)))
+	}
+	w := &window{From: budgetStart, To: budgetStart.Add(time.Hour)}
+
+	// Find the series count that fits without the window and step, then check the real one is smaller or equal and fits.
+	bare := shapeSeries("x", series, maxSeriesShown, nil, "")
+	got := shapeSeries("x", series, maxSeriesShown, w, "2s")
+
+	assert.True(t, got.Truncated)
+	assert.LessOrEqual(t, sizeOf(t, got), maxMetricsBytes)
+	assert.Contains(t, got.render(), "Window:")
+	assert.Contains(t, got.render(), "Step: 2s")
+	assert.Equal(t, w, got.Window)
+	assert.LessOrEqual(t, len(got.Series), len(bare.Series))
+}
+
+func TestShapeSeriesBudgetBoundary(t *testing.T) {
+	t.Parallel()
+
+	// Pad labels so that the bare result is just under 16 KiB: adding the window and step must then push out one more series.
+	w := &window{From: budgetStart, To: budgetStart.Add(time.Hour)}
+	for pad := 300; pad < 600; pad++ {
+		series := make([]metricSeries, 100)
+		for i := range series {
+			series[i] = mkSeries(map[string]string{"q": fmt.Sprintf("%03d-%s", i, strings.Repeat("x", pad))}, 2, constant(float64(i)))
+		}
+		bare := shapeSeries("x", series, maxSeriesShown, nil, "")
+		if sizeOf(t, bare) < maxMetricsBytes-100 {
+			continue
+		}
+		got := shapeSeries("x", series, maxSeriesShown, w, "2s")
+		assert.Less(t, len(got.Series), len(bare.Series), "pad %d", pad)
+		assert.LessOrEqual(t, sizeOf(t, got), maxMetricsBytes)
+		return
+	}
+	t.Fatal("no padding put the bare result within 100 bytes of the budget")
 }
 
 func TestMetricsResultRender(t *testing.T) {
@@ -320,8 +402,7 @@ func TestMetricsResultRender(t *testing.T) {
 	got := shapeSeries("up", []metricSeries{
 		mkSeries(map[string]string{"service_name": "a\nb", "env": "prod"}, 2, constant(1.23456)),
 		mkSeries(map[string]string{"service_name": "c", "env": "prod"}, 2, constant(7)),
-	}, 0)
-	got.Step = "15s"
+	}, 0, nil, "15s")
 
 	text := got.render()
 
@@ -356,5 +437,25 @@ func TestChooseStep(t *testing.T) {
 
 			assert.Equal(t, tc.want, chooseStep(tc.span, tc.requested))
 		})
+	}
+}
+
+func TestFmtNum3(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		in   float64
+		want string
+	}{
+		{0, "0"},
+		{7, "7"},
+		{1.23456, "1.235"},
+		{0.0004, "0"},
+		{2.5, "2.5"},
+		{1.2e17, "120000000000000000"},
+		{9.3e15, "9300000000000000"},
+	}
+	for _, tc := range tests {
+		assert.Equal(t, tc.want, fmtNum3(tc.in), "%v", tc.in)
 	}
 }

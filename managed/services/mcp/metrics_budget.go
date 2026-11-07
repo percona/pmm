@@ -142,7 +142,9 @@ type rankedSeries struct {
 
 // shapeSeries fits series to the response budget: the top limit series by maximum, raw points when they
 // fit and summaries when they don't, and fewer series while the text and the JSON together exceed 16 KiB.
-func shapeSeries(expr string, series []metricSeries, limit int) metricsResult {
+// The window and step, nil and empty for an instant query, count towards the budget.
+func shapeSeries(expr string, series []metricSeries, limit int, w *window, step string) metricsResult {
+	head := metricsResult{Query: expr, Window: w, Step: step}
 	if limit <= 0 {
 		limit = defaultSeries
 	}
@@ -161,14 +163,14 @@ func shapeSeries(expr string, series []metricSeries, limit int) metricsResult {
 	}
 
 	raw := points <= maxPoints
-	res := buildMetricsResult(expr, kept, len(series), raw)
+	res := buildMetricsResult(head, kept, len(series), raw)
 	if raw && metricsSize(res) > maxMetricsBytes {
 		raw = false
-		res = buildMetricsResult(expr, kept, len(series), raw)
+		res = buildMetricsResult(head, kept, len(series), raw)
 	}
 	for metricsSize(res) > maxMetricsBytes && len(kept) > 0 {
 		kept = kept[:len(kept)-1]
-		res = buildMetricsResult(expr, kept, len(series), raw)
+		res = buildMetricsResult(head, kept, len(series), raw)
 	}
 	return res
 }
@@ -217,14 +219,12 @@ func rankSeries(s metricSeries) rankedSeries {
 }
 
 // buildMetricsResult assembles a result from the kept series, moving the labels they all share to SharedLabels.
-func buildMetricsResult(expr string, kept []rankedSeries, total int, raw bool) metricsResult {
-	res := metricsResult{
-		Query:       expr,
-		Series:      make([]seriesSummary, len(kept)),
-		TotalSeries: total,
-		Truncated:   len(kept) < total,
-		Summarized:  !raw,
-	}
+func buildMetricsResult(head metricsResult, kept []rankedSeries, total int, raw bool) metricsResult {
+	res := head
+	res.Series = make([]seriesSummary, len(kept))
+	res.TotalSeries = total
+	res.Truncated = len(kept) < total
+	res.Summarized = !raw
 
 	var shared map[string]string
 	if len(kept) > 1 {
@@ -251,10 +251,14 @@ func buildMetricsResult(expr string, kept []rankedSeries, total int, raw bool) m
 	}
 
 	if res.Truncated {
-		res.Hint = leftOutHint(expr, total-len(kept), len(kept))
+		res.Hint = leftOutHint(head.Query, total-len(kept), len(kept))
 	}
 	if nonFinite > 0 {
-		res.Note = fmt.Sprintf("%d values were NaN or infinite: they are null in points and left out of min, avg and max.", nonFinite)
+		if raw {
+			res.Note = fmt.Sprintf("%d values were NaN or infinite: they are null in points and left out of min, avg and max.", nonFinite)
+		} else {
+			res.Note = fmt.Sprintf("%d non-finite values (NaN or infinite) are left out of min, avg and max; a last that is not finite is null.", nonFinite)
+		}
 	}
 	return res
 }
@@ -273,6 +277,10 @@ func sharedLabels(series []rankedSeries) map[string]string {
 }
 
 func leftOutHint(expr string, left, shown int) string {
+	if shown == 0 {
+		return fmt.Sprintf("%d series are left out: their labels are too large to show. "+
+			"Narrow the query, or aggregate away the large labels with sum by (service_name) (<expr>).", left)
+	}
 	if len(expr) > maxHintExprBytes {
 		expr = "<expr>"
 	}
