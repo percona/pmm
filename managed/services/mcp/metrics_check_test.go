@@ -77,7 +77,7 @@ func TestCheckExpr(t *testing.T) {
 		{name: "rate without a window over 6d at step 2d", expr: `rate(mysql_global_status_questions)`, span: 6 * day, step: 2 * day, want: []string{capped}},
 		{name: "a bare selector over 6d at step 2d", expr: `mysql_global_status_questions`, span: 6 * day, step: 2 * day, want: []string{capped}},
 		{expr: `max_over_time(rate(up[5m])[30d:5m])`, want: []string{capped}},
-		{expr: `max_over_time(rate(mysql_global_status_questions[4d])[4d:1h])`, want: []string{"reads 8d", "reads 8d (range 0s + lookbehind 8d)"}},
+		{expr: `max_over_time(rate(mysql_global_status_questions[4d])[4d:1h])`, want: []string{"reads 8d", "reads 8d1h5m (range 0s + lookbehind 8d1h5m)"}},
 		{expr: `rate(mysql_global_status_questions[4d]) + rate(mysql_global_status_queries[4d])`},
 		{expr: `rate(mysql_global_status_questions[4d] offset 4d)`, want: []string{"reads 8d", "reads 8d (range 0s + lookbehind 8d)"}},
 		{expr: `up offset 8d`, want: []string{capped}},
@@ -117,9 +117,46 @@ func TestCheckExpr(t *testing.T) {
 		{
 			name: "an escaped quote in a name opens no string",
 			expr: `mysql\"up{service_name="db1"} + with (q = mysql_up) q # "`, span: time.Hour,
-			want: []string{"WITH templates"},
+			want: []string{"backslash at byte 5"},
 		},
 		{expr: `sum without (job) (mysql_up{service_name="db1"})`, span: time.Hour},
+
+		// A subquery reads at its own step, from its range + step + 5m back.
+		{name: "100i inside a subquery is 100 subquery steps", expr: `max_over_time(rate(mysql_global_status_questions[100i])[1h:1d])`, want: []string{capped, "reads 101d1h5m"}},
+		{name: "a bare selector inside a subquery reads one subquery step", expr: `max_over_time(mysql_global_status_questions[1h:30d])`, want: []string{capped, "reads 60d1h5m"}},
+		{expr: `max_over_time(rate(mysql_global_status_questions[1i])[1h:365d])`, want: []string{capped, "reads 730d1h5m"}},
+		{name: "a 7d subquery also reads its step and lead", expr: `max_over_time(mysql_global_status_questions[7d:5m])`, want: []string{capped, "reads 7d15m"}},
+		{
+			name: "a rollup of an aggregation is an implicit subquery",
+			expr: `rate(sum(mysql_up{service_name="db1"}))`, span: 6 * day, step: 12 * time.Hour,
+			want: []string{"reads 7d5m (range 6d + lookbehind 1d5m)"},
+		},
+		{name: "a window over an aggregation is an implicit subquery", expr: `max_over_time(sum(mysql_up{service_name="db1"})[7d])`, want: []string{capped, "reads 7d15m"}},
+
+		// Nothing that metricsql.Parse would expand reaches it.
+		{name: "a dotted capital I spells WITH", expr: `WİTH (q = mysql_up{service_name="db1"}) q`, span: time.Hour, want: []string{"non-ASCII character at byte 1"}},
+		{expr: `ttf(ttf(ttf(mysql_up{service_name="db1"})))`, span: time.Hour, want: []string{"template ttf()"}},
+		{
+			name: "14 nested ttf calls",
+			expr: strings.Repeat("ttf(", 14) + `mysql_up{service_name="db1"}` + strings.Repeat(")", 14), span: time.Hour,
+			want: []string{"template ttf()"},
+		},
+		{expr: `ru(mysql_up{service_name="db1"}, mysql_up{service_name="db2"})`, span: time.Hour, want: []string{"template ru()"}},
+		{expr: `range_median(mysql_up{service_name="db1"})`, span: time.Hour, want: []string{"template range_median()"}},
+		{expr: `alias(mysql_up{service_name="db1"}, "up")`, span: time.Hour, want: []string{"template alias()"}},
+		{name: "an escaped name spells ttf", expr: `t\x74f(mysql_up{service_name="db1"})`, span: time.Hour, want: []string{"backslash at byte 1"}},
+		{expr: `mysql\_up{service_name="db1"}`, span: time.Hour, want: []string{"backslash at byte 5"}},
+		{expr: `mysql_up{service_name="db1"} # café`, span: time.Hour, want: []string{"non-ASCII character at byte 34"}},
+		{name: "non-ASCII inside a label value passes", expr: `mysql_up{service_name="dbé"}`, span: time.Hour},
+		{name: "a backslash inside a label value passes", expr: `mysql_up{service_name="db\\1"}`, span: time.Hour},
+
+		{expr: `{__name__=~"mysql_global_status_.*", service_name=~"(?i)db1"}`, span: time.Hour, want: []string{scope}},
+		{name: "a span past the largest duration", expr: `rate(mysql_global_status_questions[99999999999y])`, want: []string{"reads more than 7d; the cap is 7d"}},
+		{
+			name: "the selector count comes before the selector rules",
+			expr: `{job="x"} + ` + joined(10, `mysql_up{service_name="db1"}`), span: time.Hour,
+			want: []string{"10 selectors"},
+		},
 	} {
 		name := tc.name
 		if name == "" {
@@ -153,19 +190,105 @@ func TestCheckExpr(t *testing.T) {
 func TestWalkSelectors(t *testing.T) {
 	t.Parallel()
 
-	e, err := metricsql.Parse(`max_over_time(rate(a[1h] offset 30m)[1d:5m]) / on() b{x="1" or x="2"} + c[10m] offset -1h`)
-	require.NoError(t, err)
+	for _, tc := range []struct {
+		expr  string
+		step  time.Duration
+		want  []string
+		steps []time.Duration
+	}{
+		{
+			expr: `max_over_time(rate(a[1h] offset 30m)[1d:5m]) / on() b{x="1" or x="2"} + c[10m] offset -1h - rate(sum(d))`,
+			step: 2 * time.Minute,
+			want: []string{
+				`{__name__="a"} 1d1h40m`,
+				`{__name__="b", x="1"} 2m`,
+				`{__name__="b", x="2"} 2m`,
+				`{__name__="c"} 1h10m`,
+				`{__name__="d"} 9m`,
+			},
+			steps: []time.Duration{5 * time.Minute, 2 * time.Minute},
+		},
+		{
+			// [1h:] takes the enclosing subquery's step, not the query's.
+			expr: `max_over_time(max_over_time(e[1h:])[1d:1h])`, step: 2 * time.Minute,
+			want: []string{`{__name__="e"} 1d4h10m`}, steps: []time.Duration{time.Hour, time.Hour},
+		},
+		{
+			expr: `max_over_time(rate(f[100i])[1h:1d])`, step: 5 * time.Minute,
+			want: []string{`{__name__="f"} 101d1h5m`}, steps: []time.Duration{day},
+		},
+		{
+			expr: `max_over_time(sum(g)[7d])`, step: 5 * time.Minute,
+			want: []string{`{__name__="g"} 7d15m`}, steps: []time.Duration{5 * time.Minute},
+		},
+		{
+			expr: `max_over_time(h[1h:1m] offset 1d)`, step: 5 * time.Minute,
+			want: []string{`{__name__="h"} 1d1h7m`}, steps: []time.Duration{time.Minute},
+		},
+		{
+			// Only quantile_over_time's second argument is read over the window.
+			expr: `quantile_over_time(scalar(i), j[5m])`, step: time.Minute,
+			want: []string{`{__name__="i"} 1m`, `{__name__="j"} 5m`},
+		},
+	} {
+		t.Run(tc.expr, func(t *testing.T) {
+			t.Parallel()
 
-	var got []string
-	err = walkSelectors(e, 2*time.Minute, func(s selector) error {
-		got = append(got, s.String()+" "+formatSpan(s.lookbehind))
-		return nil
-	})
-	require.NoError(t, err)
-	assert.Equal(t, []string{
-		`{__name__="a"} 1d1h30m`,
-		`{__name__="b", x="1"} 2m`,
-		`{__name__="b", x="2"} 2m`,
-		`{__name__="c"} 1h10m`,
-	}, got)
+			e, err := metricsql.Parse(tc.expr)
+			require.NoError(t, err)
+			w, err := walkSelectors(e, tc.step)
+			require.NoError(t, err)
+
+			got := make([]string, 0, len(w.selectors))
+			for _, s := range w.selectors {
+				got = append(got, s.String()+" "+formatSpan(s.lookbehind))
+			}
+			assert.Equal(t, tc.want, got)
+			assert.Equal(t, tc.steps, w.subquerySteps)
+		})
+	}
+}
+
+// opaqueExpr stands for a node type a later metricsql might add, which the walk cannot measure.
+type opaqueExpr struct{}
+
+func (opaqueExpr) AppendString(dst []byte) []byte {
+	return append(dst, "opaque(x)"...)
+}
+
+func TestWalkSelectorsRefusesUnknownNodes(t *testing.T) {
+	t.Parallel()
+
+	for _, e := range []metricsql.Expr{
+		opaqueExpr{},
+		&metricsql.FuncExpr{Name: "abs", Args: []metricsql.Expr{opaqueExpr{}}},
+		&metricsql.RollupExpr{Expr: opaqueExpr{}},
+	} {
+		_, err := walkSelectors(e, instantStep)
+		te, ok := errors.AsType[*toolError](err)
+		require.True(t, ok, "want a *toolError, got %v", err)
+		assert.Equal(t, codeInvalidInput, te.code)
+		assert.Contains(t, te.message, "cannot check 'opaque(x)'")
+	}
+}
+
+func TestCheckExprHintSize(t *testing.T) {
+	t.Parallel()
+
+	fill := func(prefix, suffix string) string {
+		return prefix + strings.Repeat("\x01", maxExprBytes-len(prefix)-len(suffix)) + suffix
+	}
+	for _, expr := range []string{
+		fill("", ""),
+		fill("rate(", ""),
+		fill(`{job="`, `"}`),
+		fill(`{__name__=~"m.`, `"}`),
+		fill(`{__name__=~"mysql_`, `"}`),
+	} {
+		require.Len(t, expr, maxExprBytes)
+		err := checkExpr(expr, time.Hour, 2*time.Second)
+		te, ok := errors.AsType[*toolError](err)
+		require.True(t, ok, "want a *toolError, got %v", err)
+		assert.LessOrEqual(t, len(te.message), 512, te.message[:min(len(te.message), 100)])
+	}
 }
