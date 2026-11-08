@@ -191,6 +191,8 @@ func addServiceTarget(req *managementv1.AddServiceRequest) (string, string) {
 		return req.GetValkey().GetPmmAgentId(), req.GetValkey().GetAddress()
 	case *managementv1.AddServiceRequest_Rds:
 		return req.GetRds().GetPmmAgentId(), req.GetRds().GetAddress()
+	case *managementv1.AddServiceRequest_Elasticache:
+		return req.GetElasticache().GetPmmAgentId(), req.GetElasticache().GetAddress()
 	default:
 		// External and HAProxy Services are scraped on the Node their exporter runs on,
 		// so they cannot offload work onto it.
@@ -223,6 +225,8 @@ func (s *ManagementService) AddService(ctx context.Context, req *managementv1.Ad
 		return s.addRDS(ctx, req.GetRds())
 	case *managementv1.AddServiceRequest_Valkey:
 		return s.addValkey(ctx, req.GetValkey())
+	case *managementv1.AddServiceRequest_Elasticache:
+		return s.addElastiCache(ctx, req.GetElasticache())
 	default:
 		return nil, status.Error(codes.InvalidArgument, "invalid service type")
 	}
@@ -482,19 +486,26 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			return err
 		}
 
-		node, err := models.FindNodeByID(s.db.Querier, service.NodeID)
+		node, err := models.FindNodeByID(tx.Querier, service.NodeID)
 		if err != nil {
 			return err
 		}
 
-		// For RDS and Azure we also want to remove the node.
-		if node.NodeType == models.RemoteRDSNodeType || node.NodeType == models.RemoteAzureDatabaseNodeType {
+		// RemoveNode cascades to every service on the node, so keep it while other services use it.
+		remaining, err := models.FindServices(tx.Querier, models.ServiceFilters{NodeID: node.NodeID})
+		if err != nil {
+			return err
+		}
+
+		// For RDS, Azure and ElastiCache we also want to remove the node.
+		if len(remaining) == 0 &&
+			(node.NodeType == models.RemoteRDSNodeType || node.NodeType == models.RemoteAzureDatabaseNodeType || node.NodeType == models.RemoteElastiCacheNodeType) {
 			agents, err = models.FindAgents(tx.Querier, models.AgentFilters{NodeID: node.NodeID})
 			if err != nil {
 				return err
 			}
 			for _, a := range agents {
-				_, err := models.RemoveAgent(s.db.Querier, a.AgentID, models.RemoveRestrict)
+				_, err := models.RemoveAgent(tx.Querier, a.AgentID, models.RemoveRestrict)
 				if err != nil {
 					return err
 				}
@@ -503,7 +514,8 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 				}
 			}
 
-			if len(pmmAgentIDs) <= 1 {
+			// Discovery re-creates ElastiCache nodes by name, so a leftover node would block it.
+			if len(pmmAgentIDs) <= 1 || node.NodeType == models.RemoteElastiCacheNodeType {
 				err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
 				if err != nil {
 					return err
