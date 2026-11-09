@@ -270,10 +270,12 @@ function FailRuleFieldError({
   const error = get(errors, name);
 
   // Runs after the widget's own effects, so a field it registers is mounted by
-  // now. Re-checked when the message changes, which is when the answer matters.
+  // now. Re-checked when the message or the field's value changes, so a widget
+  // that registers late is picked up once the reader uses it.
+  const value = useWatch({ control, name });
   useEffect(() => {
     onRegistration(name, Boolean(get(control._fields, name)?._f?.mount));
-  }, [name, message, control, onRegistration]);
+  }, [name, message, value, control, onRegistration]);
 
   useEffect(() => {
     // RHF retains unmounted registrations. Custom widgets may not register a
