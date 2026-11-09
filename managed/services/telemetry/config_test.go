@@ -16,18 +16,23 @@
 package telemetry
 
 import (
+	"context"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
 	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -269,4 +274,50 @@ func TestDefaultConfigReportsMongoOpsEnabled(t *testing.T) {
 
 		assert.Equal(t, enabled("1"), report(t))
 	})
+}
+
+func TestDefaultConfigReportsAPIUsage(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	cfg := ServiceConfig{l: logger.WithField("test", t.Name())}
+
+	telemetry, err := cfg.loadMetricsConfig("")
+	require.NoError(t, err)
+
+	idx := slices.IndexFunc(telemetry, func(c Config) bool { return c.ID == "APIUsageMetrics" })
+	require.NotEqual(t, -1, idx, "APIUsageMetrics datapoint is missing")
+	apiUsage := telemetry[idx]
+	assert.Equal(t, string(dsVM), apiUsage.Source)
+
+	// qan-api2 exports a metric with the same name but without caller_origin.
+	metricName, selector, _ := strings.Cut(apiUsage.Query, "{")
+	assert.Equal(t, `job="pmm-managed"}`, selector)
+
+	// A CounterVec exports no series until a call is recorded.
+	grpcMetrics := interceptors.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(grpcMetrics)
+	info := &grpc.UnaryServerInfo{FullMethod: "/server.v1.ServerService/Version"}
+	_, err = grpcMetrics.UnaryServerInterceptor()(t.Context(), nil, info, func(context.Context, any) (any, error) { return struct{}{}, nil })
+	require.NoError(t, err)
+
+	families, err := registry.Gather()
+	require.NoError(t, err)
+
+	var labels []string
+	for _, family := range families {
+		if family.GetName() != metricName {
+			continue
+		}
+		for _, label := range family.GetMetric()[0].GetLabel() {
+			labels = append(labels, label.GetName())
+		}
+	}
+	require.NotEmpty(t, labels, "pmm-managed does not expose %s", metricName)
+
+	for _, data := range apiUsage.Data {
+		// The job label comes from the VictoriaMetrics scrape config, not from pmm-managed.
+		if data.Label != "" && data.Label != "job" {
+			assert.Contains(t, labels, data.Label)
+		}
+	}
 }
