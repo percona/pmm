@@ -1,15 +1,19 @@
-import { format } from 'date-fns';
-import { download, generateCsv, mkConfig } from 'export-to-csv';
-import { QueryData } from 'types/rta.types';
+import type { QueryData } from 'types/rta.types';
 import { ServiceType } from 'types/services.types';
+import { type CsvRow, downloadCsv, toCsvValue } from 'utils/csv.utils';
+import { isPlainObject } from 'utils/object.utils';
 import {
   lockTimeMs,
   soleBlocker,
   sqlPayload,
 } from '../table/OverviewTable.utils';
-import { isPlainObject } from 'utils/object.utils';
 
-const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
+// MongoDB keeps the mongodb_rta_export name it shipped with in 3.9.
+const RTA_EXPORT_FILENAME_PREFIX: Partial<Record<ServiceType, string>> = {
+  [ServiceType.mongodb]: 'mongodb_rta_export',
+  [ServiceType.mysql]: 'mysql_rta_export',
+  [ServiceType.posgresql]: 'postgresql_rta_export',
+};
 
 // Headers that differ from the API field name. Every other field falls back to
 // the snake_case form of its key, which round-trips back to the name the API
@@ -23,17 +27,6 @@ const CSV_HEADER_OVERRIDES: Record<string, string> = {
   queryRawJson: 'raw_query',
 };
 
-type CsvValue = string | number | boolean;
-type CsvRow = Record<string, CsvValue>;
-
-export const sanitizeCsvCell = (value: string): string => {
-  if (CSV_FORMULA_PREFIX.test(value)) {
-    return `'${value}`;
-  }
-
-  return value;
-};
-
 export const toCsvHeader = (key: string): string =>
   CSV_HEADER_OVERRIDES[key] ??
   key.replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`);
@@ -42,7 +35,7 @@ export const toCsvHeader = (key: string): string =>
 // names so that renaming a header above cannot silently reorder the file.
 // Fields that are not listed are appended in the order the API returns them,
 // so new backend fields show up without touching this file.
-const CSV_COLUMN_ORDER = [
+export const RTA_CSV_COLUMNS = [
   'queryId',
   'queryExecutionDurationMs',
   'dbInstanceAddress',
@@ -72,30 +65,6 @@ const CSV_COLUMN_ORDER = [
   'queryCollectTime',
   'queryRawJson',
 ].map(toCsvHeader);
-
-const columnRank = (column: string): number => {
-  const index = CSV_COLUMN_ORDER.indexOf(column);
-
-  return index === -1 ? CSV_COLUMN_ORDER.length : index;
-};
-
-// export-to-csv rejects object values outright, so anything that is not a
-// primitive has to be flattened or serialized before it reaches the generator.
-export const toCsvValue = (value: unknown): CsvValue => {
-  if (value === null || value === undefined) {
-    return '';
-  }
-
-  if (typeof value === 'string') {
-    return sanitizeCsvCell(value);
-  }
-
-  if (typeof value === 'number' || typeof value === 'boolean') {
-    return value;
-  }
-
-  return sanitizeCsvCell(JSON.stringify(value) ?? '');
-};
 
 // Recurses so that nested payloads are hoisted into the parent key space,
 // which is what lets a new database-specific payload export without any
@@ -155,46 +124,15 @@ export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
   return row;
 };
 
-// Columns are collected across every row: export-to-csv derives headers from
-// the first row only, which would drop fields that are unset on it.
-export const collectCsvColumns = (rows: CsvRow[]): string[] => {
-  const columns = [...new Set(rows.flatMap((row) => Object.keys(row)))];
-
-  // Sorting is stable, so unlisted columns share a rank and keep the order the
-  // API returned them in.
-  return columns.sort((a, b) => columnRank(a) - columnRank(b));
-};
-
-// MongoDB keeps the mongodb_rta_export_ name it shipped with in 3.9.
-const EXPORT_FILENAME_PREFIX: Partial<Record<ServiceType, string>> = {
-  [ServiceType.mongodb]: 'mongodb_',
-  [ServiceType.mysql]: 'mysql_',
-  [ServiceType.posgresql]: 'postgresql_',
-};
-
-export const buildRtaExportFilename = (
-  serviceType?: ServiceType,
-  date = new Date()
-): string => {
-  const timestamp = format(date, 'yyyyMMdd_HHmmss');
-  const prefix = (serviceType && EXPORT_FILENAME_PREFIX[serviceType]) ?? '';
-
-  return `${prefix}rta_export_${timestamp}`;
-};
+const rtaExportFilenamePrefix = (serviceType?: ServiceType): string =>
+  (serviceType && RTA_EXPORT_FILENAME_PREFIX[serviceType]) ?? 'rta_export';
 
 export const exportRtaQueriesToCsv = (
   queries: QueryData[],
   serviceType?: ServiceType
-): void => {
-  if (queries.length === 0) {
-    return;
-  }
-
-  const rows = queries.map(mapQueryToCsvRow);
-  const csvConfig = mkConfig({
-    columnHeaders: collectCsvColumns(rows),
-    filename: buildRtaExportFilename(serviceType),
-  });
-  const csv = generateCsv(csvConfig)(rows);
-  download(csvConfig)(csv);
-};
+): void =>
+  downloadCsv(
+    queries.map(mapQueryToCsvRow),
+    rtaExportFilenamePrefix(serviceType),
+    RTA_CSV_COLUMNS
+  );

@@ -264,7 +264,7 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
         <TableHead>
           <TableRow>
             <TableCell>Service</TableCell>
-            <TableCell>Host</TableCell>
+            <TableCell>Node</TableCell>
             <TableCell>Status</TableCell>
             <TableCell>Member state</TableCell>
             <TableCell>Process</TableCell>

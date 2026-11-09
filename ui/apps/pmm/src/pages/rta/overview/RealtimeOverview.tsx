@@ -19,7 +19,6 @@ import { useStatementNavigation } from './useStatementNavigation';
 import { DetailsPane } from './details-pane';
 import type { QueryData } from 'types/rta.types';
 import DynamicFeed from '@mui/icons-material/DynamicFeed';
-import FileDownloadOutlined from '@mui/icons-material/FileDownloadOutlined';
 import Pause from '@mui/icons-material/Pause';
 import PlayArrow from '@mui/icons-material/PlayArrow';
 import Refresh from '@mui/icons-material/Refresh';
@@ -33,6 +32,7 @@ import IconButton from '@mui/material/IconButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
+import { ExportButton } from 'components/export-button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
 import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
@@ -46,7 +46,7 @@ import {
 const EMPTY_QUERIES: QueryData[] = [];
 
 // Narrowest width that fits the paused MySQL toolbar on one row with the sidebar expanded.
-const TOOLBAR_ONE_ROW = '@media (min-width: 1600px)';
+const TOOLBAR_ONE_ROW = '@media (min-width: 1660px)';
 
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -226,9 +226,10 @@ const RealtimeOverviewPage: FC = () => {
               [TOOLBAR_ONE_ROW]: { flexWrap: 'nowrap' },
             }}
           >
+            {/* Sized from its minimum, so the paused controls and "All sessions" share the first row. */}
             <Box
               sx={{
-                flex: '1 1 320px',
+                flex: '1 1 200px',
                 minWidth: 200,
                 maxWidth: { xs: '100%', md: 320 },
                 pr: { md: 1 },
@@ -277,7 +278,7 @@ const RealtimeOverviewPage: FC = () => {
               >
                 {fetching ? Messages.pause : Messages.resume}
               </Button>
-              {/* Icons, not labelled buttons, so the toolbar fits one line at common widths. */}
+              {/* An icon, not a labelled button, so the toolbar fits one line at common widths. */}
               {!fetching && serviceIds.length !== 0 && (
                 <Tooltip title={Messages.refresh} arrow>
                   <IconButton
@@ -291,30 +292,29 @@ const RealtimeOverviewPage: FC = () => {
                 </Tooltip>
               )}
               {!fetching && (
-                <Tooltip title={Messages.exportTooltip} arrow>
-                  {/* A disabled button fires no events, so the tooltip hangs off a span. */}
-                  <span>
-                    <IconButton
-                      data-testid="overview-table-export-button"
-                      aria-label={Messages.exportTooltip}
-                      disabled={
-                        serviceIds.length === 0 ||
-                        table.getPrePaginationRowModel().rows.length === 0
-                      }
-                      onClick={() =>
-                        exportRtaQueriesToCsv(
-                          table
-                            .getPrePaginationRowModel()
-                            .rows.map((row) => row.original),
-                          serviceType
-                        )
-                      }
-                      color="inherit"
-                    >
-                      <FileDownloadOutlined />
-                    </IconButton>
-                  </span>
-                </Tooltip>
+                <ExportButton
+                  data-testid="overview-table-export-button"
+                  size="small"
+                  variant="text"
+                  disabled={
+                    serviceIds.length === 0 ||
+                    table.getPrePaginationRowModel().rows.length === 0
+                  }
+                  onClick={() =>
+                    exportRtaQueriesToCsv(
+                      table
+                        .getPrePaginationRowModel()
+                        .rows.map((row) => row.original),
+                      serviceType
+                    )
+                  }
+                  color="inherit"
+                  disableElevation
+                  sx={{
+                    width: 100,
+                    height: 36,
+                  }}
+                />
               )}
             </Stack>
             {/* Row filters, wrapped as one unit so a narrow toolbar never splits them. */}

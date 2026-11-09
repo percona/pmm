@@ -238,14 +238,6 @@ const ExecutorCell = ({
 };
 
 /**
- * Why a host cannot be automated, for a tooltip.
- *
- * PMM Extensions supplies the reasons, but a host can read as ineligible with none given,
- * and an empty title makes MUI render no tooltip at all -- a disabled control
- * with no explanation. Shared by the Automation cell and the Bootstrap button so
- * the two cannot drift, which they had: the button showed nothing in that case.
- */
-/**
  * Why nothing can be done to a node that an install is already running on.
  *
  * Shared rather than repeated: the Automation chip, the row's Install button and the
@@ -263,6 +255,14 @@ const selectionBlockedTitle = (row: OmHostRow, busy: boolean): string | null =>
 const notATargetLabel = (row: OmHostRow) =>
   row.is_pmm_server_node ? 'PMM Server' : 'Not a target';
 
+/**
+ * Why a node cannot be automated, for a tooltip.
+ *
+ * PMM Extensions supplies the reasons, but a node can read as ineligible with none given,
+ * and an empty title makes MUI render no tooltip at all -- a disabled control
+ * with no explanation. Shared by the Automation cell and the Install button so
+ * the two cannot drift.
+ */
 const automationBlockedTitle = (reasons: string[]) =>
   reasons.join('; ') || 'Not eligible for automation.';
 
@@ -796,8 +796,8 @@ const ForgetDialog = ({
               placement="item"
               title={
                 failures.length === 1
-                  ? 'Could not forget 1 node'
-                  : `Could not forget ${failures.length} nodes`
+                  ? 'Could not remove 1 entry'
+                  : `Could not remove ${failures.length} entries`
               }
               messages={failures.map(
                 (failure) => `${failure.name}: ${failure.message}`
@@ -1201,7 +1201,7 @@ export const NodesPage = () => {
         <Typography variant="body2">
           <strong>{counts.total}</strong> {pluralize(counts.total, 'node')}
         </Typography>
-        <Tooltip title="PMM Client is connected, and the node's automation agent is reachable and healthy.">
+        <Tooltip title="PMM Client is connected, the node's automation agent answers and can run jobs, a scan has reported a supported operating system, PMM has an address for the node, and no MongoDB is registered, running or installed on it. PMM Server's own node is never eligible.">
           <Typography variant="body2" sx={{ cursor: 'help' }}>
             <strong>{counts.automationEligible}</strong> eligible for automation
           </Typography>

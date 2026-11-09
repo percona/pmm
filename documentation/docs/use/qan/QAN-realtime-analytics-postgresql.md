@@ -93,12 +93,10 @@ RTA's own polling query starts with `WITH pmm_agent_rta AS` and is left out of Q
 
 ### Pause the stream
 
-Click **Pause** to freeze the current view so a query doesn't disappear on the next refresh. The agent keeps collecting in the background, and **Auto-refresh** shows **OFF**. Pausing also shows two icon buttons next to **Resume**:
+Click **Pause** to freeze the current view so a query doesn't disappear on the next refresh. The agent keeps collecting in the background, and **Auto-refresh** shows **OFF**. Pausing also shows two buttons next to **Resume**:
 
-- :material-refresh: **Refresh** reads the latest data once, without resuming live updates.
-- :material-download: **Export to CSV** downloads the current view. See [Export RTA data](#export-rta-data).
-
-Hover over an icon to see its name.
+- :material-refresh: **Refresh** reads the latest data once, without resuming live updates. It's an icon button: hover over it to see its name.
+- **Export** downloads the current view. See [Export RTA data](#export-rta-data).
 
 Opening a row also pauses the view, and closing the **Details** pane resumes live updates if they were running when you opened it. The pane covers the toolbar, so it has its own :material-refresh: **Refresh** button next to the previous and next arrows. The pane shows the session as it was when you opened it: **Refresh** checks whether the query is still running and updates the list that the arrows move through. To see newer values, close the pane and open the row again.
 
@@ -181,7 +179,7 @@ The **Raw data** tab shows the complete `pg_stat_activity` row for the session, 
 
 You can export a snapshot of the current view to CSV. This is useful for capturing queries that are still in progress and may never appear in QAN — a long-running query that is cancelled before it completes never reaches QAN, because QAN only records queries that finish.
 
-The :material-download: **Export to CSV** icon button is hidden while auto-refresh is active and appears once you pause.
+The **Export** button is hidden while auto-refresh is active and appears once you pause.
 
 To export the current view:
 {.power-number}
@@ -189,7 +187,7 @@ To export the current view:
 1. Go to **Query Analytics > Real-time**.
 2. Click **Pause**.
 3. Apply any filters or sort order you want reflected in the export.
-4. Click :material-download: **Export to CSV**.
+4. Click **Export**.
 
 The export includes all records across all pages, respects active filters and sort order, and is saved as `postgresql_rta_export_{timestamp}.csv`. The `operation_id` column holds the backend process ID, and `pg_query_id` holds PostgreSQL's query identifier. `query_text_truncated` says whether the query text was cut short. When one session is blocking a query, `blocking_conn_id` and `blocking_query` name it, and `blocking_query_truncated` says whether its query text was cut short. A negative `pg_query_id` is written with a leading apostrophe (`'`), so that spreadsheet applications don't read it as a formula.
 
