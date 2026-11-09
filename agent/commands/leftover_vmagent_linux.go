@@ -79,7 +79,7 @@ func stopLeftoversWithin(
 	// Left running past the budget, it cannot hit this pmm-agent's own vmagent: it stops only older ones.
 	go func() {
 		defer close(done)
-		stopLeftovers(vmagentPath, tempDir, startedBefore, timeouts, pidfdOpen, l)
+		stopLeftovers(ctx, vmagentPath, tempDir, startedBefore, timeouts, pidfdOpen, l)
 	}()
 
 	select {
@@ -94,9 +94,10 @@ func stopLeftoversWithin(
 }
 
 // stopLeftovers stops the vmagents holding the queue under tempDir that started before startedBefore, in
-// clock ticks since boot.
+// clock ticks since boot, and signals none once ctx is done.
 func stopLeftovers(
-	vmagentPath, tempDir string, startedBefore uint64, timeouts leftoverTimeouts, pidfdOpen func(int, int) (int, error), l *logrus.Entry,
+	ctx context.Context, vmagentPath, tempDir string, startedBefore uint64, timeouts leftoverTimeouts,
+	pidfdOpen func(int, int) (int, error), l *logrus.Entry,
 ) {
 	if vmagentPath == "" || tempDir == "" {
 		return
@@ -148,6 +149,10 @@ func stopLeftovers(
 		if err != nil {
 			continue
 		}
+		if ctx.Err() != nil {
+			lo.close()
+			break
+		}
 		l.Warnf("Stopping vmagent (PID %d, parent PID %d) left running from before this pmm-agent started: "+
 			"it holds %s, so the vmagent this pmm-agent starts would exit on the queue lock.", p.PID, stat.PPID, queueDir)
 		warnLiveParent(stat.PPID, queueDir, l)
@@ -159,7 +164,7 @@ func stopLeftovers(
 	deadline := time.Now().Add(timeouts.stop)
 	var killed []*leftover
 	for _, lo := range stopping {
-		if lo.waitExit(time.Until(deadline)) {
+		if ctx.Err() != nil || lo.waitExit(time.Until(deadline)) {
 			continue
 		}
 		l.Warnf("vmagent PID %d did not exit within %s, killing it.", lo.pid, timeouts.stop)
