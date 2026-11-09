@@ -1,4 +1,3 @@
-// doesn't yet have the complete response
 export interface ReadonlySettings {
   updatesEnabled: boolean;
   telemetryEnabled: boolean;
@@ -8,6 +7,20 @@ export interface ReadonlySettings {
   backupManagementEnabled: boolean;
   azurediscoverEnabled: boolean;
   enableAccessControl: boolean;
+  extensionsEnabled: boolean;
+  omEnabled: boolean;
+}
+
+export interface MetricsResolutions {
+  hr: string;
+  mr: string;
+  lr: string;
+}
+
+export interface AdvisorRunIntervals {
+  rareInterval: string;
+  standardInterval: string;
+  frequentInterval: string;
 }
 
 export interface GetReadonlySettingsResponse {
@@ -15,7 +28,33 @@ export interface GetReadonlySettingsResponse {
 }
 
 export interface Settings extends ReadonlySettings {
-  updateSnoozeDuration: string;
+  metricsResolutions?: MetricsResolutions;
+  dataRetention?: string;
+  sshKey?: string;
+  awsPartitions?: string[];
+  advisorRunIntervals?: AdvisorRunIntervals;
+  telemetrySummaries?: string[];
+  enableInternalPgQan?: boolean;
+  defaultRoleId?: number;
+}
+
+/** Payload for PUT /server/settings - partial updates supported */
+export interface UpdateSettingsPayload {
+  sshKey?: string;
+  metricsResolutions?: MetricsResolutions;
+  dataRetention?: string;
+  pmmPublicAddress?: string;
+  enableTelemetry?: boolean;
+  enableAlerting?: boolean;
+  enableAdvisor?: boolean;
+  advisorRunIntervals?: AdvisorRunIntervals;
+  enableBackupManagement?: boolean;
+  enableAzurediscover?: boolean;
+  enableUpdates?: boolean;
+  enableAccessControl?: boolean;
+  enableInternalPgQan?: boolean;
+  awsPartitions?: string[];
+  enableOm?: boolean;
 }
 
 export interface FrontendSettings extends GetFrontendSettingsResponse {}

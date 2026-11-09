@@ -4,6 +4,7 @@ package inventory.v1;
 
 import "common/common.proto";
 import "common/metrics_resolutions.proto";
+import "extensions/v1/redact.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "inventory/v1/agent_status.proto";
@@ -144,7 +145,7 @@ message MySQLdExporter {
   // Service identifier.
   string service_id = 4;
   // MySQL username for scraping metrics.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -152,9 +153,9 @@ message MySQLdExporter {
   // Certificate Authority certificate chain.
   string tls_ca = 8;
   // Client certificate.
-  string tls_cert = 9;
+  string tls_cert = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  string tls_key = 10;
+  string tls_key = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Tablestats group collectors are disabled if there are more than that number of tables.
   // 0 means tablestats group collectors are always enabled (no limit).
   // Negative value means tablestats group collectors are always disabled.
@@ -203,7 +204,7 @@ message MongoDBExporter {
   // Service identifier.
   string service_id = 4;
   // MongoDB username for scraping metrics.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -242,6 +243,8 @@ message MongoDBExporter {
   repeated string environment_variable_names = 29;
   // Connection timeout for exporter (if set).
   google.protobuf.Duration connection_timeout = 30;
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  bool enable_diagnostic_data_histograms = 31;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -255,7 +258,7 @@ message PostgresExporter {
   // Service identifier.
   string service_id = 4;
   // PostgreSQL username for scraping metrics.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
@@ -302,7 +305,7 @@ message ProxySQLExporter {
   // Service identifier.
   string service_id = 4;
   // ProxySQL username for scraping metrics.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -345,7 +348,7 @@ message ValkeyExporter {
   // Service identifier.
   string service_id = 4;
   // Valkey username for scraping metrics.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname verification.
@@ -386,7 +389,7 @@ message QANMySQLPerfSchemaAgent {
   // Service identifier.
   string service_id = 4;
   // MySQL username for getting performance data.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -394,9 +397,9 @@ message QANMySQLPerfSchemaAgent {
   // Certificate Authority certificate chain.
   string tls_ca = 8;
   // Client certificate.
-  string tls_cert = 9;
+  string tls_cert = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  string tls_key = 10;
+  string tls_key = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Disable parsing comments from queries and showing them in QAN.
   bool disable_comments_parsing = 11;
   // Limit query length in QAN (default: server-defined; -1: no limit).
@@ -432,7 +435,7 @@ message QANMySQLSlowlogAgent {
   // Service identifier.
   string service_id = 4;
   // MySQL username for getting performance data.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -440,9 +443,9 @@ message QANMySQLSlowlogAgent {
   // Certificate Authority certificate chain.
   string tls_ca = 8;
   // Client certificate.
-  string tls_cert = 9;
+  string tls_cert = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  string tls_key = 10;
+  string tls_key = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Disable parsing comments from queries and showing them in QAN.
   bool disable_comments_parsing = 11;
   // Limit query length in QAN (default: server-defined; -1: no limit)
@@ -483,7 +486,7 @@ message QANMongoDBProfilerAgent {
   // Service identifier.
   string service_id = 4;
   // MongoDB username for getting profiler data.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -519,7 +522,7 @@ message QANMongoDBMongologAgent {
   // Service identifier.
   string service_id = 4;
   // MongoDB username for getting profiler data.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -560,7 +563,7 @@ message RTAMongoDBAgent {
   // Service identifier.
   string service_id = 4;
   // MongoDB username for getting profiler data.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -586,7 +589,7 @@ message QANPostgreSQLPgStatementsAgent {
   // Service identifier.
   string service_id = 4;
   // PostgreSQL username for getting pg stat statements data.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Disable parsing comments from queries and showing them in QAN.
   bool disable_comments_parsing = 6;
   // Limit query length in QAN (default: server-defined; -1: no limit).
@@ -621,7 +624,7 @@ message QANPostgreSQLPgStatMonitorAgent {
   // Service identifier.
   string service_id = 4;
   // PostgreSQL username for getting pg stat monitor data.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
@@ -658,9 +661,11 @@ message RDSExporter {
   // Node identifier.
   string node_id = 4;
   // AWS Access Key.
-  string aws_access_key = 5;
+  string aws_access_key = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
+  // AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
+  string aws_role_arn = 7;
 
   //
   // Status fields below.
@@ -704,7 +709,7 @@ message ExternalExporter {
   // Service identifier.
   string service_id = 4;
   // HTTP basic auth username for collecting metrics.
-  string username = 5;
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Scheme to generate URI to exporter metrics endpoints.
   string scheme = 6;
   // Path under which metrics are exposed, used to generate URI.
@@ -1016,9 +1021,12 @@ message AddMySQLdExporterParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // MySQL username for scraping metrics.
-  string username = 3 [(validate.rules).string.min_len = 1];
+  string username = 3 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // MySQL password for scraping metrics.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
@@ -1026,9 +1034,9 @@ message AddMySQLdExporterParams {
   // Certificate Authority certificate chain.
   string tls_ca = 7;
   // Client certificate.
-  string tls_cert = 8;
+  string tls_cert = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  string tls_key = 9;
+  string tls_key = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Tablestats group collectors will be disabled if there are more than that number of tables.
   // 0 means tablestats group collectors are always enabled (no limit).
   // Negative value means tablestats group collectors are always disabled.
@@ -1042,7 +1050,7 @@ message AddMySQLdExporterParams {
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 14;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 15;
+  string agent_password = 15 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   LogLevel log_level = 16;
   // Optionally expose the exporter process on all public interfaces
@@ -1065,9 +1073,9 @@ message ChangeMySQLdExporterParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // MySQL username for scraping metrics.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MySQL password for scraping metrics.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
@@ -1075,9 +1083,9 @@ message ChangeMySQLdExporterParams {
   // Certificate Authority certificate chain.
   optional string tls_ca = 9;
   // Client certificate.
-  optional string tls_cert = 10;
+  optional string tls_cert = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  optional string tls_key = 11;
+  optional string tls_key = 11 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Tablestats group collectors will be disabled if there are more than that number of tables.
   optional int32 tablestats_group_table_limit = 12;
   // Skip connection check.
@@ -1085,7 +1093,7 @@ message ChangeMySQLdExporterParams {
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 14;
   // Custom password for exporter endpoint /metrics.
-  optional string agent_password = 15;
+  optional string agent_password = 15 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   optional LogLevel log_level = 16;
   // Optionally expose the exporter process on all public interfaces.
@@ -1104,17 +1112,17 @@ message AddMongoDBExporterParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // MongoDB username for scraping metrics.
-  string username = 3;
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MongoDB password for scraping metrics.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
   // Client certificate and key.
-  string tls_certificate_key = 7;
+  string tls_certificate_key = 7 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
-  string tls_certificate_key_file_password = 8;
+  string tls_certificate_key_file_password = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.
   string tls_ca = 9;
   // Custom user-assigned labels.
@@ -1132,7 +1140,7 @@ message AddMongoDBExporterParams {
   // Authentication database.
   string authentication_database = 15;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 16;
+  string agent_password = 16 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // List of colletions to get stats from. Can use *
   repeated string stats_collections = 17;
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
@@ -1151,6 +1159,8 @@ message AddMongoDBExporterParams {
   google.protobuf.Duration connection_timeout = 23 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  bool enable_diagnostic_data_histograms = 24;
 }
 
 message ChangeMongoDBExporterParams {
@@ -1163,17 +1173,17 @@ message ChangeMongoDBExporterParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // MongoDB username for scraping metrics.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MongoDB password for scraping metrics.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
   optional bool tls_skip_verify = 8;
   // Client certificate and key.
-  optional string tls_certificate_key = 9;
+  optional string tls_certificate_key = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
-  optional string tls_certificate_key_file_password = 10;
+  optional string tls_certificate_key_file_password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.
   optional string tls_ca = 11;
   // Skip connection check.
@@ -1185,7 +1195,7 @@ message ChangeMongoDBExporterParams {
   // Authentication database.
   optional string authentication_database = 15;
   // Custom password for exporter endpoint /metrics.
-  optional string agent_password = 16;
+  optional string agent_password = 16 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // List of collections to get stats from. Can use *
   repeated string stats_collections = 17;
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server is less than this value. 0: no limit
@@ -1200,6 +1210,12 @@ message ChangeMongoDBExporterParams {
   google.protobuf.Duration connection_timeout = 22 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  optional bool enable_diagnostic_data_histograms = 23;
+  // Replace environment variable names passed to the exporter.
+  // Values will be resolved from pmm-agent's environment when starting the exporter.
+  // An empty list removes all previously set environment variable names.
+  optional common.StringArray environment_variable_names = 24;
 }
 
 // Add/Change PostgresExporter
@@ -1210,9 +1226,12 @@ message AddPostgresExporterParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // PostgreSQL username for scraping metrics.
-  string username = 3 [(validate.rules).string.min_len = 1];
+  string username = 3 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // PostgreSQL password for scraping metrics.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
@@ -1228,11 +1247,11 @@ message AddPostgresExporterParams {
   // TLS CA certificate.
   string tls_ca = 11;
   // TLS Certifcate.
-  string tls_cert = 12;
+  string tls_cert = 12 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  string tls_key = 13;
+  string tls_key = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 14;
+  string agent_password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   LogLevel log_level = 15;
   // Limit of databases for auto-discovery.
@@ -1257,9 +1276,9 @@ message ChangePostgresExporterParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // PostgreSQL username for scraping metrics.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // PostgreSQL password for scraping metrics.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
@@ -1271,11 +1290,11 @@ message ChangePostgresExporterParams {
   // TLS CA certificate.
   optional string tls_ca = 11;
   // TLS Certificate.
-  optional string tls_cert = 12;
+  optional string tls_cert = 12 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  optional string tls_key = 13;
+  optional string tls_key = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom password for exporter endpoint /metrics.
-  optional string agent_password = 14;
+  optional string agent_password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   optional LogLevel log_level = 15;
   // Limit of databases for auto-discovery.
@@ -1298,9 +1317,12 @@ message AddProxySQLExporterParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // ProxySQL username for scraping metrics.
-  string username = 3 [(validate.rules).string.min_len = 1];
+  string username = 3 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // ProxySQL password for scraping metrics.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
@@ -1314,7 +1336,7 @@ message AddProxySQLExporterParams {
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 10;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 11;
+  string agent_password = 11 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   LogLevel log_level = 12;
   // Optionally expose the exporter process on all public interfaces
@@ -1335,9 +1357,9 @@ message ChangeProxySQLExporterParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // ProxySQL username for scraping metrics.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // ProxySQL password for scraping metrics.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
@@ -1345,7 +1367,7 @@ message ChangeProxySQLExporterParams {
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 9;
   // Custom password for exporter endpoint /metrics.
-  optional string agent_password = 10;
+  optional string agent_password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   optional LogLevel log_level = 11;
   // Optionally expose the exporter process on all public interfaces.
@@ -1354,6 +1376,8 @@ message ChangeProxySQLExporterParams {
   google.protobuf.Duration connection_timeout = 13 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Skip connection check.
+  optional bool skip_connection_check = 14;
 }
 
 // Add/Change QANMySQLPerfSchemaAgent
@@ -1364,9 +1388,12 @@ message AddQANMySQLPerfSchemaAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // MySQL username for getting performance data.
-  string username = 3 [(validate.rules).string.min_len = 1];
+  string username = 3 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // MySQL password for getting performance data.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
@@ -1374,9 +1401,9 @@ message AddQANMySQLPerfSchemaAgentParams {
   // Certificate Authority certificate chain.
   string tls_ca = 7;
   // Client certificate.
-  string tls_cert = 8;
+  string tls_cert = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  string tls_key = 9;
+  string tls_key = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 10;
   // Disable query examples.
@@ -1403,9 +1430,9 @@ message ChangeQANMySQLPerfSchemaAgentParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // MySQL username for getting performance data.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MySQL password for getting performance data.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
@@ -1413,9 +1440,9 @@ message ChangeQANMySQLPerfSchemaAgentParams {
   // Certificate Authority certificate chain.
   optional string tls_ca = 9;
   // Client certificate.
-  optional string tls_cert = 10;
+  optional string tls_cert = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  optional string tls_key = 11;
+  optional string tls_key = 11 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Limit query length in QAN (default: server-defined; -1: no limit).
   optional int32 max_query_length = 12;
   // Disable query examples.
@@ -1436,9 +1463,12 @@ message AddQANMySQLSlowlogAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // MySQL username for getting slowlog data.
-  string username = 3 [(validate.rules).string.min_len = 1];
+  string username = 3 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // MySQL password for getting slowlog data.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
@@ -1446,9 +1476,9 @@ message AddQANMySQLSlowlogAgentParams {
   // Certificate Authority certificate chain.
   string tls_ca = 7;
   // Client certificate.
-  string tls_cert = 8;
+  string tls_cert = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  string tls_key = 9;
+  string tls_key = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 10;
   // Disable query examples.
@@ -1478,9 +1508,9 @@ message ChangeQANMySQLSlowlogAgentParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // MySQL username for getting slowlog data.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MySQL password for getting slowlog data.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
@@ -1488,9 +1518,9 @@ message ChangeQANMySQLSlowlogAgentParams {
   // Certificate Authority certificate chain.
   optional string tls_ca = 9;
   // Client certificate.
-  optional string tls_cert = 10;
+  optional string tls_cert = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_cert.
-  optional string tls_key = 11;
+  optional string tls_key = 11 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Limit query length in QAN (default: server-defined; -1: no limit).
   optional int32 max_query_length = 12;
   // Disable query examples.
@@ -1513,17 +1543,17 @@ message AddQANMongoDBProfilerAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // MongoDB username for getting profile data.
-  string username = 3;
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MongoDB password for getting profile data.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
   // Client certificate and key.
-  string tls_certificate_key = 7;
+  string tls_certificate_key = 7 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
-  string tls_certificate_key_file_password = 8;
+  string tls_certificate_key_file_password = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.
   string tls_ca = 9;
   // Limit query length in QAN (default: server-defined; -1: no limit).
@@ -1552,17 +1582,17 @@ message ChangeQANMongoDBProfilerAgentParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // MongoDB username for getting profile data.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MongoDB password for getting profile data.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
   optional bool tls_skip_verify = 8;
   // Client certificate and key.
-  optional string tls_certificate_key = 9;
+  optional string tls_certificate_key = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
-  optional string tls_certificate_key_file_password = 10;
+  optional string tls_certificate_key_file_password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.
   optional string tls_ca = 11;
   // Limit query length in QAN (default: server-defined; -1: no limit).
@@ -1573,6 +1603,8 @@ message ChangeQANMongoDBProfilerAgentParams {
   optional string authentication_database = 14;
   // Log level for exporter.
   optional LogLevel log_level = 15;
+  // Skip connection check.
+  optional bool skip_connection_check = 16;
 }
 
 // Add/Change QANMongoDBMongologAgent
@@ -1583,17 +1615,17 @@ message AddQANMongoDBMongologAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // MongoDB username for getting profile data.
-  string username = 3;
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MongoDB password for getting profile data.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 6;
   // Client certificate and key.
-  string tls_certificate_key = 7;
+  string tls_certificate_key = 7 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
-  string tls_certificate_key_file_password = 8;
+  string tls_certificate_key_file_password = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.
   string tls_ca = 9;
   // Limit query length in QAN (default: server-defined; -1: no limit).
@@ -1622,17 +1654,17 @@ message ChangeQANMongoDBMongologAgentParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // MongoDB username for getting mongolog data.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MongoDB password for getting mongolog data.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
   optional bool tls_skip_verify = 8;
   // Client certificate and key.
-  optional string tls_certificate_key = 9;
+  optional string tls_certificate_key = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
-  optional string tls_certificate_key_file_password = 10;
+  optional string tls_certificate_key_file_password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.
   optional string tls_ca = 11;
   // Limit query length in QAN (default: server-defined; -1: no limit).
@@ -1643,6 +1675,8 @@ message ChangeQANMongoDBMongologAgentParams {
   optional string authentication_database = 14;
   // Log level for exporter.
   optional LogLevel log_level = 15;
+  // Skip connection check.
+  optional bool skip_connection_check = 16;
 }
 
 // Add/Change QANPostgreSQLPgStatementsAgent
@@ -1653,9 +1687,12 @@ message AddQANPostgreSQLPgStatementsAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // PostgreSQL username for getting pg stat statements data.
-  string username = 3 [(validate.rules).string.min_len = 1];
+  string username = 3 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // PostgreSQL password for getting pg stat statements data.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
@@ -1671,9 +1708,9 @@ message AddQANPostgreSQLPgStatementsAgentParams {
   // TLS CA certificate.
   string tls_ca = 11;
   // TLS Certifcate.
-  string tls_cert = 12;
+  string tls_cert = 12 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  string tls_key = 13;
+  string tls_key = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   LogLevel log_level = 14;
 }
@@ -1688,9 +1725,9 @@ message ChangeQANPostgreSQLPgStatementsAgentParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // PostgreSQL username for getting pg stat statements data.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // PostgreSQL password for getting pg stat statements data.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
@@ -1702,11 +1739,13 @@ message ChangeQANPostgreSQLPgStatementsAgentParams {
   // TLS CA certificate.
   optional string tls_ca = 11;
   // TLS Certificate.
-  optional string tls_cert = 12;
+  optional string tls_cert = 12 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  optional string tls_key = 13;
+  optional string tls_key = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   optional LogLevel log_level = 14;
+  // Skip connection check.
+  optional bool skip_connection_check = 15;
 }
 
 // Add/Change QANPostgreSQLPgStatMonitorAgent
@@ -1717,9 +1756,12 @@ message AddQANPostgreSQLPgStatMonitorAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // PostgreSQL username for getting pg stat monitor data.
-  string username = 3 [(validate.rules).string.min_len = 1];
+  string username = 3 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // PostgreSQL password for getting pg stat monitor data.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
@@ -1737,9 +1779,9 @@ message AddQANPostgreSQLPgStatMonitorAgentParams {
   // TLS CA certificate.
   string tls_ca = 12;
   // TLS Certifcate.
-  string tls_cert = 13;
+  string tls_cert = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  string tls_key = 14;
+  string tls_key = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   LogLevel log_level = 15;
 }
@@ -1754,9 +1796,9 @@ message ChangeQANPostgreSQLPgStatMonitorAgentParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // PostgreSQL username for getting pg stat monitor data.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // PostgreSQL password for getting pg stat monitor data.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
@@ -1770,11 +1812,13 @@ message ChangeQANPostgreSQLPgStatMonitorAgentParams {
   // TLS CA certificate.
   optional string tls_ca = 12;
   // TLS Certificate.
-  optional string tls_cert = 13;
+  optional string tls_cert = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  optional string tls_key = 14;
+  optional string tls_key = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   optional LogLevel log_level = 15;
+  // Skip connection check.
+  optional bool skip_connection_check = 16;
 }
 
 // Add/Change RDSExporter
@@ -1785,9 +1829,9 @@ message AddRDSExporterParams {
   // Node identifier.
   string node_id = 2 [(validate.rules).string.min_len = 1];
   // AWS Access Key.
-  string aws_access_key = 3;
+  string aws_access_key = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Secret Key.
-  string aws_secret_key = 4;
+  string aws_secret_key = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 5;
   // Skip connection check.
@@ -1800,8 +1844,14 @@ message AddRDSExporterParams {
   bool push_metrics = 9;
   // Log level for exporter.
   LogLevel log_level = 10;
+  // AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+  // Mutually exclusive with aws_access_key and aws_secret_key.
+  string aws_role_arn = 11 [(validate.rules).string = {
+    pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
+    ignore_empty: true
+  }];
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 11 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 12 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -1816,17 +1866,23 @@ message ChangeRDSExporterParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // AWS Access Key.
-  optional string aws_access_key = 5;
+  optional string aws_access_key = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Secret Key.
-  optional string aws_secret_key = 6;
+  optional string aws_secret_key = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Disable basic metrics.
   optional bool disable_basic_metrics = 7;
   // Disable enhanced metrics.
   optional bool disable_enhanced_metrics = 8;
   // Log level for exporter.
   optional LogLevel log_level = 9;
+  // AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+  // Mutually exclusive with aws_access_key and aws_secret_key.
+  optional string aws_role_arn = 10 [(validate.rules).string = {
+    pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
+    ignore_empty: true
+  }];
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 10 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 11 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -1839,9 +1895,9 @@ message AddExternalExporterParams {
   // Service identifier.
   string service_id = 2;
   // HTTP basic auth username for collecting metrics.
-  string username = 3;
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // HTTP basic auth password for collecting metrics.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Scheme to generate URI to exporter metrics endpoints(default: http).
   string scheme = 6;
   // Path under which metrics are exposed, used to generate URI(default: /metrics).
@@ -1873,15 +1929,17 @@ message ChangeExternalExporterParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // HTTP basic auth username for collecting metrics.
-  optional string username = 5;
+  optional string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Scheme to generate URI to exporter metrics endpoints.
   optional string scheme = 6;
   // Path under which metrics are exposed, used to generate URI.
   optional string metrics_path = 7;
   // Listen port for scraping metrics.
   optional uint32 listen_port = 8;
+  // Skip connection check.
+  optional bool skip_connection_check = 9;
   // Connection timeout for exporter (if set).
-  google.protobuf.Duration connection_timeout = 9 [(validate.rules).duration = {
+  google.protobuf.Duration connection_timeout = 10 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
 }
@@ -1894,9 +1952,9 @@ message AddAzureDatabaseExporterParams {
   // Node identifier.
   string node_id = 2 [(validate.rules).string.min_len = 1];
   // Azure client ID
-  string azure_client_id = 3;
+  string azure_client_id = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Azure client secret
-  string azure_client_secret = 4;
+  string azure_client_secret = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Azure tanant ID
   string azure_tenant_id = 5;
   // Azure subscription ID
@@ -1929,9 +1987,9 @@ message ChangeAzureDatabaseExporterParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // Azure client ID
-  optional string azure_client_id = 5;
+  optional string azure_client_id = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Azure client secret
-  optional string azure_client_secret = 6;
+  optional string azure_client_secret = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Azure tenant ID
   optional string azure_tenant_id = 7;
   // Azure subscription ID
@@ -1959,9 +2017,12 @@ message AddValkeyExporterParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.uuid = true];
   // Valkey username for scraping metrics.
-  string username = 3 [(validate.rules).string.min_len = 1];
+  string username = 3 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // Valkey password for scraping metrics.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
   // Skip TLS certificate and hostname validation.
@@ -1977,11 +2038,11 @@ message AddValkeyExporterParams {
   // TLS CA certificate.
   string tls_ca = 11;
   // TLS Certifcate.
-  string tls_cert = 12;
+  string tls_cert = 12 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  string tls_key = 13;
+  string tls_key = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 14;
+  string agent_password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 15;
   // Log level for exporter.
@@ -2002,9 +2063,12 @@ message ChangeValkeyExporterParams {
   // Metrics resolution for this agent.
   common.MetricsResolutions metrics_resolutions = 4;
   // Valkey username for scraping metrics.
-  optional string username = 5 [(validate.rules).string.min_len = 1];
+  optional string username = 5 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // Valkey password for scraping metrics.
-  optional string password = 6;
+  optional string password = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 7;
   // Skip TLS certificate and hostname validation.
@@ -2014,11 +2078,11 @@ message ChangeValkeyExporterParams {
   // TLS CA certificate.
   optional string tls_ca = 10;
   // TLS Certifcate.
-  optional string tls_cert = 11;
+  optional string tls_cert = 11 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // TLS Certificate Key.
-  optional string tls_key = 12;
+  optional string tls_key = 12 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom password for exporter endpoint /metrics.
-  optional string agent_password = 13;
+  optional string agent_password = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Optionally expose the exporter process on all public interfaces
   optional bool expose_exporter = 14;
   // Log level for exporter.
@@ -2027,6 +2091,8 @@ message ChangeValkeyExporterParams {
   google.protobuf.Duration connection_timeout = 16 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Skip connection check.
+  optional bool skip_connection_check = 17;
 }
 
 // Add/Change RTAMongoDBAgent
@@ -2037,9 +2103,9 @@ message AddRTAMongoDBAgentParams {
   // Service identifier.
   string service_id = 2 [(validate.rules).string.min_len = 1];
   // MongoDB username for getting queries data.
-  string username = 3;
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MongoDB password for getting queries data.
-  string password = 4;
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 5;
   // Log level for agent.
@@ -2051,9 +2117,9 @@ message AddRTAMongoDBAgentParams {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 8;
   // Client certificate and key.
-  string tls_certificate_key = 9;
+  string tls_certificate_key = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
-  string tls_certificate_key_file_password = 10;
+  string tls_certificate_key_file_password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.
   string tls_ca = 11;
   // Skip connection check.
@@ -2074,23 +2140,25 @@ message ChangeRTAMongoDBAgentParams {
   // Log level for exporter.
   optional LogLevel log_level = 3;
   // MongoDB username for getting profile data.
-  optional string username = 4;
+  optional string username = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MongoDB password for getting profile data.
-  optional string password = 5;
+  optional string password = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   optional bool tls = 6;
   // Skip TLS certificate and hostname validation.
   optional bool tls_skip_verify = 7;
   // Client certificate and key.
-  optional string tls_certificate_key = 8;
+  optional string tls_certificate_key = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
-  optional string tls_certificate_key_file_password = 9;
+  optional string tls_certificate_key_file_password = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.
   optional string tls_ca = 10;
   // Authentication mechanism.
   optional string authentication_mechanism = 11;
   // Real-Time Analytics options.
   optional RTAOptions rta_options = 12;
+  // Skip connection check.
+  optional bool skip_connection_check = 13;
 }
 
 // Remove

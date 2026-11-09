@@ -17,6 +17,10 @@ export class ServiceDeletedEvent extends BusEventBase {
   static type = 'service-deleted-event';
 }
 
+export class FrontendSettingsUpdatedEvent extends BusEventBase {
+  static type = 'frontend-settings-updated-event';
+}
+
 export class TimeZoneUpdatedEvent extends BusEventBase {
   static type = 'timezone-updated-event';
 }

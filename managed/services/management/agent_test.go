@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -98,7 +97,7 @@ func setup(t *testing.T) (context.Context, *ManagementService, func(t *testing.T
 		vmClient.AssertExpectations(t)
 	}
 
-	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
 
 	return ctx, s, teardown
 }
@@ -202,17 +201,18 @@ func TestAgentService(t *testing.T) {
 			t.Cleanup(func() { teardown(t) })
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
-				NodeName: "test",
-				Address:  "test-address",
-				Region:   pointer.ToString("test-region"),
+				NodeName:   "test",
+				Address:    "test-address",
+				InstanceID: "test-instance-id",
+				Region:     new("test-region"),
 			})
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -254,15 +254,15 @@ func TestAgentService(t *testing.T) {
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
 				NodeName: "test",
 				Address:  "test-address",
-				Region:   pointer.ToString("test-region"),
+				Region:   new("test-region"),
 			})
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -305,15 +305,15 @@ func TestAgentService(t *testing.T) {
 			node, err := models.CreateNode(s.db.Querier, models.GenericNodeType, &models.CreateNodeParams{
 				NodeName: "test",
 				Address:  "test-address",
-				Region:   pointer.ToString("test-region"),
+				Region:   new("test-region"),
 			})
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mongodb",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(27017),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(27017)),
 				Cluster:     "test-cluster",
 			})
 			require.NoError(t, err)
@@ -367,8 +367,8 @@ func TestListAgentVersions(t *testing.T) {
 		pmmAgent := &models.Agent{
 			AgentID:      uuid.New().String(),
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
-			Version:      pointer.ToString("2.0.0"),
+			RunsOnNodeID: new(models.PMMServerNodeID),
+			Version:      new("2.0.0"),
 		}
 
 		err := s.db.Insert(pmmAgent)
@@ -389,8 +389,8 @@ func TestListAgentVersions(t *testing.T) {
 		pmmAgent := &models.Agent{
 			AgentID:      uuid.New().String(),
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
-			Version:      pointer.ToString("3.0.0"),
+			RunsOnNodeID: new(models.PMMServerNodeID),
+			Version:      new("3.0.0"),
 		}
 
 		err := s.db.Insert(pmmAgent)
@@ -411,8 +411,8 @@ func TestListAgentVersions(t *testing.T) {
 		pmmAgent := &models.Agent{
 			AgentID:      uuid.New().String(),
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
-			Version:      pointer.ToString("3.0.0"),
+			RunsOnNodeID: new(models.PMMServerNodeID),
+			Version:      new("3.0.0"),
 		}
 
 		err := s.db.Insert(pmmAgent)
@@ -433,8 +433,8 @@ func TestListAgentVersions(t *testing.T) {
 		pmmAgent := &models.Agent{
 			AgentID:      uuid.New().String(),
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
-			Version:      pointer.ToString("3.0.0"),
+			RunsOnNodeID: new(models.PMMServerNodeID),
+			Version:      new("3.0.0"),
 		}
 
 		err := s.db.Insert(pmmAgent)
@@ -455,8 +455,8 @@ func TestListAgentVersions(t *testing.T) {
 		pmmAgent := &models.Agent{
 			AgentID:      uuid.New().String(),
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
-			Version:      pointer.ToString("3.0.0"),
+			RunsOnNodeID: new(models.PMMServerNodeID),
+			Version:      new("3.0.0"),
 		}
 
 		err := s.db.Insert(pmmAgent)

@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	config "github.com/percona/promconfig"
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/stretchr/testify/assert"
@@ -38,7 +37,7 @@ func TestExporterScrapeTimeout(t *testing.T) {
 	t.Run("uses ExporterOptions.ConnectionTimeout when within cap", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
-		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(3 * time.Second)}}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(3 * time.Second)}}
 		exporterScrapeTimeout(cfg, agent)
 		assert.Equal(t, config.Duration(3*time.Second), cfg.ScrapeTimeout)
 	})
@@ -46,7 +45,7 @@ func TestExporterScrapeTimeout(t *testing.T) {
 	t.Run("caps at 90% of scrape interval", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
-		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(15 * time.Second)}}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(15 * time.Second)}}
 		exporterScrapeTimeout(cfg, agent)
 		assert.Equal(t, config.Duration(9*time.Second), cfg.ScrapeTimeout)
 	})
@@ -54,7 +53,7 @@ func TestExporterScrapeTimeout(t *testing.T) {
 	t.Run("floors at 100ms", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
-		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(50 * time.Microsecond)}}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(50 * time.Microsecond)}}
 		exporterScrapeTimeout(cfg, agent)
 		assert.Equal(t, config.Duration(100*time.Millisecond), cfg.ScrapeTimeout)
 	})
@@ -62,7 +61,7 @@ func TestExporterScrapeTimeout(t *testing.T) {
 	t.Run("keeps timeout capped for tiny intervals", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(50 * time.Millisecond)}
-		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(time.Second)}}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(time.Second)}}
 		exporterScrapeTimeout(cfg, agent)
 		assert.Equal(t, config.Duration(45*time.Millisecond), cfg.ScrapeTimeout)
 	})
@@ -70,7 +69,7 @@ func TestExporterScrapeTimeout(t *testing.T) {
 	t.Run("no-op when cfg or agent nil or timeout zero", func(t *testing.T) {
 		t.Parallel()
 		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval), ScrapeTimeout: config.Duration(time.Second)}
-		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(2 * time.Second)}}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(2 * time.Second)}}
 
 		exporterScrapeTimeout(nil, agent)
 		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
@@ -102,7 +101,7 @@ func TestScrapeConfig(t *testing.T) {
 				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.NodeExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				ListenPort:   new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{
 					DisabledCollectors: []string{"cpu", "entropy"},
 				},
@@ -239,7 +238,7 @@ func TestScrapeConfig(t *testing.T) {
 				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.NodeExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				ListenPort:   new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{
 					DisabledCollectors: []string{"cpu", "time"},
 				},
@@ -305,14 +304,14 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{
 				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("5.6.7.8"),
+				Address:      new("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
 				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:       models.MySQLdExporterType,
 				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:      pointer.ToUint16(12345),
+				ListenPort:      new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{},
 				MySQLOptions:    models.MySQLOptions{},
 			}
@@ -432,8 +431,14 @@ func TestScrapeConfig(t *testing.T) {
 					"perf_schema.eventsstatements",
 					"perf_schema.file_instances",
 					"perf_schema.indexiowaits",
+					"perf_schema.memory_events",
 					"perf_schema.tableiowaits",
 					"plugins",
+				}},
+				MetricRelabelConfigs: []*config.RelabelConfig{{
+					SourceLabels: []string{"__name__", "file_name"},
+					Regex:        "mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*",
+					Action:       "drop",
 				}},
 			}}
 
@@ -461,14 +466,14 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{
 				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("5.6.7.8"),
+				Address:      new("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
 				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MySQLdExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				ListenPort:   new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{
 					DisabledCollectors: []string{"global_status", "info_schema.innodb_cmp", "info_schema.query_response_time", "perf_schema.eventsstatements", "heartbeat"},
 				},
@@ -585,8 +590,14 @@ func TestScrapeConfig(t *testing.T) {
 					"info_schema.userstats",
 					"perf_schema.file_instances",
 					"perf_schema.indexiowaits",
+					"perf_schema.memory_events",
 					"perf_schema.tableiowaits",
 					"plugins",
+				}},
+				MetricRelabelConfigs: []*config.RelabelConfig{{
+					SourceLabels: []string{"__name__", "file_name"},
+					Regex:        "mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*",
+					Action:       "drop",
 				}},
 			}}
 
@@ -613,15 +624,15 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{
 				ServiceID: "014647c3-b2f5-44eb-94f4-d943260a968c",
 				NodeID:    "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:   pointer.ToString("5.6.7.8"),
+				Address:   new("5.6.7.8"),
 			}
 			agent := &models.Agent{
 				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:       models.MySQLdExporterType,
-				ListenPort:      pointer.ToUint16(12345),
+				ListenPort:      new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{},
 				MySQLOptions: models.MySQLOptions{
-					TableCount:                     pointer.ToInt32(100500),
+					TableCount:                     new(int32(100500)),
 					TableCountTablestatsGroupLimit: 1000,
 				},
 			}
@@ -726,7 +737,13 @@ func TestScrapeConfig(t *testing.T) {
 					"info_schema.userstats",
 					"perf_schema.eventsstatements",
 					"perf_schema.file_instances",
+					"perf_schema.memory_events",
 					"plugins",
+				}},
+				MetricRelabelConfigs: []*config.RelabelConfig{{
+					SourceLabels: []string{"__name__", "file_name"},
+					Regex:        "mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*",
+					Action:       "drop",
 				}},
 			}}
 
@@ -739,7 +756,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -749,7 +766,7 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{}
 			agent := &models.Agent{
 				CustomLabels:    []byte("{"),
-				ListenPort:      pointer.ToUint16(12345),
+				ListenPort:      new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{},
 			}
 
@@ -761,6 +778,29 @@ func TestScrapeConfig(t *testing.T) {
 				metricsResolution: s,
 			})
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
+		})
+
+		t.Run("DisabledFileInstances", func(t *testing.T) {
+			agent := &models.Agent{
+				AgentID:    "75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:  models.MySQLdExporterType,
+				ListenPort: new(uint16(12345)),
+				ExporterOptions: models.ExporterOptions{
+					DisabledCollectors: []string{"perf_schema.file_instances"},
+				},
+			}
+
+			actual, err := scrapeConfigsForMySQLdExporter(&scrapeConfigParams{
+				host:              "4.5.6.7",
+				node:              &models.Node{},
+				service:           &models.Service{},
+				agent:             agent,
+				metricsResolution: s,
+			})
+			require.NoError(t, err)
+			for _, cfg := range actual {
+				assert.Nil(t, cfg.MetricRelabelConfigs, cfg.JobName)
+			}
 		})
 	})
 
@@ -775,14 +815,14 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{
 				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("5.6.7.8"),
+				Address:      new("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
 				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:       models.MongoDBExporterType,
 				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:      pointer.ToUint16(12345),
+				ListenPort:      new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{},
 				MongoDBOptions:  models.MongoDBOptions{EnableAllCollectors: true},
 			}
@@ -861,7 +901,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -875,14 +915,14 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{
 				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("5.6.7.8"),
+				Address:      new("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
 				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:       models.MongoDBExporterType,
 				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:      pointer.ToUint16(12345),
+				ListenPort:      new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{},
 				MongoDBOptions:  models.MongoDBOptions{},
 			}
@@ -962,7 +1002,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -972,7 +1012,7 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{}
 			agent := &models.Agent{
 				CustomLabels:    []byte("{"),
-				ListenPort:      pointer.ToUint16(12345),
+				ListenPort:      new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{},
 			}
 
@@ -999,14 +1039,14 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{
 				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("5.6.7.8"),
+				Address:      new("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
 				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.PostgresExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				ListenPort:   new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{
 					DisabledCollectors: []string{"standard.process", "custom_query.lr"},
 				},
@@ -1114,7 +1154,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -1124,7 +1164,7 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{}
 			agent := &models.Agent{
 				CustomLabels:    []byte("{"),
-				ListenPort:      pointer.ToUint16(12345),
+				ListenPort:      new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{},
 			}
 
@@ -1150,14 +1190,14 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{
 				ServiceID:    "014647c3-b2f5-44eb-94f4-d943260a968c",
 				NodeID:       "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("5.6.7.8"),
+				Address:      new("5.6.7.8"),
 				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
 				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.ProxySQLExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:   pointer.ToUint16(12345),
+				ListenPort:   new(uint16(12345)),
 			}
 
 			expected := []*config.ScrapeConfig{{
@@ -1198,7 +1238,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -1208,7 +1248,7 @@ func TestScrapeConfig(t *testing.T) {
 			service := &models.Service{}
 			agent := &models.Agent{
 				CustomLabels: []byte("{"),
-				ListenPort:   pointer.ToUint16(12345),
+				ListenPort:   new(uint16(12345)),
 			}
 
 			_, err := scrapeConfigsForProxySQLExporter(&scrapeConfigParams{
@@ -1228,24 +1268,24 @@ func TestScrapeConfig(t *testing.T) {
 				// two RDS configs on the same host/port combination: single pmm-agent, single rds_exporter process
 				{
 					host:              "1.1.1.1",
-					agent:             &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					agent:             &models.Agent{ListenPort: new(uint16(12345))},
 					metricsResolution: s,
 				},
 				{
 					host:              "1.1.1.1",
-					agent:             &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					agent:             &models.Agent{ListenPort: new(uint16(12345))},
 					metricsResolution: s,
 				},
 
 				// two RDS configs on the same host, different ports: two pmm-agents, two rds_exporter processes
 				{
 					host:              "2.2.2.2",
-					agent:             &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					agent:             &models.Agent{ListenPort: new(uint16(12345))},
 					metricsResolution: s,
 				},
 				{
 					host:              "2.2.2.2",
-					agent:             &models.Agent{ListenPort: pointer.ToUint16(12346)},
+					agent:             &models.Agent{ListenPort: new(uint16(12346))},
 					metricsResolution: s,
 				},
 			}
@@ -1320,7 +1360,7 @@ func TestScrapeConfig(t *testing.T) {
 
 			actual := scrapeConfigsForRDSExporter(params)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -1330,14 +1370,14 @@ func TestScrapeConfig(t *testing.T) {
 				{
 					host: "1.1.1.1",
 					agent: &models.Agent{
-						ListenPort:      pointer.ToUint16(12345),
-						ExporterOptions: models.ExporterOptions{ConnectionTimeout: pointer.ToDuration(7 * time.Second)},
+						ListenPort:      new(uint16(12345)),
+						ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(7 * time.Second)},
 					},
 					metricsResolution: s,
 				},
 				{
 					host:              "2.2.2.2",
-					agent:             &models.Agent{ListenPort: pointer.ToUint16(12345)},
+					agent:             &models.Agent{ListenPort: new(uint16(12345))},
 					metricsResolution: s,
 				},
 			}
@@ -1361,7 +1401,7 @@ func TestScrapeConfig(t *testing.T) {
 		service := &models.Service{
 			ServiceID:     "014647c3-b2f5-44eb-94f4-d943260a968c",
 			NodeID:        "cc663f36-18ca-40a1-aea9-c6310bb4738d",
-			Address:       pointer.ToString("5.6.7.8"),
+			Address:       new("5.6.7.8"),
 			CustomLabels:  []byte(`{"_some_service_label": "bar"}`),
 			ExternalGroup: "rabbitmq",
 		}
@@ -1370,7 +1410,7 @@ func TestScrapeConfig(t *testing.T) {
 				AgentID:         "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:       models.ExternalExporterType,
 				CustomLabels:    []byte(`{"_some_agent_label": "baz"}`),
-				ListenPort:      pointer.ToUint16(12345),
+				ListenPort:      new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{},
 			}
 
@@ -1405,7 +1445,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -1415,9 +1455,9 @@ func TestScrapeConfig(t *testing.T) {
 				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.ExternalExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				Username:     pointer.ToString("username"),
-				Password:     pointer.ToString("password"),
-				ListenPort:   pointer.ToUint16(12345),
+				Username:     new("username"),
+				Password:     new("password"),
+				ListenPort:   new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{
 					MetricsPath:   "/some-metric-path",
 					MetricsScheme: "https",
@@ -1467,7 +1507,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -1475,7 +1515,7 @@ func TestScrapeConfig(t *testing.T) {
 		t.Run("BadCustomLabels", func(t *testing.T) {
 			agent := &models.Agent{
 				CustomLabels:    []byte("{"),
-				ListenPort:      pointer.ToUint16(12345),
+				ListenPort:      new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{},
 			}
 

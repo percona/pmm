@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -40,23 +39,22 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 			defer cleanup()
 
 			cmd := &ChangeAgentMongodbExporterCommand{
-				AgentID:                 "test-agent-id",
-				Enable:                  pointer.ToBool(true),
-				Username:                pointer.ToString("newuser"),
-				Password:                pointer.ToString("newpass"),
-				TLS:                     pointer.ToBool(true),
-				TLSSkipVerify:           pointer.ToBool(false),
-				AuthenticationMechanism: pointer.ToString("SCRAM-SHA-256"),
-				AuthenticationDatabase:  pointer.ToString("admin"),
-				StatsCollections:        pointer.ToString("collection1,collection2"),
-				CollectionsLimit:        pointer.ToInt32(100),
-				DisableCollectors:       []string{"general_stats", "index_stats"},
-				ExposeExporter:          pointer.ToBool(true),
-				PushMetrics:             pointer.ToBool(false),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"environment": "test", "team": "backend"},
+				AgentID:                        "test-agent-id",
+				Enable:                         new(true),
+				Username:                       new("newuser"),
+				Password:                       new("newpass"),
+				TLS:                            new(true),
+				TLSSkipVerify:                  new(false),
+				AuthenticationMechanism:        new("SCRAM-SHA-256"),
+				AuthenticationDatabase:         new("admin"),
+				StatsCollections:               new("collection1,collection2"),
+				CollectionsLimit:               new(int32(100)),
+				EnableDiagnosticDataHistograms: new(true),
+				DisableCollectors:              []string{"general_stats", "index_stats"},
+				ExposeExporter:                 new(true),
+				PushMetrics:                    new(false),
+				LogLevel:                       new(flags.LogLevel("debug")),
+				CustomLabels:                   &map[string]string{"environment": "test", "team": "backend"},
 			}
 
 			result, err := cmd.RunCmd()
@@ -74,6 +72,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 					"authentication_database": "admin",
 					"stats_collections": ["collection1", "collection2"],
 					"collections_limit": 100,
+					"enable_diagnostic_data_histograms": true,
 					"disable_collectors": ["general_stats", "index_stats"],
 					"expose_exporter": true,
 					"enable_push_metrics": false,
@@ -98,9 +97,9 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentMongodbExporterCommand{
 				AgentID:           "test-agent-id",
-				Enable:            pointer.ToBool(false),
+				Enable:            new(false),
 				DisableCollectors: []string{"general_stats"},
-				PushMetrics:       pointer.ToBool(true),
+				PushMetrics:       new(true),
 			}
 
 			result, err := cmd.RunCmd()
@@ -138,6 +137,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 					"env": "prod",
 					"team": "db"
 				},
+				"environment_variable_names": ["KRB5_KTNAME", "KRB5_CONFIG"],
 				"process_exec_path": "/usr/bin/mongodb_exporter",
 				"log_level": "LOG_LEVEL_INFO"
 			}
@@ -158,11 +158,13 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 			"--authentication-database=testdb",
 			"--stats-collections=col1,col2",
 			"--collections-limit=50",
+			"--enable-diagnostic-data-histograms",
 			"--disable-collectors=general_stats,index_stats",
 			"--expose-exporter",
 			"--push-metrics",
 			"--log-level=info",
 			"--custom-labels=env=prod,team=db",
+			"--agent-env-vars=KRB5_KTNAME,KRB5_CONFIG",
 		}
 
 		var cmd ChangeAgentMongodbExporterCommand
@@ -189,6 +191,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 				"authentication_database": "testdb",
 				"stats_collections": ["col1", "col2"],
 				"collections_limit": 50,
+				"enable_diagnostic_data_histograms": true,
 				"disable_collectors": ["general_stats", "index_stats"],
 				"expose_exporter": true,
 				"enable_push_metrics": true,
@@ -198,6 +201,9 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 						"env": "prod",
 						"team": "db"
 					}
+				},
+				"environment_variable_names": {
+					"values": ["KRB5_KTNAME", "KRB5_CONFIG"]
 				}
 			}
 		}`
@@ -220,6 +226,7 @@ Expose exporter       : true
 
 Disabled              : false
 Custom labels         : env=prod, team=db
+Environment variables : KRB5_KTNAME, KRB5_CONFIG
 Process exec path     : /usr/bin/mongodb_exporter
 Log level             : info
 Configuration changes applied:
@@ -233,14 +240,116 @@ Configuration changes applied:
   - changed authentication database to testdb
   - updated stats collections: col1,col2
   - changed collections limit to 50
+  - enabled diagnostic data histograms
   - updated disabled collectors: [general_stats index_stats]
   - enabled expose exporter
   - enabled push metrics
   - changed log level to info
   - updated custom labels
+  - updated environment variable names: KRB5_KTNAME, KRB5_CONFIG
 `
 
 		assert.Equal(t, expectedOutput, output)
+	})
+
+	t.Run("EnvironmentVariableNames", func(t *testing.T) {
+		t.Parallel()
+
+		// The result template dereferences log_level, so the mock response has to carry it.
+		mockResponse := `{"mongodb_exporter": {"agent_id": "test-agent-id", "log_level": "LOG_LEVEL_INFO"}}`
+
+		t.Run("Updated", func(t *testing.T) {
+			t.Parallel()
+
+			var capturedRequestBody string
+			cleanup := setupChangeAgentTestServer(t, "test-agent-id", mockResponse, &capturedRequestBody)
+			defer cleanup()
+
+			cmd := &ChangeAgentMongodbExporterCommand{
+				AgentID:      "test-agent-id",
+				AgentEnvVars: &[]string{" KRB5_KTNAME ", " KRB5_CONFIG "},
+			}
+
+			result, err := cmd.RunCmd()
+			require.NoError(t, err)
+			assert.NotNil(t, result)
+
+			expectedJSON := `{
+				"mongodb_exporter": {
+					"disable_collectors": null,
+					"stats_collections": null,
+					"environment_variable_names": {
+						"values": ["KRB5_KTNAME", "KRB5_CONFIG"]
+					}
+				}
+			}`
+			assert.JSONEq(t, expectedJSON, capturedRequestBody)
+			assert.Contains(t, result.String(), "updated environment variable names: KRB5_KTNAME, KRB5_CONFIG")
+		})
+
+		t.Run("RemovedWhenEmpty", func(t *testing.T) {
+			t.Parallel()
+
+			var capturedRequestBody string
+			cleanup := setupChangeAgentTestServer(t, "test-agent-id", mockResponse, &capturedRequestBody)
+			defer cleanup()
+
+			cmd := &ChangeAgentMongodbExporterCommand{
+				AgentID:      "test-agent-id",
+				AgentEnvVars: &[]string{},
+			}
+
+			result, err := cmd.RunCmd()
+			require.NoError(t, err)
+			assert.NotNil(t, result)
+
+			// An empty (but present) wrapper tells the server to remove all environment variable names.
+			expectedJSON := `{
+				"mongodb_exporter": {
+					"disable_collectors": null,
+					"stats_collections": null,
+					"environment_variable_names": {
+						"values": null
+					}
+				}
+			}`
+			assert.JSONEq(t, expectedJSON, capturedRequestBody)
+			assert.Contains(t, result.String(), "environment variable names are removed")
+		})
+
+		t.Run("NotSentWhenFlagOmitted", func(t *testing.T) {
+			t.Parallel()
+
+			var capturedRequestBody string
+			cleanup := setupChangeAgentTestServer(t, "test-agent-id", mockResponse, &capturedRequestBody)
+			defer cleanup()
+
+			cmd := &ChangeAgentMongodbExporterCommand{
+				AgentID: "test-agent-id",
+				Enable:  new(true),
+			}
+
+			result, err := cmd.RunCmd()
+			require.NoError(t, err)
+			assert.NotNil(t, result)
+
+			assert.NotContains(t, capturedRequestBody, "environment_variable_names")
+			assert.NotContains(t, result.String(), "environment variable names are removed")
+		})
+
+		t.Run("InvalidName", func(t *testing.T) {
+			t.Parallel()
+
+			cmd := &ChangeAgentMongodbExporterCommand{
+				AgentID:      "test-agent-id",
+				AgentEnvVars: &[]string{"krb5-ktname"},
+			}
+
+			result, err := cmd.RunCmd()
+			require.Error(t, err)
+			assert.Nil(t, result)
+			assert.Contains(t, err.Error(), "invalid environment variable name: krb5-ktname")
+		})
 	})
 
 	t.Run("ErrorHandling", func(t *testing.T) {
@@ -251,7 +360,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentMongodbExporterCommand{
 			AgentID: "invalid-agent",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

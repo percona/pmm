@@ -18,7 +18,6 @@ package management
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -33,16 +32,19 @@ import (
 )
 
 func TestAddValkey(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
+		address := pmmapitests.TestString(t, "10.10.10.10")
 
 		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
@@ -51,7 +53,7 @@ func TestAddValkey(t *testing.T) {
 					NodeID:              nodeID,
 					PMMAgentID:          pmmAgentID,
 					ServiceName:         serviceName,
-					Address:             "10.10.10.10",
+					Address:             address,
 					Port:                6379,
 					Username:            "default",
 					SkipConnectionCheck: true,
@@ -63,21 +65,23 @@ func TestAddValkey(t *testing.T) {
 		require.NotNil(t, addValkeyOK)
 		require.NotNil(t, addValkeyOK.Payload.Valkey.Service)
 		serviceID := addValkeyOK.Payload.Valkey.Service.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
 
 		// Check that the service is created and its fields.
 		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Valkey: &services.GetServiceOKBodyValkey{
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
+				Address:      address,
 				Port:         6379,
 				CustomLabels: map[string]string{},
 			},
@@ -86,9 +90,9 @@ func TestAddValkey(t *testing.T) {
 		// Check that no one exporter is added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyValkeyExporterItems0{
 			{
 				AgentID:            listAgents.Payload.ValkeyExporter[0].AgentID,
@@ -101,19 +105,19 @@ func TestAddValkey(t *testing.T) {
 				DisabledCollectors: []string{},
 			},
 		}, listAgents.Payload.ValkeyExporter)
-		defer removeAllAgentsInList(t, listAgents)
 	})
 
 	t.Run("With agents", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
+		address := pmmapitests.TestString(t, "10.10.10.10")
 
 		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
@@ -122,7 +126,7 @@ func TestAddValkey(t *testing.T) {
 					NodeID:              nodeID,
 					PMMAgentID:          pmmAgentID,
 					ServiceName:         serviceName,
-					Address:             "10.10.10.10",
+					Address:             address,
 					Port:                6379,
 					Username:            "default",
 					Password:            "password",
@@ -135,21 +139,23 @@ func TestAddValkey(t *testing.T) {
 		require.NotNil(t, addValkeyOK)
 		require.NotNil(t, addValkeyOK.Payload.Valkey.Service)
 		serviceID := addValkeyOK.Payload.Valkey.Service.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
 
 		// Check that the service was created and its fields.
 		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Valkey: &services.GetServiceOKBodyValkey{
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
+				Address:      address,
 				Port:         6379,
 				CustomLabels: map[string]string{},
 			},
@@ -158,11 +164,10 @@ func TestAddValkey(t *testing.T) {
 		// Check that exporters are added.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, listAgents)
-		defer removeAllAgentsInList(t, listAgents)
 		require.Len(t, listAgents.Payload.ValkeyExporter, 1)
 		assert.Equal(t, []*agents.ListAgentsOKBodyValkeyExporterItems0{
 			{
@@ -179,13 +184,13 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("With the same name", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
 
@@ -197,7 +202,7 @@ func TestAddValkey(t *testing.T) {
 					PMMAgentID:          pmmAgentID,
 					ServiceName:         serviceName,
 					Username:            "default",
-					Address:             "10.10.10.10",
+					Address:             pmmapitests.TestString(t, "10.10.10.10"),
 					Port:                6379,
 					SkipConnectionCheck: true,
 				},
@@ -208,8 +213,9 @@ func TestAddValkey(t *testing.T) {
 		require.NotNil(t, addValkeyOK)
 		require.NotNil(t, addValkeyOK.Payload.Valkey.Service)
 		serviceID := addValkeyOK.Payload.Valkey.Service.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-		defer removeServiceAgents(t, serviceID)
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
 
 		params = &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
@@ -219,7 +225,7 @@ func TestAddValkey(t *testing.T) {
 					PMMAgentID:  pmmAgentID,
 					ServiceName: serviceName,
 					Username:    "default",
-					Address:     "11.11.11.11",
+					Address:     pmmapitests.TestString(t, "11.11.11.11"),
 					Port:        6380,
 				},
 			},
@@ -230,17 +236,16 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("With Wrong Node Type", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "generic-node-for-wrong-node-type")
-		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
+		_, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		remoteNodeOKBody := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote Node for wrong type test"))
-		remoteNodeID := remoteNodeOKBody.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, remoteNodeID)
+		remoteNodeID := remoteNodeOKBody.NodeID
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &mservice.AddServiceParams{
@@ -249,7 +254,7 @@ func TestAddValkey(t *testing.T) {
 				Valkey: &mservice.AddServiceParamsBodyValkey{
 					NodeID:              remoteNodeID,
 					ServiceName:         serviceName,
-					Address:             "10.10.10.10",
+					Address:             pmmapitests.TestString(t, "10.10.10.10"),
 					Port:                3306,
 					PMMAgentID:          pmmAgentID,
 					Username:            "default",
@@ -263,13 +268,13 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("Empty Service Name", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, _ := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
@@ -285,13 +290,13 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("Empty Address", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &mservice.AddServiceParams{
@@ -311,13 +316,13 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("Empty Port", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &mservice.AddServiceParams{
@@ -328,7 +333,7 @@ func TestAddValkey(t *testing.T) {
 					ServiceName: serviceName,
 					PMMAgentID:  pmmAgentID,
 					Username:    "default",
-					Address:     "10.10.10.10",
+					Address:     pmmapitests.TestString(t, "10.10.10.10"),
 				},
 			},
 		}
@@ -338,13 +343,13 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("Empty Pmm Agent ID", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, _ := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &mservice.AddServiceParams{
@@ -353,7 +358,7 @@ func TestAddValkey(t *testing.T) {
 				Valkey: &mservice.AddServiceParamsBodyValkey{
 					NodeID:      nodeID,
 					ServiceName: serviceName,
-					Address:     "10.10.10.10",
+					Address:     pmmapitests.TestString(t, "10.10.10.10"),
 					Port:        6371,
 				},
 			},
@@ -364,13 +369,13 @@ func TestAddValkey(t *testing.T) {
 	})
 
 	t.Run("Address And Socket Conflict.", func(t *testing.T) {
+		t.Parallel()
+
 		nodeName := pmmapitests.TestString(t, "node-name")
-		nodeID, pmmAgentID := RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &mservice.AddServiceParams{
@@ -382,7 +387,7 @@ func TestAddValkey(t *testing.T) {
 					Password:    "password",
 					NodeID:      nodeID,
 					ServiceName: serviceName,
-					Address:     "10.10.10.10",
+					Address:     pmmapitests.TestString(t, "10.10.10.10"),
 					Port:        6371,
 					Socket:      "/var/run/valkey.sock",
 				},
@@ -392,14 +397,157 @@ func TestAddValkey(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		assert.Nil(t, addValkeyOK)
 	})
+
+	// valkey_exporter aborts on half a client key pair, so the shape is refused here rather than
+	// registering a service that silently falls back to server authentication. This is the path
+	// `pmm-admin add valkey` takes, and the rejection has to arrive before the connection check
+	// so the reason is the key pair and not a failed handshake.
+	t.Run("Incomplete TLS Client Key Pair", func(t *testing.T) {
+		t.Parallel()
+
+		nodeName := pmmapitests.TestString(t, "node-for-incomplete-key-pair")
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+		})
+
+		for name, material := range map[string]struct{ ca, cert, key string }{
+			"cert without key": {ca: "ca-pem", cert: "cert-pem"},
+			"key without cert": {ca: "ca-pem", key: "key-pem"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				params := &mservice.AddServiceParams{
+					Context: pmmapitests.Context,
+					Body: mservice.AddServiceBody{
+						Valkey: &mservice.AddServiceParamsBodyValkey{
+							PMMAgentID:  pmmAgentID,
+							NodeID:      nodeID,
+							ServiceName: pmmapitests.TestString(t, "service-"+name),
+							Address:     pmmapitests.TestString(t, "10.10.10.10"),
+							Port:        6379,
+							Username:    "default",
+							TLS:         true,
+							TLSCa:       material.ca,
+							TLSCert:     material.cert,
+							TLSKey:      material.key,
+						},
+					},
+				}
+
+				addValkeyOK, err := client.Default.ManagementService.AddService(params)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "TLS certificate and key must both be provided.")
+				assert.Nil(t, addValkeyOK)
+			})
+		}
+	})
+
+	// The service and its exporter are created in one transaction, so a rejected key pair must
+	// leave neither behind.
+	t.Run("Incomplete TLS Client Key Pair Registers Nothing", func(t *testing.T) {
+		t.Parallel()
+
+		nodeName := pmmapitests.TestString(t, "node-for-rolled-back-key-pair")
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+		})
+
+		serviceName := pmmapitests.TestString(t, "service-for-rolled-back-key-pair")
+		params := &mservice.AddServiceParams{
+			Context: pmmapitests.Context,
+			Body: mservice.AddServiceBody{
+				Valkey: &mservice.AddServiceParamsBodyValkey{
+					PMMAgentID:  pmmAgentID,
+					NodeID:      nodeID,
+					ServiceName: serviceName,
+					Address:     pmmapitests.TestString(t, "10.10.10.10"),
+					Port:        6379,
+					Username:    "default",
+					TLS:         true,
+					TLSCert:     "cert-pem",
+				},
+			},
+		}
+
+		addValkeyOK, err := client.Default.ManagementService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "TLS certificate and key must both be provided.")
+		assert.Nil(t, addValkeyOK)
+
+		// Adding the same name again has to succeed. If the rejected attempt had left the service
+		// behind, this would come back as a name conflict instead.
+		params.Body.Valkey.TLSKey = "key-pem"
+		params.Body.Valkey.SkipConnectionCheck = true
+
+		addValkeyOK, err = client.Default.ManagementService.AddService(params)
+		require.NoError(t, err)
+		require.NotNil(t, addValkeyOK.Payload.Valkey.Service)
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, addValkeyOK.Payload.Valkey.Service.ServiceID)
+		})
+		assert.Equal(t, serviceName, addValkeyOK.Payload.Valkey.Service.ServiceName)
+	})
+
+	// Server authentication alone and a pinned client identity are both valid, so only the half
+	// pair is refused.
+	t.Run("Accepted TLS Material", func(t *testing.T) {
+		t.Parallel()
+
+		nodeName := pmmapitests.TestString(t, "node-for-accepted-tls-material")
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+		})
+
+		for name, material := range map[string]struct{ ca, cert, key string }{
+			"certificate authority alone":                   {ca: "ca-pem"},
+			"complete pair without a certificate authority": {cert: "cert-pem", key: "key-pem"},
+			"certificate authority and a complete pair":     {ca: "ca-pem", cert: "cert-pem", key: "key-pem"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				params := &mservice.AddServiceParams{
+					Context: pmmapitests.Context,
+					Body: mservice.AddServiceBody{
+						Valkey: &mservice.AddServiceParamsBodyValkey{
+							PMMAgentID:          pmmAgentID,
+							NodeID:              nodeID,
+							ServiceName:         pmmapitests.TestString(t, "service-"+name),
+							Address:             pmmapitests.TestString(t, "10.10.10.10"),
+							Port:                6379,
+							Username:            "default",
+							TLS:                 true,
+							TLSCa:               material.ca,
+							TLSCert:             material.cert,
+							TLSKey:              material.key,
+							SkipConnectionCheck: true,
+						},
+					},
+				}
+
+				addValkeyOK, err := client.Default.ManagementService.AddService(params)
+				require.NoError(t, err)
+				require.NotNil(t, addValkeyOK.Payload.Valkey.Service)
+				t.Cleanup(func() {
+					pmmapitests.RemoveServices(t, addValkeyOK.Payload.Valkey.Service.ServiceID)
+				})
+
+				assert.True(t, addValkeyOK.Payload.Valkey.ValkeyExporter.TLS)
+			})
+		}
+	})
 }
 
 func TestRemoveValkey(t *testing.T) {
-	addValkey := func(t *testing.T, serviceName, nodeName string) (nodeID string, pmmAgentID string, serviceID string) {
+	t.Parallel()
+
+	addValkey := func(t *testing.T, serviceName, nodeName string) (serviceID string) {
 		t.Helper()
-		nodeID, pmmAgentID = RegisterGenericNode(t, mservice.RegisterNodeBody{
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 
 		params := &mservice.AddServiceParams{
@@ -409,7 +557,7 @@ func TestRemoveValkey(t *testing.T) {
 					NodeID:              nodeID,
 					PMMAgentID:          pmmAgentID,
 					ServiceName:         serviceName,
-					Address:             "10.10.10.10",
+					Address:             pmmapitests.TestString(t, "10.10.10.10"),
 					Port:                6379,
 					Username:            "default",
 					Password:            "password",
@@ -422,58 +570,55 @@ func TestRemoveValkey(t *testing.T) {
 		require.NotNil(t, addValkeyOK)
 		require.NotNil(t, addValkeyOK.Payload.Valkey.Service)
 		serviceID = addValkeyOK.Payload.Valkey.Service.ServiceID
-		return nodeID, pmmAgentID, serviceID
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
+		return serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {
+		t.Parallel()
+
 		serviceName := pmmapitests.TestString(t, "service-remove-by-name")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-name")
-		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName)
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
+		serviceID := addValkey(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceName,
-			ServiceType: pointer.ToString(types.ServiceTypeValkeyService),
+			ServiceType: new(types.ServiceTypeValkeyService),
 			Context:     pmmapitests.Context,
 		})
-		noError := assert.NoError(t, err)
-		notNil := assert.NotNil(t, removeServiceOK)
-		if !noError || !notNil {
-			defer pmmapitests.RemoveServices(t, serviceID)
-		}
+		require.NoError(t, err)
+		require.NotNil(t, removeServiceOK)
 
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)
 	})
 
 	t.Run("By ID", func(t *testing.T) {
+		t.Parallel()
+
 		serviceName := pmmapitests.TestString(t, "service-remove-by-id")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-id")
-		nodeID, pmmAgentID, serviceID := addValkey(t, serviceName, nodeName)
-		defer pmmapitests.UnregisterNodes(t, nodeID)
-		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
+		serviceID := addValkey(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,
-			ServiceType: pointer.ToString(types.ServiceTypeValkeyService),
+			ServiceType: new(types.ServiceTypeValkeyService),
 			Context:     pmmapitests.Context,
 		})
-		noError := assert.NoError(t, err)
-		notNil := assert.NotNil(t, removeServiceOK)
-		if !noError || !notNil {
-			defer pmmapitests.RemoveServices(t, serviceID)
-		}
+		require.NoError(t, err)
+		require.NotNil(t, removeServiceOK)
 
 		// Check that the service removed with agents.
 		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context:   pmmapitests.Context,
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, listAgents)

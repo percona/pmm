@@ -10,7 +10,7 @@ PMM supports the following types of storage:
 ## Prepare a location for local backups
 If you prefer storing your MongoDB backup artifacts on a remote filesystem, make sure that you've mounted the remote folder to all the mongoDB nodes on the same path, and that PBM tool has Write permissions on the path you define.
 
-For more information, see the [Percona Backup for MongoDB (PBM) documentation](https://docs.percona.com/percona-backup-mongodb/details/storage-configuration.html#remote-filesystem-server-storage).
+For more information, see the [Percona Backup for MongoDB (PBM) documentation](https://docs.percona.com/percona-backup-mongodb/latest/details/filesystem-storage.html#remote-filesystem-server-storage).
 
 ## Prepare a location for S3-compatible storage
 If you want to store backup artifacts in S3-compatible storage, you can use [Amazon S3](https://aws.amazon.com/s3/), [Min.io](https://min.io/) or any other storage solution with S3-compatible API.
@@ -50,7 +50,7 @@ A sample [IAM](https://aws.amazon.com/iam/) policy is:
 Before you can back up your databases, you need to configure where PMM will store your backup files. PMM supports S3-compatible storage and local client storage.
 {.power-number}
 
-1. Go to **Backup > Storage Locations**:
+1. Go to **Backup > Storage locations**:
 
     ![!](../images/PMM_Backup_Management.jpg)
 

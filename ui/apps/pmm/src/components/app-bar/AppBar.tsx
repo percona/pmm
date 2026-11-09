@@ -10,6 +10,7 @@ import { Breadcrumbs } from 'components/breadcrumbs';
 import { PMM_SUPPORT_URL } from 'lib/constants';
 import { Messages } from './AppBar.messages';
 import { HomeLink } from 'components/home-link';
+import Help from '@mui/icons-material/Help';
 import { Icon } from 'components/icon';
 
 export const AppBar = () => (
@@ -39,7 +40,7 @@ export const AppBar = () => (
           data-testid="appbar-support-link"
         >
           <Stack gap={1} direction="row" alignItems="center">
-            <Icon name="help-fill" />
+            <Help />
             <Typography>{Messages.support}</Typography>
           </Stack>
         </Link>

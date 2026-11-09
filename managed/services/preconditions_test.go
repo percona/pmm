@@ -20,8 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -45,13 +43,11 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 		Type:           models.ScheduledMongoDBBackupTask,
 		Data: &models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "service1",
-					Name:        "mongo1",
-					ClusterName: "cluster1",
-					LocationID:  "loc",
-					Mode:        models.PITR,
-				},
+				ServiceID:   "service1",
+				Name:        "mongo1",
+				ClusterName: "cluster1",
+				LocationID:  "loc",
+				Mode:        models.PITR,
 			},
 		},
 		Disabled: false,
@@ -63,13 +59,11 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 		Type:           models.ScheduledMongoDBBackupTask,
 		Data: &models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "service2",
-					Name:        "mongo2",
-					ClusterName: "cluster2",
-					LocationID:  "loc",
-					Mode:        models.Snapshot,
-				},
+				ServiceID:   "service2",
+				Name:        "mongo2",
+				ClusterName: "cluster2",
+				LocationID:  "loc",
+				Mode:        models.Snapshot,
 			},
 		},
 		Disabled: false,
@@ -164,8 +158,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mongoSvc1, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb1",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "cluster1",
 	})
 	require.NoError(t, err)
@@ -173,8 +167,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mongoSvc2, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb2",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "cluster1",
 	})
 	require.NoError(t, err)
@@ -182,8 +176,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mongoSvc3, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb3",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "cluster2",
 	})
 	require.NoError(t, err)
@@ -191,8 +185,8 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mysqlSvc1, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mysql1",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "mysql_cluster_1",
 	})
 	require.NoError(t, err)
@@ -200,18 +194,16 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	mysqlSvc2, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mysql2",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(60000),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(60000)),
 		Cluster:     "mysql_cluster_2",
 	})
 	require.NoError(t, err)
 
 	location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name: "test_location",
-		BackupLocationConfig: models.BackupLocationConfig{
-			FilesystemConfig: &models.FilesystemLocationConfig{
-				Path: "/tmp",
-			},
+		FilesystemConfig: &models.FilesystemLocationConfig{
+			Path: "/tmp",
 		},
 	})
 	require.NoError(t, err)
@@ -222,19 +214,17 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 		Type:           models.ScheduledMongoDBBackupTask,
 		Data: &models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:     mongoSvc1.ServiceID,
-					LocationID:    location.ID,
-					Name:          "test",
-					Description:   "test backup task",
-					DataModel:     models.LogicalDataModel,
-					Mode:          models.Snapshot,
-					Retention:     7,
-					Retries:       3,
-					RetryInterval: 5 * time.Second,
-					ClusterName:   "cluster1",
-					Folder:        folder1,
-				},
+				ServiceID:     mongoSvc1.ServiceID,
+				LocationID:    location.ID,
+				Name:          "test",
+				Description:   "test backup task",
+				DataModel:     models.LogicalDataModel,
+				Mode:          models.Snapshot,
+				Retention:     7,
+				Retries:       3,
+				RetryInterval: 5 * time.Second,
+				ClusterName:   "cluster1",
+				Folder:        folder1,
 			},
 		},
 	})
@@ -253,17 +243,17 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	require.NoError(t, err)
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc2.ServiceID, location.ID, folder1)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc3.ServiceID, location.ID, folder1)
-	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+	require.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
 
 	err = CheckArtifactOverlapping(db.Querier, mysqlSvc1.ServiceID, location.ID, folder1)
-	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+	require.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
 
 	err = CheckArtifactOverlapping(db.Querier, mysqlSvc2.ServiceID, location.ID, folder2)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc1.ServiceID, location.ID, folder2)
-	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+	require.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
 }

@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -38,20 +37,16 @@ func TestQANPostgreSQLPgStatementsAgentChangeAgent(t *testing.T) {
 			defer cleanup()
 
 			cmd := &ChangeAgentQANPostgreSQLPgStatementsAgentCommand{
-				AgentID:        "test-agent-qan-pgstat-update",
-				Enable:         pointer.ToBool(true),
-				Username:       pointer.ToString("postgres_user"),
-				Password:       pointer.ToString("postgres_pass"),
-				TLS:            pointer.ToBool(true),
-				TLSSkipVerify:  pointer.ToBool(false),
-				MaxQueryLength: pointer.ToInt32(4096),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
-				},
-				CommentsParsingChangeFlags: flags.CommentsParsingChangeFlags{
-					CommentsParsing: pointer.ToString("off"),
-				},
-				CustomLabels: &map[string]string{"environment": "production", "service": "postgresql"},
+				AgentID:         "test-agent-qan-pgstat-update",
+				Enable:          new(true),
+				Username:        new("postgres_user"),
+				Password:        new("postgres_pass"),
+				TLS:             new(true),
+				TLSSkipVerify:   new(false),
+				MaxQueryLength:  new(int32(4096)),
+				LogLevel:        new(flags.LogLevel("debug")),
+				CommentsParsing: new("off"),
+				CustomLabels:    &map[string]string{"environment": "production", "service": "postgresql"},
 			}
 
 			result, err := cmd.RunCmd()
@@ -85,11 +80,9 @@ func TestQANPostgreSQLPgStatementsAgentChangeAgent(t *testing.T) {
 			defer cleanup()
 
 			cmd := &ChangeAgentQANPostgreSQLPgStatementsAgentCommand{
-				AgentID: "test-agent-qan-pgstat-disable",
-				Enable:  pointer.ToBool(false),
-				CommentsParsingChangeFlags: flags.CommentsParsingChangeFlags{
-					CommentsParsing: pointer.ToString("off"),
-				},
+				AgentID:         "test-agent-qan-pgstat-disable",
+				Enable:          new(false),
+				CommentsParsing: new("off"),
 			}
 
 			result, err := cmd.RunCmd()
@@ -218,7 +211,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentQANPostgreSQLPgStatementsAgentCommand{
 			AgentID: "invalid-agent-qan-pgstat",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

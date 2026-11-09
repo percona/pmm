@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -37,7 +36,7 @@ func TestNomadAgentChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentNomadAgentCommand{
 				AgentID: "test-agent-nomad-enable",
-				Enable:  pointer.ToBool(true),
+				Enable:  new(true),
 			}
 
 			result, err := cmd.RunCmd()
@@ -63,7 +62,7 @@ func TestNomadAgentChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentNomadAgentCommand{
 				AgentID: "test-agent-nomad-disable",
-				Enable:  pointer.ToBool(false),
+				Enable:  new(false),
 			}
 
 			result, err := cmd.RunCmd()
@@ -168,7 +167,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentNomadAgentCommand{
 			AgentID: "invalid-agent-nomad",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

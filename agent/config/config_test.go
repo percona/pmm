@@ -30,16 +30,11 @@ const defaultWindowPeriod = time.Hour
 
 func writeConfig(t *testing.T, cfg *Config) string {
 	t.Helper()
-	f, err := os.CreateTemp("", "pmm-agent-test-")
+	f, err := os.CreateTemp(t.TempDir(), "pmm-agent-test-")
 	require.NoError(t, err)
 	require.NoError(t, f.Close())
 	require.NoError(t, SaveToFile(f.Name(), cfg, t.Name()))
 	return f.Name()
-}
-
-func removeConfig(t *testing.T, name string) {
-	t.Helper()
-	require.NoError(t, os.Remove(name))
 }
 
 func generateTempDirPath(t *testing.T, basePath string) string {
@@ -47,18 +42,49 @@ func generateTempDirPath(t *testing.T, basePath string) string {
 	return filepath.Join(basePath, agentTmpPath)
 }
 
+func TestNormalizedAddress(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		address string
+		want    string
+	}{
+		{address: "", want: ""},
+		{address: "pmm.example.com", want: "pmm.example.com:443"},
+		{address: "pmm.example.com:443", want: "pmm.example.com:443"},
+		{address: "pmm.example.com:8443", want: "pmm.example.com:8443"},
+		{address: "10.20.30.40", want: "10.20.30.40:443"},
+		// An IPv6 address is written with brackets as often as without, and both name one PMM Server.
+		{address: "2001:db8::1", want: "[2001:db8::1]:443"},
+		{address: "[2001:db8::1]", want: "[2001:db8::1]:443"},
+		{address: "[2001:db8::1]:443", want: "[2001:db8::1]:443"},
+		{address: "[2001:db8::1]:8443", want: "[2001:db8::1]:8443"},
+	} {
+		t.Run(tc.address, func(t *testing.T) {
+			t.Parallel()
+
+			s := &Server{Address: tc.address}
+			got := s.NormalizedAddress()
+			assert.Equal(t, tc.want, got)
+
+			// Whether an Agent is being pointed at another PMM Server is decided by comparing these, so
+			// normalizing an address which is already normalized has to be a no-op.
+			assert.Equal(t, tc.want, (&Server{Address: got}).NormalizedAddress(), "not idempotent")
+		})
+	}
+}
+
 func TestLoadFromFile(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
-		t.Cleanup(func() { removeConfig(t, name) })
 
-		cfg, err := loadFromFile(name, nil)
+		cfg, err := LoadFromFile(name, nil)
 		require.NoError(t, err)
 		assert.Equal(t, &Config{ID: "agent-id"}, cfg)
 	})
 
 	t.Run("NotExist", func(t *testing.T) {
-		cfg, err := loadFromFile("not-exist.yaml", nil)
+		cfg, err := LoadFromFile("not-exist.yaml", nil)
 		assert.Equal(t, ConfigFileDoesNotExistError("not-exist.yaml"), err)
 		assert.Nil(t, cfg)
 	})
@@ -66,10 +92,10 @@ func TestLoadFromFile(t *testing.T) {
 	t.Run("PermissionDenied", func(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
 		require.NoError(t, os.Chmod(name, 0o000))
-		t.Cleanup(func() { removeConfig(t, name) })
 
-		cfg, err := loadFromFile(name, nil)
-		require.IsType(t, (*os.PathError)(nil), err)
+		cfg, err := LoadFromFile(name, nil)
+		var targetErr *os.PathError
+		require.ErrorAs(t, err, &targetErr)
 		assert.Equal(t, "open", err.(*os.PathError).Op)                     //nolint:errorlint
 		require.EqualError(t, err.(*os.PathError).Err, "permission denied") //nolint:errorlint
 		assert.Nil(t, cfg)
@@ -77,11 +103,11 @@ func TestLoadFromFile(t *testing.T) {
 
 	t.Run("NotYAML", func(t *testing.T) {
 		name := writeConfig(t, nil)
-		require.NoError(t, os.WriteFile(name, []byte(`not YAML`), 0o666)) //nolint:gosec
-		t.Cleanup(func() { removeConfig(t, name) })
+		require.NoError(t, os.WriteFile(name, []byte(`not YAML`), 0o666))
 
-		cfg, err := loadFromFile(name, nil)
-		require.IsType(t, (*yaml.TypeError)(nil), err)
+		cfg, err := LoadFromFile(name, nil)
+		var targetErr *yaml.TypeError
+		require.ErrorAs(t, err, &targetErr)
 		require.EqualError(t, err, "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `not YAML` into config.Config")
 		assert.Nil(t, cfg)
 	})
@@ -141,10 +167,6 @@ func TestGet(t *testing.T) {
 		var actual Config
 
 		tmpDir := generateTempDirPath(t, pathBaseDefault)
-		t.Cleanup(func() {
-			removeConfig(t, name)
-		})
-
 		name = writeConfig(t, &Config{
 			ID:            "agent-id",
 			ListenAddress: "0.0.0.0",
@@ -205,9 +227,6 @@ func TestGet(t *testing.T) {
 		var name string
 		var actual Config
 		tmpDir := generateTempDirPath(t, "/foo/bar")
-		t.Cleanup(func() {
-			removeConfig(t, name)
-		})
 
 		name = writeConfig(t, &Config{
 			ID: "config-id",
@@ -271,10 +290,6 @@ func TestGet(t *testing.T) {
 	t.Run("MixExportersBase", func(t *testing.T) {
 		var name string
 		var actual Config
-
-		t.Cleanup(func() {
-			removeConfig(t, name)
-		})
 
 		name = writeConfig(t, &Config{
 			ID: "config-id",
@@ -342,10 +357,6 @@ func TestGet(t *testing.T) {
 		var name string
 		var actual Config
 
-		t.Cleanup(func() {
-			removeConfig(t, name)
-		})
-
 		name = writeConfig(t, &Config{
 			ID: "config-id",
 			Server: Server{
@@ -410,10 +421,6 @@ func TestGet(t *testing.T) {
 	t.Run("MixPathsBaseExporterBase", func(t *testing.T) {
 		var name string
 		var actual Config
-
-		t.Cleanup(func() {
-			removeConfig(t, name)
-		})
 
 		name = writeConfig(t, &Config{
 			ID: "config-id",
@@ -545,4 +552,164 @@ func TestFilteredURL(t *testing.T) {
 			assert.Equal(t, "https://username:***@1.2.3.4:443/", s.FilteredURL())
 		})
 	}
+}
+
+func TestNodeNameGiven(t *testing.T) {
+	hostname, err := os.Hostname()
+	require.NoError(t, err)
+	require.NotEmpty(t, hostname, "the test needs a hostname to stand in for the default")
+
+	for _, tc := range []struct {
+		name  string
+		args  []string
+		want  bool
+		named string
+	}{
+		{
+			// `pmm-admin config <addr> generic` forwards the name it defaulted to the hostname, so a
+			// registered Node under another name must not read as one the operator asked for.
+			name:  "the name falls back to the hostname",
+			args:  []string{"setup", "1.2.3.4", "generic"},
+			want:  false,
+			named: hostname,
+		},
+		{
+			name:  "the operator named a Node",
+			args:  []string{"setup", "1.2.3.4", "generic", "db-prod-1"},
+			want:  true,
+			named: "db-prod-1",
+		},
+		{
+			// Indistinguishable in intent from taking the default, and harmless: it is the name the Node
+			// would be registered under either way.
+			name:  "the name given is this host's",
+			args:  []string{"setup", "1.2.3.4", "generic", hostname},
+			want:  false,
+			named: hostname,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var cfg Config
+			_, err := get(tc.args, &cfg, logrus.WithField("test", t.Name()))
+			require.NoError(t, err)
+
+			assert.Equal(t, tc.named, cfg.Setup.NodeName)
+			assert.Equal(t, tc.want, cfg.Setup.NodeNameGiven)
+		})
+	}
+}
+
+func TestNodeNameGivenFromEnvironment(t *testing.T) {
+	// kingpin fires no action for a value which came from the environment, which is how a container names
+	// its Node, so the name has to be classified after parsing rather than while it happens.
+	t.Setenv("PMM_AGENT_SETUP_NODE_NAME", "db-prod-1")
+
+	var cfg Config
+	_, err := get([]string{"setup", "1.2.3.4", "generic"}, &cfg, logrus.WithField("test", t.Name()))
+	require.NoError(t, err)
+
+	assert.Equal(t, "db-prod-1", cfg.Setup.NodeName)
+	assert.True(t, cfg.Setup.NodeNameGiven)
+}
+
+func TestMergeFlags(t *testing.T) {
+	l := logrus.WithField("test", t.Name())
+
+	// The configuration file the Agent runs with: a firewalled ports range and a log line count which no
+	// flag carries.
+	running := func() *Config {
+		return &Config{
+			ID:            "file-id",
+			ListenPort:    7777,
+			Ports:         Ports{Min: 30000, Max: 30100},
+			LogLevel:      "warn",
+			LogLinesCount: 512,
+			Paths:         Paths{PathsBase: "/opt/pmm", SlowLogFilePrefix: "keepme"},
+		}
+	}
+
+	t.Run("the flags given win and the rest of the file survives", func(t *testing.T) {
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, []string{"--log-level=debug", "setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, "debug", cfg.LogLevel)
+		assert.Equal(t, Ports{Min: 30000, Max: 30100}, cfg.Ports)
+		assert.Equal(t, uint16(7777), cfg.ListenPort)
+		assert.Equal(t, "keepme", cfg.Paths.SlowLogFilePrefix)
+	})
+
+	t.Run("a log line count no flag carries is kept", func(t *testing.T) {
+		// --log-lines-count is the only stored setting whose flag has a default, so it is the only one
+		// kingpin would put that default over.
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, []string{"setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, uint(512), cfg.LogLinesCount)
+	})
+
+	t.Run("a log line count given is applied", func(t *testing.T) {
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, []string{"--log-lines-count=256", "setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, uint(256), cfg.LogLinesCount)
+	})
+
+	t.Run("a log line count set by the variable is applied", func(t *testing.T) {
+		t.Setenv("PMM_AGENT_LOG_LINES_COUNT", "128")
+
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, []string{"setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, uint(128), cfg.LogLinesCount)
+	})
+
+	t.Run("a file which holds no log line count keeps the default", func(t *testing.T) {
+		cfg := running()
+		cfg.LogLinesCount = 0
+		require.NoError(t, MergeFlags(cfg, []string{"setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, uint(1024), cfg.LogLinesCount)
+	})
+
+	// The file holds every path, derived or not, so a base which only moved itself left the Agent running
+	// the exporters and writing the temporary files of the base it came from.
+	t.Run("a base given moves the paths the old base derived", func(t *testing.T) {
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, nil, l))
+		require.Equal(t, "/opt/pmm/exporters/node_exporter", cfg.Paths.NodeExporter)
+
+		require.NoError(t, MergeFlags(cfg, []string{"--paths-base=/opt/other", "setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, "/opt/other", cfg.Paths.PathsBase)
+		assert.Equal(t, "/opt/other/exporters", cfg.Paths.ExportersBase)
+		assert.Equal(t, "/opt/other/exporters/node_exporter", cfg.Paths.NodeExporter)
+		assert.Equal(t, "/opt/other/exporters/vmagent", cfg.Paths.VMAgent)
+		assert.Equal(t, "/opt/other/tmp", cfg.Paths.TempDir)
+		assert.Equal(t, "/opt/other/data/nomad", cfg.Paths.NomadDataDir)
+		assert.Equal(t, "/opt/other/tools/pt-summary", cfg.Paths.PTSummary)
+		assert.Equal(t, "/opt/other/tools/nomad", cfg.Paths.Nomad)
+	})
+
+	t.Run("a path the old base did not derive is left where it is", func(t *testing.T) {
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, nil, l))
+		cfg.Paths.TempDir = "/var/tmp/pmm"
+		cfg.Paths.VMAgent = "/usr/bin/vmagent"
+
+		require.NoError(t, MergeFlags(cfg, []string{"--paths-base=/opt/other", "setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, "/var/tmp/pmm", cfg.Paths.TempDir)
+		assert.Equal(t, "/usr/bin/vmagent", cfg.Paths.VMAgent)
+		assert.Equal(t, "/opt/other/exporters/node_exporter", cfg.Paths.NodeExporter)
+	})
+
+	t.Run("a base which does not change leaves the paths alone", func(t *testing.T) {
+		cfg := running()
+		require.NoError(t, MergeFlags(cfg, nil, l))
+
+		require.NoError(t, MergeFlags(cfg, []string{"--paths-base=/opt/pmm", "setup", "1.2.3.4", "generic"}, l))
+
+		assert.Equal(t, "/opt/pmm/exporters/node_exporter", cfg.Paths.NodeExporter)
+		assert.Equal(t, "/opt/pmm/tmp", cfg.Paths.TempDir)
+	})
 }

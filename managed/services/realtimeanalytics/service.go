@@ -48,13 +48,13 @@ import (
 
 // Service provides API for managing Real-Time Analytics.
 type Service struct {
+	rtav1.UnimplementedRealtimeAnalyticsServiceServer
+	rtav1.UnimplementedCollectorServiceServer
+
 	db           *reform.DB
 	registry     agentsRegistry
 	stateUpdater agentsStateUpdater
 	store        *Store
-
-	rtav1.UnimplementedRealtimeAnalyticsServiceServer
-	rtav1.UnimplementedCollectorServiceServer
 }
 
 // NewService creates a new Real-Time Analytics service.
@@ -174,7 +174,7 @@ func (s *Service) ListSessions(ctx context.Context, req *rtav1.ListSessionsReque
 		// Fetch all RTA agents of this type
 		agents, err := models.FindAgents(dbWithCtx, models.AgentFilters{
 			AgentType: &at,
-			Disabled:  pointer.To(false), // fetch enabled only
+			Disabled:  new(false), // fetch enabled only
 		})
 		if err != nil {
 			return nil, err
@@ -268,10 +268,8 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		rtaAgent.Disabled = false
 		// Need to update CreatedAt to reflect the new session start time.
 		rtaAgent.CreatedAt = time.Now()
-		// Encrypt agent's sensitive data before updating it in the database.
-		rtaAgent = pointer.To(models.EncryptAgent(*rtaAgent))
 
-		err = tx.Update(rtaAgent)
+		err = models.UpdateAgent(tx.Querier, rtaAgent)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to update Real-Time Analytics agent %s: %v", rtaAgent.AgentID, err)
 		}
@@ -419,7 +417,7 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		existingRTAAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{
 			ServiceID: req.ServiceId,
 			AgentType: &agentType,
-			Disabled:  pointer.To(false), // fetch enabled only
+			Disabled:  new(false), // fetch enabled only
 		})
 		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to find Real-Time Analytics agents for service %s: %v", req.ServiceId, err)
@@ -433,10 +431,8 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		// RTA Agent exists - update its state
 		rtaAgent := existingRTAAgents[0]
 		rtaAgent.Disabled = true
-		// Encrypt agent's sensitive data before updating it in the database.
-		rtaAgent = pointer.To(models.EncryptAgent(*rtaAgent))
 
-		err = tx.Update(rtaAgent)
+		err = models.UpdateAgent(tx.Querier, rtaAgent)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to update Real-Time Analytics agent %s: %v", rtaAgent.AgentID, err)
 		}

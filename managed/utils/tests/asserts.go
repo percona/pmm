@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -33,9 +34,7 @@ func AssertGRPCError(tb testing.TB, expected *status.Status, actual error) {
 		return
 	}
 	err := s.Err()
-	if !assert.Error(tb, err) { //nolint:testifylint
-		return
-	}
+	require.Error(tb, err)
 	assert.Equal(tb, expected.Err().Error(), err.Error()) // gives the best error message
 }
 

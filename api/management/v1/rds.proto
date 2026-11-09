@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package management.v1;
 
+import "extensions/v1/redact.proto";
 import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/nodes.proto";
@@ -38,9 +39,15 @@ message DiscoverRDSInstance {
 
 message DiscoverRDSRequest {
   // AWS Access key. Optional.
-  string aws_access_key = 1;
+  string aws_access_key = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Secret key. Optional.
-  string aws_secret_key = 2;
+  string aws_secret_key = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // AWS IAM role ARN to assume using the server's ambient credentials. Optional.
+  // Mutually exclusive with aws_access_key and aws_secret_key.
+  string aws_role_arn = 3 [(validate.rules).string = {
+    pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
+    ignore_empty: true
+  }];
 }
 
 message DiscoverRDSResponse {
@@ -75,13 +82,16 @@ message AddRDSServiceParams {
   // Replication set name.
   string replication_set = 12;
   // Username for scraping metrics.
-  string username = 13 [(validate.rules).string.min_len = 1];
+  string username = 13 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // Password for scraping metrics.
-  string password = 14;
+  string password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Access key.
-  string aws_access_key = 15;
+  string aws_access_key = 15 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Secret key.
-  string aws_secret_key = 16;
+  string aws_secret_key = 16 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // If true, adds rds_exporter.
   bool rds_exporter = 17;
   // If true, adds qan-mysql-perfschema-agent.
@@ -110,7 +120,7 @@ message AddRDSServiceParams {
   // If true, add qan-pgstatements
   bool qan_postgresql_pgstatements = 28;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 29;
+  string agent_password = 29 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Database name.
   string database = 30;
   // Limit of databases for auto-discovery.
@@ -122,6 +132,18 @@ message AddRDSServiceParams {
   // Connection timeout for exporter (if set).
   google.protobuf.Duration connection_timeout = 35 [(validate.rules).duration = {
     gte: {seconds: 0}
+  }];
+  // List of collector names to disable in the MySQL database exporter.
+  // Applies only when engine is DISCOVER_RDS_ENGINE_MYSQL, otherwise it is ignored.
+  repeated string mysql_disable_collectors = 36;
+  // List of collector names to disable in the PostgreSQL database exporter.
+  // Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
+  repeated string postgresql_disable_collectors = 37;
+  // AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+  // Mutually exclusive with aws_access_key and aws_secret_key.
+  string aws_role_arn = 38 [(validate.rules).string = {
+    pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
+    ignore_empty: true
   }];
 }
 

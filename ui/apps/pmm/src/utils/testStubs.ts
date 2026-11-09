@@ -1,5 +1,6 @@
 import {
   QueryData,
+  RawQueryData,
   RealtimeSession,
   RealtimeSessionStatus,
 } from 'types/rta.types';
@@ -8,15 +9,19 @@ import {
   ListServicesResponse,
   ManagedService,
   ManagedServicesResponse,
+  ManagedServiceType,
   MySqlService,
+  ServiceStatus,
   VersionedService,
 } from 'types/services.types';
 import { OrgRole, User } from 'types/user.types';
+import { createAnonymousUser } from 'contexts/user/user.utils';
 
 export const TEST_USER_ADMIN: User = {
   id: 1,
   login: 'admin',
   name: 'admin',
+  isAnonymous: false,
   isAuthorized: true,
   isViewer: true,
   isEditor: true,
@@ -80,7 +85,7 @@ export const TEST_MANAGED_SERVICES: ManagedServicesResponse = {
 
 export const TEST_MANAGED_SERVICE: ManagedService = {
   serviceId: 'service-1',
-  serviceType: 'mysql',
+  serviceType: ManagedServiceType.mysql,
   serviceName: 'Service 1',
   databaseName: '',
   nodeId: 'node-1',
@@ -94,6 +99,9 @@ export const TEST_MANAGED_SERVICE: ManagedService = {
   port: 3306,
   socket: '',
   version: '8.0.0',
+  status: ServiceStatus.up,
+  agents: [],
+  labels: {},
 };
 
 export const TEST_VERSIONED_MONGO_SERVICE: VersionedService = {
@@ -151,7 +159,6 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
   serviceName: 'Service 1',
   queryId: 'query-1',
   queryText: '{ find: "mycollection", filter: { status: "active" } }',
-  queryExecutionDuration: '10s',
   queryCollectTime: '2021-01-01T00:00:00Z',
   clientAddress: '127.0.0.1',
   queryRawJson: '{ find: "mycollection", filter: { status: "active" } }',
@@ -164,4 +171,11 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
     operation: 'operation',
     username: 'username',
   },
+};
+
+export const TEST_USER_ANONYMOUS: User = createAnonymousUser();
+// Shape the API returns, before useRealtimeQueries parses the duration.
+export const TEST_RAW_MONGO_DB_QUERY_DATA: RawQueryData = {
+  ...TEST_MONGO_DB_QUERY_DATA,
+  queryExecutionDuration: '10s',
 };

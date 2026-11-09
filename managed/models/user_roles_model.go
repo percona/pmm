@@ -21,7 +21,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // UserRoles represents mapping of users to roles.
 //

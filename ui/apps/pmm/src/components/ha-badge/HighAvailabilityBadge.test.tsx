@@ -11,7 +11,7 @@ describe('HighAvailabilityBadge', () => {
   });
 
   it('should render the badge for all health statuses', () => {
-    const healthTypes: HAHealth[] = ['degraded', 'critical', 'down'];
+    const healthTypes: HAHealth[] = ['degraded', 'critical', 'unreachable'];
 
     for (const health of healthTypes) {
       render(<HighAvailabilityBadge health={health} />);

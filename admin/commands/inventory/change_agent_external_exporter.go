@@ -74,6 +74,9 @@ type ChangeAgentExternalExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+
+	// Connection check
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentExternalExporterCommand and returns the result.
@@ -84,13 +87,14 @@ func (cmd *ChangeAgentExternalExporterCommand) RunCmd() (commands.Result, error)
 	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	body := &agents.ChangeAgentParamsBodyExternalExporter{
-		Enable:            cmd.Enable,
-		Username:          cmd.Username,
-		ListenPort:        cmd.ListenPort,
-		Scheme:            cmd.MetricsScheme,
-		MetricsPath:       cmd.MetricsPath,
-		EnablePushMetrics: cmd.PushMetrics,
-		ConnectionTimeout: commands.DurationString(cmd.ConnectionTimeout),
+		Enable:              cmd.Enable,
+		Username:            cmd.Username,
+		ListenPort:          cmd.ListenPort,
+		Scheme:              cmd.MetricsScheme,
+		MetricsPath:         cmd.MetricsPath,
+		EnablePushMetrics:   cmd.PushMetrics,
+		SkipConnectionCheck: cmd.SkipConnectionCheck,
+		ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {

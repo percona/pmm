@@ -15,7 +15,6 @@
 package inventory
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -70,7 +69,7 @@ func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
-		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
+		cmd.MetricsPath = "/" + cmd.MetricsPath
 	}
 
 	params := &agents.AddAgentParams{

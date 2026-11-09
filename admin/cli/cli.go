@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/admin/pkg/flags"
+	"github.com/percona/pmm/utils/servererror"
 )
 
 // GlobalFlagsGetter supports retrieving GlobalFlags.
@@ -85,9 +86,21 @@ type CmdWithContextRunner interface {
 	RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error)
 }
 
+// usageErrorExitCode mirrors Kong's internal exitUsageError, used when the
+// binary is invoked without a subcommand.
+const usageErrorExitCode = 80
+
 func run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	var res commands.Result
 	var err error
+
+	// Since Kong 1.16.0 the root command is treated as runnable, so invoking
+	// pmm-admin without a subcommand no longer produces a parse error and
+	// ctx.Selected() is nil. Print usage and exit as previous versions did.
+	if ctx.Selected() == nil {
+		_ = ctx.PrintUsage(false)
+		os.Exit(usageErrorExitCode)
+	}
 
 	i := ctx.Selected().Target.Addr().Interface()
 
@@ -125,7 +138,30 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 		}
 	}
 
-	return err
+	// Transport-level failures never reach the cases above; they are returned for the
+	// caller to print.
+	return explainTransportError(opts, err)
+}
+
+// explainTransportError appends a hint to the failures which never reach PMM Server's API, and
+// returns every other error unchanged. It is the whole of what printResponse does with such an
+// error, kept apart from printResponse's os.Exit calls so that it can be tested directly: a
+// test driving printResponse would exit the test binary the moment a fixture produced a
+// commands.ErrorResponse instead of a transport failure.
+//
+// The hints address a human reading the terminal, so --json output, whose consumers match on
+// the error text, keeps the error as it came.
+func explainTransportError(opts *flags.GlobalFlags, err error) error {
+	if opts.JSON {
+		return err
+	}
+
+	var host string
+	if opts.ServerURL != nil {
+		host = opts.ServerURL.Hostname()
+	}
+
+	return servererror.Explain(err, host, opts.SkipTLSCertificateCheck)
 }
 
 func printSuccessResult(opts *flags.GlobalFlags, res commands.Result) {
@@ -152,11 +188,7 @@ func printErrorResponse(opts *flags.GlobalFlags, err commands.ErrorResponse) {
 		}
 		fmt.Printf("%s\n", b) //nolint:forbidigo
 	} else {
-		msg := e.Error
-		if e.Code == 401 {
-			msg += ". Please check username and password."
-		}
-		fmt.Println(msg) //nolint:forbidigo
+		fmt.Println(commands.ServerErrorMessage(e)) //nolint:forbidigo
 	}
 }
 

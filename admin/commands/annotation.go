@@ -15,10 +15,8 @@
 package commands
 
 import (
+	"fmt"
 	"strings"
-
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/helpers"
@@ -84,7 +82,7 @@ func (cmd *AnnotationCommand) getCurrentNode() (*nodes.GetNodeOKBody, error) {
 
 	result, err := client.Default.NodesService.GetNode(params)
 	if err != nil {
-		return nil, errors.Wrap(err, "default get node")
+		return nil, fmt.Errorf("default get node: %w", err)
 	}
 
 	return result.GetPayload(), nil
@@ -108,7 +106,7 @@ func (cmd *AnnotationCommand) getCurrentNodeAllServices() ([]string, error) {
 	}
 
 	params := &services.ListServicesParams{
-		NodeID:  pointer.ToString(status.NodeID),
+		NodeID:  new(status.NodeID),
 		Context: Ctx,
 	}
 

@@ -33,7 +33,7 @@ func TestEncryptionGenerateKey(t *testing.T) {
 
 	// Verify it's valid base64
 	_, err = base64.StdEncoding.DecodeString(key1)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Generate another key and ensure they are different
 	key2, err := e.GenerateKey()
@@ -43,7 +43,24 @@ func TestEncryptionGenerateKey(t *testing.T) {
 
 	// Verify second key is also valid base64
 	_, err = base64.StdEncoding.DecodeString(key2)
-	assert.NoError(t, err)
+	require.NoError(t, err)
+}
+
+func TestNewWithoutKeyFile(t *testing.T) {
+	t.Setenv(CustomEncryptionKeyPathEnvVar, "")
+
+	e1 := New()
+	e2 := New()
+	assert.Empty(t, e1.Path)
+
+	cipherText, err := e1.Encrypt("secret")
+	require.NoError(t, err)
+	plainText, err := e2.Decrypt(cipherText)
+	require.NoError(t, err)
+	assert.Equal(t, "secret", plainText)
+
+	_, err = os.Stat("encryption.key")
+	assert.ErrorIs(t, err, os.ErrNotExist)
 }
 
 func TestEncryptionGenerateAndPersistKey(t *testing.T) {
@@ -51,7 +68,7 @@ func TestEncryptionGenerateAndPersistKey(t *testing.T) {
 	tempFile, err := os.CreateTemp(t.TempDir(), "encryption_test_*.key")
 	require.NoError(t, err)
 	err = tempFile.Close()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	t.Cleanup(func() {
 		_ = os.Remove(tempFile.Name())
@@ -60,15 +77,15 @@ func TestEncryptionGenerateAndPersistKey(t *testing.T) {
 	e := &Encryption{Path: tempFile.Name()}
 
 	err = e.generateAndPersistKey()
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.NotEmpty(t, e.Key)
 
 	// Verify the file was written with the correct content
 	content, err := os.ReadFile(tempFile.Name())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, e.Key, string(content))
 
 	// Verify it's valid base64
 	_, err = base64.StdEncoding.DecodeString(e.Key)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }

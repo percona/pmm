@@ -11,6 +11,10 @@ export const applyCustomStyles = () => {
     ${LOCATORS.toolbarSignIn},
     ${LOCATORS.profileButton} {
       display: none;
+
+      & + div[data-testid="nav-toolbar-separator"] {
+        display: none;
+      }
     }
 
     ${LOCATORS.commandPaletteTrigger},

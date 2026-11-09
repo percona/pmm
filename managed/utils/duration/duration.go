@@ -19,7 +19,6 @@ package duration
 import (
 	"time"
 
-	"github.com/AlekSi/pointer"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 )
 
@@ -29,5 +28,5 @@ func OptionalFromProto(d *durationpb.Duration) *time.Duration {
 		return nil
 	}
 
-	return pointer.To(d.AsDuration())
+	return new(d.AsDuration())
 }

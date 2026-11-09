@@ -4,7 +4,6 @@ This dashboard analyzes query performance across your PostgreSQL instances, help
 
 ![PMM PostgreSQL Top Queries](../../images/PMM_PostgreSQL_Top_Queries.png)
 
-
 ### Transactions per Second
 Shows the rate of committed transactions for each PostgreSQL instance. The metric combines both regular and replicated transactions, displayed as operations per second with step interpolation for accurate counting between data points.
 
@@ -49,3 +48,27 @@ Investigate these queries for potential optimization because they represent the 
 Shows which database users generated the most query activity across your PostgreSQL infrastructure. 
 
 Use this to identify heavy database users and understand usage patterns that may require capacity planning or access optimization.
+
+### Top 10 CPU Intensive Queries
+
+Shows queries that consumed the most total CPU time (user + system) across your PostgreSQL services. Requires `pg_stat_monitor`.
+
+Use this to identify queries driving CPU pressure during high-load incidents. Focus optimization on the top entries, reducing CPU time for these queries will have the most direct impact on server headroom.
+
+### Top 10 Memory Intensive Queries
+
+Shows queries that wrote the most data to temporary blocks, indicating high memory spill to disk. High temp block usage means the query exceeded available `work_mem` and had to offload intermediate results to disk. Requires `pg_stat_statements` or `pg_stat_monitor`.
+
+Use this to find queries that would benefit from increased `work_mem` or query restructuring to reduce sort and hash operations.
+
+### Top 10 Queries by I/O Wait
+
+Shows queries that spent the most time waiting on disk reads and writes. High I/O wait time indicates queries that are bottlenecked on storage rather than CPU or memory. Requires `track_io_timing = on`.
+
+Use this to identify candidates for indexing, partition pruning, or caching improvements.
+
+### Top 10 Queries by Shared Block Reads (Sequential Scan Indicator)
+
+Shows queries with the highest average shared block reads per execution, serving as a sequential scan indicator. A high value suggests the query is reading large portions of a table rather than using an index. Requires `pg_stat_statements` or `pg_stat_monitor`.
+
+Use this to find queries that are likely missing indexes or that would benefit from query restructuring to avoid full table scans.

@@ -52,7 +52,7 @@ func TestPTMySQLSummaryActionRunAndCancel(t *testing.T) {
 	time.AfterFunc(time.Millisecond, cancel)
 	_, err := p.Run(ctx)
 
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestBuildMyCnfConfig(t *testing.T) {

@@ -28,6 +28,7 @@ RDS Exporter added.
 Agent ID                  : {{ .Agent.AgentID }}
 PMM-Agent ID              : {{ .Agent.PMMAgentID }}
 Node ID                   : {{ .Agent.NodeID }}
+AWS role ARN              : {{ .Agent.AWSRoleArn }}
 Listen port               : {{ .Agent.ListenPort }}
 
 Status                    : {{ .Agent.Status }}
@@ -49,18 +50,19 @@ func (res *addAgentRDSExporterResult) String() string {
 
 // AddAgentRDSExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentRDSExporterCommand struct {
+	flags.LogLevelFatalFlags
+
 	PMMAgentID             string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	NodeID                 string            `arg:"" help:"Node identifier"`
 	AWSAccessKey           string            `help:"AWS Access Key ID"`
 	AWSSecretKey           string            `help:"AWS Secret Access Key"`
+	AWSRoleARN             string            `name:"aws-role-arn" help:"AWS IAM role ARN the pmm-agent assumes with its ambient credentials; excludes access/secret key"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
 	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
 	DisableEnhancedMetrics bool              `help:"Disable enhanced metrics"`
 	PushMetrics            bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
-
-	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentRDSExporterCommand and returns the result.
@@ -73,12 +75,13 @@ func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 				NodeID:                 cmd.NodeID,
 				AWSAccessKey:           cmd.AWSAccessKey,
 				AWSSecretKey:           cmd.AWSSecretKey,
+				AWSRoleArn:             cmd.AWSRoleARN,
 				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
 				DisableBasicMetrics:    cmd.DisableBasicMetrics,
 				DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 				PushMetrics:            cmd.PushMetrics,
-				LogLevel:               cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:               cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:      commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},

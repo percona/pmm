@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,23 +38,20 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentRDSExporterCommand{
 				AgentID:                "test-agent-rds-update",
-				Enable:                 pointer.ToBool(true),
-				AWSAccessKey:           pointer.ToString("AKIAIOSFODNN7EXAMPLE"),
-				AWSSecretKey:           pointer.ToString("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
-				DisableBasicMetrics:    pointer.ToBool(false),
-				DisableEnhancedMetrics: pointer.ToBool(true),
-				PushMetrics:            pointer.ToBool(true),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"environment": "production", "region": "us-west-2"},
+				Enable:                 new(true),
+				AWSAccessKey:           new("AKIAIOSFODNN7EXAMPLE"),
+				AWSSecretKey:           new("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
+				DisableBasicMetrics:    new(false),
+				DisableEnhancedMetrics: new(true),
+				PushMetrics:            new(true),
+				LogLevel:               new(flags.LogLevel("debug")),
+				CustomLabels:           &map[string]string{"environment": "production", "region": "us-west-2"},
 			}
 
 			result, err := cmd.RunCmd()
 			require.NoError(t, err)
 			assert.NotNil(t, result)
 
-			//nolint:gosec
 			expectedJSON := `{
 				"rds_exporter": {
 					"enable": true,
@@ -83,8 +79,8 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentRDSExporterCommand{
 				AgentID:             "test-agent-rds-disable",
-				Enable:              pointer.ToBool(false),
-				DisableBasicMetrics: pointer.ToBool(true),
+				Enable:              new(false),
+				DisableBasicMetrics: new(true),
 			}
 
 			result, err := cmd.RunCmd()
@@ -99,6 +95,56 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 			}`
 			assert.JSONEq(t, expectedJSON, capturedRequestBody)
 		})
+
+		t.Run("UpdateRoleARN", func(t *testing.T) {
+			var capturedRequestBody string
+			cleanup := setupChangeAgentTestServer(t, "test-agent-rds-role-arn", `{"rds_exporter": {"agent_id": "test-agent-rds-role-arn", "log_level": "LOG_LEVEL_INFO"}}`, &capturedRequestBody)
+			defer cleanup()
+
+			cli := []string{
+				"change-agent", "rds-exporter", "test-agent-rds-role-arn",
+				"--aws-role-arn=arn:aws:iam::123456789012:role/pmm-monitoring",
+			}
+
+			var cmd ChangeAgentRDSExporterCommand
+			parser, err := kong.New(&cmd)
+			require.NoError(t, err)
+
+			_, err = parser.Parse(cli[2:])
+			require.NoError(t, err)
+
+			result, err := cmd.RunCmd()
+			require.NoError(t, err)
+			assert.NotNil(t, result)
+
+			assert.Contains(t, capturedRequestBody, `"aws_role_arn":"arn:aws:iam::123456789012:role/pmm-monitoring"`)
+			assert.Contains(t, result.String(), "updated AWS role ARN")
+		})
+
+		t.Run("ClearRoleARN", func(t *testing.T) {
+			var capturedRequestBody string
+			cleanup := setupChangeAgentTestServer(t, "test-agent-rds-role-arn-clear", `{"rds_exporter": {"agent_id": "test-agent-rds-role-arn-clear", "log_level": "LOG_LEVEL_INFO"}}`, &capturedRequestBody)
+			defer cleanup()
+
+			cli := []string{
+				"change-agent", "rds-exporter", "test-agent-rds-role-arn-clear",
+				"--aws-role-arn=",
+			}
+
+			var cmd ChangeAgentRDSExporterCommand
+			parser, err := kong.New(&cmd)
+			require.NoError(t, err)
+
+			_, err = parser.Parse(cli[2:])
+			require.NoError(t, err)
+
+			result, err := cmd.RunCmd()
+			require.NoError(t, err)
+			assert.NotNil(t, result)
+
+			assert.Contains(t, capturedRequestBody, `"aws_role_arn":""`)
+			assert.Contains(t, result.String(), "cleared AWS role ARN (the exporter will use the pmm-agent host's ambient AWS credentials)")
+		})
 	})
 
 	t.Run("ComprehensiveAllFieldsValidation", func(t *testing.T) {
@@ -109,6 +155,7 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 				"agent_id": "test-agent-rds-all-flags",
 				"pmm_agent_id": "pmm-agent-123",
 				"node_id": "node-456",
+				"aws_role_arn": "arn:aws:iam::123456789012:role/pmm-monitoring",
 				"listen_port": 9042,
 				"push_metrics_enabled": true,
 				"disabled": false,
@@ -176,6 +223,7 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 Agent ID                   : test-agent-rds-all-flags
 PMM-Agent ID               : pmm-agent-123
 Node ID                    : node-456
+AWS role ARN               : arn:aws:iam::123456789012:role/pmm-monitoring
 Listen port                : 9042
 Push metrics enabled       : true
 
@@ -207,7 +255,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentRDSExporterCommand{
 			AgentID: "invalid-agent-rds",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

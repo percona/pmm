@@ -17,7 +17,8 @@ package server
 
 import (
 	"context"
-	"net/url"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -25,7 +26,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -42,8 +42,6 @@ import (
 )
 
 func TestUpdater(t *testing.T) {
-	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
-	watchtowerURL, _ := url.Parse("http://watchtower:8080")
 	const tmpDistributionFile = "/tmp/distribution"
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -120,7 +118,7 @@ func TestUpdater(t *testing.T) {
 				want: &versionInfo{
 					Version:     "3.0.1",
 					DockerImage: "percona/pmm-server:3.0.1",
-					BuildTime:   pointer.To(time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC)),
+					BuildTime:   new(time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC)),
 				},
 			},
 			{
@@ -248,7 +246,7 @@ func TestUpdater(t *testing.T) {
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
-				u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
+				u := NewUpdater(db)
 				parsed, err := version.Parse(tt.args.currentVersion)
 				require.NoError(t, err)
 				_, next := u.next(t.Context(), *parsed, tt.args.results)
@@ -280,7 +278,7 @@ func TestUpdater(t *testing.T) {
 
 	t.Run("TestLatest", func(t *testing.T) {
 		version.Version = "2.41.0"
-		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
+		u := NewUpdater(db)
 
 		t.Run("LatestFromProduction", func(t *testing.T) {
 			_, latest, err := u.latest(t.Context())
@@ -313,7 +311,7 @@ func TestUpdater(t *testing.T) {
 		err := os.WriteFile(fileName, []byte(fileBody), 0o600)
 		require.NoError(t, err)
 
-		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
+		u := NewUpdater(db)
 		_, latest, err := u.latest(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, "2.41.1", latest.Version.String())
@@ -323,38 +321,56 @@ func TestUpdater(t *testing.T) {
 
 	t.Run("with disabled updates check", func(t *testing.T) {
 		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-			EnableUpdates: pointer.ToBool(false),
+			EnableUpdates: new(false),
 		})
 		require.NoError(t, err)
 
 		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
 
-		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
+		u := NewUpdater(db)
 		err = u.check(ctx)
 		require.Error(t, err)
 		tests.AssertGRPCError(t, grpcstatus.New(codes.FailedPrecondition, "PMM updates are disabled"), err)
 	})
+}
 
-	t.Run("TestUpdateEnvFile", func(t *testing.T) {
-		u := NewUpdater(watchtowerURL, gRPCMessageMaxSize, db)
-		tmpFile := filepath.Join(os.TempDir(), "pmm-service.env")
-		content := `PMM_WATCHTOWER_HOST=http://watchtower:8080
-PMM_WATCHTOWER_TOKEN=123
-PMM_SERVER_UPDATE_VERSION=docker.io/perconalab/pmm-server:3-dev-container
-PMM_IMAGE=docker.io/perconalab/pmm-server:3-dev-latest
-PMM_DISTRIBUTION_METHOD=ami`
-		err := os.WriteFile(tmpFile, []byte(content), 0o644) //nolint:gosec
-		require.NoError(t, err)
+// trackingReadCloser records whether Close was called.
+type trackingReadCloser struct {
+	io.Reader
 
-		err = u.updatePodmanEnvironmentVariables(tmpFile, "PMM_IMAGE", "perconalab/pmm-server:3-dev-container")
-		require.NoError(t, err)
-		newContent, err := os.ReadFile(tmpFile) //nolint:gosec
-		require.NoError(t, err)
-		assert.Equal(t, `PMM_WATCHTOWER_HOST=http://watchtower:8080
-PMM_WATCHTOWER_TOKEN=123
-PMM_SERVER_UPDATE_VERSION=docker.io/perconalab/pmm-server:3-dev-container
-PMM_IMAGE=docker.io/perconalab/pmm-server:3-dev-container
-PMM_DISTRIBUTION_METHOD=ami`, string(newContent))
-	})
+	closed bool
+}
+
+func (rc *trackingReadCloser) Close() error {
+	rc.closed = true
+	return nil
+}
+
+type stubRoundTripper struct {
+	statusCode int
+	body       io.ReadCloser
+}
+
+func (rt stubRoundTripper) RoundTrip(_ *http.Request) (*http.Response, error) {
+	return &http.Response{
+		StatusCode: rt.statusCode,
+		Body:       rt.body,
+		Header:     make(http.Header),
+	}, nil
+}
+
+func TestGetReleaseNotesClosesResponseBody(t *testing.T) {
+	t.Setenv(env.PlatformAddress, "https://version.test")
+
+	body := &trackingReadCloser{Reader: strings.NewReader("")}
+	origTransport := http.DefaultClient.Transport
+	http.DefaultClient.Transport = stubRoundTripper{statusCode: http.StatusNotFound, body: body}
+	t.Cleanup(func() { http.DefaultClient.Transport = origTransport })
+
+	u := NewUpdater(nil)
+	text, err := u.getReleaseNotesText(t.Context(), *version.MustParse("3.0.0"))
+	require.NoError(t, err)
+	assert.Empty(t, text)
+	assert.True(t, body.closed, "response body must be closed on non-200 status")
 }

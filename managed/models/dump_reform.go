@@ -37,6 +37,7 @@ func (v *dumpTableType) Columns() []string {
 		"ignore_load",
 		"created_at",
 		"updated_at",
+		"encrypted",
 	}
 }
 
@@ -70,6 +71,7 @@ var DumpTable = &dumpTableType{
 			{Name: "IgnoreLoad", Type: "bool", Column: "ignore_load"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
+			{Name: "Encrypted", Type: "bool", Column: "encrypted"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -78,7 +80,7 @@ var DumpTable = &dumpTableType{
 
 // String returns a string representation of this struct or record.
 func (s Dump) String() string {
-	res := make([]string, 9)
+	res := make([]string, 10)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Status: " + reform.Inspect(s.Status, true)
 	res[2] = "ServiceNames: " + reform.Inspect(s.ServiceNames, true)
@@ -88,6 +90,7 @@ func (s Dump) String() string {
 	res[6] = "IgnoreLoad: " + reform.Inspect(s.IgnoreLoad, true)
 	res[7] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	res[8] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[9] = "Encrypted: " + reform.Inspect(s.Encrypted, true)
 	return strings.Join(res, ", ")
 }
 
@@ -104,6 +107,7 @@ func (s *Dump) Values() []interface{} {
 		s.IgnoreLoad,
 		s.CreatedAt,
 		s.UpdatedAt,
+		s.Encrypted,
 	}
 }
 
@@ -120,6 +124,7 @@ func (s *Dump) Pointers() []interface{} {
 		&s.IgnoreLoad,
 		&s.CreatedAt,
 		&s.UpdatedAt,
+		&s.Encrypted,
 	}
 }
 

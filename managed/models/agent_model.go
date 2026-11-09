@@ -17,7 +17,9 @@ package models
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"database/sql/driver"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"maps"
@@ -31,18 +33,29 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
+	"github.com/percona/pmm/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // AgentType represents Agent type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type AgentType string
+
+// Text file names carrying TLS material to pmm-agent. They are part of the agent wire
+// protocol and are declared canonically in api/agent/v1, which models must not import;
+// TestTLSFileNamesMatchAgentAPI in managed/services/agents keeps the two copies in step.
+const (
+	TLSCaFileName   = "tlsCa"
+	TLSCertFileName = "tlsCert"
+	TLSKeyFileName  = "tlsKey"
+)
 
 const (
 	certificateFilePlaceholder    = "certificateFilePlaceholder"
@@ -58,6 +71,8 @@ const (
 	skipVerify         = "skip-verify"
 	defaultDialTimeout = 2 * time.Second
 	valkeyDialTimeout  = 3 * time.Second
+	agentIDLabel       = "agent_id"
+	agentTypeLabel     = "agent_type"
 )
 
 // Agent types (in the same order as in agents.proto).
@@ -94,8 +109,8 @@ func GetRTAAgentTypes() []AgentType {
 var v2_42 = version.MustParse("2.42.0-0")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
-// It takes the value of "pmm-server" in regular non-HA setups, while in Active/Active HA setups
-// it is set to the actual pmm-agent's Agent ID, which is a UUID.
+// It takes the value of "pmm-server" in non-HA setups, while in HA setups it is set to the actual
+// pmm-agent's Agent ID, which is a UUID.
 var PMMServerAgentID = string("pmm-server")
 
 // AgentConfigFilePath is the default path to pmm-agent config file; it changes to /srv in HA setups.
@@ -117,7 +132,7 @@ type ExporterOptions struct {
 func (c ExporterOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *ExporterOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *ExporterOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all ExporterOptions fields are unset or have zero values, otherwise returns false.
 func (c ExporterOptions) IsEmpty() bool {
@@ -142,7 +157,7 @@ type QANOptions struct {
 func (c QANOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *QANOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *QANOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all QANOptions fields are unset or have zero values, otherwise returns false.
 func (c QANOptions) IsEmpty() bool {
@@ -156,6 +171,7 @@ func (c QANOptions) IsEmpty() bool {
 type AWSOptions struct {
 	AWSAccessKey               string `json:"aws_access_key"`
 	AWSSecretKey               string `json:"aws_secret_key"`
+	AWSRoleARN                 string `json:"aws_role_arn"`
 	RDSBasicMetricsDisabled    bool   `json:"rds_basic_metrics_disabled"`
 	RDSEnhancedMetricsDisabled bool   `json:"rds_enhanced_metrics_disabled"`
 }
@@ -164,14 +180,38 @@ type AWSOptions struct {
 func (c AWSOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AWSOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *AWSOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all AWSOptions fields are unset or have zero values, otherwise returns false.
 func (c AWSOptions) IsEmpty() bool {
 	return c.AWSAccessKey == "" &&
 		c.AWSSecretKey == "" &&
+		c.AWSRoleARN == "" &&
 		!c.RDSBasicMetricsDisabled &&
 		!c.RDSEnhancedMetricsDisabled
+}
+
+// CredentialsKey returns a stable identifier for the AWS identity these options resolve to.
+// For static keys it returns the access key unchanged, preserving existing group IDs. A role
+// ARN is hashed because this value becomes a path component on the pmm-agent side.
+func (c AWSOptions) CredentialsKey() string {
+	if c.AWSAccessKey != "" {
+		return c.AWSAccessKey
+	}
+	if c.AWSRoleARN != "" {
+		sum := sha256.Sum256([]byte(c.AWSRoleARN))
+		return "role-" + hex.EncodeToString(sum[:])[:16]
+	}
+	return ""
+}
+
+// Validate returns an error if the AWS options are mutually inconsistent.
+func (c AWSOptions) Validate() error {
+	if c.AWSRoleARN != "" && (c.AWSAccessKey != "" || c.AWSSecretKey != "") {
+		return status.Error(codes.InvalidArgument, "Both AWS role ARN and AWS access key/secret key are set; they are mutually exclusive.")
+	}
+
+	return nil
 }
 
 // AzureOptions represents structure for special Azure options.
@@ -187,7 +227,7 @@ type AzureOptions struct {
 func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *AzureOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all AzureOptions fields are unset or have zero values, otherwise returns false.
 func (c AzureOptions) IsEmpty() bool {
@@ -200,21 +240,22 @@ func (c AzureOptions) IsEmpty() bool {
 
 // MongoDBOptions represents structure for special MongoDB options.
 type MongoDBOptions struct {
-	TLSCertificateKey             string   `json:"tls_certificate_key"`
-	TLSCertificateKeyFilePassword string   `json:"tls_certificate_key_file_password"`
-	TLSCa                         string   `json:"tls_ca"`
-	AuthenticationMechanism       string   `json:"authentication_mechanism"`
-	AuthenticationDatabase        string   `json:"authentication_database"`
-	StatsCollections              []string `json:"stats_collections"`
-	CollectionsLimit              int32    `json:"collections_limit"`
-	EnableAllCollectors           bool     `json:"enable_all_collectors"`
+	TLSCertificateKey              string   `json:"tls_certificate_key"`
+	TLSCertificateKeyFilePassword  string   `json:"tls_certificate_key_file_password"`
+	TLSCa                          string   `json:"tls_ca"`
+	AuthenticationMechanism        string   `json:"authentication_mechanism"`
+	AuthenticationDatabase         string   `json:"authentication_database"`
+	StatsCollections               []string `json:"stats_collections"`
+	CollectionsLimit               int32    `json:"collections_limit"`
+	EnableAllCollectors            bool     `json:"enable_all_collectors"`
+	EnableDiagnosticDataHistograms bool     `json:"enable_diagnostic_data_histograms"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
 func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *MongoDBOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all MongoDBOptions fields are unset or have zero values, otherwise returns false.
 func (c MongoDBOptions) IsEmpty() bool {
@@ -225,7 +266,8 @@ func (c MongoDBOptions) IsEmpty() bool {
 		c.AuthenticationDatabase == "" &&
 		len(c.StatsCollections) == 0 &&
 		c.CollectionsLimit == 0 &&
-		!c.EnableAllCollectors
+		!c.EnableAllCollectors &&
+		!c.EnableDiagnosticDataHistograms
 }
 
 // MySQLOptions represents structure for special MySQL options.
@@ -251,7 +293,7 @@ type MySQLOptions struct {
 func (c MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MySQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *MySQLOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all MySQLOptions fields are unset or have zero values, otherwise returns false.
 func (c MySQLOptions) IsEmpty() bool {
@@ -277,7 +319,7 @@ type PostgreSQLOptions struct {
 func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *PostgreSQLOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all PostgreSQLOptions fields are unset or have zero values, otherwise returns false.
 func (c PostgreSQLOptions) IsEmpty() bool {
@@ -309,6 +351,11 @@ func (c ValkeyOptions) IsEmpty() bool {
 	return c.SSLCa == "" &&
 		c.SSLCert == "" &&
 		c.SSLKey == ""
+}
+
+// clientKeyPairIncomplete reports whether only one half of the TLS client key pair is set.
+func (c ValkeyOptions) clientKeyPairIncomplete() bool {
+	return (c.SSLCert == "") != (c.SSLKey == "")
 }
 
 // RTAOptions represents structure for Real-Time Analytics options.
@@ -380,6 +427,10 @@ type Agent struct {
 	MySQLOptions      MySQLOptions      `reform:"mysql_options"`
 	PostgreSQLOptions PostgreSQLOptions `reform:"postgresql_options"`
 	ValkeyOptions     ValkeyOptions     `reform:"valkey_options"`
+
+	// undecrypted holds the stored ciphertext of the secret fields this node's key could not
+	// decrypt, by field name, so that writing the Agent back keeps them intact.
+	undecrypted map[string]string
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -447,25 +498,65 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	}
 
 	var names []string
-	if err := json.Unmarshal(a.EnvironmentVariables, &names); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal shared environment variable names")
+	err := json.Unmarshal(a.EnvironmentVariables, &names)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal shared environment variable names: %w", err)
 	}
 	return names, nil
 }
 
-// SetEnvironmentVariableNames encodes shared environment variable names.
+// SetEnvironmentVariableNames encodes shared environment variable names. Names already stored
+// (e.g. from before this validation existed, or under since-tightened rules) are carried forward
+// as-is: this is a full-replace field, so a caller resending an existing name alongside a new one
+// must not be rejected because of a name it did not intend to change.
 func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	if len(names) == 0 {
 		a.EnvironmentVariables = nil
 		return nil
 	}
 
+	names, err := envvars.NormalizeNamesAllowing(names, a.GrandfatheredEnvironmentVariableNames())
+	if err != nil {
+		return err
+	}
+
 	b, err := json.Marshal(names)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal shared environment variable names")
+		return fmt.Errorf("failed to marshal shared environment variable names: %w", err)
 	}
 	a.EnvironmentVariables = b
 	return nil
+}
+
+// GrandfatheredEnvironmentVariableNames returns the agent's currently-stored environment variable
+// names as the set the grandfathering checks compare against, normalized the same way
+// NormalizeNamesAllowing normalizes its input. Callers that use it to decide whether an update is
+// allowed must read the agent within the same transaction as that update, so the names it
+// grandfathers cannot go stale before the update applies them.
+//
+// Two stored values yield no grandfathering rather than an error. A column that cannot be decoded
+// holds nothing worth carrying forward, and failing here would make the row permanently unwritable:
+// every non-empty update would be rejected, contradicting the repair path ToAPIAgent documents. An
+// empty or whitespace-only entry is skipped for a related reason — grandfathering it would let the
+// empty string be written back for good, and pmm-agent can only skip it and warn on every state
+// update. Neither can be fixed by the caller, so neither is reported to them.
+func (a *Agent) GrandfatheredEnvironmentVariableNames() map[string]struct{} {
+	existing, err := a.GetEnvironmentVariableNames()
+	if err != nil {
+		return nil
+	}
+
+	grandfathered := make(map[string]struct{}, len(existing))
+	for _, name := range existing {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+
+		grandfathered[name] = struct{}{}
+	}
+
+	return grandfathered
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.
@@ -486,12 +577,13 @@ func (a *Agent) UnifiedLabels() (map[string]string, error) {
 	}
 
 	res := map[string]string{
-		"agent_id":   a.AgentID,
-		"agent_type": string(a.AgentType),
+		agentIDLabel:   a.AgentID,
+		agentTypeLabel: string(a.AgentType),
 	}
 	maps.Copy(res, custom)
 
-	if err = prepareLabels(res, true); err != nil {
+	err = prepareLabels(res, true)
+	if err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -531,7 +623,7 @@ type DSNParams struct {
 }
 
 // DSN returns a DSN string for accessing a given Service with this Agent (and an implicit driver).
-func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string { //nolint:cyclop,maintidx
+func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string { //nolint:gocognit,cyclop,maintidx
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
@@ -575,9 +667,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		if a.MySQLOptions.ExtraDSNParams != nil {
 			// Add extra DSN parameters if they are set.
-			for k, v := range a.MySQLOptions.ExtraDSNParams {
-				cfg.Params[k] = v
-			}
+			maps.Copy(cfg.Params, a.MySQLOptions.ExtraDSNParams)
 		}
 
 		// MultiStatements must not be used as it enables SQL injections (in particular, in pmm-agent's Actions)
@@ -617,9 +707,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		if a.MySQLOptions.ExtraDSNParams != nil {
 			// Add extra DSN parameters if they are set.
-			for k, v := range a.MySQLOptions.ExtraDSNParams {
-				cfg.Params[k] = v
-			}
+			maps.Copy(cfg.Params, a.MySQLOptions.ExtraDSNParams)
 		}
 
 		// MultiStatements must not be used as it enables SQL injections (in particular, in pmm-agent's Actions)
@@ -822,9 +910,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 // EffectiveDialTimeout returns the database connection timeout for DSN generation.
 // Returns ExporterOptions.ConnectionTimeout if set, otherwise default based on agent type.
 //
-// Defaults: mysqld/mongodb/proxysql/postgres (2s), valkey (3s).
-//
-// Postgres on RDS/Azure uses 5s default but handled in postgresql.go (needs Node context).
+// Defaults: MySQL, MongoDB, ProxySQL, and PostgreSQL use 2s; Valkey uses 3s.
 //
 // Exporters without DB connection (node, rds, azure, external) don't use this.
 // Their ConnectionTimeout affects only scrape timeout via exporterScrapeTimeout().
@@ -848,7 +934,7 @@ func (a *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	username := pointer.GetString(a.Username)
 	password := pointer.GetString(a.Password)
 
-	host := "127.0.0.1"
+	host := LocalhostAddr
 	if !a.ExporterOptions.PushMetrics {
 		node, err := FindNodeByID(q, *a.RunsOnNodeID)
 		if err != nil {
@@ -900,18 +986,18 @@ func (a *Agent) IsMySQLTablestatsGroupEnabled() bool {
 }
 
 // Files returns files map required to connect to DB.
-func (s Agent) Files() map[string]string {
-	switch s.AgentType {
+func (a Agent) Files() map[string]string { //nolint:gocognit
+	switch a.AgentType {
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		files := make(map[string]string)
-		if s.MySQLOptions.TLSCa != "" {
-			files["tlsCa"] = s.MySQLOptions.TLSCa
+		if a.MySQLOptions.TLSCa != "" {
+			files[TLSCaFileName] = a.MySQLOptions.TLSCa
 		}
-		if s.MySQLOptions.TLSCert != "" {
-			files["tlsCert"] = s.MySQLOptions.TLSCert
+		if a.MySQLOptions.TLSCert != "" {
+			files[TLSCertFileName] = a.MySQLOptions.TLSCert
 		}
-		if s.MySQLOptions.TLSKey != "" {
-			files["tlsKey"] = s.MySQLOptions.TLSKey
+		if a.MySQLOptions.TLSKey != "" {
+			files[TLSKeyFileName] = a.MySQLOptions.TLSKey
 		}
 
 		if len(files) != 0 {
@@ -923,11 +1009,11 @@ func (s Agent) Files() map[string]string {
 		return nil
 	case QANMongoDBProfilerAgentType, QANMongoDBMongologAgentType, MongoDBExporterType, RTAMongoDBAgentType:
 		files := make(map[string]string)
-		if s.MongoDBOptions.TLSCa != "" {
-			files[caFilePlaceholder] = s.MongoDBOptions.TLSCa
+		if a.MongoDBOptions.TLSCa != "" {
+			files[caFilePlaceholder] = a.MongoDBOptions.TLSCa
 		}
-		if s.MongoDBOptions.TLSCertificateKey != "" {
-			files[certificateKeyFilePlaceholder] = s.MongoDBOptions.TLSCertificateKey
+		if a.MongoDBOptions.TLSCertificateKey != "" {
+			files[certificateKeyFilePlaceholder] = a.MongoDBOptions.TLSCertificateKey
 		}
 
 		if len(files) != 0 {
@@ -938,14 +1024,14 @@ func (s Agent) Files() map[string]string {
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
 		files := make(map[string]string)
 
-		if s.PostgreSQLOptions.SSLCa != "" {
-			files[caFilePlaceholder] = s.PostgreSQLOptions.SSLCa
+		if a.PostgreSQLOptions.SSLCa != "" {
+			files[caFilePlaceholder] = a.PostgreSQLOptions.SSLCa
 		}
-		if s.PostgreSQLOptions.SSLCert != "" {
-			files[certificateFilePlaceholder] = s.PostgreSQLOptions.SSLCert
+		if a.PostgreSQLOptions.SSLCert != "" {
+			files[certificateFilePlaceholder] = a.PostgreSQLOptions.SSLCert
 		}
-		if s.PostgreSQLOptions.SSLKey != "" {
-			files[certificateKeyFilePlaceholder] = s.PostgreSQLOptions.SSLKey
+		if a.PostgreSQLOptions.SSLKey != "" {
+			files[certificateKeyFilePlaceholder] = a.PostgreSQLOptions.SSLKey
 		}
 
 		if len(files) != 0 {
@@ -954,16 +1040,23 @@ func (s Agent) Files() map[string]string {
 
 		return nil
 	case ValkeyExporterType:
+		// Nothing consumes the material over a plaintext link, so keep the private key off
+		// the agent host in that case.
+		if !a.TLS {
+			return nil
+		}
+
 		files := make(map[string]string)
 
-		if s.ValkeyOptions.SSLCa != "" {
-			files["tlsCa"] = s.ValkeyOptions.SSLCa
+		if a.ValkeyOptions.SSLCa != "" {
+			files[TLSCaFileName] = a.ValkeyOptions.SSLCa
 		}
-		if s.ValkeyOptions.SSLCert != "" {
-			files["tlsCert"] = s.ValkeyOptions.SSLCert
-		}
-		if s.ValkeyOptions.SSLKey != "" {
-			files["tlsKey"] = s.ValkeyOptions.SSLKey
+		// valkey_exporter calls log.Fatal on half a client key pair and the connection
+		// check cannot use one either, so the pair only ships as a unit. Registration rejects
+		// a half pair, so this only guards rows written before that validation existed.
+		if a.ValkeyOptions.SSLCert != "" && a.ValkeyOptions.SSLKey != "" {
+			files[TLSCertFileName] = a.ValkeyOptions.SSLCert
+			files[TLSKeyFileName] = a.ValkeyOptions.SSLKey
 		}
 
 		if len(files) != 0 {
@@ -972,41 +1065,52 @@ func (s Agent) Files() map[string]string {
 
 		return nil
 	default:
-		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
+		panic(fmt.Errorf("unhandled AgentType %q", a.AgentType))
 	}
 }
 
 // TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.
-func (s Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
+func (a Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	templateParams := []string{
 		pointer.GetString(svc.Address),
-		pointer.GetString(s.Username),
-		pointer.GetString(s.Password),
-		s.ExporterOptions.MetricsPath,
+		pointer.GetString(a.Username),
+		pointer.GetString(a.Password),
+		a.ExporterOptions.MetricsPath,
 	}
 
 	switch svc.ServiceType {
 	case MySQLServiceType:
-		if s.MySQLOptions.TLSKey != "" {
-			templateParams = append(templateParams, s.MySQLOptions.TLSKey)
+		if a.MySQLOptions.TLSKey != "" {
+			templateParams = append(templateParams, a.MySQLOptions.TLSKey)
 		}
 	case MongoDBServiceType:
-		if s.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
-			templateParams = append(templateParams, s.MongoDBOptions.TLSCertificateKeyFilePassword)
+		if a.MongoDBOptions.TLSCertificateKeyFilePassword != "" {
+			templateParams = append(templateParams, a.MongoDBOptions.TLSCertificateKeyFilePassword)
 		}
 	case PostgreSQLServiceType:
-		if s.PostgreSQLOptions.SSLKey != "" {
-			templateParams = append(templateParams, s.PostgreSQLOptions.SSLKey)
+		if a.PostgreSQLOptions.SSLKey != "" {
+			templateParams = append(templateParams, a.PostgreSQLOptions.SSLKey)
+		}
+	case ValkeyServiceType:
+		// pmm-agent renders every text file's content as a template, so all three
+		// certificates have to be considered, not just the private key.
+		if a.ValkeyOptions.SSLCa != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLCa)
+		}
+		if a.ValkeyOptions.SSLCert != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLCert)
+		}
+		if a.ValkeyOptions.SSLKey != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLKey)
 		}
 	case ProxySQLServiceType:
 	case HAProxyServiceType:
 	case ExternalServiceType:
 	}
 
-	tdp := TemplateDelimsPair(
+	return new(TemplateDelimsPair(
 		templateParams...,
-	)
-	return &tdp
+	))
 }
 
 // HashPassword func to calculate password hash. Public and overridable for testing purposes.
@@ -1031,16 +1135,17 @@ func (a *Agent) BuildWebConfigFile() (string, error) {
 
 	hashedPassword, err := HashPassword(password, salt)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to hash password")
+		return "", fmt.Errorf("failed to hash password: %w", err)
 	}
 
 	var configBuffer bytes.Buffer
 	tmpl, err := template.New("webConfig").Parse(webConfigTemplate)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to parse webconfig template")
+		return "", fmt.Errorf("failed to parse webconfig template: %w", err)
 	}
-	if err = tmpl.Execute(&configBuffer, hashedPassword); err != nil {
-		return "", errors.Wrap(err, "Failed to execute webconfig template")
+	err = tmpl.Execute(&configBuffer, hashedPassword)
+	if err != nil {
+		return "", fmt.Errorf("failed to execute webconfig template: %w", err)
 	}
 
 	config := configBuffer.String()

@@ -35,8 +35,30 @@ As a general rule of thumb, please try to create bug reports that are:
 
 ## Setup your local development environment
 
-The easiest way to setup a development environment is to use [Docker Compose](https://docs.docker.com/compose).
-That environment bundles a number of tools to help you populate the panels with sample data.
+### In the PMM devcontainer (recommended)
+
+The PMM devcontainer ships Node 22 + Yarn and wires the QAN plugin straight into the bundled Grafana. From the repo root **on the host**:
+
+```bash
+make env-up      # first run only; reuses the container afterwards
+make env         # shell into the container
+```
+
+Then **inside the container**:
+
+```bash
+make run-qan-ui
+```
+
+`run-qan-ui` runs `yarn install` under `dashboards/pmm-app`, symlinks `dashboards/pmm-app/dist` into `/srv/grafana/plugins/pmm-app/dist`, injects the livereload snippet into Grafana's `index.html` via `setup-livereload`, and starts the webpack watcher.
+
+Open `https://localhost/graph/d/pmm-qan/` — the livereload server on port `35730` reloads the page whenever webpack finishes a rebuild.
+
+For a one-off build (no watch), use `make build-qan-ui` instead.
+
+### Standalone with Docker Compose
+
+If you'd rather not run the PMM devcontainer, the `pmm-app` folder ships a minimal Docker Compose setup that bundles enough tooling to populate the panels with sample data:
 
 ```
 cd pmm-app

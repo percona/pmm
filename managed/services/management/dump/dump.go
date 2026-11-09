@@ -20,13 +20,13 @@ import (
 	"bufio"
 	"context"
 	"encoding/base64"
+	"errors"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/pkg/sftp"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
@@ -40,17 +40,23 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
+	validators "github.com/percona/pmm/managed/utils/validators"
+)
+
+const (
+	// DumpEncryptionMinPasswordLength is the minimum length for dump encryption password if set.
+	dumpEncryptionMinPasswordLength = 8
 )
 
 // Service represents a structure for managing dump-related operations.
 type Service struct {
+	dumpv1beta1.UnimplementedDumpServiceServer
+
 	db *reform.DB
 	l  *logrus.Entry
 
 	dumpService   dumpService
 	grafanaClient *grafana.Client
-
-	dumpv1beta1.UnimplementedDumpServiceServer
 }
 
 // New creates a new instance of the Service with the provided dependencies.
@@ -80,11 +86,11 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 		if basic, ok := strings.CutPrefix(authHeader[0], "Basic"); ok {
 			decodedBasic, err := base64.StdEncoding.DecodeString(strings.TrimSpace(basic))
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to decode basic authorization header")
+				return nil, fmt.Errorf("failed to decode basic authorization header: %w", err)
 			}
 
 			s := strings.Split(string(decodedBasic), ":")
-			if len(s) < 2 {
+			if len(s) < 2 { //nolint:mnd
 				return nil, errors.New("failed to parse basic authorization header")
 			}
 			user, password = s[0], s[1]
@@ -98,8 +104,8 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 
 	// If auth cookie is present try to extract cookie value.
 	if len(cookieHeader) != 0 {
-		cookies := strings.Split(cookieHeader[0], ";")
-		for _, c := range cookies {
+		cookies := strings.SplitSeq(cookieHeader[0], ";")
+		for c := range cookies {
 			// The name of the cookie is defined in `./build/ansible/roles/grafana/files/grafana.ini`.
 			if auth, ok := strings.CutPrefix(strings.TrimSpace(c), "pmm_session="); ok {
 				cookie = auth
@@ -107,24 +113,34 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 		}
 	}
 
+	if req.EnableEncryption {
+		if req.EncryptionPassword == "" {
+			return nil, status.Error(codes.InvalidArgument, "Encryption password must be provided when encryption is enabled")
+		}
+		err := validators.ValidatePassword(req.EncryptionPassword, dumpEncryptionMinPasswordLength)
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, "Invalid encryption password: "+err.Error())
+		}
+	}
+
 	params := &dump.Params{
-		Token:        token,
-		Cookie:       cookie,
-		User:         user,
-		Password:     password,
-		ServiceNames: req.ServiceNames,
-		ExportQAN:    req.ExportQan,
-		IgnoreLoad:   req.IgnoreLoad,
+		Token:              token,
+		Cookie:             cookie,
+		User:               user,
+		Password:           password,
+		ServiceNames:       req.ServiceNames,
+		ExportQAN:          req.ExportQan,
+		IgnoreLoad:         req.IgnoreLoad,
+		EnableEncryption:   req.EnableEncryption,
+		EncryptionPassword: req.EncryptionPassword,
 	}
 
 	if req.StartTime != nil {
-		startTime := req.StartTime.AsTime()
-		params.StartTime = &startTime
+		params.StartTime = new(req.StartTime.AsTime())
 	}
 
 	if req.EndTime != nil {
-		endTime := req.EndTime.AsTime()
-		params.EndTime = &endTime
+		params.EndTime = new(req.EndTime.AsTime())
 	}
 
 	if params.StartTime != nil && params.EndTime != nil {
@@ -166,7 +182,8 @@ func (s *Service) ListDumps(_ context.Context, _ *dumpv1beta1.ListDumpsRequest) 
 // DeleteDump deletes a dump based on the provided context and request.
 func (s *Service) DeleteDump(_ context.Context, req *dumpv1beta1.DeleteDumpRequest) (*dumpv1beta1.DeleteDumpResponse, error) {
 	for _, id := range req.DumpIds {
-		if err := s.dumpService.DeleteDump(id); err != nil {
+		err := s.dumpService.DeleteDump(id)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -181,7 +198,7 @@ func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetDumpLogsReq
 		Offset: int(req.Offset),
 	}
 	if req.Limit > 0 {
-		filter.Limit = pointer.ToInt(int(req.Limit))
+		filter.Limit = new(int(req.Limit))
 	}
 
 	dumpLogs, err := models.FindDumpLogs(s.db.Querier, filter)
@@ -234,19 +251,20 @@ func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpReque
 
 	sshClient, err := ssh.Dial("tcp", req.SftpParameters.Address, conf)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to open TCP connection to SFTP server")
+		return nil, fmt.Errorf("failed to open TCP connection to SFTP server: %w", err)
 	}
 	defer sshClient.Close() //nolint:errcheck
 
 	sftpClient, err := sftp.NewClient(sshClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create SFTP client")
+		return nil, fmt.Errorf("failed to create SFTP client: %w", err)
 	}
 	defer sftpClient.Close() //nolint:errcheck
 
 	for _, filePath := range filePaths {
-		if err = s.uploadFile(sftpClient, filePath, req.SftpParameters.Directory); err != nil {
-			return nil, errors.Wrap(err, "failed to upload file on SFTP server")
+		err = s.uploadFile(sftpClient, filePath, req.SftpParameters.Directory)
+		if err != nil {
+			return nil, fmt.Errorf("failed to upload file on SFTP server: %w", err)
 		}
 	}
 
@@ -259,20 +277,22 @@ func (s *Service) uploadFile(client *sftp.Client, localFilePath, remoteDir strin
 
 	nf, err := client.OpenFile(remoteFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC)
 	if err != nil {
-		return errors.Wrap(err, "failed to create file on SFTP server")
+		return fmt.Errorf("failed to create file on SFTP server: %w", err)
 	}
 
 	f, err := os.Open(localFilePath) //nolint:gosec
 	if err != nil {
-		return errors.Wrap(err, "failed to open dump file")
+		return fmt.Errorf("failed to open dump file: %w", err)
 	}
 	defer func() {
-		if err := f.Close(); err != nil {
+		err := f.Close()
+		if err != nil {
 			s.l.Errorf("Failed to close file: %+v", err)
 		}
 	}()
-	if _, err = bufio.NewReader(f).WriteTo(nf); err != nil {
-		return errors.Wrap(err, "failed to write dump file on SFTP server")
+	_, err = bufio.NewReader(f).WriteTo(nf)
+	if err != nil {
+		return fmt.Errorf("failed to write dump file on SFTP server: %w", err)
 	}
 
 	return nil
@@ -281,7 +301,7 @@ func (s *Service) uploadFile(client *sftp.Client, localFilePath, remoteDir strin
 func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
 	ds, err := convertDumpStatus(dump.Status)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to convert dump ds")
+		return nil, fmt.Errorf("failed to convert dump ds: %w", err)
 	}
 
 	d := &dumpv1beta1.Dump{
@@ -289,6 +309,7 @@ func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
 		Status:       ds,
 		ServiceNames: dump.ServiceNames,
 		CreatedAt:    timestamppb.New(dump.CreatedAt),
+		Encrypted:    dump.Encrypted,
 	}
 
 	if dump.StartTime != nil {
@@ -311,6 +332,6 @@ func convertDumpStatus(status models.DumpStatus) (dumpv1beta1.DumpStatus, error)
 	case models.DumpStatusInProgress:
 		return dumpv1beta1.DumpStatus_DUMP_STATUS_IN_PROGRESS, nil
 	default:
-		return dumpv1beta1.DumpStatus_DUMP_STATUS_UNSPECIFIED, errors.Errorf("invalid status '%s'", status)
+		return dumpv1beta1.DumpStatus_DUMP_STATUS_UNSPECIFIED, fmt.Errorf("invalid status '%s'", status)
 	}
 }

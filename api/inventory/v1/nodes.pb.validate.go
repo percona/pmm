@@ -2503,6 +2503,8 @@ func (m *AddRemoteRDSNodeParams) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for InstanceId
+
 	if len(errors) > 0 {
 		return AddRemoteRDSNodeParamsMultiError(errors)
 	}
@@ -2860,6 +2862,8 @@ func (m *RemoveNodeResponse) validate(all bool) error {
 	}
 
 	var errors []error
+
+	// no validation rules for Warning
 
 	if len(errors) > 0 {
 		return RemoveNodeResponseMultiError(errors)

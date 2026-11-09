@@ -127,7 +127,7 @@ export const useAvailableServices = (serviceTypes?: ServiceType[]) => {
     useQuery({
       queryKey: [KEYS.AVAILABLE_SERVICES],
       queryFn: () => getAvailableServices(serviceTypes),
-      enabled: user?.isPMMAdmin,
+      enabled: !!user,
     });
 
   const availableServices = useMemo<VersionedService[]>(() => {
@@ -157,10 +157,10 @@ export const useRealtimeQueries = (
     queryKey: [KEYS.SEARCH_QUERIES, payload],
     queryFn: async () => (await searchQueries(payload)).queries,
     select: (data) =>
-      data.map((query) => ({
+      data.map(({ queryExecutionDuration, ...query }) => ({
         ...query,
-        queryExecutionDurationMs: query.queryExecutionDuration
-          ? parseDuration(query.queryExecutionDuration) / 1000
+        queryExecutionDurationMs: queryExecutionDuration
+          ? parseDuration(queryExecutionDuration) / 1000
           : null,
       })),
     ...options,

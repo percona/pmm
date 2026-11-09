@@ -20,7 +20,6 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -207,6 +206,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,
 			CollectionsLimit:                   agent.MongoDBOptions.CollectionsLimit,
 			EnableAllCollectors:                agent.MongoDBOptions.EnableAllCollectors,
+			EnableDiagnosticDataHistograms:     agent.MongoDBOptions.EnableDiagnosticDataHistograms,
 			StatsCollections:                   agent.MongoDBOptions.StatsCollections,
 			IsTlsCertificateKeySet:             agent.MongoDBOptions.TLSCertificateKey != "",
 			IsTlsCertificateKeyFilePasswordSet: agent.MongoDBOptions.TLSCertificateKeyFilePassword != "",
@@ -229,6 +229,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	case models.RDSExporterType:
 		ua.IsAwsSecretKeySet = agent.AWSOptions.AWSAccessKey != ""
 		ua.AwsAccessKey = agent.AWSOptions.AWSAccessKey
+		ua.AwsRoleArn = agent.AWSOptions.AWSRoleARN
 		ua.RdsBasicMetricsDisabled = agent.AWSOptions.RDSBasicMetricsDisabled
 		ua.RdsEnhancedMetricsDisabled = agent.AWSOptions.RDSEnhancedMetricsDisabled
 	default:
@@ -256,9 +257,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		agentType := models.PMMAgentType
-
-		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: &agentType})
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
 		}
@@ -270,12 +269,12 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 		nodeNames := make(map[string]*string, len(nodes))
 		for _, node := range nodes {
-			nodeNames[node.NodeID] = pointer.ToString(node.NodeName)
+			nodeNames[node.NodeID] = new(node.NodeName)
 		}
 
 		serverVersion, err := version.Parse(version.PMMVersion)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("could not parse the server version: %s", version.PMMVersion))
+			return fmt.Errorf("could not parse the server version '%s': %w", version.PMMVersion, err)
 		}
 
 		for _, agent := range agents {

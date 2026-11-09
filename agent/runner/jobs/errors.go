@@ -14,7 +14,7 @@
 
 package jobs
 
-import "github.com/pkg/errors"
+import "errors"
 
 // ErrNotFound returned when backup record is not found by backup tool.
 var ErrNotFound = errors.New("backup record not found by backup tool")

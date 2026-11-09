@@ -54,7 +54,7 @@ func TestRestoreHistory(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 1",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 			&models.Service{
@@ -62,7 +62,7 @@ func TestRestoreHistory(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 2",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 			&models.BackupLocation{
@@ -138,12 +138,10 @@ func TestRestoreHistory(t *testing.T) {
 		q := tx.Querier
 		prepareArtifactsAndService(q)
 
-		now := time.Now().Round(time.Second)
-
 		params := models.CreateRestoreHistoryItemParams{
 			ArtifactID:    artifactID1,
 			ServiceID:     serviceID1,
-			PITRTimestamp: &now,
+			PITRTimestamp: new(time.Now().Round(time.Second)),
 			Status:        models.InProgressRestoreStatus,
 		}
 
@@ -277,7 +275,7 @@ func TestRestoreHistoryValidation(t *testing.T) {
 
 			c, err := models.CreateRestoreHistoryItem(nil, test.params)
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 				assert.Nil(t, c)
 				return
 			}

@@ -55,6 +55,8 @@ func (res *addExternalResult) String() string {
 //
 //nolint:lll
 type AddExternalCommand struct {
+	flags.MetricsModeFlags
+
 	ServiceName         string            `default:"${hostname}${externalDefaultServiceName}" help:"Service name (autodetected default: ${hostname}${externalDefaultServiceName})"`
 	RunsOnNodeID        string            `name:"agent-node-id" help:"Node ID where agent runs (default is autodetected)"`
 	Username            string            `help:"External username"`
@@ -72,8 +74,6 @@ type AddExternalCommand struct {
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
-
-	flags.MetricsModeFlags
 }
 
 // GetCredentials returns the credentials for AddExternalCommand.
@@ -114,11 +114,12 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
-		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
+		cmd.MetricsPath = "/" + cmd.MetricsPath
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
@@ -138,7 +139,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
 				CustomLabels:        *customLabels,
-				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode:         cmd.MetricsMode.EnumValue(),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLSSkipVerify:       cmd.TLSSkipVerify,

@@ -28,7 +28,8 @@ import (
 )
 
 func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementv1.AddNodeParams, address string) (string, error) {
-	if err := validateNodeParamsOneOf(nodeID, nodeName, addNodeParams); err != nil {
+	err := validateNodeParamsOneOf(nodeID, nodeName, addNodeParams)
+	if err != nil {
 		return "", err
 	}
 	switch {
@@ -37,7 +38,8 @@ func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementv1.
 		if err != nil {
 			return "", err
 		}
-		if err = validateExistingNodeType(node); err != nil {
+		err = validateExistingNodeType(node)
+		if err != nil {
 			return "", err
 		}
 		return node.NodeID, err
@@ -46,7 +48,8 @@ func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementv1.
 		if err != nil {
 			return "", err
 		}
-		if err = validateExistingNodeType(node); err != nil {
+		err = validateExistingNodeType(node)
+		if err != nil {
 			return "", err
 		}
 		return node.NodeID, err

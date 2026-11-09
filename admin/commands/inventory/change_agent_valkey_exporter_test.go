@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -38,15 +37,13 @@ func TestValkeyExporterChangeAgent(t *testing.T) {
 			defer cleanup()
 
 			cmd := &ChangeAgentValkeyExporterCommand{
-				AgentID:     "test-agent-valkey-update",
-				Enable:      pointer.ToBool(true),
-				Username:    pointer.ToString("redis_user"),
-				Password:    pointer.ToString("redis_pass"),
-				TLS:         pointer.ToBool(true),
-				PushMetrics: pointer.ToBool(false),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
-				},
+				AgentID:      "test-agent-valkey-update",
+				Enable:       new(true),
+				Username:     new("redis_user"),
+				Password:     new("redis_pass"),
+				TLS:          new(true),
+				PushMetrics:  new(false),
+				LogLevel:     new(flags.LogLevel("debug")),
 				CustomLabels: &map[string]string{"environment": "test"},
 			}
 
@@ -80,8 +77,8 @@ func TestValkeyExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentValkeyExporterCommand{
 				AgentID:     "test-agent-valkey-disable",
-				Enable:      pointer.ToBool(false),
-				PushMetrics: pointer.ToBool(false),
+				Enable:      new(false),
+				PushMetrics: new(false),
 			}
 
 			result, err := cmd.RunCmd()
@@ -217,7 +214,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentValkeyExporterCommand{
 			AgentID: "invalid-agent-valkey",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()
@@ -269,18 +266,25 @@ Configuration changes applied:
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
-		t.Run("InvalidLogLevel", func(t *testing.T) {
-			t.Parallel()
+		// valkey_exporter has no fatal level, so the flag must reject it the same way
+		// `pmm-admin inventory add agent valkey-exporter` does.
+		for name, level := range map[string]string{
+			"InvalidLogLevel":       "invalid",
+			"FatalLogLevelRejected": "fatal",
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
 
-			cli := []string{"change-agent", "valkey-exporter", "test-agent-id", "--log-level=invalid"}
+				cli := []string{"change-agent", "valkey-exporter", "test-agent-id", "--log-level=" + level}
 
-			var cmd ChangeAgentValkeyExporterCommand
-			parser, err := kong.New(&cmd)
-			require.NoError(t, err)
+				var cmd ChangeAgentValkeyExporterCommand
+				parser, err := kong.New(&cmd)
+				require.NoError(t, err)
 
-			_, err = parser.Parse(cli[2:])
-			require.Error(t, err)
-			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
-		})
+				_, err = parser.Parse(cli[2:])
+				require.Error(t, err)
+				assert.Contains(t, strings.ToLower(err.Error()), "log-level")
+			})
+		}
 	})
 }

@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -38,21 +37,18 @@ func TestChangeAgentRTAMongoDBAgentCommand(t *testing.T) {
 			cleanup := setupChangeAgentTestServer(t, "test-agent-rta-mongodb-update", `{"rta_mongodb_agent": {"agent_id": "test-agent-rta-mongodb-update"}}`, &capturedRequestBody)
 			defer cleanup()
 
-			interval := 3 * time.Second
 			cmd := &ChangeAgentRTAMongoDBAgentCommand{
 				AgentID:                       "test-agent-rta-mongodb-update",
-				Enable:                        pointer.ToBool(true),
-				Username:                      pointer.ToString("mongodb_user"),
-				Password:                      pointer.ToString("mongodb_pass"),
-				TLS:                           pointer.ToBool(true),
-				TLSSkipVerify:                 pointer.ToBool(false),
-				TLSCertificateKeyFilePassword: pointer.ToString("cert_password"),
-				AuthenticationMechanism:       pointer.ToString("SCRAM-SHA-256"),
-				CollectInterval:               &interval,
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"service": "mongodb", "environment": "production"},
+				Enable:                        new(true),
+				Username:                      new("mongodb_user"),
+				Password:                      new("mongodb_pass"),
+				TLS:                           new(true),
+				TLSSkipVerify:                 new(false),
+				TLSCertificateKeyFilePassword: new("cert_password"),
+				AuthenticationMechanism:       new("SCRAM-SHA-256"),
+				CollectInterval:               new(3 * time.Second),
+				LogLevel:                      new(flags.LogLevel("debug")),
+				CustomLabels:                  &map[string]string{"service": "mongodb", "environment": "production"},
 			}
 
 			result, err := cmd.RunCmd()
@@ -90,7 +86,7 @@ func TestChangeAgentRTAMongoDBAgentCommand(t *testing.T) {
 
 			cmd := &ChangeAgentRTAMongoDBAgentCommand{
 				AgentID: "test-agent-rta-mongodb-disable",
-				Enable:  pointer.ToBool(false),
+				Enable:  new(false),
 			}
 
 			result, err := cmd.RunCmd()
@@ -215,7 +211,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentRTAMongoDBAgentCommand{
 			AgentID: "invalid-agent-rta-mongodb",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

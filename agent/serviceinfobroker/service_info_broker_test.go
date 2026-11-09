@@ -222,7 +222,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		}, 0)
 		require.NotNil(t, resp)
 		assert.Equal(t, []string{"postgres", "pmm-agent"}, resp.DatabaseList)
-		assert.Equal(t, "", *resp.PgsmVersion)
+		assert.Empty(t, *resp.PgsmVersion)
 	})
 }
 
@@ -354,7 +354,7 @@ func TestServiceInfoBrokerMongoDB(t *testing.T) {
 			Type:      inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 			Timeout:   durationpb.New(30 * time.Second),
 			TextFiles: mongoDBTextFiles,
-		}, rand.Uint32()) //nolint:gosec
+		}, rand.Uint32())
 		require.NotNil(t, resp)
 		assert.Empty(t, resp.Error)
 	})

@@ -53,7 +53,7 @@ func TestArtifacts(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 1",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 			&models.Service{
@@ -61,7 +61,7 @@ func TestArtifacts(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 2",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 			&models.BackupLocation{
@@ -122,7 +122,7 @@ func TestArtifacts(t *testing.T) {
 
 		updateParams := models.UpdateArtifactParams{
 			Status:           models.SuccessBackupStatus.Pointer(),
-			ScheduleID:       pointer.ToString("schedule_id"),
+			ScheduleID:       new("schedule_id"),
 			ServiceID:        &serviceID2,
 			IsShardedCluster: true,
 		}
@@ -284,11 +284,11 @@ func TestArtifacts(t *testing.T) {
 
 		err = a.MetadataRemoveFirstN(q, 0)
 		require.NoError(t, err)
-		assert.Equal(t, 4, len(a.MetadataList))
+		assert.Len(t, a.MetadataList, 4)
 
 		err = a.MetadataRemoveFirstN(q, 3)
 		require.NoError(t, err)
-		assert.Equal(t, 1, len(a.MetadataList))
+		assert.Len(t, a.MetadataList, 1)
 
 		err = a.MetadataRemoveFirstN(q, 10)
 		require.NoError(t, err)
@@ -436,7 +436,7 @@ func TestArtifactValidation(t *testing.T) {
 
 			c, err := models.CreateArtifact(q, test.params)
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 				assert.Nil(t, c)
 				return
 			}

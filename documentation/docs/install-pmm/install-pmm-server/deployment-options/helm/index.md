@@ -14,7 +14,7 @@ Deploy PMM Server on Kubernetes using Helm for scalable, orchestrated monitoring
 ### OpenShift-specific requirements
 For OpenShift deployments, you'll also need:
 
-- OpenShift Container Platform 4.16. Other versions will likely work but they haven't been tested
+- OpenShift Container Platform 4.19. Other versions will likely work but they haven't been tested
 - `oc` CLI tool configured
 - permissions to create Routes and manage RBAC policies
 
@@ -147,23 +147,25 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 
         ```bash
         # If using ClusterIP (default)
-        kubectl port-forward svc/monitoring-service 8443:8443
+        kubectl port-forward svc/monitoring-service 8443:443
 
         # If using NodePort
         kubectl get svc monitoring-service -o jsonpath='{.spec.ports[0].nodePort}'
         ```
+
+        PMM Server serves HTTPS on port 443, so `port-forward` maps local port 8443 to service port 443. PMM is then available at `https://localhost:8443`.
 
     === "On OpenShift"
         OpenShift offers native routing capabilities through its Route resource, which provides external access with built-in load balancing and SSL termination:
 
         ```bash
         # Create a Route to expose PMM
-        oc expose svc/monitoring-service --port=8443
+        oc expose svc/monitoring-service --port=443
         # Get the Route URL
         oc get route monitoring-service -o jsonpath='{.spec.host}'
         
         # Or use port-forwarding for testing
-        oc port-forward svc/monitoring-service 8443:8443
+        oc port-forward svc/monitoring-service 8443:443
         ```
 
 ### Configure PMM Server
@@ -208,6 +210,53 @@ Add [environment variables](../docker/env_var.md) for advanced operations (like 
 pmmEnv:
   PMM_ENABLE_UPDATES: "0"
 ```
+
+### Manage the encryption key
+
+PMM [encrypts the credentials](../../../../admin/security/data_encryption.md) of monitored services with a key stored on the PMM data volume.
+
+The chart also keeps a backup copy of the key in a Kubernetes secret. With this copy, PMM can still read the stored credentials if the data volume is lost but the database survives. This can happen, for example, when PMM uses an external PostgreSQL database.
+
+To keep the key and its backup copy in sync, the chart:
+
+- uses the copy only to restore a key onto a data volume that has none. The key on the data volume always takes precedence.
+- updates the copy each time the pod starts. After you [rotate the key](../../../../admin/security/data_encryption.md#rotate-the-encryption-key), restart the pod so the chart updates the copy.
+- keeps the secret after `helm uninstall`, because the secret isn't owned by the Helm release.
+- requires the key to stay on the data volume. If `pmmEnv.PMM_ENCRYPTION_KEY_PATH` or `extraVolumeMounts` moves the key elsewhere, installing or upgrading the chart fails. To keep the key elsewhere, set `encryptionKey.backupToSecret: false` to turn off the backup copy.
+
+The secret is named `<fullname>-encryption-key`, for example `pmm-encryption-key` for a release named `pmm`. To use a different name, set `encryptionKey.secretName`.
+
+#### Limit service account permissions
+
+To manage the key secret, the chart lets the pod's service account create secrets in the namespace and read and update the key secret. By default, this is the namespace's `default` service account, so every pod that uses it gets the same permissions.
+
+To limit these permissions to PMM, set `serviceAccount.create: true`. The chart then creates a dedicated service account for PMM.
+
+#### Back up the key
+
+Without the key, PMM can't decrypt the stored credentials after a restore. The backup file contains the key in plain text, so store it as securely as the secret itself and separately from your PMM data backups.
+
+To save the key to a file, run the following command. Replace `pmm-encryption-key` with your secret name if you changed it with `encryptionKey.secretName` or use a release name other than `pmm`:
+
+```sh
+kubectl get secret pmm-encryption-key -n <namespace> -o jsonpath='{.data.key}' | base64 -d > pmm-encryption.key
+```
+
+#### Use your own key
+
+To use your own key instead of the one the chart generates:
+{.power-number}
+
+1. [Generate a key](../../../../admin/security/data_encryption.md#set-up-a-custom-key).
+
+2. Create the secret from the key file. Use the same [secret name](#back-up-the-key) as for the backup:
+    ```sh
+    kubectl create secret generic pmm-encryption-key -n <namespace> --from-file=key=pmm-encryption.key
+    ```
+
+3. [Install the chart](#install-pmm-server-on-your-kubernetes-clusteropenshift-clusters). The chart detects the existing secret and uses your key.
+
+To change how the chart handles the key, [set the encryption key parameters](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm#pmm-encryption-key).
 
 ### SSL certificates
 

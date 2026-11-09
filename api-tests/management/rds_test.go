@@ -20,7 +20,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -34,7 +33,11 @@ import (
 )
 
 func TestRDSDiscovery(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
+
 		accessKey, secretKey := os.Getenv("AWS_ACCESS_KEY"), os.Getenv("AWS_SECRET_KEY")
 		if accessKey == "" || secretKey == "" {
 			// TODO remove skip once secrets are added
@@ -57,18 +60,58 @@ func TestRDSDiscovery(t *testing.T) {
 	})
 }
 
+func TestRDSDiscoveryRoleARN(t *testing.T) {
+	t.Parallel()
+
+	t.Run("RoleARNAndKeysAreMutuallyExclusive", func(t *testing.T) {
+		t.Parallel()
+
+		params := &mservice.DiscoverRDSParams{
+			Body: mservice.DiscoverRDSBody{
+				AWSAccessKey: "my-aws-access-key",
+				AWSSecretKey: "my-aws-secret-key",
+				AWSRoleArn:   "arn:aws:iam::123456789012:role/pmm-monitoring",
+			},
+			Context: pmmapitests.Context,
+		}
+		discoverOK, err := client.Default.ManagementService.DiscoverRDS(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
+			"Both AWS role ARN and AWS access key/secret key are set; they are mutually exclusive.")
+		assert.Nil(t, discoverOK)
+	})
+
+	t.Run("UnassumableRoleARNIsReported", func(t *testing.T) {
+		t.Parallel()
+
+		params := &mservice.DiscoverRDSParams{
+			Body: mservice.DiscoverRDSBody{
+				AWSRoleArn: "arn:aws:iam::123456789012:role/pmm-monitoring",
+			},
+			Context: pmmapitests.Context,
+		}
+		discoverOK, err := client.Default.ManagementService.DiscoverRDS(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition,
+			"Failed to assume role arn:aws:iam::123456789012:role/pmm-monitoring:")
+		assert.Nil(t, discoverOK)
+	})
+}
+
 func TestAddRds(t *testing.T) {
+	t.Parallel()
+
 	t.Run("BasicAddRDS", func(t *testing.T) {
+		t.Parallel()
+
 		params := &mservice.AddServiceParams{
 			Body: mservice.AddServiceBody{
 				RDS: &mservice.AddServiceParamsBodyRDS{
-					Region:                    "region",
+					Region:                    pmmapitests.TestString(t, "region"),
 					Az:                        "az",
 					InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000001",
 					NodeModel:                 "some-model",
-					Address:                   "some.example.rds",
+					Address:                   pmmapitests.TestString(t, "some.example.rds"),
 					Port:                      3306,
-					Engine:                    pointer.ToString("DISCOVER_RDS_ENGINE_MYSQL"),
+					Engine:                    new("DISCOVER_RDS_ENGINE_MYSQL"),
 					NodeName:                  "some-node-name-000001",
 					ServiceName:               "test-add-rds-service000001",
 					Environment:               "some-env",
@@ -94,6 +137,10 @@ func TestAddRds(t *testing.T) {
 		}
 		addRDSOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
+		serviceID := addRDSOK.Payload.RDS.Mysql.ServiceID
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
 		require.NotNil(t, addRDSOK.Payload)
 
 		body := addRDSOK.Payload
@@ -120,18 +167,20 @@ func TestAddRds(t *testing.T) {
 	})
 
 	t.Run("AddRDSPostgres", func(t *testing.T) {
+		t.Parallel()
+
 		params := &mservice.AddServiceParams{
 			Body: mservice.AddServiceBody{
 				RDS: &mservice.AddServiceParamsBodyRDS{
-					Region:                    "region",
+					Region:                    pmmapitests.TestString(t, "region"),
 					Az:                        "az",
 					InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000009",
 					NodeModel:                 "some-model",
-					Address:                   "some.example.rds",
+					Address:                   pmmapitests.TestString(t, "some.example.rds"),
 					Port:                      5432,
-					Engine:                    pointer.ToString("DISCOVER_RDS_ENGINE_POSTGRESQL"),
+					Engine:                    new("DISCOVER_RDS_ENGINE_POSTGRESQL"),
 					NodeName:                  "some-node-name-000009",
-					ServiceName:               "test-add-rds-service000009",
+					ServiceName:               "test-add-rds-service000010",
 					Environment:               "some-env",
 					Cluster:                   "cluster-01",
 					ReplicationSet:            "rs-01",
@@ -154,6 +203,10 @@ func TestAddRds(t *testing.T) {
 		}
 		addRDSOK, err := client.Default.ManagementService.AddService(params)
 		require.NoError(t, err)
+		serviceID := addRDSOK.Payload.RDS.Postgresql.ServiceID
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
 		require.NotNil(t, addRDSOK.Payload)
 
 		body := addRDSOK.Payload
@@ -175,5 +228,58 @@ func TestAddRds(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, body.RDS.Postgresql.NodeID))
+	})
+
+	t.Run("AddRDSWithRoleARN", func(t *testing.T) {
+		t.Parallel()
+
+		params := &mservice.AddServiceParams{
+			Body: mservice.AddServiceBody{
+				RDS: &mservice.AddServiceParamsBodyRDS{
+					Region:                    pmmapitests.TestString(t, "region"),
+					Az:                        "az",
+					InstanceID:                "d752f1a9-31c9-4b8c-bb2d-d26bc000002",
+					NodeModel:                 "some-model",
+					Address:                   pmmapitests.TestString(t, "some.example.rds"),
+					Port:                      3306,
+					Engine:                    new("DISCOVER_RDS_ENGINE_MYSQL"),
+					NodeName:                  "some-node-name-000002",
+					ServiceName:               "test-add-rds-service000002",
+					Environment:               "some-env",
+					Cluster:                   "cluster-01",
+					ReplicationSet:            "rs-01",
+					Username:                  "some-username",
+					Password:                  "some-password",
+					AWSAccessKey:              "",
+					AWSSecretKey:              "",
+					AWSRoleArn:                "arn:aws:iam::123456789012:role/pmm-monitoring",
+					RDSExporter:               true,
+					QANMysqlPerfschema:        true,
+					CustomLabels:              make(map[string]string),
+					SkipConnectionCheck:       true,
+					TLS:                       false,
+					TLSSkipVerify:             false,
+					DisableQueryExamples:      false,
+					TablestatsGroupTableLimit: 2000,
+					DisableBasicMetrics:       true,
+					DisableEnhancedMetrics:    true,
+				},
+			},
+			Context: pmmapitests.Context,
+		}
+		addRDSOK, err := client.Default.ManagementService.AddService(params)
+		require.NoError(t, err)
+		require.NotNil(t, addRDSOK.Payload)
+		serviceID := addRDSOK.Payload.RDS.Mysql.ServiceID
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
+
+		body := addRDSOK.Payload
+		assert.Equal(t, "arn:aws:iam::123456789012:role/pmm-monitoring", body.RDS.RDSExporter.AWSRoleArn)
+
+		pmmapitests.RemoveAgents(t, body.RDS.MysqldExporter.AgentID)
+		pmmapitests.RemoveAgents(t, body.RDS.QANMysqlPerfschema.AgentID)
+		pmmapitests.RemoveServices(t, body.RDS.Mysql.ServiceID)
 	})
 }

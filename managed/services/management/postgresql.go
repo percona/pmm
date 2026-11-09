@@ -29,7 +29,7 @@ import (
 )
 
 // AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
-func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLServiceParams) (*managementv1.AddServiceResponse, error) {
+func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
 	postgres := &managementv1.PostgreSQLServiceResult{}
 
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -87,11 +87,13 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 

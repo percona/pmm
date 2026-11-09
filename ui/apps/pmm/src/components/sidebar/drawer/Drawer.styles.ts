@@ -20,7 +20,7 @@ export const closedMixin = (theme: Theme): CSSObject => ({
 });
 
 export const logoMixin = (theme: Theme): CSSObject => ({
-  transition: theme.transitions.create('left', {
+  transition: theme.transitions.create(['left', 'top', 'height', 'color'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),

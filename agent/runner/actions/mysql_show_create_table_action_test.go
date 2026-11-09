@@ -35,7 +35,9 @@ func TestMySQLShowCreateTable(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	sqlDB := tests.OpenTestMySQL(t)
-	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()
@@ -132,7 +134,7 @@ CREATE TABLE "city" (
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		assert.EqualError(t, err, "Error 1146 (42S02): Table 'world.no_such_table' doesn't exist")
+		require.EqualError(t, err, "Error 1146 (42S02): Table 'world.no_such_table' doesn't exist")
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
@@ -147,7 +149,7 @@ CREATE TABLE "city" (
 
 		_, err := a.Run(ctx)
 		expected := "Error 1146 (42S02): Table 'world.city; DROP TABLE city; --' doesn't exist"
-		assert.EqualError(t, err, expected)
+		require.EqualError(t, err, expected)
 
 		var count int
 		err = q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)

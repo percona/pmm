@@ -19,19 +19,20 @@ package pprof
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	"runtime"
 	"runtime/pprof"
 	"runtime/trace"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // Profile responds with the pprof-formatted cpu profile.
 // Profiling lasts for duration specified in seconds.
 func Profile(ctx context.Context, duration time.Duration) ([]byte, error) {
 	var profileBuf bytes.Buffer
-	if err := pprof.StartCPUProfile(&profileBuf); err != nil {
+	err := pprof.StartCPUProfile(&profileBuf)
+	if err != nil {
 		return nil, err
 	}
 
@@ -49,7 +50,8 @@ func Profile(ctx context.Context, duration time.Duration) ([]byte, error) {
 // Tracing lasts for duration specified in seconds.
 func Trace(ctx context.Context, duration time.Duration) ([]byte, error) {
 	var traceBuf bytes.Buffer
-	if err := trace.Start(&traceBuf); err != nil {
+	err := trace.Start(&traceBuf)
+	if err != nil {
 		return nil, err
 	}
 
@@ -72,7 +74,7 @@ func Heap(gc bool) ([]byte, error) {
 
 	p := pprof.Lookup(profile)
 	if p == nil {
-		return nil, errors.Errorf("profile cannot be found: %s", profile)
+		return nil, fmt.Errorf("profile cannot be found: %q", profile)
 	}
 
 	if gc {

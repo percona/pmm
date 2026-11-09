@@ -12,16 +12,43 @@ import {
   StartUpdateResponse,
 } from 'types/updates.types';
 import { AxiosError } from 'axios';
-import { ApiError } from 'types/api.types';
+import { ApiError, ApiErrorResponse } from 'types/api.types';
 
-export const useCheckUpdates = (
-  options?: Partial<UseQueryOptions<GetUpdatesResponse>>
-) =>
+// grpc-gateway maps several gRPC codes onto HTTP 400, so the status alone cannot
+// tell "updates are disabled" apart from a rejected request.
+const GRPC_FAILED_PRECONDITION = 9;
+
+const isUpdatesDisabled = (error: AxiosError) =>
+  error.response?.status === 400 &&
+  (error.response.data as ApiErrorResponse | undefined)?.code ===
+    GRPC_FAILED_PRECONDITION;
+
+export type UseCheckUpdatesOptions = Partial<
+  UseQueryOptions<GetUpdatesResponse>
+> & {
+  // deployments with PMM_ENABLE_UPDATES=0 reject a full check, so ask only for
+  // what the server always answers
+  onlyInstalledVersion?: boolean;
+};
+
+export const useCheckUpdates = ({
+  onlyInstalledVersion = false,
+  ...options
+}: UseCheckUpdatesOptions = {}) =>
   useQuery({
-    queryKey: ['checkUpdates'],
+    queryKey: ['checkUpdates', onlyInstalledVersion],
     queryFn: async () => {
+      if (onlyInstalledVersion) {
+        return checkForUpdates({ force: false, onlyInstalledVersion: true });
+      }
+
       try {
-        return await checkForUpdates({ force: true });
+        // the fallback below handles a disabled deployment. Any other failure
+        // is real and the user needs to hear about it.
+        return await checkForUpdates(
+          { force: true },
+          { disableNotifications: isUpdatesDisabled }
+        );
       } catch (error) {
         if ((error as AxiosError).response?.status !== 401) {
           return await checkForUpdates({

@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,18 +38,16 @@ func TestPostgresExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentPostgresExporterCommand{
 				AgentID:           "test-agent-update",
-				Enable:            pointer.ToBool(true),
-				Username:          pointer.ToString("newuser"),
-				Password:          pointer.ToString("newpass"),
-				TLS:               pointer.ToBool(true),
-				TLSSkipVerify:     pointer.ToBool(false),
+				Enable:            new(true),
+				Username:          new("newuser"),
+				Password:          new("newpass"),
+				TLS:               new(true),
+				TLSSkipVerify:     new(false),
 				DisableCollectors: []string{"locks", "replication"},
-				ExposeExporter:    pointer.ToBool(true),
-				PushMetrics:       pointer.ToBool(false),
-				LogLevelNoFatalChangeFlags: flags.LogLevelNoFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
-				},
-				CustomLabels: &map[string]string{"environment": "test", "team": "backend"},
+				ExposeExporter:    new(true),
+				PushMetrics:       new(false),
+				LogLevel:          new(flags.LogLevel("debug")),
+				CustomLabels:      &map[string]string{"environment": "test", "team": "backend"},
 			}
 
 			result, err := cmd.RunCmd()
@@ -86,8 +83,8 @@ func TestPostgresExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentPostgresExporterCommand{
 				AgentID:     "test-agent-disable",
-				Enable:      pointer.ToBool(false),
-				PushMetrics: pointer.ToBool(true),
+				Enable:      new(false),
+				PushMetrics: new(true),
 			}
 
 			result, err := cmd.RunCmd()
@@ -225,7 +222,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentPostgresExporterCommand{
 			AgentID: "invalid-agent",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()
