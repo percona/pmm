@@ -156,7 +156,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 === "Slow query log"
 
     !!! note "Using Performance Schema?"
-        Skip this section and use [Performance Schema](#performance-schema) instead.
+        Skip this section and use the **Performance Schema** tab instead.
 
     PMM reads the slow query log file via `pmm-agent`. Ensure:
 
@@ -260,7 +260,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 === "Performance Schema"
 
     !!! note "Using slowlog?"
-        Skip this section and use [Slow query log](#slow-query-log) instead.
+        Skip this section and use the **Slow query log** tab instead.
 
     The `SELECT` grant from [Create a database account for PMM](#create-a-database-account-for-pmm) is sufficient. Enable and configure Performance Schema as described below.
 

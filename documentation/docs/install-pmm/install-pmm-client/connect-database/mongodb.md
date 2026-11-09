@@ -161,7 +161,7 @@ Complete the section for your query source before [adding the service](#step-2-a
 
 === "MongoDB Profiler (Default)"
     !!! note "Using mongolog?"
-        Skip this section and use [Diagnostic Log](#diagnostic-log-recommended-for-scale) instead.
+        Skip this section and use the **Diagnostic log (Recommended for scale)** tab instead.
 
     Choose this standard method for simple setups with fewer than 100 databases, remote MongoDB instances, or when you need real-time query collection. 
 
@@ -230,7 +230,7 @@ Complete the section for your query source before [adding the service](#step-2-a
 
 === "Diagnostic log (Recommended for scale)"
     !!! note "Using Profiler?"
-        Skip this section and use [MongoDB Profiler](#mongodb-profiler-default) instead.
+        Skip this section and use the **MongoDB Profiler (Default)** tab instead.
 
     Choose this method for production environments with 100+ databases, connection pool issues, or `mongos` routers.
 
