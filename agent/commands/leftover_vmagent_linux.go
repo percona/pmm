@@ -155,7 +155,7 @@ func stopLeftovers(
 		}
 		l.Warnf("Stopping vmagent (PID %d, parent PID %d) left running from before this pmm-agent started: "+
 			"it holds %s, so the vmagent this pmm-agent starts would exit on the queue lock.", p.PID, stat.PPID, queueDir)
-		warnLiveParent(stat.PPID, queueDir, l)
+		warnCurrentParent(stat.PPID, queueDir, l)
 		lo.signal(unix.SIGTERM, l)
 		stopping = append(stopping, lo)
 	}
@@ -234,8 +234,9 @@ func holdsQueue(pid int, path string, queue os.FileInfo) bool {
 	return os.SameFile(fi, queue)
 }
 
-// warnLiveParent names the parent of a leftover vmagent, which may start it again.
-func warnLiveParent(ppid int, queueDir string, l *logrus.Entry) {
+// warnCurrentParent names the current parent of a leftover vmagent, which may have started it, or may be a
+// subreaper it was re-parented to.
+func warnCurrentParent(ppid int, queueDir string, l *logrus.Entry) {
 	if ppid <= 1 {
 		return
 	}
@@ -247,8 +248,8 @@ func warnLiveParent(ppid int, queueDir string, l *logrus.Entry) {
 			exe = parentExe
 		}
 	}
-	l.Errorf("The leftover vmagent was started by PID %d (%s), which is still running and may start it again. "+
-		"Only one pmm-agent can use %s.", ppid, exe, queueDir)
+	l.Warnf("The leftover vmagent's current parent is PID %d (%s): if that started it, it may start it again, "+
+		"and only one pmm-agent can use %s.", ppid, exe, queueDir)
 }
 
 // leftover is a process being stopped, held by a pidfd so that a reused PID is never signaled in its place,
