@@ -37,7 +37,7 @@ PMM Server doesn't start when:
 - `PMM_SECRETS_DIR` names a directory that doesn't exist, or something that isn't a directory
 - a file in `PMM_SECRETS_DIR` is empty or unreadable, such as a link to a file that doesn't exist
 - a credential is supplied both as a file and as an environment variable
-- an environment variable's value names a missing or unreadable file in `$__file{}`, or resolves to an empty value
+- an environment variable's value names a missing or unreadable file in `$__file{}`, or resolves to an empty value or to whitespace only
 - a database password in an environment variable has leading or trailing whitespace
 - `/run/pmm/secrets` holds anything that PMM Server didn't put there or belongs to another user, or `PMM_SECRETS_DIR` or a file variable points into it: mount credentials in another directory, such as `/etc/pmm/secrets`
 

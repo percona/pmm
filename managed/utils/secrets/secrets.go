@@ -366,17 +366,17 @@ func resolve(opts Options, s spec) (Resolved, error) {
 		if err != nil {
 			return r, fmt.Errorf("%s: %w", key, err)
 		}
-		r.Source, r.Padded = SourceEnv, strings.TrimSpace(value) != value
-		// Before the empty check: Grafana read the key as written, even one that is only whitespace.
-		if r.Padded && s.padding == keepPadding {
-			r.Kept = true
-			return r, nil
-		}
+		// A value that is only whitespace is no value, also for the keys kept as written.
 		if strings.TrimSpace(value) == "" {
 			return r, fmt.Errorf("%s resolves to an empty value", key)
 		}
-		if r.Padded && s.padding == refusePadding {
+		r.Source, r.Padded = SourceEnv, strings.TrimSpace(value) != value
+		switch {
+		case r.Padded && s.padding == refusePadding:
 			return r, fmt.Errorf("%s has leading or trailing whitespace, which PMM Server doesn't pass to the database: remove it", key)
+		case r.Padded && s.padding == keepPadding:
+			r.Kept = true
+			return r, nil
 		}
 	case s.defaultValue != "":
 		r.Source, value = SourceDefault, s.defaultValue

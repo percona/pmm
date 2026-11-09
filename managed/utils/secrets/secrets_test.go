@@ -176,12 +176,11 @@ func TestPrepare(t *testing.T) {
 		_, err = os.Lstat(filepath.Join(opts.RunDir, string(GrafanaSecretKey)))
 		require.ErrorIs(t, err, os.ErrNotExist)
 		assert.NoFileExists(t, filepath.Join(opts.RunDir, envSubdir, string(GrafanaSecretKey)))
+	})
 
-		// Grafana used a key that is only whitespace as written too.
-		opts.Getenv = func(k string) string { return map[string]string{"GF_SECURITY_SECRET_KEY": "\n"}[k] }
-		resolved, err = Prepare(opts)
-		require.NoError(t, err)
-		assert.True(t, byName(t, resolved)[GrafanaSecretKey].Kept)
+	t.Run("refuses a secret key that is only whitespace", func(t *testing.T) {
+		_, err := Prepare(testOptions(t, map[string]string{"GF_SECURITY_SECRET_KEY": " \n"}))
+		require.EqualError(t, err, "grafana-secret-key: GF_SECURITY_SECRET_KEY resolves to an empty value")
 	})
 
 	t.Run("refuses a padded database password", func(t *testing.T) {
