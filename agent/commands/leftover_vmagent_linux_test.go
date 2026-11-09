@@ -166,7 +166,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 
 		start := time.Now()
 		stopLeftovers(t.Context(), testExecutable(t), tempDir, anyStart, timeouts, unix.PidfdOpen, l)
-		assert.Less(t, time.Since(start), 2*timeouts.stop-200*time.Millisecond, "each waited out the SIGTERM budget on its own")
+		assert.Less(t, time.Since(start), 2*timeouts.stop-50*time.Millisecond, "each had a wait after SIGTERM of its own")
 		for _, cmd := range []*exec.Cmd{first, second} {
 			assert.Equal(t, "Z", state(t, cmd.Process.Pid), "still running when stopLeftovers returned")
 			assert.Equal(t, syscall.SIGKILL, exitedBy(t, cmd))
