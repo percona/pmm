@@ -51,851 +51,3037 @@
     "graphTooltip": 1,
     "id": null,
     "iteration": 1656498489966,
-    "links": [],
+    "links": [
+        {
+            "asDropdown": false,
+            "icon": "dashboard",
+            "includeVars": false,
+            "keepTime": false,
+            "tags": [],
+            "targetBlank": false,
+            "title": "Amazon RDS Overview",
+            "tooltip": "Amazon RDS and Aurora clusters and instances",
+            "type": "link",
+            "url": "/pmm-ui/amazon-rds"
+        }
+    ],
     "liveNow": false,
     "panels": [
         {
-            "aliasColors": {
-                "Amazon Aurora Commit avg Latency": "#962d82",
-                "Number of Amazon Aurora Commits ": "#0a50a1",
-                "Write Transactions": "#e24d42"
-            },
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "decimals": 2,
+            "datasource": "Metrics",
             "description": "This graph shows the number of Commits which Amazon Aurora engine performed as well as average commit latency. Graph Latency does not always correlate with the number of performed commits and can be quite high in certain situations.\n\n* **Number of Amazon Aurora Commits**: The average number of commit operations per second.\n\n* **Amazon Aurora Commit avg Latency**: The average amount of latency for commit operations",
-            "editable": true,
-            "error": false,
             "fieldConfig": {
                 "defaults": {
-                    "links": []
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "ops"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Amazon Aurora Commit avg Latency"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "µs"
+                            },
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#962d82",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Number of Amazon Aurora Commits"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#0a50a1",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
-            "fill": 2,
-            "fillGradient": 0,
-            "grid": {},
             "gridPos": {
                 "h": 8,
                 "w": 12,
                 "x": 0,
                 "y": 0
             },
-            "hiddenSeries": false,
             "id": 3,
-            "legend": {
-                "alignAsTable": true,
-                "avg": true,
-                "current": false,
-                "max": true,
-                "min": true,
-                "rightSide": false,
-                "show": true,
-                "sort": "avg",
-                "sortDesc": true,
-                "total": false,
-                "values": true
-            },
-            "lines": true,
-            "linewidth": 2,
             "links": [],
-            "nullPointMode": "null",
             "options": {
-                "alertThreshold": true
-            },
-            "paceLength": 10,
-            "percentage": false,
-            "pluginVersion": "8.3.5",
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [
-                {
-                    "alias": "Key Reads",
-                    "fill": 0
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                 },
-                {
-                    "alias": "Key Writes",
-                    "fill": 0,
-                    "transform": "negative-Y"
-                },
-                {
-                    "alias": "Key Write Requests",
-                    "transform": "negative-Y"
-                },
-                {
-                    "alias": "Avg Write Transactions Latency",
-                    "yaxis": 2
-                },
-                {
-                    "alias": "Amazon Aurora Commit avg Latency",
-                    "yaxis": 2
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
                 }
-            ],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
+            },
+            "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "calculatedInterval": "2m",
-                    "datasourceErrors": {},
-                    "errors": {},
+                    "datasource": "Metrics",
+                    "editorMode": "code",
                     "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_commits{service_name=~\"$service_name\"}[$interval]) or irate(mysql_global_status_auroradb_commits{service_name=~\"$service_name\"}[5m]))",
                     "format": "time_series",
+                    "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "Number of Amazon Aurora Commits ",
-                    "metric": "",
-                    "refId": "D",
-                    "step": 300
-                },
-                {
-                    "calculatedInterval": "2m",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_commit_latency{service_name=~\"$service_name\"}[$interval])/(rate(mysql_global_status_auroradb_commits{service_name=~\"$service_name\"}[$interval]) > 0)) or avg by (service_name) (irate(mysql_global_status_auroradb_commit_latency{service_name=~\"$service_name\"}[5m])/(irate(mysql_global_status_auroradb_commits{service_name=~\"$service_name\"}[5m]) > 0))",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Amazon Aurora Commit avg Latency",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300
-                }
-            ],
-            "thresholds": [],
-            "timeRegions": [],
-            "title": "Amazon Aurora Transaction Commits",
-            "tooltip": {
-                "msResolution": false,
-                "shared": true,
-                "sort": 5,
-                "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-                "mode": "time",
-                "show": true,
-                "values": []
-            },
-            "yaxes": [
-                {
-                    "decimals": 2,
-                    "format": "ops",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": true
-                },
-                {
-                    "decimals": 2,
-                    "format": "µs",
-                    "label": "",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": true
-                }
-            ],
-            "yaxis": {
-                "align": false
-            }
-        },
-        {
-            "aliasColors": {
-                "DDL Load": "#962d82",
-                "DELETE load": "#eab839",
-                "INSERT load": "#0a437c",
-                "SELECT load ": "#629e51",
-                "UPDATE load": "#ea6460",
-                "Write Transaction Commit Load": "#bf1b00"
-            },
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "decimals": 2,
-            "description": "This graph shows us what statements contribute most load on the system as well as what load corresponds to Amazon Aurora transaction commit.\n\n* **Write Transaction Commit Load**: Load in Average Active Sessions per second for COMMIT operations\n\n* **UPDATE load**: Load in Average Active Sessions per second for UPDATE queries\n\n* **SELECT load**: Load in Average Active Sessions per second for SELECT queries\n\n* **DELETE load**: Load in Average Active Sessions per second for DELETE queries\n\n* **INSERT load**: Load in Average Active Sessions per second for INSERT queries\n\nAn *active session* is a connection that has submitted work to the database engine and is waiting for a response from it. For example, if you submit an SQL query to the database engine, the database session is active while the database engine is processing that query.",
-            "editable": true,
-            "error": false,
-            "fieldConfig": {
-                "defaults": {
-                    "links": []
-                },
-                "overrides": []
-            },
-            "fill": 2,
-            "fillGradient": 0,
-            "grid": {},
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 0
-            },
-            "hiddenSeries": false,
-            "id": 21,
-            "legend": {
-                "alignAsTable": true,
-                "avg": true,
-                "current": false,
-                "max": true,
-                "min": true,
-                "rightSide": false,
-                "show": true,
-                "sort": "avg",
-                "sortDesc": true,
-                "total": false,
-                "values": true
-            },
-            "lines": true,
-            "linewidth": 2,
-            "links": [],
-            "nullPointMode": "null",
-            "options": {
-                "alertThreshold": true
-            },
-            "paceLength": 10,
-            "percentage": false,
-            "pluginVersion": "8.3.5",
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [
-                {
-                    "alias": "Key Blocks Not Flushed",
-                    "fill": 0
-                }
-            ],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-                {
-                    "calculatedInterval": "2m",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_commit_latency{service_name=~\"$service_name\"}[$interval])/1000000 or irate(mysql_global_status_auroradb_commit_latency{service_name=~\"$service_name\"}[5m])/1000000)",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Write Transaction Commit Load",
-                    "metric": "",
-                    "refId": "C",
-                    "step": 300
-                },
-                {
-                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_ddl_stmt_duration{service_name=~\"$service_name\"}[$interval])/1000000 or irate(mysql_global_status_auroradb_ddl_stmt_duration{service_name=~\"$service_name\"}[5m])/1000000)",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "DDL Load",
+                    "legendFormat": "Number of Amazon Aurora Commits",
+                    "range": true,
                     "refId": "A"
                 },
                 {
-                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_select_stmt_duration{service_name=~\"$service_name\"}[$interval])/1000000 or irate(mysql_global_status_auroradb_select_stmt_duration{service_name=~\"$service_name\"}[5m])/1000000)",
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_commit_latency{service_name=~\"$service_name\"}[$interval])/(rate(mysql_global_status_auroradb_commits{service_name=~\"$service_name\"}[$interval]) > 0)) or avg by (service_name) (irate(mysql_global_status_auroradb_commit_latency{service_name=~\"$service_name\"}[5m])/(irate(mysql_global_status_auroradb_commits{service_name=~\"$service_name\"}[5m]) > 0))",
                     "format": "time_series",
+                    "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "SELECT load ",
+                    "legendFormat": "Amazon Aurora Commit avg Latency",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Amazon Aurora Transaction Commits",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "This graph shows us what statements contribute most load on the system as well as what load corresponds to Amazon Aurora transaction commit.\n\n* **Write Transaction Commit Load**: Load in Average Active Sessions per second for COMMIT operations\n\n* **UPDATE load**: Load in Average Active Sessions per second for UPDATE queries\n\n* **SELECT load**: Load in Average Active Sessions per second for SELECT queries\n\n* **DELETE load**: Load in Average Active Sessions per second for DELETE queries\n\n* **INSERT load**: Load in Average Active Sessions per second for INSERT queries\n\nAn *active session* is a connection that has submitted work to the database engine and is waiting for a response from it. For example, if you submit an SQL query to the database engine, the database session is active while the database engine is processing that query.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "DDL Load"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#962d82",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "DELETE load"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#eab839",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "INSERT load"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#0a437c",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "SELECT load"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#629e51",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "UPDATE load"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#ea6460",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Write Transaction Commit Load"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#bf1b00",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "id": 21,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_commit_latency{service_name=~\"$service_name\"}[$interval])/1000000 or irate(mysql_global_status_auroradb_commit_latency{service_name=~\"$service_name\"}[5m])/1000000)",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Write Transaction Commit Load",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_ddl_stmt_duration{service_name=~\"$service_name\"}[$interval])/1000000 or irate(mysql_global_status_auroradb_ddl_stmt_duration{service_name=~\"$service_name\"}[5m])/1000000)",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "DDL Load",
+                    "range": true,
                     "refId": "B"
                 },
                 {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_select_stmt_duration{service_name=~\"$service_name\"}[$interval])/1000000 or irate(mysql_global_status_auroradb_select_stmt_duration{service_name=~\"$service_name\"}[5m])/1000000)",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "SELECT load",
+                    "range": true,
+                    "refId": "C"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
                     "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_insert_stmt_duration{service_name=~\"$service_name\"}[$interval])/1000000 or irate(mysql_global_status_auroradb_insert_stmt_duration{service_name=~\"$service_name\"}[5m])/1000000)",
                     "format": "time_series",
+                    "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "INSERT load",
+                    "range": true,
                     "refId": "D"
                 },
                 {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
                     "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_update_stmt_duration{service_name=~\"$service_name\"}[$interval])/1000000 or irate(mysql_global_status_auroradb_update_stmt_duration{service_name=~\"$service_name\"}[5m])/1000000)",
                     "format": "time_series",
+                    "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "UPDATE load",
+                    "range": true,
                     "refId": "E"
                 },
                 {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
                     "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_delete_stmt_duration{service_name=~\"$service_name\"}[$interval])/1000000 or irate(mysql_global_status_auroradb_delete_stmt_duration{service_name=~\"$service_name\"}[5m])/1000000)",
                     "format": "time_series",
+                    "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "DELETE load",
+                    "range": true,
                     "refId": "F"
                 }
             ],
-            "thresholds": [],
-            "timeRegions": [],
             "title": "Amazon Aurora Load",
-            "tooltip": {
-                "msResolution": false,
-                "shared": true,
-                "sort": 5,
-                "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-                "mode": "time",
-                "show": true,
-                "values": []
-            },
-            "yaxes": [
-                {
-                    "decimals": 2,
-                    "format": "short",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": true
-                },
-                {
-                    "decimals": 2,
-                    "format": "short",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": false
-                }
-            ],
-            "yaxis": {
-                "align": false
-            }
+            "type": "timeseries"
         },
         {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "decimals": 2,
-            "description": "This graph shows how much memory is used by Amazon Aurora lock manager as well as amount of memory used by Amazon Aurora to store Data Dictionary.\n\n* **Aurora Lock Manager Memory**: the amount of memory used by the Lock Manager, the module responsible for handling row lock requests for concurrent transactions.\n\n* **Aurora Dictionary Memory**: the amount of memory used by the Dictionary, the space that contains metadata used to keep track of database objects, such as tables and indexes.",
-            "editable": true,
-            "error": false,
+            "datasource": "Metrics",
+            "description": "This graph shows how much memory is used by Amazon Aurora lock manager as well as the amount of RAM used by Aurora for in-memory temporary tables.\n\n* **Aurora Lock Manager Memory**: the amount of memory used by the Lock Manager, the module responsible for handling row lock requests for concurrent transactions.\n\n* **Temp table RAM**: the amount of memory currently allocated to in-memory temporary tables.",
             "fieldConfig": {
                 "defaults": {
-                    "links": []
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
                 },
                 "overrides": []
             },
-            "fill": 2,
-            "fillGradient": 0,
-            "grid": {},
             "gridPos": {
                 "h": 9,
                 "w": 12,
                 "x": 0,
                 "y": 8
             },
-            "hiddenSeries": false,
             "id": 22,
-            "legend": {
-                "alignAsTable": true,
-                "avg": true,
-                "current": false,
-                "max": true,
-                "min": true,
-                "rightSide": false,
-                "show": true,
-                "sort": "avg",
-                "sortDesc": true,
-                "total": false,
-                "values": true
-            },
-            "lines": true,
-            "linewidth": 2,
             "links": [],
-            "nullPointMode": "null",
             "options": {
-                "alertThreshold": true
-            },
-            "paceLength": 10,
-            "percentage": false,
-            "pluginVersion": "8.3.5",
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [
-                {
-                    "alias": "Key Reads",
-                    "fill": 0
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
                 },
-                {
-                    "alias": "Key Writes",
-                    "fill": 0,
-                    "transform": "negative-Y"
-                },
-                {
-                    "alias": "Key Write Requests",
-                    "transform": "negative-Y"
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
                 }
-            ],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
+            },
+            "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "calculatedInterval": "2m",
-                    "datasourceErrors": {},
-                    "errors": {},
+                    "datasource": "Metrics",
+                    "editorMode": "code",
                     "expr": "avg by (service_name) (max_over_time(mysql_global_status_aurora_lockmgr_memory_used{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_global_status_aurora_lockmgr_memory_used{service_name=~\"$service_name\"}[5m]))",
                     "format": "time_series",
+                    "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "Aurora Lock Manager Memory",
-                    "metric": "",
-                    "refId": "D",
-                    "step": 300
+                    "range": true,
+                    "refId": "A"
                 },
                 {
-                    "calculatedInterval": "2m",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (service_name) (max_over_time(mysql_global_status_aurora_dict_sys_mem_size{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_global_status_aurora_dict_sys_mem_size{service_name=~\"$service_name\"}[5m]))",
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (max_over_time(mysql_global_status_aurora_temptable_ram_allocation{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_global_status_aurora_temptable_ram_allocation{service_name=~\"$service_name\"}[5m]))",
                     "format": "time_series",
+                    "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "Aurora Dictionary Memory ",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300
+                    "legendFormat": "Temp table RAM",
+                    "range": true,
+                    "refId": "B"
                 }
             ],
-            "thresholds": [],
-            "timeRegions": [],
             "title": "Aurora Memory Used",
-            "tooltip": {
-                "msResolution": false,
-                "shared": true,
-                "sort": 5,
-                "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-                "mode": "time",
-                "show": true,
-                "values": []
-            },
-            "yaxes": [
-                {
-                    "decimals": 2,
-                    "format": "bytes",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": true
-                },
-                {
-                    "format": "short",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": false
-                }
-            ],
-            "yaxis": {
-                "align": false
-            }
+            "type": "timeseries"
         },
         {
-            "aliasColors": {
-                "DDL Latency": "#962d82",
-                "DDL Load": "#962d82",
-                "DELETE Latency": "#e5ac0e",
-                "DELETE load": "#eab839",
-                "INSERT Latency": "#0a437c",
-                "INSERT load": "#0a437c",
-                "SELECT Latency": "#508642",
-                "SELECT load ": "#629e51",
-                "UPDATE load": "#ea6460",
-                "Write Transaction Commit Load": "#bf1b00"
-            },
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "decimals": 2,
+            "datasource": "Metrics",
             "description": "This graph shows average latency for the most important types of statements. Latency spikes are often indicative of the instance overload.\n\n* **DDL Latency:** Average time to execute DDL queries\n\n* **DELETE Latency**: Average time to execute DELETE queries\n\n* **UPDATE Latency**: Average time to execute UPDATE queries\n\n* **SELECT Latency**: Average time to execute SELECT queries\n\n* **INSERT Latency**: Average time to execute INSERT queries",
-            "editable": true,
-            "error": false,
             "fieldConfig": {
                 "defaults": {
-                    "links": []
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "µs"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "DDL Latency"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#962d82",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "DELETE Latency"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#e5ac0e",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "INSERT Latency"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#0a437c",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "SELECT Latency"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#508642",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
-            "fill": 1,
-            "fillGradient": 0,
-            "grid": {},
             "gridPos": {
                 "h": 9,
                 "w": 12,
                 "x": 12,
                 "y": 8
             },
-            "hiddenSeries": false,
             "id": 24,
-            "legend": {
-                "alignAsTable": true,
-                "avg": true,
-                "current": false,
-                "max": true,
-                "min": true,
-                "rightSide": false,
-                "show": true,
-                "sort": "avg",
-                "sortDesc": true,
-                "total": false,
-                "values": true
-            },
-            "lines": true,
-            "linewidth": 2,
             "links": [],
-            "nullPointMode": "null",
             "options": {
-                "alertThreshold": true
-            },
-            "paceLength": 10,
-            "percentage": false,
-            "pluginVersion": "8.3.5",
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [
-                {
-                    "alias": "Key Blocks Not Flushed",
-                    "fill": 0
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
                 }
-            ],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
+            },
+            "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "avg by (service_name) ((rate(mysql_global_status_auroradb_ddl_stmt_duration{service_name=~\"$service_name\"}[$interval])/ (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'alter_table|create_index|drop_index|drop_table'}[$interval])) without(command))))",
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_ddl_stmt_duration{service_name=~\"$service_name\"}[$interval]) / (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'alter_table|create_index|drop_index|drop_table'}[$interval])) without(command)) or (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'alter_table|create_index|drop_index|drop_table'}[$interval])) without(command) == 0) * 0)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "DDL Latency",
+                    "range": true,
                     "refId": "A"
                 },
                 {
-                    "expr": "avg by (service_name) ((rate(mysql_global_status_auroradb_select_stmt_duration{service_name=~\"$service_name\"}[$interval])/ (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command='select'}[$interval])) without(command))+rate(mysql_global_status_qcache_hits{service_name=~\"$service_name\"}[$interval])))",
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_select_stmt_duration{service_name=~\"$service_name\"}[$interval]) / (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command='select'}[$interval])) without(command)) or (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command='select'}[$interval])) without(command) == 0) * 0)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "SELECT Latency",
+                    "range": true,
                     "refId": "B"
                 },
                 {
-                    "expr": "avg by (service_name) ((rate(mysql_global_status_auroradb_insert_stmt_duration{service_name=~\"$service_name\"}[$interval])/ (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'insert|insert_select'}[$interval])) without(command))))",
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_insert_stmt_duration{service_name=~\"$service_name\"}[$interval]) / (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'insert|insert_select'}[$interval])) without(command)) or (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'insert|insert_select'}[$interval])) without(command) == 0) * 0)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "INSERT Latency",
-                    "refId": "D"
+                    "range": true,
+                    "refId": "C"
                 },
                 {
-                    "expr": "avg by (service_name) ((rate(mysql_global_status_auroradb_update_stmt_duration{service_name=~\"$service_name\"}[$interval])/ (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'update|update_multi'}[$interval])) without(command))))",
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_update_stmt_duration{service_name=~\"$service_name\"}[$interval]) / (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'update|update_multi'}[$interval])) without(command)) or (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'update|update_multi'}[$interval])) without(command) == 0) * 0)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "UPDATE Latency",
-                    "refId": "E"
+                    "range": true,
+                    "refId": "D"
                 },
                 {
-                    "expr": "avg by (service_name) ((rate(mysql_global_status_auroradb_delete_stmt_duration{service_name=~\"$service_name\"}[$interval])/ (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'delete|delete_multi'}[$interval])) without(command))))",
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_delete_stmt_duration{service_name=~\"$service_name\"}[$interval]) / (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'delete|delete_multi'}[$interval])) without(command)) or (sum(rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'delete|delete_multi'}[$interval])) without(command) == 0) * 0)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "DELETE Latency",
-                    "refId": "F"
+                    "range": true,
+                    "refId": "E"
                 }
             ],
-            "thresholds": [],
-            "timeRegions": [],
             "title": "Amazon Aurora Statement Latency",
-            "tooltip": {
-                "msResolution": false,
-                "shared": true,
-                "sort": 5,
-                "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-                "mode": "time",
-                "show": true,
-                "values": []
-            },
-            "yaxes": [
-                {
-                    "decimals": 2,
-                    "format": "µs",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": true
-                },
-                {
-                    "decimals": 5,
-                    "format": "short",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": false
-                }
-            ],
-            "yaxis": {
-                "align": false
-            }
+            "type": "timeseries"
         },
         {
-            "aliasColors": {
-                "DDL Latency": "#962d82",
-                "DDL Load": "#962d82",
-                "DELETE Latency": "#e5ac0e",
-                "DELETE load": "#eab839",
-                "INSERT Latency": "#0a437c",
-                "INSERT load": "#0a437c",
-                "SELECT Latency": "#508642",
-                "SELECT load ": "#629e51",
-                "UPDATE load": "#ea6460",
-                "Write Transaction Commit Load": "#bf1b00"
-            },
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "decimals": 2,
+            "datasource": "Metrics",
             "description": "Amazon Aurora MySQL allows a number of commands which are not available in standard MySQL. This graph shows usage of such commands.  Regular “unit_test” calls can be seen in default Amazon Aurora install,  the rest will depend on your workload.\n\n* `show_volume_status`: The number of executions per second of the command SHOW VOLUME STATUS. The SHOW VOLUME STATUS query returns two server status variables, Disks and Nodes. These variables represent the total number of logical blocks of data and storage nodes, respectively, for the DB cluster volume.\n\n* `awslambda`: The number of AWS Lambda calls per second. AWS Lambda is an event-drive, server-less computing platform provided by AWS. It is a compute service that run codes in response to an event. You can run any kind of code from Aurora invoking Lambda from a stored procedure or a trigger.\n\n* `alter_system`: The number of executions per second of the special query ALTER SYSTEM, that is a special query to simulate an instance crash, a disk failure, a disk congestion or a replica failure. It’s a useful query for testing the system.",
-            "editable": true,
-            "error": false,
             "fieldConfig": {
                 "defaults": {
-                    "links": []
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 4,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "ops"
                 },
                 "overrides": []
             },
-            "fill": 1,
-            "fillGradient": 0,
-            "grid": {},
             "gridPos": {
                 "h": 8,
                 "w": 12,
                 "x": 0,
                 "y": 17
             },
-            "hiddenSeries": false,
             "id": 25,
-            "legend": {
-                "alignAsTable": true,
-                "avg": true,
-                "current": false,
-                "max": true,
-                "min": true,
-                "rightSide": false,
-                "show": true,
-                "sort": "avg",
-                "sortDesc": true,
-                "total": false,
-                "values": true
-            },
-            "lines": true,
-            "linewidth": 2,
             "links": [],
-            "nullPointMode": "null",
             "options": {
-                "alertThreshold": true
-            },
-            "paceLength": 10,
-            "percentage": false,
-            "pluginVersion": "8.3.5",
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [
-                {
-                    "alias": "Key Blocks Not Flushed",
-                    "fill": 0
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
                 }
-            ],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
+            },
+            "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "avg by (service_name) (rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'awslambda|alter_system|unit_test|show_volume_status'}[$interval]))",
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "sum by (service_name, command) (rate(mysql_global_status_commands_total{service_name=~\"$service_name\",command=~'awslambda|alter_system|unit_test|show_volume_status'}[$interval]))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "{{command}}",
+                    "range": true,
                     "refId": "A"
                 }
             ],
-            "thresholds": [],
-            "timeRegions": [],
             "title": "Amazon Aurora Special Command Counters",
-            "tooltip": {
-                "msResolution": false,
-                "shared": true,
-                "sort": 5,
-                "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-                "mode": "time",
-                "show": true,
-                "values": []
-            },
-            "yaxes": [
-                {
-                    "decimals": 4,
-                    "format": "ops",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": true
-                },
-                {
-                    "format": "short",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": false
-                }
-            ],
-            "yaxis": {
-                "align": false
-            }
+            "type": "timeseries"
         },
         {
-            "aliasColors": {
-                "DDL Latency": "#962d82",
-                "DDL Load": "#962d82",
-                "DELETE Latency": "#e5ac0e",
-                "DELETE load": "#eab839",
-                "INSERT Latency": "#0a437c",
-                "INSERT load": "#0a437c",
-                "Missing History on Replica Incidents": "#e0752d",
-                "Reserved Mem Exceeded Incidents": "#bf1b00",
-                "SELECT Latency": "#508642",
-                "SELECT load ": "#629e51",
-                "Thread Deadlocks": "#ea6460",
-                "UPDATE load": "#ea6460",
-                "Write Transaction Commit Load": "#bf1b00"
-            },
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "decimals": 2,
-            "description": "This graph shows different kinds of Internal Amazon Aurora MySQL Problems which general should be zero in normal operation.\n\nAnything non-zero is worth examining in greater depth.",
-            "editable": true,
-            "error": false,
+            "datasource": "Metrics",
+            "description": "This graph shows different kinds of Internal Amazon Aurora MySQL Problems which general should be zero in normal operation.\n\nAnything non-zero is worth examining in greater depth.\n\n* **Deadlocks (CloudWatch)** and **Blocked transactions (CloudWatch)**: average counts reported by Amazon CloudWatch for the instance.\n\n* **Reserved Mem Exceeded Incidents**: rate of incidents where the reserved memory was exceeded.",
             "fieldConfig": {
                 "defaults": {
-                    "links": []
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "ops"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Reserved Mem Exceeded Incidents"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#bf1b00",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Deadlocks (CloudWatch)"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#ea6460",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Blocked transactions (CloudWatch)"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#e0752d",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
-            "fill": 1,
-            "fillGradient": 0,
-            "grid": {},
             "gridPos": {
                 "h": 8,
                 "w": 12,
                 "x": 12,
                 "y": 17
             },
-            "hiddenSeries": false,
             "id": 26,
-            "legend": {
-                "alignAsTable": true,
-                "avg": true,
-                "current": false,
-                "max": true,
-                "min": true,
-                "rightSide": false,
-                "show": true,
-                "sort": "avg",
-                "sortDesc": true,
-                "total": false,
-                "values": true
-            },
-            "lines": true,
-            "linewidth": 2,
             "links": [],
-            "nullPointMode": "null",
             "options": {
-                "alertThreshold": true
-            },
-            "paceLength": 10,
-            "percentage": false,
-            "pluginVersion": "8.3.5",
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [
-                {
-                    "alias": "Key Blocks Not Flushed",
-                    "fill": 0
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
                 }
-            ],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
+            },
+            "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "avg by (service_name) (rate(mysql_global_status_auroradb_thread_deadlocks{service_name=~\"$service_name\"}[$interval]))",
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_deadlocks_average{node_name=~\"$node_name\"})",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "Thread Deadlocks",
+                    "legendFormat": "Deadlocks (CloudWatch)",
+                    "range": true,
                     "refId": "A"
                 },
                 {
-                    "expr": "avg by (service_name) (rate(mysql_global_status_aurora_missing_history_on_replica_incidents{service_name=~\"$service_name\"}[$interval]))",
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_blocked_transactions_average{node_name=~\"$node_name\"})",
                     "format": "time_series",
+                    "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "Missing History on Replica Incidents",
+                    "legendFormat": "Blocked transactions (CloudWatch)",
+                    "range": true,
                     "refId": "B"
                 },
                 {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
                     "expr": "avg by (service_name) (rate(mysql_global_status_aurora_reserved_mem_exceeded_incidents{service_name=~\"$service_name\"}[$interval]))",
                     "format": "time_series",
+                    "hide": false,
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "legendFormat": "Reserved Mem Exceeded Incidents",
+                    "range": true,
                     "refId": "C"
                 }
             ],
-            "thresholds": [],
-            "timeRegions": [],
             "title": "Amazon Aurora Problems",
-            "tooltip": {
-                "msResolution": false,
-                "shared": true,
-                "sort": 5,
-                "value_type": "individual"
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": "Metrics",
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 25
             },
-            "type": "graph",
-            "xaxis": {
-                "mode": "time",
-                "show": true,
-                "values": []
-            },
-            "yaxes": [
-                {
+            "id": 100,
+            "panels": [],
+            "title": "Cache and local storage",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Percentage of requests served from the Aurora buffer cache (CloudWatch BufferCacheHitRatio).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
                     "decimals": 2,
-                    "format": "ops",
-                    "logBase": 1,
+                    "links": [],
+                    "mappings": [],
                     "min": 0,
-                    "show": true
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "percent"
                 },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 26
+            },
+            "id": 101,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
                 {
-                    "format": "short",
-                    "logBase": 1,
-                    "min": 0,
-                    "show": false
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_buffer_cache_hit_ratio_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Buffer cache hit ratio",
+                    "range": true,
+                    "refId": "A"
                 }
             ],
-            "yaxis": {
-                "align": false
-            }
+            "title": "Buffer Cache Hit Ratio",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Local storage available to the instance for temporary files and logs (CloudWatch FreeLocalStorage).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 26
+            },
+            "id": 102,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_free_local_storage_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Free local storage",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Free Local Storage",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Bytes used by the Aurora cluster volume (CloudWatch VolumeBytesUsed). AWS publishes this metric per cluster irregularly, so the line can be up to about 3 hours behind.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 34
+            },
+            "id": 103,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by (aws_cluster_id) (aws_rds_volume_bytes_used_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{aws_cluster_id}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Cluster volume used",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": "Metrics",
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 42
+            },
+            "id": 150,
+            "panels": [],
+            "title": "Instance resources (CloudWatch)",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "CPU utilization of the instance (CloudWatch CPUUtilization). Source: CloudWatch, available without Enhanced Monitoring; values are about 10 minutes behind.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "max": 100,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 43
+            },
+            "id": 151,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (node_cpu_average{node_name=~\"$node_name\",mode=\"\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "CPU utilization",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "CPU utilization",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Memory available to the instance (CloudWatch FreeableMemory). Source: CloudWatch, available without Enhanced Monitoring; values are about 10 minutes behind.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 43
+            },
+            "id": 152,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_freeable_memory_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Freeable memory",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Freeable memory",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Client connections to the database instance (CloudWatch DatabaseConnections). Source: CloudWatch, available without Enhanced Monitoring; values are about 10 minutes behind.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 51
+            },
+            "id": 153,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_database_connections_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Connections",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Database connections",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Read and write I/O operations per second (CloudWatch ReadIOPS, WriteIOPS). Source: CloudWatch, available without Enhanced Monitoring; values are about 10 minutes behind.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "iops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 51
+            },
+            "id": 154,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_read_iops_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Read",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_write_iops_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Write",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "IOPS",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Data read from and written to the cluster volume per second (CloudWatch ReadThroughput, WriteThroughput). Source: CloudWatch, available without Enhanced Monitoring; values are about 10 minutes behind.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "Bps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 59
+            },
+            "id": 155,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_read_throughput_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Read",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_write_throughput_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Write",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Throughput",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Network traffic received and transmitted by the instance per second (CloudWatch NetworkReceiveThroughput, NetworkTransmitThroughput). Source: CloudWatch, available without Enhanced Monitoring; values are about 10 minutes behind.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "Bps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 59
+            },
+            "id": 156,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_network_receive_throughput_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Receive",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_network_transmit_throughput_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Transmit",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Network throughput",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Outstanding I/O requests waiting for access to the disk (CloudWatch DiskQueueDepth). Source: CloudWatch, available without Enhanced Monitoring; values are about 10 minutes behind.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 67
+            },
+            "id": 157,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_disk_queue_depth_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Disk queue depth",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Disk queue depth",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Swap space used by the instance (CloudWatch SwapUsage). Source: CloudWatch, available without Enhanced Monitoring; values are about 10 minutes behind.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 67
+            },
+            "id": 158,
+            "links": [],
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "avg by (node_name) (aws_rds_swap_usage_average{node_name=~\"$node_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Swap usage",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Swap usage",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": true,
+            "datasource": "Metrics",
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 75
+            },
+            "id": 110,
+            "panels": [
+                {
+                    "datasource": "Metrics",
+                    "description": "Replication lag of an Aurora reader behind the writer (CloudWatch AuroraReplicaLag). Reported by readers only.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 2,
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "ms"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 76
+                    },
+                    "id": 111,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true,
+                            "sortBy": "Mean",
+                            "sortDesc": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "11.6.4",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (node_name) (aws_rds_aurora_replica_lag_average{node_name=~\"$node_name\"})",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Aurora replica lag",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Aurora Replica Lag",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Lag of the binlog replication thread behind its source (CloudWatch AuroraBinlogReplicaLag).",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 2,
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "s"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 12,
+                        "y": 76
+                    },
+                    "id": 112,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true,
+                            "sortBy": "Mean",
+                            "sortDesc": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "11.6.4",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (node_name) (aws_rds_aurora_binlog_replica_lag_average{node_name=~\"$node_name\"})",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Aurora binlog replica lag",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Aurora Binlog Replica Lag",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "Replication (needs a reader)",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "datasource": "Metrics",
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 76
+            },
+            "id": 120,
+            "panels": [
+                {
+                    "datasource": "Metrics",
+                    "description": "This graph is empty unless the feature is in use on the instance. Statements forwarded from a reader to the writer (write forwarding).",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 2,
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "ops"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 77
+                    },
+                    "id": 121,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true,
+                            "sortBy": "Mean",
+                            "sortDesc": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "11.6.4",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (service_name) (rate(mysql_global_status_aurora_fwd_writer_dml_stmt_count{service_name=~\"$service_name\"}[$interval]))",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Forwarded DML",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (service_name) (rate(mysql_global_status_aurora_fwd_writer_select_stmt_count{service_name=~\"$service_name\"}[$interval]))",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Forwarded SELECT",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "Forwarded Write Statements",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "This graph is empty unless the feature is in use on the instance. Number of forwarded sessions currently open on the writer.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 0,
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 12,
+                        "y": 77
+                    },
+                    "id": 122,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true,
+                            "sortBy": "Mean",
+                            "sortDesc": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "11.6.4",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (service_name) (mysql_global_status_aurora_fwd_writer_open_sessions{service_name=~\"$service_name\"})",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Open sessions",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Forwarding Open Sessions",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "Write forwarding",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "datasource": "Metrics",
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 77
+            },
+            "id": 130,
+            "panels": [
+                {
+                    "datasource": "Metrics",
+                    "description": "This graph is empty unless the feature is in use on the instance. Parallel query requests by outcome.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 2,
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "ops"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 78
+                    },
+                    "id": 131,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true,
+                            "sortBy": "Mean",
+                            "sortDesc": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "11.6.4",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (service_name) (rate(mysql_global_status_aurora_pq_request_attempted{service_name=~\"$service_name\"}[$interval]))",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Attempted",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (service_name) (rate(mysql_global_status_aurora_pq_request_executed{service_name=~\"$service_name\"}[$interval]))",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Executed",
+                            "range": true,
+                            "refId": "B"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (service_name) (rate(mysql_global_status_aurora_pq_request_not_chosen{service_name=~\"$service_name\"}[$interval]))",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Not chosen",
+                            "range": true,
+                            "refId": "C"
+                        }
+                    ],
+                    "title": "Parallel Query Requests",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "Parallel query",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "datasource": "Metrics",
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 78
+            },
+            "id": 140,
+            "panels": [
+                {
+                    "datasource": "Metrics",
+                    "description": "This graph is empty unless the feature is in use on the instance. Current, minimum and maximum Aurora Capacity Units of a Serverless v2 instance.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 2,
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 79
+                    },
+                    "id": 141,
+                    "links": [],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true,
+                            "sortBy": "Mean",
+                            "sortDesc": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "11.6.4",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (service_name) (mysql_global_status_aurora_serverless_current_acu{service_name=~\"$service_name\"})",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Current ACU",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (service_name) (mysql_global_status_aurora_serverless_min_acu{service_name=~\"$service_name\"})",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Min ACU",
+                            "range": true,
+                            "refId": "B"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg by (service_name) (mysql_global_status_aurora_serverless_max_acu{service_name=~\"$service_name\"})",
+                            "format": "time_series",
+                            "hide": false,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Max ACU",
+                            "range": true,
+                            "refId": "C"
+                        }
+                    ],
+                    "title": "Serverless Capacity",
+                    "type": "timeseries"
+                }
+            ],
+            "title": "Serverless capacity (Serverless only)",
+            "type": "row"
         }
     ],
     "refresh": false,
@@ -979,7 +3165,7 @@
                     "value": ""
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_global_status_auroradb_thread_deadlocks, service_name)",
+                "definition": "label_values({__name__=~\"mysql_global_status_auroradb_(commits|thread_deadlocks)\"}, service_name)",
                 "hide": 0,
                 "includeAll": false,
                 "label": "Service Name",
@@ -987,7 +3173,7 @@
                 "name": "service_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_global_status_auroradb_thread_deadlocks, service_name)",
+                    "query": "label_values({__name__=~\"mysql_global_status_auroradb_(commits|thread_deadlocks)\"}, service_name)",
                     "refId": "Metrics-service_name-Variable-Query"
                 },
                 "refresh": 2,
@@ -1008,7 +3194,7 @@
                     "value": ""
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_global_status_auroradb_thread_deadlocks{service_name=~\"$service_name\"}, node_name)",
+                "definition": "label_values({__name__=~\"mysql_global_status_auroradb_(commits|thread_deadlocks)\",service_name=~\"$service_name\"}, node_name)",
                 "hide": 2,
                 "includeAll": false,
                 "label": "Node Name",
@@ -1017,7 +3203,7 @@
                 "name": "node_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_global_status_auroradb_thread_deadlocks{service_name=~\"$service_name\"}, node_name)",
+                    "query": "label_values({__name__=~\"mysql_global_status_auroradb_(commits|thread_deadlocks)\",service_name=~\"$service_name\"}, node_name)",
                     "refId": "Metrics-node_name-Variable-Query"
                 },
                 "refresh": 2,
@@ -1025,223 +3211,6 @@
                 "regex": "",
                 "skipUrlSync": false,
                 "sort": 5,
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Environment",
-                "multi": true,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                    "refId": "Metrics-environment-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, cluster)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Cluster",
-                "multi": true,
-                "name": "cluster",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, cluster)",
-                    "refId": "Metrics-cluster-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, replication_set)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Replication Set",
-                "multi": true,
-                "name": "replication_set",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, replication_set)",
-                    "refId": "Metrics-replication_set-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values(pg_stat_database_tup_fetched{service_name=~\"$service_name\",datname!~\"template.*|postgres\"},datname)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Database",
-                "multi": true,
-                "name": "database",
-                "options": [],
-                "query": {
-                    "query": "label_values(pg_stat_database_tup_fetched{service_name=~\"$service_name\",datname!~\"template.*|postgres\"},datname)",
-                    "refId": "Metrics-database-Variable-Query"
-                },
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, node_type)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Type",
-                "multi": true,
-                "name": "node_type",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, node_type)",
-                    "refId": "Metrics-node_type-Variable-Query"
-                },
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, service_type)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Type",
-                "multi": true,
-                "name": "service_type",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, service_type)",
-                    "refId": "Metrics-service_type-Variable-Query"
-                },
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\"},user)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Username",
-                "multi": true,
-                "name": "username",
-                "options": [],
-                "query": {
-                    "query": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\"},user)",
-                    "refId": "Metrics-username-Variable-Query"
-                },
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, schema)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Schema",
-                "multi": true,
-                "name": "schema",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, schema)",
-                    "refId": "Metrics-schema-Variable-Query"
-                },
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
                 "type": "query",
                 "useTags": false
             }

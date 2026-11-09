@@ -218,9 +218,13 @@ instances.
 
 6. Finally press the **Add service** button to start monitoring your instance.
 
+### View your RDS and Aurora databases
+
+The instances that you add here appear on the [Amazon RDS overview](../../../use/amazon-rds-overview.md) page, under **Amazon RDS > Overview**. The page groups them by Aurora cluster, Multi-AZ DB cluster or replication group. You don't need to change any IAM permissions. If you attached instances to a PMM Client on another host, upgrade that PMM Client. Until then, its instances appear under **AWS info unavailable**. Instances added with `pmm-admin add mysql` don't appear on the page.
+
 ### Adding an RDS instance via command line
 
-You can also add Amazon RDS MySQL instances using the `pmm-admin` command line tool.
+You can also add Amazon RDS MySQL instances using the `pmm-admin` command line tool. Instances added this way don't appear on the [Amazon RDS overview](../../../use/amazon-rds-overview.md) page, which lists only the instances added through **Inventory > Add service > Amazon RDS**.
 
 === "With TLS (CA certificate only - recommended)"
 

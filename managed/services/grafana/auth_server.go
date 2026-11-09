@@ -91,6 +91,7 @@ var rules = map[string]role{
 	"/v1/accesscontrol":               admin,
 	"/v1/ha":                          viewer,
 	"/v1/inventory":                   admin,
+	"/v1/inventory/nodes:getTypes":    viewer,
 	"/v1/inventory/services:getTypes": viewer,
 	"/v1/management":                  admin,
 	"/v1/management/Jobs":             viewer,

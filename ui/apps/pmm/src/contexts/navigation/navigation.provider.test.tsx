@@ -2,8 +2,10 @@ import { renderHook } from '@testing-library/react';
 import { ReactElement } from 'react';
 import { MemoryRouterProps } from 'react-router-dom';
 import { NavItem } from 'types/navigation.types';
+import { InventoryNodeType } from 'types/nodes.types';
 import { User } from 'types/user.types';
 import {
+  AMAZON_RDS_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
   OM_PATH,
@@ -20,9 +22,15 @@ import { wrapWithSettings, wrapWithUpdatesProvider } from 'utils/testUtils';
 import { NavigationProvider } from './navigation.provider';
 import { useNavigation } from './navigation.hooks';
 
+const { useNodeTypes } = vi.hoisted(() => ({
+  useNodeTypes: vi.fn(),
+}));
+
 vi.mock('hooks/api/useServices', () => ({
   useServiceTypes: () => ({ data: { serviceTypes: [] } }),
 }));
+
+vi.mock('hooks/api/useNodes', () => ({ useNodeTypes }));
 
 vi.mock('hooks/api/useAdvisors', () => ({
   useAdvisors: () => ({ data: [] }),
@@ -79,6 +87,68 @@ const findById = (items: NavItem[], id: string): NavItem | undefined =>
   items.find((item) => item.id === id);
 
 describe('NavigationProvider', () => {
+  beforeEach(() => {
+    useNodeTypes.mockReturnValue({
+      data: { nodeTypes: [InventoryNodeType.generic] },
+    });
+  });
+
+  describe('Amazon RDS section', () => {
+    it('is hidden without RDS nodes', () => {
+      const ids = renderNavTree().map((item) => item.id);
+
+      expect(ids).not.toContain('rds');
+    });
+
+    it('is shown with an RDS node, holding the overview, before Operating system', () => {
+      useNodeTypes.mockReturnValue({
+        data: {
+          nodeTypes: [InventoryNodeType.generic, InventoryNodeType.remoteRds],
+        },
+      });
+
+      const navTree = renderNavTree();
+      const ids = navTree.map((item) => item.id);
+      const rds = findById(navTree, 'rds');
+
+      expect(ids.indexOf('rds')).toBe(ids.indexOf('system') - 1);
+      expect(rds?.text).toBe('Amazon RDS');
+      expect(rds?.children?.map((child) => child.id)).toEqual(['rds-overview']);
+    });
+
+    it.each([
+      ['admin', TEST_USER_ADMIN],
+      ['editor', TEST_USER_EDITOR],
+      ['viewer', TEST_USER_VIEWER],
+    ])('is shown to a %s', (_, user) => {
+      useNodeTypes.mockReturnValue({
+        data: { nodeTypes: [InventoryNodeType.remoteRds] },
+      });
+
+      const ids = renderNavTree(user).map((item) => item.id);
+
+      expect(useNodeTypes).toHaveBeenLastCalledWith(
+        expect.objectContaining({ enabled: true })
+      );
+      expect(ids).toContain('rds');
+    });
+
+    it('links the overview to the Amazon RDS page and marks it active there', () => {
+      useNodeTypes.mockReturnValue({
+        data: { nodeTypes: [InventoryNodeType.remoteRds] },
+      });
+
+      const navTree = renderNavTree();
+      const rds = findById(navTree, 'rds');
+      const active = findActiveNavItem(navTree, AMAZON_RDS_PATH);
+
+      expect(rds?.url).toBe(AMAZON_RDS_PATH);
+      expect(active?.id).toBe('rds-overview');
+      expect(active?.url).toBe(AMAZON_RDS_PATH);
+      expect(rds?.children).toContain(active);
+    });
+  });
+
   describe('Apps section', () => {
     it.each([
       ['admin', TEST_USER_ADMIN],

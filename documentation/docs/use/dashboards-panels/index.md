@@ -27,6 +27,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
     | Dashboard                                                                                | Description |
     |------------------------------------------------------------------------------------------|-------------|
     | [PMM Inventory]                                                                          | Manage monitored services, nodes, and agents
+    | [Amazon RDS overview]                                                                    | Amazon RDS and Aurora clusters and instances, roles, alerts and storage
     | [Environment Overview]                                                                   | High-level view of all monitored environments
     | [Environment Summary]                                                                    | Aggregated metrics across environments
 
@@ -126,6 +127,7 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [VictoriaMetrics]: ../../reference/dashboards/dashboard-victoriametrics.md
 [VictoriaMetrics Agents Overview]: ../../reference/dashboards/dashboard-victoriametrics-agents-overview.md
 [PMM Inventory]: ../../use/dashboard-inventory.md
+[Amazon RDS overview]: ../../use/amazon-rds-overview.md
 [Environment Overview]: ../../reference/dashboards/dashboard-env-overview.md
 [Environment Summary]: ../../reference/dashboards/dashboard-env-overview.md
 [CPU Utilization Details]: ../../reference/dashboards/dashboard-cpu-utilization-details.md

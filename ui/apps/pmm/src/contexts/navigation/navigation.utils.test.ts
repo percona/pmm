@@ -12,9 +12,10 @@ import {
   addDashboardItems,
   addOm,
 } from './navigation.utils';
-import { NAV_MONGO } from './navigation.constants';
+import { NAV_MONGO, NAV_MYSQL, NAV_RDS } from './navigation.constants';
 import { ServiceType } from 'types/services.types';
 import {
+  AMAZON_RDS_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
 } from 'lib/constants';
@@ -204,5 +205,28 @@ describe('addDashboardItems', () => {
 
   it('has no MongoDB menu with neither MongoDB nor extras', () => {
     expect(mongoMenu(addDashboardItems([], []))).toBeUndefined();
+  });
+
+  it('shows the Amazon RDS menu only when PMM monitors RDS nodes', () => {
+    const ids = (hasRdsNodes: boolean) =>
+      addDashboardItems(
+        [ServiceType.mysql],
+        [],
+        undefined,
+        [],
+        hasRdsNodes
+      ).map((item) => item.id);
+
+    expect(ids(false)).not.toContain('rds');
+    expect(ids(true)).toEqual(['mysql', 'rds', 'system', 'dashboards']);
+  });
+
+  it('links the Amazon RDS page from the Amazon RDS menu only, not from MySQL', () => {
+    const urls = (NAV_MYSQL.children ?? []).map((child) => child.url);
+
+    expect(NAV_RDS.children?.map((child) => child.url)).toEqual([
+      AMAZON_RDS_PATH,
+    ]);
+    expect(urls).not.toContain(AMAZON_RDS_PATH);
   });
 });

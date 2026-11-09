@@ -777,6 +777,86 @@ func (x *ListNodesResponse) GetRemoteAzureDatabase() []*RemoteAzureDatabaseNode 
 	return nil
 }
 
+type ListActiveNodeTypesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListActiveNodeTypesRequest) Reset() {
+	*x = ListActiveNodeTypesRequest{}
+	mi := &file_inventory_v1_nodes_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListActiveNodeTypesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListActiveNodeTypesRequest) ProtoMessage() {}
+
+func (x *ListActiveNodeTypesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_nodes_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListActiveNodeTypesRequest.ProtoReflect.Descriptor instead.
+func (*ListActiveNodeTypesRequest) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{7}
+}
+
+type ListActiveNodeTypesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	NodeTypes     []NodeType             `protobuf:"varint,1,rep,packed,name=node_types,json=nodeTypes,proto3,enum=inventory.v1.NodeType" json:"node_types,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListActiveNodeTypesResponse) Reset() {
+	*x = ListActiveNodeTypesResponse{}
+	mi := &file_inventory_v1_nodes_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListActiveNodeTypesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListActiveNodeTypesResponse) ProtoMessage() {}
+
+func (x *ListActiveNodeTypesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_v1_nodes_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListActiveNodeTypesResponse.ProtoReflect.Descriptor instead.
+func (*ListActiveNodeTypesResponse) Descriptor() ([]byte, []int) {
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ListActiveNodeTypesResponse) GetNodeTypes() []NodeType {
+	if x != nil {
+		return x.NodeTypes
+	}
+	return nil
+}
+
 type GetNodeRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique randomly generated instance identifier.
@@ -787,7 +867,7 @@ type GetNodeRequest struct {
 
 func (x *GetNodeRequest) Reset() {
 	*x = GetNodeRequest{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[7]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -799,7 +879,7 @@ func (x *GetNodeRequest) String() string {
 func (*GetNodeRequest) ProtoMessage() {}
 
 func (x *GetNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[7]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -812,7 +892,7 @@ func (x *GetNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodeRequest.ProtoReflect.Descriptor instead.
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{7}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetNodeRequest) GetNodeId() string {
@@ -838,7 +918,7 @@ type GetNodeResponse struct {
 
 func (x *GetNodeResponse) Reset() {
 	*x = GetNodeResponse{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[8]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -850,7 +930,7 @@ func (x *GetNodeResponse) String() string {
 func (*GetNodeResponse) ProtoMessage() {}
 
 func (x *GetNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[8]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -863,7 +943,7 @@ func (x *GetNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetNodeResponse.ProtoReflect.Descriptor instead.
 func (*GetNodeResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{8}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetNodeResponse) GetNode() isGetNodeResponse_Node {
@@ -968,7 +1048,7 @@ type AddNodeRequest struct {
 
 func (x *AddNodeRequest) Reset() {
 	*x = AddNodeRequest{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[9]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -980,7 +1060,7 @@ func (x *AddNodeRequest) String() string {
 func (*AddNodeRequest) ProtoMessage() {}
 
 func (x *AddNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[9]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -993,7 +1073,7 @@ func (x *AddNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddNodeRequest.ProtoReflect.Descriptor instead.
 func (*AddNodeRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{9}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *AddNodeRequest) GetNode() isAddNodeRequest_Node {
@@ -1098,7 +1178,7 @@ type AddNodeResponse struct {
 
 func (x *AddNodeResponse) Reset() {
 	*x = AddNodeResponse{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[10]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1110,7 +1190,7 @@ func (x *AddNodeResponse) String() string {
 func (*AddNodeResponse) ProtoMessage() {}
 
 func (x *AddNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[10]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1123,7 +1203,7 @@ func (x *AddNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddNodeResponse.ProtoReflect.Descriptor instead.
 func (*AddNodeResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{10}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AddNodeResponse) GetNode() isAddNodeResponse_Node {
@@ -1236,7 +1316,7 @@ type AddGenericNodeParams struct {
 
 func (x *AddGenericNodeParams) Reset() {
 	*x = AddGenericNodeParams{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[11]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1248,7 +1328,7 @@ func (x *AddGenericNodeParams) String() string {
 func (*AddGenericNodeParams) ProtoMessage() {}
 
 func (x *AddGenericNodeParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[11]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1261,7 +1341,7 @@ func (x *AddGenericNodeParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddGenericNodeParams.ProtoReflect.Descriptor instead.
 func (*AddGenericNodeParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{11}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AddGenericNodeParams) GetNodeName() string {
@@ -1346,7 +1426,7 @@ type AddContainerNodeParams struct {
 
 func (x *AddContainerNodeParams) Reset() {
 	*x = AddContainerNodeParams{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[12]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1358,7 +1438,7 @@ func (x *AddContainerNodeParams) String() string {
 func (*AddContainerNodeParams) ProtoMessage() {}
 
 func (x *AddContainerNodeParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[12]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1371,7 +1451,7 @@ func (x *AddContainerNodeParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddContainerNodeParams.ProtoReflect.Descriptor instead.
 func (*AddContainerNodeParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{12}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *AddContainerNodeParams) GetNodeName() string {
@@ -1457,7 +1537,7 @@ type AddRemoteNodeParams struct {
 
 func (x *AddRemoteNodeParams) Reset() {
 	*x = AddRemoteNodeParams{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[13]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1469,7 +1549,7 @@ func (x *AddRemoteNodeParams) String() string {
 func (*AddRemoteNodeParams) ProtoMessage() {}
 
 func (x *AddRemoteNodeParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[13]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1482,7 +1562,7 @@ func (x *AddRemoteNodeParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddRemoteNodeParams.ProtoReflect.Descriptor instead.
 func (*AddRemoteNodeParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{13}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *AddRemoteNodeParams) GetNodeName() string {
@@ -1552,7 +1632,7 @@ type AddRemoteRDSNodeParams struct {
 
 func (x *AddRemoteRDSNodeParams) Reset() {
 	*x = AddRemoteRDSNodeParams{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[14]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1564,7 +1644,7 @@ func (x *AddRemoteRDSNodeParams) String() string {
 func (*AddRemoteRDSNodeParams) ProtoMessage() {}
 
 func (x *AddRemoteRDSNodeParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[14]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1577,7 +1657,7 @@ func (x *AddRemoteRDSNodeParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddRemoteRDSNodeParams.ProtoReflect.Descriptor instead.
 func (*AddRemoteRDSNodeParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{14}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AddRemoteRDSNodeParams) GetNodeName() string {
@@ -1649,7 +1729,7 @@ type AddRemoteAzureNodeParams struct {
 
 func (x *AddRemoteAzureNodeParams) Reset() {
 	*x = AddRemoteAzureNodeParams{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[15]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1661,7 +1741,7 @@ func (x *AddRemoteAzureNodeParams) String() string {
 func (*AddRemoteAzureNodeParams) ProtoMessage() {}
 
 func (x *AddRemoteAzureNodeParams) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[15]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1674,7 +1754,7 @@ func (x *AddRemoteAzureNodeParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddRemoteAzureNodeParams.ProtoReflect.Descriptor instead.
 func (*AddRemoteAzureNodeParams) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{15}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *AddRemoteAzureNodeParams) GetNodeName() string {
@@ -1731,7 +1811,7 @@ type RemoveNodeRequest struct {
 
 func (x *RemoveNodeRequest) Reset() {
 	*x = RemoveNodeRequest{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[16]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1743,7 +1823,7 @@ func (x *RemoveNodeRequest) String() string {
 func (*RemoveNodeRequest) ProtoMessage() {}
 
 func (x *RemoveNodeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[16]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1756,7 +1836,7 @@ func (x *RemoveNodeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveNodeRequest.ProtoReflect.Descriptor instead.
 func (*RemoveNodeRequest) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{16}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *RemoveNodeRequest) GetNodeId() string {
@@ -1783,7 +1863,7 @@ type RemoveNodeResponse struct {
 
 func (x *RemoveNodeResponse) Reset() {
 	*x = RemoveNodeResponse{}
-	mi := &file_inventory_v1_nodes_proto_msgTypes[17]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1795,7 +1875,7 @@ func (x *RemoveNodeResponse) String() string {
 func (*RemoveNodeResponse) ProtoMessage() {}
 
 func (x *RemoveNodeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_inventory_v1_nodes_proto_msgTypes[17]
+	mi := &file_inventory_v1_nodes_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1808,7 +1888,7 @@ func (x *RemoveNodeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveNodeResponse.ProtoReflect.Descriptor instead.
 func (*RemoveNodeResponse) Descriptor() ([]byte, []int) {
-	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{17}
+	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *RemoveNodeResponse) GetWarning() string {
@@ -1905,7 +1985,11 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\x06remote\x18\x03 \x03(\v2\x18.inventory.v1.RemoteNodeR\x06remote\x12:\n" +
 	"\n" +
 	"remote_rds\x18\x04 \x03(\v2\x1b.inventory.v1.RemoteRDSNodeR\tremoteRds\x12Y\n" +
-	"\x15remote_azure_database\x18\x05 \x03(\v2%.inventory.v1.RemoteAzureDatabaseNodeR\x13remoteAzureDatabase\"2\n" +
+	"\x15remote_azure_database\x18\x05 \x03(\v2%.inventory.v1.RemoteAzureDatabaseNodeR\x13remoteAzureDatabase\"\x1c\n" +
+	"\x1aListActiveNodeTypesRequest\"T\n" +
+	"\x1bListActiveNodeTypesResponse\x125\n" +
+	"\n" +
+	"node_types\x18\x01 \x03(\x0e2\x16.inventory.v1.NodeTypeR\tnodeTypes\"2\n" +
 	"\x0eGetNodeRequest\x12 \n" +
 	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\"\xdc\x02\n" +
 	"\x0fGetNodeResponse\x125\n" +
@@ -2007,10 +2091,11 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\x18NODE_TYPE_CONTAINER_NODE\x10\x02\x12\x19\n" +
 	"\x15NODE_TYPE_REMOTE_NODE\x10\x03\x12\x1d\n" +
 	"\x19NODE_TYPE_REMOTE_RDS_NODE\x10\x04\x12(\n" +
-	"$NODE_TYPE_REMOTE_AZURE_DATABASE_NODE\x10\x052\xe6\x04\n" +
+	"$NODE_TYPE_REMOTE_AZURE_DATABASE_NODE\x10\x052\xcf\x06\n" +
 	"\fNodesService\x12\x96\x01\n" +
 	"\tListNodes\x12\x1e.inventory.v1.ListNodesRequest\x1a\x1f.inventory.v1.ListNodesResponse\"H\x92A*\x12\n" +
-	"List Nodes\x1a\x1cReturns a list of all Nodes.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/inventory/nodes\x12\x9a\x01\n" +
+	"List Nodes\x1a\x1cReturns a list of all Nodes.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/inventory/nodes\x12\xe6\x01\n" +
+	"\x13ListActiveNodeTypes\x12(.inventory.v1.ListActiveNodeTypesRequest\x1a).inventory.v1.ListActiveNodeTypesResponse\"z\x92AP\x12\x16List Active Node Types\x1a6Returns a list of Node types present in the inventory.\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/inventory/nodes:getTypes\x12\x9a\x01\n" +
 	"\aGetNode\x12\x1c.inventory.v1.GetNodeRequest\x1a\x1d.inventory.v1.GetNodeResponse\"R\x92A*\x12\n" +
 	"Get a Node\x1a\x1cReturns a single Node by ID.\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/inventory/nodes/{node_id}\x12\x83\x01\n" +
 	"\aAddNode\x12\x1c.inventory.v1.AddNodeRequest\x1a\x1d.inventory.v1.AddNodeResponse\";\x92A\x1a\x12\n" +
@@ -2034,85 +2119,90 @@ func file_inventory_v1_nodes_proto_rawDescGZIP() []byte {
 
 var (
 	file_inventory_v1_nodes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_inventory_v1_nodes_proto_msgTypes  = make([]protoimpl.MessageInfo, 28)
+	file_inventory_v1_nodes_proto_msgTypes  = make([]protoimpl.MessageInfo, 30)
 	file_inventory_v1_nodes_proto_goTypes   = []any{
-		NodeType(0),                      // 0: inventory.v1.NodeType
-		(*GenericNode)(nil),              // 1: inventory.v1.GenericNode
-		(*ContainerNode)(nil),            // 2: inventory.v1.ContainerNode
-		(*RemoteNode)(nil),               // 3: inventory.v1.RemoteNode
-		(*RemoteRDSNode)(nil),            // 4: inventory.v1.RemoteRDSNode
-		(*RemoteAzureDatabaseNode)(nil),  // 5: inventory.v1.RemoteAzureDatabaseNode
-		(*ListNodesRequest)(nil),         // 6: inventory.v1.ListNodesRequest
-		(*ListNodesResponse)(nil),        // 7: inventory.v1.ListNodesResponse
-		(*GetNodeRequest)(nil),           // 8: inventory.v1.GetNodeRequest
-		(*GetNodeResponse)(nil),          // 9: inventory.v1.GetNodeResponse
-		(*AddNodeRequest)(nil),           // 10: inventory.v1.AddNodeRequest
-		(*AddNodeResponse)(nil),          // 11: inventory.v1.AddNodeResponse
-		(*AddGenericNodeParams)(nil),     // 12: inventory.v1.AddGenericNodeParams
-		(*AddContainerNodeParams)(nil),   // 13: inventory.v1.AddContainerNodeParams
-		(*AddRemoteNodeParams)(nil),      // 14: inventory.v1.AddRemoteNodeParams
-		(*AddRemoteRDSNodeParams)(nil),   // 15: inventory.v1.AddRemoteRDSNodeParams
-		(*AddRemoteAzureNodeParams)(nil), // 16: inventory.v1.AddRemoteAzureNodeParams
-		(*RemoveNodeRequest)(nil),        // 17: inventory.v1.RemoveNodeRequest
-		(*RemoveNodeResponse)(nil),       // 18: inventory.v1.RemoveNodeResponse
-		nil,                              // 19: inventory.v1.GenericNode.CustomLabelsEntry
-		nil,                              // 20: inventory.v1.ContainerNode.CustomLabelsEntry
-		nil,                              // 21: inventory.v1.RemoteNode.CustomLabelsEntry
-		nil,                              // 22: inventory.v1.RemoteRDSNode.CustomLabelsEntry
-		nil,                              // 23: inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
-		nil,                              // 24: inventory.v1.AddGenericNodeParams.CustomLabelsEntry
-		nil,                              // 25: inventory.v1.AddContainerNodeParams.CustomLabelsEntry
-		nil,                              // 26: inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
-		nil,                              // 27: inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
-		nil,                              // 28: inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
+		NodeType(0),                         // 0: inventory.v1.NodeType
+		(*GenericNode)(nil),                 // 1: inventory.v1.GenericNode
+		(*ContainerNode)(nil),               // 2: inventory.v1.ContainerNode
+		(*RemoteNode)(nil),                  // 3: inventory.v1.RemoteNode
+		(*RemoteRDSNode)(nil),               // 4: inventory.v1.RemoteRDSNode
+		(*RemoteAzureDatabaseNode)(nil),     // 5: inventory.v1.RemoteAzureDatabaseNode
+		(*ListNodesRequest)(nil),            // 6: inventory.v1.ListNodesRequest
+		(*ListNodesResponse)(nil),           // 7: inventory.v1.ListNodesResponse
+		(*ListActiveNodeTypesRequest)(nil),  // 8: inventory.v1.ListActiveNodeTypesRequest
+		(*ListActiveNodeTypesResponse)(nil), // 9: inventory.v1.ListActiveNodeTypesResponse
+		(*GetNodeRequest)(nil),              // 10: inventory.v1.GetNodeRequest
+		(*GetNodeResponse)(nil),             // 11: inventory.v1.GetNodeResponse
+		(*AddNodeRequest)(nil),              // 12: inventory.v1.AddNodeRequest
+		(*AddNodeResponse)(nil),             // 13: inventory.v1.AddNodeResponse
+		(*AddGenericNodeParams)(nil),        // 14: inventory.v1.AddGenericNodeParams
+		(*AddContainerNodeParams)(nil),      // 15: inventory.v1.AddContainerNodeParams
+		(*AddRemoteNodeParams)(nil),         // 16: inventory.v1.AddRemoteNodeParams
+		(*AddRemoteRDSNodeParams)(nil),      // 17: inventory.v1.AddRemoteRDSNodeParams
+		(*AddRemoteAzureNodeParams)(nil),    // 18: inventory.v1.AddRemoteAzureNodeParams
+		(*RemoveNodeRequest)(nil),           // 19: inventory.v1.RemoveNodeRequest
+		(*RemoveNodeResponse)(nil),          // 20: inventory.v1.RemoveNodeResponse
+		nil,                                 // 21: inventory.v1.GenericNode.CustomLabelsEntry
+		nil,                                 // 22: inventory.v1.ContainerNode.CustomLabelsEntry
+		nil,                                 // 23: inventory.v1.RemoteNode.CustomLabelsEntry
+		nil,                                 // 24: inventory.v1.RemoteRDSNode.CustomLabelsEntry
+		nil,                                 // 25: inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
+		nil,                                 // 26: inventory.v1.AddGenericNodeParams.CustomLabelsEntry
+		nil,                                 // 27: inventory.v1.AddContainerNodeParams.CustomLabelsEntry
+		nil,                                 // 28: inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
+		nil,                                 // 29: inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
+		nil,                                 // 30: inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
 	}
 )
 
 var file_inventory_v1_nodes_proto_depIdxs = []int32{
-	19, // 0: inventory.v1.GenericNode.custom_labels:type_name -> inventory.v1.GenericNode.CustomLabelsEntry
-	20, // 1: inventory.v1.ContainerNode.custom_labels:type_name -> inventory.v1.ContainerNode.CustomLabelsEntry
-	21, // 2: inventory.v1.RemoteNode.custom_labels:type_name -> inventory.v1.RemoteNode.CustomLabelsEntry
-	22, // 3: inventory.v1.RemoteRDSNode.custom_labels:type_name -> inventory.v1.RemoteRDSNode.CustomLabelsEntry
-	23, // 4: inventory.v1.RemoteAzureDatabaseNode.custom_labels:type_name -> inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
+	21, // 0: inventory.v1.GenericNode.custom_labels:type_name -> inventory.v1.GenericNode.CustomLabelsEntry
+	22, // 1: inventory.v1.ContainerNode.custom_labels:type_name -> inventory.v1.ContainerNode.CustomLabelsEntry
+	23, // 2: inventory.v1.RemoteNode.custom_labels:type_name -> inventory.v1.RemoteNode.CustomLabelsEntry
+	24, // 3: inventory.v1.RemoteRDSNode.custom_labels:type_name -> inventory.v1.RemoteRDSNode.CustomLabelsEntry
+	25, // 4: inventory.v1.RemoteAzureDatabaseNode.custom_labels:type_name -> inventory.v1.RemoteAzureDatabaseNode.CustomLabelsEntry
 	0,  // 5: inventory.v1.ListNodesRequest.node_type:type_name -> inventory.v1.NodeType
 	1,  // 6: inventory.v1.ListNodesResponse.generic:type_name -> inventory.v1.GenericNode
 	2,  // 7: inventory.v1.ListNodesResponse.container:type_name -> inventory.v1.ContainerNode
 	3,  // 8: inventory.v1.ListNodesResponse.remote:type_name -> inventory.v1.RemoteNode
 	4,  // 9: inventory.v1.ListNodesResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
 	5,  // 10: inventory.v1.ListNodesResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
-	1,  // 11: inventory.v1.GetNodeResponse.generic:type_name -> inventory.v1.GenericNode
-	2,  // 12: inventory.v1.GetNodeResponse.container:type_name -> inventory.v1.ContainerNode
-	3,  // 13: inventory.v1.GetNodeResponse.remote:type_name -> inventory.v1.RemoteNode
-	4,  // 14: inventory.v1.GetNodeResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
-	5,  // 15: inventory.v1.GetNodeResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
-	12, // 16: inventory.v1.AddNodeRequest.generic:type_name -> inventory.v1.AddGenericNodeParams
-	13, // 17: inventory.v1.AddNodeRequest.container:type_name -> inventory.v1.AddContainerNodeParams
-	14, // 18: inventory.v1.AddNodeRequest.remote:type_name -> inventory.v1.AddRemoteNodeParams
-	15, // 19: inventory.v1.AddNodeRequest.remote_rds:type_name -> inventory.v1.AddRemoteRDSNodeParams
-	16, // 20: inventory.v1.AddNodeRequest.remote_azure:type_name -> inventory.v1.AddRemoteAzureNodeParams
-	1,  // 21: inventory.v1.AddNodeResponse.generic:type_name -> inventory.v1.GenericNode
-	2,  // 22: inventory.v1.AddNodeResponse.container:type_name -> inventory.v1.ContainerNode
-	3,  // 23: inventory.v1.AddNodeResponse.remote:type_name -> inventory.v1.RemoteNode
-	4,  // 24: inventory.v1.AddNodeResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
-	5,  // 25: inventory.v1.AddNodeResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
-	24, // 26: inventory.v1.AddGenericNodeParams.custom_labels:type_name -> inventory.v1.AddGenericNodeParams.CustomLabelsEntry
-	25, // 27: inventory.v1.AddContainerNodeParams.custom_labels:type_name -> inventory.v1.AddContainerNodeParams.CustomLabelsEntry
-	26, // 28: inventory.v1.AddRemoteNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
-	27, // 29: inventory.v1.AddRemoteRDSNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
-	28, // 30: inventory.v1.AddRemoteAzureNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
-	6,  // 31: inventory.v1.NodesService.ListNodes:input_type -> inventory.v1.ListNodesRequest
-	8,  // 32: inventory.v1.NodesService.GetNode:input_type -> inventory.v1.GetNodeRequest
-	10, // 33: inventory.v1.NodesService.AddNode:input_type -> inventory.v1.AddNodeRequest
-	17, // 34: inventory.v1.NodesService.RemoveNode:input_type -> inventory.v1.RemoveNodeRequest
-	7,  // 35: inventory.v1.NodesService.ListNodes:output_type -> inventory.v1.ListNodesResponse
-	9,  // 36: inventory.v1.NodesService.GetNode:output_type -> inventory.v1.GetNodeResponse
-	11, // 37: inventory.v1.NodesService.AddNode:output_type -> inventory.v1.AddNodeResponse
-	18, // 38: inventory.v1.NodesService.RemoveNode:output_type -> inventory.v1.RemoveNodeResponse
-	35, // [35:39] is the sub-list for method output_type
-	31, // [31:35] is the sub-list for method input_type
-	31, // [31:31] is the sub-list for extension type_name
-	31, // [31:31] is the sub-list for extension extendee
-	0,  // [0:31] is the sub-list for field type_name
+	0,  // 11: inventory.v1.ListActiveNodeTypesResponse.node_types:type_name -> inventory.v1.NodeType
+	1,  // 12: inventory.v1.GetNodeResponse.generic:type_name -> inventory.v1.GenericNode
+	2,  // 13: inventory.v1.GetNodeResponse.container:type_name -> inventory.v1.ContainerNode
+	3,  // 14: inventory.v1.GetNodeResponse.remote:type_name -> inventory.v1.RemoteNode
+	4,  // 15: inventory.v1.GetNodeResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
+	5,  // 16: inventory.v1.GetNodeResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
+	14, // 17: inventory.v1.AddNodeRequest.generic:type_name -> inventory.v1.AddGenericNodeParams
+	15, // 18: inventory.v1.AddNodeRequest.container:type_name -> inventory.v1.AddContainerNodeParams
+	16, // 19: inventory.v1.AddNodeRequest.remote:type_name -> inventory.v1.AddRemoteNodeParams
+	17, // 20: inventory.v1.AddNodeRequest.remote_rds:type_name -> inventory.v1.AddRemoteRDSNodeParams
+	18, // 21: inventory.v1.AddNodeRequest.remote_azure:type_name -> inventory.v1.AddRemoteAzureNodeParams
+	1,  // 22: inventory.v1.AddNodeResponse.generic:type_name -> inventory.v1.GenericNode
+	2,  // 23: inventory.v1.AddNodeResponse.container:type_name -> inventory.v1.ContainerNode
+	3,  // 24: inventory.v1.AddNodeResponse.remote:type_name -> inventory.v1.RemoteNode
+	4,  // 25: inventory.v1.AddNodeResponse.remote_rds:type_name -> inventory.v1.RemoteRDSNode
+	5,  // 26: inventory.v1.AddNodeResponse.remote_azure_database:type_name -> inventory.v1.RemoteAzureDatabaseNode
+	26, // 27: inventory.v1.AddGenericNodeParams.custom_labels:type_name -> inventory.v1.AddGenericNodeParams.CustomLabelsEntry
+	27, // 28: inventory.v1.AddContainerNodeParams.custom_labels:type_name -> inventory.v1.AddContainerNodeParams.CustomLabelsEntry
+	28, // 29: inventory.v1.AddRemoteNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteNodeParams.CustomLabelsEntry
+	29, // 30: inventory.v1.AddRemoteRDSNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntry
+	30, // 31: inventory.v1.AddRemoteAzureNodeParams.custom_labels:type_name -> inventory.v1.AddRemoteAzureNodeParams.CustomLabelsEntry
+	6,  // 32: inventory.v1.NodesService.ListNodes:input_type -> inventory.v1.ListNodesRequest
+	8,  // 33: inventory.v1.NodesService.ListActiveNodeTypes:input_type -> inventory.v1.ListActiveNodeTypesRequest
+	10, // 34: inventory.v1.NodesService.GetNode:input_type -> inventory.v1.GetNodeRequest
+	12, // 35: inventory.v1.NodesService.AddNode:input_type -> inventory.v1.AddNodeRequest
+	19, // 36: inventory.v1.NodesService.RemoveNode:input_type -> inventory.v1.RemoveNodeRequest
+	7,  // 37: inventory.v1.NodesService.ListNodes:output_type -> inventory.v1.ListNodesResponse
+	9,  // 38: inventory.v1.NodesService.ListActiveNodeTypes:output_type -> inventory.v1.ListActiveNodeTypesResponse
+	11, // 39: inventory.v1.NodesService.GetNode:output_type -> inventory.v1.GetNodeResponse
+	13, // 40: inventory.v1.NodesService.AddNode:output_type -> inventory.v1.AddNodeResponse
+	20, // 41: inventory.v1.NodesService.RemoveNode:output_type -> inventory.v1.RemoveNodeResponse
+	37, // [37:42] is the sub-list for method output_type
+	32, // [32:37] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_inventory_v1_nodes_proto_init() }
@@ -2120,21 +2210,21 @@ func file_inventory_v1_nodes_proto_init() {
 	if File_inventory_v1_nodes_proto != nil {
 		return
 	}
-	file_inventory_v1_nodes_proto_msgTypes[8].OneofWrappers = []any{
+	file_inventory_v1_nodes_proto_msgTypes[10].OneofWrappers = []any{
 		(*GetNodeResponse_Generic)(nil),
 		(*GetNodeResponse_Container)(nil),
 		(*GetNodeResponse_Remote)(nil),
 		(*GetNodeResponse_RemoteRds)(nil),
 		(*GetNodeResponse_RemoteAzureDatabase)(nil),
 	}
-	file_inventory_v1_nodes_proto_msgTypes[9].OneofWrappers = []any{
+	file_inventory_v1_nodes_proto_msgTypes[11].OneofWrappers = []any{
 		(*AddNodeRequest_Generic)(nil),
 		(*AddNodeRequest_Container)(nil),
 		(*AddNodeRequest_Remote)(nil),
 		(*AddNodeRequest_RemoteRds)(nil),
 		(*AddNodeRequest_RemoteAzure)(nil),
 	}
-	file_inventory_v1_nodes_proto_msgTypes[10].OneofWrappers = []any{
+	file_inventory_v1_nodes_proto_msgTypes[12].OneofWrappers = []any{
 		(*AddNodeResponse_Generic)(nil),
 		(*AddNodeResponse_Container)(nil),
 		(*AddNodeResponse_Remote)(nil),
@@ -2147,7 +2237,7 @@ func file_inventory_v1_nodes_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_v1_nodes_proto_rawDesc), len(file_inventory_v1_nodes_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   28,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

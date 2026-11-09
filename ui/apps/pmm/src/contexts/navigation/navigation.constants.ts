@@ -1,4 +1,5 @@
 import {
+  AMAZON_RDS_PATH,
   PMM_LOGIN_URL,
   PMM_LOGOUT_URL,
   PMM_NEW_NAV_GRAFANA_PATH,
@@ -14,6 +15,7 @@ import { clearReturnTo, saveReturnTo } from 'contexts/auth/auth.returnTo';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import AppsRounded from '@mui/icons-material/AppsRounded';
+import CloudOutlined from '@mui/icons-material/CloudOutlined';
 import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
 import ExploreOutlined from '@mui/icons-material/ExploreOutlined';
 import Groups from '@mui/icons-material/Groups';
@@ -271,6 +273,24 @@ export const NAV_POSTGRESQL: NavItem = {
       id: 'postgresql-top-queries',
       text: 'Top queries',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-top-queries/postgresql-top-queries`,
+    },
+  ],
+};
+
+//
+// Amazon RDS
+//
+export const NAV_RDS: NavItem = {
+  id: 'rds',
+  icon: CloudOutlined,
+  text: 'Amazon RDS',
+  url: AMAZON_RDS_PATH,
+  children: [
+    {
+      id: 'rds-overview',
+      icon: PageviewOutlined,
+      text: 'Overview',
+      url: AMAZON_RDS_PATH,
     },
   ],
 };

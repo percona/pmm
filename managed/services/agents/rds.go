@@ -17,6 +17,7 @@ package agents
 
 import (
 	"fmt"
+	"maps"
 	"sort"
 
 	"github.com/AlekSi/pointer"
@@ -46,11 +47,59 @@ type rdsExporterConfigFile struct {
 	Instances []rdsInstance `yaml:"instances"`
 }
 
-func mergeLabels(node *models.Node, agent *models.Agent) (model.LabelSet, error) {
-	labels, err := models.MergeLabels(node, nil, agent)
+// serviceStandardLabels are the Service labels that rds_exporter series carry, so that access roles
+// filtering on them also match the metrics of the RDS Node (PMM-15868).
+var serviceStandardLabels = []string{"environment", "cluster", "replication_set"}
+
+// sharedServiceLabels returns the serviceStandardLabels on which all given Services have the same non-empty value.
+// A Node without Services gets none, and a label on which its Services disagree is left out.
+func sharedServiceLabels(services []*models.Service) (map[string]string, error) {
+	var res map[string]string
+	for i, service := range services {
+		labels, err := service.UnifiedLabels()
+		if err != nil {
+			return nil, err
+		}
+
+		if i == 0 {
+			res = make(map[string]string, len(serviceStandardLabels))
+			for _, name := range serviceStandardLabels {
+				if value, ok := labels[name]; ok {
+					res[name] = value
+				}
+			}
+			continue
+		}
+
+		for name, value := range res {
+			if labels[name] != value {
+				delete(res, name)
+			}
+		}
+	}
+
+	return res, nil
+}
+
+// mergeLabels returns the labels of the rds_exporter series of the given Node, merged in the order
+// models.MergeLabels uses for the series of a Service: Node, Service, Agent.
+func mergeLabels(node *models.Node, services []*models.Service, agent *models.Agent) (model.LabelSet, error) {
+	labels, err := models.MergeLabels(node, nil, nil)
 	if err != nil {
 		return nil, err
 	}
+
+	shared, err := sharedServiceLabels(services)
+	if err != nil {
+		return nil, err
+	}
+	maps.Copy(labels, shared)
+
+	agentLabels, err := agent.UnifiedLabels()
+	if err != nil {
+		return nil, err
+	}
+	maps.Copy(labels, agentLabels)
 
 	res := make(model.LabelSet, len(labels))
 	for name, value := range labels {
@@ -80,13 +129,19 @@ func checkRDSExporterSupported(pmmAgent, exporter *models.Agent) error {
 }
 
 // rdsExporterConfig returns desired configuration of rds_exporter process.
-func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMode, pmmAgentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
+// The nodeServices map holds the Services of each RDS Node by Node ID.
+func rdsExporterConfig(
+	pairs map[*models.Node]*models.Agent,
+	nodeServices map[string][]*models.Service,
+	redactMode redactMode,
+	pmmAgentVersion *version.Parsed,
+) (*agentv1.SetStateRequest_AgentProcess, error) {
 	config := rdsExporterConfigFile{
 		Instances: make([]rdsInstance, 0, len(pairs)),
 	}
 	wordsSet := make(map[string]struct{}, len(pairs))
 	for node, exporter := range pairs {
-		labels, err := mergeLabels(node, exporter)
+		labels, err := mergeLabels(node, nodeServices[node.NodeID], exporter)
 		if err != nil {
 			return nil, err
 		}
