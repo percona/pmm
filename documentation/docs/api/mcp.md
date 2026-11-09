@@ -355,6 +355,8 @@ A call refused for its rate is `rate_limited` and says in the message how many s
 | `pmm_version`, `pmm_catalog`, `pmm_top_queries`, `pmm_query_detail`, `pmm_get_explain`, `pmm_get_schema`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health` | Viewer |
 | `pmm_inventory` | Viewer |
 
+`pmm_inventory` reads no inventory API, only the metrics your token can read.
+
 A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain` and `pmm_get_schema`, exactly as it can through the REST API, so those tools expose execution plans and table definitions to any user who can view dashboards.
 
 ## Configuration
