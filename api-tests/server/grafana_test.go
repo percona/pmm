@@ -16,9 +16,6 @@
 package server
 
 import (
-	"encoding/json"
-	"net/http"
-	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -30,18 +27,9 @@ import (
 func TestGrafanaCallsHomeDisabled(t *testing.T) {
 	t.Parallel()
 
-	u, err := url.Parse(pmmapitests.BaseURL.String())
+	resp, err := pmmapitests.GetGrafanaClient(t).Admin.AdminGetSettings()
 	require.NoError(t, err)
-	u.Path = "/graph/api/admin/settings"
-
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, u.String(), nil)
-	require.NoError(t, err)
-
-	resp, b := doRequest(t, pmmapitests.HTTPClient, req) //nolint:bodyclose
-	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to get Grafana settings, response: %s", b)
-
-	var settings map[string]map[string]string
-	require.NoError(t, json.Unmarshal(b, &settings))
+	settings := resp.Payload
 
 	for _, s := range []struct {
 		section string
@@ -51,6 +39,10 @@ func TestGrafanaCallsHomeDisabled(t *testing.T) {
 		{"analytics", "check_for_updates", "false"},
 		{"analytics", "reporting_enabled", "false"},
 		{"analytics", "check_for_plugin_updates", "false"},
+		{"analytics", "enabled", "false"},
+		{"analytics", "feedback_links_enabled", "false"},
+		{"news", "news_feed_enabled", "false"},
+		{"reporting", "enabled", "false"},
 		{"security", "disable_gravatar", "true"},
 	} {
 		assert.Equalf(t, s.want, settings[s.section][s.key], "[%s] %s", s.section, s.key)
