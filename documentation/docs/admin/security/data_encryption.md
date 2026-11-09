@@ -95,7 +95,7 @@ If you set up HA nodes yourself with the [HA variables](../../install-pmm/instal
 
 If a node has a different key, it logs that the encryption key `cannot decrypt stored credentials` and doesn't start. To fix it, copy the key file from a node that works to the same path on that node, then restart the node.
 
-## Upgrading from PMM 3.10.0 or earlier
+## Upgrade from PMM 3.10.0 or earlier
 
 Earlier versions stored encrypted values without the `pmm1$` prefix, and some sensitive data (backup location S3 credentials, Valkey TLS certificates and keys) without encryption. The first start after the upgrade re-encrypts all of it in the new format with your existing key; the key file is used as is.
 
@@ -117,11 +117,15 @@ Before you upgrade:
 
     - With nodes that you set up with the [HA variables](../../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#ha-variables), stop all PMM Server nodes, upgrade them, then start them.
 
+3. If you rotated the key with PMM 3.9.0 or earlier and then deleted `pmm-encryption_old.key` or moved it to offline storage, put it back next to the key file (`<name>_old.key` for a custom key path). PMM Server needs it to repair the credentials that the rotation corrupted.
+
 During the first start, PMM Server:
 
-- Stores the values it is about to re-encrypt in `pmm-encryption-migration-backup-<timestamp>-<digest>.json`, exactly as they were stored. The file goes next to the key file. If that directory is read-only, for example a key mounted from a secret, the file goes to `/srv`. If PMM Server can't write the file, it refuses to start and changes nothing. The file is readable by its owner only and is as sensitive as the database. Keep it until you have verified the upgrade, then delete it. If the first start is interrupted, the next one reuses that file.
+- Stores the values it is about to re-encrypt in `pmm-encryption-migration-backup-<timestamp>-<digest>.json`, exactly as they were stored. The file goes next to the key file. If that directory is read-only, for example a key mounted from a secret, the file goes to `/srv`. If PMM Server can't write the file, it refuses to start and changes nothing. The file is readable by its owner only and is as sensitive as the database. If the first start is interrupted, the next one reuses that file.
 - Refuses to start if it cannot decrypt stored data, for example when the key file was replaced by a different key. The error lists the affected credentials. Restore the original key file and restart; no data is changed. See [When PMM Server refuses to start](#when-pmm-server-refuses-to-start).
-- Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier (see [below](#recover-from-a-corrupted-rotation)), using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). Do not delete that file before upgrading.
+- Repairs credentials corrupted by key rotation in PMM 3.9.0 and earlier, using the previous key that the rotation left next to the key file (`pmm-encryption_old.key`, or `<name>_old.key` for a custom key path). See [Recover from a corrupted rotation](#recover-from-a-corrupted-rotation).
+
+After you verify the upgrade, check that `/srv/logs/pmm-managed.log` has no `cannot be recovered` warning. Then move the migration backup file and `pmm-encryption_old.key` to offline storage. The previous key is stored in plain text, and PMM Server reads it at every start. The values in the backup file may need that key.
 
 !!! caution "Downgrading is not supported"
     After the upgrade, earlier PMM versions cannot read the stored credentials. To go back, restore the PMM data backup taken before the upgrade.
@@ -181,7 +185,7 @@ Skip this section if you use the default key path and default database settings.
 
 #### Custom key path
 
-- Make sure `PMM_ENCRYPTION_KEY_PATH` points to the current key, so the tool can decrypt existing data.
+- Make sure `PMM_ENCRYPTION_KEY_PATH` points to the current key, so the tool adds the new key to the keyset that PMM Server uses.
 - Make sure the `pmm` user (UID 1000) can write to the directory that contains the key file. Otherwise, the rotation fails with a `permission denied` error before it changes anything. Fix the permissions and run it again.
 
 #### Custom database credentials or SSL
@@ -240,13 +244,9 @@ To bring PMM back up and retry:
     supervisorctl start pmm-managed
     ```
 
-2. If the directory containing your key file is not writable by the `pmm` user (UID 1000), fix the permissions:
+2. Run the rotation tool again.
 
-    ```bash
-    chown pmm:pmm /path/to/key/directory
-    ```
-
-3. Run the rotation tool again.
+If the tool exits with code `4`, PMM Server didn't finish re-encrypting the stored values within the 2 minutes that the tool waits. Check `/srv/logs/pmm-managed.log` for the reason before you run the tool again, because each run adds another key to the keyset.
 
 ## Recover from a corrupted rotation
 
