@@ -124,12 +124,10 @@ PMM Client reads operations from the database at its own collect interval, every
 
 ### Pause the stream
 
-Click **Pause** to freeze the current view so an operation doesn't disappear on the next refresh. The agent keeps collecting in the background, and **Auto-refresh** shows **OFF**. Pausing also shows two icon buttons next to **Resume**:
+Click **Pause** to freeze the current view so an operation doesn't disappear on the next refresh. The agent keeps collecting in the background, and **Auto-refresh** shows **OFF**. Pausing also shows two buttons next to **Resume**:
 
-- :material-refresh: **Refresh** reads the latest data once, without resuming live updates.
-- :material-download: **Export to CSV** downloads the current view, so you can [export RTA data](#export-rta-data).
-
-Hover over an icon to see its name.
+- :material-refresh: **Refresh** reads the latest data once, without resuming live updates. It's an icon button: hover over it to see its name.
+- **Export** downloads the current view, so you can [export RTA data](#export-rta-data).
 
 #### Check an operation in the Details pane
 
@@ -146,7 +144,7 @@ You can export a snapshot of the current RTA view to a CSV file. This is useful 
 
 For example, a long-running query that is killed before it completes never appears in QAN, because QAN only records queries that finish. Exporting the RTA view captures its data at the moment of the snapshot, before it disappears.
 
-The :material-download: **Export to CSV** icon button is hidden while auto-refresh is active and appears once you pause.
+The **Export** button is hidden while auto-refresh is active and appears once you pause.
 
 To export data:
 {.power-number}
@@ -154,7 +152,7 @@ To export data:
 1. Go to **Query Analytics > Real-time**.
 2. Click **Pause** to freeze the live feed.
 3. Apply any filters or sort order you want reflected in the export.
-4. Click :material-download: **Export to CSV** to download the file.
+4. Click **Export** to download the file.
 
 The export includes all records across all pages, respects active filters and sort order, and is saved as `mongodb_rta_export_{timestamp}.csv`.
 
