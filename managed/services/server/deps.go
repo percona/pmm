@@ -123,8 +123,8 @@ type nomadService interface {
 // omService is a subset of methods of om.Service used by this package.
 // We use it instead of the real type to avoid a dependency cycle.
 type omService interface {
-	// IsAvailable reports whether the PMM Extensions inventory app is configured and reachable.
-	IsAvailable(ctx context.Context) bool
+	// CheckAvailable returns why the PMM Extensions inventory app cannot be used, or nil when it can.
+	CheckAvailable(ctx context.Context) error
 	TriggerTopologyCollection(ctx context.Context, req *omv1.TriggerTopologyCollectionRequest) (*omv1.TriggerTopologyCollectionResponse, error)
 	SyncInventoryEnabled(ctx context.Context, enabled bool)
 }
