@@ -310,7 +310,7 @@ Check the following requirements:
 - **MongoDB exporter**: Must be configured and running. Go to **PMM Inventory > Services**, select your MongoDB service, and check that the MongoDB exporter shows **Running**.
 - **Admin role**: Only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. Users with other roles can view live data from running sessions.
 
-## See also
+## Related topics
 
 - [Query Analytics overview](index.md)
 - [Connect MongoDB to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md)
