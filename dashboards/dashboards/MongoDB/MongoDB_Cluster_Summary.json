@@ -1010,7 +1010,7 @@
             "type": "stat"
         },
         {
-            "description": "Total number of user-created databases",
+            "description": "Number of distinct user-created databases per selected cluster, excluding admin, config, and local. Includes sharded and unsharded databases. Requires database statistics collection from mongos",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1068,10 +1068,10 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum(mongodb_mongos_sharding_databases_total{environment=~\"$environment\",cluster=~\"$cluster\"})",
+                    "expr": "count(count by(environment, cluster, database)(mongodb_dbstats_collections{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"mongos\", database!~\"admin|config|local\"})) or (0 * count(mongodb_dbstats_collections{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"mongos\"}))",
                     "interval": "5m",
                     "intervalFactor": 1,
-                    "legendFormat": "Shards",
+                    "legendFormat": "DBs",
                     "range": true,
                     "refId": "A",
                     "step": 300

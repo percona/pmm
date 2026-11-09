@@ -438,7 +438,7 @@
             "type": "stat"
         },
         {
-            "description": "Total number of user-created databases",
+            "description": "Number of distinct user-created databases per selected replica set, excluding admin, config, and local. Requires database statistics collection.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -496,10 +496,10 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "count(count by(database)(mongodb_dbstats_collections{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", database!~\"admin|config|local\"})) or vector(0)",
+                    "expr": "count(count by(environment, cluster, rs_nm, database)(mongodb_dbstats_collections{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", database!~\"admin|config|local\"})) or (0 * count(mongodb_dbstats_collections{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\"}))",
                     "interval": "5m",
                     "intervalFactor": 1,
-                    "legendFormat": "Shards",
+                    "legendFormat": "DBs",
                     "range": true,
                     "refId": "A",
                     "step": 300
