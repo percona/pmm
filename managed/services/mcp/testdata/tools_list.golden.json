@@ -110,7 +110,7 @@
           "type": "string"
         },
         "engine": {
-          "description": "mysql or postgresql. Defaults to the service's own engine when service_id is given, otherwise mysql",
+          "description": "mysql or postgresql. Defaults to the service's own engine",
           "type": "string"
         },
         "filter": {
@@ -615,12 +615,12 @@
   },
   {
     "name": "pmm_inventory",
-    "description": "List database services monitored by PMM, with engine and version. Use this to discover a service_id / service_name and the exact engine version before analysing a query.",
+    "description": "List the monitored services in your service list: those whose up series you can read and that sent metrics in the last hour, with service type, version, node, environment, cluster and last_seen. Use this to discover a service_id / service_name and the exact engine version before analysing a query.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
         "engine": {
-          "description": "Filter by engine: mysql, postgresql or mongodb",
+          "description": "Filter by service type: mysql, postgresql, mongodb, proxysql, haproxy, valkey or external",
           "type": "string"
         },
         "limit": {
@@ -671,12 +671,24 @@
           "items": {
             "additionalProperties": false,
             "properties": {
-              "address": {
-                "description": "Untrusted. Address the service listens on.",
+              "cluster": {
+                "description": "Untrusted. Cluster label of the service.",
                 "type": "string"
               },
               "engine": {
-                "description": "Engine: mysql, postgresql or mongodb.",
+                "description": "PMM service type: mysql, postgresql, mongodb, proxysql, haproxy, valkey or external.",
+                "type": "string"
+              },
+              "environment": {
+                "description": "Untrusted. Environment label of the service.",
+                "type": "string"
+              },
+              "last_seen": {
+                "description": "Time of the service's newest up sample, whatever its value.",
+                "type": "string"
+              },
+              "node_id": {
+                "description": "Id of the node the service runs on.",
                 "type": "string"
               },
               "node_name": {
@@ -686,10 +698,6 @@
               "pmm_url": {
                 "description": "Link to the service's instance summary dashboard in PMM.",
                 "type": "string"
-              },
-              "port": {
-                "description": "Port the service listens on.",
-                "type": "integer"
               },
               "service_id": {
                 "description": "Service id.",
@@ -707,7 +715,8 @@
             "required": [
               "service_id",
               "service_name",
-              "engine"
+              "engine",
+              "last_seen"
             ],
             "type": "object"
           },

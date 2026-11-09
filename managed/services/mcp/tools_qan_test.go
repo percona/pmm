@@ -341,7 +341,7 @@ func TestTopQueriesTool(t *testing.T) {
 		assert.Contains(t, text, "("+got.PMMURL+")")
 		assert.Contains(t, text, "\nWindow: "+got.Window.From.Format(time.RFC3339)+" – "+got.Window.To.Format(time.RFC3339)+"\n")
 		assert.Contains(t, string(mustJSON(t, res.StructuredContent)), `"window":{"period_from":"2026-09-14T11:00:00Z","period_to":"2026-09-14T12:00:00Z"}`)
-		assert.Len(t, fake.requestsTo("/v1/inventory/services"), 1, "the service_name is looked up once, for query_ref")
+		assert.Equal(t, 1, listQueries(fake), "the service_name is looked up once, for query_ref")
 	})
 
 	t.Run("QueryRef", func(t *testing.T) {
@@ -372,12 +372,12 @@ func TestTopQueriesTool(t *testing.T) {
 					QueryID: row.Dimension, ServiceID: tc.serviceID, PeriodFrom: testNow.Add(-2 * time.Hour), PeriodTo: testNow.Add(-time.Hour),
 				}, row.QueryRef, "%v", tc.args)
 			}
-			assert.Len(t, fake.requestsTo("/v1/inventory/services"), tc.lookups, "%v", tc.args)
+			assert.Equal(t, tc.lookups, listQueries(fake), "%v", tc.args)
 		}
 
 		// A failed lookup leaves service_id out; the call still succeeds.
 		routes := qanRoutes()
-		routes["GET /v1/inventory/services"] = fixture{file: "error_403.json", status: http.StatusForbidden}
+		routes[serviceListKey] = fixture{file: "error_403.json", status: http.StatusForbidden}
 		session := connect(t, newQANService(t, newFakePMM(t, routes), true))
 		got := structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-mysql"}))
 		require.Len(t, got.Rows, 2)
@@ -543,7 +543,7 @@ func TestQueryDetailTool(t *testing.T) {
 
 		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA", "service_id": "svc-foreign"})
 		assert.True(t, res.IsError)
-		assert.Equal(t, "error: not_found\n"+notInServiceList, textOf(t, res))
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, "").message, textOf(t, res))
 		assert.Empty(t, fake.requestsTo("/v1/qan:getMetrics"))
 		assert.Empty(t, fake.requestsTo("/v1/qan/query:getExample"))
 	})
@@ -557,7 +557,7 @@ func TestQueryDetailTool(t *testing.T) {
 		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
 		require.False(t, res.IsError, textOf(t, res))
 
-		want := []string{"svc-1", "svc-2", "svc-pmm-pg"}
+		want := []string{"svc-1", "svc-2", "svc-mongo", "svc-pmm-pg"}
 		metrics := fake.requestsTo("/v1/qan:getMetrics")
 		require.Len(t, metrics, 1)
 		mb := unmarshalBody[qan_service.GetMetricsBody](t, metrics[0])
@@ -590,12 +590,12 @@ func TestQueryDetailTool(t *testing.T) {
 	t.Run("EmptyServiceList", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{"GET /v1/inventory/services": {file: "empty.json"}}))
+		fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{serviceListKey: {file: "vm_empty.json"}}))
 		session := connect(t, newQANService(t, fake, true))
 
 		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, res.IsError)
-		assert.Equal(t, "error: not_found\n"+notInServiceList, textOf(t, res))
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, "").message, textOf(t, res))
 		assert.Empty(t, fake.requestsTo("/v1/qan:getMetrics"))
 		assert.Empty(t, fake.requestsTo("/v1/qan/query:getExample"))
 	})
@@ -803,7 +803,13 @@ func TestLinks(t *testing.T) {
 		assert.Equal(t, "https://pmm.example.com/graph/d/"+uid+"-instance-summary?var-service_name=svc+1",
 			serviceURL("https://pmm.example.com/", serviceInfo{ServiceName: "svc 1", Engine: engine}))
 	}
+	assert.Equal(t, "https://pmm.example.com/graph/d/haproxy-instance-summary?var-service_name=ha+1",
+		serviceURL("https://pmm.example.com/", serviceInfo{ServiceName: "ha 1", NodeName: "n", Engine: "haproxy"}))
+	assert.Equal(t, "https://pmm.example.com/graph/d/proxysql-instance-summary?var-proxysql=demo+node",
+		serviceURL("https://pmm.example.com/", serviceInfo{ServiceName: "px", NodeName: "demo node", Engine: "proxysql"}))
+	assert.Empty(t, serviceURL("https://pmm.example.com/", serviceInfo{ServiceName: "px", Engine: "proxysql"}))
 	assert.Empty(t, serviceURL("https://pmm.example.com/", serviceInfo{ServiceName: "x", Engine: "valkey"}))
+	assert.Empty(t, serviceURL("https://pmm.example.com/", serviceInfo{ServiceName: "x", Engine: "external"}))
 
 	s, err := New(Params{API: &mockPmmAPI{}, Enabled: func() bool { return true }})
 	require.NoError(t, err)
@@ -837,9 +843,10 @@ func TestQANValuesAreChecked(t *testing.T) {
 		text, isError := callText(t, session, tc.tool, tc.args)
 		assert.True(t, isError, "%s %v", tc.tool, tc.args)
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
-		for _, path := range []string{"/v1/qan/metrics:getReport", "/v1/qan:getMetrics", "/v1/qan/query:getExample", "/v1/inventory/services"} {
+		for _, path := range []string{"/v1/qan/metrics:getReport", "/v1/qan:getMetrics", "/v1/qan/query:getExample"} {
 			assert.Empty(t, fake.requestsTo(path), "%s %v -> %s", tc.tool, tc.args, path)
 		}
+		assert.Zero(t, listQueries(fake), "%s %v", tc.tool, tc.args)
 	}
 }
 

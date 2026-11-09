@@ -217,7 +217,7 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 	t.Parallel()
 
 	routes := inventoryRoutes()
-	routes["GET /graph/api/datasources/proxy/uid/metrics-uid/api/v1/query"] = fixture{file: "vm_variables.json"}
+	routes[vmQuery] = fixture{file: "vm_variables.json"}
 
 	t.Run("ResolvesIDToName", func(t *testing.T) {
 		t.Parallel()
@@ -232,19 +232,16 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 
 		// The PromQL must carry the resolved name, since metrics are labelled
 		// by service_name and not by service_id.
-		reqs := fake.requestsTo("/graph/api/datasources/proxy/uid/metrics-uid/api/v1/query")
-		require.NotEmpty(t, reqs)
-		assert.Contains(t, reqs[0].query, "shop-mysql")
+		reqs := queriesWith(fake, "mysql_global_variables_")
+		require.Len(t, reqs, 1)
+		assert.Contains(t, queryOf(t, reqs[0]).Get("query"), "shop-mysql")
 
 		got := structured[configResult](t, res)
 		assert.Equal(t, "shop-mysql", got.ServiceName)
 		assert.Equal(t, engineMySQL, got.Engine)
 		assert.Len(t, got.Variables, 4)
-		// The version query finds no version label here: the version is left
-		// out, and the text keeps its header without one.
-		assert.Empty(t, got.Version)
-		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), `"version"`)
-		assert.True(t, strings.HasPrefix(text, "-- 4 variables (numeric knobs from PMM metrics)\n"), text)
+		assert.Equal(t, "8.0.46-37", got.Version)
+		assert.True(t, strings.HasPrefix(text, "-- mysql 8.0.46-37 - 4 variables (numeric knobs from PMM metrics)\n"), text)
 	})
 
 	t.Run("ServiceNameStillAccepted", func(t *testing.T) {
@@ -277,7 +274,7 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-does-not-exist"})
 		assert.True(t, isError)
-		assert.Equal(t, "error: not_found\n"+notInServiceList+"; use pmm_inventory to list service ids", text)
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, "; use pmm_inventory to list service ids").message, text)
 		assert.NotContains(t, text, "svc-does-not-exist")
 	})
 
@@ -288,17 +285,13 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 		session := connect(t, newQANService(t, fake, true))
 
 		_, _ = callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-2"})
-		reqs := fake.requestsTo("/graph/api/datasources/proxy/uid/metrics-uid/api/v1/query")
-		require.NotEmpty(t, reqs)
-		assert.Contains(t, reqs[0].query, "pg_settings_", "a PostgreSQL service must be read with the PostgreSQL prefix")
+		assert.NotEmpty(t, queriesWith(fake, "pg_settings_"), "a PostgreSQL service must be read with the PostgreSQL prefix")
 	})
 
 	t.Run("UnsupportedServiceIsNamedNotBlamedOnEngine", func(t *testing.T) {
 		t.Parallel()
 
-		mongoRoutes := inventoryRoutes()
-		mongoRoutes["GET /v1/inventory/services"] = fixture{file: "services_with_mongo.json"}
-		fake := newFakePMM(t, mongoRoutes)
+		fake := newFakePMM(t, routes)
 		session := connect(t, newQANService(t, fake, true))
 
 		// The caller passed no engine, so the error must say what the
@@ -319,7 +312,66 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "engine": "mongodb"})
 		assert.True(t, isError)
 		assert.Contains(t, text, "engine must be mysql or postgresql")
-		assert.Empty(t, fake.requestsTo("/v1/inventory/services"))
+		assert.Zero(t, listQueries(fake))
+	})
+}
+
+// TestConfigByServiceName pins that pmm_get_config finds a service by name in the service list, the newest of two that share one.
+func TestConfigByServiceName(t *testing.T) {
+	t.Parallel()
+
+	hint := "; use pmm_inventory to list service ids"
+
+	t.Run("ReturnsTheVariables", func(t *testing.T) {
+		t.Parallel()
+
+		routes := withRoutes(inventoryRoutes(), map[string]fixture{vmQuery: {file: "vm_variables.json"}})
+		fake := newFakePMM(t, routes)
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql"})
+		assert.False(t, isError, text)
+		assert.Contains(t, text, "innodb_buffer_pool_size")
+		assert.Equal(t, 1, listQueries(fake))
+	})
+
+	t.Run("TakesTheNewestOfTwoWithOneName", func(t *testing.T) {
+		t.Parallel()
+
+		routes := withRoutes(inventoryRoutes(), map[string]fixture{vmQuery: {file: "vm_variables.json"}, serviceListKey: {file: "vm_up_list.json"}})
+		fake := newFakePMM(t, routes)
+		session := connect(t, newQANService(t, fake, true))
+
+		_, _ = callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-re"})
+		assert.NotEmpty(t, queriesWith(fake, "pg_settings_"))
+		assert.Empty(t, queriesWith(fake, "mysql_global_variables_"))
+	})
+
+	t.Run("OutsideTheListIsNotFound", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, inventoryRoutes())
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-secret", "at": "now-3h"})
+		assert.True(t, isError)
+		at := testNow.Add(-3 * time.Hour)
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: at.Add(-time.Hour), To: at}, hint).message, text)
+		assert.NotContains(t, text, "shop-secret")
+		assert.Len(t, fake.requestsTo(vmAPI+"query"), 1)
+		assert.Equal(t, 1, listQueries(fake))
+	})
+
+	t.Run("OtherServiceTypeIsInvalidInput", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, withRoutes(inventoryRoutes(), map[string]fixture{serviceListKey: {file: "vm_up_list.json"}}))
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_name": "proxy-1"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Contains(t, text, "proxysql")
 	})
 }
 
@@ -374,7 +426,6 @@ func TestStoredPlanProbe(t *testing.T) {
 		assert.False(t, got.Live, "a stored plan is not produced live")
 		assert.Contains(t, got.PMMURL, "var-service_name=shop-postgres")
 		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"), "PostgreSQL has no live EXPLAIN action")
-		assert.Empty(t, fake.requestsTo("/v1/inventory/nodes"), "a lookup by service id needs no node names")
 		plans := fake.requestsTo("/v1/qan/query/QID-PG/plan")
 		require.Len(t, plans, 1)
 		assert.Equal(t, "service_id=svc-2", plans[0].query, "the plan is requested for this service")

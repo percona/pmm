@@ -67,15 +67,20 @@ func qanOverviewURL(base, serviceName string, from, to time.Time) string {
 }
 
 // serviceURL links to the engine's instance summary dashboard for a service,
-// or returns "" for an engine without one.
+// or returns "" for a service type without one.
 func serviceURL(base string, svc serviceInfo) string {
+	q := url.Values{}
 	switch svc.Engine {
-	case "mysql", "postgresql", "mongodb":
+	case engineMySQL, enginePostgreSQL, engineMongoDB, engineHAProxy:
+		q.Set("var-service_name", svc.ServiceName)
+	case engineProxySQL:
+		if svc.NodeName == "" {
+			return ""
+		}
+		q.Set("var-proxysql", svc.NodeName)
 	default:
 		return ""
 	}
-	q := url.Values{}
-	q.Set("var-service_name", svc.ServiceName)
 	return base + "graph/d/" + svc.Engine + "-instance-summary?" + q.Encode()
 }
 

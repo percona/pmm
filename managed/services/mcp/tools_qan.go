@@ -239,7 +239,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		rows = append(rows, q.row(row, q.offset+len(rows)+1, rowEngine(row.Dimension), raw))
 	}
 	if q.groupBy == groupByQuery && len(rows) > 0 {
-		serviceID := s.pinnedServiceID(ctx, auth, q.labels)
+		serviceID := s.pinnedServiceID(ctx, auth, q.labels, window{From: from, To: to})
 		for i := range rows {
 			if rows[i].Dimension != "" {
 				rows[i].QueryRef = &queryRef{QueryID: rows[i].Dimension, ServiceID: serviceID, PeriodFrom: from, PeriodTo: to}
@@ -260,7 +260,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 
 // pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one
 // service_name found in the caller's service list, and "" when they pin none or that lookup fails.
-func (s *Service) pinnedServiceID(ctx context.Context, auth callerAuth, labels map[string][]string) string {
+func (s *Service) pinnedServiceID(ctx context.Context, auth callerAuth, labels map[string][]string, w window) string {
 	if ids := labels["service_id"]; len(ids) == 1 {
 		return ids[0]
 	}
@@ -268,16 +268,16 @@ func (s *Service) pinnedServiceID(ctx context.Context, auth callerAuth, labels m
 	if len(names) != 1 {
 		return ""
 	}
-	services, err := s.listServices(ctx, auth, false)
+	services, err := s.listServices(ctx, auth, w)
 	if err != nil {
 		s.l.WithField("tool", "pmm_top_queries").Debugf("Cannot list services, query_ref will have no service_id: %s.", err)
 		return ""
 	}
-	i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceName == names[0] })
-	if i < 0 {
+	svc, ok := serviceNamed(services, names[0])
+	if !ok {
 		return ""
 	}
-	return services[i].ServiceID
+	return svc.ServiceID
 }
 
 // reportQuery is a validated pmm_top_queries request.
@@ -550,7 +550,7 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 	defer release()
 
-	_, serviceIDs, err := s.callerServices(ctx, auth, in.ServiceID)
+	_, serviceIDs, err := s.callerServices(ctx, auth, in.ServiceID, window{From: from, To: to})
 	if err != nil {
 		return queryDetailResult{}, err
 	}
@@ -779,7 +779,7 @@ func (s *Service) reportEngine(ctx context.Context, auth callerAuth, labels map[
 		id = ids[0]
 	}
 	if name != "" || id != "" {
-		return s.serviceEngine(ctx, auth, name, id)
+		return s.serviceEngine(ctx, auth, name, id, window{From: from, To: to})
 	}
 	types, err := s.api.QANServiceTypes(ctx, auth, from, to)
 	if err != nil {
@@ -833,16 +833,20 @@ func (s *Service) rowEngines(ctx context.Context, auth callerAuth, body qan_serv
 
 // serviceEngine returns the engine of the service a report is filtered to, by
 // name or else by id, or "" when it is not found.
-func (s *Service) serviceEngine(ctx context.Context, auth callerAuth, name, id string) string {
+func (s *Service) serviceEngine(ctx context.Context, auth callerAuth, name, id string, w window) string {
 	if name == "" && id == "" {
 		return ""
 	}
-	services, err := s.listServices(ctx, auth, false)
+	services, err := s.listServices(ctx, auth, w)
 	if err != nil {
 		return ""
 	}
+	if name != "" {
+		svc, _ := serviceNamed(services, name)
+		return svc.Engine
+	}
 	for _, svc := range services {
-		if (name != "" && svc.ServiceName == name) || (name == "" && svc.ServiceID == id) {
+		if svc.ServiceID == id {
 			return svc.Engine
 		}
 	}
@@ -920,15 +924,16 @@ func escapeLabel(v string) string {
 	return strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(v)
 }
 
-// engineOf looks a service up in the inventory and returns its engine.
+// engineOf looks a service up in the service list of the last hour and returns it.
 func (s *Service) engineOf(ctx context.Context, auth callerAuth, serviceID string) (serviceInfo, error) {
-	services, err := s.listServices(ctx, auth, false)
+	w := s.lastHour()
+	services, err := s.listServices(ctx, auth, w)
 	if err != nil {
 		return serviceInfo{}, err
 	}
 	i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceID == serviceID })
 	if i < 0 {
-		return serviceInfo{}, newToolError(codeNotFound, "%s; use pmm_inventory to list service ids", notInServiceList)
+		return serviceInfo{}, errNotInList(w, "; use pmm_inventory to list service ids")
 	}
 	return services[i], nil
 }

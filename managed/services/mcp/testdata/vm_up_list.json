@@ -1,0 +1,40 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {"service_id": "svc-1", "service_name": "shop-mysql", "service_type": "mysql", "node_id": "node-1", "node_name": "demo-node", "environment": "prod", "cluster": "c1"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"service_id": "svc-1", "service_name": "shop-mysql", "service_type": "mysql", "node_id": "node-1", "node_name": "old-node", "environment": "prod", "cluster": "c1"},
+        "value": [1789387200, "1789384200"]
+      },
+      {
+        "metric": {"service_id": "svc-2", "service_name": "shop-postgres", "service_type": "postgresql", "node_id": "node-1", "node_name": "demo-node"},
+        "value": [1789387200, "1789387140.567"]
+      },
+      {
+        "metric": {"node_id": "node-2", "node_name": "bare-host"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"service_id": "svc-px", "service_name": "proxy-1", "service_type": "proxysql", "node_id": "node-1", "node_name": "demo-node"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"service_id": "svc-re-old", "service_name": "shop-re", "service_type": "mysql", "node_id": "node-1", "node_name": "demo-node"},
+        "value": [1789387200, "1789384200"]
+      },
+      {
+        "metric": {"service_id": "svc-re-new", "service_name": "shop-re", "service_type": "postgresql", "node_id": "node-1", "node_name": "demo-node"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {},
+        "value": [1789387200, "1789387140"]
+      }
+    ]
+  }
+}

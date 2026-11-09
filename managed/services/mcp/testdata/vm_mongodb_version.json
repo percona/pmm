@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {"__name__": "mongodb_version_info", "service_name": "shop-mongo", "mongodb": "7.0.14"},
+        "value": [1789387200, "1"]
+      }
+    ]
+  }
+}

@@ -34,6 +34,25 @@ import (
 // testToken is the caller credential every fixture test forwards.
 const testToken = "Bearer glsa_test_token"
 
+// serviceListKey routes the service-list query of every call.
+const serviceListKey = vmQuery + " ?tlast_over_time(up["
+
+// queriesWith returns the instant queries the fake PMM received whose text contains text.
+func queriesWith(f *fakePMM, text string) []recordedRequest {
+	var out []recordedRequest
+	for _, r := range f.requestsTo(vmAPI + "query") {
+		if strings.Contains(queryOf(f.t, r).Get("query"), text) {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
+// listQueries returns how many service-list queries the fake PMM received.
+func listQueries(f *fakePMM) int {
+	return len(queriesWith(f, "tlast_over_time(up["))
+}
+
 // fixture is one canned PMM API response, keyed by "METHOD /path", or by "METHOD /path ?TEXT" to answer only a request
 // whose query contains TEXT, ahead of the plain key and of any shorter TEXT.
 type fixture struct {
@@ -76,6 +95,10 @@ func newFakePMM(t *testing.T, routes map[string]fixture) *fakePMM {
 
 func (f *fakePMM) serve(rw http.ResponseWriter, req *http.Request) {
 	body, _ := io.ReadAll(req.Body)
+
+	if strings.HasPrefix(req.URL.Path, "/v1/inventory/") {
+		f.t.Errorf("a tool called the inventory API: %s %s", req.Method, req.URL.Path)
+	}
 
 	f.mu.Lock()
 	f.requests = append(f.requests, recordedRequest{

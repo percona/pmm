@@ -78,15 +78,13 @@ func actionRoutes(t *testing.T, start, done string) (*fakePMM, *sequenceFixtures
 // explainRoutes returns the routes of an explain call on a service: the resolver's report names it.
 func explainRoutes(report string, extra map[string]fixture) map[string]fixture {
 	routes := withRoutes(qanRoutes(), map[string]fixture{
-		"GET /v1/inventory/services": {file: "services_with_mongo.json"},
-		"POST " + reportPath:         {file: report},
+		"POST " + reportPath: {file: report},
 	})
 	return withRoutes(routes, extra)
 }
 
 // mongoExplain makes a fake PMM resolve a MongoDB query that has a stored example.
 func mongoExplain(fake *fakePMM) {
-	fake.routes["GET /v1/inventory/services"] = fixture{file: "services_with_mongo.json"}
 	fake.routes["POST "+reportPath] = fixture{file: "report_by_service_mongo.json"}
 	fake.routes["POST /v1/qan:getMetrics"] = fixture{file: "metrics_mongo.json"}
 	fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_mongo.json"}
@@ -467,7 +465,7 @@ func TestExplainTool(t *testing.T) {
 
 		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-404", "queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: not_found\n"+notInServiceList), text)
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, "").message, text)
 	})
 
 	// Only MySQL's 1064 gets the placeholder advice, not any invalid input.
@@ -644,7 +642,7 @@ func TestSchemaTool(t *testing.T) {
 			labels[l.Key] = l.Value
 		}
 		assert.Equal(t, []string{"QID-AAA"}, labels["queryid"])
-		assert.ElementsMatch(t, []string{"svc-1", "svc-2", "svc-pmm-pg"}, labels["service_id"], "the caller's service list")
+		assert.ElementsMatch(t, []string{"svc-1", "svc-2", "svc-mongo", "svc-pmm-pg"}, labels["service_id"], "the caller's service list")
 		assert.True(t, strings.HasPrefix(text, onMySQL), text)
 	})
 
@@ -1018,33 +1016,14 @@ func TestSchemaTool(t *testing.T) {
 		}
 		assert.Empty(t, stub.starts)
 		assert.Empty(t, fake.requestsTo(reportPath))
-		assert.Empty(t, fake.requestsTo("/v1/inventory/services"))
+		assert.Zero(t, listQueries(fake))
 	})
 }
 
 func TestConfigTool(t *testing.T) {
 	t.Parallel()
 
-	routes := qanRoutes()
-	fake := newFakePMM(t, routes)
-	// The query path is shared by the variables and the version lookups:
-	// answer by PromQL content.
-	prev := fake.server.Config.Handler
-	fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		if strings.HasSuffix(req.URL.Path, "/api/v1/query") {
-			file := "vm_mysql_version.json"
-			if strings.Contains(req.URL.Query().Get("query"), "mysql_global_variables_") {
-				file = "vm_variables.json"
-			}
-			fake.mu.Lock()
-			fake.requests = append(fake.requests, recordedRequest{method: req.Method, path: req.URL.Path, query: req.URL.RawQuery, header: req.Header.Clone()})
-			fake.mu.Unlock()
-			rw.Header().Set("Content-Type", "application/json")
-			_, _ = rw.Write(readFixture(t, file))
-			return
-		}
-		prev.ServeHTTP(rw, req)
-	})
+	fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{vmQuery + " ?mysql_global_variables_": {file: "vm_variables.json"}}))
 	session := connect(t, newQANService(t, fake, true))
 
 	res := callTool(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "at": "now-1h"})
@@ -1077,9 +1056,12 @@ func TestConfigTool(t *testing.T) {
 	}, structured[configResult](t, res))
 	assert.Contains(t, string(mustJSON(t, res.StructuredContent)), `"at":"2026-09-14T11:00:00Z"`)
 
-	queries := fake.requestsTo("/graph/api/datasources/proxy/uid/metrics-uid/api/v1/query")
-	require.Len(t, queries, 2)
+	queries := queriesWith(fake, "mysql_global_variables_")
+	require.Len(t, queries, 1)
 	assert.Equal(t, `query=%7B__name__%3D~%22mysql_global_variables_.%2B%22%2C+service_name%3D%22shop-mysql%22%7D&time=`+strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10)+`&timeout=25s`, queries[0].query)
+	list := queriesWith(fake, "tlast_over_time(up[3600s])")
+	require.Len(t, list, 1)
+	assert.Equal(t, strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10), queryOf(t, list[0]).Get("time"))
 
 	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "filter": "innodb"})
 	assert.False(t, isError)
@@ -1702,4 +1684,21 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		rel1()
 		rel2()
 	})
+}
+
+func TestEngineOfOutsideList(t *testing.T) {
+	t.Parallel()
+
+	fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+	s := newQANService(t, fake, true)
+	session := connect(t, s)
+
+	res := callTool(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-secret", "database": "shop", "tables": []string{"orders"}})
+	require.True(t, res.IsError)
+	text := textOf(t, res)
+	assert.Equal(t, "error: not_found\n"+errNotInList(s.lastHour(), "; use pmm_inventory to list service ids").message, text)
+	for _, name := range []string{"svc-secret", "svc-1", "svc-2", "svc-mongo", "svc-pmm-pg", "shop-mysql", "shop-postgres", "shop-mongo", "pmm-server-postgresql"} {
+		assert.NotContains(t, text, name)
+	}
+	assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
 }

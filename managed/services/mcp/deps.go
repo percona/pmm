@@ -25,8 +25,6 @@ import (
 	"time"
 
 	"github.com/percona/pmm/api/actions/v1/json/client/actions_service"
-	"github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
-	"github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 	"github.com/percona/pmm/managed/utils/auth"
@@ -182,8 +180,6 @@ type queryMetrics struct {
 //nolint:interfacebloat // one method per backing PMM endpoint, by design
 type pmmAPI interface {
 	Version(ctx context.Context, auth callerAuth) (*server_service.VersionOKBody, error)
-	ListServices(ctx context.Context, auth callerAuth) (*services_service.ListServicesOKBody, error)
-	ListNodes(ctx context.Context, auth callerAuth) (*nodes_service.ListNodesOKBody, error)
 	GetReport(ctx context.Context, auth callerAuth, body qan_service.GetReportBody) (*qanReport, error)
 	GetMetrics(ctx context.Context, auth callerAuth, body qan_service.GetMetricsBody) (*queryMetrics, error)
 	GetQueryExample(ctx context.Context, auth callerAuth, body qan_service.GetQueryExampleBody) (*qan_service.GetQueryExampleOKBody, error)

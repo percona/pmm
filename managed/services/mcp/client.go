@@ -38,9 +38,6 @@ import (
 
 	actionsClient "github.com/percona/pmm/api/actions/v1/json/client"
 	"github.com/percona/pmm/api/actions/v1/json/client/actions_service"
-	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
-	"github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
-	"github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	qanClient "github.com/percona/pmm/api/qan/v1/json/client"
 	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
@@ -129,11 +126,10 @@ type client struct {
 	base *url.URL
 	http *http.Client
 
-	swagger   *httptransport.Runtime
-	server    *serverClient.PMMServerAPI
-	inventory *inventoryClient.PMMInventoryAPI
-	qan       *qanClient.PMMQANAPI
-	actions   *actionsClient.PMMActionsAPI
+	swagger *httptransport.Runtime
+	server  *serverClient.PMMServerAPI
+	qan     *qanClient.PMMQANAPI
+	actions *actionsClient.PMMActionsAPI
 
 	vmSlots chan struct{}
 }
@@ -191,14 +187,13 @@ func newClient(baseURL string) (*client, error) {
 	swagger.Debug = false
 
 	return &client{
-		base:      base,
-		http:      &http.Client{Transport: rt},
-		swagger:   swagger,
-		server:    serverClient.New(swagger, nil),
-		inventory: inventoryClient.New(swagger, nil),
-		qan:       qanClient.New(swagger, nil),
-		actions:   actionsClient.New(swagger, nil),
-		vmSlots:   make(chan struct{}, maxVMRequestsPerReplica()),
+		base:    base,
+		http:    &http.Client{Transport: rt},
+		swagger: swagger,
+		server:  serverClient.New(swagger, nil),
+		qan:     qanClient.New(swagger, nil),
+		actions: actionsClient.New(swagger, nil),
+		vmSlots: make(chan struct{}, maxVMRequestsPerReplica()),
 	}, nil
 }
 
@@ -303,24 +298,6 @@ func messageFromBody(body []byte) string {
 func (c *client) Version(ctx context.Context, auth callerAuth) (*server_service.VersionOKBody, error) {
 	params := server_service.NewVersionParamsWithContext(ctx).WithTimeout(callTimeout)
 	res, err := c.server.ServerService.Version(params, auth.option())
-	if err != nil {
-		return nil, err
-	}
-	return res.Payload, nil
-}
-
-func (c *client) ListServices(ctx context.Context, auth callerAuth) (*services_service.ListServicesOKBody, error) {
-	params := services_service.NewListServicesParamsWithContext(ctx).WithTimeout(callTimeout)
-	res, err := c.inventory.ServicesService.ListServices(params, auth.option())
-	if err != nil {
-		return nil, err
-	}
-	return res.Payload, nil
-}
-
-func (c *client) ListNodes(ctx context.Context, auth callerAuth) (*nodes_service.ListNodesOKBody, error) {
-	params := nodes_service.NewListNodesParamsWithContext(ctx).WithTimeout(callTimeout)
-	res, err := c.inventory.NodesService.ListNodes(params, auth.option())
 	if err != nil {
 		return nil, err
 	}

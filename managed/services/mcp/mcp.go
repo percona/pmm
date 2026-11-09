@@ -38,8 +38,8 @@ const Instructions = `PMM (Percona Monitoring and Management) exposes read-only 
 diagnostics through these tools. Recommended order for a slow-query triage:
 
 1. pmm_version - confirm the connection and the caller's token work.
-2. pmm_inventory - list monitored services (service_id, service_name, engine,
-   version) and pick the one to investigate.
+2. pmm_inventory - list the services that sent metrics in the last hour
+   (service_id, service_name, engine, last_seen); pick one to investigate.
 3. pmm_top_queries - rank the worst queries for that service over a time window;
    each row carries a queryid.
 4. pmm_query_detail - fetch metrics, schema and an example statement for one
