@@ -43,7 +43,7 @@ func TestProvisionDBAndRole(t *testing.T) {
 
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		defer db.Close() //nolint:errcheck
+		defer db.Close()
 
 		mock.ExpectQuery(regexp.QuoteMeta(countRolesQuery)).
 			WithArgs(params.Username).
@@ -66,7 +66,7 @@ func TestProvisionDBAndRole(t *testing.T) {
 
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		defer db.Close() //nolint:errcheck
+		defer db.Close()
 
 		mock.ExpectQuery(regexp.QuoteMeta(countRolesQuery)).
 			WithArgs(params.Username).
@@ -92,7 +92,7 @@ func TestProvisionDBAndRole(t *testing.T) {
 
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
-		defer db.Close() //nolint:errcheck
+		defer db.Close()
 
 		mock.ExpectQuery(regexp.QuoteMeta(countRolesQuery)).
 			WithArgs(special.Username).
