@@ -342,6 +342,8 @@ The limits are per caller, identified by a hash of the credential, and per PMM S
 
 A call of `pmm_query_metrics`, `pmm_list_metrics` or `pmm_service_health` counts once, however many queries it runs. In addition, every request that MCP sends to VictoriaMetrics takes one of the replica's slots. The replica has half of VictoriaMetrics' limit on concurrent queries, at least 1, so dashboards and alert evaluation keep the other half. VictoriaMetrics' own default for that limit is twice the number of CPUs, at most 16. The environment variable `VM_search_maxConcurrentRequests` sets the limit instead (see [VictoriaMetrics environment variables](../reference/third-party/victoria.md#environment-variables)), and MCP takes half of the value it sets. A request waits for a slot until the deadline of its call.
 
+MCP has no fleet size of its own. PMM's [hardware sizing](../install-pmm/plan-pmm-installation/hardware_and_system.md) applies. This is the setup that MCP was load-tested on, not a limit: a server with 4 CPU cores and 8 GB of memory that monitored 53 MySQL services and held about 2 days of data. Five clients called the metric tools at the caps for 10 minutes. No alert-rule evaluation failed and no PMM Server component restarted. The p95 of a dashboard query went from 47 ms to 170 ms, and VictoriaMetrics' CPU peaked at 2.3 cores.
+
 A call refused for its rate is `rate_limited` and says in the message how many seconds to wait. `_meta["com.percona/error"]` carries the wait as `retry_after`, in whole seconds, at least 1. A call refused for the calls in flight is `rate_limited` without `retry_after`.
 
 ### QAN window

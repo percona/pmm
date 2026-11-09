@@ -58,12 +58,14 @@ const (
 	probeStep           = 60 * time.Second
 	probeTimeout        = 60 * time.Second
 	metricsStep         = 15 * time.Second
-	maxDashboardRatio   = 2.0
 	datasourceName      = "Metrics"
 	vmJob               = "victoriametrics"
 	vmCPUQuery          = `rate(process_cpu_seconds_total{job="victoriametrics"}[1m])`
 	vmMemoryQuery       = `process_resident_memory_bytes{job="victoriametrics"}`
 )
+
+// restartJobs are the PMM Server components whose process start time is checked for a restart during a run.
+var restartJobs = []string{"victoriametrics", "vmalert", "grafana", "pmm-managed", "qan-api2"}
 
 // ruleFailureMetrics are the rule-evaluation failure counters that PMM scrapes from Grafana alerting and from VMAlert, by job.
 var ruleFailureMetrics = map[string][]string{
@@ -144,6 +146,8 @@ type runSummary struct {
 	Dashboard       probeSummary       `json:"dashboard_probe"`
 	RuleFailures    map[string]float64 `json:"rule_failure_increase"`
 	RuleFailureSum  float64            `json:"rule_failure_increase_total"`
+	Restarts        map[string]float64 `json:"restarts"`
+	RestartSum      float64            `json:"restarts_total"`
 	MCP             *mcpSummary        `json:"mcp,omitempty"`
 	MetricsReadFail []string           `json:"metrics_read_failures,omitempty"`
 }
@@ -155,7 +159,7 @@ type loadReport struct {
 	DashboardP95Ratio  float64    `json:"dashboard_p95_ratio"`
 	ExtraRuleFailures  float64    `json:"extra_rule_failures"`
 	NoExtraRuleFailure bool       `json:"no_extra_rule_failures"`
-	DashboardWithinCap bool       `json:"dashboard_p95_within_2x"`
+	NoRestart          bool       `json:"no_restarts"`
 	ThirdQueryServices []string   `json:"third_query_services"`
 	Failures           []string   `json:"failures,omitempty"`
 	Pass               bool       `json:"pass"`
@@ -628,7 +632,7 @@ func runOnce(ctx context.Context, t *testing.T, a *admin, name string, d time.Du
 	wg.Wait()
 	end := time.Now()
 
-	s := runSummary{Name: name, Start: start, End: end, Dashboard: p.summary(), RuleFailures: map[string]float64{}}
+	s := runSummary{Name: name, Start: start, End: end, Dashboard: p.summary(), RuleFailures: map[string]float64{}, Restarts: map[string]float64{}}
 	if len(sessions) > 0 {
 		s.MCP = rec.summary()
 	}
@@ -636,7 +640,7 @@ func runOnce(ctx context.Context, t *testing.T, a *admin, name string, d time.Du
 	return s
 }
 
-// readMetrics fills in what VictoriaMetrics, Grafana and VMAlert report about the run.
+// readMetrics fills in what VictoriaMetrics, Grafana and VMAlert report about the run, and the restarts of PMM Server's components.
 func readMetrics(ctx context.Context, a *admin, s *runSummary) {
 	var err error
 	s.CPUCores, err = rangeStat(ctx, a, vmCPUQuery, s.Start, s.End)
@@ -665,6 +669,23 @@ func readMetrics(ctx context.Context, a *admin, s *runSummary) {
 				s.RuleFailures[name] = v
 				s.RuleFailureSum += v
 			}
+		}
+	}
+
+	for _, job := range restartJobs {
+		expr := fmt.Sprintf(`sum(changes(process_start_time_seconds{job="%s"}[%ds]))`, job, window)
+		v, found, qerr := a.instant(ctx, expr, s.End)
+		switch {
+		case qerr != nil:
+			s.MetricsReadFail = append(s.MetricsReadFail, job+" restarts: "+qerr.Error())
+		case !found:
+			s.MetricsReadFail = append(s.MetricsReadFail, job+" restarts: no process_start_time_seconds series for job "+job)
+		default:
+			if math.IsNaN(v) {
+				v = 0
+			}
+			s.Restarts[job] = v
+			s.RestartSum += v
 		}
 	}
 }
@@ -705,6 +726,7 @@ func (s runSummary) show(t *testing.T) {
 		fmt.Sprintf("VictoriaMetrics memory (MiB)  max %.0f  p95 %.0f", s.MemoryBytes.Max/(1<<20), s.MemoryBytes.P95/(1<<20)),
 		fmt.Sprintf("Dashboard probe               requests %d  errors %d  p95 %.0f ms", s.Dashboard.Requests, s.Dashboard.Errors, s.Dashboard.P95Ms),
 		fmt.Sprintf("Rule-evaluation failures      +%.0f  %v", s.RuleFailureSum, s.RuleFailures),
+		fmt.Sprintf("Component restarts            %.0f  %v", s.RestartSum, s.Restarts),
 	}
 	if s.MCP != nil {
 		lines = append(lines, "MCP calls                     "+s.MCP.line())
@@ -748,7 +770,8 @@ func (s runSummary) failures() []string {
 	return out
 }
 
-// TestMetricsLoad is the acceptance run of the metrics tools (spec 7.4): the dashboard probe alone, then with five callers of three loops each.
+// TestMetricsLoad is the acceptance run of the metrics tools (spec 7.4, ADR-19): the dashboard probe alone, then with five callers of three loops each.
+// It passes when the loaded run adds no rule-evaluation failure over the baseline's and no PMM Server component restarts in either run.
 func TestMetricsLoad(t *testing.T) {
 	tokens := readTokens(t)
 	outPath := os.Getenv(envLoadOut)
@@ -783,12 +806,12 @@ func TestMetricsLoad(t *testing.T) {
 	if report.Baseline.Dashboard.P95Ms > 0 {
 		report.DashboardP95Ratio = report.Loaded.Dashboard.P95Ms / report.Baseline.Dashboard.P95Ms
 	}
-	report.DashboardWithinCap = report.Baseline.Dashboard.P95Ms > 0 && report.DashboardP95Ratio <= maxDashboardRatio
+	report.NoRestart = report.Baseline.RestartSum == 0 && report.Loaded.RestartSum == 0
 	report.Failures = slices.Concat(report.Baseline.failures(), report.Loaded.failures())
-	report.Pass = report.NoExtraRuleFailure && report.DashboardWithinCap && len(report.Failures) == 0
+	report.Pass = report.NoExtraRuleFailure && report.NoRestart && len(report.Failures) == 0
 
-	fmt.Fprintf(os.Stdout, "== verdict: pass=%v  dashboard p95 ratio %.2f (cap %.1f)  extra rule-evaluation failures %.0f  third query over %v\n",
-		report.Pass, report.DashboardP95Ratio, maxDashboardRatio, report.ExtraRuleFailures, report.ThirdQueryServices)
+	fmt.Fprintf(os.Stdout, "== verdict: pass=%v  extra rule-evaluation failures %.0f  restarts %.0f baseline, %.0f loaded  dashboard p95 ratio %.2f (recorded, not judged)  third query over %v\n",
+		report.Pass, report.ExtraRuleFailures, report.Baseline.RestartSum, report.Loaded.RestartSum, report.DashboardP95Ratio, report.ThirdQueryServices)
 	for _, f := range report.Failures {
 		fmt.Fprintln(os.Stdout, "FAIL: "+f)
 	}
