@@ -89,36 +89,46 @@ To get a subscription ID:
 To get the tenant ID, client ID and the client secret:
 {.power-number}
 
-1. Search for **Azure Active Directory**
-![!](../../../images/azure_active_directory_section.png)
+1. Search for **Azure Active Directory**.
 
-2. Register a new application
-![!](../../../images/azure_app_registrations_section.png)
-![!](../../../images/azure_app_new_registration.png)
-![!](../../../images/azure_app_new_details.png)
+    ![!](../../../images/azure_active_directory_section.png)
 
-3. At this point you can copy the client and tenant IDs.
-![!](../../../images/azure_app_client_tenant.png)
+2. Register a new application:
 
-4. Create an application secret.
-![!](../../../images/azure_app_secret_01.png)
-![!](../../../images/azure_app_secret_02.png)
-![!](../../../images/azure_app_secret_03.png)
+    ![!](../../../images/azure_app_registrations_section.png)
 
-5. Copy the **value** of the application secret. Once you leave this page you won't be able to see the secret again and you will have to generate a new one.
-![!](../../../images/azure_app_secret_04.png)
+    ![!](../../../images/azure_app_new_registration.png)
 
+    ![!](../../../images/azure_app_new_details.png)
 
-6. Give API access permissions to your application.
+3. Copy the client ID and the tenant ID:
 
-    - Search for **Subscriptions** like in step 1.
+    ![!](../../../images/azure_app_client_tenant.png)
 
-    - Select your application and grant **Monitor Reader** permissions. This might require you to have admin permissions in your Azure account.
+4. Create an application secret:
 
-![!](../../../images/azure_app_permissions_01.png)
-![!](../../../images/azure_app_permissions_02.png)
-![!](../../../images/azure_app_permissions_03.png)
-![!](../../../images/azure_app_permissions_04.png)
+    ![!](../../../images/azure_app_secret_01.png)
+
+    ![!](../../../images/azure_app_secret_02.png)
+
+    ![!](../../../images/azure_app_secret_03.png)
+
+5. Copy the **value** of the application secret. After you leave this page, you can't see the secret again and you have to generate a new one.
+
+    ![!](../../../images/azure_app_secret_04.png)
+
+6. Give your application API access permissions:
+
+    1. Search for **Subscriptions**, as in step 1.
+    2. Select your application and grant it the **Monitoring Reader** role. This might require admin permissions in your Azure account.
+
+    ![!](../../../images/azure_app_permissions_01.png)
+
+    ![!](../../../images/azure_app_permissions_02.png)
+
+    ![!](../../../images/azure_app_permissions_03.png)
+
+    ![!](../../../images/azure_app_permissions_04.png)
 
 After you fill in all four fields, click **Discover** to see a list of the databases available for monitoring.
 
