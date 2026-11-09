@@ -1,13 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
+import { collectCsvColumns } from 'utils/csv.utils';
 import { TEST_MONGO_DB_QUERY_DATA } from 'utils/testStubs';
 import {
-  buildRtaExportFilename,
-  collectCsvColumns,
   exportRtaQueriesToCsv,
   mapQueryToCsvRow,
-  sanitizeCsvCell,
+  RTA_CSV_COLUMNS,
   toCsvHeader,
-  toCsvValue,
 } from './exportRtaQueriesToCsv';
 
 const { download, generateCsv, mkConfig } = vi.hoisted(() => ({
@@ -36,27 +34,11 @@ describe('exportRtaQueriesToCsv', () => {
     vi.clearAllMocks();
   });
 
-  it('serializes values the csv generator cannot handle on its own', () => {
-    expect(toCsvValue(10)).toBe(10);
-    expect(toCsvValue(null)).toBe('');
-    expect(toCsvValue(undefined)).toBe('');
-    expect(toCsvValue(true)).toBe(true);
-    expect(toCsvValue(['a', 'b'])).toBe('["a","b"]');
-  });
-
   it('derives headers from the api field name unless it is overridden', () => {
     expect(toCsvHeader('queryId')).toBe('operation_id');
     expect(toCsvHeader('serviceName')).toBe('service');
     expect(toCsvHeader('dbInstanceAddress')).toBe('db_instance_address');
     expect(toCsvHeader('someNewApiField')).toBe('some_new_api_field');
-  });
-
-  it('sanitizes values that could be interpreted as spreadsheet formulas', () => {
-    expect(sanitizeCsvCell('=1+1')).toBe("'=1+1");
-    expect(sanitizeCsvCell('+cmd')).toBe("'+cmd");
-    expect(sanitizeCsvCell('-10')).toBe("'-10");
-    expect(sanitizeCsvCell('@SUM(A1)')).toBe("'@SUM(A1)");
-    expect(sanitizeCsvCell('{ find: "x" }')).toBe('{ find: "x" }');
   });
 
   it('maps every query field to a csv column, flattening the payload', () => {
@@ -81,7 +63,10 @@ describe('exportRtaQueriesToCsv', () => {
   });
 
   it('keeps the documented column order and appends unlisted fields', () => {
-    const columns = collectCsvColumns([mapQueryToCsvRow(TEST_QUERY)]);
+    const columns = collectCsvColumns(
+      [mapQueryToCsvRow(TEST_QUERY)],
+      RTA_CSV_COLUMNS
+    );
 
     expect(columns).toEqual([
       'operation_id',
@@ -117,30 +102,9 @@ describe('exportRtaQueriesToCsv', () => {
     expect(row.read_preference).toBe('secondary');
     expect(row.waiting_for_lock).toBe(false);
     expect(row.mode).toBe('IS');
-    expect(collectCsvColumns([row])).toContain('read_preference');
-  });
-
-  it('collects columns across all rows, not just the first', () => {
-    const [withoutCollection, withCollection] = [
-      mapQueryToCsvRow({
-        ...TEST_QUERY,
-        mongoDbPayload: {
-          ...TEST_QUERY.mongoDbPayload,
-          collection: undefined,
-        },
-      }),
-      mapQueryToCsvRow(TEST_QUERY),
-    ];
-
-    expect(collectCsvColumns([withoutCollection, withCollection])).toContain(
-      'collection'
+    expect(collectCsvColumns([row], RTA_CSV_COLUMNS)).toContain(
+      'read_preference'
     );
-  });
-
-  it('builds the required filename template', () => {
-    expect(
-      buildRtaExportFilename(new Date('2026-06-25T14:30:22.000Z'))
-    ).toMatch(/^mongodb_rta_export_\d{8}_\d{6}$/);
   });
 
   it('exports filtered query rows to csv', () => {

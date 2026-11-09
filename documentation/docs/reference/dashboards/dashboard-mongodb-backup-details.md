@@ -21,7 +21,7 @@ Shows whether PBM has a remote storage location configured. A green **YES** mean
 
 Check this first when opening the dashboard. If it shows **NO**, no backups are running regardless of what other panels show. Configure a remote storage location (S3, Azure Blob, or filesystem) in PBM before relying on this dashboard for backup monitoring. 
 
-See [Configure backup storage](https://docs.percona.com/percona-backup-mongodb/install/backup-storage.html).
+See [Configure backup storage](https://docs.percona.com/percona-backup-mongodb/latest/install/backup-storage.html).
 
 ### PITR Status
 

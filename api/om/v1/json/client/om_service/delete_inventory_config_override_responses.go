@@ -307,8 +307,8 @@ type DeleteInventoryConfigOverrideDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// delete inventory config override default body details items0
-	DeleteInventoryConfigOverrideDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// delete inventory config override default body details items0 additional properties
+	DeleteInventoryConfigOverrideDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -343,7 +343,7 @@ func (o *DeleteInventoryConfigOverrideDefaultBodyDetailsItems0) UnmarshalJSON(da
 			}
 			result[k] = toadd
 		}
-		o.DeleteInventoryConfigOverrideDefaultBodyDetailsItems0 = result
+		o.DeleteInventoryConfigOverrideDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -364,12 +364,12 @@ func (o DeleteInventoryConfigOverrideDefaultBodyDetailsItems0) MarshalJSON() ([]
 		return nil, err
 	}
 
-	if len(o.DeleteInventoryConfigOverrideDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.DeleteInventoryConfigOverrideDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.DeleteInventoryConfigOverrideDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.DeleteInventoryConfigOverrideDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

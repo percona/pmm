@@ -164,8 +164,8 @@ export const SCAN_ERROR_KIND: Record<
     hint: 'The scan started but did not finish in time. Check that the node is up and not overloaded.',
   },
   blocked: {
-    label: 'Blocked by a stuck scan',
-    hint: "A scan that was given up on could not be stopped, and blocks this node's next scans until it is stopped.",
+    label: 'Scan could not be stopped',
+    hint: 'A scan that was given up on could not be stopped and may still be running on the node. It does not hold up later scans. Check that the node is up and not overloaded.',
   },
   environment_setup_failed: {
     label: 'Environment setup failed',
@@ -198,6 +198,69 @@ export const SCAN_ERROR_KIND: Record<
   unknown: {
     label: 'Scan failed',
     hint: null,
+  },
+};
+
+/**
+ * {@link SCAN_ERROR_KIND} as a service row reads it.
+ *
+ * A service fails for every reason its node can, since it is scanned by the node's
+ * job, plus `no_output`, which for a service means the node answered without it. A
+ * hint that says "this node" on a service row sends the reader to the wrong place, so
+ * every kind is worded for the service, and every one carries a hint: on Fleet the
+ * Nodes page, where the node's own failure is described, is advice worth giving.
+ */
+export const SERVICE_SCAN_ERROR_KIND: Record<
+  OmScanErrorCode,
+  { label: string; hint: string }
+> = {
+  dispatch_rejected: {
+    label: 'Scan not queued',
+    hint: "The scan of this service's node could not be queued. This is usually temporary load on PMM Extensions; it is retried on the next scan.",
+  },
+  not_started: {
+    label: 'Scan never started',
+    hint: "The scan of this service's node was queued but never started. Check that PMM Extensions' workers are running.",
+  },
+  timed_out: {
+    label: 'Scan timed out',
+    hint: "The scan of this service's node did not finish in time. Check that the node is up and not overloaded.",
+  },
+  blocked: {
+    label: 'Scan could not be stopped',
+    hint: "A scan of this service's node that was given up on could not be stopped and may still be running on the node. It does not hold up later scans. The Nodes page shows the node's own state.",
+  },
+  environment_setup_failed: {
+    label: 'Environment setup failed',
+    hint: "This service's node could not prepare the scan's Python environment. Install python3 and python3-venv on it, and allow it to reach PyPI or configure a pip mirror or proxy.",
+  },
+  scan_crashed: {
+    label: 'Scan crashed',
+    hint: "The scan crashed on this service's node before it reported the service. Check the node's Python version.",
+  },
+  scan_lost: {
+    label: 'Scan lost',
+    hint: "The scan was lost before it reported, usually because this service's node or its agent restarted. It is retried on the next scan.",
+  },
+  no_output: {
+    label: 'Not found by the scan',
+    hint: "The node answered, but the scan reported nothing for this service. Check that this service's mongod or mongos is running on the node and listens on the port PMM has registered for it.",
+  },
+  database_unreachable: {
+    label: 'Database unreachable',
+    hint: 'The scan could not connect to this service. Check that its mongod or mongos is running and its port is reachable from its node.',
+  },
+  database_auth_failed: {
+    label: 'Database authentication failed',
+    hint: "This service rejected the scan's credentials. Check the credentials file the scan uses on this service's node.",
+  },
+  database_error: {
+    label: 'Database error',
+    hint: "This service returned an error to the scan. Check the service's log for the cause.",
+  },
+  unknown: {
+    label: 'Scan failed',
+    hint: 'Operations could not tell what kind of failure this is. If the Nodes page shows the node failing too, start there.',
   },
 };
 
@@ -257,6 +320,15 @@ export const RUN_STATUS_COLOR: Record<OmTopologyRunStatus, ChipProps['color']> =
   };
 
 /**
+ * Configuration fields the form never offers, even though the app reports them as hot.
+ *
+ * `ENABLED` gates every scan, manual ones included, and pmm-managed owns it: it writes
+ * the Operations for MongoDB switch to it at every start, so a value set here would not
+ * survive a restart. See PMM-15776.
+ */
+export const HIDDEN_SETTINGS: ReadonlySet<string> = new Set(['ENABLED']);
+
+/**
  * Human labels for OM's configuration fields.
  *
  * The raw keys are what the app calls them and what the API takes; these are what a
@@ -264,10 +336,6 @@ export const RUN_STATUS_COLOR: Record<OmTopologyRunStatus, ChipProps['color']> =
  * in PMM Extensions still renders rather than disappearing from the form.
  */
 export const SETTING_LABEL: Record<string, string> = {
-  // Not "ENABLED". The raw key rendered in capitals, and said nothing about what it
-  // switches -- a reader could not tell it from PMM's own switch for the whole
-  // feature, which is a different control on a different page.
-  ENABLED: 'Automatic node scans',
   SCHEDULE__every: 'Scan every',
   SCHEDULE__period: 'Period',
   PROBE_DATABASE: 'Connect to MongoDB',
@@ -300,12 +368,10 @@ export const SETTING_UNIT: Record<string, string> = {
 
 /** What each field costs or protects, for the reader deciding whether to touch it. */
 export const SETTING_HELP: Record<string, string> = {
-  ENABLED:
-    'Scan every node on a schedule. Off stops the schedule only - you can still scan from the Nodes page, and nothing already collected is removed.',
   SCHEDULE__every:
     'How often every node is scanned. Each scan sends a job to every node.',
   PROBE_DATABASE:
-    'On also asks each mongod for its replica-set state and running version, using the monitoring credentials PMM already holds for that service. Off collects process and OS facts only, which needs no credentials - and still yields the installed version.',
+    "On also asks each mongod for its replica-set state and running version. It logs in with the URI in .mongodb_uri in the home directory of the user pmm-agent runs as (/root by default); without that file it connects unauthenticated, so a mongod that requires authentication doesn't report its replica-set state. Off collects process and OS facts only, which needs no credentials - and still yields the installed version.",
   REPO_URL:
     'The file each node fetches to prove it can install packages. Point it at a mirror on an air-gapped network, or every node reports as failing.',
   REPO_TIMEOUT:
@@ -414,7 +480,6 @@ export const BOOTSTRAP_RUN_COLOR: Record<
  * beside a warning.
  */
 export const SETTING_GROUP: Record<string, 'general' | 'scanning'> = {
-  ENABLED: 'general',
   SCHEDULE__every: 'general',
   SCHEDULE__period: 'general',
   PROBE_DATABASE: 'general',
@@ -436,6 +501,10 @@ export const FLEET_NOT_COLLECTED =
  */
 export const NOMAD_DOC_URL =
   'https://docs.percona.com/percona-monitoring-and-management/3/reference/nomad.html';
+
+/** The Operations for MongoDB guide, for a fleet tab with nothing on it yet. */
+export const OPERATIONS_DOC_URL =
+  'https://docs.percona.com/percona-monitoring-and-management/3/use/mongodb-operations.html';
 
 /**
  * The pmm-agent version that first carries an automation agent.
