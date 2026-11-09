@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/prometheus/procfs"
@@ -31,6 +32,12 @@ const (
 	// The directory, under pmm-agent's temporary directory, that vmagent keeps its persistent
 	// queue in. It must match -remoteWrite.tmpDataPath in managed/services/agents/vmagent.go.
 	vmagentQueueDirName = "vmagent-temp-dir"
+
+	tmpDataPathFlag = "remoteWrite.tmpDataPath"
+
+	// What the kernel appends to /proc/<pid>/exe once the executable has been unlinked, which is
+	// what an upgrade does to a vmagent binary that is still running from before it.
+	deletedExeSuffix = " (deleted)"
 
 	// How long stopping leftover vmagents may delay pmm-agent's start: looking for them, which reads
 	// /proc and can block on a process stuck in the kernel; then after SIGTERM, and after SIGKILL,
@@ -185,6 +192,37 @@ func stopLeftovers(
 	for _, lo := range stopping {
 		lo.close()
 	}
+}
+
+// isVMAgentExecutable reports whether exe, a process's /proc/<pid>/exe, is this pmm-agent's vmagent
+// binary, including one an upgrade has replaced since the process started.
+func isVMAgentExecutable(exe, vmagentPath string) bool {
+	if exe == "" || vmagentPath == "" {
+		return false
+	}
+
+	return filepath.Clean(strings.TrimSuffix(exe, deletedExeSuffix)) == filepath.Clean(vmagentPath)
+}
+
+// tmpDataPath returns the -remoteWrite.tmpDataPath of a vmagent command line: the directory of the
+// persistent queue it holds. The lock vmagent takes on that directory is exclusive, so while one
+// process holds it, a vmagent started on the same queue exits on the lock within a second, every time.
+func tmpDataPath(cmdline []string) (string, bool) {
+	if len(cmdline) == 0 {
+		return "", false
+	}
+
+	for _, arg := range cmdline[1:] { // not argv[0]
+		flag := strings.TrimPrefix(strings.TrimPrefix(arg, "-"), "-") // -flag or --flag
+		if flag == arg {
+			continue
+		}
+		if value, ok := strings.CutPrefix(flag, tmpDataPathFlag+"="); ok && value != "" {
+			return value, true
+		}
+	}
+
+	return "", false
 }
 
 // holdsQueue reports whether path, a process's -remoteWrite.tmpDataPath, is the queue directory.
