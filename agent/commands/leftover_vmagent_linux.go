@@ -178,7 +178,7 @@ func waitLeftovers(ctx context.Context, stopping []*leftover, timeouts leftoverT
 	deadline := time.Now().Add(timeouts.stop)
 	var killed []*leftover
 	for _, lo := range stopping {
-		if ctx.Err() != nil || lo.waitExit(time.Until(deadline)) {
+		if lo.waitExit(time.Until(deadline)) || ctx.Err() != nil {
 			continue
 		}
 		l.Warnf("vmagent PID %d did not exit within %s, killing it.", lo.pid, timeouts.stop)
