@@ -19,6 +19,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -36,6 +37,9 @@ const (
 
 	// deletedExeSuffix is what /proc/<pid>/exe ends with once an upgrade has replaced the running binary.
 	deletedExeSuffix = " (deleted)"
+
+	// TASK_COMM_LEN less its terminating NUL: the kernel cuts a process's command name to it.
+	commLen = 15
 
 	// Reading /proc can block on a process stuck in the kernel, so pmm-agent starts after leftoverBudget anyway.
 	leftoverBudget      = 15 * time.Second
@@ -102,10 +106,12 @@ func stopLeftovers(
 	if vmagentPath == "" || tempDir == "" {
 		return
 	}
+	comms := []string{comm(vmagentPath)}
 	// /proc/<pid>/exe has its symlinks resolved, so the configured path must have them resolved too.
 	resolved, err := filepath.EvalSymlinks(vmagentPath)
 	if err == nil {
 		vmagentPath = resolved
+		comms = append(comms, comm(resolved))
 	}
 
 	queueDir := filepath.Join(tempDir, vmagentQueueDirName)
@@ -128,14 +134,14 @@ func stopLeftovers(
 		}
 		// openLeftover reads the start time again, so everything read in between is about this one process.
 		stat, err := p.Stat()
-		if err != nil || stat.Starttime >= startedBefore {
+		if err != nil || stat.Starttime >= startedBefore || !slices.Contains(comms, stat.Comm) {
 			continue
 		}
+		// Read only for processes named like vmagent, as reading /proc of one stuck in the kernel can block.
 		exe, err := p.Executable()
 		if err != nil || !isVMAgentExecutable(exe, vmagentPath) {
 			continue
 		}
-		// Read last, as reading the command line of a process stuck in the kernel can block.
 		cmdline, err := p.CmdLine()
 		if err != nil {
 			continue
@@ -160,6 +166,14 @@ func stopLeftovers(
 		stopping = append(stopping, lo)
 	}
 
+	waitLeftovers(ctx, stopping, timeouts, l)
+	for _, lo := range stopping {
+		lo.close()
+	}
+}
+
+// waitLeftovers waits for the signaled leftovers to exit, and kills those still running after timeouts.stop.
+func waitLeftovers(ctx context.Context, stopping []*leftover, timeouts leftoverTimeouts, l *logrus.Entry) {
 	// Signaled together, so they share one wait after SIGTERM, and one after SIGKILL.
 	deadline := time.Now().Add(timeouts.stop)
 	var killed []*leftover
@@ -178,9 +192,12 @@ func stopLeftovers(
 				"the vmagent this pmm-agent starts may fail on the queue lock.", lo.pid)
 		}
 	}
-	for _, lo := range stopping {
-		lo.close()
-	}
+}
+
+// comm returns the command name /proc/<pid>/stat shows for a process started from path.
+func comm(path string) string {
+	name := filepath.Base(path)
+	return name[:min(len(name), commLen)]
 }
 
 // isVMAgentExecutable reports whether exe, a process's /proc/<pid>/exe, is the vmagent binary, also once an

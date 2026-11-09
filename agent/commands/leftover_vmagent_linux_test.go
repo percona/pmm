@@ -298,6 +298,18 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		assert.Equal(t, syscall.SIGTERM, exitedBy(t, cmd))
 	})
 
+	t.Run("stops one running the binary a configured symlink points to", func(t *testing.T) {
+		t.Parallel()
+
+		tempDir, queueDir := newQueue(t)
+		cmd := startLeftover(t, queueDir, "run")
+		vmagent := filepath.Join(t.TempDir(), "vmagent")
+		require.NoError(t, os.Symlink(testExecutable(t), vmagent))
+
+		stopLeftovers(t.Context(), vmagent, tempDir, anyStart, short, unix.PidfdOpen, l)
+		assert.Equal(t, syscall.SIGTERM, exitedBy(t, cmd))
+	})
+
 	t.Run("leaves a vmagent with another queue alone", func(t *testing.T) {
 		t.Parallel()
 
@@ -373,6 +385,14 @@ func TestIsVMAgentExecutable(t *testing.T) {
 
 		assert.False(t, isVMAgentExecutable(vmagent, ""))
 	})
+}
+
+func TestComm(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "vmagent", comm("/usr/local/percona/pmm/exporters/vmagent"))
+	assert.Equal(t, "vmagent-1234567", comm("/opt/vmagent-1234567"))
+	assert.Equal(t, "vmagent-1234567", comm("/opt/vmagent-12345678"))
 }
 
 func TestTmpDataPath(t *testing.T) {
