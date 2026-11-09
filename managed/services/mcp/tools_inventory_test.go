@@ -403,6 +403,44 @@ func TestServiceList(t *testing.T) {
 		assert.Equal(t, codeUnauthorized, mapError(err).code)
 	})
 
+	t.Run("NewestRowWinsInEitherOrder", func(t *testing.T) {
+		t.Parallel()
+
+		row := func(node, value string) string {
+			return `{"metric":{"service_id":"svc-1","service_name":"shop-mysql","service_type":"mysql","node_name":"` + node + `"},"value":[1789387200,"` + value + `"]}`
+		}
+		for name, rows := range map[string][]string{
+			"older first": {row("old-node", "1789384200"), row("demo-node", "1789387140")},
+			"newer first": {row("demo-node", "1789387140"), row("old-node", "1789384200")},
+		} {
+			body := `{"status":"success","data":{"resultType":"vector","result":[` + strings.Join(rows, ",") + `]}}`
+			fake := newFakePMM(t, withRoutes(listRoutes(), map[string]fixture{serviceListKey: {body: []byte(body)}}))
+			s := newQANService(t, fake, false)
+
+			got, err := s.listServices(t.Context(), testAuth, s.lastHour())
+			require.NoError(t, err, name)
+			require.Len(t, got, 1, name)
+			assert.Equal(t, "demo-node", got[0].NodeName, name)
+		}
+	})
+
+	t.Run("NonFiniteValuesGiveNoService", func(t *testing.T) {
+		t.Parallel()
+
+		row := func(id, value string) string {
+			return `{"metric":{"service_id":"` + id + `","service_name":"n-` + id + `","service_type":"mysql"},"value":[1789387200,"` + value + `"]}`
+		}
+		body := `{"status":"success","data":{"resultType":"vector","result":[` +
+			strings.Join([]string{row("nan", "NaN"), row("inf", "+Inf"), row("ninf", "-Inf"), row("ok", "1789387140")}, ",") + `]}}`
+		fake := newFakePMM(t, withRoutes(listRoutes(), map[string]fixture{serviceListKey: {body: []byte(body)}}))
+		s := newQANService(t, fake, false)
+
+		got, err := s.listServices(t.Context(), testAuth, s.lastHour())
+		require.NoError(t, err)
+		require.Len(t, got, 1)
+		assert.Equal(t, "ok", got[0].ServiceID)
+	})
+
 	t.Run("TooLarge", func(t *testing.T) {
 		t.Parallel()
 
@@ -412,7 +450,7 @@ func TestServiceList(t *testing.T) {
 		s := newQANService(t, fake, false)
 
 		_, err := s.listServices(t.Context(), testAuth, s.lastHour())
-		require.Error(t, err)
+		require.ErrorIs(t, err, errResponseTooLarge)
 		assert.Equal(t, codePMMUnavailable, mapError(err).code)
 	})
 }
@@ -420,9 +458,10 @@ func TestServiceList(t *testing.T) {
 func TestServiceListQueryInBudget(t *testing.T) {
 	t.Parallel()
 
-	read, err := checkExpr(fmt.Sprintf(serviceListQuery, int(maxSpan/time.Second)), 0, 0)
+	read, err := checkExpr(fmt.Sprintf(serviceListQuery, int(maxServiceListLookback/time.Second)), 0, 0)
 	require.NoError(t, err)
-	assert.Equal(t, maxSpan, read)
+	assert.Equal(t, maxServiceListLookback, read)
+	assert.LessOrEqual(t, maxServiceListLookback, maxSpan)
 }
 
 func TestListFollowsTheWindow(t *testing.T) {
@@ -513,6 +552,25 @@ func TestListFollowsTheWindow(t *testing.T) {
 		for _, row := range got.Rows {
 			require.NotNil(t, row.QueryRef)
 			assert.Equal(t, "svc-gone", row.QueryRef.ServiceID)
+		}
+	})
+
+	t.Run("TopQueriesEngineLookupUsesTheWindow", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{
+			fourHourKey:          {file: "vm_up_window.json"},
+			"POST " + reportPath: {file: "report_quoted_identifier.json"},
+		}))
+		session := connect(t, newQANService(t, fake, false))
+
+		res := callTool(t, session, "pmm_top_queries", with(window6hTo2h, "service_name", "shop-gone", "group_by", "queryid"))
+		require.False(t, res.IsError, textOf(t, res))
+		lists := queriesWith(fake, "tlast_over_time(up[")
+		require.GreaterOrEqual(t, len(lists), 2, "the pinned service and the engine are both looked up")
+		for _, r := range lists {
+			assert.Contains(t, queryOf(t, r).Get("query"), "up[14400s]")
+			assert.Equal(t, "1789380000", queryOf(t, r).Get("time"))
 		}
 	})
 

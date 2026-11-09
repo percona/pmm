@@ -126,7 +126,7 @@ Most results link to the same data in PMM, so you can check an answer in PMM its
 
 Pass the saved `query_ref` back as it is. The tool then reads the same window, so you can explain a query that you saw yesterday. You can also pass a `queryid` alone, or beside `service_id`, `period_from` and `period_to`. Without `period_from` and `period_to`, a `queryid` searches the last hour, with or without `service_id`. A `query_ref` together with `queryid`, `service_id`, `period_from` or `period_to` is `invalid_input`.
 
-The server resolves the query to one service in your service list, the same list that `pmm_inventory` returns. The call fails in these cases:
+The server resolves the query to one service in your service list for the query's window (see [Limitations](#limitations)); `pmm_inventory` lists the last hour. The call fails in these cases:
 
 - The query was not seen in the window, on any of your services or on the `service_id` you gave: `not_found`, and the message names the window. Pass a window that covers when the query ran: `period_from` and `period_to`, or a `query_ref` whose period covers it.
 - The query was seen on several of your services: `invalid_input`, and the message lists those services. Pass `service_id` to choose one. If you passed a `query_ref`, set the `service_id` inside the `query_ref` instead.
@@ -276,7 +276,7 @@ Use the tools in this order:
 
 Each signal reports `min`, `avg`, `max`, `last` and `last_at`, the time of the newest sample, with its unit and the metric it reads. A signal that returns no series is `no_data`. A signal whose query fails carries its own `error`, and the result sets `partial`. If every query fails, the call fails with the first error. A value that is `null` is NaN or infinite, for example a ratio whose denominator is 0. If a query returns several series, the signal reports the one with the largest maximum, and the note says how many there were.
 
-The tool doesn't judge: it has no healthy or unhealthy verdict and no stale state. `no_data` on every signal means that the service sent none of these metrics in the window although its `up` series is there, for example because its exporter could not be scraped or could not reach the database; an Access Role that filters on service labels can also hide its node's series. A service that is not in your service list for the window, one that an Access Role hides included, is `not_found`, and a service that is not MySQL, PostgreSQL or MongoDB is `invalid_input`. `no_data` on a node signal can also mean that an Access Role that filters on service labels hides the node's series. When every signal is `no_data`, the note says that the service and its node sent no metrics in the window, or that an Access Role hides their series.
+The tool doesn't judge: it has no healthy or unhealthy verdict and no stale state. `no_data` on every signal means that the service sent none of these metrics in the window although its `up` series is there, for example because its exporter could not be scraped or could not reach the database; an Access Role that filters on service labels can also hide its node's series. A service that is not in your service list for the window, one that an Access Role hides included, is `not_found`, and a service that is not MySQL, PostgreSQL or MongoDB is `invalid_input`. `no_data` on a node signal can also mean that an Access Role that filters on service labels hides the node's series.
 
 ### Execution budget
 

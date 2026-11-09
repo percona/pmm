@@ -1702,3 +1702,22 @@ func TestEngineOfOutsideList(t *testing.T) {
 	}
 	assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
 }
+
+func TestExplainOlderServiceSharingAName(t *testing.T) {
+	t.Parallel()
+
+	fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+	fake.routes[serviceListKey] = fixture{file: "vm_up_list.json"}
+	fake.routes["POST "+reportPath] = fixture{file: "report_by_service_re.json"}
+	session := connect(t, newQANService(t, fake, true))
+
+	res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-re-old", "queryid": "QID-AAA"})
+	require.False(t, res.IsError, textOf(t, res))
+	ref := structured[explainResult](t, res).QueryRef
+	require.NotNil(t, ref)
+	assert.Equal(t, "svc-re-old", ref.ServiceID)
+
+	res = callTool(t, session, "pmm_get_explain", map[string]any{"query_ref": ref})
+	require.False(t, res.IsError, textOf(t, res))
+	assert.Equal(t, "svc-re-old", structured[explainResult](t, res).QueryRef.ServiceID)
+}

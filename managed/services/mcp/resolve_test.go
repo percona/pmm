@@ -116,6 +116,47 @@ func TestResolveQuery(t *testing.T) {
 			},
 		},
 		{
+			name:       "explicit older service sharing a name",
+			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
+			ref:        withService(hour, "svc-re-old"),
+			wantReport: 1,
+			check: func(t *testing.T, got *resolvedQuery) {
+				t.Helper()
+				assert.Equal(t, "svc-re-old", got.Service.ServiceID)
+				assert.Equal(t, "svc-re-old", got.Ref.ServiceID)
+			},
+		},
+		{
+			name:       "explicit older service of a query_ref",
+			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
+			ref:        fromQueryRef(withService(hour, "svc-re-old")),
+			wantReport: 1,
+			check: func(t *testing.T, got *resolvedQuery) {
+				t.Helper()
+				assert.Equal(t, "svc-re-old", got.Service.ServiceID)
+			},
+		},
+		{
+			name:       "explicit newer service sharing a name",
+			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
+			ref:        withService(hour, "svc-re-new"),
+			wantReport: 1,
+			check: func(t *testing.T, got *resolvedQuery) {
+				t.Helper()
+				assert.Equal(t, "svc-re-new", got.Service.ServiceID)
+			},
+		},
+		{
+			name:       "no service_id takes the newest of a shared name",
+			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
+			ref:        hour,
+			wantReport: 1,
+			check: func(t *testing.T, got *resolvedQuery) {
+				t.Helper()
+				assert.Equal(t, "svc-re-new", got.Service.ServiceID)
+			},
+		},
+		{
 			name:       "two candidates",
 			routes:     resolveRoutes(reportTwo),
 			ref:        hour,

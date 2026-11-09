@@ -215,13 +215,14 @@ func (s *Service) queryCandidates(ctx context.Context, auth callerAuth, ref quer
 		return nil, 0, err
 	}
 
+	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(ids, svc.ServiceID) })
 	var out []serviceInfo
 	for _, row := range report.Rows {
 		if row.Dimension == "" {
 			continue
 		}
-		svc, ok := serviceNamed(services, row.Dimension)
-		if !ok || !slices.Contains(ids, svc.ServiceID) {
+		svc, ok := serviceNamed(asked, row.Dimension)
+		if !ok {
 			continue
 		}
 		if slices.ContainsFunc(out, func(o serviceInfo) bool { return o.ServiceID == svc.ServiceID }) {

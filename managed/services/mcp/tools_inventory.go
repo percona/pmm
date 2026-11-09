@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
 	"slices"
 	"sort"
@@ -55,8 +56,8 @@ const (
 )
 
 // versionMetrics maps an engine to the metric and label that carry the server
-// version. Confirmed live on PMM 3.8.1: inventory's version field is empty, so
-// versions come from the exporters' info metrics.
+// version. The service list carries no version, so versions come from the
+// exporters' info metrics.
 var versionMetrics = map[string]struct{ metric, label string }{
 	engineMySQL:      {"mysql_version_info", "version"},
 	enginePostgreSQL: {"pg_static", "short_version"},
@@ -270,7 +271,7 @@ func (s *Service) listServices(ctx context.Context, auth callerAuth, w window) (
 	byID := map[string]serviceInfo{}
 	for _, sample := range samples {
 		id := sample.Labels["service_id"]
-		if id == "" {
+		if id == "" || math.IsNaN(sample.Value) || math.IsInf(sample.Value, 0) {
 			continue
 		}
 		svc := serviceInfo{

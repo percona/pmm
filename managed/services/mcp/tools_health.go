@@ -313,8 +313,12 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 	}
 	svc := services[i]
 	if !slices.Contains([]string{engineMySQL, enginePostgreSQL, engineMongoDB}, svc.Engine) {
+		kind := "is " + svc.Engine
+		if svc.Engine == "" {
+			kind = "has no service type"
+		}
 		return healthResult{}, newToolError(codeInvalidInput,
-			"pmm_service_health covers MySQL, PostgreSQL and MongoDB services; service '%s' is %s; use pmm_query_metrics for its metrics", svc.ServiceName, svc.Engine)
+			"pmm_service_health covers MySQL, PostgreSQL and MongoDB services; service '%s' %s; use pmm_query_metrics for its metrics", svc.ServiceName, kind)
 	}
 
 	signals := slices.Concat(healthSignals[svc.Engine], healthSignals[engineNode])
