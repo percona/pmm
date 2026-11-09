@@ -598,7 +598,7 @@ func (s *Server) refuseDataRetentionChangeInHA(requested time.Duration, stored *
 
 func (s *Server) validateEnableOm(ctx context.Context, enableOm *bool) error {
 	if enableOm != nil && s.envSettings.EnableOM != nil && *enableOm != *s.envSettings.EnableOM {
-		return status.Error(codes.FailedPrecondition, "OpenManager is configured via PMM_ENABLE_OM environment variable.")
+		return status.Error(codes.FailedPrecondition, "Operations for MongoDB is set by the PMM_ENABLE_OM environment variable and can't be changed here.")
 	}
 
 	if enableOm == nil || !*enableOm {
