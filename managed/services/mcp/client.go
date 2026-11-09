@@ -203,7 +203,7 @@ func newClient(baseURL string) (*client, error) {
 }
 
 // AuthenticateRequest implements runtime.ClientAuthInfoWriter: the caller's
-// Authorization and Cookie headers are copied verbatim onto the backing call.
+// credentials are set on the backing call as callerAuthFromHeader canonicalized them.
 func (a callerAuth) AuthenticateRequest(r runtime.ClientRequest, _ strfmt.Registry) error {
 	if a.authorization != "" {
 		err := r.SetHeaderParam("Authorization", a.authorization)

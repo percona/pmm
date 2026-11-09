@@ -6,7 +6,7 @@ The endpoint is read-only. Every tool is registered with the MCP `readOnlyHint` 
 
 ## How it works
 
-The MCP server runs inside pmm-managed and speaks MCP Streamable HTTP. It holds no credentials of its own: each tool call goes back out through PMM's public REST API with the caller's own `Authorization` header, so a client can never see or do more through MCP than it could with the same token and `curl`. Authorization is enforced per call by the same rules as for every other PMM API request, including [label-based access control](../admin/roles/access-control/intro.md) where it applies.
+The MCP server runs inside pmm-managed and speaks MCP Streamable HTTP. It holds no credentials of its own: each tool call goes back out through PMM's public REST API with the caller's own credentials, so a client can never see or do more through MCP than it could with the same token and `curl`. Authorization is enforced per call by the same rules as for every other PMM API request, including [label-based access control](../admin/roles/access-control/intro.md) where it applies. A token goes to PMM's API as `Authorization: Bearer <token>`, without cookies, whether the client sent it as a Bearer value or as Basic `api_key:<token>` or `service_token:<token>`. Basic credentials of a user and a session cookie go as sent.
 
 The endpoint is only reachable through PMM's nginx, which authenticates every request. A connection made directly to pmm-managed, bypassing nginx, is answered with 404 even when pmm-managed listens on a routable interface.
 

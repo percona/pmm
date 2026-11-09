@@ -29,11 +29,13 @@ import (
 	"github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 	"github.com/percona/pmm/api/server/v1/json/client/server_service"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
-// callerAuth carries the credentials of the MCP caller, copied verbatim from the
-// incoming HTTP request. Every backing PMM API call sends them again, so nginx
-// authorizes each call against the caller's own role.
+// callerAuth carries the credentials of the MCP caller in one canonical form: a
+// token as a Bearer Authorization without a cookie, anything else as received.
+// Every backing PMM API call sends them again, so nginx authorizes each call
+// against the caller's own role.
 type callerAuth struct {
 	authorization string
 	cookie        string
@@ -41,6 +43,11 @@ type callerAuth struct {
 
 // callerAuthFromHeader extracts the caller's credentials from the MCP request headers.
 func callerAuthFromHeader(h http.Header) callerAuth {
+	token := auth.GetTokenFromHeaders(h)
+	if token != "" {
+		return callerAuth{authorization: "Bearer " + token}
+	}
+
 	return callerAuth{
 		authorization: h.Get("Authorization"),
 		cookie:        h.Get("Cookie"),
