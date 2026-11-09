@@ -469,6 +469,8 @@ export interface PluginEntitySchema {
   description?: string;
   forms: FormSection[];
   list_view: ListView;
+  /** Entity-wide predicate-only invariants. */
+  fail_when?: FailRule[];
   /** Optional detail-view syntax hints keyed by field name; mirrors the backend
    * ``DetailHighlightLanguage`` enum. */
   detail_highlights?: Partial<Record<string, 'sql' | 'json' | 'bash' | 'yaml'>>;
