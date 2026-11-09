@@ -16,14 +16,11 @@ package supervisor
 
 import (
 	"context"
-	"errors"
-	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
-	"syscall"
 	"testing"
 	"time"
 
@@ -62,6 +59,60 @@ func assertChanges(t *testing.T, s *Supervisor, expected ...*agentv1.StateChange
 	}
 
 	require.ElementsMatch(t, expected, actual)
+}
+
+// isReserved reports whether the Supervisor's ports registry holds port.
+func isReserved(s *Supervisor, port uint16) bool {
+	s.portsRegistry.m.Lock()
+	defer s.portsRegistry.m.Unlock()
+	_, ok := s.portsRegistry.reserved[port]
+
+	return ok
+}
+
+// startingPorts reads statuses until n of them are STARTING, and returns the ports those report.
+func startingPorts(t *testing.T, s *Supervisor, n int) []uint16 {
+	t.Helper()
+
+	ports := make([]uint16, 0, n)
+	timeout := time.After(10 * time.Second)
+	for len(ports) < n {
+		select {
+		case change := <-s.Changes():
+			if change.Status == inventoryv1.AgentStatus_AGENT_STATUS_STARTING {
+				ports = append(ports, uint16(change.ListenPort))
+			}
+		case <-timeout:
+			require.FailNow(t, "too few STARTING statuses", "%d of %d", len(ports), n)
+		}
+	}
+
+	return ports
+}
+
+// runningPort reads statuses until one is RUNNING, and returns the port it reports.
+func runningPort(t *testing.T, s *Supervisor) uint16 {
+	t.Helper()
+
+	timeout := time.After(10 * time.Second)
+	for {
+		select {
+		case change := <-s.Changes():
+			if change.Status == inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
+				return uint16(change.ListenPort)
+			}
+		case <-timeout:
+			require.FailNow(t, "no RUNNING status")
+		}
+	}
+}
+
+// agentEntry returns the Supervisor's entry for an Agent process, or nil.
+func agentEntry(s *Supervisor, agentID string) *agentProcessInfo {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	return s.agentProcesses[agentID]
 }
 
 func TestSupervisor(t *testing.T) {
@@ -365,18 +416,6 @@ func TestReleaseAgentResources(t *testing.T) {
 		return s, port, agentTmp
 	}
 
-	// The port is given back with portsRegistry.Forget, which does not bind it, so a foreign
-	// socket on it does not keep it reserved; with Release that made asserting the reservation was
-	// gone fail intermittently. TestStopKeepsPortOfRunningAgent covers an Agent that has not
-	// stopped keeping its port. See PMM-15431.
-	reserved := func(s *Supervisor, port uint16) bool {
-		s.portsRegistry.m.Lock()
-		defer s.portsRegistry.m.Unlock()
-		_, ok := s.portsRegistry.reserved[port]
-
-		return ok
-	}
-
 	t.Run("Stopped", func(t *testing.T) {
 		t.Parallel()
 
@@ -384,12 +423,9 @@ func TestReleaseAgentResources(t *testing.T) {
 		done := make(chan struct{})
 		close(done)
 
-		// Something else listens on the port by now: nothing of the Agent's does.
-		holdPort(t, port)
-
 		s.releaseAgentResources("stopped", done, port, agentTmp)
 
-		assert.False(t, reserved(s, port), "port of a stopped Agent is still reserved")
+		assert.False(t, isReserved(s, port), "port of a stopped Agent is still reserved")
 		assert.NoDirExists(t, agentTmp)
 	})
 
@@ -397,8 +433,8 @@ func TestReleaseAgentResources(t *testing.T) {
 		t.Parallel()
 
 		// An Agent that outlived the stop budget still owns its port and its temporary
-		// directory: its port is not handed to another Agent while it may still be listening,
-		// and clearing the directory takes files out from under an Agent still reading them.
+		// directory: another Agent must not get a port it may still be listening on, and
+		// clearing the directory takes files out from under an Agent still reading them.
 		//
 		// Both come back once it stops - the directory holds rendered TLS certificates and
 		// keys, so it is not left to the next pmm-agent start unless a replacement owns it
@@ -408,15 +444,13 @@ func TestReleaseAgentResources(t *testing.T) {
 
 		s.releaseAgentResources("stuck", done, port, agentTmp)
 
-		assert.True(t, reserved(s, port))
+		assert.True(t, isReserved(s, port))
 		assert.DirExists(t, agentTmp)
 
-		// Something else listens on the port by the time the Agent stops.
-		holdPort(t, port)
 		close(done)
 
 		assert.Eventually(t, func() bool {
-			return !reserved(s, port)
+			return !isReserved(s, port)
 		}, time.Second, 10*time.Millisecond, "port of a stopped Agent is still reserved")
 		assert.Eventually(t, func() bool {
 			_, err := os.Stat(agentTmp)
@@ -564,15 +598,8 @@ func TestStopKeepsPortOfRunningAgent(t *testing.T) {
 
 	s.SetState(t.Context(), &agentv1.SetStateRequest{})
 
-	reserved := func() bool {
-		s.portsRegistry.m.Lock()
-		defer s.portsRegistry.m.Unlock()
-		_, ok := s.portsRegistry.reserved[port]
-
-		return ok
-	}
 	require.Empty(t, s.AgentsList())
-	assert.True(t, reserved(), "port of an Agent that has not stopped yet was released")
+	assert.True(t, isReserved(s, port), "port of an Agent that has not stopped yet was released")
 
 	// Draining lets the forwarder finish, and the port goes back once it has.
 	go func() {
@@ -581,7 +608,7 @@ func TestStopKeepsPortOfRunningAgent(t *testing.T) {
 	}()
 
 	assert.Eventually(t, func() bool {
-		return !reserved()
+		return !isReserved(s, port)
 	}, 10*time.Second, 50*time.Millisecond, "port was never released")
 }
 
@@ -756,19 +783,23 @@ func TestStartProcessFail(t *testing.T) {
 			},
 		})
 
+		port := startingPorts(t, s, 1)[0]
 		assertChanges(
 			t, s,
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65100, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65100, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65100, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65100, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65100, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65100, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 65100, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: 65100, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65100, ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, ListenPort: uint32(port), ProcessExecPath: "sleep"},
+			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING, ListenPort: uint32(port), ProcessExecPath: "sleep"},
 		)
+		agents := s.AgentsList()
+		require.Len(t, agents, 1)
+		assert.Equal(t, uint32(port), agents[0].ListenPort)
+		assert.True(t, isReserved(s, port))
+
+		// Tried again by its process after a backoff, on the same port.
+		assert.Equal(t, []uint16{port}, startingPorts(t, s, 1))
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{})
 		require.Empty(t, s.AgentsList())
+		assert.False(t, isReserved(s, port), "port of an Agent that is not requested any more is still reserved")
 	})
 }
 
@@ -1170,48 +1201,15 @@ plugin "raw_exec" {
 	})
 }
 
-// holdPort listens on port for the rest of the test, as another process would. If something else
-// on the host holds it already, that serves the test just as well.
-func holdPort(t *testing.T, port uint16) {
-	t.Helper()
-
-	var lc net.ListenConfig
-	l, err := lc.Listen(t.Context(), "tcp", net.JoinHostPort("127.0.0.1", strconv.Itoa(int(port))))
-	if errors.Is(err, syscall.EADDRINUSE) {
-		return
-	}
-	require.NoError(t, err)
-	t.Cleanup(func() { _ = l.Close() })
-}
-
-// isReserved reports whether the Supervisor's ports registry holds port.
-func isReserved(s *Supervisor, port uint16) bool {
-	s.portsRegistry.m.Lock()
-	defer s.portsRegistry.m.Unlock()
-	_, ok := s.portsRegistry.reserved[port]
-
-	return ok
-}
-
-// TestFailedStartAndPorts covers what a failed start attempt does with its port.
-//
-// Ports are given back with portsRegistry.Forget, which does not bind them, so asserting that one was
-// given back does not depend on what else is on the host. The ranges are inside the ephemeral range
-// on macOS, so the assertions use the ports that were handed out rather than the first ones of a
-// range.
+// TestFailedStartAndPorts covers the ports of an Agent process that cannot listen on the one it is given.
 func TestFailedStartAndPorts(t *testing.T) {
 	t.Parallel()
 
-	// Each subtest has a range of its own: they run in parallel.
 	const portsPerSubtest = 15
 
-	// "wrong format" fails the Agent on every attempt, so all processRetryCount of them run.
-	failing := &agentv1.SetStateRequest_AgentProcess{Type: typeTestSleep, Args: []string{"wrong format"}}
-
-	// setup returns a Supervisor whose node_exporter is a stand-in script, and the script's
-	// directory. The script fails the way an exporter does when its port is taken if a file named
-	// busy-<port> exists there, fails some other way if one named fail does, and otherwise runs.
-	setup := func(t *testing.T, minPort uint16, retryDelay time.Duration) (*Supervisor, string) {
+	// setup returns a Supervisor whose node_exporter is a script that cannot listen on <port> while
+	// dir has a file named busy-<port>, and the dir.
+	setup := func(t *testing.T, minPort uint16) (*Supervisor, string) {
 		t.Helper()
 
 		dir := t.TempDir()
@@ -1219,12 +1217,10 @@ func TestFailedStartAndPorts(t *testing.T) {
 			"[ $# -eq 0 ] && exit 0\n" +
 			"port=${1#--port=}\n" +
 			"if [ -e \"" + dir + "/busy-$port\" ]; then echo \"listen tcp 127.0.0.1:$port: bind: address already in use\" >&2; exit 1; fi\n" +
-			"if [ -e \"" + dir + "/fail\" ]; then echo failed >&2; exit 1; fi\n" +
 			"exec sleep 100\n"
 		bin := filepath.Join(dir, "node_exporter")
 		require.NoError(t, os.WriteFile(bin, []byte(script), 0o755))
-		// The first run of a new executable is slow on macOS, which scans it, and a start that takes
-		// as long as runningT is not an early exit.
+		// macOS scans a new executable on its first run, which can take longer than runningT.
 		require.NoError(t, exec.CommandContext(t.Context(), bin).Run())
 
 		cfgStorage := config.NewStorage(&config.Config{
@@ -1234,286 +1230,177 @@ func TestFailedStartAndPorts(t *testing.T) {
 			LogLinesCount: 1,
 		})
 		s := NewSupervisor(t.Context(), versionerStub{}, cfgStorage)
-		s.failedStartMinDelay, s.failedStartMaxDelay = retryDelay, retryDelay
 		go s.Run(t.Context())
 
 		return s, dir
 	}
-	mark := func(t *testing.T, dir, name string) {
-		t.Helper()
-		require.NoError(t, os.WriteFile(filepath.Join(dir, name), nil, 0o600))
-	}
-	markBusy := func(t *testing.T, dir string, ports ...uint16) {
-		t.Helper()
-		for _, port := range ports {
-			mark(t, dir, "busy-"+strconv.Itoa(int(port)))
-		}
-	}
-	exporter := func(arg string) *agentv1.SetStateRequest_AgentProcess {
-		return &agentv1.SetStateRequest_AgentProcess{
-			Type: inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
-			Args: []string{"--port={{ .listen_port }}", arg},
-		}
-	}
-	setState := func(s *Supervisor, agent *agentv1.SetStateRequest_AgentProcess) {
-		processes := map[string]*agentv1.SetStateRequest_AgentProcess{}
-		if agent != nil {
-			processes["agent1"] = agent
-		}
-		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: processes})
-	}
-
-	// startingPorts reads statuses until the next processRetryCount attempts to start the Agent,
-	// which are one call of tryStartProcess, have reported STARTING, and returns their ports.
-	startingPorts := func(t *testing.T, s *Supervisor) []uint16 {
+	markBusy := func(t *testing.T, dir string, port uint16) {
 		t.Helper()
 
-		var ports []uint16
-		for len(ports) < processRetryCount {
-			select {
-			case change := <-s.Changes():
-				if change.Status == inventoryv1.AgentStatus_AGENT_STATUS_STARTING {
-					ports = append(ports, uint16(change.ListenPort))
-				}
-			case <-time.After(10 * time.Second):
-				t.Fatalf("%d of %d attempts started", len(ports), processRetryCount)
-			}
-		}
-
-		return ports
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "busy-"+strconv.Itoa(int(port))), nil, 0o600))
 	}
-	// retryNow makes the next attempt to start the Agent, without waiting for it.
-	retryNow := func(t *testing.T, s *Supervisor) {
+	setState := func(t *testing.T, s *Supervisor, arg string, redactWords ...string) {
 		t.Helper()
 
-		s.rw.RLock()
-		f := s.failedStarts["agent1"]
-		var attempt uint64
-		if f != nil {
-			attempt = f.attempt
-		}
-		s.rw.RUnlock()
-		require.NotNil(t, f, "no failed start to retry")
-		s.retryFailedStart("agent1", f, attempt)
-	}
-	// waitRunning reads statuses until the Agent reports RUNNING, and returns its port.
-	waitRunning := func(t *testing.T, s *Supervisor) uint16 {
-		t.Helper()
-
-		for {
-			select {
-			case change := <-s.Changes():
-				if change.Status == inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
-					return uint16(change.ListenPort)
-				}
-			case <-time.After(10 * time.Second):
-				t.Fatal("not RUNNING")
-			}
-		}
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
+			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
+				"agent1": {
+					Type:        inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
+					Args:        []string{"--port={{ .listen_port }}", arg},
+					RedactWords: redactWords,
+				},
+			},
+		})
 	}
 
-	t.Run("KeepsThePortForTheNextAttempt", func(t *testing.T) {
+	t.Run("MovesOffAPortItCannotListenOn", func(t *testing.T) {
 		t.Parallel()
 
-		s, _ := setup(t, 64900, time.Hour)
+		s, dir := setup(t, 64900)
+		for port := uint16(64900); port < 64900+portsPerSubtest; port++ {
+			markBusy(t, dir, port)
+		}
 
-		setState(s, failing)
-		require.Empty(t, s.AgentsList())
-
-		// The port was not the problem, so every attempt used it, and it stays reserved for the
-		// next one rather than the Agent's address moving with every attempt.
-		ports := startingPorts(t, s)
-		port := ports[0]
-		require.Equal(t, []uint16{port, port, port}, ports)
-		assert.True(t, isReserved(s, port), "port kept for the next attempt was released")
-
-		// Not requested any more: nothing will use it, even though something else listens on it now.
-		holdPort(t, port)
-		setState(s, nil)
-		assert.False(t, isReserved(s, port), "port of a failed start that is not retried was not released")
+		// Each attempt takes a new port and gives back the one it could not listen on; the last
+		// one is kept, backing off on its port.
+		setState(t, s, "a")
+		ports := startingPorts(t, s, processRetryCount)
+		assert.NotEqual(t, ports[0], ports[1])
+		assert.NotEqual(t, ports[1], ports[2])
+		assert.False(t, isReserved(s, ports[0]))
+		assert.False(t, isReserved(s, ports[1]))
+		assert.True(t, isReserved(s, ports[2]))
+		require.NotNil(t, agentEntry(s, "agent1"))
+		assert.Equal(t, ports[2], agentEntry(s, "agent1").listenPort)
 	})
 
-	t.Run("MovesOnFromAPortInUse", func(t *testing.T) {
+	t.Run("RestartMovesOffABusyPort", func(t *testing.T) {
 		t.Parallel()
 
-		s, dir := setup(t, 64915, time.Hour)
-		mark(t, dir, "fail")
+		s, dir := setup(t, 64915)
+		setState(t, s, "a")
+		old := runningPort(t, s)
 
-		setState(s, exporter("a"))
-		kept := startingPorts(t, s)[0]
-		require.True(t, isReserved(s, kept))
-
-		// Something takes the kept port during the backoff: the Agent cannot listen on it, and the
-		// registry's own check finds it busy.
-		require.NoError(t, os.Remove(filepath.Join(dir, "fail")))
-		markBusy(t, dir, kept)
-		holdPort(t, kept)
-
-		retryNow(t, s)
-
-		// Started on another port, and the busy one is dropped although Release would refuse it.
-		running := waitRunning(t, s)
-		assert.NotEqual(t, kept, running)
-		assert.True(t, isReserved(s, running))
-		assert.False(t, isReserved(s, kept), "port the Agent could not listen on is still reserved")
-	})
-
-	t.Run("KeepsAPortItWasGiven", func(t *testing.T) {
-		t.Parallel()
-
-		// The restart path hands tryStartProcess the port of the Agent being replaced.
-		// That one belongs to the caller's Agent entry, which goes on referring to it when
-		// every attempt fails, so releasing it would leave the entry pointing at a port
-		// the registry has forgotten and can hand to somebody else - even when it is the
-		// port that is the problem.
-		for _, inUse := range []bool{false, true} {
-			s, dir := setup(t, 64930, time.Hour)
-			port, err := s.portsRegistry.Reserve()
-			require.NoError(t, err)
-
-			agent := failing
-			if inUse {
-				agent = exporter("a")
-				for p := uint16(64930); p < 64930+portsPerSubtest; p++ {
-					markBusy(t, dir, p)
-				}
-			}
-
-			s.rw.Lock()
-			kept, err := s.tryStartProcess("agent1", agent, port, false)
-			s.rw.Unlock()
-			require.Error(t, err, "in use: %t", inUse)
-
-			assert.True(t, isReserved(s, port), "port %d the caller still refers to was released (in use: %t)", port, inUse)
-			assert.Zero(t, kept, "a port was kept for the next attempt (in use: %t)", inUse)
-		}
-	})
-
-	t.Run("RestartOnABusyPortReleasesTheOldOne", func(t *testing.T) {
-		t.Parallel()
-
-		s, dir := setup(t, 64945, time.Hour)
-
-		setState(s, exporter("a"))
-		old := waitRunning(t, s)
-
-		// Restarted with new parameters while another process listens on its port: the replacement
-		// moves on, and the old port has nothing left referring to it.
+		// The redact word masks part of the port in the output, as a password of those digits would.
 		markBusy(t, dir, old)
-		holdPort(t, old)
-		setState(s, exporter("b"))
-		restarted := waitRunning(t, s)
-		assert.NotEqual(t, old, restarted)
-		assert.True(t, isReserved(s, restarted))
-		assert.False(t, isReserved(s, old), "port of the replaced Agent is still reserved")
-
-		// The same through RestartAgents.
-		markBusy(t, dir, restarted)
-		holdPort(t, restarted)
-		s.RestartAgents()
-		again := waitRunning(t, s)
-		assert.NotEqual(t, restarted, again)
-		assert.True(t, isReserved(s, again))
-		assert.False(t, isReserved(s, restarted), "port of the Agent RestartAgents replaced is still reserved")
-	})
-
-	t.Run("FailedRestartIsRetriedOnItsPort", func(t *testing.T) {
-		t.Parallel()
-
-		s, dir := setup(t, 64300, time.Hour)
-
-		setState(s, exporter("a"))
-		port := waitRunning(t, s)
-
-		// Restarted with parameters it fails to start with: the next attempt starts it on the port
-		// of the entry it replaces, which that entry keeps meanwhile.
-		mark(t, dir, "fail")
-		setState(s, exporter("b"))
-		require.Equal(t, []uint16{port, port, port}, startingPorts(t, s))
-		assert.True(t, isReserved(s, port), "port the Agent's entry still refers to was released")
-
-		require.NoError(t, os.Remove(filepath.Join(dir, "fail")))
-		retryNow(t, s)
-		assert.Equal(t, port, waitRunning(t, s))
+		setState(t, s, "b", strconv.Itoa(int(old))[:4])
+		port := runningPort(t, s)
+		assert.NotEqual(t, old, port)
 		assert.True(t, isReserved(s, port))
+		assert.False(t, isReserved(s, old), "port of the replaced entry is still reserved")
+		require.NotNil(t, agentEntry(s, "agent1"))
+		assert.Equal(t, port, agentEntry(s, "agent1").listenPort)
 	})
+}
 
-	t.Run("FailedRestartAgentsIsRetried", func(t *testing.T) {
+// TestFailedStartKeepsEntry covers an Agent process that fails to start, which keeps its entry
+// and port while its process backs off (see PMM-15773).
+func TestFailedStartKeepsEntry(t *testing.T) {
+	t.Parallel()
+
+	newSupervisor := func(t *testing.T, minPort uint16) *Supervisor {
+		t.Helper()
+
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths:         config.Paths{TempDir: t.TempDir()},
+			Ports:         config.Ports{Min: minPort, Max: minPort + 14},
+			Server:        config.Server{Address: "localhost:443"},
+			LogLinesCount: 1,
+		})
+		s := NewSupervisor(t.Context(), nil, cfgStorage)
+		go s.Run(t.Context())
+
+		return s
+	}
+	setState := func(t *testing.T, s *Supervisor, args ...string) {
+		t.Helper()
+
+		s.SetState(t.Context(), &agentv1.SetStateRequest{
+			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
+				"sleep1": {Type: typeTestSleep, Args: args},
+			},
+		})
+	}
+	drain := func(s *Supervisor) {
+		go func() {
+			for range s.Changes() {
+			}
+		}()
+	}
+
+	t.Run("SameParamsDoNotRestart", func(t *testing.T) {
 		t.Parallel()
 
-		s, dir := setup(t, 64960, time.Hour)
+		s := newSupervisor(t, 64400)
+		drain(s)
 
-		setState(s, exporter("a"))
-		port := waitRunning(t, s)
+		setState(t, s, "wrong format")
+		entry := agentEntry(s, "sleep1")
+		require.NotNil(t, entry)
 
-		// RestartAgents finds the Agent's port taken, takes another, and fails on that one too. A
-		// SetState with the same parameters would not start the Agent again, its entry being there,
-		// so the start is retried like any other, on the port it took.
-		markBusy(t, dir, port)
-		holdPort(t, port)
-		mark(t, dir, "fail")
+		// What pmm-managed sends in answer to the statuses of the failed start.
+		setState(t, s, "wrong format")
+		assert.Same(t, entry, agentEntry(s, "sleep1"))
+	})
+
+	t.Run("ChangedParamsRestartAtOnce", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 64415)
+		drain(s)
+
+		setState(t, s, "wrong format")
+		entry := agentEntry(s, "sleep1")
+		require.NotNil(t, entry)
+
+		setState(t, s, "10")
+		restarted := agentEntry(s, "sleep1")
+		require.NotNil(t, restarted)
+		assert.NotSame(t, entry, restarted)
+		assert.Equal(t, []string{"10"}, restarted.requestedState.Args)
+		assert.Equal(t, entry.listenPort, restarted.listenPort)
+	})
+
+	t.Run("RestartAgentsStartsTheLatestParams", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 64430)
+		drain(s)
+
+		setState(t, s, "wrong format", "a")
+		setState(t, s, "wrong format", "b")
+		entry := agentEntry(s, "sleep1")
+
 		s.RestartAgents()
-		ports := startingPorts(t, s)
-		taken := ports[1]
-		require.Equal(t, []uint16{port, taken, taken}, ports)
-		require.NotEqual(t, port, taken)
-		assert.True(t, isReserved(s, taken), "port kept for the next attempt was released")
-		assert.True(t, isReserved(s, port), "port the Agent's entry still refers to was released")
-
-		require.NoError(t, os.Remove(filepath.Join(dir, "fail")))
-		retryNow(t, s)
-		assert.Equal(t, taken, waitRunning(t, s))
-		assert.True(t, isReserved(s, taken))
-		assert.False(t, isReserved(s, port), "port of the entry the retry replaced is still reserved")
+		restarted := agentEntry(s, "sleep1")
+		require.NotNil(t, restarted)
+		assert.NotSame(t, entry, restarted)
+		assert.Equal(t, []string{"wrong format", "b"}, restarted.requestedState.Args)
 	})
 
-	t.Run("GivesUpTheEntrysPortThatKeepsFailing", func(t *testing.T) {
+	t.Run("ForwardersDoNotGrowWhileNothingReadsChanges", func(t *testing.T) {
 		t.Parallel()
 
-		s, dir := setup(t, 64315, time.Hour)
+		s := newSupervisor(t, 64445)
+		fillChanges(s)
 
-		setState(s, exporter("a"))
-		port := waitRunning(t, s)
+		setState(t, s, "wrong format")
+		assert.Never(t, func() bool {
+			return s.forwarders.Load() != 1
+		}, 5*time.Second, 50*time.Millisecond, "status forwarders: %d", s.forwarders.Load())
 
-		// Restarted, and failing without saying that the port is the problem: every attempt is on
-		// the entry's port, which counts towards giving it up as a kept one does.
-		mark(t, dir, "fail")
-		setState(s, exporter("b"))
-		require.Equal(t, []uint16{port, port, port}, startingPorts(t, s))
-		for range failuresPerPort - 1 {
-			retryNow(t, s)
-			require.Equal(t, []uint16{port, port, port}, startingPorts(t, s))
-		}
-		assert.True(t, isReserved(s, port), "port the Agent's entry still refers to was released")
-
-		require.NoError(t, os.Remove(filepath.Join(dir, "fail")))
-		retryNow(t, s)
-		started := waitRunning(t, s)
-		assert.NotEqual(t, port, started, "still on the entry's port after %d failed starts", failuresPerPort)
-		assert.True(t, isReserved(s, started))
-		assert.False(t, isReserved(s, port), "port of the entry the new start replaced is still reserved")
+		start := time.Now()
+		assert.Len(t, s.AgentsList(), 1)
+		assert.Less(t, time.Since(start), time.Second, "AgentsList waited for the Supervisor's lock")
 	})
+}
 
-	t.Run("GivesUpAPortThatKeepsFailing", func(t *testing.T) {
-		t.Parallel()
+// versionerStub answers the version check of exporter types, which the stand-in binaries above
+// cannot.
+type versionerStub struct{}
 
-		// The process fails without saying that the port is the problem, as one may.
-		s, _ := setup(t, 64975, 50*time.Millisecond)
-
-		setState(s, failing)
-		ports := make([]uint16, 0, failuresPerPort*processRetryCount)
-		for range failuresPerPort {
-			ports = append(ports, startingPorts(t, s)...)
-		}
-		kept := ports[0]
-		for i, port := range ports {
-			require.Equal(t, kept, port, "attempt %d", i+1)
-		}
-
-		next := startingPorts(t, s)
-		assert.NotEqual(t, kept, next[0], "still on the same port after %d failed starts", failuresPerPort)
-		assert.False(t, isReserved(s, kept), "port given up on is still reserved")
-	})
+func (versionerStub) BinaryVersion(string, int, *regexp.Regexp, ...string) (string, error) {
+	return "", nil
 }
 
 // TestHandleNomadAgent covers the Agent that cannot start because cgroups are not writable. It
@@ -1632,236 +1519,4 @@ func TestSupervisorProcessParamsEnvVariableNamesRejectsReserved(t *testing.T) {
 	// a mismatched pmm-managed version somehow requested it.
 	assert.Empty(t, actual.Env)
 	assert.Empty(t, actual.ResolvedEnvNames)
-}
-
-func TestFailedStartBackoff(t *testing.T) {
-	t.Parallel()
-
-	newSupervisor := func(t *testing.T, minPort uint16, delay time.Duration) *Supervisor {
-		t.Helper()
-
-		cfgStorage := config.NewStorage(&config.Config{
-			Paths:         config.Paths{TempDir: t.TempDir()},
-			Ports:         config.Ports{Min: minPort, Max: minPort + 99},
-			Server:        config.Server{Address: "localhost:443"},
-			LogLinesCount: 1,
-		})
-		s := NewSupervisor(t.Context(), nil, cfgStorage)
-		s.failedStartMinDelay, s.failedStartMaxDelay = delay, delay
-		go s.Run(t.Context())
-
-		return s
-	}
-
-	failing := func(args ...string) map[string]*agentv1.SetStateRequest_AgentProcess {
-		return map[string]*agentv1.SetStateRequest_AgentProcess{
-			"sleep1": {Type: typeTestSleep, Args: append([]string{"wrong format"}, args...)},
-		}
-	}
-
-	// waitFailedStart reads statuses until a start has failed processRetryCount times, which is
-	// one call of tryStartProcess, up to the DONE that ends its last attempt.
-	waitFailedStart := func(t *testing.T, s *Supervisor) {
-		t.Helper()
-
-		var failures int
-		var lastPort uint32
-		for {
-			select {
-			case change := <-s.Changes():
-				switch {
-				case change.Status == inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR:
-					failures++
-					lastPort = change.ListenPort
-				case change.Status == inventoryv1.AgentStatus_AGENT_STATUS_DONE && failures == processRetryCount && change.ListenPort == lastPort:
-					return
-				}
-			case <-time.After(10 * time.Second):
-				t.Fatalf("start failed %d times, expected %d", failures, processRetryCount)
-			}
-		}
-	}
-
-	assertNoChanges := func(t *testing.T, s *Supervisor, d time.Duration) {
-		t.Helper()
-
-		select {
-		case change := <-s.Changes():
-			t.Fatalf("unexpected status %s of %s", change.Status, change.AgentId)
-		case <-time.After(d):
-		}
-	}
-
-	failedStarts := func(s *Supervisor) int {
-		s.rw.RLock()
-		defer s.rw.RUnlock()
-		return len(s.failedStarts)
-	}
-
-	t.Run("NotStartedAgainBeforeTheBackoff", func(t *testing.T) {
-		t.Parallel()
-
-		s := newSupervisor(t, 64400, time.Hour)
-
-		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
-		waitFailedStart(t, s)
-
-		// What pmm-managed sends in answer to the statuses above.
-		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
-		assertNoChanges(t, s, 500*time.Millisecond)
-		require.Empty(t, s.AgentsList())
-
-		// What it sends for a vmagent whose failed attempt gave its port up: the scrape
-		// configuration names the vmagent's own port. Those parameters wait for the backoff too,
-		// and are the ones it is tried with.
-		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing("other")})
-		assertNoChanges(t, s, 500*time.Millisecond)
-		s.rw.RLock()
-		args := s.failedStarts["sleep1"].requestedState.Args
-		s.rw.RUnlock()
-		assert.Equal(t, []string{"wrong format", "other"}, args)
-
-		// Not requested any more: nothing left to try again.
-		s.SetState(t.Context(), &agentv1.SetStateRequest{})
-		assert.Zero(t, failedStarts(s))
-	})
-
-	t.Run("TriedAgainByItself", func(t *testing.T) {
-		t.Parallel()
-
-		s := newSupervisor(t, 64500, 200*time.Millisecond)
-
-		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
-		waitFailedStart(t, s)
-
-		// No SetState in between: the next attempt is the Supervisor's own.
-		waitFailedStart(t, s)
-
-		s.SetState(t.Context(), &agentv1.SetStateRequest{})
-		assert.Zero(t, failedStarts(s))
-		// An attempt that took the lock before the SetState above may still be reporting.
-		for drained := false; !drained; {
-			select {
-			case <-s.Changes():
-			case <-time.After(500 * time.Millisecond):
-				drained = true
-			}
-		}
-		assertNoChanges(t, s, time.Second)
-	})
-
-	t.Run("TriedAgainOnTheKeptPort", func(t *testing.T) {
-		t.Parallel()
-
-		s := newSupervisor(t, 64800, 200*time.Millisecond)
-
-		// startingPorts reads the statuses of one call of tryStartProcess and returns the ports
-		// its attempts reported STARTING on.
-		startingPorts := func() []uint32 {
-			var ports []uint32
-			for len(ports) < processRetryCount {
-				select {
-				case change := <-s.Changes():
-					if change.Status == inventoryv1.AgentStatus_AGENT_STATUS_STARTING {
-						ports = append(ports, change.ListenPort)
-					}
-				case <-time.After(10 * time.Second):
-					t.Fatalf("%d of %d attempts started", len(ports), processRetryCount)
-				}
-			}
-			return ports
-		}
-
-		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
-		first := startingPorts()
-		port := first[0] // the first free one, which is not always 64800 where 64800 is ephemeral
-		assert.Equal(t, []uint32{port, port, port}, first)
-
-		// The Supervisor's own next attempt: still the same address for pmm-managed.
-		assert.Equal(t, []uint32{port, port, port}, startingPorts())
-	})
-
-	t.Run("TriedWithTheLatestParameters", func(t *testing.T) {
-		t.Parallel()
-
-		s := newSupervisor(t, 64700, time.Second)
-
-		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
-		waitFailedStart(t, s)
-
-		// Fixed on the server: started by the next attempt, not at once.
-		s.SetState(t.Context(), &agentv1.SetStateRequest{
-			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
-				"sleep1": {Type: typeTestSleep, Args: []string{"10"}},
-			},
-		})
-		assertNoChanges(t, s, 200*time.Millisecond)
-
-		for running := false; !running; {
-			select {
-			case change := <-s.Changes():
-				running = change.Status == inventoryv1.AgentStatus_AGENT_STATUS_RUNNING
-			case <-time.After(10 * time.Second):
-				t.Fatal("not started with the parameters requested last")
-			}
-		}
-		assert.Zero(t, failedStarts(s))
-		require.Len(t, s.AgentsList(), 1)
-		// Started on the port the failed start kept, which is the running Agent's now.
-		assert.True(t, isReserved(s, uint16(s.AgentsList()[0].ListenPort)), "the running Agent's port was released")
-	})
-
-	t.Run("FailedRestartBacksOffToo", func(t *testing.T) {
-		t.Parallel()
-
-		s := newSupervisor(t, 64600, time.Hour)
-
-		s.SetState(t.Context(), &agentv1.SetStateRequest{
-			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
-				"sleep1": {Type: typeTestSleep, Args: []string{"10"}},
-			},
-		})
-		assertChanges(t, s,
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING, ListenPort: 64600, ProcessExecPath: "sleep"},
-			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 64600, ProcessExecPath: "sleep"},
-		)
-
-		// Restarted with parameters it cannot start with.
-		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
-		waitFailedStart(t, s)
-
-		s.SetState(t.Context(), &agentv1.SetStateRequest{AgentProcesses: failing()})
-		assertNoChanges(t, s, 500*time.Millisecond)
-
-		// RestartAgents starts the entry's own parameters, so the pending retry of the failed
-		// ones must not start them over it later.
-		s.RestartAgents()
-		assert.Zero(t, failedStarts(s))
-	})
-}
-
-// versionerStub answers the version check of exporter types, which the stand-in binaries above
-// cannot.
-type versionerStub struct{}
-
-func (versionerStub) BinaryVersion(string, int, *regexp.Regexp, ...string) (string, error) {
-	return "", nil
-}
-
-func TestPortInUse(t *testing.T) {
-	t.Parallel()
-
-	for _, tc := range []struct {
-		line string
-		want bool
-	}{
-		{`err="listen tcp :42000: bind: address already in use"`, true},
-		{"cannot start http server: listen tcp4 127.0.0.1:42000: bind: address already in use", true},
-		{"listen tcp [::]:42000: bind: permission denied", true},
-		{"listen tcp :9187: bind: address already in use", false}, // another listener: another port does not help
-		{"address already in use", false},
-		{"cannot acquire lock on file", false},
-	} {
-		assert.Equal(t, tc.want, portInUse([]string{"starting", tc.line}, 42000), tc.line)
-	}
 }

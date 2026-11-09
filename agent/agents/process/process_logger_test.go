@@ -142,3 +142,21 @@ func TestProcessLogger(t *testing.T) {
 		})
 	}
 }
+
+func TestBindFailed(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		line string
+		want bool
+	}{
+		{`err="listen tcp :42000: bind: address already in use"`, true},
+		{"cannot start http server: listen tcp4 127.0.0.1:42000: bind: address already in use", true},
+		{"listen tcp [::]:42000: bind: permission denied", true},
+		{"listen tcp :9187: bind: address already in use", false},
+		{"address already in use", false},
+		{"cannot acquire lock on file", false},
+	} {
+		assert.Equal(t, tc.want, bindFailed(tc.line, 42000), tc.line)
+	}
+}

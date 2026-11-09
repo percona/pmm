@@ -29,6 +29,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sys/unix"
 
+	"github.com/percona/pmm/agent/utils/backoff"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -120,22 +121,65 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("FailedToStart", func(t *testing.T) {
-		ctx, _, l := setup(t)
+		ctx, cancel, l := setup(t)
 		p := New(&Params{Path: "no_such_command"}, nil, l)
+		p.backoff = backoff.New(time.Hour, time.Hour)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR,
-			inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
+			inventoryv1.AgentStatus_AGENT_STATUS_WAITING)
+		assert.False(t, <-p.IsInitialized())
+		require.Error(t, p.GetError())
+		cancel()
+		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("ExitedEarly", func(t *testing.T) {
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
-		ctx, _, l := setup(t)
+		ctx, cancel, l := setup(t)
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
+		p.backoff = backoff.New(time.Millisecond, time.Millisecond)
+		go p.Run(ctx)
+
+		for range 3 {
+			assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR,
+				inventoryv1.AgentStatus_AGENT_STATUS_WAITING)
+		}
+		assert.False(t, <-p.IsInitialized())
+		require.Error(t, p.GetError())
+		require.NotErrorIs(t, p.GetError(), ErrPortInUse)
+		select {
+		case <-p.IsInitialized():
+			assert.Fail(t, "a later start reported its outcome too")
+		default:
+		}
+
+		cancel()
+		var last inventoryv1.AgentStatus
+		for status := range p.Changes() {
+			last = status
+		}
+		assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_DONE, last)
+	})
+
+	t.Run("PortInUse", func(t *testing.T) {
+		ctx, cancel, l := setup(t)
+		t.Cleanup(cancel)
+		params := &Params{
+			Path:       "sh",
+			Args:       []string{"-c", "echo 'listen tcp :42000: bind: address already in use' >&2; exit 1"},
+			ListenPort: 42000,
+		}
+		// The redact word masks part of the port in the output, as a password of 4200 would.
+		p := New(params, []string{"4200"}, l)
+		p.backoff = backoff.New(time.Hour, time.Hour)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR,
-			inventoryv1.AgentStatus_AGENT_STATUS_DONE, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED)
+			inventoryv1.AgentStatus_AGENT_STATUS_WAITING)
+		assert.False(t, <-p.IsInitialized())
+		require.ErrorIs(t, p.GetError(), ErrPortInUse)
+		assert.Equal(t, []string{"listen tcp :***0: bind: address already in use"}, p.Logs())
 	})
 
 	t.Run("Exited", func(t *testing.T) {
