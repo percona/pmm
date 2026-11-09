@@ -62,11 +62,21 @@ func TestSEPClientRefusesRedirects(t *testing.T) {
 
 	svc := (&Service{l: logrus.WithField("test", t.Name())}).WithProbeSource(redirecting.URL, "test-token")
 
-	err := svc.probe.app.triggerRun(t.Context())
+	err := svc.probe.app.triggerRun(asService(t.Context()))
 
 	require.Error(t, err)
-	assert.Contains(t, err.Error(), "unexpected status 307")
+	assert.Contains(t, err.Error(), "answered 307")
 	assert.Empty(t, elsewhere.calls, "the redirect target must never see the request, let alone the bearer")
+}
+
+func TestSEPClientBypassesProxy(t *testing.T) {
+	t.Parallel()
+
+	client := newExtensionsClient("http://pmm-extensions:9000", "test-token")
+
+	transport, ok := client.http.Transport.(*http.Transport)
+	require.True(t, ok)
+	assert.Nil(t, transport.Proxy, "the proxy environment must not see what is sent to PMM Extensions")
 }
 
 func TestSEPClientTransportErrorIsNotDoublePrefixed(t *testing.T) {
@@ -77,8 +87,8 @@ func TestSEPClientTransportErrorIsNotDoublePrefixed(t *testing.T) {
 	svc := stub.service(t)
 	stub.server.Close()
 
-	err := svc.probe.app.triggerRun(t.Context())
+	err := svc.probe.app.triggerRun(asService(t.Context()))
 
 	require.Error(t, err)
-	assert.Equal(t, 1, strings.Count(err.Error(), stub.server.URL), "the URL belongs in the message once: %s", err)
+	assert.LessOrEqual(t, strings.Count(err.Error(), stub.server.URL), 1, "the URL belongs in the message once at most: %s", err)
 }

@@ -1067,6 +1067,9 @@ func bootstrapStepsToProto(steps []extensionsBootstrapStep) []*omv1.BootstrapSte
 	return proto
 }
 
+// inventorySettingsClass is om_inventory's settings class on PMM Extensions' admin settings router.
+const inventorySettingsClass = "OmInventorySettings"
+
 // GetInventoryConfig returns the inventory app's configuration.
 func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryConfigRequest) (*omv1.GetInventoryConfigResponse, error) {
 	probe, err := s.inventoryProbe()
@@ -1139,8 +1142,8 @@ func (s *Service) UpdateInventoryConfig(ctx context.Context, req *omv1.UpdateInv
 	}
 
 	applied := []extensionsSetting{}
-	call := inventoryCall{method: http.MethodPatch, path: "config", body: req.GetValues().AsMap()}
-	err = probe.call(ctx, call, &applied)
+	call := inventoryCall{method: http.MethodPatch, path: inventorySettingsClass, body: req.GetValues().AsMap()}
+	err = probe.client.settings().call(ctx, call, &applied)
 	if err != nil {
 		return nil, err
 	}
@@ -1167,8 +1170,8 @@ func (s *Service) DeleteInventoryConfigOverride(
 		return nil, err
 	}
 
-	call := inventoryCall{method: http.MethodDelete, path: inventoryPath("config", req.GetKey())}
-	err = probe.call(ctx, call, nil)
+	call := inventoryCall{method: http.MethodDelete, path: inventoryPath(inventorySettingsClass, req.GetKey())}
+	err = probe.client.settings().call(ctx, call, nil)
 	if err != nil {
 		return nil, err
 	}
