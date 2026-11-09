@@ -52,6 +52,18 @@ func (t *basicAuthTransport) RoundTrip(req *http.Request) (*http.Response, error
 	return t.next.RoundTrip(req)
 }
 
+// authorizationTransport sends the Authorization value on every request.
+type authorizationTransport struct {
+	next          http.RoundTripper
+	authorization string
+}
+
+func (t *authorizationTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req = req.Clone(req.Context())
+	req.Header.Set("Authorization", t.authorization)
+	return t.next.RoundTrip(req)
+}
+
 // httpClient returns an HTTP client for the PMM Server under test; withAuth
 // adds the admin credentials from the server URL.
 func httpClient(withAuth bool) *http.Client {
@@ -85,6 +97,20 @@ func connect(t *testing.T) *mcp.ClientSession {
 	session, err := client.Connect(pmmapitests.Context, &mcp.StreamableClientTransport{
 		Endpoint:   endpoint(),
 		HTTPClient: httpClient(true),
+	}, nil)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = session.Close() })
+	return session
+}
+
+// connectWith opens an MCP session that sends authorization, a Bearer token or Basic credentials, on every request.
+func connectWith(t *testing.T, authorization string) *mcp.ClientSession {
+	t.Helper()
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "pmm-api-tests", Version: "1"}, nil)
+	session, err := client.Connect(pmmapitests.Context, &mcp.StreamableClientTransport{
+		Endpoint:   endpoint(),
+		HTTPClient: &http.Client{Transport: &authorizationTransport{next: httpClient(false).Transport, authorization: authorization}},
 	}, nil)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = session.Close() })
