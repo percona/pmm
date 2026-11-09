@@ -30,12 +30,12 @@ import (
 )
 
 const (
-	// vmagentQueueDirName must match -remoteWrite.tmpDataPath in managed/services/agents/vmagent.go.
+	// Must match -remoteWrite.tmpDataPath in managed/services/agents/vmagent.go.
 	vmagentQueueDirName = "vmagent-temp-dir"
 
 	tmpDataPathFlag = "remoteWrite.tmpDataPath"
 
-	// deletedExeSuffix is what /proc/<pid>/exe ends with once an upgrade has replaced the running binary.
+	// What /proc/<pid>/exe ends with once an upgrade has replaced the running binary.
 	deletedExeSuffix = " (deleted)"
 
 	// TASK_COMM_LEN less its terminating NUL: the kernel cuts a process's command name to it.
