@@ -375,10 +375,15 @@ func TestTmpDataPath(t *testing.T) {
 	}{
 		{"the flag pmm-agent passes", args("-envflag.enable=true", "-remoteWrite.tmpDataPath="+queue), queue},
 		{"double-dash flag", args("--remoteWrite.tmpDataPath=" + queue), queue},
+		{"value in the next argument", args("-remoteWrite.tmpDataPath", queue, "-envflag.enable=true"), queue},
+		{"double-dash flag, value in the next argument", args("--remoteWrite.tmpDataPath", queue), queue},
+		{"last of several", args("-remoteWrite.tmpDataPath=/tmp/other", "-remoteWrite.tmpDataPath", queue), queue},
 
 		{"queue only as a value of another flag", args("-promscrape.config=" + queue), ""},
 		{"queue as a positional argument", args("remoteWrite.tmpDataPath=" + queue), ""},
 		{"empty flag value", args("-remoteWrite.tmpDataPath="), ""},
+		{"empty last of several", args("-remoteWrite.tmpDataPath="+queue, "-remoteWrite.tmpDataPath="), ""},
+		{"no value after the flag", args("-remoteWrite.tmpDataPath"), ""},
 		{"no queue flag", args("-envflag.enable=true"), ""},
 		{"no arguments", args(), ""},
 		{"no command line", nil, ""},

@@ -188,23 +188,30 @@ func isVMAgentExecutable(exe, vmagentPath string) bool {
 	return filepath.Clean(strings.TrimSuffix(exe, deletedExeSuffix)) == filepath.Clean(vmagentPath)
 }
 
-// tmpDataPath returns the -remoteWrite.tmpDataPath of a vmagent command line, the queue directory it locks.
+// tmpDataPath returns the -remoteWrite.tmpDataPath of a vmagent command line, the queue directory it locks,
+// taking the last one in any form Go's flag package accepts.
 func tmpDataPath(cmdline []string) (string, bool) {
-	if len(cmdline) == 0 {
-		return "", false
-	}
-
-	for _, arg := range cmdline[1:] {
-		flag := strings.TrimPrefix(strings.TrimPrefix(arg, "-"), "-")
-		if flag == arg {
+	var path string
+	for i := 1; i < len(cmdline); i++ {
+		flag, ok := strings.CutPrefix(cmdline[i], "-")
+		if !ok {
 			continue
 		}
-		if value, ok := strings.CutPrefix(flag, tmpDataPathFlag+"="); ok && value != "" {
-			return value, true
+		name, value, hasValue := strings.Cut(strings.TrimPrefix(flag, "-"), "=")
+		if name != tmpDataPathFlag {
+			continue
 		}
+		if !hasValue {
+			if i+1 == len(cmdline) {
+				break
+			}
+			i++
+			value = cmdline[i]
+		}
+		path = value
 	}
 
-	return "", false
+	return path, path != ""
 }
 
 // holdsQueue reports whether path, a process's -remoteWrite.tmpDataPath, is the queue directory, compared as
