@@ -140,9 +140,6 @@ By default, PMM scans every node every 10 minutes. Each scan sends a job to ever
 2. In **Scan every** and **Period**, set the time between scans.
 3. Click **Save**. The change takes effect without a restart.
 
-!!! note "Keep automatic scans on"
-    In PMM 3.10.0, turning off **Automatic node scans** also blocks **Scan** and **Scan all** on the **Nodes** page. PMM turns automatic scans back on the next time it restarts.
-
 ## Install a replica set
 
 PMM supports single-member and three-member replica sets. Each node must have at least one completed scan before you can select it for installation.

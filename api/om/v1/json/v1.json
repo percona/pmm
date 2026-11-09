@@ -4140,7 +4140,7 @@
   },
   "tags": [
     {
-      "description": "OmService provides the OpenManager topology and health API.",
+      "description": "OmService provides the Operations for MongoDB topology and health API.",
       "name": "OmService"
     }
   ]
