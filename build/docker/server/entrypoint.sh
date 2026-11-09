@@ -165,6 +165,8 @@ pmm-managed-init secrets
 # The values now live in files (see managed/utils/secrets), so no child may inherit them.
 unset PMM_POSTGRES_DBPASSWORD GF_DATABASE_PASSWORD PMM_CLICKHOUSE_PASSWORD PMM_CLICKHOUSE_DATASOURCE_PASSWORD \
     PMM_ADMIN_PASSWORD GF_SECURITY_ADMIN_PASSWORD GF_SECURITY_SECRET_KEY
+# The pmm-ha chart also passes the database passwords under its Secret's key names, which PMM doesn't read.
+unset PG_PASSWORD GF_PASSWORD
 
 # The script owns the embedded cluster: it upgrades a PostgreSQL 14 data directory,
 # creates the cluster on a fresh installation, and repairs older ones.
