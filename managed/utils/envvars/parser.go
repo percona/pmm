@@ -79,6 +79,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 	envSettings := &models.ChangeSettingsParams{}
 	var errs []error
 	var warns []string
+	credentialVars := secrets.EnvVarNames()
 
 	for _, env := range envs {
 		p := strings.SplitN(env, "=", 2) //nolint:mnd
@@ -285,7 +286,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 		default:
 			// credential files are resolved by pmm-managed-init before this runs
-			if slices.Contains(secrets.EnvVarNames(), k) {
+			if slices.Contains(credentialVars, k) {
 				continue
 			}
 

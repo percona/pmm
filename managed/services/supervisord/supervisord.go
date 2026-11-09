@@ -354,9 +354,6 @@ environment =
     {{- if not .DatasourcePasswordFile }}
     PMM_CLICKHOUSE_DATASOURCE_PASSWORD="{{ .ClickhouseDatasourcePassword }}",
     {{- end }}
-    {{- if .GrafanaDBPasswordFile }}
-    GF_DATABASE_PASSWORD="$__file{{ "{" }}{{ .GrafanaDBPasswordFile }}{{ "}" }}",
-    {{- end }}
     {{- if .AdminPasswordFile }}
     GF_SECURITY_ADMIN_PASSWORD="$__file{{ "{" }}{{ .AdminPasswordFile }}{{ "}" }}",
     {{- end }}
@@ -479,7 +476,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseDatasourceUser":     clickhouseDatasourceUser,
 		"ClickhouseDatasourcePassword": clickhouseDatasourcePassword,
 		"DatasourcePasswordFile":       s.credentialFile(secrets.ClickHouseDatasourcePassword),
-		"GrafanaDBPasswordFile":        s.credentialFile(secrets.GrafanaDBPassword),
 		"AdminPasswordFile":            s.credentialFile(secrets.AdminPassword),
 		"GrafanaSecretKeyFile":         s.credentialFile(secrets.GrafanaSecretKey),
 		"PMMServerHost":                "",

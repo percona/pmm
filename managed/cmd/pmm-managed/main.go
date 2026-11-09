@@ -944,7 +944,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	pmmdb.DSN.Params = q.Encode()
 
 	grafanadb := ds.GrafanaDBSelect
-	grafanadb.Credentials.Password = readCredential(l, "", secrets.GrafanaDBPassword, grafanadb.Credentials.Password)
+	grafanadb.Credentials.Password = readCredential(l, os.Getenv("GF_DATABASE_PASSWORD"), secrets.GrafanaDBPassword, grafanadb.Credentials.Password)
 	grafanadb.DSN.Scheme = "postgres"
 	grafanadb.DSN.Host = *postgresAddrF
 	grafanadb.DSN.DB = "grafana"
@@ -1073,7 +1073,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				Addr:        *postgresAddrF,
 				DBName:      *postgresDBNameF,
 				DBUsername:  *postgresDBUsernameF,
-				DBPassword:  *postgresDBPasswordF,
 				SSLMode:     *postgresSSLModeF,
 				SSLCAPath:   *postgresSSLCAPathF,
 				SSLKeyPath:  *postgresSSLKeyPathF,

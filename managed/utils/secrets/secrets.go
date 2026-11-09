@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/utils/secretfile"
 )
 
 // Dir is the canonical directory every PMM Server component reads its credentials from.
@@ -78,14 +79,26 @@ type spec struct {
 	name Name
 	// fileEnvs name variables holding a path to the credential file.
 	fileEnvs []string
-	// valueEnvs name legacy variables holding the value itself.
+	// valueEnvs name legacy variables holding the value itself; the first one set wins.
 	valueEnvs []string
-	// providers are the Grafana providers that expanded a legacy value before PMM-15891, in Grafana's order. Grafana
-	// doesn't expand what it reads from a file, so they apply here.
+	// providers are the Grafana providers applied to a legacy value, in Grafana's order, since Grafana doesn't expand a file's content.
 	providers []string
+	// padding decides what a legacy value with leading or trailing whitespace does.
+	padding padding
 	// defaultValue is the value PMM has always used when nothing is configured.
 	defaultValue string
 }
+
+// padding is how a legacy value with leading or trailing whitespace is handled, since every file reader drops it:
+// trimmed with a warning, refused because it reached a database as written, or kept in its variable with no file,
+// because Grafana reads it as written.
+type padding int
+
+const (
+	trimPadding padding = iota
+	refusePadding
+	keepPadding
+)
 
 // Grafana's variable providers (pkg/setting/expanders.go); ${NAME} is the short form of $__env{NAME}.
 const (
@@ -104,6 +117,7 @@ var catalog = []spec{
 		name:         PostgresPassword,
 		fileEnvs:     []string{"PMM_POSTGRES_PASSWORD_FILE"},
 		valueEnvs:    []string{"PMM_POSTGRES_DBPASSWORD"},
+		padding:      refusePadding,
 		defaultValue: "pmm-managed",
 	},
 	{
@@ -111,12 +125,14 @@ var catalog = []spec{
 		fileEnvs:     []string{"PMM_GRAFANA_DB_PASSWORD_FILE"},
 		valueEnvs:    []string{"GF_DATABASE_PASSWORD"},
 		providers:    grafanaConfig,
+		padding:      refusePadding,
 		defaultValue: "grafana",
 	},
 	{
 		name:         ClickHousePassword,
 		fileEnvs:     []string{"PMM_CLICKHOUSE_PASSWORD_FILE"},
 		valueEnvs:    []string{"PMM_CLICKHOUSE_PASSWORD"},
+		padding:      refusePadding,
 		defaultValue: "clickhouse",
 	},
 	{
@@ -126,13 +142,17 @@ var catalog = []spec{
 		// Grafana's provisioning expanded ${PMM_CLICKHOUSE_DATASOURCE_PASSWORD} with its variables pass, so only
 		// the files pass applied to the value.
 		providers:    []string{fileProvider},
+		padding:      refusePadding,
 		defaultValue: "grafana",
 	},
 	{
-		name:      AdminPassword,
-		fileEnvs:  []string{"PMM_ADMIN_PASSWORD_FILE"},
-		valueEnvs: []string{"PMM_ADMIN_PASSWORD", "GF_SECURITY_ADMIN_PASSWORD"},
+		name:     AdminPassword,
+		fileEnvs: []string{"PMM_ADMIN_PASSWORD_FILE"},
+		// Grafana read only GF_SECURITY_ADMIN_PASSWORD, so it wins over a different PMM_ADMIN_PASSWORD.
+		valueEnvs: []string{"GF_SECURITY_ADMIN_PASSWORD", "PMM_ADMIN_PASSWORD"},
 		providers: grafanaConfig,
+		// Grafana sets it only when it creates its database, so a trimmed value changes nothing that exists.
+		padding: trimPadding,
 	},
 	{
 		name:      GrafanaSecretKey,
@@ -140,6 +160,7 @@ var catalog = []spec{
 		valueEnvs: []string{"GF_SECURITY_SECRET_KEY"},
 		// Grafana's encryption read GF_SECURITY_SECRET_KEY again as written (SectionWithEnvOverrides), so expanding it
 		// would change the key that existing secrets are encrypted with.
+		padding: keepPadding,
 	},
 }
 
@@ -187,30 +208,22 @@ func valueIn(dir, value string, name Name, defaultValue string) (string, error) 
 	if !exists(path) {
 		return defaultValue, ErrNotResolved
 	}
-	return readFile(path)
+	return secretfile.Read(path)
 }
 
-func readFile(path string) (string, error) {
-	b, err := os.ReadFile(path) //nolint:gosec // paths the operator configured or Dir
-	if err != nil {
-		return "", err
-	}
-	v := strings.TrimSpace(string(b))
-	if v == "" {
-		return "", fmt.Errorf("%s is empty", path)
-	}
-	return v, nil
-}
-
-// Resolved is the outcome for one credential; Path is empty when the credential is unset.
+// Resolved is the outcome for one credential; Path is empty when the credential is unset or Kept.
 type Resolved struct {
 	Name   Name
 	Source Source
 	Path   string
-	// Var names the legacy variable of a value from the environment.
+	// Var names the legacy variable that supplied the value.
 	Var string
-	// Padded reports a value from the environment with leading or trailing whitespace, which every reader drops.
+	// Padded reports a value from the environment with leading or trailing whitespace, which the file readers drop.
 	Padded bool
+	// Kept reports a padded value left in its variable with no file, because Grafana reads it as written.
+	Kept bool
+	// Ignored names a legacy variable set to a different value than Var, which wins.
+	Ignored string
 }
 
 // Options configures Prepare.
@@ -230,7 +243,11 @@ func OptionsFromEnv() Options {
 
 // Prepare resolves every credential to a file and links it at its canonical path, reporting all problems at once.
 func Prepare(opts Options) ([]Resolved, error) {
-	err := checkRunDir(opts)
+	err := checkSecretsDir(opts)
+	if err != nil {
+		return nil, err
+	}
+	err = checkRunDir(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -240,14 +257,22 @@ func Prepare(opts Options) ([]Resolved, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s must belong to the PMM Server user: %w", opts.RunDir, err)
 	}
-	// Values written by an earlier start must not outlive the variables they came from.
-	err = os.RemoveAll(filepath.Join(opts.RunDir, envSubdir))
+	// Values written by an earlier start must not outlive the variables they came from. .env itself stays, so a start
+	// killed meanwhile leaves the earlier links next to it, where checkRunDir accepts them.
+	envDir := filepath.Join(opts.RunDir, envSubdir)
+	err = dir.CreateDataDir(envDir, dirPerm)
 	if err != nil {
 		return nil, err
 	}
-	err = dir.CreateDataDir(filepath.Join(opts.RunDir, envSubdir), dirPerm)
+	entries, err := os.ReadDir(envDir)
 	if err != nil {
 		return nil, err
+	}
+	for _, e := range entries {
+		err = os.Remove(filepath.Join(envDir, e.Name()))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	var errs []error
@@ -286,7 +311,7 @@ func Prepare(opts Options) ([]Resolved, error) {
 		if r.Path == "" {
 			continue
 		}
-		_, err = readFile(filepath.Join(opts.RunDir, string(r.Name)))
+		_, err = secretfile.Read(filepath.Join(opts.RunDir, string(r.Name)))
 		if err != nil {
 			errs = append(errs, fmt.Errorf("%s: %w", r.Name, err))
 		}
@@ -297,19 +322,19 @@ func Prepare(opts Options) ([]Resolved, error) {
 
 func resolve(opts Options, s spec) (Resolved, error) {
 	r := Resolved{Name: s.name}
-	file, _, err := single(opts.Getenv, s.fileEnvs)
-	if err != nil {
-		return r, err
-	}
-	value, key, err := single(opts.Getenv, s.valueEnvs)
-	if err != nil {
-		return r, err
-	}
+	file, _, _ := first(opts.Getenv, s.fileEnvs)
+	value, key, ignored := first(opts.Getenv, s.valueEnvs)
+	r.Var, r.Ignored = key, ignored
 	if file != "" && value != "" {
 		return r, fmt.Errorf("both a file (%s) and a value (%s) are set", strings.Join(s.fileEnvs, "/"), strings.Join(s.valueEnvs, "/"))
 	}
 	// Grafana read a value that is only $__file{path} from that file, so the file stays the source.
 	if p := grafanaFile(value, s.providers); p != "" {
+		// It is still a value, so a file in PMM_SECRETS_DIR conflicts with it.
+		_, err := dirSource(opts, s, value)
+		if err != nil {
+			return r, err
+		}
 		file, value = p, ""
 	}
 
@@ -318,7 +343,7 @@ func resolve(opts Options, s spec) (Resolved, error) {
 		if inside(opts.RunDir, file) {
 			return r, fmt.Errorf("%s is inside %s, where PMM Server links the credentials", file, opts.RunDir)
 		}
-		_, err = readFile(file)
+		_, err := secretfile.Read(file)
 		if err != nil {
 			return r, err
 		}
@@ -344,7 +369,14 @@ func resolve(opts Options, s spec) (Resolved, error) {
 		if strings.TrimSpace(value) == "" {
 			return r, fmt.Errorf("%s resolves to an empty value", key)
 		}
-		r.Source, r.Var, r.Padded = SourceEnv, key, strings.TrimSpace(value) != value
+		r.Source, r.Padded = SourceEnv, strings.TrimSpace(value) != value
+		switch {
+		case r.Padded && s.padding == refusePadding:
+			return r, fmt.Errorf("%s has leading or trailing whitespace, which PMM Server doesn't pass to the database: remove it", key)
+		case r.Padded && s.padding == keepPadding:
+			r.Kept = true
+			return r, nil
+		}
 	case s.defaultValue != "":
 		r.Source, value = SourceDefault, s.defaultValue
 	default:
@@ -362,7 +394,8 @@ func dirSource(opts Options, s spec, value string) (string, error) {
 		return "", nil
 	}
 	p := filepath.Join(dir, string(s.name))
-	_, err := os.Stat(p)
+	// A link whose file is missing is a file that can't be read, not a missing one.
+	_, err := os.Lstat(p)
 	if errors.Is(err, fs.ErrNotExist) {
 		return "", nil
 	}
@@ -372,27 +405,27 @@ func dirSource(opts Options, s spec, value string) (string, error) {
 	if value != "" {
 		return "", fmt.Errorf("both %s and a value (%s) are set", p, strings.Join(s.valueEnvs, "/"))
 	}
-	_, err = readFile(p)
+	_, err = secretfile.Read(p)
 	if err != nil {
 		return "", err
 	}
 	return p, nil
 }
 
-// single returns the one value set among the given variables and a variable that holds it; set variables must agree.
-func single(getenv func(string) string, keys []string) (string, string, error) {
-	var found, foundKey string
+// first returns the value of the first variable set among keys, that variable, and a later one set to a different value.
+func first(getenv func(string) string, keys []string) (string, string, string) {
+	var value, key, differs string
 	for _, k := range keys {
 		v := getenv(k)
-		if v == "" {
-			continue
+		switch {
+		case v == "":
+		case key == "":
+			value, key = v, k
+		case v != value && differs == "":
+			differs = k
 		}
-		if found != "" && v != found {
-			return "", "", fmt.Errorf("%s and %s are set to different values", foundKey, k)
-		}
-		found, foundKey = v, k
 	}
-	return found, foundKey, nil
+	return value, key, differs
 }
 
 // grafanaFile returns the path of a value that is only $__file{path}, when the files provider applies to it.
@@ -437,13 +470,30 @@ func expand(getenv func(string) string, value string, providers []string) (strin
 	return value, nil
 }
 
-// checkRunDir returns an error when the run directory holds anything that Prepare doesn't create, such as credentials
-// mounted there, which Prepare would remove or replace, or when PMM_SECRETS_DIR points into it.
-func checkRunDir(opts Options) error {
-	if dir := opts.Getenv(SecretsDirEnvVar); dir != "" && inside(opts.RunDir, dir) {
+// checkSecretsDir returns an error when PMM_SECRETS_DIR is set but isn't a directory outside the run directory.
+func checkSecretsDir(opts Options) error {
+	dir := opts.Getenv(SecretsDirEnvVar)
+	if dir == "" {
+		return nil
+	}
+	if inside(opts.RunDir, dir) {
 		return fmt.Errorf("%s (%s) is inside %s, where PMM Server links the credentials", SecretsDirEnvVar, dir, opts.RunDir)
 	}
+	// Only a missing file in the directory moves on to the next source; a missing directory is a mistake, such as a
+	// volume that didn't mount.
+	fi, err := os.Stat(dir)
+	if err != nil {
+		return fmt.Errorf("%s: %w", SecretsDirEnvVar, err)
+	}
+	if !fi.IsDir() {
+		return fmt.Errorf("%s (%s) is not a directory", SecretsDirEnvVar, dir)
+	}
+	return nil
+}
 
+// checkRunDir returns an error when the run directory holds anything that Prepare doesn't create, such as credentials
+// mounted there, which Prepare would remove or replace.
+func checkRunDir(opts Options) error {
 	entries, err := os.ReadDir(opts.RunDir)
 	if errors.Is(err, fs.ErrNotExist) {
 		return nil

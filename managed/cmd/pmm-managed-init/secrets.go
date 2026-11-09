@@ -29,8 +29,15 @@ func runSecrets() error {
 	}
 	for _, r := range resolved {
 		logrus.Infof("Credential %s: %s.", r.Name, r.Source)
-		if r.Padded {
+		switch {
+		case r.Kept:
+			logrus.Warnf("Credential %s: %s has leading or trailing whitespace, so it stays in the environment, "+
+				"where Grafana reads it as written.", r.Name, r.Var)
+		case r.Padded:
 			logrus.Warnf("Credential %s: the value of %s has leading or trailing whitespace, which PMM Server ignores.", r.Name, r.Var)
+		}
+		if r.Ignored != "" {
+			logrus.Warnf("Credential %s: %s is set to a different value than %s, which PMM Server uses.", r.Name, r.Ignored, r.Var)
 		}
 	}
 	return nil

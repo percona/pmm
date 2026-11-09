@@ -18,11 +18,15 @@ package secrets
 import (
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"syscall"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/utils/secretfile"
 )
 
 func testOptions(t *testing.T, env map[string]string) Options {
@@ -44,7 +48,7 @@ func byName(t *testing.T, resolved []Resolved) map[Name]Resolved {
 
 func linked(t *testing.T, opts Options, name Name) string {
 	t.Helper()
-	v, err := readFile(filepath.Join(opts.RunDir, string(name)))
+	v, err := secretfile.Read(filepath.Join(opts.RunDir, string(name)))
 	require.NoError(t, err)
 	return v
 }
@@ -142,14 +146,71 @@ func TestPrepare(t *testing.T) {
 	})
 
 	t.Run("flags a value with surrounding whitespace", func(t *testing.T) {
-		opts := testOptions(t, map[string]string{"GF_SECURITY_SECRET_KEY": "key\n"})
+		opts := testOptions(t, map[string]string{"GF_SECURITY_ADMIN_PASSWORD": "admin\n"})
 
 		resolved, err := Prepare(opts)
 		require.NoError(t, err)
-		r := byName(t, resolved)[GrafanaSecretKey]
+		r := byName(t, resolved)[AdminPassword]
 		assert.True(t, r.Padded)
+		assert.False(t, r.Kept)
+		assert.Equal(t, "GF_SECURITY_ADMIN_PASSWORD", r.Var)
+		assert.Equal(t, "admin", linked(t, opts, AdminPassword))
+	})
+
+	t.Run("leaves a padded secret key in its variable", func(t *testing.T) {
+		opts := testOptions(t, map[string]string{"GF_SECURITY_SECRET_KEY": "key"})
+		_, err := Prepare(opts)
+		require.NoError(t, err)
+		require.Equal(t, "key", linked(t, opts, GrafanaSecretKey))
+
+		opts.Getenv = func(k string) string { return map[string]string{"GF_SECURITY_SECRET_KEY": "key\n"}[k] }
+		resolved, err := Prepare(opts)
+		require.NoError(t, err)
+		r := byName(t, resolved)[GrafanaSecretKey]
+		assert.Equal(t, SourceEnv, r.Source)
+		assert.True(t, r.Padded)
+		assert.True(t, r.Kept)
+		assert.Empty(t, r.Path)
 		assert.Equal(t, "GF_SECURITY_SECRET_KEY", r.Var)
-		assert.Equal(t, "key", linked(t, opts, GrafanaSecretKey))
+		// No link, so the entrypoint keeps the variable and supervisord gives Grafana no file.
+		_, err = os.Lstat(filepath.Join(opts.RunDir, string(GrafanaSecretKey)))
+		require.ErrorIs(t, err, os.ErrNotExist)
+		assert.NoFileExists(t, filepath.Join(opts.RunDir, envSubdir, string(GrafanaSecretKey)))
+	})
+
+	t.Run("refuses a padded database password", func(t *testing.T) {
+		for k, name := range map[string]Name{
+			"PMM_POSTGRES_DBPASSWORD":            PostgresPassword,
+			"GF_DATABASE_PASSWORD":               GrafanaDBPassword,
+			"PMM_CLICKHOUSE_PASSWORD":            ClickHousePassword,
+			"PMM_CLICKHOUSE_DATASOURCE_PASSWORD": ClickHouseDatasourcePassword,
+		} {
+			_, err := Prepare(testOptions(t, map[string]string{k: " q7v-padded"}))
+			require.ErrorContains(t, err, string(name)+": "+k+" has leading or trailing whitespace", k)
+			assert.NotContains(t, err.Error(), "q7v", k)
+		}
+	})
+
+	t.Run("prefers GF_SECURITY_ADMIN_PASSWORD over a different PMM_ADMIN_PASSWORD", func(t *testing.T) {
+		opts := testOptions(t, map[string]string{
+			"PMM_ADMIN_PASSWORD":         "from-pmm",
+			"GF_SECURITY_ADMIN_PASSWORD": "from-grafana",
+		})
+
+		resolved, err := Prepare(opts)
+		require.NoError(t, err)
+		r := byName(t, resolved)[AdminPassword]
+		assert.Equal(t, "GF_SECURITY_ADMIN_PASSWORD", r.Var)
+		assert.Equal(t, "PMM_ADMIN_PASSWORD", r.Ignored)
+		assert.Equal(t, "from-grafana", linked(t, opts, AdminPassword))
+
+		opts.Getenv = func(k string) string { return map[string]string{"PMM_ADMIN_PASSWORD": "only"}[k] }
+		resolved, err = Prepare(opts)
+		require.NoError(t, err)
+		r = byName(t, resolved)[AdminPassword]
+		assert.Equal(t, "PMM_ADMIN_PASSWORD", r.Var)
+		assert.Empty(t, r.Ignored)
+		assert.Equal(t, "only", linked(t, opts, AdminPassword))
 	})
 
 	t.Run("uses a file and the secrets directory", func(t *testing.T) {
@@ -219,7 +280,7 @@ func TestPrepare(t *testing.T) {
 			}
 			_, err := Prepare(opts)
 			require.ErrorContains(t, err, msg)
-			v, err := readFile(mounted)
+			v, err := secretfile.Read(mounted)
 			require.NoError(t, err)
 			assert.Equal(t, "mounted", v)
 		}
@@ -308,6 +369,59 @@ func TestPrepare(t *testing.T) {
 		assert.Equal(t, "pmm-managed", linked(t, opts, PostgresPassword))
 	})
 
+	t.Run("starts again after a start killed while it dropped the earlier values", func(t *testing.T) {
+		opts := testOptions(t, map[string]string{"GF_SECURITY_SECRET_KEY": "earlier"})
+		_, err := Prepare(opts)
+		require.NoError(t, err)
+		env := filepath.Join(opts.RunDir, envSubdir)
+		before, err := os.Stat(env)
+		require.NoError(t, err)
+		// What a start killed right after emptying .env leaves: the earlier links lead nowhere.
+		entries, err := os.ReadDir(env)
+		require.NoError(t, err)
+		for _, e := range entries {
+			require.NoError(t, os.Remove(filepath.Join(env, e.Name())))
+		}
+
+		_, err = Prepare(opts)
+		require.NoError(t, err)
+		assert.Equal(t, "earlier", linked(t, opts, GrafanaSecretKey))
+		after, err := os.Stat(env)
+		require.NoError(t, err)
+		assert.True(t, os.SameFile(before, after), ".env must stay, or a start killed meanwhile leaves links without it")
+	})
+
+	t.Run("refuses a dangling link in the secrets directory", func(t *testing.T) {
+		dir := t.TempDir()
+		require.NoError(t, os.Symlink(filepath.Join(dir, "missing"), filepath.Join(dir, string(PostgresPassword))))
+
+		_, err := Prepare(testOptions(t, map[string]string{SecretsDirEnvVar: dir}))
+		require.ErrorIs(t, err, os.ErrNotExist)
+		require.ErrorContains(t, err, "postgres-password: open "+filepath.Join(dir, string(PostgresPassword)))
+	})
+
+	t.Run("refuses a $__file{} value with a file in the secrets directory", func(t *testing.T) {
+		dir, other := t.TempDir(), filepath.Join(t.TempDir(), "other")
+		require.NoError(t, os.WriteFile(filepath.Join(dir, string(AdminPassword)), []byte("from-dir"), 0o440))
+		require.NoError(t, os.WriteFile(other, []byte("from-other"), 0o440))
+
+		_, err := Prepare(testOptions(t, map[string]string{SecretsDirEnvVar: dir, "GF_SECURITY_ADMIN_PASSWORD": "$__file{" + other + "}"}))
+		require.ErrorContains(t, err, "admin-password: both "+filepath.Join(dir, string(AdminPassword))+" and a value")
+	})
+
+	t.Run("refuses a secrets directory that is missing or not a directory", func(t *testing.T) {
+		file := filepath.Join(t.TempDir(), "file")
+		require.NoError(t, os.WriteFile(file, []byte("x"), 0o440))
+		missing := filepath.Join(t.TempDir(), "missing")
+		for dir, msg := range map[string]string{
+			missing: "PMM_SECRETS_DIR: stat " + missing + ": no such file or directory",
+			file:    "PMM_SECRETS_DIR (" + file + ") is not a directory",
+		} {
+			_, err := Prepare(testOptions(t, map[string]string{SecretsDirEnvVar: dir}))
+			require.EqualError(t, err, msg)
+		}
+	})
+
 	t.Run("refuses a source that leads back through its link", func(t *testing.T) {
 		dir := t.TempDir()
 		require.NoError(t, os.WriteFile(filepath.Join(dir, string(GrafanaDBPassword)), []byte("from-dir"), 0o440))
@@ -345,8 +459,6 @@ func TestPrepare(t *testing.T) {
 			SecretsDirEnvVar:               dir,
 			"PMM_CLICKHOUSE_PASSWORD_FILE": file,
 			"PMM_CLICKHOUSE_PASSWORD":      "q7v-value",
-			"PMM_ADMIN_PASSWORD":           "q7v-first",
-			"GF_SECURITY_ADMIN_PASSWORD":   "q7v-second",
 			"PMM_POSTGRES_DBPASSWORD":      "q7v-env",
 			"PMM_GRAFANA_SECRET_KEY_FILE":  filepath.Join(dir, "missing"),
 		})
@@ -355,7 +467,6 @@ func TestPrepare(t *testing.T) {
 		require.Error(t, err)
 		for _, s := range []string{
 			"clickhouse-password: both a file",
-			"admin-password: PMM_ADMIN_PASSWORD and GF_SECURITY_ADMIN_PASSWORD are set to different values",
 			"postgres-password: both " + filepath.Join(dir, string(PostgresPassword)) + " and a value",
 			"clickhouse-datasource-password: " + filepath.Join(dir, string(ClickHouseDatasourcePassword)) + " is empty",
 			"grafana-secret-key:",
@@ -448,4 +559,20 @@ func TestEnvVarNames(t *testing.T) {
 	assert.Contains(t, names, SecretsDirEnvVar)
 	assert.Contains(t, names, "PMM_CLICKHOUSE_PASSWORD_FILE")
 	assert.NotContains(t, names, "PMM_CLICKHOUSE_PASSWORD")
+}
+
+func TestEntrypointUnsetsLegacyValues(t *testing.T) {
+	b, err := os.ReadFile(filepath.Join("..", "..", "..", "build", "docker", "server", "entrypoint.sh"))
+	require.NoError(t, err)
+	unset := make(map[string]bool)
+	for _, m := range regexp.MustCompile(`(?m)^\s*unset((?:[ \t]+[A-Z][A-Z0-9_]*|[ \t]*\\\n)+)`).FindAllStringSubmatch(string(b), -1) {
+		for name := range strings.FieldsSeq(strings.ReplaceAll(m[1], "\\\n", " ")) {
+			unset[name] = true
+		}
+	}
+	for _, s := range catalog {
+		for _, k := range s.valueEnvs {
+			assert.True(t, unset[k], "build/docker/server/entrypoint.sh doesn't unset %s", k)
+		}
+	}
 }

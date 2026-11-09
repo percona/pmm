@@ -58,6 +58,7 @@ import (
 	"github.com/percona/pmm/utils/dsnutils"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/utils/secretfile"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 )
@@ -346,13 +347,10 @@ func runRetentionLoop(ctx context.Context, interval, retry time.Duration, drop f
 // clickhouseDSN returns the ClickHouse DSN, with the password read from passwordFile when that is set.
 func clickhouseDSN(user, password, passwordFile, addr, database string) (string, error) {
 	if passwordFile != "" {
-		b, err := os.ReadFile(passwordFile) //nolint:gosec // a path from PMM's own configuration
+		var err error
+		password, err = secretfile.Read(passwordFile)
 		if err != nil {
 			return "", fmt.Errorf("failed to read the ClickHouse password: %w", err)
-		}
-		password = strings.TrimSpace(string(b))
-		if password == "" {
-			return "", fmt.Errorf("%s is empty", passwordFile)
 		}
 	}
 	u := url.URL{
