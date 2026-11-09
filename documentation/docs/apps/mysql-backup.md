@@ -233,7 +233,7 @@ When creating a backup in **Apps > MySQL Backups**, configure encryption in the 
 - **Encrypt backup**: GPG-encrypts the backup as part of the upload, so it requires at least one upload provider. You can also enable **Encrypt using tmpdir** to write to a temporary directory during encryption.
 - **Encrypt after backup completes**: GPG-encrypts the finished backup as a post-run step. Cannot be combined with **Encrypt using tmpdir**.
 
-Both GPG options require an **Encryption recipient** (GPG key or recipient ID). You can enable both GPG timing options at the same time.
+Both GPG options require an **Encryption recipient** (GPG key or recipient ID). With a GPG format, turn on at least one of the two timing options; you can also turn on both. Until you do, the form shows an error on both switches and won't create the backup.
 
 For Binlog backups, AES-256 formats require at least one upload provider, because AES-256 runs during upload for Binlog.
 
