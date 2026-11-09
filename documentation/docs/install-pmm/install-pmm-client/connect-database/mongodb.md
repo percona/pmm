@@ -418,7 +418,7 @@ After configuring your database server, add a MongoDB service using either the u
 
     1. Select **Inventory > Add service > MongoDB**.
 
-    2. Fill in the required fields, which are marked with an asterisk (*).
+    2. Fill in the required fields.
 
     3. Click **Add service**.
 

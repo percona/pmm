@@ -13,15 +13,29 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✨ Release highlights
 
+### Inventory pages now in native PMM UI
+
+PMM has used [its own navigation](3.6.0.md#new-native-pmm-navigation-and-revamped-user-interface) instead of Grafana's menus since 3.6.0, and its pages are gradually moving from Grafana to native PMM UI. [**Inventory**](../use/dashboard-inventory.md) and its **Add service** pages now join [**Updates**](3.0.0.md#new-upgrade-ui), **Help**, [**Real-Time Analytics**](3.7.0.md#real-time-query-analytics-rta-for-mongodb), [**Settings**](3.8.0.md#settings-page-now-in-native-pmm-ui) and [**Alerts > Status**](3.9.0.md#alert-status-page-view-alerts-by-node-or-service), which already run there.
+
+You get the same services, nodes and agents, now with:
+
+- filtered views that you can bookmark and share, while your existing bookmarks keep working
+- [**Add service**](../install-pmm/install-pmm-client/connect-database/index.md) forms that mark their required fields and keep **Add service** in view
+- a simpler layout, with the details and actions of each service and node right in its row:
+
+    ![Inventory page in native PMM UI](../images/PMM_Inventory_Services.png)
+
 ## 🔒 Security updates
 
 ## 📈 Improvements
 
 - [PMM-15239](https://perconadev.atlassian.net/browse/PMM-15239): The **Alert Status** page now groups alert severities into four bands: **Critical**, **Error**, **Warning** and **Info**. Each band has its own icon and label, so you can tell severities apart without relying on color. The **Severity** filter and sort work by band, and the alert details show the original level, for example **Reported as Emergency**. Alert labels stay the same. For how levels map to bands, see [Alert rules](../alert/alert_rules.md).
 - [PMM-15805](https://perconadev.atlassian.net/browse/PMM-15805): The **Services** tab on **MongoDB > Operations > Fleet** now shows why a service is failing. The **Collected** column shows the reason, for example **Database unreachable**, and the service details show the full error, what to do about it, and a link to the scan that failed. A **Down** service whose `mongod` or `mongos` wasn't running at its last scan shows **not running**. The **Clusters** tab now warns when scan results can't be read. For details, see [Operations for MongoDB](../use/mongodb-operations.md#scans).
-- [PMM-15003](https://perconadev.atlassian.net/browse/PMM-15003): The **Inventory > Add service** pages now run in native PMM UI for a faster and more consistent experience. Required fields are marked, and **Add service** stays in view while you fill in the form. This also fixes external services set to HTTPS being scraped over HTTP, and the certificate key password being ignored for MongoDB services added with TLS. See [Connect databases to PMM](../install-pmm/install-pmm-client/connect-database/index.md).
+- [PMM-15003](https://perconadev.atlassian.net/browse/PMM-15003): The **Inventory > Add service** pages now also run in [native PMM UI](#inventory-pages-now-in-native-pmm-ui). Each form marks its required fields, keeps **Add service** in view, and opens from its own URL. Links to the old pages still work.
 
 ## ✅ Fixed issues
+
+- [PMM-15003](https://perconadev.atlassian.net/browse/PMM-15003): Fixed two issues when you add a service on **Inventory > Add service**. If you chose HTTPS for an external service, PMM still collected its metrics over HTTP. If you added a MongoDB service with TLS, PMM ignored the **TLS certificate password** that you entered. Both services now connect the way you set them up.
 
 - [PMM-15654](https://perconadev.atlassian.net/browse/PMM-15654): Fixed the [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard hiding clusters added without `--environment` when **Environment** is set to **All** and another MongoDB service has an environment set. These clusters now appear under **All**.
 

@@ -232,7 +232,7 @@ When using `pgstatmonitor`, query examples are collected by default but can be d
 For `pg_stat_statements`, query examples are never collected by design, providing inherent privacy without requiring any configuration. 
 
 === "Via UI"
-    When adding a PostgreSQL service through the PMM UI, expand **Advanced Settings** and check **Disable query examples**. This prevents PMM from storing actual query values while maintaining all other Query Analytics functionality.
+    When you add a PostgreSQL service on **Inventory > Add service**, turn on **Disable query examples** under **Additional options**. This prevents PMM from storing actual query values while maintaining all other Query Analytics functionality.
 
 === "Via command line"
     Use the `--disable-queryexamples` flag:
@@ -324,7 +324,7 @@ The **command line** (`pmm-admin`) deploys an exporter directly on the database 
     
     1. Go to **Inventory > Add service > PostgreSQL**.
     
-    2. Enter or select values for the fields. Required fields are marked with an asterisk (*).
+    2. Enter or select values for the fields.
     ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
 
     3. (Optional) Under **Additional options**, if using `pgstatmonitor`, turn on **Disable query examples** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.

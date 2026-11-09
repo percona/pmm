@@ -74,7 +74,7 @@ Policies are attached to existing IAM users or groups. To create a new IAM user,
 
 To discover an Amazon RDS DB instance in PMM, you either need to use the access key and secret access key of an existing IAM user or an IAM role. To create an access key for use with PMM, open the IAM console and click **Users** on the navigation pane. Then, select your IAM user.
 
-To create the access key, open the **Security credentials** tab and click the **Create access key** button. The system automatically generates a new access key ID and a secret access key that you can provide on the **PMM Add Instance** dashboard to have your Amazon RDS DB instances discovered.
+To create the access key, open the **Security credentials** tab and click the **Create access key** button. The system automatically generates a new access key ID and a secret access key that you can enter on the **Inventory > Add service > Amazon RDS** page to have your Amazon RDS DB instances discovered.
 
 In case, the PMM Server and Amazon RDS DB instance were created by using the same AWS account, you do not need create the access key ID and secret access key manually. PMM retrieves this information automatically and attempts to discover your Amazon RDS DB instances.
 
@@ -175,11 +175,11 @@ This method supports Amazon RDS database instances that use Amazon Aurora, MySQL
 The following steps are needed to add an Amazon RDS database instance to PMM:
 {.power-number}
 
-1. In the PMM web interface, go to **Inventory > Add service > Amazon RDS**.
+1. In the PMM web interface, go to **Inventory > Add service > Amazon RDS**. When the page opens, PMM lists the instances that PMM Server can find with its own AWS identity, for example an instance profile:
 
     ![!image](../../../images/PMM_Add_Instance_AWS_RDS.png)
 
-    When the page opens, PMM lists the instances that PMM Server can find with its own AWS identity, for example an instance profile.
+    
 
 2. Enter the credentials that PMM uses to find your instances:
 
@@ -195,36 +195,24 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
 
 4. For the instance that you want to monitor, click **Start monitoring**.
 
-5. Fill in the form, which has three sections: **Main details**, **Labels**, and **Additional options**. PMM fills in what it discovered, such as the hostname, port, instance ID, region, and availability zone. Required fields are marked with an asterisk (*).
+5. Complete the form. PMM pre-fills the details it discovered, such as the hostname, port, instance ID, region, and availability zone.
 
     ![!](../../../images/PMM_Add_Instance_AWS_RDS_Main_Details.png)
 
-    The **Main details** section shows the DNS hostname of your instance, which PMM takes from AWS. In this section, you set the service name to use within PMM, the node and agent that monitor the instance, the port your service is listening on, the database username and password, and the **Instance ID** that matches your RDS instance between PMM and the AWS console. Set **Connection timeout** to control how long PMM waits when connecting to the instance. Leave empty to use the default of 2s.
+    In **Main details**, enter the **Username** and **Password** of the PMM database user. Leave **Connection timeout** empty to use the default of 2 seconds.
 
     ![!image](../../../images/PMM_Add_Instance_AWS_RDS_Labels.png)
 
-    The **Labels** section allows you to specify labels for the environment, the AWS region and availability zone to be used, the Replication set and Cluster names and also it allows you to set the list of custom labels in a key:value format.
+    In **Labels**, add the labels that you want to filter this service by in dashboards.
 
     ![!](../../../images/PMM_Add_Instance_AWS_RDS_Additional_Options.png)
 
-    The **Additional options** section contains flags that let you tune RDS monitoring:
+    In **Additional options**, you can:
 
-    - Skip connection check.
-    - Use TLS for the database connection.
-    - Skip TLS certificate and hostname validation. This option appears after you turn on TLS.
-    - Disable basic and/or enhanced metrics collection for the RDS instance to reduce costs.
-
-    Also this section contains a database-specific flag, which would allow Query Analytics for the selected remote database:
-
-    - when adding some remote MySQL, AWS RDS MySQL or Aurora MySQL instance, you will be able to choose using performance schema for the database monitoring;
-
-    - when adding a PostgreSQL instance, you will be able to select **PG Stat Statements** under **Stat tracking options** to use the `pg_stat_statements` extension;
-
-    - when adding a MongoDB instance, you will be able to choose using Query Analytics MongoDB profiler.
+    - Select **Disable Basic Metrics**, **Disable Enhanced Metrics**, or both to reduce AWS costs.
+    - Turn on Query Analytics with **Use performance schema** for MySQL, **PG Stat Statements** for PostgreSQL, or **Use QAN MongoDB Profiler** for MongoDB.
 
 6. Click **Add service** to start monitoring your instance.
-
-    To go back to the list of discovered instances without adding the service, click **Cancel** or **Discovered instances** at the top of the page.
 
 ### Adding an RDS instance via command line
 
