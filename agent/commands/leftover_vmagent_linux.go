@@ -39,20 +39,19 @@ const (
 	// what an upgrade does to a vmagent binary that is still running from before it.
 	deletedExeSuffix = " (deleted)"
 
-	// How long stopping leftover vmagents may delay pmm-agent's start: looking for them, which reads
-	// /proc and can block on a process stuck in the kernel; then after SIGTERM, and after SIGKILL,
-	// since a lock is released only once its process has exited. Each is shared by all of them.
-	leftoverScanTimeout = 5 * time.Second
+	// Reading /proc can block on a process stuck in the kernel, so pmm-agent starts after leftoverBudget anyway.
+	leftoverBudget      = 15 * time.Second
 	leftoverStopTimeout = 5 * time.Second
 	leftoverKillTimeout = 5 * time.Second
 
 	leftoverPollInterval = 100 * time.Millisecond
 )
 
+// leftoverTimeouts bounds the whole sweep, and the waits after SIGTERM and after SIGKILL that all leftovers share.
 type leftoverTimeouts struct {
-	scan time.Duration // looking for them, before pmm-agent starts anyway
-	stop time.Duration // after SIGTERM, before SIGKILL
-	kill time.Duration // after SIGKILL, before giving up
+	budget time.Duration
+	stop   time.Duration
+	kill   time.Duration
 }
 
 // stopLeftoverVMAgents stops the vmagent processes holding this pmm-agent's persistent queue, before
@@ -73,7 +72,7 @@ func stopLeftoverVMAgents(ctx context.Context, vmagentPath, tempDir string, l *l
 		return
 	}
 
-	timeouts := leftoverTimeouts{scan: leftoverScanTimeout, stop: leftoverStopTimeout, kill: leftoverKillTimeout}
+	timeouts := leftoverTimeouts{budget: leftoverBudget, stop: leftoverStopTimeout, kill: leftoverKillTimeout}
 	stopLeftoversWithin(ctx, vmagentPath, tempDir, stat.Starttime, timeouts, unix.PidfdOpen, l)
 }
 
@@ -93,13 +92,12 @@ func stopLeftoversWithin(
 		stopLeftovers(vmagentPath, tempDir, startedBefore, timeouts, pidfdOpen, l)
 	}()
 
-	budget := timeouts.scan + timeouts.stop + timeouts.kill
 	select {
 	case <-done:
 	case <-ctx.Done():
-	case <-time.After(budget):
+	case <-time.After(timeouts.budget):
 		l.Warnf("Stopping leftover vmagents is taking longer than %s, starting without waiting for it; "+
-			"the vmagent this pmm-agent starts may fail on the queue lock until it is done.", budget)
+			"the vmagent this pmm-agent starts may fail on the queue lock until it is done.", timeouts.budget)
 	}
 
 	return done

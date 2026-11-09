@@ -133,7 +133,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 	t.Parallel()
 
 	l := logrus.WithField("test", t.Name())
-	short := leftoverTimeouts{scan: 5 * time.Second, stop: 300 * time.Millisecond, kill: 5 * time.Second}
+	short := leftoverTimeouts{budget: 15 * time.Second, stop: 300 * time.Millisecond, kill: 5 * time.Second}
 	// The stand-ins start after the test binary, which plays pmm-agent, so they would not count as
 	// left from before it.
 	const anyStart = uint64(math.MaxUint64)
@@ -170,7 +170,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		tempDir, queueDir := newQueue(t)
 		first := startLeftover(t, queueDir, "ignore-sigterm")
 		second := startLeftover(t, queueDir, "ignore-sigterm")
-		timeouts := leftoverTimeouts{scan: 5 * time.Second, stop: time.Second, kill: 5 * time.Second}
+		timeouts := leftoverTimeouts{budget: 15 * time.Second, stop: time.Second, kill: 5 * time.Second}
 
 		start := time.Now()
 		stopLeftovers(testExecutable(t), tempDir, anyStart, timeouts, unix.PidfdOpen, l)
@@ -206,7 +206,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 			<-stuck
 			return unix.PidfdOpen(pid, flags)
 		}
-		timeouts := leftoverTimeouts{scan: 100 * time.Millisecond, stop: 100 * time.Millisecond, kill: 100 * time.Millisecond}
+		timeouts := leftoverTimeouts{budget: 300 * time.Millisecond, stop: 100 * time.Millisecond, kill: 100 * time.Millisecond}
 
 		start := time.Now()
 		done := stopLeftoversWithin(t.Context(), testExecutable(t), tempDir, anyStart, timeouts, stuckOpen, l)
