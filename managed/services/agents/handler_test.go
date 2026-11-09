@@ -34,6 +34,9 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+// agentColumns are the agents table's columns in the order reform reads and writes them.
+var agentColumns = models.AgentTable.Columns()
+
 func TestShouldForceConfigurationUpdate(t *testing.T) {
 	t.Parallel()
 
@@ -73,15 +76,6 @@ func TestShouldForceConfigurationUpdate(t *testing.T) {
 
 func TestCheckEnteredRunning(t *testing.T) {
 	t.Parallel()
-
-	agentColumns := []string{
-		"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id",
-		"pmm_agent_id", "custom_labels", "environment_variables", "created_at", "updated_at",
-		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected",
-		"username", "password", "agent_password", "tls", "tls_skip_verify",
-		"log_level", "exporter_options", "qan_options", "rta_options",
-		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
-	}
 
 	agentRowWith := func(agentID, status string, disabled bool, listenPort int, exporterOptions string) *sqlmock.Rows {
 		return sqlmock.NewRows(agentColumns).AddRow(
@@ -183,14 +177,6 @@ func TestCheckPortChanged(t *testing.T) {
 	t.Parallel()
 
 	// Define the columns that reform expects when querying the agents table
-	agentColumns := []string{
-		"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id",
-		"pmm_agent_id", "custom_labels", "environment_variables", "created_at", "updated_at",
-		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected",
-		"username", "password", "agent_password", "tls", "tls_skip_verify",
-		"log_level", "exporter_options", "qan_options", "rta_options",
-		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
-	}
 
 	t.Run("returns false when agent not found", func(t *testing.T) {
 		t.Parallel()
@@ -502,20 +488,10 @@ func (f *fakeVMDB) BuildScrapeConfigForVMAgent(context.Context, string) ([]byte,
 	return nil, nil
 }
 
-// TestStateChanged drives stateChanged through a sequence of reports, so the checks are tested
-// where they run: they must read the Agent as stored before updateAgentStatus replaces it, or a
-// restart on a new port is never forced (PMM-14267).
+// TestStateChanged runs the checks where stateChanged does, before updateAgentStatus replaces the stored Agent (see PMM-14267).
 func TestStateChanged(t *testing.T) {
 	t.Parallel()
 
-	agentColumns := []string{
-		"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id",
-		"pmm_agent_id", "custom_labels", "environment_variables", "created_at", "updated_at",
-		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected",
-		"username", "password", "agent_password", "tls", "tls_skip_verify",
-		"log_level", "exporter_options", "qan_options", "rta_options",
-		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
-	}
 	const agentID = "test-exporter"
 	const selectAgent = `SELECT .+ FROM "agents" WHERE .+ LIMIT 1`
 
@@ -523,12 +499,14 @@ func TestStateChanged(t *testing.T) {
 		status          inventoryv1.AgentStatus
 		listenPort      int
 		exporterOptions string
-		agentType       models.AgentType // node_exporter when empty
+		// Empty means node_exporter.
+		agentType models.AgentType
 	}
 	type report struct {
 		status     inventoryv1.AgentStatus
 		listenPort uint32
-		stored     stored // the row as stateChanged finds it for this report
+		// The row as stateChanged finds it for this report.
+		stored stored
 	}
 
 	// The exporter has no pmm_agent_id, so stateChanged returns before asking for a state update.
@@ -549,7 +527,8 @@ func TestStateChanged(t *testing.T) {
 	// what this test is about.
 	updateArgs := func(listenPort uint32) []driver.Value {
 		args := make([]driver.Value, 0, len(agentColumns))
-		for _, column := range agentColumns[1:] { // agent_id is the WHERE argument, last
+		// agent_id is the WHERE argument, last.
+		for _, column := range agentColumns[1:] {
 			if column == "listen_port" {
 				args = append(args, listenPort)
 				continue
@@ -623,11 +602,14 @@ func TestStateChanged(t *testing.T) {
 
 			for _, r := range tc.reports {
 				mock.ExpectBegin()
-				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // checkPortChanged
+				// checkPortChanged
+				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored))
 				if r.status == running {
-					mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // checkEnteredRunning
+					// checkEnteredRunning
+					mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored))
 				}
-				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored)) // updateAgentStatus
+				// updateAgentStatus
+				mock.ExpectQuery(selectAgent).WithArgs(agentID).WillReturnRows(agentRow(r.stored))
 				mock.ExpectExec(`UPDATE "agents" SET`).WithArgs(updateArgs(r.listenPort)...).WillReturnResult(sqlmock.NewResult(0, 1))
 				mock.ExpectCommit()
 				// The Agent again, for its pmm_agent_id: roster.get returns the Agent's own ID.
