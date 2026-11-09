@@ -195,14 +195,12 @@ RTA marks its own polling queries with a `/* pmm-agent:rta */` comment and leave
 
 ### Pause the stream
 
-Click **Pause** to freeze the current view so a statement doesn't disappear on the next refresh. The agent keeps collecting in the background, and **Auto-refresh** shows **OFF**. Pausing also shows two icon buttons next to **Resume**:
+Click **Pause** to freeze the current view so a statement doesn't disappear on the next refresh. The agent keeps collecting in the background, and **Auto-refresh** shows **OFF**. Pausing also shows two buttons next to **Resume**:
 
-- :material-refresh: **Refresh** reads the latest data once, without resuming live updates.
-- :material-download: **Export to CSV** downloads the current view, so you can [export RTA data](#export-rta-data).
+- :material-refresh: **Refresh** reads the latest data once, without resuming live updates. It's an icon button: hover over it to see its name.
+- **Export** downloads the current view, so you can [export RTA data](#export-rta-data).
 
-Hover over an icon to see its name.
-
-![Paused RTA toolbar with the Resume, Refresh and Export to CSV buttons](../../images/RTA_MySQL_paused_toolbar.png)
+![Paused RTA toolbar with the Resume, Refresh and Export buttons](../../images/RTA_MySQL_paused_toolbar.png)
 
 ## Investigate a query
 
@@ -324,7 +322,7 @@ To clear a lock pile-up, kill the **Root** blocker, not the statements queued be
 
 You can export a snapshot of the current view to CSV. This captures statements that are still running and may never appear in QAN. For example, a long-running statement that's killed before it finishes never reaches QAN, because QAN only records queries that finish.
 
-The :material-download: **Export to CSV** icon button is hidden while auto-refresh is on, and appears once you pause.
+The **Export** button is hidden while auto-refresh is on, and appears once you pause.
 
 To export the current view:
 {.power-number}
@@ -332,7 +330,7 @@ To export the current view:
 1. Go to **Query Analytics > Real-time**.
 2. Click **Pause**.
 3. Apply any filters or sort order you want reflected in the export.
-4. Click :material-download: **Export to CSV**.
+4. Click **Export**.
 
 The export includes all records across all pages, follows your filters and sort order, and is saved as `mysql_rta_export_{timestamp}.csv`. The `lock_time_ms` column has the lock time in milliseconds, and `query_text_truncated` says whether the statement text was cut short. When one transaction is blocking a statement, `blocking_conn_id` and `blocking_query` name it, and `blocking_query_truncated` says whether its statement text was cut short.
 
