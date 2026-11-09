@@ -130,6 +130,8 @@ message AddAzureDatabaseRequest {
   google.protobuf.Duration connection_timeout = 26 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // The pmm-agent identifier which should run agents. Defaults to the PMM Server's own pmm-agent.
+  string pmm_agent_id = 27;
 }
 
 message AddAzureDatabaseResponse {}

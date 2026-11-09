@@ -77,7 +77,7 @@ func TestEncryption(t *testing.T) {
 			KeyFile: key,
 		}
 		configfilef := writeConfig(t, &Config{ID: "agent-id", Encryption: enc})
-		cfg, err := loadFromFile(configfilef, &enc)
+		cfg, err := LoadFromFile(configfilef, &enc)
 		require.NoError(t, err)
 		assert.Equal(t, &Config{ID: "agent-id"}, cfg)
 	})
@@ -91,7 +91,7 @@ func TestEncryption(t *testing.T) {
 			KeyFilePassword: password,
 		}
 		configfilef := writeConfig(t, &Config{ID: "agent-id", Encryption: enc})
-		cfg, err := loadFromFile(configfilef, &enc)
+		cfg, err := LoadFromFile(configfilef, &enc)
 		require.NoError(t, err)
 		assert.Equal(t, &Config{ID: "agent-id"}, cfg)
 	})
@@ -105,7 +105,7 @@ func TestEncryption(t *testing.T) {
 			KeyFilePassword: password,
 		}})
 
-		cfg, err := loadFromFile(configfilef, &Encryption{
+		cfg, err := LoadFromFile(configfilef, &Encryption{
 			KeyFile:         key,
 			KeyFilePassword: "hgfedcba",
 		})
@@ -123,11 +123,23 @@ func TestEncryption(t *testing.T) {
 		configfilef := writeConfig(t, &Config{ID: "agent-id", Encryption: Encryption{
 			KeyFile: key2,
 		}})
-		cfg, err := loadFromFile(configfilef, &Encryption{
+		cfg, err := LoadFromFile(configfilef, &Encryption{
 			KeyFile:         key1,
 			KeyFilePassword: password,
 		})
 		require.EqualError(t, err, "unable to RSA-unwrap AES key: crypto/rsa: decryption error")
+		assert.Nil(t, cfg)
+	})
+
+	t.Run("EncryptedNoKey", func(t *testing.T) {
+		keyPEM := generateRSAKey(t)
+		key := writeKey(t, "key", keyPEM)
+		configfilef := writeConfig(t, &Config{ID: "agent-id", Encryption: Encryption{KeyFile: key}})
+
+		// Without the key the ciphertext reaches the YAML parser. What matters is that it fails rather
+		// than yielding a zero configuration, which the caller would read as an unregistered Agent.
+		cfg, err := LoadFromFile(configfilef, nil)
+		require.Error(t, err)
 		assert.Nil(t, cfg)
 	})
 }

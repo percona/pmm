@@ -75,7 +75,7 @@ func main() {
 	}
 
 	statusCode, err := encryptionService.RotateEncryptionKey(sqlDB, "pmm-managed")
-	sqlDB.Close() //nolint:errcheck
+	_ = sqlDB.Close()
 	if err != nil {
 		logrus.Error(err)
 		os.Exit(statusCode)

@@ -62,7 +62,7 @@ func (res *changeAgentValkeyExporterResult) String() string {
 // ChangeAgentValkeyExporterCommand is used by Kong for CLI flags and commands.
 type ChangeAgentValkeyExporterCommand struct {
 	// Embedded flags
-	flags.LogLevelFatalChangeFlags
+	flags.LogLevelNoFatalChangeFlags
 
 	AgentID string `arg:"" help:"Valkey Exporter Agent ID"`
 

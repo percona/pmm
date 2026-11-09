@@ -45,13 +45,9 @@ func TestQANMySQLPerfSchemaAgentChangeAgent(t *testing.T) {
 				TLSSkipVerify:        new(false),
 				MaxQueryLength:       new(int32(2048)),
 				DisableQueryExamples: new(false),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: new(flags.LogLevel("debug")),
-				},
-				CommentsParsingChangeFlags: flags.CommentsParsingChangeFlags{
-					CommentsParsing: new("off"),
-				},
-				CustomLabels: &map[string]string{"service": "mysql", "role": "primary"},
+				LogLevel:             new(flags.LogLevel("debug")),
+				CommentsParsing:      new("off"),
+				CustomLabels:         &map[string]string{"service": "mysql", "role": "primary"},
 			}
 
 			result, err := cmd.RunCmd()

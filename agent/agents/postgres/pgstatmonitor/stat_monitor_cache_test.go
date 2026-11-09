@@ -47,7 +47,7 @@ func TestPGStatMonitorStructs(t *testing.T) {
 		require.NoError(t, err)
 	}()
 
-	m := setup(t, db, false, false)
+	m := setup(t, db)
 	settings, err := m.getSettings()
 	require.NoError(t, err)
 	normalizedQuery, err := settings.getNormalizedQueryValue()

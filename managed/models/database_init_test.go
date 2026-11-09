@@ -34,56 +34,50 @@ func TestProvisionDBAndRole(t *testing.T) {
 	}
 
 	const (
-		countDatabasesQuery = `SELECT COUNT(*) FROM pg_database WHERE datname = $1`
 		countRolesQuery     = `SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`
+		countDatabasesQuery = `SELECT COUNT(*) FROM pg_database WHERE datname = $1`
 	)
 
-	t.Run("creates database and role when both are missing", func(t *testing.T) {
+	t.Run("creates role and database when both are missing", func(t *testing.T) {
 		t.Parallel()
 
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer db.Close() //nolint:errcheck
 
-		mock.ExpectQuery(regexp.QuoteMeta(countDatabasesQuery)).
-			WithArgs(params.Name).
-			WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
-		mock.ExpectExec(regexp.QuoteMeta(`CREATE DATABASE "pmm-managed"`)).
-			WillReturnResult(sqlmock.NewResult(0, 0))
 		mock.ExpectQuery(regexp.QuoteMeta(countRolesQuery)).
 			WithArgs(params.Username).
 			WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
 		mock.ExpectExec(regexp.QuoteMeta(`CREATE USER "pmm-managed" LOGIN PASSWORD 'pmm-managed'`)).
 			WillReturnResult(sqlmock.NewResult(0, 0))
-		// The identifiers must be quoted into the statement: PostgreSQL does not accept bind
-		// parameters in place of a database name or a role name.
-		mock.ExpectExec(regexp.QuoteMeta(`GRANT ALL PRIVILEGES ON DATABASE "pmm-managed" TO "pmm-managed"`)).
+		mock.ExpectQuery(regexp.QuoteMeta(countDatabasesQuery)).
+			WithArgs(params.Name).
+			WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
+		// PostgreSQL does not accept bind parameters in place of a database name or a role name.
+		mock.ExpectExec(regexp.QuoteMeta(`CREATE DATABASE "pmm-managed" OWNER "pmm-managed"`)).
 			WillReturnResult(sqlmock.NewResult(0, 0))
 
-		require.NoError(t, provisionDBAndRole(db, params))
+		require.NoError(t, provisionDBAndRole(t.Context(), db, params))
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 
-	t.Run("resets password and grants privileges when the role already exists", func(t *testing.T) {
+	t.Run("resets password when the role and the database already exist", func(t *testing.T) {
 		t.Parallel()
 
 		db, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer db.Close() //nolint:errcheck
 
-		mock.ExpectQuery(regexp.QuoteMeta(countDatabasesQuery)).
-			WithArgs(params.Name).
-			WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 		mock.ExpectQuery(regexp.QuoteMeta(countRolesQuery)).
 			WithArgs(params.Username).
 			WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 		mock.ExpectExec(regexp.QuoteMeta(`ALTER USER "pmm-managed" WITH PASSWORD 'pmm-managed'`)).
 			WillReturnResult(sqlmock.NewResult(0, 0))
-		// A role provisioned without privileges gets them on this path too.
-		mock.ExpectExec(regexp.QuoteMeta(`GRANT ALL PRIVILEGES ON DATABASE "pmm-managed" TO "pmm-managed"`)).
-			WillReturnResult(sqlmock.NewResult(0, 0))
+		mock.ExpectQuery(regexp.QuoteMeta(countDatabasesQuery)).
+			WithArgs(params.Name).
+			WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
-		require.NoError(t, provisionDBAndRole(db, params))
+		require.NoError(t, provisionDBAndRole(t.Context(), db, params))
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 
@@ -100,11 +94,6 @@ func TestProvisionDBAndRole(t *testing.T) {
 		require.NoError(t, err)
 		defer db.Close() //nolint:errcheck
 
-		mock.ExpectQuery(regexp.QuoteMeta(countDatabasesQuery)).
-			WithArgs(special.Name).
-			WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
-		mock.ExpectExec(regexp.QuoteMeta(`CREATE DATABASE "pmm""db"`)).
-			WillReturnResult(sqlmock.NewResult(0, 0))
 		mock.ExpectQuery(regexp.QuoteMeta(countRolesQuery)).
 			WithArgs(special.Username).
 			WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
@@ -112,10 +101,13 @@ func TestProvisionDBAndRole(t *testing.T) {
 		// C-style escape syntax, which is where the extra leading space in front of E comes from.
 		mock.ExpectExec(regexp.QuoteMeta(`CREATE USER "pmm""user" LOGIN PASSWORD  E'p''wd\\n'`)).
 			WillReturnResult(sqlmock.NewResult(0, 0))
-		mock.ExpectExec(regexp.QuoteMeta(`GRANT ALL PRIVILEGES ON DATABASE "pmm""db" TO "pmm""user"`)).
+		mock.ExpectQuery(regexp.QuoteMeta(countDatabasesQuery)).
+			WithArgs(special.Name).
+			WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
+		mock.ExpectExec(regexp.QuoteMeta(`CREATE DATABASE "pmm""db" OWNER "pmm""user"`)).
 			WillReturnResult(sqlmock.NewResult(0, 0))
 
-		require.NoError(t, provisionDBAndRole(db, special))
+		require.NoError(t, provisionDBAndRole(t.Context(), db, special))
 		assert.NoError(t, mock.ExpectationsWereMet())
 	})
 }

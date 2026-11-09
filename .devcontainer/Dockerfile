@@ -4,8 +4,6 @@ FROM $PMM_SERVER_IMAGE
 ARG PMM_SERVER_IMAGE
 ARG GO_VERSION
 
-ENV GOPRIVATE='github.com/percona,github.com/Percona-Lab'
-
 USER root
 
 RUN echo "Building with: GO: $GO_VERSION, PMM: $PMM_SERVER_IMAGE"

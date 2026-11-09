@@ -84,13 +84,11 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 			return err
 		}
 		if len(servicesVersions) == 0 {
-
 			results.CheckAfter = serviceCheckInterval
 
 			return nil
 		}
 		if servicesVersions[0].NextCheckAt.After(time.Now()) {
-
 			results.CheckAfter = time.Until(servicesVersions[0].NextCheckAt) + minCheckInterval
 
 			return nil

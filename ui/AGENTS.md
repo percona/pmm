@@ -3,7 +3,7 @@
 > **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
 > **Related**: [api/AGENTS.md](../api/AGENTS.md) (API definitions consumed by UI) · [managed/AGENTS.md](../managed/AGENTS.md) (server backend)
 
-The `/ui` directory contains the PMM web frontend — a React/TypeScript application that provides the primary user interface for Percona Monitoring and Management. It runs inside a Grafana iframe on PMM Server and also hosts standalone pages for updates, RTA, and help.
+The `/ui` directory contains the PMM web frontend — a React/TypeScript application that provides the primary user interface for Percona Monitoring and Management. It is the outer shell served at `/pmm-ui` on PMM Server: it embeds Grafana in an iframe and hosts its own pages for updates, RTA, and help.
 
 ## Architecture
 
@@ -39,7 +39,7 @@ The UI uses a **pnpm workspaces + Turborepo** monorepo with three packages:
 
 ### Communication with Grafana
 
-PMM UI runs inside a Grafana iframe. Cross-frame communication uses `CrossFrameMessenger` from `@pmm/shared`:
+PMM UI is the top frame and Grafana runs inside its `#grafana-iframe`; the `pmm-compat` plugin runs on the Grafana side and targets `window.top`. Cross-frame communication uses `CrossFrameMessenger` from `@pmm/shared`:
 
 - Navigation events
 - Theme synchronization
@@ -49,18 +49,25 @@ PMM UI runs inside a Grafana iframe. Cross-frame communication uses `CrossFrameM
 
 Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createBrowserRouter` with `basename: '/pmm-ui'`:
 
-| Route              | Page                            |
-| ------------------ | ------------------------------- |
-| `/`                | Redirects to `/graph` (Grafana) |
-| `/updates`         | PMM Server updates              |
-| `/updates/clients` | Client updates                  |
-| `/help`            | Help center                     |
-| `/rta`             | Real-Time Analytics tab         |
-| `/rta/selection`   | RTA service selection           |
-| `/rta/sessions`    | RTA sessions list               |
-| `/rta/overview`    | RTA overview                    |
-| `/graph/*`         | Grafana iframe                  |
-| `*`                | 404 fallback                    |
+| Route                                     | Page                                        |
+| ----------------------------------------- | ------------------------------------------- |
+| `/`                                       | Redirects to `/graph` (Grafana)             |
+| `/updates`                                | PMM Server updates                          |
+| `/updates/clients`                        | Client updates                              |
+| `/help`                                   | Help center                                 |
+| `/alerting/status`                        | Fired alerts                                |
+| `/settings/:tab?`                         | PMM Server settings                         |
+| `/inventory/services`, `/inventory/nodes` | Inventory                                   |
+| `/inventory/{services,nodes}/:id/agents`  | Agents of a service or node                 |
+| `/inventory/services/:id/edit`            | Edit a service's labels and RDS credentials |
+| `/rta`                                    | Real-Time Analytics tab                     |
+| `/rta/selection`                          | RTA service selection                       |
+| `/rta/sessions`                           | RTA sessions list                           |
+| `/rta/overview`                           | RTA overview                                |
+| `/graph/*`                                | Grafana iframe                              |
+| `*`                                       | Page not found (`NotFoundPage`)             |
+
+Pages migrated from Grafana keep their old `/graph/...` URLs working: a fallback route in `router.tsx` redirects them to the native page, and `isMigratedPage` (`src/contexts/grafana/grafana.utils.ts`) keeps the iframe hidden when Grafana navigates there.
 
 ## State Management
 
@@ -85,6 +92,7 @@ Providers are composed in `Providers.tsx`, all wrapped by `ThemeContextProvider`
 - `UserProvider` — current user info
 - `SettingsProvider` — PMM Server settings
 - `UpdatesProvider` — update availability
+- `VersionProvider` — reloads the page after the server is upgraded externally
 - `GrafanaProvider` — Grafana integration state
 - `NavigationProvider` — sidebar navigation
 - `TourProvider` — onboarding tour
@@ -112,6 +120,7 @@ The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the the
 - Use TypeScript strict mode — define types in `src/types/`
 - Co-locate test files next to components (`*.test.tsx`)
 - Use `CrossFrameMessenger` for communication with the Grafana iframe
+- Build native pages on the shared `Page` wrapper (`src/components/page`); it renders on the paper surface by default, so don't pass `surface="paper"`. Opt out with `surface="canvas"` only for a page composed of cards (Help center, Updates), where the darker tone makes the cards stand out
 
 ### Don't
 
