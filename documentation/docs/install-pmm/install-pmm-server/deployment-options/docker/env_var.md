@@ -1,26 +1,48 @@
 # Configure environment variables for PMM Server
 Configure PMM Server behavior by setting environment variables when running the Docker container. This allows you to customize performance, storage, features, and other settings without modifying configuration files.
 
-## Using environment variables
+## Use environment variables
 
 Configure PMM Server by setting Docker container environment variables using the `-e var=value` syntax:
 
 ```bash
-docker run -e PMM_DATA_RETENTION=720h -e PMM_DEBUG=true percona/pmm-server:3
+docker run \
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
+  -e PMM_DATA_RETENTION=720h \
+  -e PMM_METRICS_RESOLUTION_HR=10s \
+  --name pmm-server \
+  percona/pmm-server:3
 ```
+
+### Run the examples on an existing installation
+
+The examples on this page create a container named `pmm-server` that stores its data in the `pmm-data` volume. If PMM Server already runs under that name, remove the existing container first so the new one can use the name:
+
+```sh
+docker stop pmm-server
+docker rm pmm-server
+```
+
+Removing the container doesn't delete your data. If the existing container uses the `pmm-data` volume, the new container reuses it, so you keep your monitoring data and your current admin password.
+
+If the existing container uses a host directory or a different volume, replace `--volume pmm-data:/srv` in the examples with the `--volume` option of the existing container. Without that change, the new container starts with empty storage and the default admin password. If the existing container uses a `--network` option, add the same option to the examples.
 
 ## Core configuration variables
 
 ### Performance & storage
-Fine-tune data retention and collection intervals to balance monitoring detail with resource usage:
+Fine-tune data retention and [how often PMM collects metrics](../../../../configure-pmm/metrics_res.md) to balance monitoring detail with resource usage:
 
 | Variable | Default | Description | Example |
 |----------|---------|-------------|----------|
-| `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data (must be in multiples of 24h) | `720h` (30 days) |
-| `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval | `5s` |
-| `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval | `10s` |
+| `PMM_DATA_RETENTION` | `720h` | How long to keep metrics data, in hours. Must be a multiple of `24h`. The default is 30 days. | `2160h` for 90 days |
+| `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval. `PMM_METRICS_RESOLUTION` sets the same value, so use only one of them. | `10s` |
 | `PMM_METRICS_RESOLUTION_MR` | `10s` | Medium-resolution metrics interval | `30s` |
 | `PMM_METRICS_RESOLUTION_LR` | `60s` | Low-resolution metrics interval | `300s` |
+
+Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. If you use days, such as `30d`, PMM Server won't start.
 
 !!! tip "Performance impact"
     Higher resolution (lower values) provides more detailed metrics but increases storage requirements and system load. For high-traffic production environments, consider increasing these values.
@@ -41,12 +63,14 @@ Enable or disable specific PMM features:
 
 | Variable | Default | Effect when enabled |
 |----------|---------|-------------------|
-| `PMM_ENABLE_UPDATES` | `true` | Allows version checks and UI updates |
+| `PMM_ENABLE_UPDATES` | `true` | Allows version checks |
 | `PMM_ENABLE_TELEMETRY` | `true` | Enables usage data collection |
 | `PMM_ENABLE_ALERTING` | `true` | Enables Percona Alerting system |
 | `PMM_ENABLE_BACKUP_MANAGEMENT` | `true` | Enables backup features |
+| `PMM_ENABLE_COMPONENT_ALERTS` | `true` | Creates the [built-in alert rules](../../../../alert/templates_list.md#pmm_component_alerts) for PMM's own components (VictoriaMetrics, ClickHouse, Grafana, and the Query Analytics API). Set to `false` to remove them. |
+| `PMM_ENABLE_HA_ALERTS` | `true` | Creates the [built-in alert rules](../../../../alert/templates_list.md#pmm_ha_alerts) for a PMM HA Cluster. Set to `false` to remove them. Has no effect on a standalone PMM Server. |
 | `PMM_ENABLE_AZURE_DISCOVER` | `false` | Enables Azure database discovery |
-| `PMM_ENABLE_INTERNAL_PG_QAN` | `0` (disabled) | Enables Query Analytics for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` to enable. Can also be controlled via **Configuration > Settings > Advanced settings**. See [QAN for PMM Server's internal PostgreSQL](../../../../use/qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql)
+| `PMM_ENABLE_INTERNAL_PG_QAN` | Not set (disabled) | Enables Query Analytics (QAN) for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` or `true` to enable, or `0` or `false` to explicitly disable. When set to either value, neither **Configuration > Settings > Advanced settings** nor `pmm-admin inventory change agent` can override it. Leave it unset to control [QAN for PMM Server's internal PostgreSQL](../../../../use/qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql) from the UI. |
 
 ### Debugging and troubleshooting
 Use these variables when diagnosing issues with PMM Server:
@@ -118,9 +142,14 @@ Optimize for disk space constraints:
 
 ```sh
 docker run \
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
   -e VMAGENT_remoteWrite_maxDiskUsagePerURL=52428800 \
   -e VMAGENT_promscrape_maxScrapeSize=32MiB \
   -e VMAGENT_loggerLevel=WARN \
+  --name pmm-server \
   percona/pmm-server:3
 ```
 
@@ -129,9 +158,14 @@ Balance resource usage with monitoring detail:
 
 ```sh
 docker run \
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
   -e VMAGENT_remoteWrite_maxDiskUsagePerURL=104857600 \
   -e VMAGENT_promscrape_maxScrapeSize=128MiB \
   -e VMAGENT_loggerLevel=ERROR \
+  --name pmm-server \
   percona/pmm-server:3
 ```
 
@@ -140,9 +174,14 @@ Enable detailed logging for troubleshooting:
 
 ```sh
 docker run \
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
   -e VMAGENT_loggerLevel=DEBUG \
   -e VMAGENT_remoteWrite_maxDiskUsagePerURL=26214400 \
   -e VMAGENT_promscrape_maxScrapeSize=64MiB \
+  --name pmm-server \
   percona/pmm-server:3
 ```
 
@@ -178,6 +217,23 @@ Configure connections to external database services:
 | `PMM_POSTGRES_*` | PostgreSQL connection settings |
 
 
+### HA variables
+
+These variables run PMM Server nodes as a [PMM HA Cluster](../../../HA-clustered.md). The [PMM HA Helm chart](../../../install-HA-clustered.md) sets them for you. Leave them unchanged in `pmmEnv`, because changing them can break the cluster.
+
+| Variable | Description |
+|----------|-------------|
+| `PMM_HA_ENABLE` | Runs PMM Server in HA mode |
+| `PMM_HA_NODE_ID` | ID of this node in the cluster |
+| `PMM_HA_ADVERTISE_ADDRESS` | Address this node advertises to the other nodes |
+| `PMM_HA_GOSSIP_PORT` | Port for the gossip protocol. The Helm chart uses `9096` |
+| `PMM_HA_RAFT_PORT` | Port for Raft consensus. The Helm chart uses `9097` |
+| `PMM_HA_GRAFANA_GOSSIP_PORT` | Port for Grafana gossip. The Helm chart uses `9094` |
+| `PMM_HA_PEERS` | The nodes in the cluster. The Helm chart generates this list from the replica count |
+
+!!! caution "All HA nodes must share one encryption key"
+    Every node must use the same encryption key, or PMM stops monitoring the services whose credentials it can't decrypt. The Helm chart manages the shared key for you. If you set up HA nodes yourself, see [HA clusters: use the same key on every node](../../../../admin/security/data_encryption.md#ha-clusters-use-the-same-key-on-every-node).
+
 ### Nomad Garbage Collection (GC) settings
 
 !!! note
@@ -200,11 +256,16 @@ For example:
 
 ```sh
   docker run \
+    --detach \
+    --restart always \
+    --publish 443:8443 \
+    --volume pmm-data:/srv \
     -e PMM_NOMAD_GC_INTERVAL=5m \
     -e PMM_NOMAD_GC_DISK_USAGE_THRESHOLD=85 \
     -e PMM_NOMAD_GC_INODE_USAGE_THRESHOLD=80 \
     -e PMM_NOMAD_GC_MAX_ALLOCS=3000 \
     -e PMM_NOMAD_GC_PARALLEL_DESTROYS=4 \
+    --name pmm-server \
     percona/pmm-server:3
 ```
 
@@ -218,13 +279,13 @@ PMM Server passes these variables to integrated components:
 - **Kubernetes**: All `KUBERNETES_*` variables
 - **System variables**: Standard variables like `HOME`, `PATH`, etc.
 
-## Experimental variables
+## Preview variables
 
-PMM includes experimental environment variables prefixed with `PERCONA_TEST_*` that are under development and subject to change. To see the complete list and details of experimental variables, see [Preview environment variables](preview_env_var.md).
+PMM also includes preview variables, for example to connect to an external ClickHouse instance. They're still in development and can change. For the full list, see [Preview environment variables](preview_env_var.md).
 
 
 !!! caution "For testing only"
-    Experimental variables are not supported for production use. Use these variables for testing purposes only.
+    Preview variables aren't supported in production. Use them for testing only.
 
 
 ### Variables for migrating from PMM v2 to PMM v3
@@ -245,12 +306,16 @@ For environments with many monitored systems, increase collection intervals and 
 
 ``` sh
 docker run \
- -e PMM_DATA_RETENTION=45d \
- -e PMM_METRICS_RESOLUTION=5s \
- -e PMM_METRICS_RESOLUTION_HR=30s \
- -e PMM_METRICS_RESOLUTION_MR=60s \
- -e PMM_METRICS_RESOLUTION_LR=300s \
- percona/pmm-server:3
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
+  -e PMM_DATA_RETENTION=1080h \
+  -e PMM_METRICS_RESOLUTION_HR=30s \
+  -e PMM_METRICS_RESOLUTION_MR=60s \
+  -e PMM_METRICS_RESOLUTION_LR=300s \
+  --name pmm-server \
+  percona/pmm-server:3
 ```
 
 ### Development environment
@@ -258,10 +323,15 @@ For testing and development, you might want debugging enabled:
 
 ```sh
 docker run \
- -e PMM_DATA_RETENTION=7d \
- -e PMM_DEBUG=true \
- -e PMM_ENABLE_ACCESS_CONTROL=true \
- percona/pmm-server:3
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
+  -e PMM_DATA_RETENTION=168h \
+  -e PMM_DEBUG=1 \
+  -e PMM_ENABLE_ACCESS_CONTROL=1 \
+  --name pmm-server \
+  percona/pmm-server:3
 ``` 
 
 ### Restricted features
@@ -269,10 +339,15 @@ To disable certain features for security or policy reasons:
 
 ```sh
 docker run \
- -e PMM_ENABLE_UPDATES=false \
- -e PMM_ENABLE_TELEMETRY=false \
- -e PMM_ENABLE_BACKUP_MANAGEMENT=false \
- percona/pmm-server:3
+  --detach \
+  --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
+  -e PMM_ENABLE_UPDATES=0 \
+  -e PMM_ENABLE_TELEMETRY=0 \
+  -e PMM_ENABLE_BACKUP_MANAGEMENT=0 \
+  --name pmm-server \
+  percona/pmm-server:3
 ```
 
 ## Related topic

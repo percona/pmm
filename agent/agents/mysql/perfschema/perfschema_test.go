@@ -250,7 +250,7 @@ func prepareDBCopy(t *testing.T, db *reform.DB) {
 	_, err := db.Exec("CREATE DATABASE IF NOT EXISTS world2")
 	require.NoError(t, err)
 
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS world2.city AS SELECT * FROM world.city")
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS world2.city AS SELECT * FROM world.city") //nolint:unqueryvet
 	require.NoError(t, err)
 
 	query := "SELECT /* AllCities controller='test' */ * FROM city"

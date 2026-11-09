@@ -423,8 +423,8 @@ type StartBackupDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// start backup default body details items0
-	StartBackupDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// start backup default body details items0 additional properties
+	StartBackupDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -459,7 +459,7 @@ func (o *StartBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.StartBackupDefaultBodyDetailsItems0 = result
+		o.StartBackupDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -480,12 +480,12 @@ func (o StartBackupDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.StartBackupDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.StartBackupDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.StartBackupDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.StartBackupDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

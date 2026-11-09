@@ -61,7 +61,7 @@ func setup(t *testing.T, connect func(agentv1.AgentService_ConnectServer) error,
 	// logrus.SetLevel(logrus.DebugLevel)
 
 	// start server with given connect handler
-	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	lis, err := (&net.ListenConfig{}).Listen(t.Context(), "tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 	server := grpc.NewServer()
 	agentv1.RegisterAgentServiceServer(server, &testServer{
@@ -114,8 +114,8 @@ func setup(t *testing.T, connect func(agentv1.AgentService_ConnectServer) error,
 
 func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 	defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
-	fingerprint, _ := truncate.Query("SELECT * FROM contacts t0 WHERE t0.person_id = '?';", defaultMaxQueryLength, truncate.GetDefaultMaxQueryLength())
-	invalidQuery := "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
+	fingerprint, _ := truncate.Query("SELECT name FROM contacts t0 WHERE t0.person_id = '?';", defaultMaxQueryLength, truncate.GetDefaultMaxQueryLength())
+	invalidQuery := "SELECT name FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
 	query, _ := truncate.Query(invalidQuery, defaultMaxQueryLength, truncate.GetDefaultMaxQueryLength())
 
 	connect := func(stream agentv1.AgentService_ConnectServer) error {
@@ -128,7 +128,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 			Payload: (&agentv1.QANCollectResponse{}).ServerMessageResponsePayload(),
 		})
 		require.NoError(t, err)
-		assert.Equal(t, "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\ufffd\\uD83D\ufffdÃ¼\ufffd'", msg.GetQanCollect().MetricsBucket[0].Common.Example)
+		assert.Equal(t, "SELECT name FROM contacts t0 WHERE t0.person_id = '\u0241\ufffd\\uD83D\ufffdÃ¼\ufffd'", msg.GetQanCollect().MetricsBucket[0].Common.Example)
 
 		_, err = stream.Recv()
 		require.EqualError(t, err, "rpc error: code = Canceled desc = context canceled")

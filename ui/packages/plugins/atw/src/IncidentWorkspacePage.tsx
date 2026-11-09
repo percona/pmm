@@ -19,25 +19,32 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Box,
-  Button,
-  Chip,
   CircularProgress,
   Link as MuiLink,
   Paper,
   Stack,
   Typography,
 } from '@mui/material';
-import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { useAuth } from '@pmm-extensions/api';
 import { ReadOnlyNotice } from '@pmm-extensions/framework';
 import { CollectPane } from './CollectPane';
 import { ResultsPane } from './ResultsPane';
-import { useAtwIncident, useAtwIncidentLifecycle } from './hooks';
+import {
+  useAtwIncident,
+  useAtwIncidentLifecycle,
+  useUpdateAtwIncident,
+} from './hooks';
+import {
+  DeleteIncidentDialog,
+  IncidentActionsMenu,
+  IncidentStatusChip,
+} from './IncidentActions';
+import { InlineEditableText } from './InlineEditableText';
 import type {
   AtwBatchExecuteResponse,
+  AtwIncident,
   AtwDispatchSource,
   AtwIncidentExecution,
   AtwRememberedDispatch,
@@ -56,8 +63,9 @@ const NEW_EXECUTION_HIGHLIGHT_MS = 8000;
  * A read-only session gets Results alone, full width. Collect exists only to
  * start an execution, and every unsafe ATW route requires an administrator, so
  * leaving the pane mounted with its execute form withheld offered a snippet
- * picker that could never run anything. Withheld rather than disabled because a
- * role, unlike a closed incident, is not something the viewer can undo.
+ * picker that could never run anything. A closed incident gets the same
+ * layout for the same reason — nothing can be collected into it — and says so
+ * in one line under its title; Reopen in the actions menu brings Collect back.
  */
 export function IncidentWorkspacePage() {
   const { incidentId } = useParams<{ incidentId: string }>();
@@ -65,7 +73,12 @@ export function IncidentWorkspacePage() {
   const { canMutate } = useAuth();
   const { data: incident, isLoading, error } = useAtwIncident(incidentId);
   const lifecycle = useAtwIncidentLifecycle();
+  const updateMutation = useUpdateAtwIncident();
   const isClosed = Boolean(incident?.closed_at);
+  // Collect waits for the incident: until it loads, a closed one is unknown.
+  const showCollect = canMutate && incident !== undefined && !isClosed;
+  const [editingName, setEditingName] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<AtwIncident | null>(null);
 
   // What this browser tab has dispatched, so a past execution's "Run again"
   // and "Edit parameters and run again" have something to act on — nothing
@@ -207,6 +220,16 @@ export function IncidentWorkspacePage() {
         </Alert>
       )}
 
+      {updateMutation.isError && (
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          onClose={() => updateMutation.reset()}
+        >
+          {updateMutation.error?.message ?? 'Failed to update incident'}
+        </Alert>
+      )}
+
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
         alignItems={{ xs: 'flex-start', sm: 'center' }}
@@ -221,44 +244,79 @@ export function IncidentWorkspacePage() {
           flexWrap="wrap"
           useFlexGap
         >
-          <Typography variant="h4">{incident?.name ?? 'Incident'}</Typography>
-          {isClosed && (
-            <Chip
-              label="Closed"
-              size="small"
-              color="default"
-              variant="outlined"
+          {incident ? (
+            <InlineEditableText
+              value={incident.name}
+              label="Incident name"
+              required
+              variant="h4"
+              component="h1"
+              disabled={!canMutate}
+              saving={updateMutation.isPending}
+              editing={editingName}
+              onEditingChange={setEditingName}
+              onSave={(name) =>
+                updateMutation.mutate({
+                  incidentId: incident.id,
+                  body: { name },
+                })
+              }
+              testId="atw-incident-name"
             />
+          ) : (
+            <Typography variant="h4" component="h1">
+              Incident
+            </Typography>
           )}
+          {incident && <IncidentStatusChip incident={incident} />}
         </Stack>
         {incident && canMutate && (
-          <Stack direction="row" spacing={1}>
-            {isClosed ? (
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<LockOpenOutlinedIcon />}
-                disabled={lifecycle.isPending(incident.id)}
-                onClick={() => lifecycle.reopen(incident.id)}
-              >
-                Reopen incident
-              </Button>
-            ) : (
-              <Button
-                variant="outlined"
-                startIcon={<LockOutlinedIcon />}
-                disabled={lifecycle.isPending(incident.id)}
-                onClick={() => lifecycle.close(incident.id)}
-              >
-                Close incident
-              </Button>
-            )}
-          </Stack>
+          <IncidentActionsMenu
+            incident={incident}
+            lifecycle={lifecycle}
+            onRename={() => setEditingName(true)}
+            onDelete={setDeleteTarget}
+          />
         )}
       </Stack>
-      {incident?.case_ref && (
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Case reference: {incident.case_ref}
+      {incident && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={0.5}
+          sx={{ mb: 2, color: 'text.secondary' }}
+        >
+          <Typography variant="body2" component="span">
+            Case:
+          </Typography>
+          <InlineEditableText
+            value={incident.case_ref ?? ''}
+            label="Case reference"
+            variant="body2"
+            placeholder={canMutate ? 'Add a case reference' : 'None'}
+            disabled={!canMutate}
+            saving={updateMutation.isPending}
+            onSave={(caseRef) =>
+              updateMutation.mutate({
+                incidentId: incident.id,
+                // Cleared to null, not saved as an empty reference.
+                body: { case_ref: caseRef || null },
+              })
+            }
+            testId="atw-incident-case-ref"
+          />
+        </Stack>
+      )}
+      {isClosed && (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 2 }}
+          data-testid="atw-incident-closed-notice"
+        >
+          {canMutate
+            ? 'This incident is closed. Its results stay readable; reopen it from Actions to collect more.'
+            : 'This incident is closed. Its results stay readable.'}
         </Typography>
       )}
 
@@ -288,13 +346,13 @@ export function IncidentWorkspacePage() {
           gap: 2,
           gridTemplateColumns: {
             xs: 'minmax(0, 1fr)',
-            md: canMutate ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)',
+            md: showCollect ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)',
           },
           alignItems: 'start',
         }}
       >
         {/* PMM divergence from upstream PMM Extensions — keep on the next sync. */}
-        {canMutate && (
+        {showCollect && (
           <Paper variant="outlined" sx={{ p: 2 }} ref={collectSectionRef}>
             <CollectPane
               incidentId={incidentId}
@@ -314,6 +372,12 @@ export function IncidentWorkspacePage() {
           />
         </Paper>
       </Box>
+
+      <DeleteIncidentDialog
+        incident={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onDeleted={() => navigate('..')}
+      />
     </Box>
   );
 }

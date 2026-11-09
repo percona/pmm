@@ -17,11 +17,16 @@ const TEST_QUERIES: QueryData[] = [
   createQuery({ queryId: 'query-3', serviceName: 'postgres-1' }),
 ];
 
-const renderTable = () =>
+const TEST_TIMED_QUERIES: QueryData[] = [
+  createQuery({ queryId: 'fast', queryExecutionDurationMs: 1.5 }),
+  createQuery({ queryId: 'slow', queryExecutionDurationMs: 30 }),
+];
+
+const renderTable = (queries: QueryData[] = TEST_QUERIES) =>
   render(
     <TestWrapper>
       <OverviewTable
-        queries={TEST_QUERIES}
+        queries={queries}
         onQuerySelected={vi.fn()}
         onNavigableQueriesChange={vi.fn()}
       />
@@ -65,5 +70,98 @@ describe('OverviewTable Host filter', () => {
     );
     expect(screen.queryByTestId('query-query-3-row')).toBeNull();
     expect(screen.getByTestId('query-query-1-row')).toBeInTheDocument();
+  });
+});
+
+describe('OverviewTable Elapsed time filter', () => {
+  const bound = (name: 'Min' | 'Max') =>
+    screen.getByLabelText(name) as HTMLInputElement;
+
+  const type = (name: 'Min' | 'Max', value: string) =>
+    fireEvent.change(bound(name), { target: { value } });
+
+  const visibleRows = () =>
+    screen
+      .queryAllByTestId(/^query-.+-row$/)
+      .map((row) => row.getAttribute('data-testid'));
+
+  it('rejects non-numeric input and leaves the rows untouched', async () => {
+    renderTable(TEST_TIMED_QUERIES);
+    showFilters();
+
+    type('Min', 'abc');
+
+    expect(bound('Min').value).toBe('');
+    await waitFor(() =>
+      expect(visibleRows()).toEqual(['query-fast-row', 'query-slow-row'])
+    );
+  });
+
+  it('keeps the last valid value when the new one is not a number', async () => {
+    renderTable(TEST_TIMED_QUERIES);
+    showFilters();
+
+    type('Min', '1.5');
+    await waitFor(() => expect(bound('Min').value).toBe('1.5'));
+
+    type('Min', '1.5x');
+
+    expect(bound('Min').value).toBe('1.5');
+  });
+
+  it('filters on a decimal bound', async () => {
+    renderTable(TEST_TIMED_QUERIES);
+    showFilters();
+
+    type('Min', '1.5');
+
+    // the bound is inclusive, which is what 'timeRangeFilterFn' is there for
+    await waitFor(() =>
+      expect(visibleRows()).toEqual(['query-fast-row', 'query-slow-row'])
+    );
+
+    type('Min', '2');
+
+    await waitFor(() => expect(visibleRows()).toEqual(['query-slow-row']));
+  });
+
+  it('rejects non-numeric input in Max and filters on a valid bound', async () => {
+    renderTable(TEST_TIMED_QUERIES);
+    showFilters();
+
+    type('Max', '10s');
+
+    expect(bound('Max').value).toBe('');
+
+    type('Max', '10');
+
+    await waitFor(() => expect(visibleRows()).toEqual(['query-fast-row']));
+  });
+
+  it('does not filter on a lone decimal point', async () => {
+    renderTable(TEST_TIMED_QUERIES);
+    showFilters();
+
+    type('Min', '.');
+
+    expect(bound('Min').value).toBe('.');
+    await waitFor(() =>
+      expect(visibleRows()).toEqual(['query-fast-row', 'query-slow-row'])
+    );
+  });
+
+  it('restores the rows when the bound is emptied', async () => {
+    renderTable(TEST_TIMED_QUERIES);
+    showFilters();
+
+    type('Min', '2');
+    await waitFor(() => expect(visibleRows()).toEqual(['query-slow-row']));
+
+    type('Min', '');
+
+    expect(bound('Min').value).toBe('');
+    await waitFor(() =>
+      expect(visibleRows()).toEqual(['query-fast-row', 'query-slow-row'])
+    );
   });
 });

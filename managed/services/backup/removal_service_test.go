@@ -62,9 +62,7 @@ func TestDeleteArtifact(t *testing.T) {
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: s3Config,
-		},
+		S3Config:    s3Config,
 	})
 	require.NoError(t, err)
 
@@ -262,9 +260,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: s3Config,
-		},
+		S3Config:    s3Config,
 	})
 	require.NoError(t, err)
 
@@ -425,11 +421,9 @@ func TestLockArtifact(t *testing.T) {
 	agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-service3")
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
-		Name:        "Test location",
-		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			FilesystemConfig: &models.FilesystemLocationConfig{Path: "/"},
-		},
+		Name:             "Test location",
+		Description:      "Test description",
+		FilesystemConfig: &models.FilesystemLocationConfig{Path: "/"},
 	})
 	require.NoError(t, err)
 
@@ -521,11 +515,9 @@ func TestReleaseArtifact(t *testing.T) {
 	agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-service3")
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
-		Name:        "Test location",
-		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			FilesystemConfig: &models.FilesystemLocationConfig{Path: "/"},
-		},
+		Name:             "Test location",
+		Description:      "Test description",
+		FilesystemConfig: &models.FilesystemLocationConfig{Path: "/"},
 	})
 	require.NoError(t, err)
 
