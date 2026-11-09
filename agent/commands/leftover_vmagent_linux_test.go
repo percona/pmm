@@ -34,9 +34,7 @@ import (
 
 const leftoverHelperEnv = "PMM_TEST_LEFTOVER_VMAGENT"
 
-// TestLeftoverVMAgentHelper is not a test: it is the stand-in vmagent the tests below run, the test
-// binary itself started with a -remoteWrite.tmpDataPath flag. The test binary plays the configured
-// vmagent binary, so the real executable check is exercised as it is.
+// TestLeftoverVMAgentHelper is not a test but the stand-in vmagent: the test binary plays the vmagent binary.
 func TestLeftoverVMAgentHelper(t *testing.T) {
 	mode := os.Getenv(leftoverHelperEnv)
 	if mode == "" {
@@ -53,13 +51,11 @@ func TestLeftoverVMAgentHelper(t *testing.T) {
 func startLeftover(t *testing.T, queueDir, mode string) *exec.Cmd {
 	t.Helper()
 
-	if mode == "" {
-		mode = "run" // an empty one tells the helper it is not one
-	}
 	cmd := exec.CommandContext(t.Context(), os.Args[0], "-test.run=^TestLeftoverVMAgentHelper$", "--",
 		"-remoteWrite.tmpDataPath="+queueDir)
 	cmd.Env = append(os.Environ(), leftoverHelperEnv+"="+mode)
-	cmd.SysProcAttr = &syscall.SysProcAttr{Pdeathsig: syscall.SIGKILL} // not left sleeping if the test binary dies
+	// Not left sleeping if the test binary dies.
+	cmd.SysProcAttr = &syscall.SysProcAttr{Pdeathsig: syscall.SIGKILL}
 	stdout, err := cmd.StdoutPipe()
 	require.NoError(t, err)
 	require.NoError(t, cmd.Start())
@@ -83,8 +79,7 @@ func newQueue(t *testing.T) (string, string) {
 	return tempDir, queueDir
 }
 
-// state returns the process state of a child of the test: "Z" once it has exited, as nothing reaps
-// it before its Cleanup does.
+// state returns the process state of a child of the test, "Z" once it has exited, as only its Cleanup reaps it.
 func state(t *testing.T, pid int) string {
 	t.Helper()
 
@@ -105,8 +100,7 @@ func exitedBy(t *testing.T, cmd *exec.Cmd) syscall.Signal {
 	select {
 	case <-done:
 	case <-time.After(10 * time.Second):
-		// Killed and waited for here: a second Wait, in startLeftover's Cleanup, while this one is
-		// still waiting would never return.
+		// Waited for here, as a second Wait in startLeftover's Cleanup would never return while this one waits.
 		_ = cmd.Process.Kill()
 		<-done
 		t.Fatal("process is still running")
@@ -134,17 +128,15 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 
 	l := logrus.WithField("test", t.Name())
 	short := leftoverTimeouts{budget: 15 * time.Second, stop: 300 * time.Millisecond, kill: 5 * time.Second}
-	// The stand-ins start after the test binary, which plays pmm-agent, so they would not count as
-	// left from before it.
+	// The stand-ins start after the test binary, which plays pmm-agent, so any start time counts as earlier.
 	const anyStart = uint64(math.MaxUint64)
 
-	// Each subtest asserts the process has exited the moment stopLeftovers returns, without waiting:
-	// the lock is released only then, and pmm-agent starts its own vmagent right after.
+	// Subtests check that the process has exited by the time stopLeftovers returns, as only that releases the lock.
 	t.Run("stops a vmagent holding this queue with SIGTERM", func(t *testing.T) {
 		t.Parallel()
 
 		tempDir, queueDir := newQueue(t)
-		cmd := startLeftover(t, queueDir, "")
+		cmd := startLeftover(t, queueDir, "run")
 
 		stopLeftovers(testExecutable(t), tempDir, anyStart, short, unix.PidfdOpen, l)
 		assert.Equal(t, "Z", state(t, cmd.Process.Pid), "still running when stopLeftovers returned")
@@ -162,9 +154,8 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		assert.Equal(t, syscall.SIGKILL, exitedBy(t, cmd))
 	})
 
-	// They share the wait after SIGTERM, and the one after SIGKILL too, which no test process can
-	// outlast to show.
-	t.Run("kills several that ignore SIGTERM, within one budget", func(t *testing.T) {
+	// The wait after SIGKILL is shared too, which no test process can outlast to show.
+	t.Run("kills several that ignore SIGTERM after one shared wait", func(t *testing.T) {
 		t.Parallel()
 
 		tempDir, queueDir := newQueue(t)
@@ -192,9 +183,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		assert.Equal(t, syscall.SIGKILL, exitedBy(t, cmd))
 	})
 
-	// Reading /proc can block on a process stuck in the kernel. pmm-agent starts anyway, and the
-	// search carries on when it gets going again: the leftover it then stops, killing it if it has
-	// to, frees the queue for the next attempt to start pmm-agent's own vmagent.
+	// A blocking pidfd_open stands in for a /proc read stuck in the kernel.
 	t.Run("does not wait for a search that is stuck, which still stops the leftover", func(t *testing.T) {
 		t.Parallel()
 
@@ -226,7 +215,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		t.Parallel()
 
 		tempDir, queueDir := newQueue(t)
-		cmd := startLeftover(t, queueDir, "")
+		cmd := startLeftover(t, queueDir, "run")
 		p, err := procfs.NewProc(cmd.Process.Pid)
 		require.NoError(t, err)
 		stat, err := p.Stat()
@@ -236,14 +225,12 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		assert.NotEqual(t, "Z", state(t, cmd.Process.Pid), "pmm-agent's own vmagent must keep running")
 	})
 
-	// Without a pidfd only /proc tells whether the process is still there, and a read that fails
-	// for another reason than its being gone, such as pmm-agent running out of file descriptors,
-	// does not say that it is.
+	// Without a pidfd only /proc tells whether the process is gone, and a read failing on EMFILE does not.
 	t.Run("does not take a process it cannot read for gone", func(t *testing.T) {
 		t.Parallel()
 
 		_, queueDir := newQueue(t)
-		cmd := startLeftover(t, queueDir, "")
+		cmd := startLeftover(t, queueDir, "run")
 		p, err := procfs.NewProc(cmd.Process.Pid)
 		require.NoError(t, err)
 		stat, err := p.Stat()
@@ -270,7 +257,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 			noPidfd := func(int, int) (int, error) { return -1, errno }
 
 			tempDir, queueDir := newQueue(t)
-			term := startLeftover(t, queueDir, "")
+			term := startLeftover(t, queueDir, "run")
 			stopLeftovers(testExecutable(t), tempDir, anyStart, short, noPidfd, l)
 			assert.Equal(t, "Z", state(t, term.Process.Pid), "%s: still running when stopLeftovers returned", errno)
 			assert.Equal(t, syscall.SIGTERM, exitedBy(t, term))
@@ -290,7 +277,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		tempDir, _ := newQueue(t)
 		link := filepath.Join(t.TempDir(), "link")
 		require.NoError(t, os.Symlink(tempDir, link))
-		cmd := startLeftover(t, filepath.Join(link, vmagentQueueDirName), "")
+		cmd := startLeftover(t, filepath.Join(link, vmagentQueueDirName), "run")
 
 		stopLeftovers(testExecutable(t), tempDir, anyStart, short, unix.PidfdOpen, l)
 		assert.Equal(t, syscall.SIGTERM, exitedBy(t, cmd))
@@ -300,7 +287,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		t.Parallel()
 
 		_, otherQueue := newQueue(t)
-		cmd := startLeftover(t, otherQueue, "")
+		cmd := startLeftover(t, otherQueue, "run")
 		tempDir, _ := newQueue(t)
 
 		stopLeftovers(testExecutable(t), tempDir, anyStart, short, unix.PidfdOpen, l)
@@ -312,7 +299,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		t.Parallel()
 
 		tempDir := t.TempDir()
-		cmd := startLeftover(t, filepath.Join(tempDir, vmagentQueueDirName), "")
+		cmd := startLeftover(t, filepath.Join(tempDir, vmagentQueueDirName), "run")
 
 		stopLeftovers(testExecutable(t), tempDir, anyStart, short, unix.PidfdOpen, l)
 		assert.NotEqual(t, "Z", state(t, cmd.Process.Pid))
@@ -323,7 +310,7 @@ func TestStopLeftoverVMAgents(t *testing.T) {
 		t.Parallel()
 
 		_, queueDir := newQueue(t)
-		cmd := startLeftover(t, queueDir, "")
+		cmd := startLeftover(t, queueDir, "run")
 		p, err := procfs.NewProc(cmd.Process.Pid)
 		require.NoError(t, err)
 		stat, err := p.Stat()
@@ -352,9 +339,6 @@ func TestIsVMAgentExecutable(t *testing.T) {
 	}{
 		{"this pmm-agent's vmagent", vmagent, true},
 		{"path not clean", "/usr/local/percona/pmm/exporters//vmagent", true},
-
-		// An upgrade replaces the binary under a vmagent that keeps running from before it, the
-		// case PMM-15773 was found in.
 		{"binary replaced since it started", vmagent + " (deleted)", true},
 
 		{"another vmagent binary", "/usr/bin/vmagent", false},

@@ -29,14 +29,12 @@ import (
 )
 
 const (
-	// The directory, under pmm-agent's temporary directory, that vmagent keeps its persistent
-	// queue in. It must match -remoteWrite.tmpDataPath in managed/services/agents/vmagent.go.
+	// vmagentQueueDirName must match -remoteWrite.tmpDataPath in managed/services/agents/vmagent.go.
 	vmagentQueueDirName = "vmagent-temp-dir"
 
 	tmpDataPathFlag = "remoteWrite.tmpDataPath"
 
-	// What the kernel appends to /proc/<pid>/exe once the executable has been unlinked, which is
-	// what an upgrade does to a vmagent binary that is still running from before it.
+	// deletedExeSuffix is what /proc/<pid>/exe ends with once an upgrade has replaced the running binary.
 	deletedExeSuffix = " (deleted)"
 
 	// Reading /proc can block on a process stuck in the kernel, so pmm-agent starts after leftoverBudget anyway.
@@ -54,13 +52,8 @@ type leftoverTimeouts struct {
 	kill   time.Duration
 }
 
-// stopLeftoverVMAgents stops the vmagent processes holding this pmm-agent's persistent queue, before
-// pmm-agent starts a vmagent of its own that would exit on their lock. See PMM-15773.
-//
-// The parent is deliberately not what decides. Every exporter gets SIGKILL from pmm-agent as its
-// parent-death signal, so a pmm-agent that is killed outright takes them with it; a vmagent still
-// holding the queue when pmm-agent starts was left by something else, and only one vmagent can use
-// the queue.
+// stopLeftoverVMAgents stops the vmagents started before this pmm-agent that hold its queue, whatever
+// their parent; see PMM-15773.
 func stopLeftoverVMAgents(ctx context.Context, vmagentPath, tempDir string, l *logrus.Entry) {
 	self, err := procfs.Self()
 	var stat procfs.ProcStat
@@ -76,17 +69,14 @@ func stopLeftoverVMAgents(ctx context.Context, vmagentPath, tempDir string, l *l
 	stopLeftoversWithin(ctx, vmagentPath, tempDir, stat.Starttime, timeouts, unix.PidfdOpen, l)
 }
 
-// stopLeftoversWithin returns once stopLeftovers has, or once its timeouts have passed, or ctx is
-// done, whichever comes first: a vmagent stuck in the kernel must not keep the rest of pmm-agent
-// from starting. A stopLeftovers it stops waiting for carries on in the background, and the returned
-// channel is closed once it has finished. That is safe because it stops only vmagents started before
-// this pmm-agent, never one this pmm-agent starts meanwhile, and useful because one it stops late frees
-// the queue for the next attempt to start this pmm-agent's own.
+// stopLeftoversWithin waits for stopLeftovers until it returns, the budget runs out or ctx is done, and
+// returns a channel closed once stopLeftovers returns.
 func stopLeftoversWithin(
 	ctx context.Context, vmagentPath, tempDir string, startedBefore uint64, timeouts leftoverTimeouts,
 	pidfdOpen func(int, int) (int, error), l *logrus.Entry,
 ) <-chan struct{} {
 	done := make(chan struct{})
+	// Left running past the budget, it cannot hit this pmm-agent's own vmagent: it stops only older ones.
 	go func() {
 		defer close(done)
 		stopLeftovers(vmagentPath, tempDir, startedBefore, timeouts, pidfdOpen, l)
@@ -103,8 +93,8 @@ func stopLeftoversWithin(
 	return done
 }
 
-// stopLeftovers stops the vmagent processes holding the queue under tempDir that started before
-// startedBefore, a start time in clock ticks since boot, as /proc/<pid>/stat has it.
+// stopLeftovers stops the vmagents holding the queue under tempDir that started before startedBefore, in
+// clock ticks since boot.
 func stopLeftovers(
 	vmagentPath, tempDir string, startedBefore uint64, timeouts leftoverTimeouts, pidfdOpen func(int, int) (int, error), l *logrus.Entry,
 ) {
@@ -120,7 +110,7 @@ func stopLeftovers(
 	queueDir := filepath.Join(tempDir, vmagentQueueDirName)
 	queue, err := os.Stat(queueDir)
 	if err != nil {
-		return // no queue yet, so nothing can be holding it
+		return
 	}
 
 	procs, err := procfs.AllProcs()
@@ -135,9 +125,7 @@ func stopLeftovers(
 		if p.PID == self {
 			continue
 		}
-		// Any of these fails for a process that exited while we were listing, or that belongs
-		// to another user - neither is ours to stop. The start time is read first, and openLeftover
-		// reads it again, so all that is read in between is known to be about one process.
+		// openLeftover reads the start time again, so everything read in between is about this one process.
 		stat, err := p.Stat()
 		if err != nil || stat.Starttime >= startedBefore {
 			continue
@@ -146,8 +134,7 @@ func stopLeftovers(
 		if err != nil || !isVMAgentExecutable(exe, vmagentPath) {
 			continue
 		}
-		// Read only now: reading the command line of a process stuck in the kernel can block, and
-		// every other process on the host would be one more chance of that.
+		// Read last, as reading the command line of a process stuck in the kernel can block.
 		cmdline, err := p.CmdLine()
 		if err != nil {
 			continue
@@ -159,7 +146,7 @@ func stopLeftovers(
 
 		lo, err := openLeftover(p.PID, stat.Starttime, pidfdOpen, l)
 		if err != nil {
-			continue // gone already
+			continue
 		}
 		l.Warnf("Stopping vmagent (PID %d, parent PID %d) left running from before this pmm-agent started: "+
 			"it holds %s, so the vmagent this pmm-agent starts would exit on the queue lock.", p.PID, stat.PPID, queueDir)
@@ -168,8 +155,7 @@ func stopLeftovers(
 		stopping = append(stopping, lo)
 	}
 
-	// Signaled together, so they share the budget rather than spend it one after another; and the
-	// same for those that have to be killed.
+	// Signaled together, so they share one wait after SIGTERM, and one after SIGKILL.
 	deadline := time.Now().Add(timeouts.stop)
 	var killed []*leftover
 	for _, lo := range stopping {
@@ -192,8 +178,8 @@ func stopLeftovers(
 	}
 }
 
-// isVMAgentExecutable reports whether exe, a process's /proc/<pid>/exe, is this pmm-agent's vmagent
-// binary, including one an upgrade has replaced since the process started.
+// isVMAgentExecutable reports whether exe, a process's /proc/<pid>/exe, is the vmagent binary, also once an
+// upgrade has replaced it.
 func isVMAgentExecutable(exe, vmagentPath string) bool {
 	if exe == "" || vmagentPath == "" {
 		return false
@@ -202,16 +188,14 @@ func isVMAgentExecutable(exe, vmagentPath string) bool {
 	return filepath.Clean(strings.TrimSuffix(exe, deletedExeSuffix)) == filepath.Clean(vmagentPath)
 }
 
-// tmpDataPath returns the -remoteWrite.tmpDataPath of a vmagent command line: the directory of the
-// persistent queue it holds. The lock vmagent takes on that directory is exclusive, so while one
-// process holds it, a vmagent started on the same queue exits on the lock within a second, every time.
+// tmpDataPath returns the -remoteWrite.tmpDataPath of a vmagent command line, the queue directory it locks.
 func tmpDataPath(cmdline []string) (string, bool) {
 	if len(cmdline) == 0 {
 		return "", false
 	}
 
-	for _, arg := range cmdline[1:] { // not argv[0]
-		flag := strings.TrimPrefix(strings.TrimPrefix(arg, "-"), "-") // -flag or --flag
+	for _, arg := range cmdline[1:] {
+		flag := strings.TrimPrefix(strings.TrimPrefix(arg, "-"), "-")
 		if flag == arg {
 			continue
 		}
@@ -223,9 +207,8 @@ func tmpDataPath(cmdline []string) (string, bool) {
 	return "", false
 }
 
-// holdsQueue reports whether path, a process's -remoteWrite.tmpDataPath, is the queue directory.
-// They are compared as files rather than strings: the same directory may be spelled differently,
-// and in another mount namespace the same spelling may be a different directory.
+// holdsQueue reports whether path, a process's -remoteWrite.tmpDataPath, is the queue directory, compared as
+// files since one directory has many spellings, and one spelling is another directory in another mount namespace.
 func holdsQueue(pid int, path string, queue os.FileInfo) bool {
 	base := "root"
 	if !filepath.IsAbs(path) {
@@ -239,8 +222,7 @@ func holdsQueue(pid int, path string, queue os.FileInfo) bool {
 	return os.SameFile(fi, queue)
 }
 
-// warnLiveParent says what started a leftover vmagent whose parent is still alive: that parent may
-// well start it again, and then only the two sharing a queue is the problem to fix.
+// warnLiveParent names the parent of a leftover vmagent, which may start it again.
 func warnLiveParent(ppid int, queueDir string, l *logrus.Entry) {
 	if ppid <= 1 {
 		return
@@ -257,14 +239,14 @@ func warnLiveParent(ppid int, queueDir string, l *logrus.Entry) {
 		"Only one pmm-agent can use %s.", ppid, exe, queueDir)
 }
 
-// leftover is a process being stopped, held by a pidfd so that a PID reused after it exits can
-// never be signaled in its place. Without pidfd support it falls back to the process start time,
-// re-checked before every signal.
+// leftover is a process being stopped, held by a pidfd so that a reused PID is never signaled in its place,
+// or without pidfd support by its start time, checked again before every signal.
 type leftover struct {
 	pid       int
 	starttime uint64
-	fd        int                                    // -1 without pidfd support
-	readStat  func(pid int) (procfs.ProcStat, error) // readProcStat but in tests
+	// fd is -1 without pidfd support.
+	fd       int
+	readStat func(pid int) (procfs.ProcStat, error)
 }
 
 var errLeftoverGone = errors.New("process is gone")
@@ -284,9 +266,7 @@ func openLeftover(pid int, starttime uint64, pidfdOpen func(int, int) (int, erro
 	}
 
 	lo := &leftover{pid: pid, starttime: starttime, fd: fd, readStat: readProcStat}
-	// The PID may have been reused between listing it and opening it: the pidfd refers to
-	// whichever process holds the PID now, so confirm that is still the one inspected. One that
-	// cannot be confirmed is left alone.
+	// The PID may have been reused since it was listed, so leave alone a process not confirmed as the one inspected.
 	if alive, _ := lo.state(); !alive {
 		lo.close()
 		return nil, errLeftoverGone
@@ -304,9 +284,8 @@ func readProcStat(pid int) (procfs.ProcStat, error) {
 	return p.Stat()
 }
 
-// state reports whether the inspected process is alive, or gone. It is neither when /proc cannot be
-// read for another reason, such as pmm-agent having run out of file descriptors. A zombie is gone:
-// it has released its locks, and only its exit status is waiting for whoever reaps it.
+// state reports whether the process is alive, and whether it is gone; it is neither when /proc cannot be
+// read, such as on EMFILE.
 func (lo *leftover) state() (bool, bool) {
 	stat, err := lo.readStat(lo.pid)
 	switch {
@@ -314,9 +293,8 @@ func (lo *leftover) state() (bool, bool) {
 		return false, true
 	case err != nil:
 		return false, false
-	case stat.Starttime != lo.starttime: // the PID is another process's now
-		return false, true
-	case stat.State == "Z", stat.State == "X":
+	// Another process has the PID now, or it is a zombie, which has released its locks.
+	case stat.Starttime != lo.starttime, stat.State == "Z", stat.State == "X":
 		return false, true
 	default:
 		return true, false
