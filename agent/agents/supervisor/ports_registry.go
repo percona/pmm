@@ -21,11 +21,7 @@ import (
 	"sync"
 )
 
-var (
-	errNoFreePort      = errors.New("no free port")
-	errPortBusy        = errors.New("port busy")
-	errPortNotReserved = errors.New("port not reserved")
-)
+var errNoFreePort = errors.New("no free port")
 
 // portsRegistry keeps track of reserved ports.
 type portsRegistry struct {
@@ -84,33 +80,10 @@ func (r *portsRegistry) Reserve() (uint16, error) {
 	return 0, errNoFreePort
 }
 
-// Forget drops a port reservation without checking that the port is free, for a port its Agent
-// could not use: something else may be listening on it, and Release would then keep it reserved for
-// good. Reserve checks a port is free before handing it out again.
-func (r *portsRegistry) Forget(port uint16) {
+// Release drops a port reservation without binding the port, as Reserve checks that a port is free before handing it out.
+func (r *portsRegistry) Release(port uint16) {
 	r.m.Lock()
 	defer r.m.Unlock()
 
 	delete(r.reserved, port)
-}
-
-// Release releases port.
-func (r *portsRegistry) Release(port uint16) error {
-	r.m.Lock()
-	defer r.m.Unlock()
-
-	if _, ok := r.reserved[port]; !ok {
-		return errPortNotReserved
-	}
-
-	l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
-	if l != nil {
-		_ = l.Close()
-	}
-	if err != nil {
-		return errPortBusy
-	}
-
-	delete(r.reserved, port)
-	return nil
 }

@@ -421,7 +421,7 @@ func (s *Supervisor) waitForwarderDrained(agentID string, done <-chan struct{}) 
 func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{}, port uint16, agentTmp string) {
 	select {
 	case <-done:
-		s.portsRegistry.Forget(port)
+		s.portsRegistry.Release(port)
 		s.removeAgentTempDir(agentID, agentTmp)
 	default:
 		s.l.Warnf("Agent %s has not stopped yet, freeing what it owns once it does.", agentID)
@@ -430,7 +430,7 @@ func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{},
 			case <-done:
 				// Off the lock: giving the port back needs no agreement about
 				// who owns the ID.
-				s.portsRegistry.Forget(port)
+				s.portsRegistry.Release(port)
 
 				if agentTmp == "" {
 					return
@@ -763,7 +763,7 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 		if err == nil {
 			// Moved off the replaced entry's port, which nothing refers to any more.
 			if entryPort != 0 && port != entryPort {
-				s.portsRegistry.Forget(entryPort)
+				s.portsRegistry.Release(entryPort)
 			}
 			return nil
 		}
@@ -773,7 +773,7 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 		// it, and portsRegistry only forgets a port on Release. The Agent never started,
 		// so nothing of ours is listening on it and the release succeeds.
 		if reserved {
-			s.portsRegistry.Forget(port)
+			s.portsRegistry.Release(port)
 		}
 		port = 0
 	}
