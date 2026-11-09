@@ -646,8 +646,11 @@ func (m *matrixRun) topQueries(t *testing.T) {
 	}
 }
 
-// notSeen is the not_found of a query seen on none of the caller's services, with the window searched.
+// notSeen is the not_found of pmm_get_explain and pmm_get_schema for a query seen on none of the caller's services, with the window searched.
 var notSeen = regexp.MustCompile(`the query was not seen on any of your services in \S+ – \S+`)
+
+// noDataForQuery is the not_found of pmm_query_detail for a query with no data on the caller's services, with the window searched.
+var noDataForQuery = regexp.MustCompile(`no data for this query in \S+ – \S+`)
 
 func (m *matrixRun) queryDetail(t *testing.T) {
 	t.Helper()
@@ -659,7 +662,7 @@ func (m *matrixRun) queryDetail(t *testing.T) {
 			switch len(candidates) {
 			case 0:
 				res.requireError(t, "not_found")
-				assert.Regexp(t, notSeen, res.text)
+				assert.Regexp(t, noDataForQuery, res.text)
 			case 1:
 				res.requireOK(t)
 				var out struct {
@@ -744,9 +747,13 @@ func (m *matrixRun) explain(t *testing.T) {
 func (m *matrixRun) schema(t *testing.T) {
 	t.Helper()
 
-	m.queryForm(t, "pmm_get_schema", func(t *testing.T, _ engineServices, service string, res toolResponse) {
+	m.queryForm(t, "pmm_get_schema", func(t *testing.T, e engineServices, service string, res toolResponse) {
 		t.Helper()
 
+		prefix := "shop."
+		if e.engine == "postgresql" {
+			prefix = "shop.public."
+		}
 		var out struct {
 			Tables []struct {
 				Database string `json:"database"`
@@ -759,10 +766,10 @@ func (m *matrixRun) schema(t *testing.T) {
 			names = append(names, table.Database+"."+table.Name)
 		}
 		slices.Sort(names)
-		assert.Equal(t, []string{"shop.customers", "shop.orders"}, names)
+		assert.Equal(t, []string{prefix + "customers", prefix + "orders"}, names)
 		assert.Contains(t, res.text, "service: "+service+" (")
-		assert.Equal(t, 1, strings.Count(res.text, "### shop.orders\n"))
-		assert.Equal(t, 1, strings.Count(res.text, "### shop.customers\n"))
+		assert.Equal(t, 1, strings.Count(res.text, "### "+prefix+"orders\n"))
+		assert.Equal(t, 1, strings.Count(res.text, "### "+prefix+"customers\n"))
 	})
 
 	for _, e := range matrixEngines {
