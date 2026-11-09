@@ -22,7 +22,14 @@ export const PMM_NEW_NAV_UPDATES_PATH = `${PMM_NEW_NAV_PATH}/updates`;
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
 export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
+export const PMM_DOCS_INVENTORY_SERVICES_URL =
+  'https://per.co.na/pmm/inventory_services';
 export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
+export const PMM_INVENTORY_PATH = `${PMM_NEW_NAV_PATH}/inventory`;
+export const PMM_INVENTORY_SERVICES_PATH = `${PMM_INVENTORY_PATH}/services`;
+export const PMM_INVENTORY_NODES_PATH = `${PMM_INVENTORY_PATH}/nodes`;
+export const PMM_ADD_SERVICE_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`;
+export const PMM_QAN_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`;
 
 // PMM Extensions apps mounted as native PMM routes. Shared by the router (route paths and
 // each plugin's `routeBase`) and the navigation builder (`url` / `matches`), so
@@ -39,6 +46,11 @@ export const PMM_SERVICENOW_SETTINGS_PATH = `${PMM_NEW_NAV_PATH}/settings/servic
 export const PERCONA_SUPPORT_URL = 'https://www.percona.com/services/support';
 // Short link Support hands out for subscription and credential requests.
 export const PERCONA_SUPPORT_CONTACT_URL = 'https://per.co.na/support';
+
+// OM (OpenManager) is a PMM page, not a PMM Extensions one. Its API is pmm-managed's own
+// `/v1/om`, authorised by the Grafana session, and no request it makes needs a PMM Extensions
+// bearer -- which is why it sits beside the PMM Extensions mounts above rather than under them.
+export const OM_PATH = `${PMM_NEW_NAV_PATH}/operations`;
 
 export const INTERVALS_MS = {
   // 5 mins
@@ -91,6 +103,7 @@ export const UPDATE_SNOOZE_DURATION_OVERRIDE_KEY =
 export const DOCS_URLS = {
   qan: 'https://per.co.na/QAN',
   forums: 'https://per.co.na/PMM3_forums',
+  editingLabels: 'https://per.co.na/editing_labels',
 };
 
 export const TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';

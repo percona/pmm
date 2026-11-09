@@ -20,11 +20,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AlertingService_ListTemplates_FullMethodName  = "/alerting.v1.AlertingService/ListTemplates"
-	AlertingService_CreateTemplate_FullMethodName = "/alerting.v1.AlertingService/CreateTemplate"
-	AlertingService_UpdateTemplate_FullMethodName = "/alerting.v1.AlertingService/UpdateTemplate"
-	AlertingService_DeleteTemplate_FullMethodName = "/alerting.v1.AlertingService/DeleteTemplate"
-	AlertingService_CreateRule_FullMethodName     = "/alerting.v1.AlertingService/CreateRule"
+	AlertingService_ListTemplates_FullMethodName         = "/alerting.v1.AlertingService/ListTemplates"
+	AlertingService_CreateTemplate_FullMethodName        = "/alerting.v1.AlertingService/CreateTemplate"
+	AlertingService_UpdateTemplate_FullMethodName        = "/alerting.v1.AlertingService/UpdateTemplate"
+	AlertingService_DeleteTemplate_FullMethodName        = "/alerting.v1.AlertingService/DeleteTemplate"
+	AlertingService_CreateRule_FullMethodName            = "/alerting.v1.AlertingService/CreateRule"
+	AlertingService_ListThresholds_FullMethodName        = "/alerting.v1.AlertingService/ListThresholds"
+	AlertingService_SetThreshold_FullMethodName          = "/alerting.v1.AlertingService/SetThreshold"
+	AlertingService_ClearThreshold_FullMethodName        = "/alerting.v1.AlertingService/ClearThreshold"
+	AlertingService_BatchUpdateThresholds_FullMethodName = "/alerting.v1.AlertingService/BatchUpdateThresholds"
 )
 
 // AlertingServiceClient is the client API for AlertingService service.
@@ -43,6 +47,15 @@ type AlertingServiceClient interface {
 	DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error)
 	// CreateRule creates alerting rule from the given template.
 	CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error)
+	// ListThresholds returns per-target threshold overrides.
+	ListThresholds(ctx context.Context, in *ListThresholdsRequest, opts ...grpc.CallOption) (*ListThresholdsResponse, error)
+	// SetThreshold overrides one rule parameter for one target.
+	SetThreshold(ctx context.Context, in *SetThresholdRequest, opts ...grpc.CallOption) (*SetThresholdResponse, error)
+	// ClearThreshold removes an override so the target falls back to the rule's default,
+	// or to a broader override still covering it.
+	ClearThreshold(ctx context.Context, in *ClearThresholdRequest, opts ...grpc.CallOption) (*ClearThresholdResponse, error)
+	// BatchUpdateThresholds applies several set and clear operations in one transaction.
+	BatchUpdateThresholds(ctx context.Context, in *BatchUpdateThresholdsRequest, opts ...grpc.CallOption) (*BatchUpdateThresholdsResponse, error)
 }
 
 type alertingServiceClient struct {
@@ -103,6 +116,46 @@ func (c *alertingServiceClient) CreateRule(ctx context.Context, in *CreateRuleRe
 	return out, nil
 }
 
+func (c *alertingServiceClient) ListThresholds(ctx context.Context, in *ListThresholdsRequest, opts ...grpc.CallOption) (*ListThresholdsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListThresholdsResponse)
+	err := c.cc.Invoke(ctx, AlertingService_ListThresholds_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *alertingServiceClient) SetThreshold(ctx context.Context, in *SetThresholdRequest, opts ...grpc.CallOption) (*SetThresholdResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetThresholdResponse)
+	err := c.cc.Invoke(ctx, AlertingService_SetThreshold_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *alertingServiceClient) ClearThreshold(ctx context.Context, in *ClearThresholdRequest, opts ...grpc.CallOption) (*ClearThresholdResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClearThresholdResponse)
+	err := c.cc.Invoke(ctx, AlertingService_ClearThreshold_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *alertingServiceClient) BatchUpdateThresholds(ctx context.Context, in *BatchUpdateThresholdsRequest, opts ...grpc.CallOption) (*BatchUpdateThresholdsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BatchUpdateThresholdsResponse)
+	err := c.cc.Invoke(ctx, AlertingService_BatchUpdateThresholds_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AlertingServiceServer is the server API for AlertingService service.
 // All implementations must embed UnimplementedAlertingServiceServer
 // for forward compatibility.
@@ -119,6 +172,15 @@ type AlertingServiceServer interface {
 	DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error)
 	// CreateRule creates alerting rule from the given template.
 	CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error)
+	// ListThresholds returns per-target threshold overrides.
+	ListThresholds(context.Context, *ListThresholdsRequest) (*ListThresholdsResponse, error)
+	// SetThreshold overrides one rule parameter for one target.
+	SetThreshold(context.Context, *SetThresholdRequest) (*SetThresholdResponse, error)
+	// ClearThreshold removes an override so the target falls back to the rule's default,
+	// or to a broader override still covering it.
+	ClearThreshold(context.Context, *ClearThresholdRequest) (*ClearThresholdResponse, error)
+	// BatchUpdateThresholds applies several set and clear operations in one transaction.
+	BatchUpdateThresholds(context.Context, *BatchUpdateThresholdsRequest) (*BatchUpdateThresholdsResponse, error)
 	mustEmbedUnimplementedAlertingServiceServer()
 }
 
@@ -147,6 +209,22 @@ func (UnimplementedAlertingServiceServer) DeleteTemplate(context.Context, *Delet
 
 func (UnimplementedAlertingServiceServer) CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateRule not implemented")
+}
+
+func (UnimplementedAlertingServiceServer) ListThresholds(context.Context, *ListThresholdsRequest) (*ListThresholdsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListThresholds not implemented")
+}
+
+func (UnimplementedAlertingServiceServer) SetThreshold(context.Context, *SetThresholdRequest) (*SetThresholdResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetThreshold not implemented")
+}
+
+func (UnimplementedAlertingServiceServer) ClearThreshold(context.Context, *ClearThresholdRequest) (*ClearThresholdResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ClearThreshold not implemented")
+}
+
+func (UnimplementedAlertingServiceServer) BatchUpdateThresholds(context.Context, *BatchUpdateThresholdsRequest) (*BatchUpdateThresholdsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BatchUpdateThresholds not implemented")
 }
 func (UnimplementedAlertingServiceServer) mustEmbedUnimplementedAlertingServiceServer() {}
 func (UnimplementedAlertingServiceServer) testEmbeddedByValue()                         {}
@@ -259,6 +337,78 @@ func _AlertingService_CreateRule_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AlertingService_ListThresholds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListThresholdsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlertingServiceServer).ListThresholds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlertingService_ListThresholds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlertingServiceServer).ListThresholds(ctx, req.(*ListThresholdsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AlertingService_SetThreshold_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetThresholdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlertingServiceServer).SetThreshold(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlertingService_SetThreshold_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlertingServiceServer).SetThreshold(ctx, req.(*SetThresholdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AlertingService_ClearThreshold_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClearThresholdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlertingServiceServer).ClearThreshold(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlertingService_ClearThreshold_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlertingServiceServer).ClearThreshold(ctx, req.(*ClearThresholdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AlertingService_BatchUpdateThresholds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchUpdateThresholdsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlertingServiceServer).BatchUpdateThresholds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlertingService_BatchUpdateThresholds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlertingServiceServer).BatchUpdateThresholds(ctx, req.(*BatchUpdateThresholdsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AlertingService_ServiceDesc is the grpc.ServiceDesc for AlertingService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -285,6 +435,22 @@ var AlertingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateRule",
 			Handler:    _AlertingService_CreateRule_Handler,
+		},
+		{
+			MethodName: "ListThresholds",
+			Handler:    _AlertingService_ListThresholds_Handler,
+		},
+		{
+			MethodName: "SetThreshold",
+			Handler:    _AlertingService_SetThreshold_Handler,
+		},
+		{
+			MethodName: "ClearThreshold",
+			Handler:    _AlertingService_ClearThreshold_Handler,
+		},
+		{
+			MethodName: "BatchUpdateThresholds",
+			Handler:    _AlertingService_BatchUpdateThresholds_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
