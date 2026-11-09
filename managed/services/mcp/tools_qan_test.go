@@ -543,7 +543,7 @@ func TestQueryDetailTool(t *testing.T) {
 
 		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA", "service_id": "svc-foreign"})
 		assert.True(t, res.IsError)
-		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, "").message, textOf(t, res))
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, testNow, "").message, textOf(t, res))
 		assert.Empty(t, fake.requestsTo("/v1/qan:getMetrics"))
 		assert.Empty(t, fake.requestsTo("/v1/qan/query:getExample"))
 	})
@@ -595,7 +595,7 @@ func TestQueryDetailTool(t *testing.T) {
 
 		res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, res.IsError)
-		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, "").message, textOf(t, res))
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, testNow, "").message, textOf(t, res))
 		assert.Empty(t, fake.requestsTo("/v1/qan:getMetrics"))
 		assert.Empty(t, fake.requestsTo("/v1/qan/query:getExample"))
 	})

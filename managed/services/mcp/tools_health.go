@@ -309,7 +309,7 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 	}
 	i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceID == in.ServiceID })
 	if i < 0 {
-		return healthResult{}, errNotInList(w, "; use pmm_inventory to list service ids")
+		return healthResult{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
 	}
 	svc := services[i]
 	if !slices.Contains([]string{engineMySQL, enginePostgreSQL, engineMongoDB}, svc.Engine) {

@@ -465,7 +465,7 @@ func TestExplainTool(t *testing.T) {
 
 		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-404", "queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, "").message, text)
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, testNow, "").message, text)
 	})
 
 	// Only MySQL's 1064 gets the placeholder advice, not any invalid input.
@@ -1696,7 +1696,7 @@ func TestEngineOfOutsideList(t *testing.T) {
 	res := callTool(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-secret", "database": "shop", "tables": []string{"orders"}})
 	require.True(t, res.IsError)
 	text := textOf(t, res)
-	assert.Equal(t, "error: not_found\n"+errNotInList(s.lastHour(), "; use pmm_inventory to list service ids").message, text)
+	assert.Equal(t, "error: not_found\n"+errNotInList(s.lastHour(), testNow, "; use pmm_inventory to list service ids").message, text)
 	for _, name := range []string{"svc-secret", "svc-1", "svc-2", "svc-mongo", "svc-pmm-pg", "shop-mysql", "shop-postgres", "shop-mongo", "pmm-server-postgresql"} {
 		assert.NotContains(t, text, name)
 	}

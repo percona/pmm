@@ -143,7 +143,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 		svc, found = serviceNamed(services, in.ServiceName)
 	}
 	if !found {
-		return configResult{}, errNotInList(w, "; use pmm_inventory to list service ids")
+		return configResult{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
 	}
 	serviceName := svc.ServiceName
 	// An explicit engine wins over the service list's.

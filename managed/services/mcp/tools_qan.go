@@ -23,6 +23,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -223,9 +224,13 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		return topQueriesResult{}, err
 	}
 	raw := s.rawSQL()
+	// The engine and the query_ref lookups share one read of the service list, made when the first of them needs it.
+	services := sync.OnceValues(func() ([]serviceInfo, error) {
+		return s.listServices(ctx, auth, window{From: from, To: to})
+	})
 	rowEngine := func(string) string { return "" }
 	if !raw && q.groupBy == groupByQuery && slices.ContainsFunc(report.Rows, func(r qanReportRow) bool { return quotingMatters(r.Fingerprint) }) {
-		rowEngine = s.reportEngines(ctx, auth, q, report.Rows, from, to)
+		rowEngine = s.reportEngines(ctx, auth, q, report.Rows, from, to, services)
 	}
 
 	// Confirmed against PMM 3.8.1: rows[0] is the TOTAL aggregate (empty
@@ -239,7 +244,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		rows = append(rows, q.row(row, q.offset+len(rows)+1, rowEngine(row.Dimension), raw))
 	}
 	if q.groupBy == groupByQuery && len(rows) > 0 {
-		serviceID := s.pinnedServiceID(ctx, auth, q.labels, window{From: from, To: to})
+		serviceID := s.pinnedServiceID(q.labels, services)
 		for i := range rows {
 			if rows[i].Dimension != "" {
 				rows[i].QueryRef = &queryRef{QueryID: rows[i].Dimension, ServiceID: serviceID, PeriodFrom: from, PeriodTo: to}
@@ -260,7 +265,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 
 // pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one
 // service_name found in the caller's service list, and "" when they pin none or that lookup fails.
-func (s *Service) pinnedServiceID(ctx context.Context, auth callerAuth, labels map[string][]string, w window) string {
+func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([]serviceInfo, error)) string {
 	if ids := labels["service_id"]; len(ids) == 1 {
 		return ids[0]
 	}
@@ -268,12 +273,12 @@ func (s *Service) pinnedServiceID(ctx context.Context, auth callerAuth, labels m
 	if len(names) != 1 {
 		return ""
 	}
-	services, err := s.listServices(ctx, auth, w)
+	list, err := services()
 	if err != nil {
 		s.l.WithField("tool", "pmm_top_queries").Debugf("Cannot list services, query_ref will have no service_id: %s.", err)
 		return ""
 	}
-	svc, ok := serviceNamed(services, names[0])
+	svc, ok := serviceNamed(list, names[0])
 	if !ok {
 		return ""
 	}
@@ -751,8 +756,10 @@ func quotingMatters(fingerprint string) bool {
 // reportEngines returns the engine whose quoting reads each queryid's
 // fingerprint: the report's one SQL engine when its filters or QAN's data name
 // one, else each row's own, from rowEngines (PMM-15529).
-func (s *Service) reportEngines(ctx context.Context, auth callerAuth, q *reportQuery, rows []qanReportRow, from, to time.Time) func(string) string {
-	engine := s.reportEngine(ctx, auth, q.labels, from, to)
+func (s *Service) reportEngines(
+	ctx context.Context, auth callerAuth, q *reportQuery, rows []qanReportRow, from, to time.Time, services func() ([]serviceInfo, error),
+) func(string) string {
+	engine := s.reportEngine(ctx, auth, q.labels, from, to, services)
 	if _, filtered := q.labels["service_type"]; engine != "" || filtered {
 		// A service_type filter is the caller's; rowEngines would replace it.
 		return func(string) string { return engine }
@@ -764,7 +771,9 @@ func (s *Service) reportEngines(ctx context.Context, auth callerAuth, q *reportQ
 // reportEngine returns the engine of a whole report: its one SQL service_type,
 // else the engine of the one service it is filtered to, else the only SQL
 // engine QAN holds data for in the window, else "".
-func (s *Service) reportEngine(ctx context.Context, auth callerAuth, labels map[string][]string, from, to time.Time) string {
+func (s *Service) reportEngine(
+	ctx context.Context, auth callerAuth, labels map[string][]string, from, to time.Time, services func() ([]serviceInfo, error),
+) string {
 	if types, ok := labels["service_type"]; ok {
 		if len(types) == 1 && (types[0] == engineMySQL || types[0] == enginePostgreSQL) {
 			return types[0]
@@ -779,7 +788,7 @@ func (s *Service) reportEngine(ctx context.Context, auth callerAuth, labels map[
 		id = ids[0]
 	}
 	if name != "" || id != "" {
-		return s.serviceEngine(ctx, auth, name, id, window{From: from, To: to})
+		return serviceEngine(name, id, services)
 	}
 	types, err := s.api.QANServiceTypes(ctx, auth, from, to)
 	if err != nil {
@@ -833,19 +842,19 @@ func (s *Service) rowEngines(ctx context.Context, auth callerAuth, body qan_serv
 
 // serviceEngine returns the engine of the service a report is filtered to, by
 // name or else by id, or "" when it is not found.
-func (s *Service) serviceEngine(ctx context.Context, auth callerAuth, name, id string, w window) string {
+func serviceEngine(name, id string, services func() ([]serviceInfo, error)) string {
 	if name == "" && id == "" {
 		return ""
 	}
-	services, err := s.listServices(ctx, auth, w)
+	list, err := services()
 	if err != nil {
 		return ""
 	}
 	if name != "" {
-		svc, _ := serviceNamed(services, name)
+		svc, _ := serviceNamed(list, name)
 		return svc.Engine
 	}
-	for _, svc := range services {
+	for _, svc := range list {
 		if svc.ServiceID == id {
 			return svc.Engine
 		}
@@ -933,7 +942,7 @@ func (s *Service) engineOf(ctx context.Context, auth callerAuth, serviceID strin
 	}
 	i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceID == serviceID })
 	if i < 0 {
-		return serviceInfo{}, errNotInList(w, "; use pmm_inventory to list service ids")
+		return serviceInfo{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
 	}
 	return services[i], nil
 }

@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"net/http/httputil"
@@ -274,7 +275,7 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-does-not-exist"})
 		assert.True(t, isError)
-		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, "; use pmm_inventory to list service ids").message, text)
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, testNow, "; use pmm_inventory to list service ids").message, text)
 		assert.NotContains(t, text, "svc-does-not-exist")
 	})
 
@@ -313,6 +314,109 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 		assert.True(t, isError)
 		assert.Contains(t, text, "engine must be mysql or postgresql")
 		assert.Zero(t, listQueries(fake))
+	})
+}
+
+// gatedRoutes answers every request that a tool gated on the service list sends past the gate, so a gate that fails open would succeed.
+func gatedRoutes(extra map[string]fixture) map[string]fixture {
+	return withRoutes(withRoutes(qanRoutes(), map[string]fixture{
+		"POST " + reportPath:                  {file: reportOne},
+		"GET /v1/qan/query/QID-AAA/plan":      {file: "plan_empty.json"},
+		"POST /v1/actions:startServiceAction": {file: "action_start_explain.json"},
+		vmQueryRange:                          {body: healthMatrix(testNow, "1", "2")},
+		vmQuery + " ?mysql_global_variables_": {file: "vm_variables.json"},
+		vmQuery + " ?pg_settings_":            {file: "vm_variables.json"},
+	}), extra)
+}
+
+// assertNoGatedRequest fails for any QAN, action, range or variables request: none may run when the gate refuses.
+func assertNoGatedRequest(t *testing.T, fake *fakePMM) {
+	t.Helper()
+
+	fake.mu.Lock()
+	defer fake.mu.Unlock()
+	for _, r := range fake.requests {
+		query, err := url.ParseQuery(r.query)
+		require.NoError(t, err)
+		promql := query.Get("query")
+		gated := strings.HasPrefix(r.path, "/v1/qan") ||
+			strings.HasPrefix(r.path, "/v1/actions") ||
+			r.path == vmAPI+"query_range" ||
+			strings.Contains(promql, "mysql_global_variables_") ||
+			strings.Contains(promql, "pg_settings_")
+		assert.False(t, gated, "%s %s %s", r.method, r.path, promql)
+	}
+}
+
+// TestServiceListFailsClosed pins that every tool gated on the service list fails when the list query fails,
+// before any QAN, action, signal or variables request, and never falls back to an unfiltered source.
+func TestServiceListFailsClosed(t *testing.T) {
+	t.Parallel()
+
+	ref := map[string]any{
+		"queryid":     "QID-AAA",
+		"service_id":  "svc-1",
+		"period_from": testNow.Add(-time.Hour).Format(time.RFC3339),
+		"period_to":   testNow.Format(time.RFC3339),
+	}
+	calls := []struct {
+		name string
+		tool string
+		args map[string]any
+	}{
+		{"QueryDetail", "pmm_query_detail", map[string]any{"queryid": "QID-AAA"}},
+		{"QueryDetailWithServiceID", "pmm_query_detail", map[string]any{"queryid": "QID-AAA", "service_id": "svc-1"}},
+		{"ExplainByQueryID", "pmm_get_explain", map[string]any{"queryid": "QID-AAA", "service_id": "svc-1"}},
+		{"ExplainByQueryRef", "pmm_get_explain", map[string]any{"query_ref": ref}},
+		{"SchemaByQueryID", "pmm_get_schema", map[string]any{"queryid": "QID-AAA"}},
+		{"SchemaByQueryRef", "pmm_get_schema", map[string]any{"query_ref": ref}},
+		{"SchemaOfNamedTables", "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"orders"}}},
+		{"ConfigByID", "pmm_get_config", map[string]any{"service_id": "svc-1"}},
+		{"ConfigByName", "pmm_get_config", map[string]any{"service_name": "shop-mysql"}},
+		{"ServiceHealth", "pmm_service_health", map[string]any{"service_id": "svc-1"}},
+	}
+	failures := []struct {
+		name string
+		fx   fixture
+		code errorCode
+	}{
+		{"Unauthorized", fixture{file: "error_401.json", status: http.StatusUnauthorized}, codeUnauthorized},
+		{"ServerError", failed, codePMMUnavailable},
+		{"TooLarge", fixture{body: []byte(strings.Repeat(" ", 5<<20))}, codePMMUnavailable},
+	}
+	for _, c := range calls {
+		for _, f := range failures {
+			t.Run(c.name+"/"+f.name, func(t *testing.T) {
+				t.Parallel()
+
+				fake := newFakePMM(t, gatedRoutes(map[string]fixture{serviceListKey: f.fx}))
+				session := connect(t, newQANService(t, fake, true))
+
+				text, isError := callText(t, session, c.tool, c.args)
+				require.True(t, isError, text)
+				assert.True(t, strings.HasPrefix(text, "error: "+string(f.code)+"\n"), text)
+				assert.Equal(t, 1, listQueries(fake), "the gate read the list")
+				assertNoGatedRequest(t, fake)
+			})
+		}
+	}
+
+	t.Run("QueryRefOutsideTheList", func(t *testing.T) {
+		t.Parallel()
+
+		secret := maps.Clone(ref)
+		secret["service_id"] = "svc-secret"
+		want := "error: not_found\n" + errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, testNow, "").message
+		for _, tool := range []string{"pmm_get_explain", "pmm_get_schema"} {
+			fake := newFakePMM(t, gatedRoutes(nil))
+			session := connect(t, newQANService(t, fake, true))
+
+			text, isError := callText(t, session, tool, map[string]any{"query_ref": secret})
+			require.True(t, isError, tool)
+			assert.Equal(t, want, text, tool)
+			assert.NotContains(t, text, "svc-secret", tool)
+			assertNoGatedRequest(t, fake)
+		}
 	})
 }
 
@@ -356,7 +460,7 @@ func TestConfigByServiceName(t *testing.T) {
 		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-secret", "at": "now-3h"})
 		assert.True(t, isError)
 		at := testNow.Add(-3 * time.Hour)
-		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: at.Add(-time.Hour), To: at}, hint).message, text)
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: at.Add(-time.Hour), To: at}, testNow, hint).message, text)
 		assert.NotContains(t, text, "shop-secret")
 		assert.Len(t, fake.requestsTo(vmAPI+"query"), 1)
 		assert.Equal(t, 1, listQueries(fake))

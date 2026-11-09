@@ -53,11 +53,11 @@ const (
 
 	// The longest look-back of the service list.
 	maxServiceListLookback = 7 * day
+	// The shortest look-back of the service list, longer than a scrape interval, so that a short window keeps a live service.
+	minServiceListLookback = 5 * time.Minute
 )
 
-// versionMetrics maps an engine to the metric and label that carry the server
-// version. The service list carries no version, so versions come from the
-// exporters' info metrics.
+// versionMetrics maps an engine to the exporter's info metric and label that carry the server version.
 var versionMetrics = map[string]struct{ metric, label string }{
 	engineMySQL:      {"mysql_version_info", "version"},
 	enginePostgreSQL: {"pg_static", "short_version"},
@@ -245,13 +245,22 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 	return inventoryResult{Services: rows, Page: pg}, nil
 }
 
-// listSpan returns the look-back of the service list for a call window: its last 7 days at most, and whether it cut the window.
-func listSpan(w window) (window, bool) {
-	floor := w.To.Add(-maxServiceListLookback)
-	if floor.After(w.From) {
-		return window{From: floor, To: w.To}, true
+// listSpan returns the service list's look-back for a window, ending at its end or now, 5 minutes to 7 days long, and whether it cut the start.
+func listSpan(w window, now time.Time) (window, bool) {
+	end := w.To
+	if now.Before(end) {
+		end = now
 	}
-	return w, false
+	from := w.From
+	cut := false
+	floor := end.Add(-maxServiceListLookback)
+	if floor.After(from) {
+		from, cut = floor, true
+	}
+	if end.Sub(from) < minServiceListLookback {
+		from = end.Add(-minServiceListLookback)
+	}
+	return window{From: from, To: end}, cut
 }
 
 // lastHour is the look-back of a call without a window.
@@ -261,7 +270,7 @@ func (s *Service) lastHour() window {
 
 // listServices returns the services whose up series the caller can read and that sent a sample in the look-back of the window.
 func (s *Service) listServices(ctx context.Context, auth callerAuth, w window) ([]serviceInfo, error) {
-	span, _ := listSpan(w)
+	span, _ := listSpan(w, s.now())
 	seconds := int64(span.To.Sub(span.From) / time.Second)
 	samples, err := s.queryMetrics(ctx, auth, fmt.Sprintf(serviceListQuery, seconds), span.To)
 	if err != nil {

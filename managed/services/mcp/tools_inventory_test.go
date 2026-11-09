@@ -376,17 +376,59 @@ func TestServiceList(t *testing.T) {
 		hour := window{From: testNow.Add(-time.Hour), To: testNow}
 		week := window{From: testNow.Add(-7 * day), To: testNow}
 		for _, w := range []window{hour, week} {
-			got, cut := listSpan(w)
+			got, cut := listSpan(w, testNow)
 			assert.Equal(t, w, got)
 			assert.False(t, cut)
 		}
 
-		got, cut := listSpan(window{From: testNow.Add(-30 * day), To: testNow})
+		got, cut := listSpan(window{From: testNow.Add(-30 * day), To: testNow}, testNow)
 		assert.True(t, cut)
 		assert.Equal(t, window{
 			From: time.Date(2026, 9, 7, 12, 0, 0, 0, time.UTC),
 			To:   time.Date(2026, 9, 14, 12, 0, 0, 0, time.UTC),
 		}, got)
+	})
+
+	t.Run("SpanEndsNowAndLastsFiveMinutesAtLeast", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tc := range []struct {
+			name string
+			w    window
+			want window
+			cut  bool
+		}{
+			{
+				name: "a future end reads the last 7 days up to now",
+				w:    window{From: testNow.Add(-20 * day), To: testNow.Add(day)},
+				want: window{From: testNow.Add(-7 * day), To: testNow},
+				cut:  true,
+			},
+			{
+				name: "a future end within 7 days ends now",
+				w:    window{From: testNow.Add(-time.Hour), To: testNow.Add(time.Hour)},
+				want: window{From: testNow.Add(-time.Hour), To: testNow},
+			},
+			{
+				name: "a window shorter than a scrape interval reads 5 minutes",
+				w:    window{From: testNow.Add(-30 * time.Second), To: testNow},
+				want: window{From: testNow.Add(-5 * time.Minute), To: testNow},
+			},
+			{
+				name: "a short past window reads the 5 minutes before its end",
+				w:    window{From: testNow.Add(-2*time.Hour - time.Second), To: testNow.Add(-2 * time.Hour)},
+				want: window{From: testNow.Add(-2*time.Hour - 5*time.Minute), To: testNow.Add(-2 * time.Hour)},
+			},
+			{
+				name: "a window wholly in the future reads the last 5 minutes",
+				w:    window{From: testNow.Add(time.Hour), To: testNow.Add(2 * time.Hour)},
+				want: window{From: testNow.Add(-5 * time.Minute), To: testNow},
+			},
+		} {
+			got, cut := listSpan(tc.w, testNow)
+			assert.Equal(t, tc.want, got, tc.name)
+			assert.Equal(t, tc.cut, cut, tc.name)
+		}
 	})
 
 	t.Run("Unauthorized", func(t *testing.T) {
@@ -567,11 +609,16 @@ func TestListFollowsTheWindow(t *testing.T) {
 		res := callTool(t, session, "pmm_top_queries", with(window6hTo2h, "service_name", "shop-gone", "group_by", "queryid"))
 		require.False(t, res.IsError, textOf(t, res))
 		lists := queriesWith(fake, "tlast_over_time(up[")
-		require.GreaterOrEqual(t, len(lists), 2, "the pinned service and the engine are both looked up")
-		for _, r := range lists {
-			assert.Contains(t, queryOf(t, r).Get("query"), "up[14400s]")
-			assert.Equal(t, "1789380000", queryOf(t, r).Get("time"))
-		}
+		require.Len(t, lists, 1, "the engine and the query_ref lookups share one list")
+		assert.Contains(t, queryOf(t, lists[0]).Get("query"), "up[14400s]")
+		assert.Equal(t, "1789380000", queryOf(t, lists[0]).Get("time"))
+
+		got := structured[topQueriesResult](t, res)
+		require.NotEmpty(t, got.Rows)
+		require.NotNil(t, got.Rows[0].QueryRef)
+		assert.Equal(t, "svc-gone", got.Rows[0].QueryRef.ServiceID, "the query_ref lookup read the list")
+		assert.Len(t, fake.requestsTo(reportPath), 1, "the engine lookup found mysql in the list, so no per-row engine report ran")
+		assert.Empty(t, fake.requestsTo("/v1/qan/metrics:getFilters"))
 	})
 
 	t.Run("ALongWindowIsCutToItsLastSevenDays", func(t *testing.T) {
@@ -585,6 +632,34 @@ func TestListFollowsTheWindow(t *testing.T) {
 		assert.True(t, strings.HasSuffix(text, "; searched 2026-09-07T12:00:00Z – 2026-09-14T12:00:00Z, the last 7 days of the call's window"), text)
 		assert.NotContains(t, text, "svc-secret")
 		listTimes(t, fake, "up[604800s]")
+		list := queriesWith(fake, "tlast_over_time(up[")
+		assert.Equal(t, "1789387200", queryOf(t, list[0]).Get("time"))
+	})
+
+	t.Run("AFutureEndReadsTheLastSevenDaysUpToNow", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFake(t)
+		session := connect(t, newQANService(t, fake, true))
+
+		to := testNow.Add(day).Format(time.RFC3339)
+		text, isError := callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA", "service_id": "svc-secret", "period_from": "now-20d", "period_to": to})
+		assert.True(t, isError)
+		assert.True(t, strings.HasSuffix(text, "; searched 2026-09-07T12:00:00Z – 2026-09-14T12:00:00Z, the last 7 days of the call's window up to now"), text)
+		listTimes(t, fake, "up[604800s]")
+		list := queriesWith(fake, "tlast_over_time(up[")
+		assert.Equal(t, "1789387200", queryOf(t, list[0]).Get("time"))
+	})
+
+	t.Run("AShortWindowReadsFiveMinutes", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFake(t)
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA", "service_id": "svc-1", "period_from": "now-30s"})
+		assert.False(t, isError, text)
+		listTimes(t, fake, "up[300s]")
 		list := queriesWith(fake, "tlast_over_time(up[")
 		assert.Equal(t, "1789387200", queryOf(t, list[0]).Get("time"))
 	})

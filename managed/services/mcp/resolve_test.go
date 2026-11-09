@@ -58,7 +58,7 @@ func TestResolveQuery(t *testing.T) {
 		PeriodTo:   testNow.Add(-25 * time.Hour),
 	}
 	hour := queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow}
-	notInHour := errNotInList(window{From: hour.PeriodFrom, To: hour.PeriodTo}, "").message
+	notInHour := errNotInList(window{From: hour.PeriodFrom, To: hour.PeriodTo}, testNow, "").message
 
 	withService := func(ref queryRef, id string) queryRef {
 		ref.ServiceID = id

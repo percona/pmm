@@ -162,10 +162,13 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 }
 
 // errNotInList is the not_found for a service outside the service list of the window, naming the window and no service.
-func errNotInList(w window, hint string) *toolError {
-	span, cut := listSpan(w)
+func errNotInList(w window, now time.Time, hint string) *toolError {
+	span, cut := listSpan(w, now)
 	text := notInServiceList + "; searched " + windowText(span)
-	if cut {
+	switch {
+	case cut && span.To.Before(w.To):
+		text += ", the last 7 days of the call's window up to now"
+	case cut:
 		text += ", the last 7 days of the call's window"
 	}
 	return newToolError(codeNotFound, "%s%s", text, hint)
@@ -186,12 +189,12 @@ func (s *Service) callerServices(ctx context.Context, auth callerAuth, serviceID
 	}
 	if serviceID != "" {
 		if !slices.Contains(ids, serviceID) {
-			return nil, nil, errNotInList(w, "")
+			return nil, nil, errNotInList(w, s.now(), "")
 		}
 		ids = []string{serviceID}
 	}
 	if len(ids) == 0 {
-		return nil, nil, errNotInList(w, "")
+		return nil, nil, errNotInList(w, s.now(), "")
 	}
 	return services, ids, nil
 }
