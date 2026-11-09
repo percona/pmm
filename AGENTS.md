@@ -8,13 +8,12 @@ Some tools also use a thin pointer file that simply routes them here — these a
 
 | Tool | Pointer file (→ reads `AGENTS.md`) |
 |------|------|
-| Claude Code | [CLAUDE.md](CLAUDE.md), plus one per component guide |
 | Gemini CLI | [GEMINI.md](GEMINI.md) |
 | GitHub Copilot | [.github/copilot-instructions.md](.github/copilot-instructions.md) |
 
-Claude Code reads `CLAUDE.md` and not `AGENTS.md`, so every directory holding a component guide also carries a `CLAUDE.md` whose only instruction is `@AGENTS.md`. Claude Code loads a nested `CLAUDE.md` on demand — when it first reads a file in that directory — so the component guide enters context automatically for whichever component is being worked on, without the root file pulling in all of them. Keep these pointers to the import alone; guidance belongs in `AGENTS.md`.
+Claude Code (v2.1.277 or later) needs no pointer: it reads the root `AGENTS.md` at session start and a component guide when it first opens a file in that directory, so only the guide for the component being worked on enters context. It skips `AGENTS.md` entirely while a `CLAUDE.md`, `.claude/CLAUDE.md` or `CLAUDE.local.md` exists in the working directory or above it (`~/.claude/CLAUDE.md` doesn't count), so don't add one — guidance belongs in `AGENTS.md`. To keep a personal `CLAUDE.local.md`, set **Project instructions** to `claude-md-and-agents-md` in `/config`.
 
-Any other agent can read `AGENTS.md` directly — Cursor, for example, loads root and nested `AGENTS.md` files natively, so no Cursor-specific rule is needed. Personal AI-tool files (`.claude/`, `.cursor/`) are gitignored for local experimentation, except `.claude/settings.json` (committed team config).
+Any other agent can read `AGENTS.md` directly — Cursor, for example, loads root and nested `AGENTS.md` files natively, so no Cursor-specific rule is needed. Personal AI-tool files (`.claude/`, `.cursor/`) are gitignored for local experimentation.
 
 If an `AGENTS.local.md` (repo root) or `~/AGENTS.local.md` (home) is present, read it at session start too — it holds machine-specific paths (gitignored). **Never put secrets there**; keep credentials in environment variables or a secret store.
 
@@ -23,7 +22,7 @@ If an `AGENTS.local.md` (repo root) or `~/AGENTS.local.md` (home) is present, re
 **You are responsible for keeping this file accurate.** After completing work, check whether any of these apply:
 
 - Added, removed, or renamed a top-level directory or component
-- Added or removed a per-component `AGENTS.md` (add or remove its `CLAUDE.md` pointer to match)
+- Added or removed a per-component `AGENTS.md`
 - Changed the tech stack (new dependency in `go.mod`, new tool, removed technology)
 - Changed build targets in `Makefile` / `Makefile.include`
 - Changed global conventions (code style, error handling, testing patterns)
@@ -70,7 +69,7 @@ A component guide covers only what is specific to its area. Global conventions �
 
 ## How AI agents should work in this repo
 
-The **`AGENTS.md` hierarchy is the single source of truth** for agents. Read the matching component guide before editing.
+The **`AGENTS.md` hierarchy is the single source of truth** for agents. Read the matching component guide before editing. Don't assume PMM-specific behavior from general knowledge — verify it against these guides and the code.
 
 Follow the sections through [Git and pull request checklist](#git-and-pull-request-checklist) every time you change code. Skim [Product Overview](#product-overview) and below when you need context.
 

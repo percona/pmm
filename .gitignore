@@ -53,11 +53,9 @@ __pycache__/
 # PMM Demo backups (it would increase repository size significantly)
 dev/clickhouse-backups/
 
-# Local AI-tool files are gitignored for personal experimentation;
-# committed team config lives in .claude/settings.json.
-.claude/*
-!.claude/settings.json
-# Personal Claude Code memory override (the shared CLAUDE.md itself is committed)
+# Local AI-tool files are gitignored for personal experimentation.
+.claude/
+# Personal Claude Code instructions; one makes Claude Code skip AGENTS.md (see AGENTS.md)
 CLAUDE.local.md
 .cursor/
 .cursorrules/
