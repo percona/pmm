@@ -80,7 +80,7 @@ type spec struct {
 	fileEnvs []string
 	// valueEnvs name legacy variables holding the value itself.
 	valueEnvs []string
-	// providers are the Grafana providers that expanded a legacy value before PMM-15168, in Grafana's order. Grafana
+	// providers are the Grafana providers that expanded a legacy value before PMM-15891, in Grafana's order. Grafana
 	// doesn't expand what it reads from a file, so they apply here.
 	providers []string
 	// defaultValue is the value PMM has always used when nothing is configured.
