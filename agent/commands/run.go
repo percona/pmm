@@ -62,6 +62,9 @@ func Run() {
 	v := versioner.New(&versioner.RealExecFunctions{})
 	configStorage, configFilepath := prepareConfig(l)
 
+	// Also before the loop, so that the sweep below logs at the configured level.
+	config.ConfigureLogger(configStorage.Get())
+
 	// Once, before the loop: on a reload, the vmagent holding the queue is this pmm-agent's own.
 	paths := configStorage.Get().Paths
 	stopLeftoverVMAgents(rootCtx, paths.VMAgent, paths.TempDir, l)
