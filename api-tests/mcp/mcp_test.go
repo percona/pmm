@@ -619,7 +619,7 @@ func TestQueryMetricsBudget(t *testing.T) {
 	session := connect(t)
 
 	query := `{__name__=~"mysql_global_status_.*", service_name="` + serviceName + `"}`
-	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-6h"})
+	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-6h", "step": "5m"})
 	require.False(t, res.IsError, text)
 
 	structured, err := json.Marshal(res.StructuredContent)

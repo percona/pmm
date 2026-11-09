@@ -52,7 +52,7 @@ const (
 	loopsPerCaller      = 2
 	monitoredCount      = 10
 	callTimeout         = 90 * time.Second
-	rateLimitedPause    = 500 * time.Millisecond
+	failedCallPause     = 500 * time.Millisecond
 	probeInterval       = 10 * time.Second
 	probeRange          = 12 * time.Hour
 	probeStep           = 60 * time.Second
@@ -555,7 +555,7 @@ type request struct {
 	query string
 }
 
-// callLoop calls a tool in turn with the requests next returns, back to back until ctx ends.
+// callLoop calls a tool in turn with the requests next returns, back to back until ctx ends, pausing after a call that fails.
 func callLoop(ctx context.Context, session *mcp.ClientSession, rec *recorder, name string, next func(i int) request, first int) {
 	for i := first; ctx.Err() == nil; i++ {
 		req := next(i)
@@ -570,11 +570,11 @@ func callLoop(ctx context.Context, session *mcp.ClientSession, rec *recorder, na
 
 		code := resultCode(res, err)
 		rec.add(call{tool: name, query: req.query, latency: elapsed, code: code})
-		if code == "rate_limited" {
+		if code != "ok" {
 			select {
 			case <-ctx.Done():
 				return
-			case <-time.After(rateLimitedPause):
+			case <-time.After(failedCallPause):
 			}
 		}
 	}
