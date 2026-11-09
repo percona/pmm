@@ -176,6 +176,12 @@ func TestPrepare(t *testing.T) {
 		_, err = os.Lstat(filepath.Join(opts.RunDir, string(GrafanaSecretKey)))
 		require.ErrorIs(t, err, os.ErrNotExist)
 		assert.NoFileExists(t, filepath.Join(opts.RunDir, envSubdir, string(GrafanaSecretKey)))
+
+		// Grafana used a key that is only whitespace as written too.
+		opts.Getenv = func(k string) string { return map[string]string{"GF_SECURITY_SECRET_KEY": "\n"}[k] }
+		resolved, err = Prepare(opts)
+		require.NoError(t, err)
+		assert.True(t, byName(t, resolved)[GrafanaSecretKey].Kept)
 	})
 
 	t.Run("refuses a padded database password", func(t *testing.T) {
@@ -414,7 +420,7 @@ func TestPrepare(t *testing.T) {
 		require.NoError(t, os.WriteFile(file, []byte("x"), 0o440))
 		missing := filepath.Join(t.TempDir(), "missing")
 		for dir, msg := range map[string]string{
-			missing: "PMM_SECRETS_DIR: stat " + missing + ": no such file or directory",
+			missing: "PMM_SECRETS_DIR: lstat " + missing + ": no such file or directory",
 			file:    "PMM_SECRETS_DIR (" + file + ") is not a directory",
 		} {
 			_, err := Prepare(testOptions(t, map[string]string{SecretsDirEnvVar: dir}))
@@ -429,23 +435,34 @@ func TestPrepare(t *testing.T) {
 		_, err := Prepare(opts)
 		require.NoError(t, err)
 
-		alias, dirAlias := filepath.Join(t.TempDir(), "alias"), filepath.Join(t.TempDir(), "secrets")
+		alias := filepath.Join(t.TempDir(), "alias")
 		require.NoError(t, os.Symlink(filepath.Join(opts.RunDir, string(GrafanaDBPassword)), alias))
-		require.NoError(t, os.Symlink(opts.RunDir, dirAlias))
-		for _, env := range []map[string]string{
-			{"PMM_GRAFANA_DB_PASSWORD_FILE": alias},
-			{SecretsDirEnvVar: dirAlias},
-		} {
-			opts.Getenv = func(k string) string { return env[k] }
-			_, err = Prepare(opts)
-			require.ErrorIs(t, err, syscall.ELOOP)
-			require.ErrorContains(t, err, "grafana-db-password: ")
+		opts.Getenv = func(k string) string { return map[string]string{"PMM_GRAFANA_DB_PASSWORD_FILE": alias}[k] }
+		_, err = Prepare(opts)
+		require.ErrorIs(t, err, syscall.ELOOP)
+		require.ErrorContains(t, err, "grafana-db-password: ")
 
-			// a fixed configuration replaces the loop
-			opts.Getenv = func(k string) string { return map[string]string{SecretsDirEnvVar: dir}[k] }
+		// a fixed configuration replaces the loop
+		opts.Getenv = func(k string) string { return map[string]string{SecretsDirEnvVar: dir}[k] }
+		_, err = Prepare(opts)
+		require.NoError(t, err)
+		assert.Equal(t, "from-dir", linked(t, opts, GrafanaDBPassword))
+	})
+
+	t.Run("refuses a secrets directory that leads into the run directory", func(t *testing.T) {
+		env := map[string]string{"PMM_POSTGRES_DBPASSWORD": "from-env"}
+		opts := testOptions(t, env)
+		_, err := Prepare(opts)
+		require.NoError(t, err)
+
+		for _, target := range []string{opts.RunDir, filepath.Join(opts.RunDir, envSubdir)} {
+			alias := filepath.Join(t.TempDir(), "secrets")
+			require.NoError(t, os.Symlink(target, alias))
+			env[SecretsDirEnvVar] = alias
 			_, err = Prepare(opts)
-			require.NoError(t, err)
-			assert.Equal(t, "from-dir", linked(t, opts, GrafanaDBPassword))
+			require.EqualError(t, err, "PMM_SECRETS_DIR ("+alias+") is inside "+opts.RunDir+", where PMM Server links the credentials")
+			// refused before anything changed
+			assert.Equal(t, "from-env", linked(t, opts, PostgresPassword))
 		}
 	})
 

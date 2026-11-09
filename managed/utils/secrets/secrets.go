@@ -366,16 +366,17 @@ func resolve(opts Options, s spec) (Resolved, error) {
 		if err != nil {
 			return r, fmt.Errorf("%s: %w", key, err)
 		}
+		r.Source, r.Padded = SourceEnv, strings.TrimSpace(value) != value
+		// Before the empty check: Grafana read the key as written, even one that is only whitespace.
+		if r.Padded && s.padding == keepPadding {
+			r.Kept = true
+			return r, nil
+		}
 		if strings.TrimSpace(value) == "" {
 			return r, fmt.Errorf("%s resolves to an empty value", key)
 		}
-		r.Source, r.Padded = SourceEnv, strings.TrimSpace(value) != value
-		switch {
-		case r.Padded && s.padding == refusePadding:
+		if r.Padded && s.padding == refusePadding {
 			return r, fmt.Errorf("%s has leading or trailing whitespace, which PMM Server doesn't pass to the database: remove it", key)
-		case r.Padded && s.padding == keepPadding:
-			r.Kept = true
-			return r, nil
 		}
 	case s.defaultValue != "":
 		r.Source, value = SourceDefault, s.defaultValue
@@ -476,12 +477,25 @@ func checkSecretsDir(opts Options) error {
 	if dir == "" {
 		return nil
 	}
+	errInside := fmt.Errorf("%s (%s) is inside %s, where PMM Server links the credentials", SecretsDirEnvVar, dir, opts.RunDir)
 	if inside(opts.RunDir, dir) {
-		return fmt.Errorf("%s (%s) is inside %s, where PMM Server links the credentials", SecretsDirEnvVar, dir, opts.RunDir)
+		return errInside
 	}
 	// Only a missing file in the directory moves on to the next source; a missing directory is a mistake, such as a
 	// volume that didn't mount.
-	fi, err := os.Stat(dir)
+	resolved, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		return fmt.Errorf("%s: %w", SecretsDirEnvVar, err)
+	}
+	// Followed through links too, because Prepare empties .env and replaces the links before it reads the directory.
+	runDir, err := filepath.EvalSymlinks(opts.RunDir)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return err
+	}
+	if err == nil && inside(runDir, resolved) {
+		return errInside
+	}
+	fi, err := os.Stat(resolved)
 	if err != nil {
 		return fmt.Errorf("%s: %w", SecretsDirEnvVar, err)
 	}
