@@ -236,8 +236,8 @@ After adding your Valkey or Redis service to PMM, verify that it's properly conn
         ```
 
 === ":material-web: Via UI"
-To verify your service in the web interface:
-{.power-number}
+    To verify your service in the web interface:
+    {.power-number}
 
     1. Navigate to **Inventory > Services** and find your Valkey service.
     2. Verify the **Service Name** and **Address** match your configuration.
@@ -252,16 +252,17 @@ Once the service is registered, check that its metrics are reaching PMM and show
 1. Open the **Home** dashboard and verify your Valkey/Redis service appears in the **Monitored DB Services** and **Monitored DB Instances** panels.
 
 2. Navigate to the **Valkey/Redis** dashboards from the left menu. PMM provides 10 dedicated dashboards:
-   - **[Clients](../../../reference/dashboards/dashboard-valkey-redis-clients.md)**: Monitor client connections and blocked clients
-   - **[Cluster Details](../../../reference/dashboards/dashboard-valkey-redis-cluster-details.md)**: Track cluster topology and replication health
-   - **[Command Details](../../../reference/dashboards/dashboard-valkey-redis-command-detail.md)**: Analyze command-level performance and latency
-   - **[Load](../../../reference/dashboards/dashboard-valkey-redis-load.md)**: Monitor workload distribution and throughput
-   - **[Memory](../../../reference/dashboards/dashboard-valkey-redis-memory.md)**: Track memory usage and eviction patterns
-   - **[Network](../../../reference/dashboards/dashboard-valkey-redis-network.md)**: Monitor network bandwidth consumption
-   - **[Overview](../../../reference/dashboards/dashboard-valkey-redis-overview.md)**: Get a high-level summary of deployment health
-   - **[Persistence](../../../reference/dashboards/dashboard-valkey-redis-persistence-details.md)**: Verify AOF and RDB persistence operations
-   - **[Replication](../../../reference/dashboards/dashboard-valkey-redis-replication.md)**: Monitor replication lag and synchronization
-   - **[Slowlog](../../../reference/dashboards/dashboard-valkey-redis-slowlog.md)**: Track slow command execution
+
+    - **[Clients](../../../reference/dashboards/dashboard-valkey-redis-clients.md)**: Monitor client connections and blocked clients
+    - **[Cluster Details](../../../reference/dashboards/dashboard-valkey-redis-cluster-details.md)**: Track cluster topology and replication health
+    - **[Command Details](../../../reference/dashboards/dashboard-valkey-redis-command-detail.md)**: Analyze command-level performance and latency
+    - **[Load](../../../reference/dashboards/dashboard-valkey-redis-load.md)**: Monitor workload distribution and throughput
+    - **[Memory](../../../reference/dashboards/dashboard-valkey-redis-memory.md)**: Track memory usage and eviction patterns
+    - **[Network](../../../reference/dashboards/dashboard-valkey-redis-network.md)**: Monitor network bandwidth consumption
+    - **[Overview](../../../reference/dashboards/dashboard-valkey-redis-overview.md)**: Get a high-level summary of deployment health
+    - **[Persistence](../../../reference/dashboards/dashboard-valkey-redis-persistence-details.md)**: Verify AOF and RDB persistence operations
+    - **[Replication](../../../reference/dashboards/dashboard-valkey-redis-replication.md)**: Monitor replication lag and synchronization
+    - **[Slowlog](../../../reference/dashboards/dashboard-valkey-redis-slowlog.md)**: Track slow command execution
 
 3. Select your Valkey or Redis service from the drop-down menu.
 
@@ -290,8 +291,8 @@ If you need to remove a Valkey or Redis service from monitoring:
     ```
 
 === ":material-web: Via UI"
-To remove the service from the user interface:
-{.power-number}
+    To remove the service from the user interface:
+    {.power-number}
 
     1. Navigate to **Inventory > Services**.
     2. Find your Valkey/Redis service in the **Services** tab.
