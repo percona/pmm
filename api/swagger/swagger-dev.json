@@ -39460,7 +39460,7 @@
                       "x-order": 18
                     },
                     "om_enabled": {
-                      "description": "True if OpenManager is enabled.",
+                      "description": "True if Operations for MongoDB is enabled.",
                       "type": "boolean",
                       "x-order": 19
                     }
@@ -39642,7 +39642,7 @@
                   "x-order": 13
                 },
                 "enable_om": {
-                  "description": "Enable OpenManager.",
+                  "description": "Enable Operations for MongoDB.",
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 14
@@ -39794,7 +39794,7 @@
                       "x-order": 18
                     },
                     "om_enabled": {
-                      "description": "True if OpenManager is enabled.",
+                      "description": "True if Operations for MongoDB is enabled.",
                       "type": "boolean",
                       "x-order": 19
                     }
@@ -39904,7 +39904,7 @@
                       "x-order": 8
                     },
                     "om_enabled": {
-                      "description": "True if OpenManager is enabled.",
+                      "description": "True if Operations for MongoDB is enabled.",
                       "type": "boolean",
                       "x-order": 9
                     }
@@ -40750,7 +40750,7 @@
       "name": "RealtimeAnalyticsService"
     },
     {
-      "description": "OmService provides the OpenManager topology and health API.",
+      "description": "OmService provides the Operations for MongoDB topology and health API.",
       "name": "OmService"
     },
     {
