@@ -17,15 +17,14 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 In addition to MongoDB, RTA now works with MySQL, Percona Server for MySQL and MariaDB services. You get the same live view of running queries you already use for MongoDB, with pause, filters and CSV export.
 
-For MySQL, RTA also shows what's holding a statement up:
+For MySQL, RTA also shows:
 
-- See which statements are waiting for a lock, which transaction holds that lock and how long they've been waiting, so you can end the transaction at the head of the chain.
+- statements waiting for locks, the transactions holding those locks and how long they've been waiting, so you can end the transaction at the head of the chain
+- inefficient queries, based on row counts and full table scans, while they're still running
 
-- Spot inefficient queries by their row counts and full table scans while they're still running.
+RTA for MySQL needs PMM Client 3.11.0 or later on the database host.
 
-RTA for MySQL needs PMM Client 3.11.0 or later on the database host. 
-
-To get started, go to **Query Analytics > Real-time** and [start a session for a MySQL service](../use/qan/QAN-realtime-analytics-mysql.md#start-an-rta-session). 
+To get started, go to **Query Analytics > Real-time** and [start a session for a MySQL service](../use/qan/QAN-realtime-analytics-mysql.md#start-an-rta-session).
 
 For programmatic access, use the [Real-time Analytics API](https://percona-pmm.readme.io/reference/real-time-analytics).
 
