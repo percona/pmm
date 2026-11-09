@@ -24,3 +24,6 @@ import (
 
 // stopLeftoverVMAgents does nothing outside Linux, where it has no /proc to look in.
 func stopLeftoverVMAgents(_ context.Context, _, _ string, _ *logrus.Entry) {}
+
+// watchQueueLock does nothing outside Linux, where it has no /proc to look in.
+func watchQueueLock(_ context.Context, _ string, _ *logrus.Entry) {}

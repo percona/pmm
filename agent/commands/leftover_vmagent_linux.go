@@ -17,11 +17,13 @@ package commands
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/prometheus/procfs"
@@ -47,6 +49,8 @@ const (
 	leftoverKillTimeout = 5 * time.Second
 
 	leftoverPollInterval = 100 * time.Millisecond
+
+	queueLockCheckInterval = time.Minute
 )
 
 // leftoverTimeouts bounds the whole sweep, and the waits after SIGTERM and after SIGKILL that all leftovers share.
@@ -257,16 +261,103 @@ func warnCurrentParent(ppid int, queueDir string, l *logrus.Entry) {
 	if ppid <= 1 {
 		return
 	}
-	exe := "unknown"
-	parent, err := procfs.NewProc(ppid)
-	if err == nil {
-		parentExe, exeErr := parent.Executable()
-		if exeErr == nil && parentExe != "" {
-			exe = parentExe
+	l.Warnf("The leftover vmagent's current parent is PID %d (%s): if that started it, it may start it again, "+
+		"and only one pmm-agent can use %s.", ppid, executable(ppid), queueDir)
+}
+
+// executable returns the /proc/<pid>/exe of a process, or "unknown".
+func executable(pid int) string {
+	p, err := procfs.NewProc(pid)
+	if err != nil {
+		return "unknown"
+	}
+	exe, err := p.Executable()
+	if err != nil || exe == "" {
+		return "unknown"
+	}
+
+	return exe
+}
+
+// watchQueueLock warns once about each process, other than this pmm-agent's children, that holds a lock in its
+// vmagent queue and so keeps its vmagent from starting; the sweep at start cannot stop one started later.
+func watchQueueLock(ctx context.Context, tempDir string, l *logrus.Entry) {
+	queueDir := filepath.Join(tempDir, vmagentQueueDirName)
+	reported := make(map[int]bool)
+	t := time.NewTicker(queueLockCheckInterval)
+	defer t.Stop()
+	for {
+		warnQueueLockHolders(queueDir, os.Getpid(), reported, l)
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
 		}
 	}
-	l.Warnf("The leftover vmagent's current parent is PID %d (%s): if that started it, it may start it again, "+
-		"and only one pmm-agent can use %s.", ppid, exe, queueDir)
+}
+
+// warnQueueLockHolders warns about the holders of a lock in queueDir that are neither children of self nor in
+// reported, and adds them to reported.
+func warnQueueLockHolders(queueDir string, self int, reported map[int]bool, l *logrus.Entry) {
+	for _, pid := range queueLockHolders(queueDir) {
+		if reported[pid] {
+			continue
+		}
+		p, err := procfs.NewProc(pid)
+		if err != nil {
+			continue
+		}
+		stat, err := p.Stat()
+		if err != nil || stat.PPID == self {
+			continue
+		}
+		reported[pid] = true
+		started := "unknown"
+		startTime, err := stat.StartTime()
+		if err == nil {
+			started = time.Unix(int64(startTime), 0).UTC().Format(time.RFC3339)
+		}
+		l.Warnf("PID %d (%s, started %s, parent PID %d %s) holds the lock on %s, so this pmm-agent's vmagent cannot start.",
+			pid, executable(pid), started, stat.PPID, executable(stat.PPID), queueDir)
+	}
+}
+
+// queueLockHolders returns the PIDs that /proc/locks shows holding a lock on a file directly in queueDir.
+func queueLockHolders(queueDir string) []int {
+	entries, err := os.ReadDir(queueDir)
+	if err != nil {
+		return nil
+	}
+	files := make(map[string]bool, len(entries))
+	for _, e := range entries {
+		info, err := e.Info()
+		if err != nil {
+			continue
+		}
+		st, ok := info.Sys().(*syscall.Stat_t)
+		if ok {
+			files[fmt.Sprintf("%02x:%02x:%d", unix.Major(st.Dev), unix.Minor(st.Dev), st.Ino)] = true
+		}
+	}
+
+	locks, err := os.ReadFile("/proc/locks")
+	if err != nil {
+		return nil
+	}
+	var pids []int
+	for line := range strings.Lines(string(locks)) {
+		// "1: FLOCK  ADVISORY  WRITE <pid> <major>:<minor>:<inode> 0 EOF"; a waiter has "->" after the ID.
+		fields := strings.Fields(line)
+		if len(fields) < 6 || fields[1] == "->" || !files[fields[5]] {
+			continue
+		}
+		pid, err := strconv.Atoi(fields[4])
+		if err == nil && pid > 0 && !slices.Contains(pids, pid) {
+			pids = append(pids, pid)
+		}
+	}
+
+	return pids
 }
 
 // leftover is a process being stopped, held by a pidfd so that a reused PID is never signaled in its place,

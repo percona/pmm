@@ -22,12 +22,14 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"syscall"
 	"testing"
 	"time"
 
 	"github.com/prometheus/procfs"
 	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sys/unix"
@@ -43,6 +45,12 @@ func TestLeftoverVMAgentHelper(t *testing.T) {
 	}
 	if mode == "ignore-sigterm" {
 		signal.Ignore(syscall.SIGTERM)
+	}
+	if mode == "lock" {
+		queueDir, _ := tmpDataPath(os.Args)
+		f, err := os.Create(filepath.Join(queueDir, "flock.lock"))
+		require.NoError(t, err)
+		require.NoError(t, unix.Flock(int(f.Fd()), unix.LOCK_EX))
 	}
 	_, _ = os.Stdout.WriteString("ready\n")
 	time.Sleep(time.Hour)
@@ -431,4 +439,57 @@ func TestTmpDataPath(t *testing.T) {
 			assert.Equal(t, tc.expected != "", ok)
 		})
 	}
+}
+
+func TestQueueLockHolders(t *testing.T) {
+	t.Parallel()
+
+	t.Run("finds the process holding the queue lock", func(t *testing.T) {
+		t.Parallel()
+
+		_, queueDir := newQueue(t)
+		cmd := startLeftover(t, queueDir, "lock")
+
+		assert.Equal(t, []int{cmd.Process.Pid}, queueLockHolders(queueDir))
+	})
+
+	t.Run("finds none without a lock", func(t *testing.T) {
+		t.Parallel()
+
+		_, queueDir := newQueue(t)
+		startLeftover(t, queueDir, "run")
+
+		assert.Empty(t, queueLockHolders(queueDir))
+	})
+
+	t.Run("warns once about a holder that is not a child of this pmm-agent", func(t *testing.T) {
+		t.Parallel()
+
+		_, queueDir := newQueue(t)
+		cmd := startLeftover(t, queueDir, "lock")
+		logger, hook := logrustest.NewNullLogger()
+		l := logrus.NewEntry(logger)
+		reported := make(map[int]bool)
+
+		// The stand-in is this test's child, so a self of 0 makes it a stranger's.
+		warnQueueLockHolders(queueDir, 0, reported, l)
+		warnQueueLockHolders(queueDir, 0, reported, l)
+
+		require.Len(t, hook.AllEntries(), 1)
+		assert.Equal(t, logrus.WarnLevel, hook.LastEntry().Level)
+		assert.Contains(t, hook.LastEntry().Message, "PID "+strconv.Itoa(cmd.Process.Pid)+" (")
+		assert.Contains(t, hook.LastEntry().Message, queueDir)
+	})
+
+	t.Run("leaves the vmagent of this pmm-agent alone", func(t *testing.T) {
+		t.Parallel()
+
+		_, queueDir := newQueue(t)
+		startLeftover(t, queueDir, "lock")
+		logger, hook := logrustest.NewNullLogger()
+
+		warnQueueLockHolders(queueDir, os.Getpid(), make(map[int]bool), logrus.NewEntry(logger))
+
+		assert.Empty(t, hook.AllEntries())
+	})
 }

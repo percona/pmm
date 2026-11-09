@@ -68,6 +68,7 @@ func Run() {
 	// Once, before the loop: on a reload, the vmagent holding the queue is this pmm-agent's own.
 	paths := configStorage.Get().Paths
 	stopLeftoverVMAgents(rootCtx, paths.VMAgent, paths.TempDir, l)
+	go watchQueueLock(rootCtx, paths.TempDir, l)
 
 	for {
 		ctx, cancel := context.WithCancel(rootCtx)
