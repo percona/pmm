@@ -188,8 +188,22 @@ func (s *Service) registerQANTools(server *mcp.Server) {
 	}, s.queryDetail)
 }
 
+// maxQANWindow is the longest window a QAN call may read.
+const maxQANWindow = 30 * day
+
+func checkQANWindow(from, to time.Time) error {
+	if to.Sub(from) > maxQANWindow {
+		return newToolError(codeInvalidInput, "the window is longer than the cap of %d days: narrow period_from or period_to", int(maxQANWindow/day))
+	}
+	return nil
+}
+
 func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in topQueriesInput) (topQueriesResult, error) {
 	from, to, err := parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
+	if err != nil {
+		return topQueriesResult{}, err
+	}
+	err = checkQANWindow(from, to)
 	if err != nil {
 		return topQueriesResult{}, err
 	}
@@ -198,6 +212,11 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		return topQueriesResult{}, err
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
+	release, err := s.startMetrics(auth)
+	if err != nil {
+		return topQueriesResult{}, err
+	}
+	defer release()
 
 	report, err := s.api.GetReport(ctx, auth, q.body)
 	if err != nil {
@@ -520,7 +539,16 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	if err != nil {
 		return queryDetailResult{}, err
 	}
+	err = checkQANWindow(from, to)
+	if err != nil {
+		return queryDetailResult{}, err
+	}
 	auth := callerAuthFromHeader(req.Extra.Header)
+	release, err := s.startMetrics(auth)
+	if err != nil {
+		return queryDetailResult{}, err
+	}
+	defer release()
 
 	_, serviceIDs, err := s.callerServices(ctx, auth, in.ServiceID)
 	if err != nil {

@@ -76,7 +76,7 @@ func TestInventoryTool(t *testing.T) {
 		for _, q := range queries {
 			promql = append(promql, q.query)
 		}
-		assert.ElementsMatch(t, []string{"query=mysql_version_info", "query=pg_static"}, promql)
+		assert.ElementsMatch(t, []string{"query=mysql_version_info&timeout=25s", "query=pg_static&timeout=25s"}, promql)
 	})
 
 	t.Run("Structured", func(t *testing.T) {

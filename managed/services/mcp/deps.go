@@ -96,11 +96,19 @@ func (f *lenientFloat) UnmarshalJSON(b []byte) error {
 
 // finite returns the value, or 0 for NaN and infinities.
 func finite(f lenientFloat) float64 {
-	v := float64(f)
-	if math.IsNaN(v) || math.IsInf(v, 0) {
+	v := nullable(float64(f))
+	if v == nil {
 		return 0
 	}
-	return v
+	return *v
+}
+
+// nullable returns a pointer to the value, or nil for NaN and infinities.
+func nullable(v float64) *float64 {
+	if math.IsNaN(v) || math.IsInf(v, 0) {
+		return nil
+	}
+	return &v
 }
 
 // metricStats is the per-metric statistics block of QAN responses
@@ -178,5 +186,9 @@ type pmmAPI interface {
 	GetAction(ctx context.Context, auth callerAuth, actionID string) (*actions_service.GetActionOKBody, error)
 	CancelAction(ctx context.Context, auth callerAuth, actionID string) error
 	GetDatasourceByName(ctx context.Context, auth callerAuth, name string) (*datasource, error)
-	QueryInstant(ctx context.Context, auth callerAuth, datasourceUID, promql string, at time.Time) ([]metricSample, error)
+	QueryInstant(ctx context.Context, auth callerAuth, uid string, r promRequest) ([]metricSample, error)
+	QueryRange(ctx context.Context, auth callerAuth, uid string, r promRequest) ([]metricSeries, error)
+	LabelValues(ctx context.Context, auth callerAuth, uid, label string, match []string, start, end time.Time, limit int) ([]string, error)
+	Labels(ctx context.Context, auth callerAuth, uid string, match []string, start, end time.Time, limit int) ([]string, error)
+	Series(ctx context.Context, auth callerAuth, uid string, match []string, start, end time.Time, limit int) ([]map[string]string, error)
 }

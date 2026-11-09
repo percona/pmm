@@ -62,8 +62,11 @@ func TestNoCredentialsInLogs(t *testing.T) {
 			{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}},
 			{"queryid": "QID-AAA"},
 		},
-		"pmm_get_config": {{"service_id": "svc-1"}},
-		"pmm_catalog":    {{"kind": "bogus"}},
+		"pmm_get_config":     {{"service_id": "svc-1"}},
+		"pmm_catalog":        {{"kind": "bogus"}},
+		"pmm_query_metrics":  {{"query": "mysql_up"}},
+		"pmm_list_metrics":   {{"kind": "labels"}},
+		"pmm_service_health": {{"service_id": "svc-1"}},
 	}
 	requireEntries(t, listedTools(t), slices.Collect(maps.Keys(calls)))
 
