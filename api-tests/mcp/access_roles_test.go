@@ -357,7 +357,8 @@ func newMatrixFixture(t *testing.T) *matrixFixture {
 		assert.Equal(t, f.ids[name], f.mcpIDs[name], "the inventory API and pmm_inventory disagree on the ID of %s", name)
 	}
 
-	join := regexp.MustCompile(`(?is)\borders\b.*\bjoin\b.*\bcustomers\b`)
+	// Anchored on SELECT: the EXPLAIN that the matrix's own pmm_get_explain calls run lands in QAN too.
+	join := regexp.MustCompile(`(?is)^\s*select\b.*\borders\b.*\bjoin\b.*\bcustomers\b`)
 	for _, e := range matrixEngines {
 		found := map[string]string{}
 		for _, name := range []string{e.a, e.b} {
