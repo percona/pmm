@@ -31,6 +31,7 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  HIDDEN_SETTINGS,
   SETTING_GROUP,
   SETTING_HELP,
   SETTING_LABEL,
@@ -240,7 +241,8 @@ const SettingField = ({
  *   just raises the question of why. `reload === 'SETTING_RELOAD_HOT'` is the filter, and it is what
  *   drops the two that are not: `CREDENTIALS_PATH`, deliberately not overridable
  *   because it names a file read on every database host and handed to a driver as a
- *   URI, and `FASTAPI_ENV`, which is the framework's rather than OM's.
+ *   URI, and `FASTAPI_ENV`, which is the framework's rather than OM's. Hot fields
+ *   PMM owns are dropped too ({@link HIDDEN_SETTINGS}).
  * - **The effective value is shown, never the submitted one.** The form re-reads after
  *   writing and re-seeds from what comes back. Beat runs as a forked side-car process,
  *   and a form that echoed the submission would look identical whether or not the
@@ -266,7 +268,9 @@ export const ConfigForm = ({
   const editable = useMemo(
     () =>
       (settings ?? []).filter(
-        (setting) => setting.reload === 'SETTING_RELOAD_HOT'
+        (setting) =>
+          setting.reload === 'SETTING_RELOAD_HOT' &&
+          !HIDDEN_SETTINGS.has(setting.key)
       ),
     [settings]
   );

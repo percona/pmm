@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
 import { vi } from 'vitest';
-import messenger from 'lib/messenger';
 import type { ListThresholdsResponse } from 'types/alerting.types';
 import { TestWrapper } from 'utils/testWrapper';
 import {
@@ -9,6 +9,7 @@ import {
 } from 'utils/testUtils';
 import AlertThresholds from './AlertThresholds';
 import { Messages } from './AlertThresholds.messages';
+import type { AlertThresholdsNode } from './AlertThresholds.types';
 
 const mocks = vi.hoisted(() => ({
   useNodeThresholds: vi.fn(),
@@ -75,9 +76,19 @@ let rulesLoading: boolean;
 
 // A fresh element tree per call: re-rendering the identical element object lets React
 // bail out, and these tests need the hooks re-read after a mock changes.
+let openNode: (node: AlertThresholdsNode) => void;
+
+// Holds the opened node the way the Nodes page does
+const Harness = () => {
+  const [node, setNode] = useState<AlertThresholdsNode | null>(null);
+  openNode = setNode;
+
+  return <AlertThresholds node={node} onClose={() => setNode(null)} />;
+};
+
 const buildTree = () => (
   <TestWrapper>
-    {wrapWithQueryProvider(wrapWithSnackbarProvider(<AlertThresholds />))}
+    {wrapWithQueryProvider(wrapWithSnackbarProvider(<Harness />))}
   </TestWrapper>
 );
 
@@ -88,14 +99,7 @@ const renderModal = () => {
 };
 
 const openFor = (nodeId: string) =>
-  act(() => {
-    messenger.onMessageReceived({
-      data: {
-        type: 'OPEN_ALERT_THRESHOLDS_MODAL',
-        payload: { nodeId, nodeName: nodeId },
-      },
-    } as MessageEvent);
-  });
+  act(() => openNode({ nodeId, nodeName: nodeId }));
 
 const overrideInput = () =>
   screen.getAllByRole('spinbutton')[0] as HTMLInputElement;
