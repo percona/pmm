@@ -53,7 +53,7 @@ export const Messages = {
     accessControlLink: 'https://per.co.na/roles_permissions',
     openManagerLabel: 'Operations for MongoDB',
     openManagerTooltip:
-      'Fleet management for Percona Server for MongoDB: the health of every MongoDB cluster PMM monitors, the hosts behind them, and provisioning. Appears under MongoDB in the menu. Turning it off hides those pages and stops the periodic collection; nothing already collected is deleted.',
+      'Fleet management for Percona Server for MongoDB: the health of every MongoDB cluster PMM monitors, the nodes behind them, and provisioning. Appears under MongoDB in the menu. Turning it off hides those pages and stops the periodic collection; nothing already collected is deleted.',
     openManagerRequiresExtensions:
       'Needs PMM Extensions, which is not enabled on this server. Enable it first, then turn on Operations for MongoDB.',
     // Said instead of the generic "Settings updated" the first time it is turned
