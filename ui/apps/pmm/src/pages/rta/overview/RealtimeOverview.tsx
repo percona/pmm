@@ -46,7 +46,7 @@ import {
 const EMPTY_QUERIES: QueryData[] = [];
 
 // Narrowest width that fits the paused MySQL toolbar on one row with the sidebar expanded.
-const TOOLBAR_ONE_ROW = '@media (min-width: 1600px)';
+const TOOLBAR_ONE_ROW = '@media (min-width: 1660px)';
 
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -222,9 +222,10 @@ const RealtimeOverviewPage: FC = () => {
               [TOOLBAR_ONE_ROW]: { flexWrap: 'nowrap' },
             }}
           >
+            {/* Sized from its minimum, so the paused controls and "All sessions" share the first row. */}
             <Box
               sx={{
-                flex: '1 1 320px',
+                flex: '1 1 200px',
                 minWidth: 200,
                 maxWidth: { xs: '100%', md: 320 },
                 pr: { md: 1 },
