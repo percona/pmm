@@ -249,19 +249,31 @@ function sectionHasError(
  * on the field wins and is neither overwritten nor cleared here. Its own error
  * is also dropped on unmount, since an error left on a field with no mounted
  * input is one nothing can clear, and `handleSubmit` refuses to step past it.
+ *
+ * It also reports whether its widget registered the field, active message or
+ * not, so the renderer can send a root rule to the form-level alert instead of
+ * a field that has nowhere to show it (see PMM-15858).
  */
 function FailRuleFieldError({
   name,
   message,
+  onRegistration,
   children,
 }: {
   name: string;
   message?: string;
+  onRegistration: (name: string, registered: boolean) => void;
   children: ReactNode;
 }) {
   const { control, setError, clearErrors, getFieldState } = useFormContext();
   const { errors } = useFormState({ control, name, exact: true });
   const error = get(errors, name);
+
+  // Runs after the widget's own effects, so a field it registers is mounted by
+  // now. Re-checked when the message changes, which is when the answer matters.
+  useEffect(() => {
+    onRegistration(name, Boolean(get(control._fields, name)?._f?.mount));
+  }, [name, message, control, onRegistration]);
 
   useEffect(() => {
     // RHF retains unmounted registrations. Custom widgets may not register a
@@ -651,15 +663,44 @@ function SchemaFormBody({
   const isGuarded = useUnsavedChangesGuard(submitError);
   const inDataRouter = Boolean(useContext(UNSAFE_DataRouterContext));
   const allFields = useMemo(() => flattenFields(sections), [sections]);
-  // A script preview registers no input, so it has no error to show.
+  // Fields whose widget turned out not to register with react-hook-form, so a
+  // rule error set on them would show nowhere. Kept once reported, even after
+  // the widget unmounts, so a rule sent to the form-level alert stays there
+  // rather than re-opening a section the reader collapsed.
+  const [unregisteredNames, setUnregisteredNames] = useState<
+    ReadonlySet<string>
+  >(() => new Set());
+  const reportRegistration = useCallback(
+    (name: string, registered: boolean) => {
+      setUnregisteredNames((prev) => {
+        if (prev.has(name) !== registered) {
+          return prev;
+        }
+        const next = new Set(prev);
+        if (registered) {
+          next.delete(name);
+        } else {
+          next.add(name);
+        }
+        return next;
+      });
+    },
+    []
+  );
+  // A script preview registers no input, so it has no error to show; known up
+  // front so its rule never flashes onto it before the widget reports.
   const errorTargetNames = useMemo(
     () =>
       new Set(
         allFields
-          .filter((field) => field.type !== 'script_preview')
+          .filter(
+            (field) =>
+              field.type !== 'script_preview' &&
+              !unregisteredNames.has(field.name)
+          )
           .map((field) => field.name)
       ),
-    [allFields]
+    [allFields, unregisteredNames]
   );
   // Evaluated once for every section, so a group shell can know whether all of
   // its members are gated out before it renders.
@@ -794,11 +835,12 @@ function SchemaFormBody({
       <FailRuleFieldError
         name={props.field.name}
         message={failFieldMessages.get(props.field.name)}
+        onRegistration={reportRegistration}
       >
         {renderField?.(props) ?? props.renderDefault()}
       </FailRuleFieldError>
     ),
-    [renderField, failFieldMessages]
+    [renderField, failFieldMessages, reportRegistration]
   );
 
   // Merge cardinality and fail violations per section into a flat list for SectionRenderer.
