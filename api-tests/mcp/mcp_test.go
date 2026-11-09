@@ -618,8 +618,9 @@ func TestQueryMetricsBudget(t *testing.T) {
 	_, serviceName := monitoredService(t, "mysql")
 	session := connect(t)
 
+	// 3 minutes at the default 1 s step give every series many points on a new server and stay well under the 4 MiB read on an old one.
 	query := `{__name__=~"mysql_global_status_.*", service_name="` + serviceName + `"}`
-	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-6h", "step": "5m"})
+	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-3m"})
 	require.False(t, res.IsError, text)
 
 	structured, err := json.Marshal(res.StructuredContent)
@@ -633,7 +634,7 @@ func TestQueryMetricsBudget(t *testing.T) {
 	if out.TotalSeries == 0 {
 		t.Skipf("no mysql_global_status_ series for %s yet", serviceName)
 	}
-	assert.True(t, out.Summarized, "6 hours of many series must come back as summaries")
+	assert.True(t, out.Summarized, "3 minutes of many series at a 1 s step must come back as summaries")
 	assert.Greater(t, out.TotalSeries, 1)
 	assert.LessOrEqual(t, len(text)+len(structured), maxMetricsBytes)
 }
