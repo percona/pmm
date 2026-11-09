@@ -10,8 +10,10 @@ import {
   ListServicesResponse,
   ManagedService,
   ManagedServicesResponse,
+  ManagedServiceType,
   MySqlService,
   ServiceType,
+  ServiceStatus,
   VersionedService,
 } from 'types/services.types';
 import { OrgRole, User } from 'types/user.types';
@@ -85,7 +87,7 @@ export const TEST_MANAGED_SERVICES: ManagedServicesResponse = {
 
 export const TEST_MANAGED_SERVICE: ManagedService = {
   serviceId: 'service-1',
-  serviceType: 'mysql',
+  serviceType: ManagedServiceType.mysql,
   serviceName: 'Service 1',
   databaseName: '',
   nodeId: 'node-1',
@@ -99,6 +101,9 @@ export const TEST_MANAGED_SERVICE: ManagedService = {
   port: 3306,
   socket: '',
   version: '8.0.0',
+  status: ServiceStatus.up,
+  agents: [],
+  labels: {},
 };
 
 export const TEST_VERSIONED_MONGO_SERVICE: VersionedService = {

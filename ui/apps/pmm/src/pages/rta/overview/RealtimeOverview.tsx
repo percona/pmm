@@ -19,7 +19,6 @@ import { useStatementNavigation } from './useStatementNavigation';
 import { DetailsPane } from './details-pane';
 import type { QueryData } from 'types/rta.types';
 import DynamicFeed from '@mui/icons-material/DynamicFeed';
-import FileDownloadOutlined from '@mui/icons-material/FileDownloadOutlined';
 import Pause from '@mui/icons-material/Pause';
 import PlayArrow from '@mui/icons-material/PlayArrow';
 import Refresh from '@mui/icons-material/Refresh';
@@ -33,6 +32,7 @@ import IconButton from '@mui/material/IconButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
+import { ExportButton } from 'components/export-button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
 import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
@@ -273,7 +273,7 @@ const RealtimeOverviewPage: FC = () => {
               >
                 {fetching ? Messages.pause : Messages.resume}
               </Button>
-              {/* Icons, not labelled buttons, so the toolbar fits one line at common widths. */}
+              {/* An icon, not a labelled button, so the toolbar fits one line at common widths. */}
               {!fetching && serviceIds.length !== 0 && (
                 <Tooltip title={Messages.refresh} arrow>
                   <IconButton
@@ -287,30 +287,29 @@ const RealtimeOverviewPage: FC = () => {
                 </Tooltip>
               )}
               {!fetching && (
-                <Tooltip title={Messages.exportTooltip} arrow>
-                  {/* A disabled button fires no events, so the tooltip hangs off a span. */}
-                  <span>
-                    <IconButton
-                      data-testid="overview-table-export-button"
-                      aria-label={Messages.exportTooltip}
-                      disabled={
-                        serviceIds.length === 0 ||
-                        table.getPrePaginationRowModel().rows.length === 0
-                      }
-                      onClick={() =>
-                        exportRtaQueriesToCsv(
-                          table
-                            .getPrePaginationRowModel()
-                            .rows.map((row) => row.original),
-                          serviceType
-                        )
-                      }
-                      color="inherit"
-                    >
-                      <FileDownloadOutlined />
-                    </IconButton>
-                  </span>
-                </Tooltip>
+                <ExportButton
+                  data-testid="overview-table-export-button"
+                  size="small"
+                  variant="text"
+                  disabled={
+                    serviceIds.length === 0 ||
+                    table.getPrePaginationRowModel().rows.length === 0
+                  }
+                  onClick={() =>
+                    exportRtaQueriesToCsv(
+                      table
+                        .getPrePaginationRowModel()
+                        .rows.map((row) => row.original),
+                      serviceType
+                    )
+                  }
+                  color="inherit"
+                  disableElevation
+                  sx={{
+                    width: 100,
+                    height: 36,
+                  }}
+                />
               )}
             </Stack>
             {/* Row filters, wrapped as one unit so a narrow toolbar never splits them. */}
