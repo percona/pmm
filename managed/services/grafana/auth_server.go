@@ -69,9 +69,18 @@ var rules = map[string]role{
 	"/server.v1.":               admin,
 	"/qan.v1.CollectorService.": viewer,
 	"/qan.v1.QANService.":       viewer,
+	"/om.":                      viewer,
+	"/om.v1.OmService/TriggerInventoryRefresh":       editor,
+	"/om.v1.OmService/DeleteInventoryHost":           admin,
+	"/om.v1.OmService/DeleteInventoryService":        admin,
+	"/om.v1.OmService/UpdateInventoryConfig":         admin,
+	"/om.v1.OmService/DeleteInventoryConfigOverride": admin,
+	"/om.v1.OmService/TriggerHostBootstrap":          admin,
+	"/om.v1.OmService/CancelBootstrapRun":            admin,
 
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,
+	"/v1/alerting/thresholds":         admin,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
 	"/v1/advisors/failedServices":     editor,
@@ -107,6 +116,8 @@ var rules = map[string]role{
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
 
+	"/v1/om": viewer,
+
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
 	"/nomad":           admin,
@@ -141,12 +152,25 @@ var methodRules = map[string]role{
 	http.MethodPost + " /v1/alerting/templates":    editor,
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
+
+	// OM inventory writes.
+	http.MethodPost + " /v1/om/inventory/runs:trigger":        editor,
+	http.MethodDelete + " /v1/om/inventory/hosts/":            admin,
+	http.MethodDelete + " /v1/om/inventory/services/":         admin,
+	http.MethodPut + " /v1/om/inventory/config":               admin,
+	http.MethodDelete + " /v1/om/inventory/config/overrides/": admin,
+	http.MethodDelete + " /v1/om/inventory/config/":           admin,
+	// An install runs root commands on hosts and creates a root database user.
+	http.MethodPost + " /v1/om/inventory/hosts:bootstrap": admin,
+	http.MethodPost + " /v1/om/inventory/bootstrap-runs/": admin,
 }
 
 var lbacPrefixes = []string{
 	"/graph/api/ds/query",
 	"/prometheus/api/v1/",
 	"/v1/qan/",
+	// Query details sit at /v1/qan:<method>, beside the /v1/qan/ tree; see PMM-15697.
+	"/v1/qan:",
 	// Grafana reaches the same data source under four route shapes -- proxy/<id>/,
 	// proxy/uid/<uid>/, <id>/resources/ and uid/<uid>/resources/ -- so match the whole
 	// tree instead of enumerating them: every shape left out is served unfiltered, and
@@ -565,7 +589,7 @@ func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
 }
 
 func isLocalAgentConnection(req *http.Request) bool {
-	ip := strings.Split(req.RemoteAddr, ":")[0]
+	ip, _, _ := strings.Cut(req.RemoteAddr, ":")
 	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
 	if ip == "127.0.0.1" &&
@@ -707,7 +731,7 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 		cErr, ok := errors.AsType[*clientError](err)
 		if ok {
 			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
+			if cErr.Code == 401 || cErr.Code == 403 || errors.Is(err, errServiceTokenRejected) {
 				code = codes.Unauthenticated
 			}
 			return nil, &authError{code: code, message: cErr.ErrorMessage}

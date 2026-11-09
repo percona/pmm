@@ -32,6 +32,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -72,6 +73,11 @@ type Service struct {
 	// path need not parse/convert per request. These protos are shared across
 	// concurrent responses and MUST be treated as immutable by consumers.
 	convertedTemplates map[string]*alerting.Template
+
+	// sweepMu guards lastSweep, the reconciler's throttle. Separate from rw, which guards
+	// unrelated template state.
+	sweepMu   sync.Mutex
+	lastSweep time.Time
 }
 
 // NewService creates a new Service.
@@ -646,10 +652,11 @@ func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefin
 	res := make([]*alerting.ParamDefinition, 0, len(params))
 	for _, p := range params {
 		pd := &alerting.ParamDefinition{
-			Name:    p.Name,
-			Summary: p.Summary,
-			Unit:    convertParamUnit(p.Unit),
-			Type:    convertParamType(p.Type),
+			Name:        p.Name,
+			Summary:     p.Summary,
+			Unit:        convertParamUnit(p.Unit),
+			Type:        convertParamType(p.Type),
+			Overridable: p.Overridable,
 		}
 
 		switch p.Type {
@@ -736,7 +743,25 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Errorf(codes.Internal, "Invalid template %s: %v.", req.TemplateName, err)
 	}
 
-	ruleData, condition, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, paramsValues.AsStringMap(), req.Filters)
+	// A rule only carries threshold steps once it has a PMM-minted ID to key its
+	// overrides on. The ID is minted first because it is the idempotency key for every
+	// step that follows; a rule with no overridable parameters never gets one, and is
+	// generated exactly as it was before this feature.
+	var (
+		ruleID     string
+		ruleParams models.AlertRuleParams
+	)
+
+	if len(alertTemplate.OverridableParams()) != 0 {
+		ruleID = uuid.New().String()
+
+		ruleParams, err = collectOverridableParams(alertTemplate, paramsValues)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "Invalid overridable parameters: %v.", err)
+		}
+	}
+
+	built, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, ruleID, paramsValues.AsStringMap(), req.Filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build alert rule data: %w", err)
 	}
@@ -745,6 +770,8 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	if err != nil {
 		return nil, fmt.Errorf("failed to get template annotations: %w", err)
 	}
+
+	rewriteOverridableAnnotations(ta, built.thresholdRefs)
 
 	// Copy annotations form template
 	annotations := make(map[string]string)
@@ -775,6 +802,14 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	labels["percona_alerting"] = "1" // TODO: do we actually need it?
 	labels["severity"] = common.Severity(req.Severity).String()
 	labels["template_name"] = req.TemplateName
+
+	// The rule's identity for threshold purposes travels on the rule itself, so a rule
+	// can still be matched back to its registry row after being copied or renamed in
+	// Grafana. The stored Grafana UID is only a cache of where it currently lives.
+	if ruleID != "" {
+		labels[services.PMMRuleIDLabel] = ruleID
+	}
+
 	labelSourceRefID := queryRefForRuleLabels(alertTemplate)
 	ensureRuleLabel(labels, "node_name", buildRuleLabelTemplate("node_name", labelSourceRefID))
 	ensureRuleLabel(labels, "service_name", buildRuleLabelTemplate("service_name", labelSourceRefID))
@@ -782,10 +817,10 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	rule := services.Rule{
 		GrafanaAlert: services.GrafanaAlert{
 			Title:        req.Name,
-			Condition:    condition,
+			Condition:    built.condition,
 			NoDataState:  "OK",
 			ExecErrState: "Alerting",
-			Data:         ruleData,
+			Data:         built.data,
 		},
 		For:         forDuration.String(),
 		Annotations: annotations,
@@ -798,12 +833,74 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		interval = req.Interval.AsDuration().String()
 	}
 
+	// Registered first and kept on failure: a lost response may hide a rule that exists.
+	if ruleID != "" {
+		err = s.db.InTransaction(func(tx *reform.TX) error {
+			_, err := models.CreateAlertRule(tx.Querier, &models.CreateAlertRuleParams{
+				RuleID: ruleID,
+				Params: ruleParams,
+			})
+
+			return err
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to register alert rule: %w", err)
+		}
+	}
+
 	err = s.grafanaClient.CreateAlertRule(ctx, req.FolderUid, req.Group, interval, &rule)
 	if err != nil {
 		return nil, err
 	}
 
-	return &alerting.CreateRuleResponse{}, nil
+	return &alerting.CreateRuleResponse{RuleId: ruleID}, nil
+}
+
+// collectOverridableParams snapshots what an overridable parameter needs in order to be
+// resolved later. The template it came from can be edited or deleted afterwards, so this
+// is the only durable record of the default the rule actually evaluates against, and of
+// the range an override is validated within.
+func collectOverridableParams(template *alert.Template, values AlertExprParamsValues) (models.AlertRuleParams, error) {
+	overridable := template.OverridableParams()
+	if len(overridable) == 0 {
+		// A nil AlertRuleParams map is the valid "nothing to snapshot" result: the rule
+		// is registered without params rather than being an error.
+		return nil, nil //nolint:nilnil
+	}
+
+	byName := make(map[string]AlertExprParamValue, len(values))
+	for _, value := range values {
+		byName[value.Name] = value
+	}
+
+	params := make(models.AlertRuleParams, len(overridable))
+
+	for _, param := range overridable {
+		supplied, ok := byName[param.Name]
+		if !ok {
+			return nil, fmt.Errorf("no value supplied for overridable parameter '%s'", param.Name)
+		}
+
+		snapshot := models.AlertRuleParam{
+			Default: supplied.FloatValue,
+			Scopes:  param.GetOverrideScopes(),
+			Unit:    string(param.Unit),
+			Summary: param.Summary,
+		}
+
+		if len(param.Range) != 0 {
+			pMin, pMax, err := param.GetRangeForFloat()
+			if err != nil {
+				return nil, fmt.Errorf("parameter '%s': failed to parse range: %w", param.Name, err)
+			}
+
+			snapshot.Min, snapshot.Max = new(pMin), new(pMax)
+		}
+
+		params[param.Name] = snapshot
+	}
+
+	return params, nil
 }
 
 func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsValues, error) {

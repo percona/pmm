@@ -425,6 +425,12 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error { //noli
 		panic(fmt.Errorf("unhandled RemoveMode %v", mode))
 	}
 
+	// See RemoveNode: override rows are not reachable by cascade, so they go here.
+	err = DeleteThresholdOverridesForTarget(q, ThresholdScopeService, id)
+	if err != nil {
+		return err
+	}
+
 	err = q.Delete(s)
 	if err != nil {
 		return fmt.Errorf("failed to delete Service: %w", err)

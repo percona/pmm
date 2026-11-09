@@ -34,8 +34,8 @@ import {
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import ReplayIcon from '@mui/icons-material/Replay';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import {
   type useAtwIncidentLifecycle,
   useDeleteAtwIncident,
@@ -154,7 +154,7 @@ export function IncidentActionsMenu({
             onClick={() => choose(() => lifecycle.reopen(incident.id))}
           >
             <ListItemIcon>
-              <LockOpenOutlinedIcon fontSize="small" />
+              <ReplayIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Reopen</ListItemText>
           </MenuItem>
@@ -164,7 +164,7 @@ export function IncidentActionsMenu({
             onClick={() => choose(() => lifecycle.close(incident.id))}
           >
             <ListItemIcon>
-              <LockOutlinedIcon fontSize="small" />
+              <TaskAltIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Close</ListItemText>
           </MenuItem>

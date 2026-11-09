@@ -245,7 +245,10 @@ func serverTransport(t *testing.T) *http.Transport {
 	runtime, ok := inventoryClient.Default.Transport.(*httptransport.Runtime)
 	require.True(t, ok, "expected the inventory client to use a go-openapi runtime")
 
-	transport, ok := runtime.Transport.(*http.Transport)
+	retry, ok := runtime.Transport.(*retryTransport)
+	require.True(t, ok, "expected PMM Server requests to be retried while it is unavailable")
+
+	transport, ok := retry.next.(*http.Transport)
 	require.True(t, ok, "expected an *http.Transport")
 
 	return transport

@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -133,6 +134,12 @@ func TestCheckRegistration(t *testing.T) {
 			want:     registrationMissing,
 		},
 		{
+			name:     "PMM Server does not accept the token the Agent runs with",
+			nodeName: testNodeName,
+			lookup:   failed(errTokenRejected),
+			want:     registrationUnverified,
+		},
+		{
 			name:     "PMM Server cannot be asked",
 			nodeName: testNodeName,
 			lookup:   failed(errors.New("connection refused")),
@@ -207,8 +214,7 @@ func TestRunningServer(t *testing.T) {
 // The subtests configure the package level API clients, so they cannot run in parallel.
 func TestWithGivenCredentials(t *testing.T) {
 	registeredNode := serverNode{Name: testNodeName, Address: testNodeAddress}
-	// PMM Server answers 401 for a token it no longer accepts, with a gRPC code which says no more than
-	// that. Removing a Node deletes the service account the token of its Agent belongs to.
+	// A 401 which names no credential invalid: a failure of PMM Server's own, or a proxy's.
 	refused := aservice.NewGetAgentDefault(http.StatusUnauthorized)
 
 	// answers replies to consecutive lookups, and fails the test on a lookup it has no answer for.
@@ -228,6 +234,8 @@ func TestWithGivenCredentials(t *testing.T) {
 
 	for _, tc := range []struct {
 		name string
+		// running holds the credentials the Agent runs with, defaulting to a service token
+		running *config.Config
 		// given holds the credentials setup was given, defaulting to those of a full command line
 		given   *config.Config
 		results []agentLookup
@@ -280,11 +288,68 @@ func TestWithGivenCredentials(t *testing.T) {
 			calls:   1,
 			err:     refused,
 		},
+		{
+			name:    "a rejected token is asked about again, and the Node is gone",
+			results: []agentLookup{failed(errCredentialsRejected), failed(errAgentNotFound)},
+			calls:   2,
+			err:     errAgentNotFound,
+		},
+		{
+			// Registering again would fail on the Node name, or add a second Node under the hostname.
+			name:    "a rejected token is answered with the Node the credentials given to setup find",
+			results: []agentLookup{failed(errCredentialsRejected), found(registeredNode)},
+			calls:   2,
+			node:    registeredNode,
+		},
+		{
+			name:    "a rejected token is kept when the credentials given to setup answer no better",
+			results: []agentLookup{failed(errCredentialsRejected), failed(errCredentialsRejected)},
+			calls:   2,
+			err:     errTokenRejected,
+		},
+		{
+			// PMM Server answers a token Grafana failed to look up the same way, which says nothing either.
+			name:    "a rejected token is no verdict without other credentials to ask with",
+			given:   &config.Config{Server: config.Server{Address: testServerAddress, Username: "service_token", Password: "glsa_token"}},
+			results: []agentLookup{failed(errCredentialsRejected)},
+			calls:   1,
+			err:     errTokenRejected,
+		},
+		{
+			name:    "a rejected token is no verdict without a PMM Server address to ask",
+			given:   &config.Config{Server: config.Server{Username: "admin", Password: "admin"}},
+			results: []agentLookup{failed(errCredentialsRejected)},
+			calls:   1,
+			err:     errTokenRejected,
+		},
+		{
+			name:    "a rejected token is kept when PMM Server cannot answer the credentials given to setup",
+			results: []agentLookup{failed(errCredentialsRejected), failed(context.DeadlineExceeded)},
+			calls:   2,
+			err:     errTokenRejected,
+		},
+		{
+			name:    "a rejected token is kept when the credentials given to setup cannot read the inventory",
+			results: []agentLookup{failed(errCredentialsRejected), failed(aservice.NewGetAgentDefault(http.StatusForbidden))},
+			calls:   2,
+			err:     errTokenRejected,
+		},
+		{
+			// Registering with the credentials given to setup reports a mistyped password with an actionable message.
+			name:    "a rejected password is not asked about again",
+			running: &config.Config{Server: config.Server{Address: testServerAddress, Username: "admin", Password: "oldpass"}},
+			results: []agentLookup{failed(errCredentialsRejected)},
+			calls:   1,
+			err:     errCredentialsRejected,
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			running := &config.Config{
-				ID:     testAgentID,
-				Server: config.Server{Address: testServerAddress, Username: "service_token", Password: "glsa_token"},
+			running := tc.running
+			if running == nil {
+				running = &config.Config{
+					ID:     testAgentID,
+					Server: config.Server{Address: testServerAddress, Username: "service_token", Password: "glsa_token"},
+				}
 			}
 			given := tc.given
 			if given == nil {
@@ -302,7 +367,7 @@ func TestWithGivenCredentials(t *testing.T) {
 				require.NoError(t, err)
 				return
 			}
-			assert.ErrorIs(t, err, tc.err)
+			require.ErrorIs(t, err, tc.err)
 		})
 	}
 }
@@ -709,6 +774,76 @@ func TestCheckRegistrationSharesOneDeadline(t *testing.T) {
 		"both lookups have to draw on one deadline, not one each")
 	// Nothing was learned about the registration, so it is kept.
 	assert.Equal(t, registrationUnverified, state)
+}
+
+// The subtests configure the package level API clients, so they cannot run in parallel.
+func TestCheckRegistrationOfRejectedToken(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		gone bool
+		// tokenOnly gives setup the credentials the Agent runs with, as a container re-running setup does
+		tokenOnly bool
+		// verifyTLS gives setup no --server-insecure-tls, leaving it to the configuration file
+		verifyTLS bool
+		state     registrationState
+	}{
+		// Registering again would fail on the Node name, or add a second Node under the hostname.
+		{name: "a Node which is still registered is kept", state: registrationConfirmed},
+		{name: "a Node which is gone is registered again", gone: true, state: registrationMissing},
+		// A token Grafana failed to look up gets the same answer, so it must not register the Node again.
+		{name: "a token alone leaves the registration unverified", tokenOnly: true, state: registrationUnverified},
+		{name: "the credentials given to setup reach PMM Server the way the Agent does", verifyTLS: true, state: registrationConfirmed},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var adminCalls atomic.Int32
+			// TLS, because Server.URL() always builds https.
+			server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				rw.Header().Set("Content-Type", "application/json")
+				// What PMM Server answers a token of a disabled service account with.
+				if req.Header.Get("Authorization") == "Bearer glsa_token" {
+					rw.WriteHeader(http.StatusUnauthorized)
+					_, _ = fmt.Fprintf(rw, `{"code": %d, "message": "Auth method is not service account token"}`, codes.Unauthenticated)
+					return
+				}
+
+				adminCalls.Add(1)
+				switch {
+				case tc.gone:
+					rw.WriteHeader(http.StatusNotFound)
+					_, _ = fmt.Fprintf(rw, `{"code": %d, "message": "Agent not found"}`, codes.NotFound)
+				case strings.HasPrefix(req.URL.Path, "/v1/inventory/agents/"):
+					_, _ = fmt.Fprintf(rw, `{"pmm_agent": {"agent_id": %q, "runs_on_node_id": "node-id"}}`, testAgentID)
+				default:
+					_, _ = fmt.Fprintf(rw, `{"generic": {"node_id": "node-id", "node_name": %q, "address": %q}}`,
+						testNodeName, testNodeAddress)
+				}
+			}))
+			t.Cleanup(server.Close)
+
+			u, err := url.Parse(server.URL)
+			require.NoError(t, err)
+
+			running := &config.Config{
+				ID:     testAgentID,
+				Server: config.Server{Address: u.Host, Username: "service_token", Password: "glsa_token", InsecureTLS: true},
+			}
+			given := &config.Config{
+				ID:     testAgentID,
+				Server: config.Server{Address: u.Host, Username: "admin", Password: "admin", InsecureTLS: true},
+			}
+			if tc.tokenOnly {
+				given = running
+			}
+			given.Server.InsecureTLS = !tc.verifyTLS
+
+			assert.Equal(t, tc.state, checkRegistrationOnServer(running, given, logrus.WithField("test", t.Name())))
+			if tc.tokenOnly {
+				assert.Zero(t, adminCalls.Load(), "there are no other credentials to ask with")
+				return
+			}
+			assert.Positive(t, adminCalls.Load(), "the credentials given to setup have to be asked")
+		})
+	}
 }
 
 // registerDefault builds the error the generated client returns for a failed registration.

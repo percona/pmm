@@ -8,15 +8,15 @@ PMM requires Percona Backup for MongoDB (PBM) 2.0.1 or later:
 - PBM 2.0.1 to 2.9.x: supported
 - PBM 2.10.0 and later: supported, but requires PMM 3.9.0 or later
 
-To find a PBM version compatible with your MongoDB or Percona Server for MongoDB version, see the [PBM compatibility matrix](https://docs.percona.com/percona-backup-mongodb/details/versions.html).
+To find a PBM version compatible with your MongoDB or Percona Server for MongoDB version, see the [PBM compatibility matrix](https://docs.percona.com/percona-backup-mongodb/latest/details/versions.html).
 
 ## Limitations and requirements
 
 Creating and restoring MongoDB backups in PMM currently has the following limitations and requirements:
 
 - Physical backups and restores are supported only for **Percona Server for MongoDB**.
-- Physical restores are not supported for deployments with arbiter nodes. For more information, see the [Percona Backup for MongoDB documentation](https://docs.percona.com/percona-backup-mongodb/usage/restore.html#physical-restore-known-limitations).
-- Creating backups for sharded clusters is available straight from the UI. However, restoring these backup artifacts is only possible via the CLI, using Percona Backup for MongoDB. For information on restoring sharded backups, check the [PBM documentation](https://docs.percona.com/percona-backup-mongodb/usage/restore.html).
+- Physical restores are not supported for deployments with arbiter nodes. For more information, see the [Percona Backup for MongoDB documentation](https://docs.percona.com/percona-backup-mongodb/latest/usage/restore-physical.html#considerations).
+- Creating backups for sharded clusters is available straight from the UI. However, restoring these backup artifacts is only possible via the CLI, using Percona Backup for MongoDB. For information on restoring sharded backups, check the [PBM documentation](https://docs.percona.com/percona-backup-mongodb/latest/usage/restore.html).
 - Retention policy is supported only for snapshot types of scheduled backups and for the S3-compatible storage type.
 - PMM can restore a backup only when the target service runs the same MongoDB version recorded in the backup artifact.
 - Before restoring, make sure to prevent clients from accessing the database.
