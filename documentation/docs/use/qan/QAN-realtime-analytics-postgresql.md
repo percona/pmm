@@ -242,7 +242,7 @@ RTA shows only sessions that are running a query or holding a transaction open a
 
 The session is not waiting on a heavyweight lock. Open the **Details** tab and check **Wait event**: a type other than `Lock`, such as `LWLock`, `IO` or `Client`, means the session waits on something other than another session's lock.
 
-## See also
+## Related topics
 
 - [Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md)
 - [Real-time Query Analytics for MongoDB](QAN-realtime-analytics.md)
