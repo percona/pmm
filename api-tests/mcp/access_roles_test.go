@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -53,19 +54,19 @@ const (
 	fullAccessTitle = "Full access"
 )
 
-// matrixTools are the tools TestAccessRoleMatrix covers; they must equal tools/list, so that a new tool cannot skip the matrix.
-var matrixTools = []string{
-	"pmm_catalog",
-	"pmm_get_config",
-	"pmm_get_explain",
-	"pmm_get_schema",
-	"pmm_inventory",
-	"pmm_list_metrics",
-	"pmm_query_detail",
-	"pmm_query_metrics",
-	"pmm_service_health",
-	"pmm_top_queries",
-	"pmm_version",
+// matrixChecks maps each tool to its checks; the matrix runs every entry and the keys must equal tools/list.
+var matrixChecks = map[string]func(*matrixRun, *testing.T){
+	"pmm_catalog":        (*matrixRun).catalog,
+	"pmm_get_config":     (*matrixRun).config,
+	"pmm_get_explain":    (*matrixRun).explain,
+	"pmm_get_schema":     (*matrixRun).schema,
+	"pmm_inventory":      (*matrixRun).inventory,
+	"pmm_list_metrics":   (*matrixRun).listMetrics,
+	"pmm_query_detail":   (*matrixRun).queryDetail,
+	"pmm_query_metrics":  (*matrixRun).queryMetrics,
+	"pmm_service_health": (*matrixRun).health,
+	"pmm_top_queries":    (*matrixRun).topQueries,
+	"pmm_version":        (*matrixRun).version,
 }
 
 // nodeSignals are the names of pmm_service_health's node signals.
@@ -140,8 +141,7 @@ type caller struct {
 	hiddenIDs []string
 }
 
-// call calls a tool and fails the test when its text, structured content or _meta names a hidden service or ID.
-// The echoes are strings of the arguments that the tool repeats on purpose; they are not searched.
+// call calls a tool and fails the test when its response names a hidden service or ID, leaving out the echoes of arguments the tool repeats on purpose.
 func (c *caller) call(t *testing.T, name string, args map[string]any, echoes ...string) toolResponse {
 	t.Helper()
 
@@ -176,11 +176,18 @@ func (c *caller) call(t *testing.T, name string, args map[string]any, echoes ...
 		everything = strings.ReplaceAll(everything, echo, "")
 		everything = strings.ReplaceAll(everything, strings.Trim(string(escaped), `"`), "")
 	}
-	if c.hiddenRE != nil {
-		assert.Empty(t, c.hiddenRE.FindString(everything), "%s names a service the caller may not see", name)
+	forms := []string{everything}
+	decoded, err := url.QueryUnescape(everything)
+	if err == nil {
+		forms = append(forms, decoded)
 	}
-	for _, id := range c.hiddenIDs {
-		assert.NotContains(t, everything, id, "%s holds the ID of a service the caller may not see", name)
+	for _, form := range forms {
+		if c.hiddenRE != nil {
+			assert.Empty(t, c.hiddenRE.FindString(form), "%s names a service the caller may not see", name)
+		}
+		for _, id := range c.hiddenIDs {
+			assert.NotContains(t, form, id, "%s holds the ID of a service the caller may not see", name)
+		}
 	}
 	return out
 }
@@ -232,8 +239,7 @@ func basicAuthorization(login, password string) string {
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(login+":"+password))
 }
 
-// waitForServiceList polls the service list of authorization once a second, for up to 20 s, until its services are want.
-// pmm-managed caches the Access Control setting for a few seconds. On timeout it logs the last set and returns, so the assertions report what the server does.
+// waitForServiceList polls the service list of authorization once a second for up to 20 s until it is want, then logs the last set and returns on timeout.
 func waitForServiceList(t *testing.T, authorization string, want []string) {
 	t.Helper()
 
@@ -335,7 +341,7 @@ func newMatrixFixture(t *testing.T) *matrixFixture {
 		require.Contains(t, f.all, name, "pmm_inventory of the package's admin lacks a service of the environment")
 	}
 
-	services, err := inventoryClient.Default.ServicesService.ListServices(&services_service.ListServicesParams{Context: pmmapitests.Context})
+	services, err := inventoryClient.Default.ServicesService.ListServices(&services_service.ListServicesParams{Context: t.Context()})
 	require.NoError(t, err)
 	b, err := json.Marshal(services.Payload)
 	require.NoError(t, err)
@@ -410,7 +416,7 @@ func TestAccessRoleMatrix(t *testing.T) {
 		for _, tool := range res.Tools {
 			names = append(names, tool.Name)
 		}
-		assert.Equal(t, sortedUnique(matrixTools), sortedUnique(names), "tools/list and the matrix differ: cover the new tool in TestAccessRoleMatrix")
+		assert.Equal(t, slices.Sorted(maps.Keys(matrixChecks)), sortedUnique(names), "tools/list and the matrix differ: cover the new tool in TestAccessRoleMatrix")
 	})
 
 	f := newMatrixFixture(t)
@@ -467,7 +473,7 @@ func TestAccessRoleMatrix(t *testing.T) {
 			callers: []accessCaller{adminCaller},
 			prepare: func(t *testing.T, _ int64) []int64 {
 				t.Helper()
-				res, err := accesscontrolClient.Default.AccessControlService.ListRoles(&accesscontrol.ListRolesParams{Context: pmmapitests.Context})
+				res, err := accesscontrolClient.Default.AccessControlService.ListRoles(&accesscontrol.ListRolesParams{Context: t.Context()})
 				require.NoError(t, err)
 				for _, role := range res.Payload.Roles {
 					if role.Title == fullAccessTitle {
@@ -519,7 +525,7 @@ func TestAccessRoleMatrix(t *testing.T) {
 							ch.hiddenIDs = append(ch.hiddenIDs, f.ids[name], f.mcpIDs[name])
 						}
 						ch.hiddenIDs = sortedUnique(slices.DeleteFunc(ch.hiddenIDs, func(id string) bool { return id == "" }))
-						ch.hiddenRE = regexp.MustCompile(`(?:^|[^A-Za-z0-9_.-])(?:` + strings.Join(quoted, "|") + `)(?:$|[^A-Za-z0-9_.-])`)
+						ch.hiddenRE = regexp.MustCompile(`(?:^|[^A-Za-z0-9_-])(?:` + strings.Join(quoted, "|") + `)(?:$|[^A-Za-z0-9_-])`)
 					}
 					m := &matrixRun{caller: ch, f: f, allowed: allowed, hidden: hidden, hidesNode: s.hidesNode}
 					m.run(t)
@@ -559,26 +565,22 @@ func (m *matrixRun) candidates(e engineServices) []string {
 func (m *matrixRun) run(t *testing.T) {
 	t.Helper()
 
-	t.Run("pmm_version", m.version)
-	t.Run("pmm_catalog", m.catalog)
-	t.Run("pmm_inventory", m.inventory)
-	t.Run("pmm_top_queries", m.topQueries)
-	t.Run("pmm_query_detail", m.queryDetail)
-	t.Run("pmm_get_explain", m.explain)
-	t.Run("pmm_get_schema", m.schema)
-	t.Run("pmm_get_config", m.config)
-	t.Run("pmm_service_health", m.health)
-	t.Run("pmm_query_metrics", m.queryMetrics)
-	t.Run("pmm_list_metrics", m.listMetrics)
+	for _, name := range slices.Sorted(maps.Keys(matrixChecks)) {
+		t.Run(name, func(t *testing.T) { matrixChecks[name](m, t) })
+	}
 }
 
 func (m *matrixRun) version(t *testing.T) {
+	t.Helper()
+
 	res := m.call(t, "pmm_version", nil)
 	res.requireOK(t)
 	assert.True(t, strings.HasPrefix(res.text, "PMM Server 3."), res.text)
 }
 
 func (m *matrixRun) catalog(t *testing.T) {
+	t.Helper()
+
 	for key, args := range map[string]map[string]any{
 		"qan_columns": {"kind": "qan_columns"},
 		"metrics":     {"kind": "metrics", "engine": "mysql"},
@@ -590,6 +592,8 @@ func (m *matrixRun) catalog(t *testing.T) {
 }
 
 func (m *matrixRun) inventory(t *testing.T) {
+	t.Helper()
+
 	var out inventoryOutput
 	res := m.call(t, "pmm_inventory", map[string]any{"limit": 200})
 	res.requireOK(t)
@@ -617,6 +621,8 @@ type topQueriesOutput struct {
 }
 
 func (m *matrixRun) topQueries(t *testing.T) {
+	t.Helper()
+
 	var out topQueriesOutput
 	res := m.call(t, "pmm_top_queries", map[string]any{"group_by": "service_name", "period_from": matrixWindow, "limit": 100})
 	res.requireOK(t)
@@ -632,7 +638,7 @@ func (m *matrixRun) topQueries(t *testing.T) {
 	}
 
 	for _, name := range intersection(m.hidden, "mysql-b", "pg-b") {
-		res := m.call(t, "pmm_top_queries", map[string]any{"service_name": name, "period_from": matrixWindow, "limit": 100})
+		res := m.call(t, "pmm_top_queries", map[string]any{"service_name": name, "period_from": matrixWindow, "limit": 100}, "var-service_name="+name)
 		res.requireOK(t)
 		var hiddenOut topQueriesOutput
 		res.decode(t, &hiddenOut)
@@ -644,6 +650,8 @@ func (m *matrixRun) topQueries(t *testing.T) {
 var notSeen = regexp.MustCompile(`the query was not seen on any of your services in \S+ – \S+`)
 
 func (m *matrixRun) queryDetail(t *testing.T) {
+	t.Helper()
+
 	for _, e := range matrixEngines {
 		t.Run(e.engine, func(t *testing.T) {
 			candidates := m.candidates(e)
@@ -677,8 +685,7 @@ func (m *matrixRun) queryDetail(t *testing.T) {
 	}
 }
 
-// queryForm checks the rows of pmm_get_explain and pmm_get_schema that take a queryid, and calls onOne for the result of the one candidate.
-// With no candidate the tool answers not_found, and with two invalid_input naming both services.
+// queryForm checks the queryid rows of pmm_get_explain and pmm_get_schema, calling onOne for the result of a single candidate.
 func (m *matrixRun) queryForm(t *testing.T, tool string, onOne func(t *testing.T, e engineServices, service string, res toolResponse)) {
 	t.Helper()
 
@@ -703,6 +710,8 @@ func (m *matrixRun) queryForm(t *testing.T, tool string, onOne func(t *testing.T
 }
 
 func (m *matrixRun) explain(t *testing.T) {
+	t.Helper()
+
 	m.queryForm(t, "pmm_get_explain", func(t *testing.T, e engineServices, service string, res toolResponse) {
 		t.Helper()
 
@@ -733,6 +742,8 @@ func (m *matrixRun) explain(t *testing.T) {
 }
 
 func (m *matrixRun) schema(t *testing.T) {
+	t.Helper()
+
 	m.queryForm(t, "pmm_get_schema", func(t *testing.T, _ engineServices, service string, res toolResponse) {
 		t.Helper()
 
@@ -763,6 +774,8 @@ func (m *matrixRun) schema(t *testing.T) {
 }
 
 func (m *matrixRun) config(t *testing.T) {
+	t.Helper()
+
 	for _, name := range []string{"mysql-a", "mysql-b", "pg-a", "pg-b"} {
 		for form, args := range map[string]map[string]any{
 			"service_id":   {"service_id": m.f.ids[name]},
@@ -790,6 +803,8 @@ func (m *matrixRun) config(t *testing.T) {
 }
 
 func (m *matrixRun) health(t *testing.T) {
+	t.Helper()
+
 	for _, name := range []string{"mysql-a", "mysql-b"} {
 		t.Run(name, func(t *testing.T) {
 			res := m.call(t, "pmm_service_health", map[string]any{"service_id": m.f.ids[name]})
@@ -835,6 +850,8 @@ type metricsOutput struct {
 }
 
 func (m *matrixRun) queryMetrics(t *testing.T) {
+	t.Helper()
+
 	var out metricsOutput
 	res := m.call(t, "pmm_query_metrics", map[string]any{"query": "count by (service_name) (up)", "limit": 100})
 	res.requireOK(t)
@@ -861,6 +878,8 @@ func (m *matrixRun) queryMetrics(t *testing.T) {
 }
 
 func (m *matrixRun) listMetrics(t *testing.T) {
+	t.Helper()
+
 	var out struct {
 		Values []string `json:"values"`
 	}

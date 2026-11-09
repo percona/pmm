@@ -17,6 +17,7 @@ package apitests
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -36,10 +37,10 @@ import (
 func SetAccessControl(t *testing.T, enabled bool) {
 	t.Helper()
 
-	was := readSettings(t).EnableAccessControl
-	require.NoError(t, changeAccessControl(enabled))
+	was := readSettings(t.Context(), t).EnableAccessControl
+	require.NoError(t, changeAccessControl(t.Context(), enabled))
 	t.Cleanup(func() {
-		err := changeAccessControl(was)
+		err := changeAccessControl(Context, was)
 		if err != nil {
 			t.Errorf("failed to restore Access Control to %t: %s", was, err)
 		}
@@ -52,7 +53,7 @@ func CreateRole(t *testing.T, title, filter string) int64 {
 
 	res, err := accessControlService().CreateRole(&accesscontrol.CreateRoleParams{
 		Body:    accesscontrol.CreateRoleBody{Title: title, Filter: filter, Description: "PMM-15531 MCP api-tests"},
-		Context: Context,
+		Context: t.Context(),
 	})
 	require.NoError(t, err)
 	roleID := res.Payload.RoleID
@@ -67,19 +68,18 @@ func CreateRole(t *testing.T, title, filter string) int64 {
 	return roleID
 }
 
-// AssignRoles replaces the user's Access Roles with roleIDs. When the test ends it gives the user the default
-// Access Role, as PMM does for a user it sees for the first time.
+// AssignRoles replaces the user's Access Roles with roleIDs and gives the user the default Access Role when the test ends.
 func AssignRoles(t *testing.T, userID int64, roleIDs ...int64) {
 	t.Helper()
 
 	_, err := accessControlService().AssignRoles(&accesscontrol.AssignRolesParams{
 		Body:    accesscontrol.AssignRolesBody{UserID: userID, RoleIds: roleIDs},
-		Context: Context,
+		Context: t.Context(),
 	})
 	require.NoError(t, err)
 
 	t.Cleanup(func() {
-		defaultRoleID := readSettings(t).DefaultRoleID
+		defaultRoleID := readSettings(Context, t).DefaultRoleID
 		if defaultRoleID == 0 {
 			return
 		}
@@ -94,16 +94,15 @@ func AssignRoles(t *testing.T, userID int64, roleIDs ...int64) {
 	})
 }
 
-// SetDefaultRole makes the Access Role the default one and restores the previous default when the test ends.
-// PMM refuses to delete the default role: cleanups run last-in-first-out, so call it after CreateRole.
+// SetDefaultRole makes the Access Role the default one, restores the previous default when the test ends, and must be called after CreateRole.
 func SetDefaultRole(t *testing.T, roleID int64) {
 	t.Helper()
 
-	previous := readSettings(t).DefaultRoleID
+	previous := readSettings(t.Context(), t).DefaultRoleID
 	require.NotZero(t, previous, "the server has no default Access Role")
 	_, err := accessControlService().SetDefaultRole(&accesscontrol.SetDefaultRoleParams{
 		Body:    accesscontrol.SetDefaultRoleBody{RoleID: roleID},
-		Context: Context,
+		Context: t.Context(),
 	})
 	require.NoError(t, err)
 
@@ -154,19 +153,19 @@ func accessControlService() accesscontrol.ClientService {
 	return accesscontrolClient.Default.AccessControlService
 }
 
-func readSettings(t *testing.T) *server.GetSettingsOKBodySettings {
+func readSettings(ctx context.Context, t *testing.T) *server.GetSettingsOKBodySettings {
 	t.Helper()
 
-	res, err := serverClient.Default.ServerService.GetSettings(&server.GetSettingsParams{Context: Context})
+	res, err := serverClient.Default.ServerService.GetSettings(&server.GetSettingsParams{Context: ctx})
 	require.NoError(t, err)
 
 	return res.Payload.Settings
 }
 
-func changeAccessControl(enabled bool) error {
+func changeAccessControl(ctx context.Context, enabled bool) error {
 	_, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 		Body:    server.ChangeSettingsBody{EnableAccessControl: new(enabled)},
-		Context: Context,
+		Context: ctx,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to set Access Control to %t: %w", enabled, err)
