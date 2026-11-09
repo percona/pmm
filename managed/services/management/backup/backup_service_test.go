@@ -142,14 +142,12 @@ func TestStartBackup(t *testing.T) {
 		locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 			Name:        "Test location snapshots",
 			Description: "Test description",
-			BackupLocationConfig: models.BackupLocationConfig{
-				S3Config: &models.S3LocationConfig{
-					Endpoint:     "https://s3.us-west-2.amazonaws.com/",
-					AccessKey:    "access_key",
-					SecretKey:    "secret_key",
-					BucketName:   "example_bucket",
-					BucketRegion: "us-east-2",
-				},
+			S3Config: &models.S3LocationConfig{
+				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+				AccessKey:    "access_key",
+				SecretKey:    "secret_key",
+				BucketName:   "example_bucket",
+				BucketRegion: "us-east-2",
 			},
 		})
 		require.NoError(t, err)
@@ -259,14 +257,12 @@ func TestScheduledBackups(t *testing.T) {
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: &models.S3LocationConfig{
-				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
-				AccessKey:    "access_key",
-				SecretKey:    "secret_key",
-				BucketName:   "example_bucket",
-				BucketRegion: "us-east-2",
-			},
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-2",
 		},
 	})
 	require.NoError(t, err)
@@ -345,7 +341,7 @@ func TestScheduledBackups(t *testing.T) {
 			task, err := models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
 				CronExpression: "* * * * *",
 				Type:           models.ScheduledMySQLBackupTask,
-				Data:           &models.ScheduledTaskData{MySQLBackupTask: &models.MySQLBackupTaskData{CommonBackupTaskData: models.CommonBackupTaskData{Name: t.Name()}}},
+				Data:           &models.ScheduledTaskData{MySQLBackupTask: &models.MySQLBackupTaskData{Name: t.Name()}},
 			})
 			require.NoError(t, err)
 
@@ -534,13 +530,13 @@ func TestListPitrTimeranges(t *testing.T) {
 	params := models.CreateBackupLocationParams{
 		Name:        gofakeit.Name(),
 		Description: "",
-	}
-	params.S3Config = &models.S3LocationConfig{
-		Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
-		AccessKey:    "access_key",
-		SecretKey:    "secret_key",
-		BucketName:   "example_bucket",
-		BucketRegion: "us-east-1",
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-1",
+		},
 	}
 	loc, err := models.CreateBackupLocation(db.Querier, params)
 	require.NoError(t, err)
@@ -611,13 +607,13 @@ func TestArtifactMetadataListToProto(t *testing.T) {
 	params := models.CreateBackupLocationParams{
 		Name:        gofakeit.Name(),
 		Description: "",
-	}
-	params.S3Config = &models.S3LocationConfig{
-		Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
-		AccessKey:    "access_key",
-		SecretKey:    "secret_key",
-		BucketName:   "example_bucket",
-		BucketRegion: "us-east-1",
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://awsS3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-1",
+		},
 	}
 	loc, err := models.CreateBackupLocation(db.Querier, params)
 	require.NoError(t, err)

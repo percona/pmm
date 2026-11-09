@@ -1636,9 +1636,10 @@
                         "legend": {
                             "displayMode": "list",
                             "placement": "bottom",
-                            "showLegend": true
+                            "showLegend": false
                         },
                         "mergeValues": true,
+                        "perPage": 4,
                         "rowHeight": 0.9,
                         "showValue": "auto",
                         "tooltip": {
@@ -1752,13 +1753,13 @@
                     "text": "",
                     "value": ""
                 },
-                "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\"},cluster)",
+                "definition": "label_values(mongodb_mongos_sharding_shards_total{environment=~\"$environment\"},cluster)",
                 "includeAll": false,
                 "label": "Cluster",
                 "name": "cluster",
                 "options": [],
                 "query": {
-                    "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\"},cluster)",
+                    "query": "label_values(mongodb_mongos_sharding_shards_total{environment=~\"$environment\"},cluster)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,

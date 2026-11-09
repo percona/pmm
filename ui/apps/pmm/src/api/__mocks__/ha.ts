@@ -26,6 +26,7 @@ export const HA_NODES_MOCK_HEALTHY: GetHANodesResponse = {
       status: 'alive',
     },
   ],
+  expectedNodes: 3,
 };
 
 export const HA_NODES_MOCK_DEGRADED: GetHANodesResponse = {
@@ -46,6 +47,7 @@ export const HA_NODES_MOCK_DEGRADED: GetHANodesResponse = {
       status: 'dead',
     },
   ],
+  expectedNodes: 3,
 };
 
 export const HA_NODES_MOCK_CRITICAL: GetHANodesResponse = {
@@ -66,6 +68,7 @@ export const HA_NODES_MOCK_CRITICAL: GetHANodesResponse = {
       status: 'dead',
     },
   ],
+  expectedNodes: 3,
 };
 
 export const HA_NODES_MOCK_DOWN: GetHANodesResponse = {
@@ -86,6 +89,7 @@ export const HA_NODES_MOCK_DOWN: GetHANodesResponse = {
       status: 'suspect',
     },
   ],
+  expectedNodes: 3,
 };
 
 export const getHAStatus = async (): Promise<GetHAStatusResponse> =>

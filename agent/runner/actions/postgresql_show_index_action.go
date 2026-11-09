@@ -92,7 +92,7 @@ func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	var args []any
 	table := strings.Split(a.params.Table, ".")
 	switch len(table) {
-	case 2:
+	case 2: //nolint:mnd
 		args = append(args, table[1], table[0])
 		namespaceQuery = "AND schemaname = $2"
 	case 1:

@@ -80,6 +80,10 @@ var (
 	pmmAgentInvalid = version.MustParse("3.0.0-invalid")
 
 	b64 = base64.StdEncoding
+
+	// An arbiter stores no users, so it rejects every query that needs authentication,
+	// and a check with such a query can't run on it. This marks that rejection.
+	errMongoDBArbiter = errors.New(agentv1.MongoDBArbiterUnauthorized)
 )
 
 // Service is responsible for interactions with Percona Check service.
@@ -159,7 +163,7 @@ func New(
 			Subsystem:  prometheusSubsystem,
 			Name:       "check_execution_time_seconds",
 			Help:       "Time taken to execute checks per service type, advisor, and check name",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
 		}, []string{"service_type", "advisor", "check_name"}),
 	}
 
@@ -510,18 +514,27 @@ func (s *Service) waitForResult(ctx context.Context, resultID string) ([]byte, e
 		}
 
 		if res.Error != "" {
-			return nil, fmt.Errorf("action %s failed: %s", resultID, res.Error)
+			return nil, actionError(resultID, res.Error)
 		}
 
 		return []byte(res.Output), nil
 	}
 }
 
+// actionError returns the error of a failed Action, recognizable with errors.Is as errMongoDBArbiter
+// if pmm-agent reported that an arbiter rejected the query.
+func actionError(resultID, msg string) error {
+	if rest, ok := strings.CutPrefix(msg, agentv1.MongoDBArbiterUnauthorized); ok {
+		return fmt.Errorf("action %s failed: %w%s", resultID, errMongoDBArbiter, rest)
+	}
+	return fmt.Errorf("action %s failed: %s", resultID, msg)
+}
+
 func (s *Service) minPMMAgentVersion(c check.Check) *version.Parsed {
 	switch c.Version {
 	case 1:
 		return s.minPMMAgentVersionForType(c.Type)
-	case 2:
+	case 2: //nolint:mnd
 		res := pmmAgent2_6_0 // minimum version that can be used with advisors
 		for _, query := range c.Queries {
 			v := s.minPMMAgentVersionForType(query.Type)
@@ -688,6 +701,11 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 
 		for _, target := range targets {
 			results, err := s.executeCheck(ctx, target, c)
+			if errors.Is(err, errMongoDBArbiter) {
+				s.l.Debugf("Skipped check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
+				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "skipped").Inc()
+				continue
+			}
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
 				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
@@ -1085,7 +1103,7 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 		lookback = time.Now().Add(-d)
 	}
 
-	r, warns, err := s.vmClient.Query(ctx, q, lookback)
+	r, warns, _, err := s.vmClient.Query(ctx, q, lookback)
 	if err != nil {
 		return "", fmt.Errorf("failed to execute instant VM query: %w", err)
 	}
@@ -1148,7 +1166,7 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 		return "", fmt.Errorf("failed to parse 'step' query parameter: %w", err)
 	}
 
-	r, warns, err := s.vmClient.QueryRange(ctx, q, rng)
+	r, warns, _, err := s.vmClient.QueryRange(ctx, q, rng)
 	if err != nil {
 		return "", fmt.Errorf("failed to execute range VM query: %w", err)
 	}
@@ -1454,7 +1472,7 @@ func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 		}
 
 		advisors = append(advisors, check.Advisor{
-			Version:     2,
+			Version:     2, //nolint:mnd
 			Name:        "dev",
 			Summary:     "Dev Advisor",
 			Description: "Advisor used for developing checks",
@@ -1599,7 +1617,7 @@ func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Adviso
 					s.l.Warnf("Unsupported check type: %s.", c.Type)
 					continue LOOP
 				}
-			case 2:
+			case 2: //nolint:mnd
 				for _, query := range c.Queries {
 					if ok := isQueryTypeSupported(query.Type); !ok {
 						s.l.Warnf("Unsupported query type: %s.", query.Type)

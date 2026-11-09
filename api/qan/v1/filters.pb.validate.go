@@ -219,8 +219,7 @@ func (e GetFilteredMetricsNamesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetFilteredMetricsNamesRequestValidationError{}
@@ -369,8 +368,7 @@ func (e GetFilteredMetricsNamesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetFilteredMetricsNamesResponseValidationError{}
@@ -503,8 +501,7 @@ func (e ListLabelsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListLabelsValidationError{}
@@ -608,8 +605,7 @@ func (e ValuesValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ValuesValidationError{}

@@ -25,14 +25,18 @@ datasources:
   access: proxy
 
 # https://github.com/grafana/clickhouse-datasource?tab=readme-ov-file#with-a-configuration-file
+#
+# Use a restricted ClickHouse user (read-only, limited to the QAN database)
+# rather than the privileged one used by qan-api2. See the 'grafana' user in
+# build/ansible/roles/clickhouse/files/default-users.xml.
 - name: ClickHouse
   orgId: 1
   version: 2
   type: grafana-clickhouse-datasource
   jsonData:
-    username: ${PMM_CLICKHOUSE_USER}
+    username: ${PMM_CLICKHOUSE_DATASOURCE_USER}
     port: ${PMM_CLICKHOUSE_PORT}
     host: ${PMM_CLICKHOUSE_HOST}
     tlsSkipVerify: false
   secureJsonData:
-    password: ${PMM_CLICKHOUSE_PASSWORD}
+    password: ${PMM_CLICKHOUSE_DATASOURCE_PASSWORD}

@@ -1,13 +1,22 @@
+---
 templates:
   - name: pmm_postgresql_high_transaction_rollbacks
     version: 1
     summary: PostgreSQL high rate of transaction rollbacks
-    expr: sum by (namespace,datname) ((rate(pg_stat_database_xact_rollback{datname!~"template.*|postgres",datid!="0"}[3m])) / ((rate(pg_stat_database_xact_rollback{datname!~"template.*|postgres",datid!="0"}[3m])) + (rate(pg_stat_database_xact_commit{datname!~"template.*|postgres",datid!="0"}[3m])))) > 0.10
+    queries:
+      - ref_id: A
+        expr: |-
+          sum by (node_name,service_name,namespace,datname) ((rate(pg_stat_database_xact_rollback{datname!~"template.*|postgres",datid!="0"}[3m])) / ((rate(pg_stat_database_xact_rollback{datname!~"template.*|postgres",datid!="0"}[3m])) + (rate(pg_stat_database_xact_commit{datname!~"template.*|postgres",datid!="0"}[3m]))))
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "$A > 0.10"
+    condition: C
     for: 1s
     severity: warning
     annotations:
       description: |-
         Ratio of transactions being aborted compared to committed is > 10 %
-          VALUE = {{ $value }}
+          VALUE = {{ $values.A.Value }}
           LABELS = {{ $labels }}
       summary: Postgresql high rollback rate (instance {{ $labels.instance }})

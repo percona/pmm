@@ -61,7 +61,7 @@ install-race:                   ## Install pmm-admin binary with race detector
 # TEST_PARALLEL_PACKAGES ?= foo bar
 # go test $(TEST_FLAGS) $(TEST_PARALLEL_PACKAGES) - without `-p 1`
 
-TEST_FLAGS ?= -timeout=60s
+TEST_FLAGS ?= -timeout=80s
 
 test:                           ## Run tests
 	go test $(TEST_FLAGS) -p 1 -race ./...

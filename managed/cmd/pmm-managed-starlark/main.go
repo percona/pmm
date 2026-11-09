@@ -150,7 +150,7 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 	switch data.Version {
 	case 1:
 		results, err = env.Run(data.Name, res[0], contextFuncs, l.Debugln)
-	case 2:
+	case 2: //nolint:mnd
 		results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
 	}
 	if err != nil {

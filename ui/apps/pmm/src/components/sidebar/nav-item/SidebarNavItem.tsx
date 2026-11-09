@@ -9,7 +9,7 @@ import {
 } from './SidebarNavItem.utils';
 import { getStyles } from './SidebarNavItem.styles';
 import { useTheme } from '@mui/material/styles';
-import { NavItem } from '@percona/percona-ui';
+import { NavItem } from '@percona/peak-ui';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import ListItem from '@mui/material/ListItem';
@@ -34,9 +34,9 @@ const SidebarNavItem: FC<NavItemProps> = ({
     [activeItem, item]
   );
   const [open, setIsOpen] = useState(active);
-  const url = useLinkWithVariables(
-    item.children?.length ? item.children[0].url : item.url
-  );
+  const defaultChild =
+    item.children?.find((child) => child.isDefault) ?? item.children?.[0];
+  const url = useLinkWithVariables(defaultChild ? defaultChild.url : item.url);
   const linkProps = getLinkProps(item, url);
   const theme = useTheme();
   const styles = getStyles(theme, drawerOpen, level);

@@ -18,6 +18,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"net"
 	"net/url"
@@ -51,6 +52,24 @@ type Server struct {
 	InsecureTLS bool   `yaml:"insecure-tls"`
 
 	WithoutTLS bool `yaml:"without-tls,omitempty"` // for development and testing
+}
+
+// NormalizedAddress returns the PMM Server address with the default port added when it has none.
+// It is idempotent: two addresses which differ only in the default port normalize to the same string,
+// which is what makes it usable for telling one PMM Server from another.
+func (s *Server) NormalizedAddress() string {
+	if s.Address == "" {
+		return ""
+	}
+	_, _, err := net.SplitHostPort(s.Address)
+	if err == nil {
+		return s.Address
+	}
+	// An IPv6 address may already carry the brackets JoinHostPort would add, and bracketing it again
+	// would make the method disagree with its own output.
+	host := strings.TrimSuffix(strings.TrimPrefix(s.Address, "["), "]")
+
+	return net.JoinHostPort(host, "443")
 }
 
 // URL returns base PMM Server URL for JSON APIs.
@@ -125,8 +144,12 @@ type Ports struct {
 // Setup contains `pmm-agent setup` flag and argument values.
 // It is never stored in configuration file.
 type Setup struct {
-	NodeType          string
-	NodeName          string
+	NodeType string
+	NodeName string
+	// NodeNameGiven reports whether NodeName names a Node the operator asked for, rather than carrying the
+	// hostname it falls back to. `pmm-agent setup` needs to tell the two apart, and the name is never
+	// stored, so there is nothing else to compare a registered Node against.
+	NodeNameGiven     bool
 	MachineID         string
 	Distro            string
 	ContainerID       string
@@ -165,7 +188,12 @@ type Config struct {
 	Debug    bool   `yaml:"debug"`
 	Trace    bool   `yaml:"trace"`
 
-	LogLinesCount         uint   `json:"log-lines-count"`
+	LogLinesCount uint `json:"log-lines-count"`
+	// LogLinesCountGiven reports whether --log-lines-count or its variable set LogLinesCount, rather than
+	// the flag default standing in for it. It is the only stored setting whose flag carries a default, so
+	// it is the only one kingpin would put that default over on a merge - which is the one thing MergeFlags
+	// exists to avoid.
+	LogLinesCountGiven    bool   `yaml:"-"`
 	PerfschemaRefreshRate uint16 `yaml:"perfschema-refresh-rate,omitempty"`
 
 	WindowConnectedTime time.Duration `yaml:"window-connected-time"`
@@ -192,137 +220,147 @@ func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
 	return get(os.Args[1:], cfg, l)
 }
 
+// applyDefaults fills in the values which are derived rather than given: the defaults of settings no
+// flag, variable or file carried, and the paths and the address built out of them. Get runs it on every
+// return point, and MergeFlags on the configuration it merged into, so that both reach the same result.
+func applyDefaults(cfg *Config, l *logrus.Entry) {
+	if cfg == nil {
+		return
+	}
+
+	// set default values
+	if strings.HasPrefix(cfg.ID, agentPrefix) {
+		l.Warnf("The agent ID '%s' contains a legacy prefix '%s'. It will be used without it.", cfg.ID, agentPrefix)
+		cfg.ID, _ = strings.CutPrefix(cfg.ID, agentPrefix)
+	}
+	if cfg.ListenAddress == "" {
+		cfg.ListenAddress = "127.0.0.1"
+	}
+	if cfg.ListenPort == 0 {
+		cfg.ListenPort = 7777
+	}
+	if cfg.Ports.Min == 0 {
+		cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
+	}
+	if cfg.Ports.Max == 0 {
+		cfg.Ports.Max = 51999
+	}
+	if cfg.WindowConnectedTime == 0 {
+		cfg.WindowConnectedTime = time.Hour
+	}
+	// kingpin fires no action for a value which came from the environment, and both `pmm-agent setup`
+	// and `pmm-admin config` always pass the name on, so "the operator asked for this Node" is "the
+	// name is not the one it falls back to".
+	cfg.Setup.NodeNameGiven = cfg.Setup.NodeName != "" && cfg.Setup.NodeName != nodeNameDefault()
+	// No action fires for this one either, and unlike the Node name it has no default worth comparing
+	// against: a variable which set it to 1024 is the flag default read back.
+	if os.Getenv("PMM_AGENT_LOG_LINES_COUNT") != "" {
+		cfg.LogLinesCountGiven = true
+	}
+	if cfg.PerfschemaRefreshRate == 0 {
+		cfg.PerfschemaRefreshRate = 5
+	}
+
+	for sp, v := range map[*string]string{
+		&cfg.Paths.NodeExporter:     "node_exporter",
+		&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
+		&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
+		&cfg.Paths.PostgresExporter: "postgres_exporter",
+		&cfg.Paths.ValkeyExporter:   "valkey_exporter",
+		&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
+		&cfg.Paths.RDSExporter:      "rds_exporter",
+		&cfg.Paths.AzureExporter:    "azure_exporter",
+		&cfg.Paths.VMAgent:          "vmagent",
+		&cfg.Paths.PTSummary:        "tools/pt-summary",
+		&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
+		&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
+		&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
+		&cfg.Paths.Nomad:            "tools/nomad",
+	} {
+		if *sp == "" {
+			*sp = v
+		}
+	}
+
+	if cfg.Paths.PathsBase == "" {
+		cfg.Paths.PathsBase = pathBaseDefault
+	}
+	if cfg.Paths.ExportersBase == "" {
+		cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
+	}
+
+	if abs, _ := filepath.Abs(cfg.Paths.PathsBase); abs != "" {
+		cfg.Paths.PathsBase = abs
+	}
+	if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
+		cfg.Paths.ExportersBase = abs
+	}
+
+	if cfg.Paths.TempDir == "" {
+		cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
+		l.Infof("Temporary directory will default to %s", cfg.Paths.TempDir)
+	}
+
+	if cfg.Paths.NomadDataDir == "" {
+		cfg.Paths.NomadDataDir = filepath.Join(cfg.Paths.PathsBase, agentDataPath, "nomad")
+		l.Infof("Nomad data directory will default to %s", cfg.Paths.NomadDataDir)
+	}
+
+	if !filepath.IsAbs(cfg.Paths.TempDir) {
+		cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
+		l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
+	}
+
+	for n, sp := range map[string]*string{
+		"Percona Toolkit pt-summary":         &cfg.Paths.PTSummary,
+		"Percona Toolkit pt-pg-summary":      &cfg.Paths.PTPGSummary,
+		"Percona Toolkit pt-mongodb-summary": &cfg.Paths.PTMongoDBSummary,
+		"Percona Toolkit pt-mysql-summary":   &cfg.Paths.PTMySQLSummary,
+		"Nomad binary":                       &cfg.Paths.Nomad,
+	} {
+		if !filepath.IsAbs(*sp) {
+			*sp = filepath.Join(cfg.Paths.PathsBase, *sp)
+			l.Infof("Using %s as a path to %s", *sp, n)
+		}
+	}
+
+	for n, sp := range map[string]*string{
+		"node_exporter":     &cfg.Paths.NodeExporter,
+		"mysqld_exporter":   &cfg.Paths.MySQLdExporter,
+		"mongodb_exporter":  &cfg.Paths.MongoDBExporter,
+		"postgres_exporter": &cfg.Paths.PostgresExporter,
+		"valkey_exporter":   &cfg.Paths.ValkeyExporter,
+		"proxysql_exporter": &cfg.Paths.ProxySQLExporter,
+		"rds_exporter":      &cfg.Paths.RDSExporter,
+		"azure_exporter":    &cfg.Paths.AzureExporter,
+		"vmagent":           &cfg.Paths.VMAgent,
+	} {
+		if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
+			*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
+		}
+		l.Infof("Using %s as a path to %s", *sp, n)
+	}
+
+	if address := cfg.Server.NormalizedAddress(); address != cfg.Server.Address {
+		l.Infof("Updating PMM Server address from %s to %s.", cfg.Server.Address, address)
+		cfg.Server.Address = address
+	}
+
+	// enabled cross-component PMM_DEBUG and PMM_TRACE take priority
+	if b, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); b {
+		cfg.Debug = true
+	}
+	if b, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); b {
+		cfg.Trace = true
+	}
+}
+
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint:gocognit,cyclop
+func get(args []string, cfg *Config, l *logrus.Entry) (string, error) {
 	var configFileF string
 	var err error
 	// tweak configuration on exit to cover all return points
-	defer func() {
-		if cfg == nil {
-			return
-		}
-
-		// set default values
-		if strings.HasPrefix(cfg.ID, agentPrefix) {
-			l.Warnf("The agent ID '%s' contains a legacy prefix '%s'. It will be used without it.", cfg.ID, agentPrefix)
-			cfg.ID, _ = strings.CutPrefix(cfg.ID, agentPrefix)
-		}
-		if cfg.ListenAddress == "" {
-			cfg.ListenAddress = "127.0.0.1"
-		}
-		if cfg.ListenPort == 0 {
-			cfg.ListenPort = 7777
-		}
-		if cfg.Ports.Min == 0 {
-			cfg.Ports.Min = 42000 // for minimal compatibility with PMM Client 1.x firewall rules and documentation
-		}
-		if cfg.Ports.Max == 0 {
-			cfg.Ports.Max = 51999
-		}
-		if cfg.WindowConnectedTime == 0 {
-			cfg.WindowConnectedTime = time.Hour
-		}
-		if cfg.PerfschemaRefreshRate == 0 {
-			cfg.PerfschemaRefreshRate = 5
-		}
-
-		for sp, v := range map[*string]string{
-			&cfg.Paths.NodeExporter:     "node_exporter",
-			&cfg.Paths.MySQLdExporter:   "mysqld_exporter",
-			&cfg.Paths.MongoDBExporter:  "mongodb_exporter",
-			&cfg.Paths.PostgresExporter: "postgres_exporter",
-			&cfg.Paths.ValkeyExporter:   "valkey_exporter",
-			&cfg.Paths.ProxySQLExporter: "proxysql_exporter",
-			&cfg.Paths.RDSExporter:      "rds_exporter",
-			&cfg.Paths.AzureExporter:    "azure_exporter",
-			&cfg.Paths.VMAgent:          "vmagent",
-			&cfg.Paths.PTSummary:        "tools/pt-summary",
-			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
-			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
-			&cfg.Paths.PTMySQLSummary:   "tools/pt-mysql-summary",
-			&cfg.Paths.Nomad:            "tools/nomad",
-		} {
-			if *sp == "" {
-				*sp = v
-			}
-		}
-
-		if cfg.Paths.PathsBase == "" {
-			cfg.Paths.PathsBase = pathBaseDefault
-		}
-		if cfg.Paths.ExportersBase == "" {
-			cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
-		}
-
-		if abs, _ := filepath.Abs(cfg.Paths.PathsBase); abs != "" {
-			cfg.Paths.PathsBase = abs
-		}
-		if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
-			cfg.Paths.ExportersBase = abs
-		}
-
-		if cfg.Paths.TempDir == "" {
-			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
-			l.Infof("Temporary directory will default to %s", cfg.Paths.TempDir)
-		}
-
-		if cfg.Paths.NomadDataDir == "" {
-			cfg.Paths.NomadDataDir = filepath.Join(cfg.Paths.PathsBase, agentDataPath, "nomad")
-			l.Infof("Nomad data directory will default to %s", cfg.Paths.NomadDataDir)
-		}
-
-		if !filepath.IsAbs(cfg.Paths.TempDir) {
-			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
-			l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
-		}
-
-		for n, sp := range map[string]*string{
-			"Percona Toolkit pt-summary":         &cfg.Paths.PTSummary,
-			"Percona Toolkit pt-pg-summary":      &cfg.Paths.PTPGSummary,
-			"Percona Toolkit pt-mongodb-summary": &cfg.Paths.PTMongoDBSummary,
-			"Percona Toolkit pt-mysql-summary":   &cfg.Paths.PTMySQLSummary,
-			"Nomad binary":                       &cfg.Paths.Nomad,
-		} {
-			if !filepath.IsAbs(*sp) {
-				*sp = filepath.Join(cfg.Paths.PathsBase, *sp)
-				l.Infof("Using %s as a path to %s", *sp, n)
-			}
-		}
-
-		for n, sp := range map[string]*string{
-			"node_exporter":     &cfg.Paths.NodeExporter,
-			"mysqld_exporter":   &cfg.Paths.MySQLdExporter,
-			"mongodb_exporter":  &cfg.Paths.MongoDBExporter,
-			"postgres_exporter": &cfg.Paths.PostgresExporter,
-			"valkey_exporter":   &cfg.Paths.ValkeyExporter,
-			"proxysql_exporter": &cfg.Paths.ProxySQLExporter,
-			"rds_exporter":      &cfg.Paths.RDSExporter,
-			"azure_exporter":    &cfg.Paths.AzureExporter,
-			"vmagent":           &cfg.Paths.VMAgent,
-		} {
-			if cfg.Paths.ExportersBase != "" && !filepath.IsAbs(*sp) {
-				*sp = filepath.Join(cfg.Paths.ExportersBase, *sp)
-			}
-			l.Infof("Using %s as a path to %s", *sp, n)
-		}
-
-		if cfg.Server.Address != "" {
-			_, _, e := net.SplitHostPort(cfg.Server.Address)
-			if e != nil {
-				host := cfg.Server.Address
-				cfg.Server.Address = net.JoinHostPort(host, "443")
-				l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
-			}
-		}
-
-		// enabled cross-component PMM_DEBUG and PMM_TRACE take priority
-		if b, _ := strconv.ParseBool(os.Getenv("PMM_DEBUG")); b {
-			cfg.Debug = true
-		}
-		if b, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); b {
-			cfg.Trace = true
-		}
-	}()
+	defer applyDefaults(cfg, l)
 
 	// parse command-line flags and environment variables
 	app, cfgFileF := Application(cfg)
@@ -339,7 +377,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		return configFileF, err
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
-	fileCfg, err := loadFromFile(configFileF, &cfg.Encryption)
+	fileCfg, err := LoadFromFile(configFileF, &cfg.Encryption)
 	if err != nil {
 		return configFileF, err
 	}
@@ -353,6 +391,86 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 	*cfg = *fileCfg
 	return configFileF, nil
+}
+
+// MergeFlags parses args over a configuration which was loaded from a file, so that the flags given win
+// while everything the file alone holds - the ports range and the /proc/mounts path among them - survives.
+//
+// It is the merge Get performs for --config-file, for a caller which learns the path of the file only
+// from the running pmm-agent and so cannot pass that flag: `pmm-admin config` runs `pmm-agent setup`
+// without it. Settings which carry a flag default are reset to it, exactly as they are on the
+// --config-file path.
+func MergeFlags(fileCfg *Config, args []string, l *logrus.Entry) error {
+	// --log-lines-count is the only stored setting whose flag carries a default, so it is the only one
+	// kingpin would put that default over. A file which holds none keeps the default it is given.
+	logLinesCount := fileCfg.LogLinesCount
+	pathsBase := fileCfg.Paths.PathsBase
+
+	app, _ := Application(fileCfg)
+	_, err := app.Parse(args)
+	if err != nil {
+		return err
+	}
+
+	if fileCfg.Paths.PathsBase != pathsBase {
+		clearDerivedPaths(&fileCfg.Paths, pathsBase)
+	}
+	applyDefaults(fileCfg, l)
+
+	if !fileCfg.LogLinesCountGiven && logLinesCount != 0 {
+		fileCfg.LogLinesCount = logLinesCount
+	}
+
+	return nil
+}
+
+// clearDerivedPaths empties the paths which are the ones base derived, so that applyDefaults derives
+// them again from the base the flags gave. Every path is stored, derived or not, so moving the base
+// would otherwise move nothing else: the Agent kept running the exporters of the base it came from.
+//
+// A stored path is either the one the old base derived or one an operator set, and only the first is the
+// base's to move. Which is which is not recorded, so they are told apart by deriving the old base again
+// and keeping whatever does not match.
+func clearDerivedPaths(paths *Paths, base string) {
+	if base == "" {
+		return
+	}
+
+	quiet := logrus.New()
+	quiet.SetOutput(io.Discard)
+	old := &Config{Paths: Paths{PathsBase: base}}
+	applyDefaults(old, logrus.NewEntry(quiet))
+
+	for p, derived := range map[*string]string{
+		&paths.ExportersBase:    old.Paths.ExportersBase,
+		&paths.NodeExporter:     old.Paths.NodeExporter,
+		&paths.MySQLdExporter:   old.Paths.MySQLdExporter,
+		&paths.MongoDBExporter:  old.Paths.MongoDBExporter,
+		&paths.PostgresExporter: old.Paths.PostgresExporter,
+		&paths.ProxySQLExporter: old.Paths.ProxySQLExporter,
+		&paths.RDSExporter:      old.Paths.RDSExporter,
+		&paths.AzureExporter:    old.Paths.AzureExporter,
+		&paths.ValkeyExporter:   old.Paths.ValkeyExporter,
+		&paths.VMAgent:          old.Paths.VMAgent,
+		&paths.Nomad:            old.Paths.Nomad,
+		&paths.TempDir:          old.Paths.TempDir,
+		&paths.NomadDataDir:     old.Paths.NomadDataDir,
+		&paths.PTSummary:        old.Paths.PTSummary,
+		&paths.PTPGSummary:      old.Paths.PTPGSummary,
+		&paths.PTMySQLSummary:   old.Paths.PTMySQLSummary,
+		&paths.PTMongoDBSummary: old.Paths.PTMongoDBSummary,
+	} {
+		if *p == derived {
+			*p = ""
+		}
+	}
+}
+
+// nodeNameDefault returns the Node name `pmm-agent setup` falls back to when it is given none.
+func nodeNameDefault() string {
+	hostname, _ := os.Hostname()
+
+	return hostname
 }
 
 // Application returns kingpin application that will parse command-line flags and environment variables
@@ -445,7 +563,12 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
 	app.Flag("log-lines-count",
 		"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
-		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
+		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").
+		Action(func(*kingpin.ParseContext) error {
+			cfg.LogLinesCountGiven = true
+
+			return nil
+		}).UintVar(&cfg.LogLinesCount)
 	app.Flag("perfschema-refresh-rate",
 		"Change how often PMM scrapes data from Performance Schema (in seconds) [PMM_AGENT_PERFSCHEMA_REFRESH_RATE]").
 		Envar("PMM_AGENT_PERFSCHEMA_REFRESH_RATE").Uint16Var(&cfg.PerfschemaRefreshRate)
@@ -488,7 +611,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	setupCmd.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).
 		Envar("PMM_AGENT_SETUP_NODE_TYPE").EnumVar(&cfg.Setup.NodeType, nodeTypeKeys...)
 
-	hostname, _ := os.Hostname()
+	hostname := nodeNameDefault()
 	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s) [PMM_AGENT_SETUP_NODE_NAME]", hostname)
 	setupCmd.Arg("node-name", nodeNameHelp).Default(hostname).
 		Envar("PMM_AGENT_SETUP_NODE_NAME").StringVar(&cfg.Setup.NodeName)
@@ -512,7 +635,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	setupCmd.Flag("az", "Node availability zone [PMM_AGENT_SETUP_AZ]").
 		Envar("PMM_AGENT_SETUP_AZ").StringVar(&cfg.Setup.Az)
 
-	setupCmd.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist [PMM_AGENT_SETUP_FORCE]").
+	setupCmd.Flag("force", "Register the Node even if this pmm-agent is registered, removing any existing Node"+
+		" with that name and its Services and Agents [PMM_AGENT_SETUP_FORCE]").
 		Envar("PMM_AGENT_SETUP_FORCE").BoolVar(&cfg.Setup.Force)
 	setupCmd.Flag("skip-registration", "Skip registration on PMM Server [PMM_AGENT_SETUP_SKIP_REGISTRATION]").
 		Envar("PMM_AGENT_SETUP_SKIP_REGISTRATION").BoolVar(&cfg.Setup.SkipRegistration)
@@ -533,11 +657,12 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	return app, configFileF
 }
 
-// loadFromFile loads configuration from file.
+// LoadFromFile loads the configuration stored in the file at the given path,
+// ignoring both command-line flags and environment variables.
 // As a special case, if file does not exist, it returns ConfigFileDoesNotExistError.
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
-func loadFromFile(path string, enc *Encryption) (*Config, error) {
+func LoadFromFile(path string, enc *Encryption) (*Config, error) {
 	_, err := os.Stat(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)

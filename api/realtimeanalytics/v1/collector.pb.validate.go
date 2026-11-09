@@ -156,8 +156,7 @@ func (e CollectRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CollectRequestValidationError{}
@@ -257,8 +256,7 @@ func (e CollectResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CollectResponseValidationError{}

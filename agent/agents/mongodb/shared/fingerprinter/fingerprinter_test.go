@@ -244,6 +244,21 @@ func TestProfilerFingerprinter(t *testing.T) {
 			},
 		},
 		{
+			name: "find with invalid UTF-8",
+			doc: proto.SystemProfile{
+				Ns:      "test.collection",
+				Op:      "query",
+				Command: bson.D{{Key: "filter", Value: bson.D{{Key: "name_\xff", Value: "test"}}}},
+			},
+			want: fingerprinter.Fingerprint{
+				Fingerprint: `db.collection.find({"name_\ufffd":"?"})`,
+				Namespace:   "test.collection",
+				Database:    "test",
+				Collection:  "collection",
+				Operation:   "query",
+			},
+		},
+		{
 			name: "insert",
 			doc: proto.SystemProfile{
 				Ns:      "test.insert_collection",

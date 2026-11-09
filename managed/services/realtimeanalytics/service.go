@@ -268,10 +268,8 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		rtaAgent.Disabled = false
 		// Need to update CreatedAt to reflect the new session start time.
 		rtaAgent.CreatedAt = time.Now()
-		// Encrypt agent's sensitive data before updating it in the database.
-		rtaAgent = new(models.EncryptAgent(*rtaAgent))
 
-		err = tx.Update(rtaAgent)
+		err = models.UpdateAgent(tx.Querier, rtaAgent)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to update Real-Time Analytics agent %s: %v", rtaAgent.AgentID, err)
 		}
@@ -433,10 +431,8 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		// RTA Agent exists - update its state
 		rtaAgent := existingRTAAgents[0]
 		rtaAgent.Disabled = true
-		// Encrypt agent's sensitive data before updating it in the database.
-		rtaAgent = new(models.EncryptAgent(*rtaAgent))
 
-		err = tx.Update(rtaAgent)
+		err = models.UpdateAgent(tx.Querier, rtaAgent)
 		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to update Real-Time Analytics agent %s: %v", rtaAgent.AgentID, err)
 		}

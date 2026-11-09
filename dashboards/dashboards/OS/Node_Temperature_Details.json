@@ -522,7 +522,7 @@
             ],
             "thresholds": [],
             "timeRegions": [],
-            "title": " Fan Power Usage",
+            "title": "Fan Power Usage",
             "tooltip": {
                 "msResolution": false,
                 "shared": true,

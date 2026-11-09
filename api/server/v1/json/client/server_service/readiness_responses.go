@@ -418,8 +418,8 @@ type ReadinessDefaultBodyDetailsItems0 struct {
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
 
-	// readiness default body details items0
-	ReadinessDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// readiness default body details items0 additional properties
+	ReadinessDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -481,7 +481,7 @@ func (o *ReadinessDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.ReadinessDefaultBodyDetailsItems0 = result
+		o.ReadinessDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -529,12 +529,12 @@ func (o ReadinessDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.ReadinessDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ReadinessDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ReadinessDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ReadinessDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

@@ -62,7 +62,7 @@ func TestCollector(t *testing.T) {
 
 			l := logrus.WithField("test", t.Name())
 
-			file, err := os.Create(destination) //nolint:gosec
+			file, err := os.Create(destination)
 			require.NoError(t, err)
 			require.NoError(t, file.Close())
 			t.Cleanup(func() {
@@ -215,7 +215,7 @@ func dataToJSON(t *testing.T, data []proto.SystemProfile) ([]byte, error) {
 func writeData(t *testing.T, data []proto.SystemProfile, name string) error {
 	t.Helper()
 
-	file, err := os.Create(name + ".json") //nolint:gosec
+	file, err := os.Create(name + ".json")
 	if err != nil {
 		return err
 	}
@@ -238,7 +238,7 @@ func writeData(t *testing.T, data []proto.SystemProfile, name string) error {
 func readData(t *testing.T, name string) ([]proto.SystemProfile, error) {
 	t.Helper()
 
-	file, err := os.Open(name + ".json") //nolint:gosec
+	file, err := os.Open(name + ".json")
 	if err != nil {
 		return nil, err
 	}
@@ -258,7 +258,7 @@ func readData(t *testing.T, name string) ([]proto.SystemProfile, error) {
 func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan error, source, destination string, delay time.Duration) {
 	t.Helper()
 
-	srcFile, err := os.Open(source) //nolint:gosec
+	srcFile, err := os.Open(source)
 	if err != nil {
 		errChan <- err
 		return
@@ -284,7 +284,7 @@ func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan 
 		return
 	}
 
-	dstFile, err := os.Create(destination) //nolint:gosec
+	dstFile, err := os.Create(destination)
 	if err != nil {
 		errChan <- err
 		return

@@ -189,10 +189,10 @@ UpdateStatusBody update status body
 swagger:model UpdateStatusBody
 */
 type UpdateStatusBody struct {
-	// Authentication token.
+	// Authentication token. Accepted from pre-3.9 clients.
 	AuthToken string `json:"auth_token,omitempty"`
 
-	// Progress log offset.
+	// Progress log offset. Accepted from pre-3.9 clients but ignored.
 	LogOffset int64 `json:"log_offset,omitempty"`
 }
 
@@ -460,8 +460,8 @@ type UpdateStatusDefaultBodyDetailsItems0 struct {
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
 
-	// update status default body details items0
-	UpdateStatusDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// update status default body details items0 additional properties
+	UpdateStatusDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -523,7 +523,7 @@ func (o *UpdateStatusDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 			}
 			result[k] = toadd
 		}
-		o.UpdateStatusDefaultBodyDetailsItems0 = result
+		o.UpdateStatusDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -571,12 +571,12 @@ func (o UpdateStatusDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.UpdateStatusDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.UpdateStatusDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.UpdateStatusDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.UpdateStatusDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -622,13 +622,13 @@ UpdateStatusOKBody update status OK body
 swagger:model UpdateStatusOKBody
 */
 type UpdateStatusOKBody struct {
-	// Progress log lines.
+	// Progress log lines. Always empty, kept so pre-3.9 clients can parse the response.
 	LogLines []string `json:"log_lines"`
 
-	// Progress log offset for the next request.
+	// Progress log offset for the next request. Always zero, kept so pre-3.9 clients can parse the response.
 	LogOffset int64 `json:"log_offset,omitempty"`
 
-	// True when update is done.
+	// True once PMM Server has finished initializing.
 	Done bool `json:"done,omitempty"`
 }
 

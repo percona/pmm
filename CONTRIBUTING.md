@@ -1,5 +1,11 @@
 # Welcome to Percona Monitoring and Management (PMM)!
 
+[![CI](https://github.com/percona/pmm/actions/workflows/main.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/main.yml)
+[![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
+[![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/percona/pmm/badge)](https://scorecard.dev/viewer/?uri=github.com/percona/pmm)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9702/badge)](https://www.bestpractices.dev/projects/9702)
+
 We'd be glad to welcome you to Percona community which tries to keep the open source open. [Percona Monitoring and Management (PMM)](https://www.percona.com/software/database-tools/percona-monitoring-and-management) is an open source database monitoring solution. It allows you to monitor your databases, different services (HAProxy, ProxySQL and etc) as well as Nodes, Kubernetes clusters and containers. Please check our [Documentation](https://docs.percona.com/percona-monitoring-and-management/3/reference/index.html#architecture) for the actual architecture.
 
 ## Table of contents
@@ -104,7 +110,24 @@ Please make sure to read and agree to our [Code of Conduct](https://github.com/p
 
 ## Submitting a Bug
 
-See [Submitting Bug Reports](README.md#submitting-bug-reports) in [README.md](README.md).
+If you find a bug in Percona Monitoring and Management, submit a report to the PMM project in [JIRA](https://perconadev.atlassian.net).
+
+Your first step should be [to search](https://perconadev.atlassian.net/issues/?jql=project=PMM) the existing set of open tickets for a similar report. If you find that someone else has already reported your problem, then you can upvote that report to increase its visibility.
+
+If there is no existing report, submit a report following these steps:
+
+1. [Sign in to Percona JIRA](https://perconadev.atlassian.net). You will need to create an account if you do not have one.
+2. From the top navigation bar, anywhere in Jira, click **Create**.
+3. Select Percona Monitoring and Management (PMM) from the **Project** drop-down menu.
+4. Fill in the fields of **Summary**, **Description**, **Steps To Reproduce**, and **Affects Version** to the best you can. If the bug corresponds to a crash, attach the stack trace from the logs.
+
+An excellent resource is [Elika Etemad's article on filing good bug reports](http://fantasai.inkedblade.net/style/talks/filing-good-bugs/).
+
+As a general rule of thumb, please try to create bug reports that are:
+
+- *Reproducible* - Include steps to reproduce the problem.
+- *Specific* - Include as much detail as possible: which version, what environment, etc.
+- *Unique* - Do not duplicate existing tickets.
 
 
 ## Setup your local development environment
@@ -114,7 +137,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 ### PMM Server
 
 * Clone [pmm repository](https://github.com/percona/pmm)
-* Run `make env-up` to start development container. This will be slow on first run, all subsequent runs will be order of magnitude faster, because development container will be reused. From time to time it is recommended to rebuild the container to pull the latest changes by running `make env-up-rebuild`.
+* Run `make env-up` to start development container. This will be slow on first run; all subsequent runs will be much faster because the container image will be reused. It is recommended to pull the most recent image from time to time (run `make env-update-image`) so things don't get stale.
 * To run pmm-managed with your code changes, just run `make run-managed`. It updates `pmm-managed` running in the container.
 
 ### PMM Client
@@ -132,11 +155,11 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 ### Exporters
 
-Exporters by themselves are independent applications, so each of them contains its own README files explaining how to set up a local environment [see PMM Client](#pmm-client).
+Exporters are independent applications, so each of them contains its own README files explaining how to set up a local environment [see PMM Client](#pmm-client).
 
 ### UI
 
-The devcontainer ships Node 22 and Yarn out of the box and exposes Vite (`make run-ui`) for the main PMM UI and webpack + livereload (`make run-qan-ui`) for the QAN Grafana plugin. See:
+The devcontainer ships NodeJS and Yarn out of the box and exposes Vite (`make run-ui`) for the main PMM UI and webpack + livereload (`make run-qan-ui`) for the QAN Grafana plugin. See:
 
 - [`ui/README.md`](https://github.com/percona/pmm/tree/main/ui/README.md) — main PMM UI (Vite, React, MUI).
 - [`dashboards/CONTRIBUTING.md`](https://github.com/percona/pmm/tree/main/dashboards/CONTRIBUTING.md) — QAN plugin and Grafana dashboards.

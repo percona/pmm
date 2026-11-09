@@ -25,6 +25,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	prom "github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -41,6 +42,14 @@ const (
 	prometheusSubsystem = "agents"
 	// ConnectionCacheTTL is the duration for which agent connection status is cached in HA mode.
 	connectionCacheTTL = 10 * time.Second
+	// How long to wait for a pong when telling a still-alive connection apart from a stale one,
+	// on registration of an agent whose ID is already registered. It must stay well below
+	// pmm-agent's dial timeout (5s), otherwise the reconnecting agent gives up before we are
+	// done probing and can never take over. See PMM-15310.
+	staleConnectionProbeTimeout = 2 * time.Second
+
+	// Bounds persisting the connection status in HA, which is done while holding the registry lock.
+	connectionStatusTimeout = 5 * time.Second
 )
 
 var (
@@ -97,6 +106,7 @@ type Registry struct {
 	connectionCache    map[string]struct{}
 	connectionCacheTTL time.Time
 	cacheMu            sync.RWMutex
+	rebuildMu          sync.Mutex
 
 	mConnects    prom.Counter
 	mDisconnects *prom.CounterVec
@@ -179,17 +189,15 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 		return err == nil
 	}
 
-	// HA mode: check cache first, then database
-	if !time.Now().After(r.connectionCacheTTL) {
-		r.cacheMu.RLock()
-		_, exists := r.connectionCache[pmmAgentID]
-		r.cacheMu.RUnlock()
-		if exists {
-			return true
+	// HA mode: a fresh cache answers misses too, otherwise every exporter ID costs a query.
+	if r.connectionCacheExpired() {
+		r.rebuildMu.Lock()
+		// Concurrent callers share a single rebuild.
+		if r.connectionCacheExpired() {
+			r.rebuildConnectionCache()
 		}
+		r.rebuildMu.Unlock()
 	}
-
-	r.rebuildConnectionCache()
 
 	r.cacheMu.RLock()
 	_, exists := r.connectionCache[pmmAgentID]
@@ -198,13 +206,20 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return exists
 }
 
+func (r *Registry) connectionCacheExpired() bool {
+	r.cacheMu.RLock()
+	defer r.cacheMu.RUnlock()
+
+	return time.Now().After(r.connectionCacheTTL)
+}
+
 // rebuildConnectionCache fetches all agent connection statuses from the database
 // and caches them for 10 seconds.
 func (r *Registry) rebuildConnectionCache() {
 	newCache := make(map[string]struct{})
 
-	// Fetch pmm-agents from the database, reset cache to empty on error.
-	_ = r.db.InTransaction(func(tx *reform.TX) error {
+	// Fetch pmm-agents from the database.
+	err := r.db.InTransaction(func(tx *reform.TX) error {
 		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
@@ -218,9 +233,15 @@ func (r *Registry) rebuildConnectionCache() {
 
 		return nil
 	})
+	if err != nil {
+		logrus.WithField("component", "agents/registry").Errorf("Failed to rebuild the connection cache: %v", err)
+	}
 
 	r.cacheMu.Lock()
-	r.connectionCache = newCache
+	// On error, keep the last snapshot and still wait for the TTL, so a failing database is not queried on every call.
+	if err == nil {
+		r.connectionCache = newCache
+	}
 	r.connectionCacheTTL = time.Now().Add(connectionCacheTTL)
 	r.cacheMu.Unlock()
 }
@@ -268,17 +289,31 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		// If agent respond with pong (no error) new connection is not established,
 		// so we return AlreadyExists error. Otherwise we kick the previous connection
 		// and proceed with the new one.
-		err := r.ping(ctx, currentAgent)
+		//
+		// The ping is bounded: a silently dropped connection never produces a pong, and waiting
+		// for one would block this registration until the kernel's TCP retransmission timeout
+		// expires (~15 minutes), rejecting every reconnect attempt in the meantime (PMM-15310).
+		pingCtx, cancelPing := context.WithTimeout(ctx, staleConnectionProbeTimeout)
+		err := r.ping(pingCtx, currentAgent)
+		cancelPing()
 		if err == nil {
 			return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
 		}
 
 		l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
-		r.Kick(ctx, agentMD.ID)
+		r.kickConn(ctx, currentAgent)
 		l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
 	}
 	r.rw.Lock()
 	defer r.rw.Unlock()
+
+	if _, ok := r.agents[agentMD.ID]; ok {
+		// Another connection for the same ID finished registering while we were probing, so it is
+		// newer than the one we probed. It wins: overwriting it here would leave its handler
+		// running and its stream alive with no registry entry, which is the state that makes
+		// pmm-managed report a connected agent as disconnected (PMM-15310).
+		return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
+	}
 
 	agent := &pmmAgentInfo{
 		channel:         channel.New(ctx, stream),
@@ -296,7 +331,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 				return fmt.Errorf("failed to find agent: %w", err)
 			}
 			a.IsConnected = true
-			err = tx.Update(a)
+			err = tx.UpdateColumns(a, "is_connected", "updated_at")
 			if err != nil {
 				return fmt.Errorf("failed to update agent: %w", err)
 			}
@@ -355,7 +390,7 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 	}
 
 	agent.Version = &md.Version
-	err = q.Update(agent)
+	err = q.UpdateColumns(agent, "version", "updated_at")
 	if err != nil {
 		return nil, fmt.Errorf("failed to update agent: %w", err)
 	}
@@ -369,9 +404,11 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 }
 
 // unregister removes pmm-agent with given ID from the registry.
-func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason string) *pmmAgentInfo {
-	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
-
+//
+// If conn is not nil, the agent is removed only while it is still the registered connection.
+// A connection that took a long time to die must not evict the one that already replaced it,
+// or the agent stays connected while pmm-managed reports it as disconnected forever (PMM-15310).
+func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason string, conn *pmmAgentInfo) *pmmAgentInfo {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
@@ -382,6 +419,14 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 	if agent == nil {
 		return nil
 	}
+	if conn != nil && agent != conn {
+		logger.Get(ctx).Debugf("Skipping unregistration of a superseded connection for agent %s.", pmmAgentID)
+		return nil
+	}
+
+	// Counted only once the connection is actually being unregistered: the guards above are
+	// routine when connections race, and counting them inflates the metric (PMM-15310).
+	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
 
 	delete(r.agents, pmmAgentID)
 	r.roster.clear(pmmAgentID)
@@ -389,7 +434,13 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 	// Only persist connection status when HA is enabled
 	if r.haService.Params().Enabled {
 		l := logger.Get(ctx)
-		err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+
+		// The caller's context is usually the one of the stream that just ended, so it is already
+		// canceled; the status must be persisted anyway, or other nodes see the agent as connected.
+		dbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), connectionStatusTimeout)
+		defer cancel()
+
+		err := r.db.InTransactionContext(dbCtx, nil, func(tx *reform.TX) error {
 			a, err := models.FindAgentByID(tx.Querier, pmmAgentID)
 			if err != nil {
 				// Agent might have been deleted, which is fine
@@ -399,7 +450,7 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 				return fmt.Errorf("failed to find agent: %w", err)
 			}
 			a.IsConnected = false
-			err = tx.Update(a)
+			err = tx.UpdateColumns(a, "is_connected", "updated_at")
 			if err != nil {
 				return fmt.Errorf("failed to update agent: %w", err)
 			}
@@ -419,11 +470,11 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 }
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
-// Returns true if pong is received, false if there is no pong or error occurred.
+// It gives up when ctx is done, so callers are expected to pass a context with a deadline.
 func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
-	resp, err := agent.channel.SendAndWaitResponse(&agentv1.Ping{})
+	resp, err := agent.channel.SendAndWaitResponse(ctx, &agentv1.Ping{})
 	if err != nil {
 		return err
 	}
@@ -492,9 +543,23 @@ func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOn
 	return nil
 }
 
-// Kick unregisters and forcefully disconnects pmm-agent with given ID.
+// Kick unregisters and forcefully disconnects pmm-agent with given ID, whichever connection is
+// registered for it. Use it for explicit, forced kicks.
 func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
-	agent := r.unregister(ctx, pmmAgentID, "kick")
+	r.kick(ctx, pmmAgentID, nil)
+}
+
+// kickConn unregisters and forcefully disconnects the given connection, but only while it is
+// still the registered one. Concurrent registrations can probe the same stale connection, and
+// the one that loses the race must not disconnect the connection that replaced it (PMM-15310).
+func (r *Registry) kickConn(ctx context.Context, conn *pmmAgentInfo) {
+	r.kick(ctx, conn.id, conn)
+}
+
+func (r *Registry) kick(ctx context.Context, pmmAgentID string, conn *pmmAgentInfo) {
+	// unregister returns the connection only to the caller that actually removed it,
+	// so kickChan is closed exactly once.
+	agent := r.unregister(ctx, pmmAgentID, "kick", conn)
 	if agent == nil {
 		return
 	}

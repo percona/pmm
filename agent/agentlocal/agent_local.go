@@ -45,7 +45,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/agent/config"
@@ -114,15 +113,12 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 	// l is closed by runGRPCServer
 
 	var wg sync.WaitGroup
-	wg.Add(2) //nolint:mnd
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		s.runGRPCServer(serverCtx, l)
-	}()
-	go func() {
-		defer wg.Done()
+	})
+	wg.Go(func() {
 		s.runJSONServer(serverCtx, l.Addr().String())
-	}()
+	})
 
 	select {
 	case <-s.reload:
@@ -136,7 +132,7 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 }
 
 // Status returns current pmm-agent status.
-func (s *Server) Status(_ context.Context, req *agentlocal.StatusRequest) (*agentlocal.StatusResponse, error) {
+func (s *Server) Status(ctx context.Context, req *agentlocal.StatusRequest) (*agentlocal.StatusResponse, error) {
 	connected := true
 	md := s.client.GetServerConnectMetadata()
 	if md == nil {
@@ -155,7 +151,7 @@ func (s *Server) Status(_ context.Context, req *agentlocal.StatusRequest) (*agen
 		}
 
 		if req.GetNetworkInfo && connected {
-			latency, clockDrift, err := s.client.GetNetworkInformation()
+			latency, clockDrift, err := s.client.GetNetworkInformation(ctx)
 			if err != nil {
 				s.l.Errorf("Can't get network info: %s", err)
 				serverInfo.Connected = false
@@ -176,7 +172,7 @@ func (s *Server) Status(_ context.Context, req *agentlocal.StatusRequest) (*agen
 		AgentsInfo:       agentsInfo,
 		ConfigFilepath:   s.configFilepath,
 		AgentVersion:     version.Version,
-		ConnectionUptime: roundFloat(upTime, 2),
+		ConnectionUptime: roundFloat(upTime, 2), //nolint:mnd
 	}, nil
 }
 
@@ -299,14 +295,10 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, &grpc_gateway.JSONPb{
-			MarshalOptions: protojson.MarshalOptions{
-				EmitUnpopulated: true,
-				Indent:          "  ",
-				UseProtoNames:   true,
-			},
-			UnmarshalOptions: protojson.UnmarshalOptions{
-				DiscardUnknown: true,
-			},
+			EmitUnpopulated: true,
+			Indent:          "  ",
+			UseProtoNames:   true,
+			DiscardUnknown:  true,
 		}),
 		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
 	)

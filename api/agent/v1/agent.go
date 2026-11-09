@@ -18,6 +18,15 @@ package agentv1
 
 import "google.golang.org/protobuf/proto"
 
+// Names of the text files that carry TLS material to pmm-agent. Exporter arguments
+// reference them as {{ .TextFiles.<name> }}, so renaming one changes the agent wire
+// protocol and breaks every already-deployed agent.
+const (
+	TLSCaFileName   = "tlsCa"
+	TLSCertFileName = "tlsCert"
+	TLSKeyFileName  = "tlsKey"
+)
+
 //go-sumtype:decl isAgentMessage_Payload
 //go-sumtype:decl isServerMessage_Payload
 

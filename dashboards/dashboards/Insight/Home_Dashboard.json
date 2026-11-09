@@ -2417,7 +2417,7 @@
                         }
                     ],
                     "timeFrom": "1h",
-                    "title": "CPU Anomaly ",
+                    "title": "CPU Anomaly",
                     "type": "timeseries"
                 },
                 {

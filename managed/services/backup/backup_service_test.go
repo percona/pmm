@@ -83,14 +83,12 @@ func TestPerformBackup(t *testing.T) {
 	s3Location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test s3 location",
 		Description: "Test s3 description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: &models.S3LocationConfig{
-				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
-				AccessKey:    "access_key",
-				SecretKey:    "secret_key",
-				BucketName:   "example_bucket",
-				BucketRegion: "us-east-2",
-			},
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-2",
 		},
 	})
 	require.NoError(t, err)
@@ -98,10 +96,8 @@ func TestPerformBackup(t *testing.T) {
 	filesystemLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test local location",
 		Description: "Test local description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			FilesystemConfig: &models.FilesystemLocationConfig{
-				Path: "/opt/data",
-			},
+		FilesystemConfig: &models.FilesystemLocationConfig{
+			Path: "/opt/data",
 		},
 	})
 	require.NoError(t, err)
@@ -259,14 +255,12 @@ func TestRestoreBackup(t *testing.T) {
 	s3Location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: &models.S3LocationConfig{
-				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
-				AccessKey:    "access_key",
-				SecretKey:    "secret_key",
-				BucketName:   "example_bucket",
-				BucketRegion: "us-east-2",
-			},
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-2",
 		},
 	})
 	require.NoError(t, err)
@@ -274,10 +268,8 @@ func TestRestoreBackup(t *testing.T) {
 	filesystemLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test local location",
 		Description: "Test local description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			FilesystemConfig: &models.FilesystemLocationConfig{
-				Path: "/opt/data",
-			},
+		FilesystemConfig: &models.FilesystemLocationConfig{
+			Path: "/opt/data",
 		},
 	})
 	require.NoError(t, err)
@@ -493,14 +485,12 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: &models.S3LocationConfig{
-				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
-				AccessKey:    "access_key",
-				SecretKey:    "secret_key",
-				BucketName:   "example_bucket",
-				BucketRegion: "us-east-2",
-			},
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-2",
 		},
 	})
 	require.NoError(t, err)

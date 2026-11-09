@@ -590,7 +590,7 @@
     <user_directories>
         <users_xml>
             <!-- Path to configuration file with predefined users. -->
-            <path>low-memory-users.xml</path>
+            <path>users.xml</path>
         </users_xml>
         <local_directory>
             <!-- Path to folder where users created by SQL commands are stored. -->
@@ -672,7 +672,13 @@
              Exceptions: a few system tables ("tables", "columns", "databases", and some constant tables like "one", "contributors")
              are still accessible for everyone; and if there is a SHOW privilege (e.g. "SHOW USERS") granted the corresponding system
              table (i.e. "system.users") will be accessible. -->
-        <select_from_system_db_requires_grant>false</select_from_system_db_requires_grant>
+        <!-- PMM: with this off, a grants allowlist does not bound reads of the system database, so
+             the read-only data source user could read system.query_log and with it the SQL text of
+             every query any user has run. The metadata the Grafana ClickHouse plugin needs
+             (system.tables, columns, databases, one) stays readable either way, and qan-api2 is
+             unaffected because its user holds implicit full privileges. Upstream ClickHouse has
+             defaulted this to true since 25.3; PMM's copy carried the older value. -->
+        <select_from_system_db_requires_grant>true</select_from_system_db_requires_grant>
 
         <!-- By default, for backward compatibility "SELECT * FROM information_schema.<table>" doesn't require any grants and can be
              executed by any user. You can change this behaviour by setting this to true.
@@ -684,7 +690,11 @@
              If it's set to true then if settings profile has a constraint for a specific setting, then this constraint completely cancels all
              actions of previous constraint (defined in other profiles) for the same specific setting, including fields that are not set by new constraint.
              It also enables 'changeable_in_readonly' constraint type -->
-        <settings_constraints_replace_previous>false</settings_constraints_replace_previous>
+        <!-- PMM: required by the 'changeable_in_readonly' constraint on the datasource profile in
+             users.xml. PMM defines no other settings constraints, so the constraint-inheritance
+             change this flag also brings has no effect on the shipped ones. Profiles created through SQL
+         and kept in /srv/clickhouse/access/ do see the new merge behaviour. -->
+        <settings_constraints_replace_previous>true</settings_constraints_replace_previous>
 
         <!-- Number of seconds since last access a role is stored in the Role Cache -->
         <role_cache_expiration_time_seconds>600</role_cache_expiration_time_seconds>
@@ -805,6 +815,13 @@
         (forgetting to do so is a common source of error).
     -->
     <!--</remote_url_allow_hosts>-->
+
+    <!-- PMM: defense against SSRF via ClickHouse.
+        This applies to all users, including the privileged 'default' one used by qan-api2,
+        so a future privilege regression cannot re-open access to URL-based engines and table functions. 
+        No PMM component uses these functions.
+    -->
+    <remote_url_allow_hosts></remote_url_allow_hosts>
 
     <!-- The list of HTTP headers forbidden to use in HTTP-related storage engines and table functions.
         If this section is not present in configuration, all headers are allowed.

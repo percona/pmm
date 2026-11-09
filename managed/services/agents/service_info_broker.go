@@ -57,7 +57,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -75,7 +75,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
 				nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -87,7 +87,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -98,7 +98,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 		}
 	case models.ExternalServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -109,7 +109,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 		}
 	case models.HAProxyServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -120,17 +120,18 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 		}
 
 	case models.ValkeyServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.ServiceInfoRequest{
-			Tls:  agent.TLS,
-			Type: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
-			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second},
+			Tls:           agent.TLS,
+			Type:          inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+			TlsSkipVerify: agent.TLSSkipVerify,
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second}, //nolint:mnd
 				nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -172,7 +173,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	l.Infof("ServiceInfoRequest: type: %s, DSN: %s timeout: %s.",
 		request.Type, logger.MaskDSN(request.Dsn), request.Timeout)
 
-	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
+	resp, err := pmmAgent.channel.SendAndWaitResponse(ctx, request)
 	if err != nil {
 		return err
 	}
@@ -194,7 +195,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	case models.MySQLServiceType:
 		agent.MySQLOptions.TableCount = &sInfo.TableCount
 		l.Debugf("Updating table count: %d.", sInfo.TableCount)
-		err = q.Update(new(models.EncryptAgent(*agent)))
+		err = models.UpdateAgent(q, agent)
 		if err != nil {
 			return fmt.Errorf("failed to update table count: %w", err)
 		}
@@ -213,10 +214,10 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 			}
 		}
 		agent.PostgreSQLOptions.PGSMVersion = sInfo.PgsmVersion
-		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount)
+		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount) //nolint:gosec
 
 		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)
-		err = q.Update(new(models.EncryptAgent(*agent)))
+		err = models.UpdateAgent(q, agent)
 		if err != nil {
 			return fmt.Errorf("failed to update database count: %w", err)
 		}

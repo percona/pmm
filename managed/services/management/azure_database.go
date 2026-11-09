@@ -195,6 +195,21 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 	}
 
 	l := logger.Get(ctx).WithField("component", "discover/azureDatabase")
+
+	pmmAgentID := models.PMMServerAgentID
+	if req.GetPmmAgentId() != "" {
+		pmmAgentID = req.GetPmmAgentId()
+	}
+	err := s.checkNodeIsEligible(ctx, pmmAgentID, req.Address)
+	if err != nil {
+		return nil, err
+	}
+	// As for RDS: PMM Server's own pmm-agent is scraped, others push, since HA scrapes no pull-mode Agents.
+	metricsMode, err := supportedMetricsMode(managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED, pmmAgentID)
+	if err != nil {
+		return nil, err
+	}
+
 	// tweak according to API docs
 	if req.NodeName == "" {
 		req.NodeName = req.InstanceId
@@ -260,9 +275,12 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 
 		if req.AzureDatabaseExporter {
 			azureDatabaseExporter, err := models.CreateAgent(tx.Querier, models.AzureDatabaseExporterType, &models.CreateAgentParams{
-				PMMAgentID:   models.PMMServerAgentID,
+				PMMAgentID:   pmmAgentID,
 				ServiceID:    service.ServiceID,
 				AzureOptions: models.AzureOptionsFromRequest(req),
+				ExporterOptions: models.ExporterOptions{
+					PushMetrics: isPushMode(metricsMode),
+				},
 			})
 			if err != nil {
 				return err
@@ -271,7 +289,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		}
 
 		metricsExporter, err := models.CreateAgent(tx.Querier, exporterType, &models.CreateAgentParams{
-			PMMAgentID:    models.PMMServerAgentID,
+			PMMAgentID:    pmmAgentID,
 			ServiceID:     service.ServiceID,
 			Username:      req.Username,
 			Password:      req.Password,
@@ -279,6 +297,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			TLSSkipVerify: req.TlsSkipVerify,
 			ExporterOptions: models.ExporterOptions{
 				ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
+				PushMetrics:       isPushMode(metricsMode),
 			},
 			MySQLOptions: models.MySQLOptions{
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
@@ -302,7 +321,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 
 		if req.Qan {
 			qanAgent, err := models.CreateAgent(tx.Querier, qanAgentType, &models.CreateAgentParams{
-				PMMAgentID:    models.PMMServerAgentID,
+				PMMAgentID:    pmmAgentID,
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
@@ -324,6 +343,6 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		return nil, e
 	}
 
-	s.state.RequestStateUpdate(ctx, models.PMMServerAgentID)
+	s.state.RequestStateUpdate(ctx, pmmAgentID)
 	return &managementv1.AddAzureDatabaseResponse{}, nil
 }

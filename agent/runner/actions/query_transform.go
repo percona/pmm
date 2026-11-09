@@ -69,7 +69,7 @@ func dmlToSelect(query string) (string, bool) {
 
 	m = updateRe.FindStringSubmatch(query)
 	// > 2 because we need at least a table name and a list of fields
-	if len(m) > 2 {
+	if len(m) > 2 { //nolint:mnd
 		return updateToSelect(m), true
 	}
 
@@ -79,17 +79,17 @@ func dmlToSelect(query string) (string, bool) {
 	}
 
 	m = insertRe.FindStringSubmatch(query)
-	if len(m) > 2 {
+	if len(m) > 2 { //nolint:mnd
 		return insertToSelect(m), true
 	}
 
 	m = insertSetRe.FindStringSubmatch(query)
-	if len(m) > 2 {
+	if len(m) > 2 { //nolint:mnd
 		return insertWithSetToSelect(m), true
 	}
 
 	m = insertReNoFields.FindStringSubmatch(query)
-	if len(m) > 2 {
+	if len(m) > 2 { //nolint:mnd
 		return insertToSelectNoFields(m), true
 	}
 
@@ -129,13 +129,13 @@ func insertToSelect(matches []string) string {
 		}
 		return query.String()
 	}
-	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", matches[1])
+	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", matches[1]) //nolint:unqueryvet
 }
 
 func insertToSelectNoFields(matches []string) string {
-	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", matches[1])
+	return fmt.Sprintf("SELECT * FROM %s LIMIT 1", matches[1]) //nolint:unqueryvet
 }
 
 func insertWithSetToSelect(matches []string) string {
-	return fmt.Sprintf("SELECT * FROM %s WHERE %s", matches[1], strings.ReplaceAll(matches[2], ",", " AND "))
+	return fmt.Sprintf("SELECT * FROM %s WHERE %s", matches[1], strings.ReplaceAll(matches[2], ",", " AND ")) //nolint:unqueryvet
 }
