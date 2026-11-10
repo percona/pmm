@@ -951,7 +951,7 @@ type Settings struct {
 	// True if PMM Extensions is enabled. Read-only: it reports how this PMM
 	// Server process was started, and cannot be changed through ChangeSettings.
 	ExtensionsEnabled bool `protobuf:"varint,21,opt,name=extensions_enabled,json=extensionsEnabled,proto3" json:"extensions_enabled,omitempty"`
-	// True if OpenManager is enabled.
+	// True if Operations for MongoDB is enabled.
 	OmEnabled bool `protobuf:"varint,22,opt,name=om_enabled,json=omEnabled,proto3" json:"om_enabled,omitempty"`
 	// True if Advisor email notifications are enabled.
 	AdvisorNotificationsEnabled bool `protobuf:"varint,23,opt,name=advisor_notifications_enabled,json=advisorNotificationsEnabled,proto3" json:"advisor_notifications_enabled,omitempty"`
@@ -1179,7 +1179,7 @@ type ReadOnlySettings struct {
 	EnableAccessControl bool `protobuf:"varint,8,opt,name=enable_access_control,json=enableAccessControl,proto3" json:"enable_access_control,omitempty"`
 	// True if PMM Extensions is enabled.
 	ExtensionsEnabled bool `protobuf:"varint,9,opt,name=extensions_enabled,json=extensionsEnabled,proto3" json:"extensions_enabled,omitempty"`
-	// True if OpenManager is enabled.
+	// True if Operations for MongoDB is enabled.
 	OmEnabled     bool `protobuf:"varint,10,opt,name=om_enabled,json=omEnabled,proto3" json:"om_enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1468,7 +1468,7 @@ type ChangeSettingsRequest struct {
 	EnableAccessControl *bool `protobuf:"varint,13,opt,name=enable_access_control,json=enableAccessControl,proto3,oneof" json:"enable_access_control,omitempty"`
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQan *bool `protobuf:"varint,14,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3,oneof" json:"enable_internal_pg_qan,omitempty"`
-	// Enable OpenManager.
+	// Enable Operations for MongoDB.
 	EnableOm *bool `protobuf:"varint,16,opt,name=enable_om,json=enableOm,proto3,oneof" json:"enable_om,omitempty"`
 	// A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
 	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,17,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`

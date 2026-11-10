@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
+import { collectCsvColumns } from 'utils/csv.utils';
 import { TEST_MONGO_DB_QUERY_DATA } from 'utils/testStubs';
 import {
-  buildRtaExportFilename,
-  collectCsvColumns,
   exportRtaQueriesToCsv,
   mapQueryToCsvRow,
+  RTA_CSV_COLUMNS,
   toCsvHeader,
 } from './exportRtaQueriesToCsv';
 
@@ -63,7 +63,10 @@ describe('exportRtaQueriesToCsv', () => {
   });
 
   it('keeps the documented column order and appends unlisted fields', () => {
-    const columns = collectCsvColumns([mapQueryToCsvRow(TEST_QUERY)]);
+    const columns = collectCsvColumns(
+      [mapQueryToCsvRow(TEST_QUERY)],
+      RTA_CSV_COLUMNS
+    );
 
     expect(columns).toEqual([
       'operation_id',
@@ -99,30 +102,9 @@ describe('exportRtaQueriesToCsv', () => {
     expect(row.read_preference).toBe('secondary');
     expect(row.waiting_for_lock).toBe(false);
     expect(row.mode).toBe('IS');
-    expect(collectCsvColumns([row])).toContain('read_preference');
-  });
-
-  it('collects columns across all rows, not just the first', () => {
-    const [withoutCollection, withCollection] = [
-      mapQueryToCsvRow({
-        ...TEST_QUERY,
-        mongoDbPayload: {
-          ...TEST_QUERY.mongoDbPayload,
-          collection: undefined,
-        },
-      }),
-      mapQueryToCsvRow(TEST_QUERY),
-    ];
-
-    expect(collectCsvColumns([withoutCollection, withCollection])).toContain(
-      'collection'
+    expect(collectCsvColumns([row], RTA_CSV_COLUMNS)).toContain(
+      'read_preference'
     );
-  });
-
-  it('builds the required filename template', () => {
-    expect(
-      buildRtaExportFilename(new Date('2026-06-25T14:30:22.000Z'))
-    ).toMatch(/^mongodb_rta_export_\d{8}_\d{6}$/);
   });
 
   it('exports filtered query rows to csv', () => {

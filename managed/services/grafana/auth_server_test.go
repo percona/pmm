@@ -237,13 +237,13 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/advisors.v1.AdvisorService/ListAdvisorServices", editor},
 		{http.MethodPost, "/advisors.v1.AdvisorService/GetAdvisorNotificationSettings", editor},
 
-		// OM: reads are viewer; writes need editor or admin.
+		// OM: reads are viewer; actions need admin, except topology collection (below).
 		{http.MethodGet, "/v1/om/topology", viewer},
 		{http.MethodGet, "/v1/om/inventory/hosts", viewer},
 		{http.MethodGet, "/v1/om/inventory/hosts/node-1", viewer},
 		{http.MethodGet, "/v1/om/inventory/services", viewer},
 		{http.MethodGet, "/v1/om/inventory/config", viewer},
-		{http.MethodPost, "/v1/om/inventory/runs:trigger", editor},
+		{http.MethodPost, "/v1/om/inventory/runs:trigger", admin},
 		{http.MethodDelete, "/v1/om/inventory/hosts/node-1", admin},
 		{http.MethodDelete, "/v1/om/inventory/services/svc-1", admin},
 		{http.MethodPut, "/v1/om/inventory/config", admin},
@@ -259,7 +259,7 @@ func TestResolveRule(t *testing.T) {
 		// OM over gRPC: method names carry no HTTP verb, so each needs an exact rule.
 		{http.MethodPost, "/om.v1.OmService/GetTopology", viewer},
 		{http.MethodPost, "/om.v1.OmService/ListInventoryHosts", viewer},
-		{http.MethodPost, "/om.v1.OmService/TriggerInventoryRefresh", editor},
+		{http.MethodPost, "/om.v1.OmService/TriggerInventoryRefresh", admin},
 		{http.MethodPost, "/om.v1.OmService/DeleteInventoryHost", admin},
 		{http.MethodPost, "/om.v1.OmService/DeleteInventoryService", admin},
 		{http.MethodPost, "/om.v1.OmService/UpdateInventoryConfig", admin},

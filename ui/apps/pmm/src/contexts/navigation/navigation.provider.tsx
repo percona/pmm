@@ -65,10 +65,10 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     items.push(NAV_DIVIDERS.home);
 
-    // Served by pmm-managed, so it is not gated with the PMM Extensions group --
-    // gated on the settings flag alone.
+    // Served by pmm-managed, so it is not gated with the PMM Extensions group: any
+    // signed-in user while the switch is on. Actions inside are admin-only.
     const mongoExtras =
-      user?.isPMMAdmin && settings?.omEnabled ? [addOm()] : [];
+      user?.isAnonymous === false && settings?.omEnabled ? [addOm()] : [];
 
     items.push(
       ...addDashboardItems(currentServiceTypes, folders, user, mongoExtras)
