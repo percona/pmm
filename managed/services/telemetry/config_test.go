@@ -18,16 +18,18 @@ package telemetry
 import (
 	"context"
 	"slices"
-	"strings"
 	"testing"
 	"time"
 
 	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/model"
+	"github.com/prometheus/prometheus/promql/parser"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/models"
@@ -288,36 +290,64 @@ func TestDefaultConfigReportsAPIUsage(t *testing.T) {
 	apiUsage := telemetry[idx]
 	assert.Equal(t, string(dsVM), apiUsage.Source)
 
-	// qan-api2 exports a metric with the same name but without caller_origin.
-	metricName, selector, _ := strings.Cut(apiUsage.Query, "{")
-	assert.Equal(t, `job="pmm-managed"}`, selector)
+	matchers, err := parser.NewParser(parser.Options{}).ParseMetricSelector(apiUsage.Query)
+	require.NoError(t, err)
 
-	// A CounterVec exports no series until a call is recorded.
+	var metricName, jobMatcher string
+	for _, m := range matchers {
+		switch m.Name {
+		case model.MetricNameLabel:
+			metricName = m.Value
+		case "job":
+			jobMatcher = m.String()
+		}
+	}
+	// qan-api2 exports a metric with the same name but without caller_origin.
+	assert.Equal(t, `job="pmm-managed"`, jobMatcher)
+
 	grpcMetrics := interceptors.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
 	registry := prometheus.NewRegistry()
 	registry.MustRegister(grpcMetrics)
+
+	// UnaryAdd sets caller_origin, as in main.go.
+	interceptor := interceptors.UnaryAdd(grpcMetrics.UnaryServerInterceptor())
 	info := &grpc.UnaryServerInfo{FullMethod: "/server.v1.ServerService/Version"}
-	_, err = grpcMetrics.UnaryServerInterceptor()(t.Context(), nil, info, func(context.Context, any) (any, error) { return struct{}{}, nil })
-	require.NoError(t, err)
+	handler := func(context.Context, any) (any, error) { return struct{}{}, nil }
+	gatewayCtx := metadata.NewIncomingContext(t.Context(), metadata.Pairs("grpcgateway-referer", "https://pmm-server/"))
+
+	// A CounterVec exports no series until a call is recorded.
+	for _, ctx := range []context.Context{t.Context(), gatewayCtx} {
+		_, err = interceptor(ctx, nil, info, handler)
+		require.NoError(t, err)
+	}
 
 	families, err := registry.Gather()
 	require.NoError(t, err)
 
-	var labels []string
+	var series []map[string]string
 	for _, family := range families {
 		if family.GetName() != metricName {
 			continue
 		}
-		for _, label := range family.GetMetric()[0].GetLabel() {
-			labels = append(labels, label.GetName())
+		for _, metric := range family.GetMetric() {
+			labels := make(map[string]string)
+			for _, label := range metric.GetLabel() {
+				labels[label.GetName()] = label.GetValue()
+			}
+			series = append(series, labels)
 		}
 	}
-	require.NotEmpty(t, labels, "pmm-managed does not expose %s", metricName)
+	require.NotEmpty(t, series, "pmm-managed does not expose %s", metricName)
 
-	for _, data := range apiUsage.Data {
-		// The job label comes from the VictoriaMetrics scrape config, not from pmm-managed.
-		if data.Label != "" && data.Label != "job" {
-			assert.Contains(t, labels, data.Label)
+	origins := make([]string, 0, len(series))
+	for _, labels := range series {
+		origins = append(origins, labels["caller_origin"])
+		for _, data := range apiUsage.Data {
+			// The job label comes from the VictoriaMetrics scrape config, not from pmm-managed.
+			if data.Label != "" && data.Label != "job" {
+				assert.Contains(t, labels, data.Label)
+			}
 		}
 	}
+	assert.ElementsMatch(t, []string{"external", "internal"}, origins)
 }
