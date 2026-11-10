@@ -51,7 +51,7 @@ var timeZoneRegexp = regexp.MustCompile(`^[A-Za-z0-9_/+:-]+$`)
 // caller may pass the value quoted or bare.
 func normalizeTimeZone(v string) string {
 	v = strings.TrimSpace(v)
-	if len(v) >= 2 {
+	if len(v) > 1 {
 		first, last := v[0], v[len(v)-1]
 		if (first == '\'' && last == '\'') || (first == '"' && last == '"') {
 			v = v[1 : len(v)-1]
