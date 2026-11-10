@@ -47,6 +47,8 @@ For information on the various config parameters for telemetry, see the [config 
 
 When active, PMM will automatically check for updates and put a notification in the home page **Updates** dashboard if any are available.
 
+If PMM Server can't reach the Percona version service, the update check stops after 10 seconds. PMM then shows **Failed to check for PMM Server updates.** In an air-gapped environment, turn off **Check for updates** to skip the check.
+
 ## Advisors
 
 Advisors are sets of checks grouped by functionality that run a range of database health checks on a registered PMM instance.
