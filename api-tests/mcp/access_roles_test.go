@@ -56,6 +56,7 @@ const (
 
 // matrixChecks maps each tool to its checks; the matrix runs every entry and the keys must equal tools/list.
 var matrixChecks = map[string]func(*matrixRun, *testing.T){
+	"pmm_alerts":         (*matrixRun).alerts,
 	"pmm_catalog":        (*matrixRun).catalog,
 	"pmm_get_config":     (*matrixRun).config,
 	"pmm_get_explain":    (*matrixRun).explain,
@@ -577,6 +578,26 @@ func (m *matrixRun) version(t *testing.T) {
 	res := m.call(t, "pmm_version", nil)
 	res.requireOK(t)
 	assert.True(t, strings.HasPrefix(res.text, "PMM Server 3."), res.text)
+}
+
+// alerts checks that no alert names a hidden service, and that a hidden service as a filter answers the 7-day not_found.
+func (m *matrixRun) alerts(t *testing.T) {
+	t.Helper()
+
+	var out alertsOutput
+	res := m.call(t, "pmm_alerts", map[string]any{"limit": alertsMaxLimit})
+	res.requireOK(t)
+	res.decode(t, &out)
+	assert.False(t, out.Page.Truncated, "the alerts do not fit on one page")
+	for _, a := range out.Alerts {
+		assert.NotContains(t, m.hidden, a.Labels["service_name"], "alert %s", a.Name)
+		assert.NotContains(t, m.hiddenIDs, a.Labels["service_id"], "alert %s", a.Name)
+	}
+
+	for _, name := range intersection(m.hidden, "mysql-b", "pg-b") {
+		res := m.call(t, "pmm_alerts", map[string]any{"service_name": name})
+		res.requireNotInList(t, "", alertListLookback)
+	}
 }
 
 func (m *matrixRun) catalog(t *testing.T) {
