@@ -47,7 +47,7 @@ To start monitoring a PostgreSQL service:
 
 The live query table updates automatically.
 
-If you have multiple services registered, click **+ New session** to run sessions simultaneously — useful for watching a primary and its replicas during the same incident. The view shows one technology at a time, so you can't combine PostgreSQL services with MongoDB or MySQL services in one view.
+To watch several services at once, for example a primary and its replicas during the same incident, select all of them in step 3. To add a service later, click **All sessions**, then **+ New session**. The view shows one technology at a time, so you can't combine PostgreSQL services with MongoDB or MySQL services in one view.
 
 ## Read the overview
 
@@ -108,12 +108,12 @@ This is what RTA is for. A session waiting on a lock carries a **Blocked by** ba
 
 | Field | Meaning |
 | ----- | ------- |
-| **Blocked by** | The process ID of the session at the head of the chain, and how long this session has been waiting |
+| **Blocked by** | The process ID of the session at the head of the chain, or the number of sessions holding the lock independently, and how long this session has been waiting |
 | **Blocker's statement** | What the blocking session is running. When the blocker is idle, this is the last query it ran, which is often, but not always, the query that took the lock: an earlier query in the same transaction may have taken it |
 | **Blocker state** | The blocker's state, such as `active` or `idle in transaction`, with how long its transaction has been open. For a background process that reports no state, its backend type |
 | **Blocker user** | Who owns the blocking session |
 
-RTA asks PostgreSQL which sessions block each waiting session with `pg_blocking_pids()`, and follows the chain to its head. The **Blocked by** badge and the pane name the session at the head of the chain: it is not itself waiting on anything, and it is the one to resolve. Sessions queued for the same lock ahead of this one are listed under **more transactions ahead**, and they clear on their own once the head of the chain is resolved. When several sessions hold the lock independently, the pane marks each of them **Root**, and the waiting session stays blocked until all of them are resolved.
+RTA asks PostgreSQL which sessions block each waiting session with `pg_blocking_pids()`, and follows the chain to its head. The **Blocked by** badge and the pane name the session at the head of the chain: it is not itself waiting on anything, and it is the one to resolve. Sessions queued for the same lock ahead of this one are listed under **more transactions ahead**, and they clear on their own once the head of the chain is resolved. When several sessions hold the lock independently, the badge shows a number of transactions instead of a process ID, and the pane shows one of them and lists the others under **more transactions holding it independently**, each marked **Root**. The waiting session stays blocked until all of them are resolved.
 
 Only waits on heavyweight locks, the locks that `pg_locks` shows, have a blocker. A session waiting on I/O, a lightweight lock or a client is not blocked by another session: the **Wait event** field in the **Details** tab shows what it waits for.
 
@@ -147,7 +147,7 @@ To stop a query:
     SELECT pg_terminate_backend(<operation_id>);
     ```
 
-To clear a lock pile-up, end the **Root** blocker rather than the sessions queued behind it. A blocker that is idle in transaction runs no query to cancel, so end its session with `pg_terminate_backend()`.
+To clear a lock pile-up, end the root blocker, the session at the head of the chain, rather than the sessions queued behind it. A blocker that is idle in transaction runs no query to cancel, so end its session with `pg_terminate_backend()`.
 
 ## Investigate a query
 
