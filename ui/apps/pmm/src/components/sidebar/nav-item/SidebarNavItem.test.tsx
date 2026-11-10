@@ -9,7 +9,7 @@ import { MemoryRouterProps } from 'react-router-dom';
 import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
 import { PreviewChip } from 'components/preview-chip';
 import { NAV_INVENTORY } from 'contexts/navigation/navigation.constants';
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { PMM_INVENTORY_SERVICES_PATH } from 'lib/constants';
 
 const TEST_NAV_TREE: NavTreeItem = {
   id: 'level-0',
@@ -199,7 +199,7 @@ describe('SidebarNavItem', () => {
 
     expect(screen.getByTestId('navitem-inventory')).toHaveAttribute(
       'href',
-      `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`
+      PMM_INVENTORY_SERVICES_PATH
     );
   });
 
