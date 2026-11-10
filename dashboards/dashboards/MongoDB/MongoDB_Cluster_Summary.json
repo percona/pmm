@@ -1919,7 +1919,7 @@
             "type": "bargauge"
         },
         {
-            "description": "Client operations per second on each shard (query, insert, update and delete), summed over all members. Equals Reads Per Shard plus Writes Per Shard. Config servers, replicated writes and getmore operations are excluded.",
+            "description": "Client commands per second on each shard (find, insert, update and delete), summed over all members. Equals Reads Per Shard plus Writes Per Shard. Config servers, replicated writes and getmore commands are excluded.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2009,7 +2009,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum by (rs_nm) (rate(mongodb_ss_opcounters{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", legacy_op_type=~\"query|insert|update|delete\"}[$interval]))",
+                    "expr": "sum by (rs_nm) (rate(mongodb_ss_metrics_commands_find_total{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$interval])) + sum by (rs_nm) (rate(mongodb_ss_metrics_commands_insert_total{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$interval])) + sum by (rs_nm) (rate(mongodb_ss_metrics_commands_update_total{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$interval])) + sum by (rs_nm) (rate(mongodb_ss_metrics_commands_delete_total{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$interval]))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
@@ -2188,7 +2188,7 @@
             "type": "table"
         },
         {
-            "description": "Queries per second on each shard, summed over all members so reads served by secondaries are included. Getmore operations are excluded: most of them come from replication and Query Analytics, not from clients.",
+            "description": "Find commands per second on each shard, summed over all members so reads served by secondaries are included. Getmore commands are excluded: most of them come from replication and Query Analytics, not from clients.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2278,7 +2278,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum by (rs_nm) (rate(mongodb_ss_opcounters{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", legacy_op_type=\"query\"}[$interval]))",
+                    "expr": "sum by (rs_nm) (rate(mongodb_ss_metrics_commands_find_total{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$interval]))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
@@ -2292,7 +2292,7 @@
             "type": "timeseries"
         },
         {
-            "description": "Write operations per second on each shard (insert, update and delete). Only client writes are counted; replicated writes on secondaries are excluded.",
+            "description": "Write commands per second on each shard (insert, update and delete). Only client writes are counted: replicated writes on secondaries and internal deletes are excluded. A bulk write counts as one command.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2382,7 +2382,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum by (rs_nm) (rate(mongodb_ss_opcounters{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", legacy_op_type=~\"insert|update|delete\"}[$interval]))",
+                    "expr": "sum by (rs_nm) (rate(mongodb_ss_metrics_commands_insert_total{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$interval])) + sum by (rs_nm) (rate(mongodb_ss_metrics_commands_update_total{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$interval])) + sum by (rs_nm) (rate(mongodb_ss_metrics_commands_delete_total{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\"}[$interval]))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
