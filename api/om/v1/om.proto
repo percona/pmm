@@ -36,6 +36,8 @@ enum ProcessRole {
   PROCESS_ROLE_CONFIGSVR = 3;
   // A shard member.
   PROCESS_ROLE_SHARDSVR = 4;
+  // An arbiter, in a shard or a plain replica set: it votes but holds no data.
+  PROCESS_ROLE_ARBITER = 5;
 }
 
 // RunStatus is how a run ended, for both kinds of run.
@@ -388,9 +390,9 @@ message InventoryExecutor {
 
 // UnregisteredMongod is a mongod found running that PMM has no service for.
 //
-// The arbiter case, mostly: PMM registers no service for an arbiter, so nothing else
-// in OM would report the process at all. Also what stands in the way of installing
-// anything over a port that is already taken.
+// Most often an arbiter that was not added to PMM, which nothing else in OM would
+// report at all. Also what stands in the way of installing anything over a port that
+// is already taken.
 message UnregisteredMongod {
   // The port it is listening on.
   optional int32 port = 1;
@@ -1161,7 +1163,7 @@ message DeleteInventoryConfigOverrideRequest {
 // DeleteInventoryConfigOverrideResponse acknowledges the revert.
 message DeleteInventoryConfigOverrideResponse {}
 
-// OmService provides the OpenManager topology and health API.
+// OmService provides the Operations for MongoDB topology and health API.
 service OmService {
   // GetTopology returns the whole MongoDB estate as one document.
   rpc GetTopology(GetTopologyRequest) returns (GetTopologyResponse) {

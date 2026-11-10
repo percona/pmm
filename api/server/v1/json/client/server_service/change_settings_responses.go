@@ -223,7 +223,7 @@ type ChangeSettingsBody struct {
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
 
-	// Enable OpenManager.
+	// Enable Operations for MongoDB.
 	EnableOM *bool `json:"enable_om,omitempty"`
 
 	// A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
@@ -1043,7 +1043,7 @@ type ChangeSettingsOKBodySettings struct {
 	// Server process was started, and cannot be changed through ChangeSettings.
 	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
 
-	// True if OpenManager is enabled.
+	// True if Operations for MongoDB is enabled.
 	OMEnabled bool `json:"om_enabled,omitempty"`
 
 	// True if Advisor email notifications are enabled.

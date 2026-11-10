@@ -296,7 +296,7 @@
                       "x-order": 17
                     },
                     "om_enabled": {
-                      "description": "True if OpenManager is enabled.",
+                      "description": "True if Operations for MongoDB is enabled.",
                       "type": "boolean",
                       "x-order": 18
                     },
@@ -495,7 +495,7 @@
                   "x-order": 12
                 },
                 "enable_om": {
-                  "description": "Enable OpenManager.",
+                  "description": "Enable Operations for MongoDB.",
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 13
@@ -672,7 +672,7 @@
                       "x-order": 17
                     },
                     "om_enabled": {
-                      "description": "True if OpenManager is enabled.",
+                      "description": "True if Operations for MongoDB is enabled.",
                       "type": "boolean",
                       "x-order": 18
                     },
@@ -821,7 +821,7 @@
                       "x-order": 8
                     },
                     "om_enabled": {
-                      "description": "True if OpenManager is enabled.",
+                      "description": "True if Operations for MongoDB is enabled.",
                       "type": "boolean",
                       "x-order": 9
                     }
