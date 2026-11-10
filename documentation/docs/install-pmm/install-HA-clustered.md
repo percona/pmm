@@ -208,31 +208,33 @@ To install PMM HA:
 
     === "Using YAML file"
 
-    If you prefer to manage the secret as a file, create pmm-secret.yaml:
-    {.power-number}
+        If you prefer to manage the secret as a file, create `pmm-secret.yaml`:
+        {.power-number}
 
-    1. Create `pmm-secret.yaml`:
-    ```yaml
-        apiVersion: v1
-        kind: Secret
-        metadata:
-          name: pmm-secret
-          namespace: pmm
-        type: Opaque
-        stringData:
-          PMM_ADMIN_PASSWORD: "your-secure-password"
-          PMM_CLICKHOUSE_USER: "clickhouse_pmm"
-          PMM_CLICKHOUSE_PASSWORD: "your-clickhouse-password"
-          PMM_HA_VM_USERNAME: "victoriametrics_pmm"
-          PMM_HA_VM_PASSWORD: "your-vm-password"
-          PG_PASSWORD: "your-postgres-password"
-          GF_PASSWORD: "your-grafana-password"
-    ```
+        1. Create `pmm-secret.yaml`:
 
-    2. Apply it:
-    ```sh
-        kubectl apply -f pmm-secret.yaml
-    ```
+            ```yaml
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: pmm-secret
+              namespace: pmm
+            type: Opaque
+            stringData:
+              PMM_ADMIN_PASSWORD: "your-secure-password"
+              PMM_CLICKHOUSE_USER: "clickhouse_pmm"
+              PMM_CLICKHOUSE_PASSWORD: "your-clickhouse-password"
+              PMM_HA_VM_USERNAME: "victoriametrics_pmm"
+              PMM_HA_VM_PASSWORD: "your-vm-password"
+              PG_PASSWORD: "your-postgres-password"
+              GF_PASSWORD: "your-grafana-password"
+            ```
+
+        2. Apply it:
+
+            ```sh
+            kubectl apply -f pmm-secret.yaml
+            ```
 
     ### Step 5: Install PMM HA
 
