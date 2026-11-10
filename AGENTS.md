@@ -118,6 +118,7 @@ These differ from generic Go/React advice. Match **surrounding code** in the fil
 - **UI server state:** TanStack Query hooks in `ui/apps/pmm/src/hooks/api/` — not `useEffect` + `fetch` in components ([`ui/AGENTS.md`](ui/AGENTS.md))
 - **UI client state:** React Context for auth/settings — not Redux or another global store
 - **UI components:** MUI + `@percona/peak-ui`, theme-aware `sx` — not ad-hoc CSS
+- **UI tables:** peak-ui `Table` + column filters, with URL state from `useTableUrlState` in `apps/pmm` or peak-ui's `usePerconaTableUrlState` in the plugin packages — not raw MRT tables or hand-rolled URL parameters ([`ui/AGENTS.md`](ui/AGENTS.md#tables))
 - **UI wire format:** camelCase in TypeScript; JSON on the wire is snake_case (`axios-case-converter` in `ui/apps/pmm/src/api/api.ts`)
 - **Generated code:** edit `.proto` / reform models / interfaces — run `make gen`; never hand-edit `*.pb.go`, `*_reform.go`, swagger clients
 
