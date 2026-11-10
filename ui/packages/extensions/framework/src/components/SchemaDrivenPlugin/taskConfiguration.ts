@@ -144,7 +144,7 @@ export function isDefaultValue(value: unknown, fieldDefault: unknown): boolean {
  * configuration view hides exactly what the form would have hidden.
  */
 function isGatedOut(
-  gates: { when: Record<string, unknown> }[] | undefined,
+  gates: { when: Record<string, unknown> }[] | null | undefined,
   values: Record<string, unknown>
 ): boolean {
   return (gates ?? []).some((gate) => evaluatePredicate(gate.when, values));
