@@ -48,6 +48,8 @@ To deploy PMM Server using Docker volumes:
 
     Keep the single quotes so that your shell doesn't interpret the symbols in the password. If the password contains a single quote, write it as `'\''`.
 
+    Grafana replaces `${...}` in the startup password, even inside single quotes. If your password contains `${`, set it after startup instead.
+
 5. Access the PMM web interface at `https://localhost` in a web browser. 
 If you are accessing the Docker host remotely, replace `localhost` with your server's IP address or hostname.
 

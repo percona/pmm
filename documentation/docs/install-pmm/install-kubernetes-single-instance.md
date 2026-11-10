@@ -134,6 +134,8 @@ Choose the installation method that fits your needs and install PMM Server on Ku
           pmm_password: "your-secure-password-here"
       ```
 
+        Don't use `${` in `pmm_password`. Grafana replaces `${...}` in it.
+
     2. Add the Percona Helm repository:
       ```sh
         helm repo add percona https://percona.github.io/percona-helm-charts/
@@ -213,6 +215,8 @@ kubectl create secret generic pmm-secret \
 secret:
   name: pmm-secret
 ```
+
+Don't use `${` in `PMM_ADMIN_PASSWORD`. Grafana replaces `${...}` in it, even inside single quotes.
 
 ### Configure external access
 

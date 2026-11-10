@@ -74,7 +74,7 @@ To install PMM HA:
         --namespace pmm
       ```
 
-        Keep the single quotes so that your shell doesn't interpret the symbols in the passwords. If a password contains a single quote, write it as `'\''`.
+        Keep the single quotes so that your shell doesn't interpret the symbols in the passwords. If a password contains a single quote, write it as `'\''`. Don't use `${` in `PMM_ADMIN_PASSWORD`. Grafana replaces `${...}` in it, even inside single quotes.
 
     5. Install PMM HA:
 
@@ -204,7 +204,7 @@ To install PMM HA:
           --namespace pmm
         ```
 
-        Keep the single quotes so that your shell doesn't interpret the symbols in the passwords. If a password contains a single quote, write it as `'\''`.
+        Keep the single quotes so that your shell doesn't interpret the symbols in the passwords. If a password contains a single quote, write it as `'\''`. Don't use `${` in `PMM_ADMIN_PASSWORD`. Grafana replaces `${...}` in it, even inside single quotes.
 
     === "Using YAML file"
 
@@ -229,6 +229,8 @@ To install PMM HA:
               PG_PASSWORD: "your-postgres-password"
               GF_PASSWORD: "your-grafana-password"
             ```
+
+            Don't use `${` in `PMM_ADMIN_PASSWORD`. Grafana replaces `${...}` in it.
 
         2. Apply it:
 
@@ -387,7 +389,7 @@ To install PMM HA:
           --namespace pmm
         ```
 
-        Keep the single quotes so that your shell doesn't interpret the symbols in the passwords. If a password contains a single quote, write it as `'\''`.
+        Keep the single quotes so that your shell doesn't interpret the symbols in the passwords. If a password contains a single quote, write it as `'\''`. Don't use `${` in `PMM_ADMIN_PASSWORD`. Grafana replaces `${...}` in it, even inside single quotes.
 
         The chart creates a separate read-only ClickHouse user for the Grafana data source and stores its credentials in the `pmm-ha-clickhouse-datasource` secret. You don't need to add them to `pmm-secret`. To set them yourself, use the `clickhouse.datasource.user` and `clickhouse.datasource.password` Helm values.
 

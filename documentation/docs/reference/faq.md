@@ -161,6 +161,8 @@ docker run -d --name pmm-server \
   percona/pmm-server:latest
 ```
 
+Grafana replaces `${...}` in the startup password, even inside single quotes. If your password contains `${`, set it after startup with `change-admin-password` instead.
+
 ## How to change the PMM password for the default admin user?
 
 Once PMM has started, you can use either of the following to change the password  (assuming your container is named `pmm-server`):
