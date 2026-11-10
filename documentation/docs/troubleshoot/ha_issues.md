@@ -104,9 +104,6 @@ To fix it:
 
 2. If the login still fails, reset the Grafana admin password to the value stored in the secret. The command turns off the [password policy](../admin/manage-users/add_users.md#password-requirements) for this reset only, because a password that the chart generates has no symbol and doesn't meet it:
 
-    !!! warning "Keep the `--configOverrides` flag"
-        Without `--configOverrides`, `grafana-cli` writes to a local database that the running Grafana does not use. It reports `Admin password changed successfully` and changes nothing.
-
     ```sh
     kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c 'printf %s "$PMM_ADMIN_PASSWORD" | GF_AUTH_BASIC_PASSWORD_POLICY=false grafana-cli \
       --homepath /usr/share/grafana --config /etc/grafana/grafana.ini \
