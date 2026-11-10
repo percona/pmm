@@ -16,7 +16,7 @@ If you don't use the reported databases, remove them:
 1. Back up any data that you want to keep.
 2. Run `mysql_secure_installation` and answer `y` when it asks whether to remove the test database and access to it. Alternatively, drop each database with `DROP DATABASE`, for example: `DROP DATABASE test;`
 
-For details, see [mysql_secure_installation](https://dev.mysql.com/doc/refman/8.4/en/mysql-secure-installation.html) in the MySQL documentation.
+To remove other insecure defaults at the same time, such as anonymous users, review the other options of [mysql_secure_installation](https://dev.mysql.com/doc/refman/8.4/en/mysql-secure-installation.html).
 
 ## Need more support from Percona?
 

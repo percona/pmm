@@ -2,14 +2,14 @@ const plural = (count: number, one: string, many: string) =>
   `${count} ${count === 1 ? one : many}`;
 
 export const Messages = {
-  title: 'Advisor schedules',
+  title: 'Advisor scheduler',
   description:
-    'When Advisor checks run, which checks and services each run covers, and who gets the email report. Runs never overlap: a schedule that falls due during another run starts as soon as that run ends.',
+    'Choose when Advisor checks run, on which services, and who gets the email report. Keep runs out of maintenance windows and apart from each other, so that each one starts on time.',
   newSchedule: 'New schedule',
   reload: 'Reload schedules',
   allTimesAre: 'All times are',
   yourTimeZone: (zone: string, offset: string) =>
-    `Your time zone: ${zone} (${offset})`,
+    `Your time zone: ${zone}, ${offset}`,
   settingsLink: 'Settings → Advisors',
   banners: {
     advisorsOff:
@@ -36,7 +36,7 @@ export const Messages = {
       checks: number,
       services: number
     ) =>
-      `${name}: ${when}${local ? ` (${local} your time)` : ''}, ${plural(checks, 'check', 'checks')} on ${plural(services, 'service', 'services')}`,
+      `${name}: ${when}${local ? ` · ${local} your time` : ''}, ${plural(checks, 'check', 'checks')} on ${plural(services, 'service', 'services')}`,
   },
   columns: {
     schedule: 'Schedule',
@@ -86,7 +86,7 @@ export const Messages = {
   email: {
     none: 'No email',
     settingsRecipients: 'Settings recipients',
-    ownRecipients: 'Own recipients',
+    ownRecipients: 'Custom recipients',
     addresses: (n: number) => plural(n, 'address', 'addresses'),
     more: (n: number) => `+${n}`,
     notificationsOff: 'Email notifications are off in Settings',
@@ -185,7 +185,6 @@ export const Messages = {
     coverageNote:
       'Checks run only on services of their technology. Checks disabled in the Catalog, for all services or for one, are skipped.',
     noCheckApplies: (names: string) => `No selected check applies to ${names}.`,
-    noServices: 'No service is in scope.',
     checksByTechnology: (n: number) => plural(n, 'check', 'checks'),
     noMatchingService: 'no matching service',
     recentRuns: 'Recent runs',

@@ -86,34 +86,31 @@ export const Messages = {
   },
   advisors: {
     validation: {
-      required: 'Required field',
+      required: 'Fill in this field.',
       retentionRange: (min: number, max: number) =>
-        `Value should be in the range from ${min} to ${max}`,
+        `Enter a value from ${min} to ${max}`,
       emailsRequired:
         'Add at least one recipient, or turn Advisor notifications off',
       severitiesRequired:
         'Select at least one severity, or turn Advisor notifications off',
-      emailInvalid: (email: string) =>
-        `"${email}" is not a valid email address`,
-      emailsMax: (max: number) => `At most ${max} recipients are allowed`,
+      emailInvalid: (email: string) => `Not a valid address: ${email}`,
+      emailsMax: (max: number) => `Enter up to ${max} recipients`,
     },
     advisorsLabel: 'Advisors',
     advisorsLink: 'https://per.co.na/advisors',
     advisorsTooltip:
-      'Run automated checks to identify potential database performance and configuration issues.',
+      'Check your services for security, performance and configuration issues. Turn Advisors off to stop all checks and schedules.',
     advisorRetentionLabel: 'Advisor history retention',
     advisorRetentionTooltip:
-      'How long PMM keeps Advisor check results history. Older results are automatically deleted.',
+      'Keep Advisor results long enough to compare runs over time. PMM deletes older runs and their results automatically.',
     retentionUnits: 'days',
     advisorNotificationsLabel: 'Advisor notifications',
     advisorNotificationsTooltip:
-      'Email a summary of completed Advisor runs to the recipients below.',
+      'Get an email report after each Advisor run that finds issues, so you learn about them without opening PMM.',
     advisorSeveritiesLabel: 'Default severities',
-    advisorSeveritiesTooltip:
-      'Only insights with the selected severities are emailed.',
+    advisorSeveritiesTooltip: 'PMM emails only findings at these severities.',
     advisorEmailsLabel: 'Default recipients',
-    advisorEmailsTooltip:
-      'Email addresses the summaries are sent to, separated by commas or spaces.',
+    advisorEmailsTooltip: 'Up to 20 addresses, separated by commas or spaces',
     schedulesOverride:
       'Each Advisor schedule emails these recipients and severities unless it sets its own. Manage schedules in the',
     schedulerLink: 'Scheduler',

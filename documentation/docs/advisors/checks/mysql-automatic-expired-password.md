@@ -6,7 +6,7 @@ The `mysql_automatic_expired_password` check warns if MySQL doesn't expire passw
 
 The `default_password_lifetime` system variable sets the global automatic password expiration policy: the number of days after which passwords expire. The default value, `0`, disables automatic expiration, so passwords never expire unless you expire them manually. Passwords that never change are more likely to be leaked and reused in an attack on the database.
 
-The check reads the server variables and returns a warning if `default_password_lifetime` is one of the following:
+The check reads the server variables and returns a warning if `default_password_lifetime` is:
 
 - `0`: Automatic password expiration is inactive.
 - 365 or more: The password lifetime is too long.
@@ -29,7 +29,7 @@ To set a different lifetime for a specific account, use `ALTER USER`:
 ALTER USER 'app'@'10.0.1.15' PASSWORD EXPIRE INTERVAL 90 DAY;
 ```
 
-For details, see [Password Expiration Policy](https://dev.mysql.com/doc/refman/8.4/en/password-management.html#password-expiration-policy) and [Server Handling of Expired Passwords](https://dev.mysql.com/doc/refman/8.4/en/expired-password-handling.html) in the MySQL documentation.
+To choose a policy for your accounts, read how the MySQL [password expiration policy](https://dev.mysql.com/doc/refman/8.4/en/password-management.html#password-expiration-policy) works and how the [server handles expired passwords](https://dev.mysql.com/doc/refman/8.4/en/expired-password-handling.html).
 
 ## Need more support from Percona?
 

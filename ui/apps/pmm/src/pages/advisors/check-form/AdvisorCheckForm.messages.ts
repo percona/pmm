@@ -6,7 +6,7 @@ export const Messages = {
   fields: {
     name: 'Name',
     nameHelper:
-      'Unique ID: letters, digits and underscores, starting with the reserved "custom_" prefix.',
+      'Starts with "custom_". Use letters, digits and underscores, up to 128 characters.',
     summary: 'Summary',
     description: 'Description',
     category: 'Category',
@@ -15,7 +15,7 @@ export const Messages = {
     queryType: 'Type',
     query: 'Query',
     queryHelper:
-      'Leave empty for parameterless query types (e.g. SHOW / getParameter).',
+      'Leave empty for query types that take no query text, such as POSTGRESQL_SHOW.',
     parameterName: 'Parameter',
     parameterValue: 'Value',
     script: 'Script',
@@ -25,17 +25,17 @@ export const Messages = {
   addParameter: 'Add parameter',
   removeParameter: 'Remove parameter',
   cancel: 'Cancel',
-  save: 'Save',
-  loadError: 'Unable to load the check.',
+  save: 'Save check',
+  loadError: "Couldn't load the check. Close the form and try again.",
   success: {
     created: (name: string) => `Advisor check "${name}" created`,
     updated: (name: string) => `Advisor check "${name}" updated`,
   },
   validation: {
-    name: 'Enter a valid name: letters, digits and underscores, starting with a letter or underscore.',
-    nameMax: 'Name must be at most 128 characters.',
-    namePrefix: 'Custom check names must start with "custom_".',
-    required: 'This field is required.',
+    name: 'Use only letters, digits and underscores.',
+    nameMax: 'Use 128 characters or fewer.',
+    namePrefix: 'Start the name with "custom_".',
+    required: 'Fill in this field.',
     queriesRequired: 'Add at least one query.',
     queryType: 'Select a query type.',
     parameterName: 'Enter a parameter name.',

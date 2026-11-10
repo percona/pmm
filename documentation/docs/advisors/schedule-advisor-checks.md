@@ -66,7 +66,7 @@ Only Admins can [change the defaults](advisors.md#turn-on-notifications).
 
 ### Send a schedule's report to other recipients
 
-To send a schedule's report to other people, for example the team that looks after the services it checks, replace the default recipients with your own list. The default recipients then no longer get this schedule's report, so if they should still get it, add their addresses to your list too:
+To send a schedule's report to other people, for example the team that looks after the services it checks, replace the default recipients with your own list. The default recipients then no longer get this schedule's report, so to keep sending it to them, add their addresses to your list too:
 {.power-number}
 
 1. Open the schedule in the editor: click the :material-dots-vertical: icon in its row and select **Edit**, or [create a new schedule](#create-a-schedule).
@@ -136,7 +136,7 @@ Adjust your schedules as your environment changes. Go to **Advisors > Scheduler*
 - To check whether a fix worked without waiting for the next run, click the :material-dots-vertical: icon in the schedule's row and select **Run now**. The run uses the schedule's checks, services and email report. You can't start it while another run is queued or in progress.
 - To stop a schedule during an outage or a migration without losing its settings, turn off the **Enabled** switch in its row. Turn it back on when you're done.
 - To run checks at another time or on other services, click the :material-dots-vertical: icon in the schedule's row, select **Edit**, make your changes and click **Save changes**.
-- To see what a schedule found in earlier runs, click the :material-dots-vertical: icon in its row and select **View runs**. To open only its last run, click the result in the **Last run** column. To learn what **Run history** shows, see [Follow your runs](advisors.md#follow-your-runs).
+- To see what a schedule found in earlier runs, click the :material-dots-vertical: icon in its row and select **View runs**. To open only its last run, click the result in the **Last run** column. In **Run history**, you can also [check that the runs started on time and reached all your services](advisors.md#follow-your-runs).
 - To remove a schedule that you no longer need, click the :material-dots-vertical: icon in its row, select **Delete** and confirm. Its past runs stay in **Run history** under its name.
 
 ## Restore the default schedule
@@ -146,6 +146,8 @@ Adjust your schedules as your environment changes. Go to **Advisors > Scheduler*
 To get the daily run back, go to the empty **Advisors > Scheduler** page and click **Create the default schedule**. PMM also creates it again when you turn on Advisors and no schedule exists.
 
 ## Troubleshooting
+
+Fix the most common problems with schedules: runs that start late or don't start, schedules with nothing left to check, and email reports that don't arrive.
 
 ### A scheduled run started late or didn't run
 
@@ -171,7 +173,7 @@ If a schedule runs but no report arrives:
 
 1. Check that the run found issues at the schedule's severities. A run without such findings sends no email.
 2. Check that **Advisor notifications** is on under **Configuration > Settings > Advisors**. If it's off, the Scheduler page and the editor show a warning, and no schedule sends email. The recipients that you set in the meantime are kept.
-3. In the schedule editor, click **Send test email**. If the test email doesn't arrive either, [check the SMTP settings of PMM Server](advisors.md#set-up-smtp).
+3. In the schedule editor, click **Send test email**. If the test email doesn't arrive either, [check the SMTP settings of PMM Server](../alert/contact_points.md#configure-email-smtp-server-settings).
 
 ## Related topics
 

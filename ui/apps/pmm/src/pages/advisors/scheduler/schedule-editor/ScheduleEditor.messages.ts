@@ -10,7 +10,7 @@ export const Messages = {
   save: 'Save changes',
   name: {
     label: 'Name',
-    placeholder: 'For example: Prod security, weekdays',
+    placeholder: 'Prod security, weekdays',
     help: 'Shown in Run history and in the email subject.',
   },
   enabled: {
@@ -30,7 +30,7 @@ export const Messages = {
       'Pick at least one day and a time to see when this schedule runs.',
     runs: (days: string, time: string) => `Runs ${days} at ${time} UTC`,
     local: (time: string, zone: string, offset: string) =>
-      `, ${time} in your time zone (${zone}, ${offset})`,
+      `, ${time} in your time zone, ${zone} ${offset}`,
     nextRuns: 'Next runs',
     next: 'Next',
     yourTime: (when: string) => ` · ${when} your time`,
@@ -142,7 +142,7 @@ export const Messages = {
     emailRequired: 'Enter at least one address, or choose Settings recipients.',
     emailInvalid: (list: string) => `Not a valid address: ${list}`,
     emailMax: (max: number, count: number) =>
-      `Up to ${max} addresses; there are ${count}.`,
+      `Enter up to ${max} addresses. There are ${count}.`,
     severities: 'Pick at least one severity, or choose Same as Settings.',
     fix: (fields: string[]) =>
       `Fix the highlighted ${fields.length > 1 ? 'fields' : 'field'}: ${fields.join(', ')}.`,

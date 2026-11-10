@@ -11,10 +11,12 @@ The check reads the parameter with the `getParameter` command and the server ver
 - **MongoDB 7.0 and later**: MongoDB adjusts the number of write tickets dynamically, up to 128. Setting the parameter to any value other than `0` replaces the dynamic adjustment with a fixed number of tickets, so the check warns about any such value.
 - **Earlier versions**: The default number of write tickets is 128. The check warns if the number is more than 128, because performance can drop if the number of write tickets is too high. Ideally, the number of tickets is based on the number of available CPUs.
 
-For details, see [storageEngineConcurrentWriteTransactions](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.storageEngineConcurrentWriteTransactions) in the MongoDB documentation. For the value in the startup options, see [MongoDB write tickets in the startup options](mongodb-write-tickets.md).
+To learn how MongoDB uses the parameter, read about [storageEngineConcurrentWriteTransactions](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.storageEngineConcurrentWriteTransactions) in the MongoDB documentation. To check the value that the startup options set, use the [MongoDB write tickets in the startup options](mongodb-write-tickets.md) check.
 
 ## Rule
-``` MONGODB_GETPARAMETER
+The check runs a `MONGODB_GETPARAMETER` query:
+
+```javascript
 db.adminCommand( { getParameter: "*" } ).storageEngineConcurrentWriteTransactions
 ```
 
@@ -22,22 +24,20 @@ db.adminCommand( { getParameter: "*" } ).storageEngineConcurrentWriteTransaction
 
 For MongoDB 7.0 and later, remove the parameter from the `setParameter` section of the configuration file and from the command line, then restart `mongod`. Keep the parameter only if MongoDB Support recommended it.
 
-For earlier versions, set the number of write tickets to 128 or lower:
+For earlier versions, set the number of write tickets to 128 or lower in one of these ways:
 
-* Using the `setParameter` shell helper:
+- run `setParameter` in `mongosh` to change the value right away, until the next restart:
 
-   ```
-   mongo> db.adminCommand( { setParameter: 1, "wiredTigerConcurrentWriteTransactions": "128"  } )
-   ```
+    ```javascript
+    db.adminCommand( { setParameter: 1, wiredTigerConcurrentWriteTransactions: 128 } )
+    ```
 
-* Editing the configuration file 
+- set it in the `setParameter` section of the configuration file, which keeps it after a restart. The change takes effect when you restart `mongod`:
 
-   ``` yaml
-   setParameter:     
+    ```yaml
+    setParameter:
       wiredTigerConcurrentWriteTransactions: 128
-   ``` 
-
-   Note that the changes in the configuration file will take effect only after the server restart.
+    ```
 
 ## Need more support from Percona?
 

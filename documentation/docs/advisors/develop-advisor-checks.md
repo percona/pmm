@@ -1,259 +1,265 @@
 # Develop Advisor checks
 
-Use custom Advisor checks to cover use cases that are specific to your database infrastructure, alongside the built-in checks that detect common security threats, performance degradation, data loss and data corruption. You create custom checks in the PMM UI, and PMM stores them in its database and runs them together with the built-in checks.
+When the built-in checks don't cover a rule that matters for your databases, for example an internal naming convention or a setting that your team requires, write your own check.
 
-## Check components
+You create custom checks in the PMM UI, and PMM runs them on your services together with the [built-in checks](advisor-details.md).
 
-A check is a combination of:
+A check queries your database, PMM metrics or Query Analytics, and turns the results into findings with a [Starlark](https://github.com/google/starlark-go) script, which uses Python syntax.
 
-- One or more queries that collect data from the monitored database, from metrics, or from Query Analytics
-- A [Starlark](https://github.com/google/starlark-go) script that turns the collected data into findings
+## Prerequisites
 
-Starlark is a dialect of Python. The script runs in a sandbox on PMM Server and can't perform any I/O.
-
-## How checks run
-
-When a run reaches a check, PMM processes each service of the check's technology as follows:
+Before you create a check:
 {.power-number}
 
-1. PMM runs the check's queries. The `pmm-agent` that monitors the service runs the database queries. PMM Server runs the metrics queries against its VictoriaMetrics database and the `CLICKHOUSE_SELECT` queries against its Query Analytics database.
-2. PMM Server passes the query results to the check script, which runs in a separate sandboxed process.
-3. PMM records the outcome as an insight. Each finding that the script returns becomes a **Failed** insight. If the script returns no findings, the check passed and gets an **OK** insight. If a query or the script fails, the insight gets the **Error** status and shows the reason.
-
-The script must finish within 5 seconds, and the whole check, including its queries, within 5 minutes. For all insight statuses, see [Insight status](advisors.md#insight-status).
+1. Check that you have the **Admin** role. Only Admins can create, edit, clone, test and delete checks, because a check's queries run on your databases with the privileges of the PMM monitoring user. Editors can only view, run, enable and disable checks. Before you give other users access, review [the permissions of every role](../admin/roles/index.md).
+2. Check that the **Advisors** option is turned on under **Configuration > Settings > Advisors**.
+3. Check that PMM monitors at least one service of the technology that your check targets, so that you can test the check on it.
 
 ## Built-in and custom checks
 
-The **Advisors > Catalog** page lists both kinds of checks. The **Source** column shows **Builtin** for the checks that ship with PMM and **Custom** for the checks that you create. The following table shows what you can do with each kind:
+Before you write a check from scratch, look for a built-in check that already does most of what you need. In **Advisors > Catalog**, the **Source** column shows **Built-in** for the checks that ship with PMM and **Custom** for the checks that you create.
 
-| Action | Built-in | Custom |
-|--------|:--------:|:------:|
-| Run the check right away | ✓ | ✓ |
-| Enable or disable the check with the **Status** switch | ✓ | ✓ |
-| Disable the check for specific services | ✓ | ✓ |
-| View the details and the script, copy the script, test or clone the check | ✓ | ✓ |
-| Edit the check | ✗ | ✓ |
-| Delete the check | ✗ | ✓ |
-
-To change what a built-in check does, clone it and edit the copy.
-
-Only users with the **Admin** role can create, edit, clone, test and delete checks. A check's queries run on your databases with the privileges of the PMM monitoring user, and a test returns their results. Users with the **Editor** role can view, run, enable and disable checks. For the permissions of every role, see [Standard role permissions](../admin/roles/index.md).
+You can run, test and turn off checks of both kinds, and open, copy or clone their scripts. Only custom checks can be edited or deleted, so to adapt a built-in check, clone it and edit the copy. The scripts of the built-in checks are good examples to start from.
 
 ## Create a check
 
-### Prerequisites
+Create a check from scratch, or clone a built-in check that is close to what you need and adapt the copy.
 
-Before you start, make sure that:
-
-- You have the **Admin** role.
-- The **Advisors** option is enabled under **Configuration > Settings > Advisors**.
-- PMM monitors at least one service of the technology that the check targets, so that you can test the check.
-
-### Add the check
-
-To create a custom check:
+To create a check:
 {.power-number}
 
-1. Go to **Advisors > Catalog** and click the :material-plus: **Add advisor** icon. To start from an existing check instead, double-click the check's row and click **Clone** in the details pane. The name of the clone starts as `custom_` followed by the name of the source check.
-2. Fill in the fields of the form. For details, see [Check fields](#check-fields).
-3. To try the check before you save it, select a service in **Test on service** and click **Test**. **Test results** shows the findings, or the error if a query or the script failed. **Script output** shows what the script printed with `print()`. The test doesn't save the check and doesn't record any insight.
-4. Click **Save**. The check appears in the catalog as enabled, with the **Custom** source.
+1. Go to **Advisors > Catalog** and open the check form:
 
-### Run the check and review the results
+    - click the :material-plus: **Add advisor check** icon to start from scratch
+    - double-click a check's row and click **Clone** in the details pane to start from that check. The clone's name starts as `custom_` followed by the name of the source check.
 
-To run your check and review its results:
+2. In **Name**, complete the ID after `custom_`, for example `custom_mysql_test_database`. You can't change it later.
+3. Enter a **Summary**, a short title of the check, and a **Description** of what the check verifies.
+4. In **Category**, select an existing category, such as **Security** or **Performance**, or type a new one.
+5. In **Technology**, select the type of database that the check targets: **MySQL**, **PostgreSQL** or **MongoDB**. The check runs only on services of that type, and the query types you can choose depend on it.
+6. Under **Queries**, [add the queries that collect the data](#collect-the-data-that-the-check-needs) that your check needs.
+7. In **Script**, [write the script](#write-the-check-script) that turns the query results into findings.
+8. To try the check before you save it, select a service in **Test on service** and click **Test**:
+
+    - **Test results** shows the findings, or the error if a query or the script failed.
+    - **Script output** shows what the script printed with `print()`.
+
+    The test doesn't save the check and doesn't record any insight.
+
+9. Click **Save check**. The check appears in the catalog as enabled, with **Custom** in the **Source** column.
+
+## Collect the data that the check needs
+
+Decide which data your check needs, and add one query for each set of data. A query can read your database, through the PMM Client that monitors it, or the metrics and Query Analytics data that PMM Server stores.
+
+To add a query to a check:
 {.power-number}
 
-1. Custom checks run on [schedules](schedule-advisor-checks.md), like built-in checks, and schedules set to **All checks** include them automatically. To run a check right away, find it in **Advisors > Catalog** and click the :material-play-outline: **Run** icon in its row.
-2. To see the check's results for each service, click **View results** in the confirmation message. **Advisors > Insights** shows only the insights of that run. From there:
+1. Under **Queries**, click **Add query**.
+2. In **Type**, select the type that reads the data your check needs. The list offers only the types that fit the check's database:
 
-    - To see only the insights of your check, across all runs, click the :material-dots-vertical: icon in one of its rows and select **Filter by name**.
-    - To see how much of its plan the run covered, go to **Advisors > Run history**. For details, see [Run coverage](advisors.md#run-coverage).
+    - `MYSQL_SHOW` or `MYSQL_SELECT` to run a `SHOW …` or `SELECT …` statement on a MySQL service
+    - `POSTGRESQL_SELECT` to run a `SELECT …` statement on a PostgreSQL service, or `POSTGRESQL_SHOW` to read all its settings with `SHOW ALL`
+    - a `MONGODB_*` type to run an admin command on the `admin` database of a MongoDB service:
+        - `MONGODB_GETPARAMETER` for the server parameters, with the [getParameter command](https://docs.mongodb.com/manual/reference/command/getParameter/)
+        - `MONGODB_BUILDINFO` for the version and build details, with the [buildInfo command](https://docs.mongodb.com/manual/reference/command/buildInfo/)
+        - `MONGODB_GETCMDLINEOPTS` for the startup options, with the [getCmdLineOpts command](https://docs.mongodb.com/manual/reference/command/getCmdLineOpts/)
+        - `MONGODB_REPLSETGETSTATUS` for the replica set status, with the [replSetGetStatus command](https://docs.mongodb.com/manual/reference/command/replSetGetStatus/)
+        - `MONGODB_GETDIAGNOSTICDATA` for the [full-time diagnostic data](https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#full-time-diagnostic-data-capture)
+    - `METRICS_INSTANT` to read the current value of a metric that PMM collects, or `METRICS_RANGE` to read its values over a time range, with a [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query
+    - `CLICKHOUSE_SELECT` to run a `SELECT …` statement on the [Query Analytics](../use/qan/index.md) data
 
-## Edit or delete a check
+3. In **Query**, enter the query text. Leave it empty for `POSTGRESQL_SHOW` and the `MONGODB_*` types, which take none. To query only the service that the check runs on, use these placeholders:
 
-You can edit and delete only custom checks:
+    - {% raw %}`{{.ServiceName}}`{% endraw %} and {% raw %}`{{.NodeName}}`{% endraw %} in `METRICS_INSTANT` and `METRICS_RANGE` queries, for the names of the service and its node
+    - {% raw %}`{{.ServiceName}}`{% endraw %} and {% raw %}`{{.ServiceID}}`{% endraw %} in `CLICKHOUSE_SELECT` queries, for the name and ID of the service
 
-- To edit a check, click the :material-pencil-outline: **Edit** icon in its row, or click **Edit** in its details pane. You can change every field except **Name**. Test your changes before you click **Save**.
-- To delete a check, click the :material-trash-can-outline: **Delete** icon in its row and confirm. You can't undo the deletion.
+4. If the query type accepts parameters, click **Add parameter** under the query, select or type the parameter name in **Parameter**, and enter its **Value**. Durations take a number with a unit, such as `30s`, `5m` or `8h`. You can set each parameter only once per query:
 
-## Check fields
+    - **lookback** for `METRICS_INSTANT` and `METRICS_RANGE`, optional: how far back in the metrics history the query looks. Without it, the query reads the latest data.
+    - **range** for `METRICS_RANGE`, required: the time window of the query, as in the [Prometheus range query API](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries)
+    - **step** for `METRICS_RANGE`, required: the resolution of the query, as in the Prometheus range query API
+    - **all_dbs** for `POSTGRESQL_SELECT`, optional: set it to `true` to run the query on every database of the PostgreSQL instance. Without it, the query runs on the database that was specified when the service was added to PMM.
 
-The check form has the following fields, and all of them are required:
+The script receives the results in the order of the queries. To remove a query or a parameter, click its :material-trash-can-outline: **Remove query** or **Remove parameter** icon.
 
-- **Name**: The unique ID of the check. It can contain letters, digits and underscores, must start with `custom_`, and can be up to 128 characters long. You can't change the name after you create the check.
-- **Summary**: A short, human-readable title of the check.
-- **Description**: A longer description of what the check verifies.
-- **Category**: Groups the check with related checks, for example **Security** or **Performance**. Select an existing category or type a new one.
-- **Technology**: **MySQL**, **PostgreSQL** or **MongoDB**. The check runs on services of this technology, and the technology determines which query types you can use.
-- **Queries**: One or more queries, each with a **Type**, a **Query** and optional parameters. For the available types, see [Query types](#query-types). For the parameters, see [Query parameters](#query-parameters).
-- **Script**: The Starlark script that processes the query results. For details, see [Check script](#check-script).
+## Write the check script
 
-## Check script
+Write the script that decides, from the query results, whether a service has an issue. Keep it fast: the script has 5 seconds to finish, and the whole check, including its queries, has 5 minutes.
 
-The script must define a `check_context(docs, context)` function:
+The script runs in a sandbox on PMM Server, so it can't read or write files or access the network.
+
+In the script, define a `check_context(docs, context)` function:
 
 - `docs` is a read-only list with one item for each query, in the order of the queries. Each item holds the result of that query: the returned rows for SQL databases and the returned documents for MongoDB.
-- `context` is a dictionary with helper functions. For details, see [Script functions](#script-functions).
-
-The function returns a list of findings, which can be empty. To report that the check couldn't evaluate the data, return a string or call `fail()`. The check then gets the **Error** status with your message.
-
-Each finding is a dictionary with the following keys:
-
-- `summary` (required): A short description of the issue.
-- `severity` (required): One of the levels listed in [Check severity levels](#check-severity-levels), in lowercase.
-- `description` (optional): Details of the issue.
-- `read_more_url` (optional): A link to remediation guidance. It must be a valid URL.
-- `labels` (optional): A dictionary of string keys and values that describe the finding.
+- `context` is a dictionary with [helper functions](#use-the-helper-functions).
 
 Indent the script with spaces, not tabs.
 
-### Script functions
+### Return findings
 
-The global functions `print` and `fail` are available. When you test a check, **Script output** shows what `print` wrote.
+To tell PMM what the check found, return a list of findings, one for each issue. Each finding becomes a **Failed** insight.
 
-The `context` dictionary provides the following functions:
+An empty list means that the check passed, and the service gets an **OK** insight. Learn [what each insight status means](advisors.md#understand-the-status-of-an-insight).
 
-- `parse_version(version)`: Parses a version string and returns a dictionary with the `major`, `minor`, `patch`, `rest`, `num` and `numrest` keys.
-- `format_version_num(num)`: Formats a version number, such as `80036`, as a version string, such as `8.0.36`.
-- `ip_is_private(address)`: Returns `True` if the IP address is private, or if the network in CIDR notation, such as `10.0.0.0/8`, lies fully inside a private address block. Returns `False` if it isn't, and `None` if the argument isn't a valid address or network.
+Each finding is a dictionary with these keys:
+
+- `summary` (required): a short description of the issue
+- `severity` (required): `critical`, `error`, `warning` or `info`, in lowercase
+- `description` (optional): details of the issue
+- `read_more_url` (optional): a valid URL that links to the steps that fix the issue
+- `labels` (optional): a dictionary of string keys and values that describe the finding
+
+PMM rejects any other severity, including the `emergency`, `alert`, `notice` and `debug` levels that earlier versions accepted, and the check gets the **Error** status.
+
+If the check can't evaluate the data, return a string or call `fail()` instead. The check then gets the **Error** status with your message.
+
+### Report one finding per service
+
+To keep **Advisors > Insights** easy to read, return one finding per service, or one per database for checks that examine per-database objects, rather than one finding per affected object.
+
+The list tells findings apart by their summary and labels, so per-object findings with the same summary fill the list with rows that look identical.
+
+To report several objects in one finding:
+
+- put the count in the summary, for example `3 relation(s) with unused indexes in database app`
+- list the objects in the description
+- set labels such as `database` and `count`
+
+If the check finds issues at different severity levels, return one finding per severity level.
+
+### Use the helper functions
+
+Use the helper functions to debug your script and to handle versions and IP addresses without writing that logic yourself.
+
+To debug the script, call `print`: when you test the check, **Script output** shows what it wrote. To stop the check with an error, call `fail`.
+
+The `context` dictionary provides these functions:
+
+- `parse_version(version)` parses a version string and returns a dictionary with the `major`, `minor`, `patch`, `rest`, `num` and `numrest` keys.
+- `format_version_num(num)` formats a version number, such as `80036`, as a version string, such as `8.0.36`.
+- `ip_is_private(address)` returns `True` if the IP address is private, or if the network in CIDR notation, such as `10.0.0.0/8`, lies fully inside a private address block. It returns `False` if it isn't, and `None` if the argument isn't a valid address or network.
 
 Get a function from `context` before you call it, for example `parse_version = context.get("parse_version", fail)`.
 
-### Finding granularity
+### Try an example check
 
-Return one finding per service, or one finding per database for checks that examine per-database objects, rather than one finding per offending object. Aggregate the objects into the finding: put the count in the summary (for example, `3 relation(s) with unused indexes in database app`), list the objects in the description, and set labels such as `database` and `count`. The Advisors Insights list distinguishes findings by their summary and labels, so per-object findings with a shared summary flood the history with rows that look identical. If your check reports issues at different severity levels, return one aggregated finding per severity level.
+To see how queries and a script work together, create a check that reports the MySQL version, the uptime and the recent load average of each MySQL service.
 
-### Example
-
-The following check reports the MySQL version, the uptime and the recent load average of each MySQL service. It uses these fields:
-
-- **Technology**: **MySQL**
-- **Queries**, in the following order:
-    - A `MYSQL_SHOW` query with the text `VARIABLES`
-    - A `METRICS_INSTANT` query with the text {% raw %}`mysql_global_status_uptime{service_name=~"{{.ServiceName}}"}`{% endraw %}
-    - A `METRICS_RANGE` query with the text {% raw %}`avg by (node_name) (avg_over_time(node_load1{node_name=~"{{.NodeName}}"}[5m]))`{% endraw %}, and two parameters: `range` set to `15m` and `step` set to `5m`
-
-The script reads the results of the queries from `docs[0]`, `docs[1]` and `docs[2]`. Each series of a `METRICS_RANGE` result holds its data points in `values`, as `[timestamp, value]` pairs:
-
-```python
-def check_context(docs, context):
-    results = []
-
-    for row in docs[0]:
-        name, value = row["Variable_name"], row["Value"]
-        if name == "version":
-            results.append({
-                "summary": "MySQL has version {}".format(value),
-                "description": "Current version is {}".format(value),
-                "read_more_url": "",
-                "severity": "warning",
-                "labels": {},
-            })
-
-    uptimeNow = int(int(docs[1][0]["value"][1])/60)
-    results.append({
-        "summary": "MySQL uptime {} min".format(uptimeNow),
-        "description": "Current uptime is {} min".format(uptimeNow),
-        "read_more_url": "",
-        "severity": "warning",
-        "labels": {},
-    })
-
-    dataPoints = []
-    for row in docs[2][0]["values"]:
-        dataPoints.append(row[1])
-
-    results.append({
-        "summary": "Node load average for the last 15 minutes {}".format(dataPoints),
-        "description": "Data points {}".format(dataPoints),
-        "read_more_url": "",
-        "severity": "warning",
-        "labels": {},
-    })
-
-    return results
-```
-
-## Check severity levels
-
-You can label your Advisor checks with one of the following available severity levels:
-
-- Critical
-- Error
-- Warning
-- Info
-
-PMM rejects findings with any other severity level, including the Emergency, Alert, Notice and Debug levels that earlier versions accepted, and the check run fails with an error.
-
-PMM groups failed checks by their severity and displays them under **Advisors > Insights**.
-
-## Query types
-
-Each check technology supports its own database query types. MySQL checks can use the `MYSQL_*` types, PostgreSQL checks the `POSTGRESQL_*` types, and MongoDB checks the `MONGODB_*` types. Checks of every technology can use `METRICS_INSTANT`, `METRICS_RANGE` and `CLICKHOUSE_SELECT`.
-
-Expand the following table for the list of query types:
-
-??? note alert alert-info "Query types"
-
-    | Query type  |  Description | "query" required (must be empty if "No")   |
-    |---|---|---|
-    | MYSQL_SHOW |Executes 'SHOW …' clause against MySQL database. |Yes|
-    | MYSQL_SELECT    |     Executes 'SELECT …' clause against MySQL database.  |Yes|
-    | POSTGRESQL_SHOW     |    Executes 'SHOW ALL' command against PosgreSQL database.    |No|
-    | POSTGRESQL_SELECT      | Executes 'SELECT …' clause against PosgreSQL database.  |Yes|
-    | MONGODB_GETPARAMETER     | Executes db.adminCommand( { getParameter: "*" } ) against MongoDB's "admin" database. For more information, see [getParameter](https://docs.mongodb.com/manual/reference/command/getParameter/)| No|
-    | MONGODB_BUILDINFO    | Executes db.adminCommand( { buildInfo:  1 } ) against MongoDB's "admin" database. For more information, see [buildInfo](https://docs.mongodb.com/manual/reference/command/buildInfo/) | No|
-    | MONGODB_GETCMDLINEOPTS          |    Executes db.adminCommand( { getCmdLineOpts: 1 } ) against MongoDB's "admin" database. For more information, see [getCmdLineOpts](https://docs.mongodb.com/manual/reference/command/getCmdLineOpts/) |No|
-    | MONGODB_REPLSETGETSTATUS     |   Executes db.adminCommand( { replSetGetStatus: 1 } ) against MongoDB's "admin" database. For more information, see  [replSetGetStatus](https://docs.mongodb.com/manual/reference/command/replSetGetStatus/) |No|
-    | MONGODB_GETDIAGNOSTICDATA |Executes db.adminCommand( { getDiagnosticData: 1 } ) against MongoDB's "admin" database. For more information, see [MongoDB Performance](https://docs.mongodb.com/manual/administration/analyzing-mongodb-performance/#full-time-diagnostic-data-capture)| No|
-    | METRICS_INSTANT |Executes instant [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about instant queries, check out the [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#instant-queries).|Yes|
-    | METRICS_RANGE |Executes range [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query. Query can use placeholders in query string {% raw %} **{{.NodeName**}} and **{{.ServiceName}}**  {% endraw %}. Both match target service/node names. To read more about range queries, check out the [Prometheus docs](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).|Yes|
-    | CLICKHOUSE_SELECT |Executes 'SELECT ...' statements against PMM's [Query Analytics](../use/qan/index.md) ClickHouse database. Queries can use the {% raw %} **{{.ServiceName**}} and **{{.ServiceID}}**  {% endraw %} placeholders in query string. They match the target service name and service ID respectively.|Yes|
-
-## Query parameters
-
-Some query types accept parameters:
-
-- `METRICS_INSTANT`
-    - **lookback** (duration, optional): specifies how far in past to look back to metrics history. If this parameter is not specified, then query executed on the latest data. Example values: `30s`, `5m`, `8h`.
-- `METRICS_RANGE`
-    - **lookback** (duration, optional): specifies how far in past to look back to metrics history. If this parameter is not specified, then query executed on the latest data. Example values: `30s`, `5m`, `8h`.
-    - **range** (duration, required): specifies time window of the query. This parameter is equal to [Prometheus API](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).
-    - **step** (duration, required): query resolution. This parameter is equal to [Prometheus API](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries).
-- `POSTGRESQL_SELECT`
-    - **all_dbs** (boolean, optional): execute query on all available databases in PostgreSQL instance. If this parameter is not specified, then query executed on the default database (the one that was specified when service was added to PMM).
-
-To set the parameters of a query in the check form:
+In the check form, set **Technology** to **MySQL**, then:
 {.power-number}
 
-1. Under the query, click **Add parameter**.
-2. In **Parameter**, select or type the name of the parameter. The field suggests the names that the query type accepts: `lookback` for `METRICS_INSTANT`, `range`, `step` and `lookback` for `METRICS_RANGE`, and `all_dbs` for `POSTGRESQL_SELECT`.
-3. In **Value**, enter the value of the parameter. Durations take a number with a unit such as `s`, `m` or `h`, for example `30s`, `5m` or `8h`. `all_dbs` takes `true` or `false`.
+1. Add a `MYSQL_SHOW` query with the text `VARIABLES`.
+2. Add a `METRICS_INSTANT` query with the text {% raw %}`mysql_global_status_uptime{service_name=~"{{.ServiceName}}"}`{% endraw %}.
+3. Add a `METRICS_RANGE` query with the text {% raw %}`avg by (node_name) (avg_over_time(node_load1{node_name=~"{{.NodeName}}"}[5m]))`{% endraw %}, and set its `range` parameter to `15m` and its `step` parameter to `5m`.
+4. In **Script**, paste this script. It reads the results of the three queries from `docs[0]`, `docs[1]` and `docs[2]`, in the order that you added them. Each series of a `METRICS_RANGE` result holds its data points in `values`, as `[timestamp, value]` pairs:
 
-To remove a parameter, click the :material-trash-can-outline: **Remove parameter** icon in its row. You can set each parameter only once per query. PMM validates the parameters when you test or save the check, and rejects parameters that the query type doesn't accept, invalid values, and `METRICS_RANGE` queries without `range` or `step`.
+    ```python
+    def check_context(docs, context):
+        results = []
 
-## Troubleshooting and tips
+        for row in docs[0]:
+            name, value = row["Variable_name"], row["Value"]
+            if name == "version":
+                results.append({
+                    "summary": "MySQL has version {}".format(value),
+                    "description": "Current version is {}".format(value),
+                    "read_more_url": "",
+                    "severity": "info",
+                    "labels": {},
+                })
 
-When developing checks for PMM, you may encounter various issues. Here are solutions for common problems:
+        uptimeNow = int(int(docs[1][0]["value"][1])/60)
+        results.append({
+            "summary": "MySQL uptime {} min".format(uptimeNow),
+            "description": "Current uptime is {} min".format(uptimeNow),
+            "read_more_url": "",
+            "severity": "info",
+            "labels": {},
+        })
 
-### Test fails or lists no services
+        dataPoints = []
+        for row in docs[2][0]["values"]:
+            dataPoints.append(row[1])
 
-**Test on service** lists only the services of the check's technology that have a `pmm-agent`. PMM Server's internal PostgreSQL database is never listed.
+        results.append({
+            "summary": "Node load average for the last 15 minutes {}".format(dataPoints),
+            "description": "Data points {}".format(dataPoints),
+            "read_more_url": "",
+            "severity": "info",
+            "labels": {},
+        })
 
-If a test fails, the error message shows the failed query or the script error, followed by the script's output. A test also fails if the **Advisors** option is disabled, or if the `pmm-agent` of the service is disconnected or too old for the check.
+        return results
+    ```
 
-### Managing debug output
-Debug mode generates excessive information in log files that can obscure important data. To disable debug logging, use `PMM_DEBUG=0`.
+5. Select a MySQL service in **Test on service** and click **Test**. **Test results** shows 3 findings: the version, the uptime and the load average.
 
-### Filtering logs
-All check subsystem logs include the component=checks tag. Filter relevant logs with: `grep "component=checks" /path/to/pmm-managed.log`.
+## Run the check and review its results
 
-To follow the `pmm-managed` logs of a PMM Server that runs in Docker, run:
+Your check runs on every [schedule](schedule-advisor-checks.md) set to **All checks**, together with the built-in checks. To see its results before the next scheduled run:
+{.power-number}
 
-```sh
-docker exec -it pmm-server supervisorctl tail -f pmm-managed
-```
+1. Go to **Advisors > Catalog**, find your check and click the :material-play-outline: **Run** icon in its row.
+2. In the confirmation message, click **View results**. **Advisors > Insights** shows the results of that run for each service.
+3. To follow your check across all runs, click the :material-dots-vertical: icon in one of its insights and select **Filter by name**.
+
+To make sure that the run reached all your services, check [the coverage numbers of the run](advisors.md#understand-the-coverage-numbers-of-a-run) in **Advisors > Run history**.
+
+## Change or delete a check
+
+Change a custom check when your rules change, and delete it when you no longer need it.
+
+Built-in checks can't be changed or deleted: to adapt one, [clone it](#create-a-check), and turn off the original with its **Status** switch.
+
+In **Advisors > Catalog**:
+
+- click the :material-pencil-outline: **Edit** icon in a check's row, or **Edit** in its details pane, to change any field except **Name**. Test your changes before you click **Save check**.
+- click the :material-trash-can-outline: **Delete** icon in a check's row and confirm to delete the check. You can't undo the deletion.
+
+## Troubleshooting
+
+Fix the most common problems with custom checks: no services to test on, tests that fail, and checks that you need to debug in the logs.
+
+### Test on service lists no services
+
+If **Test on service** lists no services, PMM doesn't monitor any service of the check's database type through a PMM Client. [Add a service](../install-pmm/install-pmm-client/connect-database/index.md) of that type to PMM, or change the check's **Technology**. PMM Server's internal PostgreSQL database is never listed.
+
+### The test fails
+
+If a test fails, find the cause:
+{.power-number}
+
+1. Read the error message. It shows the failed query or the script error, followed by the script's output.
+2. Check that each parameter fits its query type and has a valid value, and that every `METRICS_RANGE` query has `range` and `step`. These problems also stop you from saving the check.
+3. Check that the **Advisors** option is turned on under **Configuration > Settings > Advisors**.
+4. Check that the PMM Client of the service is connected. If it's too old for the check, [upgrade PMM Client](../pmm-upgrade/upgrade_client.md) on that node, or test on another service.
+
+### Find the check logs
+
+To find out why a check fails, read the `pmm-managed` logs on PMM Server. Every log line of the checks includes `component=checks`:
+{.power-number}
+
+1. To follow the logs of a PMM Server that runs in Docker, run:
+
+    ```sh
+    docker exec -it pmm-server supervisorctl tail -f pmm-managed
+    ```
+
+2. To list only the check logs, filter the log file:
+
+    ```sh
+    docker exec pmm-server grep "component=checks" /srv/logs/pmm-managed.log
+    ```
+
+3. If the logs don't show enough detail, set `PMM_DEBUG=1` on the PMM Server container to turn on verbose logging. Turn it off again when you're done, because verbose logs grow quickly and hide important messages.
 
 ## Submit feedback
-We welcome your feedback on the current process for developing and debugging checks. Send us your comments or post a question on the [Percona Forums](https://forums.percona.com/c/percona-monitoring-and-management-pmm/pmm-3/84).
+
+Tell us how we can improve developing and debugging checks: post your comments or questions on the [Percona Forums](https://forums.percona.com/c/percona-monitoring-and-management-pmm/pmm-3/84).
+
+## Related topics
+
+- [Run Advisor checks and review results](advisors.md)
+- [Schedule Advisor checks](schedule-advisor-checks.md)
+- [List of advisors and checks](advisor-details.md)

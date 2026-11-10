@@ -1,8 +1,9 @@
 export const Messages = {
-  title: 'Advisor runs',
+  title: 'Advisor run history',
   description:
-    'Every Advisor checks execution, most recent first. Open a run to see the insights it produced.',
-  noData: 'No Advisor runs recorded yet',
+    'Check that your Advisor runs started on time, finished and reached all your services. Open a run to review what it found, or run it again after you fix what it missed.',
+  noData:
+    'No runs yet. Run checks from the Catalog, or wait for the next scheduled run.',
   running: 'Running…',
   queued: 'Queued…',
   interrupted: 'Interrupted',
@@ -27,16 +28,15 @@ export const Messages = {
     nothingToCheck:
       'There was nothing to check: no MySQL, PostgreSQL or MongoDB services, or every check that applies to them is disabled',
     errors:
-      'Checks that could not be executed, as opposed to checks that found an issue',
-    findings: 'Checks that detected an issue',
-    queued:
-      'Requested and waiting for PMM to start it, which takes up to a minute',
+      "Checks that couldn't run. Checks that found an issue are counted under Findings.",
+    findings: 'Checks that found an issue',
+    queued: 'Waiting to start. This takes up to a minute.',
     interrupted:
-      'PMM restarted, or the HA leader changed, before the run finished. The insights it saved are kept; the checks it did not reach show as Not run.',
+      'PMM restarted, or the HA leader changed, before the run finished. The insights it saved are kept. Any checks it didn\'t reach show as "Not run".',
     aborted:
-      'The run stopped before running any check. See the PMM Server logs for the cause.',
+      'The run stopped before any check ran. To find out why, look in the PMM Server logs.',
     waited: (scheduled: string, waited: string, started: string, who: string) =>
-      `Scheduled for ${scheduled} UTC. Started ${waited} late, after the run started at ${started} UTC (${who}).`,
+      `Scheduled for ${scheduled} UTC. Started ${waited} late because it waited for ${who}, which started at ${started} UTC.`,
     userRun: 'a user run',
     scheduledRun: 'a scheduled run',
     startedLate: 'Started late',
@@ -44,8 +44,8 @@ export const Messages = {
   actions: {
     more: 'More actions',
     viewInsights: 'View insights',
-    exportAll: 'Export all',
-    exportFailed: 'Export failed',
+    exportAll: 'Export all checks',
+    exportFailed: 'Export failed checks',
     runAgain: 'Run again',
     copyRunId: 'Copy run ID',
   },

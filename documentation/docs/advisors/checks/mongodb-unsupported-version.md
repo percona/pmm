@@ -8,11 +8,11 @@ Percona doesn't provide support or issue hotfixes for release series that reache
 
 The check reads the server version with the `buildInfo` command and returns an error for release series older than 4.4.
 
-For the support status of each release series, see the [Percona software support lifecycle](https://www.percona.com/services/policies/percona-software-support-lifecycle). For the EOL dates of later release series, see [MongoDB end-of-life version](mongodb-eol.md).
+To check whether Percona still supports your release series, look it up in the [Percona software support lifecycle](https://www.percona.com/services/policies/percona-software-support-lifecycle). Later release series have their own [end-of-life dates](mongodb-eol.md).
 
 ## Resolution
 
-Upgrade to a supported release series. Upgrade one major version at a time: for example, from 4.2 to 4.4, then to 5.0. For the recommended upgrade path, see [MongoDB versions](mongodb-version.md).
+Upgrade to a supported release series. Upgrade one major version at a time, as the [recommended upgrade path](mongodb-version.md) shows: for example, from 4.2 to 4.4, then to 5.0.
 
 Before you upgrade a production environment, test the new version in a development or staging environment, and verify that your drivers support it.
 

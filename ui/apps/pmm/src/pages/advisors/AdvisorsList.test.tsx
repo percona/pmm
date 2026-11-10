@@ -119,7 +119,7 @@ describe('AdvisorsList', () => {
     ).toBeInTheDocument();
     expect(
       within(screen.getByTestId('check-details-field-source')).getByText(
-        'Builtin'
+        'Built-in'
       )
     ).toBeInTheDocument();
     // double-click opens the pane maximized

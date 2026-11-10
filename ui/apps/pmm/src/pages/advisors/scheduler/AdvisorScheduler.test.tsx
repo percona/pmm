@@ -195,7 +195,7 @@ describe('AdvisorScheduler', () => {
     const prod = screen.getByTestId('schedule-row-prod');
     expect(prod).toHaveTextContent('Mon–Fri, 00:30 UTC');
     expect(prod).toHaveTextContent('secops@example.com +1');
-    expect(prod).toHaveTextContent('Own recipients · Critical, Error');
+    expect(prod).toHaveTextContent('Custom recipients · Critical, Error');
 
     const paused = screen.getByTestId('schedule-row-paused');
     expect(paused).toHaveTextContent('No email');

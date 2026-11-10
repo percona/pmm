@@ -1025,7 +1025,7 @@ describe('AdvisorInsights', () => {
         )
       );
       expect(
-        await screen.findByText('Emailed 2 insights to 2 recipients.')
+        await screen.findByText('Emailed 2 insights to 2 recipients')
       ).toBeInTheDocument();
       await waitFor(() =>
         expect(

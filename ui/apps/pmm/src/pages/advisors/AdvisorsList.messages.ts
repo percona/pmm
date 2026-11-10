@@ -1,8 +1,9 @@
 export const Messages = {
-  title: 'Advisor checks',
+  title: 'Advisor catalog',
   description:
-    'Run automated checks against your connected databases to identify potential security threats, performance degradation, data loss and data corruption.',
-  noData: 'No advisor checks found',
+    "Find the checks that run on your services, run them right away, or turn off the ones that don't apply to you. To check something the built-in checks don't cover, add your own advisor check.",
+  noData:
+    'No checks match your search or filters. Clear them to see all checks.',
   columns: {
     check: 'Check',
     category: 'Category',
@@ -27,7 +28,7 @@ export const Messages = {
   },
   runAll: 'Run all',
   runSelected: 'Run selected',
-  addAdvisor: 'Add advisor',
+  addAdvisor: 'Add advisor check',
   viewResults: 'View results',
   run: 'Run',
   edit: 'Edit',
@@ -36,7 +37,7 @@ export const Messages = {
   disabledForServices: (count: number) =>
     `Disabled for ${count} ${count === 1 ? 'service' : 'services'}`,
   source: {
-    builtin: 'Builtin',
+    builtin: 'Built-in',
     custom: 'Custom',
   },
   details: {
@@ -54,14 +55,14 @@ export const Messages = {
     description: 'Description',
     script: 'Script',
     copyCode: 'Copy',
-    codeCopied: 'Check code copied to clipboard',
-    codeError: 'Unable to load the check code',
-    noCode: 'No code available',
+    codeCopied: 'Script copied to clipboard',
+    codeError: "Couldn't load the script. Close the details and try again.",
+    noCode: 'This check has no script',
   },
   deleteDialog: {
     title: 'Delete advisor check',
     body: (summary: string) =>
-      `Are you sure you want to delete the advisor check "${summary}"? This action cannot be undone.`,
+      `Are you sure you want to delete "${summary}"? You can't undo this.`,
     cancel: 'Cancel',
     confirm: 'Delete',
   },

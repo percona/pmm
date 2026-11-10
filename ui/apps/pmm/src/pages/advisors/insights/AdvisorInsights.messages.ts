@@ -4,9 +4,10 @@ const plural = (count: number, one: string, many: string) =>
 export const Messages = {
   title: 'Advisor insights',
   description:
-    'Results of the advisor checks that ran against your monitored services.',
-  noData: 'No advisor insights found',
-  readMoreAvailable: 'Documentation available in the details pane',
+    'Find and fix the issues that Advisor checks report on your services, then re-run a check to confirm the fix.',
+  noData:
+    'No insights match. Clear the filters, or run checks from the Catalog.',
+  readMoreAvailable: 'Double-click the row for Read more',
   actions: {
     more: 'More actions',
     viewDetails: 'View details',
@@ -43,7 +44,7 @@ export const Messages = {
     checkName: 'Check name',
     runId: 'Run ID',
     labels: 'Labels',
-    pendingOutcome: 'The check is waiting for its run to execute it.',
+    pendingOutcome: "The run hasn't reached this check yet.",
   },
   viewResults: 'View results',
   filters: {
@@ -51,10 +52,9 @@ export const Messages = {
     runId: 'Run ID',
     clear: 'Clear filters',
     refresh: 'Refresh',
-    refreshTooltip:
-      'Reload the check results and re-populate the filter options',
+    refreshTooltip: 'Reload results and filters',
     email: 'Email insights',
-    emailTooltip: 'Email the insights matching the filters',
+    emailTooltip: 'Email the filtered insights',
     service: 'Service',
     node: 'Node',
     category: 'Category',
@@ -82,11 +82,11 @@ export const Messages = {
     cancel: 'Cancel',
     send: 'Send',
     sent: (insights: number, recipients: number) =>
-      `Emailed ${plural(insights, 'insight', 'insights')} to ${plural(recipients, 'recipient', 'recipients')}.`,
+      `Emailed ${plural(insights, 'insight', 'insights')} to ${plural(recipients, 'recipient', 'recipients')}`,
   },
   success: {
     rerunStarted: (check: string, service: string) =>
-      `Check "${check}" started on ${service}, run ID copied to clipboard.`,
+      `Check "${check}" started on ${service}, run ID copied to clipboard`,
     checkEnabled: (check: string, service: string) =>
       `Check "${check}" enabled for ${service}`,
     checkDisabled: (check: string, service: string) =>

@@ -32,7 +32,7 @@ Upgrading to PMM 3.11.0 changes your existing Advisor settings, dashboards and A
 - Schedules replace run intervals. By default, the **All checks daily** schedule runs every check at 06:00 UTC. If you used custom intervals, [recreate them as schedules](../advisors/schedule-advisor-checks.md#create-a-schedule).
 - All checks run again, including the ones that you turned off. [Turn them off again](../advisors/advisors.md#turn-off-checks-that-dont-apply) in **Advisors > Catalog**.
 - **Advisors > Insights** replaces the Advisor panels on the **Home** and **Environments Overview** dashboards. Review findings there instead.
-- New endpoints replace some Advisor API endpoints. If your scripts call the Advisor API, switch to the following endpoints:
+- New endpoints replace some Advisor API endpoints. If your scripts call the Advisor API, switch to these endpoints:
     - `GET /v1/advisors/checks` instead of `GET /v1/advisors`
     - `GET /v1/advisors/insights` instead of `GET /v1/advisors/failedServices` and `GET /v1/advisors/checks/failed`
     - The `/v1/advisors/schedules` endpoints instead of the `advisor_run_intervals` setting and the `interval` field of checks

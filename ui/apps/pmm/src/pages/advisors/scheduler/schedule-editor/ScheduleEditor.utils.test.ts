@@ -74,7 +74,7 @@ describe('validateScheduleForm', () => {
       custom(
         Array.from({ length: 21 }, (_, i) => `u${i}@example.com`).join(',')
       )
-    ).toBe('Up to 20 addresses; there are 21.');
+    ).toBe('Enter up to 20 addresses. There are 21.');
     expect(custom('dba@example.com')).toBeUndefined();
   });
 
