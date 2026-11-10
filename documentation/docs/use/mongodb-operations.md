@@ -14,30 +14,8 @@ Operations for MongoDB runs on [PMM Extensions](../apps/deploy-pmm-extensions.md
 Before you enable Operations for MongoDB, prepare PMM Server:
 {.power-number}
 
-1. [Deploy PMM Extensions with Docker](../apps/deploy-pmm-extensions.md). This setup already sets `PMM_ENABLE_EXTENSIONS=1`, `PMM_ENABLE_NOMAD=1`, and `PMM_PUBLIC_ADDRESS`.
+1. [Deploy PMM Extensions with Docker](../apps/deploy-pmm-extensions.md). This setup already sets `PMM_ENABLE_EXTENSIONS=1`, `PMM_ENABLE_NOMAD=1`, and `PMM_PUBLIC_ADDRESS`. PMM Server connects to PMM Extensions automatically.
 2. Publish port `4647` on the `pmm-server` container (`-p 4647:4647`). PMM Client nodes connect to this port to receive scan and install jobs. Without it, remote nodes can't receive jobs.
-3. Connect PMM Server to PMM Extensions. This step is required in PMM 3.10.0 only (see [PMM-15772](https://perconadev.atlassian.net/browse/PMM-15772)). Without it, you can't turn on Operations for MongoDB:
-
-    1. Generate a token, for example with `openssl rand -hex 32`. Treat it as a password.
-    2. Set these variables, using the same token on both containers:
-
-        - On `pmm-server`: `PMM_EXTENSIONS_URL=http://pmm-extensions:9000` and `PMM_EXTENSIONS_TOKEN=<token>`
-        - On `pmm-extensions`: `EXTENSIONS_INTERNAL_TOKEN=<token>`
-
-        If you use Docker Compose, store the token in your `.env` file as `PMM_EXTENSIONS_TOKEN` and reference it from both services:
-
-        ```yaml
-        services:
-          pmm-server:
-            environment:
-              PMM_EXTENSIONS_URL: http://pmm-extensions:9000
-              PMM_EXTENSIONS_TOKEN: ${PMM_EXTENSIONS_TOKEN}
-          pmm-extensions:
-            environment:
-              EXTENSIONS_INTERNAL_TOKEN: ${PMM_EXTENSIONS_TOKEN}
-        ```
-
-    3. Recreate both containers so they pick up the new environment variables. A simple restart won't work, because Docker only reads environment variables when it creates a container. If you use Docker Compose, run `docker compose up -d`, which recreates any container whose configuration has changed.
 
 ### Enable Operations for MongoDB
 
@@ -52,7 +30,7 @@ Until you enable Operations for MongoDB, **MongoDB > Operations** doesn't appear
     2. Turn on **Operations for MongoDB**.
     3. Click **Apply changes**.
 
-    If PMM can't reach PMM Extensions, the setting stays off. Check your PMM Extensions deployment and try again.
+    If PMM can't use PMM Extensions, the setting stays off and the error message says why, for example that PMM Extensions is unreachable. Fix the cause and try again.
 
 === "via environment variable"
 
