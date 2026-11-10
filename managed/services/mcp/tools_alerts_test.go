@@ -451,6 +451,72 @@ func TestAlertsTool(t *testing.T) {
 		assert.Zero(t, fake.requestCount())
 	})
 
+	t.Run("CallsInFlight", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, alertsRoutes("alerts_up.json"))
+		s := newQANService(t, fake, false)
+		session := connect(t, s)
+		key := callerKey(callerAuth{authorization: testToken})
+
+		releases := make([]func(), 0, maxMetricCallsPerCaller)
+		for range maxMetricCallsPerCaller {
+			release, hit := s.metrics.acquire(key)
+			require.Equal(t, limitNone, hit)
+			releases = append(releases, release)
+		}
+		text, isError := callText(t, session, "pmm_alerts", nil)
+		require.True(t, isError, text)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assert.Contains(t, text, "at most 4 metric calls can be in flight for these credentials")
+		assert.Zero(t, fake.requestCount())
+
+		// Invalid paging is reported before the limit.
+		text, _ = callText(t, session, "pmm_alerts", map[string]any{"limit": alertsMaxLimit + 1})
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+
+		for _, release := range releases {
+			release()
+		}
+		for i := range maxMetricCallsPerReplica {
+			_, hit := s.metrics.acquire(fmt.Sprintf("other-%d", i))
+			require.Equal(t, limitNone, hit)
+		}
+		text, isError = callText(t, session, "pmm_alerts", nil)
+		require.True(t, isError, text)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assert.Contains(t, text, "this replica already has 8 metric calls")
+		assert.Zero(t, fake.requestCount())
+	})
+
+	t.Run("CallRate", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, alertsRoutes("alerts_up.json"))
+		s := newQANService(t, fake, false)
+		session := connect(t, s)
+
+		// More calls than the per-caller slots, one at a time: each call releases its slot.
+		for range metricCallsBurst {
+			text, isError := callText(t, session, "pmm_alerts", nil)
+			require.False(t, isError, text)
+		}
+		before := fake.requestCount()
+		for _, name := range []string{"pmm_alerts", "pmm_list_metrics"} {
+			res := callTool(t, session, name, nil)
+			text := textOf(t, res)
+			require.True(t, res.IsError, text)
+			assert.Equal(t, "error: rate_limited\ntoo many calls for these credentials; retry in 1 s", text, "%s: the metric tools share one bucket", name)
+			meta, ok := res.Meta["com.percona/error"].(map[string]any)
+			require.True(t, ok, "%v", res.Meta)
+			assert.InDelta(t, 1, meta["retry_after"], 0, name)
+		}
+		assert.Equal(t, before, fake.requestCount(), "a refused call reaches no backend")
+
+		text, isError := callText(t, connectWithHeaders(t, s, http.Header{"Authorization": {"Bearer glsa_other_token"}}), "pmm_alerts", nil)
+		assert.False(t, isError, text)
+	})
+
 	t.Run("Unauthorized", func(t *testing.T) {
 		t.Parallel()
 

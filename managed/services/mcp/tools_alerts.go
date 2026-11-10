@@ -212,6 +212,11 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 		return alertsResult{}, err
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
+	release, err := s.startMetricCall(auth)
+	if err != nil {
+		return alertsResult{}, err
+	}
+	defer release()
 
 	now := s.now()
 	w := window{From: now.Add(-alertListLookback), To: now}
