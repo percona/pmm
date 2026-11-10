@@ -29,8 +29,8 @@ export interface FilterOption {
 }
 
 /**
- * A labelled filter select for a Fleet toolbar, where picking several values widens
- * the match rather than narrowing it. Nothing picked is no filter, and says so.
+ * A labelled filter select where picking several values widens the match rather
+ * than narrowing it. Nothing picked is no filter, and says so.
  */
 export const MultiSelectFilter = ({
   label,
