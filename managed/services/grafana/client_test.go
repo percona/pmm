@@ -251,11 +251,14 @@ func TestGetAuthUserID(t *testing.T) {
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		user, _, _ := r.BasicAuth()
 		switch r.URL.Path {
 		case "/api/auth/serviceaccount":
 			switch r.Header.Get("Authorization") {
 			case "Bearer glsa_viewer":
 				_, _ = fmt.Fprint(w, `{"id":7,"uid":"sa-7","name":"mcp","login":"sa-1-mcp","orgId":1,"role":"Viewer"}`)
+			case "Bearer glsa_other_org":
+				_, _ = fmt.Fprint(w, `{"id":9,"name":"mcp","orgId":2,"role":"Admin"}`)
 			case "Bearer glsa_no_id":
 				_, _ = fmt.Fprint(w, `{"name":"mcp","orgId":1,"role":"Viewer"}`)
 			case "Bearer glsa_zero_id":
@@ -264,20 +267,23 @@ func TestGetAuthUserID(t *testing.T) {
 				w.WriteHeader(http.StatusBadRequest)
 				_, _ = fmt.Fprint(w, `{"message":"Auth method is not service account token"}`)
 			}
+		// Grafana answers /api/user for an identity that is not a user, such as its renderer acting
+		// for nobody, with ID 0, and /api/user/orgs with 304.
 		case "/api/user":
-			user, _, _ := r.BasicAuth()
 			switch user {
 			case "viewer":
 				_, _ = fmt.Fprint(w, `{"id":42,"isGrafanaAdmin":false}`)
-			case "no-id":
-				_, _ = fmt.Fprint(w, `{"isGrafanaAdmin":false}`)
-			case "no-id-admin":
-				_, _ = fmt.Fprint(w, `{"isGrafanaAdmin":true}`)
+			case "not-a-user":
+				_, _ = fmt.Fprint(w, `{"id":0,"isGrafanaAdmin":false}`)
 			default:
 				w.WriteHeader(http.StatusUnauthorized)
 				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
 			}
 		case "/api/user/orgs":
+			if user == "not-a-user" {
+				w.WriteHeader(http.StatusNotModified)
+				return
+			}
 			_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
 		default:
 			w.WriteHeader(http.StatusNotFound)
@@ -299,44 +305,38 @@ func TestGetAuthUserID(t *testing.T) {
 		return h
 	}
 
-	t.Run("a service token resolves to its account's user ID", func(t *testing.T) {
-		t.Parallel()
+	for name, tc := range map[string]struct {
+		headers http.Header
+		role    role
+		userID  int
+	}{
+		"a service token resolves to its account's user ID": {bearer("glsa_viewer"), viewer, 7},
+		"a service token sent as service_token basic auth":  {basic("service_token", "glsa_viewer"), viewer, 7},
+		"a service token sent as api_key basic auth":        {basic("api_key", "glsa_viewer"), viewer, 7},
+		"a service token of another org has no role":        {bearer("glsa_other_org"), none, 9},
+		"an interactive user keeps its user ID":             {basic("viewer", "secret"), viewer, 42},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
-		u, err := c.getAuthUser(t.Context(), bearer("glsa_viewer"), l)
-		require.NoError(t, err)
-		assert.Equal(t, viewer, u.role)
-		assert.Equal(t, 7, u.userID)
-	})
-
-	t.Run("a service token sent as basic auth resolves the same way", func(t *testing.T) {
-		t.Parallel()
-
-		u, err := c.getAuthUser(t.Context(), basic("service_token", "glsa_viewer"), l)
-		require.NoError(t, err)
-		assert.Equal(t, viewer, u.role)
-		assert.Equal(t, 7, u.userID)
-	})
-
-	t.Run("an interactive user keeps its user ID", func(t *testing.T) {
-		t.Parallel()
-
-		u, err := c.getAuthUser(t.Context(), basic("viewer", "secret"), l)
-		require.NoError(t, err)
-		assert.Equal(t, viewer, u.role)
-		assert.Equal(t, 42, u.userID)
-	})
+			u, err := c.getAuthUser(t.Context(), tc.headers, l)
+			require.NoError(t, err)
+			assert.Equal(t, tc.role, u.role)
+			assert.Equal(t, tc.userID, u.userID)
+			assert.False(t, u.anonymous)
+		})
+	}
 
 	for name, headers := range map[string]http.Header{
 		"a service token without a user ID": bearer("glsa_no_id"),
 		"a service token with user ID 0":    bearer("glsa_zero_id"),
-		"a user without a user ID":          basic("no-id", "secret"),
-		"a Grafana admin without a user ID": basic("no-id-admin", "secret"),
+		"an identity that is not a user":    basic("not-a-user", "secret"),
 	} {
 		t.Run(name+" is refused", func(t *testing.T) {
 			t.Parallel()
 
 			u, err := c.getAuthUser(t.Context(), headers, l)
-			require.Error(t, err)
+			require.ErrorIs(t, err, errNoUserID)
 			assert.Equal(t, none, u.role)
 		})
 	}

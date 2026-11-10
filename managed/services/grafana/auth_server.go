@@ -213,6 +213,11 @@ type authError struct {
 	message string
 }
 
+// Error implements error interface.
+func (e *authError) Error() string {
+	return fmt.Sprintf("%s: %s", e.code, e.message)
+}
+
 // ErrInvalidUserID is returned when user ID is not valid.
 var ErrInvalidUserID = errors.New("InvalidUserID")
 
@@ -343,6 +348,12 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
 		return
 	}
+	// The user could not be resolved; getAuthUser has already logged why.
+	lbacAuthErr, ok := errors.AsType[*authError](errF)
+	if ok {
+		s.returnAuthError(rw, lbacAuthErr, l)
+		return
+	}
 	if errF != nil {
 		l.Errorf("Failed to add VMProxy filters: %s", errF)
 		s.returnAuthError(rw, &authError{code: codes.Internal, message: "Internal server error."}, l)
@@ -387,7 +398,8 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, status int, msg map[str
 // maybeAddLBACFilters adds extra filters to requests proxied through VMProxy.
 // In case the request is not proxied through VMProxy, this is a no-op.
 // Matching happens on cleanedPath, the unescaped path the caller authenticated.
-// User is the one authentication resolved, or nil when the path required no role.
+// User is the one authentication resolved, or nil when the path required no role; a user that
+// cannot be resolved here is returned as its *authError.
 func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, cleanedPath string, user *authUser, l *logrus.Entry) error {
 	if !s.shallAddLBACFilters(cleanedPath) {
 		l.Debugf("Skipping LBAC filters for non-proxied request.")
@@ -399,7 +411,7 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 		var authErr *authError
 		user, authErr = s.getAuthUser(ctx, req, l)
 		if authErr != nil {
-			return ErrCannotGetUserID
+			return authErr
 		}
 
 		if user == nil {

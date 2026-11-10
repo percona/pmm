@@ -717,6 +717,7 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		user, _, _ := r.BasicAuth()
 		switch r.URL.Path {
 		case "/api/auth/serviceaccount":
 			switch r.Header.Get("Authorization") {
@@ -724,24 +725,31 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 				_, _ = fmt.Fprint(w, `{"id":7,"orgId":1,"role":"Viewer"}`)
 			case "Bearer glsa_new":
 				_, _ = fmt.Fprint(w, `{"id":8,"orgId":1,"role":"Viewer"}`)
+			case "Bearer glsa_other_org":
+				_, _ = fmt.Fprint(w, `{"id":9,"orgId":2,"role":"Admin"}`)
 			case "Bearer glsa_no_id":
 				_, _ = fmt.Fprint(w, `{"orgId":1,"role":"Viewer"}`)
 			default:
 				w.WriteHeader(http.StatusBadRequest)
 				_, _ = fmt.Fprint(w, `{"message":"Auth method is not service account token"}`)
 			}
+		// Grafana answers /api/user for an identity that is not a user, such as its renderer acting
+		// for nobody, with ID 0, and /api/user/orgs with 304.
 		case "/api/user":
-			user, _, _ := r.BasicAuth()
 			switch user {
 			case "viewer":
 				_, _ = fmt.Fprint(w, `{"id":42,"isGrafanaAdmin":false}`)
-			case "no-id":
-				_, _ = fmt.Fprint(w, `{"isGrafanaAdmin":false}`)
+			case "not-a-user":
+				_, _ = fmt.Fprint(w, `{"id":0,"isGrafanaAdmin":false}`)
 			default:
 				w.WriteHeader(http.StatusUnauthorized)
 				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
 			}
 		case "/api/user/orgs":
+			if user == "not-a-user" {
+				w.WriteHeader(http.StatusNotModified)
+				return
+			}
 			_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
 		case "/api/frontend/settings":
 			_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer"}`)
@@ -793,6 +801,7 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 		auth        func(*http.Request)
 		expect      func(sqlmock.Sqlmock)
 		wantStatus  int
+		wantCode    codes.Code
 		wantFilters []string
 	}{
 		{
@@ -820,6 +829,23 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 			wantFilters: []string{mysql1},
 		},
 		{
+			name:        "service token sent as api_key basic auth",
+			path:        vmPath,
+			auth:        func(r *http.Request) { r.SetBasicAuth("api_key", "glsa_restricted") },
+			expect:      expectRole(7, mysql1),
+			wantStatus:  http.StatusOK,
+			wantFilters: []string{mysql1},
+		},
+		{
+			// It has no role in PMM's org, which the data source proxy does not require.
+			name:        "service token of another org on the data source proxy",
+			path:        vmPath,
+			auth:        func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_other_org") },
+			expect:      expectRole(9, mysql1),
+			wantStatus:  http.StatusOK,
+			wantFilters: []string{mysql1},
+		},
+		{
 			name:        "service token seen for the first time gets the default role",
 			path:        vmPath,
 			auth:        func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_new") },
@@ -840,6 +866,7 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 			auth:       func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_no_id") },
 			expect:     noQueries,
 			wantStatus: http.StatusUnauthorized,
+			wantCode:   codes.Unauthenticated,
 		},
 		{
 			name:       "service token without a user ID on the data source proxy",
@@ -847,20 +874,23 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 			auth:       func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_no_id") },
 			expect:     expectSettings(true),
 			wantStatus: http.StatusUnauthorized,
+			wantCode:   codes.Unauthenticated,
 		},
 		{
-			name:       "user without a user ID on QAN",
+			name:       "identity that is not a user on QAN",
 			path:       qanPath,
-			auth:       func(r *http.Request) { r.SetBasicAuth("no-id", "secret") },
+			auth:       func(r *http.Request) { r.SetBasicAuth("not-a-user", "secret") },
 			expect:     noQueries,
 			wantStatus: http.StatusUnauthorized,
+			wantCode:   codes.Unauthenticated,
 		},
 		{
-			name:       "user without a user ID on the data source proxy",
+			name:       "identity that is not a user on the data source proxy",
 			path:       vmPath,
-			auth:       func(r *http.Request) { r.SetBasicAuth("no-id", "secret") },
+			auth:       func(r *http.Request) { r.SetBasicAuth("not-a-user", "secret") },
 			expect:     expectSettings(true),
 			wantStatus: http.StatusUnauthorized,
+			wantCode:   codes.Unauthenticated,
 		},
 		{
 			name:        "interactive user on QAN",
@@ -917,6 +947,13 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 
 			assert.Equal(t, tc.wantStatus, rw.Code)
 			require.NoError(t, mock.ExpectationsWereMet())
+
+			if tc.wantStatus != http.StatusOK {
+				var body map[string]any
+				require.NoError(t, json.Unmarshal(rw.Body.Bytes(), &body))
+				assert.InDelta(t, float64(tc.wantCode), body["code"], 0)
+				assert.Empty(t, s.cache, "a refused identity must not be cached")
+			}
 
 			header := rw.Header().Get(lbacHeaderName)
 			if tc.wantFilters == nil {
