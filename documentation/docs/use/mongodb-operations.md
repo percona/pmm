@@ -233,6 +233,10 @@ The page shows when its data was last refreshed and when the nodes were last sca
 
 ## Troubleshoot
 
+### Pages don't load
+
+If **Nodes**, **Automations** or **Settings** can't load and the error says **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container. PMM signs you in to PMM Extensions with your PMM session. PMM Extensions accepts that session only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default. If the container sets it to `false`, remove the variable and recreate the container.
+
 ### Scans
 
 If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
