@@ -3032,15 +3032,21 @@ type InventorySetting struct {
 	Type string `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`
 	// Whether it can be changed at runtime.
 	Reload SettingReload `protobuf:"varint,5,opt,name=reload,proto3,enum=om.v1.SettingReload" json:"reload,omitempty"`
-	// Whether an override is in effect, which is how "why is it set to this" is
-	// answerable without also reading the deployment's configuration file.
+	// Whether an override is stored, which is how "why is it set to this" is
+	// answerable without also reading the deployment's configuration file. It is in
+	// effect unless override_ignored_reason is set.
 	HasOverride bool `protobuf:"varint,6,opt,name=has_override,json=hasOverride,proto3" json:"has_override,omitempty"`
 	// Whether to hide it behind an "advanced" disclosure.
 	IsAdvanced bool `protobuf:"varint,7,opt,name=is_advanced,json=isAdvanced,proto3" json:"is_advanced,omitempty"`
 	// The field's documentation, where it has any.
-	Description   *string `protobuf:"bytes,8,opt,name=description,proto3,oneof" json:"description,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Description *string `protobuf:"bytes,8,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	// Why the stored override is ignored and value is the deployed one, e.g.
+	// "STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT".
+	// It names fields and the rule they break, never values. Unset while the override
+	// is in effect, when there is none, and for an app too old to report it.
+	OverrideIgnoredReason *string `protobuf:"bytes,9,opt,name=override_ignored_reason,json=overrideIgnoredReason,proto3,oneof" json:"override_ignored_reason,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *InventorySetting) Reset() {
@@ -3125,6 +3131,13 @@ func (x *InventorySetting) GetIsAdvanced() bool {
 func (x *InventorySetting) GetDescription() string {
 	if x != nil && x.Description != nil {
 		return *x.Description
+	}
+	return ""
+}
+
+func (x *InventorySetting) GetOverrideIgnoredReason() string {
+	if x != nil && x.OverrideIgnoredReason != nil {
+		return *x.OverrideIgnoredReason
 	}
 	return ""
 }
@@ -5479,7 +5492,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x06_error\"F\n" +
 	"\x17InventoryRunFailingNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\xcc\x02\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xa5\x03\n" +
 	"\x10InventorySetting\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value\x12;\n" +
@@ -5489,8 +5502,10 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\fhas_override\x18\x06 \x01(\bR\vhasOverride\x12\x1f\n" +
 	"\vis_advanced\x18\a \x01(\bR\n" +
 	"isAdvanced\x12%\n" +
-	"\vdescription\x18\b \x01(\tH\x00R\vdescription\x88\x01\x01B\x0e\n" +
-	"\f_description\"\xf8\x01\n" +
+	"\vdescription\x18\b \x01(\tH\x00R\vdescription\x88\x01\x01\x12;\n" +
+	"\x17override_ignored_reason\x18\t \x01(\tH\x01R\x15overrideIgnoredReason\x88\x01\x01B\x0e\n" +
+	"\f_descriptionB\x1a\n" +
+	"\x18_override_ignored_reason\"\xf8\x01\n" +
 	"\x19ListInventoryHostsRequest\x12$\n" +
 	"\vhas_service\x18\x01 \x01(\bH\x00R\n" +
 	"hasService\x88\x01\x01\x12\x1d\n" +

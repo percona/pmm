@@ -1360,14 +1360,15 @@ func inventorySettingsToProto(settings []extensionsSetting) []*omv1.InventorySet
 	out := make([]*omv1.InventorySetting, 0, len(settings))
 	for _, setting := range settings {
 		out = append(out, &omv1.InventorySetting{
-			Key:          setting.Key,
-			Value:        anyToValue(setting.Value),
-			DefaultValue: anyToValue(setting.DefaultValue),
-			Type:         setting.Type,
-			Reload:       extensionsReloadToProto(setting.Reload),
-			HasOverride:  setting.HasOverride,
-			IsAdvanced:   setting.IsAdvanced,
-			Description:  optionalString(setting.Description),
+			Key:                   setting.Key,
+			Value:                 anyToValue(setting.Value),
+			DefaultValue:          anyToValue(setting.DefaultValue),
+			Type:                  setting.Type,
+			Reload:                extensionsReloadToProto(setting.Reload),
+			HasOverride:           setting.HasOverride,
+			IsAdvanced:            setting.IsAdvanced,
+			Description:           optionalString(setting.Description),
+			OverrideIgnoredReason: optionalString(setting.OverrideIgnoredReason),
 		})
 	}
 	return out
