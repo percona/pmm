@@ -200,7 +200,7 @@ After first login, immediately change the default password:
 
 1. Log in to PMM UI.
 2. Go to **Account > Change password**.
-3. Enter current password and new secure password.
+3. Enter the current password and a new password that meets the [password requirements](../admin/manage-users/add_users.md#password-requirements).
 
 Or set password via Kubernetes secret before installation:
 ```sh

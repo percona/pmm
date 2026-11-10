@@ -32,7 +32,7 @@ To deploy PMM Server using Docker volumes:
     percona/pmm-server:3
     ```
 
-4. Set a secure password for the default `admin` user. You can do this either at startup using environment variables, or after startup using a helper script:
+4. Set a secure password for the default `admin` user that meets the [password requirements](../../../../admin/manage-users/add_users.md#password-requirements). You can do this either at startup using environment variables, or after startup using a helper script:
 
     - **At startup** (add to the `docker run` command in step 3):
 

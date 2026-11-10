@@ -46,7 +46,7 @@ import (
 )
 
 // viewerPassword is fixed because the user exists only for the lifetime of this test binary.
-const viewerPassword = "lbac-viewer-password"
+const viewerPassword = "LBAC-viewer-password-1"
 
 //nolint:gochecknoglobals
 var (

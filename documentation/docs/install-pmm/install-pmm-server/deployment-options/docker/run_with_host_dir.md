@@ -36,7 +36,7 @@ To deploy PMM Server using a host directory:
     percona/pmm-server:3
     ```
 
-4. Set a secure password for the default `admin` user, replacing `your_secure_password` with a strong, unique password:
+4. Set a secure password for the default `admin` user, replacing `your_secure_password` with a unique password that meets the [password requirements](../../../../admin/manage-users/add_users.md#password-requirements):
 
     ```sh
     docker exec -t pmm-server change-admin-password your_secure_password

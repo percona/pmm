@@ -150,7 +150,7 @@ PMM protects an exporter's output from unauthorized access by adding an authoriz
 
 You can set the password for the default `admin` user on first startup with the `GF_SECURITY_ADMIN_PASSWORD` environment variable, and optionally set a custom admin username with `GF_SECURITY_ADMIN_USER`.
 
-These variables are applied only during initial PMM data initialization. They are ignored on subsequent starts and container restarts.
+These variables are applied only during initial PMM data initialization. They are ignored on subsequent starts and container restarts. Use a password that meets the [password requirements](../admin/manage-users/add_users.md#password-requirements).
 
 ```sh
 docker run -d --name pmm-server \
@@ -179,6 +179,8 @@ echo "Waiting for PMM to initialize to set password..."
 until [ $(docker inspect -f {% raw %}'{{.State.Health.Status}}'{% endraw %} pmm-server) = "healthy" ]; do sleep 1; done
 docker exec -t pmm-server bash -c  "grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password $PMM_PASSWORD"
 ```
+
+The new password must meet the [password requirements](../admin/manage-users/add_users.md#password-requirements). If it doesn't, both commands fail with `the new password doesn't meet the password policy criteria`.
 
 ## How to use a non-default listen-port for pmm-admin?
 
