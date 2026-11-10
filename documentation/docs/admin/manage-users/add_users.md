@@ -25,7 +25,7 @@ Starting with PMM 3.11.0, every new or changed password for a user with basic au
 
 PMM rejects a password that doesn't meet these requirements, whether you set it in the PMM UI, through the API, or with the `change-admin-password` script. Passwords set before the upgrade keep working until you change them.
 
-To turn off the password policy, set the `GF_AUTH_BASIC_PASSWORD_POLICY=false` environment variable on the PMM Server container.
+To turn off the password policy, set the `GF_AUTH_BASIC_PASSWORD_POLICY=false` environment variable on the PMM Server container. Please note that this is not recommended for production environments.
 
 ## Assign user roles
 
