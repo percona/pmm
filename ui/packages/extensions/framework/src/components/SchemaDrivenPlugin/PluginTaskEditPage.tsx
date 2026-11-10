@@ -162,6 +162,12 @@ export function PluginTaskEditPage({
     [storedForm, editableSections]
   );
 
+  // `task_name` is not editable, but the save pins it, so root rules see it.
+  const fixedValues = useMemo(
+    () => (id ? { [TASK_NAME_FIELD]: id } : undefined),
+    [id]
+  );
+
   const [{ submitError, fieldErrors }, setSubmitErrorState] =
     useState<SubmitErrorState>(EMPTY_SUBMIT_ERROR);
 
@@ -268,6 +274,8 @@ export function PluginTaskEditPage({
         loading: updateTask.isPending,
         defaultValues: normalizedDefaults,
         capabilities: schema.capabilities,
+        failRules: schema.fail_when,
+        fixedValues,
         renderField,
         submitError,
         fieldErrors,
@@ -281,6 +289,8 @@ export function PluginTaskEditPage({
           fieldErrors={fieldErrors}
           defaultValues={normalizedDefaults}
           capabilities={schema.capabilities}
+          failRules={schema.fail_when}
+          fixedValues={fixedValues}
           itemName={itemName}
           renderField={renderField}
         />
