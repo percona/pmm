@@ -237,8 +237,9 @@ func TestRunSyncsInventoryEnabledOnStartup(t *testing.T) {
 	<-done
 
 	require.NotEmpty(t, stub.calls, "Run must sync PMM Extensions' ENABLED flag before ever reaching the ticker loop")
-	assert.Equal(t, http.MethodPatch, stub.calls[0].method)
-	assert.JSONEq(t, `{"ENABLED": true}`, stub.calls[0].body)
+	assert.Equal(t, http.MethodPut, stub.calls[0].method)
+	assert.Equal(t, "/api/apps/om_inventory/enabled", stub.calls[0].path)
+	assert.JSONEq(t, `{"enabled": true}`, stub.calls[0].body)
 }
 
 // TestRunRetriesInventoryEnabledUntilItLands covers PMM Extensions not answering yet at startup: nothing else
@@ -249,11 +250,11 @@ func TestRunRetriesInventoryEnabledUntilItLands(t *testing.T) {
 	require.NoError(t, err)
 
 	var mu sync.Mutex
-	var patches []string
+	var writes []string
 	refuse := true
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		if r.Method != http.MethodPatch {
+		if r.Method != http.MethodPut {
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write([]byte(`{}`))
 			return
@@ -261,7 +262,7 @@ func TestRunRetriesInventoryEnabledUntilItLands(t *testing.T) {
 		raw, _ := io.ReadAll(r.Body)
 
 		mu.Lock()
-		patches = append(patches, string(raw))
+		writes = append(writes, string(raw))
 		first := refuse
 		refuse = false
 		mu.Unlock()
@@ -291,7 +292,7 @@ func TestRunRetriesInventoryEnabledUntilItLands(t *testing.T) {
 	seen := func() int {
 		mu.Lock()
 		defer mu.Unlock()
-		return len(patches)
+		return len(writes)
 	}
 	require.Eventually(t, func() bool { return seen() >= 2 }, 10*time.Second, 10*time.Millisecond,
 		"the refused ENABLED write must be retried on a later tick, not abandoned")
@@ -304,7 +305,7 @@ func TestRunRetriesInventoryEnabledUntilItLands(t *testing.T) {
 	assert.Equal(t, settled, seen(), "reconciling must stop at the first success")
 	mu.Lock()
 	defer mu.Unlock()
-	for i, body := range patches {
-		assert.JSONEq(t, `{"ENABLED": true}`, body, "PATCH %d carried the wrong state", i)
+	for i, body := range writes {
+		assert.JSONEq(t, `{"enabled": true}`, body, "PUT %d carried the wrong state", i)
 	}
 }
