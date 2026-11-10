@@ -27,11 +27,11 @@ export function RemoteChoiceField({ field }: RemoteChoiceFieldProps) {
     <RemoteChoiceSelector
       name={field.name}
       label={field.label}
-      description={field.description}
+      description={field.description ?? undefined}
       required={field.required}
       endpointUrl={field.endpoint_url}
-      dependsOn={field.depends_on}
-      allowCustom={field.allow_custom}
+      dependsOn={field.depends_on ?? undefined}
+      allowCustom={field.allow_custom ?? undefined}
     />
   );
 }

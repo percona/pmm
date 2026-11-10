@@ -3,7 +3,9 @@
 !!! warning "Developer Preview"
     Operations for MongoDB is a Developer Preview feature in PMM 3.10.0. Use it for testing and feedback only, not in production.
 
-As a PMM Admin, you can use Operations for MongoDB to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, review the [limitations](#limitations) that apply in this Developer Preview release.
+Operations for MongoDB enables you to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, review the [limitations](#limitations) that apply in this Developer Preview release.
+
+Every signed-in PMM user can open **MongoDB > Operations** and see all of its pages, except the install form. Only PMM Admins can scan nodes, start or abort installs, remove node entries, and change settings. For other users, these controls are disabled or hidden. Any user can click **Refresh** on **Fleet**.
 
 ## Prepare PMM Server
 
@@ -233,6 +235,10 @@ The page shows when its data was last refreshed and when the nodes were last sca
 
 ## Troubleshoot
 
+### Pages don't load
+
+If **Nodes**, **Automations** or **Settings** can't load and the error says **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container. PMM signs you in to PMM Extensions with your PMM session. PMM Extensions accepts that session only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default. If the container sets it to `false`, remove the variable and recreate the container.
+
 ### Scans
 
 If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
@@ -256,4 +262,3 @@ Operations for MongoDB is a Developer Preview feature in PMM 3.10.0: you can try
 - You can install only replica sets with 1 or 3 members, not sharded clusters or standalone instances, though Fleet still shows any sharded clusters that PMM already monitors.
 - No TLS or encryption at rest. Members authenticate to each other with a keyfile. TLS and encryption at rest are planned for a future release.
 - Installs on Ubuntu and Rocky Linux only, using Percona packages.
-- Only PMM Admin users can access **MongoDB > Operations** and start installs.
