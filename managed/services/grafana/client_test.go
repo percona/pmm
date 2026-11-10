@@ -819,6 +819,7 @@ func TestClient(t *testing.T) {
 				actualRole := u.role
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())
+				assert.Equal(t, serviceAccountID, u.userID)
 			})
 		}
 	})
