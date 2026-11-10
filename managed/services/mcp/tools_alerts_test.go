@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"encoding/json"
 	"fmt"
 	"maps"
 	"net/http"
@@ -128,10 +129,8 @@ func TestKeepAlert(t *testing.T) {
 		a.RuleUID, a.PMMRule = uid, true
 		return a
 	}
-	withUID := func(a grafanaAlert, uid string) grafanaAlert {
-		a.RuleUID = uid
-		return a
-	}
+	editorRule := alert("pmm_provisioned", "1", "service_id", "svc-b", "service_name", "shop-b")
+	editorRule.RuleUID, editorRule.PMMRule = "pmm-ha-no-leader", isPMMRule("", "pmm-ha-no-leader")
 	annotated := alert("service_id", "svc-a", "service_name", "shop-a")
 	annotated.Annotations = map[string]string{"summary": "shop-b is down", "description": "svc-b on host-b does not answer"}
 	hiddenInAnnotation := alert("instance", "x")
@@ -166,11 +165,7 @@ func TestKeepAlert(t *testing.T) {
 			alert: alert("pmm_provisioned", "1", "service_id", "svc-b", "service_name", "shop-b"),
 			keep:  false,
 		},
-		{
-			name:  "an Editor's rule with a catalog UID and no provenance on a service outside the list",
-			alert: withUID(alert("pmm_provisioned", "1", "service_id", "svc-b", "service_name", "shop-b"), "pmm-ha-no-leader"),
-			keep:  false,
-		},
+		{name: "an Editor's rule with a catalog UID and no provenance on a service outside the list", alert: editorRule, keep: false},
 		{name: "no service or node label", alert: alert("instance", "x", "job", "custom"), keep: true},
 		{name: "a template rule's node-level alert on a listed node", alert: alert("service_name", "[no value]", "node_name", "host-a"), keep: true},
 		{name: "a template rule's node-level alert on a node outside the list", alert: alert("service_name", "[no value]", "node_name", "host-b"), keep: false},
@@ -280,6 +275,29 @@ func TestAlertsTool(t *testing.T) {
 		assert.NotContains(t, alertKeys(got.Alerts), "Hidden rule@shop-a", "an Alertmanager alert never adds an alert")
 		assert.NotContains(t, text, "Hidden rule")
 		assert.Equal(t, 2, strings.Count(text, "silenced until"), text)
+	})
+
+	t.Run("SilenceMissingFromSilences", func(t *testing.T) {
+		t.Parallel()
+
+		// The conn alert of shop-a, silenced only by a silence that /silences does not return.
+		var am []map[string]any
+		require.NoError(t, json.Unmarshal(readFixture(t, "alerts_am_alerts.json"), &am))
+		conn := am[0]
+		require.Equal(t, "conn", conn["labels"].(map[string]any)[ruleUIDLabel])
+		conn["status"] = map[string]any{"inhibitedBy": []string{}, "silencedBy": []string{"5f1c2b7e-0000-4000-8000-0000000000ff"}, "state": "suppressed"}
+		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+			"GET " + amAlertsPath: {body: mustJSON(t, []map[string]any{conn})},
+		}))
+
+		got, text := callAlerts(t, fake, map[string]any{"service_name": "shop-a"})
+		require.Equal(t, []string{"MySQL down@shop-a", "Too many connections@shop-a"}, alertKeys(got.Alerts))
+		assert.True(t, got.Alerts[1].Silenced)
+		assert.Nil(t, got.Alerts[1].SilencedUntil, "no end is known")
+		assert.False(t, got.Alerts[0].Silenced)
+		assert.Contains(t, text, "| since 2026-09-14T10:00:00Z | silenced | [View in PMM", text)
+		assert.NotContains(t, text, "silenced until", text)
+		assert.Len(t, fake.requestsTo(silencesPath), 1)
 	})
 
 	t.Run("Text", func(t *testing.T) {
@@ -703,7 +721,7 @@ func TestAlertFilters(t *testing.T) {
 	t.Parallel()
 
 	bare := grafanaAlert{Labels: map[string]string{"alertname": "No labels"}}
-	noValue := grafanaAlert{Labels: map[string]string{"alertname": "Server", "service_name": "[no value]", "node_name": "[no value]"}}
+	allNoValue := grafanaAlert{Labels: map[string]string{"alertname": "Server", "service_name": "[no value]", "node_name": "[no value]"}}
 	for _, in := range []alertsInput{
 		{ServiceID: "svc-a"},
 		{ServiceName: "shop-a"},
@@ -713,7 +731,7 @@ func TestAlertFilters(t *testing.T) {
 		{NodeName: "[no value]"},
 	} {
 		assert.False(t, in.matches(bare), "%+v: an alert without the label", in)
-		assert.False(t, in.matches(noValue), "%+v: an alert whose label is [no value]", in)
+		assert.False(t, in.matches(allNoValue), "%+v: an alert whose label is [no value]", in)
 	}
 	assert.True(t, alertsInput{}.matches(bare))
 
