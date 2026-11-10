@@ -464,8 +464,8 @@ type GetFilteredMetricsNamesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// get filtered metrics names default body details items0
-	GetFilteredMetricsNamesDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// get filtered metrics names default body details items0 additional properties
+	GetFilteredMetricsNamesDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -500,7 +500,7 @@ func (o *GetFilteredMetricsNamesDefaultBodyDetailsItems0) UnmarshalJSON(data []b
 			}
 			result[k] = toadd
 		}
-		o.GetFilteredMetricsNamesDefaultBodyDetailsItems0 = result
+		o.GetFilteredMetricsNamesDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -521,12 +521,12 @@ func (o GetFilteredMetricsNamesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, 
 		return nil, err
 	}
 
-	if len(o.GetFilteredMetricsNamesDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.GetFilteredMetricsNamesDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.GetFilteredMetricsNamesDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.GetFilteredMetricsNamesDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

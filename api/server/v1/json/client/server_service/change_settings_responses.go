@@ -222,7 +222,7 @@ type ChangeSettingsBody struct {
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
 
-	// Enable OpenManager.
+	// Enable Operations for MongoDB.
 	EnableOM *bool `json:"enable_om,omitempty"`
 
 	// advisor run intervals
@@ -674,8 +674,8 @@ type ChangeSettingsDefaultBodyDetailsItems0 struct {
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
 
-	// change settings default body details items0
-	ChangeSettingsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// change settings default body details items0 additional properties
+	ChangeSettingsDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -737,7 +737,7 @@ func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 			}
 			result[k] = toadd
 		}
-		o.ChangeSettingsDefaultBodyDetailsItems0 = result
+		o.ChangeSettingsDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -785,12 +785,12 @@ func (o ChangeSettingsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.ChangeSettingsDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ChangeSettingsDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ChangeSettingsDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ChangeSettingsDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -990,7 +990,7 @@ type ChangeSettingsOKBodySettings struct {
 	// Server process was started, and cannot be changed through ChangeSettings.
 	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
 
-	// True if OpenManager is enabled.
+	// True if Operations for MongoDB is enabled.
 	OMEnabled bool `json:"om_enabled,omitempty"`
 
 	// advisor run intervals
