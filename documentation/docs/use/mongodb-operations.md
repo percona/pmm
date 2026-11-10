@@ -249,6 +249,12 @@ The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look
 
 To find out why a service is failing, go to **MongoDB > Operations > Fleet** and select the **Services** tab. The **Collected** column shows the reason in red, for example **Database unreachable** or **Database authentication failed**. Click the service's status to open its details, which show the full error and what to do about it. When PMM knows which scan failed, the details also link to it. A **Down** service marked **not running** had no `mongod` or `mongos` running at its last scan.
 
+### Saved settings not in effect
+
+If a setting on **MongoDB > Operations > Settings** shows **Saved value not in effect**, PMM Extensions is using the value from its deployment configuration instead of your saved value. This happens when a later change to that configuration makes your saved value break a rule that involves several settings. For example, **Consider a scan stuck after** must exceed **Scan job timeout**. The warning names the settings by their configuration keys, such as `STALE_RUN_AFTER`, and the rule that they break.
+
+To fix it, change the saved value so that it meets the rule and click **Save**, or click **Reset** to remove the saved value and use the deployed one.
+
 ### Installs
 
 If an install step fails, PMM retries it once. If the retry also fails, PMM rolls back what it installed on all nodes: packages, configuration, and data. PMM doesn't retry failed pre-checks.
