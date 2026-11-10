@@ -541,13 +541,20 @@ func TestUpdaterVersionServiceUnreachable(t *testing.T) {
 
 		// both callers queue behind an earlier lock holder while the last attempt is stale
 		u.checkMu.Lock()
-		var wg sync.WaitGroup
+		var started, done sync.WaitGroup
 		for range 2 {
-			wg.Go(func() { u.checkResult(callCtx(t)) })
+			started.Add(1)
+			done.Go(func() {
+				started.Done()
+				u.checkResult(callCtx(t))
+			})
 		}
+		started.Wait()
+		// a Mutex can't report its waiters, so the pause stands in; a caller that is still slower can only
+		// make the test pass without exercising the race, never fail it
 		time.Sleep(100 * time.Millisecond)
 		u.checkMu.Unlock()
-		wg.Wait()
+		done.Wait()
 
 		assert.Equal(t, int32(1), hits.Load())
 	})
