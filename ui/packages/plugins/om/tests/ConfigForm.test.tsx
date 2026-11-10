@@ -210,4 +210,20 @@ describe('ConfigForm', () => {
       'true'
     );
   });
+
+  it('shows a reader an invalid stored value without an error they cannot act on', () => {
+    asReadOnlyReader();
+    useOmInventoryConfig.mockReturnValue({
+      data: [setting({ key: 'MAX_CONCURRENT_PROBES', value: 0 })],
+      isPending: false,
+      isError: false,
+    });
+
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.getByLabelText(/Concurrent scans/)).toHaveAttribute(
+      'aria-invalid',
+      'false'
+    );
+  });
 });

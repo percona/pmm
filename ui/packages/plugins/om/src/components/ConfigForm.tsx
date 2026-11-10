@@ -197,7 +197,7 @@ const SettingField = ({
             label={unit ? `${label} (${unit})` : label}
             value={draft}
             slotProps={{ input: { readOnly } }}
-            error={!valid}
+            error={!readOnly && !valid}
             helperText={readOnly ? undefined : hint}
             onChange={(event) => onChange(event.target.value)}
           />
