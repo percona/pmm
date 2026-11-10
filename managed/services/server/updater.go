@@ -326,8 +326,8 @@ func (up *Updater) InstalledPMMVersion() version.PackageInfo {
 	}
 }
 
-// checkResult returns the result of the last update check.
-// It may force re-check if last result is empty or too old.
+// checkResult returns the result of the last successful update check.
+// It checks again first if the last attempt, successful or not, is too old.
 func (up *Updater) checkResult(ctx context.Context) (*version.DockerVersionInfo, time.Time) {
 	up.checkRW.RLock()
 	defer up.checkRW.RUnlock()
@@ -345,13 +345,15 @@ func (up *Updater) checkResult(ctx context.Context) (*version.DockerVersionInfo,
 func (up *Updater) check(ctx context.Context) error {
 	up.checkRW.Lock()
 	defer up.checkRW.Unlock()
-	up.lastCheckAttempt = time.Now()
 	_, latest, err := up.latest(ctx)
+	if errors.Is(err, services.ErrPMMUpdatesDisabled) {
+		up.l.Info("PMM updates are disabled")
+		return grpcstatus.Error(codes.FailedPrecondition, "PMM updates are disabled")
+	}
+
+	// not an attempt while updates are disabled, so re-enabling them takes effect at once
+	up.lastCheckAttempt = time.Now()
 	if err != nil {
-		if errors.Is(err, services.ErrPMMUpdatesDisabled) {
-			up.l.Info("PMM updates are disabled")
-			return grpcstatus.Error(codes.FailedPrecondition, "PMM updates are disabled")
-		}
 		up.l.WithError(err).Warn("Failed to check for updates.")
 		return grpcstatus.Error(codes.Unavailable, "Failed to check for PMM Server updates.")
 	}

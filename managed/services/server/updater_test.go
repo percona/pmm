@@ -467,6 +467,29 @@ func TestUpdaterVersionServiceUnreachable(t *testing.T) {
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
 
+	t.Run("checkResult checks again once updates are re-enabled", func(t *testing.T) {
+		handler := func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/metadata/v2/pmm-server" {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			_, _ = io.WriteString(w, `{"versions":[{"version":"3.99.0","imageInfo":{"imagePath":"percona/pmm-server:3.99.0"}}]}`)
+		}
+		u, mock := newOfflineUpdater(t, handler, 0)
+		mock.ExpectQuery("SELECT settings FROM settings").
+			WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow([]byte(`{"updates":{"enabled":false}}`)))
+		mock.ExpectQuery("SELECT settings FROM settings").
+			WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow([]byte("{}")))
+
+		err := u.check(callCtx(t))
+		tests.AssertGRPCError(t, grpcstatus.New(codes.FailedPrecondition, "PMM updates are disabled"), err)
+		res, _ := u.checkResult(callCtx(t))
+
+		require.NotNil(t, res)
+		assert.Equal(t, "3.99.0", res.Version.String())
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
 	t.Run("checkResult waits for an in-flight check", func(t *testing.T) {
 		var hits atomic.Int32
 		var once sync.Once
