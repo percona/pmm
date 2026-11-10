@@ -201,9 +201,14 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 }
 
 type authUser struct {
-	role   role
-	userID int
+	role      role
+	userID    int
+	anonymous bool
 }
+
+// errNoUserID marks an identity Grafana authenticated without a positive user ID, which Access Roles
+// cannot be looked up by.
+var errNoUserID = errors.New("authenticated identity has no user ID")
 
 // CurrentUser represents Grafana user payload.
 type CurrentUser struct {
@@ -292,15 +297,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	// Check if API Key or Service Token is authorized.
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
-		role, err := c.getRoleForServiceToken(ctx, token)
-		if err != nil {
-			return emptyUser, err
-		}
-
-		return authUser{
-			role:   role,
-			userID: 0,
-		}, nil
+		return c.getServiceTokenUser(ctx, token)
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
@@ -321,8 +318,9 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 		if anonymousEnabled {
 			l.Debugf("Grafana returned 401 for /api/user with no credentials; using anonymous role %q.", anonymousRole.String())
 			return authUser{
-				role:   anonymousRole,
-				userID: 0,
+				role:      anonymousRole,
+				userID:    0,
+				anonymous: true,
 			}, nil
 		}
 		return emptyUser, err
@@ -330,6 +328,10 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 
 	id, _ := m["id"].(float64)
 	userID := int(id)
+	if userID <= 0 {
+		return emptyUser, errNoUserID
+	}
+
 	if a, _ := m["isGrafanaAdmin"].(bool); a {
 		return authUser{
 			role:   grafanaAdmin,
@@ -548,7 +550,8 @@ func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header
 // errServiceTokenRejected marks Grafana's answer to a service token it did not authenticate.
 var errServiceTokenRejected = errors.New("service token rejected")
 
-func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
+// getServiceTokenUser returns the role and user ID of the service account the token belongs to.
+func (c *Client) getServiceTokenUser(ctx context.Context, token string) (authUser, error) {
 	header := http.Header{}
 	header.Add("Authorization", "Bearer "+token)
 
@@ -558,17 +561,30 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role
 		// The route has no sign-in middleware, so a token Grafana rejects gets 400 rather than 401, see PMM-15692.
 		cErr, ok := errors.AsType[*clientError](err)
 		if ok && cErr.Code == http.StatusBadRequest {
-			return none, fmt.Errorf("%w: %w", errServiceTokenRejected, err)
+			return emptyUser, fmt.Errorf("%w: %w", errServiceTokenRejected, err)
 		}
-		return none, err
+		return emptyUser, err
 	}
 
-	if id, _ := k["orgId"].(float64); id != 1 {
-		return none, nil
+	id, _ := k["id"].(float64)
+	userID := int(id)
+	if userID <= 0 {
+		return emptyUser, errNoUserID
+	}
+
+	orgID, _ := k["orgId"].(float64)
+	if orgID != 1 {
+		return authUser{
+			role:   none,
+			userID: userID,
+		}, nil
 	}
 
 	role, _ := k["role"].(string)
-	return c.convertRole(role), nil
+	return authUser{
+		role:   c.convertRole(role),
+		userID: userID,
+	}, nil
 }
 
 type serviceAccountSearch struct {

@@ -333,16 +333,11 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var userID int
-	if authUser != nil {
-		userID = authUser.userID
-	}
-
 	if authUser != nil && authUser.role >= admin {
 		rw.Header().Set(adminHeaderName, adminHeaderValue)
 	}
 
-	errF := s.maybeAddLBACFilters(ctx, rw, req, cleanedPath, userID, l)
+	errF := s.maybeAddLBACFilters(ctx, rw, req, cleanedPath, authUser, l)
 	if errors.Is(errF, errFiltersDropped) {
 		l.Warn("Refusing a filtered user a route that would serve them unfiltered.")
 		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
@@ -392,34 +387,36 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, status int, msg map[str
 // maybeAddLBACFilters adds extra filters to requests proxied through VMProxy.
 // In case the request is not proxied through VMProxy, this is a no-op.
 // Matching happens on cleanedPath, the unescaped path the caller authenticated.
-func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, cleanedPath string, userID int, l *logrus.Entry) error {
+// User is the one authentication resolved, or nil when the path required no role.
+func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, cleanedPath string, user *authUser, l *logrus.Entry) error {
 	if !s.shallAddLBACFilters(cleanedPath) {
 		l.Debugf("Skipping LBAC filters for non-proxied request.")
 		return nil
 	}
 
-	if userID == 0 {
+	if user == nil {
 		l.Debugf("Getting authenticated user info")
-		authUser, err := s.getAuthUser(ctx, req, l)
-		if err != nil {
+		var authErr *authError
+		user, authErr = s.getAuthUser(ctx, req, l)
+		if authErr != nil {
 			return ErrCannotGetUserID
 		}
 
-		if authUser == nil {
+		if user == nil {
 			return fmt.Errorf("%w: user is empty", ErrCannotGetUserID)
 		}
-
-		userID = authUser.userID
 	}
 
-	if userID <= 0 {
-		// Anonymous users don't have a numeric user ID and cannot have LBAC roles.
-		// Skip adding filters and allow the request to proceed.
+	if user.anonymous {
 		l.Debugf("Skipping LBAC filters for anonymous user.")
 		return nil
 	}
 
-	filters, err := s.getLBACFilters(ctx, userID)
+	if user.userID <= 0 {
+		return fmt.Errorf("%w: %d", ErrInvalidUserID, user.userID)
+	}
+
+	filters, err := s.getLBACFilters(ctx, user.userID)
 	if err != nil {
 		return err
 	}
@@ -728,6 +725,9 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
 	if err != nil {
 		l.Warnf("%s", err)
+		if errors.Is(err, errNoUserID) {
+			return nil, &authError{code: codes.Unauthenticated, message: "Unauthorized"}
+		}
 		cErr, ok := errors.AsType[*clientError](err)
 		if ok {
 			code := codes.Internal

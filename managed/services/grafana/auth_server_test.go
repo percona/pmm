@@ -26,6 +26,7 @@ import (
 	"testing"
 	"time"
 
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -478,8 +479,12 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 					rw := httptest.NewRecorder()
 					req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 					require.NoError(t, err)
+					// Without a resolved user, the admin is looked up in Grafana.
+					var user *authUser
 					if userID == 0 {
 						req.SetBasicAuth("admin", "admin")
+					} else {
+						user = &authUser{role: viewer, userID: userID}
 					}
 
 					// The handler matches the cleaned path, so the test feeds
@@ -487,7 +492,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 					cleanedPath, err := cleanPath(uri)
 					require.NoError(t, err)
 
-					err = s.maybeAddLBACFilters(ctx, rw, req, cleanedPath, userID, logrus.WithField("test", t.Name()))
+					err = s.maybeAddLBACFilters(ctx, rw, req, cleanedPath, user, logrus.WithField("test", t.Name()))
 					require.NoError(t, err)
 
 					headerString := rw.Header().Get(lbacHeaderName)
@@ -508,7 +513,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
 		require.NoError(t, err)
 
-		err = s.maybeAddLBACFilters(ctx, rw, req, req.URL.Path, 1338, logrus.WithField("test", t.Name()))
+		err = s.maybeAddLBACFilters(ctx, rw, req, req.URL.Path, &authUser{role: viewer, userID: 1338}, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
 		headerString := rw.Header().Get(lbacHeaderName)
@@ -537,7 +542,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 			require.NoError(t, err)
 
-			err = s.maybeAddLBACFilters(ctx, rw, req, uri, 1339, logrus.WithField("test", t.Name()))
+			err = s.maybeAddLBACFilters(ctx, rw, req, uri, &authUser{role: viewer, userID: 1339}, logrus.WithField("test", t.Name()))
 			require.NoError(t, err)
 
 			headerString := rw.Header().Get(lbacHeaderName)
@@ -556,7 +561,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri, nil)
 			require.NoError(t, err)
 
-			err = s.maybeAddLBACFilters(ctx, rw, req, uri, userID, logrus.WithField("test", t.Name()))
+			err = s.maybeAddLBACFilters(ctx, rw, req, uri, &authUser{role: viewer, userID: userID}, logrus.WithField("test", t.Name()))
 			if wantErr {
 				require.ErrorIsf(t, err, errFiltersDropped, "userID=%d", userID)
 			} else {
@@ -692,6 +697,238 @@ func TestAuthServerAdminHeader(t *testing.T) {
 			s.ServeHTTP(rw, req)
 
 			assert.Equal(t, tc.expected, rw.Header().Get(adminHeaderName))
+		})
+	}
+}
+
+// Access Roles apply to every principal Grafana authenticates by its user ID, service-account
+// tokens included; only the anonymous identity goes unfiltered, and a principal without a positive
+// user ID is refused.
+func TestAuthServerAccessRolesByIdentity(t *testing.T) {
+	t.Parallel()
+
+	const (
+		qanPath = "/v1/qan/metrics:getReport"
+		vmPath  = "/graph/api/datasources/proxy/1/api/v1/query"
+
+		mysql1 = `{service_name="mysql-1"}`
+		mysql2 = `{service_name="mysql-2"}`
+	)
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/api/auth/serviceaccount":
+			switch r.Header.Get("Authorization") {
+			case "Bearer glsa_restricted":
+				_, _ = fmt.Fprint(w, `{"id":7,"orgId":1,"role":"Viewer"}`)
+			case "Bearer glsa_new":
+				_, _ = fmt.Fprint(w, `{"id":8,"orgId":1,"role":"Viewer"}`)
+			case "Bearer glsa_no_id":
+				_, _ = fmt.Fprint(w, `{"orgId":1,"role":"Viewer"}`)
+			default:
+				w.WriteHeader(http.StatusBadRequest)
+				_, _ = fmt.Fprint(w, `{"message":"Auth method is not service account token"}`)
+			}
+		case "/api/user":
+			user, _, _ := r.BasicAuth()
+			switch user {
+			case "viewer":
+				_, _ = fmt.Fprint(w, `{"id":42,"isGrafanaAdmin":false}`)
+			case "no-id":
+				_, _ = fmt.Fprint(w, `{"isGrafanaAdmin":false}`)
+			default:
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			}
+		case "/api/user/orgs":
+			_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
+		case "/api/frontend/settings":
+			_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer"}`)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	t.Cleanup(ts.Close)
+
+	roleColumns := []string{"id", "title", "description", "filter", "created_at", "updated_at"}
+	settings := func(accessControl bool) *sqlmock.Rows {
+		return sqlmock.NewRows([]string{"settings"}).
+			AddRow(fmt.Sprintf(`{"access_control":{"enabled":%t},"default_role_id":1}`, accessControl))
+	}
+	expectSettings := func(accessControl bool) func(sqlmock.Sqlmock) {
+		return func(mock sqlmock.Sqlmock) {
+			mock.ExpectQuery("SELECT settings FROM settings").WillReturnRows(settings(accessControl))
+		}
+	}
+	expectRole := func(userID int, filter string) func(sqlmock.Sqlmock) {
+		return func(mock sqlmock.Sqlmock) {
+			mock.ExpectQuery("SELECT settings FROM settings").WillReturnRows(settings(true))
+			mock.ExpectQuery("FROM user_roles").WithArgs(userID).
+				WillReturnRows(sqlmock.NewRows(roleColumns).AddRow(2, "Restricted", "", filter, time.Now(), time.Now()))
+		}
+	}
+	// A principal seen for the first time has no role yet and gets the default one.
+	expectDefaultRole := func(userID int, filter string) func(sqlmock.Sqlmock) {
+		return func(mock sqlmock.Sqlmock) {
+			mock.ExpectQuery("SELECT settings FROM settings").WillReturnRows(settings(true))
+			mock.ExpectQuery("FROM user_roles").WithArgs(userID).WillReturnRows(sqlmock.NewRows(roleColumns))
+			mock.ExpectBegin()
+			mock.ExpectQuery("SELECT settings FROM settings").WillReturnRows(settings(true))
+			mock.ExpectExec(`DELETE FROM "user_roles" WHERE user_id = \$1`).WithArgs(userID).
+				WillReturnResult(sqlmock.NewResult(0, 0))
+			mock.ExpectQuery(`FROM "roles" WHERE id = \$1`).WithArgs(1).
+				WillReturnRows(sqlmock.NewRows(roleColumns).AddRow(1, "Default", "", filter, time.Now(), time.Now()))
+			mock.ExpectExec(`INSERT INTO "user_roles"`).WillReturnResult(sqlmock.NewResult(0, 1))
+			mock.ExpectCommit()
+			mock.ExpectQuery("FROM user_roles").WithArgs(userID).
+				WillReturnRows(sqlmock.NewRows(roleColumns).AddRow(1, "Default", "", filter, time.Now(), time.Now()))
+		}
+	}
+	noQueries := func(sqlmock.Sqlmock) {}
+
+	for _, tc := range []struct {
+		name        string
+		path        string
+		auth        func(*http.Request)
+		expect      func(sqlmock.Sqlmock)
+		wantStatus  int
+		wantFilters []string
+	}{
+		{
+			name:        "service token on QAN",
+			path:        qanPath,
+			auth:        func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_restricted") },
+			expect:      expectRole(7, mysql1),
+			wantStatus:  http.StatusOK,
+			wantFilters: []string{mysql1},
+		},
+		{
+			name:        "service token on the data source proxy",
+			path:        vmPath,
+			auth:        func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_restricted") },
+			expect:      expectRole(7, mysql1),
+			wantStatus:  http.StatusOK,
+			wantFilters: []string{mysql1},
+		},
+		{
+			name:        "service token sent as basic auth",
+			path:        vmPath,
+			auth:        func(r *http.Request) { r.SetBasicAuth("service_token", "glsa_restricted") },
+			expect:      expectRole(7, mysql1),
+			wantStatus:  http.StatusOK,
+			wantFilters: []string{mysql1},
+		},
+		{
+			name:        "service token seen for the first time gets the default role",
+			path:        vmPath,
+			auth:        func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_new") },
+			expect:      expectDefaultRole(8, mysql2),
+			wantStatus:  http.StatusOK,
+			wantFilters: []string{mysql2},
+		},
+		{
+			name:       "service token with access control off",
+			path:       vmPath,
+			auth:       func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_restricted") },
+			expect:     expectSettings(false),
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:       "service token without a user ID on QAN",
+			path:       qanPath,
+			auth:       func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_no_id") },
+			expect:     noQueries,
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name:       "service token without a user ID on the data source proxy",
+			path:       vmPath,
+			auth:       func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_no_id") },
+			expect:     expectSettings(true),
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name:       "user without a user ID on QAN",
+			path:       qanPath,
+			auth:       func(r *http.Request) { r.SetBasicAuth("no-id", "secret") },
+			expect:     noQueries,
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name:       "user without a user ID on the data source proxy",
+			path:       vmPath,
+			auth:       func(r *http.Request) { r.SetBasicAuth("no-id", "secret") },
+			expect:     expectSettings(true),
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name:        "interactive user on QAN",
+			path:        qanPath,
+			auth:        func(r *http.Request) { r.SetBasicAuth("viewer", "secret") },
+			expect:      expectRole(42, mysql1),
+			wantStatus:  http.StatusOK,
+			wantFilters: []string{mysql1},
+		},
+		{
+			name:        "interactive user on the data source proxy",
+			path:        vmPath,
+			auth:        func(r *http.Request) { r.SetBasicAuth("viewer", "secret") },
+			expect:      expectRole(42, mysql1),
+			wantStatus:  http.StatusOK,
+			wantFilters: []string{mysql1},
+		},
+		{
+			name:       "anonymous on QAN",
+			path:       qanPath,
+			auth:       func(*http.Request) {},
+			expect:     expectSettings(true),
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:       "anonymous on the data source proxy",
+			path:       vmPath,
+			auth:       func(*http.Request) {},
+			expect:     expectSettings(true),
+			wantStatus: http.StatusOK,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			sqlDB, mock, err := sqlmock.New()
+			require.NoError(t, err)
+			t.Cleanup(func() {
+				mock.ExpectClose()
+				assert.NoError(t, sqlDB.Close())
+			})
+			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+			tc.expect(mock)
+
+			s := NewAuthServer(NewClient(strings.TrimPrefix(ts.URL, "http://")), db)
+
+			rw := httptest.NewRecorder()
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
+			req.Header.Set("X-Original-Uri", tc.path)
+			req.Header.Set("X-Original-Method", http.MethodPost)
+			tc.auth(req)
+
+			s.ServeHTTP(rw, req)
+
+			assert.Equal(t, tc.wantStatus, rw.Code)
+			require.NoError(t, mock.ExpectationsWereMet())
+
+			header := rw.Header().Get(lbacHeaderName)
+			if tc.wantFilters == nil {
+				assert.Empty(t, header)
+				return
+			}
+			require.NotEmpty(t, header, "the Access Role filters must be set")
+			b, err := base64.StdEncoding.DecodeString(header)
+			require.NoError(t, err)
+			var filters []string
+			require.NoError(t, json.Unmarshal(b, &filters))
+			assert.Equal(t, tc.wantFilters, filters)
 		})
 	}
 }

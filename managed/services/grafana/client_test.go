@@ -17,6 +17,7 @@ package grafana
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
@@ -241,6 +242,104 @@ func TestGetAuthUserAnonymousFallback(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, viewer, u.role)
 	})
+}
+
+// The user ID getAuthUser returns is what Access Roles are looked up by, so every identity Grafana
+// authenticates must resolve to its own ID, or be refused.
+func TestGetAuthUserID(t *testing.T) {
+	t.Parallel()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/api/auth/serviceaccount":
+			switch r.Header.Get("Authorization") {
+			case "Bearer glsa_viewer":
+				_, _ = fmt.Fprint(w, `{"id":7,"uid":"sa-7","name":"mcp","login":"sa-1-mcp","orgId":1,"role":"Viewer"}`)
+			case "Bearer glsa_no_id":
+				_, _ = fmt.Fprint(w, `{"name":"mcp","orgId":1,"role":"Viewer"}`)
+			case "Bearer glsa_zero_id":
+				_, _ = fmt.Fprint(w, `{"id":0,"name":"mcp","orgId":1,"role":"Admin"}`)
+			default:
+				w.WriteHeader(http.StatusBadRequest)
+				_, _ = fmt.Fprint(w, `{"message":"Auth method is not service account token"}`)
+			}
+		case "/api/user":
+			user, _, _ := r.BasicAuth()
+			switch user {
+			case "viewer":
+				_, _ = fmt.Fprint(w, `{"id":42,"isGrafanaAdmin":false}`)
+			case "no-id":
+				_, _ = fmt.Fprint(w, `{"isGrafanaAdmin":false}`)
+			case "no-id-admin":
+				_, _ = fmt.Fprint(w, `{"isGrafanaAdmin":true}`)
+			default:
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			}
+		case "/api/user/orgs":
+			_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	t.Cleanup(ts.Close)
+
+	c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+	l := logrus.WithField("test", t.Name())
+
+	bearer := func(token string) http.Header {
+		h := http.Header{}
+		h.Set("Authorization", "Bearer "+token)
+		return h
+	}
+	basic := func(user, password string) http.Header {
+		h := http.Header{}
+		h.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(user+":"+password)))
+		return h
+	}
+
+	t.Run("a service token resolves to its account's user ID", func(t *testing.T) {
+		t.Parallel()
+
+		u, err := c.getAuthUser(t.Context(), bearer("glsa_viewer"), l)
+		require.NoError(t, err)
+		assert.Equal(t, viewer, u.role)
+		assert.Equal(t, 7, u.userID)
+	})
+
+	t.Run("a service token sent as basic auth resolves the same way", func(t *testing.T) {
+		t.Parallel()
+
+		u, err := c.getAuthUser(t.Context(), basic("service_token", "glsa_viewer"), l)
+		require.NoError(t, err)
+		assert.Equal(t, viewer, u.role)
+		assert.Equal(t, 7, u.userID)
+	})
+
+	t.Run("an interactive user keeps its user ID", func(t *testing.T) {
+		t.Parallel()
+
+		u, err := c.getAuthUser(t.Context(), basic("viewer", "secret"), l)
+		require.NoError(t, err)
+		assert.Equal(t, viewer, u.role)
+		assert.Equal(t, 42, u.userID)
+	})
+
+	for name, headers := range map[string]http.Header{
+		"a service token without a user ID": bearer("glsa_no_id"),
+		"a service token with user ID 0":    bearer("glsa_zero_id"),
+		"a user without a user ID":          basic("no-id", "secret"),
+		"a Grafana admin without a user ID": basic("no-id-admin", "secret"),
+	} {
+		t.Run(name+" is refused", func(t *testing.T) {
+			t.Parallel()
+
+			u, err := c.getAuthUser(t.Context(), headers, l)
+			require.Error(t, err)
+			assert.Equal(t, none, u.role)
+		})
+	}
 }
 
 func TestCurrentUserAnonymousFallback(t *testing.T) {
