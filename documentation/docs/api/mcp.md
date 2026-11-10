@@ -257,7 +257,7 @@ Input that doesn't match a tool's input schema, such as a missing required argum
 
 `pmm_alerts` lists the alerts that are firing now. It answers what is wrong at this moment, with the severity, labels, summary and description of each alert, when it started, and a link to its rule in PMM. It doesn't silence or acknowledge anything.
 
-The list comes from Grafana's rules API, called with your credentials. Grafana's folder permissions apply, so a Viewer gets what PMM's alert page shows to a Viewer. The result carries a `note` that repeats what the list covers.
+The list comes from Grafana's rules API, called with your credentials. Grafana's folder permissions apply, so a Viewer gets what PMM's alert page shows to a Viewer. Every result starts with the note "Currently firing alerts only; resolved alerts are not shown.", also returned as `note`.
 
 ### Filters and paging
 
@@ -276,13 +276,13 @@ An alert that lacks a label never matches a filter on that label. The most sever
 
 ### What the list holds
 
-MCP narrows the list to the services and nodes in your service list over the last 7 days, to match its other results. This isn't a restriction on what you can read in PMM: the alert page in PMM shows the alerts that Grafana's permissions allow. An alert is kept in these cases:
+MCP narrows the list to the services and nodes in your service list over the last 7 days, to match its other results. The narrowing keeps `pmm_alerts` consistent with the other tools. It doesn't change what you can read in PMM, where the alert page shows the alerts that Grafana's permissions allow. An alert is kept in these cases:
 
 - It comes from one of PMM's own rules: the PMM Server component rules, and the HA rules on an HA deployment. It is shown whatever service or node it names.
 - It has no `service_id`, `service_name`, `node_id` or `node_name` label.
 - Its service labels name a service in your service list. If it has no service labels, its node labels name a node in your service list.
 
-A `node_name` filter for a node outside your service list answers `not_found`, and so does a `service_id` or `service_name` filter for a service outside it. This includes `pmm-server`: PMM's own alerts and the down alerts of RDS and Azure services name `node_name="pmm-server"`, but `pmm-server` isn't in your service list unless it sent `up` samples that you can read.
+A `node_name` filter for a node outside your service list answers `not_found`, and so does a `service_id` or `service_name` filter for a service outside it. This includes `pmm-server`. PMM's own alerts and the down alerts of RDS and Azure services name `node_name="pmm-server"`. Even so, the filter answers `not_found` unless `pmm-server` is in your service list, which needs `up` samples that you can read.
 
 ### Firing alerts only
 
