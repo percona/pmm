@@ -35,7 +35,7 @@ func TestStepBootstrapTick(t *testing.T) {
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithBootstrapSource(stub.server.URL, "test-token")
 
-		svc.stepBootstrapTick(t.Context())
+		svc.stepBootstrapTick(asService(t.Context()))
 
 		assert.Empty(t, stub.calls)
 	})
@@ -48,7 +48,7 @@ func TestStepBootstrapTick(t *testing.T) {
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithBootstrapSource(stub.server.URL, "test-token")
 
-		svc.stepBootstrapTick(t.Context())
+		svc.stepBootstrapTick(asService(t.Context()))
 
 		assert.NotEmpty(t, stub.calls)
 	})
@@ -73,17 +73,17 @@ func TestAdminUserCredentials(t *testing.T) {
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithBootstrapSource(stub.server.URL, "test-token")
 
-		params, err := svc.paramsForStep(t.Context(), "run-abc", createAdminUserStep)
+		params, err := svc.paramsForStep(asService(t.Context()), "run-abc", createAdminUserStep)
 		require.NoError(t, err)
 		assert.Equal(t, map[string]string{"username": "dba", "password": "chosen-secret"}, params)
 
-		svc.stepBootstrapRun(t.Context(), "run-abc")
+		svc.stepBootstrapRun(asService(t.Context()), "run-abc")
 
 		secret, err := models.FindOmBootstrapSecretByRunID(db.Querier, "run-abc")
 		require.NoError(t, err)
 		assert.Empty(t, secret.AdminPassword)
 		assert.Equal(t, "monitoring-secret", secret.MongoDBPassword, "the exporter still needs its own password")
-		_, err = svc.paramsForStep(t.Context(), "run-abc", createAdminUserStep)
+		_, err = svc.paramsForStep(asService(t.Context()), "run-abc", createAdminUserStep)
 		require.ErrorIs(t, err, errAdminPasswordGone)
 	})
 
@@ -94,7 +94,7 @@ func TestAdminUserCredentials(t *testing.T) {
 		svc := (&Service{db: storeTestDB(t), l: logrus.WithField("test", t.Name())}).
 			WithBootstrapSource(stub.server.URL, "test-token")
 
-		svc.dispatchRunStep(t.Context(), &extensionsBootstrapRun{ID: "run-abc"}, createAdminUserStep)
+		svc.dispatchRunStep(asService(t.Context()), &extensionsBootstrapRun{ID: "run-abc"}, createAdminUserStep)
 
 		require.Len(t, stub.calls, 1)
 		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[0].path)
@@ -136,7 +136,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 				{Host: "node01"},
 			},
 		}
-		svc.completeSucceededRun(t.Context(), run)
+		svc.completeSucceededRun(asService(t.Context()), run)
 
 		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: node00})
 		require.NoError(t, err)
@@ -172,7 +172,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			WithProbeSource(stub.server.URL, "test-token")
 
 		finished := time.Now()
-		svc.completeSucceededRun(t.Context(), &extensionsBootstrapRun{
+		svc.completeSucceededRun(asService(t.Context()), &extensionsBootstrapRun{
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
@@ -215,8 +215,8 @@ func TestCompleteSucceededRun(t *testing.T) {
 			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		}
-		svc.completeSucceededRun(t.Context(), run)
-		svc.completeSucceededRun(t.Context(), run)
+		svc.completeSucceededRun(asService(t.Context()), run)
+		svc.completeSucceededRun(asService(t.Context()), run)
 
 		syncs := 0
 		for _, c := range stub.calls {
@@ -251,8 +251,8 @@ func TestCompleteSucceededRun(t *testing.T) {
 			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		}
-		svc.completeSucceededRun(t.Context(), run)
-		svc.completeSucceededRun(t.Context(), run)
+		svc.completeSucceededRun(asService(t.Context()), run)
+		svc.completeSucceededRun(asService(t.Context()), run)
 
 		refreshes := 0
 		for _, c := range stub.calls {
@@ -286,7 +286,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token")
 
-		svc.completeSucceededRun(t.Context(), &extensionsBootstrapRun{
+		svc.completeSucceededRun(asService(t.Context()), &extensionsBootstrapRun{
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
@@ -330,8 +330,8 @@ func TestCompleteSucceededRun(t *testing.T) {
 			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		}
-		svc.completeSucceededRun(t.Context(), run)
-		svc.completeSucceededRun(t.Context(), run)
+		svc.completeSucceededRun(asService(t.Context()), run)
+		svc.completeSucceededRun(asService(t.Context()), run)
 
 		syncs := 0
 		for _, c := range stub.calls {
@@ -364,7 +364,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			Port:           27017,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		}
-		svc.completeSucceededRun(t.Context(), run)
+		svc.completeSucceededRun(asService(t.Context()), run)
 
 		require.Len(t, stub.calls, 1, "no scoped refresh should be triggered")
 		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[0].path)
@@ -386,7 +386,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			WithProbeSource(stub.server.URL, "test-token")
 
 		finished := time.Now()
-		svc.completeSucceededRun(t.Context(), &extensionsBootstrapRun{
+		svc.completeSucceededRun(asService(t.Context()), &extensionsBootstrapRun{
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
@@ -428,7 +428,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token")
 
-		svc.completeSucceededRun(t.Context(), &extensionsBootstrapRun{
+		svc.completeSucceededRun(asService(t.Context()), &extensionsBootstrapRun{
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
@@ -461,7 +461,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			WithProbeSource(stub.server.URL, "test-token")
 
 		finished := time.Now()
-		svc.completeSucceededRun(t.Context(), &extensionsBootstrapRun{
+		svc.completeSucceededRun(asService(t.Context()), &extensionsBootstrapRun{
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
@@ -503,7 +503,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 			WithProbeSource(stub.server.URL, "test-token")
 
 		finished := time.Now().Add(-bootstrapInventoryRefreshWindow - time.Minute)
-		svc.completeSucceededRun(t.Context(), &extensionsBootstrapRun{
+		svc.completeSucceededRun(asService(t.Context()), &extensionsBootstrapRun{
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
@@ -543,7 +543,7 @@ func TestAdvanceRunningRunRollbackReason(t *testing.T) {
 				},
 			},
 		}
-		svc.advanceRunningRun(t.Context(), run)
+		svc.advanceRunningRun(asService(t.Context()), run)
 
 		require.Len(t, stub.calls, 1)
 		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:finish", stub.calls[0].path)

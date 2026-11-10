@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -97,14 +98,23 @@ const configBody = `[
 ]`
 
 type stubCall struct {
-	method string
-	path   string
-	query  string
-	body   string
+	method        string
+	path          string
+	query         string
+	body          string
+	authorization string
+	cookie        string
 }
+
+// stubExchangePath is PMM Extensions' session exchange, which the stub answers apart from the app's routes.
+const stubExchangePath = "/api/oauth/session/exchange"
 
 type extensionsStub struct {
 	server *httptest.Server
+	mu     sync.Mutex
+
+	// exchanges records session exchanges, which neither consume bodies nor appear in calls.
+	exchanges []stubCall
 
 	method string
 	path   string
@@ -136,13 +146,36 @@ func newSEPStubSeq(t *testing.T, code int, bodies ...string) *extensionsStub {
 func newSEPStubSeqCodes(t *testing.T, codes []int, bodies []string) *extensionsStub {
 	t.Helper()
 
+	return newExtensionsStub(t, http.StatusOK, codes, bodies)
+}
+
+func newExtensionsStub(t *testing.T, exchangeCode int, codes []int, bodies []string) *extensionsStub {
+	t.Helper()
+
 	stub := &extensionsStub{bodies: bodies}
 	stub.server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		call := stubCall{method: r.Method, path: r.URL.Path, query: r.URL.RawQuery}
+		call := stubCall{
+			method:        r.Method,
+			path:          r.URL.Path,
+			query:         r.URL.RawQuery,
+			authorization: r.Header.Get("Authorization"),
+			cookie:        r.Header.Get("Cookie"),
+		}
 		raw, err := io.ReadAll(r.Body)
 		if err == nil {
 			call.body = string(raw)
 		}
+
+		stub.mu.Lock()
+		defer stub.mu.Unlock()
+		w.Header().Set("Content-Type", "application/json")
+		if call.path == stubExchangePath {
+			stub.exchanges = append(stub.exchanges, call)
+			w.WriteHeader(exchangeCode)
+			_, _ = w.Write([]byte(`{"access_token": "minted", "expires_in": 300}`))
+			return
+		}
+
 		stub.method, stub.path, stub.query, stub.body = call.method, call.path, call.query, call.body
 		index := min(len(stub.calls), len(bodies)-1)
 		body := ""
@@ -155,7 +188,6 @@ func newSEPStubSeqCodes(t *testing.T, codes []int, bodies []string) *extensionsS
 		}
 		stub.calls = append(stub.calls, call)
 
-		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(code)
 		_, _ = w.Write([]byte(body))
 	}))
@@ -184,7 +216,7 @@ func TestInventoryNotConfigured(t *testing.T) {
 	// FailedPrecondition, not NotFound: NotFound would read as a missing endpoint and suggest a version problem.
 	svc := &Service{l: logrus.WithField("test", t.Name())}
 
-	_, err := svc.ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+	_, err := svc.ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 
 	require.Error(t, err)
 	assert.Equal(t, codes.FailedPrecondition, status.Code(err))
@@ -198,7 +230,7 @@ func TestListInventoryHosts(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 
 		require.NoError(t, err)
 		require.Len(t, response.GetHosts(), 2)
@@ -210,7 +242,7 @@ func TestListInventoryHosts(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 		require.NoError(t, err)
 
 		host := response.GetHosts()[0]
@@ -225,7 +257,7 @@ func TestListInventoryHosts(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 		require.NoError(t, err)
 
 		observed := response.GetHosts()[0].GetObserved().GetFields()
@@ -239,7 +271,7 @@ func TestListInventoryHosts(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 		require.NoError(t, err)
 
 		strangers := response.GetHosts()[0].GetUnregisteredMongods()
@@ -253,7 +285,7 @@ func TestListInventoryHosts(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 		require.NoError(t, err)
 
 		executor := response.GetHosts()[0].GetExecutor()
@@ -269,7 +301,7 @@ func TestListInventoryHosts(t *testing.T) {
 		// stub.service(t) wires no agent registry, so even a host with a healthy executor is ineligible.
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 		require.NoError(t, err)
 
 		healthyExecutor := response.GetHosts()[0]
@@ -295,7 +327,7 @@ func TestListInventoryHosts(t *testing.T) {
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
 		eligible := true
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{
 			AutomationEligible: &eligible,
 		})
 		require.NoError(t, err)
@@ -309,7 +341,7 @@ func TestListInventoryHosts(t *testing.T) {
 		// A nil block means the sweep did not report; three false flags would claim it looked and saw no.
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 		require.NoError(t, err)
 
 		empty := response.GetHosts()[1]
@@ -323,7 +355,7 @@ func TestListInventoryHosts(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 		require.NoError(t, err)
 
 		assert.Nil(t, response.GetHosts()[0].GetFreshness().LastErrorCode,
@@ -335,7 +367,7 @@ func TestListInventoryHosts(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK, hostsBody)
 
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 		require.NoError(t, err)
 
 		freshness := response.GetHosts()[1].GetFreshness()
@@ -356,7 +388,7 @@ func TestListInventoryHosts(t *testing.T) {
 
 		hasService, failing, executor := false, true, false
 
-		_, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{
+		_, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{
 			HasService: &hasService,
 			Failing:    &failing,
 			Executor:   &executor,
@@ -375,7 +407,7 @@ func TestListInventoryHosts(t *testing.T) {
 		// has_service=false means "only hosts with no database"; sending it unasked would hide every other host.
 		stub := newSEPStub(t, http.StatusOK, `{"items": [], "total": 0, "offset": 0, "limit": 200}`)
 
-		_, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		_, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 
 		require.NoError(t, err)
 		assert.NotContains(t, stub.query, "has_service")
@@ -396,7 +428,7 @@ func TestListInventoryHosts(t *testing.T) {
 		], "total": 3, "offset": 2, "limit": 200}`
 		stub := newSEPStubSeq(t, http.StatusOK, firstPage, secondPage)
 
-		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 
 		require.NoError(t, err)
 		require.Len(t, response.GetHosts(), 3, "both pages' items should be concatenated")
@@ -423,7 +455,7 @@ func TestListInventoryServices(t *testing.T) {
 		], "total": 2, "offset": 0, "limit": 200}`)
 		nodeID, failing := "n1", true
 
-		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{
+		response, err := stub.service(t).ListInventoryServices(callerContext(t), &omv1.ListInventoryServicesRequest{
 			NodeId:  &nodeID,
 			Failing: &failing,
 		})
@@ -443,7 +475,7 @@ func TestListInventoryServices(t *testing.T) {
 			`{"items": [{"service_id": "s1", "node_id": "n1", "name": "mongo-1"}], "total": 2, "offset": 0, "limit": 200}`,
 			`{"items": [{"service_id": "s2", "node_id": "n2", "name": "mongo-2"}], "total": 2, "offset": 1, "limit": 200}`)
 
-		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{})
+		response, err := stub.service(t).ListInventoryServices(callerContext(t), &omv1.ListInventoryServicesRequest{})
 
 		require.NoError(t, err)
 		require.Len(t, stub.calls, 2)
@@ -464,7 +496,7 @@ func TestListInventoryServices(t *testing.T) {
 		  {"service_id": "s2", "node_id": "n1", "name": "mongo-2"}
 		], "total": 2, "offset": 0, "limit": 200}`)
 
-		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{})
+		response, err := stub.service(t).ListInventoryServices(callerContext(t), &omv1.ListInventoryServicesRequest{})
 		require.NoError(t, err)
 		require.Len(t, response.GetServices(), 2)
 
@@ -719,7 +751,7 @@ func TestInventoryServiceProjection(t *testing.T) {
 
 	stub := newSEPStub(t, http.StatusOK, hostsBody)
 
-	response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+	response, err := stub.service(t).ListInventoryHosts(callerContext(t), &omv1.ListInventoryHostsRequest{})
 	require.NoError(t, err)
 
 	services := response.GetHosts()[0].GetServices()
@@ -746,7 +778,7 @@ func TestTriggerInventoryRefresh(t *testing.T) {
 		stub := newSEPStub(t, http.StatusAccepted,
 			`{"run_id": "r1", "status": "running", "started_at": "2026-08-18T09:00:00Z", "scope": ["n1"]}`)
 
-		response, err := stub.service(t).TriggerInventoryRefresh(t.Context(),
+		response, err := stub.service(t).TriggerInventoryRefresh(callerContext(t),
 			&omv1.TriggerInventoryRefreshRequest{NodeIds: []string{"n1"}})
 
 		require.NoError(t, err)
@@ -762,7 +794,7 @@ func TestTriggerInventoryRefresh(t *testing.T) {
 		stub := newSEPStub(t, http.StatusAccepted,
 			`{"run_id": "r2", "status": "running", "started_at": "2026-08-18T09:00:00Z", "scope": null}`)
 
-		response, err := stub.service(t).TriggerInventoryRefresh(t.Context(),
+		response, err := stub.service(t).TriggerInventoryRefresh(callerContext(t),
 			&omv1.TriggerInventoryRefreshRequest{})
 
 		require.NoError(t, err)
@@ -777,7 +809,7 @@ func TestTriggerInventoryRefresh(t *testing.T) {
 		stub := newSEPStub(t, http.StatusConflict,
 			`{"detail": "Probe run abc is already refreshing n1"}`)
 
-		_, err := stub.service(t).TriggerInventoryRefresh(t.Context(),
+		_, err := stub.service(t).TriggerInventoryRefresh(callerContext(t),
 			&omv1.TriggerInventoryRefreshRequest{NodeIds: []string{"n1"}})
 
 		require.Error(t, err)
@@ -799,7 +831,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		response, err := svc.TriggerHostBootstrap(t.Context(),
+		response, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -829,7 +861,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "executor_host": "n1", "observed": {}}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -850,7 +882,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "windows"}}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -872,7 +904,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "observed": {"os_id": "ubuntu"}}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -896,7 +928,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			  "executor": {"reachable": false, "driver_healthy": true}}}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -919,7 +951,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			  "executor": {"reachable": true, "driver_healthy": false}}}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -943,7 +975,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		response, err := svc.TriggerHostBootstrap(t.Context(),
+		response, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -966,7 +998,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		response, err := svc.TriggerHostBootstrap(t.Context(),
+		response, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1", "n2", "n3"},
 				ReplicaSetName: "rs-orders-prod",
@@ -994,7 +1026,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			WithProbeSource("http://unused.invalid", "").
 			WithBootstrapSource("http://unused.invalid", "")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1", "n2"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1016,7 +1048,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1", "n2", "n3"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1035,7 +1067,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			WithProbeSource("http://unused.invalid", "").
 			WithBootstrapSource("http://unused.invalid", "")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1055,7 +1087,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			WithProbeSource("http://unused.invalid", "").
 			WithBootstrapSource("http://unused.invalid", "")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1082,7 +1114,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1", "n2", "n3"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1114,7 +1146,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1", "n2", "n3"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1138,7 +1170,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			  "observed": {"os_id": "ubuntu"}, "services": [{"service_id": "s1"}]}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1164,7 +1196,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			  "observed": {"os_id": "ubuntu", "unregistered_mongods": [{"port": 27017}]}}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1192,7 +1224,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1", "n2", "n3"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1217,7 +1249,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			  "observed": {"os_id": "ubuntu"}, "services": [{"service_id": "s1"}]}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1236,7 +1268,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			WithProbeSource("http://unused.invalid", "").
 			WithBootstrapSource("http://unused.invalid", "")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1259,7 +1291,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			WithProbeSource("http://unused.invalid", "").
 			WithBootstrapSource("http://unused.invalid", "")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1335,7 +1367,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1", "n2", "n3"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1376,7 +1408,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1419,7 +1451,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1453,7 +1485,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1480,7 +1512,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1509,7 +1541,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		stub := newSEPStub(t, http.StatusOK, `{}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1", "n2", "n3"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1533,7 +1565,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		stub := newSEPStub(t, http.StatusOK, `{}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1", "n2", "n3"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1558,7 +1590,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.bootstrapService(t)
 
-		response, err := svc.TriggerHostBootstrap(t.Context(),
+		response, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1586,7 +1618,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.bootstrapService(t)
 
-		response, err := svc.TriggerHostBootstrap(t.Context(),
+		response, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1620,7 +1652,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			{"a password without a user", "", "chosen-secret", "admin_password needs admin_username"},
 			{"a password SASLprep rejects", "dba", "chosen\asecret", "does not accept in a password"},
 		} {
-			_, err := svc.TriggerHostBootstrap(t.Context(),
+			_, err := svc.TriggerHostBootstrap(callerContext(t),
 				&omv1.TriggerHostBootstrapRequest{
 					NodeIds:        []string{"n1"},
 					ReplicaSetName: "rs-orders-prod",
@@ -1645,7 +1677,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1671,7 +1703,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		// A row already under the run's id makes the insert fail.
 		require.NoError(t, models.CreateOmBootstrapSecret(svc.db.Querier, &models.OmBootstrapSecret{RunID: "run-abc"}))
 
-		_, err := svc.TriggerHostBootstrap(t.Context(),
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1698,7 +1730,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			WithBootstrapSource(stub.server.URL, "test-token")
 		environment, cluster := "staging", "orders"
 
-		triggered, err := svc.TriggerHostBootstrap(t.Context(),
+		triggered, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1713,7 +1745,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Equal(t, "staging", config.Environment)
 		assert.Equal(t, "orders", config.Cluster)
 
-		response, err := svc.GetBootstrapRun(t.Context(),
+		response, err := svc.GetBootstrapRun(callerContext(t),
 			&omv1.GetBootstrapRunRequest{RunId: triggered.GetRunId()})
 		require.NoError(t, err)
 		assert.Equal(t, "staging", response.GetEnvironment())
@@ -1733,7 +1765,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			WithProbeSource(stub.server.URL, "test-token").
 			WithBootstrapSource(stub.server.URL, "test-token")
 
-		triggered, err := svc.TriggerHostBootstrap(t.Context(),
+		triggered, err := svc.TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
@@ -1744,7 +1776,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		_, err = models.FindOmBootstrapRunConfigByRunID(db.Querier, triggered.GetRunId())
 		require.ErrorIs(t, err, models.ErrNotFound)
 
-		response, err := svc.GetBootstrapRun(t.Context(),
+		response, err := svc.GetBootstrapRun(callerContext(t),
 			&omv1.GetBootstrapRunRequest{RunId: triggered.GetRunId()})
 		require.NoError(t, err)
 		assert.Nil(t, response.Environment)
@@ -1773,7 +1805,7 @@ func validateTrigger(t *testing.T, edit func(*omv1.TriggerHostBootstrapRequest))
 	}
 	info := &grpc.UnaryServerInfo{FullMethod: omv1.OmService_TriggerHostBootstrap_FullMethodName}
 
-	_, err := grpc_validator.UnaryServerInterceptor()(t.Context(), req, info, handler)
+	_, err := grpc_validator.UnaryServerInterceptor()(callerContext(t), req, info, handler)
 
 	assert.Equal(t, err == nil, reached, "the handler runs exactly when validation passes")
 	return err
@@ -1868,7 +1900,7 @@ func TestGetBootstrapRun(t *testing.T) {
 		}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		response, err := svc.GetBootstrapRun(t.Context(),
+		response, err := svc.GetBootstrapRun(callerContext(t),
 			&omv1.GetBootstrapRunRequest{RunId: "run-abc"})
 
 		require.NoError(t, err)
@@ -1924,7 +1956,7 @@ func TestGetBootstrapRun(t *testing.T) {
 			], "total": 4, "offset": 0, "limit": 200}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		response, err := svc.GetBootstrapRun(t.Context(),
+		response, err := svc.GetBootstrapRun(callerContext(t),
 			&omv1.GetBootstrapRunRequest{RunId: "run-abc"})
 
 		require.NoError(t, err)
@@ -1948,7 +1980,7 @@ func TestGetBootstrapRun(t *testing.T) {
 		stub := newSEPStub(t, http.StatusNotFound, `{"detail": "Bootstrap run run-missing not found"}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.GetBootstrapRun(t.Context(), &omv1.GetBootstrapRunRequest{RunId: "run-missing"})
+		_, err := svc.GetBootstrapRun(callerContext(t), &omv1.GetBootstrapRunRequest{RunId: "run-missing"})
 
 		require.Error(t, err)
 		assert.Equal(t, codes.NotFound, status.Code(err))
@@ -1975,7 +2007,7 @@ func TestCancelBootstrapRun(t *testing.T) {
 		}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		response, err := svc.CancelBootstrapRun(t.Context(),
+		response, err := svc.CancelBootstrapRun(callerContext(t),
 			&omv1.CancelBootstrapRunRequest{RunId: "run-abc"})
 
 		require.NoError(t, err)
@@ -1990,7 +2022,7 @@ func TestCancelBootstrapRun(t *testing.T) {
 		stub := newSEPStub(t, http.StatusNotFound, `{"detail": "Bootstrap run run-missing not found"}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.CancelBootstrapRun(t.Context(), &omv1.CancelBootstrapRunRequest{RunId: "run-missing"})
+		_, err := svc.CancelBootstrapRun(callerContext(t), &omv1.CancelBootstrapRunRequest{RunId: "run-missing"})
 
 		require.Error(t, err)
 		assert.Equal(t, codes.NotFound, status.Code(err))
@@ -2002,7 +2034,7 @@ func TestCancelBootstrapRun(t *testing.T) {
 		stub := newSEPStub(t, http.StatusConflict, `{"detail": "Run run-abc is already rolled_back"}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.CancelBootstrapRun(t.Context(), &omv1.CancelBootstrapRunRequest{RunId: "run-abc"})
+		_, err := svc.CancelBootstrapRun(callerContext(t), &omv1.CancelBootstrapRunRequest{RunId: "run-abc"})
 
 		require.Error(t, err)
 		assert.Equal(t, codes.Aborted, status.Code(err))
@@ -2045,7 +2077,7 @@ func TestListBootstrapRuns(t *testing.T) {
 			`{"items": [{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1", "name": "n1-mongod", "port": 27017}]}], "total": 1, "offset": 0, "limit": 200}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		response, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{})
+		response, err := svc.ListBootstrapRuns(callerContext(t), &omv1.ListBootstrapRunsRequest{})
 
 		require.NoError(t, err)
 		require.Len(t, stub.calls, 2)
@@ -2072,7 +2104,7 @@ func TestListBootstrapRuns(t *testing.T) {
 		stub := newSEPStub(t, http.StatusOK, `[]`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
-		_, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{Limit: 500})
+		_, err := svc.ListBootstrapRuns(callerContext(t), &omv1.ListBootstrapRunsRequest{Limit: 500})
 
 		require.NoError(t, err)
 		assert.Equal(t, "limit=100", stub.query)
@@ -2091,7 +2123,7 @@ func TestNodeIDForExecutorHost(t *testing.T) {
 		], "total": 2, "offset": 0, "limit": 200}`)
 		svc := stub.service(t)
 
-		nodeID, err := svc.nodeIDForExecutorHost(t.Context(), "pmm-client-node00")
+		nodeID, err := svc.nodeIDForExecutorHost(asService(t.Context()), "pmm-client-node00")
 
 		require.NoError(t, err)
 		assert.Equal(t, "c58168e8-...", nodeID)
@@ -2104,7 +2136,7 @@ func TestNodeIDForExecutorHost(t *testing.T) {
 		stub := newSEPStub(t, http.StatusOK, `{"items": [{"node_id": "n1", "executor_host": "pmm-client-node00"}], "total": 1, "offset": 0, "limit": 200}`)
 		svc := stub.service(t)
 
-		_, err := svc.nodeIDForExecutorHost(t.Context(), "no-such-executor")
+		_, err := svc.nodeIDForExecutorHost(asService(t.Context()), "no-such-executor")
 
 		require.Error(t, err)
 		assert.Equal(t, codes.NotFound, status.Code(err))
@@ -2153,7 +2185,7 @@ func TestInventoryErrorMapping(t *testing.T) {
 
 			stub := newSEPStub(t, tc.code, tc.body)
 
-			_, err := stub.service(t).GetInventoryHost(t.Context(),
+			_, err := stub.service(t).GetInventoryHost(asService(t.Context()),
 				&omv1.GetInventoryHostRequest{NodeId: "n9"})
 
 			require.Error(t, err)
@@ -2170,7 +2202,7 @@ func TestInventoryDeleteSendsDelete(t *testing.T) {
 
 	stub := newSEPStub(t, http.StatusNoContent, ``)
 
-	_, err := stub.service(t).DeleteInventoryHost(t.Context(),
+	_, err := stub.service(t).DeleteInventoryHost(callerContext(t),
 		&omv1.DeleteInventoryHostRequest{NodeId: "n1"})
 
 	require.NoError(t, err)
@@ -2186,7 +2218,7 @@ func TestInventoryConfig(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK, configBody)
 
-		response, err := stub.service(t).GetInventoryConfig(t.Context(), &omv1.GetInventoryConfigRequest{})
+		response, err := stub.service(t).GetInventoryConfig(callerContext(t), &omv1.GetInventoryConfigRequest{})
 
 		require.NoError(t, err)
 		require.Len(t, response.GetSettings(), 2)
@@ -2208,12 +2240,13 @@ func TestInventoryConfig(t *testing.T) {
 		values, err := structpb.NewStruct(map[string]any{"SCHEDULE__every": 25})
 		require.NoError(t, err)
 
-		_, err = stub.service(t).UpdateInventoryConfig(t.Context(),
+		_, err = stub.service(t).UpdateInventoryConfig(callerContext(t),
 			&omv1.UpdateInventoryConfigRequest{Values: values})
 
 		require.NoError(t, err)
 		require.Len(t, stub.calls, 2, "the write, then the read-back")
-		assert.Equal(t, http.MethodPatch, stub.calls[0].method, "the app's own verb, not PMM's PUT")
+		assert.Equal(t, http.MethodPatch, stub.calls[0].method, "the settings router's own verb, not PMM's PUT")
+		assert.Equal(t, "/api/extensions/admin/settings/OmInventorySettings", stub.calls[0].path)
 		assert.JSONEq(t, `{"SCHEDULE__every": 25}`, stub.calls[0].body)
 	})
 
@@ -2229,7 +2262,7 @@ func TestInventoryConfig(t *testing.T) {
 		values, err := structpb.NewStruct(map[string]any{"SCHEDULE__every": 25})
 		require.NoError(t, err)
 
-		response, err := stub.service(t).UpdateInventoryConfig(t.Context(),
+		response, err := stub.service(t).UpdateInventoryConfig(callerContext(t),
 			&omv1.UpdateInventoryConfigRequest{Values: values})
 
 		require.NoError(t, err)
@@ -2252,7 +2285,7 @@ func TestInventoryConfig(t *testing.T) {
 		values, err := structpb.NewStruct(map[string]any{"SCHEDULE__every": 25})
 		require.NoError(t, err)
 
-		response, err := stub.service(t).UpdateInventoryConfig(t.Context(),
+		response, err := stub.service(t).UpdateInventoryConfig(callerContext(t),
 			&omv1.UpdateInventoryConfigRequest{Values: values})
 
 		require.NoError(t, err)
@@ -2266,7 +2299,7 @@ func TestInventoryConfig(t *testing.T) {
 		// An empty PATCH would succeed on the app's side and change nothing.
 		stub := newSEPStub(t, http.StatusOK, configBody)
 
-		_, err := stub.service(t).UpdateInventoryConfig(t.Context(),
+		_, err := stub.service(t).UpdateInventoryConfig(callerContext(t),
 			&omv1.UpdateInventoryConfigRequest{})
 
 		require.Error(t, err)
@@ -2286,7 +2319,7 @@ func TestInventoryConfig(t *testing.T) {
 		values, err := structpb.NewStruct(wide)
 		require.NoError(t, err)
 
-		_, err = stub.service(t).UpdateInventoryConfig(t.Context(),
+		_, err = stub.service(t).UpdateInventoryConfig(callerContext(t),
 			&omv1.UpdateInventoryConfigRequest{Values: values})
 
 		require.Error(t, err)
@@ -2307,7 +2340,7 @@ func TestInventoryConfig(t *testing.T) {
 		values, err := structpb.NewStruct(nested)
 		require.NoError(t, err)
 
-		_, err = stub.service(t).UpdateInventoryConfig(t.Context(),
+		_, err = stub.service(t).UpdateInventoryConfig(callerContext(t),
 			&omv1.UpdateInventoryConfigRequest{Values: values})
 
 		require.Error(t, err)
@@ -2326,7 +2359,7 @@ func TestInventoryConfig(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		_, err = stub.service(t).UpdateInventoryConfig(t.Context(),
+		_, err = stub.service(t).UpdateInventoryConfig(callerContext(t),
 			&omv1.UpdateInventoryConfigRequest{Values: values})
 
 		require.NoError(t, err)
@@ -2338,12 +2371,12 @@ func TestInventoryConfig(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusNoContent, ``)
 
-		_, err := stub.service(t).DeleteInventoryConfigOverride(t.Context(),
+		_, err := stub.service(t).DeleteInventoryConfigOverride(callerContext(t),
 			&omv1.DeleteInventoryConfigOverrideRequest{Key: "SCHEDULE__every"})
 
 		require.NoError(t, err)
 		assert.Equal(t, http.MethodDelete, stub.method)
-		assert.Equal(t, "/api/apps/om_inventory/config/SCHEDULE__every", stub.path)
+		assert.Equal(t, "/api/extensions/admin/settings/OmInventorySettings/SCHEDULE__every", stub.path)
 	})
 }
 
@@ -2352,7 +2385,7 @@ func TestInventoryRunsDefaultLimit(t *testing.T) {
 
 	stub := newSEPStub(t, http.StatusOK, `[]`)
 
-	_, err := stub.service(t).ListInventoryRuns(t.Context(), &omv1.ListInventoryRunsRequest{})
+	_, err := stub.service(t).ListInventoryRuns(callerContext(t), &omv1.ListInventoryRunsRequest{})
 
 	require.NoError(t, err)
 	assert.Equal(t, "limit=20", stub.query)
@@ -2365,7 +2398,7 @@ func TestInventoryRunsForwardsDateRange(t *testing.T) {
 	since := timestamppb.New(mustParseTime(t, "2026-08-18T00:00:00Z"))
 	until := timestamppb.New(mustParseTime(t, "2026-08-25T00:00:00Z"))
 
-	_, err := stub.service(t).ListInventoryRuns(t.Context(), &omv1.ListInventoryRunsRequest{
+	_, err := stub.service(t).ListInventoryRuns(callerContext(t), &omv1.ListInventoryRunsRequest{
 		Since: since,
 		Until: until,
 	})
@@ -2383,7 +2416,7 @@ func TestInventoryRunsRejectsInvertedDateRange(t *testing.T) {
 
 	stub := newSEPStub(t, http.StatusOK, `[]`)
 
-	_, err := stub.service(t).ListInventoryRuns(t.Context(), &omv1.ListInventoryRunsRequest{
+	_, err := stub.service(t).ListInventoryRuns(callerContext(t), &omv1.ListInventoryRunsRequest{
 		Since: timestamppb.New(mustParseTime(t, "2026-08-25T00:00:00Z")),
 		Until: timestamppb.New(mustParseTime(t, "2026-08-18T00:00:00Z")),
 	})
@@ -2407,7 +2440,7 @@ func TestInventoryRunCarriesHostCounters(t *testing.T) {
 	  "scope": ["node-1"], "error": null
 	}]`)
 
-	res, err := stub.service(t).ListInventoryRuns(t.Context(), &omv1.ListInventoryRunsRequest{})
+	res, err := stub.service(t).ListInventoryRuns(callerContext(t), &omv1.ListInventoryRunsRequest{})
 
 	require.NoError(t, err)
 	require.Len(t, res.GetRuns(), 1)
@@ -2439,7 +2472,7 @@ func TestInventoryRunNamesItsFailingNodes(t *testing.T) {
 	  "scope": null, "error": null
 	}]`)
 
-	res, err := stub.service(t).ListInventoryRuns(t.Context(), &omv1.ListInventoryRunsRequest{})
+	res, err := stub.service(t).ListInventoryRuns(callerContext(t), &omv1.ListInventoryRunsRequest{})
 
 	require.NoError(t, err)
 	require.Len(t, res.GetRuns(), 2)
@@ -2478,7 +2511,7 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	  ]
 	}`)
 
-	res, err := stub.service(t).GetInventoryRun(t.Context(), &omv1.GetInventoryRunRequest{RunId: "r1"})
+	res, err := stub.service(t).GetInventoryRun(callerContext(t), &omv1.GetInventoryRunRequest{RunId: "r1"})
 
 	require.NoError(t, err)
 	require.Len(t, res.GetEntities(), 3)
@@ -2506,25 +2539,6 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	assert.Nil(t, orphan.DurationSeconds)
 	assert.Nil(t, orphan.TaskHistoryId)
 	assert.Equal(t, "no executor host", orphan.GetError())
-}
-
-func TestInventoryBearerIsSent(t *testing.T) {
-	t.Parallel()
-
-	var seen string
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		seen = r.Header.Get("Authorization")
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`{"items": [], "total": 0, "offset": 0, "limit": 200}`))
-	}))
-	t.Cleanup(server.Close)
-
-	svc := (&Service{l: logrus.WithField("test", t.Name())}).WithProbeSource(server.URL, "test-token")
-
-	_, err := svc.ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
-
-	require.NoError(t, err)
-	assert.Equal(t, "Bearer test-token", seen)
 }
 
 func mustParseTime(t *testing.T, stamp string) time.Time {
@@ -2584,7 +2598,7 @@ func TestNudgeDebouncesExpire(t *testing.T) {
 			WithProbeSource(stub.server.URL, "test-token")
 		svc.syncRequested = time.Now().Add(-inventorySyncDebounce)
 
-		svc.triggerInventorySync(t.Context())
+		svc.triggerInventorySync(asService(t.Context()))
 
 		require.Len(t, stub.calls, 1, "a stamp one window old must not hold the next sync off")
 		assert.Equal(t, "/api/apps/inventory/sync/", stub.calls[0].path)

@@ -102,16 +102,6 @@ function isSupportedHostCount(count: number): boolean {
 }
 
 /**
- * The Configure step's Security tab (PMM-15347/plan.md §6 Phase A) -- every
- * control here is fixed or disabled, not a form: keyFile is the only
- * intra-cluster auth mechanism this PoC builds, and LDAP/KMIP are explicitly
- * out of scope, matching mockup `03-configure-security.png` rendering both as
- * locked, visible-but-inert controls rather than hiding them outright. TLS and
- * encryption-at-rest aren't offered here at all yet -- neither is implemented
- * (plan.md §6 Phase C), so a control for either would be a choice with no
- * effect.
- */
-/**
  * How mongod's bindIp is chosen.
  *
  * `own` is the default and the safe one: each member binds to its own address.
@@ -177,7 +167,7 @@ const ElectionSettingsTable = ({
   <Table size="small">
     <TableHead>
       <TableRow>
-        <TableCell>Host</TableCell>
+        <TableCell>Node</TableCell>
         <TableCell align="right">Priority</TableCell>
         <TableCell align="center">Votes</TableCell>
         <TableCell align="center">Hidden</TableCell>
