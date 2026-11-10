@@ -34,13 +34,13 @@ export function buildValidationRules(field: PluginField): RegisterOptions {
 
   switch (field.type) {
     case 'string': {
-      if (field.min_length !== undefined) {
+      if (field.min_length != null) {
         rules.minLength = {
           value: field.min_length,
           message: `Minimum ${field.min_length} characters`,
         };
       }
-      if (field.max_length !== undefined) {
+      if (field.max_length != null) {
         rules.maxLength = {
           value: field.max_length,
           message: `Maximum ${field.max_length} characters`,
@@ -91,13 +91,13 @@ export function buildValidationRules(field: PluginField): RegisterOptions {
         }
         return true;
       };
-      if (field.ge !== undefined) {
+      if (field.ge != null) {
         rules.min = {
           value: field.ge,
           message: `Minimum value is ${field.ge}`,
         };
       }
-      if (field.le !== undefined) {
+      if (field.le != null) {
         rules.max = {
           value: field.le,
           message: `Maximum value is ${field.le}`,
