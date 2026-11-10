@@ -96,6 +96,9 @@ func TestAlerts(t *testing.T) {
 		assert.Equal(t, alertsNote, out.Note)
 		assert.True(t, strings.HasPrefix(text, alertsNote+"\n"), text)
 		assert.Len(t, out.Alerts, min(out.Page.Total, alertsMaxLimit))
+		if len(out.Alerts) == 0 {
+			t.Log("no alert is firing: the checks of each alert's name, start, pmm_url and labels were skipped")
+		}
 		for _, a := range out.Alerts {
 			assert.NotEmpty(t, a.Name)
 			assert.False(t, a.StartsAt.IsZero(), a.Name)
@@ -176,6 +179,59 @@ type alertRules struct {
 func createAlertRules(t *testing.T, suffix int64) alertRules {
 	t.Helper()
 
+	template := createServerTemplate(t, suffix)
+	visible := createFolder(t, fmt.Sprintf("mcp-visible-%d", suffix), "MCP api-tests, visible")
+	hidden := createFolder(t, fmt.Sprintf("mcp-hidden-%d", suffix), "MCP api-tests, no Viewer access")
+	requireAdminRequest(t, http.MethodPost, "graph/api/access-control/folders/"+hidden+"/builtInRoles/Viewer", map[string]string{"permission": ""}, nil)
+
+	rules := alertRules{
+		services: fmt.Sprintf("MCP alerts services %d", suffix),
+		node:     fmt.Sprintf("MCP alerts node %d", suffix),
+		server:   fmt.Sprintf("MCP alerts server %d", suffix),
+		hidden:   fmt.Sprintf("MCP alerts hidden %d", suffix),
+	}
+	// Threshold 0 makes the templates fire for every series they read.
+	createRule(t, visible, rules.services, "pmm_mysql_too_many_connections", true)
+	createRule(t, visible, rules.node, "pmm_node_high_cpu_load", true)
+	createRule(t, visible, rules.server, template, false)
+	createRule(t, hidden, rules.hidden, template, false)
+	return rules
+}
+
+// matrixAlerts are the titles of the rules TestAccessRoleMatrix creates.
+type matrixAlerts struct {
+	// services fires once per MySQL service, mysql-b's included.
+	services string
+	// server fires once, with no service or node label.
+	server string
+}
+
+// createMatrixAlerts creates a folder, a template on vector(1) and the rules, deletes them when the test ends, and waits for the rules
+// to fire for mysql-a, mysql-b and the server.
+func createMatrixAlerts(t *testing.T, suffix int64) matrixAlerts {
+	t.Helper()
+
+	template := createServerTemplate(t, suffix)
+	folder := createFolder(t, fmt.Sprintf("mcp-matrix-%d", suffix), "MCP api-tests, Access Role matrix")
+	rules := matrixAlerts{
+		services: fmt.Sprintf("MCP matrix services %d", suffix),
+		server:   fmt.Sprintf("MCP matrix server %d", suffix),
+	}
+	// Threshold 0 makes the template fire for every MySQL service.
+	createRule(t, folder, rules.services, "pmm_mysql_too_many_connections", true)
+	createRule(t, folder, rules.server, template, false)
+	waitFor(t, "the matrix's rules to fire", func() bool {
+		current := firingRules(t)
+		return slices.Equal(intersection(current[rules.services].values("service_name"), "mysql-a", "mysql-b"), []string{"mysql-a", "mysql-b"}) &&
+			len(current[rules.server].alerts) == 1
+	})
+	return rules
+}
+
+// createServerTemplate creates a template on vector(1), whose alert carries no service or node label, and deletes it when the test ends.
+func createServerTemplate(t *testing.T, suffix int64) string {
+	t.Helper()
+
 	template := fmt.Sprintf("mcp_alerts_server_level_%d", suffix)
 	_, err := alertingClient.Default.AlertingService.CreateTemplate(&alerting.CreateTemplateParams{
 		Body: alerting.CreateTemplateBody{Yaml: fmt.Sprintf(`---
@@ -199,23 +255,7 @@ templates:
 			t.Errorf("failed to delete alert template %s: %s", template, err)
 		}
 	})
-
-	visible := createFolder(t, fmt.Sprintf("mcp-visible-%d", suffix), "MCP api-tests, visible")
-	hidden := createFolder(t, fmt.Sprintf("mcp-hidden-%d", suffix), "MCP api-tests, no Viewer access")
-	requireAdminRequest(t, http.MethodPost, "graph/api/access-control/folders/"+hidden+"/builtInRoles/Viewer", map[string]string{"permission": ""}, nil)
-
-	rules := alertRules{
-		services: fmt.Sprintf("MCP alerts services %d", suffix),
-		node:     fmt.Sprintf("MCP alerts node %d", suffix),
-		server:   fmt.Sprintf("MCP alerts server %d", suffix),
-		hidden:   fmt.Sprintf("MCP alerts hidden %d", suffix),
-	}
-	// Threshold 0 makes the templates fire for every series they read.
-	createRule(t, visible, rules.services, "pmm_mysql_too_many_connections", true)
-	createRule(t, visible, rules.node, "pmm_node_high_cpu_load", true)
-	createRule(t, visible, rules.server, template, false)
-	createRule(t, hidden, rules.hidden, template, false)
-	return rules
+	return template
 }
 
 // createFolder creates a Grafana folder and deletes it with its rules when the test ends.
@@ -400,10 +440,15 @@ func TestAlertsNarrowing(t *testing.T) {
 	res.decode(t, &inventory)
 	services := map[string]inventoryRow{}
 	all := make([]string, 0, len(inventory.Services))
+	var mysql []string
 	for _, row := range inventory.Services {
 		services[row.ServiceName] = row
 		all = append(all, row.ServiceName)
+		if row.Engine == "mysql" {
+			mysql = append(mysql, row.ServiceName)
+		}
 	}
+	mysql = sortedUnique(mysql)
 	a, b := services["mysql-a"], services["mysql-b"]
 	require.NotEmpty(t, a.ServiceID, "pmm_inventory of the package's admin lacks mysql-a")
 	require.NotEmpty(t, b.ServiceID, "pmm_inventory of the package's admin lacks mysql-b")
@@ -415,7 +460,7 @@ func TestAlertsNarrowing(t *testing.T) {
 	var current map[string]firingRule
 	waitFor(t, "the rules to fire", func() bool {
 		current = firingRules(t)
-		return slices.Equal(intersection(current[rules.services].values("service_name"), "mysql-a", "mysql-b"), []string{"mysql-a", "mysql-b"}) &&
+		return slices.Equal(intersection(current[rules.services].values("service_name"), mysql...), mysql) &&
 			len(intersection(current[rules.node].values("node_name"), a.NodeName, b.NodeName)) == 2 &&
 			len(current[rules.server].alerts) == 1 &&
 			len(current[rules.hidden].alerts) == 1
@@ -483,7 +528,7 @@ func TestAlertsNarrowing(t *testing.T) {
 		viewer := hiding(t, authorization, b)
 
 		out := alertsOf(t, viewer)
-		assert.Equal(t, []string{"mysql-a"}, labelValues(out.ofRule(rules.services), "service_name"))
+		assert.Equal(t, without(mysql, "mysql-b"), labelValues(out.ofRule(rules.services), "service_name"), "every MySQL service but mysql-b")
 		assert.Equal(t, allNodes, labelValues(out.ofRule(rules.node), "node_name"), "node_exporter's series carry no service_name, so every node is in the list")
 		assert.Contains(t, labelValues(out.ofRule(rules.node), "node_name"), b.NodeName)
 		assert.Len(t, out.ofRule(rules.server), 1)
