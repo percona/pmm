@@ -276,7 +276,7 @@ An alert that lacks a label never matches a filter on that label. The most sever
 
 ### What the list holds
 
-MCP narrows the list to the services and nodes in your service list over the last 7 days, to match its other results. The narrowing keeps `pmm_alerts` consistent with the other tools. It doesn't change what you can read in PMM, where the alert page shows the alerts that Grafana's permissions allow. An alert is kept in these cases:
+MCP narrows the list to the services and nodes in your service list over the last 7 days, so that `pmm_alerts` is consistent with the other tools. It doesn't change what you can read in PMM, where the alert page shows the alerts that Grafana's permissions allow. An alert is kept in these cases:
 
 - It comes from one of PMM's own rules: the PMM Server component rules, and the HA rules on an HA deployment. It is shown whatever service or node it names.
 - It has no `service_id`, `service_name`, `node_id` or `node_name` label.
@@ -287,6 +287,8 @@ A `node_name` filter for a node outside your service list answers `not_found`, a
 ### Firing alerts only
 
 `pmm_alerts` shows currently firing alerts. It doesn't show resolved alerts. It also doesn't show alerts that Grafana keeps firing after they recover (`keep_firing_for`, shown as **Recovering** in Grafana). PMM's alert templates don't use `keep_firing_for`.
+
+It also doesn't show the `DatasourceNoData` and `DatasourceError` alerts that Grafana raises for a rule whose no-data or error handling is set to **No Data** or **Error**, even though Grafana sends notifications for them. PMM's own rules and the rules made from PMM's alert templates don't raise them: a rule made from a template shows an evaluation error as a firing alert, which `pmm_alerts` lists.
 
 Silenced alerts are included. An alert that a silence mutes has `silenced` set to `true` and `silenced_until` set to the end of the silence. When several silences mute one alert, `silenced_until` is the latest end.
 
