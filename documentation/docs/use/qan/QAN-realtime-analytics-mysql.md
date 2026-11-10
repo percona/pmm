@@ -23,7 +23,7 @@ How much data RTA shows depends on the server and its default settings:
 | Server | What RTA shows | What to do |
 | ------ | -------------- | ---------- |
 | MySQL 8.0 and later, Percona Server for MySQL 8.0 and later | All data, including blockers for metadata locks and transaction details | Nothing. Everything RTA uses is on by default. |
-| MySQL 5.7 | All data except blockers for metadata locks and transaction details. A statement waiting for a metadata lock shows as **Blocked: unknown**. | [Turn on the missing settings](#get-complete-data-on-mysql-57-and-mariadb). |
+| MySQL 5.7 | All data except blockers for metadata locks and transaction details. A statement waiting for a metadata lock shows as **Blocked: unknown**, and lock modes are [less precise](#find-out-why-the-blocker-holds-the-lock). | [Turn on the missing settings](#get-complete-data-on-mysql-57-and-mariadb). Lock modes stay less precise. |
 | MariaDB | Query text, user, database, command, state and elapsed time. Latency, row counts, metadata lock detection and transaction details are missing, and lock modes are [less precise](#find-out-why-the-blocker-holds-the-lock). | [Turn on the missing settings](#get-complete-data-on-mysql-57-and-mariadb). Lock modes stay less precise. |
 | Managed services, such as Amazon RDS for MySQL | Not tested. RTA can work only when `performance_schema` is enabled on the instance. | On Amazon RDS, turn on `performance_schema` in the instance's parameter group. |
 
@@ -124,7 +124,7 @@ You can start RTA from the PMM UI or from the command line:
 
         The live query table appears and starts updating automatically.
 
-    4. (Optional) To watch more services at once, for example a primary and its replicas, click **+ New session** and repeat step 3 for each one.
+    4. (Optional) To watch more services at once, for example a primary and its replicas, select all of them in step 3. To add a service later, click **All sessions**, then **+ New session**.
 
 === "From the command line"
 
@@ -206,6 +206,8 @@ To change the collect interval:
     pmm-admin inventory change agent rta-mysql-agent <agent-id> --collect-interval=5s
     ```
 
+The collect interval can't be shorter than 1 second.
+
 ## Investigate a query
 
 The **Details** tab of a statement shows what it's doing and how much work it has done so far:
@@ -215,7 +217,7 @@ The **Details** tab of a statement shows what it's doing and how much work it ha
 To check a statement:
 {.power-number}
 
-1. Click the statement's row. The view pauses until you close the pane, so the statement stays in place, and the **Details** tab shows the statement as it was when you clicked it.
+1. Click the statement's row. The view pauses while the pane is open, so the statement stays in place, and the **Details** tab shows the statement as it was when you clicked it. If live updates were running, they resume when you close the pane.
 2. To check whether the statement is still running, click :material-refresh: **Refresh**. If it has finished, the pane says so. It doesn't jump to the next statement on the same connection.
 3. To see newer values for the statement, close the pane and click the row again.
 
@@ -240,7 +242,7 @@ If a statement has a **Truncated** label, RTA shows only its beginning, because 
 {.power-number}
 
 1. Turn on the `events_statements_current` consumer, as described in [Get complete data on MySQL 5.7 and MariaDB](#get-complete-data-on-mysql-57-and-mariadb). It's on by default on MySQL and Percona Server for MySQL.
-2. In the MySQL configuration file, raise `performance_schema_max_sql_text_length`. RTA shows up to 64 KiB of a statement, so a higher value has no effect.
+2. In the MySQL configuration file, raise `performance_schema_max_sql_text_length`. RTA shows up to 64 KiB of a statement, so values above `65536` have no effect.
 3. Restart the server, because you can't change this variable while it's running.
 
 ### View raw data
@@ -251,7 +253,7 @@ To view it, click the statement's row and open the **Raw data** tab.
 
 ## Find out what is blocking a query
 
-When a statement is waiting for a lock, it has a **Blocked by** label that names the connection holding it up. That connection may itself be waiting for another one, so follow the chain to the blocker marked **Root**: the transaction at the head of the chain, and the one to resolve.
+When a statement is waiting for a lock, it has a **Blocked by** label that names the connection holding it up. That connection may itself be waiting for another one, so follow the chain to the root blocker: the transaction at the head of the chain, and the one to resolve.
 
 The **Details** tab of a blocked statement shows its blocker:
 
@@ -261,10 +263,12 @@ To find the root blocker:
 {.power-number}
 
 1. Click the row of a statement with a **Blocked by** label to open its **Details** tab.
-2. Check whether the blocker is marked **Root**:
+2. Read the hint at the end of the blocker's details:
 
-    - If it is, the blocker isn't waiting for anything itself. To release its lock, see [Get the waiting statements running again](#get-the-waiting-statements-running-again).
-    - If it isn't, the **Details** tab says that the blocker is waiting too. Open the blocker's row and repeat this step.
+    - If it says that resolving the blocker's connection releases this statement, or that the connection holds a metadata lock on this table, the blocker is the root blocker. To release its lock, see [Get the waiting statements running again](#get-the-waiting-statements-running-again).
+    - If it says that the blocker's connection is itself waiting for a lock, open the blocker's row and repeat this step.
+
+    If several transactions hold up the statement, the hint says how many of them you must resolve, and RTA marks each additional root blocker **Root**.
 
 If a statement shows **Blocked: unknown** instead of naming its blocker, see [A statement shows Blocked: unknown](#a-statement-shows-blocked-unknown).
 
@@ -276,7 +280,7 @@ Before you end a blocking transaction, check what it's doing, so you know whethe
 1. Click the row of the blocked statement to open its **Details** tab.
 2. Check **Blocker state**. `Sleep` means that the blocker has an open transaction and is sitting idle.
 3. Check **Blocker's statement** to see which statement took the lock. For an idle blocker, this is the last statement it ran. That's usually the one that took the lock, but an earlier statement in the same transaction may have taken it instead. On MariaDB, the field reads **No current statement (connection idle in transaction)** unless the `events_statements_current` consumer is on.
-4. If you're investigating a deadlock, compare **Mode requested** and **Blocker holds**. On MySQL and Percona Server for MySQL, the mode tells a wait on a row apart from a wait on the gap before it, for example `X,REC_NOT_GAP` and `X,GAP`. That difference can explain a deadlock that otherwise looks impossible. MariaDB reports only `X` or `S`, so you can't tell these waits apart on MariaDB.
+4. If you're investigating a deadlock, compare **Mode requested** and **Blocker holds**. On MySQL 8.0 and later and Percona Server for MySQL 8.0 and later, the mode tells a wait on a row apart from a wait on the gap before it, for example `X,REC_NOT_GAP` and `X,GAP`. That difference can explain a deadlock that otherwise looks impossible. MySQL 5.7 and MariaDB report lock modes less precisely, so you can't always tell these waits apart.
 
 ### Get the waiting statements running again
 
@@ -324,7 +328,7 @@ The file also includes these additional columns:
 
 - `lock_time_ms`: the lock time, in milliseconds
 - `query_text_truncated`: whether the statement text was cut short
-- `blocking_conn_id` and `blocking_query`: the transaction blocking the statement, if any
+- `blocking_conn_id` and `blocking_query`: the transaction blocking the statement, when RTA can name a single one
 - `blocking_query_truncated`: whether the blocking statement's text was cut short
 
 ## Stop an RTA session
@@ -373,7 +377,7 @@ To fix it:
 {.power-number}
 
 1. In the sessions list, hover over the **Error** status to see which check failed.
-2. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.11.0, upgrade it. An older PMM Client is also why a service is missing from the **Cluster/Service** drop-down.
+2. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.11.0, upgrade it. A service with an older PMM Client doesn't appear in the **Cluster/Service** drop-down.
 3. Check that `performance_schema` is on: run `SELECT @@performance_schema;`. If it returns `0`, turn it on in the server configuration and restart the server. This setting applies only at startup, so you can't change it while the server is running.
 4. Check the grants of the monitoring user: it needs `SELECT` to start a session and `PROCESS` to read lock information. If either is missing, grant it. For the full list, see [Check the service requirements](#check-the-service-requirements).
 5. Check your role: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. If you're not an Admin, ask one to start the session.
@@ -383,7 +387,7 @@ To fix it:
 
 If your server is busy but the Real-time view stays empty, PMM Client is probably collecting too rarely to catch your statements. RTA sees only statements that are running at the moment PMM Client collects, so idle connections and quick statements that start and finish between two collections never show up.
 
-To catch them, lower the collect interval, as described in [Control the refresh rate](#control-the-refresh-rate). Changing **Auto-refresh** doesn't help, because it only sets how often your browser shows data that PMM Client has already collected.
+To catch them, lower the collect interval, as described in [Control the refresh rate](#control-the-refresh-rate). The interval can't be shorter than 1 second, so use [Query Analytics](../qan/QAN-stored-metrics.md) for shorter statements. Changing **Auto-refresh** doesn't help, because it only sets how often your browser shows data that PMM Client has already collected.
 
 ### Row counts and full-scan show "Unavailable"
 
@@ -393,7 +397,7 @@ RTA shows **Unavailable** instead of `0` on purpose, so that you don't mistake a
 
 ### A statement shows Blocked: unknown
 
-If a statement shows **Blocked: unknown**, RTA can't tell whether it's waiting for a lock:
+If a statement shows **Blocked: unknown**, either it's waiting for a lock whose holder RTA can't read, or its connection moved on while RTA was reading locks. Hover over the label to see which:
 
 ![Blocked: unknown labels on metadata-lock waits on MySQL 5.7, with the label's tooltip open and the toggle showing Blocked unknown](../../images/RTA_MySQL_blocked_unknown.png)
 
@@ -404,7 +408,7 @@ To find out why:
 2. If the label stays, turn on the metadata lock instrument, as described in [Get complete data on MySQL 5.7 and MariaDB](#get-complete-data-on-mysql-57-and-mariadb). It's off by default on MySQL 5.7 and MariaDB.
 3. If lock information is missing on every statement, check that the monitoring user has the `PROCESS` privilege, as described in [Check the service requirements](#check-the-service-requirements).
 
-To see everything RTA can't collect, hover over the session status in the sessions list.
+To see what RTA found it can't collect when the session started, hover over the session status in the sessions list. Problems found later, such as a missing privilege, appear only in the PMM Client log.
 
 ### Lock details are missing for some statements during a large pile-up
 

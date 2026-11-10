@@ -42,7 +42,8 @@ Select your database type to see an example response. Both have the same fields,
     "start_time": "2024-03-06T15:20:00Z",
     "collect_interval": "2s",
     "status": "SESSION_STATUS_RUNNING",
-    "service_type": "SERVICE_TYPE_MONGODB_SERVICE"
+    "service_type": "SERVICE_TYPE_MONGODB_SERVICE",
+    "status_message": ""
   }
 }
 ```
@@ -55,7 +56,8 @@ Select your database type to see an example response. Both have the same fields,
     "start_time": "2026-09-18T19:38:29.566969Z",
     "collect_interval": "2s",
     "status": "SESSION_STATUS_RUNNING",
-    "service_type": "SERVICE_TYPE_MYSQL_SERVICE"
+    "service_type": "SERVICE_TYPE_MYSQL_SERVICE",
+    "status_message": ""
   }
 }
 ```
@@ -72,7 +74,7 @@ Select your database type to see an example response. Both have the same fields,
 | `session.collect_interval` | string | Query collection interval |
 | `session.status` | string | Session status (see status values below) |
 | `session.service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE` or `SERVICE_TYPE_MYSQL_SERVICE` |
-| `session.status_message` | string | Explains what went wrong with the session. If `status` is `SESSION_STATUS_ERROR`, it tells you why the session didn't start. If `status` is `SESSION_STATUS_RUNNING`, it tells you which data the session can't collect. Empty when there's nothing to report. |
+| `session.status_message` | string | Explains what went wrong with the session. If `status` is `SESSION_STATUS_ERROR`, it tells you why the session didn't start. If `status` is `SESSION_STATUS_RUNNING`, it tells you which data the session found it can't collect when it started. Problems found later appear only in the pmm-agent log. Empty when there's nothing to report. |
 
 ### Example
 ```bash

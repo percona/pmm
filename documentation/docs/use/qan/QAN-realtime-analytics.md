@@ -53,7 +53,7 @@ You can start RTA from the PMM UI or from the command line:
     1. Go to **Query Analytics** in the sidebar.
     2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list. Click **+ New session** there.
     3. Select a MongoDB service from the **Cluster/Service** drop-down and click **Start session**.
-    4. (Optional) To watch more services at once, for example all members of a replica set, click **+ New session** and repeat step 3 for each one.
+    4. (Optional) To watch more services at once, for example all members of a replica set, select all of them in step 3. To add a service later, click **All sessions**, then **+ New session**.
 
 === "From the command line"
 
@@ -129,6 +129,8 @@ To change the collect interval:
     pmm-admin inventory change agent rta-mongodb-agent <agent-id> --collect-interval=5s
     ```
 
+The collect interval can't be shorter than 1 second.
+
 ## Investigate an operation
 
 The **Details** tab of an operation shows what it's doing and where it comes from:
@@ -138,7 +140,7 @@ The **Details** tab of an operation shows what it's doing and where it comes fro
 To check an operation:
 {.power-number}
 
-1. Click the operation's row. The view pauses until you close the pane, so the operation stays in place, and the **Details** tab shows the operation as it was when you clicked it.
+1. Click the operation's row. The view pauses while the pane is open, so the operation stays in place, and the **Details** tab shows the operation as it was when you clicked it. If live updates were running, they resume when you close the pane.
 2. To check whether the operation is still running, click :material-refresh: **Refresh**. If it has finished, the pane says so.
 3. To see newer values for the operation, close the pane and click the row again.
 
@@ -282,8 +284,8 @@ When a session can't start, its status shows **Error**.
 To fix it:
 {.power-number}
 
-1. In the sessions list, hover over the **Error** status to see the reason.
-2. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.7.0, upgrade it.
+1. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.7.0, upgrade it. In that case, hovering over the **Error** status also shows the reason.
+2. If PMM Client is up to date, check the PMM Client log on the monitored host for the reason.
 3. Check the MongoDB exporter: go to **Inventory > Services**, find your MongoDB service and check that its MongoDB exporter is running.
 4. Check your role: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. If you're not an Admin, ask one to start the session.
 5. Start the session again.
@@ -292,7 +294,7 @@ To fix it:
 
 If the Real-time view stays empty, click **All sessions** and check the session's status. If it shows **Error**, see [Session won't start](#session-wont-start).
 
-If the session is running but the view is still empty, your database may have no operations that run long enough to catch. RTA sees only operations that are running at the moment PMM Client collects, so quick operations that start and finish between two collections never show up. To catch them, lower the collect interval, as described in [Control the refresh rate](#control-the-refresh-rate).
+If the session is running but the view is still empty, your database may have no operations that run long enough to catch. RTA sees only operations that are running at the moment PMM Client collects, so quick operations that start and finish between two collections never show up. To catch them, lower the collect interval, as described in [Control the refresh rate](#control-the-refresh-rate). The interval can't be shorter than 1 second, so use [Query Analytics](../qan/QAN-stored-metrics.md) for shorter operations.
 
 ### Some fields show "Unavailable"
 
