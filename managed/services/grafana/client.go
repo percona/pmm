@@ -555,8 +555,12 @@ func (c *Client) getServiceTokenUser(ctx context.Context, token string) (authUse
 	header := http.Header{}
 	header.Add("Authorization", "Bearer "+token)
 
-	var k map[string]any
-	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k)
+	var sa struct {
+		ID    int    `json:"id"`
+		OrgID int    `json:"orgId"`
+		Role  string `json:"role"`
+	}
+	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &sa)
 	if err != nil {
 		// The route has no sign-in middleware, so a token Grafana rejects gets 400 rather than 401, see PMM-15692.
 		cErr, ok := errors.AsType[*clientError](err)
@@ -566,24 +570,20 @@ func (c *Client) getServiceTokenUser(ctx context.Context, token string) (authUse
 		return emptyUser, err
 	}
 
-	id, _ := k["id"].(float64)
-	userID := int(id)
-	if userID <= 0 {
+	if sa.ID <= 0 {
 		return emptyUser, errNoUserID
 	}
 
-	orgID, _ := k["orgId"].(float64)
-	if orgID != 1 {
+	if sa.OrgID != 1 {
 		return authUser{
 			role:   none,
-			userID: userID,
+			userID: sa.ID,
 		}, nil
 	}
 
-	role, _ := k["role"].(string)
 	return authUser{
-		role:   c.convertRole(role),
-		userID: userID,
+		role:   c.convertRole(sa.Role),
+		userID: sa.ID,
 	}, nil
 }
 

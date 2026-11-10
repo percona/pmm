@@ -263,6 +263,8 @@ func TestGetAuthUserID(t *testing.T) {
 				_, _ = fmt.Fprint(w, `{"name":"mcp","orgId":1,"role":"Viewer"}`)
 			case "Bearer glsa_zero_id":
 				_, _ = fmt.Fprint(w, `{"id":0,"name":"mcp","orgId":1,"role":"Admin"}`)
+			case "Bearer glsa_string_id":
+				_, _ = fmt.Fprint(w, `{"id":"7","name":"mcp","orgId":1,"role":"Admin"}`)
 			default:
 				w.WriteHeader(http.StatusBadRequest)
 				_, _ = fmt.Fprint(w, `{"message":"Auth method is not service account token"}`)
@@ -340,6 +342,15 @@ func TestGetAuthUserID(t *testing.T) {
 			assert.Equal(t, none, u.role)
 		})
 	}
+
+	t.Run("a service token whose ID is not a number is an error", func(t *testing.T) {
+		t.Parallel()
+
+		u, err := c.getAuthUser(t.Context(), bearer("glsa_string_id"), l)
+		require.Error(t, err)
+		require.NotErrorIs(t, err, errNoUserID)
+		assert.Equal(t, none, u.role)
+	})
 }
 
 func TestCurrentUserAnonymousFallback(t *testing.T) {
