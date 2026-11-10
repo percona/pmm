@@ -793,7 +793,6 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	l := logger.Get(ctx)
 	lbacFilters := make([]string, 0, len(filters))
 	for _, selector := range selectors {
 		if selector == "" {
@@ -805,16 +804,15 @@ func headersToLbacFilter(ctx context.Context) (string, error) {
 			continue
 		}
 
+		// Skipping a selector that fails here could leave no filter, which serves everything.
 		m, err := promParser.ParseMetricSelector(selector)
 		if err != nil {
-			l.Errorf("Failed to parse metric selector: %v", err)
-			continue
+			return "", fmt.Errorf("failed to parse metric selector: %w", err)
 		}
 
 		sql, err := matchersToSQL(m)
 		if err != nil {
-			l.Errorf("Failed to convert label matchers to WHERE condition: %s", err)
-			continue
+			return "", fmt.Errorf("failed to convert label matchers to WHERE condition: %w", err)
 		}
 		if len(m) > 1 {
 			sql = "(" + sql + ")"

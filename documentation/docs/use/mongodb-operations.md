@@ -140,9 +140,6 @@ By default, PMM scans every node every 10 minutes. Each scan sends a job to ever
 2. In **Scan every** and **Period**, set the time between scans.
 3. Click **Save**. The change takes effect without a restart.
 
-!!! note "Keep automatic scans on"
-    In PMM 3.10.0, turning off **Automatic node scans** also blocks **Scan** and **Scan all** on the **Nodes** page. PMM turns automatic scans back on the next time it restarts.
-
 ## Install a replica set
 
 PMM supports single-member and three-member replica sets. Each node must have at least one completed scan before you can select it for installation.
@@ -236,13 +233,19 @@ The page shows when its data was last refreshed and when the nodes were last sca
 
 ## Troubleshoot
 
+### Pages don't load
+
+If **Nodes**, **Automations** or **Settings** can't load and the error says **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container. PMM signs you in to PMM Extensions with your PMM session. PMM Extensions accepts that session only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default. If the container sets it to `false`, remove the variable and recreate the container.
+
 ### Scans
 
 If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
 
 If the reason isn't clear, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for that node.
 
-The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look for **Partial** scans on the **Scans** tab, or go to **MongoDB > Operations > Fleet**, select the **Services** tab, and turn on the **Scan** column from the column chooser.
+The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look for **Partial** scans on the **Scans** tab, or check the **Services** tab as described below.
+
+To find out why a service is failing, go to **MongoDB > Operations > Fleet** and select the **Services** tab. The **Collected** column shows the reason in red, for example **Database unreachable** or **Database authentication failed**. Click the service's status to open its details, which show the full error and what to do about it. When PMM knows which scan failed, the details also link to it. A **Down** service marked **not running** had no `mongod` or `mongos` running at its last scan.
 
 ### Installs
 
