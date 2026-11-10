@@ -168,19 +168,19 @@ Once PMM has started, you can use either of the following to change the password
 - a helper script `change-admin-password`:
 
 ```sh
-docker exec -t pmm-server change-admin-password your_secure_password
+docker exec -t pmm-server change-admin-password 'your_secure_password'
 ```
 
 - or a code snippet:
 
 ```sh
-PMM_PASSWORD="mypassword"
+PMM_PASSWORD='your_secure_password'
 echo "Waiting for PMM to initialize to set password..."
 until [ $(docker inspect -f {% raw %}'{{.State.Health.Status}}'{% endraw %} pmm-server) = "healthy" ]; do sleep 1; done
-docker exec -t pmm-server bash -c  "grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password $PMM_PASSWORD"
+printf %s "$PMM_PASSWORD" | docker exec -i pmm-server grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password --password-from-stdin
 ```
 
-The new password must meet the [password requirements](../admin/manage-users/add_users.md#password-requirements). If it doesn't, both commands fail with `the new password doesn't meet the password policy criteria`.
+The new password must meet the [password requirements](../admin/manage-users/add_users.md#password-requirements). If it doesn't, both commands fail with `the new password doesn't meet the password policy criteria`. Keep the password in single quotes so that your shell doesn't interpret the symbols in it.
 
 ## How to use a non-default listen-port for pmm-admin?
 
