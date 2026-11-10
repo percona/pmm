@@ -393,7 +393,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "avg by (node_name) (sum(avg(node_filesystem_size_bytes{node_name=~\"$node_name\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs|devtmpfs|ramfs|nsfs\"}) without (mountpoint)) without (device,fstype))",
+                    "expr": "avg by (node_name) (sum(avg(node_filesystem_size_bytes{node_name=~\"$node_name\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}) without (mountpoint)) without (device,fstype))",
                     "format": "time_series",
                     "interval": "5m",
                     "intervalFactor": 1,
@@ -405,7 +405,7 @@
             "type": "stat"
         },
         {
-            "description": "Lowest percent of space available to non-root users across all filesystems, as reported by df.",
+            "description": "Lowest percent of the disk space available",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -473,7 +473,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "avg by (node_name) (min(node_filesystem_avail_bytes{node_name=~\"$node_name\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs|devtmpfs|ramfs|nsfs\"}/node_filesystem_size_bytes{node_name=~\"$node_name\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs|devtmpfs|ramfs|nsfs\"})*100 or \n(100 - azure_storage_percent_average{node_name=~\"$node_name\"}))",
+                    "expr": "avg by (node_name) (min(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} / (node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} - node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} + node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}))*100 or \n(100 - azure_storage_percent_average{node_name=~\"$node_name\"}))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -485,7 +485,7 @@
             "type": "stat"
         },
         {
-            "description": "Estimated hours until the first filesystem that is filling up runs out of space, based on the last hour of trend. Shows 'Not filling' when no filesystem is losing free space.",
+            "description": "Estimated time of Disk usage based on trend",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -497,9 +497,7 @@
                             "options": {
                                 "match": "null",
                                 "result": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Not filling"
+                                    "text": "N/A"
                                 }
                             },
                             "type": "special"
@@ -556,7 +554,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "min by (node_name) (max by (node_name, device) (node_filesystem_avail_bytes{node_name=~\"$node_name\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs|devtmpfs|ramfs|nsfs\"}) / (max by (node_name, device) (-deriv(node_filesystem_avail_bytes{node_name=~\"$node_name\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs|devtmpfs|ramfs|nsfs\"}[1h])) > 0) / 3600)",
+                    "expr": "min((node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"} == 0) or node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"} / clamp_min(node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"} - predict_linear(node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"}[1h], 1 * 3600), 0))",
                     "refId": "A"
                 }
             ],

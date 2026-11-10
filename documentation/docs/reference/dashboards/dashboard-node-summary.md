@@ -6,10 +6,6 @@
 
 The output from ``pt-summary``, one of the [Percona Toolkit utilities](https://www.percona.com/doc/percona-toolkit/LATEST/pt-summary.html). The report is collected on the node that you select in the **Node Name** list, and it follows the selection when you change it.
 
-## Time before run out of space
-
-The estimated number of hours until the first filesystem that is losing free space runs out of it, based on the trend of the last hour. Each filesystem is counted once, even when it is mounted in several places. The panel shows **Not filling** when no filesystem is losing free space.
-
 ## Service Types
 
 The number of monitored services on the node, by type. The count is based on the service health metrics, such as `mongodb_up`, so arbiters and services that are down are included.
