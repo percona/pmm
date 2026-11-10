@@ -62,7 +62,7 @@ export function parentLabelForDependsOn(
  */
 export function serviceTypesForDependsOn(
   fields: readonly PluginField[],
-  dependsOn: string | undefined
+  dependsOn: string | null | undefined
 ): readonly ServiceType[] | undefined {
   if (!dependsOn) {
     return undefined;
