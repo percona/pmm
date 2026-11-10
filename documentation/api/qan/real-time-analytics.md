@@ -8,15 +8,15 @@ privacy:
   view: public
 ---
 
-Real-time Analytics (RTA) shows the queries currently running on your MongoDB and MySQL databases. For MySQL, it also shows lock contention, including which statements are waiting for a lock and which transaction is holding it.
+Real-time Analytics (RTA) shows the queries currently running on your MongoDB, MySQL and PostgreSQL databases. For MySQL and PostgreSQL, it also shows lock contention, including which statements are waiting for a lock and which transaction is holding it.
 
 RTA shows what's happening on your database right now, while Query Analytics (QAN) analyzes historical query performance to help you spot trends and performance issues over time.
 
 Use the RTA API to:
 
-- start and stop real-time monitoring sessions for MongoDB and MySQL services
+- start and stop real-time monitoring sessions for MongoDB, MySQL and PostgreSQL services
 - search currently executing queries in active sessions
-- find MySQL statements that are waiting for a lock, and the transactions holding those locks
+- find MySQL and PostgreSQL statements that are waiting for a lock, and the transactions holding those locks
 - list all active monitoring sessions
 - integrate live query monitoring into custom dashboards
 - automate session management
@@ -27,22 +27,25 @@ Use the RTA API to:
 
 ## Supported databases
 
-RTA works with MongoDB and MySQL services. Before you start a session, make sure PMM Client on the database host meets the minimum version for your database:
+RTA works with MongoDB, MySQL and PostgreSQL services. Before you start a session, make sure PMM Client on the database host meets the minimum version for your database:
 
 | Database | Minimum PMM Client | Service type |
 |----------|--------------------|--------------|
 | MongoDB | 3.7.0 | `SERVICE_TYPE_MONGODB_SERVICE` |
 | MySQL, Percona Server for MySQL and MariaDB | 3.11.0 | `SERVICE_TYPE_MYSQL_SERVICE` |
+| PostgreSQL | 3.11.0 | `SERVICE_TYPE_POSTGRESQL_SERVICE` |
+
+RTA isn't available for PMM Server's own PostgreSQL database (`pmm-server-postgresql`).
 
 ### Unsupported service types
 
-If you request a service type that RTA doesn't support, such as PostgreSQL, the API returns HTTP status `400`:
+If you request a service type that RTA doesn't support, such as Valkey, the API returns HTTP status `400`:
 
 ```json
 {
-  "error": "Service type postgresql does not support Real-Time Analytics",
+  "error": "Service type valkey does not support Real-Time Analytics",
   "code": 3,
-  "message": "Service type postgresql does not support Real-Time Analytics",
+  "message": "Service type valkey does not support Real-Time Analytics",
   "details": []
 }
 ```
@@ -54,7 +57,7 @@ If you request a service type that RTA doesn't support, such as PostgreSQL, the 
 | **Data type** | Currently executing queries | Historical query performance |
 | **Time range** | Live data (updates every 1-5 seconds) | Historical data (configurable retention) |
 | **Use case** | Identify active issues now | Analyze trends and patterns |
-| **Database support** | [MongoDB and MySQL](#supported-databases) | MongoDB, MySQL and PostgreSQL |
+| **Database support** | [MongoDB, MySQL and PostgreSQL](#supported-databases) | MongoDB, MySQL and PostgreSQL |
 | **Data retention** | Ephemeral (not stored) | Persistent (stored for analysis) |
 
 ## Available endpoints
@@ -103,6 +106,10 @@ When a MySQL table seems frozen, one transaction is often holding a lock while o
     - If no entry has `root` set to `true`, each blocking transaction is itself waiting for a lock. Find that transaction's own query in the response, using `blocking_conn_id`, and check its `blocked_by` list the same way until you reach a root. If you come back to the statement you started from, the transactions are deadlocked, and MySQL usually rolls back one of them on its own.
 
 5. End each root transaction so the waiting statements can continue.
+
+### Diagnose lock contention (PostgreSQL)
+
+The same steps work for a PostgreSQL service, using `postgresql_payload` instead of `my_sql_payload`. The `blocking_conn_id` of the root entry is the process ID to pass to `pg_terminate_backend()`, or `0` for a prepared transaction, which you end with `COMMIT PREPARED` or `ROLLBACK PREPARED`.
 
 ## Authentication
 

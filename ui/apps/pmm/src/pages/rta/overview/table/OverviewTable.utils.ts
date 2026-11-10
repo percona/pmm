@@ -1,15 +1,34 @@
 import { type MRT_Row } from 'material-react-table';
 import {
+  QueryPostgreSQLData,
+  QueryMySQLData,
   BlockedStatus,
   BlockingTransaction,
   QueryData,
   RawQueryData,
 } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import { CodeLanguage } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
 
 export const queryLanguage = (query: RawQueryData): CodeLanguage =>
-  query.mySqlPayload ? 'sql' : 'mongodb';
+  query.mySqlPayload || query.postgresqlPayload ? 'sql' : 'mongodb';
+
+// queryTechnology returns the database type of a query, from which payload it carries.
+export const queryTechnology = (
+  query: RawQueryData
+): ServiceType | undefined => {
+  if (query.mySqlPayload) {
+    return ServiceType.mysql;
+  }
+  if (query.postgresqlPayload) {
+    return ServiceType.posgresql;
+  }
+  if (query.mongoDbPayload) {
+    return ServiceType.mongodb;
+  }
+  return undefined;
+};
 
 // MongoDB has no Prism grammar; JavaScript is the closest fit.
 export const codeBlockLanguage = (language: CodeLanguage): string =>
@@ -21,11 +40,13 @@ export const UNAVAILABLE_VALUE = 'Unavailable';
 export const queryDatabaseName = (query: RawQueryData): string =>
   query.mongoDbPayload?.databaseName ||
   query.mySqlPayload?.databaseName ||
+  query.postgresqlPayload?.databaseName ||
   UNAVAILABLE_VALUE;
 
 export const queryUsername = (query: RawQueryData): string =>
   query.mongoDbPayload?.username ||
   query.mySqlPayload?.username ||
+  query.postgresqlPayload?.username ||
   UNAVAILABLE_VALUE;
 
 // Keeps milliseconds below 10s, where most live statements would otherwise read as "0";
@@ -123,14 +144,20 @@ export const filterElapsedTime = (
   return valueSeconds >= parseFloat(min) && valueSeconds <= parseFloat(max);
 };
 
+// The payload carrying lock and truncation details; MongoDB rows have none.
+export const sqlPayload = (
+  query: RawQueryData
+): QueryMySQLData | QueryPostgreSQLData | undefined =>
+  query.mySqlPayload ?? query.postgresqlPayload;
+
 export const isBlocked = (query: RawQueryData): boolean =>
-  query.mySqlPayload?.blockedStatus === BlockedStatus.blocked;
+  sqlPayload(query)?.blockedStatus === BlockedStatus.blocked;
 
 // Kept apart from "not blocked" so a monitoring gap does not look like a healthy server.
 export const isBlockingUnknown = (query: RawQueryData): boolean =>
-  !!query.mySqlPayload &&
-  (query.mySqlPayload.blockedStatus === undefined ||
-    query.mySqlPayload.blockedStatus === BlockedStatus.unspecified);
+  !!sqlPayload(query) &&
+  (sqlPayload(query)?.blockedStatus === undefined ||
+    sqlPayload(query)?.blockedStatus === BlockedStatus.unspecified);
 
 // Thread state of a metadata-lock or table-lock wait; row-lock waits have no such state.
 const LOCK_WAIT_STATE = /^Waiting for .*lock$/i;
@@ -168,7 +195,7 @@ export const soleBlockerOf = (
 export const soleBlocker = (
   query: RawQueryData
 ): BlockingTransaction | undefined =>
-  soleBlockerOf(query.mySqlPayload?.blockedBy ?? []);
+  soleBlockerOf(sqlPayload(query)?.blockedBy ?? []);
 
 // query_id is a MySQL connection id, unique only within one instance.
 export const rtaRowId = (query: RawQueryData): string =>

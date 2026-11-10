@@ -54,6 +54,7 @@ var acceptableAgentTypes = map[string][]string{
 	types.AgentTypeRDSExporter:                     {types.AgentTypeName(types.AgentTypeRDSExporter), "rds-exporter"},
 	types.AgentTypeRTAMongoDBAgent:                 {types.AgentTypeName(types.AgentTypeRTAMongoDBAgent), "rta-mongodb-agent"},
 	types.AgentTypeRTAMySQLAgent:                   {types.AgentTypeName(types.AgentTypeRTAMySQLAgent), "rta-mysql-agent"},
+	types.AgentTypeRTAPostgreSQLAgent:              {types.AgentTypeName(types.AgentTypeRTAPostgreSQLAgent), "rta-postgresql-agent"},
 }
 
 type listResultAgent struct {
@@ -143,7 +144,8 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 			len(agentsRes.Payload.QANPostgresqlPgstatmonitorAgent)+
 			len(agentsRes.Payload.ExternalExporter)+
 			len(agentsRes.Payload.RtaMongodbAgent)+
-			len(agentsRes.Payload.RtaMysqlAgent),
+			len(agentsRes.Payload.RtaMysqlAgent)+
+			len(agentsRes.Payload.RtaPostgresqlAgent),
 	)
 	for _, a := range agentsRes.Payload.PMMAgent {
 		status := "disconnected"
@@ -314,6 +316,16 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 	for _, a := range agentsRes.Payload.RtaMysqlAgent {
 		agentsList = append(agentsList, listResultAgent{
 			AgentType:  types.AgentTypeRTAMySQLAgent,
+			AgentID:    a.AgentID,
+			PMMAgentID: a.PMMAgentID,
+			ServiceID:  a.ServiceID,
+			Status:     getAgentStatus(a.Status),
+			Disabled:   a.Disabled,
+		})
+	}
+	for _, a := range agentsRes.Payload.RtaPostgresqlAgent {
+		agentsList = append(agentsList, listResultAgent{
+			AgentType:  types.AgentTypeRTAPostgreSQLAgent,
 			AgentID:    a.AgentID,
 			PMMAgentID: a.PMMAgentID,
 			ServiceID:  a.ServiceID,

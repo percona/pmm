@@ -26,11 +26,11 @@ import (
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
-// RTAQueryTag is the first column of every MySQL Real-Time Analytics polling query, an identifier
-// because perfschema digests strip comments and are cut at max_digest_length.
+// RTAQueryTag leads every MySQL and PostgreSQL Real-Time Analytics polling query (MySQL's first column, PostgreSQL's
+// CTE name), an identifier because perfschema digests strip comments and servers cut long query text.
 const RTAQueryTag = "pmm_agent_rta"
 
-// IsRTAQuery reports whether a query or digest text is a MySQL Real-Time Analytics polling query.
+// IsRTAQuery reports whether a query or digest text is a MySQL or PostgreSQL Real-Time Analytics polling query.
 func IsRTAQuery(query string) bool {
 	return strings.Contains(query, RTAQueryTag)
 }

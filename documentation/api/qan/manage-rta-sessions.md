@@ -14,7 +14,7 @@ To call these endpoints, include a [service account token](ref:authentication#be
 
 `POST /v1/realtimeanalytics/sessions:start`
 
-Starts a Real-time Analytics (RTA) session for a specified MongoDB or MySQL service. Once started, the session will continuously collect data about currently executing queries.
+Starts a Real-time Analytics (RTA) session for a specified MongoDB, MySQL or PostgreSQL service. Once started, the session will continuously collect data about currently executing queries.
 
 ### Request body
 ```json
@@ -31,7 +31,7 @@ Starts a Real-time Analytics (RTA) session for a specified MongoDB or MySQL serv
 
 ### Response
 
-Select your database type to see an example response. Both have the same fields, and only the `service_type` value is different:
+Select your database type to see an example response. All have the same fields, and only the `service_type` value is different:
 
 ```json MongoDB
 {
@@ -61,6 +61,20 @@ Select your database type to see an example response. Both have the same fields,
   }
 }
 ```
+```json PostgreSQL
+{
+  "session": {
+    "service_id": "39c8e124-284a-4871-b9c0-32d6708dee4a",
+    "service_name": "postgresql-production-01",
+    "cluster_name": "production-cluster",
+    "start_time": "2026-10-10T06:45:02.418311Z",
+    "collect_interval": "2s",
+    "status": "SESSION_STATUS_RUNNING",
+    "service_type": "SERVICE_TYPE_POSTGRESQL_SERVICE",
+    "status_message": ""
+  }
+}
+```
 
 ### Response schema
 
@@ -73,7 +87,7 @@ Select your database type to see an example response. Both have the same fields,
 | `session.start_time` | string (date-time) | When the session started |
 | `session.collect_interval` | string | Query collection interval |
 | `session.status` | string | Session status (see status values below) |
-| `session.service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE` or `SERVICE_TYPE_MYSQL_SERVICE` |
+| `session.service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE`, `SERVICE_TYPE_MYSQL_SERVICE` or `SERVICE_TYPE_POSTGRESQL_SERVICE` |
 | `session.status_message` | string | Explains what went wrong with the session. If `status` is `SESSION_STATUS_ERROR`, it tells you why the session didn't start. If `status` is `SESSION_STATUS_RUNNING`, it tells you which data the session found it can't collect when it started. Problems found later appear only in the pmm-agent log. Empty when there's nothing to report. |
 
 ### Example
@@ -175,7 +189,7 @@ Returns the list of all currently running Real-time Analytics sessions with thei
 | `sessions[].start_time` | string (date-time) | When the session started |
 | `sessions[].collect_interval` | string | Query collection interval |
 | `sessions[].status` | string | Session status |
-| `sessions[].service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE` or `SERVICE_TYPE_MYSQL_SERVICE` |
+| `sessions[].service_type` | string | `SERVICE_TYPE_MONGODB_SERVICE`, `SERVICE_TYPE_MYSQL_SERVICE` or `SERVICE_TYPE_POSTGRESQL_SERVICE` |
 | `sessions[].status_message` | string | Explains what went wrong with the session, in the same way as `session.status_message` when you [start a session](#start-session). |
 
 ### Examples
@@ -206,7 +220,7 @@ curl -X GET "https://your-pmm-server/v1/realtimeanalytics/sessions?cluster_name=
 | Status Code | Error | Description |
 |-------------|-------|-------------|
 | `200` | Success | Operation completed successfully |
-| `400` | Bad Request | Invalid request (missing service_id, etc.) |
+| `400` | Bad Request | Invalid request (missing service_id, a service type without RTA, or PMM Server's own PostgreSQL database) |
 | `401` | Unauthorized | Missing or invalid authentication token |
 | `403` | Forbidden | Insufficient permissions |
 | `404` | Not Found | Service not found |
@@ -231,9 +245,13 @@ If PMM can't start a session, the request fails with an HTTP status and an error
 
     Check the service ID, or [list the services you can monitor](ref:list-rta-services) to get the correct one.
 
+- HTTP `400`: `Real-Time Analytics is not available for PMM Server's own database (service <ID>)`
+
+    The service is PMM Server's own PostgreSQL database, `pmm-server-postgresql`, which RTA doesn't monitor. To find a service you can use, [list the services you can monitor](ref:list-rta-services).
+
 - HTTP `400`: `Service <ID> of type <type> does not support Real-Time Analytics`
 
-    RTA works only with MongoDB and MySQL services. To find a service you can use, [list the services you can monitor](ref:list-rta-services).
+    RTA works only with MongoDB, MySQL and PostgreSQL services. To find a service you can use, [list the services you can monitor](ref:list-rta-services).
 
 - HTTP `400`: `Service <ID> of type <type> doesn't have agents to retrieve credentials and pmm-agent ID`
 
@@ -241,7 +259,7 @@ If PMM can't start a session, the request fails with an HTTP status and an error
 
 - HTTP `400`: `Service <name> (id <ID>) has pmm-agent with version <version> not supporting Real-Time Analytics; pmm-agent <version> or later is required.`
 
-    PMM Client on the database host is too old. RTA needs PMM Client 3.7.0 or later for MongoDB, and 3.11.0 or later for MySQL. [Upgrade PMM Client](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_client.html) on that host. Adding an RTA agent with `POST /v1/inventory/agents`, using `rta_mysql_agent` or `rta_mongodb_agent`, fails with the same error when that PMM Agent has reported an older version.
+    PMM Client on the database host is too old. RTA needs PMM Client 3.7.0 or later for MongoDB, and 3.11.0 or later for MySQL and PostgreSQL. [Upgrade PMM Client](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_client.html) on that host. Adding an RTA agent with `POST /v1/inventory/agents`, using `rta_mysql_agent` or `rta_mongodb_agent`, fails with the same error when that PMM Agent has reported an older version.
 
 ### Session shows ERROR status
 
@@ -259,6 +277,14 @@ If a session started but its `status` is now `SESSION_STATUS_ERROR`, [list sessi
 
     This message appears only for MySQL services. PMM can't read `performance_schema` on the MySQL server. For example: `Real-Time Analytics is not supported for this instance: performance_schema is disabled; it is required for Real-Time Analytics`. Check that `performance_schema` is enabled and that the PMM database user has the `SELECT` privilege. If anything is missing, [set up the MySQL requirements for RTA](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html#check-the-service-requirements).
 
+- `Cannot connect to PostgreSQL: <reason>`
+
+    This message appears only for PostgreSQL services. PMM Agent can't connect to the PostgreSQL server. Check that the PostgreSQL server is running and reachable from the database host, and that the PMM database user's credentials are correct.
+
+- `Cannot run the Real-Time Analytics query on this instance: <reason>`
+
+    This message appears only for PostgreSQL services. PMM Agent connected, but the PostgreSQL server can't run the RTA query on `pg_stat_activity`. Check that the PMM database user can read `pg_stat_activity`.
+
 - No message, or a different message
 
     MongoDB sessions don't report a `status_message`, so for MongoDB, start here. This usually means PMM Agent lost its connection, or the database user doesn't have the required permissions. On the database host, check these in order:
@@ -267,3 +293,7 @@ If a session started but its `status` is now `SESSION_STATUS_ERROR`, [list sessi
     2. Check the PMM Agent logs for errors.
     3. Check that the host can reach the database.
     4. (MongoDB only) Check that the PMM database user can run `$currentOp`. [Review the required MongoDB permissions](https://www.mongodb.com/docs/manual/reference/operator/aggregation/currentOp/#access-control).
+
+### PostgreSQL session shows only some sessions
+
+If a PostgreSQL session is `SESSION_STATUS_RUNNING` and its `status_message` is `The monitoring user is not a member of pg_read_all_stats, so other users' sessions are not shown. Grant it pg_monitor or pg_read_all_stats.`, the PMM database user can see only its own sessions in `pg_stat_activity`. Grant it `pg_monitor` or `pg_read_all_stats`.

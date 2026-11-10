@@ -477,6 +477,9 @@ type ListAgentsOKBody struct {
 
 	// rta mysql agent
 	RtaMysqlAgent []*ListAgentsOKBodyRtaMysqlAgentItems0 `json:"rta_mysql_agent"`
+
+	// rta postgresql agent
+	RtaPostgresqlAgent []*ListAgentsOKBodyRtaPostgresqlAgentItems0 `json:"rta_postgresql_agent"`
 }
 
 // Validate validates this list agents OK body
@@ -560,6 +563,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRtaMysqlAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaPostgresqlAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1169,6 +1176,36 @@ func (o *ListAgentsOKBody) validateRtaMysqlAgent(formats strfmt.Registry) error 
 	return nil
 }
 
+func (o *ListAgentsOKBody) validateRtaPostgresqlAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaPostgresqlAgent) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.RtaPostgresqlAgent); i++ {
+		if swag.IsZero(o.RtaPostgresqlAgent[i]) { // not required
+			continue
+		}
+
+		if o.RtaPostgresqlAgent[i] != nil {
+			if err := o.RtaPostgresqlAgent[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "rta_postgresql_agent" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "rta_postgresql_agent" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list agents OK body based on the context it is used
 func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -1250,6 +1287,10 @@ func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := o.contextValidateRtaMysqlAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaPostgresqlAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1769,6 +1810,32 @@ func (o *ListAgentsOKBody) contextValidateRtaMysqlAgent(ctx context.Context, for
 				ce := new(errors.CompositeError)
 				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "rta_mysql_agent" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) contextValidateRtaPostgresqlAgent(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.RtaPostgresqlAgent); i++ {
+		if o.RtaPostgresqlAgent[i] != nil {
+
+			if swag.IsZero(o.RtaPostgresqlAgent[i]) { // not required
+				return nil
+			}
+
+			if err := o.RtaPostgresqlAgent[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "rta_postgresql_agent" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "rta_postgresql_agent" + "." + strconv.Itoa(i))
 				}
 
 				return err
@@ -6438,6 +6505,309 @@ func (o *ListAgentsOKBodyRtaMysqlAgentItems0RtaOptions) MarshalBinary() ([]byte,
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyRtaMysqlAgentItems0RtaOptions) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyRtaMysqlAgentItems0RtaOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyRtaPostgresqlAgentItems0 RTAPostgreSQLAgent runs within pmm-agent and sends PostgreSQL Real-Time Query Analytics data to the PMM Server.
+swagger:model ListAgentsOKBodyRtaPostgresqlAgentItems0
+*/
+type ListAgentsOKBodyRtaPostgresqlAgentItems0 struct {
+	// Unique agent identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// PostgreSQL username for reading pg_stat_activity.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// rta options
+	RtaOptions *ListAgentsOKBodyRtaPostgresqlAgentItems0RtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this list agents OK body rta postgresql agent items0
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listAgentsOkBodyRtaPostgresqlAgentItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAgentsOkBodyRtaPostgresqlAgentItems0TypeStatusPropEnum = append(listAgentsOkBodyRtaPostgresqlAgentItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0StatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAgentsOkBodyRtaPostgresqlAgentItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listAgentsOkBodyRtaPostgresqlAgentItems0TypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAgentsOkBodyRtaPostgresqlAgentItems0TypeLogLevelPropEnum = append(listAgentsOkBodyRtaPostgresqlAgentItems0TypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ListAgentsOKBodyRtaPostgresqlAgentItems0LogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAgentsOkBodyRtaPostgresqlAgentItems0TypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list agents OK body rta postgresql agent items0 based on the context it is used
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyRtaPostgresqlAgentItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyRtaPostgresqlAgentItems0RtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model ListAgentsOKBodyRtaPostgresqlAgentItems0RtaOptions
+*/
+type ListAgentsOKBodyRtaPostgresqlAgentItems0RtaOptions struct {
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this list agents OK body rta postgresql agent items0 rta options
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0RtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list agents OK body rta postgresql agent items0 rta options based on context it is used
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0RtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0RtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyRtaPostgresqlAgentItems0RtaOptions) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyRtaPostgresqlAgentItems0RtaOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
