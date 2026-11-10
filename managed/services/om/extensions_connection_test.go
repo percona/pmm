@@ -135,6 +135,12 @@ func TestResolveExtensions(t *testing.T) {
 			wantToken: "explicit",
 			wantWarn:  "will cross the network in clear text",
 		},
+		{
+			name:     "explicit plain-HTTP URL off this host, without a token",
+			url:      "http://extensions.example.com:9000",
+			wantURL:  "http://extensions.example.com:9000",
+			wantWarn: "users' credentials will cross the network in clear text",
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			enabled := ""

@@ -41,8 +41,9 @@ const (
 // PMM_EXTENSIONS_TOKEN set, it targets the side-car PMM_ENABLE_EXTENSIONS provisions, as its nginx location does.
 func ResolveExtensions(extensionsURL, token string, l *logrus.Entry) (string, string) {
 	if extensionsURL != "" {
-		if token != "" && cleartextToken(extensionsURL) {
-			l.Warnf("PMM Extensions at %s is plain HTTP and off this host: its token will cross the network in clear text", extensionsURL)
+		if cleartextToken(extensionsURL) {
+			l.Warnf("PMM Extensions at %s is plain HTTP and off this host: "+
+				"PMM_EXTENSIONS_TOKEN and users' credentials will cross the network in clear text", extensionsURL)
 		}
 		return extensionsURL, token
 	}
