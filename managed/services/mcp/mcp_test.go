@@ -42,6 +42,8 @@ func TestInitializeAndListTools(t *testing.T) {
 	assert.Contains(t, init.Instructions, "Untrusted")
 	assert.Contains(t, init.Instructions, "query_ref")
 	assert.Contains(t, init.Instructions, "client host")
+	assert.Contains(t, init.Instructions, "pmm_alerts")
+	assert.Contains(t, init.Instructions, "alert names, labels, summaries and descriptions")
 	assert.Contains(t, init.Instructions, "environment")
 	assert.Contains(t, init.Instructions, "PMM's remediation in the message")
 	assert.Contains(t, init.Instructions, "pmm_service_health")
