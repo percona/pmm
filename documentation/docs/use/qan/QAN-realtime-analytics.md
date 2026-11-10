@@ -1,118 +1,125 @@
 # Real-time Query Analytics for MongoDB
 
-If you monitor MongoDB services with PMM, Real-time Query Analytics (RTA) shows you the operations running on them right now. For MySQL, Percona Server for MySQL or MariaDB services, [use Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md) instead.
+Use Real-time Query Analytics (RTA) to see what your MongoDB services are doing right now. RTA shows the operations that are running, so you can find the ones that are slow, scanning whole collections or waiting for a lock.
 
-While [Query Analytics (QAN) Stored metrics](../qan/QAN-stored-metrics.md) capture queries after they complete so you can analyze and optimize past performance, RTA displays queries as they execute. This allows you to identify problematic operations immediately and take action before they affect users.
+RTA also supports MySQL, Percona Server for MySQL and MariaDB, but shows different data for them. For those services, [follow the MySQL instructions](QAN-realtime-analytics-mysql.md) instead.
 
-RTA displays live query data, updated every 1-5 seconds. Data is held in memory only and refreshes with each update.
+## Choose between RTA and QAN
 
-Use the **Pause** button to freeze the view for investigation or to export a snapshot of the current data.
+Use RTA when you're troubleshooting a problem as it happens. For example, if your application slows down or stops responding, RTA shows you the operations that are running, how long they've been running and where they come from.
 
-## Before you start
+[Query Analytics (QAN)](../qan/QAN-stored-metrics.md) works differently. It stores metrics for queries after they finish, so you can find slow, frequent or resource-intensive queries and spot trends over time. Because it relies on finished queries, QAN can't show you what's stuck right now.
 
-### Service requirements
+In short, use QAN to understand query performance over time, and RTA to investigate what's happening right now.
 
-RTA requires at least one MongoDB service monitored by PMM. If you haven't set this up yet, see [Connect MongoDB to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md).
+## Prerequisites
 
-RTA reuses your existing MongoDB exporter credentials, so you don't need to configure anything else.
+### Check the service requirements
 
-### Role requirements
+RTA needs at least one MongoDB service monitored by PMM. If you haven't set one up yet, [connect MongoDB to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md).
 
-Starting and stopping RTA sessions requires the **Admin** role. Users with other roles have View-only access to sessions that an Admin has already started.
-For details on PMM roles, see [Standard role permissions](../../admin/roles/index.md).
+You need:
+
+- **PMM Client 3.7.0 or later** on the monitored host. Run `pmm-admin status` to check.
+- **A running MongoDB exporter** for the service. RTA reuses its credentials, so you don't need to configure anything else.
+
+### Check your role
+
+Starting and stopping RTA sessions requires the **Admin** role. Users with other roles can view sessions that an Admin has already started.
+
+To check what each role can do, [review the standard role permissions](../../admin/roles/index.md).
+
+### Review privacy implications
+
+RTA displays operations as MongoDB reports them, which may include:
+
+- filter criteria and update values with sensitive information
+- credentials passed in queries
+- personal or confidential data used in query conditions
+
+Any PMM user who can open the **Query Analytics > Real-time** page can see this data. Consider your security requirements before you use RTA in production.
+
+RTA displays what MongoDB returns and exposes nothing beyond what `db.currentOp()` already provides.
 
 ## Start an RTA session
 
-You can start RTA from the PMM UI or from the command line.
+You can start RTA from the PMM UI or from the command line:
 
-### From the UI
+=== "From the UI"
 
-To start monitoring a MongoDB service:
+    To start monitoring a MongoDB service:
+    {.power-number}
+
+    1. Go to **Query Analytics** in the sidebar.
+    2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list. Click **+ New session** there.
+    3. Select a MongoDB service from the **Cluster/Service** drop-down and click **Start session**.
+    4. (Optional) To watch more services at once, for example all members of a replica set, click **+ New session** and repeat step 3 for each one.
+
+=== "From the command line"
+
+    To start RTA on a specific MongoDB service from the command line:
+    {.power-number}
+
+    1. If you haven't already, [add the MongoDB service](../commands/pmm-admin/add.md#add-mongodb).
+    2. Get the IDs you need:
+
+        ```bash
+        # Get your PMM Agent ID
+        pmm-admin status
+
+        # Get the MongoDB service ID
+        pmm-admin inventory list services
+        ```
+
+    3. Prepare the command that adds the RTA agent. Unlike the UI, this command doesn't reuse the exporter's connection settings, so pass the MongoDB user and password:
+
+        ```bash
+        pmm-admin inventory add agent rta-mongodb-agent <pmm-agent-id> <service-id> <mongodb-user> --password='<mongodb-password>'
+        ```
+
+    4. If the server requires TLS, add `--tls` and the certificate options to the command, such as `--tls-ca-file` and `--tls-certificate-key-file`.
+
+    5. Run the command. The output includes the RTA agent ID. Save it, because you need it to stop RTA later.
+
+    For all the options, see [pmm-admin inventory add agent rta-mongodb-agent](../commands/pmm-admin/inventory.md#pmm-admin-inventory-add-agent-rta-mongodb-agent).
+
+## Find operations that need attention
+
+When something is slow or stuck, start with the live operations table. It lists the operations running right now, with the longest-running ones at the top, so the most likely causes come first:
+
+![RTA live table for a MongoDB service](../../images/RTA_live.png)
+
+To find the operations behind your problem:
 {.power-number}
 
-1. Go to **Query Analytics** in the sidebar.
-2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list. Click **+ New session** there.
-3. Select a MongoDB service from the **Cluster/Service** drop-down and click **Start session**.
+1. Start at the top of the table. An operation with a high **Elapsed time** has been running for a long time and is a likely cause.
+2. If you're watching several services, check **Host** to see which one the operation is running on.
+3. When you've found the operation, [investigate it](#investigate-an-operation). If it has to stop right away, [kill it](#stop-a-problematic-operation).
 
-The live operations table appears and begins updating automatically:
+### Narrow down the operations
 
-![RTA live table](../../images/RTA_live.png)
+On a busy server, the live operations table can list many operations at once. To narrow it down to the ones behind your problem:
+{.power-number}
 
-### From the command line
+1. If several sessions are running, select only the services you're investigating in **Cluster/Service**. The view shows one database type at a time, so you can't combine MongoDB and MySQL services in it.
+2. To find specific operations, click :material-filter-variant: **Show/Hide filters** and filter by query text, or by a **Min** and **Max** elapsed time.
 
-Use `pmm-admin inventory add agent rta-mongodb-agent` to start RTA on a specific MongoDB service:
+### Pause the view
 
-```bash
-# Unlike the UI, this command does not reuse exporter connection settings.
-# For username/password authentication:
-pmm-admin inventory add agent rta-mongodb-agent <pmm-agent-id> <service-id> <mongodb-user> --password='<mongodb-password>'
-# If TLS is required, also supply --tls and the necessary certificate options,
-# such as --tls-ca-file and --tls-certificate-key-file.
-```
+If an operation you want to check keeps moving or disappears on the next refresh, pause the view:
+{.power-number}
 
-Get the required IDs with:
-
-```bash
-# Get your PMM Agent ID
-pmm-admin status
-
-# Get the MongoDB service ID
-pmm-admin inventory list services
-```
-
-Make sure to [add the MongoDB service](../commands/pmm-admin/add.md#add-mongodb) first if you haven't already. 
-
-The output includes the RTA agent ID. Save it, as you will need it to stop RTA later. For the full flag reference, see [pmm-admin inventory add agent rta-mongodb-agent](../commands/pmm-admin/inventory.md#pmm-admin-inventory-add-agent-rta-mongodb-agent).
-
-## Stop an RTA session
-
-### From the UI
-
-To stop an RTA session, click **All sessions** in the **Real-time** view and click **Stop** next to the session, or click **Stop all** to stop all at once.
-
-### From the command line
-
-Remove the RTA agent to stop Real-Time Analytics for that service:
-
-```bash
-# 1. Find the RTA agent ID
-pmm-admin inventory list agents
-
-# 2. Remove it
-pmm-admin inventory remove agent <rta-agent-id>
-```
-
-For the full flag reference, see [pmm-admin inventory remove agent](../commands/pmm-admin/inventory.md#pmm-admin-inventory-remove-agent).
-
-
-This stops Real-Time Analytics for that service but does not affect the MongoDB exporter or stored QAN metrics. To restart RTA, use `pmm-admin inventory add agent rta-mongodb-agent`.
-
-## Explore the Real-time view
-
-The Real-time view lists the operations that are running now. Use the toolbar to choose services, control updates and export what you see.
-
-### Filter by service
-
-If you have multiple MongoDB services registered, click **+ New session** to run sessions simultaneously. This enables you to monitor multiple replica set members at once or track several services during an incident.
-
-Use the **Cluster/Service** drop-down to focus on specific MongoDB services. You can select multiple services to monitor activity across replica set members. The view shows one database type at a time, so you can't combine MongoDB and MySQL services in one view.
-
-### Read the overview
-
-Each row is one operation currently running. The table lists the longest-running operations first and has these columns:
-
-- **Query text**: the operation's command, reconstructed as a query.
-- **Host**: the service the operation is running on.
-- **Operation ID**: the value you pass to `db.killOp()` to stop the operation.
-- **Elapsed time**: how long the operation has been running, for example `1.500 s`. Under 10 seconds, the value has three decimals. From 10 seconds on, it's in whole seconds.
-
-**Elapsed time** stays pinned to the right edge so it remains visible while you scroll.
+1. Click **Pause**. The view stops updating, but PMM Client keeps collecting in the background.
+2. Check the operations you need. To see the latest data without resuming live updates, click :material-refresh: **Refresh**. To keep a copy of what you see, [export it](#export-rta-data).
+3. To go back to live updates, click **Resume**.
 
 ### Control the refresh rate
 
-Use **Auto-refresh** to adjust how often the view updates, from 1 to 5 seconds. The default is 2 seconds. The refresh rate only controls how often your browser reads the data that PMM Server already holds in memory, so a faster refresh adds no load to your database.
+Use **Auto-refresh** to adjust how often the view updates. The refresh rate only controls how often your browser reads the data that PMM Server already holds, so a faster refresh adds no load to your database.
 
-PMM Client reads operations from the database at its own collect interval, every 2 seconds by default. To change it:
+PMM Client reads operations from the database at its own collect interval, every 2 seconds by default.
+
+To change the collect interval:
 {.power-number}
 
 1. On the monitored host, run `pmm-admin list` and find the agent ID of the `rta_mongodb_agent`.
@@ -122,41 +129,86 @@ PMM Client reads operations from the database at its own collect interval, every
     pmm-admin inventory change agent rta-mongodb-agent <agent-id> --collect-interval=5s
     ```
 
-### Pause the stream
+## Investigate an operation
 
-Click **Pause** to freeze the current view so an operation doesn't disappear on the next refresh. The agent keeps collecting in the background, and **Auto-refresh** shows **OFF**. Pausing also shows two buttons next to **Resume**:
+The **Details** tab of an operation shows what it's doing and where it comes from:
 
-- :material-refresh: **Refresh** reads the latest data once, without resuming live updates. It's an icon button: hover over it to see its name.
-- **Export** downloads the current view, so you can [export RTA data](#export-rta-data).
+![Details tab of a MongoDB operation whose Plan summary is COLLSCAN](../../images/RTA_Details_tab.png)
 
-#### Check an operation in the Details pane
+To check an operation:
+{.power-number}
 
-When you open a row, the view pauses so the operation stays in place while you check it. The **Details** pane shows the operation as it was when you opened it. From the pane:
+1. Click the operation's row. The view pauses until you close the pane, so the operation stays in place, and the **Details** tab shows the operation as it was when you clicked it.
+2. To check whether the operation is still running, click :material-refresh: **Refresh**. If it has finished, the pane says so.
+3. To see newer values for the operation, close the pane and click the row again.
 
-- To check whether the operation is still running, click :material-refresh: **Refresh** next to the previous and next arrows. If the operation has finished, the pane marks it as no longer running.
-- To move to the operation above or below, click the previous or next arrow. This also works after the operation has finished.
-- To see newer values for the operation, close the pane and open the row again.
-- To go back to live updates, close the pane. Updates resume if they were running before you opened the row.
+### Find out who sent an operation
 
-### Export RTA data
+Killing a problem operation helps only until it runs again. To fix it at the source, find the application or person behind it:
+{.power-number}
 
-You can export a snapshot of the current RTA view to a CSV file. This is useful for capturing query data that is still in progress and may never appear in QAN.
+1. In the operation's **Details** tab, check **Client app name**, **User name** and **Client address** to find the application and host that sent it.
+2. Check **Database name** and **Collection** to see which part of your database it affects. If the same collection keeps showing up in slow operations, it may need better indexing.
 
-For example, a long-running query that is killed before it completes never appears in QAN, because QAN only records queries that finish. Exporting the RTA view captures its data at the moment of the snapshot, before it disappears.
+### Spot inefficient operations
 
-The **Export** button is hidden while auto-refresh is active and appears once you pause.
+A slow operation is often doing more work than it should. To find out why, check its **Details** tab:
 
-To export data:
+- To check for a missing index, look at **Plan summary**. `COLLSCAN` means that the operation scanned the whole collection, which often means that an index is missing.
+- To check what kind of work it's doing, look at **Operation**: query, insert, update or command. This tells you whether the slowdown comes from heavy writes, complex reads or unexpected administrative commands.
+
+### Find out when an operation started
+
+To connect a slow operation with other events, such as a deployment, a traffic spike or an alert, compare its timestamps in the **Details** tab:
+
+- **Operation start time**: when MongoDB started running the operation
+- **Data capture time**: when PMM captured this snapshot
+
+### Check for lock contention
+
+If operations seem stuck, check whether they're waiting for a lock. In the operation's **Raw data** tab, look for:
+
+- `waitingForLock: true`, which means that the operation is waiting for a lock
+- `locks`, which shows the lock types the operation holds
+
+![Raw data tab of a MongoDB operation, showing the currentOp document](../../images/Raw_data_RTA.png)
+
+Operations waiting for locks often point to write contention, or to a long-running operation that blocks others.
+
+### View raw data
+
+View the raw data when you need a value that the **Details** tab doesn't show, or want to confirm exactly what MongoDB reported. The raw data is the complete `currentOp` document for the operation, including the full command structure, driver version and platform details. These can help you find problems caused by outdated drivers or specific client configurations.
+
+To view it, click the operation's row and open the **Raw data** tab.
+
+## Stop a problematic operation
+
+Killing an operation can leave data in an inconsistent state, so be careful, especially with writes. To stop an operation:
+{.power-number}
+
+1. Click the row to open the **Details** tab.
+2. Copy the **Operation ID**.
+3. Connect to your MongoDB instance and run:
+
+    ```javascript
+    db.killOp(<operation_id>)
+    ```
+
+## Export RTA data
+
+You can export a snapshot of the current view to CSV. This captures operations that are still running and may never appear in QAN. For example, a long-running operation that's killed before it finishes never reaches QAN, because QAN only records queries that finish.
+
+To export the current view:
 {.power-number}
 
 1. Go to **Query Analytics > Real-time**.
-2. Click **Pause** to freeze the live feed.
+2. Click **Pause**.
 3. Apply any filters or sort order you want reflected in the export.
-4. Click **Export** to download the file.
+4. Click **Export**.
 
-The export includes all records across all pages, respects active filters and sort order, and is saved as `mongodb_rta_export_{timestamp}.csv`.
+The export includes all records across all pages and is saved as `mongodb_rta_export_{timestamp}.csv`.
 
-#### Exported fields
+### Exported fields
 
 The columns are generated from the query data that PMM returns, so the exact set depends on your PMM version. Most column names match the API field names. A few keep shorter names: `operation_id`, `elapsed_exec_time_sec`, `service`, `user_name`, `data_capture_time` and `raw_query`.
 
@@ -174,7 +226,7 @@ A MongoDB export currently contains:
 - `db_instance_address`: address of the MongoDB instance
 - `client_address`: address of the client that sent the query
 - `database_name`: database the operation is running against
-- `service`:  PMM service name
+- `service`: PMM service name
 - `user_name`: MongoDB user who issued the query
 - `collection`: collection the operation is targeting
 - `operation`: type of operation (query, insert, update, command)
@@ -186,132 +238,73 @@ A MongoDB export currently contains:
 - `service_id`: identifier of the PMM service
 - `query_text`: query as shown in the **Query text** column
 
-### Share your view
+## Share your view
 
-Click the :material-share-variant: **Share session settings** icon in the page header to copy a link to your clipboard. The link preserves your selected cluster or service filter, query text filter, and page size.
+To show a colleague what you're looking at, click :material-share-variant: **Share session settings** in the page header. PMM copies a link that keeps your selected services, query text filter and page size.
 
-When someone opens your link, they see live data with your filters applied, not the exact operations you were viewing, since RTA data updates continuously.
+The link opens live data with your filters applied, not the exact operations you were viewing, because RTA data updates continuously.
 
-### View all sessions
+## Stop an RTA session
 
-Click **All sessions** to see and manage all running RTA sessions, for MongoDB and MySQL alike. From here you can stop one session with **Stop**, select several and click **Stop selected**, or click **Stop all**:
+Each running session adds load to the monitored database and to PMM Server, so stop sessions you no longer need.
 
-![Stop RTA session](../../images/stop_RTA_session.png)
+=== "From the UI"
 
-## Monitor and investigate operations
+    Click **All sessions** in the **Real-time** view. To stop one session, click **Stop** next to it. To stop several, select them and click **Stop selected**, or click **Stop all**:
 
-### Find slow operations
+    ![Sessions list with one session selected and the Stop selected, Stop all and New session buttons](../../images/stop_RTA_session.png)
 
-To identify operations that are taking too long:
-{.power-number}
+=== "From the command line"
 
-1. Look at the top of the table, which lists the longest-running operations first. To filter by duration, click :material-filter-variant: **Show/Hide filters** and enter a **Min** or **Max** value under **Elapsed time**.
-2. Click an operation to open the **Details** tab, then check **Plan summary** for `COLLSCAN`. This means the query scanned the entire collection, often a sign that an index is missing.
+    To stop RTA on a service, remove its RTA agent:
+    {.power-number}
 
-    ![RTA Details tab](../../images/RTA_Details_tab.png)
+    1. Find the RTA agent ID:
 
-Repeated slow queries on the same collection often indicate it needs better indexing.
+        ```bash
+        pmm-admin inventory list agents
+        ```
 
-### Trace an operation to its source
+    2. Remove the agent:
 
-When you spot a problematic operation:
-{.power-number}
+        ```bash
+        pmm-admin inventory remove agent <rta-agent-id>
+        ```
 
-1. Click the row to open the **Details** tab. 
-2. Check **Client app name**, **User name**, and **Client address** to identify which application or server sent the query.
-3. Check **Database name** and **Collection** to see which part of your database is affected. 
-
-    If the same collection appears repeatedly in slow operations, it may be a hotspot that needs optimization.
-
-### Understand workload patterns
-
-In the **Details** tab, check the **Operation** field to see what type of action the database is performing: query, insert, update, or command. 
-
-This helps you understand whether slow performance is caused by heavy writes, complex reads, or unexpected administrative commands.
-
-### Check for lock contention
-
-If operations seem stuck, open the **Raw data** tab and look for:
-
-- `waitingForLock: true`: the operation is blocked waiting for a lock
-- `locks`: shows which lock types the operation holds
-
-![RTA Raw Data tab](../../images/Raw_data_RTA.png)
-
-Operations waiting for locks may indicate write contention or long-running operations blocking others.
-
-### Correlate with other events
-
-Use the timestamps in the **Details** tab to connect slow operations with other events:
-
-- **Operation start time**: when the database started executing this operation
-- **Data capture time**: when PMM captured this snapshot
-
-Compare these with deployment times, traffic spikes, or alerts to understand what triggered the problem.
-
-### Stop a problematic operation
-
-!!! caution
-    Killing operations can leave data in an inconsistent state. Use carefully, especially for Write operations.
-
-If you need to kill a long-running operation:
-{.power-number}
-
-1. Click the operation to open the **Details** tab.
-2. Copy the **Operation ID** value.
-3. Connect to your MongoDB instance and run:
-
-    ```javascript
-    db.killOp(<operation_id>)
-    ```
-
-### View raw data
-
-The **Details** tab shows a reconstructed version of the query, which may differ slightly from what you originally sent. 
-
-For the complete diagnostic information from MongoDB's currentOp command, click the **Raw data** tab.
-The raw data also includes additional information not shown in the **Details** tab, such as driver version, platform details, and the full command structure. This can help identify issues caused by outdated drivers or specific client configurations.
-
-## Privacy considerations
-
-!!! caution "Sensitive data may be visible"
-
-    RTA displays raw query data from MongoDB, which may include:
-    
-    - filter criteria and update values containing sensitive information
-    - user credentials passed in queries
-    - personal or confidential data used in query conditions
-    
-    This data is visible to any PMM user who can access the QAN Real-time page. Consider your security requirements before enabling RTA in production environments.
-
-RTA displays exactly what MongoDB returns and does not expose any additional information beyond what `db.currentOp()` provides.
+    This stops RTA for that service but doesn't affect the MongoDB exporter or stored QAN metrics. To restart RTA, [start a new session](#start-an-rta-session). For all the options, see [pmm-admin inventory remove agent](../commands/pmm-admin/inventory.md#pmm-admin-inventory-remove-agent).
 
 ## Troubleshooting
 
-### No data appears
+### Session won't start
 
-Click **All sessions** and check that the session's status reads **Running for** a duration. If the status shows **Error**, hover over it to see the reason. Make sure that your database has active queries, because RTA doesn't display operations that finish between collection intervals.
+When a session can't start, its status shows **Error**.
+
+To fix it:
+{.power-number}
+
+1. In the sessions list, hover over the **Error** status to see the reason.
+2. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.7.0, upgrade it.
+3. Check the MongoDB exporter: go to **Inventory > Services**, find your MongoDB service and check that its MongoDB exporter is running.
+4. Check your role: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. If you're not an Admin, ask one to start the session.
+5. Start the session again.
+
+### No operations appear
+
+If the Real-time view stays empty, click **All sessions** and check the session's status. If it shows **Error**, see [Session won't start](#session-wont-start).
+
+If the session is running but the view is still empty, your database may have no operations that run long enough to catch. RTA sees only operations that are running at the moment PMM Client collects, so quick operations that start and finish between two collections never show up. To catch them, lower the collect interval, as described in [Control the refresh rate](#control-the-refresh-rate).
 
 ### Some fields show "Unavailable"
 
-Not all operations have all fields. For example, a `hello` command (like a ping) won't have a **Collection**, **User name**, or **Plan summary**.
+Not every operation has every field. For example, a `hello` command, which works like a ping, has no **Collection**, **User name** or **Plan summary**.
 
 ### The query text looks different from what I sent
 
-MongoDB's `currentOp()` doesn't return the original query text. RTA reconstructs it from the command structure, which may look different from your original query. 
-
-Check the **Raw data** tab to see exactly what MongoDB returned.
-
-### Session won't start
-
-Check the following requirements:
-
-- **PMM Client version**: 3.7.0 or later. Run `pmm-admin status` on the monitored host to check.
-- **MongoDB exporter**: Must be configured and running. Go to **PMM Inventory > Services**, select your MongoDB service, and check that the MongoDB exporter shows **Running**.
-- **Admin role**: Only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. Users with other roles can view live data from running sessions.
+MongoDB's `currentOp()` doesn't return the original query text, so RTA reconstructs it from the command structure. To see exactly what MongoDB returned, check the **Raw data** tab.
 
 ## Related topics
 
+- [Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md)
 - [Query Analytics overview](index.md)
 - [Connect MongoDB to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md)
 - [MongoDB dashboards](../../reference/dashboards/dashboard-mongodb-instance-summary.md)
