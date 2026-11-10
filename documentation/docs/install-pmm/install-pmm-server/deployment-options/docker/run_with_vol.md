@@ -37,14 +37,16 @@ To deploy PMM Server using Docker volumes:
     - **At startup** (add to the `docker run` command in step 3):
 
         ```sh
-        --env GF_SECURITY_ADMIN_PASSWORD="your_secure_password"
+        --env GF_SECURITY_ADMIN_PASSWORD='your_secure_password'
         ```
 
     - **After startup:**
 
         ```sh
-        docker exec -t pmm-server change-admin-password your_secure_password
+        docker exec -t pmm-server change-admin-password 'your_secure_password'
         ```
+
+    Keep the single quotes so that your shell doesn't interpret the symbols in the password. If the password contains a single quote, write it as `'\''`.
 
 5. Access the PMM web interface at `https://localhost` in a web browser. 
 If you are accessing the Docker host remotely, replace `localhost` with your server's IP address or hostname.
