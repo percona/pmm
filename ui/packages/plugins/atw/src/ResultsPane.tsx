@@ -294,6 +294,8 @@ export function ResultsPane({
     return map;
   }, [rows]);
 
+  // Clashes are found within the loaded page only; the expanded row always shows
+  // the filename.
   const rowLabel = useMemo(
     () =>
       scriptLabeler(

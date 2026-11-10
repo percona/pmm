@@ -201,7 +201,7 @@ describe('TaskRunDetailDrawer', () => {
       });
 
       expect(screen.getByTestId('run-detail-note')).toHaveTextContent(
-        /a command it needs is not available there, so nothing was executed/
+        /a command it needs is not available there\. Nothing was executed, so this is not a script failure/
       );
       expect(screen.queryByTestId('log-viewer')).not.toBeInTheDocument();
     });
@@ -215,7 +215,7 @@ describe('TaskRunDetailDrawer', () => {
 
       const note = screen.getByTestId('run-detail-note');
       expect(note).toHaveTextContent(
-        /was not started within the staleness threshold/
+        /was skipped because it did not start in time/
       );
       expect(note).not.toHaveTextContent(/no host/i);
     });
