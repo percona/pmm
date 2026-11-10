@@ -376,6 +376,8 @@ A `pmm_query_metrics` result is shaped to fit these limits:
 
 MCP reads at most 4 MiB of any response from the datasource proxy. A longer response fails the call. For a query or a selector that a model wrote, the error is `invalid_input` with a hint to narrow it with a `service_name` or `node_name` matcher and to aggregate. In other cases it's `pmm_unavailable`.
 
+`pmm_alerts` reads at most 16 MiB of each response from Grafana's alerting APIs. A longer response fails the call with `pmm_unavailable`, and the message names the limit.
+
 ### Rate limits
 
 The limits are per caller, identified by a hash of the credential, and per PMM Server replica:

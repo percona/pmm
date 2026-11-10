@@ -59,6 +59,9 @@ const (
 	// Bound of any datasource-proxy response read into memory.
 	maxVMResponseBytes = 4 << 20
 
+	// Bound of any response of Grafana's alerting APIs read into memory.
+	maxAlertingResponseBytes = 16 << 20
+
 	// VictoriaMetrics' default -search.maxConcurrentRequests is vmRequestsPerCPU per CPU, at most maxVMDefaultRequests.
 	vmRequestsPerCPU     = 2
 	maxVMDefaultRequests = 16
@@ -570,7 +573,7 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 			} `json:"groups"`
 		} `json:"data"`
 	}
-	err := c.getJSON(ctx, auth, "graph/api/prometheus/grafana/api/v1/rules", url.Values{"state": {"firing"}}, &resp)
+	err := c.getAlertingJSON(ctx, auth, "graph/api/prometheus/grafana/api/v1/rules", url.Values{"state": {"firing"}}, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -601,7 +604,7 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 // SilencedAlerts returns the Alertmanager's alerts that are not active: silenced, inhibited or not yet processed.
 func (c *client) SilencedAlerts(ctx context.Context, auth callerAuth) ([]amAlert, error) {
 	var out []amAlert
-	err := c.getJSON(ctx, auth, "graph/api/alertmanager/grafana/api/v2/alerts", url.Values{"active": {"false"}}, &out)
+	err := c.getAlertingJSON(ctx, auth, "graph/api/alertmanager/grafana/api/v2/alerts", url.Values{"active": {"false"}}, &out)
 	if err != nil {
 		return nil, err
 	}
@@ -611,7 +614,7 @@ func (c *client) SilencedAlerts(ctx context.Context, auth callerAuth) ([]amAlert
 // Silences returns the Alertmanager's silences.
 func (c *client) Silences(ctx context.Context, auth callerAuth) ([]amSilence, error) {
 	var out []amSilence
-	err := c.getJSON(ctx, auth, "graph/api/alertmanager/grafana/api/v2/silences", nil, &out)
+	err := c.getAlertingJSON(ctx, auth, "graph/api/alertmanager/grafana/api/v2/silences", nil, &out)
 	if err != nil {
 		return nil, err
 	}
@@ -650,6 +653,15 @@ func (c *client) getVM(ctx context.Context, auth callerAuth, uid, endpoint strin
 // decodes the JSON response.
 func (c *client) getJSON(ctx context.Context, auth callerAuth, path string, query url.Values, out any) error {
 	return c.doJSON(ctx, auth, http.MethodGet, path, query, nil, out)
+}
+
+// getAlertingJSON is getJSON for Grafana's alerting APIs, of which it reads at most maxAlertingResponseBytes.
+func (c *client) getAlertingJSON(ctx context.Context, auth callerAuth, path string, query url.Values, out any) error {
+	err := c.doJSONLimited(ctx, auth, http.MethodGet, path, query, nil, out, maxAlertingResponseBytes)
+	if errors.Is(err, errResponseTooLarge) {
+		return newToolError(codePMMUnavailable, "Grafana's response to GET /%s is larger than the 16 MiB limit; open PMM's Alerting page to see the alerts", path)
+	}
+	return err
 }
 
 // postJSON performs an authenticated POST with a JSON body and decodes the response.
