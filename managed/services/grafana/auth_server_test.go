@@ -19,6 +19,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -704,6 +705,31 @@ func TestAuthServerAdminHeader(t *testing.T) {
 // Access Roles apply to every principal Grafana authenticates by its user ID, service-account
 // tokens included; only the anonymous identity goes unfiltered, and a principal without a positive
 // user ID is refused.
+func TestMaybeAddLBACFiltersNoUserID(t *testing.T) {
+	t.Parallel()
+
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
+	mock.ExpectQuery("SELECT settings FROM settings").
+		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(`{"access_control":{"enabled":true}}`))
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	s := NewAuthServer(NewClient("127.0.0.1:1"), db)
+
+	rw := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/auth_request", nil)
+	err = s.maybeAddLBACFilters(t.Context(), rw, req, "/v1/qan/metrics:getReport", &authUser{role: viewer}, logrus.WithField("test", t.Name()))
+
+	authErr, ok := errors.AsType[*authError](err)
+	require.True(t, ok, "%v", err)
+	assert.Equal(t, codes.Unauthenticated, authErr.code)
+	assert.Empty(t, rw.Header().Get(lbacHeaderName))
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
 func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 	t.Parallel()
 
@@ -729,6 +755,8 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 				_, _ = fmt.Fprint(w, `{"id":9,"orgId":2,"role":"Admin"}`)
 			case "Bearer glsa_no_id":
 				_, _ = fmt.Fprint(w, `{"orgId":1,"role":"Viewer"}`)
+			case "Bearer glsa_admin":
+				_, _ = fmt.Fprint(w, `{"id":10,"orgId":1,"role":"Admin"}`)
 			default:
 				w.WriteHeader(http.StatusBadRequest)
 				_, _ = fmt.Fprint(w, `{"message":"Auth method is not service account token"}`)
@@ -919,6 +947,28 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 			name:       "anonymous on the data source proxy",
 			path:       vmPath,
 			auth:       func(*http.Request) {},
+			expect:     expectSettings(true),
+			wantStatus: http.StatusOK,
+		},
+		// PMM Client's paths are not filtered, so its Admin service account reads no role, whatever the default one.
+		{
+			name:       "admin service token on remote write",
+			path:       "/victoriametrics/api/v1/write",
+			auth:       func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_admin") },
+			expect:     expectSettings(true),
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:       "admin service token on inventory",
+			path:       "/v1/inventory/agents",
+			auth:       func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_admin") },
+			expect:     expectSettings(true),
+			wantStatus: http.StatusOK,
+		},
+		{
+			name:       "admin service token on management",
+			path:       "/v1/management/services",
+			auth:       func(r *http.Request) { r.Header.Set("Authorization", "Bearer glsa_admin") },
 			expect:     expectSettings(true),
 			wantStatus: http.StatusOK,
 		},

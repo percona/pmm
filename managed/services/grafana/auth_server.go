@@ -218,12 +218,6 @@ func (e *authError) Error() string {
 	return fmt.Sprintf("%s: %s", e.code, e.message)
 }
 
-// ErrInvalidUserID is returned when user ID is not valid.
-var ErrInvalidUserID = errors.New("InvalidUserID")
-
-// ErrCannotGetUserID is returned when we cannot retrieve user ID.
-var ErrCannotGetUserID = errors.New("CannotGetUserID")
-
 // errDotDotSegment is returned for a path that has a ".." segment once unescaped.
 var errDotDotSegment = errors.New("dot-dot segment in path")
 
@@ -348,7 +342,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
 		return
 	}
-	// The user could not be resolved; getAuthUser has already logged why.
+	// The user could not be resolved or has no user ID; the cause is logged where it was found.
 	lbacAuthErr, ok := errors.AsType[*authError](errF)
 	if ok {
 		s.returnAuthError(rw, lbacAuthErr, l)
@@ -398,8 +392,6 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, status int, msg map[str
 // maybeAddLBACFilters adds extra filters to requests proxied through VMProxy.
 // In case the request is not proxied through VMProxy, this is a no-op.
 // Matching happens on cleanedPath, the unescaped path the caller authenticated.
-// User is the one authentication resolved, or nil when the path required no role; a user that
-// cannot be resolved here is returned as its *authError.
 func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, cleanedPath string, user *authUser, l *logrus.Entry) error {
 	if !s.shallAddLBACFilters(cleanedPath) {
 		l.Debugf("Skipping LBAC filters for non-proxied request.")
@@ -413,10 +405,6 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 		if authErr != nil {
 			return authErr
 		}
-
-		if user == nil {
-			return fmt.Errorf("%w: user is empty", ErrCannotGetUserID)
-		}
 	}
 
 	if user.anonymous {
@@ -425,7 +413,8 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 	}
 
 	if user.userID <= 0 {
-		return fmt.Errorf("%w: %d", ErrInvalidUserID, user.userID)
+		l.Warn("Refusing an authenticated identity without a user ID: Access Roles cannot apply to it.")
+		return &authError{code: codes.Unauthenticated, message: "Unauthorized"}
 	}
 
 	filters, err := s.getLBACFilters(ctx, user.userID)
