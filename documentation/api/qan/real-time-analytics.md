@@ -103,9 +103,9 @@ When a MySQL table seems frozen, one transaction is often holding a lock while o
 4. In each blocked query's `my_sql_payload.blocked_by` list, check the `root` field:
 
     - If an entry has `root` set to `true`, that transaction isn't waiting for a lock itself, so it's at the head of the chain. More than one entry can have `root` set to `true`.
-    - If no entry has `root` set to `true`, the transactions are deadlocked. MySQL usually rolls back one of them on its own.
+    - If no entry has `root` set to `true`, each blocking transaction is itself waiting for a lock. Find that transaction's own query in the response, using `blocking_conn_id`, and check its `blocked_by` list the same way until you reach a root. If you come back to the statement you started from, the transactions are deadlocked, and MySQL usually rolls back one of them on its own.
 
-5. End each root transaction so the waiting statements can continue. For a deadlock that MySQL doesn't clear, end any transaction in `blocked_by`.
+5. End each root transaction so the waiting statements can continue.
 
 ### Diagnose lock contention (PostgreSQL)
 
