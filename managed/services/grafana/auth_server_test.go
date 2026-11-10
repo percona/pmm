@@ -702,9 +702,6 @@ func TestAuthServerAdminHeader(t *testing.T) {
 	}
 }
 
-// Access Roles apply to every principal Grafana authenticates by its user ID, service-account
-// tokens included; only the anonymous identity goes unfiltered, and a principal without a positive
-// user ID is refused.
 func TestMaybeAddLBACFiltersNoUserID(t *testing.T) {
 	t.Parallel()
 
@@ -730,6 +727,9 @@ func TestMaybeAddLBACFiltersNoUserID(t *testing.T) {
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
+// Access Roles apply to every principal Grafana authenticates by its user ID, service-account
+// tokens included; only the anonymous identity goes unfiltered, and a principal without a positive
+// user ID is refused.
 func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 	t.Parallel()
 
