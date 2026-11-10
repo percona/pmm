@@ -17,9 +17,9 @@ To assign access roles to users:
 
 ## Assign access roles to service accounts
 
-Access roles apply to service account tokens the same way they apply to users. A request made with a token returns only the metrics and Query Analytics data that the roles of the token's service account allow. A service account that has no role gets the [default role](manage_roles.md#set-a-role-as-default) when one of its tokens first reads metrics or Query Analytics data while access control is enabled. Until then, the service account holds no role.
+Access roles apply to service account tokens the same way they apply to users. When access control is enabled, a request made with a token returns only the metrics and Query Analytics data that the roles of the token's service account allow. A service account that has no role gets the [default role](manage_roles.md#set-a-role-as-default) when one of its tokens first reads metrics or Query Analytics data while access control is enabled. Until then, the service account holds no role.
 
-The **Service accounts** page has no access role selector, so you assign roles to a service account with the PMM API. The calls in this section need the credentials of an Admin user or a token of an Admin service account.
+The **Service accounts** page has no access role selector, so you assign roles to a service account with the PMM API. The calls in this section need the credentials of an Admin user or a token of an Admin service account. The `curl` examples use `-k` to accept PMM Server's self-signed certificate; remove it if your PMM Server has a trusted certificate.
 
 To assign access roles to a service account:
 {.power-number}

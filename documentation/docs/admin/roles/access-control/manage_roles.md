@@ -18,7 +18,7 @@ To edit access roles:
 
 ## Set a role as default
 
-When a user signs in to PMM for the first time and the user has no role assigned, the user is automatically assigned the **Default** role. A service account with no role gets the **Default** role when one of its tokens first reads metrics or Query Analytics data. For administrators, the default role provides a convenient way to configure default permissions for new users and service accounts.
+When a user signs in to PMM for the first time and the user has no role assigned, the user is automatically assigned the **Default** role. A service account with no role gets the **Default** role when one of its tokens first reads metrics or Query Analytics data while access control is enabled. For administrators, the default role provides a convenient way to configure default permissions for new users and service accounts.
 
 To set a role as default, do the following:
 {.power-number}

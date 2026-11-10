@@ -43,6 +43,10 @@ Here's how to generate a service account token:
 7. Optionally, set an expiration date for the service account token. PMM cannot automatically rotate expired tokens, which means and you will need to manually [update the PMM-agent configuration file](../use/commands/pmm-agent.md) with a new service account token. Permanent tokens, on the other hand, remain valid indefinitely unless specifically revoked.
 8. Click **Generate token**. A pop-up window will display the new token, which usually has a *glsa_* prefix.
 9. Click **Copy your service token to the clipboard** and store it securely.
+
+    !!! note ""
+        When access control is enabled, a service account token gets only the metrics and Query Analytics data that the access roles of its service account allow. To assign them, see [Assign access roles to service accounts](../admin/roles/access-control/assign_roles.md#assign-access-roles-to-service-accounts).
+
 Now you can use your new service token for authentication in PMM API calls or in your [pmm-agent configuration](../use/commands/pmm-agent.md).
 
 ## Authenticate
