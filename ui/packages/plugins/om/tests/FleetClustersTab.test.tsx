@@ -49,6 +49,14 @@ const clusterRows = () =>
         !within(row).queryByTestId('om-cluster-group')
     );
 
+const memberRows = () =>
+  screen
+    .getAllByRole('row')
+    // The detail panel's own row wraps the whole member table; skip it.
+    .filter(
+      (row) => within(row).queryAllByTestId('om-service-status').length === 1
+    );
+
 const groupHeaders = () => screen.queryAllByTestId('om-cluster-group');
 
 /** Turn a hidden column on from the chooser, the way a reader would. */
@@ -199,12 +207,7 @@ describe('FleetClustersTab', () => {
       within(clusterRows()[0]).getByRole('button', { name: /expand/i })
     );
 
-    const members = screen
-      .getAllByRole('row')
-      // The detail panel's own row wraps the whole member table; skip it.
-      .filter(
-        (row) => within(row).queryAllByTestId('om-service-status').length === 1
-      );
+    const members = memberRows();
     expect(
       members.map((row) => within(row).getByRole('link').textContent)
     ).toEqual(['orders-2', 'orders-1', 'orders-3', 'orders-router']);
@@ -255,6 +258,44 @@ describe('FleetClustersTab', () => {
     expect(within(down).getByTestId('om-down-for')).toHaveTextContent(
       /^for 2h( \d+s)?$/
     );
+  });
+
+  it('names an arbiter in its member row and in the cluster process summary', () => {
+    useOmTopology.mockReturnValue({
+      data: topology([
+        {
+          env_name: 'production',
+          clusters: [
+            cluster({
+              name: 'orders',
+              services: [
+                service({ service_name: 'orders-1', state: 'PRIMARY' }),
+                service({
+                  service_name: 'orders-arbiter',
+                  state: 'ARBITER',
+                  process_role: 'PROCESS_ROLE_ARBITER',
+                }),
+              ],
+            }),
+          ],
+        },
+      ]),
+      isPending: false,
+      isError: false,
+    });
+    renderPage();
+    showColumn('Process');
+
+    expect(clusterRows()[0]).toHaveTextContent('1 mongod · 1 Arbiter');
+
+    fireEvent.click(
+      within(clusterRows()[0]).getByRole('button', { name: /expand/i })
+    );
+    const arbiter = memberRows().find((row) =>
+      within(row).queryByText('orders-arbiter')
+    ) as HTMLElement;
+    expect(arbiter).toHaveTextContent('ARBITER');
+    expect(arbiter).toHaveTextContent('Arbiter');
   });
 
   it('links each member to its PMM dashboard, a down one included', () => {
