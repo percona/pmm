@@ -21,7 +21,8 @@
 //
 // Every tool call goes back out through PMM's public REST API on the nginx
 // loopback (http://127.0.0.1:8080 by default), forwarding the caller's
-// Authorization and Cookie headers verbatim. The package never reads
+// credentials: a token as a Bearer Authorization without cookies, Basic
+// credentials and a session cookie as received. The package never reads
 // ClickHouse, VictoriaMetrics or PostgreSQL directly and never calls
 // pmm-managed's internal services: the tools therefore inherit PMM's
 // per-caller RBAC (and LBAC where nginx injects it) and keep working across

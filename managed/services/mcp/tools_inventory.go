@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
 	"slices"
 	"sort"
@@ -32,6 +33,10 @@ const (
 	engineMySQL      = "mysql"
 	enginePostgreSQL = "postgresql"
 	engineMongoDB    = "mongodb"
+	engineProxySQL   = "proxysql"
+	engineHAProxy    = "haproxy"
+	engineValkey     = "valkey"
+	engineExternal   = "external"
 
 	unknownVersion = "unknown"
 
@@ -39,45 +44,60 @@ const (
 	inventoryMaxLimit     = 200
 )
 
-// versionMetrics maps an engine to the metric and label that carry the server
-// version. Confirmed live on PMM 3.8.1: inventory's version field is empty, so
-// versions come from the exporters' info metrics.
+// serviceTypes are PMM's service types, the engines of the service list.
+var serviceTypes = []string{engineMySQL, enginePostgreSQL, engineMongoDB, engineProxySQL, engineHAProxy, engineValkey, engineExternal}
+
+const (
+	// The query that reads, with the look-back's seconds, the newest sample time of every up series, of any value.
+	serviceListQuery = "max by (service_id, service_name, service_type, node_id, node_name, environment, cluster) (tlast_over_time(up[%ds]))"
+
+	// The longest look-back of the service list.
+	maxServiceListLookback = 7 * day
+	// The shortest look-back of the service list, longer than a scrape interval, so that a short window keeps a live service.
+	minServiceListLookback = 5 * time.Minute
+)
+
+// versionMetrics maps an engine to the exporter's info metric and label that carry the server version.
 var versionMetrics = map[string]struct{ metric, label string }{
 	engineMySQL:      {"mysql_version_info", "version"},
 	enginePostgreSQL: {"pg_static", "short_version"},
 	engineMongoDB:    {"mongodb_version_info", "mongodb"},
 }
 
-// serviceInfo is one monitored database service.
+// serviceInfo is one service of the caller's service list.
 type serviceInfo struct {
 	ServiceID   string
 	ServiceName string
 	Engine      string
 	Version     string
+	NodeID      string
 	NodeName    string
-	Address     string
-	Port        int64
+	Environment string
+	Cluster     string
+	LastSeen    time.Time
 }
 
 type versionInput struct{}
 
 type inventoryInput struct {
-	Engine string `json:"engine,omitempty" jsonschema:"Filter by engine: mysql, postgresql or mongodb"`
+	Engine string `json:"engine,omitempty" jsonschema:"Filter by service type: mysql, postgresql, mongodb, proxysql, haproxy, valkey or external"`
 	Node   string `json:"node,omitempty" jsonschema:"Filter by node name"`
 	Limit  int    `json:"limit,omitempty" jsonschema:"Maximum services to return; default 50, maximum 200"`
 	Offset int    `json:"offset,omitempty" jsonschema:"Number of services to skip, for the next page"`
 }
 
-// serviceRow is one monitored service in the result of pmm_inventory.
+// serviceRow is one service in the result of pmm_inventory.
 type serviceRow struct {
-	ServiceID   string `json:"service_id" jsonschema:"Service id."`
-	ServiceName string `json:"service_name" jsonschema:"Untrusted. Service name."`
-	Engine      string `json:"engine" jsonschema:"Engine: mysql, postgresql or mongodb."`
-	Version     string `json:"version,omitempty" jsonschema:"Untrusted. Server version, left out when it cannot be read."`
-	NodeName    string `json:"node_name,omitempty" jsonschema:"Untrusted. Name of the node the service runs on."`
-	Address     string `json:"address,omitempty" jsonschema:"Untrusted. Address the service listens on."`
-	Port        int64  `json:"port,omitempty" jsonschema:"Port the service listens on."`
-	PMMURL      string `json:"pmm_url,omitempty" jsonschema:"Link to the service's instance summary dashboard in PMM."`
+	ServiceID   string    `json:"service_id" jsonschema:"Service id."`
+	ServiceName string    `json:"service_name" jsonschema:"Untrusted. Service name."`
+	Engine      string    `json:"engine" jsonschema:"PMM service type: mysql, postgresql, mongodb, proxysql, haproxy, valkey or external."`
+	Version     string    `json:"version,omitempty" jsonschema:"Untrusted. Server version, left out when it cannot be read."`
+	NodeID      string    `json:"node_id,omitempty" jsonschema:"Id of the node the service runs on."`
+	NodeName    string    `json:"node_name,omitempty" jsonschema:"Untrusted. Name of the node the service runs on."`
+	Environment string    `json:"environment,omitempty" jsonschema:"Untrusted. Environment label of the service."`
+	Cluster     string    `json:"cluster,omitempty" jsonschema:"Untrusted. Cluster label of the service."`
+	LastSeen    time.Time `json:"last_seen" jsonschema:"Time of the service's newest up sample, whatever its value."`
+	PMMURL      string    `json:"pmm_url,omitempty" jsonschema:"Link to the service's instance summary dashboard in PMM."`
 }
 
 // inventoryResult is the result of pmm_inventory.
@@ -88,7 +108,7 @@ type inventoryResult struct {
 
 func (r inventoryResult) render() string {
 	if r.Page.Total == 0 {
-		return "No monitored services found."
+		return "No services found in your service list (services that sent metrics in the last hour)."
 	}
 	if len(r.Services) == 0 {
 		return r.Page.pastEnd("service list")
@@ -104,12 +124,13 @@ func (r inventoryResult) render() string {
 		if svc.NodeName != "" {
 			row += " | node=" + svc.NodeName
 		}
-		if svc.Address != "" {
-			row += " | address=" + svc.Address
-			if svc.Port != 0 {
-				row += fmt.Sprintf(":%d", svc.Port)
-			}
+		if svc.Environment != "" {
+			row += " | environment=" + svc.Environment
 		}
+		if svc.Cluster != "" {
+			row += " | cluster=" + svc.Cluster
+		}
+		row += " | last_seen=" + svc.LastSeen.UTC().Format(time.RFC3339)
 		if svc.PMMURL != "" {
 			row += " | " + link("View in PMM", svc.PMMURL)
 		}
@@ -133,7 +154,8 @@ func (s *Service) registerInventoryTools(server *mcp.Server) {
 	addTool(s, server, &mcp.Tool{
 		Name:  "pmm_inventory",
 		Title: "List monitored services",
-		Description: "List database services monitored by PMM, with engine and version. Use this to " +
+		Description: "List the monitored services in your service list: those whose up series you can read and that sent " +
+			"metrics in the last hour, with service type, version, node, environment, cluster and last_seen. Use this to " +
 			"discover a service_id / service_name and the exact engine version before analysing a query.",
 		Annotations: readOnly("List monitored services"),
 	}, s.inventory)
@@ -169,8 +191,8 @@ func (s *Service) version(ctx context.Context, req *mcp.CallToolRequest, _ versi
 }
 
 func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in inventoryInput) (inventoryResult, error) {
-	if in.Engine != "" && !slices.Contains([]string{engineMySQL, enginePostgreSQL, engineMongoDB}, in.Engine) {
-		return inventoryResult{}, newToolError(codeInvalidInput, "engine must be one of mysql, postgresql, mongodb; got '%s'", in.Engine)
+	if in.Engine != "" && !slices.Contains(serviceTypes, in.Engine) {
+		return inventoryResult{}, newToolError(codeInvalidInput, "engine must be one of %s; got '%s'", strings.Join(serviceTypes, ", "), in.Engine)
 	}
 	err := checkPage(in.Offset, in.Limit, inventoryMaxLimit)
 	if err != nil {
@@ -178,7 +200,7 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
-	services, err := s.listServices(ctx, auth, true)
+	services, err := s.listServices(ctx, auth, s.lastHour())
 	if err != nil {
 		return inventoryResult{}, err
 	}
@@ -208,9 +230,11 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 			ServiceID:   svc.ServiceID,
 			ServiceName: svc.ServiceName,
 			Engine:      svc.Engine,
+			NodeID:      svc.NodeID,
 			NodeName:    svc.NodeName,
-			Address:     svc.Address,
-			Port:        svc.Port,
+			Environment: svc.Environment,
+			Cluster:     svc.Cluster,
+			LastSeen:    svc.LastSeen,
 			PMMURL:      serviceURL(base, svc),
 		}
 		if svc.Version != unknownVersion {
@@ -221,72 +245,89 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 	return inventoryResult{Services: rows, Page: pg}, nil
 }
 
-// listServices fetches the inventory, with node names when withNodeNames is
-// set: that is one more call, which a lookup by service id does not need.
-func (s *Service) listServices(ctx context.Context, auth callerAuth, withNodeNames bool) ([]serviceInfo, error) {
-	resp, err := s.api.ListServices(ctx, auth)
+// listSpan returns the service list's look-back for a window, ending at its end or now, 5 minutes to 7 days long, and whether it cut the start.
+func listSpan(w window, now time.Time) (window, bool) {
+	end := w.To
+	if now.Before(end) {
+		end = now
+	}
+	from := w.From
+	cut := false
+	floor := end.Add(-maxServiceListLookback)
+	if floor.After(from) {
+		from, cut = floor, true
+	}
+	if end.Sub(from) < minServiceListLookback {
+		from = end.Add(-minServiceListLookback)
+	}
+	return window{From: from, To: end}, cut
+}
+
+// lastHour is the look-back of a call without a window.
+func (s *Service) lastHour() window {
+	return window{From: s.now().Add(-hourWindow), To: s.now()}
+}
+
+// listServices returns the services whose up series the caller can read and that sent a sample in the look-back of the window.
+func (s *Service) listServices(ctx context.Context, auth callerAuth, w window) ([]serviceInfo, error) {
+	span, _ := listSpan(w, s.now())
+	seconds := int64(span.To.Sub(span.From) / time.Second)
+	samples, err := s.queryMetrics(ctx, auth, fmt.Sprintf(serviceListQuery, seconds), span.To)
 	if err != nil {
 		return nil, err
 	}
 
-	var nodeNames map[string]string
-	if withNodeNames {
-		nodeNames = s.nodeNames(ctx, auth)
+	byID := map[string]serviceInfo{}
+	for _, sample := range samples {
+		id := sample.Labels["service_id"]
+		if id == "" || math.IsNaN(sample.Value) || math.IsInf(sample.Value, 0) {
+			continue
+		}
+		svc := serviceInfo{
+			ServiceID:   id,
+			ServiceName: sample.Labels["service_name"],
+			Engine:      sample.Labels["service_type"],
+			NodeID:      sample.Labels["node_id"],
+			NodeName:    sample.Labels["node_name"],
+			Environment: sample.Labels["environment"],
+			Cluster:     sample.Labels["cluster"],
+			LastSeen:    time.Unix(int64(sample.Value), 0).UTC(),
+		}
+		prev, ok := byID[id]
+		if !ok || svc.LastSeen.After(prev.LastSeen) {
+			byID[id] = svc
+		}
 	}
 
-	var out []serviceInfo
-	for _, m := range resp.Mysql {
-		out = append(out, serviceInfo{
-			ServiceID: m.ServiceID, ServiceName: m.ServiceName, Engine: engineMySQL,
-			Version: m.Version, NodeName: nodeNames[m.NodeID], Address: m.Address, Port: m.Port,
-		})
+	out := make([]serviceInfo, 0, len(byID))
+	for _, svc := range byID {
+		out = append(out, svc)
 	}
-	for _, p := range resp.Postgresql {
-		out = append(out, serviceInfo{
-			ServiceID: p.ServiceID, ServiceName: p.ServiceName, Engine: enginePostgreSQL,
-			Version: p.Version, NodeName: nodeNames[p.NodeID], Address: p.Address, Port: p.Port,
-		})
-	}
-	for _, m := range resp.Mongodb {
-		out = append(out, serviceInfo{
-			ServiceID: m.ServiceID, ServiceName: m.ServiceName, Engine: engineMongoDB,
-			Version: m.Version, NodeName: nodeNames[m.NodeID], Address: m.Address, Port: m.Port,
-		})
-	}
-	sort.SliceStable(out, func(i, j int) bool {
+	sort.Slice(out, func(i, j int) bool {
 		if out[i].Engine != out[j].Engine {
 			return out[i].Engine < out[j].Engine
 		}
-		return out[i].ServiceName < out[j].ServiceName
+		if out[i].ServiceName != out[j].ServiceName {
+			return out[i].ServiceName < out[j].ServiceName
+		}
+		return out[i].ServiceID < out[j].ServiceID
 	})
 	return out, nil
 }
 
-// nodeNames maps node ids to names; on failure it is empty, and so are the
-// names it would have filled.
-func (s *Service) nodeNames(ctx context.Context, auth callerAuth) map[string]string {
-	names := map[string]string{}
-	nodes, err := s.api.ListNodes(ctx, auth)
-	if err != nil {
-		s.l.WithField("tool", "pmm_inventory").Debugf("Cannot list nodes, node names will be empty: %s.", err)
-		return names
+// serviceNamed returns, among the services with the name, the one with the newest last_seen.
+func serviceNamed(services []serviceInfo, name string) (serviceInfo, bool) {
+	var found serviceInfo
+	ok := false
+	for _, svc := range services {
+		if svc.ServiceName != name {
+			continue
+		}
+		if !ok || svc.LastSeen.After(found.LastSeen) {
+			found, ok = svc, true
+		}
 	}
-	for _, n := range nodes.Generic {
-		names[n.NodeID] = n.NodeName
-	}
-	for _, n := range nodes.Container {
-		names[n.NodeID] = n.NodeName
-	}
-	for _, n := range nodes.Remote {
-		names[n.NodeID] = n.NodeName
-	}
-	for _, n := range nodes.RemoteRDS {
-		names[n.NodeID] = n.NodeName
-	}
-	for _, n := range nodes.RemoteAzureDatabase {
-		names[n.NodeID] = n.NodeName
-	}
-	return names
+	return found, ok
 }
 
 // enrichVersions fills empty versions from the exporters' version metrics,

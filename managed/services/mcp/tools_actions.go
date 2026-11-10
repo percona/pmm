@@ -319,8 +319,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	return r, nil
 }
 
-// storedPlan returns pg_stat_monitor's stored plan for a digest, or none on 200 {};
-// qan-api2 ignores the service_id it is sent until PMM-15697.
+// storedPlan returns pg_stat_monitor's stored plan for a digest, or none on 200 {}.
 func (s *Service) storedPlan(
 	ctx context.Context, auth callerAuth, ref queryRef, svc serviceInfo, pmmURL string, raw bool,
 ) (explainResult, error) {

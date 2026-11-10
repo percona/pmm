@@ -36,6 +36,7 @@ func TestInitializeAndListTools(t *testing.T) {
 	require.NotNil(t, init)
 	assert.Equal(t, serverName, init.ServerInfo.Name)
 	assert.Contains(t, init.Instructions, "pmm_inventory")
+	assert.Contains(t, init.Instructions, "sent metrics in the last hour")
 	assert.Contains(t, init.Instructions, "pmm_catalog")
 	assert.Contains(t, init.Instructions, "offset")
 	assert.Contains(t, init.Instructions, "Untrusted")

@@ -17,6 +17,7 @@
 package mcp
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -48,6 +49,18 @@ type basicAuthTransport struct {
 func (t *basicAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req = req.Clone(req.Context())
 	req.SetBasicAuth(t.user, t.password)
+	return t.next.RoundTrip(req)
+}
+
+// authorizationTransport sends the Authorization value on every request.
+type authorizationTransport struct {
+	next          http.RoundTripper
+	authorization string
+}
+
+func (t *authorizationTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req = req.Clone(req.Context())
+	req.Header.Set("Authorization", t.authorization)
 	return t.next.RoundTrip(req)
 }
 
@@ -84,6 +97,20 @@ func connect(t *testing.T) *mcp.ClientSession {
 	session, err := client.Connect(pmmapitests.Context, &mcp.StreamableClientTransport{
 		Endpoint:   endpoint(),
 		HTTPClient: httpClient(true),
+	}, nil)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = session.Close() })
+	return session
+}
+
+// connectWith opens an MCP session that sends authorization, a Bearer token or Basic credentials, on every request.
+func connectWith(t *testing.T, authorization string) *mcp.ClientSession {
+	t.Helper()
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "pmm-api-tests", Version: "1"}, nil)
+	session, err := client.Connect(pmmapitests.Context, &mcp.StreamableClientTransport{
+		Endpoint:   endpoint(),
+		HTTPClient: &http.Client{Transport: &authorizationTransport{next: httpClient(false).Transport, authorization: authorization}},
 	}, nil)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = session.Close() })
@@ -323,33 +350,104 @@ func TestExplainMySQLRunsLive(t *testing.T) {
 	}
 }
 
+// serviceListQuery is the query behind pmm_inventory's list, for the last hour.
+const serviceListQuery = "max by (service_id, service_name, service_type, node_id, node_name, environment, cluster) (tlast_over_time(up[3600s]))"
+
+// adminAuthorization returns the Basic Authorization value of the user in the test server URL.
+func adminAuthorization() string {
+	if pmmapitests.BaseURL.User == nil {
+		return ""
+	}
+	password, _ := pmmapitests.BaseURL.User.Password()
+	return "Basic " + base64.StdEncoding.EncodeToString([]byte(pmmapitests.BaseURL.User.Username()+":"+password))
+}
+
+// getJSON GETs a path of the server under test with authorization and decodes the JSON answer into out.
+func getJSON(t *testing.T, authorization, path string, query url.Values, out any) {
+	t.Helper()
+
+	u := pmmapitests.BaseURL.ResolveReference(&url.URL{Path: path, RawQuery: query.Encode()})
+	u.User = nil
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, u.String(), nil)
+	require.NoError(t, err)
+	req.Header.Set("Authorization", authorization)
+	res, err := httpClient(false).Do(req)
+	require.NoError(t, err)
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, res.StatusCode, "GET %s: %s", path, body)
+	require.NoError(t, json.Unmarshal(body, out))
+}
+
+// upRows returns the rows of the service-list query for the last hour, read through the Metrics datasource with authorization.
+func upRows(t *testing.T, authorization string) []map[string]string {
+	t.Helper()
+
+	var ds struct {
+		UID string `json:"uid"`
+	}
+	getJSON(t, authorization, "graph/api/datasources/name/Metrics", nil, &ds)
+	require.NotEmpty(t, ds.UID)
+
+	var answer struct {
+		Data struct {
+			Result []struct {
+				Metric map[string]string `json:"metric"`
+			} `json:"result"`
+		} `json:"data"`
+	}
+	getJSON(t, authorization, "graph/api/datasources/proxy/uid/"+ds.UID+"/api/v1/query", url.Values{"query": {serviceListQuery}}, &answer)
+
+	rows := make([]map[string]string, 0, len(answer.Data.Result))
+	for _, r := range answer.Data.Result {
+		rows = append(rows, r.Metric)
+	}
+	return rows
+}
+
 func TestInventory(t *testing.T) {
 	t.Parallel()
 
-	res, err := inventoryClient.Default.ServicesService.ListServices(&services_service.ListServicesParams{Context: pmmapitests.Context})
-	require.NoError(t, err)
+	rows := upRows(t, adminAuthorization())
+	require.NotEmpty(t, rows)
 
-	text, isError := callText(t, connect(t), "pmm_inventory", map[string]any{})
-	assert.False(t, isError)
+	var got struct {
+		Page struct {
+			Total int `json:"total"`
+		} `json:"page"`
+	}
+	text := callResult(t, connect(t), "pmm_inventory", map[string]any{"limit": 200}, &got)
 
-	for _, svc := range res.Payload.Mysql {
-		assert.Contains(t, text, "- "+svc.ServiceName+" | mysql ")
-		assert.Contains(t, text, "id="+svc.ServiceID)
+	ids := map[string]bool{}
+	for _, row := range rows {
+		id := row["service_id"]
+		if id == "" {
+			continue
+		}
+		ids[id] = true
+		assert.Contains(t, text, "id="+id)
+		assert.Contains(t, text, "- "+row["service_name"]+" | "+row["service_type"]+" ")
 	}
-	for _, svc := range res.Payload.Postgresql {
-		assert.Contains(t, text, "- "+svc.ServiceName+" | postgresql ")
-		assert.Contains(t, text, "id="+svc.ServiceID)
-	}
-	for _, svc := range res.Payload.Mongodb {
-		assert.Contains(t, text, "- "+svc.ServiceName+" | mongodb ")
+	assert.Len(t, ids, got.Page.Total)
+
+	assert.NotContains(t, text, "address=")
+	lastSeen := regexp.MustCompile(`last_seen=(\S+)`).FindAllStringSubmatch(text, -1)
+	require.Len(t, lastSeen, len(ids))
+	for _, m := range lastSeen {
+		seen, err := time.Parse(time.RFC3339, m[1])
+		require.NoError(t, err)
+		assert.WithinDuration(t, time.Now(), seen, time.Hour)
 	}
 
 	t.Run("EngineFilter", func(t *testing.T) {
 		t.Parallel()
 
-		text, isError := callText(t, connect(t), "pmm_inventory", map[string]any{"engine": "mysql"})
+		text, isError := callText(t, connect(t), "pmm_inventory", map[string]any{"engine": "mysql", "limit": 200})
 		assert.False(t, isError)
 		assert.NotContains(t, text, "| postgresql ")
+		assert.NotContains(t, text, "| mongodb ")
+		assert.NotContains(t, text, "| proxysql ")
 	})
 
 	t.Run("InvalidEngine", func(t *testing.T) {
@@ -520,8 +618,9 @@ func TestQueryMetricsBudget(t *testing.T) {
 	_, serviceName := monitoredService(t, "mysql")
 	session := connect(t)
 
+	// 3 minutes at the default 1 s step give every series many points on a new server and stay well under the 4 MiB read on an old one.
 	query := `{__name__=~"mysql_global_status_.*", service_name="` + serviceName + `"}`
-	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-6h", "step": "5m"})
+	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-3m"})
 	require.False(t, res.IsError, text)
 
 	structured, err := json.Marshal(res.StructuredContent)
@@ -535,7 +634,7 @@ func TestQueryMetricsBudget(t *testing.T) {
 	if out.TotalSeries == 0 {
 		t.Skipf("no mysql_global_status_ series for %s yet", serviceName)
 	}
-	assert.True(t, out.Summarized, "6 hours of many series must come back as summaries")
+	assert.True(t, out.Summarized, "3 minutes of many series at a 1 s step must come back as summaries")
 	assert.Greater(t, out.TotalSeries, 1)
 	assert.LessOrEqual(t, len(text)+len(structured), maxMetricsBytes)
 }

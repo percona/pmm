@@ -124,14 +124,15 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/v1/alerting/thresholds", admin},             // SetThreshold
 		{http.MethodPost, "/v1/alerting/thresholds:clear", admin},       // ClearThreshold
 		{http.MethodPost, "/v1/alerting/thresholds:batchUpdate", admin}, // BatchUpdateThresholds
-		// Inventory reads are viewer; everything else under /v1/inventory stays admin.
-		{http.MethodGet, "/v1/inventory/services", viewer},
-		{http.MethodGet, "/v1/inventory/services/svc-1", viewer},
+		// Inventory reads are admin, except services:getTypes.
+		{http.MethodGet, "/v1/inventory/services", admin},
+		{http.MethodGet, "/v1/inventory/services/svc-1", admin},
 		{http.MethodGet, "/v1/inventory/services:getTypes", viewer},
 		{http.MethodPost, "/v1/inventory/services", admin},
 		{http.MethodPut, "/v1/inventory/services/svc-1", admin},
 		{http.MethodDelete, "/v1/inventory/services/svc-1", admin},
-		{http.MethodGet, "/v1/inventory/nodes", viewer},
+		{http.MethodGet, "/v1/inventory/nodes", admin},
+		{http.MethodGet, "/v1/inventory/nodes/node-1", admin},
 		{http.MethodPost, "/v1/inventory/nodes", admin},
 		{http.MethodDelete, "/v1/inventory/nodes/node-1", admin},
 		{http.MethodGet, "/v1/inventory/agents", admin},

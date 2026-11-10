@@ -18,6 +18,7 @@ package mcp
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"io"
 	"math"
 	"net/http"
@@ -356,4 +357,75 @@ func TestLabelValuesRefusesAPathLabel(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, []string{"a"}, got)
 	assert.Equal(t, 1, fake.requestCount())
+}
+
+func TestBackingCallCredentials(t *testing.T) {
+	t.Parallel()
+
+	basic := func(userPassword string) string {
+		return "Basic " + base64.StdEncoding.EncodeToString([]byte(userPassword))
+	}
+	const cookie = "pmm_session=s1"
+
+	tests := []struct {
+		name          string
+		header        http.Header
+		authorization string
+		cookie        string
+	}{
+		{
+			name:          "Bearer token with a cookie",
+			header:        http.Header{"Authorization": {"Bearer glsa_x"}, "Cookie": {cookie}},
+			authorization: "Bearer glsa_x",
+		},
+		{
+			name:          "Basic api_key with a cookie",
+			header:        http.Header{"Authorization": {basic("api_key:glsa_x")}, "Cookie": {cookie}},
+			authorization: "Bearer glsa_x",
+		},
+		{
+			name:          "Basic service_token with a cookie",
+			header:        http.Header{"Authorization": {basic("service_token:glsa_x")}, "Cookie": {cookie}},
+			authorization: "Bearer glsa_x",
+		},
+		{
+			name:          "Basic login with a cookie",
+			header:        http.Header{"Authorization": {basic("alice:pw")}, "Cookie": {cookie}},
+			authorization: basic("alice:pw"),
+			cookie:        cookie,
+		},
+		{
+			name:   "cookie alone",
+			header: http.Header{"Cookie": {cookie}},
+			cookie: cookie,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			fake := newFakePMM(t, qanRoutes())
+			s := newQANService(t, fake, true)
+			session := connectWithHeaders(t, s, tt.header)
+
+			_, isError := callText(t, session, "pmm_version", nil)
+			require.False(t, isError)
+			_, isError = callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
+			require.False(t, isError)
+
+			fake.mu.Lock()
+			defer fake.mu.Unlock()
+			require.NotEmpty(t, fake.requests)
+			for _, r := range fake.requests {
+				assert.Equal(t, tt.authorization, r.header.Get("Authorization"), "%s %s", r.method, r.path)
+				assert.Equal(t, tt.cookie, r.header.Get("Cookie"), "%s %s", r.method, r.path)
+			}
+		})
+	}
+
+	keys := map[string]bool{}
+	for _, authorization := range []string{"Bearer glsa_x", basic("api_key:glsa_x"), basic("service_token:glsa_x")} {
+		keys[callerKey(callerAuthFromHeader(http.Header{"Authorization": {authorization}}))] = true
+	}
+	assert.Len(t, keys, 1)
 }

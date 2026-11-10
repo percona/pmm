@@ -45,7 +45,6 @@ const (
 
 func resolveRoutes(report string) map[string]fixture {
 	routes := qanRoutes()
-	routes["GET /v1/inventory/services"] = fixture{file: "services_with_mongo.json"}
 	routes["POST "+reportPath] = fixture{file: report}
 	return routes
 }
@@ -59,6 +58,7 @@ func TestResolveQuery(t *testing.T) {
 		PeriodTo:   testNow.Add(-25 * time.Hour),
 	}
 	hour := queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow}
+	notInHour := errNotInList(window{From: hour.PeriodFrom, To: hour.PeriodTo}, testNow, "").message
 
 	withService := func(ref queryRef, id string) queryRef {
 		ref.ServiceID = id
@@ -116,6 +116,47 @@ func TestResolveQuery(t *testing.T) {
 			},
 		},
 		{
+			name:       "explicit older service sharing a name",
+			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
+			ref:        withService(hour, "svc-re-old"),
+			wantReport: 1,
+			check: func(t *testing.T, got *resolvedQuery) {
+				t.Helper()
+				assert.Equal(t, "svc-re-old", got.Service.ServiceID)
+				assert.Equal(t, "svc-re-old", got.Ref.ServiceID)
+			},
+		},
+		{
+			name:       "explicit older service of a query_ref",
+			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
+			ref:        fromQueryRef(withService(hour, "svc-re-old")),
+			wantReport: 1,
+			check: func(t *testing.T, got *resolvedQuery) {
+				t.Helper()
+				assert.Equal(t, "svc-re-old", got.Service.ServiceID)
+			},
+		},
+		{
+			name:       "explicit newer service sharing a name",
+			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
+			ref:        withService(hour, "svc-re-new"),
+			wantReport: 1,
+			check: func(t *testing.T, got *resolvedQuery) {
+				t.Helper()
+				assert.Equal(t, "svc-re-new", got.Service.ServiceID)
+			},
+		},
+		{
+			name:       "no service_id takes the newest of a shared name",
+			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
+			ref:        hour,
+			wantReport: 1,
+			check: func(t *testing.T, got *resolvedQuery) {
+				t.Helper()
+				assert.Equal(t, "svc-re-new", got.Service.ServiceID)
+			},
+		},
+		{
 			name:       "two candidates",
 			routes:     resolveRoutes(reportTwo),
 			ref:        hour,
@@ -146,7 +187,7 @@ func TestResolveQuery(t *testing.T) {
 		},
 		{
 			name:       "many candidates",
-			routes:     with(resolveRoutes("report_by_service_many.json"), "GET /v1/inventory/services", "services_many.json"),
+			routes:     with(resolveRoutes("report_by_service_many.json"), serviceListKey, "vm_up_many.json"),
 			ref:        hour,
 			wantErr:    codeInvalidInput,
 			wantText:   []string{"bulk-mysql-00 (svc-bulk-00)", "bulk-mysql-19 (svc-bulk-19)", "and 110 more"},
@@ -168,7 +209,7 @@ func TestResolveQuery(t *testing.T) {
 			routes:   resolveRoutes(reportOne),
 			ref:      withService(hour, "svc-elsewhere"),
 			wantErr:  codeNotFound,
-			wantText: []string{notInServiceList},
+			wantText: []string{notInHour},
 			notText:  []string{"svc-elsewhere", "QID-AAA"},
 		},
 		{
@@ -209,17 +250,17 @@ func TestResolveQuery(t *testing.T) {
 		},
 		{
 			name:     "empty service list",
-			routes:   with(resolveRoutes(reportOne), "GET /v1/inventory/services", "empty.json"),
+			routes:   with(resolveRoutes(reportOne), serviceListKey, "vm_empty.json"),
 			ref:      hour,
 			wantErr:  codeNotFound,
-			wantText: []string{notInServiceList},
+			wantText: []string{notInHour},
 		},
 		{
 			name:     "no service id QAN can be asked about",
-			routes:   with(resolveRoutes(reportOne), "GET /v1/inventory/services", "services_quoted_ids.json"),
+			routes:   with(resolveRoutes(reportOne), serviceListKey, "vm_up_quoted_ids.json"),
 			ref:      hour,
 			wantErr:  codeNotFound,
-			wantText: []string{notInServiceList},
+			wantText: []string{notInHour},
 		},
 		{
 			name:       "example of another service",
@@ -288,7 +329,7 @@ func TestResolveQuery(t *testing.T) {
 
 			got, err := s.resolveQuery(t.Context(), callerAuthFromHeader(http.Header{"Authorization": {testToken}}), tt.ref)
 
-			assert.Len(t, fake.requestsTo("/v1/inventory/services"), 1, "one service list per resolution")
+			assert.Equal(t, 1, listQueries(fake), "one service list per resolution")
 			reports := fake.requestsTo(reportPath)
 			assert.Len(t, reports, tt.wantReport)
 			for _, r := range reports {
@@ -328,8 +369,8 @@ func TestResolveQuery(t *testing.T) {
 				for _, text := range tt.notText {
 					assert.NotContains(t, te.message, text)
 				}
-				if slices.Contains(tt.wantText, notInServiceList) {
-					assert.Equal(t, notInServiceList, te.message)
+				if slices.Contains(tt.wantText, notInHour) {
+					assert.Equal(t, notInHour, te.message)
 				}
 				return
 			}

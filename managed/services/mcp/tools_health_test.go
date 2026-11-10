@@ -182,7 +182,7 @@ func TestServiceHealthTool(t *testing.T) {
 		t.Parallel()
 
 		for id, engine := range map[string]string{"svc-2": enginePostgreSQL, "svc-mongo": engineMongoDB} {
-			fake := newFakePMM(t, withRoutes(healthRoutes(nil), map[string]fixture{"GET /v1/inventory/services": {file: "services_with_mongo.json"}}))
+			fake := newFakePMM(t, healthRoutes(nil))
 			res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": id})
 			require.False(t, isError, text)
 			assert.Equal(t, engine, res.Engine)
@@ -245,6 +245,7 @@ func TestServiceHealthTool(t *testing.T) {
 			assert.True(t, sig.NoData, sig.Name)
 		}
 		assert.Equal(t, allNoDataNote, res.Note, "the note covers the node signals, so nodeHiddenNote is left out")
+		assert.NotContains(t, res.Note, "hides the series of the service")
 		assert.Contains(t, text, allNoDataNote)
 		assert.False(t, res.Partial)
 	})
@@ -332,9 +333,9 @@ func TestServiceHealthTool(t *testing.T) {
 	t.Run("ZeroLagIsAValue", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, withRoutes(healthRoutes(map[string]fixture{
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{
 			onQuery("mongodb_mongod_replset_member_replication_lag"): {body: healthMatrix(testNow, "0", "0")},
-		}), map[string]fixture{"GET /v1/inventory/services": {file: "services_with_mongo.json"}}))
+		}))
 		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-mongo"})
 		require.False(t, isError, text)
 
@@ -370,10 +371,19 @@ func TestServiceHealthTool(t *testing.T) {
 		fake := newFakePMM(t, healthRoutes(nil))
 		_, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-other-secret"})
 		require.True(t, isError)
-		assert.Equal(t, "error: not_found\n"+notInServiceList+"; use pmm_inventory to list service ids", text)
+		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, testNow, "; use pmm_inventory to list service ids").message, text)
 		assert.NotContains(t, text, "svc-other-secret")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"))
-		assert.Empty(t, fake.requestsTo("/graph/api/datasources/name/Metrics"))
+	})
+
+	t.Run("OtherServiceType", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {file: "vm_up_list.json"}}))
+		_, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-px"})
+		require.True(t, isError)
+		assert.Equal(t, "error: invalid_input\npmm_service_health covers MySQL, PostgreSQL and MongoDB services; service 'proxy-1' is proxysql; use pmm_query_metrics for its metrics", text)
+		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"))
 	})
 
 	t.Run("WindowTooLong", func(t *testing.T) {
@@ -404,7 +414,8 @@ func TestServiceHealthTool(t *testing.T) {
 	t.Run("NoNodeName", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, healthRoutes(map[string]fixture{"GET /v1/inventory/nodes": failed}))
+		noNode := `{"status":"success","data":{"resultType":"vector","result":[{"metric":{"service_id":"svc-1","service_name":"shop-mysql","service_type":"mysql"},"value":[1789387200,"1789387140"]}]}}`
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {body: []byte(noNode)}}))
 		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 

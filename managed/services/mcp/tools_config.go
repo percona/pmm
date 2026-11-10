@@ -16,8 +16,10 @@
 package mcp
 
 import (
+	"cmp"
 	"context"
 	"fmt"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -29,7 +31,7 @@ import (
 type configInput struct {
 	ServiceID   string `json:"service_id,omitempty" jsonschema:"Service id from pmm_inventory (preferred; same identifier every other tool takes)"`
 	ServiceName string `json:"service_name,omitempty" jsonschema:"Service name from pmm_inventory. Only needed when service_id is not supplied"`
-	Engine      string `json:"engine,omitempty" jsonschema:"mysql or postgresql. Defaults to the service's own engine when service_id is given, otherwise mysql"`
+	Engine      string `json:"engine,omitempty" jsonschema:"mysql or postgresql. Defaults to the service's own engine"`
 	Filter      string `json:"filter,omitempty" jsonschema:"Only variables whose name contains this substring (e.g. innodb)"`
 	At          string `json:"at,omitempty" jsonschema:"Point in time: RFC3339 or relative such as now-1h (default now)"`
 	Limit       int    `json:"limit,omitempty" jsonschema:"Maximum variables to return; default 200, maximum 1000"`
@@ -124,27 +126,35 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	at = at.UTC().Truncate(time.Second)
 	auth := callerAuthFromHeader(req.Extra.Header)
 
-	// Accept service_id like the other tools; the metrics are labelled by name.
-	engine := in.Engine
-	serviceName := in.ServiceName
-	if in.ServiceID != "" {
-		svc, err := s.engineOf(ctx, auth, in.ServiceID)
-		if err != nil {
-			return configResult{}, err
-		}
-		serviceName = svc.ServiceName
-		// An explicit engine wins over the inventory's.
-		if engine == "" {
-			engine = svc.Engine
-		}
+	w := window{From: at.Add(-hourWindow), To: at}
+	services, err := s.listServices(ctx, auth, w)
+	if err != nil {
+		return configResult{}, err
 	}
+	var svc serviceInfo
+	var found bool
+	if in.ServiceID != "" {
+		i := slices.IndexFunc(services, func(o serviceInfo) bool { return o.ServiceID == in.ServiceID })
+		found = i >= 0
+		if found {
+			svc = services[i]
+		}
+	} else {
+		svc, found = serviceNamed(services, in.ServiceName)
+	}
+	if !found {
+		return configResult{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
+	}
+	serviceName := svc.ServiceName
+	// An explicit engine wins over the service list's.
+	engine := cmp.Or(in.Engine, svc.Engine)
 	if engine == "" {
 		engine = engineMySQL
 	}
 
 	prefix, ok := configMetrics[engine]
 	if !ok {
-		// An explicit engine was validated above, so this engine came from the inventory.
+		// An explicit engine was validated above, so this engine came from the service list.
 		return configResult{}, newToolError(codeInvalidInput,
 			"pmm_get_config covers MySQL and PostgreSQL services; service '%s' is %s", serviceName, engine)
 	}

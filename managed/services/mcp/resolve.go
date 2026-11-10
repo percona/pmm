@@ -30,7 +30,7 @@ import (
 
 const (
 	// The not_found text for a service that is not in the caller's service list.
-	notInServiceList = "not in your service list (services that sent metrics in the last hour)"
+	notInServiceList = "not in your service list (services that sent metrics in the window searched)"
 
 	// The number of candidate services one getReport asks for.
 	resolveReportLimit = 100
@@ -98,7 +98,7 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 		return nil, err
 	}
 
-	services, ids, err := s.callerServices(ctx, auth, ref.ServiceID)
+	services, ids, err := s.callerServices(ctx, auth, ref.ServiceID, window{From: ref.PeriodFrom, To: ref.PeriodTo})
 	if err != nil {
 		return nil, err
 	}
@@ -161,10 +161,23 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	return out, nil
 }
 
+// errNotInList is the not_found for a service outside the service list of the window, naming the window and no service.
+func errNotInList(w window, now time.Time, hint string) *toolError {
+	span, cut := listSpan(w, now)
+	text := notInServiceList + "; searched " + windowText(span)
+	switch {
+	case cut && span.To.Before(w.To):
+		text += ", the last 7 days of the call's window up to now"
+	case cut:
+		text += ", the last 7 days of the call's window"
+	}
+	return newToolError(codeNotFound, "%s%s", text, hint)
+}
+
 // callerServices returns the caller's services and the ids of those that QAN may be asked about: the given one,
 // which must be in the list, else every one that passes checkQANValue.
-func (s *Service) callerServices(ctx context.Context, auth callerAuth, serviceID string) ([]serviceInfo, []string, error) {
-	services, err := s.listServices(ctx, auth, false)
+func (s *Service) callerServices(ctx context.Context, auth callerAuth, serviceID string, w window) ([]serviceInfo, []string, error) {
+	services, err := s.listServices(ctx, auth, w)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -176,12 +189,12 @@ func (s *Service) callerServices(ctx context.Context, auth callerAuth, serviceID
 	}
 	if serviceID != "" {
 		if !slices.Contains(ids, serviceID) {
-			return nil, nil, newToolError(codeNotFound, "%s", notInServiceList)
+			return nil, nil, errNotInList(w, s.now(), "")
 		}
 		ids = []string{serviceID}
 	}
 	if len(ids) == 0 {
-		return nil, nil, newToolError(codeNotFound, "%s", notInServiceList)
+		return nil, nil, errNotInList(w, s.now(), "")
 	}
 	return services, ids, nil
 }
@@ -205,19 +218,20 @@ func (s *Service) queryCandidates(ctx context.Context, auth callerAuth, ref quer
 		return nil, 0, err
 	}
 
+	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(ids, svc.ServiceID) })
 	var out []serviceInfo
 	for _, row := range report.Rows {
 		if row.Dimension == "" {
 			continue
 		}
-		i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceName == row.Dimension })
-		if i < 0 || !slices.Contains(ids, services[i].ServiceID) {
+		svc, ok := serviceNamed(asked, row.Dimension)
+		if !ok {
 			continue
 		}
-		if slices.ContainsFunc(out, func(svc serviceInfo) bool { return svc.ServiceID == services[i].ServiceID }) {
+		if slices.ContainsFunc(out, func(o serviceInfo) bool { return o.ServiceID == svc.ServiceID }) {
 			continue
 		}
-		out = append(out, services[i])
+		out = append(out, svc)
 	}
 	return out, report.TotalRows, nil
 }

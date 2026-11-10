@@ -33,6 +33,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
+	accesscontrolClient "github.com/percona/pmm/api/accesscontrol/v1beta1/json/client"
 	actionsClient "github.com/percona/pmm/api/actions/v1/json/client"
 	advisorClient "github.com/percona/pmm/api/advisors/v1/json/client"
 	alertingClient "github.com/percona/pmm/api/alerting/v1/json/client"
@@ -73,6 +74,9 @@ var (
 
 	// RunMCPWorkloadTests is true if MCP tests that need a known QAN workload should be run.
 	RunMCPWorkloadTests bool
+
+	// RunMCPAccessRoleTests is true if the MCP tests that need Access Roles and a known QAN workload on two MySQL and two PostgreSQL services should be run.
+	RunMCPAccessRoleTests bool
 )
 
 // Transport returns configured Swagger transport for given URL.
@@ -106,18 +110,21 @@ func init() {
 	flag.BoolVar(&RunAdvisorTests, "pmm.run-advisor-tests", false, "Run Advisor tests that require connected clients [PMM_RUN_ADVISOR_TESTS].")
 	flag.BoolVar(&RunMCPWorkloadTests, "pmm.run-mcp-workload-tests", false,
 		"Run MCP tests that require a known QAN workload on a MySQL service [PMM_RUN_MCP_WORKLOAD_TESTS].")
+	flag.BoolVar(&RunMCPAccessRoleTests, "pmm.run-mcp-access-role-tests", false,
+		"Run MCP tests that need Access Roles and a known QAN workload on two MySQL and two PostgreSQL services [PMM_RUN_MCP_ACCESS_ROLE_TESTS].")
 
 	testing.Init()
 	flag.Parse()
 
 	for envVar, f := range map[string]*flag.Flag{
-		"PMM_DEBUG":                  flag.Lookup("pmm.debug"),
-		"PMM_TRACE":                  flag.Lookup("pmm.trace"),
-		"PMM_SERVER_URL":             flag.Lookup("pmm.server-url"),
-		"PMM_SERVER_INSECURE_TLS":    flag.Lookup("pmm.server-insecure-tls"),
-		"PMM_RUN_UPDATE_TEST":        flag.Lookup("pmm.run-update-test"),
-		"PMM_RUN_ADVISOR_TESTS":      flag.Lookup("pmm.run-advisor-tests"),
-		"PMM_RUN_MCP_WORKLOAD_TESTS": flag.Lookup("pmm.run-mcp-workload-tests"),
+		"PMM_DEBUG":                     flag.Lookup("pmm.debug"),
+		"PMM_TRACE":                     flag.Lookup("pmm.trace"),
+		"PMM_SERVER_URL":                flag.Lookup("pmm.server-url"),
+		"PMM_SERVER_INSECURE_TLS":       flag.Lookup("pmm.server-insecure-tls"),
+		"PMM_RUN_UPDATE_TEST":           flag.Lookup("pmm.run-update-test"),
+		"PMM_RUN_ADVISOR_TESTS":         flag.Lookup("pmm.run-advisor-tests"),
+		"PMM_RUN_MCP_WORKLOAD_TESTS":    flag.Lookup("pmm.run-mcp-workload-tests"),
+		"PMM_RUN_MCP_ACCESS_ROLE_TESTS": flag.Lookup("pmm.run-mcp-access-role-tests"),
 	} {
 		env, ok := os.LookupEnv(envVar)
 		if ok {
@@ -178,6 +185,7 @@ func init() {
 	advisorClient.Default = advisorClient.New(transport, nil)
 	actionsClient.Default = actionsClient.New(transport, nil)
 	userClient.Default = userClient.New(transport, nil)
+	accesscontrolClient.Default = accesscontrolClient.New(transport, nil)
 	HTTPClient = &http.Client{Transport: transport.Transport}
 
 	// do not run tests if server is not available

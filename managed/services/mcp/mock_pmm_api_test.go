@@ -9,8 +9,6 @@ import (
 	mock "github.com/stretchr/testify/mock"
 
 	actions_service "github.com/percona/pmm/api/actions/v1/json/client/actions_service"
-	nodes_service "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
-	services_service "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	qan_service "github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 	server_service "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
@@ -271,66 +269,6 @@ func (_m *mockPmmAPI) Labels(ctx context.Context, auth callerAuth, uid string, m
 
 	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string, []string, time.Time, time.Time, int) error); ok {
 		r1 = rf(ctx, auth, uid, match, start, end, limit)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ListNodes provides a mock function with given fields: ctx, auth
-func (_m *mockPmmAPI) ListNodes(ctx context.Context, auth callerAuth) (*nodes_service.ListNodesOKBody, error) {
-	ret := _m.Called(ctx, auth)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListNodes")
-	}
-
-	var r0 *nodes_service.ListNodesOKBody
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) (*nodes_service.ListNodesOKBody, error)); ok {
-		return rf(ctx, auth)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) *nodes_service.ListNodesOKBody); ok {
-		r0 = rf(ctx, auth)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*nodes_service.ListNodesOKBody)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, callerAuth) error); ok {
-		r1 = rf(ctx, auth)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// ListServices provides a mock function with given fields: ctx, auth
-func (_m *mockPmmAPI) ListServices(ctx context.Context, auth callerAuth) (*services_service.ListServicesOKBody, error) {
-	ret := _m.Called(ctx, auth)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ListServices")
-	}
-
-	var r0 *services_service.ListServicesOKBody
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) (*services_service.ListServicesOKBody, error)); ok {
-		return rf(ctx, auth)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) *services_service.ListServicesOKBody); ok {
-		r0 = rf(ctx, auth)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*services_service.ListServicesOKBody)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, callerAuth) error); ok {
-		r1 = rf(ctx, auth)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -155,7 +155,7 @@ func TestUntrustedFieldsMarked(t *testing.T) {
 
 	untrusted := map[string][]string{
 		"pmm_version":     {},
-		"pmm_inventory":   {"services[].service_name", "services[].node_name", "services[].version", "services[].address"},
+		"pmm_inventory":   {"services[].service_name", "services[].node_name", "services[].version", "services[].environment", "services[].cluster"},
 		"pmm_top_queries": {"rows[].fingerprint", "rows[].dimension"},
 		"pmm_query_detail": {
 			"service_name", "version", "database", "schema", "fingerprint", "example", "tables",
@@ -379,10 +379,14 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 			{name: "Failed", fake: routed(map[string]fixture{"GET /v1/server/version": failed}), wantErr: true},
 		},
 		"pmm_inventory": {
-			{name: "Empty", fake: routed(withRoutes(inventoryRoutes(), map[string]fixture{"GET /v1/inventory/services": {file: "empty.json"}}))},
+			{name: "Empty", fake: routed(withRoutes(inventoryRoutes(), map[string]fixture{serviceListKey: {file: "vm_empty.json"}}))},
 			{
-				name: "NodesAndVersionsFail",
-				fake: routed(withRoutes(inventoryRoutes(), map[string]fixture{"GET /v1/inventory/nodes": failed, versionQuery: failed})),
+				name: "VersionsFail",
+				fake: routed(withRoutes(inventoryRoutes(), map[string]fixture{
+					versionQuery + " ?mysql_version_info":   failed,
+					versionQuery + " ?pg_static":            failed,
+					versionQuery + " ?mongodb_version_info": failed,
+				})),
 			},
 		},
 		"pmm_top_queries": {
@@ -391,7 +395,7 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				name: "ServiceLookupFails",
 				fake: routed(withRoutes(qanRoutes(), map[string]fixture{
 					"POST /v1/qan/metrics:getReport": {file: "report_quoted_identifier.json"},
-					"GET /v1/inventory/services":     failed,
+					serviceListKey:                   failed,
 				})),
 				args: map[string]any{"service_name": "shop-mysql"},
 			},
@@ -546,11 +550,8 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				wantErr: true,
 			},
 			{
-				name: "NoDatasource",
-				fake: routed(map[string]fixture{
-					"GET /v1/inventory/services": {file: "services.json"},
-					"GET /v1/inventory/nodes":    {file: "nodes.json"},
-				}),
+				name:    "NoDatasource",
+				fake:    routed(nil),
 				args:    map[string]any{"service_id": "svc-1"},
 				wantErr: true,
 			},

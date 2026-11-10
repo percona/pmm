@@ -158,14 +158,6 @@ var methodRules = map[string]role{
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
 
-	// Read-only inventory for any authenticated user: viewers already see every
-	// service and node name on dashboards and in QAN filters, and the MCP's
-	// pmm_inventory relies on it. Writes stay admin through the "/v1/inventory"
-	// rule, as does GET /v1/inventory/agents (agent records carry connection
-	// configuration).
-	http.MethodGet + " /v1/inventory/services": viewer,
-	http.MethodGet + " /v1/inventory/nodes":    viewer,
-
 	// OM inventory writes.
 	http.MethodPost + " /v1/om/inventory/runs:trigger":        editor,
 	http.MethodDelete + " /v1/om/inventory/hosts/":            admin,

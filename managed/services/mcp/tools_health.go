@@ -35,8 +35,10 @@ const (
 )
 
 const (
-	nodeHiddenNote  = "no_data on a node signal can mean that an Access Role that filters on service labels hides the node's series, as well as that the node sent none."
-	allNoDataNote   = "no_data on every signal can mean that an Access Role hides the series of the service and its node, as well as that they sent none in the window."
+	nodeHiddenNote = "no_data on a node signal can mean that an Access Role that filters on service labels hides the node's series, as well as that the node sent none."
+	allNoDataNote  = "no_data on every signal means that the service sent none of these metrics in the window although its up series is there, " +
+		"for example because its exporter could not be scraped or could not reach the database; " +
+		"an Access Role that filters on service labels can also hide its node's series."
 	nodeUnknownNote = "The service's node name is unknown, so its node signals were not queried."
 	nanNote         = "A null value is NaN or infinite, for example a ratio whose denominator is 0."
 )
@@ -300,15 +302,24 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 	}
 	defer release()
 
-	services, err := s.listServices(ctx, auth, true)
+	w := window{From: start, To: end}
+	services, err := s.listServices(ctx, auth, w)
 	if err != nil {
 		return healthResult{}, err
 	}
 	i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceID == in.ServiceID })
 	if i < 0 {
-		return healthResult{}, newToolError(codeNotFound, "%s; use pmm_inventory to list service ids", notInServiceList)
+		return healthResult{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
 	}
 	svc := services[i]
+	if !slices.Contains([]string{engineMySQL, enginePostgreSQL, engineMongoDB}, svc.Engine) {
+		kind := "is " + svc.Engine
+		if svc.Engine == "" {
+			kind = "has no service type"
+		}
+		return healthResult{}, newToolError(codeInvalidInput,
+			"pmm_service_health covers MySQL, PostgreSQL and MongoDB services; service '%s' %s; use pmm_query_metrics for its metrics", svc.ServiceName, kind)
+	}
 
 	signals := slices.Concat(healthSignals[svc.Engine], healthSignals[engineNode])
 	queries := make([]string, len(signals))
