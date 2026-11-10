@@ -395,6 +395,36 @@ func TestAlertsTool(t *testing.T) {
 		}, alertKeys(got.Alerts))
 	})
 
+	t.Run("TiesByLabelSet", func(t *testing.T) {
+		t.Parallel()
+
+		// One rule's alerts that started firing together, out of order as Grafana's state cache returns them.
+		alerts := make([]map[string]any, 0, 4)
+		for _, instance := range []string{"db-3", "db-1", "db-4", "db-2"} {
+			alerts = append(alerts, map[string]any{
+				"labels":   map[string]string{"alertname": "Outage", "severity": "critical", "instance": instance},
+				"state":    "Alerting",
+				"activeAt": at(11, 0).Format(time.RFC3339),
+			})
+		}
+		body := mustJSON(t, map[string]any{"status": "success", "data": map[string]any{"groups": []map[string]any{{
+			"name": "Outage", "rules": []map[string]any{{"uid": "outage", "name": "Outage", "provenance": nil, "alerts": alerts}},
+		}}}})
+		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+			"GET " + rulesPath:    {body: body},
+			"GET " + amAlertsPath: {body: []byte("[]")},
+		}))
+
+		for range 3 {
+			got, _ := callAlerts(t, fake, nil)
+			instances := make([]string, 0, len(got.Alerts))
+			for _, a := range got.Alerts {
+				instances = append(instances, a.Labels["instance"])
+			}
+			assert.Equal(t, []string{"db-1", "db-2", "db-3", "db-4"}, instances)
+		}
+	})
+
 	t.Run("Paging", func(t *testing.T) {
 		t.Parallel()
 

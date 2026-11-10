@@ -234,6 +234,9 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 		return alertsResult{}, err
 	}
 	kept := slices.DeleteFunc(all, func(a grafanaAlert) bool { return !list.keepAlert(a) || !in.matches(a) })
+	for i := range kept {
+		kept[i].labelKey = labelSetKey(kept[i].Labels)
+	}
 	slices.SortFunc(kept, compareAlerts)
 
 	paged, pg, err := paginate(kept, in.Offset, in.Limit, alertsDefaultLimit, alertsMaxLimit)
@@ -364,5 +367,5 @@ func compareAlerts(a, b grafanaAlert) int {
 	if c != 0 {
 		return c
 	}
-	return strings.Compare(labelSetKey(a.Labels), labelSetKey(b.Labels))
+	return strings.Compare(a.labelKey, b.labelKey)
 }

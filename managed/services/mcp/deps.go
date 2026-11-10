@@ -185,6 +185,9 @@ type grafanaAlert struct {
 	Silenced    bool
 	// SilencedUntil is the latest end of the silences that mute the alert; nil when it is not silenced or no end is known.
 	SilencedUntil *time.Time
+
+	// labelKey is labelSetKey of Labels, set before the alerts are sorted so that each key is built once.
+	labelKey string
 }
 
 // amAlertStatus is the status of an alert of Grafana's Alertmanager.
