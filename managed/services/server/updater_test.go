@@ -440,6 +440,29 @@ func TestUpdaterVersionServiceUnreachable(t *testing.T) {
 		assert.False(t, u.lastCheckAttempt.IsZero())
 	})
 
+	t.Run("check abandoned by its caller is not an attempt", func(t *testing.T) {
+		var hits atomic.Int32
+		var once sync.Once
+		received := make(chan struct{})
+		handler := func(w http.ResponseWriter, r *http.Request) {
+			once.Do(func() { close(received) })
+			blocking(&hits)(w, r)
+		}
+		u, _ := newOfflineUpdater(t, handler, 1)
+		// long enough that only the caller's cancellation can end the request
+		versionServiceTimeout = 5 * time.Second
+		ctx, cancel := context.WithCancel(callCtx(t))
+		go func() {
+			<-received
+			cancel()
+		}()
+
+		err := u.check(ctx)
+
+		tests.AssertGRPCError(t, grpcstatus.New(codes.Unavailable, failedCheck), err)
+		assert.True(t, u.lastCheckAttempt.IsZero())
+	})
+
 	t.Run("checkResult does not retry a fresh failed attempt", func(t *testing.T) {
 		var hits atomic.Int32
 		// a second settings read lets an unwanted retry reach the version service
@@ -507,6 +530,24 @@ func TestUpdaterVersionServiceUnreachable(t *testing.T) {
 		go func() { _ = u.check(checkCtx) }()
 		<-received
 		u.checkResult(callCtx(t))
+
+		assert.Equal(t, int32(1), hits.Load())
+	})
+
+	t.Run("concurrent callers that find the attempt stale run one check", func(t *testing.T) {
+		var hits atomic.Int32
+		// a second settings read lets an unwanted second check reach the version service
+		u, _ := newOfflineUpdater(t, blocking(&hits), 2)
+
+		// both callers queue behind an earlier lock holder while the last attempt is stale
+		u.checkMu.Lock()
+		var wg sync.WaitGroup
+		for range 2 {
+			wg.Go(func() { u.checkResult(callCtx(t)) })
+		}
+		time.Sleep(100 * time.Millisecond)
+		u.checkMu.Unlock()
+		wg.Wait()
 
 		assert.Equal(t, int32(1), hits.Load())
 	})
