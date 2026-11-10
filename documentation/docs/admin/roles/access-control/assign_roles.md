@@ -53,6 +53,6 @@ To assign access roles to a service account:
     ```
 
 !!! note ""
-    When you register a node, PMM creates an Admin service account for it, named `pmm-agent-sa-<node name>`. Access roles don't change what PMM Client does with this account: registering the node, reading the inventory, and sending metrics and Query Analytics data work whatever the default role is.
+    When you register a node, PMM creates an Admin service account for it, named `pmm-agent-sa-<node name>`. Access roles don't change what PMM Client does with this account. Reading the inventory, sending metrics and Query Analytics data, removing services, and unregistering the node work whatever the default role is.
 
 For more on service accounts and tokens, see [Service accounts authentication](../../../api/authentication.md).
