@@ -158,8 +158,8 @@ if is_enabled "$PMM_ENABLE_EXTENSIONS" && [ -z "$PMM_EXTENSIONS_POSTGRES_PASSWOR
     unset EXTENSIONS_PG_PASSWORD_FILE EXTENSIONS_PG_MODE
 fi
 
-# Resolves every credential to a file under /run/pmm/secrets, the only place PMM's programs read them from
-# (PMM-15891). It fails on a contradictory or unreadable configuration, listing every problem.
+# Resolves every credential to a file under /run/pmm/secrets, the only place PMM's programs read them from.
+# It fails on a contradictory or unreadable configuration, listing every problem.
 pmm-managed-init secrets
 
 # The values now live in files (see managed/utils/secrets), so no child may inherit them.
