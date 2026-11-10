@@ -1919,7 +1919,7 @@
             "type": "bargauge"
         },
         {
-            "description": "Client operations per second on each shard (query, getmore, insert, update and delete), summed over all members. Equals Reads Per Shard plus Writes Per Shard; config servers and replicated writes are excluded.",
+            "description": "Client operations per second on each shard (query, insert, update and delete), summed over all members. Equals Reads Per Shard plus Writes Per Shard. Config servers, replicated writes and getmore operations are excluded.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2009,7 +2009,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum by (rs_nm) (rate(mongodb_ss_opcounters{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", legacy_op_type!=\"command\"}[$interval]))",
+                    "expr": "sum by (rs_nm) (rate(mongodb_ss_opcounters{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", legacy_op_type=~\"query|insert|update|delete\"}[$interval]))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
@@ -2188,7 +2188,7 @@
             "type": "table"
         },
         {
-            "description": "Read operations per second on each shard (query and getmore), summed over all members so reads served by secondaries are included.",
+            "description": "Queries per second on each shard, summed over all members so reads served by secondaries are included. Getmore operations are excluded: most of them come from replication and Query Analytics, not from clients.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2278,7 +2278,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum by (rs_nm) (rate(mongodb_ss_opcounters{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", legacy_op_type=~\"query|getmore\"}[$interval]))",
+                    "expr": "sum by (rs_nm) (rate(mongodb_ss_opcounters{environment=~\"$environment\", cluster=~\"$cluster\", cl_role=\"shardsvr\", rs_nm=~\"$set\", service_name=~\"$service_name\", legacy_op_type=\"query\"}[$interval]))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
