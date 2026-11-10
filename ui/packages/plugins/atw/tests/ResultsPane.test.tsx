@@ -719,6 +719,50 @@ describe('ResultsPane diagnostics send', () => {
     expect(within(dialog).queryByText('diag/slow-query.sh')).toBeNull();
   });
 
+  it('names a paged-out re-sent run by the title of another run of its file', async () => {
+    routeGet({
+      executions: {
+        items: [{ ...FINISHED_EXECUTION, snippet_title: 'Slow Query' }],
+        total: 40,
+        offset: 0,
+        limit: 20,
+      },
+      sendJobs: {
+        items: [
+          failedJob({
+            error: 'boom',
+            executions: [
+              {
+                id: FINISHED_EXECUTION.id,
+                task_history_id: FINISHED_EXECUTION.task_history_id,
+                snippet_filename: FINISHED_EXECUTION.snippet_filename,
+              },
+              {
+                id: 'exec-98',
+                task_history_id: 98,
+                snippet_filename: FINISHED_EXECUTION.snippet_filename,
+              },
+            ],
+          }),
+        ],
+        total: 1,
+        offset: 0,
+        limit: 50,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Re-send' })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Re-send' }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getAllByText('Slow Query')).toHaveLength(2);
+    expect(within(dialog).queryByText('diag/slow-query.sh')).toBeNull();
+  });
+
   it('flags a send history it could not load', async () => {
     mockedApi.get.mockImplementation((url: string) => {
       if (url.includes('/send-jobs/')) {

@@ -523,6 +523,39 @@ describe('CollectPane snippet search', () => {
     expect(screen.queryByText(/Showing the first/)).not.toBeInTheDocument();
   });
 
+  it('captions a hit by its description when its same-titled twin is filtered out', async () => {
+    mockedApi.get.mockResolvedValue({
+      data: [
+        {
+          category_root: 'MySQL',
+          parent_category: 'PERFORMANCE_ISSUES',
+          parent_category_label: 'Performance Issues',
+          category: 'OVERALL_SLOWNESS',
+          category_label: 'Overall Slowness',
+          snippet_count: 2,
+          snippets: [
+            { name: 'diag/a.sh', title: 'Summary', description: '' },
+            {
+              name: 'diag/b.sh',
+              title: 'Summary',
+              description: 'Diagnostic summary.',
+            },
+          ],
+        },
+      ],
+    });
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'MySQL (2)' })
+    );
+    await typeSearch('diagnostic');
+
+    const option = await screen.findByRole('option', { name: /Summary/ });
+    expect(option).toHaveTextContent('Diagnostic summary.');
+    expect(option).not.toHaveTextContent('diag/b.sh');
+  });
+
   it('surfaces a failed search instead of leaving the picker silently empty', async () => {
     mockedApi.get.mockImplementation((url: string) => {
       if (url.startsWith('/apps/atw/snippets/')) {

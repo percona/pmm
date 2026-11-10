@@ -821,9 +821,12 @@ export function CollectPane({
         renderOption={(props, option, { inputValue }) => {
           const { key, ...liProps } = props as typeof props & { key: string };
           const label = scriptLabel(option.title, option.name);
+          // Only twins the filter shows can be confused with this row.
           const caption = scriptOptionCaption(
             option,
-            optionsByLabel.get(label) ?? [option],
+            filterOptions(optionsByLabel.get(label) ?? [option], {
+              inputValue,
+            }),
             inputValue
           );
           return (

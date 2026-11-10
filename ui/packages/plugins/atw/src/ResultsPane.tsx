@@ -394,16 +394,29 @@ export function ResultsPane({
       (execution): execution is AtwSendLogExecution => execution !== undefined
     );
 
-  // A send log records filenames only, so titles come from the loaded page; an
-  // execution paged out of it is named by its filename.
-  const resendExecutions = useMemo(
-    () =>
-      resend?.executions.map((execution) => ({
+  // A send log records filenames only, so titles come from the loaded page. A run
+  // paged out of it takes the title of a loaded run of its file, since
+  // `snippet_title` is the script's current title, not the one it ran under.
+  const resendExecutions = useMemo(() => {
+    const titleByFilename = new Map<string, string>();
+    for (const execution of knownExecutions.values()) {
+      if (execution.snippet_title?.trim()) {
+        titleByFilename.set(
+          execution.snippet_filename,
+          execution.snippet_title
+        );
+      }
+    }
+    return resend?.executions.map((execution) => {
+      const known = knownExecutions.get(execution.id);
+      return {
         ...execution,
-        snippet_title: knownExecutions.get(execution.id)?.snippet_title,
-      })),
-    [resend, knownExecutions]
-  );
+        snippet_title: known
+          ? known.snippet_title
+          : titleByFilename.get(execution.snippet_filename),
+      };
+    });
+  }, [resend, knownExecutions]);
 
   const disabledReasons = config?.send_disabled_reasons ?? [];
   // Every unmet condition, not the first one found. Send is routinely blocked by
