@@ -107,7 +107,7 @@ export const addAllDashboardItem = (
 
 /**
  * `mongoExtras` are appended to the MongoDB menu, and keep it in the sidebar when no
- * MongoDB service is monitored yet: OM's Hosts and Bootstrap pages exist for exactly
+ * MongoDB service is monitored yet: OM's Nodes and install pages exist for exactly
  * that estate, so hiding the menu with the dashboards would hide them too.
  */
 export const addDashboardItems = (
