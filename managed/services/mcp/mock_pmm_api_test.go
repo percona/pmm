@@ -18,6 +18,36 @@ type mockPmmAPI struct {
 	mock.Mock
 }
 
+// Alerts provides a mock function with given fields: ctx, auth
+func (_m *mockPmmAPI) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, error) {
+	ret := _m.Called(ctx, auth)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Alerts")
+	}
+
+	var r0 []grafanaAlert
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) ([]grafanaAlert, error)); ok {
+		return rf(ctx, auth)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) []grafanaAlert); ok {
+		r0 = rf(ctx, auth)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]grafanaAlert)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth) error); ok {
+		r1 = rf(ctx, auth)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CancelAction provides a mock function with given fields: ctx, auth, actionID
 func (_m *mockPmmAPI) CancelAction(ctx context.Context, auth callerAuth, actionID string) error {
 	ret := _m.Called(ctx, auth, actionID)
@@ -389,6 +419,66 @@ func (_m *mockPmmAPI) Series(ctx context.Context, auth callerAuth, uid string, m
 
 	if rf, ok := ret.Get(1).(func(context.Context, callerAuth, string, []string, time.Time, time.Time, int) error); ok {
 		r1 = rf(ctx, auth, uid, match, start, end, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SilencedAlerts provides a mock function with given fields: ctx, auth
+func (_m *mockPmmAPI) SilencedAlerts(ctx context.Context, auth callerAuth) ([]amAlert, error) {
+	ret := _m.Called(ctx, auth)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SilencedAlerts")
+	}
+
+	var r0 []amAlert
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) ([]amAlert, error)); ok {
+		return rf(ctx, auth)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) []amAlert); ok {
+		r0 = rf(ctx, auth)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]amAlert)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth) error); ok {
+		r1 = rf(ctx, auth)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Silences provides a mock function with given fields: ctx, auth
+func (_m *mockPmmAPI) Silences(ctx context.Context, auth callerAuth) ([]amSilence, error) {
+	ret := _m.Called(ctx, auth)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Silences")
+	}
+
+	var r0 []amSilence
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) ([]amSilence, error)); ok {
+		return rf(ctx, auth)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth) []amSilence); ok {
+		r0 = rf(ctx, auth)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]amSilence)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, callerAuth) error); ok {
+		r1 = rf(ctx, auth)
 	} else {
 		r1 = ret.Error(1)
 	}

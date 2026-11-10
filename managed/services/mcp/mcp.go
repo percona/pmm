@@ -227,4 +227,5 @@ func (s *Service) registerTools(server *mcp.Server) {
 	s.registerActionTools(server)
 	s.registerConfigTools(server)
 	s.registerMetricsTools(server)
+	s.registerAlertsTool(server)
 }

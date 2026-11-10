@@ -174,6 +174,36 @@ type queryMetrics struct {
 	Metadata    *queryMetadata         `json:"metadata"`
 }
 
+// grafanaAlert is one firing alert of a rule that Grafana's rules API returned to the caller.
+type grafanaAlert struct {
+	RuleUID string
+	// PMMRule is true for a rule PMM provisions: file provenance and a UID of PMM's catalog.
+	PMMRule     bool
+	Labels      map[string]string
+	Annotations map[string]string
+	StartsAt    time.Time
+	Silenced    bool
+	// SilencedUntil is the latest end of the silences that mute the alert; nil when it is not silenced or no end is known.
+	SilencedUntil *time.Time
+}
+
+// amAlertStatus is the status of an alert of Grafana's Alertmanager.
+type amAlertStatus struct {
+	SilencedBy []string `json:"silencedBy"`
+}
+
+// amAlert is an alert of Grafana's Alertmanager API (/api/v2/alerts), as far as the silence join reads it.
+type amAlert struct {
+	Labels map[string]string `json:"labels"`
+	Status amAlertStatus     `json:"status"`
+}
+
+// amSilence is a silence of Grafana's Alertmanager API (/api/v2/silences), as far as the silence join reads it.
+type amSilence struct {
+	ID     string    `json:"id"`
+	EndsAt time.Time `json:"endsAt"`
+}
+
 // pmmAPI is the subset of PMM's public REST API the tools depend on. Every
 // method goes through the nginx loopback with the caller's credentials.
 //
@@ -194,4 +224,7 @@ type pmmAPI interface {
 	LabelValues(ctx context.Context, auth callerAuth, uid, label string, match []string, start, end time.Time, limit int) ([]string, error)
 	Labels(ctx context.Context, auth callerAuth, uid string, match []string, start, end time.Time, limit int) ([]string, error)
 	Series(ctx context.Context, auth callerAuth, uid string, match []string, start, end time.Time, limit int) ([]map[string]string, error)
+	Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, error)
+	SilencedAlerts(ctx context.Context, auth callerAuth) ([]amAlert, error)
+	Silences(ctx context.Context, auth callerAuth) ([]amSilence, error)
 }

@@ -360,6 +360,46 @@ func TestServiceList(t *testing.T) {
 		assert.False(t, ok)
 	})
 
+	t.Run("Nodes", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, listRoutes())
+		s := newQANService(t, fake, false)
+
+		services, nodes, err := s.listServicesAndNodes(t.Context(), testAuth, s.lastHour())
+		require.NoError(t, err)
+		assert.Len(t, services, 5)
+		assert.Equal(t, []nodeInfo{{NodeID: "node-1", NodeName: "demo-node"}, {NodeID: "node-2", NodeName: "bare-host"}}, nodes,
+			"node-1 as its newest row names it, and node-2 from a row without a service")
+		assert.Equal(t, 2, fake.requestCount())
+
+		listed, err := s.listServices(t.Context(), testAuth, s.lastHour())
+		require.NoError(t, err)
+		assert.Equal(t, services, listed)
+	})
+
+	t.Run("NodesByNameWithoutAnID", func(t *testing.T) {
+		t.Parallel()
+
+		row := func(labels, value string) string {
+			return `{"metric":{` + labels + `},"value":[1789387200,"` + value + `"]}`
+		}
+		body := `{"status":"success","data":{"resultType":"vector","result":[` + strings.Join([]string{
+			row(`"node_name":"named-only"`, "1789387140"),
+			row(`"node_id":"n-x","node_name":"x-new"`, "1789387140"),
+			row(`"node_id":"n-x","node_name":"x-old"`, "1789384200"),
+			row(`"node_id":"n-nan","node_name":"nan-host"`, "NaN"),
+			row(`"service_id":"svc-1","service_name":"shop-mysql","service_type":"mysql"`, "1789387140"),
+		}, ",") + `]}}`
+		fake := newFakePMM(t, withRoutes(listRoutes(), map[string]fixture{serviceListKey: {body: []byte(body)}}))
+		s := newQANService(t, fake, false)
+
+		services, nodes, err := s.listServicesAndNodes(t.Context(), testAuth, s.lastHour())
+		require.NoError(t, err)
+		require.Len(t, services, 1)
+		assert.Equal(t, []nodeInfo{{NodeName: "named-only"}, {NodeID: "n-x", NodeName: "x-new"}}, nodes)
+	})
+
 	t.Run("QueryHasNoComparisonOnUp", func(t *testing.T) {
 		t.Parallel()
 

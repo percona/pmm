@@ -403,4 +403,9 @@ func TestCatalogUIDs(t *testing.T) {
 	assert.Subset(t, uids, retiredRuleUIDs)
 	assert.Contains(t, uids, "pmm-ha-no-leader")
 	assert.Contains(t, uids, "pmm-qan-api2-down")
+
+	exported := CatalogUIDs()
+	assert.Equal(t, uids, exported)
+	exported[0] = "changed"
+	assert.Equal(t, uids, CatalogUIDs(), "a caller's change to the result does not reach the catalog")
 }
