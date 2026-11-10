@@ -86,7 +86,10 @@ const schema: PluginSchema = {
   ],
 } as unknown as PluginSchema;
 
-function renderPage(extra?: { renderCreateForm?: RenderFormSlot }) {
+function renderPage(extra?: {
+  renderCreateForm?: RenderFormSlot;
+  schema?: PluginSchema;
+}) {
   return render(
     <SnackbarProvider>
       <MemoryRouter initialEntries={['/apps/checksums/new']}>
@@ -341,5 +344,42 @@ describe('PluginCreatePage — write access', () => {
       screen.queryByRole('button', { name: 'Create checksum' })
     ).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
+  });
+});
+
+describe('PluginCreatePage — schema-wide fail rules', () => {
+  const ruleSchema = {
+    ...schema,
+    fail_when: [
+      {
+        fail_when: { equals: { title: 'bad' } },
+        error_fields: ['title'],
+        message: 'Title must not be bad.',
+      },
+    ],
+  } as unknown as PluginSchema;
+
+  it('reports a violated root rule inline and does not send the create', async () => {
+    const user = userEvent.setup();
+    renderPage({ schema: ruleSchema });
+
+    await user.type(screen.getByLabelText('Title'), 'bad');
+    await waitFor(() =>
+      expect(screen.getByLabelText('Title')).toHaveAccessibleDescription(
+        'Title must not be bad.'
+      )
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Create checksum' }));
+    expect(mockCreateTaskMutate).not.toHaveBeenCalled();
+  });
+
+  it('hands the root rules to a custom form slot', () => {
+    const renderCreateForm = vi.fn<RenderFormSlot>(() => null);
+    renderPage({ schema: ruleSchema, renderCreateForm });
+
+    expect(renderCreateForm).toHaveBeenCalledWith(
+      expect.objectContaining({ failRules: ruleSchema.fail_when })
+    );
   });
 });

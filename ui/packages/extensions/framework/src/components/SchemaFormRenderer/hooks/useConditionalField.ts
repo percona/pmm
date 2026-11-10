@@ -214,8 +214,10 @@ export function useConditionalField(field: PluginField): ConditionalFieldState {
  * greyed control shows what it would submit if the parent were switched on —
  * `master_port` reads 3306 rather than empty. What it must not keep is a value
  * someone typed while the parent was on and then switched off.
+ *
+ * Returns the names its gates hide on the current values.
  */
-export function useFieldPayloadCleanup(fields: PluginField[]): void {
+export function useFieldPayloadCleanup(fields: PluginField[]): string[] {
   const { control, unregister, setValue } = useFormContext();
 
   const watchedNames = useMemo<string[]>(() => {
@@ -275,4 +277,6 @@ export function useFieldPayloadCleanup(fields: PluginField[]): void {
     // actually changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature, unregister, setValue]);
+
+  return hide;
 }
