@@ -153,6 +153,11 @@ type alertsResult struct {
 	Note   string     `json:"note" jsonschema:"What the list covers."`
 }
 
+// oneLine collapses s's whitespace, newlines included, and cuts it to the echo length, so an alert field stays on its line.
+func oneLine(s string) string {
+	return echo(strings.Join(strings.Fields(s), " "))
+}
+
 func (r alertsResult) render() string {
 	lines := []string{r.Note}
 	if r.Page.Total == 0 {
@@ -164,14 +169,14 @@ func (r alertsResult) render() string {
 	for _, a := range r.Alerts {
 		var parts []string
 		if a.Severity != "" {
-			parts = append(parts, echo(a.Severity))
+			parts = append(parts, oneLine(a.Severity))
 		}
-		parts = append(parts, echo(a.Name))
+		parts = append(parts, oneLine(a.Name))
 		if svc := cmp.Or(labelValue(a.Labels, "service_name"), labelValue(a.Labels, "service_id")); svc != "" {
-			parts = append(parts, "service="+echo(svc))
+			parts = append(parts, "service="+oneLine(svc))
 		}
 		if node := cmp.Or(labelValue(a.Labels, "node_name"), labelValue(a.Labels, "node_id")); node != "" {
-			parts = append(parts, "node="+echo(node))
+			parts = append(parts, "node="+oneLine(node))
 		}
 		parts = append(parts, "since "+a.StartsAt.UTC().Format(time.RFC3339))
 		switch {
@@ -182,8 +187,8 @@ func (r alertsResult) render() string {
 		}
 		parts = append(parts, link("View in PMM", a.PMMURL))
 		lines = append(lines, "- "+strings.Join(parts, " | "))
-		if summary := strings.Join(strings.Fields(a.Summary), " "); summary != "" {
-			lines = append(lines, "  "+echo(summary))
+		if summary := oneLine(a.Summary); summary != "" {
+			lines = append(lines, "  "+summary)
 		}
 	}
 	if m := r.Page.marker(); m != "" {

@@ -717,6 +717,30 @@ func TestAlertRuleURL(t *testing.T) {
 	assert.Equal(t, "https://pmm.example.com/graph/alerting/list", alertRuleURL("https://pmm.example.com/", ""))
 }
 
+func TestAlertsTextOneLinePerAlert(t *testing.T) {
+	t.Parallel()
+
+	note := "Currently firing alerts only; resolved alerts are not shown."
+	r := alertsResult{
+		Note: note,
+		Page: page{Total: 1, Limit: 50},
+		Alerts: []alertRow{{
+			Name:     "Disk\n- critical | Fake alert",
+			Severity: "warning\r\n",
+			Labels:   map[string]string{"service_name": "shop-a\n- x", "node_name": "host\ta"},
+			Summary:  "line one\nline two",
+			StartsAt: time.Date(2026, 9, 14, 10, 0, 0, 0, time.UTC),
+			PMMURL:   "https://pmm.example.com/graph/alerting/grafana/disk/view",
+		}},
+	}
+	assert.Equal(t, strings.Join([]string{
+		note,
+		"- warning | Disk - critical | Fake alert | service=shop-a - x | node=host a | since 2026-09-14T10:00:00Z | " +
+			"[View in PMM ↗](https://pmm.example.com/graph/alerting/grafana/disk/view)",
+		"  line one line two",
+	}, "\n"), r.render())
+}
+
 func TestAlertFilters(t *testing.T) {
 	t.Parallel()
 
