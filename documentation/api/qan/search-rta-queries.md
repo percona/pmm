@@ -236,7 +236,7 @@ Queries from a PostgreSQL service carry `postgresql_payload`, read from `pg_stat
 | `queries[].my_sql_payload.rows_examined` | string (int64) | Rows the statement has read so far. Missing when the server didn't measure it |
 | `queries[].my_sql_payload.rows_sent` | string (int64) | Rows the statement has sent to the client so far. Missing when the server didn't measure it |
 | `queries[].my_sql_payload.full_scan` | boolean | Whether the statement scanned a table without a usable index. Missing when the server didn't measure it |
-| `queries[].my_sql_payload.lock_time` | string | Time the statement has spent waiting for table locks, from `LOCK_TIME` in `events_statements_current`. Missing when the server didn't measure it |
+| `queries[].my_sql_payload.lock_time` | string | Time the statement has spent waiting for table locks, from `LOCK_TIME` in `events_statements_current`. `null` when the server didn't measure it |
 | `queries[].my_sql_payload.query_text_truncated` | boolean | Whether `query_text` might be cut short. MySQL keeps 1024 bytes of a running statement in the process list, or up to `performance_schema_max_sql_text_length` bytes when the `events_statements_current` consumer is on. PMM sends at most 64 KiB. A statement that's exactly as long as the limit is also reported as truncated |
 | `queries[].my_sql_payload.blocked_status` | string | Whether the statement is waiting for a lock: `BLOCKED_STATUS_BLOCKED`, `BLOCKED_STATUS_NOT_BLOCKED`, `BLOCKED_STATUS_UNSPECIFIED` or `BLOCKED_STATUS_UNATTRIBUTED`. [Read what each value means](#read-my_sql_payload-fields) |
 | `queries[].my_sql_payload.lock_type` | string | Kind of lock the statement is waiting for: `LOCK_TYPE_ROW` or `LOCK_TYPE_METADATA` |
@@ -275,19 +275,19 @@ If you search queries on MySQL, Percona Server for MySQL or MariaDB services, so
 
 Check these fields before you act on the data:
 
-- `rows_examined`, `rows_sent`, `full_scan` or `lock_time` is missing
+- `rows_examined`, `rows_sent` or `full_scan` is missing, or `lock_time` is `null`
 
     The server didn't measure the value. Treat it as unknown, not as zero rows or no full scan. A server that measured these fields reports a real `0` or `false`. Whether they're measured depends on the `events_statements_current` consumer:
 
     - MySQL and Percona Server for MySQL: the consumer is on by default.
-    - MariaDB: the consumer is off by default, so these fields are missing. To collect them, [enable the missing Performance Schema settings](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html#get-complete-data-on-mariadb-and-mysql-57).
+    - MariaDB: the consumer is off by default, so these fields are missing. To collect them, [enable the missing Performance Schema settings](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html#get-complete-data-on-mysql-57-and-mariadb).
 
 - `blocked_status` is `BLOCKED_STATUS_UNSPECIFIED`
 
     RTA couldn't read one of its two lock sources, so it doesn't know whether the statement is waiting. Treat it as unknown, not as not blocked. This can happen when the PMM database user is missing a privilege, when the server doesn't support a lock source, or when the lock information is too large to read. The most common cause is that the `wait/lock/metadata/sql/mdl` instrument is off:
 
     - MySQL and Percona Server for MySQL 8.0 and later: the instrument is on by default.
-    - MySQL and Percona Server for MySQL 5.7, and MariaDB: the instrument is off by default. To turn it on, [enable the missing Performance Schema settings](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html#get-complete-data-on-mariadb-and-mysql-57).
+    - MySQL and Percona Server for MySQL 5.7, and MariaDB: the instrument is off by default. To turn it on, [enable the missing Performance Schema settings](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html#get-complete-data-on-mysql-57-and-mariadb).
 
 - `blocked_status` is `BLOCKED_STATUS_UNATTRIBUTED`
 
@@ -328,7 +328,7 @@ curl -X POST "https://your-pmm-server/v1/realtimeanalytics/queries:search" \
         | {query_text,
            locked_table: .my_sql_payload.locked_table,
            lock_type: .my_sql_payload.lock_type,
-           root_blocker: (.my_sql_payload.blocked_by[] | select(.root) | .blocking_conn_id)}'
+           root_blockers: [.my_sql_payload.blocked_by[] | select(.root) | .blocking_conn_id]}'
 ```
 
 #### Filter by multiple services
