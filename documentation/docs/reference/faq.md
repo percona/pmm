@@ -196,7 +196,7 @@ Example: To use the listen-port 8000
 pmm-admin --pmm-agent-listen-port=8000 add postgresql --username=pmm-agent --password=pmm-agent-password --query-source=pgstatmonitor nameofpostgres
 ```
 
-If you are using AMI, you can change the default password through SSH by using the following command:
+If you are using AMI, you can change the default password through SSH with the following command, using a password that meets the [password requirements](../admin/manage-users/add_users.md#password-requirements):
 
 ```sh
 change-admin-password <new_password>
