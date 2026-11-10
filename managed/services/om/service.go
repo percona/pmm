@@ -108,8 +108,8 @@ func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 		s.l.Info("PMM Extensions is not configured; on-host facts will be absent")
 		return s
 	}
-	if token != "" && cleartextToken(extensionsURL) {
-		s.l.Warnf("PMM Extensions at %s is plain HTTP and off this host: PMM_EXTENSIONS_TOKEN will cross the network in clear text", extensionsURL)
+	if cleartextToken(extensionsURL) {
+		s.l.Warnf("PMM Extensions at %s is plain HTTP and off this host: PMM_EXTENSIONS_TOKEN and users' credentials will cross the network in clear text", extensionsURL)
 	}
 	client := newExtensionsClient(extensionsURL, token)
 	probe := &probeSource{
@@ -136,7 +136,7 @@ func (s *Service) IsAvailable(ctx context.Context) bool {
 	if s.probe == nil || s.probe.app.client == nil {
 		return false
 	}
-	_, err := s.probe.fetch(ctx)
+	_, err := s.probe.fetch(asService(ctx))
 	return err == nil
 }
 
@@ -152,7 +152,8 @@ func (s *Service) syncInventoryEnabled(ctx context.Context, enabled bool) error 
 	if s.probe == nil || s.probe.app.client == nil {
 		return nil
 	}
-	err := s.probe.app.patchConfig(ctx, map[string]any{"ENABLED": enabled})
+	ctx = asService(ctx)
+	err := s.probe.app.setEnabled(ctx, enabled)
 	if err != nil {
 		s.l.WithError(err).WithField("enabled", enabled).
 			Warn("failed to sync OpenManager's on/off state to PMM Extensions' om_inventory app")
@@ -174,10 +175,14 @@ func (s *Service) WithBootstrapSource(extensionsURL, token string) *Service {
 		s.l.Info("PMM Extensions is not configured; MongoDB bootstrap will be unavailable")
 		return s
 	}
-	if token != "" && cleartextToken(extensionsURL) {
-		s.l.Warnf("PMM Extensions at %s is plain HTTP and off this host: PMM_EXTENSIONS_TOKEN will cross the network in clear text", extensionsURL)
+	if cleartextToken(extensionsURL) {
+		s.l.Warnf("PMM Extensions at %s is plain HTTP and off this host: PMM_EXTENSIONS_TOKEN and users' credentials will cross the network in clear text", extensionsURL)
 	}
 	client := newExtensionsClient(extensionsURL, token)
+	// Sharing the probe's client shares its cache of bearers exchanged for users' sessions.
+	if s.probe != nil && s.probe.app.client.baseURL == extensionsURL && s.probe.app.client.token == token {
+		client = s.probe.app.client
+	}
 	s.bootstrap = &bootstrapClient{app: client.app(bootstrapAppModule)}
 	return s
 }
@@ -268,6 +273,7 @@ func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.Trigger
 // Run refreshes the document on a timer until ctx is cancelled. It also syncs the OpenManager switch to om_inventory,
 // retrying until it lands, since a server that starts enabled sees no ChangeSettings transition.
 func (s *Service) Run(ctx context.Context) {
+	ctx = asService(ctx)
 	reconciled := s.syncInventoryEnabled(ctx, s.Enabled()) == nil
 
 	interval := s.tick
@@ -315,6 +321,8 @@ func (s *Service) discover(ctx context.Context) (*omv1.GetTopologyResponse, erro
 
 // collect builds the document from every source and records the run. The caller must hold s.running.
 func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1.TopologyRun, error) {
+	// Collection publishes one snapshot for everyone, whoever pressed Sync.
+	ctx = asService(ctx)
 	startedAt := time.Now()
 	runID := uuid.New().String()
 

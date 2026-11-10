@@ -99,6 +99,12 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologySer
 	}
 
 	up := pointer.GetFloat64(fields.f64(fieldExporterUp)) == 1
+	role := processRole(fields)
+	state := fields.str(fieldState)
+	// An arbiter reports no state of its own, and its role outlives the process.
+	if state == "" && up && role == omv1.ProcessRole_PROCESS_ROLE_ARBITER {
+		state = "ARBITER"
+	}
 
 	return &omv1.TopologyService{
 		ServiceName:            service.ServiceName,
@@ -110,11 +116,11 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologySer
 		Vendor:                 optional(fields.str(fieldVendor)),
 		Edition:                optional(fields.str(fieldEdition)),
 		ReplicationSet:         optional(fields.str(fieldReplicationSet)),
-		State:                  optional(fields.str(fieldState)),
+		State:                  optional(state),
 		Status:                 serviceStatus(up),
 		CpuUsagePercent:        gauge(fields.f64(fieldCPUUsage), up),
 		ConnectionsFreePercent: gauge(fields.f64(fieldConnectionsFree), up),
-		ProcessRole:            processRole(fields),
+		ProcessRole:            role,
 		ReplicationLagSeconds:  optionalDouble(fields.f64(fieldReplicationLag)),
 		OplogWindowSeconds:     optionalDouble(oplogWindow(fields)),
 
@@ -181,6 +187,9 @@ func groupingKeys(_ *models.Service, fields fieldSet) (string, string) {
 func processRole(fields fieldSet) omv1.ProcessRole {
 	if fields.truthy(fieldIsMongos) {
 		return omv1.ProcessRole_PROCESS_ROLE_MONGOS
+	}
+	if fields.str(fieldNodeType) == nodeTypeArbiter {
+		return omv1.ProcessRole_PROCESS_ROLE_ARBITER
 	}
 	if role, ok := clusterRoles[fields.str(fieldClusterRole)]; ok {
 		return role
