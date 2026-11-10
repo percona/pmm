@@ -54,6 +54,14 @@ export interface RenderFieldArgs {
  * as does form submission; an override that keeps its own local state instead
  * silently breaks both. Memoize expensive overrides — the slot is wrapped in
  * `memo`, so an unstable override identity re-renders it on every parent render.
+ *
+ * Error contract: a custom widget MUST register its field (`register`,
+ * `Controller` or `useController`) and display that field's error
+ * (`fieldState.error`), or call `renderDefault()`, which does both. Fail rules
+ * report their messages as field errors, and Submit stays blocked while one is
+ * violated. A widget that never registers sends root rule messages to the alert
+ * above the form; one that registers but never displays its error leaves Submit
+ * blocked with no message on screen.
  */
 export type RenderFieldOverride = (args: RenderFieldArgs) => ReactNode;
 

@@ -136,7 +136,7 @@ var metricSignals = []metricSignal{
 			{fieldClusterRole, "cl_role"},
 		},
 	},
-	{metric: metricUp, valueField: fieldExporterUp},
+	{metric: metricUp, labels: []labelSignal{{fieldNodeType, "cluster_role"}}, valueField: fieldExporterUp},
 	{metric: metricMongosShards, presenceField: fieldIsMongos},
 	// Each member reports lag against every secondary; the max is the worst lag this node saw.
 	{metric: metricReplicationLag, valueField: fieldReplicationLag, reduceMax: true},
