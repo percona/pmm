@@ -263,7 +263,13 @@ const myCnfTemplate = `[client]
 `
 
 // buildMyCnfConfig builds my.cnf configuration for MySQL connection.
-func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[string]string, connectTimeout time.Duration, pmmAgentVersion *version.Parsed) (string, error) {
+func buildMyCnfConfig(
+	service *models.Service,
+	agent *models.Agent,
+	files map[string]string,
+	connectTimeout time.Duration,
+	pmmAgentVersion *version.Parsed,
+) (string, error) {
 	tmpl, err := template.New("myCnf").Parse(myCnfTemplate)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse myCnf template: %w", err)

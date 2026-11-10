@@ -2150,9 +2150,9 @@ type mysqlOptionsParamsStub struct {
 	extraDSNParams map[string]string
 }
 
-func (p mysqlOptionsParamsStub) GetTlsCa() string                     { return "" }
-func (p mysqlOptionsParamsStub) GetTlsCert() string                   { return "" }
-func (p mysqlOptionsParamsStub) GetTlsKey() string                    { return "" }
+func (p mysqlOptionsParamsStub) GetTlsCa() string                     { return "" } //nolint:revive // must match MySQLOptionsParams
+func (p mysqlOptionsParamsStub) GetTlsCert() string                   { return "" } //nolint:revive // must match MySQLOptionsParams
+func (p mysqlOptionsParamsStub) GetTlsKey() string                    { return "" } //nolint:revive // must match MySQLOptionsParams
 func (p mysqlOptionsParamsStub) GetExtraDsnParams() map[string]string { return p.extraDSNParams }
 
 func TestMySQLOptionsFromRequestExtraDSNParams(t *testing.T) {

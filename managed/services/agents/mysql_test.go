@@ -164,7 +164,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 				"time_zone": "'+00:00'",
 			},
 		}
-		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mysqldExporterConfig(node, nil, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		require.Contains(t, actual.TextFiles, "myCnf")
 		assert.Contains(t, actual.TextFiles["myCnf"], `time_zone="'+00:00'"`)
@@ -180,7 +180,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 				"time_zone": "'+00:00'",
 			},
 		}
-		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mysqldExporterConfig(node, nil, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		require.Contains(t, actual.TextFiles, "myCnf")
 		assert.NotContains(t, actual.TextFiles["myCnf"], "time_zone")
