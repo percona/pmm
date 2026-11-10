@@ -31,12 +31,12 @@ export function HostField({ field }: HostFieldProps) {
     <HostSelector
       name={field.name}
       label={field.label}
-      helperText={field.description}
+      helperText={field.description ?? undefined}
       required={field.required}
-      dependsOn={field.depends_on}
+      dependsOn={field.depends_on ?? undefined}
       serviceTypes={serviceTypes}
-      targetService={field.target_service}
-      allowCustom={field.allow_custom}
+      targetService={field.target_service ?? undefined}
+      allowCustom={field.allow_custom ?? undefined}
     />
   );
 }
