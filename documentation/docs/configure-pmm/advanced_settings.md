@@ -49,9 +49,7 @@ When active, PMM will automatically check for updates and put a notification in 
 
 ## Advisors
 
-Advisor settings have their own tab, **Configuration > Settings > Advisors**. On that tab, you can enable or disable Advisors, set **Advisor history retention**, and configure **Advisor notifications**, including the **Default recipients** and **Default severities**. PMM reports the findings on the **Advisors > Insights** page. To choose when the checks run, see [Schedule Advisor checks](../advisors/schedule-advisor-checks.md).
-
-See [Working with Advisor checks](../advisors/advisors.md).
+Advisor settings have their own tab, **Configuration > Settings > Advisors**. On that tab, you can enable or disable Advisors, set **Advisor history retention**, and configure **Advisor notifications**, including the **Default recipients** and **Default severities**. PMM reports the findings on the **Advisors > Insights** page. You can also [choose when the checks run](../advisors/schedule-advisor-checks.md).
 
 ## Percona Alerting
 

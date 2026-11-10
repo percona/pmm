@@ -1,6 +1,6 @@
 # List of advisors and checks
 
-PMM ships with built-in Advisor checks, grouped into advisors by category. Each check targets one database technology: MySQL, PostgreSQL or MongoDB. To browse the checks in PMM or turn them off, go to **Advisors > Catalog**. To choose when they run, see [Schedule Advisor checks](schedule-advisor-checks.md). To add checks of your own, see [Develop Advisor checks](develop-advisor-checks.md).
+PMM ships with built-in Advisor checks, grouped by category. Each check targets one database technology: MySQL, PostgreSQL or MongoDB. To browse the checks in PMM or turn them off, go to **Advisors > Catalog**. You can also [choose when they run](schedule-advisor-checks.md) and [add checks of your own](develop-advisor-checks.md).
 
 ## Categories
 

@@ -1,128 +1,180 @@
 # Schedule Advisor checks
 
-Advisor schedules decide when PMM runs Advisor checks automatically, which checks and services each run covers, and who gets the email report. You manage them on the **Advisors > Scheduler** page, which lists every schedule with its next and last run.
+Use Advisor schedules to run checks automatically at times that suit your team, on the services that matter to you, and to email the results to the people who act on them.
 
-PMM comes with one schedule, **All checks daily**, which runs every check on every service each day at 06:00 UTC. For details, see [Default schedule](#default-schedule).
+When you install or upgrade PMM Server, PMM creates one schedule, **All checks daily**, which runs every check on every service each day at 06:00 UTC and emails the [default recipients](advisors.md#get-advisor-results-by-email). You can keep it, change it, or replace it with your own schedules.
 
 ## Prerequisites
 
-Before you start, make sure that:
+Before you create a schedule:
+{.power-number}
 
-- The **Advisors** option is enabled under **Configuration > Settings > Advisors**.
-- You have the **Editor** or **Admin** role. For details, see [Permissions](#permissions).
-- To get email reports, PMM can send email and **Advisor notifications** are turned on. For details, see [Email notifications](advisors.md#email-notifications).
+1. Check that the **Advisors** option is turned on under **Configuration > Settings > Advisors**. Schedules run only while Advisors are on.
+2. Check that you have the [**Editor** or **Admin** role](../admin/roles/index.md). Viewers can't open the Scheduler. Editors can send Advisor reports to any email address, so give the Editor role only to users you trust with your Advisor findings.
+3. To get the email reports, go to **Configuration > Settings > Advisors**, check that **Advisor notifications** is on, and click **Send test email**. If the switch is off or the test email doesn't arrive, [set up email notifications](advisors.md#get-advisor-results-by-email).
 
 ## Create a schedule
+
+By default, the **All checks daily** schedule runs every check on every service at 06:00 UTC. Create your own schedule when that doesn't fit your team, for example to check production services more often, or to send security findings to your security team.
 
 To create a schedule:
 {.power-number}
 
 1. Go to **Advisors > Scheduler** and click **New schedule**.
-2. In **Name**, enter a name that no other schedule uses, up to 100 characters. The name appears in **Run history** and in the subject of the email report.
-3. Under **When**, select the **Days** and enter the **Time (UTC)** as `HH:MM`. To select several days at once, click **every day**, **weekdays** or **weekends** next to **Set to**. The preview shows the next runs in UTC and in your time zone.
-4. Under **Checks**, select **All checks** or **Selected checks**. For **Selected checks**, pick the checks in the list. To narrow the list, use **Search checks** and the **Category** filter.
-5. Under **Services**, select **All services** or **Selected services**. For **Selected services**, pick the services in the list. To narrow the list, use the search field and the **Environment** filter.
-6. Under **Email report**, choose who gets the report and which severities it covers. For details, see [Email reports](#email-reports).
-7. Click **Create schedule**. A message confirms that PMM created the schedule and shows its next run.
+2. In **Name**, enter a name that no other schedule uses, up to 100 characters. The name appears in **Run history** and in the subject of the email report, so choose one that your team recognizes.
+3. Under **When**, select the **Days** and enter the **Time (UTC)** as `HH:MM`. To pick several days at once, click **every day**, **weekdays** or **weekends** next to **Set to**.
 
-Before you save, check **What each run covers** in the editor. It shows how many checks run on how many services for each technology, and warns you if a selected check has no selected service to run on.
+    To see when the schedule runs in your local time, check the preview under **When**. It lists the next runs in UTC and in your time zone. Because schedules use UTC, a run can fall on a different day in your time zone, and the preview tells you when it does. The local time also moves by an hour when your clocks change for daylight saving time.
 
-## Times and time zones
+4. Under **Checks**, choose which checks run:
 
-Schedules use UTC, like backups. The Scheduler page shows the time in your time zone next to each UTC time. Because UTC has no daylight saving time, the local time of a run moves by an hour when your clocks change. Days are also picked in UTC, so in your time zone a run can fall on the previous or the next day. The editor tells you when it does.
+    - **All checks**: every check, including the ones added later, such as a new custom check
+    - **Selected checks**: only the checks that you pick. To find them, use **Search checks** and the **Category** filter.
 
-Each schedule has one time of day. To run checks several times a day, create one schedule for each time.
+5. Under **Services**, choose which services the checks run on:
 
-## Checks and services
+    - **All services**: every service, including the ones you add later
+    - **Selected services**: only the services that you pick. To find them, use the search field and the **Environment** filter.
 
-**All checks** and **All services** include the checks and services that are added later, such as a new custom check or a newly monitored database. **Selected checks** and **Selected services** cover only what you pick. New checks and services aren't added to them, and the ones that no longer exist are ignored.
+6. Under **What each run covers**, check how many checks run on how many services for each technology. If some selected checks have no service of their technology to run on, or some selected services get no checks, a message names them. Change your selection if that's not what you want.
+7. Under **Email report**, [choose who gets the email report](#choose-who-gets-the-email-report).
+8. Click **Create schedule**.
 
-If every selected check or every selected service no longer exists, the schedule shows **Targets no existing check** or **Targets no existing service**, and its runs have nothing to do. Edit the schedule to pick other checks or services.
+### Run checks several times a day
 
-Each run executes checks only on services of their technology. It skips the checks that are disabled in **Advisors > Catalog**, whether for all services or for one. A scheduled run that has nothing to check isn't recorded in **Run history**.
+Each schedule runs at one time of day. To run checks several times a day, create one schedule for each time. The quickest way is to duplicate a schedule:
+{.power-number}
 
-## Email reports
+1. In the schedule's row, click the :material-dots-vertical: icon and select **Duplicate**. The copy's name ends with `(copy)`, and the copy is paused, so that nothing runs twice.
+2. In the copy's row, click the :material-dots-vertical: icon and select **Edit**. Change the name and the **Time (UTC)**, then click **Save changes**.
+3. Turn on the copy's **Enabled** switch.
 
-After each run, PMM can email a report of the run's findings. Under **Email report**, choose the recipients:
+## Choose who gets the email report
 
-- **Settings recipients**: The **Default recipients** set under **Configuration > Settings > Advisors**. Changes there apply to the schedule too.
-- **These recipients**: Up to 20 email addresses, separated by commas or spaces. Only these addresses get the schedule's reports.
-- **Don't email**: PMM sends no report. The results stay in **Insights** and **Run history**.
+After each run, a schedule emails a report of the issues it found. You can choose, for each schedule, who gets that report and which severities it includes.
 
-Unless you choose **Don't email**, also choose the severities under **Severities**:
+### Check the default recipients and severities
 
-- **Same as Settings**: The **Default severities** set under **Configuration > Settings > Advisors**. Changes there apply to the schedule too.
-- **Only these**: The severities that you select, for this schedule only. You must select at least one of **Critical**, **Error**, **Warning** and **Info**.
+Every schedule emails the default recipients, with the default severities, until you change them. Before you change a schedule's report, check what these defaults are:
+{.power-number}
 
-A run that has no findings at the chosen severities sends no email. The subject of the email names the schedule.
+1. Open the schedule in the editor: click the :material-dots-vertical: icon in its row and select **Edit**.
+2. Under **Email report**, check **Settings recipients**. It shows the default recipients from **Configuration > Settings > Advisors**, or says that none are set. If the defaults change there, the schedule uses the new recipients.
+3. Under **Severities**, check **Same as Settings**. It shows the default severities, which are **Critical** and **Error** unless an Admin changed them. If the defaults change, the schedule uses the new severities.
 
-PMM emails reports only when **Advisor notifications** is turned on under **Configuration > Settings > Advisors**. If it's off, the Scheduler page and the editor show a warning. You can still set recipients in the meantime.
+Only Admins can [change the defaults](advisors.md#turn-on-notifications).
 
-### Send a test email
+### Send a schedule's report to other recipients
 
-To check that the reports arrive, click **Send test email** in the editor. PMM sends a sample report to the schedule's recipients, with sample findings for the schedule's severities. The test uses the values in the editor, including the changes that you haven't saved. No checks are run.
+To send a schedule's report to other people, for example the team that looks after the services it checks, replace the default recipients with your own list. The default recipients then no longer get this schedule's report, so if they should still get it, add their addresses to your list too:
+{.power-number}
 
-**Send test email** is available once the schedule has valid recipients and at least one severity.
+1. Open the schedule in the editor: click the :material-dots-vertical: icon in its row and select **Edit**, or [create a new schedule](#create-a-schedule).
+2. Under **Email report**, select **These recipients** and enter up to 20 email addresses, separated by commas or spaces. Only these people get this schedule's report, and its subject names the schedule.
+3. To check that the report arrives, click **Send test email**. PMM sends a sample report with sample findings and runs no checks. The test uses the values in the editor, so you can test before you save. The button is available once the email addresses are valid and at least one severity is selected.
+4. Click **Save changes**, or **Create schedule** for a new schedule.
 
-## Manage schedules
+### Change which severities a schedule reports
 
-The **Advisors > Scheduler** page lists the schedules in a table. For each schedule, the table shows when it runs, its checks, services and email report, and its **Next run** and **Last run**. To open the last run in **Run history**, click its result in the **Last run** column.
+By default, the email report lists the findings at the [default severities](#check-the-default-recipients-and-severities). To report a different set for one schedule, for example to add **Warning** for production services, or to report only **Critical** for a test environment:
+{.power-number}
 
-To pause or resume a schedule, use the **Enabled** switch in its row. A paused schedule keeps its settings but doesn't run.
+1. Open the schedule in the editor.
+2. Under **Severities**, select **Only these**, then select at least one of **Critical**, **Error**, **Warning** and **Info**.
+3. Click **Save changes**.
 
-For the other actions, click the :material-dots-vertical: icon in the schedule's row and select one of the following:
+PMM sends a report only when a run finds issues at these severities.
 
-- **Run now**: Starts a run of the schedule right away, with its checks, services and email report. This action is unavailable while another run is queued or in progress.
-- **Edit**: Opens the schedule in the editor. To apply your changes, click **Save changes**.
-- **Duplicate**: Creates a copy whose name ends with `(copy)`. The copy is paused, so that nothing runs twice. Edit the copy, then enable it.
-- **View runs**: Opens **Run history**, filtered by the schedule.
-- **Delete**: Deletes the schedule after you confirm. Its future runs are cancelled, and its past runs stay in **Run history** under its name.
+### Stop a schedule from emailing
 
-### Week view
+To keep running a schedule without emailing anyone, for example while you test it:
+{.power-number}
 
-**This week, UTC** shows the runs of every enabled schedule from Monday to Sunday of the current week, on a UTC time axis. Each schedule has its own color, and a line marks the current time. To see a run's schedule, its time in UTC and in your time zone, and how many checks run on how many services, hover over the run's marker. To open the schedule's details pane, click the marker.
+1. Open the schedule in the editor.
+2. Under **Email report**, select **Don't email**. The results still appear on the **Insights** and **Run history** pages.
+3. Click **Save changes**.
 
-### Details pane
+To go back to the defaults later, select **Settings recipients** and **Same as Settings**.
 
-To open the details pane of a schedule, double-click its row, or click one of its markers in the week view. The pane shows the following:
+## Check what your schedules will run
 
-- A summary of when the schedule runs, its checks, services and email report
-- **Next runs**, in UTC and in your time zone
-- **What each run covers**: Each service in scope, with its technology, environment and cluster, and the number of checks that run on it
-- **Checks**: The checks in scope, grouped by technology
-- **Recent runs**, each with a link that opens it in **Run history**
+Check your schedules when something changes in your environment. For example, before planned maintenance, make sure that no run is due during it. After you add a database, make sure that a schedule checks it. When you add a schedule, make sure that its runs don't collide with the runs of other schedules.
 
-To run or edit the schedule from the pane, click **Run now** or **Edit**.
+### Keep runs out of a maintenance window
 
-## When schedules run
+Advisor checks query your databases, so plan runs outside your maintenance windows. To find the runs that fall in a window and move them:
+{.power-number}
 
-PMM runs one set of Advisor checks at a time. Schedules follow these rules:
+1. Go to **Advisors > Scheduler** and find the runs in **This week, UTC**.
+2. To see which schedule a run belongs to, and its time in your time zone, hover over the run's marker.
+3. If the run falls in the window, [change the schedule's time](#run-pause-or-change-a-schedule), or turn off its **Enabled** switch until the maintenance is over.
 
-- A schedule that falls due during another run waits, and starts as soon as that run ends.
-- Schedules that fall due at the same time run one after another, each as its own run with its own email report.
-- A schedule that is already waiting isn't queued again.
-- PMM skips the runs that fall due while PMM Server is down, and doesn't catch up on them later. A schedule that is waiting when PMM Server restarts is skipped too.
-- PMM starts no run when PMM Server starts or when you turn on Advisors.
+### Make sure that a new database is checked
 
-In **Run history**, a scheduled run that started late because it waited for another run shows a clock icon. For details, see [Scheduled runs in Run history](advisors.md#scheduled-runs-in-run-history).
+Schedules set to **All services** check a new database automatically. Schedules set to **Selected services** check only the services that you picked, so a new database isn't included. To find out which schedules check a new database:
+{.power-number}
 
-If you turn off Advisors, PMM keeps the schedules but doesn't run them, and the Scheduler page shows a banner. When you turn Advisors back on, the schedules run at their next times.
+1. Go to **Advisors > Scheduler** and open a schedule's details pane: double-click its row, or click one of its runs in **This week, UTC**.
+2. Under **What each run covers**, find the database's service and the number of checks that run on it. If the service is missing, the schedule doesn't check it.
+3. To see which checks run, look under **Checks**. They're grouped by technology.
+4. If no schedule checks the database, [edit a schedule](#run-pause-or-change-a-schedule) and add the service, or set the schedule to **All services**.
 
-## Default schedule
+### Spread out runs that fall close together
 
-PMM creates the **All checks daily** schedule when you install or upgrade PMM Server. The schedule runs all checks on all services every day at 06:00 UTC, and emails the default recipients with the default severities.
+PMM runs one set of Advisor checks at a time. When two schedules fall due close together, the second one waits until the first run finishes, and starts late. Schedules due at the same time run one after another, each with its own email report. To keep runs on time:
+{.power-number}
 
-You can edit, pause or delete **All checks daily** like any other schedule. When you turn on Advisors, PMM creates it again only if no schedule exists.
+1. Go to **Advisors > Scheduler** and look for runs that sit close together in **This week, UTC**.
+2. To see which schedules they belong to, hover over the runs' markers.
+3. To find out how long a run takes, [check its **Duration**](advisors.md#check-the-progress-of-a-run) in **Advisors > Run history**.
+4. [Change the time](#run-pause-or-change-a-schedule) of one schedule so that its runs start after the other schedule's runs finish.
 
-Without any schedule, Advisor checks run only when someone starts them. To restore the default schedule, click **Create the default schedule** on the empty **Advisors > Scheduler** page.
+## Run, pause or change a schedule
 
-## Permissions
+Adjust your schedules as your environment changes. Go to **Advisors > Scheduler**, then:
 
-Users with the **Admin** or **Editor** role can view, create, edit, enable, disable, duplicate, delete and run schedules, and send test emails from the editor. Users with the **Viewer** role can't open the Scheduler.
+- To check whether a fix worked without waiting for the next run, click the :material-dots-vertical: icon in the schedule's row and select **Run now**. The run uses the schedule's checks, services and email report. You can't start it while another run is queued or in progress.
+- To stop a schedule during an outage or a migration without losing its settings, turn off the **Enabled** switch in its row. Turn it back on when you're done.
+- To run checks at another time or on other services, click the :material-dots-vertical: icon in the schedule's row, select **Edit**, make your changes and click **Save changes**.
+- To see what a schedule found in earlier runs, click the :material-dots-vertical: icon in its row and select **View runs**. To open only its last run, click the result in the **Last run** column. To learn what **Run history** shows, see [Follow your runs](advisors.md#follow-your-runs).
+- To remove a schedule that you no longer need, click the :material-dots-vertical: icon in its row, select **Delete** and confirm. Its past runs stay in **Run history** under its name.
 
-Because Editors choose the recipients of a schedule, they can send Advisor reports and test emails to any address. The default recipients and severities under **Configuration > Settings > Advisors** stay Admin-only. For the permissions of every role, see [Standard role permissions](../admin/roles/index.md).
+## Restore the default schedule
 
-## Next steps
+**All checks daily** is an ordinary schedule, so you can edit, pause or delete it like any other. If you delete it and all your other schedules, Advisor checks run only when someone starts them.
 
-- [Review the results of the runs](advisors.md#advisor-results)
-- [Develop custom Advisor checks](develop-advisor-checks.md)
+To get the daily run back, go to the empty **Advisors > Scheduler** page and click **Create the default schedule**. PMM also creates it again when you turn on Advisors and no schedule exists.
+
+## Troubleshooting
+
+### A scheduled run started late or didn't run
+
+If a scheduled run started later than its time, or didn't run at all, find out why:
+{.power-number}
+
+1. Check whether another run was in progress. In **Run history**, a :material-clock-outline: icon next to the run's start time means that it waited for another run. To [find out which one](advisors.md#find-out-what-started-a-run), hover over the icon. To avoid the wait, [spread out the runs](#spread-out-runs-that-fall-close-together).
+2. Check that the schedule's **Enabled** switch is on.
+3. Check that Advisors are on. If they're off, the Scheduler page shows a banner and no schedule runs. When you turn them back on, the schedules run at their next times. PMM doesn't start a run right away.
+4. Check whether PMM Server was down or restarted when the run was due. PMM skips the runs that fall due while it's down, including a run that was waiting when it restarted, and doesn't catch up on them later.
+5. Check whether the run had anything to check. A scheduled run with nothing to check isn't recorded in **Run history**. This happens when all its checks are [turned off](advisors.md#turn-off-checks-that-dont-apply) in **Advisors > Catalog**, for all services or for its services, or when its services don't match the technology of its checks.
+
+### A schedule shows Targets no existing check or Targets no existing service
+
+If a schedule shows **Targets no existing check** or **Targets no existing service**, every check or service that you selected for it no longer exists, so its runs have nothing to do. **Selected checks** and **Selected services** cover only what you picked, and don't add new checks or services. If only some of them no longer exist, the schedule skips those and runs the rest.
+
+To fix it, edit the schedule and select other checks or services, or switch to **All checks** or **All services**.
+
+### No email report arrives
+
+If a schedule runs but no report arrives:
+{.power-number}
+
+1. Check that the run found issues at the schedule's severities. A run without such findings sends no email.
+2. Check that **Advisor notifications** is on under **Configuration > Settings > Advisors**. If it's off, the Scheduler page and the editor show a warning, and no schedule sends email. The recipients that you set in the meantime are kept.
+3. In the schedule editor, click **Send test email**. If the test email doesn't arrive either, [check the SMTP settings of PMM Server](advisors.md#set-up-smtp).
+
+## Related topics
+
+- [Review the results of the runs](advisors.md#review-advisor-results)
+- [Turn on email notifications](advisors.md#get-advisor-results-by-email)
+- [Develop Advisor checks](develop-advisor-checks.md)

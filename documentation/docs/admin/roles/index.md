@@ -59,7 +59,7 @@ Use the matrix below to check which permissions users have based on their assign
     Enable or disable Advisor checks, for all or specific services | ✗ | ✓ | ✓
     View, create, edit, enable, disable, delete and run Advisor schedules | ✗ | ✓ | ✓
     Send a test Advisor email from a schedule | ✗ | ✓ | ✓
-    Change Advisors settings (on/off, history retention, email notifications, default recipients and severities) | ✗ | ✗ | ✓
+    Turn Advisors on or off, and change history retention, email notifications, default recipients and default severities | ✗ | ✗ | ✓
 
 === "Configuration & Management"
     Permission | Viewer | Editor | Admin

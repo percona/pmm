@@ -1,6 +1,6 @@
 # Develop Advisor checks
 
-PMM ships with built-in Advisor checks that detect common security threats, performance degradation, data loss and data corruption. You can also create custom checks in the PMM UI to cover use cases that are specific to your database infrastructure. PMM stores custom checks in its database and runs them together with the built-in checks.
+Use custom Advisor checks to cover use cases that are specific to your database infrastructure, alongside the built-in checks that detect common security threats, performance degradation, data loss and data corruption. You create custom checks in the PMM UI, and PMM stores them in its database and runs them together with the built-in checks.
 
 ## Check components
 
@@ -65,7 +65,7 @@ To run your check and review its results:
 {.power-number}
 
 1. Custom checks run on [schedules](schedule-advisor-checks.md), like built-in checks, and schedules set to **All checks** include them automatically. To run a check right away, find it in **Advisors > Catalog** and click the :material-play-outline: **Run** icon in its row.
-2. In the confirmation message, click **View results**. **Advisors > Insights** opens, filtered by the ID of the run, and shows the check's results for each service. From there:
+2. To see the check's results for each service, click **View results** in the confirmation message. **Advisors > Insights** shows only the insights of that run. From there:
 
     - To see only the insights of your check, across all runs, click the :material-dots-vertical: icon in one of its rows and select **Filter by name**.
     - To see how much of its plan the run covered, go to **Advisors > Run history**. For details, see [Run coverage](advisors.md#run-coverage).
@@ -122,7 +122,7 @@ Get a function from `context` before you call it, for example `parse_version = c
 
 ### Finding granularity
 
-Return one finding per service — or one finding per database for checks that examine per-database objects — rather than one finding per offending object. Aggregate the objects into the finding: put the count in the summary (for example, `3 relation(s) with unused indexes in database app`), list the objects in the description, and set labels such as `database` and `count`. The Advisors Insights list distinguishes findings by their summary and labels, so per-object findings with a shared summary flood the history with rows that look identical. If your check reports issues at different severity levels, return one aggregated finding per severity level.
+Return one finding per service, or one finding per database for checks that examine per-database objects, rather than one finding per offending object. Aggregate the objects into the finding: put the count in the summary (for example, `3 relation(s) with unused indexes in database app`), list the objects in the description, and set labels such as `database` and `count`. The Advisors Insights list distinguishes findings by their summary and labels, so per-object findings with a shared summary flood the history with rows that look identical. If your check reports issues at different severity levels, return one aggregated finding per severity level.
 
 ### Example
 
@@ -184,7 +184,7 @@ You can label your Advisor checks with one of the following available severity l
 - Warning
 - Info
 
-Findings with any other severity level (previously: Emergency, Alert, Notice, Debug) are rejected, and the check run fails with an error.
+PMM rejects findings with any other severity level, including the Emergency, Alert, Notice and Debug levels that earlier versions accepted, and the check run fails with an error.
 
 PMM groups failed checks by their severity and displays them under **Advisors > Insights**.
 
@@ -227,7 +227,7 @@ Some query types accept parameters:
 To set the parameters of a query in the check form:
 {.power-number}
 
-1. Under the query, click **Add parameter**. A row with the **Parameter** and **Value** fields appears.
+1. Under the query, click **Add parameter**.
 2. In **Parameter**, select or type the name of the parameter. The field suggests the names that the query type accepts: `lookback` for `METRICS_INSTANT`, `range`, `step` and `lookback` for `METRICS_RANGE`, and `all_dbs` for `POSTGRESQL_SELECT`.
 3. In **Value**, enter the value of the parameter. Durations take a number with a unit such as `s`, `m` or `h`, for example `30s`, `5m` or `8h`. `all_dbs` takes `true` or `false`.
 

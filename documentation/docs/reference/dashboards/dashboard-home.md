@@ -96,6 +96,8 @@ Shows the number of `pmm-agent` instances that are currently connected to PMM Se
 
 Use this to confirm that your PMM Clients are reporting. If the count drops, some clients have lost their connection to PMM Server.
 
+To find the affected clients, go to **Inventory** and look for services whose **Monitoring** status is **Failed**. Then [check the agent status](../../use/commands/pmm-admin/status.md) on that client's node.
+
 ### PMM Upgrade
 
 Shows the current PMM version and whether a newer version is available. Use this to stay current. You can start an upgrade directly from the dashboard.
