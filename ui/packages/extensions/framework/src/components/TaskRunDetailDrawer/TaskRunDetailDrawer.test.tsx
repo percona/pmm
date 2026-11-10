@@ -195,15 +195,29 @@ describe('TaskRunDetailDrawer', () => {
       ).not.toBeInTheDocument();
     });
 
-    it('says a run did not fail when there is no log to carry the note', () => {
+    it('says why a run never launched when there is no log to carry the note', () => {
       renderDrawer({
         entry: makeEntry(16, 'unlaunchable', { has_logs: false }),
       });
 
       expect(screen.getByTestId('run-detail-note')).toHaveTextContent(
-        /not a failure of the run itself/
+        /a command it needs is not available there, so nothing was executed/
       );
       expect(screen.queryByTestId('log-viewer')).not.toBeInTheDocument();
+    });
+
+    // A run sent to one chosen host can be stale too, so the note must not
+    // claim that every host was tried.
+    it('says a stale run was never started, without blaming every host', () => {
+      renderDrawer({
+        entry: makeEntry(17, 'stale', { has_logs: false }),
+      });
+
+      const note = screen.getByTestId('run-detail-note');
+      expect(note).toHaveTextContent(
+        /was not started within the staleness threshold/
+      );
+      expect(note).not.toHaveTextContent(/no host/i);
     });
   });
 

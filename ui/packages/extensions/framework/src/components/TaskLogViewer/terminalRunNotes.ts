@@ -33,7 +33,7 @@ export const NON_FAILURE_TERMINAL_NOTES: Partial<Record<string, string>> = {
   stopped: 'This run was stopped before it finished.',
   lost: 'The host stopped reporting on this run, so its outcome is unknown.',
   stale:
-    'This run was skipped because no host could pick it up before the staleness threshold.',
+    'This run was skipped because it was not started within the staleness threshold.',
   unlaunchable:
-    'The host could not launch this run, so nothing was executed. This is not a failure of the run itself.',
+    'The host could not launch this run because a command it needs is not available there, so nothing was executed.',
 };
