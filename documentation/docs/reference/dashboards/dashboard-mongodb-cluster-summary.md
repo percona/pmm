@@ -125,7 +125,27 @@ Shows the five collections with the highest write rates, in operations per secon
 
 ### Operations Per Shard
 
-Shows total operations per second for each shard as a stacked area chart, combining all operation types. Use this to see how query load is distributed across shards and whether any shard is taking a disproportionate share of the work.
+Shows client commands per second for each shard: find, insert, update, and delete. The value always equals **Reads Per Shard** plus **Writes Per Shard**. Config servers are not included. Use this to see how load is distributed across shards and whether any shard is taking a disproportionate share of the work.
+
+The **Shard / Replica Set** filter at the top narrows all per-shard panels to the shards that you select. To open the **MongoDB ReplSet Summary** dashboard for a shard, click a point on its line in any per-shard panel.
+
+### Reads Per Shard
+
+Shows read operations per second for each shard, counted as `find` commands. Reads served by secondaries are included. Use this to find a shard that takes most of the reads.
+
+The `getMore` commands are not counted. Most `getMore` commands on a shard come from replication and from Query Analytics, not from client reads. To see the getmore rate for the cluster, check **Command Operations**.
+
+### Writes Per Shard
+
+Shows write operations per second for each shard, counted as `insert`, `update`, and `delete` commands. A bulk write counts as one command. Replicated writes on secondaries and internal deletes, such as the cleanup of the `system.profile` collection, are not counted. Use this to find a hot shard that takes most of the writes.
+
+### Documents Scanned Per Shard
+
+Shows the documents examined per second on each shard by queries, updates, and deletes. A shard that scans far more documents than the other shards often has a missing index or a hot key range.
+
+### Query Targeting Per Shard
+
+Shows the number of documents scanned for each document returned. A value of 1 is ideal. A value in the hundreds or more means that operations read many documents that they don't return, usually because of a missing or weak index. Updates and deletes count too, so write-heavy shards show higher values. MongoDB Ops Manager calls this metric Query Targeting.
 
 ### MongoDB Versions
 
