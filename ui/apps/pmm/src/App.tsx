@@ -23,7 +23,7 @@ const queryClient = new QueryClient({
   },
 });
 
-const DARK_BACKGROUND_COLOR = 'rgb(10, 10, 18)';
+const DARK_BACKGROUND_COLOR = 'rgb(17, 18, 23)';
 
 // pmmThemeOptions with the dark background overridden; `paper` is included
 // because most page surfaces (RTA, Grafana frame, settings) paint with it
