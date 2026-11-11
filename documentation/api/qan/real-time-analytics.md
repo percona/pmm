@@ -8,12 +8,15 @@ privacy:
   view: public
 ---
 
-Real-time Analytics (RTA) provides live visibility into currently executing queries on your MongoDB clusters. Unlike stored metrics Query Analytics (QAN), which analyzes historical query performance data, RTA shows you what's happening right now on your database.
+Real-time Analytics (RTA) shows the queries currently running on your MongoDB and MySQL databases. For MySQL, it also shows lock contention, including which statements are waiting for a lock and which transaction is holding it.
+
+RTA shows what's happening on your database right now, while Query Analytics (QAN) analyzes historical query performance to help you spot trends and performance issues over time.
 
 Use the RTA API to:
 
-- start and stop real-time monitoring sessions for MongoDB services
+- start and stop real-time monitoring sessions for MongoDB and MySQL services
 - search currently executing queries in active sessions
+- find MySQL statements that are waiting for a lock, and the transactions holding those locks
 - list all active monitoring sessions
 - integrate live query monitoring into custom dashboards
 - automate session management
@@ -22,6 +25,28 @@ Use the RTA API to:
 
 **Authentication:** All endpoints require [Bearer token authentication](ref:authentication#bearer-authentication).
 
+## Supported databases
+
+RTA works with MongoDB and MySQL services. Before you start a session, make sure PMM Client on the database host meets the minimum version for your database:
+
+| Database | Minimum PMM Client | Service type |
+|----------|--------------------|--------------|
+| MongoDB | 3.7.0 | `SERVICE_TYPE_MONGODB_SERVICE` |
+| MySQL, Percona Server for MySQL and MariaDB | 3.11.0 | `SERVICE_TYPE_MYSQL_SERVICE` |
+
+### Unsupported service types
+
+If you request a service type that RTA doesn't support, such as PostgreSQL, the API returns HTTP status `400`:
+
+```json
+{
+  "error": "Service type postgresql does not support Real-Time Analytics",
+  "code": 3,
+  "message": "Service type postgresql does not support Real-Time Analytics",
+  "details": []
+}
+```
+
 ## Real-time vs. stored metrics
 
 | QAN feature | Real-time Analytics (RTA) | Stored metrics  |
@@ -29,14 +54,14 @@ Use the RTA API to:
 | **Data type** | Currently executing queries | Historical query performance |
 | **Time range** | Live data (updates every 1-5 seconds) | Historical data (configurable retention) |
 | **Use case** | Identify active issues now | Analyze trends and patterns |
-| **Database support** | MongoDB (Technical Preview) | MySQL, PostgreSQL, MongoDB |
+| **Database support** | [MongoDB and MySQL](#supported-databases) | MongoDB, MySQL and PostgreSQL |
 | **Data retention** | Ephemeral (not stored) | Persistent (stored for analysis) |
 
 ## Available endpoints
 
 - [List RTA-compatible services](ref:list-rta-services): retrieve services that support Real-Time Analytics
 - [Search real-time analytics queries](ref:search-rta-queries): retrieve currently executing queries from active sessions
-- [Manage real-time analytics sessions](ref:manage-rta-sessions): start, stop, and list real-time monitoring sessions for MongoDB services
+- [Manage real-time analytics sessions](ref:manage-rta-sessions): start, stop, and list real-time monitoring sessions
 
 ## Common use cases
 
@@ -65,6 +90,20 @@ Get comprehensive visibility across your entire MongoDB cluster by monitoring al
 2. Use the cluster filter in list sessions to view cluster status
 3. Search queries across all cluster services
 
+### Diagnose lock contention on MySQL
+
+When a MySQL table seems frozen, one transaction is often holding a lock while other statements wait behind it. To find and end that transaction:
+
+1. Start a session for the MySQL service with `POST /v1/realtimeanalytics/sessions:start`.
+2. Get the running queries with `POST /v1/realtimeanalytics/queries:search`.
+3. In the response, find the queries where `my_sql_payload.blocked_status` is `BLOCKED_STATUS_BLOCKED`. The API doesn't filter by this field, so check it in your own code, for example with `jq`.
+4. In each blocked query's `my_sql_payload.blocked_by` list, check the `root` field:
+
+    - If an entry has `root` set to `true`, that transaction isn't waiting for a lock itself, so it's at the head of the chain. More than one entry can have `root` set to `true`.
+    - If no entry has `root` set to `true`, each blocking transaction is itself waiting for a lock. Find that transaction's own query in the response, using `blocking_conn_id`, and check its `blocked_by` list the same way until you reach a root. If you come back to the statement you started from, the transactions are deadlocked, and MySQL usually rolls back one of them on its own.
+
+5. End each root transaction so the waiting statements can continue.
+
 ## Authentication
 
 All RTA endpoints require authentication using service account tokens. Include your token in the request header:
@@ -82,7 +121,7 @@ For details about creating and managing service account tokens, see [Authenticat
 
 ### Session management and resource considerations
 
-Real-time monitoring adds overhead to both MongoDB and PMM Server. Manage sessions carefully to minimize performance impact:
+Each running session adds load to the monitored database and to PMM Server. To keep the impact low:
 
 - start sessions only when actively troubleshooting or for services that need active monitoring
 - stop sessions when monitoring is no longer needed or during maintenance windows
@@ -110,5 +149,6 @@ Each RTA session has a status that indicates whether it's actively collecting da
 
 ## Related resources
 
-- [Real-time Analytics user documentation](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics.html)
+- [Real-time Analytics for MongoDB](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics.html)
+- [Real-time Analytics for MySQL](https://docs.percona.com/percona-monitoring-and-management/3/use/qan/QAN-realtime-analytics-mysql.html)
 - [Complete PMM API documentation](https://percona-pmm.readme.io/reference/introduction)

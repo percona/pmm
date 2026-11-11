@@ -466,6 +466,14 @@ func TestAgentsList(t *testing.T) {
 						Status:     new("AGENT_STATUS_RUNNING"),
 					},
 				},
+				RtaMysqlAgent: []*agents_service.ListAgentsOKBodyRtaMysqlAgentItems0{
+					{
+						AgentID:    "rta-mysql-id",
+						PMMAgentID: pmmAgentID,
+						ServiceID:  "mysql-service-id",
+						Status:     new("AGENT_STATUS_RUNNING"),
+					},
+				},
 			},
 		}
 
@@ -488,9 +496,10 @@ func TestAgentsList(t *testing.T) {
 			types.AgentTypeVMAgent,
 			types.AgentTypeNomadAgent,
 			types.AgentTypeRTAMongoDBAgent,
+			types.AgentTypeRTAMySQLAgent,
 		}
 
-		// Should have 16 agents total
+		// Should have 17 agents total
 		assert.Len(t, result, len(expectedTypes))
 
 		// Verify each agent type is present
@@ -1022,6 +1031,42 @@ func TestRtaMongodbAgents(t *testing.T) {
 
 	assert.Len(t, result, 1)
 	assert.Equal(t, types.AgentTypeRTAMongoDBAgent, result[0].AgentType)
+}
+
+func TestRtaMysqlAgents(t *testing.T) {
+	t.Parallel()
+
+	pmmAgentIDs := map[string]struct{}{
+		"pmm-agent-1": {},
+	}
+
+	agentsRes := &agents_service.ListAgentsOK{
+		Payload: &agents_service.ListAgentsOKBody{
+			RtaMysqlAgent: []*agents_service.ListAgentsOKBodyRtaMysqlAgentItems0{
+				{
+					AgentID:    "rta-mysql-1",
+					PMMAgentID: "pmm-agent-1",
+					ServiceID:  "mysql-service-1",
+					Status:     new("AGENT_STATUS_RUNNING"),
+				},
+				{
+					AgentID:    "rta-mysql-other",
+					PMMAgentID: "pmm-agent-other",
+					ServiceID:  "mysql-service-2",
+					Status:     new("AGENT_STATUS_RUNNING"),
+					Disabled:   true,
+				},
+			},
+		},
+	}
+
+	result := rtaMysqlAgents(agentsRes, pmmAgentIDs)
+
+	require.Len(t, result, 1)
+	assert.Equal(t, types.AgentTypeRTAMySQLAgent, result[0].AgentType)
+	assert.Equal(t, "rta-mysql-1", result[0].AgentID)
+	assert.Equal(t, "mysql-service-1", result[0].ServiceID)
+	assert.Equal(t, "RUNNING", result[0].Status)
 }
 
 func TestGetStatus(t *testing.T) {

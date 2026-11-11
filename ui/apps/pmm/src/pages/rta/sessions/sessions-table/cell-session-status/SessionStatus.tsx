@@ -1,9 +1,11 @@
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { useTheme } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { getStyles } from 'components/ha-icon/HighAvailabilityIcon.styles';
 import { Icon } from 'components/icon';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import { RealtimeSessionStatus } from 'types/rta.types';
 import { diffFromNow, formatDuration } from 'utils/datetime.utils';
 import { Messages } from './SessionStatus.messages';
@@ -15,21 +17,102 @@ interface Props {
   session: SessionRow;
 }
 
+// One finding per line. Capped under half the viewport so it fits on the side the popper flips
+// to; the 64px cover the anchor's row, the tooltip's padding and its arrow.
+const StatusMessageTitle: FC<{ intro?: string; message: string }> = ({
+  intro,
+  message,
+}) => {
+  const findings = message.split('\n').filter((line) => line.trim() !== '');
+
+  return (
+    <Box
+      data-testid="session-status-message-tooltip"
+      sx={{ maxHeight: 'calc(50vh - 64px)', overflowY: 'auto', pr: 0.5 }}
+    >
+      {intro && (
+        <Typography variant="inherit" component="p" sx={{ mb: 1 }}>
+          {intro}
+        </Typography>
+      )}
+      {findings.length === 1 && !intro ? (
+        findings[0]
+      ) : (
+        <Box component="ul" sx={{ m: 0, pl: 2, '& > li + li': { mt: 1 } }}>
+          {findings.map((finding, index) => (
+            <li key={index}>{finding}</li>
+          ))}
+        </Box>
+      )}
+    </Box>
+  );
+};
+
+const StatusMessageTooltip: FC<{
+  intro?: string;
+  message: string;
+  children: ReactNode;
+}> = ({ intro, message, children }) => (
+  <Tooltip
+    title={<StatusMessageTitle intro={intro} message={message} />}
+    slotProps={{ tooltip: { sx: { maxWidth: 480 } } }}
+  >
+    <Stack
+      direction="row"
+      alignItems="center"
+      gap={0.5}
+      data-testid="session-status-message"
+    >
+      {children}
+    </Stack>
+  </Tooltip>
+);
+
 const SessionStatus: FC<Props> = ({ session }) => {
   const theme = useTheme();
   const styles = getStyles(theme);
   useLiveTimestamp(30_000);
 
   if (session.status === RealtimeSessionStatus.running) {
-    return Messages.runningFor(formatDuration(diffFromNow(session.startTime)));
+    const runningFor = Messages.runningFor(
+      formatDuration(diffFromNow(session.startTime))
+    );
+
+    if (!session.statusMessage) {
+      return runningFor;
+    }
+
+    return (
+      <StatusMessageTooltip
+        intro={Messages.runningWithWarnings}
+        message={session.statusMessage}
+      >
+        {runningFor}
+        <Icon name="status-at-risk" sx={styles.icon} />
+      </StatusMessageTooltip>
+    );
   }
 
-  return (
-    <Stack direction="row" alignItems="center" gap={0.5}>
+  const status = (
+    <>
       <Icon name="status-at-risk" sx={styles.icon} />
       <Typography variant="body2" color="text.secondary">
         {getSessionStatusText(session.status)}
       </Typography>
+    </>
+  );
+
+  if (session.statusMessage) {
+    return (
+      <StatusMessageTooltip message={session.statusMessage}>
+        {status}
+      </StatusMessageTooltip>
+    );
+  }
+
+  return (
+    <Stack direction="row" alignItems="center" gap={0.5}>
+      {status}
     </Stack>
   );
 };

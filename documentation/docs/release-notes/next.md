@@ -13,6 +13,17 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✨ Release highlights
 
+### Real-time Query Analytics (RTA) for MySQL
+
+In addition to MongoDB, RTA now works with MySQL, Percona Server for MySQL and MariaDB services. You get the same live view of running queries, with pause, filters and CSV export, so you can see what's happening on your database while a problem is still going on.
+
+For MySQL, RTA also shows:
+
+- statements waiting for locks, the transactions holding those locks and how long they've been waiting, so you can end the transaction at the head of the chain
+- inefficient queries, based on row counts and full table scans, while they're still running
+
+RTA for MySQL needs PMM Client 3.11.0 or later on the database host, and you can also control it through the [Real-time Analytics API](https://percona-pmm.readme.io/reference/real-time-analytics). To get started, go to **Query Analytics > Real-time** and [start a session for a MySQL service](../use/qan/QAN-realtime-analytics-mysql.md#start-an-rta-session).
+
 ### Inventory page now in native PMM UI
 
 PMM has used [its own navigation](3.6.0.md#new-native-pmm-navigation-and-revamped-user-interface) instead of Grafana's menus since 3.6.0, and its pages are gradually moving from Grafana to native PMM UI. [**Inventory**](../use/dashboard-inventory.md) now joins [**Updates**](3.0.0.md#new-upgrade-ui), **Help**, [**Real-Time Analytics**](3.7.0.md#real-time-query-analytics-rta-for-mongodb), [**Settings**](3.8.0.md#settings-page-now-in-native-pmm-ui) and [**Alerts > Status**](3.9.0.md#alert-status-page-view-alerts-by-node-or-service), which already run there.
@@ -29,6 +40,7 @@ You get the same services, nodes and agents, now with:
 ## 📈 Improvements
 
 - [PMM-15239](https://perconadev.atlassian.net/browse/PMM-15239): The **Alert Status** page now groups alert severities into four bands: **Critical**, **Error**, **Warning** and **Info**. Each band has its own icon and label, so you can tell severities apart without relying on color. The **Severity** filter and sort work by band, and the alert details show the original level, for example **Reported as Emergency**. Alert labels stay the same. For how levels map to bands, see [Alert rules](../alert/alert_rules.md).
+- [PMM-15283](https://perconadev.atlassian.net/browse/PMM-15283): [Real-time Query Analytics](../use/qan/QAN-realtime-analytics-mysql.md) now works with MySQL, Percona Server for MySQL and MariaDB services, so you can see the statements running right now and find the transaction that's holding a lock they're waiting for. For MongoDB services, RTA now shows elapsed times under 10 seconds with millisecond precision, for example `1.500 s`, and the sessions list has a new **Technology** column.
 - [PMM-15805](https://perconadev.atlassian.net/browse/PMM-15805): The **Services** tab on **MongoDB > Operations > Fleet** now shows why a service is failing. The **Collected** column shows the reason, for example **Database unreachable**, and the service details show the full error, what to do about it, and a link to the scan that failed. A **Down** service whose `mongod` or `mongos` wasn't running at its last scan shows **not running**. The **Clusters** tab now warns when scan results can't be read. For details, see [Operations for MongoDB](../use/mongodb-operations.md#scans).
 - [PMM-15002](https://perconadev.atlassian.net/browse/PMM-15002): The **Inventory** page now runs in [native PMM UI](#inventory-page-now-in-native-pmm-ui), so it looks and works like the rest of the PMM interface. You can also bookmark and share filtered views of your services and nodes, and your existing Inventory bookmarks keep working.
 - [PMM-15481](https://perconadev.atlassian.net/browse/PMM-15481): You can now export services from **Inventory > Services** to a CSV file. Click **Export** to download the selected services, or every service that matches the search and filters. Each row includes the status, the monitoring status, the agents that failed, and the labels of the service. For details, see [Export services to a CSV file](../use/dashboard-inventory.md#export-services-to-a-csv-file).
