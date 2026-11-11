@@ -165,6 +165,14 @@ export const soleBlockerOf = (
   return roots.length === 1 ? roots[0] : undefined;
 };
 
+// Shared by the table chip and the details pane so they quote the same number; non-roots are
+// queued behind the roots.
+export const culpritCountOf = (blockers: BlockingTransaction[]): number => {
+  const roots = blockingRoots(blockers);
+
+  return roots.length > 1 ? roots.length : blockers.length;
+};
+
 export const soleBlocker = (
   query: RawQueryData
 ): BlockingTransaction | undefined =>

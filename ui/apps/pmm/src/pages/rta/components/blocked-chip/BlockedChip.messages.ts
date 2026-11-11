@@ -13,11 +13,12 @@ export const Messages = {
     count === 1
       ? 'This statement is waiting for a lock. Open the row to see which transaction holds it.'
       : `This statement is waiting for a lock held by ${count} transactions. Open the row to see them.`,
-  blockedUnattributed: 'Blocked: unknown',
+  blockedUnattributed: 'Possibly blocked',
+  blockedUnreadable: 'Blocked by unknown',
   tooltipUnattributed:
-    'This connection was waiting for a lock, but by the time PMM read the locks it had moved on from this statement to a later one. PMM cannot tell whether this statement was blocked, so it is not counted as blocked. The next refresh reads both again.',
+    "This statement might have been blocked, but its connection moved on to a later statement before the lock check. It isn't included in the Blocked only count. The next refresh checks again.",
   tooltipUnreadable:
-    "This statement is waiting for a lock, but PMM can't read that lock type on this instance, so it can't name the holder. For metadata locks, enable the wait/lock/metadata/sql/mdl instrument and restart the Real-Time Analytics session.",
+    "This statement is waiting for a lock, but this instance doesn't report who holds this lock type. To show the holders of metadata locks, enable the wait/lock/metadata/sql/mdl instrument, then restart the session.",
   tooltipUnknownHolder:
-    'This statement is waiting for a lock. The transaction holding it was not in this snapshot; the next refresh should show it.',
+    "This statement is waiting for a lock, but the transaction that holds it isn't listed yet. The next refresh usually shows it.",
 };

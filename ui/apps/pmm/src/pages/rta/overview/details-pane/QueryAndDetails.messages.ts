@@ -24,7 +24,7 @@ export const Messages = {
   tooltips: {
     operationId: "The database's internal identifier for this operation.",
     operationIdMySql:
-      'The MySQL connection id running this statement. MySQL identifies connections, not individual statements, so consecutive statements on the same connection share this value.',
+      'The ID of the MySQL connection that runs this statement. MySQL identifies connections, not statements, so consecutive statements on the same connection share this ID.',
     elapsedExecTime: 'How long this operation has been running for.',
     planSummary:
       'High-level summary of how the database is executing this query. For example, using an index or scanning the full collection.',
@@ -55,6 +55,6 @@ export const Messages = {
     fullScan:
       'Whether the statement performed a full table scan instead of using an index.',
     lockTime:
-      'How long the statement has waited for table locks, in milliseconds (LOCK_TIME in performance_schema).',
+      'How long the statement has waited for table locks, in milliseconds. performance_schema reports it as LOCK_TIME.',
   },
 };

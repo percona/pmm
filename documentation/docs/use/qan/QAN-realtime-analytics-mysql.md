@@ -23,7 +23,7 @@ How much data RTA shows depends on the server and its default settings:
 | Server | What RTA shows | What to do |
 | ------ | -------------- | ---------- |
 | MySQL 8.0 and later, Percona Server for MySQL 8.0 and later | All data, including blockers for metadata locks and transaction details | Nothing. Everything RTA uses is on by default. |
-| MySQL 5.7 | All data except blockers for metadata locks and transaction details. A statement waiting for a metadata lock shows as **Blocked: unknown**, and lock modes are [less precise](#find-out-why-the-blocker-holds-the-lock). | [Turn on the missing settings](#get-complete-data-on-mysql-57-and-mariadb). Lock modes stay less precise. |
+| MySQL 5.7 | All data except blockers for metadata locks and transaction details. A statement waiting for a metadata lock shows as **Blocked by unknown**, and lock modes are [less precise](#find-out-why-the-blocker-holds-the-lock). | [Turn on the missing settings](#get-complete-data-on-mysql-57-and-mariadb). Lock modes stay less precise. |
 | MariaDB | Query text, user, database, command, state and elapsed time. Latency, row counts, metadata lock detection and transaction details are missing, and lock modes are [less precise](#find-out-why-the-blocker-holds-the-lock). | [Turn on the missing settings](#get-complete-data-on-mysql-57-and-mariadb). Lock modes stay less precise. |
 | Managed services, such as Amazon RDS for MySQL | Not tested. RTA can work only when `performance_schema` is enabled on the instance. | On Amazon RDS, turn on `performance_schema` in the instance's parameter group. |
 
@@ -87,7 +87,7 @@ Without these settings, you miss part of the data:
 
 - **`wait/lock/metadata/sql/mdl` instrument** (off by default on MySQL 5.7 and MariaDB): without it, RTA can't detect metadata locks.
 
-    A statement queued behind a DDL statement shows as **Blocked: unknown** instead of naming its blocker. RTA recognizes the wait from the statement's state, `Waiting for table metadata lock`, but can't see which connection holds the lock.
+    A statement queued behind a DDL statement shows as **Blocked by unknown** instead of naming its blocker. RTA recognizes the wait from the statement's state, `Waiting for table metadata lock`, but can't see which connection holds the lock.
 
 ### Check your role
 
@@ -175,8 +175,8 @@ On a busy server, the live query table can list many statements at once. To narr
 {.power-number}
 
 1. If several sessions are running, select only the services you're investigating in **Cluster/Service**.
-2. Turn on **Hide BEGIN/COMMIT** to clear out bare transaction statements, such as `BEGIN`, `START TRANSACTION`, `COMMIT` and `ROLLBACK`. Under a transactional workload, they fill the view and rarely tell you anything.
-3. If you're investigating a lock problem, turn on **Blocked only**. Statements that might be waiting, including those labeled **Blocked: unknown**, stay visible, so you don't miss one. To see why RTA couldn't tell whether they're waiting, hover over the toggle.
+2. Turn on **Hide transaction control** to clear out bare transaction statements, such as `BEGIN`, `START TRANSACTION`, `COMMIT` and `ROLLBACK`. Under a transactional workload, they fill the view and rarely tell you anything.
+3. If you're investigating a lock problem, turn on **Blocked only**. Statements that might be waiting, including those labeled **Blocked by unknown** or **Possibly blocked**, stay visible, so you don't miss one. To see why RTA couldn't tell whether they're waiting, hover over the toggle.
 4. To find specific statements, click :material-filter-variant: **Show/Hide filters** and filter by query text, host, database, user, or a **Min** and **Max** elapsed time. To match several databases or users, separate them with commas.
 
 ### Pause the view
@@ -263,12 +263,12 @@ To find the root blocker:
 1. Click the row of a statement with a **Blocked by** label to open its **Details** tab.
 2. Read the hint at the end of the blocker's details:
 
-    - If it says that resolving the blocker's connection releases this statement, or that the connection holds a metadata lock on this table, the blocker is the root blocker. [Release its lock](#get-the-waiting-statements-running-again) to get the statement running.
+    - If it says that committing or rolling back the blocker's transaction releases this statement, or that the blocker's connection holds a metadata lock on this table, the blocker is the root blocker. [Release its lock](#get-the-waiting-statements-running-again) to get the statement running.
     - If it says that the blocker's connection is itself waiting for a lock, open the blocker's row and repeat this step.
 
     If several transactions hold up the statement, the hint says how many of them to resolve, and RTA marks each additional root blocker **Root**.
 
-If a statement shows **Blocked: unknown** instead of naming its blocker, see [A statement shows Blocked: unknown](#a-statement-shows-blocked-unknown).
+If a statement shows **Blocked by unknown** or **Possibly blocked** instead of naming its blocker, see [A statement shows Blocked by unknown or Possibly blocked](#a-statement-shows-blocked-by-unknown-or-possibly-blocked).
 
 ### Find out why the blocker holds the lock
 
@@ -277,8 +277,8 @@ Before you end a blocking transaction, check what it's doing, so you know whethe
 
 1. Click the row of the blocked statement to open its **Details** tab.
 2. Check **Blocker state**. `Sleep` means that the blocker has an open transaction and is sitting idle.
-3. Check **Blocker's statement** to see which statement took the lock. For an idle blocker, this is the last statement it ran. That's usually the one that took the lock, but an earlier statement in the same transaction may have taken it instead. On MariaDB, the field reads **No current statement (connection idle in transaction)** unless the `events_statements_current` consumer is on.
-4. If you're investigating a deadlock, compare **Mode requested** and **Blocker holds**. On MySQL 8.0 and later and Percona Server for MySQL 8.0 and later, the mode tells a wait on a row apart from a wait on the gap before it, for example `X,REC_NOT_GAP` and `X,GAP`. That difference can explain a deadlock that otherwise looks impossible. MySQL 5.7 and MariaDB report lock modes less precisely, so you can't always tell these waits apart.
+3. Check **Blocker's statement** to see which statement took the lock. For an idle blocker, this is the last statement it ran. That's usually the one that took the lock, but an earlier statement in the same transaction may have taken it instead. On MariaDB, the field starts with **No current statement** unless the `events_statements_current` consumer is on.
+4. If you're investigating a deadlock, compare **Requested mode** and **Blocker's mode**. On MySQL 8.0 and later and Percona Server for MySQL 8.0 and later, the mode tells a wait on a row apart from a wait on the gap before it, for example `X,REC_NOT_GAP` and `X,GAP`. That difference can explain a deadlock that otherwise looks impossible. MySQL 5.7 and MariaDB report lock modes less precisely, so you can't always tell these waits apart.
 
 ### Get the waiting statements running again
 
@@ -393,17 +393,17 @@ If row counts and full-scan detection show **Unavailable**, your server isn't me
 
 RTA shows **Unavailable** instead of `0` on purpose, so that you don't mistake an unmeasured statement for a cheap, well-indexed one. Elapsed time still works, but only to the whole second.
 
-### A statement shows Blocked: unknown
+### A statement shows Blocked by unknown or Possibly blocked
 
-If a statement shows **Blocked: unknown**, either it's waiting for a lock whose holder RTA can't read, or its connection moved on while RTA was reading locks. Hover over the label to see which:
+If a statement shows **Blocked by unknown**, it's waiting for a lock whose holder RTA can't read. If it shows **Possibly blocked**, its connection moved on to a later statement while RTA was reading locks, so RTA can't tell whether the statement was waiting:
 
 ![Blocked: unknown labels on metadata-lock waits on MySQL 5.7, with the label's tooltip open and the toggle showing Blocked unknown](../../images/RTA_MySQL_blocked_unknown.png)
 
 To find out why:
 {.power-number}
 
-1. Wait for the next refresh. If the label disappears, the connection simply moved on while RTA was reading locks, and you don't need to fix anything.
-2. If the label stays, turn on the metadata lock instrument, as described in [Get complete data on MySQL 5.7 and MariaDB](#get-complete-data-on-mysql-57-and-mariadb). It's off by default on MySQL 5.7 and MariaDB.
+1. If the label is **Possibly blocked**, wait for the next refresh. The label usually disappears, and you don't need to fix anything.
+2. If the label is **Blocked by unknown**, turn on the metadata lock instrument, as described in [Get complete data on MySQL 5.7 and MariaDB](#get-complete-data-on-mysql-57-and-mariadb). It's off by default on MySQL 5.7 and MariaDB.
 3. If lock information is missing on every statement, check that the monitoring user has the `PROCESS` privilege, as described in [Check the service requirements](#check-the-service-requirements).
 
 To see which data RTA can't collect, hover over the session status in the sessions list. It shows what RTA found when the session started. Problems found later, such as a missing privilege, appear only in the [pmm-agent log](../commands/pmm-agent.md#logging) on the monitored host.

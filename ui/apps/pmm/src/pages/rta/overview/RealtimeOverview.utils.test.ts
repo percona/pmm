@@ -102,28 +102,32 @@ describe('blockedOnlyTooltip', () => {
   it('points at the missing lock source when one could not be read', () => {
     const tooltip = blockedOnlyTooltip(true, 0);
 
-    expect(tooltip).toContain('could not read every kind of lock');
-    expect(tooltip).not.toContain('could not be attributed');
+    expect(tooltip).toContain("doesn't report every lock type");
+    expect(tooltip).not.toContain('Possibly blocked');
   });
 
   it('counts unattributed rows without blaming the lock sources', () => {
     const tooltip = blockedOnlyTooltip(false, 2);
 
-    expect(tooltip).toContain('2 statements could not be attributed');
-    expect(tooltip).toContain('moved on to a later statement');
-    expect(tooltip).not.toContain('could not read every kind of lock');
+    expect(tooltip).toContain(
+      'This filter shows 2 statements marked Possibly blocked'
+    );
+    expect(tooltip).toContain("isn't clear yet whether they're waiting");
+    expect(tooltip).not.toContain("doesn't report every lock type");
   });
 
   it('uses the singular for one unattributed row', () => {
     expect(blockedOnlyTooltip(false, 1)).toContain(
-      '1 statement could not be attributed this refresh'
+      "1 statement marked Possibly blocked but doesn't count it"
     );
   });
 
   it('says both when both are true', () => {
     const tooltip = blockedOnlyTooltip(true, 3);
 
-    expect(tooltip).toContain('could not read every kind of lock');
-    expect(tooltip).toContain('3 statements could not be attributed');
+    expect(tooltip).toContain("doesn't report every lock type");
+    expect(tooltip).toContain(
+      'This filter shows 3 statements marked Possibly blocked'
+    );
   });
 });

@@ -12,7 +12,7 @@ describe('BlockedUnknownChip', () => {
     );
 
     expect(screen.getByTestId('blocked-unknown-chip')).toHaveTextContent(
-      'Blocked: unknown'
+      'Possibly blocked'
     );
   });
 
@@ -26,7 +26,7 @@ describe('BlockedUnknownChip', () => {
     fireEvent.mouseOver(screen.getByTestId('blocked-unknown-chip'));
 
     expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      /moved on from this statement to a later one/
+      /moved on to a later statement before the lock check/
     );
   });
 
@@ -38,13 +38,13 @@ describe('BlockedUnknownChip', () => {
     );
 
     const chip = screen.getByTestId('blocked-unknown-chip');
-    expect(chip).toHaveTextContent('Blocked: unknown');
+    expect(chip).toHaveTextContent('Blocked by unknown');
     expect(chip).toHaveAttribute('data-reason', 'unreadable');
 
     fireEvent.mouseOver(chip);
 
     expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      /can't read that lock type on this instance.*wait\/lock\/metadata\/sql\/mdl/
+      /doesn't report who holds this lock type.*wait\/lock\/metadata\/sql\/mdl/
     );
   });
 });

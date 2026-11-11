@@ -81,7 +81,7 @@ describe('BlockedByPanel', () => {
     renderPanel([IDLE_ROOT]);
 
     expect(
-      screen.getByText(/it is holding a transaction open/)
+      screen.getByText(/its open transaction still holds the lock/)
     ).toBeInTheDocument();
     expect(
       screen.getByText('Sleep · idle in transaction 2m 34s')
@@ -92,9 +92,9 @@ describe('BlockedByPanel', () => {
     // The lock may come from an earlier statement in the same transaction.
     renderPanel([IDLE_ROOT]);
 
-    expect(
-      screen.getByText(/Shown is the last statement it ran/)
-    ).toHaveTextContent(/may have been taken by an earlier statement/);
+    expect(screen.getByText(/ran this statement last/)).toHaveTextContent(
+      /may come from an earlier statement/
+    );
     expect(screen.queryByText(/statement that took/)).not.toBeInTheDocument();
   });
 
@@ -102,7 +102,7 @@ describe('BlockedByPanel', () => {
     renderPanel([MIDDLE_OF_CHAIN]);
 
     expect(
-      screen.queryByText(/it is holding a transaction open/)
+      screen.queryByText(/its open transaction still holds the lock/)
     ).not.toBeInTheDocument();
     expect(screen.getByText('Query')).toBeInTheDocument();
   });
@@ -138,7 +138,7 @@ describe('BlockedByPanel', () => {
 
     expect(screen.getByText('1 more transaction ahead')).toBeInTheDocument();
     expect(
-      screen.getByText(/All 2 transactions holding this statement up/)
+      screen.getByText(/All 2 transactions that block this statement/)
     ).toBeInTheDocument();
     expect(screen.queryByText(/cycle/)).not.toBeInTheDocument();
   });
@@ -151,7 +151,7 @@ describe('BlockedByPanel', () => {
       /^Blocked by 409$/
     );
     expect(
-      screen.getByText(/Conn 409 is itself waiting for a lock/)
+      screen.getByText(/Connection 409 is itself waiting for a lock/)
     ).toBeInTheDocument();
     expect(screen.queryByText(/cycle/)).not.toBeInTheDocument();
   });
@@ -167,7 +167,7 @@ describe('BlockedByPanel', () => {
     );
     expect(
       screen.getByText(
-        /2 transactions are holding this statement up independently/
+        /2 transactions hold locks that this statement waits for/
       )
     ).toBeInTheDocument();
   });
@@ -205,9 +205,9 @@ describe('BlockedByPanel', () => {
   it('shows the requested and held lock modes so a gap lock is distinguishable', () => {
     renderPanel([{ ...IDLE_ROOT, blockingLockMode: 'X,GAP' }]);
 
-    expect(screen.getByText('Mode requested')).toBeInTheDocument();
+    expect(screen.getByText('Requested mode')).toBeInTheDocument();
     expect(screen.getByText('X,REC_NOT_GAP')).toBeInTheDocument();
-    expect(screen.getByText('Blocker holds')).toBeInTheDocument();
+    expect(screen.getByText("Blocker's mode")).toBeInTheDocument();
     expect(screen.getByText('X,GAP')).toBeInTheDocument();
   });
 
@@ -262,8 +262,8 @@ describe('BlockedByPanel', () => {
     );
 
     expect(screen.queryByText('Lock type')).not.toBeInTheDocument();
-    expect(screen.queryByText('Mode requested')).not.toBeInTheDocument();
-    expect(screen.queryByText('Blocker holds')).not.toBeInTheDocument();
+    expect(screen.queryByText('Requested mode')).not.toBeInTheDocument();
+    expect(screen.queryByText("Blocker's mode")).not.toBeInTheDocument();
   });
 
   it('does not pair the requested mode with one blocker when several are named', () => {
@@ -275,8 +275,8 @@ describe('BlockedByPanel', () => {
       'EXCLUSIVE'
     );
 
-    expect(screen.getByText('Mode requested')).toBeInTheDocument();
-    expect(screen.queryByText('Blocker holds')).not.toBeInTheDocument();
+    expect(screen.getByText('Requested mode')).toBeInTheDocument();
+    expect(screen.queryByText("Blocker's mode")).not.toBeInTheDocument();
     expect(screen.getByText('SHARED_WRITE')).toBeInTheDocument();
   });
 
@@ -289,7 +289,7 @@ describe('BlockedByPanel', () => {
       'EXCLUSIVE'
     );
 
-    expect(screen.getByText('Blocker holds')).toBeInTheDocument();
+    expect(screen.getByText("Blocker's mode")).toBeInTheDocument();
     expect(screen.getByText('SHARED_READ')).toBeInTheDocument();
   });
 
@@ -342,16 +342,20 @@ describe('BlockedByPanel', () => {
       'SHARED_READ'
     );
 
-    expect(screen.getByText(/still holding the lock/)).toBeInTheDocument();
     expect(
-      screen.queryByText(/holding a transaction open/)
+      screen.getByText(/still holds the lock, for example after LOCK TABLES/)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/its open transaction still holds the lock/)
     ).not.toBeInTheDocument();
   });
 
   it('does say a transaction is open when one is', () => {
     renderPanel([IDLE_ROOT]);
 
-    expect(screen.getByText(/holding a transaction open/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/its open transaction still holds the lock/)
+    ).toBeInTheDocument();
   });
 
   it('marks a blocker statement that MySQL cut short', () => {
@@ -373,7 +377,7 @@ describe('BlockedByPanel', () => {
 
     expect(screen.queryByTestId('blocker-query')).not.toBeInTheDocument();
     expect(screen.getByTestId('blocker-query-unavailable')).toHaveTextContent(
-      'No current statement (connection idle in transaction)'
+      'No current statement: the connection is idle in a transaction'
     );
   });
 
@@ -387,7 +391,7 @@ describe('BlockedByPanel', () => {
     ]);
 
     expect(screen.getByTestId('blocker-query-unavailable')).toHaveTextContent(
-      'No current statement (connection idle).'
+      'No current statement: the connection is idle,'
     );
   });
 

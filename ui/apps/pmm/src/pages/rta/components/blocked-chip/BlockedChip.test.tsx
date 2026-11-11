@@ -37,6 +37,18 @@ describe('BlockedChip', () => {
     );
   });
 
+  it('counts only the roots when several hold the lock, as the details pane does', () => {
+    renderChip([
+      blocker('409', true),
+      blocker('410', true),
+      blocker('411', false),
+    ]);
+
+    expect(screen.getByTestId('blocked-chip')).toHaveTextContent(
+      'Blocked by 2 transactions'
+    );
+  });
+
   it('names a lone blocker even when it is itself waiting', () => {
     renderChip([blocker('409', false)]);
 

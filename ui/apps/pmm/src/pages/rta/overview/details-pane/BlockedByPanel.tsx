@@ -11,6 +11,7 @@ import { BlockingTransaction, LockType } from 'types/rta.types';
 import { formatDurationSeconds, parseDuration } from 'utils/duration.utils';
 import {
   blockingRoots,
+  culpritCountOf,
   soleBlockerOf,
 } from 'pages/rta/overview/table/OverviewTable.utils';
 import { Messages } from './BlockedByPanel.messages';
@@ -123,8 +124,7 @@ const BlockedByPanel: FC<Props> = ({
   // Shared helpers, so this pane, the table chip and the CSV name the same transaction.
   const roots = blockingRoots(blockers);
   const sole = soleBlockerOf(blockers);
-  // Heading and hint must quote the same number; non-roots are queued behind the roots.
-  const culpritCount = roots.length > 1 ? roots.length : blockers.length;
+  const culpritCount = culpritCountOf(blockers);
   // With no single culprit, still lead with a concrete statement from the head of the chain.
   const primary = sole ?? roots[0] ?? blockers[0];
   // A second root must be resolved too, while a non-root clears on its own.

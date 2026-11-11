@@ -3,7 +3,10 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Chip, Tooltip } from '@percona/peak-ui';
 import { FC } from 'react';
 import { BlockingTransaction } from 'types/rta.types';
-import { soleBlockerOf } from 'pages/rta/overview/table/OverviewTable.utils';
+import {
+  culpritCountOf,
+  soleBlockerOf,
+} from 'pages/rta/overview/table/OverviewTable.utils';
 import { Messages } from './BlockedChip.messages';
 
 export interface Props {
@@ -20,13 +23,13 @@ const BlockedChip: FC<Props> = ({ blockers }) => {
     ? Messages.blockedUnknownHolder
     : sole
       ? Messages.blockedBy(sole.blockingConnId)
-      : Messages.blockedByMany(blockers.length);
+      : Messages.blockedByMany(culpritCountOf(blockers));
 
   const tooltip = holderUnknown
     ? Messages.tooltipUnknownHolder
     : sole
       ? Messages.tooltip(sole.blockingConnId)
-      : Messages.tooltipMany(blockers.length);
+      : Messages.tooltipMany(culpritCountOf(blockers));
 
   return (
     <Tooltip title={tooltip} arrow>
