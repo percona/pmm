@@ -58,22 +58,6 @@ type checksService interface {
 	UpdateIntervals(rare, standard, frequent time.Duration)
 }
 
-// vmAlertService is a subset of methods of vmalert.Service used by this package.
-// We use it instead of real type to avoid dependency cycle.
-type vmAlertService interface {
-	RequestConfigurationUpdate()
-	healthChecker
-}
-
-// vmAlertExternalRules is a subset of methods of vmalert.ExternalRules used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type vmAlertExternalRules interface {
-	ValidateRules(ctx context.Context, rules string) error
-	ReadRules() (string, error)
-	RemoveRulesFile() error
-	WriteRules(rules string) error
-}
-
 // supervisordService is a subset of methods of supervisord.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisordService interface {

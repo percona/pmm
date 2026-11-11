@@ -95,7 +95,7 @@ func NewVictoriaMetrics(
 		scrapeConfigPath: scrapeConfigPath,
 		db:               db,
 		baseURL:          u,
-		client:           &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
+		client:           &http.Client{}, // TODO instrument with utils/irt https://jira.percona.com/browse/PMM-7229
 		params:           params,
 		chParams:         chParams,
 		l:                logrus.WithField("component", "victoriametrics"),
@@ -106,9 +106,6 @@ func NewVictoriaMetrics(
 
 // Run runs VictoriaMetrics configuration update loop until ctx is canceled.
 func (svc *Service) Run(ctx context.Context) {
-	// If you change this and related methods,
-	// please do similar changes in vmalert package.
-
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
 
@@ -426,7 +423,6 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 		if svc.params.ExternalVM() && !svc.haService.Params().Enabled {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(resolutions.HR, svc.baseURL.Host))
 		}
-		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(resolutions.HR, pmmServerNodeName))
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, addInternalServicesToScrape(resolutions, svc, pmmServerNodeName)...)
 		if pointer.GetBool(settings.Nomad.Enabled) {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForNomadServer(resolutions.MR, pmmServerNodeName))
@@ -473,24 +469,6 @@ func scrapeConfigForInternalVMAgent(interval time.Duration, target string) *conf
 				{
 					Targets: []string{target},
 					Labels:  map[string]string{"instance": models.PMMServerAgentID},
-				},
-			},
-		},
-	}
-}
-
-// scrapeConfigForVMAlert returns scrape config for VMAlert in Prometheus format.
-func scrapeConfigForVMAlert(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
-	return &config.ScrapeConfig{
-		JobName:        "vmalert",
-		ScrapeInterval: config.Duration(interval),
-		ScrapeTimeout:  ScrapeTimeout(interval),
-		MetricsPath:    "/metrics",
-		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
-			StaticConfigs: []*config.Group{
-				{
-					Targets: []string{models.LocalhostAddr + ":8880"},
-					Labels:  map[string]string{"instance": pmmServerNodeName},
 				},
 			},
 		},

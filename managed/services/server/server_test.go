@@ -66,10 +66,6 @@ func newTestServerWithHA(t *testing.T, db *reform.DB, haEnabled bool) (*Server, 
 	vmdb.Test(t)
 	vmdb.On("RequestConfigurationUpdate").Return(nil)
 
-	var vmalert mockPrometheusService
-	vmalert.Test(t)
-	vmalert.On("RequestConfigurationUpdate").Return(nil)
-
 	state := &mockAgentsStateUpdater{}
 	state.Test(t)
 	state.On("UpdateAgentsState", mock.Anything).Return(nil)
@@ -82,10 +78,6 @@ func newTestServerWithHA(t *testing.T, db *reform.DB, haEnabled bool) (*Server, 
 	var checksService mockChecksService
 	checksService.Test(t)
 	checksService.On("UpdateAdvisorsList", context.TODO()).Return(nil)
-
-	var externalRules mockVmAlertExternalRules
-	externalRules.Test(t)
-	externalRules.On("ReadRules").Return("", nil)
 
 	var telemetry mockTelemetryService
 	telemetry.Test(t)
@@ -101,17 +93,15 @@ func newTestServerWithHA(t *testing.T, db *reform.DB, haEnabled bool) (*Server, 
 	ha.On("Params").Return(&models.HAParams{Enabled: haEnabled})
 
 	s, err := NewServer(&Params{
-		DB:                   db,
-		VMDB:                 &vmdb,
-		VMAlert:              &vmalert,
-		ChecksService:        &checksService,
-		TemplatesService:     &templatesService,
-		AgentsStateUpdater:   state,
-		Supervisord:          &supervisord,
-		VMAlertExternalRules: &externalRules,
-		TelemetryService:     &telemetry,
-		Nomad:                &nomad,
-		HAService:            &ha,
+		DB:                 db,
+		VMDB:               &vmdb,
+		ChecksService:      &checksService,
+		TemplatesService:   &templatesService,
+		AgentsStateUpdater: state,
+		Supervisord:        &supervisord,
+		TelemetryService:   &telemetry,
+		Nomad:              &nomad,
+		HAService:          &ha,
 	})
 	require.NoError(t, err)
 

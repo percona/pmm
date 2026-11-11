@@ -77,7 +77,13 @@ type Service struct {
 // values from supervisord configuration.
 const (
 	pmmConfig = "/etc/supervisord.d/pmm.ini"
+	logsDir   = "/srv/logs"
 )
+
+// removedPrograms were configured by older pmm-managed versions. A new image starts without their
+// config, but a pmm-managed swapped into a running container (dev container, CI) finds it still
+// there, with the program running, and their logs stay on /srv after any upgrade.
+var removedPrograms = []string{"vmalert"}
 
 // New creates new service.
 func New(configDir string, params *models.Params) *Service {
@@ -102,9 +108,9 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	s.supervisordConfigsM.Lock()
 	defer s.supervisordConfigsM.Unlock()
 
-	var err error
+	s.retireRemovedPrograms(logsDir)
 
-	err = s.vmParams.UpdateParams()
+	err := s.vmParams.ValidateBaseConfig()
 	if err != nil {
 		return err
 	}
@@ -144,6 +150,40 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 		}
 	}
 	return err
+}
+
+// retireRemovedPrograms stops and forgets the programs in removedPrograms and deletes their logs,
+// so that the logs bundle stops shipping them.
+func (s *Service) retireRemovedPrograms(dir string) {
+	for _, name := range removedPrograms {
+		path := filepath.Join(s.configDir, name+".ini")
+		err := os.Remove(path)
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
+			s.l.Warnf("Failed to remove obsolete config %s: %s.", path, err)
+		}
+
+		// Asking supervisord when the file is already gone retries a previous update that failed.
+		if err == nil || s.ProgramRunning(context.Background(), name) {
+			s.l.Infof("Removing obsolete program %s.", name)
+			// reload() skips the update once the config file is gone, so it cannot do this.
+			_, err = s.supervisorctl(context.Background(), "reread")
+			if err != nil {
+				s.l.Warn(err)
+			}
+			_, err = s.supervisorctl(context.Background(), "update", name)
+			if err != nil {
+				s.l.Warn(err)
+			}
+		}
+
+		logs, _ := filepath.Glob(filepath.Join(dir, name+".log*"))
+		for _, f := range logs {
+			err = os.Remove(f)
+			if err != nil {
+				s.l.Warnf("Failed to remove obsolete log %s: %s.", f, err)
+			}
+		}
+	}
 }
 
 // StartSupervisedService starts given service.
@@ -244,32 +284,6 @@ startsecs = 1
 stopsignal = INT
 stopwaitsecs = 30
 stdout_logfile = /srv/logs/victoriametrics.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "vmalert"}}
-[program:vmalert]
-priority = 7
-command =
-	/usr/sbin/vmalert
-		--external.url={{ .VMURL }}
-		--datasource.url={{ .VMURL }}
-		--remoteRead.url={{ .VMURL }}
-		--remoteWrite.url={{ .VMURL }}
-		--rule=/srv/prometheus/rules/*.yml
-		--httpListenAddr={{ .InterfaceToBind }}:8880
-{{- range $index, $param := .VMAlertFlags }}
-		{{ $param }}
-{{- end }}
-autorestart = true
-autostart = true
-startretries = 10
-startsecs = 1
-stopsignal = INT
-stopwaitsecs = 10
-stdout_logfile = /srv/logs/vmalert.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
@@ -435,7 +449,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	templateParams := map[string]any{
 		"DataRetentionDays":            settings.DataRetentionDays(),
-		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
 		"VMSearchDisableCache":         vmSearchDisableCache,
 		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
 		"VMSearchLatencyOffset":        vmSearchLatencyOffset,
