@@ -1,6 +1,6 @@
 # About PMM Inventory
 
-The **Inventory** page lists every node, service and agent registered in PMM. Use it to check the monitoring status of your databases, edit service labels, and remove the objects that you no longer monitor.
+The **Inventory** page lists every node, service and agent registered in PMM. Use it to check the monitoring status of your databases, export your services to a CSV file, edit service labels, and remove the objects that you no longer monitor.
 
 Starting with PMM 3.11.0, **Inventory** is part of the PMM UI instead of a Grafana page. Bookmarks and links to the previous Inventory and service editing pages open the matching new page.
 
@@ -29,17 +29,19 @@ PMM keeps the search, filters, sort order and page number in the page URL, so yo
 
 The **Services** tab lists the monitored services and the nodes that they run on, with the following columns:
 
-| Column | Description |
-|--------|-------------|
-| **Status** | Whether the database is running. For the possible values, see [Service and node status](#service-and-node-status). |
-| **Service Name** | The name of the service, with an icon for the database type. |
-| **Node Name** | The node that the service runs on. Click the name to show the node on the **Nodes** tab. |
-| **Monitoring** | A summary of the status of the agents that monitor the service. Click the status to open the list of agents. For the possible values, see [Monitoring status](#monitoring-status). |
-| **Address** | The IP address or DNS name of the service. For Amazon RDS instances, this is the database endpoint. |
-| **Port** | The port that the service listens on. |
-| **Service ID** | The unique ID of the service. Hidden by default. |
+| Column           | Description                                                                                                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Status**       | Whether the database is running. For the possible values, see [Service and node status](#service-and-node-status).                                                                 |
+| **Service Name** | The name of the service, with an icon for the database type.                                                                                                                       |
+| **Node Name**    | The node that the service runs on. Click the name to show the node on the **Nodes** tab.                                                                                           |
+| **Monitoring**   | A summary of the status of the agents that monitor the service. Click the status to open the list of agents. For the possible values, see [Monitoring status](#monitoring-status). |
+| **Address**      | The address PMM uses to connect to the service, set when you added the service. 127.0.0.1 or localhost points to the host PMM connects from. If you added the service with `pmm-admin` on the database host, that's the database host. If you added it with **Add Service** in the PMM UI, it's PMM Server, unless you picked a different PMM agent in the form. For Amazon RDS instances, this is the database endpoint. Empty when PMM connects to the service through a socket. To change the address, remove the service and add it again. |
+| **Port**         | The port PMM uses to connect to the service. Shows 0 when PMM connects to the service through a socket.                                                                            |
+| **Service ID**   | The unique ID of the service. Hidden by default.                                                                                                                                   |
 
 To add a service, click **Add Service**, or go to **Inventory > Add service**. For details, see [Connect databases](../install-pmm/install-pmm-client/connect-database/index.md).
+
+To download the services as a CSV file, click **Export**. For details, see [Export services to a CSV file](#export-services-to-a-csv-file).
 
 ### Service details
 
@@ -62,12 +64,12 @@ To act on a service, click :material-dots-vertical: at the end of its row, then 
 
 The **Status** column on the **Services** tab shows whether the database is available. The **Nodes** tab uses the same values for nodes. To see these descriptions in PMM, hover over :material-information-outline: in the **Status** column header on the **Services** tab.
 
-| Status | Description |
-|--------|-------------|
-| **Up** | The database is running. |
-| **Down** | The database is not running. |
-| **Unknown** | The agent is unavailable, or the database status is incorrect. Check the configuration. |
-| **N/A** | PMM can't determine whether the service is available. This happens for external services when the metrics that PMM needs are not available. |
+| Status      | Description                                                                                                                                 |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Up**      | The database is running.                                                                                                                    |
+| **Down**    | The database is not running.                                                                                                                |
+| **Unknown** | The agent is unavailable, or the database status is incorrect. Check the configuration.                                                     |
+| **N/A**     | PMM can't determine whether the service is available. This happens for external services when the metrics that PMM needs are not available. |
 
 ### Monitoring status
 
@@ -98,19 +100,57 @@ Each service has the following attributes:
     - PMM captures the version only when you add the service with PMM Client 2.41.0 or later.
     - PMM doesn't update the version when you upgrade the database. To update it, remove the service and add it again.
 
+### Export services to a CSV file
+
+You can download the services as a CSV file, for example to keep an inventory report or to review the services in a spreadsheet.
+
+To export services:
+{.power-number}
+
+1. Go to **Inventory > Services**.
+2. To export only some services, search or filter the table, or select the checkboxes of the services to export.
+3. Click **Export**. PMM downloads the file as `inventory_services_export_{timestamp}.csv`.
+
+If you select services, the file contains only the selected services that match the search and filters. Otherwise, it contains every service that matches the search and filters, in the order of the table. This includes the services on other pages and in collapsed clusters. If no service matches, **Export** is disabled.
+
+#### Exported columns
+
+Each row of the file is a service. The columns don't depend on which columns the table shows. The file starts with the following columns:
+
+| Column          | Description                                                                                                                                                                                                                     |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `service_id`    | The unique ID of the service.                                                                                                                                                                                                   |
+| `service_name`  | The name of the service.                                                                                                                                                                                                        |
+| `service_type`  | The database type, for example `mysql` or `postgresql`.                                                                                                                                                                         |
+| `status`        | The status of the service, as shown in the **Status** column, for example `Up`.                                                                                                                                                 |
+| `monitoring`    | The monitoring status, as shown in the **Monitoring** column: `OK`, `Warning` or `Failed`.                                                                                                                                      |
+| `failed_agents` | The agents that cause the `Failed` monitoring status, separated by semicolons. Each agent appears with its type, ID and status, for example `QAN MySQL Slow Query Log agent (<agent ID>): Waiting`. Empty when no agent failed. |
+| `node_id`       | The ID of the node that the service runs on.                                                                                                                                                                                    |
+| `node_name`     | The name of the node that the service runs on.                                                                                                                                                                                  |
+| `address`       | The address PMM uses to connect to the service, as shown in the **Address** column.                                                                                                                                             |
+| `port`          | The port PMM uses to connect to the service, as shown in the **Port** column.                                                                                                                                                   |
+
+The next columns hold the labels and attributes that the service details show under **Labels**. `environment`, `cluster` and `replication_set` come first. The custom labels and the other attributes, such as `version`, follow in alphabetical order. A column appears only when at least one exported service has a value for it. Services without that value have an empty cell.
+
+If a custom label has the same name as a column in the previous table, its column is named `label:<name>`, for example `label:status`.
+
+If a value starts with `=`, `+`, `-`, `@`, a tab or a carriage return, PMM adds an apostrophe (`'`) before it. This prevents spreadsheet applications from running the value as a formula.
+
+If you process the file automatically, match columns by header name rather than by position. The label columns depend on which services you export.
+
 ## Nodes tab
 
 The **Nodes** tab lists the nodes that PMM monitors, and the services and agents on each one. It displays the following columns:
 
-| Column | Description |
-|--------|-------------|
-| **Status** | The status of the node. For the possible values, see [Service and node status](#service-and-node-status). |
-| **Node Name** | The name of the node. In a PMM HA Cluster, a **Leader** or **Follower** badge shows the role of each PMM Server node. |
-| **Node Type** | The type of node: `generic`, `container`, `remote`, `remote_rds` or `remote_azure_database`. |
-| **Monitoring** | A summary of the status of the agents on the node. Click the status to open the list of agents. For the possible values, see [Monitoring status](#monitoring-status). |
-| **Address** | The IP address or DNS name of the node. |
-| **Services** | The services on the node. If the node has one service, click its name to show the service on the **Services** tab. Otherwise, the column shows the number of services, or **No services**. |
-| **Node ID** | The unique ID of the node. Hidden by default. |
+| Column         | Description                                                                                                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Status**     | The status of the node. For the possible values, see [Service and node status](#service-and-node-status).                                                                                  |
+| **Node Name**  | The name of the node. In a PMM HA Cluster, a **Leader** or **Follower** badge shows the role of each PMM Server node.                                                                      |
+| **Node Type**  | The type of node: `generic`, `container`, `remote`, `remote_rds` or `remote_azure_database`.                                                                                               |
+| **Monitoring** | A summary of the status of the agents on the node. Click the status to open the list of agents. For the possible values, see [Monitoring status](#monitoring-status).                      |
+| **Address**    | The IP address or DNS name of the node.                                                                                                                                                    |
+| **Services**   | The services on the node. If the node has one service, click its name to show the service on the **Services** tab. Otherwise, the column shows the number of services, or **No services**. |
+| **Node ID**    | The unique ID of the node. Hidden by default.                                                                                                                                              |
 
 If PMM runs as an HA Cluster, turn on **List PMM Server only nodes** to hide all other nodes. **PMM HA > Identify Nodes** in the main menu opens the same view.
 
@@ -159,11 +199,11 @@ To see the agents of a service or node, click its **Monitoring** status, or the 
 
 The agent list has the following columns:
 
-| Column | Description |
-|--------|-------------|
-| **Status** | The status of the agent. For the possible values, see [Agent status](#agent-status). |
+| Column         | Description                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------- |
+| **Status**     | The status of the agent. For the possible values, see [Agent status](#agent-status).        |
 | **Agent Type** | The type of agent, for example **Node exporter** or **QAN MySQL Performance Schema agent**. |
-| **Agent ID** | The unique ID of the agent. |
+| **Agent ID**   | The unique ID of the agent.                                                                 |
 
 To see the configuration of an agent, click :material-chevron-down: at the start of its row. The **Properties** section lists the labels and the options of the agent.
 
@@ -171,17 +211,18 @@ To see the configuration of an agent, click :material-chevron-down: at the start
 
 The **Status** column of the agent list takes one of the following values:
 
-| Status | Color | Description |
-|--------|-------|-------------|
-| **Running** | Green | The agent is running. |
-| **Starting** | Green | The agent is starting. |
-| **Done** | Grey | The agent has been stopped or disabled. |
-| **Waiting** | Red | The agent encountered an error and restarts automatically. |
-| **Initialization error** | Red | The agent encountered an error when starting. |
-| **Stopping** | Red | The agent is stopping. |
-| **Unknown** | Red | The agent is not connected, so PMM can't determine its state. |
+| Status                   | Color | Description                                                   |
+| ------------------------ | ----- | ------------------------------------------------------------- |
+| **Running**              | Green | The agent is running.                                         |
+| **Starting**             | Green | The agent is starting.                                        |
+| **Done**                 | Grey  | The agent has been stopped or disabled.                       |
+| **Waiting**              | Red   | The agent encountered an error and restarts automatically.    |
+| **Initialization error** | Red   | The agent encountered an error when starting.                 |
+| **Stopping**             | Red   | The agent is stopping.                                        |
+| **Unknown**              | Red   | The agent is not connected, so PMM can't determine its state. |
 
 <a id="editing-labels-for-a-service"></a>
+
 ## Edit a service
 
 You can change how PMM monitors a service without removing the service and adding it again. The service keeps its ID, and its metrics and Query Analytics (QAN) history. For an Amazon RDS service, you can also change how PMM authenticates to AWS.
@@ -240,6 +281,8 @@ Editing a service can affect the following PMM functions:
 - **Dashboard data**: edited labels apply only to new time series. Existing time series keep the previous labels.
 - **Amazon RDS metrics**: changing the credentials restarts the RDS exporter, so expect a short gap in CloudWatch metrics. If you select **Host credentials**, PMM stops storing AWS credentials for the service. If the PMM Client host provides no credentials, monitoring for the service stops.
 
+To change alert thresholds for a node, click the :material-dots-vertical: icon next to it and select **Override alert thresholds**. For details, see [Dynamic alert thresholds](../alert/alert-thresholds.md).
+
 ## Remove items from the inventory
 
 You can remove services, nodes and agents from the inventory. Removal is permanent.
@@ -264,7 +307,10 @@ To remove nodes:
 3. To also remove all the agents and services on the nodes, select **Force mode**.
 4. Click **Proceed**.
 
-You can't remove PMM Server nodes from the inventory. In a PMM HA Cluster, PMM Server nodes are managed through Helm. To add or remove replicas, [use `helm upgrade`](../install-pmm/install-HA-clustered.md#scale-pmm-server-replicas).
+PMM Server nodes in an HA cluster are managed through Helm, not through the PMM UI. This means you cannot delete them from the **Inventory** page.
+Deleting a node would drop it from monitoring without stopping the pod. Use `helm upgrade` to add or remove replicas instead.
+
+To add or remove replicas, [use `helm upgrade`](../install-pmm/install-HA-clustered.md#scale-pmm-server-replicas).
 
 ### Remove agents
 

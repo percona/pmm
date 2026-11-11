@@ -1,6 +1,6 @@
 # Connect PostgreSQL databases to PMM
 
-Connect your PostgreSQL databases—whether self-hosted or running in the cloud—to Percona Monitoring and Management (PMM) for comprehensive performance monitoring and analysis.
+Connect your self-hosted or cloud PostgreSQL databases to Percona Monitoring and Management (PMM) for comprehensive performance monitoring and analysis.
 
 PMM Client supports collecting metrics from PostgreSQL-based database systems:
 

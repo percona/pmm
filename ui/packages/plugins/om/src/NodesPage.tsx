@@ -45,7 +45,6 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
-import { formatTimestamp } from '@pmm-extensions/framework';
 import {
   HOST_DATABASE_STATE_COLOR,
   HOST_DATABASE_STATE_LABEL,
@@ -59,6 +58,7 @@ import { RowOverflowMenu } from './components/RowOverflowMenu';
 import { ScanProgress } from './components/ScanProgress';
 import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
+import { ScanFailureDetail } from './components/ScanFailureDetail';
 import { Unavailable } from './components/Unavailable';
 import { formatCompactDuration, pluralize } from './format';
 import {
@@ -238,14 +238,6 @@ const ExecutorCell = ({
 };
 
 /**
- * Why a host cannot be automated, for a tooltip.
- *
- * PMM Extensions supplies the reasons, but a host can read as ineligible with none given,
- * and an empty title makes MUI render no tooltip at all -- a disabled control
- * with no explanation. Shared by the Automation cell and the Bootstrap button so
- * the two cannot drift, which they had: the button showed nothing in that case.
- */
-/**
  * Why nothing can be done to a node that an install is already running on.
  *
  * Shared rather than repeated: the Automation chip, the row's Install button and the
@@ -263,6 +255,14 @@ const selectionBlockedTitle = (row: OmHostRow, busy: boolean): string | null =>
 const notATargetLabel = (row: OmHostRow) =>
   row.is_pmm_server_node ? 'PMM Server' : 'Not a target';
 
+/**
+ * Why a node cannot be automated, for a tooltip.
+ *
+ * PMM Extensions supplies the reasons, but a node can read as ineligible with none given,
+ * and an empty title makes MUI render no tooltip at all -- a disabled control
+ * with no explanation. Shared by the Automation cell and the Install button so
+ * the two cannot drift.
+ */
 const automationBlockedTitle = (reasons: string[]) =>
   reasons.join('; ') || 'Not eligible for automation.';
 
@@ -602,87 +602,6 @@ function useColumns(
  * are listed beside them because on a host with no registered service they are the
  * whole story.
  */
-/**
- * A failing node's failure, in full, at the top of its detail panel.
- *
- * The row can only say it in short. This is the whole of it: the raw error untrimmed
- * and with its line breaks (a traceback is unreadable folded onto one line), what kind
- * of failure that is, and what to do about it. The hint sits below the error because
- * some of them refer to "the excerpt above". The run link is only drawn when the
- * server names the run; a link to the scan history in general would send the reader
- * hunting through it, which is the trip this panel exists to save.
- */
-const ScanFailureDetail = ({
-  failure,
-  neutral,
-}: {
-  failure: ScanFailure;
-  /** True for the PMM Server's own node; see countsAsFailing. */
-  neutral: boolean;
-}) => {
-  const omBase = useOmBase();
-  return (
-    <Box data-testid="scan-failure">
-      <Typography
-        variant="subtitle2"
-        gutterBottom
-        color={neutral ? undefined : 'error.main'}
-      >
-        Scans failing: {failure.label}
-      </Typography>
-      <Typography variant="body2" sx={{ mb: 1 }}>
-        {/* Relative for reading, absolute for matching against a log or a run. */}
-        {failure.failingForSeconds != null
-          ? `Failing for ${formatCompactDuration(failure.failingForSeconds) || '0s'} (since ${formatTimestamp(failure.failingSince)?.title})`
-          : `Failing since ${failure.failingSince}`}
-        {failure.consecutiveFailures > 1
-          ? `, ${failure.consecutiveFailures} failed scans in a row.`
-          : ', 1 failed scan.'}
-      </Typography>
-      {failure.error ? (
-        <Box
-          component="pre"
-          data-testid="scan-error"
-          sx={{
-            m: 0,
-            mb: 1,
-            p: 1,
-            fontFamily: 'monospace',
-            fontSize: '0.8125rem',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-            bgcolor: 'action.hover',
-            borderRadius: 1,
-          }}
-        >
-          {failure.error}
-        </Box>
-      ) : (
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          The scan recorded no error message.
-        </Typography>
-      )}
-      {failure.hint && (
-        <Typography variant="body2" sx={{ mb: 1 }}>
-          {failure.hint}
-        </Typography>
-      )}
-      {failure.runId && (
-        <Link
-          component={RouterLink}
-          to={`${omBase}/${OM_ROUTE_AUTOMATIONS}?tab=scans&expand=${encodeURIComponent(
-            failure.runId
-          )}`}
-          underline="hover"
-          variant="body2"
-        >
-          Open the scan that failed
-        </Link>
-      )}
-    </Box>
-  );
-};
-
 const HostDetail = ({ row }: { row: OmHostRow }) => {
   const failure = describeScanFailure(row.freshness);
   return (
@@ -877,8 +796,8 @@ const ForgetDialog = ({
               placement="item"
               title={
                 failures.length === 1
-                  ? 'Could not forget 1 node'
-                  : `Could not forget ${failures.length} nodes`
+                  ? 'Could not remove 1 entry'
+                  : `Could not remove ${failures.length} entries`
               }
               messages={failures.map(
                 (failure) => `${failure.name}: ${failure.message}`
@@ -1282,7 +1201,7 @@ export const NodesPage = () => {
         <Typography variant="body2">
           <strong>{counts.total}</strong> {pluralize(counts.total, 'node')}
         </Typography>
-        <Tooltip title="PMM Client is connected, and the node's automation agent is reachable and healthy.">
+        <Tooltip title="PMM Client is connected, the node's automation agent answers and can run jobs, a scan has reported a supported operating system, PMM has an address for the node, and no MongoDB is registered, running or installed on it. PMM Server's own node is never eligible.">
           <Typography variant="body2" sx={{ cursor: 'help' }}>
             <strong>{counts.automationEligible}</strong> eligible for automation
           </Typography>

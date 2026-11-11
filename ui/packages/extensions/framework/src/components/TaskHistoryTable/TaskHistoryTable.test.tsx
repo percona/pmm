@@ -216,6 +216,127 @@ describe('TaskHistoryTable rendering', () => {
   });
 });
 
+describe('TaskHistoryTable log capture indicator', () => {
+  const client = makeQueryClient();
+  const LABEL = 'Captured logs are incomplete';
+
+  function renderRows(data: TaskHistoryEntry[]) {
+    return render(
+      <Wrapper client={client}>
+        <TaskHistoryTable data={data} disablePolling />
+      </Wrapper>
+    );
+  }
+
+  it('flags a finished run whose captured logs are incomplete', async () => {
+    renderRows([makeEntry(1, 'success', { log_capture: 'incomplete' })]);
+
+    const indicator = screen.getByRole('img', { name: LABEL });
+    await userEvent.hover(indicator);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      /Captured logs are incomplete: .*lost before it could be stored/
+    );
+  });
+
+  it('lets keyboard users reach the indicator', async () => {
+    // MUI opens the tooltip on :focus-visible, which jsdom does not report;
+    // reaching the trigger by Tab is the part this component owns.
+    renderRows([makeEntry(1, 'success', { log_capture: 'incomplete' })]);
+
+    const indicator = screen.getByRole('img', { name: LABEL });
+    expect(indicator).toHaveAttribute('tabindex', '0');
+    for (let i = 0; i < 20 && document.activeElement !== indicator; i++) {
+      await userEvent.tab();
+    }
+    expect(indicator).toHaveFocus();
+  });
+
+  it.each(['failed', 'stopped', 'lost', 'stale', 'unlaunchable'] as const)(
+    'flags an incomplete %s run',
+    (status) => {
+      renderRows([makeEntry(1, status, { log_capture: 'incomplete' })]);
+      expect(screen.getByRole('img', { name: LABEL })).toBeInTheDocument();
+    }
+  );
+
+  it.each(['complete', 'unknown'] as const)(
+    'shows no loss warning when log_capture is %s',
+    (logCapture) => {
+      renderRows([makeEntry(1, 'success', { log_capture: logCapture })]);
+      expect(screen.getByText('Done')).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('incomplete-logs-indicator')
+      ).not.toBeInTheDocument();
+    }
+  );
+
+  it.each(['running', 'pending'] as const)(
+    'shows no indicator for a %s run reporting incomplete',
+    (status) => {
+      // Streams report incomplete until the terminal capture verdict.
+      renderRows([makeEntry(1, status, { log_capture: 'incomplete' })]);
+      expect(
+        screen.queryByTestId('incomplete-logs-indicator')
+      ).not.toBeInTheDocument();
+    }
+  );
+
+  it('shows the indicator once the run reaches a terminal status', () => {
+    const { rerender } = renderRows([
+      makeEntry(1, 'running', { log_capture: 'incomplete' }),
+    ]);
+    expect(
+      screen.queryByTestId('incomplete-logs-indicator')
+    ).not.toBeInTheDocument();
+
+    rerender(
+      <Wrapper client={client}>
+        <TaskHistoryTable
+          data={[makeEntry(1, 'failed', { log_capture: 'incomplete' })]}
+          disablePolling
+        />
+      </Wrapper>
+    );
+    expect(screen.getByRole('img', { name: LABEL })).toBeInTheDocument();
+  });
+
+  it.each(
+    (['success', 'running'] as const).flatMap((status) =>
+      [true, false].flatMap((hasLogs) =>
+        (['incomplete', 'complete', 'unknown'] as const).flatMap((logCapture) =>
+          [true, false].map(
+            (withHandler) => [status, hasLogs, logCapture, withHandler] as const
+          )
+        )
+      )
+    )
+  )(
+    'leaves View run details unchanged (status=%s, has_logs=%s, log_capture=%s, handler=%s)',
+    (status, hasLogs, logCapture, withHandler) => {
+      render(
+        <Wrapper client={client}>
+          <TaskHistoryTable
+            data={[
+              makeEntry(1, status, {
+                has_logs: hasLogs,
+                log_capture: logCapture,
+              }),
+            ]}
+            disablePolling
+            onViewLogs={withHandler ? vi.fn() : undefined}
+          />
+        </Wrapper>
+      );
+      const control = screen.getByRole('button', { name: 'View run details' });
+      if (withHandler) {
+        expect(control).toBeEnabled();
+      } else {
+        expect(control).toBeDisabled();
+      }
+    }
+  );
+});
+
 describe('TaskHistoryTable actions', () => {
   const client = makeQueryClient();
 
@@ -594,7 +715,9 @@ describe('TaskHistoryTable sort + pagination', () => {
     expect(firstPageNames).toHaveLength(10);
     expect(firstPageNames[0]).toBe('task-1');
 
-    await userEvent.click(screen.getByLabelText(/Go to next page/i));
+    await userEvent.click(
+      screen.getByRole('button', { name: /Go to next page/i })
+    );
 
     const secondPageNames = taskNamesInOrder();
     expect(secondPageNames).toHaveLength(10);

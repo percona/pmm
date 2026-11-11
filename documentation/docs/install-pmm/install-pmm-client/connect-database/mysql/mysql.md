@@ -55,9 +55,9 @@ For monitoring Amazon RDS MySQL instances, see [Connect Amazon RDS instance](../
     1. **[Prerequisites](#prerequisites)**: Ensure PMM Server is running and PMM Client is installed
     2. **[Create PMM user](#create-a-database-account-for-pmm)**: `CREATE USER 'pmm'@'localhost' IDENTIFIED BY '<StrongPassword>'`  
     3. **[Grant permissions](#create-a-database-account-for-pmm)**: `GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost'`
-    4. **[Configure data source](#configuring-data-sources)**: Enable Slow Query Log or Performance Schema 
-    5. **[Add service](#adding-mysql-services-to-pmm)**: Use PMM UI or command line to add the MySQL instance
-    6. **[Verify connection](#verifying-the-setup)**: Check PMM Inventory and dashboards for data
+    4. **[Configure data source](#configure-data-source)**: Enable Slow Query Log or Performance Schema 
+    5. **[Add service](#add-service-to-pmm)**: Use PMM UI or command line to add the MySQL instance
+    6. **[Verify connection](#verify-your-mysql-service)**: Check PMM Inventory and dashboards for data
 
 ### Prerequisites
 
@@ -518,7 +518,7 @@ The **command line** (`pmm-admin`) deploys an exporter directly on the database 
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to **Inventory > Add Service**.
+    1. Go to **Inventory > Add service**.
     
     2. Select **MySQL** service type.
     
@@ -627,7 +627,7 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
     4. Check that the **Status** column shows **Up**.
     5. Click the status in the **Monitoring** column to confirm that:
         - the correct agents are running
-        - the agent for your selected query source is listed: **QAN MySQL Slow Query Log agent** or **QAN MySQL Performance Schema agent**
+        - the agent for your query source is listed: **QAN MySQL Slow Query Log agent** if you use the slow query log, or **QAN MySQL Performance Schema agent** if you use Performance Schema
 
 #### Verify data collection
 
@@ -667,11 +667,11 @@ To collect metrics beyond what PMM provides by default, you can define custom SQ
 
 ## Related topics
 
-- [Percona Server for MySQL -- slow query log extended][ps_slow_query_ext]
-- [Percona Server for MySQL -- user statistics][ps_userstats]
-- [MariaDB -- Slow query log overview][mariadb_slow_query_log]
-- [MariaDB -- Slow query log extended statistics][mariadb_slow_query_ext]
-- [MariaDB -- User statistics][mariadb_userstats]
+- [Percona Server for MySQL: slow query log extended][ps_slow_query_ext]
+- [Percona Server for MySQL: user statistics][ps_userstats]
+- [MariaDB: slow query log overview][mariadb_slow_query_log]
+- [MariaDB: slow query log extended statistics][mariadb_slow_query_ext]
+- [MariaDB: user statistics][mariadb_userstats]
 - [PERFORMANCE_SCHEMA vs Slow Query Log: performance impact][BLOG_PS_VS_SLOW]
 - [Understanding MySQL's INNODB_METRICS table][BLOG_INNODB_METRICS]
 - [Rotating MySQL slow logs safely][BLOG_LOG_ROTATION]
