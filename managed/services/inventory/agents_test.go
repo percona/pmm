@@ -1874,6 +1874,55 @@ func TestChangeMongoDBExporterEnvironmentVariableNames(t *testing.T) {
 		}
 	})
 
+	t.Run("KeepsConcurrentStatusReport", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, nil)
+
+		// A status report from pmm-agent that has written the row but not committed yet.
+		statusTx, err := as.db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() { _ = statusTx.Rollback() })
+
+		reported, err := models.FindAgentByID(statusTx.Querier, agentID)
+		require.NoError(t, err)
+		reported.Status = inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String()
+		reported.ListenPort = new(uint16(42005))
+		require.NoError(t, models.UpdateAgent(statusTx.Querier, reported))
+
+		done := make(chan error, 1)
+		go func() {
+			_, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+				DisableCollectors: []string{"collstats", "dbstats"},
+			})
+			done <- err
+		}()
+
+		require.Eventually(t, func() bool {
+			var waiting int
+			err := as.db.Querier.QueryRow(
+				"SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND datname = current_database()",
+			).Scan(&waiting)
+			return err == nil && waiting > 0
+		}, 5*time.Second, 10*time.Millisecond, "Change never waited for the uncommitted status report")
+
+		require.NoError(t, statusTx.Commit())
+
+		select {
+		case err := <-done:
+			require.NoError(t, err)
+		case <-time.After(5 * time.Second):
+			t.Fatal("ChangeMongoDBExporter did not return after the status report was committed")
+		}
+
+		actual, err := models.FindAgentByID(as.db.Querier, agentID)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"collstats", "dbstats"}, []string(actual.ExporterOptions.DisabledCollectors))
+		assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String(), actual.Status)
+		assert.Equal(t, new(uint16(42005)), actual.ListenPort)
+	})
+
 	t.Run("RejectsUngrandfatheredReservedNameOnReplace", func(t *testing.T) {
 		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })

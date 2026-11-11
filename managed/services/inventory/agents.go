@@ -557,7 +557,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// EnvironmentVariableNames is a full-replace field: nil means "leave unchanged" and an empty
 	// list means "remove all". Neither can carry a reserved name, so in both cases there is nothing
-	// to validate and no reason to look up (and lock) the agent's currently-stored names.
+	// to validate against the agent's currently-stored names.
 	var checkEnvVarNames func(current *models.Agent) error
 	if names := p.GetEnvironmentVariableNames().GetValues(); len(names) > 0 {
 		checkEnvVarNames = func(current *models.Agent) error {
@@ -2041,8 +2041,8 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 }
 
 // executeAgentChangeChecked behaves like executeAgentChange, but if check is non-nil, it is called
-// with the agent's current row, locked (SELECT ... FOR UPDATE) for the rest of the transaction,
-// before the change is applied. Use this when a check's outcome depends on the row's current state
+// with the agent's current row before the change is applied. The row is always locked
+// (SELECT ... FOR UPDATE) for the rest of the transaction. Use this when a check's outcome depends on the row's current state
 // and must not be decided from a read taken outside this transaction: a concurrent change could
 // otherwise commit in between that read and this write, making the decision stale by the time it
 // takes effect.
@@ -2056,13 +2056,9 @@ func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		findAgent := models.FindAgentByID
-		if check != nil {
-			findAgent = models.FindAgentByIDForUpdate
-		}
-
 		// Returning an error rolls the transaction back, so a rejected request leaves the agent untouched.
-		currentAgent, err := findAgent(tx.Querier, agentID)
+		// Locked, because the whole row is written back: see PMM-15835.
+		currentAgent, err := models.FindAgentByIDForUpdate(tx.Querier, agentID)
 		if err != nil {
 			return err
 		}
