@@ -71,7 +71,7 @@ You can also use the timeline to correlate failures with events like deployments
 
 ### Failing Backup Agents
 
-Shows only the PBM agents that are failing right now, one row per agent. Available starting with PMM 3.11.0.
+Shows only the PBM agents that are failing right now, one row per agent, with the agent's host, replica set, cluster and environment. Available starting with PMM 3.11.0.
 
 Use this to find the agents that need attention without scanning hundreds of healthy ones. Arbiters aren't listed, because the PBM agent can't run on arbiters.
 
@@ -82,9 +82,14 @@ The **Status** column shows one of two values:
 
 To see the exact reason for a failure, run `pbm status` on the affected node.
 
-**Failing for** shows the time since the agent last reported **OK**, within the last 24 hours. If the agent has never reported **OK** since PMM started monitoring it, the column shows the time since PMM first saw the agent. If the agent has been failing for the whole 24 hours, it shows **> 24h**. It shows **N/A** when the node itself isn't monitored by PMM.
+**Failing for** shows how long the agent has been failing, within the last 24 hours:
 
-Select a **PMM service** to open its [MongoDB Instance Summary](dashboard-mongodb-instance-summary.md) dashboard. The column is empty when the node's own exporter isn't reporting, for example when the node is down or isn't monitored by PMM. It's also empty for nodes running PMM Client older than 3.1.
+- the time since the agent last reported **OK**
+- the time since PMM first saw the agent, if the agent has never reported **OK**
+- **> 24h** if the agent has been failing for the whole 24 hours
+- **N/A** if PMM doesn't monitor the node itself
+
+To check a failing node's health, click its name in the **PMM service** column to open its [MongoDB Instance Summary](dashboard-mongodb-instance-summary.md) dashboard. The column is empty when the node's own exporter isn't reporting, for example when the node is down or isn't monitored by PMM. It's also empty for nodes running PMM Client older than 3.1.
 
 When no agents are failing, the table shows **No failing backup agents**.
 
