@@ -1022,6 +1022,37 @@
                             {
                                 "id": "custom.width",
                                 "value": 110
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "external": {
+                                                "text": "External"
+                                            },
+                                            "haproxy": {
+                                                "text": "HAProxy"
+                                            },
+                                            "mongodb": {
+                                                "text": "MongoDB"
+                                            },
+                                            "mysql": {
+                                                "text": "MySQL"
+                                            },
+                                            "postgresql": {
+                                                "text": "PostgreSQL"
+                                            },
+                                            "proxysql": {
+                                                "text": "ProxySQL"
+                                            },
+                                            "valkey": {
+                                                "text": "Valkey"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -3677,26 +3708,6 @@
                     "unit": "percentunit"
                 },
                 "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byValue",
-                            "options": {
-                                "op": "gte",
-                                "reducer": "allIsZero",
-                                "value": 0
-                            }
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.hideFrom",
-                                "value": {
-                                    "legend": true,
-                                    "tooltip": true,
-                                    "viz": false
-                                }
-                            }
-                        ]
-                    },
                     {
                         "matcher": {
                             "id": "byValue",
