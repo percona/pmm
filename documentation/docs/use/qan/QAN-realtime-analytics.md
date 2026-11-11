@@ -284,7 +284,7 @@ To fix it:
 
 1. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.7.0, upgrade it. In that case, hovering over the **Error** status also shows the reason.
 2. If PMM Client is up to date, find the reason in the [pmm-agent log](../commands/pmm-agent.md#logging) on the monitored host.
-3. Check the MongoDB exporter: go to **Inventory > Services**, find your MongoDB service and check that its MongoDB exporter is running.
+3. Check the MongoDB exporter: go to **Inventory > Services**, click the **Monitoring** status of your MongoDB service, and check that the **MongoDB exporter** shows **Running**.
 4. Check your role: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. If you're not an Admin, ask one to start the session.
 5. Start the session again.
 
