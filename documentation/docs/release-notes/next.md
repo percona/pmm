@@ -13,12 +13,21 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✨ Release highlights
 
+### Find failing MongoDB backup agents at a glance
+
+If you manage a large MongoDB fleet, you can now see right away which backup agents need attention. The new **Failing Backup Agents** table on the **MongoDB Backup Details** dashboard lists only the failing agents and how long each one has been failing, so you no longer have to search the **Backup Agent Status** grid for them.
+
+![Failing Backup Agents table](../images/BackupDetails_FailingBackupAgents.png)
+
+[Find your failing backup agents](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) to get started.
+
 ## 🔒 Security updates
 
 ## 📈 Improvements
 
 - [PMM-15239](https://perconadev.atlassian.net/browse/PMM-15239): The **Alert Status** page now groups alert severities into four bands: **Critical**, **Error**, **Warning** and **Info**. Each band has its own icon and label, so you can tell severities apart without relying on color. The **Severity** filter and sort work by band, and the alert details show the original level, for example **Reported as Emergency**. Alert labels stay the same. For how levels map to bands, see [Alert rules](../alert/alert_rules.md).
 - [PMM-15805](https://perconadev.atlassian.net/browse/PMM-15805): The **Services** tab on **MongoDB > Operations > Fleet** now shows why a service is failing. The **Collected** column shows the reason, for example **Database unreachable**, and the service details show the full error, what to do about it, and a link to the scan that failed. A **Down** service whose `mongod` or `mongos` wasn't running at its last scan shows **not running**. The **Clusters** tab now warns when scan results can't be read. For details, see [Operations for MongoDB](../use/mongodb-operations.md#scans).
+- [PMM-15484](https://perconadev.atlassian.net/browse/PMM-15484): Added the **Failing Backup Agents** table to the [MongoDB Backup Details](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) dashboard. It lists only the PBM agents in **FAIL** or **DOWN** state.
 
 ## ✅ Fixed issues
 
