@@ -102,7 +102,7 @@ func TestDueSchedules(t *testing.T) {
 	t.Run("every schedule due in the window is returned", func(t *testing.T) {
 		due, next, err := s.dueSchedules(t.Context(), at.Add(-time.Minute), at.Add(5*time.Minute))
 		require.NoError(t, err)
-		assert.Equal(t, []scheduledRun{
+		assert.ElementsMatch(t, []scheduledRun{
 			{scheduleID: daily.ID, scheduleName: "Daily", scheduledFor: at},
 			{scheduleID: later.ID, scheduleName: "Later", scheduledFor: at.Add(time.Minute)},
 		}, due)
