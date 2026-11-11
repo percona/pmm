@@ -296,7 +296,8 @@ export function usePerconaTableUrlState({
   const onGlobalFilterChange = useCallback(
     (updater: MRT_Updater<string>) => {
       const prev = latestTableStateRef.current;
-      const nextGlobalFilter = resolveUpdater(updater, prev.globalFilter);
+      // MRT's search clear button passes undefined.
+      const nextGlobalFilter = resolveUpdater(updater, prev.globalFilter) ?? '';
       if (nextGlobalFilter === prev.globalFilter) {
         return;
       }
