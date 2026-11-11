@@ -76,9 +76,8 @@ export function missingRowReason(estate: OmEstateStatus): OmUnavailableReason {
  * from `services.length` alone would be wrong in a way that matters. PMM's inventory
  * cannot tell a bare pmm-client host from an arbiter: same node type, same agents, no
  * services, `distro: null` on both. So a host with no *registered* service may still
- * be running a mongod - PMM simply cannot authenticate against an arbiter to register
- * one. Reporting that host as empty would invite someone to install a database over a
- * port already in use.
+ * be running a mongod, typically an arbiter that was never added to PMM. Reporting that
+ * host as empty would invite someone to install a database over a port already in use.
  *
  * Hence three states rather than two, and the middle one is the reason the probe
  * reports processes PMM never asked about.
