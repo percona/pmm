@@ -23,7 +23,11 @@ import {
 import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
-import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
+import {
+  isWithinIframe,
+  getLinkWithVariables,
+  waitForDashboardScene,
+} from 'lib/utils';
 import {
   documentTitleObserver,
   updateBodyClassByLocation,
@@ -34,7 +38,6 @@ import {
   SettingsUpdatedEvent,
   FrontendSettingsUpdatedEvent,
   TimeZoneUpdatedEvent,
-  OpenAlertThresholdsModalEvent,
 } from 'lib/events';
 import { handleExternalLinks } from 'compat/links';
 
@@ -113,8 +116,6 @@ export const initialize = () => {
   });
   // --------------------------------------------------------------
 
-  messenger.sendMessage({ type: 'GRAFANA_READY' });
-
   // PMM → Grafana: location changes
   messenger.addListener({
     type: 'LOCATION_CHANGE',
@@ -170,11 +171,12 @@ export const initialize = () => {
   // PMM → Grafana: expand dashboard URL with variables and echo back
   messenger.addListener({
     type: 'DASHBOARD_VARIABLES',
-    onMessage: (msg: DashboardVariablesMessage) => {
+    onMessage: async (msg: DashboardVariablesMessage) => {
       if (!msg.payload?.url) {
         return;
       }
 
+      await waitForDashboardScene();
       const url = getLinkWithVariables(msg.payload.url);
 
       messenger.sendMessage({
@@ -209,13 +211,6 @@ export const initialize = () => {
     });
   });
 
-  getAppEvents().subscribe(OpenAlertThresholdsModalEvent, (e) =>
-    messenger.sendMessage({
-      type: 'OPEN_ALERT_THRESHOLDS_MODAL',
-      payload: e.payload,
-    })
-  );
-
   getAppEvents().subscribe(ServiceDeletedEvent, () => {
     messenger.sendMessage({
       type: 'SERVICE_DELETED',
@@ -229,4 +224,6 @@ export const initialize = () => {
   });
 
   handleExternalLinks();
+
+  messenger.sendMessage({ type: 'GRAFANA_READY' });
 };

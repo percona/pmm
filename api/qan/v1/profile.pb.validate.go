@@ -226,8 +226,7 @@ func (e GetReportRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetReportRequestValidationError{}
@@ -331,8 +330,7 @@ func (e ReportMapFieldEntryValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReportMapFieldEntryValidationError{}
@@ -474,8 +472,7 @@ func (e GetReportResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetReportResponseValidationError{}
@@ -667,8 +664,7 @@ func (e RowValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RowValidationError{}
@@ -795,8 +791,7 @@ func (e MetricValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MetricValidationError{}
@@ -910,8 +905,7 @@ func (e StatValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StatValidationError{}

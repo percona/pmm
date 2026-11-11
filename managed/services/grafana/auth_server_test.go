@@ -125,13 +125,13 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/v1/alerting/thresholds:clear", admin},       // ClearThreshold
 		{http.MethodPost, "/v1/alerting/thresholds:batchUpdate", admin}, // BatchUpdateThresholds
 
-		// OM: reads are viewer; writes need editor or admin.
+		// OM: reads are viewer; actions need admin, except topology collection (below).
 		{http.MethodGet, "/v1/om/topology", viewer},
 		{http.MethodGet, "/v1/om/inventory/hosts", viewer},
 		{http.MethodGet, "/v1/om/inventory/hosts/node-1", viewer},
 		{http.MethodGet, "/v1/om/inventory/services", viewer},
 		{http.MethodGet, "/v1/om/inventory/config", viewer},
-		{http.MethodPost, "/v1/om/inventory/runs:trigger", editor},
+		{http.MethodPost, "/v1/om/inventory/runs:trigger", admin},
 		{http.MethodDelete, "/v1/om/inventory/hosts/node-1", admin},
 		{http.MethodDelete, "/v1/om/inventory/services/svc-1", admin},
 		{http.MethodPut, "/v1/om/inventory/config", admin},
@@ -147,7 +147,7 @@ func TestResolveRule(t *testing.T) {
 		// OM over gRPC: method names carry no HTTP verb, so each needs an exact rule.
 		{http.MethodPost, "/om.v1.OmService/GetTopology", viewer},
 		{http.MethodPost, "/om.v1.OmService/ListInventoryHosts", viewer},
-		{http.MethodPost, "/om.v1.OmService/TriggerInventoryRefresh", editor},
+		{http.MethodPost, "/om.v1.OmService/TriggerInventoryRefresh", admin},
 		{http.MethodPost, "/om.v1.OmService/DeleteInventoryHost", admin},
 		{http.MethodPost, "/om.v1.OmService/DeleteInventoryService", admin},
 		{http.MethodPost, "/om.v1.OmService/UpdateInventoryConfig", admin},
@@ -449,6 +449,11 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			"/graph/api/ds/query":        true,
 			"/v1/qan/metrics:getFilters": true,
 			"/v1/qan/query:exists":       true,
+			"/v1/qan:getMetrics":         true,
+			"/v1/qan:getLabels":          true,
+			"/v1/qan:getHistogram":       true,
+			"/v1/qan:explainFingerprint": true,
+			"/v1/qanx":                   false,
 			// Every route to a data source must be filtered, whatever the id and sub-path.
 			"/graph/api/datasources/proxy/1/api/v1/query":                         true,
 			"/graph/api/datasources/proxy/137/api/v1/query":                       true,

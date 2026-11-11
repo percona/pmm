@@ -43,7 +43,8 @@ export type OmProcessRole =
   | 'PROCESS_ROLE_MONGOD'
   | 'PROCESS_ROLE_MONGOS'
   | 'PROCESS_ROLE_CONFIGSVR'
-  | 'PROCESS_ROLE_SHARDSVR';
+  | 'PROCESS_ROLE_SHARDSVR'
+  | 'PROCESS_ROLE_ARBITER';
 
 /** How a host was matched to the executor client its probe ran on. */
 export type OmExecutorResolution =
@@ -205,6 +206,9 @@ export interface OmTopologyResponse {
 export interface OmServiceRow extends OmService {
   env_name?: string | null;
   cluster_name?: string | null;
+  /** The cluster's opaque, server-issued id -- see OmCluster.id. Group on this,
+   * not `cluster_name`, which two clusters can share or both lack. */
+  cluster_id: string;
 }
 
 /**
@@ -352,9 +356,8 @@ export interface OmInventoryExecutor {
 /**
  * A mongod running on a host that PMM has no service for.
  *
- * Arbiters, mostly: PMM registers no service for one, so nothing else in OM reports
- * the process at all. Also what stands in the way of installing anything over a port
- * already in use.
+ * Arbiters that were not added to PMM, mostly, which nothing else in OM reports at
+ * all. Also what stands in the way of installing anything over a port already in use.
  */
 export interface OmUnregisteredMongod {
   port?: number | null;
@@ -519,7 +522,7 @@ export type OmHostDatabaseState =
  * The derived fields exist because the page's headline question - which hosts have no
  * database - cannot be answered from `services.length` alone. PMM's inventory cannot
  * tell a bare pmm-client host from an arbiter, so a host with no service may still be
- * running a mongod that PMM cannot authenticate against.
+ * running a mongod that was never added to PMM.
  */
 export interface OmHostRow extends OmInventoryHost {
   database_state: OmHostDatabaseState;
