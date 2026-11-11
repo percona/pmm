@@ -1,3 +1,7 @@
+# Post commit statuses, not check runs: Codecov can leave a check run in
+# progress forever, which times out Merge Gatekeeper (see PMM-15903).
+github_checks: false
+
 coverage:
   range: "60...80"
   status:
@@ -41,6 +45,8 @@ coverage:
 
       qan-api2:
         threshold: 1%
+        flags:
+          - qan-api2
         paths:
           - qan-api2/
 

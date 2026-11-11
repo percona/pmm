@@ -42,7 +42,7 @@ jobs:
       - name: Upload coverage results
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
-          files: cover.out
+          files: vmproxy/cover.out
           flags: vmproxy
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
