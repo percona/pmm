@@ -117,7 +117,7 @@ Use these checks to make sure that each server has the CPU, memory, swap, storag
 | [innodb_file_per_table not enabled](checks/mysql_configuration_innodb_file_per_table_not_enabled.md) | `mysql_configuration_innodb_file_per_table_not_enabled` | MySQL | Warns when `innodb_file_per_table` is not enabled. |
 | [Check for WAL file accumulation](checks/postgresql-wal-retention-check.md) | `postgresql_wal_retention_check` | PostgreSQL | Checks if there are too many WAL files retained in the WAL directory. |
 
-## Schema & indexes
+## Schema & indexes {#schema-indexes}
 
 Use these checks to find unused, inconsistent or oversized indexes, tables without a primary key and excessive sequential scans:
 
