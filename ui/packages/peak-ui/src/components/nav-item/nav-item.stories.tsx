@@ -41,31 +41,30 @@ const meta: Meta<typeof NavItem> = {
     // Content
     text: {
       control: 'text',
-      description: 'The label for this item.',
       table: { category: 'Content' },
     },
     secondaryText: {
       control: 'text',
-      description: 'Auxilliary text when more context is needed for the item.',
       table: { category: 'Content' },
     },
     icon: {
       control: false,
-      description:
-        'Leading icon rendered before the text. Accepts any ReactNode (typically an MUI icon).',
       table: { category: 'Content' },
     },
     badge: {
       control: false,
-      description:
-        'Optional trailing slot. Accepts any ReactNode (e.g. a Chip, icon, or custom indicator).',
       table: { category: 'Content' },
     },
 
     // State
     selected: {
       control: 'boolean',
-      description: 'Highlights the item as the current active page.',
+      description:
+        'Highlights the item as the current page and tells assistive technology so with `aria-current="page"`. Pass `aria-current` to override it, e.g. `"true"` on a group that stands in for a hidden current page.',
+      table: { category: 'State', defaultValue: { summary: 'false' } },
+    },
+    hasSelectedChild: {
+      control: 'boolean',
       table: { category: 'State', defaultValue: { summary: 'false' } },
     },
     disabled: {
@@ -77,22 +76,17 @@ const meta: Meta<typeof NavItem> = {
     // Dot
     showDot: {
       control: 'boolean',
-      description:
-        'When true, a notification dot is rendered over the icon. Only takes effect when `icon` is provided.',
       table: { category: 'Dot indicator', defaultValue: { summary: 'false' } },
     },
     dotColor: {
       control: 'radio',
       options: ['success', 'info', 'warning', 'error'],
-      description: 'Color of the notification dot. Only applies when `showDot` is true.',
       table: { category: 'Dot indicator' },
     },
 
     // Advanced
     component: {
       control: false,
-      description:
-        'The root element type rendered by ListItemButton. Supports polymorphic rendering (e.g. `a`, `Link`).',
       table: { category: 'Advanced' },
     },
     sx: {
@@ -147,6 +141,28 @@ export const WithoutIcon: Story = {
   },
   args: {
     text: 'Query Analytics',
+  },
+};
+
+export const GroupWithSelectedChild: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'When the current page is nested in a group, the nested item is `selected` and the group gets `hasSelectedChild`: it shows where the user is without a second selected background. Once the group is collapsed and the nested item is hidden, give the group `selected` instead.',
+      },
+    },
+  },
+  render: function Render() {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <NavItem text="Inventory" icon={<StorageOutlined />} hasSelectedChild />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, pl: 4.75 }}>
+          <NavItem text="Services" selected />
+          <NavItem text="Nodes" />
+        </Box>
+      </Box>
+    );
   },
 };
 

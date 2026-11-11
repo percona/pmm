@@ -19,6 +19,7 @@ import {
   ClusterTransitioningIcon,
   ElectricBoltIcon,
   ElectricBoltOffIcon,
+  ExtensionIcon,
   Graph4Icon,
   Graph5Icon,
   Graph6Icon,
@@ -35,6 +36,9 @@ import {
   ProxyIcon,
   QueryStatsIcon,
   SearchInsightsIcon,
+  ShareIcon,
+  StarFillIcon,
+  StarIcon,
   SupportDiagnosticsIcon,
 } from '../../components/icons';
 
@@ -202,6 +206,30 @@ const customIcons: CustomIconEntry[] = [
     importName: 'SupportDiagnosticsIcon',
     designName: 'support-diagnostics',
     keywords: 'support diagnostics toolbox troubleshoot service maintenance help',
+  },
+  {
+    component: ExtensionIcon,
+    importName: 'ExtensionIcon',
+    designName: 'extension',
+    keywords: 'extension app plugin add-on puzzle piece integration',
+  },
+  {
+    component: StarIcon,
+    importName: 'StarIcon',
+    designName: 'star',
+    keywords: 'star favorite starred bookmark pin',
+  },
+  {
+    component: StarFillIcon,
+    importName: 'StarFillIcon',
+    designName: 'star-fill',
+    keywords: 'star favorite starred bookmark pin filled selected',
+  },
+  {
+    component: ShareIcon,
+    importName: 'ShareIcon',
+    designName: 'share',
+    keywords: 'share link copy send',
   },
 ];
 

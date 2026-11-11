@@ -15,7 +15,6 @@ import Divider from '@mui/material/Divider';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Drawer from '@mui/material/Drawer';
@@ -24,6 +23,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CloseIcon from '@mui/icons-material/Close';
 import { type MRT_ColumnDef, type MRT_Row } from 'material-react-table';
 import Chip from '../chip';
+import PeakEmptyState from '../empty-state';
 import Table from './table';
 import type { TableProps } from './table.types';
 import { useNavigableRows } from './useNavigableRows';
@@ -197,25 +197,6 @@ const RowActionsMenu = ({ row }: { row: MRT_Row<Server> }) => {
   );
 };
 
-const EmptyStateIllustration = () => (
-  <Stack
-    direction="column"
-    alignItems="center"
-    justifyContent="center"
-    gap={1}
-    sx={{ width: '100%', py: 6, color: 'text.secondary' }}
-  >
-    <InboxOutlinedIcon sx={{ fontSize: 48, opacity: 0.4 }} />
-    <Typography variant="subtitle1">Nothing to show here yet</Typography>
-    <Typography variant="body2">
-      Connect a service to start seeing servers in this table.
-    </Typography>
-    <Button size="small" variant="outlined" startIcon={<AddOutlinedIcon />} sx={{ mt: 1 }}>
-      Add service
-    </Button>
-  </Stack>
-);
-
 const meta = {
   title: 'Data display/Table',
   component: Table,
@@ -255,26 +236,24 @@ const meta = {
   argTypes: {
     tableName: {
       control: 'text',
-      description:
-        '**Peak UI prop.** Used as the `data-testid` and as the localStorage key for column-visibility persistence. Rename with care — changing it loses user-saved preferences.',
-      table: { category: 'Data' },
+      table: { category: 'Data (Peak UI)' },
     },
     noDataMessage: {
       control: 'text',
-      description:
-        '**Peak UI prop.** Message shown when `data` is empty (and no `emptyState` is provided).',
-      table: { category: 'Empty state', defaultValue: { summary: "'No data'" } },
+      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'No data'" } },
+    },
+    noDataVariant: {
+      options: ['empty-state', 'alert'],
+      control: { type: 'inline-radio' },
+      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'empty-state'" } },
     },
     emptyFilterResultsMessage: {
       control: 'text',
-      description: '**Peak UI prop.** Message shown when filtering excludes all rows.',
-      table: { category: 'Empty state', defaultValue: { summary: "'No data found'" } },
+      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'No data found'" } },
     },
     emptyState: {
       control: false,
-      description:
-        '**Peak UI prop.** React node that fully replaces the default empty-state alert. See the [Empty state — custom illustration](?path=/story/data-display-table--empty-state-custom) story.',
-      table: { category: 'Empty state' },
+      table: { category: 'Empty state (Peak UI)' },
     },
     enableTopToolbar: {
       control: 'boolean',
@@ -346,14 +325,10 @@ const meta = {
     },
     hideExpandAllIcon: {
       control: 'boolean',
-      description:
-        '**Peak UI prop.** Hide the expand-all icon in the header. Only meaningful when `enableExpanding` is `true`. Note: MRT offers a native `enableExpandAll={false}` that achieves the same result.',
-      table: { category: 'Rows' },
+      table: { category: 'Rows (Peak UI)' },
     },
     enableRowHoverAction: {
       control: 'boolean',
-      description:
-        '**Peak UI prop.** Make whole rows clickable — fires `rowHoverAction(row)` and switches the cursor to a pointer. Use for "click to drill in" patterns.',
       table: { category: 'Rows (Peak UI)', defaultValue: { summary: 'false' } },
     },
     muiTableContainerProps: {
@@ -836,7 +811,7 @@ export const EmptyState: Story = {
     docs: {
       description: {
         story:
-          'Default empty state when `data` is empty. Customize via `noDataMessage`, or replace entirely with the `emptyState` slot (see next story).',
+          'When `data` is empty the table renders a small `EmptyState` titled with `noDataMessage`. Replace it through the `emptyState` slot to add a description, an illustration or actions (see next story). Tables that have not moved to `EmptyState` yet can keep the previous info alert with `noDataVariant="alert"`.',
       },
     },
   },
@@ -849,12 +824,12 @@ export const EmptyState: Story = {
 };
 
 export const EmptyStateCustom: Story = {
-  name: 'Empty state — custom illustration',
+  name: 'Empty state — custom',
   parameters: {
     docs: {
       description: {
         story:
-          'The `emptyState` prop accepts any React node and replaces the default alert entirely.',
+          'The `emptyState` prop accepts any React node and replaces the default empty state. Pass an `EmptyState` at small size: what the table shows, why it is empty, and the way forward.',
       },
     },
   },
@@ -862,7 +837,18 @@ export const EmptyStateCustom: Story = {
     tableName: 'empty-state-custom-table',
     columns: baseColumns,
     data: [],
-    emptyState: <EmptyStateIllustration />,
+    emptyState: (
+      <PeakEmptyState
+        size="small"
+        title="No servers yet"
+        description="Connect a service to start seeing servers in this table."
+        actions={
+          <Button size="small" variant="outlined" startIcon={<AddOutlinedIcon />}>
+            Add service
+          </Button>
+        }
+      />
+    ),
   },
 };
 
@@ -946,7 +932,7 @@ export const EmptyFilterResults: Story = {
     docs: {
       description: {
         story:
-          'When filters exclude every row, the table shows `emptyFilterResultsMessage` instead of the no-data message. This story starts with a non-matching filter pre-applied.',
+          'When filters exclude every row, the table renders the same small `EmptyState`, titled with `emptyFilterResultsMessage` instead of the no-data message. This story starts with a non-matching filter pre-applied.',
       },
     },
   },

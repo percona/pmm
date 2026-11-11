@@ -19,6 +19,7 @@ import {
 } from 'material-react-table';
 import { useEffect, useMemo, useRef, type MutableRefObject, type Ref } from 'react';
 import { mergeSx } from '@/utils';
+import EmptyState from '../empty-state';
 import { ICONS_OPACITY } from './table.constants';
 import { TableProps } from './table.types';
 import usePersistentColumnVisibility from './usePersistentColumnVisibility';
@@ -65,6 +66,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     muiFilterTextFieldProps,
     displayColumnDefOptions,
     noDataMessage = 'No data',
+    noDataVariant = 'empty-state',
     noDataAlertProps,
     emptyFilterResultsMessage = 'No data found',
     hideExpandAllIcon,
@@ -147,18 +149,21 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
   const rowExpandConsumerOpts = displayColumnDefOptions?.['mrt-row-expand'];
 
   const table = useMaterialReactTable({
-    renderEmptyRowsFallback: ({ table: { getPreFilteredRowModel } }) => (
-      <>
-        {/* This means there was data before filtering, so we show the message of empty filtering result */}
-        {getPreFilteredRowModel().rows.length > 0 ? (
-          <NoDataAlertMessage message={emptyFilterResultsMessage} {...noDataAlertProps} />
-        ) : emptyState ? (
-          <Box>{emptyState}</Box>
-        ) : (
-          <NoDataAlertMessage message={noDataMessage} {...noDataAlertProps} />
-        )}
-      </>
-    ),
+    renderEmptyRowsFallback: ({ table: { getPreFilteredRowModel } }) => {
+      const isFilteredOut = getPreFilteredRowModel().rows.length > 0;
+
+      if (emptyState && !isFilteredOut) {
+        return <Box>{emptyState}</Box>;
+      }
+
+      const message = isFilteredOut ? emptyFilterResultsMessage : noDataMessage;
+
+      return noDataVariant === 'alert' ? (
+        <NoDataAlertMessage message={message} {...noDataAlertProps} />
+      ) : (
+        <EmptyState size="small" width="100%" title={message} titleComponent="p" />
+      );
+    },
     layoutMode: 'grid',
     enablePagination: data.length > 10,
     enableBottomToolbar: rest.enablePagination ?? data.length > 10,
@@ -386,6 +391,8 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     muiTableProps: ({ table }) => {
       const consumer =
         typeof muiTableProps === 'function' ? muiTableProps({ table }) : muiTableProps;
+      const isFilterRowShown =
+        table.options.columnFilterDisplayMode === 'subheader' && table.getState().showColumnFilters;
       return {
         'data-testid': tableName,
         ...consumer,
@@ -400,7 +407,12 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
                 duration: theme.transitions.duration.shortest,
               }),
             },
+            // Centres select-all and expand-all on the column names: their 20px label line, or the 40px column actions button
             '& .MuiTableCell-head:has(.MuiCheckbox-root), & .MuiTableCell-head:has([aria-label="Expand all"])':
+              {
+                paddingTop: '8px',
+              },
+            '& .MuiTableHead-root:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root) :is(.MuiTableCell-head:has(.MuiCheckbox-root), .MuiTableCell-head:has([aria-label="Expand all"]))':
               {
                 paddingTop: '18px',
               },
@@ -430,10 +442,11 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
               transform: 'none',
               '& > .MuiSvgIcon-root': { width: 20, height: 20, fontSize: 20 },
             },
-            // An inline wrapper's line box would still make the indicator's label row taller
+            // An inline wrapper's line box would still make the indicator's label row taller.
+            // The filter row already shows the filter, so there the indicator only costs header width
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels > span:has(> .MuiIconButton-root)':
               {
-                display: 'flex',
+                display: isFilterRowShown ? 'none' : 'flex',
               },
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels .MuiTableSortLabel-root': {
               transform: 'none',

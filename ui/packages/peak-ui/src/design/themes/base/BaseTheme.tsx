@@ -10,6 +10,7 @@ import { DatePickerToolbarClassKey } from '@mui/x-date-pickers/DatePicker';
 import { MultiSectionDigitalClockClassKey } from '@mui/x-date-pickers';
 import { inputBaseClasses } from '@mui/material/InputBase';
 import { outlinedInputClasses } from '@mui/material/OutlinedInput';
+import { listSubheaderClasses } from '@mui/material/ListSubheader';
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
@@ -138,6 +139,7 @@ declare module '@mui/material/Alert' {
 declare module '@mui/material/Paper' {
   interface PaperPropsVariantOverrides {
     grey: true;
+    dashed: true;
   }
 }
 
@@ -503,11 +505,41 @@ export type ShapeTokens = typeof shape;
 
 const BaseTheme = createTheme();
 
+// A region to point out, such as an empty state: a 2px dashed outline, 6px dashes 4px apart. It is drawn,
+// because a CSS dashed border spaces its dashes however the browser likes; half the 4px stroke is clipped.
+const dashedOutline = (color: string, radius: number) =>
+  `url("data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect width="100%" height="100%" fill="none" rx="${radius}" ry="${radius}" stroke="${color}" stroke-width="4" stroke-dasharray="6 4"/></svg>`
+  )}")`;
+
 // Figma shadow/elevation2 & elevation4
 const BUTTON_ELEVATION_2 =
   '0px 0px 1px 0px rgba(0,0,0,0.24), 0px 2px 2px 0px rgba(0,0,0,0.2), 0px 2px 4px 0px rgba(0,0,0,0.24)';
 const BUTTON_ELEVATION_4 =
   '0px 0px 1px 0px rgba(0,0,0,0.2), 0px 4px 2px 0px rgba(0,0,0,0.16), 0px 4px 8px 0px rgba(0,0,0,0.22)';
+// Figma shadow/elevation8
+const MENU_ELEVATION_8 =
+  '0px 0px 1px 0px rgba(0,0,0,0.16), 0px 8px 4px 0px rgba(0,0,0,0.12), 0px 8px 16px 0px rgba(0,0,0,0.2)';
+
+// The Figma List and Menu row states take the primary tokens, so each theme tints them its own way: neutral in Base, purple in PMM.
+const rowStateStyles = (theme: Theme): CSSObject => ({
+  '&:hover': {
+    backgroundColor: theme.palette.primary.hover,
+    '@media (hover: none)': {
+      backgroundColor: 'transparent',
+    },
+  },
+  '&.Mui-focusVisible': {
+    backgroundColor: theme.palette.primary.focus,
+  },
+  '&.Mui-selected': {
+    backgroundColor: theme.palette.primary.selected,
+    // MUI's own selected hover and focus rules outrank the two above, so a selected row pins them.
+    '&:hover, &.Mui-focusVisible': {
+      backgroundColor: theme.palette.primary.selected,
+    },
+  },
+});
 
 const buttonVariantStyles = (variant: string, theme: Theme): CSSObject => {
   switch (variant) {
@@ -538,6 +570,10 @@ const buttonVariantStyles = (variant: string, theme: Theme): CSSObject => {
           borderColor: theme.palette.primary.light,
           color: theme.palette.primary.light,
         },
+        // Ripples are off, so keyboard focus needs a look of its own.
+        '&.Mui-focusVisible': {
+          backgroundColor: theme.palette.primary.focusVisible,
+        },
         '&.Mui-disabled': {
           borderWidth: 2,
           color: theme.palette.text.disabled,
@@ -549,6 +585,9 @@ const buttonVariantStyles = (variant: string, theme: Theme): CSSObject => {
         '&:hover': {
           backgroundColor: theme.palette.primary.hover,
           color: theme.palette.primary.light,
+        },
+        '&.Mui-focusVisible': {
+          backgroundColor: theme.palette.primary.focusVisible,
         },
         '&.Mui-disabled': {
           color: theme.palette.text.disabled,
@@ -669,62 +708,71 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         fontWeight: 600,
         [BaseTheme.breakpoints.down('sm')]: {
           fontSize: '1.8125rem',
+          lineHeight: '1.069',
           letterSpacing: '-0.01813rem',
         },
         [BaseTheme.breakpoints.up('sm')]: {
           fontSize: '2.5rem',
+          lineHeight: '1.075',
           letterSpacing: '-0.025rem',
         },
-        lineHeight: '1.0625',
       },
       h3: {
         fontFamily: fontDisplay,
         fontWeight: 600,
         [BaseTheme.breakpoints.down('sm')]: {
           fontSize: '1.625rem',
+          lineHeight: '1.077',
         },
         [BaseTheme.breakpoints.up('sm')]: {
           fontSize: '2.0625rem',
+          lineHeight: '1.0607',
         },
-        lineHeight: '1.0625',
       },
       h4: {
         fontFamily: fontDisplay,
         fontWeight: 600,
         [BaseTheme.breakpoints.down('sm')]: {
           fontSize: '1.4375rem',
+          lineHeight: '1.0435',
         },
         [BaseTheme.breakpoints.up('sm')]: {
           fontSize: '1.75rem',
+          lineHeight: '1.0715',
         },
-        lineHeight: '1.0625',
       },
       h5: {
         fontFamily: fontDisplay,
         fontWeight: 600,
         [BaseTheme.breakpoints.down('sm')]: {
           fontSize: '1.25rem',
+          lineHeight: '1.15',
         },
         [BaseTheme.breakpoints.up('sm')]: {
           fontSize: '1.4375rem',
+          lineHeight: '1.1305',
         },
-        lineHeight: '1.125',
       },
       h6: {
         fontFamily: fontDisplay,
         fontWeight: 600,
         [BaseTheme.breakpoints.down('sm')]: {
           fontSize: '1.125rem',
+          lineHeight: '1.2778',
         },
         [BaseTheme.breakpoints.up('sm')]: {
           fontSize: '1.1875rem',
+          lineHeight: '1.2632',
         },
-        lineHeight: '1.25',
+      },
+      // MUI's own subtitle2, kept at its size with a 22px line.
+      subtitle2: {
+        lineHeight: '1.5715',
       },
       subHead1: {
         fontWeight: 500,
         fontSize: '1.1875rem',
-        lineHeight: '1.125',
+        lineHeight: '1.1053',
       },
       subHead2: {
         fontWeight: 500,
@@ -734,17 +782,18 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       overline: {
         fontFamily: fontDisplay,
         fontWeight: 700,
-        fontSize: '0.75rem',
-        lineHeight: '1.125',
-        letterSpacing: '0.03rem',
+        fontSize: '0.6875rem',
+        lineHeight: '1.091',
+        letterSpacing: '0.125em',
         textTransform: 'uppercase',
       },
+      // Figma titling/section-heading
       sectionHeading: {
         fontFamily: fontDisplay,
-        fontWeight: 700,
-        fontSize: '0.875rem',
+        fontWeight: 600,
+        fontSize: '1rem',
         lineHeight: '1.25',
-        letterSpacing: '0.00875rem',
+        letterSpacing: 0,
       },
       body1: {
         fontWeight: 400,
@@ -759,20 +808,20 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       caption: {
         fontWeight: 400,
         fontSize: '0.8125rem',
-        lineHeight: '1.375',
+        lineHeight: '1.3847',
       },
       button: {
         fontWeight: 600,
         fontFamily: fontDisplay,
         fontSize: '0.9375rem',
-        lineHeight: '1.0625',
+        lineHeight: '1.0667',
         textTransform: 'none',
       },
       menuText: {
         fontFamily: fontDisplay,
-        fontWeight: 500,
+        fontWeight: 600,
         fontSize: '0.875rem',
-        lineHeight: '1.25',
+        lineHeight: '1.2858',
       },
       inputText: {
         fontWeight: 400,
@@ -967,13 +1016,14 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
 
             const minHeight = { large: 40, medium: 32, small: 24 }[size];
             const fontSize = { large: 15, medium: 13, small: 13 }[size];
+            const lineHeight = { large: 1.0667, medium: 1.077, small: 1.077 }[size];
 
             return {
               borderRadius: theme.shape.borderRadiusFull,
               minHeight,
               fontSize,
               padding,
-              lineHeight: 1.063,
+              lineHeight,
 
               '.MuiButton-startIcon, .MuiButton-endIcon': {
                 height: 0,
@@ -1016,13 +1066,43 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
+      // The Figma Menu surface, shared by every popover: menus and selects included.
+      MuiPopover: {
+        styleOverrides: {
+          paper: ({ theme }) => ({
+            borderRadius: theme.shape.borderRadiusMd,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: MENU_ELEVATION_8,
+            // Dark mode keeps the elevation1 surface instead of MUI's lighter overlay.
+            backgroundImage: 'none',
+            // A menu taller than the screen scrolls on Figma's divider-colored thumb.
+            scrollbarWidth: 'thin',
+            scrollbarColor: `${theme.palette.divider} ${theme.palette.action.hover}`,
+            // Rows scrolled into view, by focus or otherwise, stay clear of a sticky subheader.
+            [`&:has(.${listSubheaderClasses.sticky})`]: {
+              scrollPaddingTop: 32,
+            },
+          }),
+        },
+      },
+      MuiMenu: {
+        styleOverrides: {
+          // The Figma Menu's width; longer labels widen it.
+          paper: {
+            minWidth: 200,
+          },
+        },
+      },
       MuiMenuItem: {
         styleOverrides: {
-          root: ({ theme }) => ({
-            ...theme.typography.menuText,
-            '.MuiTypography-root': {
-              ...theme.typography.menuText,
-            },
+          // MUI's body1 labels on 40px rows; phones keep MUI's 48px touch rows, dense lists their 32px.
+          root: ({ theme, ownerState }) => ({
+            ...rowStateStyles(theme),
+            ...(!ownerState.dense && {
+              [theme.breakpoints.up('sm')]: {
+                minHeight: 40,
+              },
+            }),
             '&.Mui-disabled': {
               opacity: 0.5,
             },
@@ -1039,6 +1119,22 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
               left: 0,
               borderBottom: `1px solid ${theme.palette.divider}`,
             },
+          }),
+        },
+      },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: ({ theme }) => rowStateStyles(theme),
+        },
+      },
+      // The Figma List subheader: an overline label heading a run of rows.
+      MuiListSubheader: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            ...theme.typography.overline,
+            minHeight: 32,
+            paddingTop: theme.spacing(1),
+            paddingBottom: theme.spacing(1),
           }),
         },
       },
@@ -1298,6 +1394,19 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             },
           }),
         },
+      },
+      MuiPaper: {
+        variants: [
+          {
+            props: { variant: 'dashed' },
+            style: ({ theme }) => ({
+              backgroundColor: 'transparent',
+              backgroundImage: dashedOutline(theme.palette.divider, theme.shape.borderRadiusMd),
+              borderRadius: theme.shape.borderRadiusMd,
+              boxShadow: 'none',
+            }),
+          },
+        ],
       },
       MuiCard: {
         variants: [
