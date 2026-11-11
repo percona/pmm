@@ -1,6 +1,13 @@
 ---
 name: Managed
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "documentation/**"
+      - "dashboards/**"
+
   pull_request:
     paths-ignore:
       - 'admin/**'

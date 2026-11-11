@@ -2,6 +2,13 @@
 name: VMProxy
 
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "documentation/**"
+      - "dashboards/**"
+
   pull_request:
     paths-ignore:
       - "admin/**"

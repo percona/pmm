@@ -2,6 +2,13 @@
 name: 'Client: pmm-agent'
 
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "documentation/**"
+      - "dashboards/**"
+
   pull_request:
     paths:
       - ".github/workflows/agent.yml"
