@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Checkbox from './checkbox';
+import type { CheckboxProps } from './checkbox.types';
 import * as DocBlock from '@storybook/addon-docs/blocks';
 
-type CustomArgs = {
-  label?: string;
-  disabled?: boolean;
+type CustomArgs = CheckboxProps & {
   size?: 'small' | 'medium';
   required?: boolean;
   indeterminate?: boolean;
@@ -14,8 +13,14 @@ type CustomArgs = {
 
 const meta = {
   title: 'To be reviewed/Checkbox',
+  component: Checkbox,
   tags: ['autodocs', 'needs-review'],
   argTypes: {
+    name: { control: false },
+    control: { control: false },
+    controllerProps: { control: false },
+    checkboxProps: { control: false },
+    labelProps: { control: false },
     label: {
       defaultValue: '',
       type: 'string',
@@ -25,15 +30,18 @@ const meta = {
       type: 'boolean',
     },
     size: {
+      description: 'Box size: small or medium (default).',
       options: ['small', 'medium'],
       defaultValue: 'medium',
       control: { type: 'inline-radio' },
     },
     required: {
+      description: 'Adds the required asterisk to the heading.',
       defaultValue: false,
       type: 'boolean',
     },
     indeterminate: {
+      description: 'Shows the dash state used for partial selections.',
       defaultValue: false,
       type: 'boolean',
     },

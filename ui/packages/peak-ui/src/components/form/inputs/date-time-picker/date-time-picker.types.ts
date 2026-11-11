@@ -14,8 +14,11 @@ export interface DateTimePickerInputProps<
   TDate extends PickerValidDate,
   TFieldValues extends FieldValues = FieldValues,
 > extends DateTimePickerProps<TDate> {
+  /** react-hook-form control; only needed when the input sits outside a `FormProvider`. */
   control?: Control<TFieldValues>;
+  /** Validation rules and other react-hook-form Controller settings for this field. */
   controllerProps?: Omit<UseControllerProps<TFieldValues>, 'name' | 'control'>;
+  /** Form field the date is stored under; also drives the test id. */
   name: FieldPath<TFieldValues>;
   /**
    * Shortcut for common value shapes stored in form state.

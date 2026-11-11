@@ -27,7 +27,6 @@ const meta: Meta<typeof PageContainer> = {
     maxWidth: {
       control: { type: 'select' },
       options: [1000, 600, 1400, 'full'],
-      description: "Pixel number (px), or 'full' for 100% width.",
     },
   },
 };
