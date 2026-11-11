@@ -101,6 +101,8 @@ const (
 	ProcessRole_PROCESS_ROLE_CONFIGSVR ProcessRole = 3
 	// A shard member.
 	ProcessRole_PROCESS_ROLE_SHARDSVR ProcessRole = 4
+	// An arbiter, in a shard or a plain replica set: it votes but holds no data.
+	ProcessRole_PROCESS_ROLE_ARBITER ProcessRole = 5
 )
 
 // Enum value maps for ProcessRole.
@@ -111,6 +113,7 @@ var (
 		2: "PROCESS_ROLE_MONGOS",
 		3: "PROCESS_ROLE_CONFIGSVR",
 		4: "PROCESS_ROLE_SHARDSVR",
+		5: "PROCESS_ROLE_ARBITER",
 	}
 	ProcessRole_value = map[string]int32{
 		"PROCESS_ROLE_UNSPECIFIED": 0,
@@ -118,6 +121,7 @@ var (
 		"PROCESS_ROLE_MONGOS":      2,
 		"PROCESS_ROLE_CONFIGSVR":   3,
 		"PROCESS_ROLE_SHARDSVR":    4,
+		"PROCESS_ROLE_ARBITER":     5,
 	}
 )
 
@@ -1918,9 +1922,9 @@ func (x *InventoryExecutor) GetDetail() string {
 
 // UnregisteredMongod is a mongod found running that PMM has no service for.
 //
-// The arbiter case, mostly: PMM registers no service for an arbiter, so nothing else
-// in OM would report the process at all. Also what stands in the way of installing
-// anything over a port that is already taken.
+// Most often an arbiter that was not added to PMM, which nothing else in OM would
+// report at all. Also what stands in the way of installing anything over a port that
+// is already taken.
 type UnregisteredMongod struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The port it is listening on.
@@ -5634,13 +5638,14 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\rServiceStatus\x12\x1e\n" +
 	"\x1aSERVICE_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11SERVICE_STATUS_UP\x10\x01\x12\x17\n" +
-	"\x13SERVICE_STATUS_DOWN\x10\x02*\x94\x01\n" +
+	"\x13SERVICE_STATUS_DOWN\x10\x02*\xae\x01\n" +
 	"\vProcessRole\x12\x1c\n" +
 	"\x18PROCESS_ROLE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13PROCESS_ROLE_MONGOD\x10\x01\x12\x17\n" +
 	"\x13PROCESS_ROLE_MONGOS\x10\x02\x12\x1a\n" +
 	"\x16PROCESS_ROLE_CONFIGSVR\x10\x03\x12\x19\n" +
-	"\x15PROCESS_ROLE_SHARDSVR\x10\x04*\x9e\x01\n" +
+	"\x15PROCESS_ROLE_SHARDSVR\x10\x04\x12\x18\n" +
+	"\x14PROCESS_ROLE_ARBITER\x10\x05*\x9e\x01\n" +
 	"\tRunStatus\x12\x1a\n" +
 	"\x16RUN_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12RUN_STATUS_RUNNING\x10\x01\x12\x16\n" +
