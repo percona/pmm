@@ -4,7 +4,7 @@
 
 ## Mountpoint Usage
 
-Shows the percentage of disk space utilization for every mountpoint defined on the system. Having mountpoints close to 100% space utilization is not good because of the risk of a "disk full" error that can block services or cause a system crash.
+Shows the percentage of disk space utilization for every mountpoint defined on the system. The value matches the `Use%` column of `df`: space the filesystem reserves for the root user counts as used, so a mountpoint shows 100% when applications can no longer write to it. Having mountpoints close to 100% space utilization is not good because of the risk of a "disk full" error that can block services or cause a system crash.
 
 If a mountpoint is close to 100%, consider removing unused files or expanding the space allocated to the mountpoint.
 
@@ -14,7 +14,7 @@ Shows disk space usage for the specified mountpoint. Disk space is displayed in 
 
 **Used** is the amount of space used.
 
-**Free** is the amount of space not in use.
+**Free** is the amount of space available to applications, the `Avail` column of `df`. It doesn't include space the filesystem reserves for the root user, so **Used** and **Free** can add up to less than **Total**.
 
 **Total** is the total disk space allocated to the mountpoint.
 

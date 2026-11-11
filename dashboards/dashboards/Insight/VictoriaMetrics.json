@@ -806,7 +806,7 @@
             "pluginVersion": "8.3.5",
             "targets": [
                 {
-                    "expr": "sum(node_filesystem_free_bytes{node_name=\"pmm-server\",mountpoint=~\"/srv|/\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"})/\nclamp_min(sum(node_filesystem_free_bytes{node_name=\"pmm-server\",mountpoint=~\"/srv|/\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"} - \npredict_linear(node_filesystem_free_bytes{node_name=\"pmm-server\", mountpoint=~\"/srv|/\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}[1h], 1 * 3600)),0)",
+                    "expr": "min((node_filesystem_avail_bytes{node_name=\"pmm-server\",mountpoint=~\"/srv|/\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} == 0) or node_filesystem_avail_bytes{node_name=\"pmm-server\",mountpoint=~\"/srv|/\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} / clamp_min(node_filesystem_avail_bytes{node_name=\"pmm-server\",mountpoint=~\"/srv|/\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} - predict_linear(node_filesystem_avail_bytes{node_name=\"pmm-server\",mountpoint=~\"/srv|/\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}[1h], 1 * 3600), 0))",
                     "format": "time_series",
                     "hide": false,
                     "instant": false,
