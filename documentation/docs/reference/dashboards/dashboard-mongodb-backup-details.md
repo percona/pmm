@@ -89,9 +89,9 @@ To see the exact reason for a failure, run `pbm status` on the affected node.
 - **> 24h** if the agent has been failing for the whole 24 hours
 - **N/A** if PMM doesn't monitor the node itself
 
-Click a name in the **PMM service** column to open the node's [MongoDB Instance Summary](dashboard-mongodb-instance-summary.md) dashboard. The column is empty when the node's own exporter isn't reporting, for example when the node is down or isn't monitored by PMM. It's also empty for nodes running PMM Client older than 3.1.
+To look into a failing node, open its [MongoDB Instance Summary](dashboard-mongodb-instance-summary.md) dashboard from the **PMM service** column. If the column is empty, PMM can't match the agent to its node's own service. This happens when the node is down, when PMM doesn't monitor it, or when it runs PMM Client older than 3.1.
 
-When no agents are failing, the table shows **No failing backup agents**.
+After you fix an agent, check that its row disappears from the table. When all your agents are back to **OK**, the table shows **No failing backup agents**.
 
 ## Details
 
