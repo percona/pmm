@@ -444,12 +444,19 @@ func TestUpdateAgentStatusKeepsConcurrentChange(t *testing.T) {
 	require.NoError(t, models.UpdateAgent(changeTx.Querier, changed))
 
 	ctx := logger.Set(t.Context(), t.Name())
-	done := make(chan error, 1)
+	var reportErr error
+	done := make(chan struct{})
 	go func() {
-		done <- db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		defer close(done)
+		reportErr = db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 			return updateAgentStatus(ctx, tx.Querier, exporter.AgentID, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, 42005, nil, nil)
 		})
 	}()
+	// A failed test must not leave the report running: it logs through t.
+	t.Cleanup(func() {
+		_ = changeTx.Rollback()
+		<-done
+	})
 
 	require.Eventually(t, func() bool {
 		var waiting int
@@ -462,8 +469,8 @@ func TestUpdateAgentStatusKeepsConcurrentChange(t *testing.T) {
 	require.NoError(t, changeTx.Commit())
 
 	select {
-	case err := <-done:
-		require.NoError(t, err)
+	case <-done:
+		require.NoError(t, reportErr)
 	case <-time.After(5 * time.Second):
 		t.Fatal("the status report did not finish after the change was committed")
 	}
@@ -513,6 +520,11 @@ func TestExternalExporterStatusKeepsConcurrentChange(t *testing.T) {
 		defer close(done)
 		NewExternalExporterStatusService(db, vmClient).updateAllExternalExporterStatuses(t.Context())
 	}()
+	// A failed test must not leave the update running: it logs through t.
+	t.Cleanup(func() {
+		_ = changeTx.Rollback()
+		<-done
+	})
 
 	require.Eventually(t, func() bool {
 		var waiting int

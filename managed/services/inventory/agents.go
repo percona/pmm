@@ -268,7 +268,8 @@ func (as *AgentsService) widenDisabledCollectors(ctx context.Context, agentID st
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		widenedFrom = nil
 
-		current, err := models.FindAgentByID(tx.Querier, agentID)
+		// Locked, because the whole row is written back: see PMM-15835.
+		current, err := models.FindAgentByIDForUpdate(tx.Querier, agentID)
 		if err != nil {
 			return err
 		}
@@ -370,10 +371,16 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 				},
 			}
 
-			current, restoreErr := models.FindAgentByID(as.db.Querier, agentID)
-			if restoreErr == nil {
-				_, restoreErr = models.ApplyAgentChange(as.db.Querier, current, restore)
-			}
+			restoreErr := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+				current, err := models.FindAgentByIDForUpdate(tx.Querier, agentID)
+				if err != nil {
+					return err
+				}
+
+				_, err = models.ApplyAgentChange(tx.Querier, current, restore)
+
+				return err
+			})
 			if restoreErr != nil {
 				logger.Get(ctx).Errorf("Failed to restore disabled collectors of agent %s: %s.", agentID, restoreErr)
 			}
@@ -2040,12 +2047,8 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 	return as.executeAgentChangeChecked(ctx, agentID, expectedType, params, nil)
 }
 
-// executeAgentChangeChecked behaves like executeAgentChange, but if check is non-nil, it is called
-// with the agent's current row before the change is applied. The row is always locked
-// (SELECT ... FOR UPDATE) for the rest of the transaction. Use this when a check's outcome depends on the row's current state
-// and must not be decided from a read taken outside this transaction: a concurrent change could
-// otherwise commit in between that read and this write, making the decision stale by the time it
-// takes effect.
+// executeAgentChangeChecked behaves like executeAgentChange, but first calls check, if non-nil, with
+// the agent's current row, which is locked (SELECT ... FOR UPDATE) for the rest of the transaction.
 func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 	ctx context.Context,
 	agentID string,
