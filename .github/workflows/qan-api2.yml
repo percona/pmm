@@ -50,10 +50,6 @@ jobs:
       - name: Initialize CI environment
         run: make test-env-up
 
-      - name: Run Tests
-        run: |
-          make test
-
       - name: Run Tests Coverage
         run: |
           make test-cover
