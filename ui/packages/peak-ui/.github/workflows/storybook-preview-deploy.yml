@@ -1,0 +1,97 @@
+name: Storybook PR preview deploy
+
+# Holds the write token, so it never runs PR code: it only publishes the build workflow's artifact.
+on:
+  workflow_run:
+    workflows: ["Storybook PR preview build"]
+    types: [completed]
+  pull_request_target:
+    types: [closed]
+
+permissions: {}
+
+jobs:
+  find-pr:
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      number: ${{ steps.pr.outputs.number }}
+    steps:
+      # Taken from the API, not the artifact, so a PR cannot publish over another PR's preview.
+      - name: Find the open PR at the built commit
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD: ${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          number=$(gh api "repos/$GITHUB_REPOSITORY/pulls" -X GET -f state=open -f head="$HEAD" \
+            --jq 'map(select(.head.sha == env.HEAD_SHA and .draft == false)) | first | .number // empty')
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: find-pr
+    if: needs.find-pr.outputs.number
+    # On the job, not the workflow, so a run that skips deploying cannot cancel a removal.
+    concurrency:
+      group: pr-preview-${{ needs.find-pr.outputs.number }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: write
+    steps:
+      # pr-preview-action needs a git workspace; this is the default branch, never the PR head.
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6
+        with:
+          persist-credentials: false
+      - name: Download Storybook
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 #v8.0.2
+        with:
+          name: storybook-preview
+          path: storybook-static
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - name: Deploy PR preview
+        id: deploy
+        uses: rossjrw/pr-preview-action@873417d2df72380da1f3978378fb58560bcde976 #v1.8.2
+        with:
+          action: deploy
+          source-dir: ./storybook-static
+          pr-number: ${{ needs.find-pr.outputs.number }}
+          deploy-commit-message: Deploy preview for PR ${{ needs.find-pr.outputs.number }}
+          comment: false
+      - name: Comment the preview URL
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 #v3.0.5
+        with:
+          header: pr-preview
+          number_force: ${{ needs.find-pr.outputs.number }}
+          message: |
+            Storybook preview for ${{ github.event.workflow_run.head_sha }}: ${{ steps.deploy.outputs.preview-url }}
+
+  remove:
+    if: github.event_name == 'pull_request_target'
+    concurrency:
+      group: pr-preview-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # pr-preview-action needs a git workspace; pull_request_target checks out the base branch, never the PR head.
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6
+        with:
+          persist-credentials: false
+      - name: Remove PR preview
+        uses: rossjrw/pr-preview-action@873417d2df72380da1f3978378fb58560bcde976 #v1.8.2
+        with:
+          action: remove
