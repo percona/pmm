@@ -4,7 +4,7 @@ PMM Server can read the credentials it uses from files instead of environment va
 
 ## Credentials that PMM Server reads from files
 
-Each credential has a file name. PMM Server links every credential it resolves at `/run/pmm/secrets/<file name>` when the container starts, and its components read it from there.
+Each credential has a file name. PMM Server links every credential it resolves at `/run/pmm/secrets/<file name>` when the container starts, and its components read it from there when they start. After you change a database password, restart PMM Server so that its components use the new value.
 
 | File name | What it is | File variable | Earlier environment variable |
 |-----------|------------|---------------|------------------------------|

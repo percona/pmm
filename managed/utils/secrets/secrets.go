@@ -459,7 +459,8 @@ func expand(getenv func(string) string, value string, providers []string) (strin
 			case envProvider:
 				v = getenv(m[2])
 			case fileProvider:
-				b, err := os.ReadFile(m[2]) //nolint:gosec // a path the operator configured
+				//nolint:gosec // a path the operator configured
+				b, err := os.ReadFile(m[2])
 				if err != nil {
 					return "", err
 				}

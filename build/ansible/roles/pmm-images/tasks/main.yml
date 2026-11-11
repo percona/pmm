@@ -178,8 +178,6 @@
     group: root
     mode: 0664
 
-# The credential files every program reads: the entrypoint resolves them at each container start, this is the build's
-# own start. post-build.yml removes them, so none are left in the image.
 - name: Resolve credentials to files
   command: pmm-managed-init secrets
   become: true

@@ -23,7 +23,8 @@ import (
 
 // Read returns the content of a credential file without leading and trailing whitespace, and fails on an empty one.
 func Read(path string) (string, error) {
-	b, err := os.ReadFile(path) //nolint:gosec // paths from PMM Server's configuration or the operator's
+	//nolint:gosec // paths from PMM Server's configuration or the operator's
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
