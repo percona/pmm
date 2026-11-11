@@ -373,7 +373,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Don't inline comments (`code // comment`); put comments on separate lines — `//nolint` is the only exception
 - Don't inline `err != nil` checks (`if err := f(); err != nil`); assign on one line, check on the next
 - Comment only what the code can't say (a non-obvious why, a constraint, a workaround) in one line, two at most; doc comments are one sentence
-- Comments describe the code as it is, not its history: no "now/previously/fixed/added", incident stories or review back-and-forth (that goes in the commit message); point to the ticket instead (`see PMM-1234`)
+- Comments, in code and config alike, describe what is there, not its history or why it changed: no "now/previously/fixed/added", incident stories, review back-and-forth or justification for the change (that goes in the commit message); no ticket numbers either, since the commit title carries one
 
 ### Error Handling
 - Use `status.Error()` with proper gRPC codes for API errors
