@@ -374,6 +374,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Don't inline `err != nil` checks (`if err := f(); err != nil`); assign on one line, check on the next
 - Comment only what the code can't say (a non-obvious why, a constraint, a workaround) in one line, two at most; doc comments are one sentence
 - Comments describe the code as it is, not its history: no "now/previously/fixed/added", incident stories or review back-and-forth (that goes in the commit message); no ticket numbers either, since the commit title carries one
+- Don't add comments in code or config that justify a change (why it was made, what it fixes); that goes in the commit message and PR description, and a self-explanatory line gets no comment
 
 ### Error Handling
 - Use `status.Error()` with proper gRPC codes for API errors
