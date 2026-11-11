@@ -53,7 +53,12 @@ export const ConfirmChangesModal: FC<Props> = ({
   const [submitting, setSubmitting] = useState(false);
   const [skipConnectionCheck, setSkipConnectionCheck] = useState(false);
 
+  // A save that finishes navigates away, dropping any edits made after closing
   const handleClose = () => {
+    if (submitting) {
+      return;
+    }
+
     setSkipConnectionCheck(false);
     onClose();
   };
@@ -134,7 +139,7 @@ export const ConfirmChangesModal: FC<Props> = ({
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button variant="text" onClick={handleClose}>
+        <Button variant="text" onClick={handleClose} disabled={submitting}>
           {confirm.cancel}
         </Button>
         <Button

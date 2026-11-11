@@ -442,6 +442,59 @@ describe('EditService', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('reports an edit that changes nothing once parsed', async () => {
+    renderEditService();
+
+    await screen.findByTestId('edit-service-form');
+    changeField('Custom labels', ' team:db ');
+    fireEvent.click(screen.getByTestId('edit-service-submit'));
+
+    expect(
+      await screen.findByText('There are no changes to save.')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('confirm-changes-modal')
+    ).not.toBeInTheDocument();
+    expect(updateService).not.toHaveBeenCalled();
+  });
+
+  it('keeps the confirmation open while saving', async () => {
+    vi.mocked(updateService).mockReturnValue(new Promise(() => {}));
+    renderEditService();
+
+    await screen.findByTestId('edit-service-form');
+    changeField('Cluster', 'cluster-2');
+    const modal = await saveAndConfirm();
+    await waitFor(() => expect(updateService).toHaveBeenCalled());
+    fireEvent.keyDown(modal, { key: 'Escape' });
+
+    expect(
+      within(modal).getByRole('button', { name: 'Cancel' })
+    ).toBeDisabled();
+    await expect(
+      waitFor(() =>
+        expect(
+          screen.queryByTestId('confirm-changes-modal')
+        ).not.toBeInTheDocument()
+      )
+    ).rejects.toThrow();
+  });
+
+  it('asks for the secret key once the access key changes', async () => {
+    vi.mocked(getRdsExporter).mockResolvedValue(KEY_EXPORTER);
+    renderEditService();
+
+    await screen.findByTestId('rds-credentials');
+    const secretKey = screen.getByLabelText('Amazon RDS secret key');
+    expect(secretKey).toHaveAttribute(
+      'placeholder',
+      'Leave blank to keep the current secret key'
+    );
+    changeField('Amazon RDS access key', 'AKIA2');
+
+    expect(secretKey).toHaveAttribute('placeholder', 'Amazon RDS secret key');
+  });
+
   it('migrates to an IAM role by clearing both keys in one call', async () => {
     vi.mocked(getRdsExporter).mockResolvedValue(KEY_EXPORTER);
     renderEditService();

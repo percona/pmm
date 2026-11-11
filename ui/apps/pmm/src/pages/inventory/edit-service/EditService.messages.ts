@@ -14,6 +14,7 @@ export const Messages = {
     `Service “${serviceName}” was changed. It is now ready to continue monitoring.`,
   partial:
     'AWS credentials were changed, the other settings were not. Review the error above and save them again.',
+  noChanges: 'There are no changes to save.',
   details: {
     title: 'Service',
     description:
@@ -146,10 +147,10 @@ export const Messages = {
       'Collect histogram metrics from getDiagnosticData',
     statsCollections: 'Stats collections',
     statsCollectionsDescription:
-      'Databases or collections for collstats and indexstats, separated by commas',
+      'Databases or collections for collstats and indexstats, separated by commas. Name a collection with its database, for example db1,db2.collection1',
     collectionsLimit: 'Max collections limit',
     collectionsLimitDescription:
-      'Collection stats are not collected above this number of collections. 0 means no limit, -1 uses the default.',
+      'The collstats, dbstats, indexstats and topmetrics collectors are disabled above this number of collections. 0 means no limit, -1 uses the default.',
     autoDiscoveryLimit: 'Auto-discovery limit',
     autoDiscoveryLimitDescription:
       'Databases are not discovered above this number of databases. 0 uses the default, -1 always disables it.',
