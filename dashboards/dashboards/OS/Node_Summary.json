@@ -923,7 +923,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "count by (service_type) (max by (service_name, service_type) ({__name__=~\"mysql_up|mongodb_up|pg_up|proxysql_up|redis_up\",node_name=~\"$node_name\"} or up{service_type=~\"external|haproxy\",node_name=~\"$node_name\"}))",
+                    "expr": "count by (service_type) (max by (service_name, service_type) ({__name__=~\"mysql_up|mongodb_up|pg_up|proxysql_up|redis_up\",job=~\".+_hr\",node_name=~\"$node_name\"} or up{service_type=~\"external|haproxy\",node_name=~\"$node_name\"}))",
                     "format": "table",
                     "instant": true,
                     "interval": "$interval",
@@ -1063,7 +1063,7 @@
                 {
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by (service_name, service_type) ({__name__=~\"mysql_up|mongodb_up|pg_up|proxysql_up|redis_up\",node_name=~\"$node_name\"} or up{service_type=~\"external|haproxy\",node_name=~\"$node_name\"})",
+                    "expr": "max by (service_name, service_type) ({__name__=~\"mysql_up|mongodb_up|pg_up|proxysql_up|redis_up\",job=~\".+_hr\",node_name=~\"$node_name\"} or up{service_type=~\"external|haproxy\",node_name=~\"$node_name\"})",
                     "format": "table",
                     "instant": true,
                     "interval": "$interval",
