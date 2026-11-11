@@ -77,6 +77,16 @@ export const EditServiceForm: FC<Props> = ({
   const update = toServiceUpdate(service, initialValues, values);
   const changedNames = Object.keys(update?.changes ?? {});
 
+  // The form is dirty, yet nothing differs once parsed, e.g. reordered labels
+  const handleValid = () => {
+    if (!update && !credentials) {
+      enqueueSnackbar(Messages.noChanges, { variant: 'info' });
+      return;
+    }
+
+    setIsConfirmOpen(true);
+  };
+
   // Credentials go first: the server can reject them on their own, and nothing
   // is saved then. The API error notifications report what failed.
   const handleSave = async (skipConnectionCheck: boolean) => {
@@ -124,7 +134,7 @@ export const EditServiceForm: FC<Props> = ({
     <FormProvider {...methods}>
       <Stack
         component="form"
-        onSubmit={methods.handleSubmit(() => setIsConfirmOpen(true))}
+        onSubmit={methods.handleSubmit(handleValid)}
         gap={4}
         sx={{ flex: 1 }}
         data-testid="edit-service-form"

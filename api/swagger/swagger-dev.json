@@ -33165,7 +33165,7 @@
                         "description": "Mongods running that PMM has no service for.",
                         "type": "array",
                         "items": {
-                          "description": "UnregisteredMongod is a mongod found running that PMM has no service for.\n\nThe arbiter case, mostly: PMM registers no service for an arbiter, so nothing else\nin OM would report the process at all. Also what stands in the way of installing\nanything over a port that is already taken.",
+                          "description": "UnregisteredMongod is a mongod found running that PMM has no service for.\n\nMost often an arbiter that was not added to PMM, which nothing else in OM would\nreport at all. Also what stands in the way of installing anything over a port that\nis already taken.",
                           "type": "object",
                           "properties": {
                             "port": {
@@ -33575,7 +33575,7 @@
                       "description": "Mongods running that PMM has no service for.",
                       "type": "array",
                       "items": {
-                        "description": "UnregisteredMongod is a mongod found running that PMM has no service for.\n\nThe arbiter case, mostly: PMM registers no service for an arbiter, so nothing else\nin OM would report the process at all. Also what stands in the way of installing\nanything over a port that is already taken.",
+                        "description": "UnregisteredMongod is a mongod found running that PMM has no service for.\n\nMost often an arbiter that was not added to PMM, which nothing else in OM would\nreport at all. Also what stands in the way of installing anything over a port that\nis already taken.",
                         "type": "object",
                         "properties": {
                           "port": {
@@ -35429,7 +35429,7 @@
                                     "x-order": 12
                                   },
                                   "process_role": {
-                                    "description": "ProcessRole is what a mongod or mongos is doing in the deployment.\n\nNot the same axis as replica-set state: a SHARDSVR can be PRIMARY or SECONDARY. This\nis the role the process was started in, which is a property of the deployment's shape.\n\n - PROCESS_ROLE_MONGOD: A standalone or replica-set member with no sharding role.\n - PROCESS_ROLE_MONGOS: A router.\n - PROCESS_ROLE_CONFIGSVR: A config-server member.\n - PROCESS_ROLE_SHARDSVR: A shard member.",
+                                    "description": "ProcessRole is what a mongod or mongos is doing in the deployment.\n\nNot the same axis as replica-set state: a SHARDSVR can be PRIMARY or SECONDARY. This\nis the role the process was started in, which is a property of the deployment's shape.\n\n - PROCESS_ROLE_MONGOD: A standalone or replica-set member with no sharding role.\n - PROCESS_ROLE_MONGOS: A router.\n - PROCESS_ROLE_CONFIGSVR: A config-server member.\n - PROCESS_ROLE_SHARDSVR: A shard member.\n - PROCESS_ROLE_ARBITER: An arbiter, in a shard or a plain replica set: it votes but holds no data.",
                                     "type": "string",
                                     "default": "PROCESS_ROLE_UNSPECIFIED",
                                     "enum": [
@@ -35437,7 +35437,8 @@
                                       "PROCESS_ROLE_MONGOD",
                                       "PROCESS_ROLE_MONGOS",
                                       "PROCESS_ROLE_CONFIGSVR",
-                                      "PROCESS_ROLE_SHARDSVR"
+                                      "PROCESS_ROLE_SHARDSVR",
+                                      "PROCESS_ROLE_ARBITER"
                                     ],
                                     "x-order": 13
                                   },
@@ -39460,7 +39461,7 @@
                       "x-order": 18
                     },
                     "om_enabled": {
-                      "description": "True if OpenManager is enabled.",
+                      "description": "True if Operations for MongoDB is enabled.",
                       "type": "boolean",
                       "x-order": 19
                     }
@@ -39642,7 +39643,7 @@
                   "x-order": 13
                 },
                 "enable_om": {
-                  "description": "Enable OpenManager.",
+                  "description": "Enable Operations for MongoDB.",
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 14
@@ -39794,7 +39795,7 @@
                       "x-order": 18
                     },
                     "om_enabled": {
-                      "description": "True if OpenManager is enabled.",
+                      "description": "True if Operations for MongoDB is enabled.",
                       "type": "boolean",
                       "x-order": 19
                     }
@@ -39904,7 +39905,7 @@
                       "x-order": 8
                     },
                     "om_enabled": {
-                      "description": "True if OpenManager is enabled.",
+                      "description": "True if Operations for MongoDB is enabled.",
                       "type": "boolean",
                       "x-order": 9
                     }
@@ -40750,7 +40751,7 @@
       "name": "RealtimeAnalyticsService"
     },
     {
-      "description": "OmService provides the OpenManager topology and health API.",
+      "description": "OmService provides the Operations for MongoDB topology and health API.",
       "name": "OmService"
     },
     {
