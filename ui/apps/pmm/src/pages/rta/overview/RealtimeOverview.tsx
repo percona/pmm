@@ -12,7 +12,6 @@ import OverviewTable from './table/OverviewTable';
 import { DetailsPane } from './details-pane';
 import type { QueryData } from 'types/rta.types';
 import DynamicFeed from '@mui/icons-material/DynamicFeed';
-import FileDownloadOutlined from '@mui/icons-material/FileDownloadOutlined';
 import Pause from '@mui/icons-material/Pause';
 import PlayArrow from '@mui/icons-material/PlayArrow';
 import Refresh from '@mui/icons-material/Refresh';
@@ -21,6 +20,7 @@ import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import { ExportButton } from 'components/export-button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
 import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
@@ -181,11 +181,10 @@ const RealtimeOverviewPage: FC = () => {
                 </Button>
               )}
               {!fetching && (
-                <Button
+                <ExportButton
                   data-testid="overview-table-export-button"
                   size="small"
                   variant="text"
-                  startIcon={<FileDownloadOutlined />}
                   disabled={
                     serviceIds.length === 0 ||
                     table.getPrePaginationRowModel().rows.length === 0
@@ -203,9 +202,7 @@ const RealtimeOverviewPage: FC = () => {
                     width: 100,
                     height: 36,
                   }}
-                >
-                  {Messages.export}
-                </Button>
+                />
               )}
             </Stack>
             <Box sx={{ flex: '0 0 auto', ml: { md: 'auto' }, my: 1 }}>

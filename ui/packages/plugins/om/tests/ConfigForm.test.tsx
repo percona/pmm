@@ -18,6 +18,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConfigForm } from '../src/components/ConfigForm';
+import { asReadOnlyReader } from './auth';
 import type { OmInventorySetting } from '../src/types';
 
 const {
@@ -135,5 +136,94 @@ describe('ConfigForm', () => {
       .parentElement as HTMLElement;
     expect(within(saveRow).getByText('Scan every')).toBeInTheDocument();
     expect(screen.queryByText('SCHEDULE__every')).toBeNull();
+  });
+
+  it('never sends ENABLED on Save', () => {
+    const mutate = vi.fn();
+    useUpdateOmInventoryConfig.mockReturnValue({ ...idle, mutate });
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        ...SETTINGS,
+        setting({ key: 'ENABLED', type: 'bool', value: true }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="general" />);
+
+    fireEvent.change(screen.getByLabelText(/^Scan every/), {
+      target: { value: '60' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(mutate.mock.calls[0][0]).toEqual({ SCHEDULE__every: 60 });
+  });
+
+  it.each(['general', 'scanning', 'advanced'] as const)(
+    'does not offer ENABLED, which PMM owns, on the %s tab',
+    (group) => {
+      useOmInventoryConfig.mockReturnValue({
+        data: [
+          ...SETTINGS,
+          setting({ key: 'ENABLED', type: 'bool', value: true }),
+        ],
+        isPending: false,
+        isError: false,
+      });
+      render(<ConfigForm group={group} />);
+
+      expect(screen.queryByText('ENABLED')).toBeNull();
+      expect(screen.queryByText('Automatic node scans')).toBeNull();
+    }
+  );
+
+  it('shows a reader who may not act every value, and nothing to change one with', () => {
+    asReadOnlyReader();
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        ...SETTINGS,
+        setting({ key: 'PROBE_DATABASE', type: 'bool', value: true }),
+        setting({ key: 'SCHEDULE__period', type: 'str', value: 'minutes' }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+
+    const { rerender } = render(<ConfigForm group="advanced" />);
+
+    const concurrent = screen.getByLabelText(/Concurrent scans/);
+    expect(concurrent).toHaveAttribute('readonly');
+    expect(concurrent).toHaveValue('4');
+    expect(screen.queryByText('A whole number greater than zero.')).toBeNull();
+    expect(screen.getByText('overridden')).toBeInTheDocument();
+    expect(screen.queryByText('Reset')).toBeNull();
+    expect(screen.queryByRole('button', { name: /Save/ })).toBeNull();
+    expect(screen.getByTestId('om-config-read-only')).toHaveTextContent(
+      "You don't have permission to change the configuration."
+    );
+
+    rerender(<ConfigForm group="general" />);
+
+    expect(screen.getByRole('switch')).toBeDisabled();
+    expect(screen.getByRole('combobox')).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
+  });
+
+  it('shows a reader an invalid stored value without an error they cannot act on', () => {
+    asReadOnlyReader();
+    useOmInventoryConfig.mockReturnValue({
+      data: [setting({ key: 'MAX_CONCURRENT_PROBES', value: 0 })],
+      isPending: false,
+      isError: false,
+    });
+
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.getByLabelText(/Concurrent scans/)).toHaveAttribute(
+      'aria-invalid',
+      'false'
+    );
   });
 });
