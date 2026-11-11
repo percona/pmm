@@ -239,7 +239,7 @@
             "type": "stat"
         },
         {
-            "description": "The system load is a measurement of the computational work the system is performing. Each running process either using or waiting for CPU resources adds 1 to the load.",
+            "description": "The system load is a measurement of the computational work the system is performing. Each running process either using or waiting for CPU resources adds 1 to the load. The value turns orange at one task per virtual CPU and red at two.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -251,25 +251,28 @@
                             "options": {
                                 "match": "null",
                                 "result": {
+                                    "color": "text",
                                     "text": "N/A"
                                 }
                             },
                             "type": "special"
                         }
                     ],
+                    "min": 0,
                     "thresholds": {
-                        "mode": "absolute",
+                        "mode": "percentage",
                         "steps": [
                             {
-                                "color": "#299c46"
+                                "color": "#299c46",
+                                "value": null
                             },
                             {
                                 "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 10
+                                "value": 50
                             },
                             {
                                 "color": "#d44a3a",
-                                "value": 20
+                                "value": 100
                             }
                         ]
                     },
@@ -313,9 +316,39 @@
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "refId": "A"
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "2 * (count(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"user\"}) or sum(rdsosmetrics_General_numVCPUs{node_name=~\"$node_name\"}) or vector(10))",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Load max",
+                    "range": false,
+                    "refId": "B"
                 }
             ],
             "title": "Load Average",
+            "transformations": [
+                {
+                    "id": "configFromData",
+                    "options": {
+                        "applyTo": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "configRefId": "B",
+                        "mappings": [
+                            {
+                                "fieldName": "Load max",
+                                "handlerKey": "max"
+                            }
+                        ]
+                    }
+                }
+            ],
             "type": "stat"
         },
         {
@@ -416,6 +449,7 @@
                             "options": {
                                 "match": "null",
                                 "result": {
+                                    "color": "text",
                                     "text": "N/A"
                                 }
                             },
@@ -497,6 +531,7 @@
                             "options": {
                                 "match": "null",
                                 "result": {
+                                    "color": "text",
                                     "text": "N/A"
                                 }
                             },
@@ -652,6 +687,7 @@
                             "options": {
                                 "match": "null",
                                 "result": {
+                                    "color": "text",
                                     "text": "N/A"
                                 }
                             },
