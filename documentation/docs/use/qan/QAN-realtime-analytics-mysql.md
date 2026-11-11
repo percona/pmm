@@ -200,13 +200,11 @@ To change the collect interval:
 {.power-number}
 
 1. On the monitored host, run `pmm-admin list` and find the agent ID of the `rta_mysql_agent`.
-2. Set the new interval:
+2. Set the new interval, 1 second or more:
 
     ```sh
     pmm-admin inventory change agent rta-mysql-agent <agent-id> --collect-interval=5s
     ```
-
-The collect interval can't be shorter than 1 second.
 
 ## Investigate a query
 
@@ -265,10 +263,10 @@ To find the root blocker:
 1. Click the row of a statement with a **Blocked by** label to open its **Details** tab.
 2. Read the hint at the end of the blocker's details:
 
-    - If it says that resolving the blocker's connection releases this statement, or that the connection holds a metadata lock on this table, the blocker is the root blocker. To release its lock, see [Get the waiting statements running again](#get-the-waiting-statements-running-again).
+    - If it says that resolving the blocker's connection releases this statement, or that the connection holds a metadata lock on this table, the blocker is the root blocker. [Release its lock](#get-the-waiting-statements-running-again) to get the statement running.
     - If it says that the blocker's connection is itself waiting for a lock, open the blocker's row and repeat this step.
 
-    If several transactions hold up the statement, the hint says how many of them you must resolve, and RTA marks each additional root blocker **Root**.
+    If several transactions hold up the statement, the hint says how many of them to resolve, and RTA marks each additional root blocker **Root**.
 
 If a statement shows **Blocked: unknown** instead of naming its blocker, see [A statement shows Blocked: unknown](#a-statement-shows-blocked-unknown).
 
@@ -408,7 +406,7 @@ To find out why:
 2. If the label stays, turn on the metadata lock instrument, as described in [Get complete data on MySQL 5.7 and MariaDB](#get-complete-data-on-mysql-57-and-mariadb). It's off by default on MySQL 5.7 and MariaDB.
 3. If lock information is missing on every statement, check that the monitoring user has the `PROCESS` privilege, as described in [Check the service requirements](#check-the-service-requirements).
 
-To see what RTA found it can't collect when the session started, hover over the session status in the sessions list. Problems found later, such as a missing privilege, appear only in the PMM Client log.
+To see which data RTA can't collect, hover over the session status in the sessions list. It shows what RTA found when the session started. Problems found later, such as a missing privilege, appear only in the [pmm-agent log](../commands/pmm-agent.md#logging) on the monitored host.
 
 ### Lock details are missing for some statements during a large pile-up
 

@@ -123,13 +123,11 @@ To change the collect interval:
 {.power-number}
 
 1. On the monitored host, run `pmm-admin list` and find the agent ID of the `rta_mongodb_agent`.
-2. Set the new interval:
+2. Set the new interval, 1 second or more:
 
     ```sh
     pmm-admin inventory change agent rta-mongodb-agent <agent-id> --collect-interval=5s
     ```
-
-The collect interval can't be shorter than 1 second.
 
 ## Investigate an operation
 
@@ -285,7 +283,7 @@ To fix it:
 {.power-number}
 
 1. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.7.0, upgrade it. In that case, hovering over the **Error** status also shows the reason.
-2. If PMM Client is up to date, check the PMM Client log on the monitored host for the reason.
+2. If PMM Client is up to date, find the reason in the [pmm-agent log](../commands/pmm-agent.md#logging) on the monitored host.
 3. Check the MongoDB exporter: go to **Inventory > Services**, find your MongoDB service and check that its MongoDB exporter is running.
 4. Check your role: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. If you're not an Admin, ask one to start the session.
 5. Start the session again.
