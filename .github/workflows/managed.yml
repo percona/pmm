@@ -5,8 +5,12 @@ on:
     branches:
       - main
     paths-ignore:
-      - "documentation/**"
+      - "api-tests/**"
+      - "build/**"
       - "dashboards/**"
+      - "dev/**"
+      - "documentation/**"
+      - "ui/**"
 
   pull_request:
     paths-ignore:
