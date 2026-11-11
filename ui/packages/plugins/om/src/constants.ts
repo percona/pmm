@@ -39,7 +39,7 @@ import type {
  * with PMM's own.
  */
 export const OM_ROUTE_FLEET = '';
-/** The machines, and the only page carrying actions that change one. */
+/** The machines, and where a scan or an install of one starts. */
 export const OM_ROUTE_NODES = 'nodes';
 /** The install wizard, given a node selection made on {@link OM_ROUTE_NODES}. */
 export const OM_ROUTE_INSTALL = 'nodes/install';
@@ -87,6 +87,7 @@ export const PROCESS_ROLE_LABEL: Record<OmProcessRole, string> = {
   PROCESS_ROLE_MONGOS: 'Router',
   PROCESS_ROLE_CONFIGSVR: 'Config server',
   PROCESS_ROLE_SHARDSVR: 'Shard',
+  PROCESS_ROLE_ARBITER: 'Arbiter',
 };
 
 /** How each cluster state reads on Overview: the word, then the colour behind it. */
@@ -109,9 +110,9 @@ export const CLUSTER_HEALTH_COLOR: Record<OmClusterHealth, ChipProps['color']> =
  * How each of the three database states reads on the Hosts page.
  *
  * The middle one is the whole reason there are three. A host with no *registered*
- * service may still be running a mongod - PMM cannot authenticate against an arbiter,
- * so it registers no service for one - and calling that host empty would invite
- * someone to install a database over a port already in use.
+ * service may still be running a mongod - an arbiter that was not added to PMM, most
+ * often - and calling that host empty would invite someone to install a database over
+ * a port already in use.
  */
 export const HOST_DATABASE_STATE_LABEL: Record<OmHostDatabaseState, string> = {
   has_service: 'Monitored',
@@ -131,7 +132,7 @@ export const HOST_DATABASE_STATE_COLOR: Record<
 export const HOST_DATABASE_STATE_PHRASE: Record<OmHostDatabaseState, string> = {
   has_service: 'PMM has at least one registered MongoDB service on this node',
   unregistered_only:
-    'No service PMM knows about, but a scan found a mongod running - an arbiter, most likely, since PMM cannot authenticate against one. Not an empty node.',
+    'No service PMM knows about, but a scan found a mongod running - most likely an arbiter that was not added to PMM. Not an empty node.',
   installable:
     'No registered service and no mongod found. This is where a database can be installed.',
 };
