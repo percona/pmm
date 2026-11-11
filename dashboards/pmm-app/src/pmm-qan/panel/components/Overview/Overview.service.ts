@@ -1,9 +1,10 @@
+import { CancelToken } from 'axios';
 import { apiRequestQAN } from 'shared/components/helpers/api';
 import { getLabelQueryParams } from 'pmm-qan/panel/QueryAnalytics.tools';
 import { OverviewServiceInterface } from './Overview.types';
 
 export default {
-  getReport: async (body: OverviewServiceInterface) => {
+  getReport: async (body: OverviewServiceInterface, cancelToken?: CancelToken) => {
     const { columns } = body;
     const request = {
       columns,
@@ -20,6 +21,6 @@ export default {
       search: body.dimensionSearchText,
     };
 
-    return apiRequestQAN.post<any, any>('/metrics:getReport', request);
+    return apiRequestQAN.post<any, any>('/metrics:getReport', request, false, cancelToken);
   },
 };

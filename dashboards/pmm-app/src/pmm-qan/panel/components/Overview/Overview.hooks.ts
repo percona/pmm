@@ -1,6 +1,7 @@
 import {
   useContext, useEffect, useMemo, useState,
 } from 'react';
+import axios from 'axios';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
 import OverviewService from './Overview.service';
 import { DataInterface } from './Overview.types';
@@ -18,6 +19,10 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
   const defaultColumns = useMemo(() => getDefaultColumns(), []);
 
   useEffect(() => {
+    // Drop and cancel this request once a newer one supersedes it, see PMM-15883.
+    let ignore = false;
+    const source = axios.CancelToken.source();
+
     const updateInstances = async () => {
       try {
         setLoading(true);
@@ -31,7 +36,11 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
           to,
           groupBy,
           dimensionSearchText,
-        });
+        }, source.token);
+
+        if (ignore) {
+          return;
+        }
 
         setTotal(result.total_rows);
 
@@ -44,11 +53,18 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
         setData({ rows: result.rows, columns: allColumns });
         setLoading(false);
       } catch (e) {
-        setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     };
 
     updateInstances().then(() => {});
+
+    return () => {
+      ignore = true;
+      source.cancel();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [columns, pageNumber, pageSize, groupBy, labels, orderBy, from, to, dimensionSearchText]);
 
