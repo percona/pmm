@@ -5122,18 +5122,18 @@
             {
                 "current": {},
                 "datasource": "Metrics",
-                "definition": "label_values(up{node_name=~\"$node_name\"}, node_id)",
+                "definition": "query_result(topk(1, max by (node_id) (timestamp(up{node_name=~\"$node_name\"}))))",
                 "hide": 2,
                 "includeAll": false,
                 "label": "Node ID",
                 "name": "node_id",
                 "options": [],
                 "query": {
-                    "query": "label_values(up{node_name=~\"$node_name\"}, node_id)",
+                    "query": "query_result(topk(1, max by (node_id) (timestamp(up{node_name=~\"$node_name\"}))))",
                     "refId": "Metrics-node_id-Variable-Query"
                 },
                 "refresh": 2,
-                "regex": "",
+                "regex": "/node_id=\"([^\"]+)\"/",
                 "sort": 5,
                 "type": "query"
             }
