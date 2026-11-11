@@ -96,9 +96,9 @@ Each service has the following attributes:
 - `service_type`: the database type, for example `mysql`, `postgresql` or `mongodb`.
 - `node_id`: the node that the service runs on. This enables you to monitor multiple instances on a single node, with different service names, for example `mysql1-3306` and `mysql1-3307`.
 - `version`: the database server version. The version has the following limitations:
-  - PMM doesn't capture the version of the internal PostgreSQL database.
-  - PMM captures the version only when you add the service with PMM Client 2.41.0 or later.
-  - PMM doesn't update the version when you upgrade the database. To update it, remove the service and add it again.
+    - PMM doesn't capture the version of the internal PostgreSQL database.
+    - PMM captures the version only when you add the service with PMM Client 2.41.0 or later.
+    - PMM doesn't update the version when you upgrade the database. To update it, remove the service and add it again.
 
 ### Export services to a CSV file
 
@@ -234,7 +234,7 @@ To edit a service:
 2. Click :material-dots-vertical: next to the service, then select **Edit**.
 3. In the **Labels** section, change the **Environment**, **Cluster**, **Replication set** or **Custom labels** fields. Enter custom labels as `key:value`, one label per line. To remove a label, clear its field or delete its line.
 
-   ![Editing a service in PMM Inventory](../images/PMM_Inventory_Edit_Service.png)
+    ![Editing a service in PMM Inventory](../images/PMM_Inventory_Edit_Service.png)
 
 4. If the service is an Amazon RDS instance, select an option under **Authenticate with** in the **Amazon RDS credentials** section: **Access key**, **IAM role** or **Host credentials**. For details, see [Connect Amazon RDS instance](../install-pmm/install-pmm-client/connect-database/aws.md).
 5. Click **Save changes**.
