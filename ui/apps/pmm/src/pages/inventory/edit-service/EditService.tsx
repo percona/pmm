@@ -3,23 +3,30 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import { Page } from 'components/page';
 import { useRdsExporter } from 'hooks/api/useAgents';
-import { useService } from 'hooks/api/useServices';
+import { useNode } from 'hooks/api/useNodes';
+import { useEditableService } from 'hooks/api/useServices';
 import type { FC } from 'react';
 import { useParams } from 'react-router-dom';
+import { NodeType } from 'types/nodes.types';
 import { OrgRole } from 'types/user.types';
 import { EditServiceForm } from './edit-service-form';
 import { Messages } from './EditService.messages';
 
+const CLOUD_NODE_TYPES = [NodeType.remoteRds, NodeType.remoteAzureDatabase];
+
 export const EditService: FC = () => {
   const { serviceId } = useParams();
-  const serviceQuery = useService(serviceId);
-  const service = serviceQuery.data;
+  const serviceQuery = useEditableService(serviceId);
+  const editable = serviceQuery.data;
+  const service = editable?.service;
   const exporterQuery = useRdsExporter(service?.nodeId);
+  const nodeQuery = useNode(service?.nodeId);
+  const node = nodeQuery.data;
   // The form takes its initial values once, so it waits for fresh data rather
   // than a cached one
   const isLoaded =
     serviceQuery.isFetchedAfterMount &&
-    (!service || exporterQuery.isFetchedAfterMount);
+    (!service || (exporterQuery.isFetchedAfterMount && nodeQuery.isFetched));
 
   return (
     <Page
@@ -33,13 +40,15 @@ export const EditService: FC = () => {
           <CircularProgress data-testid="edit-service-loading" />
         </Stack>
       )}
-      {isLoaded && serviceQuery.isSuccess && !service && (
+      {isLoaded && serviceQuery.isSuccess && !editable && (
         <Alert severity="error">{Messages.notFound}</Alert>
       )}
-      {isLoaded && service && (
+      {isLoaded && editable && (
         <EditServiceForm
-          service={service}
-          exporter={exporterQuery.data ?? null}
+          editable={editable}
+          rdsExporter={exporterQuery.data ?? null}
+          nodeName={node?.nodeName ?? editable.service.nodeId}
+          isCloudNode={!!node && CLOUD_NODE_TYPES.includes(node.nodeType)}
         />
       )}
     </Page>

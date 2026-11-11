@@ -4,7 +4,7 @@ import {
   type InternalAxiosRequestConfig,
 } from 'axios';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { AgentStatus, AgentType } from 'types/agent.types';
+import { AgentStatus, AgentType, LogLevel } from 'types/agent.types';
 import { NodeType } from 'types/nodes.types';
 import { ManagedServiceType, ServiceStatus } from 'types/services.types';
 import { api } from './api';
@@ -14,9 +14,11 @@ import {
   findRdsExporter,
   getIfExists,
   toBaseService,
+  toInventoryService,
   toManagedAgent,
   toManagedNode,
   toManagedService,
+  toServiceAgent,
   type NodePayload,
   type ServicePayload,
 } from './inventory.utils';
@@ -168,15 +170,18 @@ describe('toManagedAgent', () => {
         agent_type: AgentType.rdsExporter,
         status: AgentStatus.running,
         username: 'john',
-        mongo_db_options: { mongo_opt_1: true, mongo_opt_2: ['foo', 'bar'] },
+        mongo_db_options: {
+          enable_all_collectors: true,
+          stats_collections: ['foo', 'bar'],
+        },
         rta_options: { collect_interval: '1s' },
         custom_labels: { additional_prop: 'prop_value' },
       }).properties
     ).toEqual({
       additional_prop: 'prop_value',
       username: 'john',
-      mongo_opt_1: 'true',
-      mongo_opt_2: 'foo,bar',
+      enable_all_collectors: 'true',
+      stats_collections: 'foo,bar',
       'rta_options.collect_interval': '1s',
     });
   });
@@ -324,5 +329,97 @@ describe('getIfExists', () => {
       'Internal error.',
       expect.objectContaining({ variant: 'error' })
     );
+  });
+});
+
+describe('toInventoryService', () => {
+  it('adds the type and the fields of that type to the base service', () => {
+    expect(
+      toInventoryService(ManagedServiceType.postgresql, {
+        service_id: 'service-1',
+        service_name: 'pg-1',
+        node_id: 'node-1',
+        environment: '',
+        cluster: '',
+        replication_set: '',
+        address: 'db',
+        port: 5432,
+        database_name: 'postgres',
+      })
+    ).toEqual({
+      serviceId: 'service-1',
+      serviceName: 'pg-1',
+      nodeId: 'node-1',
+      environment: '',
+      cluster: '',
+      replicationSet: '',
+      customLabels: {},
+      serviceType: ManagedServiceType.postgresql,
+      address: 'db',
+      port: 5432,
+      socket: '',
+      databaseName: 'postgres',
+      group: '',
+    });
+  });
+});
+
+describe('toServiceAgent', () => {
+  it('reads the settings, including the nested options', () => {
+    expect(
+      toServiceAgent({
+        agent_id: 'exporter-1',
+        agent_type: AgentType.mongodbExporter,
+        username: 'pmm',
+        is_password_set: true,
+        tls: true,
+        log_level: LogLevel.warn,
+        push_metrics: true,
+        connection_timeout: '1.500s',
+        disabled_collectors: ['dbstats'],
+        max_query_log_size: '1073741824',
+        mongo_db_options: {
+          is_tls_certificate_key_set: true,
+          authentication_database: 'admin',
+          stats_collections: ['db.users'],
+          collections_limit: 200,
+          enable_all_collectors: true,
+        },
+      })
+    ).toMatchObject({
+      agentId: 'exporter-1',
+      username: 'pmm',
+      isPasswordSet: true,
+      tls: true,
+      isTlsKeySet: true,
+      logLevel: LogLevel.warn,
+      pushMetrics: true,
+      connectionTimeout: '1.500s',
+      disabledCollectors: ['dbstats'],
+      maxQueryLogSize: 1073741824,
+      authenticationDatabase: 'admin',
+      statsCollections: ['db.users'],
+      collectionsLimit: 200,
+      enableAllCollectors: true,
+    });
+  });
+
+  it('falls back to defaults for missing fields', () => {
+    expect(
+      toServiceAgent({
+        agent_id: 'exporter-1',
+        agent_type: AgentType.postgresExporter,
+        postgresql_options: { is_ssl_key_set: true },
+      })
+    ).toMatchObject({
+      username: '',
+      isPasswordSet: false,
+      isTlsKeySet: true,
+      logLevel: LogLevel.unspecified,
+      connectionTimeout: '',
+      disabledCollectors: [],
+      extraDsnParams: {},
+      autoDiscoveryLimit: 0,
+    });
   });
 });

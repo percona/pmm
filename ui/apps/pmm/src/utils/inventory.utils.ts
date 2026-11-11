@@ -4,6 +4,7 @@ import type { QueryClient } from '@tanstack/react-query';
 // statuses and counts shown for the rest, so all inventory queries are refetched.
 const INVENTORY_QUERY_KEYS = [
   ['services:managed'],
+  ['services:editable'],
   ['services:list'],
   ['services:get'],
   ['services:getTypes'],
