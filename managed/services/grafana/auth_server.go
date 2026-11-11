@@ -70,7 +70,7 @@ var rules = map[string]role{
 	"/qan.v1.CollectorService.": viewer,
 	"/qan.v1.QANService.":       viewer,
 	"/om.":                      viewer,
-	"/om.v1.OmService/TriggerInventoryRefresh":       editor,
+	"/om.v1.OmService/TriggerInventoryRefresh":       admin,
 	"/om.v1.OmService/DeleteInventoryHost":           admin,
 	"/om.v1.OmService/DeleteInventoryService":        admin,
 	"/om.v1.OmService/UpdateInventoryConfig":         admin,
@@ -154,7 +154,7 @@ var methodRules = map[string]role{
 	http.MethodDelete + " /v1/alerting/templates/": editor,
 
 	// OM inventory writes.
-	http.MethodPost + " /v1/om/inventory/runs:trigger":        editor,
+	http.MethodPost + " /v1/om/inventory/runs:trigger":        admin,
 	http.MethodDelete + " /v1/om/inventory/hosts/":            admin,
 	http.MethodDelete + " /v1/om/inventory/services/":         admin,
 	http.MethodPut + " /v1/om/inventory/config":               admin,
@@ -169,6 +169,8 @@ var lbacPrefixes = []string{
 	"/graph/api/ds/query",
 	"/prometheus/api/v1/",
 	"/v1/qan/",
+	// Query details sit at /v1/qan:<method>, beside the /v1/qan/ tree; see PMM-15697.
+	"/v1/qan:",
 	// Grafana reaches the same data source under four route shapes -- proxy/<id>/,
 	// proxy/uid/<uid>/, <id>/resources/ and uid/<uid>/resources/ -- so match the whole
 	// tree instead of enumerating them: every shape left out is served unfiltered, and
