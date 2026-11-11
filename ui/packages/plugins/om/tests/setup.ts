@@ -16,9 +16,21 @@
  */
 
 import '@testing-library/jest-dom/vitest';
-import { afterEach } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
+import { auth } from './auth';
+
+vi.mock('@pmm-extensions/api', async (importOriginal) => {
+  const { auth: state } = await import('./auth');
+  return {
+    ...(await importOriginal<typeof import('@pmm-extensions/api')>()),
+    useAuth: () => ({ isAdmin: state.canMutate, canMutate: state.canMutate }),
+  };
+});
 
 afterEach(() => {
   cleanup();
+  auth.canMutate = true;
+  // The Fleet tables keep their grouping for the session; one test's must not leak.
+  sessionStorage.clear();
 });

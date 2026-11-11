@@ -15,6 +15,7 @@ import {
   type MRT_RowSelectionState,
 } from '@percona/peak-ui';
 import { type MRT_ExpandedState } from 'material-react-table';
+import { ExportButton } from 'components/export-button';
 import { useManagedServices, useRemoveServices } from 'hooks/api/useServices';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
@@ -36,11 +37,13 @@ import {
   getServiceQanUrl,
 } from '../Inventory.utils';
 import { useIdColumnVisibility } from '../useIdColumnVisibility';
+import { exportServicesToCsv } from './export/exportServicesToCsv';
 import { ServiceDetails } from './service-details';
 import { SERVICES_COLUMNS, SERVICES_TABLE_NAME } from './Services.constants';
 import { Messages } from './Services.messages';
 import type { ServiceRow } from './Services.types';
 import {
+  getFilteredServices,
   getServicesRowId,
   isClusterRow,
   toClusterRows,
@@ -62,9 +65,6 @@ export const Services: FC = () => {
   const [servicesToDelete, setServicesToDelete] = useState<ServiceRow[]>([]);
   const services = useMemo(() => toServiceRows(data?.services ?? []), [data]);
   const clusters = useMemo(() => toClusterRows(services), [services]);
-  const selectedServices = services.filter(
-    (service) => rowSelection[service.serviceId]
-  );
   const { tableProps } = useTableUrlState({
     ...getUrlStateOptions('services'),
     additionalState: { rowSelection, expanded },
@@ -123,6 +123,9 @@ export const Services: FC = () => {
         enableExpanding
         getSubRows={(row) => (isClusterRow(row) ? row.services : undefined)}
         filterFromLeafRows
+        // The default searches the columns the first row has values in, and
+        // cluster rows hold none
+        getColumnCanGlobalFilter={() => true}
         noDataMessage={Messages.empty}
         enableRowSelection
         onRowSelectionChange={setRowSelection}
@@ -184,52 +187,70 @@ export const Services: FC = () => {
               : []),
           ];
         }}
-        renderTopToolbarCustomActions={() => (
-          <Stack
-            direction="row"
-            alignItems="center"
-            flexWrap="wrap"
-            columnGap={2}
-            rowGap={1}
-          >
-            {!!selectedServices.length && (
-              <Typography variant="body2">
-                {InventoryMessages.selected(selectedServices.length)}
-              </Typography>
-            )}
-            <Button
-              color="error"
-              startIcon={<DeleteOutlineIcon />}
-              disabled={!selectedServices.length}
-              onClick={() => setServicesToDelete(selectedServices)}
-              data-testid="delete-services-button"
+        renderTopToolbarCustomActions={({ table }) => {
+          const filteredServices = getFilteredServices(table);
+          // Filters hide selected services without unselecting them, so the
+          // actions take only the selected services left visible
+          const selectedServices = filteredServices.filter(
+            ({ serviceId }) => rowSelection[serviceId]
+          );
+          // A selection narrows the export, as it does the delete
+          const exportedServices = selectedServices.length
+            ? selectedServices
+            : filteredServices;
+
+          return (
+            <Stack
+              direction="row"
+              alignItems="center"
+              flexWrap="wrap"
+              columnGap={2}
+              rowGap={1}
             >
-              {InventoryMessages.actions.delete}
-            </Button>
-            <Stack direction="row" alignItems="center">
-              <FormControlLabel
-                label={Messages.organizeByClusters}
-                sx={{ mr: 1 }}
-                control={
-                  <Switch
-                    size="small"
-                    checked={showClusters}
-                    onChange={() => setShowClusters(!showClusters)}
-                    data-testid="organize-by-clusters-switch"
-                  />
-                }
+              {!!selectedServices.length && (
+                <Typography variant="body2">
+                  {InventoryMessages.selected(selectedServices.length)}
+                </Typography>
+              )}
+              <Button
+                color="error"
+                startIcon={<DeleteOutlineIcon />}
+                disabled={!selectedServices.length}
+                onClick={() => setServicesToDelete(selectedServices)}
+                data-testid="delete-services-button"
+              >
+                {InventoryMessages.actions.delete}
+              </Button>
+              <Stack direction="row" alignItems="center">
+                <FormControlLabel
+                  label={Messages.organizeByClusters}
+                  sx={{ mr: 1 }}
+                  control={
+                    <Switch
+                      size="small"
+                      checked={showClusters}
+                      onChange={() => setShowClusters(!showClusters)}
+                      data-testid="organize-by-clusters-switch"
+                    />
+                  }
+                />
+              </Stack>
+              <ExportButton
+                disabled={!exportedServices.length}
+                onClick={() => exportServicesToCsv(exportedServices)}
+                data-testid="export-services-button"
               />
+              <Button
+                startIcon={<AddOutlinedIcon />}
+                component={RouterLink}
+                to={PMM_ADD_SERVICE_URL}
+                data-testid="add-service-button"
+              >
+                {Messages.actions.add}
+              </Button>
             </Stack>
-            <Button
-              startIcon={<AddOutlinedIcon />}
-              component={RouterLink}
-              to={PMM_ADD_SERVICE_URL}
-              data-testid="add-service-button"
-            >
-              {Messages.actions.add}
-            </Button>
-          </Stack>
-        )}
+          );
+        }}
       />
       <DeleteModal
         open={!!servicesToDelete.length}
