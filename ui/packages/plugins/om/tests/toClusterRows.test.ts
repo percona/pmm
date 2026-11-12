@@ -522,6 +522,23 @@ describe('cluster roll-ups (PMM-15806)', () => {
       ]);
     });
 
+    it('ignores a stopped arbiter, which keeps its role but loses its state', () => {
+      const row = rollUp([
+        service({ version: '7.0.9-1' }),
+        service({
+          version: '6.0.1-1',
+          state: null,
+          status: 'SERVICE_STATUS_DOWN' as OmServiceStatus,
+          process_role: 'PROCESS_ROLE_ARBITER',
+        }),
+      ]);
+
+      expect(row.version_drift).toBe(false);
+      expect(row.version_sets).toEqual([
+        { replication_set: 'rs0', versions: ['7.0.9-1'] },
+      ]);
+    });
+
     it('ignores a data-bearing member with no replication set', () => {
       const row = rollUp([
         service({ version: '7.0.9-1' }),

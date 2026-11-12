@@ -160,10 +160,13 @@ const sortedVersions = (versions: Iterable<string>) =>
 
 /**
  * A member that holds data: a router holds none, and an arbiter only votes, so
- * neither can drift a replica set's data off its version.
+ * neither can drift a replica set's data off its version. An arbiter reads
+ * `ARBITER` only while up, so its role is checked too.
  */
 const isDataBearing = (service: OmService) =>
-  service.process_role !== 'PROCESS_ROLE_MONGOS' && service.state !== 'ARBITER';
+  service.process_role !== 'PROCESS_ROLE_MONGOS' &&
+  service.process_role !== 'PROCESS_ROLE_ARBITER' &&
+  service.state !== 'ARBITER';
 
 /**
  * Each replica set's versions among its data-bearing members, the same rule as
