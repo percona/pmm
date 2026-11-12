@@ -161,8 +161,8 @@ A recording rule runs a query on a schedule and stores the result as a new metri
 To create a recording rule:
 {.power-number}
 
-1. Go to **Alerting > Alert rules** and click **New recording rule**.
-2. In **Metric name**, enter the name of the metric that the rule stores.
+1. Go to **Alerts > Alert rules** and click **New recording rule**.
+2. In **Metric name**, enter the name of the metric that the rule stores. Use a name that no existing metric has, for example with a prefix of your own.
 3. Build the query that the rule evaluates.
 4. Under **Target data source**, select **Metrics**, which is PMM's own metrics store.
 5. Select the folder and evaluation group for the rule, then save it.
@@ -171,5 +171,8 @@ After one evaluation interval, the new metric is available in :material-compass-
 
 For the full set of options, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.
 
-!!! caution alert alert-warning "Recording rules and access control"
+!!! caution "Recording rules write to the metrics that PMM collects"
+    Any user who can create alert rules, which includes the **Editor** role, can create a recording rule that targets **Metrics**. PMM doesn't check the metric name: a rule that reuses the name and labels of a collected metric, such as `up`, writes its result into that metric's series, where dashboards and alert rules read it. Grant the **Editor** role with this in mind.
+
+!!! caution "Recording rules and access control"
     Recording rules can't write to **Metrics** while [access control](../admin/roles/access-control/intro.md) is enabled. A rule runs on a schedule rather than on behalf of a user, so PMM can't apply the label filters of the user who created it. Without those filters the rule would read every series and store the result where other users can read it. PMM refuses the write instead, and the rule reports an evaluation error on each run.
