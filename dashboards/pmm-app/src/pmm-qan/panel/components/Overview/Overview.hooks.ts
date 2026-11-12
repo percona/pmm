@@ -19,8 +19,7 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
   const defaultColumns = useMemo(() => getDefaultColumns(), []);
 
   useEffect(() => {
-    // Drop and cancel this request once a newer one supersedes it, see PMM-15883.
-    let ignore = false;
+    // Cancel this request once a newer one supersedes it, see PMM-15883.
     const source = axios.CancelToken.source();
 
     const updateInstances = async () => {
@@ -38,10 +37,6 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
           dimensionSearchText,
         }, source.token);
 
-        if (ignore) {
-          return;
-        }
-
         setTotal(result.total_rows);
 
         const mainMetric = columns[0];
@@ -53,7 +48,7 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
         setData({ rows: result.rows, columns: allColumns });
         setLoading(false);
       } catch (e) {
-        if (!ignore) {
+        if (!axios.isCancel(e)) {
           setLoading(false);
         }
       }
@@ -62,7 +57,6 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
     updateInstances().then(() => {});
 
     return () => {
-      ignore = true;
       source.cancel();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

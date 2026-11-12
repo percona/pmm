@@ -35,6 +35,19 @@ const report = (fingerprint: string, total: number) => ({
   total_rows: total,
 });
 
+// Mirrors axios: a cancelled request rejects with a cancel error and never resolves.
+const mockRequest = () => {
+  const request = deferred<any>();
+
+  getReportMock.mockImplementationOnce((_body, token: CancelToken) => {
+    token.promise.then(request.reject);
+
+    return request.promise;
+  });
+
+  return request;
+};
+
 const basePanelState = {
   labels: {},
   columns: ['load', 'num_queries'],
@@ -61,11 +74,9 @@ describe('useOverviewTable::', () => {
     getReportMock.mockReset();
   });
 
-  it('keeps the newest result when an older request resolves last', async () => {
-    const older = deferred<any>();
-    const newer = deferred<any>();
-
-    getReportMock.mockReturnValueOnce(older.promise).mockReturnValueOnce(newer.promise);
+  it('shows the newest result after a superseded request is cancelled', async () => {
+    const older = mockRequest();
+    const newer = mockRequest();
     const setTotal = jest.fn();
 
     const { result, rerender } = renderHook(() => useOverviewTable(setTotal), { wrapper: Wrapper });
@@ -75,12 +86,10 @@ describe('useOverviewTable::', () => {
 
     expect(getReportMock).toHaveBeenCalledTimes(2);
     expect(getReportMock.mock.calls[1][0].dimensionSearchText).toBe('pg_stat');
+    await expect(older.promise).rejects.toHaveProperty('__CANCEL__', true);
 
     await act(async () => {
       newer.resolve(report('pg_stat_query', 22));
-    });
-    await act(async () => {
-      older.resolve(report('unfiltered_query', 26));
     });
 
     const [data, loading] = result.current;
@@ -92,18 +101,14 @@ describe('useOverviewTable::', () => {
   });
 
   it('stays loading until the newest request finishes', async () => {
-    const older = deferred<any>();
-    const newer = deferred<any>();
-
-    getReportMock.mockReturnValueOnce(older.promise).mockReturnValueOnce(newer.promise);
+    mockRequest();
+    const newer = mockRequest();
 
     const { result, rerender } = renderHook(() => useOverviewTable(jest.fn()), { wrapper: Wrapper });
 
-    panelState = { ...basePanelState, from: 'now-12h' };
-    rerender();
-
     await act(async () => {
-      older.resolve(report('unfiltered_query', 26));
+      panelState = { ...basePanelState, from: 'now-12h' };
+      rerender();
     });
 
     expect(result.current[1]).toBe(true);
@@ -117,25 +122,15 @@ describe('useOverviewTable::', () => {
     expect(result.current[0].rows).toEqual([{ fingerprint: 'recent_query', metrics: {} }]);
   });
 
-  it('ignores the failure of a superseded request', async () => {
-    const older = deferred<any>();
-    const newer = deferred<any>();
+  it('stops loading when the request fails', async () => {
+    const request = mockRequest();
 
-    getReportMock.mockReturnValueOnce(older.promise).mockReturnValueOnce(newer.promise);
-
-    const { result, rerender } = renderHook(() => useOverviewTable(jest.fn()), { wrapper: Wrapper });
-
-    panelState = { ...basePanelState, pageNumber: 2 };
-    rerender();
-
-    await act(async () => {
-      older.reject(new Error('canceled'));
-    });
+    const { result } = renderHook(() => useOverviewTable(jest.fn()), { wrapper: Wrapper });
 
     expect(result.current[1]).toBe(true);
 
     await act(async () => {
-      newer.reject(new Error('server error'));
+      request.reject(new Error('server error'));
     });
 
     expect(result.current[1]).toBe(false);
