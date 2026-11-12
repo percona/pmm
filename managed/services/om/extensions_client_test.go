@@ -18,12 +18,12 @@ package om
 import (
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/status"
 )
 
 func TestCleartextToken(t *testing.T) {
@@ -82,7 +82,7 @@ func TestSEPClientBypassesProxy(t *testing.T) {
 func TestSEPClientTransportErrorIsNotDoublePrefixed(t *testing.T) {
 	t.Parallel()
 
-	// http.Client.Do's *url.Error already names the method and URL, so wrapping must not repeat them.
+	// http.Client.Do's *url.Error leads with the method and URL, so only its cause is kept.
 	stub := newSEPStub(t, http.StatusOK, `{}`)
 	svc := stub.service(t)
 	stub.server.Close()
@@ -90,5 +90,5 @@ func TestSEPClientTransportErrorIsNotDoublePrefixed(t *testing.T) {
 	err := svc.probe.app.triggerRun(asService(t.Context()))
 
 	require.Error(t, err)
-	assert.Equal(t, 1, strings.Count(err.Error(), stub.server.URL), "the URL belongs in the message once: %s", err)
+	assert.Equal(t, "PMM Extensions is unreachable: connection refused", status.Convert(err).Message())
 }
