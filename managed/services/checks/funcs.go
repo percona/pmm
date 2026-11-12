@@ -141,7 +141,7 @@ func daysUntil(args ...any) (any, error) {
 
 	d, err := time.Parse(dateLayout, s)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse %q", s) //nolint:err113
+		return nil, fmt.Errorf("failed to parse %q", s)
 	}
 
 	today, err := time.Parse(dateLayout, now().UTC().Format(dateLayout))

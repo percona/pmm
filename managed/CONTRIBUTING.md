@@ -100,6 +100,22 @@ You can read more about the [check format and the script API in our documentatio
 
 Changes to built-in checks are visible in **Advisors > Catalog** once the PMM Server runs your build.
 
+### Keeping version data current
+
+The version and EOL checks hold their data in tables inside the check files. Update them when the table's owner needs to:
+
+| File | Table | Owner | Update when |
+|---|---|---|---|
+| `mongodb_version.yml` | `LATEST_VERSIONS` | PSMDB team | Each PSMDB patch release |
+| `postgresql_version_check.yml` | `latest_versions`, `version_expires` | PostgreSQL team | Each minor release; new major GA |
+| `postgresql_eol_check.yml` | `version_expires` | PostgreSQL team | Each minor release; new major GA |
+| `mysql_version.yml` | `LATEST_VERSIONS`: `percona_server`, `percona_xtradb_cluster` | PS and PXC teams (to agree) | Each patch release |
+| `mysql_version.yml` | `LATEST_VERSIONS`: `oracle`, `mariadb`, `rds` | PMM team | Each PMM release |
+| `mysql_unsupported_version_check.yml` | `EOL_ORACLE`, `EOL_PERCONA`, `EOL_MARIADB`, `EOL_RDS` | PMM team | New major/LTS GA; vendor lifecycle change |
+| `mongodb_EOL.yml` | `EOL` | PMM team | New major/LTS GA; vendor lifecycle change |
+
+Every EOL check follows one rule: an error after the EOL date, a warning when the EOL date is 0 to 183 days away, and nothing otherwise or for a series missing from the table. Write EOL dates only in these tables, never inline in a script. `mysql_version.yml` and `mysql_unsupported_version_check.yml` share an identical `detect()` function, so keep the two in sync. The PostgreSQL EOL table exists in two files, `postgresql_version_check.yml` and `postgresql_eol_check.yml`, so update both together.
+
 
 
 ## Working with Percona Alerting
