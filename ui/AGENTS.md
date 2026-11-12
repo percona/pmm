@@ -9,13 +9,20 @@ The `/ui` directory contains the PMM web frontend — a React/TypeScript applica
 
 ### Monorepo Structure
 
-The UI uses a **pnpm workspaces + Turborepo** monorepo with three packages:
+The UI uses a **pnpm workspaces + Turborepo** monorepo:
 
-| Package         | Path                  | Purpose                                                       |
-| --------------- | --------------------- | ------------------------------------------------------------- |
-| **pmm**         | `ui/apps/pmm/`        | Main PMM UI application (Vite + React)                        |
-| **pmm-compat**  | `ui/apps/pmm-compat/` | Grafana plugin for PMM ↔ Grafana integration (Webpack)        |
-| **@pmm/shared** | `ui/packages/shared/` | Shared code: cross-frame messaging, types, utilities (Rollup) |
+| Package                         | Path                                | Purpose                                                                         |
+| ------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------- |
+| **pmm**                         | `ui/apps/pmm/`                      | Main PMM UI application (Vite + React)                                          |
+| **pmm-compat**                  | `ui/apps/pmm-compat/`               | Grafana plugin for PMM ↔ Grafana integration (Webpack)                          |
+| **@pmm/shared**                 | `ui/packages/shared/`               | Shared code: cross-frame messaging, types, utilities (Rollup)                   |
+| **@pmm/plugins-om**             | `ui/packages/plugins/om/`           | MongoDB Operations app (`OmApp`), mounted by `pmm` under its own routes         |
+| **@pmm-extensions/plugins-atw** | `ui/packages/plugins/atw/`          | Support diagnostics app (`AtwApp`), mounted by `pmm` under its own routes       |
+| **@pmm-extensions/framework**   | `ui/packages/extensions/framework/` | Building blocks for PMM Extensions pages: schema-driven forms, lists, selectors |
+| **@pmm-extensions/api**         | `ui/packages/extensions/api/`       | HTTP client, React Query setup and OpenAPI types for the Extensions backend     |
+| **@pmm-extensions/shared**      | `ui/packages/extensions/shared/`    | Route constants and small utilities shared by the Extensions packages           |
+
+The plugin and extension packages are part of PMM and follow this guide like `pmm` does. Their own code may predate a pattern here, so before copying a neighbouring page in a plugin, check how `apps/pmm` solves the same problem.
 
 ### Key Technology Choices
 
@@ -64,6 +71,10 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/rta/selection`                          | RTA service selection                       |
 | `/rta/sessions`                           | RTA sessions list                           |
 | `/rta/overview`                           | RTA overview                                |
+| `/advisors`                               | Advisors                                    |
+| `/advisors/insights`                      | Advisor insights                            |
+| `/advisors/runs`                          | Advisor runs                                |
+| `/advisors/scheduler`                     | Advisor schedules                           |
 | `/graph/*`                                | Grafana iframe                              |
 | `*`                                       | Page not found (`NotFoundPage`)             |
 
@@ -107,8 +118,26 @@ API calls are organized in `src/api/` using axios. Each API module provides type
 
 - **Storybook (component catalog):** https://percona.github.io/peak-ui
 - **Source & theme options:** https://github.com/percona/peak-ui
+- **Agent guide, matching the installed version:** `node_modules/@percona/peak-ui/AGENTS.md` (usage rules) and `llms.txt` (every export, one line each), in any package that depends on peak-ui, such as `ui/apps/pmm/`
 
 The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the theme-aware `sx` prop rather than ad-hoc CSS.
+
+`@percona/percona-ui` is peak-ui's former name. Import from `@percona/peak-ui`; lint rejects the old name.
+
+## Tables
+
+Every data table follows the pattern of Inventory's Nodes page (`apps/pmm/src/pages/inventory/nodes/Nodes.tsx`):
+
+- **Component:** peak-ui `Table`, which wraps Material React Table (MRT) with PMM's theme, empty states (`noDataMessage`, `emptyFilterResultsMessage`) and column visibility persisted under `tableName`. Don't build a table with MRT's `useMaterialReactTable` or `MaterialReactTable`; lint rejects them. MRT types and toolbar components are fine to import.
+- **URL state:** filters, search, sorting and pagination live in the URL through `useTableUrlState` (`apps/pmm/src/hooks/utils/useTableUrlState.ts`); outside `apps/pmm`, call peak-ui's `usePerconaTableUrlState` with React Router's `useSearchParams`. Give each table on a page its own `paramPrefix`, spread `tableProps` into `Table`, and pass other controlled state, such as `rowSelection`, through `additionalState`. Don't hand-roll URL parameters for table state.
+- **Filters:** column filters on the table, not rows filtered before they reach `data`: `filterVariant: 'select'` with `filterFn: 'equals'`, or `'multi-select'` for several values. Search is the table's global filter; set `enableGlobalFilter: false` on columns it shouldn't match.
+- **Toolbar toggles** (such as Nodes' "PMM Server only"): a column filter on a hidden column, toggled through `tableProps.onColumnFiltersChange`.
+- **Links into a filtered table:** build the parameter names with `buildTableUrlParamKeys`, as `getFilteredTabUrl` in `apps/pmm/src/pages/inventory/Inventory.utils.ts` does.
+
+Two traps:
+
+- `multi-select` defaults to `arrIncludesSome`, which matches substrings on a string column (`prod` matches `preprod`). Give such columns an exact-match `filterFn`.
+- The URL state treats an empty string as no filter, so a "none" or "unassigned" option needs a non-empty value.
 
 ## Patterns and Conventions
 
@@ -132,10 +161,10 @@ The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the the
 
 ## Testing
 
-- **Framework**: Vitest (main app), Jest (shared package)
+- **Framework**: Vitest (`pmm`, plugin and extension packages), Jest (`pmm-compat`, `@pmm/shared`)
 - **Libraries**: `@testing-library/react`, `@testing-library/jest-dom`
-- **Setup**: `src/setupTests.ts` provides global mocks (clipboard, `navigator.isSecureContext`)
-- **Config**: `vitest.config.ts` — jsdom environment, `globals: true`
+- **Setup**: `src/setupTests.ts` in `pmm` provides global mocks (clipboard, `navigator.isSecureContext`); the plugin and extension packages use `tests/setup.ts`, and `pmm-compat` uses `jest-setup.js`
+- **Config**: each package's `vitest.config.ts` (jsdom environment, `globals: true`) or `jest.config.js`
 - **Pattern**: co-located `*.test.tsx` / `*.test.ts` files next to components
 - **Run**: `make test` or via Turborepo (`turbo test`)
 
@@ -144,6 +173,9 @@ The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the the
 - **Linter**: oxlint, configured in `ui/oxlintrc.json`. `plugins` lists every
   built-in plugin the rules rely on — setting it replaces oxlint's default set,
   and a rule whose plugin is missing is silently inert.
+- **Restricted imports**: `no-restricted-imports` enforces the peak-ui rules
+  above. Files that predate it are exempted in the config's `overrides`; drop an
+  entry once its file moves to peak-ui, and don't add new ones.
 - **Formatter**: oxfmt, configured in `ui/.oxfmtrc.json`. It owns formatting;
   there is no Prettier and no formatting rule in the linter.
 - **Scope**: build/test config files (`vite.config.ts`, `vitest.config.ts`,

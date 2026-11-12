@@ -45,12 +45,13 @@ import (
 const (
 	defaultInventoryRunLimit = 20
 	maxInventoryRunLimit     = 100
+
+	extensionsNotConfigured = "PMM Extensions is not configured, set PMM_ENABLE_EXTENSIONS=1 on PMM Server"
 )
 
 func (s *Service) inventoryProbe() (extensionsApp, error) {
 	if s.probe == nil {
-		return extensionsApp{}, status.Error(codes.FailedPrecondition,
-			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the inventory app")
+		return extensionsApp{}, status.Error(codes.FailedPrecondition, extensionsNotConfigured)
 	}
 	return s.probe.app, nil
 }
@@ -630,8 +631,7 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 	if s.bootstrap == nil {
-		return nil, status.Error(codes.FailedPrecondition,
-			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the bootstrap app")
+		return nil, status.Error(codes.FailedPrecondition, extensionsNotConfigured)
 	}
 	nodeIDs := req.GetNodeIds()
 	if len(nodeIDs) != 1 && len(nodeIDs) != 3 {
@@ -901,8 +901,7 @@ func (s *Service) nodeIDForExecutorHost(ctx context.Context, executorHost string
 
 func (s *Service) bootstrapProbe() (*bootstrapClient, error) {
 	if s.bootstrap == nil {
-		return nil, status.Error(codes.FailedPrecondition,
-			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the bootstrap app")
+		return nil, status.Error(codes.FailedPrecondition, extensionsNotConfigured)
 	}
 	return s.bootstrap, nil
 }
@@ -1068,6 +1067,9 @@ func bootstrapStepsToProto(steps []extensionsBootstrapStep) []*omv1.BootstrapSte
 	return proto
 }
 
+// inventorySettingsClass is om_inventory's settings class on PMM Extensions' admin settings router.
+const inventorySettingsClass = "OmInventorySettings"
+
 // GetInventoryConfig returns the inventory app's configuration.
 func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryConfigRequest) (*omv1.GetInventoryConfigResponse, error) {
 	probe, err := s.inventoryProbe()
@@ -1140,8 +1142,8 @@ func (s *Service) UpdateInventoryConfig(ctx context.Context, req *omv1.UpdateInv
 	}
 
 	applied := []extensionsSetting{}
-	call := inventoryCall{method: http.MethodPatch, path: "config", body: req.GetValues().AsMap()}
-	err = probe.call(ctx, call, &applied)
+	call := inventoryCall{method: http.MethodPatch, path: inventorySettingsClass, body: req.GetValues().AsMap()}
+	err = probe.client.settings().call(ctx, call, &applied)
 	if err != nil {
 		return nil, err
 	}
@@ -1168,8 +1170,8 @@ func (s *Service) DeleteInventoryConfigOverride(
 		return nil, err
 	}
 
-	call := inventoryCall{method: http.MethodDelete, path: inventoryPath("config", req.GetKey())}
-	err = probe.call(ctx, call, nil)
+	call := inventoryCall{method: http.MethodDelete, path: inventoryPath(inventorySettingsClass, req.GetKey())}
+	err = probe.client.settings().call(ctx, call, nil)
 	if err != nil {
 		return nil, err
 	}

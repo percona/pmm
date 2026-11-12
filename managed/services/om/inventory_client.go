@@ -18,6 +18,7 @@ package om
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -168,19 +169,33 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 	ctx, cancel := context.WithTimeout(ctx, inventoryRequestTimeout)
 	defer cancel()
 
-	req, err := a.request(ctx, c.method, c.path, c.query, c.body, c.sendEmptyBody)
+	cred, err := a.client.credential(ctx)
+	if err != nil {
+		return err
+	}
+	req, err := a.request(ctx, cred.bearer, c.method, c.path, c.query, c.body, c.sendEmptyBody)
 	if err != nil {
 		return status.Errorf(codes.Internal, "failed to build the request: %s", err)
 	}
 
 	resp, err := a.client.http.Do(req)
 	if err != nil {
-		return status.Errorf(codes.Unavailable, "the inventory app is unreachable: %s", err)
+		// *url.Error leads with the verb and URL, which pushes the cause past the UI's 120-character snackbar.
+		cause := err
+		for next := errors.Unwrap(cause); next != nil; next = errors.Unwrap(cause) {
+			cause = next
+		}
+		return status.Errorf(codes.Unavailable, "PMM Extensions is unreachable: %s", cause)
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
-	if resp.StatusCode >= http.StatusBadRequest {
-		return extensionsStatusError(resp)
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		// A refusal may come from a role the cached bearer predates, so the next call exchanges again.
+		refused := resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden
+		if refused && cred.session != "" {
+			a.client.forget(cred.session)
+		}
+		return extensionsStatusError(resp, a.client.token, cred.caller)
 	}
 	if out == nil || resp.StatusCode == http.StatusNoContent {
 		return nil
@@ -194,7 +209,7 @@ func (a extensionsApp) call(ctx context.Context, c inventoryCall, out any) error
 
 // The gateway has no code it renders as 422, so a validation failure reaches the browser as 400;
 // the app's per-field detail is kept in the message.
-func extensionsStatusError(resp *http.Response) error {
+func extensionsStatusError(resp *http.Response, token string, callers bool) error {
 	detail := extensionsErrorDetail(resp)
 	switch resp.StatusCode {
 	case http.StatusNotFound:
@@ -203,11 +218,21 @@ func extensionsStatusError(resp *http.Response) error {
 		return status.Error(codes.Aborted, detail)
 	case http.StatusUnprocessableEntity, http.StatusBadRequest:
 		return status.Error(codes.InvalidArgument, detail)
-	case http.StatusUnauthorized, http.StatusForbidden:
-		// Not passed through: a 401 would tell the browser to re-authenticate with PMM,
-		// when what failed is PMM's own credential for PMM Extensions.
-		return status.Errorf(codes.Internal,
-			"PMM's credential for the inventory app was rejected (%s): %s", resp.Status, detail)
+	// A caller's own 401 or 403 passes through; a rejected shared token is PMM's own fault,
+	// so it must not tell the browser to sign in again.
+	case http.StatusUnauthorized:
+		if callers {
+			return status.Error(codes.Unauthenticated, detail)
+		}
+		if token == "" {
+			return status.Errorf(codes.Internal, "PMM has no token for PMM Extensions, set PMM_EXTENSIONS_TOKEN (%s: %s)", resp.Status, detail)
+		}
+		return status.Errorf(codes.Internal, "PMM's token does not match EXTENSIONS_INTERNAL_TOKEN on PMM Extensions (%s: %s)", resp.Status, detail)
+	case http.StatusForbidden:
+		if callers {
+			return status.Error(codes.PermissionDenied, detail)
+		}
+		return status.Errorf(codes.Internal, "PMM Extensions refused PMM's request (%s): %s", resp.Status, detail)
 	default:
 		return status.Errorf(codes.Internal, "the inventory app answered %s: %s", resp.Status, detail)
 	}

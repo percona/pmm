@@ -52,5 +52,5 @@ Use this to find rarely used indexes that have not yet reached zero but may stil
 
 ## See also
 
-- [MongoDB Unused Indexes advisor check](../../advisors/checks/mongodb-unused-indexes.md)
+- [MongoDB Unused Indexes Advisor check](../../advisors/checks/mongodb-unused-indexes.md)
 - [Connect MongoDB to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md)
