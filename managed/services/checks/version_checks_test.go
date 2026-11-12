@@ -273,7 +273,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check: "postgresql_eol_check",
 			today: today,
 			docs:  [][]map[string]any{pgVersionRows(120022)},
-			want:  []finding{pgEOL("error", "12.22", "12", "2024-11-14")},
+			want:  []finding{pgEOL("error", "12.22", "12", "2024-11-21")},
 		},
 		{
 			name:  "postgresql_eol_check 130023",
@@ -353,6 +353,27 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			docs:         [][]map[string]any{pgVersionRows(130023)},
 			want:         []finding{{Severity: "warning", Summary: "Currently installed version is (13.23)"}},
 			descContains: []string{"newer major version (18.6)", "expired 364 days ago", "security fixes"},
+		},
+		{
+			name:  "postgresql_version_check 190000 not in table",
+			check: "postgresql_version_check",
+			today: today,
+			docs:  [][]map[string]any{pgVersionRows(190000)},
+			want:  []finding{},
+		},
+		{
+			name:  "postgresql_version_check no rows",
+			check: "postgresql_version_check",
+			today: today,
+			docs:  [][]map[string]any{{}},
+			want:  []finding{},
+		},
+		{
+			name:  "postgresql_eol_check no rows",
+			check: "postgresql_eol_check",
+			today: today,
+			docs:  [][]map[string]any{{}},
+			want:  []finding{},
 		},
 		{
 			name:  "mysql_unsupported_version_check 5.6.51",

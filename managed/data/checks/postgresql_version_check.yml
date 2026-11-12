@@ -32,22 +32,22 @@ checks:
 
       # https://www.postgresql.org/support/versioning/
       version_expires = {
-          "9.0": "2015-10-09",
-          "9.1": "2016-10-28",
-          "9.2": "2017-11-10",
-          "9.3": "2018-11-09",
-          "9.4": "2020-02-10",
+          "9.0": "2015-10-08",
+          "9.1": "2016-10-27",
+          "9.2": "2017-11-09",
+          "9.3": "2018-11-08",
+          "9.4": "2020-02-13",
           "9.5": "2021-02-11",
           "9.6": "2021-11-11",
           "10": "2022-11-10",
           "11": "2023-11-09",
-          "12": "2024-11-14",
+          "12": "2024-11-21",
           "13": "2025-11-13",
           "14": "2026-11-12",
           "15": "2027-11-11",
           "16": "2028-11-09",
           "17": "2029-11-08",
-          "18": "2030-11-15",
+          "18": "2030-11-14",
       }
 
       minver = 9
@@ -105,6 +105,14 @@ checks:
                       "labels": {},
                   })
                   return results
+
+               key = str(major)
+               if major < 10:
+                  key = "{}.{}".format(major, int(ver) // 100 % 100)
+
+               # A major version newer than the tables gives no finding.
+               if key not in latest_versions or key not in version_expires:
+                  return []
 
                if major >= 10:
                    current_version = format_version(major, ver)

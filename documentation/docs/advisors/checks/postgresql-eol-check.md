@@ -11,26 +11,26 @@ The check reads the server version from the `server_version_num` setting, looks 
 - An error if the major version has reached EOL.
 - A warning if the major version reaches EOL within the next six months (183 days), up to and including the EOL date itself.
 
-The check uses these EOL dates, based on the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/):
+The check uses these EOL dates from the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/):
 
 | Major version | End of life |
 | :------------ | :---------- |
-| 9.0 | October 9, 2015 |
-| 9.1 | October 28, 2016 |
-| 9.2 | November 10, 2017 |
-| 9.3 | November 9, 2018 |
-| 9.4 | February 10, 2020 |
+| 9.0 | October 8, 2015 |
+| 9.1 | October 27, 2016 |
+| 9.2 | November 9, 2017 |
+| 9.3 | November 8, 2018 |
+| 9.4 | February 13, 2020 |
 | 9.5 | February 11, 2021 |
 | 9.6 | November 11, 2021 |
 | 10 | November 10, 2022 |
 | 11 | November 9, 2023 |
-| 12 | November 14, 2024 |
+| 12 | November 21, 2024 |
 | 13 | November 13, 2025 |
 | 14 | November 12, 2026 |
 | 15 | November 11, 2027 |
 | 16 | November 9, 2028 |
 | 17 | November 8, 2029 |
-| 18 | November 15, 2030 |
+| 18 | November 14, 2030 |
 
 The check doesn't report a major version that isn't in this table, such as a newer one that PMM doesn't know yet.
 
