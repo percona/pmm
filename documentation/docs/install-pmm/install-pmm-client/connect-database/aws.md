@@ -199,7 +199,7 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
 
     ![!](../../../images/PMM_Add_Instance_AWS_RDS_Main_Details.png)
 
-    In **Main details**, enter the **Username** and **Password** of the PMM database user. Leave **Connection timeout** empty to use the default of 2 seconds.
+    In **Main details**, enter the **Username** and **Password** of the PMM database user. Leave **Connection timeout** empty to use the default of 5 seconds.
 
     ![!image](../../../images/PMM_Add_Instance_AWS_RDS_Labels.png)
 

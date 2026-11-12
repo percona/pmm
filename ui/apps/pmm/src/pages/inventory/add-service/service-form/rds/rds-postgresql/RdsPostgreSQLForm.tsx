@@ -8,6 +8,7 @@ import { Labels } from '../../../components/labels';
 import { DatabaseField } from '../../postgresql/database-field';
 import { PostgreSQLOptions } from '../../postgresql/postgresql-options';
 import { ServiceForm } from '../../ServiceForm';
+import { CLOUD_CONNECTION_TIMEOUT } from '../../ServiceForm.constants';
 import { useServiceForm } from '../../ServiceForm.hooks';
 import { InstanceIdField } from '../instance-id-field';
 import { RdsOptions } from '../rds-options';
@@ -38,7 +39,12 @@ export const RdsPostgreSQLForm: FC<RdsServiceFormProps> = ({
       }
       onCancel={onCancel}
     >
-      <ConnectionDetails requiresCredentials withNodes isAddressDisabled>
+      <ConnectionDetails
+        requiresCredentials
+        withNodes
+        isAddressDisabled
+        defaultTimeout={CLOUD_CONNECTION_TIMEOUT}
+      >
         <InstanceIdField />
         <DatabaseField />
       </ConnectionDetails>

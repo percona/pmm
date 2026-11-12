@@ -7,6 +7,7 @@ import { ConnectionDetails } from '../../../components/connection-details';
 import { Labels } from '../../../components/labels';
 import { PostgreSQLOptions } from '../../postgresql/postgresql-options';
 import { ServiceForm } from '../../ServiceForm';
+import { CLOUD_CONNECTION_TIMEOUT } from '../../ServiceForm.constants';
 import { useServiceForm } from '../../ServiceForm.hooks';
 import { AzureOptions } from '../azure-options';
 import type { AzureServiceFormProps } from '../AzureServiceForm.types';
@@ -36,7 +37,11 @@ export const AzurePostgreSQLForm: FC<AzureServiceFormProps> = ({
       }
       onCancel={onCancel}
     >
-      <ConnectionDetails requiresCredentials withNodes />
+      <ConnectionDetails
+        requiresCredentials
+        withNodes
+        defaultTimeout={CLOUD_CONNECTION_TIMEOUT}
+      />
       <Labels withCluster={false} />
       <AdditionalOptions>
         <PostgreSQLOptions cloud={AddServiceType.azure} />

@@ -9,9 +9,6 @@ const { useReadonlySettings } = vi.hoisted(() => ({
 }));
 
 vi.mock('hooks/api/useSettings', () => ({ useReadonlySettings }));
-vi.mock('contexts/user', () => ({
-  useUser: () => ({ user: { isPMMAdmin: true } }),
-}));
 vi.mock('components/page', () => ({
   Page: (({ children }) => <>{children}</>) as FC<PropsWithChildren>,
 }));

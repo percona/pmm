@@ -189,18 +189,19 @@ describe('RdsDiscovery', () => {
     expect(screen.queryByText('No instances found')).not.toBeInTheDocument();
   });
 
+  const rejectDiscovery = (message: string) => {
+    const error = new AxiosError('Request failed with status code 500');
+    error.response = { status: 500, data: { message } } as AxiosResponse;
+    vi.mocked(discoverRDS).mockRejectedValueOnce(error);
+  };
+
   it('explains a discovery without any credentials', async () => {
     renderServiceForm(RdsDiscovery);
     await screen.findByText('rds-mysql');
-    const error = new AxiosError('Request failed with status code 500');
-    error.response = {
-      status: 500,
-      data: {
-        message:
-          'operation error RDS: DescribeDBInstances, failed to retrieve credentials: no EC2 IMDS role found',
-      },
-    } as AxiosResponse;
-    vi.mocked(discoverRDS).mockRejectedValueOnce(error);
+    // The SDK's error when PMM Server has neither keys nor an IAM role.
+    rejectDiscovery(
+      'operation error RDS: DescribeDBInstances, get identity: get credentials: failed to refresh cached credentials, no EC2 IMDS role found, operation error ec2imds: GetMetadata, access disabled to EC2 IMDS via client option, or "AWS_EC2_METADATA_DISABLED" environment variable'
+    );
 
     submit();
 
@@ -209,6 +210,21 @@ describe('RdsDiscovery', () => {
         'No credentials provided and IAM role is not defined',
         { variant: 'error' }
       )
+    );
+  });
+
+  it('shows a refused role assumption as it is', async () => {
+    renderServiceForm(RdsDiscovery);
+    await screen.findByText('rds-mysql');
+    const message = `Failed to assume role ${ROLE_ARN}: failed to refresh cached credentials, denied`;
+    rejectDiscovery(message);
+
+    submit();
+
+    await waitFor(() =>
+      expect(enqueueSnackbar).toHaveBeenCalledWith(message, {
+        variant: 'error',
+      })
     );
   });
 
@@ -268,6 +284,18 @@ describe('RdsDiscovery', () => {
       })
     );
   });
+
+  it.each(['rds-mysql', 'rds-pg'])(
+    "shows PMM Server's 5s cloud default as the %s connection timeout",
+    async (instanceId) => {
+      renderServiceForm(RdsDiscovery);
+      await startMonitoring(instanceId);
+
+      expect(
+        screen.getByTestId('text-input-connection-timeout')
+      ).toHaveAttribute('placeholder', '5s');
+    }
+  );
 
   it('cancels back to the discovered instances without discovering again', async () => {
     renderServiceForm(RdsDiscovery);

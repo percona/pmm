@@ -217,7 +217,7 @@ describe('ServiceForm', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  it('marks the required fields, the password only without TLS', () => {
+  it('marks the required fields, the password unless a client certificate replaces it', async () => {
     renderForm();
 
     for (const testId of [
@@ -235,15 +235,39 @@ describe('ServiceForm', () => {
     turnOnTls();
 
     expect(screen.getByTestId('text-input-username')).toBeRequired();
+    expect(screen.getByTestId('text-input-password')).toBeRequired();
+
+    await screen.findByTestId('text-input-tls-cert');
+    type('text-input-tls-cert', 'CERT');
+
     expect(screen.getByTestId('text-input-password')).not.toBeRequired();
   });
 
-  it('does not ask for a password with TLS on', async () => {
+  it('still asks for a password with TLS on but no client certificate', async () => {
     const onSubmit = renderForm();
 
     type('text-input-address', 'db.example.com');
     type('text-input-username', 'pmm');
     turnOnTls();
+    fireEvent.click(screen.getByTestId('add-service-submit'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('text-input-password')).toHaveAttribute(
+        'aria-invalid',
+        'true'
+      )
+    );
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('does not ask for a password with a client certificate over TLS', async () => {
+    const onSubmit = renderForm();
+
+    type('text-input-address', 'db.example.com');
+    type('text-input-username', 'pmm');
+    turnOnTls();
+    await screen.findByTestId('text-input-tls-cert');
+    type('text-input-tls-cert', 'CERT');
     fireEvent.click(screen.getByTestId('add-service-submit'));
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));

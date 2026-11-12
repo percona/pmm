@@ -1,6 +1,10 @@
 import type { FC } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import type { TlsFormValues } from '../../service-form/ServiceForm.types';
+import { usesClientCertificate } from '../../service-form/ServiceForm.schema';
+import type {
+  TlsCertificatesFormValues,
+  TlsFormValues,
+} from '../../service-form/ServiceForm.types';
 import { PasswordField, TextField } from '../fields';
 import { FieldGrid } from '../field-grid';
 import { FormSection } from '../form-section';
@@ -17,9 +21,12 @@ export const ConnectionDetails: FC<ConnectionDetailsProps> = ({
   defaultTimeout = '2s',
   children,
 }) => {
-  const { control } = useFormContext<TlsFormValues>();
-  const tls = useWatch({ control, name: 'tls' });
-  const passwordRequired = requiresCredentials && !tls;
+  const { control } = useFormContext<
+    TlsFormValues & Partial<TlsCertificatesFormValues>
+  >();
+  const [tls, tlsCert] = useWatch({ control, name: ['tls', 'tlsCert'] });
+  const passwordRequired =
+    requiresCredentials && !usesClientCertificate(tls, tlsCert);
 
   return (
     <FormSection title={Messages.title}>

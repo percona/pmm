@@ -13,6 +13,9 @@ import type {
 
 export const MAX_CONNECTION_TIMEOUT_SECONDS = 3600;
 
+// pmm-managed's default for RDS and Azure nodes (cloudDialTimeout).
+export const CLOUD_CONNECTION_TIMEOUT = '5s';
+
 export const MAX_INT32 = 2 ** 31 - 1;
 
 export const LOCAL_ADDRESSES = ['127.0.0.1', 'localhost'];

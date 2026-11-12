@@ -1,3 +1,5 @@
+import { screen } from '@testing-library/react';
+import { addService } from 'api/services';
 import {
   clickLabel,
   mockAddService,
@@ -39,5 +41,20 @@ describe('ProxySQLForm', () => {
         disableCollectors: ['mysql_connection_pool'],
       })
     );
+  });
+
+  it('still asks for the password with TLS on', async () => {
+    renderServiceForm(ProxySQLForm);
+    await waitForNodePreselect();
+
+    type('text-input-address', 'proxysql.example.com');
+    type('text-input-username', 'admin');
+    clickLabel('Use TLS for database connections');
+
+    expect(screen.getByTestId('text-input-password')).toBeRequired();
+    submit();
+
+    expect(await screen.findByText('Required field')).toBeInTheDocument();
+    expect(addService).not.toHaveBeenCalled();
   });
 });

@@ -6,7 +6,12 @@ import {
 } from './ServiceForm.schema';
 
 const credentialsSchema = z
-  .object({ tls: z.boolean(), username: z.string(), password: z.string() })
+  .object({
+    tls: z.boolean(),
+    tlsCert: z.string().optional(),
+    username: z.string(),
+    password: z.string(),
+  })
   .superRefine(requireCredentials);
 
 const errorPaths = (result: { success: boolean; error?: z.ZodError }) =>
@@ -23,14 +28,40 @@ describe('ServiceForm.schema', () => {
     expect(errorPaths(result)).toEqual(['username', 'password']);
   });
 
-  it('requires only the username with TLS', () => {
+  it.each([undefined, ' '])(
+    'requires the password with TLS but no client certificate (%j)',
+    (tlsCert) => {
+      const result = credentialsSchema.safeParse({
+        tls: true,
+        tlsCert,
+        username: '',
+        password: '',
+      });
+
+      expect(errorPaths(result)).toEqual(['username', 'password']);
+    }
+  );
+
+  it('requires only the username with a client certificate over TLS', () => {
     const result = credentialsSchema.safeParse({
       tls: true,
+      tlsCert: 'CERT',
       username: '',
       password: '',
     });
 
     expect(errorPaths(result)).toEqual(['username']);
+  });
+
+  it('requires the password when TLS is off, whatever the certificate', () => {
+    const result = credentialsSchema.safeParse({
+      tls: false,
+      tlsCert: 'CERT',
+      username: 'pmm',
+      password: '',
+    });
+
+    expect(errorPaths(result)).toEqual(['password']);
   });
 
   it.each([

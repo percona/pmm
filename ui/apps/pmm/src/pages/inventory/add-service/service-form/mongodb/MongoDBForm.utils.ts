@@ -18,8 +18,9 @@ export const toMongoDBPayload = (
       tlsCertificateKey: values.tlsCertificateKey,
       tlsCa: values.tlsCa,
     }),
-    // Without a username, the client certificate is what authenticates.
+    // A client certificate without a username is what authenticates.
     ...(values.tls &&
+      !!values.tlsCertificateKey.trim() &&
       !values.username.trim() && {
         authenticationMechanism: X509_AUTHENTICATION,
       }),

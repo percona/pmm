@@ -66,6 +66,23 @@ describe('MongoDBForm', () => {
     );
   });
 
+  it('connects over TLS without authentication when only a CA is given', async () => {
+    renderServiceForm(MongoDBForm);
+    await waitForNodePreselect();
+
+    type('text-input-address', 'mongo.example.com');
+    clickLabel('Use TLS for database connections');
+    await screen.findByTestId('text-input-tls-ca');
+    type('text-input-tls-ca', 'CA');
+    submit();
+
+    const mongodb = await sentPayload('mongodb');
+    expect(mongodb).toEqual(
+      expect.objectContaining({ tls: true, tlsCa: 'CA', username: '' })
+    );
+    expect(mongodb).not.toHaveProperty('authenticationMechanism');
+  });
+
   it('adds a MongoDB without authentication', async () => {
     renderServiceForm(MongoDBForm);
     await waitForNodePreselect();

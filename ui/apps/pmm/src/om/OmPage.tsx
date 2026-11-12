@@ -22,7 +22,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
-import { useUser } from 'contexts/user';
 import { useReadonlySettings } from 'hooks/api/useSettings';
 import { OrgRole } from 'types/user.types';
 import { Messages } from './OmPage.messages';
@@ -39,10 +38,8 @@ import { Messages } from './OmPage.messages';
  *
  * The PMM-admin restriction is kept, and enforced here rather than left to the
  * sidebar: NavigationProvider only *hides* the entry for non-admins, while the route
- * still matches on direct navigation. The predicate is the nav's own — `isPMMAdmin` is
- * `isGrafanaAdmin || orgRole === Admin`, and `roles` (org-role only) cannot express the
- * Grafana-admin half on its own, so it gates the remaining case and `Page` renders its
- * standard unauthorized card.
+ * still matches on direct navigation. `Page` admits `isPMMAdmin` users, the nav's own
+ * predicate, and renders its standard unauthorized card to the rest.
  *
  * The settings gate is enforced here for the same reason: a saved or shared link to
  * this page has to answer "switched off", not the API's raw FailedPrecondition, and
@@ -54,14 +51,10 @@ import { Messages } from './OmPage.messages';
  * Settings warning, so it has to be there on every visit.
  */
 export const OmPage: FC<PropsWithChildren> = ({ children }) => {
-  const { user } = useUser();
   const { data: settings, isLoading } = useReadonlySettings();
 
   return (
-    <Page
-      maxWidth="full"
-      roles={user?.isPMMAdmin ? undefined : [OrgRole.Admin]}
-    >
+    <Page maxWidth="full" roles={[OrgRole.Admin]}>
       <Stack gap={3} sx={{ flex: 1 }}>
         {isLoading ? (
           <Stack alignItems="center" py={4}>

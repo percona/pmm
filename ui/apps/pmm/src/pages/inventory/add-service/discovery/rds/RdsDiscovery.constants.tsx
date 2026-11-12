@@ -14,8 +14,9 @@ export const RDS_DOC_LINKS = [
   { label: Messages.docs.iamRole, url: DOCS_URLS.rdsIamRole },
 ];
 
-// How the AWS SDK reports that neither keys nor an IAM role give PMM Server credentials.
-export const AWS_NO_CREDENTIALS_ERROR = 'failed to retrieve credentials';
+// How AWS SDK v2 reports that neither keys nor an IAM role give PMM Server credentials. Unlike
+// 'failed to refresh cached credentials', a failed role assumption with valid credentials lacks it.
+export const AWS_NO_CREDENTIALS_ERROR = 'get identity: get credentials:';
 
 const RDS_ENGINE_LABELS: Record<DiscoverRDSEngine, string> = {
   [DiscoverRDSEngine.mysql]: PageMessages.serviceTypes.mysql,

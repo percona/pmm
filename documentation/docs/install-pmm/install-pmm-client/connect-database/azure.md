@@ -155,7 +155,7 @@ You can find more details on how to create DB on Azure at:
 
 In the list of databases, click **Start monitoring** next to the Azure database that you want to add to PMM.
 
-Complete the form and click **Add service**. Leave **Connection timeout** empty to use the default of 2 seconds.
+Complete the form and click **Add service**. Leave **Connection timeout** empty to use the default of 5 seconds.
 
 PMM can use 3 exporters to collect metrics:
 

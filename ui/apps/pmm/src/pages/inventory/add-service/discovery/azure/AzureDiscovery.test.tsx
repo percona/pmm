@@ -104,6 +104,20 @@ describe('AzureDiscovery', () => {
     );
   });
 
+  it("shows PMM Server's 5s cloud default as the connection timeout", async () => {
+    renderServiceForm(AzureDiscovery);
+    discover();
+    fireEvent.click(
+      await screen.findByTestId(`start-monitoring-${MYSQL.instanceId}`)
+    );
+    await waitForNodePreselect();
+
+    expect(screen.getByTestId('text-input-connection-timeout')).toHaveAttribute(
+      'placeholder',
+      '5s'
+    );
+  });
+
   it('shows the discovery credentials again after cancelling', async () => {
     renderServiceForm(AzureDiscovery);
     discover();

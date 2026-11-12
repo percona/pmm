@@ -118,12 +118,21 @@ export const disableCollectorsSchema = z.object({
     .refine(isValidCollectors, validation.collectors),
 });
 
-// The username is always required; with TLS on, a client certificate can replace the password.
+// Over TLS, a client certificate can replace the password; forms without the field never have one.
+export const usesClientCertificate = (tls: boolean, tlsCert?: string) =>
+  tls && !!tlsCert?.trim();
+
+// The username is always required, and so is the password unless a client certificate replaces it.
 export const requireCredentials = (
-  values: { tls: boolean; username: string; password: string },
+  values: {
+    tls: boolean;
+    tlsCert?: string;
+    username: string;
+    password: string;
+  },
   ctx: z.RefinementCtx
 ) => {
-  const fields = values.tls
+  const fields = usesClientCertificate(values.tls, values.tlsCert)
     ? (['username'] as const)
     : (['username', 'password'] as const);
 
