@@ -1,0 +1,168 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Roboto:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+
+  /* Text styles in doc pages */
+
+  .sbdocs a:hover {
+    text-decoration: underline;
+  }
+
+  .sbdocs p:not([class*="Mui"]),
+  .sbdocs li {
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.375;
+  }
+  .sbdocs p:not([class*="Mui"]),
+  .sbdocs ul,
+  .sbdocs ol {
+    margin: calc(16px * 1.375) 0;
+  }
+  /* Docs prose code — MDX copy only; Canvas previews (.docs-story) use MUI CssBaseline */
+  .sbdocs.sbdocs-preview .token {
+    font-family: "Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-weight: 450;
+    font-size: 16px;
+    line-height: 1.375;
+  }
+  /* Live component previews own their typography — keep CodeBlock tokens at the component's size */
+  .sbdocs.sbdocs-preview .docs-story .token {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+  }
+  .sbdocs-content > :is(p, h1, h2, h3, h4, h5, h6) code,
+  .sbdocs-content > :is(ul, ol, table, blockquote) code {
+    font-family: "Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-weight: 450;
+    font-size: 16px;
+    line-height: 1.375;
+    margin: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .sbdocs-content > p code,
+  .sbdocs-content > :is(ul, ol) code {
+    font-weight: 475;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .sbdocs h1:not(.MuiTypography-root),
+  .sbdocs h2:not(.MuiTypography-root),
+  .sbdocs h3:not(.MuiTypography-root),
+  .sbdocs h4:not(.MuiTypography-root) {
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+    margin: 22px 0;
+  }
+  .sbdocs h1:not(.MuiTypography-root) {
+    font-size: 48px;
+    line-height: 1.063;
+    letter-spacing: -0.06rem;
+    margin-top: calc(48px * 1.063);
+  }
+  .sbdocs h2:not(.MuiTypography-root) {
+    font-size: 33px;
+    line-height: 1.063;
+    margin-top: calc(33px * 1.063);
+    padding: 0 0 6px;
+  }
+  .sbdocs h3:not(.MuiTypography-root) {
+    font-size: 23px;
+    line-height: 1.125;
+    margin-top: calc(23px * 1.125);
+  }
+  .sbdocs h4:not(.MuiTypography-root) {
+    font-size: 18px;
+    line-height: 1.25;
+    margin-bottom: 11px;
+  }
+  .sbdocs h2[id^="stories"],
+  .docblock-argstable-body > tr[title] > td {
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1.25;
+    letter-spacing: 0.03rem;
+  }
+  .docblock-argstable-body > tr[title] > td {
+    font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+  }
+  .docblock-argstable-body > tr[title] > td svg {
+    margin-top: -1px;
+  }
+
+  /* Dark mode preview wrapper for color docs */
+
+  .dark-preview,
+  .light-preview {
+    padding: 1rem;
+    border-radius: 13px;
+  }
+
+  .dark-preview + h2,
+  .light-preview + h2 {
+    margin-top: 4rem !important;
+  }
+
+  .dark-preview + h3,
+  .light-preview + h3 {
+    margin-top: 2rem !important;
+  }
+
+  .dark-preview {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .dark-preview,
+  .dark-preview * {
+    color: rgb(246, 245, 245) !important;
+    background: #3D3C3C !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .light-preview {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .light-preview,
+  .light-preview * {
+    background: #FFFFFF !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+  }
+
+  /* Inline story preview in a doc page */
+
+  /* SB10 puts the preview padding on .docs-story; remove it so the gray surface reaches the edges */
+  .sbdocs .docs-story {
+    padding: 0;
+  }
+  /* .docs-story is flex; stretch its child to full width so the gray fills like the canvas */
+  .sbdocs .docs-story > *:first-child {
+    width: 100%;
+  }
+  .sbdocs .docs-story .innerZoomElementWrapper > * {
+    border: none !important;
+  }
+  .sbdocs.sbdocs-preview {
+    box-shadow: none;
+  }
+  .sbdocs .docblock-argstable tbody {
+    filter: none !important;
+  }
+
+  /* Page design */
+
+  .sbdocs.sbdocs-wrapper {
+    padding-top: 0;
+  }
+
+
+</style>

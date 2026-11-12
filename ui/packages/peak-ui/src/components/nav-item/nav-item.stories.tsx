@@ -1,0 +1,196 @@
+import { type Meta, type StoryObj } from '@storybook/react';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import * as DocBlock from '@storybook/addon-docs/blocks';
+import HomeOutlined from '@mui/icons-material/HomeOutlined';
+import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import StorageOutlined from '@mui/icons-material/StorageOutlined';
+import MonitorHeartOutlined from '@mui/icons-material/MonitorHeartOutlined';
+import NavItem from './nav-item';
+
+const meta: Meta<typeof NavItem> = {
+  title: 'Navigation/Navigation Item',
+  component: NavItem,
+  tags: ['autodocs', 'stable'],
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'A navigation list item. Extends `ListItemButtonProps` — all standard MUI props like `sx`, `onClick`, `disabled`, and `href` are also available.',
+      },
+      page: () => (
+        <>
+          <DocBlock.Title />
+          <DocBlock.Subtitle />
+          <DocBlock.Description />
+          <DocBlock.Primary />
+          <DocBlock.Controls />
+          <DocBlock.Stories />
+        </>
+      ),
+    },
+  },
+  args: {
+    text: 'Overview',
+    selected: false,
+    showDot: false,
+    dotColor: 'warning',
+  },
+  argTypes: {
+    // Content
+    text: {
+      control: 'text',
+      table: { category: 'Content' },
+    },
+    secondaryText: {
+      control: 'text',
+      table: { category: 'Content' },
+    },
+    icon: {
+      control: false,
+      table: { category: 'Content' },
+    },
+    badge: {
+      control: false,
+      table: { category: 'Content' },
+    },
+
+    // State
+    selected: {
+      control: 'boolean',
+      description:
+        'Highlights the item as the current page and tells assistive technology so with `aria-current="page"`. Pass `aria-current` to override it, e.g. `"true"` on a group that stands in for a hidden current page.',
+      table: { category: 'State', defaultValue: { summary: 'false' } },
+    },
+    hasSelectedChild: {
+      control: 'boolean',
+      table: { category: 'State', defaultValue: { summary: 'false' } },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Dims the item and prevents interaction.',
+      table: { category: 'State', defaultValue: { summary: 'false' } },
+    },
+
+    // Dot
+    showDot: {
+      control: 'boolean',
+      table: { category: 'Dot indicator', defaultValue: { summary: 'false' } },
+    },
+    dotColor: {
+      control: 'radio',
+      options: ['success', 'info', 'warning', 'error'],
+      table: { category: 'Dot indicator' },
+    },
+
+    // Advanced
+    component: {
+      control: false,
+      table: { category: 'Advanced' },
+    },
+    sx: {
+      control: false,
+      description: 'MUI System prop for style overrides. Accepts an `SxProps` object or array.',
+      table: { category: 'Advanced' },
+    },
+  },
+  decorators: [
+    (Story) => (
+      <Box sx={{ width: 320 }}>
+        <Story />
+      </Box>
+    ),
+  ],
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Playground: Story = {
+  args: {
+    text: 'Overview',
+    icon: <HomeOutlined />,
+  },
+};
+
+export const WithBadge: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The `badge` slot accepts any ReactNode. Here a Chip is used, but it could be an icon, counter, or any custom indicator.',
+      },
+    },
+  },
+  args: {
+    text: 'Advisors',
+    icon: <MonitorHeartOutlined />,
+    badge: <Chip size="small" color="success" variant="outlined" label="New feature" />,
+  },
+};
+
+export const WithoutIcon: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'When no `icon` is provided, the text aligns to the start. Useful for sub-items or text-only navigation.',
+      },
+    },
+  },
+  args: {
+    text: 'Query Analytics',
+  },
+};
+
+export const GroupWithSelectedChild: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'When the current page is nested in a group, the nested item is `selected` and the group gets `hasSelectedChild`: it shows where the user is without a second selected background. Once the group is collapsed and the nested item is hidden, give the group `selected` instead.',
+      },
+    },
+  },
+  render: function Render() {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <NavItem text="Inventory" icon={<StorageOutlined />} hasSelectedChild />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, pl: 4.75 }}>
+          <NavItem text="Services" selected />
+          <NavItem text="Nodes" />
+        </Box>
+      </Box>
+    );
+  },
+};
+
+export const AllStates: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'A quick displau of all variants stacked for quick comparison.',
+      },
+    },
+  },
+  render: function Render() {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <NavItem text="Overview" icon={<HomeOutlined />} />
+        <NavItem text="Dashboard" selected />
+        <NavItem
+          text="Services"
+          secondaryText="12 active / 2 disabled"
+          icon={<StorageOutlined />}
+        />
+        <NavItem
+          text="Advisors"
+          icon={<MonitorHeartOutlined />}
+          badge={<Chip size="small" color="info" variant="outlined" label="New" />}
+        />
+        <NavItem text="Settings" icon={<SettingsOutlined />} showDot dotColor="error" />
+      </Box>
+    );
+  },
+};
