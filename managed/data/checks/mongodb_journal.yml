@@ -10,13 +10,21 @@ checks:
     category: Durability
     queries:
       - type: MONGODB_GETCMDLINEOPTS
+      - type: MONGODB_BUILDINFO
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(docs, context):
           """
-          This check returns warnings if MongoDB journal is disabled.
+          This check returns warnings if MongoDB journal is explicitly disabled.
+          MongoDB 7.0 and later always journal, so they are skipped.
           """
+
+          parse_version = context.get("parse_version", fail)
+
+          build_info = docs[1]
+          if len(build_info) == 1 and parse_version(build_info[0]["version"])["major"] >= 7:
+              return []
 
           rows = docs[0]
           if len(rows) != 1:
@@ -24,11 +32,11 @@ checks:
 
           results = []
           parsed = rows[0]["parsed"]
-          print(repr(parsed))
-          storage_journal = parsed.get("storage.journal", {})
-          journal_enabled = (storage_journal.get("enabled") == "true")
+          # getCmdLineOpts returns nested documents; accept the dotted key too
+          storage_journal = parsed.get("storage", {}).get("journal", parsed.get("storage.journal", {}))
+          journal_disabled = (str(storage_journal.get("enabled")).lower() == "false")
 
-          if not journal_enabled:
+          if journal_disabled:
               results.append({
                   "summary": "MongoDB journaling is disabled",
                   "description": "Journaling should not be disabled on production systems. This presents a risk to data durability in the event of a failure. See the following for further details.",

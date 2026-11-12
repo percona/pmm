@@ -14,7 +14,7 @@ checks:
 
       def check_context(docs, context):
           """
-          This check returns warnings if MongoDB authentication is disabled.
+          This check returns warnings if MongoDB is explicitly set to a non-default log level.
           """
 
           rows = docs[0]
@@ -24,10 +24,13 @@ checks:
           results = []
           parsed = rows[0]["parsed"]
           setParameter = parsed.get("setParameter", {})
-          logLevel = setParameter.get("logLevel") != "0"
-          print(logLevel)
+          verbosity = parsed.get("systemLog", {}).get("verbosity")
+          non_default = False
+          for level in [setParameter.get("logLevel"), verbosity]:
+              if level != None and str(level) != "0":
+                  non_default = True
 
-          if logLevel:
+          if non_default:
               results.append({
                   "summary": "MongoDB is not using the default log level.",
                   "description": "To avoid high disk usage, see the following to set it to default",

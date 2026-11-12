@@ -174,8 +174,13 @@ func pgVersionRows(serverVersionNum int) []map[string]any {
 }
 
 func promVector(labels map[string]string, value string) []map[string]any {
+	metric := make(map[string]any, len(labels))
+	for k, v := range labels {
+		metric[k] = v
+	}
+
 	return []map[string]any{{
-		"metric": labels,
+		"metric": metric,
 		"value":  []any{float64(1762948800), value},
 	}}
 }
@@ -775,6 +780,113 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today: today,
 			docs:  [][]map[string]any{{}},
 			want:  []finding{},
+		},
+		{
+			name:  "mongodb_multiple_services two pids without cluster label",
+			check: "mongodb_multiple_services",
+			today: today,
+			docs: [][]map[string]any{append(
+				promVector(map[string]string{"node_name": "n1", "rs_nm": "rs"}, "101"),
+				promVector(map[string]string{"node_name": "n1", "rs_nm": "rs2"}, "202")...)},
+			want: []finding{{Severity: "warning", Summary: "MongoDB - multiple mongod services running"}},
+		},
+		{
+			name:  "mongodb_swap_allocation no swap metric",
+			check: "mongodb_swap_allocation",
+			today: today,
+			docs:  [][]map[string]any{promVector(map[string]string{"node_name": "n1"}, "8"), {}, {}},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_swap_allocation standalone without swap",
+			check: "mongodb_swap_allocation",
+			today: today,
+			docs:  [][]map[string]any{promVector(map[string]string{"node_name": "n1"}, "8"), promVector(map[string]string{"node_name": "n1"}, "0"), {}},
+			want:  []finding{{Severity: "warning", Summary: "Need to allocate swap memory and set vm.swappiness."}},
+		},
+		{
+			name:  "mongodb_swap_allocation arbiter without swap",
+			check: "mongodb_swap_allocation",
+			today: today,
+			docs:  [][]map[string]any{promVector(map[string]string{"node_name": "n1"}, "8"), promVector(map[string]string{"node_name": "n1"}, "0"), promVector(map[string]string{"node_name": "n1"}, "7")},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_swap_allocation all empty",
+			check: "mongodb_swap_allocation",
+			today: today,
+			docs:  [][]map[string]any{{}, {}, {}},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_journal no options 8.0.4",
+			check: "mongodb_journal",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{}), mongoBuildInfo("8.0.4")},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_journal no options 6.0.19",
+			check: "mongodb_journal",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{}), mongoBuildInfo("6.0.19")},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_journal nested disabled 6.0.19",
+			check: "mongodb_journal",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"storage": map[string]any{"journal": map[string]any{"enabled": "false"}}}), mongoBuildInfo("6.0.19")},
+			want:  []finding{{Severity: "warning", Summary: "MongoDB journaling is disabled"}},
+		},
+		{
+			name:  "mongodb_journal dotted disabled 6.0.19",
+			check: "mongodb_journal",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"storage.journal": map[string]any{"enabled": "false"}}), mongoBuildInfo("6.0.19")},
+			want:  []finding{{Severity: "warning", Summary: "MongoDB journaling is disabled"}},
+		},
+		{
+			name:  "mongodb_journal nested disabled 8.0.4",
+			check: "mongodb_journal",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"storage": map[string]any{"journal": map[string]any{"enabled": "false"}}}), mongoBuildInfo("8.0.4")},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_journal nested disabled without buildInfo",
+			check: "mongodb_journal",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"storage": map[string]any{"journal": map[string]any{"enabled": "false"}}}), {}},
+			want:  []finding{{Severity: "warning", Summary: "MongoDB journaling is disabled"}},
+		},
+		{
+			name:  "mongodb_loglevel no options",
+			check: "mongodb_loglevel",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{})},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_loglevel logLevel 0",
+			check: "mongodb_loglevel",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"setParameter": map[string]any{"logLevel": "0"}})},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_loglevel logLevel 2",
+			check: "mongodb_loglevel",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"setParameter": map[string]any{"logLevel": "2"}})},
+			want:  []finding{{Severity: "warning", Summary: "MongoDB is not using the default log level."}},
+		},
+		{
+			name:  "mongodb_loglevel systemLog verbosity 1",
+			check: "mongodb_loglevel",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"systemLog": map[string]any{"verbosity": int64(1)}})},
+			want:  []finding{{Severity: "warning", Summary: "MongoDB is not using the default log level."}},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

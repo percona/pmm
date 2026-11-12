@@ -1,7 +1,7 @@
 # MongoDB journal enabled
 
 ## Description
-This advisor warns if the journal is not enabled. 
+This advisor warns if the journal is explicitly disabled (`storage.journal.enabled: false`) on MongoDB versions before 7.0. A `mongod` that does not set the option is not reported, and MongoDB 7.0 and later are never reported because they always journal.
 Disabled journal is dangerous because you could have a serious issue for data durability in case of a failure.
 
 For Production systems, enable journal to ensure that data files are valid/recoverable.
@@ -14,8 +14,8 @@ For more information, see the [Journaling section](https://docs.mongodb.com/manu
 
 ## Rule
 ```
- storage_journal = parsed.get("storage.journal", {})
- journal_enabled = (storage_journal.get("enabled") == "true")
+ storage_journal = parsed.get("storage", {}).get("journal", parsed.get("storage.journal", {}))
+ journal_disabled = (str(storage_journal.get("enabled")).lower() == "false")
 ```
 
 ## Resolution

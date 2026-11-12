@@ -3,6 +3,8 @@
 ## Description
 This check warns if there is no swap memory allocated to your instance.
 
+The check is skipped when swap or memory metrics are not available, for example for a remote service whose node has no `node_exporter`. It also skips replica set arbiters; a standalone `mongod`, which has no replica set state, is checked.
+
 ## Resolution
 
 MongoDB performs best if swapping can be avoided or kept to a minimum since retrieving data from swap on disk will always be slower than accessing data in RAM. However, if the system hosting MongoDB runs out of RAM, swapping can prevent the Linux OOM (Out of memory) Killer from terminating the mongod process.

@@ -2,7 +2,7 @@
 
 ## Description
 
-This advisor warns if the verbosity level of MongoDB logs is higher than the default value. 
+This advisor warns if the verbosity level of MongoDB logs is higher than the default value. It reports only a non-zero level that is set explicitly, in `setParameter.logLevel` or `systemLog.verbosity`; a `mongod` that does not set one is not reported.
 
 The verbosity level is controlled by the `logLevel` parameter. Its value is an integer between 0 and 5, where `0` is the default log level (Informational) and `5` is the most verbose level. 
 

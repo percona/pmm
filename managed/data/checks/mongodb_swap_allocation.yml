@@ -20,20 +20,28 @@ checks:
       def check_context(docs, context):
           results = []
 
+          mem_alloc_GB = None
+          swap_alloc_GB = None
+          state = None
+
           for type in docs[0]:
-              mem_alloc = float(type["value"][1])
-              mem_alloc_GB = int(mem_alloc)
+              mem_alloc_GB = int(float(type["value"][1]))
 
           for swap in docs[1]:
-              swap_alloc_GB = int(swap["value"][1])
+              swap_alloc_GB = int(float(swap["value"][1]))
 
           for row in docs[2]:
-              state = int(row["value"][1])
+              state = int(float(row["value"][1]))
+
+          # no node_exporter on the node (remote service): swap is unknown
+          if mem_alloc_GB == None or swap_alloc_GB == None:
+              return results
 
           if swap_alloc_GB != 0:
               return results
 
-          if swap_alloc_GB == 0 and state == 7:
+          # arbiters hold no data; a standalone has no replica set state
+          if state == 7:
               return results
 
           if mem_alloc_GB <= 16 and swap_alloc_GB == 0 and state != 7:
