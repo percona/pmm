@@ -320,7 +320,7 @@ func TestIPIsPrivate(t *testing.T) {
 func fixNow(t *testing.T) {
 	t.Helper()
 
-	fixed, err := time.Parse(time.RFC3339, "2026-11-12T23:30:00+02:00")
+	fixed, err := time.Parse(time.RFC3339, "2026-11-13T01:30:00+02:00")
 	require.NoError(t, err)
 
 	orig := now
