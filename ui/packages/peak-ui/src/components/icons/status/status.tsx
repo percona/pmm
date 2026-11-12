@@ -1,5 +1,4 @@
-import { useTheme } from '@mui/material';
-import { SvgIcon } from '@mui/material';
+import { useTheme, SvgIcon } from '@mui/material';
 import { IconsProps, StatusIconProps, StatusIconProviderProps } from './status.types';
 
 const StatusIconProvider = ({

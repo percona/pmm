@@ -1,11 +1,9 @@
 import { forwardRef } from 'react';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon, { listItemIconClasses } from '@mui/material/ListItemIcon';
+import ListItemText, { listItemTextClasses } from '@mui/material/ListItemText';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
-import { listItemIconClasses } from '@mui/material/ListItemIcon';
-import { listItemTextClasses } from '@mui/material/ListItemText';
 import type { NavItemProps } from './nav-item.types';
 
 // Row the 24px icon occupies; the label and trailing slot centre on it.

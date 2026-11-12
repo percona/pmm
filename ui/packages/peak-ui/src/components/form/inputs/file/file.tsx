@@ -1,7 +1,5 @@
-import { IconButton } from '@mui/material';
-import { TextField } from '@mui/material';
+import { IconButton, TextField, TextFieldProps } from '@mui/material';
 import { Upgrade as UpgradeIcon } from '@mui/icons-material';
-import { TextFieldProps } from '@mui/material';
 import {
   Control,
   Controller,
