@@ -125,7 +125,7 @@ Shows the five collections with the highest write rates, in operations per secon
 
 ### Operations Per Shard
 
-Shows client commands per second for each shard: find, insert, update, and delete. The value always equals **Reads Per Shard** plus **Writes Per Shard**. Config servers are not included. Use this to see how load is distributed across shards and whether any shard is taking a disproportionate share of the work.
+Shows client commands per second for each shard: find, insert, update, and delete. The value always equals **Reads Per Shard** plus **Writes Per Shard**, and doesn't include config servers. Use this to see how load is distributed across shards and whether any shard is taking a disproportionate share of the work.
 
 The **Shard / Replica Set** filter at the top narrows all per-shard panels to the shards that you select. To open the **MongoDB ReplSet Summary** dashboard for a shard, click a point on its line in any per-shard panel.
 
@@ -141,11 +141,15 @@ Shows write operations per second for each shard, counted as `insert`, `update`,
 
 ### Documents Scanned Per Shard
 
-Shows the documents examined per second on each shard by queries, updates, and deletes. A shard that scans far more documents than the other shards often has a missing index or a hot key range.
+Shows the documents examined per second on each shard by queries, updates, and deletes. Use this to find a shard that scans far more documents than the others, which often means a missing index or a hot key range.
 
 ### Query Targeting Per Shard
 
-Shows the number of documents scanned for each document returned. A value of 1 is ideal. A value in the hundreds or more means that operations read many documents that they don't return, usually because of a missing or weak index. Updates and deletes count too, so write-heavy shards show higher values. MongoDB Ops Manager calls this metric Query Targeting.
+Shows the number of documents scanned on each shard for each document returned. Use this to find a shard whose operations read many documents that they don't return.
+
+A value of `1` is ideal. A value of `100` or more usually means a missing or weak index. Updates and deletes count too, so write-heavy shards show higher values.
+
+To fix a high value, check the common causes and fixes for MongoDB Ops Manager's [Query Targeting alert](https://www.mongodb.com/docs/ops-manager/current/reference/alerts/query-targeting/), which uses the same ratio.
 
 ### MongoDB Versions
 

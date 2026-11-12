@@ -13,6 +13,16 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✨ Release highlights
 
+### Spot the hot shard in your MongoDB cluster
+
+If one shard of your sharded MongoDB cluster takes most of the reads or writes, you can now see which one. Until now, the **MongoDB Sharded Cluster Summary** dashboard showed read and write traffic only for the whole cluster, so an uneven load stayed hidden.
+
+New panels on the dashboard show reads, writes, documents scanned and query targeting for each shard, so you can tell a busy shard from one that's missing an index. To look into a shard, click its line to open its **MongoDB ReplSet Summary** dashboard.
+
+![Reads Per Shard and Writes Per Shard panels, with one shard taking most of the writes](../images/MongoDB_Cluster_Summary_per_shard.png)
+
+[Find your hot shards](../reference/dashboards/dashboard-mongodb-cluster-summary.md#reads-per-shard) to get started.
+
 ## 🔒 Security updates
 
 ## 📈 Improvements
@@ -22,7 +32,7 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 - [PMM-15699](https://perconadev.atlassian.net/browse/PMM-15699): **MongoDB > Operations** now calls PMM Extensions as the signed-in user, so PMM Extensions applies that user's role and records configuration changes under their name. API requests for nodes, scans, installs and settings must authenticate with a service account token or a PMM session. A request with a username and password gets `401 Unauthenticated`. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15825](https://perconadev.atlassian.net/browse/PMM-15825): Every signed-in PMM user can now open **MongoDB > Operations**. Viewers and Editors see every page except the install form. They can't scan nodes, start or abort installs, remove node entries, or change settings: those controls are disabled or hidden for them. Starting a scan now requires the Admin role, as installs already did. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15846](https://perconadev.atlassian.net/browse/PMM-15846): The execution history of PMM Extensions apps, such as **MySQL Backups**, now shows a warning icon beside the status of a finished run whose logs were partly or wholly lost before PMM could store them, so you can spot it without opening the run. Hover over or tab to the icon for details. For more on task logs, see [Monitor backups](../apps/mysql-backup.md#monitor-backups).
-- [PMM-15036](https://perconadev.atlassian.net/browse/PMM-15036): The [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard now shows read and write load for each shard. Four new panels, **Reads Per Shard**, **Writes Per Shard**, **Documents Scanned Per Shard** and **Query Targeting Per Shard**, help you find a hot shard or an uneven load. The **Replica Set** filter is now named **Shard / Replica Set**, and each per-shard panel links to the **MongoDB ReplSet Summary** dashboard for the shard that you click.
+- [PMM-15036](https://perconadev.atlassian.net/browse/PMM-15036): Added **Reads Per Shard**, **Writes Per Shard**, **Documents Scanned Per Shard** and **Query Targeting Per Shard** to the [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard. **Operations Per Shard** now counts only client `find`, `insert`, `update` and `delete` commands, so its values differ from earlier releases. The **Replica Set** filter is now named **Shard / Replica Set**.
 
 ## ✅ Fixed issues
 
