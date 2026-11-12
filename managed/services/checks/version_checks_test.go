@@ -786,8 +786,17 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check: "mongodb_multiple_services",
 			today: today,
 			docs: [][]map[string]any{append(
-				promVector(map[string]string{"node_name": "n1", "rs_nm": "rs"}, "101"),
-				promVector(map[string]string{"node_name": "n1", "rs_nm": "rs2"}, "202")...)},
+				promVector(map[string]string{"node_name": "n1", "service_name": "s1", "rs_nm": "rs"}, "101"),
+				promVector(map[string]string{"node_name": "n1", "service_name": "s2", "rs_nm": "rs2"}, "202")...)},
+			want: []finding{{Severity: "warning", Summary: "MongoDB - multiple mongod services running"}},
+		},
+		{
+			name:  "mongodb_multiple_services two standalones on one node",
+			check: "mongodb_multiple_services",
+			today: today,
+			docs: [][]map[string]any{append(
+				promVector(map[string]string{"node_name": "n1", "service_name": "s1", "rs_nm": ""}, "101"),
+				promVector(map[string]string{"node_name": "n1", "service_name": "s2", "rs_nm": ""}, "202")...)},
 			want: []finding{{Severity: "warning", Summary: "MongoDB - multiple mongod services running"}},
 		},
 		{

@@ -9,7 +9,7 @@ checks:
     # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT
-        query: avg by(node_name,rs_nm) (mongodb_ss_pid{node_name=~"{{.NodeName}}"})
+        query: max by(node_name, service_name) (mongodb_ss_pid{node_name=~"{{.NodeName}}"})
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
@@ -20,7 +20,7 @@ checks:
 
           for row in docs[0]:
               node = row["metric"]["node_name"]
-              pid = int(row["value"][1])
+              pid = int(float(row["value"][1]))
               if pid:
                   mongo_cnt = int(mongo_cnt) + 1
                   pids.append(pid)
