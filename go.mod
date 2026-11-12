@@ -73,7 +73,7 @@ require (
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/crypto v0.58.0
-	golang.org/x/sync v0.24.0
+	golang.org/x/sync v0.25.0
 	golang.org/x/sys v0.50.0
 	golang.org/x/text v0.43.0
 	golang.org/x/tools v0.52.0
@@ -81,6 +81,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20261019180522-ce908d29299b
 	google.golang.org/grpc v1.85.0
 	google.golang.org/protobuf v1.36.12
+	gopkg.in/mail.v2 v2.3.1
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
@@ -339,6 +340,7 @@ require (
 	golang.org/x/term v0.47.0 // indirect
 	google.golang.org/appengine v1.6.8-0.20221117013220-504804fb50de // indirect
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.0 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/ini.v1 v1.67.3 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
