@@ -133,8 +133,10 @@ func (a extensionsApp) request(ctx context.Context, bearer, method, path string,
 	return req, nil
 }
 
-func (a extensionsApp) setEnabled(ctx context.Context, enabled bool) error {
-	return a.call(ctx, inventoryCall{method: http.MethodPut, path: "enabled", body: map[string]bool{"enabled": enabled}}, nil)
+// setEnabled writes om_inventory's ENABLED flag, with scan asking the app for a sweep.
+func (a extensionsApp) setEnabled(ctx context.Context, enabled, scan bool) error {
+	body := map[string]bool{"enabled": enabled, "scan": scan}
+	return a.call(ctx, inventoryCall{method: http.MethodPut, path: "enabled", body: body}, nil)
 }
 
 // readEnabled reads om_inventory's ENABLED flag as its configuration reports it.

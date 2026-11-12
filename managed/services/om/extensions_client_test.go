@@ -62,7 +62,7 @@ func TestSEPClientRefusesRedirects(t *testing.T) {
 
 	svc := (&Service{l: logrus.WithField("test", t.Name())}).WithProbeSource(redirecting.URL, "test-token")
 
-	err := svc.probe.app.setEnabled(asService(t.Context()), true)
+	err := svc.probe.app.setEnabled(asService(t.Context()), true, false)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "answered 307")
@@ -87,7 +87,7 @@ func TestSEPClientTransportErrorIsNotDoublePrefixed(t *testing.T) {
 	svc := stub.service(t)
 	stub.server.Close()
 
-	err := svc.probe.app.setEnabled(asService(t.Context()), true)
+	err := svc.probe.app.setEnabled(asService(t.Context()), true, false)
 
 	require.Error(t, err)
 	assert.Equal(t, "PMM Extensions is unreachable: connection refused", status.Convert(err).Message())

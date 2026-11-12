@@ -244,7 +244,7 @@ func TestRunSyncsInventoryEnabledOnStartup(t *testing.T) {
 	require.NotEmpty(t, stub.calls, "Run must sync PMM Extensions' ENABLED flag before ever reaching the ticker loop")
 	assert.Equal(t, http.MethodPut, stub.calls[0].method)
 	assert.Equal(t, "/api/apps/om_inventory/enabled", stub.calls[0].path)
-	assert.JSONEq(t, `{"enabled": true}`, stub.calls[0].body)
+	assert.JSONEq(t, `{"enabled": true, "scan": true}`, stub.calls[0].body)
 }
 
 // switchStub is PMM Extensions holding om_inventory's ENABLED flag: it counts reads of it, failing them while
@@ -271,13 +271,9 @@ func (e *switchStub) awaitReads(t *testing.T, n int32) {
 	require.Eventually(t, func() bool { return e.reads.Load() >= target }, 10*time.Second, 5*time.Millisecond)
 }
 
-// runWithSwitchStub runs Run, with OM enabled, against stub until the returned stop is called.
-func runWithSwitchStub(t *testing.T, stub *switchStub) (*Service, func()) {
+// switchService returns a service syncing the switch saved in db to stub.
+func switchService(t *testing.T, stub *switchStub, db *reform.DB) *Service {
 	t.Helper()
-
-	db := serviceTestDB(t)
-	_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{EnableOM: new(true)})
-	require.NoError(t, err)
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -318,7 +314,18 @@ func runWithSwitchStub(t *testing.T, stub *switchStub) (*Service, func()) {
 	svc.db = db
 	svc.vmClient = &recordingVM{}
 	svc.tick = 20 * time.Millisecond
+	return svc
+}
 
+// runWithSwitchStub runs Run, with OM enabled, against stub until the returned stop is called.
+func runWithSwitchStub(t *testing.T, stub *switchStub) (*Service, func()) {
+	t.Helper()
+
+	db := serviceTestDB(t)
+	_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{EnableOM: new(true)})
+	require.NoError(t, err)
+
+	svc := switchService(t, stub, db)
 	ctx, cancel := context.WithCancel(t.Context())
 	var wg sync.WaitGroup
 	wg.Go(func() { svc.Run(ctx) })
@@ -331,7 +338,7 @@ func runWithSwitchStub(t *testing.T, stub *switchStub) (*Service, func()) {
 }
 
 // TestRunRetriesTheStartupWriteUntilItLands covers PMM Extensions not answering yet at startup while it still holds
-// ENABLED from before: the matching value must not stand in for the write that starts the restart sweep.
+// ENABLED from before: the matching value must not stand in for the write that asks for the restart sweep.
 func TestRunRetriesTheStartupWriteUntilItLands(t *testing.T) {
 	stub := &switchStub{}
 	stub.enabled.Store(true)
@@ -346,11 +353,11 @@ func TestRunRetriesTheStartupWriteUntilItLands(t *testing.T) {
 	bodies := stub.bodies()
 	assert.Len(t, bodies, 2, "once the startup write lands, a matching ENABLED must not be written again")
 	for i, body := range bodies {
-		assert.JSONEq(t, `{"enabled": true}`, body, "PUT %d carried the wrong state", i)
+		assert.JSONEq(t, `{"enabled": true, "scan": true}`, body, "PUT %d carried the wrong state", i)
 	}
 }
 
-// TestRunRewritesAMatchingSwitchOnlyAtStartup covers a restart: the startup write is what starts the app's sweep,
+// TestRunRewritesAMatchingSwitchOnlyAtStartup covers a restart: the startup write is what asks for the app's sweep,
 // and a tick must not repeat it while ENABLED already matches.
 func TestRunRewritesAMatchingSwitchOnlyAtStartup(t *testing.T) {
 	stub := &switchStub{}
@@ -383,12 +390,12 @@ func TestRunRetriesAFailedSwitchChange(t *testing.T) {
 	stop()
 
 	bodies := stub.bodies()
-	assert.JSONEq(t, `{"enabled": false}`, bodies[1], "the switch change must write the switch as saved")
-	assert.JSONEq(t, `{"enabled": false}`, bodies[len(bodies)-1])
+	assert.JSONEq(t, `{"enabled": false, "scan": false}`, bodies[1], "the switch change must write the switch as saved")
+	assert.JSONEq(t, `{"enabled": false, "scan": false}`, bodies[len(bodies)-1])
 }
 
 // TestRunCorrectsASwitchChangedElsewhere covers ENABLED moving without this process writing it, as when another HA
-// node's write failed or went stale, or PMM Extensions lost its settings.
+// node's write failed or went stale, or PMM Extensions lost its settings, and its correction asks for no sweep.
 func TestRunCorrectsASwitchChangedElsewhere(t *testing.T) {
 	stub := &switchStub{}
 	stub.enabled.Store(true)
@@ -400,6 +407,48 @@ func TestRunCorrectsASwitchChangedElsewhere(t *testing.T) {
 	require.Eventually(t, func() bool { return len(stub.bodies()) == 2 && stub.enabled.Load() }, 10*time.Second,
 		5*time.Millisecond, "a tick must restore ENABLED to PMM's switch")
 	stop()
+
+	assert.JSONEq(t, `{"enabled": true, "scan": false}`, stub.bodies()[1])
+}
+
+// TestASwitchOnThatLandsSettlesAFailedStartupWrite covers a startup write that failed before an admin turned
+// Operations on: the switch-on write asks for the sweep, so the next tick must neither rewrite ENABLED nor ask again.
+func TestASwitchOnThatLandsSettlesAFailedStartupWrite(t *testing.T) {
+	t.Parallel()
+
+	stub := &switchStub{}
+	stub.refusals.Store(1)
+	svc := switchService(t, stub, switchDB(t, false, true, true))
+
+	svc.syncSwitch(t.Context(), true)
+	svc.SyncInventoryEnabled(t.Context())
+	svc.syncSwitch(t.Context(), false)
+
+	bodies := stub.bodies()
+	require.Len(t, bodies, 2)
+	assert.JSONEq(t, `{"enabled": false, "scan": false}`, bodies[0])
+	assert.JSONEq(t, `{"enabled": true, "scan": true}`, bodies[1])
+	assert.Equal(t, int32(1), stub.reads.Load(), "the tick must compare rather than force another write")
+}
+
+// TestATickRetriesARefusedSwitchOnWithItsSweep covers a switch-on write PMM Extensions refused: the tick that retries
+// it must ask for the sweep the switch-on would have started.
+func TestATickRetriesARefusedSwitchOnWithItsSweep(t *testing.T) {
+	t.Parallel()
+
+	stub := &switchStub{}
+	stub.refusals.Store(1)
+	svc := switchService(t, stub, switchDB(t, true, true))
+
+	svc.SyncInventoryEnabled(t.Context())
+	svc.syncSwitch(t.Context(), false)
+
+	bodies := stub.bodies()
+	require.Len(t, bodies, 2)
+	for i, body := range bodies {
+		assert.JSONEq(t, `{"enabled": true, "scan": true}`, body, "PUT %d carried the wrong state", i)
+	}
+	assert.Zero(t, stub.reads.Load(), "an owed write must not wait on a comparison")
 }
 
 // TestRunWritesNothingWhileTheAppCannotBeRead covers PMM Extensions answering writes but not reads: a tick that
@@ -422,22 +471,27 @@ func TestRunWritesNothingWhileTheAppCannotBeRead(t *testing.T) {
 	stop()
 }
 
-// switchDB is a settings table holding PMM's OpenManager switch, for a test that only reads it.
-func switchDB(t *testing.T, enabled bool) *reform.DB {
+// switchDB is a settings table whose OpenManager switch reads as each of enabled in turn, for a test that only reads it.
+func switchDB(t *testing.T, enabled ...bool) *reform.DB {
 	t.Helper()
 
 	sqlDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
-	t.Cleanup(func() { _ = sqlDB.Close() })
-	mock.ExpectQuery("SELECT settings FROM settings").
-		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(fmt.Sprintf(`{"om": {"enabled": %t}}`, enabled)))
+	t.Cleanup(func() {
+		assert.NoError(t, mock.ExpectationsWereMet(), "every saved switch value must be read")
+		_ = sqlDB.Close()
+	})
+	for _, e := range enabled {
+		mock.ExpectQuery("SELECT settings FROM settings").
+			WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(fmt.Sprintf(`{"om": {"enabled": %t}}`, e)))
+	}
 	return reform.NewDB(sqlDB, postgresql.Dialect, nil)
 }
 
-func TestSwitchingOnLeavesTheSweepToTheApp(t *testing.T) {
+func TestSwitchingOnAsksForASweep(t *testing.T) {
 	t.Parallel()
 
-	// Only the app knows whether automatic scans are off, so it decides whether a sweep follows.
+	// Only the app knows whether automatic scans are off, so it decides whether the sweep asked for runs.
 	stub := newSEPStub(t, http.StatusOK, `{}`)
 	svc := stub.service(t)
 	svc.db = switchDB(t, true)
@@ -447,14 +501,14 @@ func TestSwitchingOnLeavesTheSweepToTheApp(t *testing.T) {
 	require.Len(t, stub.calls, 1)
 	assert.Equal(t, http.MethodPut, stub.calls[0].method)
 	assert.Equal(t, "/api/apps/om_inventory/enabled", stub.calls[0].path)
-	assert.JSONEq(t, `{"enabled": true}`, stub.calls[0].body)
+	assert.JSONEq(t, `{"enabled": true, "scan": true}`, stub.calls[0].body)
 }
 
-func TestSyncWithoutExtensionsLeavesNothingPending(t *testing.T) {
+func TestSyncWithoutExtensionsIsANoOp(t *testing.T) {
 	t.Parallel()
 
 	// No database: a sync that read PMM's switch with nowhere to write it would panic.
 	svc := &Service{l: logrus.WithField("test", t.Name())}
 
-	assert.True(t, svc.syncSwitch(t.Context(), true), "Run must not keep retrying a write it has nowhere to send")
+	svc.syncSwitch(t.Context(), true)
 }
