@@ -39,7 +39,7 @@ import type {
  * with PMM's own.
  */
 export const OM_ROUTE_FLEET = '';
-/** The machines, and the only page carrying actions that change one. */
+/** The machines, and where a scan or an install of one starts. */
 export const OM_ROUTE_NODES = 'nodes';
 /** The install wizard, given a node selection made on {@link OM_ROUTE_NODES}. */
 export const OM_ROUTE_INSTALL = 'nodes/install';
@@ -87,6 +87,7 @@ export const PROCESS_ROLE_LABEL: Record<OmProcessRole, string> = {
   PROCESS_ROLE_MONGOS: 'Router',
   PROCESS_ROLE_CONFIGSVR: 'Config server',
   PROCESS_ROLE_SHARDSVR: 'Shard',
+  PROCESS_ROLE_ARBITER: 'Arbiter',
 };
 
 /** How each cluster state reads on Overview: the word, then the colour behind it. */
@@ -109,9 +110,9 @@ export const CLUSTER_HEALTH_COLOR: Record<OmClusterHealth, ChipProps['color']> =
  * How each of the three database states reads on the Hosts page.
  *
  * The middle one is the whole reason there are three. A host with no *registered*
- * service may still be running a mongod - PMM cannot authenticate against an arbiter,
- * so it registers no service for one - and calling that host empty would invite
- * someone to install a database over a port already in use.
+ * service may still be running a mongod - an arbiter that was not added to PMM, most
+ * often - and calling that host empty would invite someone to install a database over
+ * a port already in use.
  */
 export const HOST_DATABASE_STATE_LABEL: Record<OmHostDatabaseState, string> = {
   has_service: 'Monitored',
@@ -131,7 +132,7 @@ export const HOST_DATABASE_STATE_COLOR: Record<
 export const HOST_DATABASE_STATE_PHRASE: Record<OmHostDatabaseState, string> = {
   has_service: 'PMM has at least one registered MongoDB service on this node',
   unregistered_only:
-    'No service PMM knows about, but a scan found a mongod running - an arbiter, most likely, since PMM cannot authenticate against one. Not an empty node.',
+    'No service PMM knows about, but a scan found a mongod running - most likely an arbiter that was not added to PMM. Not an empty node.',
   installable:
     'No registered service and no mongod found. This is where a database can be installed.',
 };
@@ -327,10 +328,7 @@ export const RUN_STATUS_COLOR: Record<OmTopologyRunStatus, ChipProps['color']> =
  * in PMM Extensions still renders rather than disappearing from the form.
  */
 export const SETTING_LABEL: Record<string, string> = {
-  // Not "ENABLED". The raw key rendered in capitals, and said nothing about what it
-  // switches -- a reader could not tell it from PMM's own switch for the whole
-  // feature, which is a different control on a different page.
-  ENABLED: 'Automatic node scans',
+  AUTO_SCAN: 'Automatic node scans',
   SCHEDULE__every: 'Scan every',
   SCHEDULE__period: 'Period',
   PROBE_DATABASE: 'Connect to MongoDB',
@@ -363,12 +361,12 @@ export const SETTING_UNIT: Record<string, string> = {
 
 /** What each field costs or protects, for the reader deciding whether to touch it. */
 export const SETTING_HELP: Record<string, string> = {
-  ENABLED:
-    'Scan every node on a schedule. Off stops the schedule only - you can still scan from the Nodes page, and nothing already collected is removed.',
+  AUTO_SCAN:
+    'Scan every node on a schedule, and when PMM starts or Operations is turned on. Off stops all of these - you can still scan from the Nodes page, and nothing already collected is removed.',
   SCHEDULE__every:
     'How often every node is scanned. Each scan sends a job to every node.',
   PROBE_DATABASE:
-    'On also asks each mongod for its replica-set state and running version, using the monitoring credentials PMM already holds for that service. Off collects process and OS facts only, which needs no credentials - and still yields the installed version.',
+    "On also asks each mongod for its replica-set state and running version. It logs in with the URI in .mongodb_uri in the home directory of the user pmm-agent runs as (/root by default); without that file it connects unauthenticated, so a mongod that requires authentication doesn't report its replica-set state. Off collects process and OS facts only, which needs no credentials - and still yields the installed version.",
   REPO_URL:
     'The file each node fetches to prove it can install packages. Point it at a mirror on an air-gapped network, or every node reports as failing.',
   REPO_TIMEOUT:
@@ -477,7 +475,7 @@ export const BOOTSTRAP_RUN_COLOR: Record<
  * beside a warning.
  */
 export const SETTING_GROUP: Record<string, 'general' | 'scanning'> = {
-  ENABLED: 'general',
+  AUTO_SCAN: 'general',
   SCHEDULE__every: 'general',
   SCHEDULE__period: 'general',
   PROBE_DATABASE: 'general',

@@ -14,4 +14,4 @@ This section describes APIs to deal with Percona [Advisors](https://docs.percona
 - [List Advisor Checks](ref:listadvisorchecks) lists all Advisor Checks available in your PMM.
 - [Changing Advisor Checks](ref:changeadvisorchecks) will help you automate Advisor Checks, i.e.:
   - Enable/Disable Advisor Checks
-  - Change Advisor Check execution interval
+- [List Advisor Schedules](ref:listadvisorschedules) lists the schedules that decide when Advisor Checks run. Related endpoints create, update, delete and run schedules.
