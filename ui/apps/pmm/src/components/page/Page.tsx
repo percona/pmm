@@ -25,6 +25,7 @@ export const Page: FC<PageProps> = ({
   children,
   maxWidth,
   fullWidth,
+  fillViewport,
   surface = 'paper',
   roles,
 }) => {
@@ -47,10 +48,31 @@ export const Page: FC<PageProps> = ({
           },
         })}
       />
-      <PageContainer maxWidth={resolvedMaxWidth}>
+      <PageContainer
+        maxWidth={resolvedMaxWidth}
+        // pin to the viewport so the content region scrolls instead of the page:
+        // fill the available height (flex) but never exceed the viewport.
+        sx={
+          fillViewport
+            ? {
+                mt: 0,
+                minHeight: 0,
+                maxHeight: '100vh',
+                overflow: 'hidden',
+              }
+            : undefined
+        }
+      >
         {topBar}
         {!!title && !hideTitle && <Typography variant="h2">{title}</Typography>}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            ...(fillViewport && { minHeight: 0 }),
+          }}
+        >
           {user?.isAuthorized && hasAccess ? (
             children
           ) : (
