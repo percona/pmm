@@ -1,4 +1,6 @@
+import { QueryClient } from '@tanstack/react-query';
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -44,6 +46,7 @@ const node = (
   status: ServiceStatus.up,
   customLabels: {},
   isPmmServerNode: false,
+  isPmmProtectedNode: false,
   agents: [
     {
       agentId: `${nodeId}-agent`,
@@ -61,6 +64,7 @@ const node = (
 
 const NODES = [
   node('pmm-server', 'pmm-ha-1', { isPmmServerNode: true }),
+  node('ha-client', 'pmm-ha-client-0', { isPmmProtectedNode: true }),
   node('node-1', 'node-1', {
     services: [
       {
@@ -86,7 +90,7 @@ const NODES = [
   }),
 ];
 
-const renderNodes = (path = '/inventory/nodes') =>
+const renderNodes = (path = '/inventory/nodes', client?: QueryClient) =>
   render(
     <TestWrapper routerProps={{ initialEntries: [path] }}>
       {wrapWithQueryProvider(
@@ -94,10 +98,21 @@ const renderNodes = (path = '/inventory/nodes') =>
           <Routes>
             <Route path="/inventory/nodes" element={<Nodes />} />
           </Routes>
-        )
+        ),
+        client
       )}
     </TestWrapper>
   );
+
+const getRow = (nodeName: string) =>
+  screen
+    .getAllByRole('row')
+    .find((row) => within(row).queryByText(nodeName)) as HTMLElement;
+
+const getRowCheckbox = (nodeName: string) =>
+  within(getRow(nodeName)).getByRole('checkbox', {
+    name: 'Toggle select row',
+  });
 
 describe('Nodes', () => {
   beforeEach(() => {
@@ -121,24 +136,17 @@ describe('Nodes', () => {
     expect(screen.getByText('2 services')).toBeInTheDocument();
   });
 
-  it('does not offer to delete the PMM Server node', async () => {
+  it.each([
+    ['the PMM Server node', 'pmm-ha-1'],
+    ['a node PMM protects', 'pmm-ha-client-0'],
+  ])('does not offer to delete %s', async (_, nodeName) => {
     renderNodes();
 
-    await screen.findByText('pmm-ha-1');
-    const serverRow = screen
-      .getAllByRole('row')
-      .find((row) => within(row).queryByText('pmm-ha-1'));
-
-    expect(
-      within(serverRow as HTMLElement).getByRole('checkbox', {
-        name: 'Toggle select row',
-      })
-    ).toBeDisabled();
+    await screen.findByText(nodeName);
+    expect(getRowCheckbox(nodeName)).toBeDisabled();
 
     fireEvent.click(
-      within(serverRow as HTMLElement).getByRole('button', {
-        name: 'Row Actions',
-      })
+      within(getRow(nodeName)).getByRole('button', { name: 'Row Actions' })
     );
 
     expect(
@@ -147,6 +155,29 @@ describe('Nodes', () => {
     expect(
       screen.queryByRole('menuitem', { name: 'Delete' })
     ).not.toBeInTheDocument();
+  });
+
+  it('unselects a node once PMM protects it', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    renderNodes('/inventory/nodes', client);
+
+    await screen.findByText('node-1');
+    fireEvent.click(getRowCheckbox('node-1'));
+    expect(screen.getByText('1 selected')).toBeInTheDocument();
+
+    vi.mocked(listNodes).mockResolvedValue(
+      NODES.map((n) =>
+        n.nodeId === 'node-1' ? { ...n, isPmmProtectedNode: true } : n
+      )
+    );
+    await act(() => client.refetchQueries());
+
+    await waitFor(() => expect(getRowCheckbox('node-1')).toBeDisabled());
+    expect(getRowCheckbox('node-1')).not.toBeChecked();
+    expect(screen.queryByText('1 selected')).not.toBeInTheDocument();
+    expect(screen.getByTestId('delete-nodes-button')).toBeDisabled();
   });
 
   it("opens a node's alert thresholds", async () => {
