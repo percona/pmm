@@ -18,7 +18,7 @@ import {
   useMaterialReactTable,
 } from 'material-react-table';
 import { useEffect, useMemo, useRef, type MutableRefObject, type Ref } from 'react';
-import { mergeSx } from '@/utils';
+import { mergeSx } from '../../utils';
 import EmptyState from '../empty-state';
 import { ICONS_OPACITY } from './table.constants';
 import { TableProps } from './table.types';

@@ -5,7 +5,7 @@ import Tooltip from '@mui/material/Tooltip';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import { CopyToClipboardButtonProps } from './CopyToClipboardButton.types';
 import { Messages } from './clipboard.messages';
-import { mergeSx } from '@/utils';
+import { mergeSx } from '../../../utils';
 
 const CopyToClipboardButton = ({
   textToCopy,

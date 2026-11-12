@@ -1,7 +1,7 @@
 import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { Checkbox as MUICheckbox } from '@mui/material';
 import { CheckboxProps } from './checkbox.types';
-import { kebabize } from '@/utils';
+import { kebabize } from '../../../../utils';
 import { LabeledContent } from '../../..';
 
 const Checkbox = <T extends FieldValues = FieldValues>({

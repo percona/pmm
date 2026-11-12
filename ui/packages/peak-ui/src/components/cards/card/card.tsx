@@ -13,7 +13,7 @@ import {
   BoxProps,
   CardActionsProps,
 } from '@mui/material';
-import { kebabize } from '@/utils';
+import { kebabize } from '../../../utils';
 
 export interface CardProps extends Omit<MuiCardProps, 'content'> {
   /** Main body of the card. */
