@@ -340,6 +340,7 @@ func queueLockHolders(queueDir string) []int {
 		}
 	}
 
+	// /proc/locks leaves out holders outside this PID namespace, such as one on the host of a containerized pmm-agent.
 	locks, err := os.ReadFile("/proc/locks")
 	if err != nil {
 		return nil
