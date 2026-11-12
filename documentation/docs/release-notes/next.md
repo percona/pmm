@@ -56,6 +56,14 @@ You get the same services, nodes and agents, now with:
 
     ![Inventory page in native PMM UI](../images/PMM_Inventory_Services.png)
 
+### Find failing MongoDB backup agents at a glance
+
+If you manage a large MongoDB fleet, you can now see right away which backup agents need attention. The new **Failing Backup Agents** table on the **MongoDB Backup Details** dashboard lists only the failing agents and how long each one has been failing, so you no longer have to search the **Backup Agent Status** grid for them.
+
+![Failing Backup Agents table](../images/BackupDetails_FailingBackupAgents.png)
+
+[Find your failing backup agents](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) to get started.
+
 ## 🔒 Security updates
 
 ### Go standard library HTTP/1 server crash ([CVE-2026-97054](https://nvd.nist.gov/vuln/detail/CVE-2026-97054))
@@ -70,6 +78,7 @@ Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by r
 - [PMM-14109](https://perconadev.atlassian.net/browse/PMM-14109): Advisors now email a report after each run, keep a history of insights and runs, [run checks on schedules](#smarter-advisors-that-run-on-schedule-email-results-and-suggest-fixes) instead of fixed intervals, and support custom checks. The upgrade removes the run intervals and some Advisor API endpoints, and enables every check again.
 - [PMM-15002](https://perconadev.atlassian.net/browse/PMM-15002): The **Inventory** page now runs in [native PMM UI](#inventory-page-now-in-native-pmm-ui), so it looks and works like the rest of the PMM interface. You can also bookmark and share filtered views of your services and nodes, and your existing Inventory bookmarks keep working.
 - [PMM-15481](https://perconadev.atlassian.net/browse/PMM-15481): You can now export services from **Inventory > Services** to a CSV file. Click **Export** to download the selected services, or every service that matches the search and filters. Each row includes the status, the monitoring status, the agents that failed, and the labels of the service. For details, see [Export services to a CSV file](../use/dashboard-inventory.md#export-services-to-a-csv-file).
+- [PMM-15484](https://perconadev.atlassian.net/browse/PMM-15484): Added the **Failing Backup Agents** table to the [MongoDB Backup Details](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) dashboard. It lists only the PBM agents in **FAIL** or **DOWN** state.
 - [PMM-15699](https://perconadev.atlassian.net/browse/PMM-15699): **MongoDB > Operations** now calls PMM Extensions as the signed-in user, so PMM Extensions applies that user's role and records configuration changes under their name. API requests for nodes, scans, installs and settings must authenticate with a service account token or a PMM session. A request with a username and password gets `401 Unauthenticated`. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15825](https://perconadev.atlassian.net/browse/PMM-15825): Every signed-in PMM user can now open **MongoDB > Operations**. Viewers and Editors see every page except the install form. They can't scan nodes, start or abort installs, remove node entries, or change settings: those controls are disabled or hidden for them. Starting a scan now requires the Admin role, as installs already did. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15846](https://perconadev.atlassian.net/browse/PMM-15846): The execution history of PMM Extensions apps, such as **MySQL Backups**, now shows a warning icon beside the status of a finished run whose logs were partly or wholly lost before PMM could store them, so you can spot it without opening the run. Hover over or tab to the icon for details. For more on task logs, see [Monitor backups](../apps/mysql-backup.md#monitor-backups).
