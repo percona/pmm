@@ -74,6 +74,8 @@ func (t *Target) Copy() Target {
 type CheckResult struct {
 	CheckName string
 	Category  string
-	Target    Target
-	Result    check.Result
+	// UserDefined is true for results of user-authored checks.
+	UserDefined bool
+	Target      Target
+	Result      check.Result
 }

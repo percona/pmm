@@ -211,14 +211,14 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error {
 		c.l.Debugf("[%s] is not set", envDisableSend)
 	}
 
-	disableOnStartSendStr, ok := os.LookupEnv(envDisableStartDelay)
+	disableStartDelayStr, ok := os.LookupEnv(envDisableStartDelay)
 	if ok {
-		disableOnStartSend, err := strconv.ParseBool(disableOnStartSendStr)
+		disableStartDelay, err := strconv.ParseBool(disableStartDelayStr)
 		if err != nil {
 			c.l.Warnf("Cannot parse environment variable [%s] as bool.", envDisableStartDelay)
 		} else {
-			c.l.Debugf("Overriding Telemetry.Reporting.SendOnStart with environment variable [%s] to %t.", envDisableStartDelay, disableOnStartSend)
-			c.Reporting.SendOnStart = !disableOnStartSend
+			c.l.Debugf("Overriding Telemetry.Reporting.SendOnStart with environment variable [%s] to %t.", envDisableStartDelay, disableStartDelay)
+			c.Reporting.SendOnStart = disableStartDelay
 		}
 	}
 
