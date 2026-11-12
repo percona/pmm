@@ -14,7 +14,7 @@ The check reads the server variables to detect the distribution and the version.
 - Amazon RDS for MySQL
 - MariaDB
 
-If a newer release is available, the check returns a warning that shows the current version and the latest version of the same series. The check never recommends a different series: a MySQL 8.0 server is compared only with the latest 8.0 release, and a MariaDB 10.11 server only with the latest 10.11 release. The warning also says that the newer release includes security fixes and links to the vendor's security page: [MySQL security](https://www.mysql.com/support/security/) for MySQL, Percona Server for MySQL, Percona XtraDB Cluster and Amazon RDS for MySQL, and the [MariaDB security policy](https://mariadb.org/about/security-policy/) for MariaDB.
+If a newer release is available, the check returns a warning that shows the current version and the latest version of the same series. The check never recommends a different series: a MySQL 8.0 server is compared only with the latest 8.0 release, and a MariaDB 10.11 server only with the latest 10.11 release. The warning also says that the newer release includes security fixes and links to the vendor's security page: [Oracle security alerts](https://www.oracle.com/security-alerts/) for MySQL, Percona Server for MySQL, Percona XtraDB Cluster and Amazon RDS for MySQL, and the [MariaDB security policy](https://mariadb.org/about/security-policy/) for MariaDB.
 
 The check knows these release series:
 

@@ -300,7 +300,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.0.37", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{newerMySQL("MySQL", "8.0.37", "8.0.46")},
-			descContains: []string{"security fixes", "https://www.mysql.com/support/security/"},
+			descContains: []string{"security fixes", "https://www.oracle.com/security-alerts/"},
 		},
 		{
 			name:         "mysql_version Oracle 8.4.0",
@@ -353,7 +353,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.4.3-3", "Percona Server (GPL), Release 3, Revision 8f39d3a6", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{newerMySQL("Percona Server for MySQL", "8.4.3", "8.4.11")},
-			descContains: []string{"security fixes", "https://www.mysql.com/support/security/"},
+			descContains: []string{"security fixes", "https://www.oracle.com/security-alerts/"},
 		},
 		{
 			name:         "mysql_version PXC 8.4.3-3.1",
@@ -426,7 +426,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.0.28", "Source distribution", "/rdsdbbin/mysql-8.0.28.R4/", "/rdsdbdata/db/")},
 			want:         []finding{newerMySQL("MySQL", "8.0.28", "8.0.46")},
-			descContains: []string{"security fixes", "https://www.mysql.com/support/security/"},
+			descContains: []string{"security fixes", "https://www.oracle.com/security-alerts/"},
 		},
 		{
 			name:         "mysql_version RDS 8.4.3",

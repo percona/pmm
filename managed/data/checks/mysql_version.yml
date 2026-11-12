@@ -74,7 +74,7 @@ checks:
           "mariadb": "MariaDB",
       }
 
-      SECURITY_NOTE = " The newer release includes security fixes: https://www.mysql.com/support/security/."
+      SECURITY_NOTE = " The newer release includes security fixes: https://www.oracle.com/security-alerts/."
       MARIADB_SECURITY_NOTE = " The newer release includes security fixes: https://mariadb.org/about/security-policy/."
 
       # MariaDB prefixes its version with this for old replication clients.
