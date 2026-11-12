@@ -412,7 +412,9 @@ After adding a PostgreSQL service, verify that it's properly connected and sendi
     
     1. Select **Inventory > Services** and verify that **Service Name** matches what you configured, **Address** points to your PostgreSQL instance and **Status** shows **Up**.
     
-    2. Check that the **Monitoring** column shows **OK**. Then click **OK** and check that the agent for your data source shows **Running**: **QAN PostgreSQL pg_stat_statements agent** or **QAN PostgreSQL pg_stat_monitor agent**.
+    2. Check that the **Monitoring** column shows **OK**.
+
+    3. To check the Query Analytics agent, click **OK**. The agent for your data source, **QAN PostgreSQL pg_stat_statements agent** or **QAN PostgreSQL pg_stat_monitor agent**, shows **Running**.
 
 === "Check the dashboard data"
 
