@@ -39,9 +39,9 @@ func TestGenerateKeyset(t *testing.T) {
 
 	c, err := LoadCipher(NewFileKeyProvider(path))
 	require.NoError(t, err)
-	stored, err := c.Encrypt("secret")
+	stored, err := c.Encrypt("secret", nil)
 	require.NoError(t, err)
-	decrypted, err := c.Decrypt(stored)
+	decrypted, err := c.Decrypt(stored, nil)
 	require.NoError(t, err)
 	assert.Equal(t, "secret", decrypted)
 }

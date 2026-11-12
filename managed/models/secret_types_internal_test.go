@@ -33,9 +33,9 @@ type taggedString struct {
 func TestApplyToSecretFieldsErrors(t *testing.T) {
 	t.Parallel()
 
-	err := applyToSecretFields(&taggedNumber{}, func(s string) (string, error) { return s, nil })
+	err := applyToSecretFields(&taggedNumber{}, func(_, s string) (string, error) { return s, nil })
 	require.ErrorContains(t, err, "field taggedNumber.N is tagged encrypt but is not a string")
 
-	err = applyToSecretFields(&taggedString{S: "secret"}, func(string) (string, error) { return "", errors.New("cipher failed") })
+	err = applyToSecretFields(&taggedString{S: "secret"}, func(_, _ string) (string, error) { return "", errors.New("cipher failed") })
 	require.ErrorContains(t, err, "field taggedString.S: cipher failed")
 }

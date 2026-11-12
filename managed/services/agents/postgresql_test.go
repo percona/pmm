@@ -54,9 +54,9 @@ func (s *PostgresExporterConfigTestSuite) SetupTest() {
 	s.exporter = &models.Agent{
 		AgentID:       "agent-id",
 		AgentType:     models.PostgresExporterType,
-		Username:      new(models.EncryptedString("username")),
-		Password:      new(models.EncryptedString("s3cur3 p@$$w0r4.")),
-		AgentPassword: new(models.EncryptedString("agent-password")),
+		Username:      new(models.AgentUsername("username")),
+		Password:      new(models.AgentPassword("s3cur3 p@$$w0r4.")),
+		AgentPassword: new(models.AgentAgentPassword("agent-password")),
 	}
 	s.expected = &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
@@ -293,8 +293,8 @@ func TestAutoDiscovery(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:           "agent-id",
 		AgentType:         models.PostgresExporterType,
-		Username:          new(models.EncryptedString("username")),
-		Password:          new(models.EncryptedString("s3cur3 p@$$w0r4.")),
+		Username:          new(models.AgentUsername("username")),
+		Password:          new(models.AgentPassword("s3cur3 p@$$w0r4.")),
 		ExporterOptions:   models.ExporterOptions{},
 		AzureOptions:      models.AzureOptions{},
 		PostgreSQLOptions: models.PostgreSQLOptions{},
@@ -408,8 +408,8 @@ func TestMaxConnections(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.PostgresExporterType,
-		Username:        new(models.EncryptedString("username")),
-		Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
+		Username:        new(models.AgentUsername("username")),
+		Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
 		ExporterOptions: models.ExporterOptions{},
 		AzureOptions:    models.AzureOptions{},
 		PostgreSQLOptions: models.PostgreSQLOptions{
@@ -483,8 +483,8 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 	s.exporter = &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.PostgresExporterType,
-		Username:        new(models.EncryptedString("username")),
-		Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
+		Username:        new(models.AgentUsername("username")),
+		Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
 		ExporterOptions: models.ExporterOptions{},
 		AzureOptions: models.AzureOptions{
 			SubscriptionID: "subscription_id",
@@ -537,8 +537,8 @@ func (s *PostgresExporterConfigTestSuite) TestPrometheusWebConfig() {
 	s.exporter = &models.Agent{
 		AgentID:           "agent-id",
 		AgentType:         models.PostgresExporterType,
-		Username:          new(models.EncryptedString("username")),
-		Password:          new(models.EncryptedString("s3cur3 p@$$w0r4.")),
+		Username:          new(models.AgentUsername("username")),
+		Password:          new(models.AgentPassword("s3cur3 p@$$w0r4.")),
 		TLS:               true,
 		ExporterOptions:   models.ExporterOptions{},
 		AzureOptions:      models.AzureOptions{},
@@ -589,8 +589,8 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 	s.exporter = &models.Agent{
 		AgentID:           "agent-id",
 		AgentType:         models.PostgresExporterType,
-		Username:          new(models.EncryptedString("username")),
-		Password:          new(models.EncryptedString("s3cur3 p@$$w0r4.")),
+		Username:          new(models.AgentUsername("username")),
+		Password:          new(models.AgentPassword("s3cur3 p@$$w0r4.")),
 		TLS:               true,
 		ExporterOptions:   models.ExporterOptions{},
 		AzureOptions:      models.AzureOptions{},

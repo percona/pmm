@@ -57,8 +57,8 @@ func TestValkeyExporterConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:   "agent-id",
 			AgentType: models.ValkeyExporterType,
-			Username:  new(models.EncryptedString("username")),
-			Password:  new(models.EncryptedString("secret")),
+			Username:  new(models.AgentUsername("username")),
+			Password:  new(models.AgentPassword("secret")),
 		}
 		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
@@ -82,8 +82,8 @@ func TestValkeyExporterConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:   "agent-id",
 			AgentType: models.ValkeyExporterType,
-			Username:  new(models.EncryptedString("username")),
-			Password:  new(models.EncryptedString("secret")),
+			Username:  new(models.AgentUsername("username")),
+			Password:  new(models.AgentPassword("secret")),
 		}
 		exporter.ExporterOptions.ConnectionTimeout = new(1500 * time.Millisecond)
 
@@ -136,8 +136,8 @@ func TestValkeyExporterConfig(t *testing.T) {
 			return &models.Agent{
 				AgentID:       "agent-id",
 				AgentType:     models.ValkeyExporterType,
-				Username:      new(models.EncryptedString("username")),
-				Password:      new(models.EncryptedString("secret")),
+				Username:      new(models.AgentUsername("username")),
+				Password:      new(models.AgentPassword("secret")),
 				TLS:           f.tls,
 				TLSSkipVerify: f.skipVerify,
 				ValkeyOptions: f.valkey,

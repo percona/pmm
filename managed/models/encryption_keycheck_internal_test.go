@@ -43,7 +43,7 @@ func TestCheckKeyGeneratedKey(t *testing.T) {
 		return c
 	}
 	generated := newCipher("generated.key")
-	check, err := newCipher("other.key").Encrypt(keyCheckPlaintext)
+	check, err := newCipher("other.key").Encrypt(keyCheckPlaintext, keyCheckAssociatedData)
 	require.NoError(t, err)
 
 	for _, tc := range []struct {

@@ -814,7 +814,7 @@ func CreateNodeExporter(q *reform.Querier,
 		AgentType:     NodeExporterType,
 		PMMAgentID:    &pmmAgentID,
 		NodeID:        pmmAgent.RunsOnNodeID,
-		AgentPassword: EncryptedStringOrNil(pointer.GetString(agentPassword)),
+		AgentPassword: EncryptedStringOrNil[AgentAgentPassword](pointer.GetString(agentPassword)),
 		ExporterOptions: ExporterOptions{
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
@@ -901,8 +901,8 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		AgentType:    ExternalExporterType,
 		RunsOnNodeID: runsOnNodeID,
 		ServiceID:    pointer.ToStringOrNil(params.ServiceID),
-		Username:     EncryptedStringOrNil(params.Username),
-		Password:     EncryptedStringOrNil(params.Password),
+		Username:     EncryptedStringOrNil[AgentUsername](params.Username),
+		Password:     EncryptedStringOrNil[AgentPassword](params.Password),
 		ListenPort:   new(uint16(params.ListenPort)),
 		ExporterOptions: ExporterOptions{
 			PushMetrics:   params.PushMetrics,
@@ -1097,9 +1097,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		PMMAgentID:        &params.PMMAgentID,
 		ServiceID:         pointer.ToStringOrNil(params.ServiceID),
 		NodeID:            pointer.ToStringOrNil(params.NodeID),
-		Username:          EncryptedStringOrNil(params.Username),
-		Password:          EncryptedStringOrNil(params.Password),
-		AgentPassword:     EncryptedStringOrNil(params.AgentPassword),
+		Username:          EncryptedStringOrNil[AgentUsername](params.Username),
+		Password:          EncryptedStringOrNil[AgentPassword](params.Password),
+		AgentPassword:     EncryptedStringOrNil[AgentAgentPassword](params.AgentPassword),
 		TLS:               params.TLS,
 		TLSSkipVerify:     params.TLSSkipVerify,
 		ExporterOptions:   exporterOptions,
@@ -1440,13 +1440,13 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 
 	// Update database connection fields
 	if params.Username != nil {
-		row.Username = EncryptedStringOrNil(*params.Username)
+		row.Username = EncryptedStringOrNil[AgentUsername](*params.Username)
 	}
 	if params.Password != nil {
-		row.Password = EncryptedStringOrNil(*params.Password)
+		row.Password = EncryptedStringOrNil[AgentPassword](*params.Password)
 	}
 	if params.AgentPassword != nil {
-		row.AgentPassword = EncryptedStringOrNil(*params.AgentPassword)
+		row.AgentPassword = EncryptedStringOrNil[AgentAgentPassword](*params.AgentPassword)
 	}
 
 	// Update ValkeyOptions fields

@@ -471,8 +471,8 @@ func restorePMMServerAgents(q *reform.Querier, lost []error, db *SetupDBParams) 
 			continue // the Agent of a user's Service
 		}
 		if err == nil {
-			agent.Username = EncryptedStringOrNil(db.Username)
-			agent.Password = EncryptedStringOrNil(db.Password)
+			agent.Username = EncryptedStringOrNil[AgentUsername](db.Username)
+			agent.Password = EncryptedStringOrNil[AgentPassword](db.Password)
 			agent.PostgreSQLOptions.SSLCa = options.SSLCa
 			agent.PostgreSQLOptions.SSLCert = options.SSLCert
 			agent.PostgreSQLOptions.SSLKey = options.SSLKey
@@ -503,7 +503,7 @@ func restorePMMServerAgents(q *reform.Querier, lost []error, db *SetupDBParams) 
 }
 
 // secretColumn is a column holding an encrypted secret: a scalar
-// EncryptedString, or a JSON options blob with encrypt-tagged fields.
+// encrypted column type, or a JSON options blob with encrypt-tagged fields.
 type secretColumn struct {
 	name string
 	// options returns a new options struct for the blob; nil for a scalar
@@ -784,7 +784,7 @@ func scanSecrets(q *reform.Querier, cipher *encryption.Cipher, t secretTable) (*
 			return nil, fmt.Errorf("failed to read %s: %w", t.name, err)
 		}
 
-		insp := &inspector{cipher: cipher}
+		insp := &inspector{cipher: cipher, table: t.name}
 		if !mayHoldPlaintext {
 			insp.strict = strict
 		}
@@ -864,6 +864,8 @@ func (e *secretError) Unwrap() error {
 // them into the model.
 type inspector struct {
 	cipher *encryption.Cipher
+	// table is the row's table; with the column, it is the associated data of its secrets
+	table string
 	// strict holds the columns PMM 3.x recorded as encrypted: a value there
 	// that looks like ciphertext of an unknown key is ciphertext, not plaintext
 	strict        map[string]bool
@@ -883,7 +885,7 @@ type inspector struct {
 // value inspects one stored secret; inOptions is set for a sub-field of an
 // options blob, the only fields key rotation before PMM 3.9.1 stacked layers
 // on (PMM-15188).
-func (i *inspector) value(column, stored string, inOptions bool) {
+func (i *inspector) value(column string, associatedData []byte, stored string, inOptions bool) {
 	if stored == "" {
 		return
 	}
@@ -895,7 +897,7 @@ func (i *inspector) value(column, stored string, inOptions bool) {
 	if !encryption.IsEncrypted(stored) {
 		i.preEnvelope = true
 	}
-	insp, err := i.cipher.Inspect(stored)
+	insp, err := i.cipher.Inspect(stored, associatedData)
 	if i.cipher.NeedsReencrypt(stored) || insp.ExtraLayers > 0 {
 		i.needs = true
 	}
@@ -930,7 +932,7 @@ func (i *inspector) column(c secretColumn, v sql.NullString) error {
 		return nil
 	}
 	if c.options == nil {
-		i.value(c.name, v.String, false)
+		i.value(c.name, []byte(i.table+"."+c.name), v.String, false)
 		return nil
 	}
 
@@ -940,8 +942,8 @@ func (i *inspector) column(c secretColumn, v sql.NullString) error {
 		return fmt.Errorf("failed to unmarshal %s: %w", c.name, err)
 	}
 
-	return applyToSecretFields(target, func(s string) (string, error) {
-		i.value(c.name, s, true)
+	return applyToSecretFields(target, func(field, s string) (string, error) {
+		i.value(c.name, optionAssociatedData(i.table+"."+c.name, field), s, true)
 		return s, nil
 	})
 }

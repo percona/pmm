@@ -80,10 +80,14 @@ type S3LocationConfig struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c S3LocationConfig) Value() (driver.Value, error) { return encryptedJSONValue(c) }
+func (c S3LocationConfig) Value() (driver.Value, error) {
+	return encryptedJSONValue(c, "backup_locations.s3_config")
+}
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *S3LocationConfig) Scan(src any) error { return encryptedJSONScan(c, src) }
+func (c *S3LocationConfig) Scan(src any) error {
+	return encryptedJSONScan(c, src, "backup_locations.s3_config")
+}
 
 // String implements fmt.Stringer; secrets are redacted.
 func (c S3LocationConfig) String() string {

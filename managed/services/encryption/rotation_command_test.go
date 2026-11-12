@@ -152,7 +152,7 @@ func TestRotateEncryptionKeyCommand(t *testing.T) {
 		keyFile(t)
 		other, err := encryption.CreateCipher(encryption.NewFileKeyProvider(filepath.Join(t.TempDir(), "other.key")))
 		require.NoError(t, err)
-		stored, err := other.Encrypt("password")
+		stored, err := other.Encrypt("password", []byte("agents.password"))
 		require.NoError(t, err)
 		now := time.Now()
 		_, err = sqlDB.ExecContext(t.Context(),

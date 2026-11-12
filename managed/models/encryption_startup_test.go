@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -86,7 +87,7 @@ func insertExporter(t *testing.T, sqlDB *sql.DB, id, password, mysqlOptions stri
 func legacyCiphertext(t *testing.T, c *encryption.Cipher, plaintext string) string {
 	t.Helper()
 
-	stored, err := c.Encrypt(plaintext)
+	stored, err := c.Encrypt(plaintext, nil)
 	require.NoError(t, err)
 
 	return strings.TrimPrefix(stored, encryption.EnvelopePrefix)
@@ -252,7 +253,7 @@ func TestSetupDBLoadsExistingKey(t *testing.T) {
 func TestSetupDBRefusesMissingKeyWithEncryptedData(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	cipher := keepDefaultCipher(t)
-	stored, err := cipher.Encrypt("password")
+	stored, err := cipher.Encrypt("password", []byte("agents.password"))
 	require.NoError(t, err)
 	insertExporter(t, sqlDB, "E1", stored, "")
 
@@ -367,7 +368,7 @@ func TestDatabaseHasEncryptedDataWithoutSchema(t *testing.T) {
 func TestDatabaseHasEncryptedDataInEveryTable(t *testing.T) {
 	cipher, err := encryption.DefaultCipher()
 	require.NoError(t, err)
-	password, err := cipher.Encrypt("password")
+	password, err := cipher.Encrypt("password", []byte("agents.password"))
 	require.NoError(t, err)
 
 	t.Run("a schema without om_bootstrap_secrets", func(t *testing.T) {
@@ -418,12 +419,12 @@ func TestCorruptedCiphertextFailsReads(t *testing.T) {
 	cipher, err := encryption.DefaultCipher()
 	require.NoError(t, err)
 
-	password, err := cipher.Encrypt("password")
+	password, err := cipher.Encrypt("password", []byte("agents.password"))
 	require.NoError(t, err)
 	corruptPassword := corruptEnvelope(t, password)
 	insertExporter(t, sqlDB, "bad-password", corruptPassword, "")
 
-	tlsKey, err := cipher.Encrypt("tls-key")
+	tlsKey, err := cipher.Encrypt("tls-key", []byte("agents.mysql_options.tls_key"))
 	require.NoError(t, err)
 	options, err := json.Marshal(map[string]string{"tls_key": corruptEnvelope(t, tlsKey)})
 	require.NoError(t, err)
@@ -438,6 +439,101 @@ func TestCorruptedCiphertextFailsReads(t *testing.T) {
 	require.ErrorContains(t, err, "cannot decrypt stored credentials")
 	assert.NotContains(t, err.Error(), encryption.AcceptKeyLossEnvVar, "accepting a lost key does not help")
 	assert.Equal(t, corruptPassword, storedPassword(t, sqlDB, "bad-password"), "nothing is rewritten")
+}
+
+// TestMovedCiphertextFailsReads covers a secret copied into a column the inventory API returns decrypted, by
+// someone who can write to the database but holds no key.
+func TestMovedCiphertextFailsReads(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+
+	for _, id := range []string{"E1", "E2"} {
+		insertExporter(t, sqlDB, id, "", "")
+		agent, err := models.FindAgentByID(q, id)
+		require.NoError(t, err)
+		agent.Username = models.EncryptedStringOrNil[models.AgentUsername]("user")
+		agent.Password = models.EncryptedStringOrNil[models.AgentPassword]("password")
+		agent.AWSOptions = models.AWSOptions{AWSAccessKey: "access-key", AWSSecretKey: "secret-key"}
+		require.NoError(t, q.Update(agent))
+	}
+
+	_, err := sqlDB.ExecContext(t.Context(), `UPDATE agents SET username = password WHERE agent_id = 'E1'`)
+	require.NoError(t, err)
+	_, err = sqlDB.ExecContext(t.Context(),
+		`UPDATE agents SET aws_options = jsonb_set(aws_options, '{aws_access_key}', aws_options->'aws_secret_key') WHERE agent_id = 'E2'`)
+	require.NoError(t, err)
+
+	for _, id := range []string{"E1", "E2"} {
+		agent, err := models.FindAgentByID(q, id)
+		if assert.Error(t, err, id) {
+			continue
+		}
+		assert.NotEqual(t, "password", agent.Username.Reveal(), id)
+		assert.NotEqual(t, "secret-key", agent.AWSOptions.AWSAccessKey, id)
+	}
+
+	err = models.MigrateEncryption(q)
+	require.ErrorContains(t, err, "cannot decrypt stored credentials")
+	assert.Contains(t, err.Error(), "agent E1 username")
+	assert.Contains(t, err.Error(), "agent E2 aws_options")
+}
+
+// fillSecrets sets every encrypt-tagged field of the options struct v points to.
+func fillSecrets(v any) {
+	val := reflect.ValueOf(v).Elem()
+	for i := range val.NumField() {
+		field := val.Type().Field(i)
+		if field.Tag.Get("encrypt") == "true" {
+			val.Field(i).SetString("secret-" + field.Name)
+		}
+	}
+}
+
+// TestMigrationReadsSecretsTheModelsWrite covers the startup migration reading every secret column and
+// option field with the associated data the models write it with.
+func TestMigrationReadsSecretsTheModelsWrite(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+	cipher, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+
+	insertExporter(t, sqlDB, "E1", "", "")
+	agent, err := models.FindAgentByID(q, "E1")
+	require.NoError(t, err)
+	agent.Username = models.EncryptedStringOrNil[models.AgentUsername]("user")
+	agent.Password = models.EncryptedStringOrNil[models.AgentPassword]("password")
+	agent.AgentPassword = models.EncryptedStringOrNil[models.AgentAgentPassword]("agent-password")
+	for _, options := range []any{
+		&agent.AWSOptions, &agent.AzureOptions, &agent.MongoDBOptions,
+		&agent.MySQLOptions, &agent.PostgreSQLOptions, &agent.ValkeyOptions,
+	} {
+		fillSecrets(options)
+	}
+	require.NoError(t, q.Update(agent))
+
+	s3 := &models.S3LocationConfig{Endpoint: "https://s3.example.com", BucketName: "bucket"}
+	fillSecrets(s3)
+	require.NoError(t, q.Insert(&models.BackupLocation{ID: "L1", Name: "s3", Type: models.S3BackupLocationType, S3Config: s3}))
+
+	require.NoError(t, models.CreateOmBootstrapSecret(q, &models.OmBootstrapSecret{
+		RunID:           "R1",
+		MongoDBUsername: "admin",
+		MongoDBPassword: "password",
+		KeyFile:         "key-file",
+		AdminUsername:   "dba",
+		AdminPassword:   "admin-password",
+	}))
+
+	ids, err := models.AgentsNeedingReencryption(q, cipher)
+	require.NoError(t, err)
+	assert.Empty(t, ids)
+	ids, err = models.LocationsNeedingReencryption(q, cipher)
+	require.NoError(t, err)
+	assert.Empty(t, ids)
+	ids, err = models.OmBootstrapSecretsNeedingReencryption(q, cipher)
+	require.NoError(t, err)
+	assert.Empty(t, ids)
+	require.NoError(t, models.MigrateEncryption(q))
 }
 
 func TestMigrateEncryptionBackupLocation(t *testing.T) {
@@ -511,8 +607,8 @@ func TestFindersReturnDecryptedSecrets(t *testing.T) {
 		AgentType:         models.QANPostgreSQLPgStatementsAgentType,
 		PMMAgentID:        new("PA"),
 		ServiceID:         new("S1"),
-		Username:          models.EncryptedStringOrNil("pmm"),
-		Password:          models.EncryptedStringOrNil("qan-password"),
+		Username:          models.EncryptedStringOrNil[models.AgentUsername]("pmm"),
+		Password:          models.EncryptedStringOrNil[models.AgentPassword]("qan-password"),
 		PostgreSQLOptions: models.PostgreSQLOptions{SSLKey: "ssl-key"},
 	}))
 	require.True(t, encryption.IsEncrypted(storedPassword(t, sqlDB, "QAN1")))
@@ -541,11 +637,11 @@ func TestEncryptedStringScan(t *testing.T) {
 	testdb.SetupEncryption(t)
 	cipher := keepDefaultCipher(t)
 
-	var s models.EncryptedString
+	var s models.AgentPassword
 	require.NoError(t, s.Scan(nil))
 	assert.Empty(t, s.Reveal())
 
-	stored, err := cipher.Encrypt("from-bytes")
+	stored, err := cipher.Encrypt("from-bytes", []byte("agents.password"))
 	require.NoError(t, err)
 	require.NoError(t, s.Scan([]byte(stored)))
 	assert.Equal(t, "from-bytes", s.Reveal())
@@ -555,7 +651,7 @@ func TestEncryptedStringScan(t *testing.T) {
 
 	// before pmm-managed installed the cipher nothing is encrypted or decrypted
 	encryption.SetDefaultCipher(nil)
-	_, err = models.EncryptedString("secret").Value()
+	_, err = models.AgentPassword("secret").Value()
 	require.ErrorIs(t, err, encryption.ErrEncryptionNotInitialized)
 	require.ErrorIs(t, s.Scan(stored), encryption.ErrEncryptionNotInitialized)
 	_, err = models.MySQLOptions{TLSKey: "secret"}.Value()

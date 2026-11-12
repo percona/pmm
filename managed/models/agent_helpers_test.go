@@ -1889,9 +1889,9 @@ func TestAgentHelpers(t *testing.T) {
 
 				// Fields that should be changed
 				Disabled:      true, // Enabled=false means Disabled=true
-				Username:      new(models.EncryptedString("comprehensive_user")),
-				Password:      new(models.EncryptedString("comprehensive_password")),
-				AgentPassword: new(models.EncryptedString("comprehensive_agent_password")),
+				Username:      new(models.AgentUsername("comprehensive_user")),
+				Password:      new(models.AgentPassword("comprehensive_password")),
+				AgentPassword: new(models.AgentAgentPassword("comprehensive_agent_password")),
 				LogLevel:      new("debug"),
 				TLS:           false,
 				TLSSkipVerify: false,
@@ -2034,8 +2034,8 @@ func TestAgentHelpers(t *testing.T) {
 			agent, err := models.FindAgentByID(q, "A2")
 			require.NoError(t, err)
 
-			agent.Username = new(models.EncryptedString("user"))
-			agent.Password = new(models.EncryptedString("secret"))
+			agent.Username = new(models.AgentUsername("user"))
+			agent.Password = new(models.AgentPassword("secret"))
 
 			err = models.UpdateAgent(q, agent)
 			require.NoError(t, err)

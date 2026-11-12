@@ -53,9 +53,9 @@ func TestAgentSecretsRoundTrip(t *testing.T) {
 		AgentID:       "A1",
 		AgentType:     models.PMMAgentType,
 		RunsOnNodeID:  new("N1"),
-		Username:      models.EncryptedStringOrNil("username"),
-		Password:      models.EncryptedStringOrNil("password"),
-		AgentPassword: models.EncryptedStringOrNil("agent-password"),
+		Username:      models.EncryptedStringOrNil[models.AgentUsername]("username"),
+		Password:      models.EncryptedStringOrNil[models.AgentPassword]("password"),
+		AgentPassword: models.EncryptedStringOrNil[models.AgentAgentPassword]("agent-password"),
 		AWSOptions: models.AWSOptions{
 			AWSAccessKey:            "aws-access-key",
 			AWSSecretKey:            "aws-secret-key",
@@ -101,15 +101,19 @@ func TestAgentSecretsRoundTrip(t *testing.T) {
 		Scan(&username, &password, &agentPassword, &aws, &azure, &mongo, &mysql, &pg, &valkey)
 	require.NoError(t, err)
 
-	for _, stored := range []string{username, password, agentPassword} {
-		assertSingleEnvelope(t, cipher, stored)
+	for column, stored := range map[string]string{
+		"agents.username":       username,
+		"agents.password":       password,
+		"agents.agent_password": agentPassword,
+	} {
+		assertSingleEnvelope(t, cipher, stored, column)
 	}
-	assertStoredOptions(t, cipher, aws, original.AWSOptions)
-	assertStoredOptions(t, cipher, azure, original.AzureOptions)
-	assertStoredOptions(t, cipher, mongo, original.MongoDBOptions)
-	assertStoredOptions(t, cipher, mysql, original.MySQLOptions)
-	assertStoredOptions(t, cipher, pg, original.PostgreSQLOptions)
-	assertStoredOptions(t, cipher, valkey, original.ValkeyOptions)
+	assertStoredOptions(t, cipher, "agents.aws_options", aws, original.AWSOptions)
+	assertStoredOptions(t, cipher, "agents.azure_options", azure, original.AzureOptions)
+	assertStoredOptions(t, cipher, "agents.mongo_options", mongo, original.MongoDBOptions)
+	assertStoredOptions(t, cipher, "agents.mysql_options", mysql, original.MySQLOptions)
+	assertStoredOptions(t, cipher, "agents.postgresql_options", pg, original.PostgreSQLOptions)
+	assertStoredOptions(t, cipher, "agents.valkey_options", valkey, original.ValkeyOptions)
 
 	agent, err := models.FindAgentByID(q, "A1")
 	require.NoError(t, err)
@@ -124,24 +128,24 @@ func TestAgentSecretsRoundTrip(t *testing.T) {
 	assert.Equal(t, original.ValkeyOptions, agent.ValkeyOptions)
 }
 
-// assertSingleEnvelope checks that stored is an envelope of the primary key
-// whose plaintext is not itself ciphertext.
-func assertSingleEnvelope(t *testing.T, cipher *encryption.Cipher, stored string) {
+// assertSingleEnvelope checks that stored is an envelope of the primary key,
+// bound to associatedData, whose plaintext is not itself ciphertext.
+func assertSingleEnvelope(t *testing.T, cipher *encryption.Cipher, stored, associatedData string) {
 	t.Helper()
 
 	keyID, ok := encryption.StoredKeyID(stored)
 	require.True(t, ok, "not an envelope: %q", stored)
 	assert.Equal(t, cipher.PrimaryKeyID(), keyID)
 
-	plaintext, err := cipher.Decrypt(stored)
-	require.NoError(t, err)
+	plaintext, err := cipher.Decrypt(stored, []byte(associatedData))
+	require.NoError(t, err, associatedData)
 	assert.False(t, encryption.IsEncrypted(plaintext), "encrypted more than once")
 }
 
 // assertStoredOptions checks a raw JSON options column against the struct it
-// was written from: fields tagged encrypt:"true" hold envelopes, all other
-// string fields are stored as is.
-func assertStoredOptions[T any](t *testing.T, cipher *encryption.Cipher, raw []byte, original T) {
+// was written from: fields tagged encrypt:"true" hold envelopes bound to the
+// column and their JSON key, all other string fields are stored as is.
+func assertStoredOptions[T any](t *testing.T, cipher *encryption.Cipher, column string, raw []byte, original T) {
 	t.Helper()
 
 	var stored T
@@ -161,7 +165,8 @@ func assertStoredOptions[T any](t *testing.T, cipher *encryption.Cipher, raw []b
 			continue
 		}
 		secrets++
-		assertSingleEnvelope(t, cipher, storedVal.Field(i).String())
+		key, _, _ := strings.Cut(field.Tag.Get("json"), ",")
+		assertSingleEnvelope(t, cipher, storedVal.Field(i).String(), column+"."+key)
 	}
 	assert.Positive(t, secrets, "%s has no encrypted fields", typ.Name())
 }
@@ -195,12 +200,11 @@ func TestEncryptedFieldsPinned(t *testing.T) {
 		return fields
 	}
 
-	encryptedStrings := reflect.TypeFor[*models.EncryptedString]()
 	var agentSecrets []string
 	agent := reflect.TypeFor[models.Agent]()
 	for field := range agent.Fields() {
 		switch {
-		case field.Type == encryptedStrings:
+		case field.Type.Implements(reflect.TypeFor[interface{ Reveal() string }]()):
 			agentSecrets = append(agentSecrets, field.Name)
 		case strings.HasSuffix(field.Type.Name(), "Options"):
 			// a new options column must be classified here
@@ -243,7 +247,7 @@ func TestSecretsRedacted(t *testing.T) {
 		return secrets, visible
 	}
 
-	agent := &models.Agent{AgentID: "A1", Password: models.EncryptedStringOrNil("secret-password")}
+	agent := &models.Agent{AgentID: "A1", Password: models.EncryptedStringOrNil[models.AgentPassword]("secret-password")}
 	location := &models.S3LocationConfig{}
 	secrets := []string{"secret-password"}
 	var visible []string

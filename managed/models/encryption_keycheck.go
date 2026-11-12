@@ -36,6 +36,9 @@ import (
 // key rotation.
 const keyCheckPlaintext = "pmm-encryption-key-check"
 
+// keyCheckAssociatedData binds the key check to where it is stored.
+var keyCheckAssociatedData = []byte("settings.encryption_key_check")
+
 const selectKeyCheck = "SELECT settings->>'encryption_key_check' FROM settings"
 
 // readKeyCheck returns the stored key check; ok is false when there is no
@@ -56,7 +59,7 @@ func readKeyCheck(q reform.DBTX) (string, bool, error) {
 // writeKeyCheck stores the key check encrypted with the primary key, leaving
 // the other settings as they are.
 func writeKeyCheck(q reform.DBTX, cipher *encryption.Cipher) error {
-	check, err := cipher.Encrypt(keyCheckPlaintext)
+	check, err := cipher.Encrypt(keyCheckPlaintext, keyCheckAssociatedData)
 	if err != nil {
 		return err
 	}
@@ -102,7 +105,7 @@ func checkKey(q *reform.Querier, cipher *encryption.Cipher, params migrationPara
 
 // keyCheckMatches reports whether the stored key check decrypts with the cipher.
 func keyCheckMatches(cipher *encryption.Cipher, check string) bool {
-	plaintext, err := cipher.Decrypt(check)
+	plaintext, err := cipher.Decrypt(check, keyCheckAssociatedData)
 
 	return err == nil && plaintext == keyCheckPlaintext
 }

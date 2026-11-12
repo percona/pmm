@@ -177,10 +177,10 @@ type AWSOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c AWSOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
+func (c AWSOptions) Value() (driver.Value, error) { return encryptedJSONValue(c, "agents.aws_options") }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AWSOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+func (c *AWSOptions) Scan(src any) error { return encryptedJSONScan(c, src, "agents.aws_options") }
 
 // String implements fmt.Stringer; secrets are redacted.
 func (c AWSOptions) String() string {
@@ -242,10 +242,12 @@ type AzureOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c AzureOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
+func (c AzureOptions) Value() (driver.Value, error) {
+	return encryptedJSONValue(c, "agents.azure_options")
+}
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AzureOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+func (c *AzureOptions) Scan(src any) error { return encryptedJSONScan(c, src, "agents.azure_options") }
 
 // String implements fmt.Stringer; secrets are redacted.
 func (c AzureOptions) String() string {
@@ -288,10 +290,14 @@ type MongoDBOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c MongoDBOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
+func (c MongoDBOptions) Value() (driver.Value, error) {
+	return encryptedJSONValue(c, "agents.mongo_options")
+}
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MongoDBOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+func (c *MongoDBOptions) Scan(src any) error {
+	return encryptedJSONScan(c, src, "agents.mongo_options")
+}
 
 // String implements fmt.Stringer; secrets are redacted.
 func (c MongoDBOptions) String() string {
@@ -344,10 +350,12 @@ type MySQLOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c MySQLOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
+func (c MySQLOptions) Value() (driver.Value, error) {
+	return encryptedJSONValue(c, "agents.mysql_options")
+}
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MySQLOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+func (c *MySQLOptions) Scan(src any) error { return encryptedJSONScan(c, src, "agents.mysql_options") }
 
 // String implements fmt.Stringer; secrets are redacted.
 func (c MySQLOptions) String() string {
@@ -388,10 +396,14 @@ type PostgreSQLOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c PostgreSQLOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
+func (c PostgreSQLOptions) Value() (driver.Value, error) {
+	return encryptedJSONValue(c, "agents.postgresql_options")
+}
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *PostgreSQLOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+func (c *PostgreSQLOptions) Scan(src any) error {
+	return encryptedJSONScan(c, src, "agents.postgresql_options")
+}
 
 // String implements fmt.Stringer; secrets are redacted.
 func (c PostgreSQLOptions) String() string {
@@ -431,10 +443,14 @@ type ValkeyOptions struct {
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
-func (c ValkeyOptions) Value() (driver.Value, error) { return encryptedJSONValue(c) }
+func (c ValkeyOptions) Value() (driver.Value, error) {
+	return encryptedJSONValue(c, "agents.valkey_options")
+}
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *ValkeyOptions) Scan(src any) error { return encryptedJSONScan(c, src) }
+func (c *ValkeyOptions) Scan(src any) error {
+	return encryptedJSONScan(c, src, "agents.valkey_options")
+}
 
 // String implements fmt.Stringer; secrets are redacted.
 func (c ValkeyOptions) String() string {
@@ -517,11 +533,11 @@ type Agent struct {
 	ProcessExecPath *string `reform:"process_exec_path"`
 	IsConnected     bool    `reform:"is_connected"`
 
-	Username      *EncryptedString `reform:"username"`
-	Password      *EncryptedString `reform:"password"`
-	AgentPassword *EncryptedString `reform:"agent_password"`
-	TLS           bool             `reform:"tls"`
-	TLSSkipVerify bool             `reform:"tls_skip_verify"`
+	Username      *AgentUsername      `reform:"username"`
+	Password      *AgentPassword      `reform:"password"`
+	AgentPassword *AgentAgentPassword `reform:"agent_password"`
+	TLS           bool                `reform:"tls"`
+	TLSSkipVerify bool                `reform:"tls_skip_verify"`
 
 	LogLevel *string `reform:"log_level"`
 

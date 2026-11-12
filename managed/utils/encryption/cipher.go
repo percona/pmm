@@ -262,8 +262,9 @@ func handleKeyIDs(handle *keyset.Handle) (map[uint32]bool, error) {
 }
 
 // Encrypt returns the plaintext encrypted with the primary key in the
-// envelope format. Empty input is passed through unchanged.
-func (c *Cipher) Encrypt(plaintext string) (string, error) {
+// envelope format, bound to associatedData: only Decrypt given the same reads
+// it. Empty input is passed through unchanged.
+func (c *Cipher) Encrypt(plaintext string, associatedData []byte) (string, error) {
 	if c == nil {
 		return "", ErrEncryptionNotInitialized
 	}
@@ -271,7 +272,7 @@ func (c *Cipher) Encrypt(plaintext string) (string, error) {
 		return "", nil
 	}
 
-	ciphertext, err := c.primitive.Encrypt([]byte(plaintext), nil)
+	ciphertext, err := c.primitive.Encrypt([]byte(plaintext), associatedData)
 	if err != nil {
 		return "", fmt.Errorf("encryption failed: %w", err)
 	}
@@ -280,7 +281,8 @@ func (c *Cipher) Encrypt(plaintext string) (string, error) {
 }
 
 // Decrypt returns the plaintext for a stored value:
-//   - envelope format: decrypted with the keyset; any failure is an error,
+//   - envelope format: decrypted with the keyset and the associatedData it
+//     was encrypted with; any failure is an error,
 //     except that a cipher accepting key loss returns an envelope of a key it
 //     does not hold unchanged (see AcceptingKeyLoss)
 //   - legacy format (base64 Tink ciphertext): decrypted; a value carrying the
@@ -291,8 +293,8 @@ func (c *Cipher) Encrypt(plaintext string) (string, error) {
 //
 // Legacy layers stacked under the outermost one (PMM-15188) are removed as
 // long as their keys are available.
-func (c *Cipher) Decrypt(stored string) (string, error) {
-	plaintext, _, err := c.decrypt(stored)
+func (c *Cipher) Decrypt(stored string, associatedData []byte) (string, error) {
+	plaintext, _, err := c.decrypt(stored, associatedData)
 	switch {
 	case errors.Is(err, ErrLegacyUnknownKey), errors.Is(err, ErrLegacyInnerKeyLost):
 		return plaintext, nil
@@ -320,8 +322,8 @@ type Inspection struct {
 // error, ErrLegacyUnknownKey or ErrLegacyInnerKeyLost. The startup migration
 // uses it to refuse rewriting ciphertext it cannot read as if it were
 // plaintext, and to report secrets lost to stacked layers.
-func (c *Cipher) Inspect(stored string) (Inspection, error) {
-	_, layers, err := c.decrypt(stored)
+func (c *Cipher) Inspect(stored string, associatedData []byte) (Inspection, error) {
+	_, layers, err := c.decrypt(stored, associatedData)
 	insp := Inspection{Decrypted: layers > 0}
 	if layers > 0 {
 		insp.ExtraLayers = layers - 1
@@ -333,7 +335,7 @@ func (c *Cipher) Inspect(stored string) (Inspection, error) {
 // decrypt returns the plaintext and the number of encryption layers removed.
 // With ErrLegacyUnknownKey it returns the value unchanged, with
 // ErrLegacyInnerKeyLost the innermost ciphertext it could reach.
-func (c *Cipher) decrypt(stored string) (string, int, error) {
+func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, error) {
 	if c == nil {
 		return "", 0, ErrEncryptionNotInitialized
 	}
@@ -344,7 +346,7 @@ func (c *Cipher) decrypt(stored string) (string, int, error) {
 	v := stored
 	layers := 0
 	if IsEncrypted(stored) {
-		plaintext, err := c.openEnvelope(stored)
+		plaintext, err := c.openEnvelope(stored, associatedData)
 		if err != nil {
 			return "", 0, err
 		}
@@ -353,7 +355,7 @@ func (c *Cipher) decrypt(stored string) (string, int, error) {
 	}
 
 	for layers < maxLegacyLayers {
-		if plaintext, ok := c.innerEnvelope(v, layers); ok {
+		if plaintext, ok := c.innerEnvelope(v, layers, associatedData); ok {
 			v = plaintext
 			layers++
 			continue
@@ -377,7 +379,8 @@ func (c *Cipher) decrypt(stored string) (string, int, error) {
 			return v, layers, fmt.Errorf("%w (key ID %d)", ErrLegacyInnerKeyLost, keyID)
 		}
 
-		plaintext, ok := decryptWithAny(keysets, ciphertext)
+		// legacy ciphertext carries no associated data
+		plaintext, ok := decryptWithAny(keysets, ciphertext, nil)
 		if !ok {
 			if layers == 0 {
 				return "", 0, fmt.Errorf("%w (key ID %d)", ErrLegacyAuthFailed, keyID)
@@ -393,7 +396,7 @@ func (c *Cipher) decrypt(stored string) (string, int, error) {
 }
 
 // openEnvelope decrypts a value in the envelope format.
-func (c *Cipher) openEnvelope(stored string) (string, error) {
+func (c *Cipher) openEnvelope(stored string, associatedData []byte) (string, error) {
 	ciphertext, err := unwrapEnvelope(stored)
 	if err != nil {
 		return "", err
@@ -401,7 +404,7 @@ func (c *Cipher) openEnvelope(stored string) (string, error) {
 	if id, ok := tinkKeyID(ciphertext); ok && !c.keyIDs[id] {
 		return "", fmt.Errorf("%w (key ID %d)", ErrUnknownKey, id)
 	}
-	plaintext, err := c.primitive.Decrypt(ciphertext, nil)
+	plaintext, err := c.primitive.Decrypt(ciphertext, associatedData)
 	if err != nil {
 		return "", fmt.Errorf("decryption failed: %w", err)
 	}
@@ -416,7 +419,7 @@ func (c *Cipher) openEnvelope(stored string) (string, error) {
 // key (see AcceptingKeyLoss). Decrypt-only keys open it too, so that such a
 // value is readable again once its key is placed next to the key file. A
 // value that only looks like an envelope is left to the caller.
-func (c *Cipher) innerEnvelope(v string, layers int) (string, bool) {
+func (c *Cipher) innerEnvelope(v string, layers int, associatedData []byte) (string, bool) {
 	if layers == 0 || !IsEncrypted(v) {
 		return "", false
 	}
@@ -429,12 +432,12 @@ func (c *Cipher) innerEnvelope(v string, layers int) (string, bool) {
 		keysets[i] = k.primitive
 	}
 
-	return decryptWithAny(keysets, ciphertext)
+	return decryptWithAny(keysets, ciphertext, associatedData)
 }
 
-func decryptWithAny(keysets []tink.AEAD, ciphertext []byte) (string, bool) {
+func decryptWithAny(keysets []tink.AEAD, ciphertext, associatedData []byte) (string, bool) {
 	for _, k := range keysets {
-		plaintext, err := k.Decrypt(ciphertext, nil)
+		plaintext, err := k.Decrypt(ciphertext, associatedData)
 		if err == nil {
 			return string(plaintext), true
 		}

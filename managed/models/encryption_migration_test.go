@@ -54,7 +54,7 @@ func TestMigrateEncryption(t *testing.T) {
 
 	// legacy format is base64 of the Tink ciphertext without the envelope prefix
 	toLegacy := func(plaintext string) string {
-		stored, err := cipher.Encrypt(plaintext)
+		stored, err := cipher.Encrypt(plaintext, nil)
 		require.NoError(t, err)
 		return strings.TrimPrefix(stored, encryption.EnvelopePrefix)
 	}
@@ -192,7 +192,7 @@ func TestMigrateEncryptionWrongKey(t *testing.T) {
 	// legacy ciphertext produced by an unrelated keyset
 	other, err := encryption.CreateCipher(encryption.NewFileKeyProvider(t.TempDir() + "/other.key"))
 	require.NoError(t, err)
-	stored, err := other.Encrypt("password-under-another-key")
+	stored, err := other.Encrypt("password-under-another-key", nil)
 	require.NoError(t, err)
 	foreign := strings.TrimPrefix(stored, encryption.EnvelopePrefix)
 
@@ -291,7 +291,7 @@ func TestMigrateEncryptionStackedLayers(t *testing.T) {
 	t.Cleanup(func() { encryption.SetDefaultCipher(current) })
 
 	layer := func(c *encryption.Cipher, plaintext string) string {
-		stored, err := c.Encrypt(plaintext)
+		stored, err := c.Encrypt(plaintext, nil)
 		require.NoError(t, err)
 		return strings.TrimPrefix(stored, encryption.EnvelopePrefix)
 	}
@@ -331,7 +331,7 @@ func TestMigrateEncryptionStackedLayers(t *testing.T) {
 	require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT mysql_options FROM agents WHERE agent_id = 'repairable'`).Scan(&raw))
 	var stored models.MySQLOptions
 	require.NoError(t, json.Unmarshal([]byte(raw), &stored))
-	decrypted, err := current.Decrypt(stored.TLSKey)
+	decrypted, err := current.Decrypt(stored.TLSKey, []byte("agents.mysql_options.tls_key"))
 	require.NoError(t, err)
 	assert.Equal(t, tlsKey, decrypted)
 
@@ -480,16 +480,16 @@ func TestMigrateEncryptionAfterOlderVersion(t *testing.T) {
 
 	cipher, err := encryption.DefaultCipher()
 	require.NoError(t, err)
-	olderVersionLayer := func(plaintext string) string {
-		envelope, err := cipher.Encrypt(plaintext)
+	olderVersionLayer := func(plaintext, column string) string {
+		envelope, err := cipher.Encrypt(plaintext, []byte(column))
 		require.NoError(t, err)
-		wrapped, err := cipher.Encrypt(envelope)
+		wrapped, err := cipher.Encrypt(envelope, nil)
 		require.NoError(t, err)
 		return strings.TrimPrefix(wrapped, encryption.EnvelopePrefix)
 	}
 
 	const tlsKey = "-----BEGIN PRIVATE KEY-----\nkey\n-----END PRIVATE KEY-----\n"
-	mysqlOptions, err := json.Marshal(map[string]any{"tls_key": olderVersionLayer(tlsKey)})
+	mysqlOptions, err := json.Marshal(map[string]any{"tls_key": olderVersionLayer(tlsKey, "agents.mysql_options.tls_key")})
 	require.NoError(t, err)
 
 	now := time.Now()
@@ -501,7 +501,7 @@ func TestMigrateEncryptionAfterOlderVersion(t *testing.T) {
 	_, err = sqlDB.ExecContext(t.Context(),
 		`INSERT INTO agents (agent_id, agent_type, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, mysql_options) `+
 			`VALUES ('A1', 'pmm-agent', $1, 'N1', false, '', $2, $3, false, false, $4)`,
-		olderVersionLayer("password"), now, now, string(mysqlOptions))
+		olderVersionLayer("password", "agents.password"), now, now, string(mysqlOptions))
 	require.NoError(t, err)
 
 	require.NoError(t, models.MigrateEncryption(q))
@@ -516,8 +516,8 @@ func TestMigrateEncryptionAfterOlderVersion(t *testing.T) {
 	require.NoError(t, sqlDB.QueryRowContext(t.Context(), `SELECT password, mysql_options FROM agents WHERE agent_id = 'A1'`).Scan(&password, &rawOptions))
 	var stored models.MySQLOptions
 	require.NoError(t, json.Unmarshal([]byte(rawOptions), &stored))
-	for _, v := range []string{password, stored.TLSKey} {
-		insp, err := cipher.Inspect(v)
+	for column, v := range map[string]string{"agents.password": password, "agents.mysql_options.tls_key": stored.TLSKey} {
+		insp, err := cipher.Inspect(v, []byte(column))
 		require.NoError(t, err)
 		assert.Zero(t, insp.ExtraLayers)
 		assert.True(t, encryption.IsEncrypted(v))
@@ -549,7 +549,7 @@ func TestMigrateEncryptionAfterKeyLoss(t *testing.T) {
 	lostKey, err := encryption.CreateCipher(lostProvider)
 	require.NoError(t, err)
 	legacy := func(c *encryption.Cipher, plaintext string) string {
-		stored, err := c.Encrypt(plaintext)
+		stored, err := c.Encrypt(plaintext, nil)
 		require.NoError(t, err)
 		return strings.TrimPrefix(stored, encryption.EnvelopePrefix)
 	}
@@ -680,7 +680,7 @@ func TestMigrateEncryptionOmBootstrapSecrets(t *testing.T) {
 	cipher, err := encryption.DefaultCipher()
 	require.NoError(t, err)
 	toLegacy := func(plaintext string) string {
-		stored, err := cipher.Encrypt(plaintext)
+		stored, err := cipher.Encrypt(plaintext, nil)
 		require.NoError(t, err)
 		return strings.TrimPrefix(stored, encryption.EnvelopePrefix)
 	}
@@ -749,7 +749,7 @@ func TestMigrateEncryptionOmBootstrapSecretsWrongKey(t *testing.T) {
 	// legacy ciphertext produced by an unrelated keyset
 	other, err := encryption.CreateCipher(encryption.NewFileKeyProvider(t.TempDir() + "/other.key"))
 	require.NoError(t, err)
-	stored, err := other.Encrypt("password-under-another-key")
+	stored, err := other.Encrypt("password-under-another-key", nil)
 	require.NoError(t, err)
 	foreign := strings.TrimPrefix(stored, encryption.EnvelopePrefix)
 
@@ -871,7 +871,7 @@ func TestMigrateEncryptionCiphertextLookAlikeSecret(t *testing.T) {
 		RunID:           "R1",
 		MongoDBUsername: "admin",
 		MongoDBPassword: "password",
-		KeyFile:         models.EncryptedString(keyFile),
+		KeyFile:         models.OmKeyFile(keyFile),
 	}))
 
 	_, err = encryption.AddNewPrimaryKey(provider)

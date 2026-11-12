@@ -340,8 +340,8 @@ func newBootstrapSecret() (*models.OmBootstrapSecret, error) {
 	}
 	return &models.OmBootstrapSecret{
 		MongoDBUsername: bootstrapMongoDBUsername,
-		MongoDBPassword: models.EncryptedString(password),
-		KeyFile:         models.EncryptedString(keyFile),
+		MongoDBPassword: models.OmMongoDBPassword(password),
+		KeyFile:         models.OmKeyFile(keyFile),
 	}, nil
 }
 

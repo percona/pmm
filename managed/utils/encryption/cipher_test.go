@@ -76,7 +76,7 @@ func TestLegacyStringFixtures(t *testing.T) {
 	c := legacyCipher(t)
 
 	for _, pair := range loadLegacyFixtures(t).Strings {
-		decrypted, err := c.Decrypt(pair.Ciphertext)
+		decrypted, err := c.Decrypt(pair.Ciphertext, nil)
 		require.NoError(t, err)
 		assert.Equal(t, pair.Plaintext, decrypted)
 
@@ -86,11 +86,11 @@ func TestLegacyStringFixtures(t *testing.T) {
 		assert.False(t, ok)
 
 		// re-encrypting yields an envelope value that needs no further rewrite
-		reencrypted, err := c.Encrypt(pair.Plaintext)
+		reencrypted, err := c.Encrypt(pair.Plaintext, nil)
 		require.NoError(t, err)
 		assert.True(t, IsEncrypted(reencrypted))
 		assert.False(t, c.NeedsReencrypt(reencrypted))
-		roundTrip, err := c.Decrypt(reencrypted)
+		roundTrip, err := c.Decrypt(reencrypted, nil)
 		require.NoError(t, err)
 		assert.Equal(t, pair.Plaintext, roundTrip)
 	}
@@ -117,7 +117,7 @@ func TestLegacyOptionsFixtures(t *testing.T) {
 			secretFields++
 			ciphertext, ok := encryptedValue.(string)
 			require.True(t, ok, "%s: %s is not a string", column, key)
-			decrypted, err := c.Decrypt(ciphertext)
+			decrypted, err := c.Decrypt(ciphertext, nil)
 			require.NoError(t, err, "%s: %s", column, key)
 			assert.Equal(t, plainValue, decrypted, "%s: %s", column, key)
 		}
@@ -134,7 +134,7 @@ func TestCipherRoundTrip(t *testing.T) {
 		strings.Repeat("k", 10000),
 		"-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
 	} {
-		stored, err := c.Encrypt(plaintext)
+		stored, err := c.Encrypt(plaintext, nil)
 		require.NoError(t, err)
 		assert.True(t, strings.HasPrefix(stored, EnvelopePrefix))
 
@@ -142,7 +142,7 @@ func TestCipherRoundTrip(t *testing.T) {
 		require.True(t, ok)
 		assert.Equal(t, c.PrimaryKeyID(), keyID)
 
-		decrypted, err := c.Decrypt(stored)
+		decrypted, err := c.Decrypt(stored, nil)
 		require.NoError(t, err)
 		assert.Equal(t, plaintext, decrypted)
 	}
@@ -151,11 +151,11 @@ func TestCipherRoundTrip(t *testing.T) {
 func TestCipherEmptyString(t *testing.T) {
 	c := newTestCipher(t)
 
-	stored, err := c.Encrypt("")
+	stored, err := c.Encrypt("", nil)
 	require.NoError(t, err)
 	assert.Empty(t, stored)
 
-	decrypted, err := c.Decrypt("")
+	decrypted, err := c.Decrypt("", nil)
 	require.NoError(t, err)
 	assert.Empty(t, decrypted)
 
@@ -177,7 +177,7 @@ func TestCipherPlaintextPassthrough(t *testing.T) {
 		EnvelopePrefix + "AeEBAg==",
 	} {
 		assert.False(t, IsEncrypted(plaintext), plaintext)
-		decrypted, err := c.Decrypt(plaintext)
+		decrypted, err := c.Decrypt(plaintext, nil)
 		require.NoError(t, err)
 		assert.Equal(t, plaintext, decrypted)
 
@@ -190,19 +190,19 @@ func TestCipherEnvelopeHardFailures(t *testing.T) {
 	c := newTestCipher(t)
 
 	t.Run("corrupted ciphertext", func(t *testing.T) {
-		stored, err := c.Encrypt("secret")
+		stored, err := c.Encrypt("secret", nil)
 		require.NoError(t, err)
 		corrupted := stored[:len(stored)-4] + "AAAA"
-		_, err = c.Decrypt(corrupted)
+		_, err = c.Decrypt(corrupted, nil)
 		assert.Error(t, err)
 	})
 
 	t.Run("wrong key", func(t *testing.T) {
-		stored, err := c.Encrypt("secret")
+		stored, err := c.Encrypt("secret", nil)
 		require.NoError(t, err)
 
 		other := newTestCipher(t)
-		_, err = other.Decrypt(stored)
+		_, err = other.Decrypt(stored, nil)
 		assert.Error(t, err)
 	})
 }
@@ -249,7 +249,7 @@ func TestRotation(t *testing.T) {
 
 	oldCipher, err := CreateCipher(provider)
 	require.NoError(t, err)
-	oldValue, err := oldCipher.Encrypt("secret-under-key1")
+	oldValue, err := oldCipher.Encrypt("secret-under-key1", nil)
 	require.NoError(t, err)
 
 	newKeyID, err := AddNewPrimaryKey(provider)
@@ -261,13 +261,13 @@ func TestRotation(t *testing.T) {
 	assert.Equal(t, newKeyID, newCipher.PrimaryKeyID())
 
 	// values encrypted under the old key stay readable and are flagged stale
-	decrypted, err := newCipher.Decrypt(oldValue)
+	decrypted, err := newCipher.Decrypt(oldValue, nil)
 	require.NoError(t, err)
 	assert.Equal(t, "secret-under-key1", decrypted)
 	assert.True(t, newCipher.NeedsReencrypt(oldValue))
 
 	// new writes carry the new key ID
-	newValue, err := newCipher.Encrypt(decrypted)
+	newValue, err := newCipher.Encrypt(decrypted, nil)
 	require.NoError(t, err)
 	keyID, ok := StoredKeyID(newValue)
 	require.True(t, ok)
@@ -280,12 +280,12 @@ func TestRotation(t *testing.T) {
 
 	prunedCipher, err := LoadCipher(provider)
 	require.NoError(t, err)
-	decrypted, err = prunedCipher.Decrypt(newValue)
+	decrypted, err = prunedCipher.Decrypt(newValue, nil)
 	require.NoError(t, err)
 	assert.Equal(t, "secret-under-key1", decrypted)
 
 	// old-key envelopes are unreadable after pruning — that's the point
-	_, err = prunedCipher.Decrypt(oldValue)
+	_, err = prunedCipher.Decrypt(oldValue, nil)
 	require.Error(t, err)
 
 	// pruning again is a no-op
@@ -300,7 +300,7 @@ func TestPruneRequiresNoStaleValues(t *testing.T) {
 	provider := NewFileKeyProvider(filepath.Join(t.TempDir(), "encryption.key"))
 	c, err := CreateCipher(provider)
 	require.NoError(t, err)
-	stored, err := c.Encrypt("secret")
+	stored, err := c.Encrypt("secret", nil)
 	require.NoError(t, err)
 
 	_, err = AddNewPrimaryKey(provider)
@@ -317,10 +317,10 @@ func TestLegacyWrongKey(t *testing.T) {
 
 	// the key file does not match the data: the value is ambiguous on its own,
 	// so Decrypt passes it through and InspectLegacy flags it
-	decrypted, err := c.Decrypt(legacy)
+	decrypted, err := c.Decrypt(legacy, nil)
 	require.NoError(t, err)
 	assert.Equal(t, legacy, decrypted)
-	_, err = c.Inspect(legacy)
+	_, err = c.Inspect(legacy, nil)
 	assert.ErrorIs(t, err, ErrLegacyUnknownKey)
 }
 
@@ -334,15 +334,15 @@ func TestLegacyAuthFailure(t *testing.T) {
 	raw[len(raw)-1] ^= 0xff
 	corrupted := base64.StdEncoding.EncodeToString(raw)
 
-	_, err = c.Decrypt(corrupted)
+	_, err = c.Decrypt(corrupted, nil)
 	require.ErrorIs(t, err, ErrLegacyAuthFailed)
-	_, err = c.Inspect(corrupted)
+	_, err = c.Inspect(corrupted, nil)
 	assert.ErrorIs(t, err, ErrLegacyAuthFailed)
 }
 
 func TestInspectLegacyReadableValues(t *testing.T) {
 	c := legacyCipher(t)
-	envelope, err := c.Encrypt("secret")
+	envelope, err := c.Encrypt("secret", nil)
 	require.NoError(t, err)
 
 	for _, stored := range []string{
@@ -352,7 +352,7 @@ func TestInspectLegacyReadableValues(t *testing.T) {
 		envelope,
 		loadLegacyFixtures(t).Strings[0].Ciphertext,
 	} {
-		insp, err := c.Inspect(stored)
+		insp, err := c.Inspect(stored, nil)
 		require.NoError(t, err, stored)
 		assert.Zero(t, insp.ExtraLayers, stored)
 	}
@@ -362,7 +362,7 @@ func TestInspectLegacyReadableValues(t *testing.T) {
 func legacyLayer(t *testing.T, c *Cipher, plaintext string) string {
 	t.Helper()
 
-	stored, err := c.Encrypt(plaintext)
+	stored, err := c.Encrypt(plaintext, nil)
 	require.NoError(t, err)
 
 	return strings.TrimPrefix(stored, EnvelopePrefix)
@@ -387,26 +387,26 @@ func TestStackedLegacyLayers(t *testing.T) {
 		c, err := current.WithLegacyKeys(oldProvider)
 		require.NoError(t, err)
 
-		decrypted, err := c.Decrypt(oneRotation)
+		decrypted, err := c.Decrypt(oneRotation, nil)
 		require.NoError(t, err)
 		assert.Equal(t, secret, decrypted)
-		insp, err := c.Inspect(oneRotation)
+		insp, err := c.Inspect(oneRotation, nil)
 		require.NoError(t, err)
 		assert.Equal(t, 1, insp.ExtraLayers)
 
 		// a value migrated before the key was found still heals: the layer
 		// under the envelope is removed on read
-		migrated, err := current.Encrypt(legacyLayer(t, oldKey, secret))
+		migrated, err := current.Encrypt(legacyLayer(t, oldKey, secret), nil)
 		require.NoError(t, err)
-		decrypted, err = c.Decrypt(migrated)
+		decrypted, err = c.Decrypt(migrated, nil)
 		require.NoError(t, err)
 		assert.Equal(t, secret, decrypted)
-		insp, err = c.Inspect(migrated)
+		insp, err = c.Inspect(migrated, nil)
 		require.NoError(t, err)
 		assert.Equal(t, 1, insp.ExtraLayers)
 
 		// the decrypt-only key never encrypts
-		reencrypted, err := c.Encrypt(secret)
+		reencrypted, err := c.Encrypt(secret, nil)
 		require.NoError(t, err)
 		keyID, ok := StoredKeyID(reencrypted)
 		require.True(t, ok)
@@ -418,7 +418,7 @@ func TestStackedLegacyLayers(t *testing.T) {
 		require.NoError(t, err)
 		stacked := legacyLayer(t, current, legacyLayer(t, current, legacyLayer(t, oldKey, secret)))
 
-		decrypted, err := c.Decrypt(stacked)
+		decrypted, err := c.Decrypt(stacked, nil)
 		require.NoError(t, err)
 		assert.Equal(t, secret, decrypted)
 	})
@@ -426,9 +426,9 @@ func TestStackedLegacyLayers(t *testing.T) {
 	t.Run("inner key lost", func(t *testing.T) {
 		// without the previous key the secret cannot be recovered; reads do
 		// not fail (other rows stay usable) but Inspect reports it
-		_, err := current.Decrypt(oneRotation)
+		_, err := current.Decrypt(oneRotation, nil)
 		require.NoError(t, err)
-		_, err = current.Inspect(oneRotation)
+		_, err = current.Inspect(oneRotation, nil)
 		assert.ErrorIs(t, err, ErrLegacyInnerKeyLost)
 	})
 }
@@ -445,9 +445,9 @@ func TestLegacyBackupKeyPath(t *testing.T) {
 // this handling already wrapped in a second envelope.
 func TestLegacyLayerOverEnvelope(t *testing.T) {
 	c := newTestCipher(t)
-	envelope, err := c.Encrypt("secret")
+	envelope, err := c.Encrypt("secret", nil)
 	require.NoError(t, err)
-	doubleEnvelope, err := c.Encrypt(envelope)
+	doubleEnvelope, err := c.Encrypt(envelope, nil)
 	require.NoError(t, err)
 
 	for name, stored := range map[string]string{
@@ -455,15 +455,45 @@ func TestLegacyLayerOverEnvelope(t *testing.T) {
 		"envelope stored by a migration without fix": doubleEnvelope,
 	} {
 		t.Run(name, func(t *testing.T) {
-			decrypted, err := c.Decrypt(stored)
+			decrypted, err := c.Decrypt(stored, nil)
 			require.NoError(t, err)
 			assert.Equal(t, "secret", decrypted)
 
-			insp, err := c.Inspect(stored)
+			insp, err := c.Inspect(stored, nil)
 			require.NoError(t, err)
 			assert.Equal(t, 1, insp.ExtraLayers)
 		})
 	}
+}
+
+// TestCipherBindsAssociatedData covers an envelope moved to another column: it must not decrypt there.
+func TestCipherBindsAssociatedData(t *testing.T) {
+	c := newTestCipher(t)
+	password := []byte("agents.password")
+	username := []byte("agents.username")
+	stored, err := c.Encrypt("secret", password)
+	require.NoError(t, err)
+
+	decrypted, err := c.Decrypt(stored, password)
+	require.NoError(t, err)
+	assert.Equal(t, "secret", decrypted)
+
+	_, err = c.Decrypt(stored, username)
+	require.Error(t, err)
+	_, err = c.Inspect(stored, username)
+	require.Error(t, err)
+
+	t.Run("legacy values carry none", func(t *testing.T) {
+		decrypted, err := c.Decrypt(legacyLayer(t, c, "secret"), username)
+		require.NoError(t, err)
+		assert.Equal(t, "secret", decrypted)
+	})
+
+	t.Run("an envelope under a legacy layer keeps its own", func(t *testing.T) {
+		decrypted, err := c.Decrypt(legacyLayer(t, c, stored), password)
+		require.NoError(t, err)
+		assert.Equal(t, "secret", decrypted)
+	})
 }
 
 // TestInspectDecrypted pins the evidence the startup migration uses to tell a
@@ -471,7 +501,7 @@ func TestLegacyLayerOverEnvelope(t *testing.T) {
 func TestInspectDecrypted(t *testing.T) {
 	c := newTestCipher(t)
 	other := newTestCipher(t)
-	envelope, err := c.Encrypt("secret")
+	envelope, err := c.Encrypt("secret", nil)
 	require.NoError(t, err)
 
 	for stored, want := range map[string]bool{
@@ -481,18 +511,18 @@ func TestInspectDecrypted(t *testing.T) {
 		legacyLayer(t, c, "secret"):   true,
 		legacyLayer(t, other, "gone"): false,
 	} {
-		insp, _ := c.Inspect(stored)
+		insp, _ := c.Inspect(stored, nil)
 		assert.Equal(t, want, insp.Decrypted, stored)
 	}
 }
 
 func TestCipherNotInitialized(t *testing.T) {
 	var c *Cipher
-	_, err := c.Encrypt("secret")
+	_, err := c.Encrypt("secret", nil)
 	require.ErrorIs(t, err, ErrEncryptionNotInitialized)
-	_, err = c.Decrypt("secret")
+	_, err = c.Decrypt("secret", nil)
 	require.ErrorIs(t, err, ErrEncryptionNotInitialized)
-	_, err = c.Inspect("secret")
+	_, err = c.Inspect("secret", nil)
 	require.ErrorIs(t, err, ErrEncryptionNotInitialized)
 
 	defaultCipherMu.RLock()
@@ -516,16 +546,16 @@ func TestLookAlikeUnderLayer(t *testing.T) {
 	lookAlike := base64.StdEncoding.EncodeToString(raw)
 
 	// on its own it is a hard error: a known key ID that fails authentication
-	_, err := c.Decrypt(lookAlike)
+	_, err := c.Decrypt(lookAlike, nil)
 	require.ErrorIs(t, err, ErrLegacyAuthFailed)
 
 	// under an envelope it is the secret
-	stored, err := c.Encrypt(lookAlike)
+	stored, err := c.Encrypt(lookAlike, nil)
 	require.NoError(t, err)
-	decrypted, err := c.Decrypt(stored)
+	decrypted, err := c.Decrypt(stored, nil)
 	require.NoError(t, err)
 	assert.Equal(t, lookAlike, decrypted)
-	insp, err := c.Inspect(stored)
+	insp, err := c.Inspect(stored, nil)
 	require.NoError(t, err)
 	assert.Zero(t, insp.ExtraLayers)
 	assert.True(t, insp.Decrypted)
@@ -535,22 +565,22 @@ func TestLookAlikeUnderLayer(t *testing.T) {
 // read: an error, unless the cipher accepts key loss.
 func TestUnknownKey(t *testing.T) {
 	lost := newTestCipher(t)
-	stored, err := lost.Encrypt("secret")
+	stored, err := lost.Encrypt("secret", nil)
 	require.NoError(t, err)
 	c := newTestCipher(t)
 
-	_, err = c.Decrypt(stored)
+	_, err = c.Decrypt(stored, nil)
 	require.ErrorIs(t, err, ErrUnknownKey)
-	_, err = c.Inspect(stored)
+	_, err = c.Inspect(stored, nil)
 	require.ErrorIs(t, err, ErrUnknownKey)
 
 	accepting := c.AcceptingKeyLoss()
 	assert.True(t, accepting.AcceptsKeyLoss())
 	assert.False(t, c.AcceptsKeyLoss(), "the original cipher is unchanged")
-	decrypted, err := accepting.Decrypt(stored)
+	decrypted, err := accepting.Decrypt(stored, nil)
 	require.NoError(t, err)
 	assert.Equal(t, stored, decrypted)
-	_, err = accepting.Inspect(stored)
+	_, err = accepting.Inspect(stored, nil)
 	require.ErrorIs(t, err, ErrUnknownKey, "the migration still sees the loss")
 }
 
@@ -561,22 +591,22 @@ func TestLostEnvelopeRecovered(t *testing.T) {
 	lostPath := filepath.Join(t.TempDir(), "lost.key")
 	lost, err := CreateCipher(NewFileKeyProvider(lostPath))
 	require.NoError(t, err)
-	inner, err := lost.Encrypt("secret")
+	inner, err := lost.Encrypt("secret", nil)
 	require.NoError(t, err)
 	c := newTestCipher(t)
-	wrapped, err := c.Encrypt(inner)
+	wrapped, err := c.Encrypt(inner, nil)
 	require.NoError(t, err)
 
-	decrypted, err := c.Decrypt(wrapped)
+	decrypted, err := c.Decrypt(wrapped, nil)
 	require.NoError(t, err)
 	assert.Equal(t, inner, decrypted, "without the lost key")
 
 	withLost, err := c.WithLegacyKeys(NewFileKeyProvider(lostPath))
 	require.NoError(t, err)
-	decrypted, err = withLost.Decrypt(wrapped)
+	decrypted, err = withLost.Decrypt(wrapped, nil)
 	require.NoError(t, err)
 	assert.Equal(t, "secret", decrypted)
-	insp, err := withLost.Inspect(wrapped)
+	insp, err := withLost.Inspect(wrapped, nil)
 	require.NoError(t, err)
 	assert.Equal(t, 1, insp.ExtraLayers, "the next migration rewrites it as a single envelope")
 }

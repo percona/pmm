@@ -230,7 +230,7 @@ func generateTLSKeyPair(t *testing.T) (string, string) {
 func legacyEncrypt(t *testing.T, c *encryption.Cipher, plaintext string) string {
 	t.Helper()
 
-	stored, err := c.Encrypt(plaintext)
+	stored, err := c.Encrypt(plaintext, nil)
 	require.NoError(t, err)
 	legacy, ok := strings.CutPrefix(stored, encryption.EnvelopePrefix)
 	require.True(t, ok)
