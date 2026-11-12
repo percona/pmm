@@ -16,12 +16,34 @@
 package main
 
 import (
+	"os"
+	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/vmproxy/proxy"
 )
+
+// A mismatch makes every recording rule write fail with 403 while each side's own tests pass.
+func TestGrafanaSetsTheWriteMarker(t *testing.T) {
+	t.Parallel()
+
+	const path = "../build/ansible/roles/grafana/files/grafana.ini"
+
+	buf, err := os.ReadFile(path)
+	require.NoError(t, err, "grafana.ini has moved; update the path")
+
+	_, section, found := strings.Cut(string(buf), "[recording_rules.custom_headers]\n")
+	require.True(t, found, "%s has no [recording_rules.custom_headers] section", path)
+	section, _, _ = strings.Cut(section, "\n[")
+
+	field, ok := reflect.TypeFor[flags]().FieldByName("WriteHeaderName")
+	require.True(t, ok)
+
+	require.Equal(t, field.Tag.Get("default")+" = "+proxy.WriteHeaderValue, strings.TrimSpace(section))
+}
 
 func TestProxy(t *testing.T) {
 	t.Parallel()

@@ -298,6 +298,9 @@ command =
       --listen-port=8430
       --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
+{{- if .AllowRecordingRuleWrites }}
+      --allow-writes
+{{- end }}
 autorestart = true
 autostart = true
 startretries = 10
@@ -473,6 +476,10 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseDatasourcePassword": clickhouseDatasourcePassword,
 		"PMMServerHost":                "",
 	}
+
+	// Under access control a rule would store series its author cannot read, and in HA enabling
+	// it reconfigures this replica alone, so HA never allows the write (PMM-15844).
+	templateParams["AllowRecordingRuleWrites"] = !settings.IsAccessControlEnabled() && !s.haParams.Enabled
 
 	s.addPostgresParams(templateParams)
 	s.addClusterParams(templateParams)
