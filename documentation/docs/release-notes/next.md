@@ -76,6 +76,8 @@ Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by r
 
 - [PMM-15806](https://perconadev.atlassian.net/browse/PMM-15806): You can now search the **Clusters** tab on **MongoDB > Operations > Fleet** by cluster name and filter it by **Health**, **Type**, and **Environment**. The search and filters are saved in the page URL, so you can share a filtered view. Each cluster shows its type next to its name. The column chooser also adds optional **Type**, **Last seen**, **Max CPU**, and **Min conn. free** columns. For details, see [Operations for MongoDB](../use/mongodb-operations.md#view-fleet-health).
 
+- [PMM-15683](https://perconadev.atlassian.net/browse/PMM-15683): **MongoDB > Operations > Settings** now shows the range each number field accepts, for example **A whole number from 1 to 8**, and refuses a value outside it before you save. When PMM Extensions refuses a save or reset, the page lists one readable line per field, named by its label, instead of raw JSON. **Period** no longer offers `seconds`, which the scan schedule never accepted. For details, see [Operations for MongoDB](../use/mongodb-operations.md#change-the-scan-schedule).
+
 ## ✅ Fixed issues
 
 - [PMM-15654](https://perconadev.atlassian.net/browse/PMM-15654): Fixed the [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard hiding clusters added without `--environment` when **Environment** is set to **All** and another MongoDB service has an environment set. These clusters now appear under **All**.
