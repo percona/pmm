@@ -239,7 +239,7 @@
             "type": "stat"
         },
         {
-            "description": "The system load is a measurement of the computational work the system is performing. Each running process either using or waiting for CPU resources adds 1 to the load.",
+            "description": "The system load is a measurement of the computational work the system is performing. Each running process either using or waiting for CPU resources adds 1 to the load. The value turns orange at one task per virtual CPU and red at two.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -251,25 +251,28 @@
                             "options": {
                                 "match": "null",
                                 "result": {
+                                    "color": "text",
                                     "text": "N/A"
                                 }
                             },
                             "type": "special"
                         }
                     ],
+                    "min": 0,
                     "thresholds": {
-                        "mode": "absolute",
+                        "mode": "percentage",
                         "steps": [
                             {
-                                "color": "#299c46"
+                                "color": "#299c46",
+                                "value": null
                             },
                             {
                                 "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 10
+                                "value": 50
                             },
                             {
                                 "color": "#d44a3a",
-                                "value": 20
+                                "value": 100
                             }
                         ]
                     },
@@ -286,7 +289,7 @@
             "id": 57,
             "maxDataPoints": 100,
             "options": {
-                "colorMode": "none",
+                "colorMode": "value",
                 "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "horizontal",
@@ -313,13 +316,43 @@
                     "interval": "$interval",
                     "intervalFactor": 1,
                     "refId": "A"
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "2 * (count(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"user\"}) or sum(rdsosmetrics_General_numVCPUs{node_name=~\"$node_name\"}) or vector(10))",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Load max",
+                    "range": false,
+                    "refId": "B"
                 }
             ],
             "title": "Load Average",
+            "transformations": [
+                {
+                    "id": "configFromData",
+                    "options": {
+                        "applyTo": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "configRefId": "B",
+                        "mappings": [
+                            {
+                                "fieldName": "Load max",
+                                "handlerKey": "max"
+                            }
+                        ]
+                    }
+                }
+            ],
             "type": "stat"
         },
         {
-            "description": "Sum of disk space on all partitions. Note  it can be significantly over-reported in some installations",
+            "description": "Sum of the size of all real filesystems, counted once per device.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -393,7 +426,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "avg by (node_name) (sum(avg(node_filesystem_size_bytes{node_name=~\"$node_name\",fstype=~\"(ext.|xfs|vfat|)\"}) without (mountpoint)) without (device,fstype))",
+                    "expr": "avg by (node_name) (sum(avg(node_filesystem_size_bytes{node_name=~\"$node_name\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}) without (mountpoint)) without (device,fstype))",
                     "format": "time_series",
                     "interval": "5m",
                     "intervalFactor": 1,
@@ -416,6 +449,7 @@
                             "options": {
                                 "match": "null",
                                 "result": {
+                                    "color": "text",
                                     "text": "N/A"
                                 }
                             },
@@ -451,7 +485,7 @@
             "id": 59,
             "maxDataPoints": 100,
             "options": {
-                "colorMode": "none",
+                "colorMode": "value",
                 "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "horizontal",
@@ -473,7 +507,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "avg by (node_name) (min(node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}/node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"})*100 or \n(100 - azure_storage_percent_average{node_name=~\"$node_name\"}))",
+                    "expr": "avg by (node_name) (min(node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} / (node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} - node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"} + node_filesystem_avail_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}))*100 or \n(100 - azure_storage_percent_average{node_name=~\"$node_name\"}))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -497,6 +531,7 @@
                             "options": {
                                 "match": "null",
                                 "result": {
+                                    "color": "text",
                                     "text": "N/A"
                                 }
                             },
@@ -532,7 +567,7 @@
             "id": 1005,
             "maxDataPoints": 100,
             "options": {
-                "colorMode": "none",
+                "colorMode": "value",
                 "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "horizontal",
@@ -554,7 +589,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "min(sum(node_filesystem_free_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\",node_name=\"$node_name\"})/clamp_min(sum(node_filesystem_free_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\",node_name=\"$node_name\"} - predict_linear(node_filesystem_free_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\",node_name=\"$node_name\"}[1h], 1 * 3600)),0))",
+                    "expr": "min((node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"} == 0) or node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"} / clamp_min(node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"} - predict_linear(node_filesystem_avail_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\",node_name=\"$node_name\"}[1h], 1 * 3600), 0))",
                     "refId": "A"
                 }
             ],
@@ -652,6 +687,7 @@
                             "options": {
                                 "match": "null",
                                 "result": {
+                                    "color": "text",
                                     "text": "N/A"
                                 }
                             },
@@ -687,7 +723,7 @@
             "id": 55,
             "maxDataPoints": 100,
             "options": {
-                "colorMode": "none",
+                "colorMode": "value",
                 "graphMode": "area",
                 "justifyMode": "auto",
                 "orientation": "horizontal",
@@ -816,18 +852,8 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "constant": 6.5,
-                    "datasource": {
-                        "0": "P",
-                        "1": "T",
-                        "2": "S",
-                        "3": "u",
-                        "4": "m",
-                        "5": "m",
-                        "6": "a",
-                        "7": "r",
-                        "8": "y"
-                    },
+                    "datasource": "PTSummary",
+                    "nodeId": "$node_id",
                     "refId": "A"
                 }
             ],
@@ -836,7 +862,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "",
+            "description": "Number of monitored services by type, taken from the service health metrics (for example mongodb_up), so arbiters and services that are down are counted too.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -852,6 +878,12 @@
                     "mappings": [
                         {
                             "options": {
+                                "external": {
+                                    "text": "External"
+                                },
+                                "haproxy": {
+                                    "text": "HAProxy"
+                                },
                                 "mongodb": {
                                     "color": "#a12bb8",
                                     "text": "MongoDB"
@@ -863,12 +895,18 @@
                                 "postgresql": {
                                     "color": "#f3c5fc",
                                     "text": "PostgreSQL"
+                                },
+                                "proxysql": {
+                                    "text": "ProxySQL"
+                                },
+                                "valkey": {
+                                    "text": "Valkey"
                                 }
                             },
                             "type": "value"
                         }
                     ],
-                    "noValue": "-",
+                    "noValue": "No services monitored on this node",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -892,78 +930,6 @@
                             {
                                 "id": "custom.align",
                                 "value": "center"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Value"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.hidden",
-                                "value": true
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Value #A"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.hidden",
-                                "value": true
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Value #B"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.hidden",
-                                "value": true
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Value #C"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.hidden",
-                                "value": true
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Value #D"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.hidden",
-                                "value": true
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Value #E"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.hidden",
-                                "value": true
                             }
                         ]
                     }
@@ -991,146 +957,29 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "datasource": {
-                        "0": "M",
-                        "1": "e",
-                        "2": "t",
-                        "3": "r",
-                        "4": "i",
-                        "5": "c",
-                        "6": "s"
-                    },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "count by (service_type) (sum by (service_name,service_type) (max_over_time(mysql_global_status_threads_connected{service_name=~\"$service_name\",service_type!=\"external\",node_name=\"$node_name\"}[$interval])))",
+                    "expr": "count by (service_type) (max by (service_name, service_type) ({__name__=~\"mysql_up|mongodb_up|pg_up|proxysql_up|redis_up\",job=~\".+_hr\",node_name=~\"$node_name\"} or up{service_type=~\"external|haproxy\",node_name=~\"$node_name\"}))",
                     "format": "table",
                     "instant": true,
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "MySQL     ",
+                    "legendFormat": "",
                     "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "0": "M",
-                        "1": "e",
-                        "2": "t",
-                        "3": "r",
-                        "4": "i",
-                        "5": "c",
-                        "6": "s"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "count by (service_type) ( \nsum by (service_name,service_type) (max_over_time(mongodb_connections{service_name=~\"$service_name\",state=\"current\",service_type!=\"external\",node_name=\"$node_name\"}[$interval]))\n)",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "MongoDB   ",
-                    "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "0": "M",
-                        "1": "e",
-                        "2": "t",
-                        "3": "r",
-                        "4": "i",
-                        "5": "c",
-                        "6": "s"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "count by (service_type) (\nsum by (service_name,service_type) (max_over_time(pg_stat_database_numbackends{service_name=~\"$service_name\",service_type!=\"external\",node_name=\"$node_name\"}[$interval]))\n)",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "PostgreSQL  ",
-                    "refId": "C"
-                },
-                {
-                    "datasource": {
-                        "0": "M",
-                        "1": "e",
-                        "2": "t",
-                        "3": "r",
-                        "4": "i",
-                        "5": "c",
-                        "6": "s"
-                    },
-                    "editorMode": "code",
-                    "expr": "count by (service_type) (\nsum by (service_name,service_type) (max_over_time(process_virtual_memory_max_bytes{service_type=\"external\",service_name=~\"$service_name\",node_name=\"$node_name\"}[$interval]))\n)",
-                    "format": "table",
-                    "hide": true,
-                    "instant": true,
-                    "interval": "$interval",
-                    "legendFormat": "External ",
-                    "refId": "D"
-                },
-                {
-                    "datasource": {
-                        "0": "M",
-                        "1": "e",
-                        "2": "t",
-                        "3": "r",
-                        "4": "i",
-                        "5": "c",
-                        "6": "s"
-                    },
-                    "editorMode": "code",
-                    "expr": "count by (service_type) (up{service_type=\"external\",node_name=\"$node_name\"})",
-                    "format": "table",
-                    "instant": true,
-                    "interval": "$interval",
-                    "legendFormat": "External ",
-                    "refId": "E"
                 }
             ],
             "title": "Service Types",
             "transformations": [
                 {
-                    "id": "merge",
-                    "options": {}
-                },
-                {
                     "id": "organize",
                     "options": {
                         "excludeByName": {
-                            "Time": true,
-                            "agent_id": true,
-                            "agent_type": true,
-                            "environment": true,
-                            "instance": true,
-                            "job": true,
-                            "machine_id": true,
-                            "node_id": true,
-                            "node_name": true,
-                            "node_type": true
+                            "Time": true
                         },
                         "indexByName": {},
                         "renameByName": {
-                            "Value": "",
+                            "Value": "Amount",
                             "service_type": "Type"
-                        }
-                    }
-                },
-                {
-                    "id": "calculateField",
-                    "options": {
-                        "alias": "Amount",
-                        "mode": "reduceRow",
-                        "reduce": {
-                            "include": [
-                                "Value #A",
-                                "Value #B",
-                                "Value #C",
-                                "Value #D",
-                                "Value #E",
-                                "Value"
-                            ],
-                            "reducer": "sum"
                         }
                     }
                 }
@@ -1138,22 +987,118 @@
             "type": "table"
         },
         {
-            "description": "",
+            "datasource": "Metrics",
+            "description": "Health of every monitored service on this node: UP when the exporter reports the service is reachable, DOWN otherwise. External services and HAProxy report the exporter scrape status.",
             "fieldConfig": {
                 "defaults": {
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "noValue": "No services monitored on this node",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Type"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 110
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "external": {
+                                                "text": "External"
+                                            },
+                                            "haproxy": {
+                                                "text": "HAProxy"
+                                            },
+                                            "mongodb": {
+                                                "text": "MongoDB"
+                                            },
+                                            "mysql": {
+                                                "text": "MySQL"
+                                            },
+                                            "postgresql": {
+                                                "text": "PostgreSQL"
+                                            },
+                                            "proxysql": {
+                                                "text": "ProxySQL"
+                                            },
+                                            "valkey": {
+                                                "text": "Valkey"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-text"
                                 }
                             },
-                            "type": "special"
-                        }
-                    ]
-                },
-                "overrides": []
+                            {
+                                "id": "custom.align",
+                                "value": "center"
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "red",
+                                                "index": 0,
+                                                "text": "DOWN"
+                                            },
+                                            "1": {
+                                                "color": "green",
+                                                "index": 1,
+                                                "text": "UP"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 7,
@@ -1163,225 +1108,59 @@
             },
             "id": 1003,
             "options": {
-                "autoSizeColumns": true,
-                "autoSizePolygons": true,
-                "autoSizeRows": true,
-                "compositeConfig": {
-                    "animationSpeed": "2500",
-                    "composites": [],
-                    "enabled": true
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
                 },
-                "compositeGlobalAliasingEnabled": false,
-                "ellipseCharacters": 18,
-                "ellipseEnabled": true,
-                "globalAutoScaleFonts": true,
-                "globalClickthrough": "",
-                "globalClickthroughCustomTarget": "",
-                "globalClickthroughCustomTargetEnabled": false,
-                "globalClickthroughNewTabEnabled": false,
-                "globalClickthroughSanitizedEnabled": false,
-                "globalCompositeValueFontSize": 14,
-                "globalDecimals": 2,
-                "globalDisplayMode": "all",
-                "globalDisplayTextTriggeredEmpty": "OK",
-                "globalFillColor": "#0a50a1",
-                "globalGradientsEnabled": true,
-                "globalLabelFontSize": 12,
-                "globalOperator": "last",
-                "globalPolygonBorderColor": "black",
-                "globalPolygonBorderSize": 2,
-                "globalPolygonSize": 50,
-                "globalRegexPattern": "",
-                "globalShape": "hexagon_pointed_top",
-                "globalShowTimestampEnabled": false,
-                "globalShowTimestampFontSize": 12,
-                "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
-                "globalShowTimestampPosition": "below_value",
-                "globalShowTimestampYOffset": 0,
-                "globalShowTooltipColumnHeadersEnabled": true,
-                "globalShowValueEnabled": false,
-                "globalTextFontAutoColor": "#000000",
-                "globalTextFontAutoColorEnabled": true,
-                "globalTextFontColor": "#000000",
-                "globalTextFontFamily": "Inter",
-                "globalThresholdsConfig": [],
-                "globalTooltipsEnabled": true,
-                "globalTooltipsFontFamily": "Inter",
-                "globalTooltipsShowTimestampEnabled": true,
-                "globalTooltipsShowValueEnabled": true,
-                "globalUnitFormat": "short",
-                "globalValueFontSize": 14,
-                "layoutDisplayLimit": 100,
-                "layoutNumColumns": 8,
-                "layoutNumRows": 8,
-                "overrideConfig": {
-                    "overrides": [
-                        {
-                            "alias": "",
-                            "clickThrough": "/graph/d/mysql-instance-summary/mysql-instance-summary?from=$__from&to=$__to&var-service_name=${__cell_name}",
-                            "clickThroughCustomTarget": "",
-                            "clickThroughCustomTargetEnabled": false,
-                            "clickThroughOpenNewTab": true,
-                            "clickThroughSanitize": false,
-                            "colors": [
-                                "#299c46",
-                                "#e5ac0e",
-                                "#bf1b00",
-                                "#ffffff"
-                            ],
-                            "decimals": 0,
-                            "enabled": true,
-                            "label": "OVERRIDE 1",
-                            "metricName": "/.*    /",
-                            "operatorName": "last",
-                            "order": 0,
-                            "prefix": "MySQL - ",
-                            "scaledDecimals": 0,
-                            "suffix": "",
-                            "thresholds": [
-                                {
-                                    "color": "#1F60C4",
-                                    "state": 0,
-                                    "value": 0
-                                }
-                            ],
-                            "unitFormat": "short"
-                        },
-                        {
-                            "alias": "",
-                            "clickThrough": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?from=$__from&to=$__to&var-service_name=${__cell_name}",
-                            "clickThroughCustomTarget": "",
-                            "clickThroughCustomTargetEnabled": false,
-                            "clickThroughOpenNewTab": true,
-                            "clickThroughSanitize": false,
-                            "colors": [
-                                "#299c46",
-                                "#e5ac0e",
-                                "#bf1b00",
-                                "#ffffff"
-                            ],
-                            "decimals": 0,
-                            "enabled": true,
-                            "label": "OVERRIDE 2",
-                            "metricName": "/.*   /",
-                            "operatorName": "last",
-                            "order": 1,
-                            "prefix": "MongoDB - ",
-                            "scaledDecimals": 0,
-                            "suffix": "",
-                            "thresholds": [
-                                {
-                                    "color": "#8F3BB8",
-                                    "state": 0,
-                                    "value": 0
-                                }
-                            ],
-                            "unitFormat": "short"
-                        },
-                        {
-                            "alias": "",
-                            "clickThrough": "/graph/d/postgresql-instance-summary/postgresql-instance-summary?from=$__from&to=$__to&var-service_name=${__cell_name}",
-                            "clickThroughCustomTarget": "",
-                            "clickThroughCustomTargetEnabled": false,
-                            "clickThroughOpenNewTab": true,
-                            "clickThroughSanitize": false,
-                            "colors": [
-                                "#299c46",
-                                "#e5ac0e",
-                                "#bf1b00",
-                                "#ffffff"
-                            ],
-                            "decimals": 0,
-                            "enabled": true,
-                            "label": "OVERRIDE 3",
-                            "metricName": "/.*  /",
-                            "operatorName": "last",
-                            "order": 2,
-                            "prefix": "PostgreSQL - ",
-                            "scaledDecimals": 0,
-                            "suffix": "",
-                            "thresholds": [
-                                {
-                                    "color": "#CA95E5",
-                                    "state": 0,
-                                    "value": 0
-                                }
-                            ],
-                            "unitFormat": "short"
-                        },
-                        {
-                            "alias": "",
-                            "clickThrough": "",
-                            "clickThroughCustomTarget": "",
-                            "clickThroughCustomTargetEnabled": false,
-                            "clickThroughOpenNewTab": true,
-                            "clickThroughSanitize": true,
-                            "colors": [
-                                "#299c46",
-                                "#e5ac0e",
-                                "#bf1b00",
-                                "#4040a0"
-                            ],
-                            "decimals": "",
-                            "enabled": true,
-                            "label": "OVERRIDE 4",
-                            "metricName": "/.* /",
-                            "operatorName": "mean",
-                            "order": 3,
-                            "prefix": "External",
-                            "scaledDecimals": 0,
-                            "suffix": "",
-                            "thresholds": [
-                                {
-                                    "color": "#FF780A",
-                                    "state": 0,
-                                    "value": 0
-                                }
-                            ],
-                            "unitFormat": "short"
-                        }
-                    ]
-                },
-                "panelId": 0,
-                "radius": 100,
-                "sortByDirection": 1,
-                "sortByField": "name",
-                "tooltipDisplayMode": "all",
-                "tooltipDisplayTextTriggeredEmpty": "OK",
-                "tooltipPrimarySortByField": "thresholdLevel",
-                "tooltipPrimarySortDirection": 2,
-                "tooltipSecondarySortByField": "value",
-                "tooltipSecondarySortDirection": 2
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Status"
+                    }
+                ]
             },
-            "pluginVersion": "2.1.15",
+            "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "sum by (service_name) (max_over_time(mysql_global_status_threads_connected{node_name=~\"$node_name\",service_type!=\"external\"}[$interval]))",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (service_name, service_type) ({__name__=~\"mysql_up|mongodb_up|pg_up|proxysql_up|redis_up\",job=~\".+_hr\",node_name=~\"$node_name\"} or up{service_type=~\"external|haproxy\",node_name=~\"$node_name\"})",
+                    "format": "table",
+                    "instant": true,
                     "interval": "$interval",
-                    "legendFormat": "{{service_name}}    ",
+                    "intervalFactor": 1,
+                    "legendFormat": "",
                     "refId": "A"
-                },
-                {
-                    "expr": "sum by (service_name) (max_over_time(mongodb_connections{node_name=~\"$node_name\",state=\"current\"}[$interval]))",
-                    "interval": "$interval",
-                    "legendFormat": "{{service_name}}   ",
-                    "refId": "B"
-                },
-                {
-                    "expr": "sum by (service_name) (max_over_time(pg_stat_database_numbackends{node_name=~\"$node_name\"}[$interval]))",
-                    "interval": "$interval",
-                    "legendFormat": "{{service_name}}  ",
-                    "refId": "C"
-                },
-                {
-                    "expr": "up{service_type=\"external\",node_name=~\"$node_name\"}",
-                    "interval": "$interval",
-                    "legendFormat": "{{service_name}} ({{external_group}})",
-                    "refId": "D"
                 }
             ],
             "title": "Services",
-            "type": "grafana-polystat-panel"
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {
+                            "Value": 2,
+                            "service_name": 0,
+                            "service_type": 1
+                        },
+                        "renameByName": {
+                            "Value": "Status",
+                            "service_name": "Service",
+                            "service_type": "Type"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
         },
         {
             "collapsed": false,
@@ -3481,6 +3260,7 @@
             "type": "timeseries"
         },
         {
+            "description": "Physical IOs (reads and writes per second) served by the disks of this node. Spikes in the number of IOs often correspond to performance problems caused by an overloaded IO subsystem. Devices stacked on other devices (LVM, md) are excluded to avoid counting the same IO twice.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -3490,7 +3270,7 @@
                         "axisBorderShow": false,
                         "axisCenteredZero": false,
                         "axisColorMode": "text",
-                        "axisLabel": "",
+                        "axisLabel": "Writes (-) / Reads (+)",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "barWidthFactor": 0.6,
@@ -3519,16 +3299,8 @@
                             "mode": "off"
                         }
                     },
-                    "decimals": 2,
-                    "links": [
-                        {
-                            "targetBlank": true,
-                            "title": "Disk Details - ${__field.labels.node_name}",
-                            "url": "/graph/d/node-disk/disk-details?var-node_name=${__field.labels.node_name}&$__url_time_range"
-                        }
-                    ],
+                    "links": [],
                     "mappings": [],
-                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -3541,48 +3313,38 @@
                             }
                         ]
                     },
-                    "unit": "short"
+                    "unit": "iops"
                 },
                 "overrides": [
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Allocated"
+                            "options": "Write"
                         },
                         "properties": [
                             {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#E0752D",
-                                    "mode": "fixed"
-                                }
+                                "id": "custom.transform",
+                                "value": "negative-Y"
                             }
                         ]
                     },
                     {
                         "matcher": {
-                            "id": "byName",
-                            "options": "Limit"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#bf1b00",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Limit"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.fillOpacity",
+                            "id": "byValue",
+                            "options": {
+                                "op": "gte",
+                                "reducer": "allIsZero",
                                 "value": 0
+                            }
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hideFrom",
+                                "value": {
+                                    "legend": true,
+                                    "tooltip": true,
+                                    "viz": false
+                                }
                             }
                         ]
                     }
@@ -3594,7 +3356,7 @@
                 "x": 12,
                 "y": 57
             },
-            "id": 32,
+            "id": 1010,
             "options": {
                 "alertThreshold": true,
                 "legend": {
@@ -3616,35 +3378,27 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "calculatedInterval": "2s",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (node_name) (max_over_time(node_filefd_maximum{node_name=~\"$node_name\"}[$interval]) or max_over_time(node_filefd_maximum{node_name=~\"$node_name\"}[5m]))",
+                    "editorMode": "code",
+                    "expr": "sum by (node_name) (rate(node_disk_reads_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) or sum by (node_name) (irate(node_disk_reads_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[5m])) or sum by (node_name) (max_over_time(rdsosmetrics_diskIO_readIOsPS{node_name=~\"$node_name\"}[$interval]) or max_over_time(rdsosmetrics_diskIO_readIOsPS{node_name=~\"$node_name\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "Limit",
-                    "metric": "",
-                    "refId": "B",
-                    "step": 300,
-                    "target": ""
+                    "legendFormat": "Read",
+                    "range": true,
+                    "refId": "A"
                 },
                 {
-                    "calculatedInterval": "2s",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (node_name) (max_over_time(node_filefd_allocated{node_name=~\"$node_name\"}[$interval]) or max_over_time(node_filefd_allocated{node_name=~\"$node_name\"}[5m]))",
+                    "editorMode": "code",
+                    "expr": "sum by (node_name) (rate(node_disk_writes_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) or sum by (node_name) (irate(node_disk_writes_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[5m])) or sum by (node_name) (max_over_time(rdsosmetrics_diskIO_writeIOsPS{node_name=~\"$node_name\"}[$interval]) or max_over_time(rdsosmetrics_diskIO_writeIOsPS{node_name=~\"$node_name\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
-                    "legendFormat": "Allocated",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300,
-                    "target": ""
+                    "legendFormat": "Write",
+                    "range": true,
+                    "refId": "B"
                 }
             ],
-            "title": "Global File Descriptors Usage",
+            "title": "Disk Operations",
             "type": "timeseries"
         },
         {
@@ -3896,6 +3650,128 @@
             "type": "timeseries"
         },
         {
+            "description": "Percent of the time each disk had at least one IO request in flight. It matches %util in iostat. Higher utilization increases the likelihood of IO queuing, so consider it together with latency and IO load.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byValue",
+                            "options": {
+                                "op": "gte",
+                                "reducer": "allIsZero",
+                                "value": 0
+                            }
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.hideFrom",
+                                "value": {
+                                    "legend": true,
+                                    "tooltip": true,
+                                    "viz": false
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 65
+            },
+            "id": 1011,
+            "options": {
+                "alertThreshold": true,
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "max by (node_name, device) (rate(node_disk_io_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) or irate(node_disk_io_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[5m]) or (max_over_time(rdsosmetrics_diskIO_util{node_name=~\"$node_name\"}[$interval]) or max_over_time(rdsosmetrics_diskIO_util{node_name=~\"$node_name\"}[5m]))/100)",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{device}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Disk IO Utilization",
+            "type": "timeseries"
+        },
+        {
             "description": "Shows how much disk was loaded for reads or writes as average number of outstanding requests at different period of time.  High disk load is a good measure of actual storage utilization. Different storage types handle load differently - some will show latency increases on low loads others can handle higher load with no problems.",
             "fieldConfig": {
                 "defaults": {
@@ -4043,8 +3919,8 @@
             "gridPos": {
                 "h": 8,
                 "w": 12,
-                "x": 12,
-                "y": 65
+                "x": 0,
+                "y": 73
             },
             "id": 51,
             "links": [
@@ -4115,12 +3991,180 @@
             "type": "timeseries"
         },
         {
+            "description": "Open file handles on the whole system. The limit is hidden when the kernel reports an effectively unlimited value (1e15 or more), which would otherwise flatten the allocated line.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "Disk Details - ${__field.labels.node_name}",
+                            "url": "/graph/d/node-disk/disk-details?var-node_name=${__field.labels.node_name}&$__url_time_range"
+                        }
+                    ],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Allocated"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#E0752D",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Limit"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#bf1b00",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Limit"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.fillOpacity",
+                                "value": 0
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 73
+            },
+            "id": 32,
+            "options": {
+                "alertThreshold": true,
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "calculatedInterval": "2s",
+                    "datasourceErrors": {},
+                    "errors": {},
+                    "expr": "(avg by (node_name) (max_over_time(node_filefd_maximum{node_name=~\"$node_name\"}[$interval]) or max_over_time(node_filefd_maximum{node_name=~\"$node_name\"}[5m]))) < 1e15",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Limit",
+                    "metric": "",
+                    "refId": "B",
+                    "step": 300,
+                    "target": ""
+                },
+                {
+                    "calculatedInterval": "2s",
+                    "datasourceErrors": {},
+                    "errors": {},
+                    "expr": "avg by (node_name) (max_over_time(node_filefd_allocated{node_name=~\"$node_name\"}[$interval]) or max_over_time(node_filefd_allocated{node_name=~\"$node_name\"}[5m]))",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Allocated",
+                    "metric": "",
+                    "refId": "A",
+                    "step": 300,
+                    "target": ""
+                }
+            ],
+            "title": "Global File Descriptors Usage",
+            "type": "timeseries"
+        },
+        {
             "collapsed": false,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 73
+                "y": 81
             },
             "id": 42,
             "panels": [],
@@ -4209,7 +4253,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 74
+                "y": 82
             },
             "id": 21,
             "options": {
@@ -4369,7 +4413,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 74
+                "y": 82
             },
             "id": 22,
             "options": {
@@ -4566,7 +4610,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 82
+                "y": 90
             },
             "id": 52,
             "options": {
@@ -4761,7 +4805,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 82
+                "y": 90
             },
             "id": 53,
             "options": {
@@ -4800,7 +4844,7 @@
                     "target": ""
                 },
                 {
-                    "expr": "avg by (node_name) (rate(node_netstat_Tcp_RetransSegs{node_name=~\"$node_name\"}[$interval])/(rate(node_netstat_Tcp_OutSegs{node_name=~\"$node_name\"}[$interval]) > 0) or irate(node_netstat_Tcp_RetransSegs{node_name=~\"$node_name\"}[5m])/(irate(node_netstat_Tcp_OutSegsSegs{node_name=~\"$node_name\"}[5m]) > 0))",
+                    "expr": "avg by (node_name) (rate(node_netstat_Tcp_RetransSegs{node_name=~\"$node_name\"}[$interval])/(rate(node_netstat_Tcp_OutSegs{node_name=~\"$node_name\"}[$interval]) > 0) or irate(node_netstat_Tcp_RetransSegs{node_name=~\"$node_name\"}[5m])/(irate(node_netstat_Tcp_OutSegs{node_name=~\"$node_name\"}[5m]) > 0))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
@@ -5123,23 +5167,20 @@
                 "type": "query"
             },
             {
-                "current": {
-                    "text": "pmm-server",
-                    "value": "pmm-server"
-                },
+                "current": {},
                 "datasource": "Metrics",
-                "definition": "label_values(up{node_name=~\"$node_name\"}, node_id)",
+                "definition": "query_result(topk(1, max by (node_id) (timestamp(up{node_name=~\"$node_name\"}))))",
                 "hide": 2,
                 "includeAll": false,
                 "label": "Node ID",
                 "name": "node_id",
                 "options": [],
                 "query": {
-                    "query": "label_values(up{node_name=~\"$node_name\"}, node_id)",
+                    "query": "query_result(topk(1, max by (node_id) (timestamp(up{node_name=~\"$node_name\"}))))",
                     "refId": "Metrics-node_id-Variable-Query"
                 },
                 "refresh": 2,
-                "regex": "",
+                "regex": "/node_id=\"([^\"]+)\"/",
                 "sort": 5,
                 "type": "query"
             }

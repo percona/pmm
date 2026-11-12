@@ -4,7 +4,15 @@
 
 ## System Summary
 
-The output from ``pt-summary``, one of the [Percona Toolkit utilities](https://www.percona.com/doc/percona-toolkit/LATEST/pt-summary.html).
+The output from ``pt-summary``, one of the [Percona Toolkit utilities](https://www.percona.com/doc/percona-toolkit/LATEST/pt-summary.html). The report is collected on the node that you select in the **Node Name** list, and it follows the selection when you change it.
+
+## Service Types
+
+The number of monitored services on the node, by type. The count is based on the service health metrics, such as `mongodb_up`, so arbiters and services that are down are included.
+
+## Services
+
+The health of each monitored service on the node. The **Status** column shows **UP** when the exporter reports that the service is reachable, and **DOWN** when it doesn't. For external services and HAProxy, the status is the scrape status of the exporter. If the node has no monitored services, the panel shows **No services monitored on this node**.
 
 ## CPU Usage
 
@@ -29,10 +37,17 @@ Swap Activity is memory management that involves swapping sections of memory to 
 
 Disk I/O includes read or write or input/output operations involving a physical disk. It is the speed with which the data transfer takes place between the hard disk drive and RAM.
 
+## Disk Operations
+
+The number of physical I/O operations per second that the disks of the node serve. Reads are plotted above the axis and writes below it. Spikes in the number of operations often correspond to performance problems caused by an overloaded I/O subsystem. Devices that are stacked on other devices, such as LVM and software RAID (`dm-*` and `md*`), are excluded so that the same I/O isn't counted twice.
 
 ## Disk IO Latency
 
 Shows average latency for Reads and Writes IO Devices.  Higher than typical latency for highly loaded storage indicates saturation (overload) and is frequent cause of performance problems.  Higher than normal latency also can indicate internal storage problems.
+
+## Disk IO Utilization
+
+The percentage of time that each disk had at least one I/O request in flight. The value matches `%util` in the `iostat` tool. Higher utilization increases the likelihood of I/O queuing, so consider it together with latency and I/O load.
 
 ## Disk IO Load
 
