@@ -70,6 +70,26 @@ describe('TextInput', () => {
     expect(storedValue()).toBe('abc');
   });
 
+  it('stores the raw text when textFieldProps.onChange returns null', () => {
+    const onChange = vi.fn(() => null);
+    render(<Form textFieldProps={{ onChange }} />);
+
+    type('abc');
+
+    expect(storedValue()).toBe('abc');
+    expect(screen.getByTestId('text-input-host')).toHaveValue('abc');
+  });
+
+  it('clears the stored value when textFieldProps.onChange returns an empty string', () => {
+    const onChange = vi.fn(() => '');
+    render(<Form textFieldProps={{ onChange }} />);
+
+    type('abc');
+
+    expect(storedValue()).toBe('');
+    expect(screen.getByTestId('text-input-host')).toHaveValue('');
+  });
+
   it('stores the text when InputProps.onChange is given, and calls it after the store', () => {
     let storedWhenCalled: unknown;
     const Probe = () => {
