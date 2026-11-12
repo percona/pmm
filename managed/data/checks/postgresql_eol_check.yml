@@ -3,7 +3,7 @@ checks:
   - version: 2
     name: postgresql_eol_check
     summary: Check if PostgreSQL version is EOL
-    description: Checks to see if the currently installed PostgreSQL version is end of life and no longer supported
+    description: Checks to see if the currently installed PostgreSQL version has reached or is about to reach end of life
     # author: Jorge Torralba
     category: Versions
     technology: POSTGRESQL
@@ -11,70 +11,80 @@ checks:
       - type: POSTGRESQL_SELECT
         query: "setting, (setting::int / 10000) major  FROM pg_settings WHERE name = 'server_version_num' "
     script: |
-      eolversion = 100023
-      eolmajor = 10
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
+      # Same dates as version_expires in postgresql_version_check.
+      # https://www.postgresql.org/support/versioning/
+      version_expires = {
+          "9.0": "2015-10-09",
+          "9.1": "2016-10-28",
+          "9.2": "2017-11-10",
+          "9.3": "2018-11-09",
+          "9.4": "2020-02-10",
+          "9.5": "2021-02-11",
+          "9.6": "2021-11-11",
+          "10": "2022-11-10",
+          "11": "2023-11-09",
+          "12": "2024-11-14",
+          "13": "2025-11-13",
+          "14": "2026-11-12",
+          "15": "2027-11-11",
+          "16": "2028-11-09",
+          "17": "2029-11-08",
+          "18": "2030-11-15",
+      }
+
+      # A major version that reaches EOL within this many days gets a warning.
+      WARN_DAYS = 183
 
       def format_version(major, ver):
           if major >= 10:
-             minor = int(ver) % 10
-             fmt_version = "{}.{}".format(major, minor)
+              return "{}.{}".format(major, ver % 100)
 
-          if major <= 9:
-             minor = int(ver) // 100  % 100
-             patch = int(ver) % 100
-             fmt_version = "{}.{}.{}".format(major, minor, patch)
+          return "{}.{}.{}".format(major, ver // 100 % 100, ver % 100)
 
-          return fmt_version
+      def series(major, ver):
+          if major >= 10:
+              return str(major)
 
+          return "{}.{}".format(major, ver // 100 % 100)
 
       def check_context(rows, context):
-           results = []
-           read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
-           description = ""
-           iseol = False
-           for row in rows[0]:
-               ver, major = row["setting"], row["major"]
+          days_until = context.get("days_until", fail)
 
-               #hard code for testing
-               #ver = 10003
-               #major = 10
+          results = []
+          for row in rows[0]:
+              ver, major = int(row["setting"]), int(row["major"])
+              s = series(major, ver)
+              if s not in version_expires:
+                  continue
 
-               if str(major) == "":
+              eol_date = version_expires[s]
+              days = days_until(eol_date)
+              if days > WARN_DAYS:
+                  continue
+
+              labels = {
+                  "current": format_version(major, ver),
+                  "series": s,
+                  "eol_date": eol_date,
+              }
+
+              if days < 0:
                   results.append({
-                      "summary": "Could not determine version information",
-                      "description": "Unknown version",
-                      "read_more_url": "",
-                      "severity": "warning",
-                      "labels": {},
+                      "summary": "PostgreSQL {} reached end of life".format(s),
+                      "description": "PostgreSQL {} reached its End-of-Life date on {} and no longer gets bug fixes or security fixes. Percona does not provide support or hotfixes for EOL versions. Upgrade to a supported major version.".format(s, eol_date),
+                      "read_more_url": read_url.format("postgresql-eol-check"),
+                      "severity": "error",
+                      "labels": labels,
                   })
-                  return results
+              else:
+                  results.append({
+                      "summary": "PostgreSQL {} reaches end of life on {}".format(s, eol_date),
+                      "description": "PostgreSQL {} End-of-Life date is {}. After that date it no longer gets bug fixes or security fixes. Plan your upgrade to a supported major version.".format(s, eol_date),
+                      "read_more_url": read_url.format("postgresql-eol-check"),
+                      "severity": "warning",
+                      "labels": labels,
+                  })
 
-               if major >= 10:
-                   current_version = format_version(major, ver)
-                   eol_version = format_version(eolmajor, eolversion)
-                   if int(ver) <= eolversion:
-                      iseol = True
-                      description = "The currently installed version ({}) is EOL and no longer supported as of version ({}).".format(current_version, eol_version)
-
-               if major < 10:
-                   minor = int(ver) // 100  % 100
-                   realmajor = "{}.{}".format(major, minor)
-                   current_version = format_version(major, ver)
-                   eol_version = format_version(eolmajor, eolversion)
-                   if int(ver) <= eolversion:
-                      iseol = True
-                      description = "The currently installed version ({}) is EOL and no longer supported as of version ({}).".format(current_version, eol_version)
-
-               results.append({
-                   "summary": "Currently installed version is ({})".format(current_version),
-                   "description": description,
-                   "read_more_url":read_url.format("postgresql-eol-check"),
-                   "severity": "warning",
-                   "labels": {},
-               })
-
-
-           if iseol == False:
-              return []
-
-           return results
+          return results

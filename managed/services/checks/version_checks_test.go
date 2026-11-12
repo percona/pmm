@@ -113,10 +113,11 @@ func mongoBuildInfo(version string) []map[string]any {
 	return []map[string]any{{"version": version}}
 }
 
-func mongoEOL(severity, current, series, eolDate string) finding {
-	summary := "MongoDB " + series + " reached end of life"
+// eolFinding builds the finding that the EOL checks share: product is the name used in the summary.
+func eolFinding(product, severity, current, series, eolDate string) finding {
+	summary := product + " " + series + " reached end of life"
 	if severity == "warning" {
-		summary = "MongoDB " + series + " reaches end of life on " + eolDate
+		summary = product + " " + series + " reaches end of life on " + eolDate
 	}
 
 	return finding{
@@ -124,6 +125,14 @@ func mongoEOL(severity, current, series, eolDate string) finding {
 		Summary:  summary,
 		Labels:   map[string]string{"current": current, "series": series, "eol_date": eolDate},
 	}
+}
+
+func mongoEOL(severity, current, series, eolDate string) finding {
+	return eolFinding("MongoDB", severity, current, series, eolDate)
+}
+
+func pgEOL(severity, current, series, eolDate string) finding {
+	return eolFinding("PostgreSQL", severity, current, series, eolDate)
 }
 
 func mongoCmdLineOpts(parsed map[string]any) []map[string]any {
@@ -253,11 +262,97 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			descContains: []string{"security fixes", "https://www.mongodb.com/resources/products/alerts", "Major version 8.0 "},
 		},
 		{
+			name:  "postgresql_eol_check 110022",
+			check: "postgresql_eol_check",
+			today: today,
+			docs:  [][]map[string]any{pgVersionRows(110022)},
+			want:  []finding{pgEOL("error", "11.22", "11", "2023-11-09")},
+		},
+		{
+			name:  "postgresql_eol_check 120022",
+			check: "postgresql_eol_check",
+			today: today,
+			docs:  [][]map[string]any{pgVersionRows(120022)},
+			want:  []finding{pgEOL("error", "12.22", "12", "2024-11-14")},
+		},
+		{
+			name:  "postgresql_eol_check 130023",
+			check: "postgresql_eol_check",
+			today: today,
+			docs:  [][]map[string]any{pgVersionRows(130023)},
+			want:  []finding{pgEOL("error", "13.23", "13", "2025-11-13")},
+		},
+		{
 			name:  "postgresql_eol_check 100023",
 			check: "postgresql_eol_check",
 			today: today,
 			docs:  [][]map[string]any{pgVersionRows(100023)},
-			want:  []finding{{Severity: "warning", Summary: "Currently installed version is (10.3)"}},
+			want:  []finding{pgEOL("error", "10.23", "10", "2022-11-10")},
+		},
+		{
+			name:  "postgresql_eol_check 140024 day before EOL",
+			check: "postgresql_eol_check",
+			today: "2026-11-11",
+			docs:  [][]map[string]any{pgVersionRows(140024)},
+			want:  []finding{pgEOL("warning", "14.24", "14", "2026-11-12")},
+		},
+		{
+			name:  "postgresql_eol_check 140024 day after EOL",
+			check: "postgresql_eol_check",
+			today: "2026-11-13",
+			docs:  [][]map[string]any{pgVersionRows(140024)},
+			want:  []finding{pgEOL("error", "14.24", "14", "2026-11-12")},
+		},
+		{
+			name:  "postgresql_eol_check 170011",
+			check: "postgresql_eol_check",
+			today: today,
+			docs:  [][]map[string]any{pgVersionRows(170011)},
+			want:  []finding{},
+		},
+		{
+			name:  "postgresql_eol_check 170011 on EOL day",
+			check: "postgresql_eol_check",
+			today: "2029-11-08",
+			docs:  [][]map[string]any{pgVersionRows(170011)},
+			want:  []finding{pgEOL("warning", "17.11", "17", "2029-11-08")},
+		},
+		{
+			name:  "postgresql_eol_check 170011 day after EOL",
+			check: "postgresql_eol_check",
+			today: "2029-11-09",
+			docs:  [][]map[string]any{pgVersionRows(170011)},
+			want:  []finding{pgEOL("error", "17.11", "17", "2029-11-08")},
+		},
+		{
+			name:  "postgresql_eol_check 190000 not in table",
+			check: "postgresql_eol_check",
+			today: today,
+			docs:  [][]map[string]any{pgVersionRows(190000)},
+			want:  []finding{},
+		},
+		{
+			name:  "postgresql_eol_check 90624",
+			check: "postgresql_eol_check",
+			today: today,
+			docs:  [][]map[string]any{pgVersionRows(90624)},
+			want:  []finding{pgEOL("error", "9.6.24", "9.6", "2021-11-11")},
+		},
+		{
+			name:         "postgresql_version_check 170005",
+			check:        "postgresql_version_check",
+			today:        today,
+			docs:         [][]map[string]any{pgVersionRows(170005)},
+			want:         []finding{{Severity: "warning", Summary: "Currently installed version is (17.5)"}},
+			descContains: []string{"newer minor version (17.11)", "will end in 1092 days", "security fixes", "https://www.postgresql.org/support/security/"},
+		},
+		{
+			name:         "postgresql_version_check 130023",
+			check:        "postgresql_version_check",
+			today:        today,
+			docs:         [][]map[string]any{pgVersionRows(130023)},
+			want:         []finding{{Severity: "warning", Summary: "Currently installed version is (13.23)"}},
+			descContains: []string{"newer major version (18.6)", "expired 364 days ago", "security fixes"},
 		},
 		{
 			name:  "mysql_unsupported_version_check 5.6.51",
@@ -291,8 +386,13 @@ func TestBuiltinVersionChecks(t *testing.T) {
 	}
 }
 
-func TestRetiredMongoDBChecks(t *testing.T) {
-	for _, name := range []string{"mongodb_unsupported_version", "mongodb_cve_version"} {
+func TestRetiredChecks(t *testing.T) {
+	for _, name := range []string{
+		"mongodb_unsupported_version",
+		"mongodb_cve_version",
+		"postgresql_unsupported_check",
+		"postgresql_cve_check",
+	} {
 		_, err := os.Stat(filepath.Join("..", "..", "data", "checks", name+".yml"))
 		assert.ErrorIs(t, err, os.ErrNotExist, name)
 	}

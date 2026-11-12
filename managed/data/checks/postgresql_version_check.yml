@@ -9,7 +9,7 @@ checks:
     technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
-        query: "setting, (setting::int / 10000) major, extract(epoch FROM NOW())::int AS today  FROM pg_settings WHERE name = 'server_version_num' "
+        query: "setting, (setting::int / 10000) major  FROM pg_settings WHERE name = 'server_version_num' "
     script: |
       latest_versions = {
           "9.0": 90023,
@@ -30,23 +30,24 @@ checks:
           "18": 180006,
       }
 
+      # https://www.postgresql.org/support/versioning/
       version_expires = {
-          "9.0": 1444361785,
-          "9.1": 1477625785,
-          "9.2": 1510288585,
-          "9.3": 1541738185,
-          "9.4": 1581321600,
-          "9.5": 1613030400,
-          "9.6": 1636617600,
-          "10": 1668067200,
-          "11": 1699516800,
-          "12": 1731571200,
-          "13": 1763020800,
-          "14": 1794470400,
-          "15": 1825920000,
-          "16": 1857409199,
-          "17": 1886140800,
-          "18": 1920931200,
+          "9.0": "2015-10-09",
+          "9.1": "2016-10-28",
+          "9.2": "2017-11-10",
+          "9.3": "2018-11-09",
+          "9.4": "2020-02-10",
+          "9.5": "2021-02-11",
+          "9.6": "2021-11-11",
+          "10": "2022-11-10",
+          "11": "2023-11-09",
+          "12": "2024-11-14",
+          "13": "2025-11-13",
+          "14": "2026-11-12",
+          "15": "2027-11-11",
+          "16": "2028-11-09",
+          "17": "2029-11-08",
+          "18": "2030-11-15",
       }
 
       minver = 9
@@ -54,17 +55,15 @@ checks:
       latestpg = 180006
       latest_and_greatest = "18.6"
 
-      def days_left(major,today):
-          expires = version_expires[str(major)]
-          daysleft = expires - int(today)
-          daysleft = int(daysleft) // 86400
+      security_line = " The newer release includes security fixes: https://www.postgresql.org/support/security/."
 
-          if daysleft <= 0:
-             daysleft = daysleft * -1
-             return "WARNING: The version currently installed expired {} days ago.".format(daysleft)
+      def days_left(major, days_until):
+          daysleft = days_until(version_expires[str(major)])
 
-          if daysleft > 0:
-             return "NOTE: Support for current version will end in {} days.".format(daysleft)
+          if daysleft < 0:
+             return "WARNING: The version currently installed expired {} days ago.".format(-daysleft)
+
+          return "NOTE: Support for current version will end in {} days.".format(daysleft)
 
 
       def format_version(major, ver):
@@ -81,7 +80,7 @@ checks:
 
 
       def check_context(rows, context):
-           #fail(rows)
+           days_until = context.get("days_until", fail)
            results = []
            read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
            description = ""
@@ -89,7 +88,7 @@ checks:
            minoroutdated = False
            majoroutdated = False
            for row in rows[0]:
-               ver, major, today = row["setting"], row["major"], row["today"]
+               ver, major = row["setting"], row["major"]
 
                major = int(major)
 
@@ -110,7 +109,7 @@ checks:
                if major >= 10:
                    current_version = format_version(major, ver)
                    latest_for_current = latest_versions[str(major)]
-                   daysleft = days_left(major,today)
+                   daysleft = days_left(major, days_until)
                    if int(ver) < latest_for_current:
                       latest_current = format_version(major, latest_for_current)
                       description = "There is a newer minor version ({}) available. ".format(latest_current)
@@ -122,7 +121,7 @@ checks:
                    realmajor = "{}.{}".format(major, minor)
                    current_version = format_version(major, ver)
                    latest_for_current = latest_versions[str(realmajor)]
-                   daysleft = days_left(realmajor,today)
+                   daysleft = days_left(realmajor, days_until)
                    if int(ver) < latest_for_current:
                       latest_current = format_version(major, latest_for_current)
                       description = "There is a newer minor version ({}) available. ".format(latest_current)
@@ -133,6 +132,8 @@ checks:
                       majoroutdated = True
                       description = "Version ({}) is the latest release for this major/minor version. However, there is a newer major version ({}) available. ".format(current_version, latest_and_greatest)
                       description += daysleft
+
+               description += security_line
 
                results.append({
                    "summary": "Currently installed version is ({})".format(current_version),

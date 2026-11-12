@@ -4,6 +4,10 @@
 
 This Advisor checks the version of PostgreSQL currently installed, and reports whether a new minor version is available. Information about the latest version based on Major version is also provided.
 
+The finding also says how many days are left until the end of life (EOL) of the installed major version, or how long ago it reached EOL. To be alerted when a major version reaches or approaches EOL, see the [`postgresql_eol_check`](postgresql-eol-check.md) check.
+
+Newer releases include security fixes, so the finding also links to the [PostgreSQL security information page](https://www.postgresql.org/support/security/), where you can check which vulnerabilities affect your current version.
+
 ## Resolution
 Follow the instructions below to upgrade PostreSQL:
 
