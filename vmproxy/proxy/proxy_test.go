@@ -423,6 +423,7 @@ func TestProxy(t *testing.T) {
 				getHandler(Config{
 					HeaderName:      headerName,
 					WriteHeaderName: "X-Proxy-Write",
+					AllowWrites:     true,
 					TargetURL:       uri,
 				}).ServeHTTP(rec, req)
 
@@ -457,6 +458,7 @@ func TestProxy(t *testing.T) {
 		getHandler(Config{
 			HeaderName:      headerName,
 			WriteHeaderName: "X-Proxy-Write",
+			AllowWrites:     true,
 			TargetURL:       uri,
 		}).ServeHTTP(rec, req)
 
@@ -469,7 +471,7 @@ func TestProxy(t *testing.T) {
 		require.False(t, proxied, "refused request must not reach VictoriaMetrics")
 	})
 
-	t.Run("shall refuse a write when no write header is configured", func(t *testing.T) {
+	t.Run("shall refuse a marked write with its own reason when writes are off", func(t *testing.T) {
 		t.Parallel()
 
 		// What pmm-managed renders while access control is on.
@@ -486,7 +488,7 @@ func TestProxy(t *testing.T) {
 		req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "http://127.0.0.1/api/v1/push", nil)
 		req.Header.Set("X-Proxy-Write", "1")
 
-		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
+		getHandler(Config{HeaderName: headerName, WriteHeaderName: "X-Proxy-Write", TargetURL: uri}).ServeHTTP(rec, req)
 
 		resp := rec.Result()
 		t.Cleanup(func() {
@@ -494,6 +496,7 @@ func TestProxy(t *testing.T) {
 		})
 
 		require.Equal(t, http.StatusForbidden, resp.StatusCode)
+		assert.Contains(t, rec.Body.String(), "access control is enabled")
 		require.False(t, proxied, "refused request must not reach VictoriaMetrics")
 	})
 

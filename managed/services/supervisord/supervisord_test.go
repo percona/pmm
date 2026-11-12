@@ -130,14 +130,14 @@ func TestConfigRecordingRuleWrites(t *testing.T) {
 	tmpl := templates.Lookup("vmproxy")
 	require.NotNil(t, tmpl)
 
-	// Under access control vmproxy gets no header name, so it refuses the write.
+	// Under access control vmproxy is not told to allow writes, so it refuses them.
 	for _, tc := range []struct {
 		name          string
 		accessControl bool
-		expectHeader  bool
+		expectFlag    bool
 	}{
-		{name: "access control off", accessControl: false, expectHeader: true},
-		{name: "access control on", accessControl: true, expectHeader: false},
+		{name: "access control off", accessControl: false, expectFlag: true},
+		{name: "access control on", accessControl: true, expectFlag: false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -148,10 +148,10 @@ func TestConfigRecordingRuleWrites(t *testing.T) {
 			actual, err := s.marshalConfig(tmpl, settings)
 			require.NoError(t, err)
 
-			if tc.expectHeader {
-				assert.Contains(t, string(actual), "--write-header-name=X-Proxy-Write")
+			if tc.expectFlag {
+				assert.Contains(t, string(actual), "--allow-writes")
 			} else {
-				assert.NotContains(t, string(actual), "--write-header-name")
+				assert.NotContains(t, string(actual), "--allow-writes")
 			}
 		})
 	}

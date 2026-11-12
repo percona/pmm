@@ -41,8 +41,9 @@ Client (Grafana / API)
   the HA vmauth route map accept. Grafana sets the header from `[recording_rules.custom_headers]`
   in `grafana.ini`, on recording rule writes alone. It is not a credential: Grafana forwards a
   client's own headers to the data source, so nginx clears it wherever it clears the admin marker.
-  pmm-managed leaves `--write-header-name` empty under access control, refusing every write,
-  because a scheduled evaluation carries no `X-Proxy-Filter` (PMM-15844).
+  pmm-managed passes `--allow-writes` only while access control is off: a scheduled evaluation
+  carries no `X-Proxy-Filter`, so under access control a marked write gets a 403 that names the
+  cause, logged at debug (PMM-15844).
 - Invalid headers (bad base64 or JSON) return `412 Precondition Failed`
 - `X-Forwarded-For` is stripped
 - Missing `User-Agent` is set to empty
@@ -73,7 +74,8 @@ CLI flags (using **Kong**):
 | `--listen-address` | `127.0.0.1` | Listen address |
 | `--listen-port` | `1280` | Listen port |
 | `--header-name` | `X-Proxy-Filter` | HTTP header containing filters |
-| `--write-header-name` | *(empty)* | Header marking a recording rule remote write; empty refuses every write |
+| `--write-header-name` | `X-Proxy-Write` | Header marking a recording rule remote write |
+| `--allow-writes` | `false` | Forward marked remote writes; without it they are refused |
 | `--debug` | `false` | Enable debug logging |
 
 ## Implementation Details
@@ -82,7 +84,7 @@ The proxy is built on `net/http/httputil.ReverseProxy` with a custom `Director` 
 
 1. **`director()`** / **`prepareRequest()`** — rewrites `req.URL` to target, sets Host and Authorization
 2. **`failOnDisallowedPath()`** / **`isPathAllowed()`** — refuses any path outside the read-only allow-list with 403, before the request is proxied
-3. **`isRecordingRuleWrite()`** — lets a marked remote write past the allow-list, forwarded as `/api/v1/write`
+3. **`isRecordingRuleWrite()`** — lets a marked remote write past the allow-list, forwarded as `/api/v1/write`, when `--allow-writes` is set
 4. **`failOnInvalidHeader()`** — if the filter header is present but malformed, returns 412
 5. **Filter injection** — removes existing `extra_filters[]`, parses header, adds each filter as `extra_filters[]`
 

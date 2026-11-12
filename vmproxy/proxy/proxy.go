@@ -65,11 +65,10 @@ var readOnlyPaths = map[string]struct{}{
 // adminHeaderValue is the only value the admin marker is honoured with; pmm-managed sets it.
 const adminHeaderValue = "1"
 
-// writeHeaderValue is the only value the write marker is honoured with; grafana.ini sets it.
-const writeHeaderValue = "1"
+// WriteHeaderValue is the only value the write marker is honoured with; grafana.ini sets it.
+const WriteHeaderValue = "1"
 
-// remoteWritePath is the one shape a write is forwarded in. Grafana asks for /api/v1/push, which
-// single-node VictoriaMetrics accepts but the HA vmauth route map does not.
+// remoteWritePath is the only write path the HA vmauth route map accepts.
 const remoteWritePath = "/api/v1/write"
 
 // remoteWritePaths are the endpoints Grafana's recording rule writer can address.
@@ -88,8 +87,10 @@ type Config struct {
 	TargetURL *url.URL
 	// Name of the header marking a request as coming from an admin. Case insensitive.
 	AdminHeaderName string
-	// Name of the header marking a recording rule write. Case insensitive. Empty refuses writes.
+	// Name of the header marking a recording rule write. Case insensitive.
 	WriteHeaderName string
+	// Whether a recording rule write is forwarded; refused with its own message otherwise.
+	AllowWrites bool
 }
 
 // RunProxy starts proxy which adds extra filters based on configuration.
@@ -142,6 +143,11 @@ func getHandler(cfg Config) http.HandlerFunc {
 
 		switch {
 		case isRecordingRuleWrite(req, cleanedPath, cfg.WriteHeaderName):
+			if !cfg.AllowWrites {
+				refuseRecordingRuleWrite(rw, req)
+				return
+			}
+
 			cleanedPath = remoteWritePath
 		case failOnDisallowedPath(rw, req, cleanedPath, cfg.AdminHeaderName):
 			return
@@ -201,8 +207,17 @@ func isPathAllowed(cleanedPath string, isAdmin bool) bool {
 	return labelValuesPath.MatchString(cleanedPath)
 }
 
-// isRecordingRuleWrite reports whether this is a remote write from Grafana's recording rules.
-// The marker is not a credential: nginx clears it so a client cannot supply one. See PMM-15844.
+// refuseRecordingRuleWrite answers 403 naming the cause, which the allow-list refusal cannot.
+func refuseRecordingRuleWrite(rw http.ResponseWriter, req *http.Request) {
+	// Debug: every rule lands here on every evaluation while writes are off.
+	logrus.WithField("path", req.URL.Path).Debug("Refusing recording rule write")
+
+	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	rw.WriteHeader(http.StatusForbidden)
+	io.WriteString(rw, "Recording rules cannot write to Metrics while access control is enabled") //nolint:errcheck,gosec
+}
+
+// isRecordingRuleWrite reports whether the request carries the write marker, which nginx clears for clients (PMM-15844).
 func isRecordingRuleWrite(req *http.Request, cleanedPath, headerName string) bool {
 	if headerName == "" || req.Method != http.MethodPost {
 		return false
@@ -212,7 +227,7 @@ func isRecordingRuleWrite(req *http.Request, cleanedPath, headerName string) boo
 		return false
 	}
 
-	return req.Header.Get(headerName) == writeHeaderValue
+	return req.Header.Get(headerName) == WriteHeaderValue
 }
 
 // normalizePath reduces the shapes the same endpoint arrives in to one. The nginx config

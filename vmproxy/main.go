@@ -39,7 +39,8 @@ type flags struct {
 	ListenAddress   string   `default:"127.0.0.1" help:"Listen address for proxy"`
 	HeaderName      string   `default:"X-Proxy-Filter" help:"Header name to read filter configuration from. The content of the header shall be a base64 encoded JSON array with strings. Each string is a filter. Multiple filters are joined with a logical OR."`
 	AdminHeaderName string   `default:"X-Proxy-Admin" help:"Header name pmm-managed sets to mark a request as coming from an admin, which allows the admin-only VictoriaMetrics diagnostics. nginx overwrites it on every route reaching this proxy, so clients cannot set it."`
-	WriteHeaderName string   `help:"Header name Grafana sets to mark a remote write from its recording rules, which this proxy otherwise refuses. pmm-managed passes it only where access control is off; empty, the default, refuses every write."`
+	WriteHeaderName string   `default:"X-Proxy-Write" help:"Header name Grafana sets to mark a remote write from its recording rules. nginx clears it on every route reaching this proxy, so clients cannot set it."`
+	AllowWrites     bool     `help:"Forward remote writes from Grafana's recording rules. pmm-managed passes it only where access control is off; without it every write is refused."`
 }
 
 func main() {
@@ -70,6 +71,7 @@ func runProxy(opts flags, proxyFn func(cfg proxy.Config) error) error {
 		HeaderName:      opts.HeaderName,
 		AdminHeaderName: opts.AdminHeaderName,
 		WriteHeaderName: opts.WriteHeaderName,
+		AllowWrites:     opts.AllowWrites,
 		ListenAddress:   net.JoinHostPort(opts.ListenAddress, strconv.Itoa(opts.ListenPort)),
 		TargetURL:       opts.TargetURL,
 	})

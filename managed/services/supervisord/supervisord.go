@@ -80,10 +80,6 @@ const (
 	logsDir   = "/srv/logs"
 )
 
-// recordingRuleWriteHeader marks a recording rule write for vmproxy. The same name is in
-// build/ansible/roles/grafana/files/grafana.ini, so the two change together.
-const recordingRuleWriteHeader = "X-Proxy-Write"
-
 // removedPrograms were configured by older pmm-managed versions. A new image starts without their
 // config, but a pmm-managed swapped into a running container (dev container, CI) finds it still
 // there, with the program running, and their logs stay on /srv after any upgrade.
@@ -302,8 +298,8 @@ command =
       --listen-port=8430
       --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
-{{- if .RecordingRuleWriteHeader }}
-      --write-header-name={{ .RecordingRuleWriteHeader }}
+{{- if .AllowRecordingRuleWrites }}
+      --allow-writes
 {{- end }}
 autorestart = true
 autostart = true
@@ -434,16 +430,6 @@ func (s *Service) reload(name string) error {
 	return err
 }
 
-// recordingRuleWriteHeaderFor returns the header name vmproxy accepts writes under, empty to
-// refuse them: under access control a rule stores series its author cannot read (PMM-15844).
-func recordingRuleWriteHeaderFor(settings *models.Settings) string {
-	if settings.IsAccessControlEnabled() {
-		return ""
-	}
-
-	return recordingRuleWriteHeader
-}
-
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
 	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
@@ -489,8 +475,10 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseDatasourceUser":     clickhouseDatasourceUser,
 		"ClickhouseDatasourcePassword": clickhouseDatasourcePassword,
 		"PMMServerHost":                "",
-		"RecordingRuleWriteHeader":     recordingRuleWriteHeaderFor(settings),
 	}
+
+	// Under access control a rule would store series its author cannot read (PMM-15844).
+	templateParams["AllowRecordingRuleWrites"] = !settings.IsAccessControlEnabled()
 
 	s.addPostgresParams(templateParams)
 	s.addClusterParams(templateParams)
