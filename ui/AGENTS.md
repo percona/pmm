@@ -71,6 +71,10 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/rta/selection`                          | RTA service selection                       |
 | `/rta/sessions`                           | RTA sessions list                           |
 | `/rta/overview`                           | RTA overview                                |
+| `/advisors`                               | Advisors                                    |
+| `/advisors/insights`                      | Advisor insights                            |
+| `/advisors/runs`                          | Advisor runs                                |
+| `/advisors/scheduler`                     | Advisor schedules                           |
 | `/graph/*`                                | Grafana iframe                              |
 | `*`                                       | Page not found (`NotFoundPage`)             |
 
