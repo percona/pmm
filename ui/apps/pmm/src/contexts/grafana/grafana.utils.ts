@@ -9,11 +9,14 @@ export const getLocationUrl = (location: Path) => {
   return pathname + location.search + location.hash;
 };
 
-const MIGRATED_PAGES = [
+// Grafana paths whose pages PMM UI serves; the router redirects them
+const MIGRATED_GRAFANA_PATHS = [
   '/graph/settings',
   '/graph/inventory',
   '/graph/edit-instance',
+  '/graph/advisors',
+  '/graph/pmm-database-checks',
 ];
 
 export const isMigratedPage = (src: string) =>
-  MIGRATED_PAGES.some((page) => src.includes(page));
+  MIGRATED_GRAFANA_PATHS.some((path) => src.includes(path));
