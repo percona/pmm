@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useForm } from 'react-hook-form';
-import { FormProvider } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import * as DocBlock from '@storybook/addon-docs/blocks';
 import TextInput from './text';
 import { TextInputProps } from './text.types';
