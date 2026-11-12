@@ -21,6 +21,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -111,9 +113,6 @@ func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 		s.l.Info("PMM Extensions is not configured; on-host facts will be absent")
 		return s
 	}
-	if cleartextToken(extensionsURL) {
-		s.l.Warnf("PMM Extensions at %s is plain HTTP and off this host: PMM_EXTENSIONS_TOKEN and users' credentials will cross the network in clear text", extensionsURL)
-	}
 	client := newExtensionsClient(extensionsURL, token)
 	probe := &probeSource{
 		app: client.app(probeAppModule),
@@ -142,13 +141,18 @@ func (s *Service) storedSwitch() (bool, error) {
 	return settings.IsOMEnabled(), nil
 }
 
-// IsAvailable reports whether PMM Extensions' om_inventory app is configured and reachable.
-func (s *Service) IsAvailable(ctx context.Context) bool {
-	if s.probe == nil || s.probe.app.client == nil {
-		return false
+// CheckAvailable returns why PMM Extensions' om_inventory app cannot be used, or nil when it can.
+func (s *Service) CheckAvailable(ctx context.Context) error {
+	probe, err := s.inventoryProbe()
+	if err != nil {
+		return err
 	}
-	_, err := s.probe.fetch(asService(ctx))
-	return err == nil
+	var page extensionsPage[probeService]
+	err = probe.call(asService(ctx), inventoryCall{method: http.MethodGet, path: probeServicesPath, query: url.Values{"limit": {"1"}}}, &page)
+	if status.Code(err) == codes.NotFound {
+		return status.Errorf(codes.FailedPrecondition, "PMM Extensions does not serve the om_inventory app: %s", status.Convert(err).Message())
+	}
+	return err
 }
 
 // SyncInventoryEnabled writes PMM's stored switch to om_inventory's ENABLED flag, leaving Run to correct a failed write.
@@ -202,9 +206,6 @@ func (s *Service) WithBootstrapSource(extensionsURL, token string) *Service {
 	if extensionsURL == "" {
 		s.l.Info("PMM Extensions is not configured; MongoDB bootstrap will be unavailable")
 		return s
-	}
-	if cleartextToken(extensionsURL) {
-		s.l.Warnf("PMM Extensions at %s is plain HTTP and off this host: PMM_EXTENSIONS_TOKEN and users' credentials will cross the network in clear text", extensionsURL)
 	}
 	client := newExtensionsClient(extensionsURL, token)
 	// Sharing the probe's client shares its cache of bearers exchanged for users' sessions.
