@@ -110,6 +110,7 @@ const SidebarNavItem: FC<NavItemProps> = ({
               selected={active}
               sx={[
                 level === 0 && styles.navItemRootCollapsible,
+                styles.navItemLabel,
                 !drawerOpen && { justifyContent: 'center' },
               ]}
               {...(linkProps as Omit<typeof linkProps, 'component'> & {
@@ -219,6 +220,7 @@ const SidebarNavItem: FC<NavItemProps> = ({
           sx={[
             styles.leafItem,
             level === 0 && styles.navItemRoot,
+            styles.navItemLabel,
             !drawerOpen && { justifyContent: 'center' },
           ]}
           {...(linkProps as Omit<typeof linkProps, 'component'> & {
