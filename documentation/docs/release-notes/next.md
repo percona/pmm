@@ -15,13 +15,13 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ### Spot the hot shard in your MongoDB cluster
 
-If one shard of your sharded MongoDB cluster takes most of the reads or writes, you can now see which one. Until now, the **MongoDB Sharded Cluster Summary** dashboard showed read and write traffic only for the whole cluster, so an uneven load stayed hidden.
+If you run a sharded MongoDB cluster, you can now see how the load is spread across your shards, and spot a shard that takes most of the traffic or is missing an index. Until now, the **MongoDB Sharded Cluster Summary** dashboard showed traffic only for the whole cluster, so an uneven load stayed hidden.
 
-New panels on the dashboard show reads, writes, documents scanned and query targeting for each shard, so you can tell a busy shard from one that's missing an index. To look into a shard, click its line to open its **MongoDB ReplSet Summary** dashboard.
+Four new panels on the dashboard show the load on each shard: **Reads Per Shard** and **Writes Per Shard** show where the traffic goes, and **Documents Scanned Per Shard** and **Query Targeting Per Shard** help you tell a busy shard from one that's missing an index:
 
-![Reads Per Shard and Writes Per Shard panels, with one shard taking most of the writes](../images/MongoDB_Cluster_Summary_per_shard.png)
+![The four per-shard panels: balanced reads, all writes on shard sh1, and shard sh2 scanning millions of documents per second with a query targeting value of about 370](../images/MongoDB_Cluster_Summary_per_shard.png)
 
-[Find your hot shards](../reference/dashboards/dashboard-mongodb-cluster-summary.md#reads-per-shard) to get started.
+To get started, [find your hot shards](../reference/dashboards/dashboard-mongodb-cluster-summary.md#operations-per-shard).
 
 ## 🔒 Security updates
 
