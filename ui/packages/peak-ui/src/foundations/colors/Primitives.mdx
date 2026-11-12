@@ -1,0 +1,69 @@
+import { Meta, ColorPalette, ColorItem } from '@storybook/addon-docs/blocks';
+import { primitives } from '../../design/themes/base';
+
+<Meta title="Foundations/Colors/Primitives" tags={['stable']} />
+
+# Primitives
+
+These are the foundational color scales used to build semantic tokens. Primitives are not affected by light/dark mode. They remain constant across all themes.
+
+Use primitives to construct semantic tokens in your theme (e.g., `error.main` might use `tech.redis[600]`).
+
+## Primary
+
+Core brand and neutral scales from the refreshed palette.
+
+<ColorPalette>
+  <ColorItem
+    title="Purple"
+    subtitle="primitives.primary.purple"
+    colors={primitives.primary.purple}
+  />
+  <ColorItem
+    title="Yellow"
+    subtitle="primitives.primary.yellow"
+    colors={primitives.primary.yellow}
+  />
+  <ColorItem
+    title="Black (neutrals)"
+    subtitle="primitives.primary.black"
+    colors={primitives.primary.black}
+  />
+</ColorPalette>
+
+## Tech
+
+Per-product and technology brand scales (MySQL, PostgreSQL, etc.).
+
+<ColorPalette>
+  <ColorItem title="MySQL" subtitle="primitives.tech.mysql" colors={primitives.tech.mysql} />
+  <ColorItem title="Redis" subtitle="primitives.tech.redis" colors={primitives.tech.redis} />
+  <ColorItem title="MongoDB" subtitle="primitives.tech.mongodb" colors={primitives.tech.mongodb} />
+  <ColorItem
+    title="PostgreSQL"
+    subtitle="primitives.tech.postgresql"
+    colors={primitives.tech.postgresql}
+  />
+  <ColorItem title="Valkey" subtitle="primitives.tech.valkey" colors={primitives.tech.valkey} />
+  <ColorItem
+    title="Kubernetes"
+    subtitle="primitives.tech.kubernetes"
+    colors={primitives.tech.kubernetes}
+  />
+</ColorPalette>
+
+## Extra
+
+<ColorPalette>
+  <ColorItem title="Gold" subtitle="primitives.extra.gold" colors={primitives.extra.gold} />
+</ColorPalette>
+
+## Pure
+
+<ColorPalette>
+  <ColorItem
+    title="White / Black"
+    subtitle="primitives.pure"
+    colors={{ white: primitives.pure.white, black: primitives.pure.black }}
+  />
+</ColorPalette>

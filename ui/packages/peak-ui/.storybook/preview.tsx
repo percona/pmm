@@ -1,0 +1,119 @@
+import { useMemo } from 'react';
+import type { Preview } from '@storybook/react';
+import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { getThemeOptions } from '../src/design';
+import peakUi from './peak-ui';
+import { resolveDisplayName } from './resolve-display-name';
+
+const preview: Preview = {
+  decorators: [
+    (Story, context) => {
+      const {
+        globals: { mode, theme: themeName },
+      } = context;
+
+      const theme = useMemo(() => createTheme(getThemeOptions(themeName)(mode)), [mode, themeName]);
+
+      const defaultBg = theme.palette.background.default;
+      document.body.style.backgroundColor = defaultBg;
+
+      const content = (
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Story key={context.id} />
+        </ThemeProvider>
+      );
+
+      if (context.viewMode === 'docs') {
+        const canvasSurface =
+          (context.parameters?.canvasSurface as 'default' | 'paper' | undefined) ?? 'default';
+        const canvasBg = theme.palette.background[canvasSurface] ?? defaultBg;
+        return <div style={{ backgroundColor: canvasBg, padding: '2rem' }}>{content}</div>;
+      }
+
+      return content;
+    },
+  ],
+  initialGlobals: {
+    mode: 'light',
+    theme: 'base',
+  },
+  globalTypes: {
+    mode: {
+      name: 'mode',
+      description: 'Color mode',
+      toolbar: {
+        icon: 'sun',
+        items: [
+          { value: 'light', icon: 'sun', title: 'Light mode' },
+          { value: 'dark', icon: 'moon', title: 'Dark mode' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+    theme: {
+      name: 'theme',
+      description: 'GUI theme',
+      toolbar: {
+        icon: 'circlehollow',
+        items: [
+          { value: 'base', icon: 'circlehollow', title: 'Base theme' },
+          { value: 'pmm', icon: 'hearthollow', title: 'PMM theme' },
+          { value: 'sep', icon: 'database', title: 'SEP theme' },
+        ],
+        dynamicTitle: true,
+      },
+    },
+  },
+  parameters: {
+    jsx: {
+      displayName: resolveDisplayName,
+    },
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/i,
+      },
+    },
+    docs: {
+      theme: peakUi,
+      codePanel: true,
+    },
+    options: {
+      storySort: {
+        order: [
+          'Introduction',
+          'Foundations',
+          [
+            'Colors',
+            ['Primitives', 'Primary', 'Structural UI', 'Messaging', 'Charts'],
+            'Typography',
+            'Shape',
+            'Icons',
+            ['Overview', 'Custom Icons'],
+            'Illustrations',
+            ['Overview', 'Illustrations'],
+          ],
+          'Inputs',
+          ['Icon Button', 'Text Field', 'Copy to Clipboard'],
+          'Data display',
+          ['Chip', 'Code Block', 'Table', 'Tooltip'],
+          'Feedback',
+          ['Status Icon'],
+          'Navigation',
+          'To be reviewed',
+          '*',
+        ],
+      },
+    },
+    backgrounds: {
+      disable: true,
+      grid: {
+        disable: true,
+      },
+    },
+  },
+};
+
+export default preview;
