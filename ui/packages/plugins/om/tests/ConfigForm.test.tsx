@@ -275,6 +275,28 @@ describe('ConfigForm', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
+  it("offers the schedule's switch and leaves PMM's own switch out", () => {
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        setting({
+          key: 'ENABLED',
+          type: 'bool',
+          value: true,
+          reload: 'SETTING_RELOAD_NOT_OVERRIDABLE',
+        }),
+        setting({ key: 'AUTO_SCAN', type: 'bool', value: true }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+
+    render(<ConfigForm group="general" />);
+
+    expect(screen.getAllByRole('switch')).toHaveLength(1);
+    expect(screen.getByLabelText(/^Automatic node scans/)).toBeInTheDocument();
+    expect(screen.queryByText('ENABLED')).toBeNull();
+  });
+
   it('lists a pending change by its label', () => {
     render(<ConfigForm group="general" />);
     fireEvent.change(screen.getByLabelText(/^Scan every/), {
@@ -293,7 +315,12 @@ describe('ConfigForm', () => {
     useOmInventoryConfig.mockReturnValue({
       data: [
         ...SETTINGS,
-        setting({ key: 'ENABLED', type: 'bool', value: true }),
+        setting({
+          key: 'ENABLED',
+          type: 'bool',
+          value: true,
+          reload: 'SETTING_RELOAD_NOT_OVERRIDABLE',
+        }),
       ],
       isPending: false,
       isError: false,
@@ -314,7 +341,12 @@ describe('ConfigForm', () => {
       useOmInventoryConfig.mockReturnValue({
         data: [
           ...SETTINGS,
-          setting({ key: 'ENABLED', type: 'bool', value: true }),
+          setting({
+            key: 'ENABLED',
+            type: 'bool',
+            value: true,
+            reload: 'SETTING_RELOAD_NOT_OVERRIDABLE',
+          }),
         ],
         isPending: false,
         isError: false,
@@ -322,7 +354,6 @@ describe('ConfigForm', () => {
       render(<ConfigForm group={group} />);
 
       expect(screen.queryByText('ENABLED')).toBeNull();
-      expect(screen.queryByText('Automatic node scans')).toBeNull();
     }
   );
 
