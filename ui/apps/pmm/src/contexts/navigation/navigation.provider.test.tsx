@@ -24,10 +24,6 @@ vi.mock('hooks/api/useServices', () => ({
   useServiceTypes: () => ({ data: { serviceTypes: [] } }),
 }));
 
-vi.mock('hooks/api/useAdvisors', () => ({
-  useAdvisors: () => ({ data: [] }),
-}));
-
 vi.mock('hooks/api/useFolders', () => ({
   useFolders: () => ({ data: [] }),
 }));
@@ -191,9 +187,16 @@ describe('NavigationProvider', () => {
       expect(findById(navTree, 'mongo')).toBeUndefined();
     });
 
-    it('is withheld from a non-admin', () => {
+    it.each([
+      ['an editor', TEST_USER_EDITOR],
+      ['a viewer', TEST_USER_VIEWER],
+    ])('is shown to %s, who may look but not act', (_, user) => {
+      expect(mongoChildIds(renderNavTree(user))).toEqual(['om']);
+    });
+
+    it('is withheld from an anonymous reader', () => {
       expect(
-        findById(renderNavTree(TEST_USER_EDITOR), 'mongo')
+        findById(renderNavTree(TEST_USER_ANONYMOUS), 'mongo')
       ).toBeUndefined();
     });
 

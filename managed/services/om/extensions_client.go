@@ -18,22 +18,37 @@ package om
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
+
+	"golang.org/x/sync/singleflight"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type extensionsClient struct {
 	baseURL string
 	token   string
 	http    *http.Client
+
+	exchangedMu sync.Mutex
+	exchanged   map[[sha256.Size]byte]exchangedBearer
+	exchanges   singleflight.Group
 }
 
 func (c *extensionsClient) app(module string) extensionsApp {
 	return extensionsApp{client: c, path: "api/apps/" + module}
+}
+
+// settings addresses PMM Extensions' admin settings router, through which an admin changes an app's configuration.
+func (c *extensionsClient) settings() extensionsApp {
+	return extensionsApp{client: c, path: "api/extensions/admin/settings"}
 }
 
 func newExtensionsClient(baseURL, token string) *extensionsClient {
@@ -41,10 +56,23 @@ func newExtensionsClient(baseURL, token string) *extensionsClient {
 		baseURL: baseURL,
 		token:   token,
 		http: &http.Client{
+			Transport:     directTransport(),
 			Timeout:       probeRequestTimeout,
 			CheckRedirect: refuseRedirect,
 		},
 	}
+}
+
+// directTransport ignores the proxy environment, which would otherwise see the credentials and secrets sent to PMM Extensions.
+func directTransport() *http.Transport {
+	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		return &http.Transport{}
+	}
+
+	direct := defaultTransport.Clone()
+	direct.Proxy = nil
+	return direct
 }
 
 // net/http keeps the Authorization header on a same-host redirect even from https to http,
@@ -78,7 +106,7 @@ func (a extensionsApp) endpoint(path string) string {
 	return strings.TrimSuffix(a.client.baseURL, "/") + "/" + a.path + "/" + strings.TrimPrefix(path, "/")
 }
 
-func (a extensionsApp) request(ctx context.Context, method, path string, query url.Values, body any, sendEmptyBody bool) (*http.Request, error) {
+func (a extensionsApp) request(ctx context.Context, bearer, method, path string, query url.Values, body any, sendEmptyBody bool) (*http.Request, error) {
 	endpoint := a.endpoint(path)
 	if len(query) > 0 {
 		endpoint += "?" + query.Encode()
@@ -100,8 +128,8 @@ func (a extensionsApp) request(ctx context.Context, method, path string, query u
 	if err != nil {
 		return nil, err //nolint:wrapcheck
 	}
-	if a.client.token != "" {
-		req.Header.Set("Authorization", "Bearer "+a.client.token)
+	if bearer != "" {
+		req.Header.Set("Authorization", "Bearer "+bearer)
 	}
 	if payload != nil {
 		req.Header.Set("Content-Type", "application/json")
@@ -109,42 +137,16 @@ func (a extensionsApp) request(ctx context.Context, method, path string, query u
 	return req, nil
 }
 
-func (a extensionsApp) patchConfig(ctx context.Context, fields map[string]any) error {
-	req, err := a.request(ctx, http.MethodPatch, "config", nil, fields, false)
-	if err != nil {
-		return fmt.Errorf("failed to build the request: %w", err)
-	}
-
-	resp, err := a.client.http.Do(req)
-	if err != nil {
-		// The *url.Error already names the verb and the URL.
-		return err //nolint:wrapcheck
-	}
-	defer resp.Body.Close() //nolint:errcheck
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("PATCH %s: unexpected status %s", a.endpoint("config"), resp.Status)
-	}
-	return nil
+func (a extensionsApp) setEnabled(ctx context.Context, enabled bool) error {
+	return a.call(ctx, inventoryCall{method: http.MethodPut, path: "enabled", body: map[string]bool{"enabled": enabled}}, nil)
 }
 
 // triggerRun queues a full-estate probe sweep. A 409 means a sweep is already in flight, which is
 // just as good.
 func (a extensionsApp) triggerRun(ctx context.Context) error {
-	req, err := a.request(ctx, http.MethodPost, "runs", nil, nil, true)
-	if err != nil {
-		return fmt.Errorf("failed to build the request: %w", err)
+	err := a.call(ctx, inventoryCall{method: http.MethodPost, path: "runs", sendEmptyBody: true}, nil)
+	if status.Code(err) == codes.Aborted {
+		return nil
 	}
-
-	resp, err := a.client.http.Do(req)
-	if err != nil {
-		// The *url.Error already names the verb and the URL.
-		return err //nolint:wrapcheck
-	}
-	defer resp.Body.Close() //nolint:errcheck
-
-	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusConflict {
-		return fmt.Errorf("POST %s: unexpected status %s", a.endpoint("runs"), resp.Status)
-	}
-	return nil
+	return err
 }
