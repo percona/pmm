@@ -135,6 +135,24 @@ func pgEOL(severity, current, series, eolDate string) finding {
 	return eolFinding("PostgreSQL", severity, current, series, eolDate)
 }
 
+func mysqlEOL(product, severity, current, series, eolDate string) finding {
+	return eolFinding(product, severity, current, series, eolDate)
+}
+
+// rdsEOL builds the RDS finding, which reports the end of standard support instead of end of life.
+func rdsEOL(severity, current, series, eolDate string) finding {
+	summary := "Amazon RDS for MySQL " + series + " reached end of standard support"
+	if severity == "warning" {
+		summary = "Amazon RDS for MySQL " + series + " reaches end of standard support on " + eolDate
+	}
+
+	return finding{
+		Severity: severity,
+		Summary:  summary,
+		Labels:   map[string]string{"current": current, "series": series, "eol_date": eolDate},
+	}
+}
+
 func mongoCmdLineOpts(parsed map[string]any) []map[string]any {
 	return []map[string]any{{"parsed": parsed}}
 }
@@ -376,22 +394,231 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			want:  []finding{},
 		},
 		{
-			name:  "mysql_unsupported_version_check 5.6.51",
+			name:  "mysql_unsupported_version_check Oracle 8.0.46",
 			check: "mysql_unsupported_version_check",
 			today: today,
-			docs: [][]map[string]any{{{
-				"version": "5.6.51",
-				"service": "db1",
-				"comment": "MySQL Community Server (GPL)",
-				"basedir": "/usr/",
-				"datadir": "/var/lib/mysql/",
-				"days":    "0",
-			}}},
-			want: []finding{{
-				Severity: "warning",
-				Summary:  "Unsupported Version Check",
-				Labels:   map[string]string{"mysql_version": "5.6.51", "service": "db1"},
-			}},
+			docs:  [][]map[string]any{mysqlVariables("8.0.46", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MySQL", "error", "8.0.46", "8.0", "2026-04-30")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 5.7.44",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("5.7.44-log", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MySQL", "error", "5.7.44-log", "5.7", "2023-10-31")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 5.5.5-log is not a MariaDB prefix",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("5.5.5-log", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MySQL", "error", "5.5.5-log", "5.5", "2018-12-31")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 8.4.3",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("8.4.3", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 8.4.3 184 days before EOL",
+			check: "mysql_unsupported_version_check",
+			today: "2031-10-29",
+			docs:  [][]map[string]any{mysqlVariables("8.4.3", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 8.4.3 183 days before EOL",
+			check: "mysql_unsupported_version_check",
+			today: "2031-10-30",
+			docs:  [][]map[string]any{mysqlVariables("8.4.3", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MySQL", "warning", "8.4.3", "8.4", "2032-04-30")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 8.4.3 on EOL day",
+			check: "mysql_unsupported_version_check",
+			today: "2032-04-30",
+			docs:  [][]map[string]any{mysqlVariables("8.4.3", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MySQL", "warning", "8.4.3", "8.4", "2032-04-30")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 8.4.3 day after EOL",
+			check: "mysql_unsupported_version_check",
+			today: "2032-05-01",
+			docs:  [][]map[string]any{mysqlVariables("8.4.3", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MySQL", "error", "8.4.3", "8.4", "2032-04-30")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 9.7.0",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("9.7.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 9.3.0",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("9.3.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MySQL", "error", "9.3.0", "9.3", "2025-07-22")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 8.2.0",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("8.2.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MySQL", "error", "8.2.0", "8.2", "2024-01-16")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 26.7.1",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("26.7.1", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MySQL", "error", "26.7.1", "26.7", "2026-10-20")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 9.8.0 not in table",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("9.8.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_unsupported_version_check Oracle 26.10.0 not in table",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("26.10.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_unsupported_version_check Percona Server 8.0.46-37",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("8.0.46-37", "Percona Server (GPL), Release 37, Revision 2ad1a8b6", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("Percona Server for MySQL", "error", "8.0.46-37", "8.0", "2026-04-01")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Percona Server 9.3.0-1 follows Oracle",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("9.3.0-1", "Percona Server (GPL), Release 37, Revision 2ad1a8b6", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("Percona Server for MySQL", "error", "9.3.0-1", "9.3", "2025-07-22")},
+		},
+		{
+			name:  "mysql_unsupported_version_check PXC 8.4.3-3.1",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("8.4.3-3.1", "Percona XtraDB Cluster (GPL), Release rel3, Revision 2a2b6d2, WSREP version 26.1.4.3", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_unsupported_version_check PXC 5.7.44-31.65",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("5.7.44-31.65", "Percona XtraDB Cluster (GPL), Release rel3, Revision 2a2b6d2, WSREP version 26.1.4.3", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("Percona XtraDB Cluster", "error", "5.7.44-31.65", "5.7", "2023-10-01")},
+		},
+		{
+			name:  "mysql_unsupported_version_check MariaDB 10.6.20",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("10.6.20-MariaDB-log", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MariaDB", "error", "10.6.20-MariaDB-log", "10.6", "2026-07-06")},
+		},
+		{
+			name:  "mysql_unsupported_version_check MariaDB 10.11.9",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("10.11.9-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_unsupported_version_check MariaDB 10.11.9 within 183 days",
+			check: "mysql_unsupported_version_check",
+			today: "2027-12-01",
+			docs:  [][]map[string]any{mysqlVariables("10.11.9-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MariaDB", "warning", "10.11.9-MariaDB", "10.11", "2028-02-16")},
+		},
+		{
+			name:  "mysql_unsupported_version_check MariaDB 5.5.5-10.6.18 replication prefix",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("5.5.5-10.6.18-MariaDB", "Source distribution", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MariaDB", "error", "10.6.18-MariaDB", "10.6", "2026-07-06")},
+		},
+		{
+			name:  "mysql_unsupported_version_check MariaDB 11.7.2 short-term",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("11.7.2-MariaDB", "mariadb.org binary distribution", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{mysqlEOL("MariaDB", "error", "11.7.2-MariaDB", "11.7", "2025-05-12")},
+		},
+		{
+			name:  "mysql_unsupported_version_check MariaDB 12.4.1 not in table",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("12.4.1-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:         "mysql_unsupported_version_check RDS 8.0.39",
+			check:        "mysql_unsupported_version_check",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("8.0.39", "Source distribution", "/rdsdbbin/mysql-8.0.39.R1/", "/rdsdbdata/db/")},
+			want:         []finding{rdsEOL("error", "8.0.39", "8.0", "2026-07-31")},
+			descContains: []string{"RDS Extended Support"},
+		},
+		{
+			name:         "mysql_unsupported_version_check RDS 5.7.44 by datadir",
+			check:        "mysql_unsupported_version_check",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("5.7.44", "Source distribution", "/usr/", "/rdsdbdata/db/")},
+			want:         []finding{rdsEOL("error", "5.7.44", "5.7", "2024-02-29")},
+			descContains: []string{"RDS Extended Support"},
+		},
+		{
+			name:  "mysql_unsupported_version_check RDS 8.4.7",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("8.4.7", "Source distribution", "/rdsdbbin/mysql-8.4.7.R1/", "/rdsdbdata/db/")},
+			want:  []finding{},
+		},
+		{
+			name:         "mysql_unsupported_version_check RDS 8.4.7 within 183 days",
+			check:        "mysql_unsupported_version_check",
+			today:        "2029-02-01",
+			docs:         [][]map[string]any{mysqlVariables("8.4.7", "Source distribution", "/rdsdbbin/mysql-8.4.7.R1/", "/rdsdbdata/db/")},
+			want:         []finding{rdsEOL("warning", "8.4.7", "8.4", "2029-07-31")},
+			descContains: []string{"RDS Extended Support"},
+		},
+		{
+			name:  "mysql_unsupported_version_check RDS MariaDB 10.11.8",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("10.11.8-MariaDB-log", "Source distribution", "/rdsdbbin/mariadb-10.11.8.R1/", "/rdsdbdata/db/")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_unsupported_version_check RDS MariaDB 10.6.18",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("10.6.18-MariaDB-log", "Source distribution", "/rdsdbbin/mariadb-10.6.18.R1/", "/rdsdbdata/db/")},
+			want:  []finding{mysqlEOL("MariaDB", "error", "10.6.18-MariaDB-log", "10.6", "2026-07-06")},
+		},
+		{
+			name:  "mysql_unsupported_version_check Aurora",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("8.0.39", "Source distribution", "/rdsdbbin/oscar-8.0.mysql_aurora.3.05.2.0.36764.0/", "/rdsdbdata/db/", "aurora_version", "3.05.2")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_unsupported_version_check no rows",
+			check: "mysql_unsupported_version_check",
+			today: today,
+			docs:  [][]map[string]any{{}},
+			want:  []finding{},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -413,6 +640,7 @@ func TestRetiredChecks(t *testing.T) {
 		"mongodb_cve_version",
 		"postgresql_unsupported_check",
 		"postgresql_cve_check",
+		"mysql_version_eol_57",
 	} {
 		_, err := os.Stat(filepath.Join("..", "..", "data", "checks", name+".yml"))
 		assert.ErrorIs(t, err, os.ErrNotExist, name)

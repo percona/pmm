@@ -2,64 +2,232 @@
 checks:
   - version: 2
     name: mysql_unsupported_version_check
-    summary: Checks mysql version for support
-    description: This check warns against an unsupported mysql version
+    summary: MySQL version EOL
+    description: This check returns errors or warnings if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL version has reached or is about to reach end of life.
     technology: MYSQL
     # author: Kedar Vaijanapurkar
     category: Versions
     queries:
-      - type: MYSQL_SELECT
-        query: " @@version version,@@hostname service,@@version_comment as comment, @@basedir as basedir,@@datadir as datadir, datediff('2023-10-23',date(now())) as days;"
+      - type: MYSQL_SHOW
+        query: VARIABLES
     script: |
-      def check_unsupported_version(doc,read_url,context):
-          for row in doc:
-            version = row["version"]
-            service = row["service"]
-            comment = row["comment"].lower()
-            basedir = row["basedir"]
-            datadir = row["datadir"]
-            days = row["days"]
-            format_version_num = context.get("format_version_num", fail)
-            parse_version = context.get("parse_version", fail)
-            is_mysql, is_percona_server, is_percona_xdb_cluster, is_mariadb, is_rds, is_aurora = False, False, False, False, False, False
-            is_mysql = 'mysql' in comment
-            is_percona_server = 'percona server' in comment
-            is_percona_xdb_cluster = 'percona xtradb cluster' in comment
-            is_mariadb = 'mariadb' in comment
-            is_rds = 'rdsdbbin' in basedir
-            if not is_rds:
-                is_rds = 'rdsdbdata' in datadir
-            parsed_version = parse_version(version)
-            version_minor = parsed_version["minor"]
-            version_major = parsed_version["major"]
-            if is_mysql or is_percona_server or is_percona_xdb_cluster :
-               if version_major == 5 and version_minor == 6 :
-                   return {
-                     "summary": "Unsupported Version Check",
-                     "description": "You are running a server version({}) that is EOL. It is strongly recommended to upgrade to latest version. Reach out to Percona for EOL Support.".format(version),
-                     "severity": "warning",
-                     "read_more_url": read_url.format("mysql_unsupported_version_check"),
-                     "labels": {
-                        "mysql_version": "{}".format(version),
-                         "service": "{}".format(service),
-                        }
-                   }
-               if version_major == 5 and version_minor < 6 :
-                   return {
-                     "summary": "Unsupported Version Check",
-                     "description": "You are running a server version({}) that is EOL. It is strongly recommended to upgrade to latest version.".format(version),
-                     "severity": "error",
-                     "read_more_url": read_url.format("mysql_unsupported_version_check"),
-                     "labels": {
-                        "mysql_version": "{}".format(version),
-                         "service": "{}".format(service),
-                        }
-                   }
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
+      # Oracle MySQL; Percona Server and PXC follow these dates unless EOL_PERCONA says otherwise.
+      # LTS and older series: end of Extended Support, last day of the month,
+      # https://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf
+      # Innovation series: supported until the next Innovation release,
+      # https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html
+      # https://dev.mysql.com/doc/relnotes/mysql/9.7/en/
+      # Add an Innovation series only once it is EOL.
+      EOL_ORACLE = {
+          (5, 5): "2018-12-31",
+          (5, 6): "2021-02-28",
+          (5, 7): "2023-10-31",
+          (8, 0): "2026-04-30",
+          (8, 1): "2023-10-25",
+          (8, 2): "2024-01-16",
+          (8, 3): "2024-04-30",
+          (8, 4): "2032-04-30",
+          (9, 0): "2024-10-15",
+          (9, 1): "2025-01-21",
+          (9, 2): "2025-04-15",
+          (9, 3): "2025-07-22",
+          (9, 4): "2025-10-21",
+          (9, 5): "2026-01-20",
+          (9, 6): "2026-04-21",
+          (9, 7): "2034-04-30",
+          (26, 7): "2026-10-20",  # https://dev.mysql.com/doc/relnotes/mysql/26.10/en/
+      }
+
+      # Only where Percona states a date different from Oracle's.
+      # https://www.percona.com/services/policies/percona-software-support-lifecycle
+      EOL_PERCONA = {
+          "percona_server": {
+              (5, 5): "2018-12-01",
+              (5, 6): "2021-02-01",
+              (5, 7): "2023-10-01",
+              (8, 0): "2026-04-01",
+              (9, 7): "2034-04-21",
+          },
+          "percona_xtradb_cluster": {
+              (5, 5): "2016-09-22",
+              (5, 6): "2021-02-01",
+              (5, 7): "2023-10-01",
+              (8, 0): "2026-04-01",
+          },
+      }
+
+      # Community end of life. Add a short-term series only once it is EOL.
+      # https://mariadb.org/about/#maintenance-policy
+      # Short-term series: https://endoflife.date/mariadb
+      EOL_MARIADB = {
+          (5, 1): "2015-02-01",
+          (5, 2): "2015-11-10",
+          (5, 3): "2017-03-01",
+          (5, 5): "2020-04-11",
+          (10, 0): "2019-03-31",
+          (10, 1): "2020-10-17",
+          (10, 2): "2022-05-23",
+          (10, 3): "2023-05-25",
+          (10, 4): "2024-06-18",
+          (10, 5): "2025-06-24",
+          (10, 6): "2026-07-06",
+          (10, 7): "2023-02-09",
+          (10, 8): "2023-05-20",
+          (10, 9): "2023-08-22",
+          (10, 10): "2023-11-17",
+          (10, 11): "2028-02-16",
+          (11, 0): "2024-06-06",
+          (11, 1): "2024-08-21",
+          (11, 2): "2024-11-21",
+          (11, 3): "2024-05-29",
+          (11, 4): "2029-05-29",
+          (11, 5): "2024-11-21",
+          (11, 6): "2025-02-13",
+          (11, 7): "2025-05-12",
+          (11, 8): "2028-06-04",
+          (12, 0): "2025-11-18",
+          (12, 1): "2026-02-13",
+          (12, 2): "2026-05-28",
+          (12, 3): "2029-06-12",
+      }
+
+      # RDS end of standard support.
+      # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html#MySQL.Concepts.VersionMgmt.ReleaseCalendar
+      EOL_RDS = {
+          (5, 7): "2024-02-29",
+          (8, 0): "2026-07-31",
+          (8, 4): "2029-07-31",
+      }
+
+      PRODUCTS = {
+          "oracle": "MySQL",
+          "percona_server": "Percona Server for MySQL",
+          "percona_xtradb_cluster": "Percona XtraDB Cluster",
+          "mariadb": "MariaDB",
+      }
+
+      # A series that reaches EOL within this many days gets a warning.
+      WARN_DAYS = 183
+
+      # MariaDB prefixes its version with this for old replication clients.
+      MARIADB_PREFIX = "5.5.5-"
+
+      def detect(vars):
+          """
+          Returns the distribution of the server described by SHOW VARIABLES (a dict of name to value):
+          "mariadb", "aurora", "rds", "percona_xtradb_cluster", "percona_server" or "oracle".
+          """
+
+          version = vars.get("version", "").lower()
+          comment = vars.get("version_comment", "").lower()
+          if "mariadb" in version or "mariadb" in comment:
+              return "mariadb"
+
+          for name in vars:
+              if name.startswith("aurora_"):
+                  return "aurora"
+
+          if "rdsdbbin" in vars.get("basedir", "") or "rdsdbdata" in vars.get("datadir", ""):
+              return "rds"
+
+          if "percona xtradb cluster" in comment:
+              return "percona_xtradb_cluster"
+
+          if "percona server" in comment:
+              return "percona_server"
+
+          return "oracle"
+
+      def eol_date(dist, key):
+          if dist == "rds":
+              return EOL_RDS.get(key)
+
+          if dist == "mariadb":
+              return EOL_MARIADB.get(key)
+
+          return EOL_PERCONA.get(dist, {}).get(key) or EOL_ORACLE.get(key)
+
+      def rds_result(series, date, days, labels):
+          if days < 0:
+              return {
+                  "summary": "Amazon RDS for MySQL {} reached end of standard support".format(series),
+                  "description": "Amazon RDS for MySQL {} reached the end of standard support on {}. AWS now runs it under Amazon RDS Extended Support, which is charged, until you upgrade. Upgrade to a major version in standard support.".format(series, date),
+                  "read_more_url": read_url.format("mysql_unsupported_version_check"),
+                  "severity": "error",
+                  "labels": labels,
+              }
+
+          return {
+              "summary": "Amazon RDS for MySQL {} reaches end of standard support on {}".format(series, date),
+              "description": "Amazon RDS for MySQL {} reaches the end of standard support on {}. After that date, AWS enrolls it in Amazon RDS Extended Support, which is charged. Plan an upgrade to a major version in standard support.".format(series, date),
+              "read_more_url": read_url.format("mysql_unsupported_version_check"),
+              "severity": "warning",
+              "labels": labels,
+          }
+
+      def eol_result(product, series, date, days, labels):
+          if days < 0:
+              return {
+                  "summary": "{} {} reached end of life".format(product, series),
+                  "description": "{} {} reached its End-of-Life date on {} and no longer gets bug fixes or security fixes. Percona does not provide support or hotfixes for EOL versions. Upgrade to a supported release series.".format(product, series, date),
+                  "read_more_url": read_url.format("mysql_unsupported_version_check"),
+                  "severity": "error",
+                  "labels": labels,
+              }
+
+          return {
+              "summary": "{} {} reaches end of life on {}".format(product, series, date),
+              "description": "{} {} End-of-Life date is {}. After that date it no longer gets bug fixes or security fixes. Plan your upgrade to a supported release series.".format(product, series, date),
+              "read_more_url": read_url.format("mysql_unsupported_version_check"),
+              "severity": "warning",
+              "labels": labels,
+          }
+
       def check_context(docs, context):
-          # we first define some global variables
-          read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
-          results = []
-          result1 = check_unsupported_version(docs[0],read_url,context)
-          if result1 :
-            results.append(result1)
-          return results
+          """
+          This check returns errors or warnings if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster,
+          MariaDB or Amazon RDS for MySQL version has reached or is about to reach end of life.
+          """
+
+          parse_version = context.get("parse_version", fail)
+          days_until = context.get("days_until", fail)
+
+          vars = {}
+          for row in docs[0]:
+              vars[row["Variable_name"]] = row["Value"]
+
+          if "version" not in vars:
+              return []
+
+          dist = detect(vars)
+          if dist == "aurora":
+              return []
+
+          current = vars["version"]
+          if dist == "mariadb" and current.startswith(MARIADB_PREFIX):
+              current = current[len(MARIADB_PREFIX):]
+
+          # parse_version returns a dict with keys: major, minor, patch, rest, num
+          version = parse_version(current)
+          key = (version["major"], version["minor"])
+          date = eol_date(dist, key)
+          if not date:
+              return []
+
+          days = days_until(date)
+          if days > WARN_DAYS:
+              return []
+
+          series = "{}.{}".format(version["major"], version["minor"])
+          labels = {
+              "current": current,
+              "series": series,
+              "eol_date": date,
+          }
+
+          if dist == "rds":
+              return [rds_result(series, date, days, labels)]
+
+          return [eol_result(PRODUCTS[dist], series, date, days, labels)]
