@@ -14,9 +14,6 @@ Here's how LBAC works:
 2. Assign roles to users based on their responsibilities.
 3. Users see only the metrics and (Query Analytics) QAN data that match their role's label selectors.
 
-!!! note "Service account tokens"
-    If access control is enabled, PMM denies service account tokens on the Query Analytics and VictoriaMetrics query APIs. A token carries no user roles to filter by. For automation that reads these APIs, use a user account that has the matching access role.
-
 ## Key benefits
 
 - Granular permissions: Restrict access to specific services, environments, or regions.

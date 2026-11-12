@@ -30,7 +30,11 @@ To prevent node registration failures, PMM automatically manages service account
 
 ## Generate a service account and token
 
-PMM uses Grafana service account tokens for authentication. These tokens are randomly generated strings that serve as alternatives to API keys or basic authentication passwords.
+PMM uses Grafana service account tokens for authentication. These tokens are randomly generated strings that serve as alternatives to API keys or basic authentication passwords. 
+
+If [access control](../admin/roles/access-control/intro.md) is enabled, though, a token can't read Query Analytics or metrics data, because it has no access roles to filter the data by. 
+
+For these API calls, authenticate with a user account that has the matching access role instead.
 
 Here's how to generate a service account token:
 {.power-number}

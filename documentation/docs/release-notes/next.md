@@ -15,6 +15,16 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## 🔒 Security updates
 
+## 🧩 API changes
+
+If your scripts or integrations call the PMM API, check whether these changes affect them:
+
+- Requests to the PMM API without credentials now fail, even when Grafana anonymous access is enabled. This is part of the fix for [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339), which lets visitors who aren't signed in view your dashboards and nothing else.
+
+- With access control enabled, the Query Analytics and metrics query APIs now refuse service account tokens, so automation can't read data that your access roles restrict.
+
+To find the affected endpoints and update your automation, [check the PMM API release notes](https://percona-pmm.readme.io/v3/reference/release-notes-3-11-0).
+
 ## 📈 Improvements
 
 - [PMM-15239](https://perconadev.atlassian.net/browse/PMM-15239): The **Alert Status** page now groups alert severities into four bands: **Critical**, **Error**, **Warning** and **Info**. Each band has its own icon and label, so you can tell severities apart without relying on color. The **Severity** filter and sort work by band, and the alert details show the original level, for example **Reported as Emergency**. Alert labels stay the same. For how levels map to bands, see [Alert rules](../alert/alert_rules.md).
@@ -22,8 +32,7 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
-- [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339): Starting with PMM 3.8.0, enabling Grafana anonymous access also opened PMM's own APIs, such as Query Analytics. Visitors without credentials got Viewer access to them. PMM now refuses those requests. Visitors who aren't signed in can still view Grafana dashboards, but not PMM features. For details, see [Supported external variables](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#supported-external-variables).
-- [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339): If access control is enabled, PMM denies service account tokens on the Query Analytics and VictoriaMetrics query APIs again. Releases before PMM 3.8.0 denied them too. If your automation reads these APIs with a service account token, switch to a user account. Give that account the matching access role. For details, see [About label based access control (LBAC) in PMM](../admin/roles/access-control/intro.md).
+- [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339): Fixed an issue where [turning on Grafana anonymous access](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#supported-external-variables) also let visitors who aren't signed in use PMM features such as Query Analytics. These visitors can now open only your dashboards.
 
 - [PMM-15654](https://perconadev.atlassian.net/browse/PMM-15654): Fixed the [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard hiding clusters added without `--environment` when **Environment** is set to **All** and another MongoDB service has an environment set. These clusters now appear under **All**.
 
