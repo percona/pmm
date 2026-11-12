@@ -135,6 +135,7 @@ describe('toManagedNode', () => {
       status: ServiceStatus.up,
       customLabels: { rack_id: '7' },
       isPmmServerNode: false,
+      isPmmProtectedNode: false,
       agents: [
         {
           agentId: 'pmm-agent-1',
@@ -157,6 +158,13 @@ describe('toManagedNode', () => {
         is_pmm_server_node: 'false',
       },
     });
+  });
+
+  it('maps a node PMM protects', () => {
+    expect(
+      toManagedNode({ ...NODE_PAYLOAD, is_pmm_protected_node: true })
+        .isPmmProtectedNode
+    ).toBe(true);
   });
 });
 

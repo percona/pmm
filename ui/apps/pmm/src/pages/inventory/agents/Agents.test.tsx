@@ -84,6 +84,7 @@ describe('Agents', () => {
       status: ServiceStatus.up,
       customLabels: {},
       isPmmServerNode: false,
+      isPmmProtectedNode: false,
       agents: [],
       services: [],
       properties: {},
