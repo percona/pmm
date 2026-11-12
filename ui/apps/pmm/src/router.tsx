@@ -23,6 +23,7 @@ import {
   InventoryRedirect,
   Redirect,
   SettingsRedirect,
+  advisorsRedirects,
 } from 'components/redirect';
 import {
   Agents,
@@ -33,6 +34,14 @@ import {
 } from 'pages/inventory';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { PersistedFilters } from 'components/persisted-filters';
+import { AdvisorsList } from 'pages/advisors';
+import { CHECK_FILTER_PARAMS } from 'pages/advisors/AdvisorsList.constants';
+import { AdvisorInsights } from 'pages/advisors/insights';
+import { INSIGHT_FILTER_PARAMS } from 'pages/advisors/insights/AdvisorInsights.filters';
+import { AdvisorRuns } from 'pages/advisors/runs';
+import { RUN_FILTER_PARAMS } from 'pages/advisors/runs/AdvisorRuns.filters';
+import { AdvisorScheduler } from 'pages/advisors/scheduler';
 import { AlertsPage } from 'pages/alerting/status';
 import { AddServicePage } from 'pages/inventory/add-service';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
@@ -148,6 +157,48 @@ const router = createBrowserRouter(
                 },
               ],
             },
+            {
+              path: 'advisors',
+              children: [
+                {
+                  path: '',
+                  element: (
+                    <PersistedFilters
+                      storageKey="pmm-ui.advisors.catalog.filters"
+                      params={CHECK_FILTER_PARAMS}
+                    >
+                      <AdvisorsList />
+                    </PersistedFilters>
+                  ),
+                },
+                {
+                  path: 'insights',
+                  element: (
+                    <PersistedFilters
+                      storageKey="pmm-ui.advisors.insights.filters"
+                      params={INSIGHT_FILTER_PARAMS}
+                    >
+                      <AdvisorInsights />
+                    </PersistedFilters>
+                  ),
+                },
+                {
+                  path: 'runs',
+                  element: (
+                    <PersistedFilters
+                      storageKey="pmm-ui.advisors.runs.filters"
+                      params={RUN_FILTER_PARAMS}
+                    >
+                      <AdvisorRuns />
+                    </PersistedFilters>
+                  ),
+                },
+                {
+                  path: 'scheduler',
+                  element: <AdvisorScheduler />,
+                },
+              ],
+            },
             // PMM Extensions apps mounted as native routes. Both plugins compose their own
             // <Routes>, so the paths are splats.
             {
@@ -229,6 +280,7 @@ const router = createBrowserRouter(
               path: 'edit-instance/:serviceId',
               element: <EditServiceRedirect />,
             },
+            ...advisorsRedirects,
             // Grafana routes are handled at the Main component level
             {
               path: 'graph/*',

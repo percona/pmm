@@ -7,10 +7,14 @@ describe('isMigratedPage', () => {
     '/graph/edit-instance/service-1',
     '/graph/add-instance',
     '/graph/add-instance/rds',
-  ])('treats %s as a native page', (src) =>
-    expect(isMigratedPage(src)).toBe(true)
-  );
+    '/graph/advisors',
+    '/graph/advisors/insights',
+    '/graph/pmm-database-checks/failed-checks',
+  ])('treats %s as migrated', (src) => {
+    expect(isMigratedPage(src)).toBe(true);
+  });
 
-  it('leaves other Grafana pages to Grafana', () =>
-    expect(isMigratedPage('/graph/d/pmm-home')).toBe(false));
+  it('leaves Grafana pages in the iframe', () => {
+    expect(isMigratedPage('/graph/d/pmm-home/home-dashboard')).toBe(false);
+  });
 });
