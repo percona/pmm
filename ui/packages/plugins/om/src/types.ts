@@ -497,6 +497,11 @@ export interface OmInventoryHost {
    * Named as PMM's own inventory API names the same fact.
    */
   is_pmm_server_node: boolean;
+  /**
+   * The MongoDB versions Operations installs onto this node's OS release, as
+   * major.minor and oldest first. Empty when it installs none there.
+   */
+  supported_mongodb_versions: string[];
 }
 
 /** Whether a host can fetch packages, and why not when it cannot. */
