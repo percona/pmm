@@ -361,7 +361,7 @@ After configuring your database server, add a MongoDB service using either the u
         ```
 
     === "Arbiter"
-        An arbiter holds no data, so it has no users and serves no queries. Add the arbiter without `--username` and `--password`, because the connection check fails with credentials. Turn off Query Analytics with `--query-source=none`:
+        An arbiter stores no data, so it has no users and serves no queries. Add it without `--username` and `--password`, because with credentials the connection check fails. Use the same `--cluster` value as the other members of its replica set, and turn off Query Analytics with `--query-source=none`:
 
         ```sh
         pmm-admin add mongodb \

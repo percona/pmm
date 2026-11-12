@@ -3,9 +3,9 @@
 !!! warning "Developer Preview"
     Operations for MongoDB is a Developer Preview feature in PMM 3.10.0. Use it for testing and feedback only, not in production.
 
-Operations for MongoDB enables you to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, review the [limitations](#limitations) that apply in this Developer Preview release.
+Use Operations for MongoDB to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, [review the limitations](#limitations) that apply in this Developer Preview release.
 
-Every signed-in PMM user can open **MongoDB > Operations** and see all of its pages, except the install form. Only PMM Admins can scan nodes, start or abort installs, remove node entries, and change settings. For other users, these controls are disabled or hidden. Any user can click **Refresh** on **Fleet**.
+Any signed-in PMM user can check fleet health in **MongoDB > Operations** and open every page except the install form. Scanning nodes, starting or aborting installs, removing node entries, and changing settings need the [Admin role](../admin/roles/index.md). For other users, these controls are disabled or hidden. Any user can click **Refresh** on **Fleet** to load the latest data.
 
 ## Prepare PMM Server
 
@@ -155,7 +155,7 @@ Check your nodes and reduce the security exposure before you start the install.
 Make sure each node meets the following conditions before you start. If a node doesn't, PMM blocks it and shows the reason in the **Automation** column on the **Nodes** page:
 
 - **Supported OS**: Ubuntu or Rocky Linux only, matched on `ID` in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported. All nodes in one install must run the same OS.
-- **No existing MongoDB**: `mongod` must not be installed or running, and PMM must have no MongoDB service registered for the node.
+- **No existing MongoDB**: `mongod` must not be installed or running, and PMM must have no MongoDB service registered for the node. If the **Nodes** page shows a mongod with no PMM service, it's usually an arbiter that wasn't added to PMM. [Add it without a username and password](../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm).
 - **Not the PMM Server host**: don't install on the host that runs PMM Server.
 
 PMM checks the following conditions only when the install starts, and the **Nodes** page doesn't show them. Check them yourself before you start. If a node doesn't meet them, the install fails at the pre-check:
@@ -237,7 +237,11 @@ The page shows when its data was last refreshed and when the nodes were last sca
 
 ### Pages don't load
 
-If **Nodes**, **Automations** or **Settings** can't load and the error says **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container. PMM signs you in to PMM Extensions with your PMM session. PMM Extensions accepts that session only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default. If the container sets it to `false`, remove the variable and recreate the container.
+If **Nodes**, **Automations** or **Settings** doesn't load and shows **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container. 
+
+PMM signs you in to PMM Extensions with your PMM session, and PMM Extensions accepts it only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default. 
+
+If the container sets it to `false`, remove the variable and recreate the container.
 
 ### Scans
 
