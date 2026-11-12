@@ -125,9 +125,13 @@ Shows the five collections with the highest write rates, in operations per secon
 
 ### Operations Per Shard
 
-Shows client commands per second for each shard: find, insert, update, and delete. The value always equals **Reads Per Shard** plus **Writes Per Shard**, and doesn't include config servers. Use this to see how load is distributed across shards and whether any shard is taking a disproportionate share of the work.
+Shows client commands per second for each shard, as one line per shard: `find`, `insert`, `update`, and `delete`. The value always equals **Reads Per Shard** plus **Writes Per Shard**, and doesn't include config servers.
 
-The **Shard / Replica Set** filter at the top narrows all per-shard panels to the shards that you select. To open the **MongoDB ReplSet Summary** dashboard for a shard, click a point on its line in any per-shard panel.
+Use this to check whether the load is spread evenly across your shards. If one shard handles much more than the others, check **Reads Per Shard** and **Writes Per Shard** to see whether reads or writes cause it. 
+
+To look into that shard, click a point on its line in any per-shard panel to open its **MongoDB ReplSet Summary** dashboard.
+
+To compare only some shards, select them in the **Shard / Replica Set** filter at the top. The filter applies to all per-shard panels.
 
 ### Reads Per Shard
 
