@@ -4,7 +4,7 @@ The `mongodb_EOL` check reports when the release series of MongoDB or Percona Se
 
 ## Description
 
-After a release series reaches EOL, it no longer gets bug fixes or security fixes. PSMDB follows the same EOL timeline as the MongoDB release series that it's based on.
+EOL versions no longer receive bug or security fixes from the vendor. PSMDB follows the same EOL timeline as the MongoDB release series that it's based on.
 
 The check reads the server version with the `buildInfo` command, looks up the EOL date of its release series, and returns:
 
@@ -23,8 +23,10 @@ The check uses these EOL dates from the [MongoDB lifecycle schedules](https://ww
 | 6.0 | July 31, 2025 |
 | 7.0 | August 31, 2027 |
 | 8.0 | October 31, 2029 |
+| 8.2 | July 31, 2026 |
+| 9.0 | October 31, 2031 |
 
-The check doesn't report a release series that isn't in this table, such as a newer one that PMM doesn't know yet. For Percona's own support dates, see the [Percona software support lifecycle](https://www.percona.com/services/policies/percona-software-support-lifecycle).
+The check doesn't report a release series that isn't in this table, such as a newer one that PMM doesn't know yet. Short-lived release series, such as 8.2, are added to the table only once they have reached EOL. For Percona's own support dates, see the [Percona software support lifecycle](https://www.percona.com/services/policies/percona-software-support-lifecycle).
 
 The finding's labels show the running version (`current`), its release series (`series`) and the EOL date (`eol_date`).
 

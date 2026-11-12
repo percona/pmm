@@ -11,9 +11,9 @@ Increasing the verbosity of log messages is useful for debugging purposes for a 
 For more information, see [db.setLogLevel() in the MongoDB documentation](https://docs.mongodb.com/manual/reference/method/db.setLogLevel/).
 
 ## Rule
-MONGODB_GETPARAMETER
+MONGODB_GETCMDLINEOPTS
 
-`db.adminCommand( { getParameter: 1, "logLevel": 1 } )`
+`db.adminCommand( { getCmdLineOpts: 1 } )`, reading `parsed.setParameter.logLevel` and `parsed.systemLog.verbosity`
 
 ## Resolution
 

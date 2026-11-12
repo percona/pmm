@@ -8,7 +8,7 @@ For Production systems, enable journal to ensure that data files are valid/recov
 
 It is always recommended to enable the journal. 
 
-In recent versions (starting with versions 4.0 +), MongoDB enables journaling by default and doesn't allow turning it off.
+MongoDB enables journaling by default. Before 7.0, you can turn it off only by setting `storage.journal.enabled: false` explicitly, which is the only case this advisor reports. MongoDB 7.0 and later always journal and ignore the option.
 
 For more information, see the [Journaling section](https://docs.mongodb.com/manual/core/journaling/) in the MongoDB documentation.
 

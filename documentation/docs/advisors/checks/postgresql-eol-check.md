@@ -4,7 +4,7 @@ The `postgresql_eol_check` check reports when the major version of PostgreSQL or
 
 ## Description
 
-After a major version reaches EOL, it no longer gets bug fixes or security fixes. Percona does not provide support or issue hotfixes for end-of-life releases.
+EOL versions no longer receive bug or security fixes from the vendor.
 
 The check reads the server version from the `server_version_num` setting, looks up the EOL date of its major version, and returns:
 

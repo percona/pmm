@@ -116,6 +116,13 @@ The version and EOL checks hold their data in tables inside the check files. Upd
 
 Every EOL check follows one rule: an error after the EOL date, a warning when the EOL date is 0 to 183 days away, and nothing otherwise or for a series missing from the table. Write EOL dates only in these tables, never inline in a script. `mysql_version.yml` and `mysql_unsupported_version_check.yml` share an identical `detect()` function, so keep the two in sync. The PostgreSQL EOL table exists in two files, `postgresql_version_check.yml` and `postgresql_eol_check.yml`, so update both together.
 
+When you change a table, also update the two other places that hold its data:
+
+1. The matching case in `services/checks/version_checks_test.go`, where a case pins a value from the table. The cases for `mongodb_version` and `postgresql_version_check` read the latest versions from the check file, so a routine update of those tables needs no test change.
+2. The table on the check's documentation page in `documentation/docs/advisors/checks/`: `mongodb-eol.md`, `mysql_unsupported_version_check.md`, `postgresql-eol-check.md`, `mysql-version.md`, and any other page that lists the table's values.
+
+Then run `go test ./services/checks -run TestBuiltinVersionChecks` in the `managed` directory.
+
 
 
 ## Working with Percona Alerting

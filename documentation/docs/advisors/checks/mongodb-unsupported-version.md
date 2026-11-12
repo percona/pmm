@@ -7,7 +7,7 @@ The `mongodb_unsupported_version` check returns an error if the release series o
 
 ## Description
 
-Percona doesn't provide support or issue hotfixes for release series that reached their end of life (EOL). An unsupported version no longer gets bug fixes or security fixes. PSMDB follows the same EOL timeline as the MongoDB release series that it's based on.
+A release series that reached its end of life (EOL) is unsupported. EOL versions no longer receive bug or security fixes from the vendor. PSMDB follows the same EOL timeline as the MongoDB release series that it's based on.
 
 The check reads the server version with the `buildInfo` command and returns an error for release series older than 4.4.
 

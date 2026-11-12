@@ -7,7 +7,7 @@ The `mysql_unsupported_version_check` check reports when the release series of M
 
 ## Description
 
-After a release series reaches EOL, it no longer gets bug fixes or security fixes. Percona does not provide support or issue hotfixes for end-of-life releases.
+EOL versions no longer receive bug or security fixes from the vendor.
 
 The check reads the server variables (`SHOW VARIABLES`), works out the distribution, looks up the EOL date of the running series (`major.minor`), and returns:
 

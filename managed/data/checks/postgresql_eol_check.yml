@@ -73,7 +73,7 @@ checks:
               if days < 0:
                   results.append({
                       "summary": "PostgreSQL {} reached end of life".format(s),
-                      "description": "PostgreSQL {} reached its End-of-Life date on {} and no longer gets bug fixes or security fixes. Percona does not provide support or hotfixes for EOL versions. Upgrade to a supported major version.".format(s, eol_date),
+                      "description": "PostgreSQL {} reached its End-of-Life date on {} and no longer gets bug fixes or security fixes. EOL versions no longer receive bug or security fixes from the vendor. Upgrade to a supported major version.".format(s, eol_date),
                       "read_more_url": read_url.format("postgresql-eol-check"),
                       "severity": "error",
                       "labels": labels,

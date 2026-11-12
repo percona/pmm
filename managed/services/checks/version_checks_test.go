@@ -17,9 +17,12 @@ package checks
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -50,8 +53,7 @@ func findings(results []check.Result) []finding {
 	return out
 }
 
-// runBuiltinCheck runs a built-in check script the way pmm-managed-starlark does, with the clock fixed to noon UTC of today.
-func runBuiltinCheck(t *testing.T, name, today string, docs ...[]map[string]any) []check.Result {
+func loadBuiltinCheck(t *testing.T, name string) check.Check {
 	t.Helper()
 
 	b, err := os.ReadFile(filepath.Join("..", "..", "data", "checks", name+".yml"))
@@ -63,7 +65,93 @@ func runBuiltinCheck(t *testing.T, name, today string, docs ...[]map[string]any)
 	})
 	require.NoError(t, err)
 	require.Len(t, parsed, 1)
-	c := parsed[0]
+
+	return parsed[0]
+}
+
+var tableEntryRE = regexp.MustCompile(`^\s*"([^"]+)":\s*"?([^",\s]+)"?,`)
+
+// scriptTable returns the "key": value entries of the dict literal that opens on the script line containing start.
+// It lets tests follow tables that other teams update, instead of pinning their values.
+func scriptTable(t *testing.T, name, start string) map[string]string {
+	t.Helper()
+
+	script := loadBuiltinCheck(t, name).Script
+	i := strings.Index(script, start)
+	require.NotEqual(t, -1, i, "%s: %q not found", name, start)
+
+	table := make(map[string]string)
+	for _, line := range strings.Split(script[i+len(start):], "\n")[1:] {
+		if strings.HasPrefix(strings.TrimSpace(line), "}") {
+			break
+		}
+
+		m := tableEntryRE.FindStringSubmatch(line)
+		require.NotNil(t, m, "%s: unexpected line %q in %q", name, line, start)
+		table[m[1]] = m[2]
+	}
+	require.NotEmpty(t, table, "%s: %q is empty", name, start)
+
+	return table
+}
+
+// latestSeries returns the newest "major" or "major.minor" key of a version table.
+func latestSeries(t *testing.T, table map[string]string) string {
+	t.Helper()
+
+	var latest string
+	var latestKey [2]int
+	for k := range table {
+		var key [2]int
+		for i, part := range strings.SplitN(k, ".", 2) {
+			n, err := strconv.Atoi(part)
+			require.NoError(t, err, k)
+			key[i] = n
+		}
+
+		if latest == "" || key[0] > latestKey[0] || (key[0] == latestKey[0] && key[1] > latestKey[1]) {
+			latest, latestKey = k, key
+		}
+	}
+
+	return latest
+}
+
+func tableInt(t *testing.T, table map[string]string, key string) int {
+	t.Helper()
+
+	n, err := strconv.Atoi(table[key])
+	require.NoError(t, err, "%s: %q", key, table[key])
+
+	return n
+}
+
+// mongoVersion formats a version number of mongodb_version's table, such as 80032, as 8.0.32.
+func mongoVersion(num int) string {
+	return fmt.Sprintf("%d.%d.%d", num/10000, num/100%100, num%100)
+}
+
+// pgVersion formats a server_version_num of PostgreSQL 10 or later, such as 170011, as 17.11.
+func pgVersion(num int) string {
+	return fmt.Sprintf("%d.%d", num/10000, num%100)
+}
+
+func daysBetween(t *testing.T, from, to string) int {
+	t.Helper()
+
+	f, err := time.Parse(time.DateOnly, from)
+	require.NoError(t, err)
+	d, err := time.Parse(time.DateOnly, to)
+	require.NoError(t, err)
+
+	return int(d.Sub(f) / (24 * time.Hour))
+}
+
+// runBuiltinCheck runs a built-in check script the way pmm-managed-starlark does, with the clock fixed to noon UTC of today.
+func runBuiltinCheck(t *testing.T, name, today string, docs ...[]map[string]any) []check.Result {
+	t.Helper()
+
+	c := loadBuiltinCheck(t, name)
 
 	day, err := time.Parse("2006-01-02", today)
 	require.NoError(t, err)
@@ -187,6 +275,13 @@ func promVector(labels map[string]string, value string) []map[string]any {
 
 func TestBuiltinVersionChecks(t *testing.T) {
 	const today = "2026-11-12"
+
+	// The PSMDB and PostgreSQL teams update these tables, so the cases below read their values instead of pinning them.
+	mongoLatest := scriptTable(t, "mongodb_version", `"version_check": {`)
+	mongoLatestSeries := latestSeries(t, mongoLatest)
+	pgLatest := scriptTable(t, "postgresql_version_check", "latest_versions = {")
+	pgExpires := scriptTable(t, "postgresql_version_check", "version_expires = {")
+	pgLatestSeries := latestSeries(t, pgLatest)
 
 	for _, tc := range []struct {
 		name  string
@@ -426,6 +521,41 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			want:  []finding{},
 		},
 		{
+			name:  "mongodb_EOL 8.2.1 past EOL",
+			check: "mongodb_EOL",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("8.2.1")},
+			want:  []finding{mongoEOL("error", "8.2.1", "8.2", "2026-07-31")},
+		},
+		{
+			name:  "mongodb_EOL 8.3.0 not in table",
+			check: "mongodb_EOL",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("8.3.0")},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_EOL 9.0.1",
+			check: "mongodb_EOL",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("9.0.1")},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_EOL 9.0.1 183 days before EOL",
+			check: "mongodb_EOL",
+			today: "2031-05-01",
+			docs:  [][]map[string]any{mongoBuildInfo("9.0.1")},
+			want:  []finding{mongoEOL("warning", "9.0.1", "9.0", "2031-10-31")},
+		},
+		{
+			name:  "mongodb_EOL 9.0.1 day after EOL",
+			check: "mongodb_EOL",
+			today: "2031-11-01",
+			docs:  [][]map[string]any{mongoBuildInfo("9.0.1")},
+			want:  []finding{mongoEOL("error", "9.0.1", "9.0", "2031-10-31")},
+		},
+		{
 			name:  "mongodb_EOL 10.0.0 not in table",
 			check: "mongodb_EOL",
 			today: today,
@@ -433,12 +563,43 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			want:  []finding{},
 		},
 		{
-			name:         "mongodb_version 6.0.19-16",
-			check:        "mongodb_version",
-			today:        today,
-			docs:         [][]map[string]any{mongoBuildInfo("6.0.19-16")},
-			want:         []finding{{Severity: "warning", Summary: "Newer version of MongoDB is available."}},
-			descContains: []string{"security fixes", "https://www.mongodb.com/resources/products/alerts", "Major version 8.0 "},
+			name:  "mongodb_version 6.0.19-16",
+			check: "mongodb_version",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("6.0.19-16")},
+			want:  []finding{{Severity: "warning", Summary: "Newer version of MongoDB is available."}},
+			descContains: []string{
+				"new minor version " + mongoVersion(tableInt(t, mongoLatest, "6.0")) + " available",
+				"Major version " + mongoLatestSeries + " available",
+				"security fixes", "https://www.mongodb.com/resources/products/alerts",
+			},
+		},
+		{
+			name:  "mongodb_version latest 7.0",
+			check: "mongodb_version",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo(mongoVersion(tableInt(t, mongoLatest, "7.0")))},
+			want:  []finding{{Severity: "warning", Summary: "Newer version of MongoDB is available."}},
+			descContains: []string{
+				"This is the latest minor patch for this version",
+				"Major version " + mongoLatestSeries + " available",
+				"security fixes", "https://www.mongodb.com/resources/products/alerts",
+			},
+			descExcludes: []string{"new minor version"},
+		},
+		{
+			name:  "mongodb_version latest of the latest series",
+			check: "mongodb_version",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo(mongoVersion(tableInt(t, mongoLatest, mongoLatestSeries)))},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_version 99.0.0 not in table",
+			check: "mongodb_version",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("99.0.0")},
+			want:  []finding{},
 		},
 		{
 			name:  "postgresql_eol_check 110022",
@@ -504,10 +665,10 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			want:  []finding{pgEOL("error", "17.11", "17", "2029-11-08")},
 		},
 		{
-			name:  "postgresql_eol_check 190000 not in table",
+			name:  "postgresql_eol_check 990000 not in table",
 			check: "postgresql_eol_check",
 			today: today,
-			docs:  [][]map[string]any{pgVersionRows(190000)},
+			docs:  [][]map[string]any{pgVersionRows(990000)},
 			want:  []finding{},
 		},
 		{
@@ -518,26 +679,42 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			want:  []finding{pgEOL("error", "9.6.24", "9.6", "2021-11-11")},
 		},
 		{
-			name:         "postgresql_version_check 170005",
-			check:        "postgresql_version_check",
-			today:        today,
-			docs:         [][]map[string]any{pgVersionRows(170005)},
-			want:         []finding{{Severity: "warning", Summary: "Currently installed version is (17.5)"}},
-			descContains: []string{"newer minor version (17.11)", "will end in 1092 days", "security fixes", "https://www.postgresql.org/support/security/"},
-		},
-		{
-			name:         "postgresql_version_check 130023",
-			check:        "postgresql_version_check",
-			today:        today,
-			docs:         [][]map[string]any{pgVersionRows(130023)},
-			want:         []finding{{Severity: "warning", Summary: "Currently installed version is (13.23)"}},
-			descContains: []string{"newer major version (18.6)", "expired 364 days ago", "security fixes"},
-		},
-		{
-			name:  "postgresql_version_check 190000 not in table",
+			name:  "postgresql_version_check 170005",
 			check: "postgresql_version_check",
 			today: today,
-			docs:  [][]map[string]any{pgVersionRows(190000)},
+			docs:  [][]map[string]any{pgVersionRows(170005)},
+			want:  []finding{{Severity: "warning", Summary: "Currently installed version is (17.5)"}},
+			descContains: []string{
+				"newer minor version (" + pgVersion(tableInt(t, pgLatest, "17")) + ")",
+				fmt.Sprintf("will end in %d days", daysBetween(t, today, pgExpires["17"])),
+				"security fixes", "https://www.postgresql.org/support/security/",
+			},
+		},
+		{
+			name:  "postgresql_version_check latest 13",
+			check: "postgresql_version_check",
+			today: today,
+			docs:  [][]map[string]any{pgVersionRows(tableInt(t, pgLatest, "13"))},
+			want:  []finding{{Severity: "warning", Summary: "Currently installed version is (" + pgVersion(tableInt(t, pgLatest, "13")) + ")"}},
+			descContains: []string{
+				"is the latest release for this major/minor version",
+				"newer major version (" + pgVersion(tableInt(t, pgLatest, pgLatestSeries)) + ")",
+				fmt.Sprintf("expired %d days ago", daysBetween(t, pgExpires["13"], today)),
+				"security fixes",
+			},
+		},
+		{
+			name:  "postgresql_version_check latest of the latest major",
+			check: "postgresql_version_check",
+			today: today,
+			docs:  [][]map[string]any{pgVersionRows(tableInt(t, pgLatest, pgLatestSeries))},
+			want:  []finding{},
+		},
+		{
+			name:  "postgresql_version_check 990000 not in table",
+			check: "postgresql_version_check",
+			today: today,
+			docs:  [][]map[string]any{pgVersionRows(990000)},
 			want:  []finding{},
 		},
 		{
@@ -856,6 +1033,20 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			want:  []finding{{Severity: "warning", Summary: "MongoDB journaling is disabled"}},
 		},
 		{
+			name:  "mongodb_journal nested disabled bool 6.0.19",
+			check: "mongodb_journal",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"storage": map[string]any{"journal": map[string]any{"enabled": false}}}), mongoBuildInfo("6.0.19")},
+			want:  []finding{{Severity: "warning", Summary: "MongoDB journaling is disabled"}},
+		},
+		{
+			name:  "mongodb_journal nested enabled bool 6.0.19",
+			check: "mongodb_journal",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"storage": map[string]any{"journal": map[string]any{"enabled": true}}}), mongoBuildInfo("6.0.19")},
+			want:  []finding{},
+		},
+		{
 			name:  "mongodb_journal nested disabled 8.0.4",
 			check: "mongodb_journal",
 			today: today,
@@ -881,6 +1072,20 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check: "mongodb_loglevel",
 			today: today,
 			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"setParameter": map[string]any{"logLevel": "0"}})},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_loglevel logLevel int64 0",
+			check: "mongodb_loglevel",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"setParameter": map[string]any{"logLevel": int64(0)}})},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_loglevel systemLog verbosity 0",
+			check: "mongodb_loglevel",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"systemLog": map[string]any{"verbosity": int64(0)}})},
 			want:  []finding{},
 		},
 		{

@@ -41,7 +41,9 @@ Upgrading to PMM 3.11.0 changes your existing Advisor settings, dashboards and A
 
 The version checks now use current release data and end-of-life (EOL) dates, so after you upgrade you may see new findings:
 
-- **MySQL 8.0** (including Percona Server for MySQL and Percona XtraDB Cluster 8.0), **MongoDB 5.0 and 6.0**, **PostgreSQL 11, 12 and 13**, **MariaDB 10.6**, and Amazon RDS for MySQL versions past standard support are reported as EOL. PostgreSQL 14 follows from 2026-11-12.
+- **MySQL 8.0** (including Percona Server for MySQL and Percona XtraDB Cluster 8.0), **MongoDB 5.0, 6.0 and 8.2**, **PostgreSQL 11 to 14** and **MariaDB 10.6** are reported as EOL.
+- Amazon RDS for MySQL versions past standard support are reported as having reached "end of standard support", not EOL.
+- **MongoDB 4.4** and **PostgreSQL 10 and older**, which were reported as warnings, are now reported as errors.
 - You get a warning 6 months before a version reaches EOL, and an error after that date.
 - A newer-version finding now says when the newer release includes security fixes.
 

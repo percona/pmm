@@ -171,7 +171,7 @@ checks:
           if days < 0:
               return {
                   "summary": "{} {} reached end of life".format(product, series),
-                  "description": "{} {} reached its End-of-Life date on {} and no longer gets bug fixes or security fixes. Percona does not provide support or hotfixes for EOL versions. Upgrade to a supported release series.".format(product, series, date),
+                  "description": "{} {} reached its End-of-Life date on {} and no longer gets bug fixes or security fixes. EOL versions no longer receive bug or security fixes from the vendor. Upgrade to a supported release series.".format(product, series, date),
                   "read_more_url": read_url.format("mysql_unsupported_version_check"),
                   "severity": "error",
                   "labels": labels,

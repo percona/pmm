@@ -49,7 +49,6 @@ checks:
               # parse_version returns a dict with keys: major, minor, patch, rest, num
               # Eg.: For PSMDB 4.4.8-18 parse_version output - {"major": 4, "minor": 4, "patch": 18, "rest": "-18", "num": 40418, "numrest": 18}
               version = parse_version(row["version"])
-              print("version =", repr(version))
               num = version["num"]
               mm = "{}.{}".format(version["major"], version["minor"])
               older_major = series_key(version) < latest_key
