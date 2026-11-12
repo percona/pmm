@@ -17,6 +17,7 @@ package models
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -1170,23 +1171,14 @@ var databaseSchema = [][]string{
 		`UPDATE dumps SET encrypted = false`,
 	},
 	119: {
-		// Before environment variable names were restricted to agents pmm-agent starts as a separate
-		// process, addMongoDB copied the requested names onto the QAN and RTA agents it created
-		// alongside mongodb_exporter. Nothing ever read them there: only mongodbExporterConfig calls
-		// GetEnvironmentVariableNames, and no API type exposes the field for those agent types, so
-		// the rows have no way to be cleared through the API and would keep the dead value forever.
+		// Only mongodb_exporter reads environment variables; clear the unused copies on other agents.
 		`UPDATE agents SET environment_variables = NULL
 			WHERE environment_variables IS NOT NULL
 			AND agent_type <> 'mongodb_exporter'`,
 	},
 	120: {
-		// Migration 110 filled instance_id only for Nodes that existed then; the inventory API
-		// kept creating remote RDS Nodes without it. Before 3.4.0 that API took the DB instance
-		// identifier as the address, so a bare address is the identifier. An endpoint address is
-		// left alone: its first label is only right for a standard instance endpoint, not for a
-		// cluster endpoint, a CNAME or an IP, and a wrong identifier is harder to spot than none.
-		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly,
-		// so identifiers stored as typed are lowercased too, as createNodeWithID now does.
+		// Lowercase RDS instance IDs, as AWS stores them and rds_exporter matches them exactly; fill missing
+		// ones from a bare address, which is the instance identifier (endpoint addresses are left alone).
 		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
 		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
 	},
@@ -1275,10 +1267,119 @@ var databaseSchema = [][]string{
 		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_password VARCHAR NOT NULL DEFAULT ''`,
 		`ALTER TABLE om_bootstrap_secrets ALTER COLUMN admin_username DROP DEFAULT, ALTER COLUMN admin_password DROP DEFAULT`,
 	},
+	126: {
+		`CREATE TABLE advisor_insights (
+			id VARCHAR NOT NULL,
+			run_id VARCHAR NOT NULL,
+			check_name VARCHAR NOT NULL CHECK (check_name <> ''),
+			category VARCHAR NOT NULL,
+			service_id VARCHAR NOT NULL,
+			service_name VARCHAR NOT NULL,
+			service_type VARCHAR NOT NULL,
+			node_id VARCHAR NOT NULL,
+			node_name VARCHAR NOT NULL,
+			environment VARCHAR NOT NULL,
+			cluster VARCHAR NOT NULL,
+			replication_set VARCHAR NOT NULL,
+			region VARCHAR NOT NULL,
+			az VARCHAR NOT NULL,
+			status VARCHAR NOT NULL CHECK (status <> ''),
+			summary VARCHAR NOT NULL,
+			description TEXT NOT NULL,
+			outcome TEXT NOT NULL,
+			read_more_url VARCHAR NOT NULL,
+			severity VARCHAR,
+			labels TEXT,
+			checked_at TIMESTAMP,
+			triggered_by VARCHAR NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE INDEX advisor_insights_run_id_idx ON advisor_insights (run_id)`,
+		`CREATE INDEX advisor_insights_service_id_idx ON advisor_insights (service_id)`,
+		`CREATE INDEX advisor_insights_checked_at_idx ON advisor_insights (checked_at)`,
+	},
+	127: {
+		`CREATE TABLE advisor_checks (
+			name VARCHAR(128) NOT NULL CHECK (name <> ''),
+			source VARCHAR NOT NULL CHECK (source <> ''),
+			version INTEGER NOT NULL,
+			summary VARCHAR NOT NULL,
+			description TEXT NOT NULL,
+			category VARCHAR NOT NULL,
+			technology VARCHAR NOT NULL,
+			disabled BOOLEAN NOT NULL,
+			disabled_service_ids JSONB,
+			queries TEXT NOT NULL,
+			script TEXT NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (name)
+		)`,
+
+		// Checks disabled in earlier versions are not carried over.
+		`UPDATE settings SET settings = settings #- '{sass,disabled_advisors}'`,
+
+		// Per-check interval overrides, replaced by Advisor schedules.
+		`DROP TABLE IF EXISTS check_settings`,
+	},
+	128: {
+		// Days are time.Weekday values and the time of day is HH:MM, both in UTC.
+		`CREATE TABLE advisor_schedules (
+			id VARCHAR NOT NULL,
+			name VARCHAR NOT NULL CHECK (name <> ''),
+			enabled BOOLEAN NOT NULL,
+			days_of_week SMALLINT[] NOT NULL,
+			time_of_day VARCHAR(5) NOT NULL,
+			check_names VARCHAR[] NOT NULL,
+			service_ids VARCHAR[] NOT NULL,
+			email_mode VARCHAR NOT NULL,
+			email_addresses VARCHAR[] NOT NULL,
+			email_severities SMALLINT[] NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE UNIQUE INDEX advisor_schedules_name_idx ON advisor_schedules (lower(name))`,
+		// migrateDB creates the default schedule.
+	},
+	129: {
+		`CREATE TABLE advisor_runs (
+			id VARCHAR NOT NULL,
+			triggered_by VARCHAR NOT NULL,
+			status VARCHAR NOT NULL,
+			check_names VARCHAR[],
+			service_ids VARCHAR[],
+			schedule_id VARCHAR REFERENCES advisor_schedules (id) ON DELETE SET NULL,
+			schedule_name VARCHAR NOT NULL,
+			scheduled_for TIMESTAMP,
+			started_at TIMESTAMP NOT NULL,
+			finished_at TIMESTAMP,
+			planned_checks_count INTEGER NOT NULL,
+			planned_services_count INTEGER NOT NULL,
+			checks_count INTEGER NOT NULL,
+			services_count INTEGER NOT NULL,
+			findings_count INTEGER NOT NULL,
+			errors_count INTEGER NOT NULL,
+			severity_counts TEXT,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE INDEX advisor_runs_started_at_idx ON advisor_runs (started_at)`,
+		`CREATE INDEX advisor_runs_schedule_id_idx ON advisor_runs (schedule_id)`,
+		// At most one queued or running run, so claiming the run slot is a single
+		// atomic insert on every HA node.
+		`CREATE UNIQUE INDEX advisor_runs_active_idx ON advisor_runs ((true)) WHERE status IN ('queued', 'running')`,
+
+		// Advisor schedules replace the interval settings; only the on/off switch carries over.
+		`UPDATE settings SET settings = (settings - 'sass') || jsonb_build_object('advisors', jsonb_build_object('enabled', settings #> '{sass,enabled}'))`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
-// Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
+// Go's zero values and non-zero default values in database don't play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
 // OpenDB just validates its arguments without creating a connection to the database.
@@ -1482,6 +1583,9 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 // running schema and data migrations ("PMME").
 const migrationLockID = 0x504d4d45
 
+// advisorSchedulesVersion is the schema version that adds the advisor_schedules table.
+const advisorSchedulesVersion = 128
+
 // applySchemaMigrations applies the schema versions after currentVersion up to
 // latestVersion.
 func applySchemaMigrations(tx *reform.TX, currentVersion, latestVersion int, logf reform.Printf) error {
@@ -1572,15 +1676,15 @@ func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams, keyCrea
 			return err
 		}
 
+		err = seedDefaultAdvisorSchedule(ctx, tx.Querier, currentVersion, latestVersion)
+		if err != nil {
+			return err
+		}
+
 		// data migration relies on the latest schema; skip it when an older
 		// schema version is explicitly requested (only done in tests)
 		if latestVersion == len(databaseSchema)-1 {
-			mp := migrationParams{keyCreated: keyCreated, ha: params.HANodeID != ""}
-			if params.SetupFixtures != SkipFixtures && !mp.ha {
-				// the database setupPMMServerAgents connects PMM Server's own Agents to
-				mp.pmmServerDB = &params
-			}
-			err := migrateEncryption(tx.Querier, mp)
+			err = migrateEncryption(tx.Querier, encryptionMigrationParams(params, keyCreated))
 			if err != nil {
 				return err
 			}
@@ -1611,6 +1715,39 @@ func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams, keyCrea
 
 		return nil
 	})
+}
+
+// encryptionMigrationParams returns the migrateEncryption parameters for a migrateDB run.
+func encryptionMigrationParams(params SetupDBParams, keyCreated bool) migrationParams {
+	mp := migrationParams{keyCreated: keyCreated, ha: params.HANodeID != ""}
+	if params.SetupFixtures != SkipFixtures && !mp.ha {
+		// the database setupPMMServerAgents connects PMM Server's own Agents to
+		mp.pmmServerDB = &params
+	}
+
+	return mp
+}
+
+// seedDefaultAdvisorSchedule creates the default schedule in the migration run that adds its table,
+// from DefaultAdvisorSchedule, so changing the default needs no migration. The schedule is written
+// with the current model, so only a run to the latest schema version creates it.
+func seedDefaultAdvisorSchedule(ctx context.Context, q *reform.Querier, currentVersion, latestVersion int) error {
+	if currentVersion >= advisorSchedulesVersion || latestVersion != len(databaseSchema)-1 {
+		return nil
+	}
+
+	s := DefaultAdvisorSchedule()
+	err := normalizeAdvisorSchedule(s)
+	if err != nil {
+		return err
+	}
+	// not uuid.NewString: tests make that source deterministic, and migrating must not shift their IDs
+	id, err := uuid.NewRandomFromReader(rand.Reader)
+	if err != nil {
+		return err
+	}
+	s.ID = id.String()
+	return q.WithContext(ctx).Insert(s)
 }
 
 // removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are
