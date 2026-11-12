@@ -20,4 +20,9 @@ export {
   defaultPrimaryDark,
   shape,
 } from './BaseTheme';
-export type { Primitives, SemanticTokens, PrimaryTokens, ShapeTokens } from './BaseTheme';
+export type {
+  Primitives,
+  SemanticTokens,
+  PrimaryTokens,
+  ShapeTokens,
+} from './BaseTheme';

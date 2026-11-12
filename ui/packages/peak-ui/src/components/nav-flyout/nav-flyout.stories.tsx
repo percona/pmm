@@ -54,7 +54,9 @@ const GROUPS: Group[] = [
 // load without taking focus, so the docs page displays it; once closed, panels open on click.
 const CollapsedRail = ({ openOnLoad }: { openOnLoad: string }) => {
   const anchors = useRef<Record<string, HTMLDivElement | null>>({});
-  const [open, setOpen] = useState<{ id: string; anchor: HTMLElement } | null>(null);
+  const [open, setOpen] = useState<{ id: string; anchor: HTMLElement } | null>(
+    null
+  );
   const [shownOnLoad, setShownOnLoad] = useState(true);
 
   useEffect(() => {
@@ -92,8 +94,14 @@ const CollapsedRail = ({ openOnLoad }: { openOnLoad: string }) => {
               aria-current={group.current ? 'true' : undefined}
               aria-expanded={isOpen}
               aria-controls={isOpen ? panelId : undefined}
-              onClick={(event) => setOpen({ id: group.id, anchor: event.currentTarget })}
-              sx={{ px: 1.5, borderRadius: 0, [`.${listItemTextClasses.root}`]: { opacity: 0 } }}
+              onClick={(event) =>
+                setOpen({ id: group.id, anchor: event.currentTarget })
+              }
+              sx={{
+                px: 1.5,
+                borderRadius: 0,
+                [`.${listItemTextClasses.root}`]: { opacity: 0 },
+              }}
             />
             <NavFlyout
               id={panelId}

@@ -27,7 +27,8 @@ const columns: MRT_ColumnDef<TestRow>[] = [
   },
 ];
 
-const getNavigableIds = () => screen.getByTestId('navigable-ids').textContent ?? '';
+const getNavigableIds = () =>
+  screen.getByTestId('navigable-ids').textContent ?? '';
 
 function NavigableTableHarness({
   scope,
@@ -52,7 +53,9 @@ function NavigableTableHarness({
         enableColumnFilters
         initialState={{ showColumnFilters: true }}
       />
-      <div data-testid="navigable-ids">{navigableRows.map((row) => row.id).join(',')}</div>
+      <div data-testid="navigable-ids">
+        {navigableRows.map((row) => row.id).join(',')}
+      </div>
     </>
   );
 }
@@ -86,7 +89,9 @@ describe('useNavigableRows', () => {
 
   it('keeps filtered rows across pages', async () => {
     const FilterHarness = () => {
-      const { navigableRows, tableProps } = useNavigableRows({ data: TEST_DATA });
+      const { navigableRows, tableProps } = useNavigableRows({
+        data: TEST_DATA,
+      });
 
       return (
         <>
@@ -101,11 +106,17 @@ describe('useNavigableRows', () => {
           <button
             type="button"
             data-testid="apply-filter"
-            onClick={() => tableProps.onColumnFiltersChange?.([{ id: 'group', value: 'edge' }])}
+            onClick={() =>
+              tableProps.onColumnFiltersChange?.([
+                { id: 'group', value: 'edge' },
+              ])
+            }
           >
             Filter
           </button>
-          <div data-testid="navigable-ids">{navigableRows.map((row) => row.id).join(',')}</div>
+          <div data-testid="navigable-ids">
+            {navigableRows.map((row) => row.id).join(',')}
+          </div>
         </>
       );
     };
@@ -127,7 +138,9 @@ describe('useNavigableRows', () => {
 
   it('reflects sort order in navigable rows', async () => {
     const SortHarness = () => {
-      const { navigableRows, tableProps } = useNavigableRows({ data: TEST_DATA });
+      const { navigableRows, tableProps } = useNavigableRows({
+        data: TEST_DATA,
+      });
 
       return (
         <>
@@ -140,11 +153,15 @@ describe('useNavigableRows', () => {
           <button
             type="button"
             data-testid="apply-sort"
-            onClick={() => tableProps.onSortingChange?.([{ id: 'name', desc: true }])}
+            onClick={() =>
+              tableProps.onSortingChange?.([{ id: 'name', desc: true }])
+            }
           >
             Sort
           </button>
-          <div data-testid="navigable-ids">{navigableRows.map((row) => row.id).join(',')}</div>
+          <div data-testid="navigable-ids">
+            {navigableRows.map((row) => row.id).join(',')}
+          </div>
         </>
       );
     };
@@ -191,7 +208,9 @@ describe('useNavigableRows', () => {
           >
             Next
           </button>
-          <div data-testid="navigable-ids">{navigableRows.map((row) => row.id).join(',')}</div>
+          <div data-testid="navigable-ids">
+            {navigableRows.map((row) => row.id).join(',')}
+          </div>
         </>
       );
     };
@@ -235,11 +254,17 @@ describe('useNavigableRows', () => {
           <button
             type="button"
             data-testid="apply-filter"
-            onClick={() => tableProps.onColumnFiltersChange?.([{ id: 'group', value: 'edge' }])}
+            onClick={() =>
+              tableProps.onColumnFiltersChange?.([
+                { id: 'group', value: 'edge' },
+              ])
+            }
           >
             Filter
           </button>
-          <div data-testid="navigable-ids">{navigableRows.map((row) => row.id).join(',')}</div>
+          <div data-testid="navigable-ids">
+            {navigableRows.map((row) => row.id).join(',')}
+          </div>
         </>
       );
     };

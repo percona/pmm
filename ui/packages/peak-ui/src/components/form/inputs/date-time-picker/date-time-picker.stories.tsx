@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DefaultValues, FormProvider, useForm, useWatch } from 'react-hook-form';
+import {
+  DefaultValues,
+  FormProvider,
+  useForm,
+  useWatch,
+} from 'react-hook-form';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
@@ -61,7 +66,12 @@ function FormShell<TValues extends Record<string, unknown>>({
       >
         {children}
         <LiveValue name={fieldName} formatValue={formatValue} />
-        <Button type="submit" variant="contained" size="small" sx={{ alignSelf: 'flex-start' }}>
+        <Button
+          type="submit"
+          variant="contained"
+          size="small"
+          sx={{ alignSelf: 'flex-start' }}
+        >
           Submit (see console)
         </Button>
       </Stack>
@@ -111,7 +121,10 @@ function LiveValue({
  */
 export const Default: Story = {
   render: () => (
-    <FormShell defaultValues={{ scheduledFor: new Date() }} fieldName="scheduledFor">
+    <FormShell
+      defaultValues={{ scheduledFor: new Date() }}
+      fieldName="scheduledFor"
+    >
       <DateTimePickerInput name="scheduledFor" label="Scheduled for" />
     </FormShell>
   ),
@@ -144,7 +157,10 @@ export const IsoString: Story = {
 export const UnixMs: Story = {
   name: 'valueFormat="unix-ms"',
   render: () => (
-    <FormShell defaultValues={{ scheduledFor: Date.now() }} fieldName="scheduledFor">
+    <FormShell
+      defaultValues={{ scheduledFor: Date.now() }}
+      fieldName="scheduledFor"
+    >
       <DateTimePickerInput
         name="scheduledFor"
         label="Scheduled for (epoch ms)"
@@ -172,13 +188,20 @@ export const CustomTransform: Story = {
         label="Scheduled for (wrapped object)"
         transform={{
           input: (v) => {
-            if (v && typeof v === 'object' && 'iso' in v && typeof v.iso === 'string') {
+            if (
+              v &&
+              typeof v === 'object' &&
+              'iso' in v &&
+              typeof v.iso === 'string'
+            ) {
               return new Date(v.iso);
             }
             return null;
           },
           output: (v) =>
-            v instanceof Date && !Number.isNaN(v.getTime()) ? { iso: v.toISOString() } : null,
+            v instanceof Date && !Number.isNaN(v.getTime())
+              ? { iso: v.toISOString() }
+              : null,
         }}
       />
     </FormShell>
@@ -193,7 +216,11 @@ export const EmptyInitial: Story = {
   name: 'empty initial value (iso-string)',
   render: () => (
     <FormShell defaultValues={{ scheduledFor: null }} fieldName="scheduledFor">
-      <DateTimePickerInput name="scheduledFor" label="Scheduled for" valueFormat="iso-string" />
+      <DateTimePickerInput
+        name="scheduledFor"
+        label="Scheduled for"
+        valueFormat="iso-string"
+      />
     </FormShell>
   ),
 };

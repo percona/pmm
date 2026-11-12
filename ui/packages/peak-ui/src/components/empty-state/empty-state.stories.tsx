@@ -7,7 +7,10 @@ import AddOutlined from '@mui/icons-material/AddOutlined';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import ThemedModePanel from '../../storybook/themed-mode-panel';
 import Table, { type MRT_ColumnDef } from '../table';
-import EmptyState, { EMPTY_STATE_ILLUSTRATIONS, EMPTY_STATE_SIZES } from './empty-state';
+import EmptyState, {
+  EMPTY_STATE_ILLUSTRATIONS,
+  EMPTY_STATE_SIZES,
+} from './empty-state';
 
 interface Service {
   name: string;
@@ -114,7 +117,13 @@ export const WithIllustration: Story = {
     },
   },
   render: () => (
-    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+        gap: 2,
+      }}
+    >
       <EmptyState
         illustration="nothing-found"
         title="No matching services"
@@ -231,7 +240,13 @@ export const ColorModes: Story = {
   name: 'Light and dark mode',
   parameters: { controls: { disable: true } },
   render: (_args, { globals }) => (
-    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
+        gap: 2,
+      }}
+    >
       <ThemedModePanel mode="light" themeName={globals.theme ?? 'base'}>
         {monitoringEmptyState}
       </ThemedModePanel>

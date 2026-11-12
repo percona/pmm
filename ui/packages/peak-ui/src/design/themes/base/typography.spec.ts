@@ -1,4 +1,8 @@
-import { createTheme, type PaletteMode, type Theme } from '@mui/material/styles';
+import {
+  createTheme,
+  type PaletteMode,
+  type Theme,
+} from '@mui/material/styles';
 import { describe, expect, it } from 'vitest';
 import { getThemeOptions } from '../../utils';
 
@@ -36,7 +40,8 @@ interface Line {
   lineHeight: unknown;
 }
 
-const isStyle = (value: unknown): value is Style => typeof value === 'object' && value !== null;
+const isStyle = (value: unknown): value is Style =>
+  typeof value === 'object' && value !== null;
 
 const toPx = (fontSize: unknown, htmlFontSize: number): number => {
   if (typeof fontSize === 'number') return fontSize;
@@ -50,7 +55,8 @@ const renderedLines = (theme: Theme, variant: string, style: Style): Line[] => {
   const queries = Object.keys(style).filter((key) => key.startsWith('@media'));
   const coversAllWidths = theme.breakpoints.keys.some(
     (key) =>
-      queries.includes(theme.breakpoints.down(key)) && queries.includes(theme.breakpoints.up(key))
+      queries.includes(theme.breakpoints.down(key)) &&
+      queries.includes(theme.breakpoints.up(key))
   );
   const ranges = queries.map((query) => {
     const block = style[query] as Style;
@@ -61,25 +67,37 @@ const renderedLines = (theme: Theme, variant: string, style: Style): Line[] => {
       lineHeight: block.lineHeight ?? style.lineHeight,
     };
   });
-  const base = { variant, range: 'base', fontSize: style.fontSize, lineHeight: style.lineHeight };
+  const base = {
+    variant,
+    range: 'base',
+    fontSize: style.fontSize,
+    lineHeight: style.lineHeight,
+  };
   return coversAllWidths ? ranges : [base, ...ranges];
 };
 
 const allLines = (theme: Theme): Line[] =>
   Object.entries(theme.typography).flatMap(([variant, style]) =>
-    isStyle(style) && variant !== 'inherit' && ('fontSize' in style || 'lineHeight' in style)
+    isStyle(style) &&
+    variant !== 'inherit' &&
+    ('fontSize' in style || 'lineHeight' in style)
       ? renderedLines(theme, variant, style)
       : []
   );
 
-const fontPx = (theme: Theme, { fontSize }: Line) => toPx(fontSize, theme.typography.htmlFontSize);
+const fontPx = (theme: Theme, { fontSize }: Line) =>
+  toPx(fontSize, theme.typography.htmlFontSize);
 
-const linePx = (theme: Theme, line: Line) => fontPx(theme, line) * Number(line.lineHeight);
+const linePx = (theme: Theme, line: Line) =>
+  fontPx(theme, line) * Number(line.lineHeight);
 
 const offPixel = (theme: Theme, line: Line): string | null => {
   const { variant, range, lineHeight } = line;
-  const unitless = typeof lineHeight === 'number' || /^\d*\.?\d+$/.test(String(lineHeight ?? ''));
-  if (!unitless) return `${variant} (${range}): line height ${String(lineHeight)} is not a ratio`;
+  const unitless =
+    typeof lineHeight === 'number' ||
+    /^\d*\.?\d+$/.test(String(lineHeight ?? ''));
+  if (!unitless)
+    return `${variant} (${range}): line height ${String(lineHeight)} is not a ratio`;
   const px = linePx(theme, line);
   const above = px - Math.round(px);
   // Rounding the ratio's fourth decimal up overshoots by at most 0.0001 per font px.
@@ -94,16 +112,21 @@ describe.each(THEMES)('%s theme typography', (themeName) => {
     it('lands every variant on whole pixels at every breakpoint', () => {
       const lines = allLines(theme);
       expect(lines.length).toBeGreaterThan(0);
-      expect(lines.map((line) => offPixel(theme, line)).filter(Boolean)).toEqual([]);
+      expect(
+        lines.map((line) => offPixel(theme, line)).filter(Boolean)
+      ).toEqual([]);
     });
 
-    it.each(Object.entries(FIGMA_LINES))('gives %s the Figma line heights', (variant, expected) => {
-      const style = theme.typography[variant as keyof Theme['typography']];
-      expect(isStyle(style)).toBe(true);
-      const lines = renderedLines(theme, variant, style as Style).map((line) =>
-        Math.round(linePx(theme, line))
-      );
-      expect(lines).toEqual(expected);
-    });
+    it.each(Object.entries(FIGMA_LINES))(
+      'gives %s the Figma line heights',
+      (variant, expected) => {
+        const style = theme.typography[variant as keyof Theme['typography']];
+        expect(isStyle(style)).toBe(true);
+        const lines = renderedLines(theme, variant, style as Style).map(
+          (line) => Math.round(linePx(theme, line))
+        );
+        expect(lines).toEqual(expected);
+      }
+    );
   });
 });

@@ -1004,19 +1004,31 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             // Contained/outlined: 12px layout slot; icon overflows toward the edge.
             // Sizes match Icon Button / Peak library (24 / 20 / 16). Text: no edge pull.
             const iconSlot = 12;
-            const iconSize = size === 'large' ? 24 : size === 'medium' ? 20 : 16;
+            const iconSize =
+              size === 'large' ? 24 : size === 'medium' ? 20 : 16;
             const iconEdgePull = variant === 'text' ? 0 : iconSize - iconSlot;
 
             const paddingByVariant = {
-              contained: { large: '4px 24px', medium: '5px 18px', small: '4px 9px' },
-              outlined: { large: '4px 24px', medium: '5px 18px', small: '4px 9px' },
+              contained: {
+                large: '4px 24px',
+                medium: '5px 18px',
+                small: '4px 9px',
+              },
+              outlined: {
+                large: '4px 24px',
+                medium: '5px 18px',
+                small: '4px 9px',
+              },
               text: { large: '0px 8px', medium: '0px 7px', small: '0px 4px' },
             };
-            const padding = (paddingByVariant[variant] ?? paddingByVariant.text)[size];
+            const padding = (paddingByVariant[variant] ??
+              paddingByVariant.text)[size];
 
             const minHeight = { large: 40, medium: 32, small: 24 }[size];
             const fontSize = { large: 15, medium: 13, small: 13 }[size];
-            const lineHeight = { large: 1.0667, medium: 1.077, small: 1.077 }[size];
+            const lineHeight = { large: 1.0667, medium: 1.077, small: 1.077 }[
+              size
+            ];
 
             return {
               borderRadius: theme.shape.borderRadiusFull,
@@ -1325,7 +1337,9 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           // The inversion is centralized here so consumers inherit it via deepmerge without their own overrides.
           tooltip: ({ theme }) => {
             const inverted =
-              theme.palette.mode === 'light' ? semanticTokensDark : semanticTokensLight;
+              theme.palette.mode === 'light'
+                ? semanticTokensDark
+                : semanticTokensLight;
             return {
               ...theme.typography.caption,
               boxShadow: theme.shadows[8],
@@ -1343,7 +1357,9 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           },
           arrow: ({ theme }) => {
             const inverted =
-              theme.palette.mode === 'light' ? semanticTokensDark : semanticTokensLight;
+              theme.palette.mode === 'light'
+                ? semanticTokensDark
+                : semanticTokensLight;
             return { color: inverted.surfaces.elevation1 };
           },
         },
@@ -1401,7 +1417,10 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             props: { variant: 'dashed' },
             style: ({ theme }) => ({
               backgroundColor: 'transparent',
-              backgroundImage: dashedOutline(theme.palette.divider, theme.shape.borderRadiusMd),
+              backgroundImage: dashedOutline(
+                theme.palette.divider,
+                theme.shape.borderRadiusMd
+              ),
               borderRadius: theme.shape.borderRadiusMd,
               boxShadow: 'none',
             }),
@@ -1479,7 +1498,9 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiAlert: {
         styleOverrides: {
           root: ({ theme, ownerState: { color, severity } }) => {
-            const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
+            const key = (color ??
+              severity ??
+              'info') as keyof typeof theme.palette;
             const palette = theme.palette[key] as
               | { surface?: string; contrastText?: string }
               | undefined;
@@ -1501,8 +1522,12 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             };
           },
           icon: ({ theme, ownerState: { color, severity } }) => {
-            const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
-            const palette = theme.palette[key] as { contrastText?: string } | undefined;
+            const key = (color ??
+              severity ??
+              'info') as keyof typeof theme.palette;
+            const palette = theme.palette[key] as
+              | { contrastText?: string }
+              | undefined;
             return {
               color: `${palette?.contrastText} !important`,
               padding: '8px 0',
@@ -1510,8 +1535,12 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             };
           },
           message: ({ theme, ownerState: { color, severity } }) => {
-            const key = (color ?? severity ?? 'info') as keyof typeof theme.palette;
-            const palette = theme.palette[key] as { contrastText?: string } | undefined;
+            const key = (color ??
+              severity ??
+              'info') as keyof typeof theme.palette;
+            const palette = theme.palette[key] as
+              | { contrastText?: string }
+              | undefined;
             return {
               color: palette?.contrastText,
               padding: '8px 0',
@@ -1555,7 +1584,9 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
               };
             }
             const tone =
-              color === 'warning' ? theme.palette.warning.main : theme.palette[color].light;
+              color === 'warning'
+                ? theme.palette.warning.main
+                : theme.palette[color].light;
             return { ...base, color: tone, borderColor: tone };
           },
           label: ({ theme, ownerState }) => ({

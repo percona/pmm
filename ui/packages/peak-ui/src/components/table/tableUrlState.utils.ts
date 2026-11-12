@@ -1,7 +1,11 @@
 import { MRT_ColumnFiltersState, MRT_SortingState } from 'material-react-table';
 import { DEFAULT_TABLE_STATE, type TableStateValues } from './tableState.types';
 
-export type TableUrlSyncKey = 'filters' | 'sort' | 'globalFilter' | 'pagination';
+export type TableUrlSyncKey =
+  | 'filters'
+  | 'sort'
+  | 'globalFilter'
+  | 'pagination';
 
 export interface TableUrlStateOptions {
   /** Prefix for the URL parameters, so several tables on one page keep separate state. */
@@ -26,11 +30,14 @@ export const resolveTableUrlSync = (
   ...sync,
 });
 
-const paramKey = (base: string, prefix?: string) => (prefix ? `${prefix}.${base}` : base);
+const paramKey = (base: string, prefix?: string) =>
+  prefix ? `${prefix}.${base}` : base;
 
 const filterParamPrefix = (prefix?: string) => paramKey('f', prefix);
 
-const resolveTableUrlDefaults = (defaults?: Partial<TableStateValues>): TableStateValues => ({
+const resolveTableUrlDefaults = (
+  defaults?: Partial<TableStateValues>
+): TableStateValues => ({
   ...DEFAULT_TABLE_STATE,
   ...defaults,
   pagination: {
@@ -92,20 +99,25 @@ const parseFilterValue = (raw: string): unknown => {
 };
 
 const serializeFilterValue = (value: unknown): string =>
-  Array.isArray(value) ? JSON.stringify(normalizeFilterArray(value)) : String(value);
+  Array.isArray(value)
+    ? JSON.stringify(normalizeFilterArray(value))
+    : String(value);
 
 const isEmptyFilterValue = (value: unknown): boolean => {
   if (value === undefined || value === null || value === '') {
     return true;
   }
   if (Array.isArray(value)) {
-    return value.every((entry) => entry === '' || entry === undefined || entry === null);
+    return value.every(
+      (entry) => entry === '' || entry === undefined || entry === null
+    );
   }
   return false;
 };
 
-export const hasActiveColumnFilters = (filters: MRT_ColumnFiltersState): boolean =>
-  filters.some(({ value }) => !isEmptyFilterValue(value));
+export const hasActiveColumnFilters = (
+  filters: MRT_ColumnFiltersState
+): boolean => filters.some(({ value }) => !isEmptyFilterValue(value));
 
 const parseColumnFilters = (
   searchParams: URLSearchParams,
@@ -127,7 +139,10 @@ const parseColumnFilters = (
   return filters;
 };
 
-const hasFilterParams = (searchParams: URLSearchParams, filterPrefix: string): boolean =>
+const hasFilterParams = (
+  searchParams: URLSearchParams,
+  filterPrefix: string
+): boolean =>
   Array.from(searchParams.keys()).some((key) => key.startsWith(filterPrefix));
 
 const explicitEmptyFiltersKey = (filterPrefix: string) => `${filterPrefix}_`;
@@ -137,7 +152,9 @@ const parseColumnFiltersFromUrl = (
   filterPrefix: string
 ): MRT_ColumnFiltersState => {
   if (searchParams.has(explicitEmptyFiltersKey(filterPrefix))) {
-    const filters = parseColumnFilters(searchParams, filterPrefix).filter(({ id }) => id !== '_');
+    const filters = parseColumnFilters(searchParams, filterPrefix).filter(
+      ({ id }) => id !== '_'
+    );
     return hasActiveColumnFilters(filters) ? filters : [];
   }
 
@@ -153,10 +170,16 @@ export const parseTableUrlState = (
   const keys = buildTableUrlParamKeys(options.paramPrefix);
 
   const pageFromUrl = sync.pagination
-    ? parsePositiveInt(searchParams.get(keys.page), defaults.pagination.pageIndex + 1)
+    ? parsePositiveInt(
+        searchParams.get(keys.page),
+        defaults.pagination.pageIndex + 1
+      )
     : defaults.pagination.pageIndex + 1;
   const pageSize = sync.pagination
-    ? parsePositiveInt(searchParams.get(keys.pageSize), defaults.pagination.pageSize)
+    ? parsePositiveInt(
+        searchParams.get(keys.pageSize),
+        defaults.pagination.pageSize
+      )
     : defaults.pagination.pageSize;
 
   return {

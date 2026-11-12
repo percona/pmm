@@ -75,7 +75,14 @@ const meta = {
       ),
     },
   },
-  render: function Render({ label, disabled, size, required, indeterminate, defaultChecked }) {
+  render: function Render({
+    label,
+    disabled,
+    size,
+    required,
+    indeterminate,
+    defaultChecked,
+  }) {
     const methods = useForm();
 
     return (

@@ -17,14 +17,23 @@ import {
   MRT_VisibilityState,
   useMaterialReactTable,
 } from 'material-react-table';
-import { useEffect, useMemo, useRef, type MutableRefObject, type Ref } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  type MutableRefObject,
+  type Ref,
+} from 'react';
 import { mergeSx } from '../../utils';
 import EmptyState from '../empty-state';
 import { ICONS_OPACITY } from './table.constants';
 import { TableProps } from './table.types';
 import usePersistentColumnVisibility from './usePersistentColumnVisibility';
 
-const NoDataAlertMessage = ({ message, ...rest }: { message: string } & AlertProps) => {
+const NoDataAlertMessage = ({
+  message,
+  ...rest
+}: { message: string } & AlertProps) => {
   const { sx, ...alertProps } = rest;
   return (
     <Alert
@@ -86,7 +95,8 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     ...rest
   } = props;
   const tableRootRef = useRef<HTMLDivElement | null>(null);
-  const [columnVisibility, setColumnVisibility] = usePersistentColumnVisibility(tableName);
+  const [columnVisibility, setColumnVisibility] =
+    usePersistentColumnVisibility(tableName);
 
   let columnVisibilityState: MRT_VisibilityState | undefined = {};
   let restOfState = {};
@@ -111,10 +121,18 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       return;
     }
 
-    const hideColumnsIcon = root.querySelector('[aria-label="Show/Hide columns"]');
-    const showFiltersIcon = root.querySelector('[aria-label="Show/Hide filters"]');
-    const globalFilterIcon = root.querySelector('[aria-label="Show/Hide search"]');
-    const elementsWithExpandLabel = root.querySelectorAll('[aria-label="Column Actions"]');
+    const hideColumnsIcon = root.querySelector(
+      '[aria-label="Show/Hide columns"]'
+    );
+    const showFiltersIcon = root.querySelector(
+      '[aria-label="Show/Hide filters"]'
+    );
+    const globalFilterIcon = root.querySelector(
+      '[aria-label="Show/Hide search"]'
+    );
+    const elementsWithExpandLabel = root.querySelectorAll(
+      '[aria-label="Column Actions"]'
+    );
 
     hideColumnsIcon?.addEventListener('click', stopPropagation);
     showFiltersIcon?.addEventListener('click', stopPropagation);
@@ -161,7 +179,12 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       return noDataVariant === 'alert' ? (
         <NoDataAlertMessage message={message} {...noDataAlertProps} />
       ) : (
-        <EmptyState size="small" width="100%" title={message} titleComponent="p" />
+        <EmptyState
+          size="small"
+          width="100%"
+          title={message}
+          titleComponent="p"
+        />
       );
     },
     layoutMode: 'grid',
@@ -180,12 +203,22 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         ) : (
           <KeyboardDoubleArrowDownIcon sx={{ opacity: ICONS_OPACITY }} />
         ),
-      SearchIcon: () => <SearchIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
-      FilterListIcon: () => <FilterListIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
-      ViewColumnIcon: () => <ViewColumnIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
-      MoreVertIcon: () => <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
+      SearchIcon: () => (
+        <SearchIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />
+      ),
+      FilterListIcon: () => (
+        <FilterListIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />
+      ),
+      ViewColumnIcon: () => (
+        <ViewColumnIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />
+      ),
+      MoreVertIcon: () => (
+        <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />
+      ),
       // row-actions button: vertical ellipsis per design, not MRT's horizontal one
-      MoreHorizIcon: () => <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
+      MoreHorizIcon: () => (
+        <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />
+      ),
     },
     muiExpandAllButtonProps: { sx: { height: 40, width: 40 } },
     muiExpandButtonProps: { sx: { height: 40, width: 40 } },
@@ -211,16 +244,22 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       const filterFn = table.getState().columnFilterFns?.[column.id];
       // Own the end adornment so consumer adornments, the select caret and the
       // clear button coexist (MRT drops its clear button when one is passed).
-      const managesEndAdornment = !usesPicker && filterFn !== 'empty' && filterFn !== 'notEmpty';
+      const managesEndAdornment =
+        !usesPicker && filterFn !== 'empty' && filterFn !== 'notEmpty';
 
       const filterValue = column.getFilterValue();
       const hasFilterValue = Array.isArray(filterValue)
-        ? filterValue.some((value) => value !== undefined && value !== null && value !== '')
-        : filterValue !== undefined && filterValue !== null && filterValue !== '';
+        ? filterValue.some(
+            (value) => value !== undefined && value !== null && value !== ''
+          )
+        : filterValue !== undefined &&
+          filterValue !== null &&
+          filterValue !== '';
 
       const { slotProps: consumerSlotProps, ...consumerRest } = consumer ?? {};
       const consumerInput = consumerSlotProps?.input;
-      const consumerInputProps = typeof consumerInput === 'function' ? undefined : consumerInput;
+      const consumerInputProps =
+        typeof consumerInput === 'function' ? undefined : consumerInput;
 
       const clearLabel = table.options.localization.clearFilter;
       const clearAdornment =
@@ -232,8 +271,12 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
                 size="small"
                 onClick={(event) => {
                   event.stopPropagation();
-                  column.setFilterValue(filterVariant === 'multi-select' ? [] : undefined);
-                  table.refs.filterInputRefs.current?.[`${column.id}-0`]?.focus?.();
+                  column.setFilterValue(
+                    filterVariant === 'multi-select' ? [] : undefined
+                  );
+                  table.refs.filterInputRefs.current?.[
+                    `${column.id}-0`
+                  ]?.focus?.();
                 }}
               >
                 <CloseIcon />
@@ -294,7 +337,11 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         typeof muiTablePaperProps === 'function'
           ? muiTablePaperProps({ table })
           : muiTablePaperProps;
-      const { ref: consumerRef, sx: consumerSx, ...consumerRest } = consumer || {};
+      const {
+        ref: consumerRef,
+        sx: consumerSx,
+        ...consumerRest
+      } = consumer || {};
       return {
         elevation: 0,
         ...consumerRest,
@@ -320,7 +367,9 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     },
     muiTopToolbarProps: (args) => {
       const resolvedTopToolbarProps =
-        typeof muiTopToolbarProps === 'function' ? muiTopToolbarProps(args) : muiTopToolbarProps;
+        typeof muiTopToolbarProps === 'function'
+          ? muiTopToolbarProps(args)
+          : muiTopToolbarProps;
       const { sx: muiTopToolbarPropsSx = {}, ...muiTopToolbarRestProps } =
         resolvedTopToolbarProps || {};
       return {
@@ -362,10 +411,14 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         ...rowExpandConsumerOpts,
         muiTableHeadCellProps: (args) => {
           const consumer = rowExpandConsumerOpts?.muiTableHeadCellProps;
-          const resolved = typeof consumer === 'function' ? consumer(args) : consumer;
+          const resolved =
+            typeof consumer === 'function' ? consumer(args) : consumer;
           return {
             ...resolved,
-            sx: mergeSx(hideExpandAllIcon ? { '& button': { display: 'none' } } : {}, resolved?.sx),
+            sx: mergeSx(
+              hideExpandAllIcon ? { '& button': { display: 'none' } } : {},
+              resolved?.sx
+            ),
           };
         },
       },
@@ -380,7 +433,8 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         }
       },
       // the closing menu restores focus to the anchor
-      onFocus: (event) => event.currentTarget.classList.remove('percona-column-actions-open'),
+      onFocus: (event) =>
+        event.currentTarget.classList.remove('percona-column-actions-open'),
       sx: {
         height: 40,
         width: 40,
@@ -390,9 +444,12 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     },
     muiTableProps: ({ table }) => {
       const consumer =
-        typeof muiTableProps === 'function' ? muiTableProps({ table }) : muiTableProps;
+        typeof muiTableProps === 'function'
+          ? muiTableProps({ table })
+          : muiTableProps;
       const isFilterRowShown =
-        table.options.columnFilterDisplayMode === 'subheader' && table.getState().showColumnFilters;
+        table.options.columnFilterDisplayMode === 'subheader' &&
+        table.getState().showColumnFilters;
       return {
         'data-testid': tableName,
         ...consumer,
@@ -433,39 +490,47 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
             },
             // "Filtered by" indicator: undo MRT's 0.75 downscale so its icon renders at 20px,
             // pairing with the 20px column-actions icon
-            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels > span .MuiIconButton-root': {
-              width: 32,
-              height: 32,
-              // Fit the 20px label line, or without column actions it pushes its filter field down
-              margin: '-6px 0',
-              padding: '6px',
-              transform: 'none',
-              '& > .MuiSvgIcon-root': { width: 20, height: 20, fontSize: 20 },
-            },
+            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels > span .MuiIconButton-root':
+              {
+                width: 32,
+                height: 32,
+                // Fit the 20px label line, or without column actions it pushes its filter field down
+                margin: '-6px 0',
+                padding: '6px',
+                transform: 'none',
+                '& > .MuiSvgIcon-root': { width: 20, height: 20, fontSize: 20 },
+              },
             // An inline wrapper's line box would still make the indicator's label row taller.
             // The filter row already shows the filter, so there the indicator only costs header width
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels > span:has(> .MuiIconButton-root)':
               {
                 display: isFilterRowShown ? 'none' : 'flex',
               },
-            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels .MuiTableSortLabel-root': {
-              transform: 'none',
-              width: 20,
-              margin: 0,
-              opacity: 0,
-              transition: theme.transitions.create('opacity', {
-                duration: theme.transitions.duration.shortest,
-              }),
-              '@media (hover: none)': { opacity: 0.5 },
-              '& .MuiTableSortLabel-icon': { width: 20, height: 20, fontSize: 20, margin: 0 },
-            },
-            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Actions .MuiIconButton-root': {
-              opacity: 0,
-              transition: theme.transitions.create('opacity', {
-                duration: theme.transitions.duration.shortest,
-              }),
-              '@media (hover: none)': { opacity: 0.5 },
-            },
+            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels .MuiTableSortLabel-root':
+              {
+                transform: 'none',
+                width: 20,
+                margin: 0,
+                opacity: 0,
+                transition: theme.transitions.create('opacity', {
+                  duration: theme.transitions.duration.shortest,
+                }),
+                '@media (hover: none)': { opacity: 0.5 },
+                '& .MuiTableSortLabel-icon': {
+                  width: 20,
+                  height: 20,
+                  fontSize: 20,
+                  margin: 0,
+                },
+              },
+            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Actions .MuiIconButton-root':
+              {
+                opacity: 0,
+                transition: theme.transitions.create('opacity', {
+                  duration: theme.transitions.duration.shortest,
+                }),
+                '@media (hover: none)': { opacity: 0.5 },
+              },
             // :has(:focus-visible), not :focus-within: reveal for keyboard focus only,
             // so mouse-clicking sort doesn't pin the controls via lingering focus
             '& .MuiTableCell-head:is(:hover, :focus-visible, :has(:focus-visible)) .MuiTableSortLabel-root, & .MuiTableCell-head:is(:hover, :focus-visible, :has(:focus-visible)) .Mui-TableHeadCell-Content-Actions .MuiIconButton-root':
@@ -505,11 +570,15 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     },
     muiTableHeadProps: ({ table }) => {
       const consumer =
-        typeof muiTableHeadProps === 'function' ? muiTableHeadProps({ table }) : muiTableHeadProps;
+        typeof muiTableHeadProps === 'function'
+          ? muiTableHeadProps({ table })
+          : muiTableHeadProps;
       return {
         ...consumer,
         sx: mergeSx(
-          { '& tr': { backgroundColor: 'background.paper', boxShadow: 'none' } },
+          {
+            '& tr': { backgroundColor: 'background.paper', boxShadow: 'none' },
+          },
           consumer?.sx
         ),
       };
@@ -540,7 +609,9 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     },
     muiTableBodyProps: ({ table }) => {
       const consumer =
-        typeof muiTableBodyProps === 'function' ? muiTableBodyProps({ table }) : muiTableBodyProps;
+        typeof muiTableBodyProps === 'function'
+          ? muiTableBodyProps({ table })
+          : muiTableBodyProps;
       return {
         ...consumer,
         sx: mergeSx(
@@ -568,7 +639,10 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     columns: customColumns,
     data,
     state: {
-      columnVisibility: { ...columnVisibility, ...(columnVisibilityState ?? {}) },
+      columnVisibility: {
+        ...columnVisibility,
+        ...(columnVisibilityState ?? {}),
+      },
       ...restOfState,
     },
     initialState: {

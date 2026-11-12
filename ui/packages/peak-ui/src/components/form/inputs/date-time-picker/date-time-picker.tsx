@@ -1,7 +1,10 @@
 import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 
 import { kebabize } from '../../../../utils';
-import { DateTimePickerInputProps, DateTimePickerValueTransform } from './date-time-picker.types';
+import {
+  DateTimePickerInputProps,
+  DateTimePickerValueTransform,
+} from './date-time-picker.types';
 import { DateTimePicker, PickerValidDate } from '@mui/x-date-pickers';
 import { presets } from './date-time-picker.constants';
 
@@ -55,7 +58,9 @@ const DateTimePickerInput = <
               return {
                 ...consumerTextField,
                 error: !!error,
-                helperText: error ? error.message : consumerTextField.helperText,
+                helperText: error
+                  ? error.message
+                  : consumerTextField.helperText,
                 onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
                   consumerTextField.onBlur?.(event);
                   field.onBlur();

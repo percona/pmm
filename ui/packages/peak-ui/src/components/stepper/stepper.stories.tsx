@@ -1,7 +1,15 @@
 import { Meta, StoryObj } from '@storybook/react';
 import Stepper from './stepper';
 import { StepperProps } from './stepper.types';
-import { Box, Button, Step, StepButton, StepContent, StepLabel, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Step,
+  StepButton,
+  StepContent,
+  StepLabel,
+  Typography,
+} from '@mui/material';
 import React from 'react';
 import * as DocBlock from '@storybook/addon-docs/blocks';
 
@@ -104,7 +112,8 @@ export const NonLinearStepper: Story = {
       if (isLastStep(stepper) && !allStepsCompleted()) {
         newActiveStep = steps.findIndex((_step, i) => !(i in completed));
       } else {
-        newActiveStep = stepper === 'horizontal' ? activeStep + 1 : verticalActiveStep + 1;
+        newActiveStep =
+          stepper === 'horizontal' ? activeStep + 1 : verticalActiveStep + 1;
       }
       if (stepper === 'horizontal') {
         setActiveStep(newActiveStep);
@@ -116,7 +125,9 @@ export const NonLinearStepper: Story = {
       if (stepper === 'horizontal') {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
       } else {
-        setVerticalActiveStep((prevVerticalActiveStep) => prevVerticalActiveStep - 1);
+        setVerticalActiveStep(
+          (prevVerticalActiveStep) => prevVerticalActiveStep - 1
+        );
       }
     };
 
@@ -167,7 +178,9 @@ export const NonLinearStepper: Story = {
             </React.Fragment>
           ) : (
             <React.Fragment>
-              <Typography sx={{ mt: 2, mb: 1, py: 1 }}>Step {activeStep + 1}</Typography>
+              <Typography sx={{ mt: 2, mb: 1, py: 1 }}>
+                Step {activeStep + 1}
+              </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                 <Button
                   color="inherit"
@@ -183,12 +196,17 @@ export const NonLinearStepper: Story = {
                 </Button>
                 {activeStep !== steps.length &&
                   (completed[activeStep] ? (
-                    <Typography variant="caption" sx={{ display: 'inline-block' }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ display: 'inline-block' }}
+                    >
                       Step {activeStep + 1} already completed
                     </Typography>
                   ) : (
                     <Button onClick={() => handleComplete('horizontal')}>
-                      {completedSteps() === totalSteps() - 1 ? 'Finish' : 'Complete Step'}
+                      {completedSteps() === totalSteps() - 1
+                        ? 'Finish'
+                        : 'Complete Step'}
                     </Button>
                   ))}
               </Box>
@@ -231,7 +249,8 @@ export const VerticalStepper: Story = {
       if (isLastStep(stepper) && !allStepsCompleted()) {
         newActiveStep = steps.findIndex((_step, i) => !(i in completed));
       } else {
-        newActiveStep = stepper === 'horizontal' ? activeStep + 1 : verticalActiveStep + 1;
+        newActiveStep =
+          stepper === 'horizontal' ? activeStep + 1 : verticalActiveStep + 1;
       }
       if (stepper === 'horizontal') {
         setActiveStep(newActiveStep);
@@ -243,7 +262,9 @@ export const VerticalStepper: Story = {
       if (stepper === 'horizontal') {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
       } else {
-        setVerticalActiveStep((prevVerticalActiveStep) => prevVerticalActiveStep - 1);
+        setVerticalActiveStep(
+          (prevVerticalActiveStep) => prevVerticalActiveStep - 1
+        );
       }
     };
 

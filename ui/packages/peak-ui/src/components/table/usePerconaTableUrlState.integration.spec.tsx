@@ -29,17 +29,22 @@ const columns: MRT_ColumnDef<TestRow>[] = [
   },
 ];
 
-const getNavigableIds = () => screen.getByTestId('navigable-ids').textContent ?? '';
+const getNavigableIds = () =>
+  screen.getByTestId('navigable-ids').textContent ?? '';
 
 describe('usePerconaTableUrlState + useNavigableRows', () => {
   it('composes without duplicate table handlers', async () => {
     const ComposedHarness = () => {
-      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
-      const { tableState, tableProps: urlTableProps } = usePerconaTableUrlState({
-        searchParams,
-        setSearchParams,
-        debounceMs: 0,
-      });
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams()
+      );
+      const { tableState, tableProps: urlTableProps } = usePerconaTableUrlState(
+        {
+          searchParams,
+          setSearchParams,
+          debounceMs: 0,
+        }
+      );
       const { navigableRows, tableProps: navTableProps } = useNavigableRows({
         data: TEST_DATA,
         tableState,
@@ -59,11 +64,17 @@ describe('usePerconaTableUrlState + useNavigableRows', () => {
           <button
             type="button"
             data-testid="apply-filter"
-            onClick={() => urlTableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
+            onClick={() =>
+              urlTableProps.onColumnFiltersChange([
+                { id: 'group', value: 'edge' },
+              ])
+            }
           >
             Filter
           </button>
-          <div data-testid="navigable-ids">{navigableRows.map((row) => row.id).join(',')}</div>
+          <div data-testid="navigable-ids">
+            {navigableRows.map((row) => row.id).join(',')}
+          </div>
           <div data-testid="has-handlers">
             {String(
               !!navTableProps.onColumnFiltersChange &&
@@ -90,7 +101,9 @@ describe('usePerconaTableUrlState + useNavigableRows', () => {
 
     await waitFor(() => {
       expect(getNavigableIds()).toBe('01,12');
-      expect(screen.getByTestId('search').textContent).toContain('f.group=edge');
+      expect(screen.getByTestId('search').textContent).toContain(
+        'f.group=edge'
+      );
     });
   });
 });

@@ -1,23 +1,32 @@
 import { MRT_Updater, MRT_VisibilityState } from 'material-react-table';
 import { useEffect, useState } from 'react';
-import { filterHiddenColumns, isObjectEmpty } from './usePersistentColumnVisibility.utils';
+import {
+  filterHiddenColumns,
+  isObjectEmpty,
+} from './usePersistentColumnVisibility.utils';
 
 const usePersistentColumnVisibility = (
   key: string
-): [MRT_VisibilityState, (updater: MRT_Updater<MRT_VisibilityState>) => void] => {
-  const [localStorageValue, setLocalStorageValue] = useState<MRT_VisibilityState>(() => {
-    try {
-      const value = localStorage.getItem(key);
-      if (value) {
-        return JSON.parse(value);
+): [
+  MRT_VisibilityState,
+  (updater: MRT_Updater<MRT_VisibilityState>) => void,
+] => {
+  const [localStorageValue, setLocalStorageValue] =
+    useState<MRT_VisibilityState>(() => {
+      try {
+        const value = localStorage.getItem(key);
+        if (value) {
+          return JSON.parse(value);
+        }
+        return {};
+      } catch {
+        return {};
       }
-      return {};
-    } catch {
-      return {};
-    }
-  });
+    });
 
-  const setLocalStorageStateValue = (updater: MRT_Updater<MRT_VisibilityState>) => {
+  const setLocalStorageStateValue = (
+    updater: MRT_Updater<MRT_VisibilityState>
+  ) => {
     setLocalStorageValue((prevValues: MRT_VisibilityState) =>
       updater instanceof Function ? updater(prevValues) : updater
     );

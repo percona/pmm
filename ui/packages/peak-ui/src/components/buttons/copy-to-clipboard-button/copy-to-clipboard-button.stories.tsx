@@ -71,14 +71,19 @@ export const WithLabel: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Set `showCopyButtonText` and customize the text with `copyCommand`.',
+        story:
+          'Set `showCopyButtonText` and customize the text with `copyCommand`.',
       },
     },
   },
   render: (args) => (
     <Stack direction="row" gap={2}>
       <CopyToClipboardButton {...args} showCopyButtonText copyCommand="Copy" />
-      <CopyToClipboardButton {...args} showCopyButtonText copyCommand="Copy command" />
+      <CopyToClipboardButton
+        {...args}
+        showCopyButtonText
+        copyCommand="Copy command"
+      />
     </Stack>
   ),
 };

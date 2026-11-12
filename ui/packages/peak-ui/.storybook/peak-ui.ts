@@ -1,16 +1,18 @@
-import { create } from "storybook/theming/create";
-import { CHROME } from "./chrome-tokens";
+import { create } from 'storybook/theming/create';
+import { CHROME } from './chrome-tokens';
 
 export default create({
-  base: "light",
+  base: 'light',
 
   brandTitle: "Percona's Peak UI Storybook",
-  brandUrl: "./",
-  brandImage: "./logo-peak-ui.svg",
-  brandTarget: "_self",
+  brandUrl: './',
+  brandImage: './logo-peak-ui.svg',
+  brandTarget: '_self',
 
-  fontBase: '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',
-  fontCode: '"Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace',
+  fontBase:
+    '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',
+  fontCode:
+    '"Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace',
   textColor: CHROME.textPrimary,
   textInverseColor: CHROME.textPrimaryDark,
 

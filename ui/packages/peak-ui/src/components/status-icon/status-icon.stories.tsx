@@ -4,9 +4,18 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import StatusIcon from './status-icon';
-import { type StatusIconProps, type StatusIconSeverity } from './status-icon.types';
+import {
+  type StatusIconProps,
+  type StatusIconSeverity,
+} from './status-icon.types';
 
-const SEVERITIES: StatusIconSeverity[] = ['success', 'info', 'indeterminate', 'warning', 'error'];
+const SEVERITIES: StatusIconSeverity[] = [
+  'success',
+  'info',
+  'indeterminate',
+  'warning',
+  'error',
+];
 
 const meta = {
   title: 'Feedback/Status Icon',

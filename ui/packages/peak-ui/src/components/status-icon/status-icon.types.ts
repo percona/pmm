@@ -13,7 +13,12 @@
 // limitations under the License.
 import { type BoxProps } from '@mui/material/Box';
 
-export type StatusIconSeverity = 'success' | 'info' | 'indeterminate' | 'warning' | 'error';
+export type StatusIconSeverity =
+  | 'success'
+  | 'info'
+  | 'indeterminate'
+  | 'warning'
+  | 'error';
 
 export type StatusIconSize = 'medium' | 'small';
 

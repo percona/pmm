@@ -16,8 +16,11 @@ const STORYBOOK = 'https://percona.github.io/peak-ui/?path=/';
 const SOURCE = 'https://github.com/percona/peak-ui/blob/main/';
 const LINK_ITEM = /^- \[[^\]]+\]\(https?:\/\/[^)\s]+\): \S/;
 
-const links = [...llms.matchAll(/\[[^\]]+\]\((https?:\/\/[^)\s]+)\)/g)].map((m) => m[1]);
-const lineFor = (name: string) => lines.find((line) => line.startsWith(`- [${name}](`)) ?? '';
+const links = [...llms.matchAll(/\[[^\]]+\]\((https?:\/\/[^)\s]+)\)/g)].map(
+  (m) => m[1]
+);
+const lineFor = (name: string) =>
+  lines.find((line) => line.startsWith(`- [${name}](`)) ?? '';
 const section = (heading: string) => {
   const start = lines.indexOf(`## ${heading}`);
   const end = lines.findIndex((line, i) => i > start && line.startsWith('## '));
@@ -26,19 +29,30 @@ const section = (heading: string) => {
 
 // Every name the entry point exports, values and types alike, as the compiler sees it.
 const publicExports = (() => {
-  const configPath = ts.findConfigFile(root, ts.sys.fileExists, 'tsconfig.json')!;
+  const configPath = ts.findConfigFile(
+    root,
+    ts.sys.fileExists,
+    'tsconfig.json'
+  )!;
   const { config } = ts.readConfigFile(configPath, ts.sys.readFile);
   const { options } = ts.parseJsonConfigFileContent(config, ts.sys, root);
   const entry = resolve(root, 'src/index.ts');
   const program = ts.createProgram([entry], { ...options, noEmit: true });
   const checker = program.getTypeChecker();
-  const moduleSymbol = checker.getSymbolAtLocation(program.getSourceFile(entry)!)!;
+  const moduleSymbol = checker.getSymbolAtLocation(
+    program.getSourceFile(entry)!
+  )!;
   return checker.getExportsOfModule(moduleSymbol).map((symbol) => {
-    const target = symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
+    const target =
+      symbol.flags & ts.SymbolFlags.Alias
+        ? checker.getAliasedSymbol(symbol)
+        : symbol;
     return {
       name: symbol.name,
       isValue: (target.flags & ts.SymbolFlags.Value) !== 0,
-      isDeprecated: target.getJsDocTags(checker).some((tag) => tag.name === 'deprecated'),
+      isDeprecated: target
+        .getJsDocTags(checker)
+        .some((tag) => tag.name === 'deprecated'),
     };
   });
 })();
@@ -47,20 +61,29 @@ const publicNames = new Set(publicExports.map((e) => e.name));
 // Ids Storybook publishes: `<title>--docs` for autodocs metas and MDX pages, `<title>--<story>` per export.
 const storybookIds = (() => {
   const ids = new Set<string>();
-  const storyModules = import.meta.glob('./**/*.stories.{ts,tsx}', { eager: true }) as Record<
+  const storyModules = import.meta.glob('./**/*.stories.{ts,tsx}', {
+    eager: true,
+  }) as Record<
     string,
-    { default: { title: string; tags?: readonly string[] } } & Record<string, unknown>
+    { default: { title: string; tags?: readonly string[] } } & Record<
+      string,
+      unknown
+    >
   >;
   Object.values(storyModules).forEach(({ default: meta, ...stories }) => {
-    if (meta.tags?.includes('autodocs')) ids.add(`${sanitize(meta.title)}--docs`);
-    Object.keys(stories).forEach((name) => ids.add(toId(meta.title, storyNameFromExport(name))));
+    if (meta.tags?.includes('autodocs'))
+      ids.add(`${sanitize(meta.title)}--docs`);
+    Object.keys(stories).forEach((name) =>
+      ids.add(toId(meta.title, storyNameFromExport(name)))
+    );
   });
   const mdxPages = import.meta.glob('./**/*.mdx', {
     query: '?raw',
     import: 'default',
     eager: true,
   }) as Record<string, string>;
-  const moduleKey = (file: string) => posix.normalize(file).replace(/\.tsx?$/, '');
+  const moduleKey = (file: string) =>
+    posix.normalize(file).replace(/\.tsx?$/, '');
   Object.entries(mdxPages).forEach(([file, mdx]) => {
     const title = mdx.match(/<Meta[^>]*\btitle="([^"]+)"/)?.[1];
     if (title) {
@@ -69,10 +92,14 @@ const storybookIds = (() => {
     }
     // `<Meta of={Stories} />` attaches the page to a stories module imported in the same file.
     const attached = mdx.match(/<Meta[^>]*\bof=\{(\w+)\}/)?.[1];
-    const from = attached && mdx.match(new RegExp(`import \\* as ${attached} from '([^']+)'`))?.[1];
+    const from =
+      attached &&
+      mdx.match(new RegExp(`import \\* as ${attached} from '([^']+)'`))?.[1];
     if (!from) return;
     const target = moduleKey(`${posix.dirname(file)}/${from}`);
-    const stories = Object.entries(storyModules).find(([key]) => moduleKey(key) === target)?.[1];
+    const stories = Object.entries(storyModules).find(
+      ([key]) => moduleKey(key) === target
+    )?.[1];
     if (stories) ids.add(`${sanitize(stories.default.title)}--docs`);
   });
   return ids;
@@ -88,7 +115,9 @@ describe('llms.txt', () => {
     expect(lines[0]).toBe('# Peak UI');
     const firstSection = lines.findIndex((line) => line.startsWith('## '));
     expect(firstSection).toBeGreaterThan(0);
-    expect(lines.slice(1, firstSection).some((line) => line.startsWith('> '))).toBe(true);
+    expect(
+      lines.slice(1, firstSection).some((line) => line.startsWith('> '))
+    ).toBe(true);
     lines.slice(firstSection).forEach((line, offset) => {
       if (line === '' || line.startsWith('## ')) return;
       expect(line, `line ${firstSection + offset + 1}`).toMatch(LINK_ITEM);
@@ -109,7 +138,9 @@ describe('llms.txt', () => {
   it.each(publicExports.filter((e) => !e.isValue).map((e) => e.name))(
     'mentions the type %s',
     (name) => {
-      expect(llms).toMatch(new RegExp(`(^|[^A-Za-z0-9_])${name}([^A-Za-z0-9_]|$)`));
+      expect(llms).toMatch(
+        new RegExp(`(^|[^A-Za-z0-9_])${name}([^A-Za-z0-9_]|$)`)
+      );
     }
   );
 
@@ -150,10 +181,16 @@ describe('llms.txt', () => {
 // Facts the prose repeats from code or from the other guides must match their source.
 describe('llms.txt stays in sync', () => {
   it('finds the @deprecated exports', () => {
-    expect(publicExports.filter((e) => e.isDeprecated).length).toBeGreaterThan(0);
+    expect(publicExports.filter((e) => e.isDeprecated).length).toBeGreaterThan(
+      0
+    );
   });
 
-  it.each(publicExports.filter((e) => e.isValue).map((e) => [e.name, e.isDeprecated] as const))(
+  it.each(
+    publicExports
+      .filter((e) => e.isValue)
+      .map((e) => [e.name, e.isDeprecated] as const)
+  )(
     'marks %s as deprecated only when its JSDoc says so (%s)',
     (name, isDeprecated) => {
       expect(/\): Deprecated\b/.test(lineFor(name))).toBe(isDeprecated);
@@ -174,18 +211,26 @@ describe('llms.txt stays in sync', () => {
 
   it('quotes the real defaults', () => {
     expect(lineFor('PageContainer')).toContain(`${DEFAULT_PAGE_MAX_WIDTH}px`);
-    expect(lineFor('DEFAULT_PAGE_MAX_WIDTH')).toContain(`(${DEFAULT_PAGE_MAX_WIDTH})`);
+    expect(lineFor('DEFAULT_PAGE_MAX_WIDTH')).toContain(
+      `(${DEFAULT_PAGE_MAX_WIDTH})`
+    );
     const { pageIndex, pageSize } = DEFAULT_TABLE_STATE.pagination;
-    expect(lineFor('DEFAULT_TABLE_STATE')).toContain(`page ${pageIndex} of ${pageSize} rows`);
+    expect(lineFor('DEFAULT_TABLE_STATE')).toContain(
+      `page ${pageIndex} of ${pageSize} rows`
+    );
   });
 
   it('lists the maturity tags exactly as Storybook labels them', () => {
-    expect(llms).toContain(`(${MATURITY_TAGS.map((tag) => tag.label).join(', ')})`);
+    expect(llms).toContain(
+      `(${MATURITY_TAGS.map((tag) => tag.label).join(', ')})`
+    );
   });
 
   it('carries every URL AGENTS.md links to', () => {
     const agents = read('AGENTS.md');
-    const urls = [...agents.slice(agents.indexOf('## Links')).matchAll(/https?:\/\/\S+/g)]
+    const urls = [
+      ...agents.slice(agents.indexOf('## Links')).matchAll(/https?:\/\/\S+/g),
+    ]
       .map((m) => m[0])
       .filter((url) => !url.endsWith('/llms.txt'));
     expect(urls.length).toBeGreaterThan(0);

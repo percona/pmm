@@ -16,8 +16,16 @@ interface ThemedModePanelProps {
 }
 
 /** Side-by-side story panel: renders its children under one Peak theme in a fixed color mode. */
-const ThemedModePanel = ({ mode, themeName, label, children }: ThemedModePanelProps) => {
-  const theme = useMemo(() => createTheme(getThemeOptions(themeName)(mode)), [mode, themeName]);
+const ThemedModePanel = ({
+  mode,
+  themeName,
+  label,
+  children,
+}: ThemedModePanelProps) => {
+  const theme = useMemo(
+    () => createTheme(getThemeOptions(themeName)(mode)),
+    [mode, themeName]
+  );
 
   return (
     <ThemeProvider theme={theme}>

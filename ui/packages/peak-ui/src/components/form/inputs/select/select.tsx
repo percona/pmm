@@ -51,7 +51,13 @@ const SelectInput = <T extends FieldValues = FieldValues>({
             }}
             IconComponent={
               loading
-                ? () => <CircularProgress color="inherit" size={20} sx={{ mr: 1 }} />
+                ? () => (
+                    <CircularProgress
+                      color="inherit"
+                      size={20}
+                      sx={{ mr: 1 }}
+                    />
+                  )
                 : undefined
             }
             {...selectFieldProps}

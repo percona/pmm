@@ -33,7 +33,12 @@ const renderFlyout = (entries: ReactNode = inventoryEntries) => {
   document.body.appendChild(anchor);
   render(
     <ThemeProvider theme={createTheme(getThemeOptions('pmm')('light'))}>
-      <NavFlyout id="inventory-panel" label="Inventory" anchorEl={anchor} onClose={onClose}>
+      <NavFlyout
+        id="inventory-panel"
+        label="Inventory"
+        anchorEl={anchor}
+        onClose={onClose}
+      >
         {entries}
       </NavFlyout>
     </ThemeProvider>
@@ -57,13 +62,17 @@ describe('NavFlyout', () => {
 
     const panel = screen.getByRole('navigation', { name: 'Inventory' });
     expect(panel).toHaveTextContent('Inventory');
-    expect(screen.getByText('Inventory')).toHaveClass('MuiTypography-sectionHeading');
+    expect(screen.getByText('Inventory')).toHaveClass(
+      'MuiTypography-sectionHeading'
+    );
   });
 
   it('moves focus to the current page as it opens', async () => {
     renderFlyout();
 
-    await waitFor(() => expect(screen.getByRole('link', { name: 'Nodes' })).toHaveFocus());
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: 'Nodes' })).toHaveFocus()
+    );
   });
 
   it('moves between entries with the arrow keys, Home and End, skipping a closed group', () => {
@@ -91,7 +100,9 @@ describe('NavFlyout', () => {
   it('opens on the first enabled entry when no entry is the current page', async () => {
     renderFlyout(entriesWithDisabledRow);
 
-    await waitFor(() => expect(screen.getByRole('link', { name: 'Services' })).toHaveFocus());
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: 'Services' })).toHaveFocus()
+    );
   });
 
   it('skips disabled entries with the arrow keys, Home and End', () => {
@@ -123,7 +134,9 @@ describe('NavFlyout', () => {
   it('closes on Escape', () => {
     const { onClose } = renderFlyout();
 
-    fireEvent.keyDown(screen.getByRole('link', { name: 'Services' }), { key: 'Escape' });
+    fireEvent.keyDown(screen.getByRole('link', { name: 'Services' }), {
+      key: 'Escape',
+    });
 
     expect(onClose).toHaveBeenCalled();
   });

@@ -91,7 +91,9 @@ const indent = (code: string, spaces: number): string =>
 // falling back to a JSON-escaped expression when the value contains characters
 // that would otherwise break the quoted attribute (quotes, backslashes, newlines).
 const stringAttr = (name: string, value: string): string =>
-  /["\\\n\r]/.test(value) ? `${name}={${JSON.stringify(value)}}` : `${name}="${value}"`;
+  /["\\\n\r]/.test(value)
+    ? `${name}={${JSON.stringify(value)}}`
+    : `${name}="${value}"`;
 
 const adornmentSlot = (position: 'start' | 'end', code: string): string =>
   [
@@ -128,11 +130,13 @@ const buildPlaygroundSource = (args: PlaygroundArgs): string => {
   if (size) props.push(`size="${size}"`);
   if (label) props.push(stringAttr('label', String(label)));
   if (placeholder) props.push(stringAttr('placeholder', String(placeholder)));
-  if (defaultValue) props.push(stringAttr('defaultValue', String(defaultValue)));
+  if (defaultValue)
+    props.push(stringAttr('defaultValue', String(defaultValue)));
   if (helperText) props.push(stringAttr('helperText', String(helperText)));
   if (type && type !== 'text') props.push(`type="${type}"`);
   if (select) props.push('select');
-  if (!select && multiline) props.push('multiline', 'minRows={3}', 'maxRows={8}');
+  if (!select && multiline)
+    props.push('multiline', 'minRows={3}', 'maxRows={8}');
   if (fullWidth) props.push('fullWidth');
   if (focused) props.push('focused');
   if (error) props.push('error');
@@ -148,7 +152,13 @@ const buildPlaygroundSource = (args: PlaygroundArgs): string => {
 
   if (slots.length) {
     props.push(
-      ['slotProps={{', '  input: {', indent(slots.join('\n'), 4), '  },', '}}'].join('\n')
+      [
+        'slotProps={{',
+        '  input: {',
+        indent(slots.join('\n'), 4),
+        '  },',
+        '}}',
+      ].join('\n')
     );
   }
 
@@ -266,7 +276,8 @@ const meta = {
     },
     error: {
       control: 'boolean',
-      description: 'Applies the error palette to border, label, and helper text.',
+      description:
+        'Applies the error palette to border, label, and helper text.',
       table: { category: 'State', defaultValue: { summary: 'false' } },
     },
     disabled: {
@@ -312,7 +323,14 @@ export const Playground: Story = {
     required: false,
   },
   render: (args) => {
-    const { startAdornment, endAdornment, multiline, focused, select, ...rest } = args;
+    const {
+      startAdornment,
+      endAdornment,
+      multiline,
+      focused,
+      select,
+      ...rest
+    } = args;
     const startKey: StartAdornmentChoice = startAdornment ?? 'none';
     const endKey: EndAdornmentChoice = endAdornment ?? 'none';
     const startNode = startAdornmentMap[startKey];
@@ -363,10 +381,20 @@ export const Sizes: Story = {
   render: () => (
     <Stack direction="row" gap={3} alignItems="center">
       <Stack gap={1} alignItems="center">
-        <TextField size="small" label="Small" placeholder="40 px" variant="outlined" />
+        <TextField
+          size="small"
+          label="Small"
+          placeholder="40 px"
+          variant="outlined"
+        />
       </Stack>
       <Stack gap={1} alignItems="center">
-        <TextField size="medium" label="Medium" placeholder="56 px" variant="outlined" />
+        <TextField
+          size="medium"
+          label="Medium"
+          placeholder="56 px"
+          variant="outlined"
+        />
       </Stack>
     </Stack>
   ),
@@ -422,8 +450,18 @@ export const FilledIn: Story = {
   },
   render: () => (
     <Stack direction="row" gap={3} alignItems="flex-start">
-      <TextField size="small" label="Empty" placeholder="Type here…" variant="outlined" />
-      <TextField size="small" label="Filled in" defaultValue="percona-server" variant="outlined" />
+      <TextField
+        size="small"
+        label="Empty"
+        placeholder="Type here…"
+        variant="outlined"
+      />
+      <TextField
+        size="small"
+        label="Filled in"
+        defaultValue="percona-server"
+        variant="outlined"
+      />
     </Stack>
   ),
 };
@@ -609,8 +647,15 @@ export const PasswordWithToggle: Story = {
               endAdornment: (
                 <InputAdornment position="end">
                   <Tooltip title={visible ? 'Hide password' : 'Show password'}>
-                    <IconButton size="small" onClick={() => setVisible((v) => !v)}>
-                      {visible ? <VisibilityOffOutlined /> : <VisibilityOutlined />}
+                    <IconButton
+                      size="small"
+                      onClick={() => setVisible((v) => !v)}
+                    >
+                      {visible ? (
+                        <VisibilityOffOutlined />
+                      ) : (
+                        <VisibilityOutlined />
+                      )}
                     </IconButton>
                   </Tooltip>
                 </InputAdornment>
@@ -755,7 +800,12 @@ export const LabelInline: Story = {
   render: () => (
     <Stack direction="row" gap={3} alignItems="flex-start">
       <TextField size="small" label="Unfocused empty" variant="outlined" />
-      <TextField size="small" label="Focused / filled" defaultValue="percona" variant="outlined" />
+      <TextField
+        size="small"
+        label="Focused / filled"
+        defaultValue="percona"
+        variant="outlined"
+      />
     </Stack>
   ),
 };
@@ -772,7 +822,12 @@ export const WithHelperText: Story = {
   },
   render: () => (
     <Stack direction="row" gap={3} alignItems="flex-start">
-      <TextField size="small" label="Normal" helperText="Helpful guidance" variant="outlined" />
+      <TextField
+        size="small"
+        label="Normal"
+        helperText="Helpful guidance"
+        variant="outlined"
+      />
       <TextField
         size="small"
         label="Error"

@@ -60,7 +60,8 @@ const meta: Meta<typeof Tooltip> = {
   argTypes: {
     title: {
       control: 'text',
-      description: 'The content shown inside the tooltip. Accepts any ReactNode.',
+      description:
+        'The content shown inside the tooltip. Accepts any ReactNode.',
       table: { category: 'Content' },
     },
     arrow: {
@@ -81,7 +82,8 @@ const meta: Meta<typeof Tooltip> = {
     },
     leaveDelay: {
       control: 'number',
-      description: 'Delay (ms) before hiding the tooltip after the pointer leaves.',
+      description:
+        'Delay (ms) before hiding the tooltip after the pointer leaves.',
       table: { category: 'Behavior' },
     },
     disableHoverListener: {
@@ -106,7 +108,8 @@ const meta: Meta<typeof Tooltip> = {
     },
     sx: {
       control: false,
-      description: 'MUI System prop for style overrides. Accepts an `SxProps` object or array.',
+      description:
+        'MUI System prop for style overrides. Accepts an `SxProps` object or array.',
       table: { category: 'Advanced' },
     },
   },
@@ -157,7 +160,12 @@ export const Placements: Story = {
         }}
       >
         {PLACEMENTS.map((placement) => (
-          <Tooltip key={placement} {...args} placement={placement} title={placement}>
+          <Tooltip
+            key={placement}
+            {...args}
+            placement={placement}
+            title={placement}
+          >
             <Button variant="outlined" size="small" sx={{ minWidth: 128 }}>
               {placement}
             </Button>
@@ -194,11 +202,18 @@ export const RichContent: Story = {
   args: {
     arrow: true,
     title: (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, padding: '4px 2px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1,
+          padding: '4px 2px',
+        }}
+      >
         <Typography variant="subtitle2">Connection failed</Typography>
         <Typography variant="caption">
-          The agent on node-03 stopped responding 14 minutes ago. Restart the agent or check the
-          network policy.
+          The agent on node-03 stopped responding 14 minutes ago. Restart the
+          agent or check the network policy.
         </Typography>
       </Box>
     ),

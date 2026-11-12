@@ -6,7 +6,9 @@ const theme = { palette: { primary: { main: '#000' } } } as unknown as Theme;
 
 describe('flattenSx', () => {
   it('returns an empty object for undefined-ish values', () => {
-    expect(flattenSx(undefined as unknown as SxProps<Theme>, theme)).toEqual({});
+    expect(flattenSx(undefined as unknown as SxProps<Theme>, theme)).toEqual(
+      {}
+    );
     expect(flattenSx(null as unknown as SxProps<Theme>, theme)).toEqual({});
   });
 
@@ -74,7 +76,9 @@ describe('mergeSx', () => {
   });
 
   it('merges a callback default with a plain consumer object', () => {
-    const defaultSx: SxProps<Theme> = (t) => ({ color: t.palette.primary.main });
+    const defaultSx: SxProps<Theme> = (t) => ({
+      color: t.palette.primary.main,
+    });
     const consumerSx: SxProps<Theme> = { mx: 3 };
 
     const result = mergeSx(defaultSx, consumerSx);

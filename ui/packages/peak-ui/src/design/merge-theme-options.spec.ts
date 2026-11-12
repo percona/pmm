@@ -26,9 +26,9 @@ describe('mergeThemeOptions', () => {
     const styleOverrides = merged.components?.MuiCssBaseline?.styleOverrides;
     expect(typeof styleOverrides).toBe('function');
 
-    const resolved = (styleOverrides as (theme: typeof mockTheme) => Record<string, unknown>)(
-      mockTheme
-    );
+    const resolved = (
+      styleOverrides as (theme: typeof mockTheme) => Record<string, unknown>
+    )(mockTheme);
 
     expect(resolved['code:not(pre code)']).toBeDefined();
     expect(resolved.body).toMatchObject({ backgroundColor: 'blue' });
@@ -64,7 +64,9 @@ describe('mergeThemeOptions', () => {
 
     const bar = merged.components?.MuiLinearProgress?.styleOverrides?.bar;
     expect(typeof bar).toBe('function');
-    expect((bar as () => Record<string, unknown>)()).toEqual({ borderRadius: 2 });
+    expect((bar as () => Record<string, unknown>)()).toEqual({
+      borderRadius: 2,
+    });
   });
 
   it('lets child overrides win on conflicting keys while preserving base slots', () => {
@@ -80,7 +82,8 @@ describe('mergeThemeOptions', () => {
       },
     });
 
-    const inlineCode = merged.components?.MuiCssBaseline?.styleOverrides?.['code:not(pre code)'];
+    const inlineCode =
+      merged.components?.MuiCssBaseline?.styleOverrides?.['code:not(pre code)'];
 
     expect(inlineCode).toMatchObject({ color: 'hotpink' });
     expect(inlineCode).toHaveProperty('fontFamily');
@@ -112,7 +115,10 @@ describe('mergeThemeOptions', () => {
     const root = merged.components?.MuiButton?.styleOverrides?.root;
 
     expect(typeof root).toBe('function');
-    expect((root as () => Record<string, unknown>)()).toEqual({ padding: 8, color: 'red' });
+    expect((root as () => Record<string, unknown>)()).toEqual({
+      padding: 8,
+      color: 'red',
+    });
   });
 
   it('composes a base function slot with a child object slot', () => {
@@ -140,14 +146,19 @@ describe('mergeThemeOptions', () => {
     const root = merged.components?.MuiButton?.styleOverrides?.root;
 
     expect(typeof root).toBe('function');
-    expect((root as () => Record<string, unknown>)()).toEqual({ padding: 8, color: 'red' });
+    expect((root as () => Record<string, unknown>)()).toEqual({
+      padding: 8,
+      color: 'red',
+    });
   });
 
   it('concatenates variants base-first so base variants survive and child cascades last', () => {
     const base: ThemeOptions = {
       components: {
         MuiCard: {
-          variants: [{ props: { variant: 'grey' }, style: { border: '1px solid grey' } }],
+          variants: [
+            { props: { variant: 'grey' }, style: { border: '1px solid grey' } },
+          ],
         },
       },
     };
@@ -155,7 +166,12 @@ describe('mergeThemeOptions', () => {
     const override: ThemeOptions = {
       components: {
         MuiCard: {
-          variants: [{ props: { variant: 'brand' }, style: { border: '1px solid blue' } }],
+          variants: [
+            {
+              props: { variant: 'brand' },
+              style: { border: '1px solid blue' },
+            },
+          ],
         },
       },
     };
@@ -172,7 +188,9 @@ describe('mergeThemeOptions', () => {
     const base: ThemeOptions = {
       components: {
         MuiCard: {
-          variants: [{ props: { variant: 'grey' }, style: { border: '1px solid grey' } }],
+          variants: [
+            { props: { variant: 'grey' }, style: { border: '1px solid grey' } },
+          ],
           styleOverrides: { root: { borderRadius: 4 } },
         },
       },
@@ -189,7 +207,9 @@ describe('mergeThemeOptions', () => {
     const merged = mergeThemeOptions(base, override);
 
     expect(merged.components?.MuiCard?.variants).toHaveLength(1);
-    expect(merged.components?.MuiCard?.styleOverrides?.root).toMatchObject({ borderRadius: 8 });
+    expect(merged.components?.MuiCard?.styleOverrides?.root).toMatchObject({
+      borderRadius: 8,
+    });
   });
 
   it('preserves child-only components and defaultProps untouched', () => {
@@ -207,7 +227,11 @@ describe('mergeThemeOptions', () => {
 
     const merged = mergeThemeOptions(base, override);
 
-    expect(merged.components?.MuiButton?.defaultProps).toMatchObject({ disableRipple: true });
-    expect(merged.components?.MuiChip?.defaultProps).toMatchObject({ size: 'small' });
+    expect(merged.components?.MuiButton?.defaultProps).toMatchObject({
+      disableRipple: true,
+    });
+    expect(merged.components?.MuiChip?.defaultProps).toMatchObject({
+      size: 'small',
+    });
   });
 });

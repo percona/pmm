@@ -24,14 +24,22 @@ describe('CopyToClipboardButton', () => {
 
     expect(button).not.toBeNull();
     expect(button).toHaveClass('Mui-disabled');
-    expect(button!.parentElement).toHaveAttribute('aria-label', Messages.restrictedAccess);
+    expect(button!.parentElement).toHaveAttribute(
+      'aria-label',
+      Messages.restrictedAccess
+    );
   });
 
   it('keeps the disabled button hoverable when consumers pass their own sx', () => {
     const { container } = render(
-      <CopyToClipboardButton textToCopy="text" buttonProps={{ sx: { marginTop: '7px' } }} />
+      <CopyToClipboardButton
+        textToCopy="text"
+        buttonProps={{ sx: { marginTop: '7px' } }}
+      />
     );
-    const button = container.querySelector('.MuiIconButton-root') as HTMLElement;
+    const button = container.querySelector(
+      '.MuiIconButton-root'
+    ) as HTMLElement;
 
     // both the built-in rule and the consumer sx must survive the merge
     expect(button).toHaveStyle({ pointerEvents: 'auto' });
@@ -45,15 +53,21 @@ describe('CopyToClipboardButton', () => {
         buttonProps={{ sx: { '&.Mui-disabled': { color: 'rgb(255, 0, 0)' } } }}
       />
     );
-    const button = container.querySelector('.MuiIconButton-root') as HTMLElement;
+    const button = container.querySelector(
+      '.MuiIconButton-root'
+    ) as HTMLElement;
 
     expect(button).toHaveStyle({ pointerEvents: 'auto' });
   });
 
   it('copies the text and confirms with a tooltip', () => {
     const writeText = mockClipboard();
-    const { container } = render(<CopyToClipboardButton textToCopy="pnpm build" />);
-    const button = container.querySelector('.MuiIconButton-root') as HTMLElement;
+    const { container } = render(
+      <CopyToClipboardButton textToCopy="pnpm build" />
+    );
+    const button = container.querySelector(
+      '.MuiIconButton-root'
+    ) as HTMLElement;
 
     expect(button).not.toHaveClass('Mui-disabled');
     fireEvent.click(button);

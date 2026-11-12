@@ -34,7 +34,10 @@ const ThemeContextProvider = ({
     });
   }, [saveColorModeOnLocalStorage]);
 
-  const theme = useMemo(() => createTheme(themeOptions(colorMode)), [colorMode, themeOptions]);
+  const theme = useMemo(
+    () => createTheme(themeOptions(colorMode)),
+    [colorMode, themeOptions]
+  );
 
   return (
     <ColorModeContext.Provider value={{ colorMode, toggleColorMode }}>

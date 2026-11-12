@@ -5,11 +5,16 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { describe, expect, it, vi } from 'vitest';
 import { getThemeOptions } from '../../design';
 import * as illustrations from '../illustrations';
-import EmptyState, { EMPTY_STATE_ILLUSTRATIONS, EMPTY_STATE_SIZES } from './empty-state';
+import EmptyState, {
+  EMPTY_STATE_ILLUSTRATIONS,
+  EMPTY_STATE_SIZES,
+} from './empty-state';
 
 const renderInTheme = (node: ReactNode) =>
   render(
-    <ThemeProvider theme={createTheme(getThemeOptions('base')('light'))}>{node}</ThemeProvider>
+    <ThemeProvider theme={createTheme(getThemeOptions('base')('light'))}>
+      {node}
+    </ThemeProvider>
   );
 
 describe('EmptyState', () => {
@@ -23,10 +28,16 @@ describe('EmptyState', () => {
     );
 
     const title = screen.getByRole('heading', { name: 'No services yet' });
-    const description = screen.getByText('Services show up here once a database is monitored.');
+    const description = screen.getByText(
+      'Services show up here once a database is monitored.'
+    );
     const action = screen.getByRole('button', { name: 'Add service' });
-    expect(title.compareDocumentPosition(description)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(description.compareDocumentPosition(action)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(title.compareDocumentPosition(description)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
+    expect(description.compareDocumentPosition(action)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
     expect(container).toHaveTextContent(
       'No services yetServices show up here once a database is monitored.Add service'
     );
@@ -35,7 +46,9 @@ describe('EmptyState', () => {
   it('renders the title as an h3 by default and never as an h1 unless asked', () => {
     renderInTheme(<EmptyState title="No services yet" />);
 
-    expect(screen.getByRole('heading', { level: 3, name: 'No services yet' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'No services yet' })
+    ).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
   });
 
@@ -43,27 +56,39 @@ describe('EmptyState', () => {
     ['h1', 1],
     ['h2', 2],
     ['h4', 4],
-  ] as const)('renders the title as %s when titleComponent asks for it', (component, level) => {
-    renderInTheme(<EmptyState title="Page not found" titleComponent={component} />);
+  ] as const)(
+    'renders the title as %s when titleComponent asks for it',
+    (component, level) => {
+      renderInTheme(
+        <EmptyState title="Page not found" titleComponent={component} />
+      );
 
-    expect(screen.getByRole('heading', { level, name: 'Page not found' }).tagName).toBe(
-      component.toUpperCase()
-    );
-  });
+      expect(
+        screen.getByRole('heading', { level, name: 'Page not found' }).tagName
+      ).toBe(component.toUpperCase());
+    }
+  );
 
   it('hides the illustration from assistive technology', () => {
     const { container } = renderInTheme(
       <EmptyState title="No matching services" illustration="nothing-found" />
     );
 
-    expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    expect(container.querySelector('svg')).toHaveAttribute(
+      'aria-hidden',
+      'true'
+    );
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
   it('offers every Peak illustration by name', () => {
-    const exported = Object.keys(illustrations).filter((name) => name.endsWith('Illustration'));
+    const exported = Object.keys(illustrations).filter((name) =>
+      name.endsWith('Illustration')
+    );
 
-    expect(Object.values(EMPTY_STATE_ILLUSTRATIONS)).toHaveLength(exported.length);
+    expect(Object.values(EMPTY_STATE_ILLUSTRATIONS)).toHaveLength(
+      exported.length
+    );
     exported.forEach((name) => {
       expect(Object.values(EMPTY_STATE_ILLUSTRATIONS)).toContain(
         illustrations[name as keyof typeof illustrations]
@@ -76,15 +101,24 @@ describe('EmptyState', () => {
     ['medium', '120px', '48px'],
   ] as const)('sizes a %s empty state', (size, illustration, padding) => {
     const { container } = renderInTheme(
-      <EmptyState size={size} title="No services yet" illustration="radar" data-testid="empty" />
+      <EmptyState
+        size={size}
+        title="No services yet"
+        illustration="radar"
+        data-testid="empty"
+      />
     );
 
-    expect(container.querySelector('svg')).toHaveStyle({ fontSize: illustration });
+    expect(container.querySelector('svg')).toHaveStyle({
+      fontSize: illustration,
+    });
     expect(screen.getByTestId('empty')).toHaveStyle({
       paddingTop: padding,
       paddingBottom: padding,
     });
-    expect(EMPTY_STATE_SIZES[size].illustration).toBe(parseInt(illustration, 10));
+    expect(EMPTY_STATE_SIZES[size].illustration).toBe(
+      parseInt(illustration, 10)
+    );
   });
 
   it('renders the description as a block so it can hold more than text', () => {
@@ -143,7 +177,13 @@ describe('EmptyState', () => {
 
   it('lets Box spacing props override the defaults', () => {
     renderInTheme(
-      <EmptyState title="No services yet" data-testid="empty" py={0} gap={2} textAlign="left" />
+      <EmptyState
+        title="No services yet"
+        data-testid="empty"
+        py={0}
+        gap={2}
+        textAlign="left"
+      />
     );
 
     expect(screen.getByTestId('empty')).toHaveStyle({

@@ -29,7 +29,10 @@ Storybook is the definitive, coded source of truth: **https://percona.github.io/
 import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
 
 export const Root = () => (
-  <ThemeContextProvider themeOptions={pmmThemeOptions} saveColorModeOnLocalStorage>
+  <ThemeContextProvider
+    themeOptions={pmmThemeOptions}
+    saveColorModeOnLocalStorage
+  >
     <App />
   </ThemeContextProvider>
 );
@@ -66,7 +69,7 @@ const methods = useForm<Values>({ defaultValues: { host: '' } });
     controllerProps={{ rules: { required: 'Host is required' } }}
     textFieldProps={{ placeholder: 'db.example.com' }}
   />
-</FormProvider>
+</FormProvider>;
 ```
 
 - `name` is required and is the react-hook-form field path. Wrap inputs in `FormProvider` (preferred) or pass `control` explicitly. Never render an input outside both.

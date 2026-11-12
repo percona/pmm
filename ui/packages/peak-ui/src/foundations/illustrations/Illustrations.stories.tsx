@@ -33,7 +33,8 @@ const illustrations: IllustrationEntry[] = [
     importName: 'RealTimeDatabaseOffIllustration',
     designName: 'real-time-database-off',
     layers: 'accent · base · liveBadge',
-    keywords: 'realtime real-time database analysis off disabled monitoring live',
+    keywords:
+      'realtime real-time database analysis off disabled monitoring live',
   },
   {
     component: RadarIllustration,
@@ -73,7 +74,9 @@ const IllustrationsGallery = () => {
   }, [query]);
 
   const handleCopy = (importName: string) => {
-    navigator.clipboard?.writeText(`import { ${importName} } from '@percona/peak-ui';`);
+    navigator.clipboard?.writeText(
+      `import { ${importName} } from '@percona/peak-ui';`
+    );
   };
 
   return (
@@ -109,57 +112,64 @@ const IllustrationsGallery = () => {
             gap: 2,
           }}
         >
-          {filtered.map(({ component: Illustration, importName, designName, layers }) => (
-            <Stack
-              key={importName}
-              alignItems="center"
-              spacing={1.5}
-              sx={{
-                position: 'relative',
-                px: 4,
-                py: 3,
-                borderRadius: '3px',
-                border: '1px solid',
-                borderColor: 'dividers.contour',
-                textAlign: 'center',
-                '&:hover .copy-button, &:focus-within .copy-button': { opacity: 1 },
-              }}
-            >
-              <Illustration sx={{ fontSize: 128, color: 'text.primary' }} />
-              <Box>
-                <Typography
-                  variant="body2"
-                  sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 500 }}
-                  mb={1}
-                >
-                  {designName}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {importName}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  layers: {layers}
-                </Typography>
-              </Box>
-              <Tooltip title="Copy import statement">
-                <IconButton
-                  className="copy-button"
-                  size="medium"
-                  onClick={() => handleCopy(importName)}
-                  aria-label={`Copy import statement for ${importName}`}
-                  sx={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 12,
-                    opacity: 0,
-                    transition: 'opacity 120ms ease',
-                  }}
-                >
-                  <ContentCopy />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          ))}
+          {filtered.map(
+            ({ component: Illustration, importName, designName, layers }) => (
+              <Stack
+                key={importName}
+                alignItems="center"
+                spacing={1.5}
+                sx={{
+                  position: 'relative',
+                  px: 4,
+                  py: 3,
+                  borderRadius: '3px',
+                  border: '1px solid',
+                  borderColor: 'dividers.contour',
+                  textAlign: 'center',
+                  '&:hover .copy-button, &:focus-within .copy-button': {
+                    opacity: 1,
+                  },
+                }}
+              >
+                <Illustration sx={{ fontSize: 128, color: 'text.primary' }} />
+                <Box>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontFamily: '"Roboto Mono", monospace',
+                      fontWeight: 500,
+                    }}
+                    mb={1}
+                  >
+                    {designName}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {importName}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    layers: {layers}
+                  </Typography>
+                </Box>
+                <Tooltip title="Copy import statement">
+                  <IconButton
+                    className="copy-button"
+                    size="medium"
+                    onClick={() => handleCopy(importName)}
+                    aria-label={`Copy import statement for ${importName}`}
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 12,
+                      opacity: 0,
+                      transition: 'opacity 120ms ease',
+                    }}
+                  >
+                    <ContentCopy />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+            )
+          )}
         </Box>
       )}
     </Box>
@@ -184,23 +194,54 @@ export const Gallery: Story = {
   render: () => <IllustrationsGallery />,
 };
 
-const DemoColumn = ({ label, children }: { label: ReactNode; children: ReactNode }) => (
+const DemoColumn = ({
+  label,
+  children,
+}: {
+  label: ReactNode;
+  children: ReactNode;
+}) => (
   <Stack alignItems="center" spacing={2} sx={{ minWidth: 180 }}>
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 120,
+      }}
+    >
       {children}
     </Box>
-    <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+    <Typography
+      variant="caption"
+      color="text.secondary"
+      sx={{ textAlign: 'center' }}
+    >
       {label}
     </Typography>
   </Stack>
 );
 
 const swatch = (token: string, value: string) => (
-  <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
+  <Stack
+    direction="row"
+    spacing={1}
+    alignItems="center"
+    justifyContent="center"
+  >
     <Box
-      sx={{ width: 12, height: 12, borderRadius: '2px', backgroundColor: value, flexShrink: 0 }}
+      sx={{
+        width: 12,
+        height: 12,
+        borderRadius: '2px',
+        backgroundColor: value,
+        flexShrink: 0,
+      }}
     />
-    <Typography variant="caption" sx={{ fontFamily: '"Roboto Mono", monospace' }}>
+    <Typography
+      variant="caption"
+      sx={{ fontFamily: '"Roboto Mono", monospace' }}
+    >
       {token}
     </Typography>
   </Stack>
@@ -219,14 +260,25 @@ export const LayerColoringNothingFound: Story = {
       justifyContent="center"
     >
       <DemoColumn label="Default — every layer uses currentColor">
-        <NothingFoundIllustration sx={{ fontSize: 120, color: 'text.primary' }} />
+        <NothingFoundIllustration
+          sx={{ fontSize: 120, color: 'text.primary' }}
+        />
       </DemoColumn>
       <DemoColumn
         label={
           <Stack spacing={0.5}>
-            {swatch('glass · primary.purple.400', primitives.primary.purple[400])}
-            {swatch('questionMark · primitives.primary.black.700', primitives.primary.black[700])}
-            {swatch('swooshArrays · primitives.primary.yellow.400', primitives.primary.yellow[400])}
+            {swatch(
+              'glass · primary.purple.400',
+              primitives.primary.purple[400]
+            )}
+            {swatch(
+              'questionMark · primitives.primary.black.700',
+              primitives.primary.black[700]
+            )}
+            {swatch(
+              'swooshArrays · primitives.primary.yellow.400',
+              primitives.primary.yellow[400]
+            )}
           </Stack>
         }
       >
@@ -256,14 +308,25 @@ export const LayerColoringUnknownError: Story = {
       justifyContent="center"
     >
       <DemoColumn label="Default — every layer uses currentColor">
-        <UnknownErrorIllustration sx={{ fontSize: 120, color: 'text.primary' }} />
+        <UnknownErrorIllustration
+          sx={{ fontSize: 120, color: 'text.primary' }}
+        />
       </DemoColumn>
       <DemoColumn
         label={
           <Stack spacing={0.5}>
-            {swatch('windowFrame · primitives.tech.mysql.400', primitives.tech.mysql[400])}
-            {swatch('eyes · mouth · nose · primitives.tech.mysql.700', primitives.tech.mysql[700])}
-            {swatch('controls · primitives.tech.mysql.300', primitives.tech.mysql[300])}
+            {swatch(
+              'windowFrame · primitives.tech.mysql.400',
+              primitives.tech.mysql[400]
+            )}
+            {swatch(
+              'eyes · mouth · nose · primitives.tech.mysql.700',
+              primitives.tech.mysql[700]
+            )}
+            {swatch(
+              'controls · primitives.tech.mysql.300',
+              primitives.tech.mysql[300]
+            )}
           </Stack>
         }
       >

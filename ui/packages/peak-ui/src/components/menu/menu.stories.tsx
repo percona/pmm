@@ -68,7 +68,14 @@ const MenuDemo = ({ label, children, menuProps }: MenuDemoProps) => {
   );
 };
 
-const INTERVALS = ['Off', '5 seconds', '10 seconds', '30 seconds', '1 minute', '5 minutes'];
+const INTERVALS = [
+  'Off',
+  '5 seconds',
+  '10 seconds',
+  '30 seconds',
+  '1 minute',
+  '5 minutes',
+];
 
 const IntervalMenu = () => {
   const [value, setValue] = useState('30 seconds');

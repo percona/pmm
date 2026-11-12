@@ -40,7 +40,9 @@ const NavFlyout = ({
 
     if (autoFocus) {
       (
-        entries.find((entry) => entry.getAttribute('aria-current') === 'page') ?? entries[0]
+        entries.find(
+          (entry) => entry.getAttribute('aria-current') === 'page'
+        ) ?? entries[0]
       )?.focus();
     }
   };
@@ -53,7 +55,8 @@ const NavFlyout = ({
     const target = event.target as Node;
     const row = entries.reduce(
       (found, entry, index) =>
-        entry === target || entry.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING
+        entry === target ||
+        entry.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING
           ? index
           : found,
       -1
@@ -86,7 +89,9 @@ const NavFlyout = ({
       disableAutoFocus={!autoFocus}
       disableEnforceFocus={!autoFocus}
       slotProps={{
-        paper: { sx: { ml: 1, width, scrollPaddingTop: HEADING_HEIGHT + HEADING_GAP } },
+        paper: {
+          sx: { ml: 1, width, scrollPaddingTop: HEADING_HEIGHT + HEADING_GAP },
+        },
         transition: { onEntered: focusEntry },
       }}
     >
@@ -125,13 +130,15 @@ const NavFlyout = ({
             },
             // An icon-less entry's label starts 16px in, under the heading: 22px padding, less
             // NavItem's 14px spacer, plus its 8px label padding.
-            [`& .${listItemButtonClasses.root}:not(:has(.${listItemIconClasses.root}))`]: {
-              paddingLeft: theme.spacing(2.75),
-            },
+            [`& .${listItemButtonClasses.root}:not(:has(.${listItemIconClasses.root}))`]:
+              {
+                paddingLeft: theme.spacing(2.75),
+              },
             // An entry's icon starts where icon-less labels do.
-            [`& .${listItemButtonClasses.root}:has(.${listItemIconClasses.root})`]: {
-              paddingLeft: theme.spacing(2),
-            },
+            [`& .${listItemButtonClasses.root}:has(.${listItemIconClasses.root})`]:
+              {
+                paddingLeft: theme.spacing(2),
+              },
           })}
         >
           {children}

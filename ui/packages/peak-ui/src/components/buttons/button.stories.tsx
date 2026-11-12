@@ -59,13 +59,15 @@ const meta = {
     variant: {
       options: VARIANTS,
       control: { type: 'inline-radio' },
-      description: 'Emphasis level: `contained` high, `outlined` medium, `text` low.',
+      description:
+        'Emphasis level: `contained` high, `outlined` medium, `text` low.',
       table: { defaultValue: { summary: "'text'" } },
     },
     size: {
       options: SIZES,
       control: { type: 'inline-radio' },
-      description: 'Design-kit heights: large 40 px, medium 32 px, small 24 px.',
+      description:
+        'Design-kit heights: large 40 px, medium 32 px, small 24 px.',
       table: { defaultValue: { summary: "'medium'" } },
     },
     disabled: {
@@ -77,7 +79,10 @@ const meta = {
       control: 'text',
       description: 'The button label.',
     },
-    startIcon: { control: false, description: 'Icon rendered before the label.' },
+    startIcon: {
+      control: false,
+      description: 'Icon rendered before the label.',
+    },
     endIcon: { control: false, description: 'Icon rendered after the label.' },
   },
 } satisfies Meta<ButtonProps>;
@@ -125,7 +130,11 @@ export const Sizes: Story = {
     <Stack gap={2}>
       {SIZES.map((size) => (
         <Stack key={size} direction="row" alignItems="center" gap={2}>
-          <Typography variant="caption" color="text.secondary" sx={{ width: 56 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ width: 56 }}
+          >
             {size}
           </Typography>
           {VARIANTS.map((variant) => (
@@ -216,7 +225,11 @@ export const ActionPairing: Story = {
   },
   render: ({ size }) => (
     <Stack direction="row" alignItems="center" gap={1} sx={{ width: 480 }}>
-      <Button variant="outlined" size={size} startIcon={<DeleteOutlineOutlined />}>
+      <Button
+        variant="outlined"
+        size={size}
+        startIcon={<DeleteOutlineOutlined />}
+      >
         Delete
       </Button>
       <Stack direction="row" gap={1} sx={{ ml: 'auto' }}>

@@ -65,12 +65,19 @@ export const Headings: Story = {
     },
     children: { control: 'text' },
   },
-  render: (args) => <Typography variant={args.variant}>{args.children}</Typography>,
+  render: (args) => (
+    <Typography variant={args.variant}>{args.children}</Typography>
+  ),
 };
 
 /* ── Titling ──────────────────────────────────────── */
 
-const titlingVariants = ['subHead1', 'subHead2', 'overline', 'sectionHeading'] as const;
+const titlingVariants = [
+  'subHead1',
+  'subHead2',
+  'overline',
+  'sectionHeading',
+] as const;
 
 const titlingSamples: Record<(typeof titlingVariants)[number], string> = {
   subHead1:
@@ -107,7 +114,9 @@ export const Titling: Story = {
     },
     children: { control: 'text' },
   },
-  render: (args) => <Typography variant={args.variant}>{args.children}</Typography>,
+  render: (args) => (
+    <Typography variant={args.variant}>{args.children}</Typography>
+  ),
 };
 
 /* ── Body ─────────────────────────────────────────── */
@@ -144,12 +153,15 @@ export const Body: Story = {
     },
     children: { control: 'text' },
   },
-  render: (args) => <Typography variant={args.variant}>{args.children}</Typography>,
+  render: (args) => (
+    <Typography variant={args.variant}>{args.children}</Typography>
+  ),
 };
 
 /* ── Code ─────────────────────────────────────────── */
 
-const codeSample = "SELECT * FROM users WHERE email LIKE '%@percona.com%' LIMIT 50;";
+const codeSample =
+  "SELECT * FROM users WHERE email LIKE '%@percona.com%' LIMIT 50;";
 
 export const CodeShowcase: Story = {
   tags: ['!dev'],
@@ -172,17 +184,20 @@ export const InlineCode: Story = {
       <div>
         <span style={labelStyle}>body1 + code</span>
         <Typography variant="body1">
-          If you want to use the Code Block component instead of the inline code, then run{' '}
-          <code>pnpm build</code> to compile the library, then import <code>{'{ CodeBlock }'}</code>{' '}
-          from <code>@percona/peak-ui</code> so you can use in your pages.
+          If you want to use the Code Block component instead of the inline
+          code, then run <code>pnpm build</code> to compile the library, then
+          import <code>{'{ CodeBlock }'}</code> from{' '}
+          <code>@percona/peak-ui</code> so you can use in your pages.
         </Typography>
       </div>
       <div>
         <span style={labelStyle}>body2 + code</span>
         <Typography variant="body2">
           Connect to the database with{' '}
-          <code>mongodb://admin:password@localhost:27017/?authSource=admin</code> to be able to
-          manage it.
+          <code>
+            mongodb://admin:password@localhost:27017/?authSource=admin
+          </code>{' '}
+          to be able to manage it.
         </Typography>
       </div>
       <div>
@@ -197,7 +212,13 @@ export const InlineCode: Story = {
 
 /* ── Component text styles ────────────────────────── */
 
-const componentVariants = ['button', 'menuText', 'inputText', 'inputLabel', 'helperText'] as const;
+const componentVariants = [
+  'button',
+  'menuText',
+  'inputText',
+  'inputLabel',
+  'helperText',
+] as const;
 
 const componentSample = 'Select database';
 
@@ -228,5 +249,7 @@ export const ComponentStyles: Story = {
     },
     children: { control: 'text' },
   },
-  render: (args) => <Typography variant={args.variant}>{args.children}</Typography>,
+  render: (args) => (
+    <Typography variant={args.variant}>{args.children}</Typography>
+  ),
 };

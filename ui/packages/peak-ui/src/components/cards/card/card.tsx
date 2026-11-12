@@ -75,7 +75,10 @@ const Card = ({
             {title}
           </Typography>
         )}
-        <Box data-testid={`${dataTestId}-card-content-wrapper`} {...contentWrapperProps}>
+        <Box
+          data-testid={`${dataTestId}-card-content-wrapper`}
+          {...contentWrapperProps}
+        >
           {content}
         </Box>
         {cardActions && (
@@ -85,7 +88,11 @@ const Card = ({
             sx={{ p: 0, mt: 4, ...cardActionsProps?.sx }}
           >
             {cardActions.map(({ text, ...buttonProps }) => (
-              <Button key={text} data-testid={`${kebabize(text)}-button`} {...buttonProps}>
+              <Button
+                key={text}
+                data-testid={`${kebabize(text)}-button`}
+                {...buttonProps}
+              >
                 {text}
               </Button>
             ))}

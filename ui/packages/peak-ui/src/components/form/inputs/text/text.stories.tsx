@@ -67,7 +67,8 @@ const meta = {
       defaultValue: 'false',
     },
     error: {
-      description: 'Shows the field in its error state with an example message.',
+      description:
+        'Shows the field in its error state with an example message.',
       type: 'boolean',
       defaultValue: 'false',
     },
@@ -118,7 +119,8 @@ const meta = {
       defaultValue: 'small',
     },
     type: {
-      description: 'Kind of value the browser expects, such as email, number, or password.',
+      description:
+        'Kind of value the browser expects, such as email, number, or password.',
       options: ['email', 'password', 'number', 'text', 'tel', 'url'],
       control: 'select',
     },

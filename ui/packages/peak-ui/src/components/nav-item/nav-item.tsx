@@ -85,7 +85,10 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
-            color: selected || hasSelectedChild ? 'inherit' : theme.palette.text.secondary,
+            color:
+              selected || hasSelectedChild
+                ? 'inherit'
+                : theme.palette.text.secondary,
           },
 
           [`&:hover .${listItemTextClasses.secondary}`]: {

@@ -13,7 +13,10 @@
 // limitations under the License.
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import { type StatusIconProps, type StatusIconSeverity } from './status-icon.types';
+import {
+  type StatusIconProps,
+  type StatusIconSeverity,
+} from './status-icon.types';
 
 type PaletteKey = 'success' | 'info' | 'warning' | 'error' | 'neutral';
 

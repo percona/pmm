@@ -21,7 +21,9 @@ const SwitchInput = <T extends FieldValues = FieldValues>({
       label={
         <>
           <Typography variant="body1">{label}</Typography>
-          {labelCaption && <Typography variant="caption">{labelCaption}</Typography>}
+          {labelCaption && (
+            <Typography variant="caption">{labelCaption}</Typography>
+          )}
         </>
       }
       data-testid={`switch-input-${kebabize(name)}-label`}

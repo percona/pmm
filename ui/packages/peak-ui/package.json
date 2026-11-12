@@ -1,34 +1,31 @@
 {
   "name": "@percona/peak-ui",
-  "type": "module",
   "version": "0.0.0",
   "private": false,
-  "scripts": {
-    "build": "rollup -c",
-    "build:watch": "rollup -c -w",
-    "check-types": "tsc -p tsconfig.json && tsc -p .storybook/tsconfig.json",
-    "lint": "oxlint --config ../../oxlintrc.json src .storybook scripts",
-    "format": "oxfmt --write .",
-    "format:check": "oxfmt --check .",
-    "storybook:dev": "storybook dev -p 6006 --no-open",
-    "storybook:build": "storybook build",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "prepack": "pnpm build"
+  "description": "PEAK UI lib",
+  "homepage": "https://github.com/percona/peak-ui#readme",
+  "bugs": {
+    "url": "https://github.com/percona/peak-ui/issues"
   },
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "license": "AGPL-3.0-or-later",
+  "author": "Percona",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/percona/peak-ui.git"
+  },
   "files": [
     "dist",
     "AGENTS.md",
     "llms.txt",
     "CHANGELOG.md"
   ],
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
   },
   "publishConfig": {
-    "access": "public",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "exports": {
@@ -42,7 +39,28 @@
           "default": "./dist/index.js"
         }
       }
-    }
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "build:watch": "rollup -c -w",
+    "check-types": "tsc -p tsconfig.json && tsc -p .storybook/tsconfig.json",
+    "lint": "oxlint --config ../../oxlintrc.json src .storybook scripts",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "storybook:dev": "storybook dev -p 6006 --no-open",
+    "storybook:build": "storybook build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "@fontsource/poppins": "^5.2.7",
+    "@fontsource/roboto": "^5.2.9",
+    "@fontsource/roboto-mono": "^5.2.8",
+    "material-react-table": "^3.2.1",
+    "prism-react-renderer": "^2.4.1"
   },
   "devDependencies": {
     "@emotion/react": "^11.11.4",
@@ -92,23 +110,5 @@
     "react": "^18.3.1 || ^19.0.0",
     "react-dom": "^18.3.1 || ^19.0.0",
     "react-hook-form": "^7.50.0"
-  },
-  "dependencies": {
-    "@fontsource/poppins": "^5.2.7",
-    "@fontsource/roboto": "^5.2.9",
-    "@fontsource/roboto-mono": "^5.2.8",
-    "material-react-table": "^3.2.1",
-    "prism-react-renderer": "^2.4.1"
-  },
-  "description": "PEAK UI lib",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/percona/peak-ui.git"
-  },
-  "author": "Percona",
-  "license": "AGPL-3.0-or-later",
-  "bugs": {
-    "url": "https://github.com/percona/peak-ui/issues"
-  },
-  "homepage": "https://github.com/percona/peak-ui#readme"
+  }
 }

@@ -12,9 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { AutocompleteProps, TextFieldProps } from '@mui/material';
-import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
+import {
+  Control,
+  FieldPath,
+  FieldValues,
+  UseControllerProps,
+} from 'react-hook-form';
 
-export type AutoCompleteInputProps<TOption, TFieldValues extends FieldValues = FieldValues> = {
+export type AutoCompleteInputProps<
+  TOption,
+  TFieldValues extends FieldValues = FieldValues,
+> = {
   /** Form field the value is stored under; also drives the test ids. */
   name: FieldPath<TFieldValues>;
   /** Choices offered in the dropdown; the user can type to narrow them. */
@@ -27,7 +35,12 @@ export type AutoCompleteInputProps<TOption, TFieldValues extends FieldValues = F
   label?: string;
   /** MUI Autocomplete props forwarded to the dropdown, such as multiple, freeSolo, or getOptionLabel. */
   autoCompleteProps?: Omit<
-    AutocompleteProps<TOption, boolean | undefined, boolean | undefined, boolean | undefined>,
+    AutocompleteProps<
+      TOption,
+      boolean | undefined,
+      boolean | undefined,
+      boolean | undefined
+    >,
     'options' | 'renderInput'
   >;
   /** MUI TextField props forwarded to the text box, such as placeholder or helperText. */

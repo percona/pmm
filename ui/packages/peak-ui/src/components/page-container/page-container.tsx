@@ -16,7 +16,10 @@ export const DEFAULT_PAGE_MAX_WIDTH = 1000;
  * padding), or a pixel number to cap it.
  */
 const PageContainer = forwardRef<HTMLDivElement, PageContainerProps>(
-  ({ maxWidth = DEFAULT_PAGE_MAX_WIDTH, spacing = 2, sx, children, ...rest }, ref) => {
+  (
+    { maxWidth = DEFAULT_PAGE_MAX_WIDTH, spacing = 2, sx, children, ...rest },
+    ref
+  ) => {
     const isFull = maxWidth === 'full';
 
     return (

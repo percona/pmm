@@ -35,7 +35,12 @@ const Swatch = ({ name, radius }: { name: string; radius: number }) => (
     <Typography component="span" sx={labelStyle}>
       {name}
     </Typography>
-    <Typography component="span" variant="helperText" color="text.secondary" display="block">
+    <Typography
+      component="span"
+      variant="helperText"
+      color="text.secondary"
+      display="block"
+    >
       {radius}px
     </Typography>
   </Box>
