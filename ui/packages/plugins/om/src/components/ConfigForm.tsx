@@ -56,11 +56,10 @@ export const SETTING_GROUP_LABEL: Record<SettingGroup, string> = {
   advanced: 'Advanced',
 };
 
-const groupOf = (setting: OmInventorySetting): SettingGroup =>
-  SETTING_GROUP[setting.key] ?? 'advanced';
+const groupOf = (key: string): SettingGroup => SETTING_GROUP[key] ?? 'advanced';
 
-/** The periods `SCHEDULE__period` accepts, from `sqlalchemy_celery_beat`. */
-const PERIODS = ['seconds', 'minutes', 'hours', 'days'] as const;
+/** The periods `SCHEDULE__period` accepts. */
+const PERIODS = ['minutes', 'hours', 'days'] as const;
 
 /** Which input can edit a field. */
 type InputKind = 'bool' | 'int' | 'period' | 'text';
@@ -110,19 +109,88 @@ function toWireValue(setting: OmInventorySetting, draft: string): unknown {
 }
 
 /**
+ * The inclusive range an integer field accepts, starting at 1 when the app reports no
+ * minimum because zero breaks every count and duration here.
+ */
+function intRange(setting: OmInventorySetting): { min: number; max?: number } {
+  return {
+    min: typeof setting.minimum === 'number' ? setting.minimum : 1,
+    max: typeof setting.maximum === 'number' ? setting.maximum : undefined,
+  };
+}
+
+/** The rule an integer field states under its box. */
+function intHint(setting: OmInventorySetting): string {
+  const { min, max } = intRange(setting);
+  if (max !== undefined) {
+    return `A whole number from ${min} to ${max}.`;
+  }
+  return min === 1
+    ? 'A whole number greater than zero.'
+    : `A whole number of at least ${min}.`;
+}
+
+/**
  * Whether a draft can be submitted.
  *
- * Every integer knob here is a count or a duration, and zero breaks each of them: a
- * zero semaphore admits nobody, a zero interval is not a schedule, a zero retention
- * keeps nothing. The app rejects them too - refusing here saves a round trip and says
- * so beside the field rather than in a banner.
+ * The app rejects anything outside the range too - refusing here saves a round trip
+ * and says so beside the field rather than in a banner.
  */
 function isValid(setting: OmInventorySetting, draft: string): boolean {
+  if (draft.trim().length === 0) {
+    return false;
+  }
   if (inputKind(setting) !== 'int') {
-    return draft.trim().length > 0;
+    return true;
   }
   const parsed = Number(draft);
-  return Number.isInteger(parsed) && parsed > 0;
+  const { min, max } = intRange(setting);
+  return (
+    Number.isInteger(parsed) &&
+    parsed >= min &&
+    (max === undefined || parsed <= max)
+  );
+}
+
+/** One entry of the app's 422 detail, which pmm-managed passes on as the message. */
+interface Refusal {
+  loc: unknown[];
+  msg: string;
+  type?: unknown;
+}
+
+const isRefusal = (entry: unknown): entry is Refusal =>
+  typeof entry === 'object' &&
+  entry !== null &&
+  Array.isArray((entry as Refusal).loc) &&
+  typeof (entry as Refusal).msg === 'string';
+
+/**
+ * One line per field the app refused; a cross-field rule names its fields itself and
+ * is shown once.
+ */
+function refusals(message: string, labelOf: (key: string) => string): string[] {
+  let detail: unknown;
+  try {
+    detail = JSON.parse(message);
+  } catch {
+    return [message];
+  }
+  if (
+    !Array.isArray(detail) ||
+    detail.length === 0 ||
+    !detail.every(isRefusal)
+  ) {
+    return [message];
+  }
+  const lines = detail.map(({ loc, msg, type }) => {
+    const reason = msg.replace(/^Value error, /, '');
+    const key = loc[0] === 'body' ? loc[1] : undefined;
+    return type === 'cross_field' || typeof key !== 'string'
+      ? reason
+      : `${labelOf(key)}: ${reason}`;
+  });
+  return [...new Set(lines)];
 }
 
 /** One field, rendered as whatever can edit it. */
@@ -150,7 +218,7 @@ const SettingField = ({
   // rule and the complaint are one sentence; text stays quiet until empty.
   const hint =
     kind === 'int'
-      ? 'A whole number greater than zero.'
+      ? intHint(setting)
       : valid
         ? undefined
         : 'This field cannot be empty.';
@@ -364,17 +432,18 @@ export const ConfigForm = ({
   // Partitioned for display only. `dirty`, `invalid` and `save` above still span every
   // field, so an edit made on one tab is not lost by looking at another and Save means
   // the same thing wherever it is pressed.
-  const shown = editable.filter((setting) => groupOf(setting) === group);
+  const shown = editable.filter((setting) => groupOf(setting.key) === group);
 
   // Save spans every tab, so a field on another one is named with its tab.
+  const labelOf = (key: string) => {
+    const label = SETTING_LABEL[key] ?? key;
+    const settingGroup = groupOf(key);
+    return settingGroup === group
+      ? label
+      : `${label} (${SETTING_GROUP_LABEL[settingGroup]} tab)`;
+  };
   const labels = (fields: OmInventorySetting[]) =>
-    fields.map((setting) => {
-      const label = SETTING_LABEL[setting.key] ?? setting.key;
-      const settingGroup = groupOf(setting);
-      return settingGroup === group
-        ? label
-        : `${label} (${SETTING_GROUP_LABEL[settingGroup]} tab)`;
-    });
+    fields.map((setting) => labelOf(setting.key));
   const names = (fields: OmInventorySetting[]) => labels(fields).join(', ');
 
   return (
@@ -407,14 +476,14 @@ export const ConfigForm = ({
         <OmError
           placement="action"
           title="Could not save"
-          messages={update.error.message}
+          messages={refusals(update.error.message, labelOf)}
         />
       )}
       {reset.isError && (
         <OmError
           placement="action"
           title="Could not reset"
-          messages={reset.error.message}
+          messages={refusals(reset.error.message, labelOf)}
         />
       )}
 

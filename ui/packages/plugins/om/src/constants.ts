@@ -370,7 +370,7 @@ export const SETTING_UNIT: Record<string, string> = {
 /** What each field costs or protects, for the reader deciding whether to touch it. */
 export const SETTING_HELP: Record<string, string> = {
   SCHEDULE__every:
-    'How often every node is scanned. Each scan sends a job to every node.',
+    'How often every node is scanned, from 10 minutes to 1 day. Each scan sends a job to every node.',
   PROBE_DATABASE:
     "On also asks each mongod for its replica-set state and running version. It logs in with the URI in .mongodb_uri in the home directory of the user pmm-agent runs as (/root by default); without that file it connects unauthenticated, so a mongod that requires authentication doesn't report its replica-set state. Off collects process and OS facts only, which needs no credentials - and still yields the installed version.",
   REPO_URL:
