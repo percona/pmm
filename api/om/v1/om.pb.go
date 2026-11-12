@@ -2382,8 +2382,12 @@ type InventoryHost struct {
 	// included. Forgetting it would clear Operations' record of the machine PMM runs on,
 	// the next scan would put it straight back, and in between the fleet would be wrong.
 	IsPmmServerNode bool `protobuf:"varint,16,opt,name=is_pmm_server_node,json=isPmmServerNode,proto3" json:"is_pmm_server_node,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// The MongoDB versions, as major.minor and oldest first, that Operations installs onto
+	// this node's OS release. Empty when it installs none there, the release is not known,
+	// or PMM could not read the supported releases; automation_blocked_reasons says which.
+	SupportedMongodbVersions []string `protobuf:"bytes,17,rep,name=supported_mongodb_versions,json=supportedMongodbVersions,proto3" json:"supported_mongodb_versions,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *InventoryHost) Reset() {
@@ -2526,6 +2530,13 @@ func (x *InventoryHost) GetIsPmmServerNode() bool {
 		return x.IsPmmServerNode
 	}
 	return false
+}
+
+func (x *InventoryHost) GetSupportedMongodbVersions() []string {
+	if x != nil {
+		return x.SupportedMongodbVersions
+	}
+	return nil
 }
 
 // InventoryRunCounts is what one refresh saw.
@@ -4086,7 +4097,8 @@ type TriggerHostBootstrapRequest struct {
 	ReplicaSetName string `protobuf:"bytes,2,opt,name=replica_set_name,json=replicaSetName,proto3" json:"replica_set_name,omitempty"`
 	// The MongoDB version to install, e.g. "7.0.8". Only the major version
 	// selects the install source; PSMDB does not ship parallel repos per minor
-	// version.
+	// version. Every node's OS release has to support it, as each node's
+	// InventoryHost.supported_mongodb_versions lists.
 	MongodbVersion string `protobuf:"bytes,3,opt,name=mongodb_version,json=mongodbVersion,proto3" json:"mongodb_version,omitempty"`
 	// The monitoring environment to label the resulting service with, same free-form
 	// string as ManagementService's own AddMongoDBServiceParams.environment. Unset
@@ -5424,7 +5436,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\r_probe_statusB\x11\n" +
 	"\x0f_server_runningB\x11\n" +
 	"\x0f_uptime_secondsB\x12\n" +
-	"\x10_replication_set\"\x9b\x06\n" +
+	"\x10_replication_set\"\xd9\x06\n" +
 	"\rInventoryHost\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -5442,7 +5454,8 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x13automation_eligible\x18\r \x01(\bR\x12automationEligible\x12<\n" +
 	"\x1aautomation_blocked_reasons\x18\x0e \x03(\tR\x18automationBlockedReasons\x12?\n" +
 	"\x1cautomation_blocked_by_design\x18\x0f \x01(\bR\x19automationBlockedByDesign\x12+\n" +
-	"\x12is_pmm_server_node\x18\x10 \x01(\bR\x0fisPmmServerNodeB\n" +
+	"\x12is_pmm_server_node\x18\x10 \x01(\bR\x0fisPmmServerNode\x12<\n" +
+	"\x1asupported_mongodb_versions\x18\x11 \x03(\tR\x18supportedMongodbVersionsB\n" +
 	"\n" +
 	"\b_addressB\x10\n" +
 	"\x0e_executor_hostB\x05\n" +

@@ -201,7 +201,8 @@ type TriggerHostBootstrapBody struct {
 
 	// The MongoDB version to install, e.g. "7.0.8". Only the major version
 	// selects the install source; PSMDB does not ship parallel repos per minor
-	// version.
+	// version. Every node's OS release has to support it, as each node's
+	// InventoryHost.supported_mongodb_versions lists.
 	MongodbVersion string `json:"mongodb_version,omitempty"`
 
 	// The monitoring environment to label the resulting service with, same free-form

@@ -39,6 +39,7 @@ const host = (i: number): OmInventoryHost => ({
   automation_blocked_reasons: [],
   automation_blocked_by_design: false,
   is_pmm_server_node: false,
+  supported_mongodb_versions: ['7.0', '8.0'],
 });
 
 const HOSTS = [host(1), host(2), host(3)];
@@ -354,6 +355,17 @@ describe('BootstrapPage step 1 preconditions', () => {
     ).toBeInTheDocument();
   });
 
+  it('blocks Configure when the selected nodes share no MongoDB version', () => {
+    blocked({ supported_mongodb_versions: [] });
+
+    renderStep1();
+
+    expect(screen.getByRole('button', { name: 'Configure' })).toBeDisabled();
+    expect(
+      screen.getByText(/The selected nodes have no MongoDB version in common/)
+    ).toBeInTheDocument();
+  });
+
   it('states the reason on the row, not only in a summary', () => {
     blocked({
       automation_eligible: false,
@@ -595,6 +607,7 @@ describe('BootstrapPage configure guidance', () => {
 
   afterEach(() => {
     triggerCalls.length = 0;
+    hostsState.data = HOSTS;
   });
 
   it('offers only the supported versions, with 7.0 selected', () => {
@@ -606,6 +619,60 @@ describe('BootstrapPage configure guidance', () => {
     expect(
       screen.getAllByRole('option').map((option) => option.textContent)
     ).toEqual(['7.0', '8.0']);
+  });
+
+  it('offers only the versions every selected node supports, and sends that one', async () => {
+    // Rocky Linux 10 gets 8.0 only.
+    hostsState.data = [{ ...host(1), supported_mongodb_versions: ['8.0'] }];
+    openConfigureStep();
+
+    const version = screen.getByRole('combobox', {
+      name: /MongoDB version/,
+    });
+    expect(version).toHaveTextContent('8.0');
+    fireEvent.mouseDown(version);
+    expect(
+      screen.getAllByRole('option').map((option) => option.textContent)
+    ).toEqual(['8.0']);
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Escape' });
+
+    typeInto(/Replica set name/, 'rs0');
+    fireEvent.click(review());
+    fireEvent.click(screen.getByRole('button', { name: 'Install MongoDB' }));
+
+    await vi.waitFor(() => expect(triggerCalls).toHaveLength(1));
+    expect(triggerCalls[0].mongodbVersion).toBe('8.0');
+  });
+
+  it('sends the user back from Review, installing nothing, when a refetch drops the chosen version', () => {
+    const page = () => (
+      <MemoryRouter initialEntries={['/operations/nodes/install?nodes=node-1']}>
+        <Routes>
+          <Route path="/operations/nodes/install" element={<BootstrapPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    const { rerender } = render(page());
+    fireEvent.click(screen.getByRole('button', { name: 'Configure' }));
+    typeInto(/Replica set name/, 'rs0');
+    fireEvent.click(review());
+    expect(
+      screen.getByRole('button', { name: 'Install MongoDB' })
+    ).toBeInTheDocument();
+
+    hostsState.data = [{ ...host(1), supported_mongodb_versions: ['8.0'] }];
+    rerender(page());
+
+    expect(
+      screen.queryByRole('button', { name: 'Install MongoDB' })
+    ).not.toBeInTheDocument();
+    expect(review()).toBeDisabled();
+    expect(
+      screen.getByText(
+        'Choose a MongoDB version that every selected node supports.'
+      )
+    ).toBeInTheDocument();
+    expect(triggerCalls).toHaveLength(0);
   });
 
   it('flags an invalid replica set name while typing, and clears it once fixed', () => {
