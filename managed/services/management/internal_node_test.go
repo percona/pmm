@@ -283,7 +283,7 @@ func TestNodesMarkProtectedNodes(t *testing.T) {
 
 		vmClient := &mockVictoriaMetricsClient{}
 		vmClient.Test(t)
-		vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil)
+		vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil, nil)
 
 		return NewManagementService(db, ar, nil, nil, nil, nil, nil, nil, vmClient, nil, []string{clientNodePrefix}, false)
 	}
