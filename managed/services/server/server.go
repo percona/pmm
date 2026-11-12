@@ -805,7 +805,7 @@ func (s *Server) applyOMSwitch(ctx context.Context, oldSettings, newSettings *mo
 		defer cancel()
 
 		// Sync first: om_inventory skips a sweep while it is disabled, so collecting earlier would do nothing.
-		s.omService.SyncInventoryEnabled(ctx, enabled)
+		s.omService.SyncInventoryEnabled(ctx)
 		if enabled {
 			_, err := s.omService.TriggerTopologyCollection(ctx, &omv1.TriggerTopologyCollectionRequest{})
 			if err != nil {
