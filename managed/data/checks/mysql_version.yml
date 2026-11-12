@@ -3,7 +3,7 @@ checks:
   - version: 2
     name: mysql_version
     summary: MySQL Version
-    description: This check returns warnings if MySQL, Percona Server for MySQL, or MariaDB version is not the latest one.
+    description: This check returns warnings if a newer release of your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL release series is available.
     technology: MYSQL
     category: Versions
     queries:
@@ -12,164 +12,143 @@ checks:
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
-      # major versions missing from these tables are not checked
+      # The latest release of each release series, keyed by major*100+minor (8.0 is 800, 10.11 is 1011).
+      # A server is only compared with the latest release of its own series;
+      # a series missing from its distribution's table gets no finding.
       LATEST_VERSIONS = {
-          # recommend MySQL 5.7.x to all 5.x.x users
-          # recommend MySQL 8.x.x only to existing 8.x.x users
+          # https://dev.mysql.com/doc/relnotes/mysql/5.7/en/
+          # https://dev.mysql.com/doc/relnotes/mysql/8.0/en/
+          # https://dev.mysql.com/doc/relnotes/mysql/8.4/en/
+          # https://dev.mysql.com/doc/relnotes/mysql/9.7/en/
           "oracle": {
-              5: 50744,  # https://dev.mysql.com/doc/relnotes/mysql/5.7/en/
-              8: 80038,  # https://dev.mysql.com/doc/relnotes/mysql/8.0/en/
+              507: 50744,
+              800: 80046,
+              804: 80413,
+              907: 90704,
           },
 
-          # recommend PS 5.7.x to all 5.x.x users
-          # recommend PS 8.x.x only to existing 8.x.x users
+          # https://docs.percona.com/percona-server/5.7/release-notes/release-notes_index.html
+          # https://docs.percona.com/percona-server/8.0/release-notes/release-notes_index.html
+          # https://docs.percona.com/percona-server/8.4/release-notes/release-notes-index.html
+          # https://docs.percona.com/percona-server/9.7/release-notes/release-notes-index.html
           "percona_server": {
-              5: 50744,  # https://www.percona.com/downloads/Percona-Server-5.7/LATEST/
-              8: 80037,  # https://www.percona.com/downloads/Percona-Server-LATEST/
+              507: 50744,
+              800: 80046,
+              804: 80411,
+              907: 90702,
           },
 
-          # recommend PXC 5.7.x to all 5.x.x users
-          # recommend PXC 8.x.x only to existing 8.x.x users
+          # https://docs.percona.com/percona-xtradb-cluster/5.7/release-notes/release-notes_index.html
+          # https://docs.percona.com/percona-xtradb-cluster/8.0/release-notes/release-notes_index.html
+          # https://docs.percona.com/percona-xtradb-cluster/8.4/release-notes/release-notes_index.html
+          # https://docs.percona.com/percona-xtradb-cluster/9.7/release-notes/release-notes-index.html
           "percona_xtradb_cluster": {
-              5: 50744,  # https://www.percona.com/downloads/Percona-XtraDB-Cluster-57/LATEST/
-              8: 80036,  # https://www.percona.com/downloads/Percona-XtraDB-Cluster-LATEST/
+              507: 50744,
+              800: 80046,
+              804: 80411,
+              907: 90702,
           },
 
-          # recommend MySQL 5.7.x to all 5.x.x users
-          # recommend MySQL 8.x.x only to existing 8.x.x users
-          "rds": {  # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html
-              5: 50738,
-              8: 80028,
+          # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html
+          "rds": {
+              507: 50744,
+              800: 80046,
+              804: 80411,
           },
 
-          # recommend MariaDB 10.4.x to all 5.x.x and 10.x.x users
-          "mariadb": {  # https://mariadb.com/kb/en/release-notes-mariadb-104-series/
-              5: 100426,
-              10: 100902,
+          # https://downloads.mariadb.org/rest-api/mariadb/
+          "mariadb": {
+              1006: 100628,
+              1011: 101119,
+              1104: 110413,
+              1108: 110809,
+              1203: 120303,
           },
       }
 
+      PRODUCTS = {
+          "oracle": "MySQL",
+          "percona_server": "Percona Server for MySQL",
+          "percona_xtradb_cluster": "Percona XtraDB Cluster",
+          "rds": "MySQL",
+          "mariadb": "MariaDB",
+      }
+
+      SECURITY_NOTE = " The newer release includes security fixes: https://www.mysql.com/support/security/."
+      MARIADB_SECURITY_NOTE = " The newer release includes security fixes: https://mariadb.org/about/security-policy/."
+
+      # MariaDB prefixes its version with this for old replication clients.
+      MARIADB_PREFIX = "5.5.5-"
+
+      def detect(vars):
+          """
+          Returns the distribution of the server described by SHOW VARIABLES (a dict of name to value):
+          "mariadb", "aurora", "rds", "percona_xtradb_cluster", "percona_server" or "oracle".
+          """
+
+          version = vars.get("version", "").lower()
+          comment = vars.get("version_comment", "").lower()
+          if "mariadb" in version or "mariadb" in comment:
+              return "mariadb"
+
+          for name in vars:
+              if name.startswith("aurora_"):
+                  return "aurora"
+
+          if "rdsdbbin" in vars.get("basedir", "") or "rdsdbdata" in vars.get("datadir", ""):
+              return "rds"
+
+          if "percona xtradb cluster" in comment:
+              return "percona_xtradb_cluster"
+
+          if "percona server" in comment:
+              return "percona_server"
+
+          return "oracle"
+
       def check_context(docs, context):
           """
-          This check returns warnings if MySQL, Percona Server for MySQL, or MariaDB version is not the latest one.
+          This check returns warnings if a newer release of your MySQL, Percona Server for MySQL, Percona XtraDB Cluster,
+          MariaDB or Amazon RDS for MySQL release series is available.
           """
 
           format_version_num = context.get("format_version_num", fail)
           parse_version = context.get("parse_version", fail)
 
-          rows = docs[0]
-          # extract information from variables
-          is_percona_server, is_percona_xdb_cluster, is_mariadb, is_rds, is_aurora = False, False, False, False, False
-          for row in rows:
-              name, value = row["Variable_name"], row["Value"]
-              print(name, "=", value)
+          vars = {}
+          for row in docs[0]:
+              vars[row["Variable_name"]] = row["Value"]
 
-              if name == "version":
-                  versionS = value
-              if name == "version_comment":
-                  value = value.lower()
-                  is_percona_server = 'percona server' in value
-                  is_percona_xdb_cluster = 'percona xtradb cluster' in value
-                  is_mariadb = 'mariadb' in value
-              if name == "basedir" and not is_rds:
-                  is_rds = 'rdsdbbin' in value
-              if name == "datadir" and not is_rds:
-                  is_rds = 'rdsdbdata' in value
-              if name.startswith('aurora_'):
-                  is_aurora = True
+          if "version" not in vars:
+              return []
+
+          dist = detect(vars)
+          if dist == "aurora":
+              return []
+
+          current = vars["version"]
+          if dist == "mariadb" and current.startswith(MARIADB_PREFIX):
+              current = current[len(MARIADB_PREFIX):]
 
           # parse_version returns a dict with keys: major, minor, patch, rest, num
-          version = parse_version(versionS)
-          major = version["major"]
+          version = parse_version(current)
           num = version["num"]
-          print("version =", repr(version))
+          latest = LATEST_VERSIONS[dist].get(version["major"] * 100 + version["minor"], 0)
+          if latest <= num:
+              return []
 
-          results = []
+          security_note = SECURITY_NOTE
+          if dist == "mariadb":
+              security_note = MARIADB_SECURITY_NOTE
 
-          if is_percona_server:
-              latest = LATEST_VERSIONS["percona_server"].get(major, 0)
-              if latest > num:
-                  results.append({
-                      "summary": "Newer version of Percona Server for MySQL is available",
-                      "description": "Current version is {}, the latest available version is {}.".format(
-                          format_version_num(num), format_version_num(latest)),
-                      "read_more_url": read_url.format("mysql-version"),
-                      "severity": "warning",
-                      "labels": {
-                          "current": format_version_num(num),
-                          "latest": format_version_num(latest),
-                      },
-                  })
-
-              return results
-
-          if is_percona_xdb_cluster:
-              latest = LATEST_VERSIONS["percona_xtradb_cluster"].get(major, 0)
-              if latest > num:
-                  results.append({
-                      "summary": "Newer version of Percona XtraDB Cluster is available",
-                      "description": "Current version is {}, the latest available version is {}.".format(
-                          format_version_num(num), format_version_num(latest)),
-                      "read_more_url": read_url.format("mysql-version"),
-                      "severity": "warning",
-                      "labels": {
-                          "current": format_version_num(num),
-                          "latest": format_version_num(latest),
-                      },
-                  })
-
-              return results
-
-          if is_aurora:
-              print("Aurora is not supported yet")
-              return results
-
-          if is_rds:
-              latest = LATEST_VERSIONS["rds"].get(major, 0)
-              if latest > num:
-                  results.append({
-                      "summary": "Newer version of MySQL is available",
-                      "description": "Current version is {}, the latest available version is {}.".format(
-                          format_version_num(num), format_version_num(latest)),
-                      "read_more_url": read_url.format("mysql-version"),
-                      "severity": "warning",
-                      "labels": {
-                          "current": format_version_num(num),
-                          "latest": format_version_num(latest),
-                      },
-                  })
-
-              return results
-
-          if is_mariadb:
-              latest = LATEST_VERSIONS["mariadb"].get(major, 0)
-              if latest > num:
-                  results.append({
-                      "summary": "Newer version of MariaDB is available",
-                      "description": "Current version is {}, the latest available version is {}.".format(
-                          format_version_num(num), format_version_num(latest)),
-                      "read_more_url": read_url.format("mysql-version"),
-                      "severity": "warning",
-                      "labels": {
-                          "current": format_version_num(num),
-                          "latest": format_version_num(latest),
-                      },
-                  })
-
-              return results
-
-          if True:  # Oracle MySQL
-              latest = LATEST_VERSIONS["oracle"].get(major, 0)
-              if latest > num:
-                  results.append({
-                      "summary": "Newer version of MySQL is available",
-                      "description": "Current version is {}, the latest available version is {}.".format(
-                          format_version_num(num), format_version_num(latest)),
-                      "read_more_url": read_url.format("mysql-version"),
-                      "severity": "warning",
-                      "labels": {
-                          "current": format_version_num(num),
-                          "latest": format_version_num(latest),
-                      },
-                  })
-              return results
+          return [{
+              "summary": "Newer version of {} is available".format(PRODUCTS[dist]),
+              "description": "Current version is {}, the latest available version is {}.".format(
+                  format_version_num(num), format_version_num(latest)) + security_note,
+              "read_more_url": read_url.format("mysql-version"),
+              "severity": "warning",
+              "labels": {
+                  "current": format_version_num(num),
+                  "latest": format_version_num(latest),
+              },
+          }]

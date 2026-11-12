@@ -153,6 +153,15 @@ func rdsEOL(severity, current, series, eolDate string) finding {
 	}
 }
 
+// newerMySQL builds the mysql_version finding: product is the name used in the summary.
+func newerMySQL(product, current, latest string) finding {
+	return finding{
+		Severity: "warning",
+		Summary:  "Newer version of " + product + " is available",
+		Labels:   map[string]string{"current": current, "latest": latest},
+	}
+}
+
 func mongoCmdLineOpts(parsed map[string]any) []map[string]any {
 	return []map[string]any{{"parsed": parsed}}
 }
@@ -182,17 +191,164 @@ func TestBuiltinVersionChecks(t *testing.T) {
 		want  []finding
 		// descContains lists substrings that every finding's description must contain.
 		descContains []string
+		// descExcludes lists substrings that no finding's description may contain.
+		descExcludes []string
 	}{
 		{
-			name:  "mysql_version Oracle 8.0.37",
+			name:         "mysql_version Oracle 8.0.37",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("8.0.37", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("MySQL", "8.0.37", "8.0.46")},
+			descContains: []string{"security fixes", "https://www.mysql.com/support/security/"},
+		},
+		{
+			name:         "mysql_version Oracle 8.4.0",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("8.4.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("MySQL", "8.4.0", "8.4.13")},
+			descContains: []string{"security fixes"},
+		},
+		{
+			name:         "mysql_version Oracle 9.7.0",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("9.7.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("MySQL", "9.7.0", "9.7.4")},
+			descContains: []string{"security fixes"},
+		},
+		{
+			name:         "mysql_version Oracle 5.7.40-log",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("5.7.40-log", "MySQL Community Server (GPL)", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("MySQL", "5.7.40", "5.7.44")},
+			descContains: []string{"security fixes"},
+		},
+		{
+			name:  "mysql_version Oracle 9.8.0 not in table",
 			check: "mysql_version",
 			today: today,
-			docs:  [][]map[string]any{mysqlVariables("8.0.37", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
-			want: []finding{{
-				Severity: "warning",
-				Summary:  "Newer version of MySQL is available",
-				Labels:   map[string]string{"current": "8.0.37", "latest": "8.0.38"},
-			}},
+			docs:  [][]map[string]any{mysqlVariables("9.8.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_version Oracle 9.6.0 Innovation not in table",
+			check: "mysql_version",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("9.6.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_version Percona Server 8.0.46-37 at the latest",
+			check: "mysql_version",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("8.0.46-37", "Percona Server (GPL), Release 37, Revision 6e5ea23c", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:         "mysql_version Percona Server 8.4.3-3",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("8.4.3-3", "Percona Server (GPL), Release 3, Revision 8f39d3a6", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("Percona Server for MySQL", "8.4.3", "8.4.11")},
+			descContains: []string{"security fixes", "https://www.mysql.com/support/security/"},
+		},
+		{
+			name:         "mysql_version PXC 8.4.3-3.1",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("8.4.3-3.1", "Percona XtraDB Cluster (GPL), Release rel3, Revision 3fdc4ff, WSREP version 26.1.4.3", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("Percona XtraDB Cluster", "8.4.3", "8.4.11")},
+			descContains: []string{"security fixes"},
+		},
+		{
+			name:         "mysql_version PXC 9.7.1-1",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("9.7.1-1", "Percona XtraDB Cluster (GPL), Release rel1, Revision 1a2b3c4, WSREP version 26.1.4.3", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("Percona XtraDB Cluster", "9.7.1", "9.7.2")},
+			descContains: []string{"security fixes"},
+		},
+		{
+			name:         "mysql_version MariaDB 10.6.1",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("10.6.1-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("MariaDB", "10.6.1", "10.6.28")},
+			descContains: []string{"security fixes", "https://mariadb.org/about/security-policy/"},
+			descExcludes: []string{"10.9.2", "10.4.26", "https://www.mysql.com/"},
+		},
+		{
+			name:         "mysql_version MariaDB 10.11.2",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("10.11.2-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("MariaDB", "10.11.2", "10.11.19")},
+			descContains: []string{"security fixes", "https://mariadb.org/about/security-policy/"},
+			descExcludes: []string{"10.9.2", "10.4.26"},
+		},
+		{
+			name:         "mysql_version MariaDB 11.4.1",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("11.4.1-MariaDB-log", "mariadb.org binary distribution", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("MariaDB", "11.4.1", "11.4.13")},
+			descContains: []string{"security fixes"},
+			descExcludes: []string{"10.9.2", "10.4.26"},
+		},
+		{
+			name:  "mysql_version MariaDB 5.5.68 not in table",
+			check: "mysql_version",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("5.5.68-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:         "mysql_version MariaDB 5.5.5-10.6.18 replication prefix",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("5.5.5-10.6.18-MariaDB", "Source distribution", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{newerMySQL("MariaDB", "10.6.18", "10.6.28")},
+			descContains: []string{"security fixes"},
+		},
+		{
+			name:  "mysql_version MariaDB 12.3.3 at the latest",
+			check: "mysql_version",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("12.3.3-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
+			want:  []finding{},
+		},
+		{
+			name:         "mysql_version RDS 8.0.28",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("8.0.28", "Source distribution", "/rdsdbbin/mysql-8.0.28.R4/", "/rdsdbdata/db/")},
+			want:         []finding{newerMySQL("MySQL", "8.0.28", "8.0.46")},
+			descContains: []string{"security fixes", "https://www.mysql.com/support/security/"},
+		},
+		{
+			name:         "mysql_version RDS 8.4.3",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("8.4.3", "Source distribution", "/rdsdbbin/mysql-8.4.3.R1/", "/rdsdbdata/db/")},
+			want:         []finding{newerMySQL("MySQL", "8.4.3", "8.4.11")},
+			descContains: []string{"security fixes"},
+		},
+		{
+			name:  "mysql_version Aurora",
+			check: "mysql_version",
+			today: today,
+			docs:  [][]map[string]any{mysqlVariables("8.0.28", "Source distribution", "/rdsdbbin/oscar-8.0.mysql_aurora.3.05.2.0.36764.0/", "/rdsdbdata/db/", "aurora_version", "3.05.2")},
+			want:  []finding{},
+		},
+		{
+			name:  "mysql_version no rows",
+			check: "mysql_version",
+			today: today,
+			docs:  [][]map[string]any{{}},
+			want:  []finding{},
 		},
 		{
 			name:  "mongodb_EOL 5.0.31",
@@ -628,6 +784,10 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			for _, r := range results {
 				for _, sub := range tc.descContains {
 					assert.Contains(t, r.Description, sub)
+				}
+
+				for _, sub := range tc.descExcludes {
+					assert.NotContains(t, r.Description, sub)
 				}
 			}
 		})
