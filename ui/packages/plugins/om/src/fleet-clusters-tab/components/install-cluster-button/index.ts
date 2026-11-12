@@ -15,4 +15,4 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { FleetCounts } from './FleetCounts';
+export { InstallClusterButton } from './InstallClusterButton';

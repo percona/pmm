@@ -16,3 +16,5 @@
  */
 
 export { FleetClustersTab } from './FleetClustersTab';
+export { FleetClustersSummary } from './components/fleet-clusters-summary';
+export { InstallClusterButton } from './components/install-cluster-button';

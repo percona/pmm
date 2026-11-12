@@ -16,11 +16,19 @@
  */
 
 import { useSearchParams } from 'react-router-dom';
-import { Box, Tab, Tabs, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Typography from '@mui/material/Typography';
 import { OmHeader } from './components/OmHeader';
 import { SyncButton } from './components/SyncButton';
 import { tabPanelProps, tabProps } from './tabA11y';
-import { FleetClustersTab } from './fleet-clusters-tab';
+import {
+  FleetClustersSummary,
+  FleetClustersTab,
+  // InstallClusterButton,
+} from './fleet-clusters-tab';
 import { FleetServicesTab } from './FleetServicesTab';
 
 /** The tabs, and the query-parameter values that address them. */
@@ -65,16 +73,29 @@ export const FleetPage = () => {
     ? (requested as TabId)
     : 'clusters';
 
+  const subtitle = (
+    <Typography variant="body2" color="text.secondary">
+      {SUBTITLE[tab]}
+    </Typography>
+  );
+
   return (
     <Box>
       <OmHeader
         title="Fleet"
         subtitle={
-          <Typography variant="body2" color="text.secondary">
-            {SUBTITLE[tab]}
-          </Typography>
+          tab === 'clusters' ? (
+            <FleetClustersSummary fallback={subtitle} />
+          ) : (
+            subtitle
+          )
         }
-        actions={<SyncButton />}
+        actions={
+          <Stack direction="row" alignItems="center" gap={1}>
+            <SyncButton />
+            {/* Waits on a ticket for the install entry point: <InstallClusterButton /> */}
+          </Stack>
+        }
       />
       <Tabs
         value={tab}

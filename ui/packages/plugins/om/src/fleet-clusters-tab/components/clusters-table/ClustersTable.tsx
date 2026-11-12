@@ -15,11 +15,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { useMemo } from 'react';
 import Stack from '@mui/material/Stack';
 import { Table } from '@percona/peak-ui';
 import { MRT_ExpandAllButton, MRT_ExpandButton } from 'material-react-table';
 import {
-  GroupBySelect,
   NO_GROUPING,
   useSessionGrouping,
 } from '../../../components/GroupBySelect';
@@ -27,27 +27,40 @@ import type { OmClusterRow } from '../../../types';
 import { useTableUrlState } from '../../../useTableUrlState';
 import {
   CLUSTERS_TABLE_NAME,
-  DEFAULT_GROUPING,
   GROUPING_STORAGE_KEY,
   GROUP_BY_OPTIONS,
   URL_STATE,
 } from '../../FleetClustersTab.constants';
 import { Messages } from '../../FleetClustersTab.messages';
 import type { ClusterGrouping } from '../../FleetClustersTab.types';
-import { groupLabel } from '../../FleetClustersTab.utils';
+import {
+  defaultGrouping,
+  groupLabel,
+  inGroupOrder,
+} from '../../FleetClustersTab.utils';
 import { useClusterColumnVisibility } from '../../useClusterColumnVisibility';
 import { useGroupedExpansion } from '../../useGroupedExpansion';
 import { ClusterFilterBar } from '../cluster-filter-bar';
 import { ClusterMembersTable } from '../cluster-members-table';
+import { GroupByBar } from '../group-by-bar';
 import { GroupHeader } from '../group-header';
-import { CLUSTER_COLUMNS } from './ClustersTable.constants';
+import { CLUSTER_COLUMNS, DEFAULT_COLUMN } from './ClustersTable.constants';
 
-export const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
+export const ClustersTable = ({
+  rows,
+  updatedAt,
+}: {
+  rows: OmClusterRow[];
+  /** When the rows were fetched, as a timestamp. */
+  updatedAt: number;
+}) => {
   const [grouping, setGrouping] = useSessionGrouping<ClusterGrouping>(
     GROUPING_STORAGE_KEY,
     GROUP_BY_OPTIONS,
-    DEFAULT_GROUPING
+    defaultGrouping(rows)
   );
+  const groupedBy = grouping === NO_GROUPING ? undefined : grouping;
+  const data = useMemo(() => inGroupOrder(rows, grouping), [rows, grouping]);
   const tableProps = useTableUrlState(URL_STATE);
   // The whole fleet, not the matches: a folded group stays folded while a filter hides it.
   const { expanded, onExpandedChange } = useGroupedExpansion(rows, grouping);
@@ -59,25 +72,23 @@ export const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
       {...tableProps}
       tableName={CLUSTERS_TABLE_NAME}
       columns={CLUSTER_COLUMNS}
-      data={rows}
+      data={data}
       enablePagination={false}
       enableExpanding
       enableGrouping
-      // The group header already names what the grouped column would repeat on every row.
-      groupedColumnMode="remove"
+      // The grouped column keeps its place and its cells, as in the design.
+      groupedColumnMode={false}
       // Grouping is the select's job: no drag handles, no "grouped by" banner.
       enableColumnDragging={false}
       positionToolbarAlertBanner="none"
       enableColumnActions={false}
       enableColumnFilters={false}
       globalFilterFn="contains"
-      defaultColumn={{ enableGlobalFilter: false }}
+      // The counts beside each filter option.
+      enableFacetedValues
+      defaultColumn={DEFAULT_COLUMN}
       // TanStack only searches a column whose first row holds a string; a cluster can lack a name.
       getColumnCanGlobalFilter={() => true}
-      muiSearchTextFieldProps={{
-        placeholder: Messages.search,
-        inputProps: { 'aria-label': Messages.search },
-      }}
       enableHiding
       // The server-issued id: labels repeat or are missing, and expansion must survive refetches.
       getRowId={(row) => row.id}
@@ -86,24 +97,30 @@ export const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
       )}
       emptyFilterResultsMessage={Messages.noMatch}
       muiExpandButtonProps={({ row }) =>
-        row.getIsGrouped() && grouping !== NO_GROUPING
+        row.getIsGrouped() && groupedBy
           ? {
               'aria-expanded': row.getIsExpanded(),
               'aria-label': Messages.groupToggle(
                 row.getIsExpanded(),
-                groupLabel(row.original, grouping)
+                groupLabel(row.original, groupedBy)
               ),
             }
           : {}
       }
-      renderTopToolbarCustomActions={({ table }) => (
-        <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
-          <GroupBySelect
-            options={GROUP_BY_OPTIONS}
-            value={grouping}
-            onChange={(value) => setGrouping(value as ClusterGrouping)}
-          />
+      muiTableBodyRowProps={({ row }) =>
+        row.getIsGrouped() ? { sx: { backgroundColor: 'action.hover' } } : {}
+      }
+      // Above the table rather than in its toolbar row, as the design has them.
+      renderTopToolbar={({ table }) => (
+        <Stack gap={2} sx={{ pb: 2 }}>
           <ClusterFilterBar table={table} rows={rows} />
+          <GroupByBar
+            table={table}
+            grouping={grouping}
+            onGroupingChange={setGrouping}
+            total={rows.length}
+            updatedAt={updatedAt}
+          />
         </Stack>
       )}
       displayColumnDefOptions={{
@@ -111,12 +128,12 @@ export const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
           size: 60,
           Header: ({ table }) => <MRT_ExpandAllButton table={table} />,
           Cell: ({ row, table, staticRowIndex }) =>
-            row.getIsGrouped() ? (
+            row.getIsGrouped() && groupedBy ? (
               <GroupHeader
                 row={row}
                 table={table}
                 staticRowIndex={staticRowIndex}
-                grouping={grouping}
+                grouping={groupedBy}
               />
             ) : (
               <MRT_ExpandButton
@@ -141,7 +158,7 @@ export const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
       }}
       state={{
         ...tableProps.state,
-        grouping: grouping === NO_GROUPING ? [] : [grouping],
+        grouping: groupedBy ? [groupedBy] : [],
         expanded,
         columnVisibility,
       }}

@@ -27,11 +27,10 @@ import { useOmInventoryServices } from '../inventoryHooks';
 import { toClusterRows } from '../topology';
 import { useOmTopology } from '../topologyHooks';
 import { ClustersTable } from './components/clusters-table';
-import { FleetCounts } from './components/fleet-counts';
 import { Messages } from './FleetClustersTab.messages';
 
 export const FleetClustersTab = () => {
-  const { data, isPending, isError, error } = useOmTopology();
+  const { data, isPending, isError, error, dataUpdatedAt } = useOmTopology();
   const { isError: inventoryFailed, error: inventoryError } =
     useOmInventoryServices();
   const rows = useMemo(() => toClusterRows(data), [data]);
@@ -66,7 +65,6 @@ export const FleetClustersTab = () => {
             ]}
           />
         )}
-        <FleetCounts summary={data.summary} />
       </Stack>
 
       {rows.length === 0 ? (
@@ -80,7 +78,7 @@ export const FleetClustersTab = () => {
           </Link>
         </EmptyState>
       ) : (
-        <ClustersTable rows={rows} />
+        <ClustersTable rows={rows} updatedAt={dataUpdatedAt} />
       )}
     </Stack>
   );

@@ -20,10 +20,27 @@ import { pluralize } from '../format';
 export const Messages = {
   unnamedEnvironment: 'Unassigned environment',
   groupBy: {
+    health: 'Health status',
     env_name: 'Environment',
-    health: 'Health',
+    type: 'Type',
+    versions: 'Version',
     none: 'None',
   },
+  groupBar: {
+    groups: (count: number) => `${count} ${pluralize(count, 'group')}`,
+    clusters: (shown: number, total: number) =>
+      shown === total
+        ? `${total} ${pluralize(total, 'cluster')}`
+        : `${shown} of ${total} ${pluralize(total, 'cluster')}`,
+    refreshed: (age: string) => `Refreshed ${age}`,
+  },
+  summary: {
+    clusters: (count: number) => `${count} ${pluralize(count, 'cluster')}`,
+    health: (count: number, label: string) => `${count} ${label.toLowerCase()}`,
+  },
+  install: 'Install new cluster',
+  installTooltip:
+    'Pick the nodes to install on, on the Nodes page, then install from there.',
   columns: {
     environment: 'Environment',
     cluster: 'Cluster',
@@ -47,17 +64,20 @@ export const Messages = {
   },
   versions: {
     mixed: 'Mixed',
+    mixedGroup: 'Mixed versions',
+    unknownGroup: 'Unknown version',
     count: (count: number) => `${count} versions`,
   },
-  search: 'Search clusters',
+  unknownType: 'Unknown type',
+  search: 'Filter clusters by name',
+  clearSearch: 'Clear search',
   noMatch: 'No cluster matches the search and filters.',
   filters: {
     health: 'Health',
     type: 'Type',
     environment: 'Environment',
-    clear: 'Clear filters',
-    matchCount: (shown: number, total: number) =>
-      `${shown} of ${total} ${pluralize(total, 'cluster')}`,
+    version: 'Version',
+    clear: 'Clear all',
   },
   groupToggle: (expanded: boolean, label: string) =>
     `${expanded ? 'Collapse' : 'Expand'} ${label}`,

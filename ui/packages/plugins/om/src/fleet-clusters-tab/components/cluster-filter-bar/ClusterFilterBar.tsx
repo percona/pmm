@@ -17,9 +17,18 @@
 
 import { useMemo } from 'react';
 import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 import type { MRT_TableInstance } from 'material-react-table';
-import { MultiSelectFilter } from '../../../components/MultiSelectFilter';
+import {
+  MultiSelectFilter,
+  type FilterOption,
+} from '../../../components/MultiSelectFilter';
 import type { OmClusterRow } from '../../../types';
 import {
   HEALTH_OPTIONS,
@@ -28,11 +37,18 @@ import {
 } from '../../FleetClustersTab.constants';
 import { Messages } from '../../FleetClustersTab.messages';
 import type { FilterColumn } from '../../FleetClustersTab.types';
-import { pickedValues, withPicked } from '../../FleetClustersTab.utils';
+import {
+  countValues,
+  pickedValues,
+  versionOptions,
+  withPicked,
+} from '../../FleetClustersTab.utils';
+import { getFilterValue, getEnvironments } from './ClusterFilterBar.utils';
 
 /**
- * The filters as toolbar selects rather than header inputs, since Type is hidden and
- * Environment's column leaves the table while grouped by it. Driven by the table's state.
+ * The name search and the filters, above the table. Driven by the table's state, so
+ * they follow the URL; each option counts the clusters it would match under the other
+ * filters and the search.
  */
 export const ClusterFilterBar = ({
   table,
@@ -42,6 +58,7 @@ export const ClusterFilterBar = ({
   rows: OmClusterRow[];
 }) => {
   const { columnFilters, globalFilter } = table.getState();
+  const search: string = globalFilter ?? '';
   const picked = (id: FilterColumn) =>
     pickedValues(columnFilters.find((filter) => filter.id === id)?.value);
   const pick = (id: FilterColumn) => (values: string[]) =>
@@ -49,52 +66,72 @@ export const ClusterFilterBar = ({
       ...filters.filter((filter) => filter.id !== id),
       ...(values.length ? [{ id, value: values }] : []),
     ]);
+  // TanStack's faceted rows leave out the column's own filter, as a count must.
+  const counts = (id: FilterColumn) =>
+    countValues(
+      table
+        .getColumn(id)
+        .getFacetedRowModel()
+        .rows.map((row) => row.original),
+      (row) => getFilterValue(id, row)
+    );
   const environments = useMemo(
     () =>
-      [...new Set(rows.map((row) => row.env_name || UNNAMED_ENVIRONMENT_VALUE))]
-        .sort((a, b) => a.localeCompare(b))
-        .map((value) => ({
-          value,
-          label:
-            value === UNNAMED_ENVIRONMENT_VALUE
-              ? Messages.unnamedEnvironment
-              : value,
-        })),
+      getEnvironments(rows).map((env) => ({
+        value: env,
+        label:
+          env === UNNAMED_ENVIRONMENT_VALUE ? Messages.unnamedEnvironment : env,
+      })),
     [rows]
   );
-  const filtered = columnFilters.length > 0 || !!globalFilter;
+  const versions = useMemo(() => versionOptions(rows), [rows]);
+  const filter = (id: FilterColumn, label: string, options: FilterOption[]) => (
+    <MultiSelectFilter
+      label={label}
+      options={withPicked(options, picked(id))}
+      value={picked(id)}
+      onChange={pick(id)}
+      counts={counts(id)}
+    />
+  );
+
   return (
-    <>
-      <MultiSelectFilter
-        label={Messages.filters.health}
-        options={withPicked(HEALTH_OPTIONS, picked('health'))}
-        value={picked('health')}
-        onChange={pick('health')}
-      />
-      <MultiSelectFilter
-        label={Messages.filters.type}
-        options={withPicked(TYPE_OPTIONS, picked('type'))}
-        value={picked('type')}
-        onChange={pick('type')}
-      />
-      <MultiSelectFilter
-        label={Messages.filters.environment}
-        options={withPicked(environments, picked('env_name'))}
-        value={picked('env_name')}
-        onChange={pick('env_name')}
-      />
-      {filtered && (
-        <>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            data-testid="om-cluster-match-count"
-          >
-            {Messages.filters.matchCount(
-              table.getFilteredRowModel().rows.length,
-              rows.length
-            )}
-          </Typography>
+    <Paper variant="outlined" sx={{ p: 1.5, width: '100%' }}>
+      <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
+        <TextField
+          size="small"
+          placeholder={`${Messages.search}…`}
+          value={search}
+          onChange={(event) => table.setGlobalFilter(event.target.value)}
+          sx={{ minWidth: 240 }}
+          slotProps={{
+            htmlInput: { 'aria-label': Messages.search },
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+              endAdornment: search ? (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    edge="end"
+                    aria-label={Messages.clearSearch}
+                    onClick={() => table.setGlobalFilter('')}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </InputAdornment>
+              ) : undefined,
+            },
+          }}
+        />
+        {filter('health', Messages.filters.health, HEALTH_OPTIONS)}
+        {filter('type', Messages.filters.type, TYPE_OPTIONS)}
+        {filter('env_name', Messages.filters.environment, environments)}
+        {filter('versions', Messages.filters.version, versions)}
+        {(columnFilters.length > 0 || !!search) && (
           <Button
             size="small"
             onClick={() => {
@@ -104,8 +141,8 @@ export const ClusterFilterBar = ({
           >
             {Messages.filters.clear}
           </Button>
-        </>
-      )}
-    </>
+        )}
+      </Stack>
+    </Paper>
   );
 };

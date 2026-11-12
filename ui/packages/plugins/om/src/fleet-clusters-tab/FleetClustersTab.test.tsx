@@ -17,6 +17,7 @@
 
 import {
   act,
+  cleanup,
   fireEvent,
   render,
   screen,
@@ -28,6 +29,9 @@ import {
   RouterProvider,
   createMemoryRouter,
 } from 'react-router-dom';
+import type { ReactNode } from 'react';
+import { hexToRgb } from '@mui/material/styles';
+import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FLEET_NOT_COLLECTED, OPERATIONS_DOC_URL } from '../constants';
 import { FleetClustersTab } from './FleetClustersTab';
@@ -44,11 +48,19 @@ vi.mock('../inventoryHooks', () => ({
   useLastScanFinishedAt: () => ({ status: 'ready', finishedAt: null }),
 }));
 
+/** The app's theme, which peak-ui's status icons read their colours from. */
+const Theme = ({ children }: { children: ReactNode }) => (
+  <ThemeContextProvider themeOptions={pmmThemeOptions}>
+    {children}
+  </ThemeContextProvider>
+);
+
 const renderPage = () =>
   render(
     <MemoryRouter>
       <FleetClustersTab />
-    </MemoryRouter>
+    </MemoryRouter>,
+    { wrapper: Theme }
   );
 
 const clusterRows = () =>
@@ -69,6 +81,15 @@ const memberRows = () =>
     );
 
 const groupHeaders = () => screen.queryAllByTestId('om-cluster-group');
+
+/** Each group header's name and cluster count, as "name: count". */
+const groupSummaries = () =>
+  groupHeaders().map(
+    (header) =>
+      `${within(header).getByRole('heading').textContent}: ${
+        within(header).getByTestId('om-cluster-group-count').textContent
+      }`
+  );
 
 /** Turn a hidden column on from the chooser, the way a reader would. */
 const showColumn = (name: string) => {
@@ -351,23 +372,13 @@ describe('FleetClustersTab', () => {
   });
 
   describe('counts carry no status colour (Pedro, 2026-10-06 and 2026-10-07)', () => {
-    // MUI's default palette, which these tests render under.
-    const RED = 'rgb(211, 47, 47)';
-    const GREEN = 'rgb(46, 125, 50)';
+    const { error, success } = pmmThemeOptions('light').palette as Record<
+      'error' | 'success',
+      { main: string }
+    >;
+    const RED = hexToRgb(error.main);
+    const GREEN = hexToRgb(success.main);
     const colourOf = (element: HTMLElement) => getComputedStyle(element).color;
-    // The number is in a <strong> of its own, so match the line it sits in.
-    const line = (text: string) =>
-      screen.getAllByText((_, element) => element?.textContent === text)[0];
-
-    it('keeps "up" neutral on the summary lines, and "down" red only above zero', () => {
-      renderPage();
-
-      for (const up of screen.getAllByText(/\bup$/)) {
-        expect([RED, GREEN]).not.toContain(colourOf(up));
-      }
-      expect(colourOf(line('1 down'))).toBe(RED);
-      expect(colourOf(line('0 down'))).not.toBe(RED);
-    });
 
     it("states a cluster's members as up out of total, in plain text", () => {
       useOmTopology.mockReturnValue({
@@ -399,19 +410,6 @@ describe('FleetClustersTab', () => {
         expect([RED, GREEN]).not.toContain(colourOf(screen.getByText(text)));
       }
     });
-
-    it('marks a group header "down" red only above zero', () => {
-      useOmTopology.mockReturnValue({
-        data: twoEnvironments(),
-        isPending: false,
-        isError: false,
-      });
-      renderPage();
-
-      const [production] = groupHeaders();
-      expect(colourOf(within(production).getByText('down'))).toBe(RED);
-      expect(colourOf(within(production).getByText('up'))).not.toBe(RED);
-    });
   });
 
   describe('one table, grouped by a visible control (PMM-15712)', () => {
@@ -430,16 +428,14 @@ describe('FleetClustersTab', () => {
       expect(
         screen.getByRole('combobox', { name: 'Group by' })
       ).toHaveTextContent('Environment');
-      const [production, unnamed] = groupHeaders();
-      expect(production).toHaveTextContent('production');
-      expect(production).toHaveTextContent(
-        /2 clusters.*6 services.*5 up.*1 down/
-      );
-      expect(unnamed).toHaveTextContent('Unassigned environment');
-      // The grouped column does not repeat on every row.
+      expect(groupSummaries()).toEqual([
+        'production: 2',
+        'Unassigned environment: 2',
+      ]);
+      // The grouped column keeps its place, as in the design.
       expect(
-        screen.queryByRole('columnheader', { name: /^Environment/ })
-      ).toBeNull();
+        screen.getByRole('columnheader', { name: /^Environment/ })
+      ).toBeInTheDocument();
     });
 
     it('keeps an environment named like the fallback apart from the unnamed one', () => {
@@ -461,14 +457,12 @@ describe('FleetClustersTab', () => {
       });
       renderPage();
 
-      const headers = groupHeaders();
-      expect(headers).toHaveLength(3);
-      expect(headers[1]).toHaveTextContent(
-        /Unassigned environment.*2 clusters/
-      );
-      expect(headers[2]).toHaveTextContent(
-        /Unassigned environment.*1 cluster(?!s)/
-      );
+      // Named ones alphabetically, the unnamed one last.
+      expect(groupSummaries()).toEqual([
+        'production: 2',
+        'Unassigned environment: 1',
+        'Unassigned environment: 2',
+      ]);
     });
 
     it('leads each group with its down or degraded cluster', () => {
@@ -498,13 +492,12 @@ describe('FleetClustersTab', () => {
     it('regroups by health, worst first, and flattens on None', () => {
       renderPage();
 
-      groupBy('Health');
-      expect(
-        groupHeaders().map(
-          (header) =>
-            within(header).getByTestId('om-cluster-health').textContent
-        )
-      ).toEqual(['Down', 'Degraded', 'Healthy']);
+      groupBy('Health status');
+      expect(groupSummaries()).toEqual([
+        'Down: 1',
+        'Degraded: 1',
+        'Healthy: 2',
+      ]);
       expect(
         screen.getByRole('columnheader', { name: /^Environment/ })
       ).toBeInTheDocument();
@@ -555,7 +548,7 @@ describe('FleetClustersTab', () => {
 
     it('reopens grouped as the reader left it, e.g. after a tab switch', () => {
       const { unmount } = renderPage();
-      groupBy('Health');
+      groupBy('Health status');
       unmount();
 
       renderPage();
@@ -563,12 +556,11 @@ describe('FleetClustersTab', () => {
       expect(
         screen.getByRole('combobox', { name: 'Group by' })
       ).toHaveTextContent('Health');
-      expect(
-        groupHeaders().map(
-          (header) =>
-            within(header).getByTestId('om-cluster-health').textContent
-        )
-      ).toEqual(['Down', 'Degraded', 'Healthy']);
+      expect(groupSummaries()).toEqual([
+        'Down: 1',
+        'Degraded: 1',
+        'Healthy: 2',
+      ]);
     });
 
     it('opens by environment when the stored grouping is not an option', () => {
@@ -597,7 +589,7 @@ describe('FleetClustersTab', () => {
         [{ path: '/fleet', element: <FleetClustersTab /> }],
         { initialEntries: [url] }
       );
-      render(<RouterProvider router={router} />);
+      render(<RouterProvider router={router} />, { wrapper: Theme });
       return router;
     };
 
@@ -606,13 +598,18 @@ describe('FleetClustersTab', () => {
       encodeURIComponent(JSON.stringify(values));
 
     const search = () =>
-      screen.getByRole('textbox', { name: 'Search clusters' });
+      screen.getByRole('textbox', { name: 'Filter clusters by name' });
 
     const pick = (filter: string, ...options: string[]) => {
       fireEvent.mouseDown(screen.getByRole('combobox', { name: filter }));
       const listbox = screen.getByRole('listbox');
       for (const option of options) {
-        fireEvent.click(within(listbox).getByRole('option', { name: option }));
+        // An option's name ends in its count: "Down · 1".
+        fireEvent.click(
+          within(listbox).getByRole('option', {
+            name: new RegExp(`^${option} · \\d+$`),
+          })
+        );
       }
       fireEvent.keyDown(listbox, { key: 'Escape' });
     };
@@ -753,7 +750,7 @@ describe('FleetClustersTab', () => {
         screen.getByText('No cluster matches the search and filters.')
       ).toBeInTheDocument();
 
-      fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Clear all' }));
 
       expect(clusterNames()).toHaveLength(4);
       expect(search()).toHaveValue('');
@@ -813,7 +810,7 @@ describe('FleetClustersTab', () => {
     it('keeps Group by out of the URL and as it was', async () => {
       const router = renderAt('/fleet');
 
-      groupBy('Health');
+      groupBy('Health status');
       pick('Environment', 'production');
 
       await waitFor(() =>
@@ -823,6 +820,170 @@ describe('FleetClustersTab', () => {
       expect(
         screen.getByRole('combobox', { name: 'Group by' })
       ).toHaveTextContent('Health');
+    });
+
+    describe('filter card and Group by bar (PMM-15878)', () => {
+      /** Three clusters, one of each type, on two versions and a mix of them. */
+      const threeTypes = () =>
+        topology([
+          {
+            env_name: 'production',
+            clusters: [
+              cluster({
+                name: 'standalone',
+                type: 'CLUSTER_TYPE_STANDALONE',
+                services: [
+                  service({ service_name: 's-1', version: '7.0.9-1' }),
+                  service({ service_name: 's-2', version: '8.0.4-1' }),
+                ],
+              }),
+              cluster({
+                name: 'replica',
+                services: [
+                  service({ service_name: 'r-1', version: '7.0.9-1' }),
+                ],
+              }),
+              cluster({
+                name: 'sharded',
+                type: 'CLUSTER_TYPE_SHARDED',
+                services: [
+                  service({ service_name: 'h-1', version: '8.0.4-1' }),
+                ],
+              }),
+            ],
+          },
+        ]);
+
+      const optionNames = (filter: string) => {
+        fireEvent.mouseDown(screen.getByRole('combobox', { name: filter }));
+        const names = within(screen.getByRole('listbox'))
+          .getAllByRole('option')
+          .map((option) => option.textContent);
+        fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Escape' });
+        return names;
+      };
+
+      it('groups by environment when there are several, else by health status', () => {
+        renderAt('/fleet');
+        expect(
+          screen.getByRole('combobox', { name: 'Group by' })
+        ).toHaveTextContent('Environment');
+        cleanup();
+        sessionStorage.clear();
+
+        useOmTopology.mockReturnValue({
+          data: threeTypes(),
+          isPending: false,
+          isError: false,
+        });
+        renderAt('/fleet');
+        expect(
+          screen.getByRole('combobox', { name: 'Group by' })
+        ).toHaveTextContent('Health status');
+      });
+
+      it('orders type groups sharded first, and version groups newest first with the mixed last', () => {
+        useOmTopology.mockReturnValue({
+          data: threeTypes(),
+          isPending: false,
+          isError: false,
+        });
+        renderAt('/fleet');
+
+        groupBy('Type');
+        expect(groupSummaries()).toEqual([
+          'Sharded: 1',
+          'Replica set: 1',
+          'Standalone: 1',
+        ]);
+
+        groupBy('Version');
+        expect(groupSummaries()).toEqual([
+          '8.0.4-1: 1',
+          '7.0.9-1: 1',
+          'Mixed versions: 1',
+        ]);
+      });
+
+      it('filters by version, a mixed cluster matching each of its versions', async () => {
+        useOmTopology.mockReturnValue({
+          data: threeTypes(),
+          isPending: false,
+          isError: false,
+        });
+        const router = renderAt('/fleet');
+
+        expect(optionNames('Version')).toEqual(['8.0.4-1 · 2', '7.0.9-1 · 2']);
+        pick('Version', '8.0.4-1');
+
+        expect(
+          clusterRows().map((row) =>
+            row.textContent?.includes('sharded') ? 'sharded' : 'standalone'
+          )
+        ).toEqual(['sharded', 'standalone']);
+        await waitFor(() =>
+          expect(query(router).get('clusters.f.versions')).toBe('["8.0.4-1"]')
+        );
+      });
+
+      it('counts each option under the other filters, a zero kept to pick', () => {
+        renderAt('/fleet');
+
+        expect(optionNames('Health')).toEqual([
+          'Down · 1',
+          'Degraded · 1',
+          'Unknown · 0',
+          'Healthy · 2',
+        ]);
+        pick('Environment', 'production');
+        expect(optionNames('Health')).toEqual([
+          'Down · 0',
+          'Degraded · 1',
+          'Unknown · 0',
+          'Healthy · 1',
+        ]);
+        // Its own pick does not narrow its counts.
+        pick('Health', 'Degraded');
+        expect(optionNames('Health')).toEqual([
+          'Down · 0',
+          'Degraded · 1',
+          'Unknown · 0',
+          'Healthy · 1',
+        ]);
+      });
+
+      it('offers Clear all only while a search or filter is on', () => {
+        renderAt('/fleet');
+        expect(screen.queryByRole('button', { name: 'Clear all' })).toBeNull();
+
+        fireEvent.change(search(), { target: { value: 'a' } });
+
+        expect(
+          screen.getByRole('button', { name: 'Clear all' })
+        ).toBeInTheDocument();
+      });
+
+      it('counts the groups and the matching clusters, and says how fresh they are', () => {
+        useOmTopology.mockReturnValue({
+          data: twoEnvironments(),
+          isPending: false,
+          isError: false,
+          dataUpdatedAt: Date.now() - 5000,
+        });
+        renderAt('/fleet');
+
+        expect(screen.getByText(/^2 groups ·/)).toHaveTextContent(
+          '2 groups · 4 clusters'
+        );
+        expect(screen.getByTestId('om-cluster-refreshed')).toHaveTextContent(
+          'Refreshed 5s ago'
+        );
+
+        pick('Health', 'Down');
+        expect(screen.getByText(/^1 group ·/)).toHaveTextContent(
+          '1 group · 1 of 4 clusters'
+        );
+      });
     });
   });
 

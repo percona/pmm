@@ -17,10 +17,15 @@
 
 import type { NO_GROUPING } from '../components/GroupBySelect';
 
-export type ClusterGrouping = 'env_name' | 'health' | typeof NO_GROUPING;
+export type ClusterGrouping =
+  | 'health'
+  | 'env_name'
+  | 'type'
+  | 'versions'
+  | typeof NO_GROUPING;
 
 /** A grouping that names a column, so not "none". */
 export type GroupingColumn = Exclude<ClusterGrouping, typeof NO_GROUPING>;
 
 /** The columns the toolbar filters drive. */
-export type FilterColumn = 'health' | 'type' | 'env_name';
+export type FilterColumn = 'health' | 'type' | 'env_name' | 'versions';

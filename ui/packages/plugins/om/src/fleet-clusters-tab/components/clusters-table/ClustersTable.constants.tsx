@@ -15,6 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import type { ReactNode } from 'react';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -33,6 +34,7 @@ import { Messages } from '../../FleetClustersTab.messages';
 import {
   GROUP_VALUE,
   anyOf,
+  anyOfIncludes,
   compareVersionLists,
   describeRoles,
   environmentLabel,
@@ -41,6 +43,21 @@ import {
 import { ClusterVersionCell } from '../cluster-version-cell';
 
 const { columns, columnTooltips } = Messages;
+
+export const DEFAULT_COLUMN: Partial<MRT_ColumnDef<OmClusterRow>> = {
+  enableGlobalFilter: false,
+  // The group header names the group; its row repeats it nowhere else.
+  GroupedCell: () => null,
+  // TanStack blanks a grouped column's cells on the cluster rows; draw them anyway.
+  PlaceholderCell: ({ cell, column, row, table }) =>
+    column.columnDef.Cell?.({
+      cell,
+      column,
+      row,
+      table,
+      renderedCellValue: cell.renderValue() as ReactNode,
+    }) ?? (cell.renderValue() as ReactNode),
+};
 
 export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
   {
@@ -78,11 +95,10 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     ),
   },
   {
-    accessorFn: (row) => typeLabel(row),
+    accessorFn: GROUP_VALUE.type,
     id: 'type',
     header: columns.type,
     size: 120,
-    sortUndefined: 'last',
     filterFn: anyOf((row) => TYPE_FILTER_VALUE[row.type]),
     Cell: ({ row: { original } }) =>
       typeLabel(original) ?? <Unavailable reason="not_applicable" />,
@@ -121,14 +137,16 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     size: 130,
   },
   {
-    accessorFn: (row) => row.versions.join(', ') || undefined,
+    accessorFn: GROUP_VALUE.versions,
     id: 'versions',
     header: columns.versions,
     size: 130,
-    sortUndefined: 'last',
+    filterFn: anyOfIncludes((row) => row.versions),
     // As versions, not strings: 7.0.9-1 is older than 7.0.24-13.
-    sortingFn: (a, b) =>
-      compareVersionLists(a.original.versions, b.original.versions),
+    // A cluster with no version known goes after the rest.
+    sortingFn: ({ original: a }, { original: b }) =>
+      Number(!a.versions.length) - Number(!b.versions.length) ||
+      compareVersionLists(a.versions, b.versions),
     Cell: ({ row: { original } }) => <ClusterVersionCell cluster={original} />,
   },
   {

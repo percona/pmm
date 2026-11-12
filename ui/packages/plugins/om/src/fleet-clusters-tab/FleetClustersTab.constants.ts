@@ -31,12 +31,28 @@ export const CLUSTERS_TABLE_NAME = 'om-fleet-clusters';
 
 export const GROUPING_STORAGE_KEY = 'om.fleet.clusters.grouping';
 
-export const DEFAULT_GROUPING: ClusterGrouping = 'env_name';
+const GROUPINGS: ClusterGrouping[] = [
+  'health',
+  'env_name',
+  'type',
+  'versions',
+  NO_GROUPING,
+];
 
-export const GROUP_BY_OPTIONS: GroupByOption[] = [
-  { value: 'env_name', label: Messages.groupBy.env_name },
-  { value: 'health', label: Messages.groupBy.health },
-  { value: NO_GROUPING, label: Messages.groupBy.none },
+export const GROUP_BY_OPTIONS: GroupByOption[] = GROUPINGS.map((value) => ({
+  value,
+  label: Messages.groupBy[value],
+}));
+
+/** Version groups' values for a cluster on several versions, or on none known. */
+export const MIXED_VERSIONS = '(mixed)';
+export const UNKNOWN_VERSION = '(unknown)';
+
+/** Type groups lead with the cluster that has the most moving parts. */
+export const TYPE_GROUP_ORDER: OmClusterType[] = [
+  'CLUSTER_TYPE_SHARDED',
+  'CLUSTER_TYPE_REPLICA_SET',
+  'CLUSTER_TYPE_STANDALONE',
 ];
 
 /** Hidden to fit 1440px with the nav open; all of them are a click away in the chooser. */
@@ -89,5 +105,4 @@ export const URL_STATE: TableUrlStateOptions = {
   paramPrefix: 'clusters',
   defaults: { sorting: DEFAULT_SORTING },
   sync: { pagination: false },
-  initialShowGlobalFilter: true,
 };

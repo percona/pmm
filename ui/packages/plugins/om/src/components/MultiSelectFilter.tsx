@@ -15,13 +15,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {
-  Checkbox,
-  ListItemText,
-  MenuItem,
-  TextField,
-  type SelectChangeEvent,
-} from '@mui/material';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import type { SelectChangeEvent } from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
 
 export interface FilterOption {
   value: string;
@@ -37,11 +35,14 @@ export const MultiSelectFilter = ({
   options,
   value,
   onChange,
+  counts,
 }: {
   label: string;
   options: FilterOption[];
   value: string[];
   onChange: (value: string[]) => void;
+  /** Rows each option would match under the other filters; a zero stays pickable, greyed. */
+  counts?: Record<string, number>;
 }) => {
   const labelOf = (selected: string) =>
     options.find((option) => option.value === selected)?.label ?? selected;
@@ -74,16 +75,26 @@ export const MultiSelectFilter = ({
       }}
       sx={{ minWidth: 150 }}
     >
-      {options.map((option) => (
-        <MenuItem key={option.value} value={option.value} dense>
-          <Checkbox
-            size="small"
-            checked={value.includes(option.value)}
-            sx={{ p: 0, mr: 1 }}
-          />
-          <ListItemText primary={option.label} />
-        </MenuItem>
-      ))}
+      {options.map((option) => {
+        const count = counts && (counts[option.value] ?? 0);
+        return (
+          <MenuItem key={option.value} value={option.value} dense>
+            <Checkbox
+              size="small"
+              checked={value.includes(option.value)}
+              sx={{ p: 0, mr: 1 }}
+            />
+            <ListItemText
+              primary={
+                count === undefined
+                  ? option.label
+                  : `${option.label} · ${count}`
+              }
+              sx={count === 0 ? { color: 'text.disabled' } : undefined}
+            />
+          </MenuItem>
+        );
+      })}
     </TextField>
   );
 };

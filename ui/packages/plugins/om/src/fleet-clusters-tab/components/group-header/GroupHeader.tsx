@@ -22,12 +22,12 @@ import {
   type MRT_Row,
   type MRT_TableInstance,
 } from 'material-react-table';
-import { ClusterHealthBadge } from '../../../components/HealthBadge';
-import { pluralize } from '../../../format';
 import type { OmClusterRow } from '../../../types';
-import type { ClusterGrouping } from '../../FleetClustersTab.types';
-import { environmentLabel } from '../../FleetClustersTab.utils';
+import type { GroupingColumn } from '../../FleetClustersTab.types';
+import { groupLabel } from '../../FleetClustersTab.utils';
+import { ClusterHealthIcon } from '../cluster-health-icon';
 
+/** A group's name and how many of the matching clusters it holds. */
 export const GroupHeader = ({
   row,
   table,
@@ -37,53 +37,29 @@ export const GroupHeader = ({
   row: MRT_Row<OmClusterRow>;
   table: MRT_TableInstance<OmClusterRow>;
   staticRowIndex?: number;
-  grouping: ClusterGrouping;
-}) => {
-  const clusters = row.getLeafRows().map((leaf) => leaf.original);
-  const sum = (field: 'total_services' | 'up_services' | 'down_services') =>
-    clusters.reduce((total, cluster) => total + cluster[field], 0);
-  const services = sum('total_services');
-  const down = sum('down_services');
-
-  return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      gap={2}
-      // Its own width, not the expand column's, or the counts collapse to nothing.
-      sx={{ width: 'max-content' }}
-      data-testid="om-cluster-group"
+  grouping: GroupingColumn;
+}) => (
+  <Stack
+    direction="row"
+    alignItems="center"
+    gap={1}
+    // Its own width, not the expand column's, or the label collapses to nothing.
+    sx={{ width: 'max-content' }}
+    data-testid="om-cluster-group"
+  >
+    <MRT_ExpandButton row={row} table={table} staticRowIndex={staticRowIndex} />
+    {grouping === 'health' && (
+      <ClusterHealthIcon health={row.original.health} />
+    )}
+    <Typography variant="subtitle2" component="h2">
+      {groupLabel(row.original, grouping)}
+    </Typography>
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      data-testid="om-cluster-group-count"
     >
-      <Stack direction="row" alignItems="center" gap={0.5}>
-        <MRT_ExpandButton
-          row={row}
-          table={table}
-          staticRowIndex={staticRowIndex}
-        />
-        {grouping === 'health' ? (
-          <ClusterHealthBadge health={row.original.health} />
-        ) : (
-          <Typography variant="subtitle2" component="h2">
-            {environmentLabel(row.original)}
-          </Typography>
-        )}
-      </Stack>
-      <Typography variant="body2" color="text.secondary">
-        <strong>{clusters.length}</strong>{' '}
-        {pluralize(clusters.length, 'cluster')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        <strong>{services}</strong> {pluralize(services, 'service')}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        <strong>{sum('up_services')}</strong> up
-      </Typography>
-      <Typography
-        variant="body2"
-        color={down ? 'error.main' : 'text.secondary'}
-      >
-        <strong>{down}</strong> down
-      </Typography>
-    </Stack>
-  );
-};
+      {row.getLeafRows().length}
+    </Typography>
+  </Stack>
+);
