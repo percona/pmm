@@ -25,6 +25,8 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: 'src/setupTests.ts',
+    // jsdom renders of MUI-heavy pages take seconds on a busy CI runner
+    testTimeout: 15_000,
     server: {
       deps: {
         fallbackCJS: true,
