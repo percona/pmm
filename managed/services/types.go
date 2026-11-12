@@ -72,9 +72,8 @@ func (t *Target) Copy() Target {
 
 // CheckResult contains the output from the check file and other information.
 type CheckResult struct {
-	CheckName string
-	Category  string
-	// UserDefined is true for results of user-authored checks.
+	CheckName   string
+	Category    string
 	UserDefined bool
 	Target      Target
 	Result      check.Result
