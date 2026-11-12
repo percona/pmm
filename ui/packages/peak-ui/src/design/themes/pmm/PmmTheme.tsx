@@ -4,7 +4,11 @@ import { mergeThemeOptions } from '../../merge-theme-options';
 import { iconButtonClasses } from '@mui/material/IconButton';
 import { listItemIconClasses } from '@mui/material/ListItemIcon';
 import { listItemButtonClasses } from '@mui/material/ListItemButton';
-import baseThemeOptions, { primitives, semanticTokensLight, semanticTokensDark } from '../base';
+import baseThemeOptions, {
+  primitives,
+  semanticTokensLight,
+  semanticTokensDark,
+} from '../base';
 
 // PMM Primary color tokens
 export const pmmPrimaryLight = {

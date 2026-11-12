@@ -13,7 +13,10 @@ const preview: Preview = {
         globals: { mode, theme: themeName },
       } = context;
 
-      const theme = useMemo(() => createTheme(getThemeOptions(themeName)(mode)), [mode, themeName]);
+      const theme = useMemo(
+        () => createTheme(getThemeOptions(themeName)(mode)),
+        [mode, themeName]
+      );
 
       const defaultBg = theme.palette.background.default;
       document.body.style.backgroundColor = defaultBg;
@@ -27,9 +30,16 @@ const preview: Preview = {
 
       if (context.viewMode === 'docs') {
         const canvasSurface =
-          (context.parameters?.canvasSurface as 'default' | 'paper' | undefined) ?? 'default';
+          (context.parameters?.canvasSurface as
+            | 'default'
+            | 'paper'
+            | undefined) ?? 'default';
         const canvasBg = theme.palette.background[canvasSurface] ?? defaultBg;
-        return <div style={{ backgroundColor: canvasBg, padding: '2rem' }}>{content}</div>;
+        return (
+          <div style={{ backgroundColor: canvasBg, padding: '2rem' }}>
+            {content}
+          </div>
+        );
       }
 
       return content;

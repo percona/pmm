@@ -29,7 +29,9 @@ describe('tableState.utils', () => {
   });
 
   it('stableDependencyKey does not throw for circular additionalState values', () => {
-    const circular: Record<string, unknown> = { rowSelection: { 'srv-001': true } };
+    const circular: Record<string, unknown> = {
+      rowSelection: { 'srv-001': true },
+    };
     circular.self = circular;
 
     expect(() => stableDependencyKey(circular)).not.toThrow();
@@ -37,7 +39,9 @@ describe('tableState.utils', () => {
   });
 
   it('stableDependencyKey is invariant to object key order', () => {
-    expect(stableDependencyKey({ a: 1, b: 2 })).toBe(stableDependencyKey({ b: 2, a: 1 }));
+    expect(stableDependencyKey({ a: 1, b: 2 })).toBe(
+      stableDependencyKey({ b: 2, a: 1 })
+    );
   });
 
   it('cloneColumnFilters clones range filter value tuples', () => {

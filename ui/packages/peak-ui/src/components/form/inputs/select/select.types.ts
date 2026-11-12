@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import { FormControlProps, SelectProps } from '@mui/material';
-import { Control, FieldPath, FieldValues, UseControllerProps } from 'react-hook-form';
+import {
+  Control,
+  FieldPath,
+  FieldValues,
+  UseControllerProps,
+} from 'react-hook-form';
 
 export type SelectInputProps<T extends FieldValues = FieldValues> = {
   /** react-hook-form control; only needed when the input sits outside a `FormProvider`. */

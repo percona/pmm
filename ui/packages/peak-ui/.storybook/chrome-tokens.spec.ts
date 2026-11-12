@@ -25,10 +25,18 @@ describe('Storybook chrome tokens', () => {
     expect(CHROME.textSecondary).toBe(semanticTokensLight.text.secondary);
     expect(CHROME.textPrimaryDark).toBe(semanticTokensDark.text.primary);
 
-    expect(CHROME.surfaceElevation0).toBe(semanticTokensLight.surfaces.elevation0);
-    expect(CHROME.surfaceElevation1).toBe(semanticTokensLight.surfaces.elevation1);
-    expect(CHROME.surfaceElevation0Dark).toBe(semanticTokensDark.surfaces.elevation0);
-    expect(CHROME.surfaceElevation1Dark).toBe(semanticTokensDark.surfaces.elevation1);
+    expect(CHROME.surfaceElevation0).toBe(
+      semanticTokensLight.surfaces.elevation0
+    );
+    expect(CHROME.surfaceElevation1).toBe(
+      semanticTokensLight.surfaces.elevation1
+    );
+    expect(CHROME.surfaceElevation0Dark).toBe(
+      semanticTokensDark.surfaces.elevation0
+    );
+    expect(CHROME.surfaceElevation1Dark).toBe(
+      semanticTokensDark.surfaces.elevation1
+    );
 
     expect(CHROME.contour).toBe(semanticTokensLight.lines.contour);
     expect(CHROME.divider).toBe(semanticTokensLight.lines.divider);
@@ -43,16 +51,25 @@ describe('Storybook chrome tokens', () => {
   // Asserting the baked-in hexes keeps them honest instead.
   it('keeps the header logos on brand token colors', () => {
     expect(colorsIn(read('logo-peak-ui.svg'))).toEqual(
-      new Set([primitives.primary.purple[500], primitives.primary.black[950]]),
+      new Set([primitives.primary.purple[500], primitives.primary.black[950]])
     );
     expect(colorsIn(read('logo-peak-ui-dark.svg'))).toEqual(
-      new Set([primitives.primary.purple[300], primitives.primary.black[50]]),
+      new Set([primitives.primary.purple[300], primitives.primary.black[50]])
     );
-    expect(colorsIn(read('favicon.svg'))).toEqual(new Set([primitives.primary.purple[500]]));
+    expect(colorsIn(read('favicon.svg'))).toEqual(
+      new Set([primitives.primary.purple[500]])
+    );
   });
 
   it('has no pre-rebrand colors left in the chrome stylesheets', () => {
-    const legacy = [/#2C323E/i, /#FBFBFB/i, /#029CFD/i, /#2CBEA2/i, /rgba\(38, 85, 115/, /rgba\(44, 50, 62/];
+    const legacy = [
+      /#2C323E/i,
+      /#FBFBFB/i,
+      /#029CFD/i,
+      /#2CBEA2/i,
+      /rgba\(38, 85, 115/,
+      /rgba\(44, 50, 62/,
+    ];
     for (const file of ['manager-head.html', 'preview-head.html']) {
       const css = readFileSync(join(__dirname, file), 'utf8');
       for (const pattern of legacy) {

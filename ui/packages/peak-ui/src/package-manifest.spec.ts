@@ -28,7 +28,9 @@ describe('published package contents', () => {
 // Drift guards: hand-written guides must not contradict package.json or the public entry point.
 describe('guides stay in sync with the package', () => {
   it('README install command matches peerDependencies', () => {
-    const block = read('README.md').match(/```bash\n(pnpm add [\s\S]*?)```/)?.[1];
+    const block = read('README.md').match(
+      /```bash\n(pnpm add [\s\S]*?)```/
+    )?.[1];
     expect(block, 'README has a `pnpm add` install block').toBeDefined();
     const listed = block!
       .replace(/\\\n/g, ' ')
@@ -39,7 +41,9 @@ describe('guides stay in sync with the package', () => {
   });
 
   it('AGENTS.md only names theme options that are exported', () => {
-    const names = [...read('AGENTS.md').matchAll(/`([a-z]+ThemeOptions)`/g)].map((m) => m[1]);
+    const names = [
+      ...read('AGENTS.md').matchAll(/`([a-z]+ThemeOptions)`/g),
+    ].map((m) => m[1]);
     expect(names.length).toBeGreaterThan(0);
     names.forEach((name) => expect(publicExports, name).toContain(name));
   });
@@ -64,11 +68,23 @@ describe('guides stay in sync with the package', () => {
   });
 
   it('CONTRIBUTING.md only mentions pnpm scripts that exist', () => {
-    const builtins = ['install', 'add', 'dlx', 'exec', 'run', 'pack', 'publish'];
-    const mentioned = [...read('CONTRIBUTING.md').matchAll(/\bpnpm ([a-z][a-zA-Z0-9:_-]*)/g)]
+    const builtins = [
+      'install',
+      'add',
+      'dlx',
+      'exec',
+      'run',
+      'pack',
+      'publish',
+    ];
+    const mentioned = [
+      ...read('CONTRIBUTING.md').matchAll(/\bpnpm ([a-z][a-zA-Z0-9:_-]*)/g),
+    ]
       .map((m) => m[1])
       .filter((s) => !builtins.includes(s));
     expect(mentioned.length).toBeGreaterThan(0);
-    mentioned.forEach((script) => expect(Object.keys(pkg.scripts), script).toContain(script));
+    mentioned.forEach((script) =>
+      expect(Object.keys(pkg.scripts), script).toContain(script)
+    );
   });
 });

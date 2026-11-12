@@ -3,7 +3,12 @@ import {
   Add as AddIcon,
   DeleteOutlineOutlined as DeleteOutlineOutlinedIcon,
 } from '@mui/icons-material';
-import { Control, FieldError, useFieldArray, useFormContext } from 'react-hook-form';
+import {
+  Control,
+  FieldError,
+  useFieldArray,
+  useFormContext,
+} from 'react-hook-form';
 import TextInput from '../text';
 
 interface MultipleTextInputProps {
@@ -14,7 +19,11 @@ interface MultipleTextInputProps {
   /** Called with the row count before removal after the user deletes a row. */
   onRemove?: (nrOfFields: number) => void;
   /** Called when the user edits a row, with the row count, the row index, and whether the key or the value changed. */
-  onChange?: (nrOfFields: number, index: number, field: 'key' | 'value') => void;
+  onChange?: (
+    nrOfFields: number,
+    index: number,
+    field: 'key' | 'value'
+  ) => void;
 }
 
 const MultipleTextInput = ({
@@ -41,7 +50,11 @@ const MultipleTextInput = ({
     append({ key: '', value: '' });
   };
 
-  const handleOnChange = async (value: string, index: number, field: 'key' | 'value') => {
+  const handleOnChange = async (
+    value: string,
+    index: number,
+    field: 'key' | 'value'
+  ) => {
     onChange?.(fields.length, index, field);
     return value;
   };
@@ -52,9 +65,11 @@ const MultipleTextInput = ({
   };
 
   const fieldValues = watch?.(fieldName) || [];
-  const hasEmptyFields = fieldValues.some((field: { key: string; value: string }) => {
-    return !field.key && !field.value;
-  });
+  const hasEmptyFields = fieldValues.some(
+    (field: { key: string; value: string }) => {
+      return !field.key && !field.value;
+    }
+  );
 
   return (
     <Box

@@ -15,7 +15,9 @@ describe('resolveDisplayName', () => {
   });
 
   it('returns React.Fragment for fragment elements', () => {
-    expect(resolveDisplayName(asElement(Symbol.for('react.fragment')))).toBe('React.Fragment');
+    expect(resolveDisplayName(asElement(Symbol.for('react.fragment')))).toBe(
+      'React.Fragment'
+    );
   });
 
   it('uses an explicit displayName on a forwardRef wrapper (design-system components)', () => {
@@ -80,7 +82,9 @@ describe('resolveDisplayName', () => {
   });
 
   it('strips a bundler dedupe suffix that comes from an explicit displayName', () => {
-    const Wrapped = forwardRef<HTMLDivElement>((_, ref) => createElement('div', { ref }));
+    const Wrapped = forwardRef<HTMLDivElement>((_, ref) =>
+      createElement('div', { ref })
+    );
     Wrapped.displayName = 'IconButton2';
     expect(resolveDisplayName(asElement(Wrapped))).toBe('IconButton');
   });

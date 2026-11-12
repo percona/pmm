@@ -11,11 +11,18 @@ const MODES: PaletteMode[] = ['light', 'dark'];
 const VARIANTS = ['contained', 'outlined', 'text'] as const;
 const SIZES = ['large', 'medium', 'small'] as const;
 
-const buildTheme = (name: string, mode: PaletteMode) => createTheme(getThemeOptions(name)(mode));
+const buildTheme = (name: string, mode: PaletteMode) =>
+  createTheme(getThemeOptions(name)(mode));
 
-type RootStyleFn = (props: { ownerState: ButtonProps; theme: Theme }) => Record<string, unknown>;
+type RootStyleFn = (props: {
+  ownerState: ButtonProps;
+  theme: Theme;
+}) => Record<string, unknown>;
 
-const rootStyle = (theme: Theme, ownerState: ButtonProps): Record<string, unknown> => {
+const rootStyle = (
+  theme: Theme,
+  ownerState: ButtonProps
+): Record<string, unknown> => {
   const root = theme.components?.MuiButton?.styleOverrides?.root;
   expect(typeof root).toBe('function');
   return (root as RootStyleFn)({ ownerState, theme });
@@ -26,14 +33,25 @@ const ELEVATION_2 =
 const ELEVATION_4 =
   '0px 0px 1px 0px rgba(0,0,0,0.2), 0px 4px 2px 0px rgba(0,0,0,0.16), 0px 4px 8px 0px rgba(0,0,0,0.22)';
 
-const PADDING: Record<(typeof VARIANTS)[number], Record<(typeof SIZES)[number], string>> = {
+const PADDING: Record<
+  (typeof VARIANTS)[number],
+  Record<(typeof SIZES)[number], string>
+> = {
   contained: { large: '4px 24px', medium: '5px 18px', small: '4px 9px' },
   outlined: { large: '4px 24px', medium: '5px 18px', small: '4px 9px' },
   text: { large: '0px 8px', medium: '0px 7px', small: '0px 4px' },
 };
 
-const MIN_HEIGHT: Record<(typeof SIZES)[number], number> = { large: 40, medium: 32, small: 24 };
-const FONT_SIZE: Record<(typeof SIZES)[number], number> = { large: 15, medium: 13, small: 13 };
+const MIN_HEIGHT: Record<(typeof SIZES)[number], number> = {
+  large: 40,
+  medium: 32,
+  small: 24,
+};
+const FONT_SIZE: Record<(typeof SIZES)[number], number> = {
+  large: 15,
+  medium: 13,
+  small: 13,
+};
 const LINE_HEIGHT: Record<(typeof SIZES)[number], number> = {
   large: 1.0667,
   medium: 1.077,
@@ -57,12 +75,16 @@ describe.each(THEMES)('MuiButton design contract — %s theme', (themeName) => {
 
         const hover = style['&:hover'] as Record<string, unknown>;
         const disabled = style['&.Mui-disabled'] as Record<string, unknown>;
-        const focusVisible = style['&.Mui-focusVisible'] as Record<string, unknown> | undefined;
+        const focusVisible = style['&.Mui-focusVisible'] as
+          | Record<string, unknown>
+          | undefined;
 
         // Ripples are off: outlined and text buttons show keyboard focus with
         // the primary focus tint, contained ones keep MUI's raised shadow.
         if (variant !== 'contained') {
-          expect(focusVisible?.backgroundColor).toBe(theme.palette.primary.focusVisible);
+          expect(focusVisible?.backgroundColor).toBe(
+            theme.palette.primary.focusVisible
+          );
         }
 
         if (variant === 'contained') {
@@ -93,39 +115,48 @@ describe.each(THEMES)('MuiButton design contract — %s theme', (themeName) => {
       }
     );
 
-    it.each(SIZES)('sizes and positions icons per the design kit at size %s', (size) => {
-      const iconSlot = 12;
-      const iconSize = size === 'large' ? 24 : size === 'medium' ? 20 : 16;
-      const edgePull = iconSize - iconSlot;
+    it.each(SIZES)(
+      'sizes and positions icons per the design kit at size %s',
+      (size) => {
+        const iconSlot = 12;
+        const iconSize = size === 'large' ? 24 : size === 'medium' ? 20 : 16;
+        const edgePull = iconSize - iconSlot;
 
-      for (const variant of VARIANTS) {
-        const style = rootStyle(theme, { variant, size });
-        const iconChild = (
-          style['.MuiButton-startIcon, .MuiButton-endIcon'] as Record<
+        for (const variant of VARIANTS) {
+          const style = rootStyle(theme, { variant, size });
+          const iconChild = (
+            style['.MuiButton-startIcon, .MuiButton-endIcon'] as Record<
+              string,
+              Record<string, unknown>
+            >
+          )['& > *:nth-of-type(1)'];
+          const startIcon = style['.MuiButton-startIcon'] as Record<
             string,
-            Record<string, unknown>
-          >
-        )['& > *:nth-of-type(1)'];
-        const startIcon = style['.MuiButton-startIcon'] as Record<string, unknown>;
-        const endIcon = style['.MuiButton-endIcon'] as Record<string, unknown>;
+            unknown
+          >;
+          const endIcon = style['.MuiButton-endIcon'] as Record<
+            string,
+            unknown
+          >;
 
-        expect(iconChild.fontSize).toBe(iconSize);
-        expect(iconChild.width).toBe(iconSize);
-        expect(iconChild.height).toBe(iconSize);
+          expect(iconChild.fontSize).toBe(iconSize);
+          expect(iconChild.width).toBe(iconSize);
+          expect(iconChild.height).toBe(iconSize);
 
-        if (variant === 'text') {
-          expect(startIcon.marginLeft).toBe(0);
-          expect(startIcon.marginRight).toBe(4);
-          expect(endIcon.marginLeft).toBe(4);
-          expect(endIcon.marginRight).toBe(0);
-        } else {
-          expect(startIcon.marginLeft).toBe(-edgePull);
-          expect(startIcon.marginRight).toBe(4);
-          expect(endIcon.marginLeft).toBe(4);
-          expect(endIcon.marginRight).toBe(-edgePull);
+          if (variant === 'text') {
+            expect(startIcon.marginLeft).toBe(0);
+            expect(startIcon.marginRight).toBe(4);
+            expect(endIcon.marginLeft).toBe(4);
+            expect(endIcon.marginRight).toBe(0);
+          } else {
+            expect(startIcon.marginLeft).toBe(-edgePull);
+            expect(startIcon.marginRight).toBe(4);
+            expect(endIcon.marginLeft).toBe(4);
+            expect(endIcon.marginRight).toBe(-edgePull);
+          }
         }
       }
-    });
+    );
 
     it('uses the design-kit button typography', () => {
       expect(theme.typography.button.fontWeight).toBe(600);
@@ -134,8 +165,12 @@ describe.each(THEMES)('MuiButton design contract — %s theme', (themeName) => {
     });
 
     it('disables ripples via defaultProps', () => {
-      expect(theme.components?.MuiButtonBase?.defaultProps?.disableRipple).toBe(true);
-      expect(theme.components?.MuiButton?.defaultProps?.disableTouchRipple).toBe(true);
+      expect(theme.components?.MuiButtonBase?.defaultProps?.disableRipple).toBe(
+        true
+      );
+      expect(
+        theme.components?.MuiButton?.defaultProps?.disableTouchRipple
+      ).toBe(true);
     });
 
     it.each(VARIANTS.flatMap((v) => SIZES.map((s) => [v, s] as const)))(
@@ -151,7 +186,9 @@ describe.each(THEMES)('MuiButton design contract — %s theme', (themeName) => {
         const button = getByRole('button', { name: 'Label' });
         expect(button.tagName).toBe('BUTTON');
         expect(button).toHaveClass(`MuiButton-${variant}`);
-        expect(button).toHaveClass(`MuiButton-size${size[0].toUpperCase()}${size.slice(1)}`);
+        expect(button).toHaveClass(
+          `MuiButton-size${size[0].toUpperCase()}${size.slice(1)}`
+        );
         unmount();
       }
     );
@@ -177,7 +214,9 @@ describe('SEP contained semantic colors', () => {
 
   it('base and pmm themes add no button variants', () => {
     for (const name of ['base', 'pmm']) {
-      expect(buildTheme(name, 'light').components?.MuiButton?.variants ?? []).toHaveLength(0);
+      expect(
+        buildTheme(name, 'light').components?.MuiButton?.variants ?? []
+      ).toHaveLength(0);
     }
   });
 });

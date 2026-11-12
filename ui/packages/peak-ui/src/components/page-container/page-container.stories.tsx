@@ -57,6 +57,8 @@ export const Wide: Story = {
 export const FullWidth: Story = {
   args: {
     maxWidth: 'full',
-    children: <Filler label="maxWidth = 'full' (edge to edge with side padding)" />,
+    children: (
+      <Filler label="maxWidth = 'full' (edge to edge with side padding)" />
+    ),
   },
 };

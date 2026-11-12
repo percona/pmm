@@ -27,7 +27,10 @@ const stackSx = {
   gap: '16px',
 };
 
-type ChipStoryProps = ChipProps & { withAvatar?: boolean; withDelete?: boolean };
+type ChipStoryProps = ChipProps & {
+  withAvatar?: boolean;
+  withDelete?: boolean;
+};
 
 const meta: Meta<ChipStoryProps> = {
   title: 'Data display/Chip',
@@ -126,7 +129,8 @@ const meta: Meta<ChipStoryProps> = {
     },
     sx: {
       control: false,
-      description: 'MUI System prop for style overrides. Accepts an `SxProps` object or array.',
+      description:
+        'MUI System prop for style overrides. Accepts an `SxProps` object or array.',
       table: { category: 'Advanced' },
     },
   },
@@ -181,7 +185,8 @@ export const Colors: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'All available semantic colors shown in both `filled` and `outlined` variants.',
+        story:
+          'All available semantic colors shown in both `filled` and `outlined` variants.',
       },
     },
   },
@@ -193,7 +198,13 @@ export const Colors: Story = {
             <Typography variant="overline">{variant}</Typography>
             <Box sx={rowSx}>
               {COLORS.map((color) => (
-                <Chip key={color} {...args} variant={variant} color={color} label={color} />
+                <Chip
+                  key={color}
+                  {...args}
+                  variant={variant}
+                  color={color}
+                  label={color}
+                />
               ))}
             </Box>
           </Box>
@@ -207,7 +218,8 @@ export const WithAvatar: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'The `avatar` slot accepts any ReactNode, typically an `Avatar` component.',
+        story:
+          'The `avatar` slot accepts any ReactNode, typically an `Avatar` component.',
       },
     },
   },

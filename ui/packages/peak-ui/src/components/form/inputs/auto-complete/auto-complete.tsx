@@ -1,9 +1,17 @@
-import { Autocomplete, CircularProgress, TextField, Tooltip } from '@mui/material';
+import {
+  Autocomplete,
+  CircularProgress,
+  TextField,
+  Tooltip,
+} from '@mui/material';
 import { kebabize } from '../../../../utils';
 import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { AutoCompleteInputProps } from './auto-complete.types';
 
-function AutoCompleteInput<TOption, TFieldValues extends FieldValues = FieldValues>({
+function AutoCompleteInput<
+  TOption,
+  TFieldValues extends FieldValues = FieldValues,
+>({
   name,
   control,
   controllerProps,
@@ -58,7 +66,9 @@ function AutoCompleteInput<TOption, TFieldValues extends FieldValues = FieldValu
                   ...(params.InputProps ?? {}),
                   endAdornment: (
                     <>
-                      {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                      {loading ? (
+                        <CircularProgress color="inherit" size={20} />
+                      ) : null}
                       {params.InputProps?.endAdornment}
                     </>
                   ),

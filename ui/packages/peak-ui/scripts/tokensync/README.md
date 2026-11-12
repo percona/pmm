@@ -6,10 +6,11 @@ Utility to synchronize design tokens from a Figma export (in W3C Design Tokens f
 
 1. Export all Figma variables, using the plugin "Luckino - Variables Import/Export JSON & CSS", into 1 file called `variables.json` formatted to the standard W3C Design Tokens, and place it in this folder
 2. Run the `sync.mjs` script:
-  ```bash
-    node scripts/tokensync/sync.mjs             # apply changes
-    node scripts/tokensync/sync.mjs --dry-run   # preview only
-  ```
+
+```bash
+  node scripts/tokensync/sync.mjs             # apply changes
+  node scripts/tokensync/sync.mjs --dry-run   # preview only
+```
 
 ## What the script does
 
@@ -20,7 +21,6 @@ Utility to synchronize design tokens from a Figma export (in W3C Design Tokens f
 
 ### Implemented mapping
 
-
 | **Figma JSON**                                 | **Mode**     | **Theme file target**                                    |
 | ---------------------------------------------- | ------------ | -------------------------------------------------------- |
 | `primitives.`                                  | —            | `primitives` (BaseTheme)                                 |
@@ -29,9 +29,7 @@ Utility to synchronize design tokens from a Figma export (in W3C Design Tokens f
 | `basis.primary.neutral`                        | Light / Dark | `defaultPrimaryLight` / `defaultPrimaryDark` (BaseTheme) |
 | `basis.primary.pmm`                            | Light / Dark | `pmmPrimaryLight` / `pmmPrimaryDark` (PmmTheme)          |
 
-
 ### To be mapped
-
 
 | **Variable**                    | **Value(s)**                                                        |
 | ------------------------------- | ------------------------------------------------------------------- |
@@ -43,5 +41,3 @@ Utility to synchronize design tokens from a Figma export (in W3C Design Tokens f
 | `tokens.shape.borderRadiusXl`   | `18`                                                                |
 | `tokens.shape.borderRadiusFull` | `999`                                                               |
 | `tokens.shape.borderRadius`     | `5` (alias for `borderRadiusSm`)                                    |
-
-

@@ -26,9 +26,17 @@ export const Dashed: Story = {
   render: (args) => (
     <Paper
       {...args}
-      sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, p: '10px', maxWidth: 224 }}
+      sx={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 1,
+        p: '10px',
+        maxWidth: 224,
+      }}
     >
-      <StarBorderOutlined sx={{ flexShrink: 0, my: '-1px', color: 'text.secondary' }} />
+      <StarBorderOutlined
+        sx={{ flexShrink: 0, my: '-1px', color: 'text.secondary' }}
+      />
       <Typography variant="caption" color="text.secondary">
         Click the star on apps or dashboards to add them here.
       </Typography>

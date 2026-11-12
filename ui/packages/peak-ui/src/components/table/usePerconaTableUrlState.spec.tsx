@@ -1,4 +1,10 @@
-import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { useRef, useState } from 'react';
 import { usePerconaTableUrlState } from './usePerconaTableUrlState';
@@ -10,7 +16,9 @@ function UrlStateHarness({
   initialSearch?: string;
   paramPrefix?: string;
 }) {
-  const [searchParams, setSearchParams] = useState(() => new URLSearchParams(initialSearch));
+  const [searchParams, setSearchParams] = useState(
+    () => new URLSearchParams(initialSearch)
+  );
   const { tableProps } = usePerconaTableUrlState({
     searchParams,
     setSearchParams,
@@ -22,19 +30,27 @@ function UrlStateHarness({
     <>
       <div data-testid="global-filter">{tableProps.state.globalFilter}</div>
       <div data-testid="sorting">
-        {tableProps.state.sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')}
+        {tableProps.state.sorting
+          .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
+          .join(',')}
       </div>
       <div data-testid="filters">
-        {tableProps.state.columnFilters.map((f) => `${f.id}=${f.value}`).join(',')}
+        {tableProps.state.columnFilters
+          .map((f) => `${f.id}=${f.value}`)
+          .join(',')}
       </div>
       <div data-testid="page">{tableProps.state.pagination.pageIndex}</div>
       <div data-testid="page-size">{tableProps.state.pagination.pageSize}</div>
-      <div data-testid="show-column-filters">{String(tableProps.state.showColumnFilters)}</div>
+      <div data-testid="show-column-filters">
+        {String(tableProps.state.showColumnFilters)}
+      </div>
       <div data-testid="search">{searchParams.toString()}</div>
       <button
         type="button"
         data-testid="set-filter"
-        onClick={() => tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
+        onClick={() =>
+          tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])
+        }
       >
         Filter
       </button>
@@ -49,7 +65,10 @@ function UrlStateHarness({
         type="button"
         data-testid="set-page"
         onClick={() =>
-          tableProps.onPaginationChange((prev) => ({ ...prev, pageIndex: prev.pageIndex + 1 }))
+          tableProps.onPaginationChange((prev) => ({
+            ...prev,
+            pageIndex: prev.pageIndex + 1,
+          }))
         }
       >
         Page
@@ -64,21 +83,29 @@ function UrlStateHarness({
       <button
         type="button"
         data-testid="set-range-filter"
-        onClick={() => tableProps.onColumnFiltersChange([{ id: 'cpu', value: ['10', ''] }])}
+        onClick={() =>
+          tableProps.onColumnFiltersChange([{ id: 'cpu', value: ['10', ''] }])
+        }
       >
         Range
       </button>
       <button
         type="button"
         data-testid="update-range-filter"
-        onClick={() => tableProps.onColumnFiltersChange([{ id: 'cpu', value: ['25', ''] }])}
+        onClick={() =>
+          tableProps.onColumnFiltersChange([{ id: 'cpu', value: ['25', ''] }])
+        }
       >
         Update range
       </button>
       <button
         type="button"
         data-testid="sync-from-url"
-        onClick={() => setSearchParams(new URLSearchParams('q=from-url&sort=status:asc&page=2'))}
+        onClick={() =>
+          setSearchParams(
+            new URLSearchParams('q=from-url&sort=status:asc&page=2')
+          )
+        }
       >
         Sync URL
       </button>
@@ -114,14 +141,18 @@ describe('usePerconaTableUrlState', () => {
     });
     await waitFor(() => {
       expect(screen.getByTestId('filters').textContent).toBe('group=edge');
-      expect(screen.getByTestId('search').textContent).toContain('f.group=edge');
+      expect(screen.getByTestId('search').textContent).toContain(
+        'f.group=edge'
+      );
     });
 
     await act(async () => {
       screen.getByTestId('set-sort').click();
     });
     await waitFor(() => {
-      expect(screen.getByTestId('search').textContent).toContain('sort=name%3Adesc');
+      expect(screen.getByTestId('search').textContent).toContain(
+        'sort=name%3Adesc'
+      );
     });
 
     await act(async () => {
@@ -150,7 +181,9 @@ describe('usePerconaTableUrlState', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('filters').textContent).toBe('cpu=10,');
-      expect(screen.getByTestId('search').textContent).toContain('f.cpu=%5B%2210%22%2C%22%22%5D');
+      expect(screen.getByTestId('search').textContent).toContain(
+        'f.cpu=%5B%2210%22%2C%22%22%5D'
+      );
     });
   });
 
@@ -161,7 +194,9 @@ describe('usePerconaTableUrlState', () => {
       screen.getByTestId('set-range-filter').click();
     });
     await waitFor(() => {
-      expect(screen.getByTestId('search').textContent).toContain('f.cpu=%5B%2210%22%2C%22%22%5D');
+      expect(screen.getByTestId('search').textContent).toContain(
+        'f.cpu=%5B%2210%22%2C%22%22%5D'
+      );
     });
 
     await act(async () => {
@@ -169,8 +204,12 @@ describe('usePerconaTableUrlState', () => {
     });
     await waitFor(() => {
       expect(screen.getByTestId('filters').textContent).toBe('cpu=25,');
-      expect(screen.getByTestId('search').textContent).toContain('f.cpu=%5B%2225%22%2C%22%22%5D');
-      expect(screen.getByTestId('search').textContent).not.toContain('%2210%22');
+      expect(screen.getByTestId('search').textContent).toContain(
+        'f.cpu=%5B%2225%22%2C%22%22%5D'
+      );
+      expect(screen.getByTestId('search').textContent).not.toContain(
+        '%2210%22'
+      );
     });
   });
 
@@ -190,7 +229,9 @@ describe('usePerconaTableUrlState', () => {
 
   it('still syncs external URL changes when setSearchParams ignores an internal write', async () => {
     function Harness() {
-      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams()
+      );
       const suppressNextWriteRef = useRef(false);
       const { tableProps } = usePerconaTableUrlState({
         searchParams,
@@ -213,7 +254,9 @@ describe('usePerconaTableUrlState', () => {
             data-testid="set-filter"
             onClick={() => {
               suppressNextWriteRef.current = true;
-              tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }]);
+              tableProps.onColumnFiltersChange([
+                { id: 'group', value: 'edge' },
+              ]);
             }}
           />
           <button
@@ -242,7 +285,12 @@ describe('usePerconaTableUrlState', () => {
   });
 
   it('supports paramPrefix namespacing', () => {
-    render(<UrlStateHarness initialSearch="servers.q=prod&servers.page=3" paramPrefix="servers" />);
+    render(
+      <UrlStateHarness
+        initialSearch="servers.q=prod&servers.page=3"
+        paramPrefix="servers"
+      />
+    );
 
     expect(screen.getByTestId('global-filter').textContent).toBe('prod');
     expect(screen.getByTestId('page').textContent).toBe('2');
@@ -252,25 +300,37 @@ describe('usePerconaTableUrlState', () => {
     const rowSelection = { 'srv-001': true };
 
     function Harness() {
-      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams()
+      );
       const { tableProps } = usePerconaTableUrlState({
         searchParams,
         setSearchParams,
         additionalState: { rowSelection },
       });
 
-      return <div data-testid="row-selection">{JSON.stringify(tableProps.state.rowSelection)}</div>;
+      return (
+        <div data-testid="row-selection">
+          {JSON.stringify(tableProps.state.rowSelection)}
+        </div>
+      );
     }
 
     render(<Harness />);
 
-    expect(screen.getByTestId('row-selection').textContent).toBe(JSON.stringify(rowSelection));
+    expect(screen.getByTestId('row-selection').textContent).toBe(
+      JSON.stringify(rowSelection)
+    );
   });
 
   it('keeps additionalState in tableProps.state when rowSelection updates', async () => {
     function Harness() {
-      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
-      const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams()
+      );
+      const [rowSelection, setRowSelection] = useState<Record<string, boolean>>(
+        {}
+      );
       const { tableProps } = usePerconaTableUrlState({
         searchParams,
         setSearchParams,
@@ -279,7 +339,9 @@ describe('usePerconaTableUrlState', () => {
 
       return (
         <>
-          <div data-testid="row-selection">{JSON.stringify(tableProps.state.rowSelection)}</div>
+          <div data-testid="row-selection">
+            {JSON.stringify(tableProps.state.rowSelection)}
+          </div>
           <button
             type="button"
             data-testid="select-row"
@@ -308,7 +370,9 @@ describe('usePerconaTableUrlState', () => {
 
   it('updates sorting locally without writing sort to the URL when sync.sort is false', async () => {
     function Harness() {
-      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams()
+      );
       const { tableProps } = usePerconaTableUrlState({
         searchParams,
         setSearchParams,
@@ -319,13 +383,17 @@ describe('usePerconaTableUrlState', () => {
       return (
         <>
           <div data-testid="sorting">
-            {tableProps.state.sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')}
+            {tableProps.state.sorting
+              .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
+              .join(',')}
           </div>
           <div data-testid="search">{searchParams.toString()}</div>
           <button
             type="button"
             data-testid="set-sort"
-            onClick={() => tableProps.onSortingChange([{ id: 'name', desc: true }])}
+            onClick={() =>
+              tableProps.onSortingChange([{ id: 'name', desc: true }])
+            }
           >
             Sort
           </button>
@@ -349,7 +417,9 @@ describe('usePerconaTableUrlState', () => {
     vi.useFakeTimers();
 
     function Harness() {
-      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams()
+      );
       const { tableProps } = usePerconaTableUrlState({
         searchParams,
         setSearchParams,
@@ -362,14 +432,18 @@ describe('usePerconaTableUrlState', () => {
           <button
             type="button"
             data-testid="set-filter"
-            onClick={() => tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
+            onClick={() =>
+              tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])
+            }
           >
             Filter
           </button>
           <button
             type="button"
             data-testid="set-sort"
-            onClick={() => tableProps.onSortingChange([{ id: 'name', desc: true }])}
+            onClick={() =>
+              tableProps.onSortingChange([{ id: 'name', desc: true }])
+            }
           >
             Sort
           </button>
@@ -396,7 +470,9 @@ describe('usePerconaTableUrlState', () => {
     vi.useFakeTimers();
 
     function Harness() {
-      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams()
+      );
       const { tableProps } = usePerconaTableUrlState({
         searchParams,
         setSearchParams,
@@ -409,7 +485,9 @@ describe('usePerconaTableUrlState', () => {
           <button
             type="button"
             data-testid="set-filter"
-            onClick={() => tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
+            onClick={() =>
+              tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])
+            }
           >
             Filter
           </button>
@@ -447,7 +525,9 @@ describe('usePerconaTableUrlState', () => {
 
   it('applies range filter updates when MRT mutates the previous filter array in place', async () => {
     function Harness() {
-      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams()
+      );
       const { tableProps } = usePerconaTableUrlState({
         searchParams,
         setSearchParams,
@@ -457,7 +537,9 @@ describe('usePerconaTableUrlState', () => {
       return (
         <>
           <div data-testid="filters">
-            {tableProps.state.columnFilters.map((f) => `${f.id}=${f.value}`).join(',')}
+            {tableProps.state.columnFilters
+              .map((f) => `${f.id}=${f.value}`)
+              .join(',')}
           </div>
           <button
             type="button"
@@ -510,7 +592,9 @@ describe('usePerconaTableUrlState', () => {
 
     function InlineOptionsHarness() {
       onRender();
-      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams()
+      );
 
       usePerconaTableUrlState({
         searchParams,

@@ -16,11 +16,17 @@ type StyleFn = (props: {
 
 const slotStyle = (
   theme: Theme,
-  component: 'MuiPopover' | 'MuiMenuItem' | 'MuiListItemButton' | 'MuiListSubheader',
+  component:
+    | 'MuiPopover'
+    | 'MuiMenuItem'
+    | 'MuiListItemButton'
+    | 'MuiListSubheader',
   slot: string,
   ownerState: Record<string, unknown> = {}
 ) => {
-  const style = (theme.components?.[component]?.styleOverrides as Record<string, unknown>)?.[slot];
+  const style = (
+    theme.components?.[component]?.styleOverrides as Record<string, unknown>
+  )?.[slot];
   expect(typeof style).toBe('function');
   return (style as StyleFn)({ ownerState, theme });
 };
@@ -42,7 +48,9 @@ describe.each(THEMES)('Menu design contract — %s theme', (themeName) => {
     });
 
     it('keeps a menu at least as wide as the Figma Menu', () => {
-      expect(theme.components?.MuiMenu?.styleOverrides?.paper).toEqual({ minWidth: 200 });
+      expect(theme.components?.MuiMenu?.styleOverrides?.paper).toEqual({
+        minWidth: 200,
+      });
     });
 
     it('sets 40px rows from the sm breakpoint and keeps MUI body1 labels', () => {
@@ -59,7 +67,9 @@ describe.each(THEMES)('Menu design contract — %s theme', (themeName) => {
       (component) => {
         const { primary } = theme.palette;
 
-        expect(slotStyle(theme, component, 'root', { dense: false })).toMatchObject({
+        expect(
+          slotStyle(theme, component, 'root', { dense: false })
+        ).toMatchObject({
           '&:hover': { backgroundColor: primary.hover },
           '&.Mui-focusVisible': { backgroundColor: primary.focus },
           '&.Mui-selected': { backgroundColor: primary.selected },
@@ -72,10 +82,14 @@ describe.each(THEMES)('Menu design contract — %s theme', (themeName) => {
       (component) => {
         const { primary } = theme.palette;
 
-        expect(slotStyle(theme, component, 'root', { dense: false })).toMatchObject({
+        expect(
+          slotStyle(theme, component, 'root', { dense: false })
+        ).toMatchObject({
           '&.Mui-selected': {
             backgroundColor: primary.selected,
-            '&:hover, &.Mui-focusVisible': { backgroundColor: primary.selected },
+            '&:hover, &.Mui-focusVisible': {
+              backgroundColor: primary.selected,
+            },
           },
         });
       }

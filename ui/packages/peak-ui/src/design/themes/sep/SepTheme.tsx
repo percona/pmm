@@ -4,7 +4,11 @@ import { iconButtonClasses } from '@mui/material/IconButton';
 import { listItemIconClasses } from '@mui/material/ListItemIcon';
 import { listItemButtonClasses } from '@mui/material/ListItemButton';
 
-import baseThemeOptions, { semanticTokensLight, semanticTokensDark, shape } from '../base';
+import baseThemeOptions, {
+  semanticTokensLight,
+  semanticTokensDark,
+  shape,
+} from '../base';
 
 // SEP brand colors
 const sepBrand = {
@@ -135,13 +139,22 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
       MuiButton: {
         variants: [
-          { props: { variant: 'contained', color: 'success' }, style: { color: sepBrand.white } },
-          { props: { variant: 'contained', color: 'error' }, style: { color: sepBrand.white } },
+          {
+            props: { variant: 'contained', color: 'success' },
+            style: { color: sepBrand.white },
+          },
+          {
+            props: { variant: 'contained', color: 'error' },
+            style: { color: sepBrand.white },
+          },
           {
             props: { variant: 'contained', color: 'warning' },
             style: { color: mode === 'light' ? sepBrand.white : 'initial' },
           },
-          { props: { variant: 'contained', color: 'info' }, style: { color: sepBrand.white } },
+          {
+            props: { variant: 'contained', color: 'info' },
+            style: { color: sepBrand.white },
+          },
         ],
       },
       MuiAppBar: {
@@ -208,8 +221,10 @@ const sepThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiLink: {
         styleOverrides: {
           root: {
-            color: mode === 'light' ? sepBrand.purple[600] : sepBrand.purple[200],
-            textDecorationColor: mode === 'light' ? sepBrand.purple[600] : sepBrand.purple[200],
+            color:
+              mode === 'light' ? sepBrand.purple[600] : sepBrand.purple[200],
+            textDecorationColor:
+              mode === 'light' ? sepBrand.purple[600] : sepBrand.purple[200],
             '&:hover': {
               opacity: 0.8,
             },

@@ -91,7 +91,8 @@ const meta: Meta<typeof NavItem> = {
     },
     sx: {
       control: false,
-      description: 'MUI System prop for style overrides. Accepts an `SxProps` object or array.',
+      description:
+        'MUI System prop for style overrides. Accepts an `SxProps` object or array.',
       table: { category: 'Advanced' },
     },
   },
@@ -126,7 +127,14 @@ export const WithBadge: Story = {
   args: {
     text: 'Advisors',
     icon: <MonitorHeartOutlined />,
-    badge: <Chip size="small" color="success" variant="outlined" label="New feature" />,
+    badge: (
+      <Chip
+        size="small"
+        color="success"
+        variant="outlined"
+        label="New feature"
+      />
+    ),
   },
 };
 
@@ -157,7 +165,9 @@ export const GroupWithSelectedChild: Story = {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         <NavItem text="Inventory" icon={<StorageOutlined />} hasSelectedChild />
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, pl: 4.75 }}>
+        <Box
+          sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, pl: 4.75 }}
+        >
           <NavItem text="Services" selected />
           <NavItem text="Nodes" />
         </Box>
@@ -187,9 +197,16 @@ export const AllStates: Story = {
         <NavItem
           text="Advisors"
           icon={<MonitorHeartOutlined />}
-          badge={<Chip size="small" color="info" variant="outlined" label="New" />}
+          badge={
+            <Chip size="small" color="info" variant="outlined" label="New" />
+          }
         />
-        <NavItem text="Settings" icon={<SettingsOutlined />} showDot dotColor="error" />
+        <NavItem
+          text="Settings"
+          icon={<SettingsOutlined />}
+          showDot
+          dotColor="error"
+        />
       </Box>
     );
   },

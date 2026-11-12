@@ -59,7 +59,9 @@ const CopyToClipboardButton = ({
             onClick={handleClick}
             disabled={!clipboardAvailable}
             {...buttonProps}
-            sx={mergeSx(buttonProps?.sx, { '&.Mui-disabled': { pointerEvents: 'auto' } })}
+            sx={mergeSx(buttonProps?.sx, {
+              '&.Mui-disabled': { pointerEvents: 'auto' },
+            })}
           >
             <ContentCopyOutlinedIcon sx={iconSx} />
           </IconButton>

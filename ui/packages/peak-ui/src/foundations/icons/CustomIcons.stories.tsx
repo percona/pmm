@@ -205,7 +205,8 @@ const customIcons: CustomIconEntry[] = [
     component: SupportDiagnosticsIcon,
     importName: 'SupportDiagnosticsIcon',
     designName: 'support-diagnostics',
-    keywords: 'support diagnostics toolbox troubleshoot service maintenance help',
+    keywords:
+      'support diagnostics toolbox troubleshoot service maintenance help',
   },
   {
     component: ExtensionIcon,
@@ -248,7 +249,9 @@ const CustomIconsGallery = () => {
   }, [query]);
 
   const handleCopy = (importName: string) => {
-    navigator.clipboard?.writeText(`import { ${importName} } from '@percona/peak-ui';`);
+    navigator.clipboard?.writeText(
+      `import { ${importName} } from '@percona/peak-ui';`
+    );
   };
 
   return (
@@ -304,7 +307,10 @@ const CustomIconsGallery = () => {
               <Box>
                 <Typography
                   variant="body2"
-                  sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 500 }}
+                  sx={{
+                    fontFamily: '"Roboto Mono", monospace',
+                    fontWeight: 500,
+                  }}
                   mb={1}
                 >
                   {designName}

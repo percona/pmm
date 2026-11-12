@@ -94,7 +94,8 @@ const TextArray = ({
 
               InputProps: {
                 onChange: () => {
-                  const initialFieldValue = watch?.(`${fieldName}.${index}.${fieldKey}`) || [];
+                  const initialFieldValue =
+                    watch?.(`${fieldName}.${index}.${fieldKey}`) || [];
                   defaultFields[index][fieldKey] = initialFieldValue;
                 },
                 onBlur: handleBlur

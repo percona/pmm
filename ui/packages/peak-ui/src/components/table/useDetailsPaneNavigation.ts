@@ -1,5 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface UseDetailsPaneNavigationOptions<T extends Record<string, any>> {
+export interface UseDetailsPaneNavigationOptions<
+  T extends Record<string, any>,
+> {
   /** Rows in the order the user sees them, typically `navigableRows` from `useNavigableRows`. */
   rows: T[];
   /** Row currently open in the details pane, or undefined when none is. */
@@ -34,7 +36,9 @@ export function useDetailsPaneNavigation<T extends Record<string, any>>({
   getRowId,
   onSelect,
 }: UseDetailsPaneNavigationOptions<T>): UseDetailsPaneNavigationResult {
-  const index = selected ? rows.findIndex((row) => getRowId(row) === getRowId(selected)) : -1;
+  const index = selected
+    ? rows.findIndex((row) => getRowId(row) === getRowId(selected))
+    : -1;
 
   const hasPrevious = index > 0;
   const hasNext = index >= 0 && index < rows.length - 1;

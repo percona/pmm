@@ -112,7 +112,8 @@ export const Copyable: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Set `copyable` to expose an icon button that copies the block content.',
+        story:
+          'Set `copyable` to expose an icon button that copies the block content.',
       },
     },
   },
@@ -124,7 +125,8 @@ export const CopyableWithLabel: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Combine `copyable` with `showCopyButtonText` for a labeled copy button.',
+        story:
+          'Combine `copyable` with `showCopyButtonText` for a labeled copy button.',
       },
     },
   },
@@ -167,7 +169,8 @@ export const Wrapped: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Set `wrap` so long lines wrap to the next line instead of scrolling horizontally.',
+        story:
+          'Set `wrap` so long lines wrap to the next line instead of scrolling horizontally.',
       },
     },
   },

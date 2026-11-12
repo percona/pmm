@@ -8,7 +8,9 @@ import {
 
 describe('tableUrlState.utils', () => {
   it('parses defaults from an empty query string', () => {
-    expect(parseTableUrlState(new URLSearchParams())).toEqual(DEFAULT_TABLE_STATE);
+    expect(parseTableUrlState(new URLSearchParams())).toEqual(
+      DEFAULT_TABLE_STATE
+    );
   });
 
   it('round-trips filters, sort, global filter, and pagination', () => {
@@ -35,7 +37,9 @@ describe('tableUrlState.utils', () => {
   });
 
   it('uses paramPrefix for namespaced keys', () => {
-    const params = new URLSearchParams('servers.q=prod&servers.sort=status:asc&servers.page=3');
+    const params = new URLSearchParams(
+      'servers.q=prod&servers.sort=status:asc&servers.page=3'
+    );
     const state = parseTableUrlState(params, { paramPrefix: 'servers' });
 
     expect(state.globalFilter).toBe('prod');
@@ -61,7 +65,10 @@ describe('tableUrlState.utils', () => {
   });
 
   it('omits default-equivalent values when serializing', () => {
-    const serialized = serializeTableUrlState(DEFAULT_TABLE_STATE, new URLSearchParams('keep=1'));
+    const serialized = serializeTableUrlState(
+      DEFAULT_TABLE_STATE,
+      new URLSearchParams('keep=1')
+    );
 
     expect(serialized.toString()).toBe('keep=1');
   });
@@ -69,7 +76,12 @@ describe('tableUrlState.utils', () => {
   it('respects sync flags', () => {
     const params = new URLSearchParams('q=mysql&sort=name:desc&page=2');
     const state = parseTableUrlState(params, {
-      sync: { globalFilter: false, sort: false, pagination: false, filters: true },
+      sync: {
+        globalFilter: false,
+        sort: false,
+        pagination: false,
+        filters: true,
+      },
     });
 
     expect(state).toEqual({
@@ -106,7 +118,10 @@ describe('tableUrlState.utils', () => {
 
   it('preserves range tuple length when serializing sparse arrays', () => {
     const serialized = serializeTableUrlState(
-      { ...DEFAULT_TABLE_STATE, columnFilters: [{ id: 'cpu', value: ['10', undefined] }] },
+      {
+        ...DEFAULT_TABLE_STATE,
+        columnFilters: [{ id: 'cpu', value: ['10', undefined] }],
+      },
       new URLSearchParams()
     );
 
@@ -124,7 +139,9 @@ describe('tableUrlState.utils', () => {
     );
 
     expect(serialized.get('f.tags')).toBe('["edge","prod"]');
-    expect(parseTableUrlState(serialized).columnFilters).toEqual(multiSelectFilters);
+    expect(parseTableUrlState(serialized).columnFilters).toEqual(
+      multiSelectFilters
+    );
   });
 
   it('preserves single-value array filter length when serializing', () => {
@@ -135,7 +152,9 @@ describe('tableUrlState.utils', () => {
     );
 
     expect(serialized.get('f.group')).toBe('["edge"]');
-    expect(parseTableUrlState(serialized).columnFilters).toEqual(singleValueArray);
+    expect(parseTableUrlState(serialized).columnFilters).toEqual(
+      singleValueArray
+    );
   });
 
   it('omits default sorting from the URL and restores it when the param is absent', () => {
@@ -143,9 +162,13 @@ describe('tableUrlState.utils', () => {
       ...DEFAULT_TABLE_STATE,
       sorting: [{ id: 'name', desc: true }],
     };
-    const serialized = serializeTableUrlState({ ...defaults }, new URLSearchParams('keep=1'), {
-      defaults,
-    });
+    const serialized = serializeTableUrlState(
+      { ...defaults },
+      new URLSearchParams('keep=1'),
+      {
+        defaults,
+      }
+    );
 
     expect(serialized.get('sort')).toBeNull();
     expect(serialized.get('keep')).toBe('1');
@@ -170,11 +193,13 @@ describe('tableUrlState.utils', () => {
       columnFilters: [{ id: 'group', value: 'edge' }],
     };
 
-    expect(parseTableUrlState(new URLSearchParams('q=mysql'), { defaults }).columnFilters).toEqual(
-      defaults.columnFilters
-    );
     expect(
-      parseTableUrlState(new URLSearchParams('f.group=prod'), { defaults }).columnFilters
+      parseTableUrlState(new URLSearchParams('q=mysql'), { defaults })
+        .columnFilters
+    ).toEqual(defaults.columnFilters);
+    expect(
+      parseTableUrlState(new URLSearchParams('f.group=prod'), { defaults })
+        .columnFilters
     ).toEqual([{ id: 'group', value: 'prod' }]);
   });
 
@@ -188,7 +213,12 @@ describe('tableUrlState.utils', () => {
     };
 
     const serialized = serializeTableUrlState(state, initial, {
-      sync: { globalFilter: false, sort: false, pagination: false, filters: true },
+      sync: {
+        globalFilter: false,
+        sort: false,
+        pagination: false,
+        filters: true,
+      },
     });
 
     expect(serialized.get('q')).toBe('mysql');
@@ -258,12 +288,17 @@ describe('tableUrlState.utils', () => {
     );
 
     expect(serialized.get('f._')).toBe('1');
-    expect(parseTableUrlState(serialized, { defaults }).columnFilters).toEqual([]);
+    expect(parseTableUrlState(serialized, { defaults }).columnFilters).toEqual(
+      []
+    );
   });
 
   it('omits empty range filter values when serializing', () => {
     const serialized = serializeTableUrlState(
-      { ...DEFAULT_TABLE_STATE, columnFilters: [{ id: 'cpu', value: ['', ''] }] },
+      {
+        ...DEFAULT_TABLE_STATE,
+        columnFilters: [{ id: 'cpu', value: ['', ''] }],
+      },
       new URLSearchParams('keep=1')
     );
 
@@ -287,6 +322,8 @@ describe('normalizeSearchParamsKey', () => {
     const first = new URLSearchParams('b=2&a=1');
     const second = new URLSearchParams('a=1&b=2');
 
-    expect(normalizeSearchParamsKey(first)).toBe(normalizeSearchParamsKey(second));
+    expect(normalizeSearchParamsKey(first)).toBe(
+      normalizeSearchParamsKey(second)
+    );
   });
 });

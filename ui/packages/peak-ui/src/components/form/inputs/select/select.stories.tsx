@@ -57,7 +57,9 @@ const meta = {
   },
 
   argTypes: {
-    options: { description: 'Choices shown in this demo, rendered as MenuItem children.' },
+    options: {
+      description: 'Choices shown in this demo, rendered as MenuItem children.',
+    },
     disabled: {
       description: 'Greys out the field so it cannot be opened.',
       type: 'boolean',
@@ -82,7 +84,15 @@ const meta = {
     },
   },
 
-  render: function Render({ disabled, error, required, size, options, width, label }) {
+  render: function Render({
+    disabled,
+    error,
+    required,
+    size,
+    options,
+    width,
+    label,
+  }) {
     const methods = useForm();
 
     return (

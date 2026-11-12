@@ -250,7 +250,11 @@ export const InTextField: Story = {
               <InputAdornment position="end">
                 <Tooltip title="Clear">
                   <span>
-                    <IconButton size="small" disabled={!value} onClick={() => setValue('')}>
+                    <IconButton
+                      size="small"
+                      disabled={!value}
+                      onClick={() => setValue('')}
+                    >
                       <CloseOutlined />
                     </IconButton>
                   </span>
@@ -298,7 +302,8 @@ export const DialogClose: Story = {
       />
       <Box sx={{ px: 2, pb: 2 }}>
         <Typography variant="body2" color="text.secondary">
-          The close button sits in the header action slot, matching the PMM modal pattern.
+          The close button sits in the header action slot, matching the PMM
+          modal pattern.
         </Typography>
       </Box>
     </Card>

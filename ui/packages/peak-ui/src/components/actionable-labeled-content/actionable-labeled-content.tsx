@@ -43,7 +43,9 @@ export const ActionableLabeledContent = ({
       }}
       horizontalStackChildrenSlot={
         <>
-          {techPreview && <Chip size="small" label="Technical preview" sx={{ ml: 1 }} />}
+          {techPreview && (
+            <Chip size="small" label="Technical preview" sx={{ ml: 1 }} />
+          )}
           {actionButtonProps && (
             <Button
               variant="text"

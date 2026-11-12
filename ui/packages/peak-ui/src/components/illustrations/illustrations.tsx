@@ -6,7 +6,12 @@ interface IllustrationRootProps extends Omit<SvgIconProps, 'children'> {
   children: ReactNode;
 }
 
-const IllustrationRoot = ({ sx, fontSize, children, ...props }: IllustrationRootProps) => {
+const IllustrationRoot = ({
+  sx,
+  fontSize,
+  children,
+  ...props
+}: IllustrationRootProps) => {
   const sxOverrides = Array.isArray(sx) ? sx : sx ? [sx] : [];
   return (
     <SvgIcon
@@ -37,7 +42,10 @@ const Layer = ({ translate, color, children }: LayerProps) => (
 
 export type RealTimeDatabaseOffLayer = 'accent' | 'base' | 'liveBadge';
 
-export interface RealTimeDatabaseOffIllustrationProps extends Omit<SvgIconProps, 'children'> {
+export interface RealTimeDatabaseOffIllustrationProps extends Omit<
+  SvgIconProps,
+  'children'
+> {
   /** Override the fill of individual artwork layers. Each layer defaults to currentColor (the text color). */
   layerColors?: Partial<Record<RealTimeDatabaseOffLayer, string>>;
 }
@@ -86,7 +94,10 @@ export interface RadarIllustrationProps extends Omit<SvgIconProps, 'children'> {
   layerColors?: Partial<Record<RadarLayer, string>>;
 }
 
-export const RadarIllustration = ({ layerColors, ...props }: RadarIllustrationProps) => (
+export const RadarIllustration = ({
+  layerColors,
+  ...props
+}: RadarIllustrationProps) => (
   <IllustrationRoot {...props}>
     <Layer translate="11.5 11.5" color={layerColors?.arrays}>
       <path d="M40.5 20C40.7761 20 41 20.2239 41 20.5C41 31.8218 31.8218 41 20.5 41C15.239 41 10.4397 39.0176 6.81055 35.7598C6.60511 35.5753 6.58814 35.2592 6.77246 35.0537C6.95693 34.8482 7.27303 34.8312 7.47852 35.0156C10.9313 38.1152 15.495 40 20.5 40C31.2696 40 40 31.2696 40 20.5C40 20.2239 40.2239 20.0001 40.5 20Z" />
@@ -125,9 +136,17 @@ export const RadarIllustration = ({ layerColors, ...props }: RadarIllustrationPr
   </IllustrationRoot>
 );
 
-export type UnknownErrorLayer = 'eyes' | 'mouth' | 'windowFrame' | 'controls' | 'nose';
+export type UnknownErrorLayer =
+  | 'eyes'
+  | 'mouth'
+  | 'windowFrame'
+  | 'controls'
+  | 'nose';
 
-export interface UnknownErrorIllustrationProps extends Omit<SvgIconProps, 'children'> {
+export interface UnknownErrorIllustrationProps extends Omit<
+  SvgIconProps,
+  'children'
+> {
   /** Override the fill of individual artwork layers. Each layer defaults to currentColor (the text color). */
   layerColors?: Partial<Record<UnknownErrorLayer, string>>;
 }
@@ -176,7 +195,10 @@ export const UnknownErrorIllustration = ({
 
 export type NothingFoundLayer = 'swooshArrays' | 'glass' | 'questionMark';
 
-export interface NothingFoundIllustrationProps extends Omit<SvgIconProps, 'children'> {
+export interface NothingFoundIllustrationProps extends Omit<
+  SvgIconProps,
+  'children'
+> {
   /** Override the fill of individual artwork layers. Each layer defaults to currentColor (the text color). */
   layerColors?: Partial<Record<NothingFoundLayer, string>>;
 }

@@ -5,8 +5,17 @@ import {
   MRT_TableInstance,
   MRT_Updater,
 } from 'material-react-table';
-import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
-import { DEFAULT_TABLE_STATE, type NavigableTableState } from './tableState.types';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MutableRefObject,
+} from 'react';
+import {
+  DEFAULT_TABLE_STATE,
+  type NavigableTableState,
+} from './tableState.types';
 import { resolveUpdater } from './tableState.utils';
 
 export type NavigableRowsScope = 'allFiltered' | 'currentPage';
@@ -39,7 +48,9 @@ export interface UseNavigableRowsTableProps<T extends Record<string, any>> {
     pagination?: MRT_PaginationState;
   };
   /** Receives the new per-column filters when the user changes them. */
-  onColumnFiltersChange?: (updater: MRT_Updater<MRT_ColumnFiltersState>) => void;
+  onColumnFiltersChange?: (
+    updater: MRT_Updater<MRT_ColumnFiltersState>
+  ) => void;
   /** Receives the new search text when the user types in the search box. */
   onGlobalFilterChange?: (updater: MRT_Updater<string>) => void;
   /** Receives the new sort order when the user sorts a column. */
@@ -69,21 +80,24 @@ export function useNavigableRows<T extends Record<string, any>>({
   tableState,
 }: UseNavigableRowsOptions<T>): UseNavigableRowsResult<T> {
   const tableInstanceRef = useRef<MRT_TableInstance<T> | null>(null);
-  const [internalColumnFilters, setInternalColumnFilters] = useState<MRT_ColumnFiltersState>([]);
+  const [internalColumnFilters, setInternalColumnFilters] =
+    useState<MRT_ColumnFiltersState>([]);
   const [internalGlobalFilter, setInternalGlobalFilter] = useState<string>('');
   const [internalSorting, setInternalSorting] = useState<MRT_SortingState>([]);
-  const [internalPagination, setInternalPagination] = useState<MRT_PaginationState>(
-    DEFAULT_TABLE_STATE.pagination
-  );
+  const [internalPagination, setInternalPagination] =
+    useState<MRT_PaginationState>(DEFAULT_TABLE_STATE.pagination);
   const [navigableRows, setNavigableRows] = useState<T[]>(data);
 
   const usesInternalPagination = !tableState && scope === 'currentPage';
-  const columnFilters = tableState?.state.columnFilters ?? internalColumnFilters;
+  const columnFilters =
+    tableState?.state.columnFilters ?? internalColumnFilters;
   const globalFilter = tableState?.state.globalFilter ?? internalGlobalFilter;
   const sorting = tableState?.state.sorting ?? internalSorting;
   const pagination =
     tableState?.state.pagination ??
-    (usesInternalPagination ? internalPagination : DEFAULT_TABLE_STATE.pagination);
+    (usesInternalPagination
+      ? internalPagination
+      : DEFAULT_TABLE_STATE.pagination);
 
   const onChangeRef = useRef(onChange);
   useEffect(() => {
@@ -96,7 +110,9 @@ export function useNavigableRows<T extends Record<string, any>>({
       return data;
     }
     const rowModel =
-      scope === 'currentPage' ? table.getRowModel() : table.getPrePaginationRowModel();
+      scope === 'currentPage'
+        ? table.getRowModel()
+        : table.getPrePaginationRowModel();
     return rowModel.rows.map((row) => row.original);
   }, [data, scope]);
 
@@ -106,12 +122,22 @@ export function useNavigableRows<T extends Record<string, any>>({
   }, [computeRows]);
 
   const paginationDepKey =
-    scope === 'currentPage' ? `${pagination.pageIndex}:${pagination.pageSize}` : null;
+    scope === 'currentPage'
+      ? `${pagination.pageIndex}:${pagination.pageSize}`
+      : null;
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
-  }, [columnFilters, globalFilter, sorting, paginationDepKey, data, refresh, scope]);
+  }, [
+    columnFilters,
+    globalFilter,
+    sorting,
+    paginationDepKey,
+    data,
+    refresh,
+    scope,
+  ]);
 
   useEffect(() => {
     onChangeRef.current?.(navigableRows);
@@ -131,7 +157,8 @@ export function useNavigableRows<T extends Record<string, any>>({
           setInternalColumnFilters((prev) => resolveUpdater(updater, prev)),
         onGlobalFilterChange: (updater) =>
           setInternalGlobalFilter((prev) => resolveUpdater(updater, prev)),
-        onSortingChange: (updater) => setInternalSorting((prev) => resolveUpdater(updater, prev)),
+        onSortingChange: (updater) =>
+          setInternalSorting((prev) => resolveUpdater(updater, prev)),
         ...(usesInternalPagination
           ? {
               onPaginationChange: (updater) =>

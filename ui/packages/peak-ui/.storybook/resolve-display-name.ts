@@ -16,7 +16,8 @@ const stripBundlerSuffix = (name: string): string =>
   /[a-z][A-Z]/.test(name) ? name.replace(/\d+$/, '') : name;
 
 const cleanName = (name: unknown): string | undefined => {
-  if (typeof name !== 'string' || GENERIC_RENDER_NAMES.has(name)) return undefined;
+  if (typeof name !== 'string' || GENERIC_RENDER_NAMES.has(name))
+    return undefined;
   const stripped = stripBundlerSuffix(name);
   return GENERIC_RENDER_NAMES.has(stripped) ? undefined : stripped;
 };
@@ -24,7 +25,8 @@ const cleanName = (name: unknown): string | undefined => {
 const resolveType = (type: unknown): string | undefined => {
   if (type == null) return undefined;
   if (typeof type === 'string') return type;
-  if (typeof type === 'symbol') return type === FRAGMENT_TYPE ? 'React.Fragment' : undefined;
+  if (typeof type === 'symbol')
+    return type === FRAGMENT_TYPE ? 'React.Fragment' : undefined;
 
   const candidate = type as {
     $$typeof?: symbol;

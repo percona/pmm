@@ -30,7 +30,13 @@ describe('CodeBlock', () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.assign(navigator, { clipboard: { writeText } });
 
-    render(<CodeBlock copyable value="raw-command" content={<span>pretty command</span>} />);
+    render(
+      <CodeBlock
+        copyable
+        value="raw-command"
+        content={<span>pretty command</span>}
+      />
+    );
     fireEvent.click(screen.getByRole('button'));
 
     await waitFor(() => expect(writeText).toHaveBeenCalledWith('raw-command'));

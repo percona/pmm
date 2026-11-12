@@ -30,7 +30,9 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
         sx={{
           position: 'absolute',
           display: 'flex',
-          borderRadius: showCopyButtonText ? `${theme.shape.borderRadiusSm}px` : '50%',
+          borderRadius: showCopyButtonText
+            ? `${theme.shape.borderRadiusSm}px`
+            : '50%',
           backgroundColor: prismTheme.plain.backgroundColor,
           ...(showCopyButtonText
             ? { top: 12, right: 12 } // labeled
@@ -48,7 +50,11 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
     if (highlighted) {
       return (
         <Box sx={{ position: 'relative' }}>
-          <Highlight code={codeText.replace(/\n$/, '')} language={language} theme={prismTheme}>
+          <Highlight
+            code={codeText.replace(/\n$/, '')}
+            language={language}
+            theme={prismTheme}
+          >
             {({ style, tokens, getLineProps, getTokenProps }) => (
               <Box
                 ref={ref}
@@ -61,7 +67,11 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
                   {tokens.map((line, i) => {
                     const lineProps = getLineProps({ line });
                     return (
-                      <span key={i} {...lineProps} style={{ ...lineProps.style, display: 'block' }}>
+                      <span
+                        key={i}
+                        {...lineProps}
+                        style={{ ...lineProps.style, display: 'block' }}
+                      >
                         {line.map((token, key) => (
                           <span key={key} {...getTokenProps({ token })} />
                         ))}

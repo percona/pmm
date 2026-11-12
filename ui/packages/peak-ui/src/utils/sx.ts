@@ -1,7 +1,11 @@
 import type { SxProps, Theme } from '@mui/material';
 
-const flattenSx = (sx: SxProps<Theme>, theme: Theme): Record<string, unknown> => {
-  if (typeof sx === 'function') return (sx as (t: Theme) => Record<string, unknown>)(theme);
+const flattenSx = (
+  sx: SxProps<Theme>,
+  theme: Theme
+): Record<string, unknown> => {
+  if (typeof sx === 'function')
+    return (sx as (t: Theme) => Record<string, unknown>)(theme);
   if (Array.isArray(sx))
     return Object.assign(
       {},

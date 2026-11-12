@@ -8,9 +8,16 @@ import {
   RealTimeDatabaseOffIllustration,
   UnknownErrorIllustration,
 } from '../illustrations';
-import type { EmptyStateIllustration, EmptyStateProps, EmptyStateSize } from './empty-state.types';
+import type {
+  EmptyStateIllustration,
+  EmptyStateProps,
+  EmptyStateSize,
+} from './empty-state.types';
 
-export const EMPTY_STATE_SIZES: Record<EmptyStateSize, { py: number; illustration: number }> = {
+export const EMPTY_STATE_SIZES: Record<
+  EmptyStateSize,
+  { py: number; illustration: number }
+> = {
   small: { py: 4, illustration: 80 },
   medium: { py: 6, illustration: 120 },
 };
@@ -27,11 +34,20 @@ export const EMPTY_STATE_ILLUSTRATIONS: Record<
 
 const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
   (
-    { title, description, illustration, actions, titleComponent = 'h3', size = 'medium', ...rest },
+    {
+      title,
+      description,
+      illustration,
+      actions,
+      titleComponent = 'h3',
+      size = 'medium',
+      ...rest
+    },
     ref
   ) => {
     const { py, illustration: illustrationSize } = EMPTY_STATE_SIZES[size];
-    const Illustration = illustration && EMPTY_STATE_ILLUSTRATIONS[illustration];
+    const Illustration =
+      illustration && EMPTY_STATE_ILLUSTRATIONS[illustration];
 
     return (
       <Box
@@ -45,12 +61,19 @@ const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
         textAlign="center"
         {...rest}
       >
-        {Illustration && <Illustration aria-hidden sx={{ fontSize: illustrationSize }} />}
+        {Illustration && (
+          <Illustration aria-hidden sx={{ fontSize: illustrationSize }} />
+        )}
         <Typography variant="subtitle1" component={titleComponent}>
           {title}
         </Typography>
         {description && (
-          <Typography variant="body2" component="div" color="text.secondary" sx={{ maxWidth: 520 }}>
+          <Typography
+            variant="body2"
+            component="div"
+            color="text.secondary"
+            sx={{ maxWidth: 520 }}
+          >
             {description}
           </Typography>
         )}

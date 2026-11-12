@@ -32,6 +32,7 @@ If `format:check` fails, fix it with `pnpm format` (don't hand-edit whitespace).
 ### Known non-blocking warnings
 
 Pre-existing and cosmetic — do not treat as failures:
+
 - `pnpm build`: a TS5096 warning (`allowImportingTsExtensions`) and a circular-dependency note.
 - `pnpm install`: pnpm 10 reports "ignored build scripts" for esbuild; the binary still resolves correctly and doesn't block Vite/Storybook/Vitest.
 
@@ -91,14 +92,14 @@ The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentiona
 ### Tooltip
 
 - Tooltips render in the **inverted** app mode (light app → dark tooltip surface, dark app → light tooltip surface). Don't add per-theme tooltip overrides — change `BaseTheme` instead where possible.
-- Link styling inside tooltips lives as a nested `& .MuiLink-root` rule *inside* the tooltip override, **not** in `MuiLink.styleOverrides`. Don't move link styles back to `MuiLink`.
+- Link styling inside tooltips lives as a nested `& .MuiLink-root` rule _inside_ the tooltip override, **not** in `MuiLink.styleOverrides`. Don't move link styles back to `MuiLink`.
 
 ### Action token model (state colors)
 
 Two parallel layers, intentionally distinct — don't collapse them:
 
 - **`palette.action.{active,hover,selected,disabled,focus}`** = neutral state tints, brand-black-tinted in all themes; used wherever the surface is default-colored.
-- **`palette.primary.{hover,selected,focus,focusVisible,outlinedBorder}`** = state tints for *primary-colored* surfaces. Identical to `action.*` in Base (both brand-black) but diverges in PMM/SEP (purple).
+- **`palette.primary.{hover,selected,focus,focusVisible,outlinedBorder}`** = state tints for _primary-colored_ surfaces. Identical to `action.*` in Base (both brand-black) but diverges in PMM/SEP (purple).
 - Per-mode opacity is mandatory: dark mode uses higher alpha (8% hover vs 4% light, 16% selected vs 8% light, 15% disabled/focus vs 12% light), wired through `tokens.action.{hoverOpacity,selectedOpacity,disabledOpacity,focusOpacity}` so MUI's `alpha(...)` calculations stay in sync.
 
 ### Theme extension contract

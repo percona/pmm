@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { MATURITY_TAGS, badgeStyle, type MaturityStatus } from '../.storybook/maturity-tags';
+import {
+  MATURITY_TAGS,
+  badgeStyle,
+  type MaturityStatus,
+} from '../.storybook/maturity-tags';
 
 describe('MATURITY_TAGS', () => {
   it('has unique, lowercase-kebab ids', () => {
@@ -55,7 +59,10 @@ describe('story maturity coverage', () => {
     expect(Object.keys(storyMetas).length).toBeGreaterThan(0);
   });
 
-  it.each(Object.entries(storyMetas))('%s declares exactly one status', (_file, meta) => {
-    expect(statusesInTags(meta.tags)).toHaveLength(1);
-  });
+  it.each(Object.entries(storyMetas))(
+    '%s declares exactly one status',
+    (_file, meta) => {
+      expect(statusesInTags(meta.tags)).toHaveLength(1);
+    }
+  );
 });

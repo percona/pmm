@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MutableRefObject,
+} from 'react';
 import {
   MRT_ColumnFiltersState,
   MRT_PaginationState,
@@ -12,7 +19,10 @@ import {
   resolveUpdater,
   stableDependencyKey,
 } from './tableState.utils';
-import { type TableControlledState, type TableStateValues } from './tableState.types';
+import {
+  type TableControlledState,
+  type TableStateValues,
+} from './tableState.types';
 import {
   parseTableUrlState,
   serializeTableUrlState,
@@ -27,7 +37,10 @@ export interface UsePerconaTableUrlStateOptions extends TableUrlStateOptions {
   /** Current URL query parameters, for example from React Router's `useSearchParams`. */
   searchParams: URLSearchParams;
   /** Writes updated query parameters back to the URL. */
-  setSearchParams: (next: URLSearchParams, options?: { replace?: boolean }) => void;
+  setSearchParams: (
+    next: URLSearchParams,
+    options?: { replace?: boolean }
+  ) => void;
   /** Delay in ms before typed filters and search text reach the URL, so keystrokes are batched. Defaults to 300. */
   debounceMs?: number;
   /** Rewrites the current history entry on every change, so the back button skips filter, sort, and page changes; false adds entries. Defaults to true. */
@@ -104,14 +117,18 @@ const mergeStateFromUrl = (
   const columnFilters = sync.filters
     ? cloneColumnFilters(parsed.columnFilters)
     : prev.columnFilters;
-  const globalFilter = sync.globalFilter ? parsed.globalFilter : prev.globalFilter;
+  const globalFilter = sync.globalFilter
+    ? parsed.globalFilter
+    : prev.globalFilter;
 
   return {
     columnFilters,
     globalFilter,
     sorting: sync.sort ? parsed.sorting : prev.sorting,
     pagination: sync.pagination ? parsed.pagination : prev.pagination,
-    showColumnFilters: hasActiveColumnFilters(columnFilters) ? true : prev.showColumnFilters,
+    showColumnFilters: hasActiveColumnFilters(columnFilters)
+      ? true
+      : prev.showColumnFilters,
     showGlobalFilter: globalFilter ? true : prev.showGlobalFilter,
   };
 };
@@ -128,8 +145,10 @@ const toTableStateValues = ({
   pagination,
 });
 
-const isSameFullTableUrlState = (a: FullTableUrlState, b: FullTableUrlState): boolean =>
-  stableDependencyKey(a) === stableDependencyKey(b);
+const isSameFullTableUrlState = (
+  a: FullTableUrlState,
+  b: FullTableUrlState
+): boolean => stableDependencyKey(a) === stableDependencyKey(b);
 
 const createStateFromUrl = (
   searchParams: URLSearchParams,
@@ -142,7 +161,8 @@ const createStateFromUrl = (
   return {
     ...parsed,
     columnFilters,
-    showColumnFilters: hasActiveColumnFilters(columnFilters) || initialShowColumnFilters,
+    showColumnFilters:
+      hasActiveColumnFilters(columnFilters) || initialShowColumnFilters,
     showGlobalFilter: !!parsed.globalFilter || initialShowGlobalFilter,
   };
 };
@@ -172,11 +192,20 @@ export function usePerconaTableUrlState({
   const searchParamsKey = searchParams.toString();
 
   const [state, setState] = useState<FullTableUrlState>(() =>
-    createStateFromUrl(searchParams, urlOptions, initialShowColumnFilters, initialShowGlobalFilter)
+    createStateFromUrl(
+      searchParams,
+      urlOptions,
+      initialShowColumnFilters,
+      initialShowGlobalFilter
+    )
   );
 
-  const globalFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const columnFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const globalFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const columnFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const lastWrittenParamsKeyRef = useRef<string | null>(null);
   const latestSearchParamsRef = useRef(searchParams);
   const latestTableStateRef = useRef(state);
@@ -207,7 +236,11 @@ export function usePerconaTableUrlState({
   const writeUrl = useCallback(
     (nextState: TableStateValues) => {
       const currentParams = latestSearchParamsRef.current;
-      const nextParams = serializeTableUrlState(nextState, currentParams, urlOptions);
+      const nextParams = serializeTableUrlState(
+        nextState,
+        currentParams,
+        urlOptions
+      );
       const nextKey = normalizeSearchParamsKey(nextParams);
       const currentKey = normalizeSearchParamsKey(currentParams);
 
@@ -233,7 +266,10 @@ export function usePerconaTableUrlState({
   );
 
   const commitState = useCallback(
-    (updater: (prev: TableStateValues) => TableStateValues, writeToUrl = true) => {
+    (
+      updater: (prev: TableStateValues) => TableStateValues,
+      writeToUrl = true
+    ) => {
       const prev = latestTableStateRef.current;
       const nextTableState = updater(toTableStateValues(prev));
       if (isSameTableState(toTableStateValues(prev), nextTableState)) {
@@ -286,7 +322,10 @@ export function usePerconaTableUrlState({
   const onPaginationChange = useCallback(
     (updater: MRT_Updater<MRT_PaginationState>) => {
       commitState(
-        (prev) => ({ ...prev, pagination: resolveUpdater(updater, prev.pagination) }),
+        (prev) => ({
+          ...prev,
+          pagination: resolveUpdater(updater, prev.pagination),
+        }),
         isUrlSyncEnabled(sync, 'pagination')
       );
     },
@@ -318,25 +357,31 @@ export function usePerconaTableUrlState({
     []
   );
 
-  const onShowColumnFiltersChange = useCallback((updater: MRT_Updater<boolean>) => {
-    const prev = latestTableStateRef.current;
-    const next = {
-      ...prev,
-      showColumnFilters: resolveUpdater(updater, prev.showColumnFilters),
-    };
-    latestTableStateRef.current = next;
-    setState(next);
-  }, []);
+  const onShowColumnFiltersChange = useCallback(
+    (updater: MRT_Updater<boolean>) => {
+      const prev = latestTableStateRef.current;
+      const next = {
+        ...prev,
+        showColumnFilters: resolveUpdater(updater, prev.showColumnFilters),
+      };
+      latestTableStateRef.current = next;
+      setState(next);
+    },
+    []
+  );
 
-  const onShowGlobalFilterChange = useCallback((updater: MRT_Updater<boolean>) => {
-    const prev = latestTableStateRef.current;
-    const next = {
-      ...prev,
-      showGlobalFilter: resolveUpdater(updater, prev.showGlobalFilter),
-    };
-    latestTableStateRef.current = next;
-    setState(next);
-  }, []);
+  const onShowGlobalFilterChange = useCallback(
+    (updater: MRT_Updater<boolean>) => {
+      const prev = latestTableStateRef.current;
+      const next = {
+        ...prev,
+        showGlobalFilter: resolveUpdater(updater, prev.showGlobalFilter),
+      };
+      latestTableStateRef.current = next;
+      setState(next);
+    },
+    []
+  );
 
   const columnFiltersKey = stableDependencyKey(state.columnFilters);
   const columnFiltersForTable = useMemo(
@@ -364,7 +409,13 @@ export function usePerconaTableUrlState({
       onSortingChange,
       onPaginationChange,
     }),
-    [tableValues, onColumnFiltersChange, onGlobalFilterChange, onSortingChange, onPaginationChange]
+    [
+      tableValues,
+      onColumnFiltersChange,
+      onGlobalFilterChange,
+      onSortingChange,
+      onPaginationChange,
+    ]
   );
 
   const tableProps = useMemo(

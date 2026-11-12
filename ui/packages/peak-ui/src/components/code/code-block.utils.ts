@@ -14,7 +14,9 @@ export const preSx =
     border: `1px solid ${theme.palette.dividers?.contour ?? theme.palette.divider}`,
     borderRadius: `${theme.shape.borderRadiusSm}px`,
     padding: theme.spacing(1.25, 1.5),
-    ...(wrap ? { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' } : { overflowX: 'auto' }),
+    ...(wrap
+      ? { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }
+      : { overflowX: 'auto' }),
   });
 
 // Scheme follows the app color mode — locked to brand-aligned light/dark for consistency.

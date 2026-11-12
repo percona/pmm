@@ -47,10 +47,31 @@ interface Server {
 }
 
 // Deterministic dataset so visual regression stays stable across runs.
-const REGIONS = ['us-east-1', 'us-west-2', 'eu-central-1', 'ap-southeast-1'] as const;
-const ENVIRONMENTS: ServerEnvironment[] = ['production', 'staging', 'development'];
-const STATUSES: ServerStatus[] = ['healthy', 'healthy', 'healthy', 'warning', 'error'];
-const PROCESS_NAMES = ['mysqld', 'mongod', 'postgres', 'redis-server', 'pmm-agent'];
+const REGIONS = [
+  'us-east-1',
+  'us-west-2',
+  'eu-central-1',
+  'ap-southeast-1',
+] as const;
+const ENVIRONMENTS: ServerEnvironment[] = [
+  'production',
+  'staging',
+  'development',
+];
+const STATUSES: ServerStatus[] = [
+  'healthy',
+  'healthy',
+  'healthy',
+  'warning',
+  'error',
+];
+const PROCESS_NAMES = [
+  'mysqld',
+  'mongod',
+  'postgres',
+  'redis-server',
+  'pmm-agent',
+];
 
 const makeServers = (count: number): Server[] =>
   Array.from({ length: count }, (_, i) => {
@@ -109,7 +130,8 @@ const baseColumns: MRT_ColumnDef<Server>[] = [
     header: 'Status',
     accessorKey: 'status',
     Cell: renderStatusCell,
-    sortingFn: (a, b) => STATUS_RANK[a.original.status] - STATUS_RANK[b.original.status],
+    sortingFn: (a, b) =>
+      STATUS_RANK[a.original.status] - STATUS_RANK[b.original.status],
     filterVariant: 'select',
     filterSelectOptions: ['healthy', 'warning', 'error'],
   },
@@ -240,16 +262,25 @@ const meta = {
     },
     noDataMessage: {
       control: 'text',
-      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'No data'" } },
+      table: {
+        category: 'Empty state (Peak UI)',
+        defaultValue: { summary: "'No data'" },
+      },
     },
     noDataVariant: {
       options: ['empty-state', 'alert'],
       control: { type: 'inline-radio' },
-      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'empty-state'" } },
+      table: {
+        category: 'Empty state (Peak UI)',
+        defaultValue: { summary: "'empty-state'" },
+      },
     },
     emptyFilterResultsMessage: {
       control: 'text',
-      table: { category: 'Empty state (Peak UI)', defaultValue: { summary: "'No data found'" } },
+      table: {
+        category: 'Empty state (Peak UI)',
+        defaultValue: { summary: "'No data found'" },
+      },
     },
     emptyState: {
       control: false,
@@ -264,7 +295,10 @@ const meta = {
       control: 'boolean',
       description:
         '**Peak UI override.** Coupled to `enablePagination` — both auto-enable when `data.length > 10`. In most cases, control pagination instead and this follows.',
-      table: { category: 'Toolbar', defaultValue: { summary: 'data.length > 10' } },
+      table: {
+        category: 'Toolbar',
+        defaultValue: { summary: 'data.length > 10' },
+      },
     },
     enableGlobalFilter: {
       control: 'boolean',
@@ -297,7 +331,10 @@ const meta = {
       control: 'boolean',
       description:
         '**Peak UI override.** Auto-enabled when `data.length > 10`. When disabled, all rows render without pages and the bottom toolbar hides automatically.',
-      table: { category: 'Rows', defaultValue: { summary: 'data.length > 10' } },
+      table: {
+        category: 'Rows',
+        defaultValue: { summary: 'data.length > 10' },
+      },
     },
     enableStickyHeader: {
       control: 'boolean',
@@ -361,7 +398,11 @@ const WithRowSelectionStory = (args: TableProps<Server>) => {
         selectedCount > 0 ? (
           <Stack direction="row" alignItems="center" gap={1}>
             <Typography variant="body2">{selectedCount} selected</Typography>
-            <Button size="small" variant="outlined" startIcon={<DeleteOutlineOutlinedIcon />}>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<DeleteOutlineOutlinedIcon />}
+            >
               Remove
             </Button>
           </Stack>
@@ -422,9 +463,17 @@ const WithDetailsPaneNavigationStory = (args: TableProps<Server>) => {
           setSelected(row.original);
         }}
       />
-      <Drawer anchor="right" open={!!selected} onClose={() => setSelected(undefined)}>
+      <Drawer
+        anchor="right"
+        open={!!selected}
+        onClose={() => setSelected(undefined)}
+      >
         <Stack sx={{ width: 320, p: 2 }} gap={2}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
             <Stack direction="row" gap={0.5}>
               <Tooltip title="Previous">
                 <span>
@@ -440,13 +489,22 @@ const WithDetailsPaneNavigationStory = (args: TableProps<Server>) => {
               </Tooltip>
               <Tooltip title="Next">
                 <span>
-                  <IconButton size="small" aria-label="Next" disabled={isLast} onClick={next}>
+                  <IconButton
+                    size="small"
+                    aria-label="Next"
+                    disabled={isLast}
+                    onClick={next}
+                  >
                     <ChevronRightIcon />
                   </IconButton>
                 </span>
               </Tooltip>
             </Stack>
-            <IconButton size="small" aria-label="Close" onClick={() => setSelected(undefined)}>
+            <IconButton
+              size="small"
+              aria-label="Close"
+              onClick={() => setSelected(undefined)}
+            >
               <CloseIcon />
             </IconButton>
           </Stack>
@@ -465,7 +523,11 @@ const WithDetailsPaneNavigationStory = (args: TableProps<Server>) => {
 };
 
 const WithUrlStateStory = (args: TableProps<Server>) => {
-  const { data: tableData, initialState, tableArgs } = splitTableStoryArgs(args);
+  const {
+    data: tableData,
+    initialState,
+    tableArgs,
+  } = splitTableStoryArgs(args);
   const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
 
   const { tableProps } = usePerconaTableUrlState({
@@ -477,7 +539,11 @@ const WithUrlStateStory = (args: TableProps<Server>) => {
 
   return (
     <Stack gap={2}>
-      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ fontFamily: 'monospace' }}
+      >
         ?{searchParams.toString() || '(empty)'}
       </Typography>
       <Table {...tableArgs} {...tableProps} data={tableData} />
@@ -485,8 +551,14 @@ const WithUrlStateStory = (args: TableProps<Server>) => {
   );
 };
 
-const WithUrlStateAndDetailsPaneNavigationStory = (args: TableProps<Server>) => {
-  const { data: tableData, initialState, tableArgs } = splitTableStoryArgs(args);
+const WithUrlStateAndDetailsPaneNavigationStory = (
+  args: TableProps<Server>
+) => {
+  const {
+    data: tableData,
+    initialState,
+    tableArgs,
+  } = splitTableStoryArgs(args);
   const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
   const [selected, setSelected] = useState<Server | undefined>();
 
@@ -513,7 +585,11 @@ const WithUrlStateAndDetailsPaneNavigationStory = (args: TableProps<Server>) => 
 
   return (
     <>
-      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace', mb: 2 }}>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ fontFamily: 'monospace', mb: 2 }}
+      >
         ?{searchParams.toString() || '(empty)'}
       </Typography>
       <Table
@@ -527,9 +603,17 @@ const WithUrlStateAndDetailsPaneNavigationStory = (args: TableProps<Server>) => 
           setSelected(row.original);
         }}
       />
-      <Drawer anchor="right" open={!!selected} onClose={() => setSelected(undefined)}>
+      <Drawer
+        anchor="right"
+        open={!!selected}
+        onClose={() => setSelected(undefined)}
+      >
         <Stack sx={{ width: 320, p: 2 }} gap={2}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
             <Stack direction="row" gap={0.5}>
               <Tooltip title="Previous">
                 <span>
@@ -545,13 +629,22 @@ const WithUrlStateAndDetailsPaneNavigationStory = (args: TableProps<Server>) => 
               </Tooltip>
               <Tooltip title="Next">
                 <span>
-                  <IconButton size="small" aria-label="Next" disabled={isLast} onClick={next}>
+                  <IconButton
+                    size="small"
+                    aria-label="Next"
+                    disabled={isLast}
+                    onClick={next}
+                  >
                     <ChevronRightIcon />
                   </IconButton>
                 </span>
               </Tooltip>
             </Stack>
-            <IconButton size="small" aria-label="Close" onClick={() => setSelected(undefined)}>
+            <IconButton
+              size="small"
+              aria-label="Close"
+              onClick={() => setSelected(undefined)}
+            >
               <CloseIcon />
             </IconButton>
           </Stack>
@@ -601,7 +694,8 @@ export const SimpleReadOnly: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'All data-manipulation features disabled. Purely a styled grid of rows and columns.',
+        story:
+          'All data-manipulation features disabled. Purely a styled grid of rows and columns.',
       },
     },
   },
@@ -624,7 +718,8 @@ export const WithGlobalSearch: Story = {
   parameters: {
     docs: {
       description: {
-        story: '`enableGlobalFilter` adds a search input that matches across all visible columns.',
+        story:
+          '`enableGlobalFilter` adds a search input that matches across all visible columns.',
       },
     },
   },
@@ -732,10 +827,18 @@ export const WithCustomToolbarActions: Story = {
     enableGlobalFilter: true,
     renderTopToolbarCustomActions: () => (
       <Stack direction="row" gap={1}>
-        <Button size="small" variant="outlined" startIcon={<RefreshOutlinedIcon />}>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<RefreshOutlinedIcon />}
+        >
           Refresh
         </Button>
-        <Button size="small" variant="contained" startIcon={<AddOutlinedIcon />}>
+        <Button
+          size="small"
+          variant="contained"
+          startIcon={<AddOutlinedIcon />}
+        >
           Add server
         </Button>
       </Stack>
@@ -843,7 +946,11 @@ export const EmptyStateCustom: Story = {
         title="No servers yet"
         description="Connect a service to start seeing servers in this table."
         actions={
-          <Button size="small" variant="outlined" startIcon={<AddOutlinedIcon />}>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<AddOutlinedIcon />}
+          >
             Add service
           </Button>
         }

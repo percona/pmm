@@ -9,15 +9,24 @@ const GUARDED = /(Props|Options)$/;
 
 const SKIP = /\.(stories|spec)\.tsx?$|\.d\.ts$/;
 const allFiles = readdirSync(root, { recursive: true }).map(String).sort();
-const sourceFiles = allFiles.filter((file) => /\.tsx?$/.test(file) && !SKIP.test(file));
+const sourceFiles = allFiles.filter(
+  (file) => /\.tsx?$/.test(file) && !SKIP.test(file)
+);
 const storyFiles = allFiles.filter((file) => /\.stories\.tsx?$/.test(file));
 
 const program = (() => {
   const cwd = process.cwd();
-  const configPath = ts.findConfigFile(cwd, ts.sys.fileExists, 'tsconfig.json')!;
+  const configPath = ts.findConfigFile(
+    cwd,
+    ts.sys.fileExists,
+    'tsconfig.json'
+  )!;
   const { config } = ts.readConfigFile(configPath, ts.sys.readFile);
   const { options } = ts.parseJsonConfigFileContent(config, ts.sys, cwd);
-  const roots = [join(root, 'index.ts'), ...storyFiles.map((file) => join(root, file))];
+  const roots = [
+    join(root, 'index.ts'),
+    ...storyFiles.map((file) => join(root, file)),
+  ];
   return ts.createProgram(roots, { ...options, noEmit: true });
 })();
 const checker = program.getTypeChecker();
@@ -33,12 +42,16 @@ const publicTypes = (() => {
   return new Set(
     checker
       .getExportsOfModule(moduleSymbol)
-      .map((s) => (s.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(s) : s))
+      .map((s) =>
+        s.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(s) : s
+      )
       .filter((s) => !(s.flags & ts.SymbolFlags.Value))
       .flatMap((s) => s.declarations ?? [])
       .filter((d) => d.getSourceFile().fileName.startsWith(root))
       .flatMap((d) =>
-        ts.isInterfaceDeclaration(d) || ts.isTypeAliasDeclaration(d) ? [d.name.text] : []
+        ts.isInterfaceDeclaration(d) || ts.isTypeAliasDeclaration(d)
+          ? [d.name.text]
+          : []
       )
   );
 })();
@@ -48,7 +61,12 @@ type Member = { file: string; type: string; prop: string };
 
 const parse = (file: string) => {
   const path = join(root, file);
-  return ts.createSourceFile(path, readFileSync(path, 'utf8'), ts.ScriptTarget.Latest, true);
+  return ts.createSourceFile(
+    path,
+    readFileSync(path, 'utf8'),
+    ts.ScriptTarget.Latest,
+    true
+  );
 };
 
 const nameOf = (node: ts.PropertyAssignment | ts.TypeElement) =>
@@ -59,7 +77,10 @@ const nameOf = (node: ts.PropertyAssignment | ts.TypeElement) =>
 const hasDescription = (member: ts.TypeElement) =>
   ts
     .getJSDocCommentsAndTags(member)
-    .some((doc) => ts.isJSDoc(doc) && !!ts.getTextOfJSDocComment(doc.comment)?.trim());
+    .some(
+      (doc) =>
+        ts.isJSDoc(doc) && !!ts.getTextOfJSDocComment(doc.comment)?.trim()
+    );
 
 const literalsOf = (node: ts.TypeNode): ts.TypeLiteralNode[] => {
   if (ts.isTypeLiteralNode(node)) return [node];
@@ -76,7 +97,10 @@ const collect = (file: string) => {
   const undocumented: Member[] = [];
   const visit = (type: string, members: readonly ts.TypeElement[]) => {
     members
-      .filter((member) => ts.isPropertySignature(member) || ts.isMethodSignature(member))
+      .filter(
+        (member) =>
+          ts.isPropertySignature(member) || ts.isMethodSignature(member)
+      )
       .forEach((member) => {
         const entry = { file, type, prop: nameOf(member) ?? '?' };
         checked.push(entry);
@@ -94,14 +118,18 @@ const collect = (file: string) => {
       visit(statement.name.text, statement.members);
     }
     if (ts.isTypeAliasDeclaration(statement) && guarded(statement.name.text)) {
-      literalsOf(statement.type).forEach((literal) => visit(statement.name.text, literal.members));
+      literalsOf(statement.type).forEach((literal) =>
+        visit(statement.name.text, literal.members)
+      );
     }
   });
   return { checked, undocumented };
 };
 
 const unwrap = (node: ts.Expression): ts.Expression =>
-  ts.isSatisfiesExpression(node) || ts.isAsExpression(node) || ts.isParenthesizedExpression(node)
+  ts.isSatisfiesExpression(node) ||
+  ts.isAsExpression(node) ||
+  ts.isParenthesizedExpression(node)
     ? unwrap(node.expression)
     : node;
 
@@ -113,13 +141,18 @@ const storyComponentProps = (file: string) => {
   let meta: ts.Expression = unwrap(exported);
   if (ts.isIdentifier(meta)) {
     const declaration = checker.getSymbolAtLocation(meta)?.valueDeclaration;
-    if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer) {
+    if (
+      declaration &&
+      ts.isVariableDeclaration(declaration) &&
+      declaration.initializer
+    ) {
       meta = unwrap(declaration.initializer);
     }
   }
   if (!ts.isObjectLiteralExpression(meta)) return { found: false as const };
   const component = meta.properties.find(
-    (p): p is ts.PropertyAssignment => ts.isPropertyAssignment(p) && nameOf(p) === 'component'
+    (p): p is ts.PropertyAssignment =>
+      ts.isPropertyAssignment(p) && nameOf(p) === 'component'
   );
   if (!component) return { found: false as const };
   const type = checker.getTypeAtLocation(component.initializer);
@@ -128,14 +161,23 @@ const storyComponentProps = (file: string) => {
     .map((sig) => sig.getParameters()[0])
     .find(Boolean);
   if (!param) return { found: true as const, props: undefined };
-  const propsType = checker.getTypeOfSymbolAtLocation(param, component.initializer);
+  const propsType = checker.getTypeOfSymbolAtLocation(
+    param,
+    component.initializer
+  );
   const props = propsType.getProperties().flatMap((prop) =>
     (prop.declarations ?? []).filter(isOwnSource).map((d) => {
       let owner: ts.Node | undefined = d.parent;
-      while (owner && !ts.isInterfaceDeclaration(owner) && !ts.isTypeAliasDeclaration(owner)) {
+      while (
+        owner &&
+        !ts.isInterfaceDeclaration(owner) &&
+        !ts.isTypeAliasDeclaration(owner)
+      ) {
         owner = owner.parent;
       }
-      const type = owner && (ts.isInterfaceDeclaration(owner) || ts.isTypeAliasDeclaration(owner));
+      const type =
+        owner &&
+        (ts.isInterfaceDeclaration(owner) || ts.isTypeAliasDeclaration(owner));
       return { prop: prop.name, type: type ? owner.name.text : '?' };
     })
   );
@@ -186,12 +228,18 @@ describe('component props carry a JSDoc description', () => {
 
   it('describes every prop of every *Props and *Options type', () => {
     const report = undocumented.map(location).join('\n');
-    expect(undocumented, `Add a one-line /** description */ above:\n${report}`).toEqual([]);
+    expect(
+      undocumented,
+      `Add a one-line /** description */ above:\n${report}`
+    ).toEqual([]);
   });
 });
 
 describe('stories leave the description to the JSDoc', () => {
-  const resolved = storyFiles.map((story) => ({ story, ...storyComponentProps(story) }));
+  const resolved = storyFiles.map((story) => ({
+    story,
+    ...storyComponentProps(story),
+  }));
   const where = (story: string) => relative(process.cwd(), join(root, story));
   const duplicated = resolved.flatMap(({ story, found, props }) =>
     !found || !props
@@ -199,18 +247,28 @@ describe('stories leave the description to the JSDoc', () => {
       : describedArgTypes(story)
           .map((name) => props.find((p) => p.prop === name))
           .filter((p): p is { prop: string; type: string } => !!p)
-          .map((p) => `${where(story)}: argTypes.${p.prop} repeats ${p.type}.${p.prop}`)
+          .map(
+            (p) =>
+              `${where(story)}: argTypes.${p.prop} repeats ${p.type}.${p.prop}`
+          )
   );
 
   it('resolves the props of every story component', () => {
-    const unresolved = resolved.filter((r) => r.found && !r.props).map((r) => where(r.story));
+    const unresolved = resolved
+      .filter((r) => r.found && !r.props)
+      .map((r) => where(r.story));
     expect(
       unresolved,
       `Cannot read the props of the meta \`component\` in:\n${unresolved.join('\n')}`
     ).toEqual([]);
-    const props = (story: string) => resolved.find((r) => r.story.endsWith(story))?.props ?? [];
-    expect(props('code-block.stories.tsx').map((p) => p.type)).toContain('CodeBlockProps');
-    expect(props('table.stories.tsx').map((p) => p.type)).toContain('TableProps');
+    const props = (story: string) =>
+      resolved.find((r) => r.story.endsWith(story))?.props ?? [];
+    expect(props('code-block.stories.tsx').map((p) => p.type)).toContain(
+      'CodeBlockProps'
+    );
+    expect(props('table.stories.tsx').map((p) => p.type)).toContain(
+      'TableProps'
+    );
   });
 
   it('never sets argTypes.<prop>.description for a prop the component declares', () => {
