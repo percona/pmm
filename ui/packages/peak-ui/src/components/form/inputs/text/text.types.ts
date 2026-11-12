@@ -24,7 +24,7 @@ export type TextInputProps<T extends FieldValues = FieldValues> = {
   name: FieldPath<T>;
   /** Label shown on the field's top border; it stays there even while the field is empty. */
   label?: string;
-  /** MUI TextField props such as placeholder or multiline; an onBlur here must return the text to store, as its result replaces the value. */
+  /** MUI TextField props such as placeholder or multiline; text returned by onChange replaces what is stored, and an onBlur must return the text to store. */
   textFieldProps?: TextFieldProps;
   /** Adds an asterisk to the label and makes the browser block form submit while the field is empty; rules go in `controllerProps.rules`. */
   isRequired?: boolean;
