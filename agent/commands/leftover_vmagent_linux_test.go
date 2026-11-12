@@ -22,6 +22,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"syscall"
 	"testing"
@@ -51,6 +52,8 @@ func TestLeftoverVMAgentHelper(t *testing.T) {
 		f, err := os.Create(filepath.Join(queueDir, "flock.lock"))
 		require.NoError(t, err)
 		require.NoError(t, unix.Flock(int(f.Fd()), unix.LOCK_EX))
+		// The finalizer of an unreachable f would close the fd, and with it the lock.
+		defer runtime.KeepAlive(f)
 	}
 	_, _ = os.Stdout.WriteString("ready\n")
 	time.Sleep(time.Hour)
