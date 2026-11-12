@@ -724,6 +724,11 @@ message InventorySetting {
   bool is_advanced = 7;
   // The field's documentation, where it has any.
   optional string description = 8;
+  // The lowest value the app accepts, inclusive. Unset when it declares none or only an
+  // exclusive one, such as "greater than zero".
+  google.protobuf.Value minimum = 10;
+  // The highest value the app accepts, inclusive. Unset when it declares none.
+  google.protobuf.Value maximum = 11;
 }
 
 // ListInventoryHostsRequest is the request for ListInventoryHosts.

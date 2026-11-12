@@ -2225,6 +2225,28 @@ func TestInventoryConfig(t *testing.T) {
 		assert.Equal(t, omv1.SettingReload_SETTING_RELOAD_NOT_OVERRIDABLE, response.GetSettings()[1].GetReload())
 	})
 
+	t.Run("reports the range a field declares", func(t *testing.T) {
+		t.Parallel()
+
+		body := `[{"key": "TASK_TIMEOUT", "value": 180, "default_value": 180, "type": "int",
+		           "reload": "hot", "has_override": false, "is_advanced": true, "description": null,
+		           "minimum": 60, "maximum": 300},
+		          {"key": "SCHEDULE__every", "value": 10, "default_value": 10, "type": "int",
+		           "reload": "hot", "has_override": false, "is_advanced": false, "description": null,
+		           "minimum": null, "maximum": null}]`
+		stub := newSEPStub(t, http.StatusOK, body)
+
+		response, err := stub.service(t).GetInventoryConfig(callerContext(t), &omv1.GetInventoryConfigRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, response.GetSettings(), 2)
+		timeout := response.GetSettings()[0]
+		assert.InDelta(t, 60.0, timeout.GetMinimum().GetNumberValue(), 0.001)
+		assert.InDelta(t, 300.0, timeout.GetMaximum().GetNumberValue(), 0.001)
+		assert.Nil(t, response.GetSettings()[1].GetMinimum())
+		assert.Nil(t, response.GetSettings()[1].GetMaximum())
+	})
+
 	t.Run("a change is passed through as the app will validate it", func(t *testing.T) {
 		t.Parallel()
 
