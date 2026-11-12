@@ -113,6 +113,19 @@ func mongoBuildInfo(version string) []map[string]any {
 	return []map[string]any{{"version": version}}
 }
 
+func mongoEOL(severity, current, series, eolDate string) finding {
+	summary := "MongoDB " + series + " reached end of life"
+	if severity == "warning" {
+		summary = "MongoDB " + series + " reaches end of life on " + eolDate
+	}
+
+	return finding{
+		Severity: severity,
+		Summary:  summary,
+		Labels:   map[string]string{"current": current, "series": series, "eol_date": eolDate},
+	}
+}
+
 func mongoCmdLineOpts(parsed map[string]any) []map[string]any {
 	return []map[string]any{{"parsed": parsed}}
 }
@@ -140,6 +153,8 @@ func TestBuiltinVersionChecks(t *testing.T) {
 		today string
 		docs  [][]map[string]any
 		want  []finding
+		// descContains lists substrings that every finding's description must contain.
+		descContains []string
 	}{
 		{
 			name:  "mysql_version Oracle 8.0.37",
@@ -153,18 +168,89 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			}},
 		},
 		{
+			name:  "mongodb_EOL 5.0.31",
+			check: "mongodb_EOL",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("5.0.31")},
+			want:  []finding{mongoEOL("error", "5.0.31", "5.0", "2024-10-31")},
+		},
+		{
+			name:  "mongodb_EOL 6.0.19-16",
+			check: "mongodb_EOL",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("6.0.19-16")},
+			want:  []finding{mongoEOL("error", "6.0.19-16", "6.0", "2025-07-31")},
+		},
+		{
 			name:  "mongodb_EOL 4.4.29",
 			check: "mongodb_EOL",
 			today: today,
 			docs:  [][]map[string]any{mongoBuildInfo("4.4.29")},
-			want:  []finding{{Severity: "warning", Summary: "MongoDB version 4.4 is about to reach EOL"}},
+			want:  []finding{mongoEOL("error", "4.4.29", "4.4", "2024-02-29")},
 		},
 		{
-			name:  "mongodb_version 6.0.19-16",
-			check: "mongodb_version",
+			name:  "mongodb_EOL 4.2.25",
+			check: "mongodb_EOL",
 			today: today,
-			docs:  [][]map[string]any{mongoBuildInfo("6.0.19-16")},
-			want:  []finding{{Severity: "warning", Summary: "Newer version of MongoDB is available."}},
+			docs:  [][]map[string]any{mongoBuildInfo("4.2.25")},
+			want:  []finding{mongoEOL("error", "4.2.25", "4.2", "2023-04-30")},
+		},
+		{
+			name:  "mongodb_EOL 7.0.14 well before EOL",
+			check: "mongodb_EOL",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("7.0.14")},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_EOL 7.0.14 184 days before EOL",
+			check: "mongodb_EOL",
+			today: "2027-02-28",
+			docs:  [][]map[string]any{mongoBuildInfo("7.0.14")},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_EOL 7.0.14 183 days before EOL",
+			check: "mongodb_EOL",
+			today: "2027-03-01",
+			docs:  [][]map[string]any{mongoBuildInfo("7.0.14")},
+			want:  []finding{mongoEOL("warning", "7.0.14", "7.0", "2027-08-31")},
+		},
+		{
+			name:  "mongodb_EOL 7.0.14 on EOL day",
+			check: "mongodb_EOL",
+			today: "2027-08-31",
+			docs:  [][]map[string]any{mongoBuildInfo("7.0.14")},
+			want:  []finding{mongoEOL("warning", "7.0.14", "7.0", "2027-08-31")},
+		},
+		{
+			name:  "mongodb_EOL 7.0.14 day after EOL",
+			check: "mongodb_EOL",
+			today: "2027-09-01",
+			docs:  [][]map[string]any{mongoBuildInfo("7.0.14")},
+			want:  []finding{mongoEOL("error", "7.0.14", "7.0", "2027-08-31")},
+		},
+		{
+			name:  "mongodb_EOL 8.0.4",
+			check: "mongodb_EOL",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("8.0.4")},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_EOL 10.0.0 not in table",
+			check: "mongodb_EOL",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("10.0.0")},
+			want:  []finding{},
+		},
+		{
+			name:         "mongodb_version 6.0.19-16",
+			check:        "mongodb_version",
+			today:        today,
+			docs:         [][]map[string]any{mongoBuildInfo("6.0.19-16")},
+			want:         []finding{{Severity: "warning", Summary: "Newer version of MongoDB is available."}},
+			descContains: []string{"security fixes", "https://www.mongodb.com/resources/products/alerts", "Major version 8.0 "},
 		},
 		{
 			name:  "postgresql_eol_check 100023",
@@ -193,8 +279,21 @@ func TestBuiltinVersionChecks(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			got := findings(runBuiltinCheck(t, tc.check, tc.today, tc.docs...))
-			assert.Equal(t, tc.want, got)
+			results := runBuiltinCheck(t, tc.check, tc.today, tc.docs...)
+			assert.Equal(t, tc.want, findings(results))
+
+			for _, r := range results {
+				for _, sub := range tc.descContains {
+					assert.Contains(t, r.Description, sub)
+				}
+			}
 		})
+	}
+}
+
+func TestRetiredMongoDBChecks(t *testing.T) {
+	for _, name := range []string{"mongodb_unsupported_version", "mongodb_cve_version"} {
+		_, err := os.Stat(filepath.Join("..", "..", "data", "checks", name+".yml"))
+		assert.ErrorIs(t, err, os.ErrNotExist, name)
 	}
 }

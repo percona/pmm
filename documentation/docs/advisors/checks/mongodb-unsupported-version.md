@@ -1,5 +1,8 @@
 # Unsupported MongoDB version
 
+!!! note
+    The `mongodb_unsupported_version` check was removed in PMM 3.11.0. The [`mongodb_EOL`](mongodb-eol.md) check now reports release series that reached end of life, and the [`mongodb_version`](mongodb-version.md) check reports newer versions.
+
 The `mongodb_unsupported_version` check returns an error if the release series of MongoDB or Percona Server for MongoDB (PSMDB) is no longer supported.
 
 ## Description

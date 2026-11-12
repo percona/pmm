@@ -2,6 +2,8 @@
 ## Description
 This check returns the MongoDB or Percona Server for MongoDB versions currently used in your environment. It also provides information on other available minor or major versions to consider for upgrades.
 
+Newer releases include security fixes, so the finding also links to the [MongoDB security alerts](https://www.mongodb.com/resources/products/alerts), where you can check which vulnerabilities affect your current version.
+
 ## Resolution
 If you are running PSMDB/MongoDB version lower than the latest minor/major patch, then we recommend upgrading to the latest version gradually. Make sure not to skip a major version release when upgrading. 
 {.power-number}
