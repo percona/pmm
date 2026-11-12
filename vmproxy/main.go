@@ -40,7 +40,7 @@ type flags struct {
 	HeaderName      string   `default:"X-Proxy-Filter" help:"Header name to read filter configuration from. The content of the header shall be a base64 encoded JSON array with strings. Each string is a filter. Multiple filters are joined with a logical OR."`
 	AdminHeaderName string   `default:"X-Proxy-Admin" help:"Header name pmm-managed sets to mark a request as coming from an admin, which allows the admin-only VictoriaMetrics diagnostics. nginx overwrites it on every route reaching this proxy, so clients cannot set it."`
 	WriteHeaderName string   `default:"X-Proxy-Write" help:"Header name Grafana sets to mark a remote write from its recording rules. nginx clears it on every route reaching this proxy, so clients cannot set it."`
-	AllowWrites     bool     `help:"Forward remote writes from Grafana's recording rules. pmm-managed passes it only where access control is off; without it every write is refused."`
+	AllowWrites     bool     `help:"Forward remote writes from Grafana's recording rules. pmm-managed passes it only outside HA and where access control is off; without it every write is refused."`
 }
 
 func main() {

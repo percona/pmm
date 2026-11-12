@@ -176,3 +176,6 @@ For the full set of options, see [Create recording rules](https://grafana.com/do
 
 !!! caution "Recording rules and access control"
     Recording rules can't write to **Metrics** while [access control](../admin/roles/access-control/intro.md) is enabled. A rule runs on a schedule rather than on behalf of a user, so PMM can't apply the label filters of the user who created it. Without those filters the rule would read every series and store the result where other users can read it. PMM refuses the write instead, and the rule reports an evaluation error on each run.
+
+!!! caution "Recording rules and high availability"
+    Recording rules can't write to **Metrics** in a PMM High Availability deployment. PMM refuses the write, and the rule reports an evaluation error on each run.

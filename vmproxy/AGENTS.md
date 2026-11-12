@@ -41,9 +41,10 @@ Client (Grafana / API)
   the HA vmauth route map accept. Grafana sets the header from `[recording_rules.custom_headers]`
   in `grafana.ini`, on recording rule writes alone. It is not a credential: Grafana forwards a
   client's own headers to the data source, so nginx clears it wherever it clears the admin marker.
-  pmm-managed passes `--allow-writes` only while access control is off: a scheduled evaluation
-  carries no `X-Proxy-Filter`, so under access control a marked write gets a 403 that names the
-  cause, logged at debug (PMM-15844).
+  pmm-managed passes `--allow-writes` only outside HA and while access control is off: a scheduled
+  evaluation carries no `X-Proxy-Filter`, and in HA a settings change reconfigures one replica
+  alone. A marked write that is not allowed gets a 403 that names the cause, logged at debug
+  (PMM-15844).
 - Invalid headers (bad base64 or JSON) return `412 Precondition Failed`
 - `X-Forwarded-For` is stripped
 - Missing `User-Agent` is set to empty

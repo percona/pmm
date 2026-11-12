@@ -474,7 +474,7 @@ func TestProxy(t *testing.T) {
 	t.Run("shall refuse a marked write with its own reason when writes are off", func(t *testing.T) {
 		t.Parallel()
 
-		// What pmm-managed renders while access control is on.
+		// What pmm-managed renders in HA or while access control is on.
 		proxied := false
 		server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
 			proxied = true

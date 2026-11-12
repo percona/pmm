@@ -125,22 +125,25 @@ func TestConfigRecordingRuleWrites(t *testing.T) {
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
-	s := New(configDir, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
 
 	tmpl := templates.Lookup("vmproxy")
 	require.NotNil(t, tmpl)
 
-	// Under access control vmproxy is not told to allow writes, so it refuses them.
+	// Under access control or in HA vmproxy is not told to allow writes, so it refuses them.
 	for _, tc := range []struct {
 		name          string
 		accessControl bool
+		ha            bool
 		expectFlag    bool
 	}{
 		{name: "access control off", accessControl: false, expectFlag: true},
 		{name: "access control on", accessControl: true, expectFlag: false},
+		{name: "HA with access control off", ha: true, expectFlag: false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
+			s := New(configDir, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{Enabled: tc.ha}})
 
 			settings := &models.Settings{DataRetention: 30 * 24 * time.Hour}
 			settings.AccessControl.Enabled = new(tc.accessControl)

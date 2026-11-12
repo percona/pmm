@@ -214,7 +214,7 @@ func refuseRecordingRuleWrite(rw http.ResponseWriter, req *http.Request) {
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	rw.WriteHeader(http.StatusForbidden)
-	io.WriteString(rw, "Recording rules cannot write to Metrics while access control is enabled") //nolint:errcheck,gosec
+	io.WriteString(rw, "Recording rules cannot write to Metrics in high availability mode or while access control is enabled") //nolint:errcheck,gosec
 }
 
 // isRecordingRuleWrite reports whether the request carries the write marker, which nginx clears for clients (PMM-15844).

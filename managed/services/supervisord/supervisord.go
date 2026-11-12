@@ -477,8 +477,9 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"PMMServerHost":                "",
 	}
 
-	// Under access control a rule would store series its author cannot read (PMM-15844).
-	templateParams["AllowRecordingRuleWrites"] = !settings.IsAccessControlEnabled()
+	// Under access control a rule would store series its author cannot read, and in HA enabling
+	// it reconfigures this replica alone, so HA never allows the write (PMM-15844).
+	templateParams["AllowRecordingRuleWrites"] = !settings.IsAccessControlEnabled() && !s.haParams.Enabled
 
 	s.addPostgresParams(templateParams)
 	s.addClusterParams(templateParams)
