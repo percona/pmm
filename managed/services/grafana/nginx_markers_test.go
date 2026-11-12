@@ -17,6 +17,7 @@ package grafana
 
 import (
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -39,8 +40,7 @@ var (
 	proxyMarkerNames = []string{lbacHeaderName, adminHeaderName, writeMarkerHeaderName}
 )
 
-// writeMarkerHeaderName is set by Grafana on a recording rule write, so nginx clears it rather
-// than setting it from auth_request. The other copies of the name are unexported.
+// writeMarkerHeaderName is the header Grafana sets on a recording rule write, which nginx clears.
 const writeMarkerHeaderName = "X-Proxy-Write"
 
 type nginxLocation struct {
@@ -77,8 +77,16 @@ func parseNginxLocations(t *testing.T, path string) ([]nginxLocation, map[string
 	for i, line := range strings.Split(string(buf), "\n") {
 		if cur == nil {
 			if m := locationStart.FindStringSubmatch(line); m != nil {
+				depth = strings.Count(line, "{") - strings.Count(line, "}")
+				if depth <= 0 {
+					require.NotContainsf(t, line, "proxy_pass",
+						"%s:%d: put a proxying location on separate lines so its headers can be checked", path, i+1)
+
+					continue
+				}
+
 				cur = &nginxLocation{name: m[1], line: i + 1, headers: make(map[string]string)}
-				depth = 1
+
 				continue
 			}
 
@@ -110,6 +118,20 @@ func parseNginxLocations(t *testing.T, path string) ([]nginxLocation, map[string
 	return locations, serverLevel
 }
 
+func TestParseNginxLocationsClosesOneLineBlocks(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "pmm.conf")
+	conf := "location = /healthz { return 200; }\nlocation /graph {\n  proxy_pass http://grafana;\n}\n"
+	require.NoError(t, os.WriteFile(path, []byte(conf), 0o600))
+
+	locations, _ := parseNginxLocations(t, path)
+
+	require.Len(t, locations, 1)
+	assert.Equal(t, "/graph", locations[0].name)
+	assert.Equal(t, "http://grafana", locations[0].proxyPass)
+}
+
 func TestNginxOwnsTheProxyMarkers(t *testing.T) {
 	t.Parallel()
 
@@ -138,7 +160,7 @@ func TestNginxOwnsTheProxyMarkers(t *testing.T) {
 
 			checked++
 
-			// /graph/api/live/ omits X-Proxy-Filter and predates this test.
+			// X-Proxy-Filter is not required: /graph/api/live/ omits it.
 			for _, name := range []string{adminHeaderName, writeMarkerHeaderName} {
 				assert.Containsf(t, loc.headers, name,
 					"location %s (%s:%d) proxies to %s and declares its own proxy_set_header, so it inherits none: it must set %s",
