@@ -6,7 +6,7 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
-import { kebabize } from '@/utils';
+import { kebabize } from '../../../../utils';
 import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { SelectInputProps } from './select.types';
 import { Messages } from './select.messages';

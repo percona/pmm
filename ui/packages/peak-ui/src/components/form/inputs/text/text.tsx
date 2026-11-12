@@ -1,5 +1,5 @@
 import { TextField } from '@mui/material';
-import { kebabize } from '@/utils';
+import { kebabize } from '../../../../utils';
 import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { TextInputProps } from './text.types';
 

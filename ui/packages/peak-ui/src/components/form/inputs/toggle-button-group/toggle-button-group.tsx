@@ -1,5 +1,5 @@
 import { ToggleButtonGroup } from '@mui/material';
-import { kebabize } from '@/utils';
+import { kebabize } from '../../../../utils';
 import LabeledContent from '../../../labeled-content';
 import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { ToggleButtonGroupInputProps } from './toggle-button-group.types';

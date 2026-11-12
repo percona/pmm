@@ -1,5 +1,4 @@
 import type { StorybookConfig } from "@storybook/react-vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 import { MATURITY_TAGS } from "./maturity-tags";
 
 const cjsInteropDeps = [
@@ -36,7 +35,6 @@ const config: StorybookConfig = {
     ];
 
     return mergeConfig(config, {
-      plugins: [tsconfigPaths()],
       // Keep fn/class names through minification so Storybook shows real component names.
       esbuild: { keepNames: true },
       optimizeDeps: { esbuildOptions: { keepNames: true } },

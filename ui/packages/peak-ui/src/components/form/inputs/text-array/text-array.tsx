@@ -40,7 +40,7 @@ const TextArray = ({
     control,
     name: fieldName,
   });
-  const defaultFields: Record<string, string>[] = fields.length ? fields : [];
+  const defaultFields: Record<string, unknown>[] = fields.length ? fields : [];
   const [fieldAppended, setFieldAppended] = useState(false);
   const error = (index: number): FieldError | undefined =>
     // @ts-expect-error react-hook-form errors path is not strongly typed for nested field arrays

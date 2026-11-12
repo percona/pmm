@@ -1,5 +1,5 @@
 import { Autocomplete, CircularProgress, TextField, Tooltip } from '@mui/material';
-import { kebabize } from '@/utils';
+import { kebabize } from '../../../../utils';
 import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { AutoCompleteInputProps } from './auto-complete.types';
 

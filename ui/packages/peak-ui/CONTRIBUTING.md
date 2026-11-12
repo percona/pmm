@@ -14,7 +14,7 @@ PEAK UI (`@percona/peak-ui`) is a React + MUI v7 component library published as 
 - **Build watch:** `pnpm build:watch`
 - **Storybook dev:** `pnpm storybook:dev` (port 6006, headless via `--no-open`)
 - **Storybook build:** `pnpm storybook:build`
-- **Type check:** `pnpm typecheck` (app + `.storybook` tsconfigs)
+- **Type check:** `pnpm check-types` (app + `.storybook` tsconfigs)
 - **Lint:** `pnpm lint` (ESLint over `src`)
 - **Format:** `pnpm format` (Prettier write) · **check only:** `pnpm format:check`
 - **Test:** `pnpm test` (Vitest, run once) · **watch:** `pnpm test:watch`
@@ -24,7 +24,7 @@ PEAK UI (`@percona/peak-ui`) is a React + MUI v7 component library published as 
 Before considering the work done, run the safety gate and make it pass:
 
 ```
-pnpm typecheck && pnpm lint && pnpm format:check && pnpm test
+pnpm check-types && pnpm lint && pnpm format:check && pnpm test
 ```
 
 If `format:check` fails, fix it with `pnpm format` (don't hand-edit whitespace). If `typecheck`, `lint`, or `test` fail, fix the underlying issue and re-run the full chain until green. Do not report a change as complete until this passes.
@@ -52,10 +52,6 @@ Every documented story carries exactly **one** maturity status on its meta (defa
 ## Tech Stack (beyond what package.json shows)
 
 React 18 + TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with sourcemaps; peer deps (MUI, Emotion, React, `react-hook-form`) are externalized. The theme names Poppins and Roboto Mono; the `@fontsource/*` dependencies are declared but not imported, so consumers load fonts themselves (see `AGENTS.md`).
-
-## Path Aliases
-
-- `@/utils` → `./src/utils` (configured in tsconfig.json)
 
 ## MUI Conventions
 

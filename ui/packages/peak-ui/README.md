@@ -48,7 +48,7 @@ pnpm install
 | Storybook dev | `pnpm storybook:dev` (port 6006)     |
 | Build         | `pnpm build` (Rollup → `dist/`)      |
 | Build (watch) | `pnpm build:watch`                   |
-| Typecheck     | `pnpm typecheck`                     |
+| Typecheck     | `pnpm check-types`                   |
 | Lint          | `pnpm lint`                          |
 | Format check  | `pnpm format:check`                  |
 | Tests         | `pnpm test`                          |

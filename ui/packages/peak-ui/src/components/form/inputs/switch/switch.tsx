@@ -1,5 +1,5 @@
 import { FormControlLabel, Switch, Typography } from '@mui/material';
-import { kebabize } from '@/utils';
+import { kebabize } from '../../../../utils';
 import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { SwitchInputProps } from './switch.types';
 
