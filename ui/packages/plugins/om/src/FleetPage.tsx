@@ -20,7 +20,7 @@ import { Box, Tab, Tabs, Typography } from '@mui/material';
 import { OmHeader } from './components/OmHeader';
 import { SyncButton } from './components/SyncButton';
 import { tabPanelProps, tabProps } from './tabA11y';
-import { FleetClustersTab } from './FleetClustersTab';
+import { FleetClustersTab } from './fleet-clusters-tab';
 import { FleetServicesTab } from './FleetServicesTab';
 
 /** The tabs, and the query-parameter values that address them. */

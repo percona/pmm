@@ -44,8 +44,9 @@ const ERROR_TEXT =
  * message added to one of these files still fails.
  */
 const STATUS_RED: Record<string, number> = {
-  // "N down"
-  'FleetClustersTab.tsx': 2,
+  // "N down" in a group header and the fleet counts
+  'fleet-clusters-tab/components/fleet-counts/FleetCounts.tsx': 1,
+  'fleet-clusters-tab/components/group-header/GroupHeader.tsx': 1,
   // "N down", a service's "failing 3h", and its failure's short reason
   'FleetServicesTab.tsx': 3,
   // "N cannot be scanned", a failing node's row

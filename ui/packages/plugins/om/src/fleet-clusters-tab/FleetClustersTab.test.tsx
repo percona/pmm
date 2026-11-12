@@ -29,17 +29,17 @@ import {
   createMemoryRouter,
 } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { FLEET_NOT_COLLECTED, OPERATIONS_DOC_URL } from '../src/constants';
-import { FleetClustersTab } from '../src/FleetClustersTab';
-import { cluster, mixedEstate, service, topology } from './fixtures';
+import { FLEET_NOT_COLLECTED, OPERATIONS_DOC_URL } from '../constants';
+import { FleetClustersTab } from './FleetClustersTab';
+import { cluster, mixedEstate, service, topology } from '../../tests/fixtures';
 
 const { useOmTopology, useOmInventoryServices } = vi.hoisted(() => ({
   useOmTopology: vi.fn(),
   useOmInventoryServices: vi.fn(),
 }));
 
-vi.mock('../src/topologyHooks', () => ({ useOmTopology }));
-vi.mock('../src/inventoryHooks', () => ({
+vi.mock('../topologyHooks', () => ({ useOmTopology }));
+vi.mock('../inventoryHooks', () => ({
   useOmInventoryServices,
   useLastScanFinishedAt: () => ({ status: 'ready', finishedAt: null }),
 }));
