@@ -361,7 +361,7 @@ After configuring your database server, add a MongoDB service using either the u
         ```
 
     === "Arbiter"
-        An arbiter stores no data and has no users, so add it without `--username` and `--password`. With credentials, the connection check fails. Turn off Query Analytics with `--query-source=none`:
+        An arbiter holds no data, so it has no users and serves no queries. Add the arbiter without `--username` and `--password`, because the connection check fails with credentials. Turn off Query Analytics with `--query-source=none`:
 
         ```sh
         pmm-admin add mongodb \

@@ -3,9 +3,9 @@
 !!! warning "Developer Preview"
     Operations for MongoDB is a Developer Preview feature in PMM 3.10.0. Use it for testing and feedback only, not in production.
 
-Use Operations for MongoDB to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, review the [limitations](#limitations) that apply in this Developer Preview release.
+Operations for MongoDB enables you to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, review the [limitations](#limitations) that apply in this Developer Preview release.
 
-Any signed-in PMM user can check fleet health in **MongoDB > Operations** and open every page except the install form. Scanning nodes, starting or aborting installs, removing node entries, and changing settings need the Admin role. For other users, these controls are disabled or hidden. Any user can click **Refresh** on **Fleet**.
+Every signed-in PMM user can open **MongoDB > Operations** and see all of its pages, except the install form. Only PMM Admins can scan nodes, start or abort installs, remove node entries, and change settings. For other users, these controls are disabled or hidden. Any user can click **Refresh** on **Fleet**.
 
 ## Prepare PMM Server
 
@@ -237,7 +237,7 @@ The page shows when its data was last refreshed and when the nodes were last sca
 
 ### Pages don't load
 
-If **Nodes**, **Automations** or **Settings** doesn't load and shows **PMM Extensions did not accept the PMM session**, PMM Extensions isn't accepting your PMM sign-in. This happens when the `pmm-extensions` container sets `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` to `false`. The variable is on by default. To fix it, remove the variable from the container and recreate the container.
+If **Nodes**, **Automations** or **Settings** can't load and the error says **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container. PMM signs you in to PMM Extensions with your PMM session. PMM Extensions accepts that session only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default. If the container sets it to `false`, remove the variable and recreate the container.
 
 ### Scans
 
