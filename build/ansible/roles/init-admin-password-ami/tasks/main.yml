@@ -8,3 +8,6 @@
 
 - name: change admin password
   command: change-admin-password {{ jsondata['content'] }}
+  # Instance IDs have no uppercase letter, so they fail Grafana's password policy.
+  environment:
+    GF_AUTH_BASIC_PASSWORD_POLICY: "false"

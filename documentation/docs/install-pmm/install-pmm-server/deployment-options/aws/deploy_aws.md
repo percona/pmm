@@ -63,7 +63,7 @@ Once your instance status shows "Running" and passes all status checks in the AW
     
     ![PMM Login](../../../../images/PMM_Login.png)
 
-3. Change the default credentials then use the new ones to log in to the PMM Server home page. You will reuse these credentials when configuring PMM Clients on other hosts.
+3. Change the default password to one that meets the [password requirements](../../../../admin/manage-users/add_users.md#password-requirements), then use the new credentials to log in to the PMM Server home page. You will reuse these credentials when configuring PMM Clients on other hosts.
 
 ## Configure PMM Server and IP settings
 After initial access, configure your PMM Server's security groups and IP addressing.

@@ -17,7 +17,7 @@ To log into PMM with basic authentication:
 
 3. Click **Log in**.
 
-4. On first login, you'll be prompted to set a new password. Enter a new password and click **Submit**, or click **Skip** to keep the default (not recommended for production).
+4. On first login, you'll be prompted to set a new password. Enter a new password that meets the [password requirements](../../admin/manage-users/add_users.md#password-requirements) and click **Submit**, or click **Skip** to keep the default (not recommended for production).
 
 ![PMM Home dashboard](../../images/PMM_Home_Dashboard.png)
 
