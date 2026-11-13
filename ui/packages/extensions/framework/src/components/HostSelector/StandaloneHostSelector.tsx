@@ -50,7 +50,7 @@ export function StandaloneHostSelector({
   const lastSurfacedRef = useRef<unknown>(null);
   useEffect(() => {
     if (isError && error && error !== lastSurfacedRef.current) {
-      enqueueSnackbar(`Failed to load executor hosts: ${error.message}`, {
+      enqueueSnackbar(`Failed to load hosts: ${error.message}`, {
         variant: 'error',
         autoHideDuration: 30_000,
       });

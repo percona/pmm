@@ -131,7 +131,7 @@ type countingRejectingClient struct {
 	rotateCalls      int
 }
 
-func (c *countingRejectingClient) getAuthUser(context.Context, http.Header, *logrus.Entry) (authUser, error) {
+func (c *countingRejectingClient) getAuthUser(context.Context, http.Header) (authUser, error) {
 	c.getAuthUserCalls++
 	return emptyUser, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}
 }
@@ -692,6 +692,56 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	})
 }
 
+// With access control on, a filtered route needs a user ID to filter by. An anonymous visitor and a
+// service token without one must be refused for that rather than as an internal error.
+func TestAuthServerFilteredRouteWithoutUser(t *testing.T) {
+	t.Parallel()
+
+	grafana := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.URL.Path == "/api/auth/serviceaccount" && r.Header.Get("Authorization") == "Bearer glsa_valid":
+			_, _ = fmt.Fprint(w, `{"orgId":1,"role":"Admin"}`)
+		case r.URL.Path == "/api/auth/serviceaccount":
+			w.WriteHeader(http.StatusInternalServerError)
+		default:
+			w.WriteHeader(http.StatusUnauthorized)
+			_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+		}
+	}))
+	t.Cleanup(grafana.Close)
+
+	s := NewAuthServer(NewClient(strings.TrimPrefix(grafana.URL, "http://")), nil)
+	s.accessControl = &accessControl{enabled: true, lastUpdated: time.Now()}
+
+	for name, tc := range map[string]struct {
+		authorization string
+		wantStatus    int
+		wantMessage   string
+	}{
+		"anonymous visitor":                     {"", http.StatusUnauthorized, "Unauthorized"},
+		"service account token without user ID": {"Bearer glsa_valid", http.StatusUnauthorized, "Unauthorized"},
+		"Grafana fails to check token":          {"Bearer glsa_broken", http.StatusUnauthorized, "Internal server error."},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/auth_request", nil)
+			req.Header.Set("X-Original-Uri", "/graph/api/ds/query")
+			req.Header.Set("X-Original-Method", http.MethodPost)
+			if tc.authorization != "" {
+				req.Header.Set("Authorization", tc.authorization)
+			}
+			rw := httptest.NewRecorder()
+
+			s.ServeHTTP(rw, req)
+
+			assert.Equal(t, tc.wantStatus, rw.Code)
+			assert.Contains(t, rw.Body.String(), tc.wantMessage)
+			assert.Empty(t, rw.Header().Get(lbacHeaderName))
+		})
+	}
+}
+
 func TestDropsFilters(t *testing.T) {
 	t.Parallel()
 
@@ -779,7 +829,7 @@ type stubClient struct {
 	user authUser
 }
 
-func (s stubClient) getAuthUser(context.Context, http.Header, *logrus.Entry) (authUser, error) {
+func (s stubClient) getAuthUser(context.Context, http.Header) (authUser, error) {
 	return s.user, nil
 }
 
@@ -851,8 +901,7 @@ func TestMaybeAddLBACFiltersNoUserID(t *testing.T) {
 }
 
 // Access Roles apply to every principal Grafana authenticates by its user ID, service-account
-// tokens included; only the anonymous identity goes unfiltered, and a principal without a positive
-// user ID is refused.
+// tokens included, and a principal without a positive user ID is refused.
 func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 	t.Parallel()
 
@@ -902,8 +951,6 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 				return
 			}
 			_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
-		case "/api/frontend/settings":
-			_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer"}`)
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
@@ -1058,20 +1105,6 @@ func TestAuthServerAccessRolesByIdentity(t *testing.T) {
 			expect:      expectRole(42, mysql1),
 			wantStatus:  http.StatusOK,
 			wantFilters: []string{mysql1},
-		},
-		{
-			name:       "anonymous on QAN",
-			path:       qanPath,
-			auth:       func(*http.Request) {},
-			expect:     expectSettings(true),
-			wantStatus: http.StatusOK,
-		},
-		{
-			name:       "anonymous on the data source proxy",
-			path:       vmPath,
-			auth:       func(*http.Request) {},
-			expect:     expectSettings(true),
-			wantStatus: http.StatusOK,
 		},
 		// PMM Client's paths are not filtered, so its Admin service account reads no role, whatever the default one.
 		{
