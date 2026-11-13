@@ -31,6 +31,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 - [PMM-7](https://perconadev.atlassian.net/browse/PMM-7): Updated the Grafana ClickHouse data source plugin to v4.23.4, built with Go 1.27.3. This fixes the high-severity Go vulnerabilities that image scanners reported in v4.21.3, including [CVE-2026-78669](https://nvd.nist.gov/vuln/detail/CVE-2026-78669) and the standard library findings listed in the [PMM 3.10.0 release notes](3.10.0.md#go-standard-library-vulnerabilities-in-the-clickhouse-data-source).
 
+- [PMM-15917](https://perconadev.atlassian.net/browse/PMM-15917): Upgraded ClickHouse to 26.3.62.3 in PMM Server, and to Altinity Stable 26.3.60.10002 in the PMM HA Helm chart. This fixes [CVE-2026-116366](https://www.cve.org/CVERecord?id=CVE-2026-116366), a critical vulnerability that lets an unauthenticated user with network access run code on ClickHouse Server. Your existing Query Analytics data is kept. If PMM uses an external ClickHouse, upgrade it to a fixed version yourself.
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
