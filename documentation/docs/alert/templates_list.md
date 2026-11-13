@@ -42,7 +42,7 @@ You don't need to create rules from these templates yourself. PMM adds them to e
 
 | Template name | Description |
 |:------------- | :---------- |
-| **PMM HA cluster has no active leader** | Alerts when no PMM Server node is the leader. While this lasts, you can't open the PMM UI or use the API, and cluster-wide tasks such as advisor checks and scheduled backups stop. |
+| **PMM HA cluster has no active leader** | Alerts when no PMM Server node is the leader. While this lasts, you can't open the PMM UI or use the API, and cluster-wide tasks such as Advisor checks and scheduled backups stop. |
 | **PMM HA split-brain detected** | Alerts when more than one node acts as the leader at the same time, because the nodes have formed separate clusters instead of one. |
 | **PMM HA leader is flapping** | Alerts when a node goes through more than 5 leader elections within 10 minutes, usually because of an unstable network or a node that keeps restarting. |
 | **PMM HA node unreachable** | Alerts when fewer PMM Server nodes report in than the number configured in `PMM_HA_PEERS`, which means at least one node is down or cut off from the others. |
