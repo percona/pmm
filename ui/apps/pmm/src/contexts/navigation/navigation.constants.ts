@@ -3,7 +3,6 @@ import {
   PMM_LOGOUT_URL,
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
-  EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
   PMM_ADD_SERVICE_URL,
   PMM_INVENTORY_NODES_PATH,
@@ -20,53 +19,31 @@ import Groups from '@mui/icons-material/Groups';
 import HelpOutline from '@mui/icons-material/HelpOutline';
 import Logout from '@mui/icons-material/Logout';
 import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
-import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
-import Restore from '@mui/icons-material/Restore';
-import Search from '@mui/icons-material/Search';
 import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
-import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
 import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
+import SpaceDashboardOutlined from '@mui/icons-material/SpaceDashboardOutlined';
+import Search from '@mui/icons-material/Search';
 import {
   CirclesExtIcon,
   Graph4Icon,
   Graph5Icon,
-  HaproxyIcon,
-  HomeIcon,
   NetworkIntelligenceIcon,
   NetworkNodeIcon,
   PerconaMoIcon,
   PerconaMyIcon,
   PerconaPoIcon,
   PerconaVaIcon,
-  ProxyIcon,
   QueryStatsIcon,
-  SearchInsightsIcon,
-  SupportDiagnosticsIcon,
 } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 
-export const NAV_DIVIDERS: Record<'home' | 'inventory' | 'backups', NavItem> = {
-  home: {
-    id: 'home-divider',
-    type: 'menu-divider',
-  },
-  inventory: {
-    id: 'inventory-divider',
-    type: 'menu-divider',
-  },
-  backups: {
-    id: 'backups-divider',
-    type: 'menu-divider',
-  },
-};
-
 export const NAV_HOME_PAGE: NavItem = {
   id: 'home-page',
-  icon: HomeIcon,
-  text: 'Home page',
+  icon: SpaceDashboardOutlined,
+  text: 'Overview',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/`,
   matches: [
     `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`,
@@ -335,26 +312,6 @@ export const NAV_OS: NavItem = {
 };
 
 //
-// HAProxy
-//
-export const NAV_HAPROXY: NavItem = {
-  id: 'haproxy',
-  icon: HaproxyIcon,
-  text: 'HAProxy',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/haproxy-instance-summary/haproxy-instance-summary`,
-};
-
-//
-// ProxySQL
-//
-export const NAV_PROXYSQL: NavItem = {
-  id: 'proxysql',
-  icon: ProxyIcon,
-  text: 'ProxySQL',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/proxysql-instance-summary/proxysql-instance-summary`,
-};
-
-//
 // Valkey
 //
 export const NAV_VALKEY: NavItem = {
@@ -438,16 +395,6 @@ export const NAV_QAN: NavItem = {
 };
 
 //
-// Real-Time Query Analytics (RTA)
-//
-export const NAV_RTA: NavItem = {
-  id: 'rta',
-  icon: QueryStatsIcon,
-  text: 'Real-Time Query Analysis',
-  url: `${PMM_NEW_NAV_PATH}/rta/selection`,
-};
-
-//
 // All Dashbaords
 //
 export const NAV_DASHBOARDS: NavItem = {
@@ -455,57 +402,19 @@ export const NAV_DASHBOARDS: NavItem = {
   icon: DashboardOutlined,
   text: 'All dashboards',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards`,
-};
-
-export const NAV_DASHBOARDS_BROWSE: NavItem = {
-  id: 'dashboards-browse',
-  icon: SearchInsightsIcon,
-  text: 'Browse all dashboards',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards`,
-};
-
-export const NAV_DASHBOARDS_SHARED: NavItem = {
-  id: 'dashboards-shared',
-  text: 'Shared dashboards',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/public`,
-};
-
-export const NAV_DASHBOARDS_PLAYLISTS: NavItem = {
-  id: 'dashboards-playlists',
-  text: 'Playlists',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/playlists`,
-  matches: ['*', `${PMM_NEW_NAV_GRAFANA_PATH}/playlists/play/:id`],
-};
-
-export const NAV_DASHBOARDS_SNAPSHOTS: NavItem = {
-  id: 'dashboards-snapshots',
-  text: 'Snapshots',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/snapshots`,
-  matches: ['*'],
-};
-
-export const NAV_DASHBOARDS_LIBRARY_PANELS = {
-  id: 'dashboards-library-panels',
-  text: 'Library panels',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/library-panels`,
-  matches: ['*'],
+  matches: [
+    '*',
+    `${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/*`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/playlists`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/playlists/*`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/library-panels`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/library-panels/*`,
+  ],
 };
 
 //
 // Explore
 //
-export const NAV_EXPLORE_METRICS: NavItem = {
-  id: 'explore-metrics',
-  text: 'Explore metrics',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore/metrics`,
-  matches: ['*'],
-};
-
-export const NAV_EXPLORE_BUILDER: NavItem = {
-  id: 'explore-promql-builder',
-  text: 'PromQL builder',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore`,
-};
 
 export const NAV_EXPLORE: NavItem = {
   id: 'explore',
@@ -626,56 +535,30 @@ export const NAV_INVENTORY: NavItem = {
   url: PMM_INVENTORY_PATH,
   children: [
     {
-      id: 'add-instance',
-      url: PMM_ADD_SERVICE_URL,
-      text: 'Add service',
-      matches: [`${PMM_ADD_SERVICE_URL}/:type`],
-    },
-    {
       id: 'inventory-services',
       text: 'Services',
       isDefault: true,
       url: PMM_INVENTORY_SERVICES_PATH,
-      matches: ['*', `${PMM_NEW_NAV_GRAFANA_PATH}/edit-instance/*`],
+      matches: [
+        '*',
+        `${PMM_NEW_NAV_GRAFANA_PATH}/edit-instance/*`,
+        PMM_ADD_SERVICE_URL,
+        `${PMM_ADD_SERVICE_URL}/:type`,
+      ],
+      action: {
+        label: 'Add a service',
+        url: PMM_ADD_SERVICE_URL,
+      },
     },
     {
       id: 'inventory-nodes',
       text: 'Nodes',
       url: PMM_INVENTORY_NODES_PATH,
       matches: ['*'],
-    },
-  ],
-};
-
-//
-// Backups
-//
-export const NAV_BACKUPS: NavItem = {
-  id: 'backups',
-  icon: SettingsBackupRestore,
-  text: 'Backups',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-  children: [
-    {
-      id: 'backup-inventory',
-      text: 'All backups',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`],
-    },
-    {
-      id: 'scheduled-backups',
-      text: 'Scheduled backup jobs',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/scheduled`,
-    },
-    {
-      id: 'restore-history',
-      text: 'Restores',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/restore`,
-    },
-    {
-      id: 'storage-locations',
-      text: 'Storage locations',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/locations`,
+      action: {
+        label: 'Add a node',
+        url: PMM_ADD_SERVICE_URL,
+      },
     },
   ],
 };
@@ -747,7 +630,7 @@ export const NAV_USERS_AND_ACCESS: NavItem = {
   id: 'users-and-access',
   icon: Security,
   text: 'Users and access',
-  url: PMM_NEW_NAV_GRAFANA_PATH + '/admin/access',
+  url: PMM_NEW_NAV_GRAFANA_PATH + '/admin/users',
   children: [
     {
       id: 'users',
@@ -763,7 +646,7 @@ export const NAV_USERS_AND_ACCESS: NavItem = {
     },
     {
       id: 'service-accounts',
-      text: 'Services accounts',
+      text: 'Service accounts',
       url: PMM_NEW_NAV_GRAFANA_PATH + '/org/serviceaccounts',
       matches: ['*'],
     },
@@ -872,43 +755,41 @@ export const NAV_HIGH_AVAILABILITY: NavItem = {
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
 };
 
-export const NAV_HIGH_AVAILABILITY_OVERVIEW: NavItem = {
-  id: 'high-availability-overview',
-  icon: PageviewOutlined,
-  text: 'Overview',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
-};
-
-export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
-  id: 'high-availability-nodes',
-  icon: NorthEast,
-  text: 'Identify Nodes',
-  url: `${PMM_INVENTORY_NODES_PATH}?nodes.f.isPmmServerNode=true`,
-};
-
 //
 // Apps
 //
-// Section grouping the PMM Extensions apps. It has no page of its own: a collapsible nav
-// item takes its link from its first child, so the header opens whichever app
-// leads the group.
-export const NAV_MANAGEMENT: NavItem = {
-  id: 'management',
-  icon: AppsRounded,
-  text: 'Apps',
-};
-
-export const NAV_EXTENSIONS_ATW: NavItem = {
-  id: 'extensions-atw',
-  icon: SupportDiagnosticsIcon,
-  text: 'Support diagnostics',
-  url: EXTENSIONS_ATW_PATH,
-  matches: ['*'],
+// Grafana's backup pages have no tabs of their own, so each one is an entry.
+export const NAV_BACKUPS: NavItem = {
+  id: 'backups',
+  text: 'Backups',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
+  children: [
+    {
+      id: 'backup-inventory',
+      text: 'All backups',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
+      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`],
+    },
+    {
+      id: 'scheduled-backups',
+      text: 'Scheduled backup jobs',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/scheduled`,
+    },
+    {
+      id: 'restore-history',
+      text: 'Restores',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/restore`,
+    },
+    {
+      id: 'storage-locations',
+      text: 'Storage locations',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/locations`,
+    },
+  ],
 };
 
 export const NAV_EXTENSIONS_MYSQL_BACKUPS: NavItem = {
   id: 'extensions-mysql-backups',
-  icon: Restore,
   text: 'MySQL Backups',
   url: EXTENSIONS_MYSQL_BACKUPS_PATH,
   matches: ['*'],

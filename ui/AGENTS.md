@@ -56,27 +56,27 @@ PMM UI is the top frame and Grafana runs inside its `#grafana-iframe`; the `pmm-
 
 Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createBrowserRouter` with `basename: '/pmm-ui'`:
 
-| Route                                     | Page                                        |
-| ----------------------------------------- | ------------------------------------------- |
-| `/`                                       | Redirects to `/graph` (Grafana)             |
-| `/updates`                                | PMM Server updates                          |
-| `/updates/clients`                        | Client updates                              |
-| `/help`                                   | Help center                                 |
-| `/alerting/status`                        | Fired alerts                                |
-| `/settings/:tab?`                         | PMM Server settings                         |
-| `/inventory/services`, `/inventory/nodes` | Inventory                                   |
-| `/inventory/{services,nodes}/:id/agents`  | Agents of a service or node                 |
-| `/inventory/services/:id/edit`            | Edit a service's labels and RDS credentials |
-| `/rta`                                    | Real-Time Analytics tab                     |
-| `/rta/selection`                          | RTA service selection                       |
-| `/rta/sessions`                           | RTA sessions list                           |
-| `/rta/overview`                           | RTA overview                                |
-| `/advisors`                               | Advisors                                    |
-| `/advisors/insights`                      | Advisor insights                            |
-| `/advisors/runs`                          | Advisor runs                                |
-| `/advisors/scheduler`                     | Advisor schedules                           |
-| `/graph/*`                                | Grafana iframe                              |
-| `*`                                       | Page not found (`NotFoundPage`)             |
+| Route                                     | Page                                                  |
+| ----------------------------------------- | ----------------------------------------------------- |
+| `/`                                       | Redirects to `/graph` (Grafana)                       |
+| `/updates`                                | PMM Server updates                                    |
+| `/updates/clients`                        | Client updates                                        |
+| `/help`                                   | Help center                                           |
+| `/alerting/status`                        | Fired alerts                                          |
+| `/settings/:tab?`                         | PMM Server settings                                   |
+| `/inventory/services`, `/inventory/nodes` | Inventory                                             |
+| `/inventory/{services,nodes}/:id/agents`  | Agents of a service or node                           |
+| `/inventory/services/:id/edit`            | Edit a service's labels and RDS credentials           |
+| `/rta`                                    | Real-time queries, redirects to selection or sessions |
+| `/rta/selection`                          | RTA service selection                                 |
+| `/rta/sessions`                           | RTA sessions list                                     |
+| `/rta/overview`                           | RTA overview                                          |
+| `/advisors`                               | Advisors                                              |
+| `/advisors/insights`                      | Advisor insights                                      |
+| `/advisors/runs`                          | Advisor runs                                          |
+| `/advisors/scheduler`                     | Advisor schedules                                     |
+| `/graph/*`                                | Grafana iframe                                        |
+| `*`                                       | Page not found (`NotFoundPage`)                       |
 
 Pages migrated from Grafana keep their old `/graph/...` URLs working: a fallback route in `router.tsx` redirects them to the native page, and `isMigratedPage` (`src/contexts/grafana/grafana.utils.ts`) keeps the iframe hidden when Grafana navigates there.
 
@@ -218,6 +218,7 @@ Inside the PMM devcontainer (`make env-up` then `make env` from the repo root), 
 - `ui/turbo.json` — Turborepo pipeline configuration
 - `ui/apps/pmm/src/router.tsx` — route definitions
 - `ui/apps/pmm/src/Providers.tsx` — context provider composition
+- `ui/apps/pmm/src/contexts/navigation/navigation.tree.ts`: the sidebar, top to bottom
 - `ui/apps/pmm/src/api/` — API client functions
 - `ui/apps/pmm/src/hooks/` — React Query hooks per API domain
 - `ui/apps/pmm/vite.config.ts` — build configuration

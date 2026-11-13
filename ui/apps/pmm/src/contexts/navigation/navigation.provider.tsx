@@ -1,37 +1,17 @@
-import { FC, PropsWithChildren, useMemo } from 'react';
+import { type FC, type PropsWithChildren, useMemo } from 'react';
 import { NavigationContext } from './navigation.context';
-import { NavItem } from 'types/navigation.types';
+import type { NavItem } from 'types/navigation.types';
 import { useServiceTypes } from 'hooks/api/useServices';
-import {
-  addAccount,
-  addAdvisors,
-  addAlerting,
-  addConfiguration,
-  addDashboardItems,
-  addExplore,
-  addHighAvailability,
-  addUsersAndAccess,
-  addHomePage,
-  addExtensionsApps,
-  addOm,
-} from './navigation.utils';
+import { useFolders } from 'hooks/api/useFolders';
 import { useUser } from 'contexts/user';
 import { useColorMode } from 'hooks/theme';
 import { INTERVALS_MS } from 'lib/constants';
 import { useSettings } from 'contexts/settings';
-import {
-  NAV_BACKUPS,
-  NAV_DIVIDERS,
-  NAV_HELP,
-  NAV_INVENTORY,
-  NAV_QAN,
-  NAV_SIGN_IN,
-} from './navigation.constants';
-import { useFolders } from 'hooks/api/useFolders';
 import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useHaInfo } from 'hooks/api/useHA';
 import { useAuth } from 'contexts/auth';
+import { buildNavTree } from './navigation.tree';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
@@ -52,108 +32,34 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     enabled: user?.isAnonymous === false,
   });
 
-  const navTree = useMemo<NavItem[]>(() => {
-    const items: NavItem[] = [];
-    // use fetched service types, falling back to an empty list while unavailable
-    const currentServiceTypes = serviceTypes?.serviceTypes || [];
-
-    items.push(addHomePage(user?.preferences));
-
-    if (haInfo.enabled) {
-      items.push(addHighAvailability(haInfo));
-    }
-
-    items.push(NAV_DIVIDERS.home);
-
-    // Served by pmm-managed, so it is not gated with the PMM Extensions group: any
-    // signed-in user while the switch is on. Actions inside are admin-only.
-    const mongoExtras =
-      user?.isAnonymous === false && settings?.omEnabled ? [addOm()] : [];
-
-    items.push(
-      ...addDashboardItems(currentServiceTypes, folders, user, mongoExtras)
-    );
-
-    items.push(NAV_QAN);
-
-    if (user) {
-      if (settings?.frontend.exploreEnabled && user.isEditor) {
-        items.push(
-          addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps)
-        );
-      }
-
-      items.push(
-        addAlerting(
-          settings?.alertingEnabled,
-          settings?.frontend.unifiedAlertingEnabled,
-          user
-        )
-      );
-
-      if (user.isEditor && settings?.advisorEnabled) {
-        items.push(addAdvisors());
-      }
-
-      items.push(NAV_DIVIDERS.inventory);
-
-      if (user.isPMMAdmin) {
-        items.push(NAV_INVENTORY);
-      }
-
-      // PMM Extensions apps mounted as native routes, grouped under "Apps" and
-      // placed right below Inventory so no pre-existing entry moves. Offered to
-      // every signed-in user, not only admins: the side-car's API serves its reads to
-      // any authenticated session and holds every unsafe method to
-      // administrators, so a non-admin gets a read-only view with no write
-      // control rendered (PMM-15358).
-      //
-      // Signed-in is the rule, so anonymous is excluded: it has no Grafana
-      // session cookie to exchange for a side-car bearer, and the entry would open
-      // on ExtensionsAuthGate's failure card rather than on the app. PMM Extensions navigation
-      // is also withheld when the integration is disabled (PMM_ENABLE_EXTENSIONS).
-      if (!user.isAnonymous && settings?.extensionsEnabled) {
-        items.push(...addExtensionsApps());
-      }
-
-      if (user.isPMMAdmin) {
-        if (settings?.backupManagementEnabled) {
-          items.push(NAV_BACKUPS);
-        }
-
-        items.push(NAV_DIVIDERS.backups);
-
-        items.push(addConfiguration(status, versionInfo));
-
-        if (settings) {
-          items.push(addUsersAndAccess(settings));
-        }
-      }
-
-      if (isLoggedIn) {
-        items.push(addAccount(user, colorMode, toggleColorMode));
-      }
-
-      items.push(NAV_HELP);
-    }
-
-    if (!isLoggedIn) {
-      items.push(NAV_SIGN_IN);
-    }
-
-    return items;
-  }, [
-    serviceTypes?.serviceTypes,
-    user,
-    haInfo,
-    folders,
-    settings,
-    colorMode,
-    toggleColorMode,
-    status,
-    versionInfo,
-    isLoggedIn,
-  ]);
+  const navTree = useMemo<NavItem[]>(
+    () =>
+      buildNavTree({
+        user,
+        isLoggedIn,
+        haInfo,
+        settings: settings ?? undefined,
+        // empty while the service types are loading
+        serviceTypes: serviceTypes?.serviceTypes || [],
+        folders,
+        updateStatus: status,
+        versionInfo,
+        colorMode,
+        toggleColorMode,
+      }),
+    [
+      user,
+      isLoggedIn,
+      haInfo,
+      settings,
+      serviceTypes?.serviceTypes,
+      folders,
+      status,
+      versionInfo,
+      colorMode,
+      toggleColorMode,
+    ]
+  );
 
   return (
     <NavigationContext.Provider

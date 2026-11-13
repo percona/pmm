@@ -1,15 +1,16 @@
 import MuiDrawer from '@mui/material/Drawer';
-import { closedMixin, openedMixin } from './Drawer.styles';
+import { closedMixin, openedMixin, reducedMotionMixin } from './Drawer.styles';
 import { styled } from '@mui/material/styles';
-import { DRAWER_WIDTH } from './Drawer.constants';
+import { DRAWER_BORDER_WIDTH, DRAWER_WIDTH } from './Drawer.constants';
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme }) => ({
-  width: DRAWER_WIDTH,
+  width: DRAWER_WIDTH + DRAWER_BORDER_WIDTH,
   flexShrink: 0,
   whiteSpace: 'nowrap',
   boxSizing: 'border-box',
+  ...reducedMotionMixin,
   variants: [
     {
       props: ({ open }) => open,

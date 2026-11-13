@@ -1,0 +1,295 @@
+import AppsRounded from '@mui/icons-material/AppsRounded';
+import TrackChanges from '@mui/icons-material/TrackChanges';
+import { SupportDiagnosticsIcon } from '@percona/peak-ui';
+import type { ColorMode } from '@pmm/shared';
+import { PreviewChip } from 'components/preview-chip';
+import { createElement } from 'react';
+import type { CombinedSettings } from 'contexts/settings';
+import {
+  EXTENSIONS_ATW_PATH,
+  OM_PATH,
+  PMM_NEW_NAV_GRAFANA_PATH,
+  PMM_NEW_NAV_PATH,
+} from 'lib/constants';
+import type { DashboardFolder } from 'types/folders.types';
+import type { HAInfo } from 'types/ha.types';
+import type { NavItem } from 'types/navigation.types';
+import { ServiceType } from 'types/services.types';
+import type { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
+import type { User } from 'types/user.types';
+import {
+  NAV_BACKUPS,
+  NAV_DASHBOARDS,
+  NAV_EXPLORE,
+  NAV_EXTENSIONS_MYSQL_BACKUPS,
+  NAV_FOLDER_MAP,
+  NAV_HELP,
+  NAV_INVENTORY,
+  NAV_MONGO,
+  NAV_MYSQL,
+  NAV_OS,
+  NAV_OTHER_DASHBOARDS_TEMPLATE,
+  NAV_POSTGRESQL,
+  NAV_QAN,
+  NAV_SIGN_IN,
+  NAV_VALKEY,
+} from './navigation.constants';
+import {
+  addAccount,
+  addAdvisors,
+  addAlerting,
+  addConfiguration,
+  addHighAvailability,
+  addUsersAndAccess,
+} from './navigation.utils';
+
+// The sidebar (PMM-15353): one flat list under section labels instead of
+// per-technology trees. Read top to bottom, this file is the sidebar.
+
+const section = (id: string, text: string): NavItem => ({
+  id: `section-${id}`,
+  type: 'menu-section',
+  text,
+});
+
+export const NAV_SECTIONS = {
+  technologies: section('technologies', 'Technologies'),
+  analysis: section('analysis', 'Analysis and alerting'),
+  browse: section('browse', 'Browse'),
+  administration: section('administration', 'Administration'),
+};
+
+// A technology's menu, as before the sections came in, plus its folder of
+// other dashboards when Grafana has one. A copy, so the shared constant never
+// gains the folder entry.
+const technology = (item: NavItem, folders: DashboardFolder[]): NavItem => {
+  const folder = folders.find((f) => f.title === NAV_FOLDER_MAP[item.id]);
+
+  if (!folder) {
+    return item;
+  }
+
+  return {
+    ...item,
+    children: [
+      ...(item.children || []),
+      {
+        ...NAV_OTHER_DASHBOARDS_TEMPLATE,
+        id: `${item.id}-other-dashboards`,
+        url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards/f/${folder.uid}/${item.id}`,
+      },
+    ],
+  };
+};
+
+// Listed only while PMM monitors a service of that type; the OS is always there.
+const TECHNOLOGIES: [ServiceType | undefined, NavItem][] = [
+  [ServiceType.mongodb, NAV_MONGO],
+  [ServiceType.mysql, NAV_MYSQL],
+  [ServiceType.posgresql, NAV_POSTGRESQL],
+  [ServiceType.valkey, NAV_VALKEY],
+  [undefined, NAV_OS],
+];
+
+export const NAV_EXPLORE_DATA: NavItem = {
+  ...NAV_EXPLORE,
+  text: 'Explore data',
+  matches: [
+    ...(NAV_EXPLORE.matches || []),
+    `${PMM_NEW_NAV_GRAFANA_PATH}/explore/*`,
+  ],
+};
+
+// Stored query metrics and live query sessions are separate jobs, so each is
+// its own entry rather than a tab inside one Query analytics page.
+export const NAV_QUERY_ANALYTICS: NavItem = {
+  ...NAV_QAN,
+  text: 'Query analytics',
+  matches: ['*'],
+};
+
+export const NAV_REALTIME_QUERIES: NavItem = {
+  id: 'realtime-queries',
+  icon: TrackChanges,
+  text: 'Real-time queries',
+  url: `${PMM_NEW_NAV_PATH}/rta`,
+  matches: ['*'],
+};
+
+// The ATW app runs diagnostic checks against monitored databases; sending the
+// results to a Percona Support case is one action inside it, not its purpose.
+export const NAV_DIAGNOSTICS: NavItem = {
+  id: 'extensions-atw',
+  icon: SupportDiagnosticsIcon,
+  text: 'Diagnostics',
+  url: EXTENSIONS_ATW_PATH,
+  matches: ['*'],
+};
+
+// Its own tabs carry Fleet, Nodes, Automations and Settings, so it needs one
+// entry, highlighted on all of them.
+export const NAV_OM: NavItem = {
+  id: 'app-operations-for-mongodb',
+  text: 'Operations for MongoDB',
+  url: OM_PATH,
+  matches: ['*'],
+  badge: createElement(PreviewChip, { level: 'developer' }),
+  badgeAlwaysVisible: true,
+};
+
+export const NAV_APPS: NavItem = {
+  id: 'apps',
+  icon: AppsRounded,
+  text: 'Apps',
+};
+
+export interface NavTreeInput {
+  user?: User;
+  isLoggedIn: boolean;
+  haInfo?: HAInfo;
+  settings?: CombinedSettings;
+  serviceTypes: ServiceType[];
+  folders: DashboardFolder[];
+  updateStatus: UpdateStatus;
+  versionInfo?: GetUpdatesResponse;
+  colorMode: ColorMode;
+  toggleColorMode: () => void;
+}
+
+// Configuration is the one place for everything configurable about PMM, so
+// Users and access folds into it. Org. management and Users and access are
+// groups PMM inherits from Grafana's user management, and keeping them as
+// groups would make Configuration the only place with a fold inside a fold.
+// Their pages are listed directly instead, under headings, so the whole
+// sidebar stays one level deep.
+const addConfigurationGroup = ({
+  updateStatus,
+  versionInfo,
+  settings,
+}: NavTreeInput): NavItem => {
+  const configuration = addConfiguration(updateStatus, versionInfo);
+  const children = configuration.children || [];
+  const orgManagement = children.find((child) => child.id === 'org-management');
+
+  return {
+    ...configuration,
+    children: [
+      ...children.filter((child) => child !== orgManagement),
+      section('organization', 'Organization'),
+      ...(orgManagement?.children || []),
+      section('users-and-access', 'Users and access'),
+      ...(addUsersAndAccess(settings).children || []),
+    ],
+  };
+};
+
+// A section label is listed only above at least one entry.
+const withSection = (heading: NavItem, items: NavItem[]): NavItem[] =>
+  items.length ? [heading, ...items] : [];
+
+export const buildNavTree = (input: NavTreeInput): NavItem[] => {
+  const {
+    user,
+    isLoggedIn,
+    haInfo,
+    settings,
+    serviceTypes,
+    folders,
+    colorMode,
+    toggleColorMode,
+  } = input;
+  const signedIn = user?.isAnonymous === false;
+  const extensions = signedIn && !!settings?.extensionsEnabled;
+
+  const technologies = TECHNOLOGIES.filter(
+    ([type]) => !type || serviceTypes.includes(type)
+  ).map(([, item]) => technology(item, folders));
+
+  const analysis: NavItem[] = [];
+
+  if (user?.isEditor && settings?.advisorEnabled) {
+    analysis.push(addAdvisors());
+  }
+
+  if (user) {
+    analysis.push(
+      addAlerting(
+        settings?.alertingEnabled,
+        settings?.frontend.unifiedAlertingEnabled,
+        user
+      )
+    );
+  }
+
+  if (extensions) {
+    analysis.push(NAV_DIAGNOSTICS);
+  }
+
+  if (user?.isEditor && settings?.frontend.exploreEnabled) {
+    analysis.push(NAV_EXPLORE_DATA);
+  }
+
+  analysis.push(NAV_QUERY_ANALYTICS, NAV_REALTIME_QUERIES);
+
+  // OM is served by pmm-managed, so it is not gated with PMM Extensions: any
+  // signed-in user while the switch is on. Actions inside are admin-only.
+  const apps: NavItem[] = [];
+
+  if (signedIn && settings?.omEnabled) {
+    apps.push(NAV_OM);
+  }
+
+  if (extensions) {
+    apps.push(NAV_EXTENSIONS_MYSQL_BACKUPS);
+  }
+
+  // Listed under a heading, like Configuration's groups, so Apps stays one
+  // level deep.
+  if (user?.isPMMAdmin && settings?.backupManagementEnabled) {
+    apps.push(
+      section(NAV_BACKUPS.id, NAV_BACKUPS.text ?? ''),
+      ...(NAV_BACKUPS.children || [])
+    );
+  }
+
+  const browse: NavItem[] = [NAV_DASHBOARDS];
+
+  if (apps.length) {
+    browse.push({ ...NAV_APPS, children: apps });
+  }
+
+  if (user?.isPMMAdmin) {
+    browse.push(NAV_INVENTORY);
+  }
+
+  const administration: NavItem[] = [];
+
+  if (haInfo?.enabled) {
+    administration.push(addHighAvailability(haInfo));
+  }
+
+  if (user?.isPMMAdmin) {
+    administration.push(addConfigurationGroup(input));
+  }
+
+  const items: NavItem[] = [
+    ...withSection(NAV_SECTIONS.technologies, technologies),
+    ...withSection(NAV_SECTIONS.analysis, analysis),
+    ...withSection(NAV_SECTIONS.browse, browse),
+    ...withSection(NAV_SECTIONS.administration, administration),
+  ];
+
+  if (user) {
+    if (isLoggedIn) {
+      items.push(addAccount(user, colorMode, toggleColorMode, settings));
+    }
+
+    items.push(NAV_HELP);
+  }
+
+  if (!isLoggedIn) {
+    items.push(NAV_SIGN_IN);
+  }
+
+  return items;
+};
