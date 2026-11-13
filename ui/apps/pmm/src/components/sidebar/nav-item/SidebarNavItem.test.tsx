@@ -200,6 +200,26 @@ describe('SidebarNavItem', () => {
     );
   });
 
+  it('links a group that starts with a heading to its first page', () => {
+    renderNavItem({
+      props: {
+        item: {
+          id: 'apps',
+          text: 'Apps',
+          children: [
+            { id: 'section-backups', type: 'menu-section', text: 'Backups' },
+            { id: 'backup-inventory', text: 'All backups', url: '/backups' },
+          ],
+        },
+      },
+    });
+
+    expect(screen.getByTestId('navitem-apps')).toHaveAttribute(
+      'href',
+      '/backups'
+    );
+  });
+
   it('links Inventory to the Services list', () => {
     renderNavItem({ props: { item: NAV_INVENTORY } });
 

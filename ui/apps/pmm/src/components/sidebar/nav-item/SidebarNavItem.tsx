@@ -52,8 +52,10 @@ const SidebarNavItem: FC<NavItemProps> = ({
   // the selected colour; once the child is hidden, the group is selected.
   const childInView = open && drawerOpen;
   const standsInForChild = hasActiveChild && !childInView;
+  // A heading has no page, so it never stands in for its group.
   const defaultChild =
-    item.children?.find((child) => child.isDefault) ?? item.children?.[0];
+    item.children?.find((child) => child.isDefault) ??
+    item.children?.find((child) => child.url);
   const url = useLinkWithVariables(defaultChild ? defaultChild.url : item.url);
   const linkProps = getLinkProps(item, url);
   const theme = useTheme();
