@@ -10,6 +10,7 @@ export default defineConfig({
       'src/**/*.spec.tsx',
       '.storybook/**/*.spec.ts',
       '.storybook/**/*.spec.tsx',
+      'scripts/**/*.spec.ts',
     ],
   },
 });
