@@ -133,6 +133,7 @@ export const Sidebar: FC = () => {
       <NavigationHeading
         sidebarOpen={navOpen}
         onToggleSidebar={toggleSidebar}
+        onNavigate={handleNavItemClick}
       />
       <Box
         sx={{ position: 'relative', display: 'flex', flex: 1, minHeight: 0 }}

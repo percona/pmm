@@ -111,4 +111,19 @@ describe('NavigationHeading', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
     );
   });
+
+  it('reports a click on the logo', () => {
+    const onNavigate = vi.fn();
+    render(
+      <NavigationHeading
+        sidebarOpen
+        onToggleSidebar={toggleFn}
+        onNavigate={onNavigate}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('link', { name: 'Home' }));
+
+    expect(onNavigate).toHaveBeenCalled();
+  });
 });

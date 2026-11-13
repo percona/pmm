@@ -340,6 +340,25 @@ describe('SidebarNavItem', () => {
     expect(screen.getByTestId('navitem-services')).not.toContainElement(action);
   });
 
+  it('reports a click on the quick action', () => {
+    const onClick = vi.fn();
+    renderNavItem({
+      props: {
+        onClick,
+        item: {
+          id: 'services',
+          text: 'Services',
+          url: '/services',
+          action: { label: 'Add service', url: '/add' },
+        },
+      },
+    });
+
+    fireEvent.click(screen.getByTestId('navitem-services-action'));
+
+    expect(onClick).toHaveBeenCalled();
+  });
+
   it('hides the quick action when the sidebar is collapsed', () => {
     renderNavItem({
       props: {
@@ -502,6 +521,35 @@ describe('SidebarNavItem', () => {
         ).not.toBeInTheDocument()
       );
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('closes the panel when a quick action inside it is used', async () => {
+      renderNavItem({
+        props: {
+          drawerOpen: false,
+          item: {
+            id: 'inventory',
+            text: 'Inventory',
+            children: [
+              {
+                id: 'services',
+                text: 'Services',
+                url: '/services',
+                action: { label: 'Add service', url: '/add' },
+              },
+            ],
+          },
+        },
+      });
+
+      fireEvent.click(screen.getByTestId('navitem-inventory'));
+      fireEvent.click(screen.getByTestId('navitem-services-action'));
+
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('navigation', { name: 'Inventory' })
+        ).not.toBeInTheDocument()
+      );
     });
 
     it('moves between entries with the arrow keys, Home and End', () => {

@@ -25,7 +25,7 @@ import {
 const HOME_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/`;
 
 const NavigationHeading: FC<NavigationHeadingProps> = memo(
-  ({ sidebarOpen, onToggleSidebar }) => (
+  ({ sidebarOpen, onToggleSidebar, onNavigate }) => (
     <>
       <Stack
         direction="row"
@@ -74,6 +74,7 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
               to={HOME_URL}
               aria-label="Home"
               data-testid="sidebar-logo-link"
+              onClick={onNavigate}
               sx={(theme) => ({
                 position: 'absolute',
                 display: 'block',

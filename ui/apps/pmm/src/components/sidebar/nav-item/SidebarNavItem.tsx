@@ -344,6 +344,7 @@ const SidebarNavItem: FC<NavItemProps> = ({
           action={item.action}
           testId={`${dataTestid}-action`}
           sx={inFlyout ? styles.flyoutAction : styles.itemAction}
+          onClick={onClick}
         />
       )}
     </ListItem>

@@ -10,9 +10,15 @@ interface Props {
   action: NavItemActionType;
   testId: string;
   sx?: SxProps<Theme>;
+  onClick?: () => void;
 }
 
-const NavItemAction: FC<Props> = ({ action, testId, sx = { mr: 0.5 } }) => {
+const NavItemAction: FC<Props> = ({
+  action,
+  testId,
+  sx = { mr: 0.5 },
+  onClick,
+}) => {
   const Icon = action.icon ?? Add;
 
   return (
@@ -24,6 +30,7 @@ const NavItemAction: FC<Props> = ({ action, testId, sx = { mr: 0.5 } }) => {
         aria-label={action.label}
         data-testid={testId}
         sx={sx}
+        onClick={onClick}
       >
         <Icon fontSize="small" />
       </IconButton>
