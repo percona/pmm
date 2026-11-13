@@ -305,7 +305,7 @@ Relationships:
 - An Agent runs on a Node (`runs_on_node_id`) and optionally monitors a Service (`service_id`)
 - A child Agent belongs to a parent PMM Agent (`pmm_agent_id`)
 
-Full schema, diagrams, and field-level detail: [`dev/docs/managed/data-model.md`](dev/docs/managed/data-model.md). Access-control (RBAC) architecture: [`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md).
+Full schema, diagrams, and field-level detail: [`dev/docs/managed/data-model.md`](dev/docs/managed/data-model.md). Label-based access control (LBAC) architecture: [`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md).
 
 ## Repository Map
 
@@ -414,7 +414,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 ### Security and secrets
 - Never log, hardcode, or commit secrets — credentials, tokens, S3 keys, TLS material. `.env`, `encryption.key`, and key material are gitignored; keep it that way.
 - Persist sensitive values encrypted at rest via `managed/services/encryption` (rotation: `managed/cmd/pmm-encryption-rotation`) — not as plaintext columns.
-- Enforce authorization in the service layer and respect RBAC ([`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md)); don't rely on the UI to hide privileged actions.
+- Respect both access checks: API endpoints are gated by Grafana role (`managed/services/grafana/auth_server.go`), and metrics and QAN data are filtered by LBAC ([`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md)); don't rely on the UI to hide privileged actions.
 - Validate and bound external input; rely on reform's parameterized queries — never string-concatenate SQL.
 - Report vulnerabilities per [`SECURITY.md`](SECURITY.md); keep exploit detail out of public issues and PRs.
 
@@ -483,4 +483,4 @@ All long-running daemons expose on `127.0.0.1`:
 - `dev/docs/process/running-and-verifying-locally.md` — run PMM locally, register test DBs, evidence-based verification for user-visible changes
 - `dev/docs/process/v2_to_v3_environment_variables.md` — v2→v3 environment variable migration
 - `dev/docs/managed/data-model.md` — inventory data model (schema + diagrams)
-- `dev/docs/managed/access-control.md` — access control (RBAC) architecture
+- `dev/docs/managed/access-control.md` — label-based access control (LBAC) architecture
