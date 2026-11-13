@@ -18,12 +18,13 @@ const pillSx =
     const radius = `${theme.shape.borderRadiusFull}px`;
 
     return {
-      ...(!fullWidth && { width: 'fit-content' }),
+      ...(!fullWidth && {
+        width: 'fit-content',
+        maxWidth: '100%',
+        '& > button': { flex: '1 1 auto' },
+      }),
       [theme.breakpoints.down('sm')]: {
         flexDirection: 'row',
-      },
-      '& > button': {
-        flex: '1 0 auto',
       },
       [withDisabled(middleButton, lastButton)]: {
         ml: 0,
@@ -35,11 +36,14 @@ const pillSx =
       [`& .${middleButton}`]: {
         borderRadius: 0,
       },
-      [`& .${firstButton}`]: {
+      '& > button:first-of-type': {
         borderRadius: `${radius} 0 0 ${radius}`,
       },
-      [`& .${lastButton}`]: {
+      '& > button:last-of-type': {
         borderRadius: `0 ${radius} ${radius} 0`,
+      },
+      '& > button:only-of-type': {
+        borderRadius: radius,
       },
     };
   };
