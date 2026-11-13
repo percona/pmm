@@ -42,4 +42,22 @@ describe('Highlight::', () => {
 
     expect(screen.getByTestId('highlight-pre')).toHaveStyle({ backgroundColor: '#ffffff' });
   });
+
+  it('uses syntax colours that suit the theme mode', () => {
+    const { rerender } = render(
+      <Highlight language="sql" mode="light">
+        <span className="hljs-string">abc</span>
+      </Highlight>,
+    );
+
+    expect(screen.getByText('abc')).toHaveStyle({ color: '#032f62' });
+
+    rerender(
+      <Highlight language="sql" mode="dark">
+        <span className="hljs-string">abc</span>
+      </Highlight>,
+    );
+
+    expect(screen.getByText('abc')).toHaveStyle({ color: '#a5c261' });
+  });
 });
