@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -28,10 +29,12 @@ import (
 type processLogger struct {
 	l *logrus.Entry
 
-	m    sync.RWMutex
-	buf  []byte
-	i    int
-	data []*string
+	m            sync.RWMutex
+	buf          []byte
+	i            int
+	data         []*string
+	listenPort   uint16
+	cannotListen bool
 
 	replacer *strings.Replacer
 }
@@ -72,6 +75,10 @@ func (pl *processLogger) Write(p []byte) (int, error) {
 			return n, nil
 		}
 		line = strings.TrimSuffix(line, "\n")
+		// Before redaction, which can mask the port; see PMM-15773.
+		if bindFailed(line, pl.listenPort) {
+			pl.cannotListen = true
+		}
 		if pl.replacer != nil {
 			line = pl.replacer.Replace(line)
 		}
@@ -111,6 +118,21 @@ func (pl *processLogger) Latest() []string {
 		}
 	}
 	return result
+}
+
+// portInUse reports whether the process has said that it could not listen on its listen port.
+func (pl *processLogger) portInUse() bool {
+	pl.m.RLock()
+	defer pl.m.RUnlock()
+
+	return pl.cannotListen
+}
+
+// bindFailed reports whether line is Go's error for a listener that could not bind port, taken or
+// refused (as SELinux port labelling does); a bind error without that port is for another listener.
+func bindFailed(line string, port uint16) bool {
+	bind := ":" + strconv.Itoa(int(port)) + ": bind: "
+	return strings.Contains(line, bind+"address already in use") || strings.Contains(line, bind+"permission denied")
 }
 
 func replacer(redactWords []string) *strings.Replacer {

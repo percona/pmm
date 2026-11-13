@@ -17,6 +17,7 @@ package supervisor
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -409,9 +410,8 @@ func (s *Supervisor) waitForwarderDrained(agentID string, done <-chan struct{}) 
 //
 // Both need the Agent actually gone, which one that outlived the stop budget is not known to be, so
 // it is waited for in a goroutine of its own instead - off s.rw, and off the call that gave up on
-// it. Releasing a port a live exporter still listens on fails and keeps the reservation for good,
-// since the Agent that held it is already forgotten and nothing is left to retry it, and clearing
-// the directory takes files out from under an Agent still reading it. Both are decided again once
+// it. Another Agent must not get a port a live exporter still listens on, and clearing the
+// directory takes files out from under an Agent still reading it. Both are decided again once
 // the Agent has stopped, because by then the ID may belong to a replacement whose directory that
 // now is. The directory holds rendered TLS certificates and keys, so leaving it to the next
 // pmm-agent start (cleanupTmp) is the last resort, not the plan. See PMM-15431.
@@ -421,7 +421,7 @@ func (s *Supervisor) waitForwarderDrained(agentID string, done <-chan struct{}) 
 func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{}, port uint16, agentTmp string) {
 	select {
 	case <-done:
-		s.releasePort(agentID, port)
+		s.portsRegistry.Release(port)
 		s.removeAgentTempDir(agentID, agentTmp)
 	default:
 		s.l.Warnf("Agent %s has not stopped yet, freeing what it owns once it does.", agentID)
@@ -430,7 +430,7 @@ func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{},
 			case <-done:
 				// Off the lock: giving the port back needs no agreement about
 				// who owns the ID.
-				s.releasePort(agentID, port)
+				s.portsRegistry.Release(port)
 
 				if agentTmp == "" {
 					return
@@ -472,18 +472,6 @@ func (s *Supervisor) isAgentTrackedLocked(agentID string) bool {
 	_, ok := s.builtinAgents[agentID]
 
 	return ok
-}
-
-// releasePort gives back a port reservation. A built-in Agent has no port, hence port 0.
-func (s *Supervisor) releasePort(agentID string, port uint16) {
-	if port == 0 {
-		return
-	}
-
-	err := s.portsRegistry.Release(port)
-	if err != nil {
-		s.l.Errorf("Failed to release port %d of Agent %s: %s.", port, agentID, err)
-	}
 }
 
 // removeAgentTempDir removes an Agent's temporary directory, and does nothing for an empty
@@ -751,9 +739,12 @@ const (
 	forwarderDrainTimeout = 3 * time.Second
 )
 
+// tryStartProcess makes up to processRetryCount attempts to start an Agent process, the first on port
+// (or on a reserved one if it is 0) and each next one on a newly reserved port.
 func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) error {
+	entryPort := port
 	var err error
-	for range processRetryCount {
+	for attempt := range processRetryCount {
 		// Only a port reserved here is given back below. One passed in belongs to the
 		// caller's Agent entry, which goes on referring to it if every attempt fails.
 		var reserved bool
@@ -768,8 +759,12 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 			reserved = true
 		}
 
-		err = s.startProcess(agentID, agentProcess, port)
+		err = s.startProcess(agentID, agentProcess, port, attempt < processRetryCount-1)
 		if err == nil {
+			// Moved off the replaced entry's port, which nothing refers to any more.
+			if entryPort != 0 && port != entryPort {
+				s.portsRegistry.Release(entryPort)
+			}
 			return nil
 		}
 
@@ -778,7 +773,7 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 		// it, and portsRegistry only forgets a port on Release. The Agent never started,
 		// so nothing of ours is listening on it and the release succeeds.
 		if reserved {
-			s.releasePort(agentID, port)
+			s.portsRegistry.Release(port)
 		}
 		port = 0
 	}
@@ -786,9 +781,10 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 	return err
 }
 
-// startProcess starts Agent's process.
+// startProcess starts and tracks Agent's process, which backs off by itself if it fails to start,
+// or stops it and returns the error if canMovePort is set and the process cannot listen on port.
 // Must be called with s.rw held for writing.
-func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) error {
+func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16, canMovePort bool) error {
 	processParams, err := s.processParams(agentID, agentProcess, port)
 	if err != nil {
 		return err
@@ -858,19 +854,26 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		if !isInitialized {
 			// TODO: handle initialization error for nomad agent
 			if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT {
+				// Stopped rather than backing off, as handleNomadAgent reports it DONE.
+				cancel()
 				s.handleNomadAgent(agentID, instance, processInfo, l)
 				return nil
+			}
+
+			err := processWrapper.GetError()
+			if !canMovePort || !errors.Is(err, process.ErrPortInUse) {
+				break
 			}
 			cancel()
 
 			// Before returning to tryStartProcess, which retries: its next attempt
 			// calls startInstance, and from that moment this attempt's forwarder is
-			// the stale one and storeLastStatus drops the INITIALIZATION_ERROR and
-			// DONE it still has to send. Bounded, because forward parks on a full
+			// the stale one and storeLastStatus drops the statuses it
+			// still has to send. Bounded, because forward parks on a full
 			// s.changes and this runs with s.rw held. See PMM-15431.
 			s.waitForwarderDrained(agentID, done)
 
-			return processWrapper.GetError()
+			return err
 		}
 	case <-t.C:
 	}
@@ -1118,6 +1121,7 @@ func (s *Supervisor) agentLogger(logStore *tailog.Store) *logrus.Logger {
 func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) (*process.Params, error) {
 	var processParams process.Params
 	processParams.Type = agentProcess.Type
+	processParams.ListenPort = port
 
 	cfg := s.cfg.Get()
 	templateParams := map[string]any{

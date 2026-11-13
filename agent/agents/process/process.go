@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -44,6 +45,9 @@ const (
 	keepLogLines = 100
 )
 
+// ErrPortInUse is wrapped by the error of a start that failed because the process could not listen on Params.ListenPort.
+var ErrPortInUse = errors.New("listen port is in use")
+
 // Process represents Agent process started by pmm-agent.
 //
 // Process object should be created with New and started with Run (typically in a separate goroutine).
@@ -64,6 +68,7 @@ type Process struct {
 	ctxDone     chan struct{}
 	err         error
 	initialized chan bool
+	initOnce    sync.Once
 
 	// recreated on each restart
 	cmd     *exec.Cmd
@@ -81,6 +86,8 @@ type Params struct {
 	// to values computed by pmm-managed. Their shape is unknown and cannot be assumed safe to log,
 	// so String always redacts them fully rather than relying on DSN-shape detection.
 	ResolvedEnvNames []string
+	// ListenPort is the port the process listens on; see ErrPortInUse.
+	ListenPort       uint16
 	Type             inventoryv1.AgentType
 	TemplateRenderer *templates.TemplateRenderer
 	TemplateParams   map[string]any
@@ -115,10 +122,13 @@ func (p *Params) String() string {
 
 // New creates new process.
 func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
+	pl := newProcessLogger(l, keepLogLines, redactWords)
+	pl.listenPort = params.ListenPort
+
 	return &Process{
 		params:      params,
 		l:           l,
-		pl:          newProcessLogger(l, keepLogLines, redactWords),
+		pl:          pl,
 		changes:     make(chan inventoryv1.AgentStatus, 10), //nolint:mnd
 		backoff:     backoff.New(backoffMinDelay, backoffMaxDelay),
 		ctxDone:     make(chan struct{}),
@@ -126,14 +136,22 @@ func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
 	}
 }
 
-// IsInitialized returns a chan of bool. True can be received if the process is initialized.
+// IsInitialized returns a channel that receives whether the first start of the process succeeded.
 func (p *Process) IsInitialized() <-chan bool {
 	return p.initialized
 }
 
-// GetError returns the error thrown when initializing the process.
+// GetError returns the error of the first start of the process once IsInitialized has received false.
 func (p *Process) GetError() error {
 	return p.err
+}
+
+// setInitialized reports the outcome of the first start to IsInitialized and GetError, and ignores later ones.
+func (p *Process) setInitialized(err error) {
+	p.initOnce.Do(func() {
+		p.err = err
+		p.initialized <- err == nil
+	})
 }
 
 // Run starts process and runs until ctx is canceled.
@@ -182,11 +200,15 @@ func (p *Process) toStarting() {
 	defer t.Stop()
 	select {
 	case <-t.C:
-		p.initialized <- true
+		p.setInitialized(nil)
 		go p.toRunning()
 	case <-p.cmdDone:
 		p.l.Warnf("Process: exited early: %s.", p.cmd.ProcessState)
-		go p.toFailing(errors.New("exited early"))
+		err := errors.New("exited early")
+		if p.pl.portInUse() {
+			err = fmt.Errorf("%w: %w", err, ErrPortInUse)
+		}
+		go p.toFailing(err)
 	}
 }
 
@@ -233,14 +255,13 @@ func (p *Process) toWaiting() {
 	}
 }
 
-// FAILING -> DONE.
+// FAILING -> WAITING.
 func (p *Process) toFailing(err error) {
 	p.l.Tracef("Process: failing")
 	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR
 	p.l.Infof("Process: exited: %s.", p.cmd.ProcessState)
-	go p.toDone()
-	p.err = err
-	p.initialized <- false
+	p.setInitialized(err)
+	go p.toWaiting()
 }
 
 // STOPPING -> DONE.
