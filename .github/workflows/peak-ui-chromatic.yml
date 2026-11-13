@@ -1,0 +1,118 @@
+---
+name: Peak UI Chromatic
+
+# Visual tests for Peak UI only; the main build is the public Storybook.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "ui/packages/peak-ui/**"
+      - "ui/pnpm-workspace.yaml"
+      - ".github/workflows/peak-ui-chromatic.yml"
+  pull_request:
+    paths:
+      - "ui/packages/peak-ui/**"
+      - "ui/pnpm-workspace.yaml"
+      - ".github/workflows/peak-ui-chromatic.yml"
+  pull_request_target:
+    paths:
+      - "ui/packages/peak-ui/**"
+      - "ui/pnpm-workspace.yaml"
+      - ".github/workflows/peak-ui-chromatic.yml"
+
+permissions:
+  contents: read
+  statuses: write
+
+# The event name keeps a PR's pull_request and pull_request_target runs apart.
+concurrency:
+  group: peak-ui-chromatic-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chromatic:
+    name: Peak UI Chromatic
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+          persist-credentials: false
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup nodejs
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ui/.nvmrc
+          cache: pnpm
+          cache-dependency-path: ui/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: ui
+        run: pnpm install --frozen-lockfile --filter @percona/peak-ui...
+
+      - name: Run Chromatic
+        uses: chromaui/action@37b88badc3a1122c01861af329554d8a227d7e52 # v18.4.0
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          workingDir: ui/packages/peak-ui
+          storybookBaseDir: ui/packages/peak-ui
+          buildScriptName: storybook:build
+          onlyChanged: true
+          exitZeroOnChanges: false
+
+  # pull_request_target runs in this repo's context (secrets available)
+  # instead of the fork's, so it's gated behind the `chromatic-external`
+  # environment's required reviewers: a maintainer must approve the run
+  # before untrusted fork code executes with access to secrets.
+  chromatic-fork:
+    name: Peak UI Chromatic (fork PR)
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    environment: chromatic-external
+
+    steps:
+      - name: Check out PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup nodejs
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ui/.nvmrc
+          cache: pnpm
+          cache-dependency-path: ui/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: ui
+        run: pnpm install --frozen-lockfile --filter @percona/peak-ui...
+
+      - name: Run Chromatic
+        uses: chromaui/action@37b88badc3a1122c01861af329554d8a227d7e52 # v18.4.0
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          workingDir: ui/packages/peak-ui
+          storybookBaseDir: ui/packages/peak-ui
+          buildScriptName: storybook:build
+          onlyChanged: true
+          exitZeroOnChanges: false
