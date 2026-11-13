@@ -324,6 +324,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 			NodeModel:     cfgSetup.NodeModel,
 			Region:        cfgSetup.Region,
 			Az:            cfgSetup.Az,
+			Environment:   cfgSetup.Environment,
 			Address:       cfgSetup.Address,
 			CustomLabels:  customLabels,
 			AgentPassword: cfgSetup.AgentPassword,

@@ -154,6 +154,218 @@ func TestNodeHelpers(t *testing.T) {
 			}
 			assert.Equal(t, expected, structs[1])
 		})
+
+		t.Run("EnvironmentTakesOverCustomLabel", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			labels := map[string]string{"environment": "staging", "team": "db"}
+			node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
+				NodeName:     t.Name(),
+				Environment:  "prod",
+				CustomLabels: labels,
+			})
+			require.NoError(t, err)
+			custom, err := node.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, map[string]string{"team": "db"}, custom)
+			assert.Equal(t, "staging", labels["environment"], "the caller's labels are left as they are")
+
+			// Without an environment the custom label stays: it was the way to give a Node one before the field.
+			node, err = models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
+				NodeName:     t.Name() + "-custom",
+				CustomLabels: labels,
+			})
+			require.NoError(t, err)
+			unified, err := node.UnifiedLabels()
+			require.NoError(t, err)
+			assert.Equal(t, "staging", unified["environment"])
+		})
+	})
+
+	t.Run("ChangeNode", func(t *testing.T) {
+		t.Run("ChangesOnlyGivenFields", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			_, err := models.ChangeNode(q, "GenericNode", &models.ChangeNodeParams{NodeModel: new("m5.large")})
+			require.NoError(t, err)
+
+			node, err := models.ChangeNode(q, "GenericNode", &models.ChangeNodeParams{
+				Environment:  new("prod"),
+				CustomLabels: map[string]string{"team": "db"},
+			})
+			require.NoError(t, err)
+
+			stored, err := models.FindNodeByID(q, "GenericNode")
+			require.NoError(t, err)
+			assert.Equal(t, node, stored)
+			assert.Equal(t, "prod", stored.Environment)
+			assert.Equal(t, "m5.large", stored.NodeModel)
+
+			labels, err := stored.UnifiedLabels()
+			require.NoError(t, err)
+			assert.Equal(t, "prod", labels["environment"])
+			assert.Equal(t, "db", labels["team"])
+		})
+
+		t.Run("NothingToChange", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			node, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{})
+			require.NoError(t, err)
+			assert.Equal(t, "Empty Node", node.NodeName)
+		})
+
+		t.Run("EmptyCustomLabelsRemoveThem", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			_, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{CustomLabels: map[string]string{"team": "db"}})
+			require.NoError(t, err)
+			_, err = models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{CustomLabels: map[string]string{}})
+			require.NoError(t, err)
+
+			stored, err := models.FindNodeByID(q, "EmptyNode")
+			require.NoError(t, err)
+			labels, err := stored.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Empty(t, labels)
+		})
+
+		t.Run("EnvironmentTakesOverCustomLabel", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			// Before the environment field, a custom label was the way to give a Node an environment.
+			_, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{
+				CustomLabels: map[string]string{"environment": "staging", "team": "db"},
+			})
+			require.NoError(t, err)
+
+			node, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{Environment: new("prod")})
+			require.NoError(t, err)
+			custom, err := node.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, map[string]string{"team": "db"}, custom)
+			labels, err := node.UnifiedLabels()
+			require.NoError(t, err)
+			assert.Equal(t, "prod", labels["environment"])
+
+			// The same goes for a custom label given in the same change.
+			node, err = models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{
+				Environment:  new("qa"),
+				CustomLabels: map[string]string{"environment": "staging", "team": "ops"},
+			})
+			require.NoError(t, err)
+			custom, err = node.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, map[string]string{"team": "ops"}, custom)
+			assert.Equal(t, "qa", node.Environment)
+
+			// Next to a set environment the custom label would override it again.
+			_, err = models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{
+				CustomLabels: map[string]string{"environment": "staging"},
+			})
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument,
+				`Node Empty Node has an environment, so it can't also have an "environment" custom label; change the environment instead.`), err)
+		})
+
+		t.Run("ClearingEnvironmentRemovesCustomLabel", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			_, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{
+				CustomLabels: map[string]string{"environment": "staging"},
+			})
+			require.NoError(t, err)
+
+			node, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{Environment: new("")})
+			require.NoError(t, err)
+			labels, err := node.UnifiedLabels()
+			require.NoError(t, err)
+			assert.NotContains(t, labels, "environment")
+		})
+
+		t.Run("InvalidLabelName", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			_, err := models.ChangeNode(q, "EmptyNode", &models.ChangeNodeParams{CustomLabels: map[string]string{"__name__": "x"}})
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Invalid label name "__name__".`), err)
+		})
+
+		t.Run("NotFound", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			_, err := models.ChangeNode(q, "NoSuchNode", &models.ChangeNodeParams{Environment: new("prod")})
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "NoSuchNode" not found.`), err)
+		})
+
+		t.Run("RemoteRDSRegionIsFixed", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			rds, err := models.CreateNode(q, models.RemoteRDSNodeType, &models.CreateNodeParams{
+				NodeName:   "rds",
+				Address:    "rds.abc.us-east-1.rds.amazonaws.com",
+				InstanceID: "rds",
+				Region:     new("us-east-1"),
+			})
+			require.NoError(t, err)
+
+			_, err = models.ChangeNode(q, rds.NodeID, &models.ChangeNodeParams{Region: new("eu-west-1")})
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `The region of a Remote RDS Node can't be changed.`), err)
+
+			node, err := models.ChangeNode(q, rds.NodeID, &models.ChangeNodeParams{Region: new("us-east-1"), AZ: new("us-east-1a")})
+			require.NoError(t, err)
+			assert.Equal(t, "us-east-1", pointer.GetString(node.Region))
+			assert.Equal(t, "us-east-1a", node.AZ)
+		})
+
+		t.Run("RegionStaysUniqueForAddress", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			for _, n := range []struct{ name, region string }{{"remote1", "r1"}, {"remote2", "r2"}} {
+				_, err := models.CreateNode(q, models.RemoteNodeType, &models.CreateNodeParams{
+					NodeName: n.name,
+					Address:  "10.0.0.1",
+					Region:   new(n.region),
+				})
+				require.NoError(t, err)
+			}
+			remote2, err := models.FindNodeByName(q, "remote2")
+			require.NoError(t, err)
+
+			_, err = models.ChangeNode(q, remote2.NodeID, &models.ChangeNodeParams{Region: new("r1")})
+			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with address "10.0.0.1" and region "r1" already exists.`), err)
+
+			node, err := models.ChangeNode(q, remote2.NodeID, &models.ChangeNodeParams{Region: new("")})
+			require.NoError(t, err)
+			assert.Nil(t, node.Region)
+		})
+
+		t.Run("ServiceEnvironmentOverridesNodeEnvironment", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			node, err := models.ChangeNode(q, "MySQLNode", &models.ChangeNodeParams{Environment: new("prod")})
+			require.NoError(t, err)
+			service, err := models.FindServiceByID(q, "MySQL")
+			require.NoError(t, err)
+
+			labels, err := models.MergeLabels(node, service, nil)
+			require.NoError(t, err)
+			assert.Equal(t, "prod", labels["environment"])
+
+			service.Environment = "qa"
+			labels, err = models.MergeLabels(node, service, nil)
+			require.NoError(t, err)
+			assert.Equal(t, "qa", labels["environment"])
+		})
 	})
 
 	t.Run("FindNodes", func(t *testing.T) {

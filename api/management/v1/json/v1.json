@@ -821,6 +821,11 @@
                         "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
                         "type": "boolean",
                         "x-order": 19
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 20
                       }
                     }
                   },
@@ -982,6 +987,11 @@
                   "description": "AWS instance ID.",
                   "type": "string",
                   "x-order": 16
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string",
+                  "x-order": 17
                 }
               }
             }
@@ -1049,6 +1059,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -1114,6 +1129,11 @@
                       "description": "True if this node is a PMM Server node (HA mode).",
                       "type": "boolean",
                       "x-order": 10
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 1
@@ -1383,6 +1403,11 @@
                       "description": "True if this node belongs to the internal infrastructure of a PMM deployment\n(e.g. the HA persistence layer) and must not host user monitoring workloads.",
                       "type": "boolean",
                       "x-order": 19
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 20
                     }
                   },
                   "x-order": 0
@@ -5954,6 +5979,11 @@
                           "description": "AWS DB instance identifier.",
                           "type": "string",
                           "x-order": 7
+                        },
+                        "environment": {
+                          "description": "Environment name.",
+                          "type": "string",
+                          "x-order": 8
                         }
                       },
                       "x-order": 0

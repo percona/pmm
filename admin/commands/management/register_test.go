@@ -15,12 +15,42 @@
 package management
 
 import (
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"testing"
 
+	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
+
+func TestRegisterSendsEnvironment(t *testing.T) {
+	var body map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/v1/management/nodes", r.URL.Path)
+		assert.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+		w.Header().Set("Content-Type", "application/json")
+		_, err := w.Write([]byte(`{"pmm_agent": {"agent_id": "agent-id", "runs_on_node_id": "node-id"}}`))
+		assert.NoError(t, err)
+	}))
+	t.Cleanup(server.Close)
+
+	serverURL, err := url.Parse(server.URL)
+	require.NoError(t, err)
+	originalClient := client.Default
+	client.Default = client.New(httptransport.New(serverURL.Host, serverURL.Path, []string{serverURL.Scheme}), nil)
+	t.Cleanup(func() { client.Default = originalClient })
+
+	cmd := &RegisterCommand{NodeType: "generic", NodeName: "node1", Address: "1.2.3.4", Environment: "prod"}
+	_, err = cmd.RunCmd()
+	require.NoError(t, err)
+	assert.Equal(t, "prod", body["environment"])
+}
 
 func TestRegisterResult(t *testing.T) {
 	tests := []struct {

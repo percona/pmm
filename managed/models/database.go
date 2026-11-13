@@ -1407,6 +1407,9 @@ var databaseSchema = [][]string{
 		// Advisor schedules replace the interval settings; only the on/off switch carries over.
 		`UPDATE settings SET settings = (settings - 'sass') || jsonb_build_object('advisors', jsonb_build_object('enabled', settings #> '{sass,enabled}'))`,
 	},
+	130: {
+		`ALTER TABLE nodes ADD COLUMN environment VARCHAR NOT NULL DEFAULT ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
