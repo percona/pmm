@@ -49,8 +49,8 @@ make init         # Build test binaries
 make test         # Run tests; server settings tests run last, as they restart Grafana
 make test-report  # Run tests, produce JUnit XML report
 
-# Direct invocation (-p 1: the server settings tests restart Grafana):
-go test -count=1 -p 1 ./... -pmm.server-url=https://admin:admin@127.0.0.1 -pmm.server-insecure-tls -v
+# Direct invocation, from api-tests/ (-p 1: the server settings tests restart Grafana):
+PMM_SERVER_URL=https://admin:admin@127.0.0.1 PMM_SERVER_INSECURE_TLS=1 go test -count=1 -p 1 ./... -v
 
 # From repo root:
 make api-test
@@ -58,9 +58,12 @@ make api-test
 
 ### Docker execution:
 ```bash
+# From api-tests/:
 make docker-build-image
 make docker-run-tests PMM_SERVER_URL=https://admin:admin@127.0.0.1
 ```
+
+`docker-run-tests` leaves its `api-tests` container behind; run `docker rm api-tests` before running it again.
 
 `make test`, `make test-report` and `make docker-run-tests` exit 0 even when tests fail, because each test binary is piped through `tee`. Read the output or the JUnit report for the result, or use `go test` or `make api-test`, which exit non-zero on failure.
 
