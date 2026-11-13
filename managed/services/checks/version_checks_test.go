@@ -301,6 +301,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 	pgExpires := scriptTable(t, "postgresql_version_check", "version_expires = {")
 	pgLatestSeries := latestSeries(t, pgLatest)
 	const psmdb = "Percona Server for MongoDB"
+	const rdsCalendar = "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html#MySQL.Concepts.VersionMgmt.ReleaseCalendar"
 
 	for _, tc := range []struct {
 		name  string
@@ -319,7 +320,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.4.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{newerMySQL("MySQL", "8.4.0", "8.4.13")},
-			descContains: []string{"security fixes", "https://www.oracle.com/security-alerts/"},
+			descContains: []string{"security fixes", "https://www.oracle.com/security-alerts/", "Release notes: https://dev.mysql.com/doc/relnotes/mysql/8.4/en/."},
 		},
 		{
 			name:         "mysql_version Oracle 9.7.0",
@@ -349,7 +350,8 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.4.3-3", "Percona Server (GPL), Release 3, Revision 8f39d3a6", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{newerMySQL("Percona Server for MySQL", "8.4.3", "8.4.11")},
-			descContains: []string{"security fixes", "https://www.oracle.com/security-alerts/"},
+			descContains: []string{"security fixes", "https://www.oracle.com/security-alerts/", "Release notes: https://docs.percona.com/percona-server/8.4/release-notes/release-notes-index.html."},
+			descExcludes: []string{"dev.mysql.com"},
 		},
 		{
 			name:         "mysql_version PXC 8.4.3-3.1",
@@ -357,7 +359,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.4.3-3.1", "Percona XtraDB Cluster (GPL), Release rel3, Revision 2a2b6d2, WSREP version 26.1.4.3", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{newerMySQL("Percona XtraDB Cluster", "8.4.3", "8.4.11")},
-			descContains: []string{"security fixes"},
+			descContains: []string{"security fixes", "Release notes: https://docs.percona.com/percona-xtradb-cluster/8.4/release-notes/release-notes_index.html."},
 		},
 		{
 			name:         "mysql_version PXC 9.7.1-1",
@@ -365,7 +367,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("9.7.1-1", "Percona XtraDB Cluster (GPL), Release rel3, Revision 2a2b6d2, WSREP version 26.1.4.3", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{newerMySQL("Percona XtraDB Cluster", "9.7.1", "9.7.2")},
-			descContains: []string{"security fixes"},
+			descContains: []string{"security fixes", "Release notes: https://docs.percona.com/percona-xtradb-cluster/9.7/release-notes/release-notes-index.html."},
 		},
 		{
 			name:         "mysql_version MariaDB 10.11.2",
@@ -373,7 +375,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("10.11.2-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{newerMySQL("MariaDB", "10.11.2", "10.11.19")},
-			descContains: []string{"security fixes", "https://mariadb.org/about/security-policy/"},
+			descContains: []string{"security fixes", "https://mariadb.org/about/security-policy/", "Release notes: https://mariadb.com/docs/release-notes/community-server/mariadb-10-11-series/what-is-mariadb-1011."},
 			descExcludes: []string{"10.9.2", "10.4.26", "https://www.oracle.com/"},
 		},
 		{
@@ -404,7 +406,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.4.3", "Source distribution", "/rdsdbbin/mysql-8.4.3.R1/", "/rdsdbdata/db/")},
 			want:         []finding{newerMySQL("MySQL", "8.4.3", "8.4.11")},
-			descContains: []string{"security fixes"},
+			descContains: []string{"security fixes", "Release notes: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html."},
 		},
 		{
 			name:         "mysql_version RDS MariaDB 10.11.8 follows MariaDB",
@@ -434,8 +436,8 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.0.37", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{mysqlEOL("MySQL", "error", "8.0.37", "8.0", "2026-04-30")},
-			descContains: []string{"2026-04-30", "supported release series"},
-			descExcludes: []string{"8.0.46", "includes security fixes", "Newer version"},
+			descContains: []string{"2026-04-30", "supported release series", "Lifecycle policy: https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html."},
+			descExcludes: []string{"8.0.46", "includes security fixes", "Newer version", "Release notes"},
 		},
 		{
 			name:  "mysql_version Oracle 8.0.46 past EOL",
@@ -495,11 +497,12 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			want:  []finding{mysqlEOL("Percona Server for MySQL", "error", "9.3.0-1", "9.3", "2025-07-22")},
 		},
 		{
-			name:  "mysql_version PXC 5.7.44-31.65 past EOL",
-			check: "mysql_version",
-			today: today,
-			docs:  [][]map[string]any{mysqlVariables("5.7.44-31.65", "Percona XtraDB Cluster (GPL), Release rel3, Revision 2a2b6d2, WSREP version 26.1.4.3", "/usr/", "/var/lib/mysql/")},
-			want:  []finding{mysqlEOL("Percona XtraDB Cluster", "error", "5.7.44-31.65", "5.7", "2023-10-01")},
+			name:         "mysql_version PXC 5.7.44-31.65 past EOL",
+			check:        "mysql_version",
+			today:        today,
+			docs:         [][]map[string]any{mysqlVariables("5.7.44-31.65", "Percona XtraDB Cluster (GPL), Release rel3, Revision 2a2b6d2, WSREP version 26.1.4.3", "/usr/", "/var/lib/mysql/")},
+			want:         []finding{mysqlEOL("Percona XtraDB Cluster", "error", "5.7.44-31.65", "5.7", "2023-10-01")},
+			descContains: []string{"Lifecycle policy: https://www.percona.com/release-lifecycle-overview/."},
 		},
 		{
 			name:         "mysql_version MariaDB 10.6.1 past EOL",
@@ -507,7 +510,8 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("10.6.1-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{mysqlEOL("MariaDB", "error", "10.6.1-MariaDB", "10.6", "2026-07-06")},
-			descExcludes: []string{"10.6.28", "includes security fixes"},
+			descContains: []string{"Lifecycle policy: https://mariadb.org/about/#maintenance-policy."},
+			descExcludes: []string{"10.6.28", "includes security fixes", "Release notes"},
 		},
 		{
 			name:  "mysql_version MariaDB 5.5.5-10.6.18 replication prefix",
@@ -536,7 +540,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.0.28", "Source distribution", "/rdsdbbin/mysql-8.0.28.R4/", "/rdsdbdata/db/")},
 			want:         []finding{rdsEOL("error", "8.0.28", "8.0", "2026-07-31")},
-			descContains: []string{"RDS Extended Support"},
+			descContains: []string{"RDS Extended Support", "Lifecycle policy: " + rdsCalendar + "."},
 			descExcludes: []string{"8.0.46", "includes security fixes"},
 		},
 		{
@@ -567,7 +571,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        "2031-10-30",
 			docs:         [][]map[string]any{mysqlVariables("8.4.3", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{mysqlEOL("MySQL", "warning", "8.4.3", "8.4", "2032-04-30")},
-			descContains: []string{"2032-04-30", "latest release of this series, 8.4.13", "security fixes"},
+			descContains: []string{"2032-04-30", "latest release of this series, 8.4.13. Release notes: https://dev.mysql.com/doc/relnotes/mysql/8.4/en/.", "security fixes"},
 		},
 		{
 			name:         "mysql_version Oracle 8.4.13 on EOL day",
@@ -591,7 +595,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        "2027-12-01",
 			docs:         [][]map[string]any{mysqlVariables("10.11.9-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{mysqlEOL("MariaDB", "warning", "10.11.9-MariaDB", "10.11", "2028-02-16")},
-			descContains: []string{"10.11.19", "https://mariadb.org/about/security-policy/"},
+			descContains: []string{"10.11.19", "https://mariadb.org/about/security-policy/", "Lifecycle policy: https://mariadb.org/about/#maintenance-policy.", "Release notes: https://mariadb.com/docs/release-notes/community-server/mariadb-10-11-series/what-is-mariadb-1011."},
 		},
 		{
 			name:         "mysql_version RDS 8.4.7 within 183 days",
@@ -599,7 +603,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        "2029-02-01",
 			docs:         [][]map[string]any{mysqlVariables("8.4.7", "Source distribution", "/rdsdbbin/mysql-8.4.7.R1/", "/rdsdbdata/db/")},
 			want:         []finding{rdsEOL("warning", "8.4.7", "8.4", "2029-07-31")},
-			descContains: []string{"RDS Extended Support", "8.4.11"},
+			descContains: []string{"RDS Extended Support", "8.4.11", "Lifecycle policy: " + rdsCalendar + "."},
 		},
 		{
 			name:         "mongodb_version PSMDB 6.0.19-16 past EOL gives only the EOL error",
@@ -799,8 +803,8 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{pgVersionRows(130005)},
 			want:         []finding{pgEOL("error", "13.5", "13", "2025-11-13")},
-			descContains: []string{"2025-11-13", "supported major version"},
-			descExcludes: []string{pgVersion(tableInt(t, pgLatest, "13")), "newer minor version", "includes security fixes"},
+			descContains: []string{"2025-11-13", "supported major version", "Lifecycle policy: https://www.postgresql.org/support/versioning/."},
+			descExcludes: []string{pgVersion(tableInt(t, pgLatest, "13")), "newer minor version", "includes security fixes", "Release notes"},
 		},
 		{
 			name:  "postgresql_version_check 110022 past EOL",
@@ -850,7 +854,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{pgVersionRows(170005)},
 			want:         []finding{newerPG("17.5", pgVersion(tableInt(t, pgLatest, "17")))},
-			descContains: []string{"Current version is 17.5, the latest release of PostgreSQL 17 is " + pgVersion(tableInt(t, pgLatest, "17")) + ".", "PostgreSQL 17 reaches end of life on " + pgExpires["17"], "security fixes", "https://www.postgresql.org/support/security/"},
+			descContains: []string{"Current version is 17.5, the latest release of PostgreSQL 17 is " + pgVersion(tableInt(t, pgLatest, "17")) + ".", "PostgreSQL 17 reaches end of life on " + pgExpires["17"], "Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, "17")) + "/.", "security fixes", "https://www.postgresql.org/support/security/"},
 			descExcludes: []string{"newer major version"},
 		},
 		{
@@ -859,7 +863,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        pgExpires["17"],
 			docs:         [][]map[string]any{pgVersionRows(170005)},
 			want:         []finding{pgEOL("warning", "17.5", "17", pgExpires["17"])},
-			descContains: []string{"newer minor version (" + pgVersion(tableInt(t, pgLatest, "17")) + ")", "security fixes"},
+			descContains: []string{"newer minor version (" + pgVersion(tableInt(t, pgLatest, "17")) + "). Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, "17")) + "/.", "Lifecycle policy: https://www.postgresql.org/support/versioning/.", "security fixes"},
 		},
 		{
 			name:         "postgresql_version_check latest 17 on EOL day",
@@ -883,7 +887,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{pgVersionRows(tableInt(t, pgLatest, "16"))},
 			want:         []finding{newerPG(pgVersion(tableInt(t, pgLatest, "16")), pgVersion(tableInt(t, pgLatest, pgLatestSeries)))},
-			descContains: []string{"the latest release of PostgreSQL 16. A newer major version, " + pgVersion(tableInt(t, pgLatest, pgLatestSeries)) + ", is available.", "PostgreSQL 16 reaches end of life on " + pgExpires["16"], "security fixes"},
+			descContains: []string{"the latest release of PostgreSQL 16. A newer major version, " + pgVersion(tableInt(t, pgLatest, pgLatestSeries)) + ", is available.", "PostgreSQL 16 reaches end of life on " + pgExpires["16"], "Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, pgLatestSeries)) + "/.", "security fixes"},
 		},
 		{
 			name:  "postgresql_version_check latest of the latest major",

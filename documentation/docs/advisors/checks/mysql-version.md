@@ -31,7 +31,7 @@ EOL versions no longer receive bug or security fixes from the vendor.
 
 The check doesn't report EOL for a series that isn't in its tables, such as a newer one that PMM doesn't know yet. Short-lived series (MySQL Innovation releases and MariaDB short-term releases) are added to the tables only once they have reached EOL.
 
-The EOL finding's labels show the running version (`current`), its series (`series`) and the EOL date (`eol_date`).
+The EOL finding's labels show the running version (`current`), its series (`series`) and the EOL date (`eol_date`). The finding links to the lifecycle policy of its product: [MySQL releases](https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html), the [Percona release lifecycle](https://www.percona.com/release-lifecycle-overview/) for Percona Server for MySQL and Percona XtraDB Cluster, the [MariaDB maintenance policy](https://mariadb.org/about/#maintenance-policy), or the [Amazon RDS for MySQL release calendar](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html#MySQL.Concepts.VersionMgmt.ReleaseCalendar).
 
 #### MySQL, Percona Server for MySQL and Percona XtraDB Cluster
 
@@ -115,7 +115,7 @@ For Amazon RDS for MySQL, the check uses the end of standard support from the [R
 
 ### Newer releases
 
-For a supported series, the check compares the version with the latest release of the same series that it knows of. The check never recommends a different series: a MySQL 8.4 server is compared only with the latest 8.4 release, and a MariaDB 10.11 server only with the latest 10.11 release. The finding shows the current version and the latest version (labels `current` and `latest`). It also says that the newer release includes security fixes and links to the vendor's security page: [Oracle security alerts](https://www.oracle.com/security-alerts/) for MySQL, Percona Server for MySQL, Percona XtraDB Cluster and Amazon RDS for MySQL, and the [MariaDB security policy](https://mariadb.org/about/security-policy/) for MariaDB.
+For a supported series, the check compares the version with the latest release of the same series that it knows of. The check never recommends a different series: a MySQL 8.4 server is compared only with the latest 8.4 release, and a MariaDB 10.11 server only with the latest 10.11 release. The finding shows the current version and the latest version (labels `current` and `latest`), and links to the release notes of that series for the product: MySQL, Percona Server for MySQL, Percona XtraDB Cluster or MariaDB. For Amazon RDS for MySQL, it links to the [RDS for MySQL versions page](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html). It also says that the newer release includes security fixes and links to the vendor's security page: [Oracle security alerts](https://www.oracle.com/security-alerts/) for MySQL, Percona Server for MySQL, Percona XtraDB Cluster and Amazon RDS for MySQL, and the [MariaDB security policy](https://mariadb.org/about/security-policy/) for MariaDB.
 
 The check knows the latest release of these series:
 

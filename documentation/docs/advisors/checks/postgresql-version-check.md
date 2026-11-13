@@ -41,11 +41,11 @@ The check uses these EOL dates from the [PostgreSQL versioning policy](https://w
 
 The check doesn't report a major version that isn't in this table, such as a newer one that PMM doesn't know yet.
 
-The EOL finding's labels show the running version (`current`), its major version (`series`) and the EOL date (`eol_date`).
+The EOL finding's labels show the running version (`current`), its major version (`series`) and the EOL date (`eol_date`). The finding links to the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/).
 
 ### Newer versions
 
-For a supported major version, the check compares the version with the latest minor version of the same major version, and then with the latest major version. The finding's labels show the running version (`current`) and the newer version (`latest`).
+For a supported major version, the check compares the version with the latest minor version of the same major version, and then with the latest major version. The finding's labels show the running version (`current`) and the newer version (`latest`), and the finding links to the [release notes](https://www.postgresql.org/docs/release/) of the newer version.
 
 Newer releases include security fixes, so the newer-version finding also links to the [PostgreSQL security information page](https://www.postgresql.org/support/security/), where you can check which vulnerabilities affect your current version.
 

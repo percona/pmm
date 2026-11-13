@@ -64,6 +64,12 @@ checks:
 
       security_line = " The newer release includes security fixes: https://www.postgresql.org/support/security/."
 
+      lifecycle_line = " Lifecycle policy: https://www.postgresql.org/support/versioning/."
+
+
+      def release_notes(version):
+          return " Release notes: https://www.postgresql.org/docs/release/{}/.".format(version)
+
 
       def format_version(major, ver):
           if major >= 10:
@@ -82,15 +88,16 @@ checks:
           if days < 0:
               return {
                   "summary": "PostgreSQL {} reached end of life".format(series),
-                  "description": "PostgreSQL {} reached its End-of-Life date on {}. EOL versions no longer receive bug or security fixes from the vendor. Upgrade to a supported major version.".format(series, eol_date),
+                  "description": "PostgreSQL {} reached its End-of-Life date on {}. EOL versions no longer receive bug or security fixes from the vendor. Upgrade to a supported major version.".format(series, eol_date) + lifecycle_line,
                   "read_more_url": read_url.format("postgresql-version-check"),
                   "severity": "error",
                   "labels": labels,
               }
 
-          description = "PostgreSQL {} End-of-Life date is {}. After that date it no longer gets bug fixes or security fixes. Plan your upgrade to a supported major version.".format(series, eol_date)
+          description = "PostgreSQL {} End-of-Life date is {}. After that date it no longer gets bug fixes or security fixes. Plan your upgrade to a supported major version.".format(series, eol_date) + lifecycle_line
           if ver < latest_for_current:
-              description += " Until then, upgrade to the newer minor version ({}).".format(format_version(int(series.split(".")[0]), latest_for_current)) + security_line
+              latest = format_version(int(series.split(".")[0]), latest_for_current)
+              description += " Until then, upgrade to the newer minor version ({}).".format(latest) + release_notes(latest) + security_line
 
           return {
               "summary": "PostgreSQL {} reaches end of life on {}".format(series, eol_date),
@@ -148,7 +155,7 @@ checks:
 
                results.append({
                    "summary": "Newer version of PostgreSQL is available",
-                   "description": description + security_line,
+                   "description": description + release_notes(latest) + security_line,
                    "read_more_url": read_url.format("postgresql-version-check"),
                    "severity": "warning",
                    "labels": {

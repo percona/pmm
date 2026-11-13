@@ -15,11 +15,8 @@ checks:
       # The latest release of each release series, keyed by major*100+minor (8.0 is 800, 10.11 is 1011).
       # A server is only compared with the latest release of its own series;
       # a series missing from its distribution's table gets no finding.
+      # RELEASE_NOTES lists the source of each row.
       LATEST_VERSIONS = {
-          # https://dev.mysql.com/doc/relnotes/mysql/5.7/en/
-          # https://dev.mysql.com/doc/relnotes/mysql/8.0/en/
-          # https://dev.mysql.com/doc/relnotes/mysql/8.4/en/
-          # https://dev.mysql.com/doc/relnotes/mysql/9.7/en/
           "oracle": {
               507: 50744,
               800: 80046,
@@ -27,10 +24,6 @@ checks:
               907: 90704,
           },
 
-          # https://docs.percona.com/percona-server/5.7/release-notes/release-notes_index.html
-          # https://docs.percona.com/percona-server/8.0/release-notes/release-notes_index.html
-          # https://docs.percona.com/percona-server/8.4/release-notes/release-notes-index.html
-          # https://docs.percona.com/percona-server/9.7/release-notes/release-notes-index.html
           "percona_server": {
               507: 50744,
               800: 80046,
@@ -38,10 +31,6 @@ checks:
               907: 90702,
           },
 
-          # https://docs.percona.com/percona-xtradb-cluster/5.7/release-notes/release-notes_index.html
-          # https://docs.percona.com/percona-xtradb-cluster/8.0/release-notes/release-notes_index.html
-          # https://docs.percona.com/percona-xtradb-cluster/8.4/release-notes/release-notes_index.html
-          # https://docs.percona.com/percona-xtradb-cluster/9.7/release-notes/release-notes-index.html
           "percona_xtradb_cluster": {
               507: 50744,
               800: 80046,
@@ -49,7 +38,6 @@ checks:
               907: 90702,
           },
 
-          # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html
           "rds": {
               507: 50744,
               800: 80046,
@@ -64,6 +52,51 @@ checks:
               1108: 110809,
               1203: 120303,
           },
+      }
+
+      # The release notes of each series in LATEST_VERSIONS; a finding that suggests a newer release links to them.
+      # The Percona pages differ in naming, so each series has its full URL.
+      RDS_VERSIONS_URL = "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html"
+      RELEASE_NOTES = {
+          "oracle": {
+              507: "https://dev.mysql.com/doc/relnotes/mysql/5.7/en/",
+              800: "https://dev.mysql.com/doc/relnotes/mysql/8.0/en/",
+              804: "https://dev.mysql.com/doc/relnotes/mysql/8.4/en/",
+              907: "https://dev.mysql.com/doc/relnotes/mysql/9.7/en/",
+          },
+          "percona_server": {
+              507: "https://docs.percona.com/percona-server/5.7/release-notes/release-notes_index.html",
+              800: "https://docs.percona.com/percona-server/8.0/release-notes/release-notes_index.html",
+              804: "https://docs.percona.com/percona-server/8.4/release-notes/release-notes-index.html",
+              907: "https://docs.percona.com/percona-server/9.7/release-notes/release-notes-index.html",
+          },
+          "percona_xtradb_cluster": {
+              507: "https://docs.percona.com/percona-xtradb-cluster/5.7/release-notes/release-notes_index.html",
+              800: "https://docs.percona.com/percona-xtradb-cluster/8.0/release-notes/release-notes_index.html",
+              804: "https://docs.percona.com/percona-xtradb-cluster/8.4/release-notes/release-notes_index.html",
+              907: "https://docs.percona.com/percona-xtradb-cluster/9.7/release-notes/release-notes-index.html",
+          },
+          "rds": {
+              507: RDS_VERSIONS_URL,
+              800: RDS_VERSIONS_URL,
+              804: RDS_VERSIONS_URL,
+          },
+          "mariadb": {
+              1006: "https://mariadb.com/docs/release-notes/community-server/mariadb-10-6-series/what-is-mariadb-106",
+              1011: "https://mariadb.com/docs/release-notes/community-server/mariadb-10-11-series/what-is-mariadb-1011",
+              1104: "https://mariadb.com/docs/release-notes/community-server/mariadb-11-4-series/what-is-mariadb-114",
+              1108: "https://mariadb.com/docs/release-notes/community-server/mariadb-11-8-series/what-is-mariadb-118",
+              1203: "https://mariadb.com/docs/release-notes/community-server/12.3/mariadb-12.3-changes-and-improvements",
+          },
+      }
+
+      # The lifecycle policy that the EOL dates of each distribution come from.
+      LIFECYCLE = {
+          "oracle": "https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html",
+          "percona_server": "https://www.percona.com/release-lifecycle-overview/",
+          "percona_xtradb_cluster": "https://www.percona.com/release-lifecycle-overview/",
+          "rds": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html#MySQL.Concepts.VersionMgmt.ReleaseCalendar",
+          "mariadb": "https://mariadb.org/about/#maintenance-policy",
       }
 
       # End-of-life dates. The PMM team keeps the EOL_* tables current.
@@ -207,12 +240,20 @@ checks:
 
           return EOL_PERCONA.get(dist, {}).get(key) or EOL_ORACLE.get(key)
 
+      def release_notes(dist, key):
+          url = RELEASE_NOTES[dist].get(key)
+          if not url:
+              return ""
+
+          return " Release notes: {}.".format(url)
+
       def eol_result(dist, series, date, days, labels, newer):
           """
           Returns the EOL finding. newer is a sentence about the latest release of the series, used only before the EOL date.
           """
 
           rds = dist == "rds"
+          lifecycle = " Lifecycle policy: {}.".format(LIFECYCLE[dist])
           if days < 0:
               if rds:
                   summary = "Amazon RDS for MySQL {} reached end of standard support".format(series)
@@ -223,7 +264,7 @@ checks:
 
               return {
                   "summary": summary,
-                  "description": description,
+                  "description": description + lifecycle,
                   "read_more_url": read_url.format("mysql-version"),
                   "severity": "error",
                   "labels": labels,
@@ -238,7 +279,7 @@ checks:
 
           return {
               "summary": summary,
-              "description": description + newer,
+              "description": description + lifecycle + newer,
               "read_more_url": read_url.format("mysql-version"),
               "severity": "warning",
               "labels": labels,
@@ -273,7 +314,8 @@ checks:
           # parse_version returns a dict with keys: major, minor, patch, rest, num
           version = parse_version(current)
           num = version["num"]
-          latest = LATEST_VERSIONS[dist].get(version["major"] * 100 + version["minor"], 0)
+          key = version["major"] * 100 + version["minor"]
+          latest = LATEST_VERSIONS[dist].get(key, 0)
 
           security_note = SECURITY_NOTE
           if dist == "mariadb":
@@ -292,7 +334,7 @@ checks:
                   }
                   newer = ""
                   if latest > num:
-                      newer = " Until then, upgrade to the latest release of this series, {}.".format(format_version_num(latest)) + security_note
+                      newer = " Until then, upgrade to the latest release of this series, {}.".format(format_version_num(latest)) + release_notes(dist, key) + security_note
 
                   return [eol_result(dist, series, date, days, labels, newer)]
 
@@ -302,7 +344,7 @@ checks:
           return [{
               "summary": "Newer version of {} is available".format(PRODUCTS[dist]),
               "description": "Current version is {}, the latest available version is {}.".format(
-                  format_version_num(num), format_version_num(latest)) + security_note,
+                  format_version_num(num), format_version_num(latest)) + release_notes(dist, key) + security_note,
               "read_more_url": read_url.format("mysql-version"),
               "severity": "warning",
               "labels": {
