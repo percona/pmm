@@ -1192,6 +1192,40 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, "/custom-metrics", persistedAgent.ExporterOptions.MetricsPath)
 		})
 
+		t.Run("ChangeKeepsConnectionTimeoutWhenOmitted", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			_, err := changeAgent(q, "A5", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					ConnectionTimeout: new(7 * time.Second),
+				},
+			})
+			require.NoError(t, err)
+
+			_, err = changeAgent(q, "A5", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					ExposeExporter: new(true),
+				},
+			})
+			require.NoError(t, err)
+
+			persistedAgent, err := models.FindAgentByID(q, "A5")
+			require.NoError(t, err)
+			assert.Equal(t, new(7*time.Second), persistedAgent.ExporterOptions.ConnectionTimeout)
+
+			_, err = changeAgent(q, "A5", &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					ConnectionTimeout: new(time.Duration(0)),
+				},
+			})
+			require.NoError(t, err)
+
+			persistedAgent, err = models.FindAgentByID(q, "A5")
+			require.NoError(t, err)
+			assert.Nil(t, persistedAgent.ExporterOptions.ConnectionTimeout)
+		})
+
 		t.Run("ChangeMetricsResolutions", func(t *testing.T) {
 			q, teardown := setup(t)
 			defer teardown(t)
