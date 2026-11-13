@@ -1,3 +1,1 @@
-# Gemini — PMM
-
 @AGENTS.md
