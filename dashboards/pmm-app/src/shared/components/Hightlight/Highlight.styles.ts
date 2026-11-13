@@ -1,11 +1,18 @@
 import { css } from '@emotion/css';
-import { GrafanaTheme } from '@grafana/data';
+import { createTheme, GrafanaTheme2 } from '@grafana/data';
+import { ThemeMode } from './Highlight.types';
 
-export const getStyles = (theme: GrafanaTheme) => {
-  const mainHighlightColor = theme.isLight ? theme.colors.text : '#e6e1dc';
+export const getStyles = (theme: GrafanaTheme2, mode?: ThemeMode) => {
+  // v1 colours: TypeScript 4.8 cannot resolve the zod-inferred v2 colour types
+  const { colors, isLight } = mode ? createTheme({ colors: { mode } }).v1 : theme.v1;
+  const mainHighlightColor = isLight ? colors.text : '#e6e1dc';
 
   return {
     highlightWrapper: css`
+      background-color: ${colors.bg1};
+      border-color: ${colors.border2};
+      color: ${colors.text};
+
       .hljs {
         display: block;
         overflow-x: auto;
