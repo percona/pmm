@@ -143,4 +143,43 @@ func TestService(t *testing.T) {
 		_, err = models.FindScheduledTaskByID(scheduler.db.Querier, dbTask.ID)
 		require.ErrorIs(t, err, models.ErrNotFound)
 	})
+
+	t.Run("remove keeps in-memory tracking when db delete fails", func(t *testing.T) {
+		ctx, cancel := context.WithCancel(t.Context())
+		defer cancel()
+		scheduler, service, location := setup(t, ctx, models.MongoDBServiceType, "mongo_service")
+
+		task, err := NewMongoDBBackupTask(&BackupTaskParams{
+			ServiceID:     service.ServiceID,
+			LocationID:    location.ID,
+			Name:          "test",
+			Description:   "test backup task",
+			DataModel:     models.LogicalDataModel,
+			Mode:          models.Snapshot,
+			Retention:     7,
+			Retries:       3,
+			RetryInterval: 5 * time.Second,
+		})
+		require.NoError(t, err)
+
+		dbTask, err := scheduler.Add(task, AddParams{
+			CronExpression: "* * * * *",
+			StartAt:        time.Now().Truncate(time.Second).UTC(),
+		})
+		require.NoError(t, err)
+
+		_, trackedBefore := scheduler.jobs[dbTask.ID]
+		require.True(t, trackedBefore)
+		require.Len(t, scheduler.scheduler.Jobs(), 1)
+
+		// Simulate Remove hitting DB failure after in-memory mutations.
+		err = models.RemoveScheduledTask(scheduler.db.Querier, dbTask.ID)
+		require.NoError(t, err)
+
+		err = scheduler.Remove(dbTask.ID)
+		require.Error(t, err)
+
+		_, trackedAfter := scheduler.jobs[dbTask.ID]
+		assert.True(t, trackedAfter, "job tracking was removed before DB delete succeeded")
+	})
 }
