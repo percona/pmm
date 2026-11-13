@@ -135,6 +135,8 @@ const (
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
 
+	advisorHistoryCleanInterval = time.Hour
+
 	defaultContextTimeout = 10 * time.Second
 	pProfProfileDuration  = 30 * time.Second
 	pProfTraceDuration    = 10 * time.Second
@@ -740,7 +742,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	kingpin.HelpFlag.Short('h')
 
 	// Base URL only: each consumer appends its own /api/apps/<module> path.
-	// Optional; without it OM builds its document from PMM's own inventory and metrics alone.
+	// When unset, om.ResolveExtensions fills both in for the side-car PMM_ENABLE_EXTENSIONS provisions.
 	extensionsURLF := kingpin.Flag("extensions-url", "Base URL of the PMM Extensions API, e.g. http://127.0.0.1:8000").
 		Envar("PMM_EXTENSIONS_URL").String()
 	extensionsTokenF := kingpin.Flag("extensions-token", "Bearer token for the PMM Extensions API").
@@ -1003,6 +1005,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	cleaner := clean.New(db)
+	advisorHistoryCleaner := clean.NewInsights(db)
 	externalRules := vmalert.NewExternalRules()
 	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
 	if err != nil {
@@ -1159,8 +1162,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	// Constructed ahead of serverParams so server.Server can hold it for the OpenManager enable/disable switch.
 	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
-	omService.WithProbeSource(*extensionsURLF, *extensionsTokenF)
-	omService.WithBootstrapSource(*extensionsURLF, *extensionsTokenF)
+	extensionsURL, extensionsToken := om.ResolveExtensions(*extensionsURLF, *extensionsTokenF, logrus.WithField("component", "om"))
+	omService.WithProbeSource(extensionsURL, extensionsToken)
+	omService.WithBootstrapSource(extensionsURL, extensionsToken)
 	omService.WithAgentRegistry(agentsRegistry)
 	omService.WithStateUpdater(agentsStateUpdater)
 	prom.MustRegister(om.NewMetricsCollector(omService))
@@ -1365,6 +1369,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
+		return nil
+	}))
+
+	haService.AddLeaderService(ha.NewContextService("advisor-history-cleaner", func(ctx context.Context) error {
+		advisorHistoryCleaner.Run(ctx, advisorHistoryCleanInterval)
 		return nil
 	}))
 
