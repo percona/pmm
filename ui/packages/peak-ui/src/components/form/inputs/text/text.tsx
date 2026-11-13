@@ -12,11 +12,12 @@ type SlotPropsWithChange =
 // A slot's own onChange replaces the TextField's in MUI, so the form write is composed into it.
 const withStoreValue = (slot: unknown, storeValue: (event: InputChangeEvent) => void) => {
   const compose = (props: SlotPropsWithChange) => {
-    const slotOnChange = props?.onChange;
-    if (!slotOnChange) return props;
+    if (!props) return props;
+    const { onChange: slotOnChange, ...slotProps } = props;
+    if (!slotOnChange) return slotProps;
 
     return {
-      ...props,
+      ...slotProps,
       onChange: (event: InputChangeEvent, ...rest: unknown[]) => {
         storeValue(event);
         slotOnChange(event, ...rest);
