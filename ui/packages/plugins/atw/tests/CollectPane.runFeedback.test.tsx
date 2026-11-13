@@ -256,7 +256,7 @@ describe('CollectPane run feedback', () => {
       onDispatched
     );
 
-    const run = await screen.findByRole('button', { name: 'Execute batch' });
+    const run = await screen.findByRole('button', { name: 'Run diagnostics' });
     await userEvent.click(run);
 
     // The click itself has to change something: the button says what it is
@@ -269,7 +269,9 @@ describe('CollectPane run feedback', () => {
 
     const confirmation = await screen.findByTestId('atw-collect-dispatched');
     expect(confirmation).toHaveTextContent('Started 2 scripts');
-    expect(screen.queryByRole('button', { name: 'Execute batch' })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: 'Run diagnostics' })
+    ).toBeNull();
     expect(onDispatched).toHaveBeenCalledWith(
       [SLOW_LOG, DISK_USAGE],
       expect.any(Object),
@@ -283,7 +285,7 @@ describe('CollectPane run feedback', () => {
     renderWithSelection([SLOW_LOG], { 'ops/slow-log.sh': [MINUTES_FIELD] });
 
     await userEvent.click(
-      await screen.findByRole('button', { name: 'Execute batch' })
+      await screen.findByRole('button', { name: 'Run diagnostics' })
     );
 
     expect(
@@ -308,7 +310,7 @@ describe('CollectPane run feedback', () => {
     await userEvent.type(minutes, '90');
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Execute batch' })
+      screen.getByRole('button', { name: 'Run diagnostics' })
     );
     await screen.findByTestId('atw-collect-dispatched');
 
@@ -357,7 +359,7 @@ describe('CollectPane run feedback', () => {
     const { rerender } = render(paneFor(1, SLOW_LOG));
 
     await userEvent.click(
-      await screen.findByRole('button', { name: 'Execute batch' })
+      await screen.findByRole('button', { name: 'Run diagnostics' })
     );
 
     // The reader reopens the form for another script while the first batch is
@@ -371,7 +373,7 @@ describe('CollectPane run feedback', () => {
     // would hide a form the reader is in the middle of filling.
     await waitFor(() =>
       expect(
-        screen.getByRole('button', { name: 'Execute batch' })
+        screen.getByRole('button', { name: 'Run diagnostics' })
       ).toBeEnabled()
     );
     expect(screen.queryByTestId('atw-collect-dispatched')).toBeNull();
@@ -392,14 +394,14 @@ describe('CollectPane run feedback', () => {
     renderWithSelection([SLOW_LOG], { 'ops/slow-log.sh': [MINUTES_FIELD] });
 
     await userEvent.click(
-      await screen.findByRole('button', { name: 'Execute batch' })
+      await screen.findByRole('button', { name: 'Run diagnostics' })
     );
 
     await screen.findByText(/must be positive/);
     expect(screen.queryByTestId('atw-collect-dispatched')).toBeNull();
     await waitFor(() =>
       expect(
-        screen.getByRole('button', { name: 'Execute batch' })
+        screen.getByRole('button', { name: 'Run diagnostics' })
       ).toBeEnabled()
     );
   });
