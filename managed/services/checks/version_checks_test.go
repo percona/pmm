@@ -899,7 +899,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check: "postgresql_wal_retention_check",
 			today: today,
 			docs: [][]map[string]any{{{
-				"version": "120022", "name": "wal_segment_size", "setting": "16777216", "unit": "B", "multiplyer": int64(1),
+				"version": "120022", "name": "wal_segment_size", "setting": "16777216", "unit": "B", "multiplyer": int64(1), //nolint:misspell
 				"bytes": int64(16777216), "pg_size_pretty": "16 MB", "wal_cnt": int64(1), "wal_keep": nil,
 				"space_used": int64(16777216), "pretty_space_used": "16 MB", "potential_space_used": nil,
 			}}},
