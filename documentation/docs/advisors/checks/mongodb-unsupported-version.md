@@ -1,7 +1,7 @@
 # Unsupported MongoDB version
 
 !!! note
-    The `mongodb_unsupported_version` check was removed in PMM 3.11.0. The [`mongodb_EOL`](mongodb-eol.md) check now reports release series that reached end of life, and the [`mongodb_version`](mongodb-version.md) check reports newer versions.
+    The `mongodb_unsupported_version` check was removed in PMM 3.11.0. The [`mongodb_version`](mongodb-version.md) check now reports release series that reached end of life, and newer versions.
 
 The `mongodb_unsupported_version` check returns an error if the release series of MongoDB or Percona Server for MongoDB (PSMDB) is no longer supported.
 
@@ -11,7 +11,7 @@ A release series that reached its end of life (EOL) is unsupported. EOL versions
 
 The check reads the server version with the `buildInfo` command and returns an error for release series older than 4.4.
 
-To check whether Percona still supports your release series, look it up in the [Percona software support lifecycle](https://www.percona.com/services/policies/percona-software-support-lifecycle). Later release series have their own [end-of-life dates](mongodb-eol.md).
+To check whether Percona still supports your release series, look it up in the [Percona software support lifecycle](https://www.percona.com/services/policies/percona-software-support-lifecycle). Later release series have their own [end-of-life dates](mongodb-version.md#end-of-life-dates).
 
 ## Resolution
 

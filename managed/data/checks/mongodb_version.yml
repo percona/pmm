@@ -3,23 +3,49 @@ checks:
   - version: 2
     name: mongodb_version
     summary: MongoDB version check
-    description: This check returns information on current MongoDB or Percona Server for MongoDB versions used in your environment. It also provides information on other available minor or major versions to consider for upgrades.
+    description: This check returns an error if your MongoDB or Percona Server for MongoDB release series has reached end of life, a warning if it reaches end of life within 6 months, and otherwise a warning if a newer minor or major version is available.
     technology: MONGODB
     category: Versions
     # author: Parag Bhayani
     queries:
       - type: MONGODB_BUILDINFO
     script: |
+      # The PSMDB team keeps this table current.
       LATEST_VERSIONS = {
           "version_check": {
-              "4.4": 40429,  # https://www.percona.com/downloads/percona-server-mongodb-4.4/
-              "5.0": 50029,  # https://www.percona.com/downloads/percona-server-mongodb-5.0/
-              "6.0": 60029,  # https://www.percona.com/downloads/percona-server-mongodb-6.0/
-              "7.0": 70043,  # https://www.percona.com/downloads/percona-server-mongodb-7.0/
-              "8.0": 80032,  # https://www.percona.com/downloads/percona-server-mongodb-8.0/
+              "4.4": 40429,  # https://docs.percona.com/percona-server-for-mongodb/4.4/release_notes/index.html
+              "5.0": 50029,  # https://docs.percona.com/percona-server-for-mongodb/5.0/release_notes/index.html
+              "6.0": 60029,  # https://docs.percona.com/percona-server-for-mongodb/6.0/release_notes/index.html
+              "7.0": 70048,  # https://docs.percona.com/percona-server-for-mongodb/7.0/release_notes/index.html
+              "8.0": 80038,  # https://docs.percona.com/percona-server-for-mongodb/8.0/release_notes/index.html
+              "8.3": 80313,  # https://docs.percona.com/percona-server-for-mongodb/8.3/release_notes/index.html
           },
           "read_url": "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html",
       }
+
+      # The PMM team keeps this table current. PSMDB follows the MongoDB dates.
+      # Rows follow the "MongoDB Server" table; add a series once it lists an EOL date.
+      # https://www.mongodb.com/legal/support-policy/lifecycles
+      # https://www.percona.com/release-lifecycle-percona-software-for-mongodb/
+      EOL = {
+          (3, 0): "2018-02-28",
+          (3, 2): "2018-09-30",
+          (3, 4): "2020-01-31",
+          (3, 6): "2021-04-30",
+          (4, 0): "2022-04-30",
+          (4, 2): "2023-04-30",
+          (4, 4): "2024-02-29",
+          (5, 0): "2024-10-31",
+          (6, 0): "2025-07-31",
+          (7, 0): "2027-08-31",
+          (8, 0): "2029-10-31",
+          (8, 2): "2026-07-31",
+          (8, 3): "2029-10-31",
+          (9, 0): "2031-10-31",
+      }
+
+      # A series that reaches EOL within this many days gets a warning.
+      WARN_DAYS = 183
 
       SECURITY_NOTE = " The newer release includes security fixes: https://www.mongodb.com/resources/products/alerts."
 
@@ -30,13 +56,44 @@ checks:
           major, minor = s.split(".")
           return (int(major), int(minor))
 
+      def eol_result(row, version, mm, eol_date, days, format_version_num):
+          labels = {
+              "current": row["version"],
+              "series": mm,
+              "eol_date": eol_date,
+          }
+
+          if days < 0:
+              return {
+                  "summary": "MongoDB {} reached end of life".format(mm),
+                  "description": "MongoDB version {} reached its End-of-Life date on {}. EOL versions no longer receive bug or security fixes from the vendor. PSMDB and MongoDB follow similar EOL timelines. Please review the software lifecycle policy at the Read More link in the details section. Kindly upgrade your MongoDB instance to a supported major release for security and performance reasons asap for seamless support.".format(mm, eol_date),
+                  "read_more_url": LATEST_VERSIONS["read_url"].format("mongodb-version"),
+                  "severity": "error",
+                  "labels": labels,
+              }
+
+          description = "MongoDB version {} End-of-Life date is {}. PSMDB and MongoDB follow similar EOL timelines. Please review the software lifecycle policy at the Read More link in the details section. Plan an upgrade to a supported major release before the EOL date.".format(mm, eol_date)
+          latest = LATEST_VERSIONS["version_check"].get(mm, 0)
+          if version["num"] < latest:
+              description += " Until then, upgrade to the latest minor version {}.".format(format_version_num(latest)) + SECURITY_NOTE
+
+          return {
+              "summary": "MongoDB {} reaches end of life on {}".format(mm, eol_date),
+              "description": description,
+              "read_more_url": LATEST_VERSIONS["read_url"].format("mongodb-version"),
+              "severity": "warning",
+              "labels": labels,
+          }
+
       def check_context(docs, context):
           """
-          This check returns information on current MongoDB or Percona Server for MongoDB versions used in your environment. It also provides information on other available minor or major versions to consider for upgrades.
+          This check returns an error if your MongoDB or Percona Server for MongoDB release series has reached end of life,
+          a warning if it reaches end of life within 6 months, and otherwise a warning if a newer minor or major version is available.
           """
 
           format_version_num = context.get("format_version_num", fail)
           parse_version = context.get("parse_version", fail)
+          days_until = context.get("days_until", fail)
 
           info = docs[0]
           results = []
@@ -52,6 +109,14 @@ checks:
               num = version["num"]
               mm = "{}.{}".format(version["major"], version["minor"])
               older_major = series_key(version) < latest_key
+
+              # A series past or near its EOL gets only the EOL finding: a newer patch of it is no fix.
+              eol_date = EOL.get(series_key(version))
+              if eol_date:
+                  days = days_until(eol_date)
+                  if days <= WARN_DAYS:
+                      results.append(eol_result(row, version, mm, eol_date, days, format_version_num))
+                      continue
 
               if mm not in LATEST_VERSIONS["version_check"]:
                   # Newer major version we do not track yet; nothing to advise
@@ -70,7 +135,7 @@ checks:
 
               if description:
                   results.append({
-                      "summary": "Newer version of MongoDB is available.",
+                      "summary": "Newer version of MongoDB is available",
                       "description": description + SECURITY_NOTE,
                       "read_more_url": LATEST_VERSIONS["read_url"].format("mongodb-version"),
                       "severity": "warning",

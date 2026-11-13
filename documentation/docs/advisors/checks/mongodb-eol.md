@@ -1,38 +1,19 @@
 # MongoDB end-of-life version
 
-The `mongodb_EOL` check reports when the release series of MongoDB or Percona Server for MongoDB (PSMDB) has reached its end of life (EOL), or reaches it within six months.
+!!! note
+    The `mongodb_EOL` check was removed in PMM 3.11.0. The [`mongodb_version`](mongodb-version.md) check now reports release series that reached or are about to reach end of life, so each service gets one version finding instead of two.
+
+The `mongodb_EOL` check reported when the release series of MongoDB or Percona Server for MongoDB (PSMDB) has reached its end of life (EOL), or reaches it within six months.
 
 ## Description
 
 EOL versions no longer receive bug or security fixes from the vendor. PSMDB follows the same EOL timeline as the MongoDB release series that it's based on.
 
-The check reads the server version with the `buildInfo` command, looks up the EOL date of its release series, and returns:
-
-- An error if the release series has reached EOL.
-- A warning if the release series reaches EOL within the next six months (183 days), up to and including the EOL date itself.
-
-The check uses these EOL dates from the [MongoDB lifecycle schedules](https://www.mongodb.com/legal/support-policy/lifecycles):
-
-| Release series | End of life |
-| :------------- | :---------- |
-| 3.6 | April 30, 2021 |
-| 4.0 | April 30, 2022 |
-| 4.2 | April 30, 2023 |
-| 4.4 | February 29, 2024 |
-| 5.0 | October 31, 2024 |
-| 6.0 | July 31, 2025 |
-| 7.0 | August 31, 2027 |
-| 8.0 | October 31, 2029 |
-| 8.2 | July 31, 2026 |
-| 9.0 | October 31, 2031 |
-
-The check doesn't report a release series that isn't in this table, such as a newer one that PMM doesn't know yet. Short-lived release series, such as 8.2, are added to the table only once they have reached EOL. For Percona's own support dates, see the [Percona software support lifecycle](https://www.percona.com/services/policies/percona-software-support-lifecycle).
-
-The finding's labels show the running version (`current`), its release series (`series`) and the EOL date (`eol_date`).
+The check returned an error if the release series has reached EOL, and a warning if it reaches EOL within the next six months. For the EOL dates, see [MongoDB versions](mongodb-version.md#end-of-life-dates).
 
 ## Resolution
 
-Upgrade to a supported release series. Upgrade one major version at a time, as the [recommended upgrade path](mongodb-version.md) shows: for example, from 4.2 to 4.4, then to 5.0.
+Upgrade to a supported release series. Upgrade one major version at a time, as the [recommended upgrade path](mongodb-version.md#recommended-upgrade-process) shows: for example, from 4.2 to 4.4, then to 5.0.
 
 Before you upgrade a production environment, test the new version in a development or staging environment, and verify that your drivers support it.
 

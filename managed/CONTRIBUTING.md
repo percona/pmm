@@ -102,24 +102,29 @@ Changes to built-in checks are visible in **Advisors > Catalog** once the PMM Se
 
 ### Keeping version data current
 
-The version and EOL checks hold their data in tables inside the check files. Update them when the table's owner needs to:
+The version checks hold their data in tables inside the check files. Each check reports both end of life (EOL) and newer releases, so one file can hold tables with different owners. Update a table when its owner needs to:
 
 | File | Table | Owner | Update when |
 |---|---|---|---|
 | `mongodb_version.yml` | `LATEST_VERSIONS` | PSMDB team | Each PSMDB patch release |
+| `mongodb_version.yml` | `EOL` | PMM team | New major/LTS GA; vendor lifecycle change |
 | `postgresql_version_check.yml` | `latest_versions`, `version_expires` | PostgreSQL team | Each minor release; new major GA |
-| `postgresql_eol_check.yml` | `version_expires` | PostgreSQL team | Each minor release; new major GA |
 | `mysql_version.yml` | `LATEST_VERSIONS`: `percona_server`, `percona_xtradb_cluster` | PS and PXC teams (to agree) | Each patch release |
 | `mysql_version.yml` | `LATEST_VERSIONS`: `oracle`, `mariadb`, `rds` | PMM team | Each PMM release |
-| `mysql_unsupported_version_check.yml` | `EOL_ORACLE`, `EOL_PERCONA`, `EOL_MARIADB`, `EOL_RDS` | PMM team | New major/LTS GA; vendor lifecycle change |
-| `mongodb_EOL.yml` | `EOL` | PMM team | New major/LTS GA; vendor lifecycle change |
+| `mysql_version.yml` | `EOL_ORACLE`, `EOL_PERCONA`, `EOL_MARIADB`, `EOL_RDS` | PMM team | New major/LTS GA; vendor lifecycle change |
 
-Every EOL check follows one rule: an error after the EOL date, a warning when the EOL date is 0 to 183 days away, and nothing otherwise or for a series missing from the table. Write EOL dates only in these tables, never inline in a script. `mysql_version.yml` and `mysql_unsupported_version_check.yml` share an identical `detect()` function, so keep the two in sync. The PostgreSQL EOL table exists in two files, `postgresql_version_check.yml` and `postgresql_eol_check.yml`, so update both together.
+Every version check follows one rule, and gives at most one finding per service:
+
+- An error after the EOL date, without advice to install a newer patch of that series.
+- A warning when the EOL date is 0 to 183 days away, naming the newer patch if there is one.
+- Otherwise, a warning when a newer release is available, and nothing for a series missing from the tables.
+
+Write EOL dates only in these tables, never inline in a script.
 
 When you change a table, also update the two other places that hold its data:
 
 1. The matching case in `services/checks/version_checks_test.go`, where a case pins a value from the table. The cases for `mongodb_version` and `postgresql_version_check` read the latest versions from the check file, so a routine update of those tables needs no test change.
-2. The table on the check's documentation page in `documentation/docs/advisors/checks/`: `mongodb-eol.md`, `mysql_unsupported_version_check.md`, `postgresql-eol-check.md`, `mysql-version.md`, and any other page that lists the table's values.
+2. The table on the check's documentation page in `documentation/docs/advisors/checks/`: `mongodb-version.md`, `mysql-version.md`, `postgresql-version-check.md`, and any other page that lists the table's values.
 
 Then run `go test ./services/checks -run TestBuiltinVersionChecks` in the `managed` directory.
 

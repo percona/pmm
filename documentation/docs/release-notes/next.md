@@ -45,17 +45,21 @@ The version checks now use current release data and end-of-life (EOL) dates, so 
 - Amazon RDS for MySQL versions past standard support are reported as having reached "end of standard support", not EOL.
 - **MongoDB 4.4** and **PostgreSQL 10 and older**, which were reported as warnings, are now reported as errors.
 - You get a warning 6 months before a version reaches EOL, and an error after that date.
+- Each service gets at most one version finding. A version past its EOL gets only the EOL error, without advice to install a newer release of the same version.
 - A newer-version finding now says when the newer release includes security fixes.
 
-These checks are removed, because the checks below cover the same cases:
+The `mongodb_version`, `mysql_version` and `postgresql_version_check` checks now report EOL themselves, so these checks are removed:
 
 | Removed check | Use instead |
 | :------------ | :---------- |
+| [`mongodb_EOL`](../advisors/checks/mongodb-eol.md) | [`mongodb_version`](../advisors/checks/mongodb-version.md) |
 | [`mongodb_cve_version`](../advisors/checks/mongodb-cve-version.md) | [`mongodb_version`](../advisors/checks/mongodb-version.md) |
-| [`mongodb_unsupported_version`](../advisors/checks/mongodb-unsupported-version.md) | [`mongodb_EOL`](../advisors/checks/mongodb-eol.md) |
-| [`mysql_version_eol_57`](../advisors/checks/mysql_version_eol_57.md) | [`mysql_unsupported_version_check`](../advisors/checks/mysql_unsupported_version_check.md) |
+| [`mongodb_unsupported_version`](../advisors/checks/mongodb-unsupported-version.md) | [`mongodb_version`](../advisors/checks/mongodb-version.md) |
+| [`mysql_unsupported_version_check`](../advisors/checks/mysql_unsupported_version_check.md) | [`mysql_version`](../advisors/checks/mysql-version.md) |
+| [`mysql_version_eol_57`](../advisors/checks/mysql_version_eol_57.md) | [`mysql_version`](../advisors/checks/mysql-version.md) |
 | [`postgresql_cve_check`](../advisors/checks/postgresql-cve-check.md) | [`postgresql_version_check`](../advisors/checks/postgresql-version-check.md) |
-| [`postgresql_unsupported_check`](../advisors/checks/postgresql-unsupported-check.md) | [`postgresql_eol_check`](../advisors/checks/postgresql-eol-check.md) |
+| [`postgresql_eol_check`](../advisors/checks/postgresql-eol-check.md) | [`postgresql_version_check`](../advisors/checks/postgresql-version-check.md) |
+| [`postgresql_unsupported_check`](../advisors/checks/postgresql-unsupported-check.md) | [`postgresql_version_check`](../advisors/checks/postgresql-version-check.md) |
 
 Six checks no longer fail or report wrongly on default setups:
 

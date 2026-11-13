@@ -1,7 +1,7 @@
 # Percona Server for MySQL 5.7 End-Of-Life
 
 !!! note
-    The `mysql_version_eol_57` check was removed in PMM 3.11.0. The [`mysql_unsupported_version_check`](mysql_unsupported_version_check.md) check now reports MySQL 5.7 and every other MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB and Amazon RDS for MySQL series that reached or is about to reach end of life.
+    The `mysql_version_eol_57` check was removed in PMM 3.11.0. The [`mysql_version`](mysql-version.md) check now reports MySQL 5.7 and every other MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB and Amazon RDS for MySQL series that reached or is about to reach end of life.
 
 ## Description
 

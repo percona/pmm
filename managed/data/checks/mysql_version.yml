@@ -3,7 +3,7 @@ checks:
   - version: 2
     name: mysql_version
     summary: MySQL Version
-    description: This check returns warnings if a newer release of your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL release series is available.
+    description: This check returns an error if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL release series has reached end of life, a warning if it reaches end of life within 6 months, and otherwise a warning if a newer release of the series is available.
     technology: MYSQL
     category: Versions
     queries:
@@ -66,6 +66,98 @@ checks:
           },
       }
 
+      # End-of-life dates. The PMM team keeps the EOL_* tables current.
+      # Oracle MySQL; Percona Server and PXC follow these dates unless EOL_PERCONA says otherwise.
+      # LTS and older series: end of Extended Support, last day of the month,
+      # https://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf
+      # Innovation series: supported until the next Innovation release,
+      # https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html
+      # https://dev.mysql.com/doc/relnotes/mysql/9.7/en/
+      # Add an Innovation series only once it is EOL.
+      EOL_ORACLE = {
+          (5, 5): "2018-12-31",
+          (5, 6): "2021-02-28",
+          (5, 7): "2023-10-31",
+          (8, 0): "2026-04-30",
+          (8, 1): "2023-10-25",
+          (8, 2): "2024-01-16",
+          (8, 3): "2024-04-30",
+          (8, 4): "2032-04-30",
+          (9, 0): "2024-10-15",
+          (9, 1): "2025-01-21",
+          (9, 2): "2025-04-15",
+          (9, 3): "2025-07-22",
+          (9, 4): "2025-10-21",
+          (9, 5): "2026-01-20",
+          (9, 6): "2026-04-21",
+          (9, 7): "2034-04-30",
+          (26, 7): "2026-10-20",  # https://dev.mysql.com/doc/relnotes/mysql/26.10/en/
+      }
+
+      # Only where Percona states a date different from Oracle's.
+      # https://www.percona.com/services/policies/percona-software-support-lifecycle
+      EOL_PERCONA = {
+          "percona_server": {
+              (5, 5): "2018-12-01",
+              (5, 6): "2021-02-01",
+              (5, 7): "2023-10-01",
+              (8, 0): "2026-04-01",
+              (9, 7): "2034-04-21",
+          },
+          "percona_xtradb_cluster": {
+              (5, 5): "2016-09-22",
+              (5, 6): "2021-02-01",
+              (5, 7): "2023-10-01",
+              (8, 0): "2026-04-01",
+          },
+      }
+
+      # Community end of life. Add a short-term series only once it is EOL.
+      # https://mariadb.org/about/#maintenance-policy
+      # Short-term series: https://endoflife.date/mariadb
+      EOL_MARIADB = {
+          (5, 1): "2015-02-01",
+          (5, 2): "2015-11-10",
+          (5, 3): "2017-03-01",
+          (5, 5): "2020-04-11",
+          (10, 0): "2019-03-31",
+          (10, 1): "2020-10-17",
+          (10, 2): "2022-05-23",
+          (10, 3): "2023-05-25",
+          (10, 4): "2024-06-18",
+          (10, 5): "2025-06-24",
+          (10, 6): "2026-07-06",
+          (10, 7): "2023-02-09",
+          (10, 8): "2023-05-20",
+          (10, 9): "2023-08-22",
+          (10, 10): "2023-11-17",
+          (10, 11): "2028-02-16",
+          (11, 0): "2024-06-06",
+          (11, 1): "2024-08-21",
+          (11, 2): "2024-11-21",
+          (11, 3): "2024-05-29",
+          (11, 4): "2029-05-29",
+          (11, 5): "2024-11-21",
+          (11, 6): "2025-02-13",
+          (11, 7): "2025-05-12",
+          (11, 8): "2028-06-04",
+          (12, 0): "2025-11-18",
+          (12, 1): "2026-02-13",
+          (12, 2): "2026-05-28",
+          (12, 3): "2029-06-12",
+      }
+
+      # RDS end of standard support.
+      # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html#MySQL.Concepts.VersionMgmt.ReleaseCalendar
+      EOL_RDS = {
+          (5, 7): "2024-02-29",
+          (8, 0): "2026-07-31",
+          (8, 4): "2029-07-31",
+      }
+
+      # A series that reaches EOL within this many days gets a warning.
+      WARN_DAYS = 183
+
       PRODUCTS = {
           "oracle": "MySQL",
           "percona_server": "Percona Server for MySQL",
@@ -106,14 +198,62 @@ checks:
 
           return "oracle"
 
+      def eol_date(dist, key):
+          if dist == "rds":
+              return EOL_RDS.get(key)
+
+          if dist == "mariadb":
+              return EOL_MARIADB.get(key)
+
+          return EOL_PERCONA.get(dist, {}).get(key) or EOL_ORACLE.get(key)
+
+      def eol_result(dist, series, date, days, labels, newer):
+          """
+          Returns the EOL finding. newer is a sentence about the latest release of the series, used only before the EOL date.
+          """
+
+          rds = dist == "rds"
+          if days < 0:
+              if rds:
+                  summary = "Amazon RDS for MySQL {} reached end of standard support".format(series)
+                  description = "Amazon RDS for MySQL {} reached the end of standard support on {}. AWS now runs it under Amazon RDS Extended Support, which is charged, until you upgrade. Upgrade to a major version in standard support.".format(series, date)
+              else:
+                  summary = "{} {} reached end of life".format(PRODUCTS[dist], series)
+                  description = "{} {} reached its End-of-Life date on {}. EOL versions no longer receive bug or security fixes from the vendor. Upgrade to a supported release series.".format(PRODUCTS[dist], series, date)
+
+              return {
+                  "summary": summary,
+                  "description": description,
+                  "read_more_url": read_url.format("mysql-version"),
+                  "severity": "error",
+                  "labels": labels,
+              }
+
+          if rds:
+              summary = "Amazon RDS for MySQL {} reaches end of standard support on {}".format(series, date)
+              description = "Amazon RDS for MySQL {} reaches the end of standard support on {}. After that date, AWS enrolls it in Amazon RDS Extended Support, which is charged. Plan an upgrade to a major version in standard support.".format(series, date)
+          else:
+              summary = "{} {} reaches end of life on {}".format(PRODUCTS[dist], series, date)
+              description = "{} {} End-of-Life date is {}. After that date it no longer gets bug fixes or security fixes. Plan your upgrade to a supported release series.".format(PRODUCTS[dist], series, date)
+
+          return {
+              "summary": summary,
+              "description": description + newer,
+              "read_more_url": read_url.format("mysql-version"),
+              "severity": "warning",
+              "labels": labels,
+          }
+
       def check_context(docs, context):
           """
-          This check returns warnings if a newer release of your MySQL, Percona Server for MySQL, Percona XtraDB Cluster,
-          MariaDB or Amazon RDS for MySQL release series is available.
+          This check returns an error if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL
+          release series has reached end of life, a warning if it reaches end of life within 6 months,
+          and otherwise a warning if a newer release of the series is available.
           """
 
           format_version_num = context.get("format_version_num", fail)
           parse_version = context.get("parse_version", fail)
+          days_until = context.get("days_until", fail)
 
           vars = {}
           for row in docs[0]:
@@ -134,12 +274,30 @@ checks:
           version = parse_version(current)
           num = version["num"]
           latest = LATEST_VERSIONS[dist].get(version["major"] * 100 + version["minor"], 0)
-          if latest <= num:
-              return []
 
           security_note = SECURITY_NOTE
           if dist == "mariadb":
               security_note = MARIADB_SECURITY_NOTE
+
+          # A series past or near its EOL gets only the EOL finding: a newer release of it is no fix.
+          date = eol_date(dist, (version["major"], version["minor"]))
+          if date:
+              days = days_until(date)
+              if days <= WARN_DAYS:
+                  series = "{}.{}".format(version["major"], version["minor"])
+                  labels = {
+                      "current": current,
+                      "series": series,
+                      "eol_date": date,
+                  }
+                  newer = ""
+                  if latest > num:
+                      newer = " Until then, upgrade to the latest release of this series, {}.".format(format_version_num(latest)) + security_note
+
+                  return [eol_result(dist, series, date, days, labels, newer)]
+
+          if latest <= num:
+              return []
 
           return [{
               "summary": "Newer version of {} is available".format(PRODUCTS[dist]),
