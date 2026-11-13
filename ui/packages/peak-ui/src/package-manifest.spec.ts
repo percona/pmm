@@ -11,12 +11,21 @@ const pkg = JSON.parse(read('package.json')) as {
   scripts: Record<string, string>;
   peerDependencies: Record<string, string>;
   publishConfig: { main: string; types: string };
+  license: string;
 };
 const publicExports = Object.keys(peakUi);
 
 // PMM-15491: the consumer-facing AGENTS.md must ship in the npm tarball.
 describe('published package contents', () => {
   // The changelog compares packages, so a story or spec edit must not change one.
+  it("ships PMM's license, matching the license field", () => {
+    expect(read('LICENSE')).toBe(read('../../../LICENSE'));
+    expect(read('LICENSE')).toMatch(
+      /GNU AFFERO GENERAL PUBLIC LICENSE\s+Version 3/
+    );
+    expect(pkg.license).toBe('AGPL-3.0-or-later');
+  });
+
   it('ships only the entry points and the guides', () => {
     const { main, types } = pkg.publishConfig;
     const allowed = [main, `${main}.map`, types, 'AGENTS.md', 'llms.txt'];
