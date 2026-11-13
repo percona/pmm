@@ -1102,6 +1102,41 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"systemLog": map[string]any{"verbosity": int64(1)}})},
 			want:  []finding{{Severity: "warning", Summary: "MongoDB is not using the default log level."}},
 		},
+		{
+			name:  "mongodb_maxsessions no setParameter",
+			check: "mongodb_maxsessions",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{})},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_maxsessions setParameter without maxSessions",
+			check: "mongodb_maxsessions",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"setParameter": map[string]any{"authenticationMechanisms": "SCRAM-SHA-1"}})},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_maxsessions default int64",
+			check: "mongodb_maxsessions",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"setParameter": map[string]any{"maxSessions": int64(1000000)}})},
+			want:  []finding{},
+		},
+		{
+			name:  "mongodb_maxsessions string 2000000",
+			check: "mongodb_maxsessions",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"setParameter": map[string]any{"maxSessions": "2000000"}})},
+			want:  []finding{{Severity: "warning", Summary: "MongoDB is using maxSessions - 2000000, which is more than the default value - 1000000"}},
+		},
+		{
+			name:  "mongodb_maxsessions int64 2000000",
+			check: "mongodb_maxsessions",
+			today: today,
+			docs:  [][]map[string]any{mongoCmdLineOpts(map[string]any{"setParameter": map[string]any{"maxSessions": int64(2000000)}})},
+			want:  []finding{{Severity: "warning", Summary: "MongoDB is using maxSessions - 2000000, which is more than the default value - 1000000"}},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			results := runBuiltinCheck(t, tc.check, tc.today, tc.docs...)

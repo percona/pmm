@@ -57,12 +57,14 @@ These checks are removed, because the checks below cover the same cases:
 | [`postgresql_cve_check`](../advisors/checks/postgresql-cve-check.md) | [`postgresql_version_check`](../advisors/checks/postgresql-version-check.md) |
 | [`postgresql_unsupported_check`](../advisors/checks/postgresql-unsupported-check.md) | [`postgresql_eol_check`](../advisors/checks/postgresql-eol-check.md) |
 
-Four MongoDB checks no longer fail or report wrongly on default setups:
+Six checks no longer fail or report wrongly on default setups:
 
 - [`mongodb_multiple_services`](../advisors/checks/multiple-mongod-running-in-a-node.md) no longer fails on a service without a cluster label, and counts mongod services per service.
 - [`mongodb_swap_allocation`](../advisors/checks/mongodb-swap-allocation.md) no longer fails when a metric is missing.
 - [`mongodb_journal`](../advisors/checks/mongodb-journal.md) reports nothing on MongoDB 7.0 and later, and on earlier versions only when the journal is explicitly disabled.
 - [`mongodb_loglevel`](../advisors/checks/mongodb-log-messages.md) reports only an explicitly set non-zero log level.
+- [`mongodb_maxsessions`](../advisors/checks/mongodb-maxSessions.md) no longer fails when `setParameter` has no `maxSessions`.
+- [`postgresql_wal_retention_check`](../advisors/checks/postgresql-wal-retention-check.md) works for a monitoring user with the `pg_monitor` role.
 
 ### Inventory page now in native PMM UI
 
