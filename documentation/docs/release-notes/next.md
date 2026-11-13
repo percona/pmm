@@ -68,7 +68,7 @@ If your scripts or integrations call the PMM API, check whether these changes af
 
 - Requests to the PMM API without credentials now fail, even when Grafana anonymous access is enabled. This is part of the fix for [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339), which lets visitors who aren't signed in view your dashboards and nothing else.
 
-- With access control enabled, the Query Analytics and metrics query APIs now refuse service account tokens, so automation can't read data that your access roles restrict.
+- With access control enabled, the Query Analytics and metrics query APIs now filter the data that a service account token reads by the access roles of its service account, as they do for a user. Assign your automation's service accounts the roles they need.
 
 To find the affected endpoints and update your automation, [check the PMM API release notes](https://percona-pmm.readme.io/v3/reference/release-notes-3-11-0).
 
@@ -89,6 +89,8 @@ To find the affected endpoints and update your automation, [check the PMM API re
 ## ✅ Fixed issues
 
 - [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339): Fixed an issue where [turning on Grafana anonymous access](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#supported-external-variables) also let visitors who aren't signed in use PMM features such as Query Analytics. These visitors can now open only your dashboards.
+
+- [PMM-15534](https://perconadev.atlassian.net/browse/PMM-15534): Fixed an issue where access roles didn't apply to requests made with a service account token. With access control enabled, a token now gets only the metrics and Query Analytics data that the roles of its service account allow. A service account with no role gets the default role when one of its tokens first makes a request that access roles filter, such as a metrics or Query Analytics query. If you restricted the default role, check the service account tokens that you created, including API keys converted from PMM 2, before you upgrade, and assign their service accounts the roles they need. PMM Client on registered nodes keeps working as before, whatever the default role. For details, see [Assign access roles to service accounts](../admin/roles/access-control/assign_roles.md#assign-access-roles-to-service-accounts).
 
 - [PMM-15654](https://perconadev.atlassian.net/browse/PMM-15654): Fixed the [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard hiding clusters added without `--environment` when **Environment** is set to **All** and another MongoDB service has an environment set. These clusters now appear under **All**.
 
