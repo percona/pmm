@@ -110,8 +110,9 @@ func GetAdditionalContext() map[string]starlark.GoFunc {
 	}
 }
 
-// ipIsPrivate accepts a single string argument (IP address or a network) and
-// returns true for a private address, otherwise false. It returns nil in case of an invalid argument.
+// ipIsPrivate accepts a single string argument (IP address or a network in CIDR notation) and
+// returns true for a private address or a network that lies fully inside a private block, otherwise false.
+// It returns nil in case of an invalid argument.
 func ipIsPrivate(args ...any) (any, error) {
 	log := logrus.WithField("component", "checks")
 
@@ -127,15 +128,15 @@ func ipIsPrivate(args ...any) (any, error) {
 	ipAddress := net.ParseIP(ip)
 	if ipAddress == nil {
 		// check if string was in CIDR notation
-		_, net, err := net.ParseCIDR(ip)
+		_, ipNet, err := net.ParseCIDR(ip)
 		if err != nil {
 			log.Errorf("invalid ip/network address: %q", ip)
 			return nil, nil //nolint:nilnil,nilerr
 		}
+		ones, bits := ipNet.Mask.Size()
 		for _, network := range privateNetworks {
-			// check if the two networks intersect
-			// https://stackoverflow.com/questions/34729158/how-to-detect-if-two-golang-net-ipnet-objects-intersect/34729915#34729915
-			if net.Contains(network.IP) || network.Contains(net.IP) {
+			privateOnes, privateBits := network.Mask.Size()
+			if bits == privateBits && ones >= privateOnes && network.Contains(ipNet.IP) {
 				return true, nil
 			}
 		}

@@ -19,6 +19,9 @@ export interface PageProps extends PropsWithChildren {
    * `maxWidth="full"` when `maxWidth` is not set.
    */
   fullWidth?: boolean;
+  // caps the page to the viewport height so its content scrolls internally
+  // (instead of the whole page scrolling); for full-height table pages
+  fillViewport?: boolean;
   /**
    * Background the page paints behind its content. A plain content page sits
    * on `'paper'`. A page composed of cards opts out with `'canvas'`, where
