@@ -68,6 +68,20 @@ export const TEST_USER_VIEWER: User = {
   },
 };
 
+// A Grafana server admin whose org role is lower: pmm-managed accepts them as admins.
+export const TEST_USER_GRAFANA_ADMIN: User = {
+  ...TEST_USER_EDITOR,
+  id: 4,
+  login: 'grafana-admin',
+  name: 'grafana-admin',
+  orgRole: OrgRole.Viewer,
+  isPMMAdmin: true,
+  info: {
+    ...TEST_USER_EDITOR.info,
+    userId: 4,
+  },
+};
+
 export const TEST_SERVICE: BaseService = {
   serviceId: 'service-1',
   serviceName: 'Service 1',

@@ -133,9 +133,15 @@ To add an external service via PMM UI:
 
         ![Set external service endpoint manually](../../../images/PMM_External_Serverless_switcher_manually.png)
 
+        Under **Schema**, select whether PMM scrapes the endpoint over **HTTP** or **HTTPS**. HTTP is selected by default. The port starts at `80` and changes to `443` when you select HTTPS, unless you entered your own port.
+
     - by parsing required data from a URL string. In this case you only need to pass a valid URL:
 
         ![Parse from URL string](../../../images/PMM_External_Serverless_switcher.png)
 
-3. For HTTPS connections: If your external service uses HTTPS with self-signed certificates or certificates that don't properly validate, check the **Skip TLS certificate and hostname validation** option under **Inventory > Services** section.
+        PMM scrapes the endpoint with the scheme of the URL. URLs with query parameters aren't supported.
+
+    In both cases, if you leave out the metrics path, PMM uses the default path `/metrics`.
+
+3. For HTTPS connections: If your external service uses HTTPS with self-signed certificates or certificates that don't properly validate, turn on **Skip TLS certificate and hostname validation** under **Additional options**. The option appears only for HTTPS endpoints.
 

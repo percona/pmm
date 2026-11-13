@@ -53,7 +53,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
 
     1. Go to **Inventory > Add service**.
 
-    2. Select **Valkey/Redis** service type.
+    2. Select **Valkey** service type.
 
     3. Fill in the **Main details** section:
 
@@ -62,7 +62,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         - **Agents**: Select the PMM agent that should monitor this instance.
         - **Hostname/Port**: The address and port (default: `6379`) of your instance.
         - **Username/Password**: Authentication credentials (if ACL is enabled).
-        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 3s.
+        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 3 seconds.
 
     4. Configure **Labels** (optional): Add descriptive tags. For clustered/replicated setups, ensure you set the `role` label here (e.g., `role:primary`).
 
@@ -75,9 +75,9 @@ You can add your Valkey or Redis service to PMM either through the user interfac
 
     5. Configure **Additional options**:
 
-        - Check **Skip connection check** to bypass connectivity validation.
-        - Check **Use TLS for database connections** to enable TLS.
-        - Check **Skip TLS certificate and hostname validation** to turn off certificate verification. Don't use this in production. For self-signed certificates, see [TLS certificate validation](#tls-certificate-validation) instead.
+        - Turn on **Skip connection check** to bypass connectivity validation.
+        - Turn on **Use TLS for database connections** to enable TLS.
+        - After you turn on TLS, turn on **Skip TLS certificate and hostname validation** to turn off certificate verification. Don't use this in production. For self-signed certificates, see [TLS certificate validation](#tls-certificate-validation) instead.
     6. Click **Add service** to complete the setup.
 
 === ":material-console: Via command line"

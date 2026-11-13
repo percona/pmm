@@ -3,7 +3,12 @@ import { Page } from './Page';
 import { TestWrapper } from 'utils/testWrapper';
 import { UserContext } from 'contexts/user';
 import { Messages } from './Page.messages';
-import { TEST_USER_ADMIN } from 'utils/testStubs';
+import {
+  TEST_USER_ADMIN,
+  TEST_USER_EDITOR,
+  TEST_USER_GRAFANA_ADMIN,
+} from 'utils/testStubs';
+import { OrgRole, type User } from 'types/user.types';
 import { measurePageSurface, measureSurface } from 'utils/testUtils';
 
 describe('Page', () => {
@@ -57,6 +62,41 @@ describe('Page', () => {
 
     expect(screen.queryByText('Page Content')).toBeNull();
     expect(screen.queryByText(Messages.noAcccess)).toBeDefined();
+  });
+
+  describe('roles', () => {
+    const renderPage = (user: User, roles: OrgRole[]) =>
+      render(
+        <TestWrapper>
+          <UserContext.Provider value={{ isLoading: false, user }}>
+            <Page roles={roles}>
+              <div>Page Content</div>
+            </Page>
+          </UserContext.Provider>
+        </TestWrapper>
+      );
+
+    it.each([
+      ['an org Admin', TEST_USER_ADMIN],
+      ['a Grafana server admin', TEST_USER_GRAFANA_ADMIN],
+    ])('lets %s into an Admin page', (_, user) => {
+      renderPage(user, [OrgRole.Admin]);
+
+      expect(screen.getByText('Page Content')).toBeInTheDocument();
+    });
+
+    it('keeps an Editor out of an Admin page', () => {
+      renderPage(TEST_USER_EDITOR, [OrgRole.Admin]);
+
+      expect(screen.queryByText('Page Content')).not.toBeInTheDocument();
+      expect(screen.getByText(Messages.noAcccess)).toBeInTheDocument();
+    });
+
+    it('lets a Grafana server admin into a page for other roles too', () => {
+      renderPage(TEST_USER_GRAFANA_ADMIN, [OrgRole.Editor]);
+
+      expect(screen.getByText('Page Content')).toBeInTheDocument();
+    });
   });
 
   describe('surface', () => {

@@ -1,14 +1,12 @@
 import { FC } from 'react';
 import { PageProps } from './Page.types';
-import {
-  Alert,
-  Box,
-  Card,
-  CardActions,
-  GlobalStyles,
-  Link,
-  Typography,
-} from '@mui/material';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import GlobalStyles from '@mui/material/GlobalStyles';
+import Link from '@mui/material/Link';
+import Typography from '@mui/material/Typography';
 import { PageContainer } from '@percona/peak-ui';
 import { useUser } from 'contexts/user';
 import { Messages } from './Page.messages';
@@ -31,7 +29,11 @@ export const Page: FC<PageProps> = ({
 }) => {
   const { user } = useUser();
   updateDocumentTitle(title);
-  const hasAccess = !roles || roles?.some((role) => user?.orgRole === role);
+  // PMM admins, Grafana server admins included, pass any role gate, as in pmm-managed.
+  const hasAccess =
+    !roles ||
+    !!user?.isPMMAdmin ||
+    roles.some((role) => user?.orgRole === role);
   // Back-compat: `fullWidth` predates `maxWidth`; treat it as `maxWidth="full"`
   // unless an explicit `maxWidth` is provided.
   const resolvedMaxWidth = maxWidth ?? (fullWidth ? 'full' : undefined);

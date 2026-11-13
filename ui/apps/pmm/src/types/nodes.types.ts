@@ -9,6 +9,16 @@ export enum NodeType {
   remoteAzureDatabase = 'remote_azure_database',
 }
 
+// Node types the inventory API takes, e.g. for the node a new service adds
+export enum InventoryNodeType {
+  unspecified = 'NODE_TYPE_UNSPECIFIED',
+  generic = 'NODE_TYPE_GENERIC_NODE',
+  container = 'NODE_TYPE_CONTAINER_NODE',
+  remote = 'NODE_TYPE_REMOTE_NODE',
+  remoteRds = 'NODE_TYPE_REMOTE_RDS_NODE',
+  remoteAzureDatabase = 'NODE_TYPE_REMOTE_AZURE_DATABASE_NODE',
+}
+
 export interface NodeService {
   serviceId: string;
   serviceType: ManagedServiceType;
@@ -25,6 +35,8 @@ export interface ManagedNode {
   status: ServiceStatus;
   customLabels: Record<string, string>;
   isPmmServerNode: boolean;
+  // Nodes PMM Server runs for itself; the add-service node picker leaves them out
+  isPmmInternalNode?: boolean;
   agents: ManagedAgent[];
   services: NodeService[];
   // The node's other scalar attributes, keyed as the API names them

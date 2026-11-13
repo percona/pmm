@@ -1,0 +1,1 @@
+export { QueryAnalyticsOptions } from './QueryAnalyticsOptions';
