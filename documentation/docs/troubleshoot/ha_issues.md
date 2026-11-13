@@ -102,7 +102,7 @@ To fix it:
         -d "$GF_DATABASE_NAME" -c "DELETE FROM login_attempt;"'
     ```
 
-2. If the login still fails, reset the Grafana admin password to the value stored in the secret. The command turns off the [password policy](../admin/manage-users/add_users.md#password-requirements) for this reset only, because a password that the chart generates has no symbol and doesn't meet it:
+2. If you still can't log in, the admin password is out of sync with `pmm-secret`. Reset the Grafana admin password to the value stored in the secret. A password that the Helm chart generates has no symbol, so the command turns off the [password policy](../admin/manage-users/add_users.md#password-requirements) for this reset only:
 
     ```sh
     kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c 'printf %s "$PMM_ADMIN_PASSWORD" | GF_AUTH_BASIC_PASSWORD_POLICY=false grafana-cli \

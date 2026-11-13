@@ -182,7 +182,7 @@ until [ $(docker inspect -f {% raw %}'{{.State.Health.Status}}'{% endraw %} pmm-
 printf %s "$PMM_PASSWORD" | docker exec -i pmm-server grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password --password-from-stdin
 ```
 
-The new password must meet the [password requirements](../admin/manage-users/add_users.md#password-requirements). If it doesn't, both commands fail with `the new password doesn't meet the password policy criteria`. Keep the password in single quotes so that your shell doesn't interpret the symbols in it. If the password contains a single quote, write it as `'\''`.
+If the new password doesn't meet the [password requirements](../admin/manage-users/add_users.md#password-requirements), both commands fail with `the new password doesn't meet the password policy criteria`. Keep the password in single quotes so that your shell doesn't interpret the symbols in it. If the password contains a single quote, write it as `'\''`.
 
 ## How to use a non-default listen-port for pmm-admin?
 
