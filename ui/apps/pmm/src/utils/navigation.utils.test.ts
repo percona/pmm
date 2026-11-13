@@ -1,7 +1,7 @@
 import { NavItem } from 'types/navigation.types';
 import { findActiveNavItem } from './navigation.utils';
 import { NAV_INVENTORY } from 'contexts/navigation/navigation.constants';
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { PMM_INVENTORY_SERVICES_PATH } from 'lib/constants';
 
 describe('findActiveNavItem', () => {
   it("returns root if first child doesn't match", () => {
@@ -88,7 +88,7 @@ describe('findActiveNavItem', () => {
   it('makes Services the active Inventory item on the Services list', () => {
     const activeItem = findActiveNavItem(
       NAV_INVENTORY,
-      `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`
+      PMM_INVENTORY_SERVICES_PATH
     );
 
     expect(activeItem?.id).toBe('inventory-services');

@@ -3,7 +3,9 @@
 !!! warning "Developer Preview"
     Operations for MongoDB is a Developer Preview feature in PMM 3.10.0. Use it for testing and feedback only, not in production.
 
-As a PMM Admin, you can use Operations for MongoDB to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, review the [limitations](#limitations) that apply in this Developer Preview release.
+Operations for MongoDB enables you to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, review the [limitations](#limitations) that apply in this Developer Preview release.
+
+Every signed-in PMM user can open **MongoDB > Operations** and see all of its pages, except the install form. Only PMM Admins can scan nodes, start or abort installs, remove node entries, and change settings. For other users, these controls are disabled or hidden. Any user can click **Refresh** on **Fleet**.
 
 ## Prepare PMM Server
 
@@ -12,30 +14,8 @@ Operations for MongoDB runs on [PMM Extensions](../apps/deploy-pmm-extensions.md
 Before you enable Operations for MongoDB, prepare PMM Server:
 {.power-number}
 
-1. [Deploy PMM Extensions with Docker](../apps/deploy-pmm-extensions.md). This setup already sets `PMM_ENABLE_EXTENSIONS=1`, `PMM_ENABLE_NOMAD=1`, and `PMM_PUBLIC_ADDRESS`.
+1. [Deploy PMM Extensions with Docker](../apps/deploy-pmm-extensions.md). This setup already sets `PMM_ENABLE_EXTENSIONS=1`, `PMM_ENABLE_NOMAD=1`, and `PMM_PUBLIC_ADDRESS`. PMM Server connects to PMM Extensions automatically.
 2. Publish port `4647` on the `pmm-server` container (`-p 4647:4647`). PMM Client nodes connect to this port to receive scan and install jobs. Without it, remote nodes can't receive jobs.
-3. Connect PMM Server to PMM Extensions. This step is required in PMM 3.10.0 only (see [PMM-15772](https://perconadev.atlassian.net/browse/PMM-15772)). Without it, you can't turn on Operations for MongoDB:
-
-    1. Generate a token, for example with `openssl rand -hex 32`. Treat it as a password.
-    2. Set these variables, using the same token on both containers:
-
-        - On `pmm-server`: `PMM_EXTENSIONS_URL=http://pmm-extensions:9000` and `PMM_EXTENSIONS_TOKEN=<token>`
-        - On `pmm-extensions`: `EXTENSIONS_INTERNAL_TOKEN=<token>`
-
-        If you use Docker Compose, store the token in your `.env` file as `PMM_EXTENSIONS_TOKEN` and reference it from both services:
-
-        ```yaml
-        services:
-          pmm-server:
-            environment:
-              PMM_EXTENSIONS_URL: http://pmm-extensions:9000
-              PMM_EXTENSIONS_TOKEN: ${PMM_EXTENSIONS_TOKEN}
-          pmm-extensions:
-            environment:
-              EXTENSIONS_INTERNAL_TOKEN: ${PMM_EXTENSIONS_TOKEN}
-        ```
-
-    3. Recreate both containers so they pick up the new environment variables. A simple restart won't work, because Docker only reads environment variables when it creates a container. If you use Docker Compose, run `docker compose up -d`, which recreates any container whose configuration has changed.
 
 ### Enable Operations for MongoDB
 
@@ -50,7 +30,7 @@ Until you enable Operations for MongoDB, **MongoDB > Operations** doesn't appear
     2. Turn on **Operations for MongoDB**.
     3. Click **Apply changes**.
 
-    If PMM can't reach PMM Extensions, the setting stays off. Check your PMM Extensions deployment and try again.
+    If PMM can't use PMM Extensions, the setting stays off and the error message says why, for example that PMM Extensions is unreachable. Fix the cause and try again.
 
 === "via environment variable"
 
@@ -122,7 +102,7 @@ With **Connect to MongoDB** off, scans collect only process and OS details and t
 
 A scan checks what runs on a node and whether you can install MongoDB on it. Until PMM scans a node, the node shows no data.
 
-PMM scans every node automatically, every 10 minutes by default.
+PMM scans every node automatically, every 10 minutes by default. PMM also scans every node after each restart and when Operations for MongoDB is turned on.
 
 ### Run a scan now
 
@@ -140,8 +120,16 @@ By default, PMM scans every node every 10 minutes. Each scan sends a job to ever
 2. In **Scan every** and **Period**, set the time between scans.
 3. Click **Save**. The change takes effect without a restart.
 
-!!! note "Keep automatic scans on"
-    In PMM 3.10.0, turning off **Automatic node scans** also blocks **Scan** and **Scan all** on the **Nodes** page. PMM turns automatic scans back on the next time it restarts.
+### Stop automatic scans
+
+If you want PMM to scan only when you ask, turn off automatic scans:
+{.power-number}
+
+1. Go to **MongoDB > Operations > Settings** and select the **General** tab.
+2. Turn off **Automatic node scans**.
+3. Click **Save**.
+
+PMM then no longer scans on a schedule, when it restarts, or when Operations for MongoDB is turned on. **Scan** and **Scan all** on the **Nodes** page keep working. When you turn **Automatic node scans** back on, PMM scans at the interval set in **Scan every** and **Period**.
 
 ## Install a replica set
 
@@ -221,20 +209,27 @@ To view fleet health:
 
 1. Go to **MongoDB > Operations > Fleet**.
 2. On the **Clusters** tab, check the summary at the top: how many environments, clusters, and services PMM monitors, and how many services are up or down.
-3. Clusters are grouped by environment. For each cluster, check the following columns:
+3. To narrow the list, type part of a cluster name in **Search clusters**, or select values in the **Health**, **Type**, and **Environment** filters. A cluster must match the search and every filter that you set. Within one filter, any selected value matches. The filters are saved in the page URL, so you can share the filtered view. To reset, click **Clear filters**.
+4. By default, clusters are grouped by environment. If you change **Group by**, the table keeps your choice for the browser session. For each cluster, check the following columns:
 
     - **Health**: the overall state of the cluster, for example **Healthy**.
     - **Services**: the number of services in the cluster.
-    - **Process**: the member types in the cluster, for example routers and shards.
+    - **Process**: the member types in the cluster, for example routers, shards and arbiters.
     - **Max repl. lag**: the highest replication lag across members.
     - **Min oplog window**: the smallest oplog window across members.
 
-4. Expand a cluster's row to find the member that causes poor health or high replication lag.
-5. Select the **Services** tab to check whether a specific service is up or down.
+    To add columns that are hidden by default, such as **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
+
+5. Expand a cluster's row to find the member that causes poor health or high replication lag.
+6. Select the **Services** tab to check whether a specific service is up or down.
 
 The page shows when its data was last refreshed and when the nodes were last scanned. To load the latest data, click **Refresh**.
 
 ## Troubleshoot
+
+### Pages don't load
+
+If **Nodes**, **Automations** or **Settings** can't load and the error says **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container. PMM signs you in to PMM Extensions with your PMM session. PMM Extensions accepts that session only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default. If the container sets it to `false`, remove the variable and recreate the container.
 
 ### Scans
 
@@ -259,4 +254,3 @@ Operations for MongoDB is a Developer Preview feature in PMM 3.10.0: you can try
 - You can install only replica sets with 1 or 3 members, not sharded clusters or standalone instances, though Fleet still shows any sharded clusters that PMM already monitors.
 - No TLS or encryption at rest. Members authenticate to each other with a keyfile. TLS and encryption at rest are planned for a future release.
 - Installs on Ubuntu and Rocky Linux only, using Percona packages.
-- Only PMM Admin users can access **MongoDB > Operations** and start installs.

@@ -95,7 +95,7 @@ func TestProbeSource(t *testing.T) {
 			_, _ = w.Write([]byte(servicesBody))
 		})
 
-		result := source.collect(context.Background(), probeTestServices())
+		result := source.collect(asService(context.Background()), probeTestServices())
 
 		assert.Equal(t, "Bearer test-token", gotAuth)
 		assert.Equal(t, "/api/apps/"+probeAppModule+"/"+probeServicesPath, gotPath)
@@ -122,7 +122,7 @@ func TestProbeSource(t *testing.T) {
 			_, _ = w.Write([]byte(servicesBody))
 		})
 
-		result := source.collect(context.Background(), probeTestServices())
+		result := source.collect(asService(context.Background()), probeTestServices())
 
 		for _, fact := range result.Facts {
 			assert.NotEqual(t, "gone", fact.Service)
@@ -134,7 +134,7 @@ func TestProbeSource(t *testing.T) {
 		t.Parallel()
 
 		source := probeSource{l: logrus.WithField("test", t.Name())}
-		result := source.collect(context.Background(), probeTestServices())
+		result := source.collect(asService(context.Background()), probeTestServices())
 
 		assert.Equal(t, SourceDisabled, result.Status)
 		assert.Empty(t, result.Facts)
@@ -148,7 +148,7 @@ func TestProbeSource(t *testing.T) {
 			w.WriteHeader(http.StatusInternalServerError)
 		})
 
-		result := source.collect(context.Background(), probeTestServices())
+		result := source.collect(asService(context.Background()), probeTestServices())
 
 		assert.Equal(t, SourceFailed, result.Status)
 		require.Len(t, result.Errors, 1)
@@ -163,7 +163,7 @@ func TestProbeSource(t *testing.T) {
 			_, _ = w.Write([]byte(`{"items": [], "total": 0, "offset": 0, "limit": 200}`))
 		})
 
-		result := source.collect(context.Background(), probeTestServices())
+		result := source.collect(asService(context.Background()), probeTestServices())
 
 		assert.Equal(t, SourcePartial, result.Status, "nothing covered, but nothing failing either")
 		assert.Empty(t, result.Facts)
@@ -177,7 +177,7 @@ func TestProbeSource(t *testing.T) {
 			_, _ = w.Write([]byte(unprobedBody))
 		})
 
-		result := source.collect(context.Background(), probeTestServices())
+		result := source.collect(asService(context.Background()), probeTestServices())
 
 		assert.Empty(t, result.Facts)
 		assert.Equal(t, SourcePartial, result.Status)
@@ -200,7 +200,7 @@ func TestProbeSource(t *testing.T) {
 			  "total": 2, "offset": 0, "limit": 200}`))
 		})
 
-		result := source.collect(context.Background(), probeTestServices())
+		result := source.collect(asService(context.Background()), probeTestServices())
 
 		assert.Equal(t, SourceFailed, result.Status)
 		require.Len(t, result.Errors, 1)
@@ -221,7 +221,7 @@ func TestProbeSource(t *testing.T) {
 			  "total": 1, "offset": 0, "limit": 200}`))
 		})
 
-		result := source.collect(context.Background(), probeTestServices())
+		result := source.collect(asService(context.Background()), probeTestServices())
 
 		assert.Equal(t, SourceFailed, result.Status)
 		require.Len(t, result.Errors, 1)
@@ -245,7 +245,7 @@ func TestProbeSource(t *testing.T) {
 			  "total": 2, "offset": 0, "limit": 200}`))
 		})
 
-		result := source.collect(context.Background(), probeTestServices())
+		result := source.collect(asService(context.Background()), probeTestServices())
 
 		assert.Equal(t, SourcePartial, result.Status)
 		assert.Len(t, result.Facts, 1)
@@ -259,7 +259,7 @@ func TestProbeSource(t *testing.T) {
 			_, _ = w.Write([]byte("this is not json"))
 		})
 
-		result := source.collect(context.Background(), probeTestServices())
+		result := source.collect(asService(context.Background()), probeTestServices())
 		assert.Equal(t, SourceFailed, result.Status)
 		assert.Empty(t, result.Facts)
 	})
@@ -278,7 +278,7 @@ func TestProbeFactsReachTheDocument(t *testing.T) {
 		{Service: "s1", Field: fieldExporterUp, Value: 1.0, Source: sourceMetrics, ObservedAt: &observed},
 		{Service: "s1", Field: fieldVersion, Value: "7.0.39-21", Source: sourceMetrics, ObservedAt: &observed},
 	}}
-	probe := source.collect(context.Background(), services)
+	probe := source.collect(asService(context.Background()), services)
 
 	merged := mergeFacts([]SourceResult{metrics, probe}, defaultPrecedence)
 	doc := buildDocument(services, merged, projectionNow, projectionMaxAge)
