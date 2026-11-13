@@ -94,7 +94,7 @@ export function HostElevationWarning({
 
   return (
     <Alert severity="warning" sx={{ mt: 1 }}>
-      {host.name} cannot run commands with sudo, so these snippets will fail to
+      {host.name} cannot run commands with sudo, so these scripts will fail to
       launch on it: {unlaunchable.map((snippet) => snippet.title).join(', ')}.{' '}
       {sudoIsOptionalForAll
         ? 'Turn sudo off, or choose another host.'
