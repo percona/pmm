@@ -108,8 +108,6 @@ const extensionsProxy = () => ({
     });
   },
 });
-// pnpm link'd packages don't bump the lockfile hash, so Vite's dep cache can go stale for them.
-
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
