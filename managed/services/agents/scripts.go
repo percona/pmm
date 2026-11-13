@@ -47,6 +47,7 @@ const (
 
 	scriptStartTimeout     = 10 * time.Second
 	scriptProbeTimeout     = 2 * time.Second
+	scriptProbeRefresh     = 2 * time.Second
 	scriptCallGrace        = 5 * time.Second
 	scriptRetentionEvery   = time.Minute
 	scriptReconcileMinAge  = 10 * time.Second
@@ -65,6 +66,18 @@ type ScriptsService struct {
 
 	// retention is how long finished runs are kept, in nanoseconds; 0 keeps them.
 	retention atomic.Int64
+
+	// hostProbes holds the last capability-probe answer for each connected agent, refreshed in the
+	// background by probeLoop. listHosts — and the task-creation path that calls it through the
+	// side-car — reads a host's readiness from here, so creating a task never waits on a host that
+	// is connected but silent. The value is a *hostProbe. X.2.
+	hostProbes sync.Map
+}
+
+// hostProbe is one agent's last answer to the capability probe.
+type hostProbe struct {
+	canRun bool
+	reason string
 }
 
 // NewScriptsService returns a new scripts service.
@@ -87,6 +100,7 @@ func (s *ScriptsService) Run(ctx context.Context) {
 		s.retention.Store(int64(retention))
 	}
 	s.l.Infof("Finished script runs are kept for %s (0 means without limit).", time.Duration(s.retention.Load()))
+	go s.probeLoop(ctx)
 	ticker := time.NewTicker(scriptRetentionEvery)
 	defer ticker.Stop()
 	for {
@@ -142,14 +156,15 @@ type scriptHost struct {
 // listHosts returns every pmm-agent with whether it can take a script right now, and why not.
 // "Connected" is the registry's word and stays true for a host that lost its network without
 // closing the stream, so each connected agent is also asked a question only a script-capable
-// agent can answer, with a short deadline.
-func (s *ScriptsService) listHosts(r *http.Request) (any, error) {
+// agent can answer. That probe has a deadline of its own and is run in the background
+// (probeLoop); this call, which the task-creation path reaches through the side-car, reads the
+// last answer and never waits on a host that is connected but silent. X.2.
+func (s *ScriptsService) listHosts(_ *http.Request) (any, error) {
 	structs, err := s.db.SelectAllFrom(models.AgentTable, "WHERE agent_type = $1 ORDER BY agent_id", models.PMMAgentType)
 	if err != nil {
 		return nil, err
 	}
 	hosts := make([]*scriptHost, len(structs))
-	var wg sync.WaitGroup
 	for i, st := range structs {
 		agent := st.(*models.Agent) //nolint:forcetypeassert
 		host := &scriptHost{PMMAgentID: agent.AgentID, Version: pointer.GetString(agent.Version)}
@@ -158,30 +173,84 @@ func (s *ScriptsService) listHosts(r *http.Request) (any, error) {
 		if nodeErr == nil {
 			host.NodeName, host.Address = node.NodeName, node.Address
 		}
-		conn, getErr := s.r.get(agent.AgentID)
-		if getErr != nil {
+		if _, getErr := s.r.get(agent.AgentID); getErr != nil {
 			host.Reason = "pmm-agent is not connected"
 			continue
 		}
 		host.Connected = true
+		if cached, ok := s.hostProbes.Load(agent.AgentID); ok {
+			probe := cached.(*hostProbe) //nolint:forcetypeassert
+			host.CanRun, host.Reason = probe.canRun, probe.reason
+		} else {
+			host.Reason = "pmm-agent connected; its readiness is still being checked"
+		}
+	}
+	return map[string]any{"hosts": hosts}, nil
+}
+
+// probeLoop keeps hostProbes current, so listHosts answers from the last probe instead of making
+// the caller wait for a new one. It probes right away and then every scriptProbeRefresh. X.2.
+func (s *ScriptsService) probeLoop(ctx context.Context) {
+	ticker := time.NewTicker(scriptProbeRefresh)
+	defer ticker.Stop()
+	for {
+		s.refreshHostProbes(ctx)
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+		}
+	}
+}
+
+// refreshHostProbes asks every connected pmm-agent the capability question once, concurrently,
+// and stores each answer; agents that are no longer connected are forgotten. A silent host costs
+// this background pass its one probe deadline, never the task-creation path.
+func (s *ScriptsService) refreshHostProbes(ctx context.Context) {
+	structs, err := s.db.SelectAllFrom(models.AgentTable, "WHERE agent_type = $1", models.PMMAgentType)
+	if err != nil {
+		s.l.Errorf("Failed to list agents for the host probe: %s.", err)
+		return
+	}
+	live := make(map[string]struct{}, len(structs))
+	var wg sync.WaitGroup
+	for _, st := range structs {
+		agent := st.(*models.Agent) //nolint:forcetypeassert
+		conn, getErr := s.r.get(agent.AgentID)
+		if getErr != nil {
+			continue
+		}
+		live[agent.AgentID] = struct{}{}
 		wg.Go(func() {
-			ctx, cancel := context.WithTimeout(r.Context(), scriptProbeTimeout)
-			defer cancel()
-			_, probeErr := conn.channel.SendAndWaitResponse(ctx, &agentv1.ReadJobFileRequest{JobId: "probe"})
-			switch {
-			case probeErr == nil:
-				host.CanRun = true
-			case errors.Is(probeErr, context.DeadlineExceeded):
-				host.Reason = fmt.Sprintf("connected, but pmm-agent did not answer within %s", scriptProbeTimeout)
-			case status.Code(probeErr) == codes.Unimplemented || strings.Contains(probeErr.Error(), "unimplemented"):
-				host.Reason = "pmm-agent is too old to run scripts"
-			default:
-				host.Reason = probeErr.Error()
-			}
+			probe := s.probeAgent(ctx, conn)
+			s.hostProbes.Store(agent.AgentID, &probe)
 		})
 	}
 	wg.Wait()
-	return map[string]any{"hosts": hosts}, nil
+	s.hostProbes.Range(func(key, _ any) bool {
+		if _, ok := live[key.(string)]; !ok { //nolint:forcetypeassert
+			s.hostProbes.Delete(key)
+		}
+		return true
+	})
+}
+
+// probeAgent asks one connected agent a question only a script-capable one can answer, with a
+// short deadline, and turns the outcome into a hostProbe.
+func (s *ScriptsService) probeAgent(ctx context.Context, conn *pmmAgentInfo) hostProbe {
+	ctx, cancel := context.WithTimeout(ctx, scriptProbeTimeout)
+	defer cancel()
+	_, err := conn.channel.SendAndWaitResponse(ctx, &agentv1.ReadJobFileRequest{JobId: "probe"})
+	switch {
+	case err == nil:
+		return hostProbe{canRun: true}
+	case errors.Is(err, context.DeadlineExceeded):
+		return hostProbe{reason: fmt.Sprintf("connected, but pmm-agent did not answer within %s", scriptProbeTimeout)}
+	case status.Code(err) == codes.Unimplemented || strings.Contains(err.Error(), "unimplemented"):
+		return hostProbe{reason: "pmm-agent is too old to run scripts"}
+	default:
+		return hostProbe{reason: err.Error()}
+	}
 }
 
 type scriptHTTPError struct {

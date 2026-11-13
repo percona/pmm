@@ -136,16 +136,15 @@ func (j *RunScriptJob) Run(ctx context.Context, send Send) error {
 	}
 	j.credential = credential
 
-	result := j.execute(ctx, send, script, outDir)
+	j.execute(ctx, send, script, outDir)
 	removeErr := os.Remove(script)
 	if removeErr != nil {
 		j.l.Warnf("Failed to remove the script: %s.", removeErr)
 	}
-	j.sendResult(send, result)
 	return nil
 }
 
-func (j *RunScriptJob) execute(ctx context.Context, send Send, script, outDir string) *agentv1.JobResult_RunScript {
+func (j *RunScriptJob) execute(ctx context.Context, send Send, script, outDir string) {
 	// The job stops its script itself, group and leftovers, so the command is not bound to ctx.
 	cmd := scriptCommand(context.WithoutCancel(ctx), j.params.Source, script, j.params.Args)
 	cmd.Dir = outDir
@@ -155,13 +154,15 @@ func (j *RunScriptJob) execute(ctx context.Context, send Send, script, outDir st
 
 	outR, outW, err := os.Pipe()
 	if err != nil {
-		return &agentv1.JobResult_RunScript{ExitCode: -1, PrepareError: err.Error()}
+		j.sendResult(send, &agentv1.JobResult_RunScript{ExitCode: -1, PrepareError: err.Error()})
+		return
 	}
 	errR, errW, err := os.Pipe()
 	if err != nil {
 		outR.Close() //nolint:errcheck,gosec
 		outW.Close() //nolint:errcheck,gosec
-		return &agentv1.JobResult_RunScript{ExitCode: -1, PrepareError: err.Error()}
+		j.sendResult(send, &agentv1.JobResult_RunScript{ExitCode: -1, PrepareError: err.Error()})
+		return
 	}
 	cmd.Stdout = outW
 	cmd.Stderr = errW
@@ -185,10 +186,11 @@ func (j *RunScriptJob) execute(ctx context.Context, send Send, script, outDir st
 	if startErr != nil {
 		outR.Close() //nolint:errcheck,gosec
 		errR.Close() //nolint:errcheck,gosec
-		return &agentv1.JobResult_RunScript{ExitCode: -1, PrepareError: startErr.Error()}
+		j.sendResult(send, &agentv1.JobResult_RunScript{ExitCode: -1, PrepareError: startErr.Error()})
+		return
 	}
 
-	out := &outputSender{jobID: j.id, send: send, limit: j.params.MaxOutputBytes}
+	out := newOutputSender(j.id, send, j.params.MaxOutputBytes)
 	var pumps sync.WaitGroup
 	pumps.Go(func() { out.pump(outR, agentv1.JobProgress_Logs_STREAM_STDOUT) })
 	pumps.Go(func() { out.pump(errR, agentv1.JobProgress_Logs_STREAM_STDERR) })
@@ -221,9 +223,8 @@ func (j *RunScriptJob) execute(ctx context.Context, send Send, script, outDir st
 		errR.Close() //nolint:errcheck,gosec
 		<-drained
 	}
-	out.finish()
 	result.DroppedOutputBytes = out.dropped.Load()
-	return result
+	out.deliver(result)
 }
 
 func (j *RunScriptJob) sendResult(send Send, result *agentv1.JobResult_RunScript) {
@@ -371,7 +372,12 @@ func KillLeftovers(jobID string) int {
 	return killed
 }
 
-// outputSender turns what a script writes into ordered JobProgress chunks tagged by stream.
+// outputSender turns what a script writes into ordered JobProgress chunks tagged by stream and
+// keeps them, with the final result, in a queue on the host until the server has taken each one.
+// Delivery runs in a goroutine of its own (run), so the connection going away while the script
+// runs or as it ends never blocks the script and never drops its output or its outcome: the
+// queue waits on the host for the connection to return and is then delivered in order, and the
+// server stores each chunk at most once.
 type outputSender struct {
 	jobID   string
 	send    Send
@@ -379,6 +385,50 @@ type outputSender struct {
 	chunkID atomic.Uint32
 	sent    atomic.Int64
 	dropped atomic.Int64
+
+	mu     sync.Mutex
+	cond   *sync.Cond
+	queue  []agentv1.AgentResponsePayload
+	sealed bool
+	done   chan struct{}
+}
+
+func newOutputSender(jobID string, send Send, limit int64) *outputSender {
+	o := &outputSender{jobID: jobID, send: send, limit: limit, done: make(chan struct{})}
+	o.cond = sync.NewCond(&o.mu)
+	go o.run()
+	return o
+}
+
+// run delivers queued messages in order. send blocks while the host is cut off, so only this
+// goroutine waits for the connection; the pumps and the script go on filling the queue.
+func (o *outputSender) run() {
+	defer close(o.done)
+	for {
+		o.mu.Lock()
+		for len(o.queue) == 0 && !o.sealed {
+			o.cond.Wait()
+		}
+		if len(o.queue) == 0 {
+			o.mu.Unlock()
+			return
+		}
+		msg := o.queue[0]
+		o.mu.Unlock()
+
+		o.send(msg)
+
+		o.mu.Lock()
+		o.queue = o.queue[1:]
+		o.mu.Unlock()
+	}
+}
+
+func (o *outputSender) enqueue(msg agentv1.AgentResponsePayload) {
+	o.mu.Lock()
+	o.queue = append(o.queue, msg)
+	o.cond.Signal()
+	o.mu.Unlock()
 }
 
 func (o *outputSender) pump(r io.ReadCloser, stream agentv1.JobProgress_Logs_Stream) {
@@ -422,15 +472,28 @@ func (o *outputSender) emit(data string, stream agentv1.JobProgress_Logs_Stream)
 	o.progress(&agentv1.JobProgress_Logs{ChunkId: o.chunkID.Add(1) - 1, Data: data, Stream: stream})
 }
 
-// progress sends one chunk as a message the server has to acknowledge.
+// progress queues one chunk as a message the server has to acknowledge.
 func (o *outputSender) progress(logs *agentv1.JobProgress_Logs) {
-	o.send(&agentv1.JobMessageRequest{Message: &agentv1.JobMessageRequest_Progress{Progress: &agentv1.JobProgress{
+	o.enqueue(&agentv1.JobMessageRequest{Message: &agentv1.JobMessageRequest_Progress{Progress: &agentv1.JobProgress{
 		JobId:     o.jobID,
 		Timestamp: timestamppb.Now(),
 		Result:    &agentv1.JobProgress_Logs_{Logs: logs},
 	}}})
 }
 
-func (o *outputSender) finish() {
+// deliver queues the end-of-output marker and the final result, then waits until the whole queue
+// has been handed to the server. The job stays running on the host until that is done, so a run
+// is never recorded finished before its true outcome has reached the server.
+func (o *outputSender) deliver(result *agentv1.JobResult_RunScript) {
 	o.progress(&agentv1.JobProgress_Logs{ChunkId: o.chunkID.Add(1) - 1, Done: true})
+	o.enqueue(&agentv1.JobMessageRequest{Message: &agentv1.JobMessageRequest_Result{Result: &agentv1.JobResult{
+		JobId:     o.jobID,
+		Timestamp: timestamppb.Now(),
+		Result:    &agentv1.JobResult_RunScript_{RunScript: result},
+	}}})
+	o.mu.Lock()
+	o.sealed = true
+	o.cond.Signal()
+	o.mu.Unlock()
+	<-o.done
 }
