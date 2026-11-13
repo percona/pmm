@@ -4215,6 +4215,10 @@ func (m *InventorySetting) validate(all bool) error {
 		// no validation rules for Description
 	}
 
+	if m.OverrideIgnoredReason != nil {
+		// no validation rules for OverrideIgnoredReason
+	}
+
 	if len(errors) > 0 {
 		return InventorySettingMultiError(errors)
 	}

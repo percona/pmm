@@ -804,4 +804,6 @@ export interface OmInventorySetting {
   has_override: boolean;
   is_advanced: boolean;
   description?: string | null;
+  /** Why the stored override is ignored and `value` is the deployed one; absent while it is in effect. */
+  override_ignored_reason?: string | null;
 }

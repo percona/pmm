@@ -2248,6 +2248,47 @@ func TestInventoryConfig(t *testing.T) {
 		assert.True(t, enabled.GetValue().GetBoolValue())
 	})
 
+	t.Run("an ignored override carries its reason, an honoured one does not", func(t *testing.T) {
+		t.Parallel()
+
+		// configBody's rows omit the field entirely, which is what an older app sends.
+		body := `[
+		  {"key": "STALE_RUN_AFTER", "value": 14400, "default_value": 14400, "type": "int",
+		   "reload": "hot", "has_override": true, "is_advanced": false, "description": null,
+		   "override_ignored_reason": "STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT"},
+		  {"key": "TASK_TIMEOUT", "value": 7200, "default_value": 7200, "type": "int",
+		   "reload": "hot", "has_override": true, "is_advanced": false, "description": null,
+		   "override_ignored_reason": null}
+		]`
+		stub := newSEPStub(t, http.StatusOK, body)
+
+		response, err := stub.service(t).GetInventoryConfig(callerContext(t), &omv1.GetInventoryConfigRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, response.GetSettings(), 2)
+
+		ignored := response.GetSettings()[0]
+		assert.True(t, ignored.GetHasOverride(), "an ignored override is still stored")
+		require.NotNil(t, ignored.OverrideIgnoredReason)
+		assert.Equal(t, "STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT",
+			ignored.GetOverrideIgnoredReason())
+
+		assert.Nil(t, response.GetSettings()[1].OverrideIgnoredReason)
+	})
+
+	t.Run("an app that does not report ignored overrides leaves the reason unset", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, configBody)
+
+		response, err := stub.service(t).GetInventoryConfig(callerContext(t), &omv1.GetInventoryConfigRequest{})
+
+		require.NoError(t, err)
+		for _, setting := range response.GetSettings() {
+			assert.Nil(t, setting.OverrideIgnoredReason, setting.GetKey())
+		}
+	})
+
 	t.Run("a change is passed through as the app will validate it", func(t *testing.T) {
 		t.Parallel()
 

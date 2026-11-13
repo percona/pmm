@@ -1377,14 +1377,15 @@ func inventorySettingsToProto(settings []extensionsSetting) []*omv1.InventorySet
 			reload = omv1.SettingReload_SETTING_RELOAD_NOT_OVERRIDABLE
 		}
 		out = append(out, &omv1.InventorySetting{
-			Key:          setting.Key,
-			Value:        anyToValue(setting.Value),
-			DefaultValue: anyToValue(setting.DefaultValue),
-			Type:         setting.Type,
-			Reload:       reload,
-			HasOverride:  setting.HasOverride,
-			IsAdvanced:   setting.IsAdvanced,
-			Description:  optionalString(setting.Description),
+			Key:                   setting.Key,
+			Value:                 anyToValue(setting.Value),
+			DefaultValue:          anyToValue(setting.DefaultValue),
+			Type:                  setting.Type,
+			Reload:                reload,
+			HasOverride:           setting.HasOverride,
+			IsAdvanced:            setting.IsAdvanced,
+			Description:           optionalString(setting.Description),
+			OverrideIgnoredReason: optionalString(setting.OverrideIgnoredReason),
 		})
 	}
 	return out

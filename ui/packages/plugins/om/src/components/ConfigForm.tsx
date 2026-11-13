@@ -211,12 +211,14 @@ const SettingField = ({
         {/* The deployed value, shown only where it differs from what is in the box --
             so "what would Reset give me back" is answerable without reading the
             deployment's YAML, and an untouched field stays one line. */}
-        {setting.has_override && setting.default_value != null && (
-          <Typography variant="caption" color="text.secondary">
-            Default: {String(setting.default_value)}
-            {SETTING_UNIT[setting.key] ? ` ${SETTING_UNIT[setting.key]}` : ''}
-          </Typography>
-        )}
+        {setting.has_override &&
+          setting.default_value != null &&
+          !setting.override_ignored_reason && (
+            <Typography variant="caption" color="text.secondary">
+              Default: {String(setting.default_value)}
+              {SETTING_UNIT[setting.key] ? ` ${SETTING_UNIT[setting.key]}` : ''}
+            </Typography>
+          )}
         {/* Only when it is an override. Saying "from the deployment's configuration"
             on every unoverridden field is the same sentence thirteen times, which
             carries no information and buries the two or three rows that do. */}
@@ -231,6 +233,19 @@ const SettingField = ({
               </Tooltip>
             )}
           </Stack>
+        )}
+        {/* The app ignores a stored override that a later deployment change made break a
+            cross-field rule, so the box holds the deployed value while the chip above
+            still says "overridden". Without this the screen reads as "my value runs". */}
+        {setting.override_ignored_reason && (
+          <Typography
+            variant="caption"
+            color="warning.main"
+            data-testid="om-config-override-ignored"
+          >
+            Saved value not in effect; the deployment's value is running.
+            Reason: {setting.override_ignored_reason}
+          </Typography>
         )}
       </Stack>
     </Stack>

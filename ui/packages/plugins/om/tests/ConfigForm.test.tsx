@@ -242,6 +242,55 @@ describe('ConfigForm', () => {
     );
   });
 
+  it('says why an ignored override is not in effect, and still offers Reset', () => {
+    const mutate = vi.fn();
+    useResetOmInventoryConfig.mockReturnValue({ ...idle, mutate });
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        setting({
+          key: 'STALE_RUN_AFTER',
+          value: 14400,
+          default_value: 14400,
+          has_override: true,
+          override_ignored_reason:
+            'STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT',
+        }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.getByTestId('om-config-override-ignored')).toHaveTextContent(
+      "Saved value not in effect; the deployment's value is running. Reason: STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT"
+    );
+    expect(screen.getByText('overridden')).toBeInTheDocument();
+    // The box already holds the deployed value, so "Default:" would repeat it.
+    expect(screen.queryByText(/^Default:/)).toBeNull();
+    // The Tooltip supplies the button's accessible name, so it is found by its text.
+    fireEvent.click(screen.getByText('Reset'));
+    expect(mutate.mock.calls[0][0]).toBe('STALE_RUN_AFTER');
+  });
+
+  it.each([
+    ['honoured', { has_override: true, override_ignored_reason: null }],
+    ['honoured, from an app that omits the field', { has_override: true }],
+    ['absent', { has_override: false }],
+  ] as const)('says nothing about an %s override', (_, overrides) => {
+    useOmInventoryConfig.mockReturnValue({
+      data: [setting({ key: 'STALE_RUN_AFTER', ...overrides })],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.queryByTestId('om-config-override-ignored')).toBeNull();
+    if (overrides.has_override) {
+      expect(screen.getByText('overridden')).toBeInTheDocument();
+      expect(screen.getByText('Default: 4 seconds')).toBeInTheDocument();
+    }
+  });
+
   it('shows a reader an invalid stored value without an error they cannot act on', () => {
     asReadOnlyReader();
     useOmInventoryConfig.mockReturnValue({

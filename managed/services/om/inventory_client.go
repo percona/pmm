@@ -115,14 +115,15 @@ type extensionsRunNodeService struct {
 }
 
 type extensionsSetting struct {
-	Key          string  `json:"key"`
-	Value        any     `json:"value"`
-	DefaultValue any     `json:"default_value"`
-	Type         string  `json:"type"`
-	Reload       string  `json:"reload"`
-	HasOverride  bool    `json:"has_override"`
-	IsAdvanced   bool    `json:"is_advanced"`
-	Description  *string `json:"description"`
+	Key                   string  `json:"key"`
+	Value                 any     `json:"value"`
+	DefaultValue          any     `json:"default_value"`
+	Type                  string  `json:"type"`
+	Reload                string  `json:"reload"`
+	HasOverride           bool    `json:"has_override"`
+	IsAdvanced            bool    `json:"is_advanced"`
+	Description           *string `json:"description"`
+	OverrideIgnoredReason *string `json:"override_ignored_reason"`
 }
 
 // Detail is a string for the app's own errors and a list of per-field objects for a validation failure.
