@@ -107,7 +107,7 @@ pmm-agent has **no direct database access**. All state comes from pmm-managed vi
 - **Benchmarks**: `make bench` for slowlog and postgres parsers
 - **Coverage**: `maincover_test.go` with `maincover` build tag
 - **Golden files**: parser tests use golden files in `testdata/` directories
-- **Linting**: `make check-all` before submitting PRs
+- **Linting**: `make check-all` from the repo root before submitting PRs
 
 ## Code Generation
 

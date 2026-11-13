@@ -11,7 +11,7 @@ The `/api-tests` directory contains **integration tests** for PMM APIs. These te
 
 ```
 Go test binary
-  → Generated Swagger HTTP clients (from /api/*/json/client/)
+  → Generated Swagger HTTP clients (from /api/*/v1/json/client/)
     → HTTP/JSON requests to PMM Server (gRPC-Gateway)
       → pmm-managed processes request
         → Database / VictoriaMetrics / ClickHouse
@@ -39,18 +39,18 @@ Tests are grouped by API domain, mirroring the `/api` directory structure:
 
 ### Prerequisites
 - Running PMM Server (use `make env-up` from repo root)
-- `PMM_SERVER_URL` environment variable (format: `http://USERNAME:PASSWORD@HOST`)
+- `PMM_SERVER_URL` environment variable (format: `https://USERNAME:PASSWORD@HOST`)
 
 ### Commands
 
 ```bash
-# From api-tests/ directory:
-make run          # Run tests, produce JUnit XML report
-make run-dev      # Run tests without JUnit output
-make run-race     # Run tests with race detector
+# From api-tests/ directory (test binaries are built with -race):
+make init         # Build test binaries
+make test         # Run tests; server settings tests run last, as they restart Grafana
+make test-report  # Run tests, produce JUnit XML report
 
-# Direct invocation:
-go test ./... -pmm.server-url=http://admin:admin@127.0.0.1 -v
+# Direct invocation, from api-tests/ (-p 1: the server settings tests restart Grafana):
+PMM_SERVER_URL=https://admin:admin@127.0.0.1 PMM_SERVER_INSECURE_TLS=1 go test -count=1 -p 1 ./... -v
 
 # From repo root:
 make api-test
@@ -58,9 +58,12 @@ make api-test
 
 ### Docker execution:
 ```bash
-docker build -t pmm-api-tests .
-docker run --network host -e PMM_SERVER_URL=http://admin:admin@127.0.0.1 pmm-api-tests
+# From api-tests/:
+make docker-build-image
+make docker-run-tests PMM_SERVER_URL=https://admin:admin@127.0.0.1
 ```
+
+`make test`, `make test-report` and `make docker-run-tests` exit 0 even when tests fail, because each test binary is piped through `tee`. Read the output or the JUnit report for the result, or use `go test` or `make api-test`, which exit non-zero on failure.
 
 ## Patterns and Conventions
 
@@ -75,7 +78,7 @@ docker run --network host -e PMM_SERVER_URL=http://admin:admin@127.0.0.1 pmm-api
 - Don't leave test resources behind — always clean up nodes, services, agents
 - Don't assume a specific server state — tests should be self-contained
 - Don't use gRPC directly — use the HTTP/JSON Swagger clients
-- Don't hardcode the PMM Server URL — use the `-pmm.server-url` flag
+- Don't hardcode the PMM Server URL — call the `*Client.Default` clients `init.go` sets up, or use `pmmapitests.BaseURL` when you need the URL itself
 
 ### Test Structure Pattern
 
@@ -83,9 +86,8 @@ docker run --network host -e PMM_SERVER_URL=http://admin:admin@127.0.0.1 pmm-api
 func TestAddMySQL(t *testing.T) {
     t.Parallel()
 
-    // Setup: create required resources
-    node := helpers.AddGenericNode(t, "test-node")
-    t.Cleanup(func() { helpers.RemoveNode(t, node.NodeID) })
+    // Setup: the helper registers the node's removal itself
+    node := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "test-node"))
 
     // Test: perform the operation
     result, err := client.Default.ManagementService.AddService(params)
@@ -93,14 +95,12 @@ func TestAddMySQL(t *testing.T) {
 
     // Assert: verify the result
     assert.Equal(t, expected, result.Payload)
-
-    // Cleanup is handled by t.Cleanup
 }
 ```
 
 ## Key Files to Reference
 
-- `api-tests/init.go` — test flag setup (`-pmm.server-url`)
+- `api-tests/init.go` — reads the server settings (`PMM_*` variables override the `-pmm.*` flags) and sets up the API clients
 - `api-tests/helpers.go` — shared helper functions for test setup/teardown
 - `api-tests/Makefile` — run targets
 - `api-tests/inventory/` — comprehensive examples of CRUD test patterns
