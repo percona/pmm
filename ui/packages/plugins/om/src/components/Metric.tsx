@@ -15,11 +15,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { UNMEASURED } from '../constants';
 import { formatCompactDuration } from '../format';
 import { Unavailable } from './Unavailable';
-
-/** Reading that means "not measured" in the two percentage columns. */
-export const UNMEASURED = -1;
 
 /**
  * Render a percentage, or the reason there is none.
