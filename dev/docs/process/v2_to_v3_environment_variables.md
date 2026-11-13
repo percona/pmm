@@ -20,7 +20,7 @@ Below is a list of affected variables and their new names.
 | `OAUTH_PMM_CLIENT_ID`                         | `PMM_DEV_OAUTH_CLIENT_ID`                  | Removed in PMM v3                                            |
 | `OAUTH_PMM_CLIENT_SECRET`                     | `PMM_DEV_OAUTH_CLIENT_SECRET`              | Removed in PMM v3                                            |
 | `PERCONA_TEST_AUTH_HOST`                      |                                            | Removed in PMM v3, use `PMM_PERCONA_PLATFORM_ADDRESS`        |
-| `PERCONA_TEST_CHECKS_FILE`                    | `PMM_DEV_ADVISOR_CHECKS_FILE`              |                                                              |
+| `PERCONA_TEST_CHECKS_FILE`                    | `PMM_DEV_ADVISOR_CHECKS_FILE`              | Removed in PMM v3, manage checks in **Advisors > Catalog**   |
 | `PERCONA_TEST_CHECKS_HOST`                    |                                            | Removed in PMM v3, use `PMM_PERCONA_PLATFORM_ADDRESS`        |
 | `PERCONA_TEST_CHECKS_INTERVAL`                |                                            | Removed in PMM v3 as it wasn't actually used.                |
 | `PERCONA_TEST_CHECKS_PUBLIC_KEY`              |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY` |

@@ -4,7 +4,6 @@ package server
 
 import (
 	context "context"
-	time "time"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -14,22 +13,22 @@ type mockChecksService struct {
 	mock.Mock
 }
 
-// CleanupAlerts provides a mock function with no fields
-func (_m *mockChecksService) CleanupAlerts() {
+// CleanupCheckResults provides a mock function with no fields
+func (_m *mockChecksService) CleanupCheckResults() {
 	_m.Called()
 }
 
-// StartChecks provides a mock function with given fields: checkNames
-func (_m *mockChecksService) StartChecks(checkNames []string) error {
-	ret := _m.Called(checkNames)
+// CreateDefaultSchedule provides a mock function with given fields: ctx
+func (_m *mockChecksService) CreateDefaultSchedule(ctx context.Context) error {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
-		panic("no return value specified for StartChecks")
+		panic("no return value specified for CreateDefaultSchedule")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
-		r0 = rf(checkNames)
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -40,11 +39,6 @@ func (_m *mockChecksService) StartChecks(checkNames []string) error {
 // UpdateAdvisorsList provides a mock function with given fields: ctx
 func (_m *mockChecksService) UpdateAdvisorsList(ctx context.Context) {
 	_m.Called(ctx)
-}
-
-// UpdateIntervals provides a mock function with given fields: rare, standard, frequent
-func (_m *mockChecksService) UpdateIntervals(rare time.Duration, standard time.Duration, frequent time.Duration) {
-	_m.Called(rare, standard, frequent)
 }
 
 // newMockChecksService creates a new instance of mockChecksService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

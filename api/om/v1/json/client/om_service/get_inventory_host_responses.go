@@ -1380,9 +1380,9 @@ func (o *GetInventoryHostOKBodyHostServicesItems0Freshness) UnmarshalBinary(b []
 /*
 GetInventoryHostOKBodyHostUnregisteredMongodsItems0 UnregisteredMongod is a mongod found running that PMM has no service for.
 //
-// The arbiter case, mostly: PMM registers no service for an arbiter, so nothing else
-// in OM would report the process at all. Also what stands in the way of installing
-// anything over a port that is already taken.
+// Most often an arbiter that was not added to PMM, which nothing else in OM would
+// report at all. Also what stands in the way of installing anything over a port that
+// is already taken.
 swagger:model GetInventoryHostOKBodyHostUnregisteredMongodsItems0
 */
 type GetInventoryHostOKBodyHostUnregisteredMongodsItems0 struct {
