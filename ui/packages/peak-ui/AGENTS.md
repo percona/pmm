@@ -2,7 +2,7 @@
 
 This guide explains how to use Peak UI correctly inside an app that depends on it. It contains rules and boundaries only; `llms.txt` next to this file indexes every export with a one-line purpose, and the full catalog lives in Storybook.
 
-Working on Peak UI itself (the `percona/peak-ui` repository), i.e., contributing to it? Then read the `CONTRIBUTING.md` file instead.
+Working on Peak UI itself (`ui/packages/peak-ui` in the `percona/pmm` repository), i.e., contributing to it? Then read the `CONTRIBUTING.md` file instead.
 
 ## What Peak UI is
 
@@ -13,7 +13,7 @@ Working on Peak UI itself (the `percona/peak-ui` repository), i.e., contributing
 - form inputs pre-wired to **react-hook-form**,
 - a small set of composite components that add behavior on top of MUI.
 
-Storybook is the definitive, coded source of truth: **https://percona.github.io/peak-ui/**. Components carry a maturity tag there; do not build new work on ones marked `deprecated`.
+Storybook is the definitive, coded source of truth: **https://main--6a31152ea29e3a78e1060595.chromatic.com/**. Components carry a maturity tag there; do not build new work on ones marked `deprecated`.
 
 ## Where Peak UI ends and MUI begins
 
@@ -91,8 +91,9 @@ const methods = useForm<Values>({ defaultValues: { host: '' } });
 
 ## Links
 
-- Export index, one line per export: `llms.txt` in this package, or https://github.com/percona/peak-ui/blob/main/llms.txt
-- Storybook (components, tokens, usage): https://percona.github.io/peak-ui/
-- Source and issues: https://github.com/percona/peak-ui
+- Export index, one line per export: `llms.txt` in this package, or https://github.com/percona/pmm/blob/main/ui/packages/peak-ui/llms.txt
+- Storybook (components, tokens, usage): https://main--6a31152ea29e3a78e1060595.chromatic.com/
+- Source: https://github.com/percona/pmm/tree/main/ui/packages/peak-ui
+- Issues: https://perconadev.atlassian.net/projects/PMM
 - Figma kit (design intent): https://www.figma.com/design/08jGF3GZAUGmazlQtk0UQk/Peak-Design-Kit
 - MUI docs: https://mui.com/material-ui/

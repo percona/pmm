@@ -3,15 +3,16 @@
   "version": "0.0.0",
   "private": false,
   "description": "PEAK UI lib",
-  "homepage": "https://github.com/percona/peak-ui#readme",
+  "homepage": "https://main--6a31152ea29e3a78e1060595.chromatic.com/",
   "bugs": {
-    "url": "https://github.com/percona/peak-ui/issues"
+    "url": "https://perconadev.atlassian.net/projects/PMM"
   },
   "license": "AGPL-3.0-or-later",
   "author": "Percona",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/percona/peak-ui.git"
+    "url": "git+https://github.com/percona/pmm.git",
+    "directory": "ui/packages/peak-ui"
   },
   "files": [
     "dist",

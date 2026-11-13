@@ -1,22 +1,24 @@
 # CONTRIBUTING.md
 
-Contributor guide for anyone working on this repository (humans, Claude Code, Cursor, Codex, etc.). This is the single source of truth for repo conventions; `CLAUDE.md` imports it.
+Contributor guide for anyone working on this package (humans, Claude Code, Cursor, Codex, etc.). This is the single source of truth for its conventions; `CLAUDE.md` imports it.
 
-Not to be confused with the root `AGENTS.md`: that file is the **consumer-facing** guide shipped inside the npm package (listed in `package.json` `files`) so AI tools that install Peak UI know how to use it. When the public API, peer dependencies, theme wrapper, or usage rules change, update `AGENTS.md` too. `src/package-manifest.spec.ts` fails if it stops being published, or if the guides drift from `package.json` (README install command vs. peer dependencies, `pnpm` commands, theme option names). The fonts bullet in `AGENTS.md` documents a gap (the `@fontsource/*` dependencies are declared but never imported); delete it once the library loads its own fonts.
+Not to be confused with this package's `AGENTS.md`: that file is the **consumer-facing** guide shipped inside the npm package (listed in `package.json` `files`) so AI tools that install Peak UI know how to use it. When the public API, peer dependencies, theme wrapper, or usage rules change, update `AGENTS.md` too. `src/package-manifest.spec.ts` fails if it stops being published, or if the guides drift from `package.json` (README install command vs. peer dependencies, `pnpm` commands, theme option names). The fonts bullet in `AGENTS.md` documents a gap (the `@fontsource/*` dependencies are declared but never imported); delete it once the library loads its own fonts.
 
-The root `llms.txt` is the hand-written export index shipped next to `AGENTS.md`, in the [llms.txt](https://llmstxt.org) layout: a link list per section, one line per export with its purpose and when to prefer it over the alternative. When you add, rename, or remove an export, update its line (and its Storybook link when a story title changes). `src/llms-txt.spec.ts` fails if a public export is missing, if a Storybook or source link points nowhere, or if the file stops being published. Generating it from the exports and their JSDoc is PMM-15622.
+This package's `llms.txt` is the hand-written export index shipped next to `AGENTS.md`, in the [llms.txt](https://llmstxt.org) layout: a link list per section, one line per export with its purpose and when to prefer it over the alternative. When you add, rename, or remove an export, update its line (and its Storybook link when a story title changes). `src/llms-txt.spec.ts` fails if a public export is missing, if a Storybook or source link points nowhere, or if the file stops being published. Generating it from the exports and their JSDoc is PMM-15622.
 
-PEAK UI (`@percona/peak-ui`) is a React + MUI v7 component library published as an npm package (themed components, design tokens, form inputs). Zero infrastructure: no DB/Docker/services needed to build, test, or run Storybook.
+PEAK UI (`@percona/peak-ui`) is a React + MUI v7 component library published as an npm package (themed components, design tokens, form inputs). It lives in the PMM monorepo at `ui/packages/peak-ui`: PMM's packages use it from source as a workspace package, and every PMM release publishes it to npm at the PMM version. Zero infrastructure: no DB/Docker/services needed to build, test, or run Storybook.
 
 ## Commands
+
+Run these from this folder, or from `ui/` as `pnpm --filter @percona/peak-ui <script>`. Install with `pnpm install` from `ui/`.
 
 - **Build:** `pnpm build` (Rollup → `dist/`)
 - **Build watch:** `pnpm build:watch`
 - **Storybook dev:** `pnpm storybook:dev` (port 6006, headless via `--no-open`)
 - **Storybook build:** `pnpm storybook:build`
 - **Type check:** `pnpm check-types` (app + `.storybook` tsconfigs)
-- **Lint:** `pnpm lint` (ESLint over `src`)
-- **Format:** `pnpm format` (Prettier write) · **check only:** `pnpm format:check`
+- **Lint:** `pnpm lint` (oxlint over `src`, `.storybook` and `scripts`, with `ui/oxlintrc.json`)
+- **Format:** `pnpm format` (oxfmt write, with `ui/.oxfmtrc.json`) · **check only:** `pnpm format:check`
 - **Test:** `pnpm test` (Vitest, run once) · **watch:** `pnpm test:watch`
 
 ## Verification (MANDATORY after any code change)
@@ -27,14 +29,28 @@ Before considering the work done, run the safety gate and make it pass:
 pnpm check-types && pnpm lint && pnpm format:check && pnpm test
 ```
 
-If `format:check` fails, fix it with `pnpm format` (don't hand-edit whitespace). If `typecheck`, `lint`, or `test` fail, fix the underlying issue and re-run the full chain until green. Do not report a change as complete until this passes.
+If `format:check` fails, fix it with `pnpm format` (don't hand-edit whitespace). If `check-types`, `lint`, or `test` fail, fix the underlying issue and re-run the full chain until green. Do not report a change as complete until this passes.
 
 ### Known non-blocking warnings
 
 Pre-existing and cosmetic — do not treat as failures:
 
 - `pnpm build`: a TS5096 warning (`allowImportingTsExtensions`) and a circular-dependency note.
-- `pnpm install`: pnpm 10 reports "ignored build scripts" for esbuild; the binary still resolves correctly and doesn't block Vite/Storybook/Vitest.
+
+When a change touches an export or a prop PMM uses, also run `make ci` from `ui/`: it type-checks, tests and builds every package that consumes Peak UI.
+
+## Changelog and breaking changes
+
+Every PMM release publishes Peak UI with a generated `CHANGELOG.md` (`scripts/changelog.mjs`): the titles of PMM commits since the previous release that touch files that ship. A pull request that breaks the public API keeps a `BREAKING CHANGE: <what consumers must do>` line in its squash commit message, so the changelog lists it under "Breaking changes".
+
+## Porting a PR from percona/peak-ui
+
+Open pull requests in the archived `percona/peak-ui` repository move over with their commits. From the old checkout, on the PR branch, with `pmm` cloned next to it:
+
+```sh
+git format-patch origin/main..HEAD --stdout | git -C ../pmm am -3 --directory=ui/packages/peak-ui
+cd ../pmm/ui && pnpm format
+```
 
 ## Architecture (non-obvious bits)
 
@@ -52,7 +68,7 @@ Every documented story carries exactly **one** maturity status on its meta (defa
 
 ## Tech Stack (beyond what package.json shows)
 
-React 18 + TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with sourcemaps; peer deps (MUI, Emotion, React, `react-hook-form`) are externalized. The theme names Poppins and Roboto Mono; the `@fontsource/*` dependencies are declared but not imported, so consumers load fonts themselves (see `AGENTS.md`).
+React 19 in development (peers accept React 18 or 19) + TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with sourcemaps; peer deps (MUI, Emotion, React, `react-hook-form`) are externalized. The theme names Poppins and Roboto Mono; the `@fontsource/*` dependencies are declared but not imported, so consumers load fonts themselves (see `AGENTS.md`).
 
 ## MUI Conventions
 
@@ -65,7 +81,7 @@ Barrel imports (`@mui/material`, `@mui/icons-material`) hurt dev startup/rebuild
 - **Components:** `import Button from '@mui/material/Button'` — not `import { Button } from '@mui/material'`.
 - **Icons:** `import Delete from '@mui/icons-material/Delete'` — not the barrel.
 - **Migrate existing barrels:** `npx @mui/codemod@latest v5.0.0/path-imports <path>`.
-- **Optional ESLint guard:** `no-restricted-imports` with `{ "regex": "^@mui/[^/]+$" }` blocks package-root barrels only.
+- **Optional lint guard:** oxlint's `no-restricted-imports` with `{ "regex": "^@mui/[^/]+$" }` would block package-root barrels only; `ui/oxlintrc.json` doesn't enable it yet.
 - **VS Code nudge:** `typescript.preferences.autoImportSpecifierExcludeRegexes: ["^@mui/[^/]+$"]` in `.vscode/settings.json`.
 
 ### Theme overrides — gotchas
