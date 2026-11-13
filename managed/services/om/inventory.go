@@ -16,6 +16,7 @@
 package om
 
 import (
+	"cmp"
 	"context"
 	"crypto/rand"
 	"errors"
@@ -38,6 +39,7 @@ import (
 
 	omv1 "github.com/percona/pmm/api/om/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 )
 
 // maxInventoryRunLimit matches ListInventoryRunsRequest.limit's lte: 100 and the app's le=100,
@@ -88,26 +90,87 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 		return nil, err
 	}
 
-	connectedNodes, err := s.pmmAgentConnectedByNode()
-	if err != nil {
-		return nil, err
-	}
-
-	serverNodes, err := s.pmmServerNodeIDs()
+	inventory, err := s.readPMMInventory()
 	if err != nil {
 		return nil, err
 	}
 
 	support := s.readInstallSupport(ctx)
+	now := time.Now()
 	response := &omv1.ListInventoryHostsResponse{Hosts: make([]*omv1.InventoryHost, 0, len(hosts))}
 	for _, host := range hosts {
-		proto := inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support)
+		proto := inventoryHostToProto(host, inventory.node(host.NodeID, host.Services), support, now)
 		if req.AutomationEligible != nil && proto.AutomationEligible != req.GetAutomationEligible() {
 			continue
 		}
 		response.Hosts = append(response.Hosts, proto)
 	}
 	return response, nil
+}
+
+// pmmNodeFacts is what PMM's own inventory says about one node.
+type pmmNodeFacts struct {
+	pmmAgentConnected bool
+	isPMMServer       bool
+	hasMongoDBService bool
+}
+
+// pmmInventory is what PMM's own inventory says about the nodes Operations may install onto. It is read
+// from PMM rather than from PMM Extensions' copy, which is only as fresh as its last sync.
+type pmmInventory struct {
+	connected    map[string]bool
+	servers      map[string]bool
+	mongoDBNodes map[string]bool
+	mongoDBIDs   map[string]bool
+}
+
+// node counts a service PMM Extensions attached to the node only while PMM still has it, since PMM
+// Extensions also attaches services by address and keeps ones PMM has deleted.
+func (i pmmInventory) node(nodeID string, attached []extensionsService) pmmNodeFacts {
+	return pmmNodeFacts{
+		pmmAgentConnected: i.connected[nodeID],
+		isPMMServer:       i.servers[nodeID],
+		hasMongoDBService: i.mongoDBNodes[nodeID] || slices.ContainsFunc(attached,
+			func(service extensionsService) bool { return i.mongoDBIDs[service.ServiceID] }),
+	}
+}
+
+func (s *Service) readPMMInventory() (pmmInventory, error) {
+	connected, err := s.pmmAgentConnectedByNode()
+	if err != nil {
+		return pmmInventory{}, err
+	}
+	servers, err := s.pmmServerNodeIDs()
+	if err != nil {
+		return pmmInventory{}, err
+	}
+	mongoDBServices, err := s.mongoDBServices()
+	if err != nil {
+		return pmmInventory{}, err
+	}
+	mongoDBNodes := make(map[string]bool, len(mongoDBServices))
+	mongoDBIDs := make(map[string]bool, len(mongoDBServices))
+	for _, service := range mongoDBServices {
+		mongoDBNodes[service.NodeID] = true
+		mongoDBIDs[service.ServiceID] = true
+	}
+	return pmmInventory{
+		connected:    connected,
+		servers:      servers,
+		mongoDBNodes: mongoDBNodes,
+		mongoDBIDs:   mongoDBIDs,
+	}, nil
+}
+
+func (s *Service) mongoDBServices() ([]*models.Service, error) {
+	if s.db == nil {
+		return nil, nil
+	}
+	services, err := models.FindServices(s.db.Querier, models.ServiceFilters{ServiceType: new(models.MongoDBServiceType)})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list MongoDB services: %s", err)
+	}
+	return services, nil
 }
 
 func (s *Service) pmmAgentConnectedByNode() (map[string]bool, error) {
@@ -160,18 +223,13 @@ func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHo
 		return nil, err
 	}
 
-	connectedNodes, err := s.pmmAgentConnectedByNode()
-	if err != nil {
-		return nil, err
-	}
-
-	serverNodes, err := s.pmmServerNodeIDs()
+	inventory, err := s.readPMMInventory()
 	if err != nil {
 		return nil, err
 	}
 	support := s.readInstallSupport(ctx)
 	return &omv1.GetInventoryHostResponse{
-		Host: inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support),
+		Host: inventoryHostToProto(host, inventory.node(host.NodeID, host.Services), support, time.Now()),
 	}, nil
 }
 
@@ -358,17 +416,14 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 	return response, nil
 }
 
-// validateMemberConfigs checks per-member settings against node_ids and the rules rs.initiate() enforces,
-// so a set it would refuse fails here rather than minutes into a run.
-func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.BootstrapMemberConfig) error {
-	nodeIDSet := make(map[string]bool, len(nodeIDs))
-	for _, nodeID := range nodeIDs {
-		nodeIDSet[nodeID] = true
-	}
+// memberConfigViolations checks per-member settings against node_ids and the rules rs.initiate() enforces,
+// so a set it would refuse fails here rather than minutes into a run, naming each node as names does.
+func memberConfigViolations(nodeIDs, names []string, memberConfigs map[string]*omv1.BootstrapMemberConfig) []string {
 	var violations []string
 	for _, nodeID := range slices.Sorted(maps.Keys(memberConfigs)) {
 		member := memberConfigs[nodeID]
-		if !nodeIDSet[nodeID] {
+		i := slices.Index(nodeIDs, nodeID)
+		if i < 0 {
 			violations = append(violations, fmt.Sprintf(
 				"member_configs names host %s, which is not in node_ids", nodeID,
 			))
@@ -378,13 +433,13 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 		// since unset means MongoDB's defaults of priority 1 and a vote.
 		if member.GetDelaySecs() > 0 && (member.Priority == nil || *member.Priority != 0 || member.Votes == nil || *member.Votes) {
 			violations = append(violations, fmt.Sprintf(
-				"host %s: a delayed member (delay_secs > 0) must also set priority 0 and votes off", nodeID,
+				"host %s: a delayed member (delay_secs > 0) must also set priority 0 and votes off", names[i],
 			))
 		}
 		// rs.initiate() refuses a hidden member that can be elected; unset priority means the default of 1.
 		if member.GetHidden() && (member.Priority == nil || *member.Priority > 0) {
 			violations = append(violations, fmt.Sprintf(
-				"host %s: a hidden member must also set priority 0, since MongoDB will not elect a member that clients cannot see", nodeID,
+				"host %s: a hidden member must also set priority 0, since MongoDB will not elect a member that clients cannot see", names[i],
 			))
 		}
 	}
@@ -409,11 +464,7 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 		violations = append(violations,
 			"member_configs leaves every host with priority 0; a replica set needs at least one member that can become primary")
 	}
-
-	if len(violations) > 0 {
-		return status.Error(codes.InvalidArgument, strings.Join(violations, "; "))
-	}
-	return nil
+	return violations
 }
 
 // runIgnoredSettings names the requested settings the accepted run does not echo back, or "".
@@ -503,8 +554,11 @@ func newAdminSecret(req *omv1.TriggerHostBootstrapRequest) (*models.OmBootstrapS
 }
 
 // executorUnusable says why nothing can be dispatched to this host, or "" if nothing is known to be wrong.
-// Only an explicit false rejects; a host without an executor sub-document is left to PMM Extensions.
+// A host with an executor host but no executor sub-document is left to PMM Extensions; only an explicit false rejects.
 func executorUnusable(host extensionsHost) string {
+	if host.ExecutorHost == nil || *host.ExecutorHost == "" {
+		return "no automation agent is registered for it, so nothing can be dispatched to it"
+	}
 	executor, ok := host.Observed["executor"].(map[string]any)
 	if !ok {
 		return ""
@@ -522,37 +576,146 @@ func executorUnusable(host extensionsHost) string {
 	return ""
 }
 
-// refuseNodesNotReadyToInstall rejects the request, naming every node that cannot be installed onto,
-// and otherwise returns the one OS the selected nodes share.
-func refuseNodesNotReadyToInstall(nodeIDs []string, hosts []extensionsHost, support installSupport) (string, error) {
-	blocked := make([]string, 0, len(hosts))
+// hostNotReadyReasons returns why an install on this node would fail, as opposed to why it must not be
+// attempted at all, which is hostNotATargetReasons. Each caller judges the automation agent its own way and
+// passes that reason in; the bool reports whether a reason is a property of the node rather than a fault.
+func hostNotReadyReasons(
+	host extensionsHost,
+	node pmmNodeFacts,
+	executorReason string,
+	support installSupport,
+	now time.Time,
+) ([]string, bool) {
+	var reasons []string
+	if !node.pmmAgentConnected {
+		reasons = append(reasons, "PMM Client is not installed or not connected")
+	}
+	if executorReason != "" {
+		reasons = append(reasons, executorReason)
+	}
+	if host.FailingSince != nil {
+		reason := "the scans of this node have been failing for " + services.FormatAge(now.Sub(*host.FailingSince))
+		if host.LastError != nil && *host.LastError != "" {
+			reason += ": " + *host.LastError
+		}
+		reasons = append(reasons, reason)
+	}
+	releaseReason, byDesign := support.releaseReason(host.Observed)
+	if releaseReason != "" {
+		reasons = append(reasons, releaseReason)
+	}
+	repo, _ := host.Observed["repo"].(map[string]any)
+	reachable := observedBool(repo, "reachable")
+	if reachable != nil && !*reachable {
+		reason := "the last scan could not reach Percona's repository"
+		detail := observedString(repo, "error")
+		if detail != nil {
+			reason += ": " + *detail
+		}
+		reasons = append(reasons, reason)
+	}
+	// A scan leaves out a fact it found nothing for, so one that reported the OS and no package manager found none.
+	_, hasPackageManager := host.Observed["package_manager"]
+	if observedString(host.Observed, "os_id") != nil && !hasPackageManager {
+		reasons = append(reasons, "the last scan found no package manager on this node")
+	}
+	if host.Address == nil || *host.Address == "" {
+		reasons = append(reasons, "PMM has no address for this node")
+	}
+	return reasons, byDesign
+}
+
+// refuseBootstrapProblems rejects the request with every problem PMM can see before a run exists, and
+// otherwise returns the one OS the selected nodes share.
+func (s *Service) refuseBootstrapProblems(
+	ctx context.Context,
+	req *omv1.TriggerHostBootstrapRequest,
+	hosts []extensionsHost,
+	support installSupport,
+) (string, error) {
+	inventory, err := s.readPMMInventory()
+	if err != nil {
+		return "", err
+	}
+	nodeIDs := req.GetNodeIds()
+	names := make([]string, len(hosts))
+	for i, host := range hosts {
+		names[i] = cmp.Or(host.Name, nodeIDs[i])
+	}
+
+	var problems []string
+	violations := memberConfigViolations(nodeIDs, names, req.GetMemberConfigs())
+	if len(violations) > 0 {
+		problems = append(problems, strings.Join(violations, "; "))
+	}
+
+	now := time.Now()
+	var notTargets, notReady, targetNames []string
+	var targets []extensionsHost
 	osIDs := make(map[string][]string)
 	for i, host := range hosts {
-		name := hostDisplayName(host, nodeIDs[i])
-		problems := hostNotReadyReasons(host, support)
-		if len(problems) > 0 {
-			blocked = append(blocked, fmt.Sprintf("%s: %s", name, strings.Join(problems, "; ")))
+		node := inventory.node(nodeIDs[i], host.Services)
+		// The PMM Server's own node is refused on its own, and its OS is not a choice to compare.
+		osID := observedString(host.Observed, "os_id")
+		if osID != nil && !node.isPMMServer {
+			osIDs[*osID] = append(osIDs[*osID], names[i])
+		}
+		reasons := hostNotATargetReasons(node, host)
+		if len(reasons) > 0 {
+			notTargets = append(notTargets, names[i]+": "+strings.Join(reasons, "; "))
 			continue
 		}
-		osID, _ := host.Observed["os_id"].(string)
-		osIDs[osID] = append(osIDs[osID], name)
+		targetNames, targets = append(targetNames, names[i]), append(targets, host)
+		reasons, _ = hostNotReadyReasons(host, node, executorUnusable(host), support, now)
+		if len(reasons) > 0 {
+			notReady = append(notReady, names[i]+": "+strings.Join(reasons, "; "))
+		}
 	}
-	if len(blocked) > 0 {
-		return "", status.Errorf(codes.FailedPrecondition,
+	if len(notTargets) > 0 {
+		problems = append(problems, fmt.Sprintf(
+			"Operations does not install onto %d of the selected node(s) -- %s. Remove them from the selection.",
+			len(notTargets), strings.Join(notTargets, "; ")))
+	}
+	if len(notReady) > 0 {
+		problems = append(problems, fmt.Sprintf(
 			"%d of the selected node(s) cannot be installed onto -- %s. Each has to be fixed on the node itself; "+
 				"its newest scan on the Nodes page says what failed.",
-			len(blocked), strings.Join(blocked, "; "))
+			len(notReady), strings.Join(notReady, "; ")))
 	}
 	if len(osIDs) > 1 {
 		groups := make([]string, 0, len(osIDs))
-		for osID, names := range osIDs {
-			groups = append(groups, fmt.Sprintf("%s on %s", osID, strings.Join(names, ", ")))
+		for osID, osNames := range osIDs {
+			groups = append(groups, fmt.Sprintf("%s on %s", osID, strings.Join(osNames, ", ")))
 		}
 		slices.Sort(groups)
-		return "", status.Errorf(codes.InvalidArgument,
-			"the selected nodes do not all run the same operating system (%s); a mixed-OS replica set is out of "+
-				"phase-1 scope, so select nodes that run one of them",
-			strings.Join(groups, "; "))
+		problems = append(problems, fmt.Sprintf(
+			"The selected nodes do not all run the same operating system (%s); a mixed-OS replica set is out of "+
+				"phase-1 scope, so select nodes that run one of them.",
+			strings.Join(groups, "; ")))
+	}
+	unsupported := support.unsupportedMongoDBVersion(req.GetMongodbVersion(), targetNames, targets)
+	if unsupported != "" {
+		problems = append(problems, unsupported)
+	}
+	inUse, err := s.replicaSetNameInUse(ctx, req.GetEnvironment(), req.GetCluster(), req.GetReplicaSetName())
+	if err != nil {
+		inUse = fmt.Sprintf("PMM could not check whether replica set name %s is already used: %s",
+			req.GetReplicaSetName(), status.Convert(err).Message())
+	}
+	if inUse != "" {
+		problems = append(problems, inUse)
+	}
+
+	if len(problems) > 0 {
+		code := codes.InvalidArgument
+		if len(notTargets) > 0 || len(notReady) > 0 || inUse != "" {
+			code = codes.FailedPrecondition
+		}
+		// One line per kind of problem, which the wizard lists apart; a scan error can span several.
+		for i, problem := range problems {
+			problems[i] = strings.Join(strings.Fields(problem), " ")
+		}
+		return "", status.Error(code, strings.Join(problems, "\n"))
 	}
 	for osID := range osIDs {
 		return osID, nil
@@ -560,53 +723,77 @@ func refuseNodesNotReadyToInstall(nodeIDs []string, hosts []extensionsHost, supp
 	return "", status.Error(codes.InvalidArgument, "node_ids is empty")
 }
 
-// hostNotReadyReasons returns why an install on this node would fail, as opposed to why it must not be
-// attempted at all, which is hostNotATargetReasons.
-func hostNotReadyReasons(host extensionsHost, support installSupport) []string {
-	var reasons []string
-	if host.ExecutorHost == nil || *host.ExecutorHost == "" {
-		reasons = append(reasons, "no automation agent is registered for it, so nothing can be dispatched to it")
-	} else if unusable := executorUnusable(host); unusable != "" {
-		reasons = append(reasons, unusable)
+// replicaSetNameInUse says why an install cannot use a replica set name in an environment and cluster, or ""
+// when it can. A blank cluster stands for the replica set name, as the wizard sends it and Fleet groups by it.
+func (s *Service) replicaSetNameInUse(ctx context.Context, environment, cluster, name string) (string, error) {
+	cluster = cmp.Or(cluster, name)
+	var runs []extensionsBootstrapRun
+	for _, runStatus := range []string{bootstrapRunRunning, bootstrapRunSucceeded} {
+		listed, err := s.bootstrap.listRuns(ctx, runStatus, name, maxBootstrapRunLimit)
+		if err != nil {
+			return "", err
+		}
+		runs = append(runs, listed...)
 	}
-	if observedString(host.Observed, "os_id") == nil {
-		reasons = append(reasons,
-			"no scan has reported its operating system, so its scans are not landing")
-	} else if reason, _ := support.releaseReason(host.Observed); reason != "" {
-		reasons = append(reasons, reason)
-	}
-	return reasons
-}
-
-func hostDisplayName(host extensionsHost, nodeID string) string {
-	if host.Name != "" {
-		return host.Name
-	}
-	return nodeID
-}
-
-// refuseNodesThatAreNotTargets rejects the request, naming every node that must never be installed onto.
-func (s *Service) refuseNodesThatAreNotTargets(nodeIDs []string, hosts []extensionsHost) error {
-	serverNodes, err := s.pmmServerNodeIDs()
-	if err != nil {
-		return err
-	}
-
-	blocked := make([]string, 0, len(hosts))
-	for i, host := range hosts {
-		reasons := hostNotATargetReasons(serverNodes[nodeIDs[i]], host)
-		if len(reasons) == 0 {
+	for _, run := range runs {
+		// Checked here too: an om_bootstrap older than the name filter ignores it.
+		if run.ReplicaSetName != name {
 			continue
 		}
-		blocked = append(blocked, fmt.Sprintf("%s: %s",
-			hostDisplayName(host, nodeIDs[i]), strings.Join(reasons, "; ")))
+		config := &models.OmBootstrapRunConfig{}
+		if s.db != nil {
+			found, err := models.FindOmBootstrapRunConfigByRunID(s.db.Querier, run.ID)
+			if err != nil && !errors.Is(err, models.ErrNotFound) {
+				return "", status.Errorf(codes.Internal, "failed to read bootstrap run %s: %s", run.ID, err)
+			}
+			if err == nil {
+				config = found
+			}
+		}
+		if config.RegisteredAt != nil || config.Environment != environment || cmp.Or(config.Cluster, name) != cluster {
+			continue
+		}
+		state := "is still running"
+		if run.Status == bootstrapRunSucceeded {
+			state = "has finished, but PMM has not registered its members yet"
+		}
+		return fmt.Sprintf("Replica set name %s is already used in this environment and cluster by an install "+
+			"that %s. Choose another name.", name, state), nil
 	}
-	if len(blocked) == 0 {
-		return nil
+
+	// Read after the runs, so an install registered in between already has its services in PMM.
+	mongoDBServices, err := s.mongoDBServices()
+	if err != nil {
+		return "", err
 	}
-	return status.Errorf(codes.FailedPrecondition,
-		"Operations does not install onto %d of the selected node(s) -- %s. Remove them from the selection.",
-		len(blocked), strings.Join(blocked, "; "))
+	var holders []string
+	for _, service := range mongoDBServices {
+		if service.ReplicationSet == name && service.Environment == environment &&
+			cmp.Or(service.Cluster, service.ReplicationSet) == cluster {
+			holders = append(holders, service.ServiceName)
+		}
+	}
+	if len(holders) > 0 {
+		return fmt.Sprintf("Replica set name %s is already used in this environment and cluster by the MongoDB "+
+			"service(s) %s. Choose another name.", name, strings.Join(holders, ", ")), nil
+	}
+	return "", nil
+}
+
+// CheckReplicaSetName says why TriggerHostBootstrap would refuse a replica set name, so the wizard can say it first.
+func (s *Service) CheckReplicaSetName(ctx context.Context, req *omv1.CheckReplicaSetNameRequest) (*omv1.CheckReplicaSetNameResponse, error) {
+	if s.bootstrap == nil {
+		return nil, status.Error(codes.FailedPrecondition, extensionsNotConfigured)
+	}
+	inUse, err := s.replicaSetNameInUse(ctx, req.GetEnvironment(), req.GetCluster(), req.GetReplicaSetName())
+	if err != nil {
+		return nil, err
+	}
+	response := &omv1.CheckReplicaSetNameResponse{}
+	if inUse != "" {
+		response.InUse = &inUse
+	}
+	return response, nil
 }
 
 // TriggerHostBootstrap plans installing MongoDB on one or three hosts and initializing them as one replica set.
@@ -625,11 +812,6 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 			"node_ids must have exactly one or three entries, got %d", len(nodeIDs))
 	}
 
-	err = validateMemberConfigs(nodeIDs, req.GetMemberConfigs())
-	if err != nil {
-		return nil, err
-	}
-
 	secret, generatedPassword, err := newAdminSecret(req)
 	if err != nil {
 		return nil, err
@@ -646,22 +828,13 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		hosts = append(hosts, host)
 	}
 
-	// Enforced here, not only in the UI: automation_eligible is advisory, can be minutes stale,
-	// and a direct API call never reads it.
-	err = s.refuseNodesThatAreNotTargets(nodeIDs, hosts)
-	if err != nil {
-		return nil, err
-	}
-
 	support := s.readInstallSupport(ctx)
 	if support.err != nil {
 		return nil, support.err
 	}
-	osID, err := refuseNodesNotReadyToInstall(nodeIDs, hosts, support)
-	if err != nil {
-		return nil, err
-	}
-	err = support.refuseUnsupportedMongoDBVersion(req.GetMongodbVersion(), nodeIDs, hosts)
+	// Enforced here, not only in the UI: automation_eligible is advisory, can be minutes stale,
+	// and a direct API call never reads it.
+	osID, err := s.refuseBootstrapProblems(ctx, req, hosts, support)
 	if err != nil {
 		return nil, err
 	}
@@ -956,7 +1129,7 @@ func (s *Service) ListBootstrapRuns(ctx context.Context, req *omv1.ListBootstrap
 		limit = maxBootstrapRunLimit
 	}
 
-	runs, err := bootstrap.listRuns(ctx, "", limit)
+	runs, err := bootstrap.listRuns(ctx, "", "", limit)
 	if err != nil {
 		return nil, err
 	}
@@ -1172,9 +1345,9 @@ func (s *Service) DeleteInventoryConfigOverride(
 	return &omv1.DeleteInventoryConfigOverrideResponse{}, nil
 }
 
-func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServer bool, support installSupport) *omv1.InventoryHost {
+func inventoryHostToProto(host extensionsHost, node pmmNodeFacts, support installSupport, now time.Time) *omv1.InventoryHost {
 	executor := executorToProto(host.Observed)
-	eligible, reasons, byDesign := automationEligibility(executor, pmmAgentConnected, isPMMServer, host, support)
+	eligible, reasons, byDesign := automationEligibility(executor, node, host, support, now)
 	out := &omv1.InventoryHost{
 		NodeId:                    host.NodeID,
 		Name:                      host.Name,
@@ -1187,11 +1360,11 @@ func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServ
 		Observed:                  observedToStruct(host.Observed),
 		Freshness:                 freshnessToProto(host.extensionsFreshness),
 		Services:                  make([]*omv1.InventoryService, 0, len(host.Services)),
-		PmmAgentConnected:         pmmAgentConnected,
+		PmmAgentConnected:         node.pmmAgentConnected,
 		AutomationEligible:        eligible,
 		AutomationBlockedReasons:  reasons,
 		AutomationBlockedByDesign: byDesign,
-		IsPmmServerNode:           isPMMServer,
+		IsPmmServerNode:           node.isPMMServer,
 		SupportedMongodbVersions:  support.release(host.Observed).versions,
 	}
 	for _, service := range host.Services {
@@ -1202,13 +1375,13 @@ func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServ
 
 // hostNotATargetReasons returns why Operations must never install onto this node. TriggerHostBootstrap
 // enforces these too, since eligibility is advisory and can be stale.
-func hostNotATargetReasons(isPMMServer bool, host extensionsHost) []string {
-	if isPMMServer {
+func hostNotATargetReasons(node pmmNodeFacts, host extensionsHost) []string {
+	if node.isPMMServer {
 		return []string{
 			"this is the node PMM Server itself runs on, which Operations never installs onto",
 		}
 	}
-	if len(host.Services) > 0 {
+	if node.hasMongoDBService {
 		return []string{"a MongoDB service is already registered on this node"}
 	}
 	if unregisteredMongodCount(host.Observed) > 0 {
@@ -1226,37 +1399,29 @@ func hostNotATargetReasons(isPMMServer bool, host extensionsHost) []string {
 // The last result reports whether the host is blocked by design rather than by a fault.
 func automationEligibility(
 	executor *omv1.InventoryExecutor,
-	pmmAgentConnected bool,
-	isPMMServer bool,
+	node pmmNodeFacts,
 	host extensionsHost,
 	support installSupport,
+	now time.Time,
 ) (bool, []string, bool) {
-	reasons := hostNotATargetReasons(isPMMServer, host)
+	reasons := hostNotATargetReasons(node, host)
 	byDesign := len(reasons) > 0
-	if isPMMServer {
+	if node.isPMMServer {
 		// The PMM Server reason stands alone: its image reports os_id "ol", and an unsupported-OS reason
 		// would invite reinstalling the machine PMM runs on.
 		return false, reasons, true
 	}
-	if !pmmAgentConnected {
-		reasons = append(reasons, "PMM Client is not installed or not connected")
-	}
 	// These reasons are shown on the Nodes page, so they do not name the scheduler.
-	if executor == nil || !executor.GetReachable() {
-		reasons = append(reasons, "this node has no automation agent that answers")
+	executorReason := ""
+	if host.ExecutorHost == nil || *host.ExecutorHost == "" || executor == nil || !executor.GetReachable() {
+		executorReason = "this node has no automation agent that answers"
 	} else if !executor.GetDriverHealthy() {
-		reasons = append(reasons, "this node's automation agent cannot run jobs")
+		executorReason = "this node's automation agent cannot run jobs"
 	}
-	reason, releaseByDesign := support.releaseReason(host.Observed)
-	if reason != "" {
-		byDesign = byDesign || releaseByDesign
-		reasons = append(reasons, reason)
-	}
-	if host.Address == nil || *host.Address == "" {
-		reasons = append(reasons, "PMM has no address for this node")
-	}
+	notReady, releaseByDesign := hostNotReadyReasons(host, node, executorReason, support, now)
+	reasons = append(reasons, notReady...)
 	eligible := len(reasons) == 0
-	return eligible, reasons, !eligible && byDesign
+	return eligible, reasons, !eligible && (byDesign || releaseByDesign)
 }
 
 func unregisteredMongodCount(observed map[string]any) int {

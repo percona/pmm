@@ -132,22 +132,23 @@ func (s installSupport) list() string {
 	return strings.Join(groups, "; ")
 }
 
-// refuseUnsupportedMongoDBVersion rejects a MongoDB version om_bootstrap does not install onto every node's release.
-func (s installSupport) refuseUnsupportedMongoDBVersion(version string, nodeIDs []string, hosts []extensionsHost) error {
+// unsupportedMongoDBVersion names the nodes whose release om_bootstrap does not install a MongoDB version onto,
+// or returns "". A node whose release gets no version at all is left to hostNotReadyReasons.
+func (s installSupport) unsupportedMongoDBVersion(version string, names []string, hosts []extensionsHost) string {
 	wanted := majorMinor(version)
 	blocked := make([]string, 0, len(hosts))
 	for i, host := range hosts {
 		release := s.release(host.Observed)
-		if slices.Contains(release.versions, wanted) {
+		if len(release.versions) == 0 || slices.Contains(release.versions, wanted) {
 			continue
 		}
 		blocked = append(blocked, fmt.Sprintf("%s runs %s, which supports MongoDB %s",
-			hostDisplayName(host, nodeIDs[i]), release.name, strings.Join(release.versions, ", ")))
+			names[i], release.name, strings.Join(release.versions, ", ")))
 	}
 	if len(blocked) == 0 {
-		return nil
+		return ""
 	}
-	return status.Errorf(codes.InvalidArgument,
+	return fmt.Sprintf(
 		"MongoDB %s cannot be installed onto %d of the selected node(s) -- %s. Choose a version every selected node supports.",
 		version, len(blocked), strings.Join(blocked, "; "))
 }
