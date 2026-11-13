@@ -29,9 +29,9 @@ describe('TaskLogViewer StatusBadge', () => {
     ['stopped', 'Stopped'],
     ['lost', 'Lost'],
     ['stale', 'Stale'],
-    ['unlaunchable', 'Not in executor'],
+    ['unlaunchable', 'Cannot run on this host'],
     ['stream-error', 'Stream error'],
-    ['executor-gone', 'Not in executor'],
+    ['executor-gone', 'No longer on host'],
   ] as const)('renders %s as %s', (status, label) => {
     render(<StatusBadge status={status} />);
 

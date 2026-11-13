@@ -31,7 +31,6 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  HIDDEN_SETTINGS,
   SETTING_GROUP,
   SETTING_HELP,
   SETTING_LABEL,
@@ -42,6 +41,8 @@ import {
   useResetOmInventoryConfig,
   useUpdateOmInventoryConfig,
 } from '../inventoryHooks';
+import { useAuth } from '@pmm-extensions/api';
+import { ReadOnlyNotice } from '@pmm-extensions/framework';
 import type { OmInventorySetting } from '../types';
 import { OmError } from './OmError';
 
@@ -130,18 +131,28 @@ const SettingField = ({
   onChange,
   onReset,
   resetting,
+  readOnly,
 }: {
   setting: OmInventorySetting;
   draft: string;
   onChange: (next: string) => void;
   onReset: () => void;
   resetting: boolean;
+  readOnly: boolean;
 }) => {
   const kind = inputKind(setting);
   const unit = SETTING_UNIT[setting.key];
   const label = SETTING_LABEL[setting.key] ?? setting.key;
   const help = SETTING_HELP[setting.key];
   const valid = isValid(setting, draft);
+  // An integer always states its constraint, and `error` turns the same line red, so the
+  // rule and the complaint are one sentence; text stays quiet until empty.
+  const hint =
+    kind === 'int'
+      ? 'A whole number greater than zero.'
+      : valid
+        ? undefined
+        : 'This field cannot be empty.';
 
   return (
     <Stack direction="row" gap={2} alignItems="flex-start" sx={{ py: 0.75 }}>
@@ -153,6 +164,7 @@ const SettingField = ({
                 reader announces "switch, on" and nothing about which setting. */}
             <Switch
               size="small"
+              disabled={readOnly}
               checked={draft === 'true'}
               slotProps={{ input: { 'aria-label': label } }}
               onChange={(event) =>
@@ -168,6 +180,7 @@ const SettingField = ({
             fullWidth
             label={label}
             value={draft}
+            disabled={readOnly}
             onChange={(event) => onChange(event.target.value)}
           >
             {PERIODS.map((period) => (
@@ -182,18 +195,9 @@ const SettingField = ({
             fullWidth
             label={unit ? `${label} (${unit})` : label}
             value={draft}
-            error={!valid}
-            helperText={
-              // An integer always states its constraint, and `error` turns the same
-              // line red, so the rule and the complaint are one sentence. Text
-              // settings stay quiet until empty: this field serves both, and "a whole
-              // number" is not an instruction the reader of a URL can follow.
-              kind === 'int'
-                ? 'A whole number greater than zero.'
-                : valid
-                  ? undefined
-                  : 'This field cannot be empty.'
-            }
+            slotProps={{ input: { readOnly } }}
+            error={!readOnly && !valid}
+            helperText={readOnly ? undefined : hint}
             onChange={(event) => onChange(event.target.value)}
           />
         )}
@@ -219,11 +223,13 @@ const SettingField = ({
         {setting.has_override && (
           <Stack direction="row" gap={1} alignItems="center">
             <Chip size="small" variant="outlined" label="overridden" />
-            <Tooltip title="Put this back to the value the deployment configured. Without it, once a value has been set the deployed one is unreachable.">
-              <Button size="small" disabled={resetting} onClick={onReset}>
-                Reset
-              </Button>
-            </Tooltip>
+            {!readOnly && (
+              <Tooltip title="Put this back to the value the deployment configured. Without it, once a value has been set the deployed one is unreachable.">
+                <Button size="small" disabled={resetting} onClick={onReset}>
+                  Reset
+                </Button>
+              </Tooltip>
+            )}
           </Stack>
         )}
       </Stack>
@@ -239,10 +245,10 @@ const SettingField = ({
  * - **Only runtime-changeable fields appear at all.** A field needing a restart would
  *   promise a change it cannot deliver, and showing one read-only beside editable ones
  *   just raises the question of why. `reload === 'SETTING_RELOAD_HOT'` is the filter, and it is what
- *   drops the two that are not: `CREDENTIALS_PATH`, deliberately not overridable
+ *   drops the ones that are not: `CREDENTIALS_PATH`, deliberately not overridable
  *   because it names a file read on every database host and handed to a driver as a
- *   URI, and `FASTAPI_ENV`, which is the framework's rather than OM's. Hot fields
- *   PMM owns are dropped too ({@link HIDDEN_SETTINGS}).
+ *   URI, `FASTAPI_ENV`, which is the framework's rather than OM's, and `ENABLED`,
+ *   which PMM sets from its own switch.
  * - **The effective value is shown, never the submitted one.** The form re-reads after
  *   writing and re-seeds from what comes back. Beat runs as a forked side-car process,
  *   and a form that echoed the submission would look identical whether or not the
@@ -263,14 +269,13 @@ export const ConfigForm = ({
   const { data: settings, isPending, isError, error } = useOmInventoryConfig();
   const update = useUpdateOmInventoryConfig();
   const reset = useResetOmInventoryConfig();
+  const { canMutate } = useAuth();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
 
   const editable = useMemo(
     () =>
       (settings ?? []).filter(
-        (setting) =>
-          setting.reload === 'SETTING_RELOAD_HOT' &&
-          !HIDDEN_SETTINGS.has(setting.key)
+        (setting) => setting.reload === 'SETTING_RELOAD_HOT'
       ),
     [settings]
   );
@@ -337,6 +342,7 @@ export const ConfigForm = ({
       setting={setting}
       draft={drafts[setting.key] ?? ''}
       resetting={reset.isPending}
+      readOnly={!canMutate}
       onChange={(next) =>
         setDrafts((current) => ({ ...current, [setting.key]: next }))
       }
@@ -409,29 +415,37 @@ export const ConfigForm = ({
         />
       )}
 
-      <Stack direction="row" gap={2} alignItems="center" sx={{ mt: 1 }}>
-        <Button
-          variant="contained"
-          disabled={
-            dirty.length === 0 || invalid.length > 0 || update.isPending
-          }
-          onClick={save}
-        >
-          {dirty.length > 1 ? `Save ${dirty.length} changes` : 'Save'}
-        </Button>
-        {dirty.length > 0 && invalid.length === 0 && (
-          <Typography variant="body2" color="text.secondary">
-            {names(dirty)}
-          </Typography>
-        )}
-        {invalid.length > 0 && (
-          <OmError
-            placement="action"
-            title="Fix these first - the app applies the batch or none of it"
-            messages={labels(invalid)}
-          />
-        )}
-      </Stack>
+      {canMutate ? (
+        <Stack direction="row" gap={2} alignItems="center" sx={{ mt: 1 }}>
+          <Button
+            variant="contained"
+            disabled={
+              dirty.length === 0 || invalid.length > 0 || update.isPending
+            }
+            onClick={save}
+          >
+            {dirty.length > 1 ? `Save ${dirty.length} changes` : 'Save'}
+          </Button>
+          {dirty.length > 0 && invalid.length === 0 && (
+            <Typography variant="body2" color="text.secondary">
+              {names(dirty)}
+            </Typography>
+          )}
+          {invalid.length > 0 && (
+            <OmError
+              placement="action"
+              title="Fix these first - the app applies the batch or none of it"
+              messages={labels(invalid)}
+            />
+          )}
+        </Stack>
+      ) : (
+        <ReadOnlyNotice
+          variant="inline"
+          action="change the configuration"
+          testId="om-config-read-only"
+        />
+      )}
     </Stack>
   );
 };

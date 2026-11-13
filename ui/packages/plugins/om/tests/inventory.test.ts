@@ -138,10 +138,10 @@ describe('databaseState', () => {
   /**
    * The case the whole three-state column exists for.
    *
-   * PMM registers no service for an arbiter, because it cannot authenticate against
-   * one, so the host looks identical to a bare pmm-client in PMM's own inventory:
-   * same node type, same agents, no services. Calling it installable would invite
-   * someone to put a database on a port already in use.
+   * An arbiter that was not added to PMM leaves the host looking identical to a bare
+   * pmm-client in PMM's own inventory: same node type, same agents, no services.
+   * Calling it installable would invite someone to put a database on a port already
+   * in use.
    */
   it('does not call a host with an unregistered mongod installable', () => {
     const arbiter = host({ unregistered_mongods: [mongod()] });
