@@ -34,6 +34,7 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Row,
+  type MRT_SortingState,
 } from 'material-react-table';
 import {
   FLEET_NOT_COLLECTED,
@@ -67,6 +68,10 @@ import {
   useSessionGrouping,
   type GroupByOption,
 } from './components/GroupBySelect';
+import {
+  useTableUrlState,
+  type TableUrlStateOptions,
+} from './useTableUrlState';
 import type {
   OmInventoryService,
   OmServiceInventoryRow,
@@ -117,6 +122,25 @@ const HIDDEN_BY_DEFAULT = {
   argv: false,
   node_id: false,
   cluster_id: false,
+  // The failing chip's filter column, never shown.
+  failing: false,
+};
+
+/** The failing chip's filter, on a column that is never shown. */
+const FAILING_FILTER = { id: 'failing', value: 'true' };
+
+/** Down services first, so a failure is the first row a reader sees. */
+const DEFAULT_SORTING: MRT_SortingState = [
+  { id: 'status', desc: false },
+  { id: 'cluster_name', desc: false },
+  { id: 'service_name', desc: false },
+];
+
+/** The search, filters and sort in the URL under `services.`, as on the Clusters tab. */
+const URL_STATE: TableUrlStateOptions = {
+  paramPrefix: 'services',
+  defaults: { sorting: DEFAULT_SORTING },
+  sync: { pagination: false },
 };
 
 /** Flat by default, as the tab has always opened; the grouping keys lead the columns. */
@@ -424,6 +448,23 @@ function useColumns(
             />
           ),
       },
+      {
+        id: FAILING_FILTER.id,
+        header: 'Failing a scan',
+        accessorFn: (row) =>
+          String(!!row.inventory && isFailing(row.inventory)),
+        // Only on a ready estate, and only `true`: otherwise it would hide every row,
+        // with the chip that turns it off not shown.
+        filterFn: (row, columnId, value) =>
+          estate !== 'ready' ||
+          value !== FAILING_FILTER.value ||
+          row.getValue(columnId) === FAILING_FILTER.value,
+        enableColumnFilter: false,
+        enableGlobalFilter: false,
+        enableHiding: false,
+        enableSorting: false,
+        visibleInShowHideMenu: false,
+      },
     ],
     [estate]
   );
@@ -548,7 +589,23 @@ export const FleetServicesTab = () => {
     : inventoryPending
       ? 'pending'
       : 'ready';
-  const [failingOnly, setFailingOnly] = useState(false);
+  const tableProps = useTableUrlState(URL_STATE);
+  const failingOnly =
+    estate === 'ready' &&
+    tableProps.state.columnFilters.some(
+      ({ id, value }) =>
+        id === FAILING_FILTER.id && value === FAILING_FILTER.value
+    );
+  const toggleFailing = () =>
+    tableProps.onColumnFiltersChange((filters) => [
+      ...filters.filter(({ id }) => id !== FAILING_FILTER.id),
+      ...(failingOnly ? [] : [FAILING_FILTER]),
+    ]);
+  // Opened by the reader or by a column filter in the link, never by the chip's own:
+  // peak-ui opens the filter row for any active column filter.
+  const [showColumnFilters, setShowColumnFilters] = useState(() =>
+    tableProps.state.columnFilters.some(({ id }) => id !== FAILING_FILTER.id)
+  );
   const [grouping, setGrouping] = useSessionGrouping<string>(
     'om.fleet.services.grouping',
     GROUP_BY_OPTIONS,
@@ -574,13 +631,6 @@ export const FleetServicesTab = () => {
       setSelectedId(null);
     }
   }, [selected]);
-  const rows = useMemo(
-    () =>
-      failingOnly
-        ? joined.filter((row) => row.inventory && isFailing(row.inventory))
-        : joined,
-    [joined, failingOnly]
-  );
   // null rather than 0 whenever the estate has not answered - failed or still in
   // flight. "0 failing" is a claim, and an empty join is not evidence for it either way.
   const failingCount = useMemo(
@@ -593,8 +643,9 @@ export const FleetServicesTab = () => {
   );
 
   const table = useMaterialReactTable({
+    ...tableProps,
     columns,
-    data: rows,
+    data: joined,
     enableGrouping: true,
     // Grouping is the toolbar select's job: no drag handle on any header, and no
     // "grouped by" banner offering a second way to change it. The grouped column
@@ -695,7 +746,10 @@ export const FleetServicesTab = () => {
             setSelectedId(row.original.service_id ?? null);
           },
     }),
+    onShowColumnFiltersChange: setShowColumnFilters,
     state: {
+      ...tableProps.state,
+      showColumnFilters,
       grouping: grouping === NO_GROUPING ? [] : [grouping],
       columnSizing: grouping === NO_GROUPING ? {} : GROUPED_COLUMN_SIZING,
     },
@@ -703,12 +757,6 @@ export const FleetServicesTab = () => {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
       expanded: true,
-      // Down services first, so a failure is the first row a reader sees.
-      sorting: [
-        { id: 'status', desc: false },
-        { id: 'cluster_name', desc: false },
-        { id: 'service_name', desc: false },
-      ],
     },
   });
 
@@ -753,9 +801,9 @@ export const FleetServicesTab = () => {
         failing={failingCount}
         estate={estate}
         failingOnly={failingOnly}
-        onToggleFailing={() => setFailingOnly((on) => !on)}
+        onToggleFailing={toggleFailing}
       />
-      {rows.length > 0 ? (
+      {joined.length > 0 && !(failingOnly && failingCount === 0) ? (
         <MaterialReactTable table={table} />
       ) : joined.length > 0 ? (
         <EmptyState title="No services failing a scan">
