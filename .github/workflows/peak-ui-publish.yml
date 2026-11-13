@@ -1,0 +1,163 @@
+---
+name: Peak UI publish
+
+# Publishes @percona/peak-ui at the PMM version on every release tag.
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to pack when not run on a tag, e.g. 3.99.0-dryrun
+        type: string
+      dry_run:
+        description: Pack and check only
+        type: boolean
+        default: true
+
+permissions: {}
+
+jobs:
+  pack:
+    name: Pack
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: ui/packages/peak-ui
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      dist_tag: ${{ steps.dist_tag.outputs.dist_tag }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup nodejs
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ui/.nvmrc
+          cache: pnpm
+          cache-dependency-path: ui/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --filter @percona/peak-ui...
+
+      - name: Resolve the version
+        id: version
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$REF_TYPE" = tag ]; then version="${REF_NAME#v}"; else version="$INPUT_VERSION"; fi
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::No usable version: '$version'"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Pack the candidate
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          npm pkg set version="$VERSION"
+          pnpm pack --pack-destination "$RUNNER_TEMP/candidate"
+
+      # The changelog compares packages, so the same commit must pack the same files.
+      - name: Check the build is reproducible
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          pnpm pack --pack-destination "$RUNNER_TEMP/again"
+          mkdir "$RUNNER_TEMP/a" "$RUNNER_TEMP/b"
+          tar -xzf "$RUNNER_TEMP"/candidate/*.tgz -C "$RUNNER_TEMP/a"
+          tar -xzf "$RUNNER_TEMP"/again/*.tgz -C "$RUNNER_TEMP/b"
+          diff -r "$RUNNER_TEMP/a" "$RUNNER_TEMP/b"
+
+      - name: Write CHANGELOG.md
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          node scripts/changelog.mjs --version "$VERSION" \
+            --candidate "$(echo "$RUNNER_TEMP"/candidate/*.tgz)" --out CHANGELOG.md \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Pack with the changelog
+        run: pnpm pack --pack-destination "$RUNNER_TEMP/final"
+
+      - name: Check the tarball
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          tgz=$(echo "$RUNNER_TEMP"/final/*.tgz)
+          tar -tzf "$tgz" > "$RUNNER_TEMP/files.txt"
+          for f in dist/index.js dist/index.d.ts AGENTS.md llms.txt CHANGELOG.md; do
+            grep -qx "package/$f" "$RUNNER_TEMP/files.txt" || { echo "::error::$f is missing"; exit 1; }
+          done
+          tar -xzOf "$tgz" package/package.json | jq -e --arg v "$VERSION" \
+            '.version == $v and ([.main, .types, (.exports | .. | strings)] | all(test("^(\\./)?dist/")))'
+          npm publish --dry-run --tag dry-run "$tgz"
+
+      - name: Choose the dist-tag
+        id: dist_tag
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          latest=$(npm view @percona/peak-ui dist-tags.latest)
+          tag=$(node -e "import('./scripts/versions.mjs').then((m) => console.log(m.distTag(process.argv[1], process.argv[2])))" "$VERSION" "$latest")
+          echo "dist_tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Upload the tarball
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: peak-ui-tarball
+          path: ${{ runner.temp }}/final/*.tgz
+          if-no-files-found: error
+
+  publish:
+    name: Publish
+    needs: pack
+    if: github.ref_type == 'tag' && !inputs.dry_run
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: peak-ui-publish-${{ github.ref_name }}
+
+    steps:
+      - name: Download the tarball
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: peak-ui-tarball
+          path: tarball
+
+      - name: Setup nodejs
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing (OIDC) needs npm 11.5.1 or later; Node 22 ships npm 10.
+      - name: Upgrade npm
+        run: npm install -g npm@^11.5.1
+
+      - name: Publish
+        env:
+          VERSION: ${{ needs.pack.outputs.version }}
+          DIST_TAG: ${{ needs.pack.outputs.dist_tag }}
+        run: |
+          if [ -n "$(npm view "@percona/peak-ui@$VERSION" version 2>/dev/null)" ]; then
+            echo "@percona/peak-ui@$VERSION is already on npm"
+            exit 0
+          fi
+          npm publish tarball/*.tgz --provenance --access public --tag "$DIST_TAG"
