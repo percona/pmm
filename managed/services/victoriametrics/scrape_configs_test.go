@@ -30,6 +30,58 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+func TestExporterScrapeTimeout(t *testing.T) {
+	t.Parallel()
+
+	interval := 10 * time.Second
+	t.Run("uses ExporterOptions.ConnectionTimeout when within cap", func(t *testing.T) {
+		t.Parallel()
+		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(3 * time.Second)}}
+		exporterScrapeTimeout(cfg, agent)
+		assert.Equal(t, config.Duration(3*time.Second), cfg.ScrapeTimeout)
+	})
+
+	t.Run("caps at 90% of scrape interval", func(t *testing.T) {
+		t.Parallel()
+		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(15 * time.Second)}}
+		exporterScrapeTimeout(cfg, agent)
+		assert.Equal(t, config.Duration(9*time.Second), cfg.ScrapeTimeout)
+	})
+
+	t.Run("floors at 100ms", func(t *testing.T) {
+		t.Parallel()
+		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval)}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(50 * time.Microsecond)}}
+		exporterScrapeTimeout(cfg, agent)
+		assert.Equal(t, config.Duration(100*time.Millisecond), cfg.ScrapeTimeout)
+	})
+
+	t.Run("keeps timeout capped for tiny intervals", func(t *testing.T) {
+		t.Parallel()
+		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(50 * time.Millisecond)}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(time.Second)}}
+		exporterScrapeTimeout(cfg, agent)
+		assert.Equal(t, config.Duration(45*time.Millisecond), cfg.ScrapeTimeout)
+	})
+
+	t.Run("no-op when cfg or agent nil or timeout zero", func(t *testing.T) {
+		t.Parallel()
+		cfg := &config.ScrapeConfig{ScrapeInterval: config.Duration(interval), ScrapeTimeout: config.Duration(time.Second)}
+		agent := &models.Agent{ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(2 * time.Second)}}
+
+		exporterScrapeTimeout(nil, agent)
+		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
+
+		exporterScrapeTimeout(cfg, nil)
+		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
+
+		exporterScrapeTimeout(cfg, &models.Agent{ExporterOptions: models.ExporterOptions{}})
+		assert.Equal(t, config.Duration(time.Second), cfg.ScrapeTimeout)
+	})
+}
+
 func TestScrapeConfig(t *testing.T) {
 	s := &models.MetricsResolutions{
 		HR: 5 * time.Second,
@@ -1311,6 +1363,31 @@ func TestScrapeConfig(t *testing.T) {
 			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
+		})
+
+		t.Run("CustomTimeoutOverridesOnlyWhenSet", func(t *testing.T) {
+			params := []*scrapeConfigParams{
+				{
+					host: "1.1.1.1",
+					agent: &models.Agent{
+						ListenPort:      new(uint16(12345)),
+						ExporterOptions: models.ExporterOptions{ConnectionTimeout: new(7 * time.Second)},
+					},
+					metricsResolution: s,
+				},
+				{
+					host:              "2.2.2.2",
+					agent:             &models.Agent{ListenPort: new(uint16(12345))},
+					metricsResolution: s,
+				},
+			}
+
+			actual := scrapeConfigsForRDSExporter(params)
+			require.Len(t, actual, 4)
+			assert.Equal(t, config.Duration(4500*time.Millisecond), actual[0].ScrapeTimeout)
+			assert.Equal(t, config.Duration(7*time.Second), actual[1].ScrapeTimeout)
+			assert.Equal(t, scrapeTimeout(s.MR), actual[2].ScrapeTimeout)
+			assert.Equal(t, scrapeTimeout(s.LR), actual[3].ScrapeTimeout)
 		})
 	})
 

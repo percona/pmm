@@ -279,7 +279,8 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 				ServiceID:    service.ServiceID,
 				AzureOptions: models.AzureOptionsFromRequest(req),
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:       isPushMode(metricsMode),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 			})
 			if err != nil {

@@ -16,6 +16,7 @@ package inventory
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -77,7 +78,8 @@ type ChangeAgentAzureDatabaseExporterCommand struct {
 	AzureResourceGroup  *string `help:"Azure Resource Group"`
 
 	// Exporter options
-	PushMetrics *bool `help:"Enable push metrics with vmagent"`
+	PushMetrics       *bool          `help:"Enable push metrics with vmagent"`
+	ConnectionTimeout *time.Duration `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
@@ -99,6 +101,7 @@ func (cmd *ChangeAgentAzureDatabaseExporterCommand) RunCmd() (commands.Result, e
 		AzureResourceGroup:  cmd.AzureResourceGroup,
 		EnablePushMetrics:   cmd.PushMetrics,
 		LogLevel:            convertLogLevelPtr(cmd.LogLevel),
+		ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
 	}
 
 	if customLabels != nil {
