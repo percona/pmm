@@ -401,10 +401,13 @@ func TestAlertsTool(t *testing.T) {
 				server("g-critical-new", "critical", at(11, 0)),
 				server("h-warning-new", "warning", at(11, 0)),
 				server("a-warning-new", "warning", at(11, 0)),
+				server("i-alert", "Alert", at(9, 0)),
+				server("j-emergency", "emergency", at(8, 0)),
 			)},
 		}))
 		got, _ := callAlerts(t, fake, nil)
 		assert.Equal(t, []string{
+			"j-emergency@-", "i-alert@-",
 			"g-critical-new@-", "a-critical-old@-",
 			"c-error@-",
 			"a-warning-new@-", "h-warning-new@-", "b-warning-old@-",

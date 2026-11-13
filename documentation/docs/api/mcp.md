@@ -272,7 +272,7 @@ All arguments are optional:
 | `limit` | At most this many alerts per page: default 50, maximum 200 |
 | `offset` | Skips this many alerts, for the next page |
 
-An alert that lacks a label never matches a filter on that label. The most severe alerts come first (`critical`, `error`, `warning`, other severities, then none), the newest first within a severity.
+An alert that lacks a label never matches a filter on that label. The most severe alerts come first (`emergency`, `alert`, `critical`, `error`, `warning`, other severities, then none), the newest first within a severity.
 
 ### What the list holds
 

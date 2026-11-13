@@ -50,7 +50,7 @@ const (
 var pmmRuleUIDs = alerting.CatalogUIDs()
 
 // severityOrder lists the severities that come ahead of every other one, in order.
-var severityOrder = []string{"critical", "error", "warning"}
+var severityOrder = []string{"emergency", "alert", "critical", "error", "warning"}
 
 // isPMMRule reports whether a rule is one PMM provisions: file provenance and a UID of PMM's catalog, never a label.
 func isPMMRule(provenance, uid string) bool {
@@ -346,7 +346,7 @@ func labelSetKey(labels map[string]string) string {
 	return b.String()
 }
 
-// severityRank ranks critical, error and warning first, then every other severity, then none.
+// severityRank ranks emergency, alert, critical, error and warning first, then every other severity, then none.
 func severityRank(severity string) int {
 	rank := slices.Index(severityOrder, severity)
 	switch {
