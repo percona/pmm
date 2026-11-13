@@ -24,7 +24,7 @@ Shows the percentage of total host memory currently in use. Turns orange at 80% 
 
 ### Disk IO Utilization
 
-Shows the percentage of elapsed time the disk was busy servicing read or write requests.
+Shows the percentage of elapsed time the disk was busy servicing read or write requests. On a host with more than one disk, it shows the busiest disk.
 
 A value approaching 100% over sustained periods suggests disk saturation. For storage that supports parallelism (SSDs, NVMe, RAID), high values do not always indicate a problem. Check I/O latency and queue depth alongside this value for a full picture.
 

@@ -541,7 +541,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "sum by (node_name) (rate(node_disk_io_time_seconds_total{node_name=~\"$node_name\"}[$interval]) or irate(node_disk_io_time_seconds_total{node_name=~\"$node_name\"}[5m]))",
+                    "expr": "max by (node_name) (rate(node_disk_io_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) or irate(node_disk_io_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[5m]))",
                     "interval": "$interval",
                     "legendFormat": "{{ node_name }}",
                     "range": true,
@@ -684,7 +684,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "avg by (node_name) (sum(\n(rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval]) or \nirate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[5m]))\n))",
+                    "expr": "sum by (node_name) (rate(node_disk_reads_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) or irate(node_disk_reads_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -700,7 +700,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "avg by (node_name) (sum(\n(rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval]) or \nirate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[5m])) \n))",
+                    "expr": "sum by (node_name) (rate(node_disk_writes_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) or irate(node_disk_writes_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[5m]))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",

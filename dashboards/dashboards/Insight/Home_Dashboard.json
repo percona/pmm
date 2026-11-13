@@ -1820,7 +1820,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk_max(10, (sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval])) > 2) and sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval])) - sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval])) offset 1w  > 1)",
+                    "expr": "topk_max(10, (sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) > 2) and sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) - sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) offset 1w  > 1)",
                     "hide": false,
                     "instant": true,
                     "interval": "$interval",
@@ -1901,7 +1901,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk_max(10, sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[1m])) > 2)",
+                    "expr": "topk_max(10, sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[1m])) > 2)",
                     "hide": false,
                     "instant": true,
                     "interval": "$interval",
@@ -2668,7 +2668,7 @@
                             "editorMode": "code",
                             "errors": {},
                             "exemplar": true,
-                            "expr": "topk_max(20,sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval])))",
+                            "expr": "topk_max(20,sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2781,7 +2781,7 @@
                             "editorMode": "code",
                             "errors": {},
                             "exemplar": true,
-                            "expr": "sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval])) - sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval])) offset 1w  > 0",
+                            "expr": "sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) - sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) offset 1w  > 0",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -2898,7 +2898,7 @@
                             "editorMode": "code",
                             "errors": {},
                             "exemplar": true,
-                            "expr": "topk_max(20,sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\"}[$interval])))",
+                            "expr": "topk_max(20,sum by (node_name) (rate(node_disk_io_time_weighted_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -3018,12 +3018,12 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "topk_max(20,rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval]) > 0 )",
+                            "expr": "topk_max(20,rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) > 0 )",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
                             "intervalFactor": 1,
-                            "legendFormat": "{{node_name}}",
+                            "legendFormat": "{{node_name}} {{device}}",
                             "range": true,
                             "refId": "B"
                         }
@@ -3132,12 +3132,12 @@
                         {
                             "datasource": "Metrics",
                             "exemplar": true,
-                            "expr": "(rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval])) - (rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval])) offset 1w > 0 ",
+                            "expr": "(rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) - (rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) offset 1w > 0 ",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
                             "intervalFactor": 1,
-                            "legendFormat": "{{node_name}}",
+                            "legendFormat": "{{node_name}} {{device}}",
                             "refId": "B"
                         }
                     ],
@@ -3245,12 +3245,12 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "topk_max(20,rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval]) > 0 )",
+                            "expr": "topk_max(20,rate(node_disk_write_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) / rate(node_disk_writes_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) > 0 )",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
                             "intervalFactor": 1,
-                            "legendFormat": "{{node_name}}",
+                            "legendFormat": "{{node_name}} {{device}}",
                             "range": true,
                             "refId": "B"
                         }
@@ -3359,12 +3359,12 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "topk_max(20,rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval]) > 0 )",
+                            "expr": "topk_max(20,rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) > 0 )",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
                             "intervalFactor": 1,
-                            "legendFormat": "{{node_name}}",
+                            "legendFormat": "{{node_name}} {{device}}",
                             "range": true,
                             "refId": "B"
                         }
@@ -3473,13 +3473,13 @@
                         {
                             "datasource": "Metrics",
                             "exemplar": true,
-                            "expr": "(rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval])) - (rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval])) offset 1w > 0 ",
+                            "expr": "(rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) - (rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval])) offset 1w > 0 ",
                             "format": "time_series",
                             "hide": false,
                             "instant": false,
                             "interval": "$interval",
                             "intervalFactor": 1,
-                            "legendFormat": "{{node_name}}",
+                            "legendFormat": "{{node_name}} {{device}}",
                             "refId": "B"
                         }
                     ],
@@ -3587,12 +3587,12 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "topk_max(20,rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval]) > 0 )",
+                            "expr": "topk_max(20,rate(node_disk_read_time_seconds_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) / rate(node_disk_reads_completed_total{node_name=~\"$node_name\",device!~\"dm-.+|md.+\"}[$interval]) > 0 )",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
                             "intervalFactor": 1,
-                            "legendFormat": "{{node_name}}",
+                            "legendFormat": "{{node_name}} {{device}}",
                             "range": true,
                             "refId": "B"
                         }
