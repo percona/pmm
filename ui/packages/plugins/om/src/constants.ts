@@ -20,6 +20,7 @@ import type {
   OmBootstrapRunStatus,
   OmBootstrapStepStatus,
   OmClusterHealth,
+  OmClusterType,
   OmHostDatabaseState,
   OmProcessRole,
   OmScanErrorCode,
@@ -91,11 +92,21 @@ export const PROCESS_ROLE_LABEL: Record<OmProcessRole, string> = {
 };
 
 /** How each cluster state reads on Overview: the word, then the colour behind it. */
+/** Reading that means "not measured" in the two percentage fields. */
+export const UNMEASURED = -1;
+
 export const CLUSTER_HEALTH_LABEL: Record<OmClusterHealth, string> = {
   healthy: 'Healthy',
   degraded: 'Degraded',
   down: 'Down',
   unknown: 'Unknown',
+};
+
+/** A cluster's inferred shape; UNSPECIFIED only occurs on a never-built document. */
+export const CLUSTER_TYPE_LABEL: Partial<Record<OmClusterType, string>> = {
+  CLUSTER_TYPE_REPLICA_SET: 'Replica set',
+  CLUSTER_TYPE_SHARDED: 'Sharded',
+  CLUSTER_TYPE_STANDALONE: 'Standalone',
 };
 
 export const CLUSTER_HEALTH_COLOR: Record<OmClusterHealth, ChipProps['color']> =
@@ -321,15 +332,6 @@ export const RUN_STATUS_COLOR: Record<OmTopologyRunStatus, ChipProps['color']> =
   };
 
 /**
- * Configuration fields the form never offers, even though the app reports them as hot.
- *
- * `ENABLED` gates every scan, manual ones included, and pmm-managed owns it: it writes
- * the Operations for MongoDB switch to it at every start, so a value set here would not
- * survive a restart. See PMM-15776.
- */
-export const HIDDEN_SETTINGS: ReadonlySet<string> = new Set(['ENABLED']);
-
-/**
  * Human labels for OM's configuration fields.
  *
  * The raw keys are what the app calls them and what the API takes; these are what a
@@ -337,6 +339,7 @@ export const HIDDEN_SETTINGS: ReadonlySet<string> = new Set(['ENABLED']);
  * in PMM Extensions still renders rather than disappearing from the form.
  */
 export const SETTING_LABEL: Record<string, string> = {
+  AUTO_SCAN: 'Automatic node scans',
   SCHEDULE__every: 'Scan every',
   SCHEDULE__period: 'Period',
   PROBE_DATABASE: 'Connect to MongoDB',
@@ -369,6 +372,8 @@ export const SETTING_UNIT: Record<string, string> = {
 
 /** What each field costs or protects, for the reader deciding whether to touch it. */
 export const SETTING_HELP: Record<string, string> = {
+  AUTO_SCAN:
+    'Scan every node on a schedule, and when PMM starts or Operations is turned on. Off stops all of these - you can still scan from the Nodes page, and nothing already collected is removed.',
   SCHEDULE__every:
     'How often every node is scanned. Each scan sends a job to every node.',
   PROBE_DATABASE:
@@ -481,6 +486,7 @@ export const BOOTSTRAP_RUN_COLOR: Record<
  * beside a warning.
  */
 export const SETTING_GROUP: Record<string, 'general' | 'scanning'> = {
+  AUTO_SCAN: 'general',
   SCHEDULE__every: 'general',
   SCHEDULE__period: 'general',
   PROBE_DATABASE: 'general',

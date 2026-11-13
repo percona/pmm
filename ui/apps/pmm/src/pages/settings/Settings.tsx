@@ -9,6 +9,7 @@ import { useSettings } from 'hooks/api/useSettings';
 import { SshKeyForm } from './components/ssh-key/SshKeyForm';
 import { MetricsResolutionForm } from './components/metrics-resolution/MetricsResolutionForm';
 import { AdvancedSettingsForm } from './components/advanced/AdvancedSettingsForm';
+import { AdvisorsForm } from './components/advisors/AdvisorsForm';
 import { ServiceNowConnectionTab } from './components/servicenow';
 import { Messages } from './Settings.messages';
 import { TabValue } from './Settings.types';
@@ -77,6 +78,11 @@ export const Settings: FC = () => {
             value="advanced-settings"
             label={Messages.tabs.advanced}
           />
+          <Tab
+            data-testid="settings-tab-advisors"
+            value="advisors"
+            label={Messages.tabs.advisors}
+          />
           {showSshKeyTab && (
             <Tab
               data-testid="settings-tab-ssh"
@@ -100,6 +106,7 @@ export const Settings: FC = () => {
           {tab === 'advanced-settings' && (
             <AdvancedSettingsForm settings={settings!} />
           )}
+          {tab === 'advisors' && <AdvisorsForm settings={settings!} />}
           {tab === 'ssh-key' && <SshKeyForm settings={settings!} />}
           {tab === 'servicenow-connection' && <ServiceNowConnectionTab />}
         </Box>
