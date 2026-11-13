@@ -12,9 +12,8 @@ export const LABEL_WIDTH_VAR = '--sidebar-label-width';
 export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
   // Items change shape in step with the drawer's own width transition.
   const drawerTiming = drawerTransition(theme, drawerOpen);
-  // A heading inside a group only shows while its group is open, which needs
-  // the drawer open, so it never turns into a divider. Keeping it fixed also
-  // lets the group measure its full height when it opens.
+  // A heading inside a group always shows, since a group opens only in the
+  // open drawer; that also lets the group measure its full height.
   const showHeading = drawerOpen || level > 0;
   const sectionPaddingTop = 3;
   const sectionPaddingBottom = 1;
@@ -57,10 +56,8 @@ export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
       },
     },
     itemEnd: drawerOpen ? { mr: itemEnd } : {},
-    // Until a label has been measured open (the page loaded collapsed), a
-    // top-level one assumes its open width, so the first opening keeps the
-    // line breaks it ends with: the drawer, less the item's end gap, its
-    // padding and the 24px icon (an icon-less label box starts 2px in).
+    // Before it is measured open, a top-level label assumes its open width: the
+    // drawer less the end gap, padding and 24px icon (2px without an icon).
     labelWidthEstimate: (hasIcon: boolean, hasButton: boolean) => ({
       [`.${listItemTextClasses.root}`]: {
         [LABEL_WIDTH_VAR]: `calc(${DRAWER_WIDTH}px - ${theme.spacing(itemEnd)} - ${
@@ -68,9 +65,8 @@ export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
         } - ${hasButton ? theme.spacing(5.5) : theme.spacing(2)})`,
       },
     }),
-    // Expanded, top-level items run flush to the left edge and round off on
-    // the right. Collapsed, they fill the rail as square rows, with padding
-    // that centres the 24px icon.
+    // Open, top-level items run flush left and round off on the right;
+    // collapsed, they are square rows that centre the 24px icon.
     navItemRoot: drawerOpen
       ? { borderRadius: `0 ${radius}px ${radius}px 0` }
       : { borderRadius: 0, px: 1.5 },
@@ -89,9 +85,8 @@ export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
       ...trailingButtonPlace,
       ...appearOnOpenMixin(theme),
     },
-    // Fades out at once when collapsing, and in only once the drawer has
-    // widened, so it never passes over the icon. Pinned to the item's first
-    // row, like the icon, when the label wraps.
+    // Fades out at once on collapse and in once the drawer has widened, so it
+    // never passes over the icon; pinned to the first row when a label wraps.
     groupToggle: {
       position: 'absolute',
       top: 0,
@@ -125,12 +120,9 @@ export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
     listItemButton: {
       px: 2,
     },
-    // A heading inside an open group labels a run of its children and inherits
-    // the group's indent.
-    // Collapsed, the row closes down to a divider with 8px either side of the
-    // line.
+    // Inside an open group a heading takes the group's indent; collapsed, the
+    // row closes to a divider with 8px either side.
     sectionRow: {
-      // Clips sideways only, so a heading's button can spill out vertically.
       overflowX: 'clip',
       // Nested headings line up with the label of an icon-less NavItem: 16px
       // button padding, -14px spacer, 8px text padding.

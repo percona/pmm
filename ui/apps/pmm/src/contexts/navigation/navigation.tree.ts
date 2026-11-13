@@ -43,8 +43,7 @@ import {
   addHighAvailability,
 } from './navigation.utils';
 
-// The sidebar (PMM-15353): one flat list under section labels instead of
-// per-technology trees. Read top to bottom, this file is the sidebar.
+// The sidebar, read top to bottom (see PMM-15353).
 
 export const NAV_SECTIONS = {
   technologies: section('technologies', 'Technologies'),
@@ -53,9 +52,8 @@ export const NAV_SECTIONS = {
   administration: section('administration', 'Administration'),
 };
 
-// A technology's menu, as before the sections came in, plus its folder of
-// other dashboards when Grafana has one. A copy, so the shared constant never
-// gains the folder entry.
+// A copy of the technology's menu with its Grafana folder of other dashboards
+// appended, so the shared constant never changes.
 const technology = (item: NavItem, folders: DashboardFolder[]): NavItem => {
   const folder = folders.find((f) => f.title === NAV_FOLDER_MAP[item.id]);
 

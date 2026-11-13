@@ -30,11 +30,7 @@ const SECTIONS = [
   { label: Messages.settings, path: `${OM_PATH}/settings` },
 ];
 
-/**
- * OM's sections as the app's own navigation: the sidebar lists OM once, under
- * Apps, and these tabs move between its pages. A page below a section, such as
- * the install wizard under Nodes, keeps that section's tab current.
- */
+/** Moves between OM's pages, since the sidebar lists OM once; a page below a section keeps its tab current. */
 export const OmSectionTabs: FC = () => {
   const { pathname } = useLocation();
   const current =

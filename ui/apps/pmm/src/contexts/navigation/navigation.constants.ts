@@ -571,9 +571,8 @@ export const section = (id: string, text: string): NavItem => ({
 //
 // Configuration
 //
-// Everything configurable about PMM, Grafana's organization and user
-// management included, listed under headings so the group stays one level
-// deep.
+// Grafana's organization and user pages are listed under headings, so the
+// group stays one level deep.
 export const NAV_CONFIGURATION: NavItem = {
   id: 'configuration',
   icon: SettingsOutlined,

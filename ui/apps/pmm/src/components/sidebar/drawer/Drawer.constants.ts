@@ -10,9 +10,7 @@ export const DRAWER_BORDER_WIDTH = 1;
 export const drawerWidth = (open: boolean) =>
   (open ? DRAWER_WIDTH : DRAWER_CLOSED_WIDTH) + DRAWER_BORDER_WIDTH;
 
-// How long the sidebar takes to open and to close, in ms. The drawer's width
-// and everything inside it (items, headings, logo, header, group lists and the
-// controls that fade in) move with these two values.
+// Open and close durations in ms; everything in the sidebar moves with them.
 export const DRAWER_OPEN_DURATION = 250;
 
 export const DRAWER_CLOSE_DURATION = 200;

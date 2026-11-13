@@ -66,9 +66,8 @@ export const hiddenScrollbarMixin: CSSObject = {
   },
 };
 
-// Fades the list's content out toward each edge that has more to scroll, so
-// items dissolve into the sidebar background. A mask rather than an overlay,
-// so highlighted items fade too.
+// Fades the list out toward an edge with more to scroll; a mask, so
+// highlighted items fade too.
 export const scrollFadeMixin = (
   fadeTop: boolean,
   fadeBottom: boolean

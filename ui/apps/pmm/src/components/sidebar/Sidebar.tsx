@@ -148,10 +148,8 @@ export const Sidebar: FC = () => {
             },
             hiddenScrollbarMixin,
             scrollFadeMixin(canScrollUp, canScrollDown),
-            // Labels keep their expanded width, and so their line breaks,
-            // while the drawer animates or is collapsed: they slide out of
-            // view instead of rewrapping. A label never seen open holds one
-            // line.
+            // Labels keep their open width while the drawer moves or is collapsed,
+            // so they slide out of view rather than rewrap.
             (animating || !navOpen) && {
               [`.${listItemTextClasses.root}`]: {
                 flex: `0 0 var(${LABEL_WIDTH_VAR}, auto)`,

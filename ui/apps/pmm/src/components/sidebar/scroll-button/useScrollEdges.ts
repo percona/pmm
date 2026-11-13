@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
 
-/**
- * Tracks whether a scroll container can scroll further up or down, using
- * markers placed at the very start and end of its content. The browser reports
- * a marker entering or leaving view, so nothing runs while scrolling. The refs
- * are callback refs, so a container or marker that remounts is observed afresh.
- */
+/** Tracks whether a container can scroll up or down, from markers at its content's ends. */
 export const useScrollEdges = <
   Root extends HTMLElement,
   Marker extends HTMLElement,

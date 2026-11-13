@@ -11,9 +11,8 @@ interface Props {
   onClick: () => void;
 }
 
-// A pointer alternative to the hidden scrollbar, for people who can click but
-// not scroll. Keyboard users reach every item by tabbing, so it stays out of
-// the tab order; its label keeps it available to voice control.
+// For people who can click but not scroll. Out of the tab order, since Tab
+// reaches every item, but labelled for voice control.
 const SidebarScrollButton: FC<Props> = ({ direction, visible, onClick }) => {
   const label = `Scroll ${direction}`;
 

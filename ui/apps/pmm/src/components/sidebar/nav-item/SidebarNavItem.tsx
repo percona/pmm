@@ -49,9 +49,8 @@ const SidebarNavItem: FC<NavItemProps> = ({
   const current = activeItem?.id === item.id;
   const active = current || hasActiveChild;
   const [open, setIsOpen] = useState(active);
-  // Only one item shows the selected background: the deepest one on the
-  // active path that is in view. A group whose active child shows takes just
-  // the selected colour; once the child is hidden, the group is selected.
+  // Only the deepest active item in view shows the selected background; a
+  // group stands in for its active child once the child is hidden.
   const childInView = open && drawerOpen;
   const standsInForChild = hasActiveChild && !childInView;
   // A heading has no page, so it never stands in for its group.
