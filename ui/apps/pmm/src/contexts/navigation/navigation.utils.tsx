@@ -25,7 +25,6 @@ import {
   NAV_ALERTS_SILENCES,
   NAV_ALERTS_GROUPS,
   NAV_HIGH_AVAILABILITY,
-  NAV_USERS_AND_ACCESS,
   NAV_ACCESS_CONTROL,
   NAV_HOME_PAGE,
 } from './navigation.constants';
@@ -117,7 +116,8 @@ export const addAccount = (
 
 export const addConfiguration = (
   status: UpdateStatus,
-  versionInfo?: GetUpdatesResponse
+  versionInfo?: GetUpdatesResponse,
+  settings?: CombinedSettings
 ): NavItem => {
   const updates = NAV_CONFIGURATION.children?.find((c) => c.id === 'updates');
   const { updateAvailable, installed, latest } = versionInfo || {};
@@ -143,6 +143,13 @@ export const addConfiguration = (
     updates.badge = undefined;
   }
 
+  if (settings?.enableAccessControl) {
+    return {
+      ...NAV_CONFIGURATION,
+      children: [...(NAV_CONFIGURATION.children || []), NAV_ACCESS_CONTROL],
+    };
+  }
+
   return NAV_CONFIGURATION;
 };
 
@@ -161,16 +168,6 @@ export const addHighAvailability = ({ health, namespace }: HAInfo): NavItem => {
   item.badgeAlwaysVisible = true;
 
   return item;
-};
-
-export const addUsersAndAccess = (settings?: CombinedSettings): NavItem => {
-  const children: NavItem[] = [...(NAV_USERS_AND_ACCESS.children || [])];
-
-  if (settings?.enableAccessControl) {
-    children.push(NAV_ACCESS_CONTROL);
-  }
-
-  return { ...NAV_USERS_AND_ACCESS, children };
 };
 
 export const addHomePage = (preferences?: UserPreferences): NavItem => {

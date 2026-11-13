@@ -20,7 +20,6 @@ import HelpOutline from '@mui/icons-material/HelpOutline';
 import Logout from '@mui/icons-material/Logout';
 import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
-import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
 import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
@@ -563,9 +562,18 @@ export const NAV_INVENTORY: NavItem = {
   ],
 };
 
+export const section = (id: string, text: string): NavItem => ({
+  id: `section-${id}`,
+  type: 'menu-section',
+  text,
+});
+
 //
 // Configuration
 //
+// Everything configurable about PMM, Grafana's organization and user
+// management included, listed under headings so the group stays one level
+// deep.
 export const NAV_CONFIGURATION: NavItem = {
   id: 'configuration',
   icon: SettingsOutlined,
@@ -597,41 +605,24 @@ export const NAV_CONFIGURATION: NavItem = {
       text: 'Updates',
       url: `${PMM_NEW_NAV_PATH}/updates`,
     },
+    section('organization', 'Organization'),
     {
-      id: 'org-management',
-      text: 'Org. management',
+      id: 'organizations',
+      text: 'Organizations',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/admin/orgs`,
-      children: [
-        {
-          id: 'organizations',
-          text: 'Organizations',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/admin/orgs`,
-          matches: ['*'],
-        },
-        {
-          id: 'stats-and-licenses',
-          text: 'Stats and licenses',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/admin/upgrading`,
-        },
-        {
-          id: 'default-preferences',
-          text: 'Default preferences',
-          url: `${PMM_NEW_NAV_GRAFANA_PATH}/org`,
-        },
-      ],
+      matches: ['*'],
     },
-  ],
-};
-
-//
-// Users and Access
-//
-export const NAV_USERS_AND_ACCESS: NavItem = {
-  id: 'users-and-access',
-  icon: Security,
-  text: 'Users and access',
-  url: PMM_NEW_NAV_GRAFANA_PATH + '/admin/users',
-  children: [
+    {
+      id: 'stats-and-licenses',
+      text: 'Stats and licenses',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/admin/upgrading`,
+    },
+    {
+      id: 'default-preferences',
+      text: 'Default preferences',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/org`,
+    },
+    section('users-and-access', 'Users and access'),
     {
       id: 'users',
       text: 'Users',
@@ -758,35 +749,32 @@ export const NAV_HIGH_AVAILABILITY: NavItem = {
 //
 // Apps
 //
-// Grafana's backup pages have no tabs of their own, so each one is an entry.
-export const NAV_BACKUPS: NavItem = {
-  id: 'backups',
-  text: 'Backups',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-  children: [
-    {
-      id: 'backup-inventory',
-      text: 'All backups',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
-      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`],
-    },
-    {
-      id: 'scheduled-backups',
-      text: 'Scheduled backup jobs',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/scheduled`,
-    },
-    {
-      id: 'restore-history',
-      text: 'Restores',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/restore`,
-    },
-    {
-      id: 'storage-locations',
-      text: 'Storage locations',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/locations`,
-    },
-  ],
-};
+// Listed under Apps, under their heading. Grafana's backup pages have no tabs
+// of their own, so each one is an entry.
+export const NAV_BACKUPS: NavItem[] = [
+  section('backups', 'Backups'),
+  {
+    id: 'backup-inventory',
+    text: 'All backups',
+    url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
+    matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/backup/new`],
+  },
+  {
+    id: 'scheduled-backups',
+    text: 'Scheduled backup jobs',
+    url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/scheduled`,
+  },
+  {
+    id: 'restore-history',
+    text: 'Restores',
+    url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/restore`,
+  },
+  {
+    id: 'storage-locations',
+    text: 'Storage locations',
+    url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/locations`,
+  },
+];
 
 export const NAV_EXTENSIONS_MYSQL_BACKUPS: NavItem = {
   id: 'extensions-mysql-backups',

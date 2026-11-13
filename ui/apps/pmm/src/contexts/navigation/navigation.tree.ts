@@ -33,6 +33,7 @@ import {
   NAV_QAN,
   NAV_SIGN_IN,
   NAV_VALKEY,
+  section,
 } from './navigation.constants';
 import {
   addAccount,
@@ -40,17 +41,10 @@ import {
   addAlerting,
   addConfiguration,
   addHighAvailability,
-  addUsersAndAccess,
 } from './navigation.utils';
 
 // The sidebar (PMM-15353): one flat list under section labels instead of
 // per-technology trees. Read top to bottom, this file is the sidebar.
-
-const section = (id: string, text: string): NavItem => ({
-  id: `section-${id}`,
-  type: 'menu-section',
-  text,
-});
 
 export const NAV_SECTIONS = {
   technologies: section('technologies', 'Technologies'),
@@ -163,48 +157,22 @@ export interface NavTreeInput {
   toggleColorMode: () => void;
 }
 
-// Configuration is the one place for everything configurable about PMM, so
-// Users and access folds into it. Org. management and Users and access are
-// groups PMM inherits from Grafana's user management, and keeping them as
-// groups would make Configuration the only place with a fold inside a fold.
-// Their pages are listed directly instead, under headings, so the whole
-// sidebar stays one level deep.
-const addConfigurationGroup = ({
-  updateStatus,
-  versionInfo,
-  settings,
-}: NavTreeInput): NavItem => {
-  const configuration = addConfiguration(updateStatus, versionInfo);
-  const children = configuration.children || [];
-  const orgManagement = children.find((child) => child.id === 'org-management');
-
-  return {
-    ...configuration,
-    children: [
-      ...children.filter((child) => child !== orgManagement),
-      section('organization', 'Organization'),
-      ...(orgManagement?.children || []),
-      section('users-and-access', 'Users and access'),
-      ...(addUsersAndAccess(settings).children || []),
-    ],
-  };
-};
-
 // A section label is listed only above at least one entry.
 const withSection = (heading: NavItem, items: NavItem[]): NavItem[] =>
   items.length ? [heading, ...items] : [];
 
-export const buildNavTree = (input: NavTreeInput): NavItem[] => {
-  const {
-    user,
-    isLoggedIn,
-    haInfo,
-    settings,
-    serviceTypes,
-    folders,
-    colorMode,
-    toggleColorMode,
-  } = input;
+export const buildNavTree = ({
+  user,
+  isLoggedIn,
+  haInfo,
+  settings,
+  serviceTypes,
+  folders,
+  updateStatus,
+  versionInfo,
+  colorMode,
+  toggleColorMode,
+}: NavTreeInput): NavItem[] => {
   const signedIn = user?.isAnonymous === false;
   const extensions = signedIn && !!settings?.extensionsEnabled;
 
@@ -250,13 +218,8 @@ export const buildNavTree = (input: NavTreeInput): NavItem[] => {
     apps.push({ ...NAV_EXTENSIONS_MYSQL_BACKUPS, ...TECH_PREVIEW });
   }
 
-  // Listed under a heading, like Configuration's groups, so Apps stays one
-  // level deep.
   if (user?.isPMMAdmin && settings?.backupManagementEnabled) {
-    apps.push(
-      section(NAV_BACKUPS.id, NAV_BACKUPS.text ?? ''),
-      ...(NAV_BACKUPS.children || [])
-    );
+    apps.push(...NAV_BACKUPS);
   }
 
   const browse: NavItem[] = [NAV_DASHBOARDS];
@@ -276,7 +239,7 @@ export const buildNavTree = (input: NavTreeInput): NavItem[] => {
   }
 
   if (user?.isPMMAdmin) {
-    administration.push(addConfigurationGroup(input));
+    administration.push(addConfiguration(updateStatus, versionInfo, settings));
   }
 
   const items: NavItem[] = [
