@@ -822,6 +822,7 @@ func TestService_GetReport_Search(t *testing.T) {
 
 		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
+		// On ClickHouse 26.3+ a WHERE beside `* REPLACE` sees the replaced columns, so the source row is picked in a subquery.
 		//nolint:unqueryvet // clone every column of a real row so this test survives schema changes
 		_, err := db.ExecContext(ctx, `
 			INSERT INTO metrics
@@ -831,9 +832,7 @@ func TestService_GetReport_Search(t *testing.T) {
     datid, datname (...)' AS fingerprint,
 				toDateTime('2019-01-02 00:30:00', 'UTC') AS period_start
 			)
-			FROM metrics
-			WHERE queryid = '7DD5F6760F2D2EBB'
-			LIMIT 1`, whitespaceQueryID)
+			FROM (SELECT * FROM metrics WHERE queryid = '7DD5F6760F2D2EBB' LIMIT 1)`, whitespaceQueryID)
 		require.NoError(t, err, "failed to seed row with embedded whitespace in fingerprint")
 
 		s := &Service{
