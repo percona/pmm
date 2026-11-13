@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import * as peakUi from './index';
@@ -24,6 +24,17 @@ describe('published package contents', () => {
       /GNU AFFERO GENERAL PUBLIC LICENSE\s+Version 3/
     );
     expect(pkg.license).toBe('AGPL-3.0-or-later');
+  });
+
+  it('leaves licensing to LICENSE: no source file carries a header', () => {
+    const withHeader = readdirSync(resolve(root, 'src'), { recursive: true })
+      .map(String)
+      .filter((file) => /\.(tsx?|mdx)$/.test(file))
+      .filter((file) => file !== 'package-manifest.spec.ts')
+      .filter((file) =>
+        /Copyright \(C\)|Licensed under the/.test(read(`src/${file}`))
+      );
+    expect(withHeader).toEqual([]);
   });
 
   it('ships only the entry points and the guides', () => {
