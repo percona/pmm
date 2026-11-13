@@ -43,15 +43,15 @@ export const Messages = {
     'Pick the nodes to install on, on the Nodes page, then install from there.',
   columns: {
     environment: 'Environment',
-    cluster: 'Cluster',
+    cluster: 'Cluster name',
     type: 'Type',
     health: 'Health',
     members: 'Members',
     services: 'Services',
     process: 'Process',
-    versions: 'Versions',
+    versions: 'Version',
     maxReplicationLag: 'Max repl. lag',
-    minOplogWindow: 'Min oplog window',
+    minOplogWindow: 'Oplog window',
     lastSeen: 'Last seen',
     maxCpu: 'Max CPU',
     minConnectionsFree: 'Min conn. free',
@@ -59,6 +59,8 @@ export const Messages = {
   columnTooltips: {
     members: 'Members up, out of all the members in the cluster',
     lastSeen: 'When the least recently observed member was last observed',
+    maxReplicationLag: 'The largest replication lag among the members',
+    minOplogWindow: 'The smallest oplog window among the members',
     minConnectionsFree:
       'The lowest percentage of free connections among the members',
   },
@@ -69,6 +71,22 @@ export const Messages = {
     count: (count: number) => `${count} versions`,
   },
   unknownType: 'Unknown type',
+  healthReason: {
+    allDown: (total: number) =>
+      total === 1 ? 'Its only member is down' : `All ${total} members down`,
+    oneDown: (member: string) => `${member} down`,
+    someDown: (down: number, total: number) =>
+      `${down} of ${total} members down`,
+    noMembers: 'No members in this snapshot',
+    notReporting: (count: number, total: number) =>
+      `${count} of ${total} ${pluralize(total, 'member')} not reporting`,
+  },
+  thresholds: {
+    lagAbove: (limit: string) => `Above ${limit}, the alert threshold`,
+    oplogBelow: (limit: string) =>
+      `Below ${limit}: a secondary down longer than this needs a full resync`,
+  },
+  updateAvailable: 'Update available',
   search: 'Filter clusters by name',
   clearSearch: 'Clear search',
   noMatch: 'No cluster matches the search and filters.',

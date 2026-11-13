@@ -18,15 +18,16 @@
 import type { ReactNode } from 'react';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 import type { MRT_ColumnDef } from 'material-react-table';
 import { Age } from '../../../components/Age';
-import { ClusterHealthBadge } from '../../../components/HealthBadge';
-import { Duration, Percent } from '../../../components/Metric';
+import { Percent } from '../../../components/Metric';
 import { Unavailable } from '../../../components/Unavailable';
+import { formatCompactDuration } from '../../../format';
 import { clusterHealthRank } from '../../../topology';
 import type { OmClusterHealth, OmClusterRow } from '../../../types';
 import {
+  LAG_ALERT_SECONDS,
+  OPLOG_WARN_SECONDS,
   TYPE_FILTER_VALUE,
   UNNAMED_ENVIRONMENT_VALUE,
 } from '../../FleetClustersTab.constants';
@@ -38,11 +39,21 @@ import {
   compareVersionLists,
   describeRoles,
   environmentLabel,
-  typeLabel,
 } from '../../FleetClustersTab.utils';
+import { ClusterHealthCell } from '../cluster-health-cell';
+import { ClusterTypeCell } from '../cluster-type-cell';
 import { ClusterVersionCell } from '../cluster-version-cell';
+import { ThresholdValue } from '../threshold-value';
+import { UpdateAvailableChip } from '../update-available-chip';
 
-const { columns, columnTooltips } = Messages;
+const { columns, columnTooltips, thresholds } = Messages;
+
+/** A header with its definition on hover. */
+const withTooltip = (label: string, tooltip: string) => () => (
+  <Tooltip title={tooltip}>
+    <span>{label}</span>
+  </Tooltip>
+);
 
 export const DEFAULT_COLUMN: Partial<MRT_ColumnDef<OmClusterRow>> = {
   enableGlobalFilter: false,
@@ -59,75 +70,126 @@ export const DEFAULT_COLUMN: Partial<MRT_ColumnDef<OmClusterRow>> = {
     }) ?? (cell.renderValue() as ReactNode),
 };
 
+/** In the design's order; the last four are in the chooser, hidden at first. */
 export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
-  {
-    accessorFn: GROUP_VALUE.env_name,
-    id: 'env_name',
-    header: columns.environment,
-    size: 160,
-    filterFn: anyOf((row) => row.env_name || UNNAMED_ENVIRONMENT_VALUE),
-    Cell: ({ row: { original } }) => environmentLabel(original),
-  },
   {
     accessorKey: 'cluster_name',
     header: columns.cluster,
     size: 200,
     // The only column the search reads.
     enableGlobalFilter: true,
-    Cell: ({ row: { original } }) => (
-      <Stack
-        direction="row"
-        alignItems="baseline"
-        columnGap={1}
-        flexWrap="wrap"
-      >
-        {original.cluster_name ?? <Unavailable reason="not_applicable" />}
-        {typeLabel(original) && (
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            data-testid="om-cluster-type"
-          >
-            {typeLabel(original)}
-          </Typography>
-        )}
-      </Stack>
-    ),
+    // Plain text until it has somewhere to lead: <ClusterNameLink />, PMM-15879.
+    Cell: ({ row: { original } }) =>
+      original.cluster_name ?? <Unavailable reason="not_applicable" />,
   },
   {
+    // The raw type, which sorts as its label does.
     accessorFn: GROUP_VALUE.type,
     id: 'type',
     header: columns.type,
-    size: 120,
+    size: 150,
     filterFn: anyOf((row) => TYPE_FILTER_VALUE[row.type]),
-    Cell: ({ row: { original } }) =>
-      typeLabel(original) ?? <Unavailable reason="not_applicable" />,
+    Cell: ({ row: { original } }) => <ClusterTypeCell cluster={original} />,
   },
   {
     accessorKey: 'health',
     header: columns.health,
-    size: 130,
+    size: 200,
     filterFn: anyOf((row) => row.health),
     // Worst first ascending
     sortingFn: (a, b, columnId) =>
       clusterHealthRank(a.getValue<OmClusterHealth>(columnId)) -
       clusterHealthRank(b.getValue<OmClusterHealth>(columnId)),
-    Cell: ({ row: { original } }) => (
-      <ClusterHealthBadge health={original.health} />
-    ),
+    Cell: ({ row: { original } }) => <ClusterHealthCell cluster={original} />,
   },
   {
     accessorFn: (row) => row.up_services,
     id: 'members',
     header: columns.members,
-    size: 120,
-    Header: () => (
-      <Tooltip title={columnTooltips.members}>
-        <span>{columns.members}</span>
-      </Tooltip>
-    ),
+    size: 110,
+    Header: withTooltip(columns.members, columnTooltips.members),
     Cell: ({ row: { original } }) =>
       `${original.up_services}/${original.total_services}`,
+  },
+  {
+    accessorFn: GROUP_VALUE.versions,
+    id: 'versions',
+    header: columns.versions,
+    size: 160,
+    filterFn: anyOfIncludes((row) => row.versions),
+    // As versions, not strings: 7.0.9-1 is older than 7.0.24-13.
+    // A cluster with no version known goes after the rest.
+    sortingFn: ({ original: a }, { original: b }) =>
+      Number(!a.versions.length) - Number(!b.versions.length) ||
+      compareVersionLists(a.versions, b.versions),
+    Cell: ({ row: { original } }) => (
+      <Stack direction="row" alignItems="center" gap={1}>
+        <ClusterVersionCell cluster={original} />
+        <UpdateAvailableChip available={false} />
+      </Stack>
+    ),
+  },
+  {
+    accessorKey: 'max_replication_lag_seconds',
+    header: columns.maxReplicationLag,
+    size: 130,
+    Header: withTooltip(
+      columns.maxReplicationLag,
+      columnTooltips.maxReplicationLag
+    ),
+    Cell: ({ row: { original } }) => {
+      const seconds = original.max_replication_lag_seconds;
+      return (
+        <ThresholdValue
+          seconds={seconds}
+          crossed={seconds != null && seconds >= LAG_ALERT_SECONDS}
+          level="error"
+          reason={thresholds.lagAbove(formatCompactDuration(LAG_ALERT_SECONDS))}
+        />
+      );
+    },
+  },
+  {
+    accessorKey: 'min_oplog_window_seconds',
+    header: columns.minOplogWindow,
+    size: 130,
+    Header: withTooltip(columns.minOplogWindow, columnTooltips.minOplogWindow),
+    Cell: ({ row: { original } }) => {
+      const seconds = original.min_oplog_window_seconds;
+      return (
+        <ThresholdValue
+          seconds={seconds}
+          crossed={seconds != null && seconds < OPLOG_WARN_SECONDS}
+          level="warning"
+          reason={thresholds.oplogBelow(
+            formatCompactDuration(OPLOG_WARN_SECONDS)
+          )}
+        />
+      );
+    },
+  },
+  {
+    accessorFn: GROUP_VALUE.env_name,
+    id: 'env_name',
+    header: columns.environment,
+    size: 150,
+    filterFn: anyOf((row) => row.env_name || UNNAMED_ENVIRONMENT_VALUE),
+    Cell: ({ row: { original } }) => environmentLabel(original),
+  },
+  {
+    accessorFn: (row) =>
+      row.last_seen_at ? Date.parse(row.last_seen_at) : undefined,
+    id: 'last_seen_at',
+    header: columns.lastSeen,
+    size: 110,
+    sortUndefined: 'last',
+    Header: withTooltip(columns.lastSeen, columnTooltips.lastSeen),
+    Cell: ({ row: { original } }) =>
+      original.last_seen_at ? (
+        <Age value={original.last_seen_at} />
+      ) : (
+        <Unavailable reason="service_not_observed" />
+      ),
   },
   { accessorKey: 'total_services', header: columns.services, size: 100 },
   {
@@ -135,54 +197,6 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     id: 'roles',
     header: columns.process,
     size: 130,
-  },
-  {
-    accessorFn: GROUP_VALUE.versions,
-    id: 'versions',
-    header: columns.versions,
-    size: 130,
-    filterFn: anyOfIncludes((row) => row.versions),
-    // As versions, not strings: 7.0.9-1 is older than 7.0.24-13.
-    // A cluster with no version known goes after the rest.
-    sortingFn: ({ original: a }, { original: b }) =>
-      Number(!a.versions.length) - Number(!b.versions.length) ||
-      compareVersionLists(a.versions, b.versions),
-    Cell: ({ row: { original } }) => <ClusterVersionCell cluster={original} />,
-  },
-  {
-    accessorKey: 'max_replication_lag_seconds',
-    header: columns.maxReplicationLag,
-    size: 130,
-    Cell: ({ row: { original } }) => (
-      <Duration value={original.max_replication_lag_seconds} />
-    ),
-  },
-  {
-    accessorKey: 'min_oplog_window_seconds',
-    header: columns.minOplogWindow,
-    size: 150,
-    Cell: ({ row: { original } }) => (
-      <Duration value={original.min_oplog_window_seconds} />
-    ),
-  },
-  {
-    accessorFn: (row) =>
-      row.last_seen_at ? Date.parse(row.last_seen_at) : undefined,
-    id: 'last_seen_at',
-    header: columns.lastSeen,
-    size: 120,
-    sortUndefined: 'last',
-    Header: () => (
-      <Tooltip title={columnTooltips.lastSeen}>
-        <span>{columns.lastSeen}</span>
-      </Tooltip>
-    ),
-    Cell: ({ row: { original } }) =>
-      original.last_seen_at ? (
-        <Age value={original.last_seen_at} />
-      ) : (
-        <Unavailable reason="service_not_observed" />
-      ),
   },
   {
     accessorFn: (row) => row.max_cpu_percent ?? undefined,
@@ -203,10 +217,9 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     header: columns.minConnectionsFree,
     size: 140,
     sortUndefined: 'last',
-    Header: () => (
-      <Tooltip title={columnTooltips.minConnectionsFree}>
-        <span>{columns.minConnectionsFree}</span>
-      </Tooltip>
+    Header: withTooltip(
+      columns.minConnectionsFree,
+      columnTooltips.minConnectionsFree
     ),
     Cell: ({ row: { original } }) =>
       original.min_connections_free_percent == null ? (

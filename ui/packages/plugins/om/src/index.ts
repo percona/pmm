@@ -21,11 +21,8 @@ export { FleetPage } from './FleetPage';
 export { NodesPage } from './NodesPage';
 export { AutomationsPage } from './AutomationsPage';
 export { SettingsPage } from './SettingsPage';
-export {
-  StatusBadge,
-  RunStatusBadge,
-  ClusterHealthBadge,
-} from './components/HealthBadge';
+export { StatusBadge, RunStatusBadge } from './components/HealthBadge';
+export { ClusterHealthBadge } from './fleet-clusters-tab/components/cluster-health-badge';
 export { Duration, Percent } from './components/Metric';
 export { RunEntities } from './components/RunEntities';
 export { ProbeValue } from './components/ProbeValue';

@@ -59,12 +59,15 @@ export const TYPE_GROUP_ORDER: OmClusterType[] = [
 export const HIDDEN_BY_DEFAULT: MRT_VisibilityState = {
   total_services: false,
   roles: false,
-  versions: false,
-  type: false,
-  last_seen_at: false,
   max_cpu_percent: false,
   min_connections_free_percent: false,
 };
+
+/** Replication lag at or above this reads as an error; to confirm with design. */
+export const LAG_ALERT_SECONDS = 30;
+
+/** An oplog window below this reads as a warning; to confirm with design. */
+export const OPLOG_WARN_SECONDS = 60 * 60;
 
 /** Worst first, the order the health filter offers them in. */
 export const HEALTH_FILTER_VALUES: OmClusterHealth[] = [

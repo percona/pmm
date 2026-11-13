@@ -1043,7 +1043,7 @@ describe('FleetClustersTab', () => {
         row.textContent?.includes(name)
       ) as HTMLElement;
 
-    it('labels each cluster with its type beside its name', () => {
+    it("shows each cluster's type in its own column", () => {
       renderPage();
 
       expect(
@@ -1054,21 +1054,30 @@ describe('FleetClustersTab', () => {
       ).toHaveTextContent('Replica set');
     });
 
-    it('keeps Type, Last seen, Max CPU and Min conn. free in the chooser', () => {
+    it("opens in the design's column order, CPU and free connections in the chooser", () => {
       renderPage();
 
-      for (const name of ['Type', 'Last seen', 'Max CPU', 'Min conn. free']) {
-        expect(
-          screen.queryByRole('columnheader', { name: new RegExp(`^${name}`) })
-        ).toBeNull();
-      }
+      expect(
+        screen
+          .getAllByRole('columnheader')
+          // Less the sort-order badge MRT appends to a sortable header.
+          .map((header) => header.textContent?.replace(/\d+$/, ''))
+          .filter(Boolean)
+      ).toEqual([
+        'Cluster name',
+        'Type',
+        'Health',
+        'Members',
+        'Version',
+        'Max repl. lag',
+        'Oplog window',
+        'Environment',
+        'Last seen',
+      ]);
 
-      showColumn('Type');
-      showColumn('Last seen');
       showColumn('Max CPU');
       showColumn('Min conn. free');
 
-      // The cell, not the label beside the name, which says the same.
       const typeColumn = screen
         .getAllByRole('columnheader')
         .findIndex((header) => header.textContent?.startsWith('Type'));
@@ -1092,7 +1101,6 @@ describe('FleetClustersTab', () => {
 
     it('reads drift as Mixed, listing each set and its versions', async () => {
       renderPage();
-      showColumn('Versions');
 
       fireEvent.mouseOver(within(rowOf('orders')).getByText('Mixed'));
 
@@ -1122,12 +1130,11 @@ describe('FleetClustersTab', () => {
         isError: false,
       });
       renderPage();
-      showColumn('Versions');
 
       fireEvent.click(
         within(
-          screen.getByRole('columnheader', { name: /^Versions/ })
-        ).getByText('Versions')
+          screen.getByRole('columnheader', { name: /^Version/ })
+        ).getByText('Version')
       );
 
       expect(
@@ -1135,6 +1142,78 @@ describe('FleetClustersTab', () => {
           row.textContent?.includes('older') ? 'older' : 'newer'
         )
       ).toEqual(['older', 'newer']);
+    });
+  });
+
+  describe('health reasons and threshold cues (PMM-15878)', () => {
+    beforeEach(() => {
+      useOmTopology.mockReturnValue({
+        data: topology([
+          {
+            env_name: 'production',
+            clusters: [
+              cluster({
+                name: 'lagging',
+                services: [
+                  service({
+                    service_name: 'lagging-1',
+                    replication_lag_seconds: 47,
+                    oplog_window_seconds: 52 * 60,
+                  }),
+                  service({ service_name: 'lagging-2', ...down }),
+                ],
+              }),
+              cluster({
+                name: 'calm',
+                services: [
+                  service({
+                    service_name: 'calm-1',
+                    replication_lag_seconds: 2,
+                    oplog_window_seconds: 9 * 60 * 60,
+                  }),
+                ],
+              }),
+            ],
+          },
+        ]),
+        isPending: false,
+        isError: false,
+      });
+    });
+
+    const rowNamed = (name: string) =>
+      clusterRows().find((row) =>
+        row.textContent?.includes(name)
+      ) as HTMLElement;
+
+    it('says under the badge which member is down', () => {
+      renderPage();
+
+      expect(
+        within(rowNamed('lagging')).getByTestId('om-cluster-health-reason')
+      ).toHaveTextContent('lagging-2 down');
+      expect(
+        within(rowNamed('calm')).queryByTestId('om-cluster-health-reason')
+      ).toBeNull();
+    });
+
+    it('marks lag over 30s and an oplog window under 1h with an icon and a tooltip', async () => {
+      renderPage();
+
+      const lag = within(rowNamed('lagging')).getByTestId('om-threshold-error');
+      expect(lag).toHaveTextContent('47s');
+      expect(lag.querySelector('svg')).not.toBeNull();
+      expect(
+        within(rowNamed('lagging')).getByTestId('om-threshold-warning')
+      ).toHaveTextContent('52m');
+      expect(
+        within(rowNamed('calm')).queryByTestId(/om-threshold-/)
+      ).toBeNull();
+
+      fireEvent.mouseOver(lag);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        'Above 30s, the alert threshold'
+      );
     });
   });
 });
