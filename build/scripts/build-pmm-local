@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# Builds a pmm-server docker image from source, without the Jenkins or S3 build cache.
+# Requires a Linux host (x86_64 or aarch64) with git and docker.
+#
+# Environment:
+#   GIT_BRANCH  pmm-submodules branch to build (default: v3)
+#   WORKSPACE   directory to clone pmm-submodules into and build in (default: ./pmm-workspace).
+#               On re-runs, the existing clone is updated to the latest commit of GIT_BRANCH.
+#   DOCKER_TAG  resulting image tag (default: pmm-server:local)
+#
+# The output of each run is also written to ${WORKSPACE}/build.log.
+
+set -euo pipefail
+
+if [ "$(uname -s)" != "Linux" ]; then
+    echo "build-pmm-local requires a Linux host" >&2
+    exit 1
+fi
+
+case "$(uname -m)" in
+    x86_64)  export GOARCH=amd64 ;;
+    aarch64) export GOARCH=arm64 ;;
+    *)       echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+esac
+
+declare WORKSPACE="${WORKSPACE:-$(pwd)/pmm-workspace}"
+mkdir -p "${WORKSPACE}"
+# Make WORKSPACE absolute: the build scripts run from inside it
+WORKSPACE="$(cd "${WORKSPACE}" && pwd)"
+
+echo -n > "${WORKSPACE}/build.log"
+exec >  >(tee -a "${WORKSPACE}/build.log")
+exec 2> >(tee -a "${WORKSPACE}/build.log" >&2)
+
+declare GIT_BRANCH="${GIT_BRANCH:-v3}"
+declare SCRIPTS="${WORKSPACE}/sources/pmm/src/github.com/percona/pmm/build/scripts"
+export DOCKER_TAG="${DOCKER_TAG:-pmm-server:local}"
+export DOCKERFILE="Dockerfile.el9"
+export ROOT_DIR="${WORKSPACE}"  # override the build scripts relative-path-walking
+export FORCE_REBUILD=1          # build every server component from source, also with build scripts older than NO_S3_CACHE
+export NO_S3_CACHE=1            # don't download from or upload to the S3 build cache
+# Build scripts older than NO_S3_CACHE still upload to S3, so run the build without AWS credentials
+unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_PROFILE
+export AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null AWS_EC2_METADATA_DISABLED=true
+
+# git clone refuses a non-empty directory, and the workspace already holds build.log
+if [ ! -d "${WORKSPACE}/.git" ]; then
+    git -C "${WORKSPACE}" init -q -b "${GIT_BRANCH}"
+    git -C "${WORKSPACE}" remote add origin https://github.com/Percona-Lab/pmm-submodules
+elif [[ "$(git -C "${WORKSPACE}" config --get remote.origin.url)" != *pmm-submodules* ]]; then
+    echo "${WORKSPACE} is not a pmm-submodules clone, use a new directory for WORKSPACE" >&2
+    exit 1
+fi
+
+echo "Fetching pmm-submodules (${GIT_BRANCH}) into ${WORKSPACE}"
+git -C "${WORKSPACE}" fetch origin "${GIT_BRANCH}"
+git -C "${WORKSPACE}" checkout -B "${GIT_BRANCH}" FETCH_HEAD
+
+cd "${WORKSPACE}"
+
+echo "Initializing submodules"
+git submodule update --init --jobs 10
+
+# Output of a previous run may come from other commits, which the build scripts don't expect.
+# Remove it as root in the build container: a failed build leaves it owned by the container's user.
+docker run --rm -v "${WORKSPACE}:/workspace" "${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:3}" \
+    sudo rm -rf /workspace/tmp /workspace/results
+
+echo "[1/4] Building pmm-client source tarball"
+"${SCRIPTS}/build-client-source"
+
+echo "[2/4] Building pmm-client binary tarball"
+"${SCRIPTS}/build-client-binary"
+
+echo "[3/4] Building server components"
+"${SCRIPTS}/build-server-binaries"
+
+echo "[4/4] Building pmm-server Docker image: ${DOCKER_TAG}"
+"${SCRIPTS}/build-server-docker"
+
+echo
+echo "Image: ${DOCKER_TAG}"
