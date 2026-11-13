@@ -56,6 +56,7 @@ const (
 
 // matrixChecks maps each tool to its checks; the matrix runs every entry and the keys must equal tools/list.
 var matrixChecks = map[string]func(*matrixRun, *testing.T){
+	"pmm_alerts":         (*matrixRun).alerts,
 	"pmm_catalog":        (*matrixRun).catalog,
 	"pmm_get_config":     (*matrixRun).config,
 	"pmm_get_explain":    (*matrixRun).explain,
@@ -124,6 +125,8 @@ type matrixFixture struct {
 	queryIDs map[string]string
 	// catalogs are the package admin's catalog results by call.
 	catalogs map[string]any
+	// alerts are the rules whose alerts the pmm_alerts checks look for.
+	alerts matrixAlerts
 }
 
 // toolResponse is a tool result in the shapes the checks need.
@@ -303,6 +306,7 @@ func inventoryStatus(t *testing.T, authorization string) int {
 type inventoryRow struct {
 	ServiceID   string `json:"service_id"`
 	ServiceName string `json:"service_name"`
+	Engine      string `json:"engine"`
 	NodeName    string `json:"node_name"`
 }
 
@@ -313,8 +317,8 @@ type inventoryOutput struct {
 	} `json:"page"`
 }
 
-// newMatrixFixture reads the services and the queryids as the package's admin.
-func newMatrixFixture(t *testing.T) *matrixFixture {
+// newMatrixFixture reads the services and the queryids as the package's admin, and creates the rules of the pmm_alerts checks.
+func newMatrixFixture(t *testing.T, suffix int64) *matrixFixture {
 	t.Helper()
 
 	admin := &caller{session: connectWith(t, adminAuthorization())}
@@ -398,6 +402,7 @@ func newMatrixFixture(t *testing.T) *matrixFixture {
 		f.catalogs[key] = res.structured
 	}
 
+	f.alerts = createMatrixAlerts(t, suffix)
 	return f
 }
 
@@ -420,8 +425,8 @@ func TestAccessRoleMatrix(t *testing.T) {
 		assert.Equal(t, slices.Sorted(maps.Keys(matrixChecks)), sortedUnique(names), "tools/list and the matrix differ: cover the new tool in TestAccessRoleMatrix")
 	})
 
-	f := newMatrixFixture(t)
 	suffix := time.Now().UnixNano()
+	f := newMatrixFixture(t, suffix)
 	oneFilter := `{service_name="mysql-a"}`
 
 	setups := []accessSetup{
@@ -577,6 +582,36 @@ func (m *matrixRun) version(t *testing.T) {
 	res := m.call(t, "pmm_version", nil)
 	res.requireOK(t)
 	assert.True(t, strings.HasPrefix(res.text, "PMM Server 3."), res.text)
+}
+
+// alerts checks that the fixture's server-level alert is shown, that the alert of mysql-a and of mysql-b is shown when the service is
+// allowed and not when it is hidden, that no alert names a hidden service, and that a hidden service as a filter answers the 7-day not_found.
+func (m *matrixRun) alerts(t *testing.T) {
+	t.Helper()
+
+	var out alertsOutput
+	res := m.call(t, "pmm_alerts", map[string]any{"limit": alertsMaxLimit})
+	res.requireOK(t)
+	res.decode(t, &out)
+	assert.False(t, out.Page.Truncated, "the alerts do not fit on one page")
+	assert.Len(t, out.ofRule(m.f.alerts.server), 1, "an alert that names no service or node is shown")
+	ofServices := labelValues(out.ofRule(m.f.alerts.services), "service_name")
+	for _, name := range []string{"mysql-a", "mysql-b"} {
+		if m.isAllowed(name) {
+			assert.Contains(t, ofServices, name, "the alert of a service in the caller's list")
+		} else {
+			assert.NotContains(t, ofServices, name, "the alert of a hidden service")
+		}
+	}
+	for _, a := range out.Alerts {
+		assert.NotContains(t, m.hidden, a.Labels["service_name"], "alert %s", a.Name)
+		assert.NotContains(t, m.hiddenIDs, a.Labels["service_id"], "alert %s", a.Name)
+	}
+
+	for _, name := range intersection(m.hidden, "mysql-b", "pg-b") {
+		res := m.call(t, "pmm_alerts", map[string]any{"service_name": name})
+		res.requireNotInList(t, "", alertListLookback)
+	}
 }
 
 func (m *matrixRun) catalog(t *testing.T) {

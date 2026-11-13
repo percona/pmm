@@ -54,6 +54,7 @@ func TestNoCredentialsInLogs(t *testing.T) {
 	// there; pmm_catalog has no backing call and refuses the invalid kind.
 	calls := map[string][]map[string]any{
 		"pmm_version":      {nil},
+		"pmm_alerts":       {nil},
 		"pmm_inventory":    {nil},
 		"pmm_top_queries":  {nil},
 		"pmm_query_detail": {{"queryid": "QID-AAA"}},

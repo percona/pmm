@@ -59,6 +59,9 @@ const (
 	// Bound of any datasource-proxy response read into memory.
 	maxVMResponseBytes = 4 << 20
 
+	// Bound of any response of Grafana's alerting APIs read into memory.
+	maxAlertingResponseBytes = 16 << 20
+
 	// VictoriaMetrics' default -search.maxConcurrentRequests is vmRequestsPerCPU per CPU, at most maxVMDefaultRequests.
 	vmRequestsPerCPU     = 2
 	maxVMDefaultRequests = 16
@@ -551,6 +554,73 @@ func listValues(match []string, start, end time.Time, limit int) url.Values {
 	return v
 }
 
+// Alerts returns the firing alerts of the rules Grafana's rules API returns to the caller, which follows the caller's folder permissions.
+func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, error) {
+	var resp struct {
+		Status string `json:"status"`
+		Data   struct {
+			Groups []struct {
+				Rules []struct {
+					UID        string `json:"uid"`
+					Provenance string `json:"provenance"`
+					Alerts     []struct {
+						Labels      map[string]string `json:"labels"`
+						Annotations map[string]string `json:"annotations"`
+						State       string            `json:"state"`
+						ActiveAt    *time.Time        `json:"activeAt"`
+					} `json:"alerts"`
+				} `json:"rules"`
+			} `json:"groups"`
+		} `json:"data"`
+	}
+	err := c.getAlertingJSON(ctx, auth, "graph/api/prometheus/grafana/api/v1/rules", url.Values{"state": {"firing"}}, &resp)
+	if err != nil {
+		return nil, err
+	}
+	if resp.Status != "success" {
+		return nil, newToolError(codePMMUnavailable, "alert rules request failed with status '%s'", resp.Status)
+	}
+
+	var out []grafanaAlert
+	for _, group := range resp.Data.Groups {
+		for _, rule := range group.Rules {
+			pmmRule := isPMMRule(rule.Provenance, rule.UID)
+			for _, a := range rule.Alerts {
+				// A firing alert's state is Alerting, or Alerting with a reason, such as "Alerting (NoData)".
+				if a.State != "Alerting" && !strings.HasPrefix(a.State, "Alerting (") {
+					continue
+				}
+				alert := grafanaAlert{RuleUID: rule.UID, PMMRule: pmmRule, Labels: a.Labels, Annotations: a.Annotations}
+				if a.ActiveAt != nil {
+					alert.StartsAt = a.ActiveAt.UTC()
+				}
+				out = append(out, alert)
+			}
+		}
+	}
+	return out, nil
+}
+
+// SilencedAlerts returns the Alertmanager's alerts that are not active: silenced, inhibited or not yet processed.
+func (c *client) SilencedAlerts(ctx context.Context, auth callerAuth) ([]amAlert, error) {
+	var out []amAlert
+	err := c.getAlertingJSON(ctx, auth, "graph/api/alertmanager/grafana/api/v2/alerts", url.Values{"active": {"false"}}, &out)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Silences returns the Alertmanager's silences.
+func (c *client) Silences(ctx context.Context, auth callerAuth) ([]amSilence, error) {
+	var out []amSilence
+	err := c.getAlertingJSON(ctx, auth, "graph/api/alertmanager/grafana/api/v2/silences", nil, &out)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // parseSampleValue reads a Prometheus sample value, a JSON string that may be NaN or Inf.
 func parseSampleValue(raw json.RawMessage) (float64, bool) {
 	var s string
@@ -583,6 +653,15 @@ func (c *client) getVM(ctx context.Context, auth callerAuth, uid, endpoint strin
 // decodes the JSON response.
 func (c *client) getJSON(ctx context.Context, auth callerAuth, path string, query url.Values, out any) error {
 	return c.doJSON(ctx, auth, http.MethodGet, path, query, nil, out)
+}
+
+// getAlertingJSON is getJSON for Grafana's alerting APIs, of which it reads at most maxAlertingResponseBytes.
+func (c *client) getAlertingJSON(ctx context.Context, auth callerAuth, path string, query url.Values, out any) error {
+	err := c.doJSONLimited(ctx, auth, http.MethodGet, path, query, nil, out, maxAlertingResponseBytes)
+	if errors.Is(err, errResponseTooLarge) {
+		return newToolError(codePMMUnavailable, "Grafana's response to GET /%s is larger than the 16 MiB limit; open PMM's Alerting page to see the alerts", path)
+	}
+	return err
 }
 
 // postJSON performs an authenticated POST with a JSON body and decodes the response.

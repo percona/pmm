@@ -1,5 +1,147 @@
 [
   {
+    "name": "pmm_alerts",
+    "description": "List the alerts firing now in PMM's alerting, from the alert rules your Grafana folder permissions let you read. Currently firing alerts only; resolved alerts are not shown. The list holds the alerts of the services and nodes in your service list (those whose up series you can read and that sent metrics in the last 7 days), the alerts that name no service or node, and PMM Server's own alerts. Each alert has its severity, labels, summary, description, start time, whether a silence mutes it and until when, and a link to its rule in PMM; the most severe and newest come first. Filter by service_id, service_name, node_name or severity. Read only: it does not silence or acknowledge alerts.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "description": "Maximum alerts to return; default 50, maximum 200",
+          "type": "integer"
+        },
+        "node_name": {
+          "description": "Keep the alerts whose node_name label is this node name",
+          "type": "string"
+        },
+        "offset": {
+          "description": "Number of alerts to skip, for the next page",
+          "type": "integer"
+        },
+        "service_id": {
+          "description": "Keep the alerts whose service_id label is this service id",
+          "type": "string"
+        },
+        "service_name": {
+          "description": "Keep the alerts whose service_name label is this service name",
+          "type": "string"
+        },
+        "severity": {
+          "description": "Keep the alerts of this severity, such as critical, error or warning; case-insensitive",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "alerts": {
+          "description": "Firing alerts on this page.",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "description": "Untrusted. The alert's description annotation.",
+                "type": "string"
+              },
+              "labels": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Untrusted. The alert's labels, without Grafana's internal labels that start with __.",
+                "type": "object"
+              },
+              "name": {
+                "description": "Untrusted. The alert rule's title.",
+                "type": "string"
+              },
+              "pmm_url": {
+                "description": "Link to the alert's rule in PMM.",
+                "type": "string"
+              },
+              "severity": {
+                "description": "Untrusted. The alert's severity label, left out when it has none.",
+                "type": "string"
+              },
+              "silenced": {
+                "description": "True when a silence mutes the alert's notifications.",
+                "type": "boolean"
+              },
+              "silenced_until": {
+                "description": "When the latest of the silences that mute the alert ends.",
+                "type": [
+                  "null",
+                  "string"
+                ]
+              },
+              "starts_at": {
+                "description": "When the alert started firing.",
+                "type": "string"
+              },
+              "summary": {
+                "description": "Untrusted. The alert's summary annotation.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "starts_at",
+              "silenced",
+              "pmm_url"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "note": {
+          "description": "What the list covers.",
+          "type": "string"
+        },
+        "page": {
+          "additionalProperties": false,
+          "description": "Paging of the full list.",
+          "properties": {
+            "limit": {
+              "type": "integer"
+            },
+            "offset": {
+              "type": "integer"
+            },
+            "total": {
+              "type": "integer"
+            },
+            "truncated": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "total",
+            "offset",
+            "limit",
+            "truncated"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "alerts",
+        "page",
+        "note"
+      ],
+      "type": "object"
+    },
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Firing alerts"
+    }
+  },
+  {
     "name": "pmm_catalog",
     "description": "List the names a PMM tool accepts. kind qan_columns lists the QAN metrics that pmm_top_queries takes in columns and order_by, with the engine each belongs to (none for a metric every engine has) and whether QAN reports it as a sum or a per-call average; engine keeps one engine's entries plus the all-engine ones. kind metrics lists the PMM metrics for mysql, postgresql, mongodb and node, each with its meaning, unit, type (counter or gauge), labels and a ready MetricsQL query to run with pmm_query_metrics after replacing <service> (or <node>); engine keeps one engine's metrics.",
     "inputSchema": {

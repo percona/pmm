@@ -1,0 +1,109 @@
+[
+  {
+    "comment": "Maintenance of shop-a",
+    "createdBy": "admin",
+    "endsAt": "2026-09-15T08:00:00.000Z",
+    "id": "5f1c2b7e-0000-4000-8000-000000000001",
+    "matchers": [
+      {
+        "isEqual": true,
+        "isRegex": false,
+        "name": "__alert_rule_uid__",
+        "value": "conn"
+      },
+      {
+        "isEqual": true,
+        "isRegex": false,
+        "name": "service_name",
+        "value": "shop-a"
+      }
+    ],
+    "startsAt": "2026-09-14T10:05:00.000Z",
+    "status": {
+      "state": "active"
+    },
+    "updatedAt": "2026-09-14T10:05:00.000Z"
+  },
+  {
+    "comment": "Connection and vector rules in the Alerts folder",
+    "createdBy": "admin",
+    "endsAt": "2026-09-14T18:00:00.000Z",
+    "id": "5f1c2b7e-0000-4000-8000-000000000002",
+    "matchers": [
+      {
+        "isEqual": true,
+        "isRegex": false,
+        "name": "grafana_folder",
+        "value": "Alerts"
+      },
+      {
+        "isEqual": true,
+        "isRegex": true,
+        "name": "template_name",
+        "value": "vector_one|pmm_mysql_too_many_connections"
+      }
+    ],
+    "startsAt": "2026-09-14T07:00:00.000Z",
+    "status": {
+      "state": "active"
+    },
+    "updatedAt": "2026-09-14T07:00:00.000Z"
+  },
+  {
+    "comment": "Rules elsewhere",
+    "createdBy": "admin",
+    "endsAt": "2026-09-21T00:00:00.000Z",
+    "id": "5f1c2b7e-0000-4000-8000-000000000003",
+    "matchers": [
+      {
+        "isEqual": true,
+        "isRegex": true,
+        "name": "__alert_rule_uid__",
+        "value": "conn-elsewhere|hidden-rule"
+      }
+    ],
+    "startsAt": "2026-09-14T07:00:00.000Z",
+    "status": {
+      "state": "active"
+    },
+    "updatedAt": "2026-09-14T07:00:00.000Z"
+  },
+  {
+    "comment": "Team db",
+    "createdBy": "admin",
+    "endsAt": "2026-09-22T00:00:00.000Z",
+    "id": "5f1c2b7e-0000-4000-8000-000000000005",
+    "matchers": [
+      {
+        "isEqual": true,
+        "isRegex": false,
+        "name": "team",
+        "value": "db"
+      }
+    ],
+    "startsAt": "2026-09-14T07:00:00.000Z",
+    "status": {
+      "state": "active"
+    },
+    "updatedAt": "2026-09-14T07:00:00.000Z"
+  },
+  {
+    "comment": "Old maintenance",
+    "createdBy": "admin",
+    "endsAt": "2026-09-10T00:00:00.000Z",
+    "id": "5f1c2b7e-0000-4000-8000-000000000004",
+    "matchers": [
+      {
+        "isEqual": true,
+        "isRegex": false,
+        "name": "service_name",
+        "value": "shop-a"
+      }
+    ],
+    "startsAt": "2026-09-09T00:00:00.000Z",
+    "status": {
+      "state": "expired"
+    },
+    "updatedAt": "2026-09-10T00:00:00.000Z"
+  }
+]
