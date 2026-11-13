@@ -42,6 +42,7 @@ import {
   useAtwSendJob,
   useStartSendJob,
 } from './hooks';
+import { scriptLabeler } from './scriptLabels';
 import type { AtwCaseMatch, AtwSendLogExecution } from './types';
 
 /** Shown once a search has answered for the typed term and matched nothing. */
@@ -82,6 +83,12 @@ export function SendDialog({
 }: SendDialogProps) {
   const [caseRef, setCaseRef] = useState(defaultCaseRef ?? '');
   const [jobId, setJobId] = useState<string | null>(null);
+  const label = scriptLabeler(
+    executions.map((execution) => ({
+      title: execution.snippet_title,
+      filename: execution.snippet_filename,
+    }))
+  );
 
   const { data: config } = useAtwConfig();
   const debouncedCaseRef = useDebouncedValue(caseRef.trim());
@@ -230,8 +237,11 @@ export function SendDialog({
               {executions.map((execution) => (
                 <ListItem key={execution.id} disableGutters>
                   <ListItemText
-                    primary={execution.snippet_filename}
-                    secondary={`Task #${execution.task_history_id}`}
+                    primary={label(
+                      execution.snippet_title,
+                      execution.snippet_filename
+                    )}
+                    secondary={`Run #${execution.task_history_id}`}
                   />
                 </ListItem>
               ))}
