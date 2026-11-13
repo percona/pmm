@@ -419,6 +419,10 @@ func (c *Channel) runReceiver() {
 			req = &ServerRequest{ID: msg.Id, Payload: p.AgentLogs}
 		case *agentv1.ServerMessage_ServiceInfo:
 			req = &ServerRequest{ID: msg.Id, Payload: p.ServiceInfo}
+		case *agentv1.ServerMessage_RunOperation:
+			req = &ServerRequest{ID: msg.Id, Payload: p.RunOperation}
+		case *agentv1.ServerMessage_ReadJobFile:
+			req = &ServerRequest{ID: msg.Id, Payload: p.ReadJobFile}
 
 		// responses
 		case *agentv1.ServerMessage_Pong:
@@ -429,6 +433,8 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.QanCollect)
 		case *agentv1.ServerMessage_ActionResult:
 			c.publish(msg.Id, msg.Status, p.ActionResult)
+		case *agentv1.ServerMessage_JobMessage:
+			c.publish(msg.Id, msg.Status, p.JobMessage)
 
 		default:
 			if msg.Status != nil && grpcstatus.FromProto(msg.Status).Code() == codes.Unimplemented {

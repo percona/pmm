@@ -185,6 +185,11 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 		}
 
 		switch result := result.Result.(type) {
+		case *agentv1.JobResult_RunScript_:
+			err = handleRunScriptResult(job, result.RunScript)
+			if err != nil {
+				return err
+			}
 		case *agentv1.JobResult_Error_:
 			err = s.handleJobError(job)
 			if err != nil {
@@ -338,6 +343,9 @@ func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result
 func (s *JobsService) handleJobError(job *models.Job) error {
 	var err error
 	switch job.Type {
+	case models.RunScriptJob:
+		// Nothing else hangs on a script run, and it is never retried.
+		return nil
 	case models.MySQLBackupJob:
 		_, err = models.UpdateArtifact(s.db.Querier, job.Data.MySQLBackup.ArtifactID, models.UpdateArtifactParams{
 			Status: models.ErrorBackupStatus.Pointer(),
@@ -383,7 +391,10 @@ func (s *JobsService) handleJobError(job *models.Job) error {
 func (s *JobsService) handleJobProgress(_ context.Context, progress *agentv1.JobProgress) {
 	switch result := progress.Result.(type) {
 	case *agentv1.JobProgress_Logs_:
-		err := createJobLog(s.db.Querier, progress.JobId, result.Logs.Data, int(result.Logs.ChunkId), result.Logs.Done)
+		_, err := s.db.Exec(
+			`INSERT INTO job_logs (job_id, chunk_id, data, last_chunk, stream) VALUES ($1, $2, $3, $4, $5)
+			ON CONFLICT (job_id, chunk_id) DO NOTHING`,
+			progress.JobId, int(result.Logs.ChunkId), result.Logs.Data, result.Logs.Done, int(result.Logs.Stream))
 		if err != nil {
 			s.l.WithError(err).Errorf("failed to create log for job %s [chunk: %d]", progress.JobId, result.Logs.ChunkId)
 		}

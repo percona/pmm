@@ -289,6 +289,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.ActionResult,
 			}
+		case *agentv1.AgentMessage_JobMessage:
+			c.requests <- &AgentRequest{
+				ID:      msg.Id,
+				Payload: p.JobMessage,
+			}
 
 		// simple messages
 		case *agentv1.AgentMessage_JobResult:
@@ -327,6 +332,10 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.AgentLogs)
 		case *agentv1.AgentMessage_ServiceInfo:
 			c.publish(msg.Id, msg.Status, p.ServiceInfo)
+		case *agentv1.AgentMessage_RunOperation:
+			c.publish(msg.Id, msg.Status, p.RunOperation)
+		case *agentv1.AgentMessage_ReadJobFile:
+			c.publish(msg.Id, msg.Status, p.ReadJobFile)
 
 		case nil:
 			c.cancel(msg.Id, fmt.Errorf("unimplemented: failed to handle received message %s", msg))

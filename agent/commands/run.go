@@ -33,6 +33,7 @@ import (
 	"github.com/percona/pmm/agent/connectionchecker"
 	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
+	"github.com/percona/pmm/agent/runner/jobs"
 	"github.com/percona/pmm/agent/serviceinfobroker"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/versioner"
@@ -71,6 +72,7 @@ func Run() {
 		supervisor := supervisor.NewSupervisor(ctx, v, configStorage)
 		connectionChecker := connectionchecker.New(configStorage)
 		serviceInfoBroker := serviceinfobroker.New(configStorage)
+		jobs.SweepRunDirs(cfg.Paths.TempDir)
 		r := runner.New(cfg.RunnerCapacity, cfg.RunnerMaxConnectionsPerService)
 		client := client.New(configStorage, supervisor, r, connectionChecker, v, serviceInfoBroker, prepareConnectionService(ctx, cfg), logStore)
 		localServer := agentlocal.NewServer(configStorage, supervisor, client, configFilepath, logStore)

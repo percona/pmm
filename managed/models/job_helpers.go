@@ -125,6 +125,7 @@ func (p CreateJobParams) Validate() error {
 	case MySQLRestoreBackupJob:
 	case MongoDBBackupJob:
 	case MongoDBRestoreBackupJob:
+	case RunScriptJob:
 	default:
 		return fmt.Errorf("unknown job type: %v", p.Type)
 	}

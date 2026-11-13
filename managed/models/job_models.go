@@ -33,6 +33,7 @@ const (
 	MySQLRestoreBackupJob   = JobType("mysql_restore_backup")
 	MongoDBBackupJob        = JobType("mongodb_backup")
 	MongoDBRestoreBackupJob = JobType("mongodb_restore_backup")
+	RunScriptJob            = JobType("run_script")
 )
 
 // MySQLBackupJobResult stores MySQL job specific result data.
@@ -47,8 +48,18 @@ type MongoDBBackupJobResult struct{}
 // MongoDBRestoreBackupJobResult stores MongoDB restore backup job specific result data.
 type MongoDBRestoreBackupJobResult struct{}
 
+// RunScriptJobResult stores the outcome of a run_script job.
+type RunScriptJobResult struct {
+	ExitCode           int32  `json:"exit_code"`
+	PrepareError       string `json:"prepare_error,omitempty"`
+	EndedBy            string `json:"ended_by,omitempty"`
+	LeftoverKilled     uint32 `json:"leftover_killed,omitempty"`
+	DroppedOutputBytes int64  `json:"dropped_output_bytes,omitempty"`
+}
+
 // JobResult holds result data for different job types.
 type JobResult struct {
+	RunScript            *RunScriptJobResult            `json:"run_script,omitempty"`
 	MySQLBackup          *MySQLBackupJobResult          `json:"mysql_backup,omitempty"`
 	MySQLRestoreBackup   *MySQLRestoreBackupJobResult   `json:"mysql_restore_backup,omitempty"`
 	MongoDBBackup        *MongoDBBackupJobResult        `json:"mongo_db_backup,omitempty"`
@@ -88,8 +99,21 @@ type MongoDBRestoreBackupJobData struct {
 	DataModel DataModel `json:"data_model"`
 }
 
+// RunScriptJobData stores what a run_script job was asked to run. It never holds the standard
+// input or the values of the environment.
+type RunScriptJobData struct {
+	NodeName    string   `json:"node_name,omitempty"`
+	URL         string   `json:"url"`
+	Checksum    string   `json:"checksum"`
+	Interpreter string   `json:"interpreter,omitempty"`
+	Args        []string `json:"args,omitempty"`
+	EnvNames    []string `json:"env_names,omitempty"`
+	RunAs       string   `json:"run_as,omitempty"`
+}
+
 // JobData contains data required for running a job.
 type JobData struct {
+	RunScript            *RunScriptJobData            `json:"run_script,omitempty"`
 	MySQLBackup          *MySQLBackupJobData          `json:"mysql_backup,omitempty"`
 	MySQLRestoreBackup   *MySQLRestoreBackupJobData   `json:"mysql_restore_backup,omitempty"`
 	MongoDBBackup        *MongoDBBackupJobData        `json:"mongodb_backup,omitempty"`

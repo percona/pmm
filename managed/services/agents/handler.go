@@ -96,6 +96,8 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 
 	h.state.RequestStateUpdate(ctx, agent.id)
 
+	go h.jobsService.reconcileRunScripts(ctx, agent)
+
 	for {
 		select {
 		// see unregister and Kick methods
@@ -166,6 +168,20 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 				agent.channel.Send(&channel.ServerResponse{
 					ID:      req.ID,
 					Payload: &agentv1.ActionResultResponse{},
+				})
+
+			case *agentv1.JobMessageRequest:
+				// Stored first, acknowledged second: an agent that sees no answer sends
+				// the same message again, and storing it twice changes nothing.
+				switch m := p.Message.(type) {
+				case *agentv1.JobMessageRequest_Progress:
+					h.jobsService.handleJobProgress(ctx, m.Progress)
+				case *agentv1.JobMessageRequest_Result:
+					h.jobsService.handleJobResult(ctx, l, m.Result)
+				}
+				agent.channel.Send(&channel.ServerResponse{
+					ID:      req.ID,
+					Payload: &agentv1.JobMessageResponse{},
 				})
 
 			case *agentv1.JobResult:

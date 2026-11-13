@@ -78,6 +78,9 @@ type configGetter interface {
 
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
+	// unackedJobMessage is the job message being delivered; see processJobsResults.
+	unackedJobMessage *agentv1.JobMessageRequest
+
 	cfg               configGetter
 	supervisor        supervisor
 	connectionChecker connectionChecker
@@ -400,9 +403,25 @@ func (c *Client) processActionResults(ctx context.Context) {
 
 func (c *Client) processJobsResults(ctx context.Context) {
 	for {
+		// A job message the server has not acknowledged goes first, on this connection or the
+		// next one, so the messages of a job reach the server in order and none is skipped.
+		if c.unackedJobMessage != nil {
+			resp, err := c.channel.SendAndWaitResponse(ctx, c.unackedJobMessage)
+			if err != nil || resp == nil {
+				c.l.Infof("A job message was not acknowledged; it will be sent again: %v.", err)
+				return
+			}
+			c.unackedJobMessage = nil
+			continue
+		}
+
 		select {
 		case message := <-c.runner.JobsMessages():
 			if message == nil {
+				continue
+			}
+			if acknowledged, ok := message.(*agentv1.JobMessageRequest); ok {
+				c.unackedJobMessage = acknowledged
 				continue
 			}
 			c.channel.Send(&channel.AgentResponse{
@@ -608,6 +627,21 @@ LOOP:
 			case *agentv1.JobStatusRequest:
 				alive := c.runner.IsRunning(p.JobId)
 				responsePayload = &agentv1.JobStatusResponse{Alive: alive}
+
+			case *agentv1.RunOperationRequest:
+				// Answered from a goroutine of its own: the loop handles one request at a
+				// time, and several short operations must be able to run at once.
+				go func(id uint32, ch *channel.Channel) {
+					ch.Send(&channel.AgentResponse{
+						ID:      id,
+						Payload: jobs.RunOperation(ctx, c.cfg.Get().Paths.TempDir, p),
+					})
+				}(req.ID, c.channel)
+				c.cus.RegisterConnectionStatus(time.Now(), true)
+				continue LOOP
+
+			case *agentv1.ReadJobFileRequest:
+				responsePayload = jobs.ReadJobFile(c.cfg.Get().Paths.TempDir, p)
 
 			case *agentv1.GetVersionsRequest:
 				responsePayload = &agentv1.GetVersionsResponse{Versions: c.handleVersionsRequest(p)}
@@ -896,6 +930,18 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
 			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dsn, locationConfig,
 			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name)
+	case *agentv1.StartJobRequest_RunScript_:
+		job = jobs.NewRunScriptJob(p.JobId, timeout, jobs.RunScriptParams{
+			Source:         j.RunScript.Source,
+			Args:           j.RunScript.Args,
+			Env:            j.RunScript.Env,
+			Stdin:          []byte(j.RunScript.Stdin),
+			MaxOutputBytes: j.RunScript.MaxOutputBytes,
+			KeepFilesFor:   j.RunScript.KeepFilesFor.AsDuration(),
+			RunAs:          j.RunScript.RunAs,
+			TempDir:        c.cfg.Get().Paths.TempDir,
+		})
+
 	default:
 		return fmt.Errorf("unknown job type: %T", j)
 	}

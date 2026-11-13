@@ -501,6 +501,79 @@ message JobStatusResponse {
   bool alive = 1;
 }
 
+// ScriptSource says where a script comes from and what it must hash to.
+message ScriptSource {
+  // HTTP or HTTPS address the script is fetched from.
+  string url = 1;
+  // Expected checksum as "<algorithm>:<hex>"; sha256 and md5 are accepted.
+  string checksum = 2;
+  // Program the script file is passed to; empty runs it with /bin/sh.
+  string interpreter = 3;
+  // Skip TLS verification for the fetch.
+  bool tls_skip_verify = 4;
+}
+
+// RunOperationRequest is a ServerMessage asking pmm-agent to run one short operation and to answer
+// with its output in the response, with no stored result.
+message RunOperationRequest {
+  ScriptSource source = 1;
+  repeated string args = 2;
+  // Written to the operation's standard input, then closed. A string, not bytes: the log
+  // redaction that the annotation asks for covers string fields only.
+  string stdin = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Timeout for the whole request.
+  google.protobuf.Duration timeout = 4;
+}
+
+// RunOperationResponse is an AgentMessage carrying the outcome of a RunOperationRequest.
+message RunOperationResponse {
+  // Set when the operation never ran: not approved, fetch or checksum failure, no free slot.
+  string error = 1;
+  int32 exit_code = 2;
+  bytes stdout = 3;
+  bytes stderr = 4;
+  // True when either output was cut at the size limit.
+  bool truncated = 5;
+  // Time spent running the operation on the host.
+  google.protobuf.Duration duration = 6;
+}
+
+// JobMessageRequest is an AgentMessage carrying one progress or result message of a job, sent
+// again on the next connection until the server acknowledges it. JobProgress and JobResult sent
+// on their own are not acknowledged, and one in flight when the connection drops is lost.
+message JobMessageRequest {
+  oneof message {
+    JobProgress progress = 1;
+    JobResult result = 2;
+  }
+}
+
+// JobMessageResponse is a ServerMessage acknowledging a JobMessageRequest.
+message JobMessageResponse {}
+
+// ReadJobFileRequest is a ServerMessage asking pmm-agent for a piece of a file a job produced.
+message ReadJobFileRequest {
+  string job_id = 1;
+  // File name inside the job's output directory; empty lists the directory.
+  string name = 2;
+  int64 offset = 3;
+  int64 length = 4;
+}
+
+// ReadJobFileResponse is an AgentMessage carrying a piece of a job's file, or the listing.
+message ReadJobFileResponse {
+  // File describes one file in a job's output directory.
+  message File {
+    string name = 1;
+    int64 size = 2;
+  }
+  string error = 1;
+  bytes data = 2;
+  // Size of the whole file.
+  int64 size = 3;
+  repeated File files = 4;
+}
+
 // S3LocationConfig represents S3 bucket configuration.
 message S3LocationConfig {
   string endpoint = 1;
@@ -602,6 +675,24 @@ message StartJobRequest {
     }
   }
 
+  // RunScript is a job that fetches a script, verifies it and runs it.
+  message RunScript {
+    ScriptSource source = 1;
+    repeated string args = 2;
+    // Variables added to the minimal environment the script starts with.
+    map<string, string> env = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+    // Written to the script's standard input, then closed. A string, not bytes: the log
+    // redaction that the annotation asks for covers string fields only.
+    string stdin = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+    // Output beyond this many bytes is dropped on the host; 0 means no limit.
+    int64 max_output_bytes = 5;
+    // How long the files the script left in its output directory are kept on the host.
+    google.protobuf.Duration keep_files_for = 6;
+    // OS user the script runs as. Empty keeps pmm-agent's own user; anything else needs a
+    // pmm-agent that runs as root.
+    string run_as = 7;
+  }
+
   string job_id = 1;
   // Timeout for the job.
   google.protobuf.Duration timeout = 2;
@@ -610,6 +701,7 @@ message StartJobRequest {
     MySQLRestoreBackup mysql_restore_backup = 12;
     MongoDBBackup mongodb_backup = 13;
     MongoDBRestoreBackup mongodb_restore_backup = 14;
+    RunScript run_script = 15;
   }
 }
 
@@ -651,6 +743,20 @@ message JobResult {
   // MongoDBRestoreBackup contains result for MongoDB restore backup job.
   message MongoDBRestoreBackup {}
 
+  // RunScript contains the outcome of a run_script job.
+  message RunScript {
+    // Exit code of the script; -1 when it did not exit by itself.
+    int32 exit_code = 1;
+    // Set when the script never started: the fetch, the checksum or the launch failed.
+    string prepare_error = 2;
+    // Why the run ended when the script did not exit by itself: "stopped" or "timeout".
+    string ended_by = 3;
+    // Processes of the run that were still alive after it ended and were killed.
+    uint32 leftover_killed = 4;
+    // Bytes of output dropped because of max_output_bytes.
+    int64 dropped_output_bytes = 5;
+  }
+
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
   oneof result {
@@ -659,6 +765,7 @@ message JobResult {
     MySQLRestoreBackup mysql_restore_backup = 13;
     MongoDBBackup mongodb_backup = 14;
     MongoDBRestoreBackup mongodb_restore_backup = 15;
+    RunScript run_script = 16;
   }
 }
 
@@ -672,9 +779,16 @@ message JobProgress {
 
   // Logs contains generic logs from job.
   message Logs {
+    // Stream says which output a chunk came from.
+    enum Stream {
+      STREAM_UNSPECIFIED = 0;
+      STREAM_STDOUT = 1;
+      STREAM_STDERR = 2;
+    }
     uint32 chunk_id = 1;
     string data = 2;
     bool done = 3;
+    Stream stream = 4;
   }
   string job_id = 1;
   google.protobuf.Timestamp timestamp = 2;
@@ -759,6 +873,10 @@ message AgentMessage {
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     AgentLogsResponse agent_logs = 21;
     ServiceInfoResponse service_info = 22;
+    RunOperationResponse run_operation = 23;
+    ReadJobFileResponse read_job_file = 24;
+    // a request from agent
+    JobMessageRequest job_message = 25;
   }
 }
 
@@ -789,6 +907,10 @@ message ServerMessage {
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
     AgentLogsRequest agent_logs = 19;
     ServiceInfoRequest service_info = 20;
+    RunOperationRequest run_operation = 21;
+    ReadJobFileRequest read_job_file = 22;
+    // a response from server
+    JobMessageResponse job_message = 23;
   }
 }
 

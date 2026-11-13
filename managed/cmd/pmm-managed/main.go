@@ -389,6 +389,7 @@ type http1ServerDeps struct {
 	logs               *server.Logs
 	authServer         *grafana.AuthServer
 	currentUserHandler http.Handler
+	scriptsService     *agents.ScriptsService
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -465,6 +466,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
+	deps.scriptsService.Register(mux)
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
 	mux.Handle("/v1/users/current", deps.currentUserHandler)
@@ -1085,6 +1087,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
+	scriptsService := agents.NewScriptsService(db, agentsRegistry, jobsService)
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams, nomad)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
@@ -1314,11 +1317,16 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			logs:               logs,
 			authServer:         authServer,
 			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
+			scriptsService:     scriptsService,
 		})
 	})
 
 	wg.Go(func() {
 		runDebugServer(ctx)
+	})
+
+	wg.Go(func() {
+		scriptsService.Run(ctx)
 	})
 
 	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {

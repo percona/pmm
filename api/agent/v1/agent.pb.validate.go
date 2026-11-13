@@ -19,6 +19,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 
 	backupv1 "github.com/percona/pmm/api/backup/v1"
+
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -134,8 +135,7 @@ func (e TextFilesValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TextFilesValidationError{}
@@ -233,8 +233,7 @@ func (e PingValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PingValidationError{}
@@ -361,8 +360,7 @@ func (e PongValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PongValidationError{}
@@ -498,8 +496,7 @@ func (e QANCollectRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANCollectRequestValidationError{}
@@ -601,8 +598,7 @@ func (e QANCollectResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANCollectResponseValidationError{}
@@ -714,8 +710,7 @@ func (e StateChangedRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StateChangedRequestValidationError{}
@@ -817,8 +812,7 @@ func (e StateChangedResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StateChangedResponseValidationError{}
@@ -1010,8 +1004,7 @@ func (e SetStateRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SetStateRequestValidationError{}
@@ -1111,8 +1104,7 @@ func (e SetStateResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SetStateResponseValidationError{}
@@ -1453,8 +1445,7 @@ func (e QueryActionValueValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryActionValueValidationError{}
@@ -1588,8 +1579,7 @@ func (e QueryActionSliceValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryActionSliceValidationError{}
@@ -1735,8 +1725,7 @@ func (e QueryActionMapValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryActionMapValidationError{}
@@ -1842,8 +1831,7 @@ func (e QueryActionBinaryValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryActionBinaryValidationError{}
@@ -2013,8 +2001,7 @@ func (e QueryActionResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryActionResultValidationError{}
@@ -3013,8 +3000,7 @@ func (e StartActionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequestValidationError{}
@@ -3116,8 +3102,7 @@ func (e StartActionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionResponseValidationError{}
@@ -3221,8 +3206,7 @@ func (e StopActionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StopActionRequestValidationError{}
@@ -3324,8 +3308,7 @@ func (e StopActionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StopActionResponseValidationError{}
@@ -3435,8 +3418,7 @@ func (e ActionResultRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ActionResultRequestValidationError{}
@@ -3538,8 +3520,7 @@ func (e ActionResultResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ActionResultResponseValidationError{}
@@ -3674,8 +3655,7 @@ func (e PBMSwitchPITRRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PBMSwitchPITRRequestValidationError{}
@@ -3779,8 +3759,7 @@ func (e PBMSwitchPITRResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PBMSwitchPITRResponseValidationError{}
@@ -3884,8 +3863,7 @@ func (e AgentLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AgentLogsRequestValidationError{}
@@ -3989,8 +3967,7 @@ func (e AgentLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AgentLogsResponseValidationError{}
@@ -4158,8 +4135,7 @@ func (e CheckConnectionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckConnectionRequestValidationError{}
@@ -4263,8 +4239,7 @@ func (e CheckConnectionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckConnectionResponseValidationError{}
@@ -4432,8 +4407,7 @@ func (e ServiceInfoRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ServiceInfoRequestValidationError{}
@@ -4545,8 +4519,7 @@ func (e ServiceInfoResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ServiceInfoResponseValidationError{}
@@ -4648,8 +4621,7 @@ func (e JobStatusRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobStatusRequestValidationError{}
@@ -4753,8 +4725,7 @@ func (e JobStatusResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobStatusResponseValidationError{}
@@ -4766,6 +4737,959 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = JobStatusResponseValidationError{}
+
+// Validate checks the field values on ScriptSource with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ScriptSource) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ScriptSource with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ScriptSourceMultiError, or
+// nil if none found.
+func (m *ScriptSource) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ScriptSource) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Url
+
+	// no validation rules for Checksum
+
+	// no validation rules for Interpreter
+
+	// no validation rules for TlsSkipVerify
+
+	if len(errors) > 0 {
+		return ScriptSourceMultiError(errors)
+	}
+
+	return nil
+}
+
+// ScriptSourceMultiError is an error wrapping multiple validation errors
+// returned by ScriptSource.ValidateAll() if the designated constraints aren't met.
+type ScriptSourceMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ScriptSourceMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ScriptSourceMultiError) AllErrors() []error { return m }
+
+// ScriptSourceValidationError is the validation error returned by
+// ScriptSource.Validate if the designated constraints aren't met.
+type ScriptSourceValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ScriptSourceValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ScriptSourceValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ScriptSourceValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ScriptSourceValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ScriptSourceValidationError) ErrorName() string { return "ScriptSourceValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ScriptSourceValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sScriptSource.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ScriptSourceValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ScriptSourceValidationError{}
+
+// Validate checks the field values on RunOperationRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RunOperationRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RunOperationRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RunOperationRequestMultiError, or nil if none found.
+func (m *RunOperationRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RunOperationRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetSource()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RunOperationRequestValidationError{
+					field:  "Source",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RunOperationRequestValidationError{
+					field:  "Source",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSource()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RunOperationRequestValidationError{
+				field:  "Source",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Stdin
+
+	if all {
+		switch v := interface{}(m.GetTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RunOperationRequestValidationError{
+					field:  "Timeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RunOperationRequestValidationError{
+					field:  "Timeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RunOperationRequestValidationError{
+				field:  "Timeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return RunOperationRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// RunOperationRequestMultiError is an error wrapping multiple validation
+// errors returned by RunOperationRequest.ValidateAll() if the designated
+// constraints aren't met.
+type RunOperationRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RunOperationRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RunOperationRequestMultiError) AllErrors() []error { return m }
+
+// RunOperationRequestValidationError is the validation error returned by
+// RunOperationRequest.Validate if the designated constraints aren't met.
+type RunOperationRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RunOperationRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RunOperationRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RunOperationRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RunOperationRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RunOperationRequestValidationError) ErrorName() string {
+	return "RunOperationRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RunOperationRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRunOperationRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RunOperationRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RunOperationRequestValidationError{}
+
+// Validate checks the field values on RunOperationResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RunOperationResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RunOperationResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RunOperationResponseMultiError, or nil if none found.
+func (m *RunOperationResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RunOperationResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Error
+
+	// no validation rules for ExitCode
+
+	// no validation rules for Stdout
+
+	// no validation rules for Stderr
+
+	// no validation rules for Truncated
+
+	if all {
+		switch v := interface{}(m.GetDuration()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RunOperationResponseValidationError{
+					field:  "Duration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RunOperationResponseValidationError{
+					field:  "Duration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDuration()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RunOperationResponseValidationError{
+				field:  "Duration",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return RunOperationResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// RunOperationResponseMultiError is an error wrapping multiple validation
+// errors returned by RunOperationResponse.ValidateAll() if the designated
+// constraints aren't met.
+type RunOperationResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RunOperationResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RunOperationResponseMultiError) AllErrors() []error { return m }
+
+// RunOperationResponseValidationError is the validation error returned by
+// RunOperationResponse.Validate if the designated constraints aren't met.
+type RunOperationResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RunOperationResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RunOperationResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RunOperationResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RunOperationResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RunOperationResponseValidationError) ErrorName() string {
+	return "RunOperationResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RunOperationResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRunOperationResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RunOperationResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RunOperationResponseValidationError{}
+
+// Validate checks the field values on JobMessageRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *JobMessageRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on JobMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// JobMessageRequestMultiError, or nil if none found.
+func (m *JobMessageRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *JobMessageRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Message.(type) {
+	case *JobMessageRequest_Progress:
+		if v == nil {
+			err := JobMessageRequestValidationError{
+				field:  "Message",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetProgress()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, JobMessageRequestValidationError{
+						field:  "Progress",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, JobMessageRequestValidationError{
+						field:  "Progress",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetProgress()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return JobMessageRequestValidationError{
+					field:  "Progress",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *JobMessageRequest_Result:
+		if v == nil {
+			err := JobMessageRequestValidationError{
+				field:  "Message",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetResult()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, JobMessageRequestValidationError{
+						field:  "Result",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, JobMessageRequestValidationError{
+						field:  "Result",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetResult()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return JobMessageRequestValidationError{
+					field:  "Result",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return JobMessageRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// JobMessageRequestMultiError is an error wrapping multiple validation errors
+// returned by JobMessageRequest.ValidateAll() if the designated constraints
+// aren't met.
+type JobMessageRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m JobMessageRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m JobMessageRequestMultiError) AllErrors() []error { return m }
+
+// JobMessageRequestValidationError is the validation error returned by
+// JobMessageRequest.Validate if the designated constraints aren't met.
+type JobMessageRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e JobMessageRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e JobMessageRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e JobMessageRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e JobMessageRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e JobMessageRequestValidationError) ErrorName() string {
+	return "JobMessageRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e JobMessageRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sJobMessageRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = JobMessageRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = JobMessageRequestValidationError{}
+
+// Validate checks the field values on JobMessageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *JobMessageResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on JobMessageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// JobMessageResponseMultiError, or nil if none found.
+func (m *JobMessageResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *JobMessageResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return JobMessageResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// JobMessageResponseMultiError is an error wrapping multiple validation errors
+// returned by JobMessageResponse.ValidateAll() if the designated constraints
+// aren't met.
+type JobMessageResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m JobMessageResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m JobMessageResponseMultiError) AllErrors() []error { return m }
+
+// JobMessageResponseValidationError is the validation error returned by
+// JobMessageResponse.Validate if the designated constraints aren't met.
+type JobMessageResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e JobMessageResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e JobMessageResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e JobMessageResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e JobMessageResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e JobMessageResponseValidationError) ErrorName() string {
+	return "JobMessageResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e JobMessageResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sJobMessageResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = JobMessageResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = JobMessageResponseValidationError{}
+
+// Validate checks the field values on ReadJobFileRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ReadJobFileRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ReadJobFileRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ReadJobFileRequestMultiError, or nil if none found.
+func (m *ReadJobFileRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ReadJobFileRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for JobId
+
+	// no validation rules for Name
+
+	// no validation rules for Offset
+
+	// no validation rules for Length
+
+	if len(errors) > 0 {
+		return ReadJobFileRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ReadJobFileRequestMultiError is an error wrapping multiple validation errors
+// returned by ReadJobFileRequest.ValidateAll() if the designated constraints
+// aren't met.
+type ReadJobFileRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ReadJobFileRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ReadJobFileRequestMultiError) AllErrors() []error { return m }
+
+// ReadJobFileRequestValidationError is the validation error returned by
+// ReadJobFileRequest.Validate if the designated constraints aren't met.
+type ReadJobFileRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ReadJobFileRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ReadJobFileRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ReadJobFileRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ReadJobFileRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ReadJobFileRequestValidationError) ErrorName() string {
+	return "ReadJobFileRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ReadJobFileRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sReadJobFileRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ReadJobFileRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ReadJobFileRequestValidationError{}
+
+// Validate checks the field values on ReadJobFileResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ReadJobFileResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ReadJobFileResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ReadJobFileResponseMultiError, or nil if none found.
+func (m *ReadJobFileResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ReadJobFileResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Error
+
+	// no validation rules for Data
+
+	// no validation rules for Size
+
+	for idx, item := range m.GetFiles() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ReadJobFileResponseValidationError{
+						field:  fmt.Sprintf("Files[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ReadJobFileResponseValidationError{
+						field:  fmt.Sprintf("Files[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ReadJobFileResponseValidationError{
+					field:  fmt.Sprintf("Files[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ReadJobFileResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ReadJobFileResponseMultiError is an error wrapping multiple validation
+// errors returned by ReadJobFileResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ReadJobFileResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ReadJobFileResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ReadJobFileResponseMultiError) AllErrors() []error { return m }
+
+// ReadJobFileResponseValidationError is the validation error returned by
+// ReadJobFileResponse.Validate if the designated constraints aren't met.
+type ReadJobFileResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ReadJobFileResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ReadJobFileResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ReadJobFileResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ReadJobFileResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ReadJobFileResponseValidationError) ErrorName() string {
+	return "ReadJobFileResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ReadJobFileResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sReadJobFileResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ReadJobFileResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ReadJobFileResponseValidationError{}
 
 // Validate checks the field values on S3LocationConfig with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -4864,8 +5788,7 @@ func (e S3LocationConfigValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = S3LocationConfigValidationError{}
@@ -4969,8 +5892,7 @@ func (e FilesystemLocationConfigValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = FilesystemLocationConfigValidationError{}
@@ -5201,6 +6123,47 @@ func (m *StartJobRequest) validate(all bool) error {
 			}
 		}
 
+	case *StartJobRequest_RunScript_:
+		if v == nil {
+			err := StartJobRequestValidationError{
+				field:  "Job",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRunScript()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, StartJobRequestValidationError{
+						field:  "RunScript",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, StartJobRequestValidationError{
+						field:  "RunScript",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRunScript()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return StartJobRequestValidationError{
+					field:  "RunScript",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -5270,8 +6233,7 @@ func (e StartJobRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartJobRequestValidationError{}
@@ -5373,8 +6335,7 @@ func (e StartJobResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartJobResponseValidationError{}
@@ -5476,8 +6437,7 @@ func (e StopJobRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StopJobRequestValidationError{}
@@ -5577,8 +6537,7 @@ func (e StopJobResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StopJobResponseValidationError{}
@@ -5850,6 +6809,47 @@ func (m *JobResult) validate(all bool) error {
 			}
 		}
 
+	case *JobResult_RunScript_:
+		if v == nil {
+			err := JobResultValidationError{
+				field:  "Result",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRunScript()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, JobResultValidationError{
+						field:  "RunScript",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, JobResultValidationError{
+						field:  "RunScript",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRunScript()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return JobResultValidationError{
+					field:  "RunScript",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -5918,8 +6918,7 @@ func (e JobResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobResultValidationError{}
@@ -6177,8 +7176,7 @@ func (e JobProgressValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobProgressValidationError{}
@@ -6314,8 +7312,7 @@ func (e GetVersionsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetVersionsRequestValidationError{}
@@ -6451,8 +7448,7 @@ func (e GetVersionsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetVersionsResponseValidationError{}
@@ -7257,6 +8253,129 @@ func (m *AgentMessage) validate(all bool) error {
 			}
 		}
 
+	case *AgentMessage_RunOperation:
+		if v == nil {
+			err := AgentMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRunOperation()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "RunOperation",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "RunOperation",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRunOperation()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AgentMessageValidationError{
+					field:  "RunOperation",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AgentMessage_ReadJobFile:
+		if v == nil {
+			err := AgentMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetReadJobFile()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "ReadJobFile",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "ReadJobFile",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetReadJobFile()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AgentMessageValidationError{
+					field:  "ReadJobFile",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AgentMessage_JobMessage:
+		if v == nil {
+			err := AgentMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetJobMessage()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "JobMessage",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AgentMessageValidationError{
+						field:  "JobMessage",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetJobMessage()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AgentMessageValidationError{
+					field:  "JobMessage",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -7325,8 +8444,7 @@ func (e AgentMessageValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AgentMessageValidationError{}
@@ -8049,6 +9167,129 @@ func (m *ServerMessage) validate(all bool) error {
 			}
 		}
 
+	case *ServerMessage_RunOperation:
+		if v == nil {
+			err := ServerMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRunOperation()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "RunOperation",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "RunOperation",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRunOperation()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ServerMessageValidationError{
+					field:  "RunOperation",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ServerMessage_ReadJobFile:
+		if v == nil {
+			err := ServerMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetReadJobFile()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "ReadJobFile",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "ReadJobFile",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetReadJobFile()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ServerMessageValidationError{
+					field:  "ReadJobFile",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ServerMessage_JobMessage:
+		if v == nil {
+			err := ServerMessageValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetJobMessage()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "JobMessage",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ServerMessageValidationError{
+						field:  "JobMessage",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetJobMessage()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ServerMessageValidationError{
+					field:  "JobMessage",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -8118,8 +9359,7 @@ func (e ServerMessageValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ServerMessageValidationError{}
@@ -8230,8 +9470,7 @@ func (e SetStateRequest_AgentProcessValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SetStateRequest_AgentProcessValidationError{}
@@ -8414,8 +9653,7 @@ func (e SetStateRequest_BuiltinAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SetStateRequest_BuiltinAgentValidationError{}
@@ -8559,8 +9797,7 @@ func (e StartActionRequest_MySQLExplainParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MySQLExplainParamsValidationError{}
@@ -8704,8 +9941,7 @@ func (e StartActionRequest_MySQLShowCreateTableParamsValidationError) Error() st
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MySQLShowCreateTableParamsValidationError{}
@@ -8849,8 +10085,7 @@ func (e StartActionRequest_MySQLShowTableStatusParamsValidationError) Error() st
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MySQLShowTableStatusParamsValidationError{}
@@ -8991,8 +10226,7 @@ func (e StartActionRequest_MySQLShowIndexParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MySQLShowIndexParamsValidationError{}
@@ -9141,8 +10375,7 @@ func (e StartActionRequest_PostgreSQLShowCreateTableParamsValidationError) Error
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_PostgreSQLShowCreateTableParamsValidationError{}
@@ -9284,8 +10517,7 @@ func (e StartActionRequest_PostgreSQLShowIndexParamsValidationError) Error() str
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_PostgreSQLShowIndexParamsValidationError{}
@@ -9424,8 +10656,7 @@ func (e StartActionRequest_MongoDBExplainParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MongoDBExplainParamsValidationError{}
@@ -9530,8 +10761,7 @@ func (e StartActionRequest_PTSummaryParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_PTSummaryParamsValidationError{}
@@ -9644,8 +10874,7 @@ func (e StartActionRequest_PTPgSummaryParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_PTPgSummaryParamsValidationError{}
@@ -9759,8 +10988,7 @@ func (e StartActionRequest_PTMongoDBSummaryParamsValidationError) Error() string
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_PTMongoDBSummaryParamsValidationError{}
@@ -9876,8 +11104,7 @@ func (e StartActionRequest_PTMySQLSummaryParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_PTMySQLSummaryParamsValidationError{}
@@ -10018,8 +11245,7 @@ func (e StartActionRequest_MySQLQueryShowParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MySQLQueryShowParamsValidationError{}
@@ -10160,8 +11386,7 @@ func (e StartActionRequest_MySQLQuerySelectParamsValidationError) Error() string
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MySQLQuerySelectParamsValidationError{}
@@ -10301,8 +11526,7 @@ func (e StartActionRequest_PostgreSQLQueryShowParamsValidationError) Error() str
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_PostgreSQLQueryShowParamsValidationError{}
@@ -10446,8 +11670,7 @@ func (e StartActionRequest_PostgreSQLQuerySelectParamsValidationError) Error() s
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_PostgreSQLQuerySelectParamsValidationError{}
@@ -10591,8 +11814,7 @@ func (e StartActionRequest_MongoDBQueryGetParameterParamsValidationError) Error(
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MongoDBQueryGetParameterParamsValidationError{}
@@ -10732,8 +11954,7 @@ func (e StartActionRequest_MongoDBQueryBuildInfoParamsValidationError) Error() s
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MongoDBQueryBuildInfoParamsValidationError{}
@@ -10878,8 +12099,7 @@ func (e StartActionRequest_MongoDBQueryGetCmdLineOptsParamsValidationError) Erro
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MongoDBQueryGetCmdLineOptsParamsValidationError{}
@@ -11028,8 +12248,7 @@ func (e StartActionRequest_MongoDBQueryReplSetGetStatusParamsValidationError) Er
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MongoDBQueryReplSetGetStatusParamsValidationError{}
@@ -11178,8 +12397,7 @@ func (e StartActionRequest_MongoDBQueryGetDiagnosticDataParamsValidationError) E
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_MongoDBQueryGetDiagnosticDataParamsValidationError{}
@@ -11290,8 +12508,7 @@ func (e StartActionRequest_RestartSystemServiceParamsValidationError) Error() st
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartActionRequest_RestartSystemServiceParamsValidationError{}
@@ -11396,8 +12613,7 @@ func (e CheckConnectionResponse_StatsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckConnectionResponse_StatsValidationError{}
@@ -11409,6 +12625,112 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CheckConnectionResponse_StatsValidationError{}
+
+// Validate checks the field values on ReadJobFileResponse_File with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ReadJobFileResponse_File) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ReadJobFileResponse_File with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ReadJobFileResponse_FileMultiError, or nil if none found.
+func (m *ReadJobFileResponse_File) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ReadJobFileResponse_File) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Name
+
+	// no validation rules for Size
+
+	if len(errors) > 0 {
+		return ReadJobFileResponse_FileMultiError(errors)
+	}
+
+	return nil
+}
+
+// ReadJobFileResponse_FileMultiError is an error wrapping multiple validation
+// errors returned by ReadJobFileResponse_File.ValidateAll() if the designated
+// constraints aren't met.
+type ReadJobFileResponse_FileMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ReadJobFileResponse_FileMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ReadJobFileResponse_FileMultiError) AllErrors() []error { return m }
+
+// ReadJobFileResponse_FileValidationError is the validation error returned by
+// ReadJobFileResponse_File.Validate if the designated constraints aren't met.
+type ReadJobFileResponse_FileValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ReadJobFileResponse_FileValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ReadJobFileResponse_FileValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ReadJobFileResponse_FileValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ReadJobFileResponse_FileValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ReadJobFileResponse_FileValidationError) ErrorName() string {
+	return "ReadJobFileResponse_FileValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ReadJobFileResponse_FileValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sReadJobFileResponse_File.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ReadJobFileResponse_FileValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ReadJobFileResponse_FileValidationError{}
 
 // Validate checks the field values on StartJobRequest_MySQLBackup with the
 // rules defined in the proto definition for this message. If any rules are
@@ -11560,8 +12882,7 @@ func (e StartJobRequest_MySQLBackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartJobRequest_MySQLBackupValidationError{}
@@ -11718,8 +13039,7 @@ func (e StartJobRequest_MySQLRestoreBackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartJobRequest_MySQLRestoreBackupValidationError{}
@@ -11948,8 +13268,7 @@ func (e StartJobRequest_MongoDBBackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartJobRequest_MongoDBBackupValidationError{}
@@ -12234,8 +13553,7 @@ func (e StartJobRequest_MongoDBRestoreBackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartJobRequest_MongoDBRestoreBackupValidationError{}
@@ -12247,6 +13565,174 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = StartJobRequest_MongoDBRestoreBackupValidationError{}
+
+// Validate checks the field values on StartJobRequest_RunScript with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *StartJobRequest_RunScript) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StartJobRequest_RunScript with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// StartJobRequest_RunScriptMultiError, or nil if none found.
+func (m *StartJobRequest_RunScript) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StartJobRequest_RunScript) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetSource()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, StartJobRequest_RunScriptValidationError{
+					field:  "Source",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, StartJobRequest_RunScriptValidationError{
+					field:  "Source",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSource()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return StartJobRequest_RunScriptValidationError{
+				field:  "Source",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Env
+
+	// no validation rules for Stdin
+
+	// no validation rules for MaxOutputBytes
+
+	if all {
+		switch v := interface{}(m.GetKeepFilesFor()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, StartJobRequest_RunScriptValidationError{
+					field:  "KeepFilesFor",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, StartJobRequest_RunScriptValidationError{
+					field:  "KeepFilesFor",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetKeepFilesFor()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return StartJobRequest_RunScriptValidationError{
+				field:  "KeepFilesFor",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for RunAs
+
+	if len(errors) > 0 {
+		return StartJobRequest_RunScriptMultiError(errors)
+	}
+
+	return nil
+}
+
+// StartJobRequest_RunScriptMultiError is an error wrapping multiple validation
+// errors returned by StartJobRequest_RunScript.ValidateAll() if the
+// designated constraints aren't met.
+type StartJobRequest_RunScriptMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StartJobRequest_RunScriptMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StartJobRequest_RunScriptMultiError) AllErrors() []error { return m }
+
+// StartJobRequest_RunScriptValidationError is the validation error returned by
+// StartJobRequest_RunScript.Validate if the designated constraints aren't met.
+type StartJobRequest_RunScriptValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e StartJobRequest_RunScriptValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e StartJobRequest_RunScriptValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e StartJobRequest_RunScriptValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e StartJobRequest_RunScriptValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e StartJobRequest_RunScriptValidationError) ErrorName() string {
+	return "StartJobRequest_RunScriptValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e StartJobRequest_RunScriptValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sStartJobRequest_RunScript.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = StartJobRequest_RunScriptValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = StartJobRequest_RunScriptValidationError{}
 
 // Validate checks the field values on JobResult_Error with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -12337,8 +13823,7 @@ func (e JobResult_ErrorValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobResult_ErrorValidationError{}
@@ -12471,8 +13956,7 @@ func (e JobResult_MongoDBBackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobResult_MongoDBBackupValidationError{}
@@ -12603,8 +14087,7 @@ func (e JobResult_MySQLBackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobResult_MySQLBackupValidationError{}
@@ -12707,8 +14190,7 @@ func (e JobResult_MySQLRestoreBackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobResult_MySQLRestoreBackupValidationError{}
@@ -12811,8 +14293,7 @@ func (e JobResult_MongoDBRestoreBackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobResult_MongoDBRestoreBackupValidationError{}
@@ -12824,6 +14305,118 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = JobResult_MongoDBRestoreBackupValidationError{}
+
+// Validate checks the field values on JobResult_RunScript with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *JobResult_RunScript) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on JobResult_RunScript with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// JobResult_RunScriptMultiError, or nil if none found.
+func (m *JobResult_RunScript) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *JobResult_RunScript) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ExitCode
+
+	// no validation rules for PrepareError
+
+	// no validation rules for EndedBy
+
+	// no validation rules for LeftoverKilled
+
+	// no validation rules for DroppedOutputBytes
+
+	if len(errors) > 0 {
+		return JobResult_RunScriptMultiError(errors)
+	}
+
+	return nil
+}
+
+// JobResult_RunScriptMultiError is an error wrapping multiple validation
+// errors returned by JobResult_RunScript.ValidateAll() if the designated
+// constraints aren't met.
+type JobResult_RunScriptMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m JobResult_RunScriptMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m JobResult_RunScriptMultiError) AllErrors() []error { return m }
+
+// JobResult_RunScriptValidationError is the validation error returned by
+// JobResult_RunScript.Validate if the designated constraints aren't met.
+type JobResult_RunScriptValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e JobResult_RunScriptValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e JobResult_RunScriptValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e JobResult_RunScriptValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e JobResult_RunScriptValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e JobResult_RunScriptValidationError) ErrorName() string {
+	return "JobResult_RunScriptValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e JobResult_RunScriptValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sJobResult_RunScript.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = JobResult_RunScriptValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = JobResult_RunScriptValidationError{}
 
 // Validate checks the field values on JobProgress_MySQLBackup with the rules
 // defined in the proto definition for this message. If any rules are
@@ -12914,8 +14507,7 @@ func (e JobProgress_MySQLBackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobProgress_MySQLBackupValidationError{}
@@ -13018,8 +14610,7 @@ func (e JobProgress_MySQLRestoreBackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobProgress_MySQLRestoreBackupValidationError{}
@@ -13059,6 +14650,8 @@ func (m *JobProgress_Logs) validate(all bool) error {
 	// no validation rules for Data
 
 	// no validation rules for Done
+
+	// no validation rules for Stream
 
 	if len(errors) > 0 {
 		return JobProgress_LogsMultiError(errors)
@@ -13125,8 +14718,7 @@ func (e JobProgress_LogsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = JobProgress_LogsValidationError{}
@@ -13228,8 +14820,7 @@ func (e GetVersionsRequest_MySQLdValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetVersionsRequest_MySQLdValidationError{}
@@ -13332,8 +14923,7 @@ func (e GetVersionsRequest_XtrabackupValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetVersionsRequest_XtrabackupValidationError{}
@@ -13435,8 +15025,7 @@ func (e GetVersionsRequest_XbcloudValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetVersionsRequest_XbcloudValidationError{}
@@ -13538,8 +15127,7 @@ func (e GetVersionsRequest_QpressValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetVersionsRequest_QpressValidationError{}
@@ -13641,8 +15229,7 @@ func (e GetVersionsRequest_MongoDBValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetVersionsRequest_MongoDBValidationError{}
@@ -13744,8 +15331,7 @@ func (e GetVersionsRequest_PBMValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetVersionsRequest_PBMValidationError{}
@@ -14099,8 +15685,7 @@ func (e GetVersionsRequest_SoftwareValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetVersionsRequest_SoftwareValidationError{}
@@ -14207,8 +15792,7 @@ func (e GetVersionsResponse_VersionValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetVersionsResponse_VersionValidationError{}

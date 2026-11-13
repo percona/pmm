@@ -61,6 +61,7 @@ type retentionService interface {
 type jobsService interface {
 	handleJobResult(ctx context.Context, l *logrus.Entry, result *agentv1.JobResult)
 	handleJobProgress(ctx context.Context, progress *agentv1.JobProgress)
+	reconcileRunScripts(ctx context.Context, agent *pmmAgentInfo)
 }
 
 // victoriaMetricsParams is a subset of methods of models.VMParams used by this package.

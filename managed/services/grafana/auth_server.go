@@ -78,6 +78,7 @@ var rules = map[string]role{
 	"/v1/actions":                     viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
+	"/v1/scripts":                     admin,
 	"/v1/dumps":                       admin,
 	"/v1/accesscontrol":               admin,
 	"/v1/ha":                          viewer,
