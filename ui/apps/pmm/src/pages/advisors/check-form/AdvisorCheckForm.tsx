@@ -16,10 +16,7 @@ import { AutoCompleteInput, SelectInput, TextInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
-import {
-  DRAWER_CLOSED_WIDTH,
-  DRAWER_WIDTH,
-} from 'components/sidebar/drawer/Drawer.constants';
+import { drawerWidth } from 'components/sidebar/drawer/Drawer.constants';
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import {
   useAdvisorCheck,
@@ -65,7 +62,7 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
 }) => {
   const { navOpen } = useNavigation();
   // the overlay never covers the main navigation
-  const sidebarWidth = navOpen ? DRAWER_WIDTH : DRAWER_CLOSED_WIDTH;
+  const sidebarWidth = drawerWidth(navOpen);
 
   const isEdit = mode === 'edit';
   const needsSource = mode === 'edit' || mode === 'clone';

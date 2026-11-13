@@ -1,10 +1,8 @@
 import { CSSObject, Theme, alpha, keyframes } from '@mui/material/styles';
 import {
-  DRAWER_BORDER_WIDTH,
   DRAWER_CLOSE_DURATION,
-  DRAWER_CLOSED_WIDTH,
   DRAWER_OPEN_DURATION,
-  DRAWER_WIDTH,
+  drawerWidth,
 } from './Drawer.constants';
 
 // The one timing every part of the sidebar moves with when it opens or
@@ -15,7 +13,7 @@ export const drawerTransition = (theme: Theme, open: boolean) => ({
 });
 
 export const openedMixin = (theme: Theme): CSSObject => ({
-  width: DRAWER_WIDTH + DRAWER_BORDER_WIDTH,
+  width: drawerWidth(true),
   transition: theme.transitions.create('width', drawerTransition(theme, true)),
   overflowX: 'hidden',
 });
@@ -23,7 +21,7 @@ export const openedMixin = (theme: Theme): CSSObject => ({
 export const closedMixin = (theme: Theme): CSSObject => ({
   transition: theme.transitions.create('width', drawerTransition(theme, false)),
   overflowX: 'hidden',
-  width: DRAWER_CLOSED_WIDTH + DRAWER_BORDER_WIDTH,
+  width: drawerWidth(false),
 });
 
 export const logoMixin = (theme: Theme, open: boolean): CSSObject => ({
