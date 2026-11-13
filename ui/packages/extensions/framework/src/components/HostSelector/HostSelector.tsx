@@ -195,8 +195,8 @@ function HostMismatchWarning({
   }
   return (
     <Alert severity="warning" sx={{ mt: 1 }}>
-      The selected executor host ({selectedHost.name}, {selectedHost.address})
-      is not the node where {service.name} runs ({serviceNodeAddress}).
+      The selected host ({selectedHost.name}, {selectedHost.address}) is not the
+      node where {service.name} runs ({serviceNodeAddress}).
     </Alert>
   );
 }
@@ -234,7 +234,7 @@ export function HostSelector({
   const lastSurfacedRef = useRef<unknown>(null);
   useEffect(() => {
     if (isError && error && error !== lastSurfacedRef.current) {
-      enqueueSnackbar(`Failed to load executor hosts: ${error.message}`, {
+      enqueueSnackbar(`Failed to load hosts: ${error.message}`, {
         variant: 'error',
         autoHideDuration: 30_000,
       });
