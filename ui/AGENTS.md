@@ -116,9 +116,10 @@ API calls are organized in `src/api/` using axios. Each API module provides type
 
 `@percona/peak-ui` ("Peak Design") is PMM's shared component library — MUI v7-based themed components, design tokens, and `react-hook-form`-integrated inputs, exposing a `pmmThemeOptions` theme variant. **Browse the catalog before hand-rolling a component:**
 
-- **Storybook (component catalog):** https://percona.github.io/peak-ui
-- **Source & theme options:** https://github.com/percona/peak-ui
-- **Agent guide, matching the installed version:** `node_modules/@percona/peak-ui/AGENTS.md` (usage rules) and `llms.txt` (every export, one line each), in any package that depends on peak-ui, such as `ui/apps/pmm/`
+- **Storybook (component catalog):** https://main--6a31152ea29e3a78e1060595.chromatic.com/
+- **Source & theme options:** `packages/peak-ui/` in this workspace, published to npm as `@percona/peak-ui` on every PMM release
+- **Agent guide:** `packages/peak-ui/AGENTS.md` (usage rules) and `packages/peak-ui/llms.txt` (every export, one line each)
+- **Changing a component:** edit it in `packages/peak-ui/`; one PR can change Peak UI and the code that uses it
 
 The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the theme-aware `sx` prop rather than ad-hoc CSS.
 
@@ -145,7 +146,7 @@ Two traps:
 
 - Use TanStack Query (`useQuery`, `useMutation`) for all server state
 - Create custom hooks per API domain in `src/hooks/`
-- Use MUI and `@percona/peak-ui` components for consistent styling — browse the [Storybook catalog](https://percona.github.io/peak-ui) before building a component from scratch
+- Use MUI and `@percona/peak-ui` components for consistent styling — browse the [Storybook catalog](https://main--6a31152ea29e3a78e1060595.chromatic.com/) before building a component from scratch
 - Use TypeScript strict mode — define types in `src/types/`
 - Co-locate test files next to components (`*.test.tsx`)
 - Use `CrossFrameMessenger` for communication with the Grafana iframe
