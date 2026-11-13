@@ -1651,8 +1651,13 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	}
 	defer db.Close() //nolint:errcheck
 
+	return provisionDBAndRole(ctx, db, params)
+}
+
+// provisionDBAndRole creates the role and the database it owns unless they already exist; db must have superuser rights.
+func provisionDBAndRole(ctx context.Context, db *sql.DB, params SetupDBParams) error {
 	var roleCount int
-	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&roleCount)
+	err := db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&roleCount)
 	if err != nil {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
