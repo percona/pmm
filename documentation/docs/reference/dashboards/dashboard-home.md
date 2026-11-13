@@ -90,13 +90,13 @@ Shows the total number of virtual CPUs across all filtered nodes.
 
 Use this to understand total compute capacity across your environment. Click to open the **Nodes Overview** dashboard.
 
-### Failed Advisors
+### Connected Agents
 
-Shows the number of advisor checks that failed during the most recent run.
+Shows the number of `pmm-agent` instances that are currently connected to PMM Server.
 
-Use this to stay on top of advisor findings. A non-zero count means PMM has flagged conditions that need your attention. 
+Use this to confirm that your PMM Clients are reporting. If the count drops, some clients have lost their connection to PMM Server.
 
-Click to open the **Advisors** page and see which specific checks need attention.
+To find the affected clients, go to **Inventory** and look for services whose **Monitoring** status is **Failed**. Then [check the agent status](../../use/commands/pmm-admin/status.md) on that client's node.
 
 ### PMM Upgrade
 

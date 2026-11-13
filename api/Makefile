@@ -97,9 +97,14 @@ endif
 
 update-swagger: get_swagger_version               ## Update Swagger UI in swagger, use `SWAGGER_UI_VERSION=xxx make update-swagger` to choose a version other than latest
 	curl --output /tmp/swagger.tar.gz -sSfL "https://github.com/swagger-api/swagger-ui/archive/refs/tags/${SWAGGER_UI_VERSION}.tar.gz"
-	tar xf /tmp/swagger.tar.gz --transform 's;swagger-ui-.*/dist/;swagger/;g'
+	rm -rf /tmp/swagger-ui
+	mkdir /tmp/swagger-ui
+	cd /tmp/swagger-ui && gzip -dc /tmp/swagger.tar.gz | tar xf -
+	cp -R /tmp/swagger-ui/swagger-ui-*/dist/. swagger/
+	rm -rf /tmp/swagger-ui
 	rm -f swagger/.npmrc
-	sed -i 's/url: ".*"/url: "\/swagger.json",\n    validatorUrl: "none"/' swagger/swagger-initializer.js
+	sed -e 's|url: ".*"|url: "/swagger.json"|p' -e 's|url: "/swagger.json"|validatorUrl: "none"|' swagger/swagger-initializer.js > swagger/swagger-initializer.js.tmp
+	mv swagger/swagger-initializer.js.tmp swagger/swagger-initializer.js
 
 clean: clean-swagger  ## Remove generated files
 	find . -name '*.pb.go' -print -delete
