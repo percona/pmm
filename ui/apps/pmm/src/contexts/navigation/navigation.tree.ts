@@ -116,6 +116,12 @@ export const NAV_REALTIME_QUERIES: NavItem = {
   matches: ['*'],
 };
 
+// PMM Extensions apps are a technical preview.
+const TECH_PREVIEW: Pick<NavItem, 'badge' | 'badgeAlwaysVisible'> = {
+  badge: createElement(PreviewChip, { level: 'tech' }),
+  badgeAlwaysVisible: true,
+};
+
 // The ATW app runs diagnostic checks against monitored databases; sending the
 // results to a Percona Support case is one action inside it, not its purpose.
 export const NAV_DIAGNOSTICS: NavItem = {
@@ -124,6 +130,7 @@ export const NAV_DIAGNOSTICS: NavItem = {
   text: 'Diagnostics',
   url: EXTENSIONS_ATW_PATH,
   matches: ['*'],
+  ...TECH_PREVIEW,
 };
 
 // Its own tabs carry Fleet, Nodes, Automations and Settings, so it needs one
@@ -240,7 +247,7 @@ export const buildNavTree = (input: NavTreeInput): NavItem[] => {
   }
 
   if (extensions) {
-    apps.push(NAV_EXTENSIONS_MYSQL_BACKUPS);
+    apps.push({ ...NAV_EXTENSIONS_MYSQL_BACKUPS, ...TECH_PREVIEW });
   }
 
   // Listed under a heading, like Configuration's groups, so Apps stays one

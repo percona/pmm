@@ -188,6 +188,18 @@ describe('buildNavTree', () => {
     expect(findActiveNavItem(build(), path)?.id).toBe(id);
   });
 
+  it.each(['extensions-atw', 'extensions-mysql-backups'])(
+    'marks the PMM Extensions app %s as a technical preview',
+    (id) => {
+      const tree = build();
+      const item =
+        findById(tree, id) ?? findById(findById(tree, 'apps')?.children, id);
+
+      expect(item?.badge).toBeDefined();
+      expect(item?.badgeAlwaysVisible).toBe(true);
+    }
+  );
+
   it('drops Apps when no app is available', () => {
     const tree = build({
       settings: {
