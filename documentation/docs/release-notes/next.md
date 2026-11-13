@@ -96,6 +96,8 @@ Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by r
 
 - [PMM-15559](https://perconadev.atlassian.net/browse/PMM-15559): Fixed an issue where the **Netstat: TCP** panel on the [Network Details](../reference/dashboards/dashboard-network-details.md) dashboard showed ever-growing totals instead of current activity. The panel now shows new connections, resets, and retransmits per second, so you can quickly spot spikes. Currently open connections are now shown on a separate scale on the right side of the chart, so you can compare them with new connections, resets, and retransmits.
 
+- [PMM-15883](https://perconadev.atlassian.net/browse/PMM-15883): Fixed an issue where the [Query Analytics overview](../use/qan/panels/overview.md) table could show results that didn't match the current search, filters or time range when you changed them quickly, for example by changing the time range and then searching before the table reloaded. The table now always shows the results for your latest search, filters and time range, and keeps loading until those results arrive.
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
