@@ -33,11 +33,15 @@ const options = [
   </ToggleRegularButton>,
 ];
 
-const renderRegular = (toggleButtonGroupProps?: ToggleButtonGroupProps, appTheme?: Theme) =>
+const renderRegular = (
+  toggleButtonGroupProps?: ToggleButtonGroupProps,
+  appTheme?: Theme,
+  children: ReactNode = options
+) =>
   render(
     <Wrapper appTheme={appTheme}>
       <ToggleButtonGroupInputRegular name="view" toggleButtonGroupProps={toggleButtonGroupProps}>
-        {options}
+        {children}
       </ToggleButtonGroupInputRegular>
     </Wrapper>
   );
@@ -69,6 +73,21 @@ const declared = (testId: string, property: string, selectorPart = '') =>
     .map((rule) => rule.style.getPropertyValue(property))
     .filter(Boolean);
 
+const smallScreenDirections = () =>
+  Array.from(document.styleSheets)
+    .flatMap((sheet) => Array.from(sheet.cssRules))
+    .filter(
+      (rule): rule is CSSMediaRule =>
+        rule instanceof CSSMediaRule && rule.conditionText.includes('max-width')
+    )
+    .flatMap((rule) => Array.from(rule.cssRules))
+    .filter(
+      (rule): rule is CSSStyleRule =>
+        rule instanceof CSSStyleRule && matches(group(), rule.selectorText)
+    )
+    .map((rule) => rule.style.getPropertyValue('flex-direction'))
+    .filter(Boolean);
+
 describe('ToggleButtonGroupInputRegular', () => {
   it('renders as a fit-content pill instead of full width', () => {
     renderRegular();
@@ -79,8 +98,16 @@ describe('ToggleButtonGroupInputRegular', () => {
 
   it('sizes each button to its label instead of splitting the width evenly', () => {
     renderRegular();
-    expect(declared('btn-raw', 'flex-shrink')).toContain('0');
     expect(declared('btn-raw', 'flex-basis')).toContain('auto');
+    expect(declared('btn-raw', 'flex-basis')).not.toContain('0px');
+  });
+
+  it('caps the pill at its container width and wraps long labels', () => {
+    renderRegular();
+    expect(group()).toHaveStyle({ maxWidth: '100%' });
+    expect(declared('btn-raw', 'flex-shrink')).toContain('1');
+    expect(declared('btn-raw', 'flex-shrink')).not.toContain('0');
+    expect(declared('btn-raw', 'white-space')).toContain('pre-wrap');
   });
 
   it('rounds only the outer corners', () => {
@@ -88,6 +115,11 @@ describe('ToggleButtonGroupInputRegular', () => {
     expect(declared('btn-table', 'border-radius')).toContain(`${PILL} 0 0 ${PILL}`);
     expect(declared('btn-graph', 'border-radius')).toContain('0px');
     expect(declared('btn-raw', 'border-radius')).toContain(`0 ${PILL} ${PILL} 0`);
+  });
+
+  it('rounds every corner of a single-button group', () => {
+    renderRegular(undefined, undefined, options[0]);
+    expect(declared('btn-table', 'border-radius')).toContain(PILL);
   });
 
   it('leaves no gap or border between buttons', () => {
@@ -109,10 +141,31 @@ describe('ToggleButtonGroupInputRegular', () => {
     });
   });
 
+  it('keeps nested pill rules when the consumer sx sets the same nested keys', () => {
+    const pmmTheme = createTheme(getThemeOptions('pmm')('light'));
+    renderRegular(
+      {
+        sx: (t) => ({
+          [t.breakpoints.down('sm')]: { color: 'red' },
+          '& > button': { fontWeight: 700 },
+        }),
+      },
+      pmmTheme
+    );
+    expect(smallScreenDirections()).toEqual(['column', 'row']);
+    expect(declared('btn-raw', 'flex-basis')).toContain('auto');
+    expect(declared('btn-raw', 'font-weight')).toContain('700');
+  });
+
   it('lets the consumer opt back into full width', () => {
     renderRegular({ fullWidth: true });
     expect(group()).toHaveClass('MuiToggleButtonGroup-fullWidth');
     expect(group()).toHaveStyle({ width: '100%' });
+    ['btn-table', 'btn-graph', 'btn-raw'].forEach((id) => {
+      expect(declared(id, 'flex-basis')).toContain('0px');
+      expect(declared(id, 'flex-basis')).not.toContain('auto');
+      expect(declared(id, 'flex-shrink')).toContain('1');
+    });
   });
 
   it('closes the gap between disabled buttons', () => {
@@ -127,20 +180,7 @@ describe('ToggleButtonGroupInputRegular', () => {
 
   it('stays a horizontal pill where the PMM theme stacks groups on small screens', () => {
     renderRegular(undefined, createTheme(getThemeOptions('pmm')('light')));
-    const smallScreenDirections = Array.from(document.styleSheets)
-      .flatMap((sheet) => Array.from(sheet.cssRules))
-      .filter(
-        (rule): rule is CSSMediaRule =>
-          rule instanceof CSSMediaRule && rule.conditionText.includes('max-width')
-      )
-      .flatMap((rule) => Array.from(rule.cssRules))
-      .filter(
-        (rule): rule is CSSStyleRule =>
-          rule instanceof CSSStyleRule && matches(group(), rule.selectorText)
-      )
-      .map((rule) => rule.style.getPropertyValue('flex-direction'))
-      .filter(Boolean);
-    expect(smallScreenDirections).toEqual(['column', 'row']);
+    expect(smallScreenDirections()).toEqual(['column', 'row']);
   });
 
   it('keeps the stacked MUI corners on a vertical group', () => {
