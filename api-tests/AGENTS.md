@@ -78,7 +78,7 @@ make docker-run-tests PMM_SERVER_URL=https://admin:admin@127.0.0.1
 - Don't leave test resources behind — always clean up nodes, services, agents
 - Don't assume a specific server state — tests should be self-contained
 - Don't use gRPC directly — use the HTTP/JSON Swagger clients
-- Don't hardcode the PMM Server URL — use the `-pmm.server-url` flag
+- Don't hardcode the PMM Server URL — call the `*Client.Default` clients `init.go` sets up, or use `pmmapitests.BaseURL` when you need the URL itself
 
 ### Test Structure Pattern
 
@@ -100,7 +100,7 @@ func TestAddMySQL(t *testing.T) {
 
 ## Key Files to Reference
 
-- `api-tests/init.go` — test flag setup (`-pmm.server-url`)
+- `api-tests/init.go` — reads the server settings (`PMM_*` variables override the `-pmm.*` flags) and sets up the API clients
 - `api-tests/helpers.go` — shared helper functions for test setup/teardown
 - `api-tests/Makefile` — run targets
 - `api-tests/inventory/` — comprehensive examples of CRUD test patterns
