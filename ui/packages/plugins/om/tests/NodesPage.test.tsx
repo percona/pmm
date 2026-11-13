@@ -944,6 +944,30 @@ describe('NodesPage', () => {
       );
     });
 
+    // Not monitored also lists nodes an install cannot target, such as an unreachable one.
+    it('shows only the nodes an install can target under Ready to install', () => {
+      renderPage(
+        [
+          ...fleet(),
+          host({
+            node_id: 'n3',
+            name: 'unreachable-node',
+            automation_eligible: false,
+            automation_blocked_reasons: [
+              'this node has no automation agent that answers',
+            ],
+          }),
+        ],
+        '/?filter=ready'
+      );
+
+      expect(rowFor('empty-node')).toBeTruthy();
+      expect(screen.queryByText('unreachable-node')).toBeNull();
+      expect(
+        screen.getByRole('button', { name: 'Ready to install' })
+      ).toHaveClass('MuiChip-filled');
+    });
+
     it.each(['/', '/?filter=bogus'])('shows every node at %s', (route) => {
       renderPage(fleet(), route);
 
