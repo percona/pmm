@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   gitLogArgs,
@@ -191,5 +192,37 @@ describe('readTarball', () => {
       'package/package.json',
     ]);
     expect(files.get('package/dist/index.js')?.toString()).toBe('a');
+  });
+});
+
+describe('SHIPPED_PATHSPEC', () => {
+  const tracked = execFileSync('git', ['ls-files', '--', ...SHIPPED_PATHSPEC], {
+    cwd: fileURLToPath(new URL('..', import.meta.url)),
+    encoding: 'utf8',
+  })
+    .trim()
+    .split('\n');
+
+  it('counts the source and the files that ship', () => {
+    expect(tracked).toEqual(
+      expect.arrayContaining([
+        'src/index.ts',
+        'src/components/chip/chip.tsx',
+        'package.json',
+        'tsconfig.json',
+        'rollup.config.js',
+        'scripts/sourcemap-paths.mjs',
+        'AGENTS.md',
+        'llms.txt',
+        'README.md',
+        'LICENSE',
+      ])
+    );
+  });
+
+  it('leaves out tests, stories and their tooling', () => {
+    const notShipped =
+      /\.(spec|stories)\.|\.mdx$|^vitest\.|^\.storybook\/|^src\/storybook\/|^scripts\/(?!sourcemap-paths\.mjs$)|^(CONTRIBUTING|CLAUDE)\.md$/;
+    expect(tracked.filter((file) => notShipped.test(file))).toEqual([]);
   });
 });
