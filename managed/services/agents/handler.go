@@ -327,6 +327,8 @@ func shouldForceConfigurationUpdate(portsChanged, enteredRunning bool, status in
 // first (one port is used for every status of a process - see the Supervisor's forwarder), and
 // updateAgentStatus stores it for every status, so by the time RUNNING arrives the stored port
 // already matches the reported one.
+//
+// Only an Agent PMM Server scrapes counts (see scrapedByServer).
 func checkEnteredRunning(q *reform.Querier, agentID string, newStatus inventoryv1.AgentStatus) bool {
 	if newStatus != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
 		return false
@@ -337,21 +339,32 @@ func checkEnteredRunning(q *reform.Querier, agentID string, newStatus inventoryv
 		// Can't determine, assume no change
 		return false
 	}
+	if !scrapedByServer(agent) {
+		return false
+	}
 
 	return agent.Status != inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String()
 }
 
-// checkPortChanged checks if the agent's listen port is changing.
+// checkPortChanged checks if the listen port of an Agent that PMM Server scrapes is changing.
 func checkPortChanged(q *reform.Querier, agentID string, newPort uint32) bool {
 	agent, err := models.FindAgentByID(q, agentID)
 	if err != nil {
 		// Can't determine, assume no change
 		return false
 	}
+	if !scrapedByServer(agent) {
+		return false
+	}
 	oldPort := pointer.GetUint16(agent.ListenPort)
 	newPort16 := uint16(newPort) //nolint:gosec
-	// Port changed if old port exists and is different from new port
-	return oldPort != 0 && oldPort != newPort16
+	return oldPort != newPort16
+}
+
+// scrapedByServer reports whether PMM Server's own VictoriaMetrics may scrape the Agent: FindAgentsForScrapeConfig's
+// filter plus a non-zero port (built-in Agents are stored with 0), without AddScrapeConfigs' HA skips.
+func scrapedByServer(agent *models.Agent) bool {
+	return !agent.Disabled && pointer.GetUint16(agent.ListenPort) != 0 && !agent.ExporterOptions.PushMetrics
 }
 
 func updateAgentStatus(
