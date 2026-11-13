@@ -108,8 +108,6 @@ var rules = map[string]role{
 	"/v1/platform:":                   admin,
 	"/v1/platform":                    viewer,
 	"/v1/users":                       viewer,
-	"/v1/users/current":               none,
-	"/v1/users/current/orgs":          none,
 
 	// must be available without authentication for health checking
 	"/v1/server/readyz":            none,
@@ -238,6 +236,9 @@ var errDotDotSegment = errors.New("dot-dot segment in path")
 // errFiltersDropped is returned for a filtered user on a route that cannot carry the filters.
 var errFiltersDropped = errors.New("route drops LBAC filters")
 
+// errNotAuthenticated is returned when Grafana does not authenticate the caller of a filtered route.
+var errNotAuthenticated = errors.New("caller not authenticated")
+
 // cacheItem holds a cached authentication outcome: either the resolved user
 // or, for definitive rejections, the authentication error.
 type cacheItem struct {
@@ -248,7 +249,7 @@ type cacheItem struct {
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
+	getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error)
 	rotateSessionToken(ctx context.Context, authHeaders http.Header) ([]string, error)
 }
 
@@ -371,6 +372,16 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
 		return
 	}
+	// A 401, not a 403: an expired session lands here too, and clients refresh a session on 401.
+	if errors.Is(errF, errNotAuthenticated) {
+		s.returnAuthError(rw, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, l)
+		return
+	}
+	if errors.Is(errF, ErrInvalidUserID) {
+		l.Warn("Refusing a filtered route to a caller without a user ID, such as a service account token.")
+		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
+		return
+	}
 	if errF != nil {
 		l.Errorf("Failed to add VMProxy filters: %s", errF)
 		s.returnAuthError(rw, &authError{code: codes.Internal, message: "Internal server error."}, l)
@@ -425,6 +436,9 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 		l.Debugf("Getting authenticated user info")
 		authUser, _, err := s.getAuthUser(ctx, req, l)
 		if err != nil {
+			if err.code == codes.Unauthenticated {
+				return errNotAuthenticated
+			}
 			return ErrCannotGetUserID
 		}
 
@@ -436,10 +450,7 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 	}
 
 	if userID <= 0 {
-		// Anonymous users don't have a numeric user ID and cannot have LBAC roles.
-		// Skip adding filters and allow the request to proceed.
-		l.Debugf("Skipping LBAC filters for anonymous user.")
-		return nil
+		return ErrInvalidUserID
 	}
 
 	filters, err := s.getLBACFilters(ctx, userID)
@@ -756,14 +767,14 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 }
 
 func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, []string, *authError) {
-	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
+	authUser, err := s.c.getAuthUser(ctx, authHeaders)
 	if err == nil {
 		s.cacheAuthUser(hash, authUser)
 		return &authUser, nil, nil
 	}
 
 	if canRetryWithRotatedSession(err, authHeaders) {
-		newCookies, retryUser, retryErr := s.retryWithRotatedSession(ctx, authHeaders, l)
+		newCookies, retryUser, retryErr := s.retryWithRotatedSession(ctx, authHeaders)
 		if retryErr == nil {
 			// Cache under the hash of the original headers even after a rotation: requests
 			// still carrying the old cookie (sent before the browser stores the new one)
@@ -821,7 +832,7 @@ func canRetryWithRotatedSession(err error, authHeaders http.Header) bool {
 		return false
 	}
 
-	return !hasAuthorizationHeader(authHeaders) && authHeaders.Get("Cookie") != ""
+	return authHeaders.Get("Authorization") == "" && authHeaders.Get("Cookie") != ""
 }
 
 // retryWithRotatedSession rotates the Grafana session token from the request cookie
@@ -829,7 +840,7 @@ func canRetryWithRotatedSession(err error, authHeaders http.Header) bool {
 // that must reach the client: API-only clients such as the PMM UI never load Grafana
 // pages, so this is their only way to receive the rotated token before the old one
 // becomes invalid.
-func (s *AuthServer) retryWithRotatedSession(ctx context.Context, authHeaders http.Header, l *logrus.Entry) ([]string, authUser, error) {
+func (s *AuthServer) retryWithRotatedSession(ctx context.Context, authHeaders http.Header) ([]string, authUser, error) {
 	setCookies, err := s.c.rotateSessionToken(ctx, authHeaders)
 	if err != nil {
 		return nil, emptyUser, err
@@ -839,7 +850,7 @@ func (s *AuthServer) retryWithRotatedSession(ctx context.Context, authHeaders ht
 	if len(setCookies) != 0 {
 		headers = headersWithRotatedCookies(authHeaders, setCookies)
 	}
-	u, err := s.c.getAuthUser(ctx, headers, l)
+	u, err := s.c.getAuthUser(ctx, headers)
 	if err != nil {
 		return nil, emptyUser, err
 	}

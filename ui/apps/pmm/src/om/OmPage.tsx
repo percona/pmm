@@ -22,7 +22,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
-import { useUser } from 'contexts/user';
+import { useAuth } from 'contexts/auth';
 import { ExtensionsAuthProvider } from 'extensions/ExtensionsAuthProvider';
 import { useReadonlySettings } from 'hooks/api/useSettings';
 import { Messages } from './OmPage.messages';
@@ -48,13 +48,16 @@ import { Messages } from './OmPage.messages';
  * Settings warning, so it has to be there on every visit.
  */
 export const OmPage: FC<PropsWithChildren> = ({ children }) => {
-  const { user } = useUser();
-  const { data: settings, isLoading } = useReadonlySettings();
+  const { isAnonymous } = useAuth();
+  // Anonymous visitors can't read settings, and a failing fetch here re-mounts the page in a loop.
+  const { data: settings, isLoading } = useReadonlySettings({
+    enabled: !isAnonymous,
+  });
 
   return (
     // An anonymous visitor is an org Viewer with no credential PMM Extensions accepts, so most
     // tabs could not load for them; an empty role list turns them away.
-    <Page maxWidth="full" roles={user?.isAnonymous ? [] : undefined}>
+    <Page maxWidth="full" roles={isAnonymous ? [] : undefined}>
       <Stack gap={3} sx={{ flex: 1 }}>
         {isLoading ? (
           <Stack alignItems="center" py={4}>

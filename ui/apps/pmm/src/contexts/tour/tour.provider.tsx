@@ -102,8 +102,7 @@ export const TourProvider: FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     // The Alerts menu, and so the alerting tour, is incomplete until settings load.
-    // Anonymous users can't save tour completion, so it would reopen on every visit.
-    if (isOpen || !user?.info || user.isAnonymous || !settings) {
+    if (isOpen || !user?.info || !settings) {
       return;
     }
 

@@ -2,10 +2,10 @@ import { render, screen } from '@testing-library/react';
 import type { FC, PropsWithChildren } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAuth } from '@pmm-extensions/api';
+import { AuthContext } from 'contexts/auth';
 import type { OrgRole, User } from 'types/user.types';
 import {
   TEST_USER_ADMIN,
-  TEST_USER_ANONYMOUS,
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
@@ -87,14 +87,23 @@ describe('OmPage', () => {
     expect(screen.getByTestId('page')).toHaveTextContent(canMutate);
   });
 
-  it.each<[string, User, string]>([
-    ['admits a signed-in viewer', TEST_USER_VIEWER, 'any'],
-    ['turns an anonymous visitor away', TEST_USER_ANONYMOUS, ''],
-  ])('%s', (_, user, roles) => {
+  it.each<[string, User | undefined, boolean, string]>([
+    ['admits a signed-in viewer', TEST_USER_VIEWER, false, 'any'],
+    ['turns an anonymous visitor away', undefined, true, ''],
+  ])('%s', (_, user, isAnonymous, roles) => {
     useUser.mockReturnValue({ user });
 
-    render(<OmPage>content</OmPage>);
+    render(
+      <AuthContext.Provider
+        value={{ isLoading: false, isLoggedIn: !isAnonymous, isAnonymous }}
+      >
+        <OmPage>content</OmPage>
+      </AuthContext.Provider>
+    );
 
     expect(screen.getByTestId('page')).toHaveAttribute('data-roles', roles);
+    expect(useReadonlySettings).toHaveBeenLastCalledWith({
+      enabled: !isAnonymous,
+    });
   });
 });
