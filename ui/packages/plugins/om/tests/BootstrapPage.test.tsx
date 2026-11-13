@@ -63,6 +63,22 @@ const hostsState: { data: OmInventoryHost[]; isError: boolean } = {
 /** What the wizard actually asked for, so a test can assert the request itself. */
 const triggerCalls: Record<string, unknown>[] = [];
 
+/** PMM's answer about the replica set name, and every question the wizard asked. */
+const nameCheckState: {
+  inUse: string | null;
+  pending: boolean;
+  error: string | null;
+  calls: {
+    name: string;
+    environment: string;
+    cluster: string;
+    enabled: boolean;
+  }[];
+} = { inUse: null, pending: false, error: null, calls: [] };
+
+/** How many times the wizard asked PMM to check the name again. */
+const nameCheckRefetch = vi.fn();
+
 const { enqueueSnackbar } = vi.hoisted(() => ({ enqueueSnackbar: vi.fn() }));
 vi.mock('notistack', () => ({ enqueueSnackbar }));
 
@@ -73,6 +89,27 @@ vi.mock('../src/inventoryHooks', () => ({
     isError: hostsState.isError,
     error: hostsState.isError ? new Error('refresh failed') : null,
   }),
+  useReplicaSetNameCheck: (
+    name: string,
+    environment: string,
+    cluster: string,
+    enabled: boolean
+  ) => {
+    nameCheckState.calls.push({ name, environment, cluster, enabled });
+    if (enabled && nameCheckState.error) {
+      return {
+        data: undefined,
+        isError: true,
+        error: new Error(nameCheckState.error),
+        refetch: nameCheckRefetch,
+      };
+    }
+    return {
+      data:
+        enabled && !nameCheckState.pending ? nameCheckState.inUse : undefined,
+      isError: false,
+    };
+  },
   // Keeps the accepted run as `data`, re-rendering like useMutation does.
   useTriggerHostBootstrap: () => {
     const [data, setData] = useState<OmHostBootstrapAccepted>();
@@ -275,6 +312,36 @@ describe('BootstrapPage install refusal', () => {
     // db02 is in the selection but not in the refusal, so it is not blamed.
     expect(screen.queryByRole('link', { name: 'db02' })).toBeNull();
   });
+
+  it('lists each kind of problem PMM reports on its own line', () => {
+    triggerState.isError = true;
+    triggerState.error = {
+      message:
+        '1 of the selected node(s) cannot be installed onto -- db01: the last scan found no package manager on this node.\n' +
+        'Replica set name rs-orders is already used in this environment and cluster by an install that is still running. Choose another name.',
+    };
+
+    render(
+      <MemoryRouter initialEntries={['/operations/nodes/install?nodes=node-1']}>
+        <Routes>
+          <Route path="/operations/nodes/install" element={<BootstrapPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Configure' }));
+    fireEvent.change(screen.getByLabelText(/Replica set name/), {
+      target: { value: 'rs-orders' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+
+    const items = within(screen.getByTestId('om-error')).getAllByRole(
+      'listitem'
+    );
+    expect(items.map((item) => item.textContent)).toEqual([
+      '1 of the selected node(s) cannot be installed onto -- db01: the last scan found no package manager on this node.',
+      'Replica set name rs-orders is already used in this environment and cluster by an install that is still running. Choose another name.',
+    ]);
+  });
 });
 
 // Task 4 / P1. Every one of these conditions used to be checked on the wizard's
@@ -352,6 +419,23 @@ describe('BootstrapPage step 1 preconditions', () => {
     expect(screen.getByRole('button', { name: 'Configure' })).toBeDisabled();
     expect(
       screen.getByText(/1 selected node cannot be installed onto/)
+    ).toBeInTheDocument();
+  });
+
+  it('blocks Configure when the selected nodes run different distributions', () => {
+    hostsState.data = [
+      { ...host(1), observed: { os_id: 'ubuntu' } },
+      { ...host(2), observed: { os_id: 'rocky' } },
+      { ...host(3), observed: { os_id: 'ubuntu' } },
+    ];
+
+    renderStep1();
+
+    expect(screen.getByRole('button', { name: 'Configure' })).toBeDisabled();
+    expect(
+      screen.getByText(
+        'The selected nodes run different Linux distributions (ubuntu on db01, db03; rocky on db02). Go back and select nodes that all run the same one.'
+      )
     ).toBeInTheDocument();
   });
 
@@ -474,7 +558,7 @@ describe('BootstrapPage security posture', () => {
     ).toBeInTheDocument();
   });
 
-  it('warns beside the data path when a scan found too little space there', () => {
+  it('blocks Review when a scan found too little space at the default data path', () => {
     hostsState.data = [
       { ...host(1), observed: { data_dir_free_bytes: 1024 ** 3 } },
       host(2),
@@ -482,17 +566,25 @@ describe('BootstrapPage security posture', () => {
     ];
     try {
       openConfigureStep();
+      fireEvent.change(screen.getByLabelText(/Replica set name/), {
+        target: { value: 'rs0' },
+      });
 
-      expect(screen.getByTestId('om-low-disk-warning')).toHaveTextContent(
+      expect(screen.getByTestId('om-low-disk')).toHaveTextContent(
         'The install needs at least 5 GiB free at the data path, and the last ' +
           'scan found less at /var/lib/mongo on db01 (1.0 GiB).'
       );
+      expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
+      expect(screen.getByTestId('om-review-blockers')).toHaveTextContent(
+        'Free space at the data path on db01 (1.0 GiB)'
+      );
 
-      // The scan measured the default path only; another one it knows nothing about.
+      // The scan measured the default path only; another is left to the install's pre-check.
       fireEvent.change(screen.getByLabelText(/Data path/), {
         target: { value: '/data/mongo' },
       });
-      expect(screen.queryByTestId('om-low-disk-warning')).toBeNull();
+      expect(screen.queryByTestId('om-low-disk')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Review' })).toBeEnabled();
     } finally {
       hostsState.data = HOSTS;
     }
@@ -507,7 +599,7 @@ describe('BootstrapPage security posture', () => {
     try {
       openConfigureStep();
 
-      expect(screen.queryByTestId('om-low-disk-warning')).toBeNull();
+      expect(screen.queryByTestId('om-low-disk')).toBeNull();
     } finally {
       hostsState.data = HOSTS;
     }
@@ -535,6 +627,23 @@ describe('BootstrapPage security posture', () => {
     expect(alert.textContent).toMatch(/not encrypted/);
     expect(alert.textContent).toMatch(/LDAP/);
     expect(alert.textContent).toMatch(/KMIP/);
+  });
+
+  it('states the same posture again at Review', () => {
+    openConfigureStep();
+    fireEvent.change(screen.getByLabelText(/Replica set name/), {
+      target: { value: 'rs0' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
+
+    expect(
+      screen.getByRole('button', { name: 'Install MongoDB' })
+    ).toBeInTheDocument();
+    const alert = screen
+      .getByText('Security in this developer preview')
+      .closest('.MuiAlert-root') as HTMLElement;
+    expect(alert.textContent).toMatch(/keyFile/);
+    expect(alert.textContent).toMatch(/not encrypted/);
   });
 
   it('says developer preview, never Tech Preview', () => {
@@ -608,6 +717,73 @@ describe('BootstrapPage configure guidance', () => {
   afterEach(() => {
     triggerCalls.length = 0;
     hostsState.data = HOSTS;
+  });
+
+  it('refuses a replica set name PMM says is already used, beside the field', () => {
+    nameCheckState.inUse =
+      'Replica set name rs0 is already used in this environment and cluster by the MongoDB service(s) orders-1. Choose another name.';
+    try {
+      openConfigureStep();
+      typeInto(/Replica set name/, 'rs0');
+      typeInto(/Environment/, 'prod ');
+
+      expect(
+        screen.getAllByText(
+          'Replica set name rs0 is already used in this environment and cluster by the MongoDB service(s) orders-1. Choose another name.'
+        )
+      ).toHaveLength(2);
+      expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
+      // Asked with the labels the install would carry, trimmed as they are sent.
+      expect(nameCheckState.calls.at(-1)).toEqual({
+        name: 'rs0',
+        environment: 'prod',
+        cluster: '',
+        enabled: true,
+      });
+    } finally {
+      nameCheckState.inUse = null;
+      nameCheckState.calls.length = 0;
+    }
+  });
+
+  it('holds Review until PMM has answered about the name', () => {
+    nameCheckState.pending = true;
+    try {
+      openConfigureStep();
+      typeInto(/Replica set name/, 'rs0');
+
+      expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
+      expect(screen.getByTestId('om-review-blockers')).toHaveTextContent(
+        'Checking whether this replica set name is free.'
+      );
+    } finally {
+      nameCheckState.pending = false;
+    }
+  });
+
+  it('blocks Review, and says why beside the field, when PMM cannot check the name', () => {
+    nameCheckState.error = 'PMM Extensions is unreachable';
+    try {
+      openConfigureStep();
+      typeInto(/Replica set name/, 'rs0');
+
+      expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
+      expect(screen.getByTestId('om-review-blockers')).toHaveTextContent(
+        'PMM could not check whether this replica set name is free: PMM Extensions is unreachable'
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Check again' }));
+      expect(nameCheckRefetch).toHaveBeenCalledTimes(1);
+    } finally {
+      nameCheckState.error = null;
+    }
+  });
+
+  it('asks about a name only once it is well formed', () => {
+    openConfigureStep();
+    typeInto(/Replica set name/, 'rs 0');
+
+    expect(nameCheckState.calls.at(-1)?.enabled).toBe(false);
+    nameCheckState.calls.length = 0;
   });
 
   it('offers only the supported versions, with 7.0 selected', () => {

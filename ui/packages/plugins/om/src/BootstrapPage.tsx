@@ -28,6 +28,7 @@ import {
   Button,
   Checkbox,
   CircularProgress,
+  Link,
   MenuItem,
   Stack,
   Step,
@@ -66,8 +67,12 @@ import {
   initialMongodbVersion,
   replicaSetNameError,
 } from './installForm';
-import { dataDirFreeBytes, toHostRows } from './inventory';
-import { useOmInventoryHosts, useTriggerHostBootstrap } from './inventoryHooks';
+import { dataDirFreeBytes, osId, toHostRows } from './inventory';
+import {
+  useOmInventoryHosts,
+  useReplicaSetNameCheck,
+  useTriggerHostBootstrap,
+} from './inventoryHooks';
 import { NodeNamesLinked } from './components/NodeNamesLinked';
 import { SecurityPosture } from './components/SecurityPosture';
 import { HostReadiness } from './components/HostReadiness';
@@ -433,6 +438,28 @@ export const BootstrapPage = () => {
     [hosts, memberConfigs]
   );
 
+  // A custom data path is left to the install's own pre-check, which measures it.
+  const lowDiskAtDataPath =
+    dataPath.trim() === DEFAULT_DATA_PATH ? lowDiskHosts : [];
+  const nameError = replicaSetNameError(replicaSetName);
+  const nameCheckEnabled =
+    activeStep > 0 && replicaSetName !== '' && nameError === null;
+  const nameCheck = useReplicaSetNameCheck(
+    replicaSetName,
+    environment.trim(),
+    cluster.trim(),
+    nameCheckEnabled
+  );
+  // Shown beside the field: a name in use, or a check PMM could not make.
+  const nameRefusal = nameCheck.isError
+    ? `PMM could not check whether this replica set name is free: ${nameCheck.error.message}`
+    : (nameCheck.data ?? null);
+  // Review waits for PMM's answer, which the trigger would otherwise be the first to give.
+  const nameProblem =
+    nameCheckEnabled && nameRefusal === null && nameCheck.data === undefined
+      ? 'Checking whether this replica set name is free.'
+      : nameRefusal;
+
   const blockers = configureBlockers({
     replicaSetName,
     mongodbVersion: selectedVersion,
@@ -450,8 +477,9 @@ export const BootstrapPage = () => {
       passwordMode === 'enter'
         ? { value: adminPassword, confirmation: adminPasswordConfirmation }
         : null,
+    replicaSetNameProblem: nameProblem,
+    lowDiskHosts: lowDiskAtDataPath,
   });
-  const nameError = replicaSetNameError(replicaSetName);
   const usernameError = adminUsernameError(adminUsername);
   // Judged once typed, so an untouched field does not start out red.
   const passwordError =
@@ -467,6 +495,16 @@ export const BootstrapPage = () => {
   // rather than its own fallback to the replica set name.
   const effectiveCluster = cluster.trim() || replicaSetName;
 
+  // The PMM Server's own node is refused on its own, and its OS is not a choice to compare.
+  const distributions = new Map<string, string[]>();
+  for (const host of hosts) {
+    const id = osId(host);
+    if (id !== null && !host.is_pmm_server_node) {
+      distributions.set(id, [...(distributions.get(id) ?? []), host.name]);
+    }
+  }
+  const mixedDistributions = distributions.size > 1;
+
   const selectionBlockers = [
     !isSupportedHostCount(hosts.length) &&
       `Select exactly one node for a single-member replica set, or three for a three-member one. ${hosts.length} selected.`,
@@ -476,7 +514,13 @@ export const BootstrapPage = () => {
           ? '1 selected node cannot'
           : `${blockedHosts.length} selected nodes cannot`
       } be installed onto. Fix each one on the node itself, or go back and change the selection.`,
+    mixedDistributions &&
+      `The selected nodes run different Linux distributions (${Array.from(
+        distributions,
+        ([id, names]) => `${id} on ${names.join(', ')}`
+      ).join('; ')}). Go back and select nodes that all run the same one.`,
     blockedHosts.length === 0 &&
+      !mixedDistributions &&
       mongodbVersions.length === 0 &&
       'The selected nodes have no MongoDB version in common. Go back and select nodes whose OS releases support the same one.',
   ].filter((blocker): blocker is string => typeof blocker === 'string');
@@ -684,9 +728,23 @@ export const BootstrapPage = () => {
               required
               autoFocus
               fullWidth
-              error={nameError !== null}
+              error={nameError !== null || nameRefusal !== null}
               helperText={
                 nameError ??
+                (nameCheck.isError ? (
+                  <>
+                    {nameRefusal}{' '}
+                    <Link
+                      component="button"
+                      type="button"
+                      onClick={() => void nameCheck.refetch()}
+                    >
+                      Check again
+                    </Link>
+                  </>
+                ) : (
+                  nameRefusal
+                )) ??
                 'Letters, digits, - and _, up to 64 characters. For example, rs0.'
               }
             />
@@ -743,15 +801,13 @@ export const BootstrapPage = () => {
               fullWidth
               helperText="On every node. Where mongod stores its data."
             />
-            {dataPath.trim() === DEFAULT_DATA_PATH &&
-              lowDiskHosts.length > 0 && (
-                <Alert severity="warning" data-testid="om-low-disk-warning">
-                  The install needs at least {MIN_DATA_DIR_FREE_BYTES / GIB} GiB
-                  free at the data path, and the last scan found less at{' '}
-                  {DEFAULT_DATA_PATH} on {lowDiskHosts.join(', ')}. Choose a
-                  data path on a larger disk, or free space there first.
-                </Alert>
-              )}
+            {lowDiskAtDataPath.length > 0 && (
+              <OmError
+                placement="item"
+                messages={`The install needs at least ${MIN_DATA_DIR_FREE_BYTES / GIB} GiB free at the data path, and the last scan found less at ${DEFAULT_DATA_PATH} on ${lowDiskAtDataPath.join(', ')}. Choose a data path on a larger disk, or free space there first.`}
+                itemTestId="om-low-disk"
+              />
+            )}
             <TextField
               label="Log path"
               value={logPath}
@@ -956,6 +1012,7 @@ export const BootstrapPage = () => {
             maxWidth: hasNonDefaultMemberConfig(memberConfigs) ? 720 : 480,
           }}
         >
+          <SecurityPosture />
           <Table size="small">
             <TableHead>
               <TableRow>
@@ -1048,13 +1105,15 @@ export const BootstrapPage = () => {
             <OmError
               placement="action"
               title="Could not start the install"
-              messages={
+              // PMM reports every problem at once, one kind per line.
+              messages={bootstrap.error.message.split('\n').map((line) => (
                 <NodeNamesLinked
-                  text={bootstrap.error.message}
+                  key={line}
+                  text={line}
                   nodeNames={knownNodeNames}
                   omBase={omBase}
                 />
-              }
+              ))}
             />
           )}
         </Stack>

@@ -995,6 +995,25 @@ message TriggerHostBootstrapResponse {
   string generated_admin_password = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
 }
 
+message CheckReplicaSetNameRequest {
+  // The environment label the install would carry; empty for none.
+  string environment = 1;
+  // The cluster label the install would carry; empty stands for the replica
+  // set name, as the Fleet page groups services without one.
+  string cluster = 2;
+  // The replica set name, by TriggerHostBootstrapRequest.replica_set_name's rules.
+  string replica_set_name = 3 [(validate.rules).string = {
+    min_len: 1
+    max_len: 64
+    pattern: "^[A-Za-z0-9_-]+$"
+  }];
+}
+
+message CheckReplicaSetNameResponse {
+  // Why TriggerHostBootstrap would refuse the name, or unset when it would not.
+  optional string in_use = 1;
+}
+
 // BootstrapStep is one step's progress -- a host's own, one of its rollback
 // steps, or one of the run's run-level steps. One shape for all three, the
 // same way om_bootstrap's own StepRecord is (see its doc comment): none of
@@ -1323,6 +1342,17 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Bootstrap one or three hosts (PoC)"
       description: "Plans installing MongoDB on one or three hosts through the Nomad client and initializing them as one replica set, monitored by PMM once it comes up. PMM-15347 proof-of-concept scope only. Returns as soon as the run is planned; PMM's own stepper drives it forward in the background."
+    };
+  }
+
+  // CheckReplicaSetName says whether TriggerHostBootstrap would refuse a
+  // replica set name because a registered MongoDB service, or an install PMM
+  // has not registered yet, already uses it in the same environment and cluster.
+  rpc CheckReplicaSetName(CheckReplicaSetNameRequest) returns (CheckReplicaSetNameResponse) {
+    option (google.api.http) = {get: "/v1/om/inventory/replicaSetNames:check"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Check a replica set name"
+      description: "Says why an install could not use a replica set name in an environment and cluster: a registered MongoDB service, or an install that is running or finished but not registered yet, already uses it there. An empty cluster stands for the replica set name."
     };
   }
 
