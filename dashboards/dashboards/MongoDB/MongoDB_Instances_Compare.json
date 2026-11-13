@@ -693,7 +693,7 @@
             "repeatDirection": "h",
             "targets": [
                 {
-                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\"}",
+                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\",environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}",
                     "format": "table",
                     "interval": "$interval",
                     "legendFormat": "{{set}}",
@@ -801,7 +801,7 @@
             "repeatDirection": "h",
             "targets": [
                 {
-                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\"}",
+                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\",environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}",
                     "format": "time_series",
                     "interval": "$interval",
                     "legendFormat": "",
@@ -2086,7 +2086,8 @@
                 "skipUrlSync": false,
                 "sort": 5,
                 "type": "query",
-                "useTags": false
+                "useTags": false,
+                "allValue": ".+"
             },
             {
                 "current": {
@@ -2147,7 +2148,8 @@
                 "skipUrlSync": false,
                 "sort": 5,
                 "type": "query",
-                "useTags": false
+                "useTags": false,
+                "allValue": ".+"
             }
         ]
     },
