@@ -49,7 +49,10 @@ import { Messages } from './OmPage.messages';
  */
 export const OmPage: FC<PropsWithChildren> = ({ children }) => {
   const { isAnonymous } = useAuth();
-  const { data: settings, isLoading } = useReadonlySettings();
+  // Anonymous visitors can't read settings, and a failing fetch here re-mounts the page in a loop.
+  const { data: settings, isLoading } = useReadonlySettings({
+    enabled: !isAnonymous,
+  });
 
   return (
     // An anonymous visitor is an org Viewer with no credential PMM Extensions accepts, so most

@@ -102,5 +102,8 @@ describe('OmPage', () => {
     );
 
     expect(screen.getByTestId('page')).toHaveAttribute('data-roles', roles);
+    expect(useReadonlySettings).toHaveBeenLastCalledWith({
+      enabled: !isAnonymous,
+    });
   });
 });
