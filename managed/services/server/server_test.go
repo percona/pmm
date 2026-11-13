@@ -24,6 +24,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
@@ -777,7 +778,7 @@ func TestApplyOMSwitch(t *testing.T) {
 		record := func(args mock.Arguments) { effects <- args.Get(0).(context.Context).Err() }
 		om.On("TriggerTopologyCollection", mock.Anything, mock.Anything).
 			Return(&omv1.TriggerTopologyCollectionResponse{}, nil).Run(record)
-		om.On("SyncInventoryEnabled", mock.Anything, true).Run(record)
+		om.On("SyncInventoryEnabled", mock.Anything).Run(record)
 
 		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
 		ctx, cancel := context.WithCancel(t.Context())
@@ -802,7 +803,7 @@ func TestApplyOMSwitch(t *testing.T) {
 		// leaves the Hosts page empty until the app's own schedule comes round.
 		om := newMockOmService(t)
 		calls := make(chan string, 2)
-		om.On("SyncInventoryEnabled", mock.Anything, true).
+		om.On("SyncInventoryEnabled", mock.Anything).
 			Run(func(mock.Arguments) { calls <- "sync" })
 		om.On("TriggerTopologyCollection", mock.Anything, mock.Anything).
 			Return(&omv1.TriggerTopologyCollectionResponse{}, nil).
@@ -828,7 +829,7 @@ func TestApplyOMSwitch(t *testing.T) {
 
 		om := newMockOmService(t)
 		synced := make(chan struct{})
-		om.On("SyncInventoryEnabled", mock.Anything, false).
+		om.On("SyncInventoryEnabled", mock.Anything).
 			Run(func(mock.Arguments) { close(synced) })
 
 		s := &Server{omService: om, l: logrus.WithField("test", t.Name())}
@@ -850,6 +851,58 @@ func TestApplyOMSwitch(t *testing.T) {
 
 		s.applyOMSwitch(t.Context(), settings(true), settings(true))
 		s.applyOMSwitch(t.Context(), settings(false), settings(false))
+	})
+}
+
+func TestValidateEnableOm(t *testing.T) {
+	t.Parallel()
+
+	newServer := func(t *testing.T, settings string, om omService) *Server {
+		t.Helper()
+
+		sqlDB, sqlMock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, sqlMock.ExpectationsWereMet())
+			sqlMock.ExpectClose()
+			require.NoError(t, sqlDB.Close())
+		})
+		sqlMock.ExpectQuery("SELECT settings FROM settings").
+			WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settings))
+
+		return &Server{
+			db:          reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
+			envSettings: &models.ChangeSettingsParams{},
+			omService:   om,
+			l:           logrus.WithField("test", t.Name()),
+		}
+	}
+	enable := true
+
+	t.Run("names why PMM Extensions cannot be used", func(t *testing.T) {
+		t.Parallel()
+
+		om := newMockOmService(t)
+		om.On("CheckAvailable", mock.Anything).Return(status.Error(codes.Unavailable, "PMM Extensions is unreachable: connection refused"))
+
+		err := newServer(t, `{}`, om).validateEnableOm(t.Context(), &enable)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
+			"Operations for MongoDB cannot be enabled: PMM Extensions is unreachable: connection refused"), err)
+	})
+
+	t.Run("available", func(t *testing.T) {
+		t.Parallel()
+
+		om := newMockOmService(t)
+		om.On("CheckAvailable", mock.Anything).Return(nil)
+
+		require.NoError(t, newServer(t, `{}`, om).validateEnableOm(t.Context(), &enable))
+	})
+
+	t.Run("already on is not checked again", func(t *testing.T) {
+		t.Parallel()
+
+		require.NoError(t, newServer(t, `{"om":{"enabled":true}}`, newMockOmService(t)).validateEnableOm(t.Context(), &enable))
 	})
 }
 
