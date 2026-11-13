@@ -80,7 +80,7 @@
     "@testing-library/react": "^16.3.2",
     "@types/node": "^22.10.0",
     "@types/react": "^19.1.0",
-    "date-fns": "^3.6.0",
+    "date-fns": "4.1.0",
     "jsdom": "^29.1.1",
     "notistack": "^3.0.2",
     "prop-types": "15.8.1",
