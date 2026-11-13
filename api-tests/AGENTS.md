@@ -63,8 +63,6 @@ make docker-build-image
 make docker-run-tests PMM_SERVER_URL=https://admin:admin@127.0.0.1
 ```
 
-`docker-run-tests` leaves its `api-tests` container behind; run `docker rm api-tests` before running it again.
-
 `make test`, `make test-report` and `make docker-run-tests` exit 0 even when tests fail, because each test binary is piped through `tee`. Read the output or the JUnit report for the result, or use `go test` or `make api-test`, which exit non-zero on failure.
 
 ## Patterns and Conventions
