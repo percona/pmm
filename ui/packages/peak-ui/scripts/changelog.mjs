@@ -11,16 +11,21 @@ const HEADER = '# Changelog\n\n';
 const CHANGELOG = 'package/CHANGELOG.md';
 const MANIFEST = 'package/package.json';
 
-/** Files that ship, relative to the package folder. */
+/** Files that feed the published package, relative to the package folder. */
 export const SHIPPED_PATHSPEC = [
-  '.',
-  ':(exclude,glob)**/*.stories.*',
-  ':(exclude,glob)**/*.spec.*',
-  ':(exclude,glob)**/*.mdx',
-  ':(exclude).storybook',
-  ':(exclude)scripts',
-  ':(exclude)CONTRIBUTING.md',
-  ':(exclude)CLAUDE.md',
+  'src',
+  ':(exclude,glob)src/**/*.stories.*',
+  ':(exclude,glob)src/**/*.spec.*',
+  ':(exclude,glob)src/**/*.mdx',
+  ':(exclude)src/storybook',
+  'package.json',
+  'tsconfig.json',
+  'rollup.config.js',
+  'scripts/sourcemap-paths.mjs',
+  'AGENTS.md',
+  'llms.txt',
+  'README.md',
+  'LICENSE',
 ];
 
 /**
