@@ -89,6 +89,13 @@ func NewScriptsService(db *reform.DB, registry *Registry, jobs *JobsService) *Sc
 	if err != nil {
 		s.l.Errorf("Failed to add job_logs.stream: %s.", err)
 	}
+	// X.3: a requested stop that could not be delivered (the host is cut off) is kept here so it
+	// outlives both the cut and a pmm-managed restart, and is replayed on the agent's next
+	// reconnect (reconcileRunScripts). A real change carries this as a numbered migration.
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS script_stop_requests (job_id TEXT PRIMARY KEY, requested_at TIMESTAMPTZ NOT NULL DEFAULT now())`)
+	if err != nil {
+		s.l.Errorf("Failed to create script_stop_requests: %s.", err)
+	}
 	return s
 }
 
@@ -111,6 +118,8 @@ func (s *ScriptsService) Run(ctx context.Context) {
 				s.l.Errorf("Failed to delete old script runs: %s.", err)
 			}
 		}
+		// X.3: forget held stops whose run is no longer open (delivered, or gone).
+		_, _ = s.db.Exec(`DELETE FROM script_stop_requests WHERE job_id NOT IN (SELECT id FROM jobs WHERE NOT done)`)
 		select {
 		case <-ctx.Done():
 			return
@@ -571,11 +580,21 @@ func (s *ScriptsService) stopRun(r *http.Request) (any, error) {
 	if err != nil {
 		return nil, err
 	}
+	if job.Done {
+		return map[string]any{"run_id": job.ID, "stop_sent": false}, nil
+	}
+	// X.3: record the stop before trying to send it, so it survives the host being cut off and a
+	// pmm-managed restart. reconcileRunScripts replays it when the agent next connects.
+	_, err = s.db.Exec(`INSERT INTO script_stop_requests (job_id) VALUES ($1) ON CONFLICT DO NOTHING`, job.ID)
+	if err != nil {
+		return nil, err
+	}
 	err = s.jobs.StopJob(job.ID)
 	if err != nil {
-		return nil, scriptErrorf(http.StatusConflict, "stop: %s", err)
+		// The host is unreachable now; the stop stays pending and is sent again on reconnect.
+		return map[string]any{"run_id": job.ID, "stop_sent": false, "stop_pending": true, "detail": err.Error()}, nil
 	}
-	return map[string]any{"run_id": job.ID, "stop_sent": !job.Done}, nil
+	return map[string]any{"run_id": job.ID, "stop_sent": true}, nil
 }
 
 func (s *ScriptsService) readFile(ctx context.Context, job *models.Job, name string, offset int64) (*agentv1.ReadJobFileResponse, error) {
@@ -732,6 +751,21 @@ func (s *JobsService) reconcileRunScripts(ctx context.Context, agent *pmmAgentIn
 			return
 		}
 		if resp.(*agentv1.JobStatusResponse).Alive { //nolint:forcetypeassert
+			// X.3: a stop requested while the host was cut off (held in script_stop_requests
+			// across the cut and any pmm-managed restart) is sent again now the agent is back.
+			pending := false
+			if rows, qerr := s.db.Query(`SELECT 1 FROM script_stop_requests WHERE job_id = $1`, job.ID); qerr == nil {
+				pending = rows.Next()
+				rows.Close() //nolint:errcheck,sqlclosecheck
+			}
+			if pending {
+				_, stopErr := agent.channel.SendAndWaitResponse(ctx, &agentv1.StopJobRequest{JobId: job.ID})
+				if stopErr != nil {
+					s.l.Warnf("Failed to replay the held stop for run %s: %s.", job.ID, stopErr)
+				} else {
+					s.l.Infof("Replayed the held stop for run %s after reconnect.", job.ID)
+				}
+			}
 			continue
 		}
 		// The result may be right behind the answer on the stream; let the handler take it.
