@@ -62,7 +62,6 @@ The `metrics` table stores one row per query fingerprint per collection period:
 - **Source**: Embedded SQL files (`migrations/sql/`) via `embed.FS`
 - **Templating**: `utils/templatefs` selects MergeTree vs ReplicatedMergeTree based on cluster config
 - **Flow**: `migrations.Run()` in `db.go` runs `Up()` on startup; handles dirty-state recovery
-- **Standalone**: `cmd/clickhouse_migrate/main.go` for backup/restore scenarios
 
 ### Data Retention
 - `DropOldPartition()` runs periodically (default every 24h) to drop partitions older than `--data-retention`
@@ -87,11 +86,11 @@ The `metrics` table stores one row per query fingerprint per collection period:
 ## Configuration
 
 CLI flags (parsed via `kingpin`):
-- `--grpc-bind` (default `:9911`) — gRPC listen address
-- `--json-bind` (default `:9922`) — JSON/REST listen address
+- `--grpc-bind` (default `127.0.0.1:9911`) — gRPC listen address
+- `--json-bind` (default `127.0.0.1:9922`) — JSON/REST listen address
 - `--listen-debug-addr` (default `127.0.0.1:9933`) — debug endpoint
 - `--dsn` — ClickHouse DSN (alternative to individual `--clickhouse-*` flags)
-- `--clickhouse-addr`, `--clickhouse-database`, `--clickhouse-user`, `--clickhouse-password` — ClickHouse connection parameters
+- `--clickhouse-addr`, `--clickhouse-name`, `--clickhouse-user`, `--clickhouse-password` — ClickHouse connection parameters
 - `--clickhouse-cluster` — enable cluster mode
 - `--clickhouse-cluster-name` — cluster name for ReplicatedMergeTree
 - `--data-retention` — how long to keep data (default 30 days)
@@ -101,7 +100,7 @@ CLI flags (parsed via `kingpin`):
 
 - Unit tests: `*_test.go` next to implementation
 - Test data: JSON fixtures in `test_data/`
-- Run: `make test` (requires ClickHouse; use `docker-compose.yaml` for local dev)
+- Run: `make test-env-up` (ClickHouse plus test data), then `make test`
 - Coverage: `maincover_test.go` with `maincover` build tag
 
 ## Code Generation

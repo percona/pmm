@@ -153,7 +153,7 @@ The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it 
 | `.proto` only | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
 | UI (anything under `ui/`) | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
 | Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate JS linter) |
-| `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | No linter; run the suite — see the [Testing decision tree](#testing-decision-tree). The other scripts in `dashboards/misc/` have no automated coverage |
+| `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | No linter; run the suite from the repo root: `python3 -m unittest discover -s dashboards/misc -p 'test_*.py'`. The other scripts in `dashboards/misc/` have no automated coverage |
 | Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
 | Before any PR | Run the row(s) that match **every** area you touched; fix errors, not just warnings, unless CI allows them |
 
@@ -452,7 +452,7 @@ All long-running daemons expose on `127.0.0.1`:
 |--------|---------|
 | `make init` | Install pinned dev tools into `bin/` (golangci-lint at the version CI uses) |
 | `make env-up` | Start development container (PMM Server) |
-| `make env-up-rebuild` | Rebuild development container from scratch |
+| `make env-update-image` | Pull the latest dev image (`make env-remove` drops the container and its volumes) |
 | `make env TARGET=<t>` | Run `make <t>` **inside** the `pmm-server` container as the `pmm` user (bash shell if `TARGET` omitted); use `make env-root` for build/test/lint targets |
 | `make env-root TARGET=run-managed-ci` | Rebuild + hot-swap the pmm-managed binary (no image rebuild); see [running and verifying locally](dev/docs/process/running-and-verifying-locally.md). Also `run-agent-ci`, `run-qan-ci`, `run-vmproxy-ci`, `run-all` |
 | `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |

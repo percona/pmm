@@ -11,7 +11,7 @@ The `/api-tests` directory contains **integration tests** for PMM APIs. These te
 
 ```
 Go test binary
-  → Generated Swagger HTTP clients (from /api/*/json/client/)
+  → Generated Swagger HTTP clients (from /api/*/v1/json/client/)
     → HTTP/JSON requests to PMM Server (gRPC-Gateway)
       → pmm-managed processes request
         → Database / VictoriaMetrics / ClickHouse
@@ -44,13 +44,13 @@ Tests are grouped by API domain, mirroring the `/api` directory structure:
 ### Commands
 
 ```bash
-# From api-tests/ directory:
-make run          # Run tests, produce JUnit XML report
-make run-dev      # Run tests without JUnit output
-make run-race     # Run tests with race detector
+# From api-tests/ directory (test binaries are built with -race):
+make init         # Build test binaries
+make test         # Run tests; server settings tests run last, as they restart Grafana
+make test-report  # Run tests, produce JUnit XML report
 
-# Direct invocation:
-go test ./... -pmm.server-url=http://admin:admin@127.0.0.1 -v
+# Direct invocation (-p 1: the server settings tests restart Grafana):
+go test -count=1 -p 1 ./... -pmm.server-url=http://admin:admin@127.0.0.1 -v
 
 # From repo root:
 make api-test
@@ -58,8 +58,8 @@ make api-test
 
 ### Docker execution:
 ```bash
-docker build -t pmm-api-tests .
-docker run --network host -e PMM_SERVER_URL=http://admin:admin@127.0.0.1 pmm-api-tests
+make docker-build-image
+make docker-run-tests PMM_SERVER_URL=http://admin:admin@127.0.0.1
 ```
 
 ## Patterns and Conventions
@@ -83,9 +83,8 @@ docker run --network host -e PMM_SERVER_URL=http://admin:admin@127.0.0.1 pmm-api
 func TestAddMySQL(t *testing.T) {
     t.Parallel()
 
-    // Setup: create required resources
-    node := helpers.AddGenericNode(t, "test-node")
-    t.Cleanup(func() { helpers.RemoveNode(t, node.NodeID) })
+    // Setup: the helper registers the node's removal itself
+    node := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "test-node"))
 
     // Test: perform the operation
     result, err := client.Default.ManagementService.AddService(params)
@@ -93,8 +92,6 @@ func TestAddMySQL(t *testing.T) {
 
     // Assert: verify the result
     assert.Equal(t, expected, result.Payload)
-
-    // Cleanup is handled by t.Cleanup
 }
 ```
 
