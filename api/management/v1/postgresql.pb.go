@@ -88,6 +88,9 @@ type AddPostgreSQLServiceParams struct {
 	MetricsMode MetricsMode `protobuf:"varint,24,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode" json:"metrics_mode,omitempty"`
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,25,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
+	// List of postgres_exporter collector names to enable in this exporter, e.g. long_running_transactions.
+	// A collector that the exporter runs by default needs no entry. A name can't be in both lists.
+	EnableCollectors []string `protobuf:"bytes,35,rep,name=enable_collectors,json=enableCollectors,proto3" json:"enable_collectors,omitempty"`
 	// TLS CA certificate.
 	TlsCa string `protobuf:"bytes,26,opt,name=tls_ca,json=tlsCa,proto3" json:"tls_ca,omitempty"`
 	// TLS Certifcate.
@@ -315,6 +318,13 @@ func (x *AddPostgreSQLServiceParams) GetDisableCollectors() []string {
 	return nil
 }
 
+func (x *AddPostgreSQLServiceParams) GetEnableCollectors() []string {
+	if x != nil {
+		return x.EnableCollectors
+	}
+	return nil
+}
+
 func (x *AddPostgreSQLServiceParams) GetTlsCa() string {
 	if x != nil {
 		return x.TlsCa
@@ -431,6 +441,8 @@ type UpdatePostgreSQLServiceParams struct {
 	MetricsMode *MetricsMode `protobuf:"varint,22,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode,oneof" json:"metrics_mode,omitempty"`
 	// Replace the list of collector names to disable in this exporter.
 	DisableCollectors *common.StringArray `protobuf:"bytes,23,opt,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
+	// Replace the list of postgres_exporter collector names to enable in this exporter.
+	EnableCollectors *common.StringArray `protobuf:"bytes,30,opt,name=enable_collectors,json=enableCollectors,proto3" json:"enable_collectors,omitempty"`
 	// Limit for auto discovery.
 	AutoDiscoveryLimit *int32 `protobuf:"varint,24,opt,name=auto_discovery_limit,json=autoDiscoveryLimit,proto3,oneof" json:"auto_discovery_limit,omitempty"`
 	// Maximum number of connections that exporter can open to the database instance.
@@ -638,6 +650,13 @@ func (x *UpdatePostgreSQLServiceParams) GetDisableCollectors() *common.StringArr
 	return nil
 }
 
+func (x *UpdatePostgreSQLServiceParams) GetEnableCollectors() *common.StringArray {
+	if x != nil {
+		return x.EnableCollectors
+	}
+	return nil
+}
+
 func (x *UpdatePostgreSQLServiceParams) GetAutoDiscoveryLimit() int32 {
 	if x != nil && x.AutoDiscoveryLimit != nil {
 		return *x.AutoDiscoveryLimit
@@ -761,7 +780,7 @@ var File_management_v1_postgresql_proto protoreflect.FileDescriptor
 
 const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\n" +
-	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xc7\f\n" +
+	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xf4\f\n" +
 	"\x1aAddPostgreSQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -789,7 +808,8 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\x03tls\x18\x16 \x01(\bR\x03tls\x12&\n" +
 	"\x0ftls_skip_verify\x18\x17 \x01(\bR\rtlsSkipVerify\x12=\n" +
 	"\fmetrics_mode\x18\x18 \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x12-\n" +
-	"\x12disable_collectors\x18\x19 \x03(\tR\x11disableCollectors\x12\x15\n" +
+	"\x12disable_collectors\x18\x19 \x03(\tR\x11disableCollectors\x12+\n" +
+	"\x11enable_collectors\x18# \x03(\tR\x10enableCollectors\x12\x15\n" +
 	"\x06tls_ca\x18\x1a \x01(\tR\x05tlsCa\x12\x1f\n" +
 	"\btls_cert\x18\x1b \x01(\tB\x04\x88\xb5\x18\x01R\atlsCert\x12\x1d\n" +
 	"\atls_key\x18\x1c \x01(\tB\x04\x88\xb5\x18\x01R\x06tlsKey\x12+\n" +
@@ -801,7 +821,7 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\" \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8d\x0f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcf\x0f\n" +
 	"\x1dUpdatePostgreSQLServiceParams\x12\x1d\n" +
 	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
 	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
@@ -827,7 +847,8 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\x16disable_query_examples\x18\x14 \x01(\bH\x12R\x14disableQueryExamples\x88\x01\x01\x12=\n" +
 	"\x18disable_comments_parsing\x18\x15 \x01(\bH\x13R\x16disableCommentsParsing\x88\x01\x01\x12B\n" +
 	"\fmetrics_mode\x18\x16 \x01(\x0e2\x1a.management.v1.MetricsModeH\x14R\vmetricsMode\x88\x01\x01\x12B\n" +
-	"\x12disable_collectors\x18\x17 \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x125\n" +
+	"\x12disable_collectors\x18\x17 \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x12@\n" +
+	"\x11enable_collectors\x18\x1e \x01(\v2\x13.common.StringArrayR\x10enableCollectors\x125\n" +
 	"\x14auto_discovery_limit\x18\x18 \x01(\x05H\x15R\x12autoDiscoveryLimit\x88\x01\x01\x12=\n" +
 	"\x18max_exporter_connections\x18\x19 \x01(\x05H\x16R\x16maxExporterConnections\x88\x01\x01\x12B\n" +
 	"\tlog_level\x18\x1a \x01(\x0e2\x16.inventory.v1.LogLevelB\b\xfaB\x05\x82\x01\x02\x10\x01H\x17R\blogLevel\x88\x01\x01\x12,\n" +
@@ -912,17 +933,18 @@ var file_management_v1_postgresql_proto_depIdxs = []int32{
 	8,  // 5: management.v1.UpdatePostgreSQLServiceParams.custom_labels:type_name -> common.StringMap
 	5,  // 6: management.v1.UpdatePostgreSQLServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
 	9,  // 7: management.v1.UpdatePostgreSQLServiceParams.disable_collectors:type_name -> common.StringArray
-	6,  // 8: management.v1.UpdatePostgreSQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	7,  // 9: management.v1.UpdatePostgreSQLServiceParams.connection_timeout:type_name -> google.protobuf.Duration
-	10, // 10: management.v1.PostgreSQLServiceResult.service:type_name -> inventory.v1.PostgreSQLService
-	11, // 11: management.v1.PostgreSQLServiceResult.postgres_exporter:type_name -> inventory.v1.PostgresExporter
-	12, // 12: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
-	13, // 13: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	9,  // 8: management.v1.UpdatePostgreSQLServiceParams.enable_collectors:type_name -> common.StringArray
+	6,  // 9: management.v1.UpdatePostgreSQLServiceParams.log_level:type_name -> inventory.v1.LogLevel
+	7,  // 10: management.v1.UpdatePostgreSQLServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	10, // 11: management.v1.PostgreSQLServiceResult.service:type_name -> inventory.v1.PostgreSQLService
+	11, // 12: management.v1.PostgreSQLServiceResult.postgres_exporter:type_name -> inventory.v1.PostgresExporter
+	12, // 13: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
+	13, // 14: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_postgresql_proto_init() }
