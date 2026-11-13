@@ -125,6 +125,18 @@ describe('TextInput', () => {
     expect(storedValue()).toBe('abc');
   });
 
+  it.each<[string, TextFieldProps]>([
+    ['InputProps', { InputProps: { onChange: undefined } }],
+    ['slotProps.input', { slotProps: { input: { onChange: undefined } } }],
+    ['a slotProps.input callback', { slotProps: { input: () => ({ onChange: undefined }) } }],
+  ])('stores the text when the onChange of %s is explicitly undefined', (_, textFieldProps) => {
+    render(<Form textFieldProps={textFieldProps} />);
+
+    type('abc');
+
+    expect(storedValue()).toBe('abc');
+  });
+
   it('stores the chosen option of a native select with its own SelectProps.onChange', () => {
     const onSelectChange = vi.fn();
     render(
@@ -197,6 +209,30 @@ describe('TextInput', () => {
     fireEvent.click(screen.getByRole('option', { name: 'B' }));
 
     expect(onInputChange).toHaveBeenCalledTimes(1);
+    expect(storedValue()).toBe('b');
+  });
+
+  it('stores the chosen option of a select whose SelectProps.onChange is explicitly undefined', () => {
+    render(
+      <Form
+        textFieldProps={{
+          select: true,
+          SelectProps: { onChange: undefined },
+          children: [
+            <MenuItem key="a" value="a">
+              A
+            </MenuItem>,
+            <MenuItem key="b" value="b">
+              B
+            </MenuItem>,
+          ],
+        }}
+      />
+    );
+
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+    fireEvent.click(screen.getByRole('option', { name: 'B' }));
+
     expect(storedValue()).toBe('b');
   });
 
