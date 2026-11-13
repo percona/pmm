@@ -1,3 +1,5 @@
+github_checks: false
+
 coverage:
   range: "60...80"
   status:
@@ -41,6 +43,8 @@ coverage:
 
       qan-api2:
         threshold: 1%
+        flags:
+          - qan-api2
         paths:
           - qan-api2/
 
