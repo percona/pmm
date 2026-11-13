@@ -35,7 +35,7 @@ export const Messages = {
   management: {
     title: 'Management: Inventory & Backups',
     inventory:
-      'Use the Inventory section to manage your monitored services, and the Backups section to create Point-in-Time-Recoverable backups of your MySQL and MongoDB databases.',
+      'Use the Inventory section to manage your monitored services, and the Backups pages under Apps to create Point-in-Time-Recoverable backups of your MySQL and MongoDB databases.',
     readMore: 'Read more about Backups',
   },
   configurations: {
@@ -43,7 +43,7 @@ export const Messages = {
     settings:
       "Manage PMM's advanced settings to customize metrics collection and control feature availability, including features in Technical Preview.",
     access:
-      'Control team access and permissions through Users and access, or modify your personal preferences and password in your profile settings.',
+      'Control team access and permissions through Users and access in Configuration, or modify your personal preferences and password in your profile settings.',
     readMore: "Learn more about PMM's configurations",
   },
   account: {

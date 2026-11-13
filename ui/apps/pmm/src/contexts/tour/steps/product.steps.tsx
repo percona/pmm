@@ -89,7 +89,7 @@ export const getProductTourSteps = (user?: User): StepType[] => {
       selector: '[data-testid="navitem-inventory-list-item"]',
       highlightedSelectors: [
         '[data-testid="navitem-inventory-list-item"]',
-        '[data-testid="navitem-backups-list-item"]',
+        '[data-testid="navitem-apps-list-item"]',
       ],
       content: (
         <TourStep title={Messages.management.title}>
@@ -111,7 +111,6 @@ export const getProductTourSteps = (user?: User): StepType[] => {
       selector: '[data-testid="navitem-configuration-list-item"]',
       highlightedSelectors: [
         '[data-testid="navitem-configuration-list-item"]',
-        '[data-testid="navitem-users-and-access-list-item"]',
         '[data-testid="navitem-account-list-item"]',
       ],
       content: (
