@@ -41,6 +41,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { useDebouncedValue } from '@pmm-extensions/framework';
 import { useContext, useEffect, useRef } from 'react';
 import {
   isBootstrapRunActive,
@@ -74,6 +75,7 @@ const SERVICES_KEY = ['om', 'inventory', 'services'] as const;
 const RUNS_KEY = ['om', 'inventory', 'runs'] as const;
 const CONFIG_KEY = ['om', 'inventory', 'config'] as const;
 const BOOTSTRAP_RUNS_KEY = ['om', 'inventory', 'bootstrap-runs'] as const;
+const NAME_CHECK_KEY = ['om', 'inventory', 'replica-set-name'] as const;
 
 /** Poll cadence while a refresh is in flight (ms). */
 const REFRESH_POLL_MS = 3000;
@@ -510,6 +512,41 @@ export function useTriggerHostBootstrap() {
           ...(adminPassword ? { admin_password: adminPassword } : {}),
         }),
       }),
+  });
+}
+
+/**
+ * Why PMM would refuse to install a replica set under this name, environment and
+ * cluster, from `GET /inventory/replicaSetNames:check`: the same check
+ * TriggerHostBootstrap makes. Null when the name is free, undefined until a name
+ * that passes its own format check has stayed unchanged long enough to ask about.
+ */
+export function useReplicaSetNameCheck(
+  replicaSetName: string,
+  environment: string,
+  cluster: string,
+  enabled: boolean
+) {
+  const query = new URLSearchParams({
+    replica_set_name: replicaSetName,
+    environment,
+    cluster,
+  }).toString();
+  const debounced = useDebouncedValue(query);
+  // Keyed on the name as typed, so an answer about the previous one is never shown for it.
+  return useQuery<string | null>({
+    queryKey: [...NAME_CHECK_KEY, query],
+    queryFn: async () => {
+      const { in_use } = await request<{ in_use?: string }>(
+        `/inventory/replicaSetNames:check?${query}`
+      );
+      return in_use ?? null;
+    },
+    enabled: enabled && debounced === query,
+    // Rechecked, so a conflict that ends elsewhere stops blocking without an edit.
+    refetchInterval: ESTATE_POLL_MS,
+    // Dropped once the wizard moves on, so going back to a name waits for a fresh answer.
+    gcTime: 0,
   });
 }
 

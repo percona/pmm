@@ -135,6 +135,9 @@ Make sure each node meets the following conditions before you start. If a node d
 - **Supported OS release**: a release of Ubuntu or Rocky Linux listed in the table that follows, matched on `ID` and `VERSION_ID` in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported. All nodes in one install must run the same OS.
 - **No existing MongoDB**: `mongod` must not be installed or running, and PMM must have no MongoDB service registered for the node.
 - **Not the PMM Server host**: don't install on the host that runs PMM Server.
+- **Working scans**: the node's scans must succeed. While they fail, PMM blocks the node and shows the scan error and how long scans have been failing.
+- **Repository access**: the node's last scan must have reached Percona's repository at `repo.percona.com`, directly or through a proxy.
+- **Package manager**: the node's last scan must have found a package manager, `apt-get` on Ubuntu or `dnf` on Rocky Linux.
 
 PMM installs each MongoDB version only onto the OS releases that Percona's [release lifecycle for MongoDB](https://www.percona.com/release-lifecycle-percona-software-for-mongodb/) supports. Ubuntu matches on the exact release, and Rocky Linux on the major version, so Rocky Linux 9.4 counts as 9. The following table lists the supported releases:
 
@@ -146,16 +149,15 @@ PMM installs each MongoDB version only onto the OS releases that Percona's [rele
 
 PMM blocks a node whose release isn't listed, such as Ubuntu 20.04. The install form offers only the versions that every selected node supports.
 
-PMM checks the following conditions only when the install starts, and the **Nodes** page doesn't show them. Check them yourself before you start. If a node doesn't meet them, the install fails at the pre-check:
+PMM checks the following conditions only when the install starts, and the **Nodes** page doesn't show them. Check them yourself before you start. If a node doesn't meet them, the install fails at the pre-check, before anything on the nodes changes:
 
 - **No MongoDB configuration**: `/etc/mongod.conf` must not exist.
-- **Free data directory**: the data directory (default `/var/lib/mongo`) must be missing or empty, with at least 5 GiB free.
+- **Free data directory**: the data directory (default `/var/lib/mongo`) must be missing or empty, with at least 5 GiB free. For the default data directory, the install form already blocks a node whose last scan found less than 5 GiB free.
 - **Free port**: nothing else must be listening on the chosen port (default `27017`).
-
-PMM doesn't check the following before the install starts. If they aren't met, the install fails when PMM forms the replica set and then rolls it back:
-
 - **Resolvable node names**: replica set members address each other by their PMM node names. Every member must resolve the node names of all members, including its own, through DNS or `/etc/hosts`.
-- **Network access between members**: each member can reach the other members on the MongoDB port.
+- **`curl` on Ubuntu**: PMM downloads the Percona repository package with `curl`.
+
+PMM doesn't check that each member can reach the other members on the MongoDB port, because it can only test that once `mongod` is running. If a member can't reach the others, the install fails when PMM forms the replica set, and PMM rolls it back.
 
 #### Reduce security exposure
 
@@ -172,14 +174,14 @@ To reduce this risk:
 Once your nodes pass the checks and you've reduced the security exposure, you're ready to install. To install a MongoDB replica set:
 {.power-number}
 
-1. Go to **MongoDB > Operations > Nodes**. To show only nodes without a database, select the **Not monitored** filter.
+1. Go to **MongoDB > Operations > Nodes**. To show only the nodes that you can install onto, select the **Ready to install** filter. The **Install MongoDB** button on the **Automations** page opens the same view.
 
 2. Select one node for a single-member replica set, or three nodes for a three-member replica set, and click **Install MongoDB**. To install on a single node, you can also click **Install MongoDB** in its row.
 
 3. Fill in the form:
 
     - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB. If a selected node runs Rocky Linux 10, the form offers only 8.0.
-    - **Replica set name**.
+    - **Replica set name**: the name must not be in use in the same environment and cluster, by a replica set that PMM monitors or by an install that hasn't finished registering. If you leave **Cluster** empty, PMM uses the replica set name as the cluster.
     - **Data path** (default `/var/lib/mongo`), **Log path** (default `/var/log/mongodb/mongod.log`), and **Port** (default `27017`).
 
         !!! note "Keep the default port"

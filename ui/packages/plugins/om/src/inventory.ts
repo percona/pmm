@@ -133,6 +133,12 @@ export function dataDirFreeBytes(host: OmInventoryHost): number | null {
   return typeof free === 'number' ? free : null;
 }
 
+/** The distribution's os-release ID the last scan reported, as "ubuntu", or null. */
+export function osId(host: OmInventoryHost): string | null {
+  const id = host.observed?.os_id;
+  return typeof id === 'string' && id !== '' ? id : null;
+}
+
 /** Build the Hosts table's rows, with everything the page derives from each host. */
 export function toHostRows(hosts: OmInventoryHost[] | undefined): OmHostRow[] {
   if (!hosts) {
