@@ -10,11 +10,19 @@ const pkg = JSON.parse(read('package.json')) as {
   files: string[];
   scripts: Record<string, string>;
   peerDependencies: Record<string, string>;
+  publishConfig: { main: string; types: string };
 };
 const publicExports = Object.keys(peakUi);
 
 // PMM-15491: the consumer-facing AGENTS.md must ship in the npm tarball.
 describe('published package contents', () => {
+  // The changelog compares packages, so a story or spec edit must not change one.
+  it('ships only the entry points and the guides', () => {
+    const { main, types } = pkg.publishConfig;
+    const allowed = [main, `${main}.map`, types, 'AGENTS.md', 'llms.txt'];
+    expect([...pkg.files].sort()).toEqual([...allowed, 'CHANGELOG.md'].sort());
+  });
+
   it('lists AGENTS.md in package.json files', () => {
     expect(pkg.files).toContain('AGENTS.md');
   });

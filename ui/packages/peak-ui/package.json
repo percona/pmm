@@ -15,7 +15,9 @@
     "directory": "ui/packages/peak-ui"
   },
   "files": [
-    "dist",
+    "dist/index.js",
+    "dist/index.js.map",
+    "dist/index.d.ts",
     "AGENTS.md",
     "llms.txt",
     "CHANGELOG.md"
