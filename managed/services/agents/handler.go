@@ -366,7 +366,8 @@ func updateAgentStatus(
 	l := logger.Get(ctx).WithField("component", "agents/handler")
 	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
 
-	agent, err := models.FindAgentByID(q, agentID)
+	// Locked, because the whole row is written back: see PMM-15835.
+	agent, err := models.FindAgentByIDForUpdate(q, agentID)
 
 	// agent can be already deleted, but we still can receive status message from pmm-agent.
 	if errors.Is(err, reform.ErrNoRows) {
