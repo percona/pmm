@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Alert,
   Skeleton,
@@ -9,7 +10,14 @@ import {
 import { usePrometheusAlertRules } from 'hooks/api/usePrometheusAlertRules';
 import { useAlertmanagerAlerts } from 'hooks/api/useAlertmanagerAlerts';
 import { useAlertmanagerSilences } from 'hooks/api/useAlertmanagerSilences';
-import { buildSilenceMap, flattenAlertRules } from './AlertsPage.utils';
+import {
+  buildSilenceMap,
+  findLinkedAlert,
+  flattenAlertRules,
+  withAlertLink,
+} from './AlertsPage.utils';
+import { ALERT_LINK_PARAMS } from './AlertsPage.constants';
+import type { AlertDetailsPaneTab } from './details-pane/AlertDetailsPane.types';
 import { AlertStatusTable } from './table';
 import { useDetailsPaneNavigation } from '@percona/peak-ui';
 import { AlertRow, AlertsTableRow } from './AlertsPage.types';
@@ -44,33 +52,71 @@ const AlertsPage = () => {
     () => flattenAlertRules(data, silenceMap),
     [data, silenceMap]
   );
-  const [navigableRows, setNavigableRows] = useState<AlertsTableRow[]>(rows);
-  const [selectedRowId, setSelectedRowId] = useState<string>();
+  // Undefined until the table reports its rows, so a linked alert counts as
+  // visible on the first render instead of being dropped as filtered out.
+  const [navigableRows, setNavigableRows] = useState<AlertsTableRow[]>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [linkNotFound, setLinkNotFound] = useState(false);
   // Node group headers are not navigable — the details pane only shows alerts, so
   // next/previous must step over them (and collapsed groups' hidden alerts drop out).
   const navigableAlerts = useMemo(
-    () => navigableRows.filter((row): row is AlertRow => row.type === 'alert'),
-    [navigableRows]
-  );
-  const selectedRow = useMemo(
     () =>
-      navigableAlerts.some((row) => row.id === selectedRowId)
-        ? rows.find((row) => row.id === selectedRowId)
-        : undefined,
-    [rows, navigableAlerts, selectedRowId]
+      (navigableRows ?? rows).filter(
+        (row): row is AlertRow => row.type === 'alert'
+      ),
+    [navigableRows, rows]
   );
+  const linkedAlert = useMemo(
+    () => findLinkedAlert(rows, searchParams),
+    [rows, searchParams]
+  );
+  const selectedRow = navigableAlerts.some((row) => row.id === linkedAlert?.id)
+    ? linkedAlert
+    : undefined;
+  const hasLink = searchParams.has(ALERT_LINK_PARAMS.rule);
+  const tab: AlertDetailsPaneTab =
+    searchParams.get(ALERT_LINK_PARAMS.tab) === 'raw-data'
+      ? 'raw-data'
+      : 'details';
 
+  const setLink = (alert?: AlertRow, replace = false) =>
+    setSearchParams((prev) => withAlertLink(prev, alert), { replace });
+
+  const changeTab = (newTab: AlertDetailsPaneTab) =>
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+
+        if (newTab === 'details') {
+          next.delete(ALERT_LINK_PARAMS.tab);
+        } else {
+          next.set(ALERT_LINK_PARAMS.tab, newTab);
+        }
+
+        return next;
+      },
+      { replace: true }
+    );
+
+  // Drop a link to an alert that is gone, or that the table now hides.
   useEffect(() => {
-    if (selectedRowId && !selectedRow) {
-      setSelectedRowId(undefined);
+    if (!hasLink || !data || selectedRow) {
+      return;
     }
-  }, [selectedRow, selectedRowId]);
+
+    if (!linkedAlert) {
+      setLinkNotFound(true);
+    }
+
+    setSearchParams((prev) => withAlertLink(prev), { replace: true });
+  }, [hasLink, data, selectedRow, linkedAlert, setSearchParams]);
 
   const detailsPaneProps = useDetailsPaneNavigation<AlertRow>({
     rows: navigableAlerts,
     selected: selectedRow,
     getRowId: (row) => row.id,
-    onSelect: (row) => setSelectedRowId(row?.id),
+    // Next/previous replace the history entry, so Back closes the pane.
+    onSelect: (row) => setLink(row, true),
   });
 
   if (!settings?.alertingEnabled) {
@@ -93,6 +139,11 @@ const AlertsPage = () => {
       }}
     >
       <Typography variant="h3">{Messages.title}</Typography>
+      {linkNotFound && (
+        <Alert severity="info" onClose={() => setLinkNotFound(false)}>
+          {Messages.linkNotFound}
+        </Alert>
+      )}
       <Stack
         sx={{
           flex: 1,
@@ -135,13 +186,18 @@ const AlertsPage = () => {
             <AlertStatusTable
               rows={rows}
               onNavigableRowsChange={setNavigableRows}
-              onOpenDetail={(row) => setSelectedRowId(row.id)}
+              onOpenDetail={(row) => {
+                setLinkNotFound(false);
+                setLink(row);
+              }}
             />
           </Stack>
         )}
         <AlertDetailsPane
           alert={selectedRow}
-          onClose={() => setSelectedRowId(undefined)}
+          tab={tab}
+          onTabChange={changeTab}
+          onClose={() => setLink()}
           {...detailsPaneProps}
         />
       </Stack>

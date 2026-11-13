@@ -1,4 +1,6 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
+import { useHref, useLocation } from 'react-router-dom';
+import { enqueueSnackbar } from 'notistack';
 import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -9,6 +11,7 @@ import Tabs from '@mui/material/Tabs';
 import Tooltip from '@mui/material/Tooltip';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import { useEscapeKey } from 'utils/keys.utils';
 import { AlertsTableRow } from '../AlertsPage.types';
 import AlertDetailsTab from './details/AlertDetailsTab';
@@ -19,31 +22,52 @@ import {
 } from '@percona/peak-ui';
 import RawDataTab from './raw-data/RawDataTab';
 import { useAlertDetailsPane } from './AlertDetailsPane.utils';
+import type { AlertDetailsPaneTab } from './AlertDetailsPane.types';
 
 interface Props extends UseDetailsPaneNavigationResult {
   alert?: AlertsTableRow;
+  tab: AlertDetailsPaneTab;
+  onTabChange: (tab: AlertDetailsPaneTab) => void;
   onClose: () => void;
 }
 
 const AlertDetailsPane: FC<Props> = ({
   alert,
+  tab,
+  onTabChange,
   onClose,
   isFirst,
   isLast,
   next,
   previous,
 }) => {
-  const [tab, setTab] = useState<'details' | 'raw-data'>('details');
   const details = useAlertDetailsPane(
     alert?.type === 'alert' ? alert : undefined
   );
+  // The URL already identifies the open alert, see PMM-15889.
+  const href = useHref(useLocation());
 
-  const handleClose = () => {
-    onClose();
-    setTab('details');
+  const handleCopyLink = async () => {
+    if (!navigator.clipboard || !window.isSecureContext) {
+      enqueueSnackbar(Messages.copyLink.unavailable, { variant: 'error' });
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(
+        new URL(href, window.location.origin).toString()
+      );
+      enqueueSnackbar(Messages.copyLink.copied, { variant: 'success' });
+    } catch {
+      enqueueSnackbar(Messages.copyLink.failed, { variant: 'error' });
+    }
   };
 
-  useEscapeKey(handleClose);
+  useEscapeKey(() => {
+    if (details) {
+      onClose();
+    }
+  });
 
   if (alert?.type === 'node') {
     return null;
@@ -80,7 +104,7 @@ const AlertDetailsPane: FC<Props> = ({
             backgroundColor: 'inherit',
           }}
         >
-          <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)}>
+          <Tabs value={tab} onChange={(_, newValue) => onTabChange(newValue)}>
             <Tab
               data-testid="alert-details-pane-details-tab"
               value="details"
@@ -93,6 +117,15 @@ const AlertDetailsPane: FC<Props> = ({
             />
           </Tabs>
           <Stack gap={1} direction="row" alignItems="center">
+            <Tooltip title={Messages.tooltips.copyLink} arrow>
+              <IconButton
+                data-testid="alert-details-pane-copy-link-button"
+                aria-label={Messages.actions.copyLink}
+                onClick={handleCopyLink}
+              >
+                <ShareOutlinedIcon />
+              </IconButton>
+            </Tooltip>
             <Tooltip title={Messages.tooltips.previous} arrow>
               <IconButton
                 data-testid="alert-details-pane-prev-button"
@@ -117,7 +150,7 @@ const AlertDetailsPane: FC<Props> = ({
               <IconButton
                 data-testid="alert-details-pane-close-button"
                 aria-label={Messages.actions.close}
-                onClick={handleClose}
+                onClick={onClose}
               >
                 <BottomPanelCloseIcon />
               </IconButton>
