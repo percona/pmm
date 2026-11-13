@@ -136,10 +136,6 @@ export default defineConfig({
     https: hasNginxCerts
       ? { key: fs.readFileSync(CERT_KEY), cert: fs.readFileSync(CERT_CRT) }
       : undefined,
-    watch: {
-      // Watch the linked package for changes (negated pattern means "don't ignore")
-      ignored: ['!**/node_modules/@percona/peak-ui/**'],
-    },
     proxy: {
       '/v1': {
         target,
