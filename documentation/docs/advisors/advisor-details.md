@@ -170,10 +170,10 @@ Use these checks to find database versions that have reached end of life, aren't
 | Summary | Check name | Technology | What it checks |
 | :------ | :--------- | :--------- | :------------- |
 | [MongoDB - FCV mismatch](checks/mongodb-fcv-mismatch.md) | `mongodb_fcv_check` | MongoDB | Warns if there is a mismatch between the MongoDB version and the internal FCV (Feature Compatibility Version) parameter setting. |
-| [MongoDB version check](checks/mongodb-version.md) | `mongodb_version` | MongoDB | Returns an error if your MongoDB or Percona Server for MongoDB release series has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer minor or major version is available, noting when it includes security fixes. |
-| [MySQL Version](checks/mysql-version.md) | `mysql_version` | MySQL | Returns an error if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL release series has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer release of the series is available, noting when it includes security fixes. |
+| [MongoDB version check](checks/mongodb-version.md) | `mongodb_version` | MongoDB | Returns an error if your MongoDB or Percona Server for MongoDB release series has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer minor version or release series is available, and links to its release notes. |
+| [MySQL Version](checks/mysql-version.md) | `mysql_version` | MySQL | Returns an error if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL release series has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer release of the series is available, and links to its release notes. |
 | [Check for outdated extensions](checks/postgresql-extension-check.md) | `postgresql_extension_check` | PostgreSQL | Lists outdated extensions with newer versions available. |
-| [Check for newer version of PostgreSQL](checks/postgresql-version-check.md) | `postgresql_version_check` | PostgreSQL | Returns an error if your PostgreSQL major version has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer minor or major version is available, noting when it includes security fixes. |
+| [Check for newer version of PostgreSQL](checks/postgresql-version-check.md) | `postgresql_version_check` | PostgreSQL | Returns an error if your PostgreSQL major version has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer minor or major version is available, and links to its release notes. |
 
 ## Related topics
 

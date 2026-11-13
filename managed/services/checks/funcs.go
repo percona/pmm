@@ -127,8 +127,7 @@ func currentDate(args ...any) (any, error) {
 	return now().UTC().Format(dateLayout), nil
 }
 
-// daysUntil accepts a single string argument (YYYY-MM-DD date) and returns the number of whole days
-// from today (UTC) until that date as int64. The result is negative for a date in the past.
+// daysUntil returns the whole days from today (UTC) until a YYYY-MM-DD date as int64, negative for a past date.
 func daysUntil(args ...any) (any, error) {
 	if l := len(args); l != 1 {
 		return nil, fmt.Errorf("expected 1 argument, got %d", l)

@@ -12,10 +12,8 @@ checks:
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
-      # The latest release of each release series, keyed by major*100+minor (8.0 is 800, 10.11 is 1011).
-      # A server is only compared with the latest release of its own series;
-      # a series missing from its distribution's table gets no finding.
-      # RELEASE_NOTES lists the source of each row.
+      # The latest release of each series, keyed by major*100+minor (8.0 is 800); a server is compared only with its own series.
+      # A series missing from its distribution's table gets no finding; RELEASE_NOTES lists the source of each row.
       LATEST_VERSIONS = {
           "oracle": {
               507: 50744,
@@ -99,14 +97,8 @@ checks:
           "mariadb": "https://mariadb.org/about/#maintenance-policy",
       }
 
-      # End-of-life dates. The PMM team keeps the EOL_* tables current.
-      # Oracle MySQL; Percona Server and PXC follow these dates unless EOL_PERCONA says otherwise.
-      # LTS and older series: end of Extended Support, last day of the month,
-      # https://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf
-      # Innovation series: supported until the next Innovation release,
-      # https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html
-      # https://dev.mysql.com/doc/relnotes/mysql/9.7/en/
-      # Add an Innovation series only once it is EOL.
+      # Oracle MySQL EOL, also for Percona Server and PXC unless EOL_PERCONA differs: the end of Extended Support for an LTS series,
+      # the next release for an Innovation series, added once EOL. https://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf
       EOL_ORACLE = {
           (5, 5): "2018-12-31",
           (5, 6): "2021-02-28",
@@ -124,7 +116,7 @@ checks:
           (9, 5): "2026-01-20",
           (9, 6): "2026-04-21",
           (9, 7): "2034-04-30",
-          (26, 7): "2026-10-20",  # https://dev.mysql.com/doc/relnotes/mysql/26.10/en/
+          (26, 7): "2026-10-20",
       }
 
       # Only where Percona states a date different from Oracle's.
@@ -195,12 +187,12 @@ checks:
           "oracle": "MySQL",
           "percona_server": "Percona Server for MySQL",
           "percona_xtradb_cluster": "Percona XtraDB Cluster",
-          "rds": "MySQL",
+          "rds": "Amazon RDS for MySQL",
           "mariadb": "MariaDB",
       }
 
-      SECURITY_NOTE = " The newer release includes security fixes: https://www.oracle.com/security-alerts/."
-      MARIADB_SECURITY_NOTE = " The newer release includes security fixes: https://mariadb.org/about/security-policy/."
+      SECURITY_NOTE = " Newer releases can include security fixes; see which ones affect your version: https://www.oracle.com/security-alerts/."
+      MARIADB_SECURITY_NOTE = " Newer releases can include security fixes; see which ones affect your version: https://mariadb.org/about/security-policy/."
 
       # MariaDB prefixes its version with this for old replication clients.
       MARIADB_PREFIX = "5.5.5-"
@@ -315,6 +307,7 @@ checks:
           version = parse_version(current)
           num = version["num"]
           key = version["major"] * 100 + version["minor"]
+          series = "{}.{}".format(version["major"], version["minor"])
           latest = LATEST_VERSIONS[dist].get(key, 0)
 
           security_note = SECURITY_NOTE
@@ -326,7 +319,6 @@ checks:
           if date:
               days = days_until(date)
               if days <= WARN_DAYS:
-                  series = "{}.{}".format(version["major"], version["minor"])
                   labels = {
                       "current": current,
                       "series": series,
@@ -343,12 +335,12 @@ checks:
 
           return [{
               "summary": "Newer version of {} is available".format(PRODUCTS[dist]),
-              "description": "Current version is {}, the latest available version is {}.".format(
-                  format_version_num(num), format_version_num(latest)) + release_notes(dist, key) + security_note,
+              "description": "Current version is {}, the latest release of {} {} is {}.".format(
+                  current, PRODUCTS[dist], series, format_version_num(latest)) + release_notes(dist, key) + security_note,
               "read_more_url": read_url.format("mysql-version"),
               "severity": "warning",
               "labels": {
-                  "current": format_version_num(num),
+                  "current": current,
                   "latest": format_version_num(latest),
               },
           }]

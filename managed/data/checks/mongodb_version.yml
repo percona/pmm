@@ -70,7 +70,7 @@ checks:
 
       READ_MORE_URL = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-version.html"
 
-      SECURITY_NOTE = " The newer release includes security fixes: https://www.mongodb.com/resources/products/alerts."
+      SECURITY_NOTE = " Newer releases can include security fixes; see which ones affect your version: https://www.mongodb.com/resources/products/alerts."
 
       def series_of(num):
           return "{}.{}".format(num // 10000, num // 100 % 100)
@@ -156,20 +156,26 @@ checks:
               latest_major = "{}.{}".format(latest_key[0], latest_key[1])
               latest_for_current = latest_versions[mm]
 
+              # A server already on the latest release of its series gets no security note: it misses no fixes.
+              note = SECURITY_NOTE
               if num < latest_for_current:
                   latest = latest_for_current
                   description = "Current version is {}, the latest release of {} {} is {}.".format(current, product, mm, format_version_num(latest))
                   if key < latest_key:
-                      description += " A newer major version, {}, is also available.".format(latest_major)
+                      description += " A newer release series, {}, is also available.".format(latest_major)
               elif key < latest_key:
                   latest = latest_versions[latest_major]
-                  description = "Current version is {}, the latest release of {} {}. A newer major version, {}, is available.".format(current, product, mm, format_version_num(latest))
+                  note = ""
+                  description = "Current version is {}, the latest release of {} {}. A newer release series, {}, is available.".format(current, product, mm, latest_major)
               else:
                   continue
 
+              if latest_key[0] - key[0] > 1:
+                  description += " Upgrade one major version at a time."
+
               results.append({
                   "summary": "Newer version of {} is available".format(product),
-                  "description": description + release_notes(dist, latest) + SECURITY_NOTE,
+                  "description": description + release_notes(dist, latest) + note,
                   "read_more_url": READ_MORE_URL,
                   "severity": "warning",
                   "labels": {

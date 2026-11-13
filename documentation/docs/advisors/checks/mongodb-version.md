@@ -50,7 +50,7 @@ For a supported release series, the check compares the version with the latest m
 - PSMDB is compared with the releases in the [Percona Server for MongoDB release notes](https://docs.percona.com/percona-server-for-mongodb/8.0/release_notes/index.html). A MongoDB major version that has no PSMDB release yet isn't suggested to PSMDB users.
 - MongoDB is compared with the releases in the [MongoDB release notes](https://www.mongodb.com/docs/manual/release-notes/).
 
-The finding links to the release notes of the version it suggests. Its labels show the running version (`current`) and the suggested version (`latest`). Newer releases include security fixes, so the finding also links to the [MongoDB security alerts](https://www.mongodb.com/resources/products/alerts), where you can check which vulnerabilities affect your current version.
+The finding links to the release notes of the version it suggests. Its labels show the running version (`current`) and the suggested version (`latest`). If a newer release series is more than one major version ahead, the finding reminds you to upgrade one major version at a time. If a newer minor version of your series exists, the finding also links to the [MongoDB security alerts](https://www.mongodb.com/resources/products/alerts), where you can check which vulnerabilities affect your current version.
 
 ## Resolution
 
@@ -64,10 +64,10 @@ If you are running PSMDB/MongoDB version lower than the latest minor/major patch
 
 ## Recommended upgrade process
 We recommend following an upgrade path similar to the one below: 
-- Current minor version: 4.2.23
-- Desired version: 5.0.14
-- Recommended Upgrade Path: 4.2.23 => 4.4.18 => 5.0.14.
-- Do NOT skip major version 4.4.x on the way to major version 5.0.x
+- Current minor version: 7.0.40
+- Desired version: 9.0.8
+- Recommended Upgrade Path: 7.0.40 => 7.0.48 => 8.0.38 => 9.0.8.
+- Do NOT skip major version 8.0.x on the way to major version 9.0.x
 
 
 > **Important**

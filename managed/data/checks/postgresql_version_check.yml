@@ -54,15 +54,14 @@ checks:
 
       minver = 9
 
-      latestpg = 180007
-      latest_and_greatest = "18.7"
+      latestpg = max(latest_versions.values())
 
       # A major version that reaches EOL within this many days gets a warning.
       WARN_DAYS = 183
 
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
-      security_line = " The newer release includes security fixes: https://www.postgresql.org/support/security/."
+      security_line = " Newer releases can include security fixes; see which ones affect your version: https://www.postgresql.org/support/security/."
 
       lifecycle_line = " Lifecycle policy: https://www.postgresql.org/support/versioning/."
 
@@ -97,7 +96,7 @@ checks:
           description = "PostgreSQL {} End-of-Life date is {}. After that date it no longer gets bug fixes or security fixes. Plan your upgrade to a supported major version.".format(series, eol_date) + lifecycle_line
           if ver < latest_for_current:
               latest = format_version(int(series.split(".")[0]), latest_for_current)
-              description += " Until then, upgrade to the newer minor version ({}).".format(latest) + release_notes(latest) + security_line
+              description += " Until then, upgrade to the latest release of this major version, {}.".format(latest) + release_notes(latest) + security_line
 
           return {
               "summary": "PostgreSQL {} reaches end of life on {}".format(series, eol_date),
@@ -115,14 +114,7 @@ checks:
                ver, major = int(row["setting"]), int(row["major"])
 
                if major < minver:
-                  results.append({
-                      "summary": "Could not determine version information",
-                      "description": "Unknown version",
-                      "read_more_url": "",
-                      "severity": "warning",
-                      "labels": {},
-                  })
-                  return results
+                  continue
 
                series = str(major)
                if major < 10:
@@ -142,11 +134,14 @@ checks:
                   results.append(eol_result(series, current_version, eol_date, days, latest_for_current, ver))
                   continue
 
+               # A server already on the latest minor version of its major version gets no security note: it misses no fixes.
+               note = security_line
                if ver < latest_for_current:
                   latest = format_version(major, latest_for_current)
                   description = "Current version is {}, the latest release of PostgreSQL {} is {}.".format(current_version, series, latest)
                elif ver < latestpg:
-                  latest = latest_and_greatest
+                  latest = format_version(latestpg // 10000, latestpg)
+                  note = ""
                   description = "Current version is {}, the latest release of PostgreSQL {}. A newer major version, {}, is available.".format(current_version, series, latest)
                else:
                   continue
@@ -155,7 +150,7 @@ checks:
 
                results.append({
                    "summary": "Newer version of PostgreSQL is available",
-                   "description": description + release_notes(latest) + security_line,
+                   "description": description + release_notes(latest) + note,
                    "read_more_url": read_url.format("postgresql-version-check"),
                    "severity": "warning",
                    "labels": {

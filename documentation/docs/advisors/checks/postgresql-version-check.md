@@ -47,11 +47,11 @@ The EOL finding's labels show the running version (`current`), its major version
 
 For a supported major version, the check compares the version with the latest minor version of the same major version, and then with the latest major version. The finding's labels show the running version (`current`) and the newer version (`latest`), and the finding links to the [release notes](https://www.postgresql.org/docs/release/) of the newer version.
 
-Newer releases include security fixes, so the newer-version finding also links to the [PostgreSQL security information page](https://www.postgresql.org/support/security/), where you can check which vulnerabilities affect your current version.
+If a newer minor version of your major version exists, the finding also links to the [PostgreSQL security information page](https://www.postgresql.org/support/security/), where you can check which vulnerabilities affect your current version.
 
 ## Resolution
 
-If your major version has reached EOL, or reaches it soon, upgrade to a supported major version. For more information, check out the [Percona software support lifecycle information](https://www.percona.com/services/policies/percona-services-lifecycle-policy/).
+If your major version has reached EOL, or reaches it soon, upgrade to a supported major version. For the support dates, see the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) and the [Percona release lifecycle](https://www.percona.com/release-lifecycle-overview/).
 
 To upgrade PostgreSQL, follow these instructions:
 
