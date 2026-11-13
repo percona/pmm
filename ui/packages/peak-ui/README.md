@@ -1,13 +1,13 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/percona/peak-ui/main/.storybook/static/logo-peak-ui-dark.svg" />
-  <img src="https://raw.githubusercontent.com/percona/peak-ui/main/.storybook/static/logo-peak-ui.svg" alt="Peak UI" height="37" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/percona/pmm/main/ui/packages/peak-ui/.storybook/static/logo-peak-ui-dark.svg" />
+  <img src="https://raw.githubusercontent.com/percona/pmm/main/ui/packages/peak-ui/.storybook/static/logo-peak-ui.svg" alt="Peak UI" height="37" />
 </picture>
 
 # Peak UI
 
 Peak UI (`@percona/peak-ui`) is Percona's React component library built on top of [MUI v7](https://mui.com/). It provides themed UI components, design tokens, and [react-hook-form](https://react-hook-form.com/)-integrated form inputs for Percona products, with theme variants, such as PMM (for Percona Monitoring and Management native UI).
 
-Browse the components in [Storybook](https://percona.github.io/peak-ui/).
+Browse the components in [Storybook](https://main--6a31152ea29e3a78e1060595.chromatic.com/).
 
 ## Usage
 
@@ -37,10 +37,12 @@ Using an AI coding assistant? The package ships an [`AGENTS.md`](./AGENTS.md) wi
 
 ## Development
 
-Contributor conventions live in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+Peak UI lives in the [PMM repository](https://github.com/percona/pmm) at `ui/packages/peak-ui`. PMM's apps and plugins use it from source through the pnpm workspace, so a component change and the code that uses it land in one pull request. Contributor conventions live in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+
+Install once from `ui/`, then run the scripts from this folder, or from `ui/` with `pnpm --filter @percona/peak-ui <script>` (for example `pnpm --filter @percona/peak-ui storybook:dev`).
 
 ```bash
-pnpm install
+cd ui && pnpm install
 ```
 
 | Task          | Command                          |
@@ -53,23 +55,6 @@ pnpm install
 | Format check  | `pnpm format:check`              |
 | Tests         | `pnpm test`                      |
 
-## Publishing
+## Releases
 
-```bash
-# 1. Bump the version in package.json (e.g. X.Y.Z)
-
-# 2. Commit the change
-git commit -am "release: vX.Y.Z"
-
-# 3. Create an annotated tag
-git tag -a vX.Y.Z -m "vX.Y.Z"
-
-# 4. Push the commit and the tag
-git push && git push --tags
-
-# 5. Log in to npm (optional if already logged in; 2FA required)
-npm login
-
-# 6. Publish
-pnpm publish --access public --registry https://registry.npmjs.org/
-```
+Versions follow PMM: every PMM release tag (`v3.x.y`) publishes `@percona/peak-ui@3.x.y` to npm from GitHub Actions, with provenance. Each version ships a generated `CHANGELOG.md`; a release without Peak UI changes says `No changes to Peak UI`. Nobody publishes by hand.

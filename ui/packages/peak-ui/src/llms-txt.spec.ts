@@ -12,8 +12,9 @@ const llms = read('llms.txt');
 const lines = llms.split('\n');
 const pkg = JSON.parse(read('package.json')) as { files: string[] };
 
-const STORYBOOK = 'https://percona.github.io/peak-ui/?path=/';
-const SOURCE = 'https://github.com/percona/peak-ui/blob/main/';
+const STORYBOOK =
+  'https://main--6a31152ea29e3a78e1060595.chromatic.com/?path=/';
+const SOURCE = 'https://github.com/percona/pmm/blob/main/ui/packages/peak-ui/';
 const LINK_ITEM = /^- \[[^\]]+\]\(https?:\/\/[^)\s]+\): \S/;
 
 const links = [...llms.matchAll(/\[[^\]]+\]\((https?:\/\/[^)\s]+)\)/g)].map(
@@ -107,6 +108,20 @@ const storybookIds = (() => {
 
 // PMM-15492: llms.txt ships in the tarball and indexes every export.
 describe('llms.txt', () => {
+  it('links only to the PMM Storybook and source', () => {
+    expect(links.filter((l) => l.startsWith(STORYBOOK)).length).toBeGreaterThan(
+      70
+    );
+    expect(links.filter((l) => l.startsWith(SOURCE)).length).toBeGreaterThan(
+      40
+    );
+    expect(
+      links.filter((l) =>
+        /percona\.github\.io\/peak-ui|github\.com\/percona\/peak-ui\b/.test(l)
+      )
+    ).toEqual([]);
+  });
+
   it('is listed in package.json files', () => {
     expect(pkg.files).toContain('llms.txt');
   });
