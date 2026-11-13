@@ -7,6 +7,7 @@ import dts from 'rollup-plugin-dts';
 import postcss from 'rollup-plugin-postcss';
 
 import terser from '@rollup/plugin-terser';
+import { stripPnpmStore } from './scripts/sourcemap-paths.mjs';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 
 // import packageJson from `./package.json`;
@@ -19,6 +20,7 @@ export default [
         file: 'dist/index.js',
         format: 'esm',
         sourcemap: true,
+        sourcemapPathTransform: stripPnpmStore,
       },
     ],
     plugins: [
