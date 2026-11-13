@@ -18,24 +18,20 @@ const NavItemAction: FC<Props> = ({
   testId,
   sx = { mr: 0.5 },
   onClick,
-}) => {
-  const Icon = action.icon ?? Add;
-
-  return (
-    <Tooltip title={action.label} placement="right" arrow>
-      <IconButton
-        size="small"
-        component={RouterLink}
-        to={action.url}
-        aria-label={action.label}
-        data-testid={testId}
-        sx={sx}
-        onClick={onClick}
-      >
-        <Icon fontSize="small" />
-      </IconButton>
-    </Tooltip>
-  );
-};
+}) => (
+  <Tooltip title={action.label} placement="right" arrow>
+    <IconButton
+      size="small"
+      component={RouterLink}
+      to={action.url}
+      aria-label={action.label}
+      data-testid={testId}
+      sx={sx}
+      onClick={onClick}
+    >
+      <Add fontSize="small" />
+    </IconButton>
+  </Tooltip>
+);
 
 export default NavItemAction;

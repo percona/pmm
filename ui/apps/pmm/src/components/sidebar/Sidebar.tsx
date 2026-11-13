@@ -84,26 +84,18 @@ export const Sidebar: FC = () => {
   };
 
   useEffect(() => {
-    const activeItem = findActiveNavItem(
-      navTree,
-      location.pathname,
-      location.search
-    );
+    const activeItem = findActiveNavItem(navTree, location.pathname);
 
     // keep previous item active if there isn't a match
     if (activeItem) {
       setActiveItem(activeItem);
     } else if (
       // The home dashboard has no entry of its own: the logo leads there.
-      isActive(
-        addHomePage(user?.preferences),
-        location.pathname,
-        location.search
-      )
+      isActive(addHomePage(user?.preferences), location.pathname)
     ) {
       setActiveItem(undefined);
     }
-  }, [navTree, location.pathname, location.search, user?.preferences]);
+  }, [navTree, location.pathname, user?.preferences]);
 
   const handleNavItemClick = () => {
     // autoclose sidebar when layout is narrow

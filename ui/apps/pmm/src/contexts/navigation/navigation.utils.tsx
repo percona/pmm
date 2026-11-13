@@ -153,14 +153,11 @@ export const addConfiguration = (
   return NAV_CONFIGURATION;
 };
 
-// A single entry: the namespace rides on the link, and the plain dashboard path
-// in `matches` keeps the entry highlighted however the dashboard was reached.
 export const addHighAvailability = ({ health, namespace }: HAInfo): NavItem => {
-  const { url = '' } = NAV_HIGH_AVAILABILITY;
-  const item = { ...NAV_HIGH_AVAILABILITY, url, matches: [url] };
+  const item = { ...NAV_HIGH_AVAILABILITY };
 
   if (namespace) {
-    item.url = `${url}?var-namespace=${encodeURIComponent(namespace)}`;
+    item.url = `${item.url}?var-namespace=${encodeURIComponent(namespace)}`;
   }
 
   item.badge = <HighAvailabilityBadge health={health} />;

@@ -105,29 +105,8 @@ describe('findActiveNavItem', () => {
     expect(findActiveNavItem([section], '/browse')).toBeUndefined();
   });
 
-  it('gives an item with a query string its page only when the params are present', () => {
-    const plain: NavItem = { id: 'plain', url: '/page' };
-    const filtered: NavItem = {
-      id: 'filtered',
-      url: '/page?var-type=postgresql',
-    };
-
-    expect(findActiveNavItem([filtered, plain], '/page')?.id).toBe('plain');
-    expect(
-      findActiveNavItem(
-        [filtered, plain],
-        '/page',
-        '?var-type=postgresql&from=now'
-      )?.id
-    ).toBe('filtered');
-  });
-
-  it('keeps custom match paths path-only for an item with a query string', () => {
-    const item: NavItem = {
-      id: 'item',
-      url: '/page?var-namespace=pmm',
-      matches: ['/page'],
-    };
+  it('matches an item whose link carries a query string by its path', () => {
+    const item: NavItem = { id: 'item', url: '/page?var-namespace=pmm' };
 
     expect(findActiveNavItem([item], '/page')?.id).toBe('item');
   });

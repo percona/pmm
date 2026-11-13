@@ -2,12 +2,11 @@ import { IconName } from 'components/icon/Icon.types';
 import { SvgIconComponent } from './util.types';
 import { ChipProps } from '@mui/material/Chip';
 
-// A small trailing icon button beside an entry or a section heading. It is
-// rendered outside the entry's own link so the two stay separate targets.
+// A small add button beside an entry, outside its link so the two stay
+// separate targets.
 export interface NavItemAction {
   label: string;
   url: string;
-  icon?: SvgIconComponent;
 }
 
 export interface NavItem {
@@ -26,6 +25,6 @@ export interface NavItem {
   badge?: ChipProps | React.ReactElement;
   badgeAlwaysVisible?: boolean;
   matches?: string[];
-  type?: 'menu-item' | 'menu-text' | 'menu-divider' | 'menu-section';
+  type?: 'menu-item' | 'menu-text' | 'menu-section';
   action?: NavItemAction;
 }

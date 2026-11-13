@@ -122,13 +122,6 @@ export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
               borderColor: theme.palette.divider,
             }
           : {},
-    listItemDivider: {
-      px: drawerOpen ? 2 : 1.5,
-      py: 0.5,
-    },
-    divider: {
-      flex: 1,
-    },
     listItemButton: {
       px: 2,
     },

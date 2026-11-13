@@ -273,20 +273,24 @@ describe('buildNavTree', () => {
   it('lists PMM HA only when the instance runs in HA, with its live status', () => {
     expect(ids(build())).not.toContain('high-availability');
 
-    const ha = findById(
-      build({
-        haInfo: {
-          enabled: true,
-          health: 'healthy',
-          nodes: [],
-          namespace: 'pmm',
-        },
-      }),
-      'high-availability'
-    );
+    const tree = build({
+      haInfo: {
+        enabled: true,
+        health: 'healthy',
+        nodes: [],
+        namespace: 'pmm',
+      },
+    });
+    const ha = findById(tree, 'high-availability');
 
     expect(ha?.badge).toBeDefined();
     expect(ha?.url).toContain('var-namespace=pmm');
+    expect(
+      findActiveNavItem(
+        tree,
+        '/graph/d/pmm-ha-health-overview/pmm-ha-health-overview'
+      )?.id
+    ).toBe('high-availability');
     expect(ha?.children).toBeUndefined();
   });
 

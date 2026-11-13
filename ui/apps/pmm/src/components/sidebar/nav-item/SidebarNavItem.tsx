@@ -26,7 +26,6 @@ import Box from '@mui/material/Box';
 import ListItem from '@mui/material/ListItem';
 import List from '@mui/material/List';
 import Collapse from '@mui/material/Collapse';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import NavItemIcon from './nav-item-icon/NavItemIcon';
 import NavItemTooltip from './nav-item-tooltip/NavItemTooltip';
@@ -267,20 +266,6 @@ const SidebarNavItem: FC<NavItemProps> = ({
           <ListItemText primary={item.text} sx={styles.sectionHeading} />
         </Box>
         <Box sx={styles.sectionLine} aria-hidden />
-        {item.action && drawerOpen && (
-          <NavItemAction action={item.action} testId={`${dataTestid}-action`} />
-        )}
-      </ListItem>
-    );
-  }
-
-  if (item.type === 'menu-divider') {
-    return (
-      <ListItem
-        data-testid={dataTestid + '-divider'}
-        sx={styles.listItemDivider}
-      >
-        <Divider sx={styles.divider} />
       </ListItem>
     );
   }

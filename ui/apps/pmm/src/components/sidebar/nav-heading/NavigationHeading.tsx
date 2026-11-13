@@ -2,7 +2,7 @@ import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import { FC, memo } from 'react';
 import { Link } from 'react-router-dom';
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { PMM_NEW_NAV_USER_HOME_URL } from 'lib/constants';
 import { NavigationHeadingProps } from './NavigationHeading.types';
 import { Icon } from 'components/icon';
 import Box from '@mui/material/Box';
@@ -20,9 +20,6 @@ import {
   DRAWER_CLOSED_WIDTH,
   DRAWER_OPEN_DURATION,
 } from '../drawer/Drawer.constants';
-
-// Grafana's home: the user's home dashboard, pmm-home unless they chose another.
-const HOME_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/`;
 
 const NavigationHeading: FC<NavigationHeadingProps> = memo(
   ({ sidebarOpen, onToggleSidebar, onNavigate }) => (
@@ -71,7 +68,7 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
           >
             <Box
               component={Link}
-              to={HOME_URL}
+              to={PMM_NEW_NAV_USER_HOME_URL}
               aria-label="Home"
               data-testid="sidebar-logo-link"
               onClick={onNavigate}

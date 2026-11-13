@@ -1,4 +1,4 @@
-import { CSSObject, Theme, alpha, keyframes } from '@mui/material/styles';
+import { CSSObject, Theme, keyframes } from '@mui/material/styles';
 import {
   DRAWER_CLOSE_DURATION,
   DRAWER_OPEN_DURATION,
@@ -64,32 +64,6 @@ export const hiddenScrollbarMixin: CSSObject = {
   '&::-webkit-scrollbar': {
     display: 'none',
   },
-};
-
-// Soft shadows at the list's top and bottom edges whenever there is more to
-// scroll that way. The shadows are fixed to the edges, while covers in the
-// paper colour scroll with the content and hide each shadow once its end is
-// reached. Pure CSS: no scroll listeners.
-export const scrollShadowMixin = (theme: Theme): CSSObject => {
-  const paper = theme.palette.background.paper;
-  // The covers are twice the shadow's height, fully opaque over the first
-  // half, so a shadow is hidden completely before it fades in.
-  const shadowSize = 24;
-  const coverSize = shadowSize * 2;
-  const shadow = alpha(
-    theme.palette.common.black,
-    theme.palette.mode === 'dark' ? 0.8 : 0.1
-  );
-
-  return {
-    background: [
-      `linear-gradient(${paper} 50%, transparent) top / 100% ${coverSize}px no-repeat local`,
-      `linear-gradient(transparent, ${paper} 50%) bottom / 100% ${coverSize}px no-repeat local`,
-      `linear-gradient(${shadow}, transparent) top / 100% ${shadowSize}px no-repeat scroll`,
-      `linear-gradient(transparent, ${shadow}) bottom / 100% ${shadowSize}px no-repeat scroll`,
-      paper,
-    ].join(', '),
-  };
 };
 
 // Fades the list's content out toward each edge that has more to scroll, so

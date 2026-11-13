@@ -295,16 +295,6 @@ describe('SidebarNavItem', () => {
     expect(container.querySelector('.MuiBadge-dot')).not.toBeInTheDocument();
   });
 
-  it('renders divider if item has type "menu-divider"', () => {
-    renderNavItem({
-      props: {
-        item: { id: 'divider', type: 'menu-divider' },
-      },
-    });
-
-    expect(screen.queryByTestId('navitem-divider-divider')).toBeInTheDocument();
-  });
-
   it('renders text item if item has type "menu-text"', () => {
     renderNavItem({
       props: {
@@ -385,24 +375,6 @@ describe('SidebarNavItem', () => {
     expect(
       screen.queryByTestId('navitem-services-action')
     ).not.toBeInTheDocument();
-  });
-
-  it('renders a section action beside the heading', () => {
-    renderNavItem({
-      props: {
-        item: {
-          id: 'mine',
-          type: 'menu-section',
-          text: 'Browse',
-          action: { label: 'Customize navigation', url: '/customize' },
-        },
-      },
-    });
-
-    expect(screen.getByTestId('navitem-mine-action')).toHaveAttribute(
-      'href',
-      '/customize'
-    );
   });
 
   it('renders a heading if item has type "menu-section"', () => {
