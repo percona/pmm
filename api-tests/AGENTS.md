@@ -39,7 +39,7 @@ Tests are grouped by API domain, mirroring the `/api` directory structure:
 
 ### Prerequisites
 - Running PMM Server (use `make env-up` from repo root)
-- `PMM_SERVER_URL` environment variable (format: `http://USERNAME:PASSWORD@HOST`)
+- `PMM_SERVER_URL` environment variable (format: `https://USERNAME:PASSWORD@HOST`)
 
 ### Commands
 
@@ -50,7 +50,7 @@ make test         # Run tests; server settings tests run last, as they restart G
 make test-report  # Run tests, produce JUnit XML report
 
 # Direct invocation (-p 1: the server settings tests restart Grafana):
-go test -count=1 -p 1 ./... -pmm.server-url=http://admin:admin@127.0.0.1 -v
+go test -count=1 -p 1 ./... -pmm.server-url=https://admin:admin@127.0.0.1 -pmm.server-insecure-tls -v
 
 # From repo root:
 make api-test
@@ -59,8 +59,10 @@ make api-test
 ### Docker execution:
 ```bash
 make docker-build-image
-make docker-run-tests PMM_SERVER_URL=http://admin:admin@127.0.0.1
+make docker-run-tests PMM_SERVER_URL=https://admin:admin@127.0.0.1
 ```
+
+`make test`, `make test-report` and `make docker-run-tests` exit 0 even when tests fail, because each test binary is piped through `tee`. Read the output or the JUnit report for the result, or use `go test` or `make api-test`, which exit non-zero on failure.
 
 ## Patterns and Conventions
 
