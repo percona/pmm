@@ -45,7 +45,10 @@ const SidebarNavItem: FC<NavItemProps> = ({
     () => hasChildMatch(item, activeItem),
     [activeItem, item]
   );
-  const active = activeItem === item || hasActiveChild;
+  // By id: the tree is rebuilt whenever its inputs change, while the active
+  // item is only looked up again after the next render.
+  const current = activeItem?.id === item.id;
+  const active = current || hasActiveChild;
   const [open, setIsOpen] = useState(active);
   // Only one item shows the selected background: the deepest one on the
   // active path that is in view. A group whose active child shows takes just
@@ -154,16 +157,12 @@ const SidebarNavItem: FC<NavItemProps> = ({
                   <NavItemBadge badge={item.badge} />
                 ) : undefined
               }
-              selected={activeItem === item || standsInForChild}
+              selected={current || standsInForChild}
               hasSelectedChild={hasActiveChild && childInView}
               // Standing in for a hidden child, the group marks the current
               // section rather than the page: its link opens the first child.
               aria-current={
-                activeItem === item
-                  ? 'page'
-                  : standsInForChild
-                    ? 'true'
-                    : undefined
+                current ? 'page' : standsInForChild ? 'true' : undefined
               }
               sx={[
                 styles.navItem,

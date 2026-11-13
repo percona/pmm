@@ -179,6 +179,16 @@ describe('SidebarNavItem', () => {
     expect(level1Collapse).toHaveClass(collapseClasses.hidden);
   });
 
+  it('opens root when a rebuilt copy of its child is active', () => {
+    renderNavItem({
+      activeItem: { id: 'level-10', text: 'level-10', url: '/0/10' },
+    });
+
+    expect(screen.getByTestId('navitem-level-0-collapse')).not.toHaveClass(
+      collapseClasses.hidden
+    );
+  });
+
   it('opens root and parent when child is active', () => {
     renderNavItem({
       activeItem: TEST_NAV_TREE.children![1].children![0],
