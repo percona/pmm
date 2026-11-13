@@ -81,7 +81,7 @@ yarn dev
 
 ## Submitting a Pull Request
 
-1.  Find the task in [JIRA](https://jira.percona.com/issues/?jql=project+%3D+PMM+AND+component+%3D+%22Grafana+Dashboards%22) or issue here in github. If no a similar task is found, please create a new task. Use a component filter Grafana Dashboards.
+1.  Find the task in [JIRA](https://perconadev.atlassian.net/issues/?jql=project+%3D+PMM+AND+component+%3D+%22Grafana+Dashboards%22) or issue here in github. If no a similar task is found, please create a new task. Use a component filter Grafana Dashboards.
 
 2.  You need to make a fork of our repository in your GitHub account.
 
