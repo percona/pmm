@@ -206,7 +206,7 @@ func (s probeSource) fetch(ctx context.Context) ([]probeService, error) {
 		if err != nil {
 			return extensionsPage[probeService]{}, err
 		}
-		req, err := s.app.request(ctx, cred.bearer, http.MethodGet, probeServicesPath, query, nil, false)
+		req, err := s.app.request(ctx, cred.bearer, http.MethodGet, probeServicesPath, query, nil)
 		if err != nil {
 			return extensionsPage[probeService]{}, fmt.Errorf("failed to build the request: %w", err)
 		}
