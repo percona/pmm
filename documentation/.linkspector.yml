@@ -22,5 +22,4 @@ ignorePatterns:
   - pattern: "#proxysql_alerts$"
   - pattern: "release-notes/\\{\\{release\\}\\}\\.md"
   # API release notes for an unreleased version return 404 until the release publishes them.
-  - pattern: "^https://percona-pmm\\.readme\\.io/v3/reference/release-notes-3-11-0$"
-
+  - pattern: "^https://percona-pmm\\.readme\\.io/v3/reference/release-notes-\\d+-\\d+-\\d+(#.*)?$"
