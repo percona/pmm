@@ -41,12 +41,11 @@ jobs:
       - name: Enable corepack
         run: corepack enable
 
+      # No dependency cache: a release build shouldn't trust one.
       - name: Setup nodejs
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ui/.nvmrc
-          cache: pnpm
-          cache-dependency-path: ui/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --filter @percona/peak-ui...
