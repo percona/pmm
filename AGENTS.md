@@ -70,7 +70,7 @@ A component guide covers only what is specific to its area. Global conventions â
 
 ## How AI agents should work in this repo
 
-The **`AGENTS.md` hierarchy is the single source of truth** for agents. Read the matching component guide before editing.
+The **`AGENTS.md` hierarchy is the single source of truth** for agents. Read the matching component guide before editing. Do not assume PMM-specific behavior from general knowledge â€” verify it against this file, the component guides it links, and the code.
 
 Follow the sections through [Git and pull request checklist](#git-and-pull-request-checklist) every time you change code. Skim [Product Overview](#product-overview) and below when you need context.
 
