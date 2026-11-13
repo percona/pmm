@@ -168,6 +168,9 @@ message UniversalNode {
   // True if this node belongs to the internal infrastructure of a PMM deployment
   // (e.g. the HA persistence layer) and must not host user monitoring workloads.
   bool is_pmm_internal_node = 20;
+  // True if this node was provisioned by a PMM deployment for itself (e.g. the PMM Client pods
+  // of the HA Helm chart) and cannot be removed while its pmm-agent is connected.
+  bool is_pmm_protected_node = 21;
 }
 
 message ListNodesRequest {

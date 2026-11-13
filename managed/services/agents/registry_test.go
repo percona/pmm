@@ -17,8 +17,10 @@ package agents
 
 import (
 	"context"
+	"database/sql"
 	"database/sql/driver"
 	"errors"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -32,14 +34,25 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/utils/logger"
 )
 
 const testAgentID = "/agent_id/00000000-0000-4000-8000-000000000001"
 
-// haServiceStub stands in for the HA service; nil params means HA is disabled.
+// haServiceStub stands in for the HA service; nil params means HA is disabled, and nil members
+// that every node is a member.
 type haServiceStub struct {
-	params *models.HAParams
+	params  *models.HAParams
+	members map[string]struct{}
+}
+
+func (s haServiceStub) IsMember(nodeID string) bool {
+	if s.members == nil {
+		return true
+	}
+	_, ok := s.members[nodeID]
+	return ok
 }
 
 func (s haServiceStub) Params() *models.HAParams {
@@ -133,8 +146,6 @@ func TestUnregister(t *testing.T) {
 	})
 }
 
-type haEnabledStub struct{}
-
 func pmmAgentRow(agentID string, connected bool) []driver.Value {
 	columns := models.AgentTable.Columns()
 	values := make([]driver.Value, len(columns))
@@ -157,8 +168,6 @@ func pmmAgentRow(agentID string, connected bool) []driver.Value {
 	return values
 }
 
-func (haEnabledStub) Params() *models.HAParams { return &models.HAParams{Enabled: true} }
-
 // TestUnregisterPersistsDisconnectInHA guards against the connection status staying true after a
 // disconnect: the handler unregisters with the context of the stream that just ended, which is
 // already canceled.
@@ -174,26 +183,55 @@ func TestUnregisterPersistsDisconnectInHA(t *testing.T) {
 	})
 
 	r := newTestRegistry()
-	r.haService = haEnabledStub{}
+	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
 	r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
-	r.connectionCache = map[string]struct{}{testAgentID: {}}
+	r.connectionCache = map[string]connectionCacheEntry{testAgentID: {owner: "pmm-ha-0", connectionID: "pmm-ha-0/1"}}
 	current := newTestConn()
+	current.connectionID = "pmm-ha-0/1"
 	r.agents[testAgentID] = current
 
-	mock.ExpectBegin()
-	mock.ExpectQuery(`SELECT .+ FROM "agents"`).
-		WithArgs(testAgentID).
-		WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()).AddRow(pmmAgentRow(testAgentID, true)...))
-	mock.ExpectExec(`UPDATE "agents" SET "updated_at" = \$1, "is_connected" = \$2 WHERE "agent_id" = \$3`).
-		WithArgs(sqlmock.AnyArg(), false, testAgentID).
+	// Only the connection being unregistered: the agent may have connected again meanwhile.
+	mock.ExpectExec(`UPDATE agents SET is_connected = false, updated_at = \$1 WHERE agent_id = \$2 AND connection_id = \$3`).
+		WithArgs(sqlmock.AnyArg(), testAgentID, "pmm-ha-0/1").
 		WillReturnResult(sqlmock.NewResult(0, 1))
-	mock.ExpectCommit()
 
 	ctx, cancel := context.WithCancel(logger.SetEntry(t.Context(), logrus.WithField("test", t.Name())))
 	cancel()
 
 	assert.Same(t, current, r.unregister(ctx, testAgentID, "done", current))
 	assert.Empty(t, r.connectionCache)
+}
+
+// TestUnregisterKeepsTheCachedNewerConnection covers a newer connection registering on this replica
+// while the disconnect of the previous one is written: a fresh cache answers misses without the
+// database, so dropping its entry would report the agent as disconnected until the cache expires.
+func TestUnregisterKeepsTheCachedNewerConnection(t *testing.T) {
+	t.Parallel()
+
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		assert.NoError(t, mock.ExpectationsWereMet())
+		_ = mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
+
+	r := newTestRegistry()
+	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
+	r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	r.connectionCache = map[string]connectionCacheEntry{testAgentID: {owner: "pmm-ha-0", connectionID: "pmm-ha-0/2"}}
+	r.connectionCacheTTL = time.Now().Add(time.Hour)
+	stale := newTestConn()
+	stale.connectionID = "pmm-ha-0/1"
+	r.agents[testAgentID] = stale
+
+	mock.ExpectExec(`UPDATE agents SET is_connected = false, updated_at = \$1 WHERE agent_id = \$2 AND connection_id = \$3`).
+		WithArgs(sqlmock.AnyArg(), testAgentID, "pmm-ha-0/1").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	ctx := logger.SetEntry(t.Context(), logrus.WithField("test", t.Name()))
+	assert.Same(t, stale, r.unregister(ctx, testAgentID, "done", stale))
+	assert.True(t, r.IsConnected(testAgentID))
 }
 
 func TestIsConnectedInHA(t *testing.T) {
@@ -216,9 +254,9 @@ func TestIsConnectedInHA(t *testing.T) {
 		})
 
 		r := newTestRegistry()
-		r.haService = haEnabledStub{}
+		r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
 		r.db = reform.NewDB(sqlDB, postgresql.Dialect, nil)
-		r.connectionCache = make(map[string]struct{})
+		r.connectionCache = make(map[string]connectionCacheEntry)
 		return r, mock
 	}
 
@@ -226,7 +264,7 @@ func TestIsConnectedInHA(t *testing.T) {
 		t.Parallel()
 
 		r, _ := newRegistry(t)
-		r.connectionCache[testAgentID] = struct{}{}
+		r.connectionCache[testAgentID] = connectionCacheEntry{}
 		r.connectionCacheTTL = time.Now().Add(time.Minute)
 		ttl := r.connectionCacheTTL
 
@@ -240,7 +278,7 @@ func TestIsConnectedInHA(t *testing.T) {
 		t.Parallel()
 
 		r, mock := newRegistry(t)
-		r.connectionCache[testAgentID] = struct{}{}
+		r.connectionCache[testAgentID] = connectionCacheEntry{}
 		mock.ExpectBegin().WillReturnError(errors.New("database is down"))
 
 		assert.True(t, r.IsConnected(testAgentID))
@@ -336,4 +374,224 @@ func TestKickConn(t *testing.T) {
 			assert.False(t, isKicked(conn))
 		}
 	})
+}
+
+// newHATestRegistry returns an HA-mode registry with PMM Server's pmm-agent connected, as persisted
+// in the database, and that connection.
+func newHATestRegistry(t *testing.T) (*Registry, *reform.DB, *pmmAgentInfo) {
+	t.Helper()
+
+	const connectionID = "connection-1"
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+	require.NoError(t, err)
+	agent.IsConnected = true
+	agent.ConnectionID = new(connectionID)
+	require.NoError(t, db.Update(agent))
+
+	r := newTestRegistry()
+	r.db = db
+	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}}
+	r.connectionCache = map[string]connectionCacheEntry{models.PMMServerAgentID: {connectionID: connectionID}}
+	conn := &pmmAgentInfo{id: models.PMMServerAgentID, connectionID: connectionID}
+	r.agents[models.PMMServerAgentID] = conn
+
+	return r, db, conn
+}
+
+func isConnectedInDB(t *testing.T, db *reform.DB) bool {
+	t.Helper()
+
+	agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+	require.NoError(t, err)
+
+	return agent.IsConnected
+}
+
+// TestUnregisterDoesNotHoldTheRegistryWhilePersisting covers a slow database: the disconnect of one
+// agent must not stop the registry from serving every other agent while it is written.
+func TestUnregisterDoesNotHoldTheRegistryWhilePersisting(t *testing.T) {
+	r, db, conn := newHATestRegistry(t)
+	ctx := logger.SetEntry(t.Context(), logrus.WithField("test", t.Name()))
+
+	// Hold the row, so that persisting the disconnect waits for it.
+	tx, err := db.Begin()
+	require.NoError(t, err)
+	_, err = tx.Exec("SELECT 1 FROM agents WHERE agent_id = $1 FOR UPDATE", models.PMMServerAgentID)
+	require.NoError(t, err)
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		r.unregister(ctx, models.PMMServerAgentID, "done", conn)
+	}()
+
+	require.Eventually(t, func() bool {
+		var waiting int
+		err := db.QueryRow("SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND query LIKE 'UPDATE%agents%'").
+			Scan(&waiting)
+		return err == nil && waiting > 0
+	}, 5*time.Second, 10*time.Millisecond, "the disconnect is not waiting for the row")
+
+	locked := r.rw.TryLock()
+	if locked {
+		r.rw.Unlock()
+	}
+	assert.True(t, locked, "the registry is locked while the disconnect is persisted")
+
+	require.NoError(t, tx.Rollback())
+	<-done
+	assert.False(t, isConnectedInDB(t, db))
+}
+
+// TestUnregisterKeepsANewerConnection covers an agent which connects again, to this PMM Server or
+// another one, before the disconnect of its previous connection is written: the newer connection is
+// persisted by then, and the late disconnect must not overwrite it.
+func TestUnregisterKeepsANewerConnection(t *testing.T) {
+	r, db, conn := newHATestRegistry(t)
+	ctx := logger.SetEntry(t.Context(), logrus.WithField("test", t.Name()))
+
+	agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+	require.NoError(t, err)
+	agent.ConnectionID = new("connection-2")
+	require.NoError(t, db.Update(agent))
+
+	assert.Same(t, conn, r.unregister(ctx, models.PMMServerAgentID, "done", conn))
+
+	assert.True(t, isConnectedInDB(t, db))
+	assert.True(t, r.IsConnected(models.PMMServerAgentID))
+}
+
+// TestIsConnectedIgnoresConnectionsOfLostReplicas covers a replica that is lost with its Kubernetes
+// node, or scaled away after crashing: it never persists the disconnects of its agents, so their
+// connections count only while it is a member of the cluster.
+func TestIsConnectedIgnoresConnectionsOfLostReplicas(t *testing.T) {
+	r, db, _ := newHATestRegistry(t)
+	r.haService = haServiceStub{params: &models.HAParams{Enabled: true}, members: map[string]struct{}{"pmm-ha-0": {}}}
+
+	for connectionID, expected := range map[string]bool{
+		"pmm-ha-0/1": true,
+		"pmm-ha-2/1": false,
+		// An ID written by an earlier version names no owner to check.
+		"connection-1": true,
+	} {
+		agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+		require.NoError(t, err)
+		agent.ConnectionID = new(connectionID)
+		require.NoError(t, db.Update(agent))
+
+		r.connectionCacheTTL = time.Time{}
+		assert.Equal(t, expected, r.IsConnected(models.PMMServerAgentID), connectionID)
+	}
+}
+
+// TestIsConnectedKeepsStatusesOnDatabaseError covers a failed refresh of the connection statuses:
+// reporting every agent as disconnected would let the Nodes protected while it is connected go.
+func TestIsConnectedKeepsStatusesOnDatabaseError(t *testing.T) {
+	r, db, _ := newHATestRegistry(t)
+	r.connectionCacheTTL = time.Time{}
+	require.True(t, r.IsConnected(models.PMMServerAgentID))
+
+	// A closed pool fails every query without touching the test database.
+	closedDB, err := sql.Open("postgres", "host=127.0.0.1")
+	require.NoError(t, err)
+	require.NoError(t, closedDB.Close())
+	r.db = reform.NewDB(closedDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	r.connectionCacheTTL = time.Time{}
+
+	assert.True(t, r.IsConnected(models.PMMServerAgentID))
+	assert.True(t, isConnectedInDB(t, db))
+
+	// A failed refresh still waits for the TTL, so a lookup missing from the cache does not query the
+	// database again.
+	ttl := r.connectionCacheTTL
+	require.False(t, r.connectionCacheExpired())
+	assert.False(t, r.IsConnected("/agent_id/missing"))
+	assert.Equal(t, ttl, r.connectionCacheTTL)
+}
+
+// TestGetNamesTheReplicaHoldingTheConnection covers a request for a pmm-agent connected to another
+// replica: it can't be served, and the error must say why (PMM-15684).
+func TestGetNamesTheReplicaHoldingTheConnection(t *testing.T) {
+	t.Parallel()
+
+	const notConnected = "rpc error: code = FailedPrecondition desc = pmm-agent with ID %s is not currently connected"
+
+	for _, tc := range []struct {
+		name      string
+		haEnabled bool
+		agentID   string
+		expected  string
+	}{
+		{
+			name: "connected to another replica", haEnabled: true, agentID: "/agent_id/on-pmm-ha-0",
+			expected: "rpc error: code = FailedPrecondition desc = pmm-agent with ID /agent_id/on-pmm-ha-0 is connected to " +
+				"PMM Server replica pmm-ha-0, not to pmm-ha-1; in HA mode, a PMM Server replica can reach only the pmm-agents connected to it",
+		},
+		{
+			name: "connection ID names no replica", haEnabled: true, agentID: "/agent_id/no-owner",
+			expected: "rpc error: code = FailedPrecondition desc = pmm-agent with ID /agent_id/no-owner is connected to " +
+				"another PMM Server replica, not to pmm-ha-1; in HA mode, a PMM Server replica can reach only the pmm-agents connected to it",
+		},
+		// Persisted as connected to this replica, which no longer holds it: see PMM-15669.
+		{name: "stale connection of this replica", haEnabled: true, agentID: "/agent_id/on-pmm-ha-1"},
+		{name: "not connected", haEnabled: true, agentID: "/agent_id/missing"},
+		{name: "HA disabled", agentID: "/agent_id/on-pmm-ha-0"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := newTestRegistry()
+			r.haService = haServiceStub{params: &models.HAParams{Enabled: tc.haEnabled, NodeID: "pmm-ha-1"}}
+			// A fresh cache, and no database: a miss must not query it.
+			r.connectionCache = map[string]connectionCacheEntry{
+				"/agent_id/on-pmm-ha-0": {owner: "pmm-ha-0"},
+				"/agent_id/no-owner":    {},
+				"/agent_id/on-pmm-ha-1": {owner: "pmm-ha-1"},
+			}
+			r.connectionCacheTTL = time.Now().Add(time.Hour)
+
+			expected := tc.expected
+			if expected == "" {
+				expected = fmt.Sprintf(notConnected, tc.agentID)
+			}
+			_, err := r.get(tc.agentID)
+			assert.EqualError(t, err, expected)
+		})
+	}
+
+	t.Run("connected to this replica", func(t *testing.T) {
+		t.Parallel()
+
+		r := newTestRegistry()
+		r.haService = haServiceStub{params: &models.HAParams{Enabled: true, NodeID: "pmm-ha-1"}}
+		conn := newTestConn()
+		r.agents[testAgentID] = conn
+
+		actual, err := r.get(testAgentID)
+		require.NoError(t, err)
+		assert.Same(t, conn, actual)
+	})
+}
+
+// TestGetReadsTheReplicaFromTheDatabase covers the owner coming from the persisted connection ID.
+func TestGetReadsTheReplicaFromTheDatabase(t *testing.T) {
+	r, db, _ := newHATestRegistry(t)
+	r.haService = haServiceStub{params: &models.HAParams{Enabled: true, NodeID: "pmm-ha-1"}}
+	delete(r.agents, models.PMMServerAgentID)
+
+	agent, err := models.FindAgentByID(db.Querier, models.PMMServerAgentID)
+	require.NoError(t, err)
+	agent.ConnectionID = new("pmm-ha-0/1")
+	require.NoError(t, db.Update(agent))
+	r.connectionCacheTTL = time.Time{}
+
+	_, err = r.get(models.PMMServerAgentID)
+	assert.ErrorContains(t, err, "is connected to PMM Server replica pmm-ha-0, not to pmm-ha-1")
 }

@@ -14,7 +14,7 @@ import { useHaInfo } from 'hooks/api/useHA';
 import { useNodes, useRemoveNodes } from 'hooks/api/useNodes';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
 import { enqueueSnackbar } from 'notistack';
-import { type FC, useMemo, useState } from 'react';
+import { type FC, useEffect, useMemo, useState } from 'react';
 import { DeleteModal } from '../components/delete-modal';
 import {
   getUrlStateOptions,
@@ -31,7 +31,7 @@ import {
 } from './Nodes.constants';
 import { Messages } from './Nodes.messages';
 import type { NodeRow } from './Nodes.types';
-import { canRemoveNode, toNodeRows } from './Nodes.utils';
+import { canRemoveNode, keepRemovableNodes, toNodeRows } from './Nodes.utils';
 
 export const Nodes: FC = () => {
   const { data, isLoading } = useNodes({
@@ -47,6 +47,14 @@ export const Nodes: FC = () => {
     () => toNodeRows(data ?? [], ha.nodes),
     [data, ha.nodes]
   );
+
+  // The table keeps a selected row once it can't be selected, e.g. after a
+  // refetch reports that PMM protects the node
+  useEffect(
+    () => setRowSelection((selection) => keepRemovableNodes(selection, nodes)),
+    [nodes]
+  );
+
   const { tableProps } = useTableUrlState({
     ...getUrlStateOptions('nodes'),
     additionalState: { rowSelection },
