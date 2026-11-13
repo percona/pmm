@@ -106,7 +106,8 @@ The version checks hold their data in tables inside the check files. Each check 
 
 | File | Table | Owner | Update when |
 |---|---|---|---|
-| `mongodb_version.yml` | `LATEST_VERSIONS` | PSMDB team | Each PSMDB patch release |
+| `mongodb_version.yml` | `LATEST_VERSIONS["psmdb"]` | PSMDB team | Each PSMDB patch release |
+| `mongodb_version.yml` | `LATEST_VERSIONS["mongodb"]` | PMM team | Each MongoDB Community patch release; add a series at its GA |
 | `mongodb_version.yml` | `EOL` | PMM team | New major/LTS GA; vendor lifecycle change |
 | `postgresql_version_check.yml` | `latest_versions`, `version_expires` | PostgreSQL team | Each minor release; new major GA |
 | `mysql_version.yml` | `LATEST_VERSIONS`: `percona_server`, `percona_xtradb_cluster` | PS and PXC teams (to agree) | Each patch release |

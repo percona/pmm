@@ -4,13 +4,15 @@ The `mongodb_version` check reports when the release series of MongoDB or Percon
 
 ## Description
 
-The check reads the server version with the `buildInfo` command and returns at most one finding per service:
+The check reads the server version with the `buildInfo` command and returns at most one finding per service. In the following table, `<product>` is **Percona Server for MongoDB** or **MongoDB**:
 
 | Release series | Finding | Severity |
 | :------------- | :------ | :------- |
-| Has reached EOL | **MongoDB `<series>` reached end of life** | Error |
-| Reaches EOL within the next six months (183 days), up to and including the EOL date | **MongoDB `<series>` reaches end of life on `<date>`**. If a newer minor version of the series exists, the finding also names it. | Warning |
-| Supported, with a newer minor or major version available | **Newer version of MongoDB is available** | Warning |
+| Has reached EOL | **`<product>` `<series>` reached end of life** | Error |
+| Reaches EOL within the next six months (183 days), up to and including the EOL date | **`<product>` `<series>` reaches end of life on `<date>`**. If a newer minor version of the series exists, the finding also names it. | Warning |
+| Supported, with a newer minor or major version available | **Newer version of `<product>` is available** | Warning |
+
+The check tells the two products apart by the `psmdbVersion` field, which only PSMDB returns in `buildInfo`. It compares each product with its own releases and links to that product's release notes and lifecycle policy.
 
 A release series past its EOL gets only the EOL error. A newer minor version of that series doesn't fix the problem, so the check doesn't suggest one.
 
@@ -43,7 +45,12 @@ The EOL finding's labels show the running version (`current`), its release serie
 
 ### Newer versions
 
-For a supported release series, the check compares the version with the latest minor version of the same series, and with the latest major version, that it knows of. Newer releases include security fixes, so the finding also links to the [MongoDB security alerts](https://www.mongodb.com/resources/products/alerts), where you can check which vulnerabilities affect your current version.
+For a supported release series, the check compares the version with the latest minor version of the same series, and with the latest major version, of the same product:
+
+- PSMDB is compared with the releases in the [Percona Server for MongoDB release notes](https://docs.percona.com/percona-server-for-mongodb/8.0/release_notes/index.html). A MongoDB major version that has no PSMDB release yet isn't suggested to PSMDB users.
+- MongoDB is compared with the releases in the [MongoDB release notes](https://www.mongodb.com/docs/manual/release-notes/).
+
+The finding links to the release notes of the version it suggests. Its labels show the running version (`current`) and the suggested version (`latest`). Newer releases include security fixes, so the finding also links to the [MongoDB security alerts](https://www.mongodb.com/resources/products/alerts), where you can check which vulnerabilities affect your current version.
 
 ## Resolution
 

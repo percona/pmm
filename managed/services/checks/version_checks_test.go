@@ -190,6 +190,11 @@ func mongoBuildInfo(version string) []map[string]any {
 	return []map[string]any{{"version": version}}
 }
 
+// psmdbBuildInfo builds the buildInfo of Percona Server for MongoDB, which adds psmdbVersion.
+func psmdbBuildInfo(version string) []map[string]any {
+	return []map[string]any{{"version": version, "psmdbVersion": version}}
+}
+
 // eolFinding builds the EOL finding of the version checks: product is the name used in the summary.
 func eolFinding(product, severity, current, series, eolDate string) finding {
 	summary := product + " " + series + " reached end of life"
@@ -204,8 +209,8 @@ func eolFinding(product, severity, current, series, eolDate string) finding {
 	}
 }
 
-func mongoEOL(severity, current, series, eolDate string) finding {
-	return eolFinding("MongoDB", severity, current, series, eolDate)
+func mongoEOL(product, severity, current, series, eolDate string) finding {
+	return eolFinding(product, severity, current, series, eolDate)
 }
 
 func pgEOL(severity, current, series, eolDate string) finding {
@@ -232,6 +237,15 @@ func rdsEOL(severity, current, series, eolDate string) finding {
 
 // newerMySQL builds the mysql_version finding: product is the name used in the summary.
 func newerMySQL(product, current, latest string) finding {
+	return finding{
+		Severity: "warning",
+		Summary:  "Newer version of " + product + " is available",
+		Labels:   map[string]string{"current": current, "latest": latest},
+	}
+}
+
+// newerMongo builds the mongodb_version newer-version finding.
+func newerMongo(product, current, latest string) finding {
 	return finding{
 		Severity: "warning",
 		Summary:  "Newer version of " + product + " is available",
@@ -275,11 +289,18 @@ func TestBuiltinVersionChecks(t *testing.T) {
 	const today = "2026-11-12"
 
 	// The PSMDB and PostgreSQL teams update these tables, so the cases below read their values instead of pinning them.
-	mongoLatest := scriptTable(t, "mongodb_version", `"version_check": {`)
+	mongoLatest := scriptTable(t, "mongodb_version", `"mongodb": {`)
 	mongoLatestSeries := latestSeries(t, mongoLatest)
+	psmdbLatest := scriptTable(t, "mongodb_version", `"psmdb": {`)
+	psmdbLatestSeries := latestSeries(t, psmdbLatest)
+	mongoNotes := "https://www.mongodb.com/docs/manual/release-notes/"
+	psmdbNotes := "https://docs.percona.com/percona-server-for-mongodb/"
+	mongoLifecycle := "https://www.mongodb.com/legal/support-policy/lifecycles"
+	psmdbLifecycle := "https://www.percona.com/release-lifecycle-percona-software-for-mongodb/"
 	pgLatest := scriptTable(t, "postgresql_version_check", "latest_versions = {")
 	pgExpires := scriptTable(t, "postgresql_version_check", "version_expires = {")
 	pgLatestSeries := latestSeries(t, pgLatest)
+	const psmdb = "Percona Server for MongoDB"
 
 	for _, tc := range []struct {
 		name  string
@@ -581,72 +602,81 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			descContains: []string{"RDS Extended Support", "8.4.11"},
 		},
 		{
-			name:         "mongodb_version 6.0.19-16 past EOL gives only the EOL error",
+			name:         "mongodb_version PSMDB 6.0.19-16 past EOL gives only the EOL error",
 			check:        "mongodb_version",
 			today:        today,
-			docs:         [][]map[string]any{mongoBuildInfo("6.0.19-16")},
-			want:         []finding{mongoEOL("error", "6.0.19-16", "6.0", "2025-07-31")},
-			descContains: []string{"2025-07-31"},
-			descExcludes: []string{mongoVersion(tableInt(t, mongoLatest, "6.0")), "new minor version", "includes security fixes"},
+			docs:         [][]map[string]any{psmdbBuildInfo("6.0.19-16")},
+			want:         []finding{mongoEOL(psmdb, "error", "6.0.19-16", "6.0", "2025-07-31")},
+			descContains: []string{"2025-07-31", psmdbLifecycle},
+			descExcludes: []string{mongoVersion(tableInt(t, psmdbLatest, "6.0")), "Release notes", "includes security fixes"},
 		},
 		{
-			name:  "mongodb_version 5.0.31 past EOL",
-			check: "mongodb_version",
-			today: today,
-			docs:  [][]map[string]any{mongoBuildInfo("5.0.31")},
-			want:  []finding{mongoEOL("error", "5.0.31", "5.0", "2024-10-31")},
+			name:         "mongodb_version 5.0.31 past EOL",
+			check:        "mongodb_version",
+			today:        today,
+			docs:         [][]map[string]any{mongoBuildInfo("5.0.31")},
+			want:         []finding{mongoEOL("MongoDB", "error", "5.0.31", "5.0", "2024-10-31")},
+			descContains: []string{mongoLifecycle},
+			descExcludes: []string{"percona.com"},
 		},
 		{
 			name:  "mongodb_version 4.4.29 past EOL",
 			check: "mongodb_version",
 			today: today,
 			docs:  [][]map[string]any{mongoBuildInfo("4.4.29")},
-			want:  []finding{mongoEOL("error", "4.4.29", "4.4", "2024-02-29")},
+			want:  []finding{mongoEOL("MongoDB", "error", "4.4.29", "4.4", "2024-02-29")},
 		},
 		{
 			name:  "mongodb_version 4.2.25 past EOL, not in the latest table",
 			check: "mongodb_version",
 			today: today,
 			docs:  [][]map[string]any{mongoBuildInfo("4.2.25")},
-			want:  []finding{mongoEOL("error", "4.2.25", "4.2", "2023-04-30")},
+			want:  []finding{mongoEOL("MongoDB", "error", "4.2.25", "4.2", "2023-04-30")},
 		},
 		{
 			name:  "mongodb_version 8.2.1 past EOL, not in the latest table",
 			check: "mongodb_version",
 			today: today,
 			docs:  [][]map[string]any{mongoBuildInfo("8.2.1")},
-			want:  []finding{mongoEOL("error", "8.2.1", "8.2", "2026-07-31")},
+			want:  []finding{mongoEOL("MongoDB", "error", "8.2.1", "8.2", "2026-07-31")},
+		},
+		{
+			name:  "mongodb_version 3.4.24 past EOL",
+			check: "mongodb_version",
+			today: today,
+			docs:  [][]map[string]any{mongoBuildInfo("3.4.24")},
+			want:  []finding{mongoEOL("MongoDB", "error", "3.4.24", "3.4", "2020-01-31")},
 		},
 		{
 			name:         "mongodb_version 7.0.14 184 days before EOL",
 			check:        "mongodb_version",
 			today:        "2027-02-28",
 			docs:         [][]map[string]any{mongoBuildInfo("7.0.14")},
-			want:         []finding{{Severity: "warning", Summary: "Newer version of MongoDB is available"}},
-			descContains: []string{"new minor version " + mongoVersion(tableInt(t, mongoLatest, "7.0"))},
+			want:         []finding{newerMongo("MongoDB", "7.0.14", mongoVersion(tableInt(t, mongoLatest, "7.0")))},
+			descContains: []string{"A newer major version, " + mongoLatestSeries + ", is also available", mongoNotes + "7.0/"},
 		},
 		{
-			name:         "mongodb_version 7.0.14 183 days before EOL",
+			name:         "mongodb_version PSMDB 7.0.14-8 183 days before EOL",
 			check:        "mongodb_version",
 			today:        "2027-03-01",
-			docs:         [][]map[string]any{mongoBuildInfo("7.0.14")},
-			want:         []finding{mongoEOL("warning", "7.0.14", "7.0", "2027-08-31")},
-			descContains: []string{"2027-08-31", "latest minor version " + mongoVersion(tableInt(t, mongoLatest, "7.0")), "security fixes"},
+			docs:         [][]map[string]any{psmdbBuildInfo("7.0.14-8")},
+			want:         []finding{mongoEOL(psmdb, "warning", "7.0.14-8", "7.0", "2027-08-31")},
+			descContains: []string{"2027-08-31", "latest release of this series, " + mongoVersion(tableInt(t, psmdbLatest, "7.0")), psmdbNotes + "7.0/", psmdbLifecycle, "security fixes"},
 		},
 		{
 			name:         "mongodb_version latest 7.0 on EOL day",
 			check:        "mongodb_version",
 			today:        "2027-08-31",
 			docs:         [][]map[string]any{mongoBuildInfo(mongoVersion(tableInt(t, mongoLatest, "7.0")))},
-			want:         []finding{mongoEOL("warning", mongoVersion(tableInt(t, mongoLatest, "7.0")), "7.0", "2027-08-31")},
-			descExcludes: []string{"latest minor version", "includes security fixes"},
+			want:         []finding{mongoEOL("MongoDB", "warning", mongoVersion(tableInt(t, mongoLatest, "7.0")), "7.0", "2027-08-31")},
+			descExcludes: []string{"latest release of this series", "Release notes", "includes security fixes"},
 		},
 		{
 			name:         "mongodb_version 7.0.14 day after EOL",
 			check:        "mongodb_version",
 			today:        "2027-09-01",
 			docs:         [][]map[string]any{mongoBuildInfo("7.0.14")},
-			want:         []finding{mongoEOL("error", "7.0.14", "7.0", "2027-08-31")},
+			want:         []finding{mongoEOL("MongoDB", "error", "7.0.14", "7.0", "2027-08-31")},
 			descExcludes: []string{mongoVersion(tableInt(t, mongoLatest, "7.0"))},
 		},
 		{
@@ -654,17 +684,34 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check:        "mongodb_version",
 			today:        today,
 			docs:         [][]map[string]any{mongoBuildInfo("8.0.4")},
-			want:         []finding{{Severity: "warning", Summary: "Newer version of MongoDB is available"}},
-			descContains: []string{"new minor version " + mongoVersion(tableInt(t, mongoLatest, "8.0")), "security fixes", "https://www.mongodb.com/resources/products/alerts"},
+			want:         []finding{newerMongo("MongoDB", "8.0.4", mongoVersion(tableInt(t, mongoLatest, "8.0")))},
+			descContains: []string{"the latest release of MongoDB 8.0 is " + mongoVersion(tableInt(t, mongoLatest, "8.0")), "A newer major version, " + mongoLatestSeries + ", is also available", mongoNotes + "8.0/", "https://www.mongodb.com/resources/products/alerts"},
+			descExcludes: []string{"percona.com"},
 		},
 		{
-			name:         "mongodb_version latest 7.0",
+			name:         "mongodb_version PSMDB 8.0.4-2",
 			check:        "mongodb_version",
 			today:        today,
-			docs:         [][]map[string]any{mongoBuildInfo(mongoVersion(tableInt(t, mongoLatest, "7.0")))},
-			want:         []finding{{Severity: "warning", Summary: "Newer version of MongoDB is available"}},
-			descContains: []string{"This is the latest minor patch for this version", "Major version " + mongoLatestSeries + " available", "security fixes"},
-			descExcludes: []string{"new minor version"},
+			docs:         [][]map[string]any{psmdbBuildInfo("8.0.4-2")},
+			want:         []finding{newerMongo(psmdb, "8.0.4-2", mongoVersion(tableInt(t, psmdbLatest, "8.0")))},
+			descContains: []string{"A newer major version, " + psmdbLatestSeries + ", is also available", psmdbNotes + "8.0/release_notes/index.html"},
+			descExcludes: []string{"www.mongodb.com/docs"},
+		},
+		{
+			name:         "mongodb_version latest 8.0",
+			check:        "mongodb_version",
+			today:        today,
+			docs:         [][]map[string]any{mongoBuildInfo(mongoVersion(tableInt(t, mongoLatest, "8.0")))},
+			want:         []finding{newerMongo("MongoDB", mongoVersion(tableInt(t, mongoLatest, "8.0")), mongoVersion(tableInt(t, mongoLatest, mongoLatestSeries)))},
+			descContains: []string{"the latest release of MongoDB 8.0. A newer major version", mongoNotes + mongoLatestSeries + "/", "security fixes"},
+		},
+		{
+			name:         "mongodb_version PSMDB latest 8.0",
+			check:        "mongodb_version",
+			today:        today,
+			docs:         [][]map[string]any{psmdbBuildInfo(mongoVersion(tableInt(t, psmdbLatest, "8.0")) + "-16")},
+			want:         []finding{newerMongo(psmdb, mongoVersion(tableInt(t, psmdbLatest, "8.0"))+"-16", mongoVersion(tableInt(t, psmdbLatest, psmdbLatestSeries)))},
+			descContains: []string{psmdbNotes + psmdbLatestSeries + "/"},
 		},
 		{
 			name:  "mongodb_version latest of the latest series",
@@ -674,40 +721,48 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			want:  []finding{},
 		},
 		{
+			name:  "mongodb_version PSMDB latest of the latest series",
+			check: "mongodb_version",
+			today: today,
+			docs:  [][]map[string]any{psmdbBuildInfo(mongoVersion(tableInt(t, psmdbLatest, psmdbLatestSeries)) + "-4")},
+			want:  []finding{},
+		},
+		{
 			name:  "mongodb_version 8.0.4 day after EOL",
 			check: "mongodb_version",
 			today: "2029-11-01",
 			docs:  [][]map[string]any{mongoBuildInfo("8.0.4")},
-			want:  []finding{mongoEOL("error", "8.0.4", "8.0", "2029-10-31")},
+			want:  []finding{mongoEOL("MongoDB", "error", "8.0.4", "8.0", "2029-10-31")},
 		},
 		{
-			name:         "mongodb_version 8.3.0 well before EOL",
+			name:         "mongodb_version PSMDB 8.3.0-1 well before EOL",
 			check:        "mongodb_version",
 			today:        today,
-			docs:         [][]map[string]any{mongoBuildInfo("8.3.0")},
-			want:         []finding{{Severity: "warning", Summary: "Newer version of MongoDB is available"}},
-			descContains: []string{"new minor version " + mongoVersion(tableInt(t, mongoLatest, "8.3")) + " available"},
-			descExcludes: []string{"Major version"},
+			docs:         [][]map[string]any{psmdbBuildInfo("8.3.0-1")},
+			want:         []finding{newerMongo(psmdb, "8.3.0-1", mongoVersion(tableInt(t, psmdbLatest, "8.3")))},
+			descExcludes: []string{"newer major version"},
 		},
 		{
 			name:  "mongodb_version 8.3.0 183 days before EOL",
 			check: "mongodb_version",
 			today: "2029-05-01",
 			docs:  [][]map[string]any{mongoBuildInfo("8.3.0")},
-			want:  []finding{mongoEOL("warning", "8.3.0", "8.3", "2029-10-31")},
+			want:  []finding{mongoEOL("MongoDB", "warning", "8.3.0", "8.3", "2029-10-31")},
 		},
 		{
-			name:  "mongodb_version 3.4.24 past EOL",
-			check: "mongodb_version",
-			today: today,
-			docs:  [][]map[string]any{mongoBuildInfo("3.4.24")},
-			want:  []finding{mongoEOL("error", "3.4.24", "3.4", "2020-01-31")},
+			name:         "mongodb_version 9.0.1",
+			check:        "mongodb_version",
+			today:        today,
+			docs:         [][]map[string]any{mongoBuildInfo("9.0.1")},
+			want:         []finding{newerMongo("MongoDB", "9.0.1", mongoVersion(tableInt(t, mongoLatest, "9.0")))},
+			descContains: []string{mongoNotes + "9.0/"},
+			descExcludes: []string{"newer major version"},
 		},
 		{
-			name:  "mongodb_version 9.0.1 not in the latest table",
+			name:  "mongodb_version PSMDB 9.0.1-1 not in the latest table",
 			check: "mongodb_version",
 			today: today,
-			docs:  [][]map[string]any{mongoBuildInfo("9.0.1")},
+			docs:  [][]map[string]any{psmdbBuildInfo("9.0.1-1")},
 			want:  []finding{},
 		},
 		{
@@ -715,14 +770,14 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check: "mongodb_version",
 			today: "2031-05-01",
 			docs:  [][]map[string]any{mongoBuildInfo("9.0.1")},
-			want:  []finding{mongoEOL("warning", "9.0.1", "9.0", "2031-10-31")},
+			want:  []finding{mongoEOL("MongoDB", "warning", "9.0.1", "9.0", "2031-10-31")},
 		},
 		{
 			name:  "mongodb_version 9.0.1 day after EOL",
 			check: "mongodb_version",
 			today: "2031-11-01",
 			docs:  [][]map[string]any{mongoBuildInfo("9.0.1")},
-			want:  []finding{mongoEOL("error", "9.0.1", "9.0", "2031-10-31")},
+			want:  []finding{mongoEOL("MongoDB", "error", "9.0.1", "9.0", "2031-10-31")},
 		},
 		{
 			name:  "mongodb_version 99.0.0 not in tables",
@@ -1050,8 +1105,10 @@ func TestBuiltinVersionChecks(t *testing.T) {
 
 // TestLatestVersionTables checks that every latest version belongs to the series that keys it, such as 80313 under "8.3".
 func TestLatestVersionTables(t *testing.T) {
-	for series, v := range scriptTable(t, "mongodb_version", `"version_check": {`) {
-		assert.True(t, strings.HasPrefix(mongoVersion(tableInt(t, map[string]string{series: v}, series)), series+"."), "mongodb_version %s: %s", series, v)
+	for _, start := range []string{`"psmdb": {`, `"mongodb": {`} {
+		for series, v := range scriptTable(t, "mongodb_version", start) {
+			assert.True(t, strings.HasPrefix(mongoVersion(tableInt(t, map[string]string{series: v}, series)), series+"."), "mongodb_version %s %s: %s", start, series, v)
+		}
 	}
 
 	for series, v := range scriptTable(t, "postgresql_version_check", "latest_versions = {") {
