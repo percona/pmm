@@ -26,6 +26,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -127,10 +128,15 @@ func redirectToTestServer(t *testing.T, srv *httptest.Server) {
 	target, err := url.Parse(srv.URL)
 	require.NoError(t, err)
 
-	runtime, ok := inventoryClient.Default.Transport.(*httptransport.Runtime)
+	staging, ok := inventoryClient.Default.Transport.(interface {
+		Unwrap() runtime.ClientTransport
+	})
 	require.True(t, ok)
 
-	retry, ok := runtime.Transport.(interface{ Unwrap() http.RoundTripper })
+	rt, ok := staging.Unwrap().(*httptransport.Runtime)
+	require.True(t, ok)
+
+	retry, ok := rt.Transport.(interface{ Unwrap() http.RoundTripper })
 	require.True(t, ok)
 
 	transport, ok := retry.Unwrap().(*http.Transport)

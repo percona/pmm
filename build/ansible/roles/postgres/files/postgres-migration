@@ -8,14 +8,9 @@ declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:?must be exported by th
 declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:?must be exported by the entrypoint}"
 
 # ── shared cluster primitives ─────────────────────────────────────────────────
-# Stores the postgres superuser password with restricted permissions.
-store_postgres_password() {
-    echo -n "$1" > "$POSTGRES_PASSWORD_FILE"
-    chmod 600 "$POSTGRES_PASSWORD_FILE"
-}
-
 # Creates a cluster in the given directory with the authentication settings PMM expects.
-# The password file must already exist: initdb seeds the postgres superuser from it.
+# The postgres superuser gets no password: whatever connects as it does so over the Unix
+# socket, which the local trust rule lets in, so that no superuser password is kept anywhere.
 initdb_cluster() {
     local data_dir=$1
 
@@ -24,8 +19,7 @@ initdb_cluster() {
     "$POSTGRES_BIN_DIR/initdb" -D "$data_dir" \
         --auth-host=scram-sha-256 \
         --auth-local=trust \
-        --username=postgres \
-        --pwfile="$POSTGRES_PASSWORD_FILE"
+        --username=postgres
 }
 
 # Moves a finished cluster into place. Until this runs, POSTGRES_DATA_DIR does not exist, so
@@ -61,17 +55,8 @@ upgrade_pg14_to_pg18() {
 
     echo "PostgreSQL 14 data found at $PG14_DATA. Migrating to PostgreSQL 18..."
 
-    # PMM 2 data directories predate the superuser password file, so generate one when it is
-    # missing: initdb seeds the new cluster's postgres role from it. The dump below does not
-    # need it, since it connects over the socket, which pg_hba matches with a local trust rule.
-    if [ ! -f "$POSTGRES_PASSWORD_FILE" ]; then
-        echo "No superuser password file at $POSTGRES_PASSWORD_FILE. Generating one..."
-        store_postgres_password "$(openssl rand -hex 16)"
-    fi
-
-    local PGPASSWORD
-    PGPASSWORD=$(cat "$POSTGRES_PASSWORD_FILE")
-    export PGPASSWORD
+    # The dump and the restore below connect over the socket, which pg_hba matches with a local
+    # trust rule, so they need no superuser password.
 
     # Start pg14 and dump databases
     echo "Starting PostgreSQL 14 for dump..."
@@ -131,8 +116,6 @@ upgrade_pg14_to_pg18() {
     echo "Stopping PostgreSQL 18..."
     "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$STAGE_DIR" -w
 
-    unset PGPASSWORD
-
     publish_cluster "$STAGE_DIR"
 
     echo "Renaming $PG14_DATA to ${PG14_DATA}.old for rollback safety..."
@@ -159,52 +142,87 @@ init_postgres_cluster() {
 
     echo "No PostgreSQL data found at $POSTGRES_DATA_DIR. Initialising a new cluster..."
 
-    local POSTGRES_PASSWORD
-    POSTGRES_PASSWORD=$(openssl rand -hex 16)
-    store_postgres_password "$POSTGRES_PASSWORD"
-
     rm -rf "${STAGE_DIR:?}"
     initdb_cluster "$STAGE_DIR"
 
-    export PGPASSWORD="$POSTGRES_PASSWORD"
     "$POSTGRES_BIN_DIR/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
     create_pg_stat_statements
     "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$STAGE_DIR" -w
-    unset PGPASSWORD
 
     publish_cluster "$STAGE_DIR"
 }
 
-ensure_postgres_password() {
-    # This check is to verify if the data directory is empty.
-    if [ ! -f "$POSTGRES_DATA_DIR/PG_VERSION" ]; then
-        return
-    fi
-    if [ -f "$POSTGRES_PASSWORD_FILE" ]; then
+# ── superuser password ────────────────────────────────────────────────────────
+# Earlier versions gave the postgres superuser a password, kept in the password file. Nothing
+# needs it, since the superuser connects over the socket, so both go, and no superuser password
+# is kept anywhere: the file is removed only once the password is.
+remove_postgres_password() {
+    local started=0
+
+    if [ ! -f "$POSTGRES_PASSWORD_FILE" ] || [ ! -f "$POSTGRES_DATA_DIR/PG_VERSION" ]; then
         return
     fi
 
-    local POSTGRES_PASSWORD
-    local STARTED=0
+    echo "Removing the postgres superuser password..."
+    if ! "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off -c listen_addresses=" -w
+        started=1
+    fi
 
-    echo "Generating postgres superuser password..."
-    POSTGRES_PASSWORD=$(openssl rand -hex 16)
+    "$POSTGRES_BIN_DIR/psql" -X -q -v ON_ERROR_STOP=1 -U postgres -h /run/postgresql -d postgres \
+        -c "ALTER USER postgres WITH PASSWORD NULL"
+    rm -f "$POSTGRES_PASSWORD_FILE"
+
+    if [ "$started" -eq 1 ]; then
+        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR" -w
+    fi
+}
+
+# ── Grafana database password ─────────────────────────────────────────────────
+# Gives the grafana role the password Grafana connects with, GF_DATABASE_PASSWORD, which may have been
+# read from Vault, at every start, so that rotating it takes effect. The marker records that the
+# password is not the default one, which is put back once the variable is gone. A Grafana database
+# elsewhere, given by GF_DATABASE_URL or GF_DATABASE_HOST, is left alone.
+ensure_grafana_password() {
+    local marker=/srv/.grafana_password_from_env password started=0 role_exists
+
+    if [ -n "$GF_DATABASE_URL" ] || [ -n "$GF_DATABASE_HOST" ] || [ ! -f "$POSTGRES_DATA_DIR/PG_VERSION" ]; then
+        return
+    fi
+    if [ -n "$GF_DATABASE_PASSWORD" ]; then
+        password=$GF_DATABASE_PASSWORD
+    elif [ -f "$marker" ]; then
+        password=grafana
+    else
+        return 0
+    fi
 
     if ! "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
-        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
-        STARTED=1
+        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off -c listen_addresses=" -w
+        started=1
     fi
 
-    PGPASSWORD="$POSTGRES_PASSWORD" "$POSTGRES_BIN_DIR/psql" -U postgres -h /run/postgresql -d postgres \
-        -c "ALTER USER postgres WITH PASSWORD '${POSTGRES_PASSWORD}'"
+    role_exists=$("$POSTGRES_BIN_DIR/psql" -X -q -U postgres -h /run/postgresql -d postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname = 'grafana'")
+    if [ -n "$role_exists" ]; then
+        # Fed via stdin, not -c: psql only interpolates :'grafana_password' when reading a script.
+        "$POSTGRES_BIN_DIR/psql" -X -q -v ON_ERROR_STOP=1 -U postgres -h /run/postgresql -d postgres \
+            -v grafana_password="$password" <<'SQL'
+ALTER ROLE grafana WITH PASSWORD :'grafana_password';
+SQL
+    fi
 
-    store_postgres_password "$POSTGRES_PASSWORD"
+    if [ -n "$GF_DATABASE_PASSWORD" ]; then
+        touch "$marker"
+    else
+        rm -f "$marker"
+    fi
 
-    if [ "$STARTED" -eq 1 ]; then
-        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR"
+    if [ "$started" -eq 1 ]; then
+        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR" -w
     fi
 }
 
 upgrade_pg14_to_pg18
 init_postgres_cluster
-ensure_postgres_password
+remove_postgres_password
+ensure_grafana_password

@@ -82,6 +82,7 @@ var (
 type pmmAgentInfo struct {
 	channel         *channel.Channel
 	id              string
+	sealingKey      string
 	stateChangeChan chan struct{}
 	kickChan        chan struct{}
 }
@@ -318,6 +319,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 	agent := &pmmAgentInfo{
 		channel:         channel.New(ctx, stream),
 		id:              agentMD.ID,
+		sealingKey:      agentMD.SealingKey,
 		stateChangeChan: make(chan struct{}, 1),
 		kickChan:        make(chan struct{}),
 	}

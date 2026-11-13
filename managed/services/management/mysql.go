@@ -35,6 +35,16 @@ const (
 
 // AddMySQL adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
 func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddMySQLServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
+	vaultSecrets := takeVaultSecrets(req.VaultPath, req.Username, &req.Password, map[string]*string{
+		models.VaultTLSCaKey:   &req.TlsCa,
+		models.VaultTLSCertKey: &req.TlsCert,
+		models.VaultTLSKeyKey:  &req.TlsKey,
+	})
+	err := services.RequireUsername("AddMySQLServiceParams", req.Username, req.VaultPath)
+	if err != nil {
+		return nil, err
+	}
+
 	mysql := &managementv1.MySQLServiceResult{}
 
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -98,6 +108,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 			ServiceID:     service.ServiceID,
 			Username:      req.Username,
 			Password:      req.Password,
+			VaultPath:     req.VaultPath,
 			AgentPassword: req.AgentPassword,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
@@ -110,6 +121,10 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 			},
 			LogLevel: services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
+		if err != nil {
+			return err
+		}
+		err = s.storeInVault(ctx, tx.Querier, row, vaultSecrets, req.SkipConnectionCheck)
 		if err != nil {
 			return err
 		}
@@ -139,6 +154,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
+				VaultPath:     req.VaultPath,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				QANOptions: models.QANOptions{
@@ -166,6 +182,7 @@ func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddM
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
+				VaultPath:     req.VaultPath,
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				MySQLOptions:  mysqlOptions,

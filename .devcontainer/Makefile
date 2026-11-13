@@ -20,10 +20,11 @@ _bash:
 
 PMM_RELEASE_PATH ?= ./bin
 
-run-managed-ci: release-dev-managed    ## Replace pmm-managed from build, restart (used in CI)	supervisorctl stop pmm-managed
+run-managed-ci: release-dev-managed    ## Replace pmm-managed and pmm-managed-init from build, restart (used in CI)	supervisorctl stop pmm-managed
 	supervisorctl stop pmm-managed
 	truncate -s 0 /srv/logs/pmm-managed.log
 	install -m 755 $(PMM_RELEASE_PATH)/pmm-managed /usr/sbin/
+	install -m 755 $(PMM_RELEASE_PATH)/pmm-managed-init /usr/sbin/
 	supervisorctl start pmm-managed
 
 run-managed: run-managed-ci    		## Replace pmm-managed from build, restart and tail logs

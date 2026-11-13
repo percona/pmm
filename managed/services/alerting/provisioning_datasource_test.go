@@ -99,6 +99,15 @@ func TestGrafanaDatasourceDSN(t *testing.T) {
 		assert.Equal(t, "postgres://grafana:grafana@127.0.0.1:5432/grafana?sslmode=disable", dsn)
 	})
 
+	t.Run("uses the password Grafana connects with for the bundled database", func(t *testing.T) {
+		// postgres-migration gives the grafana role this password, which may have been read from Vault.
+		t.Setenv("GF_DATABASE_PASSWORD", "from-vault")
+
+		dsn, err := grafanaDatasourceDSN(fallback)
+		require.NoError(t, err)
+		assert.Equal(t, "postgres://grafana:from-vault@127.0.0.1:5432/grafana?sslmode=disable", dsn)
+	})
+
 	t.Run("reports having nowhere to look", func(t *testing.T) {
 		_, err := grafanaDatasourceDSN(grafanaDBFallback{})
 		require.Error(t, err)

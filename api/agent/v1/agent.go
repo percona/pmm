@@ -128,6 +128,11 @@ func (m *ServiceInfoResponse) AgentMessageResponsePayload() isAgentMessage_Paylo
 }
 
 // AgentMessageResponsePayload returns the payload for the AgentMessageResponse.
+func (m *StoreSecretResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
+	return &AgentMessage_StoreSecret{StoreSecret: m}
+}
+
+// AgentMessageResponsePayload returns the payload for the AgentMessageResponse.
 func (m *JobStatusResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_JobStatus{JobStatus: m}
 }
@@ -251,6 +256,11 @@ func (m *ServiceInfoRequest) ServerMessageRequestPayload() isServerMessage_Paylo
 	return &ServerMessage_ServiceInfo{ServiceInfo: m}
 }
 
+// ServerMessageRequestPayload returns the payload for the ServerMessageRequestPayload.
+func (m *StoreSecretRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
+	return &ServerMessage_StoreSecret{StoreSecret: m}
+}
+
 // in alphabetical order.
 func (*ActionResultRequest) sealed()     {}
 func (*ActionResultResponse) sealed()    {}
@@ -272,6 +282,8 @@ func (*QANCollectRequest) sealed()       {}
 func (*QANCollectResponse) sealed()      {}
 func (*ServiceInfoRequest) sealed()      {}
 func (*ServiceInfoResponse) sealed()     {}
+func (*StoreSecretRequest) sealed()      {}
+func (*StoreSecretResponse) sealed()     {}
 func (*SetStateRequest) sealed()         {}
 func (*SetStateResponse) sealed()        {}
 func (*StartActionRequest) sealed()      {}
@@ -307,6 +319,7 @@ var (
 	_ AgentResponsePayload = (*GetVersionsResponse)(nil)
 	_ AgentResponsePayload = (*AgentLogsResponse)(nil)
 	_ AgentResponsePayload = (*ServiceInfoResponse)(nil)
+	_ AgentResponsePayload = (*StoreSecretResponse)(nil)
 
 	// A list of ServerMessage response payloads.
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -327,6 +340,7 @@ var (
 	_ ServerRequestPayload = (*PBMSwitchPITRRequest)(nil)
 	_ ServerRequestPayload = (*AgentLogsRequest)(nil)
 	_ ServerRequestPayload = (*ServiceInfoRequest)(nil)
+	_ ServerRequestPayload = (*StoreSecretRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams

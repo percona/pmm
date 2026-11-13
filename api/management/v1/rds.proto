@@ -82,10 +82,7 @@ message AddRDSServiceParams {
   // Replication set name.
   string replication_set = 12;
   // Username for scraping metrics.
-  string username = 13 [
-    (validate.rules).string.min_len = 1,
-    (extensions.v1.sensitive) = REDACT_TYPE_FULL
-  ];
+  string username = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for scraping metrics.
   string password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // AWS Access key.
@@ -145,6 +142,10 @@ message AddRDSServiceParams {
     pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
     ignore_empty: true
   }];
+  // Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.
+  // pmm-agent reads the credentials from Vault. A password given as well is stored in the secret through
+  // pmm-agent, once the Agent connects with it, instead of in PMM Server.
+  string vault_path = 39;
 }
 
 message RDSServiceResult {

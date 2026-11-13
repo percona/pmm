@@ -9482,6 +9482,11 @@
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
                         "x-order": 23
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 24
                       }
                     }
                   },
@@ -9654,6 +9659,11 @@
                         "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                         "type": "boolean",
                         "x-order": 21
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 22
                       }
                     }
                   },
@@ -9806,6 +9816,11 @@
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
                         "x-order": 18
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 19
                       }
                     }
                   },
@@ -9946,6 +9961,11 @@
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
                         "x-order": 16
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 17
                       }
                     }
                   },
@@ -10074,6 +10094,11 @@
                           "type": "string"
                         },
                         "x-order": 17
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 18
                       }
                     }
                   },
@@ -10208,6 +10233,11 @@
                           "type": "string"
                         },
                         "x-order": 18
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 19
                       }
                     }
                   },
@@ -10303,6 +10333,11 @@
                           "LOG_LEVEL_DEBUG"
                         ],
                         "x-order": 11
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 12
                       }
                     }
                   },
@@ -10398,6 +10433,11 @@
                           "LOG_LEVEL_DEBUG"
                         ],
                         "x-order": 11
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 12
                       }
                     }
                   },
@@ -10498,6 +10538,11 @@
                           "LOG_LEVEL_DEBUG"
                         ],
                         "x-order": 12
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 13
                       }
                     }
                   },
@@ -10603,6 +10648,11 @@
                           "LOG_LEVEL_DEBUG"
                         ],
                         "x-order": 13
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 14
                       }
                     }
                   },
@@ -11141,6 +11191,11 @@
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
                         "x-order": 15
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 16
                       }
                     }
                   },
@@ -11237,6 +11292,11 @@
                           "LOG_LEVEL_DEBUG"
                         ],
                         "x-order": 10
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 11
                       }
                     }
                   },
@@ -11481,6 +11541,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 18
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 2
@@ -11630,6 +11695,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 23
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 24
                     }
                   },
                   "x-order": 3
@@ -11749,6 +11819,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 18
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 4
@@ -11841,6 +11916,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 13
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 5
@@ -12157,6 +12237,11 @@
                         "type": "string"
                       },
                       "x-order": 15
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 9
@@ -12266,6 +12351,11 @@
                         "type": "string"
                       },
                       "x-order": 16
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 17
                     }
                   },
                   "x-order": 10
@@ -12361,6 +12451,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 14
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 11
@@ -12456,6 +12551,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 14
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 12
@@ -12546,6 +12646,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 13
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 13
@@ -12641,6 +12746,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 14
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 14
@@ -12748,6 +12858,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 16
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 17
                     }
                   },
                   "x-order": 15
@@ -12844,6 +12959,11 @@
                         }
                       },
                       "x-order": 13
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 16
@@ -13178,6 +13298,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 23
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 24
                     }
                   },
                   "x-order": 2
@@ -13347,6 +13472,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 21
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 22
                     }
                   },
                   "x-order": 3
@@ -13496,6 +13626,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 18
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 4
@@ -13633,6 +13768,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 16
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 17
                     }
                   },
                   "x-order": 5
@@ -14111,6 +14251,11 @@
                         "type": "string"
                       },
                       "x-order": 17
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 9
@@ -14242,6 +14387,11 @@
                         "type": "string"
                       },
                       "x-order": 18
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 10
@@ -14334,6 +14484,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 11
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 12
                     }
                   },
                   "x-order": 11
@@ -14426,6 +14581,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 11
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 12
                     }
                   },
                   "x-order": 12
@@ -14523,6 +14683,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 12
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 13
                     }
                   },
                   "x-order": 13
@@ -14625,6 +14790,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 13
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 14
@@ -14747,6 +14917,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 15
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 15
@@ -14840,6 +15015,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 10
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 16
@@ -15268,6 +15448,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 23
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 24
                     }
                   },
                   "x-order": 3
@@ -15437,6 +15622,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 21
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 22
                     }
                   },
                   "x-order": 4
@@ -15586,6 +15776,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 18
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 5
@@ -15723,6 +15918,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 16
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 17
                     }
                   },
                   "x-order": 6
@@ -15848,6 +16048,11 @@
                         "type": "string"
                       },
                       "x-order": 17
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 7
@@ -15979,6 +16184,11 @@
                         "type": "string"
                       },
                       "x-order": 18
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 8
@@ -16071,6 +16281,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 11
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 12
                     }
                   },
                   "x-order": 9
@@ -16163,6 +16378,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 11
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 12
                     }
                   },
                   "x-order": 10
@@ -16260,6 +16480,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 12
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 13
                     }
                   },
                   "x-order": 11
@@ -16362,6 +16587,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 13
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 12
@@ -16885,6 +17115,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 15
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 17
@@ -16978,6 +17213,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 10
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 18
@@ -17271,6 +17511,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 17
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 18
                     }
                   },
                   "x-order": 1
@@ -17469,6 +17715,12 @@
                       },
                       "x-nullable": true,
                       "x-order": 23
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 24
                     }
                   },
                   "x-order": 2
@@ -17627,6 +17879,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 18
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -17753,6 +18011,12 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 13
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 4
@@ -18179,6 +18443,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 15
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 8
@@ -18324,6 +18594,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 16
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 17
                     }
                   },
                   "x-order": 9
@@ -18462,6 +18738,12 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 15
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 10
@@ -18600,6 +18882,12 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 15
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 11
@@ -18732,6 +19020,12 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 12
@@ -18870,6 +19164,12 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 15
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 13
@@ -19026,6 +19326,12 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 16
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 17
                     }
                   },
                   "x-order": 15
@@ -19136,6 +19442,12 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 12
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username; it replaces the stored password.\nA password given for an Agent with a Vault path is stored in its secret through pmm-agent, once the\nAgent connects with it. An empty value, given with a password, stops reading the credentials from Vault.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 13
                     }
                   },
                   "x-order": 16
@@ -19435,6 +19747,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 23
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 24
                     }
                   },
                   "x-order": 1
@@ -19604,6 +19921,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 21
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 22
                     }
                   },
                   "x-order": 2
@@ -19753,6 +20075,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 18
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -19890,6 +20217,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 16
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 17
                     }
                   },
                   "x-order": 4
@@ -20368,6 +20700,11 @@
                         "type": "string"
                       },
                       "x-order": 17
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 8
@@ -20499,6 +20836,11 @@
                         "type": "string"
                       },
                       "x-order": 18
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 19
                     }
                   },
                   "x-order": 9
@@ -20591,6 +20933,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 11
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 12
                     }
                   },
                   "x-order": 10
@@ -20683,6 +21030,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 11
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 12
                     }
                   },
                   "x-order": 11
@@ -20780,6 +21132,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 12
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 13
                     }
                   },
                   "x-order": 12
@@ -20882,6 +21239,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 13
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 14
                     }
                   },
                   "x-order": 13
@@ -21052,6 +21414,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 15
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 15
@@ -21145,6 +21512,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 10
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 16
@@ -25664,6 +26036,11 @@
                         "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                         "type": "string",
                         "x-order": 43
+                      },
+                      "vault_path": {
+                        "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                        "type": "string",
+                        "x-order": 44
                       }
                     }
                   },
@@ -27243,6 +27620,11 @@
                               "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                               "type": "string",
                               "x-order": 43
+                            },
+                            "vault_path": {
+                              "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                              "type": "string",
+                              "x-order": 44
                             }
                           }
                         },
@@ -27585,6 +27967,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 33
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 34
                     }
                   },
                   "x-order": 0
@@ -27871,6 +28258,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 36
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 37
                     }
                   },
                   "x-order": 1
@@ -28137,6 +28529,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 33
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 34
                     }
                   },
                   "x-order": 2
@@ -28345,6 +28742,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 22
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 23
                     }
                   },
                   "x-order": 3
@@ -28906,6 +29308,11 @@
                       "description": "AWS IAM role ARN to assume using the pmm-agent's ambient credentials.\nMutually exclusive with aws_access_key and aws_secret_key.",
                       "type": "string",
                       "x-order": 37
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 38
                     }
                   },
                   "x-order": 6
@@ -29121,6 +29528,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 24
+                    },
+                    "vault_path": {
+                      "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                      "type": "string",
+                      "x-order": 25
                     }
                   },
                   "x-order": 7
@@ -29385,6 +29797,11 @@
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
                           "x-order": 23
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 24
                         }
                       },
                       "x-order": 1
@@ -29510,6 +29927,11 @@
                             "type": "string"
                           },
                           "x-order": 17
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 18
                         }
                       },
                       "x-order": 2
@@ -29641,6 +30063,11 @@
                             "type": "string"
                           },
                           "x-order": 18
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 19
                         }
                       },
                       "x-order": 3
@@ -29888,6 +30315,11 @@
                           "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                           "type": "boolean",
                           "x-order": 21
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 22
                         }
                       },
                       "x-order": 1
@@ -29980,6 +30412,11 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 11
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 12
                         }
                       },
                       "x-order": 2
@@ -30072,6 +30509,11 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 11
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 12
                         }
                       },
                       "x-order": 3
@@ -30165,6 +30607,11 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 10
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 11
                         }
                       },
                       "x-order": 4
@@ -30397,6 +30844,11 @@
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
                           "x-order": 18
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 19
                         }
                       },
                       "x-order": 1
@@ -30494,6 +30946,11 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 12
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 13
                         }
                       },
                       "x-order": 2
@@ -30596,6 +31053,11 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 13
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 14
                         }
                       },
                       "x-order": 3
@@ -30810,6 +31272,11 @@
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
                           "x-order": 16
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 17
                         }
                       },
                       "x-order": 1
@@ -31583,6 +32050,11 @@
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
                           "x-order": 23
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 24
                         }
                       },
                       "x-order": 3
@@ -31708,6 +32180,11 @@
                             "type": "string"
                           },
                           "x-order": 17
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 18
                         }
                       },
                       "x-order": 4
@@ -31934,6 +32411,11 @@
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
                           "x-order": 18
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 19
                         }
                       },
                       "x-order": 6
@@ -32031,6 +32513,11 @@
                             "LOG_LEVEL_DEBUG"
                           ],
                           "x-order": 12
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 13
                         }
                       },
                       "x-order": 7
@@ -32225,6 +32712,11 @@
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
                           "x-order": 15
+                        },
+                        "vault_path": {
+                          "description": "Path of the Vault secret holding the database credentials, if they are stored in Vault.",
+                          "type": "string",
+                          "x-order": 16
                         }
                       },
                       "x-order": 1
@@ -32430,6 +32922,11 @@
                   "description": "The pmm-agent identifier which should run agents. Defaults to the PMM Server's own pmm-agent.",
                   "type": "string",
                   "x-order": 26
+                },
+                "vault_path": {
+                  "description": "Path of the Vault secret with the password and, optionally, the username, which then wins over the given one.\npmm-agent reads the credentials from Vault. A password given as well is stored in the secret through\npmm-agent, once the Agent connects with it, instead of in PMM Server.",
+                  "type": "string",
+                  "x-order": 27
                 }
               }
             }

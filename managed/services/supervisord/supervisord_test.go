@@ -119,6 +119,31 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	}
 }
 
+// Not parallel: it sets environment variables.
+func TestConfigInheritedCredentials(t *testing.T) {
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	pgParams := &models.PGParams{Addr: "127.0.0.1:5432", DBName: "pmm-managed", DBUsername: "pmm-managed", DBPassword: "pg-from-vault"}
+	s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}})
+	settings := &models.Settings{DataRetention: 30 * 24 * time.Hour}
+
+	// The programs inherit these from supervisord, so the files on disk must not hold them too.
+	t.Setenv("PMM_POSTGRES_DBPASSWORD", "pg-from-vault")
+	t.Setenv("PMM_CLICKHOUSE_PASSWORD", "ch-from-vault")
+	t.Setenv("PMM_CLICKHOUSE_DATASOURCE_PASSWORD", "ds-from-vault")
+
+	for name, kept := range map[string]string{
+		"qan-api2": `PMM_CLICKHOUSE_USER="default",`,
+		"grafana":  `PMM_CLICKHOUSE_DATASOURCE_USER="grafana",`,
+	} {
+		b, err := s.marshalConfig(templates.Lookup(name), settings)
+		require.NoError(t, err)
+		assert.NotContains(t, string(b), "from-vault", name)
+		assert.NotContains(t, string(b), "PASSWORD", name)
+		assert.Contains(t, string(b), kept, name)
+	}
+}
+
 func TestDevContainer(t *testing.T) {
 	t.Run("UpdateConfiguration", func(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)

@@ -28,6 +28,7 @@ import (
 type agentsRegistry interface {
 	IsConnected(pmmAgentID string) bool
 	Kick(ctx context.Context, pmmAgentID string)
+	StoreSecret(ctx context.Context, q *reform.Querier, pmmAgentID, path string, data map[string]string) error
 }
 
 // agentService is a subset of methods of agents.AgentService used by this package.

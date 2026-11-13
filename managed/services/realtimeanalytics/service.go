@@ -362,6 +362,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			ServiceID:         service.ServiceID,
 			Username:          pointer.GetString(existingAgent.Username),
 			Password:          pointer.GetString(existingAgent.Password),
+			VaultPath:         pointer.GetString(existingAgent.VaultPath),
 			TLS:               existingAgent.TLS,
 			TLSSkipVerify:     existingAgent.TLSSkipVerify,
 			MongoDBOptions:    existingAgent.MongoDBOptions,

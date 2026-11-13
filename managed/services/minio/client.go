@@ -26,8 +26,11 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/secrets"
 )
 
 // Client is a wrapper around minio.Client.
@@ -54,7 +57,7 @@ type FileInfo struct {
 
 // BucketExists return true if bucket can be accessed with provided credentials and exists.
 func (c *Client) BucketExists(ctx context.Context, endpoint, accessKey, secretKey, bucketName string) (bool, error) {
-	mc, err := createMinioClient(endpoint, accessKey, secretKey)
+	mc, err := createMinioClient(ctx, endpoint, accessKey, secretKey)
 	if err != nil {
 		return false, err
 	}
@@ -63,7 +66,7 @@ func (c *Client) BucketExists(ctx context.Context, endpoint, accessKey, secretKe
 
 // GetBucketLocation retrieves bucket location by specified bucket name.
 func (c *Client) GetBucketLocation(ctx context.Context, endpoint, accessKey, secretKey, bucketName string) (string, error) {
-	mc, err := createMinioClient(endpoint, accessKey, secretKey)
+	mc, err := createMinioClient(ctx, endpoint, accessKey, secretKey)
 	if err != nil {
 		return "", err
 	}
@@ -72,7 +75,7 @@ func (c *Client) GetBucketLocation(ctx context.Context, endpoint, accessKey, sec
 
 // RemoveRecursive removes objects recursively from storage with given prefix.
 func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secretKey, bucketName, prefix string) (rerr error) {
-	mc, err := createMinioClient(endpoint, accessKey, secretKey)
+	mc, err := createMinioClient(ctx, endpoint, accessKey, secretKey)
 	if err != nil {
 		return err
 	}
@@ -125,7 +128,7 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 
 // Remove removes single objects from storage.
 func (c *Client) Remove(ctx context.Context, endpoint, accessKey, secretKey, bucketName, objectName string) error {
-	mc, err := createMinioClient(endpoint, accessKey, secretKey)
+	mc, err := createMinioClient(ctx, endpoint, accessKey, secretKey)
 	if err != nil {
 		return err
 	}
@@ -140,7 +143,7 @@ func (c *Client) List(ctx context.Context, endpoint, accessKey, secretKey, bucke
 	if prefix != "" && !strings.HasSuffix(prefix, "/") {
 		prefix += "/"
 	}
-	mc, err := createMinioClient(endpoint, accessKey, secretKey)
+	mc, err := createMinioClient(ctx, endpoint, accessKey, secretKey)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +181,7 @@ func (c *Client) List(ctx context.Context, endpoint, accessKey, secretKey, bucke
 // FileStat returns file info. It returns error if file is empty or not exists.
 func (c *Client) FileStat(ctx context.Context, endpoint, accessKey, secretKey, bucketName, name string) (FileInfo, error) {
 	var file FileInfo
-	mc, err := createMinioClient(endpoint, accessKey, secretKey)
+	mc, err := createMinioClient(ctx, endpoint, accessKey, secretKey)
 	if err != nil {
 		return file, err
 	}
@@ -203,10 +206,16 @@ func (c *Client) FileStat(ctx context.Context, endpoint, accessKey, secretKey, b
 	return file, nil
 }
 
-func createMinioClient(endpoint, accessKey, secretKey string) (*minio.Client, error) {
+// createMinioClient returns a client of the storage, with its keys read from Vault if they are stored there.
+func createMinioClient(ctx context.Context, endpoint, accessKey, secretKey string) (*minio.Client, error) {
 	url, err := models.ParseEndpoint(endpoint)
 	if err != nil {
 		return nil, err
+	}
+
+	err = secrets.ResolveAll(ctx, &accessKey, &secretKey)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Failed to read the keys of the storage: %s.", err)
 	}
 
 	secure := url.Scheme != "http"

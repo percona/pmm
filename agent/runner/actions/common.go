@@ -15,6 +15,7 @@
 package actions
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -24,6 +25,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 
 	"github.com/percona/pmm/agent/tlshelpers"
+	"github.com/percona/pmm/agent/utils/secrets"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
@@ -56,9 +58,14 @@ func jsonRows(columns []string, dataRows [][]any) ([]byte, error) {
 }
 
 // mysqlOpen returns *sql.DB for given MySQL DSN.
-func mysqlOpen(dsn string, tlsFiles *agentv1.TextFiles, tlsSkipVerify bool) (*sql.DB, error) {
+func mysqlOpen(ctx context.Context, dsn string, tlsFiles *agentv1.TextFiles, tlsSkipVerify bool) (*sql.DB, error) {
+	dsn, err := secrets.ResolveString(ctx, dsn)
+	if err != nil {
+		return nil, err
+	}
+
 	if tlsFiles != nil {
-		err := tlshelpers.RegisterMySQLCerts(tlsFiles.Files, tlsSkipVerify)
+		err := tlshelpers.RegisterMySQLCerts(ctx, tlsFiles.Files, tlsSkipVerify)
 		if err != nil {
 			return nil, err
 		}

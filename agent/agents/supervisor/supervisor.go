@@ -17,11 +17,13 @@ package supervisor
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -45,6 +47,7 @@ import (
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
+	"github.com/percona/pmm/agent/utils/secrets"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
@@ -94,6 +97,10 @@ type Supervisor struct {
 	rw             sync.RWMutex
 	agentProcesses map[string]*agentProcessInfo
 	builtinAgents  map[string]*builtinAgentInfo
+	// pendingProcesses and pendingBuiltins hold the Agents with credentials stored in Vault that
+	// failed to start, so that refreshSecrets retries them; see secrets.go.
+	pendingProcesses map[string]*agentv1.SetStateRequest_AgentProcess
+	pendingBuiltins  map[string]*agentv1.SetStateRequest_BuiltinAgent
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventoryv1.AgentStatus
@@ -121,6 +128,8 @@ type agentProcessInfo struct {
 	listenPort      uint16
 	processExecPath string
 	logStore        *tailog.Store // store logs
+	// secretsFingerprint is the digest of the Vault secrets the Agent was started with, if any.
+	secretsFingerprint string
 }
 
 // builtinAgentInfo describes built-in Agent.
@@ -131,6 +140,8 @@ type builtinAgentInfo struct {
 	describe       func(chan<- *prometheus.Desc)  // agent's func to describe Prometheus metrics
 	collect        func(chan<- prometheus.Metric) // agent's func to provide Prometheus metrics
 	logStore       *tailog.Store                  // store logs
+	// secretsFingerprint is the digest of the Vault secrets the Agent was started with, if any.
+	secretsFingerprint string
 }
 
 // NewSupervisor creates new Supervisor object.
@@ -152,19 +163,38 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 		rtaRequests:    make(chan *rtav1.CollectRequest, rtaRequestsBufferSize),
 		l:              logrus.WithField("component", "supervisor"),
 
-		agentProcesses: make(map[string]*agentProcessInfo),
-		builtinAgents:  make(map[string]*builtinAgentInfo),
-		lastStatuses:   make(map[string]inventoryv1.AgentStatus),
-		instances:      make(map[string]uint64),
+		agentProcesses:   make(map[string]*agentProcessInfo),
+		builtinAgents:    make(map[string]*builtinAgentInfo),
+		pendingProcesses: make(map[string]*agentv1.SetStateRequest_AgentProcess),
+		pendingBuiltins:  make(map[string]*agentv1.SetStateRequest_BuiltinAgent),
+		lastStatuses:     make(map[string]inventoryv1.AgentStatus),
+		instances:        make(map[string]uint64),
 
 		agentsStopTimeout: agentsStopTimeout,
 	}
 }
 
-// Run waits for context and stop all agents when it's done.
+// Run waits for context and stop all agents when it's done. Meanwhile, if Vault is configured,
+// it restarts the Agents whose Vault secrets change, at once for those pmm-agent writes itself.
 func (s *Supervisor) Run(ctx context.Context) {
-	<-ctx.Done()
-	s.stopAll() //nolint:contextcheck
+	var refresh <-chan time.Time
+	if vaultCfg := s.cfg.Get().Vault; vaultCfg.Enabled() {
+		t := time.NewTicker(vaultCfg.EffectiveCacheTTL())
+		defer t.Stop()
+		refresh = t.C
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			s.stopAll() //nolint:contextcheck
+			return
+		case <-refresh:
+			s.refreshSecrets() //nolint:contextcheck
+		case <-secrets.Written():
+			s.refreshSecrets() //nolint:contextcheck
+		}
+	}
 }
 
 // AgentsList returns info for all Agents managed by this supervisor.
@@ -308,23 +338,33 @@ func (s *Supervisor) RestartAgents() {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
+	// Iterate a snapshot of the keys: the give-up branch in restartAgentsLocked deletes the entry
+	// and tryStartProcess re-inserts the same key, and an entry created during a range may be
+	// produced again by that range.
+	processIDs := make([]string, 0, len(s.agentProcesses))
+	for id := range s.agentProcesses {
+		processIDs = append(processIDs, id)
+	}
+	builtinIDs := make([]string, 0, len(s.builtinAgents))
+	for id := range s.builtinAgents {
+		builtinIDs = append(builtinIDs, id)
+	}
+
+	s.restartAgentsLocked(processIDs, builtinIDs)
+}
+
+// restartAgentsLocked restarts the given running Agents with their current parameters.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) restartAgentsLocked(processIDs, builtinIDs []string) {
 	// A budget per phase, not one shared by both - see SetState.
 	processDeadline := time.Now().Add(s.agentsStopTimeout)
 
-	// Iterate a snapshot of the keys: the give-up branch below deletes the entry and
-	// tryStartProcess re-inserts the same key, and an entry created during a range may be
-	// produced again by that range.
-	ids := make([]string, 0, len(s.agentProcesses))
-	for id := range s.agentProcesses {
-		ids = append(ids, id)
-	}
-
 	// Cancel them all first - see setAgentProcesses.
-	for _, id := range ids {
+	for _, id := range processIDs {
 		s.agentProcesses[id].cancel()
 	}
 
-	for _, id := range ids {
+	for _, id := range processIDs {
 		agent := s.agentProcesses[id]
 		port := agent.listenPort
 		if !s.waitAgentStopped(id, agent.done, processDeadline) {
@@ -337,20 +377,23 @@ func (s *Supervisor) RestartAgents() {
 		err := s.tryStartProcess(id, agent.requestedState, port)
 		if err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
+			s.retryProcessLocked(id, agent.requestedState)
 		}
 	}
 
-	for _, agent := range s.builtinAgents {
-		agent.cancel()
+	for _, id := range builtinIDs {
+		s.builtinAgents[id].cancel()
 	}
 
 	builtinDeadline := time.Now().Add(s.agentsStopTimeout)
-	for id, agent := range s.builtinAgents {
+	for _, id := range builtinIDs {
+		agent := s.builtinAgents[id]
 		s.waitAgentStopped(id, agent.done, builtinDeadline)
 
 		err := s.startBuiltin(id, agent.requestedState)
 		if err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
+			s.retryBuiltinLocked(id, agent.requestedState)
 		}
 	}
 }
@@ -572,6 +615,9 @@ func (s *Supervisor) storeLastStatus(agentID string, instance uint64, status inv
 // setAgentProcesses starts/restarts/stops Agent processes.
 // Must be called with s.rw held for writing.
 func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetStateRequest_AgentProcess, deadline time.Time) {
+	// Every Agent of the new state that is not running is started below, pending ones included.
+	clear(s.pendingProcesses)
+
 	existingParams := make(map[string]agentv1.AgentParams)
 	for id, p := range s.agentProcesses {
 		existingParams[id] = p.requestedState
@@ -630,6 +676,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		if err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
+			s.retryProcessLocked(agentID, agentProcesses[agentID])
 		}
 	}
 
@@ -639,6 +686,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		if err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
+			s.retryProcessLocked(agentID, agentProcesses[agentID])
 		}
 	}
 }
@@ -646,6 +694,9 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 // setBuiltinAgents starts/restarts/stops built-in Agents.
 // Must be called with s.rw held for writing.
 func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetStateRequest_BuiltinAgent, deadline time.Time) {
+	// See setAgentProcesses.
+	clear(s.pendingBuiltins)
+
 	existingParams := make(map[string]agentv1.AgentParams)
 	for id, agent := range s.builtinAgents {
 		existingParams[id] = agent.requestedState
@@ -690,6 +741,7 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 		if err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
+			s.retryBuiltinLocked(agentID, builtinAgents[agentID])
 		}
 	}
 
@@ -699,6 +751,7 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 		if err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
+			s.retryBuiltinLocked(agentID, builtinAgents[agentID])
 		}
 	}
 }
@@ -781,6 +834,11 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 			s.releasePort(agentID, port)
 		}
 		port = 0
+
+		// Another port does not help with that; refreshSecrets retries it later.
+		if errors.Is(err, secrets.ErrUnavailable) {
+			return err
+		}
 	}
 
 	return err
@@ -790,6 +848,11 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 // Must be called with s.rw held for writing.
 func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) error {
 	processParams, err := s.processParams(agentID, agentProcess, port)
+	if err != nil {
+		return err
+	}
+
+	fingerprint, err := secrets.Fingerprint(s.ctx, s.processStrings(agentProcess)...)
 	if err != nil {
 		return err
 	}
@@ -804,7 +867,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	})
 	l.Debugf("Starting: %s.", processParams)
 
-	processWrapper := process.New(processParams, agentProcess.RedactWords, l)
+	redactWords := slices.Concat(agentProcess.RedactWords, processParams.TemplateRenderer.SecretValues())
+	processWrapper := process.New(processParams, redactWords, l)
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), processWrapper.Run)
 
 	version, err := s.version(agentProcess.Type, processParams.Path)
@@ -849,6 +913,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		listenPort:      port,
 		processExecPath: processParams.Path,
 		logStore:        logStore,
+
+		secretsFingerprint: fingerprint,
 	}
 
 	t := time.NewTimer(startProcessWaiting)
@@ -937,7 +1003,17 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			return err
 		}
 	} else {
-		dsn = builtinAgent.Dsn
+		dsn, err = secrets.ResolveString(ctx, builtinAgent.Dsn)
+		if err != nil {
+			cancel()
+			return err
+		}
+	}
+
+	fingerprint, err := secrets.Fingerprint(ctx, builtinStrings(builtinAgent)...)
+	if err != nil {
+		cancel()
+		return err
 	}
 
 	switch builtinAgent.Type {
@@ -1098,6 +1174,8 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		describe:       agent.Describe,
 		collect:        agent.Collect,
 		logStore:       logStore,
+
+		secretsFingerprint: fingerprint,
 	}
 	return nil
 }
@@ -1152,7 +1230,11 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		if cfg.Server.WithoutTLS {
 			templateParams["server_url"] = "http://" + cfg.Server.Address
 		}
-		templateParams["server_password"] = cfg.Server.Password
+		serverPassword, err := secrets.ResolveRef(s.ctx, cfg.Server.Password)
+		if err != nil {
+			return nil, fmt.Errorf("failed to resolve the PMM Server password: %w", err)
+		}
+		templateParams["server_password"] = serverPassword
 		templateParams["server_username"] = cfg.Server.Username
 		templateParams["tmp_dir"] = cfg.Paths.TempDir
 		processParams.Path = cfg.Paths.VMAgent
@@ -1160,7 +1242,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		templateParams["server_host"] = cfg.Server.URL().Hostname()
 		templateParams["nomad_data_dir"] = cfg.Paths.NomadDataDir
 		processParams.Path = cfg.Paths.Nomad
-		processParams.Env = append(processParams.Env, os.Environ()...)
+		processParams.Env = append(processParams.Env, environWithoutVault()...)
 	default:
 		return nil, fmt.Errorf("unhandled agent type %[1]s (%[1]d)", agentProcess.Type)
 	}
@@ -1336,3 +1418,11 @@ func trimPrefix(s string) string {
 var (
 	_ prometheus.Collector = (*Supervisor)(nil)
 )
+
+// environWithoutVault returns pmm-agent's environment without its Vault settings, which hold the
+// credentials pmm-agent logs in to Vault with.
+func environWithoutVault() []string {
+	return slices.DeleteFunc(os.Environ(), func(kv string) bool {
+		return strings.HasPrefix(kv, "PMM_AGENT_VAULT_")
+	})
+}

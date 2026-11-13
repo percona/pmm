@@ -11,7 +11,6 @@ set -o errexit
 set -o pipefail
 
 declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:?must be exported by the entrypoint}"
-declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:?must be exported by the entrypoint}"
 declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:?must be exported by the entrypoint}"
 declare PG_CONF="$POSTGRES_DATA_DIR/postgresql.conf"
 declare PG_HBA="$POSTGRES_DATA_DIR/pg_hba.conf"
@@ -63,9 +62,6 @@ provision_extensions_role() {
         started=1
     fi
 
-    PGPASSWORD=$(< "$POSTGRES_PASSWORD_FILE")
-    export PGPASSWORD
-
     role_exists=$(psql_postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname = 'pmm_extensions'")
     if [ -z "$role_exists" ]; then
         psql_postgres -c "CREATE ROLE pmm_extensions"
@@ -81,8 +77,6 @@ SQL
     if [ -z "$db_exists" ]; then
         psql_postgres -c "CREATE DATABASE pmm_extensions OWNER pmm_extensions"
     fi
-
-    unset PGPASSWORD
 
     if [ "$started" -eq 1 ]; then
         "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR"

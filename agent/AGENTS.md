@@ -59,6 +59,7 @@ What keeps it out:
 | `connectionchecker` | Verifies connectivity to MySQL, PostgreSQL, MongoDB, ProxySQL |
 | `serviceinfobroker` | Discovers service metadata (versions, tables, databases) |
 | `utils/templates` | Renders exporter args/env/config files from server-provided Go templates |
+| `utils/secrets` | Replaces the Vault tokens pmm-managed sends in place of database credentials stored in Vault; resolved after template rendering, see `utils/vault` |
 
 ## Domain Model
 

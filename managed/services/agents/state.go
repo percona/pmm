@@ -269,6 +269,18 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	agentProcesses := make(map[string]*agentv1.SetStateRequest_AgentProcess)
 	builtinAgents := make(map[string]*agentv1.SetStateRequest_BuiltinAgent)
 	for _, row := range agents {
+		err := checkVaultSupported(pmmAgent, row)
+		if err != nil {
+			l.Warnf("Leaving %s %s out of the state of pmm-agent %s: %s.", row.AgentType, row.AgentID, agent.id, err)
+			continue
+		}
+		resolved, err := row.WithServerSecrets(ctx)
+		if err != nil {
+			l.Errorf("Leaving %s out of the state of pmm-agent %s: cannot read its %s.", row.AgentID, agent.id, err)
+			continue
+		}
+		row = resolved
+
 		switch row.AgentType {
 		case models.PMMAgentType:
 			continue
@@ -435,4 +447,14 @@ func groupRDSExporters(rdsExporters map[*models.Node]*models.Agent) map[string]m
 	}
 
 	return grouped
+}
+
+// checkVaultSupported returns an error when an Agent with credentials stored in Vault must not be sent to
+// pmmAgent, which would use the Vault tokens as the credentials if it is too old. Both models.CreateAgent
+// and models.ApplyAgentChange refuse such a row, but a pmm-agent downgraded since then is caught here.
+func checkVaultSupported(pmmAgent, row *models.Agent) error {
+	if !row.UsesVault() {
+		return nil
+	}
+	return models.IsAgentSupported(pmmAgent, models.VaultFunctionality, models.PMMAgentMinVersionForVault)
 }

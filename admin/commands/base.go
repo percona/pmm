@@ -31,6 +31,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/utils/envvars"
+	"github.com/percona/pmm/utils/vault"
 )
 
 var (
@@ -84,12 +85,14 @@ type Credentials struct {
 	AgentPassword string `json:"agentpassword"`
 	Password      string `json:"password"`
 	Username      string `json:"username"`
+	// VaultPath is the Vault secret pmm-agent reads the password, and optionally the username, from.
+	VaultPath string `json:"vault_path"`
 }
 
 // ReadFromSource parses a JSON file src and return
 // a Credentials pointer containing the data.
 func ReadFromSource(src string) (*Credentials, error) {
-	creds := Credentials{"", "", ""}
+	var creds Credentials
 
 	f, err := os.Lstat(src)
 	if err != nil {
@@ -101,12 +104,12 @@ func ReadFromSource(src string) (*Credentials, error) {
 	}
 
 	// Read the file
-	content, err := ReadFile(src)
+	content, err := os.ReadFile(filepath.Clean(src))
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	err = json.Unmarshal([]byte(content), &creds)
+	err = json.Unmarshal(content, &creds)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -219,10 +222,11 @@ func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	return envvars.NormalizeNames(varNames)
 }
 
-// ReadFile reads file from filepath if filepath is not empty.
+// ReadFile reads file from filepath if filepath is not empty. A vault:<path>#<key> reference is returned
+// as is: pmm-agent reads the content from Vault.
 func ReadFile(filePath string) (string, error) {
-	if filePath == "" {
-		return "", nil
+	if filePath == "" || vault.IsRef(filePath) {
+		return filePath, nil
 	}
 
 	content, err := os.ReadFile(filepath.Clean(filePath))

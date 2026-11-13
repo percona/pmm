@@ -29,6 +29,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
+	"github.com/percona/pmm/utils/vault"
 	"github.com/percona/pmm/version"
 )
 
@@ -270,6 +271,7 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 	tdp := agent.TemplateDelimiters(service)
 
 	var configBuffer bytes.Buffer
+	username, password := agent.DBCredentials(vault.EncodingRaw)
 	myCnfParams := struct {
 		User                    string
 		Password                string
@@ -283,8 +285,8 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		EnableClearTextPassword bool
 		MyCnfPath               string
 	}{
-		User:           pointer.GetString(agent.Username),
-		Password:       pointer.GetString(agent.Password),
+		User:           username,
+		Password:       password,
 		Host:           pointer.GetString(service.Address),
 		Port:           int(pointer.GetUint16(service.Port)),
 		ConnectTimeout: max(1, int(connectTimeout.Seconds())),
