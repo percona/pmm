@@ -22,9 +22,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
-import { useUser } from 'contexts/user';
+import { useAuth } from 'contexts/auth';
+import { ExtensionsAuthProvider } from 'extensions/ExtensionsAuthProvider';
 import { useReadonlySettings } from 'hooks/api/useSettings';
-import { OrgRole } from 'types/user.types';
 import { Messages } from './OmPage.messages';
 
 /**
@@ -37,31 +37,27 @@ import { Messages } from './OmPage.messages';
  * inventory, VictoriaMetrics and stored snapshot. OM has no PMM Extensions call on any browser
  * path, so it must not inherit PMM Extensions' availability.
  *
- * The PMM-admin restriction is kept, and enforced here rather than left to the
- * sidebar: NavigationProvider only *hides* the entry for non-admins, while the route
- * still matches on direct navigation. The predicate is the nav's own — `isPMMAdmin` is
- * `isGrafanaAdmin || orgRole === Admin`, and `roles` (org-role only) cannot express the
- * Grafana-admin half on its own, so it gates the remaining case and `Page` renders its
- * standard unauthorized card.
+ * The settings gate is enforced here, not left to the sidebar: a saved or shared link to
+ * this page has to answer "switched off", not the API's raw FailedPrecondition.
  *
- * The settings gate is enforced here for the same reason: a saved or shared link to
- * this page has to answer "switched off", not the API's raw FailedPrecondition, and
- * not the unauthorized card above, which would misreport a disabled feature as a
- * permissions problem to an admin who has every right to be here (PMM-15360 AC1/AC2/AC7).
+ * Every signed-in role may open it. `ExtensionsAuthProvider` shares only the admin flag the
+ * plugin gates its actions on; unlike `ExtensionsPage`, it mints no bearer and gates nothing.
  *
  * The developer-preview banner cannot be dismissed. It is the only in-app marker of the
  * preview status, and anyone reaching the page from a shared link never saw the
  * Settings warning, so it has to be there on every visit.
  */
 export const OmPage: FC<PropsWithChildren> = ({ children }) => {
-  const { user } = useUser();
-  const { data: settings, isLoading } = useReadonlySettings();
+  const { isAnonymous } = useAuth();
+  // Anonymous visitors can't read settings, and a failing fetch here re-mounts the page in a loop.
+  const { data: settings, isLoading } = useReadonlySettings({
+    enabled: !isAnonymous,
+  });
 
   return (
-    <Page
-      maxWidth="full"
-      roles={user?.isPMMAdmin ? undefined : [OrgRole.Admin]}
-    >
+    // An anonymous visitor is an org Viewer with no credential PMM Extensions accepts, so most
+    // tabs could not load for them; an empty role list turns them away.
+    <Page maxWidth="full" roles={isAnonymous ? [] : undefined}>
       <Stack gap={3} sx={{ flex: 1 }}>
         {isLoading ? (
           <Stack alignItems="center" py={4}>
@@ -75,7 +71,9 @@ export const OmPage: FC<PropsWithChildren> = ({ children }) => {
                 {Messages.developerPreviewBody}
               </Typography>
             </Alert>
-            <div>{children}</div>
+            <ExtensionsAuthProvider>
+              <div>{children}</div>
+            </ExtensionsAuthProvider>
           </>
         ) : (
           <Card variant="outlined" sx={{ p: 2 }}>

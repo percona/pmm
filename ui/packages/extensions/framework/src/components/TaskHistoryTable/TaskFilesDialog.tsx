@@ -54,7 +54,7 @@ export interface TaskFilesDialogProps {
   open: boolean;
   taskHistoryId: number | null | undefined;
   onClose: () => void;
-  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  /** Mid-sentence singular noun for one record (e.g. `backup`); omitted, the text reads "this run". */
   itemName?: string;
 }
 
@@ -62,7 +62,7 @@ export function TaskFilesDialog({
   open,
   taskHistoryId,
   onClose,
-  itemName = 'task',
+  itemName,
 }: TaskFilesDialogProps) {
   const { data, isLoading, isError } = useTaskHistoryFiles(
     open ? taskHistoryId : null
@@ -114,7 +114,7 @@ export function TaskFilesDialog({
         )}
         {!isLoading && !isError && entries.length === 0 && (
           <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
-            No files available for this {itemName} run.
+            No files available for this {itemName ? `${itemName} run` : 'run'}.
           </Typography>
         )}
         {!isLoading && !isError && entries.length > 0 && (
