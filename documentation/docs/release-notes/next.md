@@ -86,6 +86,8 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 - [PMM-15806](https://perconadev.atlassian.net/browse/PMM-15806): You can now search the **Clusters** tab on **MongoDB > Operations > Fleet** by cluster name and filter it by **Health**, **Type**, and **Environment**. The search and filters are saved in the page URL, so you can share a filtered view. Each cluster shows its type next to its name. The column chooser also adds optional **Type**, **Last seen**, **Max CPU**, and **Min conn. free** columns. For details, see [Operations for MongoDB](../use/mongodb-operations.md#view-fleet-health).
 
+- [PMM-15683](https://perconadev.atlassian.net/browse/PMM-15683): **MongoDB > Operations > Settings** now shows the range each number field accepts, for example **A whole number from 1 to 8**, and refuses a value outside it before you save. When PMM Extensions refuses a save or reset, the page lists one readable line per field, named by its label, instead of raw JSON. **Period** no longer offers `seconds`, which the scan schedule never accepted. For details, see [Operations for MongoDB](../use/mongodb-operations.md#change-the-scan-schedule).
+
 ## ✅ Fixed issues
 
 - [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339): Fixed an issue where [turning on Grafana anonymous access](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#supported-external-variables) also let visitors who aren't signed in use PMM features such as Query Analytics. These visitors can now open only your dashboards.

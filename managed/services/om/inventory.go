@@ -1385,6 +1385,8 @@ func inventorySettingsToProto(settings []extensionsSetting) []*omv1.InventorySet
 			HasOverride:  setting.HasOverride,
 			IsAdvanced:   setting.IsAdvanced,
 			Description:  optionalString(setting.Description),
+			Minimum:      optionalValue(setting.Minimum),
+			Maximum:      optionalValue(setting.Maximum),
 		})
 	}
 	return out
@@ -1474,6 +1476,14 @@ func anyToValue(value any) *structpb.Value {
 		return nil
 	}
 	return encoded
+}
+
+// optionalValue leaves a JSON null unset, where anyToValue keeps it as a null value.
+func optionalValue(value any) *structpb.Value {
+	if value == nil {
+		return nil
+	}
+	return anyToValue(value)
 }
 
 func observedString(observed map[string]any, key string) *string {

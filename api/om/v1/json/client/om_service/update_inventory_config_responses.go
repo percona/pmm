@@ -573,6 +573,13 @@ type UpdateInventoryConfigOKBodySettingsItems0 struct {
 
 	// The field's documentation, where it has any.
 	Description *string `json:"description,omitempty"`
+
+	// The lowest value the app accepts, inclusive. Unset when it declares none or only an
+	// exclusive one, such as "greater than zero".
+	Minimum any `json:"minimum,omitempty"`
+
+	// The highest value the app accepts, inclusive. Unset when it declares none.
+	Maximum any `json:"maximum,omitempty"`
 }
 
 // Validate validates this update inventory config OK body settings items0

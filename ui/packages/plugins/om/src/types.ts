@@ -804,4 +804,7 @@ export interface OmInventorySetting {
   has_override: boolean;
   is_advanced: boolean;
   description?: string | null;
+  /** The inclusive bounds the app enforces, where it declares them. */
+  minimum?: unknown;
+  maximum?: unknown;
 }
