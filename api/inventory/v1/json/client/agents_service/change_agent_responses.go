@@ -1340,8 +1340,8 @@ type ChangeAgentDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// change agent default body details items0
-	ChangeAgentDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// change agent default body details items0 additional properties
+	ChangeAgentDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -1376,7 +1376,7 @@ func (o *ChangeAgentDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.ChangeAgentDefaultBodyDetailsItems0 = result
+		o.ChangeAgentDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -1397,12 +1397,12 @@ func (o ChangeAgentDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.ChangeAgentDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ChangeAgentDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ChangeAgentDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ChangeAgentDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -3120,6 +3120,12 @@ type ChangeAgentOKBodyMongodbExporter struct {
 	// Environment variable names passed to the exporter.
 	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -3466,6 +3472,9 @@ type ChangeAgentOKBodyMysqldExporter struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -4239,6 +4248,9 @@ type ChangeAgentOKBodyPostgresExporter struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -4562,6 +4574,9 @@ type ChangeAgentOKBodyProxysqlExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -6150,6 +6165,9 @@ type ChangeAgentOKBodyRDSExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -6807,6 +6825,9 @@ type ChangeAgentOKBodyValkeyExporter struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -7359,6 +7380,9 @@ type ChangeAgentParamsBodyExternalExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort *int64 `json:"listen_port,omitempty"`
 
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyExternalExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -7659,8 +7683,17 @@ type ChangeAgentParamsBodyMongodbExporter struct {
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `json:"expose_exporter,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms *bool `json:"enable_diagnostic_data_histograms,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMongodbExporterCustomLabels `json:"custom_labels,omitempty"`
+
+	// environment variable names
+	EnvironmentVariableNames *ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames `json:"environment_variable_names,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentParamsBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -7675,6 +7708,10 @@ func (o *ChangeAgentParamsBodyMongodbExporter) Validate(formats strfmt.Registry)
 	}
 
 	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateEnvironmentVariableNames(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -7765,6 +7802,29 @@ func (o *ChangeAgentParamsBodyMongodbExporter) validateCustomLabels(formats strf
 	return nil
 }
 
+func (o *ChangeAgentParamsBodyMongodbExporter) validateEnvironmentVariableNames(formats strfmt.Registry) error {
+	if swag.IsZero(o.EnvironmentVariableNames) { // not required
+		return nil
+	}
+
+	if o.EnvironmentVariableNames != nil {
+		if err := o.EnvironmentVariableNames.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "environment_variable_names")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "environment_variable_names")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentParamsBodyMongodbExporter) validateMetricsResolutions(formats strfmt.Registry) error {
 	if swag.IsZero(o.MetricsResolutions) { // not required
 		return nil
@@ -7796,6 +7856,10 @@ func (o *ChangeAgentParamsBodyMongodbExporter) ContextValidate(ctx context.Conte
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateEnvironmentVariableNames(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -7821,6 +7885,30 @@ func (o *ChangeAgentParamsBodyMongodbExporter) contextValidateCustomLabels(ctx c
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "custom_labels")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyMongodbExporter) contextValidateEnvironmentVariableNames(ctx context.Context, formats strfmt.Registry) error {
+	if o.EnvironmentVariableNames != nil {
+
+		if swag.IsZero(o.EnvironmentVariableNames) { // not required
+			return nil
+		}
+
+		if err := o.EnvironmentVariableNames.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "mongodb_exporter" + "." + "environment_variable_names")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "mongodb_exporter" + "." + "environment_variable_names")
 			}
 
 			return err
@@ -7902,6 +7990,43 @@ func (o *ChangeAgentParamsBodyMongodbExporterCustomLabels) MarshalBinary() ([]by
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyMongodbExporterCustomLabels) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyMongodbExporterCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames A wrapper for a string array. This type allows to distinguish between an empty array and a null value.
+swagger:model ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames
+*/
+type ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames struct {
+	// values
+	Values []string `json:"values"`
+}
+
+// Validate validates this change agent params body mongodb exporter environment variable names
+func (o *ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body mongodb exporter environment variable names based on context it is used
+func (o *ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyMongodbExporterEnvironmentVariableNames
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -8004,6 +8129,9 @@ type ChangeAgentParamsBodyMysqldExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMysqldExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -8707,6 +8835,9 @@ type ChangeAgentParamsBodyPostgresExporter struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections *int32 `json:"max_exporter_connections,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyPostgresExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -9037,6 +9168,12 @@ type ChangeAgentParamsBodyProxysqlExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces.
 	ExposeExporter *bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyProxysqlExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -9378,6 +9515,9 @@ type ChangeAgentParamsBodyQANMongodbMongologAgent struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -9717,6 +9857,9 @@ type ChangeAgentParamsBodyQANMongodbProfilerAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMongodbProfilerAgentCustomLabels `json:"custom_labels,omitempty"`
@@ -10744,6 +10887,9 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -11084,6 +11230,9 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -11405,6 +11554,10 @@ type ChangeAgentParamsBodyRDSExporter struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AWSRoleArn *string `json:"aws_role_arn,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyRDSExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -11736,6 +11889,9 @@ type ChangeAgentParamsBodyRtaMongodbAgent struct {
 
 	// Authentication mechanism.
 	AuthenticationMechanism *string `json:"authentication_mechanism,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyRtaMongodbAgentCustomLabels `json:"custom_labels,omitempty"`
@@ -12070,6 +12226,12 @@ type ChangeAgentParamsBodyValkeyExporter struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyValkeyExporterCustomLabels `json:"custom_labels,omitempty"`

@@ -6,6 +6,12 @@
 
 **Data retention** specifies how long data is stored by PMM Server. By default, time-series data is stored for 30 days. You can adjust the data retention time to balance your system's available disk space with your metrics history requirements.
 
+### Set data retention via the API
+
+If you configure data retention using the [Change Settings API](https://percona-pmm.readme.io/reference/changesettings) (`PUT /v1/server/settings`), express the value in seconds. Hours and minutes formats are not supported and will return an error.
+
+For example, to set 30-day retention: `"data_retention": "2592000s"`
+
 ## Telemetry
 
 The **Telemetry** switch enables gathering and sending basic **anonymous** data to Percona, which helps us to determine where to focus the development and what is the uptake for each release of PMM. 
@@ -16,7 +22,7 @@ PMM Telemetry is based on data collected by various PMM components and stored in
 !!! note alert alert-primary ""
     When PMM is installed, telemetry is not sent immediately. Before the first telemetry report is generated, PMM provides users with a 24-hour grace period to disable telemetry.
 
-To see the metrics being collected by telemetry, from the [main menu](../reference/ui/ui_components.md#1-main-menu) navigate to **PMM Configuration** > :material-cog-outline: **Settings** > **Advanced Settings** > **Telemetry** and hover over the exclamation mark.
+To see the metrics being collected by telemetry, from the [main menu](../reference/ui/ui_components.md#1-main-menu) navigate to **Configuration > Settings > Advanced settings > Telemetry** and hover over the exclamation mark.
 
 ![!image](../images/PMM_Settings_Advanced_Settings_Telemetry.png)
 
@@ -33,7 +39,7 @@ The landing page for this service, [check.percona.com](https://check.percona.com
 
 Grafana’s [anonymous usage statistics](https://grafana.com/docs/grafana/latest/administration/configuration/#reporting-enabled) is not managed by PMM. To activate it, you must change the PMM Server container configuration after each update.
 
-As well as via the **PMM Settings** page, you can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
+You can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
 
 For information on the various config parameters for telemetry, see the [config file](https://github.com/percona/pmm/blob/main/managed/services/telemetry/config.default.yml).
 
@@ -43,13 +49,7 @@ When active, PMM will automatically check for updates and put a notification in 
 
 ## Advisors
 
-Advisors are sets of checks grouped by functionality that run a range of database health checks on a registered PMM instance.
-
-The findings are reported on the **Advisors > Advisor Insights** page, and an overview is displayed on the Home dashboard.
-
-The Advisors toggle is enabled by default and located in the **Execution intervals** section. Checks are re-fetched and rerun at the intervals configured there.
-
-See [Working with Advisor checks](../advisors/advisors.md).
+Advisor settings have their own tab, **Configuration > Settings > Advisors**. On that tab, you can enable or disable Advisors, set **Advisor history retention**, and configure **Advisor notifications**, including the **Default recipients** and **Default severities**. PMM reports the findings on the **Advisors > Insights** page. You can also [choose when the checks run](../advisors/schedule-advisor-checks.md).
 
 ## Percona Alerting
 
@@ -63,7 +63,7 @@ Enable this setting to troubleshoot PMM Server performance issues, monitor resou
 
 When enabled, open **Query Analytics (QAN)** from the main menu, then filter by the `pmm-server-postgresql` service to view PMM Server queries. 
 
-You'll see queries related to PMM's inventory, settings, advisor checks, alerts, backups, and authentication. These queries are typically lightweight so any spikes in volume, latency, or unexpected entries may indicate performance issues or database misuse.
+You'll see queries related to PMM's inventory, settings, Advisor checks, alerts, backups, and authentication. These queries are typically lightweight so any spikes in volume, latency, or unexpected entries may indicate performance issues or database misuse.
 
 !!! warning
     The default `postgres` database should only be used by PMM's internal operations. Applications should always use dedicated databases.
@@ -87,3 +87,14 @@ The address or hostname PMM Server will be accessible at. Click **Get from brows
     This is a technical preview feature.
 
 Activates Microsoft Azure monitoring.
+
+## Operations for MongoDB
+
+!!! caution alert alert-warning "Caution"
+    This is a Developer Preview feature.
+
+Enables [Operations for MongoDB](../use/mongodb-operations.md) and reveals **MongoDB > Operations** in the sidebar, where you can check the health of your MongoDB clusters and install Percona Server for MongoDB replica sets.
+
+This setting requires [PMM Extensions](../apps/deploy-pmm-extensions.md). If PMM can't reach PMM Extensions, the setting doesn't turn on.
+
+If PMM Server was started with `PMM_ENABLE_OM=1`, you can't change the setting in the UI: **Apply changes** returns an error.

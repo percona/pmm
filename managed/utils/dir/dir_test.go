@@ -17,6 +17,7 @@ package dir
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -46,15 +47,19 @@ func TestCreateDataDir(t *testing.T) {
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			defer os.Remove(tc.path) //nolint:errcheck
+			if tc.path != "" {
+				t.Cleanup(func() {
+					assert.NoError(t, os.Remove(tc.path))
+				})
+			}
 
 			err := CreateDataDir(tc.path, tc.perm)
 			if tc.err != "" {
-				assert.EqualError(t, err, tc.err)
+				require.EqualError(t, err, tc.err)
 				return
 			}
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			stat, err := os.Stat(tc.path)
 			require.NoError(t, err)
 			assert.True(t, stat.IsDir())
@@ -66,23 +71,16 @@ func TestCreateDataDir(t *testing.T) {
 func TestFindFilesWithExtensions(t *testing.T) {
 	t.Parallel()
 
-	var files []*os.File
+	tmpDir := t.TempDir()
 	createTemp := func(pattern string) {
-		f, err := os.CreateTemp("", t.Name()+pattern)
+		_, err := os.CreateTemp(tmpDir, t.Name()+pattern)
 		require.NoError(t, err)
-		files = append(files, f)
 	}
 
 	createTemp("*.yaml")
 	createTemp("*.yaml")
 	createTemp("*.yml")
 	createTemp("*")
-
-	t.Cleanup(func() {
-		for _, f := range files {
-			_ = os.Remove(f.Name())
-		}
-	})
 
 	testcases := []struct {
 		name       string
@@ -120,9 +118,69 @@ func TestFindFilesWithExtensions(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			files, err := FindFilesWithExtensions(os.TempDir(), tc.extensions...)
-			assert.NoError(t, err)
+			files, err := FindFilesWithExtensions(tmpDir, tc.extensions...)
+			require.NoError(t, err)
 			assert.Len(t, files, tc.expected)
 		})
 	}
+}
+
+func TestWriteFileAtomic(t *testing.T) {
+	t.Parallel()
+
+	t.Run("creates a new file with the requested permissions", func(t *testing.T) {
+		t.Parallel()
+
+		path := filepath.Join(t.TempDir(), "provisioning.json")
+		require.NoError(t, WriteFileAtomic(path, []byte("first"), 0o664))
+
+		content, err := os.ReadFile(path)
+		require.NoError(t, err)
+		assert.Equal(t, "first", string(content))
+
+		info, err := os.Stat(path)
+		require.NoError(t, err)
+		assert.Equal(t, os.FileMode(0o664), info.Mode().Perm())
+	})
+
+	t.Run("replaces an existing file", func(t *testing.T) {
+		t.Parallel()
+
+		path := filepath.Join(t.TempDir(), "provisioning.json")
+		require.NoError(t, WriteFileAtomic(path, []byte("first"), 0o664))
+		require.NoError(t, WriteFileAtomic(path, []byte("second"), 0o664))
+
+		content, err := os.ReadFile(path)
+		require.NoError(t, err)
+		assert.Equal(t, "second", string(content))
+	})
+
+	t.Run("leaves no temporary files behind", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		path := filepath.Join(dir, "provisioning.json")
+		require.NoError(t, WriteFileAtomic(path, []byte("content"), 0o664))
+
+		// Grafana reads every file in its provisioning directory, so a leftover temporary file
+		// would be parsed as a second provisioning file.
+		entries, err := os.ReadDir(dir)
+		require.NoError(t, err)
+		require.Len(t, entries, 1)
+		assert.Equal(t, "provisioning.json", entries[0].Name())
+	})
+
+	t.Run("leaves the previous content in place when the write fails", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		path := filepath.Join(dir, "provisioning.json")
+		require.NoError(t, WriteFileAtomic(path, []byte("good"), 0o664))
+
+		require.Error(t, WriteFileAtomic(filepath.Join(dir, "missing", "provisioning.json"), []byte("bad"), 0o664))
+
+		content, err := os.ReadFile(path)
+		require.NoError(t, err)
+		assert.Equal(t, "good", string(content))
+	})
 }

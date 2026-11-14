@@ -1,12 +1,12 @@
 import {
   Alert,
+  Card,
   CardContent,
   CardMedia,
   Link,
   Stack,
   Typography,
 } from '@mui/material';
-import { Card } from '@mui/material';
 import { FC } from 'react';
 import Welcome from 'assets/mountains.jpg';
 import { UpdateCard } from './update-card';
@@ -36,7 +36,10 @@ export const Updates: FC = () => {
   }
 
   return (
-    <Page title={settings?.newUIEnabled ? Messages.titleNewUI : Messages.title}>
+    <Page
+      title={settings?.newUIEnabled ? Messages.titleNewUI : Messages.title}
+      surface="canvas"
+    >
       {!settings?.newUIEnabled && (
         <Card variant="outlined">
           <Stack sx={{ position: 'relative' }}>

@@ -2,12 +2,11 @@
 checks:
   - version: 2
     name: mysql_config_binlogs_checksummed
-    summary: Server is not configured to enforce data integrity
+    summary: Binlogs are not checksummed
     description: Please consider setting binlog_checksum=CRC32 to improve consistency and reliability.
-    interval: standard
-    advisor: configuration_generic
-    #author: The Grinch
-    family: MYSQL
+    category: Durability
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, @@global.binlog_checksum AS binlog_checksum;"
@@ -31,7 +30,7 @@ checks:
 
       def check_context(docs, context):
           # we first define some global variables
-          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
           results = []
 
           in_result = check_binlog_checksum(docs[0],read_url)

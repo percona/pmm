@@ -16,11 +16,12 @@ package commands
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
@@ -72,7 +73,8 @@ func (res *statusResult) String() string {
 
 func newStatusResult(status *agentlocal.Status) *statusResult {
 	// hide username and password from PMM Server URL - if we have it at all
-	if u, err := url.Parse(status.ServerURL); err == nil {
+	u, err := url.Parse(status.ServerURL)
+	if err == nil {
 		u.User = nil
 		status.ServerURL = u.String()
 	}
@@ -118,17 +120,17 @@ func (cmd *StatusCommand) RunCmd() (Result, error) {
 
 		select {
 		case <-timeoutCtx.Done():
-			if err == agentlocal.ErrNotSetUp { //nolint:errorlint
-				return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.\n"+
-					"Please run `pmm-admin config` with --server-url flag.", err)
+			if errors.Is(err, agentlocal.ErrNotSetUp) {
+				return nil, fmt.Errorf("failed to get PMM Agent status from local pmm-agent: %w.\n"+
+					"Please run `pmm-admin config` with --server-url flag", err)
 			}
 
 			// return response in case when agent can't connect to server
-			if err == agentlocal.ErrNotConnected { //nolint:errorlint
+			if errors.Is(err, agentlocal.ErrNotConnected) {
 				return newStatusResult(status), nil
 			}
 
-			return nil, errors.Errorf("Failed to get PMM Agent status from local pmm-agent: %s.", err) //nolint:revive
+			return nil, fmt.Errorf("failed to get PMM Agent status from local pmm-agent: %w", err)
 		default:
 			time.Sleep(1 * time.Second)
 		}

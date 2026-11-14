@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // GetSettingsReader is a Reader for the GetSettings structure.
@@ -420,8 +421,8 @@ type GetSettingsDefaultBodyDetailsItems0 struct {
 	// used with implementation specific semantics.
 	AtType string `json:"@type,omitempty"`
 
-	// get settings default body details items0
-	GetSettingsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// get settings default body details items0 additional properties
+	GetSettingsDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -483,7 +484,7 @@ func (o *GetSettingsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.GetSettingsDefaultBodyDetailsItems0 = result
+		o.GetSettingsDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -531,12 +532,12 @@ func (o GetSettingsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.GetSettingsDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.GetSettingsDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.GetSettingsDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.GetSettingsDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -732,11 +733,24 @@ type GetSettingsOKBodySettings struct {
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
 
-	// Duration for which an update is snoozed
-	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
+	// True if PMM Extensions is enabled. Read-only: it reports how this PMM
+	// Server process was started, and cannot be changed through ChangeSettings.
+	ExtensionsEnabled bool `json:"extensions_enabled,omitempty"`
 
-	// advisor run intervals
-	AdvisorRunIntervals *GetSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
+	// True if Operations for MongoDB is enabled.
+	OMEnabled bool `json:"om_enabled,omitempty"`
+
+	// True if Advisor email notifications are enabled.
+	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
+
+	// Severities of the Advisor insights that are emailed.
+	AdvisorNotificationSeverities []*string `json:"advisor_notification_severities"`
+
+	// Email addresses Advisor notifications are sent to.
+	AdvisorNotificationEmailAddresses []string `json:"advisor_notification_email_addresses"`
+
+	// Advisor check results history retention.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *GetSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -746,7 +760,7 @@ type GetSettingsOKBodySettings struct {
 func (o *GetSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateAdvisorRunIntervals(formats); err != nil {
+	if err := o.validateAdvisorNotificationSeverities(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -760,24 +774,40 @@ func (o *GetSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetSettingsOKBodySettings) validateAdvisorRunIntervals(formats strfmt.Registry) error {
-	if swag.IsZero(o.AdvisorRunIntervals) { // not required
+var getSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum = append(getSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum, v)
+	}
+}
+
+func (o *GetSettingsOKBodySettings) validateAdvisorNotificationSeveritiesItemsEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getSettingsOkBodySettingsAdvisorNotificationSeveritiesItemsEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetSettingsOKBodySettings) validateAdvisorNotificationSeverities(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationSeverities) { // not required
 		return nil
 	}
 
-	if o.AdvisorRunIntervals != nil {
-		if err := o.AdvisorRunIntervals.Validate(formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
-				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
-				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
-			}
+	for i := 0; i < len(o.AdvisorNotificationSeverities); i++ {
+		if swag.IsZero(o.AdvisorNotificationSeverities[i]) { // not required
+			continue
+		}
 
+		// value enum
+		if err := o.validateAdvisorNotificationSeveritiesItemsEnum("getSettingsOk"+"."+"settings"+"."+"advisor_notification_severities"+"."+strconv.Itoa(i), "body", *o.AdvisorNotificationSeverities[i]); err != nil {
 			return err
 		}
+
 	}
 
 	return nil
@@ -810,10 +840,6 @@ func (o *GetSettingsOKBodySettings) validateMetricsResolutions(formats strfmt.Re
 func (o *GetSettingsOKBodySettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidateAdvisorRunIntervals(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -821,30 +847,6 @@ func (o *GetSettingsOKBodySettings) ContextValidate(ctx context.Context, formats
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *GetSettingsOKBodySettings) contextValidateAdvisorRunIntervals(ctx context.Context, formats strfmt.Registry) error {
-	if o.AdvisorRunIntervals != nil {
-
-		if swag.IsZero(o.AdvisorRunIntervals) { // not required
-			return nil
-		}
-
-		if err := o.AdvisorRunIntervals.ContextValidate(ctx, formats); err != nil {
-			ve := new(errors.Validation)
-			if stderrors.As(err, &ve) {
-				return ve.ValidateName("getSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
-			}
-			ce := new(errors.CompositeError)
-			if stderrors.As(err, &ce) {
-				return ce.ValidateName("getSettingsOk" + "." + "settings" + "." + "advisor_run_intervals")
-			}
-
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -883,49 +885,6 @@ func (o *GetSettingsOKBodySettings) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 	var res GetSettingsOKBodySettings
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-GetSettingsOKBodySettingsAdvisorRunIntervals AdvisorRunIntervals represents intervals between each run of Advisor checks.
-swagger:model GetSettingsOKBodySettingsAdvisorRunIntervals
-*/
-type GetSettingsOKBodySettingsAdvisorRunIntervals struct {
-	// Standard check interval.
-	StandardInterval string `json:"standard_interval,omitempty"`
-
-	// Interval for rare check runs.
-	RareInterval string `json:"rare_interval,omitempty"`
-
-	// Interval for frequent check runs.
-	FrequentInterval string `json:"frequent_interval,omitempty"`
-}
-
-// Validate validates this get settings OK body settings advisor run intervals
-func (o *GetSettingsOKBodySettingsAdvisorRunIntervals) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this get settings OK body settings advisor run intervals based on context it is used
-func (o *GetSettingsOKBodySettingsAdvisorRunIntervals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetSettingsOKBodySettingsAdvisorRunIntervals) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetSettingsOKBodySettingsAdvisorRunIntervals) UnmarshalBinary(b []byte) error {
-	var res GetSettingsOKBodySettingsAdvisorRunIntervals
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

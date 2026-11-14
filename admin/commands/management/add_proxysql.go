@@ -16,6 +16,7 @@ package management
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -42,6 +43,10 @@ func (res *addProxySQLResult) String() string {
 
 // AddProxySQLCommand is used by Kong for CLI flags and commands.
 type AddProxySQLCommand struct {
+	AddCommonFlags
+	flags.MetricsModeFlags
+	flags.LogLevelFatalFlags
+
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-proxysql" help:"Service name (autodetected default: ${hostname}-proxysql)"`
 	Address             string            `arg:"" optional:"" help:"ProxySQL address and port (default: 127.0.0.1:6032)"`
 	Socket              string            `help:"Path to ProxySQL socket"`
@@ -60,10 +65,7 @@ type AddProxySQLCommand struct {
 	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
-
-	AddCommonFlags
-	flags.MetricsModeFlags
-	flags.LogLevelFatalFlags
+	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }
 
 // GetServiceName returns the service name for AddProxySQLCommand.
@@ -123,7 +125,8 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
@@ -149,9 +152,10 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLS:                 cmd.TLS,
 				TLSSkipVerify:       cmd.TLSSkipVerify,
-				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode:         cmd.MetricsMode.EnumValue(),
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:            cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

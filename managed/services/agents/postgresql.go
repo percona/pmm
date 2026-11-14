@@ -16,7 +16,6 @@
 package agents
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -60,7 +59,8 @@ func postgresExcludedDatabases() []string {
 }
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
-func postgresExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
+// The node argument is the pmm-agent's Node, serviceNode is the monitored Service's Node.
+func postgresExporterConfig(node, serviceNode *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
 ) (*agentv1.SetStateRequest_AgentProcess, error) {
 	if service.DatabaseName == "" {
@@ -101,7 +101,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	if autoDiscovery {
 		args = append(args,
 			"--auto-discover-databases",
-			fmt.Sprintf("--exclude-databases=%s", strings.Join(postgresExcludedDatabases(), ",")))
+			"--exclude-databases="+strings.Join(postgresExcludedDatabases(), ","))
 	}
 
 	if !pmmAgentVersion.Less(postgresMaxExporterConnsVersion) &&
@@ -116,7 +116,11 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 
 	if !pmmAgentVersion.Less(postgresExporterCollectorsVersion) {
-		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultPostgresExporterCollectors, exporter.ExporterOptions.DisabledCollectors) //nolint:lll
+		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors(
+			"--no-collector.",
+			defaultPostgresExporterCollectors,
+			exporter.ExporterOptions.DisabledCollectors,
+		)
 		args = append(args, disableCollectorArgs...)
 	}
 
@@ -125,21 +129,11 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	sort.Strings(args)
 
 	dsnParams := models.DSNParams{
-		DialTimeout:              1 * time.Second,
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	// On AWS and Azure, we need to have a higher value for DialTimeout to avoid connection issues
-
-	// TODO: refactor with https://perconadev.atlassian.net/browse/PMM-12832
-	if node.NodeType == models.RemoteRDSNodeType {
-		dsnParams.DialTimeout = 5 * time.Second
-	}
-
-	if exporter.AzureOptions.ClientID != "" {
-		dsnParams.DialTimeout = 5 * time.Second
-	}
+	dsnParams.DialTimeout = dbExporterDialTimeout(serviceNode, exporter)
 
 	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
@@ -147,7 +141,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dsnParams, nil, pmmAgentVersion)),
+			"DATA_SOURCE_NAME=" + exporter.DSN(service, dsnParams, nil, pmmAgentVersion),
 		},
 		TextFiles: exporter.Files(),
 	}
@@ -156,7 +150,8 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false); err != nil {
+	err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false)
+	if err != nil {
 		return nil, err
 	}
 
@@ -164,10 +159,14 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 }
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
-func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent { //nolint:lll
+func qanPostgreSQLPgStatementsAgentConfig(
+	service *models.Service,
+	agent *models.Agent,
+	pmmAgentVersion *version.Parsed,
+) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	dnsParams := models.DSNParams{
-		DialTimeout:              5 * time.Second,
+		DialTimeout:              5 * time.Second, //nolint:mnd
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}

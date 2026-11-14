@@ -70,7 +70,7 @@ func TestAddHAProxy(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Haproxy: &services.GetServiceOKBodyHaproxy{
@@ -86,7 +86,7 @@ func TestAddHAProxy(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
 			{
 				AgentID:            listAgents.Payload.ExternalExporter[0].AgentID,
@@ -146,7 +146,7 @@ func TestAddHAProxy(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Haproxy: &services.GetServiceOKBodyHaproxy{
@@ -204,7 +204,7 @@ func TestAddHAProxy(t *testing.T) {
 			NodeID:  nodeID,
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, node)
 		assert.Equal(t, nodes.GetNodeOKBody{
 			Remote: &nodes.GetNodeOKBodyRemote{
@@ -221,7 +221,7 @@ func TestAddHAProxy(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Haproxy: &services.GetServiceOKBodyHaproxy{
@@ -237,7 +237,7 @@ func TestAddHAProxy(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
 			{
 				AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
@@ -382,10 +382,10 @@ func TestAddHAProxy(t *testing.T) {
 func TestRemoveHAProxy(t *testing.T) {
 	t.Parallel()
 
-	addHAProxy := func(t *testing.T, serviceName, nodeName string) (nodeID string, serviceID string) {
+	addHAProxy := func(t *testing.T, serviceName, nodeName string) (serviceID string) {
 		t.Helper()
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
-		nodeID = genericNode.NodeID
+		nodeID := genericNode.NodeID
 		t.Cleanup(func() {
 			pmmapitests.RemoveNodes(t, nodeID)
 		})
@@ -411,7 +411,7 @@ func TestRemoveHAProxy(t *testing.T) {
 		t.Cleanup(func() {
 			pmmapitests.RemoveServices(t, serviceID)
 		})
-		return nodeID, serviceID
+		return serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {
@@ -419,7 +419,7 @@ func TestRemoveHAProxy(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-remove-by-name")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-name")
-		_, serviceID := addHAProxy(t, serviceName, nodeName)
+		serviceID := addHAProxy(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceName,
@@ -443,7 +443,7 @@ func TestRemoveHAProxy(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-remove-by-id")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-id")
-		_, serviceID := addHAProxy(t, serviceName, nodeName)
+		serviceID := addHAProxy(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,
@@ -467,7 +467,7 @@ func TestRemoveHAProxy(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
-		_, serviceID := addHAProxy(t, serviceName, nodeName)
+		serviceID := addHAProxy(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,

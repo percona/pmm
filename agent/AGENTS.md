@@ -25,6 +25,19 @@ The `client` package maintains a persistent bidirectional gRPC stream (`Agent.Co
 - **Agent → Server**: `StateChanged`, `QanCollect`, `ActionResult`, `JobResult`, `Pong`
 - A separate RTA channel streams `CollectRequest` data via client-streaming RPC
 
+#### The request loop must never block indefinitely
+
+`client.processChannelRequests` is the sole reader of `channel.Requests()`, and `channel.runReceiver` is the sole reader of the stream — the only goroutine that can deliver a response a handler is waiting for. A handler in the loop that waits on the server therefore deadlocks: the loop stops draining, the full queue blocks the receiver, and the response never arrives. The agent goes silent while still looking connected.
+
+What keeps it out:
+
+- `SetStateRequest` is answered immediately (acceptance, per `agent.proto`) and applied by `client.processSetStates`; the outcome arrives as `StateChanged` requests
+- `Ping` bypasses the request queue: `client.processPings` answers from `channel.Pings()`, a single-slot queue that drops on overflow
+- `runReceiver` drops the connection if the queue stays full for `requestQueueStuckTimeout`; reconnecting still waits for `processChannelRequests` to exit, so handlers must honor ctx cancellation
+- `supervisor` spends at most one `agentsStopTimeout` per phase waiting for agents to stop
+
+`CheckConnectionRequest`, `ServiceInfoRequest` and `GetVersionsRequest` still run inline. They don't wait on the server, so they cannot deadlock, but they delay every request queued behind them.
+
 ### Local API
 
 `agentlocal` exposes a local gRPC + JSON API for status, Prometheus metrics, pprof debug endpoints, and config reload.
@@ -76,12 +89,14 @@ pmm-agent has **no direct database access**. All state comes from pmm-managed vi
 - Use table-driven tests with golden files for parsers
 - Use `utils/templates` to render exporter args from server-provided templates
 - Follow the supervisor pattern — let the supervisor manage all agent lifecycle
+- Check `reform.ErrNoRows` explicitly for "not found" when the QAN collectors read monitored-database system views
 
 ### Don't
 - Don't hardcode exporter binary paths — use `config.Paths`
 - Don't bypass the supervisor for agent lifecycle management
-- Don't use raw SQL — the agent has no database; all data comes via gRPC
+- Don't persist agent state locally — pmm-agent has no datastore of its own; configuration arrives from pmm-managed over gRPC. Querying *monitored* databases is a separate matter: the QAN collectors read their system views through reform
 - Don't modify exporter args directly — they come from server templates
+- Don't add a handler that waits on the server (or on a stopping agent) to the request loop in `client.processChannelRequests` — see [the request loop must never block indefinitely](#the-request-loop-must-never-block-indefinitely)
 
 ## Testing
 
@@ -96,7 +111,7 @@ pmm-agent has **no direct database access**. All state comes from pmm-managed vi
 
 ## Code Generation
 
-- **reform**: not used (agent has no DB)
+- **reform**: used by the QAN collectors to map monitored-database system views — `agents/mysql/perfschema`, `agents/postgres/pgstatstatements`, `agents/postgres/pgstatmonitor`. Each has a `//go:generate go tool reform` directive producing `models_reform.go`
 - **mockery**: generates mocks for supervisor, connectionChecker, serviceInfoBroker interfaces
 - **protobuf**: agent consumes types from `/api`; run `make gen` from repo root if proto files change
 

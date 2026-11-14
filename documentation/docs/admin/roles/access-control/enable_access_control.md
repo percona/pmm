@@ -38,7 +38,7 @@ Choose your preferred method to enable this feature:
     
     1. Log in to PMM with an administrator account.
     2. From the main menu, go to **Configuration > Settings > Advanced Settings**.
-    3. Toggle the <i class="uil uil-toggle-off"></i>  **Access Control** toggle.
+    3. Toggle the :material-toggle-switch-off-outline:  **Access Control** toggle.
     4. Click **Apply changes** to save your settings.
 
 ## After enabling access control
@@ -49,3 +49,4 @@ Once access control is enabled:
 - [Create access roles](../access-control/create_roles.md) for different user types.
 - [Assign the new roles](../index.md) to your PMM users.
 - Test that restrictions work as expected.
+- If your scripts read Query Analytics or metrics data with a service account token, [switch them to a user account](../../../api/authentication.md), because PMM denies service account tokens on these APIs.

@@ -1,0 +1,116 @@
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Stack from '@mui/material/Stack';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import { FC } from 'react';
+import { Page } from 'components/page';
+import { useSettings } from 'hooks/api/useSettings';
+import { SshKeyForm } from './components/ssh-key/SshKeyForm';
+import { MetricsResolutionForm } from './components/metrics-resolution/MetricsResolutionForm';
+import { AdvancedSettingsForm } from './components/advanced/AdvancedSettingsForm';
+import { AdvisorsForm } from './components/advisors/AdvisorsForm';
+import { ServiceNowConnectionTab } from './components/servicenow';
+import { Messages } from './Settings.messages';
+import { TabValue } from './Settings.types';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { OrgRole } from 'types/user.types';
+import { useUser } from 'contexts/user';
+import { useVersion } from 'hooks/api/useVersion';
+import { DistributionMethod } from 'types/version.types';
+
+export const Settings: FC = () => {
+  const { user } = useUser();
+  const { tab = 'metrics-resolution' } = useParams<{ tab: TabValue }>();
+  const {
+    data: settings,
+    isLoading,
+    isEnabled,
+  } = useSettings({
+    enabled: !!user && user.isPMMAdmin,
+  });
+  const { data: version, isLoading: isVersionLoading } = useVersion({
+    enabled: !!user && user.isPMMAdmin,
+  });
+  const navigate = useNavigate();
+  const showSshKeyTab = version?.distributionMethod === DistributionMethod.ami;
+  const showServiceNowTab = settings?.extensionsEnabled === true;
+  const isExtensionsDisabled = settings?.extensionsEnabled === false;
+
+  if (isLoading || isVersionLoading || (isEnabled && !settings)) {
+    return (
+      <Page title={Messages.title}>
+        <Stack alignItems="center" py={4}>
+          <CircularProgress data-testid="settings-loading" />
+        </Stack>
+      </Page>
+    );
+  }
+
+  const setTab = (value: TabValue) => navigate(`/settings/${value}`);
+
+  if (!showSshKeyTab && tab === 'ssh-key') {
+    return <Navigate to="/settings" replace />;
+  }
+
+  if (isExtensionsDisabled && tab === 'servicenow-connection') {
+    return <Navigate to="/settings" replace />;
+  }
+
+  return (
+    <Page title={Messages.title} roles={[OrgRole.Admin]}>
+      <Stack gap={3} sx={{ flex: 1 }}>
+        <Tabs
+          data-testid="settings-tabs"
+          value={tab}
+          onChange={(_, value: TabValue) => setTab(value)}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{ borderBottom: 1, borderColor: 'divider' }}
+        >
+          <Tab
+            data-testid="settings-tab-metrics"
+            value="metrics-resolution"
+            label={Messages.tabs.metrics}
+          />
+          <Tab
+            data-testid="settings-tab-advanced"
+            value="advanced-settings"
+            label={Messages.tabs.advanced}
+          />
+          <Tab
+            data-testid="settings-tab-advisors"
+            value="advisors"
+            label={Messages.tabs.advisors}
+          />
+          {showSshKeyTab && (
+            <Tab
+              data-testid="settings-tab-ssh"
+              value="ssh-key"
+              label={Messages.tabs.ssh}
+            />
+          )}
+          {showServiceNowTab && (
+            <Tab
+              data-testid="settings-tab-servicenow"
+              value="servicenow-connection"
+              label={Messages.tabs.serviceNow}
+            />
+          )}
+        </Tabs>
+
+        <Box sx={{ flex: 1 }} data-testid="settings-tab-content">
+          {tab === 'metrics-resolution' && (
+            <MetricsResolutionForm settings={settings!} />
+          )}
+          {tab === 'advanced-settings' && (
+            <AdvancedSettingsForm settings={settings!} />
+          )}
+          {tab === 'advisors' && <AdvisorsForm settings={settings!} />}
+          {tab === 'ssh-key' && <SshKeyForm settings={settings!} />}
+          {tab === 'servicenow-connection' && <ServiceNowConnectionTab />}
+        </Box>
+      </Stack>
+    </Page>
+  );
+};

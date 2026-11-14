@@ -53,9 +53,9 @@ func TestAccessControlService(t *testing.T) {
 	teardown := func(t *testing.T) {
 		t.Helper()
 
-		_, err := db.Querier.DeleteFrom(models.RoleTable, "")
+		_, err := db.DeleteFrom(models.RoleTable, "")
 		require.NoError(t, err)
-		_, err = db.Querier.DeleteFrom(models.UserDetailsTable, "")
+		_, err = db.DeleteFrom(models.UserDetailsTable, "")
 		require.NoError(t, err)
 	}
 
@@ -123,7 +123,7 @@ func TestAccessControlService(t *testing.T) {
 			roles, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
 			assert.Len(t, roles.Roles, 1)
-			assert.Equal(t, roles.Roles[0].Title, "Role A")
+			assert.Equal(t, "Role A", roles.Roles[0].Title)
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
@@ -145,7 +145,7 @@ func TestAccessControlService(t *testing.T) {
 
 			res, err := s.GetRole(ctx, &rolev1beta1.GetRoleRequest{RoleId: roleID})
 			require.NoError(t, err)
-			assert.Equal(t, res.Title, "Role B")
+			assert.Equal(t, "Role B", res.Title)
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
@@ -252,7 +252,7 @@ func TestAccessControlService(t *testing.T) {
 				RoleId: 1337,
 			})
 
-			assert.Error(t, err)
+			require.Error(t, err)
 		})
 	})
 }

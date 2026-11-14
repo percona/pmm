@@ -310,8 +310,8 @@ type ListAgentsDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// list agents default body details items0
-	ListAgentsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// list agents default body details items0 additional properties
+	ListAgentsDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *ListAgentsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.ListAgentsDefaultBodyDetailsItems0 = result
+		o.ListAgentsDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o ListAgentsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.ListAgentsDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ListAgentsDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ListAgentsDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ListAgentsDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -2377,6 +2377,12 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	// Environment variable names passed to the exporter.
 	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyMongodbExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -2723,6 +2729,9 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyMysqldExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -3545,6 +3554,9 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyPostgresExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -3868,6 +3880,9 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyProxysqlExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -5456,6 +5471,9 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -6241,6 +6259,9 @@ type ListAgentsOKBodyValkeyExporterItems0 struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ListAgentsOKBodyValkeyExporterItems0MetricsResolutions `json:"metrics_resolutions,omitempty"`

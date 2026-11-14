@@ -20,15 +20,66 @@ You can get PMM Server logs with either of these methods:
 
 In a browser, visit `https://<address-of-your-pmm-server>/logs.zip`.
 
+This downloads a bundle containing PMM Server and PMM Client log files from `/srv/logs/` inside the container. 
+
+To control how many lines are included, add the `line-count` parameter to the URL:
+
+- specific line count: `https://<address-of-your-pmm-server>/logs.zip?line-count=10000`
+- full logs (all lines): `https://<address-of-your-pmm-server>/logs.zip?line-count=-1`
+
 **From Help menu**
 
 To obtain the logs:
-
 {.power-number}
 
 1. From the main menu, choose **Help > PMM Logs > Export logs**.
 
 2. Save the downloaded file to share with our support team if needed.
+
+### Monitoring stops while pmm-agent is running
+
+A PMM Client node may stop sending metrics and Query Analytics data even though `pmm-agent` and its exporters are still running. Inventory operations for services on the affected node fail with the following error:
+
+```
+pmm-agent with ID <AGENT_ID> is not currently connected
+```
+
+=== "PMM Client 3.10.0 and later"
+
+    `pmm-agent` can automatically recover from this state without requiring a restart:
+
+    - `pmm-agent` continues responding to connection checks from PMM Server while applying configuration changes, preventing slow operations from disconnecting the node.
+    - If an agent fails to stop within 60 seconds during a restart or removal, `pmm-agent` stops waiting for it and continues applying the remaining configuration.
+    - If `pmm-agent` cannot process requests from PMM Server for 2 minutes, it drops the connection and reconnects.
+
+=== "PMM Client 3.9 and earlier"
+
+    Restart `pmm-agent` manually to restore monitoring:
+
+    - On a host installation, run `sudo systemctl restart pmm-agent`.
+    - In a containerized installation, restart the PMM Client container.
+
+The following messages in the `pmm-agent` log show that a recovery took place:
+
+| Message | Meaning |
+|---------|---------|
+| `Agent <AGENT_ID> did not report itself stopped, proceeding without it.` | The agent didn't stop within 60 seconds. `pmm-agent` continued without it. |
+| `Request queue full for 2m0s, giving up on the connection.` | `pmm-agent` couldn't keep up with PMM Server for 2 minutes and reconnects. |
+
+If the first message keeps appearing for the same agent ID, the agent isn't stopping cleanly. Before restarting `pmm-agent`, collect diagnostic data for Percona Support:
+{.power-number}
+
+1. Collect a goroutine dump on the PMM Client host:
+
+    ```bash
+    curl -s "http://127.0.0.1:7777/debug/pprof/goroutine?debug=2" > pmm-agent-goroutines.txt
+    ```
+
+    If you changed the `pmm-agent` listen port, replace `7777` with that port.
+
+2. Run `pmm-admin summary`.
+
+3. Share both files with Percona Support, then restart `pmm-agent`.
 
 ## Connection difficulties
 
@@ -77,3 +128,34 @@ docker exec pmm-server supervisorctl status
 - upgrade Docker Desktop to a newer version or downgrade it to v4.48.0 (test with your specific setup)
 - consider using PMM Server on Linux or cloud environments for production
 
+## Log file locations
+
+PMM Server stores all component logs in the `/srv/logs/` directory inside the container.
+
+To see which log files are available, run:
+
+=== "Docker"
+
+    ```bash
+    docker exec pmm-server ls /srv/logs/
+    ```
+
+=== "Podman"
+
+    ```bash
+    podman exec pmm-server ls /srv/logs/
+    ```
+
+To follow a log file in real time, use `tail -f`. For example, to monitor QAN API logs:
+
+=== "Docker"
+
+    ```bash
+    docker exec pmm-server tail -f /srv/logs/qan-api2.log
+    ```
+
+=== "Podman"
+
+    ```bash
+    podman exec pmm-server tail -f /srv/logs/qan-api2.log
+    ```

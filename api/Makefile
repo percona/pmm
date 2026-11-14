@@ -12,7 +12,6 @@ gen:            ## Generate PMM API
 		user/v1 \
 		inventory/v1 \
 		management/v1 \
-		management/v1/service \
 		actions/v1 \
 		advisors/v1 \
 		alerting/v1 \
@@ -21,8 +20,8 @@ gen:            ## Generate PMM API
 		accesscontrol/v1beta1 \
 		qan/v1 \
 		realtimeanalytics/v1 \
-		platform/v1 \
-		ha/v1beta1"; \
+		om/v1 \
+		ha/v1"; \
 	for API in $$SPECS; do \
 		set -x ; \
 		go tool swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
@@ -40,7 +39,8 @@ gen:            ## Generate PMM API
 			--additional-initialism=realtimeanalytics \
 			--additional-initialism=rds \
 			--additional-initialism=sql \
-			--additional-initialism=ha ; \
+			--additional-initialism=ha \
+			--additional-initialism=om ; \
 	done
 
 	# generate public API spec, omit agentlocal and inventory (always private),
@@ -57,7 +57,8 @@ gen:            ## Generate PMM API
 		backup/v1/json/v1.json \
 		qan/v1/json/v1.json \
 		realtimeanalytics/v1/json/v1.json \
-		ha/v1beta1/json/v1beta1.json
+		om/v1/json/v1.json \
+		ha/v1/json/v1.json
 	go tool swagger validate swagger/swagger.json
 
 	# generate API spec with all PMM Server APIs (omit agentlocal)
@@ -75,7 +76,8 @@ gen:            ## Generate PMM API
 		accesscontrol/v1beta1/json/v1beta1.json \
 		qan/v1/json/v1.json \
 		realtimeanalytics/v1/json/v1.json \
-		ha/v1beta1/json/v1beta1.json
+		om/v1/json/v1.json \
+		ha/v1/json/v1.json
 
 	go tool swagger validate swagger/swagger-dev.json
 
@@ -95,9 +97,14 @@ endif
 
 update-swagger: get_swagger_version               ## Update Swagger UI in swagger, use `SWAGGER_UI_VERSION=xxx make update-swagger` to choose a version other than latest
 	curl --output /tmp/swagger.tar.gz -sSfL "https://github.com/swagger-api/swagger-ui/archive/refs/tags/${SWAGGER_UI_VERSION}.tar.gz"
-	tar xf /tmp/swagger.tar.gz --transform 's;swagger-ui-.*/dist/;swagger/;g'
+	rm -rf /tmp/swagger-ui
+	mkdir /tmp/swagger-ui
+	cd /tmp/swagger-ui && gzip -dc /tmp/swagger.tar.gz | tar xf -
+	cp -R /tmp/swagger-ui/swagger-ui-*/dist/. swagger/
+	rm -rf /tmp/swagger-ui
 	rm -f swagger/.npmrc
-	sed -i 's/url: ".*"/url: "\/swagger.json",\n    validatorUrl: "none"/' swagger/swagger-initializer.js
+	sed -e 's|url: ".*"|url: "/swagger.json"|p' -e 's|url: "/swagger.json"|validatorUrl: "none"|' swagger/swagger-initializer.js > swagger/swagger-initializer.js.tmp
+	mv swagger/swagger-initializer.js.tmp swagger/swagger-initializer.js
 
 clean: clean-swagger  ## Remove generated files
 	find . -name '*.pb.go' -print -delete
@@ -119,7 +126,8 @@ clean: clean-swagger  ## Remove generated files
 		qan/v1 \
 		realtimeanalytics/v1 \
 		platform/v1 \
-		ha/v1beta1"; \
+		om/v1 \
+		ha/v1"; \
 	for API in $$SPECS; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done

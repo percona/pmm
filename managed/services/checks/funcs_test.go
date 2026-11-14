@@ -53,33 +53,33 @@ def check_context(rows, context):
 	env, err := starlark.NewEnv(t.Name(), script, funcs)
 	require.NoError(t, err)
 
-	input := []map[string]interface{}{
+	input := []map[string]any{
 		{"version": int64(1)},
 	}
 	res, err := env.Run("type", input, nil, t.Log)
 	expectedErr := strings.TrimSpace(`
-thread type: failed to execute function check_context: parse_version: expected string argument, got int64 (1)
+failed to execute function check_context: parse_version: expected string argument, got int64 (1)
 Traceback (most recent call last):
   TestVersion:2:22: in check_context
   <builtin>: in parse_version
 	`) + "\n"
-	assert.EqualError(t, err, expectedErr)
+	require.EqualError(t, err, expectedErr)
 	assert.Empty(t, res)
 
-	input = []map[string]interface{}{
+	input = []map[string]any{
 		{"version": "foo"},
 	}
 	res, err = env.Run("foo", input, nil, t.Log)
 	expectedErr = strings.TrimSpace(`
-thread foo: failed to execute function check_context: parse_version: failed to parse "foo"
+failed to execute function check_context: parse_version: failed to parse "foo"
 Traceback (most recent call last):
   TestVersion:2:22: in check_context
   <builtin>: in parse_version
 	`) + "\n"
-	assert.EqualError(t, err, expectedErr)
+	require.Error(t, err, expectedErr)
 	assert.Empty(t, res)
 
-	input = []map[string]interface{}{
+	input = []map[string]any{
 		{"version": "5.7.20-19-log"},
 	}
 	res, err = env.Run("valid", input, nil, t.Log)
@@ -123,7 +123,7 @@ def check_context(rows, context):
     }]
 	`),
 			err: strings.TrimSpace(`
-thread too many args: failed to execute function check_context: ip_is_private: expected 1 argument, got 2
+failed to execute function check_context: ip_is_private: expected 1 argument, got 2
 Traceback (most recent call last):
   TestAdditionalContext/too_many_args:7:55: in check_context
   <builtin>: in ip_is_private
@@ -162,7 +162,7 @@ def check_context(rows, context):
     }]
 	`),
 			err: strings.TrimSpace(`
-thread invalid arg type: failed to execute function check_context: ip_is_private: expected string argument, got int64 (1)
+failed to execute function check_context: ip_is_private: expected string argument, got int64 (1)
 Traceback (most recent call last):
   TestAdditionalContext/invalid_arg_type:7:55: in check_context
   <builtin>: in ip_is_private
@@ -267,7 +267,6 @@ def check_context(rows, context):
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			env, err := starlark.NewEnv(t.Name(), tc.script, predeclaredFuncs)
@@ -277,9 +276,42 @@ def check_context(rows, context):
 				require.NoError(t, err)
 				assert.Equal(t, tc.result, res)
 			} else {
-				assert.EqualError(t, err, tc.err)
+				require.Error(t, err, tc.err)
 				assert.Empty(t, res)
 			}
+		})
+	}
+}
+
+func TestIPIsPrivate(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		arg      string
+		expected any
+	}{
+		{arg: "10.1.2.3", expected: true},
+		{arg: "8.8.8.8", expected: false},
+		{arg: "::1", expected: true},
+		{arg: "0.0.0.0/0", expected: false},
+		{arg: "10.0.0.0/8", expected: true},
+		{arg: "10.0.0.0/7", expected: false},
+		{arg: "172.16.0.0/11", expected: false},
+		{arg: "192.168.1.0/24", expected: true},
+		{arg: "203.0.113.0/24", expected: false},
+		{arg: "fc00::/7", expected: true},
+		{arg: "fd00::/8", expected: true},
+		{arg: "::/0", expected: false},
+		{arg: "%", expected: nil},
+		{arg: "10.0.0.0/255.0.0.0", expected: nil},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.arg, func(t *testing.T) {
+			t.Parallel()
+			res, err := ipIsPrivate(tc.arg)
+			require.NoError(t, err)
+			assert.Equal(t, tc.expected, res)
 		})
 	}
 }

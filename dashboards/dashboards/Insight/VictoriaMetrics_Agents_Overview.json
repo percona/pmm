@@ -187,7 +187,13 @@
                     ],
                     "show": false
                 },
-                "showHeader": true
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Uptime"
+                    }
+                ]
             },
             "pluginVersion": "8.3.5",
             "targets": [
@@ -486,6 +492,7 @@
             "type": "stat"
         },
         {
+            "description": "vmagent status per node over the selected time range. Nodes that are down are listed first. Use the pagination controls at the bottom of the panel when many nodes are selected.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -559,11 +566,12 @@
                 "legend": {
                     "displayMode": "list",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": false
                 },
                 "mergeValues": true,
+                "perPage": 8,
                 "rowHeight": 0.9,
-                "showValue": "always",
+                "showValue": "auto",
                 "tooltip": {
                     "mode": "single",
                     "sort": "none"
@@ -572,7 +580,7 @@
             "pluginVersion": "7.1.3",
             "targets": [
                 {
-                    "expr": "sum(up{node_name=~\"$node_name\",agent_type=\"vmagent\"} offset 3s) by (node_name)",
+                    "expr": "sort(sum(up{node_name=~\"$node_name\",agent_type=\"vmagent\"} offset 3s) by (node_name))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "$interval",

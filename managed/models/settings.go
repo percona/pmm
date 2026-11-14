@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+
+	"github.com/percona/pmm/managed/pi/common"
 )
 
 // Default values for settings. These values are used when settings are not set.
@@ -33,8 +35,15 @@ const (
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
 	InternalPgQANEnabledDefault        = false
+	AdvisorNotificationsEnabledDefault = false
+	OMEnabledDefault                   = false
 	awsPartitionID                     = "aws"
 )
+
+// DefaultAdvisorNotificationSeverities returns the insight severities emailed when none are configured.
+func DefaultAdvisorNotificationSeverities() []common.Severity {
+	return []common.Severity{common.Critical, common.Error}
+}
 
 // MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
 type MetricsResolutions struct {
@@ -47,16 +56,12 @@ type MetricsResolutions struct {
 func (r MetricsResolutions) Value() (driver.Value, error) { return jsonValue(r) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (r *MetricsResolutions) Scan(src interface{}) error { return jsonScan(r, src) }
+func (r *MetricsResolutions) Scan(src any) error { return jsonScan(r, src) }
 
-// Advisors contains settings related to the Portal Advisors.
+// Advisors contains Advisor settings.
 type Advisors struct {
-	// Advisor checks disabled, false by default.
+	// Enabled turns Advisor checks on or off; nil means AdvisorsEnabledDefault.
 	Enabled *bool `json:"enabled"`
-	// List of disabled advisors
-	DisabledAdvisors []string `json:"disabled_advisors"`
-	// Advisor run intervals
-	AdvisorRunIntervals AdvisorsRunIntervals `json:"advisor_run_intervals"`
 }
 
 // Settings contains PMM Server settings.
@@ -64,8 +69,7 @@ type Settings struct {
 	PMMPublicAddress string `json:"pmm_public_address"`
 
 	Updates struct {
-		Enabled        *bool         `json:"enabled"`
-		SnoozeDuration time.Duration `json:"snooze_duration"`
+		Enabled *bool `json:"enabled"`
 	} `json:"updates"`
 
 	Telemetry struct {
@@ -77,6 +81,8 @@ type Settings struct {
 
 	DataRetention time.Duration `json:"data_retention"`
 
+	AdvisorHistoryRetention time.Duration `json:"advisor_history_retention"`
+
 	AWSPartitions []string `json:"aws_partitions"`
 
 	AWSInstanceChecked bool `json:"aws_instance_checked"`
@@ -87,15 +93,24 @@ type Settings struct {
 		CacheEnabled *bool `json:"cache_enabled"`
 	} `json:"victoria_metrics"`
 
-	SaaS Advisors `json:"sass"` // sic :(
+	Advisors Advisors `json:"advisors"`
 
 	Nomad struct {
 		Enabled *bool `json:"enabled"`
-	}
+	} `json:"Nomad"`
 
 	Alerting struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"alerting"`
+
+	// AdvisorNotifications controls emailing Advisor check results to the configured recipients.
+	AdvisorNotifications struct {
+		Enabled *bool `json:"enabled"`
+		// Severities lists the insight severities that are emailed, most severe first.
+		Severities []common.Severity `json:"severities"`
+		// EmailAddresses is the recipient list the run summaries are sent to.
+		EmailAddresses []string `json:"email_addresses"`
+	} `json:"advisor_notifications"`
 
 	Azurediscover struct {
 		Enabled *bool `json:"enabled"`
@@ -119,6 +134,17 @@ type Settings struct {
 
 	// Contains all encrypted tables in format 'db.table.column'.
 	EncryptedItems []string `json:"encrypted_items"`
+
+	// EncryptionKeyFingerprint identifies the encryption key the data in this database was
+	// encrypted with. In HA all nodes share the database but keep their own key file, so a node
+	// compares this against its own key to detect that it cannot read the stored credentials.
+	EncryptionKeyFingerprint string `json:"encryption_key_fingerprint"`
+
+	// OM holds OpenManager's settings.
+	OM struct {
+		// Enabled is true if OpenManager is enabled.
+		Enabled *bool `json:"enabled"`
+	} `json:"om"`
 }
 
 // IsAlertingEnabled returns true if alerting is enabled.
@@ -127,6 +153,14 @@ func (s *Settings) IsAlertingEnabled() bool {
 		return *s.Alerting.Enabled
 	}
 	return AlertingEnabledDefault
+}
+
+// IsAdvisorNotificationsEnabled returns true if Advisor email notifications are enabled.
+func (s *Settings) IsAdvisorNotificationsEnabled() bool {
+	if s.AdvisorNotifications.Enabled != nil {
+		return *s.AdvisorNotifications.Enabled
+	}
+	return AdvisorNotificationsEnabledDefault
 }
 
 // IsTelemetryEnabled returns true if telemetry is enabled.
@@ -155,8 +189,8 @@ func (s *Settings) IsBackupManagementEnabled() bool {
 
 // IsAdvisorsEnabled returns true if advisors are enabled.
 func (s *Settings) IsAdvisorsEnabled() bool {
-	if s.SaaS.Enabled != nil {
-		return *s.SaaS.Enabled
+	if s.Advisors.Enabled != nil {
+		return *s.Advisors.Enabled
 	}
 
 	return AdvisorsEnabledDefault
@@ -183,6 +217,14 @@ func (s *Settings) IsAccessControlEnabled() bool {
 	return AccessControlEnabledDefault
 }
 
+// IsOMEnabled returns true if OpenManager is enabled.
+func (s *Settings) IsOMEnabled() bool {
+	if s.OM.Enabled != nil {
+		return *s.OM.Enabled
+	}
+	return OMEnabledDefault
+}
+
 // IsVictoriaMetricsCacheEnabled returns true if VictoriaMetrics cache is enabled.
 func (s *Settings) IsVictoriaMetricsCacheEnabled() bool {
 	if s.VictoriaMetrics.CacheEnabled != nil {
@@ -191,11 +233,16 @@ func (s *Settings) IsVictoriaMetricsCacheEnabled() bool {
 	return VictoriaMetricsCacheEnabledDefault
 }
 
-// AdvisorsRunIntervals represents intervals between Advisors checks.
-type AdvisorsRunIntervals struct {
-	StandardInterval time.Duration `json:"standard_interval"`
-	RareInterval     time.Duration `json:"rare_interval"`
-	FrequentInterval time.Duration `json:"frequent_interval"`
+// DataRetentionDays returns the retention period in whole days, which is the unit both
+// VictoriaMetrics and qan-api2 take it in. Validation keeps DataRetention a whole number of
+// days, see validators.DataRetentionMultipleOf, so the truncation is a formality.
+func (s *Settings) DataRetentionDays() int {
+	return DurationToDays(s.DataRetention)
+}
+
+// DurationToDays returns the number of whole days in d; any part of a day left over is dropped.
+func DurationToDays(d time.Duration) int {
+	return int(d.Hours() / 24) //nolint:mnd
 }
 
 // fillDefaults sets zero values to their default values.
@@ -217,23 +264,15 @@ func (s *Settings) fillDefaults() {
 		s.DataRetention = 30 * 24 * time.Hour //nolint:mnd
 	}
 
+	if s.AdvisorHistoryRetention == 0 {
+		s.AdvisorHistoryRetention = 30 * 24 * time.Hour //nolint:mnd
+	}
+
+	if len(s.AdvisorNotifications.Severities) == 0 {
+		s.AdvisorNotifications.Severities = DefaultAdvisorNotificationSeverities()
+	}
+
 	if len(s.AWSPartitions) == 0 {
 		s.AWSPartitions = []string{awsPartitionID}
-	}
-
-	if s.SaaS.AdvisorRunIntervals.RareInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.RareInterval = 78 * time.Hour //nolint:mnd
-	}
-
-	if s.SaaS.AdvisorRunIntervals.StandardInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.StandardInterval = 24 * time.Hour //nolint:mnd
-	}
-
-	if s.SaaS.AdvisorRunIntervals.FrequentInterval == 0 {
-		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour //nolint:mnd
-	}
-
-	if s.Updates.SnoozeDuration == 0 {
-		s.Updates.SnoozeDuration = DefaultSnoozeDuration
 	}
 }

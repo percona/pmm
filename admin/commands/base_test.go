@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/admin/pkg/logger"
+	"github.com/percona/pmm/utils/envvars"
 )
 
 func init() {
@@ -39,18 +40,21 @@ func CreateDummyCredentialsSource(data string, p string, exec bool) (string, err
 	}
 
 	defer func() {
-		if tmpErr := tmpFile.Close(); tmpErr != nil {
+		tmpErr := tmpFile.Close()
+		if tmpErr != nil {
 			err = tmpErr
 		}
 	}()
 
 	content := []byte(data)
-	if _, err := tmpFile.Write(content); err != nil {
+	_, err = tmpFile.Write(content)
+	if err != nil {
 		return "", fmt.Errorf("%w", err)
 	}
 
 	if exec {
-		if err := tmpFile.Chmod(0o111); err != nil {
+		err = tmpFile.Chmod(0o111)
+		if err != nil {
 			return "", fmt.Errorf("%w", err)
 		}
 	}
@@ -78,8 +82,8 @@ func TestCredentials(t *testing.T) {
 	credSourceX, _ := CreateDummyCredentialsExecutable(data)
 
 	t.Cleanup(func() {
-		assert.NoError(t, os.Remove(credSource))
-		assert.NoError(t, os.Remove(credSourceX))
+		require.NoError(t, os.Remove(credSource))
+		require.NoError(t, os.Remove(credSourceX))
 	})
 
 	t.Run("Reading", func(t *testing.T) {
@@ -168,25 +172,91 @@ func TestParseKeyValuePair(t *testing.T) {
 	}
 }
 
+func TestValidateEnvironmentVariableNames(t *testing.T) {
+	t.Parallel()
+	for _, tt := range []struct {
+		name        string
+		input       []string
+		expected    []string
+		expectedErr string
+	}{
+		{"nil", nil, nil, ""},
+		{"empty slice", []string{}, nil, ""},
+		{"single name", []string{"KRB5_KTNAME"}, []string{"KRB5_KTNAME"}, ""},
+		{"trim spaces", []string{" KRB5_KTNAME ", "KRB5_CONFIG\t"}, []string{"KRB5_KTNAME", "KRB5_CONFIG"}, ""},
+		{"digits and underscores", []string{"_VAR", "VAR2"}, []string{"_VAR", "VAR2"}, ""},
+		{"duplicates are collapsed", []string{"KRB5_KTNAME", " KRB5_KTNAME ", "KRB5_CONFIG"}, []string{"KRB5_KTNAME", "KRB5_CONFIG"}, ""},
+		{"blank name", []string{"KRB5_KTNAME", "  "}, nil, "environment variable name cannot be empty"},
+		{"lowercase", []string{"https_proxy"}, []string{"https_proxy"}, ""},
+		{"leading digit", []string{"5VAR"}, nil, "invalid environment variable name: 5VAR"},
+		{"dash", []string{"KRB5-KTNAME"}, nil, "invalid environment variable name: KRB5-KTNAME"},
+		{"assignment", []string{"VAR=value"}, nil, "invalid environment variable name: VAR=value"},
+		{"reserved pmm-agent prefix", []string{"PMM_AGENT_SERVER_PASSWORD"}, nil, "reserved for pmm-agent"},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			names, err := ValidateEnvironmentVariableNames(tt.input)
+			if tt.expectedErr != "" {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tt.expectedErr)
+				assert.Nil(t, names)
+
+				return
+			}
+
+			require.NoError(t, err)
+			assert.Equal(t, tt.expected, names)
+		})
+	}
+
+	t.Run("more than MaxNames unique names is rejected", func(t *testing.T) {
+		t.Parallel()
+
+		names := make([]string, envvars.MaxNames+1)
+		for i := range names {
+			names[i] = fmt.Sprintf("VAR%d", i)
+		}
+
+		got, err := ValidateEnvironmentVariableNames(names)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "too many environment variable names")
+		assert.Nil(t, got)
+	})
+
+	t.Run("duplicate entries do not consume the limit", func(t *testing.T) {
+		t.Parallel()
+
+		names := make([]string, envvars.MaxNames*2)
+		for i := range names {
+			names[i] = "VAR"
+		}
+
+		got, err := ValidateEnvironmentVariableNames(names)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"VAR"}, got)
+	})
+}
+
 func TestReadFile(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 
-		cert, err := os.CreateTemp("", "cert")
+		cert, err := os.CreateTemp(t.TempDir(), "cert")
 		require.NoError(t, err)
 		defer func() {
 			err = cert.Close()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			err = os.Remove(cert.Name())
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}()
 		_, err = cert.WriteString("cert")
 		require.NoError(t, err)
 
 		certificate, err := ReadFile(cert.Name())
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "cert", certificate)
 	})
 
@@ -195,7 +265,7 @@ func TestReadFile(t *testing.T) {
 
 		filepath := "not-existed-file"
 		certificate, err := ReadFile(filepath)
-		assert.EqualError(t, err, fmt.Sprintf("cannot load file in path %q: open not-existed-file: no such file or directory", filepath))
+		require.EqualError(t, err, fmt.Sprintf("cannot load file in path %q: open not-existed-file: no such file or directory", filepath))
 		assert.Empty(t, certificate)
 	})
 

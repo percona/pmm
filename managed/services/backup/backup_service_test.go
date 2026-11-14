@@ -83,14 +83,12 @@ func TestPerformBackup(t *testing.T) {
 	s3Location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test s3 location",
 		Description: "Test s3 description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: &models.S3LocationConfig{
-				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
-				AccessKey:    "access_key",
-				SecretKey:    "secret_key",
-				BucketName:   "example_bucket",
-				BucketRegion: "us-east-2",
-			},
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-2",
 		},
 	})
 	require.NoError(t, err)
@@ -98,10 +96,8 @@ func TestPerformBackup(t *testing.T) {
 	filesystemLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test local location",
 		Description: "Test local description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			FilesystemConfig: &models.FilesystemLocationConfig{
-				Path: "/opt/data",
-			},
+		FilesystemConfig: &models.FilesystemLocationConfig{
+			Path: "/opt/data",
 		},
 	})
 	require.NoError(t, err)
@@ -174,12 +170,12 @@ func TestPerformBackup(t *testing.T) {
 				})
 
 				if tc.expectedError != nil {
-					assert.ErrorIs(t, err, tc.expectedError)
+					require.ErrorIs(t, err, tc.expectedError)
 					assert.Empty(t, artifactID)
 					return
 				}
 
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				artifact, err := models.FindArtifactByID(db.Querier, artifactID)
 				require.NoError(t, err)
 				assert.Equal(t, tc.locationModel.ID, artifact.LocationID)
@@ -203,7 +199,7 @@ func TestPerformBackup(t *testing.T) {
 				Mode:       models.PITR,
 				Folder:     "artifact_folder_2",
 			})
-			assert.ErrorIs(t, err, ErrIncompatibleDataModel)
+			require.ErrorIs(t, err, ErrIncompatibleDataModel)
 			assert.Empty(t, artifactID)
 		})
 
@@ -217,7 +213,7 @@ func TestPerformBackup(t *testing.T) {
 				Mode:       models.PITR,
 				Folder:     "artifact_folder_3",
 			})
-			assert.ErrorContains(t, err, "Empty Service ID")
+			require.ErrorContains(t, err, "Empty Service ID")
 			assert.Empty(t, artifactID)
 		})
 
@@ -232,7 +228,7 @@ func TestPerformBackup(t *testing.T) {
 				Mode:       models.Incremental,
 				Folder:     "artifact_folder_4",
 			})
-			assert.ErrorContains(t, err, "the only supported backups mode for mongoDB is snapshot and PITR")
+			require.ErrorContains(t, err, "the only supported backups mode for mongoDB is snapshot and PITR")
 			assert.Empty(t, artifactID)
 		})
 	})
@@ -259,14 +255,12 @@ func TestRestoreBackup(t *testing.T) {
 	s3Location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: &models.S3LocationConfig{
-				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
-				AccessKey:    "access_key",
-				SecretKey:    "secret_key",
-				BucketName:   "example_bucket",
-				BucketRegion: "us-east-2",
-			},
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-2",
 		},
 	})
 	require.NoError(t, err)
@@ -274,10 +268,8 @@ func TestRestoreBackup(t *testing.T) {
 	filesystemLocation, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test local location",
 		Description: "Test local description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			FilesystemConfig: &models.FilesystemLocationConfig{
-				Path: "/opt/data",
-			},
+		FilesystemConfig: &models.FilesystemLocationConfig{
+			Path: "/opt/data",
 		},
 	})
 	require.NoError(t, err)
@@ -329,10 +321,10 @@ func TestRestoreBackup(t *testing.T) {
 				}
 				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 				if tc.expectedError != nil {
-					assert.ErrorIs(t, err, tc.expectedError)
+					require.ErrorIs(t, err, tc.expectedError)
 					assert.Empty(t, restoreID)
 				} else {
-					assert.NoError(t, err)
+					require.NoError(t, err)
 					assert.NotEmpty(t, restoreID)
 				}
 			})
@@ -431,10 +423,10 @@ func TestRestoreBackup(t *testing.T) {
 				}
 				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), tc.artifact.ID, time.Unix(0, 0))
 				if tc.expectedError != nil {
-					assert.ErrorIs(t, err, tc.expectedError)
+					require.ErrorIs(t, err, tc.expectedError)
 					assert.Empty(t, restoreID)
 				} else {
-					assert.NoError(t, err)
+					require.NoError(t, err)
 					assert.NotEmpty(t, restoreID)
 				}
 			})
@@ -493,14 +485,12 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
-		BackupLocationConfig: models.BackupLocationConfig{
-			S3Config: &models.S3LocationConfig{
-				Endpoint:     "https://s3.us-west-2.amazonaws.com/",
-				AccessKey:    "access_key",
-				SecretKey:    "secret_key",
-				BucketName:   "example_bucket",
-				BucketRegion: "us-east-2",
-			},
+		S3Config: &models.S3LocationConfig{
+			Endpoint:     "https://s3.us-west-2.amazonaws.com/",
+			AccessKey:    "access_key",
+			SecretKey:    "secret_key",
+			BucketName:   "example_bucket",
+			BucketRegion: "us-east-2",
 		},
 	})
 	require.NoError(t, err)
@@ -568,7 +558,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				if tc.err == nil {
 					require.NoError(t, err)
 				} else {
-					assert.ErrorIs(t, err, tc.err)
+					require.ErrorIs(t, err, tc.err)
 				}
 			})
 		}
@@ -709,7 +699,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				if tc.err == nil {
 					require.NoError(t, err)
 				} else {
-					assert.ErrorIs(t, err, tc.err)
+					require.ErrorIs(t, err, tc.err)
 				}
 			})
 		}

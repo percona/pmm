@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/lib/pq"
+	"github.com/lib/pq/pqerror"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -34,25 +35,27 @@ import (
 func assertUniqueViolation(t *testing.T, err error, constraint string) {
 	t.Helper()
 
-	require.IsType(t, &pq.Error{}, err)
+	var targetErr *pq.Error
+	require.ErrorAs(t, err, &targetErr)
 	pgErr := err.(*pq.Error) //nolint:errorlint
-	assert.EqualValues(t, pq.ErrorCode("23505"), pgErr.Code)
+	assert.Equal(t, pqerror.Code("23505"), pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`duplicate key value violates unique constraint %q`, constraint), pgErr.Message)
 }
 
-func assertCheckViolation(t *testing.T, err error, table, constraint string) { //nolint:unparam
+func assertCheckViolation(t *testing.T, err error, constraint string) {
 	t.Helper()
 
-	require.IsType(t, &pq.Error{}, err)
+	var targetErr *pq.Error
+	require.ErrorAs(t, err, &targetErr)
 	pgErr := err.(*pq.Error) //nolint:errorlint
-	assert.EqualValues(t, pq.ErrorCode("23514"), pgErr.Code)
-	assert.Equal(t, fmt.Sprintf(`new row for relation %q violates check constraint %q`, table, constraint), pgErr.Message)
+	assert.Equal(t, pqerror.Code("23514"), pgErr.Code)
+	assert.Equal(t, fmt.Sprintf(`new row for relation %q violates check constraint %q`, "agents", constraint), pgErr.Message)
 }
 
 func getTX(t *testing.T, db *sql.DB) (*sql.Tx, func()) {
 	t.Helper()
 
-	tx, err := db.Begin()
+	tx, err := db.BeginTx(t.Context(), nil)
 	require.NoError(t, err)
 	rollback := func() {
 		require.NoError(t, tx.Rollback())
@@ -70,78 +73,91 @@ func TestDatabaseChecks(t *testing.T) {
 		now := models.Now()
 
 		// node_id
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('1', 'generic', 'other name', '', '', '', '', $1, $2)", now, now,
 		)
 		assertUniqueViolation(t, err, "nodes_pkey")
 
 		// node_name
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('2', 'generic', 'name', '', '', '', '', $1, $2)", now, now,
 		)
 		assertUniqueViolation(t, err, "nodes_node_name_key")
 
 		// machine_id for generic Node: https://jira.percona.com/browse/PMM-4196
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('31', 'generic', 'name31', 'machine-id', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('32', 'generic', 'name32', 'machine-id', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 
 		// machine_id for container Node
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('31-container', 'container', 'name31-container', 'machine-id', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('32-container', 'container', 'name32-container', 'machine-id', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 
 		// container_id
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, container_id, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('41', 'generic', 'name41', 'docker-container-id', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, container_id, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('42', 'generic', 'name42', 'docker-container-id', '', '', '', '', $1, $2)", now, now,
 		)
 		assertUniqueViolation(t, err, "nodes_container_id_key")
 
 		// (address, region)
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, address, region, distro, node_model, az, created_at, updated_at) "+
 				"VALUES ('51', 'generic', 'name51', 'instance1', 'region1', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, address, region, distro, node_model, az, created_at, updated_at) "+
 				"VALUES ('52', 'generic', 'name52', 'instance1', 'region1', '', '', '', $1, $2)", now, now,
 		)
 		assertUniqueViolation(t, err, "nodes_address_region_key")
 		// same address, NULL region is fine
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, node_model, az, created_at, updated_at) "+
 				"VALUES ('53', 'generic', 'name53', 'instance1', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, node_model, az, created_at, updated_at) "+
 				"VALUES ('54', 'generic', 'name54', 'instance1', '', '', '', $1, $2)", now, now,
 		)
@@ -155,7 +171,8 @@ func TestDatabaseChecks(t *testing.T) {
 		}()
 		var err error
 		now := models.Now()
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
 			now, now,
@@ -163,7 +180,8 @@ func TestDatabaseChecks(t *testing.T) {
 		require.NoError(t, err)
 
 		// Try to insert both address and socket
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
 				"VALUES ('1', 'mysql', 'name', '1', '', '', '', '10.10.10.10', 3306, '/var/run/mysqld/mysqld.sock', '', $1, $2)",
 			now, now,
@@ -171,7 +189,8 @@ func TestDatabaseChecks(t *testing.T) {
 		require.Error(t, err, `pq: new row for relation "services" violates check constraint "address_socket_check"`)
 
 		// Try to insert both address and socket empty
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
 				"VALUES ('1', 'mysql', 'name', '1', '', '', '', NULL, NULL, NULL, '', $1, $2)",
 			now, now,
@@ -179,7 +198,8 @@ func TestDatabaseChecks(t *testing.T) {
 		require.NoError(t, err)
 
 		// Try to insert invalid port
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
 				"VALUES ('1', 'mysql', 'name', '1', '', '', '', '10.10.10.10', 999999, NULL, '', $1, $2)",
 			now, now,
@@ -187,7 +207,8 @@ func TestDatabaseChecks(t *testing.T) {
 		require.Error(t, err, `pq: new row for relation "services" violates check constraint "port_check"`)
 
 		// Try to insert empty group for external exporter
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
 				"VALUES ('1', 'external', 'name', '1', '', '', '', '10.10.10.10', 3333, NULL, '', $1, $2)",
 			now, now,
@@ -195,7 +216,8 @@ func TestDatabaseChecks(t *testing.T) {
 		require.Error(t, err, `pq: new row for relation "services" violates check constraint "services_external_group_check"`)
 
 		// Try to insert non empty group for mysql exporter
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at) "+
 				"VALUES ('1', 'mysql', 'name', '1', '', '', '', '10.10.10.10', 3306, NULL, 'non empty group', $1, $2)",
 			now, now,
@@ -211,19 +233,22 @@ func TestDatabaseChecks(t *testing.T) {
 		var err error
 		now := models.Now()
 
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
 			now, now,
 		)
 		require.NoError(t, err)
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			"INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, socket, external_group, created_at, updated_at) "+
 				"VALUES ('1', 'mysql', 'name', '1', '', '', '', '/var/run/mysqld/mysqld.sock', '', $1, $2)",
 			now, now,
 		)
 		require.NoError(t, err)
-		_, err = db.Exec(
+		_, err = db.ExecContext(
+			t.Context(),
 			`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 				`VALUES ('1', 'pmm-agent', '1', NULL, false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": true, "rds_enhanced_metrics_disabled": true}', '{"push_metrics": false, "expose_exporter": false}')`,
 			now, now,
@@ -235,13 +260,15 @@ func TestDatabaseChecks(t *testing.T) {
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
-				_, err = tx.Exec(
+				_, err = tx.ExecContext(
+					t.Context(),
 					`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 						`VALUES ('2', 'pmm-agent', '1', NULL, false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
 				require.NoError(t, err)
-				_, err = tx.Exec(
+				_, err = tx.ExecContext(
+					t.Context(),
 					`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 						`VALUES ('3', 'mysqld_exporter', NULL, '1', '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
@@ -253,24 +280,26 @@ func TestDatabaseChecks(t *testing.T) {
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
-				_, err = tx.Exec(
+				_, err = tx.ExecContext(
+					t.Context(),
 					`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 						`VALUES ('4', 'mysqld_exporter', NULL, NULL, '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
+				assertCheckViolation(t, err, "runs_on_node_id_xor_pmm_agent_id")
 			})
 
 			t.Run("BothSet", func(t *testing.T) {
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
-				_, err = tx.Exec(
+				_, err = tx.ExecContext(
+					t.Context(),
 					`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 						`VALUES ('5', 'pmm-agent', '1', '1', '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
+				assertCheckViolation(t, err, "runs_on_node_id_xor_pmm_agent_id")
 			})
 		})
 		t.Run("runs_on_node_id_only_for_pmm_agent", func(t *testing.T) {
@@ -278,24 +307,26 @@ func TestDatabaseChecks(t *testing.T) {
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
-				_, err = tx.Exec(
+				_, err = tx.ExecContext(
+					t.Context(),
 					`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 						`VALUES ('6', 'mysqld_exporter', '1', NULL, '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
+				assertCheckViolation(t, err, "runs_on_node_id_only_for_pmm_agent")
 			})
 
 			t.Run("PMMAgent", func(t *testing.T) {
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
-				_, err = tx.Exec(
+				_, err = tx.ExecContext(
+					t.Context(),
 					`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 						`VALUES ('7', 'pmm-agent', NULL, '1', '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
+				assertCheckViolation(t, err, "runs_on_node_id_only_for_pmm_agent")
 			})
 		})
 		t.Run("node_id_or_service_id_or_pmm_agent_id", func(t *testing.T) {
@@ -305,57 +336,142 @@ func TestDatabaseChecks(t *testing.T) {
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
-				_, err = tx.Exec(
+				_, err = tx.ExecContext(
+					t.Context(),
 					`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 						`VALUES ('8', 'node_exporter', NULL, '1', '1', NULL, false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			})
 
 			t.Run("service_id set", func(t *testing.T) {
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
-				_, err = tx.Exec(
+				_, err = tx.ExecContext(
+					t.Context(),
 					`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 						`VALUES ('8', 'mysqld_exporter', NULL, '1', NULL, '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			})
 
 			t.Run("Both NULL", func(t *testing.T) {
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
-				_, err = tx.Exec(
+				_, err = tx.ExecContext(
+					t.Context(),
 					`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 						`VALUES ('8', 'mysqld_exporter', NULL, '1', NULL, NULL, false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "node_id_or_service_id_for_non_pmm_agent")
+				assertCheckViolation(t, err, "node_id_or_service_id_for_non_pmm_agent")
 			})
 
 			t.Run("Both set", func(t *testing.T) {
 				tx, rollback := getTX(t, db)
 				defer rollback()
 
-				_, err = tx.Exec(
+				_, err = tx.ExecContext(
+					t.Context(),
 					`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 						`VALUES ('8', 'mysqld_exporter', NULL, '1', '1', '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "node_id_or_service_id_for_non_pmm_agent")
+				assertCheckViolation(t, err, "node_id_or_service_id_for_non_pmm_agent")
 			})
 		})
 	})
 }
 
 func TestDatabaseMigrations(t *testing.T) {
+	t.Run("environment variable names are cleared for agents that cannot receive them", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(118))
+		t.Cleanup(func() {
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		now := models.Now()
+		kept := `["KRB5_CONFIG"]`
+
+		_, err := sqlDB.ExecContext(
+			t.Context(),
+			`INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at)
+			VALUES ('node_id', 'generic', 'node_name', 'distro', 'node_model', 'az', 'address', $1, $1)`,
+			now,
+		)
+		require.NoError(t, err)
+
+		_, err = sqlDB.ExecContext(
+			t.Context(),
+			`INSERT INTO services (service_id, service_type, service_name, node_id, environment, cluster, replication_set, address, port, socket, external_group, created_at, updated_at)
+			VALUES ('service_id', 'mongodb', 'service_name', 'node_id', '', '', '', '127.0.0.1', 27017, NULL, '', $1, $1)`,
+			now,
+		)
+		require.NoError(t, err)
+
+		_, err = sqlDB.ExecContext(
+			t.Context(),
+			`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options)
+			VALUES ('pmm_agent_id', 'pmm-agent', 'node_id', NULL, NULL, NULL, false, '', $1, $1, false, false, '{}', '{}', '{}', '{}')`,
+			now,
+		)
+		require.NoError(t, err)
+
+		// Every agent type addMongoDB used to copy the names onto, plus the one that legitimately
+		// receives them.
+		for _, agentType := range []string{
+			"mongodb_exporter",
+			"qan-mongodb-profiler-agent",
+			"qan-mongodb-mongolog-agent",
+			"rta-mongodb-agent",
+		} {
+			_, err = sqlDB.ExecContext(
+				t.Context(),
+				`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options, environment_variables)
+				VALUES ($1, $2, NULL, 'pmm_agent_id', NULL, 'service_id', false, '', $3, $3, false, false, '{}', '{}', '{}', '{}', $4)`,
+				agentType, agentType, now, `["KRB5_CONFIG"]`,
+			)
+			require.NoError(t, err)
+		}
+
+		// A non-mongodb agent that never had names, to prove the migration does not touch NULLs.
+		_, err = sqlDB.ExecContext(
+			t.Context(),
+			`INSERT INTO agents (agent_id, agent_type, runs_on_node_id, pmm_agent_id, node_id, service_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options, environment_variables)
+			VALUES ('node_exporter', 'node_exporter', NULL, 'pmm_agent_id', 'node_id', NULL, false, '', $1, $1, false, false, '{}', '{}', '{}', '{}', NULL)`,
+			now,
+		)
+		require.NoError(t, err)
+
+		// Apply migration 119.
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(119))
+
+		for agentID, expected := range map[string]*string{
+			"mongodb_exporter":           &kept,
+			"qan-mongodb-profiler-agent": nil,
+			"qan-mongodb-mongolog-agent": nil,
+			"rta-mongodb-agent":          nil,
+			"node_exporter":              nil,
+		} {
+			var actual *string
+			err = sqlDB.QueryRowContext(
+				t.Context(),
+				`SELECT environment_variables FROM agents WHERE agent_id = $1`, agentID,
+			).Scan(&actual)
+			require.NoError(t, err, agentID)
+			assert.Equal(t, expected, actual, agentID)
+		}
+	})
+
 	t.Run("push metrics field migration: from root to exporter_options", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, new(58))
-		defer sqlDB.Close() //nolint:errcheck
+		t.Cleanup(func() {
+			assert.NoError(t, sqlDB.Close())
+		})
 
 		// Insert dummy node in DB
 		_, err := sqlDB.ExecContext(
@@ -382,10 +498,104 @@ func TestDatabaseMigrations(t *testing.T) {
 
 		var agentID string
 		var exporterOptions models.ExporterOptions
-		err = sqlDB.QueryRow(`SELECT agent_id, exporter_options FROM agents WHERE agent_id = $1`, "id").Scan(&agentID, &exporterOptions)
+		err = sqlDB.QueryRowContext(t.Context(), `SELECT agent_id, exporter_options FROM agents WHERE agent_id = $1`, "id").Scan(&agentID, &exporterOptions)
 
 		require.NoError(t, err)
 		require.Equal(t, "id", agentID)
 		require.True(t, exporterOptions.PushMetrics)
+	})
+
+	t.Run("remote RDS instance_id backfill", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(119))
+		t.Cleanup(func() {
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		_, err := sqlDB.ExecContext(
+			t.Context(),
+			`INSERT INTO
+			nodes(node_id, node_type, node_name, distro, node_model, az, address, instance_id, region, created_at, updated_at)
+			VALUES
+			('identifier', 'remote_rds', 'identifier', '', '', '', 'db-1', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('endpoint', 'remote_rds', 'endpoint', '', '', '', 'db-2.abc123.us-east-1.rds.amazonaws.com', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('cluster', 'remote_rds', 'cluster', '', '', '', 'db-4.cluster-abc123.us-east-1.rds.amazonaws.com', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('ip', 'remote_rds', 'ip', '', '', '', '10.0.3.7', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('set', 'remote_rds', 'set', '', '', '', 'db-3.abc123.us-east-1.rds.amazonaws.com', 'db-3-custom', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('mixed', 'remote_rds', 'mixed', '', '', '', 'MyDB', '', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('set-mixed', 'remote_rds', 'set-mixed', '', '', '', 'db-5.abc123.us-east-1.rds.amazonaws.com', 'DB-5-Custom', 'us-east-1', '03/03/2014 02:03:04', '03/03/2014 02:03:04'),
+			('generic', 'generic', 'generic', '', '', '', 'host.example.com', '', NULL, '03/03/2014 02:03:04', '03/03/2014 02:03:04')`,
+		)
+		require.NoError(t, err)
+
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(120))
+
+		rows, err := sqlDB.QueryContext(t.Context(), `SELECT node_id, instance_id FROM nodes`)
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, rows.Close())
+		})
+
+		actual := make(map[string]string)
+		for rows.Next() {
+			var nodeID, instanceID string
+			require.NoError(t, rows.Scan(&nodeID, &instanceID))
+			actual[nodeID] = instanceID
+		}
+		require.NoError(t, rows.Err())
+
+		// Only a bare address is the identifier; endpoints and IPs stay empty so that
+		// attaching an rds_exporter is refused instead of scraping a wrong instance.
+		// Identifiers are lowercased, whether backfilled or stored as typed before.
+		expected := map[string]string{
+			"identifier": "db-1",
+			"endpoint":   "",
+			"cluster":    "",
+			"ip":         "",
+			"set":        "db-3-custom",
+			"mixed":      "mydb",
+			"set-mixed":  "db-5-custom",
+			"generic":    "",
+		}
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("advisor schedules and runs migrations: interval settings are dropped, the switch kept and the default schedule created", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(127))
+		t.Cleanup(func() {
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		_, err := sqlDB.ExecContext(
+			t.Context(),
+			`UPDATE settings SET settings = settings || jsonb_build_object('sass', jsonb_build_object(
+				'enabled', false,
+				'advisor_run_intervals', jsonb_build_object('rare_interval', 280800000000000)))`,
+		)
+		require.NoError(t, err)
+
+		// the default schedule is created on the full schema only
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, nil)
+
+		var hasSaaS bool
+		var advisors string
+		err = sqlDB.QueryRowContext(t.Context(), `SELECT settings ? 'sass', settings ->> 'advisors' FROM settings`).Scan(&hasSaaS, &advisors)
+		require.NoError(t, err)
+		assert.False(t, hasSaaS)
+		assert.JSONEq(t, `{"enabled": false}`, advisors)
+
+		var names []string
+		err = sqlDB.QueryRowContext(t.Context(), `SELECT array_agg(name) FROM advisor_schedules`).Scan(pq.Array(&names))
+		require.NoError(t, err)
+		assert.Equal(t, []string{"All checks daily"}, names)
+
+		// deleting every schedule is a choice the next start keeps
+		_, err = sqlDB.ExecContext(t.Context(), `DELETE FROM advisor_schedules`)
+		require.NoError(t, err)
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, nil)
+
+		var count int
+		err = sqlDB.QueryRowContext(t.Context(), `SELECT count(*) FROM advisor_schedules`).Scan(&count)
+		require.NoError(t, err)
+		assert.Zero(t, count)
 	})
 }

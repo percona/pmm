@@ -19,6 +19,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"errors"
 	_ "expvar" // register /debug/vars
 	"fmt"
 	"html/template"
@@ -34,7 +35,6 @@ import (
 	"time"
 
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -45,7 +45,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/percona/pmm/agent/config"
@@ -69,6 +68,8 @@ type configGetReloader interface {
 
 // Server represents local pmm-agent API server.
 type Server struct {
+	agentlocal.UnimplementedAgentLocalServiceServer
+
 	cfg            configGetReloader
 	supervisor     supervisor
 	client         client
@@ -78,8 +79,6 @@ type Server struct {
 	logStore        *tailog.Store
 	reload          chan struct{}
 	reloadCloseOnce sync.Once
-
-	agentlocal.UnimplementedAgentLocalServiceServer
 }
 
 // NewServer creates new server.
@@ -114,15 +113,12 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 	// l is closed by runGRPCServer
 
 	var wg sync.WaitGroup
-	wg.Add(2) //nolint:mnd
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		s.runGRPCServer(serverCtx, l)
-	}()
-	go func() {
-		defer wg.Done()
+	})
+	wg.Go(func() {
 		s.runJSONServer(serverCtx, l.Addr().String())
-	}()
+	})
 
 	select {
 	case <-s.reload:
@@ -136,7 +132,7 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 }
 
 // Status returns current pmm-agent status.
-func (s *Server) Status(ctx context.Context, req *agentlocal.StatusRequest) (*agentlocal.StatusResponse, error) { //nolint:revive
+func (s *Server) Status(ctx context.Context, req *agentlocal.StatusRequest) (*agentlocal.StatusResponse, error) {
 	connected := true
 	md := s.client.GetServerConnectMetadata()
 	if md == nil {
@@ -155,7 +151,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocal.StatusRequest) (*ag
 		}
 
 		if req.GetNetworkInfo && connected {
-			latency, clockDrift, err := s.client.GetNetworkInformation()
+			latency, clockDrift, err := s.client.GetNetworkInformation(ctx)
 			if err != nil {
 				s.l.Errorf("Can't get network info: %s", err)
 				serverInfo.Connected = false
@@ -176,7 +172,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocal.StatusRequest) (*ag
 		AgentsInfo:       agentsInfo,
 		ConfigFilepath:   s.configFilepath,
 		AgentVersion:     version.Version,
-		ConnectionUptime: roundFloat(upTime, 2),
+		ConnectionUptime: roundFloat(upTime, 2), //nolint:mnd
 	}, nil
 }
 
@@ -185,10 +181,11 @@ func roundFloat(upTime float32, numAfterDot int) float32 {
 }
 
 // Reload reloads pmm-agent and its configuration.
-func (s *Server) Reload(ctx context.Context, req *agentlocal.ReloadRequest) (*agentlocal.ReloadResponse, error) { //nolint:revive
+func (s *Server) Reload(_ context.Context, _ *agentlocal.ReloadRequest) (*agentlocal.ReloadResponse, error) {
 	// sync errors with setup command
 
-	if _, err := s.cfg.Reload(s.l); err != nil {
+	_, err := s.cfg.Reload(s.l)
+	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Failed to reload configuration: "+err.Error())
 	}
 
@@ -290,30 +287,31 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	}))
 
 	debugPageHandler := http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
-		if _, err := rw.Write(debugPage.Bytes()); err != nil {
+		_, err := rw.Write(debugPage.Bytes())
+		if err != nil {
 			l.Warn(err)
 		}
 	})
 
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, &grpc_gateway.JSONPb{
-			MarshalOptions: protojson.MarshalOptions{
-				EmitUnpopulated: true,
-				Indent:          "  ",
-				UseProtoNames:   true,
-			},
-			UnmarshalOptions: protojson.UnmarshalOptions{
-				DiscardUnknown: true,
-			},
+			EmitUnpopulated: true,
+			Indent:          "  ",
+			UseProtoNames:   true,
+			DiscardUnknown:  true,
 		}),
 		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
 	)
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
+		grpc.WithDefaultCallOptions(
+			// Wait for connection to be ready before sending RPC calls
+			grpc.WaitForReady(true),
+		),
 	}
-	if err := agentlocal.RegisterAgentLocalServiceHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts); err != nil {
+	err = agentlocal.RegisterAgentLocalServiceHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts)
+	if err != nil {
 		l.Panic(err)
 	}
 
@@ -331,7 +329,8 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	}
 	go func() {
 		l.Info("Started.")
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Info("Stopped.")
@@ -341,7 +340,8 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 
 	// try to stop server gracefully, then not
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err = server.Shutdown(ctx) //nolint:contextcheck
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -367,7 +367,7 @@ func addData(zipW *zip.Writer, name string, data []byte) error {
 }
 
 // ZipLogs Handle function for generate zip file with logs.
-func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) { //nolint:revive
+func (s *Server) ZipLogs(w http.ResponseWriter, _ *http.Request) {
 	zipBuffer := &bytes.Buffer{}
 	zipWriter := zip.NewWriter(zipBuffer)
 
@@ -381,7 +381,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) { //nolint:revi
 				return
 			}
 		}
-		err := addData(zipWriter, fmt.Sprintf("%s.log", id), agentFileBuffer.Bytes())
+		err := addData(zipWriter, id+".log", agentFileBuffer.Bytes())
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, fmt.Sprintf("Cannot write to zip file err: %s", err), http.StatusInternalServerError)

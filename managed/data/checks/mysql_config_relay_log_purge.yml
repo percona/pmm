@@ -4,10 +4,9 @@ checks:
     name: mysql_config_relay_log_purge
     summary: Automatic relay log purging is off
     description: Identify if a replica node has relay-logs purge set.
-    interval: standard
-    advisor: configuration_replication
-    #author: The Grinch
-    family: MYSQL
+    category: Replication
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, count(1) as repl_conf_count, @@global.relay_log_purge as relay_log_purge from performance_schema.replication_connection_configuration;"
@@ -34,7 +33,7 @@ checks:
 
       def check_context(docs, context):
           # we first define some global variables
-          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
           results = []
 
           result1 = check_relay_log_purge(docs[0],read_url)

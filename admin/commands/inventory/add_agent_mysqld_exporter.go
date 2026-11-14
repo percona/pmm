@@ -17,6 +17,7 @@ package inventory
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/AlekSi/pointer"
 
@@ -86,6 +87,8 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 //
 //nolint:lll
 type AddAgentMysqldExporterCommand struct {
+	flags.LogLevelNoFatalFlags
+
 	PMMAgentID                string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                 string            `arg:"" help:"Service identifier"`
 	Username                  string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
@@ -103,8 +106,7 @@ type AddAgentMysqldExporterCommand struct {
 	PushMetrics               bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	ExposeExporter            bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors         []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-
-	flags.LogLevelNoFatalFlags
+	ConnectionTimeout         *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }
 
 // RunCmd executes the AddAgentMysqldExporterCommand and returns the result.
@@ -152,7 +154,8 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 				PushMetrics:               cmd.PushMetrics,
 				ExposeExporter:            cmd.ExposeExporter,
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:                  cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                  cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:         commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

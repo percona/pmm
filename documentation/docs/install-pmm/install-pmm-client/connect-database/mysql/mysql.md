@@ -55,9 +55,9 @@ For monitoring Amazon RDS MySQL instances, see [Connect Amazon RDS instance](../
     1. **[Prerequisites](#prerequisites)**: Ensure PMM Server is running and PMM Client is installed
     2. **[Create PMM user](#create-a-database-account-for-pmm)**: `CREATE USER 'pmm'@'localhost' IDENTIFIED BY '<StrongPassword>'`  
     3. **[Grant permissions](#create-a-database-account-for-pmm)**: `GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost'`
-    4. **[Configure data source](#configuring-data-sources)**: Enable Slow Query Log or Performance Schema 
-    5. **[Add service](#adding-mysql-services-to-pmm)**: Use PMM UI or command line to add the MySQL instance
-    6. **[Verify connection](#verifying-the-setup)**: Check PMM Inventory and dashboards for data
+    4. **[Configure data source](#configure-data-source)**: Enable Slow Query Log or Performance Schema 
+    5. **[Add service](#add-service-to-pmm)**: Use PMM UI or command line to add the MySQL instance
+    6. **[Verify connection](#verify-your-mysql-service)**: Check PMM Inventory and dashboards for data
 
 ### Prerequisites
 
@@ -118,6 +118,12 @@ PMM can collect metrics from two primary sources: Slow query log and Performance
 While you can use both at the same time we recommend using only one--there is some overlap in the data reported, and each incurs a small performance penalty.
 
 The choice depends on the version and variant of your MySQL instance, and how much detail you want to see.
+
+#### QAN data sources
+
+QAN reads queries only from the slow query log written to a file
+(`log_output=FILE`) or from Performance Schema. It does not support the
+general query log or a slow query log written to a table (`log_output=TABLE`).
 
 #### Data source comparison
 
@@ -406,34 +412,11 @@ To disable query examples for data privacy:
 
 ### Add service to PMM
 
-After creating your PMM database user, you can quickly add your MySQL service to PMM. You can do this either through the PMM user interface or via the command line.
+After creating your PMM database user, you can add your MySQL service to PMM using the command line or the UI.
 
-=== "Via UI"
+The **command line** (`pmm-admin`) deploys an exporter directly on the database host and automatically collects node-level metrics (CPU, memory, disk I/O) alongside MySQL metrics. Use the UI only if you cannot install PMM Client on the database host.
 
-    To add the service from the user interface:
-    {.power-number}
-    
-    1. Go to **PMM Configuration > PMM Inventory > Add Service**.
-    
-    2. Select **MySQL** service type.
-    
-    3. Enter or select values for the fields:
-
-        - **Service Name**: A descriptive name for your MySQL instance
-        - **Host/Socket**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
-        - **Port**: MySQL port (default: 3306)
-        - **Username**: The PMM user created earlier
-        - **Password**: Your PMM user password
-        - **Query Source**: Choose between **Slow Log** or **Performance Schema**
-        - **PMM Agent**: Select which PMM agent should monitor this instance
-        - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
-
-    4. Click **Add Service**.
-
-    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
-    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
-
-=== "Via command line "
+=== "Via command line (recommended)"
 
     === "Basic setup"
     
@@ -530,6 +513,32 @@ After creating your PMM database user, you can quickly add your MySQL service to
             The `allowCleartextPasswords=1` parameter transmits passwords without encryption. 
             Only use when connections are secured with TLS/SSL or over trusted networks.
 
+=== "Via UI"
+
+    To add the service from the user interface:
+    {.power-number}
+    
+    1. Go to **Inventory > Add service**.
+    
+    2. Select **MySQL** service type.
+    
+    3. Enter or select values for the fields:
+
+        - **Service Name**: A descriptive name for your MySQL instance
+        - **Host/Socket**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
+        - **Port**: MySQL port (default: 3306)
+        - **Username**: The PMM user created earlier
+        - **Password**: Your PMM user password
+        - **Query Source**: Choose between **Slow Log** or **Performance Schema**
+        - **PMM Agent**: Select which PMM agent should monitor this instance
+        - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
+        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.
+
+    4. Click **Add Service**.
+
+    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
+    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
+
 #### TLS/SSL certificate configuration
 
 PMM supports flexible TLS certificate configurations for MySQL connections, enabling you to use partial certificates when client authentication is not required.
@@ -612,13 +621,13 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
     To verify your service in the web interface:
     {.power-number}
 
-    1. Navigate to **PMM Configuration > PMM Inventory**.
+    1. Navigate to **Inventory > Services**.
     2. In the **Services** tab, find your newly added MySQL service.
     3. Verify the **Service Name** and **Address** match your configuration.
-    4. Check the **Status** column shows as *Active*.
-    5. In the **Options** column, expand the **Details** section to confirm:
+    4. Check that the **Status** column shows **Up**.
+    5. Click the status in the **Monitoring** column to confirm that:
         - the correct agents are running
-        - your selected query source (Slow Log or Performance Schema) is active
+        - the agent for your query source is listed: **QAN MySQL Slow Query Log agent** if you use the slow query log, or **QAN MySQL Performance Schema agent** if you use Performance Schema
 
 #### Verify data collection
 
@@ -652,13 +661,17 @@ Once the service is confirmed as active, verify that metrics are being properly 
     2. Select your cluster service from the dropdown.
     3. Verify that cluster-specific metrics are being displayed.
 
+### Running custom queries
+
+To collect metrics beyond what PMM provides by default, you can define custom SQL queries for the MySQL exporter. See [Running custom queries in MySQL](custom_queries.md).
+
 ## Related topics
 
-- [Percona Server for MySQL -- slow query log extended][ps_slow_query_ext]
-- [Percona Server for MySQL -- user statistics][ps_userstats]
-- [MariaDB -- Slow query log overview][mariadb_slow_query_log]
-- [MariaDB -- Slow query log extended statistics][mariadb_slow_query_ext]
-- [MariaDB -- User statistics][mariadb_userstats]
+- [Percona Server for MySQL: slow query log extended][ps_slow_query_ext]
+- [Percona Server for MySQL: user statistics][ps_userstats]
+- [MariaDB: slow query log overview][mariadb_slow_query_log]
+- [MariaDB: slow query log extended statistics][mariadb_slow_query_ext]
+- [MariaDB: user statistics][mariadb_userstats]
 - [PERFORMANCE_SCHEMA vs Slow Query Log: performance impact][BLOG_PS_VS_SLOW]
 - [Understanding MySQL's INNODB_METRICS table][BLOG_INNODB_METRICS]
 - [Rotating MySQL slow logs safely][BLOG_LOG_ROTATION]

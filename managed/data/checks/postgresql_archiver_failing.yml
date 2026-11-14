@@ -4,10 +4,9 @@ checks:
     name: postgresql_archiver_failing
     summary: PostgreSQL Archiver is failing
     description: This check verifies if the archiver has failed.
-    family: POSTGRESQL
-    #author: David Gonzales
-    advisor: configuration_generic
-    interval: standard
+    technology: POSTGRESQL
+    # author: David Gonzales
+    category: Durability
     queries:
       - type: POSTGRESQL_SELECT
         query: |
@@ -23,7 +22,7 @@ checks:
           trunc(extract(EPOCH FROM (now() - stats_reset))::numeric,0) AS sec_since_stats_reset
           FROM pg_stat_archiver
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       # pg_advisor
       # threshold 24 hours = 86400 seconds

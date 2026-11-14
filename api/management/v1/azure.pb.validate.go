@@ -169,8 +169,7 @@ func (e DiscoverAzureDatabaseRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DiscoverAzureDatabaseRequestValidationError{}
@@ -293,8 +292,7 @@ func (e DiscoverAzureDatabaseInstanceValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DiscoverAzureDatabaseInstanceValidationError{}
@@ -431,8 +429,7 @@ func (e DiscoverAzureDatabaseResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DiscoverAzureDatabaseResponseValidationError{}
@@ -607,6 +604,38 @@ func (m *AddAzureDatabaseRequest) validate(all bool) error {
 
 	// no validation rules for Type
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddAzureDatabaseRequestValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddAzureDatabaseRequestValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	// no validation rules for PmmAgentId
+
 	if len(errors) > 0 {
 		return AddAzureDatabaseRequestMultiError(errors)
 	}
@@ -674,8 +703,7 @@ func (e AddAzureDatabaseRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAzureDatabaseRequestValidationError{}
@@ -777,8 +805,7 @@ func (e AddAzureDatabaseResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAzureDatabaseResponseValidationError{}

@@ -199,7 +199,7 @@ func TestRuleTemplates(t *testing.T) {
 		assert.Equal(t, created.Summary, actual.Summary)
 		assert.Equal(t, created.Expr, actual.Expr)
 		assert.Equal(t, created.Params, actual.Params)
-		assert.EqualValues(t, created.For, actual.For)
+		assert.Equal(t, created.For, actual.For)
 		assert.Equal(t, created.Severity, actual.Severity)
 		assert.Equal(t, created.Labels, actual.Labels)
 		assert.Empty(t, actual.Annotations)
@@ -219,7 +219,7 @@ func createTemplateParams(name string) *models.CreateTemplateParams {
 				Summary: gofakeit.Quote(),
 				Unit:    alert.Percentage,
 				Type:    alert.Float,
-				Range:   []interface{}{float64(10), float64(100)},
+				Range:   []any{float64(10), float64(100)},
 				Value:   float64(50),
 			}},
 			For:         promconfig.Duration(7 * time.Second),
@@ -244,7 +244,7 @@ func changeTemplateParams(name string) *models.ChangeTemplateParams {
 				Summary: gofakeit.Quote(),
 				Unit:    alert.Seconds,
 				Type:    alert.Float,
-				Range:   []interface{}{float64(10), float64(100)},
+				Range:   []any{float64(10), float64(100)},
 				Value:   float64(50),
 			}},
 			For:         promconfig.Duration(gofakeit.Number(1, 100)),

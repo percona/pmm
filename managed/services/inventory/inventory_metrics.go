@@ -17,10 +17,10 @@ package inventory
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"gopkg.in/reform.v1"
 
@@ -187,7 +187,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 	})
 
 	if errTx != nil {
-		return nil, errors.WithStack(errTx)
+		return nil, fmt.Errorf("failed to get agent metrics: %w", errTx)
 	}
 	return metrics, nil
 }
@@ -217,7 +217,7 @@ func (i *InventoryMetrics) GetNodeMetrics(ctx context.Context) ([]Metric, error)
 	})
 
 	if errTx != nil {
-		return nil, errors.WithStack(errTx)
+		return nil, fmt.Errorf("failed to get node metrics: %w", errTx)
 	}
 	return metrics, nil
 }
@@ -246,7 +246,7 @@ func (i *InventoryMetrics) GetServiceMetrics(ctx context.Context) ([]Metric, err
 	})
 
 	if errTx != nil {
-		return nil, errors.WithStack(errTx)
+		return nil, fmt.Errorf("failed to get service metrics: %w", errTx)
 	}
 	return metrics, nil
 }

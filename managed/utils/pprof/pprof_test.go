@@ -51,16 +51,16 @@ func TestProfile(t *testing.T) {
 		ctx := t.Context()
 		profileBytes, err := Profile(ctx, 1*time.Second)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, profileBytes)
 
 		// read gzip
 		reader, err := gzip.NewReader(bytes.NewBuffer(profileBytes))
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		var resB bytes.Buffer
 		_, err = resB.ReadFrom(reader)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		assert.NotEmpty(t, resB.Bytes())
 	})
@@ -88,7 +88,7 @@ func TestTrace(t *testing.T) {
 		ctx := t.Context()
 		traceBytes, err := Trace(ctx, 1*time.Second)
 
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, traceBytes)
 	})
 

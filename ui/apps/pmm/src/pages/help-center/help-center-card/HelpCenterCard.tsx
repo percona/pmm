@@ -10,11 +10,11 @@ import { FC, ReactNode, useCallback } from 'react';
 import {
   semanticTokensLight,
   semanticTokensDark,
-} from '@percona/percona-ui';
+  KnowledgeBaseIcon,
+} from '@percona/peak-ui';
 import { CARD_IDS, START_ICON } from '../HelpCenter.constants';
 import { HelpCenterCardProps } from './HelpCenterCard.types';
 import { Link } from 'react-router-dom';
-import { Icon } from 'components/icon';
 
 export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
   const { id, title, borderColorKey, description, buttons } = card;
@@ -28,7 +28,7 @@ export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
   const getIcon = useCallback((cardId: string): ReactNode => {
     switch (cardId) {
       case CARD_IDS.pmmDocs:
-        return <Icon name="knowledge-base" />;
+        return <KnowledgeBaseIcon />;
       case CARD_IDS.support:
         return <Support />;
       case CARD_IDS.forum:

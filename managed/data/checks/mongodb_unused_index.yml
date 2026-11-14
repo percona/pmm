@@ -4,17 +4,16 @@ checks:
     name: mongodb_unused_index
     summary: MongoDB - Unused Indexes
     description: This check returns a warning if there are unused indexes on any database collection in your instance (Need to enable "indexStats" collector).
-    interval: standard
-    family: MONGODB
-    advisor: query_index
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Schema & indexes
+    # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT
         query: avg by(node_name) (mongodb_instance_uptime_seconds{node_name=~"{{.NodeName}}"} / 86400)
       - type: METRICS_INSTANT
         query: avg by (cluster,collection,database,key_name) (mongodb_indexstats_accesses_ops{node_name=~"{{.NodeName}}"}) == 0
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(docs, context):
           threshold = 30

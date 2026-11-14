@@ -1,8 +1,7 @@
 {
   "variables": {
     "single_disk": "false",
-    "pmm_server_image_name": "docker.io/perconalab/pmm-server:3-dev-latest",
-    "watchtower_image_name": "docker.io/perconalab/watchtower:dev-latest"
+    "pmm_server_image_name": "docker.io/perconalab/pmm-server:3-dev-latest"
   },
   "builders": [
     {
@@ -39,39 +38,47 @@
       "ssh_clear_authorized_keys": "true"
     },
     {
-      "type": "virtualbox-ovf",
-      "vm_name": "PMM3-Server-{{isotime \"2006-01-02-1504\"}}",
-      "export_opts": [
-        "--ovf20",
-        "--manifest",
-        "--vsys", "0",
-        "--product", "Percona Monitoring and Management",
-        "--producturl", "https://www.percona.com/software/database-tools/percona-monitoring-and-management",
-        "--vendor", "Percona",
-        "--vendorurl", "https://www.percona.com",
-        "--version", "{{isotime \"2006-01-02\"}}",
-        "--description", "Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL, PostgreSQL and MongoDB"
+      "type": "amazon-ebs",
+      "name": "amazon-ebs-arm64",
+      "ami_name": "PMM Server ARM64 [{{isotime \"2006-01-02 1504\"}}]",
+      "instance_type": "c7g.xlarge",
+      "launch_block_device_mappings": [
+        {
+          "delete_on_termination": true,
+          "device_name": "/dev/sda1",
+          "volume_size": 20,
+          "volume_type": "gp3"
+        },
+        {
+          "delete_on_termination": false,
+          "device_name": "/dev/sdb",
+          "volume_size": 100,
+          "volume_type": "gp3"
+        }
       ],
-      "format": "ova",
-      "guest_additions_mode": "disable",
-      "headless": true,
-      "output_directory": "pmm-virtualbox",
-      "shutdown_command": "sudo shutdown -P now",
-      "source_path": ".cache/box/box.ovf",
-      "ssh_private_key_file": ".cache/id_rsa_vagrant",
-      "ssh_wait_timeout": "8m",
-      "ssh_pty": true,
-      "ssh_username": "vagrant",
-      "ssh_clear_authorized_keys": true,
-      "vboxmanage": [
-        ["modifyvm", "{{.Name}}", "--memory", "4096"],
-        ["modifyvm", "{{.Name}}", "--audio", "none"],
-        ["modifyvm", "{{.Name}}", "--cpus", "4", "--vrdeport", "5050", "--vram", "10", "--graphicscontroller", "vmsvga", "--ioapic", "on"],
-        ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--controller", "PIIX4", "--remove"],
-        ["storagectl", "{{.Name}}", "--name", "SATA Controller", "--controller", "IntelAhci", "--portcount", "2", "--hostiocache", "on", "--bootable", "on"],
-        ["createhd", "--variant", "STREAM", "--format", "VMDK", "--size", "409600", "--filename", "/tmp/box-disk002.vmdk"],
-        ["storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "/tmp/box-disk002.vmdk"]
-      ]
+      "region": "us-east-1",
+      "security_group_id": "sg-688c2b1c",
+      "source_ami_filter": {
+        "filters": {
+          "name": "AlmaLinux OS 9.*",
+          "architecture": "arm64",
+          "root-device-type": "ebs",
+          "virtualization-type": "hvm"
+        },
+        "owners": ["764336703387"],
+        "most_recent": true
+      },
+      "ssh_pty": "true",
+      "ena_support": "true",
+      "ssh_username": "ec2-user",
+      "subnet_id": "subnet-ee06e8e1",
+      "run_tags": {
+        "iit-billing-tag": "pmm-ami"
+      },
+      "run_volume_tags": {
+        "iit-billing-tag": "pmm-ami"
+      },
+      "ssh_clear_authorized_keys": "true"
     }
   ],
   "provisioners": [
@@ -93,13 +100,13 @@
         "-vvv",
         "-u root",
         "--extra-vars",
-        "\"pmm_server_image_name='{{ user `pmm_server_image_name` }}' watchtower_image_name='{{ user `watchtower_image_name` }}'\""
+        "\"pmm_server_image_name='{{ user `pmm_server_image_name` }}'\""
       ],
       "role_paths": [
         "packer/ansible/roles/lvm-init",
         "packer/ansible/roles/cloud-node",
         "packer/ansible/roles/podman-setup",
-        "packer/ansible/roles/ami-ovf"
+        "packer/ansible/roles/ami"
       ]
     }
   ],
@@ -107,7 +114,7 @@
     [
       {
         "type": "manifest",
-        "only": ["amazon-ebs"],
+        "only": ["amazon-ebs", "amazon-ebs-arm64"],
         "output": "manifest.json",
         "strip_path": true
       }

@@ -69,7 +69,8 @@ func (a *mysqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
 
 	var tableName, tableDef string
 	row := db.QueryRowContext(ctx, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ CREATE TABLE", a.params.Table))
-	if err = row.Scan(&tableName, &tableDef); err != nil {
+	err = row.Scan(&tableName, &tableDef)
+	if err != nil {
 		return nil, err
 	}
 	return []byte(tableDef), nil

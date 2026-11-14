@@ -39,7 +39,7 @@ func TestDumps(t *testing.T) {
 	})
 
 	t.Run("create", func(t *testing.T) {
-		t.Run("normal", func(t *testing.T) {
+		t.Run("normal non-encrypted", func(t *testing.T) {
 			endTime := time.Now()
 			createDumpParams := models.CreateDumpParams{
 				ServiceNames: []string{"foo", "bar"},
@@ -59,6 +59,30 @@ func TestDumps(t *testing.T) {
 			assert.Equal(t, createDumpParams.IgnoreLoad, dump.IgnoreLoad)
 		})
 
+		t.Run("normal encrypted", func(t *testing.T) {
+			endTime := time.Now()
+			startTime := endTime.Add(-10 * time.Minute)
+
+			createDumpParams := models.CreateDumpParams{
+				ServiceNames: []string{"foo", "bar"},
+				StartTime:    &startTime,
+				EndTime:      &endTime,
+				ExportQAN:    false,
+				IgnoreLoad:   true,
+				Encrypted:    true,
+			}
+			dump, err := models.CreateDump(tx.Querier, createDumpParams)
+			require.NoError(t, err)
+			assert.NotEmpty(t, dump.ID)
+			assert.Equal(t, models.DumpStatusInProgress, dump.Status)
+			assert.ElementsMatch(t, createDumpParams.ServiceNames, dump.ServiceNames)
+			assert.Equal(t, createDumpParams.StartTime, dump.StartTime)
+			assert.Equal(t, createDumpParams.EndTime, dump.EndTime)
+			assert.Equal(t, createDumpParams.ExportQAN, dump.ExportQAN)
+			assert.Equal(t, createDumpParams.IgnoreLoad, dump.IgnoreLoad)
+			assert.Equal(t, createDumpParams.Encrypted, dump.Encrypted)
+		})
+
 		t.Run("invalid start and end time", func(t *testing.T) {
 			endTime := time.Now()
 			createDumpParams := models.CreateDumpParams{
@@ -76,7 +100,9 @@ func TestDumps(t *testing.T) {
 	t.Run("find", func(t *testing.T) {
 		findTX, err := db.Begin()
 		require.NoError(t, err)
-		defer findTX.Rollback() //nolint:errcheck
+		t.Cleanup(func() {
+			assert.NoError(t, findTX.Rollback())
+		})
 
 		endTime := time.Now()
 		startTime := endTime.Add(-10 * time.Minute)
@@ -111,7 +137,7 @@ func TestDumps(t *testing.T) {
 		})
 		require.NoError(t, err)
 		dump3.Status = models.DumpStatusError
-		err = findTX.Querier.Update(dump3)
+		err = findTX.Update(dump3)
 		require.NoError(t, err)
 
 		type testCase struct {

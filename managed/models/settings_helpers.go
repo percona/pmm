@@ -17,14 +17,17 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net/mail"
+	"slices"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/utils/validators"
 )
 
@@ -34,14 +37,16 @@ var ErrTxRequired = errors.New("TxRequired")
 // GetSettings returns current PMM Server settings.
 func GetSettings(q reform.DBTX) (*Settings, error) {
 	var b []byte
-	if err := q.QueryRow("SELECT settings FROM settings").Scan(&b); err != nil {
-		return nil, errors.Wrap(err, "failed to select settings")
+	err := q.QueryRow("SELECT settings FROM settings").Scan(&b)
+	if err != nil {
+		return nil, fmt.Errorf("failed to select settings: %w", err)
 	}
 
 	var s Settings
 
-	if err := json.Unmarshal(b, &s); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal settings")
+	err = json.Unmarshal(b, &s)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal settings: %w", err)
 	}
 	s.fillDefaults()
 
@@ -58,6 +63,15 @@ type ChangeSettingsParams struct {
 
 	DataRetention time.Duration
 
+	AdvisorHistoryRetention time.Duration
+
+	// Enable Advisor email notifications.
+	EnableAdvisorNotifications *bool
+	// Severities of the Advisor insights that are emailed. Empty means "do not change".
+	AdvisorNotificationSeverities []common.Severity
+	// Recipients of Advisor notifications. Nil means "do not change"; an empty non-nil slice clears them.
+	AdvisorNotificationEmailAddresses []string
+
 	// List of AWS partitions to use. If empty - default partitions will be used. If nil - no changes will be made.
 	AWSPartitions []string
 
@@ -67,13 +81,6 @@ type ChangeSettingsParams struct {
 	EnableAdvisors *bool
 
 	EnableNomad *bool
-
-	// List of Advisor checks to disable
-	DisableAdvisorChecks []string
-	// List of Advisor checks to enable
-	EnableAdvisorChecks []string
-	// Advisors run intervals
-	AdvisorsRunInterval AdvisorsRunIntervals
 
 	// Enable Azure Discover features.
 	EnableAzurediscover *bool
@@ -95,14 +102,17 @@ type ChangeSettingsParams struct {
 	// EnableInternalPgQAN enables Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool
 
+	// EnableOM enables OpenManager.
+	EnableOM *bool
+
 	// DefaultRoleID sets a default role to be assigned to new users.
 	DefaultRoleID *int
 
 	// List of items in format 'db.table.column' to be encrypted.
 	EncryptedItems []string
 
-	// Duration for which an update is snoozed
-	UpdateSnoozeDuration time.Duration
+	// EncryptionKeyFingerprint identifies the key the data was encrypted with. Empty clears it.
+	EncryptionKeyFingerprint *string
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -132,7 +142,8 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		}
 
 		var r Role
-		if err := findRole(tx, *params.DefaultRoleID, &r); err != nil {
+		err := findRole(tx, *params.DefaultRoleID, &r)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -144,10 +155,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableUpdates != nil {
 		settings.Updates.Enabled = params.EnableUpdates
-	}
-
-	if params.UpdateSnoozeDuration != 0 {
-		settings.Updates.SnoozeDuration = params.UpdateSnoozeDuration
 	}
 
 	if params.EnableTelemetry != nil {
@@ -170,6 +177,25 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.DataRetention = params.DataRetention
 	}
 
+	if params.AdvisorHistoryRetention != 0 {
+		settings.AdvisorHistoryRetention = params.AdvisorHistoryRetention
+	}
+
+	if params.EnableAdvisorNotifications != nil {
+		settings.AdvisorNotifications.Enabled = params.EnableAdvisorNotifications
+	}
+
+	if len(params.AdvisorNotificationSeverities) != 0 {
+		// a smaller value is more severe, so sorting puts the most severe first
+		severities := slices.Clone(params.AdvisorNotificationSeverities)
+		slices.Sort(severities)
+		settings.AdvisorNotifications.Severities = slices.Compact(severities)
+	}
+
+	if params.AdvisorNotificationEmailAddresses != nil {
+		settings.AdvisorNotifications.EmailAddresses = deduplicateStrings(params.AdvisorNotificationEmailAddresses)
+	}
+
 	if params.AWSPartitions != nil {
 		settings.AWSPartitions = deduplicateStrings(params.AWSPartitions)
 	}
@@ -179,40 +205,11 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 
 	if params.EnableAdvisors != nil {
-		settings.SaaS.Enabled = params.EnableAdvisors
+		settings.Advisors.Enabled = params.EnableAdvisors
 	}
 
 	if params.EnableNomad != nil {
 		settings.Nomad.Enabled = params.EnableNomad
-	}
-
-	if params.AdvisorsRunInterval.RareInterval != 0 {
-		settings.SaaS.AdvisorRunIntervals.RareInterval = params.AdvisorsRunInterval.RareInterval
-	}
-	if params.AdvisorsRunInterval.StandardInterval != 0 {
-		settings.SaaS.AdvisorRunIntervals.StandardInterval = params.AdvisorsRunInterval.StandardInterval
-	}
-	if params.AdvisorsRunInterval.FrequentInterval != 0 {
-		settings.SaaS.AdvisorRunIntervals.FrequentInterval = params.AdvisorsRunInterval.FrequentInterval
-	}
-
-	if len(params.DisableAdvisorChecks) != 0 {
-		settings.SaaS.DisabledAdvisors = deduplicateStrings(append(settings.SaaS.DisabledAdvisors, params.DisableAdvisorChecks...))
-	}
-
-	if len(params.EnableAdvisorChecks) != 0 {
-		m := make(map[string]struct{}, len(params.EnableAdvisorChecks))
-		for _, p := range params.EnableAdvisorChecks {
-			m[p] = struct{}{}
-		}
-
-		var res []string
-		for _, c := range settings.SaaS.DisabledAdvisors {
-			if _, ok := m[c]; !ok {
-				res = append(res, c)
-			}
-		}
-		settings.SaaS.DisabledAdvisors = res
 	}
 
 	if params.EnableVMCache != nil {
@@ -239,12 +236,20 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.BackupManagement.Enabled = params.EnableBackupManagement
 	}
 
+	if params.EnableOM != nil {
+		settings.OM.Enabled = params.EnableOM
+	}
+
 	if params.DefaultRoleID != nil {
 		settings.DefaultRoleID = *params.DefaultRoleID
 	}
 
 	if params.EncryptedItems != nil {
 		settings.EncryptedItems = params.EncryptedItems
+	}
+
+	if params.EncryptionKeyFingerprint != nil {
+		settings.EncryptionKeyFingerprint = *params.EncryptionKeyFingerprint
 	}
 
 	err = SaveSettings(q, settings)
@@ -256,7 +261,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 // ValidateSettings validates settings changes.
 func ValidateSettings(params *ChangeSettingsParams) error {
-	// TODO: consider refactoring this and the validation for Advisors run intervals
 	checkCases := []struct {
 		dur       time.Duration
 		fieldName string
@@ -270,58 +274,108 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			continue
 		}
 
-		if _, err := validators.ValidateMetricResolution(v.dur); err != nil {
+		_, err := validators.ValidateMetricResolution(v.dur)
+		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
-				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
+				return fmt.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
-				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
+				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return errors.Errorf("%s: unknown error for", v.fieldName)
-			}
-		}
-	}
-
-	checkCases = []struct {
-		dur       time.Duration
-		fieldName string
-	}{
-		{params.AdvisorsRunInterval.RareInterval, "rare_interval"},
-		{params.AdvisorsRunInterval.StandardInterval, "standard_interval"},
-		{params.AdvisorsRunInterval.FrequentInterval, "frequent_interval"},
-	}
-	for _, v := range checkCases {
-		if v.dur == 0 {
-			continue
-		}
-
-		if _, err := validators.ValidateAdvisorRunInterval(v.dur); err != nil {
-			switch err.(type) { //nolint:errorlint
-			case validators.DurationNotAllowedError:
-				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
-			case validators.MinDurationError:
-				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
-			default:
-				return errors.Errorf("%s: unknown error for", v.fieldName)
+				return fmt.Errorf("%s: %w", v.fieldName, err)
 			}
 		}
 	}
 
 	if params.DataRetention != 0 {
-		if _, err := validators.ValidateDataRetention(params.DataRetention); err != nil {
+		_, err := validators.ValidateDataRetention(params.DataRetention)
+		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.New("data_retention: should be a natural number of days")
 			case validators.MinDurationError:
 				return errors.New("data_retention: minimal resolution is 24h")
 			default:
-				return errors.New("data_retention: unknown error")
+				return fmt.Errorf("data_retention: %w", err)
 			}
 		}
 	}
 
-	if err := validators.ValidateAWSPartitions(params.AWSPartitions); err != nil {
+	if params.AdvisorHistoryRetention != 0 {
+		_, err := validators.ValidateDataRetention(params.AdvisorHistoryRetention)
+		if err != nil {
+			switch err.(type) { //nolint:errorlint
+			case validators.DurationNotAllowedError:
+				return errors.New("advisor_history_retention: should be a natural number of days")
+			case validators.MinDurationError:
+				return errors.New("advisor_history_retention: minimal resolution is 24h")
+			default:
+				return fmt.Errorf("advisor_history_retention: %w", err)
+			}
+		}
+	}
+
+	for _, severity := range params.AdvisorNotificationSeverities {
+		err := ValidateAdvisorNotificationSeverity(severity)
+		if err != nil {
+			return err
+		}
+	}
+
+	err := ValidateAdvisorNotificationEmailAddresses(params.AdvisorNotificationEmailAddresses)
+	if err != nil {
 		return err
+	}
+
+	err = validators.ValidateAWSPartitions(params.AWSPartitions)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ValidateAdvisorNotificationSeverity accepts only the severities advisors use;
+// the remaining common.Severity levels are retired for advisors.
+func ValidateAdvisorNotificationSeverity(s common.Severity) error {
+	switch s {
+	case common.Critical, common.Error, common.Warning, common.Info:
+		return nil
+	default:
+		return fmt.Errorf("advisor_notification_severities: unsupported severity level: %s", s)
+	}
+}
+
+// maxAdvisorNotificationEmailAddresses caps the recipient list so a single settings change cannot
+// turn every run completion into a mass mailing.
+const maxAdvisorNotificationEmailAddresses = 20
+
+// ValidateAdvisorNotificationEmailAddresses accepts a nil or empty list ("do not change" and
+// "clear" respectively) and otherwise requires every entry to be a bare, parseable address.
+func ValidateAdvisorNotificationEmailAddresses(addresses []string) error {
+	err := validateEmailAddresses(addresses)
+	if err != nil {
+		return fmt.Errorf("advisor_notification_email_addresses: %w", err)
+	}
+	return nil
+}
+
+// validateEmailAddresses checks the length of an Advisor recipient list and every address in it.
+func validateEmailAddresses(addresses []string) error {
+	if len(addresses) > maxAdvisorNotificationEmailAddresses {
+		return fmt.Errorf("at most %d addresses are allowed, got %d", maxAdvisorNotificationEmailAddresses, len(addresses))
+	}
+
+	for _, a := range addresses {
+		parsed, err := mail.ParseAddress(a)
+		if err != nil {
+			return fmt.Errorf("invalid address '%s'", a)
+		}
+		// ParseAddress also accepts `Name <addr>`; the sender only needs the address itself, and
+		// accepting display names here would make the stored list ambiguous.
+		if parsed.Address != a {
+			return fmt.Errorf("expected a bare email address, got '%s'", a)
+		}
 	}
 
 	return nil
@@ -334,12 +388,12 @@ func SaveSettings(q reform.DBTX, s *Settings) error {
 
 	b, err := json.Marshal(s)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal settings")
+		return fmt.Errorf("failed to marshal settings: %w", err)
 	}
 
 	_, err = q.Exec("UPDATE settings SET settings = $1", b)
 	if err != nil {
-		return errors.Wrap(err, "failed to update settings")
+		return fmt.Errorf("failed to update settings: %w", err)
 	}
 
 	return nil

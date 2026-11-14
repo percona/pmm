@@ -170,6 +170,38 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 
 	// no validation rules for RtaMongodbAgent
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddMongoDBServiceParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddMongoDBServiceParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	// no validation rules for EnableDiagnosticDataHistograms
+
 	if len(errors) > 0 {
 		return AddMongoDBServiceParamsMultiError(errors)
 	}
@@ -237,8 +269,7 @@ func (e AddMongoDBServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddMongoDBServiceParamsValidationError{}
@@ -485,8 +516,7 @@ func (e MongoDBServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MongoDBServiceResultValidationError{}

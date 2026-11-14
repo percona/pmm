@@ -52,7 +52,7 @@ type supervisor interface {
 	Changes() <-chan *agentv1.StateChangedRequest
 	QANRequests() <-chan *agentv1.QANCollectRequest
 	RTARequests() <-chan *rtav1.CollectRequest
-	SetState(*agentv1.SetStateRequest)
+	SetState(ctx context.Context, state *agentv1.SetStateRequest)
 	RestartAgents()
 	AgentLogByID(string) ([]string, uint)
 	AgentsList() []*agentlocal.AgentInfo

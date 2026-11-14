@@ -41,12 +41,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Type:           models.ScheduledMySQLBackupTask,
 		Data: &models.ScheduledTaskData{
 			MySQLBackupTask: &models.MySQLBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "",
-					LocationID:  "",
-					Name:        "task1",
-					Description: "",
-				},
+				ServiceID:   "",
+				LocationID:  "",
+				Name:        "task1",
+				Description: "",
 			},
 		},
 		Disabled: false,
@@ -57,12 +55,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Type:           models.ScheduledMySQLBackupTask,
 		Data: &models.ScheduledTaskData{
 			MySQLBackupTask: &models.MySQLBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "",
-					LocationID:  "",
-					Name:        "task1",
-					Description: "",
-				},
+				ServiceID:   "",
+				LocationID:  "",
+				Name:        "task1",
+				Description: "",
 			},
 		},
 		Disabled: false,
@@ -73,12 +69,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Type:           models.ScheduledMySQLBackupTask,
 		Data: &models.ScheduledTaskData{
 			MySQLBackupTask: &models.MySQLBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "",
-					LocationID:  "",
-					Name:        "task2",
-					Description: "",
-				},
+				ServiceID:   "",
+				LocationID:  "",
+				Name:        "task2",
+				Description: "",
 			},
 		},
 		Disabled: true,
@@ -89,12 +83,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Type:           models.ScheduledMySQLBackupTask,
 		Data: &models.ScheduledTaskData{
 			MySQLBackupTask: &models.MySQLBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "svc1",
-					LocationID:  "loc1",
-					Name:        "mysql",
-					Description: "",
-				},
+				ServiceID:   "svc1",
+				LocationID:  "loc1",
+				Name:        "mysql",
+				Description: "",
 			},
 		},
 		Disabled: false,
@@ -105,12 +97,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		Type:           models.ScheduledMongoDBBackupTask,
 		Data: &models.ScheduledTaskData{
 			MongoDBBackupTask: &models.MongoBackupTaskData{
-				CommonBackupTaskData: models.CommonBackupTaskData{
-					ServiceID:   "svc2",
-					ClusterName: "cluster",
-					LocationID:  "loc1",
-					Name:        "mongo",
-				},
+				ServiceID:   "svc2",
+				ClusterName: "cluster",
+				LocationID:  "loc1",
+				Name:        "mongo",
 			},
 		},
 		Disabled: false,
@@ -127,7 +117,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		require.NoError(t, err)
 
 		task, err = models.FindScheduledTaskByID(tx.Querier, task.ID)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, task.ID)
 		assert.Equal(t, createParams1.CronExpression, task.CronExpression)
 		assert.Equal(t, createParams1.Type, task.Type)
@@ -169,7 +159,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 			Error:   new("something"),
 		}
 		task1, err = models.ChangeScheduledTask(tx.Querier, task1.ID, changeParams1)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, *changeParams1.NextRun, task1.NextRun)
 		assert.Equal(t, *changeParams1.LastRun, task1.LastRun)
 		assert.Equal(t, *changeParams1.Disable, task1.Disabled)
@@ -182,14 +172,12 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		changeParams2 := models.ChangeScheduledTaskParams{
 			Data: &models.ScheduledTaskData{
 				MySQLBackupTask: &models.MySQLBackupTaskData{
-					CommonBackupTaskData: models.CommonBackupTaskData{
-						Name: task1.Data.MySQLBackupTask.Name,
-					},
+					Name: task1.Data.MySQLBackupTask.Name,
 				},
 			},
 		}
 		_, err = models.ChangeScheduledTask(tx.Querier, task2.ID, changeParams2)
-		assert.ErrorIs(t, err, models.ErrAlreadyExists)
+		require.ErrorIs(t, err, models.ErrAlreadyExists)
 	})
 
 	t.Run("Remove", func(t *testing.T) {
@@ -203,10 +191,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		require.NoError(t, err)
 
 		err = models.RemoveScheduledTask(tx.Querier, task.ID)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		_, err = models.FindScheduledTaskByID(tx.Querier, task.ID)
-		assert.ErrorIs(t, err, models.ErrNotFound, "task is not removed")
+		require.ErrorIs(t, err, models.ErrNotFound, "task is not removed")
 	})
 
 	t.Run("Find", func(t *testing.T) {
@@ -280,7 +268,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 
 		for _, tc := range tests {
 			tasks, err := models.FindScheduledTasks(tx.Querier, tc.filter)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			ids := make([]string, 0, len(tasks))
 			for _, task := range tasks {
 				ids = append(ids, task.ID)

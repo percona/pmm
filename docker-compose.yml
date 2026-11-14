@@ -9,6 +9,8 @@
 #     docker compose -f docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
 #  3. Full suite + external clickhouse (server, client, postgres, mongo, mysql + sysbench, external ClickHouse):
 #     docker compose -f docker-compose.yml -f qan-api2/docker-compose.yml --profile pmm --profile postgres --profile mongo up -d
+#  4. Any of the above + extensions (set PMM_ENABLE_EXTENSIONS=1 and PMM_ENABLE_NOMAD=1 in .env first):
+#     docker compose -f docker-compose.yml --profile pmm --profile extensions up -d
 #
 # Configuration: copy .env.example to .env and adjust variables (image tag, ports, credentials, AWS keys, etc.).
 #  Docker Compose loads .env automatically — no extra flags needed.
@@ -20,7 +22,7 @@ services:
   pmm-server:
     profiles:
       - pmm
-    image: ${PMM_SERVER_IMAGE:-percona/pmm-server:3}
+    image: ${PMM_SERVER_IMAGE:-percona/pmm-server:${PMM_IMAGE_TAG:-3}}
     platform: linux/amd64
     container_name: pmm-server
     hostname: pmm-server
@@ -29,6 +31,7 @@ services:
       - GF_SECURITY_ADMIN_USER
       - GF_SECURITY_ADMIN_PASSWORD
       - PMM_ENABLE_ACCESS_CONTROL
+      - PMM_ENABLE_NOMAD
       - PMM_PUBLIC_ADDRESS=${PMM_PUBLIC_ADDRESS:-localhost}
       - PMM_ENABLE_INTERNAL_PG_QAN
       - PMM_DEBUG
@@ -37,6 +40,9 @@ services:
       - PMM_CLICKHOUSE_DATABASE
       - PMM_CLICKHOUSE_USER
       - PMM_CLICKHOUSE_PASSWORD
+      # Read-only credentials for the Grafana ClickHouse datasource
+      - PMM_CLICKHOUSE_DATASOURCE_USER
+      - PMM_CLICKHOUSE_DATASOURCE_PASSWORD
       - PMM_DISABLE_BUILTIN_CLICKHOUSE
       # To enable an external PostgreSQL database
       - PMM_POSTGRES_ADDR
@@ -44,6 +50,11 @@ services:
       - PMM_POSTGRES_USERNAME
       - PMM_POSTGRES_DBPASSWORD
       - PMM_DISABLE_BUILTIN_POSTGRES
+      # To expose the built-in PostgreSQL to the PMM Extensions side-car on the same
+      # bridge network and reverse-proxy it under /extensions/
+      - PMM_ENABLE_EXTENSIONS
+      - PMM_EXTENSIONS_POSTGRES_PASSWORD
+      - PMM_EXTENSIONS_ADDRESS
       # To discover RDS databases via UI
       - AWS_ACCESS_KEY
       - AWS_SECRET_KEY
@@ -51,11 +62,14 @@ services:
       - ${PMM_PORT_HTTPS:-443}:8443
     volumes:
       - pmm-data:/srv
+      # Credentials PMM provisions for PMM Extensions. Mount this same volume read-only in
+      # the side-car and point SECRETS_DIR at it; never share pmm-data itself with it.
+      - pmm-extensions:/srv/extensions
 
   pmm-client:
     profiles:
       - pmm
-    image: percona/pmm-client:3
+    image: percona/pmm-client:${PMM_IMAGE_TAG:-3}
     container_name: pmm-client
     depends_on:
       pmm-server:
@@ -153,6 +167,37 @@ services:
     volumes:
       - ./dev/sysbench-ps.sh:/sysbench-ps.sh
 
+  # PMM routes /extensions/ to this service name by default (PMM_EXTENSIONS_ADDRESS=pmm-extensions:9000).
+  pmm-extensions:
+    profiles:
+      - extensions
+    image: ${PMM_EXTENSIONS_IMAGE:-percona/pmm-extensions:${PMM_IMAGE_TAG:-3}}
+    platform: linux/amd64
+    container_name: pmm-extensions
+    restart: always
+    # PMM Extensions needs PMM's Grafana API and PostgreSQL, which are up only once PMM is healthy.
+    depends_on:
+      pmm-server:
+        condition: service_healthy
+    # PMM writes the secrets as group 0; the image's own user reads them through this group.
+    group_add:
+      - "0"
+    environment:
+      SECRETS_DIR: /run/secrets/extensions
+      # Used to create its own service-account token in PMM whenever it holds no valid one.
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
+      # Default is reachable only inside this network; see PMM_EXTENSIONS_BASE_URL in .env.example.
+      BASE_URL: ${PMM_EXTENSIONS_BASE_URL:-http://pmm-extensions:9000/extensions}
+    volumes:
+      - pmm-extensions:/run/secrets/extensions:ro
+      - pmm-extensions-state:/home/extensions/state
+
 volumes:
   pmm-data:
     name: pmm-data
+  pmm-extensions:
+    name: pmm-extensions
+  # Holds the side-car's token and settings-encryption key; back it up with pmm-data.
+  pmm-extensions-state:
+    name: pmm-extensions-state

@@ -75,7 +75,7 @@ func TestAddMongoDB(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
@@ -93,7 +93,7 @@ func TestAddMongoDB(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
 				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
@@ -154,7 +154,7 @@ func TestAddMongoDB(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
@@ -172,7 +172,7 @@ func TestAddMongoDB(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, listAgents)
 
 		require.Len(t, listAgents.Payload.MongodbExporter, 1)
@@ -261,7 +261,7 @@ func TestAddMongoDB(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
@@ -665,7 +665,7 @@ func TestAddMongoDB(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
@@ -682,7 +682,7 @@ func TestAddMongoDB(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
 				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
@@ -740,7 +740,7 @@ func TestAddMongoDB(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
@@ -758,7 +758,7 @@ func TestAddMongoDB(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
 				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
@@ -816,7 +816,7 @@ func TestAddMongoDB(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
@@ -834,7 +834,7 @@ func TestAddMongoDB(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
 				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,
@@ -891,7 +891,7 @@ func TestAddMongoDB(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
@@ -909,7 +909,7 @@ func TestAddMongoDB(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
 			{
 				AgentID:                  listAgents.Payload.MongodbExporter[0].AgentID,

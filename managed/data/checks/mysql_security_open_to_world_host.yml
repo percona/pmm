@@ -4,10 +4,9 @@ checks:
     name: mysql_security_open_to_world_host
     summary: User(s) has/have host definition '%' which is too open
     description: Host definition should never be '%' given it is too open .
-    interval: standard
-    advisor: security_authentication
-    #author: The Grinch
-    family: MYSQL
+    category: Security
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, count(user) found,group_concat( concat(user,'@',host) separator'; ') user from mysql.user where host = '%' group by version, service;"
@@ -33,7 +32,7 @@ checks:
 
       def check_context(docs, context):
           # we first define some global variables
-          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
           results = []
 
           result1 = check_open_host(docs[0],read_url)

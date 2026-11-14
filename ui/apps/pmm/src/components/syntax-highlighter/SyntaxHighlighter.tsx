@@ -38,7 +38,9 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
         await navigator.clipboard.writeText(content);
         enqueueSnackbar('Query copied to clipboard', { variant: 'success' });
       } catch (error) {
-        enqueueSnackbar('Failed to copy query to clipboard', { variant: 'error' });
+        enqueueSnackbar('Failed to copy query to clipboard', {
+          variant: 'error',
+        });
       }
     } else {
       enqueueSnackbar('Clipboard is not available', { variant: 'error' });
@@ -47,7 +49,7 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
 
   const highlighterBlock = (
     <>
-      {/* @ts-expect-error - react-syntax-highlighter types are incompatible with React 18 */}
+      {/* @ts-ignore - react-syntax-highlighter types can be incompatible with the React version */}
       <ReactSyntaxHighlighter
         language={language}
         style={highlighterStyle}

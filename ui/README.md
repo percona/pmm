@@ -9,46 +9,152 @@ PMM helps users to:
 
 See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-management/2.x/index.html) for more information.
 
-## Pre-Requisites
-
-Make sure you have the following installed:
-
-- [node 22](https://nodejs.org/en) (you can also use [nvm](https://github.com/nvm-sh/nvm) to manage node versions)
-- [yarn](https://yarnpkg.com/)
-
 ## Stack
 
 This repo uses the following stack across its packages:
 
-- Yarn (https://yarnpkg.com/)
-- Turborepo (https://turborepo.com/)
-- Typescript (https://www.typescriptlang.org/);
-- React (https://react.dev/);
-- Rollup to bundle the different common packages (https://rollupjs.org/);
-- Vite for development (https://vitejs.dev/);
-- Vitest for unit tests (https://vitest.dev/);
+- pnpm ([https://pnpm.io/](https://pnpm.io/))
+- Turborepo ([https://turborepo.com/](https://turborepo.com/))
+- Typescript ([https://www.typescriptlang.org/](https://www.typescriptlang.org/))
+- React ([https://react.dev/](https://react.dev/))
+- Rollup to bundle the different common packages ([https://rollupjs.org/](https://rollupjs.org/))
+- Vite for development ([https://vitejs.dev/](https://vitejs.dev/))
+- Vitest for unit tests ([https://vitest.dev/](https://vitest.dev/))
+
+## Apps
+
+- **pmm** — main PMM UI application
+- **pmm-compat** — Grafana plugin that handles communication between Grafana and PMM UI
+
+## Packages
+
+- **shared** — common code between applications
+
+## Run in the devcontainer (recommended)
+
+The PMM devcontainer (see the root `CONTRIBUTING.md`) now ships Node 22 + pnpm (via Corepack) and a Vite dev server that runs end-to-end with the rest of PMM Server. From the repo root **on the host**:
 
 ```bash
-make setup
+make env-up      # first run only; reuses the container afterwards
+make env         # shell into the container
 ```
 
-## Run in development mode
+Then **inside the container**:
 
 ```bash
-make dev
+make run-ui
 ```
 
-## Build application for production
+`run-ui` installs UI dependencies, symlinks the `pmm-compat` plugin into Grafana's plugin directory, injects livereload into Grafana's `index.html` (`setup-livereload`), and starts Vite on port `5173`.
+
+Open `https://localhost/` — Grafana loads the `pmm-compat` plugin, which fetches the main UI from the Vite dev server. Edits under `ui/apps/pmm/src/` hot-reload in the browser without a full page refresh.
+
+Notes:
+
+- The Vite port is configurable via `PMM_PORT_VITE` in your `.env` (see `.env.dev.example`); it defaults to `5173`.
+- `run-ui` installs an EXIT trap that restores the original `pmm-compat-app` plugin and restarts Grafana when you Ctrl-C. Don't kill the container mid-run, or the restore is skipped.
+- For a one-shot build deployed into the container's system paths, use `make build-ui` instead.
+
+### Update Grafana in the devcontainer
+
+The devcontainer ships a prebuilt Grafana baked into the `perconalab/pmm-server` dev image. To develop against a local [percona/grafana](https://github.com/percona/grafana) fork instead, mount your checkout into the container and rebuild it:
+
+1. Clone the Grafana fork **next to** the `pmm` repo on the host, so it resolves to `../grafana` from the repo root:
+
+```bash
+ git clone https://github.com/percona/grafana ../grafana
+```
+
+2. Uncomment the `grafana` volume mappings in `docker-compose.dev.yml`:
+
+```yaml
+# grafana
+- ../grafana:/root/go/src/github.com/percona/grafana
+- ../grafana/public:/usr/share/grafana/public
+```
+
+The first mount provides the Grafana source for the backend build; the second serves the fork's built frontend (`public/`).
+
+3. Recreate the container so the new mounts take effect — volume mappings are read at container create time (`make env-down` then `make env-up`, or recreate via your container tooling).
+
+4. Rebuild the Grafana backend **inside the container**:
+
+```bash
+ make grafana-be-build
+```
+
+This runs `make build-go` in `/root/go/src/github.com/percona/grafana`, copies the resulting `bin/linux/amd64/grafana` binary to `/usr/sbin/grafana`, and restarts Grafana via supervisor.
+
+For frontend changes in the fork, rebuild its `public/` assets (`make build-js` inside the grafana checkout); they are served through the `../grafana/public` mount.
+
+### Link a local `@percona/peak-ui` checkout
+
+To develop against a local [peak-ui](https://github.com/percona/peak-ui) checkout instead of the published `@percona/peak-ui` version:
+
+1. Clone peak-ui to a folder of your choice
+
+```bash
+ git clone https://github.com/percona/peak-ui
+```
+
+2. Uncomment the `peak-ui` volume mapping in `docker-compose.dev.yml` and point it to the repo location (e.g. `../peak-ui`):
+
+```yaml
+# peak-ui
+- ../peak-ui:/root/go/src/github.com/percona/peak-ui
+```
+
+Don't commit this line uncommented — the path is host-specific.
+
+3. Recreate the container so the new mount takes effect (`make env-down` then `make env-up`).
+
+4. Link it from **inside the container**, from `ui/apps/pmm` (not the `ui/` workspace root):
+
+```bash
+ cd ui/apps/pmm
+ pnpm link /root/go/src/github.com/percona/peak-ui
+```
+
+pnpm implements workspace linking via a workspace-wide override: this adds an entry to `ui/pnpm-workspace.yaml`'s `overrides`, plus an anchor `dependencies` entry in the `ui/` workspace root's `package.json`, so every workspace package resolves to your local checkout, not just `apps/pmm`.
+
+5. Make sure your local lib is built (e.g. `pnpm build` or `pnpm build:watch` for live reload).
+
+6. Run `make run-ui` as usual.
+
+7. To stop using the local checkout, unlink from `ui/apps/pmm`:
+
+```bash
+ pnpm unlink @percona/peak-ui
+```
+
+`unlink` only reverses the override in `pnpm-workspace.yaml` and `apps/pmm`'s own specifier — it leaves the anchor entry behind in the root `ui/package.json`/`ui/pnpm-lock.yaml`. Check `git diff ui/package.json ui/pnpm-lock.yaml` afterward and manually remove any leftover `@percona/peak-ui": "link:../../peak-ui"` entry — don't `git checkout` those files, since that discards any other uncommitted changes they may have.
+
+## Run locally on the host
+
+Use this when you want to drive Vite from your IDE without `make env`. You still need a reachable PMM Server — the simplest way is to leave the devcontainer running (`make env-up`) so its ports are exposed; any other PMM Server reachable at `https://localhost:8443` works too.
+
+Prerequisites:
+
+- [Node 22](https://nodejs.org/en) (e.g. via [nvm](https://github.com/nvm-sh/nvm))
+- [pnpm](https://pnpm.io/) 11.x (`corepack enable pnpm` picks up the pinned version)
+
+```bash
+make setup       # pnpm install across the workspace
+make dev         # turbo dev → Vite on https://localhost:5174 (or 5173 if nginx certs are present)
+```
+
+Vite proxies `/v1`, `/graph`, and `/logs.zip` to the PMM Server (inside the devcontainer: `https://localhost:8443`; on the host when using the devcontainer-exposed ports: `https://localhost`) — see `apps/pmm/vite.config.ts`.
+
+## Build for production
 
 ```bash
 make build
 ```
 
-## Apps
+## Other targets
 
-- **pmm** - main PMM UI application
-- **pmm-compat** - Grafana plugin that handles communication between Grafana and PMM UI
-
-## Packages
-
-- **shared** - common code between applications
+```bash
+make test        # vitest across the workspace
+make lint
+make format
+```

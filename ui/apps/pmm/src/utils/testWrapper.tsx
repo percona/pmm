@@ -2,7 +2,7 @@ import { AuthContext, AuthContextProps } from 'contexts/auth';
 import { UserContext, UserContextProps } from 'contexts/user';
 import { FC, PropsWithChildren } from 'react';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
-import { pmmThemeOptions, ThemeContextProvider } from '@percona/percona-ui';
+import { pmmThemeOptions, ThemeContextProvider } from '@percona/peak-ui';
 import { TEST_USER_ADMIN } from './testStubs';
 
 interface TestWrapperProps extends PropsWithChildren {
@@ -13,7 +13,7 @@ interface TestWrapperProps extends PropsWithChildren {
 
 export const TestWrapper: FC<TestWrapperProps> = ({
   children,
-  authContext = { isLoading: false, isLoggedIn: true },
+  authContext = { isLoading: false, isLoggedIn: true, isAnonymous: false },
   userContext = {
     isLoading: false,
     user: TEST_USER_ADMIN,

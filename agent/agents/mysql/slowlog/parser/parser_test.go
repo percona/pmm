@@ -40,7 +40,7 @@ func parseSlowLog(t *testing.T, filepath string, opts log.Options) []log.Event {
 	r, err := filereader.NewSimpleFileReader(filepath)
 	require.NoError(t, err)
 	defer func() {
-		assert.NoError(t, r.Close())
+		require.NoError(t, r.Close())
 	}()
 
 	p := NewSlowLogParser(r, opts)
@@ -76,12 +76,12 @@ func TestParserGolden(t *testing.T) {
 				b, err := json.MarshalIndent(actual, "", "  ")
 				require.NoError(t, err)
 				b = append(b, '\n')
-				err = os.WriteFile(goldenFile, b, 0o666) //nolint:gosec
+				err = os.WriteFile(goldenFile, b, 0o666)
 				require.NoError(t, err)
 				t.Skipf("%s updated.", goldenFile)
 			}
 
-			b, err := os.ReadFile(goldenFile) //nolint:gosec
+			b, err := os.ReadFile(goldenFile)
 			require.NoError(t, err)
 			var expected []log.Event
 			err = json.Unmarshal(b, &expected)
@@ -335,7 +335,7 @@ func TestParserSpecial(t *testing.T) {
 		r, err := filereader.NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
 		require.NoError(t, err)
 		defer func() {
-			assert.NoError(t, r.Close())
+			require.NoError(t, r.Close())
 		}()
 
 		opts := log.Options{

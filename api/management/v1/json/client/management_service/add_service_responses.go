@@ -818,8 +818,8 @@ type AddServiceDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// add service default body details items0
-	AddServiceDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// add service default body details items0 additional properties
+	AddServiceDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -854,7 +854,7 @@ func (o *AddServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 			}
 			result[k] = toadd
 		}
-		o.AddServiceDefaultBodyDetailsItems0 = result
+		o.AddServiceDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -875,12 +875,12 @@ func (o AddServiceDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.AddServiceDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.AddServiceDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.AddServiceDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.AddServiceDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -2791,6 +2791,12 @@ type AddServiceOKBodyMongodbMongodbExporter struct {
 	// Environment variable names passed to the exporter.
 	EnvironmentVariableNames []string `json:"environment_variable_names"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMongodbMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -4208,6 +4214,9 @@ type AddServiceOKBodyMysqlMysqldExporter struct {
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyMysqlMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -5347,6 +5356,9 @@ type AddServiceOKBodyPostgresqlPostgresExporter struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyPostgresqlPostgresExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -6333,6 +6345,9 @@ type AddServiceOKBodyProxysqlProxysqlExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyProxysqlProxysqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -7332,6 +7347,9 @@ type AddServiceOKBodyRDSMysqldExporter struct {
 	// Extra DSN parameters for MySQL connection.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyRDSMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -7605,7 +7623,7 @@ type AddServiceOKBodyRDSNode struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// DB instance identifier.
+	// Node address: the instance endpoint or, for older Nodes, the DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
@@ -7620,7 +7638,7 @@ type AddServiceOKBodyRDSNode struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// AWS instance ID.
+	// AWS DB instance identifier.
 	InstanceID string `json:"instance_id,omitempty"`
 }
 
@@ -7795,6 +7813,9 @@ type AddServiceOKBodyRDSPostgresqlExporter struct {
 
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyRDSPostgresqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -8520,6 +8541,9 @@ type AddServiceOKBodyRDSRDSExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -9103,6 +9127,9 @@ type AddServiceOKBodyValkeyValkeyExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *AddServiceOKBodyValkeyValkeyExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -10107,6 +10134,12 @@ type AddServiceParamsBodyMongodb struct {
 	// If true, adds Real-Time Analytics agent for the provided service.
 	RtaMongodbAgent bool `json:"rta_mongodb_agent,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyMongodbAddNode `json:"add_node,omitempty"`
 }
@@ -10556,6 +10589,9 @@ type AddServiceParamsBodyMysql struct {
 	// extra DSN parameters to be used for connecting to MySQL.
 	ExtraDsnParams map[string]string `json:"extra_dsn_params,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyMysqlAddNode `json:"add_node,omitempty"`
 }
@@ -11001,6 +11037,9 @@ type AddServiceParamsBodyPostgresql struct {
 	// Maximum number of connections that exporter can open to the database instance.
 	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// add node
 	AddNode *AddServiceParamsBodyPostgresqlAddNode `json:"add_node,omitempty"`
 }
@@ -11412,6 +11451,9 @@ type AddServiceParamsBodyProxysql struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyProxysqlAddNode `json:"add_node,omitempty"`
@@ -11858,6 +11900,21 @@ type AddServiceParamsBodyRDS struct {
 
 	// Maximum number of exporter connections to PostgreSQL instance.
 	MaxPostgresqlExporterConnections int32 `json:"max_postgresql_exporter_connections,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// List of collector names to disable in the MySQL database exporter.
+	// Applies only when engine is DISCOVER_RDS_ENGINE_MYSQL, otherwise it is ignored.
+	MysqlDisableCollectors []string `json:"mysql_disable_collectors"`
+
+	// List of collector names to disable in the PostgreSQL database exporter.
+	// Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
+	PostgresqlDisableCollectors []string `json:"postgresql_disable_collectors"`
+
+	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 }
 
 // Validate validates this add service params body RDS
@@ -12076,6 +12133,9 @@ type AddServiceParamsBodyValkey struct {
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// add node
 	AddNode *AddServiceParamsBodyValkeyAddNode `json:"add_node,omitempty"`

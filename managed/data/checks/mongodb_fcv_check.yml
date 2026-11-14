@@ -4,16 +4,14 @@ checks:
     name: mongodb_fcv_check
     summary: MongoDB - FCV mismatch
     description: This check returns a warning if there is a mismatch between the MongoDB version and the internal FCV parameter setting.
-    interval: standard
-    family: MONGODB
-    advisor: configuration_resources
-    #category: configuration
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Versions
+    # author: Parag Bhayani
     queries:
       - type: MONGODB_BUILDINFO
       - type: MONGODB_GETPARAMETER
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(docs, context):
           """

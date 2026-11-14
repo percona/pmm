@@ -4,15 +4,14 @@ checks:
     name: mysql_configuration_log_verbosity
     summary: Check log verbosity
     description: Checks that warnings are being printed on the log
-    family: MYSQL
-    #author: Carlos
-    advisor: configuration_generic
-    interval: standard
+    technology: MYSQL
+    # author: Carlos Tutte
+    category: Logging
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_log_error_verbosity(log_error_verbosity):
               if log_error_verbosity < 2:

@@ -4,14 +4,13 @@ checks:
     name: mongodb_read_tickets
     summary: MongoDB Read Tickets
     description: This check returns warnings if MongoDB is using more than 128 read tickets.
-    interval: standard
-    family: MONGODB
-    advisor: configuration_generic
-    #author: Vinicius Grippa/Parag Bhayani
+    technology: MONGODB
+    category: Performance
+    # author: Vinicius Grippa/Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(docs, context):
           """
@@ -34,4 +33,5 @@ checks:
                               "read_more_url": read_url.format("mongodb-read-tickets"),
                               "severity": "warning",
                           })
-              return results
+
+          return results

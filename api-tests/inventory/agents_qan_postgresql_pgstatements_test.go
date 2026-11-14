@@ -182,7 +182,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					Password: new("new-rotated-postgres-qan-password"),
+					SkipConnectionCheck: new(true),
+					Password:            new("new-rotated-postgres-qan-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -196,8 +197,9 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					Username: new("new-postgres-qan-user"),
-					Password: new("another-new-postgres-qan-password"),
+					SkipConnectionCheck: new(true),
+					Username:            new("new-postgres-qan-user"),
+					Password:            new("another-new-postgres-qan-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -257,7 +259,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					Username: new("updated-pgstatements-user"),
+					SkipConnectionCheck: new(true),
+					Username:            new("updated-pgstatements-user"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -328,11 +331,12 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent{
-					Username:       new("changed-pgstatements-user"),
-					Password:       new("changed-pgstatements-password"),
-					MaxQueryLength: new(int32(4096)),
-					TLS:            new(true),
-					TLSSkipVerify:  new(false),
+					SkipConnectionCheck: new(true),
+					Username:            new("changed-pgstatements-user"),
+					Password:            new("changed-pgstatements-password"),
+					MaxQueryLength:      new(int32(4096)),
+					TLS:                 new(true),
+					TLSSkipVerify:       new(false),
 					CustomLabels: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels{
 						Values: map[string]string{
 							"environment": "production",

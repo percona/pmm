@@ -49,12 +49,6 @@ func TestSettings(t *testing.T) {
 			Lr: "60s",
 		}
 		assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
-		expectedAdvisorRunIntervals := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
-			FrequentInterval: "14400s",
-			StandardInterval: "86400s",
-			RareInterval:     "280800s",
-		}
-		assert.Equal(t, expectedAdvisorRunIntervals, res.Payload.Settings.AdvisorRunIntervals)
 		assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
 		assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 		assert.True(t, res.Payload.Settings.UpdatesEnabled)
@@ -408,22 +402,6 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("AdvisorsCheckIntervalInvalid", func(t *testing.T) {
-				defer serverTest.RestoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
-							FrequentInterval: "1",
-						},
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`invalid google.protobuf.Duration value "1"`)
-				assert.Empty(t, res)
-			})
-
 			// This test case triggers Grafana restart that may affect the other tests.
 			t.Run("SetPMMPublicAddressWithoutScheme", func(t *testing.T) {
 				defer serverTest.RestoreSettingsDefaults(t)
@@ -440,38 +418,6 @@ func TestSettings(t *testing.T) {
 				// Wait until the server is ready again, otherwise the next tests will fail because of Grafana being restarted.
 				serverReadyErr := pmmapitests.WaitServerReady(t.Context())
 				require.NoError(t, serverReadyErr)
-			})
-
-			t.Run("AdvisorsCheckIntervalTooSmall", func(t *testing.T) {
-				defer serverTest.RestoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
-							StandardInterval: "0.9s",
-						},
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: standard_interval: minimal resolution is 1s.`)
-				assert.Empty(t, res)
-			})
-
-			t.Run("AdviorsCheckIntervalFractional", func(t *testing.T) {
-				defer serverTest.RestoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
-							RareInterval: "1.5s",
-						},
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: rare_interval: should be a natural number of seconds.`)
-				assert.Empty(t, res)
 			})
 
 			t.Run("DataRetentionInvalid", func(t *testing.T) {
@@ -529,7 +475,7 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("ChangeSSHKey only on AMI and OVF", func(t *testing.T) {
+			t.Run("ChangeSSHKey only on AMI", func(t *testing.T) {
 				defer serverTest.RestoreSettingsDefaults(t)
 
 				sshKey := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClY/8sz3w03vA2bY6mBFgUzrvb2FIoHw8ZjUXGGClJzJg5HC" +
@@ -543,7 +489,7 @@ func TestSettings(t *testing.T) {
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `SSH key can be set only on AMI and OVF distributions`)
+				pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `SSH key can be set only on AMI distribution`)
 				assert.Empty(t, res)
 			})
 
@@ -617,63 +563,6 @@ func TestSettings(t *testing.T) {
 				})
 			})
 
-			t.Run("AdvisorCheckIntervalsValid", func(t *testing.T) {
-				defer serverTest.RestoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
-							RareInterval:     "28800s", // 8 hours
-							StandardInterval: "1800s",  // 30 minutes
-							FrequentInterval: "20s",
-						},
-					},
-					Context: pmmapitests.Context,
-				})
-				require.NoError(t, err)
-				expected := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
-					RareInterval:     "28800s",
-					StandardInterval: "1800s",
-					FrequentInterval: "20s",
-				}
-				assert.Equal(t, expected, res.Payload.Settings.AdvisorRunIntervals)
-
-				getRes, err := serverClient.Default.ServerService.GetSettings(nil)
-				require.NoError(t, err)
-				getExpected := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
-					RareInterval:     "28800s",
-					StandardInterval: "1800s",
-					FrequentInterval: "20s",
-				}
-				assert.Equal(t, getExpected, getRes.Payload.Settings.AdvisorRunIntervals)
-
-				t.Run("DefaultsAreNotRestored", func(t *testing.T) {
-					defer serverTest.RestoreSettingsDefaults(t)
-
-					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
-						Body:    server.ChangeSettingsBody{},
-						Context: pmmapitests.Context,
-					})
-					require.NoError(t, err)
-					expected := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
-						RareInterval:     "28800s",
-						StandardInterval: "1800s",
-						FrequentInterval: "20s",
-					}
-					assert.Equal(t, expected, res.Payload.Settings.AdvisorRunIntervals)
-
-					// Check if the values were persisted
-					getRes, err := serverClient.Default.ServerService.GetSettings(nil)
-					require.NoError(t, err)
-					getExpected := &server.GetSettingsOKBodySettingsAdvisorRunIntervals{
-						RareInterval:     "28800s",
-						StandardInterval: "1800s",
-						FrequentInterval: "20s",
-					}
-					assert.Equal(t, getExpected, getRes.Payload.Settings.AdvisorRunIntervals)
-				})
-			})
-
 			t.Run("grpc-gateway", func(t *testing.T) {
 				// Test with pure JSON without swagger for tracking grpc-gateway behavior:
 				// https://github.com/grpc-ecosystem/grpc-gateway/issues/400
@@ -723,7 +612,7 @@ func TestSettings(t *testing.T) {
 							t.Logf("Request:\n%s", b)
 						}
 
-						resp, err := http.DefaultClient.Do(req)
+						resp, err := pmmapitests.HTTPClient.Do(req)
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpResponse(resp, true)
@@ -732,7 +621,9 @@ func TestSettings(t *testing.T) {
 						}
 						b, err = io.ReadAll(resp.Body)
 						require.NoError(t, err)
-						resp.Body.Close() //nolint:errcheck
+						t.Cleanup(func() {
+							assert.NoError(t, resp.Body.Close())
+						})
 
 						if get == "" {
 							require.Equal(t, 400, resp.StatusCode, "response:\n%s", b)
@@ -757,7 +648,7 @@ func TestSettings(t *testing.T) {
 							t.Logf("Request:\n%s", b)
 						}
 
-						resp, err = http.DefaultClient.Do(req)
+						resp, err = pmmapitests.HTTPClient.Do(req)
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpResponse(resp, true)
@@ -765,8 +656,10 @@ func TestSettings(t *testing.T) {
 							t.Logf("Response:\n%s", b)
 						}
 						b, err = io.ReadAll(resp.Body)
-						assert.NoError(t, err)
-						resp.Body.Close() //nolint:errcheck
+						require.NoError(t, err)
+						t.Cleanup(func() {
+							assert.NoError(t, resp.Body.Close())
+						})
 						assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 
 						p.Settings.MetricsResolutions.LR = ""

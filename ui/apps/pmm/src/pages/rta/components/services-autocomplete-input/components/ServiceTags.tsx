@@ -45,7 +45,12 @@ const ServiceTags: FC<Props> = ({ tagPresentation, value, getTagProps }) => {
       flexWrap="wrap"
     >
       {value.slice(0, 2).map((option, index) => (
-        <Chip size="small" label={option.label} {...getTagProps({ index })} key={option.label} />
+        <Chip
+          size="small"
+          label={option.label}
+          {...getTagProps({ index })}
+          key={option.label}
+        />
       ))}
       {value.length > 2 && (
         <Typography variant="inputText">+{count - 2}</Typography>

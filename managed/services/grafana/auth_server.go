@@ -20,18 +20,19 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"path"
+	"slices"
 	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
 
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
@@ -46,27 +47,49 @@ const (
 )
 
 // rules maps original URL prefix to minimal required role.
+// In case of multiple matches, the longest prefix wins. The prefix is matched
+// against the original URL path, not the cleaned one. The prefix must end with a slash,
+// dot, or colon, so that "/v1/inventory" does not match "/v1/inventoryX".
+// If several methods share the same path, they must be distinguished by methodRules.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
 	connectionEndpointV2: admin, // compatibility for v2 agents
 	connectionEndpoint:   admin,
 
-	"/inventory.":                               admin,
-	"/management.":                              admin,
-	"/actions.":                                 viewer,
-	"/advisors.v1.":                             editor,
-	"/server.v1.ServerService/CheckUpdates":     viewer,
-	"/server.v1.ServerService/UpdateStatus":     none,  // special token-based auth
-	"/server.v1.ServerService/AWSInstanceCheck": none,  // special case - used before Grafana can be accessed
-	"/server.":                                  admin, // TODO: do we need it for older agents?
-	"/server.v1.":                               admin,
-	"/qan.v1.CollectorService.":                 viewer,
-	"/qan.v1.QANService.":                       viewer,
+	"/inventory.":                           admin,
+	"/management.":                          admin,
+	"/actions.":                             viewer,
+	"/advisors.v1.":                         editor,
+	"/server.v1.ServerService/CheckUpdates": viewer,
+	// Polled by pre-3.9 clients right after an update, when Grafana and PostgreSQL may still be
+	// migrating and cannot authenticate anyone.
+	"/server.v1.ServerService/UpdateStatus":     none,
+	"/server.v1.ServerService/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
+	"/server.":                  admin, // TODO: do we need it for older agents?
+	"/server.v1.":               admin,
+	"/qan.v1.CollectorService.": viewer,
+	"/qan.v1.QANService.":       viewer,
+	"/om.":                      viewer,
+	"/om.v1.OmService/TriggerInventoryRefresh":       admin,
+	"/om.v1.OmService/DeleteInventoryHost":           admin,
+	"/om.v1.OmService/DeleteInventoryService":        admin,
+	"/om.v1.OmService/UpdateInventoryConfig":         admin,
+	"/om.v1.OmService/DeleteInventoryConfigOverride": admin,
+	"/om.v1.OmService/TriggerHostBootstrap":          admin,
+	"/om.v1.OmService/CancelBootstrapRun":            admin,
+
+	// Advisor check authoring and testing; see methodRules.
+	"/advisors.v1.AdvisorService/CreateAdvisorCheck": admin,
+	"/advisors.v1.AdvisorService/UpdateAdvisorCheck": admin,
+	"/advisors.v1.AdvisorService/DeleteAdvisorCheck": admin,
+	"/advisors.v1.AdvisorService/TestAdvisorCheck":   admin,
 
 	"/v1/alerting":                    viewer,
+	"/v1/alerting/rules":              editor,
+	"/v1/alerting/thresholds":         admin,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
-	"/v1/advisors/failedServices":     editor,
+	"/v1/advisors/checks:test":        admin,
 	"/v1/actions":                     viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
@@ -79,8 +102,7 @@ var rules = map[string]role{
 	"/v1/management/Jobs":             viewer,
 	"/v1/server/AWSInstance":          none, // special case - used before Grafana can be accessed
 	"/v1/server/updates":              viewer,
-	"/v1/server/updates:start":        admin,
-	"/v1/server/updates:getStatus":    none, // special token-based auth
+	"/v1/server/updates:getStatus":    none,
 	"/v1/server/settings":             admin,
 	"/v1/server/settings/readonly":    viewer,
 	"/v1/platform:":                   admin,
@@ -97,6 +119,8 @@ var rules = map[string]role{
 
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
+
+	"/v1/om": viewer,
 
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
@@ -124,17 +148,63 @@ var rules = map[string]role{
 	// "/" is a special case in this code
 }
 
+// methodRules maps "METHOD url-prefix" to the minimal role. Entries take precedence
+// over rules, letting operations on a shared path differ by HTTP method.
+var methodRules = map[string]role{
+	// Template writes need editor; they share paths with the viewer-readable
+	// list (POST) or sit under it (PUT/DELETE), so they're qualified by method.
+	http.MethodPost + " /v1/alerting/templates":    editor,
+	http.MethodPut + " /v1/alerting/templates/":    editor,
+	http.MethodDelete + " /v1/alerting/templates/": editor,
+
+	// Advisor check writes share the editor-readable list (POST) or sit under it (PUT/DELETE).
+	// A check's queries run with the monitoring user's privileges, so only admins author and
+	// test checks; the test endpoint and the gRPC methods are in rules.
+	http.MethodPost + " /v1/advisors/checks":    admin,
+	http.MethodPut + " /v1/advisors/checks/":    admin,
+	http.MethodDelete + " /v1/advisors/checks/": admin,
+
+	// OM inventory writes.
+	http.MethodPost + " /v1/om/inventory/runs:trigger":        admin,
+	http.MethodDelete + " /v1/om/inventory/hosts/":            admin,
+	http.MethodDelete + " /v1/om/inventory/services/":         admin,
+	http.MethodPut + " /v1/om/inventory/config":               admin,
+	http.MethodDelete + " /v1/om/inventory/config/overrides/": admin,
+	http.MethodDelete + " /v1/om/inventory/config/":           admin,
+	// An install runs root commands on hosts and creates a root database user.
+	http.MethodPost + " /v1/om/inventory/hosts:bootstrap": admin,
+	http.MethodPost + " /v1/om/inventory/bootstrap-runs/": admin,
+}
+
 var lbacPrefixes = []string{
-	"/graph/api/datasources/uid",
 	"/graph/api/ds/query",
-	// "/graph/api/v1/labels", // Note: this path appears not to be used in Grafana
 	"/prometheus/api/v1/",
 	"/v1/qan/",
-	// https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
-	"/graph/api/datasources/proxy/1/api/v1/",
+	// Query details sit at /v1/qan:<method>, beside the /v1/qan/ tree; see PMM-15697.
+	"/v1/qan:",
+	// Grafana reaches the same data source under four route shapes -- proxy/<id>/,
+	// proxy/uid/<uid>/, <id>/resources/ and uid/<uid>/resources/ -- so match the whole
+	// tree instead of enumerating them: every shape left out is served unfiltered, and
+	// /graph requires no role, so nothing else stands between a viewer and raw data.
+	"/graph/api/datasources/",
+	// Alerting runs the queries of a rule being edited, previewed or backtested on the
+	// caller's behalf and returns what they select. One of these routes cannot carry the
+	// filters; see dropsFilters.
+	"/graph/api/v1/eval",
+	"/graph/api/v1/rule/",
 }
 
 const lbacHeaderName = "X-Proxy-Filter"
+
+// adminHeaderName marks a request whose caller was authenticated here as an admin, letting
+// vmproxy allow the admin-only diagnostics it otherwise refuses. The nginx config sets it
+// from this response on every location that can reach vmproxy, so a client-supplied value
+// never survives. It is only set where a rule requires a role: paths mapped to none, /graph
+// among them, are not authenticated here and so are never marked.
+const (
+	adminHeaderName  = "X-Proxy-Admin"
+	adminHeaderValue = "1"
+)
 
 // nginx auth_request directive supports only 401 and 403 - every other code results in 500.
 // Our APIs can return codes.PermissionDenied which maps to 403 / http.StatusForbidden.
@@ -144,8 +214,8 @@ const authenticationErrorCode = 401
 
 const (
 	// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
-	cacheInvalidationInterval = 3 * time.Second
-	authenticationTimeout     = 3 * time.Second
+	cacheInvalidationInterval = 60 * time.Second
+	authenticationTimeout     = 15 * time.Second
 )
 
 // clientError contains authentication error response details.
@@ -160,14 +230,27 @@ var ErrInvalidUserID = errors.New("InvalidUserID")
 // ErrCannotGetUserID is returned when we cannot retrieve user ID.
 var ErrCannotGetUserID = errors.New("CannotGetUserID")
 
+// errDotDotSegment is returned for a path that has a ".." segment once unescaped.
+var errDotDotSegment = errors.New("dot-dot segment in path")
+
+// errFiltersDropped is returned for a filtered user on a route that cannot carry the filters.
+var errFiltersDropped = errors.New("route drops LBAC filters")
+
+// errNotAuthenticated is returned when Grafana does not authenticate the caller of a filtered route.
+var errNotAuthenticated = errors.New("caller not authenticated")
+
+// cacheItem holds a cached authentication outcome: either the resolved user
+// or, for definitive rejections, the authentication error.
 type cacheItem struct {
 	u       authUser
+	authErr *authError // non-nil for a cached authentication failure
 	created time.Time
 }
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
-	getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
+	getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error)
+	rotateSessionToken(ctx context.Context, authHeaders http.Header) ([]string, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
@@ -231,7 +314,8 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		s.l.Debugf("Request:\n%s", b)
 	}
 
-	if err := extractOriginalRequest(req); err != nil {
+	err := extractOriginalRequest(req)
+	if err != nil {
 		s.l.Warnf("Failed to parse request: %s.", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -240,18 +324,36 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	l := s.l.WithField("req", fmt.Sprintf("%s %s", req.Method, req.URL.Path))
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
 
+	// Unescape and clean the URI once, and decide everything below on that one value. The
+	// original URI arrives raw, so matching it here and the cleaned path there lets a
+	// single %2F authorize a request as one path and filter it as another.
+	cleanedPath, err := cleanPath(req.URL.Path)
+	if err != nil {
+		l.Warnf("Refusing to authenticate path %s: %s", req.URL.Path, err)
+
+		// A ".." segment is a deliberate act rather than a malformed URI, so it is denied
+		// outright; everything else keeps reporting as an internal error.
+		authErr := &authError{code: codes.Internal, message: "Internal server error."}
+		if errors.Is(err, errDotDotSegment) {
+			authErr = &authError{code: codes.PermissionDenied, message: "Access denied"}
+		}
+
+		s.returnAuthError(rw, authErr, l)
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(req.Context(), authenticationTimeout)
 	defer cancel()
 
-	authUser, err := s.authenticate(ctx, req, l)
-	if err != nil {
-		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]any{
-			"code":    int(err.code),
-			"error":   err.message,
-			"message": err.message,
-		}
-		s.returnError(rw, m, l)
+	authUser, newCookies, authErr := s.authenticate(ctx, req, cleanedPath, l)
+	// Propagate a rotated Grafana session cookie regardless of the outcome:
+	// rotation invalidates the old token, so the client must receive the new
+	// one even on a response nginx turns into an error.
+	for _, c := range newCookies {
+		rw.Header().Add("Set-Cookie", c)
+	}
+	if authErr != nil {
+		s.returnAuthError(rw, authErr, l)
 		return
 	}
 
@@ -260,43 +362,83 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		userID = authUser.userID
 	}
 
-	if err := s.maybeAddLBACFilters(ctx, rw, req, userID, l); err != nil {
-		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]any{
-			"code":    int(codes.Internal),
-			"error":   "Internal server error.",
-			"message": "Internal server error.",
-		}
-		l.Errorf("Failed to add VMProxy filters: %s", err)
+	if authUser != nil && authUser.role >= admin {
+		rw.Header().Set(adminHeaderName, adminHeaderValue)
+	}
 
-		s.returnError(rw, m, l)
+	errF := s.maybeAddLBACFilters(ctx, rw, req, cleanedPath, userID, l)
+	if errors.Is(errF, errFiltersDropped) {
+		l.Warn("Refusing a filtered user a route that would serve them unfiltered.")
+		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
+		return
+	}
+	// A 401, not a 403: an expired session lands here too, and clients refresh a session on 401.
+	if errors.Is(errF, errNotAuthenticated) {
+		s.returnAuthError(rw, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, l)
+		return
+	}
+	if errors.Is(errF, ErrInvalidUserID) {
+		l.Warn("Refusing a filtered route to a caller without a user ID, such as a service account token.")
+		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
+		return
+	}
+	if errF != nil {
+		l.Errorf("Failed to add VMProxy filters: %s", errF)
+		s.returnAuthError(rw, &authError{code: codes.Internal, message: "Internal server error."}, l)
 		return
 	}
 }
 
-func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *logrus.Entry) {
-	// nginx completely ignores auth_request subrequest response body.
-	// We respond with 401 (authenticationErrorCode); our nginx configuration then sends
-	// the same request as a normal request to the same location and returns response body to the client.
+// returnAuthError renders an authError the way grpc-gateway does: the right code, and both
+// "error" and "message" set.
+func (s *AuthServer) returnAuthError(rw http.ResponseWriter, authErr *authError, l *logrus.Entry) {
+	m := map[string]any{
+		"code":    int(authErr.code),
+		"error":   authErr.message,
+		"message": authErr.message,
+	}
+
+	s.returnError(rw, httpStatusForAuthError(authErr.code), m, l)
+}
+
+// httpStatusForAuthError maps an authError code to the HTTP status nginx receives.
+// PermissionDenied uses 403 so nginx denies outright; the 401 re-run is a GET and would
+// wrongly pass method-specific rules. Authentication and internal errors stay 401.
+func httpStatusForAuthError(code codes.Code) int {
+	if code == codes.PermissionDenied {
+		return http.StatusForbidden
+	}
+	return authenticationErrorCode
+}
+
+func (s *AuthServer) returnError(rw http.ResponseWriter, status int, msg map[string]any, l *logrus.Entry) {
+	// nginx ignores the auth_request subrequest body: on 401 it re-runs the request to
+	// /auth_request to fetch this body; on 403 it serves a static body via error_page 403.
 	rw.Header().Set("Content-Type", "application/json")
 
-	rw.WriteHeader(authenticationErrorCode)
-	if err := json.NewEncoder(rw).Encode(msg); err != nil {
+	rw.WriteHeader(status)
+	err := json.NewEncoder(rw).Encode(msg)
+	if err != nil {
 		l.Warnf("%s", err)
 	}
 }
 
 // maybeAddLBACFilters adds extra filters to requests proxied through VMProxy.
 // In case the request is not proxied through VMProxy, this is a no-op.
-func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
-	if !s.shallAddLBACFilters(req) {
+// Matching happens on cleanedPath, the unescaped path the caller authenticated.
+func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, cleanedPath string, userID int, l *logrus.Entry) error {
+	if !s.shallAddLBACFilters(cleanedPath) {
+		l.Debugf("Skipping LBAC filters for non-proxied request.")
 		return nil
 	}
 
 	if userID == 0 {
 		l.Debugf("Getting authenticated user info")
-		authUser, err := s.getAuthUser(ctx, req, l)
+		authUser, _, err := s.getAuthUser(ctx, req, l)
 		if err != nil {
+			if err.code == codes.Unauthenticated {
+				return errNotAuthenticated
+			}
 			return ErrCannotGetUserID
 		}
 
@@ -320,9 +462,13 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 		return nil
 	}
 
+	if dropsFilters(cleanedPath) {
+		return errFiltersDropped
+	}
+
 	jsonFilters, err := json.Marshal(filters)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to marshal LBAC filters: %w", err)
 	}
 
 	rw.Header().Set(lbacHeaderName, base64.StdEncoding.EncodeToString(jsonFilters))
@@ -331,18 +477,28 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 }
 
 // shallAddLBACFilters decides if LBAC filters must be added to the outgoing request.
-func (s *AuthServer) shallAddLBACFilters(req *http.Request) bool {
+func (s *AuthServer) shallAddLBACFilters(cleanedPath string) bool {
 	if !s.accessControl.isEnabled() {
 		return false
 	}
 
 	for _, p := range lbacPrefixes {
-		if strings.HasPrefix(req.URL.Path, p) {
+		// Cleaning drops the trailing slash, so the directory itself is matched
+		// separately: a request for exactly the prefix must be filtered too.
+		if strings.HasPrefix(cleanedPath, p) || cleanedPath == strings.TrimSuffix(p, "/") {
 			return true
 		}
 	}
 
 	return false
+}
+
+// dropsFilters reports whether Grafana serves the path through a request of its own to the
+// data source, which leaves the filter header behind: the rule test of a data source-managed
+// rule. The Grafana-managed one evaluates in-process and forwards the header like a query.
+func dropsFilters(cleanedPath string) bool {
+	dsUID, ok := strings.CutPrefix(cleanedPath, "/graph/api/v1/rule/test/")
+	return ok && strings.TrimSuffix(dsUID, "/") != "grafana"
 }
 
 // getLBACFilters retrieves LBAC filters for the user.
@@ -408,10 +564,10 @@ func extractOriginalRequest(req *http.Request) error {
 		return errors.New("empty X-Original-Uri")
 	}
 	if origURI[0] != '/' {
-		return errors.Errorf("unexpected X-Original-Uri: %q", origURI)
+		return fmt.Errorf("unexpected X-Original-Uri: %s", origURI)
 	}
 	if !utf8.ValidString(origURI) {
-		return errors.Errorf("invalid X-Original-Uri: %q", origURI)
+		return fmt.Errorf("invalid X-Original-Uri: %s", origURI)
 	}
 
 	req.Method = origMethod
@@ -445,8 +601,29 @@ func nextPrefix(path string) string {
 	return path[:i+1]
 }
 
+// resolveRule returns the minimal role for the given method and path, plus the matched
+// prefix. It walks prefixes longest-to-shortest; a method-specific rule ("METHOD prefix")
+// beats a path-only rule at the same prefix, so read and write on a shared path can differ.
+// With no match it logs a warning and falls back to grafanaAdmin.
+func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
+	prefix := cleanedPath
+	for {
+		if r, ok := methodRules[method+" "+prefix]; ok {
+			return r, prefix
+		}
+		if r, ok := rules[prefix]; ok {
+			return r, prefix
+		}
+		if prefix == "/" {
+			l.Warn("No explicit rule, falling back to Grafana admin.")
+			return grafanaAdmin, prefix
+		}
+		prefix = nextPrefix(prefix)
+	}
+}
+
 func isLocalAgentConnection(req *http.Request) bool {
-	ip := strings.Split(req.RemoteAddr, ":")[0]
+	ip, _, _ := strings.Cut(req.RemoteAddr, ":")
 	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
 	if ip == "127.0.0.1" &&
@@ -457,43 +634,20 @@ func isLocalAgentConnection(req *http.Request) bool {
 	return false
 }
 
-// authenticate checks if user has access to a specific path.
-// It returns user information retrieved during authentication.
+// authenticate checks if user has access to a specific path, given as the unescaped
+// cleanedPath the caller also uses for LBAC.
+// It returns user information retrieved during authentication, and the Set-Cookie
+// headers of a Grafana session token rotation, if one happened; they must reach
+// the client even when access is denied, since rotation invalidates the old token.
 // Paths which require no Grafana role return zero value for
 // some user fields such as authUser.userID.
-func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
-	// Unescape the URL-encoded parts of the path.
-	p := req.URL.Path
-	cleanedPath, err := cleanPath(p)
-	if err != nil {
-		l.Warnf("Error while unescaping path %s: %q", p, err)
-		return nil, &authError{
-			code:    codes.Internal,
-			message: "Internal server error.",
-		}
-	}
-
-	// find the longest prefix present in rules
-	prefix := cleanedPath
-	for prefix != "/" {
-		if _, ok := rules[prefix]; ok {
-			break
-		}
-		prefix = nextPrefix(prefix)
-	}
-
-	// fallback to Grafana admin if there is no explicit rule
-	minRole, ok := rules[prefix]
-	if ok {
-		l = l.WithField("prefix", prefix)
-	} else {
-		l.Warn("No explicit rule, falling back to Grafana admin.")
-		minRole = grafanaAdmin
-	}
+func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, cleanedPath string, l *logrus.Entry) (*authUser, []string, *authError) {
+	minRole, prefix := resolveRule(req.Method, cleanedPath, l)
+	l = l.WithField("prefix", prefix)
 
 	if minRole == none {
-		l.Debugf("Minimal required role is %q, granting access without checking Grafana.", minRole)
-		return nil, nil
+		l.Debugf("Minimal required role is %s, granting access without checking Grafana.", minRole)
+		return nil, nil, nil
 	}
 
 	var user *authUser
@@ -509,62 +663,91 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 				userID: 0,
 			}
 		}
-	} else {
+	}
+
+	var newCookies []string
+	if user == nil {
 		var authErr *authError
 		// Get authenticated user from Grafana
-		user, authErr = s.getAuthUser(ctx, req, l)
+		user, newCookies, authErr = s.getAuthUser(ctx, req, l)
 		if authErr != nil {
-			return nil, authErr
+			return nil, nil, authErr
 		}
 	}
 	l = l.WithField("role", user.role.String())
 
 	if user.role == grafanaAdmin {
-		l.Debugf("Grafana admin, allowing access.")
-		return user, nil
+		l.Debugf("Grafana admin, granting access.")
+		return user, newCookies, nil
 	}
 
 	if minRole <= user.role {
-		l.Debugf("Minimal required role is %q, granting access.", minRole)
-		return user, nil
+		l.Debugf("Minimal required role is %s, granting access.", minRole)
+		return user, newCookies, nil
 	}
 
-	l.Warnf("Minimal required role is %q.", minRole)
-	return nil, &authError{code: codes.PermissionDenied, message: "Access denied."}
+	l.Warnf("Minimal required role is %s, denying access.", minRole)
+	return nil, newCookies, &authError{code: codes.PermissionDenied, message: "Access denied"}
 }
 
-func cleanPath(p string) (string, error) {
-	unescaped, err := url.PathUnescape(p)
+// cleanPath returns the unescaped, normalized path of the original URI, without its query
+// string.
+func cleanPath(uri string) (string, error) {
+	// Cut the query string off before anything else. Cleaning it together with the path
+	// lets a "../" inside it walk the path segments, so
+	// /prometheus/api/v1/query?x=/../../../../ping authenticates as /ping -- no role, no
+	// filters, and nginx forwards the original URI to VictoriaMetrics regardless. The
+	// fragment goes the same way; neither is part of what nginx matched a location on.
+	if i := strings.IndexAny(uri, "?#"); i >= 0 {
+		uri = uri[:i]
+	}
+
+	unescaped, err := url.PathUnescape(uri)
 	if err != nil {
 		return "", err
+	}
+
+	// Refuse a ".." segment rather than resolve it: nginx resolves it, but Grafana routes on
+	// the path as sent and leaves it to the data source, so
+	// /graph/api/datasources/proxy/1/api/v1/query/../../../../../../api/v1/query cleans to
+	// /graph/api/api/v1/query here, outside every filtered prefix, while vmproxy lands back
+	// on /api/v1/query. Browsers and curl resolve ".." before sending. An encoded '?' or '#'
+	// stays an ordinary character, as it does downstream; Grafana sends one for an alert
+	// rule group named with it.
+	if slices.Contains(strings.Split(unescaped, "/"), "..") {
+		return "", errDotDotSegment
 	}
 
 	cleanedPath := path.Clean(unescaped)
-
-	cleanedPath = strings.ReplaceAll(cleanedPath, "\n", " ")
-
-	u, err := url.Parse(cleanedPath)
-	if err != nil {
-		return "", err
+	// Clean drops a trailing slash, which separates a collection from a member for the
+	// method rules, so put it back.
+	if cleanedPath != "/" && strings.HasSuffix(unescaped, "/") {
+		cleanedPath += "/"
 	}
-	u.RawQuery = ""
-	return u.String(), nil
+
+	return strings.ReplaceAll(cleanedPath, "\n", " "), nil
 }
 
-func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
+func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, []string, *authError) {
 	// check Grafana with some headers from request
 	authHeaders := s.authHeaders(req)
 	j, err := json.Marshal(authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
+		return nil, nil, &authError{code: codes.Internal, message: "Internal server error."}
 	}
 	hash := base64.StdEncoding.EncodeToString(j)
 	s.rw.RLock()
 	item, ok := s.cache[hash]
 	s.rw.RUnlock()
-	if ok {
-		return &item.u, nil
+	// Check the item's age on read: the background invalidator runs only once per
+	// cacheInvalidationInterval, so without this an entry could be served for almost
+	// twice that long. Re-fetch once an entry is older than the interval.
+	if ok && time.Since(item.created) < cacheInvalidationInterval {
+		if item.authErr != nil {
+			return nil, nil, item.authErr
+		}
+		return &item.u, nil, nil
 	}
 
 	return s.retrieveRole(ctx, hash, authHeaders, l)
@@ -583,25 +766,148 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 	return authHeaders
 }
 
-func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
-	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
-	if err != nil {
-		l.Warnf("%s", err)
-		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
-			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
-				code = codes.Unauthenticated
-			}
-			return nil, &authError{code: code, message: cErr.ErrorMessage}
-		}
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
+func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, []string, *authError) {
+	authUser, err := s.c.getAuthUser(ctx, authHeaders)
+	if err == nil {
+		s.cacheAuthUser(hash, authUser)
+		return &authUser, nil, nil
 	}
+
+	if canRetryWithRotatedSession(err, authHeaders) {
+		newCookies, retryUser, retryErr := s.retryWithRotatedSession(ctx, authHeaders)
+		if retryErr == nil {
+			// Cache under the hash of the original headers even after a rotation: requests
+			// still carrying the old cookie (sent before the browser stores the new one)
+			// keep working for the cache lifetime.
+			s.cacheAuthUser(hash, retryUser)
+			return &retryUser, newCookies, nil
+		}
+		l.Debugf("Failed to rotate Grafana session token: %s.", retryErr)
+	}
+
+	l.Warnf("%s", err)
+	cErr, ok := errors.AsType[*clientError](err)
+	if !ok {
+		return nil, nil, &authError{code: codes.Internal, message: "Internal server error."}
+	}
+	code := codes.Internal
+	definitive := cErr.Code == http.StatusUnauthorized || cErr.Code == http.StatusForbidden
+	if definitive || errors.Is(err, errServiceTokenRejected) {
+		code = codes.Unauthenticated
+	}
+	authErr := &authError{code: code, message: cErr.ErrorMessage}
+	if definitive {
+		// Cache definitive rejections: clients polling with a dead session would
+		// otherwise cost Grafana two failed lookups (user + rotation) per request.
+		// Internal errors and rejected service tokens (a Grafana DB hiccup also
+		// answers 400) are not cached so a hiccup does not lock clients out for
+		// the cache lifetime.
+		s.rw.Lock()
+		s.cache[hash] = cacheItem{
+			authErr: authErr,
+			created: time.Now(),
+		}
+		s.rw.Unlock()
+	}
+
+	return nil, nil, authErr
+}
+
+func (s *AuthServer) cacheAuthUser(hash string, u authUser) {
 	s.rw.Lock()
 	s.cache[hash] = cacheItem{
-		u:       authUser,
+		u:       u,
 		created: time.Now(),
 	}
 	s.rw.Unlock()
+}
 
-	return &authUser, nil
+// canRetryWithRotatedSession reports whether the Grafana auth failure may be caused
+// by a session token past its rotation interval: Grafana rejects such tokens with
+// 401 and expects the client to rotate them explicitly. Only cookie-based sessions
+// rotate; Basic auth and API tokens do not.
+func canRetryWithRotatedSession(err error, authHeaders http.Header) bool {
+	cErr, ok := errors.AsType[*clientError](err)
+	if !ok || cErr.Code != http.StatusUnauthorized {
+		return false
+	}
+
+	return authHeaders.Get("Authorization") == "" && authHeaders.Get("Cookie") != ""
+}
+
+// retryWithRotatedSession rotates the Grafana session token from the request cookie
+// and retries the user lookup with the rotated one. It returns the Set-Cookie headers
+// that must reach the client: API-only clients such as the PMM UI never load Grafana
+// pages, so this is their only way to receive the rotated token before the old one
+// becomes invalid.
+func (s *AuthServer) retryWithRotatedSession(ctx context.Context, authHeaders http.Header) ([]string, authUser, error) {
+	setCookies, err := s.c.rotateSessionToken(ctx, authHeaders)
+	if err != nil {
+		return nil, emptyUser, err
+	}
+
+	headers := authHeaders
+	if len(setCookies) != 0 {
+		headers = headersWithRotatedCookies(authHeaders, setCookies)
+	}
+	u, err := s.c.getAuthUser(ctx, headers)
+	if err != nil {
+		return nil, emptyUser, err
+	}
+
+	return sessionCookieForClient(setCookies), u, nil
+}
+
+// sessionCookieName is the name of the Grafana session cookie
+// (login_cookie_name in grafana.ini).
+const sessionCookieName = "pmm_session"
+
+// sessionCookieForClient extracts the rotated session cookie from setCookies and
+// rewrites its path for the top level: Grafana scopes its cookies to the /graph
+// sub-path, but API clients need the session cookie on /v1 paths too (nginx does
+// the same rewrite for proxied Grafana responses via proxy_cookie_path). A single
+// Set-Cookie header is returned because nginx propagates only one from the auth
+// subrequest; the companion grafana_session_expiry cookie is dropped - it merely
+// schedules the Grafana frontend's own rotation and self-heals on the next
+// Grafana page load.
+func sessionCookieForClient(setCookies []string) []string {
+	for _, c := range (&http.Response{Header: http.Header{"Set-Cookie": setCookies}}).Cookies() {
+		if c.Name != sessionCookieName {
+			continue
+		}
+		c.Path = "/"
+		return []string{c.String()}
+	}
+
+	return nil
+}
+
+// headersWithRotatedCookies returns a copy of authHeaders whose Cookie header has
+// the cookies from setCookies applied on top of the original ones.
+func headersWithRotatedCookies(authHeaders http.Header, setCookies []string) http.Header {
+	rotated := (&http.Response{Header: http.Header{"Set-Cookie": setCookies}}).Cookies()
+	byName := make(map[string]string, len(rotated))
+	for _, c := range rotated {
+		byName[c.Name] = c.Value
+	}
+
+	pairs := make([]string, 0, len(rotated))
+	seen := make(map[string]struct{})
+	for _, c := range (&http.Request{Header: authHeaders}).Cookies() {
+		v := c.Value
+		if nv, ok := byName[c.Name]; ok {
+			v = nv
+		}
+		pairs = append(pairs, c.Name+"="+v)
+		seen[c.Name] = struct{}{}
+	}
+	for _, c := range rotated {
+		if _, ok := seen[c.Name]; !ok {
+			pairs = append(pairs, c.Name+"="+c.Value)
+		}
+	}
+
+	headers := authHeaders.Clone()
+	headers.Set("Cookie", strings.Join(pairs, "; "))
+	return headers
 }

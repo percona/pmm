@@ -12,11 +12,12 @@ import {
   addHighAvailability,
   addUsersAndAccess,
   addHomePage,
+  addExtensionsApps,
+  addOm,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
-import { useAdvisors } from 'hooks/api/useAdvisors';
 import { useColorMode } from 'hooks/theme';
-import { ALL_SERVICE_TYPES, INTERVALS_MS } from 'lib/constants';
+import { INTERVALS_MS } from 'lib/constants';
 import { useSettings } from 'contexts/settings';
 import {
   NAV_BACKUPS,
@@ -30,17 +31,17 @@ import { useFolders } from 'hooks/api/useFolders';
 import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useHaInfo } from 'hooks/api/useHA';
+import { useAuth } from 'contexts/auth';
+import { ServiceType } from 'types/services.types';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
+  const { isLoggedIn, isAnonymous } = useAuth();
   const { data: serviceTypes } = useServiceTypes({
     enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
   });
   const { settings } = useSettings();
-  const { data: advisors } = useAdvisors({
-    enabled: !!user?.isEditor,
-  });
   const { data: folders = [] } = useFolders();
   const { colorMode, toggleColorMode } = useColorMode();
   const { status, versionInfo } = useUpdates();
@@ -48,14 +49,17 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     'pmm-ui.sidebar.expanded',
     true
   );
-  const { data: haInfo } = useHaInfo();
+  const { data: haInfo } = useHaInfo({
+    enabled: !!user,
+  });
 
   const navTree = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [];
-    // provide all service types for anonymous mode
-    const currentServiceTypes = user
-      ? serviceTypes?.serviceTypes || []
-      : ALL_SERVICE_TYPES;
+    // Anonymous visitors can't list service types, so they get every database's dashboards;
+    // otherwise use the fetched ones, falling back to an empty list while unavailable.
+    const currentServiceTypes = isAnonymous
+      ? Object.values(ServiceType)
+      : serviceTypes?.serviceTypes || [];
 
     items.push(addHomePage(user?.preferences));
 
@@ -65,30 +69,56 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     items.push(NAV_DIVIDERS.home);
 
-    items.push(...addDashboardItems(currentServiceTypes, folders, user));
+    // Served by pmm-managed, so it is not gated with the PMM Extensions group: any
+    // signed-in user while the switch is on. Actions inside are admin-only.
+    const mongoExtras = user && settings?.omEnabled ? [addOm()] : [];
 
-    items.push(NAV_QAN);
+    items.push(
+      ...addDashboardItems(currentServiceTypes, folders, user, mongoExtras)
+    );
 
-    if (user && settings) {
+    if (user) {
+      items.push(NAV_QAN);
 
-      if (settings.frontend.exploreEnabled && user.isEditor) {
-        items.push(addExplore(settings.frontend));
+      if (settings?.frontend.exploreEnabled && user.isEditor) {
+        items.push(
+          addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps)
+        );
       }
 
-      if (settings.frontend.unifiedAlertingEnabled) {
-        items.push(addAlerting(settings?.alertingEnabled, user));
+      items.push(
+        addAlerting(
+          settings?.alertingEnabled,
+          settings?.frontend.unifiedAlertingEnabled,
+          user
+        )
+      );
+
+      if (user.isEditor && settings?.advisorEnabled) {
+        items.push(addAdvisors());
       }
 
-      if (user.isEditor && settings.advisorEnabled) {
-        items.push(addAdvisors(advisors || []));
+      items.push(NAV_DIVIDERS.inventory);
+
+      if (user.isPMMAdmin) {
+        items.push(NAV_INVENTORY);
+      }
+
+      // PMM Extensions apps mounted as native routes, grouped under "Apps" and
+      // placed right below Inventory so no pre-existing entry moves. Offered to
+      // every signed-in user, not only admins: the side-car's API serves its reads to
+      // any authenticated session and holds every unsafe method to
+      // administrators, so a non-admin gets a read-only view with no write
+      // control rendered (PMM-15358).
+      //
+      // PMM Extensions navigation is withheld when the integration is disabled
+      // (PMM_ENABLE_EXTENSIONS).
+      if (settings?.extensionsEnabled) {
+        items.push(...addExtensionsApps());
       }
 
       if (user.isPMMAdmin) {
-        items.push(NAV_DIVIDERS.inventory);
-
-        items.push(NAV_INVENTORY);
-
-        if (settings.backupManagementEnabled) {
+        if (settings?.backupManagementEnabled) {
           items.push(NAV_BACKUPS);
         }
 
@@ -96,28 +126,35 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
         items.push(addConfiguration(status, versionInfo));
 
-        items.push(addUsersAndAccess(settings));
+        if (settings) {
+          items.push(addUsersAndAccess(settings));
+        }
       }
 
-      items.push(addAccount(user, colorMode, toggleColorMode));
+      if (isLoggedIn) {
+        items.push(addAccount(user, colorMode, toggleColorMode));
+      }
 
       items.push(NAV_HELP);
-    } else {
+    }
+
+    if (!isLoggedIn) {
       items.push(NAV_SIGN_IN);
     }
 
     return items;
   }, [
+    serviceTypes?.serviceTypes,
+    user,
+    haInfo,
+    folders,
+    settings,
+    colorMode,
+    toggleColorMode,
     status,
     versionInfo,
-    serviceTypes,
-    folders,
-    user,
-    settings,
-    advisors,
-    colorMode,
-    haInfo,
-    toggleColorMode,
+    isLoggedIn,
+    isAnonymous,
   ]);
 
   return (

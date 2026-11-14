@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	"github.com/percona/pmm/api/inventory/v1/json/client/services_service"
@@ -222,7 +223,7 @@ func TestListJSONOutput(t *testing.T) {
 		}
 
 		res, err := json.Marshal(result)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		expected := `
 		{
 			"service": [
@@ -301,7 +302,7 @@ func TestListJSONOutput(t *testing.T) {
 		}
 
 		res, err := json.Marshal(result)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		expected := `{"service":[],"agent":[]}`
 		assert.Equal(t, expected, string(res))
 	})

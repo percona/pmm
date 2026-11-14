@@ -147,6 +147,8 @@ func (m *Dump) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Encrypted
+
 	if len(errors) > 0 {
 		return DumpMultiError(errors)
 	}
@@ -211,8 +213,7 @@ func (e DumpValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DumpValidationError{}
@@ -309,6 +310,10 @@ func (m *StartDumpRequest) validate(all bool) error {
 
 	// no validation rules for IgnoreLoad
 
+	// no validation rules for EnableEncryption
+
+	// no validation rules for EncryptionPassword
+
 	if len(errors) > 0 {
 		return StartDumpRequestMultiError(errors)
 	}
@@ -374,8 +379,7 @@ func (e StartDumpRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartDumpRequestValidationError{}
@@ -479,8 +483,7 @@ func (e StartDumpResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartDumpResponseValidationError{}
@@ -580,8 +583,7 @@ func (e ListDumpsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListDumpsRequestValidationError{}
@@ -717,8 +719,7 @@ func (e ListDumpsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListDumpsResponseValidationError{}
@@ -852,8 +853,7 @@ func (e DeleteDumpRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DeleteDumpRequestValidationError{}
@@ -955,8 +955,7 @@ func (e DeleteDumpResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DeleteDumpResponseValidationError{}
@@ -1073,8 +1072,7 @@ func (e GetDumpLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetDumpLogsRequestValidationError{}
@@ -1212,8 +1210,7 @@ func (e GetDumpLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetDumpLogsResponseValidationError{}
@@ -1316,8 +1313,7 @@ func (e LogChunkValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LogChunkValidationError{}
@@ -1452,8 +1448,7 @@ func (e SFTPParametersValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SFTPParametersValidationError{}
@@ -1627,8 +1622,7 @@ func (e UploadDumpRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UploadDumpRequestValidationError{}
@@ -1730,8 +1724,7 @@ func (e UploadDumpResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UploadDumpResponseValidationError{}

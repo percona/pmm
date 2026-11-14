@@ -80,7 +80,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -99,7 +99,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
 				AgentID:                listAgents.Payload.PostgresExporter[0].AgentID,
@@ -164,7 +164,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -183,7 +183,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, listAgents)
 		require.Len(t, listAgents.Payload.PostgresExporter, 1)
 		require.Len(t, listAgents.Payload.QANPostgresqlPgstatementsAgent, 1)
@@ -273,7 +273,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -691,7 +691,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -710,7 +710,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
 				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
@@ -769,7 +769,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -788,7 +788,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
 				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
@@ -846,7 +846,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
@@ -865,7 +865,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
 			{
 				AgentID:                listAgents.Payload.PostgresExporter[0].AgentID,

@@ -104,7 +104,14 @@ func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 		return net.JoinHostPort(address, strconv.FormatInt(port, 10))
 	}
 
-	var servicesList []listResultService //nolint:prealloc
+	servicesList := make([]listResultService, 0,
+		len(result.Payload.Mysql)+
+			len(result.Payload.Mongodb)+
+			len(result.Payload.Postgresql)+
+			len(result.Payload.Valkey)+
+			len(result.Payload.Proxysql)+
+			len(result.Payload.Haproxy)+
+			len(result.Payload.External))
 	for _, s := range result.Payload.Mysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMySQLService,

@@ -18,13 +18,13 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/resolve"
 	"golang.org/x/sys/unix"
@@ -40,6 +40,9 @@ import (
 const (
 	cpuLimit         = 4 * time.Second
 	memoryLimitBytes = 1024 * 1024 * 1024
+
+	// File descriptor pmm-managed wires for the captured print() output.
+	printOutputFD = 3
 
 	// Only used for testing.
 	starlarkRecursionFlag = "PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION"
@@ -90,20 +93,21 @@ func main() {
 	var data checks.StarlarkScriptData
 	err = decoder.Decode(&data)
 	if err != nil {
-		l.Errorf("Error decoding json data: %s", err)
+		// write to stderr as plain text so pmm-managed can surface the cause instead of a bare exit code
+		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 
 	results, err := runChecks(l, &data)
 	if err != nil {
-		l.Errorf("Error running starlark script: %+v", err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
 
 	encoder := json.NewEncoder(os.Stdout)
 	err = encoder.Encode(results)
 	if err != nil {
-		l.Errorf("Error encoding JSON results: %s", err)
+		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 }
@@ -111,12 +115,12 @@ func main() {
 func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result, error) {
 	funcs, err := checks.GetFuncsForVersion(data.Version)
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting funcs")
+		return nil, err
 	}
 
 	env, err := starlark.NewEnv(data.Name, data.Script, funcs)
 	if err != nil {
-		return nil, errors.Wrap(err, "error initializing starlark env")
+		return nil, fmt.Errorf("error initializing starlark env: %w", err)
 	}
 
 	res := make([]any, len(data.QueriesResults))
@@ -127,32 +131,40 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 			for dbName, dbQr := range qr {
 				s, ok := dbQr.(string)
 				if !ok {
-					return nil, errors.Errorf("unexpected query result type: %T", dbQr)
+					return nil, fmt.Errorf("unexpected query result type: %T", dbQr)
 				}
-				if dbRes[dbName], err = unmarshalQueryResult(s); err != nil {
+				dbRes[dbName], err = unmarshalQueryResult(s)
+				if err != nil {
 					return nil, err
 				}
 			}
 			res[i] = dbRes
 		case string: // used for all other databases
-			if res[i], err = unmarshalQueryResult(qr); err != nil {
+			res[i], err = unmarshalQueryResult(qr)
+			if err != nil {
 				return nil, err
 			}
 		default:
-			return nil, errors.Errorf("unknown query result type %T", qr)
+			return nil, fmt.Errorf("unknown query result type %T", qr)
+		}
+	}
+
+	// print() output is normally debug-logged; for check test runs it is emitted
+	// as plain lines on the dedicated pipe (fd 3, wired by pmm-managed) so it
+	// reaches the check author without mixing into stderr's error channel
+	var printFn starlark.PrintFunc = l.Debugln
+	if data.CapturePrintOutput {
+		printOut := os.NewFile(printOutputFD, "print-output")
+		printFn = func(args ...any) {
+			_, _ = fmt.Fprintln(printOut, args...)
 		}
 	}
 
 	var results []check.Result
 	contextFuncs := checks.GetAdditionalContext()
-	switch data.Version {
-	case 1:
-		results, err = env.Run(data.Name, res[0], contextFuncs, l.Debugln)
-	case 2:
-		results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
-	}
+	results, err = env.Run(data.Name, res, contextFuncs, printFn)
 	if err != nil {
-		return nil, errors.Wrap(err, "error running starlark env")
+		return nil, err
 	}
 
 	return results, nil
@@ -161,12 +173,12 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 func unmarshalQueryResult(qr string) ([]map[string]any, error) {
 	b, err := base64.StdEncoding.DecodeString(qr)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode base64 encoded query result")
+		return nil, err
 	}
 
 	res, err := agentv1.UnmarshalActionQueryResult(b)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal query result")
+		return nil, err
 	}
 
 	return res, nil

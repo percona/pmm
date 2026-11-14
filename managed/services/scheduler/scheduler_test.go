@@ -57,10 +57,8 @@ func TestService(t *testing.T) {
 
 		location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 			Name: "test_location",
-			BackupLocationConfig: models.BackupLocationConfig{
-				FilesystemConfig: &models.FilesystemLocationConfig{
-					Path: "/tmp",
-				},
+			FilesystemConfig: &models.FilesystemLocationConfig{
+				Path: "/tmp",
 			},
 		})
 		require.NoError(t, err)
@@ -143,6 +141,6 @@ func TestService(t *testing.T) {
 		assert.Empty(t, scheduler.scheduler.Jobs())
 
 		_, err = models.FindScheduledTaskByID(scheduler.db.Querier, dbTask.ID)
-		assert.ErrorIs(t, err, models.ErrNotFound)
+		require.ErrorIs(t, err, models.ErrNotFound)
 	})
 }

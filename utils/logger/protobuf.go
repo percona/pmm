@@ -1,21 +1,21 @@
 // Copyright (C) 2023 Percona LLC
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Affero General Public License for more details.
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU Affero General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package logger
 
 import (
+	"regexp"
 	"strings"
 	"sync"
 
@@ -192,8 +192,22 @@ func maskString(s string) string {
 	}
 }
 
+// envSecretRe matches KEY=value environment entries whose key names a secret. The key may contain
+// anything but "=", "@" and whitespace: a process inherits host variables with names outside the
+// shell alphabet, while a DSN with credentials always carries "@" before its first "=", so a
+// database or user called "tokens" cannot turn a DSN into a key and echo its password. The value
+// may span lines (the s flag), so a multiline secret cannot fall through to the DSN heuristic
+// unmasked.
+var envSecretRe = regexp.MustCompile(`(?is)^([^=@\s]*(?:password|passwd|secret|token)[^=@\s]*)=(.+)$`)
+
 // MaskDSN returns a masked copy of DSN string, which masks username and password in DSN.
+// It also masks the value of a KEY=value environment entry whose key names a secret.
 func MaskDSN(s string) string {
+	// Before the DSN heuristics: a secret value may itself contain "@".
+	if m := envSecretRe.FindStringSubmatch(s); m != nil {
+		return m[1] + "=" + maskedString
+	}
+
 	at := strings.LastIndex(s, "@")
 	if at <= 0 {
 		return s

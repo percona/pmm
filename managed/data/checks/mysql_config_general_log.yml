@@ -4,11 +4,9 @@ checks:
     name: mysql_config_general_log
     summary: General Log is enabled
     description: Check if the general log is enabled.
-    interval: standard
-    advisor: configuration_generic
-    #subcategory: generic
-    #author: The Grinch
-    family: MYSQL
+    category: Logging
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@global.general_log as general_log, @@version as version, @@hostname as service;"
@@ -32,7 +30,7 @@ checks:
               }
 
       def check_context(docs, context):
-          read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+          read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
           results = []
 
           in_result = check_general_log(docs[0],read_url)

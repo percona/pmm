@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package queryparser provides functionality for queries parsing.
 package queryparser
 
 import (
+	"maps"
 	"regexp"
 	"strings"
 )
@@ -40,9 +40,7 @@ func parseComments(query string, quotedRegexp *regexp.Regexp, commentRegexp *reg
 	result := make(map[string]string)
 	comments := extractComments(query, quotedRegexp, commentRegexp)
 	for _, c := range comments {
-		for k, v := range parseKeyValueFromComment(c) {
-			result[k] = v
-		}
+		maps.Copy(result, parseKeyValueFromComment(c))
 	}
 
 	return result, nil
@@ -76,7 +74,7 @@ func parseKeyValueFromComment(s string) map[string]string {
 	res := make(map[string]string)
 	matches := keyValueRegexp.FindAllStringSubmatch(s, -1)
 	for _, v := range matches {
-		if len(v) < 3 {
+		if len(v) < 3 { //nolint:mnd
 			continue
 		}
 		res[v[1]] = v[2]
