@@ -49,6 +49,16 @@
       dest: /usr/share/pmm-server/maintenance/
       mode: 0664
 
+  - name: Wait for PostgreSQL to become responsive
+    wait_for:
+      host: 127.0.0.1
+      port: 5432
+      timeout: 150
+    when:
+      - lookup('env','GF_DATABASE_URL') == ''
+      - lookup('env','GF_DATABASE_HOST') == ''
+      - lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') == ''
+
   # Bundled Grafana plugins are synced by the container entrypoint.
   # Only the version marker is managed here; it also drives the
   # need_initialization/need_upgrade facts above.
