@@ -111,6 +111,8 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 - [PMM-15910](https://perconadev.atlassian.net/browse/PMM-15910): Fixed an issue where PMM Server could stay unhealthy after an abrupt stop, for example `docker kill`, a host crash or running out of memory. The built-in PostgreSQL database refused to start because of lock files left over from the previous run. PMM Server now removes these files when it starts.
 
+- [PMM-15919](https://perconadev.atlassian.net/browse/PMM-15919): Fixed an issue where the PMM UI was unavailable after upgrading from PMM 3.9.1 or earlier if you had set Grafana's database password with `GF_DATABASE_PASSWORD`. The upgrade reset this password to the default. PMM Server now keeps the password you set. This also fixes Grafana failing once on the first start.
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?

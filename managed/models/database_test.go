@@ -17,9 +17,12 @@
 package models_test
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/lib/pq"
 	"github.com/lib/pq/pqerror"
@@ -598,4 +601,55 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.NoError(t, err)
 		assert.Zero(t, count)
 	})
+}
+
+func TestSetupDBKeepsRolePasswordOutOfPgStatStatements(t *testing.T) {
+	root := testdb.Open(t, models.SkipFixtures, nil)
+
+	_, err := root.ExecContext(t.Context(), `CREATE EXTENSION IF NOT EXISTS pg_stat_statements`)
+	require.NoError(t, err)
+	_, err = root.ExecContext(t.Context(), `SELECT 1 FROM pg_stat_statements LIMIT 1`)
+	if err != nil {
+		t.Skipf("pg_stat_statements is not loaded: %s", err)
+	}
+
+	for _, tc := range []struct {
+		name       string
+		roleExists bool
+	}{
+		{name: "creates the role", roleExists: false},
+		{name: "resets the password of an existing role", roleExists: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			suffix := strconv.FormatInt(time.Now().UnixNano(), 36)
+			params := models.SetupDBParams{
+				Address:       models.DefaultPostgreSQLAddr,
+				Name:          "pmm-test-" + suffix,
+				Username:      "pmm-test-" + suffix,
+				Password:      "secret-" + suffix,
+				SetupFixtures: models.SkipFixtures,
+			}
+			t.Cleanup(func() {
+				ctx := context.WithoutCancel(t.Context())
+				_, _ = root.ExecContext(ctx, `DROP DATABASE IF EXISTS `+pq.QuoteIdentifier(params.Name)+` WITH (FORCE)`)
+				_, _ = root.ExecContext(ctx, `DROP ROLE IF EXISTS `+pq.QuoteIdentifier(params.Username))
+			})
+			if tc.roleExists {
+				_, err := root.ExecContext(t.Context(), `CREATE ROLE `+pq.QuoteIdentifier(params.Username)+` LOGIN PASSWORD 'another'`)
+				require.NoError(t, err)
+			}
+
+			// The role can't log in with this password yet, so SetupDB sets it through the superuser connection.
+			sqlDB, err := models.OpenDB(params)
+			require.NoError(t, err)
+			_, err = models.SetupDB(t.Context(), sqlDB, params)
+			require.NoError(t, err)
+			require.NoError(t, sqlDB.Close())
+
+			var recorded int
+			err = root.QueryRowContext(t.Context(), `SELECT count(*) FROM pg_stat_statements WHERE query LIKE '%' || $1 || '%'`, params.Password).Scan(&recorded)
+			require.NoError(t, err)
+			assert.Zero(t, recorded, "pg_stat_statements recorded the role's password")
+		})
+	}
 }
