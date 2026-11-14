@@ -356,6 +356,10 @@ func TestCurrentDate(t *testing.T) {
 	got, err := runDateScript(t, "current_date()")
 	require.NoError(t, err)
 	assert.Equal(t, "2026-11-12", got)
+
+	_, err = runDateScript(t, `current_date("2026-11-12")`)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "expected 0 arguments, got 1")
 }
 
 func TestDaysUntil(t *testing.T) {

@@ -143,10 +143,7 @@ func daysUntil(args ...any) (any, error) {
 		return nil, fmt.Errorf("failed to parse %q", s)
 	}
 
-	today, err := time.Parse(dateLayout, now().UTC().Format(dateLayout))
-	if err != nil {
-		return nil, err
-	}
+	today := now().UTC().Truncate(24 * time.Hour) //nolint:mnd
 
 	return int64(d.Sub(today) / (24 * time.Hour)), nil //nolint:mnd
 }
