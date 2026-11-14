@@ -283,7 +283,7 @@ For parameter details, see [Nomad client garbage collection documentation](https
 ### Supported external variables
 PMM Server passes these variables to integrated components:
 
-- **Grafana**: All `GF_*` variables (e.g., `GF_SECURITY_ADMIN_PASSWOR`)
+- **Grafana**: All `GF_*` variables, such as `GF_AUTH_ANONYMOUS_ENABLED`. Set this to `true` to let visitors view your dashboards without signing in. These visitors can't use PMM features such as Query Analytics.
 - **VictoriaMetrics**: All `VM_*` variables (e.g., VM_retentionPeriod)
 - **Kubernetes**: All `KUBERNETES_*` variables
 - **System variables**: Standard variables like `HOME`, `PATH`, etc.

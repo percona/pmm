@@ -260,9 +260,8 @@ func fakeSupervisorctl(t *testing.T, output string, exitCode int) string {
 	return path
 }
 
+// Not parallel: on Linux, exec of a fake script fails with ETXTBSY while another test is writing one.
 func TestProgramRunningStatuses(t *testing.T) {
-	t.Parallel()
-
 	// Output and exit codes below were captured from supervisorctl in a PMM Server container.
 	// UNKNOWN is the one state that cannot be induced on demand, so its line is synthetic.
 	for _, tc := range []struct {
@@ -283,8 +282,6 @@ func TestProgramRunningStatuses(t *testing.T) {
 		{"no output", "", 4, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
 			s := &Service{
 				supervisorctlPath: fakeSupervisorctl(t, tc.output, tc.exitCode),
 				l:                 logrus.WithField("component", "supervisord-test"),

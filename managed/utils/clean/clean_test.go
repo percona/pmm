@@ -16,10 +16,10 @@
 package clean
 
 import (
-	"context"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -81,15 +81,8 @@ func TestCleaner(t *testing.T) {
 		db, q, teardown := setup(t)
 		defer teardown(t)
 
-		ctx, cancel := context.WithTimeout(t.Context(), 1*time.Second)
-		defer cancel()
-
-		c := New(db)
-		go func() {
-			c.Run(ctx, 5*time.Second, 5*time.Second) // delete rows older that 5 seconds
-		}()
-		// give the cleaner the chance to run
-		time.Sleep(100 * time.Millisecond)
+		// Run a single cleanup pass synchronously, deleting rows older than 5 seconds.
+		New(db).cleanup(logrus.WithField("component", "test"), 5*time.Second)
 
 		_, err := models.FindActionResultByID(q, "A1")
 		require.Error(t, err)

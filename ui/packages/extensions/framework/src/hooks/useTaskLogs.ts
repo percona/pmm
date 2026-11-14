@@ -317,7 +317,7 @@ export function useTaskLogs(
           return;
         }
         // Server closed the connection without a finish/extensions-error frame.
-        setError({ detail: { message: 'Task log stream connection closed.' } });
+        setError({ detail: { message: 'Log stream connection closed.' } });
         streamStatusRef.current = 'error';
         setStreamStatus('error');
       },
