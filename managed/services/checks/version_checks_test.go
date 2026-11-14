@@ -323,7 +323,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.4.0", "MySQL Community Server - GPL", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{newerMySQL("MySQL", "8.4.0", "8.4.13")},
-			descContains: []string{"Current version is 8.4.0, the latest release of MySQL 8.4 is 8.4.13.", "can include security fixes", "https://www.oracle.com/security-alerts/", "Release notes: https://dev.mysql.com/doc/relnotes/mysql/8.4/en/."},
+			descContains: []string{"Current version is 8.4.0, the latest release of MySQL 8.4 is 8.4.13. MySQL 8.4 reaches end of life on 2032-04-30.", "can include security fixes", "https://www.oracle.com/security-alerts/", "Release notes: https://dev.mysql.com/doc/relnotes/mysql/8.4/en/."},
 		},
 		{
 			name:         "mysql_version Oracle 9.7.0",
@@ -378,7 +378,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("10.11.2-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{newerMySQL("MariaDB", "10.11.2-MariaDB", "10.11.19")},
-			descContains: []string{"security fixes", "https://mariadb.org/about/security-policy/", "Release notes: https://mariadb.com/docs/release-notes/community-server/mariadb-10-11-series/what-is-mariadb-1011."},
+			descContains: []string{"security fixes", "https://mariadb.com/docs/server/security/cve/community-server", "Release notes: https://mariadb.com/docs/release-notes/community-server/mariadb-10-11-series/what-is-mariadb-1011."},
 			descExcludes: []string{"10.9.2", "10.4.26", "https://www.oracle.com/"},
 		},
 		{
@@ -409,7 +409,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("8.4.3", "Source distribution", "/rdsdbbin/mysql-8.4.3.R1/", "/rdsdbdata/db/")},
 			want:         []finding{newerMySQL("Amazon RDS for MySQL", "8.4.3", "8.4.11")},
-			descContains: []string{"security fixes", "Release notes: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html."},
+			descContains: []string{"Amazon RDS for MySQL 8.4 reaches end of standard support on 2029-07-31.", "security fixes", "Release notes: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html."},
 		},
 		{
 			name:         "mysql_version RDS MariaDB 10.11.8 follows MariaDB",
@@ -417,7 +417,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mysqlVariables("10.11.8-MariaDB-log", "Source distribution", "/rdsdbbin/mariadb-10.11.8.R1/", "/rdsdbdata/db/")},
 			want:         []finding{newerMySQL("MariaDB", "10.11.8-MariaDB-log", "10.11.19")},
-			descContains: []string{"https://mariadb.org/about/security-policy/"},
+			descContains: []string{"https://mariadb.com/docs/server/security/cve/community-server"},
 		},
 		{
 			name:  "mysql_version Aurora",
@@ -598,7 +598,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        "2027-12-01",
 			docs:         [][]map[string]any{mysqlVariables("10.11.9-MariaDB", "MariaDB Server", "/usr/", "/var/lib/mysql/")},
 			want:         []finding{mysqlEOL("MariaDB", "warning", "10.11.9-MariaDB", "10.11", "2028-02-16")},
-			descContains: []string{"10.11.19", "https://mariadb.org/about/security-policy/", "Lifecycle policy: https://mariadb.org/about/#maintenance-policy.", "Release notes: https://mariadb.com/docs/release-notes/community-server/mariadb-10-11-series/what-is-mariadb-1011."},
+			descContains: []string{"10.11.19", "https://mariadb.com/docs/server/security/cve/community-server", "Lifecycle policy: https://mariadb.org/about/#maintenance-policy.", "Release notes: https://mariadb.com/docs/release-notes/community-server/mariadb-10-11-series/what-is-mariadb-1011."},
 		},
 		{
 			name:         "mysql_version RDS 8.4.7 within 183 days",
@@ -615,7 +615,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			docs:         [][]map[string]any{psmdbBuildInfo("6.0.19-16")},
 			want:         []finding{mongoEOL(psmdb, "error", "6.0.19-16", "6.0", "2025-07-31")},
 			descContains: []string{"2025-07-31", psmdbLifecycle},
-			descExcludes: []string{mongoVersion(tableInt(t, psmdbLatest, "6.0")), "Release notes", "can include security fixes"},
+			descExcludes: []string{"Release notes", "can include security fixes", "Newer version"},
 		},
 		{
 			name:         "mongodb_version 5.0.31 past EOL",
@@ -692,7 +692,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{mongoBuildInfo("8.0.4")},
 			want:         []finding{newerMongo("MongoDB", "8.0.4", mongoVersion(tableInt(t, mongoLatest, "8.0")))},
-			descContains: []string{"the latest release of MongoDB 8.0 is " + mongoVersion(tableInt(t, mongoLatest, "8.0")), "A newer release series, " + mongoLatestSeries + ", is also available", mongoNotes + "8.0/", "https://www.mongodb.com/resources/products/alerts"},
+			descContains: []string{"the latest release of MongoDB 8.0 is " + mongoVersion(tableInt(t, mongoLatest, "8.0")), "MongoDB 8.0 reaches end of life on 2029-10-31.", "A newer release series, " + mongoLatestSeries + ", is also available", mongoNotes + "8.0/", "https://www.mongodb.com/resources/products/alerts"},
 			descExcludes: []string{"percona.com"},
 		},
 		{
@@ -858,8 +858,8 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{pgVersionRows(170005)},
 			want:         []finding{newerPG("17.5", pgVersion(tableInt(t, pgLatest, "17")))},
-			descContains: []string{"Current version is 17.5, the latest release of PostgreSQL 17 is " + pgVersion(tableInt(t, pgLatest, "17")) + ".", "PostgreSQL 17 reaches end of life on " + pgExpires["17"], "Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, "17")) + "/.", "security fixes", "https://www.postgresql.org/support/security/"},
-			descExcludes: []string{"newer major version"},
+			descContains: []string{"Current version is 17.5, the latest release of PostgreSQL 17 is " + pgVersion(tableInt(t, pgLatest, "17")) + ". A newer major version, " + pgLatestSeries + ", is also available.", "PostgreSQL 17 reaches end of life on " + pgExpires["17"], "Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, "17")) + "/.", "security fixes", "https://www.postgresql.org/support/security/"},
+			descExcludes: []string{"Upgrade one major version"},
 		},
 		{
 			name:         "postgresql_version_check 170005 on EOL day",
@@ -891,7 +891,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{pgVersionRows(tableInt(t, pgLatest, "16"))},
 			want:         []finding{newerPG(pgVersion(tableInt(t, pgLatest, "16")), pgVersion(tableInt(t, pgLatest, pgLatestSeries)))},
-			descContains: []string{"the latest release of PostgreSQL 16. A newer major version, " + pgVersion(tableInt(t, pgLatest, pgLatestSeries)) + ", is available.", "PostgreSQL 16 reaches end of life on " + pgExpires["16"], "Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, pgLatestSeries)) + "/."},
+			descContains: []string{"the latest release of PostgreSQL 16. A newer major version, " + pgLatestSeries + ", is available.", "PostgreSQL 16 reaches end of life on " + pgExpires["16"], "Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, pgLatestSeries)) + "/."},
 			descExcludes: []string{"security fixes"},
 		},
 		{
@@ -941,6 +941,15 @@ func TestBuiltinVersionChecks(t *testing.T) {
 				promVector(map[string]string{"node_name": "n1", "service_name": "s1", "rs_nm": "rs"}, "101"),
 				promVector(map[string]string{"node_name": "n1", "service_name": "s2", "rs_nm": "rs2"}, "202")...)},
 			want: []finding{{Severity: "warning", Summary: "MongoDB - multiple mongod services running"}},
+		},
+		{
+			name:  "mongodb_multiple_services one mongod added as two services",
+			check: "mongodb_multiple_services",
+			today: today,
+			docs: [][]map[string]any{append(
+				promVector(map[string]string{"node_name": "n1", "service_name": "s1"}, "101"),
+				promVector(map[string]string{"node_name": "n1", "service_name": "s2"}, "101")...)},
+			want: []finding{},
 		},
 		{
 			name:  "mongodb_multiple_services two standalones on one node",

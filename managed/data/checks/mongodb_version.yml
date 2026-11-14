@@ -10,22 +10,20 @@ checks:
     queries:
       - type: MONGODB_BUILDINFO
     script: |
+      # The latest release of each series, from the release notes in RELEASE_NOTES; a series past EOL needs no row.
       LATEST_VERSIONS = {
           # The PSMDB team keeps this table current.
           "psmdb": {
-              "4.4": 40429,  # https://docs.percona.com/percona-server-for-mongodb/4.4/release_notes/index.html
-              "5.0": 50029,  # https://docs.percona.com/percona-server-for-mongodb/5.0/release_notes/index.html
-              "6.0": 60029,  # https://docs.percona.com/percona-server-for-mongodb/6.0/release_notes/index.html
-              "7.0": 70048,  # https://docs.percona.com/percona-server-for-mongodb/7.0/release_notes/index.html
-              "8.0": 80038,  # https://docs.percona.com/percona-server-for-mongodb/8.0/release_notes/index.html
-              "8.3": 80313,  # https://docs.percona.com/percona-server-for-mongodb/8.3/release_notes/index.html
+              "7.0": 70048,
+              "8.0": 80038,
+              "8.3": 80313,
           },
-          # The PMM team keeps this table current. Series past EOL need no row.
+          # The PMM team keeps this table current.
           "mongodb": {
-              "7.0": 70048,  # https://www.mongodb.com/docs/manual/release-notes/7.0/
-              "8.0": 80038,  # https://www.mongodb.com/docs/manual/release-notes/8.0/
-              "8.3": 80317,  # https://www.mongodb.com/docs/manual/release-notes/8.3/
-              "9.0": 90008,  # https://www.mongodb.com/docs/manual/release-notes/9.0/
+              "7.0": 70048,
+              "8.0": 80038,
+              "8.3": 80317,
+              "9.0": 90008,
           },
       }
 
@@ -44,10 +42,8 @@ checks:
           "mongodb": "https://www.mongodb.com/legal/support-policy/lifecycles",
       }
 
-      # The PMM team keeps this table current. PSMDB follows the MongoDB dates.
-      # Rows follow the "MongoDB Server" table; add a series once it lists an EOL date.
-      # https://www.mongodb.com/legal/support-policy/lifecycles
-      # https://www.percona.com/release-lifecycle-percona-software-for-mongodb/
+      # The PMM team keeps this table current from the "MongoDB Server" table at LIFECYCLE["mongodb"], which PSMDB follows.
+      # Add a series once that table lists its EOL date.
       EOL = {
           (3, 0): "2018-02-28",
           (3, 2): "2018-09-30",
@@ -172,6 +168,8 @@ checks:
 
               if latest_key[0] - key[0] > 1:
                   description += " Upgrade one major version at a time."
+              if eol_date:
+                  description += " {} {} reaches end of life on {}.".format(product, mm, eol_date)
 
               results.append({
                   "summary": "Newer version of {} is available".format(product),

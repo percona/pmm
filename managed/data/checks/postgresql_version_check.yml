@@ -2,7 +2,7 @@
 checks:
   - version: 2
     name: postgresql_version_check
-    summary: Check for newer version of PostgreSQL
+    summary: PostgreSQL version check
     description: This check returns an error if your PostgreSQL major version has reached end of life, a warning if it reaches end of life within 6 months, and otherwise a warning if a newer minor or major version is available.
     # author: Jorge Torralba
     category: Versions
@@ -136,13 +136,16 @@ checks:
 
                # A server already on the latest minor version of its major version gets no security note: it misses no fixes.
                note = security_line
+               newest_major = latestpg // 10000
                if ver < latest_for_current:
                   latest = format_version(major, latest_for_current)
                   description = "Current version is {}, the latest release of PostgreSQL {} is {}.".format(current_version, series, latest)
+                  if major < newest_major:
+                     description += " A newer major version, {}, is also available.".format(newest_major)
                elif ver < latestpg:
-                  latest = format_version(latestpg // 10000, latestpg)
+                  latest = format_version(newest_major, latestpg)
                   note = ""
-                  description = "Current version is {}, the latest release of PostgreSQL {}. A newer major version, {}, is available.".format(current_version, series, latest)
+                  description = "Current version is {}, the latest release of PostgreSQL {}. A newer major version, {}, is available.".format(current_version, series, newest_major)
                else:
                   continue
 

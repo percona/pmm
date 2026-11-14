@@ -124,7 +124,7 @@ Write EOL dates only in these tables, never inline in a script.
 
 When you change a table, also update the two other places that hold its data:
 
-1. The matching case in `services/checks/version_checks_test.go`, where a case pins a value from the table. The cases for `mongodb_version` and `postgresql_version_check` read the latest versions from the check file, so a routine update of those tables needs no test change.
+1. The matching case in `services/checks/version_checks_test.go`, where a case pins a value from the table. The cases for `mongodb_version` and `postgresql_version_check` read the latest versions from the check file, so a new patch release needs no test change. Adding a release series can change which series is the newest, so check the cases that name one.
 2. The table on the check's documentation page in `documentation/docs/advisors/checks/`: `mongodb-version.md`, `mysql-version.md`, `postgresql-version-check.md`, and any other page that lists the table's values.
 
 Then run `go test ./services/checks -run TestBuiltinVersionChecks` in the `managed` directory.

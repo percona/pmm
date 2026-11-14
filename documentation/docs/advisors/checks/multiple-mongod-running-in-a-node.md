@@ -1,7 +1,9 @@
 # MongoDB - Multiple mongod service running in a single node
 
 ## Description
-This check warns if multiple mongod services are running on a single node. Each service is counted separately by its service name, so standalone and replica set members are counted alike, whether or not they have a cluster name.
+This check warns if multiple mongod services are running on a single node. Each service is counted separately by its service name, so standalone and replica set members are counted alike, whether or not they have a cluster name. A mongod added as two services counts once.
+
+The check counts the services of each PMM node. If you monitor mongod instances on other hosts remotely from one PMM Client node, all of them belong to that node, and the check warns although each mongod runs on its own host.
 
 ## Resolution
 

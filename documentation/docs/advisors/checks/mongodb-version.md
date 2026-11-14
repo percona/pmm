@@ -10,7 +10,7 @@ The check reads the server version with the `buildInfo` command and returns at m
 | :------------- | :------ | :------- |
 | Has reached EOL | **`<product>` `<series>` reached end of life** | Error |
 | Reaches EOL within the next six months (183 days), up to and including the EOL date | **`<product>` `<series>` reaches end of life on `<date>`**. If a newer minor version of the series exists, the finding also names it. | Warning |
-| Supported, with a newer minor or major version available | **Newer version of `<product>` is available** | Warning |
+| Supported, with a newer minor or major version available | **Newer version of `<product>` is available**. The finding names the newer version and the EOL date of the running release series. | Warning |
 
 The check tells the two products apart by the `psmdbVersion` field, which only PSMDB returns in `buildInfo`. It compares each product with its own releases and links to that product's release notes and lifecycle policy.
 

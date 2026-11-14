@@ -21,7 +21,7 @@ checks:
           for row in docs[0]:
               node = row["metric"]["node_name"]
               pid = int(float(row["value"][1]))
-              if pid:
+              if pid and pid not in pids:
                   mongo_cnt = int(mongo_cnt) + 1
                   pids.append(pid)
 

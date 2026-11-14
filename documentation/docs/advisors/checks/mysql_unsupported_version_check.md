@@ -3,13 +3,9 @@
 !!! note
     The `mysql_unsupported_version_check` check was removed in PMM 3.11.0. The [`mysql_version`](mysql-version.md) check now reports MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB and Amazon RDS for MySQL series that reached or are about to reach end of life, so each service gets one version finding instead of two.
 
-The `mysql_unsupported_version_check` check reported when the release series of MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL has reached its end of life (EOL), or reaches it within six months.
-
 ## Description
 
-EOL versions no longer receive bug or security fixes from the vendor.
-
-The check returned an error if the series has reached EOL, and a warning if it reaches EOL within the next six months. For Amazon RDS for MySQL, it reported the end of standard support instead. For the dates of each distribution, see [MySQL version](mysql-version.md#end-of-life-dates).
+End-of-life (EOL) versions no longer receive bug or security fixes from the vendor. For the dates of each distribution and the findings `mysql_version` gives, see [MySQL version](mysql-version.md#end-of-life-dates).
 
 ## Resolution
 

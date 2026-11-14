@@ -2,7 +2,7 @@
 checks:
   - version: 2
     name: mysql_version
-    summary: MySQL Version
+    summary: MySQL version check
     description: This check returns an error if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL release series has reached end of life, a warning if it reaches end of life within 6 months, and otherwise a warning if a newer release of the series is available.
     technology: MYSQL
     category: Versions
@@ -137,9 +137,8 @@ checks:
           },
       }
 
-      # Community end of life. Add a short-term series only once it is EOL.
-      # https://mariadb.org/about/#maintenance-policy
-      # Short-term series: https://endoflife.date/mariadb
+      # Community end of life from LIFECYCLE["mariadb"]; short-term series from https://endoflife.date/mariadb.
+      # Add a short-term series only once it is EOL.
       EOL_MARIADB = {
           (5, 1): "2015-02-01",
           (5, 2): "2015-11-10",
@@ -192,7 +191,7 @@ checks:
       }
 
       SECURITY_NOTE = " Newer releases can include security fixes; see which ones affect your version: https://www.oracle.com/security-alerts/."
-      MARIADB_SECURITY_NOTE = " Newer releases can include security fixes; see which ones affect your version: https://mariadb.org/about/security-policy/."
+      MARIADB_SECURITY_NOTE = " Newer releases can include security fixes; see which ones affect your version: https://mariadb.com/docs/server/security/cve/community-server."
 
       # MariaDB prefixes its version with this for old replication clients.
       MARIADB_PREFIX = "5.5.5-"
@@ -333,10 +332,15 @@ checks:
           if latest <= num:
               return []
 
+          description = "Current version is {}, the latest release of {} {} is {}.".format(current, PRODUCTS[dist], series, format_version_num(latest))
+          if date and dist == "rds":
+              description += " {} {} reaches end of standard support on {}.".format(PRODUCTS[dist], series, date)
+          elif date:
+              description += " {} {} reaches end of life on {}.".format(PRODUCTS[dist], series, date)
+
           return [{
               "summary": "Newer version of {} is available".format(PRODUCTS[dist]),
-              "description": "Current version is {}, the latest release of {} {} is {}.".format(
-                  current, PRODUCTS[dist], series, format_version_num(latest)) + release_notes(dist, key) + security_note,
+              "description": description + release_notes(dist, key) + security_note,
               "read_more_url": read_url.format("mysql-version"),
               "severity": "warning",
               "labels": {
