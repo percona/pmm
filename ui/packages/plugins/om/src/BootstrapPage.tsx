@@ -45,10 +45,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   ADMIN_PASSWORD_MIN_LENGTH,
   DEFAULT_ADMIN_USERNAME,
-  DEFAULT_MONGODB_VERSION,
   OM_ROUTE_AUTOMATIONS,
   OM_ROUTE_NODES,
-  SUPPORTED_MONGODB_VERSIONS,
 } from './constants';
 import {
   MEMBER_CONSTRAINT_PHRASE,
@@ -63,7 +61,9 @@ import {
   adminPasswordError,
   adminPasswordMismatchError,
   adminUsernameError,
+  commonMongodbVersions,
   configureBlockers,
+  initialMongodbVersion,
   replicaSetNameError,
 } from './installForm';
 import { dataDirFreeBytes, toHostRows } from './inventory';
@@ -336,9 +336,13 @@ export const BootstrapPage = () => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [replicaSetName, setReplicaSetName] = useState('');
-  const [mongodbVersion, setMongodbVersion] = useState<string>(
-    DEFAULT_MONGODB_VERSION
-  );
+  const mongodbVersions = useMemo(() => commonMongodbVersions(hosts), [hosts]);
+  // Picked on entering Configure, then never swapped behind the user's back: a
+  // refetch that drops it empties the field and blocks Review instead.
+  const [mongodbVersion, setMongodbVersion] = useState('');
+  const selectedVersion = mongodbVersions.includes(mongodbVersion)
+    ? mongodbVersion
+    : '';
   const [environment, setEnvironment] = useState('');
   const [cluster, setCluster] = useState('');
   const [dataPath, setDataPath] = useState(DEFAULT_DATA_PATH);
@@ -431,6 +435,7 @@ export const BootstrapPage = () => {
 
   const blockers = configureBlockers({
     replicaSetName,
+    mongodbVersion: selectedVersion,
     dataPath,
     logPath,
     port,
@@ -471,6 +476,9 @@ export const BootstrapPage = () => {
           ? '1 selected node cannot'
           : `${blockedHosts.length} selected nodes cannot`
       } be installed onto. Fix each one on the node itself, or go back and change the selection.`,
+    blockedHosts.length === 0 &&
+      mongodbVersions.length === 0 &&
+      'The selected nodes have no MongoDB version in common. Go back and select nodes whose OS releases support the same one.',
   ].filter((blocker): blocker is string => typeof blocker === 'string');
 
   // A fresh selection (a different ?nodes= than last render) resets the wizard
@@ -479,7 +487,7 @@ export const BootstrapPage = () => {
   useEffect(() => {
     setActiveStep(0);
     setReplicaSetName('');
-    setMongodbVersion(DEFAULT_MONGODB_VERSION);
+    setMongodbVersion('');
     setEnvironment('');
     setCluster('');
     setDataPath(DEFAULT_DATA_PATH);
@@ -509,6 +517,13 @@ export const BootstrapPage = () => {
     setMemberConfigs(defaultMemberConfigs(hosts));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hostIdsKey]);
+
+  // Review shows no blockers, so a refetch that invalidates the form sends the user back to see why.
+  useEffect(() => {
+    if (activeStep === 2 && blockers.length > 0) {
+      setActiveStep(1);
+    }
+  }, [activeStep, blockers.length]);
 
   // Rendered by every return below, so a failed background refetch cannot take the password with it.
   const passwordDialog = generatedPassword && (
@@ -571,7 +586,7 @@ export const BootstrapPage = () => {
     const accepted = await bootstrap.mutateAsync({
       nodeIds: hosts.map((host) => host.node_id),
       replicaSetName,
-      mongodbVersion,
+      mongodbVersion: selectedVersion,
       environment: environment.trim() || undefined,
       cluster: effectiveCluster,
       dataPath,
@@ -678,13 +693,13 @@ export const BootstrapPage = () => {
             <TextField
               select
               label="MongoDB version"
-              value={mongodbVersion}
+              value={selectedVersion}
               onChange={(event) => setMongodbVersion(event.target.value)}
               required
               fullWidth
-              helperText="Percona Server for MongoDB, latest release of this major version."
+              helperText="Percona Server for MongoDB, latest release of this major version. Only versions every selected node's OS release supports are offered."
             >
-              {SUPPORTED_MONGODB_VERSIONS.map((version) => (
+              {mongodbVersions.map((version) => (
                 <MenuItem key={version} value={version}>
                   {version}
                 </MenuItem>
@@ -962,7 +977,7 @@ export const BootstrapPage = () => {
               {(
                 [
                   ['Replica set', replicaSetName || '—'],
-                  ['MongoDB version', mongodbVersion || '—'],
+                  ['MongoDB version', selectedVersion || '—'],
                   ['Environment', environment || '—'],
                   ['Cluster', effectiveCluster],
                   ['Data path', dataPath],
@@ -1056,7 +1071,12 @@ export const BootstrapPage = () => {
               // move the failure to the final button - which is the complaint
               // itself.
               disabled={selectionBlockers.length > 0}
-              onClick={() => setActiveStep(1)}
+              onClick={() => {
+                if (selectedVersion === '') {
+                  setMongodbVersion(initialMongodbVersion(mongodbVersions));
+                }
+                setActiveStep(1);
+              }}
             >
               Configure
             </Button>
