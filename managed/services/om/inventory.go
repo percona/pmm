@@ -496,7 +496,7 @@ func newAdminSecret(req *omv1.TriggerHostBootstrapRequest) (*models.OmBootstrapS
 	if err != nil {
 		return nil, "", status.Errorf(codes.Internal, "failed to generate the run's credentials: %s", err)
 	}
-	secret.AdminUsername, secret.AdminPassword = username, password
+	secret.AdminUsername, secret.AdminPassword = models.OmAdminUsername(username), models.OmAdminPassword(password)
 	return secret, generated, nil
 }
 

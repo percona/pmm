@@ -38,7 +38,6 @@ func TestSettings(t *testing.T) {
 	t.Run("Defaults", func(t *testing.T) {
 		actual, err := models.GetSettings(sqlDB)
 		require.NoError(t, err)
-		require.Empty(t, actual.EncryptedItems)
 		expected := &models.Settings{
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Second,
@@ -49,9 +48,11 @@ func TestSettings(t *testing.T) {
 			AdvisorHistoryRetention: 30 * 24 * time.Hour,
 			AWSPartitions:           []string{"aws"},
 			DefaultRoleID:           1,
-			EncryptedItems:          actual.EncryptedItems,
 		}
 		expected.AdvisorNotifications.Severities = models.DefaultAdvisorNotificationSeverities()
+		// stored by the startup migration, see TestKeyCheckRefusesAnotherKey
+		assert.NotEmpty(t, actual.EncryptionKeyCheck)
+		expected.EncryptionKeyCheck = actual.EncryptionKeyCheck
 		assert.Equal(t, expected, actual)
 	})
 

@@ -42,9 +42,9 @@ func TestMongodbExporterConfig225(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
-		AgentPassword:   new("agent-password"),
+		Username:        new(models.AgentUsername("username")),
+		Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
+		AgentPassword:   new(models.AgentAgentPassword("agent-password")),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -104,9 +104,9 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
-		AgentPassword:   new("agent-password"),
+		Username:        new(models.AgentUsername("username")),
+		Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
+		AgentPassword:   new(models.AgentAgentPassword("agent-password")),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -252,9 +252,9 @@ func TestMongodbExporterConfig2411(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
-		AgentPassword:   new("agent-password"),
+		Username:        new(models.AgentUsername("username")),
+		Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
+		AgentPassword:   new(models.AgentAgentPassword("agent-password")),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -441,9 +441,9 @@ func TestMongodbExporterConfig2432(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
-		AgentPassword:   new("agent-password"),
+		Username:        new(models.AgentUsername("username")),
+		Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
+		AgentPassword:   new(models.AgentAgentPassword("agent-password")),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -523,9 +523,9 @@ func TestMongodbExporterConfigDiagnosticDataHistograms(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:       "agent-id",
 		AgentType:     models.MongoDBExporterType,
-		Username:      new("username"),
-		Password:      new("password"),
-		AgentPassword: new("agent-password"),
+		Username:      new(models.AgentUsername("username")),
+		Password:      new(models.AgentPassword("password")),
+		AgentPassword: new(models.AgentAgentPassword("agent-password")),
 		MongoDBOptions: models.MongoDBOptions{
 			EnableDiagnosticDataHistograms: true,
 		},
@@ -552,9 +552,9 @@ func TestMongodbExporterConfig(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
-		AgentPassword:   new("agent-password"),
+		Username:        new(models.AgentUsername("username")),
+		Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
+		AgentPassword:   new(models.AgentAgentPassword("agent-password")),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -674,8 +674,8 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
+		Username:        new(models.AgentUsername("username")),
+		Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -741,8 +741,8 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MongoDBExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
+		Username:        new(models.AgentUsername("username")),
+		Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
 		ExporterOptions: models.ExporterOptions{},
 		MongoDBOptions:  models.MongoDBOptions{},
 	}
@@ -770,7 +770,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 			AgentType:       exporter.AgentType,
 			Username:        exporter.Username,
 			Password:        exporter.Password,
-			AgentPassword:   new("agent-custom-password"),
+			AgentPassword:   new(models.AgentAgentPassword("agent-custom-password")),
 			ExporterOptions: models.ExporterOptions{},
 			MongoDBOptions:  models.MongoDBOptions{},
 		}
@@ -845,8 +845,8 @@ func Test_rtaMongoDBAgentConfig(t *testing.T) {
 			agent: &models.Agent{
 				AgentID:   "agent-id-1",
 				AgentType: models.RTAMongoDBAgentType,
-				Username:  new("username"),
-				Password:  new("password"),
+				Username:  new(models.AgentUsername("username")),
+				Password:  new(models.AgentPassword("password")),
 				RTAOptions: models.RTAOptions{
 					CollectInterval: new(2 * time.Second),
 				},

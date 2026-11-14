@@ -40,9 +40,9 @@ func TestProxySQLExporterConfig(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.ProxySQLExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
-		AgentPassword:   new("agent-password"),
+		Username:        new(models.AgentUsername("username")),
+		Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
+		AgentPassword:   new(models.AgentAgentPassword("agent-password")),
 		ExporterOptions: models.ExporterOptions{},
 	}
 	actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
@@ -103,8 +103,8 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.ProxySQLExporterType,
-			Username:        new("username"),
-			Password:        new("s3cur3 p@$$w0r4."),
+			Username:        new(models.AgentUsername("username")),
+			Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
 			ExporterOptions: models.ExporterOptions{},
 		}
 		actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
@@ -144,8 +144,8 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.ProxySQLExporterType,
-			Username:        new("username"),
-			Password:        new("s3cur3 p@$$w0r4."),
+			Username:        new(models.AgentUsername("username")),
+			Password:        new(models.AgentPassword("s3cur3 p@$$w0r4.")),
 			ExporterOptions: models.ExporterOptions{},
 		}
 		actual := proxysqlExporterConfig(node, proxysql, exporter, redactSecrets, pmmAgentVersion)
