@@ -76,7 +76,7 @@ func NewAlertThresholdMetricsCollector(db *reform.DB) *AlertThresholdMetricsColl
 			thresholdMetricName,
 			"Effective alert threshold for a rule parameter and target. Emitted only where an "+
 				"override exists; other targets fall back to the rule's default, which the rule "+
-				"query materialises from its own observed expression.",
+				"query materialises from its own observed expression, or from up for ClickHouse rules.",
 			[]string{thresholdRuleIDLabel, thresholdParamLabel, thresholdTargetLabel},
 			nil,
 		),

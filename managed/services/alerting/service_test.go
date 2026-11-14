@@ -17,6 +17,7 @@ package alerting
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -299,6 +300,15 @@ func TestQueryRefForRuleLabels(t *testing.T) {
 			Queries: []alert.TemplateQuery{{RefID: "Q1"}, {RefID: "Q2"}},
 		}))
 	})
+
+	t.Run("uses the condition for ClickHouse templates", func(t *testing.T) {
+		t.Parallel()
+		// $values holds no raw ClickHouse series, so the first query cannot be read there.
+		assert.Equal(t, "C", queryRefForRuleLabels(&alert.Template{
+			Queries:   []alert.TemplateQuery{{RefID: "A", Datasource: alert.ClickHouse}},
+			Condition: "C",
+		}))
+	})
 }
 
 func TestConvertTemplate(t *testing.T) {
@@ -363,6 +373,7 @@ func TestConvertTemplate(t *testing.T) {
 
 		require.Len(t, dto.Queries, 2)
 		assert.Equal(t, "A", dto.Queries[0].RefId)
+		assert.Equal(t, alerting.DatasourceType_DATASOURCE_TYPE_METRICS, dto.Queries[0].Datasource, "no datasource means Metrics")
 		assert.Equal(t, "B", dto.Queries[1].RefId)
 		assert.Contains(t, dto.Queries[1].Expr, "[[ .threshold ]]") // placeholders kept intact
 
@@ -372,6 +383,23 @@ func TestConvertTemplate(t *testing.T) {
 		assert.Equal(t, "$A > $B", dto.Expressions[0].Expression)
 
 		assert.Equal(t, "C", dto.Condition)
+	})
+
+	t.Run("exposes ClickHouse datasource and reducer", func(t *testing.T) {
+		t.Parallel()
+
+		tm := parse(t, clickhouseWiringYAML)
+		at, err := parseAlertTemplate(tm.Yaml)
+		require.NoError(t, err)
+
+		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm, at)
+		require.NoError(t, err)
+
+		require.Len(t, dto.Queries, 1)
+		assert.Equal(t, alerting.DatasourceType_DATASOURCE_TYPE_CLICKHOUSE, dto.Queries[0].Datasource)
+		require.Len(t, dto.Expressions, 2)
+		assert.Equal(t, "max", dto.Expressions[0].Reducer)
+		assert.Empty(t, dto.Expressions[1].Reducer)
 	})
 
 	t.Run("leaves multi-query fields empty for single-expression templates", func(t *testing.T) {
@@ -469,6 +497,7 @@ func TestCreateRuleMultiExpression(t *testing.T) {
 	require.Len(t, parsed, 1)
 	tm, err := models.ConvertTemplate(&parsed[0], models.UserAPISource)
 	require.NoError(t, err)
+	clickhouse := templateFromYAML(t, clickhouseWiringYAML)
 
 	// setup builds a Service backed by testdb with the multi-expression template registered
 	// and a fresh mock grafana client whose expectations are auto-asserted on cleanup.
@@ -477,7 +506,7 @@ func TestCreateRuleMultiExpression(t *testing.T) {
 		m := newMockGrafanaClient(t)
 		svc, err := NewService(db, m)
 		require.NoError(t, err)
-		svc.templates = map[string]models.Template{tm.Name: *tm}
+		svc.templates = map[string]models.Template{tm.Name: *tm, clickhouse.Name: *clickhouse}
 		return svc, m
 	}
 
@@ -556,8 +585,8 @@ func TestCreateRuleMultiExpression(t *testing.T) {
 	})
 
 	t.Run("unknown template returns NotFound", func(t *testing.T) {
-		svc, m := setup(t)
-		m.On("GetDatasourceUIDByName", mock.Anything, "Metrics").Return("metrics-uid", nil)
+		// No datasource is resolved for a template that does not exist.
+		svc, _ := setup(t)
 
 		_, err := svc.CreateRule(ctx, &alerting.CreateRuleRequest{
 			TemplateName: "does_not_exist",
@@ -565,6 +594,83 @@ func TestCreateRuleMultiExpression(t *testing.T) {
 			Group:        "test-group",
 		})
 		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+
+	t.Run("resolves the ClickHouse datasource for ClickHouse queries", func(t *testing.T) {
+		svc, m := setup(t)
+		m.On("GetDatasourceUIDByName", mock.Anything, "Metrics").Return("metrics-uid", nil)
+		m.On("GetDatasourceUIDByName", mock.Anything, "ClickHouse").Return("clickhouse-uid", nil)
+		var captured *services.Rule
+		m.On("CreateAlertRule", mock.Anything, "folder-uid", "test-group", mock.Anything, mock.Anything).
+			Run(func(args mock.Arguments) { captured = args.Get(4).(*services.Rule) }).
+			Return(nil)
+
+		_, err := svc.CreateRule(ctx, &alerting.CreateRuleRequest{
+			TemplateName: clickhouse.Name,
+			Name:         "test-rule",
+			FolderUid:    "folder-uid",
+			Group:        "test-group",
+			Severity:     managementv1.Severity_SEVERITY_WARNING,
+			Params:       thresholdParam,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, captured)
+
+		assert.Equal(t, "C", captured.GrafanaAlert.Condition)
+		byRef := dataByRefID(t, captured.GrafanaAlert.Data)
+		assert.Equal(t, "clickhouse-uid", byRef["A"].DatasourceUID)
+		assert.Equal(t, grafanaExprDatasourceUID, byRef["B"].DatasourceUID)
+		assert.Equal(t, "$B > 80", expressionOf(t, byRef["C"]))
+		assert.Equal(t, buildRuleLabelTemplate("service_name", "C"), captured.Labels["service_name"])
+	})
+
+	t.Run("a failed datasource lookup creates no rule", func(t *testing.T) {
+		lookupErr := errors.New("grafana unavailable")
+
+		for _, tc := range []struct {
+			template   string
+			resolved   []string
+			datasource string
+		}{
+			{template: tm.Name, datasource: "Metrics"},
+			{template: clickhouse.Name, resolved: []string{"Metrics"}, datasource: "ClickHouse"},
+		} {
+			t.Run(tc.datasource, func(t *testing.T) {
+				svc, m := setup(t)
+				for _, name := range tc.resolved {
+					m.On("GetDatasourceUIDByName", mock.Anything, name).Return(name+"-uid", nil)
+				}
+				m.On("GetDatasourceUIDByName", mock.Anything, tc.datasource).Return("", lookupErr)
+
+				_, err := svc.CreateRule(ctx, &alerting.CreateRuleRequest{
+					TemplateName: tc.template,
+					Name:         "test-rule",
+					FolderUid:    "folder-uid",
+					Group:        "test-group",
+					Severity:     managementv1.Severity_SEVERITY_WARNING,
+					Params:       thresholdParam,
+				})
+				require.ErrorIs(t, err, lookupErr)
+			})
+		}
+	})
+
+	t.Run("invalid filter returns InvalidArgument", func(t *testing.T) {
+		// Rejected before any datasource is resolved.
+		svc, _ := setup(t)
+
+		_, err := svc.CreateRule(ctx, &alerting.CreateRuleRequest{
+			TemplateName: clickhouse.Name,
+			FolderUid:    "folder-uid",
+			Group:        "test-group",
+			Filters: []*alerting.Filter{{
+				Type:   alerting.FilterType_FILTER_TYPE_MATCH,
+				Label:  "service_name` OR 1=1",
+				Regexp: "db",
+			}},
+		})
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, err.Error(), "is not a valid label name")
 	})
 
 	t.Run("missing required fields return InvalidArgument", func(t *testing.T) {
@@ -824,3 +930,32 @@ func TestListTemplatesConcurrentSharedProto(t *testing.T) {
 	}
 	wg.Wait()
 }
+
+const clickhouseWiringYAML = `templates:
+  - name: test_clickhouse_wiring
+    version: 1
+    summary: Slow queries
+    queries:
+      - ref_id: A
+        datasource: clickhouse
+        expr: SELECT $__toTime AS time, service_name, node_name, max(m_query_time_max) AS v FROM pmm.metrics GROUP BY service_name, node_name
+    expressions:
+      - ref_id: B
+        type: reduce
+        reducer: max
+        expression: $A
+      - ref_id: C
+        type: math
+        expression: $B > [[ .threshold ]]
+    condition: C
+    params:
+      - name: threshold
+        summary: Query time
+        unit: s
+        type: float
+        value: 10
+    for: 1m
+    severity: warning
+    annotations:
+      summary: Slow queries on {{ $labels.service_name }} ({{ $values.B.Value }}s)
+`

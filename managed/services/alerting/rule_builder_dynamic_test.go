@@ -82,7 +82,7 @@ func exprOf(t *testing.T, item services.Data) string {
 func expressionOf(t *testing.T, item services.Data) string {
 	t.Helper()
 
-	var model mathExpressionModel
+	var model expressionModel
 	require.NoError(t, json.Unmarshal(item.Model, &model))
 
 	return model.Expression
@@ -92,7 +92,7 @@ func TestBuildRuleDataInjectsThresholdQuery(t *testing.T) {
 	t.Parallel()
 
 	built, err := buildGrafanaRuleData(
-		overridableRuleTemplate(), "metrics-uid", "rule-1",
+		overridableRuleTemplate(), testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -120,7 +120,7 @@ func TestBuildRuleDataSwapsTokenForThresholdRef(t *testing.T) {
 	t.Parallel()
 
 	built, err := buildGrafanaRuleData(
-		overridableRuleTemplate(), "metrics-uid", "rule-1",
+		overridableRuleTemplate(), testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -137,7 +137,7 @@ func TestBuildRuleDataWithoutRuleIDIsUnchanged(t *testing.T) {
 	t.Parallel()
 
 	built, err := buildGrafanaRuleData(
-		overridableRuleTemplate(), "metrics-uid", "",
+		overridableRuleTemplate(), testDatasourceUIDs, "",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -154,7 +154,7 @@ func TestBuildRuleDataWithoutOverridableParams(t *testing.T) {
 	template.Params[0].Overridable = false
 
 	built, err := buildGrafanaRuleData(
-		template, "metrics-uid", "rule-1",
+		template, testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -180,7 +180,7 @@ func TestThresholdQueryMatchesCollectorDescriptor(t *testing.T) {
 	require.Len(t, labels, 2, "could not read variableLabels from %s", desc)
 
 	built, err := buildGrafanaRuleData(
-		overridableRuleTemplate(), "metrics-uid", "rule-1",
+		overridableRuleTemplate(), testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -207,7 +207,7 @@ func TestThresholdRefIDAvoidsTemplateCollision(t *testing.T) {
 	})
 
 	built, err := buildGrafanaRuleData(
-		template, "metrics-uid", "rule-1",
+		template, testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"}, nil,
 	)
 	require.NoError(t, err)
@@ -244,7 +244,7 @@ func TestThresholdPairsEachParamWithItsOwnQuery(t *testing.T) {
 	}
 
 	built, err := buildGrafanaRuleData(
-		template, "metrics-uid", "rule-1",
+		template, testDatasourceUIDs, "rule-1",
 		map[string]string{"first": "1", "second": "2"}, nil,
 	)
 	require.NoError(t, err)
@@ -263,7 +263,7 @@ func TestThresholdQueryIsNotFiltered(t *testing.T) {
 	t.Parallel()
 
 	built, err := buildGrafanaRuleData(
-		overridableRuleTemplate(), "metrics-uid", "rule-1",
+		overridableRuleTemplate(), testDatasourceUIDs, "rule-1",
 		map[string]string{"threshold": "80"},
 		[]*alertingv1.Filter{{
 			Type:   alertingv1.FilterType_FILTER_TYPE_MATCH,
@@ -357,7 +357,7 @@ func TestThresholdRefsAreReturnedForAnnotationRewriting(t *testing.T) {
 		t.Parallel()
 
 		built, err := buildGrafanaRuleData(
-			overridableRuleTemplate(), "metrics-uid", "rule-1", map[string]string{"threshold": "80"}, nil,
+			overridableRuleTemplate(), testDatasourceUIDs, "rule-1", map[string]string{"threshold": "80"}, nil,
 		)
 		require.NoError(t, err)
 		assert.Equal(t, map[string]string{"threshold": "T_threshold"}, built.thresholdRefs)
@@ -372,7 +372,7 @@ func TestThresholdRefsAreReturnedForAnnotationRewriting(t *testing.T) {
 		template.Params[0].Overridable = false
 
 		built, err := buildGrafanaRuleData(
-			template, "metrics-uid", "rule-1", map[string]string{"threshold": "80"}, nil,
+			template, testDatasourceUIDs, "rule-1", map[string]string{"threshold": "80"}, nil,
 		)
 		require.NoError(t, err)
 		assert.Empty(t, built.thresholdRefs)
@@ -421,4 +421,68 @@ func TestRewriteOverridableAnnotations(t *testing.T) {
 
 		assert.Equal(t, "plain [[ .threshold ]]", annotations["description"])
 	})
+}
+
+func TestBuildRuleDataInjectsThresholdForClickHouse(t *testing.T) {
+	t.Parallel()
+
+	template := overridableRuleTemplate()
+	template.Queries = []alert.TemplateQuery{{
+		RefID:      "A",
+		Expr:       "SELECT $__toTime AS time, node_name, max(v) AS v FROM pmm.metrics GROUP BY node_name",
+		Datasource: alert.ClickHouse,
+	}}
+	template.Expressions = []alert.TemplateExpression{
+		{RefID: "B", Type: "reduce", Reducer: "max", Expression: "$A"},
+		{RefID: "C", Type: "math", Expression: "$B > [[ .threshold ]]"},
+	}
+
+	built, err := buildGrafanaRuleData(template, testDatasourceUIDs, "rule-1", map[string]string{"threshold": "80"}, nil)
+	require.NoError(t, err)
+	byRef := dataByRefID(t, built.data)
+
+	// The threshold step stays MetricsQL, and its default fans out over every scraped node
+	// instead of the SQL VictoriaMetrics cannot run.
+	assert.Equal(t, "metrics-uid", byRef["T_threshold"].DatasourceUID)
+	assert.True(t, strings.HasSuffix(exprOf(t, byRef["T_threshold"]), ` or (group by (node_name) (up{node_name!=""}) * 80)`),
+		exprOf(t, byRef["T_threshold"]))
+	assert.Equal(t, "$B > $T_threshold", expressionOf(t, byRef["C"]))
+}
+
+func TestBuildRuleDataRejectsUnhandledObservedDatasource(t *testing.T) {
+	t.Parallel()
+
+	template := overridableRuleTemplate()
+	template.Queries[0].Datasource = "loki"
+
+	_, err := buildGrafanaRuleData(template, testDatasourceUIDs, "rule-1", map[string]string{"threshold": "80"}, nil)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "for parameter 'threshold': unhandled datasource 'loki'")
+}
+
+func TestBuildRuleDataForQANSlowQueries(t *testing.T) {
+	t.Parallel()
+
+	template, err := parseAlertTemplate(shippedTemplates(t)["pmm_qan_slow_queries"].Yaml)
+	require.NoError(t, err)
+
+	built, err := buildGrafanaRuleData(template, testDatasourceUIDs, "rule-1", map[string]string{"threshold": "10"}, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "C", built.condition)
+
+	// The shipped YAML builds: its SQL runs on ClickHouse and its threshold is injected.
+	byRef := dataByRefID(t, built.data)
+	assert.Equal(t, "clickhouse-uid", byRef["A"].DatasourceUID)
+	assert.Equal(t, grafanaExprDatasourceUID, byRef["B"].DatasourceUID)
+	assert.Contains(t, byRef, "T_threshold")
+
+	// A filter on a label the SQL drops would silently read as empty, so pin the standard labels it returns.
+	var model clickhouseQueryModel
+	require.NoError(t, json.Unmarshal(byRef["A"].Model, &model))
+	for _, label := range []string{
+		"service_name", "service_id", "service_type", "node_name", "node_id", "node_type", "node_model", "machine_id",
+		"container_id", "container_name", "environment", "cluster", "replication_set", "region", "az",
+	} {
+		assert.Regexp(t, `\b`+label+`\b`, model.RawSQL)
+	}
 }

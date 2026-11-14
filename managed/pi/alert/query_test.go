@@ -159,18 +159,66 @@ func TestValidateMultiExpressionStepsErrors(t *testing.T) {
 		},
 		{
 			name:    "unsupported expression type",
-			tmpl:    base([]TemplateQuery{{RefID: "A", Expr: "up"}}, []TemplateExpression{{RefID: "C", Type: "reduce", Expression: "$A"}}, "C"),
+			tmpl:    base([]TemplateQuery{{RefID: "A", Expr: "up"}}, []TemplateExpression{{RefID: "C", Type: "threshold", Expression: "$A"}}, "C"),
 			wantErr: "unsupported type",
 		},
 		{
-			name:    "empty expression ref_id",
-			tmpl:    base([]TemplateQuery{{RefID: "A", Expr: "up"}}, []TemplateExpression{{RefID: "", Type: "math", Expression: "$A > 1"}}, "A"),
-			wantErr: "expression ref_id is empty",
+			name:    "unknown query datasource",
+			tmpl:    base([]TemplateQuery{{RefID: "A", Expr: "up", Datasource: "loki"}}, nil, "A"),
+			wantErr: "template query A: unhandled query datasource 'loki', want 'metrics' or 'clickhouse'",
 		},
 		{
-			name:    "empty expression body",
-			tmpl:    base([]TemplateQuery{{RefID: "A", Expr: "up"}}, []TemplateExpression{{RefID: "C", Type: "math", Expression: ""}}, "C"),
-			wantErr: "expression C is empty",
+			name:    "query ref_id with punctuation",
+			tmpl:    base([]TemplateQuery{{RefID: "cpu-load", Expr: "up"}}, nil, "cpu-load"),
+			wantErr: "template query ref_id 'cpu-load' must start with a letter",
+		},
+		{
+			name:    "query ref_id starting with a digit",
+			tmpl:    base([]TemplateQuery{{RefID: "1", Expr: "up"}}, nil, "1"),
+			wantErr: "template query ref_id '1' must start with a letter",
+		},
+		{
+			name:    "expression ref_id with punctuation",
+			tmpl:    base([]TemplateQuery{{RefID: "A", Expr: "up"}}, []TemplateExpression{{RefID: "C.1", Type: "math", Expression: "$A > 1"}}, "A"),
+			wantErr: "template expression ref_id 'C.1' must start with a letter",
+		},
+		{
+			name:    "reduce with unknown reducer",
+			tmpl:    with(clickHouseTemplate(), func(t *Template) { t.Expressions[0].Reducer = "avg" }),
+			wantErr: "expression B has unsupported reducer 'avg'",
+		},
+		{
+			name:    "reduce of more than one step",
+			tmpl:    with(clickHouseTemplate(), func(t *Template) { t.Expressions[0].Expression = "$A + 1" }),
+			wantErr: "expression B must reduce a single step",
+		},
+		{
+			name:    "reduce of an unknown step",
+			tmpl:    with(clickHouseTemplate(), func(t *Template) { t.Expressions[0].Expression = "$Z" }),
+			wantErr: "expression B reduces $Z, which does not match any query or expression ref_id",
+		},
+		{
+			name:    "ClickHouse query as condition",
+			tmpl:    with(clickHouseTemplate(), func(t *Template) { t.Condition = "A" }),
+			wantErr: "condition A is a ClickHouse query",
+		},
+		{
+			name:    "ClickHouse query read by math",
+			tmpl:    with(clickHouseTemplate(), func(t *Template) { t.Expressions[1].Expression = "${A} > 1" }),
+			wantErr: "expression C uses ClickHouse query $A directly",
+		},
+		{
+			name: "string param in ClickHouse query",
+			tmpl: with(clickHouseTemplate(), func(t *Template) {
+				t.Queries[0].Expr = "SELECT 1 WHERE service_name = '[[ .name ]]'"
+				t.Params = []Parameter{{Name: "name", Summary: "name", Type: String, Value: "db"}}
+			}),
+			wantErr: "query A uses string parameter 'name'",
+		},
+		{
+			name:    "$values of a ClickHouse query",
+			tmpl:    with(clickHouseTemplate(), func(t *Template) { t.Annotations = map[string]string{"summary": "{{ $values.A.Value }}"} }),
+			wantErr: "'summary' reads $values.A",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -181,6 +229,75 @@ func TestValidateMultiExpressionStepsErrors(t *testing.T) {
 			assert.Contains(t, err.Error(), tc.wantErr)
 		})
 	}
+}
+
+// clickHouseTemplate returns a valid template that reduces a ClickHouse query before comparing it.
+func clickHouseTemplate() Template {
+	return Template{
+		Name:     "test_template",
+		Version:  1,
+		Summary:  "summary",
+		For:      300,
+		Severity: common.Warning,
+		Queries: []TemplateQuery{{
+			RefID:      "A",
+			Expr:       "SELECT $__toTime AS time, service_name, max(m_query_time_max) AS v FROM pmm.metrics GROUP BY service_name",
+			Datasource: ClickHouse,
+		}},
+		Expressions: []TemplateExpression{
+			{RefID: "B", Type: "reduce", Reducer: "max", Expression: "$A"},
+			{RefID: "C", Type: "math", Expression: "$B > [[ .threshold ]]"},
+		},
+		Condition:   "C",
+		Params:      []Parameter{{Name: "threshold", Summary: "threshold", Type: Float, Value: 10}},
+		Annotations: map[string]string{"summary": "{{ $values.B.Value }}"},
+	}
+}
+
+// with returns t after applying change, so table cases can vary one field of a fixture.
+func with(t Template, change func(*Template)) Template {
+	change(&t)
+	return t
+}
+
+func TestValidateClickHouseTemplate(t *testing.T) {
+	t.Parallel()
+
+	template := clickHouseTemplate()
+	require.NoError(t, template.Validate())
+
+	template.Queries[0].Datasource = Metrics
+	require.NoError(t, template.Validate(), "an explicit metrics datasource is valid too")
+}
+
+func TestParseClickHouseTemplate(t *testing.T) {
+	t.Parallel()
+
+	templates, err := Parse(strings.NewReader(`---
+templates:
+  - name: test_template
+    version: 1
+    summary: summary
+    queries:
+      - ref_id: A
+        datasource: clickhouse
+        expr: SELECT 1
+    expressions:
+      - ref_id: B
+        type: reduce
+        reducer: last
+        expression: $A
+      - ref_id: C
+        type: math
+        expression: $B > 0
+    condition: C
+    for: 1m
+    severity: warning
+`), &ParseParams{DisallowUnknownFields: true, DisallowInvalidTemplates: true})
+	require.NoError(t, err)
+	require.Len(t, templates, 1)
+	assert.Equal(t, ClickHouse, templates[0].Queries[0].Datasource)
+	assert.Equal(t, "last", templates[0].Expressions[0].Reducer)
 }
 
 func TestValidateSingleExpressionRejectsConditionWithoutQueries(t *testing.T) {
@@ -199,4 +316,20 @@ func TestValidateSingleExpressionRejectsConditionWithoutQueries(t *testing.T) {
 	err := template.Validate()
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "queries are required")
+}
+
+func TestUsesDatasource(t *testing.T) {
+	t.Parallel()
+
+	single := Template{Expr: "up"}
+	assert.True(t, single.UsesDatasource(Metrics), "a single-expression template runs on Metrics")
+	assert.False(t, single.UsesDatasource(ClickHouse))
+
+	unset := Template{Queries: []TemplateQuery{{RefID: "A", Expr: "up"}}}
+	assert.True(t, unset.UsesDatasource(Metrics), "an unset datasource is Metrics")
+	assert.False(t, unset.UsesDatasource(ClickHouse))
+
+	clickhouse := clickHouseTemplate()
+	assert.True(t, clickhouse.UsesDatasource(ClickHouse))
+	assert.False(t, clickhouse.UsesDatasource(Metrics))
 }

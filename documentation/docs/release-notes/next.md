@@ -13,6 +13,14 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✨ Release highlights
 
+### Alert on slow queries with Query Analytics data
+
+In addition to alerting you about server and database health based on the metrics it collects, PMM can now also alert you about query performance, based on the query data you see in Query Analytics.
+
+The new built-in [**QAN slow queries**](../alert/templates_list.md#qan_alerts) template covers the most common case: it alerts you when the slowest query on a MySQL, PostgreSQL or MongoDB service runs longer than 10 seconds.
+
+To get started, [set up alerts on Query Analytics data](../alert/alert_rules.md#set-up-query-performance-alerts) using the built-in template or your own.
+
 ### Smarter Advisors that run on schedule, email results and suggest fixes
 
 You no longer need to open PMM to find out what Advisors found. [Schedule checks](../advisors/schedule-advisor-checks.md) to run when it suits your team, on the services that matter to you, and PMM can [email you a report](../advisors/advisors.md#get-advisor-results-by-email) after each run.
@@ -74,6 +82,7 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 ## 📈 Improvements
 
+- [PMM-15193](https://perconadev.atlassian.net/browse/PMM-15193): The **Expression** panel on the **Alerts > Status** page now shows each step of an alert rule, including the query it runs and the step that fires the alert, so you can see why an alert fired.
 - [PMM-15239](https://perconadev.atlassian.net/browse/PMM-15239): The **Alert Status** page now groups alert severities into four bands: **Critical**, **Error**, **Warning** and **Info**. Each band has its own icon and label, so you can tell severities apart without relying on color. The **Severity** filter and sort work by band, and the alert details show the original level, for example **Reported as Emergency**. Alert labels stay the same. For how levels map to bands, see [Alert rules](../alert/alert_rules.md).
 - [PMM-15805](https://perconadev.atlassian.net/browse/PMM-15805): The **Services** tab on **MongoDB > Operations > Fleet** now shows why a service is failing. The **Collected** column shows the reason, for example **Database unreachable**, and the service details show the full error, what to do about it, and a link to the scan that failed. A **Down** service whose `mongod` or `mongos` wasn't running at its last scan shows **not running**. The **Clusters** tab now warns when scan results can't be read. For details, see [Operations for MongoDB](../use/mongodb-operations.md#scans).
 - [PMM-14109](https://perconadev.atlassian.net/browse/PMM-14109): Advisors now email a report after each run, keep a history of insights and runs, [run checks on schedules](#smarter-advisors-that-run-on-schedule-email-results-and-suggest-fixes) instead of fixed intervals, and support custom checks. The upgrade removes the run intervals and some Advisor API endpoints, and enables every check again.
