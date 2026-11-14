@@ -12,7 +12,7 @@ Advisors are on by default. Every day at 06:00 UTC, the **All checks daily** sch
 
 **Advisors > Catalog** lists the checks for all supported databases, but you get results only for the databases that you monitor. For example, if you monitor only PostgreSQL, PMM runs only the PostgreSQL checks and skips the MySQL and MongoDB ones.
 
-PMM Client runs these checks on your databases, and PMM Server keeps the results. The results never leave PMM Server: PMM doesn't send them as part of Telemetry.
+PMM Client runs these checks on your databases, and PMM Server keeps the results. [Telemetry](../configure-pmm/advanced_settings.md#telemetry) doesn't include the results, the affected services or the names of your custom checks. For Advisors, it reports only usage, such as the number of insights for each built-in check, the number of findings in the last 24 hours and which built-in checks are turned off.
 
 PMM runs one set of checks at a time, whether a schedule or a user starts it. A run that you start while another one is queued or in progress doesn't start.
 

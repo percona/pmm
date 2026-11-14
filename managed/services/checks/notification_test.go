@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -157,4 +158,18 @@ func TestEmailInsights(t *testing.T) {
 		require.EqualError(t, err, "too many insights match the filters: 201 match, narrow them to 200 or fewer")
 		assert.Zero(t, count)
 	})
+}
+
+func TestNotificationsMetric(t *testing.T) {
+	// SMTP is off, so the test email fails without a network round trip
+	t.Setenv("GF_SMTP_ENABLED", "false")
+
+	s := New(nil, nil, nil, nil)
+	err := s.SendTestNotification([]string{"dba@example.com"}, []common.Severity{common.Critical})
+	require.ErrorIs(t, err, services.ErrSMTPNotConfigured)
+
+	assert.InDelta(t, 1, testutil.ToFloat64(s.mNotifications.WithLabelValues(notificationKindTest, notificationResultFailed)), 0)
+	assert.InDelta(t, 0, testutil.ToFloat64(s.mNotifications.WithLabelValues(notificationKindTest, notificationResultSent)), 0)
+	// every kind and result is exported from the start
+	assert.Equal(t, 6, testutil.CollectAndCount(s.mNotifications))
 }

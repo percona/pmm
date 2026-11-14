@@ -698,7 +698,7 @@ telemetry:
   # Advisor
   - id: AdvisorChecksAvailable
     source: VM
-    query: pmm_managed_advisor_checks_available
+    query: pmm_managed_advisor_checks_available{source="builtin"}
     transform:
       type: JSON
       metric: "advisor_checks_available"
@@ -711,7 +711,7 @@ telemetry:
 
   - id: AdvisorChecksExecuted
     source: VM
-    query: pmm_managed_advisor_checks_executed_total
+    query: pmm_managed_advisor_checks_executed_total{source="builtin"}
     transform:
       type: JSON
       metric: "advisor_checks_executed_total"
@@ -724,7 +724,7 @@ telemetry:
 
   - id: AdvisorCheckInsights
     source: VM
-    query: pmm_managed_advisor_check_insights
+    query: sum by (check_name) (pmm_managed_advisor_check_insights{source="builtin"})
     transform:
       type: JSON
       metric: "advisor_check_insights"
@@ -737,7 +737,7 @@ telemetry:
 
   - id: AdvisorsChecksExecutionTime
     source: VM
-    query: pmm_managed_advisor_check_execution_time_seconds
+    query: pmm_managed_advisor_check_execution_time_seconds{source="builtin"}
     summary: "Advisor - Time taken for advisor checks to execute"
     transform:
       type: JSON
@@ -750,7 +750,7 @@ telemetry:
 
   - id: AdvisorsChecksDisabled
     source: PMMDB_SELECT
-    query: json_agg(name) as disabled_checks from advisor_checks where disabled;
+    query: json_agg(name ORDER BY name) AS disabled_checks FROM advisor_checks WHERE disabled AND source = 'builtin'
     summary: "Advisor - Checks that are disabled on the PMM instance"
     transform:
       type: JSON
@@ -760,6 +760,104 @@ telemetry:
         column: "disabled_checks"
       - metric_name: 2
         value: 1
+
+  - id: AdvisorNotificationsSent
+    source: VM
+    query: round(sum(increase(pmm_managed_advisor_notifications_total{result="sent"}[24h])))
+    summary: "Advisor - emails sent in the last 24 hours"
+    data:
+      - metric_name: "advisor_notifications_sent_24h"
+        value: 1
+
+  - id: AdvisorNotificationsFailed
+    source: VM
+    query: round(sum(increase(pmm_managed_advisor_notifications_total{result="failed"}[24h])))
+    summary: "Advisor - emails that failed to send in the last 24 hours"
+    data:
+      - metric_name: "advisor_notifications_failed_24h"
+        value: 1
+
+  - id: AdvisorRuns
+    source: PMMDB_SELECT
+    query: >
+      count(*) AS runs,
+      count(*) FILTER (WHERE triggered_by = 'user') AS runs_by_user,
+      count(*) FILTER (WHERE triggered_by = 'scheduler') AS runs_scheduled,
+      count(*) FILTER (WHERE status IN ('interrupted', 'aborted')) AS runs_not_completed,
+      coalesce(sum(findings_count), 0) AS findings,
+      coalesce(sum(errors_count), 0) AS errors
+      FROM advisor_runs
+      WHERE started_at > (now() AT TIME ZONE 'utc') - interval '24 hours'
+    summary: "Advisor - runs in the last 24 hours: total, started by a user, started by a schedule, not completed, findings, errors"
+    data:
+      - metric_name: "advisor_runs_24h"
+        column: "runs"
+      - metric_name: "advisor_runs_by_user_24h"
+        column: "runs_by_user"
+      - metric_name: "advisor_runs_scheduled_24h"
+        column: "runs_scheduled"
+      - metric_name: "advisor_runs_not_completed_24h"
+        column: "runs_not_completed"
+      - metric_name: "advisor_findings_24h"
+        column: "findings"
+      - metric_name: "advisor_run_errors_24h"
+        column: "errors"
+
+  - id: AdvisorSchedules
+    source: PMMDB_SELECT
+    query: >
+      count(*) AS schedules,
+      count(*) FILTER (WHERE enabled) AS enabled,
+      count(*) FILTER (WHERE enabled AND email_mode = 'custom') AS custom_email,
+      count(*) FILTER (WHERE enabled AND email_mode = 'off') AS email_off
+      FROM advisor_schedules
+    summary: "Advisor - schedules: total, enabled, enabled with custom recipients, enabled with email off"
+    data:
+      - metric_name: "advisor_schedules_count"
+        column: "schedules"
+      - metric_name: "advisor_schedules_enabled"
+        column: "enabled"
+      - metric_name: "advisor_schedules_custom_email"
+        column: "custom_email"
+      - metric_name: "advisor_schedules_email_off"
+        column: "email_off"
+
+  - id: AdvisorChecks
+    source: PMMDB_SELECT
+    query: >
+      count(*) FILTER (WHERE source = 'user') AS user_checks,
+      count(*) FILTER (WHERE source = 'builtin' AND disabled) AS builtin_disabled,
+      count(*) FILTER (WHERE CASE WHEN jsonb_typeof(disabled_service_ids) = 'array' THEN jsonb_array_length(disabled_service_ids) ELSE 0 END > 0) AS disabled_for_some_services
+      FROM advisor_checks
+    summary: "Advisor - user checks, disabled built-in checks, checks disabled for some services"
+    data:
+      - metric_name: "advisor_user_checks_count"
+        column: "user_checks"
+      - metric_name: "advisor_builtin_checks_disabled_count"
+        column: "builtin_disabled"
+      - metric_name: "advisor_checks_disabled_for_some_services_count"
+        column: "disabled_for_some_services"
+
+  - id: AdvisorNotificationSettings
+    source: PMMDB_SELECT
+    query: >
+      (CASE WHEN n->'enabled' = 'true' THEN '1' ELSE '0' END) AS enabled,
+      (CASE WHEN jsonb_typeof(n->'email_addresses') = 'array' THEN jsonb_array_length(n->'email_addresses') ELSE 0 END) AS recipients
+      FROM settings s, jsonb_extract_path(s.settings, 'advisor_notifications') AS n
+    summary: "Advisor - email notifications on or off, number of recipients"
+    data:
+      - metric_name: "pmm_server_advisor_notifications_enabled"
+        column: "enabled"
+      - metric_name: "pmm_server_advisor_notification_recipients_count"
+        column: "recipients"
+
+  - id: AdvisorHistoryRetention
+    source: PMMDB_SELECT
+    query: r AS retention FROM settings s, jsonb_extract_path(s.settings, 'advisor_history_retention') AS r
+    summary: "Advisor - history retention in nanoseconds"
+    data:
+      - metric_name: "pmm_server_advisor_history_retention"
+        column: "retention"
 
   #Grafana
   - id: GrafanaUsersCount
