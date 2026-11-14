@@ -13,6 +13,7 @@ settings.json
 .modules
 build.log
 build/.cache/
+pmm-workspace/
 packer.log
 ci.yml
 Makefile.local

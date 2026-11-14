@@ -48,11 +48,29 @@ You get the same services, nodes and agents, now with:
 
     ![Inventory page in native PMM UI](../images/PMM_Inventory_Services.png)
 
+### Find failing MongoDB backup agents at a glance
+
+If you manage a large MongoDB fleet, you can now see right away which backup agents need attention. The new **Failing Backup Agents** table on the **MongoDB Backup Details** dashboard lists only the failing agents and how long each one has been failing, so you no longer have to search the **Backup Agent Status** grid for them.
+
+![Failing Backup Agents table](../images/BackupDetails_FailingBackupAgents.png)
+
+[Find your failing backup agents](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) to get started.
+
 ## 🔒 Security updates
 
 ### Go standard library HTTP/1 server crash ([CVE-2026-97054](https://nvd.nist.gov/vuln/detail/CVE-2026-97054))
 
 Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by rebuilding on Go 1.27.4.
+
+## 🧩 API changes
+
+If your scripts or integrations call the PMM API, check whether these changes affect them:
+
+- Requests to the PMM API without credentials now fail, even when Grafana anonymous access is enabled. This is part of the fix for [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339), which lets visitors who aren't signed in view your dashboards and nothing else.
+
+- With access control enabled, the Query Analytics and metrics query APIs now refuse service account tokens, so automation can't read data that your access roles restrict.
+
+To find the affected endpoints and update your automation, [check the PMM API release notes](https://percona-pmm.readme.io/v3/reference/release-notes-3-11-0).
 
 ## 📈 Improvements
 
@@ -61,18 +79,23 @@ Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by r
 - [PMM-14109](https://perconadev.atlassian.net/browse/PMM-14109): Advisors now email a report after each run, keep a history of insights and runs, [run checks on schedules](#smarter-advisors-that-run-on-schedule-email-results-and-suggest-fixes) instead of fixed intervals, and support custom checks. The upgrade removes the run intervals and some Advisor API endpoints, and enables every check again.
 - [PMM-15002](https://perconadev.atlassian.net/browse/PMM-15002): The **Inventory** page now runs in [native PMM UI](#inventory-page-now-in-native-pmm-ui), so it looks and works like the rest of the PMM interface. You can also bookmark and share filtered views of your services and nodes, and your existing Inventory bookmarks keep working.
 - [PMM-15481](https://perconadev.atlassian.net/browse/PMM-15481): You can now export services from **Inventory > Services** to a CSV file. Click **Export** to download the selected services, or every service that matches the search and filters. Each row includes the status, the monitoring status, the agents that failed, and the labels of the service. For details, see [Export services to a CSV file](../use/dashboard-inventory.md#export-services-to-a-csv-file).
+- [PMM-15484](https://perconadev.atlassian.net/browse/PMM-15484): Added the **Failing Backup Agents** table to the [MongoDB Backup Details](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) dashboard. It lists only the PBM agents in **FAIL** or **DOWN** state.
 - [PMM-15699](https://perconadev.atlassian.net/browse/PMM-15699): **MongoDB > Operations** now calls PMM Extensions as the signed-in user, so PMM Extensions applies that user's role and records configuration changes under their name. API requests for nodes, scans, installs and settings must authenticate with a service account token or a PMM session. A request with a username and password gets `401 Unauthenticated`. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15825](https://perconadev.atlassian.net/browse/PMM-15825): Every signed-in PMM user can now open **MongoDB > Operations**. Viewers and Editors see every page except the install form. They can't scan nodes, start or abort installs, remove node entries, or change settings: those controls are disabled or hidden for them. Starting a scan now requires the Admin role, as installs already did. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15846](https://perconadev.atlassian.net/browse/PMM-15846): The execution history of PMM Extensions apps, such as **MySQL Backups**, now shows a warning icon beside the status of a finished run whose logs were partly or wholly lost before PMM could store them, so you can spot it without opening the run. Hover over or tab to the icon for details. For more on task logs, see [Monitor backups](../apps/mysql-backup.md#monitor-backups).
 - [PMM-15013](https://perconadev.atlassian.net/browse/PMM-15013): The PMM Server Docker image is now about 60 MiB smaller to download and about 200 MiB smaller unpacked. It no longer includes `dnf`, `pip`, `systemd`, or the EPEL and Percona repositories, which were only needed to build the image. If you install extra packages inside the PMM Server container, first install `dnf` as root, for example with `docker exec -u root pmm-server microdnf install -y dnf`. To install packages from EPEL or the Percona repositories, also install `epel-release` or [`percona-release`](https://docs.percona.com/percona-software-repositories/installing.html).
 
+- [PMM-15806](https://perconadev.atlassian.net/browse/PMM-15806): You can now search the **Clusters** tab on **MongoDB > Operations > Fleet** by cluster name and filter it by **Health**, **Type**, and **Environment**. The search and filters are saved in the page URL, so you can share a filtered view. Each cluster shows its type next to its name. The column chooser also adds optional **Type**, **Last seen**, **Max CPU**, and **Min conn. free** columns. For details, see [Operations for MongoDB](../use/mongodb-operations.md#view-fleet-health).
+
 ## ✅ Fixed issues
+
+- [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339): Fixed an issue where [turning on Grafana anonymous access](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#supported-external-variables) also let visitors who aren't signed in use PMM features such as Query Analytics. These visitors can now open only your dashboards.
 
 - [PMM-15654](https://perconadev.atlassian.net/browse/PMM-15654): Fixed the [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard hiding clusters added without `--environment` when **Environment** is set to **All** and another MongoDB service has an environment set. These clusters now appear under **All**.
 
 - [PMM-15801](https://perconadev.atlassian.net/browse/PMM-15801): Fixed an arbiter added to PMM showing no member state and **mongod** as its process on **MongoDB > Operations > Fleet**. An arbiter now shows **Arbiter** as its process, and **ARBITER** as its member state while it is running. The cluster's **Process** summary counts it as an arbiter. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 
-- [PMM-15776](https://perconadev.atlassian.net/browse/PMM-15776): Fixed misleading help on **MongoDB > Operations > Settings**. **Connect to MongoDB** now says that scans log in with the `.mongodb_uri` file in the home directory of the user pmm-agent runs as, not with the monitoring credentials PMM holds. The **Automatic node scans** setting is removed: turning it off also blocked **Scan** and **Scan all** on the **Nodes** page, and PMM turned it back on at every restart. For details, see [Operations for MongoDB](../use/mongodb-operations.md#provide-mongodb-credentials-for-scans).
+- [PMM-15776](https://perconadev.atlassian.net/browse/PMM-15776): Fixed misleading help on **MongoDB > Operations > Settings**. **Connect to MongoDB** now says that scans log in with the `.mongodb_uri` file in the home directory of the user pmm-agent runs as, not with the monitoring credentials PMM holds. For details, see [Operations for MongoDB](../use/mongodb-operations.md#provide-mongodb-credentials-for-scans).
 
 - [PMM-15845](https://perconadev.atlassian.net/browse/PMM-15845): Fixed an issue where forms in PMM Extensions apps checked some rules that involve several fields only after you submitted the form, and then showed the error in a banner without marking a field. These rules are now checked while you fill in the form. For example, in **Apps > MySQL Backups**, choosing a GPG **Encryption format** with neither **Encrypt backup** nor **Encrypt after backup completes** turned on shows the error on both switches, and the backup isn't created until you fix it. For details, see [Encrypt backups](../apps/mysql-backup.md#encrypt-backups).
 
@@ -82,7 +105,11 @@ Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by r
 
 - [PMM-15772](https://perconadev.atlassian.net/browse/PMM-15772): Fixed an issue where you couldn't turn on Operations for MongoDB until you connected PMM Server to PMM Extensions manually. PMM Server now connects to PMM Extensions automatically. If you set `PMM_EXTENSIONS_URL`, `PMM_EXTENSIONS_TOKEN` and `EXTENSIONS_INTERNAL_TOKEN` for PMM 3.10.0, they keep working. If PMM still can't use PMM Extensions, turning on Operations for MongoDB now says why, for example that PMM Extensions is unreachable or rejects PMM's token. For details, see [Operations for MongoDB](../use/mongodb-operations.md#prepare-pmm-server).
 
+- [PMM-15860](https://perconadev.atlassian.net/browse/PMM-15860): Fixed **Automatic node scans** in **MongoDB > Operations > Settings** blocking **Scan** and **Scan all** on the **Nodes** page, and PMM turning automatic scans back on when it restarted. Turning off **Automatic node scans** now stops only the scans PMM starts on its own: the scheduled scans, the scan after each restart, and the scan when Operations for MongoDB is turned on. The setting stays off until you turn it back on. For details, see [Operations for MongoDB](../use/mongodb-operations.md#stop-automatic-scans).
+
 - [PMM-15559](https://perconadev.atlassian.net/browse/PMM-15559): Fixed an issue where the **Netstat: TCP** panel on the [Network Details](../reference/dashboards/dashboard-network-details.md) dashboard showed ever-growing totals instead of current activity. The panel now shows new connections, resets, and retransmits per second, so you can quickly spot spikes. Currently open connections are now shown on a separate scale on the right side of the chart, so you can compare them with new connections, resets, and retransmits.
+
+- [PMM-15910](https://perconadev.atlassian.net/browse/PMM-15910): Fixed an issue where PMM Server could stay unhealthy after an abrupt stop, for example `docker kill`, a host crash or running out of memory. The built-in PostgreSQL database refused to start because of lock files left over from the previous run. PMM Server now removes these files when it starts.
 
 ## 🔶 Known issues
 

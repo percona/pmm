@@ -30,7 +30,7 @@ import (
 
 type clientStub struct{}
 
-func (clientStub) getAuthUser(context.Context, http.Header, *logrus.Entry) (authUser, error) {
+func (clientStub) getAuthUser(context.Context, http.Header) (authUser, error) {
 	return authUser{role: grafanaAdmin}, nil
 }
 

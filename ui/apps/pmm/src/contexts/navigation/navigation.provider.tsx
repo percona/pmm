@@ -32,10 +32,11 @@ import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useHaInfo } from 'hooks/api/useHA';
 import { useAuth } from 'contexts/auth';
+import { ServiceType } from 'types/services.types';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isAnonymous } = useAuth();
   const { data: serviceTypes } = useServiceTypes({
     enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
@@ -49,13 +50,16 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     true
   );
   const { data: haInfo } = useHaInfo({
-    enabled: user?.isAnonymous === false,
+    enabled: !!user,
   });
 
   const navTree = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [];
-    // use fetched service types, falling back to an empty list while unavailable
-    const currentServiceTypes = serviceTypes?.serviceTypes || [];
+    // Anonymous visitors can't list service types, so they get every database's dashboards;
+    // otherwise use the fetched ones, falling back to an empty list while unavailable.
+    const currentServiceTypes = isAnonymous
+      ? Object.values(ServiceType)
+      : serviceTypes?.serviceTypes || [];
 
     items.push(addHomePage(user?.preferences));
 
@@ -67,16 +71,15 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     // Served by pmm-managed, so it is not gated with the PMM Extensions group: any
     // signed-in user while the switch is on. Actions inside are admin-only.
-    const mongoExtras =
-      user?.isAnonymous === false && settings?.omEnabled ? [addOm()] : [];
+    const mongoExtras = user && settings?.omEnabled ? [addOm()] : [];
 
     items.push(
       ...addDashboardItems(currentServiceTypes, folders, user, mongoExtras)
     );
 
-    items.push(NAV_QAN);
-
     if (user) {
+      items.push(NAV_QAN);
+
       if (settings?.frontend.exploreEnabled && user.isEditor) {
         items.push(
           addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps)
@@ -108,11 +111,9 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       // administrators, so a non-admin gets a read-only view with no write
       // control rendered (PMM-15358).
       //
-      // Signed-in is the rule, so anonymous is excluded: it has no Grafana
-      // session cookie to exchange for a side-car bearer, and the entry would open
-      // on ExtensionsAuthGate's failure card rather than on the app. PMM Extensions navigation
-      // is also withheld when the integration is disabled (PMM_ENABLE_EXTENSIONS).
-      if (!user.isAnonymous && settings?.extensionsEnabled) {
+      // PMM Extensions navigation is withheld when the integration is disabled
+      // (PMM_ENABLE_EXTENSIONS).
+      if (settings?.extensionsEnabled) {
         items.push(...addExtensionsApps());
       }
 
@@ -153,6 +154,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     status,
     versionInfo,
     isLoggedIn,
+    isAnonymous,
   ]);
 
   return (

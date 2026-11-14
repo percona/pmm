@@ -124,5 +124,5 @@ type omService interface {
 	// CheckAvailable returns why the PMM Extensions inventory app cannot be used, or nil when it can.
 	CheckAvailable(ctx context.Context) error
 	TriggerTopologyCollection(ctx context.Context, req *omv1.TriggerTopologyCollectionRequest) (*omv1.TriggerTopologyCollectionResponse, error)
-	SyncInventoryEnabled(ctx context.Context, enabled bool)
+	SyncInventoryEnabled(ctx context.Context)
 }
