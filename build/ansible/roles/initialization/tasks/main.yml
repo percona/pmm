@@ -86,6 +86,8 @@
     register: pmm_ready
     until: pmm_ready.status == 200
     ignore_errors: true
+    # The image build runs with -vvv, which would print the whole response on every retry.
+    no_log: true
 
   - name: Initialize admin password for AMI if needed
     include_role:
