@@ -49,45 +49,6 @@
       dest: /usr/share/pmm-server/maintenance/
       mode: 0664
 
-  - name: Wait for PostgreSQL to become responsive
-    wait_for:
-      host: 127.0.0.1
-      port: 5432
-      timeout: 150
-    when:
-      - lookup('env','GF_DATABASE_URL') == ''
-      - lookup('env','GF_DATABASE_HOST') == ''
-      - lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') == ''
-
-  - name: Create Grafana DB
-    block:
-      - name: Create grafana user in postgres
-        postgresql_user:
-          name: grafana
-          password: "{{ lookup('file', '/run/pmm/secrets/grafana-db-password') | trim }}"
-          expires: infinity
-          login_user: postgres
-          state: present
-        environment:
-          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
-          # The statement carries the password, which pg_stat_statements would otherwise record.
-          PGOPTIONS: "-c pg_stat_statements.track_utility=off"
-
-      # Since PostgreSQL 15 the public schema belongs to pg_database_owner, so owning the
-      # database is what lets the user create tables in it.
-      - name: Create grafana database in postgres
-        postgresql_db:
-          name: grafana
-          owner: grafana
-          login_user: postgres
-          state: present
-        environment:
-          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
-    when:
-      - lookup('env','GF_DATABASE_URL') == ''
-      - lookup('env','GF_DATABASE_HOST') == ''
-      - need_initialization
-
   # Bundled Grafana plugins are synced by the container entrypoint.
   # Only the version marker is managed here; it also drives the
   # need_initialization/need_upgrade facts above.

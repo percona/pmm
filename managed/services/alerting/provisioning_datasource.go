@@ -71,7 +71,7 @@ const (
 
 // grafanaDBFallback describes where Grafana's database lives when the deployment has not said.
 // This is the bundled case: Grafana shares PMM's own PostgreSQL server, and the database and user
-// are created by the initialization ansible role.
+// are created by the postgres-migration script that the entrypoint runs.
 type grafanaDBFallback struct {
 	// Addr is PMM's PostgreSQL address, host:port.
 	Addr string
@@ -90,7 +90,7 @@ const (
 // The order matters. Since PMM 3.2.0 an external Grafana database is configured with the discrete
 // GF_DATABASE_* variables, and that is what the pmm-ha Helm chart sets - with a user that is not
 // necessarily "grafana". GF_DATABASE_URL is the older single-URL form. Only when neither is present
-// is the database the bundled one, which is exactly the condition under which the ansible role
+// is the database the bundled one, which is exactly the condition under which postgres-migration
 // creates it, so the branches cannot overlap. The password is Grafana's database password for either database.
 func grafanaDatasourceDSN(password string, fallback grafanaDBFallback) (string, error) {
 	if host := os.Getenv("GF_DATABASE_HOST"); host != "" {
