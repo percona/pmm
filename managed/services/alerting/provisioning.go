@@ -36,6 +36,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/dir"
+	"github.com/percona/pmm/managed/utils/secrets"
 )
 
 const (
@@ -282,7 +283,12 @@ func NewProvisioner(params ProvisionerParams) *Provisioner {
 
 	// Where Grafana's database lives is worked out once: it is what the real datasource UID is read
 	// from, and it does not change while the process runs.
-	dsn, err := grafanaDatasourceDSN(grafanaDBFallback{Addr: params.GrafanaDBAddr, SSLParams: params.GrafanaDBSSLParams})
+	// Without a resolved credential file, as in the development container, the bundled default applies.
+	var dsn string
+	password, err := secrets.Value(os.Getenv("GF_DATABASE_PASSWORD"), secrets.GrafanaDBPassword, bundledGrafanaPassword)
+	if err == nil || errors.Is(err, secrets.ErrNotResolved) {
+		dsn, err = grafanaDatasourceDSN(password, grafanaDBFallback{Addr: params.GrafanaDBAddr, SSLParams: params.GrafanaDBSSLParams})
+	}
 	if err != nil {
 		// Nothing recomputes this, so unlike a database that is merely unreachable, no amount of
 		// retrying will fix it: built-in rules stay unprovisioned until the configuration changes.

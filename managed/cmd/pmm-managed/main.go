@@ -112,6 +112,7 @@ import (
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
+	"github.com/percona/pmm/managed/utils/secrets"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
@@ -726,6 +727,19 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 	return db, nil
 }
 
+// readCredential returns secrets.Value, warning when the default applies and exiting when a resolved credential can't
+// be read, because with the default pmm-managed would reset its database password.
+func readCredential(l *logrus.Entry, value string, name secrets.Name, defaultValue string) string {
+	v, err := secrets.Value(value, name, defaultValue)
+	switch {
+	case errors.Is(err, secrets.ErrNotResolved):
+		l.Warnf("Credential %s is not resolved, using the default.", name)
+	case err != nil:
+		l.Fatalf("Cannot read credential %s: %s.", name, err)
+	}
+	return v
+}
+
 func main() { //nolint:gocognit,maintidx,cyclop
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
@@ -774,8 +788,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
 		Envar("PMM_POSTGRES_SSL_CA_PATH").
 		String()
-	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
-		Default("pmm-managed").
+	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password; read from "+secrets.Dir+" when unset").
 		Envar("PMM_POSTGRES_DBPASSWORD").
 		String()
 	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
@@ -838,7 +851,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
-	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
+	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password; read from "+secrets.Dir+" when unset").
+		Envar("PMM_CLICKHOUSE_PASSWORD").String()
 
 	// Nomad garbage collection flags
 	nomadGCIntervalF := kingpin.Flag("nomad-gc-interval", "Interval at which Nomad attempts to garbage collect terminal allocation directories.").
@@ -899,6 +913,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	haService := ha.New(haParams)
 
+	*postgresDBPasswordF = readCredential(l, *postgresDBPasswordF, secrets.PostgresPassword, "pmm-managed")
+	*clickhousePasswordF = readCredential(l, *clickhousePasswordF, secrets.ClickHousePassword, "clickhouse")
+
 	cfg := config.NewService()
 	err := cfg.Load()
 	if err != nil {
@@ -926,6 +943,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	pmmdb.DSN.Params = q.Encode()
 
 	grafanadb := ds.GrafanaDBSelect
+	grafanadb.Credentials.Password = readCredential(l, os.Getenv("GF_DATABASE_PASSWORD"), secrets.GrafanaDBPassword, grafanadb.Credentials.Password)
 	grafanadb.DSN.Scheme = "postgres"
 	grafanadb.DSN.Host = *postgresAddrF
 	grafanadb.DSN.DB = "grafana"
@@ -1055,7 +1073,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				Addr:        *postgresAddrF,
 				DBName:      *postgresDBNameF,
 				DBUsername:  *postgresDBUsernameF,
-				DBPassword:  *postgresDBPasswordF,
 				SSLMode:     *postgresSSLModeF,
 				SSLCAPath:   *postgresSSLCAPathF,
 				SSLKeyPath:  *postgresSSLKeyPathF,

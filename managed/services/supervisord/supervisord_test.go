@@ -29,6 +29,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/secrets"
 )
 
 func TestConfig(t *testing.T) {
@@ -41,13 +42,13 @@ func TestConfig(t *testing.T) {
 		Addr:        "127.0.0.1:5432",
 		DBName:      "postgres",
 		DBUsername:  "db_username",
-		DBPassword:  "db_password",
 		SSLMode:     "verify",
 		SSLCAPath:   "path-to-CA-cert",
 		SSLKeyPath:  "path-to-key",
 		SSLCertPath: "path-to-cert",
 	}
 	s := New(configDir, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}})
+	s.secretExists = func(secrets.Name) bool { return false }
 	settings := &models.Settings{
 		DataRetention:    30 * 24 * time.Hour,
 		PMMPublicAddress: "192.168.0.42:8443",
@@ -71,6 +72,35 @@ func TestConfig(t *testing.T) {
 	}
 }
 
+func TestConfigCredentialFiles(t *testing.T) {
+	t.Parallel()
+
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	pgParams := &models.PGParams{Addr: "127.0.0.1:5432", DBName: "postgres", DBUsername: "db_username"}
+	s := New(t.TempDir(), &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}})
+	s.secretExists = func(secrets.Name) bool { return true }
+	settings := &models.Settings{DataRetention: 30 * 24 * time.Hour}
+
+	configs := make(map[string]string)
+	for _, tmpl := range templates.Templates() {
+		if tmpl.Name() == "" {
+			continue
+		}
+		b, err := s.marshalConfig(tmpl, settings)
+		require.NoError(t, err)
+		configs[tmpl.Name()] = string(b)
+	}
+
+	assert.Contains(t, configs["qan-api2"], `PMM_CLICKHOUSE_PASSWORD_FILE="/run/pmm/secrets/clickhouse-password",`)
+	assert.NotContains(t, configs["qan-api2"], "PMM_CLICKHOUSE_PASSWORD=")
+	assert.NotContains(t, configs["grafana"], "PMM_CLICKHOUSE_DATASOURCE_PASSWORD=")
+	// grafana.ini reads Grafana's database password from its file.
+	assert.NotContains(t, configs["grafana"], "GF_DATABASE_PASSWORD")
+	assert.Contains(t, configs["grafana"], `GF_SECURITY_ADMIN_PASSWORD="$__file{/run/pmm/secrets/admin-password}",`)
+	assert.Contains(t, configs["grafana"], `cfg:security.secret_key=$__file{/run/pmm/secrets/grafana-secret-key}`)
+}
+
 func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
@@ -79,13 +109,13 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		Addr:        "127.0.0.1:5432",
 		DBName:      "postgres",
 		DBUsername:  "db_username",
-		DBPassword:  "db_password",
 		SSLMode:     "verify",
 		SSLCAPath:   "path-to-CA-cert",
 		SSLKeyPath:  "path-to-key",
 		SSLCertPath: "path-to-cert",
 	}
 	s := New(configDir, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}})
+	s.secretExists = func(secrets.Name) bool { return false }
 	settings := &models.Settings{
 		DataRetention:    30 * 24 * time.Hour,
 		PMMPublicAddress: "192.168.0.42:8443",

@@ -216,6 +216,15 @@ Configure connections to external database services:
 | `PMM_CLICKHOUSE_*` | ClickHouse connection settings |
 | `PMM_POSTGRES_*` | PostgreSQL connection settings |
 
+### Credentials as files
+
+These variables supply PMM Server's credentials as files instead of environment variables. For the credentials, their file names and the order in which PMM Server reads them, see [Supply credentials as files](../../../../admin/security/credentials_as_files.md).
+
+| Variable | Description |
+|----------|-------------|
+| `PMM_SECRETS_DIR` | Directory with one file per credential, named after the credential, for example `admin-password` |
+| `PMM_ADMIN_PASSWORD_FILE`, `PMM_GRAFANA_SECRET_KEY_FILE`, `PMM_POSTGRES_PASSWORD_FILE`, `PMM_GRAFANA_DB_PASSWORD_FILE`, `PMM_CLICKHOUSE_PASSWORD_FILE`, `PMM_CLICKHOUSE_DATASOURCE_PASSWORD_FILE` | Path to the file of one credential. Takes precedence over `PMM_SECRETS_DIR` |
+
 
 ### HA variables
 

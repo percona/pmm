@@ -1,0 +1,87 @@
+# Supply credentials as files
+
+PMM Server can read the credentials it uses from files instead of environment variables. A file can be one you mount into the container or one that a secrets manager agent, such as Vault Agent, renders. A credential that exists only in a file doesn't appear in the container's environment or in the environment of any PMM Server process.
+
+## Credentials that PMM Server reads from files
+
+Each credential has a file name. PMM Server links every credential it resolves at `/run/pmm/secrets/<file name>` when the container starts, and its components read it from there when they start. After you change a database password, restart PMM Server so that its components use the new value.
+
+| File name | What it is | File variable | Earlier environment variable |
+|-----------|------------|---------------|------------------------------|
+| `admin-password` | Password of the `admin` user | `PMM_ADMIN_PASSWORD_FILE` | `GF_SECURITY_ADMIN_PASSWORD`, `PMM_ADMIN_PASSWORD` |
+| `grafana-secret-key` | Grafana's `[security] secret_key`, which encrypts data source and contact point secrets | `PMM_GRAFANA_SECRET_KEY_FILE` | `GF_SECURITY_SECRET_KEY` |
+| `postgres-password` | PostgreSQL user of PMM Server | `PMM_POSTGRES_PASSWORD_FILE` | `PMM_POSTGRES_DBPASSWORD` |
+| `grafana-db-password` | PostgreSQL user of Grafana | `PMM_GRAFANA_DB_PASSWORD_FILE` | `GF_DATABASE_PASSWORD` |
+| `clickhouse-password` | ClickHouse user of PMM Server | `PMM_CLICKHOUSE_PASSWORD_FILE` | `PMM_CLICKHOUSE_PASSWORD` |
+| `clickhouse-datasource-password` | Read-only ClickHouse user of the Query Analytics data source | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD_FILE` | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` |
+
+Supply the four database passwords only when PMM Server uses an external database, for example in high availability (HA) mode. Don't supply them with the built-in databases: PMM Server doesn't apply them to its built-in ClickHouse, so a password other than the default breaks Query Analytics.
+
+The encryption key that protects the credentials of monitored services is already a file. To keep it off the data volume, set `PMM_ENCRYPTION_KEY_PATH` to a key file you mount, as described in [PMM data encryption](data_encryption.md).
+
+## How PMM Server finds a credential
+
+PMM Server takes the first source that exists:
+{.power-number}
+
+1. The file that the credential's file variable names.
+2. The file with the credential's name in the directory that `PMM_SECRETS_DIR` names.
+3. The earlier environment variable.
+4. Nothing: the four database passwords keep their default values, and the admin password and Grafana's secret key stay unset, as in earlier versions.
+
+Grafana's `GF_SECURITY_ADMIN_PASSWORD__FILE`, `GF_DATABASE_PASSWORD__FILE` and `GF_SECURITY_SECRET_KEY__FILE` have no effect, as in earlier versions. Use the file variables in the table instead.
+
+PMM Server doesn't start when:
+
+- a file that a file variable names is missing, empty or unreadable
+- `PMM_SECRETS_DIR` names a directory that doesn't exist, or something that isn't a directory
+- a file in `PMM_SECRETS_DIR` is empty or unreadable, such as a link to a file that doesn't exist
+- a credential is supplied both as a file and as an environment variable
+- an environment variable's value names a missing or unreadable file in `$__file{}`, or resolves to an empty value or to whitespace only
+- a database password in an environment variable has leading or trailing whitespace
+- `/run/pmm/secrets` holds anything that PMM Server didn't put there or belongs to another user, or `PMM_SECRETS_DIR` or a file variable points into it: mount credentials in another directory, such as `/etc/pmm/secrets`
+
+The error names every affected credential, never its value. A credential without a file in `PMM_SECRETS_DIR` moves on to the next source.
+
+## Docker
+
+Put each credential in its own file, readable by UID 1000, and mount the directory into the container:
+
+```sh
+docker run --detach --restart always \
+  --publish 443:8443 \
+  --volume pmm-data:/srv \
+  --volume /path/to/pmm-secrets:/etc/pmm/secrets:ro \
+  --env PMM_SECRETS_DIR=/etc/pmm/secrets \
+  --name pmm-server \
+  percona/pmm-server:3
+```
+
+
+## Environment variables
+
+The earlier environment variables keep working. PMM Server copies their values to files under `/run/pmm/secrets`, readable only by the PMM Server user, and removes the variables before it starts its services, so no PMM Server process inherits them. The one exception is a Grafana secret key with leading or trailing whitespace, described in [Grafana secret key](#grafana-secret-key). The values remain visible where you set them, for example in `docker inspect` or the pod specification, so prefer files.
+
+In the earlier variables of the admin password, Grafana's database password and the Query Analytics data source password, Grafana's `$__file{<path>}`, `$__env{<name>}` and `${<name>}` resolve as they did before. A value that is only `$__file{<path>}` is read from that file, like a file variable. `GF_SECURITY_SECRET_KEY` is used as written, because Grafana encrypted with it as written.
+
+When `GF_SECURITY_ADMIN_PASSWORD` and `PMM_ADMIN_PASSWORD` have different values, PMM Server uses `GF_SECURITY_ADMIN_PASSWORD`, the variable that Grafana read in earlier versions, and logs a warning.
+
+PMM Server ignores leading and trailing whitespace in files. Earlier versions kept it in values from environment variables, so for such a value PMM Server:
+
+- doesn't start if it's a database password, and names the variable: dropping the whitespace could change the password that the database expects
+- keeps `GF_SECURITY_SECRET_KEY` in the environment, as described in [Grafana secret key](#grafana-secret-key)
+- drops it from the admin password and logs a warning
+
+## Admin password
+
+Grafana sets `admin-password` only when it creates its database, that is on the first start. To change the password of a running installation, use the PMM UI or `change-admin-password`.
+
+## Grafana secret key
+
+Supply `grafana-secret-key` on a new installation, or on an existing one only with the key it already uses. Unless you set one earlier, that is Grafana's built-in default, `SW2YcwTIb9zpOOhoPsMm`. A different key makes existing data source and contact point secrets unreadable.
+
+A file can't keep leading or trailing whitespace, so a `GF_SECURITY_SECRET_KEY` that has any stays in the environment, where Grafana reads it as written, and PMM Server logs a warning. Moving such a key to a file means a key without the whitespace, which makes existing secrets unreadable.
+
+## After you switch
+
+Credentials that PMM Server used before the switch can remain in older log files under `/srv/logs`, in earlier revisions of a Helm release, and in backups. Change the credentials you supply after you switch to files, so that those copies are worthless.

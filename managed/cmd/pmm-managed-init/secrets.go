@@ -1,0 +1,44 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package main
+
+import (
+	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/managed/utils/secrets"
+)
+
+// runSecrets resolves every credential to a file under secrets.Dir before supervisord starts the programs.
+func runSecrets() error {
+	resolved, err := secrets.Prepare(secrets.OptionsFromEnv())
+	if err != nil {
+		return err
+	}
+	for _, r := range resolved {
+		logrus.Infof("Credential %s: %s.", r.Name, r.Source)
+		switch {
+		case r.Kept:
+			logrus.Warnf("Credential %s: %s has leading or trailing whitespace, so it stays in the environment, "+
+				"where Grafana reads it as written.", r.Name, r.Var)
+		case r.Padded:
+			logrus.Warnf("Credential %s: the value of %s has leading or trailing whitespace, which PMM Server ignores.", r.Name, r.Var)
+		}
+		if r.Ignored != "" {
+			logrus.Warnf("Credential %s: %s is set to a different value than %s, which PMM Server uses.", r.Name, r.Ignored, r.Var)
+		}
+	}
+	return nil
+}
