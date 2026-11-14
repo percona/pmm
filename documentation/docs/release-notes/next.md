@@ -110,6 +110,8 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 - [PMM-15910](https://perconadev.atlassian.net/browse/PMM-15910): Fixed an issue where PMM Server could stay unhealthy after an abrupt stop, for example `docker kill`, a host crash or running out of memory. The built-in PostgreSQL database refused to start because of lock files left over from the previous run. PMM Server now removes these files when it starts.
 
+- [PMM-15364](https://perconadev.atlassian.net/browse/PMM-15364): Fixed an issue where, on a PMM Server without internet access, the Home dashboard took up to a minute to load and PMM showed **Internal server error.** The Home dashboard now loads right away. The update check stops after 10 seconds, and PMM shows **Failed to check for PMM Server updates.** To skip the check in an air-gapped environment, turn off [Check for updates](../configure-pmm/advanced_settings.md#check-for-updates).
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
