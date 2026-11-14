@@ -1,10 +1,13 @@
 # Percona Server for MySQL 5.7 End-Of-Life
 
+!!! note
+    The `mysql_version_eol_57` check was removed in PMM 3.11.0. The [`mysql_version`](mysql-version.md) check now reports MySQL 5.7 and every other MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB and Amazon RDS for MySQL series that reached or is about to reach end of life.
+
 ## Description
 
 Percona Server for MySQL Server version 5.7 will reach End-of-life on October 21st, 2023.
 
-Percona does not provide support or issue hotfixes for end-of-life releases. After October 21st, the software is out of support and users do not receive further updates or bug fixes.
+EOL versions no longer receive bug or security fixes from the vendor.
 
 ## Resolution
 

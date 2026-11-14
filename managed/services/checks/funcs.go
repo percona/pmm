@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -27,6 +28,9 @@ import (
 )
 
 var privateNetworks []*net.IPNet
+
+// now returns the current time; tests override it.
+var now = time.Now
 
 // GetFuncsForVersion returns predefined functions for specified check version.
 func GetFuncsForVersion(version uint32) (map[string]starlark.GoFunc, error) {
@@ -107,7 +111,41 @@ func GetAdditionalContext() map[string]starlark.GoFunc {
 		"ip_is_private":      ipIsPrivate,
 		"parse_version":      parseVersion,
 		"format_version_num": formatVersionNum,
+		"current_date":       currentDate,
+		"days_until":         daysUntil,
 	}
+}
+
+const dateLayout = "2006-01-02"
+
+// currentDate takes no arguments and returns today's UTC date as a YYYY-MM-DD string.
+func currentDate(args ...any) (any, error) {
+	if l := len(args); l != 0 {
+		return nil, fmt.Errorf("expected 0 arguments, got %d", l)
+	}
+
+	return now().UTC().Format(dateLayout), nil
+}
+
+// daysUntil returns the whole days from today (UTC) until a YYYY-MM-DD date as int64, negative for a past date.
+func daysUntil(args ...any) (any, error) {
+	if l := len(args); l != 1 {
+		return nil, fmt.Errorf("expected 1 argument, got %d", l)
+	}
+
+	s, ok := args[0].(string)
+	if !ok {
+		return nil, fmt.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
+	}
+
+	d, err := time.Parse(dateLayout, s)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse %q", s)
+	}
+
+	today := now().UTC().Truncate(24 * time.Hour) //nolint:mnd
+
+	return int64(d.Sub(today) / (24 * time.Hour)), nil //nolint:mnd
 }
 
 // ipIsPrivate accepts a single string argument (IP address or a network in CIDR notation) and

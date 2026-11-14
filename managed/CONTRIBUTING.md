@@ -100,6 +100,35 @@ You can read more about the [check format and the script API in our documentatio
 
 Changes to built-in checks are visible in **Advisors > Catalog** once the PMM Server runs your build.
 
+### Keeping version data current
+
+The version checks hold their data in tables inside the check files. Each check reports both end of life (EOL) and newer releases, so one file can hold tables with different owners. Update a table when its owner needs to:
+
+| File | Table | Owner | Update when |
+|---|---|---|---|
+| `mongodb_version.yml` | `LATEST_VERSIONS["psmdb"]` | PSMDB team | Each PSMDB patch release |
+| `mongodb_version.yml` | `LATEST_VERSIONS["mongodb"]` | PMM team | Each MongoDB Community patch release; add a series at its GA |
+| `mongodb_version.yml` | `EOL` | PMM team | New major/LTS GA; vendor lifecycle change |
+| `postgresql_version_check.yml` | `latest_versions`, `version_expires` | PostgreSQL team | Each minor release; new major GA |
+| `mysql_version.yml` | `LATEST_VERSIONS`: `percona_server`, `percona_xtradb_cluster` | PS and PXC teams (to agree) | Each patch release |
+| `mysql_version.yml` | `LATEST_VERSIONS`: `oracle`, `mariadb`, `rds` | PMM team | Each PMM release |
+| `mysql_version.yml` | `EOL_ORACLE`, `EOL_PERCONA`, `EOL_MARIADB`, `EOL_RDS` | PMM team | New major/LTS GA; vendor lifecycle change |
+
+Every version check follows one rule, and gives at most one finding per service:
+
+- An error after the EOL date, without advice to install a newer patch of that series.
+- A warning when the EOL date is 0 to 183 days away, naming the newer patch if there is one.
+- Otherwise, a warning when a newer release is available, and nothing for a series missing from the tables.
+
+Write EOL dates only in these tables, never inline in a script.
+
+When you change a table, also update the two other places that hold its data:
+
+1. The matching case in `services/checks/version_checks_test.go`, where a case pins a value from the table. The cases for `mongodb_version` and `postgresql_version_check` read the latest versions from the check file, so a new patch release needs no test change. Adding a release series can change which series is the newest, so check the cases that name one.
+2. The table on the check's documentation page in `documentation/docs/advisors/checks/`: `mongodb-version.md`, `mysql-version.md`, `postgresql-version-check.md`, and any other page that lists the table's values.
+
+Then run `go test ./services/checks -run TestBuiltinVersionChecks` in the `managed` directory.
+
 
 
 ## Working with Percona Alerting

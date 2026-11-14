@@ -23,7 +23,7 @@ Use these checks to make sure that committed data survives a crash. They flag a 
 
 | Summary | Check name | Technology | What it checks |
 | :------ | :--------- | :--------- | :------------- |
-| [MongoDB Journal](checks/mongodb-journal.md) | `mongodb_journal` | MongoDB | Warns if the journal is disabled. |
+| [MongoDB Journal](checks/mongodb-journal.md) | `mongodb_journal` | MongoDB | Warns if the journal is explicitly disabled on MongoDB older than 7.0. |
 | [Binlogs retention check](checks/binlog-retention-period.md) | `mysql_config_binlog_retention_period` | MySQL | Checks whether binlogs are being rotated too frequently, which is not recommended, except in very specific cases. |
 | [Binlogs raw image is not set to FULL](checks/binlog-row-image.md) | `mysql_config_binlog_row_image` | MySQL | Advises when to set `binlog_row_image=FULL`. |
 | [Binlogs are not checksummed](checks/binlog-checksum-value.md) | `mysql_config_binlogs_checksummed` | MySQL | Advises when to set `binlog_checksum=CRC32` to improve consistency and reliability. |
@@ -42,7 +42,7 @@ Use these checks to make sure that your databases log enough to diagnose problem
 
 | Summary | Check name | Technology | What it checks |
 | :------ | :--------- | :--------- | :------------- |
-| [MongoDB Non-Default Log Level](checks/mongodb-log-messages.md) | `mongodb_loglevel` | MongoDB | Warns if MongoDB is not using the default Log level. |
+| [MongoDB Non-Default Log Level](checks/mongodb-log-messages.md) | `mongodb_loglevel` | MongoDB | Warns if MongoDB is explicitly set to a non-default log level. |
 | [General Log is enabled](checks/configuration-check-general-log.md) | `mysql_config_general_log` | MySQL | Checks whether the general log is enabled. |
 | [Check log verbosity](checks/mysql-warnings-not-being-logged.md) | `mysql_configuration_log_verbosity` | MySQL | Checks whether warnings are being printed on the log. |
 | [PostgreSQL Autovacuum Logging Is Disabled](checks/configuration-pg-log-autovacuum-disabled.md) | `postgresql_log_autovacuum_min_duration` | PostgreSQL | Notifies if `log_autovacuum_min_duration` is set to `-1`, which turns off autovacuum logging. |
@@ -108,7 +108,7 @@ Use these checks to make sure that each server has the CPU, memory, swap, storag
 | [Mongo Storage Cache](checks/mongodb-high-wiredTiger-cache.md) | `mongodb_cache_size` | MongoDB | Warns when Mongo WiredTiger cache size is greater than the default 50%. |
 | [MongoDB CPU cores](checks/mongodb-cpu-cores-check.md) | `mongodb_cpucores` | MongoDB | Warns if the number of CPU cores does not meet the minimum recommended requirements according to best practices. |
 | [MongoDB separate mount point other than "/" partition for dbpath](checks/mongodb-dbpath-mount.md) | `mongodb_dbpath_mount` | MongoDB | Warns if `dbpath` does not have a dedicated mount point. |
-| [MongoDB - Multiple mongod services](checks/multiple-mongod-running-in-a-node.md) | `mongodb_multiple_services` | MongoDB | Warns if multiple mongod services are detected running on a single node. |
+| [MongoDB - Multiple mongod services](checks/multiple-mongod-running-in-a-node.md) | `mongodb_multiple_services` | MongoDB | Warns if multiple mongod services are running on a single node. |
 | [MongoDB - allocate swap memory](checks/mongodb-swap-allocation.md) | `mongodb_swap_allocation` | MongoDB | Warns if there is no swap memory allocated to your instance. |
 | [MongoDB TaskExecutorPoolSize High](checks/mongodb-task-executorPoolSize-high.md) | `mongodb_taskexecutor` | MongoDB | Warns if the count of MongoDB `TaskExecutorPoolSize` exceeds the number of available CPU cores. |
 | [MongoDB - xfs](checks/mongodb-xfs.md) | `mongodb_xfs_ftype` | MongoDB | Warns if `dbpath` is not using the XFS filesystem type. |
@@ -141,7 +141,6 @@ Use these checks to find weak access and password settings, risky users and priv
 | [MongoDB Security AuthMech Check](checks/mongodb-scram-sha-256.md) | `mongodb_authmech_scramsha256` | MongoDB | Warns if MongoDB is not using the default SHA-256 hashing function as its SCRAM authentication method. |
 | [MonogDB IP bindings](checks/mongodb-bindip.md) | `mongodb_bindip` | MongoDB | Warns if the MongoDB network binding is not set as Recommended. |
 | [MongoDB Zlib Compression Heap Memory Vulnerability (CVE-2025-14847)](checks/mongodb-cve-2025-14847.md) | `mongodb_cve_2025_14847_zlib` | MongoDB | Checks whether MongoDB Server is vulnerable to CVE-2025-14847 with active Zlib compression. |
-| [MongoDB CVE Version](checks/mongodb-cve-version.md) | `mongodb_cve_version` | MongoDB | Shows an error if the MongoDB or Percona Server for MongoDB version is older than the latest version with CVE fixes. |
 | [MongoDB localhost authentication bypass enabled](checks/mongodb-localhost-bypass.md) | `mongodb_localhost_auth_bypass` | MongoDB | Warns if MongoDB localhost bypass is enabled. |
 | [MySQL Automatic User Expired Password](checks/mysql-automatic-expired-password.md) | `mysql_automatic_expired_password` | MySQL | Warns if the MySQL parameter for automatic password expiry is not active. |
 | [Checks if automatic_sp_privileges configuration is ON](checks/mysql_automatic_sp_privileges_enabled.md) | `mysql_automatic_sp_privileges_enabled` | MySQL | Checks if the `automatic_sp_privileges` configuration is `ON`. |
@@ -161,7 +160,6 @@ Use these checks to find weak access and password settings, risky users and priv
 | [Users have super privileges with remote or lack access restrictions](checks/security-non-root-accounts-super-privileges.md) | `mysql_security_user_super_not_local` | MySQL | Reports users with super privileges who can connect from a remote or loosely restricted host, such as `192.168.%`. |
 | [User(s) without password](checks/security-user-without-password.md) | `mysql_security_user_without_password` | MySQL | Reports users without passwords. |
 | [MySQL test Database](checks/mysql-test-database.md) | `mysql_test_database` | MySQL | Notifies if there are database named `test` or `test_%`. |
-| [Check for security vulnerabilities](checks/postgresql-cve-check.md) | `postgresql_cve_check` | PostgreSQL | Checks if the currently installed version has reported security vulnerabilities. |
 | [Check for password expiration](checks/postgresql-expiring-passwd.md) | `postgresql_expiring_passwd_check` | PostgreSQL | Checks for passwords that are expiring and displays the time left before they expire. |
 | [PostgreSQL Super Role](checks/postgresql-super-role.md) | `postgresql_super_role` | PostgreSQL | Notifies if there are users with Superuser role. |
 
@@ -171,17 +169,11 @@ Use these checks to find database versions that have reached end of life, aren't
 
 | Summary | Check name | Technology | What it checks |
 | :------ | :--------- | :--------- | :------------- |
-| [MongoDB version EOL](checks/mongodb-eol.md) | `mongodb_EOL` | MongoDB | Raises an error or a warning if your MongoDB or Percona Server for MongoDB version has reached or is nearing its end of life. |
 | [MongoDB - FCV mismatch](checks/mongodb-fcv-mismatch.md) | `mongodb_fcv_check` | MongoDB | Warns if there is a mismatch between the MongoDB version and the internal FCV (Feature Compatibility Version) parameter setting. |
-| [MongoDB Unsupported version check](checks/mongodb-unsupported-version.md) | `mongodb_unsupported_version` | MongoDB | Raises an error if your current PSMDB or MongoDB version is not supported. |
-| [MongoDB version check](checks/mongodb-version.md) | `mongodb_version` | MongoDB | Shows the MongoDB or Percona Server for MongoDB versions in your environment, and the newer minor and major versions available. |
-| [Checks mysql version for support](checks/mysql_unsupported_version_check.md) | `mysql_unsupported_version_check` | MySQL | Warns against an unsupported Mysql version. |
-| [MySQL Version](checks/mysql-version.md) | `mysql_version` | MySQL | Warns if MySQL, Percona Server for MySQL, or MariaDB version is not the latest available one. |
-| [End Of Life server version (5.7)](checks/mysql_version_eol_57.md) | `mysql_version_eol_57` | MySQL | Checks if the server version is EOL. |
-| [Check if PostgreSQL version is EOL](checks/postgresql-eol-check.md) | `postgresql_eol_check` | PostgreSQL | Checks if the currently installed PostgreSQL version has reached its EOL and is no longer supported. |
+| [MongoDB version check](checks/mongodb-version.md) | `mongodb_version` | MongoDB | Returns an error if your MongoDB or Percona Server for MongoDB release series has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer minor version or release series is available, and links to its release notes. |
+| [MySQL version check](checks/mysql-version.md) | `mysql_version` | MySQL | Returns an error if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL release series has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer release of the series is available, and links to its release notes. |
 | [Check for outdated extensions](checks/postgresql-extension-check.md) | `postgresql_extension_check` | PostgreSQL | Lists outdated extensions with newer versions available. |
-| [Check for unsupported PostgreSQL](checks/postgresql-unsupported-check.md) | `postgresql_unsupported_check` | PostgreSQL | Verifies if the currently installed version is supported by Percona. |
-| [Check for newer version of PostgreSQL](checks/postgresql-version-check.md) | `postgresql_version_check` | PostgreSQL | Checks if the currently installed version is outdated for its release level. |
+| [PostgreSQL version check](checks/postgresql-version-check.md) | `postgresql_version_check` | PostgreSQL | Returns an error if your PostgreSQL major version has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer minor or major version is available, and links to its release notes. |
 
 ## Related topics
 

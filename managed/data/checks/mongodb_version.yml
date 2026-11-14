@@ -3,69 +3,183 @@ checks:
   - version: 2
     name: mongodb_version
     summary: MongoDB version check
-    description: This check returns information on current MongoDB or Percona Server for MongoDB versions used in your environment. It also provides information on other available minor or major versions to consider for upgrades.
+    description: This check returns an error if your MongoDB or Percona Server for MongoDB release series has reached end of life, a warning if it reaches end of life within 6 months, and otherwise a warning if a newer minor or major version is available.
     technology: MONGODB
     category: Versions
     # author: Parag Bhayani
     queries:
       - type: MONGODB_BUILDINFO
     script: |
+      # The latest release of each series, from the release notes in RELEASE_NOTES; a series past EOL needs no row.
       LATEST_VERSIONS = {
-          "version_check": {
-              "4.4": 40429,  # https://www.percona.com/downloads/percona-server-mongodb-4.4/
-              "5.0": 50029,  # https://www.percona.com/downloads/percona-server-mongodb-5.0/
-              "6.0": 60029,  # https://www.percona.com/downloads/percona-server-mongodb-6.0/
-              "7.0": 70043,  # https://www.percona.com/downloads/percona-server-mongodb-7.0/
-              "8.0": 80032,  # https://www.percona.com/downloads/percona-server-mongodb-8.0/
+          # The PSMDB team keeps this table current.
+          "psmdb": {
+              "7.0": 70048,
+              "8.0": 80038,
+              "8.3": 80313,
           },
-          "read_url": "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html",
+          # The PMM team keeps this table current.
+          "mongodb": {
+              "7.0": 70048,
+              "8.0": 80038,
+              "8.3": 80317,
+              "9.0": 90008,
+          },
       }
+
+      PRODUCTS = {
+          "psmdb": "Percona Server for MongoDB",
+          "mongodb": "MongoDB",
+      }
+
+      RELEASE_NOTES = {
+          "psmdb": "https://docs.percona.com/percona-server-for-mongodb/{}/release_notes/index.html",
+          "mongodb": "https://www.mongodb.com/docs/manual/release-notes/{}/",
+      }
+
+      LIFECYCLE = {
+          "psmdb": "https://www.percona.com/release-lifecycle-percona-software-for-mongodb/",
+          "mongodb": "https://www.mongodb.com/legal/support-policy/lifecycles",
+      }
+
+      # The PMM team keeps this table current from the "MongoDB Server" table at LIFECYCLE["mongodb"], which PSMDB follows.
+      # Add a series once that table lists its EOL date.
+      EOL = {
+          (3, 0): "2018-02-28",
+          (3, 2): "2018-09-30",
+          (3, 4): "2020-01-31",
+          (3, 6): "2021-04-30",
+          (4, 0): "2022-04-30",
+          (4, 2): "2023-04-30",
+          (4, 4): "2024-02-29",
+          (5, 0): "2024-10-31",
+          (6, 0): "2025-07-31",
+          (7, 0): "2027-08-31",
+          (8, 0): "2029-10-31",
+          (8, 2): "2026-07-31",
+          (8, 3): "2029-10-31",
+          (9, 0): "2031-10-31",
+      }
+
+      # A series that reaches EOL within this many days gets a warning.
+      WARN_DAYS = 183
+
+      READ_MORE_URL = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mongodb-version.html"
+
+      SECURITY_NOTE = " Newer releases can include security fixes; see which ones affect your version: https://www.mongodb.com/resources/products/alerts."
+
+      def series_of(num):
+          return "{}.{}".format(num // 10000, num // 100 % 100)
+
+      def parse_series(s):
+          major, minor = s.split(".")
+          return (int(major), int(minor))
+
+      def release_notes(dist, num):
+          return " Release notes: {}.".format(RELEASE_NOTES[dist].format(series_of(num)))
+
+      def eol_result(dist, current, num, mm, eol_date, days, format_version_num):
+          product = PRODUCTS[dist]
+          labels = {
+              "current": current,
+              "series": mm,
+              "eol_date": eol_date,
+          }
+          lifecycle = " Lifecycle policy: {}.".format(LIFECYCLE[dist])
+
+          if days < 0:
+              return {
+                  "summary": "{} {} reached end of life".format(product, mm),
+                  "description": "{} {} reached its End-of-Life date on {}. EOL versions no longer receive bug or security fixes from the vendor. Upgrade to a supported major version.".format(product, mm, eol_date) + lifecycle,
+                  "read_more_url": READ_MORE_URL,
+                  "severity": "error",
+                  "labels": labels,
+              }
+
+          description = "{} {} End-of-Life date is {}. After that date it no longer gets bug fixes or security fixes. Plan your upgrade to a supported major version.".format(product, mm, eol_date) + lifecycle
+          latest = LATEST_VERSIONS[dist].get(mm, 0)
+          if num < latest:
+              description += " Until then, upgrade to the latest release of this series, {}.".format(format_version_num(latest)) + release_notes(dist, latest) + SECURITY_NOTE
+
+          return {
+              "summary": "{} {} reaches end of life on {}".format(product, mm, eol_date),
+              "description": description,
+              "read_more_url": READ_MORE_URL,
+              "severity": "warning",
+              "labels": labels,
+          }
 
       def check_context(docs, context):
           """
-          This check returns information on current MongoDB or Percona Server for MongoDB versions used in your environment. It also provides information on other available minor or major versions to consider for upgrades.
+          This check returns an error if your MongoDB or Percona Server for MongoDB release series has reached end of life,
+          a warning if it reaches end of life within 6 months, and otherwise a warning if a newer minor or major version is available.
           """
 
           format_version_num = context.get("format_version_num", fail)
           parse_version = context.get("parse_version", fail)
+          days_until = context.get("days_until", fail)
 
-          info = docs[0]
           results = []
+          for row in docs[0]:
+              # Only Percona Server for MongoDB reports psmdbVersion in buildInfo.
+              dist = "mongodb"
+              if "psmdbVersion" in row:
+                  dist = "psmdb"
+              product = PRODUCTS[dist]
+              latest_versions = LATEST_VERSIONS[dist]
 
-          latest_major = "8.0"
-
-          for row in info:
-              # Checking MongoDB version
               # parse_version returns a dict with keys: major, minor, patch, rest, num
-              # Eg.: For PSMDB 4.4.8-18 parse_version output - {"major": 4, "minor": 4, "patch": 18, "rest": "-18", "num": 40418, "numrest": 18}
-              version = parse_version(row["version"])
-              print("version =", repr(version))
+              # Eg.: For PSMDB 4.4.8-18 parse_version output - {"major": 4, "minor": 4, "patch": 8, "rest": "-18", "num": 40408, "numrest": 18}
+              current = row["version"]
+              version = parse_version(current)
               num = version["num"]
-              mm = "{}.{}".format(version["major"], version["minor"])
+              key = (version["major"], version["minor"])
+              mm = "{}.{}".format(key[0], key[1])
 
-              if mm not in LATEST_VERSIONS["version_check"]:
-                  # Newer major version we do not track yet; nothing to advise
+              # A series past or near its EOL gets only the EOL finding: a newer patch of it is no fix.
+              eol_date = EOL.get(key)
+              if eol_date:
+                  days = days_until(eol_date)
+                  if days <= WARN_DAYS:
+                      results.append(eol_result(dist, current, num, mm, eol_date, days, format_version_num))
+                      continue
+
+              if mm not in latest_versions:
+                  # A series the table does not track yet; nothing to advise
                   continue
 
-              latest_current_version = LATEST_VERSIONS["version_check"][mm]
-              current_version = row["version"]
+              latest_key = max([parse_series(s) for s in latest_versions])
+              latest_major = "{}.{}".format(latest_key[0], latest_key[1])
+              latest_for_current = latest_versions[mm]
 
-              description = ""
-              if mm < "4.4":
-                  description = "Current MongoDB version = {}, Latest Major version = {}. This instance has reached EOL for this MongoDB version. It is highly recommended to perform an upgrade to reach a supported major release version immediately. This upgrade should be performed in a stepped manner without skipping any major version releases.".format(current_version, latest_major)
-              elif num < latest_current_version and mm < latest_major:
-                  description = "There is a new minor version {} available. Always consider upgrading to the highest minor version in order to take advantage of the latest bug fixes and performance tweaks. There is also an updated Major version {} available. Please consider planning for and implementing the major version upgrade after completing the minor patch upgrade. Current MongoDB version = {}.".format(format_version_num(latest_current_version), latest_major, current_version)
-              elif num == latest_current_version and mm < latest_major:
-                  description = "The instance is currently running MongoDB version {}. This is the latest minor patch for this version. However there is an updated Major version {} available. Please consider planning for and implementing the upgrade to the latest major version.".format(current_version, latest_major)
-              elif num < latest_current_version:
-                  description = "There is a new minor version {} available. Always consider upgrading to the highest minor version in order to take advantage of the latest bug fixes and performance tweaks. Current MongoDB version = {}.".format(format_version_num(latest_current_version), current_version)
+              # A server already on the latest release of its series gets no security note: it misses no fixes.
+              note = SECURITY_NOTE
+              if num < latest_for_current:
+                  latest = latest_for_current
+                  description = "Current version is {}, the latest release of {} {} is {}.".format(current, product, mm, format_version_num(latest))
+                  if key < latest_key:
+                      description += " A newer release series, {}, is also available.".format(latest_major)
+              elif key < latest_key:
+                  latest = latest_versions[latest_major]
+                  note = ""
+                  description = "Current version is {}, the latest release of {} {}. A newer release series, {}, is available.".format(current, product, mm, latest_major)
+              else:
+                  continue
 
-              if description:
-                  results.append({
-                      "summary": "Newer version of MongoDB is available.",
-                      "description": description,
-                      "read_more_url": LATEST_VERSIONS["read_url"].format("mongodb-version"),
-                      "severity": "warning",
-                  })
+              if latest_key[0] - key[0] > 1:
+                  description += " Upgrade one major version at a time."
+              if eol_date:
+                  description += " {} {} reaches end of life on {}.".format(product, mm, eol_date)
+
+              results.append({
+                  "summary": "Newer version of {} is available".format(product),
+                  "description": description + release_notes(dist, latest) + note,
+                  "read_more_url": READ_MORE_URL,
+                  "severity": "warning",
+                  "labels": {
+                      "current": current,
+                      "latest": format_version_num(latest),
+                  },
+              })
 
           return results

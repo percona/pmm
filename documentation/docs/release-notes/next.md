@@ -37,6 +37,41 @@ Upgrading to PMM 3.11.0 changes your existing Advisor settings, dashboards and A
     - `GET /v1/advisors/insights` instead of `GET /v1/advisors/failedServices` and `GET /v1/advisors/checks/failed`
     - The `/v1/advisors/schedules` endpoints instead of the `advisor_run_intervals` setting and the `interval` field of checks
 
+#### Version, end-of-life and security checks are now accurate
+
+The version checks now use current release data and end-of-life (EOL) dates, so after you upgrade you may see new findings:
+
+- **MySQL 8.0** (including Percona Server for MySQL and Percona XtraDB Cluster 8.0), **MongoDB 5.0, 6.0 and 8.2**, **PostgreSQL 11 to 14** and **MariaDB 10.6** are reported as EOL.
+- Amazon RDS for MySQL versions past standard support are reported as having reached "end of standard support", not EOL.
+- **MongoDB 4.4** and **PostgreSQL 10 and older**, which were reported as warnings, are now reported as errors.
+- You get a warning 6 months before a version reaches EOL, and an error after that date.
+- Each service gets at most one version finding. A version past its EOL gets only the EOL error, without advice to install a newer release of the same version.
+- A newer-version finding for a release with missing patches links to the vendor's security page, where you can check which fixes the newer release brings.
+- `mongodb_version` now tells Percona Server for MongoDB from MongoDB Community. Each is compared with its own latest releases, so MongoDB Community users are told about MongoDB 9.0.
+- Each version finding links to the release notes of the suggested version, and each EOL finding to the lifecycle policy of its product.
+
+The `mongodb_version`, `mysql_version` and `postgresql_version_check` checks now report EOL themselves, so these checks are removed:
+
+| Removed check | Use instead |
+| :------------ | :---------- |
+| [`mongodb_EOL`](../advisors/checks/mongodb-eol.md) | [`mongodb_version`](../advisors/checks/mongodb-version.md) |
+| [`mongodb_cve_version`](../advisors/checks/mongodb-cve-version.md) | [`mongodb_version`](../advisors/checks/mongodb-version.md) |
+| [`mongodb_unsupported_version`](../advisors/checks/mongodb-unsupported-version.md) | [`mongodb_version`](../advisors/checks/mongodb-version.md) |
+| [`mysql_unsupported_version_check`](../advisors/checks/mysql_unsupported_version_check.md) | [`mysql_version`](../advisors/checks/mysql-version.md) |
+| [`mysql_version_eol_57`](../advisors/checks/mysql_version_eol_57.md) | [`mysql_version`](../advisors/checks/mysql-version.md) |
+| [`postgresql_cve_check`](../advisors/checks/postgresql-cve-check.md) | [`postgresql_version_check`](../advisors/checks/postgresql-version-check.md) |
+| [`postgresql_eol_check`](../advisors/checks/postgresql-eol-check.md) | [`postgresql_version_check`](../advisors/checks/postgresql-version-check.md) |
+| [`postgresql_unsupported_check`](../advisors/checks/postgresql-unsupported-check.md) | [`postgresql_version_check`](../advisors/checks/postgresql-version-check.md) |
+
+Six checks no longer fail or report wrongly on default setups:
+
+- [`mongodb_multiple_services`](../advisors/checks/multiple-mongod-running-in-a-node.md) no longer fails on a service without a cluster label, and counts mongod services per service.
+- [`mongodb_swap_allocation`](../advisors/checks/mongodb-swap-allocation.md) no longer fails when a metric is missing.
+- [`mongodb_journal`](../advisors/checks/mongodb-journal.md) reports nothing on MongoDB 7.0 and later, and on earlier versions only when the journal is explicitly disabled.
+- [`mongodb_loglevel`](../advisors/checks/mongodb-log-messages.md) reports only an explicitly set non-zero log level.
+- [`mongodb_maxsessions`](../advisors/checks/mongodb-maxSessions.md) no longer fails when `setParameter` has no `maxSessions`.
+- [`postgresql_wal_retention_check`](../advisors/checks/postgresql-wal-retention-check.md) works for a monitoring user with the `pg_monitor` role.
+
 ### Inventory page now in native PMM UI
 
 PMM has used [its own navigation](3.6.0.md#new-native-pmm-navigation-and-revamped-user-interface) instead of Grafana's menus since 3.6.0, and its pages are gradually moving from Grafana to native PMM UI. [**Inventory**](../use/dashboard-inventory.md) now joins [**Updates**](3.0.0.md#new-upgrade-ui), **Help**, [**Real-Time Analytics**](3.7.0.md#real-time-query-analytics-rta-for-mongodb), [**Settings**](3.8.0.md#settings-page-now-in-native-pmm-ui) and [**Alerts > Status**](3.9.0.md#alert-status-page-view-alerts-by-node-or-service), which already run there.
