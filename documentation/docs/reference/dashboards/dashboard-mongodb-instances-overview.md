@@ -22,7 +22,7 @@ Shows the total number of MongoDB processes (mongod and mongos) currently monito
 
 ### Availability
 
-Shows the percentage of time each cluster or replica set had a primary node available during the selected time range.
+Shows the lowest percentage of time that any selected replica set had a primary node during the selected time range. A replica set that never had a primary shows 0%.
 
 Color thresholds show availability health: dark green means 100% availability (primary was always present), dark yellow means availability was between 50% and 100%, and dark red means availability was below 50% or no data was recorded. Use this to quickly spot replica sets that experienced prolonged primary outages during the time range.
 
