@@ -54,10 +54,13 @@ docker run -d -p 443:8443 --volumes-from pmm-data \
 !!! warning "Certificate requirements"
     Before mounting certificates, make sure to configure them correctly:
 
-    - All certificates must be owned by 1000:0: `chown 1000:0 /etc/pmm-certs/*`
+    - The certificate directory and all certificates must be owned by 1000:0: `chown -R 1000:0 /etc/pmm-certs`
     - Set proper permissions: `chmod 644 /etc/pmm-certs/*.crt /etc/pmm-certs/*.pem && chmod 600 /etc/pmm-certs/*.key`
     - The certificate directory must contain all four required files
     - Use port `443` for SSL encryption instead of port `80`
+
+    PMM Server creates temporary nginx directories inside the mounted directory at startup. If UID 1000 cannot write to the directory, the container exits with `Permission denied`.
+
 ### Copy certificates
 
 If PMM Server is already running, copy certificates directly into the container:
