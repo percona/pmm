@@ -92,6 +92,7 @@ type Node struct {
 - Use `models.Find*()` helpers, not `q.Reload()` or `q.SelectOneFrom()` directly
 - Transactions: `db.InTransactionContext(ctx, nil, func(tx *reform.TX) error { ... })`
 - Schema migrations in `models/database.go` (`databaseSchema` map, versioned)
+- No column `DEFAULT`s in `databaseSchema`: reform writes every column, Go zero values included, so a database default never applies. To add a `NOT NULL` column to a table with rows, add it with a `DEFAULT` to backfill them, then `DROP DEFAULT` in the same migration
 
 ## Configuration
 

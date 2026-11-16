@@ -172,6 +172,42 @@ describe('SendDialog', () => {
     expect(screen.getByText(/2 executions selected/i)).toBeTruthy();
   });
 
+  it('names each execution by its display title, falling back to the filename', () => {
+    renderDialog(
+      <SendDialog
+        open
+        incidentId="inc-1"
+        executions={[
+          { ...EXECUTIONS[0], snippet_title: 'Slow Query Diagnostics' },
+          EXECUTIONS[1],
+        ]}
+        onClose={() => {}}
+      />
+    );
+
+    expect(screen.getByText('Slow Query Diagnostics')).toBeTruthy();
+    expect(screen.queryByText('diag/slow-query.sh')).toBeNull();
+    expect(screen.getByText('diag/dmesg.sh')).toBeTruthy();
+    expect(screen.getByText('Run #7')).toBeTruthy();
+  });
+
+  it('appends the filename to executions whose scripts share a title', () => {
+    renderDialog(
+      <SendDialog
+        open
+        incidentId="inc-1"
+        executions={EXECUTIONS.map((execution) => ({
+          ...execution,
+          snippet_title: 'Summary',
+        }))}
+        onClose={() => {}}
+      />
+    );
+
+    expect(screen.getByText('Summary (diag/slow-query.sh)')).toBeTruthy();
+    expect(screen.getByText('Summary (diag/dmesg.sh)')).toBeTruthy();
+  });
+
   it('keeps Send disabled until a case reference is entered', () => {
     renderDialog(
       <SendDialog
