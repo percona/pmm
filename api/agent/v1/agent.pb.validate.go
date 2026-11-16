@@ -9525,6 +9525,8 @@ func (m *StartActionRequest_PTPgSummaryParams) validate(all bool) error {
 
 	// no validation rules for Password
 
+	// no validation rules for Tls
+
 	if len(errors) > 0 {
 		return StartActionRequest_PTPgSummaryParamsMultiError(errors)
 	}

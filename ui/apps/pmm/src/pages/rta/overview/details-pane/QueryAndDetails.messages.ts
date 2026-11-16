@@ -27,9 +27,9 @@ export const Messages = {
   tooltips: {
     operationId: "The database's internal identifier for this operation.",
     operationIdMySql:
-      'The MySQL connection id running this statement. MySQL identifies connections, not individual statements, so consecutive statements on the same connection share this value.',
+      'The ID of the MySQL connection that runs this statement. MySQL identifies connections, not statements, so consecutive statements on the same connection share this ID.',
     operationIdPostgreSql:
-      'The PostgreSQL backend process ID (pid) running this query. Consecutive queries on the same connection share this value.',
+      'The process ID (pid) of the PostgreSQL backend that runs this query. Consecutive queries on the same connection share this ID.',
     elapsedExecTime:
       'How long this operation has been running for. For a PostgreSQL session idle in transaction, how long its transaction has been open.',
     planSummary:
@@ -62,12 +62,12 @@ export const Messages = {
     fullScan:
       'Whether the statement performed a full table scan instead of using an index.',
     lockTime:
-      'How long the statement has waited for table locks, in milliseconds (LOCK_TIME in performance_schema).',
+      'How long the statement has waited for table locks, in milliseconds. performance_schema reports it as LOCK_TIME.',
     waitEvent:
-      'What the PostgreSQL session is waiting for (wait_event_type: wait_event), if anything.',
+      'What the PostgreSQL session is waiting for, as wait_event_type: wait_event, if anything.',
     queryId:
-      'PostgreSQL query identifier. Set on PostgreSQL 14+ with compute_query_id enabled.',
+      'The PostgreSQL query identifier. PostgreSQL 14 and later set it when compute_query_id is on.',
     transactionStartTime:
-      'When the current transaction started. Long-open transactions hold locks and block vacuum.',
+      'When the current transaction started. A transaction that stays open holds its locks and keeps vacuum from removing dead rows.',
   },
 };

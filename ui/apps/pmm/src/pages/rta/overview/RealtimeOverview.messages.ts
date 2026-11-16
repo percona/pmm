@@ -3,24 +3,26 @@ export const Messages = {
   pause: 'Pause',
   resume: 'Resume',
   refresh: 'Refresh',
-  hideCommit: 'Hide BEGIN/COMMIT',
+  hideCommit: 'Hide transaction control',
   hideCommitTooltip:
-    'Hide transaction-control statements (COMMIT, ROLLBACK, BEGIN, START TRANSACTION) from the list.',
+    'Hide BEGIN, START TRANSACTION, COMMIT and ROLLBACK statements from the list',
   blockedOnly: (count: number) =>
     count > 0 ? `Blocked only (${count})` : 'Blocked only',
   blockedOnlyTooltip:
-    'Show only statements waiting for a lock, of either kind. Collection is unaffected; this filters the view.',
+    "Show only statements that wait for a row or metadata lock. This filters the view and doesn't change what's collected.",
   // Distinct from "(0)": nothing is known about waiting, so no claim is made either way.
   blockedUnknown: 'Blocked unknown',
   blockedUnknownTooltip:
-    'PMM could not read the lock information from this instance, so it cannot tell which statements are waiting. Check that the monitoring user can read performance_schema; the agent log says why.',
+    "This instance doesn't report all lock information, so the list can't show which statements are waiting. To find out why, check the session status in All sessions or the agent log.",
   blockedPartialTooltip:
-    'Show statements waiting for a lock. PMM could not read every kind of lock on this instance, so statements it could not judge are shown as well rather than hidden; the count is of those it could confirm. The session status on the All sessions page, or the agent log, says which lock information is missing.',
+    "Show statements waiting for a lock. This instance doesn't report every lock type, so the list also shows statements that might be waiting, and the count includes only confirmed waits. To find out why, check All sessions or the agent log.",
   blockedUnattributedTooltip: (count: number) =>
-    'Show statements waiting for a lock; the count is of those PMM could confirm. ' +
+    'Show statements waiting for a lock. The count includes only confirmed waits. ' +
     Messages.blockedUnattributedNote(count),
   blockedUnattributedNote: (count: number) =>
-    `${count === 1 ? '1 statement' : `${count} statements`} could not be attributed this refresh: the connection moved on to a later statement between PMM reading the statements and reading the locks. ${count === 1 ? 'It is' : 'They are'} marked Blocked: unknown and shown as well rather than hidden; the next refresh reads them again.`,
+    count === 1
+      ? "This filter shows 1 statement marked Possibly blocked but doesn't count it, because it isn't clear yet whether it's waiting. The next refresh checks it again."
+      : `This filter shows ${count} statements marked Possibly blocked but doesn't count them, because it isn't clear yet whether they're waiting. The next refresh checks them again.`,
   sessionError: (serviceName: string, reason: string) =>
     `Real-Time Analytics could not start for ${serviceName}: ${reason}`,
 };

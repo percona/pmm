@@ -1,7 +1,7 @@
 # Table bloat in percentage of table size
 
 ## Description
-This advisor check verifies the table bloat from the currently connected database. 
+This Advisor check verifies the table bloat from the currently connected database. 
 
 It returns an error if the bloat is larger than 1GB size and it represents 50% or more of the total table size.
 

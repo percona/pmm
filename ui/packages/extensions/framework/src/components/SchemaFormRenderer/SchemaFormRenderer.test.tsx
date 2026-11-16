@@ -29,7 +29,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { useState, type ReactNode } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { SchemaFormRenderer } from './SchemaFormRenderer';
 import {
   buildValidationRules,
@@ -2887,6 +2887,55 @@ describe('SchemaFormRenderer — renderField override', () => {
     // type into the OVERRIDDEN widget → value reaches RHF watch state → fail_when fires
     await user.type(screen.getByLabelText('custom-mode'), 'danger');
     expect(await screen.findByText('Mode must be empty.')).toBeInTheDocument();
+  });
+
+  it('shows a section rule in its section alert when the overridden widget never registers', async () => {
+    function UnregisteredTextWidget({ name }: { name: string }) {
+      const { setValue } = useFormContext();
+      const value = useWatch({ name });
+      return (
+        <input
+          aria-label={`custom-${name}`}
+          value={typeof value === 'string' ? value : ''}
+          onChange={(event) => setValue(name, event.target.value)}
+        />
+      );
+    }
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Main',
+            fail_when: [
+              {
+                fail_when: { truthy: 'mode' },
+                error_fields: ['mode'],
+                message: 'Mode must be empty.',
+              },
+            ],
+            fields: [{ type: 'string', name: 'mode', label: 'Mode' }],
+          },
+        ]}
+        onSubmit={onSubmit}
+        renderField={({ field, renderDefault }) =>
+          field.name === 'mode' ? (
+            <UnregisteredTextWidget name={field.name} />
+          ) : (
+            renderDefault()
+          )
+        }
+      />
+    );
+
+    await user.type(screen.getByLabelText('custom-mode'), 'danger');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Mode must be empty.'
+    );
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it('write-through: overridden value is included in the submit payload', async () => {

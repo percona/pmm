@@ -1178,7 +1178,7 @@ After a failover or an upgrade, check the PMM Server nodes in **Inventory** to s
 
     ![Leader and Follower badges in the Inventory node list](../images/leader_status.png)
 
-    - **Leader**: the node that serves the PMM UI and API, and runs cluster-wide tasks such as advisor checks and scheduled backups
+    - **Leader**: the node that serves the PMM UI and API, and runs cluster-wide tasks such as Advisor checks and scheduled backups
     - **Follower**: a standby node that can become the leader if the current leader fails
 
 3. In the **Status** column, check that every node shows **Up**.
