@@ -478,6 +478,37 @@ func TestMovedCiphertextFailsReads(t *testing.T) {
 	assert.Contains(t, err.Error(), "agent E2 aws_options")
 }
 
+// TestSetupDBRefusesUnboundLegacyCiphertext covers legacy ciphertext found once the database is set up with
+// the key, e.g. a password from a backup taken before the upgrade copied into another column.
+func TestSetupDBRefusesUnboundLegacyCiphertext(t *testing.T) {
+	t.Run("standalone", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		cipher := keepDefaultCipher(t)
+		stored := legacyCiphertext(t, cipher, "password")
+		insertExporter(t, sqlDB, "E1", stored, "")
+
+		err := setupDB(t, sqlDB)
+		require.ErrorIs(t, err, encryption.ErrUnboundLegacy)
+		require.ErrorIs(t, err, models.ErrEncryptionKeyMismatch)
+		assert.Contains(t, err.Error(), "agent E1 password")
+		assert.Equal(t, stored, storedPassword(t, sqlDB, "E1"), "nothing is rewritten")
+	})
+
+	// a leader of an older PMM version writes legacy ciphertext until the rolling upgrade restarts it
+	t.Run("HA", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		cipher := keepDefaultCipher(t)
+		insertExporter(t, sqlDB, "E1", legacyCiphertext(t, cipher, "password"), "")
+
+		require.NoError(t, setupHADB(t, sqlDB))
+
+		q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+		agent, err := models.FindAgentByID(q, "E1")
+		require.NoError(t, err)
+		assert.Equal(t, "password", agent.Password.Reveal())
+	})
+}
+
 // fillSecrets sets every encrypt-tagged field of the options struct v points to.
 func fillSecrets(v any) {
 	val := reflect.ValueOf(v).Elem()

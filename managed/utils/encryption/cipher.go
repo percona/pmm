@@ -57,6 +57,9 @@ var (
 	// not in the keyset. Decrypt fails on it unless the cipher accepts key
 	// loss (see AcceptingKeyLoss).
 	ErrUnknownKey = errors.New("ciphertext encrypted with a key that is not in the keyset")
+	// ErrUnboundLegacy is returned by a cipher created by RefusingUnboundLegacy for
+	// legacy ciphertext with no envelope of the value's associated data under it.
+	ErrUnboundLegacy = errors.New("legacy ciphertext is not bound to where it is stored")
 )
 
 const (
@@ -114,6 +117,8 @@ type Cipher struct {
 	legacyKeys []legacyKeyset
 	// acceptKeyLoss passes envelopes of unknown keys through, see AcceptingKeyLoss
 	acceptKeyLoss bool
+	// refuseUnboundLegacy fails on legacy ciphertext, see RefusingUnboundLegacy
+	refuseUnboundLegacy bool
 }
 
 type legacyKeyset struct {
@@ -227,6 +232,15 @@ func (c *Cipher) AcceptingKeyLoss() *Cipher {
 	return &cp
 }
 
+// RefusingUnboundLegacy returns a copy of the cipher whose Decrypt fails on legacy ciphertext, which carries no
+// associated data, unless an envelope of the given associated data is under it.
+func (c *Cipher) RefusingUnboundLegacy() *Cipher {
+	cp := *c
+	cp.refuseUnboundLegacy = true
+
+	return &cp
+}
+
 // AcceptsKeyLoss reports whether the cipher was created by AcceptingKeyLoss.
 func (c *Cipher) AcceptsKeyLoss() bool {
 	return c.acceptKeyLoss
@@ -288,7 +302,9 @@ func (c *Cipher) Encrypt(plaintext string, associatedData []byte) (string, error
 //   - legacy format (base64 Tink ciphertext): decrypted; a value carrying the
 //     ID of a key in the keyset that fails authentication is an error
 //     (ErrLegacyAuthFailed), a value carrying an unknown key ID is returned
-//     unchanged (see ErrLegacyUnknownKey)
+//     unchanged (see ErrLegacyUnknownKey); a cipher refusing unbound legacy
+//     ciphertext fails unless an envelope of associatedData is under it (see
+//     RefusingUnboundLegacy)
 //   - anything else: returned unchanged (plaintext written before encryption)
 //
 // Legacy layers stacked under the outermost one (PMM-15188) are removed as
@@ -345,6 +361,8 @@ func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, err
 
 	v := stored
 	layers := 0
+	// whether an envelope of associatedData was opened, see RefusingUnboundLegacy
+	bound := false
 	if IsEncrypted(stored) {
 		plaintext, err := c.openEnvelope(stored, associatedData)
 		if err != nil {
@@ -352,12 +370,14 @@ func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, err
 		}
 		v = plaintext
 		layers = 1
+		bound = true
 	}
 
 	for layers < maxLegacyLayers {
 		if plaintext, ok := c.innerEnvelope(v, layers, associatedData); ok {
 			v = plaintext
 			layers++
+			bound = true
 			continue
 		}
 
@@ -376,6 +396,9 @@ func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, err
 			if layers == 0 {
 				return stored, 0, fmt.Errorf("%w (key ID %d)", ErrLegacyUnknownKey, keyID)
 			}
+			if c.refuseUnboundLegacy && !bound {
+				return "", layers, ErrUnboundLegacy
+			}
 			return v, layers, fmt.Errorf("%w (key ID %d)", ErrLegacyInnerKeyLost, keyID)
 		}
 
@@ -390,6 +413,9 @@ func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, err
 		}
 		v = plaintext
 		layers++
+	}
+	if c.refuseUnboundLegacy && layers != 0 && !bound {
+		return "", layers, ErrUnboundLegacy
 	}
 
 	return v, layers, nil

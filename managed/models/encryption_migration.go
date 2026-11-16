@@ -75,6 +75,15 @@ func initDefaultCipher(ctx context.Context, db *sql.DB, ha bool) (bool, error) {
 	if acceptKeyLoss(cipher, keyPath, ha) {
 		cipher = cipher.AcceptingKeyLoss()
 	}
+	// Legacy ciphertext found after the migration that writes the key check was copied, e.g. from an old backup;
+	// in HA, a leader of an older PMM version goes on writing it until a rolling upgrade restarts it.
+	migrated, err := databaseHasKeyCheck(ctx, db)
+	if err != nil {
+		return false, err
+	}
+	if migrated && !ha {
+		cipher = cipher.RefusingUnboundLegacy()
+	}
 	encryption.SetDefaultCipher(cipher)
 
 	return created, nil

@@ -496,6 +496,55 @@ func TestCipherBindsAssociatedData(t *testing.T) {
 	})
 }
 
+// TestRefusingUnboundLegacy covers a database whose values are bound to their columns already: legacy
+// ciphertext, which carries no associated data, decrypts there only around an envelope of the column.
+func TestRefusingUnboundLegacy(t *testing.T) {
+	c := newTestCipher(t)
+	refusing := c.RefusingUnboundLegacy()
+	other := newTestCipher(t)
+	password := []byte("agents.password")
+	envelope, err := c.Encrypt("secret", password)
+	require.NoError(t, err)
+	usernameEnvelope, err := c.Encrypt("secret", []byte("agents.username"))
+	require.NoError(t, err)
+	envelopeOverLegacy, err := c.Encrypt(legacyLayer(t, c, "secret"), password)
+	require.NoError(t, err)
+
+	for name, stored := range map[string]string{
+		"bare legacy":                           legacyLayer(t, c, "secret"),
+		"legacy over another column's envelope": legacyLayer(t, c, usernameEnvelope),
+		"legacy over a lost inner layer":        legacyLayer(t, c, legacyLayer(t, other, "secret")),
+	} {
+		t.Run(name, func(t *testing.T) {
+			_, err := refusing.Decrypt(stored, password)
+			require.ErrorIs(t, err, ErrUnboundLegacy)
+			_, err = refusing.Inspect(stored, password)
+			require.ErrorIs(t, err, ErrUnboundLegacy)
+			_, err = refusing.AcceptingKeyLoss().Decrypt(stored, password)
+			require.ErrorIs(t, err, ErrUnboundLegacy)
+		})
+	}
+
+	for name, stored := range map[string]string{
+		"envelope":                          envelope,
+		"legacy over the column's envelope": legacyLayer(t, c, envelope),
+		"envelope over legacy":              envelopeOverLegacy,
+	} {
+		t.Run(name, func(t *testing.T) {
+			decrypted, err := refusing.Decrypt(stored, password)
+			require.NoError(t, err)
+			assert.Equal(t, "secret", decrypted)
+		})
+	}
+
+	t.Run("legacy-shaped value of an unknown key", func(t *testing.T) {
+		stored := legacyLayer(t, other, "secret")
+		decrypted, err := refusing.Decrypt(stored, password)
+		require.NoError(t, err)
+		assert.Equal(t, stored, decrypted)
+	})
+}
+
 // TestInspectDecrypted pins the evidence the startup migration uses to tell a
 // key file that does not match the database from one that reads part of it.
 func TestInspectDecrypted(t *testing.T) {
