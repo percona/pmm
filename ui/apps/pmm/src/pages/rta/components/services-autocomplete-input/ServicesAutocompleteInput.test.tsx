@@ -156,4 +156,35 @@ describe('ServicesAutocompleteInput', () => {
 
     expect(onServiceIdsChange).not.toHaveBeenCalled();
   });
+
+  it('heads each group with its technology', () => {
+    renderPicker();
+
+    expect(screen.getByText('MySQL')).toBeInTheDocument();
+  });
+
+  it('leaves out the group header for a technology without a label', () => {
+    render(
+      <ServicesAutocompleteInput
+        services={
+          [
+            {
+              serviceId: 'p',
+              serviceName: 'pg',
+              serviceType: ServiceType.posgresql,
+              clusterName: '',
+            },
+          ] as never
+        }
+        serviceIds={[]}
+        onServiceIdsChange={() => {}}
+      />
+    );
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+
+    expect(screen.getAllByRole('option')).toHaveLength(1);
+    expect(
+      document.querySelector('.MuiAutocomplete-groupLabel')
+    ).not.toBeInTheDocument();
+  });
 });
