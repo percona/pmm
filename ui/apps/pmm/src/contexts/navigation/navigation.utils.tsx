@@ -119,38 +119,31 @@ export const addConfiguration = (
   versionInfo?: GetUpdatesResponse,
   settings?: CombinedSettings
 ): NavItem => {
-  const updates = NAV_CONFIGURATION.children?.find((c) => c.id === 'updates');
   const { updateAvailable, installed, latest } = versionInfo || {};
+  const children = (NAV_CONFIGURATION.children || []).map((child) => {
+    if (child.id !== 'updates') {
+      return child;
+    }
 
-  if (!updates) {
-    return NAV_CONFIGURATION;
-  }
-
-  if (updateAvailable) {
-    updates.secondaryText = `Update from v${installed?.version?.slice(0, 5)} to v${latest?.version}`;
-  } else if (installed?.version) {
-    updates.secondaryText = `Current: v${installed?.version} (up to date)`;
-  }
-
-  if (
-    status === UpdateStatus.Pending ||
-    status === UpdateStatus.UpdateClients
-  ) {
-    updates.badge = {
-      label: 'New',
+    return {
+      ...child,
+      secondaryText: updateAvailable
+        ? `Update from v${installed?.version?.slice(0, 5)} to v${latest?.version}`
+        : installed?.version
+          ? `Current: v${installed.version} (up to date)`
+          : undefined,
+      badge:
+        status === UpdateStatus.Pending || status === UpdateStatus.UpdateClients
+          ? { label: 'New' }
+          : undefined,
     };
-  } else {
-    updates.badge = undefined;
-  }
+  });
 
   if (settings?.enableAccessControl) {
-    return {
-      ...NAV_CONFIGURATION,
-      children: [...(NAV_CONFIGURATION.children || []), NAV_ACCESS_CONTROL],
-    };
+    children.push(NAV_ACCESS_CONTROL);
   }
 
-  return NAV_CONFIGURATION;
+  return { ...NAV_CONFIGURATION, children };
 };
 
 export const addHighAvailability = ({ health, namespace }: HAInfo): NavItem => {

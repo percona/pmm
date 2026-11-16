@@ -6,7 +6,9 @@ import {
 } from 'utils/testStubs';
 import { createAnonymousUser } from 'contexts/user/user.utils';
 import { isActive } from 'utils/navigation.utils';
-import { addAlerting, addHomePage } from './navigation.utils';
+import { UpdateStatus } from 'types/updates.types';
+import { addAlerting, addConfiguration, addHomePage } from './navigation.utils';
+import { NAV_CONFIGURATION } from './navigation.constants';
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
   (item.children || []).map((c) => c.id);
@@ -111,4 +113,34 @@ describe('addHomePage', () => {
       expect(isActive(home, pathname)).toBe(true);
     }
   );
+});
+
+describe('addConfiguration', () => {
+  const updates = (item: ReturnType<typeof addConfiguration>) =>
+    item.children?.find((child) => child.id === 'updates');
+
+  it('describes the installed version without changing the shared item', () => {
+    const item = addConfiguration(UpdateStatus.Pending, {
+      installed: { version: '3.5.0' },
+      updateAvailable: false,
+    } as Parameters<typeof addConfiguration>[1]);
+
+    expect(updates(item)).toMatchObject({
+      secondaryText: 'Current: v3.5.0 (up to date)',
+      badge: { label: 'New' },
+    });
+    expect(updates(NAV_CONFIGURATION)?.secondaryText).toBeUndefined();
+    expect(updates(NAV_CONFIGURATION)?.badge).toBeUndefined();
+  });
+
+  it('drops the text of an earlier call', () => {
+    addConfiguration(UpdateStatus.UpToDate, {
+      installed: { version: '3.5.0' },
+      updateAvailable: false,
+    } as Parameters<typeof addConfiguration>[1]);
+
+    expect(
+      updates(addConfiguration(UpdateStatus.UpToDate))?.secondaryText
+    ).toBeUndefined();
+  });
 });
