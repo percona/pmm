@@ -13,12 +13,7 @@ interface Props {
   onClick?: () => void;
 }
 
-const NavItemAction: FC<Props> = ({
-  action,
-  testId,
-  sx = { mr: 0.5 },
-  onClick,
-}) => (
+const NavItemAction: FC<Props> = ({ action, testId, sx, onClick }) => (
   <Tooltip title={action.label} placement="right" arrow>
     <IconButton
       size="small"

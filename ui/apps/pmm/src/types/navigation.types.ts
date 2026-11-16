@@ -17,7 +17,7 @@ export interface NavItem {
   url?: string;
   children?: NavItem[];
   isActive?: boolean;
-  // The child a collapsible parent links to; defaults to the first child.
+  // The child a collapsible parent links to; defaults to its first page.
   isDefault?: boolean;
   target?: HTMLAnchorElement['target'];
   onClick?: () => void;
