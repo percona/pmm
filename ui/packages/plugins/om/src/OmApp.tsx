@@ -16,6 +16,8 @@
  */
 
 import { Route, Routes } from 'react-router-dom';
+import { useAuth } from '@pmm-extensions/api';
+import { ReadOnlyNotice } from '@pmm-extensions/framework';
 import {
   OM_LEGACY_REDIRECTS,
   OM_ROUTE_AUTOMATIONS,
@@ -48,14 +50,26 @@ import { ScanFeedbackProvider } from './ScanFeedback';
  *
  * The legacy redirects exist because the feature build is already out with people
  * clicking round it; see {@link OM_LEGACY_REDIRECTS}.
+ *
+ * The install wizard exists only to act, so a reader who may not mutate gets a notice instead.
  */
 export const OmApp = () => {
+  const { canMutate } = useAuth();
   return (
     <ScanFeedbackProvider>
       <Routes>
         <Route index element={<FleetPage />} />
         <Route path={OM_ROUTE_NODES} element={<NodesPage />} />
-        <Route path={OM_ROUTE_INSTALL} element={<BootstrapPage />} />
+        <Route
+          path={OM_ROUTE_INSTALL}
+          element={
+            canMutate ? (
+              <BootstrapPage />
+            ) : (
+              <ReadOnlyNotice action="install MongoDB" />
+            )
+          }
+        />
         <Route path={OM_ROUTE_AUTOMATIONS} element={<AutomationsPage />} />
         <Route path={OM_ROUTE_SETTINGS} element={<SettingsPage />} />
         {Object.entries(OM_LEGACY_REDIRECTS).map(([from, to]) => (

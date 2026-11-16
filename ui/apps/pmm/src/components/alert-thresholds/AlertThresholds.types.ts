@@ -12,5 +12,15 @@ export interface AlertThresholdRow extends Threshold {
   ruleTitle: string;
 }
 
+export interface AlertThresholdsNode {
+  nodeId: string;
+  nodeName: string;
+}
+
+export interface AlertThresholdsProps {
+  node: AlertThresholdsNode | null;
+  onClose: () => void;
+}
+
 // Form values: composite row id -> override value (string while editing).
 export type AlertThresholdsFormValues = Record<string, number | undefined>;
