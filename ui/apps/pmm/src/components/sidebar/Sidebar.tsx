@@ -52,25 +52,38 @@ export const Sidebar: FC = () => {
     });
   };
 
-  const toggleSidebar = useCallback(() => {
-    // Recorded only from a settled, open drawer: mid-animation widths would
-    // break labels into more lines.
-    if (navOpen && !animating) {
-      list
-        ?.querySelectorAll<HTMLElement>(`.${listItemTextClasses.root}`)
-        .forEach((label) =>
-          label.style.setProperty(
-            LABEL_WIDTH_VAR,
-            `${label.getBoundingClientRect().width}px`
-          )
-        );
-    }
-
-    setNavOpen(!navOpen);
-    // Labels hold a single line while the drawer moves. Nothing moves under
-    // reduced motion, so they are free at once.
+  // Labels hold a single line while the drawer moves, however it was opened or
+  // closed. Nothing moves under reduced motion, so they are free at once.
+  const [prevNavOpen, setPrevNavOpen] = useState(navOpen);
+  if (navOpen !== prevNavOpen) {
+    setPrevNavOpen(navOpen);
     setAnimating(!reduceMotion);
-  }, [navOpen, animating, list, setNavOpen, reduceMotion]);
+  }
+
+  const setSidebarOpen = useCallback(
+    (open: boolean) => {
+      // Recorded only from a settled, open drawer: mid-animation widths would
+      // break labels into more lines.
+      if (navOpen && !open && !animating) {
+        list
+          ?.querySelectorAll<HTMLElement>(`.${listItemTextClasses.root}`)
+          .forEach((label) =>
+            label.style.setProperty(
+              LABEL_WIDTH_VAR,
+              `${label.getBoundingClientRect().width}px`
+            )
+          );
+      }
+
+      setNavOpen(open);
+    },
+    [navOpen, animating, list, setNavOpen]
+  );
+
+  const toggleSidebar = useCallback(
+    () => setSidebarOpen(!navOpen),
+    [setSidebarOpen, navOpen]
+  );
 
   // Released when the paper's own width transition ends, not on a timer: the
   // transition starts only once React has re-rendered, which takes a moment.
@@ -100,9 +113,9 @@ export const Sidebar: FC = () => {
   const handleNavItemClick = useCallback(() => {
     // autoclose sidebar when layout is narrow
     if (isNarrow) {
-      setNavOpen(false);
+      setSidebarOpen(false);
     }
-  }, [isNarrow, setNavOpen]);
+  }, [isNarrow, setSidebarOpen]);
 
   const renderItem = (item: NavItemType) => (
     <SidebarNavItem

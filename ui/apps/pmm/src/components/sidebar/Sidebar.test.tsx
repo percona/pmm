@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { NavigationContext } from 'contexts/navigation/navigation.context';
 import { wrapWithQueryProvider } from 'utils/testUtils';
@@ -24,6 +24,10 @@ const renderSidebar = (
   );
 
 describe('Sidebar', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("records each label's expanded width as the drawer starts to close", () => {
     renderSidebar(true, [
       { id: 'overview', text: 'Overview', url: '/graph/' },
@@ -44,6 +48,25 @@ describe('Sidebar', () => {
       expect(label.style.getPropertyValue('--sidebar-label-width')).toMatch(
         /^\d+(\.\d+)?px$/
       )
+    );
+  });
+
+  it('records the widths too when a narrow layout closes after a click', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('max-width'),
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    renderSidebar(true, [{ id: 'overview', text: 'Overview', url: '/x' }]);
+    const [label] = screen
+      .getByTestId('pmm-sidebar')
+      .querySelectorAll<HTMLElement>('.MuiListItemText-root');
+
+    fireEvent.click(screen.getByRole('link', { name: 'Overview' }));
+
+    expect(label.style.getPropertyValue('--sidebar-label-width')).toMatch(
+      /^\d+(\.\d+)?px$/
     );
   });
 
