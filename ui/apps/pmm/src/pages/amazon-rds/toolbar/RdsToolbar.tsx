@@ -28,15 +28,18 @@ interface RdsToolbarProps {
   onSelectChange: (id: keyof GroupSelection, value: string[]) => void;
 }
 
-// A selected value the data no longer offers still shows, under its own name.
 // A selected value that left the data stays in the menu, so it can still be cleared.
-const withSelected = (options: FilterOption[], value: string[]) => [
+const withSelected = (
+  options: FilterOption[],
+  value: string[]
+): FilterOption[] => [
   ...options,
   ...value
     .filter((item) => !options.some((option) => option.value === item))
     .map((item) => ({ label: item, value: item })),
 ];
 
+// A selected value the data no longer offers still shows, under its own name.
 const toSelected = (options: FilterOption[], value: string[]) =>
   value.map(
     (item) =>
