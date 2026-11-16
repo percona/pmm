@@ -13,14 +13,26 @@ import {
 import { findActiveNavItem } from 'utils/navigation.utils';
 import {
   TEST_USER_ADMIN,
-  TEST_USER_ANONYMOUS,
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithSettings, wrapWithUpdatesProvider } from 'utils/testUtils';
+import type { AuthContextProps } from 'contexts/auth';
 import { NavigationProvider } from './navigation.provider';
 import { useNavigation } from './navigation.hooks';
+import {
+  NAV_ALERTS,
+  NAV_HELP,
+  NAV_INVENTORY,
+  NAV_MONGO,
+  NAV_MYSQL,
+  NAV_OS,
+  NAV_POSTGRESQL,
+  NAV_QAN,
+  NAV_SIGN_IN,
+  NAV_VALKEY,
+} from './navigation.constants';
 
 const { useNodeTypes } = vi.hoisted(() => ({
   useNodeTypes: vi.fn(),
@@ -31,10 +43,6 @@ vi.mock('hooks/api/useServices', () => ({
 }));
 
 vi.mock('hooks/api/useNodes', () => ({ useNodeTypes }));
-
-vi.mock('hooks/api/useAdvisors', () => ({
-  useAdvisors: () => ({ data: [] }),
-}));
 
 vi.mock('hooks/api/useFolders', () => ({
   useFolders: () => ({ data: [] }),
@@ -49,18 +57,20 @@ vi.mock('hooks/theme', () => ({
 }));
 
 const renderNavTree = (
-  user: User = TEST_USER_ADMIN,
+  user: User | null = TEST_USER_ADMIN,
   routerProps?: MemoryRouterProps,
   settings?: {
     extensionsEnabled?: boolean;
     backupManagementEnabled?: boolean;
     omEnabled?: boolean;
-  }
+  },
+  authContext?: AuthContextProps
 ) => {
   const { result } = renderHook(() => useNavigation(), {
     wrapper: ({ children }) => (
       <TestWrapper
-        userContext={{ isLoading: false, user }}
+        authContext={authContext}
+        userContext={{ isLoading: false, user: user ?? undefined }}
         routerProps={routerProps}
       >
         {wrapWithSettings(
@@ -85,6 +95,12 @@ const renderNavTree = (
 
 const findById = (items: NavItem[], id: string): NavItem | undefined =>
   items.find((item) => item.id === id);
+
+const ANONYMOUS_AUTH: AuthContextProps = {
+  isLoading: false,
+  isLoggedIn: false,
+  isAnonymous: true,
+};
 
 describe('NavigationProvider', () => {
   beforeEach(() => {
@@ -146,6 +162,47 @@ describe('NavigationProvider', () => {
       expect(active?.id).toBe('rds-overview');
       expect(active?.url).toBe(AMAZON_RDS_PATH);
       expect(rds?.children).toContain(active);
+    });
+  });
+
+  describe('Anonymous visitors', () => {
+    const anonymousIds = () =>
+      renderNavTree(null, undefined, undefined, ANONYMOUS_AUTH).map(
+        (item) => item.id
+      );
+
+    it('get every database menu, since they cannot list service types', () => {
+      expect(anonymousIds()).toEqual(
+        expect.arrayContaining([
+          NAV_MYSQL.id,
+          NAV_MONGO.id,
+          NAV_POSTGRESQL.id,
+          NAV_VALKEY.id,
+          NAV_OS.id,
+        ])
+      );
+    });
+
+    it('get a sign-in entry and nothing that needs PMM APIs', () => {
+      const ids = anonymousIds();
+
+      expect(ids).toContain(NAV_SIGN_IN.id);
+      for (const id of [
+        NAV_QAN.id,
+        NAV_INVENTORY.id,
+        NAV_ALERTS.id,
+        NAV_HELP.id,
+        'account',
+      ]) {
+        expect(ids).not.toContain(id);
+      }
+    });
+
+    it('leave Query Analytics in place for a signed-in Viewer', () => {
+      const ids = renderNavTree(TEST_USER_VIEWER).map((item) => item.id);
+
+      expect(ids).toContain(NAV_QAN.id);
+      expect(ids).not.toContain(NAV_SIGN_IN.id);
     });
   });
 
@@ -213,12 +270,6 @@ describe('NavigationProvider', () => {
       ]);
     });
 
-    it('is withheld from anonymous, which has no side-car session to exchange', () => {
-      const ids = renderNavTree(TEST_USER_ANONYMOUS).map((item) => item.id);
-
-      expect(ids).not.toContain('management');
-    });
-
     it('is withheld when PMM Extensions is disabled in server settings', () => {
       const ids = renderNavTree(TEST_USER_ADMIN, undefined, {
         extensionsEnabled: false,
@@ -261,10 +312,17 @@ describe('NavigationProvider', () => {
       expect(findById(navTree, 'mongo')).toBeUndefined();
     });
 
-    it('is withheld from a non-admin', () => {
-      expect(
-        findById(renderNavTree(TEST_USER_EDITOR), 'mongo')
-      ).toBeUndefined();
+    it.each([
+      ['an editor', TEST_USER_EDITOR],
+      ['a viewer', TEST_USER_VIEWER],
+    ])('is shown to %s, who may look but not act', (_, user) => {
+      expect(mongoChildIds(renderNavTree(user))).toEqual(['om']);
+    });
+
+    it('is withheld from an anonymous reader', () => {
+      const navTree = renderNavTree(null, undefined, undefined, ANONYMOUS_AUTH);
+
+      expect(mongoChildIds(navTree)).not.toContain('om');
     });
 
     it.each([

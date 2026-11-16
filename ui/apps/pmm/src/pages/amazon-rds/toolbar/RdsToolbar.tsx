@@ -29,6 +29,14 @@ interface RdsToolbarProps {
 }
 
 // A selected value the data no longer offers still shows, under its own name.
+// A selected value that left the data stays in the menu, so it can still be cleared.
+const withSelected = (options: FilterOption[], value: string[]) => [
+  ...options,
+  ...value
+    .filter((item) => !options.some((option) => option.value === item))
+    .map((item) => ({ label: item, value: item })),
+];
+
 const toSelected = (options: FilterOption[], value: string[]) =>
   value.map(
     (item) =>
@@ -70,7 +78,7 @@ export const RdsToolbar: FC<RdsToolbarProps> = ({
         size="small"
         disableCloseOnSelect
         disableClearable
-        options={options}
+        options={withSelected(options, value)}
         value={toSelected(options, value)}
         onChange={(_, selected) =>
           onSelectChange(

@@ -66,7 +66,10 @@ const locationSearch = () =>
 describe('AmazonRdsPage', { timeout: 20_000 }, () => {
   beforeEach(() => {
     useRdsInstances.mockReturnValue({ data: RDS_ROWS, isError: false });
-    usePrometheusAlertRules.mockReturnValue({ data: ALERT_RULES });
+    usePrometheusAlertRules.mockReturnValue({
+      data: ALERT_RULES,
+      isSuccess: true,
+    });
     useAlertmanagerAlerts.mockReturnValue({
       data: SILENCED_ALERTS,
       isSuccess: true,
@@ -196,6 +199,19 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
   it('shows no alert count until the silenced alerts load', () => {
     useAlertmanagerAlerts.mockReturnValue({
       data: undefined,
+      isSuccess: false,
+    });
+    renderPage();
+
+    expect(
+      screen.queryByRole('button', { name: /firing alert/ })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('None')).not.toBeInTheDocument();
+  });
+
+  it('shows no alert count when the alert rules refresh fails', () => {
+    usePrometheusAlertRules.mockReturnValue({
+      data: ALERT_RULES,
       isSuccess: false,
     });
     renderPage();
@@ -366,6 +382,33 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
     expect(locationSearch()).toBe('?rds-q=reader');
   });
 
+  it('expands a matched group again when the search returns to it', async () => {
+    renderPage();
+
+    const search = screen.getByRole('textbox', {
+      name: 'Search DB identifiers, types, instances, accounts',
+    });
+    const collapse = { name: 'Collapse database-3' };
+
+    fireEvent.change(search, { target: { value: 'reader' } });
+    fireEvent.click(
+      await screen.findByRole('button', collapse, { timeout: 5000 })
+    );
+    expect(
+      screen.getByRole('button', { name: 'Expand database-3' })
+    ).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: 'rds-pg-1' } });
+    expect(
+      await screen.findByText('1 of 8 groups', {}, { timeout: 5000 })
+    ).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: 'reader' } });
+    expect(
+      await screen.findByRole('button', collapse, { timeout: 5000 })
+    ).toBeInTheDocument();
+  });
+
   it('clears the search when the page opens unfiltered', async () => {
     renderPage({ search: '?rds-q=reader' });
 
@@ -417,6 +460,19 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
     expect(shown('1 of 8 groups')).toBeInTheDocument();
   });
 
+  it('keeps a selected value that is no longer in the data removable', () => {
+    renderPage({ search: '?rds-region=eu-west-9&rds-region=us-east-2' });
+
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Region' }));
+    const stale = screen.getByRole('option', { name: /eu-west-9/ });
+
+    expect(within(stale).getByRole('checkbox')).toBeChecked();
+
+    fireEvent.click(stale);
+
+    expect(locationSearch()).toBe('?rds-region=us-east-2');
+  });
+
   it('shows a no-match state that clears the filters', () => {
     renderPage({ search: '?rds-q=no-such-group&rds-engine=mysql' });
 
@@ -454,10 +510,18 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
     ).toBeInTheDocument();
   });
 
-  it('keeps showing the data when a refresh fails', () => {
+  it('keeps showing the data with a warning when a refresh fails', () => {
+    const stale =
+      'Could not refresh the Amazon RDS instances. The page shows the last data loaded.';
+    const { unmount } = renderPage();
+
+    expect(screen.queryByText(stale)).not.toBeInTheDocument();
+    unmount();
+
     useRdsInstances.mockReturnValue({ data: RDS_ROWS, isError: true });
     renderPage();
 
     expect(screen.getByText('database-3')).toBeInTheDocument();
+    expect(screen.getByText(stale)).toBeInTheDocument();
   });
 });

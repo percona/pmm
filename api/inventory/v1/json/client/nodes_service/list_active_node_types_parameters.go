@@ -57,7 +57,10 @@ ListActiveNodeTypesParams contains all the parameters to send to the API endpoin
 	Typically these are written to a http.Request.
 */
 type ListActiveNodeTypesParams struct {
-	// Body.
+	/* Body.
+
+	   ListActiveNodeTypesRequest takes no parameters.
+	*/
 	Body any
 
 	timeout    time.Duration

@@ -146,10 +146,15 @@ export const AmazonRdsPage: FC = () => {
 
   const renderContent = () => {
     if (rows) {
-      return groups.length ? (
-        <RdsGroups groups={groups} filtered={filtered} {...rdsFilters} />
-      ) : (
-        <Alert severity="info">{Messages.noData}</Alert>
+      return (
+        <>
+          {isError && <Alert severity="warning">{Messages.staleData}</Alert>}
+          {groups.length ? (
+            <RdsGroups groups={groups} filtered={filtered} {...rdsFilters} />
+          ) : (
+            <Alert severity="info">{Messages.noData}</Alert>
+          )}
+        </>
       );
     }
 

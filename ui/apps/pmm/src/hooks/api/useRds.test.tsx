@@ -204,6 +204,22 @@ describe('useRdsInstances', () => {
     expect(result.current.error?.message).toBe('bad query');
   });
 
+  it('fails when a required query has no result', async () => {
+    post.mockResolvedValue({
+      data: {
+        results: Object.fromEntries(
+          Object.entries(results).filter(([refId]) => refId !== 'info')
+        ),
+      },
+    });
+
+    const { result } = renderRdsHook();
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(result.current.error?.message).toBe('No result for query info');
+  });
+
   it('fails when the request fails otherwise', async () => {
     post.mockRejectedValue(new Error('Network Error'));
 

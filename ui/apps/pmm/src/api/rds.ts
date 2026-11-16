@@ -42,7 +42,7 @@ or
   inRecovery: `max by (service_name) (pg_replication_is_replica{node_type="remote_rds"})
 or
 max by (service_name) (pg_settings_in_hot_standby{node_type="remote_rds"})`,
-  throughput: `sum by (service_name) (rate(mysql_global_status_queries{node_type="remote_rds"}[$__rate_interval]))
+  throughput: `max by (service_name) (rate(mysql_global_status_queries{node_type="remote_rds"}[$__rate_interval]))
 or
 (
   sum by (service_name) (rate(pg_stat_database_xact_commit{node_type="remote_rds"}[$__rate_interval]))

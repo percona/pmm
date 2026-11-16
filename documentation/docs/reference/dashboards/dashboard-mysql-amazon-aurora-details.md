@@ -97,7 +97,7 @@ This row is expanded by default. Its graphs read Amazon CloudWatch metrics, whic
 | **Disk queue depth** | `DiskQueueDepth` |
 | **Swap usage** | `SwapUsage` |
 
-## Replication (needs a reader)
+## Replication (replicas only)
 
 This row is collapsed by default. Its graphs show data only for an instance that replicates: an Aurora reader, or an instance that is a binlog replica. It has these graphs:
 
@@ -116,7 +116,3 @@ This row is collapsed by default. Its graphs are empty unless the instance uses 
 ## Parallel query
 
 This row is collapsed by default. Its graph is empty unless the instance uses parallel query. The **Parallel Query Requests** graph shows the parallel query requests by outcome: attempted, executed and not chosen.
-
-## Serverless capacity (Serverless only)
-
-This row is collapsed by default. Its graph is empty unless the instance is an Aurora Serverless v2 instance. The **Serverless Capacity** graph shows the current, minimum and maximum Aurora Capacity Units (ACUs) of the instance.
