@@ -4,6 +4,8 @@ export const Messages = {
   advisors: 'Advisors',
   loading: 'Loading Amazon RDS instances',
   fetchError: 'Could not load the Amazon RDS instances.',
+  staleData:
+    'Could not refresh the Amazon RDS instances. The page shows the last data loaded.',
   noData: 'No Amazon RDS instances found',
   noMatch: 'No groups match the filters',
   clearFilters: 'Clear filters',

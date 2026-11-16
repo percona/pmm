@@ -54,7 +54,7 @@ const postQueries = async (body: object): Promise<DataQueryResponse> => {
 };
 
 // Instant PromQL queries through Grafana, which filters them by LBAC and lets viewers run them.
-// A failed query fails the call when it is required, and returns no samples otherwise.
+// A failed or missing query result fails the call when it is required, and returns no samples otherwise.
 export const queryInstant = async (
   datasourceUid: string,
   queries: InstantQuery[],
@@ -78,8 +78,8 @@ export const queryInstant = async (
     queries.map(({ refId }) => {
       const result = data.results[refId];
 
-      if (result?.error && required.includes(refId)) {
-        throw new Error(result.error);
+      if (required.includes(refId) && (!result || result.error)) {
+        throw new Error(result?.error ?? `No result for query ${refId}`);
       }
 
       return [refId, result?.error ? [] : toSamples(result?.frames)];

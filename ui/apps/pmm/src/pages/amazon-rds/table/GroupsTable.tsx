@@ -191,6 +191,9 @@ const useGroupExpansion = (
     key: expansionKey,
     overrides: {} as Record<string, boolean>,
   });
+  if (expansion.key !== expansionKey) {
+    setExpansion({ key: expansionKey, overrides: {} });
+  }
   const overrides = expansion.key === expansionKey ? expansion.overrides : {};
   const expanded = Object.fromEntries(
     groups
