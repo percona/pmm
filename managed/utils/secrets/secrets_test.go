@@ -16,6 +16,7 @@
 package secrets
 
 import (
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -687,6 +688,10 @@ func TestEntrypointUnsetsLegacyValues(t *testing.T) {
 			assert.True(t, unset[k], "build/docker/server/entrypoint.sh doesn't unset %s", k)
 		}
 	}
+	// The pmm-ha chart's Secret passes these under its own key names, and PMM reads none of them.
+	for _, k := range []string{"PG_PASSWORD", "GF_PASSWORD", "PMM_HA_VM_PASSWORD"} {
+		assert.True(t, unset[k], "build/docker/server/entrypoint.sh doesn't unset %s", k)
+	}
 }
 
 func TestURLWithoutPassword(t *testing.T) {
@@ -704,4 +709,39 @@ func TestURLWithoutPassword(t *testing.T) {
 	_, err := URLWithoutPassword("http://vmuser:q7v-pw@vm auth:8427/")
 	require.Error(t, err)
 	assert.NotContains(t, err.Error(), "q7v")
+}
+
+func TestVMURL(t *testing.T) {
+	const raw = "http://vmuser@vmauth:8427/prometheus/"
+	withFile := func(t *testing.T, content string) string {
+		t.Helper()
+		dir := t.TempDir()
+		require.NoError(t, os.WriteFile(filepath.Join(dir, string(VMPassword)), []byte(content), 0o600))
+		return dir
+	}
+
+	t.Run("keeps the URL when no password is resolved", func(t *testing.T) {
+		got, err := vmURLIn(t.TempDir(), raw)
+		require.NoError(t, err)
+		assert.Equal(t, raw, got)
+	})
+
+	t.Run("adds the password from its file", func(t *testing.T) {
+		got, err := vmURLIn(withFile(t, "q7v@pw:w/rd%\n"), raw)
+		require.NoError(t, err)
+		u, err := url.Parse(got)
+		require.NoError(t, err)
+		password, ok := u.User.Password()
+		require.True(t, ok)
+		assert.Equal(t, "vmuser", u.User.Username())
+		assert.Equal(t, "q7v@pw:w/rd%", password)
+		assert.Equal(t, "vmauth:8427", u.Host)
+		assert.Equal(t, "/prometheus/", u.Path)
+	})
+
+	t.Run("refuses a password file it can't read", func(t *testing.T) {
+		_, err := vmURLIn(withFile(t, ""), raw)
+		require.Error(t, err)
+		require.NotErrorIs(t, err, ErrNotResolved)
+	})
 }

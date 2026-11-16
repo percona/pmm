@@ -531,6 +531,35 @@ func URLWithoutPassword(raw string) (string, error) {
 	return u.String(), nil
 }
 
+// VMURL returns the VictoriaMetrics URL raw with the password from its credential file, for pmm-managed's own clients
+// (the entrypoint passes PMM_VM_URL on without it, and the other programs read the file), or raw when nothing resolved
+// the password.
+func VMURL(raw string) (string, error) {
+	return vmURLIn(Dir, raw)
+}
+
+func vmURLIn(dir, raw string) (string, error) {
+	password, err := valueIn(dir, "", VMPassword, "")
+	switch {
+	case errors.Is(err, ErrNotResolved):
+		return raw, nil
+	case err != nil:
+		return "", err
+	}
+	return urlWithPassword(raw, password), nil
+}
+
+// urlWithPassword returns raw with password in its userinfo, keeping the username, or raw when it doesn't parse, for
+// models.ParseVictoriaMetricsURL to report without the credentials.
+func urlWithPassword(raw, password string) string {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return raw
+	}
+	u.User = url.UserPassword(u.User.Username(), password)
+	return u.String()
+}
+
 // first returns the value of the first variable set among keys, that variable, and a later one set to a different value.
 func first(getenv func(string) string, keys []string) (string, string, string) {
 	var value, key, differs string

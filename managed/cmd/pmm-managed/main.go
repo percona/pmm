@@ -740,25 +740,6 @@ func readCredential(l *logrus.Entry, value string, name secrets.Name, defaultVal
 	return v
 }
 
-// vmURLWithPassword returns the VictoriaMetrics URL with the password from its credential file, for pmm-managed's own
-// clients: the entrypoint passes PMM_VM_URL on without it, and the other programs read the file.
-func vmURLWithPassword(l *logrus.Entry, raw string) string {
-	password, err := secrets.Value("", secrets.VMPassword, "")
-	switch {
-	case errors.Is(err, secrets.ErrNotResolved):
-		return raw
-	case err != nil:
-		l.Fatalf("Cannot read credential %s: %s.", secrets.VMPassword, err)
-	}
-	u, err := url.Parse(raw)
-	if err != nil {
-		// models.ParseVictoriaMetricsURL reports it, without the credentials.
-		return raw
-	}
-	u.User = url.UserPassword(u.User.Username(), password)
-	return u.String()
-}
-
 func main() { //nolint:gocognit,maintidx,cyclop
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
@@ -981,7 +962,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	qanDB := ds.QanDBSelect
 	qanDB.DSN = chParams.URL().String()
 
-	vmURL := vmURLWithPassword(l, *victoriaMetricsURLF)
+	vmURL, err := secrets.VMURL(*victoriaMetricsURLF)
+	if err != nil {
+		l.Fatalf("Cannot read credential %s: %s.", secrets.VMPassword, err)
+	}
 	ds.VM.Address = vmURL
 
 	vmParams, err := models.NewVictoriaMetricsParams(
