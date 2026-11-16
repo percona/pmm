@@ -97,12 +97,12 @@ export const Sidebar: FC = () => {
     }
   }, [navTree, location.pathname, user?.preferences]);
 
-  const handleNavItemClick = () => {
+  const handleNavItemClick = useCallback(() => {
     // autoclose sidebar when layout is narrow
     if (isNarrow) {
       setNavOpen(false);
     }
-  };
+  }, [isNarrow, setNavOpen]);
 
   const renderItem = (item: NavItemType) => (
     <SidebarNavItem
