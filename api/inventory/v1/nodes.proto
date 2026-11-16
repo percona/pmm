@@ -137,9 +137,12 @@ message ListNodesResponse {
   repeated RemoteAzureDatabaseNode remote_azure_database = 5;
 }
 
+// ListActiveNodeTypesRequest takes no parameters.
 message ListActiveNodeTypesRequest {}
 
+// ListActiveNodeTypesResponse lists the Node types present in the inventory.
 message ListActiveNodeTypesResponse {
+  // Distinct types of the Nodes in the inventory.
   repeated NodeType node_types = 1;
 }
 

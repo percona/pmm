@@ -21656,10 +21656,12 @@
         "operationId": "ListActiveNodeTypes",
         "parameters": [
           {
+            "description": "ListActiveNodeTypesRequest takes no parameters.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
+              "description": "ListActiveNodeTypesRequest takes no parameters.",
               "type": "object"
             }
           }
@@ -21668,9 +21670,11 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "ListActiveNodeTypesResponse lists the Node types present in the inventory.",
               "type": "object",
               "properties": {
                 "node_types": {
+                  "description": "Distinct types of the Nodes in the inventory.",
                   "type": "array",
                   "items": {
                     "description": "NodeType describes supported Node types.",

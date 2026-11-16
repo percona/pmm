@@ -777,6 +777,7 @@ func (x *ListNodesResponse) GetRemoteAzureDatabase() []*RemoteAzureDatabaseNode 
 	return nil
 }
 
+// ListActiveNodeTypesRequest takes no parameters.
 type ListActiveNodeTypesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -813,9 +814,11 @@ func (*ListActiveNodeTypesRequest) Descriptor() ([]byte, []int) {
 	return file_inventory_v1_nodes_proto_rawDescGZIP(), []int{7}
 }
 
+// ListActiveNodeTypesResponse lists the Node types present in the inventory.
 type ListActiveNodeTypesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	NodeTypes     []NodeType             `protobuf:"varint,1,rep,packed,name=node_types,json=nodeTypes,proto3,enum=inventory.v1.NodeType" json:"node_types,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Distinct types of the Nodes in the inventory.
+	NodeTypes     []NodeType `protobuf:"varint,1,rep,packed,name=node_types,json=nodeTypes,proto3,enum=inventory.v1.NodeType" json:"node_types,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

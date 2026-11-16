@@ -414,11 +414,11 @@ func (o *ListActiveNodeTypesDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) 
 }
 
 /*
-ListActiveNodeTypesOKBody list active node types OK body
+ListActiveNodeTypesOKBody ListActiveNodeTypesResponse lists the Node types present in the inventory.
 swagger:model ListActiveNodeTypesOKBody
 */
 type ListActiveNodeTypesOKBody struct {
-	// node types
+	// Distinct types of the Nodes in the inventory.
 	NodeTypes []*string `json:"node_types"`
 }
 
