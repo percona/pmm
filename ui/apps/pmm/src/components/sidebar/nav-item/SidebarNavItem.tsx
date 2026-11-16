@@ -63,8 +63,6 @@ const SidebarNavItem: FC<NavItemProps> = ({
   const styles = getStyles(theme, drawerOpen, level);
   const dataTestid = `navitem-${item.id}`;
   const showBadge = shouldShowBadge(item, open);
-  // In the collapsed rail a group cannot open in place, so its entries open
-  // in a panel beside it instead.
   const opensFlyout = !drawerOpen && level === 0 && !!item.children?.length;
   const [flyoutAnchor, setFlyoutAnchor] = useState<HTMLElement | null>(null);
   const flyoutId = `${dataTestid}-flyout`;

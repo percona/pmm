@@ -10,7 +10,6 @@ const RAIL_LABEL_HEIGHT = 24;
 export const LABEL_WIDTH_VAR = '--sidebar-label-width';
 
 export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
-  // Items change shape in step with the drawer's own width transition.
   const drawerTiming = drawerTransition(theme, drawerOpen);
   // A heading inside a group always shows, since a group opens only in the
   // open drawer; that also lets the group measure its full height.
@@ -80,7 +79,6 @@ export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
       position: 'relative',
       overflow: 'hidden',
     },
-    // An action comes and goes with the drawer, so it fades in as it opens.
     itemAction: {
       ...trailingButtonPlace,
       ...appearOnOpenMixin(theme),
