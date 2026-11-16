@@ -59,7 +59,7 @@ Shows the current status of each individual PBM agent as a hexagon grid, with on
 
 Use this to pinpoint exactly which nodes have agent problems after the **Backup Agent Summary** flags an issue. Hover over a hexagon to see the hostname.
 
-Arbiter nodes always show **FAIL** here. This is expected, because the PBM agent can't run on arbiters.
+Arbiter nodes always show **CHECK** here. This is expected, because the PBM agent can't run on arbiters.
 
 ### Backup Agent Status Over Time
 
@@ -68,6 +68,30 @@ Shows each agent's status history over the selected time range as a color-coded 
 Use this to tell the difference between a one-off failure and a recurring problem. Repeated red bars on the same node point to an underlying issue rather than a transient blip. 
 
 You can also use the timeline to correlate failures with events like deployments, network changes, or maintenance windows, and to confirm that a previously failing agent has fully recovered.
+
+### Failing Backup Agents
+
+Shows only the PBM agents that are failing right now, one row per agent, with the agent's host, replica set, cluster, and environment. Available starting with PMM 3.11.0.
+
+Use this to find the agents that need attention without scanning hundreds of healthy ones. Arbiters aren't listed, because the PBM agent can't run on arbiters.
+
+The **Status** column shows why each agent is listed:
+
+- **FAIL**: The PBM agent can't connect to PBM, `mongod`, or the backup storage, or no PBM agent is registered on the node.
+- **DOWN**: PBM hasn't had a heartbeat from the agent for more than 30 seconds, usually because the agent is stopped or unreachable.
+
+To see the exact reason for a failure, run `pbm status` on the affected node.
+
+**Failing for** shows how long the agent has been failing, within the last 24 hours:
+
+- the time since the agent last reported **OK**
+- the time since PMM first saw the agent, if the agent has never reported **OK**
+- **> 24h** if the agent has been failing for the whole 24 hours
+- **N/A** if PMM doesn't monitor the node itself
+
+To look into a failing node, open its [MongoDB Instance Summary](dashboard-mongodb-instance-summary.md) dashboard from the **PMM service** column. If the column is empty, PMM can't match the agent to its node's own service. This happens when the node is down, when PMM doesn't monitor it, or when it runs PMM Client older than 3.1.
+
+After you fix an agent, check that its row disappears from the table. When all your agents are back to **OK**, the table shows **No failing backup agents**.
 
 ## Details
 
