@@ -17,11 +17,16 @@ package models_test
 
 import (
 	"database/sql"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 
+	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
+	logtest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -366,14 +371,22 @@ func TestAcceptKeyLossPMMServerAgents(t *testing.T) {
 	stored, err := lost.Encrypt("password-before-key-loss", []byte("agents.password"))
 	require.NoError(t, err)
 	insertExporter(t, sqlDB, "E1", stored, "")
+	lookAlikes := pmmServerAgentLookAlikes(t, q, pointer.GetString(agents[0].ServiceID))
 	require.NoError(t, os.Remove(path))
 
 	created, err := encryption.CreateCipher(encryption.NewFileKeyProvider(path))
 	require.NoError(t, err)
 	setAcceptKeyLoss(t, created)
+	hook := logtest.NewGlobal()
+	t.Cleanup(func() { logrus.StandardLogger().ReplaceHooks(make(logrus.LevelHooks)) })
 	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
 
-	for _, agent := range pmmServerPostgreSQLAgents(t, q) {
+	warning := unrecoverableWarning(t, hook)
+	assert.Contains(t, warning, "agent E1 password")
+	for _, agent := range agents {
+		assert.NotContains(t, warning, agent.AgentID, agent.AgentType)
+		agent, err = models.FindAgentByID(q, agent.AgentID)
+		require.NoError(t, err)
 		assert.Equal(t, "pmm-managed", agent.Username.Reveal(), agent.AgentType)
 		assert.Equal(t, "pmm-managed-password", agent.Password.Reveal(), agent.AgentType)
 		assert.Equal(t, "ssl-ca", agent.PostgreSQLOptions.SSLCa, agent.AgentType)
@@ -386,9 +399,151 @@ func TestAcceptKeyLossPMMServerAgents(t *testing.T) {
 	agent, err := models.FindAgentByID(q, "E1")
 	require.NoError(t, err)
 	assert.Equal(t, stored, agent.Password.Reveal(), "a user's Agent keeps the lost value")
+	for name, id := range lookAlikes {
+		agent, err = models.FindAgentByID(q, id)
+		require.NoError(t, err)
+		assert.NotEqual(t, "pmm-managed-password", agent.Password.Reveal(), name)
+		assert.Contains(t, warning, "agent "+id+" password", name)
+	}
 
 	t.Setenv(encryption.AcceptKeyLossEnvVar, "")
 	require.NoError(t, setupDBWithFixtures(t, sqlDB, db), "the new key is the database's key now")
+}
+
+// pmmServerAgentLookAlikes adds Agents that share one trait of the Agents of PMM Server's own PostgreSQL
+// Service, with credentials encrypted with the default cipher, and returns their IDs by what they share.
+func pmmServerAgentLookAlikes(t *testing.T, q *reform.Querier, pmmServerServiceID string) map[string]string {
+	t.Helper()
+
+	// at the address of PMM Server's database, so that only the name tells them apart
+	remote, err := models.AddNewService(q, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "remote-postgresql",
+		NodeID:      models.PMMServerNodeID,
+		Address:     pointer.ToString(models.LocalhostAddr),
+		Port:        pointer.ToUint16(5432),
+	})
+	require.NoError(t, err)
+
+	ids := make(map[string]string)
+	for name, params := range map[string]*models.CreateAgentParams{
+		"PMM Server's pmm-agent":          {PMMAgentID: models.PMMServerAgentID, ServiceID: remote.ServiceID},
+		"PMM Server's PostgreSQL Service": {PMMAgentID: "PA", ServiceID: pmmServerServiceID},
+	} {
+		params.Username = "user"
+		params.Password = "user-password"
+		agent, err := models.CreateAgent(q, models.PostgresExporterType, params)
+		require.NoError(t, err, name)
+		ids[name] = agent.AgentID
+	}
+
+	return ids
+}
+
+// unrecoverableWarning returns the warning the startup migration logs about credentials it cannot recover.
+func unrecoverableWarning(t *testing.T, hook *logtest.Hook) string {
+	t.Helper()
+
+	for _, entry := range hook.AllEntries() {
+		if entry.Level == logrus.WarnLevel && strings.Contains(entry.Message, "cannot be recovered") {
+			return entry.Message
+		}
+	}
+	require.Fail(t, "no warning about credentials that cannot be recovered")
+
+	return ""
+}
+
+// TestAcceptKeyLossServiceNameTaken covers a user's PostgreSQL Service under the name of PMM Server's own,
+// e.g. after the built-in one was removed: its Agents must not get the credentials of PMM Server's database.
+func TestAcceptKeyLossServiceNameTaken(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	keepDefaultCipher(t)
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+	forgetKeyCheck(t, sqlDB)
+	path := filepath.Join(t.TempDir(), "pmm-encryption.key")
+	t.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)
+	db := newPMMServerDB(t)
+
+	_, err := encryption.CreateCipher(encryption.NewFileKeyProvider(path))
+	require.NoError(t, err)
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
+	_, err = sqlDB.ExecContext(t.Context(), `UPDATE services SET address = '192.0.2.1' WHERE service_name = $1`,
+		models.PMMServerPostgreSQLServiceName)
+	require.NoError(t, err)
+	require.NoError(t, os.Remove(path))
+
+	created, err := encryption.CreateCipher(encryption.NewFileKeyProvider(path))
+	require.NoError(t, err)
+	setAcceptKeyLoss(t, created)
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
+
+	for _, agent := range pmmServerPostgreSQLAgents(t, q) {
+		assert.NotEqual(t, "pmm-managed-password", agent.Password.Reveal(), agent.AgentType)
+	}
+}
+
+// TestRestorePMMServerAgentsLostColumnsOnly covers a secret of PMM Server's own PostgreSQL Agents lost to the
+// stacked layers of PMM before 3.9.1 (PMM-15188): only that column is restored, not credentials still readable.
+func TestRestorePMMServerAgentsLostColumnsOnly(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	cipher := keepDefaultCipher(t)
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+	db := newPMMServerDB(t)
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
+	exporter := pmmServerPostgreSQLAgents(t, q)[0]
+	exporter.Username = models.EncryptedStringOrNil[models.AgentUsername]("custom-user")
+	exporter.Password = models.EncryptedStringOrNil[models.AgentPassword]("custom-password")
+	require.NoError(t, q.Update(exporter))
+
+	// as PMM before 3.9.1 left it, before the upgrade
+	forgetKeyCheck(t, sqlDB)
+	_, gone := newKeyFile(t)
+	options, err := json.Marshal(map[string]string{
+		"ssl_cert": legacyCiphertext(t, cipher, legacyCiphertext(t, gone, "old-cert")),
+		"ssl_key":  legacyCiphertext(t, cipher, legacyCiphertext(t, gone, "old-key")),
+	})
+	require.NoError(t, err)
+	_, err = sqlDB.ExecContext(t.Context(), `UPDATE agents SET postgresql_options = $1 WHERE agent_id = $2`,
+		string(options), exporter.AgentID)
+	require.NoError(t, err)
+
+	hook := logtest.NewGlobal()
+	t.Cleanup(func() { logrus.StandardLogger().ReplaceHooks(make(logrus.LevelHooks)) })
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
+
+	var restoreWarnings []string
+	for _, entry := range hook.AllEntries() {
+		if strings.HasPrefix(entry.Message, "Restored the lost") {
+			restoreWarnings = append(restoreWarnings, entry.Message)
+		}
+	}
+	require.Len(t, restoreWarnings, 1)
+	assert.Contains(t, restoreWarnings[0], "Restored the lost postgresql_options of PMM Server's own PostgreSQL agent "+exporter.AgentID)
+	exporter, err = models.FindAgentByID(q, exporter.AgentID)
+	require.NoError(t, err)
+	assert.Equal(t, "ssl-cert", exporter.PostgreSQLOptions.SSLCert)
+	assert.Equal(t, "ssl-key", exporter.PostgreSQLOptions.SSLKey)
+	assert.Equal(t, "custom-user", exporter.Username.Reveal())
+	assert.Equal(t, "custom-password", exporter.Password.Reveal())
+}
+
+// TestAcceptKeyLossMissingTLSFiles covers TLS files of PMM Server's database that no longer exist, which its own
+// connection tolerates: a lost credential of a user's Agent must not make startup read them.
+func TestAcceptKeyLossMissingTLSFiles(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	keepDefaultCipher(t)
+	db := newPMMServerDB(t)
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
+	_, gone := newKeyFile(t)
+	stored, err := gone.Encrypt("password-before-key-loss", []byte("agents.password"))
+	require.NoError(t, err)
+	insertExporter(t, sqlDB, "E1", stored, "")
+	require.NoError(t, os.Remove(db.SSLKeyPath))
+
+	cipher, err := encryption.DefaultCipher()
+	require.NoError(t, err)
+	setAcceptKeyLoss(t, cipher)
+	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
 }
 
 // TestAcceptKeyLossLegacyPMMServerAgents is TestAcceptKeyLossPMMServerAgents

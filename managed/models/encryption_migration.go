@@ -447,62 +447,87 @@ var pmmServerAgentColumns = []string{"username", "password", "postgresql_options
 // restorePMMServerAgents gives the Agents of PMM Server's own PostgreSQL
 // Service whose secrets are lost the credentials PMM Server connects to its
 // database with, which setupPMMServerAgents set them up with: unlike the
-// credentials of a user's Service, nobody can re-enter them. It returns the
-// lost secrets it did not restore. A nil db restores none.
+// credentials of a user's Service, nobody can re-enter them. Only the lost
+// columns are restored, and only for a Service at the address of that
+// database. It returns the lost secrets it did not restore. A nil db restores
+// none.
 func restorePMMServerAgents(q *reform.Querier, lost []error, db *SetupDBParams) ([]error, error) {
 	if db == nil {
 		return lost, nil
 	}
 
 	var ids []string
+	lostColumns := make(map[string][]string)
 	for _, err := range lost {
 		var e *secretError
-		if errors.As(err, &e) && e.label == agentsSecretTable.label && slices.Contains(pmmServerAgentColumns, e.column) &&
-			!slices.Contains(ids, e.id) {
+		if !errors.As(err, &e) || e.label != agentsSecretTable.label || !slices.Contains(pmmServerAgentColumns, e.column) {
+			continue
+		}
+		if _, ok := lostColumns[e.id]; !ok {
 			ids = append(ids, e.id)
+		}
+		// an options blob is reported once for each lost field
+		if !slices.Contains(lostColumns[e.id], e.column) {
+			lostColumns[e.id] = append(lostColumns[e.id], e.column)
 		}
 	}
 	if len(ids) == 0 {
 		return lost, nil
 	}
 
-	options, err := pmmServerPostgreSQLOptions(*db)
+	address, port, err := parsePGAddress(db.Address)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read the TLS files of PMM Server's database: %w", err)
+		return nil, err
 	}
+	// read once an Agent needs them: PMM Server's own connection tolerates files that no longer exist
+	var options *PostgreSQLOptions
 	var restored []string
 	for _, id := range ids {
 		agent := &Agent{}
-		err = q.SelectOneTo(agent, "WHERE agent_id = $1 AND pmm_agent_id = $2 AND "+
-			"service_id = (SELECT service_id FROM services WHERE service_name = $3) FOR UPDATE",
-			id, PMMServerAgentID, PMMServerPostgreSQLServiceName)
+		err = q.SelectOneTo(agent, "WHERE agent_id = $1 AND pmm_agent_id = $2 AND service_id = "+
+			"(SELECT service_id FROM services WHERE service_name = $3 AND address = $4 AND port = $5) FOR UPDATE",
+			id, PMMServerAgentID, PMMServerPostgreSQLServiceName, address, port)
 		if errors.Is(err, reform.ErrNoRows) {
 			continue // the Agent of a user's Service
-		}
-		if err == nil {
-			agent.Username = EncryptedStringOrNil[AgentUsername](db.Username)
-			agent.Password = EncryptedStringOrNil[AgentPassword](db.Password)
-			agent.PostgreSQLOptions.SSLCa = options.SSLCa
-			agent.PostgreSQLOptions.SSLCert = options.SSLCert
-			agent.PostgreSQLOptions.SSLKey = options.SSLKey
-			err = q.UpdateColumns(agent, pmmServerAgentColumns...)
 		}
 		if err != nil {
 			return nil, fmt.Errorf("failed to restore the credentials of agent %s: %w", id, err)
 		}
+
+		columns := lostColumns[id]
+		for _, column := range columns {
+			switch column {
+			case "username":
+				agent.Username = EncryptedStringOrNil[AgentUsername](db.Username)
+			case "password":
+				agent.Password = EncryptedStringOrNil[AgentPassword](db.Password)
+			case "postgresql_options":
+				if options == nil {
+					o, err := pmmServerPostgreSQLOptions(*db)
+					if err != nil {
+						return nil, fmt.Errorf("failed to read the TLS files of PMM Server's database: %w", err)
+					}
+					options = &o
+				}
+				agent.PostgreSQLOptions.SSLCa = options.SSLCa
+				agent.PostgreSQLOptions.SSLCert = options.SSLCert
+				agent.PostgreSQLOptions.SSLKey = options.SSLKey
+			}
+		}
+		err = q.UpdateColumns(agent, columns...)
+		if err != nil {
+			return nil, fmt.Errorf("failed to restore the credentials of agent %s: %w", id, err)
+		}
 		restored = append(restored, id)
+		logrus.Warnf("Restored the lost %s of PMM Server's own PostgreSQL agent %s from the credentials PMM Server "+
+			"connects to its database with; re-enter them if they were changed.", strings.Join(columns, ", "), id)
 	}
-	if len(restored) == 0 {
-		return lost, nil
-	}
-	logrus.Infof("Restored the lost credentials of PMM Server's own PostgreSQL agents (%s): "+
-		"they are the credentials PMM Server connects to its database with.", strings.Join(restored, ", "))
 
 	remaining := make([]error, 0, len(lost))
 	for _, err := range lost {
 		var e *secretError
-		if errors.As(err, &e) && e.label == agentsSecretTable.label && slices.Contains(pmmServerAgentColumns, e.column) &&
-			slices.Contains(restored, e.id) {
+		if errors.As(err, &e) && e.label == agentsSecretTable.label && slices.Contains(restored, e.id) &&
+			slices.Contains(lostColumns[e.id], e.column) {
 			continue
 		}
 		remaining = append(remaining, err)
