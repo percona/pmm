@@ -170,8 +170,8 @@ describe('ServicesAutocompleteInput', () => {
           [
             {
               serviceId: 'p',
-              serviceName: 'pg',
-              serviceType: ServiceType.posgresql,
+              serviceName: 'proxysql',
+              serviceType: ServiceType.proxysql,
               clusterName: '',
             },
           ] as never
