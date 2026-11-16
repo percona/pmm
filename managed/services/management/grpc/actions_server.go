@@ -506,7 +506,7 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 	}
 
 	err = s.a.StartPTPgSummaryAction(ctx, res.ID, pmmAgentID, pointer.GetString(service.Address), pointer.GetUint16(service.Port),
-		postgresExporters[0].Username.Reveal(), postgresExporters[0].Password.Reveal())
+		postgresExporters[0].Username.Reveal(), postgresExporters[0].Password.Reveal(), postgresExporters[0].TLS)
 	if err != nil {
 		return nil, err
 	}
