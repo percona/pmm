@@ -93,7 +93,7 @@ const InstanceRow: FC<{ instance: RdsInstance; group: InstanceGroup }> = ({
         </Stack>
       </TableCell>
       <TableCell>
-        <Stack direction="row" gap={1.5}>
+        <Stack direction="row" flexWrap="wrap" columnGap={1.5}>
           {dashboards.map((link) => (
             <DashboardLink key={link.label} link={link} named />
           ))}
