@@ -388,9 +388,9 @@ export const NAV_VALKEY: NavItem = {
 export const NAV_QAN: NavItem = {
   id: 'qan',
   icon: QueryStatsIcon,
-  text: 'Query Analytics (QAN)',
+  text: 'Query analytics',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`,
-  matches: ['*', `${PMM_NEW_NAV_PATH}/rta/*`],
+  matches: ['*'],
 };
 
 //
@@ -418,9 +418,10 @@ export const NAV_DASHBOARDS: NavItem = {
 export const NAV_EXPLORE: NavItem = {
   id: 'explore',
   icon: ExploreOutlined,
-  text: 'Explore',
+  text: 'Explore data',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore`,
   matches: [
+    '*',
     `${PMM_NEW_NAV_GRAFANA_PATH}/drilldown`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/a/:appId/explore`,
   ],

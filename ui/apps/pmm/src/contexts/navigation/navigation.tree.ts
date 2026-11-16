@@ -83,23 +83,8 @@ const TECHNOLOGIES: [ServiceType | undefined, NavItem][] = [
   [undefined, NAV_OS],
 ];
 
-export const NAV_EXPLORE_DATA: NavItem = {
-  ...NAV_EXPLORE,
-  text: 'Explore data',
-  matches: [
-    ...(NAV_EXPLORE.matches || []),
-    `${PMM_NEW_NAV_GRAFANA_PATH}/explore/*`,
-  ],
-};
-
 // Stored query metrics and live query sessions are separate jobs, so each is
 // its own entry rather than a tab inside one Query analytics page.
-export const NAV_QUERY_ANALYTICS: NavItem = {
-  ...NAV_QAN,
-  text: 'Query analytics',
-  matches: ['*'],
-};
-
 export const NAV_REALTIME_QUERIES: NavItem = {
   id: 'realtime-queries',
   icon: TrackChanges,
@@ -199,10 +184,10 @@ export const buildNavTree = ({
   }
 
   if (user?.isEditor && settings?.frontend.exploreEnabled) {
-    analysis.push(NAV_EXPLORE_DATA);
+    analysis.push(NAV_EXPLORE);
   }
 
-  analysis.push(NAV_QUERY_ANALYTICS, NAV_REALTIME_QUERIES);
+  analysis.push(NAV_QAN, NAV_REALTIME_QUERIES);
 
   // OM is served by pmm-managed, so it is not gated with PMM Extensions: any
   // signed-in user while the switch is on. Actions inside are admin-only.
