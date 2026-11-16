@@ -105,7 +105,7 @@ These dates come from the [MariaDB maintenance policy](https://mariadb.org/about
 
 #### Amazon RDS for MySQL
 
-For Amazon RDS for MySQL, the check uses the end of standard support from the [RDS for MySQL release calendar](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html#MySQL.Concepts.VersionMgmt.ReleaseCalendar), and the finding says "end of standard support" instead of "end of life". After that date, AWS runs the instance under [Amazon RDS Extended Support](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/extended-support.html), which is charged. RDS for MariaDB uses the MariaDB dates.
+For Amazon RDS for MySQL, the check uses the end of standard support from the [RDS for MySQL release calendar](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html#MySQL.Concepts.VersionMgmt.ReleaseCalendar), and the finding says "end of standard support" instead of "end of life". After that date, AWS runs the instance under [Amazon RDS Extended Support](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/extended-support.html), which is charged, unless you turned Extended Support off for the instance. If you turn it off after that date, AWS upgrades the instance to the next supported major version. RDS for MariaDB uses the MariaDB dates.
 
 | Series | End of standard support |
 | :----- | :---------------------- |

@@ -17,31 +17,13 @@ MONGODB_GETCMDLINEOPTS
 
 ## Resolution
 
-Turn on or adjust the verbosity of your logs: 
+The check reads the options `mongod` was started with, so changing the log level at runtime with `db.setLogLevel()` or `setParameter` doesn't clear the finding.
 
-=== "From the `mongo`/`mongosh` shell"
+To return to the default log level:
+{.power-number}
 
-     - Using the `db.setLogLevel()` method: 
-
-         ```
-         db.setLogLevel(1);  
-         ```
-
-     - using the `adminCommand` syntax: 
-       
-       ```
-       db.adminCommand( { setParameter: 1, logLevel: 2 } )
-       ```
-
-=== "In the configuration file" 
-
-     Set the following parameter to default:
-     ```yaml
-           setParameter:
-            logLevel: 0
-     ``` 
-
-     Restart the `mongod` nodes for the changes to take effect. Use the rolling restart method for your cluster or replica set. 
+1. In the configuration file, remove `setParameter.logLevel` and `systemLog.verbosity`, or set them to `0`. Also remove `--setParameter logLevel` and `-v` options from the `mongod` command line.
+2. Restart the `mongod` nodes for the change to take effect. For a cluster or replica set, use the rolling restart method.
 
 ## Need more support from Percona?
 

@@ -48,7 +48,7 @@ The version checks now use current release data and end-of-life (EOL) dates, so 
 - Each service gets at most one version finding. A version past its EOL gets only the EOL error, without advice to install a newer release of the same version.
 - A newer-version finding for a release with missing patches links to the vendor's security page, where you can check which fixes the newer release brings.
 - `mongodb_version` now tells Percona Server for MongoDB from MongoDB Community. Each is compared with its own latest releases, so MongoDB Community users are told about MongoDB 9.0.
-- Each version finding links to the release notes of the suggested version, and each EOL finding to the lifecycle policy of its product.
+- A finding that suggests a newer release links to the release notes of that release, and each EOL finding links to the lifecycle policy of its product.
 
 The `mongodb_version`, `mysql_version` and `postgresql_version_check` checks now report EOL themselves, so these checks are removed:
 
