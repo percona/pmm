@@ -108,7 +108,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
       onKeyDown={handleKeyDown}
       getOptionLabel={(option) => option.label}
       // A cluster spanning technologies has no serviceType to derive its group from.
-      // Technologies without a label, such as PostgreSQL in the Advisors picker, get no header.
+      // Technologies without a label, such as ProxySQL, get no header.
       groupBy={
         serviceOptions.some((option) => option.technology)
           ? (option) => option.technology
