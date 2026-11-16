@@ -1429,54 +1429,46 @@ func (versionerStub) BinaryVersion(string, int, *regexp.Regexp, ...string) (stri
 	return "", nil
 }
 
-// TestHandleNomadAgent covers the Agent that cannot start because cgroups are not writable. It
-// stays tracked and reports DONE, and - the part that is easy to get wrong - it leaves its done
-// channel alone: that channel belongs to the status forwarder startProcess left running, and
-// closing it here would tell the bounded waits the Agent has stopped while its forwarder is still
-// live and still has statuses to send.
-func TestHandleNomadAgent(t *testing.T) {
+// TestNomadAgentFailedStart covers the Agent that cannot start because cgroups are not writable: it
+// stays tracked and reports DONE once, last.
+func TestNomadAgentFailedStart(t *testing.T) {
 	t.Parallel()
 
-	cfgStorage := config.NewStorage(&config.Config{Paths: config.Paths{TempDir: t.TempDir()}})
+	falsePath, err := exec.LookPath("false")
+	require.NoError(t, err)
+	cfgStorage := config.NewStorage(&config.Config{
+		Paths:         config.Paths{TempDir: t.TempDir(), Nomad: falsePath},
+		Ports:         config.Ports{Min: 64460, Max: 64469},
+		Server:        config.Server{Address: "localhost:443"},
+		LogLinesCount: 1,
+	})
 	s := NewSupervisor(t.Context(), nil, cfgStorage)
+	go s.Run(t.Context())
 
-	// Stands in for the channel startProcess creates: still open, because the forwarder is
-	// still ranging over the process's Changes().
-	done := make(chan struct{})
-	processInfo := &agentProcessInfo{
-		cancel:          func() {},
-		done:            done,
-		requestedState:  &agentv1.SetStateRequest_AgentProcess{Type: inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT},
-		listenPort:      65400,
-		processExecPath: "nomad",
-	}
-
-	s.rw.Lock()
-	instance := s.startInstance("nomad1")
-	s.handleNomadAgent("nomad1", instance, processInfo, s.l.WithField("agentID", "nomad1"))
-	s.rw.Unlock()
-
-	assertChanges(t, s, &agentv1.StateChangedRequest{
-		AgentId:         "nomad1",
-		Status:          inventoryv1.AgentStatus_AGENT_STATUS_DONE,
-		ListenPort:      65400,
-		ProcessExecPath: "nomad",
+	s.SetState(t.Context(), &agentv1.SetStateRequest{
+		AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
+			"nomad1": {Type: inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT},
+		},
 	})
 
-	s.rw.RLock()
-	_, tracked := s.agentProcesses["nomad1"]
-	s.rw.RUnlock()
-	assert.True(t, tracked, "Agent that cannot start is no longer tracked")
-
-	select {
-	case <-done:
-		require.Fail(t, "the status forwarder's done channel was closed on its behalf")
-	default:
+	// Read until the statuses stop, so that one sent after DONE is seen too.
+	var statuses []inventoryv1.AgentStatus
+	for quiet := false; !quiet; {
+		select {
+		case change := <-s.Changes():
+			statuses = append(statuses, change.Status)
+		case <-time.After(3 * time.Second):
+			quiet = true
+		}
 	}
+	assert.Equal(t, []inventoryv1.AgentStatus{
+		inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
+		inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR,
+		inventoryv1.AgentStatus_AGENT_STATUS_WAITING,
+		inventoryv1.AgentStatus_AGENT_STATUS_DONE,
+	}, statuses)
 
-	// The instance is still current, so the forwarder's later statuses are not muted - a DONE
-	// is not what ends an instance, its forwarder exiting is. See retireInstance.
-	assert.True(t, s.storeLastStatus("nomad1", instance, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING))
+	assert.Len(t, s.AgentsList(), 1, "Agent that cannot start is no longer tracked")
 }
 
 func TestSupervisorProcessParamsEnvVariableNames(t *testing.T) {

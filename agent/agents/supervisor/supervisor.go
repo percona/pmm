@@ -523,9 +523,8 @@ func (s *Supervisor) startInstance(agentID string) uint64 {
 
 // retireInstance forgets instance if it is still the current one for agentID.
 //
-// A forwarder exiting is what ends an instance; a DONE status is not, and retiring on one dropped
-// every status an Agent had left to send after it: handleNomadAgent reports DONE for an Agent whose
-// forwarder is still live and still tracked in s.agentProcesses. See PMM-15431.
+// A forwarder exiting is what ends an instance, not a DONE status, so that no status the forwarder
+// still has to send is dropped. See PMM-15431.
 func (s *Supervisor) retireInstance(agentID string, instance uint64) {
 	s.arw.Lock()
 	defer s.arw.Unlock()
@@ -854,10 +853,10 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		if !isInitialized {
 			// TODO: handle initialization error for nomad agent
 			if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT {
-				// Stopped rather than backing off, as handleNomadAgent reports it DONE.
+				// Stopped rather than backing off; its forwarder reports the DONE that follows.
 				cancel()
-				s.handleNomadAgent(agentID, instance, processInfo, l)
-				return nil
+				l.Warn("Cannot start Nomad Agent: cgroups are not writable.")
+				break
 			}
 
 			err := processWrapper.GetError()
@@ -880,37 +879,6 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 
 	s.agentProcesses[agentID] = processInfo
 	return nil
-}
-
-//nolint:funcorder
-func (s *Supervisor) handleNomadAgent(
-	agentID string,
-	instance uint64,
-	processInfo *agentProcessInfo,
-	l *logrus.Entry,
-) {
-	s.agentProcesses[agentID] = processInfo
-
-	status := inventoryv1.AgentStatus_AGENT_STATUS_DONE
-	s.storeLastStatus(agentID, instance, status)
-	l.Warn("Cannot start Nomad Agent: cgroups are not writable.")
-	l.Infof("Sending status: %s (port %d).", status, processInfo.listenPort)
-	// Never waits: this runs with s.rw held for writing, so parking here would block every
-	// later SetState, AgentsList and stopAll - including the Agent list pmm-admin status and
-	// the Agent's own /metrics ask for - until pmm-agent exits. s.changes is only drained by
-	// a live connection, so on a wedged one it stays full. Dropping the status is the cheap
-	// failure: SendActualStatuses reports the actual state on the next connection, which is
-	// the same reason ClearChangesChannel may throw buffered changes away. See PMM-15431.
-	select {
-	case s.changes <- &agentv1.StateChangedRequest{
-		AgentId:         agentID,
-		Status:          status,
-		ListenPort:      uint32(processInfo.listenPort),
-		ProcessExecPath: processInfo.processExecPath,
-	}:
-	default:
-		l.Warnf("Dropping status %s: nothing is draining the status channel.", status)
-	}
 }
 
 // startBuiltin starts built-in Agent.
