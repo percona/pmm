@@ -503,6 +503,22 @@ func TestProxy(t *testing.T) {
 
 		require.Equal(t, "Basic dXNlcjpwYXNzd29yZA==", req.Header.Get("Authorization"))
 	})
+
+	t.Run("prepareRequest: sends the credentials as written", func(t *testing.T) {
+		t.Parallel()
+
+		uri, err := url.Parse(targetURL)
+		require.NoError(t, err)
+		uri.User = url.UserPassword("vmuser", "p@ss:wo/rd")
+
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, targetURL, nil)
+		prepareRequest(req, uri, headerName)
+
+		username, password, ok := req.BasicAuth()
+		require.True(t, ok)
+		assert.Equal(t, "vmuser", username)
+		assert.Equal(t, "p@ss:wo/rd", password)
+	})
 }
 
 // Failures used to be invisible: the invalid-header path logged nothing at all, and

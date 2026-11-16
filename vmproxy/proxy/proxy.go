@@ -79,7 +79,7 @@ type Config struct {
 
 // RunProxy starts proxy which adds extra filters based on configuration.
 func RunProxy(cfg Config) error {
-	logrus.Infof("Starting to proxy at http://%s to %s", cfg.ListenAddress, cfg.TargetURL.String())
+	logrus.Infof("Starting to proxy at http://%s to %s", cfg.ListenAddress, cfg.TargetURL.Redacted())
 
 	err := http.ListenAndServe(cfg.ListenAddress, getHandler(cfg)) //nolint:gosec
 	return err
@@ -251,7 +251,9 @@ func prepareRequest(req *http.Request, target *url.URL, headerName string) {
 		req.Header.Set("Host", hostHeader)
 	}
 	if target.User != nil {
-		req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(target.User.String())))
+		// Not target.User.String(): that escapes characters such as @ and :, which basic auth sends as they are.
+		password, _ := target.User.Password()
+		req.SetBasicAuth(target.User.Username(), password)
 	}
 
 	// Joining keeps the path the handler checked. Parsing it as a URL reference instead
