@@ -16,7 +16,6 @@
 package analytics
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -128,7 +127,7 @@ func TestService_GetQueryExample(t *testing.T) {
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
 			}
-			got, err := s.GetQueryExample(context.TODO(), tt.in)
+			got, err := s.GetQueryExample(makeContext(t), tt.in)
 			if (err != nil) != tt.wantErr {
 				require.Errorf(t, err, "Service.GetQueryExample() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -262,7 +261,7 @@ func TestService_GetMetricsError(t *testing.T) {
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
 			}
-			_, err := s.GetMetrics(context.TODO(), tt.in)
+			_, err := s.GetMetrics(makeContext(t), tt.in)
 			if (err != nil) != tt.wantErr {
 				require.Errorf(t, err, "Service.GetMetrics() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -288,7 +287,7 @@ func TestService_GetMetrics(t *testing.T) {
 			GroupBy:         "queryid",
 			FilterBy:        "B305F6354FA21F2A",
 		}
-		got, err := s.GetMetrics(context.TODO(), in)
+		got, err := s.GetMetrics(makeContext(t), in)
 		require.NoError(t, err, "Unexpected error in Service.GetMetrics()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_group_by_queryid.json")
 
@@ -312,7 +311,7 @@ func TestService_GetMetrics(t *testing.T) {
 			GroupBy:         "queryid",
 			FilterBy:        "B305F6354FA21F2A",
 		}
-		got, err := s.GetMetrics(context.TODO(), in)
+		got, err := s.GetMetrics(makeContext(t), in)
 		require.NoError(t, err, "Unexpected error in Service.GetMetrics()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_sparklines_90_points.json")
 
@@ -336,7 +335,7 @@ func TestService_GetMetrics(t *testing.T) {
 			FilterBy:        "", // Empty filter get all queries.
 			Totals:          true,
 		}
-		got, err := s.GetMetrics(context.TODO(), in)
+		got, err := s.GetMetrics(makeContext(t), in)
 		require.NoError(t, err, "Unexpected error in Service.GetMetrics()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_total.json")
 
@@ -387,7 +386,7 @@ func TestService_GetLabels(t *testing.T) {
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
 		}
-		got, err := s.GetLabels(context.TODO(), tt.in)
+		got, err := s.GetLabels(makeContext(t), tt.in)
 		require.Equal(t, tt.wantErr, err)
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetLabels"+tt.name+".json")
 
@@ -417,7 +416,7 @@ func TestService_GetLabels(t *testing.T) {
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
 		}
-		_, err := s.GetLabels(context.TODO(), tt.in)
+		_, err := s.GetLabels(makeContext(t), tt.in)
 		require.EqualError(t, err, tt.wantErr.Error())
 	})
 
@@ -439,7 +438,7 @@ func TestService_GetLabels(t *testing.T) {
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
 		}
-		_, err := s.GetLabels(context.TODO(), tt.in)
+		_, err := s.GetLabels(makeContext(t), tt.in)
 		require.EqualError(t, err, tt.wantErr.Error())
 	})
 
@@ -462,7 +461,7 @@ func TestService_GetLabels(t *testing.T) {
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
 		}
-		_, err := s.GetLabels(context.TODO(), tt.in)
+		_, err := s.GetLabels(makeContext(t), tt.in)
 		require.EqualError(t, err, tt.wantErr.Error())
 	})
 
@@ -485,7 +484,7 @@ func TestService_GetLabels(t *testing.T) {
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
 		}
-		got, err := s.GetLabels(context.TODO(), tt.in)
+		got, err := s.GetLabels(makeContext(t), tt.in)
 		require.Equal(t, tt.wantErr, err)
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetLabels_"+tt.name+".json")
 
@@ -516,7 +515,7 @@ func TestService_GetLabels(t *testing.T) {
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
 		}
-		_, err := s.GetLabels(context.TODO(), tt.in)
+		_, err := s.GetLabels(makeContext(t), tt.in)
 		require.EqualError(t, err, tt.wantErr.Error())
 	})
 
@@ -539,7 +538,7 @@ func TestService_GetLabels(t *testing.T) {
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
 		}
-		_, err := s.GetLabels(context.TODO(), tt.in)
+		_, err := s.GetLabels(makeContext(t), tt.in)
 		// errors start with same text.
 		require.Regexp(t, "^error in selecting object details labels: cannot select object details labels.*", err.Error())
 	})

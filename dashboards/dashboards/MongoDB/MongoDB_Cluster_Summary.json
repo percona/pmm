@@ -4611,6 +4611,7 @@
                 "type": "interval"
             },
             {
+                "allValue": ".*",
                 "current": {
                     "text": "All",
                     "value": [
