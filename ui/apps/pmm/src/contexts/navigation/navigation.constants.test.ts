@@ -3,6 +3,7 @@ import * as navConstants from './navigation.constants';
 import { NAV_SIGN_IN, NAV_SIGN_OUT } from './navigation.constants';
 import { consumeReturnTo } from 'contexts/auth/auth.returnTo';
 import type { NavItem } from 'types/navigation.types';
+import { isActive } from 'utils/navigation.utils';
 
 describe('default child', () => {
   it('marks at most one child of a menu as its default', () => {
@@ -23,6 +24,18 @@ describe('default child', () => {
       .forEach(visit);
 
     expect(menusWithSeveralDefaults).toEqual([]);
+  });
+});
+
+describe('All dashboards', () => {
+  it.each([
+    '/graph/dashboards',
+    '/graph/dashboards/f/abc',
+    '/graph/playlists',
+    '/graph/playlists/new',
+    '/graph/library-panels',
+  ])('is active on %s', (pathname) => {
+    expect(isActive(navConstants.NAV_DASHBOARDS, pathname)).toBe(true);
   });
 });
 

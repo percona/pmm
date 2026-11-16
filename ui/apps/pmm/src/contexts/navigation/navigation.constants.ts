@@ -404,9 +404,7 @@ export const NAV_DASHBOARDS: NavItem = {
   matches: [
     '*',
     `${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/*`,
-    `${PMM_NEW_NAV_GRAFANA_PATH}/playlists`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/playlists/*`,
-    `${PMM_NEW_NAV_GRAFANA_PATH}/library-panels`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/library-panels/*`,
   ],
 };
