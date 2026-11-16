@@ -137,22 +137,21 @@ func (ss *ServicesService) Get(ctx context.Context, id string) (inventoryv1.Serv
 //nolint:dupl
 func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventoryv1.MySQLService, error) {
 	service := &models.Service{}
+	var rdsPMMAgentIDs []string
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.MySQLServiceType, params)
 		if err != nil {
 			return err
 		}
-		return nil
+		rdsPMMAgentIDs, err = rdsExporterPMMAgentIDs(tx.Querier, service.NodeID)
+		return err
 	})
 	if e != nil {
 		return nil, e
 	}
 
-	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
-	if err != nil {
-		return nil, err
-	}
+	ss.requestStateUpdates(ctx, rdsPMMAgentIDs)
 
 	res, err := services.ToAPIService(service)
 	if err != nil {
@@ -169,22 +168,21 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSS
 //nolint:dupl
 func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBMSServiceParams) (*inventoryv1.MongoDBService, error) {
 	service := &models.Service{}
+	var rdsPMMAgentIDs []string
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.MongoDBServiceType, params)
 		if err != nil {
 			return err
 		}
-		return nil
+		rdsPMMAgentIDs, err = rdsExporterPMMAgentIDs(tx.Querier, service.NodeID)
+		return err
 	})
 	if e != nil {
 		return nil, e
 	}
 
-	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
-	if err != nil {
-		return nil, err
-	}
+	ss.requestStateUpdates(ctx, rdsPMMAgentIDs)
 
 	res, err := services.ToAPIService(service)
 	if err != nil {
@@ -198,22 +196,21 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBM
 //nolint:dupl
 func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventoryv1.PostgreSQLService, error) {
 	service := &models.Service{}
+	var rdsPMMAgentIDs []string
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.PostgreSQLServiceType, params)
 		if err != nil {
 			return err
 		}
-		return nil
+		rdsPMMAgentIDs, err = rdsExporterPMMAgentIDs(tx.Querier, service.NodeID)
+		return err
 	})
 	if e != nil {
 		return nil, e
 	}
 
-	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
-	if err != nil {
-		return nil, err
-	}
+	ss.requestStateUpdates(ctx, rdsPMMAgentIDs)
 
 	res, err := services.ToAPIService(service)
 	if err != nil {
@@ -225,22 +222,21 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 // AddValkey inserts Valkey Service with given parameters.
 func (ss *ServicesService) AddValkey(ctx context.Context, params *models.AddDBMSServiceParams) (*inventoryv1.ValkeyService, error) {
 	service := &models.Service{}
+	var rdsPMMAgentIDs []string
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.ValkeyServiceType, params)
 		if err != nil {
 			return err
 		}
-		return nil
+		rdsPMMAgentIDs, err = rdsExporterPMMAgentIDs(tx.Querier, service.NodeID)
+		return err
 	})
 	if e != nil {
 		return nil, e
 	}
 
-	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
-	if err != nil {
-		return nil, err
-	}
+	ss.requestStateUpdates(ctx, rdsPMMAgentIDs)
 
 	res, err := services.ToAPIService(service)
 	if err != nil {
@@ -254,19 +250,21 @@ func (ss *ServicesService) AddValkey(ctx context.Context, params *models.AddDBMS
 //nolint:dupl
 func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDBMSServiceParams) (*inventoryv1.ProxySQLService, error) {
 	service := &models.Service{}
+	var rdsPMMAgentIDs []string
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.ProxySQLServiceType, params)
+		if err != nil {
+			return err
+		}
+		rdsPMMAgentIDs, err = rdsExporterPMMAgentIDs(tx.Querier, service.NodeID)
 		return err
 	})
 	if e != nil {
 		return nil, e
 	}
 
-	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
-	if err != nil {
-		return nil, err
-	}
+	ss.requestStateUpdates(ctx, rdsPMMAgentIDs)
 
 	res, err := services.ToAPIService(service)
 	if err != nil {
@@ -278,22 +276,21 @@ func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDB
 // AddHAProxyService inserts HAProxy Service with given parameters.
 func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventoryv1.HAProxyService, error) {
 	service := &models.Service{}
+	var rdsPMMAgentIDs []string
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.HAProxyServiceType, params)
 		if err != nil {
 			return err
 		}
-		return nil
+		rdsPMMAgentIDs, err = rdsExporterPMMAgentIDs(tx.Querier, service.NodeID)
+		return err
 	})
 	if e != nil {
 		return nil, e
 	}
 
-	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
-	if err != nil {
-		return nil, err
-	}
+	ss.requestStateUpdates(ctx, rdsPMMAgentIDs)
 
 	res, err := services.ToAPIService(service)
 	if err != nil {
@@ -307,22 +304,21 @@ func (ss *ServicesService) AddHAProxyService(ctx context.Context, params *models
 //nolint:dupl
 func (ss *ServicesService) AddExternalService(ctx context.Context, params *models.AddDBMSServiceParams) (*inventoryv1.ExternalService, error) {
 	service := &models.Service{}
+	var rdsPMMAgentIDs []string
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		service, err = models.AddNewService(tx.Querier, models.ExternalServiceType, params)
 		if err != nil {
 			return err
 		}
-		return nil
+		rdsPMMAgentIDs, err = rdsExporterPMMAgentIDs(tx.Querier, service.NodeID)
+		return err
 	})
 	if e != nil {
 		return nil, e
 	}
 
-	err := ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
-	if err != nil {
-		return nil, err
-	}
+	ss.requestStateUpdates(ctx, rdsPMMAgentIDs)
 
 	res, err := services.ToAPIService(service)
 	if err != nil {
@@ -419,6 +415,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 // ChangeService changes service configuration.
 func (ss *ServicesService) ChangeService(ctx context.Context, labels *models.ChangeStandardLabelsParams, custom *commonv1.StringMap) (inventoryv1.Service, error) { //nolint:ireturn,lll,nolintlint
 	var service *models.Service
+	var rdsPMMAgentIDs []string
 
 	err := ss.ms.RemoveScheduledTasks(ctx, ss.db, labels)
 	if err != nil {
@@ -437,6 +434,11 @@ func (ss *ServicesService) ChangeService(ctx context.Context, labels *models.Cha
 		}
 
 		service, err = models.FindServiceByID(tx.Querier, labels.ServiceID)
+		if err != nil {
+			return err
+		}
+
+		rdsPMMAgentIDs, err = rdsExporterPMMAgentIDs(tx.Querier, service.NodeID)
 		if err != nil {
 			return err
 		}
@@ -461,10 +463,7 @@ func (ss *ServicesService) ChangeService(ctx context.Context, labels *models.Cha
 		return nil, err
 	}
 
-	err = ss.requestRDSExporterStateUpdate(ctx, service.NodeID)
-	if err != nil {
-		return nil, err
-	}
+	ss.requestStateUpdates(ctx, rdsPMMAgentIDs)
 
 	return services.ToAPIService(service)
 }
@@ -484,22 +483,15 @@ func (ss *ServicesService) updateScrapeConfig(ctx context.Context, serviceID str
 	return nil
 }
 
-// requestRDSExporterStateUpdate requests a state update of the pmm-agents that run an rds_exporter for the given Node,
-// as its series carry the standard labels of the Node's Services.
-func (ss *ServicesService) requestRDSExporterStateUpdate(ctx context.Context, nodeID string) error {
-	pmmAgentIDs, err := rdsExporterPMMAgentIDs(ss.db.Querier, nodeID)
-	if err != nil {
-		return err
-	}
-
+// requestStateUpdates requests a state update of the given pmm-agents.
+func (ss *ServicesService) requestStateUpdates(ctx context.Context, pmmAgentIDs []string) {
 	for _, pmmAgentID := range pmmAgentIDs {
 		ss.state.RequestStateUpdate(ctx, pmmAgentID)
 	}
-
-	return nil
 }
 
-// rdsExporterPMMAgentIDs returns the IDs of the pmm-agents that run an rds_exporter for the given Node.
+// rdsExporterPMMAgentIDs returns the IDs of the pmm-agents that run an rds_exporter for the given Node,
+// as its series carry the standard labels of the Node's Services.
 func rdsExporterPMMAgentIDs(q *reform.Querier, nodeID string) ([]string, error) {
 	agents, err := models.FindAgents(q, models.AgentFilters{NodeID: nodeID, AgentType: new(models.RDSExporterType)})
 	if err != nil {

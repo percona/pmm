@@ -531,6 +531,9 @@ describe('AmazonRds.utils: filters', () => {
     expect(matching[0].instances.map(({ serviceName }) => serviceName)).toEqual(
       ['database-3-instance-1-reader']
     );
+    expect(
+      matching[0].allInstances?.map(({ serviceName }) => serviceName)
+    ).toEqual(['database-3-instance-1', 'database-3-instance-1-reader']);
     expect(autoExpanded).toEqual(new Set(matching.map(({ key }) => key)));
   });
 
