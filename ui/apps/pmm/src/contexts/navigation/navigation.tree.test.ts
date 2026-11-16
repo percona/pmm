@@ -143,7 +143,7 @@ describe('buildNavTree', () => {
     );
   });
 
-  it('lists ProxySQL and HAProxy under All dashboards while monitored', () => {
+  it('lists ProxySQL and HAProxy under Dashboards while monitored', () => {
     const children = ids(
       findById(
         build({ serviceTypes: [ServiceType.proxysql, ServiceType.haproxy] }),
@@ -158,7 +158,7 @@ describe('buildNavTree', () => {
     );
   });
 
-  it('highlights a technology folder in its own menu, not under All dashboards', () => {
+  it('highlights a technology folder in its own menu, not under Dashboards', () => {
     const tree = build({
       folders: [
         { id: 1, uid: 'abc', title: 'MySQL' },

@@ -397,14 +397,14 @@ export const NAV_QAN: NavItem = {
 };
 
 //
-// All Dashbaords
+// Dashboards
 //
 // Grafana pages under /dashboard with no entry of their own, such as a new
 // dashboard or an import, highlight the group.
 export const NAV_DASHBOARDS: NavItem = {
   id: 'dashboards',
   icon: DashboardOutlined,
-  text: 'All dashboards',
+  text: 'Dashboards',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards`,
   matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/*`],
 };
@@ -412,7 +412,7 @@ export const NAV_DASHBOARDS: NavItem = {
 export const NAV_DASHBOARDS_BROWSE: NavItem = {
   id: 'dashboards-browse',
   icon: SearchInsightsIcon,
-  text: 'Browse all dashboards',
+  text: 'All dashboards',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards`,
   matches: ['*'],
 };
