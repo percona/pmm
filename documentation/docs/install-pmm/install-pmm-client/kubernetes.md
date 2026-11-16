@@ -219,6 +219,8 @@ Choose your deployment approach:
         the container, registers with `PMM_AGENT_SETUP_FORCE=1` and re-adds the database service from
         `PMM_AGENT_PRERUN_SCRIPT` on every start, so it rebuilds its state instead of persisting it.
 
+        If the prerun script fails, for example because PMM Server is unreachable, the sidecar retries it every `PMM_AGENT_SIDECAR_SLEEP` seconds (1 by default) until it succeeds. A script that fails on every run, for example because a service it adds exists already, retries indefinitely, so make the script tolerate that case.
+
         ```yaml
         apiVersion: v1
         kind: PersistentVolume
