@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { format } from 'date-fns/format';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
@@ -42,12 +48,12 @@ const TEST_ROWS = [
   }),
 ];
 
-const renderTable = () =>
+const renderTable = (rows: AlertRow[] = TEST_ROWS) =>
   render(
     <TestWrapper>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <AlertStatusTable
-          rows={TEST_ROWS}
+          rows={rows}
           onOpenDetail={vi.fn()}
           onNavigableRowsChange={vi.fn()}
         />
@@ -114,5 +120,48 @@ describe('AlertStatusTable column filters', () => {
         .some((row) => row.textContent?.includes('MySQL down'))
     ).toBe(true);
     expect(screen.queryByText('node-2')).toBeNull();
+  });
+
+  it('filters rows by severity band', async () => {
+    renderTable([
+      createAlert({
+        id: 'alert-1',
+        alertName: 'MySQL down',
+        labels: { severity: 'emergency' },
+      }),
+      createAlert({
+        id: 'alert-2',
+        alertName: 'High CPU',
+        labels: { severity: 'warning' },
+      }),
+    ]);
+    showFilters();
+
+    // Both alerts show their band, not the raw RFC5424 level.
+    expect(screen.getByText('Critical')).toBeInTheDocument();
+    expect(screen.queryByText('Emergency')).toBeNull();
+
+    fireEvent.mouseDown(
+      within(
+        screen
+          .getByLabelText(/filter by severity/i)
+          .closest('.MuiInputBase-root') as HTMLElement
+      ).getByRole('combobox')
+    );
+    const options = within(screen.getByRole('listbox'))
+      .getAllByRole('option')
+      .map((option) => option.textContent?.trim());
+    expect(options).toEqual([
+      'Critical',
+      'Error',
+      'Warning',
+      'Info',
+      'Unknown',
+    ]);
+
+    fireEvent.click(screen.getByRole('option', { name: 'Critical' }));
+
+    await waitFor(() => expect(screen.queryByText('High CPU')).toBeNull());
+    expect(screen.getByText('MySQL down')).toBeInTheDocument();
   });
 });

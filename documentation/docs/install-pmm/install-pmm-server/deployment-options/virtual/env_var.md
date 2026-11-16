@@ -24,7 +24,7 @@ To set environment variables for PMM Server on virtual machine deployments:
 3. Add your desired environment variables in `KEY=VALUE` format:
 
     ```bash
-    PMM_DEBUG=true
+    PMM_METRICS_RESOLUTION_HR=10s
     PMM_ENABLE_ACCESS_CONTROL=true
     ```
 
@@ -50,14 +50,14 @@ These variables are particularly useful for AWS AMI deployments:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data, such as `30d` or `720h` |
+| `PMM_DATA_RETENTION` | `720h` | How long to keep metrics data, in hours. The default is 30 days. |
 | `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
 | `PMM_ENABLE_ACCESS_CONTROL` | `true` | Enable label-based access control (LBAC) |
 | `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
-| `PMM_DEBUG` | `true` | Enable verbose logging |
-| `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval |
+| `PMM_DEBUG` | `false` | Enable verbose logging |
+| `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval |
 
-`PMM_DATA_RETENTION` must be a whole number of days: at least `24h`, in multiples of `24h`. Starting with PMM 3.11.0, it also accepts days (`d`). On earlier versions, give the value in hours, such as `720h` for 30 days.
+Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. PMM 3.11.0 and later also accept days, such as `30d`. On earlier versions, a value in days stops PMM Server from starting.
 
 ### VictoriaMetrics performance tuning
 

@@ -62,7 +62,7 @@ const STATUS_MAP: Record<TaskHistoryStatus, StatusEntry> = {
   lost: { label: 'Lost', color: 'default', icon: <HelpOutlineIcon /> },
   stale: { label: 'Stale', color: 'default', icon: <HourglassDisabledIcon /> },
   unlaunchable: {
-    label: 'Not in executor',
+    label: 'Cannot run on this host',
     color: 'warning',
     icon: <CloudOffIcon />,
   },

@@ -1,5 +1,6 @@
 Markdown==3.5.2
-mkdocs
+# MkDocs 2.0 removes the plugin system that the plugins below depend on
+mkdocs<2
 mkdocs-versioning
 mkdocs-macros-plugin
 mkdocs-exclude
@@ -7,6 +8,10 @@ markdown-include
 mkdocs-material
 pygments<2.20
 mkdocs-with-pdf
+# With newer WeasyPrint, mkdocs-with-pdf silently cuts the PDF off after a few pages
+weasyprint<61
+# WeasyPrint 60 fails with pydyf 0.11 and newer
+pydyf<0.11
 mkdocs-git-revision-date-localized-plugin
 mkdocs-material-extensions
 mkdocs-bootstrap-tables-plugin
