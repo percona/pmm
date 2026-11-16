@@ -18,12 +18,12 @@ package om
 import (
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/status"
 )
 
 func TestCleartextToken(t *testing.T) {
@@ -62,7 +62,7 @@ func TestSEPClientRefusesRedirects(t *testing.T) {
 
 	svc := (&Service{l: logrus.WithField("test", t.Name())}).WithProbeSource(redirecting.URL, "test-token")
 
-	err := svc.probe.app.triggerRun(asService(t.Context()))
+	err := svc.probe.app.setEnabled(asService(t.Context()), true, false)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "answered 307")
@@ -82,13 +82,32 @@ func TestSEPClientBypassesProxy(t *testing.T) {
 func TestSEPClientTransportErrorIsNotDoublePrefixed(t *testing.T) {
 	t.Parallel()
 
-	// http.Client.Do's *url.Error already names the method and URL, so wrapping must not repeat them.
+	// http.Client.Do's *url.Error leads with the method and URL, so only its cause is kept.
 	stub := newSEPStub(t, http.StatusOK, `{}`)
 	svc := stub.service(t)
 	stub.server.Close()
 
-	err := svc.probe.app.triggerRun(asService(t.Context()))
+	err := svc.probe.app.setEnabled(asService(t.Context()), true, false)
 
 	require.Error(t, err)
-	assert.Equal(t, 1, strings.Count(err.Error(), stub.server.URL), "the URL belongs in the message once: %s", err)
+	assert.Equal(t, "PMM Extensions is unreachable: connection refused", status.Convert(err).Message())
+}
+
+func TestReadEnabledRefusesAConfigWithoutABooleanSwitch(t *testing.T) {
+	t.Parallel()
+
+	for name, body := range map[string]string{
+		"missing":     `[{"key": "AUTO_SCAN", "value": true}]`,
+		"not boolean": `[{"key": "ENABLED", "value": "true"}]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			svc := newSEPStub(t, http.StatusOK, body).service(t)
+
+			_, err := svc.probe.app.readEnabled(asService(t.Context()))
+
+			require.Error(t, err)
+		})
+	}
 }

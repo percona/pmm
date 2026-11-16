@@ -17,13 +17,11 @@ import {
   VersionedService,
 } from 'types/services.types';
 import { OrgRole, User } from 'types/user.types';
-import { createAnonymousUser } from 'contexts/user/user.utils';
 
 export const TEST_USER_ADMIN: User = {
   id: 1,
   login: 'admin',
   name: 'admin',
-  isAnonymous: false,
   isAuthorized: true,
   isViewer: true,
   isEditor: true,
@@ -217,8 +215,6 @@ export const TEST_MYSQL_QUERY_DATA: QueryData = {
     fullScan: true,
   },
 };
-
-export const TEST_USER_ANONYMOUS: User = createAnonymousUser();
 
 // Shape the API returns, before useRealtimeQueries parses the duration.
 export const TEST_RAW_MONGO_DB_QUERY_DATA: RawQueryData = {

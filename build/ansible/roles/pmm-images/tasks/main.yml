@@ -109,13 +109,12 @@
     - /usr/share/licenses/percona-grafana
     - /usr/share/doc/percona-grafana
 
-- name: Set ownership on built-in advisors, checks and alerting templates
+- name: Set ownership on built-in checks and alerting templates
   file:
     path: "{{ item }}"
     owner: pmm
     group: root
   with_fileglob:
-    - /usr/local/percona/advisors/*.yml
     - /usr/local/percona/checks/*.yml
     - /usr/local/percona/alerting-templates/*.yml
 
