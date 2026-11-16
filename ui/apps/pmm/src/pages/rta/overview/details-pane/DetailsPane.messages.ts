@@ -3,12 +3,7 @@ export const Messages = {
     details: 'Details',
     rawData: 'Raw data',
   },
-  actions: {
-    previous: 'Previous query',
-    next: 'Next query',
-    close: 'Close details pane',
-  },
-  tooltips: {
+  labels: {
     previous: 'Previous query',
     next: 'Next query',
     close: 'Close details',

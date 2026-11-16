@@ -125,7 +125,7 @@ describe.skip('DetailsPane', () => {
     renderComponent();
 
     expect(
-      screen.getByRole('button', { name: Messages.actions.close })
+      screen.getByRole('button', { name: Messages.labels.close })
     ).toBeInTheDocument();
   });
 
@@ -133,10 +133,10 @@ describe.skip('DetailsPane', () => {
     renderComponent();
 
     expect(
-      screen.getByRole('button', { name: Messages.actions.previous })
+      screen.getByRole('button', { name: Messages.labels.previous })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: Messages.actions.next })
+      screen.getByRole('button', { name: Messages.labels.next })
     ).toBeInTheDocument();
   });
 });
