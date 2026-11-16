@@ -479,8 +479,7 @@ func restorePMMServerAgents(q *reform.Querier, lost []error, db *SetupDBParams) 
 	if err != nil {
 		return nil, err
 	}
-	// read once an Agent needs them: PMM Server's own connection tolerates files that no longer exist
-	var options *PostgreSQLOptions
+	credentials := &pmmServerCredentials{db: db}
 	var restored []string
 	for _, id := range ids {
 		agent := &Agent{}
@@ -495,24 +494,9 @@ func restorePMMServerAgents(q *reform.Querier, lost []error, db *SetupDBParams) 
 		}
 
 		columns := lostColumns[id]
-		for _, column := range columns {
-			switch column {
-			case "username":
-				agent.Username = EncryptedStringOrNil[AgentUsername](db.Username)
-			case "password":
-				agent.Password = EncryptedStringOrNil[AgentPassword](db.Password)
-			case "postgresql_options":
-				if options == nil {
-					o, err := pmmServerPostgreSQLOptions(*db)
-					if err != nil {
-						return nil, fmt.Errorf("failed to read the TLS files of PMM Server's database: %w", err)
-					}
-					options = &o
-				}
-				agent.PostgreSQLOptions.SSLCa = options.SSLCa
-				agent.PostgreSQLOptions.SSLCert = options.SSLCert
-				agent.PostgreSQLOptions.SSLKey = options.SSLKey
-			}
+		err = credentials.set(agent, columns)
+		if err != nil {
+			return nil, err
 		}
 		err = q.UpdateColumns(agent, columns...)
 		if err != nil {
@@ -534,6 +518,38 @@ func restorePMMServerAgents(q *reform.Querier, lost []error, db *SetupDBParams) 
 	}
 
 	return remaining, nil
+}
+
+// pmmServerCredentials are the credentials PMM Server connects to its database with. The TLS files are read
+// on first use, as PMM Server's own connection tolerates files that no longer exist.
+type pmmServerCredentials struct {
+	db      *SetupDBParams
+	options *PostgreSQLOptions
+}
+
+// set sets the given columns of agent, which are among pmmServerAgentColumns, to the credentials.
+func (c *pmmServerCredentials) set(agent *Agent, columns []string) error {
+	for _, column := range columns {
+		switch column {
+		case "username":
+			agent.Username = EncryptedStringOrNil[AgentUsername](c.db.Username)
+		case "password":
+			agent.Password = EncryptedStringOrNil[AgentPassword](c.db.Password)
+		case "postgresql_options":
+			if c.options == nil {
+				options, err := pmmServerPostgreSQLOptions(*c.db)
+				if err != nil {
+					return fmt.Errorf("failed to read the TLS files of PMM Server's database: %w", err)
+				}
+				c.options = &options
+			}
+			agent.PostgreSQLOptions.SSLCa = c.options.SSLCa
+			agent.PostgreSQLOptions.SSLCert = c.options.SSLCert
+			agent.PostgreSQLOptions.SSLKey = c.options.SSLKey
+		}
+	}
+
+	return nil
 }
 
 // secretColumn is a column holding an encrypted secret: a scalar

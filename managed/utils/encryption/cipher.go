@@ -386,12 +386,7 @@ func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, err
 			break
 		}
 
-		var keysets []tink.AEAD
-		for _, k := range c.legacyKeys {
-			if k.keyIDs[keyID] {
-				keysets = append(keysets, k.primitive)
-			}
-		}
+		keysets := c.legacyKeysets(keyID)
 		if len(keysets) == 0 {
 			if layers == 0 {
 				return stored, 0, fmt.Errorf("%w (key ID %d)", ErrLegacyUnknownKey, keyID)
@@ -419,6 +414,18 @@ func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, err
 	}
 
 	return v, layers, nil
+}
+
+// legacyKeysets returns the keysets for legacy ciphertext that hold the key with the given ID.
+func (c *Cipher) legacyKeysets(keyID uint32) []tink.AEAD {
+	var keysets []tink.AEAD
+	for _, k := range c.legacyKeys {
+		if k.keyIDs[keyID] {
+			keysets = append(keysets, k.primitive)
+		}
+	}
+
+	return keysets
 }
 
 // openEnvelope decrypts a value in the envelope format.
