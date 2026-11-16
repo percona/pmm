@@ -46,7 +46,7 @@ func TestVerifyEncryptionKey(t *testing.T) {
 
 	settingsJSON := func(t *testing.T, s Settings) []byte {
 		t.Helper()
-		b, err := json.Marshal(s) //nolint:musttag
+		b, err := json.Marshal(s)
 		require.NoError(t, err)
 
 		return b
@@ -266,7 +266,7 @@ func (f fingerprintArg) Match(v driver.Value) bool {
 	}
 
 	var s Settings
-	err := json.Unmarshal(b, &s) //nolint:musttag
+	err := json.Unmarshal(b, &s)
 	if err != nil {
 		return false
 	}

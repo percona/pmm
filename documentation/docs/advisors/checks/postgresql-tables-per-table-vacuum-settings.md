@@ -11,7 +11,7 @@ The table-level parameters can be adjusted according to the current autovacuum s
 N/A (checks framework provides output for type POSTGRESQL_SHOW).
 
 ## Resolution
-The results of this advisor check can be correlated with other sets of checks or behaviours.
+The results of this Advisor check can be correlated with other sets of checks or behaviours.
 
 In case some of the parameters values are off, they can be corrected using the following syntax:
 
