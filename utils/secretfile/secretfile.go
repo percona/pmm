@@ -30,7 +30,7 @@ func Read(path string) (string, error) {
 	}
 	v := strings.TrimSpace(string(b))
 	if v == "" {
-		return "", fmt.Errorf("%s is empty", path)
+		return "", fmt.Errorf("%s is empty: add the password or key to the file", path)
 	}
 	return v, nil
 }

@@ -32,12 +32,12 @@ func runSecrets() error {
 		switch {
 		case r.Kept:
 			logrus.Warnf("Credential %s: %s has leading or trailing whitespace, so it stays in the environment, "+
-				"where Grafana reads it as written.", r.Name, r.Var)
+				"where Grafana reads it as written. Don't move this key to a file, because a file can't keep the whitespace.", r.Name, r.Var)
 		case r.Padded:
-			logrus.Warnf("Credential %s: the value of %s has leading or trailing whitespace, which PMM Server ignores.", r.Name, r.Var)
+			logrus.Warnf("Credential %s: %s has leading or trailing whitespace, which PMM Server removed from the password. Remove the whitespace from the variable.", r.Name, r.Var)
 		}
 		if r.Ignored != "" {
-			logrus.Warnf("Credential %s: %s is set to a different value than %s, which PMM Server uses.", r.Name, r.Ignored, r.Var)
+			logrus.Warnf("Credential %s: %s and %s have different values. PMM Server uses %s. Remove %s, or set it to the same value.", r.Name, r.Ignored, r.Var, r.Var, r.Ignored)
 		}
 	}
 	return nil
