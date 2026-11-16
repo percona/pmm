@@ -81,7 +81,7 @@ The toolbar has the following filters:
 - **Cluster/Service** — narrow to specific services when several sessions are running.
 - :material-filter-variant: **Show/Hide filters** — filter the rows by query text, host, database or user, or by a **Min** and **Max** elapsed time. In the **Database** and **User** filters, separate several values with commas to match any of them.
 
-The **Hide BEGIN/COMMIT** toggle that RTA offers for MySQL is not available for PostgreSQL. A session idle in transaction is often listed by its last query, which can be `BEGIN`, and hiding it would hide the session that holds the lock.
+The **Hide transaction control** toggle that RTA offers for MySQL is not available for PostgreSQL. A session idle in transaction is often listed by its last query, which can be `BEGIN`, and hiding it would hide the session that holds the lock.
 
 ### Control the refresh rate
 

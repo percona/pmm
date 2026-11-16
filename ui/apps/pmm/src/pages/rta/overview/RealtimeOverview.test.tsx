@@ -194,7 +194,7 @@ describe('RealtimeOverview', () => {
     await waitFor(() =>
       expect(
         screen.getByTestId('overview-table-hide-commit-toggle')
-      ).toHaveTextContent('Hide BEGIN/COMMIT')
+      ).toHaveTextContent('Hide transaction control')
     );
   });
 
@@ -349,7 +349,7 @@ describe('RealtimeOverview', () => {
     const chip = waitingCell.querySelector(
       '[data-testid="blocked-unknown-chip"]'
     );
-    expect(chip).toHaveTextContent('Blocked: unknown');
+    expect(chip).toHaveTextContent('Blocked by unknown');
     expect(chip).toHaveAttribute('data-reason', 'unreadable');
     expect(
       screen
@@ -444,8 +444,10 @@ describe('RealtimeOverview', () => {
 
     fireEvent.mouseOver(toggle);
     const tooltip = await screen.findByRole('tooltip');
-    expect(tooltip).toHaveTextContent('1 statement could not be attributed');
-    expect(tooltip).not.toHaveTextContent('could not read every kind of lock');
+    expect(tooltip).toHaveTextContent(
+      'This filter shows 1 statement marked Possibly blocked'
+    );
+    expect(tooltip).not.toHaveTextContent("doesn't report every lock type");
 
     fireEvent.click(toggle.querySelector('input[type="checkbox"]')!);
 

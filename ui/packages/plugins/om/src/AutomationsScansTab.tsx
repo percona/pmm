@@ -46,6 +46,7 @@ import {
 } from './inventoryHooks';
 import { isRunActive } from './api';
 import { useScanConflict } from './ScanFeedback';
+import { AdminAction } from './components/AdminAction';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
 import { ScanProgress } from './components/ScanProgress';
@@ -320,20 +321,18 @@ const RefreshButton = () => {
   return (
     <Stack direction="row" alignItems="center" gap={1}>
       <ScanProgress />
-      <Tooltip title="Scan every node now, collecting what no metric carries">
-        <span>
-          <Button
-            variant="contained"
-            startIcon={
-              running ? <CircularProgress size={16} /> : <PlayArrowIcon />
-            }
-            disabled={running || trigger.isPending}
-            onClick={() => trigger.refreshAll()}
-          >
-            {running ? 'Scanning…' : 'Scan all nodes'}
-          </Button>
-        </span>
-      </Tooltip>
+      <AdminAction title="Scan every node now, collecting what no metric carries">
+        <Button
+          variant="contained"
+          startIcon={
+            running ? <CircularProgress size={16} /> : <PlayArrowIcon />
+          }
+          disabled={running || trigger.isPending}
+          onClick={() => trigger.refreshAll()}
+        >
+          {running ? 'Scanning…' : 'Scan all nodes'}
+        </Button>
+      </AdminAction>
       {conflict && (
         <OmError
           placement="action"

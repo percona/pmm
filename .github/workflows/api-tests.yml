@@ -69,7 +69,6 @@ jobs:
                 - 443:8443
               volumes:
                 - pmm-data:/srv
-                - ./managed/testdata/checks:/srv/checks
           volumes:
             pmm-data:
               name: pmm-data

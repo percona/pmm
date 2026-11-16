@@ -27,7 +27,9 @@ const BlockedUnknownChip: FC<Props> = ({ reason }) => (
       label={
         <Stack direction="row" alignItems="center" gap={0.5}>
           <HelpOutlineIcon fontSize="small" />
-          {Messages.blockedUnattributed}
+          {reason === 'unreadable'
+            ? Messages.blockedUnreadable
+            : Messages.blockedUnattributed}
         </Stack>
       }
     />

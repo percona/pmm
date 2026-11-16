@@ -1,4 +1,4 @@
 export const Messages = {
   disclaimer:
-    'Currently available for MongoDB (PMM Client 3.7.0+), MySQL and PostgreSQL (PMM Client 3.11.0+). More databases coming soon.',
+    'Available for MongoDB with PMM Client 3.7.0 or later, and MySQL and PostgreSQL with PMM Client 3.11.0 or later. More databases are coming.',
 };

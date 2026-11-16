@@ -4,10 +4,9 @@ checks:
     name: postgresql_eol_check
     summary: Check if PostgreSQL version is EOL
     description: Checks to see if the currently installed PostgreSQL version is end of life and no longer supported
-    #author: Jorge Torralba
-    advisor: configuration_version
-    interval: standard
-    family: POSTGRESQL
+    # author: Jorge Torralba
+    category: Versions
+    technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
         query: "setting, (setting::int / 10000) major  FROM pg_settings WHERE name = 'server_version_num' "
