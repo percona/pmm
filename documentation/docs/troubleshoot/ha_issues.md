@@ -237,7 +237,7 @@ If dashboards or Query Analytics are empty, check the state of your cluster in t
 
 If a component is reported as unhealthy here, troubleshoot that component first. An empty dashboard or empty Query Analytics is usually a symptom of a component that is not running.
 
-**Inventory page:** Go to **Configuration > Inventory**. On the **Nodes** tab, check that all `pmm-ha` nodes are present and their status is healthy. On the **Services** tab, check that the services you added are listed and that their agents are running.
+**Inventory page:** Go to **Inventory**. On the **Nodes** tab, check that all `pmm-ha` nodes are present and their **Status** is **Up**. On the **Services** tab, check that the services you added are listed and that their **Monitoring** status is **OK**.
 
 If a service is missing from Inventory, the problem is with adding the service, not with storing or displaying its data.
 
