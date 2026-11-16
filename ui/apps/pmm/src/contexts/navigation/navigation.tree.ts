@@ -19,7 +19,6 @@ import type { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import type { User } from 'types/user.types';
 import {
   NAV_BACKUPS,
-  NAV_DASHBOARDS,
   NAV_EXPLORE,
   NAV_EXTENSIONS_MYSQL_BACKUPS,
   NAV_FOLDER_MAP,
@@ -40,6 +39,7 @@ import {
   addAdvisors,
   addAlerting,
   addConfiguration,
+  addDashboards,
   addHighAvailability,
 } from './navigation.utils';
 
@@ -205,7 +205,7 @@ export const buildNavTree = ({
     apps.push(...NAV_BACKUPS);
   }
 
-  const browse: NavItem[] = [NAV_DASHBOARDS];
+  const browse: NavItem[] = [addDashboards(serviceTypes, user)];
 
   if (apps.length) {
     browse.push({ ...NAV_APPS, children: apps });

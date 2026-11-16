@@ -5,9 +5,15 @@ import {
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { createAnonymousUser } from 'contexts/user/user.utils';
-import { isActive } from 'utils/navigation.utils';
+import { findActiveNavItem, isActive } from 'utils/navigation.utils';
+import { ServiceType } from 'types/services.types';
 import { UpdateStatus } from 'types/updates.types';
-import { addAlerting, addConfiguration, addHomePage } from './navigation.utils';
+import {
+  addAlerting,
+  addConfiguration,
+  addDashboards,
+  addHomePage,
+} from './navigation.utils';
 import { NAV_CONFIGURATION } from './navigation.constants';
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
@@ -142,5 +148,50 @@ describe('addConfiguration', () => {
     expect(
       updates(addConfiguration(UpdateStatus.UpToDate))?.secondaryText
     ).toBeUndefined();
+  });
+});
+
+describe('addDashboards', () => {
+  it('lists the dashboards browser, then the Grafana pages for a user', () => {
+    expect(childIds(addDashboards([], TEST_USER_VIEWER))).toEqual([
+      'dashboards-browse',
+      'dashboards-shared',
+      'dashboards-playlists',
+      'dashboards-snapshots',
+      'dashboards-library-panels',
+    ]);
+  });
+
+  it('lists only the dashboards browser without a user', () => {
+    expect(childIds(addDashboards([]))).toEqual(['dashboards-browse']);
+  });
+
+  it('adds ProxySQL and HAProxy only while PMM monitors them', () => {
+    expect(childIds(addDashboards([ServiceType.mysql]))).not.toContain(
+      'proxysql'
+    );
+    expect(
+      childIds(addDashboards([ServiceType.proxysql, ServiceType.haproxy]))
+    ).toEqual(['dashboards-browse', 'proxysql', 'haproxy']);
+  });
+
+  it.each([
+    ['/graph/dashboards', 'dashboards-browse'],
+    ['/graph/dashboards/f/abc/experimental', 'dashboards-browse'],
+    ['/graph/dashboard/public', 'dashboards-shared'],
+    ['/graph/dashboard/snapshots', 'dashboards-snapshots'],
+    ['/graph/playlists', 'dashboards-playlists'],
+    ['/graph/playlists/play/1', 'dashboards-playlists'],
+    ['/graph/library-panels', 'dashboards-library-panels'],
+    [
+      '/graph/d/proxysql-instance-summary/proxysql-instance-summary',
+      'proxysql',
+    ],
+    ['/graph/dashboard/new', 'dashboards'],
+    ['/graph/dashboard/import', 'dashboards'],
+  ])('highlights %s as %s', (pathname, id) => {
+    const dashboards = addDashboards([ServiceType.proxysql], TEST_USER_ADMIN);
+
+    expect(findActiveNavItem(dashboards, pathname)?.id).toBe(id);
   });
 });

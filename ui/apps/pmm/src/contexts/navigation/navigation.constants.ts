@@ -29,13 +29,16 @@ import {
   CirclesExtIcon,
   Graph4Icon,
   Graph5Icon,
+  HaproxyIcon,
   NetworkIntelligenceIcon,
   NetworkNodeIcon,
   PerconaMoIcon,
   PerconaMyIcon,
   PerconaPoIcon,
   PerconaVaIcon,
+  ProxyIcon,
   QueryStatsIcon,
+  SearchInsightsIcon,
 } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 
@@ -396,17 +399,64 @@ export const NAV_QAN: NavItem = {
 //
 // All Dashbaords
 //
+// Grafana pages under /dashboard with no entry of their own, such as a new
+// dashboard or an import, highlight the group.
 export const NAV_DASHBOARDS: NavItem = {
   id: 'dashboards',
   icon: DashboardOutlined,
   text: 'All dashboards',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards`,
-  matches: [
-    '*',
-    `${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/*`,
-    `${PMM_NEW_NAV_GRAFANA_PATH}/playlists/*`,
-    `${PMM_NEW_NAV_GRAFANA_PATH}/library-panels/*`,
-  ],
+  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/*`],
+};
+
+export const NAV_DASHBOARDS_BROWSE: NavItem = {
+  id: 'dashboards-browse',
+  icon: SearchInsightsIcon,
+  text: 'Browse all dashboards',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards`,
+  matches: ['*'],
+};
+
+export const NAV_PROXYSQL: NavItem = {
+  id: 'proxysql',
+  icon: ProxyIcon,
+  text: 'ProxySQL',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/proxysql-instance-summary/proxysql-instance-summary`,
+};
+
+export const NAV_HAPROXY: NavItem = {
+  id: 'haproxy',
+  icon: HaproxyIcon,
+  text: 'HAProxy',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/haproxy-instance-summary/haproxy-instance-summary`,
+};
+
+export const NAV_DASHBOARDS_SHARED: NavItem = {
+  id: 'dashboards-shared',
+  text: 'Shared dashboards',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/public`,
+  matches: ['*'],
+};
+
+export const NAV_DASHBOARDS_PLAYLISTS: NavItem = {
+  id: 'dashboards-playlists',
+  text: 'Playlists',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/playlists`,
+  matches: ['*'],
+};
+
+export const NAV_DASHBOARDS_SNAPSHOTS: NavItem = {
+  id: 'dashboards-snapshots',
+  text: 'Snapshots',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboard/snapshots`,
+  matches: ['*'],
+};
+
+export const NAV_DASHBOARDS_LIBRARY_PANELS: NavItem = {
+  id: 'dashboards-library-panels',
+  text: 'Library panels',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/library-panels`,
+  matches: ['*'],
 };
 
 //

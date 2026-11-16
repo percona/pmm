@@ -2,6 +2,7 @@ import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import { NavItem } from 'types/navigation.types';
 import { User, UserPreferences } from 'types/user.types';
+import { ServiceType } from 'types/services.types';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
@@ -20,6 +21,14 @@ import {
   NAV_ALERTS_STATUS,
   NAV_CHANGE_PASSWORD,
   NAV_CONFIGURATION,
+  NAV_DASHBOARDS,
+  NAV_DASHBOARDS_BROWSE,
+  NAV_DASHBOARDS_LIBRARY_PANELS,
+  NAV_DASHBOARDS_PLAYLISTS,
+  NAV_DASHBOARDS_SHARED,
+  NAV_DASHBOARDS_SNAPSHOTS,
+  NAV_HAPROXY,
+  NAV_PROXYSQL,
   NAV_SIGN_OUT,
   NAV_THEME_TOGGLE,
   NAV_ALERTS_SILENCES,
@@ -67,6 +76,32 @@ export const addAlerting = (
   }
 
   return { ...NAV_ALERTS, children };
+};
+
+export const addDashboards = (
+  serviceTypes: ServiceType[],
+  user?: User
+): NavItem => {
+  const children: NavItem[] = [NAV_DASHBOARDS_BROWSE];
+
+  if (serviceTypes.includes(ServiceType.proxysql)) {
+    children.push(NAV_PROXYSQL);
+  }
+
+  if (serviceTypes.includes(ServiceType.haproxy)) {
+    children.push(NAV_HAPROXY);
+  }
+
+  if (user) {
+    children.push(
+      NAV_DASHBOARDS_SHARED,
+      NAV_DASHBOARDS_PLAYLISTS,
+      NAV_DASHBOARDS_SNAPSHOTS,
+      NAV_DASHBOARDS_LIBRARY_PANELS
+    );
+  }
+
+  return { ...NAV_DASHBOARDS, children };
 };
 
 export const addAdvisors = (): NavItem => ({

@@ -143,6 +143,33 @@ describe('buildNavTree', () => {
     );
   });
 
+  it('lists ProxySQL and HAProxy under All dashboards while monitored', () => {
+    const children = ids(
+      findById(
+        build({ serviceTypes: [ServiceType.proxysql, ServiceType.haproxy] }),
+        'dashboards'
+      )?.children
+    );
+
+    expect(children).toContain('proxysql');
+    expect(children).toContain('haproxy');
+    expect(ids(findById(build(), 'dashboards')?.children)).not.toContain(
+      'proxysql'
+    );
+  });
+
+  it('highlights a technology folder in its own menu, not under All dashboards', () => {
+    const tree = build({
+      folders: [
+        { id: 1, uid: 'abc', title: 'MySQL' },
+      ] as NavTreeInput['folders'],
+    });
+
+    expect(findActiveNavItem(tree, '/graph/dashboards/f/abc/mysql')?.id).toBe(
+      'mysql-other-dashboards'
+    );
+  });
+
   it('splits stored metrics and real-time queries into two entries', () => {
     const tree = build();
 
