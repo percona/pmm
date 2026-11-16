@@ -137,16 +137,20 @@ describe('SidebarNavItem', () => {
     expect(level1Collapse).not.toHaveClass(collapseClasses.hidden);
   });
 
-  it('collapses root items when sidebar is closed', () => {
+  it('leaves the entries to the panel when sidebar is closed', () => {
     renderNavItem({
       props: {
         drawerOpen: false,
       },
     });
 
-    const level0Collapse = screen.queryByTestId('navitem-level-0-collapse');
+    expect(
+      screen.queryByTestId('navitem-level-0-collapse')
+    ).not.toBeInTheDocument();
 
-    expect(level0Collapse).toHaveClass(collapseClasses.hidden);
+    fireEvent.click(screen.getByTestId('navitem-level-0'));
+
+    expect(screen.getAllByTestId('navitem-level-10')).toHaveLength(1);
   });
 
   it.each([TEST_NAV_TREE, TEST_LEAF_ITEM])(

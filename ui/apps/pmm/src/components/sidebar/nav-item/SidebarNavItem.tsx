@@ -207,6 +207,9 @@ const SidebarNavItem: FC<NavItemProps> = ({
           timeout={drawerTransition(theme, drawerOpen).duration}
           id={`${dataTestid}-children`}
           data-testid={`${dataTestid}-collapse`}
+          // The collapsed rail shows these entries in the panel instead, so a
+          // hidden copy here would duplicate their ids.
+          unmountOnExit={!drawerOpen}
         >
           <List component="div" disablePadding sx={styles.listCollapsible}>
             {item.children.map((item) => (
