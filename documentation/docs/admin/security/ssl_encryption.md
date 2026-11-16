@@ -46,7 +46,7 @@ PMM Server requires these certificate files in `/srv/nginx`:
 For container-based installation, mount your certificate directory to `/srv/nginx`:
 
 ```sh
-docker run -d -p 443:8443 --volume pmm-data \
+docker run -d -p 443:8443 --volume pmm-data:/srv \
   --name pmm-server -v /etc/pmm-certs:/srv/nginx \
   --restart always percona/pmm-server:3
 ```
@@ -54,12 +54,11 @@ docker run -d -p 443:8443 --volume pmm-data \
 !!! warning "Certificate requirements"
     Before mounting certificates, make sure to configure them correctly:
 
-    - The certificate directory and all certificates must be owned by 1000:0: `chown -R 1000:0 /etc/pmm-certs`
+    - All certificates must be owned by 1000:0: `chown 1000:0 /etc/pmm-certs/*`
+    - In PMM 3.8.0 to 3.10.x, the certificate directory itself must also be owned by 1000:0, or PMM Server doesn't start: `chown 1000:0 /etc/pmm-certs`
     - Set proper permissions: `chmod 644 /etc/pmm-certs/*.crt /etc/pmm-certs/*.pem && chmod 600 /etc/pmm-certs/*.key`
     - The certificate directory must contain all four required files
     - Use port `443` for SSL encryption instead of port `80`
-
-    PMM Server creates temporary nginx directories inside the mounted directory at startup. If UID 1000 cannot write to the directory, the container exits with `Permission denied`.
 
 ### Copy certificates
 
