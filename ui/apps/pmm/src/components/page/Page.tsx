@@ -31,7 +31,9 @@ export const Page: FC<PageProps> = ({
 }) => {
   const { user } = useUser();
   updateDocumentTitle(title);
-  const hasAccess = !roles || roles?.some((role) => user?.orgRole === role);
+  const hasAccess =
+    !!user?.isAuthorized &&
+    (!roles || roles.some((role) => user.orgRole === role));
   // Back-compat: `fullWidth` predates `maxWidth`; treat it as `maxWidth="full"`
   // unless an explicit `maxWidth` is provided.
   const resolvedMaxWidth = maxWidth ?? (fullWidth ? 'full' : undefined);
@@ -63,7 +65,7 @@ export const Page: FC<PageProps> = ({
             : undefined
         }
       >
-        {topBar}
+        {hasAccess && topBar}
         {!!title && !hideTitle && <Typography variant="h2">{title}</Typography>}
         <Box
           sx={{
@@ -73,7 +75,7 @@ export const Page: FC<PageProps> = ({
             ...(fillViewport && { minHeight: 0 }),
           }}
         >
-          {user?.isAuthorized && hasAccess ? (
+          {hasAccess ? (
             children
           ) : (
             <Card variant="outlined" sx={{ p: 2 }}>
