@@ -35,6 +35,38 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
+// nodeExporterScript is TestFailedStartAndPorts' node_exporter, written before any test can fork (golang/go#22315).
+var nodeExporterScript string
+
+func TestMain(m *testing.M) {
+	dir, err := os.MkdirTemp("", "supervisor_test")
+	if err != nil {
+		panic(err)
+	}
+
+	// It exits at once without arguments, and cannot listen on <port> while its directory has busy-<port>.
+	script := "#!/bin/sh\n" +
+		"[ $# -eq 0 ] && exit 0\n" +
+		"port=${1#--port=}\n" +
+		"if [ -e \"${0%/*}/busy-$port\" ]; then echo \"listen tcp 127.0.0.1:$port: bind: address already in use\" >&2; exit 1; fi\n" +
+		"exec sleep 100\n"
+	nodeExporterScript = filepath.Join(dir, "node_exporter")
+	err = os.WriteFile(nodeExporterScript, []byte(script), 0o755)
+	if err != nil {
+		panic(err)
+	}
+	// macOS scans a new executable on its first run, which can take longer than runningT.
+	err = exec.CommandContext(context.Background(), nodeExporterScript).Run()
+	if err != nil {
+		panic(err)
+	}
+
+	code := m.Run()
+
+	_ = os.RemoveAll(dir)
+	os.Exit(code)
+}
+
 // fillChanges fills the state change channel, so that the next send of an Agent's status forwarder
 // parks on it and a bounded wait for that forwarder gives up.
 //
@@ -1213,15 +1245,9 @@ func TestFailedStartAndPorts(t *testing.T) {
 		t.Helper()
 
 		dir := t.TempDir()
-		script := "#!/bin/sh\n" +
-			"[ $# -eq 0 ] && exit 0\n" +
-			"port=${1#--port=}\n" +
-			"if [ -e \"" + dir + "/busy-$port\" ]; then echo \"listen tcp 127.0.0.1:$port: bind: address already in use\" >&2; exit 1; fi\n" +
-			"exec sleep 100\n"
+		// A link, so that the script reads this test's busy files without anything being written to it.
 		bin := filepath.Join(dir, "node_exporter")
-		require.NoError(t, os.WriteFile(bin, []byte(script), 0o755))
-		// macOS scans a new executable on its first run, which can take longer than runningT.
-		require.NoError(t, exec.CommandContext(t.Context(), bin).Run())
+		require.NoError(t, os.Symlink(nodeExporterScript, bin))
 
 		cfgStorage := config.NewStorage(&config.Config{
 			Paths:         config.Paths{TempDir: t.TempDir(), NodeExporter: bin},
