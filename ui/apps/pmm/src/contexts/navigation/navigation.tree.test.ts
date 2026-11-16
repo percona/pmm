@@ -240,12 +240,12 @@ describe('buildNavTree', () => {
     expect(ids(tree)).not.toContain('apps');
   });
 
-  it('offers a quick add on the inventory rows', () => {
+  it('offers a quick add only on Services, since nodes come with services', () => {
     const rows = findById(build(), 'inventory')?.children;
 
     expect(rows?.map((row) => row.action?.label)).toEqual([
       'Add a service',
-      'Add a node',
+      undefined,
     ]);
   });
 

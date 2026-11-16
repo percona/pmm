@@ -603,10 +603,6 @@ export const NAV_INVENTORY: NavItem = {
       text: 'Nodes',
       url: PMM_INVENTORY_NODES_PATH,
       matches: ['*'],
-      action: {
-        label: 'Add a node',
-        url: PMM_ADD_SERVICE_URL,
-      },
     },
   ],
 };
