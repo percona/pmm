@@ -422,6 +422,9 @@ type ListServicesOKBody struct {
 
 	// mysql
 	Mysql []*ListServicesOKBodyMysqlItems0 `json:"mysql"`
+
+	// postgresql
+	Postgresql []*ListServicesOKBodyPostgresqlItems0 `json:"postgresql"`
 }
 
 // Validate validates this list services OK body
@@ -433,6 +436,10 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePostgresql(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -502,6 +509,36 @@ func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *ListServicesOKBody) validatePostgresql(formats strfmt.Registry) error {
+	if swag.IsZero(o.Postgresql) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Postgresql); i++ {
+		if swag.IsZero(o.Postgresql[i]) { // not required
+			continue
+		}
+
+		if o.Postgresql[i] != nil {
+			if err := o.Postgresql[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list services OK body based on the context it is used
 func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -511,6 +548,10 @@ func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt
 	}
 
 	if err := o.contextValidateMysql(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePostgresql(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -562,6 +603,32 @@ func (o *ListServicesOKBody) contextValidateMysql(ctx context.Context, formats s
 				ce := new(errors.CompositeError)
 				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Postgresql); i++ {
+		if o.Postgresql[i] != nil {
+
+			if swag.IsZero(o.Postgresql[i]) { // not required
+				return nil
+			}
+
+			if err := o.Postgresql[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
 				}
 
 				return err
@@ -726,6 +793,82 @@ func (o *ListServicesOKBodyMysqlItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListServicesOKBodyMysqlItems0) UnmarshalBinary(b []byte) error {
 	var res ListServicesOKBodyMysqlItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListServicesOKBodyPostgresqlItems0 PostgreSQLService represents a generic PostgreSQL instance.
+swagger:model ListServicesOKBodyPostgresqlItems0
+*/
+type ListServicesOKBodyPostgresqlItems0 struct {
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Database name.
+	DatabaseName string `json:"database_name,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access address (DNS name or IP).
+	// Address (and port) or socket is required.
+	Address string `json:"address,omitempty"`
+
+	// Access port.
+	// Port is required when the address present.
+	Port int64 `json:"port,omitempty"`
+
+	// Access unix socket.
+	// Address (and port) or socket is required.
+	Socket string `json:"socket,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// PostgreSQL version.
+	Version string `json:"version,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+}
+
+// Validate validates this list services OK body postgresql items0
+func (o *ListServicesOKBodyPostgresqlItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list services OK body postgresql items0 based on context it is used
+func (o *ListServicesOKBodyPostgresqlItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListServicesOKBodyPostgresqlItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListServicesOKBodyPostgresqlItems0) UnmarshalBinary(b []byte) error {
+	var res ListServicesOKBodyPostgresqlItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

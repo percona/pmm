@@ -121,7 +121,9 @@ describe('RealtimeSelection', () => {
         expect(screen.getByText(RtaMessages.disclaimer)).toBeInTheDocument();
       });
       expect(
-        screen.getByText(/MySQL with PMM Client 3\.11\.0 or later/)
+        screen.getByText(
+          /MySQL and PostgreSQL with PMM Client 3\.11\.0 or later/
+        )
       ).toBeInTheDocument();
     });
   });

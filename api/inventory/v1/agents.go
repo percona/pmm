@@ -46,3 +46,4 @@ func (*AzureDatabaseExporter) sealedAgent()           {}
 func (*ValkeyExporter) sealedAgent()                  {}
 func (*RTAMongoDBAgent) sealedAgent()                 {}
 func (*RTAMySQLAgent) sealedAgent()                   {}
+func (*RTAPostgreSQLAgent) sealedAgent()              {}

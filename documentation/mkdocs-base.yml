@@ -261,6 +261,7 @@ nav:
           - Real-time analytics:
             - use/qan/QAN-realtime-analytics.md
             - use/qan/QAN-realtime-analytics-mysql.md
+            - use/qan/QAN-realtime-analytics-postgresql.md
 
       - Operations for MongoDB: use/mongodb-operations.md
 

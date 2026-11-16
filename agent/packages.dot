@@ -65,6 +65,7 @@ digraph packages {
 	"/agents/supervisor" -> "/agents/noop";
 	"/agents/supervisor" -> "/agents/postgres/pgstatmonitor";
 	"/agents/supervisor" -> "/agents/postgres/pgstatstatements";
+	"/agents/supervisor" -> "/agents/postgres/realtimeanalytics";
 	"/agents/supervisor" -> "/agents/process";
 	"/agents/supervisor" -> "/config";
 	"/agents/supervisor" -> "/tailog";

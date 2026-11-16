@@ -32,6 +32,8 @@ func RTAMinAgentVersion(serviceType ServiceType) (version.FeatureVersion, bool) 
 		return version.MongoDBRtaAgentSupportVersion, true
 	case MySQLServiceType:
 		return version.MySQLRtaAgentSupportVersion, true
+	case PostgreSQLServiceType:
+		return version.PostgreSQLRtaAgentSupportVersion, true
 	default:
 		return nil, false
 	}

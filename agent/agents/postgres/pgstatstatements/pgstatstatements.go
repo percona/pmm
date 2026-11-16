@@ -345,6 +345,12 @@ func (m *PGStatStatementsQAN) makeBuckets(current, prev statementsMap) []*agentv
 	l := m.l
 
 	for queryID, currentPSS := range current {
+		// Real-Time Analytics polls this server every few seconds. That is PMM's own load, not
+		// the workload Query Analytics describes.
+		if agents.IsRTAQuery(currentPSS.RealQuery) {
+			continue
+		}
+
 		prevPSS := prev[queryID]
 		if prevPSS == nil {
 			prevPSS = &pgStatStatementsExtended{}

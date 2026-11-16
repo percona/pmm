@@ -20,12 +20,18 @@ export const Messages = {
     rowsSent: 'Rows sent',
     fullScan: 'Full scan',
     lockTime: 'Lock time',
+    waitEvent: 'Wait event',
+    queryId: 'Query ID',
+    transactionStartTime: 'Transaction start time',
   },
   tooltips: {
     operationId: "The database's internal identifier for this operation.",
     operationIdMySql:
       'The ID of the MySQL connection that runs this statement. MySQL identifies connections, not statements, so consecutive statements on the same connection share this ID.',
-    elapsedExecTime: 'How long this operation has been running for.',
+    operationIdPostgreSql:
+      'The process ID (pid) of the PostgreSQL backend that runs this query. Consecutive queries on the same connection share this ID.',
+    elapsedExecTime:
+      'How long this operation has been running for. For a PostgreSQL session idle in transaction, how long its transaction has been open.',
     planSummary:
       'High-level summary of how the database is executing this query. For example, using an index or scanning the full collection.',
     databaseName: 'The database/schema where this operation is running.',
@@ -46,7 +52,8 @@ export const Messages = {
       'The server hostname and port where this operation is running.',
     command:
       'The type of command the connection is executing, such as Query or Execute.',
-    state: 'The current state of the thread executing this statement.',
+    state:
+      'The current state of the thread (MySQL) or session (PostgreSQL) executing this statement.',
     programName:
       'The client program connected to MySQL that started this statement.',
     rowsExamined:
@@ -56,5 +63,11 @@ export const Messages = {
       'Whether the statement performed a full table scan instead of using an index.',
     lockTime:
       'How long the statement has waited for table locks, in milliseconds. performance_schema reports it as LOCK_TIME.',
+    waitEvent:
+      'What the PostgreSQL session is waiting for, as wait_event_type: wait_event, if anything.',
+    queryId:
+      'The PostgreSQL query identifier. PostgreSQL 14 and later set it when compute_query_id is on.',
+    transactionStartTime:
+      'When the current transaction started. A transaction that stays open holds its locks and keeps vacuum from removing dead rows.',
   },
 };
