@@ -8,6 +8,8 @@ PMM automatically manages encryption using a keyset file located at `/srv/pmm-en
 
 Encrypted values are stored with the `pmm1$` prefix followed by the base64-encoded ciphertext (AES-256-GCM). The ciphertext embeds the ID of the key it was encrypted with, so PMM always knows which key of the keyset to use for decryption — including during key rotation.
 
+Each encrypted value is also bound to the field it is stored in. A value copied into another field, for example a password into a username, doesn't decrypt there.
+
 ## What PMM encrypts
 
 PMM encrypts these fields of its internal database (`pmm-managed`):
@@ -132,12 +134,15 @@ After you verify the upgrade, check that `/srv/logs/pmm-managed.log` has no `can
 
 ## When PMM Server refuses to start
 
-PMM Server checks at every start that its encryption key is the key that the stored data was encrypted with. It refuses to start, and changes nothing, in these cases:
+PMM Server checks at every start that its encryption key is the key that the stored data was encrypted with, and that the stored credentials decrypt with it. It refuses to start, and changes nothing, in these cases:
 
 - The key file is missing, but the database contains data encrypted with the key. PMM Server doesn't generate a new key, because that would make the stored data unreadable.
 - The key file contains a different key. The error lists the affected credentials. PMM Server also stores a known value encrypted with the key, so it detects a different key even before any credentials are stored.
+- A stored credential doesn't decrypt even though the key is right: it is corrupted, or it was copied into its field from another field or, on a standalone server, from a database backup taken before the upgrade. The error says that the key file doesn't match the database or the values are corrupted, and lists the affected credentials.
 
-In both cases, restore the original key file, or point `PMM_ENCRYPTION_KEY_PATH` at it, and restart PMM Server. In [high availability mode](#ha-clusters-use-the-same-key-on-every-node), copy the key file from a node that works.
+If the key file is missing or different, restore the original key file, or point `PMM_ENCRYPTION_KEY_PATH` at it, and restart PMM Server. In [high availability mode](#ha-clusters-use-the-same-key-on-every-node), copy the key file from a node that works.
+
+If the key file is the right one, restoring it doesn't help, and neither does [accepting a lost key](#recover-from-a-lost-encryption-key): the listed credentials themselves were changed. The PMM API isn't available while PMM Server refuses to start, so restore the PMM data from a backup taken before they changed.
 
 ### Recover from a lost encryption key
 
