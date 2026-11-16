@@ -24,7 +24,3 @@ export class FrontendSettingsUpdatedEvent extends BusEventBase {
 export class TimeZoneUpdatedEvent extends BusEventBase {
   static type = 'timezone-updated-event';
 }
-
-export class OpenAlertThresholdsModalEvent extends BusEventBase {
-  static type = 'open-alert-thresholds-modal-event';
-}

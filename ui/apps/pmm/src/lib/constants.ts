@@ -1,6 +1,10 @@
 import { GRAFANA_SUB_PATH } from '@pmm/shared';
-import { AdvisorFamily, AdvisorInterval } from 'types/advisors.types';
-import { ServiceType } from 'types/services.types';
+import {
+  AdvisorCheckResultStatus,
+  AdvisorTechnology,
+} from 'types/advisors.types';
+import { Severity } from 'types/severity.types';
+import { ManagedServiceType, ServiceType } from 'types/services.types';
 
 export const PMM_TITLE = 'Percona Monitoring and Management';
 // todo: remove completely in a follow up to reduce current scope
@@ -22,7 +26,14 @@ export const PMM_NEW_NAV_UPDATES_PATH = `${PMM_NEW_NAV_PATH}/updates`;
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
 export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
+export const PMM_DOCS_INVENTORY_SERVICES_URL =
+  'https://per.co.na/pmm/inventory_services';
 export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
+export const PMM_INVENTORY_PATH = `${PMM_NEW_NAV_PATH}/inventory`;
+export const PMM_INVENTORY_SERVICES_PATH = `${PMM_INVENTORY_PATH}/services`;
+export const PMM_INVENTORY_NODES_PATH = `${PMM_INVENTORY_PATH}/nodes`;
+export const PMM_ADD_SERVICE_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`;
+export const PMM_QAN_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`;
 
 // PMM Extensions apps mounted as native PMM routes. Shared by the router (route paths and
 // each plugin's `routeBase`) and the navigation builder (`url` / `matches`), so
@@ -52,18 +63,42 @@ export const INTERVALS_MS = {
   SERVER_VERSION: 60000,
 };
 
-export const ADVISOR_FAMILY: Record<AdvisorFamily, string> = {
-  [AdvisorFamily.mysql]: 'MySQL',
-  [AdvisorFamily.postgresql]: 'PostgreSQL',
-  [AdvisorFamily.mongodb]: 'MongoDB',
-  [AdvisorFamily.unspecified]: 'Unspecified',
+export const ADVISOR_TECHNOLOGY: Record<AdvisorTechnology, string> = {
+  [AdvisorTechnology.mysql]: 'MySQL',
+  [AdvisorTechnology.postgresql]: 'PostgreSQL',
+  [AdvisorTechnology.mongodb]: 'MongoDB',
+  [AdvisorTechnology.unspecified]: 'Unspecified',
 };
 
-export const ADVISOR_INTERVAL: Record<AdvisorInterval, string> = {
-  [AdvisorInterval.standard]: 'Standard',
-  [AdvisorInterval.rare]: 'Rare',
-  [AdvisorInterval.frequent]: 'Frequent',
-  [AdvisorInterval.unspecified]: 'Unspecified',
+export const MANAGED_SERVICE_TYPE: Record<ManagedServiceType, string> = {
+  [ManagedServiceType.mysql]: 'MySQL',
+  [ManagedServiceType.postgresql]: 'PostgreSQL',
+  [ManagedServiceType.mongodb]: 'MongoDB',
+  [ManagedServiceType.proxysql]: 'ProxySQL',
+  [ManagedServiceType.haproxy]: 'HAProxy',
+  [ManagedServiceType.valkey]: 'Valkey',
+  [ManagedServiceType.external]: 'External',
+};
+
+export const ADVISOR_RESULT_STATUS: Record<AdvisorCheckResultStatus, string> = {
+  [AdvisorCheckResultStatus.ok]: 'OK',
+  [AdvisorCheckResultStatus.failed]: 'Failed',
+  [AdvisorCheckResultStatus.error]: 'Error',
+  [AdvisorCheckResultStatus.pending]: 'Pending',
+  [AdvisorCheckResultStatus.notRun]: 'Not run',
+  [AdvisorCheckResultStatus.unspecified]: 'Unspecified',
+};
+
+export const SEVERITY: Record<Severity, string> = {
+  [Severity.emergency]: 'Emergency',
+  [Severity.alert]: 'Alert',
+  [Severity.critical]: 'Critical',
+  [Severity.error]: 'Error',
+  [Severity.warning]: 'Warning',
+  [Severity.notice]: 'Notice',
+  [Severity.info]: 'Info',
+  [Severity.debug]: 'Debug',
+  [Severity.unspecified]: 'Unspecified',
 };
 
 export const ALL_SERVICE_TYPES = [
@@ -96,6 +131,7 @@ export const UPDATE_SNOOZE_DURATION_OVERRIDE_KEY =
 export const DOCS_URLS = {
   qan: 'https://per.co.na/QAN',
   forums: 'https://per.co.na/PMM3_forums',
+  editingLabels: 'https://per.co.na/editing_labels',
 };
 
 export const TIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
