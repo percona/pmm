@@ -21,10 +21,10 @@ const RealtimeTab: FC = () => {
   }
 
   if (sessions?.length) {
-    return <Navigate to="/rta/sessions" />;
+    return <Navigate to="/rta/sessions" replace />;
   }
 
-  return <Navigate to="/rta/selection" />;
+  return <Navigate to="/rta/selection" replace />;
 };
 
 export default RealtimeTab;
