@@ -17,6 +17,7 @@
 package victoriametrics
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -27,6 +28,7 @@ import (
 	"os/exec"
 	"path"
 	"regexp"
+	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -67,6 +69,10 @@ type Service struct {
 	l         *logrus.Entry
 	reloadCh  chan struct{}
 	haService haService
+
+	// Serializes configAndReload: the batched Run loop and ForceConfigurationUpdate both
+	// reach it, and it is not safe to interleave. See configAndReload.
+	reloadM sync.Mutex
 }
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
@@ -331,9 +337,27 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 // configAndReload saves given VictoriaMetrics configuration to file and reloads VictoriaMetrics.
 // If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
 func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
+	// The batched Run loop and ForceConfigurationUpdate both arrive here, and interleaving
+	// them is not safe: each compares against the file, writes it, reloads, and restores the
+	// previous contents on failure. Without this, a forced call can read a file another call
+	// has written but not yet reloaded - or is about to restore - and return success having
+	// reloaded nothing, which is exactly what callers use the forced path to avoid.
+	svc.reloadM.Lock()
+	defer svc.reloadM.Unlock()
+
 	oldCfg, err := os.ReadFile(svc.scrapeConfigPath)
 	if err != nil {
 		return err
+	}
+
+	// Nothing to validate, write or reload when the file already holds exactly this. Most
+	// callers regenerate the whole configuration from the database on any change anywhere, so
+	// an update that changes nothing is the common case rather than the exception, and
+	// validateConfig below forks victoriametrics twice for it.
+	if bytes.Equal(oldCfg, b) {
+		svc.l.Debug("Configuration unchanged, skipping validation and reload")
+
+		return nil
 	}
 
 	fi, err := os.Stat(svc.scrapeConfigPath)

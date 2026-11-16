@@ -1,0 +1,77 @@
+export const Messages = {
+  title: 'Advisor catalog',
+  description:
+    "Find the checks that run on your services, run them right away, or turn off the ones that don't apply to you. To check something the built-in checks don't cover, add your own advisor check.",
+  noData:
+    'No checks match your search or filters. Clear them to see all checks.',
+  columns: {
+    check: 'Check',
+    category: 'Category',
+    technology: 'Technology',
+    source: 'Source',
+    status: 'Status',
+    actions: 'Actions',
+  },
+  status: {
+    enabled: 'Enabled',
+    disabled: 'Disabled',
+  },
+  searchPlaceholder: 'Search checks',
+  filters: {
+    all: 'All',
+    category: 'Category',
+    technology: 'Technology',
+    status: 'Status',
+    clear: 'Clear filters',
+    refresh: 'Refresh',
+    refreshTooltip: 'Reload the list of checks',
+  },
+  runAll: 'Run all',
+  runSelected: 'Run selected',
+  addAdvisor: 'Add advisor check',
+  viewResults: 'View results',
+  run: 'Run',
+  edit: 'Edit',
+  delete: 'Delete',
+  disableForServices: 'Disable for services',
+  disabledForServices: (count: number) =>
+    `Disabled for ${count} ${count === 1 ? 'service' : 'services'}`,
+  source: {
+    builtin: 'Built-in',
+    custom: 'Custom',
+  },
+  details: {
+    title: 'Advisor check details',
+    maximize: 'Maximize',
+    minimize: 'Minimize',
+    close: 'Close',
+    clone: 'Clone',
+    checkName: 'Check name',
+    category: 'Category',
+    technology: 'Technology',
+    source: 'Source',
+    status: 'Status',
+    summary: 'Summary',
+    description: 'Description',
+    script: 'Script',
+    copyCode: 'Copy',
+    codeCopied: 'Script copied to clipboard',
+    codeError: "Couldn't load the script. Close the details and try again.",
+    noCode: 'This check has no script',
+  },
+  deleteDialog: {
+    title: 'Delete advisor check',
+    body: (summary: string) =>
+      `Are you sure you want to delete "${summary}"? You can't undo this.`,
+    cancel: 'Cancel',
+    confirm: 'Delete',
+  },
+  success: {
+    checksStarted: 'Advisor checks started, run ID copied to clipboard',
+    checkStarted: (summary: string) =>
+      `Check "${summary}" started, run ID copied to clipboard`,
+    checkEnabled: (summary: string) => `Check "${summary}" enabled`,
+    checkDisabled: (summary: string) => `Check "${summary}" disabled`,
+    checkDeleted: (summary: string) => `Check "${summary}" deleted`,
+  },
+};

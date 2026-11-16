@@ -341,7 +341,7 @@ func TestServiceService(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Twice()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil, nil).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
@@ -366,8 +366,8 @@ func TestServiceService(t *testing.T) {
 			}}
 			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
 			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
-			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil).Once()
-			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleSample, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleSample, nil, nil, nil).Once()
 			// agentToAPI + connectivity gate for the stale-status fallback
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()
@@ -394,8 +394,8 @@ func TestServiceService(t *testing.T) {
 			}}
 			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
 			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
-			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil).Once()
-			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleSample, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleSample, nil, nil, nil).Once()
 			// agentToAPI + connectivity gate for the stale-status fallback
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(false).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()
@@ -445,7 +445,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Twice()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil, nil).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true).Once()        // PMM Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
@@ -498,7 +498,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Twice()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil, nil).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true).Once()        // PMM Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter

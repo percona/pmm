@@ -84,7 +84,7 @@ make doc-build-preview
 make doc-build-pdf
 ```
 
-That's it! The `make doc-build-preview` command will start a local server at `http://127.0.0.1:8000/` that automatically reloads when you save changes.
+That's it! The `make doc-build-preview` command will start a local server at `http://127.0.0.1:8000/` that automatically reloads when you save changes. The first run also builds the `pmm-doc-build` Docker image, which takes a few minutes; later runs reuse it.
 
 ## What happens next
 

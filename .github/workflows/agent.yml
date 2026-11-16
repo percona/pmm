@@ -2,6 +2,17 @@
 name: 'Client: pmm-agent'
 
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "api-tests/**"
+      - "build/**"
+      - "dashboards/**"
+      - "dev/**"
+      - "documentation/**"
+      - "ui/**"
+
   pull_request:
     paths:
       - ".github/workflows/agent.yml"
@@ -19,7 +30,8 @@ permissions:
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-latest
+    # 22.04 until PSMDB ships 8.0.35: 8.0.32 won't start on the 24.04 images' kernel 7.0 (SERVER-121912)
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         images:

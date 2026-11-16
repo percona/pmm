@@ -87,6 +87,13 @@ Follow the sections through [Git and pull request checklist](#git-and-pull-reque
 
 For **user-visible changes** (metric, dashboard, API, exporter, UI), passing unit tests is not enough — run PMM on a live server and verify against real data before calling it done (see [Definition of Done](#definition-of-done) and the full procedure in [`dev/docs/process/running-and-verifying-locally.md`](dev/docs/process/running-and-verifying-locally.md)).
 
+### Specs, plans and decisions
+
+Specs, implementation plans and ADRs live in [Percona-Lab/pmm-specs](https://github.com/Percona-Lab/pmm-specs), not in this repo, one folder per epic or ticket: `tickets/<JIRA-KEY>-<short-name>/`.
+
+- **Before working on a ticket**, look for its folder or its epic's and follow it.
+- **To create one** (epics, larger or cross-component changes only), follow [pmm-specs `AGENTS.md`](https://github.com/Percona-Lab/pmm-specs/blob/main/AGENTS.md) and open a PR there. This overrides tool defaults such as `docs/superpowers/`.
+
 ### Don'ts
 
 - Don't edit generated files (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`).
@@ -111,6 +118,7 @@ These differ from generic Go/React advice. Match **surrounding code** in the fil
 - **UI server state:** TanStack Query hooks in `ui/apps/pmm/src/hooks/api/` — not `useEffect` + `fetch` in components ([`ui/AGENTS.md`](ui/AGENTS.md))
 - **UI client state:** React Context for auth/settings — not Redux or another global store
 - **UI components:** MUI + `@percona/peak-ui`, theme-aware `sx` — not ad-hoc CSS
+- **UI tables:** peak-ui `Table` + column filters, with URL state from `useTableUrlState` in `apps/pmm` or peak-ui's `usePerconaTableUrlState` in the plugin packages — not raw MRT tables or hand-rolled URL parameters ([`ui/AGENTS.md`](ui/AGENTS.md#tables))
 - **UI wire format:** camelCase in TypeScript; JSON on the wire is snake_case (`axios-case-converter` in `ui/apps/pmm/src/api/api.ts`)
 - **Generated code:** edit `.proto` / reform models / interfaces — run `make gen`; never hand-edit `*.pb.go`, `*_reform.go`, swagger clients
 
@@ -210,7 +218,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 | Item | Rule |
 |------|------|
-| Branch name | `PMM-1234-short-description` — start with `PMM-XXXX` (or `SAAS-XXXX`); lowercase, dashes, always a short description |
+| Branch name | `PMM-1234-short-description` — start with `PMM-XXXX`; lowercase, dashes, always a short description |
 | Commit title | `PMM-XXXX Short summary` — Jira key prefix, ≤50 chars, imperative; final period optional. No `type(scope):` |
 | Commit body | Blank line after the title, then an optional description wrapped at 72 chars |
 | PR title | Same `PMM-XXXX Short summary` format (squash merge uses the PR title) |
@@ -235,7 +243,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 User-facing docs are Markdown under [`documentation/docs/`](documentation/docs/). The rules for writing them — voice, page structure, Markdown conventions, release-note entries — are in [`documentation/AGENTS.md`](documentation/AGENTS.md); read it before editing anything under `documentation/`. It links out to [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (admonition colours, icons, symbols) and [`documentation/CONTRIBUTING.md`](documentation/CONTRIBUTING.md) (contributor workflow + local preview) for the parts those files own. MkDocs config lives in [`documentation/`](documentation/); this is separate from the developer process docs in [`dev/docs/process/`](dev/docs/process/).
 
-A merge to `main` publishes the documentation live, so don't merge docs for a feature that has not shipped.
+Documentation is published from the release branch of the latest GA version, not from `main`, so docs merged with an unreleased feature stay private until it ships. A fix to live docs merges to `main` with the `doc-hotfix` label, which copies it to that release branch.
 
 ---
 
@@ -327,6 +335,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 | [percona/azure_metrics_exporter](https://github.com/percona/azure_metrics_exporter) | Azure database metrics exporter    |
 | [percona/pmm-qa](https://github.com/percona/pmm-qa) | End-to-end UI tests, QA automation DB setups and CLI tests         |
 | [Percona-Lab/pmm-submodules](https://github.com/Percona-Lab/pmm-submodules) | Feature build orchestration                |
+| [Percona-Lab/pmm-specs](https://github.com/Percona-Lab/pmm-specs) | Specs, implementation plans and ADRs ([Specs, plans and decisions](#specs-plans-and-decisions)) |
 
 ## Tech Stack
 
@@ -359,12 +368,14 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
 - Use modern slice helpers (`slices.Contains`), range loops
-- Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`, and don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
+- Use `new(expr)` instead of `pointer.To(expr)` when a pointer to a value is needed
+- Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`
+- Don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
 - Don't use named return values
 - Don't inline comments (`code // comment`); put comments on separate lines — `//nolint` is the only exception
 - Don't inline `err != nil` checks (`if err := f(); err != nil`); assign on one line, check on the next
 - Comment only what the code can't say (a non-obvious why, a constraint, a workaround) in one line, two at most; doc comments are one sentence
-- Comments describe the code as it is, not its history: no "now/previously/fixed/added", incident stories or review back-and-forth (that goes in the commit message); point to the ticket instead (`see PMM-1234`)
+- Comments, in code and config alike, describe what is there, not its history or why it changed: no "now/previously/fixed/added", incident stories, review back-and-forth or justification for the change (that goes in the commit message); no ticket numbers either, since the commit title carries one
 
 ### Error Handling
 - Use `status.Error()` with proper gRPC codes for API errors

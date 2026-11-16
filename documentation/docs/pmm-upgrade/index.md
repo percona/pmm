@@ -10,4 +10,5 @@ Choose your preferred upgrade method based on your setup:
 * [Upgrade PMM Client](upgrade_client.md)
 * [Upgrade PMM Server using Docker](upgrade_docker.md)
 * [Upgrade PMM Server using Helm](upgrade_helm.md)
+* [Upgrade PMM HA Cluster using Helm](upgrade_helm_ha.md) (upgrading HA clusters not supported before PMM 3.10.0)
 * [Migrate from PMM 2](migrating_from_pmm_2.md) (direct migration deprecated)

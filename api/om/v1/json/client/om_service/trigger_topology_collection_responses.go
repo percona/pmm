@@ -310,8 +310,8 @@ type TriggerTopologyCollectionDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// trigger topology collection default body details items0
-	TriggerTopologyCollectionDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// trigger topology collection default body details items0 additional properties
+	TriggerTopologyCollectionDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *TriggerTopologyCollectionDefaultBodyDetailsItems0) UnmarshalJSON(data [
 			}
 			result[k] = toadd
 		}
-		o.TriggerTopologyCollectionDefaultBodyDetailsItems0 = result
+		o.TriggerTopologyCollectionDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o TriggerTopologyCollectionDefaultBodyDetailsItems0) MarshalJSON() ([]byte
 		return nil, err
 	}
 
-	if len(o.TriggerTopologyCollectionDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.TriggerTopologyCollectionDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.TriggerTopologyCollectionDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.TriggerTopologyCollectionDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
