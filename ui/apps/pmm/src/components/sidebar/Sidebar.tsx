@@ -30,6 +30,7 @@ export const Sidebar: FC = () => {
   const { user } = useUser();
   const [activeItem, setActiveItem] = useState<NavItemType>();
   const [animating, setAnimating] = useState(false);
+  const [labelWidths, setLabelWidths] = useState<Record<string, string>>({});
   const location = useLocation();
   const theme = useTheme();
   const isNarrow = useMediaQuery(theme.breakpoints.down('md'));
@@ -64,15 +65,22 @@ export const Sidebar: FC = () => {
     (open: boolean) => {
       // Recorded only from a settled, open drawer: mid-animation widths would
       // break labels into more lines.
-      if (navOpen && !open && !animating) {
+      // Kept by entry rather than on the label, so an entry that remounts
+      // while collapsed still opens at its width.
+      if (navOpen && !open && !animating && list) {
+        const widths: Record<string, string> = {};
+
         list
-          ?.querySelectorAll<HTMLElement>(`.${listItemTextClasses.root}`)
-          .forEach((label) =>
-            label.style.setProperty(
-              LABEL_WIDTH_VAR,
-              `${label.getBoundingClientRect().width}px`
-            )
-          );
+          .querySelectorAll<HTMLElement>(`.${listItemTextClasses.root}`)
+          .forEach((label) => {
+            const testId =
+              label.closest<HTMLElement>('[data-navlevel]')?.dataset.testid;
+
+            if (testId) {
+              widths[testId] = `${label.getBoundingClientRect().width}px`;
+            }
+          });
+        setLabelWidths(widths);
       }
 
       setNavOpen(open);
@@ -167,6 +175,12 @@ export const Sidebar: FC = () => {
               [`.${listItemTextClasses.root}`]: {
                 flex: `0 0 var(${LABEL_WIDTH_VAR}, auto)`,
               },
+              ...Object.fromEntries(
+                Object.entries(labelWidths).map(([testId, width]) => [
+                  `[data-testid="${testId}"] .${listItemTextClasses.root}`,
+                  { [LABEL_WIDTH_VAR]: width },
+                ])
+              ),
             },
           ]}
         >
