@@ -174,7 +174,7 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
       // highlight also the custom home dashboard
       matches: [
         ...(NAV_HOME_PAGE.matches || []),
-        `${PMM_NEW_NAV_GRAFANA_PATH}/d/${preferences.homeDashboardUID}`,
+        `${PMM_NEW_NAV_GRAFANA_PATH}/d/${preferences.homeDashboardUID}/*`,
       ],
     };
   }

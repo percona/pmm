@@ -5,7 +5,8 @@ import {
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { createAnonymousUser } from 'contexts/user/user.utils';
-import { addAlerting } from './navigation.utils';
+import { isActive } from 'utils/navigation.utils';
+import { addAlerting, addHomePage } from './navigation.utils';
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
   (item.children || []).map((c) => c.id);
@@ -99,4 +100,15 @@ describe('addAlerting', () => {
       'alerts-templates'
     );
   });
+});
+
+describe('addHomePage', () => {
+  it.each(['/graph/d/custom', '/graph/d/custom/my-home'])(
+    'matches the custom home dashboard at %s',
+    (pathname) => {
+      const home = addHomePage({ homeDashboardUID: 'custom' });
+
+      expect(isActive(home, pathname)).toBe(true);
+    }
+  );
 });
