@@ -46,7 +46,7 @@ PMM Server requires these certificate files in `/srv/nginx`:
 For container-based installation, mount your certificate directory to `/srv/nginx`:
 
 ```sh
-docker run -d -p 443:8443 --volumes-from pmm-data \
+docker run -d -p 443:8443 --volume pmm-data \
   --name pmm-server -v /etc/pmm-certs:/srv/nginx \
   --restart always percona/pmm-server:3
 ```
