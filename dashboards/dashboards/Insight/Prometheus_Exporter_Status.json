@@ -5313,6 +5313,7 @@
             },
             {
                 "allFormat": "glob",
+                "allValue": ".+",
                 "current": {
                     "selected": false,
                     "text": "All",
