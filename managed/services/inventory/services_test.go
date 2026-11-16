@@ -18,6 +18,7 @@ package inventory
 import (
 	"context"
 	"database/sql/driver"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -1118,7 +1119,7 @@ func TestServices(t *testing.T) {
 	})
 }
 
-func TestRequestRDSExporterStateUpdate(t *testing.T) {
+func TestRDSExporterLookup(t *testing.T) {
 	t.Parallel()
 
 	row := func(t *testing.T, str reform.Struct) []driver.Value {
@@ -1136,34 +1137,32 @@ func TestRequestRDSExporterStateUpdate(t *testing.T) {
 		return values
 	}
 
-	newService := func(t *testing.T, nodeType models.NodeType, agents ...*models.Agent) (*ServicesService, *mockAgentsStateUpdater) {
+	newDB := func(t *testing.T) (*reform.DB, sqlmock.Sqlmock) {
 		t.Helper()
 
 		sqlDB, sqlMock, err := sqlmock.New()
 		require.NoError(t, err)
-		state := &mockAgentsStateUpdater{}
-		state.Test(t)
 		t.Cleanup(func() {
 			assert.NoError(t, sqlMock.ExpectationsWereMet())
 			sqlMock.ExpectClose()
 			assert.NoError(t, sqlDB.Close())
-			state.AssertExpectations(t)
 		})
+
+		return reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), sqlMock
+	}
+
+	expectNode := func(t *testing.T, sqlMock sqlmock.Sqlmock, nodeType models.NodeType) {
+		t.Helper()
 
 		node := &models.Node{NodeID: "node1", NodeType: nodeType, NodeName: "node1"}
 		sqlMock.ExpectQuery(`FROM "nodes" WHERE "nodes"."node_id" = \$1`).
 			WithArgs("node1").
 			WillReturnRows(sqlmock.NewRows(models.NodeTable.Columns()).AddRow(row(t, node)...))
-		agentRows := sqlmock.NewRows(models.AgentTable.Columns())
-		for _, agent := range agents {
-			agentRows.AddRow(row(t, agent)...)
-		}
-		sqlMock.ExpectQuery(`FROM "agents" WHERE node_id = \$1 AND agent_type = \$2`).
-			WithArgs("node1", models.RDSExporterType).
-			WillReturnRows(agentRows)
+	}
 
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		return NewServicesService(db, nil, state, nil, nil, nil), state
+	expectAgentsQuery := func(sqlMock sqlmock.Sqlmock) *sqlmock.ExpectedQuery {
+		return sqlMock.ExpectQuery(`FROM "agents" WHERE node_id = \$1 AND agent_type = \$2`).
+			WithArgs("node1", models.RDSExporterType)
 	}
 
 	rdsExporter := func(id, pmmAgentID string) *models.Agent {
@@ -1178,19 +1177,57 @@ func TestRequestRDSExporterStateUpdate(t *testing.T) {
 	t.Run("rds_exporters of the Node", func(t *testing.T) {
 		t.Parallel()
 
-		ss, state := newService(t, models.RemoteRDSNodeType, rdsExporter("rds1", "pmm-agent1"), rdsExporter("rds2", "pmm-agent2"))
-		ctx := t.Context()
-		state.On("RequestStateUpdate", ctx, "pmm-agent1").Once()
-		state.On("RequestStateUpdate", ctx, "pmm-agent2").Once()
+		db, sqlMock := newDB(t)
+		expectNode(t, sqlMock, models.RemoteRDSNodeType)
+		agentRows := sqlmock.NewRows(models.AgentTable.Columns()).
+			AddRow(row(t, rdsExporter("rds1", "pmm-agent1"))...).
+			AddRow(row(t, rdsExporter("rds2", "pmm-agent2"))...)
+		expectAgentsQuery(sqlMock).WillReturnRows(agentRows)
 
-		require.NoError(t, ss.requestRDSExporterStateUpdate(ctx, "node1"))
+		pmmAgentIDs, err := rdsExporterPMMAgentIDs(db.Querier, "node1")
+		require.NoError(t, err)
+		assert.Equal(t, []string{"pmm-agent1", "pmm-agent2"}, pmmAgentIDs)
 	})
 
 	t.Run("Node without rds_exporter", func(t *testing.T) {
 		t.Parallel()
 
-		ss, _ := newService(t, models.GenericNodeType)
+		db, sqlMock := newDB(t)
+		expectNode(t, sqlMock, models.GenericNodeType)
+		expectAgentsQuery(sqlMock).WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()))
 
-		require.NoError(t, ss.requestRDSExporterStateUpdate(t.Context(), "node1"))
+		pmmAgentIDs, err := rdsExporterPMMAgentIDs(db.Querier, "node1")
+		require.NoError(t, err)
+		assert.Empty(t, pmmAgentIDs)
+	})
+
+	t.Run("a failed lookup rolls back the added Service", func(t *testing.T) {
+		t.Parallel()
+
+		db, sqlMock := newDB(t)
+		state := &mockAgentsStateUpdater{}
+		state.Test(t)
+		t.Cleanup(func() { state.AssertExpectations(t) })
+		ss := NewServicesService(db, nil, state, nil, nil, nil)
+
+		sqlMock.ExpectBegin()
+		sqlMock.ExpectQuery(`FROM "services" WHERE "services"."service_id" = \$1`).
+			WillReturnRows(sqlmock.NewRows(models.ServiceTable.Columns()))
+		sqlMock.ExpectQuery(`FROM "services" WHERE "services"."service_name" = \$1`).
+			WillReturnRows(sqlmock.NewRows(models.ServiceTable.Columns()))
+		expectNode(t, sqlMock, models.RemoteRDSNodeType)
+		sqlMock.ExpectQuery(`INSERT INTO "services"`).
+			WillReturnRows(sqlmock.NewRows([]string{"service_id"}).AddRow("service1"))
+		expectNode(t, sqlMock, models.RemoteRDSNodeType)
+		expectAgentsQuery(sqlMock).WillReturnError(errors.New("connection lost"))
+		sqlMock.ExpectRollback()
+
+		_, err := ss.AddPostgreSQL(t.Context(), &models.AddDBMSServiceParams{
+			ServiceName: "test-postgresql",
+			NodeID:      "node1",
+			Address:     new("test"),
+			Port:        new(uint16(5432)),
+		})
+		require.ErrorContains(t, err, "connection lost")
 	})
 }
