@@ -196,6 +196,32 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
     });
   });
 
+  it('links a searched group to the active alerts of all its instances', async () => {
+    renderPage({ search: '?rds-q=reader' });
+
+    const row = (
+      await screen.findByRole('button', { name: 'Collapse database-3' })
+    ).closest('tr') as HTMLElement;
+
+    fireEvent.click(
+      within(row).getByRole('button', { name: '2 firing alerts' })
+    );
+
+    expect(
+      within(screen.getByRole('dialog', { name: '2 firing alerts' })).getByRole(
+        'link',
+        { name: 'Show all in Alert groups' }
+      )
+    ).toHaveAttribute(
+      'href',
+      `/graph/alerting/groups?${new URLSearchParams({
+        queryString:
+          'node_name=~"database-3-instance-1|database-3-instance-1-reader"',
+        alertState: 'active',
+      })}`
+    );
+  });
+
   it('shows no alert count until the silenced alerts load', () => {
     useAlertmanagerAlerts.mockReturnValue({
       data: undefined,

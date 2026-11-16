@@ -63,6 +63,8 @@ export interface InstanceGroup {
   storage?: Storage;
   // Undefined while the alerts are unknown: not loaded or not readable.
   alerts?: AlertRow[];
+  // The group's instances before a search narrowed them, which its alerts still cover.
+  allInstances?: RdsInstance[];
 }
 
 export interface InstanceLink {

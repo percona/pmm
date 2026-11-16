@@ -526,7 +526,7 @@ export const filterGroups = (
 
       if (instances.length) {
         autoExpanded.add(group.key);
-        acc.push({ ...group, instances });
+        acc.push({ ...group, instances, allInstances: group.instances });
       }
 
       return acc;
