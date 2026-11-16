@@ -20,15 +20,24 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import type { FC } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import {
+  OM_ROUTE_AUTOMATIONS,
+  OM_ROUTE_FLEET,
+  OM_ROUTE_NODES,
+  OM_ROUTE_SETTINGS,
+} from '@pmm/plugins-om/src/constants';
 import { OM_PATH } from 'lib/constants';
 import { Messages } from './OmPage.messages';
 
 const SECTIONS = [
-  { label: Messages.fleet, path: OM_PATH },
-  { label: Messages.nodes, path: `${OM_PATH}/nodes` },
-  { label: Messages.automations, path: `${OM_PATH}/automations` },
-  { label: Messages.settings, path: `${OM_PATH}/settings` },
-];
+  { label: Messages.fleet, route: OM_ROUTE_FLEET },
+  { label: Messages.nodes, route: OM_ROUTE_NODES },
+  { label: Messages.automations, route: OM_ROUTE_AUTOMATIONS },
+  { label: Messages.settings, route: OM_ROUTE_SETTINGS },
+].map(({ label, route }) => ({
+  label,
+  path: route ? `${OM_PATH}/${route}` : OM_PATH,
+}));
 
 /** Moves between OM's pages, since the sidebar lists OM once; a page below a section keeps its tab current. */
 export const OmSectionTabs: FC = () => {
