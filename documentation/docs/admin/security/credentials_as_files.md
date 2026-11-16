@@ -4,7 +4,7 @@ PMM Server can read the credentials it uses from files instead of environment va
 
 ## Credentials that PMM Server reads from files
 
-Each credential has a file name. PMM Server links every credential it resolves at `/run/pmm/secrets/<file name>` when the container starts, and its components read it from there when they start. After you change a database password, restart PMM Server so that its components use the new value.
+Each credential has a file name. PMM Server links every credential it resolves at `/run/pmm/secrets/<file name>` when the container starts, and its components read it from there. Some components read a credential only when they start, so after you change a database password or the VictoriaMetrics password, restart PMM Server so that all of them use the new value.
 
 | File name | What it is | File variable | Earlier environment variable |
 |-----------|------------|---------------|------------------------------|
@@ -14,8 +14,11 @@ Each credential has a file name. PMM Server links every credential it resolves a
 | `grafana-db-password` | PostgreSQL user of Grafana | `PMM_GRAFANA_DB_PASSWORD_FILE` | `GF_DATABASE_PASSWORD` |
 | `clickhouse-password` | ClickHouse user of PMM Server | `PMM_CLICKHOUSE_PASSWORD_FILE` | `PMM_CLICKHOUSE_PASSWORD` |
 | `clickhouse-datasource-password` | Read-only ClickHouse user of the Query Analytics data source | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD_FILE` | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` |
+| `vm-password` | VictoriaMetrics user of PMM Server, in HA mode or with an external VictoriaMetrics | `PMM_VM_PASSWORD_FILE` | The password in `PMM_VM_URL` |
 
 Supply the four database passwords only when PMM Server uses an external database, for example in high availability (HA) mode. Don't supply them with the built-in databases: PMM Server doesn't apply them to its built-in ClickHouse, so a password other than the default breaks Query Analytics.
+
+Supply `vm-password` only when `PMM_VM_URL` points at a VictoriaMetrics that requires a password, such as an external one. `PMM_VM_URL` then holds the username without the password, for example `http://vmuser@victoriametrics:8428/`, and the password comes from the file. In HA mode, the pmm-ha chart puts the password in `PMM_VM_URL`, so don't supply `vm-password` there.
 
 The encryption key that protects the credentials of monitored services is already a file. To keep it off the data volume, set `PMM_ENCRYPTION_KEY_PATH` to a key file you mount, as described in [PMM data encryption](data_encryption.md).
 
@@ -27,7 +30,7 @@ PMM Server takes the first source that exists:
 1. The file that the credential's file variable names.
 2. The file with the credential's name in the directory that `PMM_SECRETS_DIR` names.
 3. The earlier environment variable.
-4. Nothing: the four database passwords keep their default values, and the admin password and Grafana's secret key stay unset, as in earlier versions.
+4. Nothing: the four database passwords keep their default values, and the admin password, Grafana's secret key and the VictoriaMetrics password stay unset, as in earlier versions.
 
 Grafana's `GF_SECURITY_ADMIN_PASSWORD__FILE`, `GF_DATABASE_PASSWORD__FILE` and `GF_SECURITY_SECRET_KEY__FILE` have no effect, as in earlier versions. Use the file variables in the table instead.
 
@@ -38,7 +41,9 @@ PMM Server doesn't start when:
 - a file in `PMM_SECRETS_DIR` is empty or unreadable, such as a link to a file that doesn't exist
 - a credential is supplied both as a file and as an environment variable
 - an environment variable's value names a missing or unreadable file in `$__file{}`, or resolves to an empty value or to whitespace only
-- a database password in an environment variable has leading or trailing whitespace
+- a database password in an environment variable, or the password in `PMM_VM_URL`, has leading or trailing whitespace
+- `vm-password` is supplied, but `PMM_VM_URL` isn't set or has no username
+- the `vm-password` file starts with whitespace, which VictoriaMetrics' programs would read as part of the password
 - `/run/pmm/secrets` holds anything that PMM Server didn't put there or belongs to another user, or `PMM_SECRETS_DIR` or a file variable points into it: mount credentials in another directory, such as `/etc/pmm/secrets`
 
 The error names every affected credential, never its value. A credential without a file in `PMM_SECRETS_DIR` moves on to the next source.
@@ -60,15 +65,15 @@ docker run --detach --restart always \
 
 ## Environment variables
 
-The earlier environment variables keep working. PMM Server copies their values to files under `/run/pmm/secrets`, readable only by the PMM Server user, and removes the variables before it starts its services, so no PMM Server process inherits them. The one exception is a Grafana secret key with leading or trailing whitespace, described in [Grafana secret key](#grafana-secret-key). The values remain visible where you set them, for example in `docker inspect` or the pod specification, so prefer files.
+The earlier environment variables keep working. PMM Server copies their values to files under `/run/pmm/secrets`, readable only by the PMM Server user, and removes the variables before it starts its services, so no PMM Server process inherits them. It keeps `PMM_VM_URL`, without the password, so that its services still find VictoriaMetrics. The one exception is a Grafana secret key with leading or trailing whitespace, described in [Grafana secret key](#grafana-secret-key). The values remain visible where you set them, for example in `docker inspect` or the pod specification, so prefer files.
 
 In the earlier variables of the admin password, Grafana's database password and the Query Analytics data source password, Grafana's `$__file{<path>}`, `$__env{<name>}` and `${<name>}` resolve as they did before. A value that is only `$__file{<path>}` is read from that file, like a file variable. `GF_SECURITY_SECRET_KEY` is used as written, because Grafana encrypted with it as written.
 
 When `GF_SECURITY_ADMIN_PASSWORD` and `PMM_ADMIN_PASSWORD` have different values, PMM Server uses `GF_SECURITY_ADMIN_PASSWORD`, the variable that Grafana read in earlier versions, and logs a warning.
 
-PMM Server ignores leading and trailing whitespace in files. Earlier versions kept it in values from environment variables, so for such a value PMM Server:
+PMM Server ignores leading and trailing whitespace in files, except that it refuses a `vm-password` file that starts with whitespace. Earlier versions kept it in values from environment variables, so for such a value PMM Server:
 
-- doesn't start if it's a database password, and names the variable: dropping the whitespace could change the password that the database expects
+- doesn't start if it's a database password or the password in `PMM_VM_URL`, and names the variable: dropping the whitespace could change the password that the database or VictoriaMetrics expects
 - keeps `GF_SECURITY_SECRET_KEY` in the environment, as described in [Grafana secret key](#grafana-secret-key)
 - drops it from the admin password and logs a warning
 

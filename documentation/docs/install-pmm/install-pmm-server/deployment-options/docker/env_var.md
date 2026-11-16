@@ -223,7 +223,7 @@ These variables supply PMM Server's credentials as files instead of environment 
 | Variable | Description |
 |----------|-------------|
 | `PMM_SECRETS_DIR` | Directory with one file per credential, named after the credential, for example `admin-password` |
-| `PMM_ADMIN_PASSWORD_FILE`, `PMM_GRAFANA_SECRET_KEY_FILE`, `PMM_POSTGRES_PASSWORD_FILE`, `PMM_GRAFANA_DB_PASSWORD_FILE`, `PMM_CLICKHOUSE_PASSWORD_FILE`, `PMM_CLICKHOUSE_DATASOURCE_PASSWORD_FILE` | Path to the file of one credential. Takes precedence over `PMM_SECRETS_DIR` |
+| `PMM_ADMIN_PASSWORD_FILE`, `PMM_GRAFANA_SECRET_KEY_FILE`, `PMM_POSTGRES_PASSWORD_FILE`, `PMM_GRAFANA_DB_PASSWORD_FILE`, `PMM_CLICKHOUSE_PASSWORD_FILE`, `PMM_CLICKHOUSE_DATASOURCE_PASSWORD_FILE`, `PMM_VM_PASSWORD_FILE` | Path to the file of one credential. Takes precedence over `PMM_SECRETS_DIR` |
 
 
 ### HA variables
