@@ -110,6 +110,8 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 - [PMM-15910](https://perconadev.atlassian.net/browse/PMM-15910): Fixed an issue where PMM Server could stay unhealthy after an abrupt stop, for example `docker kill`, a host crash or running out of memory. The built-in PostgreSQL database refused to start because of lock files left over from the previous run. PMM Server now removes these files when it starts.
 
+- [PMM-15918](https://perconadev.atlassian.net/browse/PMM-15918): Fixed an issue where PMM Server didn't start, logging `mkdir: cannot create directory '/srv/nginx/tmp': Permission denied`, when the directory with your own certificates mounted to `/srv/nginx` wasn't writable by UID 1000, the user PMM Server runs as. For example, root owned the directory or it was mounted read-only. PMM Server now starts and uses your certificates. For details, see [SSL encryption](../admin/security/ssl_encryption.md#mount-certificates).
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
