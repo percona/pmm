@@ -254,3 +254,4 @@ Operations for MongoDB is a Developer Preview feature in PMM 3.10.0: you can try
 - You can install only replica sets with 1 or 3 members, not sharded clusters or standalone instances, though Fleet still shows any sharded clusters that PMM already monitors.
 - No TLS or encryption at rest. Members authenticate to each other with a keyfile. TLS and encryption at rest are planned for a future release.
 - Installs on Ubuntu and Rocky Linux only, using Percona packages.
+- Fleet doesn't show replication lag for a secondary that can't reach the primary, or for a member that PMM doesn't monitor. These members are also left out of **Max repl. lag** on the **Clusters** tab.
