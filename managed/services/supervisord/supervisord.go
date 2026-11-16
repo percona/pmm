@@ -263,6 +263,16 @@ command =
 		--datasource.url={{ .VMURL }}
 		--remoteRead.url={{ .VMURL }}
 		--remoteWrite.url={{ .VMURL }}
+{{- if .VMPasswordFile }}
+{{- if .VMUsername }}
+		--datasource.basicAuth.username={{ .VMUsername }}
+		--remoteRead.basicAuth.username={{ .VMUsername }}
+		--remoteWrite.basicAuth.username={{ .VMUsername }}
+{{- end }}
+		--datasource.basicAuth.passwordFile={{ .VMPasswordFile }}
+		--remoteRead.basicAuth.passwordFile={{ .VMPasswordFile }}
+		--remoteWrite.basicAuth.passwordFile={{ .VMPasswordFile }}
+{{- end }}
 		--rule=/srv/prometheus/rules/*.yml
 		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
@@ -286,6 +296,12 @@ priority = 9
 command =
     /usr/sbin/vmproxy
       --target-url={{ .VMURL }}
+{{- if .VMPasswordFile }}
+{{- if .VMUsername }}
+      --target-username={{ .VMUsername }}
+{{- end }}
+      --target-password-file={{ .VMPasswordFile }}
+{{- end }}
       --listen-port=8430
       --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
@@ -449,6 +465,14 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
 	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
+	// With the password in its file, the programs get the URL without credentials, the username and the file.
+	vmURLWithoutCredentials, vmUsername := s.vmParams.URLWithoutCredentials()
+	vmPasswordFile := s.credentialFile(secrets.VMPassword)
+	vmURL := s.vmParams.URL()
+	if vmPasswordFile != "" {
+		vmURL = vmURLWithoutCredentials
+	}
+
 	templateParams := map[string]any{
 		"DataRetentionDays":            settings.DataRetentionDays(),
 		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
@@ -462,7 +486,9 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
 		"VMMaxIngestionRate":           vmMaxIngestionRate,
-		"VMURL":                        s.vmParams.URL(),
+		"VMURL":                        supervisordLiteral(vmURL),
+		"VMUsername":                   supervisordLiteral(vmUsername),
+		"VMPasswordFile":               vmPasswordFile,
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
@@ -503,6 +529,12 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	}
 	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
 	return b, nil
+}
+
+// supervisordLiteral doubles every percent sign, since supervisord reads one in a command as the start of a variable
+// and refuses the whole configuration when no variable follows.
+func supervisordLiteral(s string) string {
+	return strings.ReplaceAll(s, "%", "%%")
 }
 
 // credentialFile returns the path of a resolved credential, or "" for one left unset or not resolved by the entrypoint

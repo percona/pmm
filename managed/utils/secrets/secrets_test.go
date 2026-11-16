@@ -70,7 +70,7 @@ func TestPrepare(t *testing.T) {
 			assert.Equal(t, SourceDefault, m[name].Source, name)
 			assert.Equal(t, value, linked(t, opts, name), name)
 		}
-		for _, name := range []Name{AdminPassword, GrafanaSecretKey} {
+		for _, name := range []Name{AdminPassword, GrafanaSecretKey, VMPassword} {
 			assert.Equal(t, SourceUnset, m[name].Source, name)
 			_, err = os.Lstat(filepath.Join(opts.RunDir, string(name)))
 			require.ErrorIs(t, err, os.ErrNotExist, name)
@@ -181,6 +181,102 @@ func TestPrepare(t *testing.T) {
 	t.Run("refuses a secret key that is only whitespace", func(t *testing.T) {
 		_, err := Prepare(testOptions(t, map[string]string{"GF_SECURITY_SECRET_KEY": " \n"}))
 		require.EqualError(t, err, "grafana-secret-key: GF_SECURITY_SECRET_KEY resolves to an empty value")
+	})
+
+	t.Run("takes the VictoriaMetrics password from PMM_VM_URL", func(t *testing.T) {
+		opts := testOptions(t, map[string]string{VMURLEnvVar: "http://vmuser:from-url@vmauth:8427/"})
+
+		resolved, err := Prepare(opts)
+		require.NoError(t, err)
+		r := byName(t, resolved)[VMPassword]
+		assert.Equal(t, SourceEnv, r.Source)
+		assert.Equal(t, VMURLEnvVar, r.Var)
+		assert.Equal(t, "from-url", linked(t, opts, VMPassword))
+
+		for _, u := range []string{"http://vmauth:8427/", "http://vmuser@vmauth:8427/", "http://127.0.0.1:9090/prometheus/"} {
+			opts.Getenv = func(k string) string { return map[string]string{VMURLEnvVar: u}[k] }
+			resolved, err = Prepare(opts)
+			require.NoError(t, err)
+			assert.Equal(t, SourceUnset, byName(t, resolved)[VMPassword].Source, u)
+		}
+	})
+
+	t.Run("takes the VictoriaMetrics password from a file", func(t *testing.T) {
+		file := filepath.Join(t.TempDir(), "vm")
+		require.NoError(t, os.WriteFile(file, []byte("from-file\n"), 0o440))
+		opts := testOptions(t, map[string]string{VMURLEnvVar: "http://vmuser@vmauth:8427/", "PMM_VM_PASSWORD_FILE": file})
+
+		resolved, err := Prepare(opts)
+		require.NoError(t, err)
+		assert.Equal(t, SourceFile, byName(t, resolved)[VMPassword].Source)
+		assert.Equal(t, "from-file", linked(t, opts, VMPassword))
+	})
+
+	t.Run("refuses a VictoriaMetrics password both in a file and in PMM_VM_URL", func(t *testing.T) {
+		dir := t.TempDir()
+		file := filepath.Join(dir, "vm")
+		require.NoError(t, os.WriteFile(file, []byte("from-file"), 0o440))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, string(VMPassword)), []byte("from-dir"), 0o440))
+		vmURL := "http://vmuser:q7v-url@vmauth:8427/"
+
+		_, err := Prepare(testOptions(t, map[string]string{VMURLEnvVar: vmURL, "PMM_VM_PASSWORD_FILE": file}))
+		require.EqualError(t, err, "vm-password: both a file (PMM_VM_PASSWORD_FILE) and a value (PMM_VM_URL) are set")
+
+		_, err = Prepare(testOptions(t, map[string]string{VMURLEnvVar: vmURL, SecretsDirEnvVar: dir}))
+		require.EqualError(t, err, "vm-password: both "+filepath.Join(dir, string(VMPassword))+" and a value (PMM_VM_URL) are set")
+	})
+
+	t.Run("refuses a padded VictoriaMetrics password", func(t *testing.T) {
+		_, err := Prepare(testOptions(t, map[string]string{VMURLEnvVar: "http://vmuser:%20q7v-padded@vmauth:8427/"}))
+		require.EqualError(t, err, "vm-password: the password in PMM_VM_URL has leading or trailing whitespace, "+
+			"which PMM Server doesn't pass to VictoriaMetrics: remove it")
+		assert.NotContains(t, err.Error(), "q7v")
+	})
+
+	t.Run("refuses a VictoriaMetrics password file that starts with whitespace", func(t *testing.T) {
+		dir := t.TempDir()
+		file := filepath.Join(dir, string(VMPassword))
+		const vmURL = "http://vmuser@vmauth:8427/"
+		want := "vm-password: " + file + " starts with whitespace, which VictoriaMetrics' programs read as part of the password: remove it"
+		for _, content := range []string{" q7v-pw", "\tq7v-pw\n", "\nq7v-pw"} {
+			require.NoError(t, os.WriteFile(file, []byte(content), 0o600))
+
+			_, err := Prepare(testOptions(t, map[string]string{VMURLEnvVar: vmURL, "PMM_VM_PASSWORD_FILE": file}))
+			require.EqualError(t, err, want, "%q", content)
+			_, err = Prepare(testOptions(t, map[string]string{VMURLEnvVar: vmURL, SecretsDirEnvVar: dir}))
+			require.EqualError(t, err, want, "%q", content)
+		}
+
+		// VictoriaMetrics' programs drop trailing whitespace too, and only vm-password refuses leading whitespace.
+		require.NoError(t, os.WriteFile(file, []byte("q7v-pw \r\n"), 0o600))
+		_, err := Prepare(testOptions(t, map[string]string{VMURLEnvVar: vmURL, "PMM_VM_PASSWORD_FILE": file}))
+		require.NoError(t, err)
+		admin := filepath.Join(t.TempDir(), "admin")
+		require.NoError(t, os.WriteFile(admin, []byte(" q7v-admin\n"), 0o440))
+		_, err = Prepare(testOptions(t, map[string]string{"PMM_ADMIN_PASSWORD_FILE": admin}))
+		require.NoError(t, err)
+	})
+
+	t.Run("refuses a VictoriaMetrics password without PMM_VM_URL or a username in it", func(t *testing.T) {
+		dir := t.TempDir()
+		file := filepath.Join(dir, string(VMPassword))
+		require.NoError(t, os.WriteFile(file, []byte("q7v-file"), 0o440))
+		const noURL = "vm-password: PMM_VM_URL isn't set, so PMM Server uses the built-in VictoriaMetrics, which takes no password"
+		const noUser = "vm-password: PMM_VM_URL has no username to go with the password"
+
+		_, err := Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file}))
+		require.EqualError(t, err, noURL)
+		_, err = Prepare(testOptions(t, map[string]string{SecretsDirEnvVar: dir}))
+		require.EqualError(t, err, noURL)
+
+		_, err = Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file, VMURLEnvVar: "http://vmauth:8427/"}))
+		require.EqualError(t, err, noUser)
+		_, err = Prepare(testOptions(t, map[string]string{VMURLEnvVar: "http://:q7v-url@vmauth:8427/"}))
+		require.EqualError(t, err, noUser)
+
+		_, err = Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file, VMURLEnvVar: "http://q7v-user@vm auth:8427/"}))
+		require.ErrorContains(t, err, "vm-password: PMM_VM_URL: ")
+		assert.NotContains(t, err.Error(), "q7v")
 	})
 
 	t.Run("refuses a padded database password", func(t *testing.T) {
@@ -591,4 +687,21 @@ func TestEntrypointUnsetsLegacyValues(t *testing.T) {
 			assert.True(t, unset[k], "build/docker/server/entrypoint.sh doesn't unset %s", k)
 		}
 	}
+}
+
+func TestURLWithoutPassword(t *testing.T) {
+	for in, want := range map[string]string{
+		"http://vmuser:pw@vmauth:8427/":      "http://vmuser@vmauth:8427/",
+		"https://:pw@vm.example.com/select/": "https://vm.example.com/select/",
+		"http://vmuser@vmauth:8427/":         "http://vmuser@vmauth:8427/",
+		"http://127.0.0.1:9090/prometheus/":  "http://127.0.0.1:9090/prometheus/",
+	} {
+		got, err := URLWithoutPassword(in)
+		require.NoError(t, err, in)
+		assert.Equal(t, want, got, in)
+	}
+
+	_, err := URLWithoutPassword("http://vmuser:q7v-pw@vm auth:8427/")
+	require.Error(t, err)
+	assert.NotContains(t, err.Error(), "q7v")
 }

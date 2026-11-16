@@ -740,6 +740,25 @@ func readCredential(l *logrus.Entry, value string, name secrets.Name, defaultVal
 	return v
 }
 
+// vmURLWithPassword returns the VictoriaMetrics URL with the password from its credential file, for pmm-managed's own
+// clients: the entrypoint passes PMM_VM_URL on without it, and the other programs read the file.
+func vmURLWithPassword(l *logrus.Entry, raw string) string {
+	password, err := secrets.Value("", secrets.VMPassword, "")
+	switch {
+	case errors.Is(err, secrets.ErrNotResolved):
+		return raw
+	case err != nil:
+		l.Fatalf("Cannot read credential %s: %s.", secrets.VMPassword, err)
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		// models.ParseVictoriaMetricsURL reports it, without the credentials.
+		return raw
+	}
+	u.User = url.UserPassword(u.User.Username(), password)
+	return u.String()
+}
+
 func main() { //nolint:gocognit,maintidx,cyclop
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
@@ -962,11 +981,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	qanDB := ds.QanDBSelect
 	qanDB.DSN = chParams.URL().String()
 
-	ds.VM.Address = *victoriaMetricsURLF
+	vmURL := vmURLWithPassword(l, *victoriaMetricsURLF)
+	ds.VM.Address = vmURL
 
 	vmParams, err := models.NewVictoriaMetricsParams(
 		models.BasePrometheusConfigPath,
-		*victoriaMetricsURLF,
+		vmURL,
 	)
 	if err != nil {
 		l.Panicf("cannot load victoriametrics params problem: %+v", err)
@@ -1122,7 +1142,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
-	vmClient, err := metrics.NewClient(metrics.Config{Address: *victoriaMetricsURLF})
+	vmClient, err := metrics.NewClient(metrics.Config{Address: vmURL})
 	if err != nil {
 		l.Fatalf("Could not create Victoria Metrics client: %s", err)
 	}
@@ -1171,7 +1191,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	dumpService := dump.New(db, &dump.URLs{
 		ClickhouseURL: chParams.URL().String(),
-		VMURL:         *victoriaMetricsURLF,
+		VMURL:         vmURL,
 	})
 
 	// Constructed ahead of serverParams so server.Server can hold it for the OpenManager enable/disable switch.

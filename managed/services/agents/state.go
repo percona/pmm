@@ -29,6 +29,7 @@ import (
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
@@ -191,10 +192,14 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 // pmm-agent: whether this PMM Server is clustered, and whether the pmm-agent is this PMM Server
 // instance's built-in agent (each HA pod has one).
 func (u *StateUpdater) vmAgentDeployment(pmmAgentID string) vmAgentDeployment {
-	return vmAgentDeployment{
+	d := vmAgentDeployment{
 		haEnabled:     u.r.haService.Params().Enabled,
 		isServerAgent: pmmAgentID == models.PMMServerAgentID,
 	}
+	if d.isServerAgent && secrets.Exists(secrets.VMPassword) {
+		d.passwordFile = secrets.Path(secrets.VMPassword)
+	}
+	return d
 }
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.

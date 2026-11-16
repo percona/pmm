@@ -16,6 +16,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/utils/secrets"
@@ -41,4 +44,14 @@ func runSecrets() error {
 		}
 	}
 	return nil
+}
+
+// runVMURL prints PMM_VM_URL without its password, which the secrets step stored, for the entrypoint to export.
+func runVMURL() error {
+	u, err := secrets.URLWithoutPassword(os.Getenv(secrets.VMURLEnvVar))
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintln(os.Stdout, u)
+	return err
 }
