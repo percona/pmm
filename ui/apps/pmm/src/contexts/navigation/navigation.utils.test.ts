@@ -16,6 +16,7 @@ import {
   AMAZON_RDS_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  PMM_NEW_NAV_GRAFANA_PATH,
 } from 'lib/constants';
 import { PreviewChip } from 'components/preview-chip';
 
@@ -199,5 +200,27 @@ describe('addDashboardItems', () => {
       AMAZON_RDS_PATH,
     ]);
     expect(urls).not.toContain(AMAZON_RDS_PATH);
+  });
+
+  it('links the ClusterSync dashboard from the MongoDB section', () => {
+    const clusterSync = mongoMenu(
+      addDashboardItems([ServiceType.mongodb], [])
+    )?.children?.find((c) => c.id === 'mongo-clustersync-details');
+
+    expect(clusterSync).toEqual({
+      id: 'mongo-clustersync-details',
+      text: 'ClusterSync',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-clustersync-details/mongodb-clustersync-details`,
+    });
+  });
+
+  it('shows the MongoDB section, and so ClusterSync, only with a MongoDB service', () => {
+    const mongoChildIds = (types: ServiceType[]) =>
+      mongoMenu(addDashboardItems(types, []))?.children?.map((c) => c.id);
+
+    expect(mongoChildIds([ServiceType.external])).toBeUndefined();
+    expect(mongoChildIds([ServiceType.mongodb])).toContain(
+      'mongo-clustersync-details'
+    );
   });
 });

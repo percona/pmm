@@ -581,6 +581,7 @@ nav:
               - reference/dashboards/dashboard-mongodb-mmapv1-details.md
               - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
               - reference/dashboards/dashboard-mongodb-backup-details.md
+              - reference/dashboards/dashboard-mongodb-clustersync-details.md
           - PostgreSQL dashboards:
               - reference/dashboards/dashboard-postgresql-amazon-aurora-details.md
               - reference/dashboards/dashboard-postgresql-instance-summary.md
