@@ -125,7 +125,35 @@ Shows the five collections with the highest write rates, in operations per secon
 
 ### Operations Per Shard
 
-Shows total operations per second for each shard as a stacked area chart, combining all operation types. Use this to see how query load is distributed across shards and whether any shard is taking a disproportionate share of the work.
+Shows `find`, `insert`, `update`, and `delete` commands per second, with one line for each shard. The value always equals **Reads Per Shard** plus **Writes Per Shard**, and doesn't include config servers.
+
+Use this to check whether the load is spread evenly across your shards. If one shard handles much more than the others, check **Reads Per Shard** and **Writes Per Shard** to see whether reads or writes cause it.
+
+To look into that shard, click a point on its line in any per-shard panel to open its **MongoDB ReplSet Summary** dashboard.
+
+To compare only some shards, select them in the **Shard / Replica Set** filter at the top. The filter applies to all per-shard panels.
+
+### Reads Per Shard
+
+Shows read operations per second for each shard, counted as `find` commands. Reads served by secondaries are included. Use this to find a shard that takes most of the reads.
+
+The `getMore` commands are not counted. Most `getMore` commands on a shard come from replication and from Query Analytics, not from client reads. To see the getmore rate for the cluster, check **Command Operations**.
+
+### Writes Per Shard
+
+Shows write operations per second for each shard, counted as `insert`, `update`, and `delete` commands. A bulk write counts as one command. Replicated writes on secondaries and internal deletes, such as the cleanup of the `system.profile` collection, are not counted. Use this to find a hot shard that takes most of the writes.
+
+### Documents Scanned Per Shard
+
+Shows the documents examined per second on each shard by queries, updates, and deletes. Use this to find a shard that scans far more documents than the others, which often means a missing index or a hot key range.
+
+### Query Targeting Per Shard
+
+Shows the number of documents scanned on each shard for each document returned. Use this to find a shard whose operations read many documents that they don't return.
+
+A value of `1` is ideal. A value of `100` or more usually means a missing or weak index. Updates and deletes count too, so write-heavy shards show higher values.
+
+To fix a high value, check the common causes and fixes for MongoDB Ops Manager's [Query Targeting alert](https://www.mongodb.com/docs/ops-manager/current/reference/alerts/query-targeting/), which uses the same ratio.
 
 ### MongoDB Versions
 
