@@ -181,7 +181,7 @@ func TestPrepare(t *testing.T) {
 
 	t.Run("refuses a secret key that is only whitespace", func(t *testing.T) {
 		_, err := Prepare(testOptions(t, map[string]string{"GF_SECURITY_SECRET_KEY": " \n"}))
-		require.EqualError(t, err, "grafana-secret-key: GF_SECURITY_SECRET_KEY resolves to an empty value")
+		require.EqualError(t, err, "grafana-secret-key: GF_SECURITY_SECRET_KEY is empty or contains only whitespace: set the password or key, or remove the variable")
 	})
 
 	t.Run("takes the VictoriaMetrics password from PMM_VM_URL", func(t *testing.T) {
@@ -221,10 +221,10 @@ func TestPrepare(t *testing.T) {
 		vmURL := "http://vmuser:q7v-url@vmauth:8427/"
 
 		_, err := Prepare(testOptions(t, map[string]string{VMURLEnvVar: vmURL, "PMM_VM_PASSWORD_FILE": file}))
-		require.EqualError(t, err, "vm-password: both a file (PMM_VM_PASSWORD_FILE) and a value (PMM_VM_URL) are set")
+		require.EqualError(t, err, "vm-password: is set both in PMM_VM_PASSWORD_FILE and in PMM_VM_URL: remove one of them")
 
 		_, err = Prepare(testOptions(t, map[string]string{VMURLEnvVar: vmURL, SecretsDirEnvVar: dir}))
-		require.EqualError(t, err, "vm-password: both "+filepath.Join(dir, string(VMPassword))+" and a value (PMM_VM_URL) are set")
+		require.EqualError(t, err, "vm-password: is set both in "+filepath.Join(dir, string(VMPassword))+" and in PMM_VM_URL: remove one of them")
 	})
 
 	t.Run("refuses a padded VictoriaMetrics password", func(t *testing.T) {
@@ -371,7 +371,7 @@ func TestPrepare(t *testing.T) {
 		require.NoError(t, os.WriteFile(mounted, []byte("mounted"), 0o400))
 
 		for dir, msg := range map[string]string{
-			"":          opts.RunDir + " holds admin-password, which PMM Server didn't create",
+			"":          opts.RunDir + " contains admin-password, which PMM Server didn't create",
 			opts.RunDir: "PMM_SECRETS_DIR (" + opts.RunDir + ") is inside " + opts.RunDir,
 		} {
 			opts.Getenv = func(k string) string {
@@ -409,7 +409,7 @@ func TestPrepare(t *testing.T) {
 		require.NoError(t, os.Symlink(filepath.Join("..data", string(AdminPassword)), filepath.Join(opts.RunDir, string(AdminPassword))))
 
 		_, err := Prepare(opts)
-		require.ErrorContains(t, err, "holds ..data, admin-password, which PMM Server didn't create")
+		require.ErrorContains(t, err, "contains ..data, admin-password, which PMM Server didn't create")
 		assert.Equal(t, "mounted", linked(t, opts, AdminPassword))
 	})
 
@@ -439,7 +439,7 @@ func TestPrepare(t *testing.T) {
 		require.NoError(t, os.Symlink(file, filepath.Join(opts.RunDir, string(AdminPassword))))
 
 		_, err := Prepare(opts)
-		require.ErrorContains(t, err, opts.RunDir+" holds admin-password, which PMM Server didn't create")
+		require.ErrorContains(t, err, opts.RunDir+" contains admin-password, which PMM Server didn't create")
 		assert.Equal(t, "mounted", linked(t, opts, AdminPassword))
 	})
 
@@ -508,7 +508,7 @@ func TestPrepare(t *testing.T) {
 		require.NoError(t, os.WriteFile(other, []byte("from-other"), 0o440))
 
 		_, err := Prepare(testOptions(t, map[string]string{SecretsDirEnvVar: dir, "GF_SECURITY_ADMIN_PASSWORD": "$__file{" + other + "}"}))
-		require.ErrorContains(t, err, "admin-password: both "+filepath.Join(dir, string(AdminPassword))+" and a value")
+		require.ErrorContains(t, err, "admin-password: is set both in "+filepath.Join(dir, string(AdminPassword))+" and in GF_SECURITY_ADMIN_PASSWORD/PMM_ADMIN_PASSWORD")
 	})
 
 	t.Run("refuses a secrets directory that is missing or not a directory", func(t *testing.T) {
@@ -517,7 +517,7 @@ func TestPrepare(t *testing.T) {
 		missing := filepath.Join(t.TempDir(), "missing")
 		for dir, msg := range map[string]string{
 			missing: "PMM_SECRETS_DIR: lstat " + missing + ": no such file or directory",
-			file:    "PMM_SECRETS_DIR (" + file + ") is not a directory",
+			file:    "PMM_SECRETS_DIR (" + file + ") is not a directory: set it to the directory that holds your credential files",
 		} {
 			_, err := Prepare(testOptions(t, map[string]string{SecretsDirEnvVar: dir}))
 			require.EqualError(t, err, msg)
@@ -556,7 +556,7 @@ func TestPrepare(t *testing.T) {
 			require.NoError(t, os.Symlink(target, alias))
 			env[SecretsDirEnvVar] = alias
 			_, err = Prepare(opts)
-			require.EqualError(t, err, "PMM_SECRETS_DIR ("+alias+") is inside "+opts.RunDir+", where PMM Server links the credentials")
+			require.EqualError(t, err, "PMM_SECRETS_DIR ("+alias+") is inside "+opts.RunDir+", which PMM Server manages itself: use another directory, such as /etc/pmm/secrets")
 			// refused before anything changed
 			assert.Equal(t, "from-env", linked(t, opts, PostgresPassword))
 		}
@@ -579,9 +579,9 @@ func TestPrepare(t *testing.T) {
 		_, err := Prepare(opts)
 		require.Error(t, err)
 		for _, s := range []string{
-			"clickhouse-password: both a file",
-			"postgres-password: both " + filepath.Join(dir, string(PostgresPassword)) + " and a value",
-			"clickhouse-datasource-password: " + filepath.Join(dir, string(ClickHouseDatasourcePassword)) + " is empty",
+			"clickhouse-password: is set both in PMM_CLICKHOUSE_PASSWORD_FILE and in PMM_CLICKHOUSE_PASSWORD",
+			"postgres-password: is set both in " + filepath.Join(dir, string(PostgresPassword)) + " and in PMM_POSTGRES_DBPASSWORD",
+			"clickhouse-datasource-password: " + filepath.Join(dir, string(ClickHouseDatasourcePassword)) + " is empty: add the password or key to the file",
 			"grafana-secret-key:",
 		} {
 			assert.Contains(t, err.Error(), s)
@@ -602,7 +602,7 @@ func TestPrepare(t *testing.T) {
 		for _, s := range []string{
 			"admin-password: open " + missing,
 			"clickhouse-datasource-password: PMM_CLICKHOUSE_DATASOURCE_PASSWORD: open " + missing,
-			"grafana-db-password: GF_DATABASE_PASSWORD resolves to an empty value",
+			"grafana-db-password: GF_DATABASE_PASSWORD is empty or contains only whitespace: set the password or key, or remove the variable",
 		} {
 			assert.Contains(t, err.Error(), s)
 		}
