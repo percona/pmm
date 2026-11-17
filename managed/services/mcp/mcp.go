@@ -43,13 +43,13 @@ diagnostics through these tools. Recommended order for a slow-query triage:
 3. pmm_top_queries - rank the worst queries for that service over a time window;
    each row carries a queryid.
 4. pmm_query_detail - fetch metrics, schema and an example statement for one
-   queryid.
+   query.
 5. pmm_get_explain / pmm_get_schema - fetch the execution plan and the table
    DDL for the query's tables.
 6. pmm_get_config - read the server's numeric configuration variables.
 
-Pass the query_ref from pmm_top_queries or pmm_query_detail to pmm_get_explain
-and pmm_get_schema; a queryid alone searches the last hour. A list that is cut
+Pass the query_ref from pmm_top_queries to pmm_query_detail, and from either to
+pmm_get_explain and pmm_get_schema; a queryid alone searches the last hour. A list that is cut
 short ends with "showing a-b of n; pass offset=... for more": page with offset.
 Reference data, such as the QAN metric names that pmm_top_queries takes in
 columns and order_by, comes from pmm_catalog.

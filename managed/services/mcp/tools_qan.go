@@ -84,10 +84,11 @@ type topQueriesInput struct {
 }
 
 type queryDetailInput struct {
-	QueryID    string `json:"queryid" jsonschema:"Query id from pmm_top_queries"`
-	ServiceID  string `json:"service_id,omitempty" jsonschema:"Restrict to one service id"`
-	PeriodFrom string `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h)"`
-	PeriodTo   string `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now)"`
+	QueryRef   *queryRefInput `json:"query_ref,omitempty" jsonschema:"The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid"`
+	QueryID    string         `json:"queryid,omitempty" jsonschema:"Query id from pmm_top_queries, instead of query_ref"`
+	ServiceID  string         `json:"service_id,omitempty" jsonschema:"Restrict to one service id; with queryid"`
+	PeriodFrom string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid"`
+	PeriodTo   string         `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now); with queryid"`
 }
 
 // topQueriesResult is the result of pmm_top_queries.
@@ -184,7 +185,8 @@ func (s *Service) registerQANTools(server *mcp.Server) {
 		Name:  "pmm_query_detail",
 		Title: "Query detail",
 		Description: "Fetch the fingerprint, schema, engine and key diagnostic metrics (rows examined/sent, " +
-			"no_index_used, full_scan, filesort) plus an example statement for a single query, by queryid.",
+			"no_index_used, full_scan, filesort) plus an example statement for a single query, by its query_ref " +
+			"(as pmm_top_queries returns it) or by queryid.",
 		Annotations: readOnly("Query detail"),
 	}, s.queryDetail)
 }
@@ -533,14 +535,25 @@ func (r queryDetailResult) render() string {
 }
 
 func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in queryDetailInput) (queryDetailResult, error) {
-	if in.QueryID == "" {
-		return queryDetailResult{}, newToolError(codeInvalidInput, "queryid is required")
+	var from, to time.Time
+	if in.QueryRef != nil {
+		ref, err := refFromInput(in.QueryRef, in.QueryID, in.ServiceID, in.PeriodFrom, in.PeriodTo, s.now())
+		if err != nil {
+			return queryDetailResult{}, err
+		}
+		in = queryDetailInput{QueryID: ref.QueryID, ServiceID: ref.ServiceID}
+		from, to = ref.PeriodFrom, ref.PeriodTo
+	} else {
+		if in.QueryID == "" {
+			return queryDetailResult{}, newToolError(codeInvalidInput, "pass query_ref, as pmm_top_queries or pmm_query_detail return it, or pass queryid")
+		}
+		var err error
+		from, to, err = parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
+		if err != nil {
+			return queryDetailResult{}, err
+		}
 	}
 	err := cmp.Or(checkQANValue("queryid", in.QueryID), checkQANValue("service_id", in.ServiceID))
-	if err != nil {
-		return queryDetailResult{}, err
-	}
-	from, to, err := parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
 	if err != nil {
 		return queryDetailResult{}, err
 	}

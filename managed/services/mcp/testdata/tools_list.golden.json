@@ -1072,30 +1072,53 @@
   },
   {
     "name": "pmm_query_detail",
-    "description": "Fetch the fingerprint, schema, engine and key diagnostic metrics (rows examined/sent, no_index_used, full_scan, filesort) plus an example statement for a single query, by queryid.",
+    "description": "Fetch the fingerprint, schema, engine and key diagnostic metrics (rows examined/sent, no_index_used, full_scan, filesort) plus an example statement for a single query, by its query_ref (as pmm_top_queries returns it) or by queryid.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
         "period_from": {
-          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h)",
+          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid",
           "type": "string"
         },
         "period_to": {
-          "description": "Window end: RFC3339 or relative (default now)",
+          "description": "Window end: RFC3339 or relative (default now); with queryid",
           "type": "string"
         },
+        "query_ref": {
+          "additionalProperties": false,
+          "description": "The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid",
+          "properties": {
+            "period_from": {
+              "description": "Start of the window the query was seen in.",
+              "type": "string"
+            },
+            "period_to": {
+              "description": "End of the window the query was seen in.",
+              "type": "string"
+            },
+            "queryid": {
+              "description": "Query id.",
+              "type": "string"
+            },
+            "service_id": {
+              "description": "Service id the query ran on.",
+              "type": "string"
+            }
+          },
+          "type": [
+            "null",
+            "object"
+          ]
+        },
         "queryid": {
-          "description": "Query id from pmm_top_queries",
+          "description": "Query id from pmm_top_queries, instead of query_ref",
           "type": "string"
         },
         "service_id": {
-          "description": "Restrict to one service id",
+          "description": "Restrict to one service id; with queryid",
           "type": "string"
         }
       },
-      "required": [
-        "queryid"
-      ],
       "type": "object"
     },
     "outputSchema": {
