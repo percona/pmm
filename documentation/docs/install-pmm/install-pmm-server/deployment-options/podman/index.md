@@ -85,6 +85,7 @@ To upgrade PMM Server, you manually update the `PMM_IMAGE` in the environment fi
     EnvironmentFile=%h/.config/systemd/user/pmm-server.env
     Environment=PMM_VOLUME_NAME=pmm-data
     TimeoutStartSec=480
+    TimeoutStopSec=90
     Restart=on-failure
     RestartSec=20
     ExecStart=/usr/bin/podman run \
@@ -95,7 +96,7 @@ To upgrade PMM Server, you manually update the `PMM_IMAGE` in the environment fi
         --cap-add=net_admin,net_raw \
         --userns=keep-id:uid=1000,gid=1000 \
         -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
-    ExecStop=/usr/bin/podman stop -t 10 %N
+    ExecStop=/usr/bin/podman stop -t 60 %N
     [Install]
     WantedBy=default.target
     ```

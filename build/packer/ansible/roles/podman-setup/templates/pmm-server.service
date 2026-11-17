@@ -22,7 +22,9 @@ ExecStart=/usr/bin/podman run \
     --userns=keep-id:uid=1000,gid=1000 \
     -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
 
-ExecStop=/usr/bin/podman stop -t 10 %N
+# Must exceed the podman stop timeout, or systemd kills podman before the container stops
+TimeoutStopSec=90
+ExecStop=/usr/bin/podman stop -t 60 %N
 
 [Install]
 WantedBy=default.target
