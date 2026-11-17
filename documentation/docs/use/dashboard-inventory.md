@@ -193,7 +193,7 @@ Knowing which nodes host which services helps you with the following tasks:
 
 Each binary that runs on a client, such as an exporter or a Query Analytics agent, is an agent. For example, `pmm-agent` manages the other agents on its node, `node_exporter` collects node metrics, and `mysqld_exporter` collects MySQL metrics.
 
-To see the agents of a service or node, click its **Monitoring** status, or the **Agents** badge in its details. The page shows the agents under **Service <name> / Agents** or **Node <name> / Agents**. To return to the inventory, click **Go back to services** or **Go back to nodes**.
+To see the agents of a service or node, click its **Monitoring** status, or the **Agents** badge in its details. The page shows the agents under **Service `<name>` / Agents** or **Node `<name>` / Agents**. To return to the inventory, click **Go back to services** or **Go back to nodes**.
 
 ![PMM Inventory agents of a node](../images/PMM_Inventory_Node_Agents.png)
 
