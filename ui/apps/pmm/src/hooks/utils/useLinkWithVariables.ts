@@ -38,6 +38,7 @@ export const useLinkWithVariables = (url?: string) => {
 
   useEffect(() => {
     if (!url || !url.includes('/d/')) {
+      setLink(url);
       return;
     }
 
