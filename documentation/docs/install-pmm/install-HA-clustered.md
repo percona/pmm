@@ -1147,7 +1147,7 @@ Use the **PMM HA Health Overview** dashboard to monitor your entire HA deploymen
 
 This dashboard shows alive versus expected instance counts, active or primary nodes, replication health, and real-time status for PMM, PostgreSQL, ClickHouse, VictoriaMetrics, and HAProxy.
 
-Access the dashboard from **PMM HA > Overview** in the main menu, or from **All Dashboards > Browse all dashboards > PMM Health > PMM HA Health Overview**.
+Access the dashboard from **PMM HA** in the main menu, or from **Dashboards > All dashboards > PMM Health > PMM HA Health Overview**.
 
 The dashboard helps you quickly identify component failures, resource constraints, and stability issues across your high-availability infrastructure. 
 
@@ -1172,7 +1172,7 @@ The badge shows the overall health of your cluster, based on how many nodes resp
 After a failover or an upgrade, check the PMM Server nodes in **Inventory** to see which node is the current leader and make sure every node is running:
 {.power-number}
 
-1. Go to **PMM HA > Identify Nodes**.
+1. Go to **Inventory > Nodes** and turn on **List PMM Server only nodes**.
 
 2. In the **Node Name** column, check the badge next to each node name:
 
@@ -1185,7 +1185,7 @@ After a failover or an upgrade, check the PMM Server nodes in **Inventory** to s
 
 #### Get alerted about cluster problems
 
-The **PMM HA** badge in the side menu and the **PMM HA > Overview** dashboard show the state of the cluster right now, but they don't notify you when that state changes. 
+The **PMM HA** badge in the side menu and the **PMM HA Health Overview** dashboard show the state of the cluster right now, but they don't notify you when that state changes. 
 To get notified when the cluster has no leader, splits, keeps switching leaders, loses a node, or is one node away from stopping, configure a [contact point](../alert/contact_points.md). The [built-in alert rules](#built-in-alert-rules) that check for these problems are already turned on.
 
 ### Back up your deployment

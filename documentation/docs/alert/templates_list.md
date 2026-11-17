@@ -57,7 +57,7 @@ In these situations, the HA alerts stay silent, fire a different alert than you 
 |-----------|----------------|
 | Every PMM Server node goes down at once | No alert fires, because no node is left to report the problem. To catch a full outage, monitor the PMM address from outside the cluster. |
 | A network problem cuts off one node | *PMM HA leader is flapping* fires, not *PMM HA split-brain detected*, because the isolated node keeps trying to become the leader and fails. The split-brain alert covers the rarer case where nodes start up without finding each other and each forms its own cluster. It fires only if the isolated node can still send metrics to VictoriaMetrics. |
-| One or more nodes are missing | *PMM HA node unreachable* names a missing node only if the node reported in the last 6 hours. If more than one node is missing, check **PMM HA > Identify Nodes** to see all of them. |
+| One or more nodes are missing | *PMM HA node unreachable* names a missing node only if the node reported in the last 6 hours. If more than one node is missing, go to **Inventory > Nodes** and turn on **List PMM Server only nodes** to see all of them. |
 | The cluster has one or two nodes | *PMM HA quorum at risk* doesn't apply. Rely on *PMM HA node unreachable* instead. |
 | You change `PMM_HA_PEERS` | *PMM HA node unreachable* and *PMM HA quorum at risk* can fire until the rolling restart finishes. Wait for the rollout to complete before you treat them as real failures. |
 

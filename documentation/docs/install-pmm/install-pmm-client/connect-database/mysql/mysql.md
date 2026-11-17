@@ -518,7 +518,7 @@ The **command line** (`pmm-admin`) deploys an exporter directly on the database 
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to **Inventory > Add service**.
+    1. Go to **Inventory > Services > Add Service**.
     
     2. Select **MySQL** service type.
     

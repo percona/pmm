@@ -8,4 +8,4 @@ These metrics power the [PMM dashboards](../../use/dashboards-panels/index.md) t
 
 ## Filtering metrics by label
 
-You can query metrics directly in PMM using **Explore > Metrics** in the sidebar. This opens the **Grafana Metrics Explorer** where you can select a metric and filter results using **Label filters**. Labels let you narrow results to a specific service, node, environment, cluster, or any other label attached to your monitored services. For a complete list of available labels, see [Labels reference](../../reference/labels-reference.md).
+You can query metrics directly in PMM using **Explore data** in the sidebar. This opens the **Grafana Metrics Explorer** where you can select a metric and filter results using **Label filters**. Labels let you narrow results to a specific service, node, environment, cluster, or any other label attached to your monitored services. For a complete list of available labels, see [Labels reference](../../reference/labels-reference.md).

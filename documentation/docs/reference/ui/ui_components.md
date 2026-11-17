@@ -14,25 +14,32 @@ Here's how the UI is laid out, and what the controls do:
 
 ## 1. Main menu
 
-You'll find these options in the left-side menu:
+The main menu groups its entries under four sections: **Technologies**, **Analysis and alerting**, **Browse** and **Administration**. **Account** and **Help** follow the last section.
 
-| Icon | Name | What you can do |
-|:----:|------|-----------------|
-| :material-home-outline:  | Home | Access the main dashboard with overview panels for database connections, queries, and anomaly detection. |
-| :simple-mysql:                  | MySQL | View specialized dashboards for MySQL database performance monitoring. |
-| :simple-postgresql:             | PostgreSQL | Access PostgreSQL-specific monitoring dashboards and metrics. |
-| :material-monitor-dashboard:| Operating System  | Monitor server-level metrics including CPU, memory, disk, and network performance. |
-| :material-view-grid-outline:| All Dashboards | Create and organize dashboards, create [folders](../../use/dashboards-panels/manage-dashboards/create-folders.md), import dashboards, create playlists, and manage snapshots. |
-| :material-chart-timeline-variant: | Query Analytics (QAN) | Analyze database queries over time, identify slow queries, optimize performance, and troubleshoot issues. |
-| :material-compass-outline:  | Explore | Investigate metrics without creating dashboards. **PromQL builder** lets you write custom [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries. You can also enable **Explore metrics** to visually browse metrics without writing queries. **Explore metrics** requires [enabling the Grafana Metrics Drilldown plugin](#enable-explore-metrics-menu). |
-| :material-bell-outline: |  | Alerts | Create and manage [alerts](../../alert/index.md) that notify you when metrics exceed thresholds. |
-|:material-earth: | Advisors | Run health assessment checks on your databases and view recommendations for improving performance.|
-| :material-flask-outline: | Inventory | View and manage all monitored nodes, services, and agents registered in PMM. Check database and agent status, organize services by clusters, and add or remove monitored instances. |
-|:material-backup-restore:  | Backups | Configure and manage your [database backups](../../backup/index.md) and storage locations. |
-| :material-cog-outline: | Configuration | Configure PMM-specific settings like metrics resolution, data retention, and advanced options. |
-| :material-shield-lock-outline: | Users and Access | Access Grafana-specific settings for users, permissions, plugins, and system maintenance. |
-| :material-account-circle-outline:| Account | Manage your user profile settings, change your password, set notification preferences, and configure your personal PMM experience. |
-| :material-help-circle-outline:| Help | Access PMM documentation, community forums, and support resources. Export diagnostic logs for troubleshooting and view version information.|
+Some entries appear only when they apply. A database appears under **Technologies** only when PMM monitors at least one service of that type, and **PMM HA** appears only when PMM runs as a High Availability cluster. Your role and the PMM settings decide which other entries you see.
+
+| Icon | Name | Section | What you can do |
+|:----:|------|---------|-----------------|
+| :simple-mongodb: | MongoDB | Technologies | View dashboards for MongoDB performance monitoring. |
+| :simple-mysql: | MySQL | Technologies | View specialized dashboards for MySQL database performance monitoring. |
+| :simple-postgresql: | PostgreSQL | Technologies | Access PostgreSQL-specific monitoring dashboards and metrics. |
+| :material-database: | Valkey | Technologies | View dashboards for Valkey and Redis performance monitoring. |
+| :material-monitor-dashboard: | Operating system | Technologies | Monitor server-level metrics including CPU, memory, disk, and network performance. |
+| :material-chart-timeline-variant: | Query analytics | Analysis and alerting | Analyze database queries over time, identify slow queries, optimize performance, and troubleshoot issues. |
+| :material-radar: | Real-time queries | Analysis and alerting | Watch the operations that run on your MongoDB services right now. See [Real-time Query Analytics](../../use/qan/QAN-realtime-analytics.md). |
+| :material-bell-outline: | Alerts | Analysis and alerting | Create and manage [alerts](../../alert/index.md) that notify you when metrics exceed thresholds. |
+| :material-earth: | Advisors | Analysis and alerting | Run health assessment checks on your databases and view recommendations for improving performance. |
+| :material-compass-outline: | Explore data | Analysis and alerting | Investigate metrics without creating dashboards, for example with custom [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries. |
+| :material-toolbox-outline: | Diagnostics | Analysis and alerting | Run diagnostic scripts on your database hosts and send the results to your Percona Support case. See [Support diagnostics](../../apps/support-diagnostics.md). |
+| :material-view-grid-outline: | Dashboards | Browse | Browse all dashboards, create [folders](../../use/dashboards-panels/manage-dashboards/create-folders.md), import dashboards, create playlists, and manage snapshots. |
+| :material-apps: | Apps | Browse | Open [Operations for MongoDB](../../use/mongodb-operations.md) and [MySQL Backups](../../apps/mysql-backup.md), and manage your [database backups](../../backup/index.md) and storage locations. |
+| :material-flask-outline: | Inventory | Browse | View and manage all monitored nodes, services, and agents registered in PMM. Check database and agent status, organize services by clusters, and add or remove monitored instances. |
+| :material-server-network: | PMM HA | Administration | Check the health of your PMM High Availability cluster. |
+| :material-cog-outline: | Configuration | Administration | Configure PMM settings, check for updates, and manage organizations, users, teams, service accounts, and access roles. |
+| :material-account-circle-outline: | Account | | Manage your user profile settings, change your password, set notification preferences, and configure your personal PMM experience. |
+| :material-help-circle-outline: | Help | | Access PMM documentation, community forums, and support resources. Export diagnostic logs for troubleshooting and view version information. |
+
+To open your home dashboard, click the PMM logo at the top of the menu. To collapse the menu to icons, click :material-chevron-double-left: next to the logo. In the collapsed menu, an entry with sub-pages opens them in a panel next to it.
 
 ## 2. Top navigation bar
 
@@ -68,16 +75,3 @@ Filter your monitoring data using these contextual options:
 - **PMM Annotations**: Toggle visibility of important events on your timelines
 
 These selectors change based on the dashboard you're viewing, showing only relevant options.
-
-## Enable **Explore metrics** menu
-
-Explore metrics lets you visually browse and filter available metrics without writing PromQL queries. It is powered by the Grafana Metrics Drilldown plugin, which you can enable from the **Plugins** page:
-{.power-number}
-
-1. Go to the **Home** page and type **plugins** in the search bar.
-2. On the **Plugins** page, search for **Grafana Metrics Drilldown**.
-3. Select the plugin and click **Install**.
-
-This adds the **Explore metrics** option under **Explore** in the left sidebar. For more information, see [Grafana Metrics Drilldown](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/metrics).
-
-![Explore metrics in the PMM sidebar](../../images/PMM_Explore_metrics.png)

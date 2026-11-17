@@ -5,7 +5,7 @@
 
 Operations for MongoDB enables you to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, review the [limitations](#limitations) that apply in this Developer Preview release.
 
-Every signed-in PMM user can open **MongoDB > Operations** and see all of its pages, except the install form. Only PMM Admins can scan nodes, start or abort installs, remove node entries, and change settings. For other users, these controls are disabled or hidden. Any user can click **Refresh** on **Fleet**.
+Every signed-in PMM user can open **Apps > Operations for MongoDB** and see all of its pages, except the install form. Only PMM Admins can scan nodes, start or abort installs, remove node entries, and change settings. For other users, these controls are disabled or hidden. Any user can click **Refresh** on **Fleet**.
 
 ## Prepare PMM Server
 
@@ -19,7 +19,7 @@ Before you enable Operations for MongoDB, prepare PMM Server:
 
 ### Enable Operations for MongoDB
 
-Until you enable Operations for MongoDB, **MongoDB > Operations** doesn't appear in the side menu and PMM doesn't scan your nodes. You can enable it via PMM settings or an environment variable:
+Until you enable Operations for MongoDB, **Apps > Operations for MongoDB** doesn't appear in the side menu and PMM doesn't scan your nodes. You can enable it via PMM settings or an environment variable:
 
 === "via PMM settings"
 
@@ -38,7 +38,7 @@ Until you enable Operations for MongoDB, **MongoDB > Operations** doesn't appear
 
     Start PMM Server with `PMM_ENABLE_OM=1`. While this variable is set, you can't change the setting in the UI. The **Operations for MongoDB** toggle stays visible, but **Apply changes** returns an error.
 
-After you enable it, **MongoDB > Operations** appears in the side menu with a **Preview** label. It includes these pages:
+After you enable it, **Apps > Operations for MongoDB** appears in the side menu with a **Preview** label. It includes these tabs:
 
 - **Fleet**: check the health of every MongoDB cluster that PMM monitors.
 - **Nodes**: see every node PMM knows about and whether it's ready to be scanned or have Percona Server for MongoDB installed.
@@ -90,11 +90,11 @@ To provide credentials:
     chmod 600 /root/.mongodb_uri
     ```
 
-4. To check the credentials, click **Scan** in the node's row on the **Nodes** page. Then go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan. If the password is wrong, the scan shows as **Partial**, and the service appears in red with **(no answer)**. Hover over it to see the error. If the file is missing, no error is shown. Scans still report the running version, but not the replica set state.
+4. To check the credentials, click **Scan** in the node's row on the **Nodes** page. Then go to **Apps > Operations for MongoDB > Automations**, select the **Scans** tab, and expand the latest scan. If the password is wrong, the scan shows as **Partial**, and the service appears in red with **(no answer)**. Hover over it to see the error. If the file is missing, no error is shown. Scans still report the running version, but not the replica set state.
 
 #### Scan without credentials
 
-To skip MongoDB login entirely, go to **MongoDB > Operations > Settings > General**, turn off **Connect to MongoDB**, and click **Save**. The change applies to the next scan, without a restart. A scan that starts within about 30 seconds of saving can still use the previous setting.
+To skip MongoDB login entirely, go to **Apps > Operations for MongoDB > Settings > General**, turn off **Connect to MongoDB**, and click **Save**. The change applies to the next scan, without a restart. A scan that starts within about 30 seconds of saving can still use the previous setting.
 
 With **Connect to MongoDB** off, scans collect only process and OS details and the installed MongoDB version, without connecting to `mongod`. No credentials needed, but scans won't report replica set state or running version.
 
@@ -106,7 +106,7 @@ PMM scans every node automatically, every 10 minutes by default. PMM also scans 
 
 ### Run a scan now
 
-To scan right away, for example after you add a node, go to **MongoDB > Operations > Nodes** and do one of the following:
+To scan right away, for example after you add a node, go to **Apps > Operations for MongoDB > Nodes** and do one of the following:
 
 - To scan every node, click **Scan all**.
 - To scan one node, click **Scan** in its row.
@@ -116,7 +116,7 @@ To scan right away, for example after you add a node, go to **MongoDB > Operatio
 By default, PMM scans every node every 10 minutes. Each scan sends a job to every node. To scan more or less often:
 {.power-number}
 
-1. Go to **MongoDB > Operations > Settings** and select the **General** tab.
+1. Go to **Apps > Operations for MongoDB > Settings** and select the **General** tab.
 2. In **Scan every** and **Period**, set the time between scans.
 3. Click **Save**. The change takes effect without a restart.
 
@@ -125,7 +125,7 @@ By default, PMM scans every node every 10 minutes. Each scan sends a job to ever
 If you want PMM to scan only when you ask, turn off automatic scans:
 {.power-number}
 
-1. Go to **MongoDB > Operations > Settings** and select the **General** tab.
+1. Go to **Apps > Operations for MongoDB > Settings** and select the **General** tab.
 2. Turn off **Automatic node scans**.
 3. Click **Save**.
 
@@ -173,7 +173,7 @@ To reduce this risk:
 Once your nodes pass the checks and you've reduced the security exposure, you're ready to install. To install a MongoDB replica set:
 {.power-number}
 
-1. Go to **MongoDB > Operations > Nodes**. To show only nodes without a database, select the **Not monitored** filter.
+1. Go to **Apps > Operations for MongoDB > Nodes**. To show only nodes without a database, select the **Not monitored** filter.
 
 2. Select one node for a single-member replica set, or three nodes for a three-member replica set, and click **Install MongoDB**. To install on a single node, you can also click **Install MongoDB** in its row.
 
@@ -196,7 +196,7 @@ Once your nodes pass the checks and you've reduced the security exposure, you're
     !!! warning "Save the generated password"
         PMM shows a generated password only once and deletes its copy after it creates the user. Save the password before you close the confirmation screen.
 
-5. Track progress in **MongoDB > Operations > Automations**. On the **Installs** tab, expand your install to see the status of each node. The newest installs are at the top. When all nodes finish, PMM forms the replica set, creates the users, and turns on authentication.
+5. Track progress in **Apps > Operations for MongoDB > Automations**. On the **Installs** tab, expand your install to see the status of each node. The newest installs are at the top. When all nodes finish, PMM forms the replica set, creates the users, and turns on authentication.
 
 PMM installs on all nodes in parallel, so the install takes a few minutes in total, mostly for downloading packages. When it finishes, the replica set appears on the **Fleet** page and PMM starts monitoring it.
 
@@ -207,7 +207,7 @@ Check fleet health as part of your regular operational checks, or when a cluster
 To view fleet health:
 {.power-number}
 
-1. Go to **MongoDB > Operations > Fleet**.
+1. Go to **Apps > Operations for MongoDB > Fleet**.
 2. On the **Clusters** tab, check the summary at the top: how many environments, clusters, and services PMM monitors, and how many services are up or down.
 3. To narrow the list, type part of a cluster name in **Search clusters**, or select values in the **Health**, **Type**, and **Environment** filters. A cluster must match the search and every filter that you set. Within one filter, any selected value matches. The filters are saved in the page URL, so you can share the filtered view. To reset, click **Clear filters**.
 4. By default, clusters are grouped by environment. If you change **Group by**, the table keeps your choice for the browser session. For each cluster, check the following columns:
@@ -235,11 +235,11 @@ If **Nodes**, **Automations** or **Settings** can't load and the error says **PM
 
 If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
 
-If the reason isn't clear, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for that node.
+If the reason isn't clear, go to **Apps > Operations for MongoDB > Automations**, select the **Scans** tab, and check the scan errors for that node.
 
 The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look for **Partial** scans on the **Scans** tab, or check the **Services** tab as described below.
 
-To find out why a service is failing, go to **MongoDB > Operations > Fleet** and select the **Services** tab. The **Collected** column shows the reason in red, for example **Database unreachable** or **Database authentication failed**. Click the service's status to open its details, which show the full error and what to do about it. When PMM knows which scan failed, the details also link to it. A **Down** service marked **not running** had no `mongod` or `mongos` running at its last scan.
+To find out why a service is failing, go to **Apps > Operations for MongoDB > Fleet** and select the **Services** tab. The **Collected** column shows the reason in red, for example **Database unreachable** or **Database authentication failed**. Click the service's status to open its details, which show the full error and what to do about it. When PMM knows which scan failed, the details also link to it. A **Down** service marked **not running** had no `mongod` or `mongos` running at its last scan.
 
 ### Installs
 

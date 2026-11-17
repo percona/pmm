@@ -61,7 +61,7 @@ By default, Query Analytics (QAN) does not display queries from PMM Server's int
 
 Enable this setting to troubleshoot PMM Server performance issues, monitor resource usage in [High Availability (HA) deployments](../install-pmm/HA.md), or verify that applications aren't misusing the default `postgres` database.
 
-When enabled, open **Query Analytics (QAN)** from the main menu, then filter by the `pmm-server-postgresql` service to view PMM Server queries. 
+When enabled, open **Query analytics** from the main menu, then filter by the `pmm-server-postgresql` service to view PMM Server queries. 
 
 You'll see queries related to PMM's inventory, settings, Advisor checks, alerts, backups, and authentication. These queries are typically lightweight so any spikes in volume, latency, or unexpected entries may indicate performance issues or database misuse.
 
@@ -93,7 +93,7 @@ Activates Microsoft Azure monitoring.
 !!! caution alert alert-warning "Caution"
     This is a Developer Preview feature.
 
-Enables [Operations for MongoDB](../use/mongodb-operations.md) and reveals **MongoDB > Operations** in the sidebar, where you can check the health of your MongoDB clusters and install Percona Server for MongoDB replica sets.
+Enables [Operations for MongoDB](../use/mongodb-operations.md) and reveals **Apps > Operations for MongoDB** in the sidebar, where you can check the health of your MongoDB clusters and install Percona Server for MongoDB replica sets.
 
 This setting requires [PMM Extensions](../apps/deploy-pmm-extensions.md). If PMM can't reach PMM Extensions, the setting doesn't turn on.
 

@@ -2,7 +2,7 @@
 
 Use the PMM HA Health Overview dashboard to spot failed or degraded components in your PMM HA Cluster and find the pods that need attention. It covers PMM Server, PostgreSQL, ClickHouse, VictoriaMetrics, and HAProxy, and shows which nodes currently hold the leader and primary roles.
 
-To open the dashboard, go to **PMM HA > Overview**.
+To open the dashboard, click **PMM HA** in the main menu.
 
 ![PMM HA Health Overview Dashboard](../../images/PMM_HA_Health_Overview.png)
 

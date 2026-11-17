@@ -1,9 +1,9 @@
 # QAN Stored metrics: Details panel
 
-The Details panel shows in-depth information about a selected query in the **Stored metrics** tab. Use it to analyze query execution time, view examples, and understand query plans.
+The Details panel shows in-depth information about a selected query on the **Query analytics** page. Use it to analyze query execution time, view examples, and understand query plans.
 
 !!! note
-    The Real-time tab has its own Details panel for viewing currently executing operations. See [Real-Time Query Analytics](../QAN-realtime-analytics.md).
+    **Real-time queries** has its own Details panel for viewing currently executing operations. See [Real-Time Query Analytics](../QAN-realtime-analytics.md).
 
 Selecting an item under **QAN Stored metrics > Overview panel** opens the **Details panel** with a [Details tab](#details-tab).
 

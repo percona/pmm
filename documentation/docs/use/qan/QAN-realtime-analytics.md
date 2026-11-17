@@ -31,9 +31,8 @@ You can start RTA from the PMM UI or from the command line.
 To start monitoring a MongoDB service:
 {.power-number}
 
-1. Go to **Query Analytics** in the sidebar.
-2. Select the **Real-time** tab.
-3. If no sessions are active, select a MongoDB service from the dropdown and click **Start session**.
+1. Go to **Real-time queries** in the sidebar.
+2. If no sessions are active, select a MongoDB service from the dropdown and click **Start session**.
 
 The live operations table appears and begins updating automatically:
 
@@ -69,7 +68,7 @@ The output includes the RTA agent ID. Save it, as you will need it to stop RTA l
 
 ### From the UI
 
-To stop an RTA session, click **All sessions** in the **Real-time** view and click **Stop** next to the session, or click **Stop all sessions** to stop all at once.
+To stop an RTA session, click **All sessions** on the **Real-time queries** page and click **Stop** next to the session, or click **Stop all sessions** to stop all at once.
 
 ### From the command line
 
@@ -119,7 +118,7 @@ The **Export** button is hidden while auto-refresh is active and only appears on
 To export data:
 {.power-number}
 
-1. Go to **Query Analytics > Real-time**.
+1. Go to **Real-time queries**.
 2. Click **Pause** to freeze the live feed.
 3. Apply any filters or sort order you want reflected in the export.
 4. Click **Export** to download the file.

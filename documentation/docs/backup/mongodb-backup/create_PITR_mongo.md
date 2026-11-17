@@ -23,7 +23,7 @@ You can use the available oplog slices in your storage to restore a backup to an
 Before creating a backup, make sure to check the [MongoDB backup prerequisites](mongo_prerequisites.md).
 {.power-number}
 
-1. Go to :material-history: **Backup > All backups**.
+1. Go to **Apps > All backups**.
 2. Click :material-plus-box-outline: **Create backup**.
 3. Select the **Schedule Backup** option in the **Create Scheduled backup** window.
 4. Enter a unique name for this backup.
@@ -58,7 +58,7 @@ If you want to be notified of any MongoDB backups that fail, you can create an a
  
 ## PITR artifacts
 
-The PITR oplog is available a few minutes (10 by default) after your PITR job has run for the first time. To see the corresponding PITR artifact, check out the list under **Backup > All Backups**.
+The PITR oplog is available a few minutes (10 by default) after your PITR job has run for the first time. To see the corresponding PITR artifact, check out the list under **Apps > All backups**.
 
 ## PITR and other scheduled backups
 

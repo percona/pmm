@@ -5,7 +5,7 @@
 
 Use MySQL Backups to protect your MySQL databases directly from PMM. Schedule recurring backups, restore from any saved backup, and monitor job progress. Find it under **Apps > MySQL Backups** in the sidebar. It is part of PMM's growing set of [database management apps](index.md).
 
-This app runs alongside the MySQL backup feature in **Backups > All backups**. Backups made in one won't appear in the other. Once this app reaches GA, it will replace the MySQL backup part of that feature.
+This app runs alongside the MySQL backup feature in **Apps > All backups**. Backups made in one won't appear in the other. Once this app reaches GA, it will replace the MySQL backup part of that feature.
 
 ## Supported databases
 

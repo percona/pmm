@@ -12,6 +12,8 @@ Query Analytics offers two ways to analyze queries:
 
 - **Real-time**: Choose real-time when you need to identify problematic operations during an active incident.  
 
+In the main menu, open **Query analytics** for stored metrics or **Real-time queries** for live operations.
+
 ### Real-time vs. Stored metrics capabilities
 
 | Feature | Real-time Analytics (RTA) | Stored metrics (QAN) |

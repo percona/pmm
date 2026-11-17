@@ -8,7 +8,7 @@ Before creating a backup, make sure to check the [MySQL backup prerequisites](my
 To create a backup:
 {.power-number}
 
-1. Go to  :material-history: **Backup > All backups**.
+1. Go to **Apps > All backups**.
 2. Click :material-plus-box-outline: **Create backup**.
 3. Specify the type of backup that you want to create: **On Demand** or **Schedule Backup**.
 4. Enter a unique name for this backup.

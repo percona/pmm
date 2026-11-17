@@ -41,7 +41,7 @@ You can add standard or custom labels while adding a service to monitoring in PM
     To set the labels via the user interface:
     {.power-number}
 
-    1. From the main menu, go to **Inventory > Add service**.
+    1. From the main menu, go to **Inventory > Services > Add Service**.
 
     2. Select the service you want to monitor.
 
