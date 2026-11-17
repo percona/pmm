@@ -104,6 +104,8 @@ const InstanceRow: FC<{ instance: RdsInstance; group: InstanceGroup }> = ({
           size="small"
           label={Messages.roles[instance.role]}
           {...ROLE_CHIPS[instance.role]}
+          // Keeps the whole label: the cell widens instead of truncating it.
+          sx={{ maxWidth: 'none' }}
         />
       </TableCell>
       <TableCell>
