@@ -565,6 +565,35 @@ func TestInspectDecrypted(t *testing.T) {
 	}
 }
 
+// TestInspectBound pins the evidence that the startup migration has run: only an envelope of the value's
+// associated data, which only the migration writes, counts.
+func TestInspectBound(t *testing.T) {
+	c := newTestCipher(t)
+	password := []byte("agents.password")
+	envelope, err := c.Encrypt("secret", password)
+	require.NoError(t, err)
+	usernameEnvelope, err := c.Encrypt("secret", []byte("agents.username"))
+	require.NoError(t, err)
+	envelopeOverLegacy, err := c.Encrypt(legacyLayer(t, c, "secret"), password)
+	require.NoError(t, err)
+
+	for name, tc := range map[string]struct {
+		stored string
+		want   bool
+	}{
+		"plaintext":                         {"plain-password", false},
+		"plaintext that looks like one":     {EnvelopePrefix + "ecret", false},
+		"bare legacy":                       {legacyLayer(t, c, "secret"), false},
+		"another column's envelope":         {usernameEnvelope, false},
+		"envelope":                          {envelope, true},
+		"envelope over legacy":              {envelopeOverLegacy, true},
+		"legacy over the column's envelope": {legacyLayer(t, c, envelope), true},
+	} {
+		insp, _ := c.Inspect(tc.stored, password)
+		assert.Equal(t, tc.want, insp.Bound, name)
+	}
+}
+
 func TestCipherNotInitialized(t *testing.T) {
 	var c *Cipher
 	_, err := c.Encrypt("secret", nil)

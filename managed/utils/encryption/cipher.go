@@ -310,7 +310,7 @@ func (c *Cipher) Encrypt(plaintext string, associatedData []byte) (string, error
 // Legacy layers stacked under the outermost one (PMM-15188) are removed as
 // long as their keys are available.
 func (c *Cipher) Decrypt(stored string, associatedData []byte) (string, error) {
-	plaintext, _, err := c.decrypt(stored, associatedData)
+	plaintext, _, _, err := c.decrypt(stored, associatedData)
 	switch {
 	case errors.Is(err, ErrLegacyUnknownKey), errors.Is(err, ErrLegacyInnerKeyLost):
 		return plaintext, nil
@@ -331,6 +331,9 @@ type Inspection struct {
 	// Decrypted reports whether the keyset removed at least one layer, i.e.
 	// the value is ciphertext of a key the cipher holds.
 	Decrypted bool
+	// Bound reports whether an envelope of the value's associated data was opened, which only the startup
+	// migration writes.
+	Bound bool
 }
 
 // Inspect reports how Decrypt reads a stored value. The error is nil for
@@ -339,8 +342,8 @@ type Inspection struct {
 // uses it to refuse rewriting ciphertext it cannot read as if it were
 // plaintext, and to report secrets lost to stacked layers.
 func (c *Cipher) Inspect(stored string, associatedData []byte) (Inspection, error) {
-	_, layers, err := c.decrypt(stored, associatedData)
-	insp := Inspection{Decrypted: layers > 0}
+	_, layers, bound, err := c.decrypt(stored, associatedData)
+	insp := Inspection{Decrypted: layers > 0, Bound: bound}
 	if layers > 0 {
 		insp.ExtraLayers = layers - 1
 	}
@@ -348,25 +351,24 @@ func (c *Cipher) Inspect(stored string, associatedData []byte) (Inspection, erro
 	return insp, err
 }
 
-// decrypt returns the plaintext and the number of encryption layers removed.
-// With ErrLegacyUnknownKey it returns the value unchanged, with
+// decrypt returns the plaintext, the number of encryption layers removed, and whether an envelope of
+// associatedData was among them. With ErrLegacyUnknownKey it returns the value unchanged, with
 // ErrLegacyInnerKeyLost the innermost ciphertext it could reach.
-func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, error) {
+func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, bool, error) {
 	if c == nil {
-		return "", 0, ErrEncryptionNotInitialized
+		return "", 0, false, ErrEncryptionNotInitialized
 	}
 	if stored == "" {
-		return "", 0, nil
+		return "", 0, false, nil
 	}
 
 	v := stored
 	layers := 0
-	// whether an envelope of associatedData was opened, see RefusingUnboundLegacy
 	bound := false
 	if IsEncrypted(stored) {
 		plaintext, err := c.openEnvelope(stored, associatedData)
 		if err != nil {
-			return "", 0, err
+			return "", 0, false, err
 		}
 		v = plaintext
 		layers = 1
@@ -389,19 +391,19 @@ func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, err
 		keysets := c.legacyKeysets(keyID)
 		if len(keysets) == 0 {
 			if layers == 0 {
-				return stored, 0, fmt.Errorf("%w (key ID %d)", ErrLegacyUnknownKey, keyID)
+				return stored, 0, false, fmt.Errorf("%w (key ID %d)", ErrLegacyUnknownKey, keyID)
 			}
 			if c.refuseUnboundLegacy && !bound {
-				return "", layers, ErrUnboundLegacy
+				return "", layers, false, ErrUnboundLegacy
 			}
-			return v, layers, fmt.Errorf("%w (key ID %d)", ErrLegacyInnerKeyLost, keyID)
+			return v, layers, bound, fmt.Errorf("%w (key ID %d)", ErrLegacyInnerKeyLost, keyID)
 		}
 
 		// legacy ciphertext carries no associated data
 		plaintext, ok := decryptWithAny(keysets, ciphertext, nil)
 		if !ok {
 			if layers == 0 {
-				return "", 0, fmt.Errorf("%w (key ID %d)", ErrLegacyAuthFailed, keyID)
+				return "", 0, false, fmt.Errorf("%w (key ID %d)", ErrLegacyAuthFailed, keyID)
 			}
 			// an authenticated plaintext that only looks like ciphertext
 			break
@@ -410,10 +412,10 @@ func (c *Cipher) decrypt(stored string, associatedData []byte) (string, int, err
 		layers++
 	}
 	if c.refuseUnboundLegacy && layers != 0 && !bound {
-		return "", layers, ErrUnboundLegacy
+		return "", layers, false, ErrUnboundLegacy
 	}
 
-	return v, layers, nil
+	return v, layers, bound, nil
 }
 
 // legacyKeysets returns the keysets for legacy ciphertext that hold the key with the given ID.

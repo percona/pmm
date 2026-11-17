@@ -494,6 +494,39 @@ func TestSetupDBRefusesUnboundLegacyCiphertext(t *testing.T) {
 		assert.Equal(t, stored, storedPassword(t, sqlDB, "E1"), "nothing is rewritten")
 	})
 
+	// Removing the key check doesn't make the database look unmigrated: a bound envelope tells, too.
+	t.Run("standalone without the key check", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		cipher := keepDefaultCipher(t)
+		bound, err := cipher.Encrypt("password", []byte("agents.password"))
+		require.NoError(t, err)
+		insertExporter(t, sqlDB, "E1", bound, "")
+		stored := legacyCiphertext(t, cipher, "password")
+		insertExporter(t, sqlDB, "E2", stored, "")
+		forgetKeyCheck(t, sqlDB)
+
+		err = setupDB(t, sqlDB)
+		require.ErrorIs(t, err, encryption.ErrUnboundLegacy)
+		assert.Contains(t, err.Error(), "agent E2 password")
+		assert.Equal(t, stored, storedPassword(t, sqlDB, "E2"), "nothing is rewritten")
+	})
+
+	// A plaintext value that only looks like an envelope, as one written before the upgrade can, proves nothing.
+	t.Run("standalone before the upgrade", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		cipher := keepDefaultCipher(t)
+		insertExporter(t, sqlDB, "E1", encryption.EnvelopePrefix+"ecret", "")
+		insertExporter(t, sqlDB, "E2", legacyCiphertext(t, cipher, "password"), "")
+		forgetKeyCheck(t, sqlDB)
+
+		require.NoError(t, setupDB(t, sqlDB))
+
+		q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+		agent, err := models.FindAgentByID(q, "E2")
+		require.NoError(t, err)
+		assert.Equal(t, "password", agent.Password.Reveal())
+	})
+
 	// a leader of an older PMM version writes legacy ciphertext until the rolling upgrade restarts it
 	t.Run("HA", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)

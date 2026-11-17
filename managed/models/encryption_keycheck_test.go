@@ -490,12 +490,12 @@ func TestRestorePMMServerAgentsLostColumnsOnly(t *testing.T) {
 	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
 	db := newPMMServerDB(t)
 	require.NoError(t, setupDBWithFixtures(t, sqlDB, db))
-	exporter := pmmServerPostgreSQLAgents(t, q)[0]
-	exporter.Username = models.EncryptedStringOrNil[models.AgentUsername]("custom-user")
-	exporter.Password = models.EncryptedStringOrNil[models.AgentPassword]("custom-password")
-	require.NoError(t, q.Update(exporter))
+	agents := pmmServerPostgreSQLAgents(t, q)
+	require.Len(t, agents, 2, "postgres_exporter and QAN")
+	exporter := agents[0]
 
-	// as PMM before 3.9.1 left it, before the upgrade
+	// As PMM before 3.9.1 left the database before the upgrade: legacy ciphertext only, the exporter with
+	// custom credentials and its TLS certificate and key under a layer whose key is gone.
 	forgetKeyCheck(t, sqlDB)
 	_, gone := newKeyFile(t)
 	options, err := json.Marshal(map[string]string{
@@ -503,9 +503,14 @@ func TestRestorePMMServerAgentsLostColumnsOnly(t *testing.T) {
 		"ssl_key":  legacyCiphertext(t, cipher, legacyCiphertext(t, gone, "old-key")),
 	})
 	require.NoError(t, err)
-	_, err = sqlDB.ExecContext(t.Context(), `UPDATE agents SET postgresql_options = $1 WHERE agent_id = $2`,
-		string(options), exporter.AgentID)
-	require.NoError(t, err)
+	for id, values := range map[string][]string{
+		exporter.AgentID:  {"custom-user", "custom-password", string(options)},
+		agents[1].AgentID: {"pmm-managed", "pmm-managed-password", "{}"},
+	} {
+		_, err = sqlDB.ExecContext(t.Context(), `UPDATE agents SET username = $1, password = $2, postgresql_options = $3 WHERE agent_id = $4`,
+			legacyCiphertext(t, cipher, values[0]), legacyCiphertext(t, cipher, values[1]), values[2], id)
+		require.NoError(t, err)
+	}
 
 	hook := logtest.NewGlobal()
 	t.Cleanup(func() { logrus.StandardLogger().ReplaceHooks(make(logrus.LevelHooks)) })

@@ -30,6 +30,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/utils/encryption"
 )
@@ -75,9 +76,9 @@ func initDefaultCipher(ctx context.Context, db *sql.DB, ha bool) (bool, error) {
 	if acceptKeyLoss(cipher, keyPath, ha) {
 		cipher = cipher.AcceptingKeyLoss()
 	}
-	// Legacy ciphertext found after the migration that writes the key check was copied, e.g. from an old backup;
-	// in HA, a leader of an older PMM version goes on writing it until a rolling upgrade restarts it.
-	migrated, err := databaseHasKeyCheck(ctx, db)
+	// Legacy ciphertext found after the migration was copied, e.g. from an old backup; in HA, a leader of an
+	// older PMM version goes on writing it until a rolling upgrade restarts it.
+	migrated, err := databaseMigrated(ctx, db, cipher)
 	if err != nil {
 		return false, err
 	}
@@ -87,6 +88,32 @@ func initDefaultCipher(ctx context.Context, db *sql.DB, ha bool) (bool, error) {
 	encryption.SetDefaultCipher(cipher)
 
 	return created, nil
+}
+
+// databaseMigrated reports whether the startup migration has bound the database's values to their columns: the
+// database holds the key check or a bound envelope. Only the migration writes either, and the envelope takes the
+// key, so removing the key check doesn't make a migrated database look unmigrated.
+func databaseMigrated(ctx context.Context, db *sql.DB, cipher *encryption.Cipher) (bool, error) {
+	hasKeyCheck, err := databaseHasKeyCheck(ctx, db)
+	if err != nil || hasKeyCheck {
+		return hasKeyCheck, err
+	}
+
+	q := reform.NewDB(db, postgresql.Dialect, nil).WithContext(ctx)
+	for _, t := range secretTables {
+		scan, err := scanSecrets(q, cipher, t)
+		switch {
+		case isUndefinedTable(err) || isUndefinedColumn(err):
+			// the schema predates a secret column, so the migration hasn't run
+			return false, nil
+		case err != nil:
+			return false, err
+		case scan.bound:
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 // generatedKey is the key file this process generated, until the migration
@@ -288,6 +315,12 @@ func isUndefinedTable(err error) bool {
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
 	var pErr *pq.Error
 	return errors.As(err, &pErr) && pErr.Code == "42P01"
+}
+
+func isUndefinedColumn(err error) bool {
+	// undefined_column (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
+	var pErr *pq.Error
+	return errors.As(err, &pErr) && pErr.Code == "42703"
 }
 
 // MigrateEncryption rewrites rows whose stored secrets are not yet encrypted
@@ -794,6 +827,8 @@ type secretsScan struct {
 	unknownKey []error
 	// keyReadsData is set when the keyset decrypted at least one stored value
 	keyReadsData bool
+	// bound is set when a stored value opened as an envelope of its column, see databaseMigrated
+	bound bool
 	// backup holds the stored columns of rows rewritten from the pre-envelope
 	// format or holding lost secrets, see writeMigrationBackup
 	backup []map[string]any
@@ -847,28 +882,34 @@ func scanSecrets(q *reform.Querier, cipher *encryption.Cipher, t secretTable) (*
 			stored[c.name] = storedValue(c, values[i])
 		}
 
-		scan.keyReadsData = scan.keyReadsData || insp.decrypted
-		for _, p := range insp.undecryptable {
-			scan.undecryptable = append(scan.undecryptable, &secretError{t.label, id, p.column, p.err})
-		}
-		for _, p := range insp.unknownKey {
-			scan.unknownKey = append(scan.unknownKey, &secretError{t.label, id, p.column, p.err})
-		}
-		if !insp.needs || len(insp.undecryptable) != 0 {
-			continue
-		}
-		// reported once, when the row is rewritten; later reads see an
-		// envelope around the unrecoverable inner layer
-		for _, p := range insp.lost {
-			scan.lost = append(scan.lost, &secretError{t.label, id, p.column, nil})
-		}
-		scan.needs = append(scan.needs, id)
-		if insp.preEnvelope || len(insp.lost) != 0 {
-			scan.backup = append(scan.backup, stored)
-		}
+		scan.add(t.label, id, insp, stored)
 	}
 
 	return scan, rows.Err()
+}
+
+// add records the inspection of the row with the given ID of the table labeled label, whose columns are stored.
+func (s *secretsScan) add(label, id string, insp *inspector, stored map[string]any) {
+	s.keyReadsData = s.keyReadsData || insp.decrypted
+	s.bound = s.bound || insp.bound
+	for _, p := range insp.undecryptable {
+		s.undecryptable = append(s.undecryptable, &secretError{label, id, p.column, p.err})
+	}
+	for _, p := range insp.unknownKey {
+		s.unknownKey = append(s.unknownKey, &secretError{label, id, p.column, p.err})
+	}
+	if !insp.needs || len(insp.undecryptable) != 0 {
+		return
+	}
+	// reported once, when the row is rewritten; later reads see an
+	// envelope around the unrecoverable inner layer
+	for _, p := range insp.lost {
+		s.lost = append(s.lost, &secretError{label, id, p.column, nil})
+	}
+	s.needs = append(s.needs, id)
+	if insp.preEnvelope || len(insp.lost) != 0 {
+		s.backup = append(s.backup, stored)
+	}
 }
 
 // storedValue returns a column as stored, for the migration backup: JSON
@@ -927,6 +968,8 @@ type inspector struct {
 	unknownKey []columnProblem
 	// decrypted is set when the keyset decrypted one of the row's values
 	decrypted bool
+	// bound is set when one of the row's values opened as an envelope of its column
+	bound bool
 	// preEnvelope is set when a secret is not in the envelope format yet:
 	// the row is written by PMM before this migration existed
 	preEnvelope bool
@@ -953,6 +996,9 @@ func (i *inspector) value(column string, associatedData []byte, stored string, i
 	}
 	if insp.Decrypted {
 		i.decrypted = true
+	}
+	if insp.Bound {
+		i.bound = true
 	}
 
 	switch {
