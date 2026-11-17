@@ -54,10 +54,9 @@ docker run -d -p 443:8443 --volume pmm-data:/srv \
 !!! warning "Certificate requirements"
     Before mounting certificates, make sure to configure them correctly:
 
-    - All certificates must be owned by 1000:0: `chown 1000:0 /etc/pmm-certs/*`
-    - In PMM 3.8.0 to 3.10.0, the certificate directory itself must also be owned by 1000:0, or PMM Server doesn't start: `chown 1000:0 /etc/pmm-certs`
+    - Put all four required files in the certificate directory
+    - Make all certificates owned by 1000:0: `chown 1000:0 /etc/pmm-certs/*`
     - Set proper permissions: `chmod 644 /etc/pmm-certs/*.crt /etc/pmm-certs/*.pem && chmod 600 /etc/pmm-certs/*.key`
-    - The certificate directory must contain all four required files
     - Use port `443` for SSL encryption instead of port `80`
 
 ### Copy certificates
@@ -232,3 +231,14 @@ curl -v https://<server-hostname>/ping
 # Test pmm-admin connection
 pmm-admin status
 ```
+
+## Troubleshooting
+
+If PMM Server doesn't work as expected after you add your own certificates, find the cause and fix it.
+
+### If PMM Server doesn't start after you add your own certificates
+
+In PMM 3.8.0 to 3.10.0, PMM Server doesn't start when it can't write to the directory that holds your certificates. The container log shows `mkdir: cannot create directory '/srv/nginx/tmp'`. To fix it, depending on how you run PMM Server:
+
+- On Docker, make the certificate directory owned by 1000:0 with `chown 1000:0 /etc/pmm-certs`, and mount it without `:ro`.
+- With the `pmm` or `pmm-ha` Helm chart, remove the `certs` section from your values file and upgrade the release. If you added the certificates when you first installed PMM Server, it still doesn't start, because its data volume keeps a certificate directory that PMM Server can't write to. In that case, uninstall the release, delete its data volumes, and install again without the `certs` section. In these versions, keep the self-signed certificates, or, with the `pmm` chart, use an [Ingress controller with TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) instead.
