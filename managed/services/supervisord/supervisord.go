@@ -31,6 +31,7 @@ import (
 	"strings"
 	"sync"
 	"text/template"
+	"unicode"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -531,12 +532,29 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	return b, nil
 }
 
-// supervisordArg returns s as part of one argument in a supervisord command, which supervisord splits like a POSIX
-// shell, so a value with whitespace, a quote or a backslash is single-quoted. It also reads a percent sign as the
-// start of a variable and refuses the whole configuration when no variable follows, so every one is doubled.
+// supervisordArg returns s as part of one argument in a supervisord command. The INI parser of supervisord ends a value
+// at a ; or # after whitespace, and the command is then split like in a POSIX shell, so a value with whitespace, a
+// quote or a backslash is single-quoted, with the quotes closed and reopened before such a ; or #. A percent sign
+// starts a variable, and the whole configuration is refused when none follows, so every one is doubled.
 func supervisordArg(s string) string {
-	if strings.ContainsAny(s, " \t\v\f'\"\\") {
-		s = "'" + strings.ReplaceAll(s, "'", `'"'"'`) + "'"
+	if strings.ContainsFunc(s, func(r rune) bool { return unicode.IsSpace(r) || strings.ContainsRune(`'"\`, r) }) {
+		var b strings.Builder
+		b.WriteByte('\'')
+		var prev rune
+		for _, r := range s {
+			switch {
+			case r == '\'':
+				b.WriteString(`'"'"'`)
+			case (r == ';' || r == '#') && unicode.IsSpace(prev):
+				b.WriteString("''")
+				b.WriteRune(r)
+			default:
+				b.WriteRune(r)
+			}
+			prev = r
+		}
+		b.WriteByte('\'')
+		s = b.String()
 	}
 	return strings.ReplaceAll(s, "%", "%%")
 }

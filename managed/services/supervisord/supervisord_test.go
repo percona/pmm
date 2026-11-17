@@ -419,4 +419,14 @@ func TestConfigVictoriaMetricsQuoting(t *testing.T) {
 		assert.Contains(t, c["vmalert"], `--datasource.url='http://vm%%27%%22%%5C%%20us%%25er@vmauth:8427/p'"'"'q/'`+"\n")
 		assert.Contains(t, c["vmproxy"], `--target-url='http://vm%%27%%22%%5C%%20us%%25er@vmauth:8427/p'"'"'q/'`+"\n")
 	})
+
+	t.Run("closes the quotes before a comment character after whitespace", func(t *testing.T) {
+		t.Parallel()
+
+		// The username is "my ;us #er<no-break space>;x".
+		c := vmConfigs(t, "http://my%20;us%20%23er%C2%A0;x@vmauth:8427/", true)
+		const want = "'my '';us ''#er '';x'\n"
+		assert.Contains(t, c["vmalert"], "--datasource.basicAuth.username="+want)
+		assert.Contains(t, c["vmproxy"], "--target-username="+want)
+	})
 }
