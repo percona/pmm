@@ -440,6 +440,18 @@ describe('SidebarNavItem', () => {
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
   });
 
+  it('keeps the toggle of a group inside a closed one out of reach', () => {
+    renderNavItem();
+
+    const nestedToggle = screen.getByTestId('navitem-level-1-toggle');
+
+    expect(getComputedStyle(nestedToggle).visibility).toBe('hidden');
+
+    fireEvent.click(screen.getByTestId('navitem-level-0-toggle'));
+
+    expect(getComputedStyle(nestedToggle).visibility).toBe('visible');
+  });
+
   it('leaves the selected state to an active child in view', () => {
     const child = TEST_NAV_TREE.children![0];
     renderNavItem({ activeItem: child });

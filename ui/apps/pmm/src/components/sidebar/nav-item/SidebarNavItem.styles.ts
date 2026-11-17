@@ -85,12 +85,14 @@ export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
     },
     // Fades out at once on collapse and in once the drawer has widened, so it
     // never passes over the icon; pinned to the first row when a label wraps.
+    // Open, it inherits rather than forcing visible, so a toggle inside a closed
+    // group stays hidden and out of the tab order.
     groupToggle: {
       position: 'absolute',
       top: 0,
       right: theme.spacing(itemEnd),
       opacity: drawerOpen ? 1 : 0,
-      visibility: drawerOpen ? 'visible' : 'hidden',
+      visibility: drawerOpen ? 'inherit' : 'hidden',
       transition: [
         theme.transitions.create(['opacity', 'visibility'], {
           duration: theme.transitions.duration.shorter,
