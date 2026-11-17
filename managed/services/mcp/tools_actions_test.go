@@ -950,6 +950,7 @@ func TestSchemaTool(t *testing.T) {
 		fake, stub := newActionStub(t, 0)
 		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-join-aliases.json"), "SELECT 1")
 		s := newQANService(t, fake, true)
+		s.liveServiceWait = 50 * time.Millisecond
 		session := connect(t, s)
 		key := callerKey(callerAuth{authorization: testToken})
 		rel1, hit := s.live.acquire(key)
@@ -969,7 +970,7 @@ func TestSchemaTool(t *testing.T) {
 		require.Equal(t, limitNone, hit)
 		text, isError = callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited\na live-inspection call on this service is already in flight"), text)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited\na live-inspection call on this service is still in flight after 50ms"), text)
 		assert.Empty(t, stub.starts)
 		held()
 
@@ -1562,6 +1563,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 
 		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
 		s := newQANService(t, fake, true)
+		s.liveServiceWait = 50 * time.Millisecond
 		session := connect(t, s)
 		held, hit := s.liveByService.acquire("svc-1")
 		require.Equal(t, limitNone, hit)
@@ -1569,13 +1571,13 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		text, isError := callText(t, session, "pmm_get_schema", schemaArgs)
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: rate_limited"), text)
-		assert.Contains(t, text, "a live-inspection call on this service is already in flight; retry when it finishes")
+		assert.Contains(t, text, "a live-inspection call on this service is still in flight after 50ms; retry when it finishes")
 		assert.NotContains(t, text, "svc-1")
 		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
 
 		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.Contains(t, text, "already in flight")
+		assert.Contains(t, text, "still in flight")
 		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
 
 		text, isError = callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-2", "database": "shop", "tables": []string{"customers"}})
@@ -1588,11 +1590,50 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		assert.Equal(t, limitNone, hit)
 	})
 
+	t.Run("PerServiceWaits", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		held, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+		time.AfterFunc(100*time.Millisecond, held)
+
+		text, isError := callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.False(t, isError, text)
+		assert.NotEmpty(t, fake.requestsTo("/v1/actions:startServiceAction"), "the call ran once the service's slot was free")
+	})
+
+	t.Run("PerServiceWaitCancelled", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		held, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+		defer held()
+
+		ctx, cancel := context.WithTimeout(t.Context(), 50*time.Millisecond)
+		defer cancel()
+		req := &mcp.CallToolRequest{Extra: &mcp.RequestExtra{Header: http.Header{"Authorization": {testToken}}}}
+		start := time.Now()
+		_, err := s.schema(ctx, req, schemaInput{ServiceID: "svc-1", Database: "shop", Tables: []string{"customers"}})
+		require.Error(t, err)
+		assert.Less(t, time.Since(start), 5*time.Second, "a cancelled call stops waiting")
+		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
+		rel1 := take(t, s, key)
+		rel2 := take(t, s, key)
+		rel1()
+		rel2()
+	})
+
 	t.Run("PerServiceTwoCallers", func(t *testing.T) {
 		t.Parallel()
 
 		fake, stub := newActionStub(t, 0, "ddl-customers")
 		s := newQANService(t, fake, true)
+		s.liveServiceWait = 50 * time.Millisecond
 
 		ctx, cancel := context.WithCancel(t.Context())
 		defer cancel()

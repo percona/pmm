@@ -89,9 +89,11 @@ type Service struct {
 	now           func() time.Time
 	live          *limiter
 	liveByService *limiter
-	metrics       *limiter
-	liveRate      *rateLimiter
-	metricRate    *rateLimiter
+	// liveServiceWait is how long a live-inspection call waits for its service's slot.
+	liveServiceWait time.Duration
+	metrics         *limiter
+	liveRate        *rateLimiter
+	metricRate      *rateLimiter
 
 	// warnPeer logs the first non-loopback rejection at the default level.
 	warnPeer sync.Once
@@ -132,18 +134,19 @@ func isLoopbackPeer(remoteAddr string) bool {
 // New creates a new MCP service.
 func New(params Params) (*Service, error) {
 	s := &Service{
-		l:             logrus.WithField("component", "mcp"),
-		enabled:       params.Enabled,
-		api:           params.API,
-		rawSQL:        params.RawSQL,
-		actionTimeout: params.ActionTimeout,
-		publicAddress: params.PublicAddress,
-		now:           time.Now,
-		live:          newLimiter(maxLiveCallsPerCaller, maxLiveCallsPerReplica),
-		liveByService: newLimiter(maxLiveCallsPerService, maxLiveCallsPerReplica),
-		metrics:       newLimiter(maxMetricCallsPerCaller, maxMetricCallsPerReplica),
-		liveRate:      newRateLimiter(liveCallsPerMinute, liveCallsBurst),
-		metricRate:    newRateLimiter(metricCallsPerMinute, metricCallsBurst),
+		l:               logrus.WithField("component", "mcp"),
+		enabled:         params.Enabled,
+		api:             params.API,
+		rawSQL:          params.RawSQL,
+		actionTimeout:   params.ActionTimeout,
+		publicAddress:   params.PublicAddress,
+		now:             time.Now,
+		live:            newLimiter(maxLiveCallsPerCaller, maxLiveCallsPerReplica),
+		liveByService:   newLimiter(maxLiveCallsPerService, maxLiveCallsPerReplica),
+		liveServiceWait: liveServiceWait,
+		metrics:         newLimiter(maxMetricCallsPerCaller, maxMetricCallsPerReplica),
+		liveRate:        newRateLimiter(liveCallsPerMinute, liveCallsBurst),
+		metricRate:      newRateLimiter(metricCallsPerMinute, metricCallsBurst),
 	}
 	// Both switches default to off when the caller supplies no callback, so a
 	// wiring mistake cannot expose the endpoint or un-redact its output. This

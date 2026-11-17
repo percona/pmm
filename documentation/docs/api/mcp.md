@@ -400,7 +400,7 @@ A call of `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health` or `pmm_
 
 MCP has no fleet size of its own. PMM's [hardware sizing](../install-pmm/plan-pmm-installation/hardware_and_system.md) applies. This is the setup that MCP was load-tested on, not a limit: a server with 4 CPU cores and 8 GB of memory that monitored 53 MySQL services and held about 2 days of data. Five clients called the metric tools at the caps for 10 minutes. No alert-rule evaluation failed and no PMM Server component restarted. The p95 of a dashboard query went from 47 ms to 170 ms, and VictoriaMetrics' CPU peaked at 2.3 cores.
 
-A call refused for its rate is `rate_limited` and says in the message how many seconds to wait. `_meta["com.percona/error"]` carries the wait as `retry_after`, in whole seconds, at least 1. A call refused for the calls in flight is `rate_limited` without `retry_after`.
+A call refused for its rate is `rate_limited` and says in the message how many seconds to wait. `_meta["com.percona/error"]` carries the wait as `retry_after`, in whole seconds, at least 1. A call refused for the calls in flight is `rate_limited` without `retry_after`. A live-inspection call on a service that already has one in flight waits up to 10 seconds for it to finish, then runs; it is `rate_limited` only if the other call is still running then.
 
 ### QAN window
 

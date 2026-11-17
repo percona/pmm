@@ -299,7 +299,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	}
 	defer release()
 
-	releaseService, err := s.startLiveOn(svc.ServiceID)
+	releaseService, err := s.startLiveOn(ctx, svc.ServiceID)
 	if err != nil {
 		return explainResult{}, err
 	}
@@ -395,7 +395,7 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 	}
 	defer release()
 
-	releaseService, err := s.startLiveOn(svc.ServiceID)
+	releaseService, err := s.startLiveOn(ctx, svc.ServiceID)
 	if err != nil {
 		return schemaResult{}, err
 	}
@@ -453,7 +453,7 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 	}
 	defer release()
 
-	releaseService, err := s.startLiveOn(svc.ServiceID)
+	releaseService, err := s.startLiveOn(ctx, svc.ServiceID)
 	if err != nil {
 		return schemaResult{}, err
 	}
