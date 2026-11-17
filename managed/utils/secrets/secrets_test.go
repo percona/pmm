@@ -281,6 +281,20 @@ func TestPrepare(t *testing.T) {
 		assert.NotContains(t, err.Error(), "q7v")
 	})
 
+	t.Run("refuses a control character in the VictoriaMetrics username", func(t *testing.T) {
+		file := filepath.Join(t.TempDir(), string(VMPassword))
+		require.NoError(t, os.WriteFile(file, []byte("q7v-file"), 0o440))
+		const want = "vm-password: PMM_VM_URL has a control character in the username: remove it"
+
+		_, err := Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file, VMURLEnvVar: "http://vm%0Auser@vmauth:8427/"}))
+		require.EqualError(t, err, want)
+		_, err = Prepare(testOptions(t, map[string]string{VMURLEnvVar: "http://vm%09user:q7v-url@vmauth:8427/"}))
+		require.EqualError(t, err, want)
+
+		_, err = Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file, VMURLEnvVar: "http://vm'%20user@vmauth:8427/"}))
+		require.NoError(t, err)
+	})
+
 	t.Run("refuses a padded database password", func(t *testing.T) {
 		for k, name := range map[string]Name{
 			"PMM_POSTGRES_DBPASSWORD":            PostgresPassword,

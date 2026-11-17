@@ -486,8 +486,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
 		"VMMaxIngestionRate":           vmMaxIngestionRate,
-		"VMURL":                        supervisordLiteral(vmURL),
-		"VMUsername":                   supervisordLiteral(vmUsername),
+		"VMURL":                        supervisordArg(vmURL),
+		"VMUsername":                   supervisordArg(vmUsername),
 		"VMPasswordFile":               vmPasswordFile,
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
@@ -531,9 +531,13 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	return b, nil
 }
 
-// supervisordLiteral doubles every percent sign, since supervisord reads one in a command as the start of a variable
-// and refuses the whole configuration when no variable follows.
-func supervisordLiteral(s string) string {
+// supervisordArg returns s as part of one argument in a supervisord command, which supervisord splits like a POSIX
+// shell, so a value with whitespace, a quote or a backslash is single-quoted. It also reads a percent sign as the
+// start of a variable and refuses the whole configuration when no variable follows, so every one is doubled.
+func supervisordArg(s string) string {
+	if strings.ContainsAny(s, " \t\v\f'\"\\") {
+		s = "'" + strings.ReplaceAll(s, "'", `'"'"'`) + "'"
+	}
 	return strings.ReplaceAll(s, "%", "%%")
 }
 

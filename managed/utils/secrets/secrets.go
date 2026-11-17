@@ -487,7 +487,8 @@ func urlPassword(raw string) string {
 }
 
 // checkURLUser refuses a password that the URL in env can't carry: VictoriaMetrics checks it together with a
-// username, and without the URL PMM Server uses the built-in VictoriaMetrics, which takes no password.
+// username, and without the URL PMM Server uses the built-in VictoriaMetrics, which takes no password. The username
+// goes into the supervisord configuration decoded, where a control character such as a line break ends the command.
 func checkURLUser(raw, env string) error {
 	if raw == "" {
 		return fmt.Errorf("%s isn't set, so PMM Server uses the built-in VictoriaMetrics, which takes no password: "+
@@ -499,6 +500,9 @@ func checkURLUser(raw, env string) error {
 	}
 	if u.User.Username() == "" {
 		return fmt.Errorf("%s has no username to go with the password: add the username to the URL", env)
+	}
+	if strings.ContainsFunc(u.User.Username(), unicode.IsControl) {
+		return fmt.Errorf("%s has a control character in the username: remove it", env)
 	}
 	return nil
 }
@@ -551,7 +555,8 @@ func vmURLIn(dir, raw string) (string, error) {
 }
 
 // urlWithPassword returns raw with password in its userinfo, keeping the username, or raw when it doesn't parse, for
-// models.ParseVictoriaMetricsURL to report without the credentials.
+// models.ParseVictoriaMetricsURL to report without the credentials. Prepare refuses a password without a username, so
+// raw has one whenever the password comes from its file.
 func urlWithPassword(raw, password string) string {
 	u, err := url.Parse(raw)
 	if err != nil {

@@ -394,3 +394,29 @@ func TestConfigVictoriaMetricsPercent(t *testing.T) {
 		}
 	})
 }
+
+func TestConfigVictoriaMetricsQuoting(t *testing.T) {
+	t.Parallel()
+
+	// The username is vm'"\ us%er and the path p'q.
+	const vmURL = `http://vm'%22%5C%20us%25er@vmauth:8427/p'q/`
+
+	t.Run("with the password file", func(t *testing.T) {
+		t.Parallel()
+
+		c := vmConfigs(t, vmURL, true)
+		assert.Contains(t, c["vmalert"], `--datasource.url='http://vmauth:8427/p'"'"'q/'`+"\n")
+		assert.Contains(t, c["vmalert"], `--datasource.basicAuth.username='vm'"'"'"\ us%%er'`+"\n")
+		assert.Contains(t, c["vmalert"], `--remoteWrite.basicAuth.username='vm'"'"'"\ us%%er'`+"\n")
+		assert.Contains(t, c["vmproxy"], `--target-url='http://vmauth:8427/p'"'"'q/'`+"\n")
+		assert.Contains(t, c["vmproxy"], `--target-username='vm'"'"'"\ us%%er'`+"\n")
+	})
+
+	t.Run("without it, as in the development container", func(t *testing.T) {
+		t.Parallel()
+
+		c := vmConfigs(t, vmURL, false)
+		assert.Contains(t, c["vmalert"], `--datasource.url='http://vm%%27%%22%%5C%%20us%%25er@vmauth:8427/p'"'"'q/'`+"\n")
+		assert.Contains(t, c["vmproxy"], `--target-url='http://vm%%27%%22%%5C%%20us%%25er@vmauth:8427/p'"'"'q/'`+"\n")
+	})
+}
