@@ -102,7 +102,7 @@ const InstanceRow: FC<{ instance: RdsInstance; group: InstanceGroup }> = ({
       <TableCell>
         <Chip
           size="small"
-          label={instance.role}
+          label={Messages.roles[instance.role]}
           {...ROLE_CHIPS[instance.role]}
         />
       </TableCell>

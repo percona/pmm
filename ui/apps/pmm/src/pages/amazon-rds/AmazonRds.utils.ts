@@ -238,7 +238,7 @@ const addStorage = (
     : { kind: 'free', bytes: row.freeStorageBytes };
 };
 
-// The group without AWS details has no aws_account_id, so it is ordered before the account.
+// The group without AWS details has an empty aws_account_id, so it is compared first to keep it last in its region.
 const compareGroups = (a: InstanceGroup, b: InstanceGroup) =>
   a.region.localeCompare(b.region) ||
   Number(a.kind === 'unknown') - Number(b.kind === 'unknown') ||

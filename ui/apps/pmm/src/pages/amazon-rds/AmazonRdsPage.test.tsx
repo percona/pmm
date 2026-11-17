@@ -88,7 +88,7 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
     );
     expect(screen.getByRole('link', { name: 'Advisors' })).toHaveAttribute(
       'href',
-      '/graph/advisors/insights'
+      '/advisors/insights'
     );
     expect(screen.getByText('database-3')).toBeInTheDocument();
     expect(screen.getAllByText('AWS info unavailable')).toHaveLength(2);
@@ -297,8 +297,8 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
         .slice(1)
         .map((row) => row.textContent)
     ).toEqual([
-      'database-3-instance-1MySQLOSwriterUp120.50 qps-',
-      'database-3-instance-1-readerMySQLOSreaderUp14.25 qps-',
+      'database-3-instance-1MySQLOSWriterUp120.50 qps-',
+      'database-3-instance-1-readerMySQLOSReaderUp14.25 qps-',
     ]);
     expect(
       within(instances).getByRole('link', {
@@ -359,9 +359,29 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
       screen.getByText('rds-mysql-1-replica-west, us-west-2')
     ).toBeInTheDocument();
     expect(screen.getByText('Down')).toBeInTheDocument();
+    expect(screen.getAllByText('Writer').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Reader').length).toBeGreaterThan(0);
     expect(
       screen.getByRole('button', { name: 'Collapse all' })
     ).toBeInTheDocument();
+  });
+
+  it('keeps the sort in the URL, so a reload or a shared link keeps it', () => {
+    const { unmount } = renderPage();
+
+    fireEvent.click(screen.getByRole('button', { name: /Sort by Throughput/ }));
+
+    const search = screen.getByTestId('location-search').textContent ?? '';
+
+    expect(search).not.toBe('');
+    unmount();
+
+    renderPage({ search });
+
+    expect(
+      screen.getByRole('button', { name: /Sorted by Throughput/ })
+    ).toBeInTheDocument();
+    expect(groupRows()[0]).toContain('rds-mysql-1');
   });
 
   it('sorts groups by a column, missing values last', () => {

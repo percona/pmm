@@ -5,7 +5,8 @@ import type { GroupFilters } from './AmazonRds.types';
 import { readFilters, writeFilters } from './AmazonRds.utils';
 
 // The filters live in the URL, so a reload or a shared link keeps them; the search text reaches
-// it once typing stops.
+// it once typing stops. They filter groups before the table, not as its column filters, because a
+// search that matches only some instances of a group keeps the group and expands it to them.
 export const useRdsFilters = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const filters = useMemo(() => readFilters(searchParams), [searchParams]);

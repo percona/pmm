@@ -36,6 +36,11 @@ export const Messages = {
     `${connected} / ${monitored}`,
   up: 'Up',
   down: 'Down',
+  roles: {
+    writer: 'Writer',
+    reader: 'Reader',
+    unknown: 'Unknown',
+  },
   storageUsed: (value: string) => `${value} used`,
   storageFree: (value: string) => `${value} free`,
   storageLowestFree: (value: string) => `${value} free (min)`,
