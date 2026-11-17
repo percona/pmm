@@ -234,11 +234,26 @@ pmm-admin status
 
 ## Troubleshooting
 
-If PMM Server doesn't work as expected after you add your own certificates, find the cause and fix it.
+This section covers problems with certificates that you provide.
 
 ### If PMM Server doesn't start after you add your own certificates
 
-In PMM 3.8.0 to 3.10.0, PMM Server doesn't start when it can't write to the directory that holds your certificates. The container log shows `mkdir: cannot create directory '/srv/nginx/tmp'`. To fix it, depending on how you run PMM Server:
+In PMM 3.8.0 to 3.10.0, PMM Server doesn't start when it can't write to the directory that holds your certificates. The container log shows `mkdir: cannot create directory '/srv/nginx/tmp'`.
 
-- On Docker, make the certificate directory owned by 1000:0 with `chown 1000:0 /etc/pmm-certs`, and mount it without `:ro`.
-- With the `pmm` or `pmm-ha` Helm chart, remove the `certs` section from your values file and upgrade the release. If you added the certificates when you first installed PMM Server, it still doesn't start, because its data volume keeps a certificate directory that PMM Server can't write to. In that case, uninstall the release, delete its data volumes, and install again without the `certs` section. In these versions, keep the self-signed certificates, or, with the `pmm` chart, use an [Ingress controller with TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) instead.
+=== "Docker"
+
+    Make the certificate directory owned by 1000:0 with `chown 1000:0 /etc/pmm-certs`, and mount it without `:ro`.
+
+=== "Helm"
+
+    The `pmm` and `pmm-ha` charts mount your certificates read-only, so in these versions PMM Server can't start with them. Removing them keeps your monitoring data.
+
+    To start PMM Server without your certificates:
+    {.power-number}
+
+    1. Remove the `certs` section from your values file.
+    2. If you use the `pmm` chart, also set `podSecurityContext.fsGroupChangePolicy` to `Always`. When the pod starts, Kubernetes then makes the certificate directory on the data volume writable for PMM Server.
+    3. Upgrade the release.
+    4. Delete the PMM Server pods that keep restarting, for example `kubectl delete pod pmm-0 -n <namespace>`. The StatefulSet doesn't replace them by itself.
+
+    To keep using your own certificate, with the `pmm-ha` chart put it in a TLS Secret and set `tls.existingTLSSecret`, so that HAProxy presents it to browsers and PMM Clients. With the `pmm` chart, use an [Ingress controller with TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls).
