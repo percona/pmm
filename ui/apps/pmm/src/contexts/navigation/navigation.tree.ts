@@ -156,19 +156,20 @@ export const buildNavTree = ({
   colorMode,
   toggleColorMode,
 }: NavTreeInput): NavItem[] => {
-  const signedIn = user?.isAnonymous === false;
-  const extensions = signedIn && !!settings?.extensionsEnabled;
+  const extensions = !!user && !!settings?.extensionsEnabled;
 
   const technologies = TECHNOLOGIES.filter(
     ([type]) => !type || serviceTypes.includes(type)
   ).map(([, item]) => technology(item, folders));
 
-  // Entries every user has come first, so they keep their place whatever the
-  // role or switches.
-  const analysis: NavItem[] = [NAV_QAN, NAV_REALTIME_QUERIES];
+  const analysis: NavItem[] = [];
 
+  // Entries every signed-in user has come first, so they keep their place
+  // whatever the role or switches.
   if (user) {
     analysis.push(
+      NAV_QAN,
+      NAV_REALTIME_QUERIES,
       addAlerting(
         settings?.alertingEnabled,
         settings?.frontend.unifiedAlertingEnabled,
@@ -193,7 +194,7 @@ export const buildNavTree = ({
   // signed-in user while the switch is on. Actions inside are admin-only.
   const apps: NavItem[] = [];
 
-  if (signedIn && settings?.omEnabled) {
+  if (user && settings?.omEnabled) {
     apps.push(NAV_OM);
   }
 

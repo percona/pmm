@@ -11,11 +11,12 @@ import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useHaInfo } from 'hooks/api/useHA';
 import { useAuth } from 'contexts/auth';
+import { ServiceType } from 'types/services.types';
 import { buildNavTree } from './navigation.tree';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isAnonymous } = useAuth();
   const { data: serviceTypes } = useServiceTypes({
     enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
@@ -29,7 +30,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     true
   );
   const { data: haInfo } = useHaInfo({
-    enabled: user?.isAnonymous === false,
+    enabled: !!user,
   });
 
   const navTree = useMemo<NavItem[]>(
@@ -39,8 +40,11 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         isLoggedIn,
         haInfo,
         settings: settings ?? undefined,
-        // empty while the service types are loading
-        serviceTypes: serviceTypes?.serviceTypes || [],
+        // Anonymous visitors can't list service types, so they get every
+        // database's dashboards; otherwise empty while the types are loading.
+        serviceTypes: isAnonymous
+          ? Object.values(ServiceType)
+          : serviceTypes?.serviceTypes || [],
         folders,
         updateStatus: status,
         versionInfo,
@@ -50,6 +54,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     [
       user,
       isLoggedIn,
+      isAnonymous,
       haInfo,
       settings,
       serviceTypes?.serviceTypes,

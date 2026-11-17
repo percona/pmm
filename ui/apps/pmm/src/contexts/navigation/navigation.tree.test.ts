@@ -3,6 +3,7 @@ import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
   OM_PATH,
+  PMM_NEW_NAV_GRAFANA_PATH,
 } from 'lib/constants';
 import type { HAInfo } from 'types/ha.types';
 import type { NavItem } from 'types/navigation.types';
@@ -11,7 +12,6 @@ import { UpdateStatus } from 'types/updates.types';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import {
   TEST_USER_ADMIN,
-  TEST_USER_ANONYMOUS,
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
@@ -112,6 +112,19 @@ describe('buildNavTree', () => {
 
     expect(mysql).toBe(NAV_MYSQL);
     expect(mysql?.children?.length).toBeGreaterThan(0);
+  });
+
+  it('links the ClusterSync dashboard from the MongoDB menu', () => {
+    expect(
+      findById(
+        findById(build(), 'mongo')?.children,
+        'mongo-clustersync-details'
+      )
+    ).toEqual({
+      id: 'mongo-clustersync-details',
+      text: 'ClusterSync',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-clustersync-details/mongodb-clustersync-details`,
+    });
   });
 
   it('highlights the open dashboard inside its technology menu', () => {
@@ -364,12 +377,20 @@ describe('buildNavTree', () => {
     ]);
   });
 
-  it('offers sign in instead of the account when logged out', () => {
-    const tree = build({ user: TEST_USER_ANONYMOUS, isLoggedIn: false });
+  it('offers an anonymous visitor sign in and nothing that needs PMM APIs', () => {
+    const tree = ids(build({ user: undefined, isLoggedIn: false }));
 
-    expect(ids(tree)).toContain('sign-in');
-    expect(ids(tree)).not.toContain('account');
-    expect(ids(tree)).not.toContain('apps');
-    expect(ids(tree)).not.toContain('extensions-atw');
+    expect(tree).toContain('sign-in');
+    for (const id of [
+      'qan',
+      'realtime-queries',
+      'alerts',
+      'extensions-atw',
+      'apps',
+      'account',
+      'help',
+    ]) {
+      expect(tree).not.toContain(id);
+    }
   });
 });
