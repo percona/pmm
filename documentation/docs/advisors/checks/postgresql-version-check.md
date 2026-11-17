@@ -43,7 +43,7 @@ The check uses these EOL dates from the [PostgreSQL versioning policy](https://w
 
 The check doesn't report a major version that isn't in this table, such as a newer one that PMM doesn't know yet.
 
-The EOL finding's labels show the running version (`current`), its major version (`series`) and the EOL date (`eol_date`). The finding links to the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) or, for Percona Distribution for PostgreSQL, to the [Percona release lifecycle](https://www.percona.com/release-lifecycle-overview/).
+The EOL finding's labels show the running version (`current`), its major version (`series`) and the EOL date (`eol_date`). The finding links to the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) or, for Percona Distribution for PostgreSQL, to the [Percona release lifecycle](https://www.percona.com/release-lifecycle-of-percona-software-for-postgresql/).
 
 ### Newer versions
 
@@ -53,7 +53,7 @@ If a newer minor version of your major version exists, the finding also links to
 
 ## Resolution
 
-If your major version has reached EOL, or reaches it soon, upgrade to a supported major version. For the support dates, see the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) and the [Percona release lifecycle](https://www.percona.com/release-lifecycle-overview/).
+If your major version has reached EOL, or reaches it soon, upgrade to a supported major version. For the support dates, see the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) and the [Percona release lifecycle](https://www.percona.com/release-lifecycle-of-percona-software-for-postgresql/).
 
 To upgrade PostgreSQL, follow these instructions:
 

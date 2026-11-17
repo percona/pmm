@@ -70,7 +70,7 @@ checks:
 
       LIFECYCLE = {
           "postgresql": "https://www.postgresql.org/support/versioning/",
-          "percona": "https://www.percona.com/release-lifecycle-overview/",
+          "percona": "https://www.percona.com/release-lifecycle-of-percona-software-for-postgresql/",
       }
 
       # Percona Distribution for PostgreSQL release notes of each major version; another major version links to its documentation.

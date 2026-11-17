@@ -925,7 +925,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        today,
 			docs:         [][]map[string]any{pgServerVersionRows(130005, "13.5 - Percona Distribution")},
 			want:         []finding{pgEOL("Percona Distribution for PostgreSQL", "error", "13.5", "13", "2025-11-13")},
-			descContains: []string{"Lifecycle policy: https://www.percona.com/release-lifecycle-overview/."},
+			descContains: []string{"Lifecycle policy: https://www.percona.com/release-lifecycle-of-percona-software-for-postgresql/."},
 			descExcludes: []string{"https://www.postgresql.org/support/versioning/"},
 		},
 		{
@@ -934,7 +934,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			today:        pgExpires["15"],
 			docs:         [][]map[string]any{pgServerVersionRows(150005, "15.5 - Percona Distribution")},
 			want:         []finding{pgEOL("Percona Distribution for PostgreSQL", "warning", "15.5", "15", pgExpires["15"])},
-			descContains: []string{"Release notes: https://docs.percona.com/postgresql/15/release-notes.html.", "Lifecycle policy: https://www.percona.com/release-lifecycle-overview/."},
+			descContains: []string{"Release notes: https://docs.percona.com/postgresql/15/release-notes.html.", "Lifecycle policy: https://www.percona.com/release-lifecycle-of-percona-software-for-postgresql/."},
 		},
 		{
 			name:         "postgresql_version_check latest Percona Distribution 16",
