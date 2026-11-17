@@ -37,7 +37,12 @@ const (
 	alertsMaxLimit     = 200
 
 	// The note of every pmm_alerts result, the first line of its text.
-	alertsNote = "Currently firing alerts only; resolved alerts are not shown."
+	alertsNote = "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, " +
+		"so a problem that began minutes ago may be pending or not listed yet."
+
+	// The states of pmm_alerts rows.
+	alertFiring  = "firing"
+	alertPending = "pending"
 
 	// What Grafana writes for a label that a template rule reads from a series that lacks it; it counts as absent.
 	noValue = "[no value]"
@@ -140,15 +145,16 @@ type alertRow struct {
 	Labels        map[string]string `json:"labels,omitempty" jsonschema:"Untrusted. The alert's labels, without Grafana's internal labels that start with __."`
 	Summary       string            `json:"summary,omitempty" jsonschema:"Untrusted. The alert's summary annotation."`
 	Description   string            `json:"description,omitempty" jsonschema:"Untrusted. The alert's description annotation."`
-	StartsAt      time.Time         `json:"starts_at" jsonschema:"When the alert started firing."`
-	Silenced      bool              `json:"silenced" jsonschema:"True when a silence mutes the alert's notifications."`
+	State         string            `json:"state" jsonschema:"firing, or pending while the alert's rule waits out its pending period before it fires."`
+	StartsAt      time.Time         `json:"starts_at" jsonschema:"When the alert started firing, or, for a pending alert, when it went pending."`
+	Silenced      bool              `json:"silenced" jsonschema:"True when a silence mutes the alert's notifications; false while it is pending."`
 	SilencedUntil *time.Time        `json:"silenced_until,omitempty" jsonschema:"When the latest of the silences that mute the alert ends."`
 	PMMURL        string            `json:"pmm_url" jsonschema:"Link to the alert's rule in PMM."`
 }
 
 // alertsResult is the result of pmm_alerts.
 type alertsResult struct {
-	Alerts []alertRow `json:"alerts" jsonschema:"Firing alerts on this page."`
+	Alerts []alertRow `json:"alerts" jsonschema:"Firing and pending alerts on this page."`
 	Page   page       `json:"page" jsonschema:"Paging of the full list."`
 	Note   string     `json:"note" jsonschema:"What the list covers."`
 }
@@ -161,7 +167,7 @@ func oneLine(s string) string {
 func (r alertsResult) render() string {
 	lines := []string{r.Note}
 	if r.Page.Total == 0 {
-		return strings.Join(append(lines, "No firing alerts found."), "\n")
+		return strings.Join(append(lines, "No firing or pending alerts found."), "\n")
 	}
 	if len(r.Alerts) == 0 {
 		return strings.Join(append(lines, r.Page.pastEnd("alert list")), "\n")
@@ -172,6 +178,9 @@ func (r alertsResult) render() string {
 			parts = append(parts, oneLine(a.Severity))
 		}
 		parts = append(parts, oneLine(a.Name))
+		if a.State == alertPending {
+			parts = append(parts, alertPending)
+		}
 		if svc := cmp.Or(labelValue(a.Labels, "service_name"), labelValue(a.Labels, "service_id")); svc != "" {
 			parts = append(parts, "service="+oneLine(svc))
 		}
@@ -200,14 +209,16 @@ func (r alertsResult) render() string {
 func (s *Service) registerAlertsTool(server *mcp.Server) {
 	addTool(s, server, &mcp.Tool{
 		Name:  "pmm_alerts",
-		Title: "Firing alerts",
-		Description: "List the alerts firing now in PMM's alerting, from the alert rules your Grafana folder permissions let you read. " +
+		Title: "Firing and pending alerts",
+		Description: "List the alerts firing now in PMM's alerting, and the pending ones whose rule waits out its pending period, " +
+			"from the alert rules your Grafana folder permissions let you read. " +
 			alertsNote + " The list holds the alerts of the services and nodes in your service list (those whose up series you can " +
 			"read and that sent metrics in the last 7 days), the alerts that name no service or node, and PMM Server's own alerts. " +
 			"Each alert has its severity, labels, summary, description, start time, whether a silence mutes it and until when, and " +
-			"a link to its rule in PMM; the most severe and newest come first. Filter by service_id, service_name, node_name or " +
+			"a link to its rule in PMM; firing alerts come first, then pending ones, each the most severe and newest first. " +
+			"Filter by service_id, service_name, node_name or " +
 			"severity. Read only: it does not silence or acknowledge alerts.",
-		Annotations: readOnly("Firing alerts"),
+		Annotations: readOnly("Firing and pending alerts"),
 	}, s.alerts)
 }
 
@@ -269,6 +280,7 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 			Labels:        labels,
 			Summary:       a.Annotations["summary"],
 			Description:   a.Annotations["description"],
+			State:         alertState(a),
 			StartsAt:      a.StartsAt,
 			Silenced:      a.Silenced,
 			SilencedUntil: a.SilencedUntil,
@@ -359,10 +371,21 @@ func severityRank(severity string) int {
 	}
 }
 
-// compareAlerts orders alerts by severity, case-insensitively and other severities alphabetically, then newest first, then by name.
+// alertState is an alert's state as pmm_alerts names it.
+func alertState(a grafanaAlert) string {
+	if a.Pending {
+		return alertPending
+	}
+	return alertFiring
+}
+
+// compareAlerts orders firing alerts before pending ones, then by severity, case-insensitively and other severities
+// alphabetically, then newest first, then by name.
 func compareAlerts(a, b grafanaAlert) int {
 	sa, sb := strings.ToLower(a.Labels["severity"]), strings.ToLower(b.Labels["severity"])
 	c := cmp.Or(
+		// "firing" sorts before "pending".
+		cmp.Compare(alertState(a), alertState(b)),
 		cmp.Compare(severityRank(sa), severityRank(sb)),
 		strings.Compare(sa, sb),
 		b.StartsAt.Compare(a.StartsAt),

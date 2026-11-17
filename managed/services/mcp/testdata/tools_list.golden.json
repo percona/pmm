@@ -1,7 +1,7 @@
 [
   {
     "name": "pmm_alerts",
-    "description": "List the alerts firing now in PMM's alerting, from the alert rules your Grafana folder permissions let you read. Currently firing alerts only; resolved alerts are not shown. The list holds the alerts of the services and nodes in your service list (those whose up series you can read and that sent metrics in the last 7 days), the alerts that name no service or node, and PMM Server's own alerts. Each alert has its severity, labels, summary, description, start time, whether a silence mutes it and until when, and a link to its rule in PMM; the most severe and newest come first. Filter by service_id, service_name, node_name or severity. Read only: it does not silence or acknowledge alerts.",
+    "description": "List the alerts firing now in PMM's alerting, and the pending ones whose rule waits out its pending period, from the alert rules your Grafana folder permissions let you read. Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet. The list holds the alerts of the services and nodes in your service list (those whose up series you can read and that sent metrics in the last 7 days), the alerts that name no service or node, and PMM Server's own alerts. Each alert has its severity, labels, summary, description, start time, whether a silence mutes it and until when, and a link to its rule in PMM; firing alerts come first, then pending ones, each the most severe and newest first. Filter by service_id, service_name, node_name or severity. Read only: it does not silence or acknowledge alerts.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -36,7 +36,7 @@
       "additionalProperties": false,
       "properties": {
         "alerts": {
-          "description": "Firing alerts on this page.",
+          "description": "Firing and pending alerts on this page.",
           "items": {
             "additionalProperties": false,
             "properties": {
@@ -64,7 +64,7 @@
                 "type": "string"
               },
               "silenced": {
-                "description": "True when a silence mutes the alert's notifications.",
+                "description": "True when a silence mutes the alert's notifications; false while it is pending.",
                 "type": "boolean"
               },
               "silenced_until": {
@@ -75,7 +75,11 @@
                 ]
               },
               "starts_at": {
-                "description": "When the alert started firing.",
+                "description": "When the alert started firing, or, for a pending alert, when it went pending.",
+                "type": "string"
+              },
+              "state": {
+                "description": "firing, or pending while the alert's rule waits out its pending period before it fires.",
                 "type": "string"
               },
               "summary": {
@@ -85,6 +89,7 @@
             },
             "required": [
               "name",
+              "state",
               "starts_at",
               "silenced",
               "pmm_url"
@@ -138,7 +143,7 @@
       "idempotentHint": true,
       "openWorldHint": false,
       "readOnlyHint": true,
-      "title": "Firing alerts"
+      "title": "Firing and pending alerts"
     }
   },
   {

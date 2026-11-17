@@ -38,7 +38,7 @@ import (
 
 const (
 	// The note of every pmm_alerts result, as managed/services/mcp/tools_alerts.go words it.
-	alertsNote     = "Currently firing alerts only; resolved alerts are not shown."
+	alertsNote     = "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
 	alertsMaxLimit = 200
 	// The look-back of pmm_alerts' service list.
 	alertListLookback = 7 * 24 * time.Hour
@@ -51,6 +51,7 @@ const (
 type firingAlert struct {
 	Name          string            `json:"name"`
 	Severity      string            `json:"severity"`
+	State         string            `json:"state"`
 	Labels        map[string]string `json:"labels"`
 	StartsAt      time.Time         `json:"starts_at"`
 	Silenced      bool              `json:"silenced"`
@@ -101,6 +102,7 @@ func TestAlerts(t *testing.T) {
 		}
 		for _, a := range out.Alerts {
 			assert.NotEmpty(t, a.Name)
+			assert.Contains(t, []string{"firing", "pending"}, a.State, a.Name)
 			assert.False(t, a.StartsAt.IsZero(), a.Name)
 			assert.Contains(t, a.PMMURL, "/graph/alerting/", a.Name)
 			for name := range a.Labels {

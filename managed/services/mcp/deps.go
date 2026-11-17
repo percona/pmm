@@ -181,8 +181,10 @@ type grafanaAlert struct {
 	PMMRule     bool
 	Labels      map[string]string
 	Annotations map[string]string
-	StartsAt    time.Time
-	Silenced    bool
+	// Pending is true for an alert whose rule waits out its pending period, false for a firing one.
+	Pending  bool
+	StartsAt time.Time
+	Silenced bool
 	// SilencedUntil is the latest end of the silences that mute the alert; nil when it is not silenced or no end is known.
 	SilencedUntil *time.Time
 

@@ -257,9 +257,9 @@ Input that doesn't match a tool's input schema, such as a missing required argum
 
 ## Alerts
 
-`pmm_alerts` lists the alerts that are firing now. It answers what is wrong at this moment, with the severity, labels, summary and description of each alert, when it started, and a link to its rule in PMM. It doesn't silence or acknowledge anything.
+`pmm_alerts` lists the alerts that are firing now, and the pending ones. It answers what is wrong at this moment, with the severity, labels, summary and description of each alert, its state, when it started, and a link to its rule in PMM. It doesn't silence or acknowledge anything.
 
-The list comes from Grafana's rules API, called with your credentials. Grafana's folder permissions apply, so a Viewer gets what PMM's alert page shows to a Viewer. Every result starts with the note "Currently firing alerts only; resolved alerts are not shown.", also returned as `note`.
+The list comes from Grafana's rules API, called with your credentials. Grafana's folder permissions apply, so a Viewer gets what PMM's alert page shows to a Viewer. Every result starts with the note "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet.", also returned as `note`.
 
 ### Filters and paging
 
@@ -274,7 +274,7 @@ All arguments are optional:
 | `limit` | At most this many alerts per page: default 50, maximum 200 |
 | `offset` | Skips this many alerts, for the next page |
 
-An alert that lacks a label never matches a filter on that label. The most severe alerts come first (`emergency`, `alert`, `critical`, `error`, `warning`, other severities, then none), the newest first within a severity.
+An alert that lacks a label never matches a filter on that label. Firing alerts come first, then pending ones. Within each, the most severe alerts come first (`emergency`, `alert`, `critical`, `error`, `warning`, other severities, then none), the newest first within a severity.
 
 ### What the list holds
 
@@ -286,13 +286,15 @@ MCP narrows the list to the services and nodes in your service list over the las
 
 A `node_name` filter for a node outside your service list answers `not_found`, and so does a `service_id` or `service_name` filter for a service outside it. This includes `pmm-server`. PMM's own alerts and the down alerts of RDS and Azure services name `node_name="pmm-server"`. Even so, the filter answers `not_found` unless `pmm-server` is in your service list, which needs `up` samples that you can read.
 
-### Firing alerts only
+### Firing and pending alerts only
 
-`pmm_alerts` shows currently firing alerts. It doesn't show resolved alerts. It also doesn't show alerts that Grafana keeps firing after they recover (`keep_firing_for`, shown as **Recovering** in Grafana). PMM's alert templates don't use `keep_firing_for`.
+`pmm_alerts` shows the alerts that are firing now, and the pending ones. An alert is pending while its rule's condition holds but the rule waits out its pending period before it fires; `state` is `pending`, and `starts_at` is when it went pending. A firing alert has `state` set to `firing`, and `starts_at` is when it started firing. Grafana evaluates a rule at its group's interval, and the rule then waits out its pending period before it fires. So a problem that began a few minutes ago can be pending, or not yet listed at all: an empty list doesn't mean that no rule covers the problem.
+
+`pmm_alerts` doesn't show resolved alerts. It also doesn't show alerts that Grafana keeps firing after they recover (`keep_firing_for`, shown as **Recovering** in Grafana). PMM's alert templates don't use `keep_firing_for`.
 
 It also doesn't show the `DatasourceNoData` and `DatasourceError` alerts that Grafana raises for a rule whose no-data or error handling is set to **No Data** or **Error**, even though Grafana sends notifications for them. PMM's own rules and the rules made from PMM's alert templates don't raise them: a rule made from a template shows an evaluation error as a firing alert, which `pmm_alerts` lists.
 
-Silenced alerts are included. An alert that a silence mutes has `silenced` set to `true` and `silenced_until` set to the end of the silence. When several silences mute one alert, `silenced_until` is the latest end.
+Silenced alerts are included. An alert that a silence mutes has `silenced` set to `true` and `silenced_until` set to the end of the silence. When several silences mute one alert, `silenced_until` is the latest end. A pending alert always has `silenced` set to `false`: Grafana sends an alert to the Alertmanager, which applies silences, only once it fires.
 
 ### Alerts and the service list
 
