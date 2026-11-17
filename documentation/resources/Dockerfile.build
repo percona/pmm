@@ -2,7 +2,8 @@
 FROM python:3.14-slim AS wheels
 
 # libsass, a mkdocs-with-pdf dependency, has no arm64 wheel and builds from source.
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential
+# git fetches the requirements that are installed from a git URL.
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential git
 COPY requirements.txt /tmp/requirements.txt
 RUN pip wheel --no-cache-dir --wheel-dir /wheels -r /tmp/requirements.txt
 
@@ -14,9 +15,10 @@ RUN apt-get update && \
         fonts-dejavu-core fonts-dejavu-extra fonts-dejavu-mono fonts-liberation fonts-noto-color-emoji && \
     rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt /tmp/requirements.txt
+# The wheels stage resolved requirements.txt; install exactly what it built.
+# Installing from requirements.txt again would rebuild the packages that come from a git URL.
 RUN --mount=type=bind,from=wheels,source=/wheels,target=/wheels \
-    pip install --no-cache-dir --root-user-action=ignore --no-index --find-links=/wheels -r /tmp/requirements.txt
+    pip install --no-cache-dir --root-user-action=ignore --no-index /wheels/*.whl
 
 WORKDIR /docs
 
