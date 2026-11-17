@@ -344,8 +344,8 @@ type CancelActionDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// cancel action default body details items0
-	CancelActionDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// cancel action default body details items0 additional properties
+	CancelActionDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -380,7 +380,7 @@ func (o *CancelActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 			}
 			result[k] = toadd
 		}
-		o.CancelActionDefaultBodyDetailsItems0 = result
+		o.CancelActionDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -401,12 +401,12 @@ func (o CancelActionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.CancelActionDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.CancelActionDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.CancelActionDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.CancelActionDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

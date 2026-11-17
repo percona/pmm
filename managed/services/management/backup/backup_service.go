@@ -740,8 +740,8 @@ func convertError(e error) error {
 		return nil
 	}
 
-	var unsupportedAgentErr models.AgentNotSupportedError
-	if errors.As(e, &unsupportedAgentErr) {
+	_, ok := errors.AsType[models.AgentNotSupportedError](e)
+	if ok {
 		return status.Error(codes.FailedPrecondition, e.Error())
 	}
 

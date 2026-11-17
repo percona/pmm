@@ -310,8 +310,8 @@ type ListPitrTimerangesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// list pitr timeranges default body details items0
-	ListPitrTimerangesDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// list pitr timeranges default body details items0 additional properties
+	ListPitrTimerangesDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *ListPitrTimerangesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 			}
 			result[k] = toadd
 		}
-		o.ListPitrTimerangesDefaultBodyDetailsItems0 = result
+		o.ListPitrTimerangesDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o ListPitrTimerangesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error
 		return nil, err
 	}
 
-	if len(o.ListPitrTimerangesDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ListPitrTimerangesDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ListPitrTimerangesDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ListPitrTimerangesDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

@@ -310,8 +310,8 @@ type GetInventoryHostDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// get inventory host default body details items0
-	GetInventoryHostDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// get inventory host default body details items0 additional properties
+	GetInventoryHostDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *GetInventoryHostDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) er
 			}
 			result[k] = toadd
 		}
-		o.GetInventoryHostDefaultBodyDetailsItems0 = result
+		o.GetInventoryHostDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o GetInventoryHostDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) 
 		return nil, err
 	}
 
-	if len(o.GetInventoryHostDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.GetInventoryHostDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.GetInventoryHostDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.GetInventoryHostDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

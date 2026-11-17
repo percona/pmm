@@ -32,16 +32,16 @@ packageExtensions:
       '@types/react': '*'
 
 overrides:
-  # Keep MUI core pinned to 7.3.7 (matches the yarn baseline). Floating ^7.3.7 to
-  # 7.3.11 breaks @mui/x-date-pickers, which deep-imports @mui/utils/generateUtilityClass
-  # (dropped from @mui/utils 7.3.11's exports map).
-  '@mui/material': 7.3.7
-  '@mui/system': 7.3.7
-  '@mui/utils': 7.3.7
-  '@mui/private-theming': 7.3.7
-  '@mui/styled-engine': 7.3.7
-  '@mui/icons-material': 7.3.7
-  '@mui/core-downloads-tracker': 7.3.7
+  # Keep MUI core in lockstep with the SEP frontend lockfile, so the vendored
+  # @sep packages run against the MUI they are tested with (see PMM-15296).
+  # @mui/styled-engine has no 7.3.11 release.
+  '@mui/material': 7.3.11
+  '@mui/system': 7.3.11
+  '@mui/utils': 7.3.11
+  '@mui/private-theming': 7.3.11
+  '@mui/styled-engine': 7.3.10
+  '@mui/icons-material': 7.3.11
+  '@mui/core-downloads-tracker': 7.3.11
   esbuild: ~0.25.0
   cross-spawn: ~7.0.5
   brace-expansion: ~1.1.12

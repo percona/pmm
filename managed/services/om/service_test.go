@@ -42,10 +42,10 @@ import (
 // panicVM fails the test if queried: GetTopology is a pure read path and must never reach VictoriaMetrics.
 type panicVM struct{ t *testing.T }
 
-func (p panicVM) Query(context.Context, string, time.Time, ...v1.Option) (model.Value, v1.Warnings, error) {
+func (p panicVM) Query(context.Context, string, time.Time, ...v1.Option) (model.Value, v1.Warnings, v1.Infos, error) {
 	p.t.Helper()
 	p.t.Fatal("GetTopology must not query VictoriaMetrics: it is a pure read path")
-	return nil, nil, nil
+	return nil, nil, nil, nil
 }
 
 type fakeHA struct {

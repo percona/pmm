@@ -155,7 +155,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 	extraDSNParams := commands.ParseKeyValuePair(&cmd.ExtraDSNParams)
 
 	if cmd.CreateUser {
-		return nil, errors.New("Unrecognized option. To create a user, see " +
+		return nil, errors.New("unrecognized option. To create a user, see " +
 			"https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html#create-a-database-account-for-pmm") //nolint:lll
 	}
 
