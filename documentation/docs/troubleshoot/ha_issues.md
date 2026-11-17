@@ -131,6 +131,12 @@ kubectl get pv,pvc -n pmm
 
 Add a node, or reduce the resource requests in your values file. If you reduce the requests, delete the Pending pod manually. A `StatefulSet` does not recreate a pending pod when the template changes, so it keeps its original request.
 
+## Pods restart after you add your own certificates
+
+In PMM 3.8.0 to 3.10.0, PMM Server pods keep restarting after you add your own certificates in the `certs` section of your values file. The pod log shows `mkdir: cannot create directory '/srv/nginx/tmp': Read-only file system`.
+
+**Fix:** [Remove the certificates from your Helm release](../admin/security/ssl_encryption.md#if-pmm-server-doesnt-start-after-you-add-your-own-certificates).
+
 ## PMM returns errors for a few seconds after a pod restarts
 
 Requests fail with 5xx errors for a short time after a PMM Server pod is restarted or deleted, then recover on their own.
