@@ -75,7 +75,7 @@ var eolDateRE = regexp.MustCompile(`"(\d{4}-\d{2}-\d{2})"`)
 var tableEntryRE = regexp.MustCompile(`^\s*"([^"]+)":\s*"?([^",\s]+)"?,`)
 
 // scriptTable returns the "key": value entries of the dict literal that opens on the script line containing start.
-// It lets tests follow tables that other teams update, instead of pinning their values.
+// It lets tests follow tables that change with each release, instead of pinning their values.
 func scriptTable(t *testing.T, name, start string) map[string]string {
 	t.Helper()
 
@@ -299,7 +299,7 @@ func promVector(labels map[string]string, value string) []map[string]any {
 func TestBuiltinVersionChecks(t *testing.T) {
 	const today = "2026-11-12"
 
-	// The PSMDB and PostgreSQL teams update these tables, so the cases below read their values instead of pinning them.
+	// These tables change with each patch release, so the cases below read their values instead of pinning them.
 	mongoLatest := scriptTable(t, "mongodb_version", `"mongodb": {`)
 	mongoLatestSeries := latestSeries(t, mongoLatest)
 	psmdbLatest := scriptTable(t, "mongodb_version", `"psmdb": {`)

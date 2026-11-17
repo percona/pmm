@@ -102,17 +102,17 @@ Changes to built-in checks are visible in **Advisors > Catalog** once the PMM Se
 
 ### Keeping version data current
 
-The version checks hold their data in tables inside the check files. Each check reports both end of life (EOL) and newer releases, so one file can hold tables with different owners. Update a table when its owner needs to:
+The version checks hold their data in tables inside the check files. Each check reports both end of life (EOL) and newer releases, so one file holds several tables. The PMM team owns the advisors and keeps these tables current, and can consult the product teams about their releases and lifecycles. Update a table at these events:
 
-| File | Table | Owner | Update when |
-|---|---|---|---|
-| `mongodb_version.yml` | `LATEST_VERSIONS["psmdb"]` | PSMDB team | Each PSMDB patch release |
-| `mongodb_version.yml` | `LATEST_VERSIONS["mongodb"]` | PMM team | Each MongoDB Community patch release; add a series at its GA |
-| `mongodb_version.yml` | `EOL` | PMM team | New major/LTS GA; vendor lifecycle change |
-| `postgresql_version_check.yml` | `latest_versions`, `version_expires` | PostgreSQL team | Each minor release; new major GA |
-| `mysql_version.yml` | `LATEST_VERSIONS`: `percona_server`, `percona_xtradb_cluster` | PS and PXC teams (to agree) | Each patch release |
-| `mysql_version.yml` | `LATEST_VERSIONS`: `oracle`, `mariadb`, `rds` | PMM team | Each PMM release |
-| `mysql_version.yml` | `EOL_ORACLE`, `EOL_PERCONA`, `EOL_MARIADB`, `EOL_RDS` | PMM team | New major/LTS GA; vendor lifecycle change |
+| File | Table | Update when |
+|---|---|---|
+| `mongodb_version.yml` | `LATEST_VERSIONS["psmdb"]` | Each PSMDB patch release |
+| `mongodb_version.yml` | `LATEST_VERSIONS["mongodb"]` | Each MongoDB Community patch release; add a series at its GA |
+| `mongodb_version.yml` | `EOL` | New major/LTS GA; vendor lifecycle change |
+| `postgresql_version_check.yml` | `latest_versions`, `version_expires` | Each minor release; new major GA |
+| `mysql_version.yml` | `LATEST_VERSIONS`: `percona_server`, `percona_xtradb_cluster` | Each patch release |
+| `mysql_version.yml` | `LATEST_VERSIONS`: `oracle`, `mariadb`, `rds` | Each PMM release |
+| `mysql_version.yml` | `EOL_ORACLE`, `EOL_PERCONA`, `EOL_MARIADB`, `EOL_RDS` | New major/LTS GA; vendor lifecycle change |
 
 Every version check follows one rule, and gives at most one finding per service:
 

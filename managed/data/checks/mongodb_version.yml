@@ -12,13 +12,11 @@ checks:
     script: |
       # The latest release of each series, from the release notes in RELEASE_NOTES; a series past EOL needs no row.
       LATEST_VERSIONS = {
-          # The PSMDB team keeps this table current.
           "psmdb": {
               "7.0": 70048,
               "8.0": 80038,
               "8.3": 80313,
           },
-          # The PMM team keeps this table current.
           "mongodb": {
               "7.0": 70048,
               "8.0": 80038,
@@ -42,7 +40,7 @@ checks:
           "mongodb": "https://www.mongodb.com/legal/support-policy/lifecycles",
       }
 
-      # The PMM team keeps this table current from the "MongoDB Server" table at LIFECYCLE["mongodb"], which PSMDB follows.
+      # From the "MongoDB Server" table at LIFECYCLE["mongodb"], which PSMDB follows.
       # Add a series once that table lists its EOL date.
       EOL = {
           (3, 0): "2018-02-28",
