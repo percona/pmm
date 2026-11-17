@@ -149,10 +149,6 @@ func runBuiltinCheck(t *testing.T, name, today string, docs ...[]map[string]any)
 	require.NoError(t, err)
 	fixed := day.Add(12 * time.Hour)
 
-	orig := now
-	now = func() time.Time { return fixed }
-	t.Cleanup(func() { now = orig })
-
 	funcs, err := GetFuncsForVersion(c.Version)
 	require.NoError(t, err)
 
@@ -164,7 +160,7 @@ func runBuiltinCheck(t *testing.T, name, today string, docs ...[]map[string]any)
 		input[i] = d
 	}
 
-	results, err := env.Run(name, input, GetAdditionalContext(), t.Log)
+	results, err := env.Run(name, input, additionalContext(func() time.Time { return fixed }), t.Log)
 	require.NoError(t, err)
 
 	return results
