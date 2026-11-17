@@ -262,8 +262,9 @@ func TestPrepare(t *testing.T) {
 		dir := t.TempDir()
 		file := filepath.Join(dir, string(VMPassword))
 		require.NoError(t, os.WriteFile(file, []byte("q7v-file"), 0o440))
-		const noURL = "vm-password: PMM_VM_URL isn't set, so PMM Server uses the built-in VictoriaMetrics, which takes no password"
-		const noUser = "vm-password: PMM_VM_URL has no username to go with the password"
+		const noURL = "vm-password: PMM_VM_URL isn't set, so PMM Server uses the built-in VictoriaMetrics, which takes no password: " +
+			"set PMM_VM_URL to the URL of your VictoriaMetrics, or remove the password file"
+		const noUser = "vm-password: PMM_VM_URL has no username to go with the password: add the username to the URL"
 
 		_, err := Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file}))
 		require.EqualError(t, err, noURL)

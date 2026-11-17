@@ -490,14 +490,15 @@ func urlPassword(raw string) string {
 // username, and without the URL PMM Server uses the built-in VictoriaMetrics, which takes no password.
 func checkURLUser(raw, env string) error {
 	if raw == "" {
-		return fmt.Errorf("%s isn't set, so PMM Server uses the built-in VictoriaMetrics, which takes no password", env)
+		return fmt.Errorf("%s isn't set, so PMM Server uses the built-in VictoriaMetrics, which takes no password: "+
+			"set %s to the URL of your VictoriaMetrics, or remove the password file", env, env)
 	}
 	u, err := parseURL(raw)
 	if err != nil {
 		return fmt.Errorf("%s: %w", env, err)
 	}
 	if u.User.Username() == "" {
-		return fmt.Errorf("%s has no username to go with the password", env)
+		return fmt.Errorf("%s has no username to go with the password: add the username to the URL", env)
 	}
 	return nil
 }
