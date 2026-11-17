@@ -55,8 +55,8 @@ If your major version has reached EOL, or reaches it soon, upgrade to a supporte
 
 To upgrade PostgreSQL, follow these instructions:
 
-- [Upgrade only the minor version](https://docs.percona.com/postgresql/15/minor-upgrade.html)
-- [Upgrade major versions](https://docs.percona.com/postgresql/15/major-upgrade.html)
+- [Upgrade only the minor version](https://docs.percona.com/postgresql/18/minor-upgrade.html)
+- [Upgrade major versions](https://docs.percona.com/postgresql/18/major-upgrade.html)
 
 ## Need more support from Percona?
 

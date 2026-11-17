@@ -5,13 +5,13 @@
 
 ## Description
 
-Percona Server for MySQL Server version 5.7 will reach End-of-life on October 21st, 2023.
+Percona Server for MySQL 5.7 reached end of life (EOL) in October 2023. For the exact dates of each distribution, see [MySQL version](mysql-version.md#end-of-life-dates).
 
-EOL versions no longer receive bug or security fixes from the vendor.
+EOL versions no longer receive regular bug or security fixes from the vendor.
 
 ## Resolution
 
-[Contact Percona](https://www.percona.com/about/contact) to get extended support for version 5.7, or help you plan the migration to version 8.4 (latest).  
+[Contact Percona](https://www.percona.com/about/contact) to get extended support for version 5.7, or to get help planning the upgrade to a supported series. You can't upgrade from 5.7 directly to 8.4: upgrade to 8.0 first, following the [8.0 upgrade instructions](https://docs.percona.com/percona-server/8.0/upgrade.html), and then to 8.4.
 
 For more information, check out the [Percona software support lifecycle information](https://www.percona.com/services/policies/percona-services-lifecycle-policy/).
 

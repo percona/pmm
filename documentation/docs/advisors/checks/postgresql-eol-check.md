@@ -9,7 +9,7 @@ End-of-life (EOL) versions no longer receive bug or security fixes from the vend
 
 ## Resolution
 
-Upgrade to the latest version of Percona Distribution for PostgreSQL, following the [upgrade instructions](https://docs.percona.com/postgresql/15/major-upgrade.html).
+Upgrade to the latest version of Percona Distribution for PostgreSQL, following the [upgrade instructions](https://docs.percona.com/postgresql/18/major-upgrade.html).
 
 For more information, check out the [Percona software support lifecycle information](https://www.percona.com/services/policies/percona-services-lifecycle-policy/)
 
