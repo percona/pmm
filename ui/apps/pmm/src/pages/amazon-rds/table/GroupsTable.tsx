@@ -1,13 +1,9 @@
 import { useMemo, useState, type FC, type ReactNode } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import {
-  Table,
-  Tooltip,
-  type MRT_ColumnDef,
-  type MRT_SortingState,
-} from '@percona/peak-ui';
+import { Table, Tooltip, type MRT_ColumnDef } from '@percona/peak-ui';
 import type { MRT_ExpandedState, MRT_Updater } from 'material-react-table';
+import { GROUPS_URL_STATE } from '../AmazonRds.constants';
 import { Messages } from '../AmazonRds.messages';
 import type {
   GroupColumnId,
@@ -26,6 +22,7 @@ import {
 } from '../AmazonRds.utils';
 import { AlertsBadge } from './AlertsBadge';
 import { InstancesTable } from './InstancesTable';
+import { useTableUrlState } from 'hooks/utils/useTableUrlState';
 
 interface GroupsTableProps {
   groups: InstanceGroup[];
@@ -226,7 +223,8 @@ export const GroupsTable: FC<GroupsTableProps> = ({
   autoExpanded,
   expansionKey,
 }) => {
-  const [sorting, setSorting] = useState<MRT_SortingState>([]);
+  const { tableProps } = useTableUrlState(GROUPS_URL_STATE);
+  const { sorting } = tableProps.state;
   const { expanded, onExpandedChange } = useGroupExpansion(
     groups,
     autoExpanded,
@@ -243,7 +241,7 @@ export const GroupsTable: FC<GroupsTableProps> = ({
       // Sorted here, so missing values stay last in both directions.
       manualSorting
       state={{ sorting, expanded }}
-      onSortingChange={setSorting}
+      onSortingChange={tableProps.onSortingChange}
       onExpandedChange={onExpandedChange}
       renderDetailPanel={({ row }) => <InstancesTable group={row.original} />}
       // MRT names every toggle "Expand" whatever its state, so the names say what a click does.

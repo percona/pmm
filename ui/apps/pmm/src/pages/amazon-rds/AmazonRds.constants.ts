@@ -1,4 +1,10 @@
-import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  NAV_ADVISORS_INSIGHTS,
+  NAV_ALERTS_GROUPS,
+  NAV_ALERTS_STATUS,
+} from 'contexts/navigation/navigation.constants';
+import type { UseTableUrlStateOptions } from 'hooks/utils/useTableUrlState';
+import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import type {
   EngineFamily,
   EngineId,
@@ -30,11 +36,11 @@ export const SERVICE_TYPE_ENGINES: Record<string, EngineId> = {
 
 export const UNKNOWN_GROUP = 'AWS info unavailable';
 
-export const ALERTING_URL = `${PMM_NEW_NAV_PATH}/alerting/status`;
+export const ALERTING_URL = NAV_ALERTS_STATUS.url;
 
-export const ADVISORS_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`;
+export const ADVISORS_URL = NAV_ADVISORS_INSIGHTS.url;
 
-export const ALERT_GROUPS_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/groups`;
+export const ALERT_GROUPS_URL = NAV_ALERTS_GROUPS.url;
 
 export const DASHBOARD_URLS = {
   auroraDetails: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-amazonaurora/mysql-amazon-aurora-details`,
@@ -60,6 +66,12 @@ export const URL_PARAMS: Record<keyof GroupFilters, string> = {
   engines: 'rds-engine',
   types: 'rds-type',
   groups: 'rds-id',
+};
+
+// Only the sort goes through the table URL state; useRdsFilters keeps the filters and search.
+export const GROUPS_URL_STATE: UseTableUrlStateOptions = {
+  paramPrefix: 'rds',
+  sync: { sort: true, filters: false, globalFilter: false, pagination: false },
 };
 
 export const NO_FILTERS: GroupFilters = {

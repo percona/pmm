@@ -570,17 +570,17 @@ export const NAV_ALERTS_SILENCES: NavItem = {
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/silences`,
 };
 
-export const NAV_ALERTS_GROUPS: NavItem = {
+export const NAV_ALERTS_GROUPS = {
   id: 'alerts-groups',
   text: 'Alert groups',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/groups`,
-};
+} satisfies NavItem;
 
-export const NAV_ALERTS_STATUS: NavItem = {
+export const NAV_ALERTS_STATUS = {
   id: 'alerts-status',
   text: 'Status',
   url: `${PMM_NEW_NAV_PATH}/alerting/status`,
-};
+} satisfies NavItem;
 
 export const NAV_ALERTS_CONTACT_POINTS: NavItem = {
   id: 'alerts-contact-points',

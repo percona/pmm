@@ -48,7 +48,7 @@ type rdsExporterConfigFile struct {
 }
 
 // serviceStandardLabels are the Service labels that rds_exporter series carry, so that access roles
-// filtering on them also match the metrics of the RDS Node (PMM-15868).
+// filtering on them also match the metrics of the RDS Node.
 var serviceStandardLabels = []string{"environment", "cluster", "replication_set"}
 
 // sharedServiceLabels returns the serviceStandardLabels on which all given Services have the same non-empty value.
