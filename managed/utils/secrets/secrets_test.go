@@ -411,7 +411,7 @@ func TestPrepare(t *testing.T) {
 		require.NoError(t, os.WriteFile(other, []byte("from-other"), 0o440))
 
 		_, err := Prepare(testOptions(t, map[string]string{SecretsDirEnvVar: dir, "GF_SECURITY_ADMIN_PASSWORD": "$__file{" + other + "}"}))
-		require.ErrorContains(t, err, "admin-password: both "+filepath.Join(dir, string(AdminPassword))+" and a value")
+		require.ErrorContains(t, err, "admin-password: is set both in "+filepath.Join(dir, string(AdminPassword))+" and in GF_SECURITY_ADMIN_PASSWORD/PMM_ADMIN_PASSWORD")
 	})
 
 	t.Run("refuses a secrets directory that is missing or not a directory", func(t *testing.T) {
@@ -482,8 +482,8 @@ func TestPrepare(t *testing.T) {
 		_, err := Prepare(opts)
 		require.Error(t, err)
 		for _, s := range []string{
-			"clickhouse-password: both a file",
-			"postgres-password: both " + filepath.Join(dir, string(PostgresPassword)) + " and a value",
+			"clickhouse-password: is set both in PMM_CLICKHOUSE_PASSWORD_FILE and in PMM_CLICKHOUSE_PASSWORD",
+			"postgres-password: is set both in " + filepath.Join(dir, string(PostgresPassword)) + " and in PMM_POSTGRES_DBPASSWORD",
 			"clickhouse-datasource-password: " + filepath.Join(dir, string(ClickHouseDatasourcePassword)) + " is empty: add the password or key to the file",
 			"grafana-secret-key:",
 		} {
