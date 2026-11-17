@@ -47,6 +47,8 @@ export const useLinkWithVariables = (url?: string) => {
       setLink(constructUrl(location));
     } else if (grafanaReady) {
       enhanceWithVariables(url).then(setLink);
+    } else {
+      setLink(url);
     }
   }, [url, location, grafanaReady]);
 

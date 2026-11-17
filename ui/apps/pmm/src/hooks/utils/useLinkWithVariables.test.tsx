@@ -72,6 +72,23 @@ describe('useLinkWithVariables', () => {
     expect(result.current).toBe('/pmm-ui/extensions/mysql-backups');
   });
 
+  it('should follow a link that becomes a dashboard before Grafana is ready', () => {
+    const { result, rerender } = renderHook(
+      ({ url }) => useLinkWithVariables(url),
+      {
+        initialProps: { url: '/pmm-ui/operations' },
+        wrapper: ({ children }) =>
+          wrapWithRouter(wrapWithGrafana(children, { grafanaReady: false }), {
+            initialEntries: [CURRENT],
+          }),
+      }
+    );
+
+    rerender({ url: TARGET });
+
+    expect(result.current).toBe(`${TARGET}?from=now-1h&to=now`);
+  });
+
   it('should use the link Grafana expanded', async () => {
     vi.mocked(messenger.sendMessageWithResult).mockResolvedValue({
       url: '/d/node-cpu/cpu-utilization?from=now-1h&to=now&var-node_name=node-1',
