@@ -10,6 +10,8 @@ It is always recommended to enable the journal.
 
 In recent versions (starting with versions 4.0 +), MongoDB enables journaling by default and doesn't allow turning it off.
 
+Starting in MongoDB 6.1, journaling is always enabled. As a result, MongoDB removes the storage.journal.enabled option.
+
 For more information, see the [Journaling section](https://docs.mongodb.com/manual/core/journaling/) in the MongoDB documentation.
 
 ## Rule
