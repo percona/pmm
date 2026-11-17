@@ -128,6 +128,12 @@ kubectl get pv,pvc -n pmm
 
 Add a node, or reduce the resource requests in your values file. If you reduce the requests, delete the Pending pod manually. A `StatefulSet` does not recreate a pending pod when the template changes, so it keeps its original request.
 
+## Pods restart after you add your own certificates
+
+In PMM 3.8.0 to 3.10.0, PMM Server pods keep restarting after you add your own certificates in the `certs` section of your values file. The pod log shows `mkdir: cannot create directory '/srv/nginx/tmp': Read-only file system`.
+
+**Fix:** [Remove the certificates from your Helm release](../admin/security/ssl_encryption.md#if-pmm-server-doesnt-start-after-you-add-your-own-certificates).
+
 ## PMM returns errors for a few seconds after a pod restarts
 
 Requests fail with 5xx errors for a short time after a PMM Server pod is restarted or deleted, then recover on their own.
@@ -234,7 +240,7 @@ If dashboards or Query Analytics are empty, check the state of your cluster in t
 
 If a component is reported as unhealthy here, troubleshoot that component first. An empty dashboard or empty Query Analytics is usually a symptom of a component that is not running.
 
-**Inventory page:** Go to **Configuration > Inventory**. On the **Nodes** tab, check that all `pmm-ha` nodes are present and their status is healthy. On the **Services** tab, check that the services you added are listed and that their agents are running.
+**Inventory page:** Go to **Inventory**. On the **Nodes** tab, check that all `pmm-ha` nodes are present and their **Status** is **Up**. On the **Services** tab, check that the services you added are listed and that their **Monitoring** status is **OK**.
 
 If a service is missing from Inventory, the problem is with adding the service, not with storing or displaying its data.
 

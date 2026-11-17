@@ -2166,6 +2166,12 @@ func TestInventoryErrorMapping(t *testing.T) {
 			hides: true,
 		},
 		{
+			name: "an app that cannot serve now is unavailable",
+			code: http.StatusServiceUnavailable,
+			body: `{"detail": "Operations Inventory is switched off"}`,
+			want: codes.Unavailable,
+		},
+		{
 			name: "anything else is internal",
 			code: http.StatusInternalServerError,
 			body: `{"detail": "boom"}`,
@@ -2183,7 +2189,7 @@ func TestInventoryErrorMapping(t *testing.T) {
 			require.Error(t, err)
 			assert.Equal(t, tc.want, status.Code(err))
 			if tc.hides {
-				assert.Contains(t, status.Convert(err).Message(), "PMM's credential")
+				assert.Contains(t, status.Convert(err).Message(), "PMM's token does not match EXTENSIONS_INTERNAL_TOKEN")
 			}
 		})
 	}
@@ -2223,6 +2229,23 @@ func TestInventoryConfig(t *testing.T) {
 
 		// A field the deployment owns is listed rather than hidden, so a UI can show it greyed out.
 		assert.Equal(t, omv1.SettingReload_SETTING_RELOAD_NOT_OVERRIDABLE, response.GetSettings()[1].GetReload())
+	})
+
+	t.Run("PMM's own switch reads as fixed, as its refusal says", func(t *testing.T) {
+		t.Parallel()
+
+		body := `[{"key": "ENABLED", "value": true, "default_value": false, "type": "bool",
+		           "reload": "hot", "has_override": true, "is_advanced": false, "description": null}]`
+		stub := newSEPStub(t, http.StatusOK, body)
+
+		response, err := stub.service(t).GetInventoryConfig(callerContext(t), &omv1.GetInventoryConfigRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, response.GetSettings(), 1)
+		enabled := response.GetSettings()[0]
+		assert.Equal(t, omv1.SettingReload_SETTING_RELOAD_NOT_OVERRIDABLE, enabled.GetReload())
+		assert.True(t, enabled.GetHasOverride(), "PMM's own writes to it are an override")
+		assert.True(t, enabled.GetValue().GetBoolValue())
 	})
 
 	t.Run("a change is passed through as the app will validate it", func(t *testing.T) {
@@ -2356,6 +2379,40 @@ func TestInventoryConfig(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.JSONEq(t, `{"SCHEDULE": {"every": 25, "period": "seconds"}}`, stub.calls[0].body)
+	})
+
+	t.Run("PMM's own switch is refused here, ahead of anything else wrong with its batch", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, configBody)
+		nested := map[string]any{"leaf": 1}
+		for range maxConfigDepth + 1 {
+			nested = map[string]any{"SCHEDULE": nested}
+		}
+		values, err := structpb.NewStruct(map[string]any{"ENABLED": false, "RUN_RETENTION": 5, "SCHEDULE": nested})
+		require.NoError(t, err)
+
+		_, err = stub.service(t).UpdateInventoryConfig(callerContext(t),
+			&omv1.UpdateInventoryConfigRequest{Values: values})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, err.Error(), "PMM Settings")
+		assert.Empty(t, stub.method, "nothing should have been sent")
+	})
+
+	t.Run("reverting PMM's own switch is refused here", func(t *testing.T) {
+		t.Parallel()
+
+		// ENABLED defaults to off, so a revert would stop every scan until the next tick put it back.
+		stub := newSEPStub(t, http.StatusNoContent, ``)
+
+		_, err := stub.service(t).DeleteInventoryConfigOverride(callerContext(t),
+			&omv1.DeleteInventoryConfigOverrideRequest{Key: "ENABLED"})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Empty(t, stub.method, "nothing should have been sent")
 	})
 
 	t.Run("a revert names the field in the path", func(t *testing.T) {

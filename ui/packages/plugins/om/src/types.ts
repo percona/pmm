@@ -43,7 +43,8 @@ export type OmProcessRole =
   | 'PROCESS_ROLE_MONGOD'
   | 'PROCESS_ROLE_MONGOS'
   | 'PROCESS_ROLE_CONFIGSVR'
-  | 'PROCESS_ROLE_SHARDSVR';
+  | 'PROCESS_ROLE_SHARDSVR'
+  | 'PROCESS_ROLE_ARBITER';
 
 /** How a host was matched to the executor client its probe ran on. */
 export type OmExecutorResolution =
@@ -123,6 +124,8 @@ export interface OmService {
   installed_version?: string | null;
   config_path?: string | null;
   argv?: string | null;
+  /** When the newest live field on this row was observed; absent when none is. */
+  observed_at?: string | null;
   /**
    * When a down service was last seen up, from metrics. Absent while it is up, and on
    * a down one not up at any point in the last {@link METRICS_LOOKBACK}.
@@ -227,6 +230,12 @@ export interface OmServiceRow extends OmService {
  */
 export type OmClusterHealth = 'healthy' | 'degraded' | 'down' | 'unknown';
 
+/** One replica set's running versions, for reading version drift. */
+export interface OmVersionSet {
+  replication_set: string;
+  versions: string[];
+}
+
 export interface OmClusterRow {
   env_name?: string | null;
   cluster_name?: string | null;
@@ -242,8 +251,19 @@ export interface OmClusterRow {
   by_process_role: Partial<Record<OmProcessRole, number>>;
   /** Replica-set member states, counted. Empty for routers and standalones. */
   by_state: Record<string, number>;
-  /** Distinct running versions. More than one is a mixed-version cluster. */
+  type: OmClusterType;
+  /** Distinct running versions, oldest first. */
   versions: string[];
+  /** Each replica set's distinct versions among its data-bearing members. */
+  version_sets: OmVersionSet[];
+  /** Whether any replica set runs more than one version: the "Mixed" case. */
+  version_drift: boolean;
+  /** The oldest member `observed_at`, so one stale member shows; null when none has one. */
+  last_seen_at: string | null;
+  /** The busiest member's CPU, and the tightest member's free connections; null when
+   * no member measures them. */
+  max_cpu_percent: number | null;
+  min_connections_free_percent: number | null;
   /**
    * The worst lag in the cluster, and the tightest oplog window.
    *
@@ -355,9 +375,8 @@ export interface OmInventoryExecutor {
 /**
  * A mongod running on a host that PMM has no service for.
  *
- * Arbiters, mostly: PMM registers no service for one, so nothing else in OM reports
- * the process at all. Also what stands in the way of installing anything over a port
- * already in use.
+ * Arbiters that were not added to PMM, mostly, which nothing else in OM reports at
+ * all. Also what stands in the way of installing anything over a port already in use.
  */
 export interface OmUnregisteredMongod {
   port?: number | null;
@@ -522,7 +541,7 @@ export type OmHostDatabaseState =
  * The derived fields exist because the page's headline question - which hosts have no
  * database - cannot be answered from `services.length` alone. PMM's inventory cannot
  * tell a bare pmm-client host from an arbiter, so a host with no service may still be
- * running a mongod that PMM cannot authenticate against.
+ * running a mongod that was never added to PMM.
  */
 export interface OmHostRow extends OmInventoryHost {
   database_state: OmHostDatabaseState;

@@ -19,9 +19,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { get, useFormContext, useFormState, useWatch } from 'react-hook-form';
 import { SchemaFormRenderer } from './SchemaFormRenderer';
-import type { FailRule, FormSection } from './types';
+import type { FailRule, FormSection, RenderFieldOverride } from './types';
 
 // A script preview fetches on mount; keep it loading.
 vi.mock('@pmm-extensions/api', async (importOriginal) => ({
@@ -501,5 +502,184 @@ describe('SchemaFormRenderer — root fail_when rules', () => {
     expect(screen.queryByTestId('form-rule-violation')).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Run' }));
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  describe('on custom field widgets', () => {
+    // Writes through setValue and never registers, so react-hook-form has no
+    // field to hold a rule error.
+    function UnregisteredCheckbox({ name }: { name: string }) {
+      const { setValue } = useFormContext();
+      const value = useWatch({ name });
+      return (
+        <input
+          type="checkbox"
+          aria-label={`custom-${name}`}
+          checked={Boolean(value)}
+          onChange={(event) => setValue(name, event.target.checked)}
+        />
+      );
+    }
+
+    // Registers its field and shows its error, as the override contract asks.
+    function RegisteredCheckbox({ name }: { name: string }) {
+      const { register } = useFormContext();
+      const { errors } = useFormState({ name, exact: true });
+      const error = get(errors, name);
+      return (
+        <>
+          <input
+            type="checkbox"
+            aria-label={`custom-${name}`}
+            {...register(name)}
+          />
+          {error && <p data-testid={`custom-${name}-error`}>{error.message}</p>}
+        </>
+      );
+    }
+
+    // Draws an unregistered placeholder until loaded, then registers.
+    function LateRegisteringCheckbox({ name }: { name: string }) {
+      const [loaded, setLoaded] = useState(false);
+      return loaded ? (
+        <RegisteredCheckbox name={name} />
+      ) : (
+        <button type="button" onClick={() => setLoaded(true)}>
+          load-{name}
+        </button>
+      );
+    }
+
+    const overrideWith =
+      (widgets: Record<string, (props: { name: string }) => ReactNode>) =>
+      ({ field, renderDefault }: Parameters<RenderFieldOverride>[0]) => {
+        const Widget = widgets[field.name];
+        return Widget ? <Widget name={field.name} /> : renderDefault();
+      };
+
+    it('shows a root rule above the form when none of its error fields register', async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+      renderWithProviders(
+        <SchemaFormRenderer
+          sections={SECTIONS}
+          failRules={[GPG_RULE]}
+          renderField={overrideWith({
+            encrypt: UnregisteredCheckbox,
+            post_run_encrypt: UnregisteredCheckbox,
+          })}
+          onSubmit={onSubmit}
+        />
+      );
+
+      await user.click(screen.getByLabelText('GPG format'));
+
+      await waitFor(() =>
+        expect(screen.getByTestId('form-rule-violation')).toHaveTextContent(
+          GPG_MESSAGE
+        )
+      );
+      await user.click(screen.getByRole('button', { name: 'Run' }));
+      expect(onSubmit).not.toHaveBeenCalled();
+
+      await user.click(screen.getByLabelText('custom-encrypt'));
+
+      await waitFor(() =>
+        expect(screen.queryByTestId('form-rule-violation')).toBeNull()
+      );
+      expect(screen.queryByText(GPG_MESSAGE)).toBeNull();
+      await user.click(screen.getByRole('button', { name: 'Run' }));
+      await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+      expect(onSubmit.mock.calls[0][0]).toMatchObject({
+        gpg: true,
+        encrypt: true,
+      });
+    });
+
+    it('shows a root rule on custom widgets that register their fields', async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn();
+      renderWithProviders(
+        <SchemaFormRenderer
+          sections={SECTIONS}
+          failRules={[GPG_RULE]}
+          renderField={overrideWith({
+            encrypt: RegisteredCheckbox,
+            post_run_encrypt: RegisteredCheckbox,
+          })}
+          onSubmit={onSubmit}
+        />
+      );
+
+      await user.click(screen.getByLabelText('GPG format'));
+
+      for (const name of ['encrypt', 'post_run_encrypt']) {
+        await waitFor(() =>
+          expect(screen.getByTestId(`custom-${name}-error`)).toHaveTextContent(
+            GPG_MESSAGE
+          )
+        );
+      }
+      expect(screen.queryByTestId('form-rule-violation')).toBeNull();
+      await user.click(screen.getByRole('button', { name: 'Run' }));
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it('moves a root rule onto a widget that registers after mount once its value changes', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SchemaFormRenderer
+          sections={SECTIONS}
+          failRules={[{ ...GPG_RULE, error_fields: ['encrypt'] }]}
+          renderField={overrideWith({ encrypt: LateRegisteringCheckbox })}
+          onSubmit={() => {}}
+        />
+      );
+
+      await user.click(screen.getByLabelText('GPG format'));
+      await waitFor(() =>
+        expect(screen.getByTestId('form-rule-violation')).toHaveTextContent(
+          GPG_MESSAGE
+        )
+      );
+
+      await user.click(screen.getByRole('button', { name: 'load-encrypt' }));
+      await user.click(screen.getByLabelText('custom-encrypt'));
+      await waitFor(() =>
+        expect(screen.queryByTestId('form-rule-violation')).toBeNull()
+      );
+      await user.click(screen.getByLabelText('custom-encrypt'));
+
+      await waitFor(() =>
+        expect(screen.getByTestId('custom-encrypt-error')).toHaveTextContent(
+          GPG_MESSAGE
+        )
+      );
+      expect(screen.queryByTestId('form-rule-violation')).toBeNull();
+    });
+
+    it('shows a root rule only on the error fields whose widgets register', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SchemaFormRenderer
+          sections={SECTIONS}
+          failRules={[GPG_RULE]}
+          renderField={overrideWith({
+            encrypt: UnregisteredCheckbox,
+            post_run_encrypt: RegisteredCheckbox,
+          })}
+          onSubmit={() => {}}
+        />
+      );
+
+      await user.click(screen.getByLabelText('GPG format'));
+
+      await waitFor(() =>
+        expect(
+          screen.getByTestId('custom-post_run_encrypt-error')
+        ).toHaveTextContent(GPG_MESSAGE)
+      );
+      expect(screen.getAllByText(GPG_MESSAGE)).toHaveLength(1);
+      expect(screen.queryByTestId('form-rule-violation')).toBeNull();
+    });
   });
 });

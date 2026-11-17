@@ -23,8 +23,7 @@ strip -g ${rootfs}/usr/sbin/*
 install -d ${rootfs}/usr/share/pmm-managed
 cp -pa api/swagger ${rootfs}/usr/share/pmm-managed/
 
-install -d ${rootfs}/usr/local/percona/advisors ${rootfs}/usr/local/percona/checks ${rootfs}/usr/local/percona/alerting-templates
-install -p -m 0644 managed/data/advisors/*.yml ${rootfs}/usr/local/percona/advisors/
+install -d ${rootfs}/usr/local/percona/checks ${rootfs}/usr/local/percona/alerting-templates
 install -p -m 0644 managed/data/checks/*.yml ${rootfs}/usr/local/percona/checks/
 install -p -m 0644 managed/data/alerting-templates/*.yml ${rootfs}/usr/local/percona/alerting-templates/
 
