@@ -23,18 +23,17 @@ checks:
               parsed_version = parse_version(version)
               version_minor = parsed_version["minor"]
               version_major = parsed_version["major"]
-              if version_major < 8:
-                skip_errors = row["slave_skip_errors"]
-                exec_mode = row["slave_exec_mode"]
-                prefix = "slave"
-              if version_major == 8 and version_minor >= 26:
-                skip_errors = row["replica_skip_errors"]
-                exec_mode = row["replica_exec_mode"]
+              version_patch = parsed_version["patch"]
+              # the replica_* variables exist from MySQL 8.0.26 on
+              prefix = "slave"
+              if version_major > 8:
                 prefix = "replica"
-              if version_major == 8 and version_minor < 26:
-                skip_errors = row["slave_skip_errors"]
-                exec_mode = row["slave_exec_mode"]
-                prefix = "slave"
+              if version_major == 8 and version_minor > 0:
+                prefix = "replica"
+              if version_major == 8 and version_minor == 0 and version_patch >= 26:
+                prefix = "replica"
+              skip_errors = row[prefix + "_skip_errors"]
+              exec_mode = row[prefix + "_exec_mode"]
 
           if exec_mode == 'IDEMPOTENT':
               results.append ({
