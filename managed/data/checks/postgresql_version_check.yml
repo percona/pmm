@@ -9,7 +9,7 @@ checks:
     technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
-        query: "setting, (setting::int / 10000) major  FROM pg_settings WHERE name = 'server_version_num' "
+        query: "setting, (setting::int / 10000) major, current_setting('server_version') server_version FROM pg_settings WHERE name = 'server_version_num' "
     script: |
       # The latest minor release of each major version, "Current minor" column:
       # https://www.postgresql.org/support/versioning/
@@ -63,10 +63,35 @@ checks:
 
       security_line = " Newer releases can include security fixes; see which ones affect your version: https://www.postgresql.org/support/security/."
 
-      lifecycle_line = " Lifecycle policy: https://www.postgresql.org/support/versioning/."
+      PRODUCT = {
+          "postgresql": "PostgreSQL",
+          "percona": "Percona Distribution for PostgreSQL",
+      }
+
+      LIFECYCLE = {
+          "postgresql": "https://www.postgresql.org/support/versioning/",
+          "percona": "https://www.percona.com/release-lifecycle-overview/",
+      }
+
+      # Percona Distribution for PostgreSQL release notes of each major version; another major version links to its documentation.
+      PERCONA_RELEASE_NOTES = {
+          "11": "https://docs.percona.com/postgresql/11/release-notes.html",
+          "12": "https://docs.percona.com/postgresql/12/release-notes.html",
+          "13": "https://docs.percona.com/postgresql/13/release-notes/release-notes.html",
+          "14": "https://docs.percona.com/postgresql/14/release-notes/release-notes.html",
+          "15": "https://docs.percona.com/postgresql/15/release-notes.html",
+          "16": "https://docs.percona.com/postgresql/16/release-notes/release-notes.html",
+          "17": "https://docs.percona.com/postgresql/17/release-notes/release-notes.html",
+          "18": "https://docs.percona.com/postgresql/18/release-notes/release-notes.html",
+      }
 
 
-      def release_notes(version):
+      def release_notes(dist, version):
+          if dist == "percona":
+              major = version.split(".")[0]
+              url = PERCONA_RELEASE_NOTES.get(major, "https://docs.percona.com/postgresql/{}/".format(major))
+              return " Release notes: {}.".format(url)
+
           return " Release notes: https://www.postgresql.org/docs/release/{}/.".format(version)
 
 
@@ -77,7 +102,9 @@ checks:
           return "{}.{}.{}".format(major, ver // 100 % 100, ver % 100)
 
 
-      def eol_result(series, current_version, eol_date, days, latest_for_current, ver):
+      def eol_result(dist, series, current_version, eol_date, days, latest_for_current, ver):
+          product = PRODUCT[dist]
+          lifecycle_line = " Lifecycle policy: {}.".format(LIFECYCLE[dist])
           labels = {
               "current": current_version,
               "series": series,
@@ -86,20 +113,20 @@ checks:
 
           if days < 0:
               return {
-                  "summary": "PostgreSQL {} reached end of life".format(series),
-                  "description": "PostgreSQL {} reached its End-of-Life date on {}. EOL versions no longer receive bug or security fixes from the vendor. Upgrade to a supported major version.".format(series, eol_date) + lifecycle_line,
+                  "summary": "{} {} reached end of life".format(product, series),
+                  "description": "{} {} reached its End-of-Life date on {}. EOL versions no longer receive bug or security fixes from the vendor. Upgrade to a supported major version.".format(product, series, eol_date) + lifecycle_line,
                   "read_more_url": read_url.format("postgresql-version-check"),
                   "severity": "error",
                   "labels": labels,
               }
 
-          description = "PostgreSQL {} End-of-Life date is {}. After that date it no longer gets bug fixes or security fixes. Plan your upgrade to a supported major version.".format(series, eol_date) + lifecycle_line
+          description = "{} {} End-of-Life date is {}. After that date it no longer gets bug fixes or security fixes. Plan your upgrade to a supported major version.".format(product, series, eol_date) + lifecycle_line
           if ver < latest_for_current:
               latest = format_version(int(series.split(".")[0]), latest_for_current)
-              description += " Until then, upgrade to the latest release of this major version, {}.".format(latest) + release_notes(latest) + security_line
+              description += " Until then, upgrade to the latest release of this major version, {}.".format(latest) + release_notes(dist, latest) + security_line
 
           return {
-              "summary": "PostgreSQL {} reaches end of life on {}".format(series, eol_date),
+              "summary": "{} {} reaches end of life on {}".format(product, series, eol_date),
               "description": description,
               "read_more_url": read_url.format("postgresql-version-check"),
               "severity": "warning",
@@ -112,6 +139,11 @@ checks:
            results = []
            for row in rows[0]:
                ver, major = int(row["setting"]), int(row["major"])
+               # Percona builds add "Percona Distribution" or "Percona Server for PostgreSQL" to server_version.
+               dist = "postgresql"
+               if "Percona" in (row.get("server_version") or ""):
+                  dist = "percona"
+               product = PRODUCT[dist]
 
                if major < minver:
                   continue
@@ -131,7 +163,7 @@ checks:
 
                # A major version past or near its EOL gets only the EOL finding: a newer minor version of it is no fix.
                if days <= WARN_DAYS:
-                  results.append(eol_result(series, current_version, eol_date, days, latest_for_current, ver))
+                  results.append(eol_result(dist, series, current_version, eol_date, days, latest_for_current, ver))
                   continue
 
                # A server already on the latest minor version of its major version gets no security note: it misses no fixes.
@@ -139,21 +171,21 @@ checks:
                newest_major = latestpg // 10000
                if ver < latest_for_current:
                   latest = format_version(major, latest_for_current)
-                  description = "Current version is {}, the latest release of PostgreSQL {} is {}.".format(current_version, series, latest)
+                  description = "Current version is {}, the latest release of {} {} is {}.".format(current_version, product, series, latest)
                   if major < newest_major:
                      description += " A newer major version, {}, is also available.".format(newest_major)
                elif ver < latestpg:
                   latest = format_version(newest_major, latestpg)
                   note = ""
-                  description = "Current version is {}, the latest release of PostgreSQL {}. A newer major version, {}, is available.".format(current_version, series, newest_major)
+                  description = "Current version is {}, the latest release of {} {}. A newer major version, {}, is available.".format(current_version, product, series, newest_major)
                else:
                   continue
 
-               description += " PostgreSQL {} reaches end of life on {}.".format(series, eol_date)
+               description += " {} {} reaches end of life on {}.".format(product, series, eol_date)
 
                results.append({
-                   "summary": "Newer version of PostgreSQL is available",
-                   "description": description + release_notes(latest) + note,
+                   "summary": "Newer version of {} is available".format(product),
+                   "description": description + release_notes(dist, latest) + note,
                    "read_more_url": read_url.format("postgresql-version-check"),
                    "severity": "warning",
                    "labels": {

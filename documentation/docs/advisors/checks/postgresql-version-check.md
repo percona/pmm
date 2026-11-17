@@ -4,13 +4,15 @@ The `postgresql_version_check` check reports when the major version of PostgreSQ
 
 ## Description
 
-The check reads the server version from the `server_version_num` setting and returns at most one finding per service:
+The check reads the server version from the `server_version_num` setting and returns at most one finding per service. In the following table, `<product>` is **Percona Distribution for PostgreSQL** or **PostgreSQL**:
 
 | Major version | Finding | Severity |
 | :------------ | :------ | :------- |
-| Has reached EOL | **PostgreSQL `<major>` reached end of life** | Error |
-| Reaches EOL within the next six months (183 days), up to and including the EOL date | **PostgreSQL `<major>` reaches end of life on `<date>`**. If a newer minor version exists, the finding also names it. | Warning |
-| Supported, with a newer minor or major version available | **Newer version of PostgreSQL is available**. The finding names the newer version and the EOL date of the installed major version. | Warning |
+| Has reached EOL | **`<product> <major>` reached end of life** | Error |
+| Reaches EOL within the next six months (183 days), up to and including the EOL date | **`<product> <major>` reaches end of life on `<date>`**. If a newer minor version exists, the finding also names it. | Warning |
+| Supported, with a newer minor or major version available | **Newer version of `<product>` is available**. The finding names the newer version and the EOL date of the installed major version. | Warning |
+
+The check tells the two products apart by the `server_version` setting, where Percona builds add "Percona Distribution" or "Percona Server for PostgreSQL". It links to the release notes and lifecycle policy of that product. Percona Distribution for PostgreSQL follows the PostgreSQL minor versions and EOL dates, so the check compares both products with the same versions.
 
 A major version past its EOL gets only the EOL error. A newer minor version of it doesn't fix the problem, so the check doesn't suggest one.
 
@@ -41,11 +43,11 @@ The check uses these EOL dates from the [PostgreSQL versioning policy](https://w
 
 The check doesn't report a major version that isn't in this table, such as a newer one that PMM doesn't know yet.
 
-The EOL finding's labels show the running version (`current`), its major version (`series`) and the EOL date (`eol_date`). The finding links to the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/).
+The EOL finding's labels show the running version (`current`), its major version (`series`) and the EOL date (`eol_date`). The finding links to the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) or, for Percona Distribution for PostgreSQL, to the [Percona release lifecycle](https://www.percona.com/release-lifecycle-overview/).
 
 ### Newer versions
 
-For a supported major version, the check compares the version with the latest minor version of the same major version, and then with the latest major version. The finding's labels show the running version (`current`) and the newer version (`latest`), and the finding links to the [release notes](https://www.postgresql.org/docs/release/) of the newer version.
+For a supported major version, the check compares the version with the latest minor version of the same major version, and then with the latest major version. The finding's labels show the running version (`current`) and the newer version (`latest`). The finding links to the [PostgreSQL release notes](https://www.postgresql.org/docs/release/) of the newer version or, for Percona Distribution for PostgreSQL, to the [Percona Distribution for PostgreSQL release notes](https://docs.percona.com/postgresql/18/release-notes/release-notes.html) of its major version.
 
 If a newer minor version of your major version exists, the finding also links to the [PostgreSQL security information page](https://www.postgresql.org/support/security/), where you can check which vulnerabilities affect your current version.
 

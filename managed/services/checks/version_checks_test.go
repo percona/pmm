@@ -216,8 +216,8 @@ func mongoEOL(product, severity, current, series, eolDate string) finding {
 	return eolFinding(product, severity, current, series, eolDate)
 }
 
-func pgEOL(severity, current, series, eolDate string) finding {
-	return eolFinding("PostgreSQL", severity, current, series, eolDate)
+func pgEOL(product, severity, current, series, eolDate string) finding {
+	return eolFinding(product, severity, current, series, eolDate)
 }
 
 func mysqlEOL(product, severity, current, series, eolDate string) finding {
@@ -257,10 +257,10 @@ func newerMongo(product, current, latest string) finding {
 }
 
 // newerPG builds the postgresql_version_check newer-version finding.
-func newerPG(current, latest string) finding {
+func newerPG(product, current, latest string) finding {
 	return finding{
 		Severity: "warning",
-		Summary:  "Newer version of PostgreSQL is available",
+		Summary:  "Newer version of " + product + " is available",
 		Labels:   map[string]string{"current": current, "latest": latest},
 	}
 }
@@ -274,6 +274,14 @@ func pgVersionRows(serverVersionNum int) []map[string]any {
 		"setting": strconv.Itoa(serverVersionNum),
 		"major":   int64(serverVersionNum / 10000),
 	}}
+}
+
+// pgServerVersionRows adds the server_version setting, which Percona builds tag with their product name.
+func pgServerVersionRows(serverVersionNum int, serverVersion string) []map[string]any {
+	rows := pgVersionRows(serverVersionNum)
+	rows[0]["server_version"] = serverVersion
+
+	return rows
 }
 
 func promVector(labels map[string]string, value string) []map[string]any {
@@ -806,7 +814,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check:        "postgresql_version_check",
 			today:        today,
 			docs:         [][]map[string]any{pgVersionRows(130005)},
-			want:         []finding{pgEOL("error", "13.5", "13", "2025-11-13")},
+			want:         []finding{pgEOL("PostgreSQL", "error", "13.5", "13", "2025-11-13")},
 			descContains: []string{"2025-11-13", "supported major version", "Lifecycle policy: https://www.postgresql.org/support/versioning/."},
 			descExcludes: []string{pgVersion(tableInt(t, pgLatest, "13")), "newer minor version", "can include security fixes", "Release notes"},
 		},
@@ -815,49 +823,49 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check: "postgresql_version_check",
 			today: today,
 			docs:  [][]map[string]any{pgVersionRows(110022)},
-			want:  []finding{pgEOL("error", "11.22", "11", "2023-11-09")},
+			want:  []finding{pgEOL("PostgreSQL", "error", "11.22", "11", "2023-11-09")},
 		},
 		{
 			name:  "postgresql_version_check 120022 past EOL",
 			check: "postgresql_version_check",
 			today: today,
 			docs:  [][]map[string]any{pgVersionRows(120022)},
-			want:  []finding{pgEOL("error", "12.22", "12", "2024-11-21")},
+			want:  []finding{pgEOL("PostgreSQL", "error", "12.22", "12", "2024-11-21")},
 		},
 		{
 			name:  "postgresql_version_check 100023 past EOL",
 			check: "postgresql_version_check",
 			today: today,
 			docs:  [][]map[string]any{pgVersionRows(100023)},
-			want:  []finding{pgEOL("error", "10.23", "10", "2022-11-10")},
+			want:  []finding{pgEOL("PostgreSQL", "error", "10.23", "10", "2022-11-10")},
 		},
 		{
 			name:  "postgresql_version_check 90624 past EOL",
 			check: "postgresql_version_check",
 			today: today,
 			docs:  [][]map[string]any{pgVersionRows(90624)},
-			want:  []finding{pgEOL("error", "9.6.24", "9.6", "2021-11-11")},
+			want:  []finding{pgEOL("PostgreSQL", "error", "9.6.24", "9.6", "2021-11-11")},
 		},
 		{
 			name:  "postgresql_version_check 140024 day before EOL",
 			check: "postgresql_version_check",
 			today: "2026-11-11",
 			docs:  [][]map[string]any{pgVersionRows(140024)},
-			want:  []finding{pgEOL("warning", "14.24", "14", "2026-11-12")},
+			want:  []finding{pgEOL("PostgreSQL", "warning", "14.24", "14", "2026-11-12")},
 		},
 		{
 			name:  "postgresql_version_check 140024 day after EOL",
 			check: "postgresql_version_check",
 			today: "2026-11-13",
 			docs:  [][]map[string]any{pgVersionRows(140024)},
-			want:  []finding{pgEOL("error", "14.24", "14", "2026-11-12")},
+			want:  []finding{pgEOL("PostgreSQL", "error", "14.24", "14", "2026-11-12")},
 		},
 		{
 			name:         "postgresql_version_check 170005",
 			check:        "postgresql_version_check",
 			today:        today,
 			docs:         [][]map[string]any{pgVersionRows(170005)},
-			want:         []finding{newerPG("17.5", pgVersion(tableInt(t, pgLatest, "17")))},
+			want:         []finding{newerPG("PostgreSQL", "17.5", pgVersion(tableInt(t, pgLatest, "17")))},
 			descContains: []string{"Current version is 17.5, the latest release of PostgreSQL 17 is " + pgVersion(tableInt(t, pgLatest, "17")) + ". A newer major version, " + pgLatestSeries + ", is also available.", "PostgreSQL 17 reaches end of life on " + pgExpires["17"], "Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, "17")) + "/.", "security fixes", "https://www.postgresql.org/support/security/"},
 			descExcludes: []string{"Upgrade one major version"},
 		},
@@ -866,7 +874,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check:        "postgresql_version_check",
 			today:        pgExpires["17"],
 			docs:         [][]map[string]any{pgVersionRows(170005)},
-			want:         []finding{pgEOL("warning", "17.5", "17", pgExpires["17"])},
+			want:         []finding{pgEOL("PostgreSQL", "warning", "17.5", "17", pgExpires["17"])},
 			descContains: []string{"latest release of this major version, " + pgVersion(tableInt(t, pgLatest, "17")) + ". Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, "17")) + "/.", "Lifecycle policy: https://www.postgresql.org/support/versioning/.", "security fixes"},
 		},
 		{
@@ -874,7 +882,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check:        "postgresql_version_check",
 			today:        pgExpires["17"],
 			docs:         [][]map[string]any{pgVersionRows(tableInt(t, pgLatest, "17"))},
-			want:         []finding{pgEOL("warning", pgVersion(tableInt(t, pgLatest, "17")), "17", pgExpires["17"])},
+			want:         []finding{pgEOL("PostgreSQL", "warning", pgVersion(tableInt(t, pgLatest, "17")), "17", pgExpires["17"])},
 			descExcludes: []string{"latest release of this major version", "can include security fixes"},
 		},
 		{
@@ -882,7 +890,7 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check:        "postgresql_version_check",
 			today:        "2029-11-09",
 			docs:         [][]map[string]any{pgVersionRows(170005)},
-			want:         []finding{pgEOL("error", "17.5", "17", "2029-11-08")},
+			want:         []finding{pgEOL("PostgreSQL", "error", "17.5", "17", "2029-11-08")},
 			descExcludes: []string{pgVersion(tableInt(t, pgLatest, "17"))},
 		},
 		{
@@ -890,9 +898,51 @@ func TestBuiltinVersionChecks(t *testing.T) {
 			check:        "postgresql_version_check",
 			today:        today,
 			docs:         [][]map[string]any{pgVersionRows(tableInt(t, pgLatest, "16"))},
-			want:         []finding{newerPG(pgVersion(tableInt(t, pgLatest, "16")), pgVersion(tableInt(t, pgLatest, pgLatestSeries)))},
+			want:         []finding{newerPG("PostgreSQL", pgVersion(tableInt(t, pgLatest, "16")), pgVersion(tableInt(t, pgLatest, pgLatestSeries)))},
 			descContains: []string{"the latest release of PostgreSQL 16. A newer major version, " + pgLatestSeries + ", is available.", "PostgreSQL 16 reaches end of life on " + pgExpires["16"], "Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, pgLatestSeries)) + "/."},
 			descExcludes: []string{"security fixes"},
+		},
+		{
+			name:         "postgresql_version_check community 170005 with a distribution suffix",
+			check:        "postgresql_version_check",
+			today:        today,
+			docs:         [][]map[string]any{pgServerVersionRows(170005, "17.5 (Debian 17.5-1.pgdg120+1)")},
+			want:         []finding{newerPG("PostgreSQL", "17.5", pgVersion(tableInt(t, pgLatest, "17")))},
+			descContains: []string{"Release notes: https://www.postgresql.org/docs/release/" + pgVersion(tableInt(t, pgLatest, "17")) + "/."},
+		},
+		{
+			name:         "postgresql_version_check Percona Server for PostgreSQL 170005",
+			check:        "postgresql_version_check",
+			today:        today,
+			docs:         [][]map[string]any{pgServerVersionRows(170005, "17.5 - Percona Server for PostgreSQL 17.5.1")},
+			want:         []finding{newerPG("Percona Distribution for PostgreSQL", "17.5", pgVersion(tableInt(t, pgLatest, "17")))},
+			descContains: []string{"Current version is 17.5, the latest release of Percona Distribution for PostgreSQL 17 is " + pgVersion(tableInt(t, pgLatest, "17")) + ".", "Percona Distribution for PostgreSQL 17 reaches end of life on " + pgExpires["17"], "Release notes: https://docs.percona.com/postgresql/17/release-notes/release-notes.html.", "https://www.postgresql.org/support/security/"},
+			descExcludes: []string{"https://www.postgresql.org/docs/release/"},
+		},
+		{
+			name:         "postgresql_version_check Percona Distribution 130005 past EOL",
+			check:        "postgresql_version_check",
+			today:        today,
+			docs:         [][]map[string]any{pgServerVersionRows(130005, "13.5 - Percona Distribution")},
+			want:         []finding{pgEOL("Percona Distribution for PostgreSQL", "error", "13.5", "13", "2025-11-13")},
+			descContains: []string{"Lifecycle policy: https://www.percona.com/release-lifecycle-overview/."},
+			descExcludes: []string{"https://www.postgresql.org/support/versioning/"},
+		},
+		{
+			name:         "postgresql_version_check Percona Distribution 150005 on EOL day",
+			check:        "postgresql_version_check",
+			today:        pgExpires["15"],
+			docs:         [][]map[string]any{pgServerVersionRows(150005, "15.5 - Percona Distribution")},
+			want:         []finding{pgEOL("Percona Distribution for PostgreSQL", "warning", "15.5", "15", pgExpires["15"])},
+			descContains: []string{"Release notes: https://docs.percona.com/postgresql/15/release-notes.html.", "Lifecycle policy: https://www.percona.com/release-lifecycle-overview/."},
+		},
+		{
+			name:         "postgresql_version_check latest Percona Distribution 16",
+			check:        "postgresql_version_check",
+			today:        today,
+			docs:         [][]map[string]any{pgServerVersionRows(tableInt(t, pgLatest, "16"), pgVersion(tableInt(t, pgLatest, "16"))+" - Percona Distribution")},
+			want:         []finding{newerPG("Percona Distribution for PostgreSQL", pgVersion(tableInt(t, pgLatest, "16")), pgVersion(tableInt(t, pgLatest, pgLatestSeries)))},
+			descContains: []string{"Release notes: https://docs.percona.com/postgresql/" + pgLatestSeries + "/"},
 		},
 		{
 			name:  "postgresql_wal_retention_check without wal_keep",
