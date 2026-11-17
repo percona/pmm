@@ -91,12 +91,13 @@ To upgrade PMM Server, you manually update the `PMM_IMAGE` in the environment fi
     ExecStart=/usr/bin/podman run \
         --volume=${PMM_VOLUME_NAME}:/srv \
         --rm --replace=true --name %N \
+        --stop-timeout=60 \
         --env-file=%h/.config/systemd/user/pmm-server.env \
         --net pmm_default \
         --cap-add=net_admin,net_raw \
         --userns=keep-id:uid=1000,gid=1000 \
         -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
-    ExecStop=/usr/bin/podman stop -t 60 %N
+    ExecStop=/usr/bin/podman stop %N
     [Install]
     WantedBy=default.target
     ```
