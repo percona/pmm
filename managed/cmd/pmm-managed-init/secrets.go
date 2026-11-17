@@ -44,16 +44,27 @@ func runSecrets() error {
 			logrus.Warnf("Credential %s: %s and %s have different values. PMM Server uses %s. "+
 				"Remove %s, or set it to the same value.", r.Name, r.Ignored, r.Var, r.Var, r.Ignored)
 		}
+		if r.Dropped != "" {
+			logrus.Warnf("Credential %s: %s has a password but no username. VictoriaMetrics uses a password only together "+
+				"with a username, so PMM Server drops it. Remove the password from %s, or add the username.", r.Name, r.Dropped, r.Dropped)
+		}
 	}
 	return nil
 }
 
-// runVMURL prints PMM_VM_URL without its password, which the secrets step stored, for the entrypoint to export.
+// runVMURL prints PMM_VM_URL for PMM's programs, for the entrypoint to export.
 func runVMURL() error {
-	u, err := secrets.URLWithoutPassword(os.Getenv(secrets.VMURLEnvVar))
-	if err != nil {
-		return err
-	}
-	_, err = fmt.Fprintln(os.Stdout, u)
+	_, err := fmt.Fprintln(os.Stdout, vmURLForPrograms(os.Getenv(secrets.VMURLEnvVar)))
 	return err
+}
+
+// vmURLForPrograms returns raw without its password: the secrets step stored the password in its file, or dropped it
+// for having no username. A URL that doesn't parse holds no password that the secrets step found, so it passes
+// unchanged, and pmm-managed reports it.
+func vmURLForPrograms(raw string) string {
+	u, err := secrets.URLWithoutPassword(raw)
+	if err != nil {
+		return raw
+	}
+	return u
 }

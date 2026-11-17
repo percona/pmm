@@ -245,6 +245,9 @@ type Resolved struct {
 	Kept bool
 	// Ignored names a legacy variable set to a different value than Var, which wins.
 	Ignored string
+	// Dropped names a URL variable whose password has no username, which VictoriaMetrics doesn't use, so the
+	// credential stays unset.
+	Dropped string
 }
 
 // Options configures Prepare.
@@ -354,9 +357,12 @@ func resolveSource(opts Options, s spec) (Resolved, error) {
 	file, _, _ := first(opts.Getenv, s.fileEnvs)
 	value, key, ignored := first(opts.Getenv, s.valueEnvs)
 	if value == "" && s.urlEnv != "" {
-		value = urlPassword(opts.Getenv(s.urlEnv))
-		if value != "" {
-			key = s.urlEnv
+		username, password := urlUserinfo(opts.Getenv(s.urlEnv))
+		switch {
+		case password != "" && username == "":
+			r.Dropped = s.urlEnv
+		case password != "":
+			value, key = password, s.urlEnv
 		}
 	}
 	r.Var, r.Ignored = key, ignored
@@ -476,14 +482,15 @@ func (s spec) valueVars() string {
 	return strings.Join(vars, "/")
 }
 
-// urlPassword returns the password in a URL's userinfo, or "" when there is none or the URL doesn't parse.
-func urlPassword(raw string) string {
+// urlUserinfo returns the username and password in a URL's userinfo, or "" for each when there is none or the URL
+// doesn't parse.
+func urlUserinfo(raw string) (string, string) {
 	u, err := url.Parse(raw)
 	if err != nil || u.User == nil {
-		return ""
+		return "", ""
 	}
 	password, _ := u.User.Password()
-	return password
+	return u.User.Username(), password
 }
 
 // checkURLUser refuses a password that the URL in env can't carry: VictoriaMetrics checks it together with a
@@ -520,11 +527,15 @@ func parseURL(raw string) (*url.URL, error) {
 	return u, nil
 }
 
-// URLWithoutPassword returns a URL without the password in its userinfo, keeping the username.
+// URLWithoutPassword returns a URL without the password in its userinfo, keeping the username, or raw itself when it
+// has no password.
 func URLWithoutPassword(raw string) (string, error) {
 	u, err := parseURL(raw)
 	if err != nil {
 		return "", err
+	}
+	if _, ok := u.User.Password(); !ok {
+		return raw, nil
 	}
 	switch {
 	case u.User == nil:

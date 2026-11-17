@@ -170,8 +170,9 @@ unset PMM_POSTGRES_DBPASSWORD GF_DATABASE_PASSWORD PMM_CLICKHOUSE_PASSWORD PMM_C
 if [ -L /run/pmm/secrets/grafana-secret-key ]; then
     unset GF_SECURITY_SECRET_KEY
 fi
-# The VictoriaMetrics password lives in its file, so PMM's programs get the URL without it.
-if [ -n "${PMM_VM_URL:-}" ] && [ -L /run/pmm/secrets/vm-password ]; then
+# The VictoriaMetrics password lives in its file, or was dropped for having no username, so PMM's programs get the URL
+# without it. A URL without a password passes unchanged.
+if [ -n "${PMM_VM_URL:-}" ]; then
     PMM_VM_URL=$(pmm-managed-init vm-url)
     export PMM_VM_URL
 fi

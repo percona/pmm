@@ -273,12 +273,23 @@ func TestPrepare(t *testing.T) {
 
 		_, err = Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file, VMURLEnvVar: "http://vmauth:8427/"}))
 		require.EqualError(t, err, noUser)
-		_, err = Prepare(testOptions(t, map[string]string{VMURLEnvVar: "http://:q7v-url@vmauth:8427/"}))
+		_, err = Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file, VMURLEnvVar: "http://:q7v-url@vmauth:8427/"}))
 		require.EqualError(t, err, noUser)
 
 		_, err = Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file, VMURLEnvVar: "http://q7v-user@vm auth:8427/"}))
 		require.ErrorContains(t, err, "vm-password: PMM_VM_URL: ")
 		assert.NotContains(t, err.Error(), "q7v")
+	})
+
+	t.Run("drops a password without a username in PMM_VM_URL", func(t *testing.T) {
+		opts := testOptions(t, map[string]string{VMURLEnvVar: "http://:q7v-url@vmauth:8427/"})
+
+		resolved, err := Prepare(opts)
+		require.NoError(t, err)
+		r := byName(t, resolved)[VMPassword]
+		assert.Equal(t, SourceUnset, r.Source)
+		assert.Equal(t, VMURLEnvVar, r.Dropped)
+		assert.NoFileExists(t, filepath.Join(opts.RunDir, string(VMPassword)))
 	})
 
 	t.Run("refuses a control character in the VictoriaMetrics username", func(t *testing.T) {
@@ -715,6 +726,7 @@ func TestURLWithoutPassword(t *testing.T) {
 		"https://:pw@vm.example.com/select/": "https://vm.example.com/select/",
 		"http://vmuser@vmauth:8427/":         "http://vmuser@vmauth:8427/",
 		"http://127.0.0.1:9090/prometheus/":  "http://127.0.0.1:9090/prometheus/",
+		"http://vm'user@vmauth:8427/p%2fq/":  "http://vm'user@vmauth:8427/p%2fq/",
 	} {
 		got, err := URLWithoutPassword(in)
 		require.NoError(t, err, in)
