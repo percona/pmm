@@ -1169,7 +1169,7 @@ The badge shows the overall health of your cluster, based on how many nodes resp
 
 #### Check HA roles in Inventory
 
-After a failover or an upgrade, check the PMM Server nodes in **Inventory** to see which node is the current leader and make sure every node is running:
+Only PMM Admins can open **Inventory**. After a failover or an upgrade, check the PMM Server nodes in **Inventory** to see which node is the current leader and make sure every node is running:
 {.power-number}
 
 1. Go to **Inventory > Nodes** and turn on **List PMM Server only nodes**.

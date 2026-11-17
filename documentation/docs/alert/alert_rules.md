@@ -18,14 +18,14 @@ It takes at least one evaluation cycle for an alert rule to transition from one 
 
 PMM provides a set of Alert Rule templates with common events and expressions for alerting. These templates can be used as a basis for creating Alert Rules. You can also create your own templates if you need custom expressions.
 
-You can check the alert templates available for your account under **Alerting > Alert rule templates** tab. PMM lists here the following types of templates:
+You can check the alert templates available for your account under **Alerts > Templates**. PMM lists here the following types of templates:
 
 - Built-in templates, available out-of-the-box with PMM.
-- Custom templates created or uploaded on the **Alerting page > Alert Templates** tab. You can also store your custom template files in your ``/srv/alerting/templates`` directory and PMM will load them during startup.
+- Custom templates created or uploaded on the **Alerts > Templates** page. You can also store your custom template files in your ``/srv/alerting/templates`` directory and PMM will load them during startup.
 
 ## Accessing alert templates
 
-To check the alert templates for your PMM instance, go to **Alerts > Alert templates** tab.
+To check the alert templates for your PMM instance, go to **Alerts > Templates**.
 
 To check the full list of available PMM templates, see the [List of available alert templates topic](../alert/templates_list.md)
 
@@ -40,7 +40,7 @@ Before creating PMM alert rules, configure the required alert resources:
 
 1. Go to **Configuration > Settings > Advanced settings** and ensure that the **Percona Alerting** option is enabled. When this is disabled, the **Alerting** page displays only Grafana-managed alert rules. This means that you will not be able to create alerts based on PMM templates.
 2. Go to **Dashboards > All dashboards** and check the folders available for storing alert rules. If none of the available folders are relevant for your future alert rules, click **New > New folder** and create a custom one.
-3. Go to **Alerts > Alert rule templates** and check the default PMM templates. If none of the templates include a relevant expression for the type of alerts that you want to create, click **Add template** to create a custom template instead.
+3. Go to **Alerts > Templates** and check the default PMM templates. If none of the templates include a relevant expression for the type of alerts that you want to create, click **Add template** to create a custom template instead.
 
 ### Configure alert templates
 

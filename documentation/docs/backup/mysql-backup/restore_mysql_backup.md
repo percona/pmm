@@ -15,6 +15,6 @@ To restore a backup:
 3. In the **Restore from backup** dialog, select **Same service** to restore to a service with identical properties or **Compatible services** to restore to a compatible service.
 4. Select one of the available service names from the drop-down menu.
 5. Check the values, then click **Restore**.
-6. Go to the **Restores** tab to check the status of the restored backup.
+6. Go to **Apps > Restores** to check the status of the restored backup.
 
 During restoring, PMM disables all the scheduled backup tasks for the current service. Remember to re-enable them manually after the restore.
