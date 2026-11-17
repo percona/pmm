@@ -708,3 +708,21 @@ func TestHealthSignalsPass(t *testing.T) {
 	assert.Len(t, healthSignals[engineNode], 6)
 	assert.Len(t, healthSignals, 4)
 }
+
+func TestHealthMaxTxDurationTakesMaximum(t *testing.T) {
+	t.Parallel()
+
+	i := slices.IndexFunc(healthSignals[enginePostgreSQL], func(s signal) bool { return s.Name == "max_tx_duration" })
+	require.GreaterOrEqual(t, i, 0)
+	expr, err := metricsql.Parse(fmt.Sprintf(healthSignals[enginePostgreSQL][i].Query, `service_name="db1"`))
+	require.NoError(t, err)
+
+	// The exporter reports one series per database and state, mostly zeros, so any average hides the longest transaction.
+	var aggregations []string
+	metricsql.VisitAll(expr, func(e metricsql.Expr) {
+		if a, ok := e.(*metricsql.AggrFuncExpr); ok {
+			aggregations = append(aggregations, a.Name)
+		}
+	})
+	assert.Equal(t, []string{"max"}, aggregations)
+}
