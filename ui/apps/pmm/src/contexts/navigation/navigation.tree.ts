@@ -163,11 +163,9 @@ export const buildNavTree = ({
     ([type]) => !type || serviceTypes.includes(type)
   ).map(([, item]) => technology(item, folders));
 
-  const analysis: NavItem[] = [];
-
-  if (user?.isEditor && settings?.advisorEnabled) {
-    analysis.push(addAdvisors());
-  }
+  // Entries every user has come first, so they keep their place whatever the
+  // role or switches.
+  const analysis: NavItem[] = [NAV_QAN, NAV_REALTIME_QUERIES];
 
   if (user) {
     analysis.push(
@@ -179,15 +177,17 @@ export const buildNavTree = ({
     );
   }
 
-  if (extensions) {
-    analysis.push(NAV_DIAGNOSTICS);
+  if (user?.isEditor && settings?.advisorEnabled) {
+    analysis.push(addAdvisors());
   }
 
   if (user?.isEditor && settings?.frontend.exploreEnabled) {
     analysis.push(NAV_EXPLORE);
   }
 
-  analysis.push(NAV_QAN, NAV_REALTIME_QUERIES);
+  if (extensions) {
+    analysis.push(NAV_DIAGNOSTICS);
+  }
 
   // OM is served by pmm-managed, so it is not gated with PMM Extensions: any
   // signed-in user while the switch is on. Actions inside are admin-only.

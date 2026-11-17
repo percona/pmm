@@ -72,12 +72,12 @@ describe('buildNavTree', () => {
       'valkey',
       'system',
       'section-analysis',
-      'advisors',
-      'alerts',
-      'extensions-atw',
-      'explore',
       'qan',
       'realtime-queries',
+      'alerts',
+      'advisors',
+      'explore',
+      'extensions-atw',
       'section-browse',
       'dashboards',
       'apps',
@@ -180,6 +180,27 @@ describe('buildNavTree', () => {
     expect(findActiveNavItem(tree, '/rta/overview')?.id).toBe(
       'realtime-queries'
     );
+  });
+
+  it('opens the analysis section with the same entries for every role', () => {
+    const analysis = (tree: NavItem[]) => {
+      const all = ids(tree);
+
+      return all.slice(
+        all.indexOf('section-analysis') + 1,
+        all.indexOf('section-browse')
+      );
+    };
+    const shared = ['qan', 'realtime-queries', 'alerts'];
+
+    expect(analysis(build({ user: TEST_USER_VIEWER }))).toEqual([
+      ...shared,
+      'extensions-atw',
+    ]);
+    expect(analysis(build({ user: TEST_USER_EDITOR })).slice(0, 3)).toEqual(
+      shared
+    );
+    expect(analysis(build()).slice(0, 3)).toEqual(shared);
   });
 
   it('keeps the Advisors pages as a group', () => {
