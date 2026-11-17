@@ -7,6 +7,7 @@ import {
   CardActions,
   GlobalStyles,
   Link,
+  Stack,
   Typography,
 } from '@mui/material';
 import { PageContainer } from '@percona/peak-ui';
@@ -31,9 +32,24 @@ export const Page: FC<PageProps> = ({
   const { user } = useUser();
   updateDocumentTitle(title);
   const hasAccess = !roles || roles?.some((role) => user?.orgRole === role);
-  // Back-compat: `fullWidth` predates `maxWidth`; treat it as `maxWidth="full"`
-  // unless an explicit `maxWidth` is provided.
-  const resolvedMaxWidth = maxWidth ?? (fullWidth ? 'full' : undefined);
+  const content =
+    user?.isAuthorized && hasAccess ? (
+      children
+    ) : (
+      <Card variant="outlined" sx={{ p: 2 }}>
+        <Alert severity="error" sx={{ mb: 1 }} data-testid="unauthorized">
+          {Messages.noAcccess}
+        </Alert>
+        <CardActions>
+          <Typography>
+            {Messages.goBack}
+            <Link to={PMM_HOME_URL} component={RouterLink}>
+              {Messages.home}
+            </Link>
+          </Typography>
+        </CardActions>
+      </Card>
+    );
 
   return (
     <>
@@ -47,30 +63,54 @@ export const Page: FC<PageProps> = ({
           },
         })}
       />
-      <PageContainer maxWidth={resolvedMaxWidth}>
-        {topBar}
-        {!!title && !hideTitle && <Typography variant="h2">{title}</Typography>}
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {user?.isAuthorized && hasAccess ? (
-            children
-          ) : (
-            <Card variant="outlined" sx={{ p: 2 }}>
-              <Alert severity="error" sx={{ mb: 1 }} data-testid="unauthorized">
-                {Messages.noAcccess}
-              </Alert>
-              <CardActions>
-                <Typography>
-                  {Messages.goBack}
-                  <Link to={PMM_HOME_URL} component={RouterLink}>
-                    {Messages.home}
-                  </Link>
-                </Typography>
-              </CardActions>
-            </Card>
+      {fullWidth ? (
+        <Stack
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            width: '100%',
+            maxWidth: '100%',
+            height: '100%',
+            maxHeight: '100%',
+            minWidth: 0,
+            alignSelf: 'stretch',
+            alignItems: 'stretch',
+            overflow: 'hidden',
+            boxSizing: 'border-box',
+            p: { xs: 0.5, sm: 1 },
+          }}
+        >
+          {topBar}
+          {!!title && !hideTitle && (
+            <Typography variant="h2">{title}</Typography>
           )}
-        </Box>
-        {footer !== undefined ? footer : <Footer />}
-      </PageContainer>
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              minWidth: 0,
+              height: '100%',
+              maxHeight: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+            {content}
+          </Box>
+        </Stack>
+      ) : (
+        <PageContainer maxWidth={maxWidth}>
+          {topBar}
+          {!!title && !hideTitle && (
+            <Typography variant="h2">{title}</Typography>
+          )}
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {content}
+          </Box>
+          {footer !== undefined ? footer : <Footer />}
+        </PageContainer>
+      )}
     </>
   );
 };

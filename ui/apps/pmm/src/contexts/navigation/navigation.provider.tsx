@@ -24,8 +24,12 @@ import {
   NAV_BACKUPS,
   NAV_DIVIDERS,
   NAV_HELP,
+  NAV_INVESTIGATIONS,
+  NAV_ASSISTANT,
   NAV_INVENTORY,
+  NAV_LOGS,
   NAV_QAN,
+  NAV_QAN_NATIVE,
   NAV_SIGN_IN,
 } from './navigation.constants';
 import { useFolders } from 'hooks/api/useFolders';
@@ -78,9 +82,15 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       ...addDashboardItems(currentServiceTypes, folders, user, mongoExtras)
     );
 
-    items.push(NAV_QAN);
+    items.push(settings?.nativeQanEnabled ? NAV_QAN_NATIVE : NAV_QAN);
 
     if (user) {
+      if (settings) {
+        items.push(NAV_LOGS);
+        items.push(NAV_INVESTIGATIONS);
+        items.push(NAV_ASSISTANT);
+      }
+
       if (settings?.frontend.exploreEnabled && user.isEditor) {
         items.push(
           addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps)

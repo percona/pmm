@@ -49,18 +49,24 @@ PMM UI is the top frame and Grafana runs inside its `#grafana-iframe`; the `pmm-
 
 Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createBrowserRouter` with `basename: '/pmm-ui'`:
 
-| Route              | Page                            |
-| ------------------ | ------------------------------- |
-| `/`                | Redirects to `/graph` (Grafana) |
-| `/updates`         | PMM Server updates              |
-| `/updates/clients` | Client updates                  |
-| `/help`            | Help center                     |
-| `/rta`             | Real-Time Analytics tab         |
-| `/rta/selection`   | RTA service selection           |
-| `/rta/sessions`    | RTA sessions list               |
-| `/rta/overview`    | RTA overview                    |
-| `/graph/*`         | Grafana iframe                  |
-| `*`                | Page not found (`NotFoundPage`) |
+| Route                                                       | Page                                                              |
+| ----------------------------------------------------------- | ----------------------------------------------------------------- |
+| `/`                                                         | Redirects to `/graph` (Grafana)                                   |
+| `/updates`                                                  | PMM Server updates                                                |
+| `/updates/clients`                                          | Client updates                                                    |
+| `/help`                                                     | Help center                                                       |
+| `/rta`                                                      | Real-Time Analytics tab                                           |
+| `/rta/selection`                                            | RTA service selection                                             |
+| `/rta/sessions`                                             | RTA sessions list                                                 |
+| `/rta/overview`                                             | RTA overview                                                      |
+| `/qan`                                                      | Native Query Analytics (when `nativeQanEnabled`)                  |
+| `/qan/ai-insights`                                          | QAN AI Insights (redirects to `/qan?tab=aiInsights` when flag on) |
+| `/assistant`                                                | PMM Assistant chat (`/adre` redirects here)                       |
+| `/configuration/assistant/{configuration,deployment,usage}` | Assistant configuration, Holmes deployment, AI usage              |
+| `/investigations`                                           | Investigations list                                               |
+| `/logs`, `/logs/patterns`                                   | Logs: volume, lines and patterns from `/v1/logs`                  |
+| `/graph/*`                                                  | Grafana iframe                                                    |
+| `*`                                                         | Page not found (`NotFoundPage`)                                   |
 
 ## State Management
 

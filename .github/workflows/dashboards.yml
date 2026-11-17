@@ -26,7 +26,9 @@ jobs:
         with:
           node-version: "22"
           cache: "yarn"
-          cache-dependency-path: dashboards/pmm-app/yarn.lock
+          cache-dependency-path: |
+            dashboards/pmm-app/yarn.lock
+            dashboards/pmm-service-map/yarn.lock
 
       - name: Verify plugin.json dashboard paths exist
         run: |
@@ -48,7 +50,9 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: build-dist
-          path: dashboards/pmm-app/dist/
+          path: |
+            dashboards/pmm-app/dist/
+            dashboards/pmm-service-map/dist/
           if-no-files-found: error
 
   tests:
@@ -63,7 +67,9 @@ jobs:
         with:
           node-version: "22"
           cache: "yarn"
-          cache-dependency-path: dashboards/pmm-app/yarn.lock
+          cache-dependency-path: |
+            dashboards/pmm-app/yarn.lock
+            dashboards/pmm-service-map/yarn.lock
     
       - name: Install deps
         run: make -C dashboards install

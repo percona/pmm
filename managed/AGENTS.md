@@ -115,6 +115,7 @@ type Node struct {
 | `services/victoriametrics` | VictoriaMetrics scrape config generation from agent/service inventory |
 | `services/vmalert` | VMAlert alerting rules generation |
 | `services/grafana` | Grafana API client (users, dashboards, annotations) |
+| `services/logs` | Logs API over ClickHouse `otel.logs`: search, volume, patterns, context, facets |
 | `services/supervisord` | Supervisord config file generation and process control |
 | `services/ha` | Raft consensus, gossip protocol, leader election |
 | `services/telemetry` | Telemetry data collection and reporting to Percona |

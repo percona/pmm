@@ -15,8 +15,8 @@ export interface PageProps extends PropsWithChildren {
    */
   maxWidth?: PageContainerMaxWidth;
   /**
-   * @deprecated Use `maxWidth="full"` instead. Kept as an alias that maps to
-   * `maxWidth="full"` when `maxWidth` is not set.
+   * Full-height app layout for pages that scroll their own content (Assistant, Logs, native QAN):
+   * full width, little padding, no page scroll and no footer.
    */
   fullWidth?: boolean;
   /**

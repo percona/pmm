@@ -295,6 +295,11 @@
     },
     {
       "type": "dashboard",
+      "name": "Assistant Chart",
+      "path": "dashboards/Experimental/Assistant_Chart.json"
+    },
+    {
+      "type": "dashboard",
       "name": "Environments Overview",
       "path": "dashboards/PMM Health/Environments_Overview.json"
     },

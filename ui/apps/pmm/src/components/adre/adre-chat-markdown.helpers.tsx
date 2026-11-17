@@ -1,0 +1,237 @@
+import { Box, Link } from '@mui/material';
+import type { Element, ElementContent } from 'hast';
+import type { Nodes } from 'mdast';
+import {
+  Children,
+  ReactElement,
+  ReactNode,
+  cloneElement,
+  isValidElement,
+} from 'react';
+import { GrafanaPanelImage } from './adre-chat-markdown';
+import AdreChart from './AdreChart';
+import {
+  chartSpecFromBlock,
+  panelEmbedUrl,
+  panelLinksByImage,
+} from './adreChart.utils';
+import { EmbedLink, GrafanaPanelEmbed } from './GrafanaPanelEmbed';
+import { AdreCodeBlock } from './adre-code-block';
+import {
+  dashboardUrlFromRenderUrl,
+  getRenderImageUrlsInContent,
+  isGrafanaRenderImageSrc,
+  parseDashboardLinkToPanelKey,
+  parseRenderImageUrlToPanelKey,
+  toGrafanaDashboardLink,
+  toSameOriginUrl,
+  withRenderCacheParam,
+} from './adre-chat-markdown.utils';
+
+const hastText = (node: ElementContent): string =>
+  node.type === 'text'
+    ? node.value
+    : node.type === 'element'
+      ? node.children.map(hastText).join('')
+      : '';
+
+/** Keeps each code block's first-line attributes as a data-meta attribute, which rehype-raw keeps and code meta it drops. */
+export const remarkCodeMeta = () => (tree: Nodes) => {
+  const walk = (node: Nodes) => {
+    if (node.type === 'code' && node.meta) {
+      node.data = {
+        ...node.data,
+        hProperties: { ...node.data?.hProperties, dataMeta: node.meta },
+      };
+    }
+    if ('children' in node) node.children.forEach(walk);
+  };
+  walk(tree);
+};
+
+/** The chart a ```chart block asks for, from the code element inside the block's <pre>. */
+const chartSpecOf = (pre?: Element) => {
+  const code = pre?.children.find(
+    (c): c is Element => c.type === 'element' && c.tagName === 'code'
+  );
+  const classes = code?.properties?.className;
+  if (!code || !Array.isArray(classes) || !classes.includes('language-chart'))
+    return undefined;
+  const meta = code.properties.dataMeta ?? code.data?.meta;
+  return chartSpecFromBlock(
+    typeof meta === 'string' ? meta : undefined,
+    code.children.map(hastText).join('')
+  );
+};
+
+/** Returns markdown component overrides for rendering Grafana panel images, code blocks, and dashboard links within chat messages. */
+export function getMarkdownComponents(content: string) {
+  const panelKeysFromImages = new Set(
+    getRenderImageUrlsInContent(content)
+      .map(parseRenderImageUrlToPanelKey)
+      .filter(Boolean)
+  );
+  // A panel image followed by its Open in Grafana link shows as the live panel.
+  const livePanels = panelLinksByImage(content);
+  const livePanelLinks = new Set(livePanels.values());
+
+  return {
+    // Default <p> cannot contain block-level panel UI; browsers break the DOM and width
+    // constraints fail, so wide panel images overflow the chat bubble.
+    p: ({ children }: { children?: ReactNode }) => (
+      <Box
+        component="div"
+        className="adre-md-p"
+        sx={{ mb: 1.25, minWidth: 0, maxWidth: '100%' }}
+      >
+        {children}
+      </Box>
+    ),
+    // react-markdown v9 removed the `inline` prop, so we can no longer branch on it here.
+    // Render every <code> with inline styling; the `pre` override below neutralizes this
+    // chrome for fenced blocks (whose <code> is nested inside <pre>).
+    code: ({ children }: { children?: ReactNode }) => (
+      <Box
+        component="code"
+        sx={{
+          px: 0.5,
+          borderRadius: 0.5,
+          fontFamily: 'Roboto Mono, monospace',
+          bgcolor: 'action.hover',
+          overflowWrap: 'anywhere',
+        }}
+      >
+        {children}
+      </Box>
+    ),
+    pre: ({ children, node }: { children?: ReactNode; node?: Element }) => {
+      const spec = chartSpecOf(node);
+      if (spec) return <AdreChart spec={spec} />;
+      return <AdreCodeBlock>{children}</AdreCodeBlock>;
+    },
+    // Each item carries its number, so lists split by code blocks keep counting from their start.
+    ol: ({ start, children }: { start?: number; children?: ReactNode }) => {
+      let n = (start ?? 1) - 1;
+      return (
+        <ol start={start}>
+          {Children.map(children, (child) => {
+            if (!isValidElement(child) || child.type !== 'li') return child;
+            n += 1;
+            return cloneElement(
+              child as ReactElement<Record<string, unknown>>,
+              { 'data-n': n }
+            );
+          })}
+        </ol>
+      );
+    },
+    table: ({ children }: { children?: ReactNode }) => (
+      <Box sx={{ width: '100%', overflowX: 'auto', my: 1 }}>
+        <Box
+          component="table"
+          sx={{
+            width: '100%',
+            borderCollapse: 'collapse',
+            fontSize: '0.85rem',
+          }}
+        >
+          {children}
+        </Box>
+      </Box>
+    ),
+    th: ({ children }: { children?: ReactNode }) => (
+      <Box
+        component="th"
+        sx={{
+          textAlign: 'left',
+          px: 1,
+          py: 0.5,
+          border: 1,
+          borderColor: 'divider',
+          bgcolor: 'action.hover',
+          fontWeight: 600,
+          whiteSpace: 'nowrap',
+          overflowWrap: 'normal',
+          wordBreak: 'normal',
+        }}
+      >
+        {children}
+      </Box>
+    ),
+    td: ({ children }: { children?: ReactNode }) => (
+      <Box
+        component="td"
+        sx={{
+          px: 1,
+          py: 0.5,
+          border: 1,
+          borderColor: 'divider',
+          verticalAlign: 'top',
+          // break-word, unlike anywhere, does not shrink a column below its longest word.
+          overflowWrap: 'break-word',
+          wordBreak: 'normal',
+        }}
+      >
+        {children}
+      </Box>
+    ),
+    a: ({ href, children }: { href?: string; children?: ReactNode }) => {
+      const panelKey = href ? parseDashboardLinkToPanelKey(href) : null;
+      if (panelKey !== null && panelKeysFromImages.has(panelKey)) return null;
+      if (href && livePanelLinks.has(href)) return null;
+
+      return (
+        <Link
+          href={href ? toGrafanaDashboardLink(href) : '#'}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{
+            fontSize: '0.8125rem',
+            color: 'primary.light',
+            '&:hover': { color: 'primary.main' },
+          }}
+        >
+          {children}
+        </Link>
+      );
+    },
+    img: ({ src, alt }: { src?: string; alt?: string }) => {
+      const panelLink = src ? livePanels.get(src) : undefined;
+      const liveSrc = panelLink ? panelEmbedUrl(panelLink) : undefined;
+      if (panelLink && liveSrc) {
+        return (
+          <GrafanaPanelEmbed
+            src={liveSrc}
+            title={alt || 'Grafana panel'}
+            link={
+              <EmbedLink href={toGrafanaDashboardLink(panelLink)}>
+                Open in Grafana
+              </EmbedLink>
+            }
+          />
+        );
+      }
+      if (src && isGrafanaRenderImageSrc(src)) {
+        const imageSrc = toSameOriginUrl(withRenderCacheParam(src));
+        const dashboardHref = dashboardUrlFromRenderUrl(src);
+
+        return (
+          <GrafanaPanelImage
+            src={imageSrc}
+            alt={alt ?? 'Grafana panel'}
+            dashboardHref={dashboardHref}
+          />
+        );
+      }
+
+      return (
+        <Box
+          component="img"
+          src={src ? toSameOriginUrl(src) : undefined}
+          alt={alt ?? ''}
+          sx={{ display: 'block', maxWidth: '100%', height: 'auto' }}
+        />
+      );
+    },
+  };
+}

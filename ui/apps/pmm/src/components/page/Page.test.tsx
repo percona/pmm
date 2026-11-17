@@ -59,6 +59,26 @@ describe('Page', () => {
     expect(screen.queryByText(Messages.noAcccess)).toBeDefined();
   });
 
+  it('keeps the document title but drops the heading with hideTitle', () => {
+    render(
+      <TestWrapper>
+        <UserContext.Provider
+          value={{
+            isLoading: false,
+            user: TEST_USER_ADMIN,
+          }}
+        >
+          <Page title="Logs" hideTitle>
+            <div>Page Content</div>
+          </Page>
+        </UserContext.Provider>
+      </TestWrapper>
+    );
+
+    expect(screen.queryByRole('heading', { name: 'Logs' })).toBeNull();
+    expect(document.title).toContain('Logs');
+  });
+
   describe('surface', () => {
     it('renders on the paper surface when a page specifies none', () => {
       const stage = measurePageSurface('canvas');
