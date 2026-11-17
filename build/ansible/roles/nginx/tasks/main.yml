@@ -8,11 +8,11 @@
     mode: 0775
   loop:
     - /usr/share/pmm-server/static/
-    - /srv/nginx/tmp/client/
-    - /srv/nginx/tmp/proxy/
-    - /srv/nginx/tmp/fastcgi/
-    - /srv/nginx/tmp/uwsgi/
-    - /srv/nginx/tmp/scgi/
+    - /srv/tmp/client/
+    - /srv/tmp/proxy/
+    - /srv/tmp/fastcgi/
+    - /srv/tmp/uwsgi/
+    - /srv/tmp/scgi/
     - /etc/nginx/conf.d/
     - /etc/nginx/extensions.d/
     - /etc/nginx/ssl/
