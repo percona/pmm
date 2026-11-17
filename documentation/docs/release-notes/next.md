@@ -35,6 +35,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 - [PMM-7](https://perconadev.atlassian.net/browse/PMM-7): Updated the Grafana ClickHouse data source plugin to v4.23.4, built with Go 1.27.3. This fixes the high-severity Go vulnerabilities that image scanners reported in v4.21.3, including [CVE-2026-78669](https://nvd.nist.gov/vuln/detail/CVE-2026-78669) and the standard library findings listed in the [PMM 3.10.0 release notes](3.10.0.md#go-standard-library-vulnerabilities-in-the-clickhouse-data-source).
 
+- [PMM-15921](https://perconadev.atlassian.net/browse/PMM-15921): Fixed installs on **MongoDB > Operations** that could show as running forever. A finished install now stays **Succeeded** when you delete its MongoDB service in PMM or remove its node entry. Its node no longer shows **Installing**. If PMM can't register an install's MongoDB service within a few minutes, **Confirming PMM monitoring** fails and shows why. If a rollback fails, the install ends as **Failed** and names the node and the step. You can no longer abort an install while it rolls back. For details, see [Operations for MongoDB](../use/mongodb-operations.md#installs).
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?

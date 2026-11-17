@@ -405,6 +405,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
 		require.NoError(t, err, "an unlabelled run gets its row on completion")
 		assert.NotNil(t, config.RegisteredAt)
+		assert.Empty(t, config.RegistrationErrors)
 
 		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
 		require.NoError(t, err)
@@ -428,17 +429,106 @@ func TestCompleteSucceededRun(t *testing.T) {
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token")
 
+		finished := time.Now()
 		svc.completeSucceededRun(asService(t.Context()), &extensionsBootstrapRun{
 			ID:             "run-abc",
 			Status:         bootstrapRunSucceeded,
 			ReplicaSetName: "rs-test",
 			Port:           27017,
+			FinishedAt:     &finished,
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}, {Host: "node01"}},
 		})
 
 		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
 		require.NoError(t, err)
 		assert.NotContains(t, registered, "run-abc", "a run with an unregistered host has to come back next tick")
+	})
+
+	t.Run("records what it could not register once the window has passed, and stops sweeping the run", func(t *testing.T) {
+		db := storeTestDB(t)
+		node00, _ := registerTestNode(t, db, "node00")
+		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
+			RunID:           "run-abc",
+			MongoDBUsername: "admin",
+			MongoDBPassword: "secret",
+			KeyFile:         "keyfile-content",
+		}))
+
+		stub := newSEPStub(t, http.StatusOK,
+			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1", "name": "node00-mongod", "port": 27017}]}], "total": 1, "offset": 0, "limit": 200}`, node00))
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token")
+
+		finished := time.Now().Add(-bootstrapInventoryRefreshWindow - time.Minute)
+		svc.completeSucceededRun(asService(t.Context()), &extensionsBootstrapRun{
+			ID:             "run-abc",
+			Status:         bootstrapRunSucceeded,
+			ReplicaSetName: "rs-test",
+			Port:           27017,
+			FinishedAt:     &finished,
+			Hosts:          []extensionsBootstrapHost{{Host: "node00"}, {Host: "node01"}},
+		})
+
+		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
+		require.NoError(t, err)
+		assert.NotNil(t, config.RegisteredAt)
+		assert.Equal(t, models.OmRegistrationErrors{"node01": "Operations lists no node for it"}, config.RegistrationErrors)
+	})
+
+	t.Run("records a run with no stored credentials once the window has passed", func(t *testing.T) {
+		db := storeTestDB(t)
+		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
+
+		for _, tc := range []struct {
+			runID    string
+			finished time.Time
+			settled  bool
+		}{
+			{runID: "run-fresh", finished: time.Now(), settled: false},
+			{runID: "run-old", finished: time.Now().Add(-bootstrapInventoryRefreshWindow - time.Minute), settled: true},
+		} {
+			svc.completeSucceededRun(asService(t.Context()), &extensionsBootstrapRun{
+				ID:         tc.runID,
+				Status:     bootstrapRunSucceeded,
+				FinishedAt: &tc.finished,
+				Hosts:      []extensionsBootstrapHost{{Host: "node00"}},
+			})
+		}
+
+		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
+		require.NoError(t, err)
+		assert.NotContains(t, registered, "run-fresh")
+		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-old")
+		require.NoError(t, err)
+		assert.Equal(t, models.OmRegistrationErrors{"node00": "PMM holds no monitoring credentials for this install"},
+			config.RegistrationErrors)
+	})
+
+	t.Run("records a lasting inventory lookup failure once the window has passed", func(t *testing.T) {
+		db := storeTestDB(t)
+		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, &models.OmBootstrapSecret{
+			RunID:           "run-old",
+			MongoDBUsername: "admin",
+			MongoDBPassword: "secret",
+			KeyFile:         "keyfile-content",
+		}))
+		stub := newSEPStub(t, http.StatusServiceUnavailable, `{"detail": "down"}`)
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token")
+
+		finished := time.Now().Add(-bootstrapInventoryRefreshWindow - time.Minute)
+		svc.completeSucceededRun(asService(t.Context()), &extensionsBootstrapRun{
+			ID:         "run-old",
+			Status:     bootstrapRunSucceeded,
+			FinishedAt: &finished,
+			Hosts:      []extensionsBootstrapHost{{Host: "node00"}, {Host: "node01"}},
+		})
+
+		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-old")
+		require.NoError(t, err)
+		require.Len(t, config.RegistrationErrors, 2)
+		assert.Contains(t, config.RegistrationErrors["node00"], "PMM could not read Operations' node list")
+		assert.Equal(t, config.RegistrationErrors["node00"], config.RegistrationErrors["node01"])
 	})
 
 	t.Run("keeps a run whose refresh the inventory app refused, so the next tick asks again", func(t *testing.T) {
@@ -512,9 +602,10 @@ func TestCompleteSucceededRun(t *testing.T) {
 			Hosts:          []extensionsBootstrapHost{{Host: "node00"}},
 		})
 
-		registered, err := models.FindRegisteredOmBootstrapRunIDs(db.Querier)
-		require.NoError(t, err)
-		assert.Contains(t, registered, "run-abc", "past the window the run leaves the sweep regardless")
+		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
+		require.NoError(t, err, "past the window the run leaves the sweep regardless")
+		assert.NotNil(t, config.RegisteredAt)
+		assert.Equal(t, models.OmRegistrationErrors{"node00": "Operations does not list its MongoDB service"}, config.RegistrationErrors)
 	})
 }
 
@@ -550,5 +641,93 @@ func TestAdvanceRunningRunRollbackReason(t *testing.T) {
 		assert.JSONEq(t,
 			`{"status": "rolled_back", "error": "install_package failed on node00 after 2 attempts; every host was rolled back"}`,
 			stub.calls[0].body)
+	})
+}
+
+func TestAdvanceRunningRunRollbackFailure(t *testing.T) {
+	t.Parallel()
+
+	exhaustedInstall := []extensionsBootstrapStep{
+		{Name: "install_package", Status: bootstrapStepFailed, AttemptCount: bootstrapMaxAttempts},
+	}
+	rolledBack := []extensionsBootstrapStep{
+		{Name: "stop_service", Status: bootstrapStepSucceeded, AttemptCount: 1},
+		{Name: "remove_config", Status: bootstrapStepSucceeded, AttemptCount: 1},
+	}
+	stuck := []extensionsBootstrapStep{
+		{Name: "stop_service", Status: bootstrapStepSucceeded, AttemptCount: 1},
+		{Name: "remove_config", Status: bootstrapStepFailed, AttemptCount: bootstrapMaxAttempts, Detail: new("rm: cannot remove '/etc/mongod.conf'")},
+	}
+	stuckHost := extensionsBootstrapHost{Host: "node00", Steps: exhaustedInstall, RollbackSteps: stuck}
+	advance := func(t *testing.T, hosts ...extensionsBootstrapHost) *extensionsStub {
+		t.Helper()
+		stub := newSEPStub(t, http.StatusOK, `{}`)
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithBootstrapSource(stub.server.URL, "test-token")
+		svc.advanceRunningRun(asService(t.Context()), &extensionsBootstrapRun{
+			ID:     "run-abc",
+			Status: bootstrapRunRunning,
+			Hosts:  hosts,
+		})
+		return stub
+	}
+
+	t.Run("ends the run as failed once every host's rollback has gone as far as it can", func(t *testing.T) {
+		t.Parallel()
+
+		stub := advance(t,
+			stuckHost,
+			extensionsBootstrapHost{Host: "node01", RollbackSteps: rolledBack},
+		)
+
+		require.Len(t, stub.calls, 1)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:finish", stub.calls[0].path)
+		assert.JSONEq(t, `{
+			"status": "failed",
+			"error": "install_package failed on node00 after 2 attempts; rollback failed: remove_config failed on node00 after 2 attempts: rm: cannot remove '/etc/mongod.conf'; clean up node00 by hand"
+		}`, stub.calls[0].body)
+	})
+
+	t.Run("keeps rolling back the other hosts first", func(t *testing.T) {
+		t.Parallel()
+
+		stub := advance(t,
+			stuckHost,
+			extensionsBootstrapHost{Host: "node01", RollbackSteps: []extensionsBootstrapStep{
+				{Name: "stop_service", Status: bootstrapStepSucceeded, AttemptCount: 1},
+				{Name: "remove_config", Status: bootstrapStepPending},
+			}},
+		)
+
+		require.Len(t, stub.calls, 1)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc/hosts/node01/rollback/remove_config:dispatch", stub.calls[0].path)
+	})
+
+	t.Run("waits for a forward step still running on another host", func(t *testing.T) {
+		t.Parallel()
+
+		stub := advance(t,
+			stuckHost,
+			extensionsBootstrapHost{
+				Host:          "node01",
+				Steps:         []extensionsBootstrapStep{{Name: "configure_mongod", Status: bootstrapStepRunning, AttemptCount: 1}},
+				RollbackSteps: rolledBack,
+			},
+		)
+
+		assert.Empty(t, stub.calls)
+	})
+
+	t.Run("waits for a rollback step that is still running", func(t *testing.T) {
+		t.Parallel()
+
+		stub := advance(t,
+			stuckHost,
+			extensionsBootstrapHost{Host: "node01", RollbackSteps: []extensionsBootstrapStep{
+				{Name: "stop_service", Status: bootstrapStepRunning, AttemptCount: 1},
+			}},
+		)
+
+		assert.Empty(t, stub.calls)
 	})
 }

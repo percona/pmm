@@ -59,6 +59,7 @@ import {
 import {
   bootstrapRunDisplayStatus,
   canCancelBootstrapRun,
+  isConfirmingMonitoring,
   isHostRollingBack,
 } from '../api';
 import { formatRunElapsed } from '../format';
@@ -310,6 +311,9 @@ function isStarting(run: OmGetBootstrapRunResponse): boolean {
   );
 }
 
+const ABORT_FINISHED_TITLE =
+  'The install has finished. PMM is confirming that it monitors the new MongoDB services.';
+
 /**
  * Ask for confirmation, then request cancellation of `run`.
  *
@@ -324,23 +328,25 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
   const [confirming, setConfirming] = useState(false);
   const cancelRun = useCancelBootstrapRun();
   const { canMutate } = useAuth();
-  if (!canCancelBootstrapRun(run)) {
+  const finished = isConfirmingMonitoring(run);
+  if (!finished && !canCancelBootstrapRun(run)) {
     return null;
   }
   return (
     <>
-      <AdminAction>
+      <AdminAction title={finished ? ABORT_FINISHED_TITLE : undefined}>
         <Button
           color="error"
           size="small"
           variant="outlined"
+          disabled={finished}
           onClick={() => setConfirming(true)}
         >
           Abort
         </Button>
       </AdminAction>
       <Dialog
-        open={confirming && canMutate}
+        open={confirming && canMutate && !finished}
         onClose={() => setConfirming(false)}
         maxWidth="sm"
       >
@@ -533,6 +539,9 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
     run.hosts.every((host) =>
       host.rollback_steps.every((step) => step.status === 'skipped')
     );
+  const rollbackFailed = run.hosts.some((host) =>
+    host.rollback_steps.some((step) => step.status === 'failed')
+  );
   const labels = [run.environment, run.cluster].filter(Boolean).join(' / ');
   const detailsId = `run-${run.run_id}-steps`;
 
@@ -577,9 +586,11 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
         <Typography variant="body2" color="warning.main">
           {status === 'running'
             ? 'Rolling back every node.'
-            : nothingRolledBack
-              ? 'Nothing had been installed, so there was nothing to roll back.'
-              : 'Every node was rolled back.'}
+            : rollbackFailed
+              ? 'The rollback failed. Clean up the nodes named in the error by hand.'
+              : nothingRolledBack
+                ? 'Nothing had been installed, so there was nothing to roll back.'
+                : 'Every node was rolled back.'}
         </Typography>
       )}
       {status === 'succeeded' && (

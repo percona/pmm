@@ -16,6 +16,7 @@
 package models
 
 import (
+	"database/sql/driver"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -31,9 +32,25 @@ type OmBootstrapRunConfig struct {
 	Environment string    `reform:"environment"`
 	Cluster     string    `reform:"cluster"`
 	CreatedAt   time.Time `reform:"created_at"`
-	// RegisteredAt is nil until every host of the run is registered in PMM's inventory.
+	// RegisteredAt is nil until PMM has finished registering the run's hosts, successfully or not.
 	RegisteredAt *time.Time `reform:"registered_at"`
+	// RegistrationErrors holds, by executor host, why PMM could not register or see that host's service by then.
+	RegistrationErrors OmRegistrationErrors `reform:"registration_errors"`
 }
+
+// OmRegistrationErrors maps an executor host to why PMM gave up registering its MongoDB service.
+type OmRegistrationErrors map[string]string
+
+// Value implements database/sql/driver.Valuer interface, storing an empty map as NULL.
+func (e OmRegistrationErrors) Value() (driver.Value, error) {
+	if len(e) == 0 {
+		return nil, nil //nolint:nilnil // NULL is the stored form of no errors
+	}
+	return jsonValue(e)
+}
+
+// Scan implements database/sql.Scanner interface.
+func (e *OmRegistrationErrors) Scan(src any) error { return jsonScan(e, src) }
 
 // BeforeInsert implements reform.BeforeInserter.
 func (c *OmBootstrapRunConfig) BeforeInsert() error {

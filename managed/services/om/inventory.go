@@ -925,8 +925,7 @@ func (s *Service) GetBootstrapRun(ctx context.Context, req *omv1.GetBootstrapRun
 		return nil, err
 	}
 
-	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
-	return bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster), nil
+	return s.bootstrapRunResponse(ctx, run)
 }
 
 // CancelBootstrapRun asks PMM Extensions to flag a run for cancellation and, best-effort, stop its
@@ -937,15 +936,25 @@ func (s *Service) CancelBootstrapRun(ctx context.Context, req *omv1.CancelBootst
 		return nil, err
 	}
 
-	run, err := bootstrap.cancelRun(ctx, req.GetRunId())
+	run, err := bootstrap.getRun(ctx, req.GetRunId())
+	if err != nil {
+		return nil, err
+	}
+	// PMM Extensions stops every running step on a cancel, which would fail a rollback step mid-way.
+	if run.Status == bootstrapRunRunning && !run.CancelRequested && runIsRollingBack(*run) {
+		return nil, status.Errorf(codes.FailedPrecondition, "bootstrap run %s is rolling back and can no longer be aborted", run.ID)
+	}
+
+	run, err = bootstrap.cancelRun(ctx, run.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
-	return &omv1.CancelBootstrapRunResponse{
-		Run: bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster),
-	}, nil
+	response, err := s.bootstrapRunResponse(ctx, run)
+	if err != nil {
+		return nil, err
+	}
+	return &omv1.CancelBootstrapRunResponse{Run: response}, nil
 }
 
 // ListBootstrapRuns returns the bootstrap run history in every status, newest first.
@@ -968,38 +977,55 @@ func (s *Service) ListBootstrapRuns(ctx context.Context, req *omv1.ListBootstrap
 		return nil, err
 	}
 
-	statuses := make([]string, len(runs))
-	for i, run := range runs {
-		statuses[i] = run.Status
+	configs := make([]models.OmBootstrapRunConfig, len(runs))
+	var unconfirmed bool
+	for i := range runs {
+		configs[i], err = s.bootstrapRunConfig(runs[i].ID)
+		if err != nil {
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+		unconfirmed = unconfirmed || confirmsAgainstInventory(&runs[i], configs[i])
 	}
-	hostsByExecutor := s.confirmMonitoringLookup(ctx, statuses...)
+	hostsByExecutor := s.confirmMonitoringLookup(ctx, unconfirmed)
 
 	proto := make([]*omv1.GetBootstrapRunResponse, 0, len(runs))
 	for i := range runs {
-		environment, cluster := s.bootstrapRunConfigLabels(runs[i].ID)
-		proto = append(proto, bootstrapRunToProto(&runs[i], hostsByExecutor, environment, cluster))
+		proto = append(proto, bootstrapRunToProto(&runs[i], configs[i], hostsByExecutor))
 	}
 	return &omv1.ListBootstrapRunsResponse{Runs: proto}, nil
 }
 
-func (s *Service) bootstrapRunConfigLabels(runID string) (string, string) {
-	if s.db == nil {
-		return "", ""
-	}
-	config, err := models.FindOmBootstrapRunConfigByRunID(s.db.Querier, runID)
+func (s *Service) bootstrapRunResponse(ctx context.Context, run *extensionsBootstrapRun) (*omv1.GetBootstrapRunResponse, error) {
+	config, err := s.bootstrapRunConfig(run.ID)
 	if err != nil {
-		if !errors.Is(err, models.ErrNotFound) {
-			s.l.Warnf("bootstrap run %s: failed to load its environment/cluster: %s", runID, err)
-		}
-		return "", ""
+		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return config.Environment, config.Cluster
+	hostsByExecutor := s.confirmMonitoringLookup(ctx, confirmsAgainstInventory(run, config))
+	return bootstrapRunToProto(run, config, hostsByExecutor), nil
 }
 
-// confirmMonitoringLookup fetches the inventory hosts only when a run has succeeded, as nothing else can be
-// confirmed. It returns nil on failure, which reads every host as still unconfirmed.
-func (s *Service) confirmMonitoringLookup(ctx context.Context, statuses ...string) map[string]extensionsHost {
-	needed := slices.Contains(statuses, bootstrapRunSucceeded)
+// bootstrapRunConfig returns the run's stored configuration, or an empty one if PMM holds none.
+func (s *Service) bootstrapRunConfig(runID string) (models.OmBootstrapRunConfig, error) {
+	if s.db == nil {
+		return models.OmBootstrapRunConfig{}, nil
+	}
+	config, err := models.FindOmBootstrapRunConfigByRunID(s.db.Querier, runID)
+	if errors.Is(err, models.ErrNotFound) {
+		return models.OmBootstrapRunConfig{}, nil
+	}
+	if err != nil {
+		return models.OmBootstrapRunConfig{}, fmt.Errorf("failed to load the stored configuration of bootstrap run %s: %w", runID, err)
+	}
+	return *config, nil
+}
+
+// confirmsAgainstInventory reports whether a run's confirm_monitoring steps depend on the inventory app.
+func confirmsAgainstInventory(run *extensionsBootstrapRun, config models.OmBootstrapRunConfig) bool {
+	return run.Status == bootstrapRunSucceeded && (config.RegisteredAt == nil || len(config.RegistrationErrors) > 0)
+}
+
+// confirmMonitoringLookup returns nil when not needed or on failure, which reads every host as unconfirmed.
+func (s *Service) confirmMonitoringLookup(ctx context.Context, needed bool) map[string]extensionsHost {
 	if !needed {
 		return nil
 	}
@@ -1015,23 +1041,35 @@ func (s *Service) confirmMonitoringLookup(ctx context.Context, statuses ...strin
 // has noticed the registered service. It is appended to finalize_steps so it renders wherever steps do.
 const confirmMonitoringStepName = "confirm_monitoring"
 
-func confirmMonitoringStep(runStatus, executorHost string, port uint32, hostsByExecutor map[string]extensionsHost) *omv1.BootstrapStep {
-	stepStatus := bootstrapStepPending
-	if runStatus == bootstrapRunSucceeded {
-		stepStatus = bootstrapStepRunning
-		if hasBootstrapService(hostsByExecutor[executorHost], executorHost, port) {
-			stepStatus = bootstrapStepSucceeded
-		}
+// confirmMonitoringStep is final once the stepper has marked the run registered, whatever later happens to
+// its services; a host the stepper gave up on reads failed with its reason unless the inventory app lists it.
+func confirmMonitoringStep(
+	run *extensionsBootstrapRun, config models.OmBootstrapRunConfig, executorHost string, hostsByExecutor map[string]extensionsHost,
+) *omv1.BootstrapStep {
+	step := &omv1.BootstrapStep{Name: confirmMonitoringStepName, Status: bootstrapStepPending}
+	reason, gaveUp := config.RegistrationErrors[executorHost]
+	switch {
+	case run.Status != bootstrapRunSucceeded:
+	case config.RegisteredAt != nil && !gaveUp,
+		hasBootstrapService(hostsByExecutor[executorHost], executorHost, run.Port):
+		step.Status = bootstrapStepSucceeded
+	case config.RegisteredAt != nil:
+		step.Status = bootstrapStepFailed
+		step.Detail = &reason
+	default:
+		step.Status = bootstrapStepRunning
 	}
-	return &omv1.BootstrapStep{Name: confirmMonitoringStepName, Status: stepStatus}
+	return step
 }
 
-func bootstrapRunToProto(run *extensionsBootstrapRun, hostsByExecutor map[string]extensionsHost, environment, cluster string) *omv1.GetBootstrapRunResponse {
+func bootstrapRunToProto(
+	run *extensionsBootstrapRun, config models.OmBootstrapRunConfig, hostsByExecutor map[string]extensionsHost,
+) *omv1.GetBootstrapRunResponse {
 	hosts := make([]*omv1.BootstrapHost, 0, len(run.Hosts))
 	for _, host := range run.Hosts {
 		finalizeSteps := bootstrapStepsToProto(host.FinalizeSteps)
 		finalizeSteps = append(finalizeSteps,
-			confirmMonitoringStep(run.Status, host.Host, run.Port, hostsByExecutor))
+			confirmMonitoringStep(run, config, host.Host, hostsByExecutor))
 		hosts = append(hosts, &omv1.BootstrapHost{
 			Host:          host.Host,
 			Steps:         bootstrapStepsToProto(host.Steps),
@@ -1049,8 +1087,8 @@ func bootstrapRunToProto(run *extensionsBootstrapRun, hostsByExecutor map[string
 		MongodbVersion:  run.MongoDBVersion,
 		StartedAt:       timestamppb.New(run.StartedAt),
 		FinishedAt:      optionalTimestamp(run.FinishedAt),
-		Environment:     optional(environment),
-		Cluster:         optional(cluster),
+		Environment:     optional(config.Environment),
+		Cluster:         optional(config.Cluster),
 		CancelRequested: run.CancelRequested,
 	}
 }

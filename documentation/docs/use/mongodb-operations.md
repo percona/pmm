@@ -253,7 +253,11 @@ To find out why a service is failing, go to **MongoDB > Operations > Fleet** and
 
 If an install step fails, PMM retries it once. If the retry also fails, PMM rolls back what it installed on all nodes: packages, configuration, and data. PMM doesn't retry failed pre-checks.
 
-To stop an install that's running, expand it on the **Installs** tab and abort it. PMM then rolls back the install in the same way.
+To stop an install that's running, expand it on the **Installs** tab and abort it. PMM then rolls back the install in the same way. You can't abort an install while it rolls back.
+
+If a rollback step also fails twice, PMM stops the rollback and marks the install **Failed**. The install's error names the node and the step that failed. Clean up that node by hand before you install on it again.
+
+When the install itself has finished, it shows **Confirming PMM monitoring** until PMM monitors its MongoDB services. If PMM can't register a node's MongoDB service within a few minutes, that step fails on the node and shows why. The install still shows **Succeeded**, and PMM stops trying. To monitor that node, fix the reason and add its MongoDB service in PMM yourself. After PMM confirms monitoring, the install stays **Succeeded**, even if you later delete its MongoDB service in PMM.
 
 ## Limitations
 
