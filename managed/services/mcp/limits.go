@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"net/http"
@@ -34,6 +35,8 @@ const (
 	maxLiveCallsPerReplica = 8
 	// Live-inspection calls one service may have in flight on a replica.
 	maxLiveCallsPerService = 1
+	// How long a live-inspection call waits for its service's slot before it answers rate_limited.
+	liveServiceWait = 10 * time.Second
 	// Metric and QAN calls one caller may have in flight.
 	maxMetricCallsPerCaller = 4
 	// Metric and QAN calls one pmm-managed replica may have in flight.
@@ -65,10 +68,12 @@ type limiter struct {
 	perTotal  int
 	total     int
 	byKey     map[string]int
+	// released is closed, and replaced, whenever a slot is released.
+	released chan struct{}
 }
 
 func newLimiter(perCaller, total int) *limiter {
-	return &limiter{perCaller: perCaller, perTotal: total, byKey: map[string]int{}}
+	return &limiter{perCaller: perCaller, perTotal: total, byKey: map[string]int{}, released: make(chan struct{})}
 }
 
 // acquire takes a slot for key. It returns a release function and limitNone, or nil
@@ -77,6 +82,34 @@ func (l *limiter) acquire(key string) (func(), limitHit) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
+	return l.acquireLocked(key)
+}
+
+// acquireWait is acquire, but while the per-caller cap refuses the call it waits for a release,
+// for at most wait or until ctx is done; the per-replica cap still refuses at once.
+func (l *limiter) acquireWait(ctx context.Context, key string, wait time.Duration) (func(), limitHit, error) {
+	timer := time.NewTimer(wait)
+	defer timer.Stop()
+	for {
+		l.mu.Lock()
+		release, hit := l.acquireLocked(key)
+		released := l.released
+		l.mu.Unlock()
+		if hit != limitPerCaller {
+			return release, hit, nil
+		}
+
+		select {
+		case <-released:
+		case <-timer.C:
+			return nil, limitPerCaller, nil
+		case <-ctx.Done():
+			return nil, limitPerCaller, ctx.Err()
+		}
+	}
+}
+
+func (l *limiter) acquireLocked(key string) (func(), limitHit) {
 	if l.byKey[key] >= l.perCaller {
 		return nil, limitPerCaller
 	}
@@ -97,6 +130,8 @@ func (l *limiter) acquire(key string) (func(), limitHit) {
 			if l.byKey[key] <= 0 {
 				delete(l.byKey, key)
 			}
+			close(l.released)
+			l.released = make(chan struct{})
 		})
 	}, limitNone
 }
@@ -222,13 +257,16 @@ func (s *Service) startLive(a callerAuth) (func(), error) {
 	return release, nil
 }
 
-// startLiveOn takes the live-inspection slot of a service, or answers rate_limited.
-func (s *Service) startLiveOn(serviceID string) (func(), error) {
-	release, hit := s.liveByService.acquire(serviceID)
+// startLiveOn takes the live-inspection slot of a service, waiting up to liveServiceWait for it, or answers rate_limited.
+func (s *Service) startLiveOn(ctx context.Context, serviceID string) (func(), error) {
+	release, hit, err := s.liveByService.acquireWait(ctx, serviceID, s.liveServiceWait)
+	if err != nil {
+		return nil, err
+	}
 	switch hit {
 	case limitPerCaller:
 		return nil, newToolError(codeRateLimited,
-			"a live-inspection call on this service is already in flight; retry when it finishes")
+			"a live-inspection call on this service is still in flight after %s; retry when it finishes", s.liveServiceWait)
 	case limitPerReplica:
 		return nil, newToolError(codeRateLimited,
 			"this replica already has %d live-inspection calls in flight; retry when one finishes", maxLiveCallsPerReplica)

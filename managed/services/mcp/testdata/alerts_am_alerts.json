@@ -1,0 +1,68 @@
+[
+  {
+    "annotations": {"__orgId__": "1", "description": "95% of connections (more than 80%) are used\nby shop-a on host-a.", "summary": "MySQL too many connections (shop-a)"},
+    "endsAt": "2026-09-14T12:04:00.000Z",
+    "fingerprint": "2c1d8e0a6f3b7d41",
+    "receivers": [{"active": null, "integrations": null, "name": "grafana-default-email"}],
+    "startsAt": "2026-09-14T10:00:00.000Z",
+    "status": {"inhibitedBy": [], "silencedBy": ["5f1c2b7e-0000-4000-8000-000000000001", "5f1c2b7e-0000-4000-8000-000000000002"], "state": "suppressed"},
+    "updatedAt": "2026-09-14T11:59:30.000Z",
+    "generatorURL": "https://localhost/graph/alerting/grafana/conn/view",
+    "labels": {"__alert_rule_uid__": "conn", "alertname": "Too many connections", "environment": "dev", "grafana_folder": "Alerts", "node_id": "node-a", "node_name": "host-a", "node_type": "generic", "percona_alerting": "1", "service_id": "svc-a", "service_name": "shop-a", "service_type": "mysql", "severity": "warning", "template_name": "pmm_mysql_too_many_connections"}
+  },
+  {
+    "annotations": {"__orgId__": "1", "summary": "PostgreSQL too many connections (shop-c)"},
+    "endsAt": "2026-09-14T12:04:00.000Z",
+    "fingerprint": "7a0e5d9c3b1f2e64",
+    "receivers": [{"active": null, "integrations": null, "name": "grafana-default-email"}],
+    "startsAt": "2026-09-14T09:50:00.000Z",
+    "status": {"inhibitedBy": [], "silencedBy": ["5f1c2b7e-0000-4000-8000-000000000003"], "state": "suppressed"},
+    "updatedAt": "2026-09-14T11:59:30.000Z",
+    "generatorURL": "https://localhost/graph/alerting/grafana/conn-elsewhere/view",
+    "labels": {"__alert_rule_uid__": "conn-elsewhere", "alertname": "Too many connections", "environment": "dev", "grafana_folder": "Alerts", "node_id": "node-shared", "node_name": "host-shared", "node_type": "generic", "percona_alerting": "1", "service_id": "svc-c", "service_name": "shop-c", "service_type": "postgresql", "severity": "warning", "template_name": "pmm_postgresql_too_many_connections"}
+  },
+  {
+    "annotations": {"__orgId__": "1", "summary": "Hidden"},
+    "endsAt": "2026-09-14T12:04:00.000Z",
+    "fingerprint": "0b6f4c2a9e8d1357",
+    "receivers": [{"active": null, "integrations": null, "name": "grafana-default-email"}],
+    "startsAt": "2026-09-14T11:50:00.000Z",
+    "status": {"inhibitedBy": [], "silencedBy": ["5f1c2b7e-0000-4000-8000-000000000003"], "state": "suppressed"},
+    "updatedAt": "2026-09-14T11:59:30.000Z",
+    "generatorURL": "https://localhost/graph/alerting/grafana/hidden-rule/view",
+    "labels": {"__alert_rule_uid__": "hidden-rule", "alertname": "Hidden rule", "grafana_folder": "Hidden", "node_name": "host-a", "service_id": "svc-a", "service_name": "shop-a", "severity": "critical"}
+  },
+  {
+    "annotations": {"__orgId__": "1", "summary": "Node high CPU load (host-a)"},
+    "endsAt": "2026-09-14T12:04:00.000Z",
+    "fingerprint": "c4e2a0f8d6b41935",
+    "receivers": [{"active": null, "integrations": null, "name": "grafana-default-email"}],
+    "startsAt": "2026-09-14T11:30:00.000Z",
+    "status": {"inhibitedBy": ["9d3e1f7a2c5b8046"], "silencedBy": [], "state": "suppressed"},
+    "updatedAt": "2026-09-14T11:59:30.000Z",
+    "generatorURL": "https://localhost/graph/alerting/grafana/node-cpu/view",
+    "labels": {"__alert_rule_uid__": "node-cpu", "alertname": "Node high CPU", "grafana_folder": "Alerts", "node_name": "host-a", "percona_alerting": "1", "service_name": "[no value]", "severity": "warning", "template_name": "pmm_node_high_cpu_load"}
+  },
+  {
+    "annotations": {"__orgId__": "1", "summary": "MySQL down (shop-a)"},
+    "endsAt": "2026-09-14T12:04:00.000Z",
+    "fingerprint": "e8a6c4b2d0f13579",
+    "receivers": [{"active": null, "integrations": null, "name": "grafana-default-email"}],
+    "startsAt": "2026-09-14T11:00:00.000Z",
+    "status": {"inhibitedBy": [], "silencedBy": ["5f1c2b7e-0000-4000-8000-000000000005"], "state": "suppressed"},
+    "updatedAt": "2026-09-14T11:59:30.000Z",
+    "generatorURL": "https://localhost/graph/alerting/grafana/mysql-down/view",
+    "labels": {"__alert_rule_uid__": "mysql-down", "alertname": "MySQL down", "grafana_folder": "Alerts", "node_name": "host-a", "percona_alerting": "1", "service_id": "svc-a", "service_name": "shop-a", "severity": "critical", "team": "db", "template_name": "pmm_mysql_down"}
+  },
+  {
+    "annotations": {"__orgId__": "1", "description": "A rule on vector(1).", "summary": "Always firing"},
+    "endsAt": "2026-09-14T12:04:00.000Z",
+    "fingerprint": "1f3e5d7c9b0a2468",
+    "receivers": [{"active": null, "integrations": null, "name": "email"}],
+    "startsAt": "2026-09-14T08:00:00.000Z",
+    "status": {"inhibitedBy": [], "silencedBy": ["5f1c2b7e-0000-4000-8000-000000000002"], "state": "suppressed"},
+    "updatedAt": "2026-09-14T11:59:50.000Z",
+    "generatorURL": "https://localhost/graph/alerting/grafana/vector-one/view",
+    "labels": {"__alert_rule_uid__": "vector-one", "__grafana_autogenerated__": "true", "__grafana_receiver__": "email", "alertname": "Vector one", "grafana_folder": "Alerts", "node_name": "[no value]", "percona_alerting": "1", "service_name": "[no value]", "severity": "info", "template_name": "vector_one"}
+  }
+]

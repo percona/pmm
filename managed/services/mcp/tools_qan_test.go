@@ -670,6 +670,44 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.NotContains(t, text, "partial")
 	})
 
+	t.Run("QueryRef", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		session := connect(t, newQANService(t, fake, true))
+		refFrom, refTo := testNow.Add(-3*time.Hour), testNow.Add(-2*time.Hour)
+		ref := map[string]any{
+			"queryid": "QID-AAA", "service_id": "svc-1",
+			"period_from": refFrom.Format(time.RFC3339), "period_to": refTo.Format(time.RFC3339),
+		}
+
+		res := callTool(t, session, "pmm_query_detail", map[string]any{"query_ref": ref})
+		require.False(t, res.IsError, textOf(t, res))
+		got := structured[queryDetailResult](t, res)
+		assert.Equal(t, queryRef{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: refFrom, PeriodTo: refTo}, got.QueryRef)
+		assert.Equal(t, window{From: refFrom, To: refTo}, got.Window)
+
+		body := unmarshalBody[qan_service.GetMetricsBody](t, fake.requestsTo("/v1/qan:getMetrics")[0])
+		assert.Equal(t, "QID-AAA", body.FilterBy)
+		assert.Equal(t, refFrom, time.Time(body.PeriodStartFrom).UTC(), "the query_ref's window is read, not the last hour")
+		assert.Equal(t, refTo, time.Time(body.PeriodStartTo).UTC())
+		require.Len(t, body.Labels, 2)
+		assert.Equal(t, []string{"svc-1"}, body.Labels[1].Value)
+
+		for name, tc := range map[string]struct {
+			args map[string]any
+			want string
+		}{
+			"WithQueryID":   {map[string]any{"query_ref": ref, "queryid": "QID-AAA"}, "pass query_ref alone"},
+			"Incomplete":    {map[string]any{"query_ref": map[string]any{"queryid": "QID-AAA"}}, "query_ref needs queryid, period_from and period_to"},
+			"NeitherPassed": {map[string]any{}, "pass query_ref, as pmm_top_queries or pmm_query_detail return it, or pass queryid"},
+		} {
+			text, isError := callText(t, session, "pmm_query_detail", tc.args)
+			assert.True(t, isError, name)
+			assert.Contains(t, text, tc.want, name)
+		}
+	})
+
 	t.Run("ExampleFails", func(t *testing.T) {
 		t.Parallel()
 

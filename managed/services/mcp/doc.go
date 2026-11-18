@@ -16,8 +16,9 @@
 // Package mcp implements PMM Server's Model Context Protocol (MCP) endpoint.
 //
 // The endpoint is served at /mcp over MCP Streamable HTTP and exposes a small,
-// read-only tool surface (inventory, Query Analytics, EXPLAIN, schema and
-// configuration) to any MCP client such as Claude Code or Cursor.
+// read-only tool surface (inventory, Query Analytics, EXPLAIN, schema,
+// configuration, metrics and alerts) to any MCP client such as Claude Code or
+// Cursor.
 //
 // Every tool call goes back out through PMM's public REST API on the nginx
 // loopback (http://127.0.0.1:8080 by default), forwarding the caller's

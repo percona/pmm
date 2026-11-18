@@ -101,6 +101,14 @@ func qanQueryURL(base, queryID, serviceName string, from, to time.Time, detailsT
 	return base + qanPath + "?" + q.Encode()
 }
 
+// alertRuleURL links to an alert rule's page in PMM, as PMM's alert list does, or to the alert list when the rule is unknown.
+func alertRuleURL(base, ruleUID string) string {
+	if ruleUID == "" {
+		return base + "graph/alerting/list"
+	}
+	return base + "graph/alerting/grafana/" + url.PathEscape(ruleUID) + "/view"
+}
+
 // link renders a markdown link to PMM; u is relative when there is no base.
 func link(label, u string) string {
 	return "[" + label + " ↗](" + u + ")"

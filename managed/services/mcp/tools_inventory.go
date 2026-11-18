@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -75,6 +76,12 @@ type serviceInfo struct {
 	Environment string
 	Cluster     string
 	LastSeen    time.Time
+}
+
+// nodeInfo is one node of the caller's service list: a node of an up series the caller can read, with a service or not.
+type nodeInfo struct {
+	NodeID   string
+	NodeName string
 }
 
 type versionInput struct{}
@@ -270,28 +277,57 @@ func (s *Service) lastHour() window {
 
 // listServices returns the services whose up series the caller can read and that sent a sample in the look-back of the window.
 func (s *Service) listServices(ctx context.Context, auth callerAuth, w window) ([]serviceInfo, error) {
+	services, _, err := s.listServicesAndNodes(ctx, auth, w)
+	return services, err
+}
+
+// listServicesAndNodes is listServices with the nodes of every up series it read, one per node_id as its newest series names it, else per node_name.
+func (s *Service) listServicesAndNodes(ctx context.Context, auth callerAuth, w window) ([]serviceInfo, []nodeInfo, error) {
 	span, _ := listSpan(w, s.now())
 	seconds := int64(span.To.Sub(span.From) / time.Second)
 	samples, err := s.queryMetrics(ctx, auth, fmt.Sprintf(serviceListQuery, seconds), span.To)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	type seenNode struct {
+		node nodeInfo
+		at   time.Time
+	}
 	byID := map[string]serviceInfo{}
+	byNodeID := map[string]seenNode{}
+	byNodeName := map[string]seenNode{}
 	for _, sample := range samples {
+		if math.IsNaN(sample.Value) || math.IsInf(sample.Value, 0) {
+			continue
+		}
+		seen := time.Unix(int64(sample.Value), 0).UTC()
+
+		node := nodeInfo{NodeID: sample.Labels["node_id"], NodeName: sample.Labels["node_name"]}
+		nodes, key := byNodeName, node.NodeName
+		if node.NodeID != "" {
+			nodes, key = byNodeID, node.NodeID
+		}
+		if key != "" {
+			prev, ok := nodes[key]
+			if !ok || seen.After(prev.at) {
+				nodes[key] = seenNode{node: node, at: seen}
+			}
+		}
+
 		id := sample.Labels["service_id"]
-		if id == "" || math.IsNaN(sample.Value) || math.IsInf(sample.Value, 0) {
+		if id == "" {
 			continue
 		}
 		svc := serviceInfo{
 			ServiceID:   id,
 			ServiceName: sample.Labels["service_name"],
 			Engine:      sample.Labels["service_type"],
-			NodeID:      sample.Labels["node_id"],
-			NodeName:    sample.Labels["node_name"],
+			NodeID:      node.NodeID,
+			NodeName:    node.NodeName,
 			Environment: sample.Labels["environment"],
 			Cluster:     sample.Labels["cluster"],
-			LastSeen:    time.Unix(int64(sample.Value), 0).UTC(),
+			LastSeen:    seen,
 		}
 		prev, ok := byID[id]
 		if !ok || svc.LastSeen.After(prev.LastSeen) {
@@ -312,7 +348,18 @@ func (s *Service) listServices(ctx context.Context, auth callerAuth, w window) (
 		}
 		return out[i].ServiceID < out[j].ServiceID
 	})
-	return out, nil
+
+	nodes := make([]nodeInfo, 0, len(byNodeID)+len(byNodeName))
+	for _, n := range byNodeID {
+		nodes = append(nodes, n.node)
+	}
+	for _, n := range byNodeName {
+		nodes = append(nodes, n.node)
+	}
+	slices.SortFunc(nodes, func(a, b nodeInfo) int {
+		return cmp.Or(strings.Compare(a.NodeID, b.NodeID), strings.Compare(a.NodeName, b.NodeName))
+	})
+	return out, nodes, nil
 }
 
 // serviceNamed returns, among the services with the name, the one with the newest last_seen.
