@@ -602,7 +602,7 @@ func TestAuthServerDebugMasksCredentials(t *testing.T) {
 			t.Parallel()
 
 			s := NewAuthServer(NewClient(strings.TrimPrefix(ts.URL, "http://")), nil)
-			s.accessControl = &accessControl{lastUpdated: time.Now()}
+			s.accessControl = &accessControl{lastUpdated: time.Now().Add(time.Hour)}
 			logger, hook := test.NewNullLogger()
 			logger.SetLevel(logrus.DebugLevel)
 			s.l = logrus.NewEntry(logger).WithField("component", "grafana/auth")
@@ -827,7 +827,8 @@ func TestAuthServerFilteredRouteWithoutUser(t *testing.T) {
 	t.Cleanup(grafana.Close)
 
 	s := NewAuthServer(NewClient(strings.TrimPrefix(grafana.URL, "http://")), nil)
-	s.accessControl = &accessControl{enabled: true, lastUpdated: time.Now()}
+	// The cached state must not expire while the parallel subtests run, since the test server has no database to reload from.
+	s.accessControl = &accessControl{enabled: true, lastUpdated: time.Now().Add(time.Hour)}
 
 	for name, tc := range map[string]struct {
 		authorization string
