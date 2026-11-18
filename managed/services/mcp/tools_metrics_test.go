@@ -456,6 +456,62 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Len(t, res.Series, 2, "an instant query reads the window once")
 	})
 
+	t.Run("WideRangeRaisesTheStep", func(t *testing.T) {
+		t.Parallel()
+
+		const broad = `{__name__=~"mysql_global_status_.*", service_name="db1"}`
+		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": broad, "period_from": "now-6h"})
+		require.False(t, isError, text)
+
+		// 500 series at 11s would be about 31 MB; 1m36s keeps them at 226 points each.
+		assert.Equal(t, "1m36s", res.Step)
+		reqs := fake.requestsTo(vmAPI + "query_range")
+		require.Len(t, reqs, 1)
+		assert.Equal(t, "96", queryParams(t, reqs[0]).Get("step"))
+		assert.Contains(t, res.Note, "The step was raised from 11s to 1m36s so that the answer for up to 500 series fits")
+		assert.Contains(t, text, "The step was raised from 11s to 1m36s")
+	})
+
+	t.Run("WideRangeWithAnAggregationKeepsTheStep", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+			"query": `sum by (service_name) (rate({__name__=~"mysql_global_status_.*", service_name="db1"}[5m]))`, "period_from": "now-6h",
+		})
+		require.False(t, isError, text)
+		assert.Equal(t, "11s", res.Step)
+		assert.Empty(t, res.Note)
+	})
+
+	t.Run("WideRangeWithAGivenStepIsRefused", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+			"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-6h", "step": "11s",
+		})
+		require.True(t, isError, text)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Contains(t, text, "raise step to at least 1m36s, or aggregate")
+		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
+	})
+
+	t.Run("WideRangeOverTheBudgetAtTheRaisedStep", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+			"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-10070m",
+		})
+		require.True(t, isError, text)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Contains(t, text, "the answer for up to 500 series fits")
+		assert.Contains(t, text, "aggregate, as in sum by (service_name)")
+		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"))
+	})
+
 	t.Run("OtherRefusalsAreNotRetried", func(t *testing.T) {
 		t.Parallel()
 

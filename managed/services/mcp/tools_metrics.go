@@ -212,7 +212,7 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 	if !plan.instant {
 		from, to = plan.start, plan.end
 	}
-	err = s.checkSeriesCount(ctx, auth, uid, selectors, from.Add(-(read - plan.span())), to)
+	matched, err := s.checkSeriesCount(ctx, auth, uid, selectors, from.Add(-(read - plan.span())), to)
 	if err != nil {
 		return metricsResult{}, narrowIfTooLarge(err, in.Query)
 	}
@@ -226,16 +226,62 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 		for i, sample := range samples {
 			series[i] = metricSeries{Labels: sample.Labels, Points: []point{{T: plan.at, V: sample.Value}}}
 		}
-		return shapeSeries(in.Query, series, plan.limit, nil, ""), nil
+		return shapeSeries(in.Query, series, plan.limit, nil, "", ""), nil
 	}
 
+	note, err := fitAnswer(in.Query, &plan, matched)
+	if err != nil {
+		return metricsResult{}, err
+	}
 	series, err := s.api.QueryRange(ctx, auth, uid, promRequest{
 		Query: in.Query, Start: plan.start, End: plan.end, Step: plan.step, Timeout: metricsTimeout,
 	})
 	if err != nil {
 		return metricsResult{}, narrowIfTooLarge(err, in.Query)
 	}
-	return shapeSeries(in.Query, series, plan.limit, &window{From: plan.start, To: plan.end}, formatStep(plan.step)), nil
+	return shapeSeries(in.Query, series, plan.limit, &window{From: plan.start, To: plan.end}, formatStep(plan.step), note), nil
+}
+
+// fitAnswer raises the step of a range query without an aggregation, whose answer has at most the series its selectors
+// match, so that the answer fits under the read cap, and returns the note that says so; a step the caller gave is refused instead.
+func fitAnswer(expr string, plan *metricsPlan, matched matchedSeries) (string, error) {
+	if aggregates(expr) {
+		return "", nil
+	}
+	step := answerStep(matched, plan.span(), plan.step)
+	if step == plan.step {
+		return "", nil
+	}
+	if plan.stepGiven {
+		return "", newToolError(codeInvalidInput,
+			"at step %s, the answer for up to %d series is over the 4 MiB that MCP reads: raise step to at least %s, or aggregate, as in sum by (service_name) (%s)",
+			formatStep(plan.step), matched.count, formatStep(step), hintExpr(expr))
+	}
+	_, err := checkExpr(expr, plan.span(), step)
+	if err != nil {
+		return "", newToolError(codeInvalidInput,
+			"the answer for up to %d series fits in the 4 MiB that MCP reads only at a step of %s or more, and at that step the query reads past its budget: "+
+				"aggregate, as in sum by (service_name) (%s), or narrow the selectors", matched.count, formatStep(step), hintExpr(expr))
+	}
+	note := fmt.Sprintf("The step was raised from %s to %s so that the answer for up to %d series fits in the 4 MiB that MCP reads; aggregate for a finer step.",
+		formatStep(plan.step), formatStep(step), matched.count)
+	plan.step = step
+	return note, nil
+}
+
+// aggregates reports whether expr has an aggregation, which can return fewer series than its selectors match.
+func aggregates(expr string) bool {
+	e, err := metricsql.Parse(expr)
+	if err != nil {
+		// checkExpr has refused an expression that does not parse; this keeps the step as it is.
+		return true
+	}
+	found := false
+	metricsql.VisitAll(e, func(e metricsql.Expr) {
+		_, ok := e.(*metricsql.AggrFuncExpr)
+		found = found || ok
+	})
+	return found
 }
 
 // narrowIfTooLarge turns a response over the 4 MiB bound into advice to narrow the query: the expression is the model's own.
@@ -243,11 +289,16 @@ func narrowIfTooLarge(err error, expr string) error {
 	if !errors.Is(err, errResponseTooLarge) {
 		return err
 	}
-	if len(expr) > maxHintExprBytes {
-		expr = "<expr>"
-	}
 	return newToolError(codeInvalidInput,
-		"the answer is larger than 4 MiB: narrow the query with a service_name or node_name matcher, and aggregate, as in sum by (service_name) (%s)", expr)
+		"the answer is larger than 4 MiB: narrow the query with a service_name or node_name matcher, and aggregate, as in sum by (service_name) (%s)", hintExpr(expr))
+}
+
+// hintExpr is the caller's expression as a hint quotes it, or <expr> when it is long.
+func hintExpr(expr string) string {
+	if len(expr) > maxHintExprBytes {
+		return "<expr>"
+	}
+	return expr
 }
 
 // checkInstantRoot refuses an instant query whose root is a range selector or a subquery, which
@@ -289,20 +340,34 @@ func selectorsOf(expr string, step time.Duration) ([]string, error) {
 	return out, nil
 }
 
-// checkSeriesCount refuses a query one of whose selectors matches more than maxSeriesPerSelector series over [start, end].
-func (s *Service) checkSeriesCount(ctx context.Context, auth callerAuth, uid string, selectors []string, start, end time.Time) error {
+// matchedSeries is what the selectors of a query match: how many series, and the bytes their labels take in a JSON answer.
+type matchedSeries struct {
+	count      int
+	labelBytes int
+}
+
+// checkSeriesCount refuses a query one of whose selectors matches more than maxSeriesPerSelector series over [start, end],
+// and returns what they all match.
+func (s *Service) checkSeriesCount(ctx context.Context, auth callerAuth, uid string, selectors []string, start, end time.Time) (matchedSeries, error) {
+	var m matchedSeries
 	for _, sel := range selectors {
 		series, err := s.api.Series(ctx, auth, uid, []string{sel}, start, end, maxSeriesPerSelector+1)
 		if err != nil {
-			return err
+			return matchedSeries{}, err
 		}
 		if len(series) > maxSeriesPerSelector {
-			return newToolError(codeInvalidInput,
+			return matchedSeries{}, newToolError(codeInvalidInput,
 				"this selector matches more than %d series over the span; narrow it with a service_name or node_name matcher, and aggregate (selector: %s)",
 				maxSeriesPerSelector, echo(sel))
 		}
+		m.count += len(series)
+		for _, labels := range series {
+			for k, v := range labels {
+				m.labelBytes += len(k) + len(v) + answerLabelBytes
+			}
+		}
 	}
-	return nil
+	return m, nil
 }
 
 const (

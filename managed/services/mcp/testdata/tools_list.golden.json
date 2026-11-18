@@ -1331,7 +1331,7 @@
           "type": "string"
         },
         "note": {
-          "description": "Values returned as null.",
+          "description": "Values returned as null, and a step the server raised so that the answer fits.",
           "type": "string"
         },
         "query": {

@@ -41,6 +41,17 @@ const maxPoints = 2000
 // maxHintExprBytes bounds the expression a hint quotes back, so that a long one cannot use up the byte budget.
 const maxHintExprBytes = 200
 
+// The estimate of a range answer's size: bytes per point, such as [1700000000,"12345"], per series besides its labels,
+// and per label besides its name and value, as in "name":"value",.
+const (
+	answerPointBytes  = 32
+	answerSeriesBytes = 32
+	answerLabelBytes  = 6
+)
+
+// maxRangeAnswerBytes is the estimated answer a range query's step is raised to fit: 3.5 MiB, under the 4 MiB read cap.
+const maxRangeAnswerBytes = maxVMResponseBytes / 8 * 7
+
 // internalLabels are PMM's own labels, which tell a caller nothing about the workload.
 var internalLabels = []string{"agent_id", "agent_type", "node_id", "machine_id", "instance", "job"}
 
@@ -51,6 +62,26 @@ func chooseStep(span, requested time.Duration) time.Duration {
 		return 0
 	}
 	return max(ceilSecond(requested), ceilSecond(span/maxPoints), time.Second)
+}
+
+// answerBytes estimates the size of a range answer of the matched series over span at step.
+func answerBytes(m matchedSeries, span, step time.Duration) int {
+	points := int(span/step) + 1
+	return m.labelBytes + m.count*(answerSeriesBytes+points*answerPointBytes)
+}
+
+// answerStep returns the smallest step, not under step, whose answer of the matched series is within maxRangeAnswerBytes;
+// step itself when the answer fits, or when even one point per series does not.
+func answerStep(m matchedSeries, span, step time.Duration) time.Duration {
+	if m.count == 0 || answerBytes(m, span, step) <= maxRangeAnswerBytes {
+		return step
+	}
+	perSeries := (maxRangeAnswerBytes - m.labelBytes - m.count*answerSeriesBytes) / (m.count * answerPointBytes)
+	if perSeries < 1 {
+		return step
+	}
+	// span/step + 1 points fit in perSeries when the step is over span/perSeries.
+	return max(step, (span/time.Duration(perSeries)).Truncate(time.Second)+time.Second)
 }
 
 // outPoint is one raw point of a series; V is null for NaN and ±Inf.
@@ -81,7 +112,7 @@ type metricsResult struct {
 	Truncated    bool              `json:"truncated" jsonschema:"True when some series are left out."`
 	Summarized   bool              `json:"summarized" jsonschema:"True when the series carry no raw points."`
 	Hint         string            `json:"hint,omitempty" jsonschema:"How to narrow the query, when series are left out."`
-	Note         string            `json:"note,omitempty" jsonschema:"Values returned as null."`
+	Note         string            `json:"note,omitempty" jsonschema:"Values returned as null, and a step the server raised so that the answer fits."`
 }
 
 var _ renderer = metricsResult{}
@@ -140,11 +171,11 @@ type rankedSeries struct {
 	points    []outPoint
 }
 
-// shapeSeries fits series, with the query, window and step (nil and empty for an instant query), to the
+// shapeSeries fits series, with the query, window, step and note (nil and empty for an instant query), to the
 // response budget: the top limit series by maximum, raw points when they fit and summaries when they don't,
 // and fewer series while the text and the JSON together exceed 16 KiB.
-func shapeSeries(expr string, series []metricSeries, limit int, w *window, step string) metricsResult {
-	head := metricsResult{Query: expr, Window: w, Step: step}
+func shapeSeries(expr string, series []metricSeries, limit int, w *window, step, note string) metricsResult {
+	head := metricsResult{Query: expr, Window: w, Step: step, Note: note}
 	// The JSON escapes <, > and & to six bytes each, so a query echoed twice can be over the budget alone.
 	if metricsSize(buildMetricsResult(head, nil, len(series), false)) > maxMetricsBytes {
 		head.Query = echo(expr)
@@ -258,11 +289,11 @@ func buildMetricsResult(head metricsResult, kept []rankedSeries, total int, raw 
 		res.Hint = leftOutHint(head.Query, total-len(kept), len(kept))
 	}
 	if nonFinite > 0 {
+		nulls := fmt.Sprintf("%d non-finite values (NaN or infinite) are left out of min, avg and max; a last that is not finite is null.", nonFinite)
 		if raw {
-			res.Note = fmt.Sprintf("%d values were NaN or infinite: they are null in points and left out of min, avg and max.", nonFinite)
-		} else {
-			res.Note = fmt.Sprintf("%d non-finite values (NaN or infinite) are left out of min, avg and max; a last that is not finite is null.", nonFinite)
+			nulls = fmt.Sprintf("%d values were NaN or infinite: they are null in points and left out of min, avg and max.", nonFinite)
 		}
+		res.Note = strings.TrimSpace(head.Note + " " + nulls)
 	}
 	return res
 }
