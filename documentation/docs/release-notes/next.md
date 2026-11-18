@@ -129,6 +129,8 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 - [PMM-15706](https://perconadev.atlassian.net/browse/PMM-15706): Fixed Advisor checks that used outdated end-of-life (EOL) dates and missed some [database versions that no longer get fixes](#smarter-advisor-checks-for-database-versions). Also fixed six checks that failed or gave wrong results on default setups: the MongoDB [multiple mongod services](../advisors/checks/multiple-mongod-running-in-a-node.md), [swap memory](../advisors/checks/mongodb-swap-allocation.md), [journal](../advisors/checks/mongodb-journal.md), [log level](../advisors/checks/mongodb-log-messages.md) and [maxSessions](../advisors/checks/mongodb-maxSessions.md) checks, and the PostgreSQL [WAL file accumulation](../advisors/checks/postgresql-wal-retention-check.md) check.
 
+- [PMM-15883](https://perconadev.atlassian.net/browse/PMM-15883): Fixed an issue where the [Query Analytics overview](../use/qan/panels/overview.md) table could show results that didn't match the current search, filters or time range when you changed them quickly, for example by changing the time range and then searching before the table reloaded. The table now always shows the results for your latest search, filters and time range, and keeps loading until those results arrive.
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
