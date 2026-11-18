@@ -64,7 +64,6 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
           <Tooltip
             title={sidebarOpen ? '' : 'Home'}
             placement="right"
-            disableInteractive
           >
             <Box
               component={Link}
