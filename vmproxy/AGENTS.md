@@ -55,7 +55,7 @@ Grafana's Metrics data source points at vmproxy, and Grafana forwards whatever s
 given. Every route to that data source — `/graph/api/ds/query`, both
 `/graph/api/datasources/proxy/` forms, and `/graph/api/datasources/uid/<uid>/resources/` — crosses
 this proxy, so this is the one place that sees them all. A gate in pmm-managed would instead have
-to enumerate Grafana's URL forms, which is what PMM-15379 showed to be fragile.
+to enumerate Grafana's URL forms, which is fragile.
 
 Admins reach snapshots and the rest of the admin surface either through the admin-gated
 `/prometheus/*` nginx location, which goes straight to VictoriaMetrics without crossing this

@@ -105,7 +105,7 @@ fi
 unset PLUGINS_SRC PLUGINS_DST PLUGINS_MARKER BUNDLED_VERSION SYNCED_VERSION
 
 echo "Creating nginx temp directories..."
-mkdir -p /srv/nginx/tmp/{client,proxy,fastcgi,uwsgi,scgi}
+mkdir -p /srv/tmp/{client,proxy,fastcgi,uwsgi,scgi}
 
 if [ ! -d "/srv/pmm-agent/tmp" ]; then
     echo "Creating pmm-agent temp directory..."
@@ -166,6 +166,9 @@ elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
     echo "Skipping embedded PostgreSQL setup (builtin PostgreSQL is disabled)."
 else
     mkdir -p /run/postgresql
+    # PostgreSQL is not running yet, so these locks are left over from an unclean stop, and it
+    # refuses to start while the PID they record belongs to another live process.
+    rm -f "$POSTGRES_DATA_DIR/postmaster.pid" /run/postgresql/.s.PGSQL.5432.lock /tmp/.s.PGSQL.5432.lock
     # Kubernetes applies fsGroup by recursively adding group permissions to the volume, which
     # turns an initdb-created 0700 data directory into 2770 — a mode PostgreSQL refuses. Repair
     # the current cluster and a PostgreSQL 14 directory awaiting migration, which

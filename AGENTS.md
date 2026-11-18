@@ -70,7 +70,7 @@ A component guide covers only what is specific to its area. Global conventions �
 
 ## How AI agents should work in this repo
 
-The **`AGENTS.md` hierarchy is the single source of truth** for agents. Read the matching component guide before editing.
+The **`AGENTS.md` hierarchy is the single source of truth** for agents. Read the matching component guide before editing. Do not assume PMM-specific behavior from general knowledge — verify it against this file, the component guides it links, and the code.
 
 Follow the sections through [Git and pull request checklist](#git-and-pull-request-checklist) every time you change code. Skim [Product Overview](#product-overview) and below when you need context.
 
@@ -118,6 +118,7 @@ These differ from generic Go/React advice. Match **surrounding code** in the fil
 - **UI server state:** TanStack Query hooks in `ui/apps/pmm/src/hooks/api/` — not `useEffect` + `fetch` in components ([`ui/AGENTS.md`](ui/AGENTS.md))
 - **UI client state:** React Context for auth/settings — not Redux or another global store
 - **UI components:** MUI + `@percona/peak-ui`, theme-aware `sx` — not ad-hoc CSS
+- **UI tables:** peak-ui `Table` + column filters, with URL state from `useTableUrlState` in `apps/pmm` or peak-ui's `usePerconaTableUrlState` in the plugin packages — not raw MRT tables or hand-rolled URL parameters ([`ui/AGENTS.md`](ui/AGENTS.md#tables))
 - **UI wire format:** camelCase in TypeScript; JSON on the wire is snake_case (`axios-case-converter` in `ui/apps/pmm/src/api/api.ts`)
 - **Generated code:** edit `.proto` / reform models / interfaces — run `make gen`; never hand-edit `*.pb.go`, `*_reform.go`, swagger clients
 
@@ -152,7 +153,7 @@ The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it 
 | `.proto` only | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
 | UI (anything under `ui/`) | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
 | Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate JS linter) |
-| `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | No linter; run the suite — see the [Testing decision tree](#testing-decision-tree). The other scripts in `dashboards/misc/` have no automated coverage |
+| `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | No linter; run the suite from the repo root: `python3 -m unittest discover -s dashboards/misc -p 'test_*.py'`. The other scripts in `dashboards/misc/` have no automated coverage |
 | Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
 | Before any PR | Run the row(s) that match **every** area you touched; fix errors, not just warnings, unless CI allows them |
 
@@ -217,7 +218,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 | Item | Rule |
 |------|------|
-| Branch name | `PMM-1234-short-description` — start with `PMM-XXXX` (or `SAAS-XXXX`); lowercase, dashes, always a short description |
+| Branch name | `PMM-1234-short-description` — start with `PMM-XXXX`; lowercase, dashes, always a short description |
 | Commit title | `PMM-XXXX Short summary` — Jira key prefix, ≤50 chars, imperative; final period optional. No `type(scope):` |
 | Commit body | Blank line after the title, then an optional description wrapped at 72 chars |
 | PR title | Same `PMM-XXXX Short summary` format (squash merge uses the PR title) |
@@ -303,7 +304,7 @@ Relationships:
 - An Agent runs on a Node (`runs_on_node_id`) and optionally monitors a Service (`service_id`)
 - A child Agent belongs to a parent PMM Agent (`pmm_agent_id`)
 
-Full schema, diagrams, and field-level detail: [`dev/docs/managed/data-model.md`](dev/docs/managed/data-model.md). Access-control (RBAC) architecture: [`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md).
+Full schema, diagrams, and field-level detail: [`dev/docs/managed/data-model.md`](dev/docs/managed/data-model.md). Label-based access control (LBAC) architecture: [`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md).
 
 ## Repository Map
 
@@ -365,12 +366,14 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
 - Use modern slice helpers (`slices.Contains`), range loops
-- Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`, and don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
+- Use `new(expr)` instead of `pointer.To(expr)` when a pointer to a value is needed
+- Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`
+- Don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
 - Don't use named return values
 - Don't inline comments (`code // comment`); put comments on separate lines — `//nolint` is the only exception
 - Don't inline `err != nil` checks (`if err := f(); err != nil`); assign on one line, check on the next
 - Comment only what the code can't say (a non-obvious why, a constraint, a workaround) in one line, two at most; doc comments are one sentence
-- Comments describe the code as it is, not its history: no "now/previously/fixed/added", incident stories or review back-and-forth (that goes in the commit message); point to the ticket instead (`see PMM-1234`)
+- Comments, in code and config alike, describe what is there, not its history or why it changed: no "now/previously/fixed/added", incident stories, review back-and-forth or justification for the change (that goes in the commit message); no ticket numbers either, since the commit title carries one
 
 ### Error Handling
 - Use `status.Error()` with proper gRPC codes for API errors
@@ -409,7 +412,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 ### Security and secrets
 - Never log, hardcode, or commit secrets — credentials, tokens, S3 keys, TLS material. `.env`, `encryption.key`, and key material are gitignored; keep it that way.
 - Persist sensitive values encrypted at rest via `managed/services/encryption` (rotation: `managed/cmd/pmm-encryption-rotation`) — not as plaintext columns.
-- Enforce authorization in the service layer and respect RBAC ([`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md)); don't rely on the UI to hide privileged actions.
+- Respect both access checks: API endpoints are gated by Grafana role (`managed/services/grafana/auth_server.go`), and metrics and QAN data are filtered by LBAC ([`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md)); don't rely on the UI to hide privileged actions.
 - Validate and bound external input; rely on reform's parameterized queries — never string-concatenate SQL.
 - Report vulnerabilities per [`SECURITY.md`](SECURITY.md); keep exploit detail out of public issues and PRs.
 
@@ -447,7 +450,7 @@ All long-running daemons expose on `127.0.0.1`:
 |--------|---------|
 | `make init` | Install pinned dev tools into `bin/` (golangci-lint at the version CI uses) |
 | `make env-up` | Start development container (PMM Server) |
-| `make env-up-rebuild` | Rebuild development container from scratch |
+| `make env-update-image` | Pull the latest dev image (`make env-remove` drops the container and its volumes) |
 | `make env TARGET=<t>` | Run `make <t>` **inside** the `pmm-server` container as the `pmm` user (bash shell if `TARGET` omitted); use `make env-root` for build/test/lint targets |
 | `make env-root TARGET=run-managed-ci` | Rebuild + hot-swap the pmm-managed binary (no image rebuild); see [running and verifying locally](dev/docs/process/running-and-verifying-locally.md). Also `run-agent-ci`, `run-qan-ci`, `run-vmproxy-ci`, `run-all` |
 | `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
@@ -478,4 +481,4 @@ All long-running daemons expose on `127.0.0.1`:
 - `dev/docs/process/running-and-verifying-locally.md` — run PMM locally, register test DBs, evidence-based verification for user-visible changes
 - `dev/docs/process/v2_to_v3_environment_variables.md` — v2→v3 environment variable migration
 - `dev/docs/managed/data-model.md` — inventory data model (schema + diagrams)
-- `dev/docs/managed/access-control.md` — access control (RBAC) architecture
+- `dev/docs/managed/access-control.md` — label-based access control (LBAC) architecture
