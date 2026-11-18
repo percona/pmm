@@ -154,7 +154,7 @@ checks:
 
                # A major version newer than the tables gives no finding.
                if series not in latest_versions or series not in version_expires:
-                  return []
+                  continue
 
                current_version = format_version(major, ver)
                latest_for_current = latest_versions[series]

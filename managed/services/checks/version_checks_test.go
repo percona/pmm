@@ -149,10 +149,6 @@ func runBuiltinCheck(t *testing.T, name, today string, docs ...[]map[string]any)
 	require.NoError(t, err)
 	fixed := day.Add(12 * time.Hour)
 
-	orig := now
-	now = func() time.Time { return fixed }
-	t.Cleanup(func() { now = orig })
-
 	funcs, err := GetFuncsForVersion(c.Version)
 	require.NoError(t, err)
 
@@ -164,7 +160,7 @@ func runBuiltinCheck(t *testing.T, name, today string, docs ...[]map[string]any)
 		input[i] = d
 	}
 
-	results, err := env.Run(name, input, GetAdditionalContext(), t.Log)
+	results, err := env.Run(name, input, additionalContext(func() time.Time { return fixed }), t.Log)
 	require.NoError(t, err)
 
 	return results
@@ -954,6 +950,19 @@ func TestBuiltinVersionChecks(t *testing.T) {
 				"space_used": int64(16777216), "pretty_space_used": "16 MB", "potential_space_used": nil,
 			}}},
 			want: []finding{{Severity: "warning", Summary: "WAL retention check"}},
+		},
+		{
+			// The row PostgreSQL 9.6.24 returns: it has no pg_ls_waldir(), so wal_cnt is NULL.
+			name:  "postgresql_wal_retention_check 90624 without WAL count",
+			check: "postgresql_wal_retention_check",
+			today: today,
+			docs: [][]map[string]any{{{
+				"version": "90624", "name": "wal_segment_size", "setting": "2048", "unit": "8kB", "multiplyer": int64(8192), //nolint:misspell
+				"bytes": int64(16777216), "pg_size_pretty": "16 MB", "wal_cnt": nil, "wal_keep": int64(0),
+				"space_used": nil, "pretty_space_used": nil, "potential_space_used": "0",
+			}}},
+			want:         []finding{{Severity: "warning", Summary: "WAL retention check needs PostgreSQL 10 or later"}},
+			descContains: []string{"PostgreSQL 9.6 reached end of life"},
 		},
 		{
 			name:  "postgresql_version_check 80423 older than 9.0",

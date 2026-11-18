@@ -317,19 +317,12 @@ func TestIPIsPrivate(t *testing.T) {
 	}
 }
 
-func fixNow(t *testing.T) {
+// runDateScript runs expr in a check script with the clock fixed to 2026-11-13T01:30:00+02:00, which is 2026-11-12 in UTC.
+func runDateScript(t *testing.T, expr string) (string, error) {
 	t.Helper()
 
 	fixed, err := time.Parse(time.RFC3339, "2026-11-13T01:30:00+02:00")
 	require.NoError(t, err)
-
-	orig := now
-	now = func() time.Time { return fixed }
-	t.Cleanup(func() { now = orig })
-}
-
-func runDateScript(t *testing.T, expr string) (string, error) {
-	t.Helper()
 
 	script := "def check_context(rows, context):\n" +
 		"    current_date = context.get(\"current_date\", fail)\n" +
@@ -341,7 +334,7 @@ func runDateScript(t *testing.T, expr string) (string, error) {
 	env, err := starlark.NewEnv(t.Name(), script, funcs)
 	require.NoError(t, err)
 
-	res, err := env.Run("date", nil, GetAdditionalContext(), t.Log)
+	res, err := env.Run("date", nil, additionalContext(func() time.Time { return fixed }), t.Log)
 	if err != nil {
 		return "", err
 	}
@@ -351,7 +344,7 @@ func runDateScript(t *testing.T, expr string) (string, error) {
 }
 
 func TestCurrentDate(t *testing.T) {
-	fixNow(t)
+	t.Parallel()
 
 	got, err := runDateScript(t, "current_date()")
 	require.NoError(t, err)
@@ -363,7 +356,7 @@ func TestCurrentDate(t *testing.T) {
 }
 
 func TestDaysUntil(t *testing.T) {
-	fixNow(t)
+	t.Parallel()
 
 	for date, expected := range map[string]string{
 		"2026-11-12": "0",
@@ -373,6 +366,7 @@ func TestDaysUntil(t *testing.T) {
 		"2026-04-30": "-196",
 	} {
 		t.Run(date, func(t *testing.T) {
+			t.Parallel()
 			got, err := runDateScript(t, `days_until("`+date+`")`)
 			require.NoError(t, err)
 			assert.Equal(t, expected, got)
@@ -380,18 +374,21 @@ func TestDaysUntil(t *testing.T) {
 	}
 
 	t.Run("malformed", func(t *testing.T) {
+		t.Parallel()
 		_, err := runDateScript(t, `days_until("2026-13-01")`)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), `days_until: failed to parse "2026-13-01"`)
+		assert.Contains(t, err.Error(), `days_until: failed to parse '2026-13-01': parsing time "2026-13-01": month out of range`)
 	})
 
 	t.Run("not a string", func(t *testing.T) {
+		t.Parallel()
 		_, err := runDateScript(t, `days_until(1)`)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "expected string argument")
 	})
 
 	t.Run("wrong arg count", func(t *testing.T) {
+		t.Parallel()
 		_, err := runDateScript(t, `days_until("2026-11-12", 1)`)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "expected 1 argument, got 2")
