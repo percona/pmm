@@ -115,8 +115,7 @@ type pmmNodeFacts struct {
 	hasMongoDBService bool
 }
 
-// pmmInventory is what PMM's own inventory says about the nodes Operations may install onto. It is read
-// from PMM rather than from PMM Extensions' copy, which is only as fresh as its last sync.
+// pmmInventory is PMM's own inventory of the nodes Operations may install onto, fresher than PMM Extensions' synced copy.
 type pmmInventory struct {
 	connected    map[string]bool
 	servers      map[string]bool
@@ -576,9 +575,8 @@ func executorUnusable(host extensionsHost) string {
 	return ""
 }
 
-// hostNotReadyReasons returns why an install on this node would fail, as opposed to why it must not be
-// attempted at all, which is hostNotATargetReasons. Each caller judges the automation agent its own way and
-// passes that reason in; the bool reports whether a reason is a property of the node rather than a fault.
+// hostNotReadyReasons returns why an install on this node would fail (hostNotATargetReasons says why it must not be tried),
+// and whether those reasons are properties of the node rather than faults.
 func hostNotReadyReasons(
 	host extensionsHost,
 	node pmmNodeFacts,
@@ -723,9 +721,9 @@ func (s *Service) refuseBootstrapProblems(
 	return "", status.Error(codes.InvalidArgument, "node_ids is empty")
 }
 
-// replicaSetNameInUse says why an install cannot use a replica set name in an environment and cluster, or ""
-// when it can. A blank cluster stands for the replica set name, as the wizard sends it and Fleet groups by it.
+// replicaSetNameInUse says why an install cannot use a replica set name in an environment and cluster, or "" when it can.
 func (s *Service) replicaSetNameInUse(ctx context.Context, environment, cluster, name string) (string, error) {
+	// A blank cluster stands for the replica set name, as the wizard sends it and Fleet groups by it.
 	cluster = cmp.Or(cluster, name)
 	var runs []extensionsBootstrapRun
 	for _, runStatus := range []string{bootstrapRunRunning, bootstrapRunSucceeded} {

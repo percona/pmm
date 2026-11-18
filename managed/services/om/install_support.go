@@ -132,13 +132,13 @@ func (s installSupport) list() string {
 	return strings.Join(groups, "; ")
 }
 
-// unsupportedMongoDBVersion names the nodes whose release om_bootstrap does not install a MongoDB version onto,
-// or returns "". A node whose release gets no version at all is left to hostNotReadyReasons.
+// unsupportedMongoDBVersion names the nodes whose release om_bootstrap does not install a MongoDB version onto, or returns "".
 func (s installSupport) unsupportedMongoDBVersion(version string, names []string, hosts []extensionsHost) string {
 	wanted := majorMinor(version)
 	blocked := make([]string, 0, len(hosts))
 	for i, host := range hosts {
 		release := s.release(host.Observed)
+		// A release that gets no version at all is left to hostNotReadyReasons.
 		if len(release.versions) == 0 || slices.Contains(release.versions, wanted) {
 			continue
 		}
