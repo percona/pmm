@@ -219,7 +219,7 @@ func checkQANWindow(from, to time.Time) error {
 }
 
 func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in topQueriesInput) (topQueriesResult, error) {
-	from, to, err := parseQueryWindow(in.PeriodFrom, in.PeriodTo, s.now())
+	from, to, err := parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
 	if err != nil {
 		return topQueriesResult{}, err
 	}
@@ -579,7 +579,7 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 			return queryDetailResult{}, newToolError(codeInvalidInput, "pass query_ref, as pmm_top_queries or pmm_query_detail return it, or pass queryid")
 		}
 		var err error
-		from, to, err = parseQueryWindow(in.PeriodFrom, in.PeriodTo, s.now())
+		from, to, err = parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
 		if err != nil {
 			return queryDetailResult{}, err
 		}

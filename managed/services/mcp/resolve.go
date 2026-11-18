@@ -88,7 +88,7 @@ func refFromInput(ref *queryRefInput, queryID, serviceID, periodFrom, periodTo s
 		return queryRef{}, newToolError(codeInvalidInput, "service_id, period_from and period_to need a queryid")
 	}
 
-	from, to, err := parseQueryWindow(periodFrom, periodTo, now)
+	from, to, err := parseWindow(periodFrom, periodTo, now)
 	if err != nil {
 		return queryRef{}, err
 	}

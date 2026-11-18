@@ -1298,7 +1298,7 @@
           "type": "integer"
         },
         "period_from": {
-          "description": "Range query: start, RFC3339 or relative such as now-6h; default now-1h when only period_to is given",
+          "description": "Range query: start, RFC3339 or relative such as now-6h; default 1 h before period_to",
           "type": "string"
         },
         "period_to": {
@@ -1494,7 +1494,7 @@
       "additionalProperties": false,
       "properties": {
         "period_from": {
-          "description": "Window start, RFC3339 or relative such as now-6h; default now-1h",
+          "description": "Window start, RFC3339 or relative such as now-6h; default 1 h before period_to",
           "type": "string"
         },
         "period_to": {

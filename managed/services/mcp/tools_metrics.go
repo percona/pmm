@@ -40,7 +40,7 @@ const (
 type queryMetricsInput struct {
 	Query      string `json:"query" jsonschema:"MetricsQL expression, for example sum by (service_name) (rate(mysql_global_status_questions[5m]))"`
 	Time       string `json:"time,omitempty" jsonschema:"Instant query: evaluation time, RFC3339 or relative such as now-1h; default now. Not with a period"`
-	PeriodFrom string `json:"period_from,omitempty" jsonschema:"Range query: start, RFC3339 or relative such as now-6h; default now-1h when only period_to is given"`
+	PeriodFrom string `json:"period_from,omitempty" jsonschema:"Range query: start, RFC3339 or relative such as now-6h; default 1 h before period_to"`
 	PeriodTo   string `json:"period_to,omitempty" jsonschema:"Range query: end, RFC3339 or relative; default now"`
 	Step       string `json:"step,omitempty" jsonschema:"Range query only: step in whole seconds, such as 30s or 5m; default keeps the range within 2000 points"`
 	Limit      int    `json:"limit,omitempty" jsonschema:"Maximum series to return, the largest by maximum first: 1 to 100, default 20"`

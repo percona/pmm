@@ -830,9 +830,9 @@ func TestParseWindowIsUTCSeconds(t *testing.T) {
 	assert.Equal(t, "2026-09-14T11:45:00Z", to.Format(time.RFC3339Nano))
 }
 
-// TestParseQueryWindowDefaults pins that a QAN or live-inspection window's period_to defaults to now and its
-// period_from to the hour before period_to.
-func TestParseQueryWindowDefaults(t *testing.T) {
+// TestParseWindowDefaults pins that a window's period_to defaults to now and its period_from to the hour before
+// period_to.
+func TestParseWindowDefaults(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
@@ -844,13 +844,13 @@ func TestParseQueryWindowDefaults(t *testing.T) {
 		{"", "now-2h", testNow.Add(-3 * time.Hour), testNow.Add(-2 * time.Hour)},
 		{"", "2026-09-13T08:00:00Z", time.Date(2026, 9, 13, 7, 0, 0, 0, time.UTC), time.Date(2026, 9, 13, 8, 0, 0, 0, time.UTC)},
 	} {
-		from, to, err := parseQueryWindow(tc.from, tc.to, testNow)
+		from, to, err := parseWindow(tc.from, tc.to, testNow)
 		require.NoError(t, err, "'%s' – '%s'", tc.from, tc.to)
 		assert.Equal(t, tc.wantFrom, from, "'%s' – '%s'", tc.from, tc.to)
 		assert.Equal(t, tc.wantTo, to, "'%s' – '%s'", tc.from, tc.to)
 	}
 
-	_, _, err := parseQueryWindow("", "yesterday", testNow)
+	_, _, err := parseWindow("", "yesterday", testNow)
 	require.Error(t, err)
 	assert.Equal(t, codeInvalidInput, mapError(err).code)
 

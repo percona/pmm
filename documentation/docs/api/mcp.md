@@ -320,7 +320,7 @@ Use the tools in this order:
 3. `pmm_list_metrics` finds metrics that the catalogue doesn't list, and the label values to filter by.
 4. `pmm_query_metrics` runs a MetricsQL query. Aggregate first, for example `sum by (service_name) (rate(mysql_global_status_questions[5m]))` or `topk(10, …)`, and filter by `service_name` or `service_id`. Use an instant query (`time`, default now) for the current value and a range query (`period_from`, `period_to`) for a trend.
 
-`pmm_query_metrics` takes `query`, `time` or `period_from`, `period_to` and `step`, and `limit`. The default range is the last hour. `step` is a whole number of seconds, written as `30s`, `5m` or `1h`. Without `step`, the server chooses the smallest one that keeps the range within 2,000 points. Each query runs with a timeout of 25 seconds.
+`pmm_query_metrics` takes `query`, `time` or `period_from`, `period_to` and `step`, and `limit`. The default range is the last hour, or the hour before `period_to` when only `period_to` is given. `step` is a whole number of seconds, written as `30s`, `5m` or `1h`. Without `step`, the server chooses the smallest one that keeps the range within 2,000 points. Each query runs with a timeout of 25 seconds.
 
 ### Metrics catalogue
 
@@ -328,7 +328,7 @@ Use the tools in this order:
 
 ### Service health signals
 
-`pmm_service_health` takes a `service_id` from `pmm_inventory`, and optionally `period_from` and `period_to` (default the last hour). The window is just under 7 days at most, since the signals also read about 5 minutes before it and a call reads at most 7 days. A longer window is `invalid_input`, and the message names the longest window that fits. It runs one fixed query for each signal, taken from the PMM dashboards: 9 for a MySQL service, 7 for PostgreSQL and 9 for MongoDB, then 6 for its node (CPU, load, memory, disk read and write latency, and free space). It runs at most 4 queries at a time.
+`pmm_service_health` takes a `service_id` from `pmm_inventory`, and optionally `period_from` and `period_to` (default the last hour, or the hour before `period_to` when only `period_to` is given). The window is just under 7 days at most, since the signals also read about 5 minutes before it and a call reads at most 7 days. A longer window is `invalid_input`, and the message names the longest window that fits. It runs one fixed query for each signal, taken from the PMM dashboards: 9 for a MySQL service, 7 for PostgreSQL and 9 for MongoDB, then 6 for its node (CPU, load, memory, disk read and write latency, and free space). It runs at most 4 queries at a time.
 
 Each signal reports `min`, `avg`, `max`, `last` and `last_at`, the time of the newest sample, with its unit and the metric it reads. The unit uses Grafana's names: `ops` is per second, `short` is a plain number, `percentunit` is a ratio from 0 to 1, and `none` is a code. A signal that returns no series is `no_data`. A signal whose query fails carries its own `error`, and the result sets `partial`. If every query fails, the call fails with the first error. A value that is `null` is NaN or infinite, for example a ratio whose denominator is 0. If a query returns several series, the signal reports the one with the largest maximum, and the note says how many there were.
 

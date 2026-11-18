@@ -78,37 +78,26 @@ func outOfRange(expr string) *toolError {
 		echo(expr), maxLookbackYears, int(maxLookahead/time.Hour))
 }
 
-// parseWindow resolves a period_from / period_to pair, with defaults now-1h / now, to UTC times in whole seconds, as results show them.
+// parseWindow resolves a period_from / period_to pair to UTC times in whole seconds, as results show them:
+// period_to defaults to now, and period_from to one hour before period_to.
 func parseWindow(from, to string, now time.Time) (time.Time, time.Time, error) {
-	if from == "" {
-		from = "now-1h"
-	}
-	start, err := parseTime(from, now)
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-	end, err := parseTime(to, now)
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-	start, end = start.UTC().Truncate(time.Second), end.UTC().Truncate(time.Second)
-	if !end.After(start) {
-		return time.Time{}, time.Time{}, newToolError(codeInvalidInput, "period_to (%s) must be after period_from (%s)", echo(to), echo(from))
-	}
-	return start, end, nil
-}
-
-// parseQueryWindow is parseWindow for the QAN and live-inspection tools, whose period_from defaults to one hour before period_to.
-func parseQueryWindow(from, to string, now time.Time) (time.Time, time.Time, error) {
-	if from != "" || to == "" {
-		return parseWindow(from, to, now)
-	}
 	end, err := parseTime(to, now)
 	if err != nil {
 		return time.Time{}, time.Time{}, err
 	}
 	end = end.UTC().Truncate(time.Second)
-	return end.Add(-hourWindow), end, nil
+	if from == "" {
+		return end.Add(-hourWindow), end, nil
+	}
+	start, err := parseTime(from, now)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	start = start.UTC().Truncate(time.Second)
+	if !end.After(start) {
+		return time.Time{}, time.Time{}, newToolError(codeInvalidInput, "period_to (%s) must be after period_from (%s)", echo(to), echo(from))
+	}
+	return start, end, nil
 }
 
 // fmtNum renders a metric with at most three decimals, like the QAN UI.

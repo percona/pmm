@@ -307,15 +307,12 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		end := testNow.Add(-10 * time.Minute)
 		require.NotNil(t, res.Window)
-		assert.Equal(t, window{From: testNow.Add(-time.Hour), To: end}, *res.Window)
+		assert.Equal(t, window{From: end.Add(-time.Hour), To: end}, *res.Window)
 		reqs := fake.requestsTo(vmAPI + "query_range")
 		require.Len(t, reqs, 1)
 		p := queryParams(t, reqs[0])
-		assert.Equal(t, unixOf(testNow.Add(-time.Hour)), p.Get("start"))
+		assert.Equal(t, unixOf(end.Add(-time.Hour)), p.Get("start"))
 		assert.Equal(t, unixOf(end), p.Get("end"))
-
-		fake2 := newFakePMM(t, metricsRoutes(nil))
-		requireInvalid(t, newQANService(t, fake2, false), fake2, map[string]any{"query": questions, "period_to": "now-2h"}, "must be after period_from")
 	})
 
 	t.Run("RateLimited", func(t *testing.T) {

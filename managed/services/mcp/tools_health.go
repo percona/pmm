@@ -45,7 +45,7 @@ const (
 
 type serviceHealthInput struct {
 	ServiceID  string `json:"service_id" jsonschema:"Service id from pmm_inventory."`
-	PeriodFrom string `json:"period_from,omitempty" jsonschema:"Window start, RFC3339 or relative such as now-6h; default now-1h"`
+	PeriodFrom string `json:"period_from,omitempty" jsonschema:"Window start, RFC3339 or relative such as now-6h; default 1 h before period_to"`
 	PeriodTo   string `json:"period_to,omitempty" jsonschema:"Window end, RFC3339 or relative; default now"`
 }
 
