@@ -293,17 +293,11 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		return explainResult{}, newToolError(codeInvalidInput, "EXPLAIN is not available for engine '%s'", svc.Engine)
 	}
 
-	release, err := s.startLive(auth)
+	release, err := s.startLive(ctx, auth, svc.ServiceID)
 	if err != nil {
 		return explainResult{}, err
 	}
 	defer release()
-
-	releaseService, err := s.startLiveOn(ctx, svc.ServiceID)
-	if err != nil {
-		return explainResult{}, err
-	}
-	defer releaseService()
 
 	output, err := s.runAction(ctx, auth, body, !raw)
 	if err != nil {
@@ -389,17 +383,11 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 		return schemaResult{}, err
 	}
 
-	release, err := s.startLive(auth)
+	release, err := s.startLive(ctx, auth, svc.ServiceID)
 	if err != nil {
 		return schemaResult{}, err
 	}
 	defer release()
-
-	releaseService, err := s.startLiveOn(ctx, svc.ServiceID)
-	if err != nil {
-		return schemaResult{}, err
-	}
-	defer releaseService()
 
 	refs := make([]tableRef, len(tables))
 	for i, t := range tables {
@@ -447,17 +435,11 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 		}
 	}
 
-	release, err := s.startLive(auth)
+	release, err := s.startLive(ctx, auth, svc.ServiceID)
 	if err != nil {
 		return schemaResult{}, err
 	}
 	defer release()
-
-	releaseService, err := s.startLiveOn(ctx, svc.ServiceID)
-	if err != nil {
-		return schemaResult{}, err
-	}
-	defer releaseService()
 
 	var unresolved []string
 	var note string

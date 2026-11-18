@@ -1605,6 +1605,93 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		assert.NotEmpty(t, fake.requestsTo("/v1/actions:startServiceAction"), "the call ran once the service's slot was free")
 	})
 
+	t.Run("WaitHoldsNoCallerSlotOrToken", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		held, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+
+		done := make(chan string, 1)
+		go func() {
+			text, _ := callText(t, session, "pmm_get_schema", schemaArgs)
+			done <- text
+		}()
+		require.Eventually(t, func() bool { return listQueries(fake) > 0 }, 5*time.Second, 10*time.Millisecond)
+		assert.Never(t, func() bool {
+			s.live.mu.Lock()
+			defer s.live.mu.Unlock()
+			return s.live.total > 0
+		}, 200*time.Millisecond, 10*time.Millisecond, "a waiting call holds no caller or replica slot")
+		s.liveRate.mu.Lock()
+		assert.Empty(t, s.liveRate.buckets, "a waiting call has taken no token")
+		s.liveRate.mu.Unlock()
+
+		held()
+		select {
+		case text := <-done:
+			assert.False(t, strings.HasPrefix(text, "error:"), text)
+		case <-time.After(5 * time.Second):
+			require.FailNow(t, "the call did not run once the service's slot was free")
+		}
+	})
+
+	t.Run("RefusedCallTakesNoToken", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		s.liveServiceWait = 50 * time.Millisecond
+		session := connect(t, s)
+
+		rel1 := take(t, s, key)
+		rel2 := take(t, s, key)
+		text, isError := callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.True(t, isError)
+		assert.Contains(t, text, "these credentials")
+		rel1()
+		rel2()
+
+		held, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+		text, isError = callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.True(t, isError)
+		assert.Contains(t, text, "still in flight")
+		held()
+
+		s.liveRate.mu.Lock()
+		assert.Empty(t, s.liveRate.buckets, "a refused call takes no token")
+		s.liveRate.mu.Unlock()
+		rel, hit := s.liveByService.acquire("svc-1")
+		assert.Equal(t, limitNone, hit, "a refused call releases the service's slot")
+		rel()
+	})
+
+	t.Run("DeadlineWhileWaiting", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		held, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+		defer held()
+		req := &mcp.CallToolRequest{Extra: &mcp.RequestExtra{Header: http.Header{"Authorization": {testToken}}}}
+
+		ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+		defer cancel()
+		_, err := s.schema(ctx, req, schemaInput{ServiceID: "svc-1", Database: "shop", Tables: []string{"customers"}})
+		te := mapError(err)
+		assert.Equal(t, codeRateLimited, te.code, te.message)
+		assert.Contains(t, te.message, "a live-inspection call on this service is still in flight")
+
+		ctx, cancel = context.WithCancel(t.Context())
+		time.AfterFunc(100*time.Millisecond, cancel)
+		_, err = s.schema(ctx, req, schemaInput{ServiceID: "svc-1", Database: "shop", Tables: []string{"customers"}})
+		require.ErrorIs(t, err, context.Canceled)
+	})
+
 	t.Run("PerServiceWaitCancelled", func(t *testing.T) {
 		t.Parallel()
 
