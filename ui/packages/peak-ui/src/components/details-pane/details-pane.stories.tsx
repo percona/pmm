@@ -47,9 +47,26 @@ const serverTabs = (server: Server | undefined): DetailsPaneProps['tabs'] => [
   },
 ];
 
-type StoryArgs = Pick<DetailsPaneProps, 'labels' | 'defaultTab'> & { withNavigation?: boolean };
+const EXTRA_TABS = ['Metrics', 'Queries', 'Alerts', 'Backups'];
 
-const ServerListWithPane = ({ labels, defaultTab, withNavigation = true }: StoryArgs) => {
+const extraTabs = (server: Server | undefined): DetailsPaneProps['tabs'] =>
+  EXTRA_TABS.map((label) => ({
+    value: label.toLowerCase(),
+    label,
+    content: server && <Typography>{`${label} for ${server.name}`}</Typography>,
+  }));
+
+type StoryArgs = Pick<DetailsPaneProps, 'labels' | 'defaultTab'> & {
+  withNavigation?: boolean;
+  manyTabs?: boolean;
+};
+
+const ServerListWithPane = ({
+  labels,
+  defaultTab,
+  withNavigation = true,
+  manyTabs = false,
+}: StoryArgs) => {
   const [selected, setSelected] = useState<Server | undefined>(SERVERS[0]);
   const navigation = useDetailsPaneNavigation<Server>({
     rows: SERVERS,
@@ -83,7 +100,7 @@ const ServerListWithPane = ({ labels, defaultTab, withNavigation = true }: Story
       <DetailsPane
         open={!!selected}
         onClose={() => setSelected(undefined)}
-        tabs={serverTabs(selected)}
+        tabs={manyTabs ? [...serverTabs(selected), ...extraTabs(selected)] : serverTabs(selected)}
         defaultTab={defaultTab}
         navigation={withNavigation ? navigation : undefined}
         labels={labels}
@@ -106,7 +123,7 @@ const meta: Meta<typeof DetailsPane> = {
           '',
           'Each tab brings its own `content`; only the selected one is rendered. The pane keeps its own selected tab and goes back to `defaultTab` (or the first tab) when it closes; pass `tab` and `onTabChange` to control it instead.',
           '',
-          'Pass the result of `useDetailsPaneNavigation` as `navigation` to step through the rows the user sees; the arrows disable themselves at either end. Without `navigation` only the close button shows. Escape closes the pane while it is open.',
+          'Pass the result of `useDetailsPaneNavigation` as `navigation` to step through the rows the user sees; the arrows disable themselves at either end. Without `navigation` only the close button shows. Escape closes the pane while it is open, and closing it returns focus to where it was before the pane opened. Tabs that do not fit scroll, with arrows at either end.',
           '',
           'Name what the buttons move between in `labels` ("Next query", "Next alert"). `previousButtonProps`, `nextButtonProps` and `closeButtonProps` reach the buttons, for example for a `data-testid`, and `tabProps` on a tab does the same for its `Tab`.',
         ].join('\n'),
@@ -147,4 +164,14 @@ export const WithoutNavigation: Story = {
   name: 'Without navigation',
   parameters: { controls: { disable: true } },
   render: () => <ServerListWithPane withNavigation={false} />,
+};
+
+export const ManyTabs: Story = {
+  name: 'More tabs than fit',
+  parameters: { controls: { disable: true } },
+  render: () => (
+    <Box sx={{ maxWidth: 420 }}>
+      <ServerListWithPane manyTabs />
+    </Box>
+  ),
 };

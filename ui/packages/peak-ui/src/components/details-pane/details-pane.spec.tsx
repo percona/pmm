@@ -147,6 +147,58 @@ describe('DetailsPane', () => {
     expect(screen.getByTestId('close')).toHaveAccessibleName('Close details pane');
   });
 
+  it('returns focus to where it was before the pane opened when it closes', () => {
+    const theme = createTheme(getThemeOptions('base')('light'));
+    const view = (open: boolean) => (
+      <ThemeProvider theme={theme}>
+        <button type="button">Row</button>
+        <DetailsPane open={open} onClose={vi.fn()} tabs={tabs} />
+      </ThemeProvider>
+    );
+    const { rerender } = render(view(false));
+    screen.getByRole('button', { name: 'Row' }).focus();
+
+    rerender(view(true));
+    screen.getByRole('button', { name: 'Close details' }).focus();
+    rerender(view(false));
+
+    expect(screen.getByRole('button', { name: 'Row' })).toHaveFocus();
+  });
+
+  it('moves focus out of the pane when there is nowhere to return it', () => {
+    const { rerender } = renderPane();
+    screen.getByRole('button', { name: 'Close details' }).focus();
+
+    rerender({ open: false });
+
+    expect(document.body).toHaveFocus();
+  });
+
+  it('leaves focus alone when it is outside the pane at close', () => {
+    const theme = createTheme(getThemeOptions('base')('light'));
+    const view = (open: boolean) => (
+      <ThemeProvider theme={theme}>
+        <button type="button">Row</button>
+        <input aria-label="Search" />
+        <DetailsPane open={open} onClose={vi.fn()} tabs={tabs} />
+      </ThemeProvider>
+    );
+    const { rerender } = render(view(false));
+    screen.getByRole('button', { name: 'Row' }).focus();
+    rerender(view(true));
+    screen.getByRole('textbox', { name: 'Search' }).focus();
+
+    rerender(view(false));
+
+    expect(screen.getByRole('textbox', { name: 'Search' })).toHaveFocus();
+  });
+
+  it('lets the user scroll to tabs that do not fit', () => {
+    renderPane();
+
+    expect(screen.getByRole('tablist').parentElement).toHaveClass('MuiTabs-scrollableX');
+  });
+
   it('forwards the ref to the pane surface', () => {
     const ref = createRef<HTMLDivElement>();
     render(

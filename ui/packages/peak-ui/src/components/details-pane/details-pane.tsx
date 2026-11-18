@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState, type ReactElement } from 'react';
+import { forwardRef, useEffect, useRef, useState, type ReactElement } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -9,6 +9,7 @@ import Tabs from '@mui/material/Tabs';
 import KeyboardArrowDownOutlined from '@mui/icons-material/KeyboardArrowDownOutlined';
 import KeyboardArrowUpOutlined from '@mui/icons-material/KeyboardArrowUpOutlined';
 import type { SxProps, Theme } from '@mui/material/styles';
+import { unstable_useEnhancedEffect as useEnhancedEffect, useForkRef } from '@mui/material/utils';
 import { BottomPanelCloseIcon } from '../icons';
 import Tooltip from '../tooltip';
 import type {
@@ -79,9 +80,36 @@ const DetailsPane = forwardRef<HTMLDivElement, DetailsPaneProps>(
       }
     }
     const { previous, next, close } = { ...DEFAULT_LABELS, ...labels };
+    const paneRef = useRef<HTMLDivElement>(null);
+    const handleRef = useForkRef(paneRef, ref);
+    const returnFocusRef = useRef<HTMLElement | null>(null);
 
     const requestedTab = tab ?? ownTab ?? defaultTab;
     const selectedTab = tabs.find((item) => item.value === requestedTab) ?? tabs[0];
+
+    useEnhancedEffect(() => {
+      const pane = paneRef.current;
+      const doc = pane?.ownerDocument ?? document;
+      const focused = doc.activeElement instanceof HTMLElement ? doc.activeElement : null;
+      if (open) {
+        if (!pane?.contains(focused)) {
+          returnFocusRef.current = focused;
+        }
+        return;
+      }
+      const returnTo = returnFocusRef.current;
+      returnFocusRef.current = null;
+      if (!pane || !focused || !pane.contains(focused)) {
+        return;
+      }
+      // Focus must leave the pane before it is hidden from assistive technology.
+      if (returnTo?.isConnected && returnTo !== doc.body) {
+        returnTo.focus();
+      }
+      if (pane.contains(doc.activeElement)) {
+        focused.blur();
+      }
+    }, [open]);
 
     useEffect(() => {
       if (!open) {
@@ -104,7 +132,7 @@ const DetailsPane = forwardRef<HTMLDivElement, DetailsPaneProps>(
     return (
       <Slide direction="up" {...slideProps} in={open}>
         <Paper
-          ref={ref}
+          ref={handleRef}
           variant="outlined"
           aria-hidden={!open}
           {...rest}
@@ -132,12 +160,15 @@ const DetailsPane = forwardRef<HTMLDivElement, DetailsPaneProps>(
             <Tabs
               value={selectedTab?.value ?? false}
               onChange={(_, value) => handleTabChange(value)}
+              variant="scrollable"
+              scrollButtons="auto"
+              sx={{ minWidth: 0 }}
             >
               {tabs.map((item) => (
                 <Tab key={item.value} {...item.tabProps} value={item.value} label={item.label} />
               ))}
             </Tabs>
-            <Stack direction="row" alignItems="center" sx={{ gap: 0.5, mr: -1 }}>
+            <Stack direction="row" alignItems="center" sx={{ flex: 'none', gap: 0.5, mr: -1 }}>
               {navigation && (
                 <>
                   <HeaderButton
