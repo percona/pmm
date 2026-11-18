@@ -245,7 +245,7 @@ Metric label values, and the names, labels, summaries and descriptions of alerts
 
 ### Errors
 
-A failed tool call returns `isError: true` with a text of the form `error: <code>` followed by a remediation message. Codes: `not_found`, `invalid_input`, `unauthorized`, `timeout`, `no_query_source`, `insufficient_privileges`, `agent_unreachable`, `pmm_unavailable`, `rate_limited`. An `unauthorized` error carries PMM's own message (for example `Access denied` when the token's role is too low for a backing API); a request without a valid token never reaches the tools and gets HTTP 401 from PMM. When Grafana's anonymous access is on, PMM refuses `/mcp` to an anonymous caller with HTTP 403. A browser request from another origin also gets HTTP 403, so browser-based MCP clients must run on the PMM origin.
+A failed tool call returns `isError: true` with a text of the form `error: <code>` followed by a remediation message. Codes: `not_found`, `invalid_input`, `unauthorized`, `timeout`, `no_query_source`, `insufficient_privileges`, `agent_unreachable`, `pmm_unavailable`, `rate_limited`. An `unauthorized` error carries PMM's own message (for example `Access denied` when the token's role is too low for a backing API); a request without a valid token never reaches the tools and gets HTTP 401 from PMM. So does an anonymous caller when Grafana's anonymous access is on. A browser request from another origin gets HTTP 403, so browser-based MCP clients must run on the PMM origin.
 
 Every error result also carries `_meta["com.percona/error"]` with the `code` and a `retryable` flag, and has no `structuredContent`. A client can act on the flag without parsing the text. These codes are retryable, because the same call can succeed later: `timeout`, `agent_unreachable`, `pmm_unavailable` and `rate_limited`. The others (`not_found`, `invalid_input`, `unauthorized`, `no_query_source`, `insufficient_privileges`) are not: change the request or the setup first.
 
@@ -397,6 +397,8 @@ The limits are per caller, identified by a hash of the credential, and per PMM S
 | Live-inspection calls in flight, per replica | The same calls | 8 |
 | Live-inspection calls in flight, per service and replica | The same calls | 1 |
 | Live-inspection call rate, per caller | The same calls | 10 a minute, 4 at once |
+
+A token is one caller, whether it's sent as Bearer or as Basic credentials. Other Basic credentials count per user name, and a session cookie per session. A request that carries both Basic credentials and a `pmm_session` cookie counts as one caller that all such requests share. Grafana falls back from the Basic credentials to the session, so neither value alone identifies the caller. Send one or the other.
 
 A call of `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health` or `pmm_alerts` counts once, however many queries it runs. In addition, every request that MCP sends to VictoriaMetrics takes one of the replica's slots. The replica has half of VictoriaMetrics' limit on concurrent queries, at least 1, so dashboards and alert evaluation keep the other half. VictoriaMetrics' own default for that limit is twice the number of CPUs, at most 16. The environment variable `VM_search_maxConcurrentRequests` sets the limit instead (see [VictoriaMetrics environment variables](../reference/third-party/victoria.md#environment-variables)), and MCP takes half of the value it sets. A request waits for a slot until the deadline of its call.
 
