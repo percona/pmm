@@ -17,10 +17,12 @@ package mcp
 
 import (
 	"context"
+	"runtime/debug"
 	"time"
 
 	"github.com/google/jsonschema-go/jsonschema"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/sirupsen/logrus"
 )
 
 // toolTimeoutSlack is added to the action timeout to bound a whole tool call:
@@ -54,7 +56,12 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 		ctx, cancel := context.WithTimeout(ctx, s.actionTimeout()+toolTimeoutSlack)
 		defer cancel()
 
-		out, err := fn(ctx, req, in)
+		var out Out
+		err := recoverPanic(l, func() error {
+			var callErr error
+			out, callErr = fn(ctx, req, in)
+			return callErr
+		})
 		if err != nil {
 			te := mapError(err)
 			l.WithField("code", string(te.code)).WithField("duration", time.Since(start)).Warn("Tool call failed.")
@@ -65,6 +72,24 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 		l.WithField("duration", time.Since(start)).Debug("Tool call succeeded.")
 		return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: out.render()}}}, out, nil
 	})
+}
+
+// recoverPanic calls fn and turns a panic in it into a pmm_unavailable error, logging the panic and its stack:
+// the SDK runs each call in a goroutine of its own, without a recover.
+func recoverPanic(l *logrus.Entry, fn func() error) error {
+	var err error
+	func() {
+		defer func() {
+			r := recover()
+			if r == nil {
+				return
+			}
+			l.WithField("panic", r).WithField("stack", string(debug.Stack())).Error("Tool call panicked.")
+			err = newToolError(codePMMUnavailable, "pmm-managed failed while running this tool; its log has the details")
+		}()
+		err = fn()
+	}()
+	return err
 }
 
 // readOnly returns the annotations every PMM tool carries: read-only,
