@@ -454,6 +454,11 @@ func TestQueryMetricsTool(t *testing.T) {
 		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": long})
 		require.False(t, isError, text)
 		assert.Len(t, res.Series, 2, "an instant query reads the window once")
+
+		fake2 := newFakePMM(t, metricsRoutes(nil))
+		requireInvalid(t, newQANService(t, fake2, false), fake2,
+			map[string]any{"query": `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[3d])[3d])`},
+			"give the subquery a step of at least 2h47m47s")
 	})
 
 	t.Run("WideRangeRaisesTheStep", func(t *testing.T) {

@@ -329,9 +329,51 @@ func TestCheckExpr(t *testing.T) {
 			name: "the implicit subquery's window passes at the step its hint names",
 			expr: `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d])[1h])`, span: time.Hour, step: 631 * time.Second,
 		},
+
+		// Inside a subquery, a window is read at each of the subquery's points over the query's range and the subquery's lead.
 		{
-			name: "a window inside an explicit subquery is left to the subquery's step",
+			name: "a 6d window in a subquery at 1s is first refused for its subquery step",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[6d])[1h:1s])`,
+			want: []string{"the subquery step 1s is too small", "at least 4m22s"},
+		},
+		{
+			name: "the 6d window at the subquery step that hint names",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[6d])[1h:262s])`,
+			want: []string{
+				"at the subquery step of 4m22s, the rollup window 6d is read at each of 17 points, 2432 hours of samples per series",
+				"raise the subquery step to at least 5m29s, or shorten the window",
+			},
+		},
+		{
+			name: "the 6d window passes at the subquery step its hint names",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[6d])[1h:329s])`,
+		},
+		{name: "an instant 5m rate in a 1d subquery at 5m", expr: `max_over_time(rate(x{service_name="a"}[5m])[1d:5m])`},
+		{
+			name: "a 3d window in an instant query's implicit subquery, 62424 hours",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[3d])[3d])`,
+			want: []string{
+				"at the subquery step of 5m, the rollup window 3d is read at each of 867 points, 62424 hours of samples per series",
+				"give the subquery a step of at least 2h47m47s, written [range:step], or shorten the window",
+			},
+		},
+		{
+			name: "the 3d window passes with the subquery step its hint names",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[3d])[3d:2h47m47s])`,
+		},
+		{
+			name: "a 3d window in an instant query's explicit subquery",
 			expr: `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[3d])[3d:302s])`,
+			want: []string{"the rollup window 3d is read at each of 862 points", "raise the subquery step to at least 2h47m47s"},
+		},
+		{
+			name: "a range query's subquery is read once over the range, not once per point",
+			expr: `max_over_time(rate(x{service_name="a"}[5m])[1h:1m])`, span: day,
+		},
+		{
+			name: "a 1d window in a range query's subquery",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[1d])[1h:5m])`, span: day,
+			want: []string{"at the subquery step of 5m, the rollup window 1d is read at each of 303 points", "raise the subquery step to at least 18m31s"},
 		},
 	} {
 		name := tc.name
