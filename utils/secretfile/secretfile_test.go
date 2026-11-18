@@ -36,7 +36,7 @@ func TestRead(t *testing.T) {
 	empty := filepath.Join(dir, "empty")
 	require.NoError(t, os.WriteFile(empty, []byte(" \n"), 0o600))
 	_, err = Read(empty)
-	require.EqualError(t, err, empty+" is empty")
+	require.EqualError(t, err, empty+" is empty: add the password or key to the file")
 
 	_, err = Read(filepath.Join(dir, "missing"))
 	require.ErrorIs(t, err, os.ErrNotExist)

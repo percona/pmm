@@ -326,7 +326,7 @@ func resolve(opts Options, s spec) (Resolved, error) {
 	value, key, ignored := first(opts.Getenv, s.valueEnvs)
 	r.Var, r.Ignored = key, ignored
 	if file != "" && value != "" {
-		return r, fmt.Errorf("both a file (%s) and a value (%s) are set", strings.Join(s.fileEnvs, "/"), strings.Join(s.valueEnvs, "/"))
+		return r, fmt.Errorf("is set both in %s and in %s: remove one of them", strings.Join(s.fileEnvs, "/"), strings.Join(s.valueEnvs, "/"))
 	}
 	// Grafana read a value that is only $__file{path} from that file, so the file stays the source.
 	if p := grafanaFile(value, s.providers); p != "" {
@@ -341,7 +341,7 @@ func resolve(opts Options, s spec) (Resolved, error) {
 	if file != "" {
 		// After a restart, the path would lead to the link from the earlier start, which becomes a link to itself.
 		if inside(opts.RunDir, file) {
-			return r, fmt.Errorf("%s is inside %s, where PMM Server links the credentials", file, opts.RunDir)
+			return r, fmt.Errorf("%s is inside %s, which PMM Server manages itself: move the file to another directory, such as /etc/pmm/secrets", file, opts.RunDir)
 		}
 		_, err := secretfile.Read(file)
 		if err != nil {
@@ -368,7 +368,7 @@ func resolve(opts Options, s spec) (Resolved, error) {
 		}
 		// A value that is only whitespace is no value, also for the keys kept as written.
 		if strings.TrimSpace(value) == "" {
-			return r, fmt.Errorf("%s resolves to an empty value", key)
+			return r, fmt.Errorf("%s is empty or contains only whitespace: set the password or key, or remove the variable", key)
 		}
 		r.Source, r.Padded = SourceEnv, strings.TrimSpace(value) != value
 		switch {
@@ -404,7 +404,7 @@ func dirSource(opts Options, s spec, value string) (string, error) {
 		return "", err
 	}
 	if value != "" {
-		return "", fmt.Errorf("both %s and a value (%s) are set", p, strings.Join(s.valueEnvs, "/"))
+		return "", fmt.Errorf("is set both in %s and in %s: remove one of them", p, strings.Join(s.valueEnvs, "/"))
 	}
 	_, err = secretfile.Read(p)
 	if err != nil {
@@ -478,7 +478,7 @@ func checkSecretsDir(opts Options) error {
 	if dir == "" {
 		return nil
 	}
-	errInside := fmt.Errorf("%s (%s) is inside %s, where PMM Server links the credentials", SecretsDirEnvVar, dir, opts.RunDir)
+	errInside := fmt.Errorf("%s (%s) is inside %s, which PMM Server manages itself: use another directory, such as /etc/pmm/secrets", SecretsDirEnvVar, dir, opts.RunDir)
 	if inside(opts.RunDir, dir) {
 		return errInside
 	}
@@ -501,7 +501,7 @@ func checkSecretsDir(opts Options) error {
 		return fmt.Errorf("%s: %w", SecretsDirEnvVar, err)
 	}
 	if !fi.IsDir() {
-		return fmt.Errorf("%s (%s) is not a directory", SecretsDirEnvVar, dir)
+		return fmt.Errorf("%s (%s) is not a directory: set it to the directory that holds your credential files", SecretsDirEnvVar, dir)
 	}
 	return nil
 }
@@ -545,7 +545,7 @@ func checkRunDir(opts Options) error {
 		foreign = append(foreign, links...)
 	}
 	if len(foreign) != 0 {
-		return fmt.Errorf("%s holds %s, which PMM Server didn't create; mount credentials in another directory",
+		return fmt.Errorf("%s contains %s, which PMM Server didn't create: mount your credentials in another directory, such as /etc/pmm/secrets",
 			opts.RunDir, strings.Join(foreign, ", "))
 	}
 	return nil

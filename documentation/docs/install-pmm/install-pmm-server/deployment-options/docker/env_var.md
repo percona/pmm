@@ -218,7 +218,7 @@ Configure connections to external database services:
 
 ### Credentials as files
 
-These variables supply PMM Server's credentials as files instead of environment variables. For the credentials, their file names and the order in which PMM Server reads them, see [Supply credentials as files](../../../../admin/security/credentials_as_files.md).
+Use these variables to provide PMM Server's credentials in files instead of environment variables. To choose the credentials and name their files, [provide PMM Server credentials in files](../../../../admin/security/credentials_as_files.md).
 
 | Variable | Description |
 |----------|-------------|

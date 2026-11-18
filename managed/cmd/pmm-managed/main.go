@@ -733,7 +733,7 @@ func readCredential(l *logrus.Entry, value string, name secrets.Name, defaultVal
 	v, err := secrets.Value(value, name, defaultValue)
 	switch {
 	case errors.Is(err, secrets.ErrNotResolved):
-		l.Warnf("Credential %s is not resolved, using the default.", name)
+		l.Warnf("Credential %s has no file in %s, so PMM Server uses the default value.", name, secrets.Dir)
 	case err != nil:
 		l.Fatalf("Cannot read credential %s: %s.", name, err)
 	}
