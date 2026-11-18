@@ -618,23 +618,27 @@ func TestQueryMetricsBudget(t *testing.T) {
 	_, serviceName := monitoredService(t, "mysql")
 	session := connect(t)
 
-	// 3 minutes at the default 1 s step give every series many points on a new server and stay well under the 4 MiB read on an old one.
+	// The raw series of one MySQL service over 6 hours: at the default step the answer would be far over the 4 MiB read cap,
+	// so the server raises the step until it fits.
 	query := `{__name__=~"mysql_global_status_.*", service_name="` + serviceName + `"}`
-	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-3m"})
+	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-6h"})
 	require.False(t, res.IsError, text)
 
 	structured, err := json.Marshal(res.StructuredContent)
 	require.NoError(t, err)
 	var out struct {
-		Summarized  bool `json:"summarized"`
-		TotalSeries int  `json:"total_series"`
+		Step        string `json:"step"`
+		Summarized  bool   `json:"summarized"`
+		TotalSeries int    `json:"total_series"`
+		Note        string `json:"note"`
 	}
 	require.NoError(t, json.Unmarshal(structured, &out))
 
 	if out.TotalSeries == 0 {
 		t.Skipf("no mysql_global_status_ series for %s yet", serviceName)
 	}
-	assert.True(t, out.Summarized, "3 minutes of many series at a 1 s step must come back as summaries")
+	t.Logf("%d series at step %s; note: %s", out.TotalSeries, out.Step, out.Note)
+	assert.True(t, out.Summarized, "6 hours of many series must come back as summaries")
 	assert.Greater(t, out.TotalSeries, 1)
 	assert.LessOrEqual(t, len(text)+len(structured), maxMetricsBytes)
 }

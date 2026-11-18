@@ -40,6 +40,9 @@ const (
 // in effect, for a rollup over anything but a selector.
 const maxImplicitPoints = 4000
 
+// maxWindowHours bounds, in hours, a rollup window over a selector times the points it is read at: a 1h window at maxPoints points.
+const maxWindowHours = maxPoints
+
 // instantStep is the step an instant query is checked with: VictoriaMetrics' default.
 const instantStep = 5 * time.Minute
 
@@ -61,6 +64,16 @@ var templateKeywords = []string{"with", "ttf", "ru", "range_median", "alias"}
 
 // seriesPerValueFuncs are the functions that create a series for each distinct sample value.
 var seriesPerValueFuncs = []string{"count_values", "count_values_over_time", "histogram", "histogram_over_time"}
+
+// maxRollupNames bounds the functions one aggr_over_time call names, since it returns a series for each.
+const maxRollupNames = 8
+
+// seriesPerPhiFuncs map each function that creates a series for each phi argument to its single-phi form.
+var seriesPerPhiFuncs = map[string]string{
+	"quantiles_over_time": "quantile_over_time",
+	"quantiles":           "quantile",
+	"histogram_quantiles": "histogram_quantile",
+}
 
 // stepTooSmallError is the refusal of a step too small for a rollup over an expression that is not a selector.
 type stepTooSmallError struct {
@@ -143,7 +156,50 @@ func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
 			return 0, &stepTooSmallError{toolError: te, minStep: ceilSecond(minStep)}
 		}
 	}
+
+	for _, rw := range w.windows {
+		err = checkWindow(rw, span)
+		if err != nil {
+			return 0, err
+		}
+	}
 	return read, nil
+}
+
+// checkWindow refuses a rollup window that, read at each point it is evaluated at over span, reads more than maxWindowHours.
+func checkWindow(rw rollupWindow, span time.Duration) error {
+	evaluated := addCapped(span, rw.extent)
+	points := float64(evaluated) / float64(rw.step)
+	hours := rw.window.Hours() * points
+	if hours <= maxWindowHours {
+		return nil
+	}
+
+	// The lead steps in extent grow with the step, so they come out before dividing.
+	room := maxWindowHours - float64(rw.leadSteps)*rw.window.Hours()
+	minStep := rw.window.Hours() * float64(evaluated-time.Duration(rw.leadSteps)*rw.step) / room
+	var raise string
+	if room > 0 && minStep <= float64(maxSpan) {
+		raise = formatSpan(ceilSecond(time.Duration(minStep)))
+	}
+	at, hint := "the subquery step", "shorten the window"
+	switch {
+	case rw.queryStep && span > 0:
+		at, hint = "the query's step", "shorten the window, or send an instant query for one value over the window"
+		if raise != "" {
+			hint = "raise step to at least " + raise + ", " + hint
+		}
+	case raise == "":
+	case rw.queryStep:
+		// An instant query's implicit subquery runs at instantStep unless the caller writes its step.
+		hint = "give the subquery a step of at least " + raise + ", written [range:step], or shorten the window"
+	default:
+		hint = "raise the subquery step to at least " + raise + ", or shorten the window"
+	}
+	return newToolError(codeInvalidInput,
+		"at %s of %s, the rollup window %s is read at each of %d points, %d hours of samples per series; "+
+			"the cap is %d hours (a 1h window at %d points): %s",
+		at, formatSpan(rw.step), formatSpan(rw.window), int64(math.Ceil(points)), int64(math.Ceil(hours)), maxWindowHours, maxPoints, hint)
 }
 
 // selector is one OR group of a MetricExpr's label filters, which VictoriaMetrics
@@ -173,6 +229,19 @@ type exprWalk struct {
 	subquerySteps []time.Duration
 	// implicitSubqueries holds each subquery VictoriaMetrics runs for a rollup over anything but a selector.
 	implicitSubqueries []implicitSubquery
+	// windows holds each rollup window over a selector.
+	windows []rollupWindow
+}
+
+// rollupWindow is a rollup window over a selector, read at each point of its branch.
+type rollupWindow struct {
+	window time.Duration
+	// step is the step of the branch, and queryStep whether it is the query's.
+	step      time.Duration
+	queryStep bool
+	// extent is how much longer than the query's range the window is read over, leadSteps of the branch's steps included.
+	extent    time.Duration
+	leadSteps int
 }
 
 // implicitSubquery is a subquery no step was written for, run at the step in effect where it stands.
@@ -190,12 +259,16 @@ type path struct {
 	lookbehind time.Duration
 	// extent is how much longer than the query's range the branch is evaluated over; offsets shift it, not lengthen it.
 	extent time.Duration
+	// queryStep tells whether the branch is evaluated at the query's step, outside any explicit subquery, and
+	// leadSteps how many of the branch's own steps its extent counts.
+	queryStep bool
+	leadSteps int
 }
 
 // walkSelectors walks e evaluated at step, and refuses `@` and any node it cannot measure.
 func walkSelectors(e metricsql.Expr, step time.Duration) (exprWalk, error) {
 	var w exprWalk
-	err := w.expr(e, path{step: step})
+	err := w.expr(e, path{step: step, queryStep: true})
 	return w, err
 }
 
@@ -261,9 +334,16 @@ func (w *exprWalk) expr(e metricsql.Expr, p path) error {
 	}
 }
 
-// checkFunc refuses a function that creates a series for each distinct value, whose result no budget bounds.
+// checkFunc refuses a function that creates a series for each distinct value or for each phi argument.
 func checkFunc(name string) error {
-	if !slices.Contains(seriesPerValueFuncs, strings.ToLower(name)) {
+	lower := strings.ToLower(name)
+	single, ok := seriesPerPhiFuncs[lower]
+	if ok {
+		return newToolError(codeInvalidInput,
+			"%s() is not accepted: it creates a series for each phi argument, so its result grows with its arguments; call %s() once per phi instead",
+			name, single)
+	}
+	if !slices.Contains(seriesPerValueFuncs, lower) {
 		return nil
 	}
 	return newToolError(codeInvalidInput,
@@ -271,37 +351,46 @@ func checkFunc(name string) error {
 			"summarise the values with quantile_over_time(), max_over_time() or count_over_time() instead", name)
 }
 
-// checkRollupNames refuses an aggr_over_time call that names a refused rollup function in a string argument.
+// checkRollupNames refuses an aggr_over_time call that names, in its string arguments, a refused rollup function,
+// one function twice, or more than maxRollupNames functions.
 func checkRollupNames(e *metricsql.FuncExpr) error {
 	if !strings.EqualFold(e.Name, "aggr_over_time") {
 		return nil
 	}
+	var names []string
 	for _, arg := range e.Args {
-		err := checkRollupName(arg)
+		names = appendRollupNames(names, arg)
+	}
+	for i, name := range names {
+		err := checkFunc(name)
 		if err != nil {
 			return err
 		}
+		if slices.ContainsFunc(names[:i], func(n string) bool { return strings.EqualFold(n, name) }) {
+			return newToolError(codeInvalidInput, "aggr_over_time() names %s twice; name each function once", strings.ToLower(name))
+		}
+	}
+	if len(names) > maxRollupNames {
+		return newToolError(codeInvalidInput,
+			"aggr_over_time() names %d functions and returns a series for each; the cap is %d: split it into several calls", len(names), maxRollupNames)
 	}
 	return nil
 }
 
-// checkRollupName refuses a string, or a parenthesised list of strings, that names a refused function.
-func checkRollupName(e metricsql.Expr) error {
+// appendRollupNames appends to names the string e, or each string of the parenthesised list e.
+func appendRollupNames(names []string, e metricsql.Expr) []string {
 	switch e := e.(type) {
 	case *metricsql.StringExpr:
-		return checkFunc(e.S)
+		return append(names, e.S)
 	case *metricsql.FuncExpr:
 		if e.Name != "" {
-			return nil
+			return names
 		}
 		for _, arg := range e.Args {
-			err := checkRollupName(arg)
-			if err != nil {
-				return err
-			}
+			names = appendRollupNames(names, arg)
 		}
 	}
-	return nil
+	return names
 }
 
 // rollupArg walks what a rollup function reads over its window, which VictoriaMetrics
@@ -324,9 +413,11 @@ func (w *exprWalk) rollup(re *metricsql.RollupExpr, p path) error {
 
 	me, ok := re.Expr.(*metricsql.MetricExpr)
 	if ok && !re.ForSubquery() {
+		window := durationOf(re.Window, p.step)
 		lookbehind := addCapped(p.lookbehind, durationOf(re.Offset, p.step))
 		// VictoriaMetrics reads at least one step back, whatever the window.
-		w.metric(me, addCapped(lookbehind, max(durationOf(re.Window, p.step), p.step)))
+		w.metric(me, addCapped(lookbehind, max(window, p.step)))
+		w.windows = append(w.windows, rollupWindow{window: window, step: p.step, queryStep: p.queryStep, extent: p.extent, leadSteps: p.leadSteps})
 		return nil
 	}
 
@@ -345,7 +436,17 @@ func (w *exprWalk) rollup(re *metricsql.RollupExpr, p path) error {
 // point: VictoriaMetrics starts it one step and subqueryLead early, then aligns that start down to the step.
 func (w *exprWalk) subquery(e metricsql.Expr, window, step time.Duration, explicit bool, p path) error {
 	lead := addCapped(window, addCapped(addCapped(step, step), subqueryLead))
-	inner := path{step: step, lookbehind: addCapped(p.lookbehind, lead), extent: addCapped(p.extent, lead)}
+	inner := path{
+		step:       step,
+		lookbehind: addCapped(p.lookbehind, lead),
+		extent:     addCapped(p.extent, lead),
+		queryStep:  p.queryStep && !explicit,
+		leadSteps:  p.leadSteps + subqueryLeadSteps,
+	}
+	if explicit {
+		// An explicit subquery has its own step, so only its lead counts steps of it.
+		inner.leadSteps = subqueryLeadSteps
+	}
 	if explicit {
 		w.subquerySteps = append(w.subquerySteps, step)
 	} else {

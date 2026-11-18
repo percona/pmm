@@ -77,21 +77,16 @@ const (
 	rangeQuery   = `rate(mysql_global_status_questions[5m])`
 	instantQuery = `rate(mysql_global_status_questions[6d])`
 	maxSeries    = 2000
-	queryLabels  = "range_rate_5m,instant_rate_6d,range_sum_rate"
+	queryLabels  = "range_rate_5m,instant_rate_6d,range_selector"
 )
 
-// selectorQuery is the series selector of the third query shape over the first n of the db services.
+// selectorQuery is the third query shape, the raw series selector, over the first n of the db services.
 func selectorQuery(n int) string {
 	names := make([]string, n)
 	for i := range names {
 		names[i] = "db" + strconv.Itoa(i+1)
 	}
 	return `{__name__=~"mysql_global_status_.*", service_name=~"` + strings.Join(names, "|") + `"}`
-}
-
-// sumRateQuery is the third query shape: the per-service rate of the selector.
-func sumRateQuery(selector string) string {
-	return `sum by (service_name) (rate(` + selector + `[5m]))`
 }
 
 // mysqlSignalQueries are the MySQL signals of healthSignals in managed/services/mcp/tools_health.go, with %[1]s for the service selector.
@@ -103,7 +98,7 @@ var mysqlSignalQueries = []string{
 	`avg by (service_name) (rate(mysql_global_status_aborted_connects{%[1]s}[5m]) or irate(mysql_global_status_aborted_connects{%[1]s}[5m]))`,
 	`avg by (service_name) (rate(mysql_global_status_slow_queries{%[1]s}[5m]) or irate(mysql_global_status_slow_queries{%[1]s}[5m]))`,
 	`avg by (service_name) (rate(mysql_global_status_created_tmp_disk_tables{%[1]s}[5m]) or irate(mysql_global_status_created_tmp_disk_tables{%[1]s}[5m]))`,
-	`clamp_min(avg by (service_name) ( (max_over_time(mysql_slave_status_seconds_behind_master{%[1]s}[5m]) or max_over_time(mysql_slave_status_seconds_behind_master{%[1]s}[5m])) - (max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m]) or max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m])) ),0) or clamp_min(avg by (service_name) ( (max_over_time(mysql_slave_status_seconds_behind_source{%[1]s}[5m]) or max_over_time(mysql_slave_status_seconds_behind_source{%[1]s}[5m])) - (max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m]) or max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m])) ),0)`,
+	`clamp_min(max by (service_name) ( (max_over_time(mysql_slave_status_seconds_behind_master{%[1]s}[5m]) or max_over_time(mysql_slave_status_seconds_behind_master{%[1]s}[5m])) - (max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m]) or max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m])) ),0) or clamp_min(max by (service_name) ( (max_over_time(mysql_slave_status_seconds_behind_source{%[1]s}[5m]) or max_over_time(mysql_slave_status_seconds_behind_source{%[1]s}[5m])) - (max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m]) or max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m])) ),0)`,
 	`avg by (service_name) ((rate(mysql_global_status_innodb_buffer_pool_reads{%[1]s}[5m]) or irate(mysql_global_status_innodb_buffer_pool_reads{%[1]s}[5m])) / (rate(mysql_global_status_innodb_buffer_pool_read_requests{%[1]s}[5m]) or irate(mysql_global_status_innodb_buffer_pool_read_requests{%[1]s}[5m])))`,
 }
 
@@ -590,7 +585,7 @@ func queryRequest(selector string) func(i int) request {
 		case 1:
 			return request{args: map[string]any{"query": instantQuery}, query: labels[1]}
 		default:
-			return request{args: map[string]any{"query": sumRateQuery(selector), "period_from": "now-6d"}, query: labels[2]}
+			return request{args: map[string]any{"query": selector, "period_from": "now-6d"}, query: labels[2]}
 		}
 	}
 }
@@ -607,6 +602,11 @@ func runCallers(ctx context.Context, sessions []*mcp.ClientSession, serviceIDs [
 		wg.Go(func() {
 			callLoop(ctx, session, rec, "pmm_service_health", func(i int) request {
 				return request{args: map[string]any{"service_id": serviceIDs[i%len(serviceIDs)], "period_from": "now-6h"}, query: "service_health"}
+			}, 0)
+		})
+		wg.Go(func() {
+			callLoop(ctx, session, rec, "pmm_alerts", func(int) request {
+				return request{args: map[string]any{}, query: "alerts"}
 			}, 0)
 		})
 	}
@@ -756,7 +756,7 @@ func (s runSummary) failures() []string {
 		out = append(out, s.Name+": metrics read failed: "+f)
 	}
 	if s.MCP != nil {
-		for _, tool := range []string{"pmm_query_metrics", "pmm_service_health"} {
+		for _, tool := range []string{"pmm_query_metrics", "pmm_service_health", "pmm_alerts"} {
 			if s.MCP.ByTool[tool].Ok == 0 {
 				out = append(out, fmt.Sprintf("%s: no ok call of %s", s.Name, tool))
 			}
@@ -770,7 +770,7 @@ func (s runSummary) failures() []string {
 	return out
 }
 
-// TestMetricsLoad is the acceptance run of the metrics tools (spec 7.4, ADR-19): the dashboard probe alone, then with five callers of three loops each.
+// TestMetricsLoad is the acceptance run of the metrics tools (spec 7.4, ADR-19): the dashboard probe alone, then with five callers of four loops each.
 // It passes when the loaded run adds no rule-evaluation failure over the baseline's and no PMM Server component restarts in either run.
 func TestMetricsLoad(t *testing.T) {
 	tokens := readTokens(t)
