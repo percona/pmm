@@ -231,11 +231,10 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 		assert.False(t, isError, text)
 		assert.Contains(t, text, "innodb_buffer_pool_size")
 
-		// The PromQL must carry the resolved name, since metrics are labelled
-		// by service_name and not by service_id.
+		// Every scraped series carries its target's service_id, so the PromQL selects the service by it.
 		reqs := queriesWith(fake, "mysql_global_variables_")
 		require.Len(t, reqs, 1)
-		assert.Contains(t, queryOf(t, reqs[0]).Get("query"), "shop-mysql")
+		assert.Contains(t, queryOf(t, reqs[0]).Get("query"), `service_id="svc-1"`)
 
 		got := structured[configResult](t, res)
 		assert.Equal(t, "shop-mysql", got.ServiceName)

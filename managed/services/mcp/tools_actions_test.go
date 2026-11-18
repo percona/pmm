@@ -1161,7 +1161,7 @@ func TestConfigTool(t *testing.T) {
 
 	queries := queriesWith(fake, "mysql_global_variables_")
 	require.Len(t, queries, 1)
-	assert.Equal(t, `query=%7B__name__%3D~%22mysql_global_variables_.%2B%22%2C+service_name%3D%22shop-mysql%22%7D&time=`+strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10)+`&timeout=25s`, queries[0].query)
+	assert.Equal(t, `query=%7B__name__%3D~%22mysql_global_variables_.%2B%22%2C+service_id%3D%22svc-1%22%7D&time=`+strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10)+`&timeout=25s`, queries[0].query)
 	list := queriesWith(fake, "tlast_over_time(up[3600s])")
 	require.Len(t, list, 1)
 	assert.Equal(t, strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10), queryOf(t, list[0]).Get("time"))
@@ -1174,6 +1174,18 @@ func TestConfigTool(t *testing.T) {
 	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "engine": "mongodb"})
 	assert.True(t, isError)
 	assert.True(t, strings.HasPrefix(text, "error: invalid_input\nengine"), text)
+
+	// An engine other than the service's own reads no variables of the wrong kind.
+	before := len(fake.requestsTo(vmAPI + "query"))
+	for id, want := range map[string]string{"svc-mongo": "mongodb", "svc-2": "postgresql"} {
+		text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_id": id, "engine": "mysql"})
+		assert.True(t, isError, id)
+		assert.Equal(t, "error: invalid_input\nengine mysql doesn't match the service, which is "+want+"; leave engine out", text)
+	}
+	assert.Empty(t, queriesWith(fake, "pg_settings_"))
+	assert.Len(t, fake.requestsTo(vmAPI+"query"), before+2, "only the service lists")
+	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "engine": "mysql"})
+	assert.False(t, isError, text)
 
 	// No variable matches: the text keeps its message and gains the time and the link.
 	res = callTool(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "filter": "nothing_matches"})

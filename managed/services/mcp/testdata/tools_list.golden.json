@@ -257,7 +257,7 @@
           "type": "string"
         },
         "engine": {
-          "description": "mysql or postgresql. Defaults to the service's own engine",
+          "description": "mysql or postgresql; must be the service's own engine, which is the default",
           "type": "string"
         },
         "filter": {

@@ -31,7 +31,7 @@ import (
 type configInput struct {
 	ServiceID   string `json:"service_id,omitempty" jsonschema:"Service id from pmm_inventory (preferred; same identifier every other tool takes)"`
 	ServiceName string `json:"service_name,omitempty" jsonschema:"Service name from pmm_inventory. Only needed when service_id is not supplied"`
-	Engine      string `json:"engine,omitempty" jsonschema:"mysql or postgresql. Defaults to the service's own engine"`
+	Engine      string `json:"engine,omitempty" jsonschema:"mysql or postgresql; must be the service's own engine, which is the default"`
 	Filter      string `json:"filter,omitempty" jsonschema:"Only variables whose name contains this substring (e.g. innodb)"`
 	At          string `json:"at,omitempty" jsonschema:"Point in time: RFC3339 or relative such as now-1h (default now)"`
 	Limit       int    `json:"limit,omitempty" jsonschema:"Maximum variables to return; default 200, maximum 1000"`
@@ -151,21 +151,19 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 		return configResult{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
 	}
 	serviceName := svc.ServiceName
-	// An explicit engine wins over the service list's.
-	engine := cmp.Or(in.Engine, svc.Engine)
-	if engine == "" {
-		engine = engineMySQL
+	if in.Engine != "" && svc.Engine != "" && in.Engine != svc.Engine {
+		return configResult{}, newToolError(codeInvalidInput, "engine %s doesn't match the service, which is %s; leave engine out", in.Engine, svc.Engine)
 	}
+	engine := cmp.Or(svc.Engine, in.Engine, engineMySQL)
 
 	prefix, ok := configMetrics[engine]
 	if !ok {
-		// An explicit engine was validated above, so this engine came from the service list.
 		return configResult{}, newToolError(codeInvalidInput,
 			"pmm_get_config covers MySQL and PostgreSQL services; service '%s' is %s", serviceName, engine)
 	}
 
 	samples, err := s.queryMetrics(ctx, auth,
-		`{__name__=~"`+prefix+`.+", service_name="`+escapeLabel(serviceName)+`"}`, at)
+		`{__name__=~"`+prefix+`.+", service_id="`+escapeLabel(svc.ServiceID)+`"}`, at)
 	if err != nil {
 		return configResult{}, err
 	}
