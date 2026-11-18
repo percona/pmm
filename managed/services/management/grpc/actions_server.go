@@ -465,12 +465,22 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 
 	var pmmAgentID string
 	switch node.NodeType {
-	case models.RemoteNodeType:
-		pmmAgentID = models.PMMServerAgentID
+	case models.RemoteNodeType, models.RemoteRDSNodeType, models.RemoteAzureDatabaseNodeType:
+		pmmAgents, err := models.FindPMMAgentsForService(s.db.Querier, req.ServiceId)
+		if err != nil {
+			return nil, err
+		}
+		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(req.PmmAgentId, pmmAgents)
+		if err != nil {
+			return nil, err
+		}
 	default:
 		pmmAgents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, service.NodeID)
 		if err != nil {
 			return nil, status.Errorf(codes.NotFound, "No pmm-agent running node %s", service.NodeID)
+		}
+		if len(pmmAgents) == 0 {
+			return nil, status.Errorf(codes.FailedPrecondition, "No pmm-agent running on node %s", service.NodeID)
 		}
 		pmmAgents = models.FindPMMAgentsForVersion(s.l, pmmAgents, pmmAgent2150)
 		if len(pmmAgents) == 0 {
@@ -602,7 +612,7 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *acti
 
 	var pmmAgentID string
 	switch node.NodeType {
-	case models.RemoteNodeType:
+	case models.RemoteNodeType, models.RemoteRDSNodeType, models.RemoteAzureDatabaseNodeType:
 		// Remove this error after: https://jira.percona.com/browse/PMM-7562
 		return nil, status.Errorf(codes.FailedPrecondition, "PTMySQL Summary doesn't work with remote instances yet")
 
@@ -611,6 +621,9 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *acti
 		pmmAgents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, service.NodeID)
 		if err != nil {
 			return nil, status.Errorf(codes.NotFound, "No pmm-agent running node %s", service.NodeID)
+		}
+		if len(pmmAgents) == 0 {
+			return nil, status.Errorf(codes.FailedPrecondition, "No pmm-agent running on node %s", service.NodeID)
 		}
 		pmmAgents = models.FindPMMAgentsForVersion(s.l, pmmAgents, pmmAgent2150)
 		if len(pmmAgents) == 0 {
