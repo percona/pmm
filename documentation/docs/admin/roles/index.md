@@ -48,6 +48,7 @@ Use the matrix below to check which permissions users have based on their assign
     :--- | :---: | :---: | :---:
     View alert rules | ✓ | ✓ | ✓
     Add, edit, delete alert rules | ✗ | ✓ | ✓
+    Add or edit recording rules that write to **Metrics** | ✗ | ✗ | ✓
     View fired alerts | ✓ | ✓ | ✓
     Silence alerts | ✗ | ✓ | ✓
     View alert templates | ✗ | ✓ | ✓
