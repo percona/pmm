@@ -89,7 +89,6 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
                 '&:focus-visible': {
                   outline: `2px solid ${theme.palette.primary.main}`,
                 },
-                ...logoMixin(theme, sidebarOpen),
                 transition: theme.transitions.create(
                   ['left', 'top', 'height', 'max-width'],
                   drawerTransition(theme, sidebarOpen)
