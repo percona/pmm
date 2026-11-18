@@ -62,9 +62,12 @@ export const Messages = {
   },
   links: {
     mysql: 'MySQL',
+    postgresql: 'PostgreSQL',
     os: 'OS',
     details: (serviceName: string) =>
       `MySQL Amazon Aurora Details for ${serviceName}`,
+    postgresqlDetails: (serviceName: string) =>
+      `PostgreSQL Amazon Aurora Details for ${serviceName}`,
     mysqlSummary: (serviceName: string) =>
       `MySQL Instance Summary for ${serviceName}`,
     postgresqlSummary: (serviceName: string) =>

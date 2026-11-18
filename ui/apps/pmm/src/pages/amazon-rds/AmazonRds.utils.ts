@@ -408,6 +408,15 @@ export const getInstanceLinks = ({
       serviceName
     ),
   };
+  const postgresqlSummary: InstanceLink = {
+    label: Messages.links.postgresql,
+    title: Messages.links.postgresqlSummary(serviceName),
+    url: getDashboardUrl(
+      DASHBOARD_URLS.postgresqlSummary,
+      'var-service_name',
+      serviceName
+    ),
+  };
 
   if (engine === 'aurora-mysql') {
     return {
@@ -424,17 +433,24 @@ export const getInstanceLinks = ({
     };
   }
 
-  if (getFamily(engine) === 'postgresql') {
+  if (engine === 'aurora-postgresql') {
     return {
       service: {
         label: serviceName,
-        title: Messages.links.postgresqlSummary(serviceName),
+        title: Messages.links.postgresqlDetails(serviceName),
         url: getDashboardUrl(
-          DASHBOARD_URLS.postgresqlSummary,
+          DASHBOARD_URLS.auroraPostgresqlDetails,
           'var-service_name',
           serviceName
         ),
       },
+      dashboards: [postgresqlSummary, os],
+    };
+  }
+
+  if (getFamily(engine) === 'postgresql') {
+    return {
+      service: { ...postgresqlSummary, label: serviceName },
       dashboards: [os],
     };
   }

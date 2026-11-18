@@ -42,6 +42,7 @@ The list of featured dashboards:
 - PXC Galera Cluster Summary
 - PXC Galera Node Summary
 - PXC Galera Nodes Compare
+- PostgreSQL Amazon Aurora Details
 - PostgreSQL Instance Summary
 - PostgreSQL Instances Compare
 - PostgreSQL Instances Overview

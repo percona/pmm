@@ -44,6 +44,7 @@ export const ALERT_GROUPS_URL = NAV_ALERTS_GROUPS.url;
 
 export const DASHBOARD_URLS = {
   auroraDetails: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-amazonaurora/mysql-amazon-aurora-details`,
+  auroraPostgresqlDetails: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-amazonaurora/postgresql-amazon-aurora-details`,
   mysqlSummary: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-summary/mysql-instance-summary`,
   postgresqlSummary: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-instance-summary/postgresql-instance-summary`,
   nodeSummary: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-instance-summary/node-summary`,

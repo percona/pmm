@@ -70,6 +70,11 @@
     },
     {
       "type": "dashboard",
+      "name": "PostgreSQL Amazon Aurora Details",
+      "path": "dashboards/PostgreSQL/PostgreSQL_Amazon_Aurora_Details.json"
+    },
+    {
+      "type": "dashboard",
       "name": "Advanced_Data_Exploration",
       "path": "dashboards/Insight/Advanced_Data_Exploration.json"
     },
