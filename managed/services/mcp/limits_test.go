@@ -404,3 +404,102 @@ func TestQANCallsShareMetricSlots(t *testing.T) {
 		}
 	})
 }
+
+// TestLiveLookupSharesMetricCaps pins that pmm_get_explain and pmm_get_schema look a query up under the 30-day window
+// and one metric-call slot and token, and release that slot before the live part.
+func TestLiveLookupSharesMetricCaps(t *testing.T) {
+	t.Parallel()
+
+	key := callerKey(callerAuth{authorization: testToken})
+	tools := []string{"pmm_get_explain", "pmm_get_schema"}
+
+	t.Run("WindowCap", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		old := map[string]any{"queryid": "QID-AAA", "period_from": testNow.Add(-31 * day).Format(time.RFC3339), "period_to": testNow.Format(time.RFC3339)}
+		for _, tool := range tools {
+			for _, args := range []map[string]any{
+				{"queryid": "QID-AAA", "period_from": "now-365d"},
+				{"query_ref": old},
+			} {
+				text, isError := callText(t, session, tool, args)
+				assert.True(t, isError, tool)
+				assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+				assert.Contains(t, text, "the window is longer than the cap of 30 days", tool)
+			}
+		}
+		assert.Zero(t, fake.requestCount(), "a refused window reaches no backend")
+		s.metricRate.mu.Lock()
+		assert.Empty(t, s.metricRate.buckets, "a refused window takes no token")
+		s.metricRate.mu.Unlock()
+	})
+
+	t.Run("RateLimited", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, qanRoutes())
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		for range maxMetricCallsPerCaller {
+			_, hit := s.metrics.acquire(key)
+			require.Equal(t, limitNone, hit)
+		}
+		for _, tool := range tools {
+			text, isError := callText(t, session, tool, map[string]any{"queryid": "QID-AAA"})
+			assert.True(t, isError, tool)
+			assert.Contains(t, text, "at most 4 metric calls can be in flight for these credentials", tool)
+		}
+		assert.Zero(t, fake.requestCount())
+	})
+
+	for _, tool := range tools {
+		t.Run(tool, func(t *testing.T) {
+			t.Parallel()
+
+			fake, _ := newActionStub(t, 0)
+			if tool == "pmm_get_schema" {
+				postgresQuery(fake)
+			}
+			s := newQANService(t, fake, true)
+			var mu sync.Mutex
+			held := map[string][]int{}
+			next := fake.server.Config.Handler
+			fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+				s.metrics.mu.Lock()
+				n := s.metrics.byKey[key]
+				s.metrics.mu.Unlock()
+				kind := "lookup"
+				if strings.HasPrefix(r.URL.Path, "/v1/actions") {
+					kind = "action"
+				}
+				mu.Lock()
+				held[kind] = append(held[kind], n)
+				mu.Unlock()
+				next.ServeHTTP(rw, r)
+			})
+
+			text, isError := callText(t, connect(t, s), tool, map[string]any{"queryid": "QID-AAA"})
+			require.False(t, isError, text)
+
+			mu.Lock()
+			defer mu.Unlock()
+			require.NotEmpty(t, held["lookup"])
+			require.NotEmpty(t, held["action"])
+			for _, n := range held["lookup"] {
+				assert.Equal(t, 1, n, "the lookup holds one metric slot: %v", held)
+			}
+			for _, n := range held["action"] {
+				assert.Zero(t, n, "the live part holds no metric slot: %v", held)
+			}
+			s.metrics.mu.Lock()
+			assert.Empty(t, s.metrics.byKey)
+			s.metrics.mu.Unlock()
+			s.metricRate.mu.Lock()
+			assert.Len(t, s.metricRate.buckets, 1, "the lookup takes a metric token")
+			s.metricRate.mu.Unlock()
+		})
+	}
+}

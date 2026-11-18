@@ -84,7 +84,30 @@ func refFromInput(ref *queryRefInput, queryID, serviceID, periodFrom, periodTo s
 	if err != nil {
 		return queryRef{}, err
 	}
+	err = checkQANWindow(from, to)
+	if err != nil {
+		return queryRef{}, err
+	}
 	return queryRef{QueryID: queryID, ServiceID: serviceID, PeriodFrom: from, PeriodTo: to, fromQueryRef: ref != nil}, nil
+}
+
+// resolveLive resolves a query for a live-inspection tool under one metric-call slot and token, and returns the
+// release of that slot, which the caller calls before the live part.
+func (s *Service) resolveLive(ctx context.Context, auth callerAuth, ref queryRef) (*resolvedQuery, func(), error) {
+	err := cmp.Or(checkQANValue("queryid", ref.QueryID), checkQANValue("service_id", ref.ServiceID))
+	if err != nil {
+		return nil, nil, err
+	}
+	release, err := s.startMetricCall(auth)
+	if err != nil {
+		return nil, nil, err
+	}
+	resolved, err := s.resolveQuery(ctx, auth, ref)
+	if err != nil {
+		release()
+		return nil, nil, err
+	}
+	return resolved, release, nil
 }
 
 // resolveQuery finds the one service in the caller's list that the query ran on, with its database, tables and stored example.

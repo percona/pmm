@@ -245,10 +245,11 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	// Read once: each read is a settings query, and two reads could disagree.
 	raw := s.rawSQL()
 
-	resolved, err := s.resolveQuery(ctx, auth, ref)
+	resolved, releaseLookup, err := s.resolveLive(ctx, auth, ref)
 	if err != nil {
 		return explainResult{}, err
 	}
+	defer releaseLookup()
 	svc := resolved.Service
 	resolvedRef := resolved.Ref
 	pmmURL := qanQueryURL(base, resolvedRef.QueryID, svc.ServiceName, resolvedRef.PeriodFrom, resolvedRef.PeriodTo, "explain")
@@ -293,6 +294,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		return explainResult{}, newToolError(codeInvalidInput, "EXPLAIN is not available for engine '%s'", svc.Engine)
 	}
 
+	releaseLookup()
 	release, err := s.startLive(ctx, auth, svc.ServiceID)
 	if err != nil {
 		return explainResult{}, err
@@ -406,10 +408,11 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
 	defer cancel()
 
-	resolved, err := s.resolveQuery(ctx, auth, ref)
+	resolved, releaseLookup, err := s.resolveLive(ctx, auth, ref)
 	if err != nil {
 		return schemaResult{}, err
 	}
+	defer releaseLookup()
 	svc := resolved.Service
 	resolvedRef := resolved.Ref
 	err = checkSchemaEngine(svc.Engine)
@@ -435,6 +438,7 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 		}
 	}
 
+	releaseLookup()
 	release, err := s.startLive(ctx, auth, svc.ServiceID)
 	if err != nil {
 		return schemaResult{}, err
