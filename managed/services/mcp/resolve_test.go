@@ -113,7 +113,7 @@ func TestResolveQuery(t *testing.T) {
 				assert.Equal(t, "svc-1", got.Service.ServiceID)
 				assert.Empty(t, got.Example)
 				assert.Equal(t, "shop", got.Database, "the metrics call still answered")
-				assert.NoError(t, got.MetricsErr)
+				require.NoError(t, got.MetricsErr)
 				require.Error(t, got.ExampleErr)
 				assert.Equal(t, codePMMUnavailable, mapError(got.ExampleErr).code)
 			},

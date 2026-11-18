@@ -1728,10 +1728,10 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		held, hit := s.liveByService.acquire("svc-1")
 		require.Equal(t, limitNone, hit)
 
-		done := make(chan string, 1)
+		done := make(chan *mcp.CallToolResult, 1)
 		go func() {
-			text, _ := callText(t, session, "pmm_get_schema", schemaArgs)
-			done <- text
+			res, _ := session.CallTool(t.Context(), &mcp.CallToolParams{Name: "pmm_get_schema", Arguments: schemaArgs})
+			done <- res
 		}()
 		require.Eventually(t, func() bool { return listQueries(fake) > 0 }, 5*time.Second, 10*time.Millisecond)
 		assert.Never(t, func() bool {
@@ -1745,8 +1745,9 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 
 		held()
 		select {
-		case text := <-done:
-			assert.False(t, strings.HasPrefix(text, "error:"), text)
+		case res := <-done:
+			require.NotNil(t, res)
+			assert.False(t, res.IsError, textOf(t, res))
 		case <-time.After(5 * time.Second):
 			require.FailNow(t, "the call did not run once the service's slot was free")
 		}

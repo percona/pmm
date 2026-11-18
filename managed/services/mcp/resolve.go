@@ -196,8 +196,8 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	return out, nil
 }
 
-// exampleTrimmed reports whether pmm-agent cut a MongoDB example, which it ends with " ...". pmm-agent also flags an
-// example that holds a character of several bytes, so a flagged example counts as cut only when it is not JSON.
+// exampleTrimmed reports whether pmm-agent cut a MongoDB example, which it ends with " ...". It also flags an example
+// that holds a character of several bytes, so a flagged example counts as cut only when it is not JSON.
 func exampleTrimmed(example string, flagged bool) bool {
 	return strings.HasSuffix(example, " ...") || (flagged && !json.Valid([]byte(example)))
 }

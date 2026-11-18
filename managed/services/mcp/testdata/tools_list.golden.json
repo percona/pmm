@@ -382,7 +382,7 @@
       "additionalProperties": false,
       "properties": {
         "database": {
-          "description": "Database the PMM agent connects to, MySQL only; pmm-agent still switches to the schema QAN recorded for the query when there is one",
+          "description": "MySQL: the database to connect to; pmm-agent still switches to the schema QAN recorded for the query",
           "type": "string"
         },
         "format": {
