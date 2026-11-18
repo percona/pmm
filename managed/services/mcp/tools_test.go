@@ -32,6 +32,7 @@ import (
 type testInput struct {
 	Panic bool   `json:"panic,omitempty"`
 	Fail  string `json:"fail,omitempty"`
+	Wait  bool   `json:"wait,omitempty"`
 }
 
 // testResult is the result of the tool that tests register through addTool.
@@ -43,27 +44,30 @@ func (testResult) render() string {
 	return "ok"
 }
 
-// newTestTool registers pmm_test, which panics or fails with the code in fail when asked to, on a server of its own,
-// and returns a client session to it and the hook that captures the service's log at Trace.
-func newTestTool(t *testing.T) (*mcp.ClientSession, *test.Hook) {
+// testTool panics or fails with the code in fail when asked to, and succeeds otherwise.
+func testTool(_ context.Context, _ *mcp.CallToolRequest, in testInput) (testResult, error) {
+	if in.Panic {
+		panic("panic value")
+	}
+	if in.Fail != "" {
+		return testResult{}, newToolError(errorCode(in.Fail), "failed")
+	}
+	return testResult{OK: true}, nil
+}
+
+// serveTestTool registers fn as pmm_test through addTool of a service built from params, on a server of its own, and
+// returns a client session to it and the hook that captures the service's log at Trace.
+func serveTestTool(t *testing.T, params Params, fn toolFunc[testInput, testResult]) (*mcp.ClientSession, *test.Hook) {
 	t.Helper()
 
-	s, err := New(Params{API: &mockPmmAPI{}})
+	s, err := New(params)
 	require.NoError(t, err)
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.TraceLevel)
 	s.l = logrus.NewEntry(logger).WithField("component", "mcp")
 
 	server := mcp.NewServer(&mcp.Implementation{Name: "test", Version: "0"}, nil)
-	addTool(s, server, &mcp.Tool{Name: "pmm_test"}, func(_ context.Context, _ *mcp.CallToolRequest, in testInput) (testResult, error) {
-		if in.Panic {
-			panic("panic value")
-		}
-		if in.Fail != "" {
-			return testResult{}, newToolError(errorCode(in.Fail), "failed")
-		}
-		return testResult{OK: true}, nil
-	})
+	addTool(s, server, &mcp.Tool{Name: "pmm_test"}, fn)
 
 	clientTransport, serverTransport := mcp.NewInMemoryTransports()
 	serverSession, err := server.Connect(t.Context(), serverTransport, nil)
@@ -80,7 +84,7 @@ func newTestTool(t *testing.T) (*mcp.ClientSession, *test.Hook) {
 func TestFailureLogLevel(t *testing.T) {
 	t.Parallel()
 
-	session, hook := newTestTool(t)
+	session, hook := serveTestTool(t, Params{API: &mockPmmAPI{}}, testTool)
 	for code, level := range map[errorCode]logrus.Level{
 		codeInvalidInput:           logrus.DebugLevel,
 		codeNotFound:               logrus.DebugLevel,
@@ -110,7 +114,7 @@ func TestFailureLogLevel(t *testing.T) {
 func TestToolPanic(t *testing.T) {
 	t.Parallel()
 
-	session, hook := newTestTool(t)
+	session, hook := serveTestTool(t, Params{API: &mockPmmAPI{}}, testTool)
 
 	res := callTool(t, session, "pmm_test", map[string]any{"panic": true})
 	require.True(t, res.IsError)
@@ -128,7 +132,7 @@ func TestToolPanic(t *testing.T) {
 	require.NotNil(t, logged, "the panic must be logged at Error")
 	assert.Equal(t, "pmm_test", logged.Data["tool"])
 	assert.Equal(t, "panic value", logged.Data["panic"])
-	assert.Contains(t, logged.Data["stack"], "newTestTool")
+	assert.Contains(t, logged.Data["stack"], "testTool")
 
 	res = callTool(t, session, "pmm_test", nil)
 	assert.False(t, res.IsError, "a call after the panic must work")

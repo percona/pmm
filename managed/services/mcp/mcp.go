@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/version"
@@ -96,6 +97,7 @@ type Service struct {
 	metrics         *limiter
 	liveRate        *rateLimiter
 	metricRate      *rateLimiter
+	callMetrics     *callMetrics
 
 	// warnPeer logs the first non-loopback rejection at the default level.
 	warnPeer sync.Once
@@ -120,6 +122,8 @@ type Params struct {
 	ActionTimeout func() time.Duration
 	// PublicAddress returns settings.PMMPublicAddress (may be empty); used for "View in PMM" links.
 	PublicAddress func(context.Context) string
+	// Registerer receives the tool call metrics; when nil, they are kept but not exported.
+	Registerer prometheus.Registerer
 }
 
 // isLoopbackPeer reports whether a request came from a loopback IP, which is how
@@ -149,6 +153,7 @@ func New(params Params) (*Service, error) {
 		metrics:         newLimiter(maxMetricCallsPerCaller, maxMetricCallsPerReplica),
 		liveRate:        newRateLimiter(liveCallsPerMinute, liveCallsBurst),
 		metricRate:      newRateLimiter(metricCallsPerMinute, metricCallsBurst),
+		callMetrics:     newCallMetrics(),
 	}
 	// Both switches default to off when the caller supplies no callback, so a
 	// wiring mistake cannot expose the endpoint or un-redact its output. This
@@ -172,6 +177,12 @@ func New(params Params) (*Service, error) {
 			return nil, fmt.Errorf("mcp: %w", err)
 		}
 		s.api = c
+	}
+	if params.Registerer != nil {
+		err := s.callMetrics.register(params.Registerer)
+		if err != nil {
+			return nil, fmt.Errorf("mcp: registering metrics: %w", err)
+		}
 	}
 
 	server := mcp.NewServer(&mcp.Implementation{

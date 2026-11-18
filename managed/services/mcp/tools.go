@@ -52,6 +52,7 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 	mcp.AddTool(server, &t, func(ctx context.Context, req *mcp.CallToolRequest, in In) (*mcp.CallToolResult, any, error) {
 		l := s.l.WithField("tool", t.Name)
 		start := time.Now()
+		end := s.callMetrics.begin(t.Name)
 
 		ctx, cancel := context.WithTimeout(ctx, s.actionTimeout()+toolTimeoutSlack)
 		defer cancel()
@@ -64,11 +65,13 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 		})
 		if err != nil {
 			te := mapError(err)
+			end(string(te.code))
 			l.WithField("code", string(te.code)).WithField("duration", time.Since(start)).Log(failureLevel(te.code), "Tool call failed.")
 			// The message can quote SQL, so it is logged at Debug only.
 			l.Debugf("Tool call failed: %s.", te.message)
 			return errorResult(te), nil, nil
 		}
+		end(codeOK)
 		l.WithField("duration", time.Since(start)).Debug("Tool call succeeded.")
 		return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: out.render()}}}, out, nil
 	})

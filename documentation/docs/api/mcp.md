@@ -441,6 +441,18 @@ Set them on the PMM Server container like other `PMM_*` variables, for example `
 
     Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions from `pmm_get_schema` are returned as they are, so `CHECK` and `DEFAULT` constants and partition bounds are not masked. To keep literals from being collected at all, disable query examples at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.
 
+### Operator metrics
+
+pmm-managed exports three metrics about MCP tool calls, next to its other metrics. PMM's VictoriaMetrics collects them, so you can chart them and alert on them like any other metric.
+
+| Metric | Type | Labels | What it counts |
+|--------|------|--------|----------------|
+| `pmm_managed_mcp_tool_calls_total` | Counter | `tool`, `code` | Tool calls that ended. `code` is `ok`, or the [error code](#errors) of a failed call. |
+| `pmm_managed_mcp_tool_duration_seconds` | Histogram | `tool` | How long each tool call took. |
+| `pmm_managed_mcp_tool_calls_in_flight` | Gauge | `tool` | Tool calls running now. |
+
+A call that the MCP SDK refuses before the tool runs, because its input doesn't match the tool's input schema, is not counted. When [telemetry](../configure-pmm/advanced_settings.md#telemetry) is on, PMM Server reports the number of tool calls per tool and code over the last 24 hours, and whether the endpoint is enabled.
+
 ## Limitations
 
 - **MySQL EXPLAIN needs a query example.** pmm-agent resolves the `?` placeholders of a fingerprint from the stored example. Without one (examples disabled, or short-lived connections whose statements leave `performance_schema.events_statements_history` before pmm-agent samples it), the fingerprint is explained as it is. MySQL then answers a syntax error (1064), and the tool returns `invalid_input`. The message asks you to enable query examples for the service, or to pass `placeholders`, one value per `?` in order. `pmm_get_explain` also asks for `database`. `pmm_get_schema` also offers to name the tables yourself with `service_id`, `database` and `tables`. If the number of `placeholders` doesn't match the statement, the tool returns `invalid_input` too. That message asks for one value per `?` in the fingerprint, in order, or for none when QAN stored a query example. `pmm_get_schema` again offers `service_id`, `database` and `tables`.
