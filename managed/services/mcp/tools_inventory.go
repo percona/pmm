@@ -199,13 +199,18 @@ func (s *Service) version(ctx context.Context, req *mcp.CallToolRequest, _ versi
 
 func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in inventoryInput) (inventoryResult, error) {
 	if in.Engine != "" && !slices.Contains(serviceTypes, in.Engine) {
-		return inventoryResult{}, newToolError(codeInvalidInput, "engine must be one of %s; got '%s'", strings.Join(serviceTypes, ", "), in.Engine)
+		return inventoryResult{}, newToolError(codeInvalidInput, "engine must be one of %s; got '%s'", strings.Join(serviceTypes, ", "), echo(in.Engine))
 	}
 	err := checkPage(in.Offset, in.Limit, inventoryMaxLimit)
 	if err != nil {
 		return inventoryResult{}, err
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
+	release, err := s.startMetricCall(auth)
+	if err != nil {
+		return inventoryResult{}, err
+	}
+	defer release()
 
 	services, err := s.listServices(ctx, auth, s.lastHour())
 	if err != nil {
@@ -375,6 +380,17 @@ func serviceNamed(services []serviceInfo, name string) (serviceInfo, bool) {
 		}
 	}
 	return found, ok
+}
+
+// servicesNamed returns the services with the name.
+func servicesNamed(services []serviceInfo, name string) []serviceInfo {
+	var out []serviceInfo
+	for _, svc := range services {
+		if svc.ServiceName == name {
+			out = append(out, svc)
+		}
+	}
+	return out
 }
 
 // enrichVersions fills empty versions from the exporters' version metrics,

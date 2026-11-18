@@ -274,7 +274,8 @@ func TestExplainTool(t *testing.T) {
 		assert.Empty(t, stub.starts)
 	})
 
-	t.Run("MySQLDetailFetchFails", func(t *testing.T) {
+	// pmm-managed picks the MySQL statement itself, so the example call is not needed.
+	t.Run("MySQLExampleFetchFails", func(t *testing.T) {
 		t.Parallel()
 
 		fake, stub := newActionStub(t, 0)
@@ -282,9 +283,39 @@ func TestExplainTool(t *testing.T) {
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
+		assert.False(t, isError, text)
+		require.Len(t, stub.starts, 1)
+		require.NotNil(t, stub.starts[0].MysqlExplainJSON)
+		assert.Equal(t, "shop", stub.starts[0].MysqlExplainJSON.Database)
+	})
+
+	// A failed metrics call can drop the database the MySQL EXPLAIN runs in: its error is the answer.
+	t.Run("MySQLMetricsFetchFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan:getMetrics" })
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
 		assert.Empty(t, stub.starts)
+	})
+
+	// A MongoDB explain runs on the stored example only, so the metrics call is not needed.
+	t.Run("MongoDBMetricsFetchFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		mongoExplain(fake)
+		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan:getMetrics" })
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
+		assert.False(t, isError, text)
+		require.Len(t, stub.starts, 1)
+		require.NotNil(t, stub.starts[0].MongodbExplain)
 	})
 
 	t.Run("QueryRefForm", func(t *testing.T) {
@@ -394,7 +425,49 @@ func TestExplainTool(t *testing.T) {
 		assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"])
 		text := textOf(t, res)
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\ncannot explain this type of query\noperation insert is not supported for explain"), text)
-		assert.Contains(t, text, "MongoDB can explain read operations only (find, aggregate, count, distinct); pick a read query from pmm_top_queries")
+		assert.Contains(t, text, "pmm-agent explains MongoDB queries, updates, removes and getMores, and the find, findAndModify, update, "+
+			"aggregate, count, distinct, mapReduce, group and getMore commands; it refuses inserts, drops and other commands. "+
+			"Pick another query from pmm_top_queries")
+		assert.NotContains(t, text, "read operations only")
+	})
+
+	t.Run("MongoDBTrimmedExample", func(t *testing.T) {
+		t.Parallel()
+
+		const valid = `{"ns":"shop.customers","op":"query","command":{"find":"customers","filter":{"name":"José"}}}`
+		for _, tc := range []struct {
+			name      string
+			example   string
+			truncated int
+			refused   bool
+		}{
+			{"TrailingEllipsis", `{"ns":"shop.customers","op":"query","command":{"find":"customers","filter":{"name":"Jo ...`, 1, true},
+			{"TrailingEllipsisUnflagged", `{"ns":"shop.customers","op":"query","command":{"find":"cust ...`, 0, true},
+			{"FlaggedNotJSON", `{"ns":"shop.customers","op":"query","command":{"find":"cust`, 1, true},
+			{"FlaggedValidJSON", valid, 1, false},
+			{"Whole", valid, 0, false},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				fake, stub := newActionStub(t, 0)
+				mongoExplain(fake)
+				fake.routes["POST /v1/qan/query:getExample"] = fixture{body: mustJSON(t, map[string]any{"query_examples": []map[string]any{{
+					"example": tc.example, "is_truncated": tc.truncated, "query_id": "QID-AAA", "service_id": "svc-mongo", "service_type": "mongodb",
+				}}})}
+				session := connect(t, newQANService(t, fake, true))
+
+				text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
+				if !tc.refused {
+					assert.False(t, isError, text)
+					require.Len(t, stub.starts, 1)
+					return
+				}
+				assert.True(t, isError)
+				assert.Equal(t, "error: invalid_input\n"+trimmedQueryRemediation, text)
+				assert.Empty(t, stub.starts)
+			})
+		}
 	})
 
 	t.Run("TrimmedQuery", func(t *testing.T) {
@@ -826,6 +899,35 @@ func TestSchemaTool(t *testing.T) {
 		assert.Len(t, fake.requestsTo("/v1/actions:startServiceAction"), 1)
 	})
 
+	// The tables of a MySQL query come from its plan, so the example call is not needed.
+	t.Run("MySQLExampleFetchFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-join-aliases.json"), "SELECT 1")
+		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan/query:getExample" })
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.False(t, isError, text)
+		assert.NotEmpty(t, stub.starts)
+	})
+
+	// A failed metrics call drops the database a PostgreSQL table is read in: its error is the answer.
+	t.Run("PostgreSQLMetricsFetchFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		postgresQuery(fake)
+		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan:getMetrics" })
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
+		assert.Empty(t, stub.starts)
+	})
+
 	// A failed metrics call can drop the database the EXPLAIN needs: its error is the answer.
 	t.Run("MySQLDetailFetchFails", func(t *testing.T) {
 		t.Parallel()
@@ -1059,7 +1161,7 @@ func TestConfigTool(t *testing.T) {
 
 	queries := queriesWith(fake, "mysql_global_variables_")
 	require.Len(t, queries, 1)
-	assert.Equal(t, `query=%7B__name__%3D~%22mysql_global_variables_.%2B%22%2C+service_name%3D%22shop-mysql%22%7D&time=`+strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10)+`&timeout=25s`, queries[0].query)
+	assert.Equal(t, `query=%7B__name__%3D~%22mysql_global_variables_.%2B%22%2C+service_id%3D%22svc-1%22%7D&time=`+strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10)+`&timeout=25s`, queries[0].query)
 	list := queriesWith(fake, "tlast_over_time(up[3600s])")
 	require.Len(t, list, 1)
 	assert.Equal(t, strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10), queryOf(t, list[0]).Get("time"))
@@ -1072,6 +1174,18 @@ func TestConfigTool(t *testing.T) {
 	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "engine": "mongodb"})
 	assert.True(t, isError)
 	assert.True(t, strings.HasPrefix(text, "error: invalid_input\nengine"), text)
+
+	// An engine other than the service's own reads no variables of the wrong kind.
+	before := len(fake.requestsTo(vmAPI + "query"))
+	for id, want := range map[string]string{"svc-mongo": "mongodb", "svc-2": "postgresql"} {
+		text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_id": id, "engine": "mysql"})
+		assert.True(t, isError, id)
+		assert.Equal(t, "error: invalid_input\nengine mysql doesn't match the service, which is "+want+"; leave engine out", text)
+	}
+	assert.Empty(t, queriesWith(fake, "pg_settings_"))
+	assert.Len(t, fake.requestsTo(vmAPI+"query"), before+2, "only the service lists")
+	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "engine": "mysql"})
+	assert.False(t, isError, text)
 
 	// No variable matches: the text keeps its message and gains the time and the link.
 	res = callTool(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "filter": "nothing_matches"})
@@ -1605,6 +1719,94 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		assert.NotEmpty(t, fake.requestsTo("/v1/actions:startServiceAction"), "the call ran once the service's slot was free")
 	})
 
+	t.Run("WaitHoldsNoCallerSlotOrToken", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		session := connect(t, s)
+		held, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+
+		done := make(chan *mcp.CallToolResult, 1)
+		go func() {
+			res, _ := session.CallTool(t.Context(), &mcp.CallToolParams{Name: "pmm_get_schema", Arguments: schemaArgs})
+			done <- res
+		}()
+		require.Eventually(t, func() bool { return listQueries(fake) > 0 }, 5*time.Second, 10*time.Millisecond)
+		assert.Never(t, func() bool {
+			s.live.mu.Lock()
+			defer s.live.mu.Unlock()
+			return s.live.total > 0
+		}, 200*time.Millisecond, 10*time.Millisecond, "a waiting call holds no caller or replica slot")
+		s.liveRate.mu.Lock()
+		assert.Empty(t, s.liveRate.buckets, "a waiting call has taken no token")
+		s.liveRate.mu.Unlock()
+
+		held()
+		select {
+		case res := <-done:
+			require.NotNil(t, res)
+			assert.False(t, res.IsError, textOf(t, res))
+		case <-time.After(5 * time.Second):
+			require.FailNow(t, "the call did not run once the service's slot was free")
+		}
+	})
+
+	t.Run("RefusedCallTakesNoToken", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		s.liveServiceWait = 50 * time.Millisecond
+		session := connect(t, s)
+
+		rel1 := take(t, s, key)
+		rel2 := take(t, s, key)
+		text, isError := callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.True(t, isError)
+		assert.Contains(t, text, "these credentials")
+		rel1()
+		rel2()
+
+		held, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+		text, isError = callText(t, session, "pmm_get_schema", schemaArgs)
+		assert.True(t, isError)
+		assert.Contains(t, text, "still in flight")
+		held()
+
+		s.liveRate.mu.Lock()
+		assert.Empty(t, s.liveRate.buckets, "a refused call takes no token")
+		s.liveRate.mu.Unlock()
+		rel, hit := s.liveByService.acquire("svc-1")
+		assert.Equal(t, limitNone, hit, "a refused call releases the service's slot")
+		rel()
+	})
+
+	t.Run("DeadlineWhileWaiting", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		held, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+		defer held()
+		req := &mcp.CallToolRequest{Extra: &mcp.RequestExtra{Header: http.Header{"Authorization": {testToken}}}}
+
+		ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+		defer cancel()
+		_, err := s.schema(ctx, req, schemaInput{ServiceID: "svc-1", Database: "shop", Tables: []string{"customers"}})
+		te := mapError(err)
+		assert.Equal(t, codeRateLimited, te.code, te.message)
+		assert.Contains(t, te.message, "a live-inspection call on this service is still in flight")
+
+		ctx, cancel = context.WithCancel(t.Context())
+		time.AfterFunc(100*time.Millisecond, cancel)
+		_, err = s.schema(ctx, req, schemaInput{ServiceID: "svc-1", Database: "shop", Tables: []string{"customers"}})
+		require.ErrorIs(t, err, context.Canceled)
+	})
+
 	t.Run("PerServiceWaitCancelled", func(t *testing.T) {
 		t.Parallel()
 
@@ -1761,4 +1963,108 @@ func TestExplainOlderServiceSharingAName(t *testing.T) {
 	res = callTool(t, session, "pmm_get_explain", map[string]any{"query_ref": ref})
 	require.False(t, res.IsError, textOf(t, res))
 	assert.Equal(t, "svc-re-old", structured[explainResult](t, res).QueryRef.ServiceID)
+}
+
+// metricsMetadata is a qan:getMetrics answer whose metadata holds the service, schema and database, as qan-api2
+// joins them: the distinct values, sorted, an empty one included, joined with ", ".
+func metricsMetadata(t *testing.T, service, schema, database string) fixture {
+	t.Helper()
+
+	return fixture{body: mustJSON(t, map[string]any{
+		"fingerprint": "SELECT 1",
+		"metadata":    map[string]string{"service_name": service, "schema": schema, "database": database},
+	})}
+}
+
+// TestJoinedDatabaseNames pins how a query recorded under several schemas or databases picks the one its actions use.
+func TestJoinedDatabaseNames(t *testing.T) {
+	t.Parallel()
+
+	explainDatabase := func(t *testing.T, schema string, args map[string]any) string {
+		t.Helper()
+
+		fake, stub := newActionStub(t, 0)
+		fake.routes["POST /v1/qan:getMetrics"] = metricsMetadata(t, "shop-mysql", schema, "")
+		text, isError := callText(t, connect(t, newQANService(t, fake, true)), "pmm_get_explain", args)
+		require.False(t, isError, text)
+		require.Len(t, stub.starts, 1)
+		require.NotNil(t, stub.starts[0].MysqlExplainJSON)
+		return stub.starts[0].MysqlExplainJSON.Database
+	}
+
+	t.Run("MySQLEmptyAndOne", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "shop", explainDatabase(t, ", shop", map[string]any{"queryid": "QID-AAA"}))
+	})
+
+	t.Run("MySQLSeveral", func(t *testing.T) {
+		t.Parallel()
+		assert.Empty(t, explainDatabase(t, "shop, tenant2", map[string]any{"queryid": "QID-AAA"}), "pmm-agent switches to QAN's schema itself")
+		assert.Equal(t, "tenant2", explainDatabase(t, "shop, tenant2", map[string]any{"queryid": "QID-AAA", "database": "tenant2"}))
+	})
+
+	t.Run("MySQLSeveralTables", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-join-aliases.json"), "SELECT 1")
+		fake.routes["POST /v1/qan:getMetrics"] = metricsMetadata(t, "shop-mysql", "shop, tenant2", "")
+		text, isError := callText(t, connect(t, newQANService(t, fake, true)), "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		require.False(t, isError, text)
+		require.NotEmpty(t, stub.starts)
+		require.NotNil(t, stub.starts[0].MysqlExplainJSON)
+		assert.Empty(t, stub.starts[0].MysqlExplainJSON.Database)
+	})
+
+	t.Run("PostgreSQLEmptyAndOne", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		postgresQuery(fake)
+		fake.routes["POST /v1/qan:getMetrics"] = metricsMetadata(t, "shop-postgres", "", ", shop_pg")
+		text, isError := callText(t, connect(t, newQANService(t, fake, true)), "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		require.False(t, isError, text)
+		require.NotEmpty(t, stub.starts)
+		for _, start := range stub.starts {
+			if start.PostgresShowCreateTable != nil {
+				assert.Equal(t, "shop_pg", start.PostgresShowCreateTable.Database)
+			}
+		}
+	})
+
+	t.Run("PostgreSQLSeveral", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		postgresQuery(fake)
+		fake.routes["POST /v1/qan:getMetrics"] = metricsMetadata(t, "shop-postgres", "", "shop_pg, tenant_pg")
+		fake.routes["GET /v1/qan/query/QID-PG/plan"] = fixture{file: "plan.json"}
+		session := connect(t, newQANService(t, fake, true))
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assert.Equal(t, "error: invalid_input\nthe query ran in several databases: shop_pg, tenant_pg; "+
+			"pass service_id, database and tables to read its tables in one of them", text)
+		assert.Empty(t, stub.starts)
+
+		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-PG"})
+		assert.False(t, isError, "a stored plan needs no database: %s", text)
+	})
+}
+
+// TestExplainDatabaseDescription pins that pmm_get_explain's database input says what pmm-agent does with it: it is
+// the connection's database, and pmm-agent still switches to the schema QAN recorded for the query.
+func TestExplainDatabaseDescription(t *testing.T) {
+	t.Parallel()
+
+	tool := listTools(t, connect(t, newQANService(t, newFakePMM(t, qanRoutes()), true)))["pmm_get_explain"]
+	require.NotNil(t, tool)
+	var schema struct {
+		Properties map[string]struct {
+			Description string `json:"description"`
+		} `json:"properties"`
+	}
+	require.NoError(t, json.Unmarshal(mustJSON(t, tool.InputSchema), &schema))
+	desc := schema.Properties["database"].Description
+	assert.NotContains(t, desc, "override")
+	assert.Contains(t, desc, "pmm-agent still switches to the schema QAN recorded for the query")
 }

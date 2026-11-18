@@ -71,9 +71,9 @@ type explainInput struct {
 	QueryRef     *queryRefInput `json:"query_ref,omitempty" jsonschema:"The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid"`
 	QueryID      string         `json:"queryid,omitempty" jsonschema:"Query id from pmm_top_queries, instead of query_ref"`
 	ServiceID    string         `json:"service_id,omitempty" jsonschema:"Service id from pmm_inventory; needed only when the queryid ran on several of your services"`
-	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid"`
+	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid"`
 	PeriodTo     string         `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now); with queryid"`
-	Database     string         `json:"database,omitempty" jsonschema:"Schema the query runs in, to override the one QAN recorded; MySQL only"`
+	Database     string         `json:"database,omitempty" jsonschema:"MySQL: database to connect to; pmm-agent still switches to the schema QAN recorded for the query"`
 	Placeholders []string       `json:"placeholders,omitempty" jsonschema:"Values for ? placeholders in the fingerprint, in order; MySQL only"`
 	Format       string         `json:"format,omitempty" jsonschema:"json (default) or traditional; MySQL only"`
 }
@@ -82,7 +82,7 @@ type schemaInput struct {
 	QueryRef     *queryRefInput `json:"query_ref,omitempty" jsonschema:"The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid"`
 	QueryID      string         `json:"queryid,omitempty" jsonschema:"Query id from pmm_top_queries, instead of query_ref, to fetch its tables"`
 	ServiceID    string         `json:"service_id,omitempty" jsonschema:"Service id from pmm_inventory; with tables, or when a queryid ran on several services"`
-	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid"`
+	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid"`
 	PeriodTo     string         `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now); with queryid"`
 	Database     string         `json:"database,omitempty" jsonschema:"Database / schema name; with service_id and tables"`
 	Tables       []string       `json:"tables,omitempty" jsonschema:"1 to 10 table names; with service_id and database"`
@@ -230,7 +230,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		format = formatJSON
 	}
 	if format != formatJSON && format != formatTraditional {
-		return explainResult{}, newToolError(codeInvalidInput, "format must be json or traditional; got '%s'", in.Format)
+		return explainResult{}, newToolError(codeInvalidInput, "format must be json or traditional; got '%s'", echo(in.Format))
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 	base := s.publicBaseURL(ctx, req.Extra.Header)
@@ -245,10 +245,11 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	// Read once: each read is a settings query, and two reads could disagree.
 	raw := s.rawSQL()
 
-	resolved, err := s.resolveQuery(ctx, auth, ref)
+	resolved, releaseLookup, err := s.resolveLive(ctx, auth, ref)
 	if err != nil {
 		return explainResult{}, err
 	}
+	defer releaseLookup()
 	svc := resolved.Service
 	resolvedRef := resolved.Ref
 	pmmURL := qanQueryURL(base, resolvedRef.QueryID, svc.ServiceName, resolvedRef.PeriodFrom, resolvedRef.PeriodTo, "explain")
@@ -261,8 +262,8 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	var body actions_service.StartServiceActionBody
 	switch svc.Engine {
 	case engineMySQL:
-		if resolved.DetailErr != nil {
-			return explainResult{}, resolved.DetailErr
+		if resolved.MetricsErr != nil {
+			return explainResult{}, resolved.MetricsErr
 		}
 		// With a stored query example the service and queryid are enough, and
 		// pmm-managed rejects placeholders that do not match it. Without one
@@ -278,13 +279,16 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 			}
 		}
 	case engineMongoDB:
-		if resolved.DetailErr != nil {
-			return explainResult{}, resolved.DetailErr
+		if resolved.ExampleErr != nil {
+			return explainResult{}, resolved.ExampleErr
+		}
+		if resolved.ExampleTrimmed {
+			return explainResult{}, newToolError(codeInvalidInput, "%s", trimmedQueryRemediation)
 		}
 		if resolved.Example == "" {
 			return explainResult{}, newToolError(codeNoQuerySource,
 				"no stored query example for queryid '%s' in %s; enable query examples for the service, or pick a window in which QAN stored one",
-				resolvedRef.QueryID, windowText(window{From: resolvedRef.PeriodFrom, To: resolvedRef.PeriodTo}))
+				echo(resolvedRef.QueryID), windowText(window{From: resolvedRef.PeriodFrom, To: resolvedRef.PeriodTo}))
 		}
 		body.MongodbExplain = &actions_service.StartServiceActionParamsBodyMongodbExplain{ServiceID: svc.ServiceID, Query: resolved.Example}
 		// format is MySQL's; MongoDB's explain always answers JSON.
@@ -293,17 +297,12 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		return explainResult{}, newToolError(codeInvalidInput, "EXPLAIN is not available for engine '%s'", svc.Engine)
 	}
 
-	release, err := s.startLive(auth)
+	releaseLookup()
+	release, err := s.startLive(ctx, auth, svc.ServiceID)
 	if err != nil {
 		return explainResult{}, err
 	}
 	defer release()
-
-	releaseService, err := s.startLiveOn(ctx, svc.ServiceID)
-	if err != nil {
-		return explainResult{}, err
-	}
-	defer releaseService()
 
 	output, err := s.runAction(ctx, auth, body, !raw)
 	if err != nil {
@@ -353,7 +352,7 @@ func (s *Service) storedPlan(
 func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schemaInput) (schemaResult, error) {
 	infoTypes := cmp.Or(in.InfoTypes, infoDefinition)
 	if !slices.Contains([]string{infoDefinition, infoIndexes, infoAll}, infoTypes) {
-		return schemaResult{}, newToolError(codeInvalidInput, "info_types must be definition, indexes or all; got '%s'", in.InfoTypes)
+		return schemaResult{}, newToolError(codeInvalidInput, "info_types must be definition, indexes or all; got '%s'", echo(in.InfoTypes))
 	}
 	queryForm := in.QueryRef != nil || in.QueryID != ""
 	switch {
@@ -389,17 +388,11 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 		return schemaResult{}, err
 	}
 
-	release, err := s.startLive(auth)
+	release, err := s.startLive(ctx, auth, svc.ServiceID)
 	if err != nil {
 		return schemaResult{}, err
 	}
 	defer release()
-
-	releaseService, err := s.startLiveOn(ctx, svc.ServiceID)
-	if err != nil {
-		return schemaResult{}, err
-	}
-	defer releaseService()
 
 	refs := make([]tableRef, len(tables))
 	for i, t := range tables {
@@ -418,23 +411,33 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
 	defer cancel()
 
-	resolved, err := s.resolveQuery(ctx, auth, ref)
+	resolved, releaseLookup, err := s.resolveLive(ctx, auth, ref)
 	if err != nil {
 		return schemaResult{}, err
 	}
+	defer releaseLookup()
 	svc := resolved.Service
 	resolvedRef := resolved.Ref
 	err = checkSchemaEngine(svc.Engine)
 	if err != nil {
 		return schemaResult{}, err
 	}
-	// A failed metrics or example call can drop the database, or PostgreSQL's tables: its error is the answer.
-	if resolved.DetailErr != nil {
-		return schemaResult{}, resolved.DetailErr
+	// A failed metrics call drops the database, and a failed example call PostgreSQL's tables: its error is the answer.
+	err = resolved.MetricsErr
+	if svc.Engine == enginePostgreSQL {
+		err = cmp.Or(resolved.MetricsErr, resolved.ExampleErr)
+	}
+	if err != nil {
+		return schemaResult{}, err
 	}
 
 	var tables []tableRef
 	if svc.Engine == enginePostgreSQL {
+		if len(resolved.Databases) > 1 {
+			return schemaResult{}, newToolError(codeInvalidInput,
+				"the query ran in several databases: %s; pass service_id, database and tables to read its tables in one of them",
+				listedNames(resolved.Databases))
+		}
 		for _, name := range resolved.Tables {
 			t := tableRef{database: resolved.Database, name: name}
 			if strings.TrimSpace(name) != "" && !slices.Contains(tables, t) {
@@ -443,21 +446,16 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 		}
 		if len(tables) == 0 {
 			return schemaResult{}, newToolError(codeNoQuerySource, "QAN has no tables for queryid '%s' in %s; pass service_id, database and tables to name them",
-				resolvedRef.QueryID, windowText(window{From: resolvedRef.PeriodFrom, To: resolvedRef.PeriodTo}))
+				echo(resolvedRef.QueryID), windowText(window{From: resolvedRef.PeriodFrom, To: resolvedRef.PeriodTo}))
 		}
 	}
 
-	release, err := s.startLive(auth)
+	releaseLookup()
+	release, err := s.startLive(ctx, auth, svc.ServiceID)
 	if err != nil {
 		return schemaResult{}, err
 	}
 	defer release()
-
-	releaseService, err := s.startLiveOn(ctx, svc.ServiceID)
-	if err != nil {
-		return schemaResult{}, err
-	}
-	defer releaseService()
 
 	var unresolved []string
 	var note string
@@ -775,11 +773,12 @@ const (
 	placeholdersCountError   = "placeholders count is not correct"
 	placeholdersCountMessage = "the number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, " +
 		"in order, or none when QAN stored a query example"
-	mongoReadOnlyRemediation = "MongoDB can explain read operations only (find, aggregate, count, distinct); " +
-		"pick a read query from pmm_top_queries"
+	mongoExplainRemediation = "pmm-agent explains MongoDB queries, updates, removes and getMores, and the find, findAndModify, " +
+		"update, aggregate, count, distinct, mapReduce, group and getMore commands; it refuses inserts, drops and other commands. " +
+		"Pick another query from pmm_top_queries"
 )
 
-// mongoUnsupportedExplain matches pmm-agent's refusal to explain a MongoDB write or admin operation.
+// mongoUnsupportedExplain matches pmm-agent's refusal to explain a MongoDB operation or command.
 var mongoUnsupportedExplain = regexp.MustCompile(`\A(?:command|operation) [A-Za-z]+ is not supported for explain\z`)
 
 // mysqlErrors classifies MySQL error numbers. Those marked identifiers quote
@@ -850,7 +849,7 @@ func mapActionError(actionErr string, redact bool) *toolError {
 		code, header = mongoErrors[mongoName[1]], mongoName[0]
 	}
 	if mongoUnsupportedExplain.MatchString(rest) {
-		return newToolError(codeInvalidInput, "%s\n%s", actionErr, mongoReadOnlyRemediation)
+		return newToolError(codeInvalidInput, "%s\n%s", actionErr, mongoExplainRemediation)
 	}
 	if code == "" {
 		code = classifyErrorText(maskQuoted(rest))

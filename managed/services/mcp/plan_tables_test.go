@@ -208,6 +208,11 @@ func TestAliasMap(t *testing.T) {
 			},
 		},
 		{
+			name: "straight join",
+			plan: notePlan(t, "/* select#1 */ select `shop`.`o`.`id` AS `id` from `shop`.`orders` `o` straight_join `shop`.`customers` `c` where (`shop`.`o`.`cid` = `shop`.`c`.`id`)"),
+			want: map[string]tableRef{"o": o, "c": c},
+		},
+		{
 			name: "semi join",
 			plan: notePlan(t, "select 1 from `shop`.`customers` semi join (`shop`.`orders`) where 1"),
 			want: map[string]tableRef{"customers": c, "orders": o},

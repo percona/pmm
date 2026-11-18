@@ -222,7 +222,7 @@ func tokenizeNote(s string) []noteToken {
 	return out
 }
 
-// noteTables returns the FROM entries of a rewritten statement by alias or name.
+// noteTables returns the FROM, JOIN and STRAIGHT_JOIN entries of a rewritten statement by alias or name.
 func noteTables(note string) map[string]tableRef {
 	toks := tokenizeNote(note)
 
@@ -236,7 +236,7 @@ func noteTables(note string) map[string]tableRef {
 	out := map[string]tableRef{}
 	ambiguous := map[string]bool{}
 	for i := range toks {
-		if !toks[i].isWord("from") && !toks[i].isWord("join") {
+		if !toks[i].isWord("from") && !toks[i].isWord("join") && !toks[i].isWord("straight_join") {
 			continue
 		}
 		j := i + 1

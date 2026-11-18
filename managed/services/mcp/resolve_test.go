@@ -17,6 +17,7 @@ package mcp
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"slices"
@@ -98,7 +99,8 @@ func TestResolveQuery(t *testing.T) {
 				assert.Equal(t, "shop", got.Database)
 				assert.Empty(t, got.Tables)
 				assert.Contains(t, got.Example, "customers")
-				assert.NoError(t, got.DetailErr)
+				assert.NoError(t, got.MetricsErr)
+				assert.NoError(t, got.ExampleErr)
 			},
 		},
 		{
@@ -111,8 +113,9 @@ func TestResolveQuery(t *testing.T) {
 				assert.Equal(t, "svc-1", got.Service.ServiceID)
 				assert.Empty(t, got.Example)
 				assert.Equal(t, "shop", got.Database, "the metrics call still answered")
-				require.Error(t, got.DetailErr)
-				assert.Equal(t, codePMMUnavailable, mapError(got.DetailErr).code)
+				require.NoError(t, got.MetricsErr)
+				require.Error(t, got.ExampleErr)
+				assert.Equal(t, codePMMUnavailable, mapError(got.ExampleErr).code)
 			},
 		},
 		{
@@ -147,14 +150,21 @@ func TestResolveQuery(t *testing.T) {
 			},
 		},
 		{
-			name:       "no service_id takes the newest of a shared name",
+			name:       "no service_id with a shared name",
 			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
 			ref:        hour,
+			wantErr:    codeInvalidInput,
+			wantText:   []string{"shop-re (svc-re-new)", "shop-re (svc-re-old)", "; pass service_id to choose one"},
+			notText:    []string{"svc-1", "svc-2", "svc-px", "more"},
 			wantReport: 1,
-			check: func(t *testing.T, got *resolvedQuery) {
-				t.Helper()
-				assert.Equal(t, "svc-re-new", got.Service.ServiceID)
-			},
+		},
+		{
+			name:       "no service_id of a query_ref with a shared name",
+			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
+			ref:        fromQueryRef(hour),
+			wantErr:    codeInvalidInput,
+			wantText:   []string{"shop-re (svc-re-new)", "shop-re (svc-re-old)", "; set service_id inside query_ref to one of these"},
+			wantReport: 1,
 		},
 		{
 			name:       "two candidates",
@@ -552,6 +562,11 @@ func TestRefFromInput(t *testing.T) {
 			want: &queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow},
 		},
 		{
+			name: "queryid with period_to alone",
+			args: map[string]any{"queryid": "QID-AAA", "period_to": to},
+			want: &queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-2 * time.Hour), PeriodTo: testNow.Add(-time.Hour)},
+		},
+		{
 			name: "both forms",
 			args: map[string]any{"queryid": "QID-AAA", "query_ref": map[string]any{"queryid": "QID-AAA", "period_from": from, "period_to": to}},
 		},
@@ -588,4 +603,26 @@ func TestRefFromInput(t *testing.T) {
 			assert.NotEmpty(t, res.Meta)
 		})
 	}
+}
+
+func TestMetadataValues(t *testing.T) {
+	t.Parallel()
+
+	for joined, want := range map[string][]string{
+		"":              {},
+		"shop":          {"shop"},
+		", shop":        {"shop"},
+		"shop, tenant2": {"shop", "tenant2"},
+		", a, b":        {"a", "b"},
+	} {
+		assert.Equal(t, want, metadataValues(joined), joined)
+	}
+
+	names := make([]string, 0, maxListedCandidates+5)
+	for i := range maxListedCandidates + 5 {
+		names = append(names, fmt.Sprintf("db%02d", i))
+	}
+	text := listedNames(names)
+	assert.True(t, strings.HasSuffix(text, "db19, and 5 more"), text)
+	assert.NotContains(t, text, "db20")
 }

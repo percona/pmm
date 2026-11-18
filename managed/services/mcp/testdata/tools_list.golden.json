@@ -257,7 +257,7 @@
           "type": "string"
         },
         "engine": {
-          "description": "mysql or postgresql. Defaults to the service's own engine",
+          "description": "mysql or postgresql; must be the service's own engine, which is the default",
           "type": "string"
         },
         "filter": {
@@ -382,7 +382,7 @@
       "additionalProperties": false,
       "properties": {
         "database": {
-          "description": "Schema the query runs in, to override the one QAN recorded; MySQL only",
+          "description": "MySQL: database to connect to; pmm-agent still switches to the schema QAN recorded for the query",
           "type": "string"
         },
         "format": {
@@ -390,7 +390,7 @@
           "type": "string"
         },
         "period_from": {
-          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid",
+          "description": "Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid",
           "type": "string"
         },
         "period_to": {
@@ -541,7 +541,7 @@
           "type": "string"
         },
         "period_from": {
-          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid",
+          "description": "Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid",
           "type": "string"
         },
         "period_to": {
@@ -1082,7 +1082,7 @@
       "additionalProperties": false,
       "properties": {
         "period_from": {
-          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid",
+          "description": "Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid",
           "type": "string"
         },
         "period_to": {
@@ -1138,7 +1138,7 @@
           "type": "string"
         },
         "example": {
-          "description": "Untrusted. Example statement, raw with raw SQL on, else normalized; left out when withheld.",
+          "description": "Untrusted. Example: raw with raw SQL on, else normalized and masked; left out when withheld.",
           "type": "string"
         },
         "example_error": {
@@ -1714,7 +1714,7 @@
           "type": "string"
         },
         "period_from": {
-          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h)",
+          "description": "Window start: RFC3339 or relative such as now-1h (default 1 h before period_to)",
           "type": "string"
         },
         "period_to": {
@@ -1722,7 +1722,7 @@
           "type": "string"
         },
         "search": {
-          "description": "Keep rows whose queryid, fingerprint or group_by value contains this text; 200 characters max",
+          "description": "Rows whose queryid, fingerprint or group_by value has this literal text; 200 characters max",
           "type": "string"
         },
         "service_id": {

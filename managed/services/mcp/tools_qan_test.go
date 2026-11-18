@@ -121,11 +121,13 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 	assert.Contains(t, detail, "fingerprint:\n"+result.Fingerprint+"\n")
 	assert.NotContains(t, string(mustJSON(t, result)), "4417")
 
-	// explain_fingerprint is withheld when quoted, and keeps its numbered placeholders.
+	// explain_fingerprint is masked like a fingerprint, numbers and comment text included, and withheld when quoted.
 	for fp, want := range map[string]string{
-		"SELECT `id` FROM `t` WHERE `email` = :1":           "SELECT `id` FROM `t` WHERE `email` = :1",
-		"SELECT `id` FROM `t` WHERE `email` = 'a@b.com'":    "",
-		`SELECT "id" FROM "t" WHERE "email" = "leak@b.com"`: "",
+		"SELECT `id` FROM `t` WHERE `email` = :1":                                   "SELECT `id` FROM `t` WHERE `email` = :?",
+		"SELECT /* user 4417 */ `id` FROM `t1` WHERE `pin` = 4417 AND `email` = :1": "SELECT /*?*/ `id` FROM `t1` WHERE `pin` = ? AND `email` = :?",
+		"SELECT `id` FROM `t` -- tenant 4417\nWHERE `pin` = 4417":                   "SELECT `id` FROM `t` --?\nWHERE `pin` = ?",
+		"SELECT `id` FROM `t` WHERE `email` = 'a@b.com'":                            "",
+		`SELECT "id" FROM "t" WHERE "email" = "leak@b.com"`:                         "",
 	} {
 		d := &queryDetail{queryID: "Q", engine: engineMySQL, example: &qan_service.GetQueryExampleOKBodyQueryExamplesItems0{ExplainFingerprint: fp}}
 		r := d.result(false, "", testNow.Add(-time.Hour), testNow)
@@ -467,11 +469,11 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.False(t, isError)
 		assert.NotContains(t, text, "user42@example.com")
 		assert.Contains(t, text, "example (normalized, literals stripped; raw SQL disabled):\n```sql\n")
-		assert.Contains(t, text, "FROM `customers` WHERE `email` = :1\n```")
+		assert.Contains(t, text, "FROM `customers` WHERE `email` = :?\n```")
 
 		got := structured[queryDetailResult](t, res)
 		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
-		assert.Equal(t, "SELECT * FROM `customers` WHERE `email` = :1", got.Example) //nolint:unqueryvet
+		assert.Equal(t, "SELECT * FROM `customers` WHERE `email` = :?", got.Example) //nolint:unqueryvet
 		assert.Contains(t, text, "```sql\n"+got.Example+"\n```", "the example the text shows")
 		assert.Contains(t, text, "fingerprint:\n"+got.Fingerprint+"\n", "the fingerprint the text shows")
 	})
@@ -828,6 +830,39 @@ func TestParseWindowIsUTCSeconds(t *testing.T) {
 	assert.Equal(t, "2026-09-14T11:45:00Z", to.Format(time.RFC3339Nano))
 }
 
+// TestParseQueryWindowDefaults pins that a QAN or live-inspection window's period_to defaults to now and its
+// period_from to the hour before period_to.
+func TestParseQueryWindowDefaults(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		from, to         string
+		wantFrom, wantTo time.Time
+	}{
+		{"", "", testNow.Add(-time.Hour), testNow},
+		{"now-3h", "", testNow.Add(-3 * time.Hour), testNow},
+		{"", "now-2h", testNow.Add(-3 * time.Hour), testNow.Add(-2 * time.Hour)},
+		{"", "2026-09-13T08:00:00Z", time.Date(2026, 9, 13, 7, 0, 0, 0, time.UTC), time.Date(2026, 9, 13, 8, 0, 0, 0, time.UTC)},
+	} {
+		from, to, err := parseQueryWindow(tc.from, tc.to, testNow)
+		require.NoError(t, err, "'%s' – '%s'", tc.from, tc.to)
+		assert.Equal(t, tc.wantFrom, from, "'%s' – '%s'", tc.from, tc.to)
+		assert.Equal(t, tc.wantTo, to, "'%s' – '%s'", tc.from, tc.to)
+	}
+
+	_, _, err := parseQueryWindow("", "yesterday", testNow)
+	require.Error(t, err)
+	assert.Equal(t, codeInvalidInput, mapError(err).code)
+
+	session := connect(t, newQANService(t, newFakePMM(t, qanRoutes()), true))
+	res := callTool(t, session, "pmm_top_queries", map[string]any{"period_to": "now-2h"})
+	got := structured[topQueriesResult](t, res)
+	assert.Equal(t, window{From: testNow.Add(-3 * time.Hour), To: testNow.Add(-2 * time.Hour)}, got.Window)
+
+	res = callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA", "period_to": "now-2h"})
+	assert.Equal(t, window{From: testNow.Add(-3 * time.Hour), To: testNow.Add(-2 * time.Hour)}, structured[queryDetailResult](t, res).Window)
+}
+
 func TestLinks(t *testing.T) {
 	t.Parallel()
 
@@ -885,6 +920,38 @@ func TestQANValuesAreChecked(t *testing.T) {
 			assert.Empty(t, fake.requestsTo(path), "%s %v -> %s", tc.tool, tc.args, path)
 		}
 		assert.Zero(t, listQueries(fake), "%s %v", tc.tool, tc.args)
+	}
+}
+
+// TestRefusedInputEchoIsBounded pins that an invalid_input message quotes at most maxEchoBytes of the caller's input.
+func TestRefusedInputEchoIsBounded(t *testing.T) {
+	t.Parallel()
+
+	long := strings.Repeat("x", 5*maxEchoBytes)
+	spaced := "now" + strings.Repeat(" ", 5*maxEchoBytes) + "-2h"
+	for _, tc := range []struct {
+		tool string
+		args map[string]any
+	}{
+		{"pmm_top_queries", map[string]any{"period_from": long}},
+		{"pmm_top_queries", map[string]any{"period_from": "now-" + strings.Repeat("9", 5*maxEchoBytes) + "d"}},
+		{"pmm_top_queries", map[string]any{"period_from": "now-1h", "period_to": spaced}},
+		{"pmm_top_queries", map[string]any{"group_by": long}},
+		{"pmm_top_queries", map[string]any{"order_by": long}},
+		{"pmm_top_queries", map[string]any{"columns": []string{long}}},
+		{"pmm_top_queries", map[string]any{"labels": map[string]any{long + "X": []string{"v"}}}},
+		{"pmm_top_queries", map[string]any{"labels": map[string]any{long: []string{}}}},
+		{"pmm_query_detail", map[string]any{"queryid": "QID-AAA", "period_to": long}},
+		{"pmm_inventory", map[string]any{"engine": long}},
+		{"pmm_get_config", map[string]any{"service_id": "svc-1", "engine": long}},
+		{"pmm_get_explain", map[string]any{"queryid": "QID-AAA", "format": long}},
+		{"pmm_get_schema", map[string]any{"queryid": "QID-AAA", "info_types": long}},
+	} {
+		session := connect(t, newQANService(t, newFakePMM(t, qanRoutes()), true))
+		text, isError := callText(t, session, tc.tool, tc.args)
+		require.True(t, isError, "%s %v", tc.tool, tc.args)
+		require.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Less(t, len(text), 3*maxEchoBytes, "%s: %s", tc.tool, text)
 	}
 }
 
@@ -1153,4 +1220,178 @@ func TestTopQueriesEnginePerRow(t *testing.T) {
 		assert.Equal(t, `SELECT "id" FROM "users" WHERE "email" = $1`, fingerprintOf(t, text, "Q-BOTH"), "read as PostgreSQL")
 		assert.Len(t, fake.requestsTo("/v1/qan/metrics:getReport"), 1)
 	})
+}
+
+// TestTopQueriesSharedServiceName pins that a service_name filter shared by two services pins no service_id in
+// query_ref, and reads fingerprints under neither engine's quoting alone when the two engines differ.
+func TestTopQueriesSharedServiceName(t *testing.T) {
+	t.Parallel()
+
+	routes := withRoutes(qanRoutes(), map[string]fixture{serviceListKey: {file: "vm_up_list.json"}})
+	session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+	got := structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-re"}))
+	require.NotEmpty(t, got.Rows)
+	for _, row := range got.Rows {
+		if row.QueryRef != nil {
+			assert.Empty(t, row.QueryRef.ServiceID, row.Dimension)
+		}
+	}
+
+	got = structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-mysql"}))
+	require.NotEmpty(t, got.Rows)
+	assert.Equal(t, "svc-1", got.Rows[0].QueryRef.ServiceID)
+
+	assert.Empty(t, serviceEngine("shop-re", "", func() ([]serviceInfo, error) {
+		return []serviceInfo{
+			{ServiceID: "a", ServiceName: "shop-re", Engine: engineMySQL},
+			{ServiceID: "b", ServiceName: "shop-re", Engine: enginePostgreSQL, LastSeen: testNow},
+		}, nil
+	}))
+	assert.Equal(t, engineMySQL, serviceEngine("shop-re", "", func() ([]serviceInfo, error) {
+		return []serviceInfo{
+			{ServiceID: "a", ServiceName: "shop-re", Engine: engineMySQL},
+			{ServiceID: "b", ServiceName: "shop-re", Engine: engineMySQL, LastSeen: testNow},
+		}, nil
+	}))
+}
+
+// TestQueryDetailSeveralServices pins that a detail summed over several services, whose metadata joins their names,
+// links to QAN without a service filter and reads no version.
+func TestQueryDetailSeveralServices(t *testing.T) {
+	t.Parallel()
+
+	detail := func(t *testing.T, serviceName string) (*fakePMM, queryDetailResult) {
+		t.Helper()
+
+		fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{
+			"POST /v1/qan:getMetrics": {body: mustJSON(t, map[string]any{
+				"fingerprint": "SELECT 1",
+				"metadata":    map[string]string{"service_name": serviceName, "service_type": engineMySQL, "schema": "shop"},
+			})},
+		}))
+		session := connect(t, newQANService(t, fake, true))
+		return fake, structured[queryDetailResult](t, callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"}))
+	}
+
+	fake, got := detail(t, "shop-mysql, shop-postgres")
+	assert.NotContains(t, got.PMMURL, "var-service_name")
+	assert.Contains(t, got.PMMURL, "filter_by=QID-AAA")
+	assert.Empty(t, got.Version)
+	assert.Empty(t, queriesWith(fake, "mysql_version_info"))
+
+	fake, got = detail(t, "shop-mysql")
+	assert.Contains(t, got.PMMURL, "var-service_name=shop-mysql")
+	assert.Equal(t, "8.0.46-37", got.Version)
+	assert.Len(t, queriesWith(fake, "mysql_version_info"), 1)
+}
+
+// searchReport is a getReport answer with total rows and one row per fingerprint, queryid Q<n> from offset+1.
+func searchReport(t *testing.T, total, offset int, fingerprints ...string) fixture {
+	t.Helper()
+
+	rows := make([]map[string]any, 0, len(fingerprints))
+	for i, fp := range fingerprints {
+		rows = append(rows, map[string]any{"dimension": fmt.Sprintf("Q%d", offset+i+1), "fingerprint": fp, "num_queries": 1, "load": 0.1})
+	}
+	return fixture{body: mustJSON(t, map[string]any{"total_rows": total, "offset": offset, "limit": len(fingerprints), "rows": rows})}
+}
+
+// TestTopQueriesSearch pins that search reaches QAN's LIKE as literal text, and that with raw SQL off a search
+// leaves out the rows whose fingerprint is withheld, counting them out of the total.
+func TestTopQueriesSearch(t *testing.T) {
+	t.Parallel()
+
+	const (
+		normalized = "SELECT `id` FROM `t` WHERE `id` = ?"
+		unnormal   = "INSERT INTO users (email) VALUES ('user42@example.com')"
+	)
+
+	t.Run("Escaped", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, `100\%\_off \\ a`, escapeLike(`100%_off \ a`))
+
+		fake := newFakePMM(t, qanRoutes())
+		text, isError := callText(t, connect(t, newQANService(t, fake, true)), "pmm_top_queries", map[string]any{"search": `50%_x\`})
+		require.False(t, isError, text)
+		body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo(reportPath)[0])
+		assert.Equal(t, `50\%\_x\\`, body.Search)
+	})
+
+	for _, tc := range []struct {
+		name      string
+		raw       bool
+		search    string
+		wantRows  []string
+		wantTotal int
+	}{
+		{"RawOffSearch", false, "users", []string{"Q2"}, 1},
+		{"RawOnSearch", true, "users", []string{"Q1", "Q2", "Q3"}, 3},
+		{"RawOffNoSearch", false, "", []string{"Q1", "Q2", "Q3"}, 3},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			routes := withRoutes(qanRoutes(), map[string]fixture{"POST " + reportPath: searchReport(t, 3, 0, unnormal, normalized, unnormal)})
+			session := connect(t, newQANService(t, newFakePMM(t, routes), tc.raw))
+			res := callTool(t, session, "pmm_top_queries", map[string]any{"search": tc.search, "limit": 3})
+			got := structured[topQueriesResult](t, res)
+			ids := make([]string, 0, len(got.Rows))
+			for i, row := range got.Rows {
+				ids = append(ids, row.Dimension)
+				assert.Equal(t, i+1, row.Rank)
+			}
+			assert.Equal(t, tc.wantRows, ids)
+			assert.Equal(t, page{Total: tc.wantTotal, Limit: 3}, got.Page)
+		})
+	}
+
+	t.Run("PagingPastLeftOutRows", func(t *testing.T) {
+		t.Parallel()
+
+		routes := withRoutes(qanRoutes(), map[string]fixture{
+			"POST " + reportPath: searchReport(t, 11, 0, normalized, unnormal, normalized, unnormal, normalized, normalized, normalized, normalized, normalized, normalized),
+		})
+		session := connect(t, newQANService(t, newFakePMM(t, routes), false))
+		res := callTool(t, session, "pmm_top_queries", map[string]any{"search": "users", "limit": 10})
+		got := structured[topQueriesResult](t, res)
+		require.Len(t, got.Rows, 8)
+		assert.Equal(t, page{Total: 9, Limit: 10, Truncated: true}, got.Page)
+		assert.Equal(t, 8, got.Rows[7].Rank)
+		text := textOf(t, res)
+		assert.True(t, strings.HasPrefix(text, "Rows 1-8 of 9 "), text)
+		assert.True(t, strings.HasSuffix(text, "\nshowing 1–8 of 9; pass offset=10 for more"), text)
+		assert.NotContains(t, text, "user42")
+
+		routes["POST "+reportPath] = searchReport(t, 12, 0, unnormal, unnormal)
+		session = connect(t, newQANService(t, newFakePMM(t, routes), false))
+		res = callTool(t, session, "pmm_top_queries", map[string]any{"search": "users", "limit": 2})
+		got = structured[topQueriesResult](t, res)
+		assert.Empty(t, got.Rows)
+		assert.Equal(t, page{Total: 10, Limit: 2, Truncated: true}, got.Page)
+		text = textOf(t, res)
+		assert.True(t, strings.HasSuffix(text, "\npass offset=2 for more"), text)
+		assert.NotContains(t, text, "No queries found")
+	})
+}
+
+// TestFingerprintUnknownEngineMasksEitherQuoting pins that a fingerprint of unknown engine is masked wherever MySQL's or
+// PostgreSQL's quoting would mask it.
+func TestFingerprintUnknownEngineMasksEitherQuoting(t *testing.T) {
+	t.Parallel()
+
+	masked, quoted := maskEitherQuoting(`SELECT 'secret_a', "secret_b" FROM t WHERE x = 42`)
+	assert.Equal(t, `SELECT ?, ? FROM t WHERE x = ?`, masked)
+	assert.True(t, quoted)
+	assert.Equal(t, withheldFingerprint, fingerprintText(`SELECT 'secret_a', "secret_b" FROM t WHERE x = 42`, "", false))
+
+	for fp, want := range map[string]string{
+		"SELECT `1st` FROM t /* a /* b */ c */ WHERE x = 7": "SELECT `?st` FROM t /*?*/ WHERE x = ?",
+		"SELECT `c` FROM t -- note 7\nWHERE x = 7":          "SELECT `c` FROM t --?\nWHERE x = ?",
+	} {
+		masked, quoted := maskEitherQuoting(fp)
+		assert.Equal(t, want, masked, fp)
+		assert.False(t, quoted, fp)
+		assert.Equal(t, want, fingerprintText(fp, "", false), fp)
+	}
 }
