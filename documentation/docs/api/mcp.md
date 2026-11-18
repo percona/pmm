@@ -368,7 +368,7 @@ The lookbehind of a path is the sum of what the path passes through:
 
 A selector that is read through no window, such as `up`, or as the argument of a rollup function written without one, such as `rate(x)`, reads one step back. For an instant query the step is 5 minutes. A window shorter than the step counts as one step. For example, `rate(x[5m])` over the last 7 days reads 7 days and 5 minutes and is refused, while the last 6 days is accepted. `rate(x[6d])` as an instant query reads 6 days. `max_over_time(rate(x[6d])[6d:1h])` reads more than 12 days and is refused.
 
-A rollup over an expression that isn't a selector, such as `rate(sum(x)[1h])`, runs in VictoriaMetrics as a subquery at the step of the query. It is limited to 4,000 points per series. A rollup window inside that subquery counts toward the 2,000 hours of rollup windows at the points of the subquery. If you didn't give `step`, the server raises it to what the rollup needs. If you did, a step that is too small is refused and the hint names the smallest one that fits.
+A rollup over an expression that isn't a selector, such as `rate(sum(x)[1h])`, runs in VictoriaMetrics as a subquery at the step of the query. It is limited to 4,000 points per series. If you didn't give `step`, the server raises it to what the rollup needs. If you did, a step that is too small is refused and the hint names the smallest one that fits. A rollup window inside that subquery is read at each of the subquery's points, and those points count toward the 2,000-hour limit on [rollup windows](#execution-budget). A query over that limit is refused, and its step isn't raised.
 
 ### Series cap
 
