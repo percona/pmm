@@ -4,19 +4,19 @@ The `mysql_version` check reports when the release series of MySQL, Percona Serv
 
 ## Description
 
-The check works out the distribution and the running release series (`major.minor`, for example 8.0, 8.4 or 10.11), and returns at most one finding per service:
+The check works out the distribution and the running release series, such as 8.0, 8.4 or 10.11, and returns at most one finding per service:
 
 | Release series | Finding | Severity |
 | :------------- | :------ | :------- |
 | Has reached EOL | **`<Product> <series>` reached end of life** | Error |
-| Reaches EOL within the next six months (183 days), up to and including the EOL date | **`<Product> <series>` reaches end of life on `<date>`**. If a newer release of the series exists, the finding also names it. | Warning |
+| Reaches EOL within the next six months, up to and including the EOL date | **`<Product> <series>` reaches end of life on `<date>`**. If a newer release of the series exists, the finding also names it. | Warning |
 | Supported, with a newer release of the series available | **Newer version of `<Product>` is available**. The finding names the newer release and the EOL date of the series. | Warning |
 
 A release series past its EOL gets only the EOL error. A newer release of that series doesn't fix the problem, so the check doesn't suggest one. For Amazon RDS for MySQL, the EOL findings say "end of standard support" instead of "end of life".
 
 ### Distributions
 
-The check reads the server variables (`SHOW VARIABLES`) and identifies the distribution in this order:
+The check reads the server variables with `SHOW VARIABLES` and identifies the distribution in this order:
 
 1. **MariaDB**: `version` or `version_comment` contains `MariaDB`. A `5.5.5-` prefix on the version, which MariaDB adds for old replication clients, is ignored.
 2. **Amazon Aurora**: a variable whose name starts with `aurora_` exists. Aurora isn't checked.
@@ -29,13 +29,13 @@ The check reads the server variables (`SHOW VARIABLES`) and identifies the distr
 
 EOL versions no longer receive bug or security fixes from the vendor.
 
-The check doesn't report EOL for a series that isn't in its tables, such as a newer one that PMM doesn't know yet. Short-lived series (MySQL Innovation releases and MariaDB short-term releases) are added to the tables only once they have reached EOL.
+The check doesn't report EOL for a series that isn't in its tables, such as a newer one that PMM doesn't know yet. Short-lived series, such as MySQL Innovation releases and MariaDB short-term releases, are added to the tables only once they have reached EOL.
 
 The EOL finding's labels show the running version (`current`), its series (`series`) and the EOL date (`eol_date`). The finding links to the lifecycle policy of its product: [MySQL releases](https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html), the [Percona release lifecycle](https://www.percona.com/release-lifecycle-overview/) for Percona Server for MySQL and Percona XtraDB Cluster, the [MariaDB maintenance policy](https://mariadb.org/about/#maintenance-policy), or the [Amazon RDS for MySQL release calendar](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html#MySQL.Concepts.VersionMgmt.ReleaseCalendar).
 
 #### MySQL, Percona Server for MySQL and Percona XtraDB Cluster
 
-These dates come from the [Oracle Lifetime Support Policy](https://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf) (end of Extended Support) for long-term series. An [Innovation release](https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html) is supported until the next Innovation release ships.
+These dates come from the end of Extended Support in the [Oracle Lifetime Support Policy](https://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf) for long-term series. An [Innovation release](https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html) is supported until the next Innovation release ships.
 
 | Series | End of life |
 | :----- | :---------- |
@@ -69,7 +69,7 @@ Percona Server for MySQL and Percona XtraDB Cluster follow these dates, except w
 
 #### MariaDB
 
-These dates come from the [MariaDB maintenance policy](https://mariadb.org/about/#maintenance-policy) (community end of life), and from [endoflife.date](https://endoflife.date/mariadb) for short-term releases:
+These dates come from the community end of life in the [MariaDB maintenance policy](https://mariadb.org/about/#maintenance-policy), and from [endoflife.date](https://endoflife.date/mariadb) for short-term releases:
 
 | Series | End of life |
 | :----- | :---------- |

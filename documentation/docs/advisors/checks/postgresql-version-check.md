@@ -4,12 +4,14 @@ The `postgresql_version_check` check reports when the major version of PostgreSQ
 
 ## Description
 
-The check reads the server version from the `server_version_num` setting and returns at most one finding per service. In the following table, `<product>` is **Percona Distribution for PostgreSQL** or **PostgreSQL**:
+The check reads the server version from the `server_version_num` setting and returns at most one finding per service. 
+
+The finding depends on the major version that you run, where `<product>` is **Percona Distribution for PostgreSQL** or **PostgreSQL**:
 
 | Major version | Finding | Severity |
 | :------------ | :------ | :------- |
 | Has reached EOL | **`<product> <major>` reached end of life** | Error |
-| Reaches EOL within the next six months (183 days), up to and including the EOL date | **`<product> <major>` reaches end of life on `<date>`**. If a newer minor version exists, the finding also names it. | Warning |
+| Reaches EOL within the next six months, up to and including the EOL date | **`<product> <major>` reaches end of life on `<date>`**. If a newer minor version exists, the finding also names it. | Warning |
 | Supported, with a newer minor or major version available | **Newer version of `<product>` is available**. The finding names the newer version and the EOL date of the installed major version. | Warning |
 
 The check tells the two products apart by the `server_version` setting, where Percona builds add "Percona Distribution" or "Percona Server for PostgreSQL". It links to the release notes and lifecycle policy of that product. Percona Distribution for PostgreSQL follows the PostgreSQL minor versions and EOL dates, so the check compares both products with the same versions.
@@ -53,7 +55,7 @@ If a newer minor version of your major version exists, the finding also links to
 
 ## Resolution
 
-If your major version has reached EOL, or reaches it soon, upgrade to a supported major version. For the support dates, see the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) and the [Percona release lifecycle](https://www.percona.com/release-lifecycle-of-percona-software-for-postgresql/).
+If your major version has reached EOL, or reaches it soon, upgrade to a supported major version. To choose one, compare the support dates in the [PostgreSQL versioning policy](https://www.postgresql.org/support/versioning/) and the [Percona release lifecycle](https://www.percona.com/release-lifecycle-of-percona-software-for-postgresql/).
 
 To upgrade PostgreSQL, follow these instructions:
 

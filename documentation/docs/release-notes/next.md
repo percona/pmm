@@ -37,41 +37,30 @@ Upgrading to PMM 3.11.0 changes your existing Advisor settings, dashboards and A
     - `GET /v1/advisors/insights` instead of `GET /v1/advisors/failedServices` and `GET /v1/advisors/checks/failed`
     - The `/v1/advisors/schedules` endpoints instead of the `advisor_run_intervals` setting and the `interval` field of checks
 
-#### Version, end-of-life and security checks are now accurate
+#### Smarter Advisor checks for database versions
 
-The version checks now use current release data and end-of-life (EOL) dates, so after you upgrade you may see new findings:
+When a database needs an upgrade, Advisors now give you one clear finding instead of several overlapping ones. The separate checks for newer versions, end of life and known vulnerabilities are replaced with a single version check for each database: [MySQL version check](../advisors/checks/mysql-version.md), [MongoDB version check](../advisors/checks/mongodb-version.md) and [PostgreSQL version check](../advisors/checks/postgresql-version-check.md).
 
-- **MySQL 8.0** (including Percona Server for MySQL and Percona XtraDB Cluster 8.0), **MongoDB 5.0, 6.0 and 8.2**, **PostgreSQL 11 to 14** and **MariaDB 10.6** are reported as EOL.
-- Amazon RDS for MySQL versions past standard support are reported as having reached "end of standard support", not EOL.
-- **MongoDB 4.4** and **PostgreSQL 10 and older**, which were reported as warnings, are now reported as errors.
-- You get a warning 6 months before a version reaches EOL, and an error after that date.
-- Each service gets at most one version finding. A version past its EOL gets only the EOL error, without advice to install a newer release of the same version.
-- A newer-version finding for a release with missing patches links to the vendor's security page, where you can check which fixes the newer release brings.
-- `mongodb_version` now tells Percona Server for MongoDB from MongoDB Community. Each is compared with its own latest releases, so MongoDB Community users are told about MongoDB 9.0.
-- `postgresql_version_check` now tells Percona Distribution for PostgreSQL from PostgreSQL, and names and links to the product that you run.
-- A finding that suggests a newer release links to the release notes of that release, and each EOL finding links to the lifecycle policy of its product.
+Each check tells you whether a newer version is available, and whether your current version has reached end of life (EOL) or reaches it within six months. The finding also explains why an upgrade matters and gives you what you need to plan it, such as what changes in the newer version, how long your current version is supported, or which security fixes your version is missing. This release also fixes six other MongoDB and PostgreSQL checks that failed or gave wrong results on default setups.
 
-The `mongodb_version`, `mysql_version` and `postgresql_version_check` checks now report EOL themselves, so these checks are removed:
+##### What to expect after you upgrade
 
-| Removed check | Use instead |
-| :------------ | :---------- |
-| [`mongodb_EOL`](../advisors/checks/mongodb-eol.md) | [`mongodb_version`](../advisors/checks/mongodb-version.md) |
-| [`mongodb_cve_version`](../advisors/checks/mongodb-cve-version.md) | [`mongodb_version`](../advisors/checks/mongodb-version.md) |
-| [`mongodb_unsupported_version`](../advisors/checks/mongodb-unsupported-version.md) | [`mongodb_version`](../advisors/checks/mongodb-version.md) |
-| [`mysql_unsupported_version_check`](../advisors/checks/mysql_unsupported_version_check.md) | [`mysql_version`](../advisors/checks/mysql-version.md) |
-| [`mysql_version_eol_57`](../advisors/checks/mysql_version_eol_57.md) | [`mysql_version`](../advisors/checks/mysql-version.md) |
-| [`postgresql_cve_check`](../advisors/checks/postgresql-cve-check.md) | [`postgresql_version_check`](../advisors/checks/postgresql-version-check.md) |
-| [`postgresql_eol_check`](../advisors/checks/postgresql-eol-check.md) | [`postgresql_version_check`](../advisors/checks/postgresql-version-check.md) |
-| [`postgresql_unsupported_check`](../advisors/checks/postgresql-unsupported-check.md) | [`postgresql_version_check`](../advisors/checks/postgresql-version-check.md) |
+After you upgrade to PMM 3.11.0, you will see fewer version checks in **Advisors > Catalog**  and new errors in **Advisors > Insights**:
 
-Six checks no longer fail or report wrongly on default setups:
+- Databases on a version that reached EOL in recent years now show an error. The old checks used outdated EOL dates, so they missed these versions:
+    - MySQL 8.0, including Percona Server for MySQL and Percona XtraDB Cluster 8.0
+    - MongoDB 5.0, 6.0 and 8.2
+    - PostgreSQL 11 to 14
+    - MariaDB 10.6
+    - Amazon RDS for MySQL versions past standard support, as "end of standard support"
+    - MongoDB 4.4 and PostgreSQL 10 and older, which showed a warning until now
+- Eight older version checks are removed, and the new check for the same database replaces them:
+    - `mongodb_EOL`, `mongodb_cve_version` and `mongodb_unsupported_version`: replaced by the **MongoDB version check**
+    - `mysql_unsupported_version_check` and `mysql_version_eol_57`: replaced by the **MySQL version check**
+    - `postgresql_cve_check`, `postgresql_eol_check` and `postgresql_unsupported_check`: replaced by the **PostgreSQL version check**
 
-- [`mongodb_multiple_services`](../advisors/checks/multiple-mongod-running-in-a-node.md) no longer fails on a service without a cluster label, and counts mongod services per service.
-- [`mongodb_swap_allocation`](../advisors/checks/mongodb-swap-allocation.md) no longer fails when a metric is missing.
-- [`mongodb_journal`](../advisors/checks/mongodb-journal.md) reports nothing on MongoDB 7.0 and later, and on earlier versions only when the journal is explicitly disabled.
-- [`mongodb_loglevel`](../advisors/checks/mongodb-log-messages.md) reports only an explicitly set non-zero log level.
-- [`mongodb_maxsessions`](../advisors/checks/mongodb-maxSessions.md) no longer fails when `setParameter` has no `maxSessions`.
-- [`postgresql_wal_retention_check`](../advisors/checks/postgresql-wal-retention-check.md) works for a monitoring user with the `pg_monitor` role.
+    If you turned off one of these checks, turn off its replacement instead. For example, if you turned off `mongodb_EOL` to stop end-of-life findings for a MongoDB version that you plan to keep, turn off the **MongoDB version check**.
+- `mongodb_cve_version` and `postgresql_cve_check` listed specific vulnerabilities (CVEs), but their lists were no longer kept up to date. Instead, when your version is missing security fixes, all three version checks tell you and link to the vendor's security page, where you can see which vulnerabilities affect your version.
 
 ### Inventory page now in native PMM UI
 
@@ -119,7 +108,6 @@ To find the affected endpoints and update your automation, [check the PMM API re
 - [PMM-15699](https://perconadev.atlassian.net/browse/PMM-15699): **MongoDB > Operations** now calls PMM Extensions as the signed-in user, so PMM Extensions applies that user's role and records configuration changes under their name. API requests for nodes, scans, installs and settings must authenticate with a service account token or a PMM session. A request with a username and password gets `401 Unauthenticated`. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15825](https://perconadev.atlassian.net/browse/PMM-15825): Every signed-in PMM user can now open **MongoDB > Operations**. Viewers and Editors see every page except the install form. They can't scan nodes, start or abort installs, remove node entries, or change settings: those controls are disabled or hidden for them. Starting a scan now requires the Admin role, as installs already did. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15846](https://perconadev.atlassian.net/browse/PMM-15846): The execution history of PMM Extensions apps, such as **MySQL Backups**, now shows a warning icon beside the status of a finished run whose logs were partly or wholly lost before PMM could store them, so you can spot it without opening the run. Hover over or tab to the icon for details. For more on task logs, see [Monitor backups](../apps/mysql-backup.md#monitor-backups).
-- [PMM-15706](https://perconadev.atlassian.net/browse/PMM-15706): The `mongodb_version`, `mysql_version` and `postgresql_version_check` advisors now use current release data and end-of-life (EOL) dates, and give at most one finding per service: an error after the EOL date, a warning within 6 months of it, or otherwise a warning when a newer version is available. They replace eight removed checks, including `mongodb_EOL`, `mysql_unsupported_version_check` and `postgresql_eol_check`, so you may see new EOL errors after you upgrade. For details, see [Version, end-of-life and security checks are now accurate](#version-end-of-life-and-security-checks-are-now-accurate).
 - [PMM-15806](https://perconadev.atlassian.net/browse/PMM-15806): You can now search the **Clusters** tab on **MongoDB > Operations > Fleet** by cluster name and filter it by **Health**, **Type**, and **Environment**. The search and filters are saved in the page URL, so you can share a filtered view. Each cluster shows its type next to its name. The column chooser also adds optional **Type**, **Last seen**, **Max CPU**, and **Min conn. free** columns. For details, see [Operations for MongoDB](../use/mongodb-operations.md#view-fleet-health).
 
 ## ✅ Fixed issues
@@ -139,7 +127,7 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 - [PMM-15828](https://perconadev.atlassian.net/browse/PMM-15828): Fixed several MongoDB dashboard panels that showed wrong values or ignored the **Environment** and **Cluster** filters. In [MongoDB Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md), **Chunk distribution** no longer under-reports shards when the cluster has more than one `mongos` router, **Chunks Move Events** and **Chunks Split Events** show the number of events in the last 10 minutes, and **MongoDB Versions** lists only members of the selected cluster. In [MongoDB ReplSet Summary](../reference/dashboards/dashboard-mongodb-replset-summary.md), **Query Efficiency** and **DBs** show correct values. Collection panels on both dashboards now exclude the `admin` and `config` databases. In [MongoDB Instances Overview](../reference/dashboards/dashboard-mongodb-instances-overview.md), **Availability** shows 0% instead of no data for a replica set that never had a primary, and **Time Since Election** follows the dashboard filters. [MongoDB MMAPv1 Details](../reference/dashboards/dashboard-mongodb-mmapv1-details.md) now lists MMAPv1 services in its service selector.
 
-- [PMM-15706](https://perconadev.atlassian.net/browse/PMM-15706): Fixed advisor checks that failed or reported wrongly on default setups: `mongodb_multiple_services`, `mongodb_swap_allocation`, `mongodb_journal`, `mongodb_loglevel` and `mongodb_maxsessions`, and `postgresql_wal_retention_check`, which now works for a monitoring user with the `pg_monitor` role and on PostgreSQL 11 and 12. For details, see [Version, end-of-life and security checks are now accurate](#version-end-of-life-and-security-checks-are-now-accurate).
+- [PMM-15706](https://perconadev.atlassian.net/browse/PMM-15706): Fixed Advisor checks that used outdated end-of-life (EOL) dates and missed some [database versions that no longer get fixes](#smarter-advisor-checks-for-database-versions). Also fixed six checks that failed or gave wrong results on default setups: the MongoDB [multiple mongod services](../advisors/checks/multiple-mongod-running-in-a-node.md), [swap memory](../advisors/checks/mongodb-swap-allocation.md), [journal](../advisors/checks/mongodb-journal.md), [log level](../advisors/checks/mongodb-log-messages.md) and [maxSessions](../advisors/checks/mongodb-maxSessions.md) checks, and the PostgreSQL [WAL file accumulation](../advisors/checks/postgresql-wal-retention-check.md) check.
 
 ## 🔶 Known issues
 

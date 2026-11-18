@@ -1,17 +1,16 @@
-# PostgreSQL version compatibility
+# Unsupported PostgreSQL version (replaced)
 
-!!! note
-    The `postgresql_unsupported_check` check was removed in PMM 3.11.0. The [`postgresql_version_check`](postgresql-version-check.md) check now reports major versions that reached or are about to reach end of life.
+In PMM 3.10 and earlier, the `postgresql_unsupported_check` check returned an error when your PostgreSQL major version was older than 11, because those versions had reached end of life (EOL).
 
-The `postgresql_unsupported_check` check returned an error if the PostgreSQL major version was older than 11.
+In PMM 3.11.0 and later, this check is replaced by the [PostgreSQL version check](postgresql-version-check.md). The older check covered only major versions older than 11, while the new check knows the EOL date of every major version. The new check also warns you six months before your major version reaches EOL.
 
 ## Description
 
-The check read the server version from the `server_version_num` setting and returned an error for major versions older than 11. These versions reached end of life (EOL), so they no longer get bug or security fixes. Later major versions have their own [end-of-life dates](postgresql-version-check.md#end-of-life-dates).
+EOL versions no longer get bug or security fixes from their vendor. To find the EOL date of a later major version, check the [PostgreSQL end-of-life dates](postgresql-version-check.md#end-of-life-dates).
 
 ## Resolution
 
-Upgrade to a supported major version, following the [major upgrade instructions](https://docs.percona.com/postgresql/18/major-upgrade.html).
+To keep getting bug and security fixes, upgrade to a supported major version, following the [major upgrade instructions](https://docs.percona.com/postgresql/18/major-upgrade.html).
 
 ## Need more support from Percona?
 

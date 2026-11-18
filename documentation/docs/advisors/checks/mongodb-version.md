@@ -4,12 +4,12 @@ The `mongodb_version` check reports when the release series of MongoDB or Percon
 
 ## Description
 
-The check reads the server version with the `buildInfo` command and returns at most one finding per service. In the following table, `<product>` is **Percona Server for MongoDB** or **MongoDB**:
+The check reads the server version with the `buildInfo` command and returns at most one finding per service. The finding depends on the release series that you run, where `<product>` is **Percona Server for MongoDB** or **MongoDB**:
 
 | Release series | Finding | Severity |
 | :------------- | :------ | :------- |
 | Has reached EOL | **`<product>` `<series>` reached end of life** | Error |
-| Reaches EOL within the next six months (183 days), up to and including the EOL date | **`<product>` `<series>` reaches end of life on `<date>`**. If a newer minor version of the series exists, the finding also names it. | Warning |
+| Reaches EOL within the next six months, up to and including the EOL date | **`<product>` `<series>` reaches end of life on `<date>`**. If a newer minor version of the series exists, the finding also names it. | Warning |
 | Supported, with a newer minor or major version available | **Newer version of `<product>` is available**. The finding names the newer version and the EOL date of the running release series. | Warning |
 
 The check tells the two products apart by the `psmdbVersion` field, which only PSMDB returns in `buildInfo`. It compares each product with its own releases and links to that product's release notes and lifecycle policy.
@@ -39,7 +39,9 @@ The check uses these EOL dates from the **MongoDB Server** table of the [MongoDB
 | 8.3 | October 31, 2029 |
 | 9.0 | October 31, 2031 |
 
-The check doesn't report EOL for a release series that isn't in this table, such as a newer one that PMM doesn't know yet. A release series is added to the table once MongoDB publishes its EOL date. For Percona's own support dates, see the [Percona software support lifecycle](https://www.percona.com/services/policies/percona-software-support-lifecycle).
+The check doesn't report EOL for a release series that isn't in this table, such as a newer one that PMM doesn't know yet. A release series is added to the table once MongoDB publishes its EOL date. 
+
+To check how long Percona supports your version, look it up in the [Percona software support lifecycle](https://www.percona.com/services/policies/percona-software-support-lifecycle).
 
 The EOL finding's labels show the running version (`current`), its release series (`series`) and the EOL date (`eol_date`).
 
