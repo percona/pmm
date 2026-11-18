@@ -6,7 +6,7 @@ This dashboard shows the performance of one Amazon Aurora PostgreSQL instance. T
 
 Panels that read Amazon CloudWatch metrics need the instance to be added to PMM through **Inventory > Add service > Amazon RDS**. See [Connect Amazon RDS instance](../../install-pmm/install-pmm-client/connect-database/aws.md).
 
-The statement and replica lag graphs read the Aurora functions `aurora_stat_dml_activity()` and `aurora_replica_status()`. They need the `rds_superuser` role that [Connect PostgreSQL](../../install-pmm/install-pmm-client/connect-database/postgresql.md) asks you to grant to the PMM user. If a PMM Client on another host monitors the instance, upgrade that PMM Client to the same release as PMM Server.
+The statement and replica lag graphs read the Aurora functions `aurora_stat_dml_activity()` and `aurora_replica_status()`. They need the `rds_superuser` role that [Connect PostgreSQL](../../install-pmm/install-pmm-client/connect-database/postgresql.md) asks you to grant to the PMM user. If a PMM Client on another host monitors the instance, upgrade that PMM Client to the same release as PMM Server. Until then, the **Service Name** list shows the instance only on Aurora PostgreSQL 14.10, 15.5 and later.
 
 ## Transaction Commits
 

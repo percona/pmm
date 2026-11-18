@@ -2133,7 +2133,7 @@
                         {
                             "datasource": "Metrics",
                             "editorMode": "code",
-                            "expr": "max by (server_id) (pg_custom_aurora_replica_status_replica_lag_seconds{service_name=~\"$service_name\",role=\"reader\"})",
+                            "expr": "max by (server_id) (pg_custom_aurora_replica_status_replica_lag_seconds{service_name=~\"$service_name\",aurora_role=\"reader\"})",
                             "format": "time_series",
                             "hide": false,
                             "interval": "$interval",
