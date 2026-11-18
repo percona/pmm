@@ -14,7 +14,7 @@ This graph shows the transactions committed and rolled back per second, from `pg
 
 ## Commit Latency
 
-This graph shows the average commit latency that Amazon CloudWatch reports for the instance (`CommitLatency`).
+This graph shows the average commit latency that Amazon CloudWatch reports for the instance (`CommitLatency`). CloudWatch values are about 10 minutes behind, so this graph lags the **Transaction Commits** graph.
 
 ## Statement Throughput
 

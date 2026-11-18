@@ -50,7 +50,6 @@
     "fiscalYearStartMonth": 0,
     "graphTooltip": 1,
     "id": null,
-    "iteration": 1656498489966,
     "links": [
         {
             "asDropdown": false,
@@ -187,7 +186,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Average commit latency (CloudWatch CommitLatency).",
+            "description": "Average commit latency (CloudWatch CommitLatency). Source: CloudWatch, available without Enhanced Monitoring; values are about 10 minutes behind.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2441,6 +2440,5 @@
     "timezone": "",
     "title": "PostgreSQL Amazon Aurora Details",
     "uid": "postgresql-amazonaurora",
-    "version": 1,
     "weekStart": ""
 }

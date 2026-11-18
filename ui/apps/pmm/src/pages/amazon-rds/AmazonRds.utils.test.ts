@@ -451,19 +451,18 @@ describe('AmazonRds.utils: formatting and links', () => {
     );
   });
 
-  it.each([['postgres' as const]])(
-    'links a %s instance to its PostgreSQL Instance Summary',
-    (engine) => {
-      const { service, dashboards } = getInstanceLinks(instance({ engine }));
+  it('links a postgres instance to its PostgreSQL Instance Summary', () => {
+    const { service, dashboards } = getInstanceLinks(
+      instance({ engine: 'postgres' })
+    );
 
-      expect(service).toEqual({
-        label: 'db-1',
-        title: 'PostgreSQL Instance Summary for db-1',
-        url: '/graph/d/postgresql-instance-summary/postgresql-instance-summary?var-service_name=db-1',
-      });
-      expect(dashboards.map(({ label }) => label)).toEqual(['OS']);
-    }
-  );
+    expect(service).toEqual({
+      label: 'db-1',
+      title: 'PostgreSQL Instance Summary for db-1',
+      url: '/graph/d/postgresql-instance-summary/postgresql-instance-summary?var-service_name=db-1',
+    });
+    expect(dashboards.map(({ label }) => label)).toEqual(['OS']);
+  });
 
   it('links a node to its Node Summary, falling back to the service name', () => {
     const [os] = getInstanceLinks(
