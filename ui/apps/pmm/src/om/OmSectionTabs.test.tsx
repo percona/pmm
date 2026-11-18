@@ -24,15 +24,18 @@ describe('OmSectionTabs', () => {
     );
   });
 
-  it('marks the current section, also on a page below it', () => {
-    renderAt('/operations/nodes/install');
+  it.each(['/operations/nodes/install', '/operations/Nodes/install'])(
+    'marks the current section, also on a page below it (%s)',
+    (path) => {
+      renderAt(path);
 
-    expect(screen.getByRole('tab', { name: 'Nodes' })).toHaveAttribute(
-      'aria-current',
-      'page'
-    );
-    expect(screen.getByRole('tab', { name: 'Fleet' })).not.toHaveAttribute(
-      'aria-current'
-    );
-  });
+      expect(screen.getByRole('tab', { name: 'Nodes' })).toHaveAttribute(
+        'aria-current',
+        'page'
+      );
+      expect(screen.getByRole('tab', { name: 'Fleet' })).not.toHaveAttribute(
+        'aria-current'
+      );
+    }
+  );
 });

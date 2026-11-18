@@ -41,7 +41,8 @@ const SECTIONS = [
 
 /** Moves between OM's pages, since the sidebar lists OM once; a page below a section keeps its tab current. */
 export const OmSectionTabs: FC = () => {
-  const { pathname } = useLocation();
+  // Lowercased because the router matches routes regardless of case.
+  const pathname = useLocation().pathname.toLowerCase();
   const current =
     [...SECTIONS]
       .reverse()
