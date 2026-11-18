@@ -20,6 +20,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -28,6 +29,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/genproto/googleapis/api/annotations"
@@ -582,6 +584,42 @@ func TestUnauthenticatedCallerOnMCP(t *testing.T) {
 		assert.Nil(t, authenticate(t, s, "/mcp", headers))
 		assert.Nil(t, authenticate(t, s, "/mcp/", headers))
 	})
+}
+
+func TestAuthServerDebugMasksCredentials(t *testing.T) {
+	t.Parallel()
+
+	const (
+		proxyPassword = "pw_SECRET_proxy_31c7"
+		deviceID      = "dev_SECRET_device_8e2f"
+	)
+	headers, secrets := credentialHeaders()
+	secrets = append(secrets, proxyPassword, deviceID)
+	ts := newFakeGrafana(t, "rotated")
+
+	for name, h := range headers {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			s := NewAuthServer(NewClient(strings.TrimPrefix(ts.URL, "http://")), nil)
+			s.accessControl = &accessControl{lastUpdated: time.Now()}
+			logger, hook := test.NewNullLogger()
+			logger.SetLevel(logrus.DebugLevel)
+			s.l = logrus.NewEntry(logger).WithField("component", "grafana/auth")
+
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
+			req.Header.Set("X-Original-Uri", "/mcp")
+			req.Header.Set("X-Original-Method", http.MethodPost)
+			req.Header.Set("Proxy-Authorization", "Basic "+proxyPassword)
+			req.Header.Set("X-Grafana-Device-Id", deviceID)
+			maps.Copy(req.Header, h)
+			rw := httptest.NewRecorder()
+
+			s.ServeHTTP(rw, req)
+			assert.Equal(t, http.StatusOK, rw.Code)
+			assertNoSecretsLogged(t, hook, secrets)
+		})
+	}
 }
 
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
