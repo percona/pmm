@@ -53,6 +53,10 @@ func TestMaskSQLLiterals(t *testing.T) {
 		{"Binary", "flags = 0b1010", true, "flags = ?"},
 		// An apostrophe in a comment must not pair with a real quote.
 		{"LineComment", "note = 'x' -- it's\n AND ssn = 'SECRET'", false, "note = ? --?\n AND ssn = ?"},
+		{"MySQLHashComment", "SELECT * FROM t WHERE id = ? # customer john.doe@example.com\nAND a = 1", true, "SELECT * FROM t WHERE id = ? #?\nAND a = ?"},
+		{"MySQLHashCommentApostrophe", "a = 1 # it's\n AND ssn = 'SECRET'", true, "a = ? #?\n AND ssn = ?"},
+		{"MySQLHashInQuotes", "x = 'a#b' AND `c#d` = e AND f = \"g#h\" AND i = j", true, "x = ? AND `c#d` = e AND f = ? AND i = j"},
+		{"PostgreSQLHashOperator", "a # b = 1 AND c = d", false, "a # b = ? AND c = d"},
 		{"BlockComment", "/* it's */ name = 'John'", true, "/*?*/ name = ?"},
 		{"UnterminatedBlockComment", "x = 1 /* it's", true, "x = ? /*?"},
 		// A backtick means nothing to PostgreSQL; a stray one must not hide

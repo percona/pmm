@@ -62,6 +62,12 @@ const (
 	// Bound of any response of Grafana's alerting APIs read into memory.
 	maxAlertingResponseBytes = 16 << 20
 
+	// Bound of QAN's filter lists read into memory.
+	maxQANFiltersBytes = 4 << 20
+
+	// One mebibyte, the unit in which a read limit is reported.
+	mib = 1 << 20
+
 	// VictoriaMetrics' default -search.maxConcurrentRequests is vmRequestsPerCPU per CPU, at most maxVMDefaultRequests.
 	vmRequestsPerCPU     = 2
 	maxVMDefaultRequests = 16
@@ -76,8 +82,8 @@ const (
 	vectorSampleLen = 2
 )
 
-// errResponseTooLarge is returned when a datasource-proxy response is longer than maxVMResponseBytes.
-var errResponseTooLarge = errors.New("response from the metrics datasource is larger than the 4 MiB limit")
+// errResponseTooLarge is wrapped in the error of a response longer than the bound its call reads.
+var errResponseTooLarge = errors.New("response is larger than the read limit")
 
 // promRequest holds the arguments of a VictoriaMetrics query; zero ones are not sent.
 type promRequest struct {
@@ -341,7 +347,7 @@ func (c *client) QANServiceTypes(ctx context.Context, auth callerAuth, from, to 
 		PeriodStartTo:   strfmt.DateTime(to),
 		Labels:          []*qan_service.GetFilteredMetricsNamesParamsBodyLabelsItems0{},
 	}
-	err := c.postJSON(ctx, auth, "v1/qan/metrics:getFilters", body, &out)
+	err := c.postJSONLimited(ctx, auth, "v1/qan/metrics:getFilters", body, &out, maxQANFiltersBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -668,18 +674,23 @@ func (c *client) getAlertingJSON(ctx context.Context, auth callerAuth, path stri
 
 // postJSON performs an authenticated POST with a JSON body and decodes the response.
 func (c *client) postJSON(ctx context.Context, auth callerAuth, path string, body, out any) error {
+	return c.postJSONLimited(ctx, auth, path, body, out, 0)
+}
+
+// postJSONLimited is postJSON that reads at most maxBytes of the response, as doJSONLimited does.
+func (c *client) postJSONLimited(ctx context.Context, auth callerAuth, path string, body, out any, maxBytes int64) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return fmt.Errorf("encoding request for POST %s: %w", path, err)
 	}
-	return c.doJSON(ctx, auth, http.MethodPost, path, nil, b, out)
+	return c.doJSONLimited(ctx, auth, http.MethodPost, path, nil, b, out, maxBytes)
 }
 
 func (c *client) doJSON(ctx context.Context, auth callerAuth, method, path string, query url.Values, body []byte, out any) error {
 	return c.doJSONLimited(ctx, auth, method, path, query, body, out, 0)
 }
 
-// doJSONLimited is doJSON that fails with errResponseTooLarge when the response is longer than
+// doJSONLimited is doJSON that fails with an error wrapping errResponseTooLarge when the response is longer than
 // maxBytes; zero means no limit.
 func (c *client) doJSONLimited(ctx context.Context, auth callerAuth, method, path string, query url.Values, body []byte, out any, maxBytes int64) error {
 	ctx, cancel := context.WithTimeout(ctx, callTimeout)
@@ -717,7 +728,7 @@ func (c *client) doJSONLimited(ctx context.Context, auth callerAuth, method, pat
 			return fmt.Errorf("reading response of %s %s: %w", method, path, err)
 		}
 		if int64(len(b)) > maxBytes {
-			return errResponseTooLarge
+			return fmt.Errorf("%s /%s: %w of %d MiB", method, path, errResponseTooLarge, maxBytes/mib)
 		}
 		src = bytes.NewReader(b)
 	}

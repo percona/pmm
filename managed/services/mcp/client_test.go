@@ -271,6 +271,33 @@ func TestAlertingResponseBounded(t *testing.T) {
 	}
 }
 
+func TestQANServiceTypesBounded(t *testing.T) {
+	t.Parallel()
+
+	c, err := newClient("http://pmm.test/")
+	require.NoError(t, err)
+
+	var read atomic.Int64
+	var body io.Reader
+	c.http = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		assert.Equal(t, "/v1/qan/metrics:getFilters", r.URL.Path)
+		return &http.Response{StatusCode: http.StatusOK, Header: http.Header{}, Body: countingBody{r: body, n: &read}}, nil
+	})}
+
+	body = io.MultiReader(strings.NewReader(`{"labels":{"service_type":{"name":[`), bytes.NewReader(bytes.Repeat([]byte(" "), 5<<20)))
+	_, err = c.QANServiceTypes(t.Context(), testAuth, time.Time{}, time.Time{})
+	require.ErrorIs(t, err, errResponseTooLarge)
+	assert.LessOrEqual(t, read.Load(), int64(maxQANFiltersBytes+1))
+	te := mapError(err)
+	assert.Equal(t, codePMMUnavailable, te.code)
+	assert.Equal(t, "POST /v1/qan/metrics:getFilters: response is larger than the read limit of 4 MiB", te.message)
+
+	body = strings.NewReader(`{"labels":{"service_type":{"name":[{"value":"mysql"},{"value":"postgresql"}]}}}`)
+	types, err := c.QANServiceTypes(t.Context(), testAuth, time.Time{}, time.Time{})
+	require.NoError(t, err)
+	assert.Equal(t, []string{"mysql", "postgresql"}, types)
+}
+
 func TestVMResponseBounded(t *testing.T) {
 	t.Parallel()
 

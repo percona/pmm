@@ -65,7 +65,7 @@ func parseTime(expr string, now time.Time) (time.Time, error) {
 	parsed, err := time.Parse(time.RFC3339, t)
 	if err != nil {
 		return time.Time{}, newToolError(codeInvalidInput,
-			"invalid time '%s': use RFC3339 (2026-09-14T10:00:00Z) or a relative expression such as now-1h", expr)
+			"invalid time '%s': use RFC3339 (2026-09-14T10:00:00Z) or a relative expression such as now-1h", echo(expr))
 	}
 	if parsed.Before(now.Add(-maxLookback)) || parsed.After(now.Add(maxLookahead)) {
 		return time.Time{}, outOfRange(expr)
@@ -75,25 +75,27 @@ func parseTime(expr string, now time.Time) (time.Time, error) {
 
 func outOfRange(expr string) *toolError {
 	return newToolError(codeInvalidInput, "time '%s' is out of range; the maximum lookback is %d years, and times may be at most %dh ahead",
-		expr, maxLookbackYears, int(maxLookahead/time.Hour))
+		echo(expr), maxLookbackYears, int(maxLookahead/time.Hour))
 }
 
-// parseWindow resolves a period_from / period_to pair, with defaults now-1h / now, to UTC times in whole seconds, as results show them.
+// parseWindow resolves a period_from / period_to pair to UTC times in whole seconds, as results show them:
+// period_to defaults to now, and period_from to one hour before period_to.
 func parseWindow(from, to string, now time.Time) (time.Time, time.Time, error) {
+	end, err := parseTime(to, now)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	end = end.UTC().Truncate(time.Second)
 	if from == "" {
-		from = "now-1h"
+		return end.Add(-hourWindow), end, nil
 	}
 	start, err := parseTime(from, now)
 	if err != nil {
 		return time.Time{}, time.Time{}, err
 	}
-	end, err := parseTime(to, now)
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-	start, end = start.UTC().Truncate(time.Second), end.UTC().Truncate(time.Second)
+	start = start.UTC().Truncate(time.Second)
 	if !end.After(start) {
-		return time.Time{}, time.Time{}, newToolError(codeInvalidInput, "period_to (%s) must be after period_from (%s)", to, from)
+		return time.Time{}, time.Time{}, newToolError(codeInvalidInput, "period_to (%s) must be after period_from (%s)", echo(to), echo(from))
 	}
 	return start, end, nil
 }

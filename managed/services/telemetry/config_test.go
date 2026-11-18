@@ -213,6 +213,50 @@ func TestDefaultConfigReportsKubernetesDeployment(t *testing.T) {
 	})
 }
 
+func TestDefaultConfigReportsMCP(t *testing.T) {
+	t.Parallel()
+
+	logger, _ := test.NewNullLogger()
+	cfg := ServiceConfig{l: logger.WithField("test", t.Name())}
+	telemetry, err := cfg.loadMetricsConfig("")
+	require.NoError(t, err)
+
+	byID := make(map[string]Config, len(telemetry))
+	for _, each := range telemetry {
+		byID[each.ID] = each
+	}
+
+	calls, ok := byID["MCPToolCalls"]
+	require.True(t, ok, "MCPToolCalls datapoint is missing")
+	assert.Equal(t, string(dsVM), calls.Source)
+	assert.Equal(t, "sum by (tool, code) (increase(pmm_managed_mcp_tool_calls_total[24h]))", calls.Query)
+	require.NotNil(t, calls.Transform)
+	assert.Equal(t, JSONTransform, calls.Transform.Type)
+	assert.Equal(t, "mcp_tool_calls_24h", calls.Transform.Metric)
+	assert.Equal(t, []ConfigData{{MetricName: "1", Label: "tool"}, {MetricName: "2", Label: "code"}, {MetricName: "3", Value: "1"}}, calls.Data)
+
+	// The VM datasource's metrics for two series, as the report carries them.
+	metrics, err := transformToJSON(&calls, []*telemetryv1.GenericReport_Metric{
+		{Key: "1", Value: "pmm_top_queries"},
+		{Key: "2", Value: "ok"},
+		{Key: "3", Value: "12"},
+		{Key: "1", Value: "pmm_get_explain"},
+		{Key: "2", Value: "timeout"},
+		{Key: "3", Value: "1"},
+	})
+	require.NoError(t, err)
+	assert.Equal(t, []*telemetryv1.GenericReport_Metric{{
+		Key:   "mcp_tool_calls_24h",
+		Value: `{"v":[{"1":"pmm_top_queries","2":"ok","3":"12"},{"1":"pmm_get_explain","2":"timeout","3":"1"}]}`,
+	}}, metrics)
+
+	enabled, ok := byID["PMMServerMCPEnabled"]
+	require.True(t, ok, "PMMServerMCPEnabled datapoint is missing")
+	assert.Equal(t, string(dsPMMDBSelect), enabled.Source)
+	assert.Equal(t, "(CASE WHEN settings->'mcp'->>'enabled' = 'true' THEN '1' ELSE '0' END) AS mcp_enabled FROM settings", enabled.Query)
+	assert.Equal(t, []ConfigData{{MetricName: "pmm_server_mcp_enabled", Column: "mcp_enabled"}}, enabled.Data)
+}
+
 // Not parallel: testdb.Open recreates the database TestRunTelemetryService also uses.
 func TestDefaultConfigReportsMongoOpsEnabled(t *testing.T) {
 	logger, _ := test.NewNullLogger()

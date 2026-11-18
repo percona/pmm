@@ -16,9 +16,12 @@
 package mcp
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -82,4 +85,91 @@ func TestDisabled(t *testing.T) {
 	defer resp.Body.Close()
 
 	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+}
+
+// postMCP sends body to the MCP handler at srv as protocol version 2025-03-26, the last one with JSON-RPC batches,
+// and returns the status and the body of the answer.
+func postMCP(t *testing.T, srv *httptest.Server, body string) (int, string) {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, srv.URL+"/mcp", strings.NewReader(body))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json, text/event-stream")
+	req.Header.Set("Mcp-Protocol-Version", "2025-03-26")
+	req.Header.Set("Authorization", testToken)
+
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+	b, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	return resp.StatusCode, string(b)
+}
+
+func TestBatchRefused(t *testing.T) {
+	t.Parallel()
+
+	fake := newFakePMM(t, map[string]fixture{"GET /v1/server/version": {file: "version.json"}})
+	srv := httptest.NewServer(newTestService(t, fake).Handler())
+	t.Cleanup(srv.Close)
+
+	call := func(id int) string {
+		return fmt.Sprintf(`{"jsonrpc":"2.0","id":%d,"method":"tools/call","params":{"name":"pmm_version","arguments":{}}}`, id)
+	}
+
+	status, body := postMCP(t, srv, " \r\n\t["+call(1)+","+call(2)+"]")
+	assert.Equal(t, http.StatusBadRequest, status)
+	assert.Equal(t, "JSON-RPC batches are not supported\n", body)
+	assert.Zero(t, fake.requestCount(), "no tool of a batch may run")
+
+	status, body = postMCP(t, srv, call(3))
+	assert.Equal(t, http.StatusOK, status)
+	assert.Contains(t, body, "PMM Server 3.8.1")
+	assert.Len(t, fake.requestsTo("/v1/server/version"), 1)
+
+	status, _ = postMCP(t, srv, `{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"pmm_version","arguments":{"pad":"`+
+		strings.Repeat("x", maxRequestBodyBytes)+`"}}}`)
+	assert.Equal(t, http.StatusRequestEntityTooLarge, status)
+	assert.Len(t, fake.requestsTo("/v1/server/version"), 1)
+}
+
+func TestBatchOriginCheckedFirst(t *testing.T) {
+	t.Parallel()
+
+	fake := newFakePMM(t, map[string]fixture{"GET /v1/server/version": {file: "version.json"}})
+	s := newTestService(t, fake)
+	call := `{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pmm_version","arguments":{}}}`
+
+	for _, tc := range []struct {
+		name     string
+		headers  map[string]string
+		want     int
+		wantRead bool
+	}{
+		{"CrossSite", map[string]string{"Sec-Fetch-Site": "cross-site", "Origin": "https://evil.example"}, http.StatusForbidden, false},
+		{"SameOrigin", map[string]string{"Sec-Fetch-Site": "same-origin"}, http.StatusBadRequest, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			var read atomic.Int64
+			body := countingBody{r: strings.NewReader("[" + call + "]"), n: &read}
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/mcp", body)
+			req.RemoteAddr = "127.0.0.1:40000"
+			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Accept", "application/json, text/event-stream")
+			req.Header.Set("Mcp-Protocol-Version", "2025-03-26")
+			req.Header.Set("Authorization", testToken)
+			for k, v := range tc.headers {
+				req.Header.Set(k, v)
+			}
+			rec := httptest.NewRecorder()
+
+			s.Handler().ServeHTTP(rec, req)
+			assert.Equal(t, tc.want, rec.Code)
+			assert.Equal(t, tc.wantRead, read.Load() > 0, "body read")
+			assert.Zero(t, fake.requestCount(), "no tool of a batch may run")
+		})
+	}
 }

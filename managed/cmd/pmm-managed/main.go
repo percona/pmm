@@ -1272,6 +1272,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		RawSQL:        func() bool { return mcpSettings().IsMCPRawSQLEnabled() },
 		ActionTimeout: func() time.Duration { return mcpSettings().MCPActionTimeout() },
 		PublicAddress: func(context.Context) string { return mcpSettings().PMMPublicAddress },
+		Registerer:    prom.DefaultRegisterer,
 	})
 	if err != nil {
 		l.Fatalf("Failed to create MCP service: %+v.", err)

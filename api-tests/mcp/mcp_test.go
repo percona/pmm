@@ -330,23 +330,48 @@ func TestExplainMySQLRunsLive(t *testing.T) {
 	// MySQL has no stored plans, so the tool runs the live mysql_explain_json
 	// action without looking for one. pmm-agent explains DML only, so take the
 	// busiest DML row: the top row by load can be another statement.
-	serviceID, serviceName, _ := topQueryID(t, session, "mysql")
-	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"service_name": serviceName, "period_from": "now-12h", "limit": 100})
-	require.False(t, isError, text)
-	m := regexp.MustCompile(`(?m)^\d+\. \[([0-9A-Za-z]+)\].*\n {3}(?i:SELECT|INSERT|UPDATE|DELETE|REPLACE)\b`).FindStringSubmatch(text)
-	if m == nil {
+	_, serviceName, _ := topQueryID(t, session, "mysql")
+	var top struct {
+		Rows []struct {
+			Fingerprint string         `json:"fingerprint"`
+			QueryRef    map[string]any `json:"query_ref"`
+		} `json:"rows"`
+	}
+	callResult(t, session, "pmm_top_queries", map[string]any{"service_name": serviceName, "period_from": "now-12h", "limit": 100}, &top)
+	dml := regexp.MustCompile(`^(?i:SELECT|INSERT|UPDATE|DELETE|REPLACE)\b`)
+	var ref map[string]any
+	for _, row := range top.Rows {
+		if row.QueryRef != nil && dml.MatchString(row.Fingerprint) {
+			ref = row.QueryRef
+			break
+		}
+	}
+	if ref == nil {
 		t.Skipf("no DML query in QAN for %s yet", serviceName)
 	}
-	queryID := m[1]
 
-	text, isError = callText(t, session, "pmm_get_explain", map[string]any{"service_id": serviceID, "queryid": queryID})
+	// The query_ref carries the 12-hour window the query was found in.
+	text, isError := callText(t, session, "pmm_get_explain", map[string]any{"query_ref": ref})
 	assert.NotContains(t, text, "Stored plan")
 	if isError {
 		// Without a stored example the fingerprint's placeholders make MySQL
 		// answer 1064, which is mapped to invalid_input with remediation text.
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input") || strings.HasPrefix(text, "error: no_query_source"), text)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input"), text)
 	} else {
 		assert.Contains(t, text, "EXPLAIN (json, mysql")
+	}
+}
+
+// TestLiveInspectionWindowCap checks that a query lookup over a window longer than 30 days is refused before any backend call.
+func TestLiveInspectionWindowCap(t *testing.T) {
+	t.Parallel()
+
+	session := connect(t)
+	for _, tool := range []string{"pmm_get_explain", "pmm_get_schema"} {
+		text, isError := callText(t, session, tool, map[string]any{"queryid": "0123456789ABCDEF", "period_from": "now-365d"})
+		assert.True(t, isError, tool)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Contains(t, text, "30 days", tool)
 	}
 }
 
@@ -618,23 +643,27 @@ func TestQueryMetricsBudget(t *testing.T) {
 	_, serviceName := monitoredService(t, "mysql")
 	session := connect(t)
 
-	// 3 minutes at the default 1 s step give every series many points on a new server and stay well under the 4 MiB read on an old one.
+	// The raw series of one MySQL service over 6 hours: at the default step the answer would be far over the 4 MiB read cap,
+	// so the server raises the step until it fits.
 	query := `{__name__=~"mysql_global_status_.*", service_name="` + serviceName + `"}`
-	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-3m"})
+	res, text := callTool(t, session, "pmm_query_metrics", map[string]any{"query": query, "period_from": "now-6h"})
 	require.False(t, res.IsError, text)
 
 	structured, err := json.Marshal(res.StructuredContent)
 	require.NoError(t, err)
 	var out struct {
-		Summarized  bool `json:"summarized"`
-		TotalSeries int  `json:"total_series"`
+		Step        string `json:"step"`
+		Summarized  bool   `json:"summarized"`
+		TotalSeries int    `json:"total_series"`
+		Note        string `json:"note"`
 	}
 	require.NoError(t, json.Unmarshal(structured, &out))
 
 	if out.TotalSeries == 0 {
 		t.Skipf("no mysql_global_status_ series for %s yet", serviceName)
 	}
-	assert.True(t, out.Summarized, "3 minutes of many series at a 1 s step must come back as summaries")
+	t.Logf("%d series at step %s; note: %s", out.TotalSeries, out.Step, out.Note)
+	assert.True(t, out.Summarized, "6 hours of many series must come back as summaries")
 	assert.Greater(t, out.TotalSeries, 1)
 	assert.LessOrEqual(t, len(text)+len(structured), maxMetricsBytes)
 }

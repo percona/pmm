@@ -99,14 +99,14 @@ func (s *Service) registerCatalogTools(server *mcp.Server) {
 
 func (s *Service) catalog(_ context.Context, _ *mcp.CallToolRequest, in catalogInput) (catalogResult, error) {
 	if !slices.Contains(catalogKinds, in.Kind) {
-		return catalogResult{}, newToolError(codeInvalidInput, "kind must be one of %s; got '%s'", strings.Join(catalogKinds, ", "), in.Kind)
+		return catalogResult{}, newToolError(codeInvalidInput, "kind must be one of %s; got '%s'", strings.Join(catalogKinds, ", "), echo(in.Kind))
 	}
 	engines := []string{engineMySQL, enginePostgreSQL, engineMongoDB}
 	if in.Kind == catalogKindMetrics {
 		engines = metricsEngines
 	}
 	if in.Engine != "" && !slices.Contains(engines, in.Engine) {
-		return catalogResult{}, newToolError(codeInvalidInput, "engine must be one of %s; got '%s'", strings.Join(engines, ", "), in.Engine)
+		return catalogResult{}, newToolError(codeInvalidInput, "engine must be one of %s; got '%s'", strings.Join(engines, ", "), echo(in.Engine))
 	}
 
 	if in.Kind == catalogKindMetrics {

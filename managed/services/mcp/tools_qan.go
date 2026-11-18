@@ -42,6 +42,8 @@ const (
 	maxColumns = 10
 	// Longest search text, in characters.
 	maxSearchLen = 200
+	// Report rows a search with raw SQL off reads from QAN, at most; qan-api2 runs one sparkline query per row.
+	maxSearchCandidates = 200
 )
 
 // ordering is the QAN sort key and main metric for one order_by value; qan-api2
@@ -72,7 +74,7 @@ var baseColumns = []string{"load", "num_queries", "query_time"}
 type topQueriesInput struct {
 	ServiceName string              `json:"service_name,omitempty" jsonschema:"Filter by service name (from pmm_inventory)"`
 	ServiceID   string              `json:"service_id,omitempty" jsonschema:"Filter by service id (from pmm_inventory)"`
-	PeriodFrom  string              `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h)"`
+	PeriodFrom  string              `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default 1 h before period_to)"`
 	PeriodTo    string              `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now)"`
 	GroupBy     string              `json:"group_by,omitempty" jsonschema:"Row dimension, default queryid; the tool description lists the others"`
 	Labels      map[string][]string `json:"labels,omitempty" jsonschema:"Filters: a label or dimension name mapped to the values to keep, such as username: [app]"`
@@ -80,25 +82,26 @@ type topQueriesInput struct {
 	OrderBy     string              `json:"order_by,omitempty" jsonschema:"load (default), total_query_time, avg_query_time, count or [-]column from pmm_catalog"`
 	Offset      int                 `json:"offset,omitempty" jsonschema:"Rows to skip, for paging (default 0)"`
 	Limit       int                 `json:"limit,omitempty" jsonschema:"Number of rows, 1-100 (default 10)"`
-	Search      string              `json:"search,omitempty" jsonschema:"Keep rows whose queryid, fingerprint or group_by value contains this text; 200 characters max"`
+	Search      string              `json:"search,omitempty" jsonschema:"Rows whose queryid, fingerprint or group_by value has this literal text; 200 characters max"`
 }
 
 type queryDetailInput struct {
 	QueryRef   *queryRefInput `json:"query_ref,omitempty" jsonschema:"The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid"`
 	QueryID    string         `json:"queryid,omitempty" jsonschema:"Query id from pmm_top_queries, instead of query_ref"`
 	ServiceID  string         `json:"service_id,omitempty" jsonschema:"Restrict to one service id; with queryid"`
-	PeriodFrom string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid"`
+	PeriodFrom string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid"`
 	PeriodTo   string         `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now); with queryid"`
 }
 
 // topQueriesResult is the result of pmm_top_queries.
 type topQueriesResult struct {
 	Rows    []queryRow `json:"rows" jsonschema:"Report rows on this page, in rank order."`
-	Page    page       `json:"page" jsonschema:"Paging of the report, which QAN pages."`
+	Page    page       `json:"page" jsonschema:"Paging of the report, which QAN pages; with raw SQL off, this tool pages a search's rows."`
 	GroupBy string     `json:"group_by" jsonschema:"Dimension the rows are grouped by."`
 	OrderBy string     `json:"order_by" jsonschema:"Ranking, as the request gave it."`
 	Window  window     `json:"window" jsonschema:"Time window of the report."`
 	PMMURL  string     `json:"pmm_url" jsonschema:"Link to this workload in PMM Query Analytics."`
+	Note    string     `json:"note,omitempty" jsonschema:"Set when a search read only the first rows of the report."`
 }
 
 // queryRow is one row of a pmm_top_queries report.
@@ -130,7 +133,11 @@ func (r topQueriesResult) render() string {
 		if r.Page.Offset > 0 {
 			header = r.Page.pastEnd("report")
 		}
-		return header + "\n" + windowLine(r.Window) + "\n\n" + workload
+		text := header + "\n" + windowLine(r.Window) + "\n\n" + workload
+		if r.Note != "" {
+			text += "\n" + r.Note
+		}
+		return text
 	}
 	lines := make([]string, 0, len(r.Rows))
 	for _, row := range r.Rows {
@@ -141,6 +148,9 @@ func (r topQueriesResult) render() string {
 	text += "\n\n" + workload
 	if m := r.Page.marker(); m != "" {
 		text += "\n" + m
+	}
+	if r.Note != "" {
+		text += "\n" + r.Note
 	}
 	return text
 }
@@ -221,11 +231,18 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	}
 	defer release()
 
-	report, err := s.api.GetReport(ctx, auth, q.body)
+	raw := s.rawSQL()
+	// With raw SQL off, QAN's search also reads text that the caller sees masked or withheld, so this tool matches
+	// the search against the rows as shown, and pages them itself.
+	visibleSearch := !raw && q.groupBy == groupByQuery && strings.TrimSpace(in.Search) != ""
+	body := q.body
+	if visibleSearch {
+		body.Offset, body.Limit = 0, maxSearchCandidates
+	}
+	report, err := s.api.GetReport(ctx, auth, body)
 	if err != nil {
 		return topQueriesResult{}, err
 	}
-	raw := s.rawSQL()
 	// The engine and the query_ref lookups share one read of the service list, made when the first of them needs it.
 	services := sync.OnceValues(func() ([]serviceInfo, error) {
 		return s.listServices(ctx, auth, window{From: from, To: to})
@@ -245,6 +262,20 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		}
 		rows = append(rows, q.row(row, q.offset+len(rows)+1, rowEngine(row.Dimension), raw))
 	}
+	total := int(report.TotalRows)
+	var note string
+	if visibleSearch {
+		if len(rows) >= maxSearchCandidates {
+			note = fmt.Sprintf("The search read the first %d rows of the report in order_by order; "+
+				"narrow the window or the filters to search the rest.", maxSearchCandidates)
+		}
+		rows = slices.DeleteFunc(rows, func(r queryRow) bool { return !showsSearch(r, in.Search) })
+		total = len(rows)
+		rows = rows[min(q.offset, total):min(q.offset+int(q.body.Limit), total)]
+		for i := range rows {
+			rows[i].Rank = q.offset + i + 1
+		}
+	}
 	if q.groupBy == groupByQuery && len(rows) > 0 {
 		serviceID := s.pinnedServiceID(q.labels, services)
 		for i := range rows {
@@ -254,7 +285,6 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		}
 	}
 
-	total := int(report.TotalRows)
 	return topQueriesResult{
 		Rows:    rows,
 		Page:    page{Total: total, Offset: q.offset, Limit: int(q.body.Limit), Truncated: q.offset+len(rows) < total},
@@ -262,11 +292,25 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		OrderBy: q.orderBy,
 		Window:  window{From: from, To: to},
 		PMMURL:  qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), in.ServiceName, from, to),
+		Note:    note,
 	}, nil
 }
 
+// searchSpace matches the runs of whitespace that qan-api2 reads as one space in a search and a fingerprint.
+var searchSpace = regexp.MustCompile(`\s+`)
+
+// showsSearch reports whether a queryid row shows the search text, as qan-api2 matches it: ignoring case and
+// reading runs of whitespace as one space, in the queryid or in the fingerprint as shown; a withheld one never matches.
+func showsSearch(row queryRow, search string) bool {
+	needle := strings.ToLower(searchSpace.ReplaceAllString(strings.TrimSpace(search), " "))
+	if strings.Contains(strings.ToLower(row.Dimension), needle) {
+		return true
+	}
+	return row.Fingerprint != withheldFingerprint && strings.Contains(searchSpace.ReplaceAllString(strings.ToLower(row.Fingerprint), " "), needle)
+}
+
 // pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one
-// service_name found in the caller's service list, and "" when they pin none or that lookup fails.
+// service_name that names one service of the caller's service list, and "" when they pin none or that lookup fails.
 func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([]serviceInfo, error)) string {
 	if ids := labels["service_id"]; len(ids) == 1 {
 		return ids[0]
@@ -280,11 +324,11 @@ func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([
 		s.l.WithField("tool", "pmm_top_queries").Debugf("Cannot list services, query_ref will have no service_id: %s.", err)
 		return ""
 	}
-	svc, ok := serviceNamed(list, names[0])
-	if !ok {
+	named := servicesNamed(list, names[0])
+	if len(named) != 1 {
 		return ""
 	}
-	return svc.ServiceID
+	return named[0].ServiceID
 }
 
 // reportQuery is a validated pmm_top_queries request.
@@ -303,7 +347,7 @@ type reportQuery struct {
 func newReportQuery(in topQueriesInput, from, to time.Time) (*reportQuery, error) {
 	q := &reportQuery{groupBy: cmp.Or(in.GroupBy, groupByQuery), orderBy: cmp.Or(in.OrderBy, "load"), offset: in.Offset}
 	if !slices.Contains(groupByDimensions, q.groupBy) {
-		return nil, newToolError(codeInvalidInput, "group_by must be one of %s; got '%s'", strings.Join(groupByDimensions, ", "), q.groupBy)
+		return nil, newToolError(codeInvalidInput, "group_by must be one of %s; got '%s'", strings.Join(groupByDimensions, ", "), echo(q.groupBy))
 	}
 	limit := cmp.Or(in.Limit, defaultLimit)
 	err := checkPage(in.Offset, limit, maxLimit)
@@ -344,9 +388,14 @@ func newReportQuery(in topQueriesInput, from, to time.Time) (*reportQuery, error
 		Columns:         append(slices.Clone(baseColumns), columns...),
 		MainMetric:      mainMetric,
 		Labels:          labels,
-		Search:          in.Search,
+		Search:          escapeLike(in.Search),
 	}
 	return q, nil
+}
+
+// escapeLike escapes the backslash, % and _ of a search, which qan-api2 passes to ClickHouse's LIKE, so that each matches itself.
+func escapeLike(s string) string {
+	return strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(s)
 }
 
 // checkColumns validates the requested columns against the catalogue and drops repeats.
@@ -357,7 +406,7 @@ func checkColumns(columns []string) ([]string, error) {
 	out := make([]string, 0, len(columns))
 	for _, c := range columns {
 		if _, ok := qanColumnByName(c); !ok {
-			return nil, newToolError(codeInvalidInput, "unknown column '%s'; pmm_catalog with kind qan_columns lists the valid names", c)
+			return nil, newToolError(codeInvalidInput, "unknown column '%s'; pmm_catalog with kind qan_columns lists the valid names", echo(c))
 		}
 		if !slices.Contains(out, c) {
 			out = append(out, c)
@@ -375,7 +424,7 @@ func parseOrderBy(orderBy string) (string, string, string, error) {
 	name := strings.TrimPrefix(orderBy, "-")
 	if _, ok := qanColumnByName(name); !ok {
 		return "", "", "", newToolError(codeInvalidInput,
-			"order_by must be load, total_query_time, avg_query_time, count, or a column from pmm_catalog with an optional - prefix; got '%s'", orderBy)
+			"order_by must be load, total_query_time, avg_query_time, count, or a column from pmm_catalog with an optional - prefix; got '%s'", echo(orderBy))
 	}
 	return orderBy, name, name, nil
 }
@@ -398,13 +447,13 @@ func reportLabels(in topQueriesInput) (map[string][]string, error) {
 	}
 	for key, values := range labels {
 		if !labelKey.MatchString(key) {
-			return nil, newToolError(codeInvalidInput, "label name '%s' must match %s", key, labelKey)
+			return nil, newToolError(codeInvalidInput, "label name '%s' must match %s", echo(key), labelKey)
 		}
 		if len(values) == 0 {
-			return nil, newToolError(codeInvalidInput, "labels.%s needs at least one value", key)
+			return nil, newToolError(codeInvalidInput, "labels.%s needs at least one value", echo(key))
 		}
 		for _, v := range values {
-			err := checkQANValue("labels."+key, v)
+			err := checkQANValue("labels."+echo(key), v)
 			if err != nil {
 				return nil, err
 			}
@@ -472,7 +521,7 @@ type queryDetailResult struct {
 	Fingerprint  string             `json:"fingerprint,omitempty" jsonschema:"Untrusted. Normalized statement, masked or withheld when raw SQL is off."`
 	Tables       []string           `json:"tables,omitempty" jsonschema:"Untrusted. Tables the stored example reads."`
 	Metrics      map[string]float64 `json:"metrics,omitempty" jsonschema:"Key diagnostic metrics by the names the text prints; zero counters are left out."`
-	Example      string             `json:"example,omitempty" jsonschema:"Untrusted. Example statement, raw with raw SQL on, else normalized; left out when withheld."`
+	Example      string             `json:"example,omitempty" jsonschema:"Untrusted. Example: raw with raw SQL on, else normalized and masked; left out when withheld."`
 	QueryRef     queryRef           `json:"query_ref" jsonschema:"Identifies the query and the window it was read in."`
 	Window       window             `json:"window" jsonschema:"Time window of the data."`
 	PMMURL       string             `json:"pmm_url" jsonschema:"Link to this query in PMM Query Analytics."`
@@ -568,7 +617,7 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 	defer release()
 
-	_, serviceIDs, err := s.callerServices(ctx, auth, in.ServiceID, window{From: from, To: to})
+	services, serviceIDs, err := s.callerServices(ctx, auth, in.ServiceID, window{From: from, To: to})
 	if err != nil {
 		return queryDetailResult{}, err
 	}
@@ -586,8 +635,13 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 		return queryDetailResult{}, newToolError(codeNotFound,
 			"no data for this query in %s; widen period_from or check the id with pmm_top_queries", windowText(window{From: from, To: to}))
 	}
-	if d.engine != "" {
-		d.version = s.serviceVersion(ctx, auth, d.engine, d.serviceName)
+	// qan-api2 joins the names of several services, so only a name of one asked service filters the link and reads the version.
+	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(serviceIDs, svc.ServiceID) })
+	if named := servicesNamed(asked, d.serviceName); len(named) == 1 {
+		d.linkService = named[0].ServiceName
+		if d.engine != "" {
+			d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID)
+		}
 	}
 
 	return d.result(s.rawSQL(), s.publicBaseURL(ctx, req.Extra.Header), from, to), nil
@@ -602,6 +656,8 @@ type queryDetail struct {
 	// serviceID is the request's service_id, else the stored example's.
 	serviceID   string
 	serviceName string
+	// linkService is the service name the link filters by, empty when the detail is not of one service.
+	linkService string
 	database    string
 	schema      string
 	fingerprint string
@@ -686,7 +742,7 @@ func (d *queryDetail) result(rawSQL bool, base string, from, to time.Time) query
 		Tables:      d.tables,
 		QueryRef:    queryRef{QueryID: d.queryID, ServiceID: d.serviceID, PeriodFrom: from, PeriodTo: to},
 		Window:      window{From: from, To: to},
-		PMMURL:      qanQueryURL(base, d.queryID, d.serviceName, from, to, ""),
+		PMMURL:      qanQueryURL(base, d.queryID, d.linkService, from, to, ""),
 		rawSQL:      rawSQL,
 	}
 	if d.fingerprint != "" {
@@ -700,14 +756,16 @@ func (d *queryDetail) result(rawSQL bool, base string, from, to time.Time) query
 		}
 	}
 
-	// With raw SQL off, show the agent's explain_fingerprint (never qan:explainFingerprint,
-	// which returns the raw example) unmasked if unquoted, keeping its :1 placeholders.
-	if d.example != nil {
-		switch {
-		case rawSQL:
-			r.Example = d.example.Example
-		case fingerprintText(d.example.ExplainFingerprint, d.engine, false) != withheldFingerprint:
-			r.Example = d.example.ExplainFingerprint
+	// With raw SQL off, show the agent's explain_fingerprint (never qan:explainFingerprint, which returns the raw
+	// example), masked like a fingerprint, and nothing when it is withheld.
+	switch {
+	case d.example == nil:
+	case rawSQL:
+		r.Example = d.example.Example
+	default:
+		r.Example = fingerprintText(d.example.ExplainFingerprint, d.engine, false)
+		if r.Example == withheldFingerprint {
+			r.Example = ""
 		}
 	}
 
@@ -737,8 +795,8 @@ func checkQANValue(input, value string) error {
 // withheldFingerprint replaces a SQL fingerprint that still holds a literal.
 const withheldFingerprint = "(fingerprint withheld: PMM stored this statement unnormalized, and PMM_MCP_RAW_SQL is off)"
 
-// fingerprintText masks a fingerprint unless raw SQL is on: a SQL one with a quoted
-// string under its engine's quoting (either, if unknown) is a raw statement and is withheld.
+// fingerprintText masks a fingerprint unless raw SQL is on, under its engine's quoting or, if unknown, under both:
+// a SQL one with a quoted string is a raw statement and is withheld.
 func fingerprintText(fingerprint, engine string, raw bool) string {
 	if raw {
 		return fingerprint
@@ -748,13 +806,32 @@ func fingerprintText(fingerprint, engine string, raw bool) string {
 	}
 	masked, quoted := maskSQL(fingerprint, engine == engineMySQL)
 	if engine != engineMySQL && engine != enginePostgreSQL {
-		_, mysqlQuoted := maskSQL(fingerprint, true)
-		quoted = quoted || mysqlQuoted
+		masked, quoted = maskEitherQuoting(fingerprint)
 	}
 	if quoted {
 		return withheldFingerprint
 	}
 	return masked
+}
+
+// maskEitherQuoting is maskSQL for a text of unknown engine: a byte is masked when MySQL's or PostgreSQL's quoting
+// masks it, and the text is quoted when either finds a quoted string in it.
+func maskEitherQuoting(s string) (string, bool) {
+	marks := sqlMarks(s, true)
+	for i, m := range sqlMarks(s, false) {
+		marks[i] = max(marks[i], m)
+	}
+	var b strings.Builder
+	b.Grow(len(s))
+	for i := range len(s) {
+		switch {
+		case marks[i] == plainMark:
+			b.WriteByte(s[i])
+		case i == 0 || marks[i-1] == plainMark:
+			b.WriteByte('?')
+		}
+	}
+	return b.String(), slices.Contains(marks, stringMark)
 }
 
 // quotingMatters reports whether a SQL fingerprint reads differently under MySQL
@@ -854,7 +931,7 @@ func (s *Service) rowEngines(ctx context.Context, auth callerAuth, body qan_serv
 }
 
 // serviceEngine returns the engine of the service a report is filtered to, by
-// name or else by id, or "" when it is not found.
+// name or else by id, or "" when it is not found or the services of the name differ in engine.
 func serviceEngine(name, id string, services func() ([]serviceInfo, error)) string {
 	if name == "" && id == "" {
 		return ""
@@ -864,8 +941,11 @@ func serviceEngine(name, id string, services func() ([]serviceInfo, error)) stri
 		return ""
 	}
 	if name != "" {
-		svc, _ := serviceNamed(list, name)
-		return svc.Engine
+		named := servicesNamed(list, name)
+		if len(named) == 0 || slices.ContainsFunc(named, func(svc serviceInfo) bool { return svc.Engine != named[0].Engine }) {
+			return ""
+		}
+		return named[0].Engine
 	}
 	for _, svc := range list {
 		if svc.ServiceID == id {
@@ -929,12 +1009,12 @@ func keyMetrics(m map[string]metricStats) []metricValue {
 
 // serviceVersion reads one service's version from the exporter metric for its
 // engine; any failure returns "".
-func (s *Service) serviceVersion(ctx context.Context, auth callerAuth, engine, serviceName string) string {
+func (s *Service) serviceVersion(ctx context.Context, auth callerAuth, engine, serviceID string) string {
 	vm, ok := versionMetrics[engine]
-	if !ok || serviceName == "" {
+	if !ok || serviceID == "" {
 		return ""
 	}
-	samples, err := s.queryMetrics(ctx, auth, vm.metric+`{service_name="`+escapeLabel(serviceName)+`"}`, time.Time{})
+	samples, err := s.queryMetrics(ctx, auth, vm.metric+`{service_id="`+escapeLabel(serviceID)+`"}`, time.Time{})
 	if err != nil || len(samples) == 0 {
 		return ""
 	}

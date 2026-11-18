@@ -18,6 +18,7 @@ package mcp
 import (
 	"cmp"
 	"context"
+	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
@@ -50,14 +51,21 @@ type queryRefInput struct {
 
 // resolvedQuery is a query reference resolved to one service in the caller's list.
 type resolvedQuery struct {
-	Service  serviceInfo
-	Ref      queryRef
+	Service serviceInfo
+	Ref     queryRef
+	// Database is the one database or schema QAN recorded for the query, empty when it recorded none or several.
 	Database string
-	Tables   []string
+	// Databases are the distinct databases or schemas QAN recorded for the query.
+	Databases []string
+	Tables    []string
 	// Example is the stored statement as QAN holds it, empty when QAN has none for this service.
 	Example string
-	// DetailErr is the failure of the metrics or example call that Database, Tables and Example come from.
-	DetailErr error
+	// ExampleTrimmed is set when pmm-agent cut Example at its max-query-length.
+	ExampleTrimmed bool
+	// MetricsErr is the failure of the metrics call that Database comes from.
+	MetricsErr error
+	// ExampleErr is the failure of the example call that Example and PostgreSQL's Tables come from.
+	ExampleErr error
 }
 
 // refFromInput builds a query reference from query_ref or from the flat queryid, service_id and period fields.
@@ -84,7 +92,30 @@ func refFromInput(ref *queryRefInput, queryID, serviceID, periodFrom, periodTo s
 	if err != nil {
 		return queryRef{}, err
 	}
+	err = checkQANWindow(from, to)
+	if err != nil {
+		return queryRef{}, err
+	}
 	return queryRef{QueryID: queryID, ServiceID: serviceID, PeriodFrom: from, PeriodTo: to, fromQueryRef: ref != nil}, nil
+}
+
+// resolveLive resolves a query for a live-inspection tool under one metric-call slot, as the QAN tools take, and
+// returns the release of that slot, which the caller calls before the live part.
+func (s *Service) resolveLive(ctx context.Context, auth callerAuth, ref queryRef) (*resolvedQuery, func(), error) {
+	err := cmp.Or(checkQANValue("queryid", ref.QueryID), checkQANValue("service_id", ref.ServiceID))
+	if err != nil {
+		return nil, nil, err
+	}
+	release, err := s.startMetrics(auth)
+	if err != nil {
+		return nil, nil, err
+	}
+	resolved, err := s.resolveQuery(ctx, auth, ref)
+	if err != nil {
+		release()
+		return nil, nil, err
+	}
+	return resolved, release, nil
 }
 
 // resolveQuery finds the one service in the caller's list that the query ran on, with its database, tables and stored example.
@@ -130,7 +161,7 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	if err != nil {
 		return nil, err
 	}
-	out.DetailErr = cmp.Or(d.metricsErr, d.exampleErr)
+	out.MetricsErr, out.ExampleErr = d.metricsErr, d.exampleErr
 
 	var schema, database string
 	if d.metrics != nil && d.metrics.Metadata != nil {
@@ -145,20 +176,35 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	}
 	if example != nil {
 		out.Example = example.Example
+		out.ExampleTrimmed = exampleTrimmed(example.Example, example.IsTruncated != 0)
 		if svc.Engine == enginePostgreSQL {
 			out.Tables = example.Tables
 		}
 	}
 	switch svc.Engine {
 	case engineMySQL:
-		out.Database = schema
-		if out.Database == "" && example != nil {
-			out.Database = example.Schema
+		out.Databases = metadataValues(schema)
+		if len(out.Databases) == 0 && example != nil {
+			out.Databases = metadataValues(example.Schema)
 		}
 	default:
-		out.Database = database
+		out.Databases = metadataValues(database)
+	}
+	if len(out.Databases) == 1 {
+		out.Database = out.Databases[0]
 	}
 	return out, nil
+}
+
+// exampleTrimmed reports whether pmm-agent cut a MongoDB example, which it ends with " ...". It also flags an example
+// that holds a character of several bytes, so a flagged example counts as cut only when it is not JSON.
+func exampleTrimmed(example string, flagged bool) bool {
+	return strings.HasSuffix(example, " ...") || (flagged && !json.Valid([]byte(example)))
+}
+
+// metadataValues splits a qan:getMetrics metadata value, the distinct values joined with ", ", and drops the empty ones.
+func metadataValues(joined string) []string {
+	return slices.DeleteFunc(strings.Split(joined, ", "), func(v string) bool { return v == "" })
 }
 
 // errNotInList is the not_found for a service outside the service list of the window, naming the window and no service.
@@ -224,14 +270,12 @@ func (s *Service) queryCandidates(ctx context.Context, auth callerAuth, ref quer
 		if row.Dimension == "" {
 			continue
 		}
-		svc, ok := serviceNamed(asked, row.Dimension)
-		if !ok {
-			continue
+		// QAN's row is by name, so every asked service of that name is a candidate.
+		for _, svc := range servicesNamed(asked, row.Dimension) {
+			if !slices.ContainsFunc(out, func(o serviceInfo) bool { return o.ServiceID == svc.ServiceID }) {
+				out = append(out, svc)
+			}
 		}
-		if slices.ContainsFunc(out, func(o serviceInfo) bool { return o.ServiceID == svc.ServiceID }) {
-			continue
-		}
-		out = append(out, svc)
 	}
 	return out, report.TotalRows, nil
 }
@@ -244,13 +288,22 @@ func ambiguousMessage(candidates []serviceInfo, total int64, fromQueryRef bool) 
 		names = append(names, fmt.Sprintf("%s (%s)", svc.ServiceName, svc.ServiceID))
 	}
 	text := "the query was seen on several services: " + strings.Join(names, ", ")
-	if more := total - int64(len(listed)); len(candidates) > len(listed) && more > 0 {
+	if more := max(total, int64(len(candidates))) - int64(len(listed)); len(candidates) > len(listed) && more > 0 {
 		text += fmt.Sprintf(", and %d more", more)
 	}
 	if fromQueryRef {
 		return text + "; set service_id inside query_ref to one of these"
 	}
 	return text + "; pass service_id to choose one"
+}
+
+// listedNames joins names for a message, at most maxListedCandidates of them, and counts the rest.
+func listedNames(names []string) string {
+	text := strings.Join(names[:min(len(names), maxListedCandidates)], ", ")
+	if more := len(names) - maxListedCandidates; more > 0 {
+		text += fmt.Sprintf(", and %d more", more)
+	}
+	return text
 }
 
 // windowText renders a window for a message.

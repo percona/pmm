@@ -39,6 +39,7 @@ func TestCheckExpr(t *testing.T) {
 		scope    = "service_id, service_name, node_id or node_name"
 		capped   = "the cap is 7d"
 		perValue = "it creates a series for each distinct value, so its result can't be bounded"
+		perPhi   = "it creates a series for each phi argument, so its result grows with its arguments"
 	)
 	for _, tc := range []struct {
 		name string
@@ -188,6 +189,54 @@ func TestCheckExpr(t *testing.T) {
 			want: []string{"Histogram_Over_Time() is not accepted"},
 		},
 		{name: "aggr_over_time naming allowed rollups", expr: `aggr_over_time(("min_over_time", "max_over_time"), mysql_up{service_name="db1"}[5m])`, span: time.Hour},
+		{
+			name: "aggr_over_time naming 8 functions",
+			expr: `aggr_over_time(("min_over_time", "max_over_time", "avg_over_time", "sum_over_time", "count_over_time", "last_over_time", ` +
+				`"first_over_time", "stddev_over_time"), mysql_up{service_name="db1"}[5m])`,
+			span: time.Hour,
+		},
+		{
+			name: "aggr_over_time naming 9 functions",
+			expr: `aggr_over_time(("min_over_time", "max_over_time", "avg_over_time", "sum_over_time", "count_over_time", "last_over_time", ` +
+				`"first_over_time", "stddev_over_time", "median_over_time"), mysql_up{service_name="db1"}[5m])`,
+			span: time.Hour,
+			want: []string{"aggr_over_time() names 9 functions and returns a series for each; the cap is 8: split it into several calls"},
+		},
+		{
+			name: "aggr_over_time naming a function twice",
+			expr: `aggr_over_time(("max_over_time", "min_over_time", "max_over_time"), mysql_up{service_name="db1"}[5m])`, span: time.Hour,
+			want: []string{"aggr_over_time() names max_over_time twice; name each function once"},
+		},
+		{
+			name: "aggr_over_time naming a function twice in two cases",
+			expr: `aggr_over_time(("Max_Over_Time", "max_over_time"), mysql_up{service_name="db1"}[5m])`, span: time.Hour,
+			want: []string{"names max_over_time twice"},
+		},
+		{
+			expr: `quantiles_over_time("phi", 0.5, 0.9, 0.99, mysql_global_status_questions{service_name="db1"}[5m])`, span: time.Hour,
+			want: []string{"quantiles_over_time() is not accepted", perPhi, "call quantile_over_time() once per phi"},
+		},
+		{
+			expr: `quantiles("phi", 0.5, 0.9, rate(mysql_global_status_questions{service_name="db1"}[5m]))`, span: time.Hour,
+			want: []string{"quantiles() is not accepted", perPhi, "call quantile() once per phi"},
+		},
+		{
+			expr: `histogram_quantiles("phi", 0.5, 0.9, rate(mysql_global_status_questions{service_name="db1"}[5m]))`, span: time.Hour,
+			want: []string{"histogram_quantiles() is not accepted", perPhi, "call histogram_quantile() once per phi"},
+		},
+		{
+			name: "an upper-case quantiles inside an operator",
+			expr: `1 + QUANTILES("phi", 0.5, mysql_up{service_name="db1"})`, span: time.Hour,
+			want: []string{"quantiles() is not accepted", "call quantile() once per phi"},
+		},
+		{
+			name: "aggr_over_time naming quantiles_over_time",
+			expr: `aggr_over_time("quantiles_over_time", mysql_up{service_name="db1"}[5m])`, span: time.Hour,
+			want: []string{"quantiles_over_time() is not accepted"},
+		},
+		{expr: `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[5m])`, span: time.Hour},
+		{expr: `quantile(0.9, rate(mysql_global_status_questions{service_name="db1"}[5m]))`, span: time.Hour},
+		{expr: `histogram_quantile(0.9, rate(mysql_global_status_questions{service_name="db1"}[5m]))`, span: time.Hour},
 		{name: "a subquery without a selector reads no storage", expr: `max_over_time(time()[100d:1s])`},
 		{expr: `mysql\_up{service_name="db1"}`, span: time.Hour, want: []string{"backslash at byte 5"}},
 		{expr: `mysql_up{service_name="db1"} # café`, span: time.Hour, want: []string{"non-ASCII character at byte 34"}},
@@ -264,6 +313,90 @@ func TestCheckExpr(t *testing.T) {
 		{
 			name: "the 4097s window passes at the step its hint names",
 			expr: `max_over_time(sum by (service_name) (mysql_up{service_name="db1"})[4097s])`, span: time.Hour, step: 3 * time.Second,
+		},
+
+		// A range query's rollup window over a selector, times the points it is read at, is at most 2,000 hours.
+		{name: "a 5m rate over 1h", expr: `rate(mysql_global_status_questions{service_name="db1"}[5m])`, span: time.Hour},
+		{name: "a 5m rate over 6d23h", expr: `rate(mysql_global_status_questions{service_name="db1"}[5m])`, span: 6*day + 23*time.Hour},
+		{name: "a 1h rate over 6d23h, 1998 points", expr: `rate(mysql_global_status_questions{service_name="db1"}[1h])`, span: 6*day + 23*time.Hour},
+		{name: "an instant 7d rollup", expr: `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[7d])`},
+		{name: "an instant 6d rate", expr: `rate(mysql_global_status_questions{service_name="db1"}[6d])`},
+		{
+			name: "a 6d23h window over a 1h range at 2s",
+			expr: `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d23h])`, span: time.Hour,
+			want: []string{
+				"at the query's step of 2s, the rollup window 6d23h is read at each of 1800 points, 300600 hours of samples per series",
+				"the cap is 2000 hours (a 1h window at 2000 points)",
+				"raise step to at least 5m1s, shorten the window, or send an instant query for one value over the window",
+			},
+		},
+		{
+			name: "the 6d23h window passes at the step its hint names",
+			expr: `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d23h])`, span: time.Hour, step: 301 * time.Second,
+		},
+		{
+			name: "a 1d rate over 6d at 4m20s",
+			expr: `rate(mysql_global_status_questions{service_name="db1"}[1d])`, span: 6 * day,
+			want: []string{"the rollup window 1d is read at each of 1994 points", "raise step to at least 1h43m41s"},
+		},
+		{
+			name: "the 1d rate passes at the step its hint names",
+			expr: `rate(mysql_global_status_questions{service_name="db1"}[1d])`, span: 6 * day, step: 6221 * time.Second,
+		},
+		{
+			name: "a window inside an implicit subquery is read at the query's step",
+			expr: `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d])[1h])`, span: time.Hour,
+			want: []string{"the rollup window 6d is read at each of 3752 points", "raise step to at least 10m31s"},
+		},
+		{
+			name: "the implicit subquery's window passes at the step its hint names",
+			expr: `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d])[1h])`, span: time.Hour, step: 631 * time.Second,
+		},
+
+		// Inside a subquery, a window is read at each of the subquery's points over the query's range and the subquery's lead.
+		{
+			name: "a 6d window in a subquery at 1s is first refused for its subquery step",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[6d])[1h:1s])`,
+			want: []string{"the subquery step 1s is too small", "at least 4m22s"},
+		},
+		{
+			name: "the 6d window at the subquery step that hint names",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[6d])[1h:262s])`,
+			want: []string{
+				"at the subquery step of 4m22s, the rollup window 6d is read at each of 17 points, 2432 hours of samples per series",
+				"raise the subquery step to at least 5m29s, or shorten the window",
+			},
+		},
+		{
+			name: "the 6d window passes at the subquery step its hint names",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[6d])[1h:329s])`,
+		},
+		{name: "an instant 5m rate in a 1d subquery at 5m", expr: `max_over_time(rate(x{service_name="a"}[5m])[1d:5m])`},
+		{
+			name: "a 3d window in an instant query's implicit subquery, 62424 hours",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[3d])[3d])`,
+			want: []string{
+				"at the subquery step of 5m, the rollup window 3d is read at each of 867 points, 62424 hours of samples per series",
+				"give the subquery a step of at least 2h47m47s, written [range:step], or shorten the window",
+			},
+		},
+		{
+			name: "the 3d window passes with the subquery step its hint names",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[3d])[3d:2h47m47s])`,
+		},
+		{
+			name: "a 3d window in an instant query's explicit subquery",
+			expr: `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[3d])[3d:302s])`,
+			want: []string{"the rollup window 3d is read at each of 862 points", "raise the subquery step to at least 2h47m47s"},
+		},
+		{
+			name: "a range query's subquery is read once over the range, not once per point",
+			expr: `max_over_time(rate(x{service_name="a"}[5m])[1h:1m])`, span: day,
+		},
+		{
+			name: "a 1d window in a range query's subquery",
+			expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[1d])[1h:5m])`, span: day,
+			want: []string{"at the subquery step of 5m, the rollup window 1d is read at each of 303 points", "raise the subquery step to at least 18m31s"},
 		},
 	} {
 		name := tc.name
@@ -457,5 +590,41 @@ func TestCheckExprHintSize(t *testing.T) {
 		te, ok := errors.AsType[*toolError](err)
 		require.True(t, ok, "want a *toolError, got %v", err)
 		assert.LessOrEqual(t, len(te.message), 512, te.message[:min(len(te.message), 100)])
+	}
+}
+
+func TestCheckExprWindowRaisesOnlyTheQueryStep(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		expr string
+		span time.Duration
+		step time.Duration
+		// minStep is the step a range query rises to; 0 when the refusal names no step of the query's to raise.
+		minStep time.Duration
+	}{
+		{expr: `avg_over_time(x{service_name="a"}[90m])`, span: day, step: 44 * time.Second, minStep: 65 * time.Second},
+		{expr: `increase(x{service_name="a"}[1d])`, span: 6 * day, step: 260 * time.Second, minStep: 6221 * time.Second},
+		{expr: `avg_over_time(x{service_name="a"}[2h])`, span: time.Hour, step: 2 * time.Second, minStep: 4 * time.Second},
+		{expr: `quantile_over_time(0.99, x{service_name="a"}[6d23h])`, span: time.Hour, step: 2 * time.Second, minStep: 301 * time.Second},
+		{expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[6d])[1h])`, span: time.Hour, step: 2 * time.Second, minStep: 631 * time.Second},
+		{expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[1d])[1h:5m])`, span: day, step: 44 * time.Second},
+		{expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[3d])[3d])`, step: instantStep},
+	} {
+		t.Run(tc.expr, func(t *testing.T) {
+			t.Parallel()
+
+			_, err := checkExpr(tc.expr, tc.span, tc.step)
+			require.Error(t, err)
+			tooSmall, ok := errors.AsType[*stepTooSmallError](err)
+			if tc.minStep == 0 {
+				assert.False(t, ok, "%v", err)
+				return
+			}
+			require.True(t, ok, "%v", err)
+			assert.Equal(t, tc.minStep, tooSmall.minStep)
+			_, err = checkExpr(tc.expr, tc.span, tc.minStep)
+			require.NoError(t, err, "the expression passes at the step it rises to")
+		})
 	}
 }

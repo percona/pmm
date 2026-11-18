@@ -1106,6 +1106,30 @@ telemetry:
       - metric_name: "rta_agent_collect_interval"
         column: "collect_interval_sec"
 
+  # MCP endpoint (/mcp)
+  - id: MCPToolCalls
+    source: VM
+    query: sum by (tool, code) (increase(pmm_managed_mcp_tool_calls_total[24h]))
+    transform:
+      type: JSON
+      metric: "mcp_tool_calls_24h"
+    summary: "MCP tool calls in the last 24 hours, per tool and result code"
+    data:
+      - metric_name: 1
+        label: "tool"
+      - metric_name: 2
+        label: "code"
+      - metric_name: 3
+        value: 1
+
+  - id: PMMServerMCPEnabled
+    source: PMMDB_SELECT
+    query: (CASE WHEN settings->'mcp'->>'enabled' = 'true' THEN '1' ELSE '0' END) AS mcp_enabled FROM settings
+    summary: "MCP endpoint enabled"
+    data:
+      - metric_name: "pmm_server_mcp_enabled"
+        column: "mcp_enabled"
+
   # legacy promdb usage
   - id: VMPromDBSeriesReadPerQuery
     source: VM

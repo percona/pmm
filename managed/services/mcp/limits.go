@@ -19,6 +19,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -238,35 +239,54 @@ func hashKey(s string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// startLive takes a token and a live-inspection slot for the caller, or answers rate_limited.
-func (s *Service) startLive(a callerAuth) (func(), error) {
-	err := s.takeToken(s.liveRate, a)
+// startLive starts a live-inspection call on a service: it waits up to liveServiceWait for the service's slot, then
+// takes a caller and a replica slot and a token without waiting. When one refuses, it releases the others and answers
+// rate_limited.
+func (s *Service) startLive(ctx context.Context, a callerAuth, serviceID string) (func(), error) {
+	releaseService, err := s.startLiveOn(ctx, serviceID)
 	if err != nil {
 		return nil, err
 	}
 	release, hit := s.live.acquire(callerKey(a))
 	switch hit {
 	case limitPerCaller:
+		releaseService()
 		return nil, newToolError(codeRateLimited,
 			"at most %d live-inspection calls can be in flight for these credentials; retry when one finishes", maxLiveCallsPerCaller)
 	case limitPerReplica:
+		releaseService()
 		return nil, newToolError(codeRateLimited,
 			"this replica already has %d live-inspection calls in flight; retry when one finishes", maxLiveCallsPerReplica)
 	case limitNone:
 	}
-	return release, nil
+	err = s.takeToken(s.liveRate, a)
+	if err != nil {
+		release()
+		releaseService()
+		return nil, err
+	}
+	return func() {
+		release()
+		releaseService()
+	}, nil
 }
 
-// startLiveOn takes the live-inspection slot of a service, waiting up to liveServiceWait for it, or answers rate_limited.
+// startLiveOn takes the live-inspection slot of a service, waiting up to liveServiceWait for it, or answers rate_limited;
+// a call whose deadline passes while it waits answers rate_limited too.
 func (s *Service) startLiveOn(ctx context.Context, serviceID string) (func(), error) {
+	inFlight := newToolError(codeRateLimited,
+		"a live-inspection call on this service is still in flight after %s; retry when it finishes", s.liveServiceWait)
 	release, hit, err := s.liveByService.acquireWait(ctx, serviceID, s.liveServiceWait)
+	if errors.Is(err, context.DeadlineExceeded) {
+		return nil, newToolError(codeRateLimited,
+			"a live-inspection call on this service is still in flight, and this call ran out of time waiting for it; retry when it finishes")
+	}
 	if err != nil {
 		return nil, err
 	}
 	switch hit {
 	case limitPerCaller:
-		return nil, newToolError(codeRateLimited,
-			"a live-inspection call on this service is still in flight after %s; retry when it finishes", s.liveServiceWait)
+		return nil, inFlight
 	case limitPerReplica:
 		return nil, newToolError(codeRateLimited,
 			"this replica already has %d live-inspection calls in flight; retry when one finishes", maxLiveCallsPerReplica)

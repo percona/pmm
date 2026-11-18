@@ -316,7 +316,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			s.l.Errorf("Failed to dump request: %v.", err)
 		}
-		s.l.Debugf("Request:\n%s", b)
+		s.l.Debugf("Request:\n%s", maskDump(b))
 	}
 
 	err := extractOriginalRequest(req)

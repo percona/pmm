@@ -70,6 +70,11 @@ type Client struct {
 
 // NewClient creates a new client for given Grafana address.
 func NewClient(addr string) *Client {
+	return newClientWithLogger(addr, logrus.WithField("component", "grafana/client"))
+}
+
+// newClientWithLogger is NewClient that dumps every request and response to l, credentials masked, when l logs at Trace.
+func newClientWithLogger(addr string, l *logrus.Entry) *Client {
 	var t http.RoundTripper = &http.Transport{
 		DialContext: (&net.Dialer{
 			Timeout:   defaultDialTimeout,
@@ -81,8 +86,10 @@ func NewClient(addr string) *Client {
 		ExpectContinueTimeout: defaultExpectContinueTimeout,
 	}
 
-	if logrus.GetLevel() >= logrus.TraceLevel {
-		t = irt.WithLogger(t, logrus.WithField("component", "grafana/client").Tracef)
+	if l.Logger.GetLevel() >= logrus.TraceLevel {
+		t = irt.WithLogger(t, func(format string, v ...any) {
+			l.Tracef(format, maskDumps(v)...)
+		})
 	}
 	t, irtm := irt.WithMetrics(t, "grafana_client")
 
@@ -103,6 +110,53 @@ func (c *Client) Describe(ch chan<- *prom.Desc) {
 // Collect implements prometheus.Collector.
 func (c *Client) Collect(ch chan<- prom.Metric) {
 	c.irtm.Collect(ch)
+}
+
+// credentialMask replaces the value of a credential header in a request or response dump.
+const credentialMask = "[masked]"
+
+// isCredentialHeader reports whether a header can carry credentials.
+func isCredentialHeader(name string) bool {
+	name = http.CanonicalHeaderKey(name)
+	switch name {
+	case "Authorization", "Proxy-Authorization", "Cookie", "Set-Cookie":
+		return true
+	default:
+		return strings.HasPrefix(name, "X-Grafana-")
+	}
+}
+
+// maskDump returns an HTTP/1.x request or response dump with the value of each credential header masked.
+func maskDump(dump []byte) []byte {
+	head, body, hasBody := bytes.Cut(dump, []byte("\r\n\r\n"))
+	lines := bytes.Split(head, []byte("\r\n"))
+	for i := 1; i < len(lines); i++ {
+		name, _, ok := bytes.Cut(lines[i], []byte(":"))
+		if ok && isCredentialHeader(string(name)) {
+			lines[i] = []byte(string(name) + ": " + credentialMask)
+		}
+	}
+	out := bytes.Join(lines, []byte("\r\n"))
+	if hasBody {
+		out = append(append(out, "\r\n\r\n"...), body...)
+	}
+	return out
+}
+
+// maskDumps masks the dumps among a log call's arguments.
+func maskDumps(args []any) []any {
+	out := make([]any, len(args))
+	for i, a := range args {
+		switch a := a.(type) {
+		case []byte:
+			out[i] = maskDump(a)
+		case string:
+			out[i] = string(maskDump([]byte(a)))
+		default:
+			out[i] = a
+		}
+	}
+	return out
 }
 
 // clientError contains error response details.

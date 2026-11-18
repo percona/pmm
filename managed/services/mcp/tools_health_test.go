@@ -19,6 +19,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -128,10 +129,10 @@ func TestServiceHealthTool(t *testing.T) {
 			assert.NotEmpty(t, sig.Source, sig.Name)
 		}
 		qps := signalByName(t, res, "qps")
-		assert.Equal(t, "short", qps.Unit)
+		assert.Equal(t, "ops", qps.Unit)
 		assert.Equal(t, "mysql_global_status_queries", qps.Source)
 
-		assert.Contains(t, text, "qps [short]: min=1 avg=3 max=6 last=6 at 2026-09-14T12:00:00Z")
+		assert.Contains(t, text, "qps [ops]: min=1 avg=3 max=6 last=6 at 2026-09-14T12:00:00Z")
 		assert.Contains(t, text, "[View in PMM ↗](")
 
 		want := make([]string, 0, len(res.Signals))
@@ -725,4 +726,317 @@ func TestHealthMaxTxDurationTakesMaximum(t *testing.T) {
 		}
 	})
 	assert.Equal(t, []string{"max"}, aggregations)
+}
+
+// fixtureSeries is one series of a signal test; every rollup over it, rate and irate included, reads as its value.
+type fixtureSeries struct {
+	labels map[string]string
+	value  float64
+}
+
+// seriesOf returns a series of the metric for service db1, with the extra labels given as name, value pairs.
+func seriesOf(metric string, value float64, labels ...string) fixtureSeries {
+	s := fixtureSeries{labels: map[string]string{"__name__": metric, "service_name": "db1"}, value: value}
+	for i := 0; i+1 < len(labels); i += 2 {
+		s.labels[labels[i]] = labels[i+1]
+	}
+	return s
+}
+
+// evalSignal evaluates the named signal of engine for service db1 over series, as VictoriaMetrics would at one instant.
+func evalSignal(t *testing.T, engine, name string, series []fixtureSeries) []fixtureSeries {
+	t.Helper()
+
+	i := slices.IndexFunc(healthSignals[engine], func(s signal) bool { return s.Name == name })
+	require.GreaterOrEqual(t, i, 0, "%s has no signal %s", engine, name)
+	e, err := metricsql.Parse(fmt.Sprintf(healthSignals[engine][i].Query, `service_name="db1"`))
+	require.NoError(t, err)
+	return evalAt(t, e, series)
+}
+
+// evalAt evaluates the part of MetricsQL that the signal queries use.
+func evalAt(t *testing.T, e metricsql.Expr, series []fixtureSeries) []fixtureSeries {
+	t.Helper()
+
+	switch e := e.(type) {
+	case *metricsql.MetricExpr:
+		require.Len(t, e.LabelFilterss, 1, "one OR group")
+		var out []fixtureSeries
+		for _, s := range series {
+			if matchesFilters(e.LabelFilterss[0], s.labels) {
+				out = append(out, s)
+			}
+		}
+		return out
+	case *metricsql.RollupExpr:
+		return evalAt(t, e.Expr, series)
+	case *metricsql.FuncExpr:
+		return evalFunc(t, e, series)
+	case *metricsql.AggrFuncExpr:
+		return evalAggr(t, e, series)
+	case *metricsql.BinaryOpExpr:
+		return evalBinary(t, e, series)
+	}
+	require.FailNow(t, "the evaluator does not handle "+string(e.AppendString(nil)))
+	return nil
+}
+
+func matchesFilters(filters []metricsql.LabelFilter, labels map[string]string) bool {
+	for _, f := range filters {
+		v := labels[f.Label]
+		ok := v == f.Value
+		if f.IsRegexp {
+			ok = regexp.MustCompile("^(?:" + f.Value + ")$").MatchString(v)
+		}
+		if ok == f.IsNegative {
+			return false
+		}
+	}
+	return true
+}
+
+func evalFunc(t *testing.T, e *metricsql.FuncExpr, series []fixtureSeries) []fixtureSeries {
+	t.Helper()
+
+	name := strings.ToLower(e.Name)
+	switch name {
+	case "rate", "irate", "max_over_time", "avg_over_time":
+		require.Len(t, e.Args, 1, name)
+		return withoutName(evalAt(t, e.Args[0], series))
+	case "clamp_min", "clamp_max":
+		require.Len(t, e.Args, 2, name)
+		limit, ok := e.Args[1].(*metricsql.NumberExpr)
+		require.True(t, ok, name)
+		out := withoutName(evalAt(t, e.Args[0], series))
+		for i := range out {
+			if name == "clamp_min" {
+				out[i].value = max(out[i].value, limit.N)
+			} else {
+				out[i].value = min(out[i].value, limit.N)
+			}
+		}
+		return out
+	}
+	require.FailNow(t, "the evaluator does not handle the function "+e.Name)
+	return nil
+}
+
+func evalAggr(t *testing.T, e *metricsql.AggrFuncExpr, series []fixtureSeries) []fixtureSeries {
+	t.Helper()
+
+	require.Len(t, e.Args, 1, e.Name)
+	require.Contains(t, []string{"", "by"}, e.Modifier.Op, e.Name)
+	var keys []string
+	groups := map[string][]fixtureSeries{}
+	for _, s := range evalAt(t, e.Args[0], series) {
+		labels := map[string]string{}
+		for _, l := range e.Modifier.Args {
+			if s.labels[l] != "" {
+				labels[l] = s.labels[l]
+			}
+		}
+		key := signature(labels)
+		if _, ok := groups[key]; !ok {
+			keys = append(keys, key)
+		}
+		groups[key] = append(groups[key], fixtureSeries{labels: labels, value: s.value})
+	}
+
+	out := make([]fixtureSeries, 0, len(keys))
+	for _, key := range keys {
+		group := groups[key]
+		values := make([]float64, len(group))
+		for i, s := range group {
+			values[i] = s.value
+		}
+		var v float64
+		switch strings.ToLower(e.Name) {
+		case "sum", "avg":
+			for _, x := range values {
+				v += x
+			}
+			if strings.EqualFold(e.Name, "avg") {
+				v /= float64(len(values))
+			}
+		case "max":
+			v = slices.Max(values)
+		case "min":
+			v = slices.Min(values)
+		default:
+			require.FailNow(t, "the evaluator does not handle the aggregation "+e.Name)
+		}
+		out = append(out, fixtureSeries{labels: group[0].labels, value: v})
+	}
+	return out
+}
+
+func evalBinary(t *testing.T, e *metricsql.BinaryOpExpr, series []fixtureSeries) []fixtureSeries {
+	t.Helper()
+
+	require.Empty(t, e.GroupModifier.Op, "on() and ignoring()")
+	op := strings.ToLower(e.Op)
+	left := evalAt(t, e.Left, series)
+	if n, ok := e.Right.(*metricsql.NumberExpr); ok {
+		var out []fixtureSeries
+		for _, s := range left {
+			v, keep := applyOp(t, op, s.value, n.N)
+			if keep {
+				out = append(out, fixtureSeries{labels: s.labels, value: v})
+			}
+		}
+		return out
+	}
+
+	right := evalAt(t, e.Right, series)
+	if op == "or" {
+		out := slices.Clone(left)
+		for _, r := range right {
+			if !slices.ContainsFunc(left, func(l fixtureSeries) bool { return signature(l.labels) == signature(r.labels) }) {
+				out = append(out, r)
+			}
+		}
+		return out
+	}
+	var out []fixtureSeries
+	for _, l := range left {
+		i := slices.IndexFunc(right, func(r fixtureSeries) bool { return signature(r.labels) == signature(l.labels) })
+		if i < 0 {
+			continue
+		}
+		v, keep := applyOp(t, op, l.value, right[i].value)
+		if keep {
+			out = append(out, fixtureSeries{labels: withoutName([]fixtureSeries{l})[0].labels, value: v})
+		}
+	}
+	return out
+}
+
+// applyOp returns a op b, and whether the series is kept: a comparison keeps a when it holds.
+func applyOp(t *testing.T, op string, a, b float64) (float64, bool) {
+	t.Helper()
+
+	switch op {
+	case "+":
+		return a + b, true
+	case "-":
+		return a - b, true
+	case "*":
+		return a * b, true
+	case "/":
+		return a / b, true
+	case ">":
+		return a, a > b
+	}
+	require.FailNow(t, "the evaluator does not handle the operator "+op)
+	return 0, false
+}
+
+// signature identifies a label set, the metric name aside, as vector matching does.
+func signature(labels map[string]string) string {
+	var b strings.Builder
+	for _, k := range slices.Sorted(maps.Keys(labels)) {
+		if k != "__name__" {
+			b.WriteString(k + "=" + labels[k] + "\x00")
+		}
+	}
+	return b.String()
+}
+
+func withoutName(series []fixtureSeries) []fixtureSeries {
+	out := make([]fixtureSeries, len(series))
+	for i, s := range series {
+		labels := maps.Clone(s.labels)
+		delete(labels, "__name__")
+		out[i] = fixtureSeries{labels: labels, value: s.value}
+	}
+	return out
+}
+
+func TestHealthSignalValues(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name   string
+		engine string
+		signal string
+		series []fixtureSeries
+		want   float64
+	}{
+		{
+			name: "the queue is the exporter's total, not the sum of its types", engine: engineMongoDB, signal: "queued_operations",
+			series: []fixtureSeries{
+				seriesOf("mongodb_mongod_global_lock_current_queue", 2, "type", "reader"),
+				seriesOf("mongodb_mongod_global_lock_current_queue", 3, "type", "writer"),
+				seriesOf("mongodb_mongod_global_lock_current_queue", 5, "type", "total"),
+			},
+			want: 5,
+		},
+		{
+			name: "the replication lag is the most lagging channel's", engine: engineMySQL, signal: "replication_lag",
+			series: []fixtureSeries{
+				seriesOf("mysql_slave_status_seconds_behind_master", 10, "channel_name", "a"),
+				seriesOf("mysql_slave_status_sql_delay", 0, "channel_name", "a"),
+				seriesOf("mysql_slave_status_seconds_behind_master", 100, "channel_name", "b"),
+				seriesOf("mysql_slave_status_sql_delay", 0, "channel_name", "b"),
+			},
+			want: 100,
+		},
+		{
+			name: "each channel's configured delay comes off its own lag", engine: engineMySQL, signal: "replication_lag",
+			series: []fixtureSeries{
+				seriesOf("mysql_slave_status_seconds_behind_master", 50, "channel_name", "a"),
+				seriesOf("mysql_slave_status_sql_delay", 0, "channel_name", "a"),
+				seriesOf("mysql_slave_status_seconds_behind_master", 100, "channel_name", "b"),
+				seriesOf("mysql_slave_status_sql_delay", 60, "channel_name", "b"),
+			},
+			want: 50,
+		},
+		{
+			name: "seconds_behind_source when the replica reports that name", engine: engineMySQL, signal: "replication_lag",
+			series: []fixtureSeries{
+				seriesOf("mysql_slave_status_seconds_behind_source", 10, "channel_name", "a"),
+				seriesOf("mysql_slave_status_sql_delay", 0, "channel_name", "a"),
+				seriesOf("mysql_slave_status_seconds_behind_source", 30, "channel_name", "b"),
+				seriesOf("mysql_slave_status_sql_delay", 0, "channel_name", "b"),
+			},
+			want: 30,
+		},
+		{
+			name: "query efficiency is documents returned per document scanned", engine: engineMongoDB, signal: "query_efficiency",
+			series: []fixtureSeries{
+				seriesOf("mongodb_mongod_metrics_document_total", 50, "state", "returned"),
+				seriesOf("mongodb_mongod_metrics_document_total", 400, "state", "inserted"),
+				seriesOf("mongodb_mongod_metrics_query_executor_total", 100, "state", "scanned"),
+				seriesOf("mongodb_mongod_metrics_query_executor_total", 200, "state", "scanned_objects"),
+			},
+			want: 0.25,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := evalSignal(t, tc.engine, tc.signal, tc.series)
+			require.Len(t, got, 1)
+			assert.InDelta(t, tc.want, got[0].value, 1e-9)
+		})
+	}
+}
+
+func TestHealthSignalUnits(t *testing.T) {
+	t.Parallel()
+
+	types := map[string]string{}
+	for _, m := range metricsCatalog {
+		types[m.Name] = m.Type
+	}
+	for engine, signals := range healthSignals {
+		for _, sig := range signals {
+			typ, ok := types[sig.Source]
+			require.True(t, ok, "%s/%s: the catalogue lacks the source %s", engine, sig.Name, sig.Source)
+			// A counter is read through a rate or a ratio, so a signal over one is never a plain number.
+			if typ == "counter" {
+				assert.NotEqual(t, "short", sig.Unit, "%s/%s reads the counter %s", engine, sig.Name, sig.Source)
+			}
+		}
+	}
 }
