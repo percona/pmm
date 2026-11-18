@@ -44,7 +44,7 @@ type OmRegistrationErrors map[string]string
 // Value implements database/sql/driver.Valuer interface, storing an empty map as NULL.
 func (e OmRegistrationErrors) Value() (driver.Value, error) {
 	if len(e) == 0 {
-		return nil, nil //nolint:nilnil // NULL is the stored form of no errors
+		return nil, nil //nolint:nilnil
 	}
 	return jsonValue(e)
 }
