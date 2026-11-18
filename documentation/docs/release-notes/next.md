@@ -71,7 +71,7 @@ Six checks no longer fail or report wrongly on default setups:
 - [`mongodb_journal`](../advisors/checks/mongodb-journal.md) reports nothing on MongoDB 7.0 and later, and on earlier versions only when the journal is explicitly disabled.
 - [`mongodb_loglevel`](../advisors/checks/mongodb-log-messages.md) reports only an explicitly set non-zero log level.
 - [`mongodb_maxsessions`](../advisors/checks/mongodb-maxSessions.md) no longer fails when `setParameter` has no `maxSessions`.
-- [`postgresql_wal_retention_check`](../advisors/checks/postgresql-wal-retention-check.md) works for a monitoring user with the `pg_monitor` role, and needs PostgreSQL 10 or later.
+- [`postgresql_wal_retention_check`](../advisors/checks/postgresql-wal-retention-check.md) works for a monitoring user with the `pg_monitor` role, and on PostgreSQL 9.x returns a warning that it needs PostgreSQL 10 or later instead of failing.
 
 ### Inventory page now in native PMM UI
 
@@ -139,7 +139,7 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 - [PMM-15828](https://perconadev.atlassian.net/browse/PMM-15828): Fixed several MongoDB dashboard panels that showed wrong values or ignored the **Environment** and **Cluster** filters. In [MongoDB Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md), **Chunk distribution** no longer under-reports shards when the cluster has more than one `mongos` router, **Chunks Move Events** and **Chunks Split Events** show the number of events in the last 10 minutes, and **MongoDB Versions** lists only members of the selected cluster. In [MongoDB ReplSet Summary](../reference/dashboards/dashboard-mongodb-replset-summary.md), **Query Efficiency** and **DBs** show correct values. Collection panels on both dashboards now exclude the `admin` and `config` databases. In [MongoDB Instances Overview](../reference/dashboards/dashboard-mongodb-instances-overview.md), **Availability** shows 0% instead of no data for a replica set that never had a primary, and **Time Since Election** follows the dashboard filters. [MongoDB MMAPv1 Details](../reference/dashboards/dashboard-mongodb-mmapv1-details.md) now lists MMAPv1 services in its service selector.
 
-- [PMM-15706](https://perconadev.atlassian.net/browse/PMM-15706): Fixed advisor checks that failed or reported wrongly on default setups: `mongodb_multiple_services`, `mongodb_swap_allocation`, `mongodb_journal`, `mongodb_loglevel` and `mongodb_maxsessions`, and `postgresql_wal_retention_check`, which now works for a monitoring user with the `pg_monitor` role and on PostgreSQL 11 and 12. It needs PostgreSQL 10 or later. For details, see [Version, end-of-life and security checks are now accurate](#version-end-of-life-and-security-checks-are-now-accurate).
+- [PMM-15706](https://perconadev.atlassian.net/browse/PMM-15706): Fixed advisor checks that failed or reported wrongly on default setups: `mongodb_multiple_services`, `mongodb_swap_allocation`, `mongodb_journal`, `mongodb_loglevel` and `mongodb_maxsessions`, and `postgresql_wal_retention_check`, which now works for a monitoring user with the `pg_monitor` role and on PostgreSQL 11 and 12, and on PostgreSQL 9.x returns a warning that it needs PostgreSQL 10 or later. For details, see [Version, end-of-life and security checks are now accurate](#version-end-of-life-and-security-checks-are-now-accurate).
 
 ## 🔶 Known issues
 

@@ -3,7 +3,7 @@
 
 This check analyses the number of WAL files being retained in the **pg_wal** directory and reports the number of WAL files and the disk space they consume. 
 
-The check needs PostgreSQL 10 or later. It lists the WAL files with `pg_ls_waldir()`, so it works for a monitoring user with the `pg_monitor` role.
+The check lists the WAL files with `pg_ls_waldir()`, so it works for a monitoring user with the `pg_monitor` role. PostgreSQL 9.x has no `pg_ls_waldir()` and has reached end of life, so on it the check returns a warning that it needs PostgreSQL 10 or later.
 
 Additionally, the check provides information on the number of **wal_keep_segments** or **wal_keep_size** configured depending on the version of Postgres. A calculation is performed against the parameters mentioned, and the potential disk space used as a result of the parameter values and **wal_segment_size** for the running cluster.
 
