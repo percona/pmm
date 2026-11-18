@@ -828,6 +828,39 @@ func TestParseWindowIsUTCSeconds(t *testing.T) {
 	assert.Equal(t, "2026-09-14T11:45:00Z", to.Format(time.RFC3339Nano))
 }
 
+// TestParseQueryWindowDefaults pins that a QAN or live-inspection window's period_to defaults to now and its
+// period_from to the hour before period_to.
+func TestParseQueryWindowDefaults(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		from, to         string
+		wantFrom, wantTo time.Time
+	}{
+		{"", "", testNow.Add(-time.Hour), testNow},
+		{"now-3h", "", testNow.Add(-3 * time.Hour), testNow},
+		{"", "now-2h", testNow.Add(-3 * time.Hour), testNow.Add(-2 * time.Hour)},
+		{"", "2026-09-13T08:00:00Z", time.Date(2026, 9, 13, 7, 0, 0, 0, time.UTC), time.Date(2026, 9, 13, 8, 0, 0, 0, time.UTC)},
+	} {
+		from, to, err := parseQueryWindow(tc.from, tc.to, testNow)
+		require.NoError(t, err, "'%s' – '%s'", tc.from, tc.to)
+		assert.Equal(t, tc.wantFrom, from, "'%s' – '%s'", tc.from, tc.to)
+		assert.Equal(t, tc.wantTo, to, "'%s' – '%s'", tc.from, tc.to)
+	}
+
+	_, _, err := parseQueryWindow("", "yesterday", testNow)
+	require.Error(t, err)
+	assert.Equal(t, codeInvalidInput, mapError(err).code)
+
+	session := connect(t, newQANService(t, newFakePMM(t, qanRoutes()), true))
+	res := callTool(t, session, "pmm_top_queries", map[string]any{"period_to": "now-2h"})
+	got := structured[topQueriesResult](t, res)
+	assert.Equal(t, window{From: testNow.Add(-3 * time.Hour), To: testNow.Add(-2 * time.Hour)}, got.Window)
+
+	res = callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA", "period_to": "now-2h"})
+	assert.Equal(t, window{From: testNow.Add(-3 * time.Hour), To: testNow.Add(-2 * time.Hour)}, structured[queryDetailResult](t, res).Window)
+}
+
 func TestLinks(t *testing.T) {
 	t.Parallel()
 

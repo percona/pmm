@@ -390,7 +390,7 @@
           "type": "string"
         },
         "period_from": {
-          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid",
+          "description": "Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid",
           "type": "string"
         },
         "period_to": {
@@ -541,7 +541,7 @@
           "type": "string"
         },
         "period_from": {
-          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid",
+          "description": "Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid",
           "type": "string"
         },
         "period_to": {
@@ -1082,7 +1082,7 @@
       "additionalProperties": false,
       "properties": {
         "period_from": {
-          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid",
+          "description": "Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid",
           "type": "string"
         },
         "period_to": {
@@ -1714,7 +1714,7 @@
           "type": "string"
         },
         "period_from": {
-          "description": "Window start: RFC3339 or relative such as now-1h (default now-1h)",
+          "description": "Window start: RFC3339 or relative such as now-1h (default 1 h before period_to)",
           "type": "string"
         },
         "period_to": {

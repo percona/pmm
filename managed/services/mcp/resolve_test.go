@@ -552,6 +552,11 @@ func TestRefFromInput(t *testing.T) {
 			want: &queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow},
 		},
 		{
+			name: "queryid with period_to alone",
+			args: map[string]any{"queryid": "QID-AAA", "period_to": to},
+			want: &queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-2 * time.Hour), PeriodTo: testNow.Add(-time.Hour)},
+		},
+		{
 			name: "both forms",
 			args: map[string]any{"queryid": "QID-AAA", "query_ref": map[string]any{"queryid": "QID-AAA", "period_from": from, "period_to": to}},
 		},

@@ -72,7 +72,7 @@ var baseColumns = []string{"load", "num_queries", "query_time"}
 type topQueriesInput struct {
 	ServiceName string              `json:"service_name,omitempty" jsonschema:"Filter by service name (from pmm_inventory)"`
 	ServiceID   string              `json:"service_id,omitempty" jsonschema:"Filter by service id (from pmm_inventory)"`
-	PeriodFrom  string              `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h)"`
+	PeriodFrom  string              `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default 1 h before period_to)"`
 	PeriodTo    string              `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now)"`
 	GroupBy     string              `json:"group_by,omitempty" jsonschema:"Row dimension, default queryid; the tool description lists the others"`
 	Labels      map[string][]string `json:"labels,omitempty" jsonschema:"Filters: a label or dimension name mapped to the values to keep, such as username: [app]"`
@@ -87,7 +87,7 @@ type queryDetailInput struct {
 	QueryRef   *queryRefInput `json:"query_ref,omitempty" jsonschema:"The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid"`
 	QueryID    string         `json:"queryid,omitempty" jsonschema:"Query id from pmm_top_queries, instead of query_ref"`
 	ServiceID  string         `json:"service_id,omitempty" jsonschema:"Restrict to one service id; with queryid"`
-	PeriodFrom string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid"`
+	PeriodFrom string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid"`
 	PeriodTo   string         `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now); with queryid"`
 }
 
@@ -202,7 +202,7 @@ func checkQANWindow(from, to time.Time) error {
 }
 
 func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in topQueriesInput) (topQueriesResult, error) {
-	from, to, err := parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
+	from, to, err := parseQueryWindow(in.PeriodFrom, in.PeriodTo, s.now())
 	if err != nil {
 		return topQueriesResult{}, err
 	}
@@ -548,7 +548,7 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 			return queryDetailResult{}, newToolError(codeInvalidInput, "pass query_ref, as pmm_top_queries or pmm_query_detail return it, or pass queryid")
 		}
 		var err error
-		from, to, err = parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
+		from, to, err = parseQueryWindow(in.PeriodFrom, in.PeriodTo, s.now())
 		if err != nil {
 			return queryDetailResult{}, err
 		}

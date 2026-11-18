@@ -98,6 +98,19 @@ func parseWindow(from, to string, now time.Time) (time.Time, time.Time, error) {
 	return start, end, nil
 }
 
+// parseQueryWindow is parseWindow for the QAN and live-inspection tools, whose period_from defaults to one hour before period_to.
+func parseQueryWindow(from, to string, now time.Time) (time.Time, time.Time, error) {
+	if from != "" || to == "" {
+		return parseWindow(from, to, now)
+	}
+	end, err := parseTime(to, now)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	end = end.UTC().Truncate(time.Second)
+	return end.Add(-hourWindow), end, nil
+}
+
 // fmtNum renders a metric with at most three decimals, like the QAN UI.
 func fmtNum(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)

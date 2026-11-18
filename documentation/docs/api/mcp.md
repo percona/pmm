@@ -126,7 +126,7 @@ Most results link to the same data in PMM, so you can check an answer in PMM its
 
 `pmm_get_explain` and `pmm_get_schema` find a query by a query reference. A `query_ref` holds a `queryid` and the window the query was seen in (`period_from`, `period_to`). It can also hold the `service_id`. `pmm_top_queries` returns a `query_ref` on its `queryid` rows. `pmm_query_detail`, `pmm_get_explain` and `pmm_get_schema` return one as well.
 
-Pass the saved `query_ref` back as it is. The tool then reads the same window, so you can explain a query that you saw yesterday. You can also pass a `queryid` alone, or beside `service_id`, `period_from` and `period_to`. Without `period_from` and `period_to`, a `queryid` searches the last hour, with or without `service_id`. A `query_ref` together with `queryid`, `service_id`, `period_from` or `period_to` is `invalid_input`.
+Pass the saved `query_ref` back as it is. The tool then reads the same window, so you can explain a query that you saw yesterday. You can also pass a `queryid` alone, or beside `service_id`, `period_from` and `period_to`. Without `period_from` and `period_to`, a `queryid` searches the last hour, with or without `service_id`. `period_to` defaults to now, and `period_from` to one hour before `period_to`. A `query_ref` together with `queryid`, `service_id`, `period_from` or `period_to` is `invalid_input`.
 
 `pmm_query_detail` takes a `query_ref` in the same way and reads its window. It reads the `service_id` in the `query_ref` too; without one, it sums your services, as it does for a `queryid`.
 
@@ -406,7 +406,7 @@ A call refused for its rate is `rate_limited` and says in the message how many s
 
 ### QAN window
 
-`pmm_top_queries` and `pmm_query_detail` read at most 30 days: a longer window is `invalid_input`, and the message asks you to narrow `period_from` or `period_to`. The two tools also take a slot of the calls-in-flight limits listed under [Rate limits](#rate-limits).
+`pmm_top_queries` and `pmm_query_detail` read at most 30 days: a longer window is `invalid_input`, and the message asks you to narrow `period_from` or `period_to`. `period_to` defaults to now, and `period_from` to one hour before `period_to`. The two tools also take a slot of the calls-in-flight limits listed under [Rate limits](#rate-limits).
 
 ## Roles
 

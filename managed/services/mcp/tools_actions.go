@@ -71,7 +71,7 @@ type explainInput struct {
 	QueryRef     *queryRefInput `json:"query_ref,omitempty" jsonschema:"The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid"`
 	QueryID      string         `json:"queryid,omitempty" jsonschema:"Query id from pmm_top_queries, instead of query_ref"`
 	ServiceID    string         `json:"service_id,omitempty" jsonschema:"Service id from pmm_inventory; needed only when the queryid ran on several of your services"`
-	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid"`
+	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid"`
 	PeriodTo     string         `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now); with queryid"`
 	Database     string         `json:"database,omitempty" jsonschema:"Schema the query runs in, to override the one QAN recorded; MySQL only"`
 	Placeholders []string       `json:"placeholders,omitempty" jsonschema:"Values for ? placeholders in the fingerprint, in order; MySQL only"`
@@ -82,7 +82,7 @@ type schemaInput struct {
 	QueryRef     *queryRefInput `json:"query_ref,omitempty" jsonschema:"The query_ref of a pmm_top_queries or pmm_query_detail row; pass it alone, or pass queryid"`
 	QueryID      string         `json:"queryid,omitempty" jsonschema:"Query id from pmm_top_queries, instead of query_ref, to fetch its tables"`
 	ServiceID    string         `json:"service_id,omitempty" jsonschema:"Service id from pmm_inventory; with tables, or when a queryid ran on several services"`
-	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default now-1h); with queryid"`
+	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid"`
 	PeriodTo     string         `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now); with queryid"`
 	Database     string         `json:"database,omitempty" jsonschema:"Database / schema name; with service_id and tables"`
 	Tables       []string       `json:"tables,omitempty" jsonschema:"1 to 10 table names; with service_id and database"`
