@@ -265,10 +265,8 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		if resolved.MetricsErr != nil {
 			return explainResult{}, resolved.MetricsErr
 		}
-		// With a stored query example the service and queryid are enough, and
-		// pmm-managed rejects placeholders that do not match it. Without one
-		// PMM EXPLAINs the raw ? fingerprint and MySQL answers 1064, mapped below.
-		// qan-api2 reads any one stored row of the query, which can lack the example QAN has in other rows.
+		// PMM EXPLAINs the stored example of the one QAN row it reads, or the ? fingerprint when that row has none, and
+		// MySQL then answers 1064; pmm-managed rejects placeholders that don't match. mysqlExplainError maps both.
 		database := cmp.Or(in.Database, resolved.Database)
 		if format == formatTraditional {
 			body.MysqlExplain = &actions_service.StartServiceActionParamsBodyMysqlExplain{
