@@ -16,8 +16,10 @@
 package mcp
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"sync"
@@ -220,8 +222,26 @@ func (s *Service) Handler() http.Handler {
 			http.NotFound(rw, req)
 			return
 		}
+		// The SDK reads at most maxRequestBodyBytes as well, so a longer body still gets its 413.
+		body, err := io.ReadAll(io.LimitReader(req.Body, maxRequestBodyBytes+1))
+		if err != nil {
+			http.Error(rw, "failed to read the request body", http.StatusBadRequest)
+			return
+		}
+		if isBatch(body) {
+			http.Error(rw, "JSON-RPC batches are not supported", http.StatusBadRequest)
+			return
+		}
+		req.Body = io.NopCloser(bytes.NewReader(body))
 		s.handler.ServeHTTP(rw, req)
 	})
+}
+
+// isBatch reports whether a request body is a JSON-RPC batch, a JSON array, which the SDK runs all at once for
+// protocol versions before 2025-06-18.
+func isBatch(body []byte) bool {
+	trimmed := bytes.TrimLeft(body, " \t\r\n")
+	return len(trimmed) > 0 && trimmed[0] == '['
 }
 
 // registerTools adds every tool to the server.
