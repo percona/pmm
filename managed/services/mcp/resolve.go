@@ -99,14 +99,14 @@ func refFromInput(ref *queryRefInput, queryID, serviceID, periodFrom, periodTo s
 	return queryRef{QueryID: queryID, ServiceID: serviceID, PeriodFrom: from, PeriodTo: to, fromQueryRef: ref != nil}, nil
 }
 
-// resolveLive resolves a query for a live-inspection tool under one metric-call slot and token, and returns the
-// release of that slot, which the caller calls before the live part.
+// resolveLive resolves a query for a live-inspection tool under one metric-call slot, as the QAN tools take, and
+// returns the release of that slot, which the caller calls before the live part.
 func (s *Service) resolveLive(ctx context.Context, auth callerAuth, ref queryRef) (*resolvedQuery, func(), error) {
 	err := cmp.Or(checkQANValue("queryid", ref.QueryID), checkQANValue("service_id", ref.ServiceID))
 	if err != nil {
 		return nil, nil, err
 	}
-	release, err := s.startMetricCall(auth)
+	release, err := s.startMetrics(auth)
 	if err != nil {
 		return nil, nil, err
 	}

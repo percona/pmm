@@ -392,7 +392,7 @@ The limits are per caller, identified by a hash of the credential, and per PMM S
 |-------|------------|-------|
 | Calls in flight, per caller | `pmm_inventory`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_top_queries`, `pmm_query_detail`, `pmm_alerts`, and the query lookup of `pmm_get_explain` and `pmm_get_schema` | 4 |
 | Calls in flight, per replica | The same tools | 8 |
-| Call rate, per caller | `pmm_inventory`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_alerts`, and the query lookup of `pmm_get_explain` and `pmm_get_schema` | 60 a minute, 10 at once |
+| Call rate, per caller | `pmm_inventory`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_alerts` | 60 a minute, 10 at once |
 | Live-inspection calls in flight, per caller | `pmm_get_explain` for MySQL and MongoDB, `pmm_get_schema` | 2 |
 | Live-inspection calls in flight, per replica | The same calls | 8 |
 | Live-inspection calls in flight, per service and replica | The same calls | 1 |
@@ -406,7 +406,7 @@ A call refused for its rate is `rate_limited` and says in the message how many s
 
 ### QAN window
 
-`pmm_top_queries` and `pmm_query_detail` read at most 30 days, and so do `pmm_get_explain` and `pmm_get_schema` when they look up a query by its `query_ref` or `queryid`: a longer window is `invalid_input`, and the message asks you to narrow `period_from` or `period_to`. `period_to` defaults to now, and `period_from` to one hour before `period_to`. The two QAN tools also take a slot of the calls-in-flight limits listed under [Rate limits](#rate-limits). The query lookup of `pmm_get_explain` and `pmm_get_schema` takes a slot of those limits and a token of the call rate, and gives the slot back before the live part starts.
+`pmm_top_queries` and `pmm_query_detail` read at most 30 days, and so do `pmm_get_explain` and `pmm_get_schema` when they look up a query by its `query_ref` or `queryid`: a longer window is `invalid_input`, and the message asks you to narrow `period_from` or `period_to`. `period_to` defaults to now, and `period_from` to one hour before `period_to`. The two QAN tools also take a slot of the calls-in-flight limits listed under [Rate limits](#rate-limits). So does the query lookup of `pmm_get_explain` and `pmm_get_schema`, which gives the slot back before the live part starts.
 
 ## Roles
 

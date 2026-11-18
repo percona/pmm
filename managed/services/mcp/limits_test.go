@@ -406,7 +406,7 @@ func TestQANCallsShareMetricSlots(t *testing.T) {
 }
 
 // TestLiveLookupSharesMetricCaps pins that pmm_get_explain and pmm_get_schema look a query up under the 30-day window
-// and one metric-call slot and token, and release that slot before the live part.
+// and one metric-call slot, with no metric token, and release that slot before the live part.
 func TestLiveLookupSharesMetricCaps(t *testing.T) {
 	t.Parallel()
 
@@ -498,7 +498,7 @@ func TestLiveLookupSharesMetricCaps(t *testing.T) {
 			assert.Empty(t, s.metrics.byKey)
 			s.metrics.mu.Unlock()
 			s.metricRate.mu.Lock()
-			assert.Len(t, s.metricRate.buckets, 1, "the lookup takes a metric token")
+			assert.Empty(t, s.metricRate.buckets, "the lookup takes no metric token, like the QAN tools")
 			s.metricRate.mu.Unlock()
 		})
 	}
