@@ -36,12 +36,16 @@ You can explicitly change the oplog size by using either of the following method
 
 1. Set the size in the mongodb configuration file -
 
-> replication:
->    oplogSizeMB: `<int>`
+    ```yaml
+    replication:
+      oplogSizeMB: <int>
+    ```
 
 2. Set the size using mongo shell -
 
-> db.adminCommand({replSetResizeOplog: 1, size: 2048})
+    ```javascript
+    db.adminCommand({replSetResizeOplog: 1, size: 2048})
+    ```
 
 
 For more information on oplog, see the [MongoDB documentation](https://www.mongodb.com/docs/manual/core/replica-set-oplog/).
