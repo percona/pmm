@@ -90,8 +90,29 @@ func TestGrafanaDatasourceDSN(t *testing.T) {
 		assert.Equal(t, "postgres://user:pass@pg.example:5432/gf?sslmode=verify-full", dsn)
 	})
 
+	t.Run("gives the legacy URL Grafana's TLS settings", func(t *testing.T) {
+		// Without sslmode the driver insists on TLS, which Grafana itself does not.
+		t.Setenv("GF_DATABASE_URL", "postgres://user:pass@pg.example:5432/gf")
+
+		dsn, err := grafanaDatasourceDSN(bundledGrafanaPassword, fallback)
+		require.NoError(t, err)
+		assert.Equal(t, "postgres://user:pass@pg.example:5432/gf?sslmode=disable", dsn)
+	})
+
+	t.Run("lets the legacy URL's parameters override Grafana's TLS settings", func(t *testing.T) {
+		t.Setenv("GF_DATABASE_URL", "postgres://user:pass@pg.example:5432/gf?sslmode=require&connect_timeout=5")
+		t.Setenv("GF_DATABASE_SSL_MODE", "verify-full")
+		t.Setenv("GF_DATABASE_CA_CERT_PATH", "/certs/ca.crt")
+
+		dsn, err := grafanaDatasourceDSN(bundledGrafanaPassword, fallback)
+		require.NoError(t, err)
+		assert.Equal(t,
+			"postgres://user:pass@pg.example:5432/gf?connect_timeout=5&sslmode=require&sslrootcert=%2Fcerts%2Fca.crt",
+			dsn)
+	})
+
 	t.Run("uses the bundled database when nothing is configured", func(t *testing.T) {
-		// The ansible role creates this database and user under exactly this condition, so the
+		// postgres-migration creates this database and user under exactly this condition, so the
 		// branches cannot disagree.
 		dsn, err := grafanaDatasourceDSN(bundledGrafanaPassword, fallback)
 		require.NoError(t, err)

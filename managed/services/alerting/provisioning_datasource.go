@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"maps"
 	"net/url"
 	"os"
 	"strings"
@@ -71,7 +72,7 @@ const (
 
 // grafanaDBFallback describes where Grafana's database lives when the deployment has not said.
 // This is the bundled case: Grafana shares PMM's own PostgreSQL server, and the database and user
-// are created by the initialization ansible role.
+// are created by the postgres-migration script that the entrypoint runs.
 type grafanaDBFallback struct {
 	// Addr is PMM's PostgreSQL address, host:port.
 	Addr string
@@ -90,7 +91,7 @@ const (
 // The order matters. Since PMM 3.2.0 an external Grafana database is configured with the discrete
 // GF_DATABASE_* variables, and that is what the pmm-ha Helm chart sets - with a user that is not
 // necessarily "grafana". GF_DATABASE_URL is the older single-URL form. Only when neither is present
-// is the database the bundled one, which is exactly the condition under which the ansible role
+// is the database the bundled one, which is exactly the condition under which postgres-migration
 // creates it, so the branches cannot overlap. The password is Grafana's database password for either database.
 func grafanaDatasourceDSN(password string, fallback grafanaDBFallback) (string, error) {
 	if host := os.Getenv("GF_DATABASE_HOST"); host != "" {
@@ -102,33 +103,26 @@ func grafanaDatasourceDSN(password string, fallback grafanaDBFallback) (string, 
 				envvars.GetEnv("GF_DATABASE_USER", bundledGrafanaUser),
 				password,
 			),
-			Host: host,
-			Path: envvars.GetEnv("GF_DATABASE_NAME", bundledGrafanaDB),
+			Host:     host,
+			Path:     envvars.GetEnv("GF_DATABASE_NAME", bundledGrafanaDB),
+			RawQuery: grafanaSSLParams().Encode(),
 		}
-
-		query := make(url.Values)
-		query.Set("sslmode", envvars.GetEnv("GF_DATABASE_SSL_MODE", "disable"))
-		// verify-ca and verify-full need the material as well, and PMM documents all three paths.
-		for env, param := range map[string]string{
-			"GF_DATABASE_CA_CERT_PATH":     "sslrootcert",
-			"GF_DATABASE_CLIENT_CERT_PATH": "sslcert",
-			"GF_DATABASE_CLIENT_KEY_PATH":  "sslkey",
-		} {
-			if value := os.Getenv(env); value != "" {
-				query.Set(param, value)
-			}
-		}
-		dsn.RawQuery = query.Encode()
 
 		return dsn.String(), nil
 	}
 
 	if raw := os.Getenv("GF_DATABASE_URL"); raw != "" {
-		_, err := url.Parse(raw)
+		dsn, err := url.Parse(raw)
 		if err != nil {
 			return "", fmt.Errorf("failed to parse GF_DATABASE_URL: %w", err)
 		}
-		return raw, nil
+		// Grafana takes the TLS settings from its configuration, not from the URL, and appends the
+		// URL's own parameters after them, so those win.
+		query := grafanaSSLParams()
+		maps.Copy(query, dsn.Query())
+		dsn.RawQuery = query.Encode()
+
+		return dsn.String(), nil
 	}
 
 	if fallback.Addr == "" {
@@ -144,6 +138,24 @@ func grafanaDatasourceDSN(password string, fallback grafanaDBFallback) (string, 
 	}
 
 	return dsn.String(), nil
+}
+
+// grafanaSSLParams returns the TLS settings of Grafana's database connection, defaulting to what Grafana ships.
+func grafanaSSLParams() url.Values {
+	query := make(url.Values)
+	query.Set("sslmode", envvars.GetEnv("GF_DATABASE_SSL_MODE", "disable"))
+	// verify-ca and verify-full need the material as well, and PMM documents all three paths.
+	for env, param := range map[string]string{
+		"GF_DATABASE_CA_CERT_PATH":     "sslrootcert",
+		"GF_DATABASE_CLIENT_CERT_PATH": "sslcert",
+		"GF_DATABASE_CLIENT_KEY_PATH":  "sslkey",
+	} {
+		if value := os.Getenv(env); value != "" {
+			query.Set(param, value)
+		}
+	}
+
+	return query
 }
 
 // deriveMetricsDatasourceUID reproduces the UID Grafana generates for a provisioned datasource that

@@ -6,6 +6,7 @@ declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:?must be exported by the entrypoi
 declare POSTGRES_OLD_DATA_DIR="${POSTGRES_OLD_DATA_DIR:?must be exported by the entrypoint}"
 declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:?must be exported by the entrypoint}"
 declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:?must be exported by the entrypoint}"
+declare GRAFANA_DB_PASSWORD_FILE="/run/pmm/secrets/grafana-db-password"
 
 # ── shared cluster primitives ─────────────────────────────────────────────────
 # Stores the postgres superuser password with restricted permissions.
@@ -44,6 +45,24 @@ create_pg_stat_statements() {
     echo "Ensuring pg_stat_statements extension..."
     "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
         -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public"
+}
+
+# Creates the grafana role with the password Grafana reads, and the database it owns.
+create_grafana_db() {
+    local password
+
+    echo "Creating grafana role and database..."
+    password=$(< "$GRAFANA_DB_PASSWORD_FILE")
+    # Grafana trims the whitespace around the file's content, so the role must not have it either.
+    password="${password#"${password%%[![:space:]]*}"}"
+    password="${password%"${password##*[![:space:]]}"}"
+    # psql interpolates :'password' only in a script it reads, not in -c. The statement carries the
+    # password, which pg_stat_statements must not record.
+    PGOPTIONS="-c pg_stat_statements.track_utility=off" "$POSTGRES_BIN_DIR/psql" -X -v ON_ERROR_STOP=1 \
+        -h /run/postgresql -U postgres -d postgres -v password="$password" <<'SQL'
+CREATE ROLE grafana LOGIN PASSWORD :'password';
+CREATE DATABASE grafana OWNER grafana;
+SQL
 }
 
 # ── pg14 → pg18 upgrade ───────────────────────────────────────────────────────
@@ -111,17 +130,21 @@ upgrade_pg14_to_pg18() {
 
     # Each role owns its database: since PostgreSQL 15 the public schema belongs to
     # pg_database_owner, so ownership is what lets the role create tables in it.
-    # Both roles use their own name as the password, same as the ansible tasks that
-    # provision them on a fresh installation.
+    # pmm-managed's role gets its own name as the password; pmm-managed resets it to the
+    # configured one when it can't log in.
     for db in pmm-managed grafana; do
         dump="${BACKUP_DIR}/pg18-upgrade-${db}.sql"
         if [ ! -f "$dump" ]; then
             continue
         fi
-        echo "Creating $db role and database..."
-        "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
-            -c "CREATE ROLE \"$db\" LOGIN PASSWORD '$db'" \
-            -c "CREATE DATABASE \"$db\" OWNER \"$db\""
+        if [ "$db" = "grafana" ]; then
+            create_grafana_db
+        else
+            echo "Creating $db role and database..."
+            "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
+                -c "CREATE ROLE \"$db\" LOGIN PASSWORD '$db'" \
+                -c "CREATE DATABASE \"$db\" OWNER \"$db\""
+        fi
         echo "Restoring $db database..."
         "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d "$db" -f "$dump"
     done
@@ -169,6 +192,10 @@ init_postgres_cluster() {
     export PGPASSWORD="$POSTGRES_PASSWORD"
     "$POSTGRES_BIN_DIR/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
     create_pg_stat_statements
+    # Grafana connects as soon as supervisord starts it, so its database has to exist by then.
+    if [ -z "${GF_DATABASE_URL}" ] && [ -z "${GF_DATABASE_HOST}" ]; then
+        create_grafana_db
+    fi
     "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$STAGE_DIR" -w
     unset PGPASSWORD
 
