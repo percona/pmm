@@ -1995,3 +1995,21 @@ func TestJoinedDatabaseNames(t *testing.T) {
 		assert.False(t, isError, "a stored plan needs no database: %s", text)
 	})
 }
+
+// TestExplainDatabaseDescription pins that pmm_get_explain's database input says what pmm-agent does with it: it is
+// the connection's database, and pmm-agent still switches to the schema QAN recorded for the query.
+func TestExplainDatabaseDescription(t *testing.T) {
+	t.Parallel()
+
+	tool := listTools(t, connect(t, newQANService(t, newFakePMM(t, qanRoutes()), true)))["pmm_get_explain"]
+	require.NotNil(t, tool)
+	var schema struct {
+		Properties map[string]struct {
+			Description string `json:"description"`
+		} `json:"properties"`
+	}
+	require.NoError(t, json.Unmarshal(mustJSON(t, tool.InputSchema), &schema))
+	desc := schema.Properties["database"].Description
+	assert.NotContains(t, desc, "override")
+	assert.Contains(t, desc, "pmm-agent still switches to the schema QAN recorded for the query")
+}
