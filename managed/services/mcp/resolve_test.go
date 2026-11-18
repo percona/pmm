@@ -17,6 +17,7 @@ package mcp
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"slices"
@@ -595,4 +596,26 @@ func TestRefFromInput(t *testing.T) {
 			assert.NotEmpty(t, res.Meta)
 		})
 	}
+}
+
+func TestMetadataValues(t *testing.T) {
+	t.Parallel()
+
+	for joined, want := range map[string][]string{
+		"":              {},
+		"shop":          {"shop"},
+		", shop":        {"shop"},
+		"shop, tenant2": {"shop", "tenant2"},
+		", a, b":        {"a", "b"},
+	} {
+		assert.Equal(t, want, metadataValues(joined), joined)
+	}
+
+	names := make([]string, 0, maxListedCandidates+5)
+	for i := range maxListedCandidates + 5 {
+		names = append(names, fmt.Sprintf("db%02d", i))
+	}
+	text := listedNames(names)
+	assert.True(t, strings.HasSuffix(text, "db19, and 5 more"), text)
+	assert.NotContains(t, text, "db20")
 }

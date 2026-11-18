@@ -430,6 +430,11 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 
 	var tables []tableRef
 	if svc.Engine == enginePostgreSQL {
+		if len(resolved.Databases) > 1 {
+			return schemaResult{}, newToolError(codeInvalidInput,
+				"the query ran in several databases: %s; pass service_id, database and tables to read its tables in one of them",
+				listedNames(resolved.Databases))
+		}
 		for _, name := range resolved.Tables {
 			t := tableRef{database: resolved.Database, name: name}
 			if strings.TrimSpace(name) != "" && !slices.Contains(tables, t) {

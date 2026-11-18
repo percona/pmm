@@ -1909,3 +1909,89 @@ func TestExplainOlderServiceSharingAName(t *testing.T) {
 	require.False(t, res.IsError, textOf(t, res))
 	assert.Equal(t, "svc-re-old", structured[explainResult](t, res).QueryRef.ServiceID)
 }
+
+// metricsMetadata is a qan:getMetrics answer whose metadata holds the service, schema and database, as qan-api2
+// joins them: the distinct values, sorted, an empty one included, joined with ", ".
+func metricsMetadata(t *testing.T, service, schema, database string) fixture {
+	t.Helper()
+
+	return fixture{body: mustJSON(t, map[string]any{
+		"fingerprint": "SELECT 1",
+		"metadata":    map[string]string{"service_name": service, "schema": schema, "database": database},
+	})}
+}
+
+// TestJoinedDatabaseNames pins how a query recorded under several schemas or databases picks the one its actions use.
+func TestJoinedDatabaseNames(t *testing.T) {
+	t.Parallel()
+
+	explainDatabase := func(t *testing.T, schema string, args map[string]any) string {
+		t.Helper()
+
+		fake, stub := newActionStub(t, 0)
+		fake.routes["POST /v1/qan:getMetrics"] = metricsMetadata(t, "shop-mysql", schema, "")
+		text, isError := callText(t, connect(t, newQANService(t, fake, true)), "pmm_get_explain", args)
+		require.False(t, isError, text)
+		require.Len(t, stub.starts, 1)
+		require.NotNil(t, stub.starts[0].MysqlExplainJSON)
+		return stub.starts[0].MysqlExplainJSON.Database
+	}
+
+	t.Run("MySQLEmptyAndOne", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "shop", explainDatabase(t, ", shop", map[string]any{"queryid": "QID-AAA"}))
+	})
+
+	t.Run("MySQLSeveral", func(t *testing.T) {
+		t.Parallel()
+		assert.Empty(t, explainDatabase(t, "shop, tenant2", map[string]any{"queryid": "QID-AAA"}), "pmm-agent switches to QAN's schema itself")
+		assert.Equal(t, "tenant2", explainDatabase(t, "shop, tenant2", map[string]any{"queryid": "QID-AAA", "database": "tenant2"}))
+	})
+
+	t.Run("MySQLSeveralTables", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-join-aliases.json"), "SELECT 1")
+		fake.routes["POST /v1/qan:getMetrics"] = metricsMetadata(t, "shop-mysql", "shop, tenant2", "")
+		text, isError := callText(t, connect(t, newQANService(t, fake, true)), "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		require.False(t, isError, text)
+		require.NotEmpty(t, stub.starts)
+		require.NotNil(t, stub.starts[0].MysqlExplainJSON)
+		assert.Empty(t, stub.starts[0].MysqlExplainJSON.Database)
+	})
+
+	t.Run("PostgreSQLEmptyAndOne", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		postgresQuery(fake)
+		fake.routes["POST /v1/qan:getMetrics"] = metricsMetadata(t, "shop-postgres", "", ", shop_pg")
+		text, isError := callText(t, connect(t, newQANService(t, fake, true)), "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		require.False(t, isError, text)
+		require.NotEmpty(t, stub.starts)
+		for _, start := range stub.starts {
+			if start.PostgresShowCreateTable != nil {
+				assert.Equal(t, "shop_pg", start.PostgresShowCreateTable.Database)
+			}
+		}
+	})
+
+	t.Run("PostgreSQLSeveral", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		postgresQuery(fake)
+		fake.routes["POST /v1/qan:getMetrics"] = metricsMetadata(t, "shop-postgres", "", "shop_pg, tenant_pg")
+		fake.routes["GET /v1/qan/query/QID-PG/plan"] = fixture{file: "plan.json"}
+		session := connect(t, newQANService(t, fake, true))
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assert.Equal(t, "error: invalid_input\nthe query ran in several databases: shop_pg, tenant_pg; "+
+			"pass service_id, database and tables to read its tables in one of them", text)
+		assert.Empty(t, stub.starts)
+
+		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-PG"})
+		assert.False(t, isError, "a stored plan needs no database: %s", text)
+	})
+}

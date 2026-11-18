@@ -50,10 +50,13 @@ type queryRefInput struct {
 
 // resolvedQuery is a query reference resolved to one service in the caller's list.
 type resolvedQuery struct {
-	Service  serviceInfo
-	Ref      queryRef
+	Service serviceInfo
+	Ref     queryRef
+	// Database is the one database or schema QAN recorded for the query, empty when it recorded none or several.
 	Database string
-	Tables   []string
+	// Databases are the distinct databases or schemas QAN recorded for the query.
+	Databases []string
+	Tables    []string
 	// Example is the stored statement as QAN holds it, empty when QAN has none for this service.
 	Example string
 	// MetricsErr is the failure of the metrics call that Database comes from.
@@ -176,14 +179,22 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	}
 	switch svc.Engine {
 	case engineMySQL:
-		out.Database = schema
-		if out.Database == "" && example != nil {
-			out.Database = example.Schema
+		out.Databases = metadataValues(schema)
+		if len(out.Databases) == 0 && example != nil {
+			out.Databases = metadataValues(example.Schema)
 		}
 	default:
-		out.Database = database
+		out.Databases = metadataValues(database)
+	}
+	if len(out.Databases) == 1 {
+		out.Database = out.Databases[0]
 	}
 	return out, nil
+}
+
+// metadataValues splits a qan:getMetrics metadata value, the distinct values joined with ", ", and drops the empty ones.
+func metadataValues(joined string) []string {
+	return slices.DeleteFunc(strings.Split(joined, ", "), func(v string) bool { return v == "" })
 }
 
 // errNotInList is the not_found for a service outside the service list of the window, naming the window and no service.
@@ -276,6 +287,15 @@ func ambiguousMessage(candidates []serviceInfo, total int64, fromQueryRef bool) 
 		return text + "; set service_id inside query_ref to one of these"
 	}
 	return text + "; pass service_id to choose one"
+}
+
+// listedNames joins names for a message, at most maxListedCandidates of them, and counts the rest.
+func listedNames(names []string) string {
+	text := strings.Join(names[:min(len(names), maxListedCandidates)], ", ")
+	if more := len(names) - maxListedCandidates; more > 0 {
+		text += fmt.Sprintf(", and %d more", more)
+	}
+	return text
 }
 
 // windowText renders a window for a message.
