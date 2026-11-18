@@ -9,6 +9,18 @@ export const getStyles = (
   navItemRoot: {
     borderRadius: 0,
   },
+  // Hidden in the collapsed drawer: leaving it to the drawer's edge depends on NavItem's padding
+  navItemLabel: {
+    [`.${listItemTextClasses.root}`]: {
+      opacity: drawerOpen ? 1 : 0,
+      transition: theme.transitions.create('opacity', {
+        easing: theme.transitions.easing.sharp,
+        duration: drawerOpen
+          ? theme.transitions.duration.enteringScreen
+          : theme.transitions.duration.leavingScreen,
+      }),
+    },
+  },
   leafItem: drawerOpen
     ? {
         mr: level > 0 ? 1 : 0,

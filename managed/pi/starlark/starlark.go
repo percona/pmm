@@ -113,9 +113,16 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 	}
 	if printFunc != nil {
 		thread.Print = func(t *starlark.Thread, msg string) {
-			// make it look similar to starlark.CallStack.String
+			// check -> function:line:col -> printed message, so the output
+			// is easy to trace back to the originating line
 			fr := t.CallFrame(1)
-			printFunc("thread "+t.Name+":", fr.Pos.String()+":", "in", fr.Name+":", msg)
+			printFunc(
+				fr.Pos.Filename(),
+				"->",
+				fmt.Sprintf("%s:%d:%d", fr.Name, fr.Pos.Line, fr.Pos.Col),
+				"->",
+				msg,
+			)
 		}
 	}
 
@@ -124,7 +131,7 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 		var eErr *starlark.EvalError
 		if ok := errors.As(err, &eErr); ok {
 			// tweak message, but keep original type, callstack, and cause
-			eErr.Msg = fmt.Sprintf("thread %s: failed to init script: %s\n%s", threadName, eErr.Msg, eErr.CallStack)
+			eErr.Msg = fmt.Sprintf("failed to init script: %s\n%s", eErr.Msg, eErr.CallStack)
 			return nil, eErr
 		}
 
@@ -135,7 +142,7 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 
 	fn := globals[funcName]
 	if fn == nil {
-		return nil, fmt.Errorf("thread %s: function %s is not defined", threadName, funcName)
+		return nil, fmt.Errorf("function %s is not defined", funcName)
 	}
 
 	v, err := starlark.Call(thread, fn, args, nil)
@@ -143,7 +150,7 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 		var eErr *starlark.EvalError
 		if ok := errors.As(err, &eErr); ok {
 			// tweak message, but keep original type, callstack, and cause
-			eErr.Msg = fmt.Sprintf("thread %s: failed to execute function %s: %s\n%s", threadName, funcName, eErr.Msg, eErr.CallStack)
+			eErr.Msg = fmt.Sprintf("failed to execute function %s: %s\n%s", funcName, eErr.Msg, eErr.CallStack)
 			return nil, eErr
 		}
 
@@ -274,6 +281,16 @@ func convertResult(m map[string]any) (*check.Result, error) {
 		return nil, err
 	}
 
+	// parse severity here, where the raw string is still available for the error message
+	parsedSeverity := common.ParseSeverity(severity)
+	err = parsedSeverity.Validate()
+	if err != nil {
+		if severity == "" {
+			return nil, errors.New("severity is required")
+		}
+		return nil, fmt.Errorf("unknown severity level: '%s'", severity)
+	}
+
 	var labels map[string]string
 
 	l, ok := m["labels"]
@@ -298,7 +315,7 @@ func convertResult(m map[string]any) (*check.Result, error) {
 		Summary:     summary,
 		Description: description,
 		ReadMoreURL: readMoreURL,
-		Severity:    common.ParseSeverity(severity),
+		Severity:    parsedSeverity,
 		Labels:      labels,
 	}
 

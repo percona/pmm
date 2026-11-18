@@ -233,7 +233,7 @@ When creating a backup in **Apps > MySQL Backups**, configure encryption in the 
 - **Encrypt backup**: GPG-encrypts the backup as part of the upload, so it requires at least one upload provider. You can also enable **Encrypt using tmpdir** to write to a temporary directory during encryption.
 - **Encrypt after backup completes**: GPG-encrypts the finished backup as a post-run step. Cannot be combined with **Encrypt using tmpdir**.
 
-Both GPG options require an **Encryption recipient** (GPG key or recipient ID). You can enable both GPG timing options at the same time.
+Both GPG options require an **Encryption recipient** (GPG key or recipient ID). With a GPG format, turn on at least one of the two timing options; you can also turn on both. Until you do, the form shows an error on both switches and won't create the backup.
 
 For Binlog backups, AES-256 formats require at least one upload provider, because AES-256 runs during upload for Binlog.
 
@@ -255,6 +255,9 @@ A daily purge job removes log bodies for finished tasks older than the configure
 
 #### Handle large runs
 PMM caps each log stream at 100 MiB. If a run exceeds this limit, PMM drops the oldest log chunks. To retain all logs, keep each run's log output under 100 MiB.
+
+#### Spot incomplete logs
+If some of a finished run's log output was lost before PMM could store it, the **Execution History** tab shows a warning icon beside the run's status. Hover over or tab to the icon to see **Captured logs are incomplete**. Runs that are still in progress never show the icon.
 
 #### Execution host logs
 Nomad allocation files on the execution host follow Nomad's own garbage collection, independent of `TASKS__LOG_RETENTION_DAYS`.

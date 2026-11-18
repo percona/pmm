@@ -1,8 +1,6 @@
 name: Feature Request
 description: Suggest an idea for this project
 labels: ["feature", "triage"]
-assignees:
-  - BupycHuk
 body:
   - type: markdown
     attributes:
