@@ -268,6 +268,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		// With a stored query example the service and queryid are enough, and
 		// pmm-managed rejects placeholders that do not match it. Without one
 		// PMM EXPLAINs the raw ? fingerprint and MySQL answers 1064, mapped below.
+		// qan-api2 reads any one stored row of the query, which can lack the example QAN has in other rows.
 		database := cmp.Or(in.Database, resolved.Database)
 		if format == formatTraditional {
 			body.MysqlExplain = &actions_service.StartServiceActionParamsBodyMysqlExplain{
@@ -306,7 +307,8 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 
 	output, err := s.runAction(ctx, auth, body, !raw)
 	if err != nil {
-		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "")
+		storedExample := svc.Engine == engineMySQL && resolved.Example != "" && len(in.Placeholders) == 0
+		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "", storedExample)
 	}
 
 	plan, decoded := decodeExplainOutput(output, raw)
@@ -492,7 +494,8 @@ func (s *Service) planTablesOf(ctx context.Context, auth callerAuth, resolved *r
 	}
 	output, err := s.runAction(ctx, auth, body, !s.rawSQL())
 	if err != nil {
-		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative)
+		storedExample := resolved.Example != "" && len(placeholders) == 0
+		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative, storedExample)
 	}
 	// Only the plan is read: the explained statement can be the stored example, literals included.
 	plan, err := decodeExplainEnvelope(output)
@@ -749,14 +752,18 @@ func mapActionStartError(err error) error {
 }
 
 // mysqlExplainError gives a failed MySQL EXPLAIN action's placeholder errors their remediation: hint follows a 1064,
-// and alternative follows the placeholder-count message.
-func mysqlExplainError(err error, hint, alternative string) error {
+// and alternative follows the placeholder-count message. With storedExample (QAN stored an example in the window and
+// the call passed no placeholders), either error means PMM read a stored row of the query without the example.
+func mysqlExplainError(err error, hint, alternative string, storedExample bool) error {
 	te, ok := errors.AsType[*toolError](err)
 	if !ok || te.code != codeInvalidInput {
 		return err
 	}
+	countError := strings.Contains(te.message, placeholdersCountError)
 	switch {
-	case strings.Contains(te.message, placeholdersCountError):
+	case storedExample && (countError || strings.HasPrefix(te.message, "Error 1064 ")):
+		return newToolError(codePMMUnavailable, "%s%s", rowWithoutExampleMessage, alternative)
+	case countError:
 		return newToolError(codeInvalidInput, "%s%s", placeholdersCountMessage, alternative)
 	case strings.HasPrefix(te.message, "Error 1064 "):
 		// MySQL answered 1064: EXPLAIN ran on the ? fingerprint because no concrete statement was available.
@@ -777,6 +784,9 @@ const (
 	placeholdersCountError   = "placeholders count is not correct"
 	placeholdersCountMessage = "the number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, " +
 		"in order, or none when QAN stored a query example"
+	rowWithoutExampleMessage = "QAN stored an example of this query, but PMM's EXPLAIN read one of the query's stored rows that " +
+		"has none, so it had no statement to explain. PMM reads any one of those rows and only some carry the example: " +
+		"call again, and the next call can read one that does"
 	mongoExplainRemediation = "pmm-agent explains MongoDB queries, updates, removes and getMores, and the find, findAndModify, " +
 		"update, aggregate, count, distinct, mapReduce, group and getMore commands; it refuses inserts, drops and other commands. " +
 		"Pick another query from pmm_top_queries"

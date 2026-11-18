@@ -378,6 +378,7 @@ func TestExplainTool(t *testing.T) {
 
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
 		fake.routes["POST /v1/actions:startServiceAction"] = fixture{file: "error_400_placeholders.json", status: http.StatusBadRequest}
+		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_empty.json"}
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
@@ -392,12 +393,53 @@ func TestExplainTool(t *testing.T) {
 		t.Parallel()
 
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_error_1064.json")
+		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_empty.json"}
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nEXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064"), text)
 		assert.Contains(t, text, "pass placeholders")
+	})
+
+	// QAN stored an example in the window, but the action read a stored row without one.
+	t.Run("RowWithoutExample", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tc := range []struct {
+			name  string
+			start fixture
+			done  string
+		}{
+			{"PlaceholdersCount", fixture{file: "error_400_placeholders.json", status: http.StatusBadRequest}, "action_done_explain.json"},
+			{"Error1064", fixture{file: "action_start_explain.json"}, "action_done_error_1064.json"},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				fake, _ := actionRoutes(t, "action_start_explain.json", tc.done)
+				fake.routes["POST /v1/actions:startServiceAction"] = tc.start
+				session := connect(t, newQANService(t, fake, false))
+
+				res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
+				assert.True(t, res.IsError)
+				assert.Equal(t, map[string]any{"code": "pmm_unavailable", "retryable": true}, res.Meta["com.percona/error"])
+				assert.Equal(t, "error: pmm_unavailable\n"+rowWithoutExampleMessage, textOf(t, res))
+			})
+		}
+	})
+
+	// With placeholders the call chose the fingerprint, so a 1064 is about its values.
+	t.Run("PlaceholderErrorWithPlaceholders", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_error_1064.json")
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_explain",
+			map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "placeholders": []string{"1"}})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nEXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064"), text)
 	})
 
 	t.Run("PrivilegeError", func(t *testing.T) {
@@ -873,6 +915,7 @@ func TestSchemaTool(t *testing.T) {
 		fake, stub := newActionStub(t, 0)
 		stub.explainErr = "Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server " +
 			"version for the right syntax to use near '?' at line 1"
+		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_empty.json"}
 		session := connect(t, newQANService(t, fake, true))
 
 		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
@@ -883,6 +926,22 @@ func TestSchemaTool(t *testing.T) {
 		assert.Contains(t, text, "pass placeholders (one value per ?, in order), or pass service_id, database and tables")
 		require.Len(t, stub.starts, 1, "no DDL action after a failed EXPLAIN")
 		assert.NotNil(t, stub.starts[0].MysqlExplainJSON)
+	})
+
+	// QAN stored an example in the window, but the EXPLAIN read a stored row without one.
+	t.Run("MySQLRowWithoutExample", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explainErr = "Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server " +
+			"version for the right syntax to use near '?' at line 1"
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, res.IsError)
+		assert.Equal(t, map[string]any{"code": "pmm_unavailable", "retryable": true}, res.Meta["com.percona/error"])
+		assert.Equal(t, "error: pmm_unavailable\n"+rowWithoutExampleMessage+schemaCountAlternative, textOf(t, res))
+		require.Len(t, stub.starts, 1, "no DDL action after a failed EXPLAIN")
 	})
 
 	t.Run("MySQLPlaceholdersCountError", func(t *testing.T) {
