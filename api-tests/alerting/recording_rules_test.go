@@ -143,7 +143,7 @@ func rulerRequest(t *testing.T, method, login, password, path string, body []byt
 
 	resp, err := pmmapitests.HTTPClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close()
 
 	b, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
