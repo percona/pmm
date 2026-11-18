@@ -85,17 +85,19 @@ To upgrade PMM Server, you manually update the `PMM_IMAGE` in the environment fi
     EnvironmentFile=%h/.config/systemd/user/pmm-server.env
     Environment=PMM_VOLUME_NAME=pmm-data
     TimeoutStartSec=480
+    TimeoutStopSec=90
     Restart=on-failure
     RestartSec=20
     ExecStart=/usr/bin/podman run \
         --volume=${PMM_VOLUME_NAME}:/srv \
         --rm --replace=true --name %N \
+        --stop-timeout=60 \
         --env-file=%h/.config/systemd/user/pmm-server.env \
         --net pmm_default \
         --cap-add=net_admin,net_raw \
         --userns=keep-id:uid=1000,gid=1000 \
         -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
-    ExecStop=/usr/bin/podman stop -t 10 %N
+    ExecStop=/usr/bin/podman stop -t 60 %N
     [Install]
     WantedBy=default.target
     ```
@@ -115,6 +117,26 @@ To upgrade PMM Server, you manually update the `PMM_IMAGE` in the environment fi
 5. Go to `https://localhost:443` to access the PMM user interface in a web browser. If you are accessing the host remotely, replace `localhost` with the IP or server name of the host.
 
 For information on manually upgrading, see [Upgrade PMM Server using Podman](../../../../pmm-upgrade/upgrade_podman.md).
+
+## Update an existing service file
+
+Upgrading PMM Server doesn't change your service file, so an existing installation doesn't get later changes to the file on this page. Change only the lines that differ instead of replacing the whole file, because your file can have other settings. For example, on AWS it mounts `/home/admin/volume/srv` instead of the `pmm-data` volume.
+
+To give PMM Server 60 seconds to shut down instead of 10:
+{.power-number}
+
+1. In `~/.config/systemd/user/pmm-server.service`, make these changes:
+
+    - Add `TimeoutStopSec=90` to the `[Service]` section.
+    - Add `--stop-timeout=60 \` to the `podman run` options.
+    - Change `ExecStop` to `ExecStop=/usr/bin/podman stop -t 60 %N`.
+
+2. Reload the service file and restart PMM Server:
+
+    ```sh
+    systemctl --user daemon-reload
+    systemctl --user restart pmm-server
+    ```
 
 
 ## Related topics

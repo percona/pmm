@@ -16,13 +16,16 @@ ExecStart=/usr/bin/podman run \
     --volume /home/admin/.ssh/:/home/pmm/.ssh/ \
     --volume /home/admin/.config/systemd/user/:/home/pmm/update/  \
     --rm --replace=true --name %N \
+    --stop-timeout=60 \
     --env-file=/home/admin/.config/systemd/user/pmm-server.env \
     --net pmm_default \
     --cap-add=net_admin,net_raw \
     --userns=keep-id:uid=1000,gid=1000 \
     -p 443:8443/tcp --ulimit=host ${PMM_IMAGE}
 
-ExecStop=/usr/bin/podman stop -t 10 %N
+# Must exceed the podman stop timeout, or systemd kills podman stop before the container stops
+TimeoutStopSec=90
+ExecStop=/usr/bin/podman stop -t 60 %N
 
 [Install]
 WantedBy=default.target
