@@ -62,6 +62,13 @@ var templateKeywords = []string{"with", "ttf", "ru", "range_median", "alias"}
 // seriesPerValueFuncs are the functions that create a series for each distinct sample value.
 var seriesPerValueFuncs = []string{"count_values", "count_values_over_time", "histogram", "histogram_over_time"}
 
+// seriesPerPhiFuncs map each function that creates a series for each phi argument to its single-phi form.
+var seriesPerPhiFuncs = map[string]string{
+	"quantiles_over_time": "quantile_over_time",
+	"quantiles":           "quantile",
+	"histogram_quantiles": "histogram_quantile",
+}
+
 // stepTooSmallError is the refusal of a step too small for a rollup over an expression that is not a selector.
 type stepTooSmallError struct {
 	*toolError
@@ -261,9 +268,16 @@ func (w *exprWalk) expr(e metricsql.Expr, p path) error {
 	}
 }
 
-// checkFunc refuses a function that creates a series for each distinct value, whose result no budget bounds.
+// checkFunc refuses a function that creates a series for each distinct value or for each phi argument.
 func checkFunc(name string) error {
-	if !slices.Contains(seriesPerValueFuncs, strings.ToLower(name)) {
+	lower := strings.ToLower(name)
+	single, ok := seriesPerPhiFuncs[lower]
+	if ok {
+		return newToolError(codeInvalidInput,
+			"%s() is not accepted: it creates a series for each phi argument, so its result grows with its arguments; call %s() once per phi instead",
+			name, single)
+	}
+	if !slices.Contains(seriesPerValueFuncs, lower) {
 		return nil
 	}
 	return newToolError(codeInvalidInput,

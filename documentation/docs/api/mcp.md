@@ -354,6 +354,7 @@ The server refuses these expressions before it sends any request. Every refusal 
 - **`@`.** The `@` modifier is refused, since it reads outside the query's time range.
 - **Templates.** A MetricsQL `WITH` template and the built-in templates `ttf`, `ru`, `range_median` and `alias` are refused, because they expand before the checks run.
 - **Series per value.** Functions that create a series for each distinct value, or whose output no budget bounds, are refused: `count_values`, `count_values_over_time`, `histogram` and `histogram_over_time`. `aggr_over_time` is refused when it names one of them in a string argument.
+- **Series per phi.** Functions that create a series for each phi argument are refused: `quantiles_over_time`, `quantiles` and `histogram_quantiles`. Call `quantile_over_time`, `quantile` or `histogram_quantile` once for each phi instead.
 - **Characters.** A non-ASCII character or a backslash outside a quoted string is refused. Label values and other strings can hold both.
 - **Subquery step.** The step of a subquery, written as `[range:step]`, is at least the time read divided by 2,000. A subquery without a step takes the step of the query and is checked the same way.
 - **Instant range.** An instant `pmm_query_metrics` query can't be a range selector or a subquery, such as `x[5m]`, `x[1h:1m]` or `x[:1m]`, with or without `offset`, since VictoriaMetrics answers it with a range of samples. Wrap it in a rollup such as `last_over_time()` or `rate()`, or send a range query.

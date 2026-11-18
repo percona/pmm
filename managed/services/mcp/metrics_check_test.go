@@ -39,6 +39,7 @@ func TestCheckExpr(t *testing.T) {
 		scope    = "service_id, service_name, node_id or node_name"
 		capped   = "the cap is 7d"
 		perValue = "it creates a series for each distinct value, so its result can't be bounded"
+		perPhi   = "it creates a series for each phi argument, so its result grows with its arguments"
 	)
 	for _, tc := range []struct {
 		name string
@@ -188,6 +189,31 @@ func TestCheckExpr(t *testing.T) {
 			want: []string{"Histogram_Over_Time() is not accepted"},
 		},
 		{name: "aggr_over_time naming allowed rollups", expr: `aggr_over_time(("min_over_time", "max_over_time"), mysql_up{service_name="db1"}[5m])`, span: time.Hour},
+		{
+			expr: `quantiles_over_time("phi", 0.5, 0.9, 0.99, mysql_global_status_questions{service_name="db1"}[5m])`, span: time.Hour,
+			want: []string{"quantiles_over_time() is not accepted", perPhi, "call quantile_over_time() once per phi"},
+		},
+		{
+			expr: `quantiles("phi", 0.5, 0.9, rate(mysql_global_status_questions{service_name="db1"}[5m]))`, span: time.Hour,
+			want: []string{"quantiles() is not accepted", perPhi, "call quantile() once per phi"},
+		},
+		{
+			expr: `histogram_quantiles("phi", 0.5, 0.9, rate(mysql_global_status_questions{service_name="db1"}[5m]))`, span: time.Hour,
+			want: []string{"histogram_quantiles() is not accepted", perPhi, "call histogram_quantile() once per phi"},
+		},
+		{
+			name: "an upper-case quantiles inside an operator",
+			expr: `1 + QUANTILES("phi", 0.5, mysql_up{service_name="db1"})`, span: time.Hour,
+			want: []string{"quantiles() is not accepted", "call quantile() once per phi"},
+		},
+		{
+			name: "aggr_over_time naming quantiles_over_time",
+			expr: `aggr_over_time("quantiles_over_time", mysql_up{service_name="db1"}[5m])`, span: time.Hour,
+			want: []string{"quantiles_over_time() is not accepted"},
+		},
+		{expr: `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[5m])`, span: time.Hour},
+		{expr: `quantile(0.9, rate(mysql_global_status_questions{service_name="db1"}[5m]))`, span: time.Hour},
+		{expr: `histogram_quantile(0.9, rate(mysql_global_status_questions{service_name="db1"}[5m]))`, span: time.Hour},
 		{name: "a subquery without a selector reads no storage", expr: `max_over_time(time()[100d:1s])`},
 		{expr: `mysql\_up{service_name="db1"}`, span: time.Hour, want: []string{"backslash at byte 5"}},
 		{expr: `mysql_up{service_name="db1"} # café`, span: time.Hour, want: []string{"non-ASCII character at byte 34"}},
