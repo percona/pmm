@@ -122,13 +122,10 @@ func (p *Params) String() string {
 
 // New creates new process.
 func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
-	pl := newProcessLogger(l, keepLogLines, redactWords)
-	pl.listenPort = params.ListenPort
-
 	return &Process{
 		params:      params,
 		l:           l,
-		pl:          pl,
+		pl:          newProcessLogger(l, keepLogLines, redactWords, params.ListenPort),
 		changes:     make(chan inventoryv1.AgentStatus, 10), //nolint:mnd
 		backoff:     backoff.New(backoffMinDelay, backoffMaxDelay),
 		ctxDone:     make(chan struct{}),

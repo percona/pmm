@@ -1320,7 +1320,7 @@ func TestFailedStartAndPorts(t *testing.T) {
 }
 
 // TestFailedStartKeepsEntry covers an Agent process that fails to start, which keeps its entry
-// and port while its process backs off (see PMM-15773).
+// and port while its process backs off.
 func TestFailedStartKeepsEntry(t *testing.T) {
 	t.Parallel()
 
@@ -1385,6 +1385,22 @@ func TestFailedStartKeepsEntry(t *testing.T) {
 		assert.NotSame(t, entry, restarted)
 		assert.Equal(t, []string{"10"}, restarted.requestedState.Args)
 		assert.Equal(t, entry.listenPort, restarted.listenPort)
+	})
+
+	t.Run("FailedRestartKeepsEntryAndPort", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 64470)
+		drain(s)
+
+		setState(t, s, "10")
+		entry := agentEntry(s, "sleep1")
+		require.NotNil(t, entry)
+
+		// A broken template fails every attempt of the restart.
+		setState(t, s, "{{ .nope")
+		assert.Same(t, entry, agentEntry(s, "sleep1"))
+		assert.True(t, isReserved(s, entry.listenPort), "port of the kept entry is not reserved")
 	})
 
 	t.Run("RestartAgentsStartsTheLatestParams", func(t *testing.T) {

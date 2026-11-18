@@ -744,8 +744,8 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 	entryPort := port
 	var err error
 	for attempt := range processRetryCount {
-		// Only a port reserved here is given back below. One passed in belongs to the
-		// caller's Agent entry, which goes on referring to it if every attempt fails.
+		// A port passed in belongs to the caller's Agent entry, which goes on referring to
+		// it if every attempt fails, so a failed attempt gives back only a port reserved here.
 		var reserved bool
 		if port == 0 {
 			var _port uint16
@@ -767,10 +767,7 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 			return nil
 		}
 
-		// The next attempt reserves a port of its own, so without this the failed
-		// attempt's reservation is lost for good: clearing port is the last reference to
-		// it, and portsRegistry only forgets a port on Release. The Agent never started,
-		// so nothing of ours is listening on it and the release succeeds.
+		// The attempt's process has exited, so nothing of ours listens on this port.
 		if reserved {
 			s.portsRegistry.Release(port)
 		}

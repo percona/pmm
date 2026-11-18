@@ -223,7 +223,7 @@ func TestProcess(t *testing.T) {
 		ctx, cancel, l := setup(t)
 		defer cancel()
 
-		logger := newProcessLogger(l, 2, nil)
+		logger := newProcessLogger(l, 2, nil, 0)
 
 		pCmd := exec.CommandContext(ctx, f.Name())
 		pCmd.Stdout = logger

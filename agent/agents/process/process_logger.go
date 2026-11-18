@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"io"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -33,17 +34,19 @@ type processLogger struct {
 	buf          []byte
 	i            int
 	data         []*string
-	listenPort   uint16
+	bindErrors   []string
 	cannotListen bool
 
 	replacer *strings.Replacer
 }
 
-// newProcessLogger creates new processLogger with a given logger and a given amount of lines to keep.
-func newProcessLogger(l *logrus.Entry, lines int, redactWords []string) *processLogger {
+// newProcessLogger creates new processLogger with a given logger, amount of lines to keep and process's listen port.
+func newProcessLogger(l *logrus.Entry, lines int, redactWords []string, listenPort uint16) *processLogger {
+	bind := ":" + strconv.Itoa(int(listenPort)) + ": bind: "
 	pl := &processLogger{
-		l:    l,
-		data: make([]*string, lines),
+		l:          l,
+		data:       make([]*string, lines),
+		bindErrors: []string{bind + "address already in use", bind + "permission denied"},
 	}
 
 	if l != nil && l.Logger.GetLevel() >= logrus.DebugLevel {
@@ -75,8 +78,8 @@ func (pl *processLogger) Write(p []byte) (int, error) {
 			return n, nil
 		}
 		line = strings.TrimSuffix(line, "\n")
-		// Before redaction, which can mask the port; see PMM-15773.
-		if bindFailed(line, pl.listenPort) {
+		// Before redaction, which can mask the port.
+		if !pl.cannotListen && pl.bindFailed(line) {
 			pl.cannotListen = true
 		}
 		if pl.replacer != nil {
@@ -128,11 +131,12 @@ func (pl *processLogger) portInUse() bool {
 	return pl.cannotListen
 }
 
-// bindFailed reports whether line is Go's error for a listener that could not bind port, taken or
-// refused (as SELinux port labelling does); a bind error without that port is for another listener.
-func bindFailed(line string, port uint16) bool {
-	bind := ":" + strconv.Itoa(int(port)) + ": bind: "
-	return strings.Contains(line, bind+"address already in use") || strings.Contains(line, bind+"permission denied")
+// bindFailed reports whether line is Go's error for a listener that could not bind the listen port, taken
+// or refused (as SELinux port labelling does); a bind error without that port is for another listener.
+func (pl *processLogger) bindFailed(line string) bool {
+	return slices.ContainsFunc(pl.bindErrors, func(bindError string) bool {
+		return strings.Contains(line, bindError)
+	})
 }
 
 func replacer(redactWords []string) *strings.Replacer {

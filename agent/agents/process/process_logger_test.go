@@ -130,7 +130,7 @@ func TestProcessLogger(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
-			pl := newProcessLogger(nil, tt.writerLines, tt.redactWords)
+			pl := newProcessLogger(nil, tt.writerLines, tt.redactWords, 0)
 			for _, arg := range tt.writeArgs {
 				_, err := pl.Write([]byte(arg))
 				require.NoError(t, err)
@@ -146,6 +146,7 @@ func TestProcessLogger(t *testing.T) {
 func TestBindFailed(t *testing.T) {
 	t.Parallel()
 
+	pl := newProcessLogger(nil, 1, nil, 42000)
 	for _, tc := range []struct {
 		line string
 		want bool
@@ -157,6 +158,6 @@ func TestBindFailed(t *testing.T) {
 		{"address already in use", false},
 		{"cannot acquire lock on file", false},
 	} {
-		assert.Equal(t, tc.want, bindFailed(tc.line, 42000), tc.line)
+		assert.Equal(t, tc.want, pl.bindFailed(tc.line), tc.line)
 	}
 }
