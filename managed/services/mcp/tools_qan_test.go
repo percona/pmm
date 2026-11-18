@@ -1296,82 +1296,140 @@ func searchReport(t *testing.T, total, offset int, fingerprints ...string) fixtu
 	return fixture{body: mustJSON(t, map[string]any{"total_rows": total, "offset": offset, "limit": len(fingerprints), "rows": rows})}
 }
 
-// TestTopQueriesSearch pins that search reaches QAN's LIKE as literal text, and that with raw SQL off a search
-// leaves out the rows whose fingerprint is withheld, counting them out of the total.
+// TestTopQueriesSearch pins that search reaches QAN's LIKE as literal text, and that with raw SQL off a search on
+// queryid rows matches only the text the caller sees, and is paged and counted from those rows alone.
 func TestTopQueriesSearch(t *testing.T) {
 	t.Parallel()
 
 	const (
-		normalized = "SELECT `id` FROM `t` WHERE `id` = ?"
-		unnormal   = "INSERT INTO users (email) VALUES ('user42@example.com')"
+		orders   = "SELECT `id` FROM `orders` WHERE `id` = ?"
+		users    = "SELECT `id` FROM `users` WHERE `id` = ?"
+		withheld = "INSERT INTO users (email) VALUES ('user42@example.com')"
+		comment  = "/* user:bob */ SELECT `id` FROM `t` WHERE `id` = ?"
 	)
+	search := func(t *testing.T, raw bool, report fixture, args map[string]any) (*fakePMM, topQueriesResult, string) {
+		t.Helper()
+
+		fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{"POST " + reportPath: report}))
+		res := callTool(t, connect(t, newQANService(t, fake, raw)), "pmm_top_queries", args)
+		return fake, structured[topQueriesResult](t, res), textOf(t, res)
+	}
+	dimensions := func(rows []queryRow) []string {
+		out := make([]string, 0, len(rows))
+		for _, row := range rows {
+			out = append(out, row.Dimension)
+		}
+		return out
+	}
 
 	t.Run("Escaped", func(t *testing.T) {
 		t.Parallel()
 
 		assert.Equal(t, `100\%\_off \\ a`, escapeLike(`100%_off \ a`))
-
-		fake := newFakePMM(t, qanRoutes())
-		text, isError := callText(t, connect(t, newQANService(t, fake, true)), "pmm_top_queries", map[string]any{"search": `50%_x\`})
-		require.False(t, isError, text)
-		body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo(reportPath)[0])
-		assert.Equal(t, `50\%\_x\\`, body.Search)
+		for _, raw := range []bool{true, false} {
+			fake, _, _ := search(t, raw, searchReport(t, 1, 0, orders), map[string]any{"search": `50%_x\`})
+			body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo(reportPath)[0])
+			assert.Equal(t, `50\%\_x\\`, body.Search, "raw SQL %t", raw)
+		}
 	})
 
-	for _, tc := range []struct {
-		name      string
-		raw       bool
-		search    string
-		wantRows  []string
-		wantTotal int
-	}{
-		{"RawOffSearch", false, "users", []string{"Q2"}, 1},
-		{"RawOnSearch", true, "users", []string{"Q1", "Q2", "Q3"}, 3},
-		{"RawOffNoSearch", false, "", []string{"Q1", "Q2", "Q3"}, 3},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			routes := withRoutes(qanRoutes(), map[string]fixture{"POST " + reportPath: searchReport(t, 3, 0, unnormal, normalized, unnormal)})
-			session := connect(t, newQANService(t, newFakePMM(t, routes), tc.raw))
-			res := callTool(t, session, "pmm_top_queries", map[string]any{"search": tc.search, "limit": 3})
-			got := structured[topQueriesResult](t, res)
-			ids := make([]string, 0, len(got.Rows))
-			for i, row := range got.Rows {
-				ids = append(ids, row.Dimension)
-				assert.Equal(t, i+1, row.Rank)
-			}
-			assert.Equal(t, tc.wantRows, ids)
-			assert.Equal(t, page{Total: tc.wantTotal, Limit: 3}, got.Page)
-		})
-	}
-
-	t.Run("PagingPastLeftOutRows", func(t *testing.T) {
+	t.Run("MaskedCommentDoesNotMatch", func(t *testing.T) {
 		t.Parallel()
 
-		routes := withRoutes(qanRoutes(), map[string]fixture{
-			"POST " + reportPath: searchReport(t, 11, 0, normalized, unnormal, normalized, unnormal, normalized, normalized, normalized, normalized, normalized, normalized),
-		})
-		session := connect(t, newQANService(t, newFakePMM(t, routes), false))
-		res := callTool(t, session, "pmm_top_queries", map[string]any{"search": "users", "limit": 10})
-		got := structured[topQueriesResult](t, res)
-		require.Len(t, got.Rows, 8)
-		assert.Equal(t, page{Total: 9, Limit: 10, Truncated: true}, got.Page)
-		assert.Equal(t, 8, got.Rows[7].Rank)
-		text := textOf(t, res)
-		assert.True(t, strings.HasPrefix(text, "Rows 1-8 of 9 "), text)
-		assert.True(t, strings.HasSuffix(text, "\nshowing 1–8 of 9; pass offset=10 for more"), text)
-		assert.NotContains(t, text, "user42")
-
-		routes["POST "+reportPath] = searchReport(t, 12, 0, unnormal, unnormal)
-		session = connect(t, newQANService(t, newFakePMM(t, routes), false))
-		res = callTool(t, session, "pmm_top_queries", map[string]any{"search": "users", "limit": 2})
-		got = structured[topQueriesResult](t, res)
+		_, got, text := search(t, false, searchReport(t, 1, 0, comment), map[string]any{"search": "user:bob"})
 		assert.Empty(t, got.Rows)
-		assert.Equal(t, page{Total: 10, Limit: 2, Truncated: true}, got.Page)
-		text = textOf(t, res)
-		assert.True(t, strings.HasSuffix(text, "\npass offset=2 for more"), text)
-		assert.NotContains(t, text, "No queries found")
+		assert.Equal(t, page{Limit: 10}, got.Page)
+		assert.NotContains(t, text, "user:bob")
+
+		_, got, _ = search(t, true, searchReport(t, 1, 0, comment), map[string]any{"search": "user:bob"})
+		assert.Equal(t, []string{"Q1"}, dimensions(got.Rows), "with raw SQL on, QAN's match stands")
+	})
+
+	t.Run("VisibleMatch", func(t *testing.T) {
+		t.Parallel()
+
+		report := searchReport(t, 4, 0, orders, users, "SELECT `id`\n  FROM   `orders`", comment)
+		_, got, _ := search(t, false, report, map[string]any{"search": "  FROM `ORDERS` "})
+		assert.Equal(t, []string{"Q1", "Q3"}, dimensions(got.Rows), "case and runs of whitespace are ignored, as QAN does")
+
+		_, got, _ = search(t, false, report, map[string]any{"search": "q4"})
+		assert.Equal(t, []string{"Q4"}, dimensions(got.Rows), "the queryid matches")
+	})
+
+	t.Run("WithheldMatchesLeaveNoTrace", func(t *testing.T) {
+		t.Parallel()
+
+		mixed := searchReport(t, 5, 0, withheld, users, withheld, users, users)
+		visible := searchReport(t, 3, 0, users, users, users)
+		for _, args := range []map[string]any{
+			{"search": "users", "limit": 1},
+			{"search": "users", "limit": 1, "offset": 1},
+			{"search": "users", "limit": 2, "offset": 2},
+			{"search": "users", "limit": 2, "offset": 3},
+		} {
+			fake, got, text := search(t, false, mixed, args)
+			_, want, wantText := search(t, false, visible, args)
+			assert.Equal(t, want.Page, got.Page, "%v", args)
+			ranks := func(rows []queryRow) []int {
+				out := make([]int, 0, len(rows))
+				for _, row := range rows {
+					out = append(out, row.Rank)
+				}
+				return out
+			}
+			assert.Equal(t, ranks(want.Rows), ranks(got.Rows), "%v", args)
+			assert.Equal(t, strings.Count(wantText, "\n"), strings.Count(text, "\n"), "%v", args)
+			assert.NotContains(t, text, "user42")
+			assert.NotContains(t, text, "withheld")
+
+			body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo(reportPath)[0])
+			assert.Zero(t, body.Offset, "the rows are paged here")
+			assert.EqualValues(t, maxSearchCandidates, body.Limit)
+		}
+
+		_, got, text := search(t, false, mixed, map[string]any{"search": "users", "limit": 1})
+		assert.Equal(t, page{Total: 3, Limit: 1, Truncated: true}, got.Page)
+		assert.True(t, strings.HasPrefix(text, "Rows 1-1 of 3 "), text)
+		assert.True(t, strings.HasSuffix(text, "\nshowing 1–1 of 3; pass offset=1 for more"), text)
+	})
+
+	t.Run("RawOnOrNoSearchKeepsQANPaging", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tc := range []struct {
+			raw  bool
+			args map[string]any
+		}{
+			{true, map[string]any{"search": "users", "limit": 2, "offset": 2}},
+			{false, map[string]any{"limit": 2, "offset": 2}},
+		} {
+			fake, got, _ := search(t, tc.raw, searchReport(t, 9, 2, withheld, users), tc.args)
+			body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo(reportPath)[0])
+			assert.EqualValues(t, 2, body.Offset)
+			assert.EqualValues(t, 2, body.Limit)
+			assert.Equal(t, page{Total: 9, Offset: 2, Limit: 2, Truncated: true}, got.Page)
+			assert.Equal(t, []string{"Q3", "Q4"}, dimensions(got.Rows))
+			assert.Empty(t, got.Note)
+		}
+	})
+
+	t.Run("CandidateCapNote", func(t *testing.T) {
+		t.Parallel()
+
+		many := make([]string, maxSearchCandidates)
+		for i := range many {
+			many[i] = users
+		}
+		_, got, text := search(t, false, searchReport(t, 5000, 0, many...), map[string]any{"search": "users"})
+		assert.Equal(t, page{Total: maxSearchCandidates, Limit: 10, Truncated: true}, got.Page)
+		want := fmt.Sprintf("The search read the first %d rows of the report in order_by order; narrow the window or the filters to search the rest.",
+			maxSearchCandidates)
+		assert.Equal(t, want, got.Note)
+		assert.Contains(t, text, "\n"+want)
+
+		_, got, text = search(t, false, searchReport(t, maxSearchCandidates-1, 0, many[1:]...), map[string]any{"search": "users"})
+		assert.Empty(t, got.Note)
+		assert.NotContains(t, text, "The search read")
 	})
 }
 

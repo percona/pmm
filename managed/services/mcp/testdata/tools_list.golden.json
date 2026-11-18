@@ -1743,13 +1743,17 @@
           "description": "Dimension the rows are grouped by.",
           "type": "string"
         },
+        "note": {
+          "description": "Set when a search read only the first rows of the report.",
+          "type": "string"
+        },
         "order_by": {
           "description": "Ranking, as the request gave it.",
           "type": "string"
         },
         "page": {
           "additionalProperties": false,
-          "description": "Paging of the report, which QAN pages.",
+          "description": "Paging of the report, which QAN pages; with raw SQL off, this tool pages a search's rows.",
           "properties": {
             "limit": {
               "type": "integer"
