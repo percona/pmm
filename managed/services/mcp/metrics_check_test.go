@@ -592,3 +592,39 @@ func TestCheckExprHintSize(t *testing.T) {
 		assert.LessOrEqual(t, len(te.message), 512, te.message[:min(len(te.message), 100)])
 	}
 }
+
+func TestCheckExprWindowRaisesOnlyTheQueryStep(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		expr string
+		span time.Duration
+		step time.Duration
+		// minStep is the step a range query rises to; 0 when the refusal names no step of the query's to raise.
+		minStep time.Duration
+	}{
+		{expr: `avg_over_time(x{service_name="a"}[90m])`, span: day, step: 44 * time.Second, minStep: 65 * time.Second},
+		{expr: `increase(x{service_name="a"}[1d])`, span: 6 * day, step: 260 * time.Second, minStep: 6221 * time.Second},
+		{expr: `avg_over_time(x{service_name="a"}[2h])`, span: time.Hour, step: 2 * time.Second, minStep: 4 * time.Second},
+		{expr: `quantile_over_time(0.99, x{service_name="a"}[6d23h])`, span: time.Hour, step: 2 * time.Second, minStep: 301 * time.Second},
+		{expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[6d])[1h])`, span: time.Hour, step: 2 * time.Second, minStep: 631 * time.Second},
+		{expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[1d])[1h:5m])`, span: day, step: 44 * time.Second},
+		{expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[3d])[3d])`, step: instantStep},
+	} {
+		t.Run(tc.expr, func(t *testing.T) {
+			t.Parallel()
+
+			_, err := checkExpr(tc.expr, tc.span, tc.step)
+			require.Error(t, err)
+			tooSmall, ok := errors.AsType[*stepTooSmallError](err)
+			if tc.minStep == 0 {
+				assert.False(t, ok, "%v", err)
+				return
+			}
+			require.True(t, ok, "%v", err)
+			assert.Equal(t, tc.minStep, tooSmall.minStep)
+			_, err = checkExpr(tc.expr, tc.span, tc.minStep)
+			require.NoError(t, err, "the expression passes at the step it rises to")
+		})
+	}
+}
