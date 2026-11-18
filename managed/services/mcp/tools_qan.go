@@ -568,7 +568,7 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 	defer release()
 
-	_, serviceIDs, err := s.callerServices(ctx, auth, in.ServiceID, window{From: from, To: to})
+	services, serviceIDs, err := s.callerServices(ctx, auth, in.ServiceID, window{From: from, To: to})
 	if err != nil {
 		return queryDetailResult{}, err
 	}
@@ -586,8 +586,13 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 		return queryDetailResult{}, newToolError(codeNotFound,
 			"no data for this query in %s; widen period_from or check the id with pmm_top_queries", windowText(window{From: from, To: to}))
 	}
-	if d.engine != "" {
-		d.version = s.serviceVersion(ctx, auth, d.engine, d.serviceName)
+	// qan-api2 joins the names of several services, so only a name of one asked service filters the link and reads the version.
+	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(serviceIDs, svc.ServiceID) })
+	if named := servicesNamed(asked, d.serviceName); len(named) == 1 {
+		d.linkService = named[0].ServiceName
+		if d.engine != "" {
+			d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID)
+		}
 	}
 
 	return d.result(s.rawSQL(), s.publicBaseURL(ctx, req.Extra.Header), from, to), nil
@@ -602,6 +607,8 @@ type queryDetail struct {
 	// serviceID is the request's service_id, else the stored example's.
 	serviceID   string
 	serviceName string
+	// linkService is the service name the link filters by, empty when the detail is not of one service.
+	linkService string
 	database    string
 	schema      string
 	fingerprint string
@@ -686,7 +693,7 @@ func (d *queryDetail) result(rawSQL bool, base string, from, to time.Time) query
 		Tables:      d.tables,
 		QueryRef:    queryRef{QueryID: d.queryID, ServiceID: d.serviceID, PeriodFrom: from, PeriodTo: to},
 		Window:      window{From: from, To: to},
-		PMMURL:      qanQueryURL(base, d.queryID, d.serviceName, from, to, ""),
+		PMMURL:      qanQueryURL(base, d.queryID, d.linkService, from, to, ""),
 		rawSQL:      rawSQL,
 	}
 	if d.fingerprint != "" {
@@ -932,12 +939,12 @@ func keyMetrics(m map[string]metricStats) []metricValue {
 
 // serviceVersion reads one service's version from the exporter metric for its
 // engine; any failure returns "".
-func (s *Service) serviceVersion(ctx context.Context, auth callerAuth, engine, serviceName string) string {
+func (s *Service) serviceVersion(ctx context.Context, auth callerAuth, engine, serviceID string) string {
 	vm, ok := versionMetrics[engine]
-	if !ok || serviceName == "" {
+	if !ok || serviceID == "" {
 		return ""
 	}
-	samples, err := s.queryMetrics(ctx, auth, vm.metric+`{service_name="`+escapeLabel(serviceName)+`"}`, time.Time{})
+	samples, err := s.queryMetrics(ctx, auth, vm.metric+`{service_id="`+escapeLabel(serviceID)+`"}`, time.Time{})
 	if err != nil || len(samples) == 0 {
 		return ""
 	}

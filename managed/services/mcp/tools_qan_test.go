@@ -1252,3 +1252,33 @@ func TestTopQueriesSharedServiceName(t *testing.T) {
 		}, nil
 	}))
 }
+
+// TestQueryDetailSeveralServices pins that a detail summed over several services, whose metadata joins their names,
+// links to QAN without a service filter and reads no version.
+func TestQueryDetailSeveralServices(t *testing.T) {
+	t.Parallel()
+
+	detail := func(t *testing.T, serviceName string) (*fakePMM, queryDetailResult) {
+		t.Helper()
+
+		fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{
+			"POST /v1/qan:getMetrics": {body: mustJSON(t, map[string]any{
+				"fingerprint": "SELECT 1",
+				"metadata":    map[string]string{"service_name": serviceName, "service_type": engineMySQL, "schema": "shop"},
+			})},
+		}))
+		session := connect(t, newQANService(t, fake, true))
+		return fake, structured[queryDetailResult](t, callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"}))
+	}
+
+	fake, got := detail(t, "shop-mysql, shop-postgres")
+	assert.NotContains(t, got.PMMURL, "var-service_name")
+	assert.Contains(t, got.PMMURL, "filter_by=QID-AAA")
+	assert.Empty(t, got.Version)
+	assert.Empty(t, queriesWith(fake, "mysql_version_info"))
+
+	fake, got = detail(t, "shop-mysql")
+	assert.Contains(t, got.PMMURL, "var-service_name=shop-mysql")
+	assert.Equal(t, "8.0.46-37", got.Version)
+	assert.Len(t, queriesWith(fake, "mysql_version_info"), 1)
+}
