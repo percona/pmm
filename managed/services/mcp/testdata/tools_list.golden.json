@@ -1722,7 +1722,7 @@
           "type": "string"
         },
         "search": {
-          "description": "Keep rows whose queryid, fingerprint or group_by value contains this text; 200 characters max",
+          "description": "Rows whose queryid, fingerprint or group_by value has this literal text; 200 characters max",
           "type": "string"
         },
         "service_id": {

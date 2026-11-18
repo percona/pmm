@@ -80,7 +80,7 @@ type topQueriesInput struct {
 	OrderBy     string              `json:"order_by,omitempty" jsonschema:"load (default), total_query_time, avg_query_time, count or [-]column from pmm_catalog"`
 	Offset      int                 `json:"offset,omitempty" jsonschema:"Rows to skip, for paging (default 0)"`
 	Limit       int                 `json:"limit,omitempty" jsonschema:"Number of rows, 1-100 (default 10)"`
-	Search      string              `json:"search,omitempty" jsonschema:"Keep rows whose queryid, fingerprint or group_by value contains this text; 200 characters max"`
+	Search      string              `json:"search,omitempty" jsonschema:"Rows whose queryid, fingerprint or group_by value has this literal text; 200 characters max"`
 }
 
 type queryDetailInput struct {
@@ -99,6 +99,9 @@ type topQueriesResult struct {
 	OrderBy string     `json:"order_by" jsonschema:"Ranking, as the request gave it."`
 	Window  window     `json:"window" jsonschema:"Time window of the report."`
 	PMMURL  string     `json:"pmm_url" jsonschema:"Link to this workload in PMM Query Analytics."`
+
+	// leftOut is the number of QAN's rows on this page that a search with raw SQL off leaves out.
+	leftOut int
 }
 
 // queryRow is one row of a pmm_top_queries report.
@@ -130,7 +133,12 @@ func (r topQueriesResult) render() string {
 		if r.Page.Offset > 0 {
 			header = r.Page.pastEnd("report")
 		}
-		return header + "\n" + windowLine(r.Window) + "\n\n" + workload
+		text := header + "\n" + windowLine(r.Window) + "\n\n" + workload
+		if r.leftOut > 0 && r.Page.Truncated {
+			text = "No rows to show on this page.\n" + windowLine(r.Window) + "\n\n" + workload +
+				fmt.Sprintf("\npass offset=%d for more", r.Page.Offset+r.leftOut)
+		}
+		return text
 	}
 	lines := make([]string, 0, len(r.Rows))
 	for _, row := range r.Rows {
@@ -139,10 +147,19 @@ func (r topQueriesResult) render() string {
 	text := fmt.Sprintf("Rows %d-%d of %d (group_by=%s, order_by=%s):\n%s\n\n%s",
 		r.Page.Offset+1, r.Page.Offset+len(r.Rows), r.Page.Total, r.GroupBy, r.OrderBy, windowLine(r.Window), strings.Join(lines, "\n"))
 	text += "\n\n" + workload
-	if m := r.Page.marker(); m != "" {
+	if m := r.marker(); m != "" {
 		text += "\n" + m
 	}
 	return text
+}
+
+// marker is the page's marker, whose next offset counts the rows left out of the page as QAN does.
+func (r topQueriesResult) marker() string {
+	if r.leftOut == 0 || !r.Page.Truncated {
+		return r.Page.marker()
+	}
+	end := r.Page.Offset + len(r.Rows)
+	return fmt.Sprintf("showing %d–%d of %d; pass offset=%d for more", r.Page.Offset+1, end, r.Page.Total, end+r.leftOut)
 }
 
 // renderRow formats one report row: its dimension, load, calls, total and
@@ -239,11 +256,19 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	// dimension); per-metric stats are nested under <name>.stats. Row.database
 	// arrives empty for MySQL rows, so schema comes from pmm_query_detail.
 	rows := make([]queryRow, 0, len(report.Rows))
+	// With raw SQL off, a search could match a withheld fingerprint's text, so its rows are left out.
+	leaveOut := !raw && q.body.Search != "" && q.groupBy == groupByQuery
+	var leftOut int
 	for i, row := range report.Rows {
 		if i == 0 && row.Dimension == "" {
 			continue
 		}
-		rows = append(rows, q.row(row, q.offset+len(rows)+1, rowEngine(row.Dimension), raw))
+		r := q.row(row, q.offset+len(rows)+1, rowEngine(row.Dimension), raw)
+		if leaveOut && r.Fingerprint == withheldFingerprint {
+			leftOut++
+			continue
+		}
+		rows = append(rows, r)
 	}
 	if q.groupBy == groupByQuery && len(rows) > 0 {
 		serviceID := s.pinnedServiceID(q.labels, services)
@@ -257,11 +282,12 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	total := int(report.TotalRows)
 	return topQueriesResult{
 		Rows:    rows,
-		Page:    page{Total: total, Offset: q.offset, Limit: int(q.body.Limit), Truncated: q.offset+len(rows) < total},
+		Page:    page{Total: total - leftOut, Offset: q.offset, Limit: int(q.body.Limit), Truncated: q.offset+len(rows)+leftOut < total},
 		GroupBy: q.groupBy,
 		OrderBy: q.orderBy,
 		Window:  window{From: from, To: to},
 		PMMURL:  qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), in.ServiceName, from, to),
+		leftOut: leftOut,
 	}, nil
 }
 
@@ -344,9 +370,14 @@ func newReportQuery(in topQueriesInput, from, to time.Time) (*reportQuery, error
 		Columns:         append(slices.Clone(baseColumns), columns...),
 		MainMetric:      mainMetric,
 		Labels:          labels,
-		Search:          in.Search,
+		Search:          escapeLike(in.Search),
 	}
 	return q, nil
+}
+
+// escapeLike escapes the backslash, % and _ of a search, which qan-api2 passes to ClickHouse's LIKE, so that each matches itself.
+func escapeLike(s string) string {
+	return strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(s)
 }
 
 // checkColumns validates the requested columns against the catalogue and drops repeats.
