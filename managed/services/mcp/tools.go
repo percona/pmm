@@ -64,7 +64,7 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 		})
 		if err != nil {
 			te := mapError(err)
-			l.WithField("code", string(te.code)).WithField("duration", time.Since(start)).Warn("Tool call failed.")
+			l.WithField("code", string(te.code)).WithField("duration", time.Since(start)).Log(failureLevel(te.code), "Tool call failed.")
 			// The message can quote SQL, so it is logged at Debug only.
 			l.Debugf("Tool call failed: %s.", te.message)
 			return errorResult(te), nil, nil
@@ -72,6 +72,17 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 		l.WithField("duration", time.Since(start)).Debug("Tool call succeeded.")
 		return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: out.render()}}}, out, nil
 	})
+}
+
+// failureLevel is the log level of a failed call: Debug for the codes that answer the caller's own input or limits,
+// Warn for the ones that point at PMM or a monitored service.
+func failureLevel(code errorCode) logrus.Level {
+	switch code {
+	case codeInvalidInput, codeNotFound, codeRateLimited, codeUnauthorized:
+		return logrus.DebugLevel
+	default:
+		return logrus.WarnLevel
+	}
 }
 
 // recoverPanic calls fn and turns a panic in it into a pmm_unavailable error, logging the panic and its stack:

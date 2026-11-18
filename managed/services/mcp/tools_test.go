@@ -30,7 +30,8 @@ import (
 
 // testInput is the input of the tool that tests register through addTool.
 type testInput struct {
-	Panic bool `json:"panic,omitempty"`
+	Panic bool   `json:"panic,omitempty"`
+	Fail  string `json:"fail,omitempty"`
 }
 
 // testResult is the result of the tool that tests register through addTool.
@@ -42,9 +43,9 @@ func (testResult) render() string {
 	return "ok"
 }
 
-// newTestTool registers pmm_test through addTool on a server of its own and returns the service, a client session
-// to the server, and the hook that captures the service's log at Trace. The tool panics when asked to.
-func newTestTool(t *testing.T) (*Service, *mcp.ClientSession, *test.Hook) {
+// newTestTool registers pmm_test, which panics or fails with the code in fail when asked to, on a server of its own,
+// and returns a client session to it and the hook that captures the service's log at Trace.
+func newTestTool(t *testing.T) (*mcp.ClientSession, *test.Hook) {
 	t.Helper()
 
 	s, err := New(Params{API: &mockPmmAPI{}})
@@ -58,6 +59,9 @@ func newTestTool(t *testing.T) (*Service, *mcp.ClientSession, *test.Hook) {
 		if in.Panic {
 			panic("panic value")
 		}
+		if in.Fail != "" {
+			return testResult{}, newToolError(errorCode(in.Fail), "failed")
+		}
 		return testResult{OK: true}, nil
 	})
 
@@ -70,13 +74,43 @@ func newTestTool(t *testing.T) (*Service, *mcp.ClientSession, *test.Hook) {
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = session.Close() })
 
-	return s, session, hook
+	return session, hook
+}
+
+func TestFailureLogLevel(t *testing.T) {
+	t.Parallel()
+
+	session, hook := newTestTool(t)
+	for code, level := range map[errorCode]logrus.Level{
+		codeInvalidInput:           logrus.DebugLevel,
+		codeNotFound:               logrus.DebugLevel,
+		codeRateLimited:            logrus.DebugLevel,
+		codeUnauthorized:           logrus.DebugLevel,
+		codeTimeout:                logrus.WarnLevel,
+		codeNoQuerySource:          logrus.WarnLevel,
+		codeInsufficientPrivileges: logrus.WarnLevel,
+		codeAgentUnreachable:       logrus.WarnLevel,
+		codePMMUnavailable:         logrus.WarnLevel,
+	} {
+		hook.Reset()
+		res := callTool(t, session, "pmm_test", map[string]any{"fail": string(code)})
+		require.True(t, res.IsError)
+
+		var levels []logrus.Level
+		for _, e := range hook.AllEntries() {
+			if e.Message == "Tool call failed." {
+				assert.Equal(t, string(code), e.Data["code"])
+				levels = append(levels, e.Level)
+			}
+		}
+		assert.Equal(t, []logrus.Level{level}, levels, string(code))
+	}
 }
 
 func TestToolPanic(t *testing.T) {
 	t.Parallel()
 
-	_, session, hook := newTestTool(t)
+	session, hook := newTestTool(t)
 
 	res := callTool(t, session, "pmm_test", map[string]any{"panic": true})
 	require.True(t, res.IsError)
