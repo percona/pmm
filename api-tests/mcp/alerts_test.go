@@ -424,6 +424,20 @@ func alertsOf(t *testing.T, c *caller) alertsOutput {
 	return out
 }
 
+// waitForSilence calls pmm_alerts as c until the alert of the rule for the service is silenced, and returns that result.
+func waitForSilence(t *testing.T, c *caller, rule, serviceName string) alertsOutput {
+	t.Helper()
+
+	var out alertsOutput
+	waitFor(t, "the silence to mark "+serviceName+"'s alert", func() bool {
+		out = alertsOf(t, c)
+		return slices.ContainsFunc(out.ofRule(rule), func(alert firingAlert) bool {
+			return alert.Labels["service_name"] == serviceName && alert.Silenced
+		})
+	})
+	return out
+}
+
 // TestAlertsNarrowing creates rules that fire for mysql-a and mysql-b, for every node and for no service or node, one in a
 // folder without Viewer access, and a silence on mysql-a's alert, and checks what pmm_alerts returns under Access Roles.
 func TestAlertsNarrowing(t *testing.T) {
@@ -473,12 +487,7 @@ func TestAlertsNarrowing(t *testing.T) {
 	allNodes := current[rules.node].values("node_name")
 
 	t.Run("Admin", func(t *testing.T) {
-		var out alertsOutput
-		waitFor(t, "the silence to mark mysql-a's alert", func() bool {
-			out = alertsOf(t, admin)
-			i := slices.IndexFunc(out.ofRule(rules.services), func(alert firingAlert) bool { return alert.Labels["service_name"] == "mysql-a" })
-			return i >= 0 && out.ofRule(rules.services)[i].Silenced
-		})
+		out := waitForSilence(t, admin, rules.services, "mysql-a")
 
 		ofServices := out.ofRule(rules.services)
 		assert.Equal(t, []string{"mysql-a", "mysql-b"}, intersection(labelValues(ofServices, "service_name"), "mysql-a", "mysql-b"))
@@ -503,7 +512,7 @@ func TestAlertsNarrowing(t *testing.T) {
 		waitForServiceList(t, authorization, []string{"mysql-a"})
 		viewer := hiding(t, authorization, b)
 
-		out := alertsOf(t, viewer)
+		out := waitForSilence(t, viewer, rules.services, "mysql-a")
 		ofServices := out.ofRule(rules.services)
 		require.Len(t, ofServices, 1)
 		assert.Equal(t, "mysql-a", ofServices[0].Labels["service_name"])

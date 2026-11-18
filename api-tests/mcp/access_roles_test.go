@@ -242,7 +242,7 @@ func basicAuthorization(login, password string) string {
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(login+":"+password))
 }
 
-// waitForServiceList polls the service list of authorization once a second for up to 20 s until it is want, then logs the last set and returns on timeout.
+// waitForServiceList polls the service list of authorization once a second until it is want, and fails the test when it isn't within 20 s.
 func waitForServiceList(t *testing.T, authorization string, want []string) {
 	t.Helper()
 
@@ -261,8 +261,8 @@ func waitForServiceList(t *testing.T, authorization string, want []string) {
 			return
 		}
 		if time.Now().After(deadline) {
-			t.Logf("the service list did not become %v within 20s; it is %v", want, got)
-			return
+			require.FailNowf(t, "the caller's service list did not settle",
+				"the service list did not become %v within 20s; it is %v", want, got)
 		}
 		select {
 		case <-pmmapitests.Context.Done():
