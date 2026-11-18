@@ -190,6 +190,29 @@ func TestCheckExpr(t *testing.T) {
 		},
 		{name: "aggr_over_time naming allowed rollups", expr: `aggr_over_time(("min_over_time", "max_over_time"), mysql_up{service_name="db1"}[5m])`, span: time.Hour},
 		{
+			name: "aggr_over_time naming 8 functions",
+			expr: `aggr_over_time(("min_over_time", "max_over_time", "avg_over_time", "sum_over_time", "count_over_time", "last_over_time", ` +
+				`"first_over_time", "stddev_over_time"), mysql_up{service_name="db1"}[5m])`,
+			span: time.Hour,
+		},
+		{
+			name: "aggr_over_time naming 9 functions",
+			expr: `aggr_over_time(("min_over_time", "max_over_time", "avg_over_time", "sum_over_time", "count_over_time", "last_over_time", ` +
+				`"first_over_time", "stddev_over_time", "median_over_time"), mysql_up{service_name="db1"}[5m])`,
+			span: time.Hour,
+			want: []string{"aggr_over_time() names 9 functions and returns a series for each; the cap is 8: split it into several calls"},
+		},
+		{
+			name: "aggr_over_time naming a function twice",
+			expr: `aggr_over_time(("max_over_time", "min_over_time", "max_over_time"), mysql_up{service_name="db1"}[5m])`, span: time.Hour,
+			want: []string{"aggr_over_time() names max_over_time twice; name each function once"},
+		},
+		{
+			name: "aggr_over_time naming a function twice in two cases",
+			expr: `aggr_over_time(("Max_Over_Time", "max_over_time"), mysql_up{service_name="db1"}[5m])`, span: time.Hour,
+			want: []string{"names max_over_time twice"},
+		},
+		{
 			expr: `quantiles_over_time("phi", 0.5, 0.9, 0.99, mysql_global_status_questions{service_name="db1"}[5m])`, span: time.Hour,
 			want: []string{"quantiles_over_time() is not accepted", perPhi, "call quantile_over_time() once per phi"},
 		},

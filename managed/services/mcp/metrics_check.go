@@ -65,6 +65,9 @@ var templateKeywords = []string{"with", "ttf", "ru", "range_median", "alias"}
 // seriesPerValueFuncs are the functions that create a series for each distinct sample value.
 var seriesPerValueFuncs = []string{"count_values", "count_values_over_time", "histogram", "histogram_over_time"}
 
+// maxRollupNames bounds the functions one aggr_over_time call names, since it returns a series for each.
+const maxRollupNames = 8
+
 // seriesPerPhiFuncs map each function that creates a series for each phi argument to its single-phi form.
 var seriesPerPhiFuncs = map[string]string{
 	"quantiles_over_time": "quantile_over_time",
@@ -348,37 +351,46 @@ func checkFunc(name string) error {
 			"summarise the values with quantile_over_time(), max_over_time() or count_over_time() instead", name)
 }
 
-// checkRollupNames refuses an aggr_over_time call that names a refused rollup function in a string argument.
+// checkRollupNames refuses an aggr_over_time call that names, in its string arguments, a refused rollup function,
+// one function twice, or more than maxRollupNames functions.
 func checkRollupNames(e *metricsql.FuncExpr) error {
 	if !strings.EqualFold(e.Name, "aggr_over_time") {
 		return nil
 	}
+	var names []string
 	for _, arg := range e.Args {
-		err := checkRollupName(arg)
+		names = appendRollupNames(names, arg)
+	}
+	for i, name := range names {
+		err := checkFunc(name)
 		if err != nil {
 			return err
 		}
+		if slices.ContainsFunc(names[:i], func(n string) bool { return strings.EqualFold(n, name) }) {
+			return newToolError(codeInvalidInput, "aggr_over_time() names %s twice; name each function once", strings.ToLower(name))
+		}
+	}
+	if len(names) > maxRollupNames {
+		return newToolError(codeInvalidInput,
+			"aggr_over_time() names %d functions and returns a series for each; the cap is %d: split it into several calls", len(names), maxRollupNames)
 	}
 	return nil
 }
 
-// checkRollupName refuses a string, or a parenthesised list of strings, that names a refused function.
-func checkRollupName(e metricsql.Expr) error {
+// appendRollupNames appends to names the string e, or each string of the parenthesised list e.
+func appendRollupNames(names []string, e metricsql.Expr) []string {
 	switch e := e.(type) {
 	case *metricsql.StringExpr:
-		return checkFunc(e.S)
+		return append(names, e.S)
 	case *metricsql.FuncExpr:
 		if e.Name != "" {
-			return nil
+			return names
 		}
 		for _, arg := range e.Args {
-			err := checkRollupName(arg)
-			if err != nil {
-				return err
-			}
+			names = appendRollupNames(names, arg)
 		}
 	}
-	return nil
+	return names
 }
 
 // rollupArg walks what a rollup function reads over its window, which VictoriaMetrics
