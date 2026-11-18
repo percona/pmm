@@ -310,6 +310,41 @@
     },
     {
       "type": "dashboard",
+      "name": "Kubernetes Overview",
+      "path": "dashboards/Kubernetes/Kubernetes_Overview.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "Kubernetes Clusters",
+      "path": "dashboards/Kubernetes/Kubernetes_Clusters.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "Database Clusters on Kubernetes",
+      "path": "dashboards/Kubernetes/Database_Clusters_on_Kubernetes.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "Kubernetes Cluster Summary",
+      "path": "dashboards/Kubernetes/Kubernetes_Cluster_Summary.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "Database Cluster on Kubernetes",
+      "path": "dashboards/Kubernetes/Database_Cluster_on_Kubernetes.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "Kubernetes Pod",
+      "path": "dashboards/Kubernetes/Kubernetes_Pod.json"
+    },
+    {
+      "type": "dashboard",
+      "name": "Kubernetes Node",
+      "path": "dashboards/Kubernetes/Kubernetes_Node.json"
+    },
+    {
+      "type": "dashboard",
       "name": "PostgreSQL Top Queries",
       "path": "dashboards/PostgreSQL/PostgreSQL_Top_Queries.json"
     },

@@ -31,6 +31,7 @@ import { useFolders } from 'hooks/api/useFolders';
 import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useHaInfo } from 'hooks/api/useHA';
+import { useHasKubernetesData } from 'hooks/api/useKubernetes';
 import { useAuth } from 'contexts/auth';
 import { ServiceType } from 'types/services.types';
 
@@ -38,6 +39,10 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
   const { isLoggedIn, isAnonymous } = useAuth();
   const { data: serviceTypes } = useServiceTypes({
+    enabled: !!user,
+    refetchInterval: INTERVALS_MS.SERVICE_TYPES,
+  });
+  const { data: hasKubernetes = false } = useHasKubernetesData({
     enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
   });
@@ -74,7 +79,13 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     const mongoExtras = user && settings?.omEnabled ? [addOm()] : [];
 
     items.push(
-      ...addDashboardItems(currentServiceTypes, folders, user, mongoExtras)
+      ...addDashboardItems(
+        currentServiceTypes,
+        folders,
+        user,
+        mongoExtras,
+        hasKubernetes
+      )
     );
 
     if (user) {
@@ -145,6 +156,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     return items;
   }, [
     serviceTypes?.serviceTypes,
+    hasKubernetes,
     user,
     haInfo,
     folders,

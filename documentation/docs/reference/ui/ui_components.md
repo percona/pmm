@@ -21,6 +21,7 @@ You'll find these options in the left-side menu:
 | :material-home-outline:  | Home | Access the main dashboard with overview panels for database connections, queries, and anomaly detection. |
 | :simple-mysql:                  | MySQL | View specialized dashboards for MySQL database performance monitoring. |
 | :simple-postgresql:             | PostgreSQL | Access PostgreSQL-specific monitoring dashboards and metrics. |
+| :material-kubernetes: | Kubernetes | View your Kubernetes clusters and the database clusters that run in them. The menu appears after PMM receives Kubernetes metrics, see [Monitor Kubernetes](../dashboards/kubernetes_monitor_operators.md). |
 | :material-monitor-dashboard:| Operating System  | Monitor server-level metrics including CPU, memory, disk, and network performance. |
 | :material-view-grid-outline:| All Dashboards | Create and organize dashboards, create [folders](../../use/dashboards-panels/manage-dashboards/create-folders.md), import dashboards, create playlists, and manage snapshots. |
 | :material-chart-timeline-variant: | Query Analytics (QAN) | Analyze database queries over time, identify slow queries, optimize performance, and troubleshoot issues. |

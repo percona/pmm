@@ -44,6 +44,14 @@ vi.mock('hooks/api/useHA', () => ({
   useHaInfo: () => ({ data: { enabled: false, nodes: [] } }),
 }));
 
+const { hasKubernetes } = vi.hoisted(() => ({
+  hasKubernetes: { value: false },
+}));
+
+vi.mock('hooks/api/useKubernetes', () => ({
+  useHasKubernetesData: () => ({ data: hasKubernetes.value }),
+}));
+
 vi.mock('hooks/theme', () => ({
   useColorMode: () => ({ colorMode: 'light', toggleColorMode: () => {} }),
 }));
@@ -95,6 +103,26 @@ const ANONYMOUS_AUTH: AuthContextProps = {
 };
 
 describe('NavigationProvider', () => {
+  describe('Kubernetes item', () => {
+    afterEach(() => {
+      hasKubernetes.value = false;
+    });
+
+    it('is absent without Kubernetes data', () => {
+      expect(
+        findById(renderNavTree(TEST_USER_ADMIN), 'kubernetes')
+      ).toBeUndefined();
+    });
+
+    it('appears when Kubernetes data exists', () => {
+      hasKubernetes.value = true;
+
+      expect(
+        findById(renderNavTree(TEST_USER_ADMIN), 'kubernetes')
+      ).toBeDefined();
+    });
+  });
+
   describe('Anonymous visitors', () => {
     const anonymousIds = () =>
       renderNavTree(null, undefined, undefined, ANONYMOUS_AUTH).map(
