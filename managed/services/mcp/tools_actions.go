@@ -262,8 +262,8 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	var body actions_service.StartServiceActionBody
 	switch svc.Engine {
 	case engineMySQL:
-		if resolved.DetailErr != nil {
-			return explainResult{}, resolved.DetailErr
+		if resolved.MetricsErr != nil {
+			return explainResult{}, resolved.MetricsErr
 		}
 		// With a stored query example the service and queryid are enough, and
 		// pmm-managed rejects placeholders that do not match it. Without one
@@ -279,8 +279,8 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 			}
 		}
 	case engineMongoDB:
-		if resolved.DetailErr != nil {
-			return explainResult{}, resolved.DetailErr
+		if resolved.ExampleErr != nil {
+			return explainResult{}, resolved.ExampleErr
 		}
 		if resolved.Example == "" {
 			return explainResult{}, newToolError(codeNoQuerySource,
@@ -419,9 +419,13 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 	if err != nil {
 		return schemaResult{}, err
 	}
-	// A failed metrics or example call can drop the database, or PostgreSQL's tables: its error is the answer.
-	if resolved.DetailErr != nil {
-		return schemaResult{}, resolved.DetailErr
+	// A failed metrics call drops the database, and a failed example call PostgreSQL's tables: its error is the answer.
+	err = resolved.MetricsErr
+	if svc.Engine == enginePostgreSQL {
+		err = cmp.Or(resolved.MetricsErr, resolved.ExampleErr)
+	}
+	if err != nil {
+		return schemaResult{}, err
 	}
 
 	var tables []tableRef

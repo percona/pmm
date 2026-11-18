@@ -274,7 +274,8 @@ func TestExplainTool(t *testing.T) {
 		assert.Empty(t, stub.starts)
 	})
 
-	t.Run("MySQLDetailFetchFails", func(t *testing.T) {
+	// pmm-managed picks the MySQL statement itself, so the example call is not needed.
+	t.Run("MySQLExampleFetchFails", func(t *testing.T) {
 		t.Parallel()
 
 		fake, stub := newActionStub(t, 0)
@@ -282,9 +283,39 @@ func TestExplainTool(t *testing.T) {
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
+		assert.False(t, isError, text)
+		require.Len(t, stub.starts, 1)
+		require.NotNil(t, stub.starts[0].MysqlExplainJSON)
+		assert.Equal(t, "shop", stub.starts[0].MysqlExplainJSON.Database)
+	})
+
+	// A failed metrics call can drop the database the MySQL EXPLAIN runs in: its error is the answer.
+	t.Run("MySQLMetricsFetchFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan:getMetrics" })
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
 		assert.Empty(t, stub.starts)
+	})
+
+	// A MongoDB explain runs on the stored example only, so the metrics call is not needed.
+	t.Run("MongoDBMetricsFetchFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		mongoExplain(fake)
+		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan:getMetrics" })
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
+		assert.False(t, isError, text)
+		require.Len(t, stub.starts, 1)
+		require.NotNil(t, stub.starts[0].MongodbExplain)
 	})
 
 	t.Run("QueryRefForm", func(t *testing.T) {
@@ -824,6 +855,35 @@ func TestSchemaTool(t *testing.T) {
 		assert.Equal(t, "error: invalid_input\nthe number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, "+
 			"in order, or none when QAN stored a query example; or pass service_id, database and tables instead of a query reference", text)
 		assert.Len(t, fake.requestsTo("/v1/actions:startServiceAction"), 1)
+	})
+
+	// The tables of a MySQL query come from its plan, so the example call is not needed.
+	t.Run("MySQLExampleFetchFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-join-aliases.json"), "SELECT 1")
+		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan/query:getExample" })
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.False(t, isError, text)
+		assert.NotEmpty(t, stub.starts)
+	})
+
+	// A failed metrics call drops the database a PostgreSQL table is read in: its error is the answer.
+	t.Run("PostgreSQLMetricsFetchFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		postgresQuery(fake)
+		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan:getMetrics" })
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
+		assert.Empty(t, stub.starts)
 	})
 
 	// A failed metrics call can drop the database the EXPLAIN needs: its error is the answer.

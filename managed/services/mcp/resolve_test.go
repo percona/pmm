@@ -98,7 +98,8 @@ func TestResolveQuery(t *testing.T) {
 				assert.Equal(t, "shop", got.Database)
 				assert.Empty(t, got.Tables)
 				assert.Contains(t, got.Example, "customers")
-				assert.NoError(t, got.DetailErr)
+				assert.NoError(t, got.MetricsErr)
+				assert.NoError(t, got.ExampleErr)
 			},
 		},
 		{
@@ -111,8 +112,9 @@ func TestResolveQuery(t *testing.T) {
 				assert.Equal(t, "svc-1", got.Service.ServiceID)
 				assert.Empty(t, got.Example)
 				assert.Equal(t, "shop", got.Database, "the metrics call still answered")
-				require.Error(t, got.DetailErr)
-				assert.Equal(t, codePMMUnavailable, mapError(got.DetailErr).code)
+				assert.NoError(t, got.MetricsErr)
+				require.Error(t, got.ExampleErr)
+				assert.Equal(t, codePMMUnavailable, mapError(got.ExampleErr).code)
 			},
 		},
 		{
