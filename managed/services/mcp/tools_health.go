@@ -91,7 +91,7 @@ var healthSignals = map[string][]signal{
 	},
 	engineMySQL: {
 		{
-			Name: "qps", Unit: "short", Source: "mysql_global_status_queries",
+			Name: "qps", Unit: "ops", Source: "mysql_global_status_queries",
 			Query: `avg by (service_name) (rate(mysql_global_status_queries{%[1]s}[5m]) or irate(mysql_global_status_queries{%[1]s}[5m]))`,
 		},
 		{
@@ -115,7 +115,7 @@ var healthSignals = map[string][]signal{
 			Query: `avg by (service_name) (rate(mysql_global_status_slow_queries{%[1]s}[5m]) or irate(mysql_global_status_slow_queries{%[1]s}[5m]))`,
 		},
 		{
-			Name: "tmp_disk_tables", Unit: "short", Source: "mysql_global_status_created_tmp_disk_tables",
+			Name: "tmp_disk_tables", Unit: "ops", Source: "mysql_global_status_created_tmp_disk_tables",
 			Query: `avg by (service_name) (rate(mysql_global_status_created_tmp_disk_tables{%[1]s}[5m]) or irate(mysql_global_status_created_tmp_disk_tables{%[1]s}[5m]))`,
 		},
 		{
@@ -180,17 +180,18 @@ var healthSignals = map[string][]signal{
 			Query: `avg by (service_name,type) (mongodb_mongod_global_lock_current_queue{%[1]s, type="total"})`,
 		},
 		{
-			Name: "query_efficiency", Unit: "percentunit", Source: "mongodb_mongod_metrics_query_executor_total",
-			Query: `(sum(rate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned"}[5m]))/ sum(rate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned_objects"}[5m])) or sum(irate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned"}[5m]))/ sum(irate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned_objects"}[5m])))`,
+			// The panel's Document target: documents returned per document scanned.
+			Name: "query_efficiency", Unit: "percentunit", Source: "mongodb_mongod_metrics_document_total",
+			Query: `sum(rate(mongodb_mongod_metrics_document_total{%[1]s, state="returned"}[5m]))/ sum(rate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned_objects"}[5m])) or sum(irate(mongodb_mongod_metrics_document_total{%[1]s, state="returned"}[5m]))/ sum(irate(mongodb_mongod_metrics_query_executor_total{%[1]s, state="scanned_objects"}[5m]))`,
 		},
 		{
 			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (testdata/exporters/mongodb.prom.gz).
-			Name: "asserts", Unit: "short", Source: "mongodb_asserts_total",
+			Name: "asserts", Unit: "ops", Source: "mongodb_asserts_total",
 			Query: `sum by (service_name) (avg by (service_name,type) (rate(mongodb_asserts_total{%[1]s}[5m]) or irate(mongodb_asserts_total{%[1]s}[5m])))`,
 		},
 		{
 			// The dashboard's mongodb_mongod_* and mongodb_mongos_* alternatives are left out: PMM 3's exporter emits the un-prefixed name (testdata/exporters/mongodb.prom.gz).
-			Name: "page_faults", Unit: "short", Source: "mongodb_extra_info_page_faults_total",
+			Name: "page_faults", Unit: "ops", Source: "mongodb_extra_info_page_faults_total",
 			Query: `avg by (service_name) (rate(mongodb_extra_info_page_faults_total{%[1]s}[5m]) or irate(mongodb_extra_info_page_faults_total{%[1]s}[5m]))`,
 		},
 		{
@@ -215,7 +216,7 @@ type rangeRequest struct {
 // signalResult is one signal over the window: its summary, or no_data, or its own error.
 type signalResult struct {
 	Name   string     `json:"name" jsonschema:"The signal's name."`
-	Unit   string     `json:"unit" jsonschema:"The unit of the values, as the dashboard panel shows them."`
+	Unit   string     `json:"unit" jsonschema:"Grafana's unit name: ops is per second, short a plain number, percentunit a ratio from 0 to 1, none a code."`
 	Source string     `json:"source" jsonschema:"The first metric the signal's query reads."`
 	Min    *float64   `json:"min" jsonschema:"Smallest finite value; null when there is none."`
 	Avg    *float64   `json:"avg" jsonschema:"Average of the finite values; null when there is none."`

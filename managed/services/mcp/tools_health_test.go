@@ -129,10 +129,10 @@ func TestServiceHealthTool(t *testing.T) {
 			assert.NotEmpty(t, sig.Source, sig.Name)
 		}
 		qps := signalByName(t, res, "qps")
-		assert.Equal(t, "short", qps.Unit)
+		assert.Equal(t, "ops", qps.Unit)
 		assert.Equal(t, "mysql_global_status_queries", qps.Source)
 
-		assert.Contains(t, text, "qps [short]: min=1 avg=3 max=6 last=6 at 2026-09-14T12:00:00Z")
+		assert.Contains(t, text, "qps [ops]: min=1 avg=3 max=6 last=6 at 2026-09-14T12:00:00Z")
 		assert.Contains(t, text, "[View in PMM ↗](")
 
 		want := make([]string, 0, len(res.Signals))
@@ -1001,6 +1001,16 @@ func TestHealthSignalValues(t *testing.T) {
 			},
 			want: 30,
 		},
+		{
+			name: "query efficiency is documents returned per document scanned", engine: engineMongoDB, signal: "query_efficiency",
+			series: []fixtureSeries{
+				seriesOf("mongodb_mongod_metrics_document_total", 50, "state", "returned"),
+				seriesOf("mongodb_mongod_metrics_document_total", 400, "state", "inserted"),
+				seriesOf("mongodb_mongod_metrics_query_executor_total", 100, "state", "scanned"),
+				seriesOf("mongodb_mongod_metrics_query_executor_total", 200, "state", "scanned_objects"),
+			},
+			want: 0.25,
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -1009,5 +1019,24 @@ func TestHealthSignalValues(t *testing.T) {
 			require.Len(t, got, 1)
 			assert.InDelta(t, tc.want, got[0].value, 1e-9)
 		})
+	}
+}
+
+func TestHealthSignalUnits(t *testing.T) {
+	t.Parallel()
+
+	types := map[string]string{}
+	for _, m := range metricsCatalog {
+		types[m.Name] = m.Type
+	}
+	for engine, signals := range healthSignals {
+		for _, sig := range signals {
+			typ, ok := types[sig.Source]
+			require.True(t, ok, "%s/%s: the catalogue lacks the source %s", engine, sig.Name, sig.Source)
+			// A counter is read through a rate or a ratio, so a signal over one is never a plain number.
+			if typ == "counter" {
+				assert.NotEqual(t, "short", sig.Unit, "%s/%s reads the counter %s", engine, sig.Name, sig.Source)
+			}
+		}
 	}
 }

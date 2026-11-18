@@ -1612,7 +1612,7 @@
                 "type": "string"
               },
               "unit": {
-                "description": "The unit of the values, as the dashboard panel shows them.",
+                "description": "Grafana's unit name: ops is per second, short a plain number, percentunit a ratio from 0 to 1, none a code.",
                 "type": "string"
               }
             },

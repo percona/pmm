@@ -330,7 +330,15 @@ Use the tools in this order:
 
 `pmm_service_health` takes a `service_id` from `pmm_inventory`, and optionally `period_from` and `period_to` (default the last hour). The window is just under 7 days at most, since the signals also read about 5 minutes before it and a call reads at most 7 days. A longer window is `invalid_input`, and the message names the longest window that fits. It runs one fixed query for each signal, taken from the PMM dashboards: 9 for a MySQL service, 7 for PostgreSQL and 9 for MongoDB, then 6 for its node (CPU, load, memory, disk read and write latency, and free space). It runs at most 4 queries at a time.
 
-Each signal reports `min`, `avg`, `max`, `last` and `last_at`, the time of the newest sample, with its unit and the metric it reads. A signal that returns no series is `no_data`. A signal whose query fails carries its own `error`, and the result sets `partial`. If every query fails, the call fails with the first error. A value that is `null` is NaN or infinite, for example a ratio whose denominator is 0. If a query returns several series, the signal reports the one with the largest maximum, and the note says how many there were.
+Each signal reports `min`, `avg`, `max`, `last` and `last_at`, the time of the newest sample, with its unit and the metric it reads. The unit uses Grafana's names: `ops` is per second, `short` is a plain number, `percentunit` is a ratio from 0 to 1, and `none` is a code. A signal that returns no series is `no_data`. A signal whose query fails carries its own `error`, and the result sets `partial`. If every query fails, the call fails with the first error. A value that is `null` is NaN or infinite, for example a ratio whose denominator is 0. If a query returns several series, the signal reports the one with the largest maximum, and the note says how many there were.
+
+These signals need a word on what they measure:
+
+- `replication_lag` (MySQL) is the lag of the most lagging replication channel, less the delay configured for that channel.
+- `cache_hit_ratio` (PostgreSQL) is the lowest ratio of any database. It comes from counters that run since the statistics were last reset, so it changes slowly and doesn't show a recent drop.
+- `queued_operations` (MongoDB) is the number of operations waiting for the global lock, readers and writers together.
+- `query_efficiency` (MongoDB) is the documents returned per document scanned.
+- `replset_state` (MongoDB) is the member's replica set state code: 0 `STARTUP`, 1 `PRIMARY`, 2 `SECONDARY`, 3 `RECOVERING`, 5 `STARTUP2`, 6 `UNKNOWN`, 7 `ARBITER`, 8 `DOWN`, 9 `ROLLBACK` and 10 `REMOVED`.
 
 The tool doesn't judge: it has no healthy or unhealthy verdict and no stale state. `no_data` on every signal means that the service sent none of these metrics in the window although its `up` series is there, for example because its exporter could not be scraped or could not reach the database. `no_data` on a node signal can also mean that an Access Role that filters on service labels hides the node's series. A service that is not in your service list for the window, one that an Access Role hides included, is `not_found`, and a service that is not MySQL, PostgreSQL or MongoDB is `invalid_input`.
 
