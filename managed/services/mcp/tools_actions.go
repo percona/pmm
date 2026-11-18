@@ -572,7 +572,11 @@ func (s *Service) tableInfo(ctx context.Context, auth callerAuth, svc serviceInf
 				defer func() { <-slots }()
 				// SHOW CREATE TABLE and SHOW INDEX errors quote only the caller's
 				// identifiers, never a value, so they are not masked.
-				outputs[i], errs[i] = s.runAction(ctx, auth, job.body, false)
+				errs[i] = recoverPanic(s.l, func() error {
+					var err error
+					outputs[i], err = s.runAction(ctx, auth, job.body, false)
+					return err
+				})
 			case <-ctx.Done():
 				errs[i] = s.deadlineOr(ctx, "", ctx.Err())
 			}

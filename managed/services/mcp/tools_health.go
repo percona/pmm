@@ -441,7 +441,16 @@ func (s *Service) runSignals(ctx context.Context, rr rangeRequest, signals []sig
 	for range min(maxHealthQueries, len(signals)) {
 		wg.Go(func() {
 			for j := range jobs {
-				results[j], errs[j] = s.runSignal(ctx, rr, signals[j], queries[j])
+				sig := signals[j]
+				results[j] = signalResult{Name: sig.Name, Unit: sig.Unit, Source: sig.Source}
+				errs[j] = recoverPanic(s.l, func() error {
+					var err error
+					results[j], err = s.runSignal(ctx, rr, sig, queries[j])
+					return err
+				})
+				if errs[j] != nil && results[j].Error == nil {
+					results[j].Error = partErrorOf(errs[j])
+				}
 			}
 		})
 	}

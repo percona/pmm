@@ -58,10 +58,15 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 		defer cancel()
 
 		var out Out
+		var text string
 		err := recoverPanic(l, func() error {
 			var callErr error
 			out, callErr = fn(ctx, req, in)
-			return callErr
+			if callErr != nil {
+				return callErr
+			}
+			text = out.render()
+			return nil
 		})
 		if err != nil {
 			te := mapError(err)
@@ -73,7 +78,7 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 		}
 		end(codeOK)
 		l.WithField("duration", time.Since(start)).Debug("Tool call succeeded.")
-		return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: out.render()}}}, out, nil
+		return &mcp.CallToolResult{Content: []mcp.Content{&mcp.TextContent{Text: text}}}, out, nil
 	})
 }
 
@@ -88,8 +93,8 @@ func failureLevel(code errorCode) logrus.Level {
 	}
 }
 
-// recoverPanic calls fn and turns a panic in it into a pmm_unavailable error, logging the panic and its stack:
-// the SDK runs each call in a goroutine of its own, without a recover.
+// recoverPanic calls fn and turns a panic in it into a pmm_unavailable error, logging the stack at Error and the
+// panic value, which can quote SQL, at Debug: the SDK and the tools' workers run in goroutines without a recover.
 func recoverPanic(l *logrus.Entry, fn func() error) error {
 	var err error
 	func() {
@@ -98,7 +103,8 @@ func recoverPanic(l *logrus.Entry, fn func() error) error {
 			if r == nil {
 				return
 			}
-			l.WithField("panic", r).WithField("stack", string(debug.Stack())).Error("Tool call panicked.")
+			l.WithField("stack", string(debug.Stack())).Error("Tool call panicked.")
+			l.WithField("panic", r).Debug("Tool call panicked.")
 			err = newToolError(codePMMUnavailable, "pmm-managed failed while running this tool; its log has the details")
 		}()
 		err = fn()
