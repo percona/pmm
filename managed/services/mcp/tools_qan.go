@@ -503,7 +503,7 @@ type queryDetailResult struct {
 	Fingerprint  string             `json:"fingerprint,omitempty" jsonschema:"Untrusted. Normalized statement, masked or withheld when raw SQL is off."`
 	Tables       []string           `json:"tables,omitempty" jsonschema:"Untrusted. Tables the stored example reads."`
 	Metrics      map[string]float64 `json:"metrics,omitempty" jsonschema:"Key diagnostic metrics by the names the text prints; zero counters are left out."`
-	Example      string             `json:"example,omitempty" jsonschema:"Untrusted. Example statement, raw with raw SQL on, else normalized and masked; left out when withheld."`
+	Example      string             `json:"example,omitempty" jsonschema:"Untrusted. Example: raw with raw SQL on, else normalized and masked; left out when withheld."`
 	QueryRef     queryRef           `json:"query_ref" jsonschema:"Identifies the query and the window it was read in."`
 	Window       window             `json:"window" jsonschema:"Time window of the data."`
 	PMMURL       string             `json:"pmm_url" jsonschema:"Link to this query in PMM Query Analytics."`

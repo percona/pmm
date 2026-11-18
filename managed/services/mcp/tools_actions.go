@@ -73,7 +73,7 @@ type explainInput struct {
 	ServiceID    string         `json:"service_id,omitempty" jsonschema:"Service id from pmm_inventory; needed only when the queryid ran on several of your services"`
 	PeriodFrom   string         `json:"period_from,omitempty" jsonschema:"Window start: RFC3339 or relative such as now-1h (default 1 h before period_to); with queryid"`
 	PeriodTo     string         `json:"period_to,omitempty" jsonschema:"Window end: RFC3339 or relative (default now); with queryid"`
-	Database     string         `json:"database,omitempty" jsonschema:"MySQL: the database to connect to; pmm-agent still switches to the schema QAN recorded for the query"`
+	Database     string         `json:"database,omitempty" jsonschema:"MySQL: database to connect to; pmm-agent still switches to the schema QAN recorded for the query"`
 	Placeholders []string       `json:"placeholders,omitempty" jsonschema:"Values for ? placeholders in the fingerprint, in order; MySQL only"`
 	Format       string         `json:"format,omitempty" jsonschema:"json (default) or traditional; MySQL only"`
 }

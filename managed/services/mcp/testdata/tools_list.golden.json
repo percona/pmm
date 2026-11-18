@@ -382,7 +382,7 @@
       "additionalProperties": false,
       "properties": {
         "database": {
-          "description": "MySQL: the database to connect to; pmm-agent still switches to the schema QAN recorded for the query",
+          "description": "MySQL: database to connect to; pmm-agent still switches to the schema QAN recorded for the query",
           "type": "string"
         },
         "format": {
@@ -1138,7 +1138,7 @@
           "type": "string"
         },
         "example": {
-          "description": "Untrusted. Example statement, raw with raw SQL on, else normalized and masked; left out when withheld.",
+          "description": "Untrusted. Example: raw with raw SQL on, else normalized and masked; left out when withheld.",
           "type": "string"
         },
         "example_error": {
