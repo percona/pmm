@@ -278,7 +278,8 @@ func (s *Service) startLiveOn(ctx context.Context, serviceID string) (func(), er
 		"a live-inspection call on this service is still in flight after %s; retry when it finishes", s.liveServiceWait)
 	release, hit, err := s.liveByService.acquireWait(ctx, serviceID, s.liveServiceWait)
 	if errors.Is(err, context.DeadlineExceeded) {
-		return nil, inFlight
+		return nil, newToolError(codeRateLimited,
+			"a live-inspection call on this service is still in flight, and this call ran out of time waiting for it; retry when it finishes")
 	}
 	if err != nil {
 		return nil, err

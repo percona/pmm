@@ -1800,6 +1800,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		te := mapError(err)
 		assert.Equal(t, codeRateLimited, te.code, te.message)
 		assert.Contains(t, te.message, "a live-inspection call on this service is still in flight")
+		assert.Contains(t, te.message, "ran out of time waiting for it")
 
 		ctx, cancel = context.WithCancel(t.Context())
 		time.AfterFunc(100*time.Millisecond, cancel)

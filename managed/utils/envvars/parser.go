@@ -47,8 +47,8 @@ const (
 	// EnvVMStoragePrefix is the prefix for environment variables related to VMStorage.
 	EnvVMStoragePrefix = "VMSTORAGE_"
 
-	// The longest PMM_MCP_ACTION_TIMEOUT accepted; nginx ends any request after 600 s.
-	maxMCPActionTimeout = 10 * time.Minute
+	// The longest PMM_MCP_ACTION_TIMEOUT accepted: with the call's 45 s of slack it stays under nginx's 600 s limit.
+	maxMCPActionTimeout = 9 * time.Minute
 )
 
 // InvalidDurationError invalid duration error.

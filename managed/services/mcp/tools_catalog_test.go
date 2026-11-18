@@ -191,3 +191,17 @@ func TestCatalogQANColumns(t *testing.T) {
 		}
 	})
 }
+
+func TestCatalogEchoesBoundedInput(t *testing.T) {
+	t.Parallel()
+
+	s, err := New(Params{API: &mockPmmAPI{}})
+	require.NoError(t, err)
+	long := strings.Repeat("x", 10*maxEchoBytes)
+	for _, in := range []catalogInput{{Kind: long}, {Kind: catalogKindMetrics, Engine: long}} {
+		_, err := s.catalog(t.Context(), nil, in)
+		te := mapError(err)
+		assert.Equal(t, codeInvalidInput, te.code)
+		assert.Less(t, len(te.message), 2*maxEchoBytes+200, te.message)
+	}
+}
