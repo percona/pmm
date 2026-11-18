@@ -194,7 +194,7 @@ func New(params Params) (*Service, error) {
 	})
 	s.registerTools(server)
 
-	s.handler = http.NewCrossOriginProtection().Handler(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
+	s.handler = http.NewCrossOriginProtection().Handler(refuseBatches(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return server
 	}, &mcp.StreamableHTTPOptions{
 		// No session table: every request carries its own credentials and is
@@ -208,7 +208,7 @@ func New(params Params) (*Service, error) {
 		// cross-origin check above protect /mcp instead.
 		DisableLocalhostProtection: true,
 		MaxRequestBodyBytes:        maxRequestBodyBytes,
-	}))
+	})))
 
 	return s, nil
 }
@@ -233,6 +233,13 @@ func (s *Service) Handler() http.Handler {
 			http.NotFound(rw, req)
 			return
 		}
+		s.handler.ServeHTTP(rw, req)
+	})
+}
+
+// refuseBatches answers 400 to a JSON-RPC batch and passes any other request on to next.
+func refuseBatches(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// The SDK reads at most maxRequestBodyBytes as well, so a longer body still gets its 413.
 		body, err := io.ReadAll(io.LimitReader(req.Body, maxRequestBodyBytes+1))
 		if err != nil {
@@ -244,7 +251,7 @@ func (s *Service) Handler() http.Handler {
 			return
 		}
 		req.Body = io.NopCloser(bytes.NewReader(body))
-		s.handler.ServeHTTP(rw, req)
+		next.ServeHTTP(rw, req)
 	})
 }
 
