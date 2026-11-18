@@ -256,7 +256,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	// dimension); per-metric stats are nested under <name>.stats. Row.database
 	// arrives empty for MySQL rows, so schema comes from pmm_query_detail.
 	rows := make([]queryRow, 0, len(report.Rows))
-	// With raw SQL off, a search could match a withheld fingerprint's text, so its rows are left out.
+	// With raw SQL off, a search leaves out the rows whose fingerprint is withheld.
 	leaveOut := !raw && q.body.Search != "" && q.groupBy == groupByQuery
 	var leftOut int
 	for i, row := range report.Rows {
