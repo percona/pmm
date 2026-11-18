@@ -282,6 +282,9 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		if resolved.ExampleErr != nil {
 			return explainResult{}, resolved.ExampleErr
 		}
+		if resolved.ExampleTrimmed {
+			return explainResult{}, newToolError(codeInvalidInput, "%s", trimmedQueryRemediation)
+		}
 		if resolved.Example == "" {
 			return explainResult{}, newToolError(codeNoQuerySource,
 				"no stored query example for queryid '%s' in %s; enable query examples for the service, or pick a window in which QAN stored one",
@@ -770,11 +773,12 @@ const (
 	placeholdersCountError   = "placeholders count is not correct"
 	placeholdersCountMessage = "the number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, " +
 		"in order, or none when QAN stored a query example"
-	mongoReadOnlyRemediation = "MongoDB can explain read operations only (find, aggregate, count, distinct); " +
-		"pick a read query from pmm_top_queries"
+	mongoExplainRemediation = "pmm-agent explains MongoDB queries, updates, removes and getMores, and the find, findAndModify, " +
+		"update, aggregate, count, distinct, mapReduce, group and getMore commands; it refuses inserts, drops and other commands. " +
+		"Pick another query from pmm_top_queries"
 )
 
-// mongoUnsupportedExplain matches pmm-agent's refusal to explain a MongoDB write or admin operation.
+// mongoUnsupportedExplain matches pmm-agent's refusal to explain a MongoDB operation or command.
 var mongoUnsupportedExplain = regexp.MustCompile(`\A(?:command|operation) [A-Za-z]+ is not supported for explain\z`)
 
 // mysqlErrors classifies MySQL error numbers. Those marked identifiers quote
@@ -845,7 +849,7 @@ func mapActionError(actionErr string, redact bool) *toolError {
 		code, header = mongoErrors[mongoName[1]], mongoName[0]
 	}
 	if mongoUnsupportedExplain.MatchString(rest) {
-		return newToolError(codeInvalidInput, "%s\n%s", actionErr, mongoReadOnlyRemediation)
+		return newToolError(codeInvalidInput, "%s\n%s", actionErr, mongoExplainRemediation)
 	}
 	if code == "" {
 		code = classifyErrorText(maskQuoted(rest))

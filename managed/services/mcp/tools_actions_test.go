@@ -425,7 +425,49 @@ func TestExplainTool(t *testing.T) {
 		assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"])
 		text := textOf(t, res)
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\ncannot explain this type of query\noperation insert is not supported for explain"), text)
-		assert.Contains(t, text, "MongoDB can explain read operations only (find, aggregate, count, distinct); pick a read query from pmm_top_queries")
+		assert.Contains(t, text, "pmm-agent explains MongoDB queries, updates, removes and getMores, and the find, findAndModify, update, "+
+			"aggregate, count, distinct, mapReduce, group and getMore commands; it refuses inserts, drops and other commands. "+
+			"Pick another query from pmm_top_queries")
+		assert.NotContains(t, text, "read operations only")
+	})
+
+	t.Run("MongoDBTrimmedExample", func(t *testing.T) {
+		t.Parallel()
+
+		const valid = `{"ns":"shop.customers","op":"query","command":{"find":"customers","filter":{"name":"José"}}}`
+		for _, tc := range []struct {
+			name      string
+			example   string
+			truncated int
+			refused   bool
+		}{
+			{"TrailingEllipsis", `{"ns":"shop.customers","op":"query","command":{"find":"customers","filter":{"name":"Jo ...`, 1, true},
+			{"TrailingEllipsisUnflagged", `{"ns":"shop.customers","op":"query","command":{"find":"cust ...`, 0, true},
+			{"FlaggedNotJSON", `{"ns":"shop.customers","op":"query","command":{"find":"cust`, 1, true},
+			{"FlaggedValidJSON", valid, 1, false},
+			{"Whole", valid, 0, false},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				fake, stub := newActionStub(t, 0)
+				mongoExplain(fake)
+				fake.routes["POST /v1/qan/query:getExample"] = fixture{body: mustJSON(t, map[string]any{"query_examples": []map[string]any{{
+					"example": tc.example, "is_truncated": tc.truncated, "query_id": "QID-AAA", "service_id": "svc-mongo", "service_type": "mongodb",
+				}}})}
+				session := connect(t, newQANService(t, fake, true))
+
+				text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
+				if !tc.refused {
+					assert.False(t, isError, text)
+					require.Len(t, stub.starts, 1)
+					return
+				}
+				assert.True(t, isError)
+				assert.Equal(t, "error: invalid_input\n"+trimmedQueryRemediation, text)
+				assert.Empty(t, stub.starts)
+			})
+		}
 	})
 
 	t.Run("TrimmedQuery", func(t *testing.T) {

@@ -18,6 +18,7 @@ package mcp
 import (
 	"cmp"
 	"context"
+	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
@@ -59,6 +60,8 @@ type resolvedQuery struct {
 	Tables    []string
 	// Example is the stored statement as QAN holds it, empty when QAN has none for this service.
 	Example string
+	// ExampleTrimmed is set when pmm-agent cut Example at its max-query-length.
+	ExampleTrimmed bool
 	// MetricsErr is the failure of the metrics call that Database comes from.
 	MetricsErr error
 	// ExampleErr is the failure of the example call that Example and PostgreSQL's Tables come from.
@@ -173,6 +176,7 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	}
 	if example != nil {
 		out.Example = example.Example
+		out.ExampleTrimmed = exampleTrimmed(example.Example, example.IsTruncated != 0)
 		if svc.Engine == enginePostgreSQL {
 			out.Tables = example.Tables
 		}
@@ -190,6 +194,12 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 		out.Database = out.Databases[0]
 	}
 	return out, nil
+}
+
+// exampleTrimmed reports whether pmm-agent cut a MongoDB example, which it ends with " ...". pmm-agent also flags an
+// example that holds a character of several bytes, so a flagged example counts as cut only when it is not JSON.
+func exampleTrimmed(example string, flagged bool) bool {
+	return strings.HasSuffix(example, " ...") || (flagged && !json.Valid([]byte(example)))
 }
 
 // metadataValues splits a qan:getMetrics metadata value, the distinct values joined with ", ", and drops the empty ones.
