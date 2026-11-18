@@ -291,6 +291,48 @@ func TestCheckExpr(t *testing.T) {
 			name: "the 4097s window passes at the step its hint names",
 			expr: `max_over_time(sum by (service_name) (mysql_up{service_name="db1"})[4097s])`, span: time.Hour, step: 3 * time.Second,
 		},
+
+		// A range query's rollup window over a selector, times the points it is read at, is at most 2,000 hours.
+		{name: "a 5m rate over 1h", expr: `rate(mysql_global_status_questions{service_name="db1"}[5m])`, span: time.Hour},
+		{name: "a 5m rate over 6d23h", expr: `rate(mysql_global_status_questions{service_name="db1"}[5m])`, span: 6*day + 23*time.Hour},
+		{name: "a 1h rate over 6d23h, 1998 points", expr: `rate(mysql_global_status_questions{service_name="db1"}[1h])`, span: 6*day + 23*time.Hour},
+		{name: "an instant 7d rollup", expr: `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[7d])`},
+		{name: "an instant 6d rate", expr: `rate(mysql_global_status_questions{service_name="db1"}[6d])`},
+		{
+			name: "a 6d23h window over a 1h range at 2s",
+			expr: `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d23h])`, span: time.Hour,
+			want: []string{
+				"at the query's step of 2s, the rollup window 6d23h is read at each of 1800 points, 300600 hours of samples per series",
+				"the cap is 2000 hours (a 1h window at 2000 points)",
+				"raise step to at least 5m1s, shorten the window, or send an instant query for one value over the window",
+			},
+		},
+		{
+			name: "the 6d23h window passes at the step its hint names",
+			expr: `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d23h])`, span: time.Hour, step: 301 * time.Second,
+		},
+		{
+			name: "a 1d rate over 6d at 4m20s",
+			expr: `rate(mysql_global_status_questions{service_name="db1"}[1d])`, span: 6 * day,
+			want: []string{"the rollup window 1d is read at each of 1994 points", "raise step to at least 1h43m41s"},
+		},
+		{
+			name: "the 1d rate passes at the step its hint names",
+			expr: `rate(mysql_global_status_questions{service_name="db1"}[1d])`, span: 6 * day, step: 6221 * time.Second,
+		},
+		{
+			name: "a window inside an implicit subquery is read at the query's step",
+			expr: `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d])[1h])`, span: time.Hour,
+			want: []string{"the rollup window 6d is read at each of 3752 points", "raise step to at least 10m31s"},
+		},
+		{
+			name: "the implicit subquery's window passes at the step its hint names",
+			expr: `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d])[1h])`, span: time.Hour, step: 631 * time.Second,
+		},
+		{
+			name: "a window inside an explicit subquery is left to the subquery's step",
+			expr: `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[3d])[3d:302s])`,
+		},
 	} {
 		name := tc.name
 		if name == "" {

@@ -357,6 +357,7 @@ The server refuses these expressions before it sends any request. Every refusal 
 - **Series per phi.** Functions that create a series for each phi argument are refused: `quantiles_over_time`, `quantiles` and `histogram_quantiles`. Call `quantile_over_time`, `quantile` or `histogram_quantile` once for each phi instead.
 - **Characters.** A non-ASCII character or a backslash outside a quoted string is refused. Label values and other strings can hold both.
 - **Subquery step.** The step of a subquery, written as `[range:step]`, is at least the time read divided by 2,000. A subquery without a step takes the step of the query and is checked the same way.
+- **Rollup windows.** In a range query, a rollup window over a selector times the number of points it is read at is at most 2,000 hours, the same as a 1-hour window at 2,000 points. For example, `quantile_over_time(0.99, x[6d23h])` over the last hour at the default 2-second step is refused. The hint names the smallest step that fits. An instant query reads each window once, so it has no such limit.
 - **Instant range.** An instant `pmm_query_metrics` query can't be a range selector or a subquery, such as `x[5m]`, `x[1h:1m]` or `x[:1m]`, with or without `offset`, since VictoriaMetrics answers it with a range of samples. Wrap it in a rollup such as `last_over_time()` or `rate()`, or send a range query.
 
 The lookbehind of a path is the sum of what the path passes through:
@@ -367,7 +368,7 @@ The lookbehind of a path is the sum of what the path passes through:
 
 A selector that is read through no window, such as `up`, or as the argument of a rollup function written without one, such as `rate(x)`, reads one step back. For an instant query the step is 5 minutes. A window shorter than the step counts as one step. For example, `rate(x[5m])` over the last 7 days reads 7 days and 5 minutes and is refused, while the last 6 days is accepted. `rate(x[6d])` as an instant query reads 6 days. `max_over_time(rate(x[6d])[6d:1h])` reads more than 12 days and is refused.
 
-A rollup over an expression that isn't a selector, such as `rate(sum(x)[1h])`, runs in VictoriaMetrics as a subquery at the step of the query. It is limited to 4,000 points per series. If you didn't give `step`, the server raises it to what the rollup needs. If you did, a step that is too small is refused and the hint names the smallest one that fits.
+A rollup over an expression that isn't a selector, such as `rate(sum(x)[1h])`, runs in VictoriaMetrics as a subquery at the step of the query. It is limited to 4,000 points per series. A rollup window inside that subquery counts toward the 2,000 hours of rollup windows at the points of the subquery. If you didn't give `step`, the server raises it to what the rollup needs. If you did, a step that is too small is refused and the hint names the smallest one that fits.
 
 ### Series cap
 

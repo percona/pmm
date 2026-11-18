@@ -443,6 +443,19 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Equal(t, "1s", res.Step)
 	})
 
+	t.Run("LongWindowOverARangeIsRefused", func(t *testing.T) {
+		t.Parallel()
+
+		const long = `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d23h])`
+		fake := newFakePMM(t, metricsRoutes(nil))
+		requireInvalid(t, newQANService(t, fake, false), fake,
+			map[string]any{"query": long, "period_from": "now-1h"}, "raise step to at least 5m1s, shorten the window, or send an instant query")
+
+		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": long})
+		require.False(t, isError, text)
+		assert.Len(t, res.Series, 2, "an instant query reads the window once")
+	})
+
 	t.Run("OtherRefusalsAreNotRetried", func(t *testing.T) {
 		t.Parallel()
 
