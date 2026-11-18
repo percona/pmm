@@ -303,7 +303,7 @@ type reportQuery struct {
 func newReportQuery(in topQueriesInput, from, to time.Time) (*reportQuery, error) {
 	q := &reportQuery{groupBy: cmp.Or(in.GroupBy, groupByQuery), orderBy: cmp.Or(in.OrderBy, "load"), offset: in.Offset}
 	if !slices.Contains(groupByDimensions, q.groupBy) {
-		return nil, newToolError(codeInvalidInput, "group_by must be one of %s; got '%s'", strings.Join(groupByDimensions, ", "), q.groupBy)
+		return nil, newToolError(codeInvalidInput, "group_by must be one of %s; got '%s'", strings.Join(groupByDimensions, ", "), echo(q.groupBy))
 	}
 	limit := cmp.Or(in.Limit, defaultLimit)
 	err := checkPage(in.Offset, limit, maxLimit)
@@ -357,7 +357,7 @@ func checkColumns(columns []string) ([]string, error) {
 	out := make([]string, 0, len(columns))
 	for _, c := range columns {
 		if _, ok := qanColumnByName(c); !ok {
-			return nil, newToolError(codeInvalidInput, "unknown column '%s'; pmm_catalog with kind qan_columns lists the valid names", c)
+			return nil, newToolError(codeInvalidInput, "unknown column '%s'; pmm_catalog with kind qan_columns lists the valid names", echo(c))
 		}
 		if !slices.Contains(out, c) {
 			out = append(out, c)
@@ -375,7 +375,7 @@ func parseOrderBy(orderBy string) (string, string, string, error) {
 	name := strings.TrimPrefix(orderBy, "-")
 	if _, ok := qanColumnByName(name); !ok {
 		return "", "", "", newToolError(codeInvalidInput,
-			"order_by must be load, total_query_time, avg_query_time, count, or a column from pmm_catalog with an optional - prefix; got '%s'", orderBy)
+			"order_by must be load, total_query_time, avg_query_time, count, or a column from pmm_catalog with an optional - prefix; got '%s'", echo(orderBy))
 	}
 	return orderBy, name, name, nil
 }
@@ -398,13 +398,13 @@ func reportLabels(in topQueriesInput) (map[string][]string, error) {
 	}
 	for key, values := range labels {
 		if !labelKey.MatchString(key) {
-			return nil, newToolError(codeInvalidInput, "label name '%s' must match %s", key, labelKey)
+			return nil, newToolError(codeInvalidInput, "label name '%s' must match %s", echo(key), labelKey)
 		}
 		if len(values) == 0 {
-			return nil, newToolError(codeInvalidInput, "labels.%s needs at least one value", key)
+			return nil, newToolError(codeInvalidInput, "labels.%s needs at least one value", echo(key))
 		}
 		for _, v := range values {
-			err := checkQANValue("labels."+key, v)
+			err := checkQANValue("labels."+echo(key), v)
 			if err != nil {
 				return nil, err
 			}

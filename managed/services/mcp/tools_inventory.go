@@ -199,7 +199,7 @@ func (s *Service) version(ctx context.Context, req *mcp.CallToolRequest, _ versi
 
 func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in inventoryInput) (inventoryResult, error) {
 	if in.Engine != "" && !slices.Contains(serviceTypes, in.Engine) {
-		return inventoryResult{}, newToolError(codeInvalidInput, "engine must be one of %s; got '%s'", strings.Join(serviceTypes, ", "), in.Engine)
+		return inventoryResult{}, newToolError(codeInvalidInput, "engine must be one of %s; got '%s'", strings.Join(serviceTypes, ", "), echo(in.Engine))
 	}
 	err := checkPage(in.Offset, in.Limit, inventoryMaxLimit)
 	if err != nil {

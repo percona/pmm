@@ -921,6 +921,38 @@ func TestQANValuesAreChecked(t *testing.T) {
 	}
 }
 
+// TestRefusedInputEchoIsBounded pins that an invalid_input message quotes at most maxEchoBytes of the caller's input.
+func TestRefusedInputEchoIsBounded(t *testing.T) {
+	t.Parallel()
+
+	long := strings.Repeat("x", 5*maxEchoBytes)
+	spaced := "now" + strings.Repeat(" ", 5*maxEchoBytes) + "-2h"
+	for _, tc := range []struct {
+		tool string
+		args map[string]any
+	}{
+		{"pmm_top_queries", map[string]any{"period_from": long}},
+		{"pmm_top_queries", map[string]any{"period_from": "now-" + strings.Repeat("9", 5*maxEchoBytes) + "d"}},
+		{"pmm_top_queries", map[string]any{"period_from": "now-1h", "period_to": spaced}},
+		{"pmm_top_queries", map[string]any{"group_by": long}},
+		{"pmm_top_queries", map[string]any{"order_by": long}},
+		{"pmm_top_queries", map[string]any{"columns": []string{long}}},
+		{"pmm_top_queries", map[string]any{"labels": map[string]any{long + "X": []string{"v"}}}},
+		{"pmm_top_queries", map[string]any{"labels": map[string]any{long: []string{}}}},
+		{"pmm_query_detail", map[string]any{"queryid": "QID-AAA", "period_to": long}},
+		{"pmm_inventory", map[string]any{"engine": long}},
+		{"pmm_get_config", map[string]any{"service_id": "svc-1", "engine": long}},
+		{"pmm_get_explain", map[string]any{"queryid": "QID-AAA", "format": long}},
+		{"pmm_get_schema", map[string]any{"queryid": "QID-AAA", "info_types": long}},
+	} {
+		session := connect(t, newQANService(t, newFakePMM(t, qanRoutes()), true))
+		text, isError := callText(t, session, tc.tool, tc.args)
+		require.True(t, isError, "%s %v", tc.tool, tc.args)
+		require.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Less(t, len(text), 3*maxEchoBytes, "%s: %s", tc.tool, text)
+	}
+}
+
 // TestKeyMetricsMongoDB pins the MongoDB counters pmm_query_detail shows, so the
 // examined-to-returned ratio is visible; zero counters are left out.
 func TestKeyMetricsMongoDB(t *testing.T) {

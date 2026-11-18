@@ -111,7 +111,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	if in.Engine != "" {
 		_, ok := configMetrics[in.Engine]
 		if !ok {
-			return configResult{}, newToolError(codeInvalidInput, "engine must be mysql or postgresql; got '%s'", in.Engine)
+			return configResult{}, newToolError(codeInvalidInput, "engine must be mysql or postgresql; got '%s'", echo(in.Engine))
 		}
 	}
 	err := checkPage(in.Offset, in.Limit, configMaxLimit)

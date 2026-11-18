@@ -230,7 +230,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		format = formatJSON
 	}
 	if format != formatJSON && format != formatTraditional {
-		return explainResult{}, newToolError(codeInvalidInput, "format must be json or traditional; got '%s'", in.Format)
+		return explainResult{}, newToolError(codeInvalidInput, "format must be json or traditional; got '%s'", echo(in.Format))
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 	base := s.publicBaseURL(ctx, req.Extra.Header)
@@ -284,7 +284,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		if resolved.Example == "" {
 			return explainResult{}, newToolError(codeNoQuerySource,
 				"no stored query example for queryid '%s' in %s; enable query examples for the service, or pick a window in which QAN stored one",
-				resolvedRef.QueryID, windowText(window{From: resolvedRef.PeriodFrom, To: resolvedRef.PeriodTo}))
+				echo(resolvedRef.QueryID), windowText(window{From: resolvedRef.PeriodFrom, To: resolvedRef.PeriodTo}))
 		}
 		body.MongodbExplain = &actions_service.StartServiceActionParamsBodyMongodbExplain{ServiceID: svc.ServiceID, Query: resolved.Example}
 		// format is MySQL's; MongoDB's explain always answers JSON.
@@ -353,7 +353,7 @@ func (s *Service) storedPlan(
 func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schemaInput) (schemaResult, error) {
 	infoTypes := cmp.Or(in.InfoTypes, infoDefinition)
 	if !slices.Contains([]string{infoDefinition, infoIndexes, infoAll}, infoTypes) {
-		return schemaResult{}, newToolError(codeInvalidInput, "info_types must be definition, indexes or all; got '%s'", in.InfoTypes)
+		return schemaResult{}, newToolError(codeInvalidInput, "info_types must be definition, indexes or all; got '%s'", echo(in.InfoTypes))
 	}
 	queryForm := in.QueryRef != nil || in.QueryID != ""
 	switch {
@@ -443,7 +443,7 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 		}
 		if len(tables) == 0 {
 			return schemaResult{}, newToolError(codeNoQuerySource, "QAN has no tables for queryid '%s' in %s; pass service_id, database and tables to name them",
-				resolvedRef.QueryID, windowText(window{From: resolvedRef.PeriodFrom, To: resolvedRef.PeriodTo}))
+				echo(resolvedRef.QueryID), windowText(window{From: resolvedRef.PeriodFrom, To: resolvedRef.PeriodTo}))
 		}
 	}
 
