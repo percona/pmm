@@ -673,10 +673,14 @@ type queryDetail struct {
 // partial data still returns with the other's error; it fails only when both fail.
 // Both calls are limited to serviceIDs, which the caller has checked against the service list.
 func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in queryDetailInput, serviceIDs []string, from, to time.Time) (*queryDetail, error) {
-	labels := []*qan_service.GetMetricsParamsBodyLabelsItems0{{Key: groupByQuery, Value: []string{in.QueryID}}}
-	exampleLabels := []*qan_service.GetQueryExampleParamsBodyLabelsItems0{{Key: groupByQuery, Value: []string{in.QueryID}}}
-	labels = append(labels, &qan_service.GetMetricsParamsBodyLabelsItems0{Key: "service_id", Value: serviceIDs})
-	exampleLabels = append(exampleLabels, &qan_service.GetQueryExampleParamsBodyLabelsItems0{Key: "service_id", Value: serviceIDs})
+	labels := []*qan_service.GetMetricsParamsBodyLabelsItems0{
+		{Key: groupByQuery, Value: []string{in.QueryID}},
+		{Key: "service_id", Value: serviceIDs},
+	}
+	exampleLabels := []*qan_service.GetQueryExampleParamsBodyLabelsItems0{
+		{Key: groupByQuery, Value: []string{in.QueryID}},
+		{Key: "service_id", Value: serviceIDs},
+	}
 
 	metrics, metricsErr := s.api.GetMetrics(ctx, auth, qan_service.GetMetricsBody{
 		PeriodStartFrom: strfmt.DateTime(from),
