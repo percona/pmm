@@ -8,6 +8,7 @@ const INVENTORY_QUERY_KEYS = [
   ['services:get'],
   ['services:getTypes'],
   ['nodes:list'],
+  ['nodes:getTypes'],
   ['nodes:get'],
   ['agents:list'],
   ['agents:rdsExporter'],

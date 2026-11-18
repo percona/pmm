@@ -290,7 +290,8 @@ export const groupInstances = (rows: RdsInstanceRow[]): InstanceGroup[] => {
     group.monitoredInstances += 1;
     group.exportersConnected += row.up ?? 0;
     group.writers += role === 'writer' ? 1 : 0;
-    group.unknownRoles += role === 'unknown' ? 1 : 0;
+    // A down instance reports no role and serves no writes, so it leaves no writer to be unknown.
+    group.unknownRoles += role === 'unknown' && row.up === 1 ? 1 : 0;
     group.throughput = sumDefined(group.throughput, row.throughput);
     group.storage = addStorage(group.storage, row, engine);
     groups.set(key, group);

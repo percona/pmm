@@ -161,7 +161,7 @@ describe('AmazonRds.utils: grouping', () => {
       awsAccountId: '',
       exportersConnected: 0,
       writers: 0,
-      unknownRoles: 1,
+      unknownRoles: 0,
     });
     expect(mysql.instances).toEqual([
       {
@@ -341,6 +341,34 @@ describe('AmazonRds.utils: roles and engines', () => {
     expect(getWriters(group(0, 2))).toEqual({
       text: 'unknown',
       state: 'unknown',
+    });
+  });
+
+  it('warns that a cluster has no writer while its writer is down', () => {
+    const [cluster] = groupInstances([
+      row({
+        serviceName: 'c1-instance-1',
+        awsEngine: 'aurora-mysql',
+        clusterId: 'c1',
+        up: 0,
+      }),
+      row({
+        serviceName: 'c1-instance-2',
+        awsEngine: 'aurora-mysql',
+        clusterId: 'c1',
+        up: 1,
+        innodbReadOnly: 1,
+      }),
+    ]);
+
+    expect(cluster).toMatchObject({
+      kind: 'cluster',
+      writers: 0,
+      unknownRoles: 0,
+    });
+    expect(getWriters(cluster)).toEqual({
+      text: 'no writer',
+      state: 'warning',
     });
   });
 

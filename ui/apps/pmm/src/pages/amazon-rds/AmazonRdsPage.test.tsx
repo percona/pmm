@@ -102,7 +102,7 @@ describe('AmazonRdsPage', { timeout: 20_000 }, () => {
     expect(screen.getByText('Aurora PostgreSQL')).toBeInTheDocument();
     expect(screen.getByText('MariaDB')).toBeInTheDocument();
     expect(screen.getAllByText('1 writer')).toHaveLength(7);
-    expect(screen.getByText('unknown')).toBeInTheDocument();
+    expect(screen.getByText('no writer')).toBeInTheDocument();
     expect(screen.getByText('24.75 qps')).toBeInTheDocument();
     expect(screen.getByText('17.00 tps')).toBeInTheDocument();
     expect(screen.getByText('4.9 KiB used')).toBeInTheDocument();
