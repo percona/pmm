@@ -777,8 +777,8 @@ func checkQANValue(input, value string) error {
 // withheldFingerprint replaces a SQL fingerprint that still holds a literal.
 const withheldFingerprint = "(fingerprint withheld: PMM stored this statement unnormalized, and PMM_MCP_RAW_SQL is off)"
 
-// fingerprintText masks a fingerprint unless raw SQL is on: a SQL one with a quoted
-// string under its engine's quoting (either, if unknown) is a raw statement and is withheld.
+// fingerprintText masks a fingerprint unless raw SQL is on, under its engine's quoting or, if unknown, under both:
+// a SQL one with a quoted string is a raw statement and is withheld.
 func fingerprintText(fingerprint, engine string, raw bool) string {
 	if raw {
 		return fingerprint
@@ -788,13 +788,32 @@ func fingerprintText(fingerprint, engine string, raw bool) string {
 	}
 	masked, quoted := maskSQL(fingerprint, engine == engineMySQL)
 	if engine != engineMySQL && engine != enginePostgreSQL {
-		_, mysqlQuoted := maskSQL(fingerprint, true)
-		quoted = quoted || mysqlQuoted
+		masked, quoted = maskEitherQuoting(fingerprint)
 	}
 	if quoted {
 		return withheldFingerprint
 	}
 	return masked
+}
+
+// maskEitherQuoting is maskSQL for a text of unknown engine: a byte is masked when MySQL's or PostgreSQL's quoting
+// masks it, and the text is quoted when either finds a quoted string in it.
+func maskEitherQuoting(s string) (string, bool) {
+	marks := sqlMarks(s, true)
+	for i, m := range sqlMarks(s, false) {
+		marks[i] = max(marks[i], m)
+	}
+	var b strings.Builder
+	b.Grow(len(s))
+	for i := range len(s) {
+		switch {
+		case marks[i] == plainMark:
+			b.WriteByte(s[i])
+		case i == 0 || marks[i-1] == plainMark:
+			b.WriteByte('?')
+		}
+	}
+	return b.String(), slices.Contains(marks, stringMark)
 }
 
 // quotingMatters reports whether a SQL fingerprint reads differently under MySQL

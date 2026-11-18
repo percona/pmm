@@ -1374,3 +1374,24 @@ func TestTopQueriesSearch(t *testing.T) {
 		assert.NotContains(t, text, "No queries found")
 	})
 }
+
+// TestFingerprintUnknownEngineMasksEitherQuoting pins that a fingerprint of unknown engine is masked wherever MySQL's or
+// PostgreSQL's quoting would mask it.
+func TestFingerprintUnknownEngineMasksEitherQuoting(t *testing.T) {
+	t.Parallel()
+
+	masked, quoted := maskEitherQuoting(`SELECT 'secret_a', "secret_b" FROM t WHERE x = 42`)
+	assert.Equal(t, `SELECT ?, ? FROM t WHERE x = ?`, masked)
+	assert.True(t, quoted)
+	assert.Equal(t, withheldFingerprint, fingerprintText(`SELECT 'secret_a', "secret_b" FROM t WHERE x = 42`, "", false))
+
+	for fp, want := range map[string]string{
+		"SELECT `1st` FROM t /* a /* b */ c */ WHERE x = 7": "SELECT `?st` FROM t /*?*/ WHERE x = ?",
+		"SELECT `c` FROM t -- note 7\nWHERE x = 7":          "SELECT `c` FROM t --?\nWHERE x = ?",
+	} {
+		masked, quoted := maskEitherQuoting(fp)
+		assert.Equal(t, want, masked, fp)
+		assert.False(t, quoted, fp)
+		assert.Equal(t, want, fingerprintText(fp, "", false), fp)
+	}
+}
