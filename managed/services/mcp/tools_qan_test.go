@@ -121,11 +121,13 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 	assert.Contains(t, detail, "fingerprint:\n"+result.Fingerprint+"\n")
 	assert.NotContains(t, string(mustJSON(t, result)), "4417")
 
-	// explain_fingerprint is withheld when quoted, and keeps its numbered placeholders.
+	// explain_fingerprint is masked like a fingerprint, numbers and comment text included, and withheld when quoted.
 	for fp, want := range map[string]string{
-		"SELECT `id` FROM `t` WHERE `email` = :1":           "SELECT `id` FROM `t` WHERE `email` = :1",
-		"SELECT `id` FROM `t` WHERE `email` = 'a@b.com'":    "",
-		`SELECT "id" FROM "t" WHERE "email" = "leak@b.com"`: "",
+		"SELECT `id` FROM `t` WHERE `email` = :1":                                   "SELECT `id` FROM `t` WHERE `email` = :?",
+		"SELECT /* user 4417 */ `id` FROM `t1` WHERE `pin` = 4417 AND `email` = :1": "SELECT /*?*/ `id` FROM `t1` WHERE `pin` = ? AND `email` = :?",
+		"SELECT `id` FROM `t` -- tenant 4417\nWHERE `pin` = 4417":                   "SELECT `id` FROM `t` --?\nWHERE `pin` = ?",
+		"SELECT `id` FROM `t` WHERE `email` = 'a@b.com'":                            "",
+		`SELECT "id" FROM "t" WHERE "email" = "leak@b.com"`:                         "",
 	} {
 		d := &queryDetail{queryID: "Q", engine: engineMySQL, example: &qan_service.GetQueryExampleOKBodyQueryExamplesItems0{ExplainFingerprint: fp}}
 		r := d.result(false, "", testNow.Add(-time.Hour), testNow)
@@ -467,11 +469,11 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.False(t, isError)
 		assert.NotContains(t, text, "user42@example.com")
 		assert.Contains(t, text, "example (normalized, literals stripped; raw SQL disabled):\n```sql\n")
-		assert.Contains(t, text, "FROM `customers` WHERE `email` = :1\n```")
+		assert.Contains(t, text, "FROM `customers` WHERE `email` = :?\n```")
 
 		got := structured[queryDetailResult](t, res)
 		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
-		assert.Equal(t, "SELECT * FROM `customers` WHERE `email` = :1", got.Example) //nolint:unqueryvet
+		assert.Equal(t, "SELECT * FROM `customers` WHERE `email` = :?", got.Example) //nolint:unqueryvet
 		assert.Contains(t, text, "```sql\n"+got.Example+"\n```", "the example the text shows")
 		assert.Contains(t, text, "fingerprint:\n"+got.Fingerprint+"\n", "the fingerprint the text shows")
 	})

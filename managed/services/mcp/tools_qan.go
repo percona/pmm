@@ -472,7 +472,7 @@ type queryDetailResult struct {
 	Fingerprint  string             `json:"fingerprint,omitempty" jsonschema:"Untrusted. Normalized statement, masked or withheld when raw SQL is off."`
 	Tables       []string           `json:"tables,omitempty" jsonschema:"Untrusted. Tables the stored example reads."`
 	Metrics      map[string]float64 `json:"metrics,omitempty" jsonschema:"Key diagnostic metrics by the names the text prints; zero counters are left out."`
-	Example      string             `json:"example,omitempty" jsonschema:"Untrusted. Example statement, raw with raw SQL on, else normalized; left out when withheld."`
+	Example      string             `json:"example,omitempty" jsonschema:"Untrusted. Example statement, raw with raw SQL on, else normalized and masked; left out when withheld."`
 	QueryRef     queryRef           `json:"query_ref" jsonschema:"Identifies the query and the window it was read in."`
 	Window       window             `json:"window" jsonschema:"Time window of the data."`
 	PMMURL       string             `json:"pmm_url" jsonschema:"Link to this query in PMM Query Analytics."`
@@ -707,14 +707,16 @@ func (d *queryDetail) result(rawSQL bool, base string, from, to time.Time) query
 		}
 	}
 
-	// With raw SQL off, show the agent's explain_fingerprint (never qan:explainFingerprint,
-	// which returns the raw example) unmasked if unquoted, keeping its :1 placeholders.
-	if d.example != nil {
-		switch {
-		case rawSQL:
-			r.Example = d.example.Example
-		case fingerprintText(d.example.ExplainFingerprint, d.engine, false) != withheldFingerprint:
-			r.Example = d.example.ExplainFingerprint
+	// With raw SQL off, show the agent's explain_fingerprint (never qan:explainFingerprint, which returns the raw
+	// example), masked like a fingerprint, and nothing when it is withheld.
+	switch {
+	case d.example == nil:
+	case rawSQL:
+		r.Example = d.example.Example
+	default:
+		r.Example = fingerprintText(d.example.ExplainFingerprint, d.engine, false)
+		if r.Example == withheldFingerprint {
+			r.Example = ""
 		}
 	}
 

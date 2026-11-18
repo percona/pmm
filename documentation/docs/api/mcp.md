@@ -433,7 +433,7 @@ Set them on the PMM Server container like other `PMM_*` variables, for example `
 
     With `PMM_MCP_RAW_SQL` off, the default, MCP keeps those values out of tool output:
 
-    - Example statements are replaced by their fingerprints.
+    - Example statements are replaced by their fingerprints, masked like any fingerprint: numbers and the text of comments become `?`, and a fingerprint with quoted text is withheld.
     - Literals in execution plans and MongoDB fingerprints are replaced with `?`.
     - A SQL fingerprint that PMM stored unnormalized is withheld. If an unfiltered `pmm_top_queries` covers both MySQL and PostgreSQL data, PMM looks up each query's engine with one more report; a fingerprint that contains quoted text is withheld when its query ran under both engines, or when that lookup fails. To see such a fingerprint, filter by `service_name`.
     - `group_by=username` and `group_by=client_host` return database user names and client addresses, as the QAN dashboard does for the same role. `PMM_MCP_RAW_SQL` does not hide them.

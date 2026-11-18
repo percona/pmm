@@ -1138,7 +1138,7 @@
           "type": "string"
         },
         "example": {
-          "description": "Untrusted. Example statement, raw with raw SQL on, else normalized; left out when withheld.",
+          "description": "Untrusted. Example statement, raw with raw SQL on, else normalized and masked; left out when withheld.",
           "type": "string"
         },
         "example_error": {
