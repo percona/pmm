@@ -31,13 +31,8 @@ const (
 )
 
 // GRPCMetricsExtension for extra labels in /debug/metrics.
-type GRPCMetricsExtension struct { //nolint:recvcheck
+type GRPCMetricsExtension struct {
 	DefaultExtension
-}
-
-// MetricsNameAdjust adjusts the given metric name and returns the adjusted name.
-func (e GRPCMetricsExtension) MetricsNameAdjust(name string) string {
-	return "pmm_" + name
 }
 
 // ServerStreamMsgReceivedCounterCustomLabels returns custom labels for the server stream message received counter.
