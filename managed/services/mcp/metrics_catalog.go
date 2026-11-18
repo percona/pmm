@@ -658,7 +658,7 @@ var metricsCatalog = []metricInfo{
 	},
 	{
 		Name: "mongodb_mongod_global_lock_current_queue", Engine: engineMongoDB,
-		Meaning: "Operations waiting for the global lock, by type (readers, writers).",
+		Meaning: "Operations waiting for the global lock, by type: reader, writer, and total, their sum.",
 		Unit:    "short", Type: "gauge", Labels: []string{"cl_id", "cl_role", "rs_nm", "rs_state", "type"},
 		Query: `mongodb_mongod_global_lock_current_queue{service_name="<service>"}`,
 	},

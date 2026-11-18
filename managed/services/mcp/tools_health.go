@@ -174,8 +174,9 @@ var healthSignals = map[string][]signal{
 			Query: `avg by (service_name) (mongodb_connections{%[1]s, state="current"})`,
 		},
 		{
+			// The exporter's type="total" is readers plus writers, so the panel's target is kept to that series.
 			Name: "queued_operations", Unit: "short", Source: "mongodb_mongod_global_lock_current_queue",
-			Query: `sum by (service_name) (avg by (service_name,type) (mongodb_mongod_global_lock_current_queue{%[1]s}))`,
+			Query: `avg by (service_name,type) (mongodb_mongod_global_lock_current_queue{%[1]s, type="total"})`,
 		},
 		{
 			Name: "query_efficiency", Unit: "percentunit", Source: "mongodb_mongod_metrics_query_executor_total",
