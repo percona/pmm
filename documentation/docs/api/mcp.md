@@ -390,9 +390,9 @@ The limits are per caller, identified by a hash of the credential, and per PMM S
 
 | Limit | Applies to | Value |
 |-------|------------|-------|
-| Calls in flight, per caller | `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_top_queries`, `pmm_query_detail`, `pmm_alerts`, and the query lookup of `pmm_get_explain` and `pmm_get_schema` | 4 |
+| Calls in flight, per caller | `pmm_inventory`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_top_queries`, `pmm_query_detail`, `pmm_alerts`, and the query lookup of `pmm_get_explain` and `pmm_get_schema` | 4 |
 | Calls in flight, per replica | The same tools | 8 |
-| Call rate, per caller | `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_alerts`, and the query lookup of `pmm_get_explain` and `pmm_get_schema` | 60 a minute, 10 at once |
+| Call rate, per caller | `pmm_inventory`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_alerts`, and the query lookup of `pmm_get_explain` and `pmm_get_schema` | 60 a minute, 10 at once |
 | Live-inspection calls in flight, per caller | `pmm_get_explain` for MySQL and MongoDB, `pmm_get_schema` | 2 |
 | Live-inspection calls in flight, per replica | The same calls | 8 |
 | Live-inspection calls in flight, per service and replica | The same calls | 1 |

@@ -503,3 +503,56 @@ func TestLiveLookupSharesMetricCaps(t *testing.T) {
 		})
 	}
 }
+
+// TestInventoryAndConfigShareMetricCaps pins that pmm_inventory and pmm_get_config, which read VictoriaMetrics,
+// take a metric-call slot and token, after their input is checked.
+func TestInventoryAndConfigShareMetricCaps(t *testing.T) {
+	t.Parallel()
+
+	key := callerKey(callerAuth{authorization: testToken})
+	args := map[string]map[string]any{
+		"pmm_inventory":  {},
+		"pmm_get_config": {"service_id": "svc-1"},
+	}
+
+	fake := newFakePMM(t, withRoutes(inventoryRoutes(), map[string]fixture{vmQuery + " ?mysql_global_variables_": {file: "vm_variables.json"}}))
+	s := newQANService(t, fake, true)
+	session := connect(t, s)
+
+	for name, a := range map[string]map[string]any{
+		"pmm_inventory":  {"engine": "oracle"},
+		"pmm_get_config": {"service_id": "svc-1", "at": "yesterday"},
+	} {
+		text, isError := callText(t, session, name, a)
+		assert.True(t, isError, name)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+	}
+	s.metricRate.mu.Lock()
+	assert.Empty(t, s.metricRate.buckets, "refused input takes no token")
+	s.metricRate.mu.Unlock()
+
+	rels := make([]func(), 0, maxMetricCallsPerCaller)
+	for range maxMetricCallsPerCaller {
+		rel, hit := s.metrics.acquire(key)
+		require.Equal(t, limitNone, hit)
+		rels = append(rels, rel)
+	}
+	for name, a := range args {
+		text, isError := callText(t, session, name, a)
+		assert.True(t, isError, name)
+		assert.Contains(t, text, "at most 4 metric calls can be in flight for these credentials", name)
+	}
+	assert.Zero(t, fake.requestCount(), "a refused call reaches no backend")
+
+	rels[0]()
+	for name, a := range args {
+		text, isError := callText(t, session, name, a)
+		assert.False(t, isError, "%s: %s", name, text)
+	}
+	s.metrics.mu.Lock()
+	assert.Equal(t, maxMetricCallsPerCaller-1, s.metrics.byKey[key], "the calls gave their slot back")
+	s.metrics.mu.Unlock()
+	s.metricRate.mu.Lock()
+	assert.Len(t, s.metricRate.buckets, 1, "the calls took metric tokens")
+	s.metricRate.mu.Unlock()
+}

@@ -206,6 +206,11 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 		return inventoryResult{}, err
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
+	release, err := s.startMetricCall(auth)
+	if err != nil {
+		return inventoryResult{}, err
+	}
+	defer release()
 
 	services, err := s.listServices(ctx, auth, s.lastHour())
 	if err != nil {

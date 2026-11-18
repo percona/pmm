@@ -125,6 +125,11 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	// UTC in whole seconds, so that the text and the structured at read the same.
 	at = at.UTC().Truncate(time.Second)
 	auth := callerAuthFromHeader(req.Extra.Header)
+	release, err := s.startMetricCall(auth)
+	if err != nil {
+		return configResult{}, err
+	}
+	defer release()
 
 	w := window{From: at.Add(-hourWindow), To: at}
 	services, err := s.listServices(ctx, auth, w)
