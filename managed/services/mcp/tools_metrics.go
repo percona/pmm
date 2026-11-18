@@ -35,6 +35,9 @@ import (
 const (
 	// Series one selector may match over the span a query reads.
 	maxSeriesPerSelector = 2000
+
+	// Times a step the caller did not choose rises before the query is refused with the last hint.
+	maxStepRaises = 4
 )
 
 type queryMetricsInput struct {
@@ -175,15 +178,31 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 		checkStep = plan.step
 	}
 	read, err := checkExpr(in.Query, plan.span(), checkStep)
-	// A step the caller did not choose rises to what an implicit subquery needs; one the caller chose never changes.
-	tooSmall, ok := errors.AsType[*stepTooSmallError](err)
-	if ok && !plan.instant && !plan.stepGiven {
-		plan.step = max(plan.step, tooSmall.minStep)
+	// A step the caller did not choose rises to what the rules need, each raise checked against every rule again;
+	// one the caller chose never changes.
+	chosen := plan.step
+	var reasons []string
+	for range maxStepRaises {
+		tooSmall, ok := errors.AsType[*stepTooSmallError](err)
+		if !ok || plan.instant || plan.stepGiven || tooSmall.minStep <= plan.step {
+			break
+		}
+		plan.step = tooSmall.minStep
+		reasons = appendOnce(reasons, tooSmall.reason)
 		checkStep = plan.step
 		read, err = checkExpr(in.Query, plan.span(), checkStep)
 	}
+	raised := strings.Join(reasons, ", and ")
 	if err != nil {
+		te, ok := errors.AsType[*toolError](err)
+		if ok && plan.step != chosen {
+			return metricsResult{}, newToolError(te.code, "the step rises to %s so that %s; at that step: %s", formatStep(plan.step), raised, te.message)
+		}
 		return metricsResult{}, err
+	}
+	var notes []string
+	if plan.step != chosen {
+		notes = append(notes, fmt.Sprintf("The step was raised from %s to %s so that %s.", formatStep(chosen), formatStep(plan.step), raised))
 	}
 	if plan.instant {
 		err = checkInstantRoot(in.Query)
@@ -233,13 +252,16 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 	if err != nil {
 		return metricsResult{}, err
 	}
+	if note != "" {
+		notes = append(notes, note)
+	}
 	series, err := s.api.QueryRange(ctx, auth, uid, promRequest{
 		Query: in.Query, Start: plan.start, End: plan.end, Step: plan.step, Timeout: metricsTimeout,
 	})
 	if err != nil {
 		return metricsResult{}, narrowIfTooLarge(err, in.Query)
 	}
-	return shapeSeries(in.Query, series, plan.limit, &window{From: plan.start, To: plan.end}, formatStep(plan.step), note), nil
+	return shapeSeries(in.Query, series, plan.limit, &window{From: plan.start, To: plan.end}, formatStep(plan.step), strings.Join(notes, " ")), nil
 }
 
 // fitAnswer raises the step of a range query without an aggregation, whose answer has at most the series its selectors

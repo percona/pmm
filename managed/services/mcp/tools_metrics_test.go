@@ -417,6 +417,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		res, text, isError := metricsCall(t, s, map[string]any{"query": nested, "period_from": "now-15m"})
 		require.False(t, isError, text)
 		assert.Equal(t, "2s", res.Step, "1s would be 4800 points; the result says the step used")
+		assert.Contains(t, res.Note, "The step was raised from 1s to 2s so that a rollup over an expression stays within 4000 points per series")
 		reqs := fake.requestsTo(vmAPI + "query_range")
 		require.Len(t, reqs, 1)
 		assert.Equal(t, "2", queryParams(t, reqs[0]).Get("step"))
@@ -440,13 +441,52 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Equal(t, "1s", res.Step)
 	})
 
-	t.Run("LongWindowOverARangeIsRefused", func(t *testing.T) {
+	t.Run("StepRisesForLongWindows", func(t *testing.T) {
+		t.Parallel()
+
+		const m = `mysql_global_status_questions{service_name="db1"}`
+		const note = "so that rollup windows read at most 2000 hours of samples per series"
+		for _, tc := range []struct {
+			query, from, step, note string
+		}{
+			{query: `avg_over_time(` + m + `[90m])`, from: "now-24h", step: "1m5s", note: "The step was raised from 44s to 1m5s " + note},
+			{query: `max_over_time(` + m + `[1d])`, from: "now-6d", step: "1h43m41s", note: "The step was raised from 4m20s to 1h43m41s " + note},
+			{query: `increase(` + m + `[1d])`, from: "now-6d", step: "1h43m41s", note: "The step was raised from 4m20s to 1h43m41s " + note},
+			{query: `avg_over_time(` + m + `[2h])`, from: "now-1h", step: "4s", note: "The step was raised from 2s to 4s " + note},
+			{query: `quantile_over_time(0.99, ` + m + `[6d23h])`, from: "now-1h", step: "5m1s", note: "The step was raised from 2s to 5m1s " + note},
+		} {
+			fake := newFakePMM(t, metricsRoutes(nil))
+			res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": tc.query, "period_from": tc.from})
+			require.False(t, isError, "%s: %s", tc.query, text)
+			assert.Equal(t, tc.step, res.Step, tc.query)
+			assert.Contains(t, res.Note, tc.note, tc.query)
+			assert.Contains(t, text, tc.note, tc.query)
+			reqs := fake.requestsTo(vmAPI + "query_range")
+			require.Len(t, reqs, 1, tc.query)
+			step, err := time.ParseDuration(tc.step)
+			require.NoError(t, err)
+			assert.Equal(t, strconv.Itoa(int(step.Seconds())), queryParams(t, reqs[0]).Get("step"), tc.query)
+		}
+	})
+
+	t.Run("RaisedStepMeetsTheOtherRules", func(t *testing.T) {
+		t.Parallel()
+
+		// At the raised step, the implicit subquery's lead steps take the read past 7 days.
+		fake := newFakePMM(t, metricsRoutes(nil))
+		requireInvalid(t, newQANService(t, fake, false), fake, map[string]any{
+			"query":       `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[3d])[1h])`,
+			"period_from": "now-5640m",
+		}, "the step rises to 3h41m19s so that rollup windows read at most 2000 hours of samples per series; at that step: the query reads")
+	})
+
+	t.Run("LongWindowWithAGivenStepIsRefused", func(t *testing.T) {
 		t.Parallel()
 
 		const long = `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d23h])`
 		fake := newFakePMM(t, metricsRoutes(nil))
 		requireInvalid(t, newQANService(t, fake, false), fake,
-			map[string]any{"query": long, "period_from": "now-1h"}, "raise step to at least 5m1s, shorten the window, or send an instant query")
+			map[string]any{"query": long, "period_from": "now-1h", "step": "2s"}, "raise step to at least 5m1s, shorten the window, or send an instant query")
 
 		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": long})
 		require.False(t, isError, text)

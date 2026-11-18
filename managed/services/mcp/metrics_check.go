@@ -75,12 +75,14 @@ var seriesPerPhiFuncs = map[string]string{
 	"histogram_quantiles": "histogram_quantile",
 }
 
-// stepTooSmallError is the refusal of a step too small for a rollup over an expression that is not a selector.
+// stepTooSmallError is the refusal of a range query's step that is too small for a rule a larger step satisfies.
 type stepTooSmallError struct {
 	*toolError
 
-	// minStep is the smallest step, in whole seconds, that the rollup accepts.
+	// minStep is the smallest step, in whole seconds, that the rule accepts.
 	minStep time.Duration
+	// reason says what the rule keeps, for a note on a step raised to minStep.
+	reason string
 }
 
 func (e *stepTooSmallError) Unwrap() error { return e.toolError }
@@ -153,7 +155,7 @@ func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
 				"at the query's step of %s, a rollup over an expression that is not a selector runs as a subquery of %d points per series; "+
 					"the cap is %d: raise step to at least %s, or shorten that rollup's window",
 				formatSpan(sq.step), int64(math.Ceil(points)), maxImplicitPoints, formatSpan(ceilSecond(minStep)))
-			return 0, &stepTooSmallError{toolError: te, minStep: ceilSecond(minStep)}
+			return 0, &stepTooSmallError{toolError: te, minStep: ceilSecond(minStep), reason: "a rollup over an expression stays within 4000 points per series"}
 		}
 	}
 
@@ -182,9 +184,10 @@ func checkWindow(rw rollupWindow, span time.Duration) error {
 	if room > 0 && minStep <= float64(maxSpan) {
 		raise = formatSpan(ceilSecond(time.Duration(minStep)))
 	}
+	queryRange := rw.queryStep && span > 0
 	at, hint := "the subquery step", "shorten the window"
 	switch {
-	case rw.queryStep && span > 0:
+	case queryRange:
 		at, hint = "the query's step", "shorten the window, or send an instant query for one value over the window"
 		if raise != "" {
 			hint = "raise step to at least " + raise + ", " + hint
@@ -196,10 +199,16 @@ func checkWindow(rw rollupWindow, span time.Duration) error {
 	default:
 		hint = "raise the subquery step to at least " + raise + ", or shorten the window"
 	}
-	return newToolError(codeInvalidInput,
+	te := newToolError(codeInvalidInput,
 		"at %s of %s, the rollup window %s is read at each of %d points, %d hours of samples per series; "+
 			"the cap is %d hours (a 1h window at %d points): %s",
 		at, formatSpan(rw.step), formatSpan(rw.window), int64(math.Ceil(points)), int64(math.Ceil(hours)), maxWindowHours, maxPoints, hint)
+	if !queryRange || raise == "" {
+		return te
+	}
+	return &stepTooSmallError{
+		toolError: te, minStep: ceilSecond(time.Duration(minStep)), reason: "rollup windows read at most 2000 hours of samples per series",
+	}
 }
 
 // selector is one OR group of a MetricExpr's label filters, which VictoriaMetrics
