@@ -597,6 +597,9 @@ type SearchQueriesOKBodyQueriesItems0 struct {
 
 	// mongo db payload
 	MongoDBPayload *SearchQueriesOKBodyQueriesItems0MongoDBPayload `json:"mongo_db_payload,omitempty"`
+
+	// my sql payload
+	MySQLPayload *SearchQueriesOKBodyQueriesItems0MySQLPayload `json:"my_sql_payload,omitempty"`
 }
 
 // Validate validates this search queries OK body queries items0
@@ -608,6 +611,10 @@ func (o *SearchQueriesOKBodyQueriesItems0) Validate(formats strfmt.Registry) err
 	}
 
 	if err := o.validateMongoDBPayload(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMySQLPayload(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -652,11 +659,38 @@ func (o *SearchQueriesOKBodyQueriesItems0) validateMongoDBPayload(formats strfmt
 	return nil
 }
 
+func (o *SearchQueriesOKBodyQueriesItems0) validateMySQLPayload(formats strfmt.Registry) error {
+	if swag.IsZero(o.MySQLPayload) { // not required
+		return nil
+	}
+
+	if o.MySQLPayload != nil {
+		if err := o.MySQLPayload.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("my_sql_payload")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("my_sql_payload")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this search queries OK body queries items0 based on the context it is used
 func (o *SearchQueriesOKBodyQueriesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateMongoDBPayload(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateMySQLPayload(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -681,6 +715,30 @@ func (o *SearchQueriesOKBodyQueriesItems0) contextValidateMongoDBPayload(ctx con
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mongo_db_payload")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0) contextValidateMySQLPayload(ctx context.Context, formats strfmt.Registry) error {
+	if o.MySQLPayload != nil {
+
+		if swag.IsZero(o.MySQLPayload) { // not required
+			return nil
+		}
+
+		if err := o.MySQLPayload.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("my_sql_payload")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("my_sql_payload")
 			}
 
 			return err
@@ -781,6 +839,352 @@ func (o *SearchQueriesOKBodyQueriesItems0MongoDBPayload) MarshalBinary() ([]byte
 // UnmarshalBinary interface implementation
 func (o *SearchQueriesOKBodyQueriesItems0MongoDBPayload) UnmarshalBinary(b []byte) error {
 	var res SearchQueriesOKBodyQueriesItems0MongoDBPayload
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+SearchQueriesOKBodyQueriesItems0MySQLPayload QueryMySQLData holds MySQL-specific Real-Time Analytics query information, read from
+// performance_schema.
+swagger:model SearchQueriesOKBodyQueriesItems0MySQLPayload
+*/
+type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
+	// MySQL instance address(host:port) that processing the query.
+	DBInstanceAddress string `json:"db_instance_address,omitempty"`
+
+	// Client program name connected to MySQL, from the connection's program_name attribute.
+	ProgramName string `json:"program_name,omitempty"`
+
+	// Database name the connection is using.
+	DatabaseName string `json:"database_name,omitempty"`
+
+	// Command type the connection is executing ("Query", "Execute", etc).
+	Command string `json:"command,omitempty"`
+
+	// State of the connection/thread (for example "Sending data").
+	State string `json:"state,omitempty"`
+
+	// MySQL user name associated with the query.
+	Username string `json:"username,omitempty"`
+
+	// Number of rows examined by the statement so far. Unset when the server did not measure it.
+	RowsExamined *string `json:"rows_examined,omitempty"`
+
+	// Number of rows sent by the statement so far. Unset when the server did not measure it.
+	RowsSent *string `json:"rows_sent,omitempty"`
+
+	// Whether the statement performed a full table scan. Unset when the server did not measure it.
+	FullScan *bool `json:"full_scan,omitempty"`
+
+	// BlockedStatus says whether a statement is waiting for a lock.
+	//
+	//  - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.
+	//  - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.
+	//  - BLOCKED_STATUS_BLOCKED: The statement is waiting for a lock; blocked_by names the transactions holding it and
+	// lock_type says which kind of lock is being waited on.
+	//  - BLOCKED_STATUS_UNATTRIBUTED: The connection was waiting for a lock on a later statement than the one reported, so
+	// whether the reported statement was blocked is unknown.
+	// Enum: ["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED","BLOCKED_STATUS_UNATTRIBUTED"]
+	BlockedStatus *string `json:"blocked_status,omitempty"`
+
+	// Transactions blocking this statement, ordered by connection id. Empty whenever
+	// blocked_status is not BLOCKED.
+	BlockedBy []*SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0 `json:"blocked_by"`
+
+	// Schema-qualified table the statement is waiting to lock. Empty unless blocked_status is BLOCKED.
+	LockedTable string `json:"locked_table,omitempty"`
+
+	// Index the statement is waiting to lock, for row locks only. Empty unless blocked_status is
+	// BLOCKED.
+	LockedIndex string `json:"locked_index,omitempty"`
+
+	// LockType says which of MySQL's two locking mechanisms a statement is waiting on; they are
+	// released differently, so clients should show them apart.
+	//
+	//  - LOCK_TYPE_UNSPECIFIED: The lock graph could not be read, or the statement is not waiting at all.
+	//  - LOCK_TYPE_ROW: An InnoDB row-level lock, read from performance_schema.data_lock_waits.
+	//  - LOCK_TYPE_METADATA: A table metadata lock (MDL), read from performance_schema.metadata_locks. This is what
+	// holds up DDL behind an open transaction, and any statement queued behind that DDL.
+	// Enum: ["LOCK_TYPE_UNSPECIFIED","LOCK_TYPE_ROW","LOCK_TYPE_METADATA"]
+	LockType *string `json:"lock_type,omitempty"`
+
+	// The lock mode the waiting statement asked for, in the same vocabulary as
+	// BlockingTransaction.blocking_lock_mode. Empty unless blocked_status is BLOCKED.
+	RequestedLockMode string `json:"requested_lock_mode,omitempty"`
+
+	// True when query_text reached MySQL's statement length limit (1024 bytes by default) or the
+	// agent's 64 KiB cap, so it may not be the whole statement.
+	QueryTextTruncated bool `json:"query_text_truncated,omitempty"`
+
+	// Time the statement has spent waiting for table locks, from
+	// events_statements_current.LOCK_TIME. Unset when the server did not measure it.
+	LockTime string `json:"lock_time,omitempty"`
+}
+
+// Validate validates this search queries OK body queries items0 my SQL payload
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateBlockedStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateBlockedBy(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLockType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var searchQueriesOkBodyQueriesItems0MySqlPayloadTypeBlockedStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["BLOCKED_STATUS_UNSPECIFIED","BLOCKED_STATUS_NOT_BLOCKED","BLOCKED_STATUS_BLOCKED","BLOCKED_STATUS_UNATTRIBUTED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		searchQueriesOkBodyQueriesItems0MySqlPayloadTypeBlockedStatusPropEnum = append(searchQueriesOkBodyQueriesItems0MySqlPayloadTypeBlockedStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSUNSPECIFIED captures enum value "BLOCKED_STATUS_UNSPECIFIED"
+	SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSUNSPECIFIED string = "BLOCKED_STATUS_UNSPECIFIED"
+
+	// SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSNOTBLOCKED captures enum value "BLOCKED_STATUS_NOT_BLOCKED"
+	SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSNOTBLOCKED string = "BLOCKED_STATUS_NOT_BLOCKED"
+
+	// SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSBLOCKED captures enum value "BLOCKED_STATUS_BLOCKED"
+	SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSBLOCKED string = "BLOCKED_STATUS_BLOCKED"
+
+	// SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSUNATTRIBUTED captures enum value "BLOCKED_STATUS_UNATTRIBUTED"
+	SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedStatusBLOCKEDSTATUSUNATTRIBUTED string = "BLOCKED_STATUS_UNATTRIBUTED"
+)
+
+// prop value enum
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) validateBlockedStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, searchQueriesOkBodyQueriesItems0MySqlPayloadTypeBlockedStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) validateBlockedStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.BlockedStatus) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateBlockedStatusEnum("my_sql_payload"+"."+"blocked_status", "body", *o.BlockedStatus); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) validateBlockedBy(formats strfmt.Registry) error {
+	if swag.IsZero(o.BlockedBy) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.BlockedBy); i++ {
+		if swag.IsZero(o.BlockedBy[i]) { // not required
+			continue
+		}
+
+		if o.BlockedBy[i] != nil {
+			if err := o.BlockedBy[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("my_sql_payload" + "." + "blocked_by" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("my_sql_payload" + "." + "blocked_by" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+var searchQueriesOkBodyQueriesItems0MySqlPayloadTypeLockTypePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOCK_TYPE_UNSPECIFIED","LOCK_TYPE_ROW","LOCK_TYPE_METADATA"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		searchQueriesOkBodyQueriesItems0MySqlPayloadTypeLockTypePropEnum = append(searchQueriesOkBodyQueriesItems0MySqlPayloadTypeLockTypePropEnum, v)
+	}
+}
+
+const (
+
+	// SearchQueriesOKBodyQueriesItems0MySQLPayloadLockTypeLOCKTYPEUNSPECIFIED captures enum value "LOCK_TYPE_UNSPECIFIED"
+	SearchQueriesOKBodyQueriesItems0MySQLPayloadLockTypeLOCKTYPEUNSPECIFIED string = "LOCK_TYPE_UNSPECIFIED"
+
+	// SearchQueriesOKBodyQueriesItems0MySQLPayloadLockTypeLOCKTYPEROW captures enum value "LOCK_TYPE_ROW"
+	SearchQueriesOKBodyQueriesItems0MySQLPayloadLockTypeLOCKTYPEROW string = "LOCK_TYPE_ROW"
+
+	// SearchQueriesOKBodyQueriesItems0MySQLPayloadLockTypeLOCKTYPEMETADATA captures enum value "LOCK_TYPE_METADATA"
+	SearchQueriesOKBodyQueriesItems0MySQLPayloadLockTypeLOCKTYPEMETADATA string = "LOCK_TYPE_METADATA"
+)
+
+// prop value enum
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) validateLockTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, searchQueriesOkBodyQueriesItems0MySqlPayloadTypeLockTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) validateLockType(formats strfmt.Registry) error {
+	if swag.IsZero(o.LockType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLockTypeEnum("my_sql_payload"+"."+"lock_type", "body", *o.LockType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validate this search queries OK body queries items0 my SQL payload based on the context it is used
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateBlockedBy(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) contextValidateBlockedBy(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.BlockedBy); i++ {
+		if o.BlockedBy[i] != nil {
+
+			if swag.IsZero(o.BlockedBy[i]) { // not required
+				return nil
+			}
+
+			if err := o.BlockedBy[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("my_sql_payload" + "." + "blocked_by" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("my_sql_payload" + "." + "blocked_by" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayload) UnmarshalBinary(b []byte) error {
+	var res SearchQueriesOKBodyQueriesItems0MySQLPayload
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0 BlockingTransaction describes a transaction holding a lock that a statement is waiting for.
+swagger:model SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0
+*/
+type SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0 struct {
+	// Connection id (processlist id) of the blocking transaction.
+	BlockingConnID string `json:"blocking_conn_id,omitempty"`
+
+	// The blocking connection's statement: its current statement, or the last statement
+	// it ran when it sits idle inside an open transaction.
+	BlockingQuery string `json:"blocking_query,omitempty"`
+
+	// Command the blocking connection is executing ("Query", "Execute", ...).
+	// "Sleep" means it is idle inside an open transaction and is running nothing at all.
+	BlockingCommand string `json:"blocking_command,omitempty"`
+
+	// MySQL user name of the blocking connection.
+	BlockingUsername string `json:"blocking_username,omitempty"`
+
+	// How long the waiting statement has been waiting on this blocker.
+	WaitDuration string `json:"wait_duration,omitempty"`
+
+	// How long the blocking transaction has been open.
+	BlockerTransactionDuration string `json:"blocker_transaction_duration,omitempty"`
+
+	// True when this blocker is not itself waiting for a lock (head of the blocking chain).
+	// Several blockers of a statement can be marked; none are when the lock graph is a cycle.
+	Root bool `json:"root,omitempty"`
+
+	// Lock mode this transaction holds on the contended object, e.g. "X,REC_NOT_GAP" for a row
+	// lock or "SHARED_READ" for a metadata lock. Empty when the server did not report one.
+	BlockingLockMode string `json:"blocking_lock_mode,omitempty"`
+
+	// True when blocking_query is not the whole statement; see QueryMySQLData.query_text_truncated.
+	BlockingQueryTruncated bool `json:"blocking_query_truncated,omitempty"`
+}
+
+// Validate validates this search queries OK body queries items0 my SQL payload blocked by items0
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this search queries OK body queries items0 my SQL payload blocked by items0 based on context it is used
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0) UnmarshalBinary(b []byte) error {
+	var res SearchQueriesOKBodyQueriesItems0MySQLPayloadBlockedByItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -2,6 +2,8 @@ export const Messages = {
   columns: {
     queryText: 'Query text',
     host: 'Host',
+    database: 'Database',
+    user: 'User',
     operationId: 'Operation ID',
     elapsedTime: 'Elapsed time',
   },

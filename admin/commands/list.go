@@ -310,6 +310,7 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 	agentsList = append(agentsList, vmAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, nomadAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, rtaMongodbAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, rtaMysqlAgents(agentsRes, pmmAgentIDs)...)
 
 	return agentsList
 }
@@ -611,6 +612,24 @@ func rtaMongodbAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]str
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
 				AgentType: types.AgentTypeRTAMongoDBAgent,
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
+			})
+		}
+	}
+
+	return agentsList
+}
+
+func rtaMysqlAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
+
+	for _, a := range agentsRes.Payload.RtaMysqlAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType: types.AgentTypeRTAMySQLAgent,
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
 				Status:    getStatus(a.Status),
