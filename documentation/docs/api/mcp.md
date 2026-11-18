@@ -245,7 +245,7 @@ Metric label values, and the names, labels, summaries and descriptions of alerts
 
 ### Errors
 
-A failed tool call returns `isError: true` with a text of the form `error: <code>` followed by a remediation message. Codes: `not_found`, `invalid_input`, `unauthorized`, `timeout`, `no_query_source`, `insufficient_privileges`, `agent_unreachable`, `pmm_unavailable`, `rate_limited`. An `unauthorized` error carries PMM's own message (for example `Access denied` when the token's role is too low for a backing API); a request without a valid token never reaches the tools and gets HTTP 401 from PMM. When Grafana's anonymous access is on, PMM refuses `/mcp` to an anonymous caller with HTTP 403. A browser request from another origin also gets HTTP 403, so browser-based MCP clients must run on the PMM origin.
+A failed tool call returns `isError: true` with a text of the form `error: <code>` followed by a remediation message. Codes: `not_found`, `invalid_input`, `unauthorized`, `timeout`, `no_query_source`, `insufficient_privileges`, `agent_unreachable`, `pmm_unavailable`, `rate_limited`. An `unauthorized` error carries PMM's own message (for example `Access denied` when the token's role is too low for a backing API); a request without a valid token never reaches the tools and gets HTTP 401 from PMM. So does an anonymous caller when Grafana's anonymous access is on. A browser request from another origin gets HTTP 403, so browser-based MCP clients must run on the PMM origin.
 
 Every error result also carries `_meta["com.percona/error"]` with the `code` and a `retryable` flag, and has no `structuredContent`. A client can act on the flag without parsing the text. These codes are retryable, because the same call can succeed later: `timeout`, `agent_unreachable`, `pmm_unavailable` and `rate_limited`. The others (`not_found`, `invalid_input`, `unauthorized`, `no_query_source`, `insufficient_privileges`) are not: change the request or the setup first.
 
@@ -398,6 +398,10 @@ The limits are per caller, identified by a hash of the credential, and per PMM S
 | Live-inspection calls in flight, per service and replica | The same calls | 1 |
 | Live-inspection call rate, per caller | The same calls | 10 a minute, 4 at once |
 
+A token is one caller, whether it's sent as Bearer or as Basic credentials. Other Basic credentials count per user name, and a session cookie per session. A request that carries both Basic credentials and a `pmm_session` cookie counts as one caller that all such requests share. Grafana falls back from the Basic credentials to the session, so neither value alone identifies the caller. Send one or the other.
+
+`/mcp` answers HTTP 400 to a JSON-RPC batch, so send one request per call.
+
 A call of `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health` or `pmm_alerts` counts once, however many queries it runs. In addition, every request that MCP sends to VictoriaMetrics takes one of the replica's slots. The replica has half of VictoriaMetrics' limit on concurrent queries, at least 1, so dashboards and alert evaluation keep the other half. VictoriaMetrics' own default for that limit is twice the number of CPUs, at most 16. The environment variable `VM_search_maxConcurrentRequests` sets the limit instead (see [VictoriaMetrics environment variables](../reference/third-party/victoria.md#environment-variables)), and MCP takes half of the value it sets. A request waits for a slot until the deadline of its call.
 
 MCP has no fleet size of its own. PMM's [hardware sizing](../install-pmm/plan-pmm-installation/hardware_and_system.md) applies. This is the setup that MCP was load-tested on, not a limit: a server with 4 CPU cores and 8 GB of memory that monitored 53 MySQL services. Five clients called the metric tools at the caps for 10 minutes, once with about 2 days of data and once with about 6. In both runs no alert-rule evaluation failed and no PMM Server component restarted. The p95 of a dashboard query went from 47 ms to 170 ms with 2 days of data and from 50 ms to 167 ms with 6. VictoriaMetrics' CPU peaked at 2.3 and 2.9 cores, and the p95 of an answered metric call rose from 2.9 s to 6.7 s.
@@ -424,7 +428,7 @@ A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain
 |----------------------|---------|--------|
 | `PMM_ENABLE_MCP` | `false` | Enables the endpoint. When disabled, `/mcp` answers 404. The state is shown as `enable_mcp` in `GET /v1/server/settings/readonly`, and, unless this variable is set, it can also be changed at runtime: see [Enable the endpoint](#enable-the-endpoint). |
 | `PMM_MCP_RAW_SQL` | `false` | Allows tool output to include literal values from your data: query examples, the explained statement, and the literals in execution plans and agent errors. When off, statements are shown as normalized fingerprints, plan literals are replaced with `?`, and agent errors that can quote a statement are withheld. Removing the variable turns raw SQL off at the next start. |
-| `PMM_MCP_ACTION_TIMEOUT` | `15s` | How long one `pmm_get_explain` or `pmm_get_schema` call may take, all of its pmm-agent actions together. Actions still running then are cancelled on pmm-agent and end with a `timeout` error. Each pmm-agent action also stops on its own after 10 seconds, with the same error. |
+| `PMM_MCP_ACTION_TIMEOUT` | `15s` | How long one `pmm_get_explain` or `pmm_get_schema` call may take, all of its pmm-agent actions together. Actions still running then are cancelled on pmm-agent and end with a `timeout` error. Each pmm-agent action also stops on its own after 10 seconds, with the same error. The maximum is `10m`: a longer value is ignored with a warning in the log, and the current value is kept. nginx ends a request to `/mcp` that gets no answer for 600 seconds, so a value near the maximum can end a call there before its `timeout` error. The last value is kept when the variable is removed: set it to `15s` to return to the default. |
 
 Set them on the PMM Server container like other `PMM_*` variables, for example `-e PMM_ENABLE_MCP=true`. They are persisted in PMM settings at start-up.
 
@@ -440,6 +444,18 @@ Set them on the PMM Server container like other `PMM_*` variables, for example `
     - An agent error that can quote the statement is withheld, and its error code is kept.
 
     Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions from `pmm_get_schema` are returned as they are, so `CHECK` and `DEFAULT` constants and partition bounds are not masked. To keep literals from being collected at all, disable query examples at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.
+
+### Operator metrics
+
+pmm-managed exports three metrics about MCP tool calls, next to its other metrics. PMM's VictoriaMetrics collects them, so you can chart them and alert on them like any other metric.
+
+| Metric | Type | Labels | What it counts |
+|--------|------|--------|----------------|
+| `pmm_managed_mcp_tool_calls_total` | Counter | `tool`, `code` | Tool calls that ended. `code` is `ok`, or the [error code](#errors) of a failed call. |
+| `pmm_managed_mcp_tool_duration_seconds` | Histogram | `tool` | How long each tool call took. |
+| `pmm_managed_mcp_tool_calls_in_flight` | Gauge | `tool` | Tool calls running now. |
+
+A call that the MCP SDK refuses before the tool runs, because its input doesn't match the tool's input schema, is not counted. When [telemetry](../configure-pmm/advanced_settings.md#telemetry) is on, PMM Server reports the number of tool calls per tool and code over the last 24 hours, and whether the endpoint is enabled.
 
 ## Limitations
 

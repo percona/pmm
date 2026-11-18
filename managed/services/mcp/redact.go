@@ -121,8 +121,9 @@ var safeActionError = regexp.MustCompile(`^(?:` +
 // Identifiers are copied through untouched: backquoted ones when
 // doubleQuotedStrings is set, as in MySQL, and double-quoted ones when it is
 // not, as in PostgreSQL. A digit that continues an identifier (col1, $1) is
-// not a literal. The text of a -- or /* */ comment is masked: it can quote
-// anything, and an apostrophe in it must not pair with a real quote.
+// not a literal. The text of a -- or /* */ comment, and in MySQL of a #
+// comment, is masked: it can quote anything, and an apostrophe in it must not
+// pair with a real quote.
 //
 // Whether a backslash escapes a quote in a string depends on server settings
 // (MySQL's NO_BACKSLASH_ESCAPES, PostgreSQL's standard_conforming_strings), so
@@ -179,6 +180,8 @@ func scanSQL(s string, doubleQuotedStrings, backslashEscapes bool) []byte {
 		switch {
 		case c == '-' && strings.HasPrefix(s[i:], "--"):
 			i = markRange(marks, i+len("--"), lineEnd(s, i), commentMark)
+		case c == '#' && doubleQuotedStrings:
+			i = markRange(marks, i+len("#"), lineEnd(s, i), commentMark)
 		case c == '/' && strings.HasPrefix(s[i:], "/*"):
 			from := i + len("/*")
 			end := blockCommentEnd(s, from, !doubleQuotedStrings)

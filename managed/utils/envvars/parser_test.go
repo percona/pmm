@@ -80,6 +80,16 @@ func TestEnvVarValidator(t *testing.T) {
 
 		_, gotErrs, _ = ParseEnvVars([]string{"PMM_ENABLE_MCP=maybe", "PMM_MCP_ACTION_TIMEOUT=-1s"})
 		assert.Len(t, gotErrs, 2)
+
+		gotEnvVars, gotErrs, gotWarns = ParseEnvVars([]string{"PMM_MCP_ACTION_TIMEOUT=10m"})
+		assert.Equal(t, &models.ChangeSettingsParams{MCPActionTimeout: 10 * time.Minute}, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+
+		gotEnvVars, gotErrs, gotWarns = ParseEnvVars([]string{"PMM_MCP_ACTION_TIMEOUT=10m1s"})
+		assert.Equal(t, &models.ChangeSettingsParams{}, gotEnvVars, "a zero MCPActionTimeout keeps the current value")
+		assert.Nil(t, gotErrs)
+		assert.Equal(t, []string{"PMM_MCP_ACTION_TIMEOUT=10m1s is longer than the maximum of 10m0s and is ignored: the current value is kept"}, gotWarns)
 	})
 
 	t.Run("Unknown env variables", func(t *testing.T) {

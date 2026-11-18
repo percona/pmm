@@ -16,14 +16,17 @@
 package mcp
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/version"
@@ -94,6 +97,7 @@ type Service struct {
 	metrics         *limiter
 	liveRate        *rateLimiter
 	metricRate      *rateLimiter
+	callMetrics     *callMetrics
 
 	// warnPeer logs the first non-loopback rejection at the default level.
 	warnPeer sync.Once
@@ -118,6 +122,8 @@ type Params struct {
 	ActionTimeout func() time.Duration
 	// PublicAddress returns settings.PMMPublicAddress (may be empty); used for "View in PMM" links.
 	PublicAddress func(context.Context) string
+	// Registerer receives the tool call metrics; when nil, they are kept but not exported.
+	Registerer prometheus.Registerer
 }
 
 // isLoopbackPeer reports whether a request came from a loopback IP, which is how
@@ -147,6 +153,7 @@ func New(params Params) (*Service, error) {
 		metrics:         newLimiter(maxMetricCallsPerCaller, maxMetricCallsPerReplica),
 		liveRate:        newRateLimiter(liveCallsPerMinute, liveCallsBurst),
 		metricRate:      newRateLimiter(metricCallsPerMinute, metricCallsBurst),
+		callMetrics:     newCallMetrics(),
 	}
 	// Both switches default to off when the caller supplies no callback, so a
 	// wiring mistake cannot expose the endpoint or un-redact its output. This
@@ -171,6 +178,12 @@ func New(params Params) (*Service, error) {
 		}
 		s.api = c
 	}
+	if params.Registerer != nil {
+		err := s.callMetrics.register(params.Registerer)
+		if err != nil {
+			return nil, fmt.Errorf("mcp: registering metrics: %w", err)
+		}
+	}
 
 	server := mcp.NewServer(&mcp.Implementation{
 		Name:    serverName,
@@ -181,7 +194,7 @@ func New(params Params) (*Service, error) {
 	})
 	s.registerTools(server)
 
-	s.handler = http.NewCrossOriginProtection().Handler(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
+	s.handler = http.NewCrossOriginProtection().Handler(refuseBatches(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return server
 	}, &mcp.StreamableHTTPOptions{
 		// No session table: every request carries its own credentials and is
@@ -195,7 +208,7 @@ func New(params Params) (*Service, error) {
 		// cross-origin check above protect /mcp instead.
 		DisableLocalhostProtection: true,
 		MaxRequestBodyBytes:        maxRequestBodyBytes,
-	}))
+	})))
 
 	return s, nil
 }
@@ -222,6 +235,31 @@ func (s *Service) Handler() http.Handler {
 		}
 		s.handler.ServeHTTP(rw, req)
 	})
+}
+
+// refuseBatches answers 400 to a JSON-RPC batch and passes any other request on to next.
+func refuseBatches(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		// The SDK reads at most maxRequestBodyBytes as well, so a longer body still gets its 413.
+		body, err := io.ReadAll(io.LimitReader(req.Body, maxRequestBodyBytes+1))
+		if err != nil {
+			http.Error(rw, "failed to read the request body", http.StatusBadRequest)
+			return
+		}
+		if isBatch(body) {
+			http.Error(rw, "JSON-RPC batches are not supported", http.StatusBadRequest)
+			return
+		}
+		req.Body = io.NopCloser(bytes.NewReader(body))
+		next.ServeHTTP(rw, req)
+	})
+}
+
+// isBatch reports whether a request body is a JSON-RPC batch, a JSON array, which the SDK runs all at once for
+// protocol versions before 2025-06-18.
+func isBatch(body []byte) bool {
+	trimmed := bytes.TrimLeft(body, " \t\r\n")
+	return len(trimmed) > 0 && trimmed[0] == '['
 }
 
 // registerTools adds every tool to the server.

@@ -17,6 +17,7 @@ package grafana
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
@@ -25,6 +26,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
@@ -468,4 +471,98 @@ func TestListPMMRuleIDs(t *testing.T) {
 		_, err := c.ListPMMRuleIDs(t.Context())
 		require.Error(t, err)
 	})
+}
+
+// credentialHeaders returns a Bearer token, Basic credentials and a session cookie by name, and every value in them
+// that must never reach a log.
+func credentialHeaders() (map[string]http.Header, []string) {
+	const (
+		token    = "glsa_SECRET_token_1f2e3d"
+		password = "pw_SECRET_password_77ab"
+		cookie   = "sess_SECRET_cookie_9c0d"
+	)
+	basic := base64.StdEncoding.EncodeToString([]byte("alice:" + password))
+	return map[string]http.Header{
+		"Bearer": {"Authorization": {"Bearer " + token}},
+		"Basic":  {"Authorization": {"Basic " + basic}},
+		"Cookie": {"Cookie": {"pmm_session=" + cookie}},
+	}, []string{token, password, basic, cookie}
+}
+
+// newFakeGrafana answers the authentication calls as Grafana answers a Viewer, each with a rotated session cookie.
+func newFakeGrafana(t *testing.T, rotated string) *httptest.Server {
+	t.Helper()
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{Name: "pmm_session", Value: rotated})
+		switch r.URL.Path {
+		case "/api/auth/serviceaccount":
+			_, _ = fmt.Fprint(w, `{"orgId":1,"role":"Viewer"}`)
+		case "/api/user":
+			_, _ = fmt.Fprint(w, `{"id":5}`)
+		case "/api/user/orgs":
+			_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
+		case "/api/user/auth-tokens/rotate":
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	t.Cleanup(ts.Close)
+	return ts
+}
+
+// assertNoSecretsLogged checks that the hook captured a masked dump, and no entry that carries one of secrets.
+func assertNoSecretsLogged(t *testing.T, hook *test.Hook, secrets []string) {
+	t.Helper()
+
+	dumped := false
+	for _, e := range hook.AllEntries() {
+		var text strings.Builder
+		text.WriteString(e.Message)
+		for k, v := range e.Data {
+			fmt.Fprintf(&text, " %s=%v", k, v)
+		}
+		if strings.Contains(e.Message, credentialMask) {
+			dumped = true
+		}
+		for _, secret := range secrets {
+			assert.NotContains(t, text.String(), secret, "%s entry carries a credential", e.Level)
+		}
+	}
+	assert.True(t, dumped, "no masked dump was logged, so this test checks nothing")
+}
+
+func TestClientTraceMasksCredentials(t *testing.T) {
+	t.Parallel()
+
+	const rotated = "sess_SECRET_rotated_4b5a"
+	ts := newFakeGrafana(t, rotated)
+	headers, secrets := credentialHeaders()
+
+	logger, hook := test.NewNullLogger()
+	logger.SetLevel(logrus.TraceLevel)
+	c := newClientWithLogger(strings.TrimPrefix(ts.URL, "http://"), logrus.NewEntry(logger))
+	for name, h := range headers {
+		_, err := c.getAuthUser(t.Context(), h)
+		require.NoError(t, err, name)
+	}
+	cookies, err := c.rotateSessionToken(t.Context(), headers["Cookie"])
+	require.NoError(t, err)
+	require.NotEmpty(t, cookies)
+
+	assertNoSecretsLogged(t, hook, append(secrets, rotated))
+}
+
+func TestMaskDump(t *testing.T) {
+	t.Parallel()
+
+	dump := "GET /api/user HTTP/1.1\r\nHost: grafana\r\nauthorization: Bearer a\r\nProxy-Authorization: Basic b\r\n" +
+		"Cookie: c=1\r\nX-Grafana-Device-Id: d\r\nX-Grafana-Org-Id: 1\r\nAccept: */*\r\n\r\nAuthorization: body"
+	want := "GET /api/user HTTP/1.1\r\nHost: grafana\r\nauthorization: [masked]\r\nProxy-Authorization: [masked]\r\n" +
+		"Cookie: [masked]\r\nX-Grafana-Device-Id: [masked]\r\nX-Grafana-Org-Id: [masked]\r\nAccept: */*\r\n\r\nAuthorization: body"
+	assert.Equal(t, want, string(maskDump([]byte(dump))))
+
+	resp := "HTTP/1.1 200 OK\r\nSet-Cookie: pmm_session=s; Path=/\r\nContent-Length: 0\r\n\r\n"
+	assert.Equal(t, "HTTP/1.1 200 OK\r\nSet-Cookie: [masked]\r\nContent-Length: 0\r\n\r\n", string(maskDump([]byte(resp))))
+	assert.Empty(t, maskDump(nil))
 }

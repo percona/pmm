@@ -46,6 +46,9 @@ const (
 	EnvVMInsertPrefix = "VMINSERT_"
 	// EnvVMStoragePrefix is the prefix for environment variables related to VMStorage.
 	EnvVMStoragePrefix = "VMSTORAGE_"
+
+	// The longest PMM_MCP_ACTION_TIMEOUT accepted; nginx ends any request after 600 s.
+	maxMCPActionTimeout = 10 * time.Minute
 )
 
 // InvalidDurationError invalid duration error.
@@ -308,6 +311,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			if err != nil || d <= 0 {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 				errs = append(errs, err)
+				continue
+			}
+			if d > maxMCPActionTimeout {
+				warns = append(warns, fmt.Sprintf("%s=%s is longer than the maximum of %s and is ignored: the current value is kept",
+					k, v, maxMCPActionTimeout))
 				continue
 			}
 
