@@ -407,12 +407,26 @@ func TestExplainTool(t *testing.T) {
 		t.Parallel()
 
 		for _, tc := range []struct {
-			name  string
-			start fixture
-			done  string
+			name    string
+			start   fixture
+			done    string
+			code    errorCode
+			message string
 		}{
-			{"PlaceholdersCount", fixture{file: "error_400_placeholders.json", status: http.StatusBadRequest}, "action_done_explain.json"},
-			{"Error1064", fixture{file: "action_start_explain.json"}, "action_done_error_1064.json"},
+			// The row read records placeholders: the call can pass them.
+			{
+				"PlaceholdersCount",
+				fixture{file: "error_400_placeholders.json", status: http.StatusBadRequest},
+				"action_done_explain.json",
+				codeInvalidInput, rowWithoutExampleMessage,
+			},
+			// The row read records none: nothing the call passes fits it.
+			{
+				"Error1064",
+				fixture{file: "action_start_explain.json"},
+				"action_done_error_1064.json",
+				codeNoQuerySource, rowWithoutStatementMessage,
+			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
@@ -423,8 +437,9 @@ func TestExplainTool(t *testing.T) {
 
 				res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
 				assert.True(t, res.IsError)
-				assert.Equal(t, map[string]any{"code": "pmm_unavailable", "retryable": true}, res.Meta["com.percona/error"])
-				assert.Equal(t, "error: pmm_unavailable\n"+rowWithoutExampleMessage, textOf(t, res))
+				assert.Equal(t, map[string]any{"code": string(tc.code), "retryable": false}, res.Meta["com.percona/error"])
+				assert.Equal(t, "error: "+string(tc.code)+"\n"+tc.message, textOf(t, res))
+				assert.NotContains(t, textOf(t, res), "Enable query examples")
 			})
 		}
 	})
@@ -939,8 +954,8 @@ func TestSchemaTool(t *testing.T) {
 
 		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, res.IsError)
-		assert.Equal(t, map[string]any{"code": "pmm_unavailable", "retryable": true}, res.Meta["com.percona/error"])
-		assert.Equal(t, "error: pmm_unavailable\n"+rowWithoutExampleMessage+schemaCountAlternative, textOf(t, res))
+		assert.Equal(t, map[string]any{"code": "no_query_source", "retryable": false}, res.Meta["com.percona/error"])
+		assert.Equal(t, "error: no_query_source\n"+rowWithoutStatementMessage+schemaCountAlternative, textOf(t, res))
 		require.Len(t, stub.starts, 1, "no DDL action after a failed EXPLAIN")
 	})
 
