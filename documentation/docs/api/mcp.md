@@ -423,7 +423,7 @@ A call refused for its rate is `rate_limited` and says in the message how many s
 
 ### QAN window
 
-`pmm_top_queries` and `pmm_query_detail` read at most 30 days, and so do `pmm_get_explain` and `pmm_get_schema` when they look up a query by its `query_ref` or `queryid`: a longer window is `invalid_input`, and the message asks you to narrow `period_from` or `period_to`. `period_to` defaults to now, and `period_from` to one hour before `period_to`. The two QAN tools also take a slot of the calls-in-flight limits listed under [Rate limits](#rate-limits). So does the query lookup of `pmm_get_explain` and `pmm_get_schema`, which gives the slot back before the live part starts.
+`pmm_top_queries` and `pmm_query_detail` read at most 30 days, and so do `pmm_get_explain` and `pmm_get_schema` when they look up a query by its `query_ref` or `queryid`: a longer window is `invalid_input`, and the message asks you to narrow `period_from` or `period_to`. `period_to` defaults to now, and `period_from` to one hour before `period_to`. With raw SQL off, a `pmm_top_queries` `search` on queries reads at most the first 200 rows of the report, in `order_by` order, and the result carries a `note` when it stops there. The two QAN tools also take a slot of the calls-in-flight limits listed under [Rate limits](#rate-limits). So does the query lookup of `pmm_get_explain` and `pmm_get_schema`, which gives the slot back before the live part starts.
 
 ## Roles
 
@@ -453,7 +453,7 @@ Set them on the PMM Server container like other `PMM_*` variables, for example `
     - Example statements are replaced by their fingerprints, masked like any fingerprint: numbers and the text of comments become `?`, and a fingerprint with quoted text is withheld.
     - Literals in execution plans and MongoDB fingerprints are replaced with `?`.
     - A SQL fingerprint that PMM stored unnormalized is withheld. If an unfiltered `pmm_top_queries` covers both MySQL and PostgreSQL data, PMM looks up each query's engine with one more report; a fingerprint that contains quoted text is withheld when its query ran under both engines, or when that lookup fails. To see such a fingerprint, filter by `service_name`.
-    - With raw SQL off, a search leaves out queries whose text is withheld.
+    - With raw SQL off, `search` matches the query text as `pmm_top_queries` shows it.
     - `group_by=username` and `group_by=client_host` return database user names and client addresses, as the QAN dashboard does for the same role. `PMM_MCP_RAW_SQL` does not hide them.
     - An agent error that can quote the statement is withheld, and its error code is kept.
 

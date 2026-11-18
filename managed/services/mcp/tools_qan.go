@@ -42,6 +42,8 @@ const (
 	maxColumns = 10
 	// Longest search text, in characters.
 	maxSearchLen = 200
+	// Report rows a search with raw SQL off reads from QAN, at most; qan-api2 runs one sparkline query per row.
+	maxSearchCandidates = 200
 )
 
 // ordering is the QAN sort key and main metric for one order_by value; qan-api2
@@ -94,14 +96,12 @@ type queryDetailInput struct {
 // topQueriesResult is the result of pmm_top_queries.
 type topQueriesResult struct {
 	Rows    []queryRow `json:"rows" jsonschema:"Report rows on this page, in rank order."`
-	Page    page       `json:"page" jsonschema:"Paging of the report, which QAN pages."`
+	Page    page       `json:"page" jsonschema:"Paging of the report, which QAN pages; with raw SQL off, this tool pages a search's rows."`
 	GroupBy string     `json:"group_by" jsonschema:"Dimension the rows are grouped by."`
 	OrderBy string     `json:"order_by" jsonschema:"Ranking, as the request gave it."`
 	Window  window     `json:"window" jsonschema:"Time window of the report."`
 	PMMURL  string     `json:"pmm_url" jsonschema:"Link to this workload in PMM Query Analytics."`
-
-	// leftOut is the number of QAN's rows on this page that a search with raw SQL off leaves out.
-	leftOut int
+	Note    string     `json:"note,omitempty" jsonschema:"Set when a search read only the first rows of the report."`
 }
 
 // queryRow is one row of a pmm_top_queries report.
@@ -134,9 +134,8 @@ func (r topQueriesResult) render() string {
 			header = r.Page.pastEnd("report")
 		}
 		text := header + "\n" + windowLine(r.Window) + "\n\n" + workload
-		if r.leftOut > 0 && r.Page.Truncated {
-			text = "No rows to show on this page.\n" + windowLine(r.Window) + "\n\n" + workload +
-				fmt.Sprintf("\npass offset=%d for more", r.Page.Offset+r.leftOut)
+		if r.Note != "" {
+			text += "\n" + r.Note
 		}
 		return text
 	}
@@ -147,19 +146,13 @@ func (r topQueriesResult) render() string {
 	text := fmt.Sprintf("Rows %d-%d of %d (group_by=%s, order_by=%s):\n%s\n\n%s",
 		r.Page.Offset+1, r.Page.Offset+len(r.Rows), r.Page.Total, r.GroupBy, r.OrderBy, windowLine(r.Window), strings.Join(lines, "\n"))
 	text += "\n\n" + workload
-	if m := r.marker(); m != "" {
+	if m := r.Page.marker(); m != "" {
 		text += "\n" + m
 	}
-	return text
-}
-
-// marker is the page's marker, whose next offset counts the rows left out of the page as QAN does.
-func (r topQueriesResult) marker() string {
-	if r.leftOut == 0 || !r.Page.Truncated {
-		return r.Page.marker()
+	if r.Note != "" {
+		text += "\n" + r.Note
 	}
-	end := r.Page.Offset + len(r.Rows)
-	return fmt.Sprintf("showing %d–%d of %d; pass offset=%d for more", r.Page.Offset+1, end, r.Page.Total, end+r.leftOut)
+	return text
 }
 
 // renderRow formats one report row: its dimension, load, calls, total and
@@ -238,11 +231,18 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	}
 	defer release()
 
-	report, err := s.api.GetReport(ctx, auth, q.body)
+	raw := s.rawSQL()
+	// With raw SQL off, QAN's search also reads text that the caller sees masked or withheld, so this tool matches
+	// the search against the rows as shown, and pages them itself.
+	visibleSearch := !raw && q.groupBy == groupByQuery && strings.TrimSpace(in.Search) != ""
+	body := q.body
+	if visibleSearch {
+		body.Offset, body.Limit = 0, maxSearchCandidates
+	}
+	report, err := s.api.GetReport(ctx, auth, body)
 	if err != nil {
 		return topQueriesResult{}, err
 	}
-	raw := s.rawSQL()
 	// The engine and the query_ref lookups share one read of the service list, made when the first of them needs it.
 	services := sync.OnceValues(func() ([]serviceInfo, error) {
 		return s.listServices(ctx, auth, window{From: from, To: to})
@@ -256,19 +256,25 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	// dimension); per-metric stats are nested under <name>.stats. Row.database
 	// arrives empty for MySQL rows, so schema comes from pmm_query_detail.
 	rows := make([]queryRow, 0, len(report.Rows))
-	// With raw SQL off, a search leaves out the rows whose fingerprint is withheld.
-	leaveOut := !raw && q.body.Search != "" && q.groupBy == groupByQuery
-	var leftOut int
 	for i, row := range report.Rows {
 		if i == 0 && row.Dimension == "" {
 			continue
 		}
-		r := q.row(row, q.offset+len(rows)+1, rowEngine(row.Dimension), raw)
-		if leaveOut && r.Fingerprint == withheldFingerprint {
-			leftOut++
-			continue
+		rows = append(rows, q.row(row, q.offset+len(rows)+1, rowEngine(row.Dimension), raw))
+	}
+	total := int(report.TotalRows)
+	var note string
+	if visibleSearch {
+		if len(rows) >= maxSearchCandidates {
+			note = fmt.Sprintf("The search read the first %d rows of the report in order_by order; "+
+				"narrow the window or the filters to search the rest.", maxSearchCandidates)
 		}
-		rows = append(rows, r)
+		rows = slices.DeleteFunc(rows, func(r queryRow) bool { return !showsSearch(r, in.Search) })
+		total = len(rows)
+		rows = rows[min(q.offset, total):min(q.offset+int(q.body.Limit), total)]
+		for i := range rows {
+			rows[i].Rank = q.offset + i + 1
+		}
 	}
 	if q.groupBy == groupByQuery && len(rows) > 0 {
 		serviceID := s.pinnedServiceID(q.labels, services)
@@ -279,16 +285,28 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		}
 	}
 
-	total := int(report.TotalRows)
 	return topQueriesResult{
 		Rows:    rows,
-		Page:    page{Total: total - leftOut, Offset: q.offset, Limit: int(q.body.Limit), Truncated: q.offset+len(rows)+leftOut < total},
+		Page:    page{Total: total, Offset: q.offset, Limit: int(q.body.Limit), Truncated: q.offset+len(rows) < total},
 		GroupBy: q.groupBy,
 		OrderBy: q.orderBy,
 		Window:  window{From: from, To: to},
 		PMMURL:  qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), in.ServiceName, from, to),
-		leftOut: leftOut,
+		Note:    note,
 	}, nil
+}
+
+// searchSpace matches the runs of whitespace that qan-api2 reads as one space in a search and a fingerprint.
+var searchSpace = regexp.MustCompile(`\s+`)
+
+// showsSearch reports whether a queryid row shows the search text, as qan-api2 matches it: ignoring case and
+// reading runs of whitespace as one space, in the queryid or in the fingerprint as shown; a withheld one never matches.
+func showsSearch(row queryRow, search string) bool {
+	needle := strings.ToLower(searchSpace.ReplaceAllString(strings.TrimSpace(search), " "))
+	if strings.Contains(strings.ToLower(row.Dimension), needle) {
+		return true
+	}
+	return row.Fingerprint != withheldFingerprint && strings.Contains(searchSpace.ReplaceAllString(strings.ToLower(row.Fingerprint), " "), needle)
 }
 
 // pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one
