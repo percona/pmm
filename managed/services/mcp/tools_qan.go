@@ -266,7 +266,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 }
 
 // pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one
-// service_name found in the caller's service list, and "" when they pin none or that lookup fails.
+// service_name that names one service of the caller's service list, and "" when they pin none or that lookup fails.
 func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([]serviceInfo, error)) string {
 	if ids := labels["service_id"]; len(ids) == 1 {
 		return ids[0]
@@ -280,11 +280,11 @@ func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([
 		s.l.WithField("tool", "pmm_top_queries").Debugf("Cannot list services, query_ref will have no service_id: %s.", err)
 		return ""
 	}
-	svc, ok := serviceNamed(list, names[0])
-	if !ok {
+	named := servicesNamed(list, names[0])
+	if len(named) != 1 {
 		return ""
 	}
-	return svc.ServiceID
+	return named[0].ServiceID
 }
 
 // reportQuery is a validated pmm_top_queries request.
@@ -854,7 +854,7 @@ func (s *Service) rowEngines(ctx context.Context, auth callerAuth, body qan_serv
 }
 
 // serviceEngine returns the engine of the service a report is filtered to, by
-// name or else by id, or "" when it is not found.
+// name or else by id, or "" when it is not found or the services of the name differ in engine.
 func serviceEngine(name, id string, services func() ([]serviceInfo, error)) string {
 	if name == "" && id == "" {
 		return ""
@@ -864,8 +864,11 @@ func serviceEngine(name, id string, services func() ([]serviceInfo, error)) stri
 		return ""
 	}
 	if name != "" {
-		svc, _ := serviceNamed(list, name)
-		return svc.Engine
+		named := servicesNamed(list, name)
+		if len(named) == 0 || slices.ContainsFunc(named, func(svc serviceInfo) bool { return svc.Engine != named[0].Engine }) {
+			return ""
+		}
+		return named[0].Engine
 	}
 	for _, svc := range list {
 		if svc.ServiceID == id {

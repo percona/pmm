@@ -133,7 +133,7 @@ Pass the saved `query_ref` back as it is. The tool then reads the same window, s
 The server resolves the query to one service in your service list for the query's window (see [Limitations](#limitations)); `pmm_inventory` lists the last hour. The call fails in these cases:
 
 - The query was not seen in the window, on any of your services or on the `service_id` you gave: `not_found`, and the message names the window. Pass a window that covers when the query ran: `period_from` and `period_to`, or a `query_ref` whose period covers it.
-- The query was seen on several of your services: `invalid_input`, and the message lists those services. Pass `service_id` to choose one. If you passed a `query_ref`, set the `service_id` inside the `query_ref` instead.
+- The query was seen on several of your services: `invalid_input`, and the message lists those services by `service_id`. QAN counts queries by service name, so two of your services with the same name are both listed. Pass `service_id` to choose one. If you passed a `query_ref`, set the `service_id` inside the `query_ref` instead.
 - The `service_id` is not in your service list: `not_found` with the text `not in your service list (services that sent metrics in the window searched)`, then the window searched. The message doesn't repeat the ID.
 
 ### QAN columns

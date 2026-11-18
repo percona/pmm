@@ -382,6 +382,17 @@ func serviceNamed(services []serviceInfo, name string) (serviceInfo, bool) {
 	return found, ok
 }
 
+// servicesNamed returns the services with the name.
+func servicesNamed(services []serviceInfo, name string) []serviceInfo {
+	var out []serviceInfo
+	for _, svc := range services {
+		if svc.ServiceName == name {
+			out = append(out, svc)
+		}
+	}
+	return out
+}
+
 // enrichVersions fills empty versions from the exporters' version metrics,
 // one instant query per engine. Any failure degrades to "unknown".
 func (s *Service) enrichVersions(ctx context.Context, auth callerAuth, services []serviceInfo) {

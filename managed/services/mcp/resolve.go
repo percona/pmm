@@ -270,14 +270,12 @@ func (s *Service) queryCandidates(ctx context.Context, auth callerAuth, ref quer
 		if row.Dimension == "" {
 			continue
 		}
-		svc, ok := serviceNamed(asked, row.Dimension)
-		if !ok {
-			continue
+		// QAN's row is by name, so every asked service of that name is a candidate.
+		for _, svc := range servicesNamed(asked, row.Dimension) {
+			if !slices.ContainsFunc(out, func(o serviceInfo) bool { return o.ServiceID == svc.ServiceID }) {
+				out = append(out, svc)
+			}
 		}
-		if slices.ContainsFunc(out, func(o serviceInfo) bool { return o.ServiceID == svc.ServiceID }) {
-			continue
-		}
-		out = append(out, svc)
 	}
 	return out, report.TotalRows, nil
 }
@@ -290,7 +288,7 @@ func ambiguousMessage(candidates []serviceInfo, total int64, fromQueryRef bool) 
 		names = append(names, fmt.Sprintf("%s (%s)", svc.ServiceName, svc.ServiceID))
 	}
 	text := "the query was seen on several services: " + strings.Join(names, ", ")
-	if more := total - int64(len(listed)); len(candidates) > len(listed) && more > 0 {
+	if more := max(total, int64(len(candidates))) - int64(len(listed)); len(candidates) > len(listed) && more > 0 {
 		text += fmt.Sprintf(", and %d more", more)
 	}
 	if fromQueryRef {

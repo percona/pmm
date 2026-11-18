@@ -1219,3 +1219,36 @@ func TestTopQueriesEnginePerRow(t *testing.T) {
 		assert.Len(t, fake.requestsTo("/v1/qan/metrics:getReport"), 1)
 	})
 }
+
+// TestTopQueriesSharedServiceName pins that a service_name filter shared by two services pins no service_id in
+// query_ref, and reads fingerprints under neither engine's quoting alone when the two engines differ.
+func TestTopQueriesSharedServiceName(t *testing.T) {
+	t.Parallel()
+
+	routes := withRoutes(qanRoutes(), map[string]fixture{serviceListKey: {file: "vm_up_list.json"}})
+	session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+	got := structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-re"}))
+	require.NotEmpty(t, got.Rows)
+	for _, row := range got.Rows {
+		if row.QueryRef != nil {
+			assert.Empty(t, row.QueryRef.ServiceID, row.Dimension)
+		}
+	}
+
+	got = structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-mysql"}))
+	require.NotEmpty(t, got.Rows)
+	assert.Equal(t, "svc-1", got.Rows[0].QueryRef.ServiceID)
+
+	assert.Empty(t, serviceEngine("shop-re", "", func() ([]serviceInfo, error) {
+		return []serviceInfo{
+			{ServiceID: "a", ServiceName: "shop-re", Engine: engineMySQL},
+			{ServiceID: "b", ServiceName: "shop-re", Engine: enginePostgreSQL, LastSeen: testNow},
+		}, nil
+	}))
+	assert.Equal(t, engineMySQL, serviceEngine("shop-re", "", func() ([]serviceInfo, error) {
+		return []serviceInfo{
+			{ServiceID: "a", ServiceName: "shop-re", Engine: engineMySQL},
+			{ServiceID: "b", ServiceName: "shop-re", Engine: engineMySQL, LastSeen: testNow},
+		}, nil
+	}))
+}

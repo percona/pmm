@@ -150,14 +150,21 @@ func TestResolveQuery(t *testing.T) {
 			},
 		},
 		{
-			name:       "no service_id takes the newest of a shared name",
+			name:       "no service_id with a shared name",
 			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
 			ref:        hour,
+			wantErr:    codeInvalidInput,
+			wantText:   []string{"shop-re (svc-re-new)", "shop-re (svc-re-old)", "; pass service_id to choose one"},
+			notText:    []string{"svc-1", "svc-2", "svc-px", "more"},
 			wantReport: 1,
-			check: func(t *testing.T, got *resolvedQuery) {
-				t.Helper()
-				assert.Equal(t, "svc-re-new", got.Service.ServiceID)
-			},
+		},
+		{
+			name:       "no service_id of a query_ref with a shared name",
+			routes:     with(resolveRoutes("report_by_service_re.json"), serviceListKey, "vm_up_list.json"),
+			ref:        fromQueryRef(hour),
+			wantErr:    codeInvalidInput,
+			wantText:   []string{"shop-re (svc-re-new)", "shop-re (svc-re-old)", "; set service_id inside query_ref to one of these"},
+			wantReport: 1,
 		},
 		{
 			name:       "two candidates",
