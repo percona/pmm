@@ -2455,6 +2455,7 @@
                     },
                     "decimals": 2,
                     "mappings": [],
+                    "noValue": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -2523,6 +2524,7 @@
                     },
                     "decimals": 2,
                     "mappings": [],
+                    "noValue": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -2591,6 +2593,7 @@
                     },
                     "decimals": 2,
                     "mappings": [],
+                    "noValue": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -3195,6 +3198,12 @@
                     "description": "**InnoDB I/O**\n\n_Data Writes_ - The total number of InnoDB data writes.\\\n_Data Reads_ - The total number of InnoDB data reads (OS file reads).\\\n_Log Writes_ - The number of physical writes to the InnoDB redo log file.\\\n_Data Fsyncs_ - The number of fsync() operations. The frequency of fsync() calls is influenced by the setting of the `innodb_flush_method` configuration option.",
                     "editable": true,
                     "error": false,
+                    "fieldConfig": {
+                        "defaults": {
+                            "noValue": "No data. InnoDB data file I/O is not reported on Amazon Aurora."
+                        },
+                        "overrides": []
+                    },
                     "fill": 2,
                     "fillGradient": 0,
                     "grid": {},
@@ -3344,7 +3353,7 @@
                         "globalClickthroughSanitizedEnabled": false,
                         "globalDecimals": 2,
                         "globalDisplayMode": "all",
-                        "globalDisplayTextTriggeredEmpty": "No Data",
+                        "globalDisplayTextTriggeredEmpty": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                         "globalFillColor": "#0a50a1",
                         "globalFontSize": 12,
                         "globalGradientsEnabled": true,
@@ -3447,6 +3456,12 @@
                     "description": "**InnoDB I/O**\n\n_Data Writes_ - The total number of InnoDB data writes.\\\n_Data Reads_ - The total number of InnoDB data reads (OS file reads).\\\n_Log Writes_ - The number of physical writes to the InnoDB redo log file.\\\n_Data Fsyncs_ - The number of fsync() operations. The frequency of fsync() calls is influenced by the setting of the `innodb_flush_method` configuration option.",
                     "editable": true,
                     "error": false,
+                    "fieldConfig": {
+                        "defaults": {
+                            "noValue": "No data. InnoDB data file I/O is not reported on Amazon Aurora."
+                        },
+                        "overrides": []
+                    },
                     "fill": 2,
                     "fillGradient": 0,
                     "grid": {},
@@ -3596,7 +3611,7 @@
                         "globalClickthroughSanitizedEnabled": false,
                         "globalDecimals": 2,
                         "globalDisplayMode": "all",
-                        "globalDisplayTextTriggeredEmpty": "No Data",
+                        "globalDisplayTextTriggeredEmpty": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                         "globalFillColor": "#0a50a1",
                         "globalFontSize": 12,
                         "globalGradientsEnabled": true,
@@ -3699,6 +3714,12 @@
                     "description": "**InnoDB I/O**\n\n_Data Writes_ - The total number of InnoDB data writes.\\\n_Data Reads_ - The total number of InnoDB data reads (OS file reads).\\\n_Log Writes_ - The number of physical writes to the InnoDB redo log file.\\\n_Data Fsyncs_ - The number of fsync() operations. The frequency of fsync() calls is influenced by the setting of the `innodb_flush_method` configuration option.",
                     "editable": true,
                     "error": false,
+                    "fieldConfig": {
+                        "defaults": {
+                            "noValue": "No data. InnoDB data file I/O is not reported on Amazon Aurora."
+                        },
+                        "overrides": []
+                    },
                     "fill": 2,
                     "fillGradient": 0,
                     "grid": {},
@@ -3855,7 +3876,7 @@
                         "globalClickthroughSanitizedEnabled": false,
                         "globalDecimals": 2,
                         "globalDisplayMode": "all",
-                        "globalDisplayTextTriggeredEmpty": "No Data",
+                        "globalDisplayTextTriggeredEmpty": "No data. InnoDB data file I/O is not reported on Amazon Aurora.",
                         "globalFillColor": "#0a50a1",
                         "globalFontSize": 12,
                         "globalGradientsEnabled": true,

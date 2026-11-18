@@ -237,6 +237,33 @@ func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, er
 	return services, nil
 }
 
+// FindServicesByNodeIDs finds the Services running on the given Nodes, grouped by Node ID.
+func FindServicesByNodeIDs(q *reform.Querier, nodeIDs []string) (map[string][]*Service, error) {
+	if len(nodeIDs) == 0 {
+		return make(map[string][]*Service), nil
+	}
+
+	p := strings.Join(q.Placeholders(1, len(nodeIDs)), ", ")
+	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY service_id", p)
+	args := make([]any, len(nodeIDs))
+	for i, id := range nodeIDs {
+		args[i] = id
+	}
+
+	all, err := q.SelectAllFrom(ServiceTable, tail, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	services := make(map[string][]*Service, len(nodeIDs))
+	for _, s := range all {
+		service := s.(*Service) //nolint:forcetypeassert
+		services[service.NodeID] = append(services[service.NodeID], service)
+	}
+
+	return services, nil
+}
+
 // FindServiceByName finds Service by Name.
 func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
 	if name == "" {

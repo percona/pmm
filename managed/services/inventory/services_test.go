@@ -17,10 +17,13 @@ package inventory
 
 import (
 	"context"
+	"database/sql/driver"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
 
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -201,6 +204,48 @@ func TestServices(t *testing.T) {
 
 		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: node.NodeId})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeId)), err)
+	})
+
+	t.Run("RDSServiceChangesUpdateRDSExporterState", func(t *testing.T) {
+		ss, as, ns, teardown, ctx, vmdb := setup(t)
+		defer teardown(t)
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", mock.Anything).Return(false)
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{RunsOnNodeId: models.PMMServerNodeID})
+		require.NoError(t, err)
+		pmmAgentID := pmmAgent.GetPmmAgent().AgentId
+
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test", InstanceId: "test-instance-id"})
+		require.NoError(t, err)
+
+		// Adding the rds_exporter, then adding, changing and removing the Service on its Node.
+		ss.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgentID).Times(4)
+		_, err = as.AddRDSExporter(ctx, &inventoryv1.AddRDSExporterParams{
+			PmmAgentId:   pmmAgentID,
+			NodeId:       node.NodeId,
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			AwsSecretKey: "EXAMPLE_SECRET_KEY",
+		})
+		require.NoError(t, err)
+
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
+		mySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      node.NodeId,
+			Address:     new("test"),
+			Port:        new(uint16(3306)),
+		})
+		require.NoError(t, err)
+
+		vmdb.On("RequestConfigurationUpdate").Once()
+		_, err = ss.ChangeService(ctx, &models.ChangeStandardLabelsParams{
+			ServiceID:   mySQLService.ServiceId,
+			Environment: new("prod"),
+		}, nil)
+		require.NoError(t, err)
+
+		err = ss.Remove(ctx, mySQLService.ServiceId, false)
+		require.NoError(t, err)
 	})
 
 	t.Run("AzureServiceRemoving", func(t *testing.T) {
@@ -1071,5 +1116,118 @@ func TestServices(t *testing.T) {
 			assert.Len(t, labels, 1)
 			assert.Equal(t, "newValue3", labels["newKey3"])
 		})
+	})
+}
+
+func TestRDSExporterLookup(t *testing.T) {
+	t.Parallel()
+
+	row := func(t *testing.T, str reform.Struct) []driver.Value {
+		t.Helper()
+
+		values := make([]driver.Value, 0, len(str.Values()))
+		for _, v := range str.Values() {
+			if valuer, ok := v.(driver.Valuer); ok {
+				var err error
+				v, err = valuer.Value()
+				require.NoError(t, err)
+			}
+			values = append(values, v)
+		}
+		return values
+	}
+
+	newDB := func(t *testing.T) (*reform.DB, sqlmock.Sqlmock) {
+		t.Helper()
+
+		sqlDB, sqlMock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, sqlMock.ExpectationsWereMet())
+			sqlMock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		return reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), sqlMock
+	}
+
+	expectNode := func(t *testing.T, sqlMock sqlmock.Sqlmock, nodeType models.NodeType) {
+		t.Helper()
+
+		node := &models.Node{NodeID: "node1", NodeType: nodeType, NodeName: "node1"}
+		sqlMock.ExpectQuery(`FROM "nodes" WHERE "nodes"."node_id" = \$1`).
+			WithArgs("node1").
+			WillReturnRows(sqlmock.NewRows(models.NodeTable.Columns()).AddRow(row(t, node)...))
+	}
+
+	expectAgentsQuery := func(sqlMock sqlmock.Sqlmock) *sqlmock.ExpectedQuery {
+		return sqlMock.ExpectQuery(`FROM "agents" WHERE node_id = \$1 AND agent_type = \$2`).
+			WithArgs("node1", models.RDSExporterType)
+	}
+
+	rdsExporter := func(id, pmmAgentID string) *models.Agent {
+		return &models.Agent{
+			AgentID:    id,
+			AgentType:  models.RDSExporterType,
+			PMMAgentID: &pmmAgentID,
+			NodeID:     new("node1"),
+		}
+	}
+
+	t.Run("rds_exporters of the Node", func(t *testing.T) {
+		t.Parallel()
+
+		db, sqlMock := newDB(t)
+		expectNode(t, sqlMock, models.RemoteRDSNodeType)
+		agentRows := sqlmock.NewRows(models.AgentTable.Columns()).
+			AddRow(row(t, rdsExporter("rds1", "pmm-agent1"))...).
+			AddRow(row(t, rdsExporter("rds2", "pmm-agent2"))...)
+		expectAgentsQuery(sqlMock).WillReturnRows(agentRows)
+
+		pmmAgentIDs, err := rdsExporterPMMAgentIDs(db.Querier, "node1")
+		require.NoError(t, err)
+		assert.Equal(t, []string{"pmm-agent1", "pmm-agent2"}, pmmAgentIDs)
+	})
+
+	t.Run("Node without rds_exporter", func(t *testing.T) {
+		t.Parallel()
+
+		db, sqlMock := newDB(t)
+		expectNode(t, sqlMock, models.GenericNodeType)
+		expectAgentsQuery(sqlMock).WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()))
+
+		pmmAgentIDs, err := rdsExporterPMMAgentIDs(db.Querier, "node1")
+		require.NoError(t, err)
+		assert.Empty(t, pmmAgentIDs)
+	})
+
+	t.Run("a failed lookup rolls back the added Service", func(t *testing.T) {
+		t.Parallel()
+
+		db, sqlMock := newDB(t)
+		state := &mockAgentsStateUpdater{}
+		state.Test(t)
+		t.Cleanup(func() { state.AssertExpectations(t) })
+		ss := NewServicesService(db, nil, state, nil, nil, nil)
+
+		sqlMock.ExpectBegin()
+		sqlMock.ExpectQuery(`FROM "services" WHERE "services"."service_id" = \$1`).
+			WillReturnRows(sqlmock.NewRows(models.ServiceTable.Columns()))
+		sqlMock.ExpectQuery(`FROM "services" WHERE "services"."service_name" = \$1`).
+			WillReturnRows(sqlmock.NewRows(models.ServiceTable.Columns()))
+		expectNode(t, sqlMock, models.RemoteRDSNodeType)
+		sqlMock.ExpectQuery(`INSERT INTO "services"`).
+			WillReturnRows(sqlmock.NewRows([]string{"service_id"}).AddRow("service1"))
+		expectNode(t, sqlMock, models.RemoteRDSNodeType)
+		expectAgentsQuery(sqlMock).WillReturnError(errors.New("connection lost"))
+		sqlMock.ExpectRollback()
+
+		_, err := ss.AddPostgreSQL(t.Context(), &models.AddDBMSServiceParams{
+			ServiceName: "test-postgresql",
+			NodeID:      "node1",
+			Address:     new("test"),
+			Port:        new(uint16(5432)),
+		})
+		require.ErrorContains(t, err, "connection lost")
 	})
 }

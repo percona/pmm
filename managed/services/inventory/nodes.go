@@ -71,6 +71,36 @@ func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]
 	return res, nil
 }
 
+// ListActiveNodeTypes returns the Node types present in the inventory.
+func (s *NodesService) ListActiveNodeTypes(ctx context.Context) ([]inventoryv1.NodeType, error) {
+	var types []models.NodeType
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
+		types, err = models.FindActiveNodeTypes(tx.Querier)
+		return err
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	res := make([]inventoryv1.NodeType, 0, len(types))
+	for _, t := range types {
+		switch t {
+		case models.GenericNodeType:
+			res = append(res, inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE)
+		case models.ContainerNodeType:
+			res = append(res, inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE)
+		case models.RemoteNodeType:
+			res = append(res, inventoryv1.NodeType_NODE_TYPE_REMOTE_NODE)
+		case models.RemoteRDSNodeType:
+			res = append(res, inventoryv1.NodeType_NODE_TYPE_REMOTE_RDS_NODE)
+		case models.RemoteAzureDatabaseNodeType:
+			res = append(res, inventoryv1.NodeType_NODE_TYPE_REMOTE_AZURE_DATABASE_NODE)
+		}
+	}
+	return res, nil
+}
+
 // Get returns a single Node by ID.
 func (s *NodesService) Get(ctx context.Context, req *inventoryv1.GetNodeRequest) (inventoryv1.Node, error) { //nolint:ireturn
 	modelNode := &models.Node{}

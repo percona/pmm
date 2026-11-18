@@ -21,11 +21,14 @@ import (
 	"fmt"
 	"testing"
 
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -644,5 +647,77 @@ func TestAddNode(t *testing.T) {
 			},
 		})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name test already exists.`), err)
+	})
+}
+
+func TestListActiveNodeTypes(t *testing.T) {
+	t.Parallel()
+
+	const query = "SELECT DISTINCT node_type FROM nodes ORDER BY node_type"
+
+	newService := func(t *testing.T) (*NodesService, sqlmock.Sqlmock) {
+		t.Helper()
+
+		sqlDB, mock, err := sqlmock.New(sqlmock.QueryMatcherOption(sqlmock.QueryMatcherEqual))
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, mock.ExpectationsWereMet())
+			mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		return NewNodesService(db, nil, nil, nil, nil), mock
+	}
+
+	t.Run("MapsEveryNodeType", func(t *testing.T) {
+		t.Parallel()
+
+		ns, mock := newService(t)
+		mock.ExpectBegin()
+		mock.ExpectQuery(query).WillReturnRows(sqlmock.NewRows([]string{"node_type"}).
+			AddRow("container").
+			AddRow("generic").
+			AddRow("remote").
+			AddRow("remote_azure_database").
+			AddRow("remote_rds").
+			AddRow("unknown"))
+		mock.ExpectCommit()
+
+		types, err := ns.ListActiveNodeTypes(t.Context())
+		require.NoError(t, err)
+		assert.Equal(t, []inventoryv1.NodeType{
+			inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE,
+			inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+			inventoryv1.NodeType_NODE_TYPE_REMOTE_NODE,
+			inventoryv1.NodeType_NODE_TYPE_REMOTE_AZURE_DATABASE_NODE,
+			inventoryv1.NodeType_NODE_TYPE_REMOTE_RDS_NODE,
+		}, types)
+	})
+
+	t.Run("NoNodes", func(t *testing.T) {
+		t.Parallel()
+
+		ns, mock := newService(t)
+		mock.ExpectBegin()
+		mock.ExpectQuery(query).WillReturnRows(sqlmock.NewRows([]string{"node_type"}))
+		mock.ExpectCommit()
+
+		types, err := ns.ListActiveNodeTypes(t.Context())
+		require.NoError(t, err)
+		assert.Empty(t, types)
+	})
+
+	t.Run("QueryError", func(t *testing.T) {
+		t.Parallel()
+
+		ns, mock := newService(t)
+		mock.ExpectBegin()
+		mock.ExpectQuery(query).WillReturnError(errors.New("connection lost"))
+		mock.ExpectRollback()
+
+		types, err := ns.ListActiveNodeTypes(t.Context())
+		require.EqualError(t, err, "connection lost")
+		assert.Nil(t, types)
 	})
 }

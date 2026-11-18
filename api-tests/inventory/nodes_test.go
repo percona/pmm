@@ -17,6 +17,7 @@ package inventory
 
 import (
 	"context"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -97,6 +98,24 @@ func TestNodes(t *testing.T) {
 			return true
 		}, "There shouldn't be a remote node with id `%s`", remoteNodeID)
 	})
+}
+
+func TestListActiveNodeTypes(t *testing.T) {
+	t.Parallel()
+
+	pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Test RDS Node for ListActiveNodeTypes"))
+
+	res, err := client.Default.NodesService.ListActiveNodeTypes(nil)
+	require.NoError(t, err)
+
+	nodeTypes := make([]string, 0, len(res.Payload.NodeTypes))
+	for _, nodeType := range res.Payload.NodeTypes {
+		require.NotNil(t, nodeType)
+		nodeTypes = append(nodeTypes, *nodeType)
+	}
+
+	assert.Contains(t, nodeTypes, "NODE_TYPE_REMOTE_RDS_NODE")
+	assert.ElementsMatch(t, slices.Compact(slices.Sorted(slices.Values(nodeTypes))), nodeTypes, "each type is listed once")
 }
 
 func TestGetNode(t *testing.T) {

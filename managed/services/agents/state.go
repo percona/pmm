@@ -392,10 +392,19 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 
 	// we do start rds exporter per AWS credential identity.
 	if len(rdsExporters) != 0 {
+		nodeIDs := make([]string, 0, len(rdsExporters))
+		for node := range rdsExporters {
+			nodeIDs = append(nodeIDs, node.NodeID)
+		}
+		nodeServices, err := models.FindServicesByNodeIDs(u.db.Querier, nodeIDs)
+		if err != nil {
+			return fmt.Errorf("failed to find the Services of RDS Nodes: %w", err)
+		}
+
 		for credentialsKey, exporters := range groupRDSExporters(rdsExporters) {
 			// TODO: split by 50 exporters per group
 			groupID := u.r.roster.add(agent.id, rdsPrefix+credentialsKey, exporters)
-			c, err := rdsExporterConfig(exporters, redactMode, pmmAgentVersion)
+			c, err := rdsExporterConfig(exporters, nodeServices, redactMode, pmmAgentVersion)
 			if err != nil {
 				return err
 			}

@@ -9,6 +9,7 @@ import { HelpCenter } from 'pages/help-center';
 import { RealtimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
 import {
+  AMAZON_RDS_PATH,
   PMM_NEW_NAV_PATH,
   PMM_SERVICENOW_SETTINGS_PATH,
   EXTENSIONS_ATW_PATH,
@@ -41,6 +42,7 @@ import { AdvisorRuns } from 'pages/advisors/runs';
 import { RUN_FILTER_PARAMS } from 'pages/advisors/runs/AdvisorRuns.filters';
 import { AdvisorScheduler } from 'pages/advisors/scheduler';
 import { AlertsPage } from 'pages/alerting/status';
+import { AmazonRdsPage } from 'pages/amazon-rds';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
 import { OmApp } from '@pmm/plugins-om';
 import { OmPage } from 'om/OmPage';
@@ -94,6 +96,10 @@ const router = createBrowserRouter(
             {
               path: 'settings/:tab?',
               element: <Settings />,
+            },
+            {
+              path: relativeToNav(AMAZON_RDS_PATH),
+              element: <AmazonRdsPage />,
             },
             {
               path: 'inventory',

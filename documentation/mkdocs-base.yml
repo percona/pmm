@@ -260,6 +260,8 @@ nav:
             - use/qan/qan_mongo.md
           - Real-time analytics: use/qan/QAN-realtime-analytics.md
 
+      - Amazon RDS overview: use/amazon-rds-overview.md
+
       - Operations for MongoDB: use/mongodb-operations.md
 
       - Percona Advisors:

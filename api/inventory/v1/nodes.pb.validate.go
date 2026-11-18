@@ -995,6 +995,211 @@ var _ interface {
 	ErrorName() string
 } = ListNodesResponseValidationError{}
 
+// Validate checks the field values on ListActiveNodeTypesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListActiveNodeTypesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListActiveNodeTypesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListActiveNodeTypesRequestMultiError, or nil if none found.
+func (m *ListActiveNodeTypesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListActiveNodeTypesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListActiveNodeTypesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListActiveNodeTypesRequestMultiError is an error wrapping multiple
+// validation errors returned by ListActiveNodeTypesRequest.ValidateAll() if
+// the designated constraints aren't met.
+type ListActiveNodeTypesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListActiveNodeTypesRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListActiveNodeTypesRequestMultiError) AllErrors() []error { return m }
+
+// ListActiveNodeTypesRequestValidationError is the validation error returned
+// by ListActiveNodeTypesRequest.Validate if the designated constraints aren't met.
+type ListActiveNodeTypesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListActiveNodeTypesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListActiveNodeTypesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListActiveNodeTypesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListActiveNodeTypesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListActiveNodeTypesRequestValidationError) ErrorName() string {
+	return "ListActiveNodeTypesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListActiveNodeTypesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListActiveNodeTypesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListActiveNodeTypesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListActiveNodeTypesRequestValidationError{}
+
+// Validate checks the field values on ListActiveNodeTypesResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListActiveNodeTypesResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListActiveNodeTypesResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListActiveNodeTypesResponseMultiError, or nil if none found.
+func (m *ListActiveNodeTypesResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListActiveNodeTypesResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListActiveNodeTypesResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListActiveNodeTypesResponseMultiError is an error wrapping multiple
+// validation errors returned by ListActiveNodeTypesResponse.ValidateAll() if
+// the designated constraints aren't met.
+type ListActiveNodeTypesResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListActiveNodeTypesResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListActiveNodeTypesResponseMultiError) AllErrors() []error { return m }
+
+// ListActiveNodeTypesResponseValidationError is the validation error returned
+// by ListActiveNodeTypesResponse.Validate if the designated constraints
+// aren't met.
+type ListActiveNodeTypesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListActiveNodeTypesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListActiveNodeTypesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListActiveNodeTypesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListActiveNodeTypesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListActiveNodeTypesResponseValidationError) ErrorName() string {
+	return "ListActiveNodeTypesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListActiveNodeTypesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListActiveNodeTypesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListActiveNodeTypesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListActiveNodeTypesResponseValidationError{}
+
 // Validate checks the field values on GetNodeRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.

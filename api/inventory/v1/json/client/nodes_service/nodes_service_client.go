@@ -55,6 +55,8 @@ type ClientService interface {
 
 	GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error)
 
+	ListActiveNodeTypes(params *ListActiveNodeTypesParams, opts ...ClientOption) (*ListActiveNodeTypesOK, error)
+
 	ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error)
 
 	RemoveNode(params *RemoveNodeParams, opts ...ClientOption) (*RemoveNodeOK, error)
@@ -146,6 +148,50 @@ func (a *Client) GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeO
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetNodeDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListActiveNodeTypes lists active node types
+
+Returns a list of Node types present in the inventory.
+*/
+func (a *Client) ListActiveNodeTypes(params *ListActiveNodeTypesParams, opts ...ClientOption) (*ListActiveNodeTypesOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListActiveNodeTypesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListActiveNodeTypes",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/nodes:getTypes",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListActiveNodeTypesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListActiveNodeTypesOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListActiveNodeTypesDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

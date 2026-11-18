@@ -2,6 +2,8 @@ import { FC, PropsWithChildren, useMemo } from 'react';
 import { NavigationContext } from './navigation.context';
 import { NavItem } from 'types/navigation.types';
 import { useServiceTypes } from 'hooks/api/useServices';
+import { useNodeTypes } from 'hooks/api/useNodes';
+import { InventoryNodeType } from 'types/nodes.types';
 import {
   addAccount,
   addAdvisors,
@@ -41,6 +43,13 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
   });
+  const { data: nodeTypes } = useNodeTypes({
+    enabled: !!user,
+    refetchInterval: INTERVALS_MS.SERVICE_TYPES,
+  });
+  const hasRdsNodes = !!nodeTypes?.nodeTypes?.includes(
+    InventoryNodeType.remoteRds
+  );
   const { settings } = useSettings();
   const { data: folders = [] } = useFolders();
   const { colorMode, toggleColorMode } = useColorMode();
@@ -74,7 +83,13 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     const mongoExtras = user && settings?.omEnabled ? [addOm()] : [];
 
     items.push(
-      ...addDashboardItems(currentServiceTypes, folders, user, mongoExtras)
+      ...addDashboardItems(
+        currentServiceTypes,
+        folders,
+        user,
+        mongoExtras,
+        hasRdsNodes
+      )
     );
 
     if (user) {
@@ -145,6 +160,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     return items;
   }, [
     serviceTypes?.serviceTypes,
+    hasRdsNodes,
     user,
     haInfo,
     folders,

@@ -237,6 +237,12 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/advisors.v1.AdvisorService/ListAdvisorServices", editor},
 		{http.MethodPost, "/advisors.v1.AdvisorService/GetAdvisorNotificationSettings", editor},
 
+		// Inventory: only the type lists are viewable; listing Nodes or Services needs admin.
+		{http.MethodPost, "/v1/inventory/nodes:getTypes", viewer},
+		{http.MethodPost, "/v1/inventory/services:getTypes", viewer},
+		{http.MethodGet, "/v1/inventory/nodes", admin},
+		{http.MethodGet, "/v1/inventory/services", admin},
+
 		// OM: reads are viewer; actions need admin, except topology collection (below).
 		{http.MethodGet, "/v1/om/topology", viewer},
 		{http.MethodGet, "/v1/om/inventory/hosts", viewer},

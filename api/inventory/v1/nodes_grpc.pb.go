@@ -20,10 +20,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NodesService_ListNodes_FullMethodName  = "/inventory.v1.NodesService/ListNodes"
-	NodesService_GetNode_FullMethodName    = "/inventory.v1.NodesService/GetNode"
-	NodesService_AddNode_FullMethodName    = "/inventory.v1.NodesService/AddNode"
-	NodesService_RemoveNode_FullMethodName = "/inventory.v1.NodesService/RemoveNode"
+	NodesService_ListNodes_FullMethodName           = "/inventory.v1.NodesService/ListNodes"
+	NodesService_ListActiveNodeTypes_FullMethodName = "/inventory.v1.NodesService/ListActiveNodeTypes"
+	NodesService_GetNode_FullMethodName             = "/inventory.v1.NodesService/GetNode"
+	NodesService_AddNode_FullMethodName             = "/inventory.v1.NodesService/AddNode"
+	NodesService_RemoveNode_FullMethodName          = "/inventory.v1.NodesService/RemoveNode"
 )
 
 // NodesServiceClient is the client API for NodesService service.
@@ -34,6 +35,8 @@ const (
 type NodesServiceClient interface {
 	// ListNodes returns a list of all Nodes.
 	ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error)
+	// ListActiveNodeTypes returns a list of Node types present in the inventory.
+	ListActiveNodeTypes(ctx context.Context, in *ListActiveNodeTypesRequest, opts ...grpc.CallOption) (*ListActiveNodeTypesResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
 	// AddNode adds any type of Node.
@@ -54,6 +57,16 @@ func (c *nodesServiceClient) ListNodes(ctx context.Context, in *ListNodesRequest
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListNodesResponse)
 	err := c.cc.Invoke(ctx, NodesService_ListNodes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesServiceClient) ListActiveNodeTypes(ctx context.Context, in *ListActiveNodeTypesRequest, opts ...grpc.CallOption) (*ListActiveNodeTypesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListActiveNodeTypesResponse)
+	err := c.cc.Invoke(ctx, NodesService_ListActiveNodeTypes_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,6 +111,8 @@ func (c *nodesServiceClient) RemoveNode(ctx context.Context, in *RemoveNodeReque
 type NodesServiceServer interface {
 	// ListNodes returns a list of all Nodes.
 	ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error)
+	// ListActiveNodeTypes returns a list of Node types present in the inventory.
+	ListActiveNodeTypes(context.Context, *ListActiveNodeTypesRequest) (*ListActiveNodeTypesResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
 	// AddNode adds any type of Node.
@@ -116,6 +131,10 @@ type UnimplementedNodesServiceServer struct{}
 
 func (UnimplementedNodesServiceServer) ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListNodes not implemented")
+}
+
+func (UnimplementedNodesServiceServer) ListActiveNodeTypes(context.Context, *ListActiveNodeTypesRequest) (*ListActiveNodeTypesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListActiveNodeTypes not implemented")
 }
 
 func (UnimplementedNodesServiceServer) GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error) {
@@ -164,6 +183,24 @@ func _NodesService_ListNodes_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(NodesServiceServer).ListNodes(ctx, req.(*ListNodesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodesService_ListActiveNodeTypes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListActiveNodeTypesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServiceServer).ListActiveNodeTypes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodesService_ListActiveNodeTypes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServiceServer).ListActiveNodeTypes(ctx, req.(*ListActiveNodeTypesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -232,6 +269,10 @@ var NodesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListNodes",
 			Handler:    _NodesService_ListNodes_Handler,
+		},
+		{
+			MethodName: "ListActiveNodeTypes",
+			Handler:    _NodesService_ListActiveNodeTypes_Handler,
 		},
 		{
 			MethodName: "GetNode",

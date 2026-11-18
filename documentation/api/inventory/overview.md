@@ -20,6 +20,7 @@ This section guides you on how to add, update, or remove services, nodes, and ag
 ### Listing services, nodes and agents:
 - [List services](ref:listservices)
 - [List nodes](ref:listnodes)
+- [List node types](ref:listnodetypes)
 - [List agents](ref:listagents)
 
 ### Removing services, nodes and agents:

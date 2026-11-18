@@ -1,0 +1,1 @@
+export { AmazonRdsPage } from './AmazonRdsPage';

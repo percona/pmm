@@ -221,6 +221,12 @@ func TestBasicAuthPermissions(t *testing.T) {
 			{userType: "editor", login: editor, statusCode: 403},
 			{userType: "admin", login: admin, statusCode: 200},
 		}},
+		{name: "node types", url: "/v1/inventory/nodes:getTypes", method: "POST", userCase: []userCase{
+			{userType: "default", login: none, statusCode: 200},
+			{userType: "viewer", login: viewer, statusCode: 200},
+			{userType: "editor", login: editor, statusCode: 200},
+			{userType: "admin", login: admin, statusCode: 200},
+		}},
 		{name: "advisor runs", url: "/v1/advisors/runs", method: "GET", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 403},
 			{userType: "viewer", login: viewer, statusCode: 403},

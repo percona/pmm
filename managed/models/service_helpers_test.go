@@ -16,10 +16,12 @@
 package models_test
 
 import (
+	"database/sql/driver"
 	"testing"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -536,5 +538,64 @@ func TestServiceHelpers(t *testing.T) {
 			require.ErrorIs(t, err, models.ErrNotFound)
 			assert.Nil(t, swVersions)
 		}
+	})
+}
+
+func TestFindServicesByNodeIDs(t *testing.T) {
+	t.Parallel()
+
+	newQuerier := func(t *testing.T) (*reform.Querier, sqlmock.Sqlmock) {
+		t.Helper()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			assert.NoError(t, mock.ExpectationsWereMet())
+			mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		return reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)).Querier, mock
+	}
+
+	t.Run("no Nodes", func(t *testing.T) {
+		t.Parallel()
+
+		q, _ := newQuerier(t)
+		services, err := models.FindServicesByNodeIDs(q, nil)
+		require.NoError(t, err)
+		assert.Empty(t, services)
+	})
+
+	t.Run("grouped by Node", func(t *testing.T) {
+		t.Parallel()
+
+		q, mock := newQuerier(t)
+		rows := sqlmock.NewRows(models.ServiceTable.Columns())
+		for _, s := range []*models.Service{
+			{ServiceID: "S1", ServiceType: models.MySQLServiceType, NodeID: "N1", Environment: "prod"},
+			{ServiceID: "S2", ServiceType: models.MySQLServiceType, NodeID: "N2"},
+			{ServiceID: "S3", ServiceType: models.PostgreSQLServiceType, NodeID: "N1"},
+		} {
+			values := make([]driver.Value, 0, len(s.Values()))
+			for _, v := range s.Values() {
+				values = append(values, v)
+			}
+			rows.AddRow(values...)
+		}
+		mock.ExpectQuery(`FROM "services" WHERE node_id IN \(\$1, \$2, \$3\) ORDER BY service_id`).
+			WithArgs("N1", "N2", "N3").
+			WillReturnRows(rows)
+
+		services, err := models.FindServicesByNodeIDs(q, []string{"N1", "N2", "N3"})
+		require.NoError(t, err)
+		require.Len(t, services, 2)
+		require.Len(t, services["N1"], 2)
+		assert.Equal(t, "S1", services["N1"][0].ServiceID)
+		assert.Equal(t, "prod", services["N1"][0].Environment)
+		assert.Equal(t, "S3", services["N1"][1].ServiceID)
+		require.Len(t, services["N2"], 1)
+		assert.Equal(t, "S2", services["N2"][0].ServiceID)
+		assert.Empty(t, services["N3"])
 	})
 }
