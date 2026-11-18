@@ -971,6 +971,36 @@ func TestHealthSignalValues(t *testing.T) {
 			},
 			want: 5,
 		},
+		{
+			name: "the replication lag is the most lagging channel's", engine: engineMySQL, signal: "replication_lag",
+			series: []fixtureSeries{
+				seriesOf("mysql_slave_status_seconds_behind_master", 10, "channel_name", "a"),
+				seriesOf("mysql_slave_status_sql_delay", 0, "channel_name", "a"),
+				seriesOf("mysql_slave_status_seconds_behind_master", 100, "channel_name", "b"),
+				seriesOf("mysql_slave_status_sql_delay", 0, "channel_name", "b"),
+			},
+			want: 100,
+		},
+		{
+			name: "each channel's configured delay comes off its own lag", engine: engineMySQL, signal: "replication_lag",
+			series: []fixtureSeries{
+				seriesOf("mysql_slave_status_seconds_behind_master", 50, "channel_name", "a"),
+				seriesOf("mysql_slave_status_sql_delay", 0, "channel_name", "a"),
+				seriesOf("mysql_slave_status_seconds_behind_master", 100, "channel_name", "b"),
+				seriesOf("mysql_slave_status_sql_delay", 60, "channel_name", "b"),
+			},
+			want: 50,
+		},
+		{
+			name: "seconds_behind_source when the replica reports that name", engine: engineMySQL, signal: "replication_lag",
+			series: []fixtureSeries{
+				seriesOf("mysql_slave_status_seconds_behind_source", 10, "channel_name", "a"),
+				seriesOf("mysql_slave_status_sql_delay", 0, "channel_name", "a"),
+				seriesOf("mysql_slave_status_seconds_behind_source", 30, "channel_name", "b"),
+				seriesOf("mysql_slave_status_sql_delay", 0, "channel_name", "b"),
+			},
+			want: 30,
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

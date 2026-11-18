@@ -119,8 +119,9 @@ var healthSignals = map[string][]signal{
 			Query: `avg by (service_name) (rate(mysql_global_status_created_tmp_disk_tables{%[1]s}[5m]) or irate(mysql_global_status_created_tmp_disk_tables{%[1]s}[5m]))`,
 		},
 		{
+			// A max over replication channels, where the dashboard averages, so that a multi-source replica shows its most lagging channel.
 			Name: "replication_lag", Unit: "s", Source: "mysql_slave_status_seconds_behind_master",
-			Query: `clamp_min(avg by (service_name) ( (max_over_time(mysql_slave_status_seconds_behind_master{%[1]s}[5m]) or max_over_time(mysql_slave_status_seconds_behind_master{%[1]s}[5m])) - (max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m]) or max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m])) ),0) or clamp_min(avg by (service_name) ( (max_over_time(mysql_slave_status_seconds_behind_source{%[1]s}[5m]) or max_over_time(mysql_slave_status_seconds_behind_source{%[1]s}[5m])) - (max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m]) or max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m])) ),0)`,
+			Query: `clamp_min(max by (service_name) ( (max_over_time(mysql_slave_status_seconds_behind_master{%[1]s}[5m]) or max_over_time(mysql_slave_status_seconds_behind_master{%[1]s}[5m])) - (max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m]) or max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m])) ),0) or clamp_min(max by (service_name) ( (max_over_time(mysql_slave_status_seconds_behind_source{%[1]s}[5m]) or max_over_time(mysql_slave_status_seconds_behind_source{%[1]s}[5m])) - (max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m]) or max_over_time(mysql_slave_status_sql_delay{%[1]s}[5m])) ),0)`,
 		},
 		{
 			Name: "buffer_pool_miss_ratio", Unit: "percentunit", Source: "mysql_global_status_innodb_buffer_pool_reads",
