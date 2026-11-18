@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -13,20 +14,27 @@ const defaultProps = {
   onPrevious: vi.fn(),
 };
 
-const renderComponent = () =>
+const renderComponent = (
+  props: Partial<ComponentProps<typeof DetailsPane>> = {}
+) =>
   render(
     <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
-      <DetailsPane {...defaultProps} query={TEST_MONGO_DB_QUERY_DATA} />
+      <DetailsPane
+        {...defaultProps}
+        query={TEST_MONGO_DB_QUERY_DATA}
+        {...props}
+      />
     </ThemeProvider>
   );
 
+// Skipped until the pinned @percona/peak-ui exports DetailsPane.
 describe.skip('DetailsPane', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('renders the pane with aria-hidden when no query', () => {
-    renderComponent();
+    renderComponent({ query: undefined });
 
     const pane = screen.getByTestId('query-details-pane');
     expect(pane).toBeInTheDocument();
@@ -76,21 +84,13 @@ describe.skip('DetailsPane', () => {
   });
 
   it('disables previous button when isFirstQuery is true', () => {
-    render(
-      <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
-        <DetailsPane {...defaultProps} isFirstQuery />
-      </ThemeProvider>
-    );
+    renderComponent({ isFirstQuery: true });
 
     expect(screen.getByTestId('details-pane-prev-button')).toBeDisabled();
   });
 
   it('disables next button when isLastQuery is true', () => {
-    render(
-      <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
-        <DetailsPane {...defaultProps} isLastQuery />
-      </ThemeProvider>
-    );
+    renderComponent({ isLastQuery: true });
 
     expect(screen.getByTestId('details-pane-next-button')).toBeDisabled();
   });
@@ -101,6 +101,14 @@ describe.skip('DetailsPane', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
 
     expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onClose when Escape is pressed with no query', () => {
+    renderComponent({ query: undefined });
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(defaultProps.onClose).not.toHaveBeenCalled();
   });
 
   it('shows details tab content when on first tab', () => {
@@ -116,12 +124,12 @@ describe.skip('DetailsPane', () => {
 
     fireEvent.click(screen.getByTestId('details-pane-raw-data-tab'));
 
-    expect(
-      screen.getByText((content) => content.includes('mycollection'))
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('query-raw-data')).toHaveTextContent(
+      'mycollection'
+    );
   });
 
-  it('renders close button ', () => {
+  it('renders close button', () => {
     renderComponent();
 
     expect(
