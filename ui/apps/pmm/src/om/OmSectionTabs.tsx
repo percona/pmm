@@ -25,7 +25,7 @@ import {
   OM_ROUTE_FLEET,
   OM_ROUTE_NODES,
   OM_ROUTE_SETTINGS,
-} from '@pmm/plugins-om/src/constants';
+} from '@pmm/plugins-om';
 import { OM_PATH } from 'lib/constants';
 import { Messages } from './OmPage.messages';
 
