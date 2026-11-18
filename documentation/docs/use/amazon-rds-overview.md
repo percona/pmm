@@ -23,9 +23,9 @@ The page shows one row per group of instances. The **Type / Engine** column show
 |------|------------------------|
 | **Aurora cluster** | The instances of an Aurora DB cluster |
 | **Multi-AZ DB cluster** | The instances of a Multi-AZ DB cluster |
-| **Replication group** | A primary instance and its read replicas, named after the primary |
+| **Replication group** | A primary instance and its read replicas, named after the primary. A replica of a replica joins the group only if PMM also monitors the replica in between |
 | **Instance** | A standalone instance, without a cluster or read replicas |
-| **Unavailable** | The instances that PMM has no AWS details for, per region and engine, under **AWS info unavailable**. For example, instances monitored by an older PMM Client |
+| **Unavailable** | The instances that PMM has no AWS details for, per region and engine, under **AWS info unavailable**. For example, instances monitored by an older PMM Client, or instances whose AWS details your access role hides |
 
 The other columns of a group are:
 
@@ -35,7 +35,7 @@ The other columns of a group are:
 | **DB identifier** | The cluster identifier, or the identifier of the primary or standalone instance |
 | **Type / Engine** | The group type from the previous table, with the database engine below it: Aurora MySQL, Aurora PostgreSQL, MySQL, MariaDB or PostgreSQL |
 | **Alerts** | The number of firing alerts of the instances. See [Alerts](#alerts) |
-| **Instances / Writers** | How many instances have their exporter connected to the database, out of the instances that PMM monitors, for example **2 / 3**. Below it, the number of writer instances, normally **1 writer**. **no writer** and more than one writer show in a warning color. **unknown** means that the instances don't report their role |
+| **Instances / Writers** | How many instances have their exporter connected to the database, out of the instances that PMM monitors, for example **2 / 3**. Below it, the number of writer instances, normally **1 writer**. **no writer** and more than one writer show in a warning color. **unknown** means that a running instance doesn't report its role |
 | **Throughput** | For Aurora MySQL, MySQL and MariaDB, the queries per second (qps). For Aurora PostgreSQL and PostgreSQL, the transactions per second (tps): commits plus rollbacks |
 | **Storage** | For Aurora, the cluster volume used. For other engines, the free storage space; a group shows its lowest instance, marked **(min)** |
 

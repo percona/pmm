@@ -58,7 +58,7 @@ export const Messages = {
       'Primary instance and its read replicas, named after the primary',
     instance: 'Instance without a cluster or read replicas',
     unavailable:
-      'PMM has no AWS details for these instances. If they are monitored by another pmm-client, upgrade it.',
+      'PMM has no AWS details for these instances. If they are monitored by another pmm-client, upgrade it. An access role can also hide these details.',
   },
   links: {
     mysql: 'MySQL',
@@ -84,7 +84,7 @@ export const Messages = {
       'Firing alerts of the instances, except silenced ones. An alert counts when its service_name or node_name label names an instance.',
     instancesWriters: 'Instances / Writers',
     instancesWritersDescription:
-      'Instances whose exporter is connected, out of the monitored instances, and the number of writer instances.',
+      'Instances whose exporter reaches the database, out of the monitored instances, and the number of writer instances. An instance with no data for an hour is not listed.',
     throughput: 'Throughput',
     throughputDescription:
       'MySQL and MariaDB: queries per second. PostgreSQL: transactions (commits and rollbacks) per second.',

@@ -4,7 +4,7 @@
 
 This dashboard shows the performance of one Amazon Aurora MySQL instance. The **Service Name** list contains only Aurora MySQL services. To see all the instances of a cluster, open the [Amazon RDS overview](../../use/amazon-rds-overview.md) page with the **Amazon RDS Overview** link at the top of the dashboard. Click a service there to open it here.
 
-Panels that read Amazon CloudWatch metrics need the instance to be added to PMM through **Inventory > Add service > Amazon RDS**. See [Connect Amazon RDS instance](../../install-pmm/install-pmm-client/connect-database/aws.md).
+Panels that read Amazon CloudWatch metrics need the instance to be added to PMM through **Inventory > Add service > Amazon RDS**. See [Connect Amazon RDS instance](../../install-pmm/install-pmm-client/connect-database/aws.md). **Freeable memory** and **Cluster volume used** also need the PMM Client that monitors the instance to be the same version as PMM Server.
 
 ## Amazon Aurora Transaction Commits
 
@@ -68,7 +68,7 @@ Amazon Aurora MySQL allows a number of commands which are not available in stand
 
 This graph shows internal Amazon Aurora MySQL problems, which should be zero in normal operation. Anything non-zero is worth examining in greater depth. The graph shows:
 
-* **Deadlocks (CloudWatch)** and **Blocked transactions (CloudWatch)**: the average counts that Amazon CloudWatch reports for the instance.
+* **Deadlocks (CloudWatch)** and **Blocked transactions (CloudWatch)**: the per-second averages that Amazon CloudWatch reports for the instance.
 
 * **Reserved Mem Exceeded Incidents**: the rate of incidents where the reserved memory was exceeded.
 

@@ -14,6 +14,8 @@ The CPU time is measured in clock ticks or seconds. It is useful to measure CPU 
 
 When a system is running with maximum CPU utilization, the transmitting and receiving threads must all share the available CPU. This will cause data to be queued more frequently to cope with the lack of CPU. CPU Saturation may be measured as the length of a wait queue, or the time spent waiting on the queue.
 
+On Amazon RDS and Aurora nodes, this panel shows data only when Enhanced Monitoring is turned on for the instance.
+
 ## Interrupts and Context Switches
 
 Interrupt is an input signal to the processor indicating an event that needs immediate attention. An interrupt signal alerts the processor and serves as a request for the processor to interrupt the currently executing code, so that the event can be processed in a timely manner.
