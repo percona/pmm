@@ -14,7 +14,8 @@ import { useLocation } from 'react-router-dom';
 import { useGrafana } from 'contexts/grafana';
 
 export const useLinkWithVariables = (url?: string) => {
-  const [link, setLink] = useState(url);
+  // Tagged with its target, so a link expanded for an older target is never returned.
+  const [expanded, setExpanded] = useState({ url, link: url });
   const location = useLocation();
   const { grafanaReady } = useGrafana();
 
@@ -38,19 +39,29 @@ export const useLinkWithVariables = (url?: string) => {
 
   useEffect(() => {
     if (!url || !url.includes('/d/')) {
-      setLink(url);
+      setExpanded({ url, link: url });
       return;
     }
 
     // if it's the current dashboards just update url
     if (url.includes(location.pathname)) {
-      setLink(constructUrl(location));
+      setExpanded({ url, link: constructUrl(location) });
     } else if (grafanaReady) {
-      enhanceWithVariables(url).then(setLink);
+      let cancelled = false;
+      enhanceWithVariables(url).then((link) => {
+        if (!cancelled) {
+          setExpanded({ url, link });
+        }
+      });
+      return () => {
+        cancelled = true;
+      };
     } else {
-      setLink(url);
+      setExpanded({ url, link: url });
     }
   }, [url, location, grafanaReady]);
+
+  const link = expanded.url === url ? expanded.link : url;
 
   // Grafana expands the link only once the dashboard has loaded, so a click before that keeps the time range
   return link && keepTimeRange(link, location);

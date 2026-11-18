@@ -89,6 +89,51 @@ describe('useLinkWithVariables', () => {
     expect(result.current).toBe(`${TARGET}?from=now-1h&to=now`);
   });
 
+  it('should follow a link that becomes a dashboard while Grafana resolves it', () => {
+    vi.mocked(messenger.sendMessageWithResult).mockReturnValue(
+      new Promise(() => {})
+    );
+    const { result, rerender } = renderHook(
+      ({ url }) => useLinkWithVariables(url),
+      {
+        initialProps: { url: '/pmm-ui/operations' },
+        wrapper: ({ children }) =>
+          wrapWithRouter(wrapWithGrafana(children, { grafanaReady: true }), {
+            initialEntries: [CURRENT],
+          }),
+      }
+    );
+
+    rerender({ url: TARGET });
+
+    expect(result.current).toBe(`${TARGET}?from=now-1h&to=now`);
+  });
+
+  it('should drop a link Grafana expanded for a previous target', async () => {
+    let resolveFirst: (value: { url: string }) => void = () => {};
+    vi.mocked(messenger.sendMessageWithResult)
+      .mockReturnValueOnce(new Promise((resolve) => (resolveFirst = resolve)))
+      .mockReturnValue(new Promise(() => {}));
+    const OTHER = '/graph/d/node-memory/memory-details';
+    const { result, rerender } = renderHook(
+      ({ url }) => useLinkWithVariables(url),
+      {
+        initialProps: { url: TARGET },
+        wrapper: ({ children }) =>
+          wrapWithRouter(wrapWithGrafana(children, { grafanaReady: true }), {
+            initialEntries: [CURRENT],
+          }),
+      }
+    );
+
+    rerender({ url: OTHER });
+    await act(async () =>
+      resolveFirst({ url: '/d/node-cpu/cpu-utilization?var-node_name=node-1' })
+    );
+
+    expect(result.current).toBe(`${OTHER}?from=now-1h&to=now`);
+  });
+
   it('should use the link Grafana expanded', async () => {
     vi.mocked(messenger.sendMessageWithResult).mockResolvedValue({
       url: '/d/node-cpu/cpu-utilization?from=now-1h&to=now&var-node_name=node-1',
