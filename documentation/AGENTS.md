@@ -11,7 +11,7 @@ Every rule below was checked against the published pages under `docs/` rather th
 
 | Path | What it is | Who writes it |
 |------|-----------|---------------|
-| `documentation/docs/` | User documentation, MkDocs Material | The developer shipping the change (PMM-15502); `@percona/pmm-docs` approves via CODEOWNERS |
+| `documentation/docs/` | User documentation, MkDocs Material | The developer shipping the change; `@percona/pmm-docs` approves via CODEOWNERS |
 | `documentation/docs/release-notes/` | One page per released version | Entries go to `next.md` on `main`; the RC job turns it into `X.Y.Z.md` |
 | `documentation/api/` | Public API reference, synced to a separate product by `.github/workflows/api-docs.yml` | Update when endpoints change; not governed by the style rules below |
 | `documentation/mkdocs-base.yml` | Site config **and the `nav:` tree** | Anyone adding or moving a page |
@@ -182,7 +182,7 @@ Every user-facing change gets one release-note entry on the page for the version
 
 Rules for the entry:
 
-- It goes under one of `## 📈 Improvements` (Feature and Improvement tickets), `## ✅ Fixed issues` (Bug tickets) or `## Known issues` (a defect you are shipping knowingly). The emoji are part of the heading — match the scaffolded template exactly. Other top-level sections in the template: `## 📋 Release summary`, `## 🔒 Security updates`, `## 🚀 Ready to upgrade to PMM X.Y.Z`.
+- It goes under one of `## 📈 Improvements` (Feature and Improvement tickets), `## ✅ Fixed issues` (Bug tickets) or `## 🔶 Known issues` (a defect you are shipping knowingly). The emoji are part of the heading — match the scaffolded template exactly. Other top-level sections in the template: `## 📋 Release summary`, `## ✨ Release highlights`, `## 🔒 Security updates`, `## 🚀 Ready to upgrade to PMM X.Y.Z`.
 - Improvements and fixed issues are a single bullet opening with the linked ticket key: `- [PMM-XXXXX](https://perconadev.atlassian.net/browse/PMM-XXXXX): `.
 - Known issues take a `### Title ([PMM-XXXXX](url))` heading followed by prose — what the reader sees, and what to do about it.
 - Write the user-visible effect, not the implementation. If the fix changes something the reader already did, say what they have to redo.

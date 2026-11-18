@@ -70,7 +70,7 @@ A component guide covers only what is specific to its area. Global conventions �
 
 ## How AI agents should work in this repo
 
-The **`AGENTS.md` hierarchy is the single source of truth** for agents. Read the matching component guide before editing.
+The **`AGENTS.md` hierarchy is the single source of truth** for agents. Read the matching component guide before editing. Do not assume PMM-specific behavior from general knowledge — verify it against this file, the component guides it links, and the code.
 
 Follow the sections through [Git and pull request checklist](#git-and-pull-request-checklist) every time you change code. Skim [Product Overview](#product-overview) and below when you need context.
 
@@ -153,7 +153,7 @@ The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it 
 | `.proto` only | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
 | UI (anything under `ui/`) | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
 | Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate JS linter) |
-| `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | No linter; run the suite — see the [Testing decision tree](#testing-decision-tree). The other scripts in `dashboards/misc/` have no automated coverage |
+| `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | No linter; run the suite from the repo root: `python3 -m unittest discover -s dashboards/misc -p 'test_*.py'`. The other scripts in `dashboards/misc/` have no automated coverage |
 | Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
 | Before any PR | Run the row(s) that match **every** area you touched; fix errors, not just warnings, unless CI allows them |
 
@@ -305,7 +305,7 @@ Relationships:
 - An Agent runs on a Node (`runs_on_node_id`) and optionally monitors a Service (`service_id`)
 - A child Agent belongs to a parent PMM Agent (`pmm_agent_id`)
 
-Full schema, diagrams, and field-level detail: [`dev/docs/managed/data-model.md`](dev/docs/managed/data-model.md). Access-control (RBAC) architecture: [`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md).
+Full schema, diagrams, and field-level detail: [`dev/docs/managed/data-model.md`](dev/docs/managed/data-model.md). Label-based access control (LBAC) architecture: [`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md).
 
 ## Repository Map
 
@@ -414,7 +414,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 ### Security and secrets
 - Never log, hardcode, or commit secrets — credentials, tokens, S3 keys, TLS material. `.env`, `encryption.key`, and key material are gitignored; keep it that way.
 - Persist sensitive values encrypted at rest via `managed/services/encryption` (rotation: `managed/cmd/pmm-encryption-rotation`) — not as plaintext columns.
-- Enforce authorization in the service layer and respect RBAC ([`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md)); don't rely on the UI to hide privileged actions.
+- Respect both access checks: API endpoints are gated by Grafana role (`managed/services/grafana/auth_server.go`), and metrics and QAN data are filtered by LBAC ([`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md)); don't rely on the UI to hide privileged actions.
 - Validate and bound external input; rely on reform's parameterized queries — never string-concatenate SQL.
 - Report vulnerabilities per [`SECURITY.md`](SECURITY.md); keep exploit detail out of public issues and PRs.
 
@@ -452,7 +452,7 @@ All long-running daemons expose on `127.0.0.1`:
 |--------|---------|
 | `make init` | Install pinned dev tools into `bin/` (golangci-lint at the version CI uses) |
 | `make env-up` | Start development container (PMM Server) |
-| `make env-up-rebuild` | Rebuild development container from scratch |
+| `make env-update-image` | Pull the latest dev image (`make env-remove` drops the container and its volumes) |
 | `make env TARGET=<t>` | Run `make <t>` **inside** the `pmm-server` container as the `pmm` user (bash shell if `TARGET` omitted); use `make env-root` for build/test/lint targets |
 | `make env-root TARGET=run-managed-ci` | Rebuild + hot-swap the pmm-managed binary (no image rebuild); see [running and verifying locally](dev/docs/process/running-and-verifying-locally.md). Also `run-agent-ci`, `run-qan-ci`, `run-vmproxy-ci`, `run-all` |
 | `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
@@ -483,4 +483,4 @@ All long-running daemons expose on `127.0.0.1`:
 - `dev/docs/process/running-and-verifying-locally.md` — run PMM locally, register test DBs, evidence-based verification for user-visible changes
 - `dev/docs/process/v2_to_v3_environment_variables.md` — v2→v3 environment variable migration
 - `dev/docs/managed/data-model.md` — inventory data model (schema + diagrams)
-- `dev/docs/managed/access-control.md` — access control (RBAC) architecture
+- `dev/docs/managed/access-control.md` — label-based access control (LBAC) architecture
