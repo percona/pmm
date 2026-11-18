@@ -74,6 +74,78 @@ describe('NavigationHeading', () => {
     expect(toggleFn).toHaveBeenCalled();
   });
 
+  it('disables the expand button while it slides away', () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+    );
+
+    rerender(
+      <MemoryRouter>
+        <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByTestId('sidebar-open-button')).toBeDisabled();
+  });
+
+  it('moves focus to the other toggle after a toggle had it', async () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+    );
+
+    screen.getByTestId('sidebar-open-button').focus();
+    fireEvent.click(screen.getByTestId('sidebar-open-button'));
+    rerender(
+      <MemoryRouter>
+        <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByTestId('sidebar-close-button')).toHaveFocus();
+
+    fireEvent.click(screen.getByTestId('sidebar-close-button'));
+    rerender(
+      <MemoryRouter>
+        <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+      </MemoryRouter>
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId('sidebar-open-button')).toHaveFocus()
+    );
+  });
+
+  it('leaves focus alone after a mouse click', () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+    );
+
+    screen.getByTestId('sidebar-open-button').focus();
+    fireEvent.click(screen.getByTestId('sidebar-open-button'), { detail: 1 });
+    rerender(
+      <MemoryRouter>
+        <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByTestId('sidebar-close-button')).not.toHaveFocus();
+  });
+
+  it('leaves focus alone when the toggle did not have it', () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+    );
+
+    fireEvent.click(screen.getByTestId('sidebar-open-button'));
+    rerender(
+      <MemoryRouter>
+        <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByTestId('sidebar-close-button')).not.toHaveFocus();
+  });
+
   it.each([true, false])(
     "links the logo to the user's home dashboard (open: %s)",
     (sidebarOpen) => {
