@@ -221,6 +221,56 @@ func (b countingBody) Read(p []byte) (int, error) {
 
 func (countingBody) Close() error { return nil }
 
+func TestAlertingResponseBounded(t *testing.T) {
+	t.Parallel()
+
+	pad := strings.Repeat(" ", maxAlertingResponseBytes)
+	for path, call := range map[string]func(c *client) error{
+		"graph/api/prometheus/grafana/api/v1/rules": func(c *client) error {
+			_, err := c.Alerts(t.Context(), testAuth)
+			return err
+		},
+		"graph/api/alertmanager/grafana/api/v2/alerts": func(c *client) error {
+			_, err := c.SilencedAlerts(t.Context(), testAuth)
+			return err
+		},
+		"graph/api/alertmanager/grafana/api/v2/silences": func(c *client) error {
+			_, err := c.Silences(t.Context(), testAuth)
+			return err
+		},
+	} {
+		t.Run(path, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := newClient("http://pmm.test/")
+			require.NoError(t, err)
+			var read atomic.Int64
+			var body string
+			c.http = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+				assert.Equal(t, "/"+path, r.URL.Path)
+				return &http.Response{StatusCode: http.StatusOK, Header: http.Header{}, Body: countingBody{r: strings.NewReader(body), n: &read}}, nil
+			})}
+
+			// Over the 4 MiB of a datasource-proxy read and under 16 MiB, valid JSON with the padding inside.
+			valid := `{"status":"success","data":{"groups":[]}}`
+			if !strings.HasSuffix(path, "rules") {
+				valid = "[]"
+			}
+			body = valid[:1] + pad[:5<<20] + valid[1:]
+			require.NoError(t, call(c))
+
+			read.Store(0)
+			body = valid[:1] + pad + valid[1:]
+			err = call(c)
+			require.Error(t, err)
+			assert.LessOrEqual(t, read.Load(), int64(maxAlertingResponseBytes+1))
+			te := mapError(err)
+			assert.Equal(t, codePMMUnavailable, te.code)
+			assert.Equal(t, "Grafana's response to GET /"+path+" is larger than the 16 MiB limit; open PMM's Alerting page to see the alerts", te.message)
+		})
+	}
+}
+
 func TestVMResponseBounded(t *testing.T) {
 	t.Parallel()
 

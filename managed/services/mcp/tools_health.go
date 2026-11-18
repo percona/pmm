@@ -145,8 +145,9 @@ var healthSignals = map[string][]signal{
 			Query: `sum(rate(pg_stat_database_deadlocks{datname=~".*",%[1]s}[5m])) or sum(irate(pg_stat_database_deadlocks{datname=~".*",%[1]s}[5m]))`,
 		},
 		{
+			// PostgreSQL Overview Extended's target: Instance Summary's averages over databases and hides the longest transaction.
 			Name: "max_tx_duration", Unit: "s", Source: "pg_stat_activity_max_tx_duration",
-			Query: `max by (service_name) (avg by (service_name,state) (max_over_time(pg_stat_activity_max_tx_duration{%[1]s}[5m]) or max_over_time(pg_stat_activity_max_tx_duration{%[1]s}[5m])))`,
+			Query: `max by (service_name) (max_over_time(pg_stat_activity_max_tx_duration{%[1]s}[5m]) or max_over_time(pg_stat_activity_max_tx_duration{%[1]s}[5m]))`,
 		},
 		{
 			Name: "replication_lag", Unit: "s", Source: "pg_replication_lag_seconds",

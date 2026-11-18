@@ -143,6 +143,11 @@ func catalogUIDs() []string {
 	return append(uids, retiredRuleUIDs...)
 }
 
+// CatalogUIDs returns a new slice of every rule UID PMM claims, as catalogUIDs does, for code that identifies PMM's own rules.
+func CatalogUIDs() []string {
+	return catalogUIDs()
+}
+
 // validateCatalog checks the invariants Grafana enforces at startup, where a violation means
 // Grafana refuses to start rather than reporting a bad rule. Called from the renderer so a mistake
 // surfaces as a rendering failure - which degrades to "no bundle" - instead of a dead PMM.

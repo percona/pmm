@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {"service_id": "svc-px", "service_name": "proxy-1", "service_type": "proxysql", "node_id": "node-px", "node_name": "host-px"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"node_id": "node-bare", "node_name": "bare-host"},
+        "value": [1789387200, "1789387140"]
+      }
+    ]
+  }
+}

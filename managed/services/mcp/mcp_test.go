@@ -42,12 +42,14 @@ func TestInitializeAndListTools(t *testing.T) {
 	assert.Contains(t, init.Instructions, "Untrusted")
 	assert.Contains(t, init.Instructions, "query_ref")
 	assert.Contains(t, init.Instructions, "client host")
+	assert.Contains(t, init.Instructions, "pmm_alerts")
+	assert.Contains(t, init.Instructions, "alert names, labels, summaries and descriptions")
 	assert.Contains(t, init.Instructions, "environment")
 	assert.Contains(t, init.Instructions, "PMM's remediation in the message")
 	assert.Contains(t, init.Instructions, "pmm_service_health")
 	assert.Contains(t, init.Instructions, "MetricsQL")
 	assert.Contains(t, init.Instructions, "pmm_catalog(kind: metrics, engine:", "one engine's catalogue, not all of it")
-	assert.Less(t, strings.Count(init.Instructions, "\n"), 34)
+	assert.Less(t, strings.Count(init.Instructions, "\n"), 36)
 
 	res, err := session.ListTools(t.Context(), nil)
 	require.NoError(t, err)
@@ -60,7 +62,7 @@ func TestInitializeAndListTools(t *testing.T) {
 		require.NotNil(t, tool.Annotations.DestructiveHint, "tool %s", tool.Name)
 		assert.False(t, *tool.Annotations.DestructiveHint, "tool %s", tool.Name)
 	}
-	assert.Equal(t, []string{"pmm_catalog", "pmm_get_config", "pmm_get_explain", "pmm_get_schema", "pmm_inventory", "pmm_list_metrics", "pmm_query_detail", "pmm_query_metrics", "pmm_service_health", "pmm_top_queries", "pmm_version"}, names)
+	assert.Equal(t, []string{"pmm_alerts", "pmm_catalog", "pmm_get_config", "pmm_get_explain", "pmm_get_schema", "pmm_inventory", "pmm_list_metrics", "pmm_query_detail", "pmm_query_metrics", "pmm_service_health", "pmm_top_queries", "pmm_version"}, names)
 }
 
 func TestDisabled(t *testing.T) {

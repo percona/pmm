@@ -2,7 +2,7 @@
 
 ## Description
 
-This advisor check verifies the table bloat from the currently connected database.
+This Advisor check verifies the table bloat from the currently connected database.
 
 It returns a WARNING if any table in the current database has a bloat over 1GB size and it represents at least 20% of the total table size. This is to avoid messages for 1GB bloat on huge tables.
 

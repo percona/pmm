@@ -155,6 +155,7 @@ func TestUntrustedFieldsMarked(t *testing.T) {
 
 	untrusted := map[string][]string{
 		"pmm_version":     {},
+		"pmm_alerts":      {"alerts[].name", "alerts[].severity", "alerts[].labels", "alerts[].summary", "alerts[].description"},
 		"pmm_inventory":   {"services[].service_name", "services[].node_name", "services[].version", "services[].environment", "services[].cluster"},
 		"pmm_top_queries": {"rows[].fingerprint", "rows[].dimension"},
 		"pmm_query_detail": {
@@ -190,6 +191,7 @@ func TestErrorsCarryNoStructuredContent(t *testing.T) {
 	// call to a fake PMM without routes.
 	calls := map[string]map[string]any{
 		"pmm_version":        nil,
+		"pmm_alerts":         nil,
 		"pmm_inventory":      nil,
 		"pmm_top_queries":    nil,
 		"pmm_query_detail":   {"queryid": "QID-AAA"},
@@ -317,6 +319,7 @@ func TestRedactionInBothRenderings(t *testing.T) {
 	}
 	exempt := map[string]string{
 		"pmm_version":        "returns no statement text",
+		"pmm_alerts":         "returns no statement text",
 		"pmm_inventory":      "returns no statement text",
 		"pmm_catalog":        "returns no statement text",
 		"pmm_get_config":     "returns no statement text",
@@ -556,6 +559,14 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				wantErr: true,
 			},
 		},
+		"pmm_alerts": {
+			{name: "NoRules", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{"GET " + rulesPath: {body: []byte(`{"status":"success","data":{"groups":[]}}`)}}))},
+			{name: "NothingInTheList", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{serviceListKey: {file: "vm_empty.json"}}))},
+			{name: "Narrowed", fake: routed(alertsRoutes("alerts_up_negative.json"))},
+			{name: "RulesFail", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{"GET " + rulesPath: failed})), wantErr: true},
+			{name: "SilencesFail", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{"GET " + silencesPath: failed})), wantErr: true},
+			{name: "ServiceListFails", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{serviceListKey: failed})), wantErr: true},
+		},
 		"pmm_list_metrics": {
 			{name: "NoNames", fake: routed(listRoutes(map[string]fixture{vmNames: {body: stringsBody(nil)}}))},
 			{
@@ -661,6 +672,7 @@ func TestResultMapsAreOmitempty(t *testing.T) {
 
 	results := map[string]reflect.Type{
 		"pmm_version":        reflect.TypeFor[versionResult](),
+		"pmm_alerts":         reflect.TypeFor[alertsResult](),
 		"pmm_inventory":      reflect.TypeFor[inventoryResult](),
 		"pmm_top_queries":    reflect.TypeFor[topQueriesResult](),
 		"pmm_query_detail":   reflect.TypeFor[queryDetailResult](),

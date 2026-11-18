@@ -1,0 +1,331 @@
+{
+  "status": "success",
+  "data": {
+    "groups": [
+      {
+        "name": "MySQL",
+        "file": "Alerts",
+        "folderUid": "alerts",
+        "rules": [
+          {
+            "state": "firing",
+            "name": "MySQL down",
+            "folderUid": "alerts",
+            "uid": "mysql-down",
+            "query": "[{\"refId\":\"A\",\"datasourceUid\":\"PA58DA793C7250F1B\"}]",
+            "duration": 60,
+            "labels": {"percona_alerting": "1", "severity": "critical", "template_name": "pmm_mysql_down"},
+            "annotations": {"description": "MySQL {{ $labels.service_name }} on {{ $labels.node_name }} is down.", "summary": "MySQL down ({{ $labels.service_name }})"},
+            "alerts": [
+              {
+                "labels": {"alertname": "MySQL down", "grafana_folder": "Alerts", "node_name": "host-a", "percona_alerting": "1", "service_id": "svc-a", "service_name": "shop-a", "severity": "critical", "template_name": "pmm_mysql_down"},
+                "annotations": {"description": "MySQL shop-a on host-a is down.", "summary": "MySQL down (shop-a)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T11:00:00Z",
+                "value": "[ var='A' labels={service_id=svc-a} value=1 ]"
+              },
+              {
+                "labels": {"alertname": "MySQL down", "grafana_folder": "Alerts", "node_name": "host-b", "percona_alerting": "1", "service_id": "svc-b", "service_name": "shop-b", "severity": "critical", "template_name": "pmm_mysql_down"},
+                "annotations": {"description": "MySQL shop-b on host-b is down.", "summary": "MySQL down (shop-b)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T11:05:00Z",
+                "value": "[ var='A' labels={service_id=svc-b} value=1 ]"
+              },
+              {
+                "labels": {"alertname": "MySQL down", "grafana_folder": "Alerts", "node_name": "host-a", "percona_alerting": "1", "service_id": "svc-quiet", "service_name": "shop-quiet", "severity": "critical", "template_name": "pmm_mysql_down"},
+                "annotations": {"description": "MySQL shop-quiet on host-a is down.", "summary": "MySQL down (shop-quiet)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T09:00:00Z",
+                "value": "[ var='A' labels={service_id=svc-quiet} value=1 ]"
+              },
+              {
+                "labels": {"alertname": "MySQL down", "grafana_folder": "Alerts", "node_name": "host-gone", "percona_alerting": "1", "service_id": "svc-gone", "service_name": "shop-gone", "severity": "critical", "template_name": "pmm_mysql_down"},
+                "annotations": {"description": "MySQL shop-gone on host-gone is down.", "summary": "MySQL down (shop-gone)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T10:00:00Z",
+                "value": "[ var='A' labels={service_id=svc-gone} value=1 ]"
+              },
+              {
+                "labels": {"alertname": "MySQL down", "grafana_folder": "Alerts", "node_name": "pmm-server", "percona_alerting": "1", "service_id": "svc-rds", "service_name": "shop-rds", "severity": "critical", "template_name": "pmm_mysql_down"},
+                "annotations": {"description": "MySQL shop-rds on pmm-server is down.", "summary": "MySQL down (shop-rds)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T10:30:00Z",
+                "value": "[ var='A' labels={service_id=svc-rds} value=1 ]"
+              }
+            ],
+            "totals": {"alerting": 5},
+            "totalsFiltered": {"alerting": 5},
+            "health": "ok",
+            "type": "alerting",
+            "lastEvaluation": "2026-09-14T11:59:30Z",
+            "evaluationTime": 0.012,
+            "provenance": null,
+            "isPaused": false
+          },
+          {
+            "state": "firing",
+            "name": "Too many connections",
+            "folderUid": "alerts",
+            "uid": "conn",
+            "query": "[{\"refId\":\"A\",\"datasourceUid\":\"PA58DA793C7250F1B\"}]",
+            "duration": 300,
+            "labels": {"percona_alerting": "1", "severity": "warning"},
+            "annotations": {"description": "{{ $value }}% of connections are used by {{ $labels.service_name }}.", "summary": "Too many connections ({{ $labels.service_name }})"},
+            "alerts": [
+              {
+                "labels": {"alertname": "Too many connections", "environment": "dev", "grafana_folder": "Alerts", "node_id": "node-a", "node_name": "host-a", "node_type": "generic", "percona_alerting": "1", "service_id": "svc-a", "service_name": "shop-a", "service_type": "mysql", "severity": "warning", "template_name": "pmm_mysql_too_many_connections"},
+                "annotations": {"description": "95% of connections (more than 80%) are used\nby shop-a on host-a.", "summary": "MySQL too many connections (shop-a)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T10:00:00Z",
+                "value": "[ var='A' labels={service_name=shop-a} value=95 ]"
+              },
+              {
+                "labels": {"alertname": "Too many connections", "environment": "dev", "grafana_folder": "Alerts", "node_id": "node-shared", "node_name": "host-shared", "node_type": "generic", "percona_alerting": "1", "service_id": "svc-c", "service_name": "shop-c", "service_type": "postgresql", "severity": "warning", "template_name": "pmm_postgresql_too_many_connections"},
+                "annotations": {"description": "90% of connections (more than 80%) are used\nby shop-c on host-shared.", "summary": "PostgreSQL too many connections (shop-c)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T09:50:00Z",
+                "value": "[ var='A' labels={service_name=shop-c} value=90 ]"
+              },
+              {
+                "labels": {"alertname": "Too many connections", "environment": "dev", "grafana_folder": "Alerts", "node_id": "node-a", "node_name": "host-a", "node_type": "generic", "percona_alerting": "1", "service_id": "svc-quiet", "service_name": "shop-quiet", "service_type": "mysql", "severity": "warning", "template_name": "pmm_mysql_too_many_connections"},
+                "annotations": {"description": "85% of connections (more than 80%) are used\nby shop-quiet on host-a.", "summary": "MySQL too many connections (shop-quiet)"},
+                "state": "Pending",
+                "activeAt": "2026-09-14T11:58:00Z",
+                "value": "[ var='A' labels={service_name=shop-quiet} value=85 ]"
+              }
+            ],
+            "totals": {"alerting": 2, "pending": 1},
+            "totalsFiltered": {"alerting": 2},
+            "health": "ok",
+            "type": "alerting",
+            "lastEvaluation": "2026-09-14T11:59:30Z",
+            "evaluationTime": 0.009,
+            "provenance": null,
+            "isPaused": false
+          }
+        ],
+        "totals": {"firing": 2},
+        "interval": 60,
+        "lastEvaluation": "2026-09-14T11:59:30Z",
+        "evaluationTime": 0.021
+      },
+      {
+        "name": "Node",
+        "file": "Alerts",
+        "folderUid": "alerts",
+        "rules": [
+          {
+            "state": "firing",
+            "name": "Node high CPU",
+            "folderUid": "alerts",
+            "uid": "node-cpu",
+            "query": "[{\"refId\":\"A\",\"datasourceUid\":\"PA58DA793C7250F1B\"}]",
+            "duration": 300,
+            "labels": {"node_name": "{{ if $labels.node_name }}{{ $labels.node_name }}{{ else }}{{ $values.A.Labels.node_name }}{{ end }}", "percona_alerting": "1", "service_name": "{{ if $labels.service_name }}{{ $labels.service_name }}{{ else }}{{ $values.A.Labels.service_name }}{{ end }}", "severity": "warning", "template_name": "pmm_node_high_cpu_load"},
+            "annotations": {"description": "{{ $labels.node_name }} has high CPU load.", "summary": "Node high CPU load ({{ $labels.node_name }})"},
+            "alerts": [
+              {
+                "labels": {"alertname": "Node high CPU", "grafana_folder": "Alerts", "node_name": "host-a", "percona_alerting": "1", "service_name": "[no value]", "severity": "warning", "template_name": "pmm_node_high_cpu_load"},
+                "annotations": {"description": "host-a has high CPU load.", "summary": "Node high CPU load (host-a)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T11:30:00Z",
+                "value": "[ var='A' labels={node_name=host-a} value=97 ]"
+              },
+              {
+                "labels": {"alertname": "Node high CPU", "grafana_folder": "Alerts", "node_name": "host-b", "percona_alerting": "1", "service_name": "[no value]", "severity": "warning", "template_name": "pmm_node_high_cpu_load"},
+                "annotations": {"description": "host-b has high CPU load.", "summary": "Node high CPU load (host-b)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T11:10:00Z",
+                "value": "[ var='A' labels={node_name=host-b} value=91 ]"
+              },
+              {
+                "labels": {"alertname": "Node high CPU", "grafana_folder": "Alerts", "node_name": "host-shared", "percona_alerting": "1", "service_name": "[no value]", "severity": "warning", "template_name": "pmm_node_high_cpu_load"},
+                "annotations": {"description": "host-shared has high CPU load.", "summary": "Node high CPU load (host-shared)"},
+                "state": "Alerting (NoData)",
+                "activeAt": "2026-09-14T11:20:00Z",
+                "value": ""
+              },
+              {
+                "labels": {"alertname": "Node high CPU", "grafana_folder": "Alerts", "node_name": "bare-host", "percona_alerting": "1", "service_name": "[no value]", "severity": "warning", "template_name": "pmm_node_high_cpu_load"},
+                "annotations": {"description": "bare-host has high CPU load.", "summary": "Node high CPU load (bare-host)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T08:30:00Z",
+                "value": "[ var='A' labels={node_name=bare-host} value=93 ]"
+              }
+            ],
+            "totals": {"alerting": 3, "nodata": 1},
+            "totalsFiltered": {"alerting": 4},
+            "health": "ok",
+            "type": "alerting",
+            "lastEvaluation": "2026-09-14T11:59:30Z",
+            "evaluationTime": 0.015,
+            "provenance": null,
+            "isPaused": false
+          },
+          {
+            "state": "firing",
+            "name": "PostgreSQL down",
+            "folderUid": "alerts",
+            "uid": "pg-down",
+            "query": "[{\"refId\":\"A\",\"datasourceUid\":\"PA58DA793C7250F1B\"}]",
+            "duration": 60,
+            "labels": {"percona_alerting": "1", "severity": "critical", "template_name": "pmm_postgresql_down"},
+            "annotations": {"summary": "PostgreSQL down ({{ $labels.service_name }})"},
+            "alerts": [
+              {
+                "labels": {"alertname": "PostgreSQL down", "grafana_folder": "Alerts", "node_name": "host-shared", "percona_alerting": "1", "service_id": "svc-d", "service_name": "shop-d", "severity": "critical", "template_name": "pmm_postgresql_down"},
+                "annotations": {"summary": "PostgreSQL down (shop-d)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T11:15:00Z",
+                "value": "[ var='A' labels={service_id=svc-d} value=1 ]"
+              }
+            ],
+            "totals": {"alerting": 1},
+            "totalsFiltered": {"alerting": 1},
+            "health": "ok",
+            "type": "alerting",
+            "lastEvaluation": "2026-09-14T11:59:30Z",
+            "evaluationTime": 0.004,
+            "provenance": null,
+            "isPaused": false
+          },
+          {
+            "state": "firing",
+            "name": "ProxySQL down",
+            "folderUid": "alerts",
+            "uid": "proxysql-down",
+            "query": "[{\"refId\":\"A\",\"datasourceUid\":\"PA58DA793C7250F1B\"}]",
+            "duration": 60,
+            "labels": {"percona_alerting": "1", "severity": "critical", "template_name": "pmm_proxysql_down"},
+            "annotations": {"summary": "ProxySQL down ({{ $labels.service_name }})"},
+            "alerts": [
+              {
+                "labels": {"alertname": "ProxySQL down", "grafana_folder": "Alerts", "node_name": "host-px", "percona_alerting": "1", "service_id": "svc-px", "service_name": "proxy-1", "severity": "critical", "template_name": "pmm_proxysql_down"},
+                "annotations": {"summary": "ProxySQL down (proxy-1)"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T07:00:00Z",
+                "value": "[ var='A' labels={service_id=svc-px} value=1 ]"
+              }
+            ],
+            "totals": {"alerting": 1},
+            "totalsFiltered": {"alerting": 1},
+            "health": "ok",
+            "type": "alerting",
+            "lastEvaluation": "2026-09-14T11:59:30Z",
+            "evaluationTime": 0.004,
+            "provenance": null,
+            "isPaused": false
+          }
+        ],
+        "totals": {"firing": 3},
+        "interval": 60,
+        "lastEvaluation": "2026-09-14T11:59:30Z",
+        "evaluationTime": 0.023
+      },
+      {
+        "name": "Other",
+        "file": "Alerts",
+        "folderUid": "alerts",
+        "rules": [
+          {
+            "state": "firing",
+            "name": "Vector one",
+            "folderUid": "alerts",
+            "uid": "vector-one",
+            "query": "[{\"refId\":\"A\",\"datasourceUid\":\"PA58DA793C7250F1B\"}]",
+            "duration": 10,
+            "labels": {"percona_alerting": "1", "severity": "info", "template_name": "vector_one"},
+            "annotations": {"summary": "Always firing"},
+            "alerts": [
+              {
+                "labels": {"__grafana_autogenerated__": "true", "__grafana_receiver__": "email", "alertname": "Vector one", "grafana_folder": "Alerts", "node_name": "[no value]", "percona_alerting": "1", "service_name": "[no value]", "severity": "info", "template_name": "vector_one"},
+                "annotations": {"description": "A rule on vector(1).", "summary": "Always firing"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T08:00:00Z",
+                "value": "[ var='A' labels={} value=1 ]"
+              }
+            ],
+            "totals": {"alerting": 1},
+            "totalsFiltered": {"alerting": 1},
+            "health": "ok",
+            "type": "alerting",
+            "lastEvaluation": "2026-09-14T11:59:50Z",
+            "evaluationTime": 0.002,
+            "provenance": null,
+            "isPaused": false
+          },
+          {
+            "state": "firing",
+            "name": "Fake leader",
+            "folderUid": "alerts",
+            "uid": "pmm-ha-no-leader",
+            "query": "[{\"refId\":\"A\",\"datasourceUid\":\"PA58DA793C7250F1B\"}]",
+            "duration": 60,
+            "labels": {"pmm_provisioned": "1", "severity": "critical"},
+            "annotations": {"summary": "No leader"},
+            "alerts": [
+              {
+                "labels": {"alertname": "Fake leader", "grafana_folder": "Alerts", "pmm_provisioned": "1", "service_id": "svc-b", "service_name": "shop-b", "severity": "critical"},
+                "annotations": {"summary": "No leader"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T11:40:00Z",
+                "value": "[ var='A' labels={service_id=svc-b} value=1 ]"
+              }
+            ],
+            "totals": {"alerting": 1},
+            "totalsFiltered": {"alerting": 1},
+            "health": "ok",
+            "type": "alerting",
+            "lastEvaluation": "2026-09-14T11:59:30Z",
+            "evaluationTime": 0.003,
+            "provenance": null,
+            "isPaused": false
+          }
+        ],
+        "totals": {"firing": 2},
+        "interval": 10,
+        "lastEvaluation": "2026-09-14T11:59:50Z",
+        "evaluationTime": 0.005
+      },
+      {
+        "name": "PMM Managed",
+        "file": "PMM Server",
+        "folderUid": "pmm-server-folder",
+        "rules": [
+          {
+            "state": "firing",
+            "name": "PMM Grafana is down",
+            "folderUid": "pmm-server-folder",
+            "uid": "pmm-grafana-down",
+            "query": "[{\"refId\":\"A\",\"datasourceUid\":\"PA58DA793C7250F1B\"}]",
+            "duration": 120,
+            "labels": {"percona_alerting": "1", "pmm_provisioned": "1", "severity": "critical", "template_name": "pmm_grafana_down"},
+            "annotations": {"description": "Grafana on {{ $labels.node_name }} has not answered for 2 minutes.", "summary": "PMM Grafana is down"},
+            "alerts": [
+              {
+                "labels": {"alertname": "PMM Grafana is down", "grafana_folder": "PMM Server", "instance": "pmm-server", "job": "grafana", "node_name": "pmm-server", "percona_alerting": "1", "pmm_provisioned": "1", "severity": "critical", "template_name": "pmm_grafana_down"},
+                "annotations": {"description": "Grafana on pmm-server has not answered for 2 minutes.", "summary": "PMM Grafana is down"},
+                "state": "Alerting",
+                "activeAt": "2026-09-14T11:45:00Z",
+                "value": "[ var='A' labels={job=grafana} value=1 ]"
+              }
+            ],
+            "totals": {"alerting": 1},
+            "totalsFiltered": {"alerting": 1},
+            "health": "ok",
+            "type": "alerting",
+            "lastEvaluation": "2026-09-14T11:59:00Z",
+            "evaluationTime": 0.006,
+            "provenance": "file",
+            "isPaused": false
+          }
+        ],
+        "totals": {"firing": 1},
+        "interval": 60,
+        "lastEvaluation": "2026-09-14T11:59:00Z",
+        "evaluationTime": 0.006
+      }
+    ],
+    "totals": {"firing": 8}
+  }
+}
