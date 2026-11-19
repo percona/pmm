@@ -293,6 +293,26 @@ describe('ConfigForm', () => {
     );
   });
 
+  it('names every rule when an override is ignored for breaking more than one', () => {
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        setting({
+          key: 'TASK_TIMEOUT',
+          has_override: true,
+          override_ignored_reason:
+            'POLL_INTERVAL, TASK_TIMEOUT: POLL_INTERVAL must not exceed TASK_TIMEOUT; STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT',
+        }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.getByTestId('om-config-override-ignored')).toHaveTextContent(
+      'Job poll interval must not be longer than Scan job timeout. Consider a scan stuck after must be longer than Scan job timeout. Your saved value no longer meets these rules, so the deployed value replaces it. To use your own value, enter one that meets these rules and click Save. To keep the deployed value, click Reset.'
+    );
+  });
+
   it('shows a reason in an unknown shape with labels in place of keys', () => {
     useOmInventoryConfig.mockReturnValue({
       data: [

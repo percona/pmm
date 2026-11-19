@@ -127,8 +127,9 @@ function isValid(setting: OmInventorySetting, draft: string): boolean {
 /**
  * The rule an ignored override breaks, in the labels shown on this page.
  *
- * PMM Extensions sends `KEY, KEY: KEY must [not] exceed KEY`. A reason in another
- * shape is shown as it arrives, with any known key replaced by its label.
+ * PMM Extensions sends `KEY, KEY: KEY must [not] exceed KEY`, one per broken rule
+ * joined by `; `. A rule in another shape is shown as it arrives, with any known key
+ * replaced by its label.
  */
 function ignoredOverrideRule(reason: string): string {
   const rule = reason.replace(/^[A-Z0-9_]+(?:,\s*[A-Z0-9_]+)*:\s*/, '');
@@ -141,6 +142,17 @@ function ignoredOverrideRule(reason: string): string {
     return `${labelOf(field)} must ${negated ? 'not ' : ''}be longer than ${labelOf(limit)}`;
   }
   return rule.replace(/\b[A-Z][A-Z0-9_]*\b/g, (key) => labelOf(key));
+}
+
+/** Why an override is ignored, as sentences for the warning under the field. */
+function ignoredOverrideWarning(reason: string, readOnly: boolean): string {
+  const rules = reason.split('; ').map(ignoredOverrideRule);
+  const which = rules.length > 1 ? 'these rules' : 'this rule';
+  const explanation = `${rules.join('. ')}. Your saved value no longer meets ${which}, so the deployed value replaces it.`;
+  if (readOnly) {
+    return explanation;
+  }
+  return `${explanation} To use your own value, enter one that meets ${rules.length > 1 ? 'these rules' : 'the rule'} and click Save. To keep the deployed value, click Reset.`;
 }
 
 /** One field, rendered as whatever can edit it. */
@@ -262,10 +274,7 @@ const SettingField = ({
             color="warning.main"
             data-testid="om-config-override-ignored"
           >
-            {ignoredOverrideRule(setting.override_ignored_reason)}. Your saved
-            value no longer meets this rule, so the deployed value replaces it.
-            {!readOnly &&
-              ' To use your own value, enter one that meets the rule and click Save. To keep the deployed value, click Reset.'}
+            {ignoredOverrideWarning(setting.override_ignored_reason, readOnly)}
           </Typography>
         )}
       </Stack>
