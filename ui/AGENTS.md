@@ -16,6 +16,7 @@ The UI uses a **pnpm workspaces + Turborepo** monorepo:
 | **ui**                          | `ui/apps/pmm/`                      | Main PMM UI application (Vite + React)                                          |
 | **pmm-compat**                  | `ui/apps/pmm-compat/`               | Grafana plugin for PMM ↔ Grafana integration (Webpack)                          |
 | **@pmm/shared**                 | `ui/packages/shared/`               | Shared code: cross-frame messaging, types, utilities (Rollup)                   |
+| **@percona/peak-ui**            | `ui/packages/peak-ui/`              | Percona's component library and theme; published to npm on every PMM release    |
 | **@pmm/plugins-om**             | `ui/packages/plugins/om/`           | MongoDB Operations app (`OmApp`), mounted by `pmm` under its own routes         |
 | **@pmm-extensions/plugins-atw** | `ui/packages/plugins/atw/`          | Support diagnostics app (`AtwApp`), mounted by `pmm` under its own routes       |
 | **@pmm-extensions/framework**   | `ui/packages/extensions/framework/` | Building blocks for PMM Extensions pages: schema-driven forms, lists, selectors |
