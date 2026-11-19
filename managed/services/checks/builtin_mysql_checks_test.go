@@ -70,23 +70,23 @@ func TestMySQLReplicaSkippingErrorsCheck(t *testing.T) {
 			row:  slaveOnly("11.8.9-MariaDB-ubu2404", "IDEMPOTENT", "1062"),
 			want: []insight{
 				{"slave_exec_mode is IDEMPOTENT.", common.Error},
-				{"slave_skip_error is configured as 1062.", common.Error},
+				{"slave_skip_errors is configured as 1062.", common.Error},
 			},
 		},
 		{
 			name: "8.0.20 skips errors",
 			row:  slaveOnly("8.0.20", "STRICT", "1062"),
-			want: []insight{{"slave_skip_error is configured as 1062.", common.Error}},
+			want: []insight{{"slave_skip_errors is configured as 1062.", common.Error}},
 		},
 		{
 			name: "8.0.25 skips errors",
 			row:  slaveOnly("8.0.25", "STRICT", "1062"),
-			want: []insight{{"slave_skip_error is configured as 1062.", common.Error}},
+			want: []insight{{"slave_skip_errors is configured as 1062.", common.Error}},
 		},
 		{
 			name: "8.0.26 skips errors",
 			row:  both("8.0.26", "STRICT", "1062"),
-			want: []insight{{"replica_skip_error is configured as 1062.", common.Error}},
+			want: []insight{{"replica_skip_errors is configured as 1062.", common.Error}},
 		},
 		{
 			name: "8.4 idempotent",
@@ -96,14 +96,14 @@ func TestMySQLReplicaSkippingErrorsCheck(t *testing.T) {
 		{
 			name: "9.7 skips errors",
 			row:  both("9.7.4", "STRICT", "1062"),
-			want: []insight{{"replica_skip_error is configured as 1062.", common.Error}},
+			want: []insight{{"replica_skip_errors is configured as 1062.", common.Error}},
 		},
 		{
 			name: "26.10 idempotent and skips errors",
 			row:  both("26.10.0", "IDEMPOTENT", "1062,1032"),
 			want: []insight{
 				{"replica_exec_mode is IDEMPOTENT.", common.Error},
-				{"replica_skip_error is configured as 1062,1032.", common.Error},
+				{"replica_skip_errors is configured as 1062,1032.", common.Error},
 			},
 		},
 	} {

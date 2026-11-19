@@ -52,7 +52,7 @@ checks:
               })
           if skip_errors != 'OFF':
               results.append ({
-                  "summary": "{}_skip_error is configured as {}.".format(prefix, skip_errors, version_minor, version_major, exec_mode),
+                  "summary": "{}_skip_errors is configured as {}.".format(prefix, skip_errors, version_minor, version_major, exec_mode),
                   "read_more": "https://percona.com/blog",
                   "description": "This option causes the replication SQL thread to continue replication when a statement returns any of the errors listed in the option value. Recommended setting is OFF.",
                   "severity": "error",
