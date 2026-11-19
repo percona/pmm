@@ -673,6 +673,81 @@ func TestCreateRuleMultiExpression(t *testing.T) {
 		assert.Contains(t, err.Error(), "is not a valid label name")
 	})
 
+	t.Run("a template stored before the current validation returns InvalidArgument", func(t *testing.T) {
+		for _, tc := range []struct {
+			name string
+			yaml string
+			want string
+		}{
+			{
+				name: "ref ID with a dash",
+				yaml: `templates:
+  - name: test_multi_expression_wiring
+    version: 1
+    summary: Dash in ref ID
+    queries:
+      - ref_id: A-1
+        expr: up
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "${A-1} > [[ .threshold ]]"
+    condition: C
+    params:
+      - name: threshold
+        summary: Threshold
+        type: float
+        value: 80
+    for: 5m
+    severity: warning
+`,
+				want: "must start with a letter or underscore",
+			},
+			{
+				name: "overridable parameter inside a query",
+				yaml: `templates:
+  - name: test_multi_expression_wiring
+    version: 1
+    summary: Overridable parameter in a query
+    queries:
+      - ref_id: A
+        expr: up > [[ .threshold ]]
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "$A > [[ .threshold ]]"
+    condition: C
+    params:
+      - name: threshold
+        summary: Threshold
+        type: float
+        value: 80
+        overridable: true
+    for: 5m
+    severity: warning
+`,
+				want: "can only be used in expressions",
+			},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				svc, _ := setup(t)
+				// Valid columns from tm, with YAML an older PMM accepted.
+				legacy := *tm
+				legacy.Yaml = tc.yaml
+				svc.templates[tm.Name] = legacy
+
+				_, err := svc.CreateRule(ctx, &alerting.CreateRuleRequest{
+					TemplateName: tm.Name,
+					FolderUid:    "folder-uid",
+					Group:        "test-group",
+					Params:       thresholdParam,
+				})
+				assert.Equal(t, codes.InvalidArgument, status.Code(err))
+				assert.Contains(t, err.Error(), tc.want)
+			})
+		}
+	})
+
 	t.Run("missing required fields return InvalidArgument", func(t *testing.T) {
 		for _, tc := range []struct {
 			name string
