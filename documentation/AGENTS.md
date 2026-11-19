@@ -11,7 +11,7 @@ Every rule below was checked against the published pages under `docs/` rather th
 
 | Path | What it is | Who writes it |
 |------|-----------|---------------|
-| `documentation/docs/` | User documentation, MkDocs Material | The developer shipping the change (PMM-15502); `@percona/pmm-docs` approves via CODEOWNERS |
+| `documentation/docs/` | User documentation, MkDocs Material | The developer shipping the change; `@percona/pmm-docs` approves via CODEOWNERS |
 | `documentation/docs/release-notes/` | One page per released version | Entries go to `next.md` on `main`; the RC job turns it into `X.Y.Z.md` |
 | `documentation/api/` | Public API reference, synced to a separate product by `.github/workflows/api-docs.yml` | Update when endpoints change; not governed by the style rules below |
 | `documentation/mkdocs-base.yml` | Site config **and the `nav:` tree** | Anyone adding or moving a page |
@@ -33,7 +33,7 @@ CI on a documentation PR:
 | Check | What it does | Blocking |
 |-------|--------------|----------|
 | `linkspector` (`.github/workflows/linkspector.yml`) | Resolves every link under `documentation/docs/`, config in `documentation/.linkspector.yml` | Yes — `fail_level: error` |
-| `make doc-check-images` (inside `documentation.yml`) | Lists images under `docs/images/` that no page references | No — reports only; still clean up after yourself with `make doc-remove-images` |
+| `make doc-check-images` (inside `documentation.yml`) | Lists images under `docs/images/` that neither a page nor the root `README.md` references | No — reports only; still clean up after yourself with `make doc-remove-images` |
 
 ## Layout
 
@@ -47,6 +47,7 @@ documentation/
 │   ├── troubleshoot/ pmm-upgrade/ uninstall-pmm/ discover-pmm/
 │   └── images/ assets/ css/ js/ fonts/
 ├── api/                     # public API reference (separate publishing pipeline)
+│   └── images/              # images used only by the root README.md
 ├── mkdocs-base.yml          # site config + nav; mkdocs.yml and mkdocs-pdf.yml INHERIT it
 ├── variables.yml            # release variables
 ├── WRITERS-NOTES.md         # admonition colours, icons, symbols
@@ -139,7 +140,7 @@ Types in use: `note`, `caution`, `warning`, `hint`, `tip`, `seealso`, `danger`, 
 
 **Code, commands, flags, paths, filenames, environment variables** go in backticks. **UI element names** go in bold and match the interface capitalization exactly: `**Query Analytics > Real-Time**`.
 
-**Images** live in `docs/images/` and are embedded with plain `![alt](../images/name.png)` — no sizing attributes are used anywhere in the corpus. Delete the image when you delete its last reference.
+**Images** live in `docs/images/` and are embedded with plain `![alt](../images/name.png)` — no sizing attributes are used anywhere in the corpus. Delete the image when you delete its last reference. Images used only by the root `README.md` live in `api/images/` instead: the API reference sync uploads only Markdown, so they never reach the API docs.
 
 **Do not hard-wrap** — not at 80 columns, not at any width. One paragraph is one line. Editors soft-wrap, and a hard wrap makes every later diff touch the whole paragraph.
 
@@ -181,7 +182,7 @@ Every user-facing change gets one release-note entry on the page for the version
 
 Rules for the entry:
 
-- It goes under one of `## 📈 Improvements` (Feature and Improvement tickets), `## ✅ Fixed issues` (Bug tickets) or `## Known issues` (a defect you are shipping knowingly). The emoji are part of the heading — match the scaffolded template exactly. Other top-level sections in the template: `## 📋 Release summary`, `## 🔒 Security updates`, `## 🚀 Ready to upgrade to PMM X.Y.Z`.
+- It goes under one of `## 📈 Improvements` (Feature and Improvement tickets), `## ✅ Fixed issues` (Bug tickets) or `## 🔶 Known issues` (a defect you are shipping knowingly). The emoji are part of the heading — match the scaffolded template exactly. Other top-level sections in the template: `## 📋 Release summary`, `## ✨ Release highlights`, `## 🔒 Security updates`, `## 🚀 Ready to upgrade to PMM X.Y.Z`.
 - Improvements and fixed issues are a single bullet opening with the linked ticket key: `- [PMM-XXXXX](https://perconadev.atlassian.net/browse/PMM-XXXXX): `.
 - Known issues take a `### Title ([PMM-XXXXX](url))` heading followed by prose — what the reader sees, and what to do about it.
 - Write the user-visible effect, not the implementation. If the fix changes something the reader already did, say what they have to redo.
@@ -291,7 +292,7 @@ make doc-build-preview
 # One-off build, as CI runs it
 make doc-build
 
-# List images no page references (ACTION=remove to delete them)
+# List images no page or README.md references (ACTION=remove to delete them)
 make doc-check-images
 
 # PDF — Percona staff only; bump the version in mkdocs-base.yml first
