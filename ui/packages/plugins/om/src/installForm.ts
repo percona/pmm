@@ -26,10 +26,11 @@ import {
   ADMIN_PASSWORD_MAX_LENGTH,
   ADMIN_PASSWORD_MIN_LENGTH,
   ADMIN_USERNAME_PATTERN,
+  DEFAULT_MONGODB_VERSION,
   MONITORING_USERNAME,
   REPLICA_SET_NAME_PATTERN,
 } from './constants';
-import type { OmBootstrapMemberConfig } from './types';
+import type { OmBootstrapMemberConfig, OmInventoryHost } from './types';
 
 const REPLICA_SET_NAME_MAX_LENGTH = 64;
 
@@ -41,6 +42,8 @@ const MAX_DELAY_SECS = 4294967295;
 
 export interface ConfigureFormState {
   replicaSetName: string;
+  /** The chosen version, or '' when every selected node supports none of those offered. */
+  mongodbVersion: string;
   dataPath: string;
   logPath: string;
   port: string;
@@ -50,6 +53,23 @@ export interface ConfigureFormState {
   adminUsername: string;
   /** The typed password and its confirmation, or null when PMM generates one. */
   adminPassword: { value: string; confirmation: string } | null;
+}
+
+/** The MongoDB versions every node's OS release supports, oldest first. */
+export function commonMongodbVersions(
+  hosts: Pick<OmInventoryHost, 'supported_mongodb_versions'>[]
+): string[] {
+  const [first, ...rest] = hosts;
+  return (first?.supported_mongodb_versions ?? []).filter((version) =>
+    rest.every((host) => host.supported_mongodb_versions.includes(version))
+  );
+}
+
+/** The default version when it is offered, else the newest offered, or '' for none. */
+export function initialMongodbVersion(versions: string[]): string {
+  return versions.includes(DEFAULT_MONGODB_VERSION)
+    ? DEFAULT_MONGODB_VERSION
+    : (versions.at(-1) ?? '');
 }
 
 /**
@@ -129,6 +149,11 @@ export function configureBlockers(form: ConfigureFormState): string[] {
     if (nameError) {
       blockers.push(nameError);
     }
+  }
+  if (form.mongodbVersion === '') {
+    blockers.push(
+      'Choose a MongoDB version that every selected node supports.'
+    );
   }
   if (form.dataPath.trim() === '') {
     blockers.push('Enter a data path.');
