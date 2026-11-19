@@ -90,9 +90,10 @@ func inventoryEndpoint(service *models.Service, node *models.Node) string {
 }
 
 type metricsSource struct {
-	vm  victoriaMetricsClient
-	l   *logrus.Entry
-	now time.Time
+	vm     victoriaMetricsClient
+	l      *logrus.Entry
+	now    time.Time
+	maxAge time.Duration
 }
 
 func (metricsSource) key() string { return sourceMetrics }
@@ -106,11 +107,21 @@ type labelSignal struct {
 }
 
 type metricSignal struct {
-	metric        string
+	metric   string
+	selector string
+	// rate reads a counter's per-second rate over the volatile max age, which spans two samples at any scrape interval.
+	rate          bool
 	labels        []labelSignal
 	valueField    string
 	presenceField string
-	reduceMax     bool
+}
+
+// series selects the signal's series among the matched services.
+func (s metricSignal) series(matcher string) string {
+	if s.selector != "" {
+		matcher += "," + s.selector
+	}
+	return fmt.Sprintf("%s{%s}", s.metric, matcher)
 }
 
 var metricSignals = []metricSignal{
@@ -138,10 +149,13 @@ var metricSignals = []metricSignal{
 	},
 	{metric: metricUp, labels: []labelSignal{{fieldNodeType, "cluster_role"}}, valueField: fieldExporterUp},
 	{metric: metricMongosShards, presenceField: fieldIsMongos},
-	// Each member reports lag against every secondary; the max is the worst lag this node saw.
-	{metric: metricReplicationLag, valueField: fieldReplicationLag, reduceMax: true},
+	{metric: metricReplicationLag, selector: `self="1"`, valueField: fieldReplicationLag},
 	{metric: metricOplogHead, valueField: fieldOplogHead},
 	{metric: metricOplogTail, valueField: fieldOplogTail},
+	{metric: metricConnections, selector: `state="current"`, valueField: fieldConnectionsCurrent},
+	{metric: metricConnections, selector: `state="available"`, valueField: fieldConnectionsAvailable},
+	{metric: metricCPUIdle, rate: true, valueField: fieldCPUIdleRate},
+	{metric: metricCPUCores, valueField: fieldCPUCores},
 }
 
 type metricsRun struct {
@@ -169,7 +183,6 @@ func (s metricsSource) collect(ctx context.Context, services []*models.Service) 
 		for _, signal := range metricSignals {
 			run.signal(ctx, matcher, signal)
 		}
-		run.expressions(ctx, matcher)
 		run.lastUp(ctx, matcher)
 	}
 
@@ -198,13 +211,16 @@ func (r *metricsRun) signal(ctx context.Context, matcher string, signal metricSi
 	}
 
 	// A separate value query, because lag()'s value is the series' age, not the metric's value.
-	query := fmt.Sprintf("last_over_time(%s{%s}[%s])", signal.metric, matcher, metricsLookback)
+	query := fmt.Sprintf("last_over_time(%s[%s])", signal.series(matcher), metricsLookback)
+	if signal.rate {
+		query = fmt.Sprintf("irate(%s[%s])", signal.series(matcher), model.Duration(r.src.maxAge))
+	}
 	r.queries++
 	values := make(map[string]seriesSample)
 	r.src.each(ctx, r.result, query, func(serviceID string, m model.Metric, v float64) {
 		age, dated := ages[seriesKey(m)]
 		sample := seriesSample{value: v, age: age, dated: dated}
-		if held, ok := values[serviceID]; ok && !sample.supersedes(held, signal.reduceMax) {
+		if held, ok := values[serviceID]; ok && !sample.supersedes(held) {
 			return
 		}
 		values[serviceID] = sample
@@ -225,12 +241,9 @@ type seriesSample struct {
 	dated bool
 }
 
-// supersedes prefers the largest value under reduceMax, otherwise the freshest series: an exporter
-// can abandon a series and start another under the same service_id, and the stale one is not current.
-func (s seriesSample) supersedes(held seriesSample, reduceMax bool) bool {
-	if reduceMax && s.value != held.value {
-		return s.value > held.value
-	}
+// supersedes prefers the freshest series: an exporter can abandon a series and start another under
+// the same service_id, and the stale one is not current.
+func (s seriesSample) supersedes(held seriesSample) bool {
 	if !s.dated {
 		return false
 	}
@@ -258,7 +271,7 @@ func seriesKey(m model.Metric) model.Fingerprint {
 // ages uses lag(), the seconds since each series' last raw sample. A timestamp(last_over_time()) query
 // reports the evaluation time instead, so a series scraped days ago would read as fresh.
 func (r *metricsRun) ages(ctx context.Context, matcher string, signal metricSignal) map[model.Fingerprint]float64 {
-	query := fmt.Sprintf("lag(%s{%s}[%s])", signal.metric, matcher, metricsLookback)
+	query := fmt.Sprintf("lag(%s[%s])", signal.series(matcher), metricsLookback)
 	r.queries++
 	ages := make(map[model.Fingerprint]float64)
 
@@ -286,27 +299,6 @@ func (r *metricsRun) ages(ctx context.Context, matcher string, signal metricSign
 		}
 	})
 	return ages
-}
-
-// expressions facts are dated to the run because lag() cannot date a derived expression; the
-// projection already suppresses both for a service that is not up.
-func (r *metricsRun) expressions(ctx context.Context, matcher string) {
-	for _, expr := range []struct {
-		query string
-		field string
-	}{
-		{fmt.Sprintf(queryCPUUsage, matcher, metricsLookback), fieldCPUUsage},
-		{fmt.Sprintf(queryConnectionsFree, matcher, metricsLookback), fieldConnectionsFree},
-	} {
-		r.queries++
-		r.src.each(ctx, r.result, expr.query, func(serviceID string, _ model.Metric, v float64) {
-			observedAt := r.src.now
-			r.result.Facts = append(r.result.Facts, Fact{
-				Service: serviceID, Field: expr.field, Value: v,
-				Source: sourceMetrics, ObservedAt: &observedAt,
-			})
-		})
-	}
 }
 
 // lastUp facts are dated by the last "up" sample itself; unlike the up flag, they stay true however old.
