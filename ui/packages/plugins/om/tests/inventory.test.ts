@@ -29,6 +29,7 @@ import {
   isRunPeriod,
   isScanHeld,
   joinServiceInventory,
+  keepGroupIds,
   notRunningScanAt,
   periodSince,
   processReadAt,
@@ -701,6 +702,37 @@ describe('groupRuns', () => {
       scan('a', 'RUN_STATUS_SUCCESS', []),
     ]);
     expect(groups.map((group) => group.id)).toEqual(['b']);
+  });
+});
+
+describe('keepGroupIds', () => {
+  const group = (...ids: string[]) => ({
+    id: ids[0],
+    runs: ids.map((id) => scan(id)),
+  });
+
+  it('keeps the id of the group a new scan joins, after its oldest scan leaves', () => {
+    expect(
+      keepGroupIds([group('d', 'c', 'b')], [group('c', 'b', 'a')])
+    ).toEqual([{ ...group('d', 'c', 'b'), id: 'c' }]);
+  });
+
+  it("keeps the older group's id when a scan seen running joins a one-scan group", () => {
+    expect(
+      keepGroupIds([group('r', 'c')], [group('r'), group('c')])[0].id
+    ).toBe('c');
+  });
+
+  it("keeps the bigger group's id when a finished scan joins it", () => {
+    expect(
+      keepGroupIds([group('r', 'c', 'b')], [group('r'), group('c', 'b')])[0].id
+    ).toBe('c');
+  });
+
+  it('gives a group with no earlier scans its own id, and two groups never one id', () => {
+    const kept = keepGroupIds([group('e'), group('d', 'c')], [group('c', 'b')]);
+
+    expect(kept.map((g) => g.id)).toEqual(['e', 'c']);
   });
 });
 
