@@ -524,6 +524,32 @@ export function expectedScanSeconds(
     : (durations[middle - 1] + durations[middle]) / 2;
 }
 
+/**
+ * Whether a scan of `wanted` (every node when empty) has to wait: a scan request is
+ * still being sent, or a running scan overlaps it, which PMM Extensions would refuse.
+ */
+export function isScanHeld(
+  runs: OmInventoryRun[],
+  wanted: string[],
+  requesting = false
+): boolean {
+  return (
+    requesting ||
+    runs.some(
+      (run) => isRunActive(run.status) && scopesOverlap(run.scope, wanted)
+    )
+  );
+}
+
+/** Whether a scan of `wanted` collides with one of `scope`; empty is every node. */
+export function scopesOverlap(scope: string[], wanted: string[]): boolean {
+  return (
+    scope.length === 0 ||
+    wanted.length === 0 ||
+    scope.some((id) => wanted.includes(id))
+  );
+}
+
 /** How many runs to ask for when the window is unbounded (`all`). */
 export const DEFAULT_RUN_LIMIT = 25;
 

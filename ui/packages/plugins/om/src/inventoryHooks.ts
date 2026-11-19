@@ -51,6 +51,8 @@ import {
 import {
   expectedScanSeconds,
   periodSince,
+  isScanHeld,
+  scopesOverlap,
   type OmEstateStatus,
   type OmRunPeriod,
 } from './inventory';
@@ -311,17 +313,26 @@ export function useIsEstateRefreshing(): boolean {
   return (runs ?? []).some((run) => isRunActive(run.status));
 }
 
+/** {@link isScanHeld} over the newest 25 runs, for the nodes a caller asks about. */
+export function useIsScanHeld(requesting = false) {
+  const { data: runs } = useOmInventoryRuns();
+  return (wanted: string[]) => isScanHeld(runs ?? [], wanted, requesting);
+}
+
 /**
- * The scan in flight, if any, and when the history was last read - so a caller can
- * tell "no scan is running" from "not read since I asked".
+ * The scan in flight that a scan of `nodeIds` would collide with (any, when empty),
+ * and when the history was last read - so a caller can tell "no scan is running" from
+ * "not read since I asked".
  */
-export function useActiveInventoryRun(): {
+export function useActiveInventoryRun(nodeIds: string[] = []): {
   run: OmInventoryRun | undefined;
   updatedAt: number;
 } {
   const { data: runs, dataUpdatedAt } = useOmInventoryRuns();
   return {
-    run: (runs ?? []).find((run) => isRunActive(run.status)),
+    run: (runs ?? []).find(
+      (run) => isRunActive(run.status) && scopesOverlap(run.scope, nodeIds)
+    ),
     updatedAt: dataUpdatedAt,
   };
 }
@@ -402,11 +413,9 @@ export function useRefreshInventory() {
           ? JSON.stringify({ node_ids: nodeIds })
           : undefined,
       }),
-    // onSettled rather than onSuccess: a 409 means a sweep is in flight and the estate
-    // is about to change, which is exactly when a refetch is most wanted.
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNS_KEY });
-    },
+    // onSettled, since a 409 means a scan is in flight; returned, so the request settles
+    // only once the history the Scan buttons and the 409 read has caught up with it.
+    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNS_KEY }),
     onSuccess: (accepted) => trackScan?.(accepted.run_id),
   });
 
