@@ -134,7 +134,7 @@ export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
  *
  * `pending` counts as unconfirmed alongside `running`. Nothing dispatches
  * confirm_monitoring -- pmm-managed synthesizes it on every read from the run's
- * own status (confirmMonitoringStep, and the field's own proto comment), so
+ * own status and registration (confirmMonitoringStep, and the field's own proto comment), so
  * today a payload cannot report a succeeded run with the step still `pending`,
  * and there is no window between the two to fall through. Accepting `pending`
  * keeps that true if the step ever becomes something actually dispatched.
@@ -157,13 +157,7 @@ export function isBootstrapRunActive(
   if (!run) {
     return false;
   }
-  if (run.status === 'running') {
-    return true;
-  }
-  if (run.status !== 'succeeded') {
-    return false;
-  }
-  return hasUnconfirmedMonitoring(run.hosts);
+  return run.status === 'running' || isConfirmingMonitoring(run);
 }
 
 /**
@@ -177,10 +171,17 @@ export function isBootstrapRunActive(
 export function bootstrapRunDisplayStatus(
   run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'>
 ): OmBootstrapRunStatus {
-  if (run.status === 'succeeded' && hasUnconfirmedMonitoring(run.hosts)) {
+  if (isConfirmingMonitoring(run)) {
     return 'running';
   }
   return run.status;
+}
+
+/** True while an install that has finished waits for PMM to confirm its monitoring. */
+export function isConfirmingMonitoring(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'>
+): boolean {
+  return run.status === 'succeeded' && hasUnconfirmedMonitoring(run.hosts);
 }
 
 /**
@@ -193,11 +194,16 @@ export function bootstrapRunDisplayStatus(
  * status still reads "running" for a different reason. Also false once
  * `cancel_requested` is already set - see `useCancelBootstrapRun`'s own
  * idempotency note; there is nothing left for a second click to request.
+ * Also false while rolling back: a cancel would stop a running rollback step.
  */
 export function canCancelBootstrapRun(
-  run: Pick<OmGetBootstrapRunResponse, 'status' | 'cancel_requested'>
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'cancel_requested' | 'hosts'>
 ): boolean {
-  return run.status === 'running' && !run.cancel_requested;
+  return (
+    run.status === 'running' &&
+    !run.cancel_requested &&
+    !run.hosts.some(isHostRollingBack)
+  );
 }
 
 export function isHostRollingBack(host: OmBootstrapHost): boolean {
