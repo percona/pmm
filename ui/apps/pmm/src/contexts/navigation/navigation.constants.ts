@@ -5,6 +5,10 @@ import {
   PMM_NEW_NAV_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  PMM_ADD_SERVICE_URL,
+  PMM_INVENTORY_NODES_PATH,
+  PMM_INVENTORY_PATH,
+  PMM_INVENTORY_SERVICES_PATH,
 } from 'lib/constants';
 import { clearReturnTo, saveReturnTo } from 'contexts/auth/auth.returnTo';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
@@ -220,6 +224,11 @@ export const NAV_MONGO: NavItem = {
       id: 'mongo-oplog-details',
       text: 'Oplog',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-oplog-details/mongodb-oplog-details`,
+    },
+    {
+      id: 'mongo-clustersync-details',
+      text: 'ClusterSync',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-clustersync-details/mongodb-clustersync-details`,
     },
   ],
 };
@@ -583,13 +592,33 @@ export const NAV_ADVISORS: NavItem = {
   id: 'advisors',
   icon: NetworkIntelligenceIcon,
   text: 'Advisors',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
+  url: `${PMM_NEW_NAV_PATH}/advisors`,
+};
+
+// the sidebar links a parent item to its first child's url, so the Advisors
+// children are listed explicitly (Insights is first, see addAdvisors)
+export const NAV_ADVISORS_CHECKS: NavItem = {
+  id: 'advisors-checks',
+  text: 'Catalog',
+  url: `${PMM_NEW_NAV_PATH}/advisors`,
 };
 
 export const NAV_ADVISORS_INSIGHTS = {
   id: 'advisors-insights',
-  text: 'Advisor insights',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`,
+  text: 'Insights',
+  url: `${PMM_NEW_NAV_PATH}/advisors/insights`,
+};
+
+export const NAV_ADVISORS_RUNS = {
+  id: 'advisors-runs',
+  text: 'Run history',
+  url: `${PMM_NEW_NAV_PATH}/advisors/runs`,
+};
+
+export const NAV_ADVISORS_SCHEDULER = {
+  id: 'advisors-scheduler',
+  text: 'Scheduler',
+  url: `${PMM_NEW_NAV_PATH}/advisors/scheduler`,
 };
 
 //
@@ -599,24 +628,25 @@ export const NAV_INVENTORY: NavItem = {
   id: 'inventory',
   icon: Graph4Icon,
   text: 'Inventory',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory`,
+  url: PMM_INVENTORY_PATH,
   children: [
     {
       id: 'add-instance',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/add-instance`,
+      url: PMM_ADD_SERVICE_URL,
       text: 'Add service',
-      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/add-instance/:type`],
+      matches: [`${PMM_ADD_SERVICE_URL}/:type`],
     },
     {
       id: 'inventory-services',
       text: 'Services',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/services`,
+      isDefault: true,
+      url: PMM_INVENTORY_SERVICES_PATH,
       matches: ['*', `${PMM_NEW_NAV_GRAFANA_PATH}/edit-instance/*`],
     },
     {
       id: 'inventory-nodes',
       text: 'Nodes',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes`,
+      url: PMM_INVENTORY_NODES_PATH,
       matches: ['*'],
     },
   ],
@@ -858,7 +888,7 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
   id: 'high-availability-nodes',
   icon: NorthEast,
   text: 'Identify Nodes',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes?isPmmServerNode=true`,
+  url: `${PMM_INVENTORY_NODES_PATH}?nodes.f.isPmmServerNode=true`,
 };
 
 //

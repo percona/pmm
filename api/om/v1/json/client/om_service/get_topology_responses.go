@@ -1077,7 +1077,8 @@ type GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 struct {
 	//  - PROCESS_ROLE_MONGOS: A router.
 	//  - PROCESS_ROLE_CONFIGSVR: A config-server member.
 	//  - PROCESS_ROLE_SHARDSVR: A shard member.
-	// Enum: ["PROCESS_ROLE_UNSPECIFIED","PROCESS_ROLE_MONGOD","PROCESS_ROLE_MONGOS","PROCESS_ROLE_CONFIGSVR","PROCESS_ROLE_SHARDSVR"]
+	//  - PROCESS_ROLE_ARBITER: An arbiter, in a shard or a plain replica set: it votes but holds no data.
+	// Enum: ["PROCESS_ROLE_UNSPECIFIED","PROCESS_ROLE_MONGOD","PROCESS_ROLE_MONGOS","PROCESS_ROLE_CONFIGSVR","PROCESS_ROLE_SHARDSVR","PROCESS_ROLE_ARBITER"]
 	ProcessRole *string `json:"process_role,omitempty"`
 
 	// Seconds this member trails the primary; unset where there is no primary to trail.
@@ -1190,7 +1191,7 @@ var getTopologyOkBodyEnvironmentsItems0ClustersItems0ServicesItems0TypeProcessRo
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PROCESS_ROLE_UNSPECIFIED","PROCESS_ROLE_MONGOD","PROCESS_ROLE_MONGOS","PROCESS_ROLE_CONFIGSVR","PROCESS_ROLE_SHARDSVR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PROCESS_ROLE_UNSPECIFIED","PROCESS_ROLE_MONGOD","PROCESS_ROLE_MONGOS","PROCESS_ROLE_CONFIGSVR","PROCESS_ROLE_SHARDSVR","PROCESS_ROLE_ARBITER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1214,6 +1215,9 @@ const (
 
 	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLESHARDSVR captures enum value "PROCESS_ROLE_SHARDSVR"
 	GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLESHARDSVR string = "PROCESS_ROLE_SHARDSVR"
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLEARBITER captures enum value "PROCESS_ROLE_ARBITER"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLEARBITER string = "PROCESS_ROLE_ARBITER"
 )
 
 // prop value enum

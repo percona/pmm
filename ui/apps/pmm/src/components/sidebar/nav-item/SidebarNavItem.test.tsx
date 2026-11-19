@@ -4,9 +4,12 @@ import SidebarNavItem from './SidebarNavItem';
 import { NavItemProps } from './SidebarNavItem.types';
 import { NavItem as NavTreeItem } from 'types/navigation.types';
 import { collapseClasses } from '@mui/material/Collapse';
+import { listItemTextClasses } from '@mui/material/ListItemText';
 import { MemoryRouterProps } from 'react-router-dom';
 import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
 import { PreviewChip } from 'components/preview-chip';
+import { NAV_INVENTORY } from 'contexts/navigation/navigation.constants';
+import { PMM_INVENTORY_SERVICES_PATH } from 'lib/constants';
 
 const TEST_NAV_TREE: NavTreeItem = {
   id: 'level-0',
@@ -47,6 +50,18 @@ const TEST_ALWAYS_VISIBLE_BADGE_ITEM: NavTreeItem = {
     },
   ],
 };
+
+const TEST_LEAF_ITEM: NavTreeItem = {
+  id: 'leaf',
+  icon: 'pmm-rounded',
+  text: 'leaf',
+  url: '/leaf',
+};
+
+const getLabel = (item: NavTreeItem) =>
+  screen
+    .getByTestId(`navitem-${item.id}`)
+    .querySelector(`.${listItemTextClasses.root}`)!;
 
 const renderNavItem = ({
   props,
@@ -128,6 +143,24 @@ describe('SidebarNavItem', () => {
     expect(level0Collapse).toHaveClass(collapseClasses.hidden);
   });
 
+  it.each([TEST_NAV_TREE, TEST_LEAF_ITEM])(
+    'hides the $id label while the sidebar is closed',
+    (item) => {
+      renderNavItem({ props: { item, drawerOpen: false } });
+
+      expect(getComputedStyle(getLabel(item)).opacity).toBe('0');
+    }
+  );
+
+  it.each([TEST_NAV_TREE, TEST_LEAF_ITEM])(
+    'shows the $id label while the sidebar is open',
+    (item) => {
+      renderNavItem({ props: { item } });
+
+      expect(getComputedStyle(getLabel(item)).opacity).not.toBe('0');
+    }
+  );
+
   it('opens root if child is active', () => {
     renderNavItem({
       activeItem: TEST_NAV_TREE.children![0],
@@ -150,6 +183,24 @@ describe('SidebarNavItem', () => {
 
     expect(level0Collapse).not.toHaveClass(collapseClasses.hidden);
     expect(level1Collapse).not.toHaveClass(collapseClasses.hidden);
+  });
+
+  it('links a collapsible item to its first child by default', () => {
+    renderNavItem();
+
+    expect(screen.getByTestId('navitem-level-0')).toHaveAttribute(
+      'href',
+      '/0/10'
+    );
+  });
+
+  it('links Inventory to the Services list', () => {
+    renderNavItem({ props: { item: NAV_INVENTORY } });
+
+    expect(screen.getByTestId('navitem-inventory')).toHaveAttribute(
+      'href',
+      PMM_INVENTORY_SERVICES_PATH
+    );
   });
 
   it('renders badge if item has badge', () => {

@@ -46,14 +46,16 @@ const ERROR_TEXT =
 const STATUS_RED: Record<string, number> = {
   // "N down"
   'FleetClustersTab.tsx': 2,
-  // "N down", a service's "failing 3h"
-  'FleetServicesTab.tsx': 2,
-  // "N cannot be scanned", a failing node's row and the heading of its detail
-  'NodesPage.tsx': 3,
+  // "N down", a service's "failing 3h", and its failure's short reason
+  'FleetServicesTab.tsx': 3,
+  // "N cannot be scanned", a failing node's row
+  'NodesPage.tsx': 2,
   // a service that did not answer a scan
   'components/RunEntities.tsx': 1,
   // a failed install's summary line
   'components/RunProgress.tsx': 1,
+  // the heading of a failing node's or service's failure
+  'components/ScanFailureDetail.tsx': 1,
 };
 
 function sources(dir: string): string[] {

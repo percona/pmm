@@ -102,13 +102,10 @@ To fix it:
         -d "$GF_DATABASE_NAME" -c "DELETE FROM login_attempt;"'
     ```
 
-2. If the login still fails, reset the Grafana admin password to the value stored in the secret:
-
-    !!! warning "Keep the `--configOverrides` flag"
-        Without `--configOverrides`, `grafana-cli` writes to a local database that the running Grafana does not use. It reports `Admin password changed successfully` and changes nothing.
+2. If you still can't log in, the admin password is out of sync with `pmm-secret`. Reset the Grafana admin password to the value stored in the secret. A password that the Helm chart generates has no symbol, so the command turns off the [password policy](../admin/manage-users/add_users.md#password-requirements) for this reset only:
 
     ```sh
-    kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c 'printf %s "$PMM_ADMIN_PASSWORD" | grafana-cli \
+    kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c 'printf %s "$PMM_ADMIN_PASSWORD" | GF_AUTH_BASIC_PASSWORD_POLICY=false grafana-cli \
       --homepath /usr/share/grafana --config /etc/grafana/grafana.ini \
       --configOverrides "cfg:database.type=$GF_DATABASE_TYPE cfg:database.host=$GF_DATABASE_HOST cfg:database.name=$GF_DATABASE_NAME cfg:database.user=$GF_DATABASE_USER cfg:database.password=$GF_DATABASE_PASSWORD cfg:database.ssl_mode=$GF_DATABASE_SSL_MODE" \
       admin reset-admin-password --password-from-stdin'
@@ -130,6 +127,12 @@ kubectl get pv,pvc -n pmm
 ```
 
 Add a node, or reduce the resource requests in your values file. If you reduce the requests, delete the Pending pod manually. A `StatefulSet` does not recreate a pending pod when the template changes, so it keeps its original request.
+
+## Pods restart after you add your own certificates
+
+In PMM 3.8.0 to 3.10.0, PMM Server pods keep restarting after you add your own certificates in the `certs` section of your values file. The pod log shows `mkdir: cannot create directory '/srv/nginx/tmp': Read-only file system`.
+
+**Fix:** [Remove the certificates from your Helm release](../admin/security/ssl_encryption.md#if-pmm-server-doesnt-start-after-you-add-your-own-certificates).
 
 ## PMM returns errors for a few seconds after a pod restarts
 
@@ -237,7 +240,7 @@ If dashboards or Query Analytics are empty, check the state of your cluster in t
 
 If a component is reported as unhealthy here, troubleshoot that component first. An empty dashboard or empty Query Analytics is usually a symptom of a component that is not running.
 
-**Inventory page:** Go to **Configuration > Inventory**. On the **Nodes** tab, check that all `pmm-ha` nodes are present and their status is healthy. On the **Services** tab, check that the services you added are listed and that their agents are running.
+**Inventory page:** Go to **Inventory**. On the **Nodes** tab, check that all `pmm-ha` nodes are present and their **Status** is **Up**. On the **Services** tab, check that the services you added are listed and that their **Monitoring** status is **OK**.
 
 If a service is missing from Inventory, the problem is with adding the service, not with storing or displaying its data.
 
