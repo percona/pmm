@@ -116,9 +116,9 @@ describe('renderEntry', () => {
       '## 3.12.0 (2026-12-01)\n\nNo changes to Peak UI\n'
     );
   });
-  it('says it was rebuilt when only bundled dependencies changed', () => {
+  it('says it was rebuilt when only dependencies changed', () => {
     expect(renderEntry({ ...base, changed: true, commits: [] })).toBe(
-      '## 3.12.0 (2026-12-01)\n\nRebuilt with updated bundled dependencies; no Peak UI source changes.\n'
+      '## 3.12.0 (2026-12-01)\n\nRebuilt with updated dependencies; no Peak UI source changes.\n'
     );
   });
   it('lists breaking changes first, then commit titles', () => {
@@ -216,6 +216,7 @@ describe('SHIPPED_PATHSPEC', () => {
         'llms.txt',
         'README.md',
         'LICENSE',
+        '../../tsconfig.base.json',
       ])
     );
   });
