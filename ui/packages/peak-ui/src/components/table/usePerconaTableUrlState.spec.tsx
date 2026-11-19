@@ -21,6 +21,7 @@ function UrlStateHarness({
   return (
     <>
       <div data-testid="global-filter">{tableProps.state.globalFilter}</div>
+      <div data-testid="global-filter-type">{typeof tableProps.state.globalFilter}</div>
       <div data-testid="sorting">
         {tableProps.state.sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')}
       </div>
@@ -60,6 +61,13 @@ function UrlStateHarness({
         onClick={() => tableProps.onGlobalFilterChange('mysql')}
       >
         Search
+      </button>
+      <button
+        type="button"
+        data-testid="clear-global-filter"
+        onClick={() => tableProps.onGlobalFilterChange(undefined as unknown as string)}
+      >
+        Clear search
       </button>
       <button
         type="button"
@@ -139,6 +147,19 @@ describe('usePerconaTableUrlState', () => {
       expect(screen.getByTestId('global-filter').textContent).toBe('mysql');
       expect(screen.getByTestId('search').textContent).toContain('q=mysql');
     });
+  });
+
+  it('removes the search param when MRT clears the search with undefined', async () => {
+    render(<UrlStateHarness initialSearch="q=mysql" />);
+
+    await act(async () => {
+      screen.getByTestId('clear-global-filter').click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('search').textContent).toBe('');
+    });
+    expect(screen.getByTestId('global-filter').textContent).toBe('');
+    expect(screen.getByTestId('global-filter-type').textContent).toBe('string');
   });
 
   it('writes range filters to the URL', async () => {
