@@ -21,6 +21,7 @@ import {
   formatCompactDuration,
   formatRunDuration,
   pluralize,
+  reasonSentences,
 } from '../src/format';
 
 describe('formatCompactDuration', () => {
@@ -96,5 +97,28 @@ describe('pluralize', () => {
 
   it('takes an irregular plural', () => {
     expect(pluralize(3, 'entry', 'entries')).toBe('entries');
+  });
+});
+
+describe('reasonSentences', () => {
+  it('makes each clause a sentence and joins them with a space', () => {
+    expect(
+      reasonSentences([
+        'this node has no automation agent that answers',
+        'PMM has no address for this node',
+      ])
+    ).toBe(
+      'This node has no automation agent that answers. PMM has no address for this node.'
+    );
+  });
+
+  it('adds no second full stop, and drops empty reasons', () => {
+    expect(reasonSentences(['it is done.', '  ', 'is it?'])).toBe(
+      'It is done. Is it?'
+    );
+  });
+
+  it('is empty for no reasons', () => {
+    expect(reasonSentences([])).toBe('');
   });
 });

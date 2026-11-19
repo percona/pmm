@@ -359,7 +359,7 @@ describe('FleetServicesTab', () => {
     expect(screen.queryByTestId('om-empty-state')).toBeNull();
   });
 
-  it('puts the local collection time and zone on the Collected hover', () => {
+  it('puts the local collection time and zone on the Collected hover', async () => {
     const collected = new Date(Date.now() - 3 * 60 * 1000).toISOString();
     // Every fixture service shares service_id 30, so this one row of inventory joins
     // onto each of them.
@@ -377,9 +377,9 @@ describe('FleetServicesTab', () => {
     });
     renderTab();
 
-    expect(screen.getAllByText('3m ago')[0]).toHaveAttribute(
-      'title',
-      `${new Date(collected).toLocaleString()} (${browserTimezone()})`
+    fireEvent.mouseOver(screen.getAllByText('3m ago')[0]);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      `Last collected ${new Date(collected).toLocaleString()} (${browserTimezone()})`
     );
   });
   describe('Group by (PMM-15712)', () => {

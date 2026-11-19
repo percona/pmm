@@ -61,7 +61,7 @@ import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
 import { ScanFailureDetail } from './components/ScanFailureDetail';
 import { Unavailable } from './components/Unavailable';
-import { formatCompactDuration, pluralize } from './format';
+import { formatCompactDuration, pluralize, reasonSentences } from './format';
 import {
   ageSeconds,
   describeScanFailure,
@@ -253,11 +253,13 @@ const BUSY_TITLE = 'Already part of an install in progress.';
 /** Every Scan waits while one request is sent, since they share one mutation. */
 const SCAN_SENDING_TITLE = 'A scan request is being sent.';
 
-const PMM_SERVER_TITLE =
-  "This is the PMM Server. Operations can't install or change databases here.";
-
+// PMM Server's own checkbox says what its Automation hover does.
 const selectionBlockedTitle = (row: OmHostRow, busy: boolean): string | null =>
-  row.is_pmm_server_node ? PMM_SERVER_TITLE : busy ? BUSY_TITLE : null;
+  row.is_pmm_server_node
+    ? automationBlockedTitle(row.automation_blocked_reasons)
+    : busy
+      ? BUSY_TITLE
+      : null;
 
 const notATargetLabel = (row: OmHostRow) =>
   row.is_pmm_server_node ? 'PMM Server' : 'Not a target';
@@ -271,7 +273,7 @@ const notATargetLabel = (row: OmHostRow) =>
  * the two cannot drift.
  */
 const automationBlockedTitle = (reasons: string[]) =>
-  reasons.join('; ') || 'Not eligible for automation.';
+  reasonSentences(reasons) || 'Not eligible for automation.';
 
 /**
  * Why the bulk Install button is disabled for this selection count.
@@ -562,7 +564,7 @@ function useColumns(
             return age == null ? (
               <Unavailable reason="probe_never_succeeded" />
             ) : (
-              <Age value={collected} />
+              <Age value={collected} label="Last collected" />
             );
           }
           return (
@@ -583,8 +585,9 @@ function useColumns(
                   'Never collected. Expand for the full error.'
                 ) : (
                   <>
-                    Last collected <Age value={collected} />. Expand for the
-                    full error.
+                    Last collected{' '}
+                    <Age value={collected} label="Last collected" />. Expand for
+                    the full error.
                   </>
                 )}
               </Typography>

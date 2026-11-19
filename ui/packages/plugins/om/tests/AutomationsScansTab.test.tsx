@@ -181,9 +181,9 @@ describe('AutomationsScansTab', () => {
       ).toBeNull();
     });
 
-    it('gives the last scan summary its age and a hover', () => {
-      expect(screen.getByText('3h ago')).toHaveAttribute(
-        'title',
+    it('gives the last scan summary its age and a hover', async () => {
+      fireEvent.mouseOver(screen.getByText('3h ago'));
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
         hover(RECENT)
       );
     });
