@@ -14,30 +14,8 @@ Operations for MongoDB runs on [PMM Extensions](../apps/deploy-pmm-extensions.md
 Before you enable Operations for MongoDB, prepare PMM Server:
 {.power-number}
 
-1. [Deploy PMM Extensions with Docker](../apps/deploy-pmm-extensions.md). This setup already sets `PMM_ENABLE_EXTENSIONS=1`, `PMM_ENABLE_NOMAD=1`, and `PMM_PUBLIC_ADDRESS`.
+1. [Deploy PMM Extensions with Docker](../apps/deploy-pmm-extensions.md). This setup already sets `PMM_ENABLE_EXTENSIONS=1`, `PMM_ENABLE_NOMAD=1`, and `PMM_PUBLIC_ADDRESS`. PMM Server connects to PMM Extensions automatically.
 2. Publish port `4647` on the `pmm-server` container (`-p 4647:4647`). PMM Client nodes connect to this port to receive scan and install jobs. Without it, remote nodes can't receive jobs.
-3. Connect PMM Server to PMM Extensions. This step is required in PMM 3.10.0 only (see [PMM-15772](https://perconadev.atlassian.net/browse/PMM-15772)). Without it, you can't turn on Operations for MongoDB:
-
-    1. Generate a token, for example with `openssl rand -hex 32`. Treat it as a password.
-    2. Set these variables, using the same token on both containers:
-
-        - On `pmm-server`: `PMM_EXTENSIONS_URL=http://pmm-extensions:9000` and `PMM_EXTENSIONS_TOKEN=<token>`
-        - On `pmm-extensions`: `EXTENSIONS_INTERNAL_TOKEN=<token>`
-
-        If you use Docker Compose, store the token in your `.env` file as `PMM_EXTENSIONS_TOKEN` and reference it from both services:
-
-        ```yaml
-        services:
-          pmm-server:
-            environment:
-              PMM_EXTENSIONS_URL: http://pmm-extensions:9000
-              PMM_EXTENSIONS_TOKEN: ${PMM_EXTENSIONS_TOKEN}
-          pmm-extensions:
-            environment:
-              EXTENSIONS_INTERNAL_TOKEN: ${PMM_EXTENSIONS_TOKEN}
-        ```
-
-    3. Recreate both containers so they pick up the new environment variables. A simple restart won't work, because Docker only reads environment variables when it creates a container. If you use Docker Compose, run `docker compose up -d`, which recreates any container whose configuration has changed.
 
 ### Enable Operations for MongoDB
 
@@ -52,7 +30,7 @@ Until you enable Operations for MongoDB, **MongoDB > Operations** doesn't appear
     2. Turn on **Operations for MongoDB**.
     3. Click **Apply changes**.
 
-    If PMM can't reach PMM Extensions, the setting stays off. Check your PMM Extensions deployment and try again.
+    If PMM can't use PMM Extensions, the setting stays off and the error message says why, for example that PMM Extensions is unreachable. Fix the cause and try again.
 
 === "via environment variable"
 
@@ -124,7 +102,7 @@ With **Connect to MongoDB** off, scans collect only process and OS details and t
 
 A scan checks what runs on a node and whether you can install MongoDB on it. Until PMM scans a node, the node shows no data.
 
-PMM scans every node automatically, every 10 minutes by default.
+PMM scans every node automatically, every 10 minutes by default. PMM also scans every node after each restart and when Operations for MongoDB is turned on.
 
 ### Run a scan now
 
@@ -142,6 +120,17 @@ By default, PMM scans every node every 10 minutes. Each scan sends a job to ever
 2. In **Scan every** and **Period**, set the time between scans.
 3. Click **Save**. The change takes effect without a restart.
 
+### Stop automatic scans
+
+If you want PMM to scan only when you ask, turn off automatic scans:
+{.power-number}
+
+1. Go to **MongoDB > Operations > Settings** and select the **General** tab.
+2. Turn off **Automatic node scans**.
+3. Click **Save**.
+
+PMM then no longer scans on a schedule, when it restarts, or when Operations for MongoDB is turned on. **Scan** and **Scan all** on the **Nodes** page keep working. When you turn **Automatic node scans** back on, PMM scans at the interval set in **Scan every** and **Period**.
+
 ## Install a replica set
 
 PMM supports single-member and three-member replica sets. Each node must have at least one completed scan before you can select it for installation.
@@ -154,9 +143,19 @@ Check your nodes and reduce the security exposure before you start the install.
 
 Make sure each node meets the following conditions before you start. If a node doesn't, PMM blocks it and shows the reason in the **Automation** column on the **Nodes** page:
 
-- **Supported OS**: Ubuntu or Rocky Linux only, matched on `ID` in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported. All nodes in one install must run the same OS.
+- **Supported OS release**: a release of Ubuntu or Rocky Linux listed in the table that follows, matched on `ID` and `VERSION_ID` in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported. All nodes in one install must run the same OS.
 - **No existing MongoDB**: `mongod` must not be installed or running, and PMM must have no MongoDB service registered for the node.
 - **Not the PMM Server host**: don't install on the host that runs PMM Server.
+
+PMM installs each MongoDB version only onto the OS releases that Percona's [release lifecycle for MongoDB](https://www.percona.com/release-lifecycle-percona-software-for-mongodb/) supports. Ubuntu matches on the exact release, and Rocky Linux on the major version, so Rocky Linux 9.4 counts as 9. The following table lists the supported releases:
+
+| OS release | MongoDB 7.0 | MongoDB 8.0 |
+|------------|-------------|-------------|
+| Ubuntu 22.04, 24.04 | Supported | Supported |
+| Rocky Linux 8, 9 | Supported | Supported |
+| Rocky Linux 10 | Not supported | Supported |
+
+PMM blocks a node whose release isn't listed, such as Ubuntu 20.04. The install form offers only the versions that every selected node supports.
 
 PMM checks the following conditions only when the install starts, and the **Nodes** page doesn't show them. Check them yourself before you start. If a node doesn't meet them, the install fails at the pre-check:
 
@@ -190,7 +189,7 @@ Once your nodes pass the checks and you've reduced the security exposure, you're
 
 3. Fill in the form:
 
-    - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB.
+    - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB. If a selected node runs Rocky Linux 10, the form offers only 8.0.
     - **Replica set name**.
     - **Data path** (default `/var/lib/mongo`), **Log path** (default `/var/log/mongodb/mongod.log`), and **Port** (default `27017`).
 
@@ -220,7 +219,8 @@ To view fleet health:
 
 1. Go to **MongoDB > Operations > Fleet**.
 2. On the **Clusters** tab, check the summary at the top: how many environments, clusters, and services PMM monitors, and how many services are up or down.
-3. Clusters are grouped by environment. For each cluster, check the following columns:
+3. To narrow the list, type part of a cluster name in **Search clusters**, or select values in the **Health**, **Type**, and **Environment** filters. A cluster must match the search and every filter that you set. Within one filter, any selected value matches. The filters are saved in the page URL, so you can share the filtered view. To reset, click **Clear filters**.
+4. By default, clusters are grouped by environment. If you change **Group by**, the table keeps your choice for the browser session. For each cluster, check the following columns:
 
     - **Health**: the overall state of the cluster, for example **Healthy**.
     - **Services**: the number of services in the cluster.
@@ -228,8 +228,10 @@ To view fleet health:
     - **Max repl. lag**: the highest replication lag across members.
     - **Min oplog window**: the smallest oplog window across members.
 
-4. Expand a cluster's row to find the member that causes poor health or high replication lag.
-5. Select the **Services** tab to check whether a specific service is up or down.
+    To add columns that are hidden by default, such as **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
+
+5. Expand a cluster's row to find the member that causes poor health or high replication lag.
+6. Select the **Services** tab to check whether a specific service is up or down.
 
 The page shows when its data was last refreshed and when the nodes were last scanned. To load the latest data, click **Refresh**.
 
@@ -244,6 +246,8 @@ If **Nodes**, **Automations** or **Settings** can't load and the error says **PM
 If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
 
 If the reason isn't clear, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for that node.
+
+If a node on the **Nodes** page shows **PMM could not read from PMM Extensions which OS releases Operations installs onto**, PMM can't read the list of supported OS releases, so it blocks installs onto every node. The rest of the reason says why. Make sure that PMM Extensions is running and on the [same version as PMM Server](../apps/deploy-pmm-extensions.md#check-versions-before-deploying), then reload the **Nodes** page.
 
 The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look for **Partial** scans on the **Scans** tab, or check the **Services** tab as described below.
 
@@ -277,4 +281,4 @@ Operations for MongoDB is a Developer Preview feature: you can try it out, but i
 
 - You can install only replica sets with 1 or 3 members, not sharded clusters or standalone instances, though Fleet still shows any sharded clusters that PMM already monitors.
 - No TLS or encryption at rest. Members authenticate to each other with a keyfile. TLS and encryption at rest are planned for a future release.
-- Installs on Ubuntu and Rocky Linux only, using Percona packages.
+- Installs on the [supported releases](#check-nodes) of Ubuntu and Rocky Linux only, using Percona packages.
