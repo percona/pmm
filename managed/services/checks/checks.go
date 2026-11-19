@@ -123,6 +123,7 @@ type Service struct {
 	mChecksExecuted      *prom.CounterVec
 	mChecksAvailable     *prom.GaugeVec
 	mChecksExecutionTime *prom.SummaryVec
+	mNotifications       *prom.CounterVec
 }
 
 // queryPlaceholders contain known fields that can be used as placeholders in a check's query.
@@ -155,23 +156,37 @@ func New(
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "checks_executed_total",
-			Help:      "Number of check scripts executed per service type, category and check name",
-		}, []string{"service_type", "category", "check_name", "status"}),
+			Help:      "Number of check scripts executed per service type, category, check name and source",
+		}, []string{"service_type", "category", "check_name", "status", "source"}),
 
 		mChecksAvailable: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "checks_available",
-			Help:      "Number of checks loaded in PMM per service type, category and check name",
-		}, []string{"service_type", "category", "check_name"}),
+			Help:      "Number of checks loaded in PMM per service type, category, check name and source",
+		}, []string{"service_type", "category", "check_name", "source"}),
 
 		mChecksExecutionTime: prom.NewSummaryVec(prom.SummaryOpts{
 			Namespace:  prometheusNamespace,
 			Subsystem:  prometheusSubsystem,
 			Name:       "check_execution_time_seconds",
-			Help:       "Time taken to execute checks per service type, category, and check name",
+			Help:       "Time taken to execute checks per service type, category, check name and source",
 			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
-		}, []string{"service_type", "category", "check_name"}),
+		}, []string{"service_type", "category", "check_name", "source"}),
+
+		mNotifications: prom.NewCounterVec(prom.CounterOpts{
+			Namespace: prometheusNamespace,
+			Subsystem: prometheusSubsystem,
+			Name:      "notifications_total",
+			Help:      "Number of Advisor emails per kind and result",
+		}, []string{"kind", "result"}),
+	}
+
+	// zero series from the start, so increase() counts the first email too
+	for _, kind := range []string{notificationKindRun, notificationKindShared, notificationKindTest} {
+		for _, result := range []string{notificationResultSent, notificationResultFailed} {
+			s.mNotifications.WithLabelValues(kind, result)
+		}
 	}
 
 	s.execute = s.run
@@ -1471,7 +1486,7 @@ func (s *Service) executePlan(ctx context.Context, plan []plannedCheck, ri runIn
 		if errors.Is(err, errMongoDBArbiter) {
 			// the check can't run on an arbiter, so it leaves no insight
 			s.l.Debugf("Skipped check %s of technology %s on target %s: %+v", c.Name, c.Technology, target.AgentID, err)
-			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "skipped").Inc()
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "skipped", checkSource(c.UserDefined)).Inc()
 			err = models.DeleteInsight(context.WithoutCancel(ctx), s.db.Querier, p.insight.ID)
 			if err != nil {
 				s.l.Warnf("Failed to delete the insight of check %s on service %s: %+v", c.Name, target.ServiceID, err)
@@ -1485,13 +1500,13 @@ func (s *Service) executePlan(ctx context.Context, plan []plannedCheck, ri runIn
 		switch {
 		case err != nil:
 			s.l.Warnf("Failed to execute check %s of technology %s on target %s: %+v", c.Name, c.Technology, target.AgentID, err)
-			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "error").Inc()
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "error", checkSource(c.UserDefined)).Inc()
 			outcomes = append(outcomes, newInsightRecord(c, target, models.CheckResultError, check.Result{Description: err.Error()}, &checkedAt, ri))
 		case len(results) == 0:
-			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "ok").Inc()
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "ok", checkSource(c.UserDefined)).Inc()
 			outcomes = append(outcomes, newInsightRecord(c, target, models.CheckResultOK, check.Result{}, &checkedAt, ri))
 		default:
-			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "ok").Inc()
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "ok", checkSource(c.UserDefined)).Inc()
 			res = append(res, results...)
 			for _, finding := range results {
 				outcomes = append(outcomes, newInsightRecord(c, target, models.CheckResultFailed, finding.Result, &checkedAt, ri))
@@ -1682,7 +1697,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 	defer cancel()
 
 	defer func(t time.Time) {
-		s.mChecksExecutionTime.WithLabelValues(string(target.ServiceType), c.Category, c.Name).Observe(time.Since(t).Seconds())
+		s.mChecksExecutionTime.WithLabelValues(string(target.ServiceType), c.Category, c.Name, checkSource(c.UserDefined)).Observe(time.Since(t).Seconds())
 	}(time.Now())
 
 	if c.Version < check.MinSupportedVersion || c.Version > check.MaxSupportedVersion {
@@ -2384,10 +2399,11 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 			return nil, fmt.Errorf("check result %d: %w", i+1, err)
 		}
 		checkResults[i] = services.CheckResult{
-			CheckName: aCheck.Name,
-			Category:  aCheck.Category,
-			Target:    target,
-			Result:    result,
+			CheckName:   aCheck.Name,
+			Category:    aCheck.Category,
+			UserDefined: aCheck.UserDefined,
+			Target:      target,
+			Result:      result,
 		}
 	}
 	return checkResults, nil
@@ -2709,6 +2725,7 @@ func (s *Service) Describe(ch chan<- *prom.Desc) {
 	s.mChecksExecuted.Describe(ch)
 	s.mChecksAvailable.Describe(ch)
 	s.mChecksExecutionTime.Describe(ch)
+	s.mNotifications.Describe(ch)
 
 	s.resultsRegistry.Describe(ch)
 }
@@ -2718,6 +2735,7 @@ func (s *Service) Collect(ch chan<- prom.Metric) {
 	s.mChecksExecuted.Collect(ch)
 	s.mChecksAvailable.Collect(ch)
 	s.mChecksExecutionTime.Collect(ch)
+	s.mNotifications.Collect(ch)
 
 	s.resultsRegistry.Collect(ch)
 }
@@ -2737,8 +2755,16 @@ func (s *Service) refreshChecksInMemoryMetric() {
 
 func (s *Service) incChecksInMemoryMetric(serviceType models.ServiceType, checks map[string]check.Check) {
 	for _, c := range checks {
-		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Category, c.Name).Inc()
+		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Category, c.Name, checkSource(c.UserDefined)).Inc()
 	}
+}
+
+// checkSource returns the source label value of the advisor metrics for a check.
+func checkSource(userDefined bool) string {
+	if userDefined {
+		return string(models.UserCheckSource)
+	}
+	return string(models.BuiltinCheckSource)
 }
 
 // groupChecksByDB splits provided checks by database and returns three slices: for MySQL, for PostgreSQL and for MongoDB.
