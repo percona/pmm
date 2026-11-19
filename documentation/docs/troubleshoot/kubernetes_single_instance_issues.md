@@ -45,6 +45,12 @@ Common causes:
 - Insufficient memory (increase limits)
 - Configuration errors (check environment variables)
 
+## Pod restarts after you add your own certificates
+
+**Problem**: In PMM 3.8.0 to 3.10.0, the pod enters `CrashLoopBackOff` after you add your own certificates in the `certs` section of your values file. The log shows `mkdir: cannot create directory '/srv/nginx/tmp': Read-only file system`.
+
+**Solution**: [Remove the certificates from your Helm release](../admin/security/ssl_encryption.md#if-pmm-server-doesnt-start-after-you-add-your-own-certificates).
+
 ## Cannot access PMM UI
 
 **Problem**: LoadBalancer external IP is pending or connection is refused.

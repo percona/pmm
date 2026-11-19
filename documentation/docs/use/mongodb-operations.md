@@ -143,9 +143,19 @@ Check your nodes and reduce the security exposure before you start the install.
 
 Make sure each node meets the following conditions before you start. If a node doesn't, PMM blocks it and shows the reason in the **Automation** column on the **Nodes** page:
 
-- **Supported OS**: Ubuntu or Rocky Linux only, matched on `ID` in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported. All nodes in one install must run the same OS.
+- **Supported OS release**: a release of Ubuntu or Rocky Linux listed in the table that follows, matched on `ID` and `VERSION_ID` in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported. All nodes in one install must run the same OS.
 - **No existing MongoDB**: `mongod` must not be installed or running, and PMM must have no MongoDB service registered for the node.
 - **Not the PMM Server host**: don't install on the host that runs PMM Server.
+
+PMM installs each MongoDB version only onto the OS releases that Percona's [release lifecycle for MongoDB](https://www.percona.com/release-lifecycle-percona-software-for-mongodb/) supports. Ubuntu matches on the exact release, and Rocky Linux on the major version, so Rocky Linux 9.4 counts as 9. The following table lists the supported releases:
+
+| OS release | MongoDB 7.0 | MongoDB 8.0 |
+|------------|-------------|-------------|
+| Ubuntu 22.04, 24.04 | Supported | Supported |
+| Rocky Linux 8, 9 | Supported | Supported |
+| Rocky Linux 10 | Not supported | Supported |
+
+PMM blocks a node whose release isn't listed, such as Ubuntu 20.04. The install form offers only the versions that every selected node supports.
 
 PMM checks the following conditions only when the install starts, and the **Nodes** page doesn't show them. Check them yourself before you start. If a node doesn't meet them, the install fails at the pre-check:
 
@@ -179,7 +189,7 @@ Once your nodes pass the checks and you've reduced the security exposure, you're
 
 3. Fill in the form:
 
-    - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB.
+    - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB. If a selected node runs Rocky Linux 10, the form offers only 8.0.
     - **Replica set name**.
     - **Data path** (default `/var/lib/mongo`), **Log path** (default `/var/log/mongodb/mongod.log`), and **Port** (default `27017`).
 
@@ -209,7 +219,8 @@ To view fleet health:
 
 1. Go to **MongoDB > Operations > Fleet**.
 2. On the **Clusters** tab, check the summary at the top: how many environments, clusters, and services PMM monitors, and how many services are up or down.
-3. Clusters are grouped by environment. For each cluster, check the following columns:
+3. To narrow the list, type part of a cluster name in **Search clusters**, or select values in the **Health**, **Type**, and **Environment** filters. A cluster must match the search and every filter that you set. Within one filter, any selected value matches. The filters are saved in the page URL, so you can share the filtered view. To reset, click **Clear filters**.
+4. By default, clusters are grouped by environment. If you change **Group by**, the table keeps your choice for the browser session. For each cluster, check the following columns:
 
     - **Health**: the overall state of the cluster, for example **Healthy**.
     - **Services**: the number of services in the cluster.
@@ -217,8 +228,10 @@ To view fleet health:
     - **Max repl. lag**: the highest replication lag across members.
     - **Min oplog window**: the smallest oplog window across members.
 
-4. Expand a cluster's row to find the member that causes poor health or high replication lag.
-5. Select the **Services** tab to check whether a specific service is up or down.
+    To add columns that are hidden by default, such as **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
+
+5. Expand a cluster's row to find the member that causes poor health or high replication lag.
+6. Select the **Services** tab to check whether a specific service is up or down.
 
 The page shows when its data was last refreshed and when the nodes were last scanned. To load the latest data, click **Refresh**.
 
@@ -244,10 +257,12 @@ If an install step fails, PMM retries it once. If the retry also fails, PMM roll
 
 To stop an install that's running, expand it on the **Installs** tab and abort it. PMM then rolls back the install in the same way.
 
+If a node on the **Nodes** page shows **PMM could not read from PMM Extensions which OS releases Operations installs onto**, PMM can't read the list of supported OS releases, so it blocks installs onto every node. The rest of the reason says why. Make sure that PMM Extensions is running and on the [same version as PMM Server](../apps/deploy-pmm-extensions.md#check-versions-before-deploying), then reload the **Nodes** page.
+
 ## Limitations
 
 Operations for MongoDB is a Developer Preview feature in PMM 3.10.0: you can try it out, but it isn't complete or supported for production yet. It has the following limitations:
 
 - You can install only replica sets with 1 or 3 members, not sharded clusters or standalone instances, though Fleet still shows any sharded clusters that PMM already monitors.
 - No TLS or encryption at rest. Members authenticate to each other with a keyfile. TLS and encryption at rest are planned for a future release.
-- Installs on Ubuntu and Rocky Linux only, using Percona packages.
+- Installs on the [supported releases](#check-nodes) of Ubuntu and Rocky Linux only, using Percona packages.
