@@ -102,13 +102,10 @@ To fix it:
         -d "$GF_DATABASE_NAME" -c "DELETE FROM login_attempt;"'
     ```
 
-2. If the login still fails, reset the Grafana admin password to the value stored in the secret:
-
-    !!! warning "Keep the `--configOverrides` flag"
-        Without `--configOverrides`, `grafana-cli` writes to a local database that the running Grafana does not use. It reports `Admin password changed successfully` and changes nothing.
+2. If you still can't log in, the admin password is out of sync with `pmm-secret`. Reset the Grafana admin password to the value stored in the secret. A password that the Helm chart generates has no symbol, so the command turns off the [password policy](../admin/manage-users/add_users.md#password-requirements) for this reset only:
 
     ```sh
-    kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c 'printf %s "$PMM_ADMIN_PASSWORD" | grafana-cli \
+    kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c 'printf %s "$PMM_ADMIN_PASSWORD" | GF_AUTH_BASIC_PASSWORD_POLICY=false grafana-cli \
       --homepath /usr/share/grafana --config /etc/grafana/grafana.ini \
       --configOverrides "cfg:database.type=$GF_DATABASE_TYPE cfg:database.host=$GF_DATABASE_HOST cfg:database.name=$GF_DATABASE_NAME cfg:database.user=$GF_DATABASE_USER cfg:database.password=$GF_DATABASE_PASSWORD cfg:database.ssl_mode=$GF_DATABASE_SSL_MODE" \
       admin reset-admin-password --password-from-stdin'
