@@ -611,7 +611,7 @@ describe('RunProgress', () => {
     expect(abort).toBeDisabled();
     fireEvent.mouseOver(abort.parentElement as HTMLElement);
     expect(await screen.findByRole('tooltip')).toHaveTextContent(
-      'The install has finished.'
+      "Finished installs can't be aborted."
     );
   });
 

@@ -311,8 +311,7 @@ function isStarting(run: OmGetBootstrapRunResponse): boolean {
   );
 }
 
-const ABORT_FINISHED_TITLE =
-  'The install has finished. PMM is confirming that it monitors the new MongoDB services.';
+const ABORT_FINISHED_TITLE = "Finished installs can't be aborted.";
 
 /**
  * Ask for confirmation, then request cancellation of `run`.
