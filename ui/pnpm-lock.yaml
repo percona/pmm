@@ -574,6 +574,9 @@ importers:
       '@types/react':
         specifier: ^19.1.0
         version: 19.2.18
+      chromatic:
+        specifier: 18.14.1
+        version: 18.14.1
       date-fns:
         specifier: 4.1.0
         version: 4.1.0
@@ -4300,6 +4303,22 @@ packages:
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
+
+  chromatic@18.14.1:
+    resolution: {integrity: sha512-KVV1c6TvdKCK8nivnvdGiVBPc17rlS22iH1apI7boUTWVf8OkrGnQ/qN8drnfHBzgZdJ/p874RIuHT6JhdMYUQ==}
+    engines: {node: '>=22.0.0'}
+    hasBin: true
+    peerDependencies:
+      '@chromatic-com/cypress': ^0.*.* || ^1.0.0
+      '@chromatic-com/playwright': ^0.*.* || ^1.0.0
+      '@chromatic-com/vitest': ^0.*.* || ^1.0.0
+    peerDependenciesMeta:
+      '@chromatic-com/cypress':
+        optional: true
+      '@chromatic-com/playwright':
+        optional: true
+      '@chromatic-com/vitest':
+        optional: true
 
   chrome-trace-event@1.0.4:
     resolution: {integrity: sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==}
@@ -12298,6 +12317,10 @@ snapshots:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+
+  chromatic@18.14.1:
+    dependencies:
+      semver: 7.8.5
 
   chrome-trace-event@1.0.4: {}
 
