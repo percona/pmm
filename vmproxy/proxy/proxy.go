@@ -251,7 +251,6 @@ func prepareRequest(req *http.Request, target *url.URL, headerName string) {
 		req.Header.Set("Host", hostHeader)
 	}
 	if target.User != nil {
-		// Not target.User.String(): that escapes characters such as @ and :, which basic auth sends as they are.
 		password, _ := target.User.Password()
 		req.SetBasicAuth(target.User.Username(), password)
 	}
