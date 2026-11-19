@@ -40,7 +40,7 @@ What keeps it out:
 
 ### Local API
 
-`agentlocal` exposes a local gRPC + JSON API for status, Prometheus metrics, pprof debug endpoints, and config reload.
+`agentlocal` exposes a local gRPC + JSON API on `127.0.0.1:7777` for status, config reload, and the `/debug/metrics`, `/debug/pprof`, `/debug/vars` endpoints.
 
 ## Key Packages and Responsibilities
 

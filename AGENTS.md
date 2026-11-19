@@ -1,53 +1,14 @@
 # PMM Development Guide for AI Agents
 
-## How AI agents load this document
+## About these guides
 
-**`AGENTS.md` is the tool-neutral source of truth for this repo — any AI agent should read this file (and the linked component guides) directly, whichever assistant it is.** It follows the cross-tool `AGENTS.md` convention, so most agents pick it up automatically.
-
-Some tools also use a thin pointer file that simply routes them here — these are examples, not an exclusive list:
-
-| Tool | Pointer file (→ reads `AGENTS.md`) |
-|------|------|
-| Claude Code | [CLAUDE.md](CLAUDE.md), plus one per component guide |
-| Gemini CLI | [GEMINI.md](GEMINI.md) |
-| GitHub Copilot | [.github/copilot-instructions.md](.github/copilot-instructions.md) |
-
-Claude Code reads `CLAUDE.md` and not `AGENTS.md`, so every directory holding a component guide also carries a `CLAUDE.md` whose only instruction is `@AGENTS.md`. Claude Code loads a nested `CLAUDE.md` on demand — when it first reads a file in that directory — so the component guide enters context automatically for whichever component is being worked on, without the root file pulling in all of them. Keep these pointers to the import alone; guidance belongs in `AGENTS.md`.
-
-Any other agent can read `AGENTS.md` directly — Cursor, for example, loads root and nested `AGENTS.md` files natively, so no Cursor-specific rule is needed. Personal AI-tool files (`.claude/`, `.cursor/`) are gitignored for local experimentation, except `.claude/settings.json` (committed team config).
+This file is the source of truth for AI agents working anywhere in the repo; each component also has its own guide. How the files reach each tool (`CLAUDE.md`, `GEMINI.md`, Copilot) is described in [`dev/docs/process/ai-agents.md`](dev/docs/process/ai-agents.md). Human contributors start at [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`dev/docs/process/`](dev/docs/process/).
 
 If an `AGENTS.local.md` (repo root) or `~/AGENTS.local.md` (home) is present, read it at session start too — it holds machine-specific paths (gitignored). **Never put secrets there**; keep credentials in environment variables or a secret store.
 
-## Maintaining This Document
-
-**You are responsible for keeping this file accurate.** After completing work, check whether any of these apply:
-
-- Added, removed, or renamed a top-level directory or component
-- Added or removed a per-component `AGENTS.md` (add or remove its `CLAUDE.md` pointer to match)
-- Changed the tech stack (new dependency in `go.mod`, new tool, removed technology)
-- Changed build targets in `Makefile` / `Makefile.include`
-- Changed global conventions (code style, error handling, testing patterns)
-- Changed architecture or data-flow (new pipeline, changed communication protocol)
-- Changed the development environment (`docker-compose.yml`, `.devcontainer/`)
-
-If any apply, update the relevant sections of this file. Also update the matching per-component `AGENTS.md` if one exists for the affected area.
-
-Do **not** update this file for routine code changes (bug fixes, minor feature implementation) that don't alter the repo's structure or conventions.
-
-## How This Documentation Is Organized
-
-This guide provides the product-wide overview, architecture, domain model, conventions, and cross-links to component-specific guides.
-
-| Audience | Location |
-|----------|----------|
-| Human contributors | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`dev/docs/process/`](dev/docs/process/) |
-| AI agents | This file + component `AGENTS.md` guides |
-
-This file **summarizes and links** process docs; it does not replace them. Pull out operational rules here only when agents routinely get them wrong.
-
 ### Component Guides
 
-Each PMM component has a dedicated guide with architecture, directory structure, domain model, patterns, testing, and key files. When working on a specific component, read the relevant guide:
+Read the guide for the component you are changing before planning or editing:
 
 | Component | Guide | Scope |
 |-----------|-------|-------|
@@ -66,26 +27,28 @@ Each PMM component has a dedicated guide with architecture, directory structure,
 
 A component guide covers only what is specific to its area. Global conventions — Go style, error handling, logging, testing, code generation — live in [Global Development Conventions](#global-development-conventions) and are deliberately **not** repeated in component guides: both files load together, so a restated rule costs context twice and creates a second place to forget to update it. When adding a rule, put it in the most specific guide — or guides, where a rule genuinely applies to more than one component but not to all — that covers it, and nowhere else. The one intentional exception is [PMM-specific choices](#pmm-specific-choices-agents-often-get-wrong), a short curated list of pitfalls that repeats a handful of rules on purpose.
 
+### Maintaining these guides
+
+Keep them accurate. Update this file, and the matching component guide, when you:
+
+- Add, remove, or rename a top-level directory or component
+- Add or remove a component `AGENTS.md` — every directory with one also carries a `CLAUDE.md` whose only line is `@AGENTS.md`; add or remove both together
+- Change the tech stack, the build targets in `Makefile` / `Makefile.include`, global conventions, architecture or data flow, or the development environment (`docker-compose*.yml`, `.devcontainer/`)
+
+Don't update them for routine code changes. This file summarizes and links the process docs; copy a rule here only when agents routinely get it wrong.
+
 ---
 
 ## How AI agents should work in this repo
 
-The **`AGENTS.md` hierarchy is the single source of truth** for agents. Read the matching component guide before editing. Do not assume PMM-specific behavior from general knowledge — verify it against this file, the component guides it links, and the code.
-
-Follow the sections through [Git and pull request checklist](#git-and-pull-request-checklist) every time you change code. Skim [Product Overview](#product-overview) and below when you need context.
+Do not assume PMM-specific behavior from general knowledge — verify it against these guides and the code. Skim [Product Overview](#product-overview) and below when you need context.
 
 ### Workflow
 
-1. Identify which component your change touches (`managed`, `ui`, `api`, `agent`, …).
-2. Read that component's `AGENTS.md` before planning or editing.
-3. Prefer minimal, focused diffs; match surrounding style and patterns.
-4. After `.proto` or reform model changes: run `make gen` from the repo root.
-5. Run the **smallest test set** that covers your change (see [Testing decision tree](#testing-decision-tree)).
-6. Run the **matching linter** before calling work PR-ready (see [Linting decision tree](#linting-decision-tree)). For Go/API-only changes, step 7 covers this.
-7. For Go/API changes: run `make prepare-pr` (gen + license check + Go lint + format + `go mod tidy` — subsumes step 6 for Go).
-8. Update `AGENTS.md` (and the component guide) only if you changed structure, conventions, or workflows.
-
-For **user-visible changes** (metric, dashboard, API, exporter, UI), passing unit tests is not enough — run PMM on a live server and verify against real data before calling it done (see [Definition of Done](#definition-of-done) and the full procedure in [`dev/docs/process/running-and-verifying-locally.md`](dev/docs/process/running-and-verifying-locally.md)).
+1. Identify the components your change touches and read their `AGENTS.md` before planning or editing.
+2. Keep diffs minimal and focused; match surrounding style and patterns.
+3. Test and lint every area you touched ([Verifying a change](#verifying-a-change)).
+4. Check the [Definition of Done](#definition-of-done) before calling the work complete.
 
 ### Specs, plans and decisions
 
@@ -94,16 +57,6 @@ Specs, implementation plans and ADRs live in [Percona-Lab/pmm-specs](https://git
 - **Before working on a ticket**, look for its folder or its epic's and follow it.
 - **To create one** (epics, larger or cross-component changes only), follow [pmm-specs `AGENTS.md`](https://github.com/Percona-Lab/pmm-specs/blob/main/AGENTS.md) and open a PR there. This overrides tool defaults such as `docs/superpowers/`.
 
-### Don'ts
-
-- Don't edit generated files (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`).
-- Don't use `gorm` in pmm-managed — **reform only**.
-- Don't amend/squash commits locally to address review feedback; push **new commits** ([`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITHUB.md)).
-- Don't force-push to `main`/`v3`.
-- Don't skip the Feature Build link in PR descriptions for user-facing changes ([`.github/pull_request_template.md`](.github/pull_request_template.md)).
-- Don't run the full repo linter on every tiny edit; do run the **targeted linter** for what you changed, and run `make prepare-pr` before declaring Go/API work PR-ready.
-- Don't write unit tests that call external services — use mocks or `/api-tests/` instead.
-
 ---
 
 ## PMM-specific choices (agents often get wrong)
@@ -111,6 +64,7 @@ Specs, implementation plans and ADRs live in [Percona-Lab/pmm-specs](https://git
 These differ from generic Go/React advice. Match **surrounding code** in the file you edit; when in doubt, follow the component guide.
 
 - **DB (managed):** reform only — never gorm or other ORMs ([`managed/AGENTS.md`](managed/AGENTS.md))
+- **DB migrations (managed):** no column `DEFAULT`s, even though older migrations in `managed/models/database.go` have them; backfill a new `NOT NULL` column with a `DEFAULT`, then `DROP DEFAULT` in the same migration ([`managed/AGENTS.md`](managed/AGENTS.md))
 - **Unit tests (managed):** `go-sqlmock` by default — use `testdb.Open` only when migrations or fixtures are what you're testing ([`managed/AGENTS.md`](managed/AGENTS.md))
 - **API errors (Go):** `status.Error()` with gRPC codes — not ad-hoc HTTP errors in service layers
 - **Logging (Go):** `logrus` with `*logrus.Entry` and structured fields — not `fmt.Printf`
@@ -122,40 +76,27 @@ These differ from generic Go/React advice. Match **surrounding code** in the fil
 - **UI wire format:** camelCase in TypeScript; JSON on the wire is snake_case (`axios-case-converter` in `ui/apps/pmm/src/api/api.ts`)
 - **Generated code:** edit `.proto` / reform models / interfaces — run `make gen`; never hand-edit `*.pb.go`, `*_reform.go`, swagger clients
 
-Mechanical style (imports, formatting, lint rules) is enforced by `make check` for Go, `cd ui && make lint && make format-check` for the UI, and CI — see [Linting decision tree](#linting-decision-tree).
+Mechanical style (imports, formatting, lint rules) is enforced by the linters in [Verifying a change](#verifying-a-change) and by CI.
 
 ---
 
-## Testing decision tree
+## Verifying a change
 
-PMM has three test layers ([`CONTRIBUTING.md`](CONTRIBUTING.md)): unit, API integration, and e2e (in [pmm-qa](https://github.com/percona/pmm-qa)). Use the smallest scope that validates your change:
-
-| If you changed… | Run |
-|-----------------|-----|
-| Go unit logic in one package | `go test ./path/to/pkg/...` or `make test` in that component directory |
-| Shared/API packages (not managed/admin/agent) | `make test-common` from repo root |
-| `managed/models` or DB schema/migrations | Unit tests in `managed/`; use `testdb.Open` only when fixtures or migrations matter ([`managed/AGENTS.md`](managed/AGENTS.md)) |
-| `.proto` or gRPC/REST definitions | `make gen`, then `make check`; update handlers in `managed/` and UI hooks if user-facing |
-| REST behavior end-to-end | `make env-up`, then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) |
-| UI (anything under `ui/`) | `cd ui && make lint && make test` |
-| Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` (or run cleanup without `--check-only`); CI enforces this in `dashboards.yml` ([`dashboards/dashboards/AGENTS.md`](dashboards/dashboards/AGENTS.md)) |
-| User documentation (`documentation/`) | `make doc-build-preview` and read the rendered page; CI runs `linkspector` on every docs PR ([`documentation/AGENTS.md`](documentation/AGENTS.md)) |
-
-## Linting decision tree
-
-CI runs separate linters per area. `make prepare-pr` covers **Go only** — it does not lint UI or dashboards.
+PMM has three test layers ([`CONTRIBUTING.md`](CONTRIBUTING.md)): unit, API integration, and e2e (in [pmm-qa](https://github.com/percona/pmm-qa)). For **every** area you touched, run the smallest tests that cover the change and the linter CI runs for that area; fix errors, not just warnings, unless CI allows them.
 
 The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it with **`make init`** — do not install golangci-lint another way, since a different build reports different findings than CI.
 
-| If you changed… | Run |
-|-----------------|-----|
-| Go backend (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `make prepare-pr` from repo root (or `make check` after `make gen` for a quicker pass) |
-| `.proto` only | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
-| UI (anything under `ui/`) | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
-| Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate JS linter) |
-| `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | No linter; run the suite from the repo root: `python3 -m unittest discover -s dashboards/misc -p 'test_*.py'`. The other scripts in `dashboards/misc/` have no automated coverage |
-| Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
-| Before any PR | Run the row(s) that match **every** area you touched; fix errors, not just warnings, unless CI allows them |
+| If you changed… | Test | Lint |
+|-----------------|------|------|
+| Go (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `go test ./path/to/pkg/...` or `make test` in that component directory; `make test-common` from the repo root for shared/API packages | `bin/golangci-lint run ./path/to/pkg/...` for each changed package, then `make format`; `make check-license` if you added files; `go mod tidy` if dependencies changed |
+| `.proto`, reform models, or mocked interfaces | As for Go; update handlers in `managed/` and UI hooks if user-facing | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
+| `managed/models` or DB schema/migrations | Unit tests in `managed/`; use `testdb.Open` only when fixtures or migrations matter ([`managed/AGENTS.md`](managed/AGENTS.md)) | As for Go |
+| REST behavior end-to-end | `make env-up`, then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) | — |
+| UI (anything under `ui/`) | `cd ui && make test` | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
+| Grafana dashboard JSON (`dashboards/dashboards/`) | — | `python3 dashboards/misc/cleanup-dash.py --check-only <file>`, or without `--check-only` to fix; CI enforces it in `dashboards.yml` ([`dashboards/dashboards/AGENTS.md`](dashboards/dashboards/AGENTS.md)) |
+| `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | `python3 -m unittest discover -s dashboards/misc -p 'test_*.py'` from the repo root; the other scripts in `dashboards/misc/` have no automated coverage | — |
+| Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn test:ci` | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
+| User documentation (`documentation/`) | `make doc-build-preview` and read the rendered page ([`documentation/AGENTS.md`](documentation/AGENTS.md)) | CI runs `linkspector` on every docs PR |
 
 ---
 
@@ -189,7 +130,7 @@ Recurring tasks — follow in order before opening a PR.
 2. Add route in `ui/apps/pmm/src/router.tsx` if needed.
 3. API functions in `ui/apps/pmm/src/api/`; TanStack Query hooks in `ui/apps/pmm/src/hooks/api/`.
 4. Co-locate Vitest tests (`*.test.ts` / `*.test.tsx`).
-5. Run `cd ui && make lint && make test` before opening a PR.
+5. Before opening a PR, run the UI row of [Verifying a change](#verifying-a-change).
 6. JSON on the wire is **snake_case** (`axios-case-converter`); TypeScript uses **camelCase**.
 
 ---
@@ -199,9 +140,8 @@ Recurring tasks — follow in order before opening a PR.
 Before calling a change complete, verify every item that applies — never report done on a check you didn't run:
 
 - [ ] Builds (component build or `make release`) and, when you can exercise it, the app runs.
-- [ ] Tests pass for **every** area you touched ([Testing decision tree](#testing-decision-tree)); new behavior has new/updated tests.
-- [ ] The **matching** linter is clean ([Linting decision tree](#linting-decision-tree)); Go/API: `make prepare-pr`.
-- [ ] Ran `make gen` if you changed `.proto`, reform models, or mocked interfaces — and did **not** hand-edit generated files.
+- [ ] Tests and linters pass for **every** area you touched ([Verifying a change](#verifying-a-change)); new behavior has new/updated tests.
+- [ ] Ran `make gen` if you changed `.proto`, reform models, or mocked interfaces.
 - [ ] New source files carry the license header (`make check-license`); no secrets, credentials, or stray `fmt.Printf`/debug prints in the diff.
 - [ ] Commits use `PMM-XXXX Short summary` and are signed off (`git commit -s`).
 - [ ] Updated `AGENTS.md`/component guide **only** if structure, conventions, or workflows changed.
@@ -224,11 +164,11 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 | PR title | Same `PMM-XXXX Short summary` format (squash merge uses the PR title) |
 | Ticket | `PMM-XXXX` is required as the title prefix (and in the branch name) |
 | Sign-off | Sign commits with `git commit -s` (adds a `Signed-off-by` trailer — DCO convention; most PMM commits carry it) |
-| Review fixes | New commit per round — do not amend and force-push |
+| Review fixes | New commit per round — do not amend and force-push; never force-push `main` |
 | Merge | Squash and merge on GitHub |
-| PR body | What/why, Feature Build link for features/fixes/improvements, link related PRs |
+| PR body | What/why, Feature Build link for features/fixes/improvements ([`.github/pull_request_template.md`](.github/pull_request_template.md)), link related PRs; update it when review changes the behavior it describes |
 | API changes | Check API docs updated if endpoints changed |
-| Before review | Tests and linters pass for every area touched (see [Linting decision tree](#linting-decision-tree); Go/API: `make prepare-pr`; UI: `cd ui && make lint`) |
+| Before review | Tests and linters pass for every area touched ([Verifying a change](#verifying-a-change)) |
 
 ### Handling review comments (incl. bots like CodeRabbit)
 
@@ -287,7 +227,7 @@ pmm-agent ←→ pmm-managed (bidirectional gRPC stream)
 
 ```
 pmm-managed (orchestrator)
-  → pmm-agent jobs (PBM for MongoDB, mysqldump/xtrabackup for MySQL)
+  → pmm-agent jobs (PBM for MongoDB, xtrabackup/xbcloud for MySQL)
     → S3/MinIO/local storage
 ```
 
@@ -315,10 +255,9 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 | Directory | Purpose |
 |-----------|---------|
-| `/dev/docs` | Developer docs: process (git workflow, tech stack, best practices) and managed architecture (data model, access control); public API docs live in `documentation/api/` |
+| `/dev` | Developer docs in `dev/docs/` — process (git workflow, tech stack, best practices) and managed architecture (data model, access control) — and development utilities (e.g., `mongo-rs-backups`); public API docs live in `documentation/api/` |
 | `/documentation` | User-facing documentation (MkDocs project root); pages live in `documentation/docs/` |
 | `/version` | Version info and feature flags |
-| `/dev` | Development utilities (e.g., mongo-rs-backups) |
 | `/.devcontainer` | Devcontainer setup for local development |
 
 ### External Repositories
@@ -350,7 +289,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 | **VictoriaMetrics** | Time-series metrics storage |
 | **VMAlert** | Alerting rules evaluation |
 | **Grafana** | Dashboards and visualization |
-| **reform** | Go ORM — NOT gorm. pmm-managed's PostgreSQL store, and pmm-agent's row mappers for monitored MySQL/PostgreSQL system views |
+| **reform** | Go ORM: pmm-managed's PostgreSQL store, and pmm-agent's row mappers for monitored MySQL/PostgreSQL system views |
 | **logrus** | Structured logging |
 | **testify** | Test assertions (`assert`, `require` packages only — NOT suites) |
 | **mockery** | Mock generation for Go interfaces |
@@ -376,6 +315,9 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Don't inline `err != nil` checks (`if err := f(); err != nil`); assign on one line, check on the next
 - Comment only what the code can't say (a non-obvious why, a constraint, a workaround) in one line, two at most; doc comments are one sentence
 - Comments, in code and config alike, describe what is there, not its history or why it changed: no "now/previously/fixed/added", incident stories, review back-and-forth or justification for the change (that goes in the commit message); no ticket numbers either, since the commit title carries one
+- When behavior changes, fix every comment, doc comment and proto comment that describes it, including ones outside your diff
+- Before writing a helper, stub or fixture, search for an existing one; derive a list from its single source instead of copying it
+- Delete code your change leaves unused, including exported functions that only tests still call
 
 ### Error Handling
 - Use `status.Error()` with proper gRPC codes for API errors
@@ -391,6 +333,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Format: `s.l.WithField("key", value).Error("message")`
 - Don't interpolate strings with `%q` in log messages; use `%s`, or `'%s'` when the value can contain spaces
 - Log to unbuffered stderr; let the process supervisor handle the rest
+- Log once per state change, at the level of what actually happened: no `Error` or `Warn` for expected outcomes, no line per retry, no success message before the operation succeeds
 
 ### Environment Variables
 - `PMM_DEV_*` — development/test only, never for end users
@@ -402,9 +345,11 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Use `testify/assert` and `testify/require` (not testify suites)
 - Prefer `t.Context()` over `context.Background()`; `usetesting` misses it inside helper closures
 - Mock generation via `mockery` (config in `.mockery.yaml`)
-- Unit tests: `*_test.go` next to implementation
+- Unit tests: `*_test.go` next to implementation; they never call external services — use mocks, or `/api-tests/` for integration
 - Integration tests: `/api-tests/`, run against live PMM Server
 - E2E tests: [pmm-qa](https://github.com/percona/pmm-qa)
+- A test must fail if the change it covers is reverted: give mocks exact arguments and `.Once()` rather than `mock.Anything`, assert the exact error message (an empty expected substring matches anything), and cover each new error branch
+- Inject a value a test needs to change instead of making it a mutable package global; set or unset (`t.Setenv`) every environment variable the code under test reads
 
 ### Code Generation
 - Protobuf/gRPC: `make gen` from repo root
@@ -431,7 +376,7 @@ PMM Server talks to pmm-agents and API clients already deployed in the field, so
 
 ### Dependencies and new files
 - Prefer the standard library and deps already in `go.mod` / `ui/package.json`; a new dependency needs justification and an AGPL-3-compatible license (CI runs a license check).
-- Go: `go get` then `go mod tidy` (both in `make prepare-pr`). UI: `pnpm add` from `ui/` (or `pnpm --filter <pkg> add` for one workspace package).
+- Go: `go get`, then `go mod tidy`. UI: `pnpm add` from `ui/` (or `pnpm --filter <pkg> add` for one workspace package).
 - New Go source files need the AGPL-3 Percona license header — copy it from an existing `.go` file or run `go tool license-eye -c .licenserc.yaml header fix`. Enforced by `make check-license` (exemptions: `agent/`, `admin/`, `utils/`, mocks).
 
 ### Graceful Shutdown
@@ -439,18 +384,12 @@ PMM Server talks to pmm-agents and API clients already deployed in the field, so
 - Stop handling signals after first receipt so second signal terminates immediately
 - Startup errors are fatal; runtime errors are handled, logged, and communicated
 
-### Debug Endpoints
-All long-running daemons expose on `127.0.0.1`:
-- `/debug/metrics` — Prometheus metrics
-- `/debug/vars` — expvar (command line, memory stats)
-- `/debug/requests`, `/debug/events` — trace facility
-- `/debug/pprof` — profiling
-
 ## Key Make Targets
+
+Targets beyond those in [Verifying a change](#verifying-a-change):
 
 | Target | Purpose |
 |--------|---------|
-| `make init` | Install pinned dev tools into `bin/` (golangci-lint at the version CI uses) |
 | `make env-up` | Start development container (PMM Server) |
 | `make env-update-image` | Pull the latest dev image (`make env-remove` drops the container and its volumes) |
 | `make env TARGET=<t>` | Run `make <t>` **inside** the `pmm-server` container as the `pmm` user (bash shell if `TARGET` omitted); use `make env-root` for build/test/lint targets |
@@ -459,28 +398,13 @@ All long-running daemons expose on `127.0.0.1`:
 | `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
 | `make doc-build-preview` | Preview user docs (`documentation/docs/`) with live reload at http://localhost:8000 |
 | `make doc-build` | Build user docs (used in CI); `make doc-build-pdf` for the PDF |
-| `make gen` | Generate all code (protobuf, reform, mocks, format) |
-| `make check` | Run Go/API linters (buf, golangci-lint, go-sumtype) |
-| `make format` | Format code (gofumpt, gci) |
+| `make gen` | Generate all code (protobuf, reform, mocks), then format |
 | `make release` | Build all binaries (agent, admin, managed, qan-api2) |
-| `make test-common` | Run common unit tests |
-| `make api-test` | Run API integration tests |
-| `make prepare-pr` | Go/API pre-PR pipeline: `gen` + `check-all` (license + linters) + `format` + `go mod tidy` |
-| `cd ui && make lint` | oxlint for PMM UI (required for UI changes; not part of `prepare-pr`) |
-| `cd ui && make format-check` | oxfmt check for PMM UI (what CI runs; `make format` writes) |
 
 ## Key Files to Reference
 
-- `Makefile`, `Makefile.include` — build and development targets
 - `docker-compose.dev.yml` — development environment (PMM Server, renderer)
 - `docker-compose.yml` — community/quickstart compose (stable image, minimal config)
-- `go.mod` — Go module definition
 - `.golangci.yml` — linter configuration
-- `.mockery.yaml` — mock generation configuration
 - `dev/docs/process/tech_stack.md` — technology choices and rationale
 - `dev/docs/process/best_practices.md` — coding best practices
-- `dev/docs/process/GIT_AND_GITHUB.md` — git workflow
-- `dev/docs/process/running-and-verifying-locally.md` — run PMM locally, register test DBs, evidence-based verification for user-visible changes
-- `dev/docs/process/v2_to_v3_environment_variables.md` — v2→v3 environment variable migration
-- `dev/docs/managed/data-model.md` — inventory data model (schema + diagrams)
-- `dev/docs/managed/access-control.md` — label-based access control (LBAC) architecture
