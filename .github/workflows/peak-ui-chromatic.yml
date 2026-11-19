@@ -9,21 +9,25 @@ on:
     paths:
       - "ui/packages/peak-ui/**"
       - "ui/pnpm-workspace.yaml"
+      - "ui/pnpm-lock.yaml"
+      - "ui/tsconfig.base.json"
       - ".github/workflows/peak-ui-chromatic.yml"
   pull_request:
     paths:
       - "ui/packages/peak-ui/**"
       - "ui/pnpm-workspace.yaml"
+      - "ui/pnpm-lock.yaml"
+      - "ui/tsconfig.base.json"
       - ".github/workflows/peak-ui-chromatic.yml"
   pull_request_target:
     paths:
       - "ui/packages/peak-ui/**"
       - "ui/pnpm-workspace.yaml"
+      - "ui/pnpm-lock.yaml"
+      - "ui/tsconfig.base.json"
       - ".github/workflows/peak-ui-chromatic.yml"
 
-permissions:
-  contents: read
-  statuses: write
+permissions: {}
 
 # The event name keeps a PR's pull_request and pull_request_target runs apart.
 concurrency:
@@ -38,6 +42,9 @@ jobs:
       (github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
 
     steps:
       - name: Check out code
@@ -83,6 +90,8 @@ jobs:
       github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     environment: chromatic-external
+    permissions:
+      contents: read
 
     steps:
       - name: Check out PR head
@@ -110,7 +119,6 @@ jobs:
         uses: chromaui/action@37b88badc3a1122c01861af329554d8a227d7e52 # v18.4.0
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          token: ${{ secrets.GITHUB_TOKEN }}
           workingDir: ui/packages/peak-ui
           storybookBaseDir: ui/packages/peak-ui
           buildScriptName: storybook:build
