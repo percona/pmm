@@ -456,7 +456,7 @@ func (s *ActionsService) StartPTSummaryAction(ctx context.Context, id, pmmAgentI
 }
 
 // StartPTPgSummaryAction starts pt-pg-summary action on the pmm-agent.
-func (s *ActionsService) StartPTPgSummaryAction(ctx context.Context, id, pmmAgentID, address string, port uint16, username, password string) error {
+func (s *ActionsService) StartPTPgSummaryAction(ctx context.Context, id, pmmAgentID, address string, port uint16, username, password string, tls bool) error {
 	actionRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		Params: &agentv1.StartActionRequest_PtPgSummaryParams{
@@ -465,6 +465,7 @@ func (s *ActionsService) StartPTPgSummaryAction(ctx context.Context, id, pmmAgen
 				Port:     uint32(port),
 				Username: username,
 				Password: password,
+				Tls:      tls,
 			},
 		},
 		Timeout: defaultPtActionTimeout,

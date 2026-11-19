@@ -593,6 +593,9 @@ importers:
       '@mui/material':
         specifier: 7.3.11
         version: 7.3.11(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@percona/peak-ui':
+        specifier: 1.0.31
+        version: 1.0.31(ce7a36355021fe88046b483c20084ec1)
       '@percona/percona-ui':
         specifier: 1.0.22
         version: 1.0.22(ce7a36355021fe88046b483c20084ec1)
@@ -9561,6 +9564,7 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
       react-hook-form: 7.84.0(react@19.2.8)
       react-is: 18.3.1
+
   '@percona/peak-ui@1.0.31(ce7a36355021fe88046b483c20084ec1)':
     dependencies:
       '@emotion/react': 11.14.0(@types/react@19.2.18)(react@19.2.8)
