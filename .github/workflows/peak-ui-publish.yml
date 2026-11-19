@@ -29,7 +29,6 @@ jobs:
         working-directory: ui/packages/peak-ui
     outputs:
       version: ${{ steps.version.outputs.version }}
-      dist_tag: ${{ steps.dist_tag.outputs.dist_tag }}
 
     steps:
       - name: Check out code
@@ -84,13 +83,20 @@ jobs:
       - name: Write CHANGELOG.md
         env:
           VERSION: ${{ steps.version.outputs.version }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          node scripts/changelog.mjs --version "$VERSION" \
+          date=$(date -u +%F)
+          if [ "$REF_TYPE" = tag ]; then
+            date=$(git for-each-ref --format='%(creatordate:short)' "refs/tags/$REF_NAME")
+          fi
+          node scripts/changelog.mjs --version "$VERSION" --date "$date" \
             --candidate "$(echo "$RUNNER_TEMP"/candidate/*.tgz)" --out CHANGELOG.md \
             >> "$GITHUB_STEP_SUMMARY"
 
+      # No prepack rebuild: ship the dist the changelog compared.
       - name: Pack with the changelog
-        run: pnpm pack --pack-destination "$RUNNER_TEMP/final"
+        run: pnpm pack --config.ignore-scripts=true --pack-destination "$RUNNER_TEMP/final"
 
       - name: Check the tarball
         env:
@@ -105,20 +111,15 @@ jobs:
             '.version == $v and ([.main, .types, (.exports | .. | strings)] | all(test("^(\\./)?dist/")))'
           npm publish --dry-run --tag dry-run "$tgz"
 
-      - name: Choose the dist-tag
-        id: dist_tag
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          latest=$(npm view @percona/peak-ui dist-tags.latest)
-          tag=$(node -e "import('./scripts/versions.mjs').then((m) => console.log(m.distTag(process.argv[1], process.argv[2])))" "$VERSION" "$latest")
-          echo "dist_tag=$tag" >> "$GITHUB_OUTPUT"
+      # The publish job picks the dist-tag with it, against latest at publish time.
+      - name: Add the version helpers
+        run: cp scripts/versions.mjs "$RUNNER_TEMP/final/"
 
       - name: Upload the tarball
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: peak-ui-tarball
-          path: ${{ runner.temp }}/final/*.tgz
+          path: ${{ runner.temp }}/final/
           if-no-files-found: error
 
   publish:
@@ -148,15 +149,16 @@ jobs:
 
       # Trusted publishing (OIDC) needs npm 11.5.1 or later; Node 22 ships npm 10.
       - name: Upgrade npm
-        run: npm install -g npm@^11.5.1
+        run: npm install -g npm@11.21.2
 
       - name: Publish
         env:
           VERSION: ${{ needs.pack.outputs.version }}
-          DIST_TAG: ${{ needs.pack.outputs.dist_tag }}
         run: |
           if [ -n "$(npm view "@percona/peak-ui@$VERSION" version 2>/dev/null)" ]; then
             echo "@percona/peak-ui@$VERSION is already on npm"
             exit 0
           fi
-          npm publish tarball/*.tgz --provenance --access public --tag "$DIST_TAG"
+          latest=$(npm view @percona/peak-ui dist-tags.latest)
+          tag=$(node -e "import('./tarball/versions.mjs').then((m) => console.log(m.distTag(process.argv[1], process.argv[2])))" "$VERSION" "$latest")
+          npm publish tarball/*.tgz --provenance --access public --tag "$tag"
