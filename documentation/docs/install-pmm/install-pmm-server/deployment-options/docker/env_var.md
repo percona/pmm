@@ -42,6 +42,8 @@ Fine-tune data retention and [how often PMM collects metrics](../../../../config
 | `PMM_METRICS_RESOLUTION_MR` | `10s` | Medium-resolution metrics interval | `30s` |
 | `PMM_METRICS_RESOLUTION_LR` | `60s` | Low-resolution metrics interval | `300s` |
 
+Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. If you use days, such as `30d`, PMM Server won't start.
+
 !!! tip "Performance impact"
     Higher resolution (lower values) provides more detailed metrics but increases storage requirements and system load. For high-traffic production environments, consider increasing these values.
 
@@ -272,7 +274,7 @@ For parameter details, see [Nomad client garbage collection documentation](https
 ### Supported external variables
 PMM Server passes these variables to integrated components:
 
-- **Grafana**: All `GF_*` variables (e.g., `GF_SECURITY_ADMIN_PASSWOR`)
+- **Grafana**: All `GF_*` variables, such as `GF_AUTH_ANONYMOUS_ENABLED`. Set this to `true` to let visitors view your dashboards without signing in. These visitors can't use PMM features such as Query Analytics.
 - **VictoriaMetrics**: All `VM_*` variables (e.g., VM_retentionPeriod)
 - **Kubernetes**: All `KUBERNETES_*` variables
 - **System variables**: Standard variables like `HOME`, `PATH`, etc.

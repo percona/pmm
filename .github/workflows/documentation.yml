@@ -155,11 +155,16 @@ jobs:
           missing=0
 
           # Present means main has the commit, already has its content (the diff reverse-applies),
-          # or has a `git cherry-pick -x` of it that was edited afterwards.
+          # has a `git cherry-pick -x` of it that was edited afterwards, or is where it was cherry-picked
+          # from (doc-hotfix.yml copies main to the release branch, and main moves on past that diff).
           for sha in $(git rev-list --reverse --no-merges "v${VERSION}..${release}" -- documentation/); do
             git merge-base --is-ancestor "$sha" origin/main && continue
             git diff --binary "${sha}^" "$sha" -- documentation/ | GIT_INDEX_FILE="$index" git apply --cached --check -R 2>/dev/null && continue
             git log origin/main --since="$since" --fixed-strings --grep="cherry picked from commit $sha" --format=%h | grep -q . && continue
+            sources=$(git log -1 --format=%B "$sha" | sed -nE 's/.*cherry picked from commit ([0-9a-f]{7,40}).*/\1/p')
+            if [ -n "$sources" ] && (for src in $sources; do git merge-base --is-ancestor "$src" origin/main 2>/dev/null || exit 1; done); then
+              continue
+            fi
             echo "::error::$(git log -1 --format='%h %s' "$sha") is on pmm-${VERSION} but not on main"
             missing=$((missing + 1))
           done
