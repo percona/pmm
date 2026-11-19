@@ -52,19 +52,14 @@ func runSecrets() error {
 	return nil
 }
 
-// runVMURL prints PMM_VM_URL for PMM's programs, for the entrypoint to export.
+// runVMURL prints PMM_VM_URL without the password for the entrypoint to export: the secrets step stored the password
+// in its file, or dropped it for having no username. It refuses a URL that doesn't parse, since the shell would strip
+// a trailing line break that made it unparseable and pass the password on.
 func runVMURL() error {
-	_, err := fmt.Fprintln(os.Stdout, vmURLForPrograms(os.Getenv(secrets.VMURLEnvVar)))
-	return err
-}
-
-// vmURLForPrograms returns raw without its password: the secrets step stored the password in its file, or dropped it
-// for having no username. A URL that doesn't parse holds no password that the secrets step found, so it passes
-// unchanged, and pmm-managed reports it.
-func vmURLForPrograms(raw string) string {
-	u, err := secrets.URLWithoutPassword(raw)
+	u, err := secrets.URLWithoutPassword(os.Getenv(secrets.VMURLEnvVar))
 	if err != nil {
-		return raw
+		return err
 	}
-	return u
+	_, err = fmt.Fprintln(os.Stdout, u)
+	return err
 }

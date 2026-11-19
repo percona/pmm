@@ -276,9 +276,11 @@ func TestPrepare(t *testing.T) {
 		_, err = Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file, VMURLEnvVar: "http://:q7v-url@vmauth:8427/"}))
 		require.EqualError(t, err, noUser)
 
-		_, err = Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file, VMURLEnvVar: "http://q7v-user@vm auth:8427/"}))
-		require.ErrorContains(t, err, "vm-password: PMM_VM_URL: ")
-		assert.NotContains(t, err.Error(), "q7v")
+		// url.Parse's own errors quote parts of the URL, such as ":q7vab" as an invalid port.
+		for _, u := range []string{"http://q7v-user@vm auth:8427/", "http://vmuser:q7vab#cd@vmauth:8427/", "http://vmuser:q7v%zz@vmauth:8427/"} {
+			_, err = Prepare(testOptions(t, map[string]string{"PMM_VM_PASSWORD_FILE": file, VMURLEnvVar: u}))
+			require.EqualError(t, err, "vm-password: PMM_VM_URL: "+errInvalidURL.Error(), u)
+		}
 	})
 
 	t.Run("drops a password without a username in PMM_VM_URL", func(t *testing.T) {
@@ -733,9 +735,22 @@ func TestURLWithoutPassword(t *testing.T) {
 		assert.Equal(t, want, got, in)
 	}
 
-	_, err := URLWithoutPassword("http://vmuser:q7v-pw@vm auth:8427/")
-	require.Error(t, err)
-	assert.NotContains(t, err.Error(), "q7v")
+	// A trailing line break makes the URL unparseable, and the shell would strip it from vm-url's output.
+	for _, in := range []string{"http://vmuser:q7v-pw@vm auth:8427/", "http://vmuser:q7v-pw@vmauth:8427/\n", "http://vmuser:q7vab#cd@vmauth:8427/"} {
+		_, err := URLWithoutPassword(in)
+		require.ErrorIs(t, err, errInvalidURL, "%q", in)
+	}
+}
+
+func TestEntrypointExportsVMURLAfterSecrets(t *testing.T) {
+	b, err := os.ReadFile(filepath.Join("..", "..", "..", "build", "docker", "server", "entrypoint.sh"))
+	require.NoError(t, err)
+	entrypoint := string(b)
+	secretsStep := regexp.MustCompile(`(?m)^pmm-managed-init secrets$`).FindStringIndex(entrypoint)
+	vmURLStep := regexp.MustCompile(`(?m)^\s+PMM_VM_URL=\$\(pmm-managed-init vm-url\)\n\s+export PMM_VM_URL$`).FindStringIndex(entrypoint)
+	require.NotNil(t, secretsStep, "build/docker/server/entrypoint.sh doesn't run pmm-managed-init secrets")
+	require.NotNil(t, vmURLStep, "build/docker/server/entrypoint.sh doesn't export PMM_VM_URL from pmm-managed-init vm-url")
+	assert.Less(t, secretsStep[0], vmURLStep[0], "pmm-managed-init vm-url runs before the secrets step stores the password")
 }
 
 func TestVMURL(t *testing.T) {

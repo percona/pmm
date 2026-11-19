@@ -514,18 +514,18 @@ func checkURLUser(raw, env string) error {
 	return nil
 }
 
-// parseURL parses a URL that may hold a password, leaving the URL out of the error.
+// parseURL parses a URL that may hold a password. Its error is a fixed message, since url.Parse quotes the URL or a
+// part of it, such as an invalid port or escape, which can come from the password.
 func parseURL(raw string) (*url.URL, error) {
 	u, err := url.Parse(raw)
 	if err != nil {
-		// url.Error quotes the URL, password included.
-		if urlErr, ok := errors.AsType[*url.Error](err); ok {
-			err = urlErr.Err
-		}
-		return nil, err
+		return nil, errInvalidURL
 	}
 	return u, nil
 }
+
+var errInvalidURL = errors.New("not a valid URL: check it for spaces and line breaks, " +
+	"and percent-encode / ? # % @ : in its username and password")
 
 // URLWithoutPassword returns a URL without the password in its userinfo, keeping the username, or raw itself when it
 // has no password.
@@ -566,8 +566,8 @@ func vmURLIn(dir, raw string) (string, error) {
 }
 
 // urlWithPassword returns raw with password in its userinfo, keeping the username, or raw when it doesn't parse, for
-// models.ParseVictoriaMetricsURL to report without the credentials. Prepare refuses a password without a username, so
-// raw has one whenever the password comes from its file.
+// models.ParseVictoriaMetricsURL to report without the credentials. Prepare links a password only for a URL with a
+// username, so raw has one whenever the password comes from its file.
 func urlWithPassword(raw, password string) string {
 	u, err := url.Parse(raw)
 	if err != nil {
