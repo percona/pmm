@@ -257,7 +257,7 @@ If an install step fails, PMM retries it once. If the retry also fails, PMM roll
 
 To stop an install that's running, expand it on the **Installs** tab and abort it. PMM then rolls back the install in the same way.
 
-If every node on the **Nodes** page shows **PMM could not read from PMM Extensions which OS releases Operations installs onto**, PMM can't read the list of supported OS releases, so it blocks installs onto every node. The rest of the reason says why. Make sure that PMM Extensions is running and on the [same version as PMM Server](../apps/deploy-pmm-extensions.md#check-versions-before-deploying), then reload the **Nodes** page.
+If a node on the **Nodes** page shows **PMM could not read from PMM Extensions which OS releases Operations installs onto**, PMM can't read the list of supported OS releases, so it blocks installs onto every node. The rest of the reason says why. Make sure that PMM Extensions is running and on the [same version as PMM Server](../apps/deploy-pmm-extensions.md#check-versions-before-deploying), then reload the **Nodes** page.
 
 ## Limitations
 
