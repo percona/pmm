@@ -53,6 +53,38 @@ describe('published package contents', () => {
   });
 });
 
+// A pinned npm version would install a second Peak UI, with its own theme context.
+describe('workspace consumers', () => {
+  it('every PMM package uses this package from the workspace', () => {
+    const ui = resolve(root, '../..');
+    const globs = [
+      ...read('../../pnpm-workspace.yaml').matchAll(/^ {2}- '([^']+)\/\*'$/gm),
+    ].map((m) => m[1]);
+    expect(globs.length).toBeGreaterThan(0);
+    const pinned = globs
+      .flatMap((dir) =>
+        readdirSync(resolve(ui, dir), { withFileTypes: true })
+          .filter((entry) => entry.isDirectory())
+          .map((entry) => `${dir}/${entry.name}`)
+      )
+      .filter((dir) => existsSync(resolve(ui, dir, 'package.json')))
+      .flatMap((dir) => {
+        const manifest = JSON.parse(
+          readFileSync(resolve(ui, dir, 'package.json'), 'utf8')
+        ) as Record<string, Record<string, string> | undefined>;
+        return ['dependencies', 'devDependencies', 'peerDependencies'].flatMap(
+          (field) => {
+            const range = manifest[field]?.[pkg.name];
+            return range && range !== 'workspace:*'
+              ? [`${dir} ${field}: ${range}`]
+              : [];
+          }
+        );
+      });
+    expect(pinned).toEqual([]);
+  });
+});
+
 // Drift guards: hand-written guides must not contradict package.json or the public entry point.
 describe('guides stay in sync with the package', () => {
   it('README install command matches peerDependencies', () => {
