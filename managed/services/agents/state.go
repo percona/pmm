@@ -241,6 +241,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		redactMode = exposeSecrets
 	}
 
+	postgresPasswordFile := pmmServerPostgresPasswordFile()
+
 	// Agent rows belonging to one pmm-agent share the same node, and several of them
 	// share the same service, so the per-row lookups below repeated the same queries.
 	// Under a fleet-wide reconnect that repetition dominates the cost (PMM-15228).
@@ -365,7 +367,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				if err != nil {
 					return err
 				}
-				cfg, err := postgresExporterConfig(node, serviceNode, service, row, redactMode, pmmAgentVersion)
+				cfg, err := postgresExporterConfig(node, serviceNode, service, row, redactMode, pmmAgentVersion, postgresPasswordFile)
 				if err != nil {
 					return err
 				}
