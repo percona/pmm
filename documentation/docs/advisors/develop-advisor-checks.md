@@ -138,6 +138,8 @@ The `context` dictionary provides these functions:
 
 - `parse_version(version)` parses a version string and returns a dictionary with the `major`, `minor`, `patch`, `rest`, `num` and `numrest` keys.
 - `format_version_num(num)` formats a version number, such as `80036`, as a version string, such as `8.0.36`.
+- `current_date()` returns today's date in UTC as a `YYYY-MM-DD` string.
+- `days_until(date)` returns the number of whole days from today (UTC) until a `YYYY-MM-DD` date. The number is negative for a date in the past.
 - `ip_is_private(address)` returns `True` if the IP address is private, or if the network in CIDR notation, such as `10.0.0.0/8`, lies fully inside a private address block. It returns `False` if it isn't, and `None` if the argument isn't a valid address or network.
 
 Get a function from `context` before you call it, for example `parse_version = context.get("parse_version", fail)`.
