@@ -78,6 +78,7 @@ import type {
   OmServiceStatus,
 } from './types';
 import { OmError } from './components/OmError';
+import { substringSearch } from './tableSearch';
 
 /** A full `mongod` command line is a paragraph; the cell shows it on hover. */
 const TRUNCATED = {
@@ -214,6 +215,7 @@ function useColumns(
         accessorKey: 'service_name',
         size: 200,
         header: 'Service',
+        enableGlobalFilter: true,
         Cell: ({ row: { original } }) => (
           <ServiceLink serviceName={original.service_name} />
         ),
@@ -222,6 +224,7 @@ function useColumns(
         accessorKey: 'host',
         size: 200,
         header: 'Node',
+        enableGlobalFilter: true,
         Cell: ({ row: { original } }) =>
           original.host ?? <Unavailable reason="service_not_observed" />,
       },
@@ -352,6 +355,7 @@ function useColumns(
       {
         accessorKey: 'endpoint',
         header: 'Endpoint',
+        enableGlobalFilter: true,
         Cell: ({ row: { original } }) =>
           original.endpoint ?? <Unavailable reason="service_not_observed" />,
       },
@@ -726,6 +730,9 @@ export const FleetServicesTab = () => {
     // column", which the chooser in the toolbar already does.
     layoutMode: 'grid',
     enableColumnActions: false,
+    ...substringSearch<OmServiceInventoryRow>(
+      'Search service, node or endpoint'
+    ),
     enablePagination: false,
     enableDensityToggle: false,
     // The short table cannot answer "tell me everything about this row", and the

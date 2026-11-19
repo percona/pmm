@@ -82,6 +82,7 @@ import { AdminAction } from './components/AdminAction';
 import { useOmBase } from './useOmBase';
 import type { OmHostRow } from './types';
 import { OmError } from './components/OmError';
+import { substringSearch } from './tableSearch';
 
 /**
  * The columns a row opens with: which node, what is on it, whether Operations can
@@ -457,10 +458,16 @@ function useColumns(
 ): MRT_ColumnDef<OmHostRow>[] {
   return useMemo(
     () => [
-      { accessorKey: 'name', header: 'Node', size: 180 },
+      {
+        accessorKey: 'name',
+        header: 'Node',
+        size: 180,
+        enableGlobalFilter: true,
+      },
       {
         accessorKey: 'address',
         header: 'Address',
+        enableGlobalFilter: true,
         Cell: ({ row: { original } }) =>
           original.address ?? <Unavailable reason="not_applicable" />,
       },
@@ -891,22 +898,6 @@ export const NodesPage = () => {
     () => rows.filter((row) => matchesHostFilter(row, hostFilter)),
     [rows, hostFilter]
   );
-  // Only the selected rows that are currently visible: a selection made under one
-  // filter should not let a bulk action reach into rows the reader cannot see.
-  const selectedRows = useMemo(
-    () =>
-      canMutate ? filteredRows.filter((row) => rowSelection[row.node_id]) : [],
-    [canMutate, filteredRows, rowSelection]
-  );
-  const bulkInstallBlocked = bulkInstallBlockedTitle(selectedRows, isHostBusy);
-  const bulkInstallPath = useMemo(
-    () =>
-      `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedRows
-        .map((row) => row.node_id)
-        .join(',')}`,
-    [omBase, selectedRows]
-  );
-
   const counts = useMemo(
     () => ({
       total: rows.length,
@@ -956,6 +947,7 @@ export const NodesPage = () => {
     // is "hide this column", which the chooser in the toolbar already does.
     layoutMode: 'grid',
     enableColumnActions: false,
+    ...substringSearch<OmHostRow>('Search name or address'),
     // The actions column has to hold "Scan" beside "Install MongoDB", and MRT's
     // default for it is narrower than that - so the install action was clipped at
     // the right edge, which is the same width problem all over again.
@@ -1094,6 +1086,15 @@ export const NodesPage = () => {
       globalFilter: focusNode,
     },
   });
+  // Only the selected rows still shown: a selection made under one filter or search
+  // should not let a bulk action reach into rows the reader cannot see.
+  const selectedRows = canMutate
+    ? table.getFilteredSelectedRowModel().rows.map((row) => row.original)
+    : [];
+  const bulkInstallBlocked = bulkInstallBlockedTitle(selectedRows, isHostBusy);
+  const bulkInstallPath = `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedRows
+    .map((row) => row.node_id)
+    .join(',')}`;
 
   if (isPending) {
     return <LinearProgress />;

@@ -88,6 +88,7 @@ import {
   useTableUrlState,
   type TableUrlStateOptions,
 } from './useTableUrlState';
+import { substringSearch } from './tableSearch';
 
 /** Label for an environment or cluster the services carry no name for. */
 const UNNAMED_ENVIRONMENT = 'Unassigned environment';
@@ -793,15 +794,7 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     // The toolbar carries Group by, the filters, the search and the column chooser;
     // everything else it can hold is off.
     enableColumnFilters: false,
-    globalFilterFn: 'contains',
-    defaultColumn: { enableGlobalFilter: false },
-    // TanStack only searches a column whose first row holds a string, and a cluster
-    // can lack a name.
-    getColumnCanGlobalFilter: () => true,
-    muiSearchTextFieldProps: {
-      placeholder: 'Search clusters',
-      inputProps: { 'aria-label': 'Search clusters' },
-    },
+    ...substringSearch<OmClusterRow>('Search clusters'),
     enableFullScreenToggle: false,
     enableHiding: true,
     // The opaque server-issued id, not the label: two clusters can share a label (a

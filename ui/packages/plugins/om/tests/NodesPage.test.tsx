@@ -522,6 +522,75 @@ describe('NodesPage', () => {
     expect(screen.getByText('node01')).toBeInTheDocument();
   });
 
+  it('searches node names and addresses by substring, nothing else', async () => {
+    renderPage(
+      [
+        host({
+          node_id: 'n1',
+          name: 'sharded-cluster-cfg01',
+          address: '10.0.0.1',
+        }),
+        host({
+          node_id: 'n2',
+          name: 'sharded-cluster-mongos01',
+          address: '10.0.0.2',
+        }),
+        host({
+          node_id: 'n3',
+          name: 'sharded-cluster-shard00svr1',
+          address: '10.0.0.3',
+        }),
+        host({
+          node_id: 'n4',
+          name: 'sharded-cluster-shard01svr0',
+          address: '10.0.0.4',
+        }),
+        host({ node_id: 'node-9', name: 'rs-node', address: '10.0.1.5' }),
+        host({ node_id: 'n6', name: 'arbiter', address: '10.0.0.9' }),
+      ],
+      '/?node=shard01'
+    );
+    const shown = () =>
+      ['cfg01', 'mongos01', 'shard00svr1', 'shard01svr0']
+        .map((suffix) => `sharded-cluster-${suffix}`)
+        .concat('rs-node', 'arbiter')
+        .filter((name) => screen.queryByText(name));
+
+    expect(shown()).toEqual(['sharded-cluster-shard01svr0']);
+
+    // The only 9 in rs-node is in its node ID, which is not searched.
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Search name or address' }),
+      { target: { value: '9' } }
+    );
+    await waitFor(() => expect(shown()).toEqual(['arbiter']));
+  });
+
+  it('leaves a selected node the search hides out of the bulk actions', async () => {
+    const refreshHosts = vi.fn();
+    useRefreshInventory.mockReturnValue({
+      refreshAll: vi.fn(),
+      refreshHosts,
+      isPending: false,
+      isError: false,
+    });
+    renderPage([
+      host({ node_id: 'n1', name: 'shard-01' }),
+      host({ node_id: 'n2', name: 'shard01' }),
+    ]);
+    selectRows('shard-01', 'shard01');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show/Hide search' }));
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Search name or address' }),
+      { target: { value: 'shard01' } }
+    );
+    await waitFor(() => expect(screen.queryByText('shard-01')).toBeNull());
+    fireEvent.click(screen.getByRole('button', { name: 'Scan selected' }));
+
+    expect(refreshHosts).toHaveBeenCalledWith(['n2']);
+  });
+
   it('disables the row Scan while a sweep is running', () => {
     useIsEstateRefreshing.mockReturnValue(true);
     renderPage();
