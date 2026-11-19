@@ -328,7 +328,7 @@ function useColumns(
             return never ? (
               <Unavailable reason="probe_never_succeeded" />
             ) : (
-              <Age value={collected} />
+              <Age value={collected} label="Last collected" />
             );
           }
           return (
@@ -340,7 +340,11 @@ function useColumns(
                 {failure.shortReason}
               </Box>
               <Typography variant="caption" color="text.secondary">
-                {never ? 'never collected' : <Age value={collected} />}
+                {never ? (
+                  'never collected'
+                ) : (
+                  <Age value={collected} label="Last collected" />
+                )}
               </Typography>
             </Stack>
           );

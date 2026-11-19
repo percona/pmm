@@ -675,7 +675,7 @@ describe('NodesPage', () => {
     });
   });
 
-  it('puts the local collection time and zone on the Collected hover', () => {
+  it('puts the local collection time and zone on the Collected hover', async () => {
     const collected = new Date(Date.now() - 3 * 60 * 1000).toISOString();
     renderPage([
       host({
@@ -683,13 +683,13 @@ describe('NodesPage', () => {
       }),
     ]);
 
-    expect(within(rowFor('node00')).getByText('3m ago')).toHaveAttribute(
-      'title',
-      `${new Date(collected).toLocaleString()} (${browserTimezone()})`
+    fireEvent.mouseOver(within(rowFor('node00')).getByText('3m ago'));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      `Last collected ${new Date(collected).toLocaleString()} (${browserTimezone()})`
     );
   });
 
-  it("puts the local collection time and zone on a failing node's last collection", () => {
+  it("puts the local collection time and zone on a failing node's last collection", async () => {
     const collected = new Date(Date.now() - 40 * 60 * 1000).toISOString();
     renderPage([
       host({
@@ -705,9 +705,9 @@ describe('NodesPage', () => {
     expect(rowFor('node00')).toHaveTextContent(
       'Last collected 40m ago. Expand for the full error.'
     );
-    expect(within(rowFor('node00')).getByText('40m ago')).toHaveAttribute(
-      'title',
-      `${new Date(collected).toLocaleString()} (${browserTimezone()})`
+    fireEvent.mouseOver(within(rowFor('node00')).getByText('40m ago'));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      `Last collected ${new Date(collected).toLocaleString()} (${browserTimezone()})`
     );
   });
 
@@ -872,6 +872,9 @@ describe('NodesPage', () => {
         is_pmm_server_node: true,
         automation_eligible: false,
         automation_blocked_by_design: true,
+        automation_blocked_reasons: [
+          'this is the node PMM Server itself runs on, which Operations never installs onto',
+        ],
         freshness: failing(),
       }),
       host({ node_id: 'node-2', name: 'node01', freshness: failing() }),
@@ -897,7 +900,7 @@ describe('NodesPage', () => {
 
       fireEvent.mouseOver(chip);
       expect((await screen.findByRole('tooltip')).textContent).toBe(
-        'this is the node PMM Server itself runs on, which Operations never installs onto'
+        'This is the node PMM Server itself runs on, which Operations never installs onto.'
       );
     });
 
@@ -908,13 +911,35 @@ describe('NodesPage', () => {
         name: 'Toggle select row',
       });
       expect(checkbox).toBeDisabled();
-      expect(checkbox).toHaveAccessibleDescription(
-        "This is the PMM Server. Operations can't install or change databases here."
-      );
+      // The same text as its Automation hover.
+      const why =
+        'This is the node PMM Server itself runs on, which Operations never installs onto.';
+      expect(checkbox).toHaveAccessibleDescription(why);
 
       fireEvent.mouseOver(checkbox.closest('span.MuiBox-root') as HTMLElement);
+      expect((await screen.findByRole('tooltip')).textContent).toBe(why);
+    });
+
+    it('keeps a node Operations cannot install onto selectable, with its reasons as sentences', async () => {
+      renderPage([
+        host({
+          name: 'old-os',
+          automation_eligible: false,
+          automation_blocked_reasons: [
+            'this node runs Ubuntu 20.04, which Operations cannot install onto (supported: Ubuntu 22.04, Ubuntu 24.04)',
+            'PMM has no address for this node',
+          ],
+        }),
+      ]);
+
+      expect(within(rowFor('old-os')).getByRole('checkbox')).toBeEnabled();
+      fireEvent.mouseOver(
+        within(rowFor('old-os')).getByRole('button', {
+          name: 'Install MongoDB',
+        }).parentElement as HTMLElement
+      );
       expect((await screen.findByRole('tooltip')).textContent).toBe(
-        "This is the PMM Server. Operations can't install or change databases here."
+        'This node runs Ubuntu 20.04, which Operations cannot install onto (supported: Ubuntu 22.04, Ubuntu 24.04). PMM has no address for this node.'
       );
     });
 

@@ -365,7 +365,7 @@ describe('BootstrapPage step 1 preconditions', () => {
     renderStep1();
 
     expect(
-      screen.getByText('no scan has reported its operating system yet')
+      screen.getByText('No scan has reported its operating system yet.')
     ).toBeInTheDocument();
   });
 
