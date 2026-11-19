@@ -69,6 +69,8 @@ type StateUpdater struct {
 	vmdb     prometheusService
 	vmParams victoriaMetricsParams
 	nomad    nomad
+	// secretExists reports whether a credential was resolved; tests replace it.
+	secretExists func(secrets.Name) bool
 }
 
 // NewStateUpdater creates new agent state updater.
@@ -79,6 +81,8 @@ func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParam
 		vmdb:     vmdb,
 		vmParams: vmParams,
 		nomad:    nomad,
+
+		secretExists: secrets.Exists,
 	}
 }
 
@@ -196,7 +200,7 @@ func (u *StateUpdater) vmAgentDeployment(pmmAgentID string) vmAgentDeployment {
 		haEnabled:     u.r.haService.Params().Enabled,
 		isServerAgent: pmmAgentID == models.PMMServerAgentID,
 	}
-	if d.isServerAgent && secrets.Exists(secrets.VMPassword) {
+	if d.isServerAgent && u.secretExists(secrets.VMPassword) {
 		d.passwordFile = secrets.Path(secrets.VMPassword)
 	}
 	return d
