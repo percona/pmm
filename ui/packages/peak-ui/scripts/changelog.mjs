@@ -26,6 +26,7 @@ export const SHIPPED_PATHSPEC = [
   'llms.txt',
   'README.md',
   'LICENSE',
+  ':(top)ui/tsconfig.base.json',
 ];
 
 /**
@@ -126,7 +127,7 @@ export const renderEntry = ({
     return `${heading}No changes to Peak UI\n`;
   }
   if (commits.length === 0) {
-    return `${heading}Rebuilt with updated bundled dependencies; no Peak UI source changes.\n`;
+    return `${heading}Rebuilt with updated dependencies; no Peak UI source changes.\n`;
   }
   const breaking = commits.flatMap((commit) => commit.breaking);
   const sections = [];
