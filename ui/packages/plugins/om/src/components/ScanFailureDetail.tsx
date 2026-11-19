@@ -23,6 +23,18 @@ import { formatCompactDuration } from '../format';
 import type { ScanFailure } from '../inventory';
 import { useOmBase } from '../useOmBase';
 
+/** Raw output a job printed, as an error shows it. */
+export const RAW_OUTPUT_SX = {
+  m: 0,
+  p: 1,
+  fontFamily: 'monospace',
+  fontSize: '0.8125rem',
+  whiteSpace: 'pre-wrap',
+  wordBreak: 'break-word',
+  bgcolor: 'action.hover',
+  borderRadius: 1,
+} as const;
+
 /**
  * A failing row's failure, in full: a node's detail panel, a service's drawer.
  *
@@ -64,17 +76,7 @@ export const ScanFailureDetail = ({
         <Box
           component="pre"
           data-testid="scan-error"
-          sx={{
-            m: 0,
-            mb: 1,
-            p: 1,
-            fontFamily: 'monospace',
-            fontSize: '0.8125rem',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-            bgcolor: 'action.hover',
-            borderRadius: 1,
-          }}
+          sx={{ ...RAW_OUTPUT_SX, mb: 1 }}
         >
           {failure.error}
         </Box>

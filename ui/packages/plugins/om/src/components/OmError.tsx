@@ -28,8 +28,9 @@ const COMPACT_SX = {
   px: 1,
   alignItems: 'center',
   width: 'fit-content',
+  maxWidth: '100%',
   '& .MuiAlert-icon': { fontSize: 18, py: 0.5, mr: 1 },
-  '& .MuiAlert-message': { py: 0.5 },
+  '& .MuiAlert-message': { py: 0.5, minWidth: 0, overflowWrap: 'anywhere' },
 };
 
 /**
