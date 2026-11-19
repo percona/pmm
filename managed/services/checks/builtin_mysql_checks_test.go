@@ -16,50 +16,19 @@
 package checks
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/pi/common"
-	"github.com/percona/pmm/managed/pi/starlark"
 )
-
-// runBuiltinCheck runs a bundled advisor from managed/data/checks the way pmm-managed-starlark does.
-func runBuiltinCheck(t *testing.T, name string, queryResults ...[]map[string]any) []check.Result {
-	t.Helper()
-
-	f, err := os.Open(filepath.Join("..", "..", "data", "checks", name+".yml"))
-	require.NoError(t, err)
-	t.Cleanup(func() { _ = f.Close() })
-
-	checks, err := check.ParseChecks(f, &check.ParseParams{DisallowUnknownFields: true, DisallowInvalidChecks: true})
-	require.NoError(t, err)
-	require.Len(t, checks, 1)
-	c := checks[0]
-
-	funcs, err := GetFuncsForVersion(c.Version)
-	require.NoError(t, err)
-	env, err := starlark.NewEnv(c.Name, c.Script, funcs)
-	require.NoError(t, err)
-
-	input := make([]any, len(queryResults))
-	for i, qr := range queryResults {
-		input[i] = qr
-	}
-	results, err := env.Run(c.Name, input, GetAdditionalContext(), func(...any) {})
-	require.NoError(t, err)
-
-	return results
-}
 
 func TestMySQLReplicaSkippingErrorsCheck(t *testing.T) {
 	t.Parallel()
 
 	const name = "mysql_replica_running_skipping_errors_or_idempotent_mode"
+	// The advisor does not read the clock, so any date works.
+	const today = "2026-11-19"
 
 	// The check's query returns the replica_* columns only from MySQL 8.0.26 on (gated by /*!80026 */),
 	// and only the slave_* columns on MariaDB (gated by /*M!100000 */).
@@ -77,7 +46,7 @@ func TestMySQLReplicaSkippingErrorsCheck(t *testing.T) {
 		}
 	}
 
-	type finding struct {
+	type insight struct {
 		summary  string
 		severity common.Severity
 	}
@@ -85,7 +54,7 @@ func TestMySQLReplicaSkippingErrorsCheck(t *testing.T) {
 	for _, tc := range []struct {
 		name string
 		row  map[string]any
-		want []finding
+		want []insight
 	}{
 		{name: "5.7 healthy", row: slaveOnly("5.7.44-log", "STRICT", "OFF")},
 		{name: "8.0.20 healthy", row: slaveOnly("8.0.20", "STRICT", "OFF")},
@@ -99,7 +68,7 @@ func TestMySQLReplicaSkippingErrorsCheck(t *testing.T) {
 		{
 			name: "MariaDB 11.8 idempotent and skips errors",
 			row:  slaveOnly("11.8.9-MariaDB-ubu2404", "IDEMPOTENT", "1062"),
-			want: []finding{
+			want: []insight{
 				{"slave_exec_mode is IDEMPOTENT.", common.Error},
 				{"slave_skip_error is configured as 1062.", common.Error},
 			},
@@ -107,32 +76,32 @@ func TestMySQLReplicaSkippingErrorsCheck(t *testing.T) {
 		{
 			name: "8.0.20 skips errors",
 			row:  slaveOnly("8.0.20", "STRICT", "1062"),
-			want: []finding{{"slave_skip_error is configured as 1062.", common.Error}},
+			want: []insight{{"slave_skip_error is configured as 1062.", common.Error}},
 		},
 		{
 			name: "8.0.25 skips errors",
 			row:  slaveOnly("8.0.25", "STRICT", "1062"),
-			want: []finding{{"slave_skip_error is configured as 1062.", common.Error}},
+			want: []insight{{"slave_skip_error is configured as 1062.", common.Error}},
 		},
 		{
 			name: "8.0.26 skips errors",
 			row:  both("8.0.26", "STRICT", "1062"),
-			want: []finding{{"replica_skip_error is configured as 1062.", common.Error}},
+			want: []insight{{"replica_skip_error is configured as 1062.", common.Error}},
 		},
 		{
 			name: "8.4 idempotent",
 			row:  both("8.4.13", "IDEMPOTENT", "OFF"),
-			want: []finding{{"replica_exec_mode is IDEMPOTENT.", common.Error}},
+			want: []insight{{"replica_exec_mode is IDEMPOTENT.", common.Error}},
 		},
 		{
 			name: "9.7 skips errors",
 			row:  both("9.7.4", "STRICT", "1062"),
-			want: []finding{{"replica_skip_error is configured as 1062.", common.Error}},
+			want: []insight{{"replica_skip_error is configured as 1062.", common.Error}},
 		},
 		{
 			name: "26.10 idempotent and skips errors",
 			row:  both("26.10.0", "IDEMPOTENT", "1062,1032"),
-			want: []finding{
+			want: []insight{
 				{"replica_exec_mode is IDEMPOTENT.", common.Error},
 				{"replica_skip_error is configured as 1062,1032.", common.Error},
 			},
@@ -141,11 +110,11 @@ func TestMySQLReplicaSkippingErrorsCheck(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			results := runBuiltinCheck(t, name, []map[string]any{tc.row})
+			results := runBuiltinCheck(t, name, today, []map[string]any{tc.row})
 
-			var got []finding
+			var got []insight
 			for _, r := range results {
-				got = append(got, finding{r.Summary, r.Severity})
+				got = append(got, insight{r.Summary, r.Severity})
 			}
 			assert.Equal(t, tc.want, got)
 		})
