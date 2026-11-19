@@ -117,6 +117,50 @@ describe('FleetServicesTab', () => {
     });
   });
 
+  it('searches service, node and endpoint by substring, nothing else', async () => {
+    const named = (name: string, id: string, endpoint = `${name}:27017`) =>
+      service({ service_name: name, service_id: id, host: name, endpoint });
+    serve(
+      topology([
+        {
+          env_name: 'production',
+          clusters: [
+            cluster({
+              name: 'sharded-cluster',
+              services: [
+                named('sharded-cluster-cfg01', 's1'),
+                named('sharded-cluster-mongos01', 's2'),
+                named('sharded-cluster-shard00svr1', 's3'),
+                named('sharded-cluster-shard01svr0', 's4'),
+                named('arbiter', 's5', '10.0.0.9:27017'),
+              ],
+            }),
+          ],
+        },
+      ])
+    );
+    renderTab();
+    const shown = () =>
+      screen
+        .getAllByRole('row')
+        .filter((row) => within(row).queryByTestId('om-service-status'))
+        .map((row) => within(row).getByRole('link').textContent);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show/Hide search' }));
+    const search = screen.getByRole('textbox', {
+      name: 'Search service, node or endpoint',
+    });
+    fireEvent.change(search, { target: { value: 'shard01' } });
+    await waitFor(() =>
+      expect(shown()).toEqual(['sharded-cluster-shard01svr0'])
+    );
+
+    // Every service's version (7.0.39) and free connections (99) hold a 9; neither is
+    // searched.
+    fireEvent.change(search, { target: { value: '9' } });
+    await waitFor(() => expect(shown()).toEqual(['arbiter']));
+  });
+
   it('opens with the down service as the first row', () => {
     render(
       <MemoryRouter>
