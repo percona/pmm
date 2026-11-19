@@ -2084,8 +2084,8 @@ func TestConfirmMonitoringStep(t *testing.T) {
 	t.Parallel()
 
 	registeredAt := time.Now()
-	gaveUp := models.OmRegistrationErrors{"n1": "Operations does not list its MongoDB service"}
-	otherGaveUp := models.OmRegistrationErrors{"n2": "Operations lists no node for it"}
+	gaveUp := models.OmRegistrationErrors{"n1": "This node's MongoDB service isn't showing as monitored yet. If it's missing from PMM Inventory, add it to PMM manually."}
+	otherGaveUp := models.OmRegistrationErrors{"n2": "This node isn't on the Nodes page. Reconnect it to PMM, then add its MongoDB service manually."}
 	listed := map[string]extensionsHost{"n1": {NodeID: "node-1", Services: []extensionsService{
 		{ServiceID: "s1", Name: "n1-mongod", Port: new(int32(27017))},
 	}}}
@@ -2113,7 +2113,7 @@ func TestConfirmMonitoringStep(t *testing.T) {
 		{
 			name: "fails a host the stepper gave up on, with its reason", status: bootstrapRunSucceeded,
 			config:          models.OmBootstrapRunConfig{RegisteredAt: &registeredAt, RegistrationErrors: gaveUp},
-			hostsByExecutor: gone, want: bootstrapStepFailed, wantDetail: "Operations does not list its MongoDB service",
+			hostsByExecutor: gone, want: bootstrapStepFailed, wantDetail: "This node's MongoDB service isn't showing as monitored yet. If it's missing from PMM Inventory, add it to PMM manually.",
 		},
 		{
 			name: "a confirmed host stays succeeded when the stepper gave up on another host", status: bootstrapRunSucceeded,
@@ -2187,7 +2187,7 @@ func TestBootstrapRunRegistered(t *testing.T) {
 			`{"items": [{"node_id": "node-1", "executor_host": "n1", "services": []}], "total": 1, "offset": 0, "limit": 200}`)
 		svc := stub.bootstrapService(t)
 		require.NoError(t, models.MarkOmBootstrapRunRegistered(svc.db.Querier, "run-abc",
-			models.OmRegistrationErrors{"n1": "Operations lists no node for it"}))
+			models.OmRegistrationErrors{"n1": "This node isn't on the Nodes page. Reconnect it to PMM, then add its MongoDB service manually."}))
 
 		response, err := svc.GetBootstrapRun(callerContext(t), &omv1.GetBootstrapRunRequest{RunId: "run-abc"})
 
@@ -2196,7 +2196,7 @@ func TestBootstrapRunRegistered(t *testing.T) {
 		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[1].path)
 		steps := response.GetHosts()[0].GetFinalizeSteps()
 		assert.Equal(t, "failed", steps[len(steps)-1].GetStatus())
-		assert.Equal(t, "Operations lists no node for it", steps[len(steps)-1].GetDetail())
+		assert.Equal(t, "This node isn't on the Nodes page. Reconnect it to PMM, then add its MongoDB service manually.", steps[len(steps)-1].GetDetail())
 	})
 
 	t.Run("fails the request when the stored configuration cannot be read, rather than reading the run as unregistered", func(t *testing.T) {

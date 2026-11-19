@@ -1,7 +1,7 @@
 # Install and monitor MongoDB clusters
 
 !!! warning "Developer Preview"
-    Operations for MongoDB is a Developer Preview feature in PMM 3.10.0. Use it for testing and feedback only, not in production.
+    Operations for MongoDB is a Developer Preview feature. Use it for testing and feedback only, not in production.
 
 Operations for MongoDB enables you to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, review the [limitations](#limitations) that apply in this Developer Preview release.
 
@@ -239,7 +239,7 @@ The page shows when its data was last refreshed and when the nodes were last sca
 
 If **Nodes**, **Automations** or **Settings** can't load and the error says **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container. PMM signs you in to PMM Extensions with your PMM session. PMM Extensions accepts that session only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default. If the container sets it to `false`, remove the variable and recreate the container.
 
-### Scans
+### A node or service shows a problem
 
 If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
 
@@ -249,19 +249,31 @@ The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look
 
 To find out why a service is failing, go to **MongoDB > Operations > Fleet** and select the **Services** tab. The **Collected** column shows the reason in red, for example **Database unreachable** or **Database authentication failed**. Click the service's status to open its details, which show the full error and what to do about it. When PMM knows which scan failed, the details also link to it. A **Down** service marked **not running** had no `mongod` or `mongos` running at its last scan.
 
-### Installs
+### An install fails or needs stopping
 
-If an install step fails, PMM retries it once. If the retry also fails, PMM rolls back what it installed on all nodes: packages, configuration, and data. PMM doesn't retry failed pre-checks.
+To see what happened to an install, go to **MongoDB > Operations > Automations**, select the **Installs** tab, and expand the install to see the status of each node.
 
-To stop an install that's running, expand it on the **Installs** tab and abort it. PMM then rolls back the install in the same way. You can't abort an install while it rolls back.
+#### The install failed
+
+When a step fails, PMM tries it once more. If it fails again, PMM rolls back the install on all nodes and removes the packages, configuration, and data it added. Failed pre-checks aren't retried.
 
 If a rollback step also fails twice, PMM stops the rollback and marks the install **Failed**. The install's error names the node and the step that failed. Clean up that node by hand before you install on it again.
 
-When the install itself has finished, it shows **Confirming PMM monitoring** until PMM monitors its MongoDB services. If PMM can't register a node's MongoDB service within a few minutes, that step fails on the node and shows why. The install still shows **Succeeded**, and PMM stops trying. To monitor that node, fix the reason and add its MongoDB service in PMM yourself. After PMM confirms monitoring, the install stays **Succeeded**, even if you later delete its MongoDB service in PMM.
+#### You need to stop an install
+
+Expand the running install and abort it. PMM rolls back the install the same way as after a failure. Once the rollback starts, you can't abort the install anymore, so that the rollback isn't stopped halfway.
+
+#### A node isn't monitored after the install
+
+After the install succeeds, it shows **Confirming PMM monitoring** while PMM adds the new MongoDB services. If PMM can't add a node's service within 5 minutes, this step fails on that node and shows why, and PMM stops trying. The install still shows **Succeeded**.
+
+To monitor the node, fix the reason shown, then [add its MongoDB service to PMM](../install-pmm/install-pmm-client/connect-database/mongodb.md) manually.
+
+After PMM confirms monitoring, the install stays **Succeeded**, even if you later delete its MongoDB service from PMM.
 
 ## Limitations
 
-Operations for MongoDB is a Developer Preview feature in PMM 3.10.0: you can try it out, but it isn't complete or supported for production yet. It has the following limitations:
+Operations for MongoDB is a Developer Preview feature: you can try it out, but it isn't complete or supported for production yet. It has the following limitations:
 
 - You can install only replica sets with 1 or 3 members, not sharded clusters or standalone instances, though Fleet still shows any sharded clusters that PMM already monitors.
 - No TLS or encryption at rest. Members authenticate to each other with a keyfile. TLS and encryption at rest are planned for a future release.

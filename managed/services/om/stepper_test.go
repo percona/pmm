@@ -472,7 +472,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
 		require.NoError(t, err)
 		assert.NotNil(t, config.RegisteredAt)
-		assert.Equal(t, models.OmRegistrationErrors{"node01": "Operations lists no node for it"}, config.RegistrationErrors)
+		assert.Equal(t, models.OmRegistrationErrors{"node01": "This node isn't on the Nodes page. Reconnect it to PMM, then add its MongoDB service manually."}, config.RegistrationErrors)
 	})
 
 	t.Run("records a run with no stored credentials once the window has passed", func(t *testing.T) {
@@ -500,7 +500,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		assert.NotContains(t, registered, "run-fresh")
 		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-old")
 		require.NoError(t, err)
-		assert.Equal(t, models.OmRegistrationErrors{"node00": "PMM holds no monitoring credentials for this install"},
+		assert.Equal(t, models.OmRegistrationErrors{"node00": "Couldn't start monitoring this node: the monitoring credentials are missing. Add its MongoDB service to PMM manually."},
 			config.RegistrationErrors)
 	})
 
@@ -527,7 +527,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-old")
 		require.NoError(t, err)
 		require.Len(t, config.RegistrationErrors, 2)
-		assert.Contains(t, config.RegistrationErrors["node00"], "PMM could not read Operations' node list")
+		assert.Contains(t, config.RegistrationErrors["node00"], "Couldn't start monitoring this node: ")
 		assert.Equal(t, config.RegistrationErrors["node00"], config.RegistrationErrors["node01"])
 	})
 
@@ -605,7 +605,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, "run-abc")
 		require.NoError(t, err, "past the window the run leaves the sweep regardless")
 		assert.NotNil(t, config.RegisteredAt)
-		assert.Equal(t, models.OmRegistrationErrors{"node00": "Operations does not list its MongoDB service"}, config.RegistrationErrors)
+		assert.Equal(t, models.OmRegistrationErrors{"node00": "This node's MongoDB service isn't showing as monitored yet. If it's missing from PMM Inventory, add it to PMM manually."}, config.RegistrationErrors)
 	})
 }
 

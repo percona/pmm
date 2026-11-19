@@ -239,9 +239,9 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 	if err != nil {
 		s.l.Warnf("bootstrap run %s: succeeded but has no stored secret to register with: %s", run.ID, err)
 		if errors.Is(err, models.ErrNotFound) {
-			giveUp("PMM holds no monitoring credentials for this install")
+			giveUp("Couldn't start monitoring this node: the monitoring credentials are missing. Add its MongoDB service to PMM manually.")
 		} else {
-			giveUp("PMM could not read its monitoring credentials for this install: " + err.Error())
+			giveUp("Couldn't start monitoring this node: " + err.Error() + ". Add its MongoDB service to PMM manually.")
 		}
 		return
 	}
@@ -254,7 +254,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 	hostsByExecutor, err := s.inventoryHostsByExecutor(ctx)
 	if err != nil {
 		s.l.Warnf("bootstrap run %s: failed to look up the inventory app's hosts: %s", run.ID, err)
-		giveUp("PMM could not read Operations' node list: " + err.Error())
+		giveUp("Couldn't start monitoring this node: " + err.Error() + ". Add its MongoDB service to PMM manually.")
 		return
 	}
 
@@ -264,7 +264,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 		inventoryHost, ok := hostsByExecutor[host.Host]
 		if !ok {
 			s.l.Warnf("bootstrap run %s: executor %s has no row in the inventory app yet", run.ID, host.Host)
-			problems[host.Host] = "Operations lists no node for it"
+			problems[host.Host] = "This node isn't on the Nodes page. Reconnect it to PMM, then add its MongoDB service manually."
 			continue
 		}
 		err = s.registerBootstrapHost(ctx, inventoryHost.NodeID, host.Host, run.ReplicaSetName, run.Port,
@@ -276,7 +276,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 		}
 		if !hasBootstrapService(inventoryHost, host.Host, run.Port) {
 			unconfirmed = append(unconfirmed, inventoryHost.NodeID)
-			problems[host.Host] = "Operations does not list its MongoDB service"
+			problems[host.Host] = "This node's MongoDB service isn't showing as monitored yet. If it's missing from PMM Inventory, add it to PMM manually."
 		}
 	}
 
