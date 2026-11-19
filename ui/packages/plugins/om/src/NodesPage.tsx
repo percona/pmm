@@ -61,7 +61,7 @@ import { NotOnboardedDialog } from './components/NotOnboardedDialog';
 import { OmHeader } from './components/OmHeader';
 import { ScanFailureDetail } from './components/ScanFailureDetail';
 import { Unavailable } from './components/Unavailable';
-import { formatCompactDuration, pluralize } from './format';
+import { formatCompactDuration, pluralize, reasonSentences } from './format';
 import {
   ageSeconds,
   describeScanFailure,
@@ -72,6 +72,7 @@ import {
 import {
   useForgetHost,
   useIsEstateRefreshing,
+  useIsScanHeld,
   useOmBootstrapRuns,
   useOmInventoryHosts,
   useRefreshInventory,
@@ -82,6 +83,7 @@ import { AdminAction } from './components/AdminAction';
 import { useOmBase } from './useOmBase';
 import type { OmHostRow } from './types';
 import { OmError } from './components/OmError';
+import { substringSearch } from './tableSearch';
 
 /**
  * The columns a row opens with: which node, what is on it, whether Operations can
@@ -255,11 +257,16 @@ const ExecutorCell = ({
  */
 const BUSY_TITLE = 'Already part of an install in progress.';
 
-const PMM_SERVER_TITLE =
-  "This is the PMM Server. Operations can't install or change databases here.";
+/** Every Scan waits while one request is sent, since they share one mutation. */
+const SCAN_SENDING_TITLE = 'A scan request is being sent.';
 
+// PMM Server's own checkbox says what its Automation hover does.
 const selectionBlockedTitle = (row: OmHostRow, busy: boolean): string | null =>
-  row.is_pmm_server_node ? PMM_SERVER_TITLE : busy ? BUSY_TITLE : null;
+  row.is_pmm_server_node
+    ? automationBlockedTitle(row.automation_blocked_reasons)
+    : busy
+      ? BUSY_TITLE
+      : null;
 
 const notATargetLabel = (row: OmHostRow) =>
   row.is_pmm_server_node ? 'PMM Server' : 'Not a target';
@@ -273,7 +280,7 @@ const notATargetLabel = (row: OmHostRow) =>
  * the two cannot drift.
  */
 const automationBlockedTitle = (reasons: string[]) =>
-  reasons.join('; ') || 'Not eligible for automation.';
+  reasonSentences(reasons) || 'Not eligible for automation.';
 
 /**
  * Why the bulk Install button is disabled for this selection count.
@@ -464,10 +471,16 @@ function useColumns(
 ): MRT_ColumnDef<OmHostRow>[] {
   return useMemo(
     () => [
-      { accessorKey: 'name', header: 'Node', size: 180 },
+      {
+        accessorKey: 'name',
+        header: 'Node',
+        size: 180,
+        enableGlobalFilter: true,
+      },
       {
         accessorKey: 'address',
         header: 'Address',
+        enableGlobalFilter: true,
         Cell: ({ row: { original } }) =>
           original.address ?? <Unavailable reason="not_applicable" />,
       },
@@ -558,7 +571,7 @@ function useColumns(
             return age == null ? (
               <Unavailable reason="probe_never_succeeded" />
             ) : (
-              <Age value={collected} />
+              <Age value={collected} label="Last collected" />
             );
           }
           return (
@@ -579,8 +592,9 @@ function useColumns(
                   'Never collected. Expand for the full error.'
                 ) : (
                   <>
-                    Last collected <Age value={collected} />. Expand for the
-                    full error.
+                    Last collected{' '}
+                    <Age value={collected} label="Last collected" />. Expand for
+                    the full error.
                   </>
                 )}
               </Typography>
@@ -835,11 +849,9 @@ const ForgetDialog = ({
 export const NodesPage = () => {
   const { data, isPending, isError, error } = useOmInventoryHosts();
   const refresh = useRefreshInventory();
-  // Any active run, matching AutomationsScansTab's button: firing an estate-wide sweep into
-  // one already in flight only earns a 409, and the row actions below cannot succeed
-  // against a host that sweep already holds. The refetch when a sweep lands is the
-  // estate query's own business now, so this page no longer arranges it.
   const refreshing = useIsEstateRefreshing();
+  // One request at a time: they share one mutation, whose state follows the last.
+  const isScanHeld = useIsScanHeld(refresh.isPending);
   const { conflict: scanConflict, runningScan } = useScanConflict(refresh);
   const navigate = useNavigate();
   const omBase = useOmBase();
@@ -898,22 +910,6 @@ export const NodesPage = () => {
     () => rows.filter((row) => matchesHostFilter(row, hostFilter)),
     [rows, hostFilter]
   );
-  // Only the selected rows that are currently visible: a selection made under one
-  // filter should not let a bulk action reach into rows the reader cannot see.
-  const selectedRows = useMemo(
-    () =>
-      canMutate ? filteredRows.filter((row) => rowSelection[row.node_id]) : [],
-    [canMutate, filteredRows, rowSelection]
-  );
-  const bulkInstallBlocked = bulkInstallBlockedTitle(selectedRows, isHostBusy);
-  const bulkInstallPath = useMemo(
-    () =>
-      `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedRows
-        .map((row) => row.node_id)
-        .join(',')}`,
-    [omBase, selectedRows]
-  );
-
   const counts = useMemo(
     () => ({
       total: rows.length,
@@ -963,6 +959,7 @@ export const NodesPage = () => {
     // is "hide this column", which the chooser in the toolbar already does.
     layoutMode: 'grid',
     enableColumnActions: false,
+    ...substringSearch<OmHostRow>('Search name or address'),
     // The actions column has to hold "Scan" beside "Install MongoDB", and MRT's
     // default for it is narrower than that - so the install action was clipped at
     // the right edge, which is the same width problem all over again.
@@ -1016,79 +1013,90 @@ export const NodesPage = () => {
     onRowSelectionChange: setRowSelection,
     state: { rowSelection },
     renderDetailPanel: ({ row }) => <HostDetail row={row.original} />,
-    renderRowActions: ({ row }) => (
-      <Stack direction="row" spacing={1}>
-        <AdminAction title="Scan this node now. Starts a job and takes tens of seconds; the row updates when it lands.">
-          <Button
-            size="small"
-            disabled={refresh.isPending || refreshing}
-            onClick={() => refresh.refreshHosts([row.original.node_id])}
-          >
-            Scan
-          </Button>
-        </AdminAction>
-        <AdminAction
-          title={
-            isHostBusy(row.original)
-              ? BUSY_TITLE
-              : row.original.automation_eligible
-                ? 'Install MongoDB on this node and initialize a single-member replica set.'
-                : automationBlockedTitle(
-                    row.original.automation_blocked_reasons
-                  )
-          }
-        >
-          <Button
-            size="small"
-            variant="outlined"
-            disabled={
-              !row.original.automation_eligible || isHostBusy(row.original)
-            }
-            onClick={() =>
-              navigate(
-                `${omBase}/${OM_ROUTE_INSTALL}?nodes=${row.original.node_id}`
-              )
+    renderRowActions: ({ row }) => {
+      const held = isScanHeld([row.original.node_id]);
+      return (
+        <Stack direction="row" spacing={1}>
+          <AdminAction
+            title={
+              held
+                ? refresh.isPending
+                  ? SCAN_SENDING_TITLE
+                  : 'A scan of this node is already running.'
+                : 'Scan this node now. Starts a job and takes tens of seconds; the row updates when it lands.'
             }
           >
-            Install MongoDB
-          </Button>
-        </AdminAction>
-        {/* Behind the ellipsis, not beside the daily actions: three text buttons
-            did not fit the row, and Forget was the one falling off the right edge
-            and it belongs behind a menu on its own account too, named for what
-            it is for rather than for what it deletes. */}
-        {/* No actions at all on PMM Server's own node. Forget would clear Operations'
-            record of the machine PMM runs on, the next scan would put it straight
-            back, and in between the fleet would be wrong - so the menu has nothing
-            to show and is not rendered. */}
-        {canMutate && !row.original.is_pmm_server_node && (
-          <RowOverflowMenu label={`More actions for ${row.original.name}`}>
-            {(close) => [
-              /* Wrapped in a span because a disabled MUI MenuItem fires no pointer
-                 events, so the Tooltip would never open on the one state it exists
-                 to explain - the reason AdminAction wraps the buttons. An
-                 empty title renders no tooltip, so an idle node is unaffected. */
-              <Tooltip
-                key="forget"
-                title={isHostBusy(row.original) ? BUSY_TITLE : ''}
-              >
-                <Box component="span">
-                  <MenuItem
-                    disabled={isHostBusy(row.original)}
-                    onClick={() => {
-                      setForgetting([row.original]);
-                      close();
-                    }}
-                  >
-                    Remove duplicate entry
-                  </MenuItem>
-                </Box>
-              </Tooltip>,
-            ]}
-          </RowOverflowMenu>
-        )}
-      </Stack>
-    ),
+            <Button
+              size="small"
+              disabled={held}
+              onClick={() => refresh.refreshHosts([row.original.node_id])}
+            >
+              Scan
+            </Button>
+          </AdminAction>
+          <AdminAction
+            title={
+              isHostBusy(row.original)
+                ? BUSY_TITLE
+                : row.original.automation_eligible
+                  ? 'Install MongoDB on this node and initialize a single-member replica set.'
+                  : automationBlockedTitle(
+                      row.original.automation_blocked_reasons
+                    )
+            }
+          >
+            <Button
+              size="small"
+              variant="outlined"
+              disabled={
+                !row.original.automation_eligible || isHostBusy(row.original)
+              }
+              onClick={() =>
+                navigate(
+                  `${omBase}/${OM_ROUTE_INSTALL}?nodes=${row.original.node_id}`
+                )
+              }
+            >
+              Install MongoDB
+            </Button>
+          </AdminAction>
+          {/* Behind the ellipsis, not beside the daily actions: three text buttons
+              did not fit the row, and Forget was the one falling off the right edge
+              and it belongs behind a menu on its own account too, named for what
+              it is for rather than for what it deletes. */}
+          {/* No actions at all on PMM Server's own node. Forget would clear Operations'
+              record of the machine PMM runs on, the next scan would put it straight
+              back, and in between the fleet would be wrong - so the menu has nothing
+              to show and is not rendered. */}
+          {canMutate && !row.original.is_pmm_server_node && (
+            <RowOverflowMenu label={`More actions for ${row.original.name}`}>
+              {(close) => [
+                /* Wrapped in a span because a disabled MUI MenuItem fires no pointer
+                   events, so the Tooltip would never open on the one state it exists
+                   to explain - the reason AdminAction wraps the buttons. An
+                   empty title renders no tooltip, so an idle node is unaffected. */
+                <Tooltip
+                  key="forget"
+                  title={isHostBusy(row.original) ? BUSY_TITLE : ''}
+                >
+                  <Box component="span">
+                    <MenuItem
+                      disabled={isHostBusy(row.original)}
+                      onClick={() => {
+                        setForgetting([row.original]);
+                        close();
+                      }}
+                    >
+                      Remove duplicate entry
+                    </MenuItem>
+                  </Box>
+                </Tooltip>,
+              ]}
+            </RowOverflowMenu>
+          )}
+        </Stack>
+      );
+    },
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
@@ -1101,6 +1109,15 @@ export const NodesPage = () => {
       globalFilter: focusNode,
     },
   });
+  // Only the selected rows still shown: a selection made under one filter or search
+  // should not let a bulk action reach into rows the reader cannot see.
+  const selectedRows = canMutate
+    ? table.getFilteredSelectedRowModel().rows.map((row) => row.original)
+    : [];
+  const selectedIds = selectedRows.map((row) => row.node_id);
+  const selectionHeld = isScanHeld(selectedIds);
+  const bulkInstallBlocked = bulkInstallBlockedTitle(selectedRows, isHostBusy);
+  const bulkInstallPath = `${omBase}/${OM_ROUTE_INSTALL}?nodes=${selectedIds.join(',')}`;
 
   if (isPending) {
     return <LinearProgress />;
@@ -1142,7 +1159,7 @@ export const NodesPage = () => {
               <Button
                 variant="contained"
                 startIcon={<PlayArrowIcon />}
-                disabled={refresh.isPending || refreshing}
+                disabled={isScanHeld([])}
                 onClick={() => refresh.refreshAll()}
               >
                 {refreshing ? 'Scanning…' : 'Scan all'}
@@ -1247,14 +1264,22 @@ export const NodesPage = () => {
           <Typography variant="body2">
             <strong>{selectedRows.length}</strong> selected
           </Typography>
-          <Tooltip title="Scan every selected node. Starts one job per node and takes tens of seconds.">
+          <Tooltip
+            title={
+              selectionHeld
+                ? refresh.isPending
+                  ? SCAN_SENDING_TITLE
+                  : 'A scan of a selected node is already running.'
+                : 'Scan every selected node. Starts one job per node and takes tens of seconds.'
+            }
+          >
             <Box component="span">
               <Button
                 size="small"
                 variant="outlined"
-                disabled={refresh.isPending || refreshing}
+                disabled={selectionHeld}
                 onClick={() => {
-                  refresh.refreshHosts(selectedRows.map((row) => row.node_id));
+                  refresh.refreshHosts(selectedIds);
                   setRowSelection({});
                 }}
               >

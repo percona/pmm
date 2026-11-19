@@ -15,10 +15,27 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { Box, Tooltip } from '@mui/material';
 import { formatTimestamp } from '@pmm-extensions/framework';
+import { FOCUS_RING_SX } from '../focusRing';
 import { formatAge } from '../format';
 
-/** A compact `3m ago`, with the full local time and its zone on hover. */
-export const Age = ({ value }: { value: string | null | undefined }) => (
-  <span title={formatTimestamp(value)?.title}>{formatAge(value)}</span>
-);
+/** A compact `3m ago`, with the full local time and its zone on hover after `label`. */
+export const Age = ({
+  value,
+  label,
+}: {
+  value: string | null | undefined;
+  label?: string;
+}) => {
+  const when = formatTimestamp(value)?.title;
+  return when ? (
+    <Tooltip title={label ? `${label} ${when}` : when} describeChild>
+      <Box component="span" tabIndex={0} sx={FOCUS_RING_SX}>
+        {formatAge(value)}
+      </Box>
+    </Tooltip>
+  ) : (
+    <span>{formatAge(value)}</span>
+  );
+};

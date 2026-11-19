@@ -33,6 +33,7 @@ import {
   SERVICE_STATUS_LABEL,
 } from '../constants';
 import { isRunActive } from '../api';
+import { FOCUS_RING_SX } from '../focusRing';
 import { formatAge, formatCompactDuration } from '../format';
 import { ageSeconds } from '../inventory';
 import type {
@@ -109,16 +110,6 @@ export const StatusBadge = ({
   );
 };
 
-/** Shared by the two captions beside a Down chip, so both focus the same way. */
-const CAPTION_SX = {
-  '&:focus-visible': {
-    outline: '2px solid',
-    outlineColor: 'primary.main',
-    outlineOffset: 2,
-    borderRadius: 0.5,
-  },
-} as const;
-
 /**
  * A down service whose node a scan reached and found no mongod on: stopped, rather
  * than running and unreachable. The scan's time is in the tooltip, since the row has
@@ -151,7 +142,7 @@ const NotRunning = ({
         noWrap
         data-testid="om-not-running"
         tabIndex={0}
-        sx={CAPTION_SX}
+        sx={FOCUS_RING_SX}
       >
         not running
       </Typography>
@@ -183,7 +174,7 @@ const DownFor = ({ lastUpAt }: { lastUpAt?: string | null }) => {
         noWrap
         data-testid="om-down-for"
         tabIndex={0}
-        sx={CAPTION_SX}
+        sx={FOCUS_RING_SX}
       >
         {text}
       </Typography>

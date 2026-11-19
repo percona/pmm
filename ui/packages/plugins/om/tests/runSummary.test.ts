@@ -18,7 +18,14 @@
 import { describe, expect, it } from 'vitest';
 import { bootstrapStepLabel } from '../src/constants';
 import { formatRunElapsed } from '../src/format';
-import { runHasFailure, runSummaryLine } from '../src/runSummary';
+import {
+  runFailureLines,
+  runFailures,
+  runHasFailure,
+  runReasons,
+  runSummaryLine,
+  stepFailureReason,
+} from '../src/runSummary';
 import type {
   OmBootstrapHost,
   OmBootstrapStep,
@@ -452,5 +459,256 @@ describe('runHasFailure', () => {
     expect(
       runHasFailure(run({ hosts: [host('a', installing('running'))] }))
     ).toBe(false);
+  });
+});
+
+// The ticket's wrong-bind-address install: the reason, then the end of the output, in
+// which the cause comes last.
+const BIND_FAILURE =
+  "Step 'run-script' failed: exit status 1 Starting mongod: Failed\n" +
+  'uates to an empty string: NUMACTL\n' +
+  'mongod.service: Control process exited, code=exited, status=48/n/a\n' +
+  'Error setting up listener: setup bind :: caused by :: Cannot assign requested address\n' +
+  ' (task history 4242)';
+
+const failedWith = (
+  stepName: string,
+  detail: string,
+  attemptCount = 2
+): OmBootstrapStep => ({ ...step(stepName, 'failed', attemptCount), detail });
+
+describe('stepFailureReason', () => {
+  it('leads with the last line, and keeps the rest and the task history apart', () => {
+    expect(stepFailureReason(BIND_FAILURE)).toEqual({
+      excerpt:
+        'Error setting up listener: setup bind :: caused by :: Cannot assign requested address',
+      detail: BIND_FAILURE.replace(/\s*\(task history 4242\)$/, ''),
+      taskHistoryId: '4242',
+    });
+  });
+
+  it('takes a detail with no task history as it is', () => {
+    expect(stepFailureReason('Ended FAILED with no output')).toEqual({
+      excerpt: 'Ended FAILED with no output',
+      detail: 'Ended FAILED with no output',
+      taskHistoryId: null,
+    });
+  });
+
+  it('cuts a long line from the front at a word, keeping its end', () => {
+    const words = Array.from({ length: 60 }, (_, index) => `word${index}`);
+    const { excerpt } = stepFailureReason(words.join(' '));
+
+    expect(excerpt.startsWith('…word')).toBe(true);
+    expect(excerpt.endsWith('word59')).toBe(true);
+    expect(excerpt.length).toBeLessThanOrEqual(201);
+  });
+
+  it('cuts a long line with no word in it at the length alone', () => {
+    const { excerpt } = stepFailureReason('x'.repeat(500));
+
+    expect(excerpt).toBe(`…${'x'.repeat(200)}`);
+  });
+});
+
+describe('runFailureLines', () => {
+  const why = (failing: OmGetBootstrapRunResponse) =>
+    runFailureLines(runFailures(failing, name));
+
+  it('says why as soon as a step fails, before any retry or rollback', () => {
+    const lines = why(
+      run({
+        hosts: [host('a', [failedWith('pre_check', 'port 27017 is taken', 1)])],
+      })
+    );
+
+    expect(lines).toEqual([
+      'Attempt 1 failed: port 27017 is taken (on node-a)',
+    ]);
+  });
+
+  it('says why a step failed for good, during the rollback too', () => {
+    const lines = why(
+      run({
+        hosts: [
+          host(
+            'a',
+            [
+              step('pre_check', 'succeeded'),
+              failedWith('start_service', BIND_FAILURE),
+            ],
+            {
+              rollback_steps: [step('stop_service', 'running')],
+            }
+          ),
+        ],
+      })
+    );
+
+    expect(lines).toEqual([
+      'Why: Error setting up listener: setup bind :: caused by :: Cannot assign requested address (on node-a)',
+    ]);
+  });
+
+  it('puts a failed rollback first, then why the rollback started', () => {
+    const lines = why(
+      run({
+        status: 'failed',
+        hosts: [
+          host(
+            'a',
+            [failedWith('install_package', 'E: Unable to locate package')],
+            {
+              rollback_steps: [
+                failedWith('remove_data', 'rm: Device or resource busy'),
+              ],
+            }
+          ),
+        ],
+      })
+    );
+
+    expect(lines).toEqual([
+      'Rollback failed: rm: Device or resource busy (on node-a)',
+      'Why: E: Unable to locate package (on node-a)',
+    ]);
+  });
+
+  it('says why a finalize step failed for good, which rolls the run back too', () => {
+    const lines = why(
+      run({
+        hosts: [
+          host('a', [step('pre_check', 'succeeded')], {
+            finalize_steps: [
+              failedWith('enable_auth', 'MongoServerError: not primary'),
+            ],
+            rollback_steps: [step('stop_service', 'running')],
+          }),
+        ],
+      })
+    );
+
+    expect(lines).toEqual(['Why: MongoServerError: not primary (on node-a)']);
+  });
+
+  it('gives a detail that is only a task history no line, and keeps it for the details', () => {
+    const failing = run({
+      status: 'rolled_back',
+      hosts: [
+        host('a', [failedWith('install_package', ' (task history 4242)')]),
+      ],
+    });
+
+    expect(why(failing)).toEqual([]);
+    expect(runFailures(failing, name)[0].reason.taskHistoryId).toBe('4242');
+  });
+
+  it('gives a run that succeeded no reason, though monitoring was not confirmed', () => {
+    const lines = why(
+      run({
+        status: 'succeeded',
+        hosts: [
+          host('a', [step('pre_check', 'succeeded')], {
+            finalize_steps: [
+              failedWith('confirm_monitoring', 'no service yet'),
+            ],
+          }),
+        ],
+      })
+    );
+
+    expect(lines).toEqual([]);
+  });
+
+  it('names every node a step failed on before its retry', () => {
+    const lines = why(
+      run({
+        hosts: ['a', 'b'].map((id) =>
+          host(id, [failedWith('install_package', 'E: timeout', 1)])
+        ),
+      })
+    );
+
+    expect(lines).toEqual(['Attempt 1 failed: E: timeout (on node-a, node-b)']);
+  });
+
+  it('names every node that failed the same way on one line', () => {
+    const lines = why(
+      run({
+        status: 'rolled_back',
+        hosts: ['a', 'b'].map((id) =>
+          host(id, [
+            failedWith('install_package', 'E: Unable to locate package'),
+          ])
+        ),
+      })
+    );
+
+    expect(lines).toEqual([
+      'Why: E: Unable to locate package (on node-a, node-b)',
+    ]);
+  });
+});
+
+describe('runReasons', () => {
+  const reasons = (failing: OmGetBootstrapRunResponse) =>
+    runReasons(failing, runFailures(failing, name));
+  const ABORTED =
+    'an operator requested cancellation; every host was rolled back';
+
+  it('says an operator aborted the run before what a step said', () => {
+    expect(
+      reasons(
+        run({
+          status: 'rolled_back',
+          cancel_requested: true,
+          error: ABORTED,
+          hosts: [host('a', [failedWith('install_package', 'E: timeout', 1)])],
+        })
+      )
+    ).toEqual([ABORTED, 'Why: E: timeout (on node-a)']);
+  });
+
+  it("gives the run's error alone when no step says why", () => {
+    expect(reasons(run({ status: 'rolled_back', error: ABORTED }))).toEqual([
+      ABORTED,
+    ]);
+  });
+
+  it("keeps the run's error first when only a failed rollback says why", () => {
+    const error =
+      'install_package failed on a after 2 attempts; rollback failed: remove_data';
+    expect(
+      reasons(
+        run({
+          status: 'failed',
+          error,
+          hosts: [
+            host('a', [step('install_package', 'failed', 2)], {
+              rollback_steps: [
+                failedWith('remove_data', 'rm: Device or resource busy'),
+              ],
+            }),
+          ],
+        })
+      )
+    ).toEqual([
+      error,
+      'Rollback failed: rm: Device or resource busy (on node-a)',
+    ]);
+  });
+
+  it('says nothing yet about a rollback step about to be retried', () => {
+    expect(
+      reasons(
+        run({
+          hosts: [
+            host('a', [step('pre_check', 'succeeded')], {
+              rollback_steps: [failedWith('purge_package', 'E: lock', 1)],
+            }),
+          ],
+        })
+      )
+    ).toEqual([]);
   });
 });
