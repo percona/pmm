@@ -37,6 +37,12 @@ describe('published package contents', () => {
     expect(withHeader).toEqual([]);
   });
 
+  // turbo's build is PMM's image build (make -C ui release); consumers read src.
+  it('builds the bundle only when packing, not in turbo build', () => {
+    expect(pkg.scripts.build).toBeUndefined();
+    expect(pkg.scripts.prepack).toBe('pnpm build:package');
+  });
+
   it('ships only the entry points and the guides', () => {
     const { main, types } = pkg.publishConfig;
     const allowed = [main, `${main}.map`, types, 'AGENTS.md', 'llms.txt'];

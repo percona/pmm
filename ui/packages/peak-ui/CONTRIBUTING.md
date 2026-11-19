@@ -12,8 +12,8 @@ PEAK UI (`@percona/peak-ui`) is a React + MUI v7 component library published as 
 
 Run these from this folder, or from `ui/` as `pnpm --filter @percona/peak-ui <script>`. Install with `pnpm install` from `ui/`.
 
-- **Build:** `pnpm build` (Rollup → `dist/`)
-- **Build watch:** `pnpm build:watch`
+- **Build:** `pnpm build:package` (Rollup → `dist/`). Named apart from turbo's `build`, which PMM's image build runs: consumers read `src`, so only packing and UI CI build the bundle.
+- **Build watch:** `pnpm build:package:watch`
 - **Storybook dev:** `pnpm storybook:dev` (port 6006, headless via `--no-open`)
 - **Storybook build:** `pnpm storybook:build`
 - **Type check:** `pnpm check-types` (app + `.storybook` tsconfigs)
@@ -35,7 +35,7 @@ If `format:check` fails, fix it with `pnpm format` (don't hand-edit whitespace).
 
 Pre-existing and cosmetic — do not treat as failures:
 
-- `pnpm build`: a TS5096 warning (`allowImportingTsExtensions`) and a circular-dependency note.
+- `pnpm build:package`: a TS5096 warning (`allowImportingTsExtensions`) and a circular-dependency note.
 
 When a change touches an export or a prop PMM uses, also run `make ci` from `ui/`: it type-checks, tests and builds every package that consumes Peak UI.
 

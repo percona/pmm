@@ -45,15 +45,15 @@ Install once from `ui/`, then run the scripts from this folder, or from `ui/` wi
 cd ui && pnpm install
 ```
 
-| Task          | Command                          |
-| ------------- | -------------------------------- |
-| Storybook dev | `pnpm storybook:dev` (port 6006) |
-| Build         | `pnpm build` (Rollup → `dist/`)  |
-| Build (watch) | `pnpm build:watch`               |
-| Typecheck     | `pnpm check-types`               |
-| Lint          | `pnpm lint`                      |
-| Format check  | `pnpm format:check`              |
-| Tests         | `pnpm test`                      |
+| Task          | Command                                 |
+| ------------- | --------------------------------------- |
+| Storybook dev | `pnpm storybook:dev` (port 6006)        |
+| Build         | `pnpm build:package` (Rollup → `dist/`) |
+| Build (watch) | `pnpm build:package:watch`              |
+| Typecheck     | `pnpm check-types`                      |
+| Lint          | `pnpm lint`                             |
+| Format check  | `pnpm format:check`                     |
+| Tests         | `pnpm test`                             |
 
 ## Releases
 
