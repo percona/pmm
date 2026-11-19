@@ -114,7 +114,7 @@ const CollapsedRail = ({ openOnLoad }: { openOnLoad: string }) => {
                 <ListItem key={entry} disablePadding>
                   <NavItem
                     text={entry}
-                    href={`#${entry.toLowerCase().replaceAll(' ', '-')}`}
+                    href={`#${entry.toLowerCase().replace(/ /g, '-')}`}
                     selected={entry === group.current}
                     onClick={close}
                   />
