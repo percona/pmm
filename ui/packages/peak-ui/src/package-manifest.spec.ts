@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import * as peakUi from './index';
@@ -53,35 +53,56 @@ describe('published package contents', () => {
   });
 });
 
-// A pinned npm version would install a second Peak UI, with its own theme context.
+// A second copy of Peak UI or of a peer (React, Emotion, MUI, date pickers, forms,
+// notistack) means a second React context: an unthemed UI or a picker without its
+// LocalizationProvider.
 describe('workspace consumers', () => {
+  const ui = resolve(root, '../..');
+  const packages = [
+    ...read('../../pnpm-workspace.yaml').matchAll(/^ {2}- '([^']+)\/\*'$/gm),
+  ]
+    .flatMap(([, dir]) =>
+      readdirSync(resolve(ui, dir), { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => `${dir}/${entry.name}`)
+    )
+    .filter((dir) => existsSync(resolve(ui, dir, 'package.json')))
+    .map((dir) => ({
+      dir,
+      manifest: JSON.parse(
+        readFileSync(resolve(ui, dir, 'package.json'), 'utf8')
+      ) as Record<string, Record<string, string> | undefined>,
+    }));
+  const ranges = (manifest: (typeof packages)[number]['manifest']) =>
+    ['dependencies', 'devDependencies', 'peerDependencies'].flatMap((field) => {
+      const range = manifest[field]?.[pkg.name];
+      return range ? [{ field, range }] : [];
+    });
+  const consumers = packages.filter(({ manifest }) => ranges(manifest).length);
+
   it('every PMM package uses this package from the workspace', () => {
-    const ui = resolve(root, '../..');
-    const globs = [
-      ...read('../../pnpm-workspace.yaml').matchAll(/^ {2}- '([^']+)\/\*'$/gm),
-    ].map((m) => m[1]);
-    expect(globs.length).toBeGreaterThan(0);
-    const pinned = globs
-      .flatMap((dir) =>
-        readdirSync(resolve(ui, dir), { withFileTypes: true })
-          .filter((entry) => entry.isDirectory())
-          .map((entry) => `${dir}/${entry.name}`)
-      )
-      .filter((dir) => existsSync(resolve(ui, dir, 'package.json')))
-      .flatMap((dir) => {
-        const manifest = JSON.parse(
-          readFileSync(resolve(ui, dir, 'package.json'), 'utf8')
-        ) as Record<string, Record<string, string> | undefined>;
-        return ['dependencies', 'devDependencies', 'peerDependencies'].flatMap(
-          (field) => {
-            const range = manifest[field]?.[pkg.name];
-            return range && range !== 'workspace:*'
-              ? [`${dir} ${field}: ${range}`]
-              : [];
-          }
-        );
-      });
+    expect(consumers.length).toBeGreaterThan(0);
+    const pinned = consumers.flatMap(({ dir, manifest }) =>
+      ranges(manifest)
+        .filter(({ range }) => range !== 'workspace:*')
+        .map(({ field, range }) => `${dir} ${field}: ${range}`)
+    );
     expect(pinned).toEqual([]);
+  });
+
+  it('consumers resolve the same copy of every peer dependency', () => {
+    const installed = (dir: string, name: string) => {
+      const path = resolve(ui, dir, 'node_modules', name);
+      return existsSync(path) ? realpathSync(path) : undefined;
+    };
+    const split = Object.keys(pkg.peerDependencies).flatMap((name) => {
+      const ours = installed('packages/peak-ui', name);
+      return consumers.flatMap(({ dir }) => {
+        const theirs = installed(dir, name);
+        return ours && theirs && theirs !== ours ? [`${dir}: ${name}`] : [];
+      });
+    });
+    expect(split).toEqual([]);
   });
 });
 
