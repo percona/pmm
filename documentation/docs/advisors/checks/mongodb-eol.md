@@ -1,23 +1,20 @@
-# MongoDB end-of-life version
+# MongoDB end-of-life version (replaced)
 
-The `mongodb_EOL` check warns if the release series of MongoDB or Percona Server for MongoDB (PSMDB) has reached its end of life (EOL).
+In PMM 3.10 and earlier, the `mongodb_EOL` check returned a warning for MongoDB or Percona Server for MongoDB 4.4, which was about to reach end of life (EOL), and an error for older release series, which had reached it.
+
+In PMM 3.11.0 and later, this check is replaced by the [MongoDB version check](mongodb-version.md). The older check covered only release series up to 4.4, while the new check covers every release series. The new check also warns you six months before your release series reaches EOL, and gives you one finding for each database instead of separate end-of-life and newer-version findings.
 
 ## Description
 
-After a release series reaches EOL, it no longer gets bug fixes or security fixes. PSMDB follows the same EOL timeline as the MongoDB release series that it's based on.
+EOL versions no longer get bug or security fixes from their vendor. Percona Server for MongoDB follows the same EOL dates as the MongoDB release series that it's based on. 
 
-The check reads the server version with the `buildInfo` command and returns:
-
-- An error for release series older than 4.4.
-- A warning for release series 4.4, which reached EOL on February 29, 2024.
-
-The check doesn't report release series 5.0 and later. Some of them also reached EOL, for example 5.0 on October 31, 2024, and 6.0 on July 31, 2025. To find the EOL date of your release series, check the [MongoDB lifecycle schedules](https://www.mongodb.com/legal/support-policy/lifecycles) or the [Percona software support lifecycle](https://www.percona.com/services/policies/percona-software-support-lifecycle).
+To find when your release series reaches EOL, check the [MongoDB end-of-life dates](mongodb-version.md#end-of-life-dates).
 
 ## Resolution
 
-Upgrade to a supported release series. Upgrade one major version at a time, as the [recommended upgrade path](mongodb-version.md) shows: for example, from 4.2 to 4.4, then to 5.0.
+To keep getting bug and security fixes, upgrade to a supported release series. Don't skip major versions: for example, to go from 7.0 to 9.0, upgrade to 8.0 first. To plan each step, follow the [recommended upgrade process](mongodb-version.md#recommended-upgrade-process).
 
-Before you upgrade a production environment, test the new version in a development or staging environment, and verify that your drivers support it.
+Before you upgrade a production environment, test the new version in a development or staging environment, and check that your drivers support it.
 
 ## Need more support from Percona?
 

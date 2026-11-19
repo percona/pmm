@@ -13,13 +13,6 @@ The check reads the parameter with the `getParameter` command and the server ver
 
 To learn how MongoDB uses the parameter, read about [storageEngineConcurrentWriteTransactions](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.storageEngineConcurrentWriteTransactions) in the MongoDB documentation. To check the value that the startup options set, use the [MongoDB write tickets in the startup options](mongodb-write-tickets.md) check.
 
-## Rule
-The check runs a `MONGODB_GETPARAMETER` query:
-
-```javascript
-db.adminCommand( { getParameter: "*" } ).storageEngineConcurrentWriteTransactions
-```
-
 ## Resolution
 
 For MongoDB 7.0 and later, remove the parameter from the `setParameter` section of the configuration file and from the command line, then restart `mongod`. Keep the parameter only if MongoDB Support recommended it.
