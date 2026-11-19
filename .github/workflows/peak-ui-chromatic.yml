@@ -44,7 +44,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      statuses: write
 
     steps:
       - name: Check out code
@@ -68,16 +67,16 @@ jobs:
         working-directory: ui
         run: pnpm install --frozen-lockfile --filter @percona/peak-ui...
 
+      # The CLI rather than chromaui/action, which percona/pmm's Actions policy doesn't allow.
       - name: Run Chromatic
-        uses: chromaui/action@37b88badc3a1122c01861af329554d8a227d7e52 # v18.4.0
-        with:
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          workingDir: ui/packages/peak-ui
-          storybookBaseDir: ui/packages/peak-ui
-          buildScriptName: storybook:build
-          onlyChanged: true
-          exitZeroOnChanges: false
+        working-directory: ui/packages/peak-ui
+        env:
+          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+        run: >-
+          pnpm exec chromatic
+          --build-script-name storybook:build
+          --storybook-base-dir ui/packages/peak-ui
+          --only-changed
 
   # pull_request_target runs in this repo's context (secrets available)
   # instead of the fork's, so it's gated behind the `chromatic-external`
@@ -115,12 +114,13 @@ jobs:
         working-directory: ui
         run: pnpm install --frozen-lockfile --filter @percona/peak-ui...
 
+      # The CLI rather than chromaui/action, which percona/pmm's Actions policy doesn't allow.
       - name: Run Chromatic
-        uses: chromaui/action@37b88badc3a1122c01861af329554d8a227d7e52 # v18.4.0
-        with:
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          workingDir: ui/packages/peak-ui
-          storybookBaseDir: ui/packages/peak-ui
-          buildScriptName: storybook:build
-          onlyChanged: true
-          exitZeroOnChanges: false
+        working-directory: ui/packages/peak-ui
+        env:
+          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+        run: >-
+          pnpm exec chromatic
+          --build-script-name storybook:build
+          --storybook-base-dir ui/packages/peak-ui
+          --only-changed
