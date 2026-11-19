@@ -171,8 +171,8 @@ After one evaluation interval, the new metric is available in :material-compass-
 
 For the full set of options, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.
 
-!!! note "Only Admins can create recording rules that write to Metrics"
-    A recording rule writes into the same store as the metrics PMM collects, so creating or changing one needs permission to edit its target data source, which only the **Admin** role has. **Editors** can still create alert rules, and can delete recording rules.
+!!! caution "Recording rules write to the metrics that PMM collects"
+    Any user who can create alert rules, which includes the **Editor** role, can create a recording rule that targets **Metrics**. PMM doesn't check the metric name: a rule that reuses the name and labels of a collected metric, such as `up`, writes its result into that metric's series, where dashboards and alert rules read it. Grant the **Editor** role with this in mind.
 
 !!! caution "Recording rules and access control"
     Recording rules can't write to **Metrics** while [access control](../admin/roles/access-control/intro.md) is enabled. A rule runs on a schedule rather than on behalf of a user, so PMM can't apply the label filters of the user who created it. Without those filters the rule would read every series and store the result where other users can read it. PMM refuses the write instead, and the rule reports an evaluation error on each run.
