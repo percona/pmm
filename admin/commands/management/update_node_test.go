@@ -36,8 +36,7 @@ const updateNodeTestBefore = `{
 	"generic": {"node_id": "node-id", "node_name": "node1", "region": "eu-west-1", "custom_labels": {"tier": "1"}}
 }`
 
-// runUpdateNode parses args as the command line of update node and runs the command against a test server
-// that holds updateNodeTestBefore and answers the change with after. It returns the change request.
+// runUpdateNode runs update node with args against a server answering the change with after, and returns the request body.
 func runUpdateNode(t *testing.T, after string, args ...string) (string, *updateNodeResult) {
 	t.Helper()
 

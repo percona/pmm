@@ -310,7 +310,7 @@ message ChangeNodeRequest {
   optional string environment = 2;
   // Node model.
   optional string node_model = 3;
-  // Node region. It can't be changed for a Remote RDS Node, as rds_exporter finds the DB instance by it.
+  // Node region, which can't be changed for a Remote RDS Node as rds_exporter finds the DB instance by it.
   optional string region = 4;
   // Node availability zone.
   optional string az = 5;

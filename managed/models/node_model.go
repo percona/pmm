@@ -76,8 +76,7 @@ type Node struct {
 	// IsPMMServerNode indicates if this node is a PMM Server node.
 	IsPMMServerNode bool `reform:"is_pmm_server_node"`
 
-	// Environment is the environment label of the Node. A Service on the Node that sets its own
-	// environment overrides it.
+	// Environment is the environment label of the Node, which a Service's own environment overrides.
 	Environment string `reform:"environment"`
 }
 

@@ -13630,7 +13630,7 @@
                   "x-order": 1
                 },
                 "region": {
-                  "description": "Node region. It can't be changed for a Remote RDS Node, as rds_exporter finds the DB instance by it.",
+                  "description": "Node region, which can't be changed for a Remote RDS Node as rds_exporter finds the DB instance by it.",
                   "type": "string",
                   "x-nullable": true,
                   "x-order": 2

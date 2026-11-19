@@ -24,6 +24,7 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 )
 
@@ -87,8 +88,7 @@ func TestChangeNode(t *testing.T) {
 		assert.Empty(t, res.Payload.Generic.CustomLabels)
 	})
 
-	// Before the environment field, a custom label was the way to give a Node an environment, and it would
-	// override the field.
+	// A set environment replaces an environment custom label, which would otherwise override it.
 	t.Run("EnvironmentTakesOverCustomLabel", func(t *testing.T) {
 		t.Parallel()
 
@@ -109,7 +109,25 @@ func TestChangeNode(t *testing.T) {
 			CustomLabels: &nodes.ChangeNodeParamsBodyCustomLabels{Values: map[string]string{"environment": "staging"}},
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-			`can't also have an "environment" custom label; change the environment instead.`)
+			`can't also have an 'environment' custom label; change the environment instead.`)
+	})
+
+	t.Run("EnvironmentTakesOverAgentCustomLabel", func(t *testing.T) {
+		t.Parallel()
+
+		nodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "node-with-agent-environment-label")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).AgentID
+		agentID := pmmapitests.AddNodeExporter(t, pmmAgentID, map[string]string{"environment": "pmm", "team": "db"}).AgentID
+
+		_, err := changeNode(nodeID, nodes.ChangeNodeBody{Environment: new("prod")})
+		require.NoError(t, err)
+
+		res, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"team": "db"}, res.Payload.NodeExporter.CustomLabels)
 	})
 
 	t.Run("RemoteRDSRegionIsFixed", func(t *testing.T) {

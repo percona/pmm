@@ -75,91 +75,91 @@ func TestDatabaseChecks(t *testing.T) {
 		// node_id
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('1', 'generic', 'name', '', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('1', 'generic', 'other name', '', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('1', 'generic', 'other name', '', '', '', '', '', $1, $2)", now, now,
 		)
 		assertUniqueViolation(t, err, "nodes_pkey")
 
 		// node_name
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('2', 'generic', 'name', '', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('2', 'generic', 'name', '', '', '', '', '', $1, $2)", now, now,
 		)
 		assertUniqueViolation(t, err, "nodes_node_name_key")
 
 		// machine_id for generic Node: https://jira.percona.com/browse/PMM-4196
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('31', 'generic', 'name31', 'machine-id', '', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('31', 'generic', 'name31', 'machine-id', '', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('32', 'generic', 'name32', 'machine-id', '', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('32', 'generic', 'name32', 'machine-id', '', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 
 		// machine_id for container Node
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('31-container', 'container', 'name31-container', 'machine-id', '', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('31-container', 'container', 'name31-container', 'machine-id', '', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('32-container', 'container', 'name32-container', 'machine-id', '', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('32-container', 'container', 'name32-container', 'machine-id', '', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 
 		// container_id
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, container_id, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('41', 'generic', 'name41', 'docker-container-id', '', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, container_id, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('41', 'generic', 'name41', 'docker-container-id', '', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, container_id, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('42', 'generic', 'name42', 'docker-container-id', '', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, container_id, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('42', 'generic', 'name42', 'docker-container-id', '', '', '', '', '', $1, $2)", now, now,
 		)
 		assertUniqueViolation(t, err, "nodes_container_id_key")
 
 		// (address, region)
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, address, region, distro, node_model, az, created_at, updated_at) "+
-				"VALUES ('51', 'generic', 'name51', 'instance1', 'region1', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, address, region, distro, node_model, az, environment, created_at, updated_at) "+
+				"VALUES ('51', 'generic', 'name51', 'instance1', 'region1', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, address, region, distro, node_model, az, created_at, updated_at) "+
-				"VALUES ('52', 'generic', 'name52', 'instance1', 'region1', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, address, region, distro, node_model, az, environment, created_at, updated_at) "+
+				"VALUES ('52', 'generic', 'name52', 'instance1', 'region1', '', '', '', '', $1, $2)", now, now,
 		)
 		assertUniqueViolation(t, err, "nodes_address_region_key")
 		// same address, NULL region is fine
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, node_model, az, created_at, updated_at) "+
-				"VALUES ('53', 'generic', 'name53', 'instance1', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, node_model, az, environment, created_at, updated_at) "+
+				"VALUES ('53', 'generic', 'name53', 'instance1', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, node_model, az, created_at, updated_at) "+
-				"VALUES ('54', 'generic', 'name54', 'instance1', '', '', '', $1, $2)", now, now,
+			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, node_model, az, environment, created_at, updated_at) "+
+				"VALUES ('54', 'generic', 'name54', 'instance1', '', '', '', '', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 	})
@@ -173,8 +173,8 @@ func TestDatabaseChecks(t *testing.T) {
 		now := models.Now()
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
+			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('1', 'generic', 'name', '', '', '', '', '', $1, $2)",
 			now, now,
 		)
 		require.NoError(t, err)
@@ -235,8 +235,8 @@ func TestDatabaseChecks(t *testing.T) {
 
 		_, err = db.ExecContext(
 			t.Context(),
-			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
-				"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
+			"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, environment, created_at, updated_at) "+
+				"VALUES ('1', 'generic', 'name', '', '', '', '', '', $1, $2)",
 			now, now,
 		)
 		require.NoError(t, err)

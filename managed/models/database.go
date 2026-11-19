@@ -1409,6 +1409,7 @@ var databaseSchema = [][]string{
 	},
 	130: {
 		`ALTER TABLE nodes ADD COLUMN environment VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE nodes ALTER COLUMN environment DROP DEFAULT`,
 	},
 }
 
@@ -1956,12 +1957,15 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	agent, err := createPMMAgentWithID(q, agentID, node.NodeID, labels)
+	// An Agent's environment label would override the Node environment once one is set.
+	agentLabels := withoutLabel(labels, nodeEnvironmentLabel)
+
+	agent, err := createPMMAgentWithID(q, agentID, node.NodeID, agentLabels)
 	if err != nil {
 		return err
 	}
 
-	_, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, "")
+	_, err = CreateNodeExporter(q, agent.AgentID, agentLabels, false, false, []string{}, nil, "")
 	if err != nil {
 		return err
 	}

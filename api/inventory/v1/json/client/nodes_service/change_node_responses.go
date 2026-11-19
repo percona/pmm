@@ -195,7 +195,7 @@ type ChangeNodeBody struct {
 	// Node model.
 	NodeModel *string `json:"node_model,omitempty"`
 
-	// Node region. It can't be changed for a Remote RDS Node, as rds_exporter finds the DB instance by it.
+	// Node region, which can't be changed for a Remote RDS Node as rds_exporter finds the DB instance by it.
 	Region *string `json:"region,omitempty"`
 
 	// Node availability zone.

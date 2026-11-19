@@ -27,7 +27,8 @@ import (
 const updateNodeHelp = `Changes the labels of the Node in place: the Node, its Agents and its Services keep their IDs and
 history, and the metrics of the Node and of the Services on it carry the new labels from the next scrape.
 A Service with an environment of its own keeps it; the Node environment applies to the others.
---environment also replaces an "environment" custom label, which would otherwise override it.
+--environment also replaces an "environment" custom label of the Node and of its Agents, which would
+otherwise override it.
 
 Only the flags you pass are changed; everything else stays as it is. Use an empty value, e.g. --region=
 or --custom-labels=, to clear a label.`
@@ -61,14 +62,14 @@ type nodeLabels struct {
 	CustomLabels map[string]string `json:"custom_labels"`
 }
 
-// nodeLabelsOf returns the labels of the Node in a GetNode or ChangeNode response. The response holds the
-// Node under the name of its type, and every type names its labels alike.
+// nodeLabelsOf returns the labels of the Node in a GetNode or ChangeNode response.
 func nodeLabelsOf(payload any) (*nodeLabels, error) {
 	b, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
 	}
 
+	// The response holds the Node under the name of its type, and every type names its labels alike.
 	var byType map[string]*nodeLabels
 	err = json.Unmarshal(b, &byType)
 	if err != nil {

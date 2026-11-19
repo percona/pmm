@@ -98,8 +98,7 @@ func (s *NodesService) Get(ctx context.Context, req *inventoryv1.GetNodeRequest)
 // errDryRun rolls back the transaction of a dry run.
 var errDryRun = errors.New("dry run")
 
-// ChangeNode changes the labels of a Node. With dry_run it validates the change and returns the Node as
-// it would be, without applying it.
+// ChangeNode changes the labels of a Node, or with dry_run returns the Node as it would be without changing it.
 func (s *NodesService) ChangeNode(ctx context.Context, req *inventoryv1.ChangeNodeRequest) (inventoryv1.Node, error) { //nolint:ireturn
 	params := &models.ChangeNodeParams{
 		Environment: req.Environment,

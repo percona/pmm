@@ -1873,7 +1873,7 @@ type ChangeNodeRequest struct {
 	Environment *string `protobuf:"bytes,2,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
 	// Node model.
 	NodeModel *string `protobuf:"bytes,3,opt,name=node_model,json=nodeModel,proto3,oneof" json:"node_model,omitempty"`
-	// Node region. It can't be changed for a Remote RDS Node, as rds_exporter finds the DB instance by it.
+	// Node region, which can't be changed for a Remote RDS Node as rds_exporter finds the DB instance by it.
 	Region *string `protobuf:"bytes,4,opt,name=region,proto3,oneof" json:"region,omitempty"`
 	// Node availability zone.
 	Az *string `protobuf:"bytes,5,opt,name=az,proto3,oneof" json:"az,omitempty"`
