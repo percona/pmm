@@ -9,7 +9,7 @@ checks:
     category: Replication
     queries:
       - type: MYSQL_SELECT
-        query: "@@global.version as version, @@global.hostname as service /*!50700 , @@global.slave_exec_mode as slave_exec_mode */  /*!50700 , @@global.slave_skip_errors slave_skip_errors*/ /*!80026 , @@global.replica_exec_mode as replica_exec_mode */ /*!80026 , @@global.replica_skip_errors replica_skip_errors*/ "
+        query: "@@global.version as version, @@global.hostname as service /*!50700 , @@global.slave_exec_mode as slave_exec_mode */  /*!50700 , @@global.slave_skip_errors slave_skip_errors*/ /*!80026 , @@global.replica_exec_mode as replica_exec_mode */ /*!80026 , @@global.replica_skip_errors replica_skip_errors*/ /*M!100000 , @@global.slave_exec_mode as slave_exec_mode, @@global.slave_skip_errors as slave_skip_errors */ "
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
       def check_context(docs,context):
@@ -32,6 +32,9 @@ checks:
                 prefix = "replica"
               if version_major == 8 and version_minor == 0 and version_patch >= 26:
                 prefix = "replica"
+              # MariaDB has only the slave_* variables
+              if "MariaDB" in version:
+                prefix = "slave"
               skip_errors = row[prefix + "_skip_errors"]
               exec_mode = row[prefix + "_exec_mode"]
 

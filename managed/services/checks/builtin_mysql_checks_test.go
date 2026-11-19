@@ -61,7 +61,8 @@ func TestMySQLReplicaSkippingErrorsCheck(t *testing.T) {
 
 	const name = "mysql_replica_running_skipping_errors_or_idempotent_mode"
 
-	// The check's query returns the replica_* columns only from 8.0.26 on (gated by /*!80026 */).
+	// The check's query returns the replica_* columns only from MySQL 8.0.26 on (gated by /*!80026 */),
+	// and only the slave_* columns on MariaDB (gated by /*M!100000 */).
 	slaveOnly := func(version, execMode, skipErrors string) map[string]any {
 		return map[string]any{
 			"version": version, "service": "db1",
@@ -94,6 +95,15 @@ func TestMySQLReplicaSkippingErrorsCheck(t *testing.T) {
 		{name: "26.7 healthy", row: both("26.7.0", "STRICT", "OFF")},
 		{name: "26.10 healthy", row: both("26.10.0", "STRICT", "OFF")},
 		{name: "Percona Server 26.7 healthy", row: both("26.7.0-1", "STRICT", "OFF")},
+		{name: "MariaDB 10.11 healthy", row: slaveOnly("10.11.19-MariaDB-ubu2204", "STRICT", "OFF")},
+		{
+			name: "MariaDB 11.8 idempotent and skips errors",
+			row:  slaveOnly("11.8.9-MariaDB-ubu2404", "IDEMPOTENT", "1062"),
+			want: []finding{
+				{"slave_exec_mode is IDEMPOTENT.", common.Error},
+				{"slave_skip_error is configured as 1062.", common.Error},
+			},
+		},
 		{
 			name: "8.0.20 skips errors",
 			row:  slaveOnly("8.0.20", "STRICT", "1062"),
