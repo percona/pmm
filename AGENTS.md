@@ -166,7 +166,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 | Sign-off | Sign commits with `git commit -s` (adds a `Signed-off-by` trailer — DCO convention; most PMM commits carry it) |
 | Review fixes | New commit per round — do not amend and force-push; never force-push `main` |
 | Merge | Squash and merge on GitHub |
-| PR body | What/why, Feature Build link for features/fixes/improvements ([`.github/pull_request_template.md`](.github/pull_request_template.md)), link related PRs; update it when review changes the behavior it describes |
+| PR body | What/why, Feature Build link for features/fixes/improvements ([`.github/pull_request_template.md`](.github/pull_request_template.md)), or `N/A` for a docs-only PR; link related PRs; update it when review changes the behavior it describes |
 | API changes | Check API docs updated if endpoints changed |
 | Before review | Tests and linters pass for every area touched ([Verifying a change](#verifying-a-change)) |
 
@@ -183,7 +183,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 User-facing docs are Markdown under [`documentation/docs/`](documentation/docs/). The rules for writing them — voice, page structure, Markdown conventions, release-note entries — are in [`documentation/AGENTS.md`](documentation/AGENTS.md); read it before editing anything under `documentation/`. It links out to [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (admonition colours, icons, symbols) and [`documentation/CONTRIBUTING.md`](documentation/CONTRIBUTING.md) (contributor workflow + local preview) for the parts those files own. MkDocs config lives in [`documentation/`](documentation/); this is separate from the developer process docs in [`dev/docs/process/`](dev/docs/process/).
 
-Documentation is published from the release branch of the latest GA version, not from `main`, so docs merged with an unreleased feature stay private until it ships. A fix to live docs merges to `main` with the `doc-hotfix` label, which copies it to that release branch.
+Documentation is published from the release branch of the latest GA version, not from `main`, so docs merged with an unreleased feature stay private until it ships. Docs and the release-note entry for a change therefore go in the same PR as its code, including docs changes a reviewer asks for: no separate docs PR, no `PMM-XXXX-doc` branch, no PR against a `doc-<version>` branch. A fix to live docs merges to `main` with the `doc-hotfix` label, which copies it to that release branch.
 
 ---
 
