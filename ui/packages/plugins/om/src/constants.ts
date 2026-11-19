@@ -20,6 +20,7 @@ import type {
   OmBootstrapRunStatus,
   OmBootstrapStepStatus,
   OmClusterHealth,
+  OmClusterType,
   OmHostDatabaseState,
   OmProcessRole,
   OmScanErrorCode,
@@ -91,11 +92,21 @@ export const PROCESS_ROLE_LABEL: Record<OmProcessRole, string> = {
 };
 
 /** How each cluster state reads on Overview: the word, then the colour behind it. */
+/** Reading that means "not measured" in the two percentage fields. */
+export const UNMEASURED = -1;
+
 export const CLUSTER_HEALTH_LABEL: Record<OmClusterHealth, string> = {
   healthy: 'Healthy',
   degraded: 'Degraded',
   down: 'Down',
   unknown: 'Unknown',
+};
+
+/** A cluster's inferred shape; UNSPECIFIED only occurs on a never-built document. */
+export const CLUSTER_TYPE_LABEL: Partial<Record<OmClusterType, string>> = {
+  CLUSTER_TYPE_REPLICA_SET: 'Replica set',
+  CLUSTER_TYPE_SHARDED: 'Sharded',
+  CLUSTER_TYPE_STANDALONE: 'Standalone',
 };
 
 export const CLUSTER_HEALTH_COLOR: Record<OmClusterHealth, ChipProps['color']> =
@@ -510,16 +521,8 @@ export const OPERATIONS_DOC_URL =
  */
 export const PMM_AGENT_AUTOMATION_MIN_VERSION = '3.2.0';
 
-/**
- * The PSMDB major versions the install form offers.
- *
- * A stopgap until the list comes from a live source (PMM-15327). 6.0 is past end of
- * life, and the default moves to 8.0 once an 8.0 install is confirmed to work.
- */
-export const SUPPORTED_MONGODB_VERSIONS = ['7.0', '8.0'] as const;
-
-export const DEFAULT_MONGODB_VERSION: (typeof SUPPORTED_MONGODB_VERSIONS)[number] =
-  '7.0';
+/** The PSMDB version the install form selects when every selected node supports it. */
+export const DEFAULT_MONGODB_VERSION = '7.0';
 
 /**
  * The replica set names an install accepts. Must match `replica_set_name` in
