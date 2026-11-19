@@ -599,6 +599,11 @@ type GetInventoryHostOKBodyHost struct {
 	// the next scan would put it straight back, and in between the fleet would be wrong.
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
 
+	// The MongoDB versions, as major.minor and oldest first, that Operations installs onto
+	// this node's OS release. Empty when it installs none there, the release is not known,
+	// or PMM could not read the supported releases; automation_blocked_reasons says which.
+	SupportedMongodbVersions []string `json:"supported_mongodb_versions"`
+
 	// executor
 	Executor *GetInventoryHostOKBodyHostExecutor `json:"executor,omitempty"`
 
