@@ -124,6 +124,25 @@ function isValid(setting: OmInventorySetting, draft: string): boolean {
   return Number.isInteger(parsed) && parsed > 0;
 }
 
+/**
+ * The rule an ignored override breaks, in the labels shown on this page.
+ *
+ * PMM Extensions sends `KEY, KEY: KEY must [not] exceed KEY`. A reason in another
+ * shape is shown as it arrives, with any known key replaced by its label.
+ */
+function ignoredOverrideRule(reason: string): string {
+  const rule = reason.replace(/^[A-Z0-9_]+(?:,\s*[A-Z0-9_]+)*:\s*/, '');
+  const labelOf = (key: string) => SETTING_LABEL[key] ?? key;
+  const comparison = /^([A-Z0-9_]+) must (not )?exceed ([A-Z0-9_]+)$/.exec(
+    rule
+  );
+  if (comparison) {
+    const [, field, negated, limit] = comparison;
+    return `${labelOf(field)} must ${negated ? 'not ' : ''}be longer than ${labelOf(limit)}`;
+  }
+  return rule.replace(/\b[A-Z][A-Z0-9_]*\b/g, (key) => labelOf(key));
+}
+
 /** One field, rendered as whatever can edit it. */
 const SettingField = ({
   setting,
@@ -243,8 +262,10 @@ const SettingField = ({
             color="warning.main"
             data-testid="om-config-override-ignored"
           >
-            Saved value not in effect; the deployment's value is running.
-            Reason: {setting.override_ignored_reason}
+            {ignoredOverrideRule(setting.override_ignored_reason)}. Your saved
+            value no longer meets this rule, so the deployed value replaces it.
+            {!readOnly &&
+              ' To use your own value, enter one that meets the rule and click Save. To keep the deployed value, click Reset.'}
           </Typography>
         )}
       </Stack>
