@@ -46,8 +46,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "rollup -c",
-    "build:watch": "rollup -c -w",
+    "build:package": "rollup -c",
+    "build:package:watch": "rollup -c -w",
     "check-types": "tsc -p tsconfig.json && tsc -p .storybook/tsconfig.json",
     "lint": "oxlint --config ../../oxlintrc.json src .storybook scripts",
     "format": "oxfmt --write .",
@@ -56,7 +56,7 @@
     "storybook:build": "storybook build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepack": "pnpm build"
+    "prepack": "pnpm build:package"
   },
   "dependencies": {
     "@fontsource/poppins": "^5.2.7",
