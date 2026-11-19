@@ -89,17 +89,124 @@ describe('ConfigForm', () => {
     });
   });
 
-  it('reports a failed save', () => {
+  it.each([
+    'CONNECT_TIMEOUT: must be positive',
+    '[{"error":"TASK_TIMEOUT too small"}]',
+  ])('reports a failed save that is not a detail list as it is: %s', (text) => {
     useUpdateOmInventoryConfig.mockReturnValue({
       ...idle,
       isError: true,
-      error: new Error('CONNECT_TIMEOUT: must be positive'),
+      error: new Error(text),
     });
     render(<ConfigForm group="general" />);
 
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'CONNECT_TIMEOUT: must be positive'
-    );
+    expect(screen.getByRole('alert')).toHaveTextContent(text);
+  });
+
+  it('names each field a refused save broke by its label', () => {
+    const rule =
+      'REPO_TIMEOUT, CONNECT_TIMEOUT, TASK_TIMEOUT: REPO_TIMEOUT + CONNECT_TIMEOUT must not exceed half of TASK_TIMEOUT';
+    useUpdateOmInventoryConfig.mockReturnValue({
+      ...idle,
+      isError: true,
+      error: new Error(
+        JSON.stringify([
+          {
+            loc: ['body', 'SCHEDULE__every'],
+            msg: 'Value error, SCHEDULE must be from 10 minutes to 1 day',
+            type: 'value_error',
+          },
+          {
+            loc: ['body', 'POLL_INTERVAL'],
+            msg: 'Input should be less than or equal to 30',
+            type: 'less_than_equal',
+          },
+          {
+            loc: ['body', 'CONNECT_TIMEOUT'],
+            msg: 'Input should be less than or equal to 30',
+            type: 'less_than_equal',
+          },
+          { loc: ['body', 'REPO_TIMEOUT'], msg: rule, type: 'cross_field' },
+          { loc: ['body', 'TASK_TIMEOUT'], msg: rule, type: 'cross_field' },
+        ])
+      ),
+    });
+    render(<ConfigForm group="general" />);
+
+    const items = within(screen.getByRole('alert')).getAllByRole('listitem');
+    expect(items.map((item) => item.textContent)).toEqual([
+      'Scan every: SCHEDULE must be from 10 minutes to 1 day',
+      'Job poll interval (Advanced tab): Input should be less than or equal to 30',
+      'MongoDB connect timeout (Scanning tab): Input should be less than or equal to 30',
+      rule,
+    ]);
+  });
+
+  it('states the range the app reports and refuses a value outside it', () => {
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        setting({ key: 'MAX_CONCURRENT_PROBES', minimum: 1, maximum: 8 }),
+        setting({ key: 'STALE_RUN_AFTER', value: 14400, maximum: 86400 }),
+        setting({ key: 'RUN_RETENTION', value: 50, minimum: 10 }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.getByText('A whole number from 1 to 8.')).toBeInTheDocument();
+    expect(
+      screen.getByText('A whole number from 1 to 86400.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('A whole number of at least 10.')
+    ).toBeInTheDocument();
+
+    const concurrent = screen.getByLabelText(/^Concurrent scans/);
+    fireEvent.change(concurrent, { target: { value: '9' } });
+    expect(concurrent).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+    fireEvent.change(concurrent, { target: { value: '8' } });
+    expect(concurrent).toHaveAttribute('aria-invalid', 'false');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+
+    const kept = screen.getByLabelText(/^Scans kept/);
+    fireEvent.change(kept, { target: { value: '9' } });
+    expect(kept).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('refuses an empty box even where the app accepts zero', () => {
+    useOmInventoryConfig.mockReturnValue({
+      data: [setting({ key: 'MAX_CONCURRENT_PROBES', minimum: 0 })],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="advanced" />);
+
+    const concurrent = screen.getByLabelText(/^Concurrent scans/);
+    fireEvent.change(concurrent, { target: { value: ' ' } });
+
+    expect(concurrent).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
+  it('offers only the periods a scan schedule accepts', () => {
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        ...SETTINGS,
+        setting({ key: 'SCHEDULE__period', type: 'str', value: 'minutes' }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="general" />);
+
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+
+    expect(
+      screen.getAllByRole('option').map((option) => option.textContent)
+    ).toEqual(['minutes', 'hours', 'days']);
   });
 
   it('reports a failed reset', () => {
@@ -111,6 +218,48 @@ describe('ConfigForm', () => {
     render(<ConfigForm group="advanced" />);
 
     expect(screen.getByText('reset refused')).toBeInTheDocument();
+  });
+
+  it('names the field a refused reset would break by its label', () => {
+    useResetOmInventoryConfig.mockReturnValue({
+      ...idle,
+      isError: true,
+      error: new Error(
+        JSON.stringify([
+          {
+            loc: ['body', 'SCHEDULE__period'],
+            msg: 'Value error, SCHEDULE must be from 10 minutes to 1 day',
+            type: 'value_error',
+          },
+        ])
+      ),
+    });
+    render(<ConfigForm group="general" />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Could not reset: Period: SCHEDULE must be from 10 minutes to 1 day'
+    );
+  });
+
+  it('names no field for a refusal that is not about the body', () => {
+    useResetOmInventoryConfig.mockReturnValue({
+      ...idle,
+      isError: true,
+      error: new Error(
+        JSON.stringify([
+          {
+            loc: ['path', 'key'],
+            msg: 'Setting cannot be overridden from the API.',
+            type: 'value_error',
+          },
+        ])
+      ),
+    });
+    render(<ConfigForm group="general" />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Could not reset: Setting cannot be overridden from the API.'
+    );
   });
 
   it('names an invalid field on another tab by its label and tab', () => {
