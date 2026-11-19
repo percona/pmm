@@ -239,7 +239,7 @@
             "type": "stat"
         },
         {
-            "description": "The system load is a measurement of the computational work the system is performing. Each running process either using or waiting for CPU resources adds 1 to the load. The value turns orange at one task per virtual CPU and red at two.",
+            "description": "The system load is a measurement of the computational work the system is performing. Each running process either using or waiting for CPU resources adds 1 to the load. The value turns orange when the load reaches the number of virtual CPUs, and red at twice that number.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -352,7 +352,7 @@
             "type": "stat"
         },
         {
-            "description": "Sum of the size of all real filesystems, counted once per device.",
+            "description": "Total size of the node's disks, with each disk counted once. Temporary and virtual filesystems, such as `tmpfs` and `overlay`, aren't included.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -862,7 +862,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Number of monitored services by type, taken from the service health metrics (for example mongodb_up), so arbiters and services that are down are counted too.",
+            "description": "Number of monitored services on this node, by type. Arbiters and services that are down are counted too.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -988,7 +988,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Health of every monitored service on this node: UP when the exporter reports the service is reachable, DOWN otherwise. External services and HAProxy report the exporter scrape status.",
+            "description": "Whether each monitored service on this node is running: UP when it's reachable, DOWN when it isn't. For external services and HAProxy, UP means that PMM can collect metrics from their exporter.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -3260,7 +3260,7 @@
             "type": "timeseries"
         },
         {
-            "description": "Physical IOs (reads and writes per second) served by the disks of this node. Spikes in the number of IOs often correspond to performance problems caused by an overloaded IO subsystem. Devices stacked on other devices (LVM, md) are excluded to avoid counting the same IO twice.",
+            "description": "Read and write operations per second on this node's disks. Sudden spikes often mean that the disks are overloaded. LVM and software RAID devices aren't included, so the same operation isn't counted twice.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -3650,7 +3650,7 @@
             "type": "timeseries"
         },
         {
-            "description": "Percent of the time each disk had at least one IO request in flight. It matches %util in iostat. Higher utilization increases the likelihood of IO queuing, so consider it together with latency and IO load.",
+            "description": "Percentage of time that each disk was busy with at least one I/O request. It's the same value as `%util` in `iostat`. The higher it is, the more likely requests are to wait in a queue, so check it together with Disk IO Latency and Disk IO Load.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -3991,7 +3991,7 @@
             "type": "timeseries"
         },
         {
-            "description": "Open file handles on the whole system. The limit is hidden when the kernel reports an effectively unlimited value (1e15 or more), which would otherwise flatten the allocated line.",
+            "description": "Open files on the whole system. The limit isn't shown when the system has no real limit, so the chart stays readable.",
             "fieldConfig": {
                 "defaults": {
                     "color": {

@@ -2,17 +2,21 @@
 
 ![!image](../../images/PMM_Node_Summary.jpg)
 
+## Load Average
+
+The average number of processes that are running or waiting for CPU. The value turns orange when the load reaches the number of virtual CPUs, and red at twice that number.
+
 ## System Summary
 
-The output from ``pt-summary``, one of the [Percona Toolkit utilities](https://www.percona.com/doc/percona-toolkit/LATEST/pt-summary.html). The report is collected on the node that you select in the **Node Name** list, and it follows the selection when you change it.
+The output from ``pt-summary``, one of the [Percona Toolkit utilities](https://www.percona.com/doc/percona-toolkit/LATEST/pt-summary.html). It shows the report for the node that you select in the **Node Name** list.
 
 ## Service Types
 
-The number of monitored services on the node, by type. The count is based on the service health metrics, such as `mongodb_up`, so arbiters and services that are down are included.
+The number of monitored services on the node, by type. Arbiters and services that are down are counted too.
 
 ## Services
 
-The health of each monitored service on the node. The **Status** column shows **UP** when the exporter reports that the service is reachable, and **DOWN** when it doesn't. For external services and HAProxy, the status is the scrape status of the exporter. If the node has no monitored services, the panel shows **No services monitored on this node**.
+Whether each monitored service on the node is running. The **Status** column shows **UP** when the service is reachable, and **DOWN** when it isn't. For external services and HAProxy, **UP** means that PMM can collect metrics from their exporter. If the node has no monitored services, the panel shows **No services monitored on this node**.
 
 ## CPU Usage
 
@@ -39,7 +43,7 @@ Disk I/O includes read or write or input/output operations involving a physical 
 
 ## Disk Operations
 
-The number of physical I/O operations per second that the disks of the node serve. Reads are plotted above the axis and writes below it. Spikes in the number of operations often correspond to performance problems caused by an overloaded I/O subsystem. Devices that are stacked on other devices, such as LVM and software RAID (`dm-*` and `md*`), are excluded so that the same I/O isn't counted twice.
+The number of read and write operations per second on the node's disks. Reads are shown above the axis and writes below it. Sudden spikes often mean that the disks are overloaded. LVM and software RAID devices (`dm-*` and `md*`) aren't included, so the same operation isn't counted twice.
 
 ## Disk IO Latency
 
@@ -47,11 +51,15 @@ Shows average latency for Reads and Writes IO Devices.  Higher than typical late
 
 ## Disk IO Utilization
 
-The percentage of time that each disk had at least one I/O request in flight. The value matches `%util` in the `iostat` tool. Higher utilization increases the likelihood of I/O queuing, so consider it together with latency and I/O load.
+The percentage of time that each disk was busy with at least one I/O request. It's the same value as `%util` in `iostat`. The higher it is, the more likely requests are to wait in a queue, so check it together with **Disk IO Latency** and **Disk IO Load**.
 
 ## Disk IO Load
 
 Shows how much disk was loaded for reads or writes as average number of outstanding requests at different period of time.  High disk load is a good measure of actual storage utilization. Different storage types handle load differently - some will show latency increases on low loads others can handle higher load with no problems.
+
+## Global File Descriptors Usage
+
+The number of files open on the node. If the system has no real limit, the limit isn't shown, so the chart stays readable.
 
 ## Network Traffic
 
