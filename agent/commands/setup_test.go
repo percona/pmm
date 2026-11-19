@@ -722,6 +722,17 @@ func TestUnappliedSetupFlags(t *testing.T) {
 		unappliedSetupFlags(&config.Setup{ContainerID: "abc123", ContainerName: "mysql"}))
 }
 
+func TestUnappliedSetupMessage(t *testing.T) {
+	t.Parallel()
+
+	assert.Empty(t, unappliedSetupMessage(nil))
+	assert.Equal(t, "Settings --metrics-mode only take effect when the Node is registered.",
+		unappliedSetupMessage([]string{"--metrics-mode"}))
+	assert.Equal(t, "Settings --environment, --metrics-mode only take effect when the Node is registered. "+
+		"Change the labels of the registered Node with pmm-admin update node.",
+		unappliedSetupMessage([]string{"--environment", "--metrics-mode"}))
+}
+
 // The subtest configures the package level API clients, so it cannot run in parallel.
 func TestCheckRegistrationSharesOneDeadline(t *testing.T) {
 	// The check asks PMM Server again when it refuses the credentials the Agent runs with. Both lookups
