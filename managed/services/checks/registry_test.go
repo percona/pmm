@@ -188,26 +188,38 @@ func TestRegistry(t *testing.T) {
 
 func TestRegistryInsightsMetric(t *testing.T) {
 	r := newRegistry()
+	target := services.Target{
+		ServiceID:   "svc-id",
+		ServiceName: "mysql-prod",
+		ServiceType: models.MySQLServiceType,
+	}
 	r.set([]services.CheckResult{
 		{
 			CheckName: "mysql_version",
 			Category:  "adv",
-			Target: services.Target{
-				ServiceID:   "svc-id",
-				ServiceName: "mysql-prod",
-				ServiceType: models.MySQLServiceType,
-			},
+			Target:    target,
 			Result: check.Result{
 				Summary:  "outdated",
 				Severity: common.Error,
 			},
 		},
+		{
+			CheckName:   "custom_mysql_check",
+			Category:    "adv",
+			UserDefined: true,
+			Target:      target,
+			Result: check.Result{
+				Summary:  "custom",
+				Severity: common.Warning,
+			},
+		},
 	})
 
 	const expected = `
-# HELP pmm_managed_advisor_check_insights Number of advisor insights per service type, service name, category, check name and severity
+# HELP pmm_managed_advisor_check_insights Number of advisor insights per service type, service name, category, check name, severity and source
 # TYPE pmm_managed_advisor_check_insights gauge
-pmm_managed_advisor_check_insights{category="adv",check_name="mysql_version",service_name="mysql-prod",service_type="mysql",severity="error"} 1
+pmm_managed_advisor_check_insights{category="adv",check_name="custom_mysql_check",service_name="mysql-prod",service_type="mysql",severity="warning",source="user"} 1
+pmm_managed_advisor_check_insights{category="adv",check_name="mysql_version",service_name="mysql-prod",service_type="mysql",severity="error",source="builtin"} 1
 `
 	err := testutil.CollectAndCompare(r, strings.NewReader(expected), "pmm_managed_advisor_check_insights")
 	require.NoError(t, err)
