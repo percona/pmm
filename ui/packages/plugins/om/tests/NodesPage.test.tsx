@@ -30,7 +30,7 @@ import { OmApiError } from '../src/api';
 import { NodesPage } from '../src/NodesPage';
 import { ADMIN_REQUIRED } from '../src/components/AdminAction';
 import { asReadOnlyReader } from './auth';
-import type { OmInventoryHost } from '../src/types';
+import type { OmInventoryHost, OmInventoryRun } from '../src/types';
 
 const {
   useOmInventoryHosts,
@@ -39,6 +39,7 @@ const {
   useForgetHost,
   useOmBootstrapRuns,
   useActiveInventoryRun,
+  scanHistory,
 } = vi.hoisted(() => ({
   useOmInventoryHosts: vi.fn(),
   useRefreshInventory: vi.fn(),
@@ -46,17 +47,24 @@ const {
   useForgetHost: vi.fn(),
   useOmBootstrapRuns: vi.fn(),
   useActiveInventoryRun: vi.fn(),
+  // The runs useIsScanHeld reads; the rule over them is the real one.
+  scanHistory: { runs: [] as OmInventoryRun[] },
 }));
 
-vi.mock('../src/inventoryHooks', () => ({
-  useOmInventoryHosts,
-  useRefreshInventory,
-  useIsEstateRefreshing,
-  useForgetHost,
-  useOmBootstrapRuns,
-  useActiveInventoryRun,
-  useScanInFlight: () => ({ run: undefined, expectedSeconds: null }),
-}));
+vi.mock('../src/inventoryHooks', async () => {
+  const { isScanHeld } = await import('../src/inventory');
+  return {
+    useOmInventoryHosts,
+    useRefreshInventory,
+    useIsEstateRefreshing,
+    useIsScanHeld: (requesting?: boolean) => (wanted: string[]) =>
+      isScanHeld(scanHistory.runs, wanted, requesting),
+    useForgetHost,
+    useOmBootstrapRuns,
+    useActiveInventoryRun,
+    useScanInFlight: () => ({ run: undefined, expectedSeconds: null }),
+  };
+});
 
 const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
   node_id: 'node-1',
@@ -151,6 +159,7 @@ describe('NodesPage', () => {
       isError: false,
     });
     useIsEstateRefreshing.mockReturnValue(false);
+    scanHistory.runs = [];
     useActiveInventoryRun.mockReturnValue({ run: undefined, updatedAt: 0 });
     useForgetHost.mockReturnValue({ mutateAsync: forgetOne, isPending: false });
     useOmBootstrapRuns.mockReturnValue({ data: [] });
@@ -357,8 +366,6 @@ describe('NodesPage', () => {
     ).toBeDisabled();
   });
 
-  // Scanning is estate-wide, so a sweep in flight has to disable the per-row trigger
-  // too - otherwise a reader queues a second scan of a node already being scanned.
   // PMM Server's own node gets no actions menu at all. Forget there would clear
   // Operations' record of the machine PMM runs on, the next scan would put it
   // straight back, and in between the fleet would be wrong - so there is nothing
@@ -591,13 +598,81 @@ describe('NodesPage', () => {
     expect(refreshHosts).toHaveBeenCalledWith(['n2']);
   });
 
-  it('disables the row Scan while a sweep is running', () => {
-    useIsEstateRefreshing.mockReturnValue(true);
-    renderPage();
+  // PMM Extensions refuses a scan that overlaps a running one, and a scan of every
+  // node while any scan runs, so only those are disabled.
+  describe('while a scan runs', () => {
+    const fleet3 = () => [
+      host({ node_id: 'n1', name: 'node00' }),
+      host({ node_id: 'n2', name: 'node01' }),
+      host({ node_id: 'n3', name: 'node02' }),
+    ];
+    const hold = (...scopes: string[][]) => {
+      useIsEstateRefreshing.mockReturnValue(true);
+      scanHistory.runs = scopes.map(
+        (scope) =>
+          ({
+            run_id: scope.join(),
+            status: 'RUN_STATUS_RUNNING',
+            scope,
+          }) as OmInventoryRun
+      );
+    };
+    const rowScan = (name: string) =>
+      within(rowFor(name)).getByRole('button', { name: 'Scan' });
+    const scanSelected = () =>
+      screen.getByRole('button', { name: 'Scan selected' });
 
-    expect(
-      within(rowFor('node00')).getByRole('button', { name: 'Scan' })
-    ).toBeDisabled();
+    it('disables Scan only on the nodes the scans hold', async () => {
+      hold(['n1'], ['n3']);
+      renderPage(fleet3());
+
+      expect(rowScan('node00')).toBeDisabled();
+      expect(rowScan('node01')).toBeEnabled();
+      expect(rowScan('node02')).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Scanning…' })).toBeDisabled();
+      fireEvent.mouseOver(rowScan('node00').parentElement as HTMLElement);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        'A scan of this node is already running.'
+      );
+    });
+
+    it('disables every Scan during a scan of every node', () => {
+      hold([]);
+      renderPage(fleet3());
+
+      for (const name of ['node00', 'node01', 'node02']) {
+        expect(rowScan(name)).toBeDisabled();
+      }
+    });
+
+    it('disables Scan selected once a selected node is held', () => {
+      hold(['n2']);
+      renderPage(fleet3());
+
+      selectRows('node00', 'node02');
+      expect(scanSelected()).toBeEnabled();
+      selectRows('node01');
+      expect(scanSelected()).toBeDisabled();
+    });
+
+    // They share one mutation, whose error and state follow only the last request.
+    it('holds every Scan while a scan request is still being sent, and says so', async () => {
+      useRefreshInventory.mockReturnValue({
+        refreshAll: vi.fn(),
+        refreshHosts: vi.fn(),
+        isPending: true,
+        isError: false,
+        variables: ['n2'],
+      });
+      renderPage(fleet3());
+
+      expect(rowScan('node00')).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Scan all' })).toBeDisabled();
+      fireEvent.mouseOver(rowScan('node00').parentElement as HTMLElement);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        'A scan request is being sent.'
+      );
+    });
   });
 
   it('puts the local collection time and zone on the Collected hover', () => {
