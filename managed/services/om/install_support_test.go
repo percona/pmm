@@ -19,9 +19,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func TestInstallSupportMongoDBVersions(t *testing.T) {
@@ -54,42 +51,45 @@ func TestInstallSupportMongoDBVersions(t *testing.T) {
 	}
 }
 
-func TestRefuseUnsupportedMongoDBVersion(t *testing.T) {
+func TestUnsupportedMongoDBVersion(t *testing.T) {
 	t.Parallel()
 
 	host := func(name, osID, versionID string) extensionsHost {
 		return extensionsHost{Name: name, Observed: map[string]any{"os_id": osID, "os_version_id": versionID}}
 	}
 	rocky := []extensionsHost{host("db-01", "rocky", "9.4"), host("db-02", "rocky", "10.0"), host("db-03", "rocky", "8.10")}
-	nodeIDs := []string{"n1", "n2", "n3"}
+	names := []string{"db-01", "db-02", "db-03"}
 
 	t.Run("a version every release supports passes, patch ignored", func(t *testing.T) {
 		t.Parallel()
 
-		require.NoError(t, testSupport.refuseUnsupportedMongoDBVersion("8.0.4", nodeIDs, rocky))
+		assert.Empty(t, testSupport.unsupportedMongoDBVersion("8.0.4", names, rocky))
 	})
 
 	t.Run("Rocky Linux 10 refuses 7.0, naming the node and what it supports", func(t *testing.T) {
 		t.Parallel()
 
-		err := testSupport.refuseUnsupportedMongoDBVersion("7.0", nodeIDs, rocky)
-
-		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Equal(t,
 			"MongoDB 7.0 cannot be installed onto 1 of the selected node(s) -- db-02 runs Rocky Linux 10.0, "+
 				"which supports MongoDB 8.0. Choose a version every selected node supports.",
-			status.Convert(err).Message())
+			testSupport.unsupportedMongoDBVersion("7.0", names, rocky))
 	})
 
 	t.Run("a version no release supports names every node", func(t *testing.T) {
 		t.Parallel()
 
-		err := testSupport.refuseUnsupportedMongoDBVersion("9.0", nodeIDs, rocky)
+		problem := testSupport.unsupportedMongoDBVersion("9.0", names, rocky)
 
-		assert.Equal(t, codes.InvalidArgument, status.Code(err))
-		message := status.Convert(err).Message()
-		assert.Contains(t, message, "cannot be installed onto 3 of the selected node(s)")
-		assert.Contains(t, message, "db-01 runs Rocky Linux 9.4, which supports MongoDB 7.0, 8.0")
+		assert.Contains(t, problem, "cannot be installed onto 3 of the selected node(s)")
+		assert.Contains(t, problem, "db-01 runs Rocky Linux 9.4, which supports MongoDB 7.0, 8.0")
+	})
+
+	t.Run("a release that gets no version is left to the readiness check", func(t *testing.T) {
+		t.Parallel()
+
+		hosts := []extensionsHost{host("db-01", "rocky", "9.4"), host("db-02", "ubuntu", "20.04")}
+
+		assert.Empty(t, testSupport.unsupportedMongoDBVersion("7.0", []string{"db-01", "db-02"}, hosts))
 	})
 }
 

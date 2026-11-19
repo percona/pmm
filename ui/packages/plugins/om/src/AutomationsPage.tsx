@@ -263,13 +263,12 @@ export const AutomationsPage = () => {
           </Typography>
         }
         actions={
-          // Installs start from a node, so this opens Nodes on the ones with nothing
-          // monitored on them yet.
+          // Installs start from a node, so this opens Nodes on the ones an install can target.
           <AdminAction>
             <Button
               variant="contained"
               component={RouterLink}
-              to={`${omBase}/${OM_ROUTE_NODES}?filter=unmonitored`}
+              to={`${omBase}/${OM_ROUTE_NODES}?filter=ready`}
             >
               Install MongoDB
             </Button>
