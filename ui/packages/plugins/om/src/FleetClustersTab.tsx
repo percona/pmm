@@ -18,6 +18,7 @@
 import { useMemo, useState } from 'react';
 import {
   Box,
+  Button,
   LinearProgress,
   Link,
   Stack,
@@ -37,10 +38,14 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
   type MRT_ExpandedState,
+  type MRT_FilterFn,
   type MRT_Row,
+  type MRT_SortingState,
   type MRT_TableInstance,
 } from 'material-react-table';
 import {
+  CLUSTER_HEALTH_LABEL,
+  CLUSTER_TYPE_LABEL,
   FLEET_NOT_COLLECTED,
   OPERATIONS_DOC_URL,
   PROCESS_ROLE_LABEL,
@@ -50,7 +55,12 @@ import { SnapshotBar } from './components/SnapshotBar';
 import { ClusterHealthBadge, StatusBadge } from './components/HealthBadge';
 import { MemberState } from './components/MemberState';
 import { ServiceLink } from './components/ServiceLink';
-import { Duration } from './components/Metric';
+import { Duration, Percent } from './components/Metric';
+import { Age } from './components/Age';
+import {
+  MultiSelectFilter,
+  type FilterOption,
+} from './components/MultiSelectFilter';
 import { Unavailable } from './components/Unavailable';
 import {
   GroupBySelect,
@@ -61,9 +71,23 @@ import {
 import { useOmTopology } from './topologyHooks';
 import { useOmInventoryServices } from './inventoryHooks';
 import { pluralize } from './format';
-import { clusterHealthRank, downFirst, toClusterRows } from './topology';
-import type { OmClusterHealth, OmClusterRow, OmProcessRole } from './types';
+import {
+  clusterHealthRank,
+  compareVersions,
+  downFirst,
+  toClusterRows,
+} from './topology';
+import type {
+  OmClusterHealth,
+  OmClusterRow,
+  OmClusterType,
+  OmProcessRole,
+} from './types';
 import { OmError } from './components/OmError';
+import {
+  useTableUrlState,
+  type TableUrlStateOptions,
+} from './useTableUrlState';
 
 /** Label for an environment or cluster the services carry no name for. */
 const UNNAMED_ENVIRONMENT = 'Unassigned environment';
@@ -128,11 +152,107 @@ const groupLabel = (row: OmClusterRow, grouping: GroupingColumn) =>
  *
  * Versions is a roll-up of the members, and a reader who wants it is asking about one
  * cluster - which is what unfolding the row answers.
+ *
+ * Type is a label beside the cluster's name, so its own column only earns a place for
+ * sorting on it; Last seen, CPU and Connections are a click away for the same width
+ * reason (Pedro, PMM-15806).
  */
 const HIDDEN_BY_DEFAULT = {
   total_services: false,
   roles: false,
   versions: false,
+  type: false,
+  last_seen_at: false,
+  max_cpu_percent: false,
+  min_connections_free_percent: false,
+};
+
+const typeLabel = (row: OmClusterRow) => CLUSTER_TYPE_LABEL[row.type];
+
+/** Worst first, the order the health filter offers them in. */
+const HEALTH_FILTER_VALUES: OmClusterHealth[] = [
+  'down',
+  'degraded',
+  'unknown',
+  'healthy',
+];
+
+/** How each cluster type is spelled in the URL. */
+const TYPE_FILTER_VALUE: Partial<Record<OmClusterType, string>> = {
+  CLUSTER_TYPE_REPLICA_SET: 'replica-set',
+  CLUSTER_TYPE_SHARDED: 'sharded',
+  CLUSTER_TYPE_STANDALONE: 'standalone',
+};
+
+/** The unnamed environment's filter value: peak-ui drops an empty one as no filter. */
+const UNNAMED_ENVIRONMENT_VALUE = '(none)';
+
+/** A filter's picked values; a hand-written URL can carry one bare value. */
+const pickedValues = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.map(String)
+    : value == null || value === ''
+      ? []
+      : [String(value)];
+
+/**
+ * An exact match on any picked value. Not MRT's multi-select default, which matches
+ * substrings: `prod` would also pick `preprod`.
+ */
+const anyOf =
+  (
+    valueOf: (row: OmClusterRow) => string | undefined
+  ): MRT_FilterFn<OmClusterRow> =>
+  (row, _columnId, picked: unknown) => {
+    const value = valueOf(row.original);
+    return value !== undefined && pickedValues(picked).includes(value);
+  };
+
+/** Element by element, oldest first, so a cluster still on an old build leads. */
+const compareVersionLists = (a: string[], b: string[]) => {
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    const order = compareVersions(a[i], b[i]);
+    if (order !== 0) {
+      return order;
+    }
+  }
+  return a.length - b.length;
+};
+
+const ClusterVersions = ({ cluster }: { cluster: OmClusterRow }) => {
+  if (!cluster.versions.length) {
+    return <Unavailable reason="service_not_observed" />;
+  }
+  if (cluster.version_drift) {
+    // A replica set running two versions is worth reading as a finding, not as a
+    // longer cell.
+    return (
+      <Tooltip
+        title={
+          <Box data-testid="om-version-sets">
+            {cluster.version_sets.map((set) => (
+              <div key={set.replication_set}>
+                {set.replication_set}: {set.versions.join(', ')}
+              </div>
+            ))}
+          </Box>
+        }
+      >
+        <Typography variant="body2" component="span" color="warning.main">
+          Mixed
+        </Typography>
+      </Tooltip>
+    );
+  }
+  if (cluster.versions.length === 1) {
+    return <>{cluster.versions[0]}</>;
+  }
+  // Shards or routers on different versions, each set consistent: not drift.
+  return (
+    <Tooltip title={cluster.versions.join(', ')}>
+      <span>{cluster.versions.length} versions</span>
+    </Tooltip>
+  );
 };
 
 function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
@@ -143,19 +263,50 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         id: 'env_name',
         header: 'Environment',
         size: 160,
+        filterFn: anyOf((row) => row.env_name || UNNAMED_ENVIRONMENT_VALUE),
         Cell: ({ row: { original } }) => environmentLabel(original),
       },
       {
         accessorKey: 'cluster_name',
         header: 'Cluster',
         size: 200,
+        // The only column the search reads.
+        enableGlobalFilter: true,
+        Cell: ({ row: { original } }) => (
+          <Stack
+            direction="row"
+            alignItems="baseline"
+            columnGap={1}
+            flexWrap="wrap"
+          >
+            {original.cluster_name ?? <Unavailable reason="not_applicable" />}
+            {typeLabel(original) && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                data-testid="om-cluster-type"
+              >
+                {typeLabel(original)}
+              </Typography>
+            )}
+          </Stack>
+        ),
+      },
+      {
+        accessorFn: (row) => typeLabel(row),
+        id: 'type',
+        header: 'Type',
+        size: 120,
+        sortUndefined: 'last',
+        filterFn: anyOf((row) => TYPE_FILTER_VALUE[row.type]),
         Cell: ({ row: { original } }) =>
-          original.cluster_name ?? <Unavailable reason="not_applicable" />,
+          typeLabel(original) ?? <Unavailable reason="not_applicable" />,
       },
       {
         accessorKey: 'health',
         header: 'Health',
         size: 130,
+        filterFn: anyOf((row) => row.health),
         // Worst first ascending, so one click brings trouble to the top.
         sortingFn: (a, b, columnId) =>
           clusterHealthRank(a.getValue<OmClusterHealth>(columnId)) -
@@ -186,27 +337,15 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         size: 130,
       },
       {
-        accessorFn: (row) => row.versions.join(', '),
+        accessorFn: (row) => row.versions.join(', ') || undefined,
         id: 'versions',
         header: 'Versions',
         size: 130,
-        Cell: ({ row: { original } }) => {
-          if (!original.versions.length) {
-            return <Unavailable reason="service_not_observed" />;
-          }
-          if (original.versions.length === 1) {
-            return original.versions[0];
-          }
-          // More than one running version in one cluster is worth reading as a
-          // finding, not as a longer cell.
-          return (
-            <Tooltip title={original.versions.join(', ')}>
-              <Typography variant="body2" component="span" color="warning.main">
-                Mixed ({original.versions.length})
-              </Typography>
-            </Tooltip>
-          );
-        },
+        sortUndefined: 'last',
+        // As versions, not strings: 7.0.9-1 is older than 7.0.24-13.
+        sortingFn: (a, b) =>
+          compareVersionLists(a.original.versions, b.original.versions),
+        Cell: ({ row: { original } }) => <ClusterVersions cluster={original} />,
       },
       {
         accessorKey: 'max_replication_lag_seconds',
@@ -223,6 +362,56 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         Cell: ({ row: { original } }) => (
           <Duration value={original.min_oplog_window_seconds} />
         ),
+      },
+      {
+        accessorFn: (row) =>
+          row.last_seen_at ? Date.parse(row.last_seen_at) : undefined,
+        id: 'last_seen_at',
+        header: 'Last seen',
+        size: 120,
+        sortUndefined: 'last',
+        Header: () => (
+          <Tooltip title="When the least recently observed member was last observed">
+            <span>Last seen</span>
+          </Tooltip>
+        ),
+        Cell: ({ row: { original } }) =>
+          original.last_seen_at ? (
+            <Age value={original.last_seen_at} />
+          ) : (
+            <Unavailable reason="service_not_observed" />
+          ),
+      },
+      {
+        accessorFn: (row) => row.max_cpu_percent ?? undefined,
+        id: 'max_cpu_percent',
+        header: 'Max CPU',
+        size: 110,
+        sortUndefined: 'last',
+        Cell: ({ row: { original } }) =>
+          original.max_cpu_percent == null ? (
+            <Unavailable reason="metric_not_collected" />
+          ) : (
+            <Percent value={original.max_cpu_percent} />
+          ),
+      },
+      {
+        accessorFn: (row) => row.min_connections_free_percent ?? undefined,
+        id: 'min_connections_free_percent',
+        header: 'Min conn. free',
+        size: 140,
+        sortUndefined: 'last',
+        Header: () => (
+          <Tooltip title="The lowest percentage of free connections among the members">
+            <span>Min conn. free</span>
+          </Tooltip>
+        ),
+        Cell: ({ row: { original } }) =>
+          original.min_connections_free_percent == null ? (
+            <Unavailable reason="metric_not_collected" />
+          ) : (
+            <Percent value={original.min_connections_free_percent} />
+          ),
       },
     ],
     []
@@ -436,6 +625,131 @@ function useGroupedExpansion(rows: OmClusterRow[], grouping: ClusterGrouping) {
   return { expanded, onExpandedChange };
 }
 
+const HEALTH_OPTIONS: FilterOption[] = HEALTH_FILTER_VALUES.map((value) => ({
+  value,
+  label: CLUSTER_HEALTH_LABEL[value],
+}));
+
+const TYPE_OPTIONS: FilterOption[] = Object.entries(TYPE_FILTER_VALUE).map(
+  ([type, value]) => ({
+    value,
+    label: CLUSTER_TYPE_LABEL[type as OmClusterType] ?? value,
+  })
+);
+
+/**
+ * A picked value the options lack - a stale link's, say - is listed under its own
+ * name, so it can be seen and unpicked rather than silently emptying the table.
+ */
+const withPicked = (options: FilterOption[], picked: string[]) => [
+  ...options,
+  ...picked
+    .filter((value) => !options.some((option) => option.value === value))
+    .map((value) => ({ value, label: value })),
+];
+
+type FilterColumn = 'health' | 'type' | 'env_name';
+
+/**
+ * Trouble first: a degraded or down cluster leads its group. Groups themselves keep
+ * the document's order, since they have no health of their own to sort on. Being the
+ * default, it stays out of the URL.
+ */
+const DEFAULT_SORTING: MRT_SortingState = [
+  { id: 'health', desc: false },
+  { id: 'cluster_name', desc: false },
+];
+
+/**
+ * The search, filters and sort, in the URL under `clusters.` so a filtered view can
+ * be shared - the pattern every PMM table follows. Group by stays out of it: a
+ * shareable filter matters, a shareable grouping does not (PMM-15767).
+ */
+const URL_STATE: TableUrlStateOptions = {
+  paramPrefix: 'clusters',
+  defaults: { sorting: DEFAULT_SORTING },
+  sync: { pagination: false },
+  initialShowGlobalFilter: true,
+};
+
+/**
+ * The filters, as toolbar selects rather than MRT's header inputs: Type is hidden by
+ * default, and Environment's column leaves the table while grouped by it, so neither
+ * would have a header to filter from. Driven by the table's own filter state.
+ */
+const ClusterFilterBar = ({
+  table,
+  rows,
+}: {
+  table: MRT_TableInstance<OmClusterRow>;
+  rows: OmClusterRow[];
+}) => {
+  const { columnFilters, globalFilter } = table.getState();
+  const picked = (id: FilterColumn) =>
+    pickedValues(columnFilters.find((filter) => filter.id === id)?.value);
+  const pick = (id: FilterColumn) => (values: string[]) =>
+    table.setColumnFilters((filters) => [
+      ...filters.filter((filter) => filter.id !== id),
+      ...(values.length ? [{ id, value: values }] : []),
+    ]);
+  // From the fleet, not a fixed list, with the unnamed one under its label.
+  const environments = useMemo(
+    () =>
+      [...new Set(rows.map((row) => row.env_name || UNNAMED_ENVIRONMENT_VALUE))]
+        .sort((a, b) => a.localeCompare(b))
+        .map((value) => ({
+          value,
+          label:
+            value === UNNAMED_ENVIRONMENT_VALUE ? UNNAMED_ENVIRONMENT : value,
+        })),
+    [rows]
+  );
+  const filtered = columnFilters.length > 0 || !!globalFilter;
+  return (
+    <>
+      <MultiSelectFilter
+        label="Health"
+        options={withPicked(HEALTH_OPTIONS, picked('health'))}
+        value={picked('health')}
+        onChange={pick('health')}
+      />
+      <MultiSelectFilter
+        label="Type"
+        options={withPicked(TYPE_OPTIONS, picked('type'))}
+        value={picked('type')}
+        onChange={pick('type')}
+      />
+      <MultiSelectFilter
+        label="Environment"
+        options={withPicked(environments, picked('env_name'))}
+        value={picked('env_name')}
+        onChange={pick('env_name')}
+      />
+      {filtered && (
+        <>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            data-testid="om-cluster-match-count"
+          >
+            {table.getFilteredRowModel().rows.length} of {rows.length}{' '}
+            {pluralize(rows.length, 'cluster')}
+          </Typography>
+          <Button
+            size="small"
+            onClick={() => {
+              table.resetColumnFilters(true);
+              table.setGlobalFilter('');
+            }}
+          >
+            Clear filters
+          </Button>
+        </>
+      )}
+    </>
+  );
+};
+
 /**
  * Every cluster in one table, grouped by what the reader picks in the toolbar.
  *
@@ -448,9 +762,13 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     GROUP_BY_OPTIONS,
     DEFAULT_GROUPING
   );
+  const tableProps = useTableUrlState(URL_STATE);
+  // The whole fleet, not the matches: a group folded away stays folded while a
+  // filter hides it and brings it back.
   const { expanded, onExpandedChange } = useGroupedExpansion(rows, grouping);
   const columns = useColumns();
   const table = useMaterialReactTable({
+    ...tableProps,
     columns,
     data: rows,
     enablePagination: false,
@@ -472,9 +790,18 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     // the chooser does, and the icon it adds to every header is a slice of the width
     // this table does not have.
     enableColumnActions: false,
-    // The toolbar carries the Group by select and the column chooser; everything
-    // else it can hold is off.
-    enableGlobalFilter: false,
+    // The toolbar carries Group by, the filters, the search and the column chooser;
+    // everything else it can hold is off.
+    enableColumnFilters: false,
+    globalFilterFn: 'contains',
+    defaultColumn: { enableGlobalFilter: false },
+    // TanStack only searches a column whose first row holds a string, and a cluster
+    // can lack a name.
+    getColumnCanGlobalFilter: () => true,
+    muiSearchTextFieldProps: {
+      placeholder: 'Search clusters',
+      inputProps: { 'aria-label': 'Search clusters' },
+    },
     enableFullScreenToggle: false,
     enableHiding: true,
     // The opaque server-issued id, not the label: two clusters can share a label (a
@@ -484,6 +811,11 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     // the row order shifted between polls.
     getRowId: (row) => row.id,
     renderDetailPanel: ({ row }) => <ClusterServices cluster={row.original} />,
+    renderEmptyRowsFallback: () => (
+      <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+        No cluster matches the search and filters.
+      </Typography>
+    ),
     // MRT labels every toggle "Expand" whatever its state; a group's says which
     // group and whether it is open.
     muiExpandButtonProps: ({ row }) =>
@@ -493,12 +825,15 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
             'aria-label': `${row.getIsExpanded() ? 'Collapse' : 'Expand'} ${groupLabel(row.original, grouping)}`,
           }
         : {},
-    renderTopToolbarCustomActions: () => (
-      <GroupBySelect
-        options={GROUP_BY_OPTIONS}
-        value={grouping}
-        onChange={(value) => setGrouping(value as ClusterGrouping)}
-      />
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
+        <GroupBySelect
+          options={GROUP_BY_OPTIONS}
+          value={grouping}
+          onChange={(value) => setGrouping(value as ClusterGrouping)}
+        />
+        <ClusterFilterBar table={table} rows={rows} />
+      </Stack>
     ),
     displayColumnDefOptions: {
       'mrt-row-expand': {
@@ -538,6 +873,7 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
       },
     },
     state: {
+      ...tableProps.state,
       grouping: grouping === NO_GROUPING ? [] : [grouping],
       expanded,
     },
@@ -545,12 +881,6 @@ const ClustersTable = ({ rows }: { rows: OmClusterRow[] }) => {
     initialState: {
       density: 'compact',
       columnVisibility: HIDDEN_BY_DEFAULT,
-      // Trouble first: a degraded or down cluster leads its group. Groups themselves
-      // keep the document's order, since they have no health of their own to sort on.
-      sorting: [
-        { id: 'health', desc: false },
-        { id: 'cluster_name', desc: false },
-      ],
     },
   });
 

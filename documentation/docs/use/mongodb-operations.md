@@ -102,7 +102,7 @@ With **Connect to MongoDB** off, scans collect only process and OS details and t
 
 A scan checks what runs on a node and whether you can install MongoDB on it. Until PMM scans a node, the node shows no data.
 
-PMM scans every node automatically, every 10 minutes by default.
+PMM scans every node automatically, every 10 minutes by default. PMM also scans every node after each restart and when Operations for MongoDB is turned on.
 
 ### Run a scan now
 
@@ -119,6 +119,17 @@ By default, PMM scans every node every 10 minutes. Each scan sends a job to ever
 1. Go to **MongoDB > Operations > Settings** and select the **General** tab.
 2. In **Scan every** and **Period**, set the time between scans.
 3. Click **Save**. The change takes effect without a restart.
+
+### Stop automatic scans
+
+If you want PMM to scan only when you ask, turn off automatic scans:
+{.power-number}
+
+1. Go to **MongoDB > Operations > Settings** and select the **General** tab.
+2. Turn off **Automatic node scans**.
+3. Click **Save**.
+
+PMM then no longer scans on a schedule, when it restarts, or when Operations for MongoDB is turned on. **Scan** and **Scan all** on the **Nodes** page keep working. When you turn **Automatic node scans** back on, PMM scans at the interval set in **Scan every** and **Period**.
 
 ## Install a replica set
 
@@ -198,7 +209,8 @@ To view fleet health:
 
 1. Go to **MongoDB > Operations > Fleet**.
 2. On the **Clusters** tab, check the summary at the top: how many environments, clusters, and services PMM monitors, and how many services are up or down.
-3. Clusters are grouped by environment. For each cluster, check the following columns:
+3. To narrow the list, type part of a cluster name in **Search clusters**, or select values in the **Health**, **Type**, and **Environment** filters. A cluster must match the search and every filter that you set. Within one filter, any selected value matches. The filters are saved in the page URL, so you can share the filtered view. To reset, click **Clear filters**.
+4. By default, clusters are grouped by environment. If you change **Group by**, the table keeps your choice for the browser session. For each cluster, check the following columns:
 
     - **Health**: the overall state of the cluster, for example **Healthy**.
     - **Services**: the number of services in the cluster.
@@ -206,8 +218,10 @@ To view fleet health:
     - **Max repl. lag**: the highest replication lag across members.
     - **Min oplog window**: the smallest oplog window across members.
 
-4. Expand a cluster's row to find the member that causes poor health or high replication lag.
-5. Select the **Services** tab to check whether a specific service is up or down.
+    To add columns that are hidden by default, such as **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
+
+5. Expand a cluster's row to find the member that causes poor health or high replication lag.
+6. Select the **Services** tab to check whether a specific service is up or down.
 
 The page shows when its data was last refreshed and when the nodes were last scanned. To load the latest data, click **Refresh**.
 
