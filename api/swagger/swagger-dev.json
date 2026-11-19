@@ -34338,6 +34338,14 @@
                         "description": "Whether this is the node PMM Server itself runs on.\n\nCarried as its own field rather than left to be inferred from\nautomation_blocked_reasons, because a consumer that matched on the sentence would\nbreak the first time it is reworded, and automation_blocked_by_design cannot say\nit: a registered replica-set member sets that flag too, and Forget is a perfectly\nreasonable thing to offer on one of those.\n\nWhat it is for: Operations offers no automation action on this node at all, Forget\nincluded. Forgetting it would clear Operations' record of the machine PMM runs on,\nthe next scan would put it straight back, and in between the fleet would be wrong.",
                         "type": "boolean",
                         "x-order": 15
+                      },
+                      "supported_mongodb_versions": {
+                        "description": "The MongoDB versions, as major.minor and oldest first, that Operations installs onto\nthis node's OS release. Empty when it installs none there, the release is not known,\nor PMM could not read the supported releases; automation_blocked_reasons says which.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 16
                       }
                     }
                   },
@@ -34748,6 +34756,14 @@
                       "description": "Whether this is the node PMM Server itself runs on.\n\nCarried as its own field rather than left to be inferred from\nautomation_blocked_reasons, because a consumer that matched on the sentence would\nbreak the first time it is reworded, and automation_blocked_by_design cannot say\nit: a registered replica-set member sets that flag too, and Forget is a perfectly\nreasonable thing to offer on one of those.\n\nWhat it is for: Operations offers no automation action on this node at all, Forget\nincluded. Forgetting it would clear Operations' record of the machine PMM runs on,\nthe next scan would put it straight back, and in between the fleet would be wrong.",
                       "type": "boolean",
                       "x-order": 15
+                    },
+                    "supported_mongodb_versions": {
+                      "description": "The MongoDB versions, as major.minor and oldest first, that Operations installs onto\nthis node's OS release. Empty when it installs none there, the release is not known,\nor PMM could not read the supported releases; automation_blocked_reasons says which.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -34878,7 +34894,7 @@
                   "x-order": 1
                 },
                 "mongodb_version": {
-                  "description": "The MongoDB version to install, e.g. \"7.0.8\". Only the major version\nselects the install source; PSMDB does not ship parallel repos per minor\nversion.",
+                  "description": "The MongoDB version to install, e.g. \"7.0.8\". Only the major version\nselects the install source; PSMDB does not ship parallel repos per minor\nversion. Every node's OS release has to support it, as each node's\nInventoryHost.supported_mongodb_versions lists.",
                   "type": "string",
                   "x-order": 2
                 },
