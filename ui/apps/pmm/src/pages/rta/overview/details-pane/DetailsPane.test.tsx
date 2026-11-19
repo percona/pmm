@@ -27,8 +27,7 @@ const renderComponent = (
     </ThemeProvider>
   );
 
-// Skipped until the pinned @percona/peak-ui exports DetailsPane.
-describe.skip('DetailsPane', () => {
+describe('DetailsPane', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
