@@ -33,7 +33,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { EmptyState } from './components/EmptyState';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
+import { Table, type MRT_ColumnDef } from '@percona/peak-ui';
 import {
   formatAbsoluteTime,
   formatTimestamp,

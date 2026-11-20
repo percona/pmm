@@ -34,7 +34,6 @@ export default defineConfig({
         inline: [
           'react-dom',
           '@testing-library/react',
-          '@percona/percona-ui',
           '@percona/peak-ui',
           '@mui/material',
           '@mui/system',
