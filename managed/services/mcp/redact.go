@@ -513,12 +513,16 @@ func singleQuotedEnd(s string, start int) int {
 // EXPLAIN table, the last of its |-separated cells: MySQL NDB Cluster prints a
 // pushed condition there, with its literals. The other columns name tables
 // and keys and count rows. The table is split from the left, so a | inside
-// the condition stays in the masked cell.
+// the condition stays in the masked cell. A line with fewer cells than the
+// header, left by a cell with a line break, withholds the plan.
 func maskTraditionalExtra(table string) string {
 	lines := strings.Split(table, "\n")
 	columns := strings.Count(lines[0], "|") + 1
 	for i, line := range lines {
 		cells := strings.SplitN(line, "|", columns)
+		if len(cells) < columns {
+			return planWithheld
+		}
 		cells[len(cells)-1] = maskSQLLiterals(cells[len(cells)-1], true)
 		lines[i] = strings.Join(cells, "|")
 	}
