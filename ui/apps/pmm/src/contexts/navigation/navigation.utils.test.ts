@@ -91,11 +91,30 @@ describe('addConfiguration', () => {
     } as Parameters<typeof addConfiguration>[1]);
 
     expect(updates(item)).toMatchObject({
-      secondaryText: 'Current: v3.5.0 (up to date)',
+      secondaryText: 'v3.5.0, up to date',
       badge: { label: 'New' },
     });
     expect(updates(NAV_CONFIGURATION)?.secondaryText).toBeUndefined();
     expect(updates(NAV_CONFIGURATION)?.badge).toBeUndefined();
+  });
+
+  it('keeps a two-digit minor version and drops a build suffix', () => {
+    const item = addConfiguration(UpdateStatus.Pending, {
+      installed: { version: '3.10.0-v3-2d7d9c98f' },
+      latest: { version: '3.11.0' },
+      updateAvailable: true,
+    } as Parameters<typeof addConfiguration>[1]);
+
+    expect(updates(item)?.secondaryText).toBe('v3.10.0 → v3.11.0');
+  });
+
+  it('says when only the clients need an update', () => {
+    const item = addConfiguration(UpdateStatus.UpdateClients, {
+      installed: { version: '3.11.0' },
+      updateAvailable: false,
+    } as Parameters<typeof addConfiguration>[1]);
+
+    expect(updates(item)?.secondaryText).toBe('Clients out of date');
   });
 
   it('drops the text of an earlier call', () => {

@@ -150,6 +150,8 @@ export const addConfiguration = (
   settings?: CombinedSettings
 ): NavItem => {
   const { updateAvailable, installed, latest } = versionInfo || {};
+  // Without a dev build's suffix, which would not fit the menu.
+  const version = installed?.version?.split('-')[0];
   const children = (NAV_CONFIGURATION.children || []).map((child) => {
     if (child.id !== 'updates') {
       return child;
@@ -158,10 +160,12 @@ export const addConfiguration = (
     return {
       ...child,
       secondaryText: updateAvailable
-        ? `Update from v${installed?.version?.slice(0, 5)} to v${latest?.version}`
-        : installed?.version
-          ? `Current: v${installed.version} (up to date)`
-          : undefined,
+        ? `v${version} → v${latest?.version}`
+        : status === UpdateStatus.UpdateClients
+          ? 'Clients out of date'
+          : version
+            ? `v${version}, up to date`
+            : undefined,
       badge:
         status === UpdateStatus.Pending || status === UpdateStatus.UpdateClients
           ? { label: 'New' }
