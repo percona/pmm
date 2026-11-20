@@ -2,7 +2,10 @@
 
 PMM Server exposes a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) endpoint at `https://<pmm-server>/mcp`. Any MCP client, such as Claude Code, Cursor, or your own agent, can use it to triage slow queries with PMM data: list the monitored services, rank the worst queries from Query Analytics (QAN), fetch the metrics and an example statement for one query, get its execution plan and the DDL of its tables, read the database server's configuration, and query PMM's metrics.
 
-The endpoint is read-only. Every tool is registered with the MCP `readOnlyHint` and `destructiveHint: false` annotations, and no tool changes database or PMM state. MySQL EXPLAIN is always the non-executing form, never `EXPLAIN ANALYZE`. MongoDB explain runs the query's candidate plans to collect execution statistics. It costs about as much as the read itself, but it never modifies data.
+The endpoint is read-only. Every tool is registered with the MCP `readOnlyHint` and `destructiveHint: false` annotations, and no tool asks PMM or a monitored database to change anything. On MySQL, `pmm_get_explain` and `pmm_get_schema` run EXPLAIN through pmm-agent, as the **Explain** tab of Query Analytics does. EXPLAIN is always the non-executing form, never `EXPLAIN ANALYZE`, but planning the query can make MySQL evaluate a stored function that the query calls. MongoDB explain runs the query's candidate plans to collect execution statistics. It costs about as much as the read itself, but it never modifies data.
+
+!!! warning "Technical Preview"
+    The MCP endpoint is in [Technical Preview](../reference/glossary.md#technical-preview) and is subject to change. Use it for testing and evaluation only.
 
 ## How it works
 
@@ -10,8 +13,8 @@ The MCP server runs inside pmm-managed and speaks MCP Streamable HTTP. It holds 
 
 The endpoint is only reachable through PMM's nginx, which authenticates every request. A connection made directly to pmm-managed, bypassing nginx, is answered with 404 even when pmm-managed listens on a routable interface.
 
-!!! note alert alert-primary "Service-account tokens and label-based access control"
-    PMM resolves service-account tokens without a user ID, so label-based access control (LBAC) filters are not applied to them. A Viewer token sees the same services and queries a Viewer sees in the UI, subject to the role, but not to LBAC roles. This is existing PMM behaviour, not specific to MCP.
+!!! note "Service-account tokens and access control"
+    With [access control](../admin/roles/access-control/intro.md) off, a Viewer service-account token works for every tool. With access control on, PMM refuses service-account tokens on the Query Analytics and metrics APIs, so every tool except `pmm_version` and `pmm_catalog` returns `unauthorized` for a token. In that case, connect with the credentials of a PMM user, sent as Basic authentication. The user's Access Roles then filter the Query Analytics and metrics data that the tools read.
 
 ## Enable the endpoint
 
@@ -31,7 +34,9 @@ The current state is reported as `enable_mcp` in `GET /v1/server/settings/readon
 
 ## Create a token
 
-The MCP client authenticates with a [service account token](authentication.md). Create one with the **Viewer** role: it is enough for every tool.
+With access control off, the MCP client authenticates with a [service account token](authentication.md). If access control is on, use the credentials of a PMM user instead, as the note in [How it works](#how-it-works) explains.
+
+To create a token with the **Viewer** role, which is enough for every tool:
 {.power-number}
 
 1. Log in to PMM as an administrator.
@@ -432,6 +437,8 @@ A call refused for its rate is `rate_limited` and says in the message how many s
 | `pmm_version`, `pmm_inventory`, `pmm_catalog`, `pmm_top_queries`, `pmm_query_detail`, `pmm_get_explain`, `pmm_get_schema`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_alerts` | Viewer |
 
 `pmm_inventory` reads no inventory API, only the metrics your token can read. `pmm_alerts` shows the alerts that Grafana's folder permissions let your token read.
+
+With access control on, the role must belong to a PMM user rather than a service account: PMM refuses service-account tokens on the Query Analytics and metrics APIs that every tool except `pmm_version` and `pmm_catalog` reads.
 
 A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain` and `pmm_get_schema`, exactly as it can through the REST API, so those tools expose execution plans and table definitions to any user who can view dashboards.
 
