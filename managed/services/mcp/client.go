@@ -243,22 +243,6 @@ func (a callerAuth) option() func(*runtime.ClientOperation) {
 	}
 }
 
-// withQueryParam adds a query parameter the generated client does not declare.
-// A parameter the request message lacks is ignored by grpc-gateway, so it can
-// be sent before the server supports it.
-func withQueryParam(name, value string) func(*runtime.ClientOperation) {
-	return func(op *runtime.ClientOperation) {
-		params := op.Params
-		op.Params = runtime.ClientRequestWriterFunc(func(r runtime.ClientRequest, reg strfmt.Registry) error {
-			err := params.WriteToRequest(r, reg)
-			if err != nil {
-				return err
-			}
-			return r.SetQueryParam(name, value)
-		})
-	}
-}
-
 // statusTransport turns every non-2xx response into a statusError so that the
 // generated clients and the raw Grafana calls share one error mapping.
 type statusTransport struct {
@@ -368,8 +352,8 @@ func (c *client) GetQueryExample(ctx context.Context, auth callerAuth, body qan_
 }
 
 func (c *client) GetQueryPlan(ctx context.Context, auth callerAuth, queryID, serviceID string) (*qan_service.GetQueryPlanOKBody, error) {
-	params := qan_service.NewGetQueryPlanParamsWithContext(ctx).WithTimeout(callTimeout).WithQueryid(queryID)
-	res, err := c.qan.QANService.GetQueryPlan(params, auth.option(), withQueryParam("service_id", serviceID))
+	params := qan_service.NewGetQueryPlanParamsWithContext(ctx).WithTimeout(callTimeout).WithQueryid(queryID).WithServiceID(new(serviceID))
+	res, err := c.qan.QANService.GetQueryPlan(params, auth.option())
 	if err != nil {
 		return nil, err
 	}
