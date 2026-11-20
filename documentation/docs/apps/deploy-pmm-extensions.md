@@ -18,7 +18,7 @@ You cannot deploy PMM Extensions on:
 
 PMM Server and PMM Extensions must run on the same version. If they don't match, the app pages show a warning with both versions.
 
-Both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, which pulls the latest 3.x release. To run a specific version, set it in `.env` before starting the containers:
+Both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, the latest 3.x release. Docker doesn't pull a tag that already exists on the host. If the host has an older `percona/pmm-server:3` or `percona/pmm-extensions:3` image, pull both images again before you start the containers. To run a specific version, set it in `.env` before starting the containers:
 
 ```ini
 PMM_IMAGE_TAG=3.10.0
@@ -27,6 +27,8 @@ PMM_IMAGE_TAG=3.10.0
 If your environment pulls images from a registry other than Docker Hub, change the two `image:` lines in the `docker-compose.yml` file on this page to point to your registry. Use the same version for both images.
 
 ## Deploy PMM Extensions
+
+Both procedures set `PMM_PUBLIC_ADDRESS`, the address that PMM Clients use to reach this server. Use a host name or IP address that every PMM Client host can resolve and reach. Don't use `localhost` or `127.0.0.1`, because a PMM Client on another host or in another container would then connect to itself.
 
 === "Existing PMM install"
 
@@ -58,7 +60,7 @@ If your environment pulls images from a registry other than Docker Hub, change t
                 docker stop pmm-server && docker rm pmm-server
                 ```
 
-            2. Create a `docker-compose.yml` file with both services, then set `PMM_PUBLIC_ADDRESS` in `.env` and run `docker compose up -d`:
+            2. Create a `docker-compose.yml` file with both services, and set `PMM_PUBLIC_ADDRESS` in `.env`. If you changed the default PMM admin password, also set `GF_SECURITY_ADMIN_PASSWORD` in `.env`. Then run `docker compose up -d`:
 
                 ```yaml
                 services:
@@ -86,13 +88,14 @@ If your environment pulls images from a registry other than Docker Hub, change t
                     environment:
                       SECRETS_DIR: /run/secrets/extensions
                       GF_SECURITY_ADMIN_USER: admin
-                      GF_SECURITY_ADMIN_PASSWORD: ${PMM_ADMIN_PASSWORD:-admin}
+                      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
                       BASE_URL: https://${PMM_PUBLIC_ADDRESS}/extensions
                     volumes:
                       - pmm-extensions:/run/secrets/extensions:ro
                       - pmm-extensions-state:/home/extensions/state
                     depends_on:
-                      - pmm-server
+                      pmm-server:
+                        condition: service_healthy
 
                 volumes:
                   pmm-data:
@@ -149,7 +152,7 @@ If your environment pulls images from a registry other than Docker Hub, change t
                   percona/pmm-server:3.10.0
                 ```
 
-            5. Start the PMM Extensions container on the same network as `pmm-server`, using exactly `--name pmm-extensions`:
+            5. Wait until `docker ps` shows `pmm-server` as `healthy`. Then start the PMM Extensions container on the same network as `pmm-server`, using exactly `--name pmm-extensions`:
 
                 ```bash
                 docker run -d \
@@ -173,12 +176,14 @@ If your environment pulls images from a registry other than Docker Hub, change t
     Use this option if you are setting up PMM for the first time and want to include PMM Extensions from the start. Create a `docker-compose.yml` file with both services and a `.env` file with your settings:
     {.power-number}
 
-    1. Create an `.env` file with your settings. `PMM_PUBLIC_ADDRESS` is required. If you skip it, PMM Extensions starts but can't run tasks and won't show an error:
+    1. Create an `.env` file with your settings. `PMM_PUBLIC_ADDRESS` is required. If you skip it, PMM Extensions starts but can't run tasks, and PMM Server logs a warning that Nomad will not start. To set the password of the `admin` user at first start, uncomment `GF_SECURITY_ADMIN_PASSWORD`:
 
         ```ini
-        # To pin a specific version (default pulls the latest 3.x release):
+        # To pin a specific version (default is the latest 3.x release):
         # PMM_IMAGE_TAG=3.10.0
         PMM_PUBLIC_ADDRESS=<address PMM Clients use to reach this server>
+        # To set the admin password at first start (default is admin):
+        # GF_SECURITY_ADMIN_PASSWORD='<password>'
         ```
 
     2. Create a `docker-compose.yml` file with the following content:
@@ -196,6 +201,7 @@ If your environment pulls images from a registry other than Docker Hub, change t
               PMM_ENABLE_EXTENSIONS: "1"
               PMM_ENABLE_NOMAD: "1"
               PMM_PUBLIC_ADDRESS: ${PMM_PUBLIC_ADDRESS}
+              GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
             volumes:
               - pmm-data:/srv
               - pmm-extensions:/srv/extensions
@@ -209,13 +215,14 @@ If your environment pulls images from a registry other than Docker Hub, change t
             environment:
               SECRETS_DIR: /run/secrets/extensions
               GF_SECURITY_ADMIN_USER: admin
-              GF_SECURITY_ADMIN_PASSWORD: ${PMM_ADMIN_PASSWORD:-admin}
+              GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:-admin}
               BASE_URL: https://${PMM_PUBLIC_ADDRESS}/extensions
             volumes:
               - pmm-extensions:/run/secrets/extensions:ro
               - pmm-extensions-state:/home/extensions/state
             depends_on:
-              - pmm-server
+              pmm-server:
+                condition: service_healthy
 
         volumes:
           pmm-data:
