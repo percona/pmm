@@ -33,14 +33,12 @@ const usePersistentColumnVisibility = (
   };
 
   useEffect(() => {
-    if (!isObjectEmpty(localStorageValue)) {
-      const hiddenColumns = filterHiddenColumns(localStorageValue);
+    const hiddenColumns = filterHiddenColumns(localStorageValue);
 
-      if (!isObjectEmpty(hiddenColumns)) {
-        localStorage.setItem(key, JSON.stringify(hiddenColumns));
-      } else {
-        localStorage.removeItem(key);
-      }
+    if (!isObjectEmpty(hiddenColumns)) {
+      localStorage.setItem(key, JSON.stringify(hiddenColumns));
+    } else {
+      localStorage.removeItem(key);
     }
   }, [key, localStorageValue]);
 
