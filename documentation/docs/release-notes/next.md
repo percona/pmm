@@ -161,6 +161,8 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 - [PMM-15883](https://perconadev.atlassian.net/browse/PMM-15883): Fixed an issue where the [Query Analytics overview](../use/qan/panels/overview.md) table could show results that didn't match the current search, filters or time range when you changed them quickly, for example by changing the time range and then searching before the table reloaded. The table now always shows the results for your latest search, filters and time range, and keeps loading until those results arrive.
 
+- [PMM-15816](https://perconadev.atlassian.net/browse/PMM-15816): Fixed an issue where PMM Server failed to start when `PMM_DATA_RETENTION` was set in days, such as `30d`. You can now [set data retention](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md) in days or hours, such as `30d` or `720h`.
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?

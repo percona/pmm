@@ -214,6 +214,52 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
+	t.Run("Data retention accepts day, week and year units", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tt := range []struct {
+			value    string
+			expected time.Duration
+		}{
+			{value: "30d", expected: 30 * 24 * time.Hour},
+			{value: "30D", expected: 30 * 24 * time.Hour},
+			{value: "2w", expected: 14 * 24 * time.Hour},
+			{value: "1y", expected: 365 * 24 * time.Hour},
+			{value: "720h", expected: 720 * time.Hour},
+			{value: "1.5h", expected: 90 * time.Minute},
+			{value: "1d12h", expected: 36 * time.Hour},
+		} {
+			t.Run(tt.value, func(t *testing.T) {
+				t.Parallel()
+
+				gotEnvVars, gotErrs, gotWarns := ParseEnvVars([]string{"PMM_DATA_RETENTION=" + tt.value})
+				assert.Equal(t, &models.ChangeSettingsParams{DataRetention: tt.expected}, gotEnvVars)
+				assert.Nil(t, gotErrs)
+				assert.Nil(t, gotWarns)
+			})
+		}
+	})
+
+	t.Run("Invalid duration units", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_DATA_RETENTION=30 days",
+			"PMM_DATA_RETENTION=1.5d",
+			"PMM_METRICS_RESOLUTION_LR=1d",
+		}
+		expectedErrs := []error{
+			errors.New(`environment variable "PMM_DATA_RETENTION=30 days" has invalid duration 30 days`),
+			errors.New(`environment variable "PMM_DATA_RETENTION=1.5d" has invalid duration 1.5d`),
+			errors.New(`environment variable "PMM_METRICS_RESOLUTION_LR=1d" has invalid duration 1d`),
+		}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, &models.ChangeSettingsParams{}, gotEnvVars)
+		assert.Equal(t, expectedErrs, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("env vars with 'PERCONA_*' prefix show warnings", func(t *testing.T) {
 		t.Parallel()
 

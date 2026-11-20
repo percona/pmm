@@ -57,7 +57,7 @@ These variables are particularly useful for AWS AMI deployments:
 | `PMM_DEBUG` | `false` | Enable verbose logging |
 | `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval |
 
-Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. If you use days, such as `30d`, PMM Server won't start.
+Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. PMM 3.11.0 and later also accept days, such as `30d`. On earlier versions, a value in days stops PMM Server from starting.
 
 ### VictoriaMetrics performance tuning
 
