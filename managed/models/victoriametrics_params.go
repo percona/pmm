@@ -222,6 +222,13 @@ func (vmp *VictoriaMetricsParams) URL() string {
 	return vmp.url.String()
 }
 
+// URLWithoutCredentials returns the base URL for VictoriaMetrics without its userinfo, and the username it carried.
+func (vmp *VictoriaMetricsParams) URLWithoutCredentials() (string, string) {
+	u := *vmp.url
+	u.User = nil
+	return u.String(), vmp.url.User.Username()
+}
+
 // ParsedURL returns a copy of the parsed base URL for VictoriaMetrics. Callers may modify the copy.
 func (vmp *VictoriaMetricsParams) ParsedURL() *url.URL {
 	u := *vmp.url

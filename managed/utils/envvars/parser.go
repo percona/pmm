@@ -404,6 +404,8 @@ const (
 	EnvVMAgentRemoteWriteURL      = "VMAGENT_remoteWrite_url"
 	EnvVMAgentRemoteWriteUsername = "VMAGENT_remoteWrite_basicAuth_username"
 	EnvVMAgentRemoteWritePassword = "VMAGENT_remoteWrite_basicAuth_password" //nolint:gosec
+	// EnvVMAgentRemoteWritePasswordFile names the file vmagent reads the remote-write password from.
+	EnvVMAgentRemoteWritePasswordFile = "VMAGENT_remoteWrite_basicAuth_passwordFile" //nolint:gosec
 )
 
 // VMAgentRemoteWriteAuth classifies the remote-write authentication an operator configured
@@ -424,7 +426,7 @@ const (
 // one of each.
 var (
 	remoteWriteUsernameEnvs = []string{EnvVMAgentRemoteWriteUsername, "VMAGENT_remoteWrite_basicAuth_usernameFile"}
-	remoteWritePasswordEnvs = []string{EnvVMAgentRemoteWritePassword, "VMAGENT_remoteWrite_basicAuth_passwordFile"}
+	remoteWritePasswordEnvs = []string{EnvVMAgentRemoteWritePassword, EnvVMAgentRemoteWritePasswordFile}
 )
 
 // remoteWriteExclusiveAuthEnvs are the vmagent authentication methods that take the place of a

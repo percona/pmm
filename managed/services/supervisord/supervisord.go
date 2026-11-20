@@ -31,6 +31,7 @@ import (
 	"strings"
 	"sync"
 	"text/template"
+	"unicode"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -263,6 +264,16 @@ command =
 		--datasource.url={{ .VMURL }}
 		--remoteRead.url={{ .VMURL }}
 		--remoteWrite.url={{ .VMURL }}
+{{- if .VMPasswordFile }}
+{{- if .VMUsername }}
+		--datasource.basicAuth.username={{ .VMUsername }}
+		--remoteRead.basicAuth.username={{ .VMUsername }}
+		--remoteWrite.basicAuth.username={{ .VMUsername }}
+{{- end }}
+		--datasource.basicAuth.passwordFile={{ .VMPasswordFile }}
+		--remoteRead.basicAuth.passwordFile={{ .VMPasswordFile }}
+		--remoteWrite.basicAuth.passwordFile={{ .VMPasswordFile }}
+{{- end }}
 		--rule=/srv/prometheus/rules/*.yml
 		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
@@ -286,6 +297,12 @@ priority = 9
 command =
     /usr/sbin/vmproxy
       --target-url={{ .VMURL }}
+{{- if .VMPasswordFile }}
+{{- if .VMUsername }}
+      --target-username={{ .VMUsername }}
+{{- end }}
+      --target-password-file={{ .VMPasswordFile }}
+{{- end }}
       --listen-port=8430
       --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
@@ -449,6 +466,14 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
 	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
+	// With the password in its file, the programs get the URL without credentials, the username and the file.
+	vmURLWithoutCredentials, vmUsername := s.vmParams.URLWithoutCredentials()
+	vmPasswordFile := s.credentialFile(secrets.VMPassword)
+	vmURL := s.vmParams.URL()
+	if vmPasswordFile != "" {
+		vmURL = vmURLWithoutCredentials
+	}
+
 	templateParams := map[string]any{
 		"DataRetentionDays":            settings.DataRetentionDays(),
 		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
@@ -462,7 +487,9 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
 		"VMMaxIngestionRate":           vmMaxIngestionRate,
-		"VMURL":                        s.vmParams.URL(),
+		"VMURL":                        supervisordArg(vmURL),
+		"VMUsername":                   supervisordArg(vmUsername),
+		"VMPasswordFile":               vmPasswordFile,
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
@@ -503,6 +530,33 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	}
 	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
 	return b, nil
+}
+
+// supervisordArg returns s as part of one argument in a supervisord command. The INI parser of supervisord ends a value
+// at a ; or # after whitespace, and the command is then split like in a POSIX shell, so a value with whitespace, a
+// quote or a backslash is single-quoted, with the quotes closed and reopened before such a ; or #. A percent sign
+// starts a variable, and the whole configuration is refused when none follows, so every one is doubled.
+func supervisordArg(s string) string {
+	if strings.ContainsFunc(s, func(r rune) bool { return unicode.IsSpace(r) || strings.ContainsRune(`'"\`, r) }) {
+		var b strings.Builder
+		b.WriteByte('\'')
+		var prev rune
+		for _, r := range s {
+			switch {
+			case r == '\'':
+				b.WriteString(`'"'"'`)
+			case (r == ';' || r == '#') && unicode.IsSpace(prev):
+				b.WriteString("''")
+				b.WriteRune(r)
+			default:
+				b.WriteRune(r)
+			}
+			prev = r
+		}
+		b.WriteByte('\'')
+		s = b.String()
+	}
+	return strings.ReplaceAll(s, "%", "%%")
 }
 
 // credentialFile returns the path of a resolved credential, or "" for one left unset or not resolved by the entrypoint

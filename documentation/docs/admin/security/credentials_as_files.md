@@ -13,6 +13,7 @@ Before you create the files, decide which credentials you need. For a credential
 - To set the password of the `admin` user, provide `admin-password` before the first start. Grafana sets it only when it creates its database.
 - If PMM Server uses an external database, for example in high availability (HA) mode, provide the four database passwords. With the built-in databases, don't provide them: PMM Server doesn't apply them to its built-in ClickHouse, so a password other than the default breaks Query Analytics (QAN).
 - To set Grafana's secret key, provide `grafana-secret-key` on a new installation, or on an existing one only with the key that it already uses. Unless you set one earlier, that's Grafana's built-in default, `SW2YcwTIb9zpOOhoPsMm`. A different key makes existing data source and contact point secrets unreadable.
+- If `PMM_VM_URL` points to a VictoriaMetrics that requires a password, such as an external one, provide `vm-password`, and set `PMM_VM_URL` with the username but without the password, for example `http://vmuser@victoriametrics:8428/`. In HA mode, the `pmm-ha` chart builds `PMM_VM_URL` with the password from its Secret, so don't provide `vm-password` there.
 
 PMM Server finds each credential by its file name, so name your files exactly as in the **File name** column:
 
@@ -24,6 +25,7 @@ PMM Server finds each credential by its file name, so name your files exactly as
 | `grafana-db-password` | Password of the PostgreSQL user of Grafana | `PMM_GRAFANA_DB_PASSWORD_FILE` | `GF_DATABASE_PASSWORD` |
 | `clickhouse-password` | Password of the ClickHouse user of PMM Server | `PMM_CLICKHOUSE_PASSWORD_FILE` | `PMM_CLICKHOUSE_PASSWORD` |
 | `clickhouse-datasource-password` | Password of the read-only ClickHouse user of the Query Analytics data source | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD_FILE` | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` |
+| `vm-password` | Password of the VictoriaMetrics user of PMM Server, in HA mode or with an external VictoriaMetrics | `PMM_VM_PASSWORD_FILE` | The password in `PMM_VM_URL` |
 
 ## Provide the credential files
 
@@ -101,7 +103,7 @@ After you choose the credentials, put them in files that the PMM Server containe
 
 When you replace a credential after setup, change it in a way that PMM Server picks up. A changed file takes effect only when PMM Server restarts, and some credentials don't change through their file at all:
 
-- To change a database password, update its file and restart PMM Server. PMM Server links the files at `/run/pmm/secrets/<file name>` and reads them only when it starts.
+- To change a database password or the VictoriaMetrics password, update its file and restart PMM Server. PMM Server links the files at `/run/pmm/secrets/<file name>` and reads them only when it starts.
 - To change the password of the `admin` user, use the PMM UI or `change-admin-password`. The `admin-password` file counts only on the first start.
 - Don't change `grafana-secret-key` on an existing installation. A different key makes existing data source and contact point secrets unreadable.
 
@@ -113,7 +115,7 @@ If a credential doesn't work as you expect, check where PMM Server takes it from
 1. The file that the credential's file variable points to, such as `PMM_ADMIN_PASSWORD_FILE`
 2. The file with the credential's name in the `PMM_SECRETS_DIR` directory
 3. The earlier environment variable, such as `GF_SECURITY_ADMIN_PASSWORD`
-4. No source: the database passwords use their default values, and the admin password and Grafana's secret key stay unset, as in earlier versions
+4. No source: the database passwords use their default values, and the admin password, Grafana's secret key and the VictoriaMetrics password stay unset, as in earlier versions
 
 A file and an environment variable for the same credential don't follow this order: PMM Server [doesn't start](#if-pmm-server-doesnt-start).
 
@@ -124,6 +126,8 @@ Grafana's `GF_SECURITY_ADMIN_PASSWORD__FILE`, `GF_DATABASE_PASSWORD__FILE` and `
 If you upgrade to PMM 3.11.0 or later from an installation that sets its credentials in environment variables, you don't have to switch to files. Your variables keep working, but starting with PMM 3.11.0, a few values behave differently. Before you upgrade, check your variables:
 
 - Check that no database password has leading or trailing whitespace, such as a space, or a newline from a Kubernetes Secret created from a file. PMM Server doesn't start with such a password. To fix it, see [Remove whitespace from database passwords](#remove-whitespace-from-database-passwords).
+- Check that the password in `PMM_VM_URL` has no leading or trailing whitespace, such as an encoded space (`%20`). PMM Server now passes this password to VictoriaMetrics' programs in a file, which drops the whitespace, so it doesn't start with such a password, and the error names the variable.
+- Check whether `PMM_VM_URL` has a password but no username, such as `http://:password@victoriametrics:8428/`. VictoriaMetrics uses a password only together with a username, so PMM Server now drops such a password and logs a warning. Add the username, or remove the password.
 - Check `GF_SECURITY_SECRET_KEY` for leading or trailing whitespace. If it has any, PMM Server keeps the key in the environment, where Grafana reads it as written, and logs a warning. Don't move such a key to a file: a file can't keep the whitespace, so the key would change, and existing secrets would become unreadable.
 - Check the admin password for leading or trailing whitespace. PMM Server drops it and logs a warning.
 - Check that `GF_SECURITY_ADMIN_PASSWORD` and `PMM_ADMIN_PASSWORD` have the same value, if you set both. If they differ, PMM Server uses `GF_SECURITY_ADMIN_PASSWORD`, the variable that Grafana read in earlier versions, and logs a warning.
@@ -195,8 +199,9 @@ If PMM Server doesn't start after you provide credentials, find the cause in the
 2. Check that every file you provide exists, isn't empty and is readable by UID 1000. This includes the files that file variables point to, the files in `PMM_SECRETS_DIR`, including the targets of links, and the files in `$__file{}` references.
 3. Check that `PMM_SECRETS_DIR` names a directory that exists.
 4. Check that you don't provide a credential both as a file and as an environment variable. If you do, remove the variable.
-5. Check that no credential variable is empty or contains only whitespace, and that no database password variable has leading or trailing whitespace. If one does, remove the whitespace. For a database password, follow [Remove whitespace from database passwords](#remove-whitespace-from-database-passwords).
+5. Check that no credential variable is empty or contains only whitespace, and that neither a database password variable nor the password in `PMM_VM_URL` has leading or trailing whitespace. If one does, remove the whitespace. For a database password, follow [Remove whitespace from database passwords](#remove-whitespace-from-database-passwords).
 6. Check that your files are outside `/run/pmm/secrets`, which PMM Server manages itself, and that nothing else is in that directory. Mount your credentials in another directory, such as `/etc/pmm/secrets`, and point `PMM_SECRETS_DIR` and the file variables there.
+7. If you provide `vm-password`, check that `PMM_VM_URL` is set, includes the username and has no password, and that the file doesn't start with whitespace, which VictoriaMetrics' programs would read as part of the password.
 
 ## Related topics
 

@@ -20,11 +20,14 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/percona/pmm/managed/utils/dir"
 	"github.com/percona/pmm/utils/secretfile"
@@ -60,7 +63,11 @@ const (
 	ClickHouseDatasourcePassword Name = "clickhouse-datasource-password"
 	AdminPassword                Name = "admin-password"
 	GrafanaSecretKey             Name = "grafana-secret-key"
+	VMPassword                   Name = "vm-password"
 )
+
+// VMURLEnvVar names the VictoriaMetrics URL, whose password is the legacy value of VMPassword.
+const VMURLEnvVar = "PMM_VM_URL"
 
 // Source tells where a resolved credential came from.
 type Source string
@@ -81,10 +88,15 @@ type spec struct {
 	fileEnvs []string
 	// valueEnvs name legacy variables holding the value itself; the first one set wins.
 	valueEnvs []string
+	// urlEnv names a variable holding a URL whose password is the legacy value when no valueEnvs is set.
+	urlEnv string
 	// providers are the Grafana providers applied to a legacy value, in Grafana's order, since Grafana doesn't expand a file's content.
 	providers []string
 	// padding decides what a legacy value with leading or trailing whitespace does.
 	padding padding
+	// refuseLeadingSpace refuses a file that starts with whitespace: programs outside PMM read the file themselves and
+	// drop only trailing whitespace, so they would use a different password than PMM's own components.
+	refuseLeadingSpace bool
 	// defaultValue is the value PMM has always used when nothing is configured.
 	defaultValue string
 }
@@ -162,6 +174,15 @@ var catalog = []spec{
 		// would change the key that existing secrets are encrypted with.
 		padding: keepPadding,
 	},
+	{
+		name:     VMPassword,
+		fileEnvs: []string{"PMM_VM_PASSWORD_FILE"},
+		// The pmm-ha chart puts the password into PMM_VM_URL; the entrypoint passes the URL on without it.
+		urlEnv:  VMURLEnvVar,
+		padding: refusePadding,
+		// vmalert and vmagent read the file themselves.
+		refuseLeadingSpace: true,
+	},
 }
 
 // EnvVarNames returns the environment variables the catalog reads besides the legacy values, for the environment
@@ -224,6 +245,9 @@ type Resolved struct {
 	Kept bool
 	// Ignored names a legacy variable set to a different value than Var, which wins.
 	Ignored string
+	// Dropped names a URL variable whose password has no username, which VictoriaMetrics doesn't use, so the
+	// credential stays unset.
+	Dropped string
 }
 
 // Options configures Prepare.
@@ -321,12 +345,29 @@ func Prepare(opts Options) ([]Resolved, error) {
 }
 
 func resolve(opts Options, s spec) (Resolved, error) {
+	r, err := resolveSource(opts, s)
+	if err != nil || s.urlEnv == "" || r.Source == SourceUnset {
+		return r, err
+	}
+	return r, checkURLUser(opts.Getenv(s.urlEnv), s.urlEnv)
+}
+
+func resolveSource(opts Options, s spec) (Resolved, error) {
 	r := Resolved{Name: s.name}
 	file, _, _ := first(opts.Getenv, s.fileEnvs)
 	value, key, ignored := first(opts.Getenv, s.valueEnvs)
+	if value == "" && s.urlEnv != "" {
+		username, password := urlUserinfo(opts.Getenv(s.urlEnv))
+		switch {
+		case password != "" && username == "":
+			r.Dropped = s.urlEnv
+		case password != "":
+			value, key = password, s.urlEnv
+		}
+	}
 	r.Var, r.Ignored = key, ignored
 	if file != "" && value != "" {
-		return r, fmt.Errorf("is set both in %s and in %s: remove one of them", strings.Join(s.fileEnvs, "/"), strings.Join(s.valueEnvs, "/"))
+		return r, fmt.Errorf("is set both in %s and in %s: remove one of them", strings.Join(s.fileEnvs, "/"), s.valueVars())
 	}
 	// Grafana read a value that is only $__file{path} from that file, so the file stays the source.
 	if p := grafanaFile(value, s.providers); p != "" {
@@ -343,7 +384,7 @@ func resolve(opts Options, s spec) (Resolved, error) {
 		if inside(opts.RunDir, file) {
 			return r, fmt.Errorf("%s is inside %s, which PMM Server manages itself: move the file to another directory, such as /etc/pmm/secrets", file, opts.RunDir)
 		}
-		_, err := secretfile.Read(file)
+		err := checkFile(s, file)
 		if err != nil {
 			return r, err
 		}
@@ -372,6 +413,8 @@ func resolve(opts Options, s spec) (Resolved, error) {
 		}
 		r.Source, r.Padded = SourceEnv, strings.TrimSpace(value) != value
 		switch {
+		case r.Padded && s.padding == refusePadding && key == s.urlEnv:
+			return r, fmt.Errorf("the password in %s has leading or trailing whitespace, which PMM Server doesn't pass to VictoriaMetrics: remove it", key)
 		case r.Padded && s.padding == refusePadding:
 			return r, fmt.Errorf("%s has leading or trailing whitespace, which PMM Server doesn't pass to the database: remove it", key)
 		case r.Padded && s.padding == keepPadding:
@@ -404,13 +447,134 @@ func dirSource(opts Options, s spec, value string) (string, error) {
 		return "", err
 	}
 	if value != "" {
-		return "", fmt.Errorf("is set both in %s and in %s: remove one of them", p, strings.Join(s.valueEnvs, "/"))
+		return "", fmt.Errorf("is set both in %s and in %s: remove one of them", p, s.valueVars())
 	}
-	_, err = secretfile.Read(p)
+	err = checkFile(s, p)
 	if err != nil {
 		return "", err
 	}
 	return p, nil
+}
+
+// checkFile refuses a credential file that one of its readers would read differently or not at all.
+func checkFile(s spec, path string) error {
+	_, err := secretfile.Read(path)
+	if err != nil || !s.refuseLeadingSpace {
+		return err
+	}
+	//nolint:gosec // the operator's credential file, which secretfile.Read has just read
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	if r, _ := utf8.DecodeRune(b); unicode.IsSpace(r) {
+		return fmt.Errorf("%s starts with whitespace, which VictoriaMetrics' programs read as part of the password: remove it", path)
+	}
+	return nil
+}
+
+// valueVars names the variables that can hold the legacy value, for messages.
+func (s spec) valueVars() string {
+	vars := s.valueEnvs
+	if s.urlEnv != "" {
+		vars = append(slices.Clone(vars), s.urlEnv)
+	}
+	return strings.Join(vars, "/")
+}
+
+// urlUserinfo returns the username and password in a URL's userinfo, or "" for each when there is none or the URL
+// doesn't parse.
+func urlUserinfo(raw string) (string, string) {
+	u, err := url.Parse(raw)
+	if err != nil || u.User == nil {
+		return "", ""
+	}
+	password, _ := u.User.Password()
+	return u.User.Username(), password
+}
+
+// checkURLUser refuses a password that the URL in env can't carry: VictoriaMetrics checks it together with a
+// username, and without the URL PMM Server uses the built-in VictoriaMetrics, which takes no password. The username
+// goes into the supervisord configuration decoded, where a control character such as a line break ends the command.
+func checkURLUser(raw, env string) error {
+	if raw == "" {
+		return fmt.Errorf("%s isn't set, so PMM Server uses the built-in VictoriaMetrics, which takes no password: "+
+			"set %s to the URL of your VictoriaMetrics, or remove the password file", env, env)
+	}
+	u, err := parseURL(raw)
+	if err != nil {
+		return fmt.Errorf("%s: %w", env, err)
+	}
+	if u.User.Username() == "" {
+		return fmt.Errorf("%s has no username to go with the password: add the username to the URL", env)
+	}
+	if strings.ContainsFunc(u.User.Username(), unicode.IsControl) {
+		return fmt.Errorf("%s has a control character in the username: remove it", env)
+	}
+	return nil
+}
+
+// parseURL parses a URL that may hold a password. Its error is a fixed message, since url.Parse quotes the URL or a
+// part of it, such as an invalid port or escape, which can come from the password.
+func parseURL(raw string) (*url.URL, error) {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return nil, errInvalidURL
+	}
+	return u, nil
+}
+
+var errInvalidURL = errors.New("not a valid URL: check it for spaces and line breaks, " +
+	"and percent-encode / ? # % @ : in its username and password")
+
+// URLWithoutPassword returns a URL without the password in its userinfo, keeping the username, or raw itself when it
+// has no password.
+func URLWithoutPassword(raw string) (string, error) {
+	u, err := parseURL(raw)
+	if err != nil {
+		return "", err
+	}
+	if _, ok := u.User.Password(); !ok {
+		return raw, nil
+	}
+	switch {
+	case u.User == nil:
+	case u.User.Username() == "":
+		u.User = nil
+	default:
+		u.User = url.User(u.User.Username())
+	}
+	return u.String(), nil
+}
+
+// VMURL returns the VictoriaMetrics URL raw with the password from its credential file, for pmm-managed's own clients
+// (the entrypoint passes PMM_VM_URL on without it, and the other programs read the file), or raw when nothing resolved
+// the password.
+func VMURL(raw string) (string, error) {
+	return vmURLIn(Dir, raw)
+}
+
+func vmURLIn(dir, raw string) (string, error) {
+	password, err := valueIn(dir, "", VMPassword, "")
+	switch {
+	case errors.Is(err, ErrNotResolved):
+		return raw, nil
+	case err != nil:
+		return "", err
+	}
+	return urlWithPassword(raw, password), nil
+}
+
+// urlWithPassword returns raw with password in its userinfo, keeping the username, or raw when it doesn't parse, for
+// models.ParseVictoriaMetricsURL to report without the credentials. Prepare links a password only for a URL with a
+// username, so raw has one whenever the password comes from its file.
+func urlWithPassword(raw, password string) string {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return raw
+	}
+	u.User = url.UserPassword(u.User.Username(), password)
+	return u.String()
 }
 
 // first returns the value of the first variable set among keys, that variable, and a later one set to a different value.

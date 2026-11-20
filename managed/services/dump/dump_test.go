@@ -17,6 +17,8 @@ package dump
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_getDumpFilePath(t *testing.T) {
@@ -49,5 +51,21 @@ func Test_getDumpFilePath(t *testing.T) {
 				t.Errorf("getDumpFilePath() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestPMMDumpCommand(t *testing.T) {
+	t.Parallel()
+
+	const vmURL = "http://vmuser:q7v-secret@vmauth:8427/"
+	urls := &URLs{ClickhouseURL: "tcp://127.0.0.1:9000/pmm", VMURL: vmURL}
+	cmd := pmmDumpCommand(t.Context(), urls, "d1", []string{"pmm-server-postgresql"}, &Params{ExportQAN: true})
+
+	assert.Contains(t, cmd.Env, "PMM_DUMP_VICTORIA_METRICS_URL="+vmURL)
+	assert.Contains(t, cmd.Args, "--instance=pmm-server-postgresql")
+	assert.Contains(t, cmd.Args, "--dump-qan")
+	for _, arg := range cmd.Args {
+		assert.NotContains(t, arg, "victoria-metrics-url")
+		assert.NotContains(t, arg, "q7v-secret")
 	}
 }

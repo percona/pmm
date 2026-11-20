@@ -16,6 +16,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/utils/secrets"
@@ -41,6 +44,22 @@ func runSecrets() error {
 			logrus.Warnf("Credential %s: %s and %s have different values. PMM Server uses %s. "+
 				"Remove %s, or set it to the same value.", r.Name, r.Ignored, r.Var, r.Var, r.Ignored)
 		}
+		if r.Dropped != "" {
+			logrus.Warnf("Credential %s: %s has a password but no username. VictoriaMetrics uses a password only together "+
+				"with a username, so PMM Server drops it. Remove the password from %s, or add the username.", r.Name, r.Dropped, r.Dropped)
+		}
 	}
 	return nil
+}
+
+// runVMURL prints PMM_VM_URL without the password for the entrypoint to export: the secrets step stored the password
+// in its file, or dropped it for having no username. It refuses a URL that doesn't parse, since the shell would strip
+// a trailing line break that made it unparseable and pass the password on.
+func runVMURL() error {
+	u, err := secrets.URLWithoutPassword(os.Getenv(secrets.VMURLEnvVar))
+	if err != nil {
+		return err
+	}
+	_, err = fmt.Fprintln(os.Stdout, u)
+	return err
 }
