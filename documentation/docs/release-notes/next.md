@@ -91,6 +91,23 @@ If you manage a large MongoDB fleet, you can now see right away which backup age
 
 ## 🔒 Security updates
 
+### nginx HTTP/2 memory corruption ([CVE-2026-123007](https://nvd.nist.gov/vuln/detail/CVE-2026-123007), [CVE-2026-123633](https://nvd.nist.gov/vuln/detail/CVE-2026-123633))
+
+[PMM-15947](https://perconadev.atlassian.net/browse/PMM-15947): Critical severity. PMM Server uses nginx for all connections to the PMM UI and API. An unauthenticated attacker who can reach PMM Server over HTTP or HTTPS could crash nginx, which makes PMM unavailable, or potentially run code on PMM Server.
+
+#### Affected installations
+
+All PMM Server deployments of PMM 3.10.0 and earlier. The risk depends on who can reach PMM Server over HTTP or HTTPS:
+
+- PMM Server reachable only from trusted networks: lower risk.
+- PMM Server reachable from untrusted networks or the internet: upgrade as soon as possible.
+
+#### How to fix
+
+[Upgrade to PMM 3.11.0](../pmm-upgrade/index.md). It includes nginx 1.30.7, which has the fixes from the [nginx security advisories](https://nginx.org/en/security_advisories.html). PMM Server now gets nginx from the nginx.org stable repository, because fixed Oracle Linux packages weren't available when this release was built.
+
+Until you upgrade, allow connections to PMM Server only from trusted networks.
+
 ### Go standard library HTTP/1 server crash ([CVE-2026-97054](https://nvd.nist.gov/vuln/detail/CVE-2026-97054))
 
 Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by rebuilding on Go 1.27.4.
