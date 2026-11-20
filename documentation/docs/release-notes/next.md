@@ -68,7 +68,7 @@ Finding your way around PMM is now quicker, thanks to three changes to the main 
 
 - **New task groups**: entries are grouped under **Monitor**, **Analyze**, **Browse** and **Administer**, so the menu is shorter and you find what you need faster.
 - **Panels in the collapsed menu**: when you collapse the menu to icons to give your dashboards more room, click an icon to open its pages in a panel next to it, without expanding the menu first.
-- **Clearer location**: the menu highlights the page you're on and marks the group it belongs to, so you can always see where you are.
+- **Clearer location**: the menu highlights the page you're on and marks the group it belongs to, so you can see where you are.
 
 | New task groups | Panels in the collapsed menu | Clearer location |
 |:---:|:---:|:---:|
