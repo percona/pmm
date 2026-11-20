@@ -161,6 +161,8 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 - [PMM-15883](https://perconadev.atlassian.net/browse/PMM-15883): Fixed an issue where the [Query Analytics overview](../use/qan/panels/overview.md) table could show results that didn't match the current search, filters or time range when you changed them quickly, for example by changing the time range and then searching before the table reloaded. The table now always shows the results for your latest search, filters and time range, and keeps loading until those results arrive.
 
+- [PMM-15922](https://perconadev.atlassian.net/browse/PMM-15922): Fixed wrong values in the **Repl. lag**, **Conn. free** and **CPU** columns on the **Services** tab of **MongoDB > Operations > Fleet**. A primary showed the replication lag of its slowest secondary, and each secondary showed the worst lag of any member. Each member now shows only its own lag, and a primary shows none. After a primary and a secondary switched roles, **Conn. free** mixed figures from before and after the switch for up to a day, and **CPU** dropped below zero for about 30 seconds. Right after a switch, **Conn. free** now matches what MongoDB reports, and **CPU** follows the member's new load from its next scrape. With the **Rare** metrics resolution, **CPU** was blank in about a third of the refreshes. It now shows a value at every metrics resolution. The **Max repl. lag**, **Min conn. free** and **Max CPU** columns on the **Clusters** tab are corrected too. For details, see [Operations for MongoDB](../use/mongodb-operations.md#view-fleet-health).
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?

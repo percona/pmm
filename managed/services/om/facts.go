@@ -107,13 +107,15 @@ var defaultPrecedence = map[string][]string{
 	fieldOplogHead:      {sourceMetrics},
 	fieldOplogTail:      {sourceMetrics},
 
-	fieldExporterUp:      {sourceMetrics},
-	fieldLastUp:          {sourceMetrics},
-	fieldCPUUsage:        {sourceMetrics},
-	fieldConnectionsFree: {sourceMetrics},
-	fieldClusterRole:     {sourceMetrics},
-	fieldNodeType:        {sourceMetrics},
-	fieldIsMongos:        {sourceMetrics},
+	fieldExporterUp:           {sourceMetrics},
+	fieldLastUp:               {sourceMetrics},
+	fieldCPUIdleRate:          {sourceMetrics},
+	fieldCPUCores:             {sourceMetrics},
+	fieldConnectionsCurrent:   {sourceMetrics},
+	fieldConnectionsAvailable: {sourceMetrics},
+	fieldClusterRole:          {sourceMetrics},
+	fieldNodeType:             {sourceMetrics},
+	fieldIsMongos:             {sourceMetrics},
 }
 
 // mergeFacts folds every source's facts into one view per service, by per-field precedence.
