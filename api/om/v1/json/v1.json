@@ -892,6 +892,14 @@
                         "type": "string",
                         "x-nullable": true,
                         "x-order": 7
+                      },
+                      "minimum": {
+                        "description": "The lowest value the app accepts, inclusive. Unset when it declares none or only an\nexclusive one, such as \"greater than zero\".",
+                        "x-order": 8
+                      },
+                      "maximum": {
+                        "description": "The highest value the app accepts, inclusive. Unset when it declares none.",
+                        "x-order": 9
                       }
                     }
                   },
@@ -1010,6 +1018,14 @@
                         "type": "string",
                         "x-nullable": true,
                         "x-order": 7
+                      },
+                      "minimum": {
+                        "description": "The lowest value the app accepts, inclusive. Unset when it declares none or only an\nexclusive one, such as \"greater than zero\".",
+                        "x-order": 8
+                      },
+                      "maximum": {
+                        "description": "The highest value the app accepts, inclusive. Unset when it declares none.",
+                        "x-order": 9
                       }
                     }
                   },

@@ -4211,6 +4211,64 @@ func (m *InventorySetting) validate(all bool) error {
 
 	// no validation rules for IsAdvanced
 
+	if all {
+		switch v := interface{}(m.GetMinimum()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InventorySettingValidationError{
+					field:  "Minimum",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InventorySettingValidationError{
+					field:  "Minimum",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMinimum()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return InventorySettingValidationError{
+				field:  "Minimum",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetMaximum()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InventorySettingValidationError{
+					field:  "Maximum",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InventorySettingValidationError{
+					field:  "Maximum",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMaximum()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return InventorySettingValidationError{
+				field:  "Maximum",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if m.Description != nil {
 		// no validation rules for Description
 	}

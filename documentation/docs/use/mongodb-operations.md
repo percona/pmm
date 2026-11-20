@@ -117,7 +117,7 @@ By default, PMM scans every node every 10 minutes. Each scan sends a job to ever
 {.power-number}
 
 1. Go to **MongoDB > Operations > Settings** and select the **General** tab.
-2. In **Scan every** and **Period**, set the time between scans.
+2. In **Scan every** and **Period**, set the time between scans, from 10 minutes to 1 day.
 3. Click **Save**. The change takes effect without a restart.
 
 ### Stop automatic scans
