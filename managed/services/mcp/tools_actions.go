@@ -100,7 +100,7 @@ type explainResult struct {
 	Plan        string    `json:"plan" jsonschema:"Untrusted. Execution plan, its literals masked when raw SQL is off; cut at 64 KiB."`
 	Truncated   bool      `json:"truncated" jsonschema:"Set when the plan was cut at 64 KiB."`
 	Live        bool      `json:"live" jsonschema:"Set when the PMM agent produced the plan now (MySQL, MongoDB); unset for pg_stat_monitor's stored plan."`
-	Note        string    `json:"note,omitempty" jsonschema:"Set for a live plan, what the database would choose now, and for a stored plan, which can come from outside the window."`
+	Note        string    `json:"note,omitempty" jsonschema:"Set for a live plan, chosen now, and for a stored plan, which can come from outside the window."`
 	QueryRef    *queryRef `json:"query_ref,omitempty" jsonschema:"Identifies the query and the window it was read in."`
 	PMMURL      string    `json:"pmm_url" jsonschema:"Link to the query in PMM Query Analytics."`
 

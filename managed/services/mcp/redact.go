@@ -632,16 +632,7 @@ func rewriteValue(dec *json.Decoder, w *jsonWriter, path []string, opaque func([
 				return err
 			}
 			w.out.WriteByte(':')
-			if opaque != nil && opaque(append(path, key)) {
-				var skipped json.RawMessage
-				err = dec.Decode(&skipped)
-				if err != nil {
-					return err
-				}
-				err = w.scalar("?")
-			} else {
-				err = rewriteValue(dec, w, append(path, key), opaque, leaf)
-			}
+			err = rewriteMember(dec, w, append(path, key), opaque, leaf)
 			if err != nil {
 				return err
 			}
@@ -666,6 +657,19 @@ func rewriteValue(dec *json.Decoder, w *jsonWriter, path []string, opaque func([
 	// Consume the closing delimiter.
 	_, err = dec.Token()
 	return err
+}
+
+// rewriteMember writes the value of the object member at path, as "?" whole when opaque reports the path.
+func rewriteMember(dec *json.Decoder, w *jsonWriter, path []string, opaque func([]string) bool, leaf func([]string, any) any) error {
+	if opaque == nil || !opaque(path) {
+		return rewriteValue(dec, w, path, opaque, leaf)
+	}
+	var skipped json.RawMessage
+	err := dec.Decode(&skipped)
+	if err != nil {
+		return err
+	}
+	return w.scalar("?")
 }
 
 // scalar writes one scalar without HTML escaping, so the < and > of plan
