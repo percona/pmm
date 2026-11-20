@@ -60,7 +60,7 @@
             "type": "row"
         },
         {
-            "description": "Indexes with zero accesses since the last mongod restart are candidates for review. The indexstats collector must be enabled on the MongoDB exporter. Index usage is recorded only on the node that executes the query, so review all replica set members before dropping an index.",
+            "description": "",
             "fieldConfig": {
                 "defaults": {},
                 "overrides": []
@@ -78,15 +78,15 @@
                     "showLineNumbers": false,
                     "showMiniMap": false
                 },
-                "content": "<p>This dashboard lists MongoDB indexes with <b>zero accesses</b> since the last <code>mongod</code> service restart. These indexes are candidates for dropping after validation with your application team.</p><p><b>Requirements:</b> enable the <code>indexstats</code> collector on the MongoDB exporter. On replica sets, check every member before dropping an index because usage is recorded only on the node that runs the query.</p>",
+                "content": "<p>Find indexes with <strong>zero accesses since the last <code>mongod</code> restart</strong>. These indexes may be <strong>candidates for removal</strong>. ⚠️ <strong>Before dropping:</strong> Check usage on <strong>all replica set members</strong>. Usage is tracked per node, so an index may be unused on one member but active on another. <strong>Prerequisite:</strong> MongoDB exporter <code>indexstats</code> collector enabled.</p>",
                 "mode": "html"
             },
             "pluginVersion": "11.6.4",
-            "title": "About Unused Indexes",
+            "title": "Identify unused indexes",
             "type": "text"
         },
         {
-            "description": "Minimum uptime across the selected MongoDB node(s) (time since the most recent restart).",
+            "description": "How long the selected nodes have been running since the last mongod restart. If uptime is short, index access data may not reflect real usage yet.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -155,7 +155,7 @@
             "type": "stat"
         },
         {
-            "description": "Number of indexes with zero accesses since the last mongod restart. The default _id_ index is excluded.",
+            "description": "Indexes with zero accesses since the last mongod restart, excluding id. Use this as a quick signal of how many indexes may be candidates for removal.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -231,7 +231,7 @@
             "type": "stat"
         },
         {
-            "description": "Total number of indexes reported by the indexstats collector for the selected filters.",
+            "description": "Total indexes tracked by the indexstats collector for the selected scope. Use this to confirm the collector is running and to see how many indexes are being monitored.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -310,7 +310,7 @@
             "type": "row"
         },
         {
-            "description": "Indexes with zero accesses since the last mongod restart. Review with your application team before dropping any index.",
+            "description": "Lists indexes with zero accesses since the last mongod restart. Use this to find removal candidates. Check all replica set members and confirm with your application team before you drop any index.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -516,7 +516,7 @@
             "type": "row"
         },
         {
-            "description": "Index access count since the last mongod restart. Flat lines at zero indicate unused indexes.",
+            "description": "Shows access count per index since the last mongod restart. Use this to see which indexes are active and which have stayed at zero since the last restart.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -610,7 +610,7 @@
             "type": "timeseries"
         },
         {
-            "description": "Indexes with the lowest access counts since restart. Useful for spotting rarely used indexes that are not yet at zero.",
+            "description": "The 20 indexes with the fewest accesses since the last mongod restart. Use this to find rarely used indexes that have not reached zero yet and may be worth monitoring as future removal candidates.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
