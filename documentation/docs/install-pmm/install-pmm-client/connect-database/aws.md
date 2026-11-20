@@ -210,7 +210,7 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
     In **Additional options**, you can:
 
     - Select **Disable Basic Metrics**, **Disable Enhanced Metrics**, or both to reduce AWS costs.
-    - Turn on Query Analytics with **Use performance schema** for MySQL, **PG Stat Statements** for PostgreSQL, or **Use QAN MongoDB Profiler** for MongoDB.
+    - Turn on Query Analytics with **Use performance schema** for MySQL or **PG Stat Statements** for PostgreSQL.
 
 6. Click **Add service** to start monitoring your instance.
 
