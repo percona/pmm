@@ -137,9 +137,9 @@ func TestServiceHealthTool(t *testing.T) {
 
 		want := make([]string, 0, len(res.Signals))
 		for _, sig := range slices.Concat(healthSignals[engineMySQL], healthSignals[engineNode]) {
-			selector := `service_name="shop-mysql"`
+			selector := `service_id="svc-1"`
 			if sig.Node {
-				selector = `node_name="demo-node"`
+				selector = `node_id="node-1"`
 			}
 			want = append(want, fmt.Sprintf(sig.Query, selector))
 		}
@@ -155,7 +155,7 @@ func TestServiceHealthTool(t *testing.T) {
 		fake.assertForwardedAuth(t)
 	})
 
-	t.Run("NodeSignalsCarryTheNodeName", func(t *testing.T) {
+	t.Run("SignalsCarryTheIDs", func(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, healthRoutes(nil))
@@ -165,12 +165,12 @@ func TestServiceHealthTool(t *testing.T) {
 		nodeQueries, serviceQueries := 0, 0
 		for _, q := range rangeQueries(fake) {
 			switch {
-			case strings.Contains(q, `node_name="demo-node"`):
+			case strings.Contains(q, `node_id="node-1"`):
 				nodeQueries++
-				assert.NotContains(t, q, "service_name", q)
-			case strings.Contains(q, `service_name="shop-mysql"`):
+				assert.NotContains(t, q, "service_id", q)
+			case strings.Contains(q, `service_id="svc-1"`):
 				serviceQueries++
-				assert.NotContains(t, q, "node_name", q)
+				assert.NotContains(t, q, "node_id", q)
 			default:
 				assert.Fail(t, "a query with neither selector", q)
 			}
@@ -410,6 +410,41 @@ func TestServiceHealthTool(t *testing.T) {
 		_, text, isError = healthCall(t, s, map[string]any{"service_id": "svc-1", "period_from": "now-6d"})
 		require.False(t, isError, text)
 		assert.NotEmpty(t, fake.requestsTo(vmAPI+"query_range"))
+	})
+
+	t.Run("SameNameServicesStayApart", func(t *testing.T) {
+		t.Parallel()
+
+		list := `{"status":"success","data":{"resultType":"vector","result":[
+			{"metric":{"service_id":"svc-old","service_name":"shop-mysql","service_type":"mysql","node_id":"node-old","node_name":"demo-node"},"value":[1789387200,"1789384200"]},
+			{"metric":{"service_id":"svc-new","service_name":"shop-mysql","service_type":"mysql","node_id":"node-new","node_name":"demo-node"},"value":[1789387200,"1789387140"]}]}}`
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {body: []byte(list)}}))
+		_, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-old"})
+		require.False(t, isError, text)
+
+		for _, q := range rangeQueries(fake) {
+			assert.NotContains(t, q, "svc-new", q)
+			assert.NotContains(t, q, "node-new", q)
+			assert.NotContains(t, q, `service_name="shop-mysql"`, q)
+			assert.NotContains(t, q, `node_name="demo-node"`, q)
+		}
+	})
+
+	t.Run("NodeNameWithoutNodeID", func(t *testing.T) {
+		t.Parallel()
+
+		list := `{"status":"success","data":{"resultType":"vector","result":[{"metric":{"service_id":"svc-1","service_name":"shop-mysql","service_type":"mysql","node_name":"demo-node"},"value":[1789387200,"1789387140"]}]}}`
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {body: []byte(list)}}))
+		_, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		require.False(t, isError, text)
+
+		nodeQueries := 0
+		for _, q := range rangeQueries(fake) {
+			if strings.Contains(q, `node_name="demo-node"`) {
+				nodeQueries++
+			}
+		}
+		assert.Equal(t, len(healthSignals[engineNode]), nodeQueries)
 	})
 
 	t.Run("NoNodeName", func(t *testing.T) {
@@ -676,10 +711,10 @@ func TestHealthSignalsPass(t *testing.T) {
 			assert.Contains(t, sig.Query, "%[1]s", sig.Name)
 			assert.NotContains(t, sig.Query, "$", sig.Name)
 
-			selector := `service_name="db1"`
+			selector := `service_id="db1"`
 			family := fixtures[engine]
 			if sig.Node {
-				selector = `node_name="host1"`
+				selector = `node_id="host1"`
 			}
 			query := fmt.Sprintf(sig.Query, selector)
 			assert.NotContains(t, query, "%!", sig.Name)
