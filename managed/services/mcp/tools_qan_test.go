@@ -1229,6 +1229,34 @@ func TestTopQueriesEnginePerRow(t *testing.T) {
 	})
 }
 
+// TestTopQueriesPinWithinServiceIDs pins that a service_name filter next to several service_id values pins only a
+// service among those ids.
+func TestTopQueriesPinWithinServiceIDs(t *testing.T) {
+	t.Parallel()
+
+	routes := withRoutes(qanRoutes(), map[string]fixture{serviceListKey: {file: "vm_up_list.json"}})
+	session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+	for _, tc := range []struct {
+		name string
+		ids  []string
+		want string
+	}{
+		{"shop-mysql", []string{"svc-x", "svc-y"}, ""},
+		{"shop-mysql", []string{"svc-x", "svc-1"}, "svc-1"},
+		{"shop-re", []string{"svc-re-old", "svc-x"}, "svc-re-old"},
+		{"shop-re", []string{"svc-re-old", "svc-re-new"}, ""},
+	} {
+		got := structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", map[string]any{
+			"service_name": tc.name, "labels": map[string]any{"service_id": tc.ids},
+		}))
+		require.NotEmpty(t, got.Rows)
+		for _, row := range got.Rows {
+			require.NotNil(t, row.QueryRef, row.Dimension)
+			assert.Equal(t, tc.want, row.QueryRef.ServiceID, "%s %v", tc.name, tc.ids)
+		}
+	}
+}
+
 // TestTopQueriesSharedServiceName pins that a service_name filter shared by two services pins no service_id in
 // query_ref, and reads fingerprints under neither engine's quoting alone when the two engines differ.
 func TestTopQueriesSharedServiceName(t *testing.T) {
