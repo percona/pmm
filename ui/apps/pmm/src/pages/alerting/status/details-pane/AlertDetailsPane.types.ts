@@ -39,3 +39,5 @@ export interface AlertDetailsPane {
     json: string;
   };
 }
+
+export type AlertDetailsPaneTab = 'details' | 'raw-data';
