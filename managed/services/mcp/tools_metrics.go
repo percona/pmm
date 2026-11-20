@@ -271,13 +271,15 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 	return shapeSeries(in.Query, series, plan.limit, &window{From: plan.start, To: plan.end}, formatStep(plan.step), strings.Join(notes, " ")), nil
 }
 
-// fitAnswer raises the step of a range query without an aggregation, whose answer has at most the series its selectors
-// match, so that the answer fits under the read cap, and returns the note that says so and the span the query reads at
-// its final step; a step the caller gave is refused instead.
+// fitAnswer raises the step of a range query without an aggregation, whose answer has at most seriesPerMatched series
+// for each series its selectors match, so that the answer fits under the read cap, and returns the note that says so
+// and the span the query reads at its final step; a step the caller gave is refused instead.
 func fitAnswer(expr string, plan *metricsPlan, matched matchedSeries, read time.Duration) (string, time.Duration, error) {
-	if aggregates(expr) {
+	per := seriesPerMatched(expr)
+	if per == 0 {
 		return "", read, nil
 	}
+	matched = matchedSeries{count: matched.count * per, labelBytes: matched.labelBytes * per}
 	step := answerStep(matched, plan.span(), plan.step)
 	if step == plan.step {
 		return "", read, nil
@@ -299,19 +301,67 @@ func fitAnswer(expr string, plan *metricsPlan, matched matchedSeries, read time.
 	return note, raisedRead, nil
 }
 
-// aggregates reports whether expr has an aggregation, which can return fewer series than its selectors match.
-func aggregates(expr string) bool {
+// seriesPerMatched returns how many series expr can return for each series its selectors match, or 0 when it has an
+// aggregation, which can return fewer, or does not parse, which checkExpr has refused.
+func seriesPerMatched(expr string) int {
 	e, err := metricsql.Parse(expr)
 	if err != nil {
-		// checkExpr has refused an expression that does not parse; this keeps the step as it is.
-		return true
+		return 0
 	}
-	found := false
+	aggregated := false
 	metricsql.VisitAll(e, func(e metricsql.Expr) {
 		_, ok := e.(*metricsql.AggrFuncExpr)
-		found = found || ok
+		aggregated = aggregated || ok
 	})
-	return found
+	if aggregated {
+		return 0
+	}
+	return resultsPerSeries(e)
+}
+
+// minMaxAvg are the results of rollup and the other rollup_* functions but rollup_candlestick.
+var minMaxAvg = []string{"min", "max", "avg"}
+
+// rollupResults are the rollup functions that return a series for each of their results, for each series they read,
+// unless a second argument picks one result.
+var rollupResults = map[string][]string{
+	"rollup":                 minMaxAvg,
+	"rollup_candlestick":     {"open", "high", "low", "close"},
+	"rollup_delta":           minMaxAvg,
+	"rollup_deriv":           minMaxAvg,
+	"rollup_increase":        minMaxAvg,
+	"rollup_rate":            minMaxAvg,
+	"rollup_scrape_interval": minMaxAvg,
+}
+
+// resultsPerSeries returns how many series e returns at most for each series it reads: the functions an aggr_over_time
+// call names, or the results of a rollupResults function, multiplied when nested.
+func resultsPerSeries(e metricsql.Expr) int {
+	switch e := e.(type) {
+	case *metricsql.RollupExpr:
+		return resultsPerSeries(e.Expr)
+	case *metricsql.BinaryOpExpr:
+		return max(resultsPerSeries(e.Left), resultsPerSeries(e.Right))
+	case *metricsql.FuncExpr:
+		most := 1
+		for _, arg := range e.Args {
+			most = max(most, resultsPerSeries(arg))
+		}
+		name := strings.ToLower(e.Name)
+		if name == "aggr_over_time" {
+			var names []string
+			for _, arg := range e.Args {
+				names = appendRollupNames(names, arg)
+			}
+			return most * max(len(names), 1)
+		}
+		if results, ok := rollupResults[name]; ok && len(e.Args) == 1 {
+			return most * len(results)
+		}
+		return most
+	default:
+		return 1
+	}
 }
 
 // narrowIfTooLarge turns a response over the 4 MiB bound into advice to narrow the query: the expression is the model's own.
