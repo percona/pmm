@@ -13,6 +13,14 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✨ Release highlights
 
+### Alert on slow queries with Query Analytics data
+
+In addition to alerting you about server and database health based on the metrics it collects, PMM can now also alert you about query performance, based on the query data you see in Query Analytics.
+
+The new built-in [**QAN slow queries**](../alert/templates_list.md#qan_alerts) template covers the most common case: it alerts you when the slowest query on a MySQL, PostgreSQL or MongoDB service runs longer than 10 seconds.
+
+To get started, [set up alerts on Query Analytics data](../alert/alert_rules.md#set-up-query-performance-alerts) using the built-in template or your own.
+
 ### Smarter Advisors that run on schedule, email results and suggest fixes
 
 You no longer need to open PMM to find out what Advisors found. [Schedule checks](../advisors/schedule-advisor-checks.md) to run when it suits your team, on the services that matter to you, and PMM can [email you a report](../advisors/advisors.md#get-advisor-results-by-email) after each run.
@@ -83,6 +91,23 @@ If you manage a large MongoDB fleet, you can now see right away which backup age
 
 ## 🔒 Security updates
 
+### nginx HTTP/2 memory corruption ([CVE-2026-123007](https://nvd.nist.gov/vuln/detail/CVE-2026-123007), [CVE-2026-123633](https://nvd.nist.gov/vuln/detail/CVE-2026-123633))
+
+[PMM-15947](https://perconadev.atlassian.net/browse/PMM-15947): Critical severity. PMM Server uses nginx for all connections to the PMM UI and API. An unauthenticated attacker who can reach PMM Server over HTTP or HTTPS could crash nginx, which makes PMM unavailable, or potentially run code on PMM Server.
+
+#### Affected installations
+
+All PMM Server deployments of PMM 3.10.0 and earlier. The risk depends on who can reach PMM Server over HTTP or HTTPS:
+
+- PMM Server reachable only from trusted networks: lower risk.
+- PMM Server reachable from untrusted networks or the internet: upgrade as soon as possible.
+
+#### How to fix
+
+[Upgrade to PMM 3.11.0](../pmm-upgrade/index.md). It includes nginx 1.30.7, which has the fixes from the [nginx security advisories](https://nginx.org/en/security_advisories.html). PMM Server now gets nginx from the nginx.org stable repository, because fixed Oracle Linux packages weren't available when this release was built.
+
+Until you upgrade, allow connections to PMM Server only from trusted networks.
+
 ### Go standard library HTTP/1 server crash ([CVE-2026-97054](https://nvd.nist.gov/vuln/detail/CVE-2026-97054))
 
 Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by rebuilding on Go 1.27.4.
@@ -99,6 +124,7 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 ## 📈 Improvements
 
+- [PMM-15193](https://perconadev.atlassian.net/browse/PMM-15193): The **Expression** panel on the **Alerts > Status** page now shows each step of an alert rule, including the query it runs and the step that fires the alert, so you can see why an alert fired.
 - [PMM-14023](https://perconadev.atlassian.net/browse/PMM-14023): Users with basic authentication can no longer set weak passwords. New and changed passwords need at least 12 characters, with uppercase and lowercase letters, a digit and a symbol. Existing passwords keep working until you change them. If your scripts create users or change passwords, for example with `change-admin-password`, [update them to use passwords that meet the requirements](../admin/manage-users/add_users.md#password-requirements).
 - [PMM-15239](https://perconadev.atlassian.net/browse/PMM-15239): The **Alert Status** page now groups alert severities into four bands: **Critical**, **Error**, **Warning** and **Info**. Each band has its own icon and label, so you can tell severities apart without relying on color. The **Severity** filter and sort work by band, and the alert details show the original level, for example **Reported as Emergency**. Alert labels stay the same. For how levels map to bands, see [Alert rules](../alert/alert_rules.md).
 - [PMM-15805](https://perconadev.atlassian.net/browse/PMM-15805): The **Services** tab on **MongoDB > Operations > Fleet** now shows why a service is failing. The **Collected** column shows the reason, for example **Database unreachable**, and the service details show the full error, what to do about it, and a link to the scan that failed. A **Down** service whose `mongod` or `mongos` wasn't running at its last scan shows **not running**. The **Clusters** tab now warns when scan results can't be read. For details, see [Operations for MongoDB](../use/mongodb-operations.md#scans).
