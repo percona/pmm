@@ -18,11 +18,13 @@ You cannot deploy PMM Extensions on:
 
 PMM Server and PMM Extensions must run on the same version. If they don't match, the app pages show a warning with both versions.
 
-Both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, the latest 3.x release. Docker doesn't pull a tag that already exists on the host. If the host has an older `percona/pmm-server:3` or `percona/pmm-extensions:3` image, pull both images again with `docker compose pull` or `docker pull` before you start the containers. To run a specific version, set it in `.env` before starting the containers:
+With Docker Compose, both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, the latest 3.x release. Docker doesn't pull a tag that already exists on the host. If the host has an older `percona/pmm-server:3` or `percona/pmm-extensions:3` image, pull both images again with `docker compose pull` or `docker pull` before you start the containers. To run a specific version, set it in `.env` before starting the containers:
 
 ```ini
 PMM_IMAGE_TAG=3.10.0
 ```
+
+The `docker run` commands on this page don't read `.env`. If you use them, put the same version tag in both commands.
 
 If your environment pulls images from a registry other than Docker Hub, change the two `image:` lines in the `docker-compose.yml` file on this page to point to your registry. Use the same version for both images.
 

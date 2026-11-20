@@ -44,7 +44,7 @@ Complete the following steps before creating your first backup:
 
 2. Make sure PMM Client 3.10.0 or later is installed on the execution host, registered with this PMM Server, and deployed with Nomad enabled. PMM Client ships the Nomad client, so no separate installation is needed. If PMM Client is not yet installed, see [Install PMM Client](../install-pmm/install-pmm-client/index.md).
 
-3. Install the tool for your backup type on the execution host. PMM runs each tool from `/usr/bin` and doesn't search `$PATH`, so a tool that is installed in another directory is not found:
+3. Install the tool for your backup type on the execution host. PMM runs each tool from `/usr/bin` and doesn't search `$PATH`. A tool that is installed in another directory is not found, except `mysqlbinlog`, whose path you can enter when you create the backup:
 
     === "XtraBackup"
 
