@@ -1,9 +1,7 @@
 import { css } from '@emotion/css';
-import { createTheme, GrafanaTheme2 } from '@grafana/data';
-import { ThemeMode } from 'shared/components/Hightlight/Highlight.types';
+import { GrafanaTheme2 } from '@grafana/data';
 
-export const getStyles = ({ v1: { spacing, border } }: GrafanaTheme2, tooltipMode: ThemeMode) => {
-  const tooltipTheme = createTheme({ colors: { mode: tooltipMode } });
+export const getStyles = ({ v1: { spacing, border } }: GrafanaTheme2, tooltipTheme: GrafanaTheme2) => {
   const { background, text } = tooltipTheme.components.tooltip;
 
   return {

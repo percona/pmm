@@ -2,10 +2,6 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryTooltip } from './QueryTooltip';
 
-jest.mock('highlight.js', () => ({
-  highlightElement: jest.fn(),
-}));
-
 describe('QueryTooltip::', () => {
   it('renders in the opposite theme to the page', async () => {
     render(
