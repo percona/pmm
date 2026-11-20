@@ -360,6 +360,17 @@ After configuring your database server, add a MongoDB service using either the u
         --cluster=my_cluster_or_rs_name
         ```
 
+    === "Arbiter"
+        An arbiter holds no data, so it has no users and serves no queries. Add the arbiter without `--username` and `--password`, because the connection check fails with credentials. Turn off Query Analytics with `--query-source=none`:
+
+        ```sh
+        pmm-admin add mongodb \
+        --host=127.0.0.1 \
+        --port=27017 \
+        --cluster=my_cluster_or_rs_name \
+        --query-source=none
+        ```
+
     === "Ignoring insecure server certificate"
         ```sh
         pmm-admin add mongodb \

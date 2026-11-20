@@ -21,6 +21,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/url"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -84,6 +86,12 @@ type Service struct {
 	// running serialises collection.
 	running sync.Mutex
 
+	// syncMu orders ENABLED syncs, each reading PMM's switch and writing it as one step.
+	syncMu sync.Mutex
+	// writeOwed makes syncs write without comparing until a write succeeds, asking for a sweep while the switch is on;
+	// guarded by syncMu.
+	writeOwed bool
+
 	mu     sync.Mutex
 	latest *omv1.GetTopologyResponse
 
@@ -108,9 +116,6 @@ func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 		s.l.Info("PMM Extensions is not configured; on-host facts will be absent")
 		return s
 	}
-	if token != "" && cleartextToken(extensionsURL) {
-		s.l.Warnf("PMM Extensions at %s is plain HTTP and off this host: PMM_EXTENSIONS_TOKEN will cross the network in clear text", extensionsURL)
-	}
 	client := newExtensionsClient(extensionsURL, token)
 	probe := &probeSource{
 		app: client.app(probeAppModule),
@@ -123,49 +128,85 @@ func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 
 // Enabled returns true if OpenManager is enabled.
 func (s *Service) Enabled() bool {
-	settings, err := models.GetSettings(s.db)
+	enabled, err := s.storedSwitch()
 	if err != nil {
 		s.l.WithError(err).Error("can't get settings")
-		return false
 	}
-	return settings.IsOMEnabled()
+	return enabled
 }
 
-// IsAvailable reports whether PMM Extensions' om_inventory app is configured and reachable.
-func (s *Service) IsAvailable(ctx context.Context) bool {
-	if s.probe == nil || s.probe.app.client == nil {
-		return false
-	}
-	_, err := s.probe.fetch(ctx)
-	return err == nil
-}
-
-// SyncInventoryEnabled sets om_inventory's ENABLED flag and, on enabling, triggers an immediate sweep so the
-// estate does not wait out a full SCHEDULE interval. Failures are logged, not returned.
-func (s *Service) SyncInventoryEnabled(ctx context.Context, enabled bool) {
-	_ = s.syncInventoryEnabled(ctx, enabled)
-}
-
-// syncInventoryEnabled returns only the ENABLED write's error: a failed sweep trigger is logged and left to the
-// app's own SCHEDULE.
-func (s *Service) syncInventoryEnabled(ctx context.Context, enabled bool) error {
-	if s.probe == nil || s.probe.app.client == nil {
-		return nil
-	}
-	err := s.probe.app.patchConfig(ctx, map[string]any{"ENABLED": enabled})
+// storedSwitch reads PMM's OpenManager switch, reporting a failed read that Enabled hides as off.
+func (s *Service) storedSwitch() (bool, error) {
+	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		s.l.WithError(err).WithField("enabled", enabled).
-			Warn("failed to sync OpenManager's on/off state to PMM Extensions' om_inventory app")
+		return false, fmt.Errorf("failed to read settings: %w", err)
+	}
+	return settings.IsOMEnabled(), nil
+}
+
+// CheckAvailable returns why PMM Extensions' om_inventory app cannot be used, or nil when it can.
+func (s *Service) CheckAvailable(ctx context.Context) error {
+	probe, err := s.inventoryProbe()
+	if err != nil {
 		return err
 	}
-	if !enabled {
-		return nil
+	var page extensionsPage[probeService]
+	err = probe.call(asService(ctx), inventoryCall{method: http.MethodGet, path: probeServicesPath, query: url.Values{"limit": {"1"}}}, &page)
+	if status.Code(err) == codes.NotFound {
+		return status.Errorf(codes.FailedPrecondition, "PMM Extensions does not serve the om_inventory app: %s", status.Convert(err).Message())
 	}
-	err = s.probe.app.triggerRun(ctx)
+	return err
+}
+
+// SyncInventoryEnabled writes PMM's stored switch to om_inventory's ENABLED flag, asking for a sweep when it is on;
+// Run retries a failed write.
+func (s *Service) SyncInventoryEnabled(ctx context.Context) {
+	s.syncSwitch(ctx, true)
+}
+
+// syncSwitch writes PMM's stored switch to om_inventory while a forced write is owed or the app holds another value,
+// asking for a sweep only with an owed write of an on switch.
+func (s *Service) syncSwitch(ctx context.Context, force bool) {
+	if s.probe == nil || s.probe.app.client == nil {
+		return
+	}
+	ctx = asService(ctx)
+	s.syncMu.Lock()
+	defer s.syncMu.Unlock()
+
+	if force {
+		s.writeOwed = true
+	}
+	var current bool
+	if !s.writeOwed {
+		var err error
+		current, err = s.probe.app.readEnabled(ctx)
+		if err != nil {
+			level := logrus.WarnLevel
+			if status.Code(err) == codes.Unavailable {
+				level = logrus.DebugLevel
+			}
+			s.l.WithError(err).Log(level, "can't read om_inventory's on/off state to compare it with OpenManager's switch")
+			return
+		}
+	}
+	// Read after the app and under syncMu, so the switch's latest saved state is the one compared and written.
+	stored, err := s.storedSwitch()
 	if err != nil {
-		s.l.WithError(err).Warn("failed to trigger an immediate PMM Extensions inventory sweep after enabling OpenManager")
+		s.l.WithError(err).Warn("can't read the OpenManager switch to sync it to PMM Extensions")
+		return
 	}
-	return nil
+	if !s.writeOwed && current == stored {
+		return
+	}
+
+	err = s.probe.app.setEnabled(ctx, stored, stored && s.writeOwed)
+	if err != nil {
+		s.l.WithError(err).WithField("enabled", stored).
+			Warn("failed to sync OpenManager's on/off state to PMM Extensions' om_inventory app")
+		return
+	}
+	s.writeOwed = false
 }
 
 // WithBootstrapSource attaches PMM Extensions' om_bootstrap app for RunBootstrapStepper and TriggerHostBootstrap.
@@ -174,10 +215,11 @@ func (s *Service) WithBootstrapSource(extensionsURL, token string) *Service {
 		s.l.Info("PMM Extensions is not configured; MongoDB bootstrap will be unavailable")
 		return s
 	}
-	if token != "" && cleartextToken(extensionsURL) {
-		s.l.Warnf("PMM Extensions at %s is plain HTTP and off this host: PMM_EXTENSIONS_TOKEN will cross the network in clear text", extensionsURL)
-	}
 	client := newExtensionsClient(extensionsURL, token)
+	// Sharing the probe's client shares its cache of bearers exchanged for users' sessions.
+	if s.probe != nil && s.probe.app.client.baseURL == extensionsURL && s.probe.app.client.token == token {
+		client = s.probe.app.client
+	}
 	s.bootstrap = &bootstrapClient{app: client.app(bootstrapAppModule)}
 	return s
 }
@@ -265,10 +307,12 @@ func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.Trigger
 	}, nil
 }
 
-// Run refreshes the document on a timer until ctx is cancelled. It also syncs the OpenManager switch to om_inventory,
-// retrying until it lands, since a server that starts enabled sees no ChangeSettings transition.
+// Run refreshes the document on a timer until ctx is cancelled, keeping om_inventory's ENABLED flag on PMM's switch.
 func (s *Service) Run(ctx context.Context) {
-	reconciled := s.syncInventoryEnabled(ctx, s.Enabled()) == nil
+	ctx = asService(ctx)
+	// Forced, so retried until it lands: a server that starts enabled sees no ChangeSettings transition,
+	// and this write is what asks the app for its sweep after a restart.
+	s.syncSwitch(ctx, true)
 
 	interval := s.tick
 	if interval == 0 {
@@ -283,9 +327,7 @@ func (s *Service) Run(ctx context.Context) {
 			return
 		case <-ticker.C:
 			// Before the Enabled() gate: syncing an off switch is how PMM Extensions is told to stop sweeping.
-			if !reconciled {
-				reconciled = s.syncInventoryEnabled(ctx, s.Enabled()) == nil
-			}
+			s.syncSwitch(ctx, false)
 			if !s.Enabled() {
 				continue
 			}
@@ -315,6 +357,8 @@ func (s *Service) discover(ctx context.Context) (*omv1.GetTopologyResponse, erro
 
 // collect builds the document from every source and records the run. The caller must hold s.running.
 func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1.TopologyRun, error) {
+	// Collection publishes one snapshot for everyone, whoever pressed Sync.
+	ctx = asService(ctx)
 	startedAt := time.Now()
 	runID := uuid.New().String()
 

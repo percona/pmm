@@ -30,7 +30,7 @@ If **Alive** is lower than **Expected**, find the failed replica in the [**PMM P
 
 Shows the name of the PMM Server replica that is currently the leader, or **No active instance** when the dashboard can't find a leader.
 
-Use this to confirm which replica serves the PMM UI and API and runs cluster-wide tasks such as advisor checks and scheduled backups. After a failover or an upgrade, the name changes to the new leader.
+Use this to confirm which replica serves the PMM UI and API and runs cluster-wide tasks such as Advisor checks and scheduled backups. After a failover or an upgrade, the name changes to the new leader.
 
 If the panel shows **No active instance** right after a replica restarts, wait a minute or two for the dashboard to catch up with the new leader. 
 

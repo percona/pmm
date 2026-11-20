@@ -56,6 +56,7 @@ const (
 // RunBootstrapStepper drives bootstrap runs forward until ctx is cancelled; it must run on the HA leader only.
 // Each tick re-reads run state from PMM Extensions, so a new leader after a failover resumes where the last stopped.
 func (s *Service) RunBootstrapStepper(ctx context.Context) {
+	ctx = asService(ctx)
 	ticker := time.NewTicker(bootstrapPollInterval)
 	defer ticker.Stop()
 
