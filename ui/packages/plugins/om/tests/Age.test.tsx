@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
 import { Age } from '../src/components/Age';
@@ -31,14 +31,28 @@ describe('Age', () => {
     vi.useRealTimers();
   });
 
-  it('keeps the compact age and puts the local time and zone on hover', () => {
+  it('keeps the compact age and puts the local time and zone on hover', async () => {
     const iso = '2026-10-06T10:48:00Z';
     render(<Age value={iso} />);
 
     const age = screen.getByText('1h 12m ago');
-    expect(age).toHaveAttribute(
-      'title',
+    fireEvent.mouseOver(age);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
       `${new Date(iso).toLocaleString()} (${browserTimezone()})`
+    );
+    // The time describes the age; it does not replace it as the name.
+    expect(age).not.toHaveAttribute('aria-label');
+    // MUI opens the hover on focus too, so a keyboard reaches it.
+    expect(age).toHaveAttribute('tabindex', '0');
+  });
+
+  it('says what the time is of, when given a label', async () => {
+    const iso = '2026-10-06T10:48:00Z';
+    render(<Age value={iso} label="Last collected" />);
+
+    fireEvent.mouseOver(screen.getByText('1h 12m ago'));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      `Last collected ${new Date(iso).toLocaleString()} (${browserTimezone()})`
     );
   });
 
@@ -46,5 +60,6 @@ describe('Age', () => {
     render(<Age value={null} />);
 
     expect(screen.getByText('—')).not.toHaveAttribute('title');
+    expect(screen.getByText('—')).not.toHaveAttribute('tabindex');
   });
 });

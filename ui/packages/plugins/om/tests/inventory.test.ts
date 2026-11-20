@@ -27,12 +27,15 @@ import {
   isBoundedPeriod,
   isFailing,
   isRunPeriod,
+  isScanHeld,
   joinServiceInventory,
+  keepGroupIds,
   notRunningScanAt,
   periodSince,
   processReadAt,
   repoReachability,
   scanErrorCode,
+  scopesOverlap,
   serverRunning,
   toHostRows,
 } from '../src/inventory';
@@ -599,30 +602,32 @@ describe('processReadAt, serverRunning and notRunningScanAt', () => {
   });
 });
 
+/** A finished scan that failed on `failing`, over `scope`. */
+const scan = (
+  run_id: string,
+  status: OmTopologyRunStatus = 'RUN_STATUS_PARTIAL',
+  failing: string[] = ['n2'],
+  scope: string[] = []
+): OmInventoryRun => ({
+  run_id,
+  status,
+  start_time: '2026-10-07T12:00:00Z',
+  end_time: '2026-10-07T12:00:30Z',
+  scope,
+  counts: {
+    total_hosts: 3,
+    probeable_hosts: 3,
+    answered_hosts: 3 - failing.length,
+    finished_hosts: 3,
+    total_services: 0,
+    resolved_services: 0,
+    answered_services: 0,
+    orphaned_services: 0,
+  },
+  failing_nodes: failing.map((node_id) => ({ node_id, name: node_id })),
+});
+
 describe('groupRuns', () => {
-  const scan = (
-    run_id: string,
-    status: OmTopologyRunStatus = 'RUN_STATUS_PARTIAL',
-    failing: string[] = ['n2'],
-    scope: string[] = []
-  ): OmInventoryRun => ({
-    run_id,
-    status,
-    start_time: '2026-10-07T12:00:00Z',
-    end_time: '2026-10-07T12:00:30Z',
-    scope,
-    counts: {
-      total_hosts: 3,
-      probeable_hosts: 3,
-      answered_hosts: 3 - failing.length,
-      finished_hosts: 3,
-      total_services: 0,
-      resolved_services: 0,
-      answered_services: 0,
-      orphaned_services: 0,
-    },
-    failing_nodes: failing.map((node_id) => ({ node_id, name: node_id })),
-  });
   const ids = (runs: OmInventoryRun[]) =>
     groupRuns(runs).map((group) => group.runs.map((run) => run.run_id));
 
@@ -698,6 +703,68 @@ describe('groupRuns', () => {
       scan('a', 'RUN_STATUS_SUCCESS', []),
     ]);
     expect(groups.map((group) => group.id)).toEqual(['b']);
+  });
+});
+
+describe('keepGroupIds', () => {
+  const group = (...ids: string[]) => ({
+    id: ids[0],
+    runs: ids.map((id) => scan(id)),
+  });
+
+  it('keeps the id of the group a new scan joins, after its oldest scan leaves', () => {
+    expect(
+      keepGroupIds([group('d', 'c', 'b')], [group('c', 'b', 'a')])
+    ).toEqual([{ ...group('d', 'c', 'b'), id: 'c' }]);
+  });
+
+  it("keeps the older group's id when a scan seen running joins a one-scan group", () => {
+    expect(
+      keepGroupIds([group('r', 'c')], [group('r'), group('c')])[0].id
+    ).toBe('c');
+  });
+
+  it("keeps the bigger group's id when a finished scan joins it", () => {
+    expect(
+      keepGroupIds([group('r', 'c', 'b')], [group('r'), group('c', 'b')])[0].id
+    ).toBe('c');
+  });
+
+  it('gives a group with no earlier scans its own id, and two groups never one id', () => {
+    const kept = keepGroupIds([group('e'), group('d', 'c')], [group('c', 'b')]);
+
+    expect(kept.map((g) => g.id)).toEqual(['e', 'c']);
+  });
+});
+
+describe('isScanHeld', () => {
+  const running = (scope: string[]) =>
+    scan(scope.join(','), 'RUN_STATUS_RUNNING', [], scope);
+
+  it('holds the nodes a running scan covers, and none a finished one did', () => {
+    const runs = [
+      running(['n1']),
+      scan('done', 'RUN_STATUS_SUCCESS', [], ['n2']),
+    ];
+
+    expect(isScanHeld(runs, ['n1'])).toBe(true);
+    expect(isScanHeld(runs, ['n2'])).toBe(false);
+    expect(isScanHeld(runs, ['n2', 'n1'])).toBe(true);
+  });
+
+  it('holds every node during a scan of every node, and all of them during any scan', () => {
+    expect(isScanHeld([running([])], ['n1'])).toBe(true);
+    expect(isScanHeld([running(['n1'])], [])).toBe(true);
+    expect(isScanHeld([], [])).toBe(false);
+  });
+
+  it('holds every node while a request is still being sent', () => {
+    expect(isScanHeld([], ['n1'], true)).toBe(true);
+  });
+
+  it('collides when either scan is a full one or they share a node', () => {
+    expect(scopesOverlap(['n1', 'n2'], ['n2'])).toBe(true);
+    expect(scopesOverlap(['n1'], ['n2'])).toBe(false);
   });
 });
 

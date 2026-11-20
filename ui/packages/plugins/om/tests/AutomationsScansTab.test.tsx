@@ -15,8 +15,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { render, screen, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
+import type { ReactElement } from 'react';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
 import { AutomationsScansTab } from '../src/AutomationsScansTab';
@@ -65,12 +72,13 @@ const run = (run_id: string): OmInventoryRun => ({
   counts: COUNTS,
 });
 
-const renderAt = (url: string) =>
-  render(
-    <MemoryRouter initialEntries={[url]}>
-      <AutomationsScansTab />
-    </MemoryRouter>
-  );
+const page = (url: string) => (
+  <MemoryRouter initialEntries={[url]}>
+    <AutomationsScansTab />
+  </MemoryRouter>
+);
+
+const renderAt = (url: string) => render(page(url));
 
 describe('AutomationsScansTab', () => {
   beforeEach(() => {
@@ -173,9 +181,9 @@ describe('AutomationsScansTab', () => {
       ).toBeNull();
     });
 
-    it('gives the last scan summary its age and a hover', () => {
-      expect(screen.getByText('3h ago')).toHaveAttribute(
-        'title',
+    it('gives the last scan summary its age and a hover', async () => {
+      fireEvent.mouseOver(screen.getByText('3h ago'));
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
         hover(RECENT)
       );
     });
@@ -218,6 +226,152 @@ describe('AutomationsScansTab', () => {
         'href',
         expect.stringContaining('nodes?node=node02')
       );
+    });
+
+    const serve = (...data: OmInventoryRun[]) =>
+      useOmInventoryRuns.mockReturnValue({
+        data,
+        isLoading: false,
+        error: null,
+      });
+    const fetched = (...ids: string[]) =>
+      serve(...ids.map((id, index) => at(index * 10, id)));
+    const refetch = (rerender: (ui: ReactElement) => void, url: string) =>
+      rerender(page(url));
+
+    it('keeps an expanded group open as new scans join it and push old ones out', () => {
+      const url = '/automations?tab=scans';
+      const { rerender } = renderAt(url);
+      fireEvent.click(screen.getByRole('button', { name: 'Expand' }));
+      expect(screen.getByTestId('om-run-group')).toBeInTheDocument();
+
+      let ids = ['run-3', 'run-2', 'run-1'];
+      for (const next of ['run-4', 'run-5', 'run-6', 'run-7']) {
+        ids = [next, ...ids.slice(0, 2)];
+        fetched(...ids);
+        refetch(rerender, url);
+        expect(screen.getByTestId('om-run-group')).toBeInTheDocument();
+      }
+    });
+
+    // A running scan is a row of its own above the group until it finishes, which
+    // moves the group's row and remounts its panel.
+    it('keeps a scan opened inside a group open while a new scan runs and joins it', () => {
+      const url = '/automations?tab=scans';
+      const { rerender } = renderAt(url);
+      fireEvent.click(screen.getByRole('button', { name: 'Expand' }));
+      const opened = () =>
+        within(screen.getByTestId('om-run-group')).queryAllByRole('button', {
+          expanded: true,
+        });
+      fireEvent.click(
+        within(screen.getByTestId('om-run-group')).getAllByRole('button')[1]
+      );
+      expect(opened()).toHaveLength(1);
+
+      serve(
+        { ...at(0, 'run-4'), status: 'RUN_STATUS_RUNNING', end_time: null },
+        at(10, 'run-3'),
+        at(20, 'run-2'),
+        at(30, 'run-1')
+      );
+      refetch(rerender, url);
+      expect(opened()).toHaveLength(1);
+
+      fetched('run-4', 'run-3', 'run-2');
+      refetch(rerender, url);
+
+      expect(opened()).toHaveLength(1);
+      expect(useOmInventoryRun).toHaveBeenLastCalledWith('run-2');
+    });
+
+    it('keeps every group open after Expand all as a new scan joins one', () => {
+      const url = '/automations?tab=scans';
+      const elsewhere = (minutesAgo: number, run_id: string) => ({
+        ...at(minutesAgo, run_id),
+        failing_nodes: [{ node_id: 'n3', name: 'node03' }],
+      });
+      serve(
+        at(0, 'run-3'),
+        at(10, 'run-2'),
+        elsewhere(20, 'run-1'),
+        elsewhere(30, 'run-0')
+      );
+      const { rerender } = renderAt(url);
+      fireEvent.click(screen.getByRole('button', { name: 'Expand all' }));
+      expect(screen.getAllByTestId('om-run-group')).toHaveLength(2);
+
+      serve(
+        at(0, 'run-4'),
+        at(10, 'run-3'),
+        elsewhere(20, 'run-1'),
+        elsewhere(30, 'run-0')
+      );
+      refetch(rerender, url);
+      expect(screen.getAllByTestId('om-run-group')).toHaveLength(2);
+    });
+
+    it('opens the group holding a run ?expand names once a later fetch brings it', () => {
+      const url = '/automations?tab=scans&expand=run-9';
+      fetched('run-3', 'run-2');
+      const { rerender } = renderAt(url);
+      expect(screen.queryByTestId('om-run-group')).toBeNull();
+
+      fetched('run-3', 'run-9', 'run-2');
+      refetch(rerender, url);
+      expect(
+        within(screen.getByTestId('om-run-group')).getAllByRole('button', {
+          expanded: true,
+        })
+      ).toHaveLength(1);
+      expect(useOmInventoryRun).toHaveBeenLastCalledWith('run-9');
+    });
+
+    it('keeps a linked running scan open as it finishes and joins an older group', () => {
+      const url = '/automations?tab=scans&expand=run-4';
+      serve(
+        { ...at(0, 'run-4'), status: 'RUN_STATUS_RUNNING', end_time: null },
+        at(10, 'run-3'),
+        at(20, 'run-2')
+      );
+      const { rerender } = renderAt(url);
+      expect(useOmInventoryRun).toHaveBeenLastCalledWith('run-4');
+
+      fetched('run-4', 'run-3', 'run-2');
+      refetch(rerender, url);
+
+      expect(
+        within(screen.getByTestId('om-run-group')).getAllByRole('button', {
+          expanded: true,
+        })
+      ).toHaveLength(1);
+      expect(useOmInventoryRun).toHaveBeenLastCalledWith('run-4');
+    });
+
+    it('opens a linked scan the reader folded once the link comes back', async () => {
+      const Go = ({ to }: { to: string }) => {
+        const navigate = useNavigate();
+        return <button onClick={() => navigate(to)}>{`go ${to}`}</button>;
+      };
+      const linked = '/automations?tab=scans&expand=run-2';
+      render(
+        <MemoryRouter initialEntries={[linked]}>
+          <AutomationsScansTab />
+          <Go to="/automations?tab=scans" />
+          <Go to={linked} />
+        </MemoryRouter>
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Expand' }));
+      await waitFor(() =>
+        expect(screen.queryByTestId('om-run-group')).toBeNull()
+      );
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'go /automations?tab=scans' })
+      );
+      fireEvent.click(screen.getByRole('button', { name: `go ${linked}` }));
+
+      expect(screen.getByTestId('om-run-group')).toBeInTheDocument();
     });
 
     it('opens the group holding the run ?expand names, and that run in it', () => {
