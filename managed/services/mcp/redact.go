@@ -518,6 +518,10 @@ func singleQuotedEnd(s string, start int) int {
 func maskTraditionalExtra(table string) string {
 	lines := strings.Split(table, "\n")
 	columns := strings.Count(lines[0], "|") + 1
+	// A one-column body, such as the tree format, is masked as one text, so a literal across lines stays one literal.
+	if columns == 1 {
+		return maskSQLLiterals(table, true)
+	}
 	for i, line := range lines {
 		cells := strings.SplitN(line, "|", columns)
 		if len(cells) < columns {

@@ -332,6 +332,12 @@ func TestRedactPlan(t *testing.T) {
 	broken := "id |select_type |table |type |Extra\n" +
 		"1  |SIMPLE      |t     |ALL  |Using pushed condition ((`t`.`a` = 1)\n and (`t`.`ssn` = '123-45-6789') | 2)|"
 	assert.Equal(t, planWithheld, redactPlan(engineMySQL, formatTraditional, broken, true))
+
+	// A one-column plan, such as EXPLAIN's tree format, is masked as one text, so a literal across lines stays masked.
+	tree := "EXPLAIN\n-> Filter: (t.note = 'first line\nsecret-x')  (cost=1 rows=1)"
+	got = redactPlan(engineMySQL, formatTraditional, tree, true)
+	assert.NotContains(t, got, "secret-x")
+	assert.Contains(t, got, "-> Filter: (t.note = ?)")
 }
 
 func TestMapActionErrorRedaction(t *testing.T) {
