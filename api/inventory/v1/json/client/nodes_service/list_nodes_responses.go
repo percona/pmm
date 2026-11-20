@@ -828,6 +828,9 @@ type ListNodesOKBodyContainerItems0 struct {
 
 	// True if this node is a PMM Server node (HA mode).
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this list nodes OK body container items0
@@ -892,6 +895,9 @@ type ListNodesOKBodyGenericItems0 struct {
 
 	// True if this node is a PMM Server node (HA mode).
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this list nodes OK body generic items0
@@ -947,6 +953,9 @@ type ListNodesOKBodyRemoteAzureDatabaseItems0 struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this list nodes OK body remote azure database items0
@@ -1002,6 +1011,9 @@ type ListNodesOKBodyRemoteItems0 struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this list nodes OK body remote items0
@@ -1060,6 +1072,9 @@ type ListNodesOKBodyRemoteRDSItems0 struct {
 
 	// AWS DB instance identifier.
 	InstanceID string `json:"instance_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this list nodes OK body remote RDS items0

@@ -1117,6 +1117,9 @@ type AddNodeOKBodyContainer struct {
 
 	// True if this node is a PMM Server node (HA mode).
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this add node OK body container
@@ -1181,6 +1184,9 @@ type AddNodeOKBodyGeneric struct {
 
 	// True if this node is a PMM Server node (HA mode).
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this add node OK body generic
@@ -1236,6 +1242,9 @@ type AddNodeOKBodyRemote struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this add node OK body remote
@@ -1291,6 +1300,9 @@ type AddNodeOKBodyRemoteAzureDatabase struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this add node OK body remote azure database
@@ -1349,6 +1361,9 @@ type AddNodeOKBodyRemoteRDS struct {
 
 	// AWS DB instance identifier.
 	InstanceID string `json:"instance_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this add node OK body remote RDS

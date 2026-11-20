@@ -248,7 +248,9 @@ type RegisterNodeRequest struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,16,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// AWS instance ID.
-	InstanceId    string `protobuf:"bytes,17,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	InstanceId string `protobuf:"bytes,17,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	// Environment name.
+	Environment   string `protobuf:"bytes,18,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -398,6 +400,13 @@ func (x *RegisterNodeRequest) GetExposeExporter() bool {
 func (x *RegisterNodeRequest) GetInstanceId() string {
 	if x != nil {
 		return x.InstanceId
+	}
+	return ""
+}
+
+func (x *RegisterNodeRequest) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
 	}
 	return ""
 }
@@ -622,8 +631,10 @@ type UniversalNode struct {
 	// True if this node belongs to the internal infrastructure of a PMM deployment
 	// (e.g. the HA persistence layer) and must not host user monitoring workloads.
 	IsPmmInternalNode bool `protobuf:"varint,20,opt,name=is_pmm_internal_node,json=isPmmInternalNode,proto3" json:"is_pmm_internal_node,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Environment name.
+	Environment   string `protobuf:"bytes,21,opt,name=environment,proto3" json:"environment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UniversalNode) Reset() {
@@ -794,6 +805,13 @@ func (x *UniversalNode) GetIsPmmInternalNode() bool {
 		return x.IsPmmInternalNode
 	}
 	return false
+}
+
+func (x *UniversalNode) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
 }
 
 type ListNodesRequest struct {
@@ -1131,7 +1149,7 @@ const file_management_v1_node_proto_rawDesc = "" +
 	" \x03(\v2..management.v1.AddNodeParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf3\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x95\x06\n" +
 	"\x13RegisterNodeRequest\x123\n" +
 	"\tnode_type\x18\x01 \x01(\x0e2\x16.inventory.v1.NodeTypeR\bnodeType\x12$\n" +
 	"\tnode_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12\x18\n" +
@@ -1155,7 +1173,8 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\x0eagent_password\x18\x0f \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12'\n" +
 	"\x0fexpose_exporter\x18\x10 \x01(\bR\x0eexposeExporter\x12\x1f\n" +
 	"\vinstance_id\x18\x11 \x01(\tR\n" +
-	"instanceId\x1a?\n" +
+	"instanceId\x12 \n" +
+	"\venvironment\x18\x12 \x01(\tR\venvironment\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x83\x02\n" +
@@ -1169,7 +1188,7 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"2\n" +
 	"\x16UnregisterNodeResponse\x12\x18\n" +
-	"\awarning\x18\x01 \x01(\tR\awarning\"\xce\t\n" +
+	"\awarning\x18\x01 \x01(\tR\awarning\"\xf0\t\n" +
 	"\rUniversalNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_type\x18\x02 \x01(\tR\bnodeType\x12\x1b\n" +
@@ -1196,7 +1215,8 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\vinstance_id\x18\x12 \x01(\tR\n" +
 	"instanceId\x12+\n" +
 	"\x12is_pmm_server_node\x18\x13 \x01(\bR\x0fisPmmServerNode\x12/\n" +
-	"\x14is_pmm_internal_node\x18\x14 \x01(\bR\x11isPmmInternalNode\x1an\n" +
+	"\x14is_pmm_internal_node\x18\x14 \x01(\bR\x11isPmmInternalNode\x12 \n" +
+	"\venvironment\x18\x15 \x01(\tR\venvironment\x1an\n" +
 	"\aService\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +

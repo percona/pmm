@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
@@ -276,9 +277,27 @@ func keepRegistration(cfg, fileCfg *config.Config) {
 		cfg.Server.Password = fileCfg.Server.Password
 	}
 
-	if len(flags) > 0 {
-		fmt.Printf("Settings %s only take effect when the Node is registered.\n", strings.Join(flags, ", "))
+	msg := unappliedSetupMessage(flags)
+	if msg != "" {
+		fmt.Println(msg)
 	}
+}
+
+// nodeLabelFlags are the setup flags that pmm-admin update node changes on a registered Node.
+var nodeLabelFlags = []string{"--node-model", "--region", "--az", "--environment", "--custom-labels"}
+
+// unappliedSetupMessage tells which of the given settings only take effect when the Node is registered.
+func unappliedSetupMessage(flags []string) string {
+	if len(flags) == 0 {
+		return ""
+	}
+
+	msg := fmt.Sprintf("Settings %s only take effect when the Node is registered.", strings.Join(flags, ", "))
+	if slices.ContainsFunc(flags, func(f string) bool { return slices.Contains(nodeLabelFlags, f) }) {
+		msg += " Change the labels of the registered Node with pmm-admin update node."
+	}
+
+	return msg
 }
 
 // unappliedCredentials names the credentials given to setup which the Agent is not going to use, because
@@ -349,6 +368,7 @@ func unappliedSetupFlags(s *config.Setup) []string {
 		{"--node-model", s.NodeModel != ""},
 		{"--region", s.Region != ""},
 		{"--az", s.Az != ""},
+		{"--environment", s.Environment != ""},
 		{"--metrics-mode", s.MetricsMode != "" && s.MetricsMode != "auto"},
 		{"--disable-collectors", s.DisableCollectors != ""},
 		{"--custom-labels", s.CustomLabels != ""},

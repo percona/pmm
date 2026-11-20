@@ -108,17 +108,19 @@ func TestNodeService(t *testing.T) {
 			nodeName := getTestNodeName()
 
 			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
-				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-				NodeName: nodeName,
-				Address:  "some.address.org",
-				Region:   "region",
+				NodeType:    inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName:    nodeName,
+				Address:     "some.address.org",
+				Region:      "region",
+				Environment: "prod",
 			})
 			expected := &managementv1.RegisterNodeResponse{
 				GenericNode: &inventoryv1.GenericNode{
-					NodeId:   "00000000-0000-4000-8000-000000000005",
-					NodeName: nodeName,
-					Address:  "some.address.org",
-					Region:   "region",
+					NodeId:      "00000000-0000-4000-8000-000000000005",
+					NodeName:    nodeName,
+					Address:     "some.address.org",
+					Region:      "region",
+					Environment: "prod",
 				},
 				ContainerNode: (*inventoryv1.ContainerNode)(nil),
 				PmmAgent: &inventoryv1.PMMAgent{
@@ -640,8 +642,12 @@ func TestNodeService(t *testing.T) {
 					UpdatedAt:       timestamppb.New(now),
 					Status:          managementv1.UniversalNode_STATUS_UP,
 					IsPmmServerNode: true,
+					Environment:     "prod",
 				},
 			}
+
+			_, err := models.ChangeNode(s.db.Querier, models.PMMServerNodeID, &models.ChangeNodeParams{Environment: new("prod")})
+			require.NoError(t, err)
 
 			node, err := s.GetNode(ctx, &managementv1.GetNodeRequest{
 				NodeId: models.PMMServerNodeID,

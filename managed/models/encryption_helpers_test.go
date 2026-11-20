@@ -480,8 +480,8 @@ func insertAgentWithSecrets(ctx context.Context, t *testing.T, db *sql.DB) {
 	now := time.Now()
 	_, err = db.ExecContext(
 		ctx,
-		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
-			"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
+		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, environment, created_at, updated_at) "+
+			"VALUES ('1', 'generic', 'name', '', '', '', '', '', $1, $2)",
 		now, now,
 	)
 	require.NoError(t, err)

@@ -7640,6 +7640,9 @@ type AddServiceOKBodyRDSNode struct {
 
 	// AWS DB instance identifier.
 	InstanceID string `json:"instance_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this add service OK body RDS node

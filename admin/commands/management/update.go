@@ -50,26 +50,33 @@ type UpdateCommand struct {
 	PostgreSQL         UpdatePostgreSQLCommand         `cmd:"" name:"postgresql" help:"Update PostgreSQL in place (only passed flags are changed)"`
 	Valkey             UpdateValkeyCommand             `cmd:"" name:"valkey" help:"Update Valkey in place (only passed flags are changed)"`
 	ProxySQL           UpdateProxySQLCommand           `cmd:"" name:"proxysql" help:"Update ProxySQL in place (only passed flags are changed)"`
+	Node               UpdateNodeCommand               `cmd:"" name:"node" help:"Update the labels of a Node in place (only passed flags are changed)"`
 }
 
-// UpdateCommonFlags is used by Kong for the flags shared by all update commands.
-type UpdateCommonFlags struct {
-	ServiceID string `help:"ID of the Service to update (default: the Service with the given name)"`
-	DryRun    bool   `help:"Show what would change, without changing anything"`
-
+// typedFlags records the flags and arguments given on the command line, which are the only ones an update
+// changes.
+type typedFlags struct {
 	// typed holds the names of the flags and arguments given on the command line.
 	typed map[string]bool
 	// sourced holds the names of the flags whose values --credentials-source supplied.
 	sourced map[string]bool
 }
 
+// UpdateCommonFlags is used by Kong for the flags shared by all Service update commands.
+type UpdateCommonFlags struct {
+	typedFlags
+
+	ServiceID string `help:"ID of the Service to update (default: the Service with the given name)"`
+	DryRun    bool   `help:"Show what would change, without changing anything"`
+}
+
 // SetTypedFlags records the flags and arguments given on the command line; update changes only those.
-func (f *UpdateCommonFlags) SetTypedFlags(names map[string]bool) {
+func (f *typedFlags) SetTypedFlags(names map[string]bool) {
 	f.typed = names
 }
 
 // rejectTyped fails if any of the given flags is passed, as update cannot change them.
-func (f *UpdateCommonFlags) rejectTyped(names ...string) error {
+func (f *typedFlags) rejectTyped(names ...string) error {
 	for _, name := range names {
 		if f.typed[name] {
 			return fmt.Errorf("--%s cannot be changed by update; remove the Service and add it again", name)
@@ -79,7 +86,18 @@ func (f *UpdateCommonFlags) rejectTyped(names ...string) error {
 	return nil
 }
 
-func (f *UpdateCommonFlags) str(name, value string) *string {
+// rejectNodeTyped fails if any of the given flags is passed, as they are labels of the Node, not of the Service.
+func (f *typedFlags) rejectNodeTyped(names ...string) error {
+	for _, name := range names {
+		if f.typed[name] {
+			return fmt.Errorf("--%s is a label of the Node; change it with pmm-admin update node --node-id=<Node ID>", name)
+		}
+	}
+
+	return nil
+}
+
+func (f *typedFlags) str(name, value string) *string {
 	if !f.typed[name] {
 		return nil
 	}
@@ -87,7 +105,7 @@ func (f *UpdateCommonFlags) str(name, value string) *string {
 	return &value
 }
 
-func (f *UpdateCommonFlags) boolean(name string, value bool) *bool {
+func (f *typedFlags) boolean(name string, value bool) *bool {
 	if !f.typed[name] {
 		return nil
 	}
@@ -95,7 +113,7 @@ func (f *UpdateCommonFlags) boolean(name string, value bool) *bool {
 	return &value
 }
 
-func (f *UpdateCommonFlags) num32(name string, value int32) *int32 {
+func (f *typedFlags) num32(name string, value int32) *int32 {
 	if !f.typed[name] {
 		return nil
 	}
@@ -104,7 +122,7 @@ func (f *UpdateCommonFlags) num32(name string, value int32) *int32 {
 }
 
 // file returns the content of the file given by the flag; an empty path clears the stored content.
-func (f *UpdateCommonFlags) file(name, path string) (*string, error) {
+func (f *typedFlags) file(name, path string) (*string, error) {
 	if !f.typed[name] {
 		return nil, nil //nolint:nilnil
 	}
@@ -118,7 +136,7 @@ func (f *UpdateCommonFlags) file(name, path string) (*string, error) {
 }
 
 // labels returns the parsed labels given by the flag; an empty value clears them.
-func (f *UpdateCommonFlags) labels(name string, value map[string]string) map[string]string {
+func (f *typedFlags) labels(name string, value map[string]string) map[string]string {
 	if !f.typed[name] {
 		return nil
 	}
@@ -127,7 +145,7 @@ func (f *UpdateCommonFlags) labels(name string, value map[string]string) map[str
 }
 
 // list returns the trimmed list given by the flag; an empty value clears it.
-func (f *UpdateCommonFlags) list(name string, value []string) []string {
+func (f *typedFlags) list(name string, value []string) []string {
 	if !f.typed[name] {
 		return nil
 	}
@@ -135,7 +153,7 @@ func (f *UpdateCommonFlags) list(name string, value []string) []string {
 	return append([]string{}, commands.ParseDisableCollectors(value)...)
 }
 
-func (f *UpdateCommonFlags) metricsMode(value flags.MetricsMode) *string {
+func (f *typedFlags) metricsMode(value flags.MetricsMode) *string {
 	if !f.typed["metrics-mode"] {
 		return nil
 	}
@@ -148,7 +166,7 @@ func (f *UpdateCommonFlags) metricsMode(value flags.MetricsMode) *string {
 	return value.EnumValue()
 }
 
-func (f *UpdateCommonFlags) logLevel(value flags.LogLevel) *string {
+func (f *typedFlags) logLevel(value flags.LogLevel) *string {
 	if !f.typed["log-level"] {
 		return nil
 	}
@@ -156,7 +174,7 @@ func (f *UpdateCommonFlags) logLevel(value flags.LogLevel) *string {
 	return value.EnumValue()
 }
 
-func (f *UpdateCommonFlags) connectionTimeout(value string) string {
+func (f *typedFlags) connectionTimeout(value string) string {
 	if !f.typed["connection-timeout"] {
 		return ""
 	}
@@ -166,7 +184,7 @@ func (f *UpdateCommonFlags) connectionTimeout(value string) string {
 
 // credentials returns the credentials given by the flags or read from --credentials-source,
 // where only the values present in the file are changed.
-func (f *UpdateCommonFlags) credentials(username, password, agentPassword, source string) (*string, *string, *string, error) {
+func (f *typedFlags) credentials(username, password, agentPassword, source string) (*string, *string, *string, error) {
 	u, p, a := f.str("username", username), f.str("password", password), f.str("agent-password", agentPassword)
 	if !f.typed["credentials-source"] {
 		return u, p, a, nil
@@ -196,7 +214,7 @@ func (f *UpdateCommonFlags) credentials(username, password, agentPassword, sourc
 
 // endpoint returns the address, port and socket given by the address argument and the --host, --port and
 // --socket flags.
-func (f *UpdateCommonFlags) endpoint(address string, common AddCommonFlags, socket string) (*string, *int64, *string, error) {
+func (f *typedFlags) endpoint(address string, common AddCommonFlags, socket string) (*string, *int64, *string, error) {
 	var host *string
 	var port *int64
 	if f.typed["address"] {
@@ -287,7 +305,7 @@ func (f *UpdateCommonFlags) target(name string, serviceType string) (string, err
 }
 
 // typedAny reports whether any of the flags is given on the command line.
-func (f *UpdateCommonFlags) typedAny(names []string) bool {
+func (f *typedFlags) typedAny(names []string) bool {
 	return slices.ContainsFunc(names, func(name string) bool { return f.typed[name] })
 }
 
@@ -298,7 +316,7 @@ func (f *UpdateCommonFlags) sentAny(names []string) bool {
 }
 
 // typedValue returns the value of the flag if it is given on the command line, and an empty string otherwise.
-func (f *UpdateCommonFlags) typedValue(name, value string) string {
+func (f *typedFlags) typedValue(name, value string) string {
 	if !f.typed[name] {
 		return ""
 	}
@@ -307,7 +325,7 @@ func (f *UpdateCommonFlags) typedValue(name, value string) string {
 }
 
 // typedName returns the Service name given by the name argument or the --service-name flag, if any.
-func (f *UpdateCommonFlags) typedName(name string, common AddCommonFlags) string {
+func (f *typedFlags) typedName(name string, common AddCommonFlags) string {
 	switch {
 	case f.typed["service-name"]:
 		return common.AddServiceNameFlag

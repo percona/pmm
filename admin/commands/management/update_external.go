@@ -72,7 +72,12 @@ func (cmd *UpdateExternalServerlessCommand) Help() string {
 // RunCmd runs the command for UpdateExternalServerlessCommand.
 func (cmd *UpdateExternalServerlessCommand) RunCmd() (commands.Result, error) {
 	// The address and the other properties of the remote Node belong to the Node, not to the Service.
-	err := cmd.rejectTyped("url", "address", "host", "machine-id", "distro", "container-id", "container-name", "node-model", "region", "az")
+	err := cmd.rejectTyped("url", "address", "host", "machine-id", "distro", "container-id", "container-name")
+	if err != nil {
+		return nil, err
+	}
+
+	err = cmd.rejectNodeTyped("node-model", "region", "az")
 	if err != nil {
 		return nil, err
 	}

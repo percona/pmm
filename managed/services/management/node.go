@@ -83,6 +83,7 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 			InstanceID:    req.InstanceId,
 			Address:       req.Address,
 			Region:        pointer.ToStringOrNil(req.Region),
+			Environment:   req.Environment,
 		})
 		if err != nil {
 			return err
@@ -344,6 +345,7 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 			InstanceId:        node.InstanceID,
 			IsPmmServerNode:   node.IsPMMServerNode,
 			IsPmmInternalNode: s.isInternalNode(node),
+			Environment:       node.Environment,
 		}
 
 		freshUp, hasFresh := metrics[node.NodeID]
@@ -425,6 +427,7 @@ func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNo
 		UpdatedAt:         timestamppb.New(node.UpdatedAt),
 		IsPmmServerNode:   node.IsPMMServerNode,
 		IsPmmInternalNode: s.isInternalNode(node),
+		Environment:       node.Environment,
 	}
 
 	freshUp, hasFresh := metrics[node.NodeID]
