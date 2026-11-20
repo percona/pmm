@@ -20,13 +20,17 @@ import (
 	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestShouldForceConfigurationUpdate(t *testing.T) {
@@ -420,4 +424,126 @@ func TestCheckPortChanged(t *testing.T) {
 
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
+}
+
+func TestUpdateAgentStatusKeepsConcurrentChange(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	exporter, err := models.CreateNodeExporter(db.Querier, models.PMMServerAgentID, nil, false, false, []string{"cpu"}, nil, "")
+	require.NoError(t, err)
+
+	// A change of the Agent's configuration that has written its row but not committed yet.
+	changeTx, err := db.Begin()
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = changeTx.Rollback() })
+
+	changed, err := models.FindAgentByID(changeTx.Querier, exporter.AgentID)
+	require.NoError(t, err)
+	changed.ExporterOptions.DisabledCollectors = []string{"diskstats", "meminfo"}
+	require.NoError(t, models.UpdateAgent(changeTx.Querier, changed))
+
+	ctx := logger.Set(t.Context(), t.Name())
+	var reportErr error
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		reportErr = db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			return updateAgentStatus(ctx, tx.Querier, exporter.AgentID, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, 42005, nil, nil)
+		})
+	}()
+	// A failed test must not leave the report running: it logs through t.
+	t.Cleanup(func() {
+		_ = changeTx.Rollback()
+		<-done
+	})
+
+	require.Eventually(t, func() bool {
+		var waiting int
+		err := db.Querier.QueryRow(
+			"SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND datname = current_database()",
+		).Scan(&waiting)
+		return err == nil && waiting > 0
+	}, 5*time.Second, 10*time.Millisecond, "the status report never waited for the uncommitted change")
+
+	require.NoError(t, changeTx.Commit())
+
+	select {
+	case <-done:
+		require.NoError(t, reportErr)
+	case <-time.After(5 * time.Second):
+		t.Fatal("the status report did not finish after the change was committed")
+	}
+
+	actual, err := models.FindAgentByID(db.Querier, exporter.AgentID)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"diskstats", "meminfo"}, []string(actual.ExporterOptions.DisabledCollectors))
+	assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String(), actual.Status)
+	assert.Equal(t, new(uint16(42005)), actual.ListenPort)
+}
+
+func TestExternalExporterStatusKeepsConcurrentChange(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	service, err := models.AddNewService(db.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
+		ServiceName:   "external",
+		NodeID:        models.PMMServerNodeID,
+		ExternalGroup: "external",
+	})
+	require.NoError(t, err)
+	exporter, err := models.CreateExternalExporter(db.Querier, &models.CreateExternalExporterParams{
+		RunsOnNodeID: models.PMMServerNodeID,
+		ServiceID:    service.ServiceID,
+		ListenPort:   9104,
+	})
+	require.NoError(t, err)
+
+	vmClient := newMockVictoriaMetricsClient(t)
+	vmClient.On("Query", mock.Anything, `up{agent_type="external-exporter"}`, mock.Anything).Return(model.Vector{{
+		Metric: model.Metric{"agent_id": model.LabelValue(exporter.AgentID)},
+		Value:  1,
+	}}, nil, nil, nil)
+
+	// A change of the Agent's configuration that has written its row but not committed yet.
+	changeTx, err := db.Begin()
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = changeTx.Rollback() })
+
+	changed, err := models.FindAgentByID(changeTx.Querier, exporter.AgentID)
+	require.NoError(t, err)
+	changed.Username = new("changed")
+	require.NoError(t, models.UpdateAgent(changeTx.Querier, changed))
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		NewExternalExporterStatusService(db, vmClient).updateAllExternalExporterStatuses(t.Context())
+	}()
+	// A failed test must not leave the update running: it logs through t.
+	t.Cleanup(func() {
+		_ = changeTx.Rollback()
+		<-done
+	})
+
+	require.Eventually(t, func() bool {
+		var waiting int
+		err := db.Querier.QueryRow(
+			"SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock' AND datname = current_database()",
+		).Scan(&waiting)
+		return err == nil && waiting > 0
+	}, 5*time.Second, 10*time.Millisecond, "the status update never waited for the uncommitted change")
+
+	require.NoError(t, changeTx.Commit())
+
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("the status update did not finish after the change was committed")
+	}
+
+	actual, err := models.FindAgentByID(db.Querier, exporter.AgentID)
+	require.NoError(t, err)
+	assert.Equal(t, new("changed"), actual.Username)
+	assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String(), actual.Status)
 }

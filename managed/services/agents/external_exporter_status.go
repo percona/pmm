@@ -134,7 +134,8 @@ func (s *ExternalExporterStatusService) updateAllExternalExporterStatuses(ctx co
 			newStatus := status.String()
 			if agent.Status != newStatus {
 				agent.Status = newStatus
-				err := tx.Update(agent)
+				// Only the status, so a change committed since the Reload above survives: see PMM-15835.
+				err := tx.UpdateColumns(agent, "status", "updated_at")
 				if err != nil {
 					s.l.Errorf("Failed to update status for agent %s: %v", agentID, err)
 					continue
