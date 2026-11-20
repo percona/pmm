@@ -38,6 +38,9 @@ export const stableDependencyKey = (value: unknown): string => {
     if (!input || typeof input !== 'object') {
       return input;
     }
+    if (input instanceof Date) {
+      return input.toJSON();
+    }
 
     const obj = input as Record<string, unknown>;
     if (seen.has(obj)) {

@@ -44,6 +44,16 @@ describe('tableState.utils', () => {
     );
   });
 
+  it('stableDependencyKey tells date range bounds apart', () => {
+    const from = new Date('2026-01-01T00:00:00Z');
+
+    expect(
+      stableDependencyKey([{ id: 'time', value: [from, new Date(1)] }])
+    ).not.toBe(
+      stableDependencyKey([{ id: 'time', value: [from, new Date(2)] }])
+    );
+  });
+
   it('cloneColumnFilters clones range filter value tuples', () => {
     const filters: MRT_ColumnFiltersState = [{ id: 'cpu', value: ['10', ''] }];
     const cloned = cloneColumnFilters(filters);
