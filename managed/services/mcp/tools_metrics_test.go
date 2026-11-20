@@ -892,6 +892,7 @@ func TestListMetricsTool(t *testing.T) {
 		assert.Contains(t, text, "mysql_global_status_* (800)")
 		assert.True(t, res.Page.Truncated, "more than 1000 came back")
 		assert.Contains(t, res.Hint, "more than 1000")
+		assert.NotContains(t, text, "pass offset", "every group is on this page")
 	})
 
 	t.Run("ThousandAndOneIsTruncated", func(t *testing.T) {
@@ -907,6 +908,11 @@ func TestListMetricsTool(t *testing.T) {
 		assert.Contains(t, res.Hint, "more than 1000")
 		assert.Contains(t, res.Hint, "narrow it with match")
 		assert.Contains(t, text, res.Hint)
+		assert.NotContains(t, text, "pass offset", "no entry follows the last page")
+
+		_, text, isError = listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000})
+		require.False(t, isError, text)
+		assert.Contains(t, text, "showing 1–1000 of 1001; pass offset=1000 for more")
 
 		fake = newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(numbered("db", 1000))}}))
 		res, text, isError = listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000})
@@ -986,6 +992,25 @@ func TestListMetricsTool(t *testing.T) {
 		for _, s := range res.Series {
 			assert.NotNil(t, s)
 		}
+	})
+
+	t.Run("SeriesTooLargeAloneCanBeSkipped", func(t *testing.T) {
+		t.Parallel()
+
+		body := []byte(`{"status":"success","data":[{"__name__":"mysql_up","a":"` + strings.Repeat("x", 20<<10) + `"},{"__name__":"mysql_up","b":"y"}]}`)
+		fake := newFakePMM(t, listRoutes(map[string]fixture{vmSeries: {body: body}}))
+		s := newQANService(t, fake, false)
+		args := map[string]any{"kind": "series", "match": []string{"mysql_up"}}
+		res, text, isError := listCall(t, s, args)
+		require.False(t, isError, text)
+		assert.Empty(t, res.Series)
+		assert.True(t, res.Page.Truncated)
+		assert.Contains(t, res.Hint, "pass offset=1 to skip it")
+
+		args["offset"] = 1
+		res, text, isError = listCall(t, s, args)
+		require.False(t, isError, text)
+		assert.Equal(t, []map[string]string{{"__name__": "mysql_up", "b": "y"}}, res.Series)
 	})
 
 	t.Run("SeriesMapsAreNeverNil", func(t *testing.T) {

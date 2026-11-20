@@ -491,7 +491,8 @@ func (r listMetricsResult) render() string {
 	for _, s := range r.Series {
 		b.WriteString(renderLabels(s) + "\n")
 	}
-	if m := r.Page.marker(); m != "" && r.Page.Limit > 0 {
+	// Truncated also stands for VictoriaMetrics' cap, so the marker shows only while entries follow this page.
+	if m := r.Page.marker(); m != "" && r.Page.Limit > 0 && r.Page.Offset+r.Page.Limit < r.Page.Total {
 		b.WriteString("\n" + m + "\n")
 	}
 	if r.Hint != "" {
@@ -801,7 +802,7 @@ func pageSeries(res listMetricsResult, series []map[string]string, offset, limit
 	res = cut(kept)
 	if kept == 0 {
 		res.Series = nil
-		res.Hint = strings.TrimSpace(res.Hint + " A series alone does not fit in 16 KiB.")
+		res.Hint = strings.TrimSpace(res.Hint + fmt.Sprintf(" The series at offset %d alone does not fit in 16 KiB: pass offset=%d to skip it.", offset, offset+1))
 	}
 	return res, nil
 }
