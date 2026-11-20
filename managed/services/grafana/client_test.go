@@ -489,7 +489,11 @@ func credentialHeaders() (map[string]http.Header, []string) {
 	}, []string{token, password, basic, cookie}
 }
 
-// newFakeGrafana answers the authentication calls as Grafana answers a Viewer, each with a rotated session cookie.
+// issuedToken is the key that newFakeGrafana returns for a new token of service account 7.
+const issuedToken = "glsa_SECRET_issued_5d6e"
+
+// newFakeGrafana answers the authentication calls as Grafana answers a Viewer, and the token calls of service account 7,
+// each with a rotated session cookie.
 func newFakeGrafana(t *testing.T, rotated string) *httptest.Server {
 	t.Helper()
 
@@ -503,6 +507,12 @@ func newFakeGrafana(t *testing.T, rotated string) *httptest.Server {
 		case "/api/user/orgs":
 			_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
 		case "/api/user/auth-tokens/rotate":
+		case "/api/serviceaccounts/7/tokens":
+			if r.Method == http.MethodPost {
+				_, _ = fmt.Fprintf(w, `{"id":3,"name":"pmm-agent-node1","key":"%s"}`, issuedToken)
+				return
+			}
+			_, _ = fmt.Fprint(w, `[]`)
 		default:
 			w.WriteHeader(http.StatusNotFound)
 		}
@@ -549,8 +559,11 @@ func TestClientTraceMasksCredentials(t *testing.T) {
 	cookies, err := c.rotateSessionToken(t.Context(), headers["Cookie"])
 	require.NoError(t, err)
 	require.NotEmpty(t, cookies)
+	_, key, err := c.createServiceToken(t.Context(), 7, "node1", headers["Basic"])
+	require.NoError(t, err)
+	require.Equal(t, issuedToken, key)
 
-	assertNoSecretsLogged(t, hook, append(secrets, rotated))
+	assertNoSecretsLogged(t, hook, append(secrets, rotated, issuedToken))
 }
 
 func TestMaskDump(t *testing.T) {
@@ -559,7 +572,7 @@ func TestMaskDump(t *testing.T) {
 	dump := "GET /api/user HTTP/1.1\r\nHost: grafana\r\nauthorization: Bearer a\r\nProxy-Authorization: Basic b\r\n" +
 		"Cookie: c=1\r\nX-Grafana-Device-Id: d\r\nX-Grafana-Org-Id: 1\r\nAccept: */*\r\n\r\nAuthorization: body"
 	want := "GET /api/user HTTP/1.1\r\nHost: grafana\r\nauthorization: [masked]\r\nProxy-Authorization: [masked]\r\n" +
-		"Cookie: [masked]\r\nX-Grafana-Device-Id: [masked]\r\nX-Grafana-Org-Id: [masked]\r\nAccept: */*\r\n\r\nAuthorization: body"
+		"Cookie: [masked]\r\nX-Grafana-Device-Id: [masked]\r\nX-Grafana-Org-Id: [masked]\r\nAccept: */*\r\n\r\n[body: 19 bytes]"
 	assert.Equal(t, want, string(maskDump([]byte(dump))))
 
 	resp := "HTTP/1.1 200 OK\r\nSet-Cookie: pmm_session=s; Path=/\r\nContent-Length: 0\r\n\r\n"
