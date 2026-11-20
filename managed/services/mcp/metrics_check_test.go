@@ -616,6 +616,9 @@ func TestCheckExprWindowRaisesOnlyTheQueryStep(t *testing.T) {
 		{expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[6d])[1h])`, span: time.Hour, step: 2 * time.Second, minStep: 631 * time.Second},
 		{expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[1d])[1h:5m])`, span: day, step: 44 * time.Second},
 		{expr: `max_over_time(quantile_over_time(0.99, x{service_name="a"}[3d])[3d])`, step: instantStep},
+		{expr: `max_over_time(rate(x{service_name="a"}[5m])[1h:])`, span: time.Hour, step: 2 * time.Second, minStep: 4 * time.Second},
+		{expr: `max_over_time(rate(x{service_name="a"}[5m])[6d23h:])`, step: instantStep},
+		{expr: `max_over_time(max_over_time(rate(x{service_name="a"}[5m])[6d:])[1h:1m])`, span: time.Hour, step: 2 * time.Second},
 	} {
 		t.Run(tc.expr, func(t *testing.T) {
 			t.Parallel()
