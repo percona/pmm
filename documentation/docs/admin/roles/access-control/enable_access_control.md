@@ -49,4 +49,4 @@ Once access control is enabled:
 - [Create access roles](../access-control/create_roles.md) for different user types.
 - [Assign the new roles](../index.md) to your PMM users.
 - Test that restrictions work as expected.
-- If your scripts read Query Analytics or metrics data with a service account token, [switch them to a user account](../../../api/authentication.md), because PMM denies service account tokens on these APIs.
+- If your scripts read Query Analytics or metrics data with a service account token, [assign its service account the access roles it needs](assign_roles.md#assign-access-roles-to-service-accounts).

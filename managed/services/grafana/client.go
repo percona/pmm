@@ -175,6 +175,10 @@ type authUser struct {
 	userID int
 }
 
+// errNoUserID marks an identity Grafana authenticated without a positive user ID, which Access Roles
+// cannot be looked up by.
+var errNoUserID = errors.New("authenticated identity has no user ID")
+
 // role defines Grafana user role within the organization
 // (except grafanaAdmin that is a global flag that is more important than any other role).
 // Role with more permissions has larger numerical value: viewer < editor, admin < grafanaAdmin, etc.
@@ -238,15 +242,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	// Check if API Key or Service Token is authorized.
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
-		role, err := c.getRoleForServiceToken(ctx, token)
-		if err != nil {
-			return emptyUser, err
-		}
-
-		return authUser{
-			role:   role,
-			userID: 0,
-		}, nil
+		return c.getServiceTokenUser(ctx, token)
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
@@ -258,6 +254,10 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 
 	id, _ := m["id"].(float64)
 	userID := int(id)
+	if userID <= 0 {
+		return emptyUser, errNoUserID
+	}
+
 	if a, _ := m["isGrafanaAdmin"].(bool); a {
 		return authUser{
 			role:   grafanaAdmin,
@@ -355,27 +355,41 @@ func (c *Client) convertRole(role string) role {
 // errServiceTokenRejected marks Grafana's answer to a service token it did not authenticate.
 var errServiceTokenRejected = errors.New("service token rejected")
 
-func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
+// getServiceTokenUser returns the role and user ID of the service account the token belongs to.
+func (c *Client) getServiceTokenUser(ctx context.Context, token string) (authUser, error) {
 	header := http.Header{}
 	header.Add("Authorization", "Bearer "+token)
 
-	var k map[string]any
-	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k)
+	var sa struct {
+		ID    int    `json:"id"`
+		OrgID int    `json:"orgId"`
+		Role  string `json:"role"`
+	}
+	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &sa)
 	if err != nil {
 		// The route has no sign-in middleware, so a token Grafana rejects gets 400 rather than 401, see PMM-15692.
 		cErr, ok := errors.AsType[*clientError](err)
 		if ok && cErr.Code == http.StatusBadRequest {
-			return none, fmt.Errorf("%w: %w", errServiceTokenRejected, err)
+			return emptyUser, fmt.Errorf("%w: %w", errServiceTokenRejected, err)
 		}
-		return none, err
+		return emptyUser, err
 	}
 
-	if id, _ := k["orgId"].(float64); id != 1 {
-		return none, nil
+	if sa.ID <= 0 {
+		return emptyUser, errNoUserID
 	}
 
-	role, _ := k["role"].(string)
-	return c.convertRole(role), nil
+	if sa.OrgID != 1 {
+		return authUser{
+			role:   none,
+			userID: sa.ID,
+		}, nil
+	}
+
+	return authUser{
+		role:   c.convertRole(sa.Role),
+		userID: sa.ID,
+	}, nil
 }
 
 type serviceAccountSearch struct {

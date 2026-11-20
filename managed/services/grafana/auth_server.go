@@ -224,20 +224,16 @@ type authError struct {
 	message string
 }
 
-// ErrInvalidUserID is returned when user ID is not valid.
-var ErrInvalidUserID = errors.New("InvalidUserID")
-
-// ErrCannotGetUserID is returned when we cannot retrieve user ID.
-var ErrCannotGetUserID = errors.New("CannotGetUserID")
+// Error implements error interface.
+func (e *authError) Error() string {
+	return fmt.Sprintf("%s: %s", e.code, e.message)
+}
 
 // errDotDotSegment is returned for a path that has a ".." segment once unescaped.
 var errDotDotSegment = errors.New("dot-dot segment in path")
 
 // errFiltersDropped is returned for a filtered user on a route that cannot carry the filters.
 var errFiltersDropped = errors.New("route drops LBAC filters")
-
-// errNotAuthenticated is returned when Grafana does not authenticate the caller of a filtered route.
-var errNotAuthenticated = errors.New("caller not authenticated")
 
 // cacheItem holds a cached authentication outcome: either the resolved user
 // or, for definitive rejections, the authentication error.
@@ -357,29 +353,20 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var userID int
-	if authUser != nil {
-		userID = authUser.userID
-	}
-
 	if authUser != nil && authUser.role >= admin {
 		rw.Header().Set(adminHeaderName, adminHeaderValue)
 	}
 
-	errF := s.maybeAddLBACFilters(ctx, rw, req, cleanedPath, userID, l)
+	errF := s.maybeAddLBACFilters(ctx, rw, req, cleanedPath, authUser, l)
 	if errors.Is(errF, errFiltersDropped) {
 		l.Warn("Refusing a filtered user a route that would serve them unfiltered.")
 		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
 		return
 	}
-	// A 401, not a 403: an expired session lands here too, and clients refresh a session on 401.
-	if errors.Is(errF, errNotAuthenticated) {
-		s.returnAuthError(rw, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, l)
-		return
-	}
-	if errors.Is(errF, ErrInvalidUserID) {
-		l.Warn("Refusing a filtered route to a caller without a user ID, such as a service account token.")
-		s.returnAuthError(rw, &authError{code: codes.PermissionDenied, message: "Access denied"}, l)
+	// The user could not be resolved or has no user ID; the cause is logged where it was found.
+	lbacAuthErr, ok := errors.AsType[*authError](errF)
+	if ok {
+		s.returnAuthError(rw, lbacAuthErr, l)
 		return
 	}
 	if errF != nil {
@@ -426,34 +413,30 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, status int, msg map[str
 // maybeAddLBACFilters adds extra filters to requests proxied through VMProxy.
 // In case the request is not proxied through VMProxy, this is a no-op.
 // Matching happens on cleanedPath, the unescaped path the caller authenticated.
-func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, cleanedPath string, userID int, l *logrus.Entry) error {
+func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, cleanedPath string, user *authUser, l *logrus.Entry) error {
 	if !s.shallAddLBACFilters(cleanedPath) {
 		l.Debugf("Skipping LBAC filters for non-proxied request.")
 		return nil
 	}
 
-	if userID == 0 {
+	if user == nil {
 		l.Debugf("Getting authenticated user info")
-		authUser, _, err := s.getAuthUser(ctx, req, l)
-		if err != nil {
-			if err.code == codes.Unauthenticated {
-				return errNotAuthenticated
-			}
-			return ErrCannotGetUserID
+		var authErr *authError
+		user, _, authErr = s.getAuthUser(ctx, req, l)
+		if authErr != nil && authErr.code != codes.Unauthenticated {
+			return &authError{code: codes.Internal, message: "Internal server error."}
 		}
-
-		if authUser == nil {
-			return fmt.Errorf("%w: user is empty", ErrCannotGetUserID)
+		if authErr != nil {
+			return authErr
 		}
-
-		userID = authUser.userID
 	}
 
-	if userID <= 0 {
-		return ErrInvalidUserID
+	if user.userID <= 0 {
+		l.Warn("Refusing an authenticated identity without a user ID: Access Roles cannot apply to it.")
+		return &authError{code: codes.Unauthenticated, message: "Unauthorized"}
 	}
 
-	filters, err := s.getLBACFilters(ctx, userID)
+	filters, err := s.getLBACFilters(ctx, user.userID)
 	if err != nil {
 		return err
 	}
@@ -786,6 +769,9 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	}
 
 	l.Warnf("%s", err)
+	if errors.Is(err, errNoUserID) {
+		return nil, nil, &authError{code: codes.Unauthenticated, message: "Unauthorized"}
+	}
 	cErr, ok := errors.AsType[*clientError](err)
 	if !ok {
 		return nil, nil, &authError{code: codes.Internal, message: "Internal server error."}
