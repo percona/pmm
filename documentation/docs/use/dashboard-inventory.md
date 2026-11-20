@@ -75,7 +75,7 @@ To check the agents:
 
     ![PMM Inventory agents of a node](../images/PMM_Inventory_Node_Agents.png)
 
-2. Check the **Status** of each agent. **Running** and **Starting** are fine. For the other values, [find out what the agent status means](#agent-status).
+2. Check the **Status** of each agent. **Running** and **Starting** are fine, and so is **Done** for an agent that is disabled by design. For the other values, [find out what the agent status means](#agent-status).
 3. To see the configuration of an agent, click :material-chevron-down: at the start of its row. The **Properties** section lists the labels and the options of the agent.
 4. To return to the inventory, click **Go back to services** or **Go back to nodes**.
 
@@ -137,7 +137,7 @@ To export services:
 2. To export only some services, search or filter the table, or select the checkboxes of the services to export.
 3. Click **Export**. PMM downloads the file as `inventory_services_export_{timestamp}.csv`.
 
-If you select services, the file contains only the selected services that match the search and filters. Otherwise, it contains every service that matches the search and filters, in the order of the table. This includes the services on other pages and in collapsed clusters. If no service matches, **Export** is disabled.
+If you select services, the file contains only the selected services that match the search and filters. If you select no services, or none of the selected services match, the file contains every service that matches the search and filters, in the order of the table. This includes the services on other pages and in collapsed clusters. If no service matches, **Export** is disabled.
 
 ### Exported columns
 
