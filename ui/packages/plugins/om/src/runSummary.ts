@@ -15,7 +15,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { bootstrapRunDisplayStatus, isHostRollingBack } from './api';
+import {
+  bootstrapRunDisplayStatus,
+  isConfirmingMonitoring,
+  isHostRollingBack,
+} from './api';
 import { bootstrapStepLabel } from './constants';
 import { formatRunElapsed, pluralize } from './format';
 import type { OmBootstrapStep, OmGetBootstrapRunResponse } from './types';
@@ -215,7 +219,7 @@ export function runSummaryLine(
   // can keep the run going, and nothing on the wire says when that ends. The clock
   // stops at finished_at so it never runs backwards once confirmation lands, and
   // the confirming window shows no time rather than a stopped "running for".
-  const confirming = status === 'running' && Boolean(run.finished_at);
+  const confirming = isConfirmingMonitoring(run);
   const elapsed =
     now === null || confirming
       ? ''

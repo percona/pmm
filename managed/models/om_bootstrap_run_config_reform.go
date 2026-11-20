@@ -33,6 +33,7 @@ func (v *omBootstrapRunConfigTableType) Columns() []string {
 		"cluster",
 		"created_at",
 		"registered_at",
+		"registration_errors",
 	}
 }
 
@@ -62,6 +63,7 @@ var OmBootstrapRunConfigTable = &omBootstrapRunConfigTableType{
 			{Name: "Cluster", Type: "string", Column: "cluster"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "RegisteredAt", Type: "*time.Time", Column: "registered_at"},
+			{Name: "RegistrationErrors", Type: "OmRegistrationErrors", Column: "registration_errors"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -70,12 +72,13 @@ var OmBootstrapRunConfigTable = &omBootstrapRunConfigTableType{
 
 // String returns a string representation of this struct or record.
 func (s OmBootstrapRunConfig) String() string {
-	res := make([]string, 5)
+	res := make([]string, 6)
 	res[0] = "RunID: " + reform.Inspect(s.RunID, true)
 	res[1] = "Environment: " + reform.Inspect(s.Environment, true)
 	res[2] = "Cluster: " + reform.Inspect(s.Cluster, true)
 	res[3] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	res[4] = "RegisteredAt: " + reform.Inspect(s.RegisteredAt, true)
+	res[5] = "RegistrationErrors: " + reform.Inspect(s.RegistrationErrors, true)
 	return strings.Join(res, ", ")
 }
 
@@ -88,6 +91,7 @@ func (s *OmBootstrapRunConfig) Values() []interface{} {
 		s.Cluster,
 		s.CreatedAt,
 		s.RegisteredAt,
+		s.RegistrationErrors,
 	}
 }
 
@@ -100,6 +104,7 @@ func (s *OmBootstrapRunConfig) Pointers() []interface{} {
 		&s.Cluster,
 		&s.CreatedAt,
 		&s.RegisteredAt,
+		&s.RegistrationErrors,
 	}
 }
 

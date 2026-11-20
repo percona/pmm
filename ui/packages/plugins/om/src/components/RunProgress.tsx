@@ -59,6 +59,7 @@ import {
 import {
   bootstrapRunDisplayStatus,
   canCancelBootstrapRun,
+  isConfirmingMonitoring,
   isHostRollingBack,
 } from '../api';
 import { formatRunElapsed } from '../format';
@@ -70,6 +71,7 @@ import { AdminAction } from './AdminAction';
 import { useNow } from '../useNow';
 import { SecurityPosture } from './SecurityPosture';
 import { OmError } from './OmError';
+import { Messages } from './RunProgress.messages';
 
 /**
  * A run's progress, as the Automations page's expanded run row shows it.
@@ -88,7 +90,7 @@ import { OmError } from './OmError';
 /** One step's icon: grey for not-yet/skipped, spinner while running, green/red on a terminal outcome. */
 const StepStatusIcon = ({ step }: { step: OmBootstrapStep }) => {
   const label = `${bootstrapStepLabel(step.name)}: ${BOOTSTRAP_STEP_LABEL[step.status] ?? step.status}${
-    step.attempt_count > 1 ? ` (attempt ${step.attempt_count})` : ''
+    step.attempt_count > 1 ? ` ${Messages.attempt(step.attempt_count)}` : ''
   }${step.detail ? ` — ${step.detail}` : ''}`;
   return (
     <Tooltip title={label}>
@@ -199,7 +201,7 @@ const StepMatrix = ({
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Step</TableCell>
+            <TableCell>{Messages.step}</TableCell>
             {run.hosts.map((host) => (
               <TableCell key={host.host} align="center">
                 {nodeName(host.host)}
@@ -214,7 +216,7 @@ const StepMatrix = ({
                 <Stack direction="row" spacing={1} alignItems="center">
                   <CircularProgress size={16} />
                   <Typography variant="body2" color="text.secondary">
-                    Starting…
+                    {Messages.starting}
                   </Typography>
                 </Stack>
               </TableCell>
@@ -270,7 +272,7 @@ const StepMatrix = ({
                   color="warning.main"
                   fontWeight="bold"
                 >
-                  Rollback
+                  {Messages.rollback}
                 </Typography>
               </TableCell>
             </TableRow>
@@ -324,63 +326,58 @@ const AbortButton = ({ run }: { run: OmGetBootstrapRunResponse }) => {
   const [confirming, setConfirming] = useState(false);
   const cancelRun = useCancelBootstrapRun();
   const { canMutate } = useAuth();
-  if (!canCancelBootstrapRun(run)) {
+  const finished = isConfirmingMonitoring(run);
+  if (!finished && !canCancelBootstrapRun(run)) {
     return null;
   }
   return (
     <>
-      <AdminAction>
+      <AdminAction title={finished ? Messages.abortFinished : undefined}>
         <Button
           color="error"
           size="small"
           variant="outlined"
+          disabled={finished}
           onClick={() => setConfirming(true)}
         >
-          Abort
+          {Messages.abort}
         </Button>
       </AdminAction>
       <Dialog
-        open={confirming && canMutate}
+        open={confirming && canMutate && !finished}
         onClose={() => setConfirming(false)}
         maxWidth="sm"
       >
-        <DialogTitle>Abort this deployment?</DialogTitle>
+        <DialogTitle>{Messages.abortTitle}</DialogTitle>
         <DialogContent>
           <DialogContentText component="div">
-            <p>
-              This stops run {run.run_id} and rolls back every node in it -
-              packages, configuration, and data directories this run has already
-              written are removed. Nodes that had already finished successfully
-              are rolled back too, since a partial replica set is not a state to
-              leave running.
-            </p>
-            <p>This cannot be undone.</p>
+            <p>{Messages.abortBody(run.run_id)}</p>
+            <p>{Messages.abortIrreversible}</p>
           </DialogContentText>
           {cancelRun.isError && (
             <Box sx={{ mt: 1 }}>
               <OmError
                 placement="action"
-                title="Could not abort the install"
+                title={Messages.abortFailed}
                 messages={cancelRun.error.message}
               />
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirming(false)}>Cancel</Button>
+          <Button onClick={() => setConfirming(false)}>
+            {Messages.cancel}
+          </Button>
           <Button
             color="error"
             disabled={cancelRun.isPending}
             onClick={async () => {
               await cancelRun.mutateAsync(run.run_id);
-              enqueueSnackbar(
-                'Abort requested - rolling back once the current step stops.',
-                { variant: 'success' }
-              );
+              enqueueSnackbar(Messages.abortRequested, { variant: 'success' });
               setConfirming(false);
             }}
           >
-            Abort
+            {Messages.abort}
           </Button>
         </DialogActions>
       </Dialog>
@@ -394,12 +391,12 @@ const RunId = ({ runId }: { runId: string }) => {
   return (
     <Stack direction="row" spacing={0.5} alignItems="center">
       <Typography variant="caption" color="text.secondary">
-        Run {runId}
+        {Messages.runId(runId)}
       </Typography>
-      <Tooltip title={copied ? 'Copied' : 'Copy run ID'}>
+      <Tooltip title={copied ? Messages.copied : Messages.copyRunId}>
         <IconButton
           size="small"
-          aria-label="Copy run ID"
+          aria-label={Messages.copyRunId}
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(runId);
@@ -448,17 +445,23 @@ const CompletionCard = ({
   const omBase = useOmBase();
   const took = formatRunElapsed(run.started_at, run.finished_at);
   return (
-    <Paper variant="outlined" sx={{ p: 2 }} aria-label="Install summary">
+    <Paper
+      variant="outlined"
+      sx={{ p: 2 }}
+      aria-label={Messages.installSummary}
+    >
       <Stack spacing={2}>
         <Stack direction="row" spacing={1} alignItems="center">
           <CheckCircleIcon color="success" />
           <Typography variant="subtitle1" component="h3">
-            Replica set {run.replica_set_name} is installed
+            {Messages.installed(run.replica_set_name)}
           </Typography>
         </Stack>
         <Stack spacing={0.5}>
-          <Fact label="MongoDB version">{run.mongodb_version || '—'}</Fact>
-          <Fact label="Members">
+          <Fact label={Messages.mongodbVersion}>
+            {run.mongodb_version || '—'}
+          </Fact>
+          <Fact label={Messages.members}>
             {run.hosts.map((host, index) => {
               const name = nodeName(host.host);
               return (
@@ -475,12 +478,12 @@ const CompletionCard = ({
             })}
           </Fact>
           {run.environment && (
-            <Fact label="Environment">{run.environment}</Fact>
+            <Fact label={Messages.environment}>{run.environment}</Fact>
           )}
-          {run.cluster && <Fact label="Cluster">{run.cluster}</Fact>}
-          {took && <Fact label="Took">{took}</Fact>}
+          {run.cluster && <Fact label={Messages.cluster}>{run.cluster}</Fact>}
+          {took && <Fact label={Messages.took}>{took}</Fact>}
         </Stack>
-        <SecurityPosture title="Security settings still in place" />
+        <SecurityPosture title={Messages.securityInPlace} />
         <Stack direction="row" spacing={1}>
           <Button
             component={RouterLink}
@@ -488,7 +491,7 @@ const CompletionCard = ({
             variant="outlined"
             size="small"
           >
-            View in Fleet
+            {Messages.viewInFleet}
           </Button>
           <Button
             component={RouterLink}
@@ -496,7 +499,7 @@ const CompletionCard = ({
             variant="outlined"
             size="small"
           >
-            View nodes
+            {Messages.viewNodes}
           </Button>
         </Stack>
       </Stack>
@@ -533,6 +536,9 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
     run.hosts.every((host) =>
       host.rollback_steps.every((step) => step.status === 'skipped')
     );
+  const rollbackFailed = run.hosts.some((host) =>
+    host.rollback_steps.some((step) => step.status === 'failed')
+  );
   const labels = [run.environment, run.cluster].filter(Boolean).join(' / ');
   const detailsId = `run-${run.run_id}-steps`;
 
@@ -568,7 +574,7 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
       {run.error && <OmError placement="item" messages={run.error} />}
       {status === 'running' && run.cancel_requested && !rollingBack && (
         <Typography variant="body2" color="warning.main">
-          Abort requested - rolling back once the current step stops.
+          {Messages.abortRequested}
         </Typography>
       )}
       {/* rollback_steps keep their outcomes once the run ends, so rollingBack alone
@@ -576,10 +582,12 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
       {rollingBack && (
         <Typography variant="body2" color="warning.main">
           {status === 'running'
-            ? 'Rolling back every node.'
-            : nothingRolledBack
-              ? 'Nothing had been installed, so there was nothing to roll back.'
-              : 'Every node was rolled back.'}
+            ? Messages.rollingBack
+            : rollbackFailed
+              ? Messages.rollbackFailed
+              : nothingRolledBack
+                ? Messages.nothingRolledBack
+                : Messages.rolledBack}
         </Typography>
       )}
       {status === 'succeeded' && (
@@ -592,7 +600,7 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
           aria-controls={detailsId}
           onClick={() => setShowDetails((open) => !open)}
         >
-          {showDetails ? 'Hide step details' : 'Show step details'}
+          {showDetails ? Messages.hideDetails : Messages.showDetails}
         </Button>
         {showDetails && (
           <Box id={detailsId} sx={{ mt: 1 }}>
