@@ -8,9 +8,11 @@ position: 3
 
 ## MCP endpoint
 
+The MCP endpoint is in Technical Preview and is subject to change.
+
 PMM Server exposes a [Model Context Protocol](https://modelcontextprotocol.io) (MCP) endpoint at `/mcp` (Streamable HTTP) so that AI assistants such as Claude Code or Cursor can triage slow queries with PMM data. The endpoint is read-only and authenticates with the same [service account tokens](authentication.md) as the REST API; every tool call is executed through the REST API with the caller's token, so the token's role applies unchanged.
 
-Tools: `pmm_version`, `pmm_inventory`, `pmm_top_queries`, `pmm_query_detail`, `pmm_get_explain`, `pmm_get_schema`, `pmm_get_config`. A Viewer token is sufficient for all of them.
+Tools: `pmm_version`, `pmm_inventory`, `pmm_catalog`, `pmm_top_queries`, `pmm_query_detail`, `pmm_get_explain`, `pmm_get_schema`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_alerts`. With access control off, a Viewer token is sufficient for all of them. With access control on, PMM refuses service account tokens on the Query Analytics and metrics APIs, so every tool except `pmm_version` and `pmm_catalog` needs the credentials of a PMM user, sent as Basic authentication.
 
 Register the endpoint in Claude Code:
 
