@@ -25,6 +25,8 @@ export interface ManagedNode {
   status: ServiceStatus;
   customLabels: Record<string, string>;
   isPmmServerNode: boolean;
+  // Provisioned by a PMM deployment for itself, e.g. an HA PMM Client pod
+  isPmmProtectedNode: boolean;
   agents: ManagedAgent[];
   services: NodeService[];
   // The node's other scalar attributes, keyed as the API names them

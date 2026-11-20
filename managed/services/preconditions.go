@@ -17,13 +17,84 @@ package services
 
 import (
 	"fmt"
+	"slices"
+	"strings"
 
+	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
 )
+
+// AgentConnectionChecker reports whether a pmm-agent is connected to PMM Server.
+type AgentConnectionChecker interface {
+	IsConnected(pmmAgentID string) bool
+}
+
+// IsNodeProtected reports whether users cannot remove a Node which this PMM deployment provisioned for
+// itself, such as the PMM Client pods the HA Helm chart runs as monitoring delegates, recognized by the
+// name prefixes it reserves for them. Removing one strands the pod: its pmm-agent keeps running with an
+// ID PMM Server no longer knows, and every Service configured on the Node goes with it.
+//
+// A Node whose pmm-agent is not connected is not protected, which is what a scale-down leaves behind.
+func IsNodeProtected(q *reform.Querier, cc AgentConnectionChecker, node *models.Node, protectedPrefixes []string) (bool, error) {
+	protected := slices.ContainsFunc(protectedPrefixes, func(prefix string) bool {
+		return strings.HasPrefix(node.NodeName, prefix)
+	})
+	if !protected {
+		return false, nil
+	}
+
+	agents, err := models.FindPMMAgentsRunningOnNode(q, node.NodeID)
+	if err != nil {
+		return false, fmt.Errorf("failed to find pmm-agent on node %s: %w", node.NodeID, err)
+	}
+
+	return slices.ContainsFunc(agents, func(a *models.Agent) bool {
+		return cc.IsConnected(a.AgentID)
+	}), nil
+}
+
+// CheckPMMAgentRemovable rejects the removal of a pmm-agent running on a Node which IsNodeProtected
+// reports: that strands the pod just like removing the Node, and leaves the Node unprotected.
+func CheckPMMAgentRemovable(q *reform.Querier, cc AgentConnectionChecker, agent *models.Agent, protectedPrefixes []string) error {
+	if agent.AgentType != models.PMMAgentType || len(protectedPrefixes) == 0 {
+		return nil
+	}
+
+	node, err := models.FindNodeByID(q, pointer.GetString(agent.RunsOnNodeID))
+	if err != nil {
+		return err
+	}
+	protected, err := IsNodeProtected(q, cc, node, protectedPrefixes)
+	if err != nil {
+		return err
+	}
+	if !protected {
+		return nil
+	}
+
+	return status.Errorf(codes.FailedPrecondition,
+		"pmm-agent runs on Node '%s', which is managed by this PMM deployment, and cannot be removed while it is connected. "+
+			"Scale the deployment down to remove it.", node.NodeName)
+}
+
+// CheckNodeRemovable rejects the removal of a Node which IsNodeProtected reports.
+func CheckNodeRemovable(q *reform.Querier, cc AgentConnectionChecker, node *models.Node, protectedPrefixes []string) error {
+	protected, err := IsNodeProtected(q, cc, node, protectedPrefixes)
+	if err != nil {
+		return err
+	}
+	if !protected {
+		return nil
+	}
+
+	return status.Errorf(codes.FailedPrecondition,
+		"Node '%s' is managed by this PMM deployment and cannot be removed while its pmm-agent is connected. "+
+			"Scale the deployment down to remove it.", node.NodeName)
+}
 
 // CheckMongoDBBackupPreconditions checks compatibility of different types of scheduled backups and on-demand backups for MongoDB.
 //

@@ -96,7 +96,7 @@ func TestNodeService(t *testing.T) {
 				vmClient.AssertExpectations(t)
 			}
 
-			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient, nil, false)
+			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient, nil, nil, false)
 
 			return ctx, s, teardown
 		}
@@ -264,6 +264,73 @@ func TestNodeService(t *testing.T) {
 			_, err = models.FindNodeByName(s.db.Querier, nodeName)
 			tests.AssertGRPCError(t, status.Newf(codes.NotFound, "Node with name %q not found.", nodeName), err)
 		})
+
+		t.Run("Unregister-protected", func(t *testing.T) {
+			const nodeName = "pmm-pmm-ha-client-0"
+			s.protectedNodePrefixes = []string{"pmm-pmm-ha-client-"}
+			defer func() { s.protectedNodePrefixes = nil }()
+
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, false).Return(0, "test-token", nil).Once()
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, true).Return(0, "test-token", nil).Once()
+			s.grafanaClient = authProvider
+			defer authProvider.AssertExpectations(t)
+
+			resRegister, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE,
+				NodeName: nodeName,
+				Address:  "10.1.2.3",
+				Region:   "region-1",
+			})
+			require.NoError(t, err)
+			nodeID := resRegister.ContainerNode.NodeId
+
+			r := &mockAgentsRegistry{}
+			r.Test(t)
+			r.On("IsConnected", resRegister.PmmAgent.AgentId).Return(true)
+			s.r = r
+			defer r.AssertExpectations(t)
+
+			res, err := s.UnregisterNode(ctx, &managementv1.UnregisterNodeRequest{NodeId: nodeID, Force: true})
+			assert.Nil(t, res)
+			tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Node '"+nodeName+"' is managed by this PMM deployment "+
+				"and cannot be removed while its pmm-agent is connected. Scale the deployment down to remove it."), err)
+
+			_, err = models.FindNodeByID(s.db.Querier, nodeID)
+			require.NoError(t, err)
+
+			// A forced registration replaces the Node, found by name or by address, so a live one is kept.
+			for _, name := range []string{nodeName, "other-node"} {
+				_, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+					NodeType:   inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE,
+					NodeName:   name,
+					Address:    "10.1.2.3",
+					Region:     "region-1",
+					Reregister: true,
+				})
+				assert.Equal(t, codes.FailedPrecondition, status.Code(err), name)
+			}
+			_, err = models.FindNodeByID(s.db.Querier, nodeID)
+			require.NoError(t, err)
+
+			// That is how the chart recovers a pod which lost its volume: the pod registers again once
+			// its previous pmm-agent is gone.
+			disconnected := &mockAgentsRegistry{}
+			disconnected.Test(t)
+			disconnected.On("IsConnected", resRegister.PmmAgent.AgentId).Return(false)
+			s.r = disconnected
+			defer disconnected.AssertExpectations(t)
+
+			_, err = s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType:   inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE,
+				NodeName:   nodeName,
+				Address:    "10.1.2.3",
+				Region:     "region-1",
+				Reregister: true,
+			})
+			require.NoError(t, err)
+		})
 	})
 
 	t.Run("ListNodes", func(t *testing.T) {
@@ -307,7 +374,7 @@ func TestNodeService(t *testing.T) {
 			grafanaClient := &mockGrafanaClient{}
 			grafanaClient.Test(t)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, nil, false)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -584,7 +651,7 @@ func TestNodeService(t *testing.T) {
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, nil, false)
 
 			teardown := func(t *testing.T) {
 				t.Helper()

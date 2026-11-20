@@ -93,6 +93,8 @@ export interface NodePayload {
   status: ServiceStatus;
   custom_labels?: Record<string, string>;
   is_pmm_server_node: boolean;
+  // Missing from PMM Servers that predate it
+  is_pmm_protected_node?: boolean;
   agents?: AgentPayload[];
   services?: {
     service_id: string;
@@ -287,6 +289,7 @@ export const toManagedNode = (payload: NodePayload): ManagedNode => ({
   status: payload.status,
   customLabels: payload.custom_labels ?? {},
   isPmmServerNode: payload.is_pmm_server_node,
+  isPmmProtectedNode: payload.is_pmm_protected_node ?? false,
   agents: (payload.agents ?? []).map(toManagedAgent),
   services: (payload.services ?? []).map((service) => ({
     serviceId: service.service_id,
