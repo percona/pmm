@@ -34051,6 +34051,83 @@
         }
       }
     },
+    "/v1/om/inventory/replicaSetNames:check": {
+      "get": {
+        "description": "Says why an install could not use a replica set name in an environment and cluster: a registered MongoDB service, or an install that is running or finished but not registered yet, already uses it there. An empty cluster stands for the replica set name.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Check a replica set name",
+        "operationId": "CheckReplicaSetName",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The environment label the install would carry; empty for none.",
+            "name": "environment",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "The cluster label the install would carry; empty stands for the replica\nset name, as the Fleet page groups services without one.",
+            "name": "cluster",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "The replica set name, by TriggerHostBootstrapRequest.replica_set_name's rules.",
+            "name": "replica_set_name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "in_use": {
+                  "description": "Why TriggerHostBootstrap would refuse the name, or unset when it would not.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/om/inventory/runs": {
       "get": {
         "description": "Returns the inventory app's refresh history, newest first. Distinct from /v1/om/topology/runs, which is PMM's own collection pass and never probes a host.",

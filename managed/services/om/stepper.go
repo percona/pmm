@@ -87,7 +87,7 @@ func (s *Service) stepBootstrapRuns(ctx context.Context) {
 	}
 
 	for _, runStatus := range [...]string{bootstrapRunRunning, bootstrapRunSucceeded} {
-		runs, err := s.bootstrap.listRuns(ctx, runStatus, 0)
+		runs, err := s.bootstrap.listRuns(ctx, runStatus, "", 0)
 		if err != nil {
 			s.l.Warnf("failed to list %s bootstrap runs: %s", runStatus, err)
 			continue

@@ -123,7 +123,7 @@ describe('AutomationsPage header', () => {
     }
   );
 
-  it('opens Nodes filtered to the nodes with nothing monitored on them', () => {
+  it('opens Nodes filtered to the nodes an install can target', () => {
     render(
       <MemoryRouter initialEntries={['/operations/automations']}>
         <Routes>
@@ -136,7 +136,7 @@ describe('AutomationsPage header', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Install MongoDB' }));
 
     expect(screen.getByTestId('location')).toHaveTextContent(
-      '/operations/nodes?filter=unmonitored'
+      '/operations/nodes?filter=ready'
     );
   });
 

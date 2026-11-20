@@ -109,14 +109,15 @@ const HIDDEN_BY_DEFAULT = {
  * `all` is the default: a filter that hides rows by default reads as data loss the
  * first time it hides something a reader expected to see, which is exactly what
  * happened here in review — a host that already had a database on it vanished
- * under the old `available`-by-default and looked like a sync bug. `unmonitored`
- * and `monitored` are still one click away, for the two narrower questions
- * ("where could I install something" / "what is PMM already watching") — they
- * just no longer answer themselves on page load.
+ * under the old `available`-by-default and looked like a sync bug. The narrower
+ * questions are still one click away: `ready` is "where can I install", and what
+ * Install MongoDB on Automations opens; `unmonitored` and `monitored` are "what has
+ * no MongoDB service" and "what is PMM already watching".
  */
-type HostFilter = 'unmonitored' | 'monitored' | 'failing' | 'all';
+type HostFilter = 'ready' | 'unmonitored' | 'monitored' | 'failing' | 'all';
 
 const HOST_FILTERS: { id: HostFilter; label: string }[] = [
+  { id: 'ready', label: 'Ready to install' },
   { id: 'unmonitored', label: 'Not monitored' },
   { id: 'monitored', label: 'Monitored' },
   { id: 'all', label: 'All' },
@@ -127,7 +128,10 @@ const HOST_FILTERS: { id: HostFilter; label: string }[] = [
  * `failing` is not a chip but is a filter all the same, so it is accepted too.
  */
 function parseHostFilter(value: string | null): HostFilter {
-  return value === 'unmonitored' || value === 'monitored' || value === 'failing'
+  return value === 'ready' ||
+    value === 'unmonitored' ||
+    value === 'monitored' ||
+    value === 'failing'
     ? value
     : 'all';
 }
@@ -151,6 +155,9 @@ function matchesHostFilter(row: OmHostRow, filter: HostFilter): boolean {
   }
   if (filter === 'failing') {
     return countsAsFailing(row);
+  }
+  if (filter === 'ready') {
+    return row.automation_eligible;
   }
   const monitored = row.database_state === 'has_service';
   return filter === 'monitored' ? monitored : !monitored;

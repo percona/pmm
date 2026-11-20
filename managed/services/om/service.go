@@ -92,6 +92,9 @@ type Service struct {
 	// guarded by syncMu.
 	writeOwed bool
 
+	// triggerMu makes a trigger's replica set name check and the run it starts one step.
+	triggerMu sync.Mutex
+
 	mu     sync.Mutex
 	latest *omv1.GetTopologyResponse
 

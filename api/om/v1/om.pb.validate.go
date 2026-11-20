@@ -7107,6 +7107,243 @@ var _ interface {
 	ErrorName() string
 } = TriggerHostBootstrapResponseValidationError{}
 
+// Validate checks the field values on CheckReplicaSetNameRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CheckReplicaSetNameRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CheckReplicaSetNameRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CheckReplicaSetNameRequestMultiError, or nil if none found.
+func (m *CheckReplicaSetNameRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CheckReplicaSetNameRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Environment
+
+	// no validation rules for Cluster
+
+	if l := utf8.RuneCountInString(m.GetReplicaSetName()); l < 1 || l > 64 {
+		err := CheckReplicaSetNameRequestValidationError{
+			field:  "ReplicaSetName",
+			reason: "value length must be between 1 and 64 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if !_CheckReplicaSetNameRequest_ReplicaSetName_Pattern.MatchString(m.GetReplicaSetName()) {
+		err := CheckReplicaSetNameRequestValidationError{
+			field:  "ReplicaSetName",
+			reason: "value does not match regex pattern \"^[A-Za-z0-9_-]+$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return CheckReplicaSetNameRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// CheckReplicaSetNameRequestMultiError is an error wrapping multiple
+// validation errors returned by CheckReplicaSetNameRequest.ValidateAll() if
+// the designated constraints aren't met.
+type CheckReplicaSetNameRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CheckReplicaSetNameRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CheckReplicaSetNameRequestMultiError) AllErrors() []error { return m }
+
+// CheckReplicaSetNameRequestValidationError is the validation error returned
+// by CheckReplicaSetNameRequest.Validate if the designated constraints aren't met.
+type CheckReplicaSetNameRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CheckReplicaSetNameRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CheckReplicaSetNameRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CheckReplicaSetNameRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CheckReplicaSetNameRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CheckReplicaSetNameRequestValidationError) ErrorName() string {
+	return "CheckReplicaSetNameRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CheckReplicaSetNameRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCheckReplicaSetNameRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CheckReplicaSetNameRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CheckReplicaSetNameRequestValidationError{}
+
+var _CheckReplicaSetNameRequest_ReplicaSetName_Pattern = regexp.MustCompile("^[A-Za-z0-9_-]+$")
+
+// Validate checks the field values on CheckReplicaSetNameResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CheckReplicaSetNameResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CheckReplicaSetNameResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CheckReplicaSetNameResponseMultiError, or nil if none found.
+func (m *CheckReplicaSetNameResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CheckReplicaSetNameResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.InUse != nil {
+		// no validation rules for InUse
+	}
+
+	if len(errors) > 0 {
+		return CheckReplicaSetNameResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// CheckReplicaSetNameResponseMultiError is an error wrapping multiple
+// validation errors returned by CheckReplicaSetNameResponse.ValidateAll() if
+// the designated constraints aren't met.
+type CheckReplicaSetNameResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CheckReplicaSetNameResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CheckReplicaSetNameResponseMultiError) AllErrors() []error { return m }
+
+// CheckReplicaSetNameResponseValidationError is the validation error returned
+// by CheckReplicaSetNameResponse.Validate if the designated constraints
+// aren't met.
+type CheckReplicaSetNameResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CheckReplicaSetNameResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CheckReplicaSetNameResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CheckReplicaSetNameResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CheckReplicaSetNameResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CheckReplicaSetNameResponseValidationError) ErrorName() string {
+	return "CheckReplicaSetNameResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CheckReplicaSetNameResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCheckReplicaSetNameResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CheckReplicaSetNameResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CheckReplicaSetNameResponseValidationError{}
+
 // Validate checks the field values on BootstrapStep with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.

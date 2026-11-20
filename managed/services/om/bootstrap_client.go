@@ -136,13 +136,16 @@ type bootstrapClient struct {
 }
 
 // listRuns returns runs newest first. A zero limit keeps PMM Extensions' default.
-func (c *bootstrapClient) listRuns(ctx context.Context, runStatus string, limit int) ([]extensionsBootstrapRun, error) {
+func (c *bootstrapClient) listRuns(ctx context.Context, runStatus, replicaSetName string, limit int) ([]extensionsBootstrapRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
 	defer cancel()
 
 	query := url.Values{}
 	if runStatus != "" {
 		query.Set("status", runStatus)
+	}
+	if replicaSetName != "" {
+		query.Set("replica_set_name", replicaSetName)
 	}
 	if limit > 0 {
 		query.Set("limit", strconv.Itoa(limit))

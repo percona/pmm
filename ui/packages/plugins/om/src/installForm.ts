@@ -53,6 +53,10 @@ export interface ConfigureFormState {
   adminUsername: string;
   /** The typed password and its confirmation, or null when PMM generates one. */
   adminPassword: { value: string; confirmation: string } | null;
+  /** Why the replica set name cannot be used yet, from PMM's check of it, or null when PMM accepts it. */
+  replicaSetNameProblem: string | null;
+  /** Nodes the last scan found short of space at the data path, as "db-01 (1.2 GiB)". */
+  lowDiskHosts: string[];
 }
 
 /** The MongoDB versions every node's OS release supports, oldest first. */
@@ -148,6 +152,8 @@ export function configureBlockers(form: ConfigureFormState): string[] {
     const nameError = replicaSetNameError(form.replicaSetName);
     if (nameError) {
       blockers.push(nameError);
+    } else if (form.replicaSetNameProblem) {
+      blockers.push(form.replicaSetNameProblem);
     }
   }
   if (form.mongodbVersion === '') {
@@ -157,6 +163,10 @@ export function configureBlockers(form: ConfigureFormState): string[] {
   }
   if (form.dataPath.trim() === '') {
     blockers.push('Enter a data path.');
+  } else if (form.lowDiskHosts.length > 0) {
+    blockers.push(
+      `Free space at the data path on ${form.lowDiskHosts.join(', ')}, or choose a data path on a larger disk.`
+    );
   }
   if (form.logPath.trim() === '') {
     blockers.push('Enter a log path.');
