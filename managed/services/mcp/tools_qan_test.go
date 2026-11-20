@@ -1333,6 +1333,32 @@ func TestTopQueriesSearch(t *testing.T) {
 		}
 	})
 
+	t.Run("QuestionMarkMatchesMaskedText", func(t *testing.T) {
+		t.Parallel()
+
+		unnormalized := "SELECT `id` FROM `orders` WHERE `id` = 42"
+		for _, tc := range []struct {
+			fingerprint string
+			search      string
+			sent        string
+			kept        []string
+		}{
+			{unnormalized, "`id` = ?", "`id` = %", []string{"Q1"}},
+			{orders, "`id` = ?", "`id` = %", []string{"Q1"}},
+			{comment, "/*?*/ SELECT", "/*%*/ SELECT", []string{"Q1"}},
+			{orders, `= ? 5%_`, `= % 5\%\_`, []string{}},
+		} {
+			fake, got, _ := search(t, false, searchReport(t, 1, 0, tc.fingerprint), map[string]any{"search": tc.search})
+			body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo(reportPath)[0])
+			assert.Equal(t, tc.sent, body.Search, "QAN's prefilter keeps the rows whose stored text a ? can stand for: %s", tc.search)
+			assert.Equal(t, tc.kept, dimensions(got.Rows), "%s against %s", tc.search, tc.fingerprint)
+
+			fake, _, _ = search(t, true, searchReport(t, 1, 0, tc.fingerprint), map[string]any{"search": tc.search})
+			body = unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo(reportPath)[0])
+			assert.Equal(t, escapeLike(tc.search), body.Search, "with raw SQL on, ? matches itself")
+		}
+	})
+
 	t.Run("MaskedCommentDoesNotMatch", func(t *testing.T) {
 		t.Parallel()
 
