@@ -46,6 +46,9 @@ const (
 	EnvVMInsertPrefix = "VMINSERT_"
 	// EnvVMStoragePrefix is the prefix for environment variables related to VMStorage.
 	EnvVMStoragePrefix = "VMSTORAGE_"
+
+	// The longest PMM_MCP_ACTION_TIMEOUT accepted: with the call's 45 s of slack it stays under nginx's 600 s limit.
+	maxMCPActionTimeout = 9 * time.Minute
 )
 
 // InvalidDurationError invalid duration error.
@@ -68,6 +71,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
+//   - PMM_ENABLE_MCP enables the MCP endpoint; PMM_MCP_RAW_SQL and PMM_MCP_ACTION_TIMEOUT tune it;
 //   - PMM_ENABLE_OM enables OpenManager;
 //   - the environment variables prefixed with GF_ are related to Grafana.
 //   - the environment variables prefixed with VMAGENT_ are forwarded to every vmagent PMM Server manages;
@@ -278,6 +282,45 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
+		case pkgenv.MCPLoopbackURL:
+			// Development only; read at startup by pmm-managed, not persisted.
+			continue
+
+		case pkgenv.EnableMCP:
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+
+			envSettings.EnableMCP = &b
+
+		case pkgenv.MCPRawSQL:
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+
+			envSettings.EnableMCPRawSQL = &b
+
+		case pkgenv.MCPActionTimeout:
+			d, err := time.ParseDuration(v)
+			if err != nil || d <= 0 {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+			if d > maxMCPActionTimeout {
+				warns = append(warns, fmt.Sprintf("%s=%s is longer than the maximum of %s and is ignored: the current value is kept",
+					k, v, maxMCPActionTimeout))
+				continue
+			}
+
+			envSettings.MCPActionTimeout = d
+
 		case pkgenv.PlatformAddress:
 			// This variable is not part of the settings and is parsed separately.
 			continue
@@ -377,12 +420,20 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 // secretEnvVarMarkers name the environment variables whose values must never reach the logs.
 var secretEnvVarMarkers = []string{"PASSWORD", "SECRET", "TOKEN", "KEY"}
 
+// secretEnvVars are credential-bearing variables whose names carry none of the
+// markers above. A URL can hold userinfo or a query token, so it is redacted
+// whole rather than parsed.
+var secretEnvVars = []string{pkgenv.MCPLoopbackURL}
+
 // redactSecretEnvVar replaces the value of a credential-bearing environment variable.
 func redactSecretEnvVar(key, value string) string {
 	for _, marker := range secretEnvVarMarkers {
 		if strings.Contains(key, marker) {
 			return "<redacted>"
 		}
+	}
+	if slices.Contains(secretEnvVars, key) {
+		return "<redacted>"
 	}
 
 	// A URL with userinfo (PMM_VM_URL, VMAGENT_remoteWrite_url): keep scheme and host, drop the

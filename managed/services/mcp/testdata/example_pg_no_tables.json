@@ -1,0 +1,14 @@
+{
+  "query_examples": [
+    {
+      "example": "SELECT 1",
+      "example_type": "EXAMPLE_TYPE_RANDOM",
+      "explain_fingerprint": "SELECT 1",
+      "query_id": "QID-AAA",
+      "service_id": "svc-2",
+      "service_type": "postgresql",
+      "schema": "public",
+      "tables": []
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {"service_id": "svc-rds", "service_name": "shop-rds", "service_type": "mysql", "node_id": "node-rds", "node_name": "rds-node", "environment": "prod"},
+        "value": [1789387200, "1789387140"]
+      }
+    ]
+  }
+}

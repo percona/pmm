@@ -1,0 +1,14 @@
+{
+  "version": "3.8.1",
+  "distribution_method": "DISTRIBUTION_METHOD_DOCKER",
+  "managed": {
+    "version": "3.8.1",
+    "full_version": "3.8.1-269-gfad5f58",
+    "timestamp": "2026-09-14T09:00:00Z"
+  },
+  "server": {
+    "version": "3.8.1",
+    "full_version": "3.8.1",
+    "timestamp": "2026-09-14T09:00:00Z"
+  }
+}

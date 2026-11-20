@@ -1,0 +1,36 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {"service_id": "svc-1", "service_name": "shop-mysql", "service_type": "mysql", "node_id": "node-1", "node_name": "demo-node"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"service_id": "svc-2", "service_name": "shop-postgres", "service_type": "postgresql", "node_id": "node-1", "node_name": "demo-node"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"service_id": "svc-mongo", "service_name": "shop-mongo", "service_type": "mongodb", "node_id": "node-1", "node_name": "demo-node"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"service_id": "svc-pmm-pg", "service_name": "pmm-server-postgresql", "service_type": "postgresql", "node_id": "pmm-server", "node_name": "pmm-server"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"node_id": "node-1", "node_name": "demo-node"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"node_id": "pmm-server", "node_name": "pmm-server"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"service_id": "svc-gone", "service_name": "shop-gone", "service_type": "mysql", "node_id": "node-1", "node_name": "demo-node"},
+        "value": [1789387200, "1789376400"]
+      }
+    ]
+  }
+}

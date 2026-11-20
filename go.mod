@@ -12,6 +12,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.10.0
 	github.com/ClickHouse/clickhouse-go/v2 v2.51.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
+	github.com/VictoriaMetrics/metricsql v0.87.5
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/alecthomas/kong v1.17.0
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b
@@ -36,6 +37,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.20.1
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/go-cmp v0.7.0
+	github.com/google/jsonschema-go v0.4.3
 	github.com/google/uuid v1.6.0
 	github.com/grafana/grafana-openapi-client-go v0.0.0-20260608140303-399c66621c54
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
@@ -49,6 +51,7 @@ require (
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.12.3
 	github.com/minio/minio-go/v7 v7.4.1
+	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20260721111653-2a02c0e64767
 	github.com/percona/percona-toolkit v0.0.0-20251217124347-6b3e5ed485dd
@@ -116,6 +119,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/Microsoft/go-winio v0.6.3 // indirect
 	github.com/ProtonMail/go-crypto v1.1.6 // indirect
+	github.com/VictoriaMetrics/metrics v1.35.3 // indirect
 	github.com/aclements/go-moremath v0.0.0-20210112150236-f10218a38794 // indirect
 	github.com/andybalholm/brotli v1.2.7 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
@@ -308,6 +312,8 @@ require (
 	github.com/tidwall/btree v1.8.1 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/toqueteos/webbrowser v1.2.1 // indirect
+	github.com/valyala/fastrand v1.1.0 // indirect
+	github.com/valyala/histogram v1.2.0 // indirect
 	github.com/vbatts/tar-split v0.12.3 // indirect
 	github.com/vektra/mockery/v2 v2.53.6 // indirect
 	github.com/xanzy/go-gitlab v0.20.1 // indirect
@@ -315,6 +321,7 @@ require (
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.2.0 // indirect
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
 	go.lsp.dev/jsonrpc2 v0.10.0 // indirect
@@ -339,6 +346,7 @@ require (
 	golang.org/x/oauth2 v0.38.0 // indirect
 	golang.org/x/perf v0.0.0-20260409210113-8e83ce0f7b1c // indirect
 	golang.org/x/term v0.48.0 // indirect
+	golang.org/x/time v0.16.0 // indirect
 	google.golang.org/appengine v1.6.8-0.20221117013220-504804fb50de // indirect
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

@@ -1,0 +1,20 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {"service_id": "svc-a", "service_name": "shop-a", "service_type": "mysql", "node_id": "node-a", "node_name": "host-a", "environment": "dev"},
+        "value": [1789387200, "1789387140"]
+      },
+      {
+        "metric": {"service_id": "svc-quiet", "service_name": "shop-quiet", "service_type": "mysql", "node_id": "node-a", "node_name": "host-a", "environment": "dev"},
+        "value": [1789387200, "1789376400"]
+      },
+      {
+        "metric": {"service_id": "svc-c", "service_name": "shop-c", "service_type": "postgresql", "node_id": "node-shared", "node_name": "host-shared", "environment": "dev"},
+        "value": [1789387200, "1789387140"]
+      }
+    ]
+  }
+}

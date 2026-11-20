@@ -41643,6 +41643,11 @@
                       "description": "Advisor check results history retention.",
                       "type": "string",
                       "x-order": 22
+                    },
+                    "enable_mcp": {
+                      "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
+                      "type": "boolean",
+                      "x-order": 23
                     }
                   },
                   "x-order": 0
@@ -41851,6 +41856,12 @@
                   },
                   "x-nullable": true,
                   "x-order": 17
+                },
+                "enable_mcp": {
+                  "description": "Enable the Model Context Protocol endpoint (/mcp).",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 18
                 }
               }
             }
@@ -42019,6 +42030,11 @@
                       "description": "Advisor check results history retention.",
                       "type": "string",
                       "x-order": 22
+                    },
+                    "enable_mcp": {
+                      "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
+                      "type": "boolean",
+                      "x-order": 23
                     }
                   },
                   "x-order": 0
@@ -42129,6 +42145,11 @@
                       "description": "True if Operations for MongoDB is enabled.",
                       "type": "boolean",
                       "x-order": 9
+                    },
+                    "enable_mcp": {
+                      "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
+                      "type": "boolean",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0

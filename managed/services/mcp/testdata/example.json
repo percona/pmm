@@ -1,0 +1,17 @@
+{
+  "query_examples": [
+    {
+      "example": "SELECT * FROM customers WHERE email = 'user42@example.com'",
+      "example_type": "EXAMPLE_TYPE_RANDOM",
+      "is_truncated": 0,
+      "placeholders_count": 1,
+      "explain_fingerprint": "SELECT * FROM `customers` WHERE `email` = :1",
+      "query_id": "QID-AAA",
+      "example_metrics": "",
+      "service_id": "svc-1",
+      "service_type": "mysql",
+      "schema": "shop",
+      "tables": ["customers"]
+    }
+  ]
+}

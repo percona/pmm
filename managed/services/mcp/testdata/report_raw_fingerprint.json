@@ -1,0 +1,46 @@
+{
+  "total_rows": 2,
+  "offset": 0,
+  "limit": 10,
+  "rows": [
+    {
+      "rank": 1,
+      "dimension": "-4105373539398571018",
+      "metrics": {
+        "load": {
+          "stats": {
+            "sum_per_sec": 0.2
+          }
+        },
+        "num_queries": {
+          "stats": {
+            "sum": 10
+          }
+        },
+        "query_time": {
+          "stats": {
+            "sum": 2,
+            "avg": 0.2
+          }
+        }
+      },
+      "fingerprint": "INSERT INTO users (email, pin) VALUES ('user42@example.com', 4417",
+      "num_queries": 10,
+      "load": 0.2
+    },
+    {
+      "rank": 2,
+      "dimension": "-1234567890123",
+      "metrics": {
+        "load": {
+          "stats": {
+            "sum_per_sec": 0.1
+          }
+        }
+      },
+      "fingerprint": "",
+      "num_queries": 1,
+      "load": 0.1
+    }
+  ]
+}

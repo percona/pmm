@@ -93,6 +93,7 @@ import (
 	"github.com/percona/pmm/managed/services/management/common"
 	managementdump "github.com/percona/pmm/managed/services/management/dump"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
+	"github.com/percona/pmm/managed/services/mcp"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
 	"github.com/percona/pmm/managed/services/om"
@@ -109,6 +110,7 @@ import (
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/encryption"
+	pkgenv "github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
@@ -396,6 +398,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 type http1ServerDeps struct {
 	logs       *server.Logs
 	authServer *grafana.AuthServer
+	mcpHandler http.Handler
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -475,6 +478,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
+	mux.Handle("/mcp", deps.mcpHandler)
+	mux.Handle("/mcp/", deps.mcpHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -1253,6 +1258,26 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	authServer := grafana.NewAuthServer(grafanaClient, db)
 
+	mcpSettings := func() *models.Settings {
+		settings, err := models.GetSettings(db)
+		if err != nil {
+			logrus.WithField("component", "mcp").Warnf("Failed to get settings: %s.", err)
+			return &models.Settings{}
+		}
+		return settings
+	}
+	mcpService, err := mcp.New(mcp.Params{
+		Enabled:       func() bool { return mcpSettings().IsMCPEnabled() },
+		LoopbackURL:   envvars.GetEnv(pkgenv.MCPLoopbackURL, mcp.DefaultLoopbackURL),
+		RawSQL:        func() bool { return mcpSettings().IsMCPRawSQLEnabled() },
+		ActionTimeout: func() time.Duration { return mcpSettings().MCPActionTimeout() },
+		PublicAddress: func(context.Context) string { return mcpSettings().PMMPublicAddress },
+		Registerer:    prom.DefaultRegisterer,
+	})
+	if err != nil {
+		l.Fatalf("Failed to create MCP service: %+v.", err)
+	}
+
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
 
@@ -1356,6 +1381,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		runHTTP1Server(ctx, &http1ServerDeps{
 			logs:       logs,
 			authServer: authServer,
+			mcpHandler: mcpService.Handler(),
 		})
 	})
 

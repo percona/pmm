@@ -1,0 +1,6 @@
+{
+  "labels": {
+    "service_type": {"name": [{"value": "mongodb", "main_metric_percent": 0.2}, {"value": "mysql", "main_metric_percent": 0.8}]},
+    "service_name": {"name": [{"value": "shop-mysql", "main_metric_percent": 0.8}]}
+  }
+}

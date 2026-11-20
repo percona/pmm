@@ -235,6 +235,9 @@ type ChangeSettingsBody struct {
 	// Severities of the Advisor insights that are emailed. Empty leaves them unchanged.
 	AdvisorNotificationSeverities []*string `json:"advisor_notification_severities"`
 
+	// Enable the Model Context Protocol endpoint (/mcp).
+	EnableMcp *bool `json:"enable_mcp,omitempty"`
+
 	// advisor notification email addresses
 	AdvisorNotificationEmailAddresses *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses `json:"advisor_notification_email_addresses,omitempty"`
 
@@ -1057,6 +1060,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// Advisor check results history retention.
 	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
+	// True if the Model Context Protocol endpoint (/mcp) is enabled.
+	EnableMcp bool `json:"enable_mcp,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`

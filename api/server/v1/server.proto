@@ -181,6 +181,8 @@ message Settings {
   repeated string advisor_notification_email_addresses = 25;
   // Advisor check results history retention.
   google.protobuf.Duration advisor_history_retention = 26;
+  // True if the Model Context Protocol endpoint (/mcp) is enabled.
+  bool enable_mcp = 27;
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
@@ -205,6 +207,8 @@ message ReadOnlySettings {
   bool extensions_enabled = 9;
   // True if Operations for MongoDB is enabled.
   bool om_enabled = 10;
+  // True if the Model Context Protocol endpoint (/mcp) is enabled.
+  bool enable_mcp = 11;
 }
 
 message GetSettingsRequest {}
@@ -258,6 +262,8 @@ message ChangeSettingsRequest {
   // Email addresses Advisor notifications are sent to. Unset leaves them unchanged; an empty
   // array clears the list.
   optional common.StringArray advisor_notification_email_addresses = 20;
+  // Enable the Model Context Protocol endpoint (/mcp).
+  optional bool enable_mcp = 21;
 }
 
 message ChangeSettingsResponse {

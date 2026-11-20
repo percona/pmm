@@ -1,0 +1,1 @@
+{"action_id": "/action_id/ddl-1", "pmm_agent_id": "/agent_id/agent-1", "output": "CREATE TABLE `customers` (\n  `id` bigint NOT NULL AUTO_INCREMENT,\n  `email` varchar(255) NOT NULL,\n  PRIMARY KEY (`id`)\n) ENGINE=InnoDB\n", "done": true, "error": ""}

@@ -1,0 +1,52 @@
+{
+  "query": "/* select#1 */ select `shop`.`customers`.`id` AS `id` from `shop`.`customers` semi join (`shop`.`orders`) where ((`shop`.`orders`.`customer_id` = `shop`.`customers`.`id`) and (`shop`.`orders`.`total` > 10.00))",
+  "inputs": [
+    {
+      "covering": true,
+      "operation": "Covering index scan on customers using idx_region",
+      "index_name": "idx_region",
+      "table_name": "customers",
+      "access_type": "index",
+      "schema_name": "shop",
+      "used_columns": [
+        "id"
+      ],
+      "estimated_rows": 3.0,
+      "index_access_type": "index_scan",
+      "estimated_total_cost": 0.55
+    },
+    {
+      "inputs": [
+        {
+          "operation": "Table scan on orders",
+          "table_name": "orders",
+          "access_type": "table",
+          "schema_name": "shop",
+          "used_columns": [
+            "customer_id",
+            "total"
+          ],
+          "estimated_rows": 4.0,
+          "estimated_total_cost": 0.2055678846486747
+        }
+      ],
+      "heading": "Hash",
+      "condition": "(orders.total > 10.00)",
+      "operation": "Filter: (orders.total > 10.00)",
+      "access_type": "filter",
+      "estimated_rows": 1.0,
+      "estimated_total_cost": 0.2055678846486747
+    }
+  ],
+  "join_type": "semijoin",
+  "operation": "Hash semijoin (orders.customer_id = customers.id)",
+  "query_type": "select",
+  "access_type": "join",
+  "estimated_rows": 0.75,
+  "hash_condition": [
+    "(orders.customer_id = customers.id)"
+  ],
+  "join_algorithm": "hash",
+  "estimated_total_cost": 1.022271538594699,
+  "warnings": []
+}

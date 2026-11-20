@@ -1,0 +1,42 @@
+{
+  "query": "/* select#1 */ select `b`.`id` AS `id`,`a`.`id` AS `id` from `shop`.`a` `b` join `shop`.`b` `a` where (`b`.`id` = `a`.`a_id`)",
+  "inputs": [
+    {
+      "alias": "a",
+      "operation": "Table scan on a",
+      "table_name": "b",
+      "access_type": "table",
+      "schema_name": "shop",
+      "used_columns": [
+        "id",
+        "a_id"
+      ],
+      "estimated_rows": 3.0,
+      "estimated_total_cost": 0.55
+    },
+    {
+      "alias": "b",
+      "covering": true,
+      "operation": "Single-row covering index lookup on b using PRIMARY (id=a.a_id)",
+      "index_name": "PRIMARY",
+      "table_name": "a",
+      "access_type": "index",
+      "schema_name": "shop",
+      "used_columns": [
+        "id"
+      ],
+      "estimated_rows": 1.0,
+      "lookup_condition": "id=a.a_id",
+      "index_access_type": "index_lookup",
+      "estimated_total_cost": 0.2833333333333333
+    }
+  ],
+  "join_type": "inner join",
+  "operation": "Nested loop inner join",
+  "query_type": "select",
+  "access_type": "join",
+  "estimated_rows": 3.0,
+  "join_algorithm": "nested_loop",
+  "estimated_total_cost": 1.6,
+  "warnings": []
+}

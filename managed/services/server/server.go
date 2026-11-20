@@ -150,6 +150,12 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 	if len(errs) != 0 {
 		return errs
 	}
+	// Raw SQL has no API setting, so the environment is its only source: a
+	// missing PMM_MCP_RAW_SQL means off, and removing the variable turns raw
+	// SQL off at the next start instead of keeping the last value.
+	if envSettings.EnableMCPRawSQL == nil {
+		envSettings.EnableMCPRawSQL = new(false)
+	}
 
 	var oldSettings, newSettings *models.Settings
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -459,6 +465,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 
 		EnableAccessControl: settings.IsAccessControlEnabled(),
 		DefaultRoleId:       convertDefaultRoleID(settings.DefaultRoleID),
+		EnableMcp:           settings.IsMCPEnabled(),
 
 		ExtensionsEnabled: pkgenv.ExtensionsEnabled(),
 		OmEnabled:         settings.IsOMEnabled(),
@@ -486,6 +493,7 @@ func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.Re
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
 		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
 		EnableAccessControl:     settings.IsAccessControlEnabled(),
+		EnableMcp:               settings.IsMCPEnabled(),
 		ExtensionsEnabled:       pkgenv.ExtensionsEnabled(),
 		OmEnabled:               settings.IsOMEnabled(),
 	}
@@ -556,6 +564,10 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 
 	if req.EnableAzurediscover != nil && s.envSettings.EnableAzurediscover != nil && *req.EnableAzurediscover != *s.envSettings.EnableAzurediscover {
 		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via PMM_ENABLE_AZURE_DISCOVER environment variable.")
+	}
+
+	if req.EnableMcp != nil && s.envSettings.EnableMCP != nil && *req.EnableMcp != *s.envSettings.EnableMCP {
+		return status.Error(codes.FailedPrecondition, "MCP is configured via PMM_ENABLE_MCP environment variable.")
 	}
 
 	err := s.validateEnableOm(ctx, req.EnableOm)
@@ -668,6 +680,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			EnableAccessControl:    req.EnableAccessControl,
 			EnableInternalPgQAN:    req.EnableInternalPgQan,
 			EnableOM:               req.EnableOm,
+			EnableMCP:              req.EnableMcp,
 			MetricsResolutions: models.MetricsResolutions{
 				HR: metricsRes.GetHr().AsDuration(),
 				MR: metricsRes.GetMr().AsDuration(),

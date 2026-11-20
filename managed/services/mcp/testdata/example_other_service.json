@@ -1,0 +1,16 @@
+{
+  "query_examples": [
+    {
+      "example": "SELECT * FROM secrets",
+      "example_type": "EXAMPLE_TYPE_RANDOM",
+      "explain_fingerprint": "SELECT * FROM secrets",
+      "query_id": "QID-AAA",
+      "service_id": "svc-9",
+      "service_type": "mysql",
+      "schema": "other",
+      "tables": [
+        "secrets"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "metrics": {},
+  "text_metrics": {},
+  "sparkline": [],
+  "totals": {},
+  "fingerprint": "SELECT 1",
+  "metadata": {
+    "service_name": "shop-postgres",
+    "database": "shop_pg",
+    "schema": "",
+    "service_type": "postgresql"
+  }
+}
