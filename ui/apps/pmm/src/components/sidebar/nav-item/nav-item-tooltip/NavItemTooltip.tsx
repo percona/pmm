@@ -1,8 +1,4 @@
 import Tooltip from '@mui/material/Tooltip';
-import {
-  DRAWER_CLOSED_WIDTH,
-  DRAWER_WIDTH,
-} from 'components/sidebar/drawer/Drawer.constants';
 import { NavItem } from 'types/navigation.types';
 import { FC, ReactElement } from 'react';
 
@@ -14,28 +10,18 @@ interface Props {
 }
 
 const NavItemTooltip: FC<Props> = ({ children, item, level, drawerOpen }) => {
-  if (drawerOpen || level !== 0) {
+  if (level !== 0) {
     return children;
   }
 
+  // Rendered in both drawer states, so toggling the drawer never remounts the
+  // item and its shape can animate. An empty title keeps it shut while open.
   return (
     <Tooltip
-      title={item.text}
+      title={drawerOpen ? '' : item.text}
       placement="right"
       enterDelay={500}
       arrow
-      slotProps={{
-        popper: {
-          modifiers: [
-            {
-              name: 'offset',
-              options: {
-                offset: [0, DRAWER_CLOSED_WIDTH - DRAWER_WIDTH],
-              },
-            },
-          ],
-        },
-      }}
     >
       {children}
     </Tooltip>

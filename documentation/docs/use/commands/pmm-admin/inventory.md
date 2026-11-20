@@ -50,7 +50,7 @@ pmm-admin inventory list services
 
 ## pmm-admin inventory add agent rta-mongodb-agent
 
-Starts Real-Time Analytics (RTA) on a MongoDB service. Live operations appear in **Query Analytics > Real-time** as they execute. Make sure to register the service with PMM first using [`pmm-admin add mongodb`](add.md#add-mongodb).
+Starts Real-Time Analytics (RTA) on a MongoDB service. Live operations appear in **Real-time queries** as they execute. Make sure to register the service with PMM first using [`pmm-admin add mongodb`](add.md#add-mongodb).
 
 ### Syntax
 

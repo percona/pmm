@@ -41,7 +41,7 @@ Here's how to generate a service account token:
 {.power-number}
 
 1. Log in to PMM.
-2. From the side menu, click **Users and access > Service accounts**.
+2. From the side menu, click **Configuration > Service accounts**.
 4. Click **Add service account**. Specify a unique name for your service account, select a role from the drop-down menu, and click **Create** to display your newly created service account.
 5. Click **Add service account token**.
 6. In the pop-up dialog, provide a name for the new service token, or leave the field empty to generate an automatic name.

@@ -249,7 +249,7 @@ After the containers start, confirm that PMM Extensions is running and integrate
     curl -sk -o /dev/null -w "%{http_code}\n" https://<PMM_SERVER_ADDRESS>/extensions/health
     ```
 
-3. Open PMM and check that the **Apps** menu appears in the sidebar, with **MySQL Backups** and **Support diagnostics** listed under it.
+3. Open PMM and check that the sidebar lists **MySQL Backups** under **Apps** and **Diagnostics** under **Analyze**.
 
 ## Back up the PMM Extensions state volume
 

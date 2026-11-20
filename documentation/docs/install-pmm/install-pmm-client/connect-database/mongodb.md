@@ -427,7 +427,7 @@ After configuring your database server, add a MongoDB service using either the u
     To add a service with the UI:
     {.power-number}
 
-    1. Select **Inventory > Add service > MongoDB**.
+    1. Select **Inventory > Services > Add Service > MongoDB**.
 
     2. Fill in the required fields.
 

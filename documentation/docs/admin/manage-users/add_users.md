@@ -1,13 +1,13 @@
 # Add users
 
-Adding users with basic authentication (username and password stored in PMM) from **Users and access > Users** tab.
+Adding users with basic authentication (username and password stored in PMM) from **Configuration > Users**.
 
 If your organization uses LDAP, OAuth, SAML, or other authentication methods, users are managed through your external authentication system. See [authentication methods](../../reference/ui/log_in.md) for more information.
 
 To add a new user in PMM:
 {.power-number}
 
-1. Go to **Users and access > Users > New user**.
+1. Go to **Configuration > Users > New user**.
 2. On the **New user** dialog box, fill in the user's details. Use a password that meets the [password requirements](#password-requirements). For existing Grafana users, you can enter their Grafana username in the **Email** field.
 
 3. Click **Create user**.

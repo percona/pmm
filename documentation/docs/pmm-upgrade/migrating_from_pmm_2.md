@@ -371,7 +371,7 @@ PMM 3 replaces API keys with service accounts to enhance security and simplify a
 
 ### Verify the conversion
 	
-To verify that API keys were successfully migrated, go to **Users and Access > Service accounts**, where you can check the list of service accounts available and confirm that the **API Keys** menu is no longer displayed.
+To verify that API keys were successfully migrated, go to **Configuration > Service accounts**, where you can check the list of service accounts available and confirm that the **API Keys** menu is no longer displayed.
 
 If any API keys fail to migrate, you can either: 
 

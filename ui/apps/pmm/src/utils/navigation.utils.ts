@@ -31,13 +31,15 @@ export const findActiveNavItem = (
 };
 
 export const isActive = (item: NavItem, pathname: string): boolean => {
-  if (item.type === 'menu-divider' || item.type === 'menu-text' || !item.url) {
+  if (item.type === 'menu-text' || item.type === 'menu-section' || !item.url) {
     return false;
   }
 
-  const exactMatch = matchesUrl(pathname, item.url);
+  // By path alone: a link can carry query params, such as PMM HA's namespace.
+  const [url] = item.url.split('?');
+  const exactMatch = matchesUrl(pathname, url);
   const additionalMatch = item?.matches?.some((match) =>
-    matchesUrl(pathname, item.url!, match)
+    matchesUrl(pathname, url, match)
   );
 
   return Boolean(exactMatch || additionalMatch);

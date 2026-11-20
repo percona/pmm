@@ -29,6 +29,9 @@ export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
 export const PMM_DOCS_INVENTORY_SERVICES_URL =
   'https://per.co.na/pmm/inventory_services';
 export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
+
+// Grafana's home: the user's own home dashboard, PMM home unless they set one.
+export const PMM_NEW_NAV_USER_HOME_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/`;
 export const PMM_INVENTORY_PATH = `${PMM_NEW_NAV_PATH}/inventory`;
 export const PMM_INVENTORY_SERVICES_PATH = `${PMM_INVENTORY_PATH}/services`;
 export const PMM_INVENTORY_NODES_PATH = `${PMM_INVENTORY_PATH}/nodes`;

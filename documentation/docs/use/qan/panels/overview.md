@@ -1,8 +1,8 @@
 # QAN Stored metrics: Overview panel
 
-The Overview panel displays query performance data from the **Stored metrics** tab. It shows aggregated metrics for completed queries, helping you identify slow queries and optimization opportunities.
+The Overview panel displays query performance data on the **Query analytics** page. It shows aggregated metrics for completed queries, helping you identify slow queries and optimization opportunities.
 
-This panel is not available in the **Real-time** tab. For live query monitoring, see [Real-time Query Analytics](../panels/overview.md)
+This panel is not available in **Real-time queries**. For live query monitoring, see [Real-time Query Analytics](../QAN-realtime-analytics.md).
 
 The Overview panel appears to the right of the **Filters** panel.
 

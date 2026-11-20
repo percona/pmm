@@ -3,21 +3,15 @@ import {
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
+import { findActiveNavItem } from 'utils/navigation.utils';
+import { ServiceType } from 'types/services.types';
+import { UpdateStatus } from 'types/updates.types';
 import {
   addAlerting,
-  addSection,
-  addExtensionsApps,
-  addDashboardItems,
-  addOm,
+  addConfiguration,
+  addDashboards,
 } from './navigation.utils';
-import { NAV_MONGO } from './navigation.constants';
-import { ServiceType } from 'types/services.types';
-import {
-  EXTENSIONS_ATW_PATH,
-  EXTENSIONS_MYSQL_BACKUPS_PATH,
-  PMM_NEW_NAV_GRAFANA_PATH,
-} from 'lib/constants';
-import { PreviewChip } from 'components/preview-chip';
+import { NAV_CONFIGURATION } from './navigation.constants';
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
   (item.children || []).map((c) => c.id);
@@ -86,117 +80,96 @@ describe('addAlerting', () => {
   });
 });
 
-describe('addExtensionsApps', () => {
-  it('returns one Apps section instead of two flat entries', () => {
-    const items = addExtensionsApps();
+describe('addConfiguration', () => {
+  const updates = (item: ReturnType<typeof addConfiguration>) =>
+    item.children?.find((child) => child.id === 'updates');
 
-    expect(items).toHaveLength(1);
-    expect(items[0]).toMatchObject({ id: 'management', text: 'Apps' });
-  });
+  it('describes the installed version without changing the shared item', () => {
+    const item = addConfiguration(UpdateStatus.Pending, {
+      installed: { version: '3.5.0' },
+      updateAvailable: false,
+    } as Parameters<typeof addConfiguration>[1]);
 
-  it('marks the section as a tech preview', () => {
-    expect(addExtensionsApps()[0]).toMatchObject({
-      badgeAlwaysVisible: true,
-      badge: { type: PreviewChip, props: { level: 'tech' } },
+    expect(updates(item)).toMatchObject({
+      secondaryText: 'v3.5.0, up to date',
+      badge: { label: 'New' },
     });
+    expect(updates(NAV_CONFIGURATION)?.secondaryText).toBeUndefined();
+    expect(updates(NAV_CONFIGURATION)?.badge).toBeUndefined();
   });
 
-  it('gives the section no page of its own', () => {
-    expect(addExtensionsApps()[0].url).toBeUndefined();
+  it('keeps a two-digit minor version and drops a build suffix', () => {
+    const item = addConfiguration(UpdateStatus.Pending, {
+      installed: { version: '3.10.0-v3-2d7d9c98f' },
+      latest: { version: '3.11.0' },
+      updateAvailable: true,
+    } as Parameters<typeof addConfiguration>[1]);
+
+    expect(updates(item)?.secondaryText).toBe('v3.10.0 → v3.11.0');
   });
 
-  it('keeps each app url and matches on the children', () => {
-    const children = addExtensionsApps()[0].children || [];
+  it('says when only the clients need an update', () => {
+    const item = addConfiguration(UpdateStatus.UpdateClients, {
+      installed: { version: '3.11.0' },
+      updateAvailable: false,
+    } as Parameters<typeof addConfiguration>[1]);
 
-    expect(children.map((child) => child.id)).toEqual([
-      'extensions-mysql-backups',
-      'extensions-atw',
+    expect(updates(item)?.secondaryText).toBe('Clients out of date');
+  });
+
+  it('drops the text of an earlier call', () => {
+    addConfiguration(UpdateStatus.UpToDate, {
+      installed: { version: '3.5.0' },
+      updateAvailable: false,
+    } as Parameters<typeof addConfiguration>[1]);
+
+    expect(
+      updates(addConfiguration(UpdateStatus.UpToDate))?.secondaryText
+    ).toBeUndefined();
+  });
+});
+
+describe('addDashboards', () => {
+  it('lists the dashboards browser, then the Grafana pages for a user', () => {
+    expect(childIds(addDashboards([], TEST_USER_VIEWER))).toEqual([
+      'dashboards-browse',
+      'dashboards-shared',
+      'dashboards-playlists',
+      'dashboards-snapshots',
+      'dashboards-library-panels',
     ]);
-    expect(children[0]).toMatchObject({
-      url: EXTENSIONS_MYSQL_BACKUPS_PATH,
-      matches: ['*'],
-    });
-    expect(children[1]).toMatchObject({
-      url: EXTENSIONS_ATW_PATH,
-      matches: ['*'],
-    });
-  });
-});
-
-describe('addSection', () => {
-  it('wraps the children in the section', () => {
-    const items = addSection({ id: 'section' }, [{ id: 'child' }]);
-
-    expect(items).toEqual([{ id: 'section', children: [{ id: 'child' }] }]);
   });
 
-  it('contributes nothing rather than an empty expandable shell', () => {
-    expect(addSection({ id: 'section' }, [])).toEqual([]);
+  it('lists only the dashboards browser without a user', () => {
+    expect(childIds(addDashboards([]))).toEqual(['dashboards-browse']);
   });
-});
 
-describe('addOm', () => {
-  it('is the Operations item, marked as a Preview', () => {
-    const om = addOm();
-
-    expect(om.text).toBe('Operations');
-    expect(om.badge).toMatchObject({ label: 'Preview' });
-    expect(om.badgeAlwaysVisible).toBe(true);
-  });
-});
-
-describe('addDashboardItems', () => {
-  const mongoMenu = (items: ReturnType<typeof addDashboardItems>) =>
-    items.find((item) => item.id === NAV_MONGO.id);
-
-  it('nests the extras at the end of the MongoDB menu', () => {
-    const menu = mongoMenu(
-      addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()])
+  it('adds ProxySQL and HAProxy only while PMM monitors them', () => {
+    expect(childIds(addDashboards([ServiceType.mysql]))).not.toContain(
+      'proxysql'
     );
-
-    expect(menu?.children?.at(-1)?.id).toBe('om');
-    expect(menu?.children?.length).toBe((NAV_MONGO.children?.length ?? 0) + 1);
+    expect(
+      childIds(addDashboards([ServiceType.proxysql, ServiceType.haproxy]))
+    ).toEqual(['dashboards-browse', 'proxysql', 'haproxy']);
   });
 
-  it('leaves the shared MongoDB constant untouched', () => {
-    const before = NAV_MONGO.children?.length;
+  it.each([
+    ['/graph/dashboards', 'dashboards-browse'],
+    ['/graph/dashboards/f/abc/experimental', 'dashboards-browse'],
+    ['/graph/dashboard/public', 'dashboards-shared'],
+    ['/graph/dashboard/snapshots', 'dashboards-snapshots'],
+    ['/graph/playlists', 'dashboards-playlists'],
+    ['/graph/playlists/play/1', 'dashboards-playlists'],
+    ['/graph/library-panels', 'dashboards-library-panels'],
+    [
+      '/graph/d/proxysql-instance-summary/proxysql-instance-summary',
+      'proxysql',
+    ],
+    ['/graph/dashboard/new', 'dashboards'],
+    ['/graph/dashboard/import', 'dashboards'],
+  ])('highlights %s as %s', (pathname, id) => {
+    const dashboards = addDashboards([ServiceType.proxysql], TEST_USER_ADMIN);
 
-    addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()]);
-    addDashboardItems([ServiceType.mongodb], [], undefined, [addOm()]);
-
-    expect(NAV_MONGO.children?.length).toBe(before);
-  });
-
-  it('keeps the MongoDB menu for the extras when no MongoDB is monitored', () => {
-    const menu = mongoMenu(addDashboardItems([], [], undefined, [addOm()]));
-
-    expect(menu?.children?.map((c) => c.id)).toEqual(['om']);
-    expect(menu?.url).toBe(addOm().url);
-  });
-
-  it('has no MongoDB menu with neither MongoDB nor extras', () => {
-    expect(mongoMenu(addDashboardItems([], []))).toBeUndefined();
-  });
-
-  it('links the ClusterSync dashboard from the MongoDB section', () => {
-    const clusterSync = mongoMenu(
-      addDashboardItems([ServiceType.mongodb], [])
-    )?.children?.find((c) => c.id === 'mongo-clustersync-details');
-
-    expect(clusterSync).toEqual({
-      id: 'mongo-clustersync-details',
-      text: 'ClusterSync',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-clustersync-details/mongodb-clustersync-details`,
-    });
-  });
-
-  it('shows the MongoDB section, and so ClusterSync, only with a MongoDB service', () => {
-    const mongoChildIds = (types: ServiceType[]) =>
-      mongoMenu(addDashboardItems(types, []))?.children?.map((c) => c.id);
-
-    expect(mongoChildIds([ServiceType.external])).toBeUndefined();
-    expect(mongoChildIds([ServiceType.mongodb])).toContain(
-      'mongo-clustersync-details'
-    );
+    expect(findActiveNavItem(dashboards, pathname)?.id).toBe(id);
   });
 });

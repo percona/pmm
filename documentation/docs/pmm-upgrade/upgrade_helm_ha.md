@@ -137,9 +137,9 @@ After the upgrade, verify that the cluster is healthy and that a leader is activ
 
     ![PMM HA badge showing Healthy status](../images/HA-Status.png)
 
-2. Go to **PMM HA > Identify Nodes** and check that one PMM Server node has the **Leader** badge next to its name. For details, see [Check HA roles in Inventory](../install-pmm/install-HA-clustered.md#check-ha-roles-in-inventory).
+2. Go to **Inventory > Nodes**, turn on **List PMM Server only nodes**, and check that one PMM Server node has the **Leader** badge next to its name. For details, see [Check HA roles in Inventory](../install-pmm/install-HA-clustered.md#check-ha-roles-in-inventory).
 
-3. Go to **PMM HA > Overview** and check that all component panels in the **Overview** section are green on the [PMM HA Health Overview](../reference/dashboards/dashboard-ha-health-overview.md) dashboard.
+3. Go to **PMM HA** and check that all component panels in the **Overview** section are green on the [PMM HA Health Overview](../reference/dashboards/dashboard-ha-health-overview.md) dashboard.
 
 If you cannot log in after upgrading, see [Cannot log in with the admin password](../troubleshoot/ha_issues.md#cannot-log-in-with-the-admin-password).
 

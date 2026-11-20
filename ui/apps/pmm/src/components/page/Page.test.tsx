@@ -59,6 +59,26 @@ describe('Page', () => {
     expect(screen.queryByText(Messages.noAcccess)).toBeDefined();
   });
 
+  it('hides the top bar from a role the page turns away', () => {
+    render(
+      <TestWrapper>
+        <UserContext.Provider
+          value={{
+            isLoading: false,
+            user: TEST_USER_ADMIN,
+          }}
+        >
+          <Page roles={[]} topBar={<div>Top bar</div>}>
+            <div>Page Content</div>
+          </Page>
+        </UserContext.Provider>
+      </TestWrapper>
+    );
+
+    expect(screen.queryByText('Top bar')).toBeNull();
+    expect(screen.getByTestId('unauthorized')).toBeInTheDocument();
+  });
+
   describe('surface', () => {
     it('renders on the paper surface when a page specifies none', () => {
       const stage = measurePageSurface('canvas');

@@ -5,11 +5,11 @@ MongoDB backups can only be restored to the same service they were created from.
 To restore a backup:
 {.power-number}
 
-1. Go to :material-history: **Backup > All backups** and find the backup that you want to restore.
+1. Go to **Apps > All backups** and find the backup that you want to restore.
 2. Click the arrow in the **Actions** column to check all the information for the backup, then click :material-dots-vertical: **Restore from backup**.
 This opens the **Restore from backup** dialog, with the **Same service** option automatically preselected. This is because MongoDB backups can only be restored to the originating service, and only if the MongoDB version has not changed since the backup was created.
 3. If you are restoring a PITR backup, select the point for the date and time that you want to restore the database to.
-4. Click **Restore** then go to the **Restores** tab to check the status of the restored backup.
+4. Click **Restore**, then go to **Apps > Restores** to check the status of the restored backup.
 
 !!! caution alert alert-warning "Important"
     During restoring, PMM disables all the scheduled backup tasks for the current service. Remember to re-enable them manually after the restore.
@@ -65,7 +65,7 @@ To restore to a new cluster manually:
           access-key-id: <your-access-key-id-here>
           secret-access-key: <your-secret-key-here> 
     ```
-    The prefix name is the artifact name that appears in the **Backup name** column, under :material-history: **Backup > All Backups** page:
+    The prefix name is the artifact name that appears in the **Backup name** column, on the **Apps > All backups** page:
 
       ![!](../../images/backup_name.png) 
 

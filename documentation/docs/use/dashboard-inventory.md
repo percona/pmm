@@ -39,7 +39,7 @@ The **Services** tab lists the monitored services and the nodes that they run on
 | **Port**         | The port PMM uses to connect to the service. Shows 0 when PMM connects to the service through a socket.                                                                            |
 | **Service ID**   | The unique ID of the service. Hidden by default.                                                                                                                                   |
 
-To add a service, click **Add Service**, or go to **Inventory > Add service**. For details, see [Connect databases](../install-pmm/install-pmm-client/connect-database/index.md).
+To add a service, click **Add Service**. For details, see [Connect databases](../install-pmm/install-pmm-client/connect-database/index.md).
 
 To download the services as a CSV file, click **Export**. For details, see [Export services to a CSV file](#export-services-to-a-csv-file).
 
@@ -152,7 +152,7 @@ The **Nodes** tab lists the nodes that PMM monitors, and the services and agents
 | **Services**   | The services on the node. If the node has one service, click its name to show the service on the **Services** tab. Otherwise, the column shows the number of services, or **No services**. |
 | **Node ID**    | The unique ID of the node. Hidden by default.                                                                                                                                              |
 
-If PMM runs as an HA Cluster, turn on **List PMM Server only nodes** to hide all other nodes. **PMM HA > Identify Nodes** in the main menu opens the same view.
+If PMM runs as an HA Cluster, turn on **List PMM Server only nodes** to hide all other nodes.
 
 ### Node details
 

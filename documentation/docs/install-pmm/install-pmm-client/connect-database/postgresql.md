@@ -322,7 +322,7 @@ The **command line** (`pmm-admin`) deploys an exporter directly on the database 
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to  **Inventory > Add service > PostgreSQL**.
+    1. Go to **Inventory > Services > Add Service > PostgreSQL**.
     
     2. Enter or select values for the fields.
 

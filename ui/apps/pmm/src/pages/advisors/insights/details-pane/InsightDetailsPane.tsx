@@ -12,10 +12,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { CopyToClipboardButton } from '@percona/peak-ui';
 import { format } from 'date-fns';
-import {
-  DRAWER_CLOSED_WIDTH,
-  DRAWER_WIDTH,
-} from 'components/sidebar/drawer/Drawer.constants';
+import { drawerWidth } from 'components/sidebar/drawer/Drawer.constants';
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import { AdvisorCheckResultStatus, Insight } from 'types/advisors.types';
 import { ManagedServiceType } from 'types/services.types';
@@ -96,7 +93,7 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
   const { navOpen } = useNavigation();
   const open = !!insight;
   // the pane never covers the main navigation
-  const sidebarWidth = navOpen ? DRAWER_WIDTH : DRAWER_CLOSED_WIDTH;
+  const sidebarWidth = drawerWidth(navOpen);
 
   // every open starts maximized, however it was triggered; minimizing to the
   // 60vh peek height is an explicit choice and does not carry to the next open

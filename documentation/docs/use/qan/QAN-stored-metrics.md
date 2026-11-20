@@ -59,7 +59,7 @@ To enable:
 
 1. Go to **Configuration > Settings > Advanced settings**.
 2. Switch on the **QAN for PMM Server** option.
-3. Open **Query Analytics** and filter by `pmm-server-postgresql` to view queries.
+3. Open **Query analytics** and filter by `pmm-server-postgresql` to view queries.
 
 If PMM Server was started with the `PMM_ENABLE_INTERNAL_PG_QAN` environment variable, the variable decides whether this QAN is on. PMM refuses to switch it the other way, both from the **QAN for PMM Server** option and from `pmm-admin inventory change agent`. To control it from the UI, start PMM Server without the variable. See [Configure environment variables for PMM Server](../../install-pmm/install-pmm-server/deployment-options/docker/env_var.md).
 
