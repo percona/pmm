@@ -71,7 +71,7 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 		mAgentsDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
 			"Inventory Agent",
-			[]string{"agent_id", "agent_type", "service_id", "service_name", "node_id", "node_name", "environment", "pmm_agent_id", "disabled", "version"},
+			[]string{"agent_id", "agent_type", "service_id", "service_name", "node_id", "node_name", "environment", "cluster", "pmm_agent_id", "disabled", "version"},
 			nil,
 		),
 		mNodesDesc: prom.NewDesc(
@@ -162,10 +162,12 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 			serviceID := pointer.GetString(agent.ServiceID)
 			serviceName := ""
 			environment := ""
+			cluster := ""
 
 			if service, ok := serviceMap[serviceID]; ok {
 				serviceName = service.ServiceName
 				environment = service.Environment
+				cluster = service.Cluster
 			}
 
 			agentMetricLabels := []string{
@@ -176,6 +178,7 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 				runsOnNodeID,
 				nodeName,
 				environment,
+				cluster,
 				pmmAgentID,
 				disabled,
 				pointer.GetString(agent.Version),
