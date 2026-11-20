@@ -650,7 +650,7 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	if named := servicesNamed(asked, d.serviceName); len(named) == 1 {
 		d.linkService = named[0].ServiceName
 		if d.engine != "" {
-			d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID)
+			d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID, time.Time{})
 		}
 	}
 
@@ -1021,14 +1021,14 @@ func keyMetrics(m map[string]metricStats) []metricValue {
 	return out
 }
 
-// serviceVersion reads one service's version from the exporter metric for its
+// serviceVersion reads one service's version at a time, now when zero, from the exporter metric for its
 // engine; any failure returns "".
-func (s *Service) serviceVersion(ctx context.Context, auth callerAuth, engine, serviceID string) string {
+func (s *Service) serviceVersion(ctx context.Context, auth callerAuth, engine, serviceID string, at time.Time) string {
 	vm, ok := versionMetrics[engine]
 	if !ok || serviceID == "" {
 		return ""
 	}
-	samples, err := s.queryMetrics(ctx, auth, vm.metric+`{service_id="`+escapeLabel(serviceID)+`"}`, time.Time{})
+	samples, err := s.queryMetrics(ctx, auth, vm.metric+`{service_id="`+escapeLabel(serviceID)+`"}`, at)
 	if err != nil || len(samples) == 0 {
 		return ""
 	}

@@ -203,7 +203,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 		r.Variables = append(r.Variables, variable{Name: name, Value: variables[name]})
 	}
 	if len(names) > 0 {
-		r.Version = s.serviceVersionAt(ctx, auth, engine, svc.ServiceID, at)
+		r.Version = s.serviceVersion(ctx, auth, engine, svc.ServiceID, at)
 	}
 	return r, nil
 }

@@ -442,19 +442,6 @@ func (s *Service) enrichVersions(ctx context.Context, auth callerAuth, services 
 	}
 }
 
-// serviceVersionAt reads one service's version as of a time; any failure returns "".
-func (s *Service) serviceVersionAt(ctx context.Context, auth callerAuth, engine, serviceID string, at time.Time) string {
-	vm, ok := versionMetrics[engine]
-	if !ok || serviceID == "" {
-		return ""
-	}
-	samples, err := s.queryMetrics(ctx, auth, vm.metric+`{service_id="`+escapeLabel(serviceID)+`"}`, at)
-	if err != nil || len(samples) == 0 {
-		return ""
-	}
-	return samples[0].Labels[vm.label]
-}
-
 // queryMetrics runs an instant PromQL query against PMM's metrics datasource.
 func (s *Service) queryMetrics(ctx context.Context, auth callerAuth, promql string, at time.Time) ([]metricSample, error) {
 	uid, err := s.metricsDatasourceUID(ctx, auth)
