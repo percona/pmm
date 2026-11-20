@@ -17,6 +17,8 @@ export const LOCATORS = {
   qanPageHeader: `${PAGE_LOCATORS.qan} header`,
   qanPageHeaderNextDiv: `${PAGE_LOCATORS.qan} header+div`,
   qanPageCanvasWrapper: `${PAGE_LOCATORS.qan} [class*="canvas-wrapper"] > div`,
+  // Grafana's e2e selector components.Tooltip.container, stable since Grafana 10.2
+  tooltip: '[role="tooltip"][data-testid="data-testid tooltip"]',
 };
 
 export { GRAFANA_SUB_PATH };

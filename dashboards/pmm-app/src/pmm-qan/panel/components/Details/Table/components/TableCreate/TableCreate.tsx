@@ -12,7 +12,7 @@ export const TableCreate: FC<TableProps> = ({
   return (
     <Overlay isPending={showCreateTable.loading}>
       {showCreateTable.error ? <pre>{showCreateTable.error}</pre> : null}
-      {!showCreateTable.error ? <Highlight language="sql">{showCreateTable.value}</Highlight> : null}
+      {!showCreateTable.error ? <Highlight language="sql">{showCreateTable.value ?? ''}</Highlight> : null}
     </Overlay>
   );
 };
