@@ -2526,6 +2526,9 @@ type ChangeAgentOKBodyAzureDatabaseExporter struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyAzureDatabaseExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -2840,6 +2843,9 @@ type ChangeAgentOKBodyExternalExporter struct {
 	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
 	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyExternalExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -3787,6 +3793,9 @@ type ChangeAgentOKBodyNodeExporter struct {
 
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyNodeExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -6204,6 +6213,9 @@ type ChangeAgentOKBodyRDSExporter struct {
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyRDSExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -7064,6 +7076,9 @@ type ChangeAgentParamsBodyAzureDatabaseExporter struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyAzureDatabaseExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -7382,6 +7397,9 @@ type ChangeAgentParamsBodyExternalExporter struct {
 
 	// Skip connection check.
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyExternalExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -8448,6 +8466,9 @@ type ChangeAgentParamsBodyNodeExporter struct {
 
 	// Expose the node_exporter process on all public interfaces.
 	ExposeExporter *bool `json:"expose_exporter,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyNodeExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -11558,6 +11579,9 @@ type ChangeAgentParamsBodyRDSExporter struct {
 	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
 	// Mutually exclusive with aws_access_key and aws_secret_key.
 	AWSRoleArn *string `json:"aws_role_arn,omitempty"`
+
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyRDSExporterCustomLabels `json:"custom_labels,omitempty"`

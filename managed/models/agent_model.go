@@ -913,6 +913,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 // Defaults: MySQL, MongoDB, ProxySQL, and PostgreSQL use 2s; Valkey uses 3s.
 //
 // Exporters without DB connection (node, rds, azure, external) don't use this.
+// Their ConnectionTimeout affects only scrape timeout via exporterScrapeTimeout().
 func (a *Agent) EffectiveDialTimeout() time.Duration {
 	if a.ExporterOptions.ConnectionTimeout != nil {
 		return *a.ExporterOptions.ConnectionTimeout
