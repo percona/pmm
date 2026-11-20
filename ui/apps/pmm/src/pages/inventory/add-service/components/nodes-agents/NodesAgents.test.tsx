@@ -52,6 +52,7 @@ const Form: FC = () => {
   return (
     <FormProvider {...methods}>
       <NodesAgents />
+      <input data-testid="address" {...methods.register('address')} />
       <Values />
     </FormProvider>
   );
@@ -165,5 +166,64 @@ describe('NodesAgents', () => {
         'client|client-agent|localhost'
       )
     );
+  });
+
+  describe('going back to the PMM Server node', () => {
+    const NODES: ManagedNode[] = [
+      {
+        ...NODE,
+        nodeId: 'pmm-server',
+        nodeName: 'pmm-server',
+        isPmmServerNode: true,
+        agents: [pmmAgent('pmm-server')],
+      },
+      {
+        ...NODE,
+        nodeId: 'client',
+        nodeName: 'client',
+        agents: [pmmAgent('client-agent')],
+      },
+    ];
+
+    const pickNode = async (name: string) => {
+      fireEvent.mouseDown(screen.getAllByRole('combobox')[0]);
+      fireEvent.click(await screen.findByRole('option', { name }));
+    };
+
+    it('clears the localhost it filled in', async () => {
+      mockNodes(NODES);
+      renderPicker();
+
+      await pickNode('client');
+      await waitFor(() =>
+        expect(screen.getByTestId('values')).toHaveTextContent(
+          'client|client-agent|localhost'
+        )
+      );
+
+      await pickNode('pmm-server');
+      await waitFor(() =>
+        expect(screen.getByTestId('values')).toHaveTextContent(
+          /^pmm-server\|pmm-server\|$/
+        )
+      );
+    });
+
+    it('keeps a localhost the user typed', async () => {
+      mockNodes(NODES);
+      renderPicker();
+
+      fireEvent.change(screen.getByTestId('address'), {
+        target: { value: 'localhost' },
+      });
+      await pickNode('client');
+      await pickNode('pmm-server');
+
+      await waitFor(() =>
+        expect(screen.getByTestId('values')).toHaveTextContent(
+          'pmm-server|pmm-server|localhost'
+        )
+      );
+    });
   });
 });

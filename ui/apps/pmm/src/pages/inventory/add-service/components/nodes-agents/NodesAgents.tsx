@@ -1,6 +1,6 @@
 import MenuItem from '@mui/material/MenuItem';
 import { SelectInput } from '@percona/peak-ui';
-import { type FC, useCallback, useEffect } from 'react';
+import { type FC, useCallback, useEffect, useRef } from 'react';
 import { useFormContext, useFormState, useWatch } from 'react-hook-form';
 import type {
   ConnectionFormValues,
@@ -11,6 +11,7 @@ import { Messages } from './NodesAgents.messages';
 import type { NodeOption } from './NodesAgents.types';
 import { useNodeOptions } from './NodesAgents.hooks';
 import { getPreselectedNode } from './NodesAgents.utils';
+import { CLIENT_NODE_ADDRESS } from './NodesAgents.constants';
 
 type Values = NodeFormValues & Pick<ConnectionFormValues, 'address'>;
 
@@ -20,13 +21,15 @@ export const NodesAgents: FC = () => {
   const { nodes, isLoading } = useNodeOptions();
   const nodeId = useWatch({ control, name: 'nodeId' });
   const selectedNode = nodes.find((node) => node.nodeId === nodeId);
+  const isAddressPrefilled = useRef(false);
 
   const selectAgent = useCallback(
     (node: NodeOption, agentId: string) => {
       setValue('pmmAgentId', agentId, { shouldValidate: !!agentId });
 
       if (agentId && !node.isPmmServerNode && !getValues('address')) {
-        setValue('address', 'localhost');
+        setValue('address', CLIENT_NODE_ADDRESS);
+        isAddressPrefilled.current = true;
       }
     },
     [getValues, setValue]
@@ -37,9 +40,20 @@ export const NodesAgents: FC = () => {
     (node: NodeOption) => {
       setValue('nodeId', node.nodeId, { shouldValidate: true });
       setValue('isPmmServerNode', node.isPmmServerNode);
+
+      // localhost on the PMM Server node points inside its container, so only a typed one stays.
+      if (
+        node.isPmmServerNode &&
+        isAddressPrefilled.current &&
+        getValues('address') === CLIENT_NODE_ADDRESS
+      ) {
+        setValue('address', '');
+        isAddressPrefilled.current = false;
+      }
+
       selectAgent(node, node.agentIds.length === 1 ? node.agentIds[0] : '');
     },
-    [selectAgent, setValue]
+    [getValues, selectAgent, setValue]
   );
 
   useEffect(() => {
