@@ -512,7 +512,7 @@ If you need to remove MongoDB service from PMM, follow these steps:
 
     1. Go to **Inventory > Services**.
     2. Select the checkbox of the service that you want to remove, then click **Delete**.
-    3. To also remove the agents of the service, select **Force mode**.
+    3. Select **Force mode**. PMM can't remove a service that still has agents, and Force mode removes them with the service. Force mode also removes the scheduled backups and restore history of the service, but keeps its backup artifacts.
     4. Click **Yes, delete service**.
 
 ## Related topics

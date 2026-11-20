@@ -242,7 +242,7 @@ To remove services:
 
 1. Go to **Inventory > Services**.
 2. Select the checkboxes of the services to remove, then click **Delete**. To remove a single service, you can also click :material-dots-vertical: next to it and select **Delete**.
-3. To also remove the agents of the services, select **Force mode**.
+3. Select **Force mode**. PMM can't remove a service that still has agents, and Force mode removes them with the service. Force mode also removes the scheduled backups and restore history of the services, but keeps their backup artifacts.
 4. Click **Yes, delete service**, or **Yes, delete services** if you selected more than one.
 
 ### Remove nodes
@@ -252,7 +252,7 @@ To remove nodes:
 
 1. Go to **Inventory > Nodes**.
 2. Select the checkboxes of the nodes to remove, then click **Delete**. To remove a single node, you can also click :material-dots-vertical: next to it and select **Delete**.
-3. To also remove all the agents and services on the nodes, select **Force mode**.
+3. Select **Force mode**. PMM can't remove a node that still has agents or services, and Force mode removes them with the node.
 4. Click **Proceed**.
 
 You can't delete PMM Server nodes from **Inventory**. In an HA cluster, Helm manages them, and deleting one would drop it from monitoring without stopping the pod. To add or remove replicas, [use `helm upgrade`](../install-pmm/install-HA-clustered.md#scale-pmm-server-replicas).
