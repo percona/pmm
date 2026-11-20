@@ -1,6 +1,6 @@
 import type { FC } from 'react';
+import { PasswordField, TextField } from 'components/fields';
 import { FieldGrid } from '../../../components/field-grid';
-import { PasswordField, TextField } from '../../../components/fields';
 import { useServiceForm } from '../../../service-form/ServiceForm.hooks';
 import { DiscoveryCredentials } from '../../components/discovery-credentials';
 import { AZURE_CREDENTIALS_DEFAULTS } from './AzureCredentials.constants';

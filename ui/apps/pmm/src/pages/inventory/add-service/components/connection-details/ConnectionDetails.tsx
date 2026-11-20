@@ -1,11 +1,11 @@
 import type { FC } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
+import { PasswordField, TextField } from 'components/fields';
 import { usesClientCertificate } from '../../service-form/ServiceForm.schema';
 import type {
   TlsCertificatesFormValues,
   TlsFormValues,
 } from '../../service-form/ServiceForm.types';
-import { PasswordField, TextField } from '../fields';
 import { FieldGrid } from '../field-grid';
 import { FormSection } from '../form-section';
 import { NodesAgents } from '../nodes-agents';

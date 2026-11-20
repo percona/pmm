@@ -1,10 +1,10 @@
 import { useAddService } from 'hooks/api/useServices';
 import type { FC } from 'react';
+import { PasswordField, TextField } from 'components/fields';
 import { Messages as PageMessages } from '../../AddServicePage.messages';
 import { AdditionalOptions } from '../../components/additional-options';
 import { Messages as ConnectionMessages } from '../../components/connection-details/ConnectionDetails.messages';
 import { FieldGrid } from '../../components/field-grid';
-import { PasswordField, TextField } from '../../components/fields';
 import { FormSection } from '../../components/form-section';
 import { Labels } from '../../components/labels';
 import { ServiceForm } from '../ServiceForm';

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
+import { TextField } from 'components/fields';
 import { FieldGrid } from '../field-grid';
-import { TextField } from '../fields';
 import { FormSection } from '../form-section';
 import { Messages } from './Labels.messages';
 import type { LabelsProps } from './Labels.types';

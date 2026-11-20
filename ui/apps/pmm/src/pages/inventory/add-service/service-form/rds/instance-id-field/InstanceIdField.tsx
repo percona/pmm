@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { TextField } from '../../../components/fields';
+import { TextField } from 'components/fields';
 import { Messages } from '../RdsServiceForm.messages';
 
 export const InstanceIdField: FC = () => (

@@ -187,8 +187,6 @@ export const Messages = {
       },
     } as Record<string, { label: string; helper: string }>,
     secretHelper: (name: string) => `Saved as "${name}".`,
-    revealSecret: 'Show value',
-    hideSecret: 'Hide value',
     noSecrets:
       "This PMM version's delivery plan declares no credentials, so only the ServiceNow endpoint can be set here.",
     submit: 'Verify and connect',

@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { usePatchSetting } from '@pmm-extensions/api';
+import { PasswordField } from 'components/fields';
 import { Messages } from '../../Settings.messages';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import {
@@ -29,7 +30,6 @@ import {
   extensionsErrorMessage,
   toFormValues,
 } from './ServiceNowConnection.utils';
-import { SecretField } from './SecretField';
 
 interface Props {
   declaredNames: string[];
@@ -158,7 +158,7 @@ export const ServiceNowConnectionForm: FC<Props> = ({
             </Typography>
           ) : (
             declaredNames.map((name, index) => (
-              <SecretField
+              <PasswordField
                 key={name}
                 // Addressed by position: a declared name is runtime data from
                 // the side-car, and react-hook-form would read one containing a `.` as a

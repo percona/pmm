@@ -24,7 +24,7 @@ export const PasswordField: FC<PasswordFieldProps> = (props) => {
             size="small"
             aria-label={toggleLabel}
             title={toggleLabel}
-            data-testid={`${kebabize(props.name)}-reveal`}
+            data-testid={`${props.testId ?? kebabize(props.name)}-reveal`}
             onClick={() => setIsRevealed((revealed) => !revealed)}
           >
             {isRevealed ? <VisibilityOffIcon /> : <VisibilityIcon />}

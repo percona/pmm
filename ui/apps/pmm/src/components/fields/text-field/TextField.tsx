@@ -15,6 +15,7 @@ export const TextField: FC<TextFieldProps> = ({
   endAdornment,
   disabled,
   required,
+  testId,
 }) => (
   <TextInput
     name={name}
@@ -29,7 +30,10 @@ export const TextField: FC<TextFieldProps> = ({
       disabled,
       fullWidth: true,
       ...(kind === 'textarea' && { multiline: true, minRows: 3 }),
-      ...(endAdornment && { slotProps: { input: { endAdornment } } }),
+      slotProps: {
+        ...(endAdornment && { input: { endAdornment } }),
+        ...(testId && { htmlInput: { 'data-testid': testId } }),
+      },
     }}
   />
 );

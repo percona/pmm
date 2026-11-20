@@ -1,8 +1,8 @@
 import { SwitchInput } from '@percona/peak-ui';
 import type { FC } from 'react';
+import { TextField } from 'components/fields';
 import { AddServiceType } from '../../../AddServicePage.types';
 import { DisableCollectorsField } from '../../../components/disable-collectors';
-import { TextField } from '../../../components/fields';
 import { OptionWithLimit } from '../../../components/option-with-limit';
 import { QueryAnalyticsOptions } from '../../../components/query-analytics-options';
 import { TlsCertificates } from '../../../components/tls-certificates';

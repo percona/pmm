@@ -12,4 +12,6 @@ export interface TextFieldProps {
   endAdornment?: ReactNode;
   disabled?: boolean;
   required?: boolean;
+  // Replaces peak-ui's text-input-<name>, for a name that doesn't make a readable id.
+  testId?: string;
 }

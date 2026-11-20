@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { TextField } from '../fields';
+import { TextField } from 'components/fields';
 import { Messages } from './DisableCollectorsField.messages';
 
 export const DisableCollectorsField: FC = () => (
