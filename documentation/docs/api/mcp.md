@@ -9,7 +9,7 @@ The endpoint is read-only. Every tool is registered with the MCP `readOnlyHint` 
 
 ## How it works
 
-The MCP server runs inside pmm-managed and speaks MCP Streamable HTTP. It holds no credentials of its own: each tool call goes back out through PMM's public REST API with the caller's own credentials, so a client can never see or do more through MCP than it could with the same token and `curl`. Authorization is enforced per call by the same rules as for every other PMM API request, including [label-based access control](../admin/roles/access-control/intro.md) where it applies. A token goes to PMM's API as `Authorization: Bearer <token>`, without cookies, whether the client sent it as a Bearer value or as Basic `api_key:<token>` or `service_token:<token>`. Basic credentials of a user and a session cookie go as sent.
+The MCP server runs inside pmm-managed and speaks MCP Streamable HTTP. It holds no credentials of its own: each tool call goes back out through PMM's public REST API with the caller's own credentials, so a client can never see or do more through MCP than it could with the same token and `curl`. Authorization is enforced per call by the same rules as for every other PMM API request, including [label-based access control](../admin/roles/access-control/intro.md) where it applies. A token goes to PMM's API as `Authorization: Bearer <token>`, without cookies, whether the client sent it as a Bearer value or as Basic `api_key:<token>` or `service_token:<token>`. Basic credentials of a user and a session cookie go as sent. A session cookie lasts only until Grafana rotates the session, every 60 minutes in PMM, so give an MCP client a token or Basic credentials.
 
 The endpoint is only reachable through PMM's nginx, which authenticates every request. A connection made directly to pmm-managed, bypassing nginx, is answered with 404 even when pmm-managed listens on a routable interface.
 
@@ -125,7 +125,7 @@ Most results link to the same data in PMM, so you can check an answer in PMM its
 | `pmm_service_health` | The instance summary dashboard of the service |
 | `pmm_alerts` | The alert rule of each alert in PMM's alerting |
 
-`pmm_version`, `pmm_catalog`, `pmm_get_schema`, `pmm_query_metrics` and `pmm_list_metrics` carry no link. Links use the PMM public address setting when it is set, otherwise the host name the client connected to.
+`pmm_version`, `pmm_catalog`, `pmm_get_schema`, `pmm_query_metrics` and `pmm_list_metrics` carry no link. Links use the PMM public address setting when it is set, otherwise the host name and scheme the client connected with.
 
 ### Query references
 
@@ -464,7 +464,7 @@ Set them on the PMM Server container like other `PMM_*` variables, for example `
     - `group_by=username` and `group_by=client_host` return database user names and client addresses, as the QAN dashboard does for the same role. `PMM_MCP_RAW_SQL` does not hide them.
     - An agent error that can quote the statement is withheld, and its error code is kept.
 
-    Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions from `pmm_get_schema` are returned as they are, so `CHECK` and `DEFAULT` constants and partition bounds are not masked. To keep literals from being collected at all, disable query examples at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.
+    Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions from `pmm_get_schema` are returned as they are, so `CHECK` and `DEFAULT` constants and partition bounds are not masked. To stop PMM from collecting query examples, disable them at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.
 
 ### Operator metrics
 
