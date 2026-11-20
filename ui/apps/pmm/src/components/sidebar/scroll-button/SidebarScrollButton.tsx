@@ -21,8 +21,9 @@ const SidebarScrollButton: FC<Props> = ({ direction, visible, onClick }) => {
       sx={(theme) => ({
         position: 'absolute',
         [direction === 'up' ? 'top' : 'bottom']: theme.spacing(0.5),
-        left: '50%',
-        transform: 'translateX(-50%)',
+        // Under the group chevrons' column when open, so it never splits a
+        // label; the same offset centres it in the collapsed rail.
+        right: theme.spacing(0.5),
         zIndex: 1,
         borderRadius: '50%',
         backgroundColor: theme.palette.background.paper,
