@@ -52,7 +52,3 @@ overrides:
   dompurify: ^3.2.7
   serialize-javascript: ^7.0.3
   picomatch: ^4.0.4
-
-# Percona's own component library: new releases are adopted the day they ship.
-minimumReleaseAgeExclude:
-  - '@percona/peak-ui'

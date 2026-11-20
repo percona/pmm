@@ -27,6 +27,8 @@ out/
 build
 dist
 *.tsbuildinfo
+storybook-static
+packages/peak-ui/CHANGELOG.md
 
 
 # Debug

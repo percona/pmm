@@ -54,3 +54,6 @@ jobs:
 
       - name: Build application
         run: make build
+
+      - name: Build the Peak UI package
+        run: pnpm --filter @percona/peak-ui build:package
