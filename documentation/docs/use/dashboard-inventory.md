@@ -192,6 +192,9 @@ To edit a service:
     ![Connection section of a MySQL service, with an empty Password field and the hint Leave blank to keep the current one](../images/PMM_Inventory_Edit_Service.png)
 
 4. If the service is an Amazon RDS instance, select an option under **Authenticate with** in the **Amazon RDS credentials** section: **Access key**, **IAM role** or **Host credentials**. To create an access key or an IAM role for PMM, [set up AWS access for Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md).
+
+    If you change the **Amazon RDS access key**, also enter the **Amazon RDS secret key** that goes with it. PMM keeps the stored secret key only with the stored access key.
+
 5. Click **Save changes**.
 6. Review the summary of the changes, then click **Confirm and save changes**. PMM saves only the settings that you changed, and opens the **Services** tab.
 
