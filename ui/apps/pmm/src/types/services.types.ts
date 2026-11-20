@@ -253,6 +253,7 @@ export interface AddRDSServiceParams extends ServiceLabels {
   region: string;
   az?: string;
   instanceId: string;
+  nodeModel?: string;
   address: string;
   port: number;
   engine: DiscoverRDSEngine;

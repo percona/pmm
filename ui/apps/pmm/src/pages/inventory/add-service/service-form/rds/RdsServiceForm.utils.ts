@@ -40,6 +40,7 @@ export const toRdsService = (
     region: values.region,
     az: values.az,
     instanceId: values.instanceId,
+    nodeModel: instance.nodeModel,
     engine: instance.engine,
     nodeName: connection.serviceName,
     rdsExporter: true,

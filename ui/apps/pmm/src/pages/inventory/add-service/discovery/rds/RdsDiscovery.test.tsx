@@ -248,6 +248,7 @@ describe('RdsDiscovery', () => {
       expect.objectContaining({
         engine: DiscoverRDSEngine.mysql,
         instanceId: 'rds-mysql',
+        nodeModel: 'db.t3.micro',
         serviceName: 'rds-mysql',
         nodeName: 'rds-mysql',
         address: 'rds-mysql.rds.amazonaws.com',
