@@ -533,8 +533,15 @@ func TestQueryDetailTool(t *testing.T) {
 		text, isError := callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-ZZZ"})
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: not_found\n"), text)
-		assert.Contains(t, text, "no data for this query in 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z;")
+		assert.Contains(t, text, "no data for this query in 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z; widen period_from")
 		assert.NotContains(t, text, "QID-ZZZ")
+		assert.NotContains(t, text, "only services")
+
+		text, isError = callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-ZZZ", "period_from": "now-30d"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasSuffix(text, "\nno data for this query in 2026-08-15T12:00:00Z – 2026-09-14T12:00:00Z; "+
+			"only services that sent metrics in 2026-09-07T12:00:00Z – 2026-09-14T12:00:00Z, the last 7 days of the call's window, were searched: "+
+			"for a service that stopped earlier, end the window while it still sent them"), text)
 	})
 
 	t.Run("ServiceOutsideList", func(t *testing.T) {
