@@ -168,12 +168,12 @@ func TestExplainTool(t *testing.T) {
 			ServiceName: "shop-postgres",
 			Format:      formatText,
 			Plan:        "Seq Scan on customers  (cost=0.00..458.00 rows=1 width=64)\n  Filter: ((email)::text = 'user42@example.com'::text)",
+			Note:        storedPlanNote,
 			QueryRef:    &queryRef{QueryID: "QID-PG", ServiceID: "svc-2", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow},
 			PMMURL: "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?details_tab=explain&filter_by=QID-PG" +
 				"&from=" + ms(testNow.Add(-time.Hour)) + "&query_selected=true&to=" + ms(testNow) + "&var-service_name=shop-postgres",
 		}, got)
-		assert.Contains(t, text, "```\n"+got.Plan+"\n```\n\n[View this query in PMM QAN ↗]("+got.PMMURL+")")
-		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), `"note"`)
+		assert.Contains(t, text, "```\n"+got.Plan+"\n```\n"+storedPlanNote+"\n\n[View this query in PMM QAN ↗]("+got.PMMURL+")")
 		assert.NotContains(t, text, "Live plan")
 
 		reports := fake.requestsTo(reportPath)
