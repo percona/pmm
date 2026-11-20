@@ -265,9 +265,8 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		if resolved.MetricsErr != nil {
 			return explainResult{}, resolved.MetricsErr
 		}
-		// With a stored query example the service and queryid are enough, and
-		// pmm-managed rejects placeholders that do not match it. Without one
-		// PMM EXPLAINs the raw ? fingerprint and MySQL answers 1064, mapped below.
+		// PMM EXPLAINs the stored example of the one QAN row it reads, or the ? fingerprint when that row has none, and
+		// MySQL then answers 1064; pmm-managed rejects placeholders that don't match. mysqlExplainError maps both.
 		database := cmp.Or(in.Database, resolved.Database)
 		if format == formatTraditional {
 			body.MysqlExplain = &actions_service.StartServiceActionParamsBodyMysqlExplain{
@@ -306,7 +305,8 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 
 	output, err := s.runAction(ctx, auth, body, !raw)
 	if err != nil {
-		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "")
+		storedExample := svc.Engine == engineMySQL && resolved.Example != "" && len(in.Placeholders) == 0
+		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "", storedExample)
 	}
 
 	plan, decoded := decodeExplainOutput(output, raw)
@@ -492,7 +492,8 @@ func (s *Service) planTablesOf(ctx context.Context, auth callerAuth, resolved *r
 	}
 	output, err := s.runAction(ctx, auth, body, !s.rawSQL())
 	if err != nil {
-		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative)
+		storedExample := resolved.Example != "" && len(placeholders) == 0
+		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative, storedExample)
 	}
 	// Only the plan is read: the explained statement can be the stored example, literals included.
 	plan, err := decodeExplainEnvelope(output)
@@ -749,16 +750,24 @@ func mapActionStartError(err error) error {
 }
 
 // mysqlExplainError gives a failed MySQL EXPLAIN action's placeholder errors their remediation: hint follows a 1064,
-// and alternative follows the placeholder-count message.
-func mysqlExplainError(err error, hint, alternative string) error {
+// and alternative follows the placeholder-count message. With storedExample (QAN stored an example in the window and
+// the call passed no placeholders), either error means PMM read a stored row of the query without the example.
+func mysqlExplainError(err error, hint, alternative string, storedExample bool) error {
 	te, ok := errors.AsType[*toolError](err)
 	if !ok || te.code != codeInvalidInput {
 		return err
 	}
+	countError := strings.Contains(te.message, placeholdersCountError)
+	syntaxError := strings.HasPrefix(te.message, "Error 1064 ")
 	switch {
-	case strings.Contains(te.message, placeholdersCountError):
+	case storedExample && syntaxError:
+		// With no placeholders passed, that row records none, so no placeholders fit it either.
+		return newToolError(codeNoQuerySource, "%s%s", rowWithoutStatementMessage, alternative)
+	case storedExample && countError:
+		return newToolError(codeInvalidInput, "%s%s", rowWithoutExampleMessage, alternative)
+	case countError:
 		return newToolError(codeInvalidInput, "%s%s", placeholdersCountMessage, alternative)
-	case strings.HasPrefix(te.message, "Error 1064 "):
+	case syntaxError:
 		// MySQL answered 1064: EXPLAIN ran on the ? fingerprint because no concrete statement was available.
 		return newToolError(codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): %s. %s", te.message, hint)
 	default:
@@ -777,6 +786,11 @@ const (
 	placeholdersCountError   = "placeholders count is not correct"
 	placeholdersCountMessage = "the number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, " +
 		"in order, or none when QAN stored a query example"
+	rowWithoutExampleMessage = "QAN stored an example of this query, but the stored row that PMM's EXPLAIN reads for it has none: " +
+		"pass one value per ? in the fingerprint, in order"
+	rowWithoutStatementMessage = "QAN stored an example of this query, but the stored row that PMM's EXPLAIN reads for it has " +
+		"none and records no placeholders, so there is no statement to explain and placeholders don't fit it; calling again " +
+		"usually reads the same row. pmm_query_detail shows the stored example, which can be explained in a database client"
 	mongoExplainRemediation = "pmm-agent explains MongoDB queries, updates, removes and getMores, and the find, findAndModify, " +
 		"update, aggregate, count, distinct, mapReduce, group and getMore commands; it refuses inserts, drops and other commands. " +
 		"Pick another query from pmm_top_queries"
