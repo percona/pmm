@@ -1,17 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import type { RdsExporter } from 'types/agent.types';
+import { toCustomLabelsText } from 'utils/labels.utils';
 import { TEST_MANAGED_SERVICE } from 'utils/testStubs';
 import {
   type EditServiceFormValues,
-  areCustomLabelsValid,
   getEditServiceSchema,
 } from './EditService.schema';
-import { RdsAuthMode } from './EditService.types';
+import { RdsAuthMode } from '../Inventory.types';
 import {
   getInitialValues,
   getRdsAuthMode,
-  parseCustomLabels,
-  toCustomLabelsText,
   toRdsCredentials,
   toServiceChanges,
 } from './EditService.utils';
@@ -40,49 +38,6 @@ const values = (
 });
 
 const ROLE_ARN = 'arn:aws:iam::123456789012:role/PmmRdsMonitoring';
-
-describe('custom labels', () => {
-  it('round-trips between the API map and the text', () => {
-    expect(toCustomLabelsText(SERVICE.customLabels)).toBe(
-      'team:db\nregion_name:eu'
-    );
-    expect(parseCustomLabels('team:db\n region_name:eu  ')).toEqual(
-      SERVICE.customLabels
-    );
-  });
-
-  it('keeps colons in label values', () => {
-    const labels = { endpoint: 'db:3306', url: 'http://db' };
-
-    expect(parseCustomLabels(toCustomLabelsText(labels))).toEqual(labels);
-  });
-
-  it('keeps spaces in label values', () => {
-    const labels = { owner: 'DB Team', team: 'db' };
-
-    expect(parseCustomLabels(toCustomLabelsText(labels))).toEqual(labels);
-    expect(parseCustomLabels('owner:DB Team env:prod team:db')).toEqual({
-      owner: 'DB Team',
-      env: 'prod',
-      team: 'db',
-    });
-  });
-
-  it.each([
-    ['', true],
-    ['team:db\nregion_name:eu', true],
-    ['team:db region_name:eu', true],
-    ['team', false],
-    ['team:', false],
-    ['endpoint:db:3306', true],
-    ['owner:DB Team', true],
-    ['team:db 1team:db', false],
-    ['1team:db', false],
-    ['__reserved:db', false],
-  ])('validates %j as %s', (text, valid) => {
-    expect(areCustomLabelsValid(text)).toBe(valid);
-  });
-});
 
 describe('getRdsAuthMode', () => {
   it('derives the mode from what the exporter holds', () => {

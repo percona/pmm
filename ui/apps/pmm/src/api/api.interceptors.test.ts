@@ -267,3 +267,27 @@ describe('auth retry interceptor', () => {
     expect(enqueueSnackbar).toHaveBeenCalledWith('boom', expect.anything());
   });
 });
+
+describe('error notifier', () => {
+  afterEach(() => {
+    api.defaults.adapter = originalApiAdapter;
+    vi.clearAllMocks();
+  });
+
+  it('marks the errors it shows, so callers do not report them twice', async () => {
+    stubApi({ status: 500, data: { message: 'boom' } });
+
+    await expect(api.get('/server/version')).rejects.toMatchObject({
+      notified: true,
+    });
+  });
+
+  it('leaves quiet errors unmarked for the caller to report', async () => {
+    stubApi({ status: 429 });
+
+    const error = await api.get('/server/version').catch((e: unknown) => e);
+
+    expect(error).toMatchObject({ response: { status: 429 } });
+    expect(error).not.toHaveProperty('notified');
+  });
+});

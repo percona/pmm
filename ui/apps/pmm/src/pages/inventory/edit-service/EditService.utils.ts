@@ -1,32 +1,8 @@
 import type { RdsCredentials, RdsExporter } from 'types/agent.types';
 import type { BaseService, ChangeServiceParams } from 'types/services.types';
+import { parseCustomLabels, toCustomLabelsText } from 'utils/labels.utils';
 import type { EditServiceFormValues } from './EditService.schema';
-import { RdsAuthMode } from './EditService.types';
-
-export const toCustomLabelsText = (labels: Record<string, string>) =>
-  Object.entries(labels)
-    .map(([name, value]) => `${name}:${value}`)
-    .join('\n');
-
-// Only label names are restricted, so a value can hold colons too
-export const splitCustomLabel = (entry: string): [string, string] => {
-  const separator = entry.indexOf(':');
-
-  return separator === -1
-    ? [entry, '']
-    : [entry.slice(0, separator), entry.slice(separator + 1)];
-};
-
-// Labels are separated by new lines or spaces, but a space only starts a new
-// label before another "name:", so values can hold spaces
-export const splitCustomLabelEntries = (text: string) =>
-  text
-    .split(/\n|\s+(?=[^\s:]+:)/)
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-
-export const parseCustomLabels = (text: string): Record<string, string> =>
-  Object.fromEntries(splitCustomLabelEntries(text).map(splitCustomLabel));
+import { RdsAuthMode } from '../Inventory.types';
 
 export const getRdsAuthMode = (exporter: RdsExporter | null) => {
   if (exporter?.awsRoleArn) {

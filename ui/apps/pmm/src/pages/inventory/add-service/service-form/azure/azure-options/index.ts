@@ -1,0 +1,1 @@
+export { AzureOptions } from './AzureOptions';

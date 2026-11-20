@@ -12,16 +12,16 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import type { RdsExporter } from 'types/agent.types';
 import type { BaseService } from 'types/services.types';
+import { toCustomLabelsText } from 'utils/labels.utils';
 import { ConfirmChangesModal } from '../confirm-changes-modal';
 import { Messages } from '../EditService.messages';
 import {
   type EditServiceFormValues,
   getEditServiceSchema,
 } from '../EditService.schema';
-import { RdsAuthMode } from '../EditService.types';
+import { RdsAuthMode } from '../../Inventory.types';
 import {
   getInitialValues,
-  toCustomLabelsText,
   toRdsCredentials,
   toServiceChanges,
 } from '../EditService.utils';

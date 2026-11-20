@@ -7,7 +7,7 @@ export const Messages = {
     cluster: 'Cluster',
   },
   actions: {
-    add: 'Add Service',
+    add: 'Add service',
     edit: 'Edit',
     dashboard: 'Dashboard',
     qan: 'QAN',

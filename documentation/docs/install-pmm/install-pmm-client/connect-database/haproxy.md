@@ -58,8 +58,8 @@ To add HAProxy through the PMM web interface:
 {.power-number}
 
 1. Go to **Inventory > Add service**.
-2. Select HAProxy from the service types.
-3. Configure the connection parameters then click **Add Service**.
+2. Select **HAProxy** from the service types.
+3. Configure the connection parameters, then click **Add service**. The port defaults to `8404`.
 
 ## Verify the connection
 Check that HAProxy monitoring is active:

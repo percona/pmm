@@ -1,0 +1,1 @@
+export { RdsOptions } from './RdsOptions';

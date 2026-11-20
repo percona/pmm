@@ -93,6 +93,7 @@ export interface NodePayload {
   status: ServiceStatus;
   custom_labels?: Record<string, string>;
   is_pmm_server_node: boolean;
+  is_pmm_internal_node?: boolean;
   agents?: AgentPayload[];
   services?: {
     service_id: string;
@@ -287,6 +288,7 @@ export const toManagedNode = (payload: NodePayload): ManagedNode => ({
   status: payload.status,
   customLabels: payload.custom_labels ?? {},
   isPmmServerNode: payload.is_pmm_server_node,
+  isPmmInternalNode: payload.is_pmm_internal_node,
   agents: (payload.agents ?? []).map(toManagedAgent),
   services: (payload.services ?? []).map((service) => ({
     serviceId: service.service_id,

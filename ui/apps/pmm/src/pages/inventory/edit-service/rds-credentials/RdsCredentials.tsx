@@ -6,7 +6,7 @@ import { useWatch } from 'react-hook-form';
 import type { RdsExporter } from 'types/agent.types';
 import { Messages } from '../EditService.messages';
 import type { EditServiceFormValues } from '../EditService.schema';
-import { RdsAuthMode } from '../EditService.types';
+import { RdsAuthMode } from '../../Inventory.types';
 
 const { rds } = Messages;
 

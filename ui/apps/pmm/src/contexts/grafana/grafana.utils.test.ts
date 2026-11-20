@@ -3,6 +3,10 @@ import { isMigratedPage } from './grafana.utils';
 describe('isMigratedPage', () => {
   it.each([
     '/graph/settings/advanced-settings',
+    '/graph/inventory/services',
+    '/graph/edit-instance/service-1',
+    '/graph/add-instance',
+    '/graph/add-instance/rds',
     '/graph/advisors',
     '/graph/advisors/insights',
     '/graph/pmm-database-checks/failed-checks',
