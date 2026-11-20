@@ -16,6 +16,7 @@ package mongolog
 
 import (
 	"context"
+	"errors"
 	"path/filepath"
 	"testing"
 	"time"
@@ -24,6 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/tests"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -71,4 +73,82 @@ func TestMongoRun(t *testing.T) {
 		}
 		assert.Equal(t, expected, actual)
 	}
+}
+
+type fakeMongolog struct {
+	err     error
+	stopped bool
+}
+
+func (f *fakeMongolog) Start(context.Context) error { return f.err }
+
+func (f *fakeMongolog) Stop() { f.stopped = true }
+
+func TestMongoRunRetriesStart(t *testing.T) {
+	m := newMongo("mongodb://127.0.0.1:27017/admin", logrus.WithField("test", t.Name()), &Params{AgentID: "test"})
+	m.backoff = backoff.New(time.Millisecond, time.Millisecond)
+
+	// fail twice (e.g. the monitoring user is not there yet), then start
+	var attempts int
+	var running *fakeMongolog
+	m.newMongolog = func() Mongolog {
+		attempts++
+		if attempts <= 2 {
+			return &fakeMongolog{err: errors.New("auth error: sasl conversation error")}
+		}
+		running = &fakeMongolog{}
+		return running
+	}
+
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	go m.Run(ctx)
+
+	var actual []inventoryv1.AgentStatus
+	for c := range m.Changes() {
+		actual = append(actual, c.Status)
+		if c.Status == inventoryv1.AgentStatus_AGENT_STATUS_RUNNING {
+			cancel()
+		}
+	}
+
+	expected := []inventoryv1.AgentStatus{
+		inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
+		inventoryv1.AgentStatus_AGENT_STATUS_WAITING,
+		inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
+		inventoryv1.AgentStatus_AGENT_STATUS_WAITING,
+		inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
+		inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+		inventoryv1.AgentStatus_AGENT_STATUS_STOPPING,
+		inventoryv1.AgentStatus_AGENT_STATUS_DONE,
+	}
+	assert.Equal(t, expected, actual)
+	assert.Equal(t, 3, attempts)
+	assert.True(t, running.stopped)
+}
+
+func TestMongoRunStopsWhileWaiting(t *testing.T) {
+	m := newMongo("mongodb://127.0.0.1:27017/admin", logrus.WithField("test", t.Name()), &Params{AgentID: "test"})
+	m.backoff = backoff.New(time.Hour, time.Hour)
+	m.newMongolog = func() Mongolog { return &fakeMongolog{err: errors.New("connection refused")} }
+
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	go m.Run(ctx)
+
+	var actual []inventoryv1.AgentStatus
+	for c := range m.Changes() {
+		actual = append(actual, c.Status)
+		if c.Status == inventoryv1.AgentStatus_AGENT_STATUS_WAITING {
+			cancel()
+		}
+	}
+
+	expected := []inventoryv1.AgentStatus{
+		inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
+		inventoryv1.AgentStatus_AGENT_STATUS_WAITING,
+		inventoryv1.AgentStatus_AGENT_STATUS_STOPPING,
+		inventoryv1.AgentStatus_AGENT_STATUS_DONE,
+	}
+	assert.Equal(t, expected, actual)
 }
