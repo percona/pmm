@@ -5,8 +5,6 @@ import { Messages } from './QanHeader.messages';
 import QanHeaderActions from './qan-header-actions/QanHeaderActions';
 import { useIsRealtimeQan } from 'hooks/utils/useLocation';
 
-// The sidebar switches between stored metrics and real-time queries, so the
-// header only names the page and carries its actions.
 const QanHeader: FC = () => {
   const isRealtime = useIsRealtimeQan();
 
