@@ -205,6 +205,12 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		fake := newFakePMM(t, metricsRoutes(nil))
 		requireInvalid(t, newQANService(t, fake, false), fake, map[string]any{"query": `{__name__=~"mysql_global_.*"}`}, "service_id, service_name")
+		// A negative offset reads after the window the series are counted over.
+		requireInvalid(t, newQANService(t, fake, false), fake,
+			map[string]any{"query": `sum(rate(node_cpu_seconds_total[5m] offset -6d))`, "time": "now-6d"}, "a negative offset is not accepted")
+		requireInvalid(t, newQANService(t, fake, false), fake,
+			map[string]any{"query": `rate(node_cpu_seconds_total{node_name="n1"}[5m] offset -6d)`, "period_from": "now-145h", "period_to": "now-6d"},
+			"a negative offset is not accepted")
 		requireInvalid(t, newQANService(t, fake, false), fake,
 			map[string]any{"query": questions, "period_from": "now-7d"}, "the cap is 7d")
 		requireInvalid(t, newQANService(t, fake, false), fake, map[string]any{"query": "rate("}, "cannot parse")

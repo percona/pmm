@@ -419,6 +419,11 @@ func (w *exprWalk) rollup(re *metricsql.RollupExpr, p path) error {
 		return newToolError(codeInvalidInput,
 			"the @ modifier is not accepted: it reads outside the query's time range; set the query's time or period instead")
 	}
+	// The series count reads back from the query's time, so it never sees what a negative offset reads.
+	if re.Offset != nil && re.Offset.Duration(p.step.Milliseconds()) < 0 {
+		return newToolError(codeInvalidInput,
+			"a negative offset is not accepted: it reads after the query's time range; move the query's time or period later instead")
+	}
 
 	me, ok := re.Expr.(*metricsql.MetricExpr)
 	if ok && !re.ForSubquery() {
