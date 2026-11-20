@@ -131,20 +131,16 @@ If you upgrade to PMM 3.11.0 or later from an installation that sets its credent
 
 ### Remove whitespace from database passwords
 
-PMM Server doesn't start if one of these variables has leading or trailing whitespace: `PMM_POSTGRES_DBPASSWORD`, `GF_DATABASE_PASSWORD`, `PMM_CLICKHOUSE_PASSWORD` or `PMM_CLICKHOUSE_DATASOURCE_PASSWORD`. PMM Server now reads these passwords from files, which can't keep this whitespace. The password would then no longer match your database.
+PMM Server doesn't start if one of these database passwords has spaces or line breaks at the start or end:
 
-Whitespace usually gets in by accident. For example, an environment file can have a space after `=`, and `kubectl create secret --from-file` keeps the newline at the end of the file.
+- `PMM_POSTGRES_DBPASSWORD`: the PostgreSQL user of PMM Server
+- `GF_DATABASE_PASSWORD`: the PostgreSQL user of Grafana
+- `PMM_CLICKHOUSE_PASSWORD`: the ClickHouse user of PMM Server
+- `PMM_CLICKHOUSE_DATASOURCE_PASSWORD`: the read-only ClickHouse user of the Query Analytics data source
 
-Remove the whitespace from each affected variable. Depending on the variable and the database, you might also have to change the password in the database to the value without whitespace:
+This is because PMM Server reads these passwords from files. If you set them in environment variables, PMM Server copies them to files first. A file can't keep spaces or line breaks at the start or end, so PMM Server would log in to the database with a different password than the one the database has. Instead, PMM Server stops and its error tells you which variable to fix.
 
-| Variable | Built-in database | External database |
-|----------|-------------------|-------------------|
-| `PMM_POSTGRES_DBPASSWORD` | Nothing else. PMM Server updates the password in the database when it starts. | Change the password in PostgreSQL. |
-| `GF_DATABASE_PASSWORD` | Nothing else if Grafana worked before the upgrade. Otherwise, remove the variable, because the built-in database accepts only the default password. | Nothing else if Grafana worked before the upgrade. Otherwise, change the password in PostgreSQL. |
-| `PMM_CLICKHOUSE_PASSWORD` | Remove the variable, because the built-in ClickHouse accepts only the default password. | Change the password in ClickHouse. |
-| `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` | Remove the variable, because the built-in ClickHouse accepts only the default password. | Change the password in ClickHouse. |
-
-Grafana has always ignored trailing whitespace in its password. If Grafana worked, its database already uses the password without the whitespace.
+Whitespace usually gets into a password by accident. For example, an environment file can have a space after `=`, and if you create a Kubernetes Secret from a file with `kubectl create secret --from-file`, the password keeps the line break at the end of the file.
 
 To remove the whitespace when you upgrade:
 {.power-number}
@@ -160,8 +156,19 @@ To remove the whitespace when you upgrade:
 
     With Podman, use `podman exec pmm-server` instead of `docker exec pmm-server`. On Kubernetes, use `kubectl exec <pod> --namespace <namespace> --`.
 
-2. If the previous table tells you to, change the password in the database. Do this right before you upgrade: from then on, the running PMM Server can't open new connections to the database.
-3. Remove the whitespace from the variables, and upgrade PMM Server.
+2. For each variable that the check prints, find out what else to do, depending on whether you use the built-in database or an external one:
+
+    | Variable | Built-in database | External database |
+    |----------|-------------------|-------------------|
+    | `PMM_POSTGRES_DBPASSWORD` | Nothing to change. PMM Server updates the password in the database when it starts. | Change the password in PostgreSQL. |
+    | `GF_DATABASE_PASSWORD` | Nothing to change if Grafana worked before the upgrade. Otherwise, remove the variable, because the built-in database accepts only the default password. | Nothing to change if Grafana worked before the upgrade. Otherwise, change the password in PostgreSQL. |
+    | `PMM_CLICKHOUSE_PASSWORD` | Remove the variable, because the built-in ClickHouse accepts only the default password. | Change the password in ClickHouse. |
+    | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` | Remove the variable, because the built-in ClickHouse accepts only the default password. | Change the password in ClickHouse. |
+
+    Grafana has always ignored trailing whitespace in its password, so if Grafana worked, its database already uses the password without the whitespace.
+
+3. If the table tells you to change the password in the database, do it right before you upgrade. From then on, the running PMM Server can't open new connections to the database.
+4. Remove the whitespace from the variables, and upgrade PMM Server.
 
 If you use the `pmm-ha` Helm chart, change the passwords through the chart and its Secrets instead. In the following steps, `pmm-secret` and `pmmuser-credentials` are the default Secret names:
 {.power-number}
@@ -180,7 +187,7 @@ If you use the `pmm-ha` Helm chart, change the passwords through the chart and i
 
 3. Upgrade right away. Until the new pods run, the pods of the earlier version can't open new connections to PostgreSQL. If the check printed `PMM_CLICKHOUSE_DATASOURCE_PASSWORD`, also remove the whitespace from `clickhouse.datasource.password` in this upgrade. The chart then changes the password in ClickHouse too.
 
-If you already upgraded, PMM Server stops right after it starts, without changing any data. Fix the variables, and start PMM Server again. With the `pmm-ha` chart, the first upgraded pod restarts in a loop, and the other pods keep running the earlier version. After you fix the passwords, delete that pod so that the upgrade continues.
+If you already upgraded and PMM Server stops right after it starts, your data is safe: PMM Server stops before it changes anything. Fix the variables, and start PMM Server again. With the `pmm-ha` chart, the first upgraded pod restarts in a loop, and the other pods keep running the earlier version. After you fix the passwords, delete that pod so that the upgrade continues.
 
 ## Troubleshooting
 
