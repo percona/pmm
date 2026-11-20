@@ -26,6 +26,7 @@ import (
 	"github.com/prometheus/common/model"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/alert"
 	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 )
@@ -109,6 +110,8 @@ func renderProvisioningFile(
 		return nil, fmt.Errorf("invalid provisioning catalog: %w", err)
 	}
 
+	datasourceUIDs := map[alert.Datasource]string{alert.Metrics: datasourceUID}
+
 	file := provisioningFile{
 		APIVersion:  1,
 		Groups:      []provisioningGroup{},
@@ -148,7 +151,7 @@ func renderProvisioningFile(
 				continue
 			}
 
-			rendered, err := renderProvisionedRule(rule, templates[rule.templateName], datasourceUID)
+			rendered, err := renderProvisionedRule(rule, templates[rule.templateName], datasourceUIDs)
 			if err != nil {
 				return nil, fmt.Errorf("failed to render rule %s: %w", rule.uid, err)
 			}
@@ -177,7 +180,11 @@ func renderProvisioningFile(
 // produce from the same template, with one deliberate difference: the node_name and service_name
 // label templates are not added. They name a monitored database service, which none of these rules
 // has, and their values contain dollar signs that Grafana's provisioning interpolation would eat.
-func renderProvisionedRule(rule provisionedRule, template models.Template, datasourceUID string) (provisioningRule, error) {
+func renderProvisionedRule(
+	rule provisionedRule,
+	template models.Template,
+	datasourceUIDs map[alert.Datasource]string,
+) (provisioningRule, error) {
 	alertTemplate, err := parseAlertTemplate(template.Yaml)
 	if err != nil {
 		return provisioningRule{}, fmt.Errorf("failed to parse template: %w", err)
@@ -189,7 +196,7 @@ func renderProvisionedRule(rule provisionedRule, template models.Template, datas
 	}
 	paramsMap := params.AsStringMap()
 
-	built, err := buildGrafanaRuleData(alertTemplate, datasourceUID, "", paramsMap, nil)
+	built, err := buildGrafanaRuleData(alertTemplate, datasourceUIDs, "", paramsMap, nil)
 	if err != nil {
 		return provisioningRule{}, fmt.Errorf("failed to build rule data: %w", err)
 	}

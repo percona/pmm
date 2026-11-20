@@ -13,7 +13,7 @@ The UI uses a **pnpm workspaces + Turborepo** monorepo:
 
 | Package                         | Path                                | Purpose                                                                         |
 | ------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------- |
-| **pmm**                         | `ui/apps/pmm/`                      | Main PMM UI application (Vite + React)                                          |
+| **ui**                          | `ui/apps/pmm/`                      | Main PMM UI application (Vite + React)                                          |
 | **pmm-compat**                  | `ui/apps/pmm-compat/`               | Grafana plugin for PMM ↔ Grafana integration (Webpack)                          |
 | **@pmm/shared**                 | `ui/packages/shared/`               | Shared code: cross-frame messaging, types, utilities (Rollup)                   |
 | **@pmm/plugins-om**             | `ui/packages/plugins/om/`           | MongoDB Operations app (`OmApp`), mounted by `pmm` under its own routes         |
@@ -28,7 +28,7 @@ The plugin and extension packages are part of PMM and follow this guide like `pm
 
 | Technology                       | Role                                                 |
 | -------------------------------- | ---------------------------------------------------- |
-| **React 18**                     | UI framework                                         |
+| **React 19**                     | UI framework                                         |
 | **TypeScript**                   | Type-safe development                                |
 | **Vite**                         | Dev server and production build (main app)           |
 | **MUI (Material UI)**            | Component library                                    |

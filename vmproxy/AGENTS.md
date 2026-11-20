@@ -46,7 +46,7 @@ Grafana's Metrics data source points at vmproxy, and Grafana forwards whatever s
 given. Every route to that data source — `/graph/api/ds/query`, both
 `/graph/api/datasources/proxy/` forms, and `/graph/api/datasources/uid/<uid>/resources/` — crosses
 this proxy, so this is the one place that sees them all. A gate in pmm-managed would instead have
-to enumerate Grafana's URL forms, which is what PMM-15379 showed to be fragile.
+to enumerate Grafana's URL forms, which is fragile.
 
 Admins reach snapshots and the rest of the admin surface either through the admin-gated
 `/prometheus/*` nginx location, which goes straight to VictoriaMetrics without crossing this
@@ -73,7 +73,7 @@ CLI flags (using **Kong**):
 The proxy is built on `net/http/httputil.ReverseProxy` with a custom `Director` function:
 
 1. **`director()`** / **`prepareRequest()`** — rewrites `req.URL` to target, sets Host and Authorization
-2. **`failOnDisallowedPath()`** / **`isReadOnlyPath()`** — refuses any path outside the read-only allow-list with 403, before the request is proxied
+2. **`failOnDisallowedPath()`** / **`isPathAllowed()`** — refuses any path outside the read-only allow-list with 403, before the request is proxied
 3. **`failOnInvalidHeader()`** — if the filter header is present but malformed, returns 412
 4. **Filter injection** — removes existing `extra_filters[]`, parses header, adds each filter as `extra_filters[]`
 
