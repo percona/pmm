@@ -353,7 +353,6 @@ nav:
                   - advisors/checks/mongodb-scram-sha-256.md
                   - advisors/checks/mongodb-bindip.md
                   - advisors/checks/mongodb-cve-2025-14847.md
-                  - advisors/checks/mongodb-cve-version.md
                   - advisors/checks/mongodb-localhost-bypass.md
                   - advisors/checks/mysql-automatic-expired-password.md
                   - advisors/checks/mysql_automatic_sp_privileges_enabled.md
@@ -373,20 +372,13 @@ nav:
                   - advisors/checks/security-non-root-accounts-super-privileges.md
                   - advisors/checks/security-user-without-password.md
                   - advisors/checks/mysql-test-database.md
-                  - advisors/checks/postgresql-cve-check.md
                   - advisors/checks/postgresql-expiring-passwd.md
                   - advisors/checks/postgresql-super-role.md
               - Versions:
-                  - advisors/checks/mongodb-eol.md
                   - advisors/checks/mongodb-fcv-mismatch.md
-                  - advisors/checks/mongodb-unsupported-version.md
                   - advisors/checks/mongodb-version.md
-                  - advisors/checks/mysql_unsupported_version_check.md
                   - advisors/checks/mysql-version.md
-                  - advisors/checks/mysql_version_eol_57.md
-                  - advisors/checks/postgresql-eol-check.md
                   - advisors/checks/postgresql-extension-check.md
-                  - advisors/checks/postgresql-unsupported-check.md
                   - advisors/checks/postgresql-version-check.md
       - Percona Alerting:
           - alert/index.md
@@ -568,6 +560,7 @@ nav:
           - MongoDB dashboards:
               - reference/dashboards/dashboard-mongodb-collection_overview.md
               - reference/dashboards/dashboard-mongodb-unused-indexes.md
+              - reference/dashboards/dashboard-mongodb-top-queries.md
               - reference/dashboards/dashboard-mongodb-oplog-details.md
               - reference/dashboards/dashboard-mongodb-cluster-summary.md
               - reference/dashboards/dashboard-mongodb-instance-summary.md

@@ -11,20 +11,6 @@ Keep in mind that if set at runtime, the parameter setting will not persist afte
 
 To avoid performance issues, check and set the right value for your environment based on [MongoDB documentation](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.taskExecutorPoolSize).   
 
-## Rule
-
-{% raw %}
-```MONGODB_GETPARAMETER
-# to fetch the value
-db.adminCommand( { ‘getParameter’: ‘*’  } ).taskExecutorPoolSize
-
-METRICS_INSTANT
-# to fetch the value
-mongodb_sys_cpu_num_cpus{service_name="{{.ServiceName}}"}
-
-``` 
-{% endraw %}
-
 ## Resolution
 Adjust the value of this metric to match what is available on the host. Alternatively, consider an upgrade to add more CPU cores if your application needs exceed the currently allocated resources.
 
