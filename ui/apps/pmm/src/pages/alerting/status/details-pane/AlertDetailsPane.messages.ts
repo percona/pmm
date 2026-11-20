@@ -3,12 +3,7 @@ export const Messages = {
     details: 'Details',
     rawData: 'Raw data',
   },
-  actions: {
-    previous: 'Previous alert',
-    next: 'Next alert',
-    close: 'Close details pane',
-  },
-  tooltips: {
+  labels: {
     previous: 'Previous alert',
     next: 'Next alert',
     close: 'Close details',
