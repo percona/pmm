@@ -30,6 +30,26 @@ describe('CopyToClipboardButton', () => {
     );
   });
 
+  it('names the icon button after copyCommand unless buttonProps names it', () => {
+    mockClipboard();
+    const { rerender } = render(<CopyToClipboardButton textToCopy="text" />);
+
+    expect(
+      screen.getByRole('button', { name: 'Copy code' })
+    ).toBeInTheDocument();
+
+    rerender(
+      <CopyToClipboardButton
+        textToCopy="text"
+        buttonProps={{ 'aria-label': 'Copy query' }}
+      />
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Copy query' })
+    ).toBeInTheDocument();
+  });
+
   it('keeps the disabled button hoverable when consumers pass their own sx', () => {
     const { container } = render(
       <CopyToClipboardButton

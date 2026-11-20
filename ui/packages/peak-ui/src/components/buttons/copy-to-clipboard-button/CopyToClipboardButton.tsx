@@ -56,6 +56,7 @@ const CopyToClipboardButton = ({
         <span>
           <IconButton
             component="div"
+            aria-label={copyCommand}
             onClick={handleClick}
             disabled={!clipboardAvailable}
             {...buttonProps}
