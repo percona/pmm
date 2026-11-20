@@ -48,6 +48,8 @@ const (
 	formatText = "text"
 
 	livePlanNote = "Live plan: what the database would choose now, not during the window."
+	// QAN keeps no time for a stored plan and returns any one recorded for the query and service.
+	storedPlanNote = "Stored plan: one that pg_stat_monitor recorded for this query, at a time QAN doesn't keep, so possibly outside the window."
 	// The note of tables found in a live MySQL plan.
 	liveTablesNote = "Tables found in a live plan: what the database would choose now, not during the window."
 
@@ -98,7 +100,7 @@ type explainResult struct {
 	Plan        string    `json:"plan" jsonschema:"Untrusted. Execution plan, its literals masked when raw SQL is off; cut at 64 KiB."`
 	Truncated   bool      `json:"truncated" jsonschema:"Set when the plan was cut at 64 KiB."`
 	Live        bool      `json:"live" jsonschema:"Set when the PMM agent produced the plan now (MySQL, MongoDB); unset for pg_stat_monitor's stored plan."`
-	Note        string    `json:"note,omitempty" jsonschema:"Set for a live plan: it is what the database would choose now, not during the window."`
+	Note        string    `json:"note,omitempty" jsonschema:"Set for a live plan, what the database would choose now, and for a stored plan, which can come from outside the window."`
 	QueryRef    *queryRef `json:"query_ref,omitempty" jsonschema:"Identifies the query and the window it was read in."`
 	PMMURL      string    `json:"pmm_url" jsonschema:"Link to the query in PMM Query Analytics."`
 
@@ -341,6 +343,7 @@ func (s *Service) storedPlan(
 		Engine:      svc.Engine,
 		ServiceName: svc.ServiceName,
 		Format:      formatText,
+		Note:        storedPlanNote,
 		QueryRef:    &ref,
 		PMMURL:      pmmURL,
 		planID:      plan.Planid,
