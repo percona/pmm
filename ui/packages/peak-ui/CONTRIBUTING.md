@@ -75,7 +75,7 @@ Every documented story carries exactly **one** maturity status on its meta (defa
 
 ## Tech Stack (beyond what package.json shows)
 
-React 19 in development (peers accept React 18 or 19) + TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with sourcemaps; peer deps (MUI, Emotion, React, `react-hook-form`) are externalized. The theme names Poppins and Roboto Mono; the `@fontsource/*` dependencies are declared but not imported, so consumers load fonts themselves (see `AGENTS.md`).
+React 19, the version PMM UI runs: the `react` and `react-dom` peer ranges match `apps/pmm`, and a spec keeps them equal. TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with sourcemaps; peer deps (MUI, Emotion, React, `react-hook-form`) are externalized. The theme names Poppins and Roboto Mono; the `@fontsource/*` dependencies are declared but not imported, so consumers load fonts themselves (see `AGENTS.md`).
 
 ## MUI Conventions
 

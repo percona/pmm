@@ -96,6 +96,15 @@ describe('workspace consumers', () => {
     expect(pinned).toEqual([]);
   });
 
+  it('accepts the React version PMM UI runs, and nothing older', () => {
+    const app = JSON.parse(read('../../apps/pmm/package.json')) as {
+      dependencies: Record<string, string>;
+    };
+    ['react', 'react-dom'].forEach((name) =>
+      expect(pkg.peerDependencies[name], name).toBe(app.dependencies[name])
+    );
+  });
+
   it('consumers resolve the same copy of every peer dependency', () => {
     const installed = (dir: string, name: string) => {
       const path = resolve(ui, dir, 'node_modules', name);
