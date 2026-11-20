@@ -48,6 +48,7 @@ type ManagementService struct { //nolint:revive
 	vc            versionCache
 	grafanaClient grafanaClient
 	vmClient      victoriaMetricsClient
+	stm           scheduledTasksRemover
 	l             *logrus.Entry
 
 	// internalNodePrefixes holds the Node name prefixes reserved for the internal
@@ -86,6 +87,7 @@ func NewManagementService(
 	vc versionCache,
 	grafanaClient grafanaClient,
 	vmClient victoriaMetricsClient,
+	stm scheduledTasksRemover,
 	internalNodePrefixes []string,
 	haEnabled bool,
 ) *ManagementService {
@@ -99,6 +101,7 @@ func NewManagementService(
 		vc:                   vc,
 		grafanaClient:        grafanaClient,
 		vmClient:             vmClient,
+		stm:                  stm,
 		l:                    logrus.WithField("service", "management"),
 		internalNodePrefixes: internalNodePrefixes,
 		haEnabled:            haEnabled,
@@ -304,29 +307,16 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 
 	resultSvc := make([]*managementv1.UniversalService, len(services))
 	for i, service := range services {
-		labels, err := service.GetCustomLabels()
-		if err != nil {
-			return nil, err
+		var serviceAgents []*models.Agent
+		for _, agent := range agents {
+			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
+				serviceAgents = append(serviceAgents, agent)
+			}
 		}
 
-		svc := &managementv1.UniversalService{
-			Address:        pointer.GetString(service.Address),
-			Agents:         []*managementv1.UniversalAgent{},
-			Cluster:        service.Cluster,
-			CreatedAt:      timestamppb.New(service.CreatedAt),
-			CustomLabels:   labels,
-			DatabaseName:   service.DatabaseName,
-			Environment:    service.Environment,
-			ExternalGroup:  service.ExternalGroup,
-			NodeId:         service.NodeID,
-			Port:           uint32(pointer.GetUint16(service.Port)),
-			ReplicationSet: service.ReplicationSet,
-			ServiceId:      service.ServiceID,
-			ServiceType:    string(service.ServiceType),
-			ServiceName:    service.ServiceName,
-			Socket:         pointer.GetString(service.Socket),
-			UpdatedAt:      timestamppb.New(service.UpdatedAt),
-			Version:        pointer.GetString(service.Version),
+		svc, err := s.universalService(service, nodeMap[service.NodeID], serviceAgents)
+		if err != nil {
+			return nil, err
 		}
 
 		_, isSupported := supportedServices[string(service.ServiceType)]
@@ -343,28 +333,48 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 			svc.Status = managementv1.UniversalService_STATUS_UNKNOWN
 		}
 
-		nodeName, ok := nodeMap[service.NodeID]
-		if ok {
-			svc.NodeName = nodeName
-		}
-
-		var uAgents []*managementv1.UniversalAgent
-
-		for _, agent := range agents {
-			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
-				ag, err := s.agentToAPI(agent)
-				if err != nil {
-					return nil, err
-				}
-				uAgents = append(uAgents, ag)
-			}
-		}
-
-		svc.Agents = uAgents
 		resultSvc[i] = svc
 	}
 
 	return &managementv1.ListServicesResponse{Services: resultSvc}, nil
+}
+
+// universalService converts a Service and the given Agents to the API representation, leaving the status unspecified.
+func (s *ManagementService) universalService(service *models.Service, nodeName string, agents []*models.Agent) (*managementv1.UniversalService, error) {
+	labels, err := service.GetCustomLabels()
+	if err != nil {
+		return nil, err
+	}
+
+	svc := &managementv1.UniversalService{
+		Address:        pointer.GetString(service.Address),
+		Cluster:        service.Cluster,
+		CreatedAt:      timestamppb.New(service.CreatedAt),
+		CustomLabels:   labels,
+		DatabaseName:   service.DatabaseName,
+		Environment:    service.Environment,
+		ExternalGroup:  service.ExternalGroup,
+		NodeId:         service.NodeID,
+		NodeName:       nodeName,
+		Port:           uint32(pointer.GetUint16(service.Port)),
+		ReplicationSet: service.ReplicationSet,
+		ServiceId:      service.ServiceID,
+		ServiceType:    string(service.ServiceType),
+		ServiceName:    service.ServiceName,
+		Socket:         pointer.GetString(service.Socket),
+		UpdatedAt:      timestamppb.New(service.UpdatedAt),
+		Version:        pointer.GetString(service.Version),
+	}
+
+	for _, agent := range agents {
+		ag, err := s.agentToAPI(agent)
+		if err != nil {
+			return nil, err
+		}
+		svc.Agents = append(svc.Agents, ag)
+	}
+
+	return svc, nil
 }
 
 // queryUpMetrics returns the values of the per-service "up" metrics keyed by service ID.
