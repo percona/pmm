@@ -21,6 +21,13 @@ claude mcp add --transport http pmm https://<pmm-server>/mcp \
   --header "Authorization: Bearer <service-token>"
 ```
 
+With access control on, register it with a PMM user's credentials instead:
+
+```shell
+claude mcp add --transport http pmm https://<pmm-server>/mcp \
+  --header "Authorization: Basic $(printf '%s' '<user>:<password>' | base64)"
+```
+
 Or call a tool directly with JSON-RPC:
 
 ```shell

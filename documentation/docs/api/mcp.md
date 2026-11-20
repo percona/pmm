@@ -52,7 +52,7 @@ A revoked or deleted token can keep working for up to 60 seconds, because pmm-ma
 !!! warning "Use a client without unattended tools that send data out"
     Don't connect `/mcp` to an AI client that also runs unattended tools able to send data out of the client, such as web requests, email, chat or file upload. Text from your databases, such as query examples, table definitions and dimension values, can carry instructions. A client with such tools could be led to send PMM data elsewhere. Every MCP tool is read-only, so the risk is in the other tools that the client has.
 
-Point the client at `https://<pmm-server>/mcp` and send the token in the `Authorization` header.
+Point the client at `https://<pmm-server>/mcp` and send the token in the `Authorization` header. With access control on, send a PMM user's credentials as `Authorization: Basic <base64 of user:password>` instead, as the note in [How it works](#how-it-works) explains.
 
 === "Claude Code"
 
