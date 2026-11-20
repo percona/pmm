@@ -5,13 +5,12 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { ReactElement } from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { wrapWithRouter } from 'utils/testUtils';
 import NavigationHeading from './NavigationHeading';
 
 const toggleFn = vitest.fn();
 
-const render = (ui: ReactElement) =>
-  renderWithoutRouter(<MemoryRouter>{ui}</MemoryRouter>);
+const render = (ui: ReactElement) => renderWithoutRouter(wrapWithRouter(ui));
 
 describe('NavigationHeading', () => {
   beforeEach(() => {
@@ -46,9 +45,9 @@ describe('NavigationHeading', () => {
     ).toBeInTheDocument();
 
     rerender(
-      <MemoryRouter>
+      wrapWithRouter(
         <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
-      </MemoryRouter>
+      )
     );
 
     expect(
@@ -80,9 +79,9 @@ describe('NavigationHeading', () => {
     );
 
     rerender(
-      <MemoryRouter>
+      wrapWithRouter(
         <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
-      </MemoryRouter>
+      )
     );
 
     expect(screen.getByTestId('sidebar-open-button')).toBeDisabled();
@@ -96,18 +95,18 @@ describe('NavigationHeading', () => {
     screen.getByTestId('sidebar-open-button').focus();
     fireEvent.click(screen.getByTestId('sidebar-open-button'));
     rerender(
-      <MemoryRouter>
+      wrapWithRouter(
         <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
-      </MemoryRouter>
+      )
     );
 
     expect(screen.getByTestId('sidebar-close-button')).toHaveFocus();
 
     fireEvent.click(screen.getByTestId('sidebar-close-button'));
     rerender(
-      <MemoryRouter>
+      wrapWithRouter(
         <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
-      </MemoryRouter>
+      )
     );
 
     await waitFor(() =>
@@ -123,9 +122,9 @@ describe('NavigationHeading', () => {
     screen.getByTestId('sidebar-open-button').focus();
     fireEvent.click(screen.getByTestId('sidebar-open-button'), { detail: 1 });
     rerender(
-      <MemoryRouter>
+      wrapWithRouter(
         <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
-      </MemoryRouter>
+      )
     );
 
     expect(screen.getByTestId('sidebar-close-button')).not.toHaveFocus();
@@ -138,9 +137,9 @@ describe('NavigationHeading', () => {
 
     fireEvent.click(screen.getByTestId('sidebar-open-button'));
     rerender(
-      <MemoryRouter>
+      wrapWithRouter(
         <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
-      </MemoryRouter>
+      )
     );
 
     expect(screen.getByTestId('sidebar-close-button')).not.toHaveFocus();
@@ -173,9 +172,9 @@ describe('NavigationHeading', () => {
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Home');
 
     rerender(
-      <MemoryRouter>
+      wrapWithRouter(
         <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
-      </MemoryRouter>
+      )
     );
     fireEvent.mouseOver(screen.getByRole('link', { name: 'Home' }));
 
