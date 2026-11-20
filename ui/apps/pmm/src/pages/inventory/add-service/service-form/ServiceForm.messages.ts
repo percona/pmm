@@ -1,7 +1,7 @@
 export const Messages = {
   validation: {
     required: 'Required field',
-    port: 'Port should be a number and between 0 and 65535',
+    port: 'Port should be a number and between 1 and 65535',
     keyValue:
       'Values have to be in key:value format, and separated with new line or space',
     collectors:
