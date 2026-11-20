@@ -168,7 +168,7 @@ To remove the whitespace when you upgrade:
     Grafana has always ignored trailing whitespace in its password, so if Grafana worked, its database already uses the password without the whitespace.
 
 3. If the table tells you to change the password in the database, do it right before you upgrade. From then on, the running PMM Server can't open new connections to the database.
-4. Remove the whitespace where you set the variables, and upgrade PMM Server. With the `pmm` Helm chart, the variables are in `pmmEnv` or in the Secret you created.
+4. Remove the whitespace where you set the variables, and upgrade PMM Server. With the `pmm` Helm chart, the variables are in `pmmEnv` or in the Secret you created. If you created the Secret with `kubectl create secret --from-file`, recreate it with `--from-literal` instead, so the password doesn't end with a line break.
 
 If you use the `pmm-ha` Helm chart, change the passwords through the chart and its Secrets instead. In the following steps, `pmm-secret` and `pmmuser-credentials` are the default Secret names:
 {.power-number}
@@ -183,11 +183,19 @@ If you use the `pmm-ha` Helm chart, change the passwords through the chart and i
       -p '{"stringData":{"password":"<password>"},"data":{"verifier":null}}'
     ```
 
-    If you changed `pg-db.pmmUserName`, the second Secret is named `<pmmUserName>-credentials`. If a tool such as External Secrets Operator manages `pmm-secret`, change `PG_PASSWORD` in that tool's source instead of patching `pmm-secret`, because the tool would undo the patch. Before you upgrade, make sure the tool has copied the new value to `pmm-secret`, for example by forcing a sync with `kubectl annotate externalsecret <name> force-sync=$(date +%s) --overwrite --namespace <namespace>`.
+    If you changed `pg-db.pmmUserName`, the second Secret is named `<pmmUserName>-credentials`. If a tool manages `pmm-secret`, [change the password in that tool instead](#if-a-tool-manages-your-secrets).
 
 3. Upgrade right away. Until the new pods run, the pods of the earlier version can't open new connections to PostgreSQL. If the check printed `PMM_CLICKHOUSE_DATASOURCE_PASSWORD`, also remove the whitespace from `clickhouse.datasource.password` in this upgrade. The chart then changes the password in ClickHouse too.
 
 If you already upgraded and PMM Server stops right after it starts, your data is safe: PMM Server stops before it changes anything. Fix the variables as described in the previous steps, including any password change in the database, and start PMM Server again. On Kubernetes, the pod restarts in a loop: after you fix the variables, delete the pod so that it starts with the fixed values. With the `pmm-ha` chart, only the first upgraded pod does this, and the other pods keep running the earlier version until you delete it.
+
+#### If a tool manages your Secrets
+
+If a tool such as External Secrets Operator manages `pmm-secret`, change `PG_PASSWORD` in the tool's source instead of patching `pmm-secret`, because the tool would undo your patch. Before you upgrade, check that the tool has copied the new value to `pmm-secret`. For example, force a sync:
+
+```sh
+kubectl annotate externalsecret <name> force-sync=$(date +%s) --overwrite --namespace <namespace>
+```
 
 ## Troubleshooting
 
