@@ -21,6 +21,13 @@ claude mcp add --transport http pmm https://<pmm-server>/mcp \
   --header "Authorization: Bearer <service-token>"
 ```
 
+With access control on, register it with a PMM user's credentials instead:
+
+```shell
+claude mcp add --transport http pmm https://<pmm-server>/mcp \
+  --header "Authorization: Basic $(printf '%s' '<user>:<password>' | base64)"
+```
+
 Or call a tool directly with JSON-RPC:
 
 ```shell
@@ -29,5 +36,7 @@ curl -X POST --header 'Authorization: Bearer <service-token>' \
   --data '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pmm_inventory","arguments":{}}}' \
   https://<pmm-server>/mcp
 ```
+
+With access control on, send a PMM user's credentials instead of the token: replace `--header 'Authorization: Bearer <service-token>'` with `-u '<user>:<password>'`.
 
 The endpoint is off by default. Enable it with the `PMM_ENABLE_MCP=true` environment variable, or at runtime with `PUT /v1/server/settings` and `{"enable_mcp": true}` unless that variable is set; `GET /v1/server/settings/readonly` reports the state as `enable_mcp`. Literal values from your data are masked in query fingerprints and examples, execution plans and agent errors unless `PMM_MCP_RAW_SQL=true` opts in to them; table definitions are returned as they are. See the user documentation for the full tool reference, roles and limitations.

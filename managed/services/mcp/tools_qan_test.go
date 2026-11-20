@@ -1231,6 +1231,20 @@ func TestTopQueriesEnginePerRow(t *testing.T) {
 		}
 	})
 
+	t.Run("SearchReachesTheLookup", func(t *testing.T) {
+		t.Parallel()
+
+		// The MySQL lookup must keep the rows the report kept, or a MySQL row would be read as PostgreSQL.
+		fake := mixedEngineReports(t, 0)
+		session := connect(t, newQANService(t, fake, false))
+		_, isError := callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h", "search": "/*?*/"})
+		require.False(t, isError)
+		reqs := fake.requestsTo("/v1/qan/metrics:getReport")
+		require.Len(t, reqs, 2)
+		assert.Equal(t, "/*%*/", unmarshalBody[qan_service.GetReportBody](t, reqs[0]).Search)
+		assert.Equal(t, "/*%*/", unmarshalBody[qan_service.GetReportBody](t, reqs[1]).Search)
+	})
+
 	t.Run("CallerFiltersServiceType", func(t *testing.T) {
 		t.Parallel()
 
