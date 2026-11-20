@@ -7,8 +7,7 @@ Upgrade a [PMM Server High Availability (HA) Cluster](../install-pmm/HA-clustere
 
 ## How PMM HA Helm upgrades work
 
-The upgrade restarts each of the three PMM Server pods one at a time, waiting for each to become ready before restarting the next. HAProxy, PostgreSQL, VictoriaMetrics, ClickHouse, and the operators keep running, unless the new chart version changes their image or configuration. When it does, those pods restart too, and the [release notes](../release-notes/index.md) of that PMM version say which ones.
-
+The upgrade restarts each of the three PMM Server pods one at a time, waiting for each to become ready before restarting the next. HAProxy, PostgreSQL, VictoriaMetrics, ClickHouse, and the operators keep running, unless the new chart version changes their image or configuration. In that case, those pods restart too.
 If this PMM release updated operator versions, make sure to first [upgrade the operators](#upgrade-the-operators). 
 
 Traffic flows only to the active leader pod. When that pod restarts, your PMM dashboards, alerts, and metric collection are briefly unavailable until a new leader takes over. This typically takes around 5-10 seconds per pod and resolves on its own.
