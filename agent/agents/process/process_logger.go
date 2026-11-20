@@ -18,6 +18,8 @@ import (
 	"bytes"
 	"io"
 	"regexp"
+	"slices"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -28,19 +30,23 @@ import (
 type processLogger struct {
 	l *logrus.Entry
 
-	m    sync.RWMutex
-	buf  []byte
-	i    int
-	data []*string
+	m            sync.RWMutex
+	buf          []byte
+	i            int
+	data         []*string
+	bindErrors   []string
+	cannotListen bool
 
 	replacer *strings.Replacer
 }
 
-// newProcessLogger creates new processLogger with a given logger and a given amount of lines to keep.
-func newProcessLogger(l *logrus.Entry, lines int, redactWords []string) *processLogger {
+// newProcessLogger creates new processLogger with a given logger, amount of lines to keep and process's listen port.
+func newProcessLogger(l *logrus.Entry, lines int, redactWords []string, listenPort uint16) *processLogger {
+	bind := ":" + strconv.Itoa(int(listenPort)) + ": bind: "
 	pl := &processLogger{
-		l:    l,
-		data: make([]*string, lines),
+		l:          l,
+		data:       make([]*string, lines),
+		bindErrors: []string{bind + "address already in use", bind + "permission denied"},
 	}
 
 	if l != nil && l.Logger.GetLevel() >= logrus.DebugLevel {
@@ -72,6 +78,10 @@ func (pl *processLogger) Write(p []byte) (int, error) {
 			return n, nil
 		}
 		line = strings.TrimSuffix(line, "\n")
+		// Before redaction, which can mask the port.
+		if !pl.cannotListen && pl.bindFailed(line) {
+			pl.cannotListen = true
+		}
 		if pl.replacer != nil {
 			line = pl.replacer.Replace(line)
 		}
@@ -111,6 +121,22 @@ func (pl *processLogger) Latest() []string {
 		}
 	}
 	return result
+}
+
+// portInUse reports whether the process has said that it could not listen on its listen port.
+func (pl *processLogger) portInUse() bool {
+	pl.m.RLock()
+	defer pl.m.RUnlock()
+
+	return pl.cannotListen
+}
+
+// bindFailed reports whether line is Go's error for a listener that could not bind the listen port, taken
+// or refused (as SELinux port labelling does); a bind error without that port is for another listener.
+func (pl *processLogger) bindFailed(line string) bool {
+	return slices.ContainsFunc(pl.bindErrors, func(bindError string) bool {
+		return strings.Contains(line, bindError)
+	})
 }
 
 func replacer(redactWords []string) *strings.Replacer {
