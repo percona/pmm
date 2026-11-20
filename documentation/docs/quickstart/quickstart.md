@@ -237,7 +237,7 @@ Once PMM is set up, choose the database or the application that you want it to m
     To connect a MongoDB database:
     { .power-number}
     
-    1.  Run the following command in `mongo` shell to create a role with the monitoring permissions: 
+    1.  Run the following command in `mongo` shell to create the `pmmMonitor` role. Include the `system.profile` block for Profiler QAN (default); omit it for mongolog.
  
         ```
         db.createRole({
@@ -255,7 +255,7 @@ Once PMM is set up, choose the database or the application that you want it to m
                {
                  "resource": { "db": "", "collection": "system.profile" },
                  "actions": [ "find", "dbStats", "collStats", "indexStats" ]
-               }                  
+               }
             ],
             "roles": []
         })
