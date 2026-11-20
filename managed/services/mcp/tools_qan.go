@@ -634,8 +634,12 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 		if failed != nil {
 			return queryDetailResult{}, failed
 		}
-		return queryDetailResult{}, newToolError(codeNotFound,
-			"no data for this query in %s; widen period_from or check the id with pmm_top_queries", windowText(window{From: from, To: to}))
+		w := window{From: from, To: to}
+		hint := listCutHint(w, s.now())
+		if hint == "" {
+			hint = "; widen period_from or check the id with pmm_top_queries"
+		}
+		return queryDetailResult{}, newToolError(codeNotFound, "no data for this query in %s%s", windowText(w), hint)
 	}
 	// qan-api2 joins the names of several services, so only a name of one asked service filters the link and reads the version.
 	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(serviceIDs, svc.ServiceID) })

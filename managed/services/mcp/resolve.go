@@ -148,7 +148,7 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	case len(candidates) == 0 && ref.ServiceID != "":
 		return nil, newToolError(codeNotFound, "the query was not seen on that service in %s; %s", windowText(w), widen)
 	case len(candidates) == 0:
-		return nil, newToolError(codeNotFound, "the query was not seen on any of your services in %s; %s", windowText(w), widen)
+		return nil, newToolError(codeNotFound, "the query was not seen on any of your services in %s%s; %s", windowText(w), listCutHint(w, s.now()), widen)
 	case len(candidates) > 1:
 		return nil, newToolError(codeInvalidInput, "%s", ambiguousMessage(candidates, total, ref.fromQueryRef))
 	}
@@ -209,15 +209,30 @@ func metadataValues(joined string) []string {
 
 // errNotInList is the not_found for a service outside the service list of the window, naming the window and no service.
 func errNotInList(w window, now time.Time, hint string) *toolError {
+	span, _ := listSpanText(w, now)
+	return newToolError(codeNotFound, "%s; searched %s%s", notInServiceList, span, hint)
+}
+
+// listSpanText renders the service list's look-back for the window, and reports whether it is only the window's last 7 days.
+func listSpanText(w window, now time.Time) (string, bool) {
 	span, cut := listSpan(w, now)
-	text := notInServiceList + "; searched " + windowText(span)
+	text := windowText(span)
 	switch {
 	case cut && span.To.Before(w.To):
 		text += ", the last 7 days of the call's window up to now"
 	case cut:
 		text += ", the last 7 days of the call's window"
 	}
-	return newToolError(codeNotFound, "%s%s", text, hint)
+	return text, cut
+}
+
+// listCutHint names the services searched when the service list covers only the window's last 7 days, and is empty otherwise.
+func listCutHint(w window, now time.Time) string {
+	span, cut := listSpanText(w, now)
+	if !cut {
+		return ""
+	}
+	return "; only services that sent metrics in " + span + ", were searched: for a service that stopped earlier, end the window while it still sent them"
 }
 
 // callerServices returns the caller's services and the ids of those that QAN may be asked about: the given one,

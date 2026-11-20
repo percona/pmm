@@ -59,6 +59,7 @@ func TestResolveQuery(t *testing.T) {
 		PeriodTo:   testNow.Add(-25 * time.Hour),
 	}
 	hour := queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow}
+	month := queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-30 * day), PeriodTo: testNow}
 	notInHour := errNotInList(window{From: hour.PeriodFrom, To: hour.PeriodTo}, testNow, "").message
 
 	withService := func(ref queryRef, id string) queryRef {
@@ -255,6 +256,19 @@ func TestResolveQuery(t *testing.T) {
 			ref:        fromQueryRef(hour),
 			wantErr:    codeNotFound,
 			wantText:   []string{"not seen on any of your services", hour.PeriodFrom.Format(time.RFC3339), widenRef},
+			notText:    []string{"QID-AAA", "pmm_top_queries", "period_from", "only services"},
+			wantReport: 1,
+		},
+		{
+			name:    "no candidates over a window longer than the service list",
+			routes:  resolveRoutes("report_by_service_empty.json"),
+			ref:     fromQueryRef(month),
+			wantErr: codeNotFound,
+			wantText: []string{
+				"not seen on any of your services in 2026-08-15T12:00:00Z – 2026-09-14T12:00:00Z; only services that sent metrics in " +
+					"2026-09-07T12:00:00Z – 2026-09-14T12:00:00Z, the last 7 days of the call's window, were searched: " +
+					"for a service that stopped earlier, end the window while it still sent them" + widenRef,
+			},
 			notText:    []string{"QID-AAA", "pmm_top_queries", "period_from"},
 			wantReport: 1,
 		},
