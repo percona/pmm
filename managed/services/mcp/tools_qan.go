@@ -311,10 +311,11 @@ func showsSearch(row queryRow, search string) bool {
 	return row.Fingerprint != withheldFingerprint && strings.Contains(searchSpace.ReplaceAllString(strings.ToLower(row.Fingerprint), " "), needle)
 }
 
-// pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one
-// service_name that names one service of the caller's service list, and "" when they pin none or that lookup fails.
+// pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one service_name
+// that names one service of the caller's service list among the filtered service_ids, and "" when they pin none or that lookup fails.
 func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([]serviceInfo, error)) string {
-	if ids := labels["service_id"]; len(ids) == 1 {
+	ids := labels["service_id"]
+	if len(ids) == 1 {
 		return ids[0]
 	}
 	names := labels["service_name"]
@@ -327,6 +328,9 @@ func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([
 		return ""
 	}
 	named := servicesNamed(list, names[0])
+	if len(ids) > 0 {
+		named = slices.DeleteFunc(named, func(svc serviceInfo) bool { return !slices.Contains(ids, svc.ServiceID) })
+	}
 	if len(named) != 1 {
 		return ""
 	}
