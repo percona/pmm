@@ -477,6 +477,9 @@ func reportLabels(in topQueriesInput) (map[string][]string, error) {
 func (q *reportQuery) row(row qanReportRow, rank int, engine string, raw bool) queryRow {
 	numQueries := finite(row.NumQueries)
 	load := finite(row.Load)
+	if nq, ok := row.Metrics["num_queries"]; ok && nq.Stats != nil && numQueries == 0 {
+		numQueries = finite(nq.Stats.Sum)
+	}
 	var total, avg float64
 	if qt, ok := row.Metrics["query_time"]; ok && qt.Stats != nil {
 		total = finite(qt.Stats.Sum)
@@ -484,9 +487,6 @@ func (q *reportQuery) row(row qanReportRow, rank int, engine string, raw bool) q
 		if avg == 0 && numQueries > 0 {
 			avg = total / numQueries
 		}
-	}
-	if nq, ok := row.Metrics["num_queries"]; ok && nq.Stats != nil && numQueries == 0 {
-		numQueries = finite(nq.Stats.Sum)
 	}
 	if ld, ok := row.Metrics["load"]; ok && ld.Stats != nil && load == 0 {
 		load = finite(ld.Stats.SumPerSec)

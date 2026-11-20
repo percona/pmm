@@ -1564,3 +1564,19 @@ func TestFingerprintUnknownEngineMasksEitherQuoting(t *testing.T) {
 		assert.Equal(t, want, fingerprintText(fp, "", false), fp)
 	}
 }
+
+// TestRowAverageFromNestedCalls pins that a row whose top-level count is 0 takes its calls from the nested
+// num_queries before it derives the average from them.
+func TestRowAverageFromNestedCalls(t *testing.T) {
+	t.Parallel()
+
+	var row qanReportRow
+	err := json.Unmarshal([]byte(`{"dimension": "app", "metrics": {
+		"num_queries": {"stats": {"sum": 4}},
+		"query_time": {"stats": {"sum": 8}}}}`), &row)
+	require.NoError(t, err)
+
+	r := (&reportQuery{groupBy: "username", orderBy: "load"}).row(row, 1, "", false)
+	assert.InDelta(t, 4, r.Calls, 0)
+	assert.InDelta(t, 2, r.QueryTimeAvg, 0)
+}

@@ -215,3 +215,17 @@ func TestMetricInfoByName(t *testing.T) {
 	_, ok = metricInfoByName("mysql_global_status_qcache_hits")
 	assert.False(t, ok)
 }
+
+// TestMetricsCatalogUnitsAreListed pins every unit to the ones pmm_catalog's schema lists, and a counter, whose query
+// reads its rate per second, to a unit that is not a duration.
+func TestMetricsCatalogUnitsAreListed(t *testing.T) {
+	t.Parallel()
+
+	listed := []string{"short", "ops", "bytes", "Bps", "s", "dateTimeAsSystem", "none"}
+	for _, m := range metricsCatalog {
+		assert.Contains(t, listed, m.Unit, m.Name)
+		if m.Type == "counter" {
+			assert.NotEqual(t, "s", m.Unit, "%s: a counter's query reads its rate per second", m.Name)
+		}
+	}
+}

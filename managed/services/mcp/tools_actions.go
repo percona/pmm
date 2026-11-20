@@ -677,8 +677,10 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 	for {
 		res, err := s.api.GetAction(ctx, auth, actionID)
 		if err != nil {
+			// Classified before the cancel, whose wait can outlast the deadline.
+			err = s.deadlineOr(ctx, actionID, err)
 			s.cancelAction(ctx, auth, actionID)
-			return "", s.deadlineOr(ctx, actionID, err)
+			return "", err
 		}
 		if res.Done {
 			if res.Error != "" {
