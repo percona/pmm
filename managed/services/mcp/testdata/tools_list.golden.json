@@ -75,7 +75,7 @@
                 ]
               },
               "starts_at": {
-                "description": "When the alert started firing, or, for a pending alert, when it went pending.",
+                "description": "When the alert started firing, or went pending; left out when Grafana gives no time.",
                 "type": "string"
               },
               "state": {
@@ -90,7 +90,6 @@
             "required": [
               "name",
               "state",
-              "starts_at",
               "silenced",
               "pmm_url"
             ],
@@ -213,7 +212,7 @@
                 "type": "string"
               },
               "unit": {
-                "description": "Unit of the value query returns, as Grafana names it: short, ops, bytes, Bps, s or none (metrics).",
+                "description": "Unit of the value query returns: short, ops, bytes, Bps, s, dateTimeAsSystem or none (metrics).",
                 "type": "string"
               }
             },

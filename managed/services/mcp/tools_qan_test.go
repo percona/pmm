@@ -907,6 +907,9 @@ func TestLinks(t *testing.T) {
 	assert.Empty(t, s.publicBaseURL(t.Context(), http.Header{}))
 	assert.Equal(t, "https://pmm.local/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local"}}))
 	assert.Equal(t, "http://pmm.local:8080/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local:8080"}, "X-Forwarded-Proto": {"http"}}))
+	assert.Equal(t, "http://pmm.local:8080/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local:8080"}, "X-Forwarded-Proto": {"HTTP"}}))
+	assert.Equal(t, "https://pmm.local/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local"}, "X-Forwarded-Proto": {"javascript"}}),
+		"a scheme other than http or https is not used")
 	s.publicAddress = func(_ context.Context) string { return "pmm.example.com" }
 	assert.Equal(t, "https://pmm.example.com/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local"}}))
 	s.publicAddress = func(_ context.Context) string { return "http://pmm.example.com:8080/" }
@@ -1563,4 +1566,20 @@ func TestFingerprintUnknownEngineMasksEitherQuoting(t *testing.T) {
 		assert.False(t, quoted, fp)
 		assert.Equal(t, want, fingerprintText(fp, "", false), fp)
 	}
+}
+
+// TestRowAverageFromNestedCalls pins that a row whose top-level count is 0 takes its calls from the nested
+// num_queries before it derives the average from them.
+func TestRowAverageFromNestedCalls(t *testing.T) {
+	t.Parallel()
+
+	var row qanReportRow
+	err := json.Unmarshal([]byte(`{"dimension": "app", "metrics": {
+		"num_queries": {"stats": {"sum": 4}},
+		"query_time": {"stats": {"sum": 8}}}}`), &row)
+	require.NoError(t, err)
+
+	r := (&reportQuery{groupBy: "username", orderBy: "load"}).row(row, 1, "", false)
+	assert.InDelta(t, 4, r.Calls, 0)
+	assert.InDelta(t, 2, r.QueryTimeAvg, 0)
 }

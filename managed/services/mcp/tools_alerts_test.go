@@ -822,3 +822,24 @@ func TestAlertFilters(t *testing.T) {
 	assert.False(t, alertsInput{ServiceName: "Shop-A"}.matches(alert), "names compare exactly")
 	assert.False(t, alertsInput{Severity: "crit"}.matches(alert))
 }
+
+// TestAlertsPendingPageWithoutStart pins that a page of pending alerts reads no silence state, so a failing
+// Alertmanager doesn't fail it, and that an alert without Grafana's activeAt shows no start time.
+func TestAlertsPendingPageWithoutStart(t *testing.T) {
+	t.Parallel()
+
+	rules := `{"status":"success","data":{"groups":[{"name":"MySQL","file":"Alerts","rules":[{"name":"MySQL down","uid":"mysql-down",` +
+		`"alerts":[{"labels":{"alertname":"MySQL down","service_id":"svc-a","service_name":"shop-a","node_name":"host-a"},"state":"Pending"}]}]}]}}`
+	fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+		"GET " + rulesPath:    {body: []byte(rules)},
+		"GET " + amAlertsPath: {status: http.StatusInternalServerError, body: []byte(`{"message":"boom"}`)},
+	}))
+	res := callTool(t, connect(t, newQANService(t, fake, false)), "pmm_alerts", nil)
+	got := structured[alertsResult](t, res)
+	require.Len(t, got.Alerts, 1)
+	assert.Equal(t, alertPending, got.Alerts[0].State)
+	assert.True(t, got.Alerts[0].StartsAt.IsZero())
+	assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "starts_at")
+	assert.NotContains(t, textOf(t, res), "since")
+	assert.Empty(t, fake.requestsTo(amAlertsPath))
+}

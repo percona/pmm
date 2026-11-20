@@ -146,7 +146,7 @@ type alertRow struct {
 	Summary       string            `json:"summary,omitempty" jsonschema:"Untrusted. The alert's summary annotation."`
 	Description   string            `json:"description,omitempty" jsonschema:"Untrusted. The alert's description annotation."`
 	State         string            `json:"state" jsonschema:"firing, or pending while the alert's rule waits out its pending period before it fires."`
-	StartsAt      time.Time         `json:"starts_at" jsonschema:"When the alert started firing, or, for a pending alert, when it went pending."`
+	StartsAt      time.Time         `json:"starts_at,omitzero" jsonschema:"When the alert started firing, or went pending; left out when Grafana gives no time."`
 	Silenced      bool              `json:"silenced" jsonschema:"True when a silence mutes the alert's notifications; false while it is pending."`
 	SilencedUntil *time.Time        `json:"silenced_until,omitempty" jsonschema:"When the latest of the silences that mute the alert ends."`
 	PMMURL        string            `json:"pmm_url" jsonschema:"Link to the alert's rule in PMM."`
@@ -187,7 +187,9 @@ func (r alertsResult) render() string {
 		if node := cmp.Or(labelValue(a.Labels, "node_name"), labelValue(a.Labels, "node_id")); node != "" {
 			parts = append(parts, "node="+oneLine(node))
 		}
-		parts = append(parts, "since "+a.StartsAt.UTC().Format(time.RFC3339))
+		if !a.StartsAt.IsZero() {
+			parts = append(parts, "since "+a.StartsAt.UTC().Format(time.RFC3339))
+		}
 		switch {
 		case a.SilencedUntil != nil:
 			parts = append(parts, "silenced until "+a.SilencedUntil.UTC().Format(time.RFC3339))
@@ -259,7 +261,8 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 	if err != nil {
 		return alertsResult{}, err
 	}
-	if len(paged) > 0 {
+	// Only firing alerts can be silenced, so a page of pending ones needs no silence state.
+	if slices.ContainsFunc(paged, func(a grafanaAlert) bool { return !a.Pending }) {
 		err = s.joinSilences(ctx, auth, paged)
 		if err != nil {
 			return alertsResult{}, err

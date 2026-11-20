@@ -32,6 +32,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/api/actions/v1/json/client/actions_service"
@@ -2183,4 +2184,25 @@ func TestExplainDatabaseDescription(t *testing.T) {
 	desc := schema.Properties["database"].Description
 	assert.NotContains(t, desc, "override")
 	assert.Contains(t, desc, "pmm-agent still switches to the schema QAN recorded for the query")
+}
+
+// TestRunActionPollErrorOutlastedByCancel pins that a failed poll keeps its own error when the cancel after it
+// outlasts the call's deadline.
+func TestRunActionPollErrorOutlastedByCancel(t *testing.T) {
+	t.Parallel()
+
+	api := newMockPmmAPI(t)
+	api.On("StartServiceAction", mock.Anything, mock.Anything, mock.Anything).Return(&actions_service.StartServiceActionOKBody{
+		MysqlShowCreateTable: &actions_service.StartServiceActionOKBodyMysqlShowCreateTable{ActionID: "a1"},
+	}, nil)
+	api.On("GetAction", mock.Anything, mock.Anything, "a1").Return(nil, newToolError(codePMMUnavailable, "poll failed"))
+	api.On("CancelAction", mock.Anything, mock.Anything, "a1").Run(func(mock.Arguments) { time.Sleep(300 * time.Millisecond) }).Return(nil)
+	s, err := New(Params{API: api})
+	require.NoError(t, err)
+
+	ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+	defer cancel()
+	_, err = s.runAction(ctx, callerAuth{}, actions_service.StartServiceActionBody{}, false)
+	require.Error(t, err)
+	assert.Equal(t, codePMMUnavailable, mapError(err).code, err.Error())
 }

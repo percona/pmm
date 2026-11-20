@@ -184,7 +184,7 @@ var metricsCatalog = []metricInfo{
 	},
 	{
 		Name: "mysql_global_status_select_full_join", Engine: engineMySQL,
-		Meaning: "Joins that did a full scan of the first table because they use no index, per second.",
+		Meaning: "Joins that scanned a table because they use no index, per second.",
 		Unit:    "ops", Type: "counter",
 		Query: `rate(mysql_global_status_select_full_join{service_name="<service>"}[5m])`,
 	},
@@ -479,25 +479,25 @@ var metricsCatalog = []metricInfo{
 	{
 		Name: "pg_stat_bgwriter_checkpoint_sync_time", Engine: enginePostgreSQL,
 		Meaning: "Milliseconds checkpoints spent syncing files to disk, per second.",
-		Unit:    "ms", Type: "counter", Labels: []string{"collector", "server"},
+		Unit:    "short", Type: "counter", Labels: []string{"collector", "server"},
 		Query: `rate(pg_stat_bgwriter_checkpoint_sync_time{service_name="<service>"}[5m])`,
 	},
 	{
 		Name: "pg_stat_bgwriter_checkpoint_write_time", Engine: enginePostgreSQL,
 		Meaning: "Milliseconds checkpoints spent writing files to disk, per second.",
-		Unit:    "ms", Type: "counter", Labels: []string{"collector", "server"},
+		Unit:    "short", Type: "counter", Labels: []string{"collector", "server"},
 		Query: `rate(pg_stat_bgwriter_checkpoint_write_time{service_name="<service>"}[5m])`,
 	},
 	{
 		Name: "pg_stat_database_blk_read_time", Engine: enginePostgreSQL,
 		Meaning: "Milliseconds spent reading data file blocks, per second, by database; needs track_io_timing.",
-		Unit:    "ms", Type: "counter", Labels: []string{"datid", "datname"},
+		Unit:    "short", Type: "counter", Labels: []string{"datid", "datname"},
 		Query: `sum by (datname) (rate(pg_stat_database_blk_read_time{service_name="<service>"}[5m]))`,
 	},
 	{
 		Name: "pg_stat_database_blk_write_time", Engine: enginePostgreSQL,
 		Meaning: "Milliseconds spent writing data file blocks, per second, by database; needs track_io_timing.",
-		Unit:    "ms", Type: "counter", Labels: []string{"datid", "datname"},
+		Unit:    "short", Type: "counter", Labels: []string{"datid", "datname"},
 		Query: `sum by (datname) (rate(pg_stat_database_blk_write_time{service_name="<service>"}[5m]))`,
 	},
 	{
@@ -683,7 +683,7 @@ var metricsCatalog = []metricInfo{
 	{
 		Name: "mongodb_mongod_metrics_get_last_error_wtime_total_milliseconds", Engine: engineMongoDB,
 		Meaning: "Milliseconds getLastError calls waited for the write concern, per second.",
-		Unit:    "ms", Type: "counter", Labels: []string{"cl_id", "cl_role", "rs_nm", "rs_state"},
+		Unit:    "short", Type: "counter", Labels: []string{"cl_id", "cl_role", "rs_nm", "rs_state"},
 		Query: `rate(mongodb_mongod_metrics_get_last_error_wtime_total_milliseconds{service_name="<service>"}[5m])`,
 	},
 	{
@@ -713,7 +713,7 @@ var metricsCatalog = []metricInfo{
 	{
 		Name: "mongodb_mongod_op_latencies_latency_total", Engine: engineMongoDB,
 		Meaning: "Microseconds spent in operations, per second, by type; divide by the ops counter for the mean latency.",
-		Unit:    "µs", Type: "counter", Labels: []string{"type"},
+		Unit:    "short", Type: "counter", Labels: []string{"type"},
 		Query: `sum by (type) (rate(mongodb_mongod_op_latencies_latency_total{service_name="<service>"}[5m]))`,
 	},
 	{
@@ -767,7 +767,7 @@ var metricsCatalog = []metricInfo{
 	{
 		Name: "node_disk_read_time_seconds_total", Engine: engineNode,
 		Meaning: "Seconds spent reading, per second, by disk.",
-		Unit:    "s", Type: "counter", Labels: []string{"device"},
+		Unit:    "short", Type: "counter", Labels: []string{"device"},
 		Query: `sum by (device) (rate(node_disk_read_time_seconds_total{node_name="<node>"}[5m]))`,
 	},
 	{
@@ -779,7 +779,7 @@ var metricsCatalog = []metricInfo{
 	{
 		Name: "node_disk_write_time_seconds_total", Engine: engineNode,
 		Meaning: "Seconds spent writing, per second, by disk.",
-		Unit:    "s", Type: "counter", Labels: []string{"device"},
+		Unit:    "short", Type: "counter", Labels: []string{"device"},
 		Query: `sum by (device) (rate(node_disk_write_time_seconds_total{node_name="<node>"}[5m]))`,
 	},
 	{

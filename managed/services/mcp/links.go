@@ -34,8 +34,9 @@ import (
 const qanPath = "graph/d/pmm-qan/pmm-query-analytics"
 
 // publicBaseURL returns the browser-facing PMM base URL, with a trailing slash:
-// settings.PMMPublicAddress when set, else the incoming X-Forwarded-Host (set
-// by nginx for /mcp), else empty, in which case links are relative.
+// settings.PMMPublicAddress when set, else the incoming X-Forwarded-Host and
+// X-Forwarded-Proto (set by nginx for /mcp) with https unless that is http,
+// else empty, in which case links are relative.
 func (s *Service) publicBaseURL(ctx context.Context, h http.Header) string {
 	if s.publicAddress != nil {
 		if addr := strings.TrimSpace(s.publicAddress(ctx)); addr != "" {
@@ -46,9 +47,9 @@ func (s *Service) publicBaseURL(ctx context.Context, h http.Header) string {
 		}
 	}
 	if host := h.Get("X-Forwarded-Host"); host != "" {
-		scheme := h.Get("X-Forwarded-Proto")
-		if scheme == "" {
-			scheme = "https"
+		scheme := "https"
+		if strings.EqualFold(strings.TrimSpace(h.Get("X-Forwarded-Proto")), "http") {
+			scheme = "http"
 		}
 		return scheme + "://" + host + "/"
 	}
