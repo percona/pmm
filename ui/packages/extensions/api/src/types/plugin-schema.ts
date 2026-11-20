@@ -43,7 +43,7 @@ export type Predicate = Record<string, unknown>;
  */
 export interface FieldGate {
   when: Predicate;
-  message?: string;
+  message?: string | null;
 }
 
 /**
@@ -78,12 +78,12 @@ interface BaseField {
   name: string;
   label: string;
   required?: boolean;
-  description?: string;
+  description?: string | null;
   default?: unknown;
   /** Self-cardinality gates: when matched, the field is required. */
-  requires?: FieldGate[];
+  requires?: FieldGate[] | null;
   /** Self-cardinality gates: when matched, the field is forbidden. */
-  forbidden?: FieldGate[];
+  forbidden?: FieldGate[] | null;
   /**
    * Consequence text for a field whose enabled or set state irreversibly
    * destroys something the operator cannot get back — user data, or
@@ -117,7 +117,7 @@ interface BaseField {
    * Must name a `bool` field in the same section. Chains and cycles are
    * unsupported — a cycle leaves both toggles inert.
    */
-  parent?: string;
+  parent?: string | null;
   /**
    * Where the field's `description` is shown.
    *
@@ -136,48 +136,50 @@ interface BaseField {
    * renderer also uses in validation messages, so there is no node to hang a
    * help icon from.
    */
-  help_placement?: 'tooltip' | 'inline';
+  help_placement?: 'tooltip' | 'inline' | null;
 }
 
 // ── Choice option ─────────────────────────────────────────────────────────
 
 /**
  * One option in a choice / multi-choice field. `disabled` (and its optional
- * `disabled_reason` tooltip text) are opt-in UI hints; the backend omits both
- * from the wire while unset, so they arrive only for options that opt in.
+ * `disabled_reason` tooltip text) are opt-in UI hints. While unset they are
+ * either omitted or sent as null, depending on whether the serving route
+ * excludes nulls (the generic schema routes do, the Support diagnostics
+ * execution-schema route does not), so test truthiness rather than presence.
  */
 export interface ChoiceOption {
   label: string;
   value: string;
-  /** Render the option non-selectable. Omitted from the wire while unset. */
-  disabled?: boolean;
+  /** Render the option non-selectable. Omitted or null while unset. */
+  disabled?: boolean | null;
   /** Explanatory text shown (e.g. in a tooltip) when the option is disabled. */
-  disabled_reason?: string;
+  disabled_reason?: string | null;
 }
 
 // ── Concrete field types ────────────────────────────────────────────────
 
 export interface StringField extends BaseField {
   type: 'string';
-  min_length?: number;
-  max_length?: number;
-  pattern?: string;
-  placeholder?: string;
+  min_length?: number | null;
+  max_length?: number | null;
+  pattern?: string | null;
+  placeholder?: string | null;
   sensitive?: boolean;
 }
 
 export interface IntegerField extends BaseField {
   type: 'integer';
-  ge?: number;
-  le?: number;
-  step?: number;
+  ge?: number | null;
+  le?: number | null;
+  step?: number | null;
 }
 
 export interface FloatField extends BaseField {
   type: 'float';
-  ge?: number;
-  le?: number;
-  step?: number;
+  ge?: number | null;
+  le?: number | null;
+  step?: number | null;
 }
 
 export interface BoolField extends BaseField {
@@ -198,8 +200,8 @@ export interface MultiChoiceField extends BaseField {
 
 export interface TextAreaField extends BaseField {
   type: 'textarea';
-  rows?: number;
-  placeholder?: string;
+  rows?: number | null;
+  placeholder?: string | null;
 }
 
 export interface DateTimeField extends BaseField {
@@ -208,13 +210,13 @@ export interface DateTimeField extends BaseField {
 
 export interface FileField extends BaseField {
   type: 'file';
-  accept?: string[];
+  accept?: string[] | null;
 }
 
 export interface YamlField extends BaseField {
   type: 'yaml';
-  rows?: number;
-  placeholder?: string;
+  rows?: number | null;
+  placeholder?: string | null;
 }
 
 // ── Inventory-aware fields ──────────────────────────────────────────────
@@ -223,38 +225,38 @@ export interface ServiceField extends BaseField {
   type: 'service';
   service_types: string[];
   /** Offer free-text (free-solo) entry alongside the inventory options. */
-  allow_custom?: boolean;
+  allow_custom?: boolean | null;
 }
 
 export interface SchemaField extends BaseField {
   type: 'schema';
   depends_on: string;
   /** Offer free-text (free-solo) entry alongside the cascaded options. */
-  allow_custom?: boolean;
+  allow_custom?: boolean | null;
 }
 
 export interface TableField extends BaseField {
   type: 'table';
   depends_on: string;
   /** Offer free-text (free-solo) entry alongside the cascaded options. */
-  allow_custom?: boolean;
+  allow_custom?: boolean | null;
 }
 
 export interface HostField extends BaseField {
   type: 'host';
   /**
    * Optional upstream field whose value drives the default executor
-   * selection (typically a service field). Omitted when the host list is
-   * not cascaded.
+   * selection (typically a service field). Omitted or null when the host
+   * list is not cascaded.
    */
-  depends_on?: string;
+  depends_on?: string | null;
   /**
    * Service field for a non-blocking co-location warning. Independent of
-   * `depends_on`. Omitted when unset.
+   * `depends_on`. Omitted or null when unset.
    */
-  target_service?: string;
+  target_service?: string | null;
   /** Offer free-text (free-solo) entry alongside the inventory options. */
-  allow_custom?: boolean;
+  allow_custom?: boolean | null;
 }
 
 // ── Read-only preview ───────────────────────────────────────────────────
@@ -273,7 +275,7 @@ export interface ScriptPreviewField extends BaseField {
    */
   depends_on: string[];
   /** Optional default highlighter language hint. */
-  language?: string;
+  language?: string | null;
 }
 
 // ── Dynamic, API-backed option source ────────────────────────────────────
@@ -288,11 +290,11 @@ export interface RemoteChoiceField extends BaseField {
   endpoint_url: string;
   /**
    * Optional sibling field name whose value drives (and parameterises) the
-   * option fetch. Omitted from the wire while unset.
+   * option fetch. Omitted or null while unset.
    */
-  depends_on?: string;
+  depends_on?: string | null;
   /** Offer free-text (free-solo) entry alongside the fetched options. */
-  allow_custom?: boolean;
+  allow_custom?: boolean | null;
 }
 
 // ── Discriminated union ─────────────────────────────────────────────────
@@ -467,6 +469,8 @@ export interface PluginEntitySchema {
   description?: string;
   forms: FormSection[];
   list_view: ListView;
+  /** Entity-wide predicate-only invariants. */
+  fail_when?: FailRule[];
   /** Optional detail-view syntax hints keyed by field name; mirrors the backend
    * ``DetailHighlightLanguage`` enum. */
   detail_highlights?: Partial<Record<string, 'sql' | 'json' | 'bash' | 'yaml'>>;

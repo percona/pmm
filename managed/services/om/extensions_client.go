@@ -18,22 +18,36 @@ package om
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
+
+	"golang.org/x/sync/singleflight"
 )
 
 type extensionsClient struct {
 	baseURL string
 	token   string
 	http    *http.Client
+
+	exchangedMu sync.Mutex
+	exchanged   map[[sha256.Size]byte]exchangedBearer
+	exchanges   singleflight.Group
 }
 
 func (c *extensionsClient) app(module string) extensionsApp {
 	return extensionsApp{client: c, path: "api/apps/" + module}
+}
+
+// settings addresses PMM Extensions' admin settings router, through which an admin changes an app's configuration.
+func (c *extensionsClient) settings() extensionsApp {
+	return extensionsApp{client: c, path: "api/extensions/admin/settings"}
 }
 
 func newExtensionsClient(baseURL, token string) *extensionsClient {
@@ -41,10 +55,23 @@ func newExtensionsClient(baseURL, token string) *extensionsClient {
 		baseURL: baseURL,
 		token:   token,
 		http: &http.Client{
+			Transport:     directTransport(),
 			Timeout:       probeRequestTimeout,
 			CheckRedirect: refuseRedirect,
 		},
 	}
+}
+
+// directTransport ignores the proxy environment, which would otherwise see the credentials and secrets sent to PMM Extensions.
+func directTransport() *http.Transport {
+	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		return &http.Transport{}
+	}
+
+	direct := defaultTransport.Clone()
+	direct.Proxy = nil
+	return direct
 }
 
 // net/http keeps the Authorization header on a same-host redirect even from https to http,
@@ -78,30 +105,27 @@ func (a extensionsApp) endpoint(path string) string {
 	return strings.TrimSuffix(a.client.baseURL, "/") + "/" + a.path + "/" + strings.TrimPrefix(path, "/")
 }
 
-func (a extensionsApp) request(ctx context.Context, method, path string, query url.Values, body any, sendEmptyBody bool) (*http.Request, error) {
+func (a extensionsApp) request(ctx context.Context, bearer, method, path string, query url.Values, body any) (*http.Request, error) {
 	endpoint := a.endpoint(path)
 	if len(query) > 0 {
 		endpoint += "?" + query.Encode()
 	}
 
 	var payload []byte
-	switch {
-	case body != nil:
+	if body != nil {
 		encoded, err := json.Marshal(body)
 		if err != nil {
 			return nil, fmt.Errorf("failed to encode the request: %w", err)
 		}
 		payload = encoded
-	case sendEmptyBody:
-		payload = []byte("{}")
 	}
 
 	req, err := http.NewRequestWithContext(ctx, method, endpoint, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err //nolint:wrapcheck
 	}
-	if a.client.token != "" {
-		req.Header.Set("Authorization", "Bearer "+a.client.token)
+	if bearer != "" {
+		req.Header.Set("Authorization", "Bearer "+bearer)
 	}
 	if payload != nil {
 		req.Header.Set("Content-Type", "application/json")
@@ -109,42 +133,28 @@ func (a extensionsApp) request(ctx context.Context, method, path string, query u
 	return req, nil
 }
 
-func (a extensionsApp) patchConfig(ctx context.Context, fields map[string]any) error {
-	req, err := a.request(ctx, http.MethodPatch, "config", nil, fields, false)
-	if err != nil {
-		return fmt.Errorf("failed to build the request: %w", err)
-	}
-
-	resp, err := a.client.http.Do(req)
-	if err != nil {
-		// The *url.Error already names the verb and the URL.
-		return err //nolint:wrapcheck
-	}
-	defer resp.Body.Close() //nolint:errcheck
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("PATCH %s: unexpected status %s", a.endpoint("config"), resp.Status)
-	}
-	return nil
+// setEnabled writes om_inventory's ENABLED flag, with scan asking the app for a sweep.
+func (a extensionsApp) setEnabled(ctx context.Context, enabled, scan bool) error {
+	body := map[string]bool{"enabled": enabled, "scan": scan}
+	return a.call(ctx, inventoryCall{method: http.MethodPut, path: "enabled", body: body}, nil)
 }
 
-// triggerRun queues a full-estate probe sweep. A 409 means a sweep is already in flight, which is
-// just as good.
-func (a extensionsApp) triggerRun(ctx context.Context) error {
-	req, err := a.request(ctx, http.MethodPost, "runs", nil, nil, true)
+// readEnabled reads om_inventory's ENABLED flag as its configuration reports it.
+func (a extensionsApp) readEnabled(ctx context.Context) (bool, error) {
+	settings := []extensionsSetting{}
+	err := a.call(ctx, inventoryCall{method: http.MethodGet, path: "config"}, &settings)
 	if err != nil {
-		return fmt.Errorf("failed to build the request: %w", err)
+		return false, err
 	}
-
-	resp, err := a.client.http.Do(req)
-	if err != nil {
-		// The *url.Error already names the verb and the URL.
-		return err //nolint:wrapcheck
+	for _, setting := range settings {
+		if setting.Key != inventorySwitchKey {
+			continue
+		}
+		enabled, ok := setting.Value.(bool)
+		if !ok {
+			return false, fmt.Errorf("om_inventory reports ENABLED as %v, not a boolean", setting.Value)
+		}
+		return enabled, nil
 	}
-	defer resp.Body.Close() //nolint:errcheck
-
-	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusConflict {
-		return fmt.Errorf("POST %s: unexpected status %s", a.endpoint("runs"), resp.Status)
-	}
-	return nil
+	return false, errors.New("om_inventory reports no ENABLED setting")
 }

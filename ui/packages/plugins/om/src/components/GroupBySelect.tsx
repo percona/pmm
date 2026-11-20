@@ -15,6 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { useState } from 'react';
 import { MenuItem, TextField } from '@mui/material';
 
 /** No grouping: the select's value when the table is flat. */
@@ -24,6 +25,49 @@ export interface GroupByOption {
   /** The column id to group by, or {@link NO_GROUPING}. */
   value: string;
   label: string;
+}
+
+const readSession = (key: string) => {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const writeSession = (key: string, value: string) => {
+  try {
+    sessionStorage.setItem(key, value);
+  } catch {
+    // Blocked storage only costs the choice outliving the tab switch.
+  }
+};
+
+/**
+ * A Fleet table's grouping, kept for the browser session.
+ *
+ * Component state alone would not do: switching Fleet tabs unmounts the other tab, and
+ * opening a dashboard unmounts the page, while grouping by Health is a triage mode a
+ * reader moves in and out of. Not in the URL: a shareable filter matters, a shareable
+ * grouping does not (PMM-15767).
+ */
+export function useSessionGrouping<T extends string>(
+  storageKey: string,
+  options: GroupByOption[],
+  fallback: T
+) {
+  const [grouping, setGrouping] = useState<T>(() => {
+    const stored = readSession(storageKey);
+    // A value no option offers, e.g. one renamed since it was stored, is ignored.
+    return options.some((option) => option.value === stored)
+      ? (stored as T)
+      : fallback;
+  });
+  const update = (value: T) => {
+    setGrouping(value);
+    writeSession(storageKey, value);
+  };
+  return [grouping, update] as const;
 }
 
 /**

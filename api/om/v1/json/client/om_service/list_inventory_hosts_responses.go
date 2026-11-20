@@ -310,8 +310,8 @@ type ListInventoryHostsDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// list inventory hosts default body details items0
-	ListInventoryHostsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// list inventory hosts default body details items0 additional properties
+	ListInventoryHostsDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *ListInventoryHostsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 			}
 			result[k] = toadd
 		}
-		o.ListInventoryHostsDefaultBodyDetailsItems0 = result
+		o.ListInventoryHostsDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o ListInventoryHostsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error
 		return nil, err
 	}
 
-	if len(o.ListInventoryHostsDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ListInventoryHostsDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ListInventoryHostsDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ListInventoryHostsDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -607,6 +607,11 @@ type ListInventoryHostsOKBodyHostsItems0 struct {
 	// included. Forgetting it would clear Operations' record of the machine PMM runs on,
 	// the next scan would put it straight back, and in between the fleet would be wrong.
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
+
+	// The MongoDB versions, as major.minor and oldest first, that Operations installs onto
+	// this node's OS release. Empty when it installs none there, the release is not known,
+	// or PMM could not read the supported releases; automation_blocked_reasons says which.
+	SupportedMongodbVersions []string `json:"supported_mongodb_versions"`
 
 	// executor
 	Executor *ListInventoryHostsOKBodyHostsItems0Executor `json:"executor,omitempty"`
@@ -1389,9 +1394,9 @@ func (o *ListInventoryHostsOKBodyHostsItems0ServicesItems0Freshness) UnmarshalBi
 /*
 ListInventoryHostsOKBodyHostsItems0UnregisteredMongodsItems0 UnregisteredMongod is a mongod found running that PMM has no service for.
 //
-// The arbiter case, mostly: PMM registers no service for an arbiter, so nothing else
-// in OM would report the process at all. Also what stands in the way of installing
-// anything over a port that is already taken.
+// Most often an arbiter that was not added to PMM, which nothing else in OM would
+// report at all. Also what stands in the way of installing anything over a port that
+// is already taken.
 swagger:model ListInventoryHostsOKBodyHostsItems0UnregisteredMongodsItems0
 */
 type ListInventoryHostsOKBodyHostsItems0UnregisteredMongodsItems0 struct {

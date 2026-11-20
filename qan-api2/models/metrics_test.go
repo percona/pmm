@@ -24,6 +24,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
 
 	qanv1 "github.com/percona/pmm/api/qan/v1"
 )
@@ -47,7 +48,7 @@ func setupTestClickHouse(t *testing.T) *sqlx.DB {
 
 func TestMetrics_Get(t *testing.T) {
 	t.Parallel()
-	ctx := t.Context()
+	ctx := metadata.NewIncomingContext(t.Context(), metadata.MD{})
 	sqlxDB := setupTestClickHouse(t)
 	m := NewMetrics(sqlxDB)
 
@@ -120,7 +121,7 @@ func TestMetrics_Get(t *testing.T) {
 
 func TestMetrics_SelectQueryExamples(t *testing.T) {
 	t.Parallel()
-	ctx := t.Context()
+	ctx := metadata.NewIncomingContext(t.Context(), metadata.MD{})
 	sqlxDB := setupTestClickHouse(t)
 	m := NewMetrics(sqlxDB)
 
@@ -214,7 +215,7 @@ func TestMetrics_SelectQueryExamples(t *testing.T) {
 
 func TestMetrics_SchemaByQueryID(t *testing.T) {
 	t.Parallel()
-	ctx := t.Context()
+	ctx := metadata.NewIncomingContext(t.Context(), metadata.MD{})
 	sqlxDB := setupTestClickHouse(t)
 	m := NewMetrics(sqlxDB)
 
@@ -245,7 +246,7 @@ func TestMetrics_SchemaByQueryID(t *testing.T) {
 
 func TestMetrics_ExplainFingerprintByQueryID(t *testing.T) {
 	t.Parallel()
-	ctx := t.Context()
+	ctx := metadata.NewIncomingContext(t.Context(), metadata.MD{})
 	sqlxDB := setupTestClickHouse(t)
 	m := NewMetrics(sqlxDB)
 

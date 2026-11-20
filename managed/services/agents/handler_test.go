@@ -25,8 +25,126 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 )
+
+func TestShouldForceConfigurationUpdate(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name           string
+		portsChanged   bool
+		enteredRunning bool
+		status         inventoryv1.AgentStatus
+		expected       bool
+	}{
+		// A normal restart: the new port is already stored by the time RUNNING arrives, so
+		// this is the only thing that distinguishes it. Missing it leaves VictoriaMetrics
+		// scraping the old address until the batched update, which is what PMM-14267 fixed.
+		{"Agent entering RUNNING", false, true, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, true},
+
+		// A reconnect: already running, port moved underneath it.
+		{"running Agent whose port changed", true, false, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, true},
+
+		{"running Agent that changed nothing", false, false, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, false},
+
+		// An Agent that cannot start reports a new port on every attempt and never reaches
+		// RUNNING, which is what made rebuilding here unbounded.
+		{"Agent that is still starting", true, false, inventoryv1.AgentStatus_AGENT_STATUS_STARTING, false},
+		{"Agent that failed to start", true, false, inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR, false},
+		{"Agent waiting to be restarted", true, false, inventoryv1.AgentStatus_AGENT_STATUS_WAITING, false},
+		{"Agent that is stopping", true, false, inventoryv1.AgentStatus_AGENT_STATUS_STOPPING, false},
+		{"Agent that has stopped", true, false, inventoryv1.AgentStatus_AGENT_STATUS_DONE, false},
+		{"Agent of unknown status", true, true, inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.expected, shouldForceConfigurationUpdate(tc.portsChanged, tc.enteredRunning, tc.status))
+		})
+	}
+}
+
+func TestCheckEnteredRunning(t *testing.T) {
+	t.Parallel()
+
+	agentColumns := []string{
+		"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id",
+		"pmm_agent_id", "custom_labels", "environment_variables", "created_at", "updated_at",
+		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected",
+		"username", "password", "agent_password", "tls", "tls_skip_verify",
+		"log_level", "exporter_options", "qan_options", "rta_options",
+		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
+	}
+
+	agentRow := func(agentID, status string) *sqlmock.Rows {
+		return sqlmock.NewRows(agentColumns).AddRow(
+			agentID, string(models.PMMAgentType), "test-node", nil, nil, nil, nil, nil,
+			time.Now(), time.Now(), false, status, 8080, nil, nil, false,
+			nil, nil, nil, false, false, nil,
+			`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
+		)
+	}
+
+	newDB := func(t *testing.T) (*reform.DB, sqlmock.Sqlmock) {
+		t.Helper()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		return reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)), mock
+	}
+
+	t.Run("true when a stored STARTING becomes RUNNING", func(t *testing.T) {
+		t.Parallel()
+
+		db, mock := newDB(t)
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("test-agent-1").
+			WillReturnRows(agentRow("test-agent-1", inventoryv1.AgentStatus_AGENT_STATUS_STARTING.String()))
+
+		assert.True(t, checkEnteredRunning(db.Querier, "test-agent-1", inventoryv1.AgentStatus_AGENT_STATUS_RUNNING))
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("false when it was already RUNNING", func(t *testing.T) {
+		t.Parallel()
+
+		db, mock := newDB(t)
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("test-agent-2").
+			WillReturnRows(agentRow("test-agent-2", inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String()))
+
+		assert.False(t, checkEnteredRunning(db.Querier, "test-agent-2", inventoryv1.AgentStatus_AGENT_STATUS_RUNNING))
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("false for a report that is not RUNNING, without querying", func(t *testing.T) {
+		t.Parallel()
+
+		db, mock := newDB(t)
+
+		assert.False(t, checkEnteredRunning(db.Querier, "test-agent-3", inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR))
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("false when the agent is not found", func(t *testing.T) {
+		t.Parallel()
+
+		db, mock := newDB(t)
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("missing-agent").
+			WillReturnError(reform.ErrNoRows)
+
+		assert.False(t, checkEnteredRunning(db.Querier, "missing-agent", inventoryv1.AgentStatus_AGENT_STATUS_RUNNING))
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+}
 
 func TestCheckPortChanged(t *testing.T) {
 	t.Parallel()

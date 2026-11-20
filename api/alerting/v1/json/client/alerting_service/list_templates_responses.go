@@ -310,8 +310,8 @@ type ListTemplatesDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// list templates default body details items0
-	ListTemplatesDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// list templates default body details items0 additional properties
+	ListTemplatesDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *ListTemplatesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 			}
 			result[k] = toadd
 		}
-		o.ListTemplatesDefaultBodyDetailsItems0 = result
+		o.ListTemplatesDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o ListTemplatesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.ListTemplatesDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.ListTemplatesDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ListTemplatesDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.ListTemplatesDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
@@ -541,7 +541,7 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 	// Short human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
-	// PromQL query expression with templating parameters.
+	// Query expression with templating parameters; for multi-query templates, a copy of queries[0].expr.
 	Expr string `json:"expr,omitempty"`
 
 	// Query parameters definitions.
@@ -563,7 +563,7 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 	// TemplateSource defines template source.
 	//
 	//  - TEMPLATE_SOURCE_BUILT_IN: Template that is shipped with PMM Server releases.
-	//  - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com.
+	//  - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com. Deprecated.
 	//  - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.
 	//  - TEMPLATE_SOURCE_USER_API: Templated created via API.
 	// Enum: ["TEMPLATE_SOURCE_UNSPECIFIED","TEMPLATE_SOURCE_BUILT_IN","TEMPLATE_SOURCE_SAAS","TEMPLATE_SOURCE_USER_FILE","TEMPLATE_SOURCE_USER_API"]
@@ -576,7 +576,7 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 	// YAML template file content. Empty for built-in and SaaS templates.
 	Yaml string `json:"yaml,omitempty"`
 
-	// PromQL query steps for multi-query templates. Empty for single-expression templates.
+	// Query steps for multi-query templates. Empty for single-expression templates.
 	Queries []*ListTemplatesOKBodyTemplatesItems0QueriesItems0 `json:"queries"`
 
 	// Server-side expression steps for multi-query templates. Empty for single-expression templates.
@@ -962,11 +962,14 @@ type ListTemplatesOKBodyTemplatesItems0ExpressionsItems0 struct {
 	// Reference ID of the expression (e.g. "C").
 	RefID string `json:"ref_id,omitempty"`
 
-	// Expression type. Currently only "math" is supported.
+	// Expression type: "math" or "reduce".
 	Type string `json:"type,omitempty"`
 
-	// Expression body referencing other steps by ref ID (e.g. "$A > $B").
+	// Expression body referencing other steps by ref ID (e.g. "$A > $B", or "$A" for reduce).
 	Expression string `json:"expression,omitempty"`
+
+	// Reducer of a "reduce" expression (e.g. "max").
+	Reducer string `json:"reducer,omitempty"`
 }
 
 // Validate validates this list templates OK body templates items0 expressions items0
@@ -1457,19 +1460,80 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0String) UnmarshalBinary(b
 }
 
 /*
-ListTemplatesOKBodyTemplatesItems0QueriesItems0 TemplateQuery represents a PromQL query step in a multi-query alert template.
+ListTemplatesOKBodyTemplatesItems0QueriesItems0 TemplateQuery represents a query step in a multi-query alert template.
 swagger:model ListTemplatesOKBodyTemplatesItems0QueriesItems0
 */
 type ListTemplatesOKBodyTemplatesItems0QueriesItems0 struct {
 	// Reference ID of the query (e.g. "A").
 	RefID string `json:"ref_id,omitempty"`
 
-	// PromQL query expression with templating parameters (placeholders kept intact).
+	// Query expression with templating parameters (placeholders kept intact).
 	Expr string `json:"expr,omitempty"`
+
+	// DatasourceType is the built-in Grafana datasource a template query runs against.
+	//
+	//  - DATASOURCE_TYPE_METRICS: VictoriaMetrics, queried with MetricsQL.
+	//  - DATASOURCE_TYPE_CLICKHOUSE: ClickHouse (QAN data), queried with SQL as a time series.
+	// Enum: ["DATASOURCE_TYPE_UNSPECIFIED","DATASOURCE_TYPE_METRICS","DATASOURCE_TYPE_CLICKHOUSE"]
+	Datasource *string `json:"datasource,omitempty"`
 }
 
 // Validate validates this list templates OK body templates items0 queries items0
 func (o *ListTemplatesOKBodyTemplatesItems0QueriesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDatasource(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listTemplatesOkBodyTemplatesItems0QueriesItems0TypeDatasourcePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["DATASOURCE_TYPE_UNSPECIFIED","DATASOURCE_TYPE_METRICS","DATASOURCE_TYPE_CLICKHOUSE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listTemplatesOkBodyTemplatesItems0QueriesItems0TypeDatasourcePropEnum = append(listTemplatesOkBodyTemplatesItems0QueriesItems0TypeDatasourcePropEnum, v)
+	}
+}
+
+const (
+
+	// ListTemplatesOKBodyTemplatesItems0QueriesItems0DatasourceDATASOURCETYPEUNSPECIFIED captures enum value "DATASOURCE_TYPE_UNSPECIFIED"
+	ListTemplatesOKBodyTemplatesItems0QueriesItems0DatasourceDATASOURCETYPEUNSPECIFIED string = "DATASOURCE_TYPE_UNSPECIFIED"
+
+	// ListTemplatesOKBodyTemplatesItems0QueriesItems0DatasourceDATASOURCETYPEMETRICS captures enum value "DATASOURCE_TYPE_METRICS"
+	ListTemplatesOKBodyTemplatesItems0QueriesItems0DatasourceDATASOURCETYPEMETRICS string = "DATASOURCE_TYPE_METRICS"
+
+	// ListTemplatesOKBodyTemplatesItems0QueriesItems0DatasourceDATASOURCETYPECLICKHOUSE captures enum value "DATASOURCE_TYPE_CLICKHOUSE"
+	ListTemplatesOKBodyTemplatesItems0QueriesItems0DatasourceDATASOURCETYPECLICKHOUSE string = "DATASOURCE_TYPE_CLICKHOUSE"
+)
+
+// prop value enum
+func (o *ListTemplatesOKBodyTemplatesItems0QueriesItems0) validateDatasourceEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listTemplatesOkBodyTemplatesItems0QueriesItems0TypeDatasourcePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListTemplatesOKBodyTemplatesItems0QueriesItems0) validateDatasource(formats strfmt.Registry) error {
+	if swag.IsZero(o.Datasource) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateDatasourceEnum("datasource", "body", *o.Datasource); err != nil {
+		return err
+	}
+
 	return nil
 }
 
