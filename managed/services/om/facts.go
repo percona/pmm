@@ -112,6 +112,7 @@ var defaultPrecedence = map[string][]string{
 	fieldCPUUsage:        {sourceMetrics},
 	fieldConnectionsFree: {sourceMetrics},
 	fieldClusterRole:     {sourceMetrics},
+	fieldNodeType:        {sourceMetrics},
 	fieldIsMongos:        {sourceMetrics},
 }
 

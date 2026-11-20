@@ -46,7 +46,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// OmService provides the OpenManager topology and health API.
+// OmService provides the Operations for MongoDB topology and health API.
 type OmServiceClient interface {
 	// GetTopology returns the whole MongoDB estate as one document.
 	GetTopology(ctx context.Context, in *GetTopologyRequest, opts ...grpc.CallOption) (*GetTopologyResponse, error)
@@ -339,7 +339,7 @@ func (c *omServiceClient) DeleteInventoryConfigOverride(ctx context.Context, in 
 // All implementations must embed UnimplementedOmServiceServer
 // for forward compatibility.
 //
-// OmService provides the OpenManager topology and health API.
+// OmService provides the Operations for MongoDB topology and health API.
 type OmServiceServer interface {
 	// GetTopology returns the whole MongoDB estate as one document.
 	GetTopology(context.Context, *GetTopologyRequest) (*GetTopologyResponse, error)
