@@ -16,6 +16,7 @@
 package agents
 
 import (
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -34,21 +35,13 @@ var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
 	postgresSSLSniVersion                = version.MustParse("2.41.0-0")
-	postgresExporterCollectorsVersion    = version.MustParse("2.41.0-0")
 	postgresMaxExporterConnsVersion      = version.MustParse("2.41.2-0")
 )
 
-var defaultPostgresExporterCollectors = []string{
-	"database",
-	"database_wraparound",
-	"extensions",
-	"locks",
-	"replication",
-	"replication_slot",
-	"stat_bgwriter",
-	"stat_database",
-	"stat_user_tables",
-	"statio_user_tables",
+// pmmEnabledPostgresExporterCollectors are the collectors that PMM runs although postgres_exporter doesn't by
+// default. Disabling one of them turns it off.
+var pmmEnabledPostgresExporterCollectors = []string{
+	// pg_wal_segments and pg_wal_size_bytes; pg_ls_waldir needs a superuser or a member of pg_monitor.
 	"wal",
 }
 
@@ -114,15 +107,11 @@ func postgresExporterConfig(node, serviceNode *models.Node, service *models.Serv
 	}
 
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
-
-	if !pmmAgentVersion.Less(postgresExporterCollectorsVersion) {
-		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors(
-			"--no-collector.",
-			defaultPostgresExporterCollectors,
-			exporter.ExporterOptions.DisabledCollectors,
-		)
-		args = append(args, disableCollectorArgs...)
-	}
+	args = append(args, collectors.PostgresExporterCollectorArgs(
+		slices.Concat(pmmEnabledPostgresExporterCollectors, exporter.ExporterOptions.EnabledCollectors),
+		exporter.ExporterOptions.DisabledCollectors,
+		pmmAgentVersion,
+	)...)
 
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, false)
 

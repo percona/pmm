@@ -485,6 +485,52 @@ func TestAddPostgreSQL(t *testing.T) {
 		})
 	})
 
+	t.Run("With enabled collectors", func(t *testing.T) {
+		t.Parallel()
+
+		nodeName := pmmapitests.TestString(t, "node-for-enabled-collectors")
+		nodeID, pmmAgentID := RegisterNode(t, mservice.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+		})
+
+		add := func(enable, disable []string) (*mservice.AddServiceOK, error) {
+			return client.Default.ManagementService.AddService(&mservice.AddServiceParams{
+				Context: pmmapitests.Context,
+				Body: mservice.AddServiceBody{
+					Postgresql: &mservice.AddServiceParamsBodyPostgresql{
+						NodeID:              nodeID,
+						PMMAgentID:          pmmAgentID,
+						ServiceName:         pmmapitests.TestString(t, "service-for-enabled-collectors"),
+						Address:             "10.10.10.10",
+						Port:                5432,
+						Username:            "username",
+						EnableCollectors:    enable,
+						DisableCollectors:   disable,
+						SkipConnectionCheck: true,
+					},
+				},
+			})
+		}
+
+		_, err := add([]string{"custom_query.hr"}, nil)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `unknown postgres_exporter collector "custom_query.hr"`)
+
+		_, err = add([]string{"wal"}, []string{"wal"})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `collector "wal" is both enabled and disabled`)
+
+		resp, err := add([]string{"long_running_transactions", "stat_wal_receiver"}, []string{"locks"})
+		require.NoError(t, err)
+		serviceID := resp.Payload.Postgresql.Service.ServiceID
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
+
+		exporter := resp.Payload.Postgresql.PostgresExporter
+		assert.Equal(t, []string{"long_running_transactions", "stat_wal_receiver"}, exporter.EnabledCollectors)
+		assert.Equal(t, []string{"locks"}, exporter.DisabledCollectors)
+	})
+
 	t.Run("With Wrong Node Type", func(t *testing.T) {
 		t.Parallel()
 

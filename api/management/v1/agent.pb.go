@@ -108,6 +108,8 @@ type UniversalAgent struct {
 	Disabled bool `protobuf:"varint,9,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// List of disabled collector names.
 	DisabledCollectors []string `protobuf:"bytes,10,rep,name=disabled_collectors,json=disabledCollectors,proto3" json:"disabled_collectors,omitempty"`
+	// List of enabled collector names: collectors that the exporter doesn't run by default.
+	EnabledCollectors []string `protobuf:"bytes,46,rep,name=enabled_collectors,json=enabledCollectors,proto3" json:"enabled_collectors,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,11,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 	// Log level for exporter.
@@ -280,6 +282,13 @@ func (x *UniversalAgent) GetDisabled() bool {
 func (x *UniversalAgent) GetDisabledCollectors() []string {
 	if x != nil {
 		return x.DisabledCollectors
+	}
+	return nil
+}
+
+func (x *UniversalAgent) GetEnabledCollectors() []string {
+	if x != nil {
+		return x.EnabledCollectors
 	}
 	return nil
 }
@@ -1127,7 +1136,7 @@ var File_management_v1_agent_proto protoreflect.FileDescriptor
 
 const file_management_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\xcb\x1a\n" +
+	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\xfa\x1a\n" +
 	"\x0eUniversalAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x121\n" +
 	"\x15is_agent_password_set\x18\x02 \x01(\bR\x12isAgentPasswordSet\x12\x1d\n" +
@@ -1141,7 +1150,8 @@ const file_management_v1_agent_proto_rawDesc = "" +
 	"\rcustom_labels\x18\b \x03(\v2/.management.v1.UniversalAgent.CustomLabelsEntryR\fcustomLabels\x12\x1a\n" +
 	"\bdisabled\x18\t \x01(\bR\bdisabled\x12/\n" +
 	"\x13disabled_collectors\x18\n" +
-	" \x03(\tR\x12disabledCollectors\x12\x1f\n" +
+	" \x03(\tR\x12disabledCollectors\x12-\n" +
+	"\x12enabled_collectors\x18. \x03(\tR\x11enabledCollectors\x12\x1f\n" +
 	"\vlisten_port\x18\v \x01(\rR\n" +
 	"listenPort\x123\n" +
 	"\tlog_level\x18\f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12(\n" +

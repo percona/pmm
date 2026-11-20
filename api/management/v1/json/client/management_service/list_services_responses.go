@@ -817,6 +817,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
+	// List of enabled collector names: collectors that the exporter doesn't run by default.
+	EnabledCollectors []string `json:"enabled_collectors"`
+
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
