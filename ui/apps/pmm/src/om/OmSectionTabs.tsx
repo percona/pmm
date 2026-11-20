@@ -20,31 +20,16 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import type { FC } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import {
-  OM_ROUTE_AUTOMATIONS,
-  OM_ROUTE_FLEET,
-  OM_ROUTE_NODES,
-  OM_ROUTE_SETTINGS,
-} from '@pmm/plugins-om';
 import { OM_PATH } from 'lib/constants';
 import { Messages } from './OmPage.messages';
-
-const SECTIONS = [
-  { label: Messages.fleet, route: OM_ROUTE_FLEET },
-  { label: Messages.nodes, route: OM_ROUTE_NODES },
-  { label: Messages.automations, route: OM_ROUTE_AUTOMATIONS },
-  { label: Messages.settings, route: OM_ROUTE_SETTINGS },
-].map(({ label, route }) => ({
-  label,
-  path: route ? `${OM_PATH}/${route}` : OM_PATH,
-}));
+import { OM_SECTIONS } from './OmSectionTabs.constants';
 
 /** Moves between OM's pages, since the sidebar lists OM once; a page below a section keeps its tab current. */
 export const OmSectionTabs: FC = () => {
   // Lowercased because the router matches routes regardless of case.
   const pathname = useLocation().pathname.toLowerCase();
   const current =
-    [...SECTIONS]
+    [...OM_SECTIONS]
       .reverse()
       .find(({ path }) => pathname === path || pathname.startsWith(`${path}/`))
       ?.path ?? OM_PATH;
@@ -54,7 +39,7 @@ export const OmSectionTabs: FC = () => {
   return (
     <Box component="nav" aria-label={Messages.sections}>
       <Tabs value={current} variant="scrollable" scrollButtons="auto">
-        {SECTIONS.map(({ label, path }) => (
+        {OM_SECTIONS.map(({ label, path }) => (
           <Tab
             key={path}
             value={path}
