@@ -18,6 +18,7 @@ package alert
 import (
 	"fmt"
 	"regexp"
+	"slices"
 )
 
 // ParamTokenRegexp returns a regexp matching a parameter's placeholder token, tolerating
@@ -58,11 +59,16 @@ func (r *Template) ObservedQueryForParam(paramName string) (TemplateQuery, error
 				)
 			}
 
-			query, ok := r.nearestQueryRef(text[:loc[0]])
+			ref, ok := r.nearestStepRef(text[:loc[0]])
 			if !ok {
 				return TemplateQuery{}, fmt.Errorf(
 					"overridable parameter '%s' is not compared against any query in expression %s", paramName, expression.RefID,
 				)
+			}
+
+			query, err := r.observedQuery(paramName, expression.RefID, ref)
+			if err != nil {
+				return TemplateQuery{}, err
 			}
 
 			if found != nil && query.RefID != found.RefID {
@@ -94,29 +100,44 @@ var (
 	operandEndPrefix = regexp.MustCompile(`^\s*(?:$|\)|&&|\|\|)`)
 )
 
-// nearestQueryRef returns the query referenced last in text, which pairs each parameter with
-// its own query in an expression like `$A > [[ .a ]] && $B > [[ .b ]]`.
-func (r *Template) nearestQueryRef(text string) (TemplateQuery, bool) {
-	var (
-		found TemplateQuery
-		at    = -1
-	)
-
-	for _, query := range r.Queries {
-		ref := regexp.MustCompile(`\$` + regexp.QuoteMeta(query.RefID) + `\b`)
-
-		matches := ref.FindAllStringIndex(text, -1)
-		if len(matches) == 0 {
-			continue
-		}
-
-		last := matches[len(matches)-1][0]
-		if last > at {
-			at, found = last, query
+// nearestStepRef returns the query or expression referenced last in text, which pairs each
+// parameter with its own step in an expression like `$A > [[ .a ]] && $B > [[ .b ]]`.
+func (r *Template) nearestStepRef(text string) (string, bool) {
+	for _, match := range slices.Backward(stepRefRegexp.FindAllStringSubmatch(text, -1)) {
+		ref := match[1]
+		if slices.ContainsFunc(r.Queries, func(q TemplateQuery) bool { return q.RefID == ref }) ||
+			slices.ContainsFunc(r.Expressions, func(e TemplateExpression) bool { return e.RefID == ref }) {
+			return ref, true
 		}
 	}
 
-	return found, at >= 0
+	return "", false
+}
+
+// observedQuery resolves a parameter's comparand ref to the query its threshold fans out over.
+func (r *Template) observedQuery(paramName, expressionRefID, ref string) (TemplateQuery, error) {
+	// Validation already keeps a raw ClickHouse query out of math.
+	queryIdx := slices.IndexFunc(r.Queries, func(q TemplateQuery) bool { return q.RefID == ref })
+	if queryIdx >= 0 {
+		return r.Queries[queryIdx], nil
+	}
+
+	var input string
+	expressionIdx := slices.IndexFunc(r.Expressions, func(e TemplateExpression) bool { return e.RefID == ref })
+	if expressionIdx >= 0 {
+		input = r.Expressions[expressionIdx].ReduceInput()
+	}
+
+	queryIdx = slices.IndexFunc(r.Queries, func(q TemplateQuery) bool { return q.RefID == input && q.Datasource == ClickHouse })
+	if queryIdx < 0 {
+		return TemplateQuery{}, fmt.Errorf(
+			"overridable parameter '%s' in expression %s is compared against expression $%s, "+
+				"but can only be compared against a MetricsQL query or a reduce of a ClickHouse query",
+			paramName, expressionRefID, ref,
+		)
+	}
+
+	return r.Queries[queryIdx], nil
 }
 
 // validateOverridableParams checks the constraints that depend on the template's shape,
@@ -134,6 +155,16 @@ func (r *Template) validateOverridableParams() error {
 		_, err := r.ObservedQueryForParam(param.Name)
 		if err != nil {
 			return err
+		}
+
+		// A token inside a query is filled with the default, so overrides would never reach it.
+		token := ParamTokenRegexp(param.Name)
+		for _, query := range r.Queries {
+			if token.MatchString(query.Expr) {
+				return fmt.Errorf(
+					"overridable parameter '%s' is used in query %s, but can only be used in expressions", param.Name, query.RefID,
+				)
+			}
 		}
 	}
 
