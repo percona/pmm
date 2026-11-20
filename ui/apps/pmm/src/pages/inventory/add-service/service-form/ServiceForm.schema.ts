@@ -1,3 +1,4 @@
+import { areCustomLabelsValid } from 'utils/labels.utils';
 import { z } from 'zod';
 import { MAX_INT32 } from './ServiceForm.constants';
 import { Messages } from './ServiceForm.messages';
@@ -17,6 +18,10 @@ export const portText = z.string().refine(isValidPort, validation.port);
 export const keyValuesText = z
   .string()
   .refine(isValidKeyValues, validation.keyValue);
+
+export const customLabelsText = z
+  .string()
+  .refine(areCustomLabelsValid, validation.keyValue);
 
 export const getIntegerError = (value: string, min: number) => {
   const number = Number(value);
@@ -74,7 +79,7 @@ export const labelsSchema = z.object({
   replicationSet: z.string(),
   region: z.string(),
   az: z.string(),
-  customLabels: keyValuesText,
+  customLabels: customLabelsText,
 });
 
 export const commonOptionsSchema = z.object({

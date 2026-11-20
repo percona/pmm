@@ -2,6 +2,7 @@ import { isAxiosError } from 'axios';
 import { getApiErrorMessage } from 'api/api.utils';
 import { InventoryNodeType } from 'types/nodes.types';
 import { MetricsMode } from 'types/services.types';
+import { parseCustomLabels } from 'utils/labels.utils';
 import {
   LOCAL_ADDRESSES,
   MAX_CONNECTION_TIMEOUT_SECONDS,
@@ -32,7 +33,7 @@ export const isValidPort = (value: string) => {
   return Number.isInteger(port) && port > 0 && port <= 65535;
 };
 
-// Keys follow the Prometheus label name rules.
+// Extra DSN parameters; keys follow the Prometheus label name rules.
 export const isValidKeyValues = (text: string) =>
   splitKeyValues(text).every((entry) => {
     const [key, value, ...rest] = entry.split(':');
@@ -84,6 +85,11 @@ export const toKeyValueMap = (text: string) => {
     : undefined;
 };
 
+export const toCustomLabels = (text: string) => {
+  const labels = parseCustomLabels(text);
+  return Object.keys(labels).length ? labels : undefined;
+};
+
 export const toCollectors = (text: string) => {
   const collectors = splitCollectors(text);
   return collectors.length ? collectors : undefined;
@@ -109,7 +115,7 @@ export const toLabels = ({
   environment,
   cluster,
   replicationSet,
-  customLabels: toKeyValueMap(customLabels),
+  customLabels: toCustomLabels(customLabels),
 });
 
 export const toRemoteNode = (

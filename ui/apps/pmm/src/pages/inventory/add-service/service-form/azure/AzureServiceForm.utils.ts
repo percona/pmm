@@ -6,7 +6,7 @@ import type {
   DatabaseServiceFormValues,
   QueryAnalyticsOptionsFormValues,
 } from '../ServiceForm.types';
-import { toConnection, toKeyValueMap } from '../ServiceForm.utils';
+import { toConnection, toCustomLabels } from '../ServiceForm.utils';
 import type { AzureFormValues } from './AzureServiceForm.types';
 
 export const toAzureDefaults = (
@@ -41,7 +41,7 @@ export const toAzureService = (
     nodeModel: instance.nodeModel,
     nodeName: connection.serviceName,
     environment: values.environment,
-    customLabels: toKeyValueMap(values.customLabels),
+    customLabels: toCustomLabels(values.customLabels),
     azureResourceGroup: instance.azureResourceGroup,
     azureDatabaseExporter: values.azureDatabaseExporter,
     disableQueryExamples: values.disableQueryExamples,

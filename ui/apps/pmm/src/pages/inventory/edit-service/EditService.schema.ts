@@ -1,20 +1,11 @@
 import type { RdsExporter } from 'types/agent.types';
+import { areCustomLabelsValid } from 'utils/labels.utils';
 import { z } from 'zod';
 import { Messages } from './EditService.messages';
 import { RdsAuthMode } from './EditService.types';
-import { splitCustomLabel, splitCustomLabelEntries } from './EditService.utils';
 
-// Prometheus label names, see https://prometheus.io/docs/concepts/data_model
-const LABEL_NAME_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 // Mirrors the server's rule on aws_role_arn in api/inventory/v1/agents.proto
 const AWS_ROLE_ARN_RE = /^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role\/.+$/;
-
-export const areCustomLabelsValid = (text: string) =>
-  splitCustomLabelEntries(text).every((entry) => {
-    const [name, value] = splitCustomLabel(entry);
-
-    return LABEL_NAME_RE.test(name) && !name.startsWith('__') && !!value;
-  });
 
 const editServiceFields = z.object({
   environment: z.string(),

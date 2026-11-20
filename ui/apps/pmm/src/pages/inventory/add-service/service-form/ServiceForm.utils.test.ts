@@ -8,6 +8,7 @@ import {
   isValidKeyValues,
   isValidPort,
   toCollectors,
+  toCustomLabels,
   toKeyValueMap,
   toLabels,
   toOptionalNumber,
@@ -114,6 +115,14 @@ describe('ServiceForm.utils', () => {
       replicationSet: 'rs',
       customLabels: { team: 'db' },
     });
+  });
+
+  it('keeps spaces and colons in custom label values', () => {
+    expect(toCustomLabels('owner:DB Team url:http://x')).toEqual({
+      owner: 'DB Team',
+      url: 'http://x',
+    });
+    expect(toCustomLabels(' \n')).toBeUndefined();
   });
 
   it.each(['localhost', '127.0.0.1'])(

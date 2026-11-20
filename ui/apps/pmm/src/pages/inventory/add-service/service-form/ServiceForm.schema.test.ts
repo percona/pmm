@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   connectionSchema,
+  labelsSchema,
   optionalIntegerText,
   requireCredentials,
 } from './ServiceForm.schema';
@@ -18,6 +19,16 @@ const errorPaths = (result: { success: boolean; error?: z.ZodError }) =>
   result.error?.issues.map((issue) => issue.path.join('.')) ?? [];
 
 describe('ServiceForm.schema', () => {
+  it.each([
+    ['owner:DB Team url:http://x', true],
+    ['team', false],
+    ['__reserved:db', false],
+  ])('validates the custom labels %j as %s', (customLabels, valid) => {
+    expect(
+      labelsSchema.shape.customLabels.safeParse(customLabels).success
+    ).toBe(valid);
+  });
+
   it('requires the username and password without TLS', () => {
     const result = credentialsSchema.safeParse({
       tls: false,
