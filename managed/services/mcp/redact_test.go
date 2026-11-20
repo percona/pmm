@@ -305,6 +305,18 @@ func TestMaskMongoPlan(t *testing.T) {
 		assert.Contains(t, got, `"stage":"COLLSCAN"`, command)
 	}
 
+	// A $literal document, and the $const the parsed pipeline shows it as, is a value, keys included.
+	literal := `{"command":{"aggregate":"c","pipeline":[{"$match":{"email":{"$eq":"x"}}},` +
+		`{"$project":{"flag":{"$literal":{"cust_SECRET_4711":{"note":"y"}}}}}]},` +
+		`"stages":[{"$cursor":{"queryPlanner":{"winningPlan":{"stage":"COLLSCAN"}}}},` +
+		`{"$project":{"flag":{"$const":{"cust_SECRET_4712":"z"}}}}]}`
+	got = maskMongoPlan(literal)
+	assert.NotContains(t, got, "cust_SECRET")
+	assert.Contains(t, got, `"flag":{"$literal":"?"}`)
+	assert.Contains(t, got, `"flag":{"$const":"?"}`)
+	assert.Contains(t, got, `"email":{"$eq":"?"}`)
+	assert.Contains(t, got, `"stage":"COLLSCAN"`)
+
 	assert.Equal(t, planWithheld, maskMongoPlan("not json"))
 }
 

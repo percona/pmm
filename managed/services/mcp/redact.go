@@ -367,9 +367,10 @@ func maskMySQLPlan(plan string) (string, bool) {
 // maskMongoPlan masks every value beneath the keys that hold query values, and
 // every string and number outside mongoPlanKeys and keyPattern, keeping stage
 // names, index names, statistics and the field names of the filter. Booleans
-// and nulls carry no data and are kept. A command's comment is masked whole.
+// and nulls carry no data and are kept. A command's comment, and a $literal or
+// $const value, is masked whole.
 func maskMongoPlan(plan string) string {
-	out, err := rewriteJSON([]byte(plan), mongoCommandComment, func(path []string, v any) any {
+	out, err := rewriteJSON([]byte(plan), mongoOpaque, func(path []string, v any) any {
 		if len(path) == 0 || slices.ContainsFunc(path, mongoLiteralKey) {
 			return "?"
 		}
@@ -393,10 +394,13 @@ func maskMongoPlan(plan string) string {
 	return string(out)
 }
 
-// mongoCommandComment reports whether path ends at the comment of a command, which an application can fill with
-// anything, its keys included.
-func mongoCommandComment(path []string) bool {
+// mongoOpaque reports whether path ends at a value whose keys are data too: a command's comment, which an application
+// can fill with anything, or a $literal, which the parsed pipeline shows as $const.
+func mongoOpaque(path []string) bool {
 	n := len(path)
+	if n > 0 && (path[n-1] == "$literal" || path[n-1] == "$const") {
+		return true
+	}
 	return n > 1 && path[n-1] == "comment" && (path[n-2] == "command" || path[n-2] == "originatingCommand")
 }
 
