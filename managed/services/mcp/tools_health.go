@@ -54,7 +54,7 @@ type signal struct {
 	Name   string
 	Unit   string
 	Source string
-	// Query takes the selector as %[1]s: service_name="…" or, for a node signal, node_name="…".
+	// Query takes the selector as %[1]s: service_id="…" or, for a node signal, node_id="…" (node_name="…" when the id is unknown).
 	Query string
 	Node  bool
 }
@@ -328,9 +328,9 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 	signals := slices.Concat(healthSignals[svc.Engine], healthSignals[engineNode])
 	queries := make([]string, len(signals))
 	for j, sig := range signals {
-		selector := `service_name="` + escapeLabel(svc.ServiceName) + `"`
+		selector := `service_id="` + escapeLabel(svc.ServiceID) + `"`
 		if sig.Node {
-			selector = `node_name="` + escapeLabel(svc.NodeName) + `"`
+			selector = nodeSelector(svc)
 		}
 		queries[j] = fmt.Sprintf(sig.Query, selector)
 		_, err = checkExpr(queries[j], span, step)
@@ -352,7 +352,7 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		PMMURL:      serviceURL(s.publicBaseURL(ctx, req.Extra.Header), svc),
 	}
 
-	skipNode := svc.NodeName == ""
+	skipNode := svc.NodeID == "" && svc.NodeName == ""
 	signalCtx := ctx
 	deadline, ok := ctx.Deadline()
 	if ok {
@@ -391,6 +391,14 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 	res.Signals = results
 	res.Note = strings.Join(notes, " ")
 	return res, nil
+}
+
+// nodeSelector selects the series of the service's node by id, else by name.
+func nodeSelector(svc serviceInfo) string {
+	if svc.NodeID != "" {
+		return `node_id="` + escapeLabel(svc.NodeID) + `"`
+	}
+	return `node_name="` + escapeLabel(svc.NodeName) + `"`
 }
 
 // checkHealthWindow refuses a window that, with what the signals read before it, reads more than maxSpan.
