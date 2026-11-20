@@ -618,13 +618,13 @@ var metricsCatalog = []metricInfo{
 		Name: "pg_stat_user_tables_n_dead_tup", Engine: enginePostgreSQL,
 		Meaning: "Estimated dead rows of the ten user tables with the most.",
 		Unit:    "short", Type: "gauge", Labels: []string{"datname", "relname", "schemaname", "server"},
-		Query: `topk(10, max by (relname) (pg_stat_user_tables_n_dead_tup{service_name="<service>"}))`,
+		Query: `topk(10, max by (datname, schemaname, relname) (pg_stat_user_tables_n_dead_tup{service_name="<service>"}))`,
 	},
 	{
 		Name: "pg_stat_user_tables_n_live_tup", Engine: enginePostgreSQL,
 		Meaning: "Estimated live rows of the ten user tables with the most.",
 		Unit:    "short", Type: "gauge", Labels: []string{"datname", "relname", "schemaname", "server"},
-		Query: `topk(10, max by (relname) (pg_stat_user_tables_n_live_tup{service_name="<service>"}))`,
+		Query: `topk(10, max by (datname, schemaname, relname) (pg_stat_user_tables_n_live_tup{service_name="<service>"}))`,
 	},
 	{
 		Name: "pg_up", Engine: enginePostgreSQL,
