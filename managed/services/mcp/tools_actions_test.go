@@ -1239,6 +1239,9 @@ func TestConfigTool(t *testing.T) {
 	list := queriesWith(fake, "tlast_over_time(up[3600s])")
 	require.Len(t, list, 1)
 	assert.Equal(t, strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10), queryOf(t, list[0]).Get("time"))
+	versionQueries := queriesWith(fake, "mysql_version_info")
+	require.Len(t, versionQueries, 1)
+	assert.Equal(t, strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10), queryOf(t, versionQueries[0]).Get("time"), "the version is read at the configuration time")
 
 	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "filter": "innodb"})
 	assert.False(t, isError)
