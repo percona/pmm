@@ -9,6 +9,6 @@ export type CopyToClipboardButtonProps = {
   buttonProps?: ButtonProps;
   /** Shows a labeled button instead of the bare icon; the label is `copyCommand`. */
   showCopyButtonText?: boolean;
-  /** Label of the labeled button. Defaults to "Copy code". */
+  /** Label of the labeled button, and what screen readers announce for the icon button. Defaults to "Copy code". */
   copyCommand?: string;
 };
