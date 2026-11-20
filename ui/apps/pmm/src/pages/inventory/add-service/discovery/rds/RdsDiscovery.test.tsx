@@ -9,6 +9,7 @@ import {
   MetricsMode,
 } from 'types/services.types';
 import {
+  clickLabel,
   mockAddService,
   mockNodes,
   renderServiceForm,
@@ -45,6 +46,12 @@ const POSTGRESQL = instance('rds-pg', DiscoverRDSEngine.postgresql);
 // Discovery calls also pass an abort signal or the mutation context.
 const lastDiscovery = () => vi.mocked(discoverRDS).mock.calls.at(-1)?.[0];
 
+const discoverWithRole = () => {
+  clickLabel('IAM role');
+  type('text-input-aws-role-arn', ROLE_ARN);
+  submit();
+};
+
 const startMonitoring = async (instanceId: string) => {
   fireEvent.click(await screen.findByTestId(`start-monitoring-${instanceId}`));
   await waitForNodePreselect();
@@ -68,55 +75,54 @@ describe('RdsDiscovery', () => {
     expect(enqueueSnackbar).not.toHaveBeenCalled();
   });
 
+  it("starts with PMM Server's identity and discovers with it again", async () => {
+    renderServiceForm(RdsDiscovery);
+    await screen.findByText('rds-mysql');
+
+    expect(screen.getByLabelText("PMM Server's identity")).toBeChecked();
+    expect(screen.getByTestId('rds-server-identity-note')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('text-input-aws-access-key')
+    ).not.toBeInTheDocument();
+    submit();
+
+    await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(2));
+    expect(lastDiscovery()).toEqual({});
+  });
+
   it('discovers with an IAM role ARN', async () => {
     renderServiceForm(RdsDiscovery);
     await screen.findByText('rds-mysql');
 
-    type('text-input-aws-role-arn', ROLE_ARN);
-    submit();
+    discoverWithRole();
 
     await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(2));
-    expect(lastDiscovery()).toEqual({
-      awsAccessKey: undefined,
-      awsSecretKey: undefined,
-      awsRoleArn: ROLE_ARN,
-    });
+    expect(lastDiscovery()).toEqual({ awsRoleArn: ROLE_ARN });
   });
 
   it("does not wait for PMM Server's own discovery to discover with a role", async () => {
     vi.mocked(discoverRDS).mockReturnValueOnce(new Promise(() => {}));
     renderServiceForm(RdsDiscovery);
 
-    type('text-input-aws-role-arn', ROLE_ARN);
-    submit();
+    discoverWithRole();
 
     expect(await screen.findByText('rds-mysql')).toBeInTheDocument();
-    expect(lastDiscovery()).toEqual(
-      expect.objectContaining({ awsRoleArn: ROLE_ARN })
-    );
+    expect(lastDiscovery()).toEqual({ awsRoleArn: ROLE_ARN });
   });
 
-  it('does not combine keys with a role ARN or accept a malformed one', async () => {
+  it('requires a well-formed role ARN in IAM role mode', async () => {
     renderServiceForm(RdsDiscovery);
     await screen.findByText('rds-mysql');
 
-    type('text-input-aws-access-key', 'AKIAIOSFODNN7EXAMPLE');
-    type('text-input-aws-role-arn', ROLE_ARN);
+    clickLabel('IAM role');
     submit();
+    expect(await screen.findByText('Required field')).toBeInTheDocument();
 
-    expect(
-      await screen.findAllByText(
-        'Use either an access key and secret key, or an IAM role ARN, not both'
-      )
-    ).toHaveLength(2);
-
-    type('text-input-aws-access-key', '');
     type(
       'text-input-aws-role-arn',
       'arn:aws:iam::123456789012:instance-profile/x'
     );
     submit();
-
     expect(
       await screen.findByText(
         'Enter an IAM role ARN, for example arn:aws:iam::123456789012:role/RoleName'
@@ -125,44 +131,37 @@ describe('RdsDiscovery', () => {
     expect(discoverRDS).toHaveBeenCalledTimes(1);
   });
 
-  it('needs the access key and the secret key together', async () => {
+  it('requires both keys in access key mode', async () => {
     renderServiceForm(RdsDiscovery);
     await screen.findByText('rds-mysql');
-    const bothKeys = 'Enter both the access key and the secret key';
+
+    clickLabel('Access key');
+    submit();
+    expect(await screen.findAllByText('Required field')).toHaveLength(2);
+    expect(discoverRDS).toHaveBeenCalledTimes(1);
 
     type('text-input-aws-access-key', 'AKIAIOSFODNN7EXAMPLE');
-    submit();
-    expect(await screen.findByText(bothKeys)).toBeInTheDocument();
-
-    type('text-input-aws-access-key', '');
-    await waitFor(() =>
-      expect(screen.queryByText(bothKeys)).not.toBeInTheDocument()
-    );
-
     type('text-input-aws-secret-key', 'secret');
     submit();
-    expect(await screen.findByText(bothKeys)).toBeInTheDocument();
-    expect(discoverRDS).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(2));
+    expect(lastDiscovery()).toEqual({
+      awsAccessKey: 'AKIAIOSFODNN7EXAMPLE',
+      awsSecretKey: 'secret',
+    });
   });
 
-  it('marks the filled key when it is combined with a role ARN', async () => {
+  it("sends only the chosen mode's credentials", async () => {
     renderServiceForm(RdsDiscovery);
     await screen.findByText('rds-mysql');
 
+    clickLabel('Access key');
+    type('text-input-aws-access-key', 'AKIAIOSFODNN7EXAMPLE');
     type('text-input-aws-secret-key', 'secret');
-    type('text-input-aws-role-arn', ROLE_ARN);
-    submit();
+    discoverWithRole();
 
-    await waitFor(() =>
-      expect(screen.getByTestId('text-input-aws-secret-key')).toHaveAttribute(
-        'aria-invalid',
-        'true'
-      )
-    );
-    expect(screen.getByTestId('text-input-aws-access-key')).toHaveAttribute(
-      'aria-invalid',
-      'false'
-    );
+    await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(2));
+    expect(lastDiscovery()).toEqual({ awsRoleArn: ROLE_ARN });
   });
 
   it("explains a failed discovery with PMM Server's own identity, and the retry", async () => {
@@ -231,8 +230,7 @@ describe('RdsDiscovery', () => {
   it('adds a discovered MySQL instance with the discovery credentials', async () => {
     renderServiceForm(RdsDiscovery);
     await screen.findByText('rds-mysql');
-    type('text-input-aws-role-arn', ROLE_ARN);
-    submit();
+    discoverWithRole();
     await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(2));
 
     await startMonitoring('rds-mysql');
@@ -311,8 +309,7 @@ describe('RdsDiscovery', () => {
   it('shows the discovery credentials again after cancelling', async () => {
     renderServiceForm(RdsDiscovery);
     await screen.findByText('rds-mysql');
-    type('text-input-aws-role-arn', ROLE_ARN);
-    submit();
+    discoverWithRole();
     await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(2));
     await startMonitoring('rds-mysql');
 

@@ -2,7 +2,7 @@ import type { RdsCredentials, RdsExporter } from 'types/agent.types';
 import type { BaseService, ChangeServiceParams } from 'types/services.types';
 import { parseCustomLabels, toCustomLabelsText } from 'utils/labels.utils';
 import type { EditServiceFormValues } from './EditService.schema';
-import { RdsAuthMode } from './EditService.types';
+import { RdsAuthMode } from '../Inventory.types';
 
 export const getRdsAuthMode = (exporter: RdsExporter | null) => {
   if (exporter?.awsRoleArn) {

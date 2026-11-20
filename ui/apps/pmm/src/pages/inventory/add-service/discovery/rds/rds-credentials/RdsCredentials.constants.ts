@@ -1,2 +1,10 @@
-// The same rule the API applies to aws_role_arn.
-export const ROLE_ARN_RE = /^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role\/.+$/;
+import { RdsAuthMode } from 'pages/inventory/Inventory.types';
+import { Messages } from './RdsCredentials.messages';
+
+const { authMode } = Messages;
+
+export const RDS_AUTH_MODE_OPTIONS = [
+  { value: RdsAuthMode.accessKey, label: authMode.accessKey },
+  { value: RdsAuthMode.iamRole, label: authMode.iamRole },
+  { value: RdsAuthMode.hostCredentials, label: authMode.serverIdentity },
+];

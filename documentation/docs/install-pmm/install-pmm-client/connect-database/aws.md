@@ -181,13 +181,11 @@ The following steps are needed to add an Amazon RDS database instance to PMM:
 
     
 
-2. Enter the credentials that PMM uses to find your instances:
+2. In **Discover with**, choose how PMM finds your instances:
 
-    - To use an IAM user, enter its access key ID and secret access key.
-    - To use an IAM role, enter its ARN in **AWS IAM role ARN**. PMM Server assumes the role with its own AWS identity.
-    - To use PMM Server's own AWS identity, leave all three fields empty.
-
-    Use either an access key and secret key, or a role ARN, not both.
+    - **Access key**: enter the access key ID and secret access key of an IAM user.
+    - **IAM role**: enter the role's ARN in **AWS IAM role ARN**. PMM Server assumes the role with its own AWS identity.
+    - **PMM Server's identity**: use the AWS identity PMM Server already has, such as an instance profile.
 
 3. Click **Discover** to list the Amazon RDS instances that these credentials can access.
 

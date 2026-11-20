@@ -6,7 +6,7 @@ import {
   type EditServiceFormValues,
   getEditServiceSchema,
 } from './EditService.schema';
-import { RdsAuthMode } from './EditService.types';
+import { RdsAuthMode } from '../Inventory.types';
 import {
   getInitialValues,
   getRdsAuthMode,

@@ -1,11 +1,9 @@
 import type { RdsExporter } from 'types/agent.types';
 import { areCustomLabelsValid } from 'utils/labels.utils';
 import { z } from 'zod';
+import { AWS_ROLE_ARN_RE } from '../Inventory.constants';
+import { RdsAuthMode } from '../Inventory.types';
 import { Messages } from './EditService.messages';
-import { RdsAuthMode } from './EditService.types';
-
-// Mirrors the server's rule on aws_role_arn in api/inventory/v1/agents.proto
-const AWS_ROLE_ARN_RE = /^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role\/.+$/;
 
 const editServiceFields = z.object({
   environment: z.string(),
