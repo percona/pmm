@@ -253,6 +253,8 @@ func rankSeries(s metricSeries) rankedSeries {
 				}
 			}
 		}
+		// The mean lies between the extremes, which are finite; rounding of the sums can carry it past them.
+		avg = min(max(avg, lo), hi)
 		r.summary.Min, r.summary.Avg, r.summary.Max = &lo, &avg, &hi
 		r.max = hi
 	}

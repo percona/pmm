@@ -463,6 +463,20 @@ func TestRankSeriesAverageOfLargeValues(t *testing.T) {
 	res := shapeSeries("vector(1e308)", []metricSeries{s}, 0, &window{From: start, To: start.Add(time.Hour)}, "1s", "")
 	_, err := json.Marshal(res)
 	require.NoError(t, err)
+
+	// Each third of the largest float64 rounds up, so even their sum overflows.
+	s.Points = []point{
+		{T: start, V: math.MaxFloat64},
+		{T: start.Add(time.Second), V: math.MaxFloat64},
+		{T: start.Add(2 * time.Second), V: math.MaxFloat64},
+	}
+	r = rankSeries(s)
+	require.NotNil(t, r.summary.Avg)
+	assert.InEpsilon(t, math.MaxFloat64, *r.summary.Avg, 1e-9, "three overflowing samples still average finite")
+
+	res = shapeSeries("vector(1e308)", []metricSeries{s}, 0, &window{From: start, To: start.Add(time.Hour)}, "1s", "")
+	_, err = json.Marshal(res)
+	require.NoError(t, err)
 }
 
 func TestFmtNum3(t *testing.T) {
