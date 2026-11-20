@@ -248,12 +248,19 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 		return shapeSeries(in.Query, series, plan.limit, nil, "", ""), nil
 	}
 
-	note, err := fitAnswer(in.Query, &plan, matched)
+	note, fitRead, err := fitAnswer(in.Query, &plan, matched, read)
 	if err != nil {
 		return metricsResult{}, err
 	}
 	if note != "" {
 		notes = append(notes, note)
+	}
+	// A raised step can read further back than the span the selectors were counted over.
+	if fitRead > read {
+		_, err = s.checkSeriesCount(ctx, auth, uid, selectors, from.Add(-(fitRead - plan.span())), to)
+		if err != nil {
+			return metricsResult{}, narrowIfTooLarge(err, in.Query)
+		}
 	}
 	series, err := s.api.QueryRange(ctx, auth, uid, promRequest{
 		Query: in.Query, Start: plan.start, End: plan.end, Step: plan.step, Timeout: metricsTimeout,
@@ -265,30 +272,31 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 }
 
 // fitAnswer raises the step of a range query without an aggregation, whose answer has at most the series its selectors
-// match, so that the answer fits under the read cap, and returns the note that says so; a step the caller gave is refused instead.
-func fitAnswer(expr string, plan *metricsPlan, matched matchedSeries) (string, error) {
+// match, so that the answer fits under the read cap, and returns the note that says so and the span the query reads at
+// its final step; a step the caller gave is refused instead.
+func fitAnswer(expr string, plan *metricsPlan, matched matchedSeries, read time.Duration) (string, time.Duration, error) {
 	if aggregates(expr) {
-		return "", nil
+		return "", read, nil
 	}
 	step := answerStep(matched, plan.span(), plan.step)
 	if step == plan.step {
-		return "", nil
+		return "", read, nil
 	}
 	if plan.stepGiven {
-		return "", newToolError(codeInvalidInput,
+		return "", 0, newToolError(codeInvalidInput,
 			"at step %s, the answer for up to %d series is over the 4 MiB that MCP reads: raise step to at least %s, or aggregate, as in sum by (service_name) (%s)",
 			formatStep(plan.step), matched.count, formatStep(step), hintExpr(expr))
 	}
-	_, err := checkExpr(expr, plan.span(), step)
+	raisedRead, err := checkExpr(expr, plan.span(), step)
 	if err != nil {
-		return "", newToolError(codeInvalidInput,
+		return "", 0, newToolError(codeInvalidInput,
 			"the answer for up to %d series fits in the 4 MiB that MCP reads only at a step of %s or more, and at that step the query reads past its budget: "+
 				"aggregate, as in sum by (service_name) (%s), or narrow the selectors", matched.count, formatStep(step), hintExpr(expr))
 	}
 	note := fmt.Sprintf("The step was raised from %s to %s so that the answer for up to %d series fits in the 4 MiB that MCP reads; aggregate for a finer step.",
 		formatStep(plan.step), formatStep(step), matched.count)
 	plan.step = step
-	return note, nil
+	return note, raisedRead, nil
 }
 
 // aggregates reports whether expr has an aggregation, which can return fewer series than its selectors match.
