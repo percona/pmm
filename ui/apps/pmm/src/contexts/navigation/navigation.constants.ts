@@ -8,7 +8,6 @@ import {
   PMM_INVENTORY_NODES_PATH,
   PMM_INVENTORY_PATH,
   PMM_INVENTORY_SERVICES_PATH,
-  PMM_NEW_NAV_USER_HOME_URL,
 } from 'lib/constants';
 import { clearReturnTo, saveReturnTo } from 'contexts/auth/auth.returnTo';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
@@ -41,17 +40,6 @@ import {
   SearchInsightsIcon,
 } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
-
-// The home dashboard has no entry: the logo links to it, and the sidebar
-// matches it to clear the highlight.
-export const NAV_HOME_PAGE: NavItem = {
-  id: 'home-page',
-  url: PMM_NEW_NAV_USER_HOME_URL,
-  matches: [
-    `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home/home-dashboard`,
-    `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-home`,
-  ],
-};
 
 //
 // MySQL dashboards

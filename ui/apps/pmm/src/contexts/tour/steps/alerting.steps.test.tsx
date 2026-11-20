@@ -7,7 +7,7 @@ import {
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { addAlerting } from 'contexts/navigation/navigation.utils';
-import { NAV_HOME_PAGE } from 'contexts/navigation/navigation.constants';
+import { NAV_MYSQL } from 'contexts/navigation/navigation.constants';
 import { NavItem } from 'types/navigation.types';
 import { User } from 'types/user.types';
 import { getAlertingTourSteps } from './alerting.steps';
@@ -35,7 +35,7 @@ describe('getAlertingTourSteps', () => {
     (_, alertingEnabled, unifiedAlertingEnabled, user) => {
       const alerts = addAlerting(alertingEnabled, unifiedAlertingEnabled, user);
 
-      const steps = getAlertingTourSteps([NAV_HOME_PAGE, alerts]);
+      const steps = getAlertingTourSteps([NAV_MYSQL, alerts]);
 
       expect(stepSelectors(steps)).toEqual(menuSelectors(alerts));
     }
@@ -94,6 +94,6 @@ describe('getAlertingTourSteps', () => {
   });
 
   it('returns no steps without an Alerts menu', () => {
-    expect(getAlertingTourSteps([NAV_HOME_PAGE])).toEqual([]);
+    expect(getAlertingTourSteps([NAV_MYSQL])).toEqual([]);
   });
 });

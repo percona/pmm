@@ -3,14 +3,13 @@ import {
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
-import { findActiveNavItem, isActive } from 'utils/navigation.utils';
+import { findActiveNavItem } from 'utils/navigation.utils';
 import { ServiceType } from 'types/services.types';
 import { UpdateStatus } from 'types/updates.types';
 import {
   addAlerting,
   addConfiguration,
   addDashboards,
-  addHomePage,
 } from './navigation.utils';
 import { NAV_CONFIGURATION } from './navigation.constants';
 
@@ -79,17 +78,6 @@ describe('addAlerting', () => {
       'alerts-templates'
     );
   });
-});
-
-describe('addHomePage', () => {
-  it.each(['/graph/d/custom', '/graph/d/custom/my-home'])(
-    'matches the custom home dashboard at %s',
-    (pathname) => {
-      const home = addHomePage({ homeDashboardUID: 'custom' });
-
-      expect(isActive(home, pathname)).toBe(true);
-    }
-  );
 });
 
 describe('addConfiguration', () => {

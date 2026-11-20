@@ -16,9 +16,7 @@ import { listItemTextClasses } from '@mui/material/ListItemText';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { SidebarScrollButton, useScrollEdges } from './scroll-button';
 import { useTheme } from '@mui/material/styles';
-import { findActiveNavItem, isActive } from 'utils/navigation.utils';
-import { addHomePage } from 'contexts/navigation/navigation.utils';
-import { useUser } from 'contexts/user';
+import { findActiveNavItem } from 'utils/navigation.utils';
 import { useLocation } from 'react-router-dom';
 import type { NavItem as NavItemType } from 'types/navigation.types';
 import { hiddenScrollbarMixin, scrollFadeMixin } from './drawer/Drawer.styles';
@@ -27,7 +25,6 @@ const edgeMarker = { height: '1px', listStyle: 'none' };
 
 export const Sidebar: FC = () => {
   const { navTree, navOpen, setNavOpen } = useNavigation();
-  const { user } = useUser();
   const [activeItem, setActiveItem] = useState<NavItemType>();
   const [animating, setAnimating] = useState(false);
   const [labelWidths, setLabelWidths] = useState<Record<string, string>>({});
@@ -107,16 +104,14 @@ export const Sidebar: FC = () => {
   useEffect(() => {
     const activeItem = findActiveNavItem(navTree, location.pathname);
 
-    // keep previous item active if there isn't a match
+    // Keeps the previous item without a match, except on a dashboard: one with
+    // no entry (any home dashboard included) is no entry's page.
     if (activeItem) {
       setActiveItem(activeItem);
-    } else if (
-      // The home dashboard has no entry of its own: the logo leads there.
-      isActive(addHomePage(user?.preferences), location.pathname)
-    ) {
+    } else if (location.pathname.includes('/d/')) {
       setActiveItem(undefined);
     }
-  }, [navTree, location.pathname, user?.preferences]);
+  }, [navTree, location.pathname]);
 
   const handleNavItemClick = useCallback(() => {
     // autoclose sidebar when layout is narrow

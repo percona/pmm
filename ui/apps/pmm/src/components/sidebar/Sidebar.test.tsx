@@ -10,6 +10,7 @@ import { wrapWithQueryProvider } from 'utils/testUtils';
 import { TestWrapper } from 'utils/testWrapper';
 import type { NavItem } from 'types/navigation.types';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 
 const StatefulNavigation = ({
@@ -24,6 +25,10 @@ const StatefulNavigation = ({
   return (
     <NavigationContext.Provider value={{ navTree, navOpen, setNavOpen }}>
       <Sidebar />
+      {/* Where Grafana takes the logo's /graph/ link. */}
+      <Link to="/graph/d/pmm-home/home-dashboard">Home dashboard</Link>
+      <Link to="/graph/d/mysql-user-details">User details</Link>
+      <Link to="/inventory/nodes">Nodes</Link>
     </NavigationContext.Provider>
   );
 };
@@ -117,7 +122,10 @@ describe('Sidebar', () => {
     expect(labelWidth(label as Element)).toMatch(/^\d+(\.\d+)?px$/);
   });
 
-  it('clears the highlight on the home dashboard, which has no entry', () => {
+  it.each([
+    ['the home dashboard', 'Home dashboard'],
+    ['a dashboard with no entry', 'User details'],
+  ])('clears the highlight on %s', (_, link) => {
     renderSidebar(
       true,
       [{ id: 'mysql', text: 'MySQL', url: '/graph/d/mysql' }],
@@ -127,8 +135,22 @@ describe('Sidebar', () => {
 
     expect(entry).toHaveClass('Mui-selected');
 
-    fireEvent.click(screen.getByRole('link', { name: 'Home' }));
+    fireEvent.click(screen.getByRole('link', { name: link }));
 
     expect(entry).not.toHaveClass('Mui-selected');
+  });
+
+  it('keeps the highlight on a page with no entry outside dashboards', () => {
+    renderSidebar(
+      true,
+      [{ id: 'mysql', text: 'MySQL', url: '/graph/d/mysql' }],
+      ['/graph/d/mysql']
+    );
+
+    fireEvent.click(screen.getByRole('link', { name: 'Nodes' }));
+
+    expect(screen.getByRole('link', { name: 'MySQL' })).toHaveClass(
+      'Mui-selected'
+    );
   });
 });

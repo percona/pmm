@@ -1,9 +1,8 @@
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import { NavItem } from 'types/navigation.types';
-import { User, UserPreferences } from 'types/user.types';
+import { User } from 'types/user.types';
 import { ServiceType } from 'types/services.types';
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
   NAV_ACCOUNT,
@@ -35,7 +34,6 @@ import {
   NAV_ALERTS_GROUPS,
   NAV_HIGH_AVAILABILITY,
   NAV_ACCESS_CONTROL,
-  NAV_HOME_PAGE,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
@@ -190,19 +188,4 @@ export const addHighAvailability = ({ health, namespace }: HAInfo): NavItem => {
   item.badgeAlwaysVisible = true;
 
   return item;
-};
-
-export const addHomePage = (preferences?: UserPreferences): NavItem => {
-  if (preferences?.homeDashboardUID) {
-    return {
-      ...NAV_HOME_PAGE,
-      // highlight also the custom home dashboard
-      matches: [
-        ...(NAV_HOME_PAGE.matches || []),
-        `${PMM_NEW_NAV_GRAFANA_PATH}/d/${preferences.homeDashboardUID}/*`,
-      ],
-    };
-  }
-
-  return NAV_HOME_PAGE;
 };
