@@ -241,7 +241,7 @@ The page shows when its data was last refreshed and when the nodes were last sca
 
 If **Nodes**, **Automations** or **Settings** can't load and the error says **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container. PMM signs you in to PMM Extensions with your PMM session. PMM Extensions accepts that session only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default. If the container sets it to `false`, remove the variable and recreate the container.
 
-### Scans
+### A node or service shows a problem
 
 If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
 
@@ -251,7 +251,17 @@ The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look
 
 To find out why a service is failing, go to **MongoDB > Operations > Fleet** and select the **Services** tab. The **Collected** column shows the reason in red, for example **Database unreachable** or **Database authentication failed**. Click the service's status to open its details, which show the full error and what to do about it. When PMM knows which scan failed, the details also link to it. A **Down** service marked **not running** had no `mongod` or `mongos` running at its last scan.
 
-### Installs
+### A saved setting isn't in effect
+
+A setting on **MongoDB > Operations > Settings** can show a warning that your saved value no longer meets a rule. This means that PMM Extensions uses the value from its deployment configuration instead of yours. 
+
+This happens when the deployment configuration changes after you saved your value, and your value no longer fits with it. 
+
+Some settings follow a rule that depends on other settings. For example, **Consider a scan stuck after** has to be longer than **Scan job timeout**, so your saved value stops working if the deployment raises the timeout above it.
+
+To use your own value again, change it so that it meets the rule and click **Save**. To use the deployed value instead, click **Reset**, which removes your saved value. Only Admins can change settings.
+
+### An install fails or needs stopping
 
 If an install step fails, PMM retries it once. If the retry also fails, PMM rolls back what it installed on all nodes: packages, configuration, and data. PMM doesn't retry failed pre-checks.
 

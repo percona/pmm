@@ -242,6 +242,116 @@ describe('ConfigForm', () => {
     );
   });
 
+  it('says why an ignored override is not in effect, and still offers Reset', () => {
+    const mutate = vi.fn();
+    useResetOmInventoryConfig.mockReturnValue({ ...idle, mutate });
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        setting({
+          key: 'STALE_RUN_AFTER',
+          value: 14400,
+          default_value: 14400,
+          has_override: true,
+          override_ignored_reason:
+            'STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT',
+        }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.getByTestId('om-config-override-ignored')).toHaveTextContent(
+      'Consider a scan stuck after must be longer than Scan job timeout. Your saved value no longer meets this rule, so the deployed value replaces it. To use your own value, enter one that meets the rule and click Save. To keep the deployed value, click Reset.'
+    );
+    expect(screen.getByText('overridden')).toBeInTheDocument();
+    // The box already holds the deployed value, so "Default:" would repeat it.
+    expect(screen.queryByText(/^Default:/)).toBeNull();
+    // The Tooltip supplies the button's accessible name, so it is found by its text.
+    fireEvent.click(screen.getByText('Reset'));
+    expect(mutate.mock.calls[0][0]).toBe('STALE_RUN_AFTER');
+  });
+
+  it('tells a reader why an override is ignored, without steps they cannot take', () => {
+    asReadOnlyReader();
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        setting({
+          key: 'POLL_INTERVAL',
+          has_override: true,
+          override_ignored_reason:
+            'POLL_INTERVAL, TASK_TIMEOUT: POLL_INTERVAL must not exceed TASK_TIMEOUT',
+        }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.getByTestId('om-config-override-ignored')).toHaveTextContent(
+      /^Job poll interval must not be longer than Scan job timeout\. Your saved value no longer meets this rule, so the deployed value replaces it\.$/
+    );
+  });
+
+  it('names every rule when an override is ignored for breaking more than one', () => {
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        setting({
+          key: 'TASK_TIMEOUT',
+          has_override: true,
+          override_ignored_reason:
+            'POLL_INTERVAL, TASK_TIMEOUT: POLL_INTERVAL must not exceed TASK_TIMEOUT; STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT',
+        }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.getByTestId('om-config-override-ignored')).toHaveTextContent(
+      'Job poll interval must not be longer than Scan job timeout. Consider a scan stuck after must be longer than Scan job timeout. Your saved value no longer meets these rules, so the deployed value replaces it. To use your own value, enter one that meets these rules and click Save. To keep the deployed value, click Reset.'
+    );
+  });
+
+  it('shows a reason in an unknown shape with labels in place of keys', () => {
+    useOmInventoryConfig.mockReturnValue({
+      data: [
+        setting({
+          key: 'RUN_RETENTION',
+          has_override: true,
+          override_ignored_reason:
+            'RUN_RETENTION: RUN_RETENTION conflicts with STALE_RUN_AFTER',
+        }),
+      ],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.getByTestId('om-config-override-ignored')).toHaveTextContent(
+      /^Scans kept conflicts with Consider a scan stuck after\./
+    );
+  });
+
+  it.each([
+    ['honoured', { has_override: true, override_ignored_reason: null }],
+    ['honoured, from an app that omits the field', { has_override: true }],
+    ['absent', { has_override: false }],
+  ] as const)('says nothing about an %s override', (_, overrides) => {
+    useOmInventoryConfig.mockReturnValue({
+      data: [setting({ key: 'STALE_RUN_AFTER', ...overrides })],
+      isPending: false,
+      isError: false,
+    });
+    render(<ConfigForm group="advanced" />);
+
+    expect(screen.queryByTestId('om-config-override-ignored')).toBeNull();
+    if (overrides.has_override) {
+      expect(screen.getByText('overridden')).toBeInTheDocument();
+      expect(screen.getByText('Default: 4 seconds')).toBeInTheDocument();
+    }
+  });
+
   it('shows a reader an invalid stored value without an error they cannot act on', () => {
     asReadOnlyReader();
     useOmInventoryConfig.mockReturnValue({

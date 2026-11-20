@@ -559,8 +559,9 @@ type GetInventoryConfigOKBodySettingsItems0 struct {
 	// Enum: ["SETTING_RELOAD_UNSPECIFIED","SETTING_RELOAD_HOT","SETTING_RELOAD_NESTED_ONLY","SETTING_RELOAD_NOT_OVERRIDABLE"]
 	Reload *string `json:"reload,omitempty"`
 
-	// Whether an override is in effect, which is how "why is it set to this" is
-	// answerable without also reading the deployment's configuration file.
+	// Whether an override is stored, which is how "why is it set to this" is
+	// answerable without also reading the deployment's configuration file. It is in
+	// effect unless override_ignored_reason is set.
 	HasOverride bool `json:"has_override,omitempty"`
 
 	// Whether to hide it behind an "advanced" disclosure.
@@ -568,6 +569,12 @@ type GetInventoryConfigOKBodySettingsItems0 struct {
 
 	// The field's documentation, where it has any.
 	Description *string `json:"description,omitempty"`
+
+	// Why the stored override is ignored and value is the deployed one, e.g.
+	// "STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT".
+	// It names fields and the rule they break, never values. Unset while the override
+	// is in effect, when there is none, and for an app too old to report it.
+	OverrideIgnoredReason *string `json:"override_ignored_reason,omitempty"`
 }
 
 // Validate validates this get inventory config OK body settings items0

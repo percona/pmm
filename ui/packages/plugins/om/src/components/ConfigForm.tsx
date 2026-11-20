@@ -124,6 +124,37 @@ function isValid(setting: OmInventorySetting, draft: string): boolean {
   return Number.isInteger(parsed) && parsed > 0;
 }
 
+/**
+ * The rule an ignored override breaks, in the labels shown on this page.
+ *
+ * PMM Extensions sends `KEY, KEY: KEY must [not] exceed KEY`, one per broken rule
+ * joined by `; `. A rule in another shape is shown as it arrives, with any known key
+ * replaced by its label.
+ */
+function ignoredOverrideRule(reason: string): string {
+  const rule = reason.replace(/^[A-Z0-9_]+(?:,\s*[A-Z0-9_]+)*:\s*/, '');
+  const labelOf = (key: string) => SETTING_LABEL[key] ?? key;
+  const comparison = /^([A-Z0-9_]+) must (not )?exceed ([A-Z0-9_]+)$/.exec(
+    rule
+  );
+  if (comparison) {
+    const [, field, negated, limit] = comparison;
+    return `${labelOf(field)} must ${negated ? 'not ' : ''}be longer than ${labelOf(limit)}`;
+  }
+  return rule.replace(/\b[A-Z][A-Z0-9_]*\b/g, (key) => labelOf(key));
+}
+
+/** Why an override is ignored, as sentences for the warning under the field. */
+function ignoredOverrideWarning(reason: string, readOnly: boolean): string {
+  const rules = reason.split('; ').map(ignoredOverrideRule);
+  const which = rules.length > 1 ? 'these rules' : 'this rule';
+  const explanation = `${rules.join('. ')}. Your saved value no longer meets ${which}, so the deployed value replaces it.`;
+  if (readOnly) {
+    return explanation;
+  }
+  return `${explanation} To use your own value, enter one that meets ${rules.length > 1 ? 'these rules' : 'the rule'} and click Save. To keep the deployed value, click Reset.`;
+}
+
 /** One field, rendered as whatever can edit it. */
 const SettingField = ({
   setting,
@@ -211,12 +242,14 @@ const SettingField = ({
         {/* The deployed value, shown only where it differs from what is in the box --
             so "what would Reset give me back" is answerable without reading the
             deployment's YAML, and an untouched field stays one line. */}
-        {setting.has_override && setting.default_value != null && (
-          <Typography variant="caption" color="text.secondary">
-            Default: {String(setting.default_value)}
-            {SETTING_UNIT[setting.key] ? ` ${SETTING_UNIT[setting.key]}` : ''}
-          </Typography>
-        )}
+        {setting.has_override &&
+          setting.default_value != null &&
+          !setting.override_ignored_reason && (
+            <Typography variant="caption" color="text.secondary">
+              Default: {String(setting.default_value)}
+              {SETTING_UNIT[setting.key] ? ` ${SETTING_UNIT[setting.key]}` : ''}
+            </Typography>
+          )}
         {/* Only when it is an override. Saying "from the deployment's configuration"
             on every unoverridden field is the same sentence thirteen times, which
             carries no information and buries the two or three rows that do. */}
@@ -231,6 +264,18 @@ const SettingField = ({
               </Tooltip>
             )}
           </Stack>
+        )}
+        {/* The app ignores a stored override that a later deployment change made break a
+            cross-field rule, so the box holds the deployed value while the chip above
+            still says "overridden". Without this the screen reads as "my value runs". */}
+        {setting.override_ignored_reason && (
+          <Typography
+            variant="caption"
+            color="warning.main"
+            data-testid="om-config-override-ignored"
+          >
+            {ignoredOverrideWarning(setting.override_ignored_reason, readOnly)}
+          </Typography>
         )}
       </Stack>
     </Stack>
