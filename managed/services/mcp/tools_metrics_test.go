@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"slices"
 	"strconv"
@@ -550,6 +551,53 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Equal(t, "96", queryParams(t, reqs[0]).Get("step"))
 		assert.Contains(t, res.Note, "The step was raised from 11s to 1m36s so that the answer for up to 500 series fits")
 		assert.Contains(t, text, "The step was raised from 11s to 1m36s")
+	})
+
+	t.Run("RaisedStepCountsTheWiderSpan", func(t *testing.T) {
+		t.Parallel()
+
+		// A selector without a window reads one step back: 11s before the raise, 1m36s after it.
+		const broad = `{__name__=~"mysql_global_status_.*", service_name="db1"}`
+		args := map[string]any{"query": broad, "period_from": "now-6h"}
+		from := testNow.Add(-6 * time.Hour)
+		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		res, text, isError := metricsCall(t, newQANService(t, fake, false), args)
+		require.False(t, isError, text)
+		assert.Equal(t, "1m36s", res.Step)
+		series := fake.requestsTo(vmAPI + "series")
+		require.Len(t, series, 2)
+		assert.Equal(t, unixOf(from.Add(-11*time.Second)), queryParams(t, series[0]).Get("start"))
+		assert.Equal(t, unixOf(from.Add(-96*time.Second)), queryParams(t, series[1]).Get("start"))
+		assert.Equal(t, unixOf(testNow), queryParams(t, series[1]).Get("end"))
+
+		// Over the cap on the wider span, the query is refused before it runs.
+		fake = newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		wider := unixOf(from.Add(-96 * time.Second))
+		next := fake.server.Config.Handler
+		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+			if req.URL.Path != vmAPI+"series" || req.URL.Query().Get("start") != wider {
+				next.ServeHTTP(rw, req)
+				return
+			}
+			rw.Header().Set("Content-Type", "application/json")
+			_, _ = rw.Write(seriesBody(2001))
+		})
+		_, text, isError = metricsCall(t, newQANService(t, fake, false), args)
+		require.True(t, isError, text)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Contains(t, text, "this selector matches more than 2000 series over the span")
+		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
+	})
+
+	t.Run("UnraisedStepCountsOnce", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+			"query": `sum by (service_name) (rate({__name__=~"mysql_global_status_.*", service_name="db1"}[5m]))`, "period_from": "now-6h",
+		})
+		require.False(t, isError, text)
+		assert.Len(t, fake.requestsTo(vmAPI+"series"), 1)
 	})
 
 	t.Run("WideRangeWithAnAggregationKeepsTheStep", func(t *testing.T) {
