@@ -156,6 +156,26 @@ If the template has a **Dynamic** badge, you can later change the threshold of t
 
 ## Recording rules
 
-Record an alert rules to pre-compute a query on a schedule and store the result as a new metric, which you can then reference in alert rules. This is useful when the same query powers multiple alert rules, for example, average CPU load across all nodes or replication lag across a cluster.
+A recording rule runs a query on a schedule and stores the result as a new metric. Dashboards and alert rules then read the pre-computed metric instead of running the full query again. Use a recording rule when the same expensive query powers several alert rules or panels, for example average CPU load across all nodes, or replication lag across a cluster.
 
-To create a recording rule, click **Alerts > Alert rules** + New recording rule**. For full instructions, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.
+To create a recording rule:
+{.power-number}
+
+1. Go to **Alerts > Alert rules** and click **New recording rule**.
+2. In **Metric name**, enter the name of the metric that the rule stores. Use a name that no existing metric has, for example with a prefix of your own.
+3. Build the query that the rule evaluates.
+4. Under **Target data source**, select **Metrics**, which is PMM's own metrics store.
+5. Select the folder and evaluation group for the rule, then save it.
+
+After one evaluation interval, the new metric is available in :material-compass-outline: **Explore**, in dashboard panels, and in alert rule queries.
+
+For the full set of options, see [Create recording rules](https://grafana.com/docs/grafana/latest/alerting/alerting-rules/create-recording-rules/) in the Grafana documentation.
+
+!!! caution "Recording rules write to the metrics that PMM collects"
+    Any user who can create alert rules, which includes the **Editor** role, can create a recording rule that targets **Metrics**. PMM doesn't check the metric name: a rule that reuses the name and labels of a collected metric, such as `up`, writes its result into that metric's series, where dashboards and alert rules read it. Grant the **Editor** role with this in mind.
+
+!!! caution "Recording rules and access control"
+    Recording rules can't write to **Metrics** while [access control](../admin/roles/access-control/intro.md) is enabled. A rule runs on a schedule rather than on behalf of a user, so PMM can't apply the label filters of the user who created it. Without those filters the rule would read every series and store the result where other users can read it. PMM refuses the write instead, and the rule reports an evaluation error on each run.
+
+!!! caution "Recording rules and high availability"
+    Recording rules can't write to **Metrics** in a PMM High Availability deployment. PMM refuses the write, and the rule reports an evaluation error on each run.
