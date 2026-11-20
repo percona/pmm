@@ -90,6 +90,7 @@ describe('AzureDiscovery', () => {
         ...CREDENTIALS,
         type: DiscoverAzureDatabaseType.mysql,
         instanceId: MYSQL.instanceId,
+        nodeModel: 'GP_Gen5_2',
         azureResourceGroup: 'rg',
         serviceName: MYSQL.address,
         nodeName: MYSQL.address,

@@ -300,6 +300,7 @@ export interface AddAzureDatabasePayload {
   region: string;
   az?: string;
   instanceId: string;
+  nodeModel?: string;
   address: string;
   port: number;
   nodeName?: string;

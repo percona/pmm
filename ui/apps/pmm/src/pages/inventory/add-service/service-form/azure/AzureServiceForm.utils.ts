@@ -38,6 +38,7 @@ export const toAzureService = (
     region: values.region,
     az: values.az,
     instanceId: instance.instanceId,
+    nodeModel: instance.nodeModel,
     nodeName: connection.serviceName,
     environment: values.environment,
     customLabels: toKeyValueMap(values.customLabels),
