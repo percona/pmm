@@ -27,13 +27,13 @@ import (
 //
 //reform:om_bootstrap_secrets
 type OmBootstrapSecret struct {
-	RunID           string    `reform:"run_id,pk"`
-	MongoDBUsername string    `reform:"mongodb_username"`
-	MongoDBPassword string    `reform:"mongodb_password"`
-	KeyFile         string    `reform:"key_file"`
-	AdminUsername   string    `reform:"admin_username"`
-	AdminPassword   string    `reform:"admin_password"`
-	CreatedAt       time.Time `reform:"created_at"`
+	RunID           string            `reform:"run_id,pk"`
+	MongoDBUsername OmMongoDBUsername `reform:"mongodb_username"`
+	MongoDBPassword OmMongoDBPassword `reform:"mongodb_password"`
+	KeyFile         OmKeyFile         `reform:"key_file"`
+	AdminUsername   OmAdminUsername   `reform:"admin_username"`
+	AdminPassword   OmAdminPassword   `reform:"admin_password"`
+	CreatedAt       time.Time         `reform:"created_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter.

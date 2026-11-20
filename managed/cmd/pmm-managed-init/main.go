@@ -98,7 +98,7 @@ func main() {
 // All nodes of an HA cluster share one PostgreSQL database but keep their own key file, so
 // letting a node generate its own key leaves it unable to decrypt rows written by the others.
 func checkHAEncryptionKey() error {
-	path := encryption.KeyPath()
+	path := encryption.DefaultKeyPath()
 
 	info, err := os.Stat(path)
 	switch {

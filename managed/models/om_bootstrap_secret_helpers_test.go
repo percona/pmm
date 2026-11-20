@@ -52,7 +52,7 @@ func TestOmBootstrapSecret(t *testing.T) {
 	t.Run("stores every credential encrypted and reads it back decrypted", func(t *testing.T) {
 		created := newTestOmBootstrapSecret("run-encrypted")
 		require.NoError(t, models.CreateOmBootstrapSecret(db.Querier, created))
-		assert.Equal(t, "admin-secret", created.AdminPassword)
+		assert.Equal(t, "admin-secret", created.AdminPassword.Reveal())
 
 		raw := make([]string, 5)
 		row := sqlDB.QueryRowContext(t.Context(),

@@ -20,58 +20,14 @@ import (
 	"fmt"
 
 	"gopkg.in/reform.v1"
-
-	"github.com/percona/pmm/managed/utils/encryption"
 )
-
-// EncryptOmBootstrapSecret encrypts secret's fields for storage.
-func EncryptOmBootstrapSecret(secret OmBootstrapSecret) (OmBootstrapSecret, error) {
-	return omBootstrapSecretEncryption(secret, encryption.Encrypt)
-}
-
-// DecryptOmBootstrapSecret decrypts secret's fields read from storage.
-func DecryptOmBootstrapSecret(secret OmBootstrapSecret) (OmBootstrapSecret, error) {
-	return omBootstrapSecretEncryption(secret, encryption.Decrypt)
-}
-
-// omBootstrapSecretEncryption fails on the first field error rather than keeping that field untransformed,
-// so a plaintext credential is never stored next to encrypted ones.
-func omBootstrapSecretEncryption(secret OmBootstrapSecret, handler func(string) (string, error)) (OmBootstrapSecret, error) {
-	fields := []struct {
-		column string
-		value  *string
-	}{
-		{"mongodb_username", &secret.MongoDBUsername},
-		{"mongodb_password", &secret.MongoDBPassword},
-		{"key_file", &secret.KeyFile},
-		{"admin_username", &secret.AdminUsername},
-		{"admin_password", &secret.AdminPassword},
-	}
-	for _, field := range fields {
-		transformed, err := handler(*field.value)
-		if err != nil {
-			return OmBootstrapSecret{}, fmt.Errorf("%s: %w", field.column, err)
-		}
-		*field.value = transformed
-	}
-	return secret, nil
-}
 
 // CreateOmBootstrapSecret stores one bootstrap run's generated MongoDB user and keyFile, encrypted.
 func CreateOmBootstrapSecret(q *reform.Querier, secret *OmBootstrapSecret) error {
-	encrypted, err := EncryptOmBootstrapSecret(*secret)
-	if err != nil {
-		return fmt.Errorf("failed to encrypt OM bootstrap secret: %w", err)
-	}
-	err = q.Insert(&encrypted)
+	err := q.Insert(secret)
 	if err != nil {
 		return fmt.Errorf("failed to insert OM bootstrap secret: %w", err)
 	}
-	decrypted, err := DecryptOmBootstrapSecret(encrypted)
-	if err != nil {
-		return fmt.Errorf("failed to decrypt OM bootstrap secret just inserted: %w", err)
-	}
-	*secret = decrypted
 	return nil
 }
 
@@ -97,9 +53,5 @@ func FindOmBootstrapSecretByRunID(q *reform.Querier, runID string) (*OmBootstrap
 		}
 		return nil, fmt.Errorf("failed to select OM bootstrap secret: %w", err)
 	}
-	decrypted, err := DecryptOmBootstrapSecret(*secret)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt OM bootstrap secret: %w", err)
-	}
-	return &decrypted, nil
+	return secret, nil
 }
