@@ -889,8 +889,9 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		config := &models.OmBootstrapRunConfig{RunID: run.ID, Environment: environment, Cluster: cluster}
 		err = models.CreateOmBootstrapRunConfig(s.db.Querier, config)
 		if err != nil {
-			// The run is already under way, so failing the request would misreport it; leave it unlabelled instead.
-			s.l.Warnf("bootstrap run %s: failed to persist environment/cluster: %s", run.ID, err)
+			s.abandonRun(ctx, run.ID, fmt.Sprintf("failed to store its environment and cluster: %s", err))
+			return nil, status.Errorf(codes.Internal,
+				"failed to store the run's environment and cluster, so the run has been cancelled: %s", err)
 		}
 	}
 

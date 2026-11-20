@@ -2206,6 +2206,33 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[2].path)
 	})
 
+	// An unlabelled run would escape a later name check in the environment and cluster it was meant for.
+	t.Run("cancels the run when its environment and cluster cannot be stored", func(t *testing.T) {
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "cancel_requested": true, "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.bootstrapService(t)
+		// A row already under the run's id makes the insert fail.
+		require.NoError(t, models.CreateOmBootstrapRunConfig(svc.db.Querier, &models.OmBootstrapRunConfig{RunID: "run-abc"}))
+		environment := "prod"
+
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				Environment:    &environment,
+			})
+
+		assert.Equal(t, codes.Internal, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "the run has been cancelled")
+		require.Len(t, stub.calls, 3)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[2].path)
+	})
+
 	t.Run("persists environment and cluster, and echoes them back through GetBootstrapRun", func(t *testing.T) {
 		// Not parallel: storeTestDB drops and recreates one fixed-name database.
 		stub := newSEPStubSeq(

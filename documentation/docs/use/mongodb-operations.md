@@ -192,7 +192,7 @@ Once your nodes pass the checks and you've reduced the security exposure, you're
 3. Fill in the form:
 
     - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB. If a selected node runs Rocky Linux 10, the form offers only 8.0.
-    - **Replica set name**: the name must not be in use in the same environment and cluster: by a replica set that PMM monitors, by an install that's running, or by a finished install whose members PMM hasn't registered yet. If you leave **Cluster** empty, PMM uses the replica set name as the cluster.
+    - **Replica set name**: the name must not be in use in the same environment and cluster: by a replica set that PMM monitors, by an install that's running, or by a successful install whose members PMM hasn't registered yet. If you leave **Cluster** empty, PMM uses the replica set name as the cluster.
     - **Data path** (default `/var/lib/mongo`), **Log path** (default `/var/log/mongodb/mongod.log`), and **Port** (default `27017`).
 
         !!! note "Keep the default port"
