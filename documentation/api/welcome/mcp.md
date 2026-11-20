@@ -37,4 +37,6 @@ curl -X POST --header 'Authorization: Bearer <service-token>' \
   https://<pmm-server>/mcp
 ```
 
+With access control on, send a PMM user's credentials instead of the token: replace `--header 'Authorization: Bearer <service-token>'` with `-u '<user>:<password>'`.
+
 The endpoint is off by default. Enable it with the `PMM_ENABLE_MCP=true` environment variable, or at runtime with `PUT /v1/server/settings` and `{"enable_mcp": true}` unless that variable is set; `GET /v1/server/settings/readonly` reports the state as `enable_mcp`. Literal values from your data are masked in query fingerprints and examples, execution plans and agent errors unless `PMM_MCP_RAW_SQL=true` opts in to them; table definitions are returned as they are. See the user documentation for the full tool reference, roles and limitations.
