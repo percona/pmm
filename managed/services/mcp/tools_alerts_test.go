@@ -288,6 +288,30 @@ func TestAlertsTool(t *testing.T) {
 		assert.Equal(t, 2, strings.Count(text, "silenced until"), text)
 	})
 
+	t.Run("PendingAlertIsNeverSilenced", func(t *testing.T) {
+		t.Parallel()
+
+		// An Alertmanager alert still held from an earlier firing, with the pending alert's labels and rule UID.
+		var am []map[string]any
+		require.NoError(t, json.Unmarshal(readFixture(t, "alerts_am_alerts.json"), &am))
+		earlier := am[0]
+		labels, ok := earlier["labels"].(map[string]any)
+		require.True(t, ok)
+		labels["service_id"], labels["service_name"] = "svc-quiet", "shop-quiet"
+		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+			"GET " + amAlertsPath: {body: mustJSON(t, []map[string]any{earlier})},
+		}))
+
+		got, _ := callAlerts(t, fake, map[string]any{"service_name": "shop-quiet"})
+		require.Contains(t, alertKeys(got.Alerts), "Too many connections@shop-quiet")
+		for _, a := range got.Alerts {
+			if a.State == "pending" {
+				assert.False(t, a.Silenced)
+				assert.Nil(t, a.SilencedUntil)
+			}
+		}
+	})
+
 	t.Run("SilenceMissingFromSilences", func(t *testing.T) {
 		t.Parallel()
 
