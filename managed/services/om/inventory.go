@@ -552,25 +552,14 @@ func newAdminSecret(req *omv1.TriggerHostBootstrapRequest) (*models.OmBootstrapS
 	return secret, generated, nil
 }
 
-// executorUnusable says why nothing can be dispatched to this host, or "" if nothing is known to be wrong.
-// A host with an executor host but no executor sub-document is left to PMM Extensions; only an explicit false rejects.
-func executorUnusable(host extensionsHost) string {
-	if host.ExecutorHost == nil || *host.ExecutorHost == "" {
-		return "no automation agent is registered for it, so nothing can be dispatched to it"
+// executorReason says why nothing can be dispatched to this host, or "" when its automation agent can run jobs.
+func executorReason(host extensionsHost, executor *omv1.InventoryExecutor) string {
+	// These strings are shown on the Nodes page and in the install wizard, so they do not name the scheduler.
+	if host.ExecutorHost == nil || *host.ExecutorHost == "" || executor == nil || !executor.GetReachable() {
+		return "this node has no automation agent that answers"
 	}
-	executor, ok := host.Observed["executor"].(map[string]any)
-	if !ok {
-		return ""
-	}
-
-	// These strings reach the install wizard as user-facing text, so they do not name the scheduler.
-	reachable, ok := executor["reachable"].(bool)
-	if ok && !reachable {
-		return "its automation agent is not reachable"
-	}
-	driverHealthy, ok := executor["driver_healthy"].(bool)
-	if ok && !driverHealthy {
-		return "its automation agent's job driver is not healthy"
+	if !executor.GetDriverHealthy() {
+		return "this node's automation agent cannot run jobs"
 	}
 	return ""
 }
@@ -580,7 +569,7 @@ func executorUnusable(host extensionsHost) string {
 func hostNotReadyReasons(
 	host extensionsHost,
 	node pmmNodeFacts,
-	executorReason string,
+	executor *omv1.InventoryExecutor,
 	support installSupport,
 	now time.Time,
 ) ([]string, bool) {
@@ -588,8 +577,9 @@ func hostNotReadyReasons(
 	if !node.pmmAgentConnected {
 		reasons = append(reasons, "PMM Client is not installed or not connected")
 	}
-	if executorReason != "" {
-		reasons = append(reasons, executorReason)
+	unusable := executorReason(host, executor)
+	if unusable != "" {
+		reasons = append(reasons, unusable)
 	}
 	if host.FailingSince != nil {
 		reason := "the scans of this node have been failing for " + services.FormatAge(now.Sub(*host.FailingSince))
@@ -664,7 +654,7 @@ func (s *Service) refuseBootstrapProblems(
 			continue
 		}
 		targetNames, targets = append(targetNames, names[i]), append(targets, host)
-		reasons, _ = hostNotReadyReasons(host, node, executorUnusable(host), support, now)
+		reasons, _ = hostNotReadyReasons(host, node, executorToProto(host.Observed), support, now)
 		if len(reasons) > 0 {
 			notReady = append(notReady, names[i]+": "+strings.Join(reasons, "; "))
 		}
@@ -830,6 +820,10 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 	if support.err != nil {
 		return nil, support.err
 	}
+	// Held until the run's labels are stored, so a concurrent trigger's name check sees this run.
+	s.triggerMu.Lock()
+	defer s.triggerMu.Unlock()
+
 	// Enforced here, not only in the UI: automation_eligible is advisory, can be minutes stale,
 	// and a direct API call never reads it.
 	osID, err := s.refuseBootstrapProblems(ctx, req, hosts, support)
@@ -1422,14 +1416,7 @@ func automationEligibility(
 		// would invite reinstalling the machine PMM runs on.
 		return false, reasons, true
 	}
-	// These reasons are shown on the Nodes page, so they do not name the scheduler.
-	executorReason := ""
-	if host.ExecutorHost == nil || *host.ExecutorHost == "" || executor == nil || !executor.GetReachable() {
-		executorReason = "this node has no automation agent that answers"
-	} else if !executor.GetDriverHealthy() {
-		executorReason = "this node's automation agent cannot run jobs"
-	}
-	notReady, releaseByDesign := hostNotReadyReasons(host, node, executorReason, support, now)
+	notReady, releaseByDesign := hostNotReadyReasons(host, node, executor, support, now)
 	reasons = append(reasons, notReady...)
 	eligible := len(reasons) == 0
 	return eligible, reasons, !eligible && (byDesign || releaseByDesign)

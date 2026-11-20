@@ -147,7 +147,7 @@ Make sure each node meets the following conditions before you start. If a node d
 - **No existing MongoDB**: `mongod` must not be installed or running, and PMM must have no MongoDB service registered for the node.
 - **Not the PMM Server host**: don't install on the host that runs PMM Server.
 - **Working scans**: the node's scans must succeed. While they fail, PMM blocks the node and shows the scan error and how long scans have been failing.
-- **Repository access**: the node's last scan must have reached Percona's repository at `repo.percona.com`, directly or through a proxy.
+- **Repository access**: the node must reach Percona's repository at `repo.percona.com`, directly or through a proxy. PMM blocks the node when its last scan couldn't reach the repository.
 - **Package manager**: the node's last scan must have found a package manager, `apt-get` on Ubuntu or `dnf` on Rocky Linux.
 
 PMM installs each MongoDB version only onto the OS releases that Percona's [release lifecycle for MongoDB](https://www.percona.com/release-lifecycle-percona-software-for-mongodb/) supports. Ubuntu matches on the exact release, and Rocky Linux on the major version, so Rocky Linux 9.4 counts as 9. The following table lists the supported releases:
@@ -168,7 +168,7 @@ PMM checks the following conditions only when the install starts, and the **Node
 - **Resolvable node names**: replica set members address each other by their PMM node names. Every member must resolve the node names of all members, including its own, through DNS or `/etc/hosts`.
 - **`curl` on Ubuntu**: PMM downloads the Percona repository package with `curl`.
 
-PMM doesn't check that each member can reach the other members on the MongoDB port, because it can only test that once `mongod` is running. If a member can't reach the others, the install fails when PMM forms the replica set, and PMM rolls it back.
+Also make sure that each member can reach the other members on the MongoDB port. PMM can't check this before the install, because it can only test it once `mongod` is running. If a member can't reach the others, the install fails when PMM forms the replica set, and PMM rolls it back.
 
 #### Reduce security exposure
 
@@ -192,7 +192,7 @@ Once your nodes pass the checks and you've reduced the security exposure, you're
 3. Fill in the form:
 
     - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB. If a selected node runs Rocky Linux 10, the form offers only 8.0.
-    - **Replica set name**: the name must not be in use in the same environment and cluster, by a replica set that PMM monitors or by an install that hasn't finished registering. If you leave **Cluster** empty, PMM uses the replica set name as the cluster.
+    - **Replica set name**: the name must not be in use in the same environment and cluster: by a replica set that PMM monitors, by an install that's running, or by a finished install whose members PMM hasn't registered yet. If you leave **Cluster** empty, PMM uses the replica set name as the cluster.
     - **Data path** (default `/var/lib/mongo`), **Log path** (default `/var/log/mongodb/mongod.log`), and **Port** (default `27017`).
 
         !!! note "Keep the default port"

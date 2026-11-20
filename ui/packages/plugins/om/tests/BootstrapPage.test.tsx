@@ -70,6 +70,8 @@ const nameCheckState: {
   error: string | null;
   // The answer a failed recheck keeps, as useQuery does.
   previous?: string | null;
+  // An answer to a check in flight when the wizard stopped asking, which useQuery still stores.
+  late?: string;
   calls: {
     name: string;
     environment: string;
@@ -108,7 +110,9 @@ vi.mock('../src/inventoryHooks', () => ({
     }
     return {
       data:
-        enabled && !nameCheckState.pending ? nameCheckState.inUse : undefined,
+        enabled && !nameCheckState.pending
+          ? nameCheckState.inUse
+          : nameCheckState.late,
       isError: false,
     };
   },
@@ -284,7 +288,7 @@ describe('BootstrapPage install refusal', () => {
     triggerState.isError = true;
     triggerState.error = {
       message:
-        '2 of the selected node(s) cannot be installed onto -- db01: no scan has reported its operating system; db03: no automation agent is registered for it.',
+        '2 of the selected node(s) cannot be installed onto -- db01: no scan has reported its operating system; db03: this node has no automation agent that answers.',
     };
 
     render(
@@ -581,6 +585,13 @@ describe('BootstrapPage security posture', () => {
       expect(screen.getByTestId('om-review-blockers')).toHaveTextContent(
         'Free space at the data path on db01 (1.0 GiB)'
       );
+
+      // A trailing slash names the same directory.
+      fireEvent.change(screen.getByLabelText(/Data path/), {
+        target: { value: '/var/lib/mongo/' },
+      });
+      expect(screen.getByTestId('om-low-disk')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
 
       // The scan measured the default path only; another is left to the install's pre-check.
       fireEvent.change(screen.getByLabelText(/Data path/), {
@@ -1049,7 +1060,7 @@ describe('BootstrapPage database administrator', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Install MongoDB' }));
     await screen.findByRole('dialog');
 
-    nameCheckState.inUse =
+    nameCheckState.late =
       'Replica set name rs0 is already used in this environment and cluster by an install that is still running. Choose another name.';
     try {
       rerender(
@@ -1075,7 +1086,7 @@ describe('BootstrapPage database administrator', () => {
         within(screen.getByRole('dialog')).getByDisplayValue('generated-secret')
       ).toBeInTheDocument();
     } finally {
-      nameCheckState.inUse = null;
+      nameCheckState.late = undefined;
       nameCheckState.calls.length = 0;
     }
   });

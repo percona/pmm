@@ -440,7 +440,9 @@ export const BootstrapPage = () => {
 
   // A custom data path is left to the install's own pre-check, which measures it.
   const lowDiskAtDataPath =
-    dataPath.trim() === DEFAULT_DATA_PATH ? lowDiskHosts : [];
+    dataPath.trim().replace(/\/+$/, '') === DEFAULT_DATA_PATH
+      ? lowDiskHosts
+      : [];
   const nameError = replicaSetNameError(replicaSetName);
   // Stopped once the install is requested, since from then on the install itself holds the name.
   const nameCheckEnabled =
@@ -455,15 +457,18 @@ export const BootstrapPage = () => {
     cluster.trim(),
     nameCheckEnabled
   );
+  // Read only while enabled: a check still in flight at the install answers about the install's own run.
+  const nameAnswer = nameCheckEnabled ? nameCheck.data : undefined;
   // A failed recheck keeps the previous answer, and the trigger checks the name again anyway.
-  const nameCheckFailed = nameCheck.isError && nameCheck.data === undefined;
+  const nameCheckFailed =
+    nameCheckEnabled && nameCheck.isError && nameAnswer === undefined;
   // Shown beside the field: a name in use, or a check PMM could not make.
   const nameRefusal = nameCheckFailed
     ? `PMM could not check whether this replica set name is free: ${nameCheck.error.message}`
-    : (nameCheck.data ?? null);
+    : (nameAnswer ?? null);
   // Review waits for PMM's answer, which the trigger would otherwise be the first to give.
   const nameProblem =
-    nameCheckEnabled && nameRefusal === null && nameCheck.data === undefined
+    nameCheckEnabled && nameRefusal === null && nameAnswer === undefined
       ? 'Checking whether this replica set name is free.'
       : nameRefusal;
 

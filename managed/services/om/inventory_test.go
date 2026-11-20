@@ -299,7 +299,7 @@ func (connectedAgents) IsConnected(string) bool { return true }
 
 // readyHostBody is a host every install precondition passes on.
 const readyHostBody = `{"node_id": "n1", "name": "db-01", "address": "10.0.0.1", "executor_host": "exec-n1",
-  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`
+  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`
 
 // readyService serves both apps from the stub over a mocked PMM inventory in which readyNodeIDs have a PMM
 // Client connected, services are the only MongoDB services, and no install holds a replica set name.
@@ -339,7 +339,12 @@ func pmmInventoryDB(t *testing.T, connected []string, services ...*models.Servic
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = sqlDB.Close() })
 	mock.MatchExpectationsInOrder(false)
+	expectPMMInventoryReads(mock, connected, services...)
+	return reform.NewDB(sqlDB, postgresql.Dialect, nil), mock
+}
 
+// expectPMMInventoryReads expects one trigger's reads of PMM's inventory, as pmmInventoryDB describes them.
+func expectPMMInventoryReads(mock sqlmock.Sqlmock, connected []string, services ...*models.Service) {
 	now := time.Now()
 	agents := sqlmock.NewRows(models.AgentTable.Columns())
 	for _, nodeID := range connected {
@@ -364,7 +369,6 @@ func pmmInventoryDB(t *testing.T, connected []string, services ...*models.Servic
 		}
 		mock.ExpectQuery(`FROM "services"`).WillReturnRows(rows)
 	}
-	return reform.NewDB(sqlDB, postgresql.Dialect, nil), mock
 }
 
 // mockRow lays values out in columns' order, NULL for every column it does not name.
@@ -1178,7 +1182,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
 		svc := stub.readyService(t)
@@ -1233,7 +1237,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("a host running an unsupported OS answers FailedPrecondition, not a run that starts and fails", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "windows"}}`)
+		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "windows", "executor": {"reachable": true, "driver_healthy": true}}}`)
 		svc := stub.readyService(t)
 
 		_, err := svc.TriggerHostBootstrap(callerContext(t),
@@ -1255,7 +1259,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK,
 			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "n1",
-			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "20.04"}}`)
+			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "20.04", "executor": {"reachable": true, "driver_healthy": true}}}`)
 
 		_, err := stub.readyService(t).TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
@@ -1277,7 +1281,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK,
 			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "n1",
-			  "observed": {"package_manager": "apt", "os_id": "rocky", "os_version_id": "10.0"}}`)
+			  "observed": {"package_manager": "apt", "os_id": "rocky", "os_version_id": "10.0", "executor": {"reachable": true, "driver_healthy": true}}}`)
 
 		_, err := stub.readyService(t).TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
@@ -1295,7 +1299,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("a version the wizard does not offer is refused too", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`)
+		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`)
 
 		_, err := stub.readyService(t).TriggerHostBootstrap(callerContext(t),
 			&omv1.TriggerHostBootstrapRequest{
@@ -1313,7 +1317,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("an unreadable supported-release table refuses the install", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`)
+		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`)
 		stub.supportedReleasesCode = http.StatusNotFound
 		stub.supportedReleases = `{"detail": "Not Found"}`
 
@@ -1336,7 +1340,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		// No executor_host: falling back to node_id would instead fail inside PMM Extensions,
 		// once every host is in flight.
-		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "address": "10.0.0.1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`)
+		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "address": "10.0.0.1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`)
 		svc := stub.readyService(t)
 
 		_, err := svc.TriggerHostBootstrap(callerContext(t),
@@ -1349,8 +1353,24 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		message := status.Convert(err).Message()
-		assert.Contains(t, message, "no automation agent is registered")
+		assert.Contains(t, message, "no automation agent that answers")
 		assert.NotContains(t, message, "Nomad")
+	})
+
+	t.Run("a host whose scans never reported its executor is refused, as the Nodes page shows it", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`)
+		svc := stub.readyService(t)
+
+		_, err := svc.TriggerHostBootstrap(callerContext(t),
+			&omv1.TriggerHostBootstrapRequest{NodeIds: []string{"n1"}, ReplicaSetName: "rs-orders-prod", MongodbVersion: "7.0.8"})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "no automation agent that answers")
+		require.Len(t, stub.calls, 1, "no run should be planned")
 	})
 
 	t.Run("an unreachable executor answers FailedPrecondition before a run exists", func(t *testing.T) {
@@ -1372,7 +1392,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
-		assert.Contains(t, status.Convert(err).Message(), "not reachable")
+		assert.Contains(t, status.Convert(err).Message(), "no automation agent that answers")
 		assert.NotContains(t, status.Convert(err).Message(), "Nomad")
 		require.Len(t, stub.calls, 1, "no run should be planned")
 		assert.Equal(t, "/api/apps/om_inventory/hosts/n1", stub.calls[0].path)
@@ -1395,7 +1415,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
-		assert.Contains(t, status.Convert(err).Message(), "driver is not healthy")
+		assert.Contains(t, status.Convert(err).Message(), "automation agent cannot run jobs")
 		assert.NotContains(t, status.Convert(err).Message(), "Nomad")
 	})
 
@@ -1426,9 +1446,9 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
-			`{"node_id": "n2", "address": "10.0.0.2", "executor_host": "n2", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
-			`{"node_id": "n3", "address": "10.0.0.3", "executor_host": "n3", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"node_id": "n2", "address": "10.0.0.2", "executor_host": "n2", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"node_id": "n3", "address": "10.0.0.3", "executor_host": "n3", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
 		svc := stub.readyService(t)
@@ -1478,8 +1498,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
-			`{"node_id": "n2", "address": "10.0.0.2", "executor_host": "n2", "observed": {"package_manager": "apt", "os_id": "rocky", "os_version_id": "9.4"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"node_id": "n2", "address": "10.0.0.2", "executor_host": "n2", "observed": {"package_manager": "apt", "os_id": "rocky", "os_version_id": "9.4", "executor": {"reachable": true, "driver_healthy": true}}}`,
 		)
 		svc := stub.readyService(t)
 
@@ -1542,8 +1562,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "exec-n1", "observed": {}}`,
-			`{"node_id": "n2", "address": "10.0.0.2", "name": "db-02", "executor_host": "exec-n2", "observed": {"package_manager": "apt", "os_id": "windows"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "exec-n1", "observed": {"executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"node_id": "n2", "address": "10.0.0.2", "name": "db-02", "executor_host": "exec-n2", "observed": {"package_manager": "apt", "os_id": "windows", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			// No automation agent and no OS: two problems on one node.
 			`{"node_id": "n3", "address": "10.0.0.3", "name": "db-03", "observed": {}}`,
 		)
@@ -1562,7 +1582,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		for _, name := range []string{"db-01", "db-02", "db-03"} {
 			assert.Contains(t, message, name)
 		}
-		assert.Contains(t, message, "no automation agent is registered")
+		assert.Contains(t, message, "db-03: this node has no automation agent that answers")
+		assert.NotContains(t, message, "db-01: this node has no automation agent")
 		assert.Contains(t, message, "windows")
 		assert.Contains(t, message, "Nodes page")
 		assert.NotContains(t, message, "wait")
@@ -1575,9 +1596,9 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
-			`{"node_id": "n2", "address": "10.0.0.2", "name": "db-02", "executor_host": "exec-n2", "observed": {"package_manager": "apt", "os_id": "rocky", "os_version_id": "9.4"}}`,
-			`{"node_id": "n3", "address": "10.0.0.3", "name": "db-03", "executor_host": "exec-n3", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"node_id": "n2", "address": "10.0.0.2", "name": "db-02", "executor_host": "exec-n2", "observed": {"package_manager": "apt", "os_id": "rocky", "os_version_id": "9.4", "executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"node_id": "n3", "address": "10.0.0.3", "name": "db-03", "executor_host": "exec-n3", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 		)
 		svc := stub.readyService(t)
 
@@ -1602,7 +1623,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK,
 			`{"node_id": "n1", "address": "10.0.0.1", "name": "rs-member-00", "executor_host": "exec-n1",
-			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`)
+			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`)
 		svc := stub.readyService(t, &models.Service{ServiceID: "s1", ServiceName: "mongo-1", NodeID: "n1"})
 
 		_, err := svc.TriggerHostBootstrap(callerContext(t),
@@ -1651,9 +1672,9 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "exec-n1",
-			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"node_id": "n2", "address": "10.0.0.2", "name": "db-02", "executor_host": "exec-n2",
-			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"node_id": "n3", "address": "10.0.0.3", "name": "db-03", "executor_host": "exec-n3",
 			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "unregistered_mongods": [{"port": 27017}]}}`,
 		)
@@ -1699,7 +1720,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStubSeq(t, http.StatusOK,
 			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "exec-n1",
-			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"},
+			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}},
 			  "services": [{"service_id": "deleted-from-pmm"}]}`,
 			`{"id": "run-abc", "status": "running", "replica_set_name": "rs-orders-prod", "hosts": [], "run_steps": []}`,
 		)
@@ -1716,7 +1737,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK,
 			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "exec-n1",
-			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`)
+			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`)
 		svc := stub.readyService(t, &models.Service{ServiceID: "s1", ServiceName: "mongo-1", NodeID: "n1"})
 
 		_, err := svc.TriggerHostBootstrap(callerContext(t),
@@ -1828,9 +1849,9 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
-			`{"node_id": "n2", "address": "10.0.0.2", "executor_host": "exec-n2", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
-			`{"node_id": "n3", "address": "10.0.0.3", "executor_host": "exec-n3", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"node_id": "n2", "address": "10.0.0.2", "executor_host": "exec-n2", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
+			`{"node_id": "n3", "address": "10.0.0.3", "executor_host": "exec-n3", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "member_configs": {"exec-n2": {"priority": 0, "votes": false, "hidden": true, "delay_secs": 300}}, "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
 		svc := stub.readyService(t)
@@ -1871,7 +1892,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		// no voting or electable member, which rs.initiate rejects minutes into a run.
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0}}, "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
 		svc := stub.readyService(t)
@@ -1907,7 +1928,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			// Echoed without bind_ip, as an older app does.
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu",
 			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "bind_ip": "0.0.0.0",
@@ -1945,7 +1966,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "name": "db-01", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu",
 			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "bind_ip": "0.0.0.0",
 			  "member_configs": {"exec-n1": {"priority": 1, "votes": true, "hidden": false, "delay_secs": 0, "bind_ip": null}},
@@ -1974,7 +1995,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		// the accepted configuration lacks them, as below.
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "exec-n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 			`{"id": "run-abc", "status": "running", "cancel_requested": true, "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
@@ -2054,7 +2075,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("generates a named administrator's password when none is given, and returns it once", func(t *testing.T) {
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_admin_user", "status": "pending"}]}`,
 		)
 		svc := stub.bootstrapService(t)
@@ -2082,7 +2103,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("stores a chosen administrator password without echoing it", func(t *testing.T) {
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_admin_user", "status": "pending"}]}`,
 		)
 		svc := stub.bootstrapService(t)
@@ -2140,7 +2161,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_pmm_monitoring_user", "status": "pending"}]}`,
 			`{"id": "run-abc", "status": "running", "cancel_requested": true, "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
@@ -2164,7 +2185,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("cancels the run when its credentials cannot be stored", func(t *testing.T) {
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": [{"name": "create_admin_user", "status": "pending"}]}`,
 			`{"id": "run-abc", "status": "running", "cancel_requested": true, "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
@@ -2189,7 +2210,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		// Not parallel: storeTestDB drops and recreates one fixed-name database.
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
@@ -2223,7 +2244,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		// Not parallel, for the same reason as the previous subtest.
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
-			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			`{"node_id": "n1", "address": "10.0.0.1", "executor_host": "n1", "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo", "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
@@ -2262,7 +2283,7 @@ func TestTriggerHostBootstrapPreconditions(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK,
 			`{"node_id": "n7", "name": "db-07", "executor_host": "exec-n7",
-			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`)
+			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`)
 
 		_, err := stub.readyService(t).TriggerHostBootstrap(callerContext(t), request("n7"))
 
@@ -2321,7 +2342,7 @@ func TestTriggerHostBootstrapPreconditions(t *testing.T) {
 		stub := newSEPStub(t, http.StatusOK,
 			`{"node_id": "n1", "name": "db-01", "address": "10.0.0.1", "executor_host": "exec-n1",
 			  "failing_since": "2026-11-12T08:00:00Z", "last_error": "Step 'prepare-env' failed.\npython3: command not found",
-			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`)
+			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`)
 		req := request("n1")
 		req.MemberConfigs = map[string]*omv1.BootstrapMemberConfig{"n1": {Hidden: true}}
 
@@ -2338,11 +2359,11 @@ func TestTriggerHostBootstrapPreconditions(t *testing.T) {
 
 		stub := newSEPStubSeq(t, http.StatusOK,
 			`{"node_id": "n1", "name": "db-01", "address": "10.0.0.1", "executor_host": "exec-n1",
-			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"node_id": "n2", "name": "db-02", "address": "10.0.0.2", "executor_host": "exec-n2",
-			  "observed": {"os_id": "ubuntu", "os_version_id": "22.04"}}`,
+			  "observed": {"os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`,
 			`{"node_id": "n3", "name": "db-03", "address": "10.0.0.3", "executor_host": "exec-n3",
-			  "observed": {"package_manager": "dnf", "os_id": "rocky", "os_version_id": "10.0"}}`,
+			  "observed": {"package_manager": "dnf", "os_id": "rocky", "os_version_id": "10.0", "executor": {"reachable": true, "driver_healthy": true}}}`,
 		)
 		svc := stub.readyService(t,
 			&models.Service{ServiceID: "s1", ServiceName: "db-01-mongodb", NodeID: "n1", ReplicationSet: "other"},
@@ -2498,6 +2519,80 @@ func validateTrigger(t *testing.T, edit func(*omv1.TriggerHostBootstrapRequest))
 
 	assert.Equal(t, err == nil, reached, "the handler runs exactly when validation passes")
 	return err
+}
+
+func TestTriggerHostBootstrapConcurrentName(t *testing.T) {
+	t.Parallel()
+
+	var mu sync.Mutex
+	var runs []map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		nodeID, isHost := strings.CutPrefix(r.URL.Path, "/api/apps/om_inventory/hosts/")
+		switch {
+		case r.URL.Path == stubExchangePath:
+			_, _ = w.Write([]byte(`{"access_token": "minted", "expires_in": 300}`))
+		case r.URL.Path == stubSupportedReleasesPath:
+			_, _ = w.Write([]byte(supportedReleasesBody))
+		case isHost:
+			_, _ = w.Write([]byte(`{"node_id": "` + nodeID + `", "address": "10.0.0.1", "executor_host": "` + nodeID + `",
+			  "observed": {"package_manager": "apt", "os_id": "ubuntu", "os_version_id": "22.04", "executor": {"reachable": true, "driver_healthy": true}}}`))
+		case r.URL.Path == stubRunsPath && r.Method == http.MethodGet:
+			mu.Lock()
+			listed, err := json.Marshal(runs)
+			mu.Unlock()
+			assert.NoError(t, err)
+			_, _ = w.Write(filterRuns(string(listed), r.URL.Query()))
+		case r.URL.Path == stubRunsPath && r.Method == http.MethodPost:
+			// Long enough for a trigger that is not held back to check the name before this run exists.
+			time.Sleep(300 * time.Millisecond)
+			run := map[string]any{}
+			assert.NoError(t, json.NewDecoder(r.Body).Decode(&run))
+			mu.Lock()
+			run["id"], run["status"], run["hosts"] = "run-"+strconv.Itoa(len(runs)+1), "running", []any{}
+			runs = append(runs, run)
+			mu.Unlock()
+			assert.NoError(t, json.NewEncoder(w).Encode(run))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	t.Cleanup(server.Close)
+
+	svc := (&Service{l: logrus.WithField("test", t.Name())}).
+		WithProbeSource(server.URL, "test-token").WithBootstrapSource(server.URL, "test-token")
+	db, mock := pmmInventoryDB(t, readyNodeIDs)
+	expectPMMInventoryReads(mock, readyNodeIDs)
+	// The later trigger reads the earlier run's labels, which a trigger with no environment or cluster never stores.
+	mock.ExpectQuery(`FROM "om_bootstrap_run_configs"`).WithArgs("run-1").
+		WillReturnRows(sqlmock.NewRows(models.OmBootstrapRunConfigTable.Columns()))
+	svc.db = db
+	svc.agents = connectedAgents{}
+
+	errs := make([]error, 2)
+	var wg sync.WaitGroup
+	for i, nodeID := range []string{"n1", "n2"} {
+		wg.Go(func() {
+			_, errs[i] = svc.TriggerHostBootstrap(callerContext(t), &omv1.TriggerHostBootstrapRequest{
+				NodeIds: []string{nodeID}, ReplicaSetName: "rs0", MongodbVersion: "7.0.8",
+			})
+		})
+	}
+	wg.Wait()
+
+	succeeded := 0
+	for _, err := range errs {
+		if err == nil {
+			succeeded++
+			continue
+		}
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "already used in this environment and cluster by an install that is still running")
+	}
+	assert.Equal(t, 1, succeeded, "exactly one install gets the name")
+	mu.Lock()
+	defer mu.Unlock()
+	assert.Len(t, runs, 1)
 }
 
 func TestTriggerHostBootstrapReplicaSetName(t *testing.T) {
