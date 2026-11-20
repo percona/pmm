@@ -107,7 +107,13 @@ func TestCheckExpr(t *testing.T) {
 		{expr: `{__name__=~"mysql_global_status_.*", service_name!="db1"}`, span: time.Hour, want: []string{scope}},
 		{name: "a zero window reads one step back", expr: `rate(mysql_global_status_questions[0s])`, span: 7 * day, step: time.Hour, want: []string{"reads 7d1h"}},
 		{name: "i units count the step", expr: `rate(mysql_global_status_questions[3000i])`, want: []string{"reads 10d10h"}},
-		{name: "a negative offset counts its absolute value", expr: `up offset -8d`, want: []string{capped}},
+		{name: "a negative offset is refused", expr: `up offset -8d`, want: []string{"a negative offset is not accepted"}},
+		{expr: `rate(mysql_global_status_questions[5m] offset -1h)`, span: time.Hour, want: []string{"a negative offset is not accepted"}},
+		{
+			expr: `max_over_time(rate(mysql_global_status_questions[5m])[1h:5m] offset -1h)`, span: time.Hour,
+			want: []string{"a negative offset is not accepted"},
+		},
+		{expr: `mysql_up offset -2i`, span: time.Hour, want: []string{"a negative offset is not accepted"}},
 		{name: "a subquery without a step takes the query's", expr: `max_over_time(rate(mysql_global_status_questions[5m])[6d:])`, span: time.Hour, want: []string{"subquery step"}},
 		{expr: `max_over_time(rate(mysql_global_status_questions[5m])[6d:])`},
 		{name: "a lowercase template", expr: `with (q = mysql_up) q`, span: time.Hour, want: []string{"WITH templates"}},
@@ -439,7 +445,7 @@ func TestWalkSelectors(t *testing.T) {
 		implicit []string
 	}{
 		{
-			expr: `max_over_time(rate(a[1h] offset 30m)[1d:5m]) / on() b{x="1" or x="2"} + c[10m] offset -1h - rate(sum(d))`,
+			expr: `max_over_time(rate(a[1h] offset 30m)[1d:5m]) / on() b{x="1" or x="2"} + c[10m] offset 1h - rate(sum(d))`,
 			step: 2 * time.Minute,
 			want: []string{
 				`{__name__="a"} 1d1h45m`,
