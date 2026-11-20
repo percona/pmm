@@ -83,6 +83,29 @@ If you manage a large MongoDB fleet, you can now see right away which backup age
 
 ## 🔒 Security updates
 
+### ClickHouse remote code execution ([CVE-2026-116366](https://nvd.nist.gov/vuln/detail/CVE-2026-116366))
+
+CRITICAL severity. An unauthenticated attacker who can reach ClickHouse Server over the network can execute arbitrary code on the server.
+
+#### Affected installations
+
+The risk depends on how you deploy PMM:
+
+- PMM Server as a single container: Low risk. ClickHouse accepts connections only from within the container by default.
+- PMM HA: Affected. Other pods in the cluster can reach ClickHouse. Upgrade as soon as possible.
+- PMM with an external ClickHouse: Affected if your ClickHouse version doesn't include the fix.
+
+#### Mitigation options
+
+To fix the vulnerability, upgrade to a ClickHouse version that includes the fix. Upgrading keeps your Query Analytics data, but you can't go back to the older ClickHouse version afterwards. To upgrade safely:
+{.power-number}
+
+1. Back up PMM Server on [Docker](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md), [Podman](../install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md), [Helm](../install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md) or a [PMM HA cluster](../install-pmm/backup-restore-HA-clustered.md#back-up-pmm-ha-cluster).
+2. Upgrade, depending on how you deploy PMM:
+    - PMM Server as a single container: [upgrade to PMM 3.11.0](../pmm-upgrade/index.md), which includes ClickHouse 26.3.62.3.
+    - PMM HA: [upgrade the `pmm-ha` Helm chart](../pmm-upgrade/upgrade_helm_ha.md) to version 1.9.0, which installs PMM 3.11.0 and includes ClickHouse Altinity Stable 26.3.60.10002. The upgrade restarts the ClickHouse and ClickHouse Keeper pods one at a time, and Query Analytics keeps collecting data.
+    - PMM with an external ClickHouse: upgrade your ClickHouse to a fixed release, such as 26.3.62.3 or a later 26.3 release. To find the fixed release for your version, check the [ClickHouse security changelog](https://clickhouse.com/docs/resources/changelogs/security-changelog).
+
 ### Go standard library HTTP/1 server crash ([CVE-2026-97054](https://nvd.nist.gov/vuln/detail/CVE-2026-97054))
 
 Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by rebuilding on Go 1.27.4.

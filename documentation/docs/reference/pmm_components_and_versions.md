@@ -8,7 +8,7 @@ The following table lists all the PMM client/server components and their version
 | VictoriaMetrics| v1.140.0 | [VictoriaMetrics documentation](https://docs.victoriametrics.com/)|[GitHub VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics)    |
 | Nginx    | 1.26.3  | [Nginx documentation](http://nginx.org/en/docs/)|[GitHub Nginx](https://github.com/nginx/nginx)                                                    |
 | Percona Distribution for PostgreSQL  | 14.5     | [Percona Distribution for PostgreSQL 14 documentation](https://www.percona.com/doc/postgresql/LATEST/index.html)|              |
-| ClickHouse| 25.3.6.56 |[ClickHouse documentation](https://clickhouse.com/docs/en/)|[GitHub ClickHouse](https://github.com/ClickHouse/ClickHouse)|
+| ClickHouse| 26.3.62.3 |[ClickHouse documentation](https://clickhouse.com/docs/en/)|[GitHub ClickHouse](https://github.com/ClickHouse/ClickHouse)|
 | PerconaToolkit  | 3.5.2    | [Percona Toolkit documentation](https://www.percona.com/doc/percona-toolkit/3.0/index.html)|[GitHub Percona Toolkit](https://github.com/percona/percona-toolkit)|
 | Nomad | v2.0.0 | [Nomad documentation](https://developer.hashicorp.com/nomad/docs) | [GitHub](https://github.com/hashicorp/nomad) |
 | MongoDB exporter  | 0.45.0   | |[GitHub MongoDB Exporter](https://github.com/percona/mongodb_exporter)|
