@@ -159,7 +159,8 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 
 	d, err := s.fetchQueryDetail(ctx, auth, queryDetailInput{QueryID: ref.QueryID, ServiceID: svc.ServiceID}, []string{svc.ServiceID}, ref.PeriodFrom, ref.PeriodTo)
 	if err != nil {
-		return nil, err
+		// Both detail calls failed: a stored plan needs neither, and the paths that use one answer its error.
+		d = &queryDetail{metricsErr: err, exampleErr: err}
 	}
 	out.MetricsErr, out.ExampleErr = d.metricsErr, d.exampleErr
 
