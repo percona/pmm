@@ -215,6 +215,17 @@ func TestTopQueriesQuotingFollowsTheService(t *testing.T) {
 		assert.Len(t, fake.requestsTo("/v1/qan/metrics:getReport"), reports, file)
 	}
 
+	// service_ids decide which services the report reads, so a service_name beside them doesn't pick the engine.
+	routes = qanRoutes()
+	routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_quoted_identifier.json"}
+	routes["POST /v1/qan/metrics:getFilters"] = fixture{file: "filters_mysql.json"}
+	idsFake := newFakePMM(t, routes)
+	text, isError = callText(t, connect(t, newQANService(t, idsFake, false)), "pmm_top_queries", map[string]any{
+		"service_name": "shop-mysql", "labels": map[string]any{"service_id": []string{"svc-1", "svc-2"}}, "period_from": "now-1h",
+	})
+	require.False(t, isError, text)
+	assert.Len(t, idsFake.requestsTo("/v1/qan/metrics:getFilters"), 1)
+
 	// Fingerprints that read the same under both quotings need no engine.
 	fake := newFakePMM(t, qanRoutes())
 	session = connect(t, newQANService(t, fake, false))
@@ -1303,6 +1314,18 @@ func TestTopQueriesSharedServiceName(t *testing.T) {
 	got = structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-mysql"}))
 	require.NotEmpty(t, got.Rows)
 	assert.Equal(t, "svc-1", got.Rows[0].QueryRef.ServiceID)
+	shortcutURL := got.PMMURL
+
+	got = structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries",
+		map[string]any{"labels": map[string]any{"service_name": []string{"shop-mysql"}}}))
+	assert.Equal(t, shortcutURL, got.PMMURL, "labels.service_name links to the same workload as service_name")
+	assert.Contains(t, got.PMMURL, "var-service_name=shop-mysql")
+
+	pgOnly := func() ([]serviceInfo, error) {
+		return []serviceInfo{{ServiceID: "pg", ServiceName: "shop", Engine: enginePostgreSQL}}, nil
+	}
+	assert.Empty(t, serviceEngine("shop", "mysql-gone", pgOnly), "a service_id outside the list leaves the engine to the rows")
+	assert.Equal(t, enginePostgreSQL, serviceEngine("shop", "pg", pgOnly))
 
 	assert.Empty(t, serviceEngine("shop-re", "", func() ([]serviceInfo, error) {
 		return []serviceInfo{
@@ -1444,7 +1467,6 @@ func TestTopQueriesSearch(t *testing.T) {
 		_, got, _ = search(t, false, report, map[string]any{"search": "q4"})
 		assert.Equal(t, []string{"Q4"}, dimensions(got.Rows), "the queryid matches")
 	})
-
 	t.Run("WithheldMatchesLeaveNoTrace", func(t *testing.T) {
 		t.Parallel()
 

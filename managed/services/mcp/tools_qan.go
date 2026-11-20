@@ -278,6 +278,10 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 			rows[i].Rank = q.offset + i + 1
 		}
 	}
+	var serviceName string
+	if names := q.labels["service_name"]; len(names) == 1 {
+		serviceName = names[0]
+	}
 	if q.groupBy == groupByQuery && len(rows) > 0 {
 		serviceID := s.pinnedServiceID(q.labels, services)
 		for i := range rows {
@@ -293,7 +297,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		GroupBy: q.groupBy,
 		OrderBy: q.orderBy,
 		Window:  window{From: from, To: to},
-		PMMURL:  qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), in.ServiceName, from, to),
+		PMMURL:  qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), serviceName, from, to),
 		Note:    note,
 	}, nil
 }
@@ -886,11 +890,13 @@ func (s *Service) reportEngine(
 		return ""
 	}
 	var name, id string
-	if names := labels["service_name"]; len(names) == 1 {
-		name = names[0]
-	}
-	if ids := labels["service_id"]; len(ids) == 1 {
+	ids := labels["service_id"]
+	if len(ids) == 1 {
 		id = ids[0]
+	}
+	// A service_id filter decides which services the report reads, so a service_name beside it adds nothing.
+	if names := labels["service_name"]; len(names) == 1 && len(ids) == 0 {
+		name = names[0]
 	}
 	if name != "" || id != "" {
 		return serviceEngine(name, id, services)
@@ -946,7 +952,7 @@ func (s *Service) rowEngines(ctx context.Context, auth callerAuth, body qan_serv
 }
 
 // serviceEngine returns the engine of the service a report is filtered to, by
-// name or else by id, or "" when it is not found or the services of the name differ in engine.
+// id or else by name, or "" when it is not found or the services of the name differ in engine.
 func serviceEngine(name, id string, services func() ([]serviceInfo, error)) string {
 	if name == "" && id == "" {
 		return ""
@@ -955,19 +961,18 @@ func serviceEngine(name, id string, services func() ([]serviceInfo, error)) stri
 	if err != nil {
 		return ""
 	}
-	if name != "" {
-		named := servicesNamed(list, name)
-		if len(named) == 0 || slices.ContainsFunc(named, func(svc serviceInfo) bool { return svc.Engine != named[0].Engine }) {
+	if id != "" {
+		i := slices.IndexFunc(list, func(svc serviceInfo) bool { return svc.ServiceID == id })
+		if i < 0 {
 			return ""
 		}
-		return named[0].Engine
+		return list[i].Engine
 	}
-	for _, svc := range list {
-		if svc.ServiceID == id {
-			return svc.Engine
-		}
+	named := servicesNamed(list, name)
+	if len(named) == 0 || slices.ContainsFunc(named, func(svc serviceInfo) bool { return svc.Engine != named[0].Engine }) {
+		return ""
 	}
-	return ""
+	return named[0].Engine
 }
 
 // metricValue is one named diagnostic metric of pmm_query_detail.
