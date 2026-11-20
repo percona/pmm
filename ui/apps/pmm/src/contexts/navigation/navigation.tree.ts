@@ -46,10 +46,10 @@ import {
 // The sidebar, read top to bottom (see PMM-15353).
 
 export const NAV_SECTIONS = {
-  technologies: section('technologies', 'Technologies'),
-  analysis: section('analysis', 'Analysis and alerting'),
+  technologies: section('technologies', 'Monitor'),
+  analysis: section('analysis', 'Analyze'),
   browse: section('browse', 'Browse'),
-  administration: section('administration', 'Administration'),
+  administration: section('administration', 'Administer'),
 };
 
 // A copy of the technology's menu with its Grafana folder of other dashboards

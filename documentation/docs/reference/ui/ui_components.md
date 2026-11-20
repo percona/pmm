@@ -14,28 +14,28 @@ Here's how the UI is laid out, and what the controls do:
 
 ## 1. Main menu
 
-The main menu groups its entries under four sections: **Technologies**, **Analysis and alerting**, **Browse** and **Administration**. **Account** and **Help** follow the last section.
+The main menu groups its entries under four sections: **Monitor**, **Analyze**, **Browse** and **Administer**. **Account** and **Help** follow the last section.
 
-Some entries appear only when they apply. A database appears under **Technologies** only when PMM monitors at least one service of that type, and **PMM HA** appears only when PMM runs as a High Availability cluster. Your role and the PMM settings decide which other entries you see.
+Some entries appear only when they apply. A database appears under **Monitor** only when PMM monitors at least one service of that type, and **PMM HA** appears only when PMM runs as a High Availability cluster. Your role and the PMM settings decide which other entries you see.
 
 | Icon | Name | Section | What you can do |
 |:----:|------|---------|-----------------|
-| :simple-mongodb: | MongoDB | Technologies | View dashboards for MongoDB performance monitoring. |
-| :simple-mysql: | MySQL | Technologies | View specialized dashboards for MySQL database performance monitoring. |
-| :simple-postgresql: | PostgreSQL | Technologies | Access PostgreSQL-specific monitoring dashboards and metrics. |
-| :material-database: | Valkey | Technologies | View dashboards for Valkey and Redis performance monitoring. |
-| :material-monitor-dashboard: | Operating system | Technologies | Monitor server-level metrics including CPU, memory, disk, and network performance. |
-| :material-chart-timeline-variant: | Query analytics | Analysis and alerting | Analyze database queries over time, identify slow queries, optimize performance, and troubleshoot issues. |
-| :material-radar: | Real-time queries | Analysis and alerting | Watch the operations that run on your MongoDB services right now. See [Real-time Query Analytics](../../use/qan/QAN-realtime-analytics.md). |
-| :material-bell-outline: | Alerts | Analysis and alerting | Create and manage [alerts](../../alert/index.md) that notify you when metrics exceed thresholds. |
-| :material-earth: | Advisors | Analysis and alerting | Run health assessment checks on your databases and view recommendations for improving performance. |
-| :material-compass-outline: | Explore data | Analysis and alerting | Investigate metrics without creating dashboards, for example with custom [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries. |
-| :material-toolbox-outline: | Diagnostics | Analysis and alerting | Run diagnostic scripts on your database hosts and send the results to your Percona Support case. See [Support diagnostics](../../apps/support-diagnostics.md). |
+| :simple-mongodb: | MongoDB | Monitor | View dashboards for MongoDB performance monitoring. |
+| :simple-mysql: | MySQL | Monitor | View specialized dashboards for MySQL database performance monitoring. |
+| :simple-postgresql: | PostgreSQL | Monitor | Access PostgreSQL-specific monitoring dashboards and metrics. |
+| :material-database: | Valkey | Monitor | View dashboards for Valkey and Redis performance monitoring. |
+| :material-monitor-dashboard: | Operating system | Monitor | Monitor server-level metrics including CPU, memory, disk, and network performance. |
+| :material-chart-timeline-variant: | Query analytics | Analyze | Analyze database queries over time, identify slow queries, optimize performance, and troubleshoot issues. |
+| :material-radar: | Real-time queries | Analyze | Watch the operations that run on your MongoDB services right now. See [Real-time Query Analytics](../../use/qan/QAN-realtime-analytics.md). |
+| :material-bell-outline: | Alerts | Analyze | Create and manage [alerts](../../alert/index.md) that notify you when metrics exceed thresholds. |
+| :material-earth: | Advisors | Analyze | Run health assessment checks on your databases and view recommendations for improving performance. |
+| :material-compass-outline: | Explore data | Analyze | Investigate metrics without creating dashboards, for example with custom [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries. |
+| :material-toolbox-outline: | Diagnostics | Analyze | Run diagnostic scripts on your database hosts and send the results to your Percona Support case. See [Support diagnostics](../../apps/support-diagnostics.md). |
 | :material-view-grid-outline: | Dashboards | Browse | Browse all dashboards, create [folders](../../use/dashboards-panels/manage-dashboards/create-folders.md), import dashboards, create playlists, and manage snapshots. |
 | :material-apps: | Apps | Browse | Open [Operations for MongoDB](../../use/mongodb-operations.md) and [MySQL Backups](../../apps/mysql-backup.md), and manage your [database backups](../../backup/index.md) and storage locations. |
 | :material-flask-outline: | Inventory | Browse | View and manage all monitored nodes, services, and agents registered in PMM. Check database and agent status, organize services by clusters, and add or remove monitored instances. |
-| :material-server-network: | PMM HA | Administration | Check the health of your PMM High Availability cluster. |
-| :material-cog-outline: | Configuration | Administration | Configure PMM settings, check for updates, and manage organizations, users, teams, service accounts, and access roles. |
+| :material-server-network: | PMM HA | Administer | Check the health of your PMM High Availability cluster. |
+| :material-cog-outline: | Configuration | Administer | Configure PMM settings, check for updates, and manage organizations, users, teams, service accounts, and access roles. |
 | :material-account-circle-outline: | Account | | Manage your user profile settings, change your password, set notification preferences, and configure your personal PMM experience. |
 | :material-help-circle-outline: | Help | | Access PMM documentation, community forums, and support resources. Export diagnostic logs for troubleshooting and view version information. |
 

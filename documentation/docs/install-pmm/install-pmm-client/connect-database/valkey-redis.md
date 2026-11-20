@@ -251,7 +251,7 @@ Once the service is registered, check that its metrics are reaching PMM and show
 
 1. Open the **Home** dashboard and verify your Valkey/Redis service appears in the **Monitored DB Services** and **Monitored DB Instances** panels.
 
-2. Navigate to the **Valkey/Redis** dashboards from the left menu. PMM provides 10 dedicated dashboards:
+2. Open the **Valkey** dashboards from the main menu. PMM provides 10 dedicated dashboards:
 
     - **[Clients](../../../reference/dashboards/dashboard-valkey-redis-clients.md)**: Monitor client connections and blocked clients
     - **[Cluster Details](../../../reference/dashboards/dashboard-valkey-redis-cluster-details.md)**: Track cluster topology and replication health
@@ -304,7 +304,7 @@ If you need to remove a Valkey or Redis service from monitoring:
 
 After successfully connecting your Valkey or Redis instance to PMM:
 
-- Access the [10 Valkey/Redis dashboards](../../../use/dashboards-panels/index.md#available-dashboards) from the left menu to track performance, memory usage, replication, and slow queries.
+- Access the [10 Valkey/Redis dashboards](../../../use/dashboards-panels/index.md#available-dashboards) from the main menu to track performance, memory usage, replication, and slow queries.
 - [Configure alerts](../../../alert/index.md) for critical metrics like memory usage, replication lag, and slow command execution.
 - Use [PMM Inventory](../../../use/dashboard-inventory.md) to view and manage all monitored instances.
 - [Valkey official documentation](https://valkey.io/docs/)

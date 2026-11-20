@@ -152,7 +152,7 @@ If the connection is successful, you should also see an increased number of moni
 To confirm your node is being monitored:
 {.power-number}
 
-  1. Go to the main menu and select **Operating System > Overview**.
+  1. Go to the main menu and select **Operating system > Overview**.
 
   2. In the **Node Names** drop-down menu, select the node you recently registered.
 

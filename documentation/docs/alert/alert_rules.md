@@ -133,7 +133,7 @@ For example, to check the CPU usage, Go to **Explore data** and run the query ex
 ```
 ![!](../images/alerting-sample-query.png)
 
-Note that to paste the query above, **Explore** must be in `Code` mode, and not in `Builder` mode.
+Note that to paste the query above, **Explore data** must be in `Code` mode, and not in `Builder` mode.
 
 ### Add an alert rule based on a template
 

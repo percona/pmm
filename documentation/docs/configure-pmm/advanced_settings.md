@@ -70,7 +70,7 @@ You'll see queries related to PMM's inventory, settings, Advisor checks, alerts,
 
 ## Backup Management
 
-Enables [Backup Management](../backup/index.md) option and reveals the **Backup** page from where you can:
+Enables [Backup Management](../backup/index.md) option and shows the backup pages under **Apps** in the main menu, from where you can:
 
 - create and restore MongoDB and MySQL backups
 - automate backup scheduling

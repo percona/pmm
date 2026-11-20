@@ -13,7 +13,7 @@ For MySQL, use [MySQL Backups](../apps/mysql-backup.md) under **Apps > MySQL Bac
 
 ## MongoDB backups
 
-Enable the **Backup Management** option in PMM's Advanced Settings to activate the **Backup** page from where you can:
+Enable the **Backup Management** option in PMM's Advanced Settings to show the backup pages under **Apps** in the main menu, from where you can:
 
 - Create and restore MongoDB backups
 - Automate backup scheduling

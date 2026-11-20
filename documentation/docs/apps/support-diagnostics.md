@@ -5,7 +5,7 @@
 
 Support diagnostics runs targeted diagnostic scripts on your database hosts and sends the results directly to your Percona support case in ServiceNow, without SSH access or manual file uploads.
 
-It is available as **Diagnostics** in the **Analysis and alerting** section of the sidebar, and is part of PMM's growing set of [database management apps](index.md).
+It is available as **Diagnostics** in the **Analyze** section of the main menu, and is part of PMM's growing set of [database management apps](index.md).
 
 ## When to use Support diagnostics vs PMM Dump
 

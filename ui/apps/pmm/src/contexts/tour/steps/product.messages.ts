@@ -7,14 +7,14 @@ export const Messages = {
       'Built on Grafana, these dashboards can be customized, expanded, or integrated with existing ones to fit your unique monitoring needs.',
   },
   queryAnalytics: {
-    title: 'Query Analytics (QAN) dashboard',
+    title: 'Query analytics',
     insights:
       'Shows detailed insights into query execution, including query count and execution time.',
     optimize:
       'It enables you to analyze database queries over time, optimize performance, and quickly identify and resolve issues at their source.',
   },
   explore: {
-    title: 'Explore',
+    title: 'Explore data',
     useCase:
       'Use it when you want to explore your graph and table data but do not want to create a dashboard. This way you can focus only on the query.',
   },
@@ -35,7 +35,7 @@ export const Messages = {
   management: {
     title: 'Management: Inventory & Backups',
     inventory:
-      'Use the Inventory section to manage your monitored services, and the Backups pages under Apps to create Point-in-Time-Recoverable backups of your MySQL and MongoDB databases.',
+      'Use Inventory to manage your monitored services, and the backup pages under Apps to create point-in-time recoverable backups of your MySQL and MongoDB databases.',
     readMore: 'Read more about Backups',
   },
   configurations: {
@@ -43,7 +43,7 @@ export const Messages = {
     settings:
       "Manage PMM's advanced settings to customize metrics collection and control feature availability, including features in Technical Preview.",
     access:
-      'Control team access and permissions through Users and access in Configuration, or modify your personal preferences and password in your profile settings.',
+      'Manage users, teams and access roles in Configuration, or change your preferences and password in your profile settings.',
     readMore: "Learn more about PMM's configurations",
   },
   account: {

@@ -62,6 +62,24 @@ After you upgrade to PMM 3.11.0, you will see fewer version checks in **Advisors
     If you turned off one of these checks, turn off its replacement instead. For example, if you turned off `mongodb_EOL` to stop end-of-life findings for a MongoDB version that you plan to keep, turn off the **MongoDB version check**.
 - `mongodb_cve_version` and `postgresql_cve_check` listed specific vulnerabilities (CVEs), but their lists were no longer kept up to date. Instead, when your version is missing security fixes, all three version checks tell you and link to the vendor's security page, where you can see which vulnerabilities affect your version.
 
+### Shorter main menu, grouped by task
+
+Finding your way around PMM is now quicker, thanks to three changes to the main menu:
+
+- **New task groups**: entries are grouped under **Monitor**, **Analyze**, **Browse** and **Administer**, so the menu is shorter and you find what you need faster.
+- **Panels in the collapsed menu**: when you collapse the menu to icons to give your dashboards more room, click an icon to open its pages in a panel next to it, without expanding the menu first.
+- **Clearer location**: the menu highlights the page you're on and marks the group it belongs to, so you can always see where you are.
+
+| New task groups | Panels in the collapsed menu | Clearer location |
+|:---:|:---:|:---:|
+| ![Main menu grouped under Monitor, Analyze, Browse and Administer](../images/PMM_main_menu.png) | ![Collapsed main menu with the Apps pages open in a panel next to it](../images/PMM_main_menu_collapsed.png) | ![Main menu with the Insights page highlighted and its Advisors group marked](../images/PMM_main_menu_current_page.png) |
+
+Some entries have also moved or been renamed. For example, **Real-time queries** now has its own entry, and backups and **Operations for MongoDB** are under **Apps**. 
+
+To go back to the home dashboard, click the PMM logo. 
+
+As before, you see only the entries that your role and PMM settings allow. [Find where each entry is now](../reference/ui/ui_components.md#1-main-menu).
+
 ### Inventory page now in native PMM UI
 
 PMM has used [its own navigation](3.6.0.md#new-native-pmm-navigation-and-revamped-user-interface) instead of Grafana's menus since 3.6.0, and its pages are gradually moving from Grafana to native PMM UI. [**Inventory**](../use/dashboard-inventory.md) now joins [**Updates**](3.0.0.md#new-upgrade-ui), **Help**, [**Real-Time Analytics**](3.7.0.md#real-time-query-analytics-rta-for-mongodb), [**Settings**](3.8.0.md#settings-page-now-in-native-pmm-ui) and [**Alerts > Status**](3.9.0.md#alert-status-page-view-alerts-by-node-or-service), which already run there.
@@ -99,7 +117,7 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 ## 📈 Improvements
 
-- [PMM-15909](https://perconadev.atlassian.net/browse/PMM-15909): The main menu now groups its entries under **Technologies**, **Analysis and alerting**, **Browse** and **Administration**, and lists only the databases that PMM monitors. **Real-time queries** has its own entry, users and access roles are under **Configuration**, and backups and **Operations for MongoDB** are under **Apps**. For the full list, see [UI components](../reference/ui/ui_components.md#1-main-menu).
+- [PMM-15909](https://perconadev.atlassian.net/browse/PMM-15909): The main menu is now shorter and grouped into sections, and some entries have moved. [Find out where they are now](#shorter-main-menu-grouped-by-task).
 - [PMM-14023](https://perconadev.atlassian.net/browse/PMM-14023): Users with basic authentication can no longer set weak passwords. New and changed passwords need at least 12 characters, with uppercase and lowercase letters, a digit and a symbol. Existing passwords keep working until you change them. If your scripts create users or change passwords, for example with `change-admin-password`, [update them to use passwords that meet the requirements](../admin/manage-users/add_users.md#password-requirements).
 - [PMM-15239](https://perconadev.atlassian.net/browse/PMM-15239): The **Alert Status** page now groups alert severities into four bands: **Critical**, **Error**, **Warning** and **Info**. Each band has its own icon and label, so you can tell severities apart without relying on color. The **Severity** filter and sort work by band, and the alert details show the original level, for example **Reported as Emergency**. Alert labels stay the same. For how levels map to bands, see [Alert rules](../alert/alert_rules.md).
 - [PMM-15805](https://perconadev.atlassian.net/browse/PMM-15805): The **Services** tab on **Apps > Operations for MongoDB > Fleet** now shows why a service is failing. The **Collected** column shows the reason, for example **Database unreachable**, and the service details show the full error, what to do about it, and a link to the scan that failed. A **Down** service whose `mongod` or `mongos` wasn't running at its last scan shows **not running**. The **Clusters** tab now warns when scan results can't be read. For details, see [Operations for MongoDB](../use/mongodb-operations.md#scans).
