@@ -197,7 +197,33 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError = callText(t, session, "pmm_inventory", map[string]any{"engine": "valkey"})
 		assert.False(t, isError)
-		assert.Equal(t, "No services found in your service list (services that sent metrics in the last hour).", text)
+		assert.Equal(t, "No services in your service list match the engine and node filters.", text)
+	})
+
+	t.Run("SameNameVersionsByID", func(t *testing.T) {
+		t.Parallel()
+
+		list := `{"status":"success","data":{"resultType":"vector","result":[
+			{"metric":{"service_id":"svc-old","service_name":"shop-re","service_type":"mysql","node_id":"node-1","node_name":"demo-node"},"value":[1789387200,"1789384200"]},
+			{"metric":{"service_id":"svc-new","service_name":"shop-re","service_type":"mysql","node_id":"node-1","node_name":"demo-node"},"value":[1789387200,"1789387140"]}]}}`
+		versions := `{"status":"success","data":{"resultType":"vector","result":[
+			{"metric":{"__name__":"mysql_version_info","service_id":"svc-new","service_name":"shop-re","version":"8.4.1"},"value":[1789387200,"1"]}]}}`
+		fake := newFakePMM(t, withRoutes(inventoryRoutes(), map[string]fixture{
+			serviceListKey:                   {body: []byte(list)},
+			vmQuery + " ?mysql_version_info": {body: []byte(versions)},
+		}))
+		session := connect(t, newTestService(t, fake))
+
+		res := callTool(t, session, "pmm_inventory", map[string]any{"engine": "mysql"})
+		require.False(t, res.IsError)
+		var got inventoryResult
+		require.NoError(t, json.Unmarshal(mustJSON(t, res.StructuredContent), &got))
+		require.Len(t, got.Services, 2)
+		byID := map[string]string{}
+		for _, svc := range got.Services {
+			byID[svc.ServiceID] = svc.Version
+		}
+		assert.Equal(t, map[string]string{"svc-old": "", "svc-new": "8.4.1"}, byID)
 	})
 
 	t.Run("EmptyList", func(t *testing.T) {
