@@ -45,14 +45,18 @@ const (
 
 var fileName = "/etc/pmm-server-update-version.json"
 
+// versionServiceTimeout bounds one round of requests to Percona version service; see PMM-15364.
+var versionServiceTimeout = 10 * time.Second
+
 // Updater is a service to check for available PMM Server updates.
 type Updater struct {
 	l  *logrus.Entry
 	db *reform.DB
 
-	checkRW         sync.RWMutex
-	lastCheckResult *version.DockerVersionInfo
-	lastCheckTime   time.Time
+	checkMu          sync.Mutex
+	lastCheckResult  *version.DockerVersionInfo
+	lastCheckTime    time.Time
+	lastCheckAttempt time.Time
 
 	// releaseNotes holds a map of PMM server versions to their release notes.
 	releaseNotes   map[string]string
@@ -191,6 +195,9 @@ type ReleaseNotesResponse struct {
 // If the current version is the latest minor version, it returns the next major version as the latest.
 // If the current version is the latest version, it returns the current version as the latest.
 func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
+	ctx, cancel := context.WithTimeout(ctx, versionServiceTimeout)
+	defer cancel()
+
 	versionServiceURL, err := envvars.GetPlatformAddress()
 	if err != nil {
 		up.l.WithError(err).Error("Failed to get version service address")
@@ -319,16 +326,14 @@ func (up *Updater) InstalledPMMVersion() version.PackageInfo {
 	}
 }
 
-// checkResult returns the result of the last update check.
-// It may force re-check if last result is empty or too old.
+// checkResult returns the result of the last successful update check.
+// It checks again first if the last attempt, successful or not, is too old.
 func (up *Updater) checkResult(ctx context.Context) (*version.DockerVersionInfo, time.Time) {
-	up.checkRW.RLock()
-	defer up.checkRW.RUnlock()
+	up.checkMu.Lock()
+	defer up.checkMu.Unlock()
 
-	if time.Since(up.lastCheckTime) > updateCheckResultFresh {
-		up.checkRW.RUnlock()
-		_ = up.check(ctx)
-		up.checkRW.RLock()
+	if time.Since(up.lastCheckAttempt) > updateCheckResultFresh {
+		_ = up.checkLocked(ctx)
 	}
 
 	return up.lastCheckResult, up.lastCheckTime
@@ -336,15 +341,26 @@ func (up *Updater) checkResult(ctx context.Context) (*version.DockerVersionInfo,
 
 // check performs update check.
 func (up *Updater) check(ctx context.Context) error {
-	up.checkRW.Lock()
-	defer up.checkRW.Unlock()
+	up.checkMu.Lock()
+	defer up.checkMu.Unlock()
+	return up.checkLocked(ctx)
+}
+
+// checkLocked performs update check; the caller must hold checkMu.
+func (up *Updater) checkLocked(ctx context.Context) error {
 	_, latest, err := up.latest(ctx)
+	if errors.Is(err, services.ErrPMMUpdatesDisabled) {
+		up.l.Info("PMM updates are disabled")
+		return grpcstatus.Error(codes.FailedPrecondition, "PMM updates are disabled")
+	}
+
+	// a disabled check or one its caller abandoned says nothing about the version service, so neither counts
+	if err == nil || ctx.Err() == nil {
+		up.lastCheckAttempt = time.Now()
+	}
 	if err != nil {
-		if errors.Is(err, services.ErrPMMUpdatesDisabled) {
-			up.l.Info("PMM updates are disabled")
-			return grpcstatus.Error(codes.FailedPrecondition, "PMM updates are disabled")
-		}
-		return fmt.Errorf("failed to get latest version: %w", err)
+		up.l.WithError(err).Warn("Failed to check for updates.")
+		return grpcstatus.Error(codes.Unavailable, "Failed to check for PMM Server updates.")
 	}
 	up.lastCheckResult = latest
 	up.lastCheckTime = time.Now()

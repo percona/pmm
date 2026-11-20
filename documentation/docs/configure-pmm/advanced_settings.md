@@ -47,6 +47,8 @@ For information on the various config parameters for telemetry, see the [config 
 
 When active, PMM will automatically check for updates and put a notification in the home page **Updates** dashboard if any are available.
 
+If PMM Server can't reach the Percona version service, the update check stops after 10 seconds. PMM then shows **Failed to check for PMM Server updates.** In an air-gapped environment, turn off **Check for updates** to skip the check.
+
 ## Advisors
 
 Advisor settings have their own tab, **Configuration > Settings > Advisors**. On that tab, you can enable or disable Advisors, set **Advisor history retention**, and configure **Advisor notifications**, including the **Default recipients** and **Default severities**. PMM reports the findings on the **Advisors > Insights** page. You can also [choose when the checks run](../advisors/schedule-advisor-checks.md).
