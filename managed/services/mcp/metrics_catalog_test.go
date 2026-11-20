@@ -21,10 +21,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/VictoriaMetrics/metricsql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -163,6 +165,26 @@ func TestMetricsCatalogQueriesPass(t *testing.T) {
 		_, err := checkExpr(query, time.Hour, step)
 		assert.NoError(t, err, "%s: %s", m.Name, query)
 	}
+}
+
+// TestMetricsCatalogTablesKeepTheirIdentity checks that a query grouping by table name also groups by database and schema.
+func TestMetricsCatalogTablesKeepTheirIdentity(t *testing.T) {
+	t.Parallel()
+
+	grouped := 0
+	for _, m := range metricsCatalog {
+		e, err := metricsql.Parse(m.Query)
+		require.NoError(t, err, m.Name)
+		metricsql.VisitAll(e, func(e metricsql.Expr) {
+			ae, ok := e.(*metricsql.AggrFuncExpr)
+			if !ok || !strings.EqualFold(ae.Modifier.Op, "by") || !slices.Contains(ae.Modifier.Args, "relname") {
+				return
+			}
+			grouped++
+			assert.Subset(t, ae.Modifier.Args, []string{"datname", "schemaname"}, "%s: tables of the same name in two schemas or databases stay apart", m.Name)
+		})
+	}
+	assert.Positive(t, grouped, "the catalogue has queries that group by table")
 }
 
 func TestMetricsCatalogUnitsMatchQueries(t *testing.T) {

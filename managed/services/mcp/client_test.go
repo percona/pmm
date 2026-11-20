@@ -171,6 +171,26 @@ func TestListCallsArguments(t *testing.T) {
 	}
 }
 
+// TestGetQueryPlanArguments pins that the plan is asked for one service when a service_id is given, and for any otherwise.
+func TestGetQueryPlanArguments(t *testing.T) {
+	t.Parallel()
+
+	const path = "/v1/qan/query/QID-PG/plan"
+	fake := newFakePMM(t, map[string]fixture{"GET " + path: {file: "plan.json"}})
+	c, err := newClient(fake.server.URL + "/")
+	require.NoError(t, err)
+
+	for _, serviceID := range []string{"svc-2", ""} {
+		plan, err := c.GetQueryPlan(t.Context(), testAuth, "QID-PG", serviceID)
+		require.NoError(t, err)
+		assert.Equal(t, "PLAN-1", plan.Planid)
+	}
+	reqs := fake.requestsTo(path)
+	require.Len(t, reqs, 2)
+	assert.Equal(t, "service_id=svc-2", reqs[0].query)
+	assert.Empty(t, reqs[1].query)
+}
+
 func TestMapError422(t *testing.T) {
 	t.Parallel()
 

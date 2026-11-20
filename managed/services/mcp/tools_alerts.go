@@ -306,6 +306,9 @@ func (s *Service) joinSilences(ctx context.Context, auth callerAuth, alerts []gr
 	ids := make([][]string, len(alerts))
 	found := false
 	for i, a := range alerts {
+		if a.Pending {
+			continue
+		}
 		labels := maps.Clone(a.Labels)
 		if labels == nil {
 			labels = map[string]string{}

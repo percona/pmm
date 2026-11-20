@@ -430,14 +430,39 @@ func TestChooseStep(t *testing.T) {
 		{"RequestedRoundsUp", time.Minute, 1500 * time.Millisecond, 2 * time.Second},
 		{"InstantHasNoStep", 0, 0, 0},
 		{"InstantIgnoresRequested", 0, time.Minute, 0},
+		{"JustUnder2000Seconds", 1999 * time.Second, 0, time.Second},
+		{"Exactly2000Seconds", 2000 * time.Second, 0, 2 * time.Second},
+		{"FiveHours", 5 * time.Hour, 0, 10 * time.Second},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tc.want, chooseStep(tc.span, tc.requested))
+			step := chooseStep(tc.span, tc.requested)
+			assert.Equal(t, tc.want, step)
+			if tc.span > 0 && tc.requested == 0 {
+				assert.LessOrEqual(t, int(tc.span/step)+1, maxPoints, "the range and both of its ends")
+			}
 		})
 	}
+}
+
+func TestRankSeriesAverageOfLargeValues(t *testing.T) {
+	t.Parallel()
+
+	start := time.Unix(1700000000, 0).UTC()
+	s := metricSeries{Labels: map[string]string{"service_name": "db1"}, Points: []point{
+		{T: start, V: 1e308},
+		{T: start.Add(time.Second), V: 1e308},
+		{T: start.Add(2 * time.Second), V: math.NaN()},
+	}}
+	r := rankSeries(s)
+	require.NotNil(t, r.summary.Avg)
+	assert.InEpsilon(t, 1e308, *r.summary.Avg, 1e-9, "the sum overflows; the average does not")
+
+	res := shapeSeries("vector(1e308)", []metricSeries{s}, 0, &window{From: start, To: start.Add(time.Hour)}, "1s", "")
+	_, err := json.Marshal(res)
+	require.NoError(t, err)
 }
 
 func TestFmtNum3(t *testing.T) {

@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"slices"
 	"strconv"
@@ -205,6 +206,12 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		fake := newFakePMM(t, metricsRoutes(nil))
 		requireInvalid(t, newQANService(t, fake, false), fake, map[string]any{"query": `{__name__=~"mysql_global_.*"}`}, "service_id, service_name")
+		// A negative offset reads after the window the series are counted over.
+		requireInvalid(t, newQANService(t, fake, false), fake,
+			map[string]any{"query": `sum(rate(node_cpu_seconds_total[5m] offset -6d))`, "time": "now-6d"}, "a negative offset is not accepted")
+		requireInvalid(t, newQANService(t, fake, false), fake,
+			map[string]any{"query": `rate(node_cpu_seconds_total{node_name="n1"}[5m] offset -6d)`, "period_from": "now-145h", "period_to": "now-6d"},
+			"a negative offset is not accepted")
 		requireInvalid(t, newQANService(t, fake, false), fake,
 			map[string]any{"query": questions, "period_from": "now-7d"}, "the cap is 7d")
 		requireInvalid(t, newQANService(t, fake, false), fake, map[string]any{"query": "rate("}, "cannot parse")
@@ -432,6 +439,37 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Equal(t, "3s", res.Step)
 	})
 
+	t.Run("StepRisesForASubqueryWithoutAStep", func(t *testing.T) {
+		t.Parallel()
+
+		const peak = `max_over_time(rate(mysql_global_status_questions{service_name="db1"}[5m])[1h:])`
+		fake := newFakePMM(t, metricsRoutes(nil))
+		s := newQANService(t, fake, false)
+
+		res, text, isError := metricsCall(t, s, map[string]any{"query": peak, "period_from": "now-1h"})
+		require.False(t, isError, text)
+		assert.Equal(t, "4s", res.Step, "[1h:] runs at the query's step, so it rises with it")
+		assert.Contains(t, res.Note, "The step was raised from 2s to 4s so that a subquery's step is at least the span read ÷ 2000")
+		reqs := fake.requestsTo(vmAPI + "query_range")
+		require.Len(t, reqs, 1)
+		assert.Equal(t, "4", queryParams(t, reqs[0]).Get("step"))
+
+		// A rollup window inside [5m:] is read at the query's step too.
+		res, text, isError = metricsCall(t, s, map[string]any{
+			"query":       `max_over_time(avg_over_time(mysql_global_status_questions{service_name="db1"}[90m])[5m:])`,
+			"period_from": "now-24h",
+		})
+		require.False(t, isError, text)
+		assert.Equal(t, "1m6s", res.Step)
+		assert.Contains(t, res.Note, "The step was raised from 44s to 1m6s")
+		assert.Contains(t, res.Note, "rollup windows read at most 2000 hours of samples per series")
+
+		// A step the caller gave is never raised.
+		fake2 := newFakePMM(t, metricsRoutes(nil))
+		requireInvalid(t, newQANService(t, fake2, false), fake2,
+			map[string]any{"query": peak, "period_from": "now-1h", "step": "2s"}, "the subquery step 2s is too small")
+	})
+
 	t.Run("StepStaysWhenNothingNeedsRaising", func(t *testing.T) {
 		t.Parallel()
 
@@ -513,6 +551,53 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Equal(t, "96", queryParams(t, reqs[0]).Get("step"))
 		assert.Contains(t, res.Note, "The step was raised from 11s to 1m36s so that the answer for up to 500 series fits")
 		assert.Contains(t, text, "The step was raised from 11s to 1m36s")
+	})
+
+	t.Run("RaisedStepCountsTheWiderSpan", func(t *testing.T) {
+		t.Parallel()
+
+		// A selector without a window reads one step back: 11s before the raise, 1m36s after it.
+		const broad = `{__name__=~"mysql_global_status_.*", service_name="db1"}`
+		args := map[string]any{"query": broad, "period_from": "now-6h"}
+		from := testNow.Add(-6 * time.Hour)
+		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		res, text, isError := metricsCall(t, newQANService(t, fake, false), args)
+		require.False(t, isError, text)
+		assert.Equal(t, "1m36s", res.Step)
+		series := fake.requestsTo(vmAPI + "series")
+		require.Len(t, series, 2)
+		assert.Equal(t, unixOf(from.Add(-11*time.Second)), queryParams(t, series[0]).Get("start"))
+		assert.Equal(t, unixOf(from.Add(-96*time.Second)), queryParams(t, series[1]).Get("start"))
+		assert.Equal(t, unixOf(testNow), queryParams(t, series[1]).Get("end"))
+
+		// Over the cap on the wider span, the query is refused before it runs.
+		fake = newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		wider := unixOf(from.Add(-96 * time.Second))
+		next := fake.server.Config.Handler
+		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+			if req.URL.Path != vmAPI+"series" || req.URL.Query().Get("start") != wider {
+				next.ServeHTTP(rw, req)
+				return
+			}
+			rw.Header().Set("Content-Type", "application/json")
+			_, _ = rw.Write(seriesBody(2001))
+		})
+		_, text, isError = metricsCall(t, newQANService(t, fake, false), args)
+		require.True(t, isError, text)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assert.Contains(t, text, "this selector matches more than 2000 series over the span")
+		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
+	})
+
+	t.Run("UnraisedStepCountsOnce", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+			"query": `sum by (service_name) (rate({__name__=~"mysql_global_status_.*", service_name="db1"}[5m]))`, "period_from": "now-6h",
+		})
+		require.False(t, isError, text)
+		assert.Len(t, fake.requestsTo(vmAPI+"series"), 1)
 	})
 
 	t.Run("WideRangeWithAnAggregationKeepsTheStep", func(t *testing.T) {
@@ -807,6 +892,7 @@ func TestListMetricsTool(t *testing.T) {
 		assert.Contains(t, text, "mysql_global_status_* (800)")
 		assert.True(t, res.Page.Truncated, "more than 1000 came back")
 		assert.Contains(t, res.Hint, "more than 1000")
+		assert.NotContains(t, text, "pass offset", "every group is on this page")
 	})
 
 	t.Run("ThousandAndOneIsTruncated", func(t *testing.T) {
@@ -822,6 +908,11 @@ func TestListMetricsTool(t *testing.T) {
 		assert.Contains(t, res.Hint, "more than 1000")
 		assert.Contains(t, res.Hint, "narrow it with match")
 		assert.Contains(t, text, res.Hint)
+		assert.NotContains(t, text, "pass offset", "no entry follows the last page")
+
+		_, text, isError = listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000})
+		require.False(t, isError, text)
+		assert.Contains(t, text, "showing 1–1000 of 1001; pass offset=1000 for more")
 
 		fake = newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(numbered("db", 1000))}}))
 		res, text, isError = listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000})
@@ -901,6 +992,25 @@ func TestListMetricsTool(t *testing.T) {
 		for _, s := range res.Series {
 			assert.NotNil(t, s)
 		}
+	})
+
+	t.Run("SeriesTooLargeAloneCanBeSkipped", func(t *testing.T) {
+		t.Parallel()
+
+		body := []byte(`{"status":"success","data":[{"__name__":"mysql_up","a":"` + strings.Repeat("x", 20<<10) + `"},{"__name__":"mysql_up","b":"y"}]}`)
+		fake := newFakePMM(t, listRoutes(map[string]fixture{vmSeries: {body: body}}))
+		s := newQANService(t, fake, false)
+		args := map[string]any{"kind": "series", "match": []string{"mysql_up"}}
+		res, text, isError := listCall(t, s, args)
+		require.False(t, isError, text)
+		assert.Empty(t, res.Series)
+		assert.True(t, res.Page.Truncated)
+		assert.Contains(t, res.Hint, "pass offset=1 to skip it")
+
+		args["offset"] = 1
+		res, text, isError = listCall(t, s, args)
+		require.False(t, isError, text)
+		assert.Equal(t, []map[string]string{{"__name__": "mysql_up", "b": "y"}}, res.Series)
 	})
 
 	t.Run("SeriesMapsAreNeverNil", func(t *testing.T) {

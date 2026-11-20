@@ -111,9 +111,15 @@ type serviceRow struct {
 type inventoryResult struct {
 	Services []serviceRow `json:"services" jsonschema:"Monitored services on this page."`
 	Page     page         `json:"page" jsonschema:"Paging of the full list."`
+
+	// The filters left nothing of a non-empty service list.
+	filtered bool
 }
 
 func (r inventoryResult) render() string {
+	if r.Page.Total == 0 && r.filtered {
+		return "No services in your service list match the engine and node filters."
+	}
 	if r.Page.Total == 0 {
 		return "No services found in your service list (services that sent metrics in the last hour)."
 	}
@@ -254,7 +260,7 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 		}
 		rows = append(rows, row)
 	}
-	return inventoryResult{Services: rows, Page: pg}, nil
+	return inventoryResult{Services: rows, Page: pg, filtered: len(filtered) == 0 && len(services) > 0}, nil
 }
 
 // listSpan returns the service list's look-back for a window, ending at its end or now, 5 minutes to 7 days long, and whether it cut the start.
@@ -417,8 +423,8 @@ func (s *Service) enrichVersions(ctx context.Context, auth callerAuth, services 
 		}
 		byService := map[string]string{}
 		for _, sample := range samples {
-			if name := sample.Labels["service_name"]; name != "" {
-				byService[name] = sample.Labels[vm.label]
+			if id := sample.Labels["service_id"]; id != "" {
+				byService[id] = sample.Labels[vm.label]
 			}
 		}
 		versions[engine] = byService
@@ -428,7 +434,7 @@ func (s *Service) enrichVersions(ctx context.Context, auth callerAuth, services 
 		if services[i].Version != "" {
 			continue
 		}
-		if v := versions[services[i].Engine][services[i].ServiceName]; v != "" {
+		if v := versions[services[i].Engine][services[i].ServiceID]; v != "" {
 			services[i].Version = v
 		} else {
 			services[i].Version = unknownVersion

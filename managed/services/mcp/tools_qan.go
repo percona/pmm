@@ -238,6 +238,8 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	body := q.body
 	if visibleSearch {
 		body.Offset, body.Limit = 0, maxSearchCandidates
+		// A ? in the shown fingerprint can stand for a masked literal or comment, so QAN's LIKE reads it as any text.
+		body.Search = strings.ReplaceAll(body.Search, "?", "%")
 	}
 	report, err := s.api.GetReport(ctx, auth, body)
 	if err != nil {
@@ -309,10 +311,11 @@ func showsSearch(row queryRow, search string) bool {
 	return row.Fingerprint != withheldFingerprint && strings.Contains(searchSpace.ReplaceAllString(strings.ToLower(row.Fingerprint), " "), needle)
 }
 
-// pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one
-// service_name that names one service of the caller's service list, and "" when they pin none or that lookup fails.
+// pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one service_name
+// that names one service of the caller's service list among the filtered service_ids, and "" when they pin none or that lookup fails.
 func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([]serviceInfo, error)) string {
-	if ids := labels["service_id"]; len(ids) == 1 {
+	ids := labels["service_id"]
+	if len(ids) == 1 {
 		return ids[0]
 	}
 	names := labels["service_name"]
@@ -325,6 +328,9 @@ func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([
 		return ""
 	}
 	named := servicesNamed(list, names[0])
+	if len(ids) > 0 {
+		named = slices.DeleteFunc(named, func(svc serviceInfo) bool { return !slices.Contains(ids, svc.ServiceID) })
+	}
 	if len(named) != 1 {
 		return ""
 	}
@@ -632,15 +638,19 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 		if failed != nil {
 			return queryDetailResult{}, failed
 		}
-		return queryDetailResult{}, newToolError(codeNotFound,
-			"no data for this query in %s; widen period_from or check the id with pmm_top_queries", windowText(window{From: from, To: to}))
+		w := window{From: from, To: to}
+		hint := listCutHint(w, s.now())
+		if hint == "" {
+			hint = "; widen period_from or check the id with pmm_top_queries"
+		}
+		return queryDetailResult{}, newToolError(codeNotFound, "no data for this query in %s%s", windowText(w), hint)
 	}
 	// qan-api2 joins the names of several services, so only a name of one asked service filters the link and reads the version.
 	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(serviceIDs, svc.ServiceID) })
 	if named := servicesNamed(asked, d.serviceName); len(named) == 1 {
 		d.linkService = named[0].ServiceName
 		if d.engine != "" {
-			d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID)
+			d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID, time.Time{})
 		}
 	}
 
@@ -1001,7 +1011,7 @@ func keyMetrics(m map[string]metricStats) []metricValue {
 	add("filesort", "filesort", sum, true)
 	add("tmp_table_on_disk", "tmp_table_on_disk", sum, true)
 	add("shared_blks_read", "shared_blks_read_sum", sum, true)
-	add("blk_read_time", "blk_read_time_sum", sum, true)
+	add("shared_blk_read_time", "shared_blk_read_time_sum", sum, true)
 	add("docs_examined", "docs_examined_avg", avg, true)
 	add("keys_examined", "keys_examined_avg", avg, true)
 	add("docs_returned", "docs_returned_avg", avg, true)
@@ -1011,14 +1021,14 @@ func keyMetrics(m map[string]metricStats) []metricValue {
 	return out
 }
 
-// serviceVersion reads one service's version from the exporter metric for its
+// serviceVersion reads one service's version at a time, now when zero, from the exporter metric for its
 // engine; any failure returns "".
-func (s *Service) serviceVersion(ctx context.Context, auth callerAuth, engine, serviceID string) string {
+func (s *Service) serviceVersion(ctx context.Context, auth callerAuth, engine, serviceID string, at time.Time) string {
 	vm, ok := versionMetrics[engine]
 	if !ok || serviceID == "" {
 		return ""
 	}
-	samples, err := s.queryMetrics(ctx, auth, vm.metric+`{service_id="`+escapeLabel(serviceID)+`"}`, time.Time{})
+	samples, err := s.queryMetrics(ctx, auth, vm.metric+`{service_id="`+escapeLabel(serviceID)+`"}`, at)
 	if err != nil || len(samples) == 0 {
 		return ""
 	}

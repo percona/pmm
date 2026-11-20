@@ -61,7 +61,8 @@ func chooseStep(span, requested time.Duration) time.Duration {
 	if span <= 0 {
 		return 0
 	}
-	return max(ceilSecond(requested), ceilSecond(span/maxPoints), time.Second)
+	// span/step + 1 points fit in maxPoints when the step is over span/maxPoints.
+	return max(ceilSecond(requested), (span/maxPoints).Truncate(time.Second)+time.Second)
 }
 
 // answerBytes estimates the size of a range answer of the matched series over span at step.
@@ -243,6 +244,15 @@ func rankSeries(s metricSeries) rankedSeries {
 	}
 	if finite > 0 {
 		avg := sum / float64(finite)
+		if math.IsInf(avg, 0) {
+			// The sum of finite values overflowed; dividing each value first keeps the average finite.
+			avg = 0
+			for _, p := range r.points {
+				if p.V != nil {
+					avg += *p.V / float64(finite)
+				}
+			}
+		}
 		r.summary.Min, r.summary.Avg, r.summary.Max = &lo, &avg, &hi
 		r.max = hi
 	}

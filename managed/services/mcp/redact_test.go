@@ -294,6 +294,17 @@ func TestMaskMongoPlan(t *testing.T) {
 	}
 	assert.Contains(t, got, `"stage":"PROJECTION_DEFAULT"`)
 
+	// A command's comment is free-form, so its keys are masked with its values; a filter field named comment is not.
+	for _, command := range []string{"command", "originatingCommand"} {
+		commented := `{"` + command + `":{"find":"c","filter":{"comment":{"$eq":"x"}},` +
+			`"comment":{"cust_SECRET_4711":{"note":"y"}}},"queryPlanner":{"winningPlan":{"stage":"COLLSCAN"}}}`
+		got = maskMongoPlan(commented)
+		assert.NotContains(t, got, "cust_SECRET_4711", command)
+		assert.Contains(t, got, `"comment":"?"`, command)
+		assert.Contains(t, got, `"filter":{"comment":{"$eq":"?"}}`, command)
+		assert.Contains(t, got, `"stage":"COLLSCAN"`, command)
+	}
+
 	assert.Equal(t, planWithheld, maskMongoPlan("not json"))
 }
 
@@ -316,6 +327,17 @@ func TestRedactPlan(t *testing.T) {
 	assert.NotContains(t, got, "123-45-6789")
 	assert.NotContains(t, got, "a|b", "a | inside the condition stays in the masked cell")
 	assert.Contains(t, got, "1  |SIMPLE      |t     |ALL  |5000 |Using where with pushed condition: ((`t`.`ssn` = ?) or (`t`.`tag` = ?))")
+
+	// A cell with a line break moves the rest of its row onto a line with fewer cells, which can't be matched to columns.
+	broken := "id |select_type |table |type |Extra\n" +
+		"1  |SIMPLE      |t     |ALL  |Using pushed condition ((`t`.`a` = 1)\n and (`t`.`ssn` = '123-45-6789') | 2)|"
+	assert.Equal(t, planWithheld, redactPlan(engineMySQL, formatTraditional, broken, true))
+
+	// A one-column plan, such as EXPLAIN's tree format, is masked as one text, so a literal across lines stays masked.
+	tree := "EXPLAIN\n-> Filter: (t.note = 'first line\nsecret-x')  (cost=1 rows=1)"
+	got = redactPlan(engineMySQL, formatTraditional, tree, true)
+	assert.NotContains(t, got, "secret-x")
+	assert.Contains(t, got, "-> Filter: (t.note = ?)")
 }
 
 func TestMapActionErrorRedaction(t *testing.T) {

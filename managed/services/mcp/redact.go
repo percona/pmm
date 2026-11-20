@@ -337,7 +337,7 @@ func isIdentByte(c byte) bool {
 // The keys that hold only names and the numeric strings MySQL writes for
 // costs are kept. It reports false when the plan is not JSON.
 func maskMySQLPlan(plan string) (string, bool) {
-	out, err := rewriteJSON([]byte(plan), func(path []string, v any) any {
+	out, err := rewriteJSON([]byte(plan), nil, func(path []string, v any) any {
 		switch v := v.(type) {
 		case json.Number:
 			if len(path) > 0 && slices.Contains(mysqlValueNumbers, path[len(path)-1]) {
@@ -367,9 +367,9 @@ func maskMySQLPlan(plan string) (string, bool) {
 // maskMongoPlan masks every value beneath the keys that hold query values, and
 // every string and number outside mongoPlanKeys and keyPattern, keeping stage
 // names, index names, statistics and the field names of the filter. Booleans
-// and nulls carry no data and are kept.
+// and nulls carry no data and are kept. A command's comment is masked whole.
 func maskMongoPlan(plan string) string {
-	out, err := rewriteJSON([]byte(plan), func(path []string, v any) any {
+	out, err := rewriteJSON([]byte(plan), mongoCommandComment, func(path []string, v any) any {
 		if len(path) == 0 || slices.ContainsFunc(path, mongoLiteralKey) {
 			return "?"
 		}
@@ -393,6 +393,13 @@ func maskMongoPlan(plan string) string {
 	return string(out)
 }
 
+// mongoCommandComment reports whether path ends at the comment of a command, which an application can fill with
+// anything, its keys included.
+func mongoCommandComment(path []string) bool {
+	n := len(path)
+	return n > 1 && path[n-1] == "comment" && (path[n-2] == "command" || path[n-2] == "originatingCommand")
+}
+
 // mongoLiteralKey reports whether a key's subtree holds query values: a
 // mongoLiteralKeys entry, or any operator or aggregation stage such as $group
 // or $project. Two kinds of $ keys are exempt: $cursor, which wraps the plan
@@ -409,7 +416,7 @@ func mongoLiteralKey(k string) bool {
 func maskPGPlan(plan string) string {
 	trimmed := strings.TrimSpace(plan)
 	if strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
-		out, err := rewriteJSON([]byte(trimmed), func(path []string, v any) any {
+		out, err := rewriteJSON([]byte(trimmed), nil, func(path []string, v any) any {
 			str, ok := v.(string)
 			if !ok || len(path) > 0 && slices.Contains(pgIdentifierKeys, path[len(path)-1]) {
 				return v
@@ -506,12 +513,20 @@ func singleQuotedEnd(s string, start int) int {
 // EXPLAIN table, the last of its |-separated cells: MySQL NDB Cluster prints a
 // pushed condition there, with its literals. The other columns name tables
 // and keys and count rows. The table is split from the left, so a | inside
-// the condition stays in the masked cell.
+// the condition stays in the masked cell. A line with fewer cells than the
+// header, left by a cell with a line break, withholds the plan.
 func maskTraditionalExtra(table string) string {
 	lines := strings.Split(table, "\n")
 	columns := strings.Count(lines[0], "|") + 1
+	// A one-column body, such as the tree format, is masked as one text, so a literal across lines stays one literal.
+	if columns == 1 {
+		return maskSQLLiterals(table, true)
+	}
 	for i, line := range lines {
 		cells := strings.SplitN(line, "|", columns)
+		if len(cells) < columns {
+			return planWithheld
+		}
 		cells[len(cells)-1] = maskSQLLiterals(cells[len(cells)-1], true)
 		lines[i] = strings.Join(cells, "|")
 	}
@@ -558,13 +573,13 @@ func maskQuoted(msg string) string {
 // rewriteJSON re-emits a JSON document compactly with every scalar leaf passed
 // through leaf, keeping key order. The leaf function receives the object keys on the way to
 // the value (array positions are not part of the path) and the value itself:
-// a string, json.Number, bool or nil.
-func rewriteJSON(doc []byte, leaf func(path []string, v any) any) ([]byte, error) {
+// a string, json.Number, bool or nil. A value whose path a non-nil opaque reports is written as "?" whole, keys included.
+func rewriteJSON(doc []byte, opaque func(path []string) bool, leaf func(path []string, v any) any) ([]byte, error) {
 	dec := json.NewDecoder(bytes.NewReader(doc))
 	dec.UseNumber()
 
 	w := newJSONWriter()
-	err := rewriteValue(dec, w, nil, leaf)
+	err := rewriteValue(dec, w, nil, opaque, leaf)
 	if err != nil {
 		return nil, err
 	}
@@ -590,7 +605,7 @@ func newJSONWriter() *jsonWriter {
 	return w
 }
 
-func rewriteValue(dec *json.Decoder, w *jsonWriter, path []string, leaf func([]string, any) any) error {
+func rewriteValue(dec *json.Decoder, w *jsonWriter, path []string, opaque func([]string) bool, leaf func([]string, any) any) error {
 	tok, err := dec.Token()
 	if err != nil {
 		return err
@@ -621,7 +636,7 @@ func rewriteValue(dec *json.Decoder, w *jsonWriter, path []string, leaf func([]s
 				return err
 			}
 			w.out.WriteByte(':')
-			err = rewriteValue(dec, w, append(path, key), leaf)
+			err = rewriteMember(dec, w, append(path, key), opaque, leaf)
 			if err != nil {
 				return err
 			}
@@ -633,7 +648,7 @@ func rewriteValue(dec *json.Decoder, w *jsonWriter, path []string, leaf func([]s
 			if !first {
 				w.out.WriteByte(',')
 			}
-			err := rewriteValue(dec, w, path, leaf)
+			err := rewriteValue(dec, w, path, opaque, leaf)
 			if err != nil {
 				return err
 			}
@@ -646,6 +661,19 @@ func rewriteValue(dec *json.Decoder, w *jsonWriter, path []string, leaf func([]s
 	// Consume the closing delimiter.
 	_, err = dec.Token()
 	return err
+}
+
+// rewriteMember writes the value of the object member at path, as "?" whole when opaque reports the path.
+func rewriteMember(dec *json.Decoder, w *jsonWriter, path []string, opaque func([]string) bool, leaf func([]string, any) any) error {
+	if opaque == nil || !opaque(path) {
+		return rewriteValue(dec, w, path, opaque, leaf)
+	}
+	var skipped json.RawMessage
+	err := dec.Decode(&skipped)
+	if err != nil {
+		return err
+	}
+	return w.scalar("?")
 }
 
 // scalar writes one scalar without HTML escaping, so the < and > of plan

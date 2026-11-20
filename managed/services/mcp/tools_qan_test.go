@@ -533,8 +533,15 @@ func TestQueryDetailTool(t *testing.T) {
 		text, isError := callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-ZZZ"})
 		assert.True(t, isError)
 		assert.True(t, strings.HasPrefix(text, "error: not_found\n"), text)
-		assert.Contains(t, text, "no data for this query in 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z;")
+		assert.Contains(t, text, "no data for this query in 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z; widen period_from")
 		assert.NotContains(t, text, "QID-ZZZ")
+		assert.NotContains(t, text, "only services")
+
+		text, isError = callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-ZZZ", "period_from": "now-30d"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasSuffix(text, "\nno data for this query in 2026-08-15T12:00:00Z – 2026-09-14T12:00:00Z; "+
+			"only services that sent metrics in 2026-09-07T12:00:00Z – 2026-09-14T12:00:00Z, the last 7 days of the call's window, were searched: "+
+			"for a service that stopped earlier, end the window while it still sent them"), text)
 	})
 
 	t.Run("ServiceOutsideList", func(t *testing.T) {
@@ -974,6 +981,20 @@ func TestKeyMetricsMongoDB(t *testing.T) {
 		"response_length_avg=128, locks_global_acquire_count_read_shared=100", got)
 }
 
+// TestKeyMetricsPostgreSQL pins the PostgreSQL block metrics under the names qan-api2 fills; its blk_read_time entry is always zero.
+func TestKeyMetricsPostgreSQL(t *testing.T) {
+	t.Parallel()
+
+	got := metricsText(keyMetrics(map[string]metricStats{
+		"num_queries":          {Sum: 10},
+		"query_time":           {Sum: 1, Avg: 0.1},
+		"shared_blks_read":     {Sum: 400, Avg: 40},
+		"blk_read_time":        {},
+		"shared_blk_read_time": {Sum: 0.3, Avg: 0.03},
+	}))
+	assert.Equal(t, "calls=10, query_time_sum=1, query_time_avg=0.1, shared_blks_read_sum=400, shared_blk_read_time_sum=0.3", got)
+}
+
 // TestRenderRowPrintsRankedValue checks that the order_by column also prints the value qan-api2 sorted by:
 // the total for counters, the per-call average for time metrics.
 func TestRenderRowPrintsRankedValue(t *testing.T) {
@@ -1222,6 +1243,34 @@ func TestTopQueriesEnginePerRow(t *testing.T) {
 	})
 }
 
+// TestTopQueriesPinWithinServiceIDs pins that a service_name filter next to several service_id values pins only a
+// service among those ids.
+func TestTopQueriesPinWithinServiceIDs(t *testing.T) {
+	t.Parallel()
+
+	routes := withRoutes(qanRoutes(), map[string]fixture{serviceListKey: {file: "vm_up_list.json"}})
+	session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+	for _, tc := range []struct {
+		name string
+		ids  []string
+		want string
+	}{
+		{"shop-mysql", []string{"svc-x", "svc-y"}, ""},
+		{"shop-mysql", []string{"svc-x", "svc-1"}, "svc-1"},
+		{"shop-re", []string{"svc-re-old", "svc-x"}, "svc-re-old"},
+		{"shop-re", []string{"svc-re-old", "svc-re-new"}, ""},
+	} {
+		got := structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", map[string]any{
+			"service_name": tc.name, "labels": map[string]any{"service_id": tc.ids},
+		}))
+		require.NotEmpty(t, got.Rows)
+		for _, row := range got.Rows {
+			require.NotNil(t, row.QueryRef, row.Dimension)
+			assert.Equal(t, tc.want, row.QueryRef.ServiceID, "%s %v", tc.name, tc.ids)
+		}
+	}
+}
+
 // TestTopQueriesSharedServiceName pins that a service_name filter shared by two services pins no service_id in
 // query_ref, and reads fingerprints under neither engine's quoting alone when the two engines differ.
 func TestTopQueriesSharedServiceName(t *testing.T) {
@@ -1330,6 +1379,32 @@ func TestTopQueriesSearch(t *testing.T) {
 			fake, _, _ := search(t, raw, searchReport(t, 1, 0, orders), map[string]any{"search": `50%_x\`})
 			body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo(reportPath)[0])
 			assert.Equal(t, `50\%\_x\\`, body.Search, "raw SQL %t", raw)
+		}
+	})
+
+	t.Run("QuestionMarkMatchesMaskedText", func(t *testing.T) {
+		t.Parallel()
+
+		unnormalized := "SELECT `id` FROM `orders` WHERE `id` = 42"
+		for _, tc := range []struct {
+			fingerprint string
+			search      string
+			sent        string
+			kept        []string
+		}{
+			{unnormalized, "`id` = ?", "`id` = %", []string{"Q1"}},
+			{orders, "`id` = ?", "`id` = %", []string{"Q1"}},
+			{comment, "/*?*/ SELECT", "/*%*/ SELECT", []string{"Q1"}},
+			{orders, `= ? 5%_`, `= % 5\%\_`, []string{}},
+		} {
+			fake, got, _ := search(t, false, searchReport(t, 1, 0, tc.fingerprint), map[string]any{"search": tc.search})
+			body := unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo(reportPath)[0])
+			assert.Equal(t, tc.sent, body.Search, "QAN's prefilter keeps the rows whose stored text a ? can stand for: %s", tc.search)
+			assert.Equal(t, tc.kept, dimensions(got.Rows), "%s against %s", tc.search, tc.fingerprint)
+
+			fake, _, _ = search(t, true, searchReport(t, 1, 0, tc.fingerprint), map[string]any{"search": tc.search})
+			body = unmarshalBody[qan_service.GetReportBody](t, fake.requestsTo(reportPath)[0])
+			assert.Equal(t, escapeLike(tc.search), body.Search, "with raw SQL on, ? matches itself")
 		}
 	})
 

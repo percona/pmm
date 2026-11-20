@@ -460,7 +460,7 @@
           "type": "boolean"
         },
         "note": {
-          "description": "Set for a live plan: it is what the database would choose now, not during the window.",
+          "description": "Set for a live plan, chosen now, and for a stored plan, which can come from outside the window.",
           "type": "string"
         },
         "plan": {

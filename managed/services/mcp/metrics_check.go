@@ -139,10 +139,15 @@ func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
 	minStep := read / maxPoints
 	for _, s := range w.subquerySteps {
 		if s < minStep {
-			return 0, newToolError(codeInvalidInput,
-				"the subquery step %s is too small: the query reads %s, so a subquery step must be at least %s (the span read ÷ %d)",
-				formatSpan(s), formatSpan(read), formatSpan(ceilSecond(minStep)), maxPoints)
+			return 0, subqueryStepError(s, read, minStep)
 		}
+	}
+	if w.queryStepSubquery && step < minStep {
+		te := subqueryStepError(step, read, minStep)
+		if span == 0 {
+			return 0, te
+		}
+		return 0, &stepTooSmallError{toolError: te, minStep: ceilSecond(minStep), reason: "a subquery's step is at least the span read ÷ 2000"}
 	}
 
 	for _, sq := range w.implicitSubqueries {
@@ -166,6 +171,13 @@ func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
 		}
 	}
 	return read, nil
+}
+
+// subqueryStepError is the refusal of a subquery step under minStep, the span read divided by maxPoints.
+func subqueryStepError(step, read, minStep time.Duration) *toolError {
+	return newToolError(codeInvalidInput,
+		"the subquery step %s is too small: the query reads %s, so a subquery step must be at least %s (the span read ÷ %d)",
+		formatSpan(step), formatSpan(read), formatSpan(ceilSecond(minStep)), maxPoints)
 }
 
 // checkWindow refuses a rollup window that, read at each point it is evaluated at over span, reads more than maxWindowHours.
@@ -234,8 +246,10 @@ func (s selector) String() string {
 // exprWalk is what a parsed expression reads, path by path, as VictoriaMetrics evaluates it.
 type exprWalk struct {
 	selectors []selector
-	// subquerySteps holds the step of each subquery written as [range:step] or [range:], in the order met.
+	// subquerySteps holds the step of each subquery written as [range:step], or as [range:] inside one, in the order met.
 	subquerySteps []time.Duration
+	// queryStepSubquery tells whether a subquery written as [range:] runs at the query's step.
+	queryStepSubquery bool
 	// implicitSubqueries holds each subquery VictoriaMetrics runs for a rollup over anything but a selector.
 	implicitSubqueries []implicitSubquery
 	// windows holds each rollup window over a selector.
@@ -409,7 +423,7 @@ func (w *exprWalk) rollupArg(e metricsql.Expr, p path) error {
 	case *metricsql.MetricExpr, *metricsql.RollupExpr:
 		return w.expr(e, p)
 	default:
-		return w.subquery(e, 0, p.step, false, p)
+		return w.subquery(e, 0, p.step, false, false, p)
 	}
 }
 
@@ -418,6 +432,11 @@ func (w *exprWalk) rollup(re *metricsql.RollupExpr, p path) error {
 	if re.At != nil {
 		return newToolError(codeInvalidInput,
 			"the @ modifier is not accepted: it reads outside the query's time range; set the query's time or period instead")
+	}
+	// The series count reads back from the query's time, so it never sees what a negative offset reads.
+	if re.Offset != nil && re.Offset.Duration(p.step.Milliseconds()) < 0 {
+		return newToolError(codeInvalidInput,
+			"a negative offset is not accepted: it reads after the query's time range; move the query's time or period later instead")
 	}
 
 	me, ok := re.Expr.(*metricsql.MetricExpr)
@@ -438,12 +457,15 @@ func (w *exprWalk) rollup(re *metricsql.RollupExpr, p path) error {
 	// instant query's root subquery runs as a range query at its own step; the larger covers both.
 	units := max(p.step, inner)
 	p.lookbehind = addCapped(p.lookbehind, durationOf(re.Offset, units))
-	return w.subquery(re.Expr, durationOf(re.Window, units), inner, re.ForSubquery(), p)
+	// [range:] outside any subquery with a written step runs at the query's step, so it rises with that step.
+	inherited := re.InheritStep && p.queryStep
+	return w.subquery(re.Expr, durationOf(re.Window, units), inner, re.ForSubquery() && !inherited, inherited, p)
 }
 
 // subquery walks e evaluated at its own step from window + 2 steps + subqueryLead before each outer
 // point: VictoriaMetrics starts it one step and subqueryLead early, then aligns that start down to the step.
-func (w *exprWalk) subquery(e metricsql.Expr, window, step time.Duration, explicit bool, p path) error {
+// explicit tells whether the subquery has a step of its own, and inherited whether it is written as [range:] at the query's step.
+func (w *exprWalk) subquery(e metricsql.Expr, window, step time.Duration, explicit, inherited bool, p path) error {
 	lead := addCapped(window, addCapped(addCapped(step, step), subqueryLead))
 	inner := path{
 		step:       step,
@@ -456,9 +478,12 @@ func (w *exprWalk) subquery(e metricsql.Expr, window, step time.Duration, explic
 		// An explicit subquery has its own step, so only its lead counts steps of it.
 		inner.leadSteps = subqueryLeadSteps
 	}
-	if explicit {
+	switch {
+	case explicit:
 		w.subquerySteps = append(w.subquerySteps, step)
-	} else {
+	case inherited:
+		w.queryStepSubquery = true
+	default:
 		w.implicitSubqueries = append(w.implicitSubqueries, implicitSubquery{step: step, reach: inner.extent})
 	}
 	return w.expr(e, inner)
