@@ -73,7 +73,7 @@ func NewClient(addr string) *Client {
 	return newClientWithLogger(addr, logrus.WithField("component", "grafana/client"))
 }
 
-// newClientWithLogger is NewClient that dumps every request and response to l, credentials masked, when l logs at Trace.
+// newClientWithLogger is NewClient that dumps every request and response to l as maskDump renders it when l logs at Trace.
 func newClientWithLogger(addr string, l *logrus.Entry) *Client {
 	var t http.RoundTripper = &http.Transport{
 		DialContext: (&net.Dialer{
@@ -126,7 +126,7 @@ func isCredentialHeader(name string) bool {
 	}
 }
 
-// maskDump returns an HTTP/1.x request or response dump with the value of each credential header masked.
+// maskDump returns an HTTP/1.x request or response dump with the value of each credential header masked and the body replaced by its size.
 func maskDump(dump []byte) []byte {
 	head, body, hasBody := bytes.Cut(dump, []byte("\r\n\r\n"))
 	lines := bytes.Split(head, []byte("\r\n"))
@@ -138,7 +138,10 @@ func maskDump(dump []byte) []byte {
 	}
 	out := bytes.Join(lines, []byte("\r\n"))
 	if hasBody {
-		out = append(append(out, "\r\n\r\n"...), body...)
+		out = append(out, "\r\n\r\n"...)
+	}
+	if len(body) > 0 {
+		out = fmt.Appendf(out, "[body: %d bytes]", len(body))
 	}
 	return out
 }
