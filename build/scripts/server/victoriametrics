@@ -20,10 +20,9 @@ cd /home/builder/victoriametrics
 export PKG_TAG=${victoriametrics_tag}
 export BUILDINFO_TAG=${victoriametrics_tag}
 export USER=builder
-make victoria-metrics-pure vmalert-pure
+make victoria-metrics-pure
 
 install -D -p -m 0755 bin/victoria-metrics-pure ${rootfs}/usr/sbin/victoriametrics
-install -D -p -m 0755 bin/vmalert-pure ${rootfs}/usr/sbin/vmalert
 strip -g ${rootfs}/usr/sbin/*
 
 install -D -p -m 0644 LICENSE ${rootfs}/usr/share/licenses/percona-victoriametrics/LICENSE

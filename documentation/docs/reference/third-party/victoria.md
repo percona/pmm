@@ -20,11 +20,11 @@ As a result of the move to VictoriaMetrics some direct Prometheus paths are no l
 
 | Prometheus path                 | VictoriaMetrics equivalent
 |---------------------------------|--------------------------------------------------------------------------------------------------------------------------
-| `/prometheus/alerts`            | No change.
+| `/prometheus/alerts`            | No equivalent. Alert and recording rules run in Grafana, under **Alerts > Alert rules**.
 | `/prometheus/config`            | No equivalent, but there is some information at `/prometheus/targets`.
 | `/prometheus/flags`             | The `flag` metrics at `/prometheus/metrics`.
 | `/prometheus/graph`             | `/graph/explore` (Grafana) or `graph/d/prometheus-advanced/advanced-data-exploration` (PMM dashboard).
-| `/prometheus/rules`             | No change.
+| `/prometheus/rules`             | No equivalent. Alert and recording rules run in Grafana, under **Alerts > Alert rules**.
 | `/prometheus/service-discovery` | No equivalent.
 | `/prometheus/status`            | Some information at `/prometheus/metrics`. High cardinality metrics information at `/prometheus/api/v1/status/tsdb`.
 | `/prometheus/targets`           | `/victoriametrics/targets`

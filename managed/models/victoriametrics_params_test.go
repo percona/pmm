@@ -16,6 +16,8 @@
 package models
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,10 +29,19 @@ func TestVictoriaMetricsParams(t *testing.T) {
 		_, err := NewVictoriaMetricsParams("nonExistConfigFile.yml", VMBaseURL)
 		require.NoError(t, err)
 	})
-	t.Run("check params for VMAlert", func(t *testing.T) {
-		vmp, err := NewVictoriaMetricsParams("../testdata/victoriametrics/prometheus.external.alerts.yml", VMBaseURL)
+	t.Run("base config is validated", func(t *testing.T) {
+		dir := t.TempDir()
+		valid := filepath.Join(dir, "valid.yml")
+		require.NoError(t, os.WriteFile(valid, []byte("rule_files:\n  - /srv/rules.yml\n"), 0o600))
+		broken := filepath.Join(dir, "broken.yml")
+		require.NoError(t, os.WriteFile(broken, []byte("rule_files: [unclosed\n"), 0o600))
+
+		_, err := NewVictoriaMetricsParams(valid, VMBaseURL)
 		require.NoError(t, err)
-		require.Equal(t, []string{"--rule=/srv/external_rules/rul1.yml", "--rule=/srv/external_rules/rule2.yml", "--evaluationInterval=10s"}, vmp.VMAlertFlags)
+
+		vmp, err := NewVictoriaMetricsParams(broken, VMBaseURL)
+		require.ErrorContains(t, err, "cannot parse base config "+broken)
+		require.ErrorContains(t, vmp.ValidateBaseConfig(), "cannot parse base config "+broken)
 	})
 	t.Run("ParsedURL returns a copy", func(t *testing.T) {
 		vmp, err := NewVictoriaMetricsParams(BasePrometheusConfigPath, "https://user:pass@vm:8428/")

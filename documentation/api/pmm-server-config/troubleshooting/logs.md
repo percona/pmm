@@ -66,9 +66,7 @@ The downloaded logs package contains the following structure:
 ├── victoriametrics-promscrape.yml
 ├── victoriametrics.ini
 ├── victoriametrics.log
-├── victoriametrics_targets.json
-├── vmalert.ini
-└── vmalert.log
+└── victoriametrics_targets.json
 ```
 
 

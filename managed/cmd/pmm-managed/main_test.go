@@ -103,7 +103,6 @@ func TestImports(t *testing.T) {
 		"github.com/percona/pmm/managed/services/supervisord",
 		"github.com/percona/pmm/managed/services/telemetry",
 		"github.com/percona/pmm/managed/services/victoriametrics",
-		"github.com/percona/pmm/managed/services/vmalert",
 	} {
 		constraints[service] = constraint{
 			blacklistPrefixes: []string{
