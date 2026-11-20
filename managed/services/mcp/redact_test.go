@@ -294,6 +294,17 @@ func TestMaskMongoPlan(t *testing.T) {
 	}
 	assert.Contains(t, got, `"stage":"PROJECTION_DEFAULT"`)
 
+	// A command's comment is free-form, so its keys are masked with its values; a filter field named comment is not.
+	for _, command := range []string{"command", "originatingCommand"} {
+		commented := `{"` + command + `":{"find":"c","filter":{"comment":{"$eq":"x"}},` +
+			`"comment":{"cust_SECRET_4711":{"note":"y"}}},"queryPlanner":{"winningPlan":{"stage":"COLLSCAN"}}}`
+		got = maskMongoPlan(commented)
+		assert.NotContains(t, got, "cust_SECRET_4711", command)
+		assert.Contains(t, got, `"comment":"?"`, command)
+		assert.Contains(t, got, `"filter":{"comment":{"$eq":"?"}}`, command)
+		assert.Contains(t, got, `"stage":"COLLSCAN"`, command)
+	}
+
 	assert.Equal(t, planWithheld, maskMongoPlan("not json"))
 }
 
