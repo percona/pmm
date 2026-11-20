@@ -305,7 +305,66 @@ func TestMaskMongoPlan(t *testing.T) {
 		assert.Contains(t, got, `"stage":"COLLSCAN"`, command)
 	}
 
+	// A $literal document, and the $const the parsed pipeline shows it as, is a value, keys included.
+	literal := `{"command":{"aggregate":"c","pipeline":[{"$match":{"email":{"$eq":"x"}}},` +
+		`{"$project":{"flag":{"$literal":{"cust_SECRET_4711":{"note":"y"}}}}}]},` +
+		`"stages":[{"$cursor":{"queryPlanner":{"winningPlan":{"stage":"COLLSCAN"}}}},` +
+		`{"$project":{"flag":{"$const":{"cust_SECRET_4712":"z"}}}}]}`
+	got = maskMongoPlan(literal)
+	assert.NotContains(t, got, "cust_SECRET")
+	assert.Contains(t, got, `"flag":{"$literal":"?"}`)
+	assert.Contains(t, got, `"flag":{"$const":"?"}`)
+	assert.Contains(t, got, `"email":{"$eq":"?"}`)
+	assert.Contains(t, got, `"stage":"COLLSCAN"`)
+
 	assert.Equal(t, planWithheld, maskMongoPlan("not json"))
+}
+
+func TestMaskMongoFingerprintOpaqueValues(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			// pmm-agent leaves stages other than $match unmasked, and keeps the keys of the ones it masks.
+			name: "LiteralAndConst",
+			in: `db.c.aggregate([{"$match":{"$expr":{"$eq":["$a",{"$literal":{"cust_SECRET_1":"?"}}]}}}, ` +
+				`{"$project":{"flag":{"$literal": {"cust_SECRET_2":{"n":[1,"}"]}}},"k":{"$const":"x"},"s":"$total"}}])`,
+			want: `db.c.aggregate([{"$match":{"$expr":{"$eq":[?,{"$literal":?}]}}}, ` +
+				`{"$project":{"flag":{"$literal": ?},"k":{"$const":?},"s":?}}])`,
+		},
+		{
+			name: "CommandComment",
+			in:   `db.runCommand({"find":"c","filter":{"comment":{"$eq":"?"}},"comment":{"cust_SECRET_3":"?"},"limit":5})`,
+			want: `db.runCommand({"find":?,"filter":{"comment":{"$eq":"?"}},"comment":?,"limit":?})`,
+		},
+		{
+			name: "FilterFieldNamedComment",
+			in:   `db.c.find({"comment":{"$eq":"?"}})`,
+			want: `db.c.find({"comment":{"$eq":"?"}})`,
+		},
+		{
+			name: "UnbalancedMasksToTheEnd",
+			in:   `db.c.aggregate([{"$project":{"x":{"$literal":{"cust_SECRET_4":[1,2}}])`,
+			want: `db.c.aggregate([{"$project":{"x":{"$literal":?`,
+		},
+		{
+			name: "UnclosedMasksToTheEnd",
+			in:   `db.runCommand({"find":"c","comment":{"cust_SECRET_5":[1`,
+			want: `db.runCommand({"find":?,"comment":?`,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := maskMongoFingerprint(tc.in)
+			assert.Equal(t, tc.want, got)
+			assert.NotContains(t, got, "cust_SECRET")
+		})
+	}
 }
 
 func TestRedactPlan(t *testing.T) {

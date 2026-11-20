@@ -283,9 +283,11 @@ func resolveTables(tables []planTable, aliases map[string]tableRef, database str
 		var ref tableRef
 		ok := false
 		switch {
-		case t.Derived || strings.HasPrefix(t.Name, "<"):
+		case t.Derived:
 		case t.Schema != "":
 			ref, ok = tableRef{database: t.Schema, name: t.Name}, true
+		// MySQL's own names, such as <union1,2>, carry no schema; a base table may be named <…> too.
+		case strings.HasPrefix(t.Name, "<"):
 		default:
 			ref, ok = aliases[t.Name]
 			if ok && ref.database == "" {

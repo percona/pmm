@@ -367,9 +367,10 @@ func maskMySQLPlan(plan string) (string, bool) {
 // maskMongoPlan masks every value beneath the keys that hold query values, and
 // every string and number outside mongoPlanKeys and keyPattern, keeping stage
 // names, index names, statistics and the field names of the filter. Booleans
-// and nulls carry no data and are kept. A command's comment is masked whole.
+// and nulls carry no data and are kept. A command's comment, and a $literal or
+// $const value, is masked whole.
 func maskMongoPlan(plan string) string {
-	out, err := rewriteJSON([]byte(plan), mongoCommandComment, func(path []string, v any) any {
+	out, err := rewriteJSON([]byte(plan), mongoOpaque, func(path []string, v any) any {
 		if len(path) == 0 || slices.ContainsFunc(path, mongoLiteralKey) {
 			return "?"
 		}
@@ -393,10 +394,13 @@ func maskMongoPlan(plan string) string {
 	return string(out)
 }
 
-// mongoCommandComment reports whether path ends at the comment of a command, which an application can fill with
-// anything, its keys included.
-func mongoCommandComment(path []string) bool {
+// mongoOpaque reports whether path ends at a value whose keys are data too: a command's comment, which an application
+// can fill with anything, or a $literal, which the parsed pipeline shows as $const.
+func mongoOpaque(path []string) bool {
 	n := len(path)
+	if n > 0 && (path[n-1] == "$literal" || path[n-1] == "$const") {
+		return true
+	}
 	return n > 1 && path[n-1] == "comment" && (path[n-2] == "command" || path[n-2] == "originatingCommand")
 }
 
@@ -470,18 +474,33 @@ func pgQuoteOpen(s string) bool {
 // with JSON arguments such as db.orders.aggregate([...]): pmm-agent leaves
 // the values of aggregation stages other than $match in place. A string
 // followed by a colon is a key and is kept, like the "?" of a masked value;
-// every other string, and every number, is masked.
+// every other string, and every number, is masked. The value of a $literal or
+// $const key, and of a runCommand's comment, is masked whole, keys included.
 func maskMongoFingerprint(fingerprint string) string {
+	command := strings.HasPrefix(fingerprint, "db.runCommand(")
 	var b strings.Builder
 	b.Grow(len(fingerprint))
+	depth := 0
 	for i := 0; i < len(fingerprint); {
 		c := fingerprint[i]
 		switch {
 		case c == '"':
 			j := quotedEnd(fingerprint, i, true)
-			if fingerprint[i:j] == `"?"` || strings.HasPrefix(strings.TrimLeft(fingerprint[j:], " "), ":") {
-				b.WriteString(fingerprint[i:j])
-			} else {
+			value := len(fingerprint) - len(strings.TrimLeft(fingerprint[j:], " "))
+			key := strings.HasPrefix(fingerprint[value:], ":")
+			name := fingerprint[i:j]
+			switch {
+			case key && (name == `"$literal"` || name == `"$const"` || command && depth == 1 && name == `"comment"`):
+				value = len(fingerprint) - len(strings.TrimLeft(fingerprint[value+1:], " "))
+				b.WriteString(fingerprint[i:value])
+				if value < len(fingerprint) {
+					b.WriteByte('?')
+					value = jsonValueEnd(fingerprint, value)
+				}
+				j = value
+			case key || name == `"?"`:
+				b.WriteString(name)
+			default:
 				b.WriteByte('?')
 			}
 			i = j
@@ -489,11 +508,54 @@ func maskMongoFingerprint(fingerprint string) string {
 			b.WriteByte('?')
 			i = numberEnd(fingerprint, i)
 		default:
+			switch c {
+			case '{', '[':
+				depth++
+			case '}', ']':
+				depth--
+			}
 			b.WriteByte(c)
 			i++
 		}
 	}
 	return b.String()
+}
+
+// jsonValueEnd returns the index just past the JSON value that starts at s[start]: a string, a brace or bracket
+// group with what it nests, or a bare word or number. A string or group that does not close, or closes with the wrong
+// bracket, extends to the end of s.
+func jsonValueEnd(s string, start int) int {
+	switch s[start] {
+	case '"':
+		return quotedEnd(s, start, true)
+	case '{', '[':
+		var closers []byte
+		for i := start; i < len(s); i++ {
+			switch s[i] {
+			case '"':
+				i = quotedEnd(s, i, true) - 1
+			case '{':
+				closers = append(closers, '}')
+			case '[':
+				closers = append(closers, ']')
+			case '}', ']':
+				if s[i] != closers[len(closers)-1] {
+					return len(s)
+				}
+				closers = closers[:len(closers)-1]
+				if len(closers) == 0 {
+					return i + 1
+				}
+			}
+		}
+		return len(s)
+	default:
+		end := start
+		for end < len(s) && !strings.ContainsRune(",}]) ", rune(s[end])) {
+			end++
+		}
+		return end
+	}
 }
 
 // singleQuotedEnd returns the index just past the single-quoted span that

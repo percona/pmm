@@ -360,3 +360,18 @@ func TestDecodeExplainEnvelope(t *testing.T) {
 	_, err = decodeExplainEnvelope(`{"explain_result":"!!!"}`)
 	require.Error(t, err)
 }
+
+func TestResolveTablesSchemaQualifiedAngleName(t *testing.T) {
+	t.Parallel()
+
+	// MySQL allows < in a quoted name: a format 2 entry with a schema and no derived marker is a base table, while
+	// <union temporary>, which has inputs and no schema, and a format 1 <…> name stay unresolved.
+	plan := []byte(`{"operation":"Table scan on <union temporary>","table_name":"<union temporary>","access_type":"table",` +
+		`"inputs":[{"table_name":"<archive>","schema_name":"app","alias":"<archive>","access_type":"table"}]}`)
+	tables, err := planTables(plan)
+	require.NoError(t, err)
+	tables = append(tables, planTable{Name: "<union1,2>"})
+	resolved, unresolved := resolveTables(tables, map[string]tableRef{"<union1,2>": {name: "<union1,2>"}}, "shop")
+	assert.Equal(t, []tableRef{{database: "app", name: "<archive>"}}, resolved)
+	assert.Equal(t, []string{"<union temporary>", "<union1,2>"}, unresolved)
+}

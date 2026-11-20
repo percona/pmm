@@ -553,6 +553,20 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Contains(t, text, "The step was raised from 11s to 1m36s")
 	})
 
+	t.Run("RollupNamesMultiplyTheSeries", func(t *testing.T) {
+		t.Parallel()
+
+		// 500 matched series fit at 1m36s, but three named functions return 1500, which fit at 4m52s.
+		const broad = `{__name__=~"mysql_global_status_.*", service_name="db1"}[5m]`
+		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
+		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+			"query": `aggr_over_time(("min_over_time", "max_over_time", "avg_over_time"), ` + broad + `)`, "period_from": "now-6h",
+		})
+		require.False(t, isError, text)
+		assert.Contains(t, res.Note, "so that the answer for up to 1500 series fits")
+		assert.Equal(t, "4m52s", res.Step)
+	})
+
 	t.Run("RaisedStepCountsTheWiderSpan", func(t *testing.T) {
 		t.Parallel()
 
@@ -745,6 +759,29 @@ func TestSelectorsOf(t *testing.T) {
 		te, ok := errors.AsType[*toolError](err)
 		require.True(t, ok, expr)
 		assert.Equal(t, codeInvalidInput, te.code, expr)
+	}
+}
+
+func TestSeriesPerMatched(t *testing.T) {
+	t.Parallel()
+
+	for expr, want := range map[string]int{
+		`mysql_up`:                               1,
+		`rate(m[5m]) / mysql_up`:                 1,
+		`aggr_over_time("max_over_time", m[5m])`: 1,
+		`aggr_over_time(("min_over_time", "max_over_time"), m[5m])`:       2,
+		`label_del(aggr_over_time(("a", "b", "c"), m[5m]), "rollup") + n`: 3,
+		`rollup(m[5m])`:                                    3,
+		`rollup(m[5m], "max")`:                             1,
+		`rollup_candlestick(m[5m])`:                        4,
+		`ROLLUP_RATE(m[5m])`:                               3,
+		`rollup(rate(m[5m])[1h:1m])`:                       3,
+		`rollup(aggr_over_time(("a", "b"), m[5m])[1h:1m])`: 6,
+		// An aggregation can return fewer series, and a query that does not parse is refused before.
+		`sum(aggr_over_time(("a", "b"), m[5m]))`: 0,
+		`rate(`:                                  0,
+	} {
+		assert.Equal(t, want, seriesPerMatched(expr), expr)
 	}
 }
 

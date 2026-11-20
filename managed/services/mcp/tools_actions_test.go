@@ -183,6 +183,23 @@ func TestExplainTool(t *testing.T) {
 		assert.Equal(t, "service_id=svc-2", plans[0].query, "the plan is requested for the resolved service")
 	})
 
+	// The stored plan needs only the queryid and the service, so the detail calls are not needed.
+	t.Run("StoredPlanDetailFetchFails", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
+		failWhen(t, fake, func(req *http.Request) bool {
+			return req.URL.Path == "/v1/qan:getMetrics" || req.URL.Path == "/v1/qan/query:getExample"
+		})
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-PG"})
+		assert.False(t, isError, text)
+		assert.True(t, strings.HasPrefix(text, "Stored plan (pg_stat_monitor, planid PLAN-1):\n"), text)
+		require.Len(t, fake.requestsTo("/v1/qan/query/QID-PG/plan"), 1)
+	})
+
 	t.Run("PostgreSQLWithoutPlan", func(t *testing.T) {
 		t.Parallel()
 
