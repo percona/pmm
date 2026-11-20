@@ -438,6 +438,37 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Equal(t, "3s", res.Step)
 	})
 
+	t.Run("StepRisesForASubqueryWithoutAStep", func(t *testing.T) {
+		t.Parallel()
+
+		const peak = `max_over_time(rate(mysql_global_status_questions{service_name="db1"}[5m])[1h:])`
+		fake := newFakePMM(t, metricsRoutes(nil))
+		s := newQANService(t, fake, false)
+
+		res, text, isError := metricsCall(t, s, map[string]any{"query": peak, "period_from": "now-1h"})
+		require.False(t, isError, text)
+		assert.Equal(t, "4s", res.Step, "[1h:] runs at the query's step, so it rises with it")
+		assert.Contains(t, res.Note, "The step was raised from 2s to 4s so that a subquery's step is at least the span read ÷ 2000")
+		reqs := fake.requestsTo(vmAPI + "query_range")
+		require.Len(t, reqs, 1)
+		assert.Equal(t, "4", queryParams(t, reqs[0]).Get("step"))
+
+		// A rollup window inside [5m:] is read at the query's step too.
+		res, text, isError = metricsCall(t, s, map[string]any{
+			"query":       `max_over_time(avg_over_time(mysql_global_status_questions{service_name="db1"}[90m])[5m:])`,
+			"period_from": "now-24h",
+		})
+		require.False(t, isError, text)
+		assert.Equal(t, "1m6s", res.Step)
+		assert.Contains(t, res.Note, "The step was raised from 44s to 1m6s")
+		assert.Contains(t, res.Note, "rollup windows read at most 2000 hours of samples per series")
+
+		// A step the caller gave is never raised.
+		fake2 := newFakePMM(t, metricsRoutes(nil))
+		requireInvalid(t, newQANService(t, fake2, false), fake2,
+			map[string]any{"query": peak, "period_from": "now-1h", "step": "2s"}, "the subquery step 2s is too small")
+	})
+
 	t.Run("StepStaysWhenNothingNeedsRaising", func(t *testing.T) {
 		t.Parallel()
 
