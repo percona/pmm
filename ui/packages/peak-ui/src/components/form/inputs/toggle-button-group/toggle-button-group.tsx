@@ -1,5 +1,5 @@
 import { ToggleButtonGroup } from '@mui/material';
-import { kebabize } from '../../../../utils';
+import { kebabize, mergeSx } from '../../../../utils';
 import LabeledContent from '../../../labeled-content';
 import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { ToggleButtonGroupInputProps } from './toggle-button-group.types';
@@ -32,12 +32,14 @@ const ToggleButtonGroupInput = <T extends FieldValues = FieldValues>({
           fullWidth
           exclusive
           data-testid={`toggle-button-group-input-${kebabize(name)}`}
-          sx={{
-            '& > button': {
-              flex: '1 1 0px',
+          sx={mergeSx(
+            {
+              '& > button': {
+                flex: '1 1 0px',
+              },
             },
-            ...toggleButtonGroupSxProp,
-          }}
+            toggleButtonGroupSxProp
+          )}
           onChange={(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             event: React.MouseEvent<HTMLElement> | any,
