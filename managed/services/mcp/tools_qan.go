@@ -238,6 +238,8 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	body := q.body
 	if visibleSearch {
 		body.Offset, body.Limit = 0, maxSearchCandidates
+		// A ? in the shown fingerprint can stand for a masked literal or comment, so QAN's LIKE reads it as any text.
+		body.Search = strings.ReplaceAll(body.Search, "?", "%")
 	}
 	report, err := s.api.GetReport(ctx, auth, body)
 	if err != nil {
