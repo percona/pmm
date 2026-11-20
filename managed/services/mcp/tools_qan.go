@@ -251,7 +251,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	})
 	rowEngine := func(string) string { return "" }
 	if !raw && q.groupBy == groupByQuery && slices.ContainsFunc(report.Rows, func(r qanReportRow) bool { return quotingMatters(r.Fingerprint) }) {
-		rowEngine = s.reportEngines(ctx, auth, q, report.Rows, from, to, services)
+		rowEngine = s.reportEngines(ctx, auth, q, body, report.Rows, from, to, services)
 	}
 
 	// Confirmed against PMM 3.8.1: rows[0] is the TOTAL aggregate (empty
@@ -859,16 +859,17 @@ func quotingMatters(fingerprint string) bool {
 
 // reportEngines returns the engine whose quoting reads each queryid's
 // fingerprint: the report's one SQL engine when its filters or QAN's data name
-// one, else each row's own, from rowEngines (PMM-15529).
+// one, else each row's own, from rowEngines over the report's own request body (PMM-15529).
 func (s *Service) reportEngines(
-	ctx context.Context, auth callerAuth, q *reportQuery, rows []qanReportRow, from, to time.Time, services func() ([]serviceInfo, error),
+	ctx context.Context, auth callerAuth, q *reportQuery, body qan_service.GetReportBody, rows []qanReportRow, from, to time.Time,
+	services func() ([]serviceInfo, error),
 ) func(string) string {
 	engine := s.reportEngine(ctx, auth, q.labels, from, to, services)
 	if _, filtered := q.labels["service_type"]; engine != "" || filtered {
 		// A service_type filter is the caller's; rowEngines would replace it.
 		return func(string) string { return engine }
 	}
-	engines := s.rowEngines(ctx, auth, q.body, rows)
+	engines := s.rowEngines(ctx, auth, body, rows)
 	return func(queryID string) string { return engines[queryID] }
 }
 
