@@ -25,6 +25,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 )
 
@@ -54,15 +55,34 @@ type prometheusService interface {
 
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type checksService interface {
-	StartChecks(checkNames []string) error
+type checksService interface { //nolint:interfacebloat
+	StartChecks(ctx context.Context, checkNames, serviceIDs []string) (string, error)
 	GetChecks() (map[string]check.Check, error)
-	GetAdvisors() ([]check.Advisor, error)
-	GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error)
-	GetDisabledChecks() ([]string, error)
-	DisableChecks(checkNames []string) error
-	EnableChecks(checkNames []string) error
-	ChangeInterval(params map[string]check.Interval) error
+	GetInsights(ctx context.Context, filters models.InsightFilters, pageIndex, pageSize int) ([]*models.Insight, int, error)
+	GetRuns(ctx context.Context, filters models.AdvisorRunFilters, pageIndex, pageSize int) ([]*models.AdvisorRun, int, error)
+	GetInsightsFilterValues(ctx context.Context) ([]string, []string, error)
+	GetDisabledChecks(ctx context.Context) ([]string, error)
+	GetDisabledServicesForChecks(ctx context.Context) (map[string][]string, error)
+	DisableChecks(ctx context.Context, checkNames []string) error
+	EnableChecks(ctx context.Context, checkNames []string) error
+	DisableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error
+	EnableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error
+	CreateAdvisorCheck(ctx context.Context, c check.Check) error
+	UpdateAdvisorCheck(ctx context.Context, c check.Check) error
+	DeleteAdvisorCheck(ctx context.Context, name string) error
+	TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, string, error)
+	ListTestTargets(ctx context.Context, technology check.Technology) ([]services.Target, error)
+	ListServices(ctx context.Context) ([]services.Target, error)
+	GetSettings(ctx context.Context) (*models.Settings, error)
+	SendTestNotification(recipients []string, severities []common.Severity) error
+	EmailInsights(ctx context.Context, filters models.InsightFilters, recipients []string) (int, error)
+	GetRunsWaitedFor(ctx context.Context, runs []*models.AdvisorRun) (map[string]*models.AdvisorRun, error)
+	GetSchedules(ctx context.Context) ([]*models.AdvisorSchedule, error)
+	GetLastScheduleRuns(ctx context.Context) (map[string]*models.AdvisorRun, error)
+	CreateSchedule(ctx context.Context, sc *models.AdvisorSchedule) error
+	UpdateSchedule(ctx context.Context, sc *models.AdvisorSchedule) error
+	DeleteSchedule(ctx context.Context, id string) error
+	RunSchedule(ctx context.Context, scheduleID string) (string, error)
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.

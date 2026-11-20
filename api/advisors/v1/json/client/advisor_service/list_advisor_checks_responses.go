@@ -541,24 +541,35 @@ type ListAdvisorChecksOKBodyChecksItems0 struct {
 	// Short human-readable summary.
 	Summary string `json:"summary,omitempty"`
 
-	// AdvisorCheckInterval represents possible execution interval values for checks.
-	// Enum: ["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]
-	Interval *string `json:"interval,omitempty"`
+	// technology
+	// Enum: ["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]
+	Technology *string `json:"technology,omitempty"`
 
-	// family
-	// Enum: ["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]
-	Family *string `json:"family,omitempty"`
+	// Category the check belongs to.
+	Category string `json:"category,omitempty"`
+
+	// True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
+	UserDefined bool `json:"user_defined,omitempty"`
+
+	// Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.
+	Queries []*ListAdvisorChecksOKBodyChecksItems0QueriesItems0 `json:"queries"`
+
+	// Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
+	Script string `json:"script,omitempty"`
+
+	// IDs of services for which this check is disabled.
+	DisabledServiceIds []string `json:"disabled_service_ids"`
 }
 
 // Validate validates this list advisor checks OK body checks items0
 func (o *ListAdvisorChecksOKBodyChecksItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateInterval(formats); err != nil {
+	if err := o.validateTechnology(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateFamily(formats); err != nil {
+	if err := o.validateQueries(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -568,104 +579,121 @@ func (o *ListAdvisorChecksOKBodyChecksItems0) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var listAdvisorChecksOkBodyChecksItems0TypeIntervalPropEnum []any
+var listAdvisorChecksOkBodyChecksItems0TypeTechnologyPropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
-		listAdvisorChecksOkBodyChecksItems0TypeIntervalPropEnum = append(listAdvisorChecksOkBodyChecksItems0TypeIntervalPropEnum, v)
+		listAdvisorChecksOkBodyChecksItems0TypeTechnologyPropEnum = append(listAdvisorChecksOkBodyChecksItems0TypeTechnologyPropEnum, v)
 	}
 }
 
 const (
 
-	// ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALUNSPECIFIED captures enum value "ADVISOR_CHECK_INTERVAL_UNSPECIFIED"
-	ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALUNSPECIFIED string = "ADVISOR_CHECK_INTERVAL_UNSPECIFIED"
+	// ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYUNSPECIFIED captures enum value "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
+	ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYUNSPECIFIED string = "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
 
-	// ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALSTANDARD captures enum value "ADVISOR_CHECK_INTERVAL_STANDARD"
-	ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALSTANDARD string = "ADVISOR_CHECK_INTERVAL_STANDARD"
+	// ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYMYSQL captures enum value "ADVISOR_CHECK_TECHNOLOGY_MYSQL"
+	ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYMYSQL string = "ADVISOR_CHECK_TECHNOLOGY_MYSQL"
 
-	// ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALFREQUENT captures enum value "ADVISOR_CHECK_INTERVAL_FREQUENT"
-	ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALFREQUENT string = "ADVISOR_CHECK_INTERVAL_FREQUENT"
+	// ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYPOSTGRESQL captures enum value "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL"
+	ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYPOSTGRESQL string = "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL"
 
-	// ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALRARE captures enum value "ADVISOR_CHECK_INTERVAL_RARE"
-	ListAdvisorChecksOKBodyChecksItems0IntervalADVISORCHECKINTERVALRARE string = "ADVISOR_CHECK_INTERVAL_RARE"
+	// ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYMONGODB captures enum value "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
+	ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYMONGODB string = "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
 )
 
 // prop value enum
-func (o *ListAdvisorChecksOKBodyChecksItems0) validateIntervalEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listAdvisorChecksOkBodyChecksItems0TypeIntervalPropEnum, true); err != nil {
+func (o *ListAdvisorChecksOKBodyChecksItems0) validateTechnologyEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAdvisorChecksOkBodyChecksItems0TypeTechnologyPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ListAdvisorChecksOKBodyChecksItems0) validateInterval(formats strfmt.Registry) error {
-	if swag.IsZero(o.Interval) { // not required
+func (o *ListAdvisorChecksOKBodyChecksItems0) validateTechnology(formats strfmt.Registry) error {
+	if swag.IsZero(o.Technology) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateIntervalEnum("interval", "body", *o.Interval); err != nil {
+	if err := o.validateTechnologyEnum("technology", "body", *o.Technology); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var listAdvisorChecksOkBodyChecksItems0TypeFamilyPropEnum []any
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listAdvisorChecksOkBodyChecksItems0TypeFamilyPropEnum = append(listAdvisorChecksOkBodyChecksItems0TypeFamilyPropEnum, v)
-	}
-}
-
-const (
-
-	// ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYUNSPECIFIED captures enum value "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
-	ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYUNSPECIFIED string = "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
-
-	// ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYMYSQL captures enum value "ADVISOR_CHECK_FAMILY_MYSQL"
-	ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYMYSQL string = "ADVISOR_CHECK_FAMILY_MYSQL"
-
-	// ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYPOSTGRESQL captures enum value "ADVISOR_CHECK_FAMILY_POSTGRESQL"
-	ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYPOSTGRESQL string = "ADVISOR_CHECK_FAMILY_POSTGRESQL"
-
-	// ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYMONGODB captures enum value "ADVISOR_CHECK_FAMILY_MONGODB"
-	ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYMONGODB string = "ADVISOR_CHECK_FAMILY_MONGODB"
-)
-
-// prop value enum
-func (o *ListAdvisorChecksOKBodyChecksItems0) validateFamilyEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listAdvisorChecksOkBodyChecksItems0TypeFamilyPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListAdvisorChecksOKBodyChecksItems0) validateFamily(formats strfmt.Registry) error {
-	if swag.IsZero(o.Family) { // not required
+func (o *ListAdvisorChecksOKBodyChecksItems0) validateQueries(formats strfmt.Registry) error {
+	if swag.IsZero(o.Queries) { // not required
 		return nil
 	}
 
-	// value enum
-	if err := o.validateFamilyEnum("family", "body", *o.Family); err != nil {
-		return err
+	for i := 0; i < len(o.Queries); i++ {
+		if swag.IsZero(o.Queries[i]) { // not required
+			continue
+		}
+
+		if o.Queries[i] != nil {
+			if err := o.Queries[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
 	}
 
 	return nil
 }
 
-// ContextValidate validates this list advisor checks OK body checks items0 based on context it is used
+// ContextValidate validate this list advisor checks OK body checks items0 based on the context it is used
 func (o *ListAdvisorChecksOKBodyChecksItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateQueries(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAdvisorChecksOKBodyChecksItems0) contextValidateQueries(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Queries); i++ {
+		if o.Queries[i] != nil {
+
+			if swag.IsZero(o.Queries[i]) { // not required
+				return nil
+			}
+
+			if err := o.Queries[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -680,6 +708,49 @@ func (o *ListAdvisorChecksOKBodyChecksItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAdvisorChecksOKBodyChecksItems0) UnmarshalBinary(b []byte) error {
 	var res ListAdvisorChecksOKBodyChecksItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAdvisorChecksOKBodyChecksItems0QueriesItems0 AdvisorCheckQuery is a single data-collection query of an advisor check.
+swagger:model ListAdvisorChecksOKBodyChecksItems0QueriesItems0
+*/
+type ListAdvisorChecksOKBodyChecksItems0QueriesItems0 struct {
+	// Query type, e.g. "MYSQL_SHOW", "POSTGRESQL_SELECT", "METRICS_RANGE".
+	Type string `json:"type,omitempty"`
+
+	// Query text (may be empty for parameterless types such as MYSQL_SHOW).
+	Query string `json:"query,omitempty"`
+
+	// Optional query parameters (e.g. range/step for metrics range queries).
+	Parameters map[string]string `json:"parameters,omitempty"`
+}
+
+// Validate validates this list advisor checks OK body checks items0 queries items0
+func (o *ListAdvisorChecksOKBodyChecksItems0QueriesItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list advisor checks OK body checks items0 queries items0 based on context it is used
+func (o *ListAdvisorChecksOKBodyChecksItems0QueriesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAdvisorChecksOKBodyChecksItems0QueriesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAdvisorChecksOKBodyChecksItems0QueriesItems0) UnmarshalBinary(b []byte) error {
+	var res ListAdvisorChecksOKBodyChecksItems0QueriesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
