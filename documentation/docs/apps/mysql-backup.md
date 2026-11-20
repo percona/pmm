@@ -76,8 +76,8 @@ Complete the following steps before creating your first backup:
 
 4. Create a MySQL credential file on the execution host. PMM reads the credentials from this file and will not prompt for a password. The default path is `~/.my.cnf`. To use another path, enter it in the **MySQL defaults file** field when you create the backup. The file must exist and be readable before you run a backup. How PMM uses the file depends on the backup type:
 
-    - **Mydumper and Binlog**: one file serves both connections. PMM uses it for its own connection to MySQL, and `mydumper` or `mysqlbinlog` reads it too. A file that is passed as `--defaults-file` is not merged with the system configuration, so the file must include everything the tool needs to connect.
-    - **XtraBackup**: PMM uses the file for its own connection to MySQL. If the backup binary needs different settings, create a second file and enter its path in the **XtraBackup defaults file** field. PMM passes that second file to the backup binary as `--defaults-file`.
+    - **Mydumper and Binlog**: one file serves both connections. PMM uses the file for its own connection to MySQL. PMM also passes the file to `mydumper` as `--defaults-file`, and to `mysqlbinlog` when the **MySQL defaults file** field is set. A file that is passed as `--defaults-file` is not merged with the system configuration, so the file must include everything the tool needs to connect.
+    - **XtraBackup**: PMM uses the file only for its own connection to MySQL. The backup binary reads the standard MySQL option files, such as `~/.my.cnf`, unless you enter a path in the **XtraBackup defaults file** field. PMM passes that file to the backup binary as `--defaults-file`, so the file must include everything the binary needs to connect. If your credential file is not at `~/.my.cnf`, enter its path in both fields.
 
     For XtraBackup on MySQL 8.0+, the MySQL user must have the `BACKUP_ADMIN` privilege.
 
@@ -93,7 +93,7 @@ To run a MySQL backup:
 1. Go to **Apps > MySQL Backups** in the sidebar.
 2. Click **New backup**.
 3. Enter a task name and select the **database host**, **execution host**, and **backup type**. For XtraBackup, the execution host must be the host running the MySQL service.
-4. For a Binlog backup, enter the base name of the server's binary logs, such as `mysql-bin`, in the **Binlog prefix** field. Without it, a Binlog backup fails as soon as it starts.
+4. For a Binlog backup, enter the base name of the server's binary logs, such as `binlog` or `mysql-bin`, in the **Binlog prefix** field. To find the base name, run `SELECT @@log_bin_basename;` on the database host and use the file name without the directory. Without the prefix, a Binlog backup fails as soon as it starts. With a wrong prefix, PMM doesn't compress or purge the stored binlog files.
 5. Under **Upload**, select one or more **Upload providers** and fill in the destination fields if uploading off-host.
 6. (Optional) Configure compression, encryption, or retention in the relevant sections of the form.
 7. (Optional) Check **Alert on failure** to receive an alert if the backup task fails.
@@ -216,7 +216,9 @@ The algorithms shown after enabling **Compress backup data** depend on your back
 - XtraBackup on PXB 2.4: `quicklz`
 - Mydumper: `gzip`, `zstd`
 - `mariadb-backup`: `quicklz`
-- Binlog: compresses completed binlog files with `gzip` whether **Compress backup data** is on or off. To use another command, enter it in the **Compress command** field
+- Binlog: `gzip` for every completed binlog file, whether **Compress backup data** is on or off
+
+To compress binlog files with another command, enter it in the **Compress command** field. PMM adds the path of the binlog file to the end of the command. The command must replace that file with a file of the same name plus `.gz`, because PMM purges only the stored binlog files that end in `.gz`.
 
 If you manage databases across multiple MySQL versions, make sure the algorithm you pick is supported on the host you plan to restore on. A backup compressed with `quicklz` on a MySQL 5.7 host can't be read by a PXB 8.x binary.
 

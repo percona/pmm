@@ -18,7 +18,7 @@ You cannot deploy PMM Extensions on:
 
 PMM Server and PMM Extensions must run on the same version. If they don't match, the app pages show a warning with both versions.
 
-Both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, the latest 3.x release. Docker doesn't pull a tag that already exists on the host. If the host has an older `percona/pmm-server:3` or `percona/pmm-extensions:3` image, pull both images again before you start the containers. To run a specific version, set it in `.env` before starting the containers:
+Both containers use a single version tag, `PMM_IMAGE_TAG`. The default is `3`, the latest 3.x release. Docker doesn't pull a tag that already exists on the host. If the host has an older `percona/pmm-server:3` or `percona/pmm-extensions:3` image, pull both images again with `docker compose pull` or `docker pull` before you start the containers. To run a specific version, set it in `.env` before starting the containers:
 
 ```ini
 PMM_IMAGE_TAG=3.10.0
@@ -29,6 +29,8 @@ If your environment pulls images from a registry other than Docker Hub, change t
 ## Deploy PMM Extensions
 
 Both procedures set `PMM_PUBLIC_ADDRESS`, the address that PMM Clients use to reach this server. Use a host name or IP address that every PMM Client host can resolve and reach. Don't use `localhost` or `127.0.0.1`, because a PMM Client on another host or in another container would then connect to itself.
+
+The Compose files in both procedures start PMM Extensions only when PMM Server is healthy. They give PMM Server 300 seconds to start, because a first start can take longer than the 90 seconds that the image allows. If `docker compose up -d` reports that `pmm-server` is unhealthy, wait until `docker ps` shows `pmm-server` as `healthy`, then run the command again.
 
 === "Existing PMM install"
 
@@ -78,6 +80,8 @@ Both procedures set `PMM_PUBLIC_ADDRESS`, the address that PMM Clients use to re
                     volumes:
                       - pmm-data:/srv
                       - pmm-extensions:/srv/extensions
+                    healthcheck:
+                      start_period: 300s
 
                   pmm-extensions:
                     image: percona/pmm-extensions:${PMM_IMAGE_TAG:-3}
@@ -176,7 +180,7 @@ Both procedures set `PMM_PUBLIC_ADDRESS`, the address that PMM Clients use to re
     Use this option if you are setting up PMM for the first time and want to include PMM Extensions from the start. Create a `docker-compose.yml` file with both services and a `.env` file with your settings:
     {.power-number}
 
-    1. Create an `.env` file with your settings. `PMM_PUBLIC_ADDRESS` is required. If you skip it, PMM Extensions starts but can't run tasks, and PMM Server logs a warning that Nomad will not start. To set the password of the `admin` user at first start, uncomment `GF_SECURITY_ADMIN_PASSWORD`:
+    1. Create an `.env` file with your settings. `PMM_PUBLIC_ADDRESS` is required. If you skip it, PMM Extensions starts but can't run tasks, and PMM Server logs a warning that Nomad will not start. To set the password of the `admin` user at first start, uncomment `GF_SECURITY_ADMIN_PASSWORD`. Grafana replaces `${...}` in a startup password, so don't use a password that contains `${`:
 
         ```ini
         # To pin a specific version (default is the latest 3.x release):
@@ -205,6 +209,8 @@ Both procedures set `PMM_PUBLIC_ADDRESS`, the address that PMM Clients use to re
             volumes:
               - pmm-data:/srv
               - pmm-extensions:/srv/extensions
+            healthcheck:
+              start_period: 300s
 
           pmm-extensions:
             image: percona/pmm-extensions:${PMM_IMAGE_TAG:-3}
