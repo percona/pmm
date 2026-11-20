@@ -1011,7 +1011,7 @@ func keyMetrics(m map[string]metricStats) []metricValue {
 	add("filesort", "filesort", sum, true)
 	add("tmp_table_on_disk", "tmp_table_on_disk", sum, true)
 	add("shared_blks_read", "shared_blks_read_sum", sum, true)
-	add("blk_read_time", "blk_read_time_sum", sum, true)
+	add("shared_blk_read_time", "shared_blk_read_time_sum", sum, true)
 	add("docs_examined", "docs_examined_avg", avg, true)
 	add("keys_examined", "keys_examined_avg", avg, true)
 	add("docs_returned", "docs_returned_avg", avg, true)

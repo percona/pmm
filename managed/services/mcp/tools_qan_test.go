@@ -981,6 +981,20 @@ func TestKeyMetricsMongoDB(t *testing.T) {
 		"response_length_avg=128, locks_global_acquire_count_read_shared=100", got)
 }
 
+// TestKeyMetricsPostgreSQL pins the PostgreSQL block metrics under the names qan-api2 fills; its blk_read_time entry is always zero.
+func TestKeyMetricsPostgreSQL(t *testing.T) {
+	t.Parallel()
+
+	got := metricsText(keyMetrics(map[string]metricStats{
+		"num_queries":          {Sum: 10},
+		"query_time":           {Sum: 1, Avg: 0.1},
+		"shared_blks_read":     {Sum: 400, Avg: 40},
+		"blk_read_time":        {},
+		"shared_blk_read_time": {Sum: 0.3, Avg: 0.03},
+	}))
+	assert.Equal(t, "calls=10, query_time_sum=1, query_time_avg=0.1, shared_blks_read_sum=400, shared_blk_read_time_sum=0.3", got)
+}
+
 // TestRenderRowPrintsRankedValue checks that the order_by column also prints the value qan-api2 sorted by:
 // the total for counters, the per-call average for time metrics.
 func TestRenderRowPrintsRankedValue(t *testing.T) {
