@@ -532,9 +532,13 @@ func checkTables(tables []string) ([]string, error) {
 		if !slices.Contains(out, t) {
 			out = append(out, t)
 		}
+		// Refusing at the first name over the cap bounds the repeat check at maxSchemaTables comparisons per name.
+		if len(out) > maxSchemaTables {
+			return nil, newToolError(codeInvalidInput, "tables takes 1 to %d names; got more than %d", maxSchemaTables, maxSchemaTables)
+		}
 	}
-	if len(out) == 0 || len(out) > maxSchemaTables {
-		return nil, newToolError(codeInvalidInput, "tables takes 1 to %d names; got %d", maxSchemaTables, len(out))
+	if len(out) == 0 {
+		return nil, newToolError(codeInvalidInput, "tables takes 1 to %d names; got 0", maxSchemaTables)
 	}
 	return out, nil
 }

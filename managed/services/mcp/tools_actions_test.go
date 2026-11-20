@@ -1172,7 +1172,7 @@ func TestSchemaTool(t *testing.T) {
 			{map[string]any{"service_id": "svc-1", "tables": []string{"a"}}, needsForm},
 			{map[string]any{"database": "shop", "tables": []string{"a"}}, needsForm},
 			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{}}, needsForm},
-			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": strings.Split("a,b,c,d,e,f,g,h,i,j,k", ",")}, "tables takes 1 to 10 names; got 11"},
+			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": strings.Split("a,b,c,d,e,f,g,h,i,j,k", ",")}, "tables takes 1 to 10 names; got more than 10"},
 			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a", " "}}, "tables must not contain an empty name"},
 			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a"}, "info_types": "ddl"}, "info_types must be"},
 			{map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"a"}, "placeholders": []string{"1"}}, "placeholders go with query_ref or queryid"},
@@ -1195,6 +1195,27 @@ func TestSchemaTool(t *testing.T) {
 		assert.Empty(t, fake.requestsTo(reportPath))
 		assert.Zero(t, listQueries(fake))
 	})
+}
+
+// TestCheckTablesRefusesAtCap pins that a long list of distinct table names is refused at the first name over the cap,
+// and that repeats still count once.
+func TestCheckTablesRefusesAtCap(t *testing.T) {
+	t.Parallel()
+
+	names := make([]string, 100_000)
+	for i := range names {
+		names[i] = fmt.Sprintf("t%d", i)
+	}
+	_, err := checkTables(names)
+	var te *toolError
+	require.ErrorAs(t, err, &te)
+	assert.Equal(t, codeInvalidInput, te.code)
+	assert.Equal(t, "tables takes 1 to 10 names; got more than 10", te.message)
+
+	repeated := append(slices.Repeat([]string{"b", "a"}, 50_000), "c")
+	got, err := checkTables(repeated)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"b", "a", "c"}, got)
 }
 
 func TestConfigTool(t *testing.T) {
