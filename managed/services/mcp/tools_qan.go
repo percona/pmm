@@ -267,7 +267,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	total := int(report.TotalRows)
 	var note string
 	if visibleSearch {
-		if len(rows) >= maxSearchCandidates {
+		if int(report.TotalRows) > maxSearchCandidates {
 			note = fmt.Sprintf("The search read the first %d rows of the report in order_by order; "+
 				"narrow the window or the filters to search the rest.", maxSearchCandidates)
 		}

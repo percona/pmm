@@ -1552,6 +1552,12 @@ func TestTopQueriesSearch(t *testing.T) {
 		_, got, text = search(t, false, searchReport(t, maxSearchCandidates-1, 0, many[1:]...), map[string]any{"search": "users"})
 		assert.Empty(t, got.Note)
 		assert.NotContains(t, text, "The search read")
+
+		// The note says that QAN has rows the search did not read, so it needs more matching rows than were read.
+		_, got, _ = search(t, false, searchReport(t, maxSearchCandidates, 0, many...), map[string]any{"search": "users"})
+		assert.Empty(t, got.Note, "every matching row was read")
+		_, got, _ = search(t, false, searchReport(t, maxSearchCandidates+1, 0, many...), map[string]any{"search": "users"})
+		assert.Equal(t, want, got.Note)
 	})
 }
 
