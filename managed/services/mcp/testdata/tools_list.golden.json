@@ -1353,7 +1353,7 @@
                 "additionalProperties": {
                   "type": "string"
                 },
-                "description": "Untrusted. The series' labels other than shared_labels and PMM's internal ones; empty when there are none.",
+                "description": "Untrusted. Labels other than shared_labels and PMM's internal ones that tell no series apart; empty when none.",
                 "type": "object"
               },
               "last": {

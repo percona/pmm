@@ -144,6 +144,40 @@ func TestShapeSeries(t *testing.T) {
 		assert.NotContains(t, string(mustJSON(t, got)), "internal-")
 	})
 
+	t.Run("InternalLabelsThatTellSeriesApart", func(t *testing.T) {
+		t.Parallel()
+
+		// sum by (node_id) (rate(node_cpu_seconds_total[5m])) over three nodes.
+		byNode := make([]metricSeries, 3)
+		for i := range byNode {
+			byNode[i] = mkSeries(map[string]string{"node_id": "node-" + strconv.Itoa(i)}, 2, constant(float64(i)))
+		}
+
+		got := shapeSeries("x", byNode, 0, nil, "", "")
+
+		assert.Empty(t, got.SharedLabels)
+		require.Len(t, got.Series, 3)
+		for i, s := range got.Series {
+			assert.Equal(t, map[string]string{"node_id": "node-" + strconv.Itoa(2-i)}, s.Labels)
+		}
+		assert.Contains(t, got.render(), `{node_id="node-2"} min=2`)
+
+		// Two series that only node_id and instance tell apart: those two are kept on every series, the equal job is not.
+		mixed := []metricSeries{
+			mkSeries(map[string]string{"service_name": "a", "node_id": "n1", "instance": "i1", "job": "j"}, 2, constant(3)),
+			mkSeries(map[string]string{"service_name": "a", "node_id": "n2", "instance": "i2", "job": "j"}, 2, constant(2)),
+			mkSeries(map[string]string{"service_name": "b", "node_id": "n3", "instance": "i3", "job": "j"}, 2, constant(1)),
+		}
+
+		got = shapeSeries("x", mixed, 0, nil, "", "")
+
+		assert.Empty(t, got.SharedLabels)
+		require.Len(t, got.Series, 3)
+		assert.Equal(t, map[string]string{"service_name": "a", "node_id": "n1", "instance": "i1"}, got.Series[0].Labels)
+		assert.Equal(t, map[string]string{"service_name": "a", "node_id": "n2", "instance": "i2"}, got.Series[1].Labels)
+		assert.Equal(t, map[string]string{"service_name": "b", "node_id": "n3", "instance": "i3"}, got.Series[2].Labels)
+	})
+
 	t.Run("RawPointsWhenTheyFit", func(t *testing.T) {
 		t.Parallel()
 
