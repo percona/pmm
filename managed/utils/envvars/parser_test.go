@@ -78,8 +78,12 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 
-		_, gotErrs, _ = ParseEnvVars([]string{"PMM_ENABLE_MCP=maybe", "PMM_MCP_ACTION_TIMEOUT=-1s"})
-		assert.Len(t, gotErrs, 2)
+		_, gotErrs, _ = ParseEnvVars([]string{"PMM_ENABLE_MCP=maybe", "PMM_MCP_RAW_SQL=sometimes", "PMM_MCP_ACTION_TIMEOUT=-1s"})
+		assert.Equal(t, []error{
+			errors.New("invalid value 'maybe' for environment variable PMM_ENABLE_MCP"),
+			errors.New("invalid value 'sometimes' for environment variable PMM_MCP_RAW_SQL"),
+			errors.New("invalid value '-1s' for environment variable PMM_MCP_ACTION_TIMEOUT"),
+		}, gotErrs)
 
 		gotEnvVars, gotErrs, gotWarns = ParseEnvVars([]string{"PMM_MCP_ACTION_TIMEOUT=9m"})
 		assert.Equal(t, &models.ChangeSettingsParams{MCPActionTimeout: 9 * time.Minute}, gotEnvVars)
