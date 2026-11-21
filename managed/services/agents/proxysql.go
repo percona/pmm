@@ -30,6 +30,14 @@ var (
 	proxysqlExporterRuntimeVersion      = version.MustParse("2.20.99")
 )
 
+// defaultProxySQLExporterCollectors are the collectors proxysql_exporter runs unless their flag is set to false,
+// so leaving the flag out does not disable them.
+var defaultProxySQLExporterCollectors = []string{
+	"mysql_connection_list",
+	"mysql_connection_pool",
+	"mysql_status",
+}
+
 // proxysqlExporterConfig returns desired configuration of proxysql_exporter process.
 func proxysqlExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
@@ -58,6 +66,15 @@ func proxysqlExporterConfig(node *models.Node, service *models.Service, exporter
 	}
 
 	args = collectors.FilterOutCollectors("-collect.", args, exporter.ExporterOptions.DisabledCollectors)
+
+	disableCollectorArgs := collectors.DisableDefaultEnabledCollectors(
+		"-collect.",
+		defaultProxySQLExporterCollectors,
+		exporter.ExporterOptions.DisabledCollectors,
+	)
+	for _, arg := range disableCollectorArgs {
+		args = append(args, arg+"=false")
+	}
 
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
 
