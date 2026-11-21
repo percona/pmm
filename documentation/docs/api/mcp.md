@@ -472,7 +472,7 @@ pmm-managed exports three metrics about MCP tool calls, next to its other metric
 
 | Metric | Type | Labels | What it counts |
 |--------|------|--------|----------------|
-| `pmm_managed_mcp_tool_calls_total` | Counter | `tool`, `code` | Tool calls that ended. `code` is `ok`, or the [error code](#errors) of a failed call. |
+| `pmm_managed_mcp_tool_calls_total` | Counter | `tool`, `code` | Tool calls that ended. `code` is `ok`, the [error code](#errors) of a failed call, or `canceled` for a call that its client abandoned. |
 | `pmm_managed_mcp_tool_duration_seconds` | Histogram | `tool` | How long each tool call took. |
 | `pmm_managed_mcp_tool_calls_in_flight` | Gauge | `tool` | Tool calls running now. |
 

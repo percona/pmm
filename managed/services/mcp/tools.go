@@ -83,10 +83,10 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 }
 
 // failureLevel is the log level of a failed call: Debug for the codes that answer the caller's own input or limits,
-// Warn for the ones that point at PMM or a monitored service.
+// or a call the caller canceled, Warn for the ones that point at PMM or a monitored service.
 func failureLevel(code errorCode) logrus.Level {
 	switch code {
-	case codeInvalidInput, codeNotFound, codeRateLimited, codeUnauthorized:
+	case codeInvalidInput, codeNotFound, codeRateLimited, codeUnauthorized, codeCanceled:
 		return logrus.DebugLevel
 	default:
 		return logrus.WarnLevel
