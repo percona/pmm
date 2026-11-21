@@ -2,7 +2,7 @@
 
 ## About these guides
 
-This file is the source of truth for AI agents working anywhere in the repo; each component also has its own guide. How the files reach each tool (`CLAUDE.md`, `GEMINI.md`, Copilot) is described in [`dev/docs/process/ai-agents.md`](dev/docs/process/ai-agents.md). Human contributors start at [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`dev/docs/process/`](dev/docs/process/).
+This file is the source of truth for AI agents working anywhere in the repo; each component also has its own guide. Human contributors start at [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`dev/docs/process/`](dev/docs/process/).
 
 If an `AGENTS.local.md` (repo root) or `~/AGENTS.local.md` (home) is present, read it at session start too — it holds machine-specific paths (gitignored). **Never put secrets there**; keep credentials in environment variables or a secret store.
 
