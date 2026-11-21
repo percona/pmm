@@ -382,7 +382,12 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
 	defer cancel()
 
+	releaseLookup, err := s.startMetricCall(auth)
+	if err != nil {
+		return schemaResult{}, err
+	}
 	svc, err := s.engineOf(ctx, auth, in.ServiceID)
+	releaseLookup()
 	if err != nil {
 		return schemaResult{}, err
 	}

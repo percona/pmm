@@ -556,3 +556,65 @@ func TestInventoryAndConfigShareMetricCaps(t *testing.T) {
 	assert.Len(t, s.metricRate.buckets, 1, "the calls took metric tokens")
 	s.metricRate.mu.Unlock()
 }
+
+// TestSchemaByNameLookupSharesMetricCaps pins that pmm_get_schema with service_id, database and tables looks the
+// service up under a metric-call token and slot, and releases the slot before the live part.
+func TestSchemaByNameLookupSharesMetricCaps(t *testing.T) {
+	t.Parallel()
+
+	key := callerKey(callerAuth{authorization: testToken})
+	args := map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}}
+
+	t.Run("RateLimited", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		for range metricCallsBurst {
+			_, ok := s.metricRate.take(key, testNow)
+			require.True(t, ok)
+		}
+
+		text, isError := callText(t, connect(t, s), "pmm_get_schema", map[string]any{"service_id": "svc-unknown", "database": "shop", "tables": []string{"customers"}})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assert.Zero(t, listQueries(fake), "a refused call reaches no service-list query")
+	})
+
+	t.Run("SlotReleasedBeforeLive", func(t *testing.T) {
+		t.Parallel()
+
+		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		s := newQANService(t, fake, true)
+		var mu sync.Mutex
+		held := map[string][]int{}
+		next := fake.server.Config.Handler
+		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+			s.metrics.mu.Lock()
+			n := s.metrics.byKey[key]
+			s.metrics.mu.Unlock()
+			kind := "lookup"
+			if strings.HasPrefix(r.URL.Path, "/v1/actions") {
+				kind = "action"
+			}
+			mu.Lock()
+			held[kind] = append(held[kind], n)
+			mu.Unlock()
+			next.ServeHTTP(rw, r)
+		})
+
+		text, isError := callText(t, connect(t, s), "pmm_get_schema", args)
+		require.False(t, isError, text)
+
+		mu.Lock()
+		defer mu.Unlock()
+		require.NotEmpty(t, held["lookup"])
+		require.NotEmpty(t, held["action"])
+		for _, n := range held["lookup"] {
+			assert.Equal(t, 1, n, "the lookup holds one metric slot: %v", held)
+		}
+		for _, n := range held["action"] {
+			assert.Zero(t, n, "the live part holds no metric slot: %v", held)
+		}
+	})
+}
