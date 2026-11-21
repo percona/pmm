@@ -19,12 +19,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"html/template"
 	"net"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	"golang.org/x/sys/unix"
@@ -112,6 +112,10 @@ func (a *ptMySQLSummaryAction) Run(ctx context.Context) ([]byte, error) {
 	return cmd.CombinedOutput()
 }
 
+// text/template, not html/template: this renders a MySQL option file, and
+// HTML escaping silently rewrote every &, <, >, ' and " in a credential into
+// an entity, so a password such as pa&ss reached the client as pa&amp;ss and
+// the connection was refused (issue #5880).
 const myCnfTemplate = `[client]
 {{if .Host}}host={{ .Host }}{{end}}
 {{if .Port}}port={{ .Port }}{{end}}
