@@ -70,12 +70,13 @@ func alertKeys(rows []alertRow) []string {
 	return out
 }
 
-// firingAlert is one alert of rulesBody; pending makes it a pending one.
+// firingAlert is one alert of rulesBody; pending or recovering puts it in that state.
 type firingAlert struct {
-	rule     string
-	labels   map[string]string
-	activeAt time.Time
-	pending  bool
+	rule       string
+	labels     map[string]string
+	activeAt   time.Time
+	pending    bool
+	recovering bool
 }
 
 // rulesBody is a rules API response in the shape of alerts_rules.json, with one rule per alert.
@@ -87,8 +88,11 @@ func rulesBody(t *testing.T, alerts ...firingAlert) []byte {
 		labels := map[string]string{"alertname": a.rule, "grafana_folder": "Alerts"}
 		maps.Copy(labels, a.labels)
 		ruleState, alertState := "firing", "Alerting"
-		if a.pending {
+		switch {
+		case a.pending:
 			ruleState, alertState = "pending", "Pending"
+		case a.recovering:
+			ruleState, alertState = "recovering", "Recovering"
 		}
 		rules = append(rules, map[string]any{
 			"state":      ruleState,
@@ -200,7 +204,7 @@ func TestIsPMMRule(t *testing.T) {
 func TestAlertsTool(t *testing.T) {
 	t.Parallel()
 
-	note := "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
+	note := "Firing, recovering and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
 	at := func(hour, minute int) time.Time { return time.Date(2026, 9, 14, hour, minute, 0, 0, time.UTC) }
 	ptr := func(v time.Time) *time.Time { return &v }
 
@@ -242,7 +246,7 @@ func TestAlertsTool(t *testing.T) {
 
 		rules := fake.requestsTo(rulesPath)
 		require.Len(t, rules, 1)
-		assert.Equal(t, []string{"firing", "pending"}, queryOf(t, rules[0])["state"])
+		assert.Equal(t, []string{"firing", "recovering", "pending"}, queryOf(t, rules[0])["state"])
 		am := fake.requestsTo(amAlertsPath)
 		require.Len(t, am, 1)
 		assert.Equal(t, "false", queryOf(t, am[0]).Get("active"))
@@ -471,6 +475,32 @@ func TestAlertsTool(t *testing.T) {
 		assert.Contains(t, text, "\n- warning | a-warning-firing | since 2026-09-14T09:00:00Z | ")
 	})
 
+	t.Run("Recovering", func(t *testing.T) {
+		t.Parallel()
+
+		// The Alertmanager alert of the recovering alert, rule-001, silenced until 2026-09-15T08:00:00Z.
+		am := []map[string]any{{
+			"labels": map[string]string{"alertname": "c-recovering", "grafana_folder": "Alerts", "severity": "warning", ruleUIDLabel: "rule-001"},
+			"status": map[string]any{"inhibitedBy": []string{}, "silencedBy": []string{"5f1c2b7e-0000-4000-8000-000000000001"}, "state": "suppressed"},
+		}}
+		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+			"GET " + rulesPath: {body: rulesBody(t,
+				firingAlert{rule: "b-critical-pending", labels: map[string]string{"severity": "critical"}, activeAt: at(11, 30), pending: true},
+				firingAlert{rule: "c-recovering", labels: map[string]string{"severity": "warning"}, activeAt: at(11, 50), recovering: true},
+				firingAlert{rule: "a-warning-firing", labels: map[string]string{"severity": "warning"}, activeAt: at(9, 0)},
+			)},
+			"GET " + amAlertsPath: {body: mustJSON(t, am)},
+		}))
+		got, text := callAlerts(t, fake, nil)
+		require.Equal(t, []string{"a-warning-firing@-", "c-recovering@-", "b-critical-pending@-"}, alertKeys(got.Alerts),
+			"firing alerts come first, then recovering, then pending ones")
+		assert.Equal(t, []string{"firing", "recovering", "pending"}, []string{got.Alerts[0].State, got.Alerts[1].State, got.Alerts[2].State})
+		assert.True(t, got.Alerts[1].Silenced, "a recovering alert still fires in the Alertmanager")
+		assert.Equal(t, ptr(time.Date(2026, 9, 15, 8, 0, 0, 0, time.UTC)), got.Alerts[1].SilencedUntil)
+		assert.Contains(t, text, "\n- warning | c-recovering | recovering | since 2026-09-14T11:50:00Z | silenced until 2026-09-15T08:00:00Z | ")
+		assert.Contains(t, text, "\n- warning | a-warning-firing | since 2026-09-14T09:00:00Z | ")
+	})
+
 	t.Run("TiesByLabelSet", func(t *testing.T) {
 		t.Parallel()
 
@@ -667,14 +697,14 @@ func TestAlertsTool(t *testing.T) {
 		assert.Empty(t, got.Alerts)
 		assert.Equal(t, page{Total: 0, Offset: 0, Limit: 50}, got.Page)
 		assert.Equal(t, note, got.Note)
-		assert.Equal(t, note+"\nNo firing or pending alerts found.", textOf(t, res))
+		assert.Equal(t, note+"\nNo firing, recovering or pending alerts found.", textOf(t, res))
 		assert.Contains(t, string(mustJSON(t, res.StructuredContent)), `"alerts":[]`)
 		assert.Empty(t, fake.requestsTo(amAlertsPath), "no silence state to read")
 
 		got, text := callAlerts(t, newFakePMM(t, alertsRoutes("alerts_up.json")), map[string]any{"severity": "none"})
 		assert.Empty(t, got.Alerts)
 		assert.Equal(t, note, got.Note)
-		assert.Equal(t, note+"\nNo firing or pending alerts found.", text)
+		assert.Equal(t, note+"\nNo firing, recovering or pending alerts found.", text)
 	})
 
 	t.Run("NoSilencesReadWithoutASilencedAlert", func(t *testing.T) {
@@ -778,7 +808,7 @@ func TestAlertRuleURL(t *testing.T) {
 func TestAlertsTextOneLinePerAlert(t *testing.T) {
 	t.Parallel()
 
-	note := "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
+	note := "Firing, recovering and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
 	r := alertsResult{
 		Note: note,
 		Page: page{Total: 1, Limit: 50},

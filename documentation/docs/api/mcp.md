@@ -111,7 +111,7 @@ The server sends the recommended order to the client on connect: `pmm_version`, 
 | `pmm_list_metrics` | What the metrics hold: metric names that contain `search` (`kind=names`, the default), label names (`labels`), the values of one label (`values`) or the label sets of series (`series`). Pages with `limit` and `offset` | `GET /graph/api/datasources/name/Metrics`, then the datasource proxy: `/api/v1/label/{name}/values`, `/api/v1/labels` and `/api/v1/series` |
 | `pmm_service_health` | The triage signals of one service and its node over a window: for each, min, avg, max, last and the time of the newest sample, or `no_data`, or its own error. It reports what was measured and judges nothing | `GET /graph/api/datasources/name/Metrics`, then the datasource proxy: the service list (`/api/v1/query` on `up`) and `/api/v1/query_range` |
 | `pmm_get_config` | The server's numeric configuration variables (`SHOW GLOBAL VARIABLES` style) plus the version, from the metrics PMM already collects; addressed by `service_id` like the other tools (`service_name` is also accepted); an `engine` other than the service's own is `invalid_input`; page with `limit` and `offset` | `GET /graph/api/datasources/name/Metrics`, the Grafana datasource proxy: the service list and the variables |
-| `pmm_alerts` | The alerts firing now and the pending ones, firing ones first and within each state the most severe and newest first, with state, severity, labels, summary, description, start time, whether a silence mutes the alert and until when, and a link to its rule; optional `service_id`, `service_name`, `node_name` and `severity` filters; page with `limit` and `offset`. See [Alerts](#alerts) | Grafana's rules API (`GET /graph/api/prometheus/grafana/api/v1/rules`), Grafana's Alertmanager API for silences, and the service list |
+| `pmm_alerts` | The alerts firing now, the recovering ones and the pending ones, in that order and within each state the most severe and newest first, with state, severity, labels, summary, description, start time, whether a silence mutes the alert and until when, and a link to its rule; optional `service_id`, `service_name`, `node_name` and `severity` filters; page with `limit` and `offset`. See [Alerts](#alerts) | Grafana's rules API (`GET /graph/api/prometheus/grafana/api/v1/rules`), Grafana's Alertmanager API for silences, and the service list |
 
 Most results link to the same data in PMM, so you can check an answer in PMM itself. The link is the `pmm_url` field, and the text shows it too:
 
@@ -262,9 +262,9 @@ Input that doesn't match a tool's input schema, such as a missing required argum
 
 ## Alerts
 
-`pmm_alerts` lists the alerts that are firing now, and the pending ones. It answers what is wrong at this moment, with the severity, labels, summary and description of each alert, its state, when it started, and a link to its rule in PMM. It doesn't silence or acknowledge anything.
+`pmm_alerts` lists the alerts that are firing now, the recovering ones and the pending ones. It answers what is wrong at this moment, with the severity, labels, summary and description of each alert, its state, when it started, and a link to its rule in PMM. It doesn't silence or acknowledge anything.
 
-The list comes from Grafana's rules API, called with your credentials. Grafana's folder permissions apply, so a Viewer gets what PMM's alert page shows to a Viewer. Every result starts with the note "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet.", also returned as `note`.
+The list comes from Grafana's rules API, called with your credentials. Grafana's folder permissions apply, so a Viewer gets what PMM's alert page shows to a Viewer. Every result starts with the note "Firing, recovering and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet.", also returned as `note`.
 
 ### Filters and paging
 
@@ -279,7 +279,7 @@ All arguments are optional:
 | `limit` | At most this many alerts per page: default 50, maximum 200 |
 | `offset` | Skips this many alerts, for the next page |
 
-An alert that lacks a label never matches a filter on that label. Firing alerts come first, then pending ones. Within each, the most severe alerts come first (`emergency`, `alert`, `critical`, `error`, `warning`, other severities, then none), the newest first within a severity.
+An alert that lacks a label never matches a filter on that label. Firing alerts come first, then recovering ones, then pending ones. Within each state, the most severe alerts come first (`emergency`, `alert`, `critical`, `error`, `warning`, other severities, then none), the newest first within a severity.
 
 ### What the list holds
 
@@ -291,11 +291,11 @@ MCP narrows the list to the services and nodes in your service list over the las
 
 A `node_name` filter for a node outside your service list answers `not_found`, and so does a `service_id` or `service_name` filter for a service outside it. This includes `pmm-server`. PMM's own alerts and the down alerts of RDS and Azure services name `node_name="pmm-server"`. Even so, the filter answers `not_found` unless `pmm-server` is in your service list, which needs `up` samples that you can read.
 
-### Firing and pending alerts only
+### Firing, recovering and pending alerts only
 
-`pmm_alerts` shows the alerts that are firing now, and the pending ones. An alert is pending while its rule's condition holds but the rule waits out its pending period before it fires; `state` is `pending`, and `starts_at` is when it went pending. A firing alert has `state` set to `firing`, and `starts_at` is when it started firing. Grafana evaluates a rule at its group's interval, and the rule then waits out its pending period before it fires. So a problem that began a few minutes ago can be pending, or not yet listed at all: an empty list doesn't mean that no rule covers the problem.
+`pmm_alerts` shows the alerts that are firing now, the recovering ones and the pending ones. An alert is pending while its rule's condition holds but the rule waits out its pending period before it fires; `state` is `pending`, and `starts_at` is when it went pending. A firing alert has `state` set to `firing`, and `starts_at` is when it started firing. Grafana evaluates a rule at its group's interval, and the rule then waits out its pending period before it fires. So a problem that began a few minutes ago can be pending, or not yet listed at all: an empty list doesn't mean that no rule covers the problem.
 
-`pmm_alerts` doesn't show resolved alerts. It also doesn't show alerts that Grafana keeps firing after they recover (`keep_firing_for`, shown as **Recovering** in Grafana). PMM's alert templates don't use `keep_firing_for`.
+An alert is recovering when its rule's condition no longer holds but the rule keeps it firing for its **Keep firing for** period (shown as **Recovering** in Grafana); `state` is `recovering`, and `starts_at` is when it began recovering. A recovering alert still sends notifications, and a silence mutes it as it mutes a firing one. `pmm_alerts` doesn't show resolved alerts.
 
 It also doesn't show the `DatasourceNoData` and `DatasourceError` alerts that Grafana raises for a rule whose no-data or error handling is set to **No Data** or **Error**, even though Grafana sends notifications for them. PMM's own rules and the rules made from PMM's alert templates don't raise them: a rule made from a template shows an evaluation error as a firing alert, which `pmm_alerts` lists.
 

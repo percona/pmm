@@ -38,7 +38,7 @@ import (
 
 const (
 	// The note of every pmm_alerts result, as managed/services/mcp/tools_alerts.go words it.
-	alertsNote     = "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
+	alertsNote     = "Firing, recovering and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
 	alertsMaxLimit = 200
 	// The look-back of pmm_alerts' service list.
 	alertListLookback = 7 * 24 * time.Hour
@@ -102,7 +102,7 @@ func TestAlerts(t *testing.T) {
 		}
 		for _, a := range out.Alerts {
 			assert.NotEmpty(t, a.Name)
-			assert.Contains(t, []string{"firing", "pending"}, a.State, a.Name)
+			assert.Contains(t, []string{"firing", "recovering", "pending"}, a.State, a.Name)
 			assert.False(t, a.StartsAt.IsZero(), a.Name)
 			assert.Contains(t, a.PMMURL, "/graph/alerting/", a.Name)
 			for name := range a.Labels {

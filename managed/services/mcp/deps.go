@@ -182,9 +182,11 @@ type grafanaAlert struct {
 	Labels      map[string]string
 	Annotations map[string]string
 	// Pending is true for an alert whose rule waits out its pending period, false for a firing one.
-	Pending  bool
-	StartsAt time.Time
-	Silenced bool
+	Pending bool
+	// Recovering is true for an alert whose condition cleared but whose rule keeps it firing for its keep-firing-for period.
+	Recovering bool
+	StartsAt   time.Time
+	Silenced   bool
 	// SilencedUntil is the latest end of the silences that mute the alert; nil when it is not silenced or no end is known.
 	SilencedUntil *time.Time
 

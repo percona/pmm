@@ -544,7 +544,7 @@ func listValues(match []string, start, end time.Time, limit int) url.Values {
 	return v
 }
 
-// Alerts returns the firing and pending alerts of the rules Grafana's rules API returns to the caller, which follows the caller's folder permissions.
+// Alerts returns the firing, recovering and pending alerts of the rules Grafana's rules API returns to the caller, which follows the caller's folder permissions.
 func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, error) {
 	var resp struct {
 		Status string `json:"status"`
@@ -563,7 +563,7 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 			} `json:"groups"`
 		} `json:"data"`
 	}
-	err := c.getAlertingJSON(ctx, auth, "graph/api/prometheus/grafana/api/v1/rules", url.Values{"state": {"firing", "pending"}}, &resp)
+	err := c.getAlertingJSON(ctx, auth, "graph/api/prometheus/grafana/api/v1/rules", url.Values{"state": {"firing", "recovering", "pending"}}, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -576,13 +576,16 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 		for _, rule := range group.Rules {
 			pmmRule := isPMMRule(rule.Provenance, rule.UID)
 			for _, a := range rule.Alerts {
-				// A state is Alerting or Pending, alone or with a reason, such as "Alerting (NoData)".
+				// A state is Alerting, Recovering or Pending, alone or with a reason, such as "Alerting (NoData)".
 				firing := a.State == "Alerting" || strings.HasPrefix(a.State, "Alerting (")
+				recovering := a.State == "Recovering" || strings.HasPrefix(a.State, "Recovering (")
 				pending := a.State == "Pending" || strings.HasPrefix(a.State, "Pending (")
-				if !firing && !pending {
+				if !firing && !recovering && !pending {
 					continue
 				}
-				alert := grafanaAlert{RuleUID: rule.UID, PMMRule: pmmRule, Labels: a.Labels, Annotations: a.Annotations, Pending: pending}
+				alert := grafanaAlert{
+					RuleUID: rule.UID, PMMRule: pmmRule, Labels: a.Labels, Annotations: a.Annotations, Pending: pending, Recovering: recovering,
+				}
 				if a.ActiveAt != nil {
 					alert.StartsAt = a.ActiveAt.UTC()
 				}

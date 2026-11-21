@@ -56,7 +56,7 @@ pmm_get_explain and pmm_get_schema; a queryid alone searches the last hour. A li
 short ends with "showing a-b of n; pass offset=... for more": page with offset.
 Reference data, such as the QAN metric names that pmm_top_queries takes in
 columns and order_by, comes from pmm_catalog.
-For what is wrong now, call pmm_alerts (firing and pending alerts).
+For what is wrong now, call pmm_alerts (firing, recovering and pending alerts).
 
 For metrics, start with pmm_service_health for one service. Before writing a
 pmm_query_metrics query in MetricsQL, read pmm_catalog(kind: metrics, engine: the
