@@ -91,8 +91,8 @@ The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it 
 | Go (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `go test ./path/to/pkg/...` or `make test` in that component directory; `make test-common` from the repo root for shared/API packages | `bin/golangci-lint run ./path/to/pkg/...` for each changed package, then `make format`; `make check-license` if you added files; `go mod tidy` if dependencies changed |
 | `.proto`, reform models, or mocked interfaces | As for Go; update handlers in `managed/` and UI hooks if user-facing | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
 | `managed/models` or DB schema/migrations | Unit tests in `managed/`; use `testdb.Open` only when fixtures or migrations matter ([`managed/AGENTS.md`](managed/AGENTS.md)) | As for Go |
-| REST behavior end-to-end | `make env-up`, then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) | — |
-| UI (anything under `ui/`) | `cd ui && make test` | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
+| REST behavior end-to-end | `make env-up`, then `make env-root TARGET=run-managed-ci` (or the `run-*-ci` target for the service you changed), then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) | — |
+| UI (anything under `ui/`) | `cd ui && make test` | `cd ui && make lint && make format-check && make check-types` (oxlint, oxfmt and `tsc` across every workspace package; same as CI `ui.yml`) |
 | Grafana dashboard JSON (`dashboards/dashboards/`) | — | `python3 dashboards/misc/cleanup-dash.py --check-only <file>`, or without `--check-only` to fix; CI enforces it in `dashboards.yml` ([`dashboards/dashboards/AGENTS.md`](dashboards/dashboards/AGENTS.md)) |
 | `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | `python3 -m unittest discover -s dashboards/misc -p 'test_*.py'` from the repo root; the other scripts in `dashboards/misc/` have no automated coverage | — |
 | Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn test:ci` | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
@@ -183,7 +183,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 User-facing docs are Markdown under [`documentation/docs/`](documentation/docs/). The rules for writing them — voice, page structure, Markdown conventions, release-note entries — are in [`documentation/AGENTS.md`](documentation/AGENTS.md); read it before editing anything under `documentation/`. It links out to [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (admonition colours, icons, symbols) and [`documentation/CONTRIBUTING.md`](documentation/CONTRIBUTING.md) (contributor workflow + local preview) for the parts those files own. MkDocs config lives in [`documentation/`](documentation/); this is separate from the developer process docs in [`dev/docs/process/`](dev/docs/process/).
 
-Documentation is published from the release branch of the latest GA version, not from `main`, so docs merged with an unreleased feature stay private until it ships. Write or update the docs for a feature or fix in the same PR as its code, and add its ticket to `documentation/docs/release-notes/next.md` ([Release notes](documentation/AGENTS.md#release-notes)). The only documentation-only PR is a doc hotfix: a fix to live docs, merged to `main` with the `doc-hotfix` label, which copies it to that release branch.
+Documentation is published from the release branch of the latest GA version, not from `main`, so docs merged with an unreleased feature are not published until it ships. Write or update the docs for a feature or fix in the same PR as its code, and add its ticket to `documentation/docs/release-notes/next.md` ([Release notes](documentation/AGENTS.md#release-notes)). The only documentation-only PR is a doc hotfix: a fix to live docs, merged to `main` with the `doc-hotfix` label, which copies it to that release branch.
 
 ---
 
@@ -349,7 +349,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Integration tests: `/api-tests/`, run against live PMM Server
 - E2E tests: [pmm-qa](https://github.com/percona/pmm-qa)
 - A test must fail if the change it covers is reverted: give mocks exact arguments and `.Once()` rather than `mock.Anything`, assert the exact error message (an empty expected substring matches anything), and cover each new error branch
-- Inject a value a test needs to change instead of making it a mutable package global; set or unset (`t.Setenv`) every environment variable the code under test reads
+- Inject a value a test needs to change instead of making it a mutable package global; set every environment variable the code under test reads with `t.Setenv`; to unset one, call `t.Setenv(key, "")`, then `os.Unsetenv(key)`, so the original value is restored
 
 ### Code Generation
 - Protobuf/gRPC: `make gen` from repo root

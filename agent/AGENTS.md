@@ -40,7 +40,7 @@ What keeps it out:
 
 ### Local API
 
-`agentlocal` exposes a local gRPC + JSON API on `127.0.0.1:7777` for status, config reload, and the `/debug/metrics`, `/debug/pprof`, `/debug/vars` endpoints.
+`agentlocal` serves a JSON API on `127.0.0.1:7777` by default (`PMM_AGENT_LISTEN_ADDRESS`, `PMM_AGENT_LISTEN_PORT`) for status, config reload, and the `/debug/metrics`, `/debug/pprof`, `/debug/vars` endpoints; it proxies a gRPC server on a random loopback port.
 
 ## Key Packages and Responsibilities
 
