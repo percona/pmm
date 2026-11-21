@@ -139,6 +139,11 @@ func (s *Service) planMetrics(in queryMetricsInput) (metricsPlan, error) {
 		plan.stepGiven = true
 	}
 	plan.step = chooseStep(plan.span(), requested)
+	if plan.stepGiven && plan.step != requested {
+		return metricsPlan{}, newToolError(codeInvalidInput,
+			"at step %s, the window of %s is %d points per series; the cap is %d: raise step to at least %s, or shorten the window",
+			formatStep(requested), formatSpan(plan.span()), int64(plan.span()/requested)+1, maxPoints, formatStep(plan.step))
+	}
 	return plan, nil
 }
 

@@ -302,6 +302,8 @@ func TestQueryMetricsTool(t *testing.T) {
 		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-1h", "step": "1500ms"}, "whole number of seconds")
 		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-1h", "step": "0s"}, "positive whole number")
 		requireInvalid(t, s, fake, map[string]any{"query": questions, "step": "30s"}, "range queries only")
+		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-6h", "step": "1s"},
+			"at step 1s, the window of 6h is 21601 points per series; the cap is 2000: raise step to at least 11s, or shorten the window")
 	})
 
 	t.Run("PeriodToAloneReadsTheHourBefore", func(t *testing.T) {

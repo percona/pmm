@@ -325,7 +325,7 @@ Use the tools in this order:
 3. `pmm_list_metrics` finds metrics that the catalogue doesn't list, and the label values to filter by.
 4. `pmm_query_metrics` runs a MetricsQL query. Aggregate first, for example `sum by (service_name) (rate(mysql_global_status_questions[5m]))` or `topk(10, …)`, and filter by `service_name` or `service_id`. Use an instant query (`time`, default now) for the current value and a range query (`period_from`, `period_to`) for a trend.
 
-`pmm_query_metrics` takes `query`, `time` or `period_from`, `period_to` and `step`, and `limit`. Without `period_from` and `period_to`, the query is instant. A range query needs at least one of them: `period_to` defaults to now and `period_from` to an hour before `period_to`, so `period_from=now-1h` reads the last hour. `step` is a whole number of seconds, written as `30s`, `5m` or `1h`. Without `step`, the server chooses the smallest one that keeps the range within 2,000 points. Each query runs with a timeout of 25 seconds.
+`pmm_query_metrics` takes `query`, `time` or `period_from`, `period_to` and `step`, and `limit`. Without `period_from` and `period_to`, the query is instant. A range query needs at least one of them: `period_to` defaults to now and `period_from` to an hour before `period_to`, so `period_from=now-1h` reads the last hour. `step` is a whole number of seconds, written as `30s`, `5m` or `1h`. Without `step`, the server chooses the smallest one that keeps the range within 2,000 points. A `step` that you give must keep the range within 2,000 points too: a smaller one is refused with `invalid_input`, and the message names the smallest step that fits. Each query runs with a timeout of 25 seconds.
 
 ### Metrics catalogue
 
