@@ -176,9 +176,7 @@ type queryMetrics struct {
 
 // grafanaAlert is one firing alert of a rule that Grafana's rules API returned to the caller.
 type grafanaAlert struct {
-	RuleUID string
-	// PMMRule is true for a rule PMM provisions: file provenance and a UID of PMM's catalog.
-	PMMRule     bool
+	RuleUID     string
 	Labels      map[string]string
 	Annotations map[string]string
 	// Pending is true for an alert whose rule waits out its pending period, false for a firing one.

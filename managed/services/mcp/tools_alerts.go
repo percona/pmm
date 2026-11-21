@@ -25,14 +25,9 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-
-	"github.com/percona/pmm/managed/services/alerting"
 )
 
 const (
-	// The look-back of the service list that pmm_alerts keeps alerts of (ADR-17).
-	alertListLookback = 7 * day
-
 	alertsDefaultLimit = 50
 	alertsMaxLimit     = 200
 
@@ -52,19 +47,11 @@ const (
 	ruleUIDLabel = "__alert_rule_uid__"
 )
 
-// pmmRuleUIDs are the UIDs of PMM's rule catalog.
-var pmmRuleUIDs = alerting.CatalogUIDs()
-
 // severityOrder lists the severities that come ahead of every other one, in order.
 var severityOrder = []string{"emergency", "alert", "critical", "error", "warning"}
 
 // alertStateOrder lists the states of pmm_alerts rows in the order they are listed.
 var alertStateOrder = []string{alertFiring, alertRecovering, alertPending}
-
-// isPMMRule reports whether a rule is one PMM provisions: file provenance and a UID of PMM's catalog, never a label.
-func isPMMRule(provenance, uid string) bool {
-	return provenance == "file" && slices.Contains(pmmRuleUIDs, uid)
-}
 
 // labelValue returns a label's value, empty when the label is absent or [no value].
 func labelValue(labels map[string]string, name string) string {
@@ -73,56 +60,6 @@ func labelValue(labels map[string]string, name string) string {
 		return ""
 	}
 	return v
-}
-
-// serviceSet is the caller's service list as the four sets that alert narrowing checks labels against.
-type serviceSet struct {
-	serviceIDs, serviceNames, nodeIDs, nodeNames map[string]bool
-}
-
-// newServiceSet builds the sets from the services and nodes of listServicesAndNodes.
-func newServiceSet(services []serviceInfo, nodes []nodeInfo) serviceSet {
-	l := serviceSet{serviceIDs: map[string]bool{}, serviceNames: map[string]bool{}, nodeIDs: map[string]bool{}, nodeNames: map[string]bool{}}
-	add := func(set map[string]bool, v string) {
-		if v != "" {
-			set[v] = true
-		}
-	}
-	for _, svc := range services {
-		add(l.serviceIDs, svc.ServiceID)
-		add(l.serviceNames, svc.ServiceName)
-	}
-	for _, node := range nodes {
-		add(l.nodeIDs, node.NodeID)
-		add(l.nodeNames, node.NodeName)
-	}
-	return l
-}
-
-// keepAlert applies ADR-17's narrowing: PMM's own rules, else each service label in its set, else each node label in its set, else kept.
-func (l serviceSet) keepAlert(a grafanaAlert) bool {
-	if a.PMMRule {
-		return true
-	}
-	serviceID, serviceName := labelValue(a.Labels, "service_id"), labelValue(a.Labels, "service_name")
-	if serviceID != "" || serviceName != "" {
-		return inSet(l.serviceIDs, serviceID) && inSet(l.serviceNames, serviceName)
-	}
-	nodeID, nodeName := labelValue(a.Labels, "node_id"), labelValue(a.Labels, "node_name")
-	if nodeID != "" || nodeName != "" {
-		return inSet(l.nodeIDs, nodeID) && inSet(l.nodeNames, nodeName)
-	}
-	return true
-}
-
-// covers reports whether each service and node filter of the call names a service or node of the list.
-func (l serviceSet) covers(in alertsInput) bool {
-	return inSet(l.serviceIDs, in.ServiceID) && inSet(l.serviceNames, in.ServiceName) && inSet(l.nodeNames, in.NodeName)
-}
-
-// inSet reports whether v is empty, an absent label or filter, or in the set.
-func inSet(set map[string]bool, v string) bool {
-	return v == "" || set[v]
 }
 
 type alertsInput struct {
@@ -219,8 +156,7 @@ func (s *Service) registerAlertsTool(server *mcp.Server) {
 		Description: "List the alerts firing now in PMM's alerting, the recovering ones whose condition cleared but whose rule keeps " +
 			"them firing for a while, and the pending ones whose rule waits out its pending period, " +
 			"from the alert rules your Grafana folder permissions let you read. " +
-			alertsNote + " The list holds the alerts of the services and nodes in your service list (those whose up series you can " +
-			"read and that sent metrics in the last 7 days), the alerts that name no service or node, and PMM Server's own alerts. " +
+			alertsNote + " It lists the alerts that Grafana's rules API returns to you, as PMM's Alerts page does; Access Roles don't narrow them. " +
 			"Each alert has its severity, labels, summary, description, start time, whether a silence mutes it and until when, and " +
 			"a link to its rule in PMM; firing alerts come first, then recovering, then pending ones, each the most severe and newest first. " +
 			"Filter by service_id, service_name, node_name or " +
@@ -241,22 +177,11 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 	}
 	defer release()
 
-	now := s.now()
-	w := window{From: now.Add(-alertListLookback), To: now}
-	services, nodes, err := s.listServicesAndNodes(ctx, auth, w)
-	if err != nil {
-		return alertsResult{}, err
-	}
-	list := newServiceSet(services, nodes)
-	if !list.covers(in) {
-		return alertsResult{}, errNotInList(w, now, "")
-	}
-
 	all, err := s.api.Alerts(ctx, auth)
 	if err != nil {
 		return alertsResult{}, err
 	}
-	kept := slices.DeleteFunc(all, func(a grafanaAlert) bool { return !list.keepAlert(a) || !in.matches(a) })
+	kept := slices.DeleteFunc(all, func(a grafanaAlert) bool { return !in.matches(a) })
 	for i := range kept {
 		kept[i].labelKey = labelSetKey(kept[i].Labels)
 	}

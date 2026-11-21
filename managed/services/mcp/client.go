@@ -551,9 +551,8 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 		Data   struct {
 			Groups []struct {
 				Rules []struct {
-					UID        string `json:"uid"`
-					Provenance string `json:"provenance"`
-					Alerts     []struct {
+					UID    string `json:"uid"`
+					Alerts []struct {
 						Labels      map[string]string `json:"labels"`
 						Annotations map[string]string `json:"annotations"`
 						State       string            `json:"state"`
@@ -574,7 +573,6 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 	var out []grafanaAlert
 	for _, group := range resp.Data.Groups {
 		for _, rule := range group.Rules {
-			pmmRule := isPMMRule(rule.Provenance, rule.UID)
 			for _, a := range rule.Alerts {
 				// A state is Alerting, Recovering or Pending, alone or with a reason, such as "Alerting (NoData)".
 				firing := a.State == "Alerting" || strings.HasPrefix(a.State, "Alerting (")
@@ -583,9 +581,7 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 				if !firing && !recovering && !pending {
 					continue
 				}
-				alert := grafanaAlert{
-					RuleUID: rule.UID, PMMRule: pmmRule, Labels: a.Labels, Annotations: a.Annotations, Pending: pending, Recovering: recovering,
-				}
+				alert := grafanaAlert{RuleUID: rule.UID, Labels: a.Labels, Annotations: a.Annotations, Pending: pending, Recovering: recovering}
 				if a.ActiveAt != nil {
 					alert.StartsAt = a.ActiveAt.UTC()
 				}

@@ -560,12 +560,10 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 			},
 		},
 		"pmm_alerts": {
-			{name: "NoRules", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{"GET " + rulesPath: {body: []byte(`{"status":"success","data":{"groups":[]}}`)}}))},
-			{name: "NothingInTheList", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{serviceListKey: {file: "vm_empty.json"}}))},
-			{name: "Narrowed", fake: routed(alertsRoutes("alerts_up_negative.json"))},
-			{name: "RulesFail", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{"GET " + rulesPath: failed})), wantErr: true},
-			{name: "SilencesFail", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{"GET " + silencesPath: failed})), wantErr: true},
-			{name: "ServiceListFails", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{serviceListKey: failed})), wantErr: true},
+			{name: "NoRules", fake: routed(withRoutes(alertsRoutes(), map[string]fixture{"GET " + rulesPath: {body: []byte(`{"status":"success","data":{"groups":[]}}`)}}))},
+			{name: "Alerts", fake: routed(alertsRoutes())},
+			{name: "RulesFail", fake: routed(withRoutes(alertsRoutes(), map[string]fixture{"GET " + rulesPath: failed})), wantErr: true},
+			{name: "SilencesFail", fake: routed(withRoutes(alertsRoutes(), map[string]fixture{"GET " + silencesPath: failed})), wantErr: true},
 		},
 		"pmm_list_metrics": {
 			{name: "NoNames", fake: routed(listRoutes(map[string]fixture{vmNames: {body: stringsBody(nil)}}))},

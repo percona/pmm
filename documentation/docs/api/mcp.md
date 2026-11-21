@@ -14,7 +14,7 @@ The MCP server runs inside pmm-managed and speaks MCP Streamable HTTP. It holds 
 The endpoint is only reachable through PMM's nginx, which authenticates every request. A connection made directly to pmm-managed, bypassing nginx, is answered with 404 even when pmm-managed listens on a routable interface.
 
 !!! note "Service-account tokens and access control"
-    With [access control](../admin/roles/access-control/intro.md) off, a Viewer service-account token works for every tool. With access control on, PMM refuses service-account tokens on the Query Analytics and metrics APIs, so every tool except `pmm_version` and `pmm_catalog` returns `unauthorized` for a token. In that case, connect with the credentials of a PMM user, sent as Basic authentication. The user's Access Roles then filter the Query Analytics and metrics data that the tools read.
+    With [access control](../admin/roles/access-control/intro.md) off, a Viewer service-account token works for every tool. With access control on, PMM refuses service-account tokens on the Query Analytics and metrics APIs, so every tool except `pmm_version`, `pmm_catalog` and `pmm_alerts` returns `unauthorized` for a token. In that case, connect with the credentials of a PMM user, sent as Basic authentication. The user's Access Roles then filter the Query Analytics and metrics data that the tools read. They don't filter `pmm_alerts`, which shows the alerts of every folder that the caller can read, as PMM's Alerts page does.
 
 ## Enable the endpoint
 
@@ -111,7 +111,7 @@ The server sends the recommended order to the client on connect: `pmm_version`, 
 | `pmm_list_metrics` | What the metrics hold: metric names that contain `search` (`kind=names`, the default), label names (`labels`), the values of one label (`values`) or the label sets of series (`series`). Pages with `limit` and `offset` | `GET /graph/api/datasources/name/Metrics`, then the datasource proxy: `/api/v1/label/{name}/values`, `/api/v1/labels` and `/api/v1/series` |
 | `pmm_service_health` | The triage signals of one service and its node over a window: for each, min, avg, max, last and the time of the newest sample, or `no_data`, or its own error. It reports what was measured and judges nothing | `GET /graph/api/datasources/name/Metrics`, then the datasource proxy: the service list (`/api/v1/query` on `up`) and `/api/v1/query_range` |
 | `pmm_get_config` | The server's numeric configuration variables (`SHOW GLOBAL VARIABLES` style) plus the version, from the metrics PMM already collects; addressed by `service_id` like the other tools (`service_name` is also accepted); an `engine` other than the service's own is `invalid_input`; page with `limit` and `offset` | `GET /graph/api/datasources/name/Metrics`, the Grafana datasource proxy: the service list and the variables |
-| `pmm_alerts` | The alerts firing now, the recovering ones and the pending ones, in that order and within each state the most severe and newest first, with state, severity, labels, summary, description, start time, whether a silence mutes the alert and until when, and a link to its rule; optional `service_id`, `service_name`, `node_name` and `severity` filters; page with `limit` and `offset`. See [Alerts](#alerts) | Grafana's rules API (`GET /graph/api/prometheus/grafana/api/v1/rules`), Grafana's Alertmanager API for silences, and the service list |
+| `pmm_alerts` | The alerts firing now, the recovering ones and the pending ones, in that order and within each state the most severe and newest first, with state, severity, labels, summary, description, start time, whether a silence mutes the alert and until when, and a link to its rule; optional `service_id`, `service_name`, `node_name` and `severity` filters; page with `limit` and `offset`. See [Alerts](#alerts) | Grafana's rules API (`GET /graph/api/prometheus/grafana/api/v1/rules`), and Grafana's Alertmanager API for silences |
 
 Most results link to the same data in PMM, so you can check an answer in PMM itself. The link is the `pmm_url` field, and the text shows it too:
 
@@ -283,13 +283,9 @@ An alert that lacks a label never matches a filter on that label. Firing alerts 
 
 ### What the list holds
 
-MCP narrows the list to the services and nodes in your service list over the last 7 days, so that `pmm_alerts` is consistent with the other tools. It doesn't change what you can read in PMM, where the alert page shows the alerts that Grafana's permissions allow. An alert is kept in these cases:
+`pmm_alerts` shows the alerts of every folder that you can read, whatever your [Access Roles](../admin/roles/access-control/intro.md), as PMM's Alerts page does. Unlike the other tools, it doesn't narrow its list to your service list, and it reads no metrics.
 
-- It comes from one of PMM's own rules: the PMM Server component rules, and the HA rules on an HA deployment. It is shown whatever service or node it names.
-- It has no `service_id`, `service_name`, `node_id` or `node_name` label.
-- Its service labels name a service in your service list. If it has no service labels, its node labels name a node in your service list.
-
-A `node_name` filter for a node outside your service list answers `not_found`, and so does a `service_id` or `service_name` filter for a service outside it. This includes `pmm-server`. PMM's own alerts and the down alerts of RDS and Azure services name `node_name="pmm-server"`. Even so, the filter answers `not_found` unless `pmm-server` is in your service list, which needs `up` samples that you can read.
+A `service_id`, `service_name` or `node_name` filter matches the alert's labels, whether or not the service or node is in your service list. A value that no alert carries returns an empty list.
 
 ### Firing, recovering and pending alerts only
 
@@ -300,10 +296,6 @@ An alert is recovering when its rule's condition no longer holds but the rule ke
 It also doesn't show the `DatasourceNoData` and `DatasourceError` alerts that Grafana raises for a rule whose no-data or error handling is set to **No Data** or **Error**, even though Grafana sends notifications for them. PMM's own rules and the rules made from PMM's alert templates don't raise them: a rule made from a template shows an evaluation error as a firing alert, which `pmm_alerts` lists.
 
 Silenced alerts are included. An alert that a silence mutes has `silenced` set to `true` and `silenced_until` set to the end of the silence. When several silences mute one alert, `silenced_until` is the latest end. A pending alert always has `silenced` set to `false`: Grafana sends an alert to the Alertmanager, which applies silences, only once it fires.
-
-### Alerts and the service list
-
-A service that has sent no `up` sample for an hour leaves `pmm_inventory`, but its alerts stay in `pmm_alerts` for 7 days, because the list for alerts looks back 7 days. After 7 days without samples, its alerts leave `pmm_alerts` too.
 
 ### Not in MCP
 
@@ -420,7 +412,7 @@ A token is one caller, whether it's sent as Bearer or as Basic credentials. Othe
 
 `/mcp` answers HTTP 400 to a JSON-RPC batch, so send one request per call.
 
-A call of `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health` or `pmm_alerts` counts once, however many queries it runs. In addition, every request that MCP sends to VictoriaMetrics takes one of the replica's slots. The replica has half of VictoriaMetrics' limit on concurrent queries, at least 1, so dashboards and alert evaluation keep the other half. VictoriaMetrics' own default for that limit is twice the number of CPUs, at most 16. The environment variable `VM_search_maxConcurrentRequests` sets the limit instead (see [VictoriaMetrics environment variables](../reference/third-party/victoria.md#environment-variables)), and MCP takes half of the value it sets. A request waits for a slot until the deadline of its call.
+A call of `pmm_query_metrics`, `pmm_list_metrics` or `pmm_service_health` counts once, however many queries it runs. In addition, every request that MCP sends to VictoriaMetrics takes one of the replica's slots. The replica has half of VictoriaMetrics' limit on concurrent queries, at least 1, so dashboards and alert evaluation keep the other half. VictoriaMetrics' own default for that limit is twice the number of CPUs, at most 16. The environment variable `VM_search_maxConcurrentRequests` sets the limit instead (see [VictoriaMetrics environment variables](../reference/third-party/victoria.md#environment-variables)), and MCP takes half of the value it sets. A request waits for a slot until the deadline of its call.
 
 MCP has no fleet size of its own. PMM's [hardware sizing](../install-pmm/plan-pmm-installation/hardware_and_system.md) applies. This is the setup that MCP was load-tested on, not a limit: a server with 4 CPU cores and 8 GB of memory that monitored 53 MySQL services. Five clients called the metric tools at the caps for 10 minutes, once with about 2 days of data and once with about 6. In both runs no alert-rule evaluation failed and no PMM Server component restarted. The p95 of a dashboard query went from 47 ms to 170 ms with 2 days of data and from 50 ms to 167 ms with 6. VictoriaMetrics' CPU peaked at 2.3 and 2.9 cores, and the p95 of an answered metric call rose from 2.9 s to 6.7 s.
 
@@ -438,7 +430,7 @@ A call refused for its rate is `rate_limited` and says in the message how many s
 
 `pmm_inventory` reads no inventory API, only the metrics your token can read. `pmm_alerts` shows the alerts that Grafana's folder permissions let your token read.
 
-With access control on, the role must belong to a PMM user rather than a service account: PMM refuses service-account tokens on the Query Analytics and metrics APIs that every tool except `pmm_version` and `pmm_catalog` reads.
+With access control on, the role must belong to a PMM user rather than a service account: PMM refuses service-account tokens on the Query Analytics and metrics APIs that every tool except `pmm_version`, `pmm_catalog` and `pmm_alerts` reads.
 
 A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain` and `pmm_get_schema`, exactly as it can through the REST API, so those tools expose execution plans and table definitions to any user who can view dashboards.
 

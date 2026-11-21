@@ -584,33 +584,33 @@ func (m *matrixRun) version(t *testing.T) {
 	assert.True(t, strings.HasPrefix(res.text, "PMM Server 3."), res.text)
 }
 
-// alerts checks that the fixture's server-level alert is shown, that the alert of mysql-a and of mysql-b is shown when the service is
-// allowed and not when it is hidden, that no alert names a hidden service, and that a hidden service as a filter answers the 7-day not_found.
+// alerts checks that pmm_alerts lists the alerts of every folder the caller can read, whatever its Access Roles: the fixture's
+// server-level alert and the alerts of mysql-a and mysql-b, hidden or not, and that a hidden service as a filter lists its alerts.
 func (m *matrixRun) alerts(t *testing.T) {
 	t.Helper()
 
+	// pmm_alerts names the services that the caller's Access Roles hide, so its responses skip the check for them.
+	unchecked := &caller{session: m.session}
 	var out alertsOutput
-	res := m.call(t, "pmm_alerts", map[string]any{"limit": alertsMaxLimit})
+	res := unchecked.call(t, "pmm_alerts", map[string]any{"limit": alertsMaxLimit})
 	res.requireOK(t)
 	res.decode(t, &out)
 	assert.False(t, out.Page.Truncated, "the alerts do not fit on one page")
 	assert.Len(t, out.ofRule(m.f.alerts.server), 1, "an alert that names no service or node is shown")
 	ofServices := labelValues(out.ofRule(m.f.alerts.services), "service_name")
-	for _, name := range []string{"mysql-a", "mysql-b"} {
-		if m.isAllowed(name) {
-			assert.Contains(t, ofServices, name, "the alert of a service in the caller's list")
-		} else {
-			assert.NotContains(t, ofServices, name, "the alert of a hidden service")
-		}
-	}
-	for _, a := range out.Alerts {
-		assert.NotContains(t, m.hidden, a.Labels["service_name"], "alert %s", a.Name)
-		assert.NotContains(t, m.hiddenIDs, a.Labels["service_id"], "alert %s", a.Name)
-	}
+	assert.Equal(t, []string{"mysql-a", "mysql-b"}, intersection(ofServices, "mysql-a", "mysql-b"), "the alerts of mysql-a and mysql-b, hidden or not")
 
 	for _, name := range intersection(m.hidden, "mysql-b", "pg-b") {
-		res := m.call(t, "pmm_alerts", map[string]any{"service_name": name})
-		res.requireNotInList(t, "", alertListLookback)
+		var filtered alertsOutput
+		res := unchecked.call(t, "pmm_alerts", map[string]any{"service_name": name})
+		res.requireOK(t)
+		res.decode(t, &filtered)
+		for _, a := range filtered.Alerts {
+			assert.Equal(t, name, a.Labels["service_name"], "alert %s", a.Name)
+		}
+		if name == "mysql-b" {
+			assert.Len(t, filtered.ofRule(m.f.alerts.services), 1, "the alert of the hidden mysql-b")
+		}
 	}
 }
 
