@@ -155,6 +155,12 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 		fingerprintText("SELECT status, count(*) FROM orders GROUP BY 1 ORDER BY 2 DESC LIMIT $1", "", false))
 	assert.Equal(t, "SELECT CAST($1 AS varchar(?)) FROM t", fingerprintText("SELECT CAST($1 AS varchar(255)) FROM t", "", false))
 
+	// A dollar-quote tag may hold non-ASCII letters, and its string is a literal like any other.
+	for _, tag := range []string{"$p$", "$п$"} {
+		fp := "ALTER ROLE app PASSWORD " + tag + "my secret text" + tag
+		assert.Equal(t, withheldFingerprint, fingerprintText(fp, enginePostgreSQL, false), fp)
+	}
+
 	// MySQL quoting for a MySQL service: a backticked name is a name.
 	assert.Equal(t, "SELECT `id` FROM `2fa_tokens` WHERE `o'neil` = ?",
 		fingerprintText("SELECT `id` FROM `2fa_tokens` WHERE `o'neil` = ?", engineMySQL, false))

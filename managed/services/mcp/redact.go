@@ -252,10 +252,11 @@ func lineEnd(s string, i int) int {
 // dollarQuoteEnd returns the index just past the PostgreSQL dollar-quoted
 // string ($$...$$ or $tag$...$tag$) that starts at s[start], or false when
 // s[start] opens none, as in the $1 placeholder. An unterminated string
-// extends to the end of s.
+// extends to the end of s. A tag follows identifier rules, so its letters
+// include every non-ASCII byte.
 func dollarQuoteEnd(s string, start int) (int, bool) {
 	k := start + 1
-	for k < len(s) && s[k] != '$' && isIdentByte(s[k]) && (k > start+1 || !isDigit(s[k])) {
+	for k < len(s) && s[k] != '$' && (isIdentByte(s[k]) || s[k] >= 0x80) && (k > start+1 || !isDigit(s[k])) {
 		k++
 	}
 	if k >= len(s) || s[k] != '$' {

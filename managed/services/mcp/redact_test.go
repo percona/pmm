@@ -49,6 +49,7 @@ func TestMaskSQLLiterals(t *testing.T) {
 		{"MySQLNoBackslashEscapes", `path = 'C:\' and pw = 'hunter2'`, true, "path = ?"},
 		{"PostgreSQLDollarQuoted", "SELECT $$hunter2$$, $q$secret$q$ WHERE id = $1", false, "SELECT ?, ? WHERE id = $1"},
 		{"PostgreSQLUnterminatedDollarQuote", "SELECT $$hunter2", false, "SELECT ?"},
+		{"PostgreSQLDollarQuoteNonASCIITag", "ALTER ROLE app PASSWORD $п$my secret text$п$ VALID UNTIL $1", false, "ALTER ROLE app PASSWORD ? VALID UNTIL $1"},
 		{"MySQLDollarIsIdentifier", "SELECT c$d, `a$b` FROM t", true, "SELECT c$d, `a$b` FROM t"},
 		{"Binary", "flags = 0b1010", true, "flags = ?"},
 		// An apostrophe in a comment must not pair with a real quote.
