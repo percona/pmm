@@ -209,7 +209,7 @@ make test
 make lint
 make format        # make format-check in CI
 
-# Type-check (tsc) every workspace package
+# Type-check (tsc)
 make check-types
 ```
 

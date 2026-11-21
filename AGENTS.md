@@ -92,7 +92,7 @@ The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it 
 | `.proto`, reform models, or mocked interfaces | As for Go; update handlers in `managed/` and UI hooks if user-facing | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
 | `managed/models` or DB schema/migrations | Unit tests in `managed/`; use `testdb.Open` only when fixtures or migrations matter ([`managed/AGENTS.md`](managed/AGENTS.md)) | As for Go |
 | REST behavior end-to-end | `make env-up`, then `make env-root TARGET=run-managed-ci` (or the `run-*-ci` target for the service you changed), then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) | — |
-| UI (anything under `ui/`) | `cd ui && make test` | `cd ui && make lint && make format-check && make check-types` (oxlint, oxfmt and `tsc` across every workspace package; same as CI `ui.yml`) |
+| UI (anything under `ui/`) | `cd ui && make test` | `cd ui && make lint && make format-check && make check-types` (oxlint, oxfmt and `tsc`; same as CI `ui.yml`) |
 | Grafana dashboard JSON (`dashboards/dashboards/`) | — | `python3 dashboards/misc/cleanup-dash.py --check-only <file>`, or without `--check-only` to fix; CI enforces it in `dashboards.yml` ([`dashboards/dashboards/AGENTS.md`](dashboards/dashboards/AGENTS.md)) |
 | `dashboards/misc/cleanup-dash.py`, `dashboards/misc/test_*.py` | `python3 -m unittest discover -s dashboards/misc -p 'test_*.py'` from the repo root; the other scripts in `dashboards/misc/` have no automated coverage | — |
 | Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn test:ci` | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
