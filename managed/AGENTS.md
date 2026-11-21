@@ -40,7 +40,7 @@ All services are composed and wired in `managed/cmd/pmm-managed/main.go`.
 
 - **gRPC** (port 7771) — primary API protocol
 - **REST/JSON** (port 7772) — gRPC-Gateway, auto-generated from proto definitions
-- **Debug** (port 7773) — `/debug/metrics`, `/debug/pprof`, `/debug/vars`
+- **Debug** (port 7773) — the debug endpoints listed at `/debug`
 
 Some gRPC server implementations live in `services/*/grpc/` subdirectories. They delegate to the parent service package for business logic. This is legacy, and newer services must implement gRPC directly in the service package.
 

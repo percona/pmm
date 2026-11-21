@@ -88,7 +88,7 @@ The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it 
 
 | If you changed… | Test | Lint |
 |-----------------|------|------|
-| Go (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `go test ./path/to/pkg/...` or `make test` in that component directory; `make test-common` from the repo root for shared/API packages | `bin/golangci-lint run ./path/to/pkg/...` for each changed package, then `make format`; `make check-license` if you added files; `go mod tidy` if dependencies changed |
+| Go (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `go test ./path/to/pkg/...` or `make test` in that component directory; `make test-common` from the repo root for shared/API packages | `bin/golangci-lint run ./path/to/pkg/...` for each changed package, fixing what it reports in the files you changed (CI fails only on changed lines); `go tool go-sumtype ./...`; `make format`; `go mod tidy`; `make check-license` if you added files |
 | `.proto`, reform models, or mocked interfaces | As for Go; update handlers in `managed/` and UI hooks if user-facing | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
 | `managed/models` or DB schema/migrations | Unit tests in `managed/`; use `testdb.Open` only when fixtures or migrations matter ([`managed/AGENTS.md`](managed/AGENTS.md)) | As for Go |
 | REST behavior end-to-end | `make env-up`, then `make env-root TARGET=run-managed-ci` (or the `run-*-ci` target for the service you changed), then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) | — |
@@ -183,7 +183,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 User-facing docs are Markdown under [`documentation/docs/`](documentation/docs/). The rules for writing them — voice, page structure, Markdown conventions, release-note entries — are in [`documentation/AGENTS.md`](documentation/AGENTS.md); read it before editing anything under `documentation/`. It links out to [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (admonition colours, icons, symbols) and [`documentation/CONTRIBUTING.md`](documentation/CONTRIBUTING.md) (contributor workflow + local preview) for the parts those files own. MkDocs config lives in [`documentation/`](documentation/); this is separate from the developer process docs in [`dev/docs/process/`](dev/docs/process/).
 
-Documentation is published from the release branch of the latest GA version, not from `main`, so docs merged with an unreleased feature are not published until it ships. Write or update the docs for a feature or fix in the same PR as its code, and add its ticket to `documentation/docs/release-notes/next.md`, or, for a fix for a version in RC, to that version's `X.Y.Z.md` ([Release notes](documentation/AGENTS.md#release-notes)). The only documentation-only PR is a doc hotfix: a fix to live docs, merged to `main` with the `doc-hotfix` label, which copies it to that release branch.
+Documentation is published from the release branch of the latest GA version, not from `main`, so docs merged with an unreleased feature are not published until it ships. Write or update the docs for a user-facing feature or fix in the same PR as its code, and add its ticket to `documentation/docs/release-notes/next.md`, or, for a fix for a version in RC, to that version's `X.Y.Z.md` ([Release notes](documentation/AGENTS.md#release-notes)). Don't open a separate documentation PR for a feature or fix. A fix to the live docs merges to `main` with the `doc-hotfix` label, which copies it to that release branch; a docs fix for a version in RC is cherry-picked like code, without the label ([Publishing](documentation/AGENTS.md#publishing)).
 
 ---
 
@@ -348,7 +348,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Unit tests: `*_test.go` next to implementation; they never call external services — use mocks, or `/api-tests/` for integration
 - Integration tests: `/api-tests/`, run against live PMM Server
 - E2E tests: [pmm-qa](https://github.com/percona/pmm-qa)
-- A test must fail if the change it covers is reverted: give mocks exact arguments and `.Once()` rather than `mock.Anything`, assert the exact error message (an empty expected substring matches anything), and cover each new error branch
+- A test must fail if the change it covers is reverted: give mocks exact arguments (`mock.Anything` only for a `context.Context`) and `.Once()`, assert the exact error message (an empty expected substring matches anything), and cover each new error branch
 - Inject a value a test needs to change instead of making it a mutable package global; set every environment variable the code under test reads with `t.Setenv`; to unset one, call `t.Setenv(key, "")`, then `os.Unsetenv(key)`, so the original value is restored
 
 ### Code Generation
@@ -385,8 +385,6 @@ PMM Server talks to pmm-agents and API clients already deployed in the field, so
 - Startup errors are fatal; runtime errors are handled, logged, and communicated
 
 ## Key Make Targets
-
-Targets beyond those in [Verifying a change](#verifying-a-change):
 
 | Target | Purpose |
 |--------|---------|
