@@ -27,7 +27,7 @@ type qanColumn struct {
 }
 
 // qanColumns mirrors qan-api2's column maps, which drop an unknown name without an
-// error; TestQANColumnsMatchQANAPI2 keeps the two in step (PMM-15529).
+// error; TestQANColumnsMatchQANAPI2 keeps the two in step.
 var qanColumns = []qanColumn{
 	{"load", "", false},
 	{"num_queries", "", false},

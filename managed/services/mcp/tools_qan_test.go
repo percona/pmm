@@ -923,7 +923,7 @@ func TestLinks(t *testing.T) {
 }
 
 // TestQANValuesAreChecked pins that a QAN filter value with a quote or a
-// backslash is rejected before any QAN call (PMM-15715).
+// backslash is rejected before any QAN call.
 func TestQANValuesAreChecked(t *testing.T) {
 	t.Parallel()
 

@@ -817,11 +817,11 @@ func listRoutes(extra map[string]fixture) map[string]fixture {
 	}, extra))
 }
 
-func listCall(t *testing.T, s *Service, args map[string]any) (res listMetricsResult, text string, isError bool) {
+func listCall(t *testing.T, s *Service, args map[string]any) (listMetricsResult, string, bool) {
 	t.Helper()
 
 	r := callTool(t, connect(t, s), "pmm_list_metrics", args)
-	text = textOf(t, r)
+	text := textOf(t, r)
 	if r.IsError {
 		return listMetricsResult{}, text, true
 	}

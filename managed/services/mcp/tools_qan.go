@@ -65,7 +65,7 @@ var orderMetrics = map[string]ordering{
 // groupByDimensions are the qan-api2 dimensions a report can be grouped by.
 var groupByDimensions = []string{groupByQuery, "service_name", "database", "schema", "username", "client_host", "application_name", "cmd_type"}
 
-// labelKey matches a label or dimension name; any other name is rejected (PMM-15715).
+// labelKey matches a label or dimension name; any other name is rejected.
 var labelKey = regexp.MustCompile(`^[a-z_][a-z0-9_]*$`)
 
 // baseColumns are on every report row already.
@@ -440,7 +440,7 @@ func parseOrderBy(orderBy string) (string, string, string, error) {
 }
 
 // reportLabels merges the labels input with the service_name and service_id
-// shortcuts, and checks every name and value (PMM-15715).
+// shortcuts, and checks every name and value.
 func reportLabels(in topQueriesInput) (map[string][]string, error) {
 	labels := maps.Clone(in.Labels)
 	if labels == nil {
@@ -803,7 +803,7 @@ func windowLine(w window) string {
 	return "Window: " + windowText(w)
 }
 
-// checkQANValue rejects a QAN filter value with a quote or a backslash (PMM-15715).
+// checkQANValue rejects a QAN filter value with a quote or a backslash.
 func checkQANValue(input, value string) error {
 	if strings.ContainsAny(value, `'\`) {
 		return newToolError(codeInvalidInput, "%s must not contain a quote (') or a backslash (\\)", input)
@@ -864,7 +864,7 @@ func quotingMatters(fingerprint string) bool {
 
 // reportEngines returns the engine whose quoting reads each queryid's
 // fingerprint: the report's one SQL engine when its filters or QAN's data name
-// one, else each row's own, from rowEngines over the report's own request body (PMM-15529).
+// one, else each row's own, from rowEngines over the report's own request body.
 func (s *Service) reportEngines(
 	ctx context.Context, auth callerAuth, q *reportQuery, body qan_service.GetReportBody, rows []qanReportRow, from, to time.Time,
 	services func() ([]serviceInfo, error),
