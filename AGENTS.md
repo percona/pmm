@@ -388,6 +388,7 @@ PMM Server talks to pmm-agents and API clients already deployed in the field, so
 
 | Target | Purpose |
 |--------|---------|
+| `make init` | Install the pinned golangci-lint into `bin/` (the version CI uses) |
 | `make env-up` | Start development container (PMM Server) |
 | `make env-update-image` | Pull the latest dev image (`make env-remove` drops the container and its volumes) |
 | `make env TARGET=<t>` | Run `make <t>` **inside** the `pmm-server` container as the `pmm` user (bash shell if `TARGET` omitted); use `make env-root` for build/test/lint targets |
