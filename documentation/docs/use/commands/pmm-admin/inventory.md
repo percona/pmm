@@ -216,6 +216,9 @@ pmm-admin inventory remove agent [<agent-id>] [flags]
 
 Starting with PMM 3.7.0, you can change how an agent is configured without removing and adding the service again. Use this to rotate credentials, update TLS files and labels, turn collectors on or off, or change collection limits, while the service keeps its ID and history.
 
+!!! hint "Change a whole service"
+    To change a service and all its agents at once, find the service by its name, and use the same flags as `pmm-admin add`, use [`pmm-admin update`](update.md).
+
 ### Syntax
 
 ```bash
@@ -249,6 +252,7 @@ Whether you can change an agent in place or have to remove and add its service a
 | Update credentials or TLS settings | `change agent` | The service keeps its ID and history |
 | Change labels, collectors, collection limits or the log level | `change agent` | The service keeps its ID and history |
 | Turn an agent on or off | `change agent` | The service keeps its ID and history |
+| Change a service and all its agents at once, switch the Query Analytics source, or move the service to a new address | [`pmm-admin update`](update.md) | The service keeps its ID and history |
 | Rename the service or monitor a different database instance | `pmm-admin remove`, then `pmm-admin add` | PMM creates a new service with a new ID |
 
 ### Find the agent ID

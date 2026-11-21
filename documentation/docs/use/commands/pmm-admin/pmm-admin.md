@@ -11,7 +11,7 @@ Use `pmm-admin` to:
 - add MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, and HAProxy services to monitoring
 - check connection status between PMM Client and PMM Server
 - list monitored services and their agents
-- modify agent configurations without removing services
+- change the settings of monitored services without removing them
 - create diagnostic archives for troubleshooting
 
 ## Syntax
@@ -56,7 +56,7 @@ pmm-admin list
 pmm-admin summary
 ```
 
-For complete options and flags, see [Add database services](../pmm-admin/add.md), [Manage inventory](../pmm-admin/inventory.md), [Configuration commands](../pmm-admin/config.md), and [Status and diagnostics](../pmm-admin/status.md).
+For complete options and flags, see [Add database services](../pmm-admin/add.md), [Update monitored services](../pmm-admin/update.md), [Manage inventory](../pmm-admin/inventory.md), [Configuration commands](../pmm-admin/config.md), and [Status and diagnostics](../pmm-admin/status.md).
 
 ## Command reference
 
@@ -65,6 +65,7 @@ Find all available commands for managing monitored services:
 | Command | Description | Documentation |
 |---------|-------------|---------------|
 | `pmm-admin add` | Add database services to monitoring | [Add database services](../pmm-admin/add.md) |
+| `pmm-admin update` | Change monitored services in place | [Update monitored services](../pmm-admin/update.md) |
 | `pmm-admin inventory` | List and modify agents and services | [Manage inventory](../pmm-admin/inventory.md) |
 | `pmm-admin config` | Configure local pmm-agent | [Configuration commands](../pmm-admin/config.md) |
 | `pmm-admin register` | Register node with PMM Server | [Configuration commands](../pmm-admin/config.md) |
@@ -77,6 +78,7 @@ Find all available commands for managing monitored services:
 ### Add and remove services
 
 - [`pmm-admin add`](../pmm-admin/add.md): Add database services to monitoring
+- [`pmm-admin update`](../pmm-admin/update.md): Change monitored services in place
 - [`pmm-admin remove`](../pmm-admin/config.md): Remove service from monitoring
 
 ### Manage inventory
