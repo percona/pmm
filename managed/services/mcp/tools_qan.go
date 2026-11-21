@@ -649,9 +649,11 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 		}
 		return queryDetailResult{}, newToolError(codeNotFound, "no data for this query in %s%s", windowText(w), hint)
 	}
-	// qan-api2 joins the names of several services, so only a name of one asked service filters the link and reads the version.
+	// qan-api2 joins the names of several services, so only a name of one asked service filters the link, goes in
+	// query_ref and reads the version.
 	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(serviceIDs, svc.ServiceID) })
 	if named := servicesNamed(asked, d.serviceName); len(named) == 1 {
+		d.serviceID = named[0].ServiceID
 		d.linkService = named[0].ServiceName
 		if d.engine != "" {
 			d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID, time.Time{})
@@ -667,7 +669,7 @@ type queryDetail struct {
 	queryID string
 	engine  string
 	version string
-	// serviceID is the request's service_id, else the stored example's.
+	// serviceID is the request's service_id, else the one service the metadata names; empty when the detail is of several.
 	serviceID   string
 	serviceName string
 	// linkService is the service name the link filters by, empty when the detail is not of one service.
@@ -725,7 +727,7 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 	d := &queryDetail{queryID: in.QueryID, serviceID: in.ServiceID, metrics: metrics, metricsErr: metricsErr, exampleErr: exampleErr}
 	if metrics != nil {
 		d.fingerprint = metrics.Fingerprint
-		// qan-api2 never fills the metadata's service_id, so query_ref takes it from the request or the example.
+		// qan-api2 never fills the metadata's service_id, so query_ref takes it from the request or the service list.
 		if metrics.Metadata != nil {
 			d.database = metrics.Metadata.Database
 			d.schema = metrics.Metadata.Schema
@@ -741,7 +743,6 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 		if d.engine == "" {
 			d.engine = d.example.ServiceType
 		}
-		d.serviceID = cmp.Or(d.serviceID, d.example.ServiceID)
 		d.tables = d.example.Tables
 	}
 	return d, nil

@@ -750,7 +750,7 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.Nil(t, got.MetricsError)
 		assert.InDelta(t, 1200, got.Metrics["calls"], 1e-9)
 		assert.Empty(t, got.Example)
-		assert.Empty(t, got.QueryRef.ServiceID, "neither the request nor a stored example names the service")
+		assert.Equal(t, "svc-1", got.QueryRef.ServiceID, "the metadata names one service of the list")
 
 		text := textOf(t, res)
 		assert.Contains(t, text, "\npartial: qan/query:getExample failed (unauthorized)\n")
@@ -773,7 +773,7 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.Nil(t, got.Metrics)
 		assert.Equal(t, "shop", got.Schema)
 		assert.Equal(t, rawExample, got.Example)
-		assert.Equal(t, "svc-1", got.QueryRef.ServiceID, "from the stored example")
+		assert.Empty(t, got.QueryRef.ServiceID, "without the metadata, the detail can be of several services")
 		assert.Contains(t, textOf(t, res), "\npartial: qan:getMetrics failed (unauthorized)\n")
 	})
 
@@ -790,7 +790,7 @@ func TestQueryDetailTool(t *testing.T) {
 		}{
 			{"RequestWithoutExample", "svc-request", noExample, "svc-request"},
 			{"RequestOverExample", "svc-request", example, "svc-request"},
-			{"Example", "", example, "svc-example"},
+			{"ExampleAlone", "", example, ""},
 			{"Neither", "", noExample, ""},
 		} {
 			api := newMockPmmAPI(t)
@@ -1351,7 +1351,7 @@ func TestTopQueriesSharedServiceName(t *testing.T) {
 }
 
 // TestQueryDetailSeveralServices pins that a detail summed over several services, whose metadata joins their names,
-// links to QAN without a service filter and reads no version.
+// links to QAN without a service filter, reads no version and carries a query_ref without service_id.
 func TestQueryDetailSeveralServices(t *testing.T) {
 	t.Parallel()
 
@@ -1369,12 +1369,14 @@ func TestQueryDetailSeveralServices(t *testing.T) {
 	}
 
 	fake, got := detail(t, "shop-mysql, shop-postgres")
+	assert.Empty(t, got.QueryRef.ServiceID, "the stored example names one of the services")
 	assert.NotContains(t, got.PMMURL, "var-service_name")
 	assert.Contains(t, got.PMMURL, "filter_by=QID-AAA")
 	assert.Empty(t, got.Version)
 	assert.Empty(t, queriesWith(fake, "mysql_version_info"))
 
 	fake, got = detail(t, "shop-mysql")
+	assert.Equal(t, "svc-1", got.QueryRef.ServiceID)
 	assert.Contains(t, got.PMMURL, "var-service_name=shop-mysql")
 	assert.Equal(t, "8.0.46-37", got.Version)
 	assert.Len(t, queriesWith(fake, "mysql_version_info"), 1)
