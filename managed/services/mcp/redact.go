@@ -631,8 +631,9 @@ func maskPGPlan(plan string) string {
 // with JSON arguments such as db.orders.aggregate([...]): pmm-agent leaves
 // the values of aggregation stages other than $match in place. A string
 // followed by a colon is a key and is kept, like the "?" of a masked value;
-// every other string, and every number, is masked. The value of a $literal or
-// $const key, and of a runCommand's comment, is masked whole, keys included.
+// every other string, every number, and every true, false and null within the
+// call's braces or brackets is masked. The value of a $literal or $const key,
+// and of a runCommand's comment, is masked whole, keys included.
 func maskMongoFingerprint(fingerprint string) string {
 	command := strings.HasPrefix(fingerprint, "db.runCommand(")
 	var b strings.Builder
@@ -664,6 +665,10 @@ func maskMongoFingerprint(fingerprint string) string {
 		case isDigit(c) && (i == 0 || !isIdentByte(fingerprint[i-1])):
 			b.WriteByte('?')
 			i = numberEnd(fingerprint, i)
+		// Only within braces or brackets, so that a collection named null or true keeps its name.
+		case depth > 0 && !isIdentByte(fingerprint[i-1]) && jsonLiteralLen(fingerprint[i:]) > 0:
+			b.WriteByte('?')
+			i += jsonLiteralLen(fingerprint[i:])
 		default:
 			switch c {
 			case '{', '[':
@@ -676,6 +681,16 @@ func maskMongoFingerprint(fingerprint string) string {
 		}
 	}
 	return b.String()
+}
+
+// jsonLiteralLen returns the length of the true, false or null that s starts with as a whole word, and 0 otherwise.
+func jsonLiteralLen(s string) int {
+	for _, word := range []string{"true", "false", "null"} {
+		if strings.HasPrefix(s, word) && (len(s) == len(word) || !isIdentByte(s[len(word)])) {
+			return len(word)
+		}
+	}
+	return 0
 }
 
 // mongoQuotesPair reports whether a MongoDB fingerprint holds no single quote and every double quote in it closes, so
