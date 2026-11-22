@@ -650,10 +650,18 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 		return queryDetailResult{}, newToolError(codeNotFound, "no data for this query in %s%s", windowText(w), hint)
 	}
 	// qan-api2 joins the names of several services, so only a name of one asked service filters the link, goes in
-	// query_ref and reads the version.
+	// query_ref and reads the version. Without the metrics, the detail is the example's, of the one service it names.
 	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(serviceIDs, svc.ServiceID) })
-	if named := servicesNamed(asked, d.serviceName); len(named) == 1 {
+	var named []serviceInfo
+	switch {
+	case d.metricsErr != nil && d.example != nil && d.example.ServiceID != "":
+		named = slices.DeleteFunc(asked, func(svc serviceInfo) bool { return svc.ServiceID != d.example.ServiceID })
+	case d.serviceName != "":
+		named = servicesNamed(asked, d.serviceName)
+	}
+	if len(named) == 1 {
 		d.serviceID = named[0].ServiceID
+		d.serviceName = named[0].ServiceName
 		d.linkService = named[0].ServiceName
 		if d.engine != "" {
 			d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID, time.Time{})
@@ -669,7 +677,8 @@ type queryDetail struct {
 	queryID string
 	engine  string
 	version string
-	// serviceID is the request's service_id, else the one service the metadata names; empty when the detail is of several.
+	// serviceID is the request's service_id, else the one service the metadata, or without the metrics the example,
+	// names; empty when the detail is of several.
 	serviceID   string
 	serviceName string
 	// linkService is the service name the link filters by, empty when the detail is not of one service.

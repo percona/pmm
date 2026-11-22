@@ -792,8 +792,24 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.Nil(t, got.Metrics)
 		assert.Equal(t, "shop", got.Schema)
 		assert.Equal(t, rawExample, got.Example)
-		assert.Empty(t, got.QueryRef.ServiceID, "without the metadata, the detail can be of several services")
+		assert.Equal(t, "svc-1", got.QueryRef.ServiceID, "without the metrics, the detail is the example's, of the service it names")
+		assert.Equal(t, "shop-mysql", got.ServiceName)
+		assert.Contains(t, got.PMMURL, "shop-mysql", "the link filters by that service")
 		assert.Contains(t, textOf(t, res), "\npartial: qan:getMetrics failed (unauthorized)\n")
+	})
+
+	t.Run("NoServiceNameMatchesNoService", func(t *testing.T) {
+		t.Parallel()
+
+		routes := qanRoutes()
+		routes[serviceListKey] = fixture{body: []byte(`{"status": "success", "data": {"resultType": "vector", "result": [` +
+			`{"metric": {"service_id": "svc-1", "service_name": "shop-mysql", "service_type": "mysql"}, "value": [1789387200, "1"]}, ` +
+			`{"metric": {"service_id": "svc-unnamed", "service_type": "mysql"}, "value": [1789387200, "1"]}]}}`)}
+		routes["POST /v1/qan:getMetrics"] = fixture{body: []byte(`{"fingerprint": "SELECT ?", "metadata": {"service_type": "mysql"}}`)}
+		session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+
+		got := structured[queryDetailResult](t, callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"}))
+		assert.Empty(t, got.QueryRef.ServiceID, "metadata without a service name names no service")
 	})
 
 	t.Run("QueryRefServiceID", func(t *testing.T) {
