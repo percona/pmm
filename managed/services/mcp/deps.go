@@ -174,7 +174,7 @@ type queryMetrics struct {
 	Metadata    *queryMetadata         `json:"metadata"`
 }
 
-// grafanaAlert is one firing alert of a rule that Grafana's rules API returned to the caller.
+// grafanaAlert is one firing, recovering or pending alert of a rule that Grafana's rules API returned to the caller.
 type grafanaAlert struct {
 	RuleUID     string
 	Labels      map[string]string
