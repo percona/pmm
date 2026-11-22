@@ -736,6 +736,7 @@ func TestMapActionErrorRedaction(t *testing.T) {
 	// pmm-agent's own texts and network errors quote no statement.
 	for _, kept := range []string{
 		"query to EXPLAIN is empty",
+		"context deadline exceeded",
 		"dial tcp 10.0.0.5:3306: connect: connection refused",
 		"database name is not included in this query. Explain could not be triggered without this info: Error 1046 (3D000): No database selected",
 	} {

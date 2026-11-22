@@ -119,11 +119,12 @@ var mongoErrorName = regexp.MustCompile(`^\(([A-Za-z0-9]+)\) `)
 const mongoExplainPrefix = "cannot explain this type of query\n"
 
 // safeActionError matches the action errors that cannot quote the statement:
-// pmm-agent's own fixed texts (agent/runner/actions), and network errors,
-// which name only hosts and ports. Any other error message is withheld when
-// raw SQL is off.
+// pmm-agent's own fixed texts (agent/runner/actions, and the context error it
+// reports when an action outlives its limit), and network errors, which name
+// only hosts and ports. Any other error message is withheld when raw SQL is off.
 var safeActionError = regexp.MustCompile(`^(?:` +
 	`query to EXPLAIN is empty|` +
+	`context deadline exceeded|` +
 	`query EXPLAIN failed because the query exceeded max length and got trimmed\. Set max-query-length to a larger value|` +
 	`query EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE|` +
 	`cannot JSON encode the explain response|` +
