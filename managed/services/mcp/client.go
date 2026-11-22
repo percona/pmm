@@ -633,7 +633,11 @@ func (c *client) getVM(ctx context.Context, auth callerAuth, uid, endpoint strin
 	case c.vmSlots <- struct{}{}:
 		defer func() { <-c.vmSlots }()
 	case <-ctx.Done():
-		return newToolError(codeTimeout, "no free metrics request slot before the deadline: %s", ctx.Err())
+		err := ctx.Err()
+		if errors.Is(err, context.Canceled) {
+			return fmt.Errorf("waiting for a metrics request slot: %w", err)
+		}
+		return newToolError(codeTimeout, "no free metrics request slot before the deadline: %s", err)
 	}
 
 	path := "graph/api/datasources/proxy/uid/" + url.PathEscape(uid) + "/" + endpoint

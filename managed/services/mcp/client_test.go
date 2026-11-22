@@ -387,6 +387,13 @@ func TestVMRequestLimit(t *testing.T) {
 	assert.Equal(t, codeTimeout, mapError(err).code)
 	assert.EqualValues(t, 2, arrived.Load(), "a request that gave up sent nothing")
 
+	ctx, cancel = context.WithCancel(t.Context())
+	cancel()
+	err = call(ctx)
+	require.ErrorIs(t, err, context.Canceled)
+	assert.Equal(t, codeCanceled, mapError(err).code, "a call abandoned while it waits is canceled, not timeout")
+	assert.EqualValues(t, 2, arrived.Load(), "a request that gave up sent nothing")
+
 	once.Do(func() { close(release) })
 	for range 3 {
 		require.NoError(t, <-errs)
