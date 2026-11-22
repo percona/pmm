@@ -117,7 +117,8 @@ func TestAlerts(t *testing.T) {
 		res.decode(t, &out)
 		assert.Empty(t, out.Alerts)
 		assert.Zero(t, out.Page.Total)
-		assert.Equal(t, alertsNote+"\nNo firing, recovering or pending alerts found.", res.text)
+		assert.Equal(t, alertsNote+"\nNo firing, recovering or pending alerts match the service_name filter: "+
+			"check its value, or call pmm_alerts without it.", res.text)
 	})
 
 	t.Run("LimitOverMaximum", func(t *testing.T) {
