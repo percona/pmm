@@ -380,6 +380,19 @@ func TestMaskMongoPlan(t *testing.T) {
 	assert.Contains(t, got, `"email":{"$eq":"?"}`)
 	assert.Contains(t, got, `"stage":"COLLSCAN"`)
 
+	// A compound text index's indexPrefix holds the query's equality values under their field names, which can be
+	// named like a plan key: plan keys count only on the plan's own structure.
+	prefix := `{"queryPlanner":{"winningPlan":{"stage":"TEXT_MATCH","indexPrefix":{"host":"db7.internal.example",` +
+		`"keyPattern":"secret-k"},"indexName":"host_1_message_text","inputStage":{"stage":"IXSCAN","keyPattern":{"host":1,"_fts":"text"},` +
+		`"keysExamined":3}}},"unknown":{"version":"secret-v","nReturned":4417}}`
+	got = maskMongoPlan(prefix)
+	for _, literal := range []string{"db7.internal.example", "secret", "4417"} {
+		assert.NotContains(t, got, literal)
+	}
+	assert.Contains(t, got, `"indexPrefix":{"host":"?","keyPattern":"?"}`)
+	assert.Contains(t, got, `"keyPattern":{"host":1,"_fts":"text"},"keysExamined":3`)
+	assert.Contains(t, got, `"stage":"TEXT_MATCH"`)
+
 	assert.Equal(t, planWithheld, maskMongoPlan("not json"))
 }
 

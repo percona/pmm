@@ -55,10 +55,10 @@ var mongoLiteralKeys = []string{
 
 // mongoPlanKeys are the MongoDB explain keys whose values are plan structure
 // or statistics, never a query value: stage, index and collection names, plan
-// hashes, server version, and the execution counters. Every other string and
-// number is masked, including the slot-based engine's "slots" and "stages"
-// text and the bounds of a find's min and max; an index's keyPattern is kept
-// as well.
+// hashes, server version, and the execution counters. They are kept only on
+// the plan's own structure (mongoPlanContainers), as is an index's keyPattern.
+// Every other string and number is masked, including the slot-based engine's
+// "slots" and "stages" text and the bounds of a find's min and max.
 var mongoPlanKeys = []string{
 	"stage", "indexName", "namespace", "direction", "queryFramework", "explainVersion",
 	"planCacheKey", "planCacheShapeHash", "queryHash", "queryShapeHash",
@@ -66,6 +66,14 @@ var mongoPlanKeys = []string{
 	"nReturned", "executionTimeMillis", "executionTimeMillisEstimate", "totalKeysExamined", "totalDocsExamined",
 	"keysExamined", "docsExamined", "works", "advanced", "needTime", "needYield", "saveState", "restoreState",
 	"isEOF", "seeks", "dupsTested", "dupsDropped", "indexVersion", "ok",
+}
+
+// mongoPlanContainers are the MongoDB explain keys whose objects are the plan's
+// own structure. Any other object, such as a compound text index's indexPrefix
+// with the query's values under their field names, is masked whole.
+var mongoPlanContainers = []string{
+	"queryPlanner", "winningPlan", "rejectedPlans", "queryPlan", "slotBasedPlan", "inputStage", "inputStages",
+	"executionStats", "executionStages", "allPlansExecution", "serverInfo", "shards", "stages", "$cursor",
 }
 
 // pgEstimates matches the trailing (cost=...) and (actual ...) groups of a
@@ -521,8 +529,9 @@ func maskMySQLWarnings(raw json.RawMessage) ([]byte, error) {
 }
 
 // maskMongoPlan masks every value beneath the keys that hold query values, and
-// every string and number outside mongoPlanKeys and keyPattern, keeping stage
-// names, index names, statistics and the field names of the filter. Booleans
+// every string and number that is not a mongoPlanKeys value or a keyPattern on
+// the plan's own structure, keeping stage names, index names, statistics and
+// the field names of the filter. Booleans
 // and nulls carry no data and are kept. A command's comment, and a $literal or
 // $const value, is masked whole.
 func maskMongoPlan(plan string) string {
@@ -535,11 +544,15 @@ func maskMongoPlan(plan string) string {
 			return v
 		}
 		// An extended-JSON number ({"$numberInt": "1"}) belongs to its parent key.
-		key := path[len(path)-1]
-		if strings.HasPrefix(key, "$number") && len(path) > 1 {
-			key = path[len(path)-2]
+		keys := path
+		if strings.HasPrefix(path[len(path)-1], "$number") && len(path) > 1 {
+			keys = path[:len(path)-1]
 		}
-		if slices.Contains(path, "keyPattern") || slices.Contains(mongoPlanKeys, key) {
+		key, parents := keys[len(keys)-1], keys[:len(keys)-1]
+		if i := slices.Index(path, "keyPattern"); i >= 0 && onMongoPlan(path[:i]) {
+			return v
+		}
+		if slices.Contains(mongoPlanKeys, key) && onMongoPlan(parents) {
 			return v
 		}
 		return "?"
@@ -548,6 +561,11 @@ func maskMongoPlan(plan string) string {
 		return planWithheld
 	}
 	return string(out)
+}
+
+// onMongoPlan reports whether keys lead through the plan's own structure only.
+func onMongoPlan(keys []string) bool {
+	return !slices.ContainsFunc(keys, func(k string) bool { return !slices.Contains(mongoPlanContainers, k) })
 }
 
 // mongoOpaque reports whether path ends at a value whose keys are data too: a command's comment, which an application
