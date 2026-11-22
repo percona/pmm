@@ -923,7 +923,7 @@
           "type": "string"
         },
         "search": {
-          "description": "kind names: text a metric name contains, such as mongodb or innodb_buffer; empty lists every name",
+          "description": "kind names: text a metric name contains, such as mongodb; at most 200 characters; empty lists every name",
           "type": "string"
         },
         "service_id": {

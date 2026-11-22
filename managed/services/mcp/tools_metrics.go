@@ -27,6 +27,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/VictoriaMetrics/metricsql"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -515,7 +516,7 @@ var listInputs = map[string][]string{
 
 type listMetricsInput struct {
 	Kind        string   `json:"kind,omitempty" jsonschema:"What to list: names (default), labels, values or series"`
-	Search      string   `json:"search,omitempty" jsonschema:"kind names: text a metric name contains, such as mongodb or innodb_buffer; empty lists every name"`
+	Search      string   `json:"search,omitempty" jsonschema:"kind names: text a metric name contains, such as mongodb; at most 200 characters; empty lists every name"`
 	ServiceID   string   `json:"service_id,omitempty" jsonschema:"kind names: only metrics of this service ID"`
 	ServiceName string   `json:"service_name,omitempty" jsonschema:"kind names: only metrics of this service name"`
 	Label       string   `json:"label,omitempty" jsonschema:"kind values: the label whose values to list, such as service_name"`
@@ -620,6 +621,9 @@ func (s *Service) planList(in listMetricsInput) (listPlan, error) {
 	}
 	if in.ServiceID != "" && in.ServiceName != "" {
 		return listPlan{}, newToolError(codeInvalidInput, "pass service_id or service_name, not both")
+	}
+	if utf8.RuneCountInString(in.Search) > maxSearchLen {
+		return listPlan{}, newToolError(codeInvalidInput, "search must be at most %d characters", maxSearchLen)
 	}
 	if kind == listKindValues && in.Label == "" {
 		return listPlan{}, newToolError(codeInvalidInput, "kind values needs a label, such as service_name")

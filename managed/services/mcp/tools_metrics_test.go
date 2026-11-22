@@ -1225,6 +1225,16 @@ func TestListMetricsTool(t *testing.T) {
 		requireListInvalid(t, map[string]any{"kind": "series", "match": []string{"up", "rate("}}, "cannot parse")
 	})
 
+	t.Run("SearchIsCapped", func(t *testing.T) {
+		t.Parallel()
+
+		requireListInvalid(t, map[string]any{"search": strings.Repeat("é", 201)}, "search must be at most 200 characters")
+
+		fake := newFakePMM(t, listRoutes(nil))
+		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"search": strings.Repeat("é", 200)})
+		require.False(t, isError, text)
+	})
+
 	t.Run("PeriodFromInTheFuture", func(t *testing.T) {
 		t.Parallel()
 
