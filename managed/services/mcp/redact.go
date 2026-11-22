@@ -329,30 +329,36 @@ func quotedClose(s string, start int, backslashEscapes bool) (int, bool) {
 }
 
 // numberEnd returns the index just past the numeric literal that starts at
-// s[start]: decimal, fractional, exponent, 0x-hex or 0b-binary.
+// s[start]: decimal, fractional or exponent, or after 0x, 0o or 0b
+// hexadecimal, octal or binary. Underscores between digits, which
+// PostgreSQL 16 takes, are part of it.
 func numberEnd(s string, start int) int {
 	j := start
-	if s[j] == '0' && j+1 < len(s) && strings.IndexByte("xXbB", s[j+1]) >= 0 {
+	if s[j] == '0' && j+1 < len(s) && strings.IndexByte("xXoObB", s[j+1]) >= 0 {
 		j += 2
-		for j < len(s) && isHexDigit(s[j]) {
+		for j < len(s) && (isHexDigit(s[j]) || s[j] == '_') {
 			j++
 		}
 		return j
 	}
-	for j < len(s) && (isDigit(s[j]) || s[j] == '.') {
-		j++
-	}
+	j = digitsEnd(s, j, true)
 	if j < len(s) && (s[j] == 'e' || s[j] == 'E') {
 		k := j + 1
 		if k < len(s) && (s[k] == '+' || s[k] == '-') {
 			k++
 		}
 		if k < len(s) && isDigit(s[k]) {
-			j = k
-			for j < len(s) && isDigit(s[j]) {
-				j++
-			}
+			j = digitsEnd(s, k, false)
 		}
+	}
+	return j
+}
+
+// digitsEnd returns the index just past the digits from s[j], with the
+// underscores between them and, with point set, decimal points.
+func digitsEnd(s string, j int, point bool) int {
+	for j < len(s) && (isDigit(s[j]) || point && s[j] == '.' || s[j] == '_' && j+1 < len(s) && isDigit(s[j+1])) {
+		j++
 	}
 	return j
 }

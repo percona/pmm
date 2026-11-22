@@ -52,6 +52,9 @@ func TestMaskSQLLiterals(t *testing.T) {
 		{"PostgreSQLDollarQuoteNonASCIITag", "ALTER ROLE app PASSWORD $п$my secret text$п$ VALID UNTIL $1", false, "ALTER ROLE app PASSWORD ? VALID UNTIL $1"},
 		{"MySQLDollarIsIdentifier", "SELECT c$d, `a$b` FROM t", true, "SELECT c$d, `a$b` FROM t"},
 		{"Binary", "flags = 0b1010", true, "flags = ?"},
+		// PostgreSQL 16 takes octal literals and underscores between digits.
+		{"PostgreSQL16Numbers", "a = 1_000_000 AND b = 0o17 AND c = 0x1F AND d = 0b101 AND e = 0x_FF_FF AND f = 1_000.000_5e1_0", false,
+			"a = ? AND b = ? AND c = ? AND d = ? AND e = ? AND f = ?"},
 		// An apostrophe in a comment must not pair with a real quote.
 		{"LineComment", "note = 'x' -- it's\n AND ssn = 'SECRET'", false, "note = ? --?\n AND ssn = ?"},
 		{"MySQLHashComment", "SELECT * FROM t WHERE id = ? # customer john.doe@example.com\nAND a = 1", true, "SELECT * FROM t WHERE id = ? #?\nAND a = ?"},
