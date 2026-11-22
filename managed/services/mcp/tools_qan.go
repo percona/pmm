@@ -815,12 +815,16 @@ func checkQANValue(input, value string) error {
 const withheldFingerprint = "(fingerprint withheld: PMM stored this statement unnormalized, and PMM_MCP_RAW_SQL is off)"
 
 // fingerprintText masks a fingerprint unless raw SQL is on, under its engine's quoting or, if unknown, under both:
-// a SQL one with a quoted string is a raw statement and is withheld.
+// a SQL one with a quoted string is a raw statement and is withheld. A db. text of an engine that is not SQL is a
+// MongoDB one, withheld when its quotes don't pair.
 func fingerprintText(fingerprint, engine string, raw bool) string {
 	if raw {
 		return fingerprint
 	}
-	if strings.HasPrefix(fingerprint, "db.") {
+	if strings.HasPrefix(fingerprint, "db.") && engine != engineMySQL && engine != enginePostgreSQL {
+		if !mongoQuotesPair(fingerprint) {
+			return withheldFingerprint
+		}
 		return maskMongoFingerprint(fingerprint)
 	}
 	masked, quoted := maskSQL(fingerprint, engine == engineMySQL)

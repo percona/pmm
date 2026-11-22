@@ -196,6 +196,17 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 	}
 	assert.Contains(t, got, `db.orders.aggregate([{"$match":{"email":"?"}}, {"$lookup":{"from":?,"pipeline":[{"$match":{"email":?}}]}}`,
 		"keys, stages and the agent's own ? survive")
+	assert.Equal(t, got, fingerprintText(mongo, engineMongoDB, false))
+
+	// The MongoDB masker reads only texts that are not of a SQL engine, and withholds those whose quotes it can't pair.
+	for engine, fp := range map[string]string{
+		engineMySQL:      `db.users.find('alice@example.com')`,
+		enginePostgreSQL: `db.users.find('alice@example.com')`,
+		engineMongoDB:    `db.users.find({'email': 'alice@example.com'})`,
+		"":               `db.users.find({"email": "alice@example.com})`,
+	} {
+		assert.Equal(t, withheldFingerprint, fingerprintText(fp, engine, false), engine)
+	}
 }
 
 // TestTopQueriesQuotingFollowsTheService pins that a report filtered to one

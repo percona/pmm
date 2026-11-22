@@ -674,6 +674,24 @@ func maskMongoFingerprint(fingerprint string) string {
 	return b.String()
 }
 
+// mongoQuotesPair reports whether a MongoDB fingerprint holds no single quote and every double quote in it closes, so
+// that maskMongoFingerprint finds every string.
+func mongoQuotesPair(fingerprint string) bool {
+	for i := 0; i < len(fingerprint); i++ {
+		switch fingerprint[i] {
+		case '\'':
+			return false
+		case '"':
+			end, closed := quotedClose(fingerprint, i, true)
+			if !closed {
+				return false
+			}
+			i = end - 1
+		}
+	}
+	return true
+}
+
 // jsonValueEnd returns the index just past the JSON value that starts at s[start]: a string, a brace or bracket
 // group with what it nests, or a bare word or number. A string or group that does not close, or closes with the wrong
 // bracket, extends to the end of s.
