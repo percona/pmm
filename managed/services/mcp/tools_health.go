@@ -246,7 +246,7 @@ var _ renderer = healthResult{}
 
 func (r healthResult) render() string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "Health signals of %s (%s)\n%s\n", echo(r.ServiceName), r.Engine, windowLine(r.Window))
+	fmt.Fprintf(&b, "Health signals of %s (%s)\n%s\n", oneLine(r.ServiceName), r.Engine, windowLine(r.Window))
 	for _, sig := range r.Signals {
 		switch {
 		case sig.Error != nil:

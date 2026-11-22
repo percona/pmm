@@ -167,10 +167,10 @@ func TestUntrustedFieldsMarked(t *testing.T) {
 			"tables[].database", "tables[].name", "tables[].definition", "tables[].indexes",
 			"tables[].definition_error.message", "tables[].indexes_error.message", "unresolved", "not_fetched",
 		},
-		"pmm_get_config":     {"service_name", "version", "variables[].value"},
+		"pmm_get_config":     {"service_name", "version", "variables[].name", "variables[].value"},
 		"pmm_catalog":        {},
 		"pmm_query_metrics":  {"series[].labels", "shared_labels"},
-		"pmm_list_metrics":   {"labels", "values", "series"},
+		"pmm_list_metrics":   {"names[].name", "groups[].prefix", "labels", "values", "series"},
 		"pmm_service_health": {"service_name", "signals[].error.message"},
 	}
 	tools := listedTools(t)

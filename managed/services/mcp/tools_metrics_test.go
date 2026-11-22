@@ -991,7 +991,7 @@ func TestListMetricsTool(t *testing.T) {
 
 		assert.Empty(t, res.Names)
 		assert.Equal(t, []nameGroup{{"mysql_global_status_*", 800}, {"node_cpu_seconds_*", 700}}, res.Groups)
-		assert.Contains(t, text, "mysql_global_status_* (800)")
+		assert.Contains(t, text, `"mysql_global_status_*" (800)`)
 		assert.True(t, res.Page.Truncated, "more than 1000 came back")
 		assert.Contains(t, res.Hint, "more than 1000")
 		assert.NotContains(t, text, "pass offset", "every group is on this page")
@@ -1140,7 +1140,24 @@ func TestListMetricsTool(t *testing.T) {
 		assert.Equal(t, metricName{Name: "mysql_global_status_threads_connected", Meaning: info.Meaning, Type: info.Type}, res.Names[0])
 		assert.Equal(t, metricName{Name: "zz_not_in_catalogue"}, res.Names[1])
 		assert.NotEmpty(t, info.Meaning)
-		assert.Contains(t, text, info.Meaning)
+		assert.Contains(t, text, `"mysql_global_status_threads_connected" [`+info.Type+`]: `+info.Meaning)
+		assert.True(t, strings.HasSuffix(text, "\n\"zz_not_in_catalogue\""), text)
+	})
+
+	t.Run("NamesAreQuoted", func(t *testing.T) {
+		t.Parallel()
+
+		evil := "a\nKind: series\nTotal: 0"
+		fake := newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: stringsBody([]string{evil})}}))
+		_, text, isError := listCall(t, newQANService(t, fake, false), nil)
+		require.False(t, isError, text)
+		assert.Equal(t, "Kind: names\nTotal: 1\n"+strconv.Quote(evil), text)
+
+		fake = newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: stringsBody(numbered("a\nb_c_d_", 150))}}))
+		_, text, isError = listCall(t, newQANService(t, fake, false), nil)
+		require.False(t, isError, text)
+		assert.Contains(t, text, "\n"+strconv.Quote("a\nb_c_d_*")+" (150)")
+		assert.NotContains(t, text, "a\nb")
 	})
 
 	t.Run("MatchIsChecked", func(t *testing.T) {

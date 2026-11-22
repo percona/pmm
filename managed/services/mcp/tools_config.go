@@ -19,6 +19,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"regexp"
 	"slices"
 	"sort"
 	"strconv"
@@ -59,7 +60,7 @@ type configResult struct {
 
 // variable is one server variable of a pmm_get_config result.
 type variable struct {
-	Name  string `json:"name" jsonschema:"Variable name, without the exporter's metric prefix."`
+	Name  string `json:"name" jsonschema:"Untrusted. Variable name, without the exporter's metric prefix."`
 	Value string `json:"value" jsonschema:"Untrusted. Value as PMM's metrics hold it."`
 }
 
@@ -83,7 +84,11 @@ func (r configResult) render() string {
 	}
 	lines := []string{header, "-- " + at}
 	for _, v := range r.Variables {
-		lines = append(lines, v.Name+"\t"+v.Value)
+		name := v.Name
+		if !plainVariableName.MatchString(name) {
+			name = strconv.Quote(name)
+		}
+		lines = append(lines, name+"\t"+v.Value)
 	}
 	text := strings.Join(lines, "\n") + "\n\n" + view
 	if m := r.Page.marker(); m != "" {
@@ -91,6 +96,9 @@ func (r configResult) render() string {
 	}
 	return text
 }
+
+// plainVariableName is what a variable name taken from an exporter's metric name looks like; the text quotes any other.
+var plainVariableName = regexp.MustCompile(`^[a-zA-Z0-9_:]+$`)
 
 // configMetrics maps an engine to the metric prefix the exporter uses for
 // numeric server variables.

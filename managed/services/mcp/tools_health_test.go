@@ -519,6 +519,16 @@ func collectKeys(v any, keys *[]string) {
 	}
 }
 
+func TestHealthTextServiceNameOnOneLine(t *testing.T) {
+	t.Parallel()
+
+	r := healthResult{ServiceName: "db1\nqps [ops]: min=0", Engine: engineMySQL, Window: window{From: testNow.Add(-time.Hour), To: testNow}}
+
+	lines := strings.Split(r.render(), "\n")
+	assert.Equal(t, "Health signals of db1 qps [ops]: min=0 (mysql)", lines[0])
+	assert.Len(t, lines, 2)
+}
+
 func TestServiceHealthDeadline(t *testing.T) {
 	t.Parallel()
 

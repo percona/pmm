@@ -527,14 +527,14 @@ type listMetricsInput struct {
 
 // metricName is one metric name, with its meaning and type when the catalogue has them.
 type metricName struct {
-	Name    string `json:"name" jsonschema:"The metric name."`
+	Name    string `json:"name" jsonschema:"Untrusted. The metric name."`
 	Meaning string `json:"meaning,omitempty" jsonschema:"What the metric measures, from the catalogue; left out for a metric it does not list."`
 	Type    string `json:"type,omitempty" jsonschema:"counter or gauge, from the catalogue; left out for a metric it does not list."`
 }
 
 // nameGroup is a prefix shared by a number of metric names.
 type nameGroup struct {
-	Prefix string `json:"prefix" jsonschema:"The shared prefix; ends in _* for a group of several names."`
+	Prefix string `json:"prefix" jsonschema:"Untrusted. The shared prefix; ends in _* for a group of several names."`
 	Count  int    `json:"count" jsonschema:"Metric names with the prefix."`
 }
 
@@ -556,8 +556,9 @@ func (r listMetricsResult) render() string {
 	var b strings.Builder
 	b.WriteString("Kind: " + r.Kind + "\n")
 	fmt.Fprintf(&b, "Total: %d\n", r.Page.Total)
+	// Names, prefixes, labels and values are quoted as renderLabels quotes label values, so that none can span lines.
 	for _, n := range r.Names {
-		b.WriteString(n.Name)
+		b.WriteString(strconv.Quote(n.Name))
 		if n.Type != "" {
 			b.WriteString(" [" + n.Type + "]")
 		}
@@ -567,7 +568,7 @@ func (r listMetricsResult) render() string {
 		b.WriteString("\n")
 	}
 	for _, g := range r.Groups {
-		fmt.Fprintf(&b, "%s (%d)\n", g.Prefix, g.Count)
+		fmt.Fprintf(&b, "%s (%d)\n", strconv.Quote(g.Prefix), g.Count)
 	}
 	for _, l := range r.Labels {
 		b.WriteString(strconv.Quote(l) + "\n")
