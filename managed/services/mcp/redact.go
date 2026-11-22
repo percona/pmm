@@ -79,7 +79,7 @@ var mongoPlanContainers = []string{
 	"executionStats", "executionStages", "allPlansExecution", "serverInfo", "shards", "stages", "$cursor",
 }
 
-// pgEstimates matches the trailing (cost=...) and (actual ...) groups of a
+// pgEstimates matches the trailing "(cost=" and "(actual " groups of a
 // PostgreSQL text-plan node line, whose numbers are estimates and measurements.
 var pgEstimates = regexp.MustCompile(`(?:\s+\((?:cost=[0-9.]+\.\.[0-9.]+ rows=[0-9.]+ width=[0-9]+|` +
 	`actual (?:time=[0-9.]+\.\.[0-9.]+ )?rows=[0-9.]+ loops=[0-9]+)\))+$`)
