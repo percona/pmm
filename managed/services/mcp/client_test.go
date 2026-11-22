@@ -34,6 +34,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 )
 
 const vmProxy = "/graph/api/datasources/proxy/uid/metrics-uid/"
@@ -600,5 +602,48 @@ func TestNewClientLoopbackOnly(t *testing.T) {
 		_, err := newClient(u)
 		require.Error(t, err, u)
 		assert.Equal(t, "invalid loopback URL (PMM_DEV_MCP_LOOPBACK_URL): the host must be a loopback address or localhost", err.Error(), u)
+	}
+}
+
+// TestQANResponseBounded pins that a QAN report or query-metrics response is read up to maxQANResponseBytes and no
+// further, and that a large legitimate one, over the datasource proxy's 4 MiB, still decodes.
+func TestQANResponseBounded(t *testing.T) {
+	t.Parallel()
+
+	for path, call := range map[string]func(c *client) error{
+		"/v1/qan/metrics:getReport": func(c *client) error {
+			_, err := c.GetReport(t.Context(), testAuth, qan_service.GetReportBody{})
+			return err
+		},
+		"/v1/qan:getMetrics": func(c *client) error {
+			_, err := c.GetMetrics(t.Context(), testAuth, qan_service.GetMetricsBody{})
+			return err
+		},
+	} {
+		t.Run(path, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := newClient("http://127.0.0.1/")
+			require.NoError(t, err)
+			var read atomic.Int64
+			var size int
+			c.http = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+				assert.Equal(t, path, r.URL.Path)
+				body := io.MultiReader(strings.NewReader("{"), bytes.NewReader(bytes.Repeat([]byte(" "), size)), strings.NewReader("}"))
+				return &http.Response{StatusCode: http.StatusOK, Header: http.Header{}, Body: countingBody{r: body, n: &read}}, nil
+			})}
+
+			size = 10 << 20
+			require.NoError(t, call(c))
+
+			read.Store(0)
+			size = maxQANResponseBytes
+			err = call(c)
+			require.ErrorIs(t, err, errResponseTooLarge)
+			assert.LessOrEqual(t, read.Load(), int64(maxQANResponseBytes+1))
+			te := mapError(err)
+			assert.Equal(t, codePMMUnavailable, te.code)
+			assert.Equal(t, "POST "+path+": response is larger than the read limit of 16 MiB", te.message)
+		})
 	}
 }

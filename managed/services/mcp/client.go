@@ -66,6 +66,10 @@ const (
 	// Bound of QAN's filter lists read into memory.
 	maxQANFiltersBytes = 4 << 20
 
+	// Bound of a QAN report or query-metrics response read into memory. The largest one MCP asks for, a 200-row
+	// search report with 14 columns, 239-point sparklines and 2,048-character fingerprints, is about 9.2 MiB.
+	maxQANResponseBytes = 16 << 20
+
 	// One mebibyte, the unit in which a read limit is reported.
 	mib = 1 << 20
 
@@ -671,9 +675,10 @@ func (c *client) getAlertingJSON(ctx context.Context, auth callerAuth, path stri
 	return err
 }
 
-// postJSON performs an authenticated POST with a JSON body and decodes the response.
+// postJSON performs an authenticated POST with a JSON body and decodes the response, of which it reads at most
+// maxQANResponseBytes.
 func (c *client) postJSON(ctx context.Context, auth callerAuth, path string, body, out any) error {
-	return c.postJSONLimited(ctx, auth, path, body, out, 0)
+	return c.postJSONLimited(ctx, auth, path, body, out, maxQANResponseBytes)
 }
 
 // postJSONLimited is postJSON that reads at most maxBytes of the response, as doJSONLimited does.

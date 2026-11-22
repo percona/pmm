@@ -396,6 +396,8 @@ Before a range query without an aggregation runs, the server estimates the size 
 
 `pmm_alerts` reads at most 16 MiB of each response from Grafana's alerting APIs. A longer response fails the call with `pmm_unavailable`, and the message names the limit.
 
+MCP also reads at most 16 MiB of each Query Analytics report and query metrics response. `pmm_top_queries` and `pmm_query_detail` read them, and so does the query lookup of `pmm_get_explain` and `pmm_get_schema`. A longer response fails the call with `pmm_unavailable`, and the message names the limit.
+
 ### Rate limits
 
 The limits are per caller, identified by a hash of the credential, and per PMM Server replica:
