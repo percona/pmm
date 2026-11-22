@@ -515,6 +515,10 @@ func (s *Service) planTablesOf(ctx context.Context, auth callerAuth, resolved *r
 		storedExample := resolved.Example != "" && len(placeholders) == 0
 		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative, storedExample)
 	}
+	if len(output) > maxPlanInputBytes {
+		return nil, nil, newToolError(codeNoQuerySource,
+			"the EXPLAIN plan is larger than 4 MiB, the most PMM parses of a plan; pass service_id, database and tables to name the tables")
+	}
 	// Only the plan is read: the explained statement can be the stored example, literals included.
 	plan, err := decodeExplainEnvelope(output)
 	if err != nil {

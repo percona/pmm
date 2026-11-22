@@ -570,6 +570,14 @@ func TestMaskMongoFingerprintOpaqueValues(t *testing.T) {
 			want: `db.c.find({"comment":{"$eq":"?"}})`,
 		},
 		{
+			// pmm-agent leaves a $match nested in another stage unmasked, booleans and nulls included.
+			name: "BareWords",
+			in: `db.null.aggregate([{"$match":{"a":"?"}}, {"$lookup":{"from":"o","pipeline":[` +
+				`{"$match":{"paid":true,"void":false,"note":null,"nullable":["truex",true]}}],"as":"x"}}])`,
+			want: `db.null.aggregate([{"$match":{"a":"?"}}, {"$lookup":{"from":?,"pipeline":[` +
+				`{"$match":{"paid":?,"void":?,"note":?,"nullable":[?,?]}}],"as":?}}])`,
+		},
+		{
 			name: "UnbalancedMasksToTheEnd",
 			in:   `db.c.aggregate([{"$project":{"x":{"$literal":{"cust_SECRET_4":[1,2}}])`,
 			want: `db.c.aggregate([{"$project":{"x":{"$literal":?`,

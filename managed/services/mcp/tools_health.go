@@ -77,12 +77,14 @@ var healthSignals = map[string][]signal{
 			Query: `avg by (node_name) (((node_memory_MemAvailable_bytes{%[1]s} or (node_memory_MemFree_bytes{%[1]s} + node_memory_Buffers_bytes{%[1]s} + node_memory_Cached_bytes{%[1]s})) / node_memory_MemTotal_bytes{%[1]s}) * 100 or (100 - azure_memory_percent_average{%[1]s}))`,
 		},
 		{
+			// rds_exporter reports CloudWatch's latency in seconds, so unlike the dashboard only the Enhanced Monitoring terms, in ms, are divided.
 			Name: "disk_read_latency", Unit: "s", Source: "node_disk_read_time_seconds_total", Node: true,
-			Query: `avg by (node_name) ((sum by (node_name) (rate(node_disk_read_time_seconds_total{%[1]s}[5m])) / sum by (node_name) (rate(node_disk_reads_completed_total{%[1]s}[5m]) > 0 )) or (sum by (node_name) (irate(node_disk_read_time_seconds_total{%[1]s}[5m])) / sum by (node_name) (irate(node_disk_reads_completed_total{%[1]s}[5m]) > 0 )) or avg_over_time(aws_rds_read_latency_average{%[1]s}[5m])/1000 or avg_over_time(aws_rds_read_latency_average{%[1]s}[5m])/1000 or avg_over_time(rdsosmetrics_diskIO_readLatency{%[1]s}[5m])/1000 or avg_over_time(rdsosmetrics_diskIO_readLatency{%[1]s}[5m])/1000)`,
+			Query: `avg by (node_name) ((sum by (node_name) (rate(node_disk_read_time_seconds_total{%[1]s}[5m])) / sum by (node_name) (rate(node_disk_reads_completed_total{%[1]s}[5m]) > 0 )) or (sum by (node_name) (irate(node_disk_read_time_seconds_total{%[1]s}[5m])) / sum by (node_name) (irate(node_disk_reads_completed_total{%[1]s}[5m]) > 0 )) or avg_over_time(aws_rds_read_latency_average{%[1]s}[5m]) or avg_over_time(aws_rds_read_latency_average{%[1]s}[5m]) or avg_over_time(rdsosmetrics_diskIO_readLatency{%[1]s}[5m])/1000 or avg_over_time(rdsosmetrics_diskIO_readLatency{%[1]s}[5m])/1000)`,
 		},
 		{
+			// rds_exporter reports CloudWatch's latency in seconds, so unlike the dashboard only the Enhanced Monitoring terms, in ms, are divided.
 			Name: "disk_write_latency", Unit: "s", Source: "node_disk_write_time_seconds_total", Node: true,
-			Query: `avg by (node_name) ((sum by (node_name) (rate(node_disk_write_time_seconds_total{%[1]s}[5m])) / sum by (node_name) (rate(node_disk_writes_completed_total{%[1]s}[5m]) > 0 )) or (sum by (node_name) (irate(node_disk_write_time_seconds_total{%[1]s}[5m])) / sum by (node_name) (irate(node_disk_writes_completed_total{%[1]s}[5m]) > 0 )) or (avg_over_time(aws_rds_write_latency_average{%[1]s}[5m])/1000 or avg_over_time(aws_rds_write_latency_average{%[1]s}[5m])/1000) or (avg_over_time(rdsosmetrics_diskIO_writeLatency{%[1]s}[5m]) or avg_over_time(rdsosmetrics_diskIO_writeLatency{%[1]s}[5m]))/1000)`,
+			Query: `avg by (node_name) ((sum by (node_name) (rate(node_disk_write_time_seconds_total{%[1]s}[5m])) / sum by (node_name) (rate(node_disk_writes_completed_total{%[1]s}[5m]) > 0 )) or (sum by (node_name) (irate(node_disk_write_time_seconds_total{%[1]s}[5m])) / sum by (node_name) (irate(node_disk_writes_completed_total{%[1]s}[5m]) > 0 )) or (avg_over_time(aws_rds_write_latency_average{%[1]s}[5m]) or avg_over_time(aws_rds_write_latency_average{%[1]s}[5m])) or (avg_over_time(rdsosmetrics_diskIO_writeLatency{%[1]s}[5m]) or avg_over_time(rdsosmetrics_diskIO_writeLatency{%[1]s}[5m]))/1000)`,
 		},
 		{
 			Name: "min_space_available", Unit: "percent", Source: "node_filesystem_free_bytes", Node: true,

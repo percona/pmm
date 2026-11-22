@@ -1115,3 +1115,22 @@ func TestHealthSignalUnits(t *testing.T) {
 		}
 	}
 }
+
+func TestHealthRDSLatencyInSeconds(t *testing.T) {
+	t.Parallel()
+
+	found := 0
+	for engine, signals := range healthSignals {
+		for _, sig := range signals {
+			if sig.Name != "disk_read_latency" && sig.Name != "disk_write_latency" {
+				continue
+			}
+			found++
+			// rds_exporter exports CloudWatch's ReadLatency and WriteLatency averages unchanged, in seconds.
+			assert.Contains(t, sig.Query, "_latency_average{%[1]s}[5m])", "%s/%s", engine, sig.Name)
+			assert.NotContains(t, sig.Query, "_latency_average{%[1]s}[5m])/1000", "%s/%s", engine, sig.Name)
+			assert.Contains(t, sig.Query, "rdsosmetrics_diskIO_", "%s/%s", engine, sig.Name)
+		}
+	}
+	assert.Equal(t, 2, found)
+}
