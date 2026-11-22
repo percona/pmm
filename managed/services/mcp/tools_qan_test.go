@@ -1197,6 +1197,13 @@ func TestTopQueriesReportInputs(t *testing.T) {
 func mixedEngineReports(t *testing.T, status int) *fakePMM {
 	t.Helper()
 
+	return mixedEngineReportsFrom(t, status, "report_mixed_engines.json")
+}
+
+// mixedEngineReportsFrom is mixedEngineReports with the first report read from file.
+func mixedEngineReportsFrom(t *testing.T, status int, file string) *fakePMM {
+	t.Helper()
+
 	routes := qanRoutes()
 	routes["POST /v1/qan/metrics:getFilters"] = fixture{file: "filters_mixed.json"}
 	fake := newFakePMM(t, routes)
@@ -1211,7 +1218,7 @@ func mixedEngineReports(t *testing.T, status int) *fakePMM {
 		fake.requests = append(fake.requests, recordedRequest{method: req.Method, path: req.URL.Path, header: req.Header.Clone(), body: body})
 		fake.mu.Unlock()
 
-		file := "report_mixed_engines.json"
+		file := file
 		if strings.Contains(string(body), `"service_type"`) {
 			if status != 0 {
 				rw.WriteHeader(status)
@@ -1282,6 +1289,24 @@ func TestTopQueriesEnginePerRow(t *testing.T) {
 		require.Len(t, reqs, 2)
 		assert.Equal(t, "/*%*/", unmarshalBody[qan_service.GetReportBody](t, reqs[0]).Search)
 		assert.Equal(t, "/*%*/", unmarshalBody[qan_service.GetReportBody](t, reqs[1]).Search)
+	})
+
+	t.Run("QuotedQueryIDStaysUnknown", func(t *testing.T) {
+		t.Parallel()
+
+		// qan-api2 joins filter values into its SQL, so a queryid with a quote is not sent back in a filter.
+		fake := mixedEngineReportsFrom(t, 0, "report_mixed_engines_quoted_id.json")
+		session := connect(t, newQANService(t, fake, false))
+		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+		require.False(t, isError, text)
+		assert.Equal(t, "SELECT `id` FROM `o'neil` WHERE `id` = ?", fingerprintOf(t, text, "Q-MY"))
+		assert.Equal(t, withheldFingerprint, fingerprintOf(t, text, `Q-X') OR ('1`), "its engine stays unknown")
+
+		reqs := fake.requestsTo("/v1/qan/metrics:getReport")
+		require.Len(t, reqs, 2)
+		body := unmarshalBody[qan_service.GetReportBody](t, reqs[1])
+		assert.Equal(t, []string{"Q-MY"}, body.Labels[0].Value)
+		assert.EqualValues(t, 1, body.Limit)
 	})
 
 	t.Run("CallerFiltersServiceType", func(t *testing.T) {

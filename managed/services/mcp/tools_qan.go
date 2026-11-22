@@ -911,14 +911,18 @@ func (s *Service) reportEngine(
 // rowEngines finds each ambiguous queryid's engine with one more report, the
 // same one filtered to MySQL: a queryid with all of its calls there is MySQL,
 // one absent is PostgreSQL, and one in both stays unknown, so it is withheld.
+// A queryid that checkQANValue refuses is not sent, and stays unknown too.
 func (s *Service) rowEngines(ctx context.Context, auth callerAuth, body qan_service.GetReportBody, rows []qanReportRow) map[string]string {
 	calls := make(map[string]float64)
 	var ids []string
 	for _, r := range rows {
-		if r.Dimension != "" && quotingMatters(r.Fingerprint) {
+		if r.Dimension != "" && quotingMatters(r.Fingerprint) && checkQANValue(groupByQuery, r.Dimension) == nil {
 			ids = append(ids, r.Dimension)
 			calls[r.Dimension] = finite(r.NumQueries)
 		}
+	}
+	if len(ids) == 0 {
+		return nil
 	}
 	body.Labels = append(slices.Clone(body.Labels),
 		&qan_service.GetReportParamsBodyLabelsItems0{Key: groupByQuery, Value: ids},
