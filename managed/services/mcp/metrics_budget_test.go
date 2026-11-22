@@ -430,6 +430,68 @@ func TestShapeSeriesBudgetBoundary(t *testing.T) {
 	t.Fatal("no padding put the bare result within 100 bytes of the budget")
 }
 
+func TestShapeSeriesKeepsTheMostThatFit(t *testing.T) {
+	t.Parallel()
+
+	for pad := 0; pad < 2000; pad += 197 {
+		series := make([]metricSeries, maxSeriesShown)
+		for i := range series {
+			series[i] = mkSeries(map[string]string{"q": fmt.Sprintf("%03d-%s", i, strings.Repeat("x", pad))}, 2, constant(float64(i)))
+		}
+		got := shapeSeries("x", series, maxSeriesShown, nil, "", "")
+		assert.LessOrEqual(t, sizeOf(t, got), maxMetricsBytes, "pad %d", pad)
+		if len(got.Series) == maxSeriesShown {
+			continue
+		}
+
+		kept := make([]rankedSeries, len(got.Series)+1)
+		for i := range kept {
+			kept[i] = rankSeries(series[maxSeriesShown-1-i])
+		}
+		head := metricsResult{Query: "x"}
+		assert.Greater(t, sizeOf(t, buildMetricsResult(head, kept, maxSeriesShown, false)), maxMetricsBytes, "pad %d: one more series does not fit", pad)
+	}
+}
+
+func TestShapeSeriesLargeLabelsTakeBoundedTime(t *testing.T) {
+	t.Parallel()
+
+	big := strings.Repeat("x", 26<<10)
+	for _, tc := range []struct {
+		name   string
+		labels func(i int) map[string]string
+		fit    int
+	}{
+		// Every series has a label of its own that is over 16 KiB alone.
+		{name: "LabelsOfTheirOwn", labels: func(i int) map[string]string { return map[string]string{"q": fmt.Sprintf("%03d-%s", i, big)} }},
+		// Every other series has the same 4 KiB label, which no two series shown can share.
+		{name: "RepeatedLabels", fit: 2, labels: func(i int) map[string]string {
+			if i%2 == 0 {
+				return map[string]string{"n": strconv.Itoa(i)}
+			}
+			return map[string]string{"n": strconv.Itoa(i), "q": big[:4<<10]}
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			series := make([]metricSeries, maxSeriesShown)
+			for i := range series {
+				series[i] = mkSeries(tc.labels(i), 2, constant(float64(i)))
+			}
+
+			began := time.Now()
+			got := shapeSeries("x", series, maxSeriesShown, nil, "", "")
+			elapsed := time.Since(began)
+
+			assert.Less(t, elapsed, time.Second)
+			assert.Len(t, got.Series, tc.fit)
+			assert.True(t, got.Truncated)
+			assert.LessOrEqual(t, sizeOf(t, got), maxMetricsBytes)
+		})
+	}
+}
+
 func TestMetricsResultRender(t *testing.T) {
 	t.Parallel()
 

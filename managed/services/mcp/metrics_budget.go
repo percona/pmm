@@ -22,6 +22,7 @@ import (
 	"maps"
 	"math"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -199,16 +200,46 @@ func shapeSeries(expr string, series []metricSeries, limit int, w *window, step,
 	}
 
 	raw := points <= maxPoints
+	if n := labelsFit(kept); n < len(kept) {
+		raw = false
+		kept = kept[:n]
+	}
 	res := buildMetricsResult(head, kept, len(series), raw)
-	if raw && metricsSize(res) > maxMetricsBytes {
+	size := metricsSize(res)
+	if raw && size > maxMetricsBytes {
 		raw = false
 		res = buildMetricsResult(head, kept, len(series), raw)
+		size = metricsSize(res)
 	}
-	for metricsSize(res) > maxMetricsBytes && len(kept) > 0 {
-		kept = kept[:len(kept)-1]
-		res = buildMetricsResult(head, kept, len(series), raw)
+	if size <= maxMetricsBytes {
+		return res
 	}
-	return res
+	// Each series kept adds a row, so the size grows with the count, and a binary search builds the result log2(limit) times.
+	fit := sort.Search(len(kept), func(n int) bool {
+		return metricsSize(buildMetricsResult(head, kept[:n+1], len(series), raw)) > maxMetricsBytes
+	})
+	return buildMetricsResult(head, kept[:fit], len(series), raw)
+}
+
+// labelsFit returns how many of the series, from the first, can fit in maxMetricsBytes: a result shows each distinct
+// label other than the internal ones at least once in its text and once in its JSON, which bounds its size from below.
+func labelsFit(series []rankedSeries) int {
+	seen := make(map[[2]string]bool)
+	size := 0
+	for i, s := range series {
+		for k, v := range s.summary.Labels {
+			if slices.Contains(internalLabels, k) || seen[[2]string{k, v}] {
+				continue
+			}
+			seen[[2]string{k, v}] = true
+			// Once in the text and once in the JSON.
+			size += len(k) + len(v) + len(k) + len(v)
+		}
+		if size > maxMetricsBytes {
+			return i
+		}
+	}
+	return len(series)
 }
 
 // metricsSize is what a response costs: its text plus its structured content.
