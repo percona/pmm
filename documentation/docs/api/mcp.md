@@ -124,7 +124,7 @@ Most results link to the same data in PMM, so you can check an answer in PMM its
 | `pmm_get_explain` | QAN on the window the query was read in, with the query selected on its **Explain** tab |
 | `pmm_get_config` | QAN for the service, over the hour before `at` |
 | `pmm_inventory` | The instance summary dashboard of each MySQL, PostgreSQL, MongoDB, HAProxy and ProxySQL service (ProxySQL's dashboard selects by node, so a ProxySQL service without a node name has no link) |
-| `pmm_service_health` | The instance summary dashboard of the service |
+| `pmm_service_health` | The instance summary dashboard of the service, over the window of the signals |
 | `pmm_alerts` | The alert rule of each alert in PMM's alerting |
 
 `pmm_version`, `pmm_catalog`, `pmm_get_schema`, `pmm_query_metrics` and `pmm_list_metrics` carry no link. Links use the PMM public address setting when it is set, otherwise the host name and scheme the client connected with.

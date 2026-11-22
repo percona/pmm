@@ -109,7 +109,8 @@ func TestServiceHealthTool(t *testing.T) {
 		assert.Equal(t, window{From: testNow.Add(-time.Hour), To: testNow}, res.Window)
 		assert.False(t, res.Partial)
 		assert.Empty(t, res.Note)
-		assert.Equal(t, "https://pmm.example.com/graph/d/mysql-instance-summary?var-service_name=shop-mysql", res.PMMURL)
+		assert.Equal(t, "https://pmm.example.com/graph/d/mysql-instance-summary?var-service_name=shop-mysql&from="+
+			ms(testNow.Add(-time.Hour))+"&to="+ms(testNow), res.PMMURL, "the dashboard opens on the window")
 
 		require.Len(t, res.Signals, len(healthSignals[engineMySQL])+len(healthSignals[engineNode]))
 		for _, sig := range res.Signals {

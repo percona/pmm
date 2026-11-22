@@ -241,7 +241,7 @@ type healthResult struct {
 	Signals     []signalResult `json:"signals" jsonschema:"The engine's signals, then the node's."`
 	Partial     bool           `json:"partial" jsonschema:"True when some signals failed; they carry their own error."`
 	Note        string         `json:"note,omitempty" jsonschema:"What no_data and null values can mean."`
-	PMMURL      string         `json:"pmm_url,omitempty" jsonschema:"Link to the service's instance summary dashboard in PMM."`
+	PMMURL      string         `json:"pmm_url,omitempty" jsonschema:"Link to the service's instance summary dashboard in PMM, over the window."`
 }
 
 var _ renderer = healthResult{}
@@ -351,7 +351,7 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		ServiceName: svc.ServiceName,
 		Engine:      svc.Engine,
 		Window:      window{From: start, To: end},
-		PMMURL:      serviceURL(s.publicBaseURL(ctx, req.Extra.Header), svc),
+		PMMURL:      serviceWindowURL(s.publicBaseURL(ctx, req.Extra.Header), svc, start, end),
 	}
 
 	skipNode := svc.NodeID == "" && svc.NodeName == ""

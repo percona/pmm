@@ -1526,7 +1526,7 @@
           "type": "boolean"
         },
         "pmm_url": {
-          "description": "Link to the service's instance summary dashboard in PMM.",
+          "description": "Link to the service's instance summary dashboard in PMM, over the window.",
           "type": "string"
         },
         "service_id": {

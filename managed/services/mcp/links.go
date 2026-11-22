@@ -85,6 +85,15 @@ func serviceURL(base string, svc serviceInfo) string {
 	return base + "graph/d/" + svc.Engine + "-instance-summary?" + q.Encode()
 }
 
+// serviceWindowURL is serviceURL with the dashboard's time range set to [from, to].
+func serviceWindowURL(base string, svc serviceInfo, from, to time.Time) string {
+	u := serviceURL(base, svc)
+	if u == "" {
+		return ""
+	}
+	return u + "&from=" + strconv.FormatInt(from.UnixMilli(), 10) + "&to=" + strconv.FormatInt(to.UnixMilli(), 10)
+}
+
 // qanQueryURL links to QAN with one query pre-selected; detailsTab may be
 // "" (default), "explain" or "tables".
 func qanQueryURL(base, queryID, serviceName string, from, to time.Time, detailsTab string) string {
