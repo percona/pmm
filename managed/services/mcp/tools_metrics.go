@@ -520,7 +520,7 @@ type listMetricsInput struct {
 	ServiceID   string   `json:"service_id,omitempty" jsonschema:"kind names: only metrics of this service ID"`
 	ServiceName string   `json:"service_name,omitempty" jsonschema:"kind names: only metrics of this service name"`
 	Label       string   `json:"label,omitempty" jsonschema:"kind values: the label whose values to list, such as service_name"`
-	Match       []string `json:"match,omitempty" jsonschema:"kinds labels, values, series: series selectors such as mysql_up; required for series; each names a metric"`
+	Match       []string `json:"match,omitempty" jsonschema:"kinds labels, values, series: plain selectors such as mysql_up; required for series; each names a metric"`
 	PeriodFrom  string   `json:"period_from,omitempty" jsonschema:"Start of the look-back, RFC3339 or relative such as now-6h; default now-1h, at most 7 days back"`
 	Limit       int      `json:"limit,omitempty" jsonschema:"Entries per page: 1 to 1000, default 100"`
 	Offset      int      `json:"offset,omitempty" jsonschema:"Entries to skip, to read the next page"`
@@ -657,6 +657,10 @@ func (s *Service) planList(in listMetricsInput) (listPlan, error) {
 		if err != nil {
 			return listPlan{}, err
 		}
+		err = checkMatch(sel)
+		if err != nil {
+			return listPlan{}, err
+		}
 	}
 
 	match := in.Match
@@ -668,6 +672,21 @@ func (s *Service) planList(in listMetricsInput) (listPlan, error) {
 		}
 	}
 	return listPlan{kind: kind, match: match, start: start, end: end, limit: in.Limit}, nil
+}
+
+// checkMatch refuses a match that is not a series selector alone: a function, an operator, a range or an offset.
+func checkMatch(sel string) error {
+	e, err := metricsql.Parse(sel)
+	if err != nil {
+		return newToolError(codeInvalidInput, "cannot parse the expression: %s", echo(err.Error()))
+	}
+	_, ok := e.(*metricsql.MetricExpr)
+	if ok {
+		return nil
+	}
+	return newToolError(codeInvalidInput,
+		"match '%s' is not a series selector: write a metric name and label matchers, such as mysql_up{service_name=\"db1\"}, "+
+			"without functions, operators, ranges or offset", echo(sel))
 }
 
 // nameSelector is the selector of a name search (names containing search, of the service when one is given), empty

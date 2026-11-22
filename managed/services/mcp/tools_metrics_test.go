@@ -1225,6 +1225,20 @@ func TestListMetricsTool(t *testing.T) {
 		requireListInvalid(t, map[string]any{"kind": "series", "match": []string{"up", "rate("}}, "cannot parse")
 	})
 
+	t.Run("MatchIsASelector", func(t *testing.T) {
+		t.Parallel()
+
+		for _, sel := range []string{`sum(mysql_up)`, `rate(mysql_up[5m])`, `mysql_up offset 1h`, `mysql_up[5m]`, `mysql_up or mysql_down`} {
+			requireListInvalid(t, map[string]any{"kind": "series", "match": []string{"mysql_up", sel}}, "is not a series selector")
+		}
+
+		fake := newFakePMM(t, listRoutes(nil))
+		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{
+			"kind": "series", "match": []string{`mysql_up`, `{__name__="mysql_up", service_name="db1"}`, `{__name__="mysql_up", a="x" or b="y"}`},
+		})
+		require.False(t, isError, text)
+	})
+
 	t.Run("SearchIsCapped", func(t *testing.T) {
 		t.Parallel()
 

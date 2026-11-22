@@ -905,7 +905,7 @@
           "type": "integer"
         },
         "match": {
-          "description": "kinds labels, values, series: series selectors such as mysql_up; required for series; each names a metric",
+          "description": "kinds labels, values, series: plain selectors such as mysql_up; required for series; each names a metric",
           "items": {
             "type": "string"
           },
