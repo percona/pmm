@@ -346,16 +346,26 @@ func TestAlertsTool(t *testing.T) {
 	t.Run("FilterMatchingNoAlert", func(t *testing.T) {
 		t.Parallel()
 
-		for _, args := range []map[string]any{
-			{"service_id": "svc-none"},
-			{"service_name": "shop-none"},
-			{"node_name": "host-none"},
-			{"service_id": "svc-a", "service_name": "shop-b"},
+		for _, tc := range []struct {
+			args map[string]any
+			want string
+		}{
+			{map[string]any{"service_id": "svc-none"}, "No firing, recovering or pending alerts match the service_id filter: check its value, or call pmm_alerts without it."},
+			{map[string]any{"service_name": "shop-none"}, "No firing, recovering or pending alerts match the service_name filter: check its value, or call pmm_alerts without it."},
+			{map[string]any{"node_name": "host-none"}, "No firing, recovering or pending alerts match the node_name filter: check its value, or call pmm_alerts without it."},
+			{
+				map[string]any{"service_id": "svc-a", "service_name": "shop-b"},
+				"No firing, recovering or pending alerts match the service_id and service_name filters: check their values, or call pmm_alerts without them.",
+			},
+			{
+				map[string]any{"service_name": "shop-b", "node_name": "host-a", "severity": "warning"},
+				"No firing, recovering or pending alerts match the service_name, node_name and severity filters: check their values, or call pmm_alerts without them.",
+			},
 		} {
-			got, text := callAlerts(t, newFakePMM(t, alertsRoutes()), args)
-			assert.Empty(t, got.Alerts, "%v", args)
-			assert.Zero(t, got.Page.Total, "%v", args)
-			assert.Equal(t, note+"\nNo firing, recovering or pending alerts found.", text, "%v", args)
+			got, text := callAlerts(t, newFakePMM(t, alertsRoutes()), tc.args)
+			assert.Empty(t, got.Alerts, "%v", tc.args)
+			assert.Zero(t, got.Page.Total, "%v", tc.args)
+			assert.Equal(t, note+"\n"+tc.want, text, "%v", tc.args)
 		}
 	})
 
@@ -628,7 +638,7 @@ func TestAlertsTool(t *testing.T) {
 		got, text := callAlerts(t, newFakePMM(t, alertsRoutes()), map[string]any{"severity": "none"})
 		assert.Empty(t, got.Alerts)
 		assert.Equal(t, note, got.Note)
-		assert.Equal(t, note+"\nNo firing, recovering or pending alerts found.", text)
+		assert.Equal(t, note+"\nNo firing, recovering or pending alerts match the severity filter: check its value, or call pmm_alerts without it.", text)
 	})
 
 	t.Run("NoSilencesReadWithoutASilencedAlert", func(t *testing.T) {

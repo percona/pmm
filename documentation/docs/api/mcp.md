@@ -287,7 +287,7 @@ An alert that lacks a label never matches a filter on that label. Firing alerts 
 
 `pmm_alerts` shows the alerts of every folder that you can read, whatever your [Access Roles](../admin/roles/access-control/intro.md), as PMM's Alerts page does. Unlike the other tools, it doesn't narrow its list to your service list, and it reads no metrics.
 
-A `service_id`, `service_name` or `node_name` filter matches the alert's labels, whether or not the service or node is in your service list. A value that no alert carries returns an empty list.
+A `service_id`, `service_name` or `node_name` filter matches the alert's labels, whether or not the service or node is in your service list. A value that no alert carries returns an empty list. Its text names the filters, for example "No firing, recovering or pending alerts match the service_name filter", so that a mistyped value isn't read as a server without alerts.
 
 ### Firing, recovering and pending alerts only
 

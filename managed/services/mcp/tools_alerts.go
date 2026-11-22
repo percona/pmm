@@ -79,6 +79,19 @@ func (in alertsInput) matches(a grafanaAlert) bool {
 		(in.Severity == "" || strings.EqualFold(a.Labels["severity"], in.Severity))
 }
 
+// filterNames returns the names of the call's filters, in the order the input lists them.
+func (in alertsInput) filterNames() []string {
+	var names []string
+	for _, f := range []struct{ name, value string }{
+		{"service_id", in.ServiceID}, {"service_name", in.ServiceName}, {"node_name", in.NodeName}, {"severity", in.Severity},
+	} {
+		if f.value != "" {
+			names = append(names, f.name)
+		}
+	}
+	return names
+}
+
 // alertRow is one alert in the result of pmm_alerts.
 type alertRow struct {
 	Name          string            `json:"name" jsonschema:"Untrusted. The alert rule's title."`
@@ -98,6 +111,9 @@ type alertsResult struct {
 	Alerts []alertRow `json:"alerts" jsonschema:"Firing, recovering and pending alerts on this page."`
 	Page   page       `json:"page" jsonschema:"Paging of the full list."`
 	Note   string     `json:"note" jsonschema:"What the list covers."`
+
+	// filters names the call's filters, which the text of an empty list names.
+	filters []string
 }
 
 // oneLine collapses s's whitespace, newlines included, and cuts it to the echo length, so an alert field stays on its line.
@@ -108,7 +124,7 @@ func oneLine(s string) string {
 func (r alertsResult) render() string {
 	lines := []string{r.Note}
 	if r.Page.Total == 0 {
-		return strings.Join(append(lines, "No firing, recovering or pending alerts found."), "\n")
+		return strings.Join(append(lines, noAlerts(r.filters)), "\n")
 	}
 	if len(r.Alerts) == 0 {
 		return strings.Join(append(lines, r.Page.pastEnd("alert list")), "\n")
@@ -147,6 +163,21 @@ func (r alertsResult) render() string {
 		lines = append(lines, m)
 	}
 	return strings.Join(lines, "\n")
+}
+
+// noAlerts is the text of an empty list, which names the filters that left nothing, so that a mistyped value is not
+// read as a server without alerts.
+func noAlerts(filters []string) string {
+	switch len(filters) {
+	case 0:
+		return "No firing, recovering or pending alerts found."
+	case 1:
+		return "No firing, recovering or pending alerts match the " + filters[0] + " filter: check its value, or call pmm_alerts without it."
+	default:
+		last := len(filters) - 1
+		return "No firing, recovering or pending alerts match the " + strings.Join(filters[:last], ", ") + " and " + filters[last] +
+			" filters: check their values, or call pmm_alerts without them."
+	}
 }
 
 func (s *Service) registerAlertsTool(server *mcp.Server) {
@@ -220,7 +251,7 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 			PMMURL:        alertRuleURL(base, a.RuleUID),
 		})
 	}
-	return alertsResult{Alerts: rows, Page: pg, Note: alertsNote}, nil
+	return alertsResult{Alerts: rows, Page: pg, Note: alertsNote, filters: in.filterNames()}, nil
 }
 
 // joinSilences marks the alerts whose Alertmanager alert, the one with their labels plus rule UID, is silenced, until the latest silence end.
