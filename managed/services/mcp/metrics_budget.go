@@ -42,10 +42,10 @@ const maxPoints = 2000
 // maxHintExprBytes bounds the expression a hint quotes back, so that a long one cannot use up the byte budget.
 const maxHintExprBytes = 200
 
-// The estimate of a range answer's size: bytes per point, such as [1700000000,"12345"], per series besides its labels,
-// and per label besides its name and value, as in "name":"value",.
+// The estimate of a range answer's size: bytes per point, such as [1700000000,"0.0033333333333333335"], with a value of
+// up to 17 significant digits, per series besides its labels, and per label besides its name and value, as in "name":"value",.
 const (
-	answerPointBytes  = 32
+	answerPointBytes  = 40
 	answerSeriesBytes = 32
 	answerLabelBytes  = 6
 )

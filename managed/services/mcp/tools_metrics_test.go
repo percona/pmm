@@ -547,19 +547,19 @@ func TestQueryMetricsTool(t *testing.T) {
 		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": broad, "period_from": "now-6h"})
 		require.False(t, isError, text)
 
-		// 500 series at 11s would be about 31 MB; 1m36s keeps them at 226 points each.
-		assert.Equal(t, "1m36s", res.Step)
+		// 500 series at 11s would be about 39 MB; 1m59s keeps them at 182 points each.
+		assert.Equal(t, "1m59s", res.Step)
 		reqs := fake.requestsTo(vmAPI + "query_range")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, "96", queryParams(t, reqs[0]).Get("step"))
-		assert.Contains(t, res.Note, "The step was raised from 11s to 1m36s so that the answer for up to 500 series fits")
-		assert.Contains(t, text, "The step was raised from 11s to 1m36s")
+		assert.Equal(t, "119", queryParams(t, reqs[0]).Get("step"))
+		assert.Contains(t, res.Note, "The step was raised from 11s to 1m59s so that the answer for up to 500 series fits")
+		assert.Contains(t, text, "The step was raised from 11s to 1m59s")
 	})
 
 	t.Run("RollupNamesMultiplyTheSeries", func(t *testing.T) {
 		t.Parallel()
 
-		// 500 matched series fit at 1m36s, but three named functions return 1500, which fit at 4m52s.
+		// 500 matched series fit at 1m59s, but three named functions return 1500, which fit at 6m7s.
 		const broad = `{__name__=~"mysql_global_status_.*", service_name="db1"}[5m]`
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
 		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
@@ -567,29 +567,29 @@ func TestQueryMetricsTool(t *testing.T) {
 		})
 		require.False(t, isError, text)
 		assert.Contains(t, res.Note, "so that the answer for up to 1500 series fits")
-		assert.Equal(t, "4m52s", res.Step)
+		assert.Equal(t, "6m7s", res.Step)
 	})
 
 	t.Run("RaisedStepCountsTheWiderSpan", func(t *testing.T) {
 		t.Parallel()
 
-		// A selector without a window reads one step back: 11s before the raise, 1m36s after it.
+		// A selector without a window reads one step back: 11s before the raise, 1m59s after it.
 		const broad = `{__name__=~"mysql_global_status_.*", service_name="db1"}`
 		args := map[string]any{"query": broad, "period_from": "now-6h"}
 		from := testNow.Add(-6 * time.Hour)
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
 		res, text, isError := metricsCall(t, newQANService(t, fake, false), args)
 		require.False(t, isError, text)
-		assert.Equal(t, "1m36s", res.Step)
+		assert.Equal(t, "1m59s", res.Step)
 		series := fake.requestsTo(vmAPI + "series")
 		require.Len(t, series, 2)
 		assert.Equal(t, unixOf(from.Add(-11*time.Second)), queryParams(t, series[0]).Get("start"))
-		assert.Equal(t, unixOf(from.Add(-96*time.Second)), queryParams(t, series[1]).Get("start"))
+		assert.Equal(t, unixOf(from.Add(-119*time.Second)), queryParams(t, series[1]).Get("start"))
 		assert.Equal(t, unixOf(testNow), queryParams(t, series[1]).Get("end"))
 
 		// Over the cap on the wider span, the query is refused before it runs.
 		fake = newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
-		wider := unixOf(from.Add(-96 * time.Second))
+		wider := unixOf(from.Add(-119 * time.Second))
 		next := fake.server.Config.Handler
 		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			if req.URL.Path != vmAPI+"series" || req.URL.Query().Get("start") != wider {
@@ -638,7 +638,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		})
 		require.True(t, isError, text)
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
-		assert.Contains(t, text, "raise step to at least 1m36s, or aggregate")
+		assert.Contains(t, text, "raise step to at least 1m59s, or aggregate")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
 	})
 

@@ -628,3 +628,50 @@ func TestAnswerStep(t *testing.T) {
 		})
 	}
 }
+
+func TestAnswerStepFitsTheReadCap(t *testing.T) {
+	t.Parallel()
+
+	// VictoriaMetrics writes each value in Go's shortest float format, up to 17 significant digits, as in 0.0033333333333333335.
+	const value = `"0.0033333333333333335"`
+	require.Len(t, value, 23)
+
+	for _, tc := range []struct {
+		name  string
+		count int
+		span  time.Duration
+	}{
+		{name: "FiveHundredOverSixHours", count: 500, span: 6 * time.Hour},
+		{name: "TwoThousandOverSixDays", count: 2000, span: 6 * day},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			var matched matchedSeries
+			metrics := make([]string, tc.count)
+			for i := range metrics {
+				labels := map[string]string{"__name__": "mysql_global_status_questions", "service_name": fmt.Sprintf("db%d", i)}
+				matched.count++
+				for k, v := range labels {
+					matched.labelBytes += len(k) + len(v) + answerLabelBytes
+				}
+				metrics[i] = string(mustJSON(t, labels))
+			}
+			step := answerStep(matched, tc.span, chooseStep(tc.span, 0))
+
+			start := time.Unix(1700000000, 0)
+			points := make([]string, int(tc.span/step)+1)
+			for i := range points {
+				points[i] = "[" + strconv.FormatInt(start.Add(time.Duration(i)*step).Unix(), 10) + "," + value + "]"
+			}
+			values := strings.Join(points, ",")
+			result := make([]string, tc.count)
+			for i, m := range metrics {
+				result[i] = `{"metric":` + m + `,"values":[` + values + `]}`
+			}
+			answer := `{"status":"success","data":{"resultType":"matrix","result":[` + strings.Join(result, ",") + `]}}`
+
+			assert.LessOrEqual(t, len(answer), maxVMResponseBytes, "at step %s", step)
+		})
+	}
+}
