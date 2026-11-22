@@ -240,7 +240,7 @@ Results carry provenance. `pmm_url` is the link to the same data in PMM, as list
 | `pmm_list_metrics` | 100 | 1000 | names, labels, values or series |
 | `pmm_alerts` | 50 | 200 | alerts |
 
-A list that doesn't fit ends with `showing a–b of n; pass offset=… for more`. Pass that `offset` to get the next page. Other limits apply to one item: an execution plan is cut at 64 KiB, and the definition and indexes of one table at 32 KiB each. A cut item sets `truncated` and says so in its text.
+A list that doesn't fit ends with `showing a–b of n; pass offset=… for more`. Pass that `offset` to get the next page. Other limits apply to one item: an execution plan is cut at 64 KiB, and the definition and indexes of one table at 32 KiB each. A cut item sets `truncated` and says so in its text. A plan is read whole before it is masked, so a plan that pmm-agent returns larger than 4 MiB is withheld instead, and so is a stored PostgreSQL plan of that size when raw SQL is off.
 
 ### Untrusted fields
 
@@ -449,8 +449,10 @@ Set them on the PMM Server container like other `PMM_*` variables, for example `
 
     With `PMM_MCP_RAW_SQL` off, the default, MCP keeps those values out of tool output:
 
-    - Example statements are replaced by their fingerprints, masked like any fingerprint: numbers and the text of comments become `?`, and a fingerprint with quoted text is withheld.
-    - Literals in execution plans and MongoDB fingerprints are replaced with `?`.
+    - Example statements are replaced by their fingerprints, masked like any fingerprint: numbers and the text of comments become `?`, and a fingerprint with quoted text, or with a quoted name that doesn't close, is withheld.
+    - Literals in execution plans and MongoDB fingerprints are replaced with `?`. A MongoDB fingerprint with a single quote, or with a double quote that doesn't close, is withheld.
+    - MySQL plans leave out pmm-agent's `real_table_name`, and replace the statement that MySQL rewrites into the plan with a note that it is withheld: the message of `SHOW WARNINGS` note 1003, and the `query` of `explain_json_format_version=2`. MySQL names a select-list expression that has no alias after its own text, literals included. So a name in a MySQL plan that isn't a plain name, made of letters, digits, `_` and `$`, is replaced with `?`. A constant that is itself a plain name, such as `'gold'`, can still show as the column name of a derived table or a CTE.
+    - In a PostgreSQL text plan, numbers are kept only in the `cost` and `actual` figures of each node. Other numbers, such as the count of `Workers Planned`, become `?`.
     - A SQL fingerprint that PMM stored unnormalized is withheld. If an unfiltered `pmm_top_queries` covers both MySQL and PostgreSQL data, PMM looks up each query's engine with one more report; a fingerprint that contains quoted text is withheld when its query ran under both engines, or when that lookup fails. To see such a fingerprint, filter by `service_name`.
     - With raw SQL off, `search` matches the query text as `pmm_top_queries` shows it. A `?` in `search` matches a `?` that the text shows, whatever value it masks.
     - `group_by=username` and `group_by=client_host` return database user names and client addresses, as the QAN dashboard does for the same role. `PMM_MCP_RAW_SQL` does not hide them.
