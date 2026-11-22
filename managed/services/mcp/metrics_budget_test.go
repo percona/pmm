@@ -193,7 +193,7 @@ func TestShapeSeries(t *testing.T) {
 			assert.Len(t, s.Points, 50)
 		}
 		assert.LessOrEqual(t, sizeOf(t, got), maxMetricsBytes)
-		assert.NotContains(t, got.render(), "2025-01-01T", "raw points belong in the structured content only")
+		assert.NotContains(t, got.render(), "2025-01-01T00:00:00Z", "raw points belong in the structured content only; the text has last_at")
 		validateMetricsOutput(t, got)
 	})
 
@@ -505,7 +505,7 @@ func TestMetricsResultRender(t *testing.T) {
 	assert.Contains(t, text, "Query: up")
 	assert.Contains(t, text, "Step: 15s")
 	assert.Contains(t, text, `Shared labels: {env="prod"}`)
-	assert.Contains(t, text, `{service_name="c"} min=7 avg=7 max=7 last=7`)
+	assert.Contains(t, text, `{service_name="c"} min=7 avg=7 max=7 last=7 at 2025-01-01T00:01:00Z`)
 	assert.Contains(t, text, `{service_name="a\nb"} min=1.235`)
 	assert.Equal(t, 1, strings.Count(text, "a\\nb"), "a newline in a label value stays on one line")
 }

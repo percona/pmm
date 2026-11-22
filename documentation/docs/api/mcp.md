@@ -383,7 +383,7 @@ A `pmm_query_metrics` result is shaped to fit these limits:
 - **Series.** At most `limit` series, 20 by default and 100 at most. They are the series with the largest maximum.
 - **Points.** At most 2,000 points in all.
 - **Size.** At most 16 KiB, counting the text and the structured content together. When the query alone takes up that much, for example because JSON escapes each `<`, `>` and `&` to six bytes, the result shows only its first 200 bytes in `query`.
-- **Summaries.** When the raw points don't fit in the points or in the size, every series carries a summary instead of points: `min`, `avg`, `max`, `last` and `last_at`. `summarized` is `true`.
+- **Summaries.** When the raw points don't fit in the points or in the size, every series carries a summary instead of points: `min`, `avg`, `max`, `last` and `last_at`. `summarized` is `true`. The text shows each series on one line with its summary, `last_at` included; raw points are in the structured content only.
 - **Fewer series.** When even the summaries are over 16 KiB, the result keeps fewer series. `truncated` is `true`, and the hint says how many series it left out and how to narrow the query. `total_series` is the number the query returned.
 - **Nulls.** NaN and infinite values are `null` in points and are left out of `min`, `avg` and `max`. The `note` says how many.
 - **Labels.** PMM's internal labels `agent_id`, `agent_type`, `node_id`, `machine_id`, `instance` and `job` are dropped. If two series shown would then have the same labels, as with `sum by (node_id) (...)`, the internal labels whose values differ between them are kept on every series shown. A label with the same value on every series shown appears once, in `shared_labels`.

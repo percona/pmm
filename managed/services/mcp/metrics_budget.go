@@ -137,8 +137,12 @@ func (r metricsResult) render() string {
 	}
 	b.WriteString("\n")
 	for _, s := range r.Series {
-		fmt.Fprintf(&b, "%s min=%s avg=%s max=%s last=%s\n",
+		fmt.Fprintf(&b, "%s min=%s avg=%s max=%s last=%s",
 			renderLabels(s.Labels), fmtOptional(s.Min), fmtOptional(s.Avg), fmtOptional(s.Max), fmtOptional(s.Last))
+		if !s.LastAt.IsZero() {
+			b.WriteString(" at " + s.LastAt.UTC().Format(time.RFC3339))
+		}
+		b.WriteString("\n")
 	}
 	if r.Hint != "" {
 		b.WriteString("\n" + r.Hint + "\n")
