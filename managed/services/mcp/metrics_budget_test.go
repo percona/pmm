@@ -610,13 +610,13 @@ func TestAnswerStep(t *testing.T) {
 		{name: "ManySeriesRaiseTheStep", matched: matchedSeries{count: 500, labelBytes: 150000}, span: 6 * time.Hour, step: 11 * time.Second, raised: true},
 		{name: "TheCapAtTheDefaultStep", matched: matchedSeries{count: 2000, labelBytes: 600000}, span: 6 * day, step: 260 * time.Second, raised: true},
 		{name: "ALargeStepFits", matched: matchedSeries{count: 500, labelBytes: 150000}, span: 6 * time.Hour, step: 10 * time.Minute},
-		{name: "LabelsAloneOverTheCap", matched: matchedSeries{count: 2000, labelBytes: 4 << 20}, span: 6 * time.Hour, step: 11 * time.Second},
 		{name: "NoSeries", span: 6 * time.Hour, step: 11 * time.Second},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := answerStep(tc.matched, tc.span, tc.step)
+			got, ok := answerStep(tc.matched, tc.span, tc.step)
+			require.True(t, ok)
 			if !tc.raised {
 				assert.Equal(t, tc.step, got)
 				return
@@ -627,6 +627,13 @@ func TestAnswerStep(t *testing.T) {
 			assert.Greater(t, answerBytes(tc.matched, tc.span, got-time.Second), maxRangeAnswerBytes, "the smallest step that fits")
 		})
 	}
+
+	t.Run("LabelsAloneOverTheCap", func(t *testing.T) {
+		t.Parallel()
+
+		_, ok := answerStep(matchedSeries{count: 2000, labelBytes: 4 << 20}, 6*time.Hour, 11*time.Second)
+		assert.False(t, ok)
+	})
 }
 
 func TestAnswerStepFitsTheReadCap(t *testing.T) {
@@ -657,7 +664,8 @@ func TestAnswerStepFitsTheReadCap(t *testing.T) {
 				}
 				metrics[i] = string(mustJSON(t, labels))
 			}
-			step := answerStep(matched, tc.span, chooseStep(tc.span, 0))
+			step, ok := answerStep(matched, tc.span, chooseStep(tc.span, 0))
+			require.True(t, ok)
 
 			start := time.Unix(1700000000, 0)
 			points := make([]string, int(tc.span/step)+1)

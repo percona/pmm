@@ -656,6 +656,30 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"))
 	})
 
+	t.Run("NotOnePointFits", func(t *testing.T) {
+		t.Parallel()
+
+		// 2000 series with 1.8 KB of labels each are over the 3.5 MiB estimate before any point.
+		entries := make([]string, 2000)
+		for i := range entries {
+			entries[i] = fmt.Sprintf(`{"__name__":"m","id":"%d","pad":"%s"}`, i, strings.Repeat("x", 1800))
+		}
+		body := []byte(`{"status":"success","data":[` + strings.Join(entries, ",") + `]}`)
+		for _, step := range []string{"", "1h"} {
+			fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: body}}))
+			args := map[string]any{"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-6h"}
+			if step != "" {
+				args["step"] = step
+			}
+			_, text, isError := metricsCall(t, newQANService(t, fake, false), args)
+			require.True(t, isError, text)
+			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+			assert.Contains(t, text, "the answer for up to 2000 series is over the 4 MiB that MCP reads at any step")
+			assert.Contains(t, text, "aggregate, as in sum by (service_name)")
+			assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
+		}
+	})
+
 	t.Run("OtherRefusalsAreNotRetried", func(t *testing.T) {
 		t.Parallel()
 

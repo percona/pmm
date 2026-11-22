@@ -72,18 +72,18 @@ func answerBytes(m matchedSeries, span, step time.Duration) int {
 	return m.labelBytes + m.count*(answerSeriesBytes+points*answerPointBytes)
 }
 
-// answerStep returns the smallest step, not under step, whose answer of the matched series is within maxRangeAnswerBytes;
-// step itself when the answer fits, or when even one point per series does not.
-func answerStep(m matchedSeries, span, step time.Duration) time.Duration {
+// answerStep returns the smallest step, not under step, whose answer of the matched series is within maxRangeAnswerBytes,
+// and false when not even one point per series is.
+func answerStep(m matchedSeries, span, step time.Duration) (time.Duration, bool) {
 	if m.count == 0 || answerBytes(m, span, step) <= maxRangeAnswerBytes {
-		return step
+		return step, true
 	}
 	perSeries := (maxRangeAnswerBytes - m.labelBytes - m.count*answerSeriesBytes) / (m.count * answerPointBytes)
 	if perSeries < 1 {
-		return step
+		return step, false
 	}
 	// span/step + 1 points fit in perSeries when the step is over span/perSeries.
-	return max(step, (span/time.Duration(perSeries)).Truncate(time.Second)+time.Second)
+	return max(step, (span/time.Duration(perSeries)).Truncate(time.Second)+time.Second), true
 }
 
 // outPoint is one raw point of a series; V is null for NaN and ±Inf.

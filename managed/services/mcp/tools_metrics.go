@@ -278,14 +278,20 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 
 // fitAnswer raises the step of a range query without an aggregation, whose answer has at most seriesPerMatched series
 // for each series its selectors match, so that the answer fits under the read cap, and returns the note that says so
-// and the span the query reads at its final step; a step the caller gave is refused instead.
+// and the span the query reads at its final step; a step the caller gave is refused instead, and so is any step when
+// not even one point per series fits.
 func fitAnswer(expr string, plan *metricsPlan, matched matchedSeries, read time.Duration) (string, time.Duration, error) {
 	per := seriesPerMatched(expr)
 	if per == 0 {
 		return "", read, nil
 	}
 	matched = matchedSeries{count: matched.count * per, labelBytes: matched.labelBytes * per}
-	step := answerStep(matched, plan.span(), plan.step)
+	step, ok := answerStep(matched, plan.span(), plan.step)
+	if !ok {
+		return "", 0, newToolError(codeInvalidInput,
+			"the answer for up to %d series is over the 4 MiB that MCP reads at any step: narrow the selectors with a service_name or node_name matcher, "+
+				"or aggregate, as in sum by (service_name) (%s)", matched.count, hintExpr(expr))
+	}
 	if step == plan.step {
 		return "", read, nil
 	}
