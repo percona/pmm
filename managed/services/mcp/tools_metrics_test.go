@@ -1225,6 +1225,15 @@ func TestListMetricsTool(t *testing.T) {
 		requireListInvalid(t, map[string]any{"kind": "series", "match": []string{"up", "rate("}}, "cannot parse")
 	})
 
+	t.Run("PeriodFromInTheFuture", func(t *testing.T) {
+		t.Parallel()
+
+		from := testNow.Add(time.Hour).Format(time.RFC3339)
+		_, text, isError := listCall(t, newQANService(t, newFakePMM(t, listRoutes(nil)), false), map[string]any{"period_from": from})
+		require.True(t, isError, text)
+		assert.Equal(t, "error: invalid_input\nperiod_from ("+from+") must be before now", text)
+	})
+
 	t.Run("LabelIsRefused", func(t *testing.T) {
 		t.Parallel()
 
