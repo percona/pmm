@@ -196,7 +196,7 @@ func sqlMarks(s string, doubleQuotedStrings, plainNames bool) []byte {
 // scanSQL marks the bytes of s that belong to a literal or a comment under one
 // backslash reading, and with plainNames the text of each quoted identifier
 // that is not a plain name. Identifiers are never backslash-escaped, whatever
-// the reading.
+// the reading; one that does not close is marked as a string to the end of s.
 func scanSQL(s string, doubleQuotedStrings, backslashEscapes, plainNames bool) []byte {
 	marks := make([]byte, len(s))
 	for i := 0; i < len(s); {
@@ -215,11 +215,15 @@ func scanSQL(s string, doubleQuotedStrings, backslashEscapes, plainNames bool) [
 			}
 			i = markRange(marks, from, end, commentMark) + len("*/")
 		case (c == '`' && doubleQuotedStrings) || (c == '"' && !doubleQuotedStrings):
-			end := quotedEnd(s, i, false)
-			if plainNames && end > i+1 && !isPlainName(s[i+1:end-1]) {
-				markRange(marks, i+1, end-1, nameMark)
+			end, closed := quotedClose(s, i, false)
+			switch {
+			case !closed:
+				i = markRange(marks, i, len(s), stringMark)
+			case plainNames && !isPlainName(s[i+1:end-1]):
+				i = markRange(marks, i+1, end-1, nameMark) + 1
+			default:
+				i = end
 			}
-			i = end
 		case c == '\'' || c == '"':
 			i = markRange(marks, i, quotedEnd(s, i, backslashEscapes), stringMark)
 		case isDigit(c) && (i == 0 || !isIdentByte(s[i-1])):
@@ -302,6 +306,12 @@ func dollarQuoteEnd(s string, start int) (int, bool) {
 // A doubled quote does not end it, nor, when backslashEscapes is set, a
 // backslash-escaped one; an unterminated run extends to the end of s.
 func quotedEnd(s string, start int, backslashEscapes bool) int {
+	end, _ := quotedClose(s, start, backslashEscapes)
+	return end
+}
+
+// quotedClose is quotedEnd that also reports whether the run closes.
+func quotedClose(s string, start int, backslashEscapes bool) (int, bool) {
 	q := s[start]
 	for j := start + 1; j < len(s); j++ {
 		switch {
@@ -312,10 +322,10 @@ func quotedEnd(s string, start int, backslashEscapes bool) int {
 				j++
 				continue
 			}
-			return j + 1
+			return j + 1, true
 		}
 	}
-	return len(s)
+	return len(s), false
 }
 
 // numberEnd returns the index just past the numeric literal that starts at

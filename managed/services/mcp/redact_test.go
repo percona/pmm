@@ -63,6 +63,10 @@ func TestMaskSQLLiterals(t *testing.T) {
 		// A backtick means nothing to PostgreSQL; a stray one must not hide
 		// the literals after it.
 		{"PostgreSQLBacktick", "SELECT `a FROM t WHERE ssn = 'SECRET'", false, "SELECT `a FROM t WHERE ssn = ?"},
+		// A quoted identifier that never closes is read as a string, to the end.
+		{"MySQLUnclosedIdentifier", "SELECT `a FROM t WHERE ssn = 'SECRET'", true, "SELECT ?"},
+		{"MySQLUnclosedIdentifierDoubledQuote", "SELECT `a`` FROM t WHERE ssn = 42", true, "SELECT ?"},
+		{"PostgreSQLUnclosedIdentifier", `INSERT INTO "users (email) VALUES ('alice@example.com')`, false, "INSERT INTO ?"},
 		// PostgreSQL comments nest; MySQL ones end at the first */.
 		{"PostgreSQLNestedComment", "SELECT * FROM t /* a /* nested */ secret */ WHERE a = $1", false, "SELECT * FROM t /*?*/ WHERE a = $1"},
 		{"MySQLCommentsDoNotNest", "/* a /* b */ x = 'y'", true, "/*?*/ x = ?"},
@@ -428,6 +432,8 @@ func TestRedactPlan(t *testing.T) {
 	assert.Contains(t, got, "1  |SIMPLE      |t     |ALL  |5000 |Using where with pushed condition: ((`t`.`ssn` = ?) or (`t`.`tag` = ?))")
 	got = redactPlan(engineMySQL, formatTraditional, "id |Extra\n1  |Using where with pushed condition: (`t`.`zq-vip 7731` = 1)", true)
 	assert.Contains(t, got, "(`t`.`?` = ?)", "a name that is not a plain name is masked")
+	got = redactPlan(engineMySQL, formatTraditional, "id |Extra\n1  |Using where with pushed condition: (`t`.`ssn = '123-45-6789')", true)
+	assert.NotContains(t, got, "123-45-6789", "a name that does not close is masked to the end")
 
 	// A cell with a line break moves the rest of its row onto a line with fewer cells, which can't be matched to columns.
 	broken := "id |select_type |table |type |Extra\n" +

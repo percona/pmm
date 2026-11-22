@@ -161,6 +161,14 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 		assert.Equal(t, withheldFingerprint, fingerprintText(fp, enginePostgreSQL, false), fp)
 	}
 
+	// An identifier quote that never closes is read as a string, so the fingerprint is withheld.
+	for engine, fp := range map[string]string{
+		engineMySQL:      "SELECT `a FROM t WHERE ssn = 'SECRET'",
+		enginePostgreSQL: `INSERT INTO "users (email) VALUES ('alice@example.com')`,
+	} {
+		assert.Equal(t, withheldFingerprint, fingerprintText(fp, engine, false), fp)
+	}
+
 	// MySQL quoting for a MySQL service: a backticked name is a name.
 	assert.Equal(t, "SELECT `id` FROM `2fa_tokens` WHERE `o'neil` = ?",
 		fingerprintText("SELECT `id` FROM `2fa_tokens` WHERE `o'neil` = ?", engineMySQL, false))
