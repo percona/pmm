@@ -213,6 +213,19 @@ func TestAlertsTool(t *testing.T) {
 		assert.NotContains(t, alertKeys(got.Alerts), "Hidden rule@shop-a", "an Alertmanager alert never adds an alert")
 		assert.NotContains(t, text, "Hidden rule")
 		assert.Equal(t, 2, strings.Count(text, "silenced until"), text)
+
+		// The rules API keeps a label whose template expands to an empty string; Grafana's Alertmanager drops it.
+		fake = newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
+			"GET " + rulesPath: {body: rulesBody(t, firingAlert{rule: "empty", labels: map[string]string{"severity": "warning", "instance": ""}, activeAt: at(9, 0)})},
+			"GET " + amAlertsPath: {body: mustJSON(t, []map[string]any{{
+				"labels": map[string]string{"alertname": "empty", "grafana_folder": "Alerts", "severity": "warning", ruleUIDLabel: "rule-000"},
+				"status": map[string]any{"inhibitedBy": []string{}, "silencedBy": []string{"5f1c2b7e-0000-4000-8000-000000000001"}, "state": "suppressed"},
+			}})},
+		}))
+		got, _ = callAlerts(t, fake, nil)
+		require.Len(t, got.Alerts, 1)
+		assert.True(t, got.Alerts[0].Silenced, "a label with an empty value is left out of the join")
+		assert.Equal(t, ptr(time.Date(2026, 9, 15, 8, 0, 0, 0, time.UTC)), got.Alerts[0].SilencedUntil)
 	})
 
 	t.Run("PendingAlertIsNeverSilenced", func(t *testing.T) {

@@ -254,7 +254,8 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 	return alertsResult{Alerts: rows, Page: pg, Note: alertsNote, filters: in.filterNames()}, nil
 }
 
-// joinSilences marks the alerts whose Alertmanager alert, the one with their labels plus rule UID, is silenced, until the latest silence end.
+// joinSilences marks the alerts whose Alertmanager alert, the one with their non-empty labels plus rule UID, is silenced,
+// until the latest silence end.
 func (s *Service) joinSilences(ctx context.Context, auth callerAuth, alerts []grafanaAlert) error {
 	amAlerts, err := s.api.SilencedAlerts(ctx, auth)
 	if err != nil {
@@ -277,6 +278,8 @@ func (s *Service) joinSilences(ctx context.Context, auth callerAuth, alerts []gr
 		if labels == nil {
 			labels = map[string]string{}
 		}
+		// Grafana's Alertmanager drops a label whose template expands to an empty string; the rules API keeps it.
+		maps.DeleteFunc(labels, func(_, value string) bool { return value == "" })
 		labels[ruleUIDLabel] = a.RuleUID
 		ids[i] = silencedBy[labelSetKey(labels)]
 		found = found || len(ids[i]) > 0
