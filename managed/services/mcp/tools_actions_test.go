@@ -229,6 +229,33 @@ func TestExplainTool(t *testing.T) {
 		assert.Contains(t, textOf(t, res), "```\n"+got.Plan+"\n```\n(plan cut at 64 KiB)\n"+livePlanNote+"\n\n[View this query in PMM QAN ↗]("+got.PMMURL+")")
 	})
 
+	// A plan is parsed whole to be masked, so one over the bound is withheld before any parsing.
+	t.Run("PlanOverInputBound", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		plan := `{"query_block": {"table": {"attached_condition": "(` + "`t`.`a`" + ` = '` + strings.Repeat("x", maxPlanInputBytes) + `')"}}}`
+		envelope, err := json.Marshal(map[string]any{"explain_result": base64.StdEncoding.EncodeToString([]byte(plan))})
+		require.NoError(t, err)
+		stub.explain = string(envelope)
+		session := connect(t, newQANService(t, fake, false))
+
+		got := structured[explainResult](t, callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"}))
+		assert.Equal(t, planTooLarge, got.Plan)
+		assert.False(t, got.Truncated)
+
+		// A stored plan is masked as one text, so it is bound the same way.
+		fake, _ = actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
+		stored, err := json.Marshal(map[string]any{"planid": "PLAN-1", "query_plan": strings.Repeat("Seq Scan on t\n", maxPlanInputBytes/10)})
+		require.NoError(t, err)
+		fake.routes["GET /v1/qan/query/QID-PG/plan"] = fixture{body: stored}
+		session = connect(t, newQANService(t, fake, false))
+
+		got = structured[explainResult](t, callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"}))
+		assert.Equal(t, planTooLarge, got.Plan)
+	})
+
 	t.Run("MongoDBStoredExample", func(t *testing.T) {
 		t.Parallel()
 

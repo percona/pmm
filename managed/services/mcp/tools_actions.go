@@ -65,6 +65,9 @@ const (
 	kiB = 1 << 10
 	// Bytes of a plan body, at most.
 	maxPlanBytes = 64 * kiB
+	// Bytes of an action's output or a stored plan that are parsed and masked, at most: 64 times the body cap, far
+	// above any real plan, and the 4 MiB other API reads stop at; masking that much takes under a second.
+	maxPlanInputBytes = 4 << 20
 	// Bytes of one table's definition, and of its indexes, at most.
 	maxTableTextBytes = 32 * kiB
 )
@@ -311,9 +314,13 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "", storedExample)
 	}
 
-	plan, decoded := decodeExplainOutput(output, raw)
-	if !raw {
-		plan = redactPlan(svc.Engine, format, plan, decoded)
+	plan := planTooLarge
+	if len(output) <= maxPlanInputBytes {
+		var decoded bool
+		plan, decoded = decodeExplainOutput(output, raw)
+		if !raw {
+			plan = redactPlan(svc.Engine, format, plan, decoded)
+		}
 	}
 	r := explainResult{Engine: svc.Engine, ServiceName: svc.ServiceName, Format: format, Live: true, Note: livePlanNote, QueryRef: &resolvedRef, PMMURL: pmmURL}
 	r.Plan, r.Truncated = capText(plan, maxPlanBytes)
@@ -336,7 +343,11 @@ func (s *Service) storedPlan(
 	}
 
 	body := plan.QueryPlan
-	if !raw {
+	switch {
+	case raw:
+	case len(body) > maxPlanInputBytes:
+		body = planTooLarge
+	default:
 		body = maskPGPlan(body)
 	}
 	r := explainResult{

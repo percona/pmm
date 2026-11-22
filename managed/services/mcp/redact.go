@@ -37,6 +37,9 @@ import (
 // planWithheld replaces a plan body that could not be parsed for masking.
 const planWithheld = "(plan withheld: it could not be parsed to mask literal values, and PMM_MCP_RAW_SQL is off)"
 
+// planTooLarge replaces a plan over maxPlanInputBytes, which is not parsed.
+const planTooLarge = "(plan withheld: it is larger than 4 MiB, the most PMM parses of a plan)"
+
 // statementWithheld replaces the rewritten statement MySQL puts in a plan.
 const statementWithheld = "(statement withheld: MySQL's rewritten statement can quote values, and PMM_MCP_RAW_SQL is off)"
 
