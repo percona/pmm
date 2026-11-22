@@ -46,6 +46,15 @@ var fixtureExpectations = map[string]noteExpect{
 	"cte":                 {resolved: []string{"shop.orders", "shop.customers"}, unresolved: []string{"t"}},
 	"cte-shadows-table":   {resolved: []string{"shop.orders", "shop.customers"}, unresolved: []string{"orders"}},
 	"union":               {resolved: []string{"shop.orders", "shop.customers"}, unresolved: []string{"<union1,2>"}},
+	// The masking cases: unaliased select-list expressions and literals.
+	"exists-literal": {resolved: []string{"shop.orders", "shop.customers"}},
+	// MAX(id) over idx_region is read from the index at optimization, so customers is not in the plan.
+	"scalar-subquery-literal": {resolved: []string{"shop.orders"}},
+	"select-list-constants":   {resolved: []string{"shop.orders"}},
+	"case-ifnull":             {resolved: []string{"shop.orders", "shop.customers"}},
+	"derived-constants":       {resolved: []string{"shop.orders", "shop.customers"}, unresolved: []string{"d"}},
+	"cte-constants":           {resolved: []string{"shop.orders", "shop.customers"}, unresolved: []string{"t"}},
+	"where-from-word":         {resolved: []string{"shop.orders"}},
 }
 
 var fixtureName = regexp.MustCompile(`^(?:mysql|ps)-(5\.7|8\.0|8\.4-v2|8\.4)-(.+)\.json$`)
@@ -63,7 +72,7 @@ func TestPlanTablesFixtures(t *testing.T) {
 
 	files, err := filepath.Glob("testdata/explain/*.json")
 	require.NoError(t, err)
-	require.Len(t, files, 76)
+	require.Len(t, files, 130)
 
 	for _, file := range files {
 		m := fixtureName.FindStringSubmatch(filepath.Base(file))

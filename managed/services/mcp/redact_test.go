@@ -16,10 +16,15 @@
 package mcp
 
 import (
+	"bytes"
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMaskSQLLiterals(t *testing.T) {
@@ -217,6 +222,146 @@ func TestMaskMySQLPlanWarnings(t *testing.T) {
 	got, ok = maskMySQLPlan(`{"query_block": {"select_id": 1}, "warnings": null, "real_table_name": "t"}`)
 	assert.True(t, ok)
 	assert.JSONEq(t, `{"query_block": {"select_id": 1}, "warnings": null}`, got, "pmm-agent writes null when MySQL has no warnings")
+}
+
+// TestMaskCapturedPlans masks every plan captured from a live server in testdata/explain, in the shape pmm-agent
+// returns it, and checks that no literal of the explained statement is left.
+func TestMaskCapturedPlans(t *testing.T) {
+	t.Parallel()
+
+	t.Run("MySQL", func(t *testing.T) {
+		t.Parallel()
+
+		files, err := filepath.Glob("testdata/explain/*.json")
+		require.NoError(t, err)
+		require.Len(t, files, 130)
+		for _, file := range files {
+			m := fixtureName.FindStringSubmatch(filepath.Base(file))
+			require.NotNil(t, m, file)
+
+			t.Run(filepath.Base(file), func(t *testing.T) {
+				t.Parallel()
+
+				sql, err := os.ReadFile(filepath.Join("testdata", "explain", m[2]+".sql"))
+				require.NoError(t, err)
+				plan, err := os.ReadFile(file)
+				require.NoError(t, err)
+				statement := strings.TrimSpace(string(sql))
+				// pmm-agent adds the word after the statement's last FROM as real_table_name.
+				table, _, _ := strings.Cut(statement[strings.LastIndex(statement, "FROM ")+len("FROM "):], " ")
+				name, err := json.Marshal(table)
+				require.NoError(t, err)
+				agentPlan := `{"real_table_name": ` + string(name) + `, ` + strings.TrimPrefix(strings.TrimSpace(string(plan)), "{")
+
+				got := redactPlan(engineMySQL, formatJSON, agentPlan, true)
+				require.NotEqual(t, planWithheld, got)
+				for _, literal := range sqlLiterals(statement) {
+					assert.NotContains(t, got, literal)
+				}
+				assert.NotContains(t, got, "real_table_name")
+				assert.NotContains(t, got, "select#", "the rewritten statement is left out")
+				assert.Contains(t, got, statementWithheld)
+				assert.Contains(t, got, `"access_type": "`, "the plan keeps its shape")
+			})
+		}
+	})
+
+	t.Run("MongoDB", func(t *testing.T) {
+		t.Parallel()
+
+		files, err := filepath.Glob("testdata/explain/mongodb/psmdb-*.json")
+		require.NoError(t, err)
+		require.Len(t, files, 2)
+		for _, file := range files {
+			t.Run(filepath.Base(file), func(t *testing.T) {
+				t.Parallel()
+
+				// psmdb-<version>-<case>.json explains <case>.example.json.
+				parts := strings.SplitN(strings.TrimSuffix(filepath.Base(file), ".json"), "-", 3)
+				example, err := os.ReadFile(filepath.Join("testdata", "explain", "mongodb", parts[2]+".example.json"))
+				require.NoError(t, err)
+				plan, err := os.ReadFile(file)
+				require.NoError(t, err)
+
+				got := redactPlan(engineMongoDB, formatJSON, string(plan), true)
+				require.NotEqual(t, planWithheld, got)
+				literals := mongoFilterLiterals(t, example)
+				require.NotEmpty(t, literals)
+				for _, literal := range literals {
+					assert.NotContains(t, got, literal)
+				}
+				assert.Contains(t, got, `"stage":"FETCH"`, "the plan keeps its shape")
+			})
+		}
+	})
+}
+
+// sqlLiterals returns the literals of a MySQL statement worth searching a masked text for: each string, its words of 5
+// or more characters, and each number of 4 or more characters.
+func sqlLiterals(statement string) []string {
+	marks := scanSQL(statement, true, true, false)
+	var out []string
+	for i := 0; i < len(marks); {
+		j := i
+		for j < len(marks) && marks[j] == marks[i] {
+			j++
+		}
+		text := statement[i:j]
+		switch marks[i] {
+		case stringMark:
+			text = text[1 : len(text)-1]
+			out = append(out, text)
+			for _, word := range strings.Fields(text) {
+				if len(word) >= 5 {
+					out = append(out, word)
+				}
+			}
+		case numberMark:
+			if len(text) >= 4 {
+				out = append(out, text)
+			}
+		}
+		i = j
+	}
+	return out
+}
+
+// mongoFilterLiterals returns the values of a MongoDB query example's filter, with the words of each string and the
+// numbers of 4 or more characters.
+func mongoFilterLiterals(t *testing.T, example []byte) []string {
+	t.Helper()
+
+	var doc struct {
+		Command struct {
+			Filter any `json:"filter"`
+		} `json:"command"`
+	}
+	dec := json.NewDecoder(bytes.NewReader(example))
+	dec.UseNumber()
+	require.NoError(t, dec.Decode(&doc))
+	var out []string
+	var walk func(v any)
+	walk = func(v any) {
+		switch v := v.(type) {
+		case map[string]any:
+			for _, value := range v {
+				walk(value)
+			}
+		case []any:
+			for _, value := range v {
+				walk(value)
+			}
+		case string:
+			out = append(out, v)
+			out = append(out, strings.Fields(v)...)
+		case json.Number:
+			if len(v) >= 4 {
+				out = append(out, v.String())
+			}
+		}
+	}
+	walk(doc.Command.Filter)
+	return out
 }
 
 func TestMaskPGPlan(t *testing.T) {

@@ -20,7 +20,7 @@ name="explain-fixture-$flavor-$version-$$"
 pw=fixture-root-pw
 
 # Cases without WITH support on 5.7.
-unsupported_57="cte cte-shadows-table"
+unsupported_57="cte cte-shadows-table cte-constants"
 
 cleanup() { docker rm -f "$name" >/dev/null 2>&1 || true; }
 trap cleanup EXIT

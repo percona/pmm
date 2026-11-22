@@ -1,0 +1,69 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "1.95"
+    },
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "c",
+          "access_type": "ALL",
+          "possible_keys": [
+            "PRIMARY"
+          ],
+          "rows_examined_per_scan": 3,
+          "rows_produced_per_join": 3,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.30",
+            "prefix_cost": "0.55",
+            "data_read_per_join": "984"
+          },
+          "used_columns": [
+            "id",
+            "name"
+          ]
+        }
+      },
+      {
+        "table": {
+          "table_name": "o",
+          "access_type": "ref",
+          "possible_keys": [
+            "idx_customer"
+          ],
+          "key": "idx_customer",
+          "used_key_parts": [
+            "customer_id"
+          ],
+          "key_length": "4",
+          "ref": [
+            "shop.c.id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 4,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "1.00",
+            "eval_cost": "0.40",
+            "prefix_cost": "1.95",
+            "data_read_per_join": "320"
+          },
+          "used_columns": [
+            "customer_id",
+            "status"
+          ]
+        }
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "Level": "Note",
+      "Code": 1003,
+      "Message": "/* select#1 */ select (case when (`shop`.`o`.`status` = 'zq-paid-8842') then 'zq-done-1193' else 'zq-open-2284' end) AS `CASE WHEN o.status = 'zq-paid-8842' THEN 'zq-done-1193' ELSE 'zq-open-2284' END`,ifnull(`shop`.`c`.`name`,'zq-anon-3375') AS `IFNULL(c.name, 'zq-anon-3375')` from `shop`.`orders` `o` join `shop`.`customers` `c` where (`shop`.`o`.`customer_id` = `shop`.`c`.`id`)"
+    }
+  ]
+}

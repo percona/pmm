@@ -1,0 +1,1 @@
+{"ns":"shop.logs","op":"query","command":{"find":"logs","filter":{"host":"db9.zq-internal.example","severity":{"$gte":4417}},"$db":"shop"}}
