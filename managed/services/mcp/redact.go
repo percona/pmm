@@ -68,11 +68,10 @@ var mongoPlanKeys = []string{
 	"isEOF", "seeks", "dupsTested", "dupsDropped", "indexVersion", "ok",
 }
 
-// pgPropertyLine matches a PostgreSQL text-plan property line: "Filter:",
-// "Index Cond:", "Sort Key:", "Group Key:", "Output:" and every other
-// "<Label>: <value>" line under a node. Node lines never match: their text
-// reaches "(cost=" or "->" before any colon.
-var pgPropertyLine = regexp.MustCompile(`^(\s*[A-Za-z][A-Za-z0-9 -]*:)(.*)$`)
+// pgEstimates matches the trailing (cost=...) and (actual ...) groups of a
+// PostgreSQL text-plan node line, whose numbers are estimates and measurements.
+var pgEstimates = regexp.MustCompile(`(?:\s+\((?:cost=[0-9.]+\.\.[0-9.]+ rows=[0-9.]+ width=[0-9]+|` +
+	`actual (?:time=[0-9.]+\.\.[0-9.]+ )?rows=[0-9.]+ loops=[0-9]+)\))+$`)
 
 // mysqlValueNumbers are the JSON plan keys whose numbers come from the query's
 // own values rather than estimates, in format version 2: a Limit node's LIMIT
@@ -569,11 +568,11 @@ func mongoLiteralKey(k string) bool {
 	return slices.Contains(mongoLiteralKeys, k) || strings.HasPrefix(k, "$") && k != "$cursor" && !strings.HasPrefix(k, "$number")
 }
 
-// maskPGPlan masks literals in a pg_stat_monitor stored plan. Text plans are
-// masked on every property line, so node lines with their cost and row
-// estimates survive; a property holding a lone number, such as
-// "Workers Planned: 2", is kept. A JSON plan is masked in every string value
-// but names: its numbers are estimates, and its literals sit in expressions.
+// maskPGPlan masks literals in a pg_stat_monitor stored plan. A text plan is
+// masked as one text, so a constant that spans lines is one literal, and only
+// the trailing estimate groups of its node lines keep their numbers. A JSON
+// plan is masked in every string value but names: its numbers are estimates,
+// and its literals sit in expressions.
 func maskPGPlan(plan string) string {
 	trimmed := strings.TrimSpace(plan)
 	if strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
@@ -590,41 +589,20 @@ func maskPGPlan(plan string) string {
 		return string(out)
 	}
 
-	lines := strings.Split(plan, "\n")
-	out := make([]string, 0, len(lines))
-	for i := 0; i < len(lines); i++ {
-		m := pgPropertyLine.FindStringSubmatch(lines[i])
-		if m == nil || strings.Trim(m[2], " 0123456789") == "" {
-			out = append(out, lines[i])
-			continue
+	marks := sqlMarks(plan, false, false)
+	for start := 0; start < len(plan); {
+		end := lineEnd(plan, start)
+		loc := pgEstimates.FindStringIndex(plan[start:end])
+		if loc != nil {
+			for i := start + loc[0]; i < start+loc[1]; i++ {
+				if marks[i] == numberMark {
+					marks[i] = plainMark
+				}
+			}
 		}
-		// A newline inside a constant or a quoted identifier is printed as
-		// is, so the value runs on while either is open.
-		value := m[2]
-		for pgQuoteOpen(value) && i+1 < len(lines) {
-			i++
-			value += "\n" + lines[i]
-		}
-		out = append(out, m[1]+maskSQLLiterals(value, false))
+		start = end + 1
 	}
-	return strings.Join(out, "\n")
-}
-
-// pgQuoteOpen reports whether s ends inside a single-quoted constant or a
-// double-quoted identifier. Each kind of quote is ignored inside the other, so
-// the apostrophe in "o'neil" opens nothing, and a doubled quote closes and
-// reopens.
-func pgQuoteOpen(s string) bool {
-	var open byte
-	for i := range len(s) {
-		switch c := s[i]; {
-		case open == 0 && (c == '\'' || c == '"'):
-			open = c
-		case c == open:
-			open = 0
-		}
-	}
-	return open != 0
+	return renderMarks(plan, marks)
 }
 
 // maskMongoFingerprint masks the values in a MongoDB fingerprint, a shell call

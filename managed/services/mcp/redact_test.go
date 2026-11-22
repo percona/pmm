@@ -246,7 +246,7 @@ func TestMaskPGPlan(t *testing.T) {
 		assert.Contains(t, got, "(cost=0.00..458.00 rows=1 width=64)", "estimates are not on predicate lines")
 		assert.NotContains(t, got, "vip", "every property line is masked, not only predicates")
 		assert.NotContains(t, got, "month")
-		assert.Contains(t, got, "Workers Planned: 2", "a lone number is a planner count, not a literal")
+		assert.Contains(t, got, "Workers Planned: ?", "numbers are kept only in a node's estimates")
 		assert.NotContains(t, got, "123-45-6789", "a literal's continuation lines are masked too")
 		assert.NotContains(t, got, "secret")
 		assert.Contains(t, got, "Filter: (note = ?::text)\n  ->  Seq Scan on tags  (cost=0.00..2.00 rows=1 width=4)",
@@ -255,6 +255,22 @@ func TestMaskPGPlan(t *testing.T) {
 		// A newline inside a quoted identifier is printed as is too.
 		got = maskPGPlan("Seq Scan on t\n  Filter: (\"my\ncol\" = 'secret'::text)")
 		assert.NotContains(t, got, "secret")
+
+		// Every line is masked, whatever its label, and only the trailing estimate groups of a node keep their numbers.
+		got = maskPGPlan("Hash Join  (cost=10.50..20.75 rows=100 width=8) (actual time=0.015..0.250 rows=98 loops=1)\n" +
+			"  Some_Label: 'secret-1'\n" +
+			"  ->  Seq Scan on t  (cost=0.00..1.00 rows=1 width=4) (actual rows=1.00 loops=1)\n" +
+			"        Rows Removed by Filter: 4417\n" +
+			"  InitPlan 1 (returns $0)\n" +
+			"    ->  Result  (cost=0.00..0.01 rows=1 width=4)\n" +
+			"Seq Scan on t2 (secret 7731) and 'secret-2'")
+		assert.Equal(t, "Hash Join  (cost=10.50..20.75 rows=100 width=8) (actual time=0.015..0.250 rows=98 loops=1)\n"+
+			"  Some_Label: ?\n"+
+			"  ->  Seq Scan on t  (cost=0.00..1.00 rows=1 width=4) (actual rows=1.00 loops=1)\n"+
+			"        Rows Removed by Filter: ?\n"+
+			"  InitPlan ? (returns $0)\n"+
+			"    ->  Result  (cost=0.00..0.01 rows=1 width=4)\n"+
+			"Seq Scan on t2 (secret ?) and ?", got)
 
 		// The apostrophe of a double-quoted identifier opens no constant.
 		got = maskPGPlan("Seq Scan on t\n  Filter: (\"o'neil\" = 'x')\n  ->  Index Scan on i  (cost=1.00..2.00 rows=3 width=4)")
