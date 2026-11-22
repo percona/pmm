@@ -228,6 +228,8 @@ type signalResult struct {
 
 	// series is how many series the query returned.
 	series int
+	// nonFinite is how many values of the series reported were NaN or infinite.
+	nonFinite int
 }
 
 // healthResult is the result of pmm_service_health.
@@ -381,6 +383,9 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		if results[j].series > 1 {
 			notes = append(notes, fmt.Sprintf("%s: the largest of %d series.", results[j].Name, results[j].series))
 		}
+		if results[j].nonFinite > 0 {
+			notes = append(notes, fmt.Sprintf("%s: %d non-finite values (NaN or infinite) are left out of min, avg and max.", results[j].Name, results[j].nonFinite))
+		}
 	}
 	queried := len(results)
 	if skipNode {
@@ -506,6 +511,7 @@ func (s *Service) runSignal(ctx context.Context, rr rangeRequest, sig signal, qu
 		return res, nil
 	}
 	res.Min, res.Avg, res.Max, res.Last = best.summary.Min, best.summary.Avg, best.summary.Max, best.summary.Last
+	res.nonFinite = best.nonFinite
 	lastAt := best.summary.LastAt
 	res.LastAt = &lastAt
 	return res, nil

@@ -309,6 +309,25 @@ func TestServiceHealthTool(t *testing.T) {
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
 	})
 
+	t.Run("NonFiniteValuesAreCounted", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{
+			onQuery("mysql_global_status_innodb_buffer_pool_reads"): {body: healthMatrix(testNow, "0.5", "+Inf", "NaN", "0.25")},
+		}))
+		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		require.False(t, isError, text)
+
+		ratio := signalByName(t, res, "buffer_pool_miss_ratio")
+		require.NotNil(t, ratio.Max)
+		assert.InDelta(t, 0.5, *ratio.Max, 1e-9)
+		require.NotNil(t, ratio.Last)
+		const want = "buffer_pool_miss_ratio: 2 non-finite values (NaN or infinite) are left out of min, avg and max."
+		assert.Contains(t, res.Note, want)
+		assert.Contains(t, text, want)
+		assert.NotContains(t, res.Note, nanNote, "no value is null")
+	})
+
 	t.Run("NaNIsNull", func(t *testing.T) {
 		t.Parallel()
 
