@@ -13,6 +13,8 @@ The MCP server runs inside pmm-managed and speaks MCP Streamable HTTP. It holds 
 
 The endpoint is only reachable through PMM's nginx, which authenticates every request. A connection made directly to pmm-managed, bypassing nginx, is answered with 404 even when pmm-managed listens on a routable interface.
 
+A tool call lasts as long as its HTTP request, whatever MCP protocol version the client uses. If the client disconnects, PMM cancels the call and any pmm-agent action that the call started, and the call stops counting toward the [calls-in-flight limits](#rate-limits).
+
 !!! note "Service-account tokens and access control"
     With [access control](../admin/roles/access-control/intro.md) off, a Viewer service-account token works for every tool. With access control on, PMM refuses service-account tokens on the Query Analytics and metrics APIs, so every tool except `pmm_version`, `pmm_catalog` and `pmm_alerts` returns `unauthorized` for a token. In that case, connect with the credentials of a PMM user, sent as Basic authentication. The user's Access Roles then filter the Query Analytics and metrics data that the tools read. They don't filter `pmm_alerts`, which shows the alerts of every folder that the caller can read, as PMM's Alerts page does.
 
