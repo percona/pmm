@@ -12,6 +12,8 @@ Percona releases new chart versions to update containers when:
 
 [Create a backup](../install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md) before upgrading. Downgrades are not supported, so a backup is your only recovery option if something goes wrong.
 
+If your current version is PMM 3.9.1 or earlier, this upgrade also moves your PMM Server data from PostgreSQL 14 to PostgreSQL 18, so the first start takes longer than usual.
+
 ## Upgrade PMM Server
 
 Follow these steps to upgrade your PMM Server while preserving your monitoring data and settings. You can restore from your backup if needed.

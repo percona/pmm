@@ -9,6 +9,8 @@ Before upgrading your PMM Server, ensure you have:
 - a current backup of your PMM data volume
 - scheduled maintenance window for potential downtime
 
+If your current version is PMM 3.9.1 or earlier, this upgrade also moves your PMM Server data from PostgreSQL 14 to PostgreSQL 18, so the first start takes longer than usual.
+
 ## Upgrade process
 
 To upgrade PMM Server on AWS: 

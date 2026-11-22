@@ -89,6 +89,23 @@ If you manage a large MongoDB fleet, you can now see right away which backup age
 
 [Find your failing backup agents](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) to get started.
 
+### Added support and deprecations
+
+#### PostgreSQL 14 deprecated in PMM Server
+
+PostgreSQL recently [stopped supporting version 14](https://www.postgresql.org/support/versioning/), so it no longer gets security fixes. Because of this, PMM deprecates PostgreSQL 14 in PMM 3.11.0 and will remove it completely in PMM 3.13.0 (expected January 2027).
+
+PMM Server has been using PostgreSQL 18 for its built-in database since PMM 3.10.0. PostgreSQL 14 is only used to move your data to PostgreSQL 18 when you upgrade from PMM 3.9.1 or earlier. Once PMM 3.13.0 ships without PostgreSQL 14, PMM won't be able to upgrade a PMM Server that runs PMM 3.9.1 or earlier directly.
+
+If your PMM Server runs PMM 3.9.1 or earlier with the built-in database:
+
+- Before PMM 3.13.0 is out: upgrade to PMM 3.11.0 or 3.12.x as usual. Your data moves to PostgreSQL 18 automatically.
+- After PMM 3.13.0 is out: [upgrade in two steps](../pmm-upgrade/prepare_postgresql_14_removal.md#if-you-upgrade-after-pmm-3130-is-out). First upgrade to a version from PMM 3.10.0 through 3.12.x, then to PMM 3.13.0 or later.
+
+##### External PostgreSQL databases
+
+If you use an external PostgreSQL database instead of the built-in one, PMM Server requires PostgreSQL 15 or later starting with PMM 3.13.0. If your external database runs an earlier version, upgrade it before you upgrade PMM Server to PMM 3.13.0.
+
 ## 🔒 Security updates
 
 ### nginx HTTP/2 memory corruption ([CVE-2026-123007](https://nvd.nist.gov/vuln/detail/CVE-2026-123007), [CVE-2026-123633](https://nvd.nist.gov/vuln/detail/CVE-2026-123633))
