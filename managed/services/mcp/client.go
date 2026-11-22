@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -164,7 +165,8 @@ func maxVMRequestsPerReplica() int {
 	return max(limit/vmReplicaShare, 1)
 }
 
-// newClient builds a pmmAPI implementation against the given base URL.
+// newClient builds a pmmAPI implementation against the given base URL, whose host must be a loopback address or
+// localhost, so that the caller's credentials never leave the server.
 //
 // Its errors never echo the URL: it comes from PMM_DEV_MCP_LOOPBACK_URL, can
 // carry userinfo or a query token, and main logs this error on startup.
@@ -175,6 +177,11 @@ func newClient(baseURL string) (*client, error) {
 	}
 	if base.Scheme == "" || base.Host == "" {
 		return nil, errors.New("invalid loopback URL (PMM_DEV_MCP_LOOPBACK_URL): scheme and host are required")
+	}
+	host := base.Hostname()
+	ip := net.ParseIP(host)
+	if !strings.EqualFold(host, "localhost") && (ip == nil || !ip.IsLoopback()) {
+		return nil, errors.New("invalid loopback URL (PMM_DEV_MCP_LOOPBACK_URL): the host must be a loopback address or localhost")
 	}
 	if base.Path == "" {
 		base.Path = "/"

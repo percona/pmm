@@ -263,7 +263,7 @@ func TestAlertingResponseBounded(t *testing.T) {
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := newClient("http://pmm.test/")
+			c, err := newClient("http://127.0.0.1/")
 			require.NoError(t, err)
 			var read atomic.Int64
 			var body string
@@ -295,7 +295,7 @@ func TestAlertingResponseBounded(t *testing.T) {
 func TestQANServiceTypesBounded(t *testing.T) {
 	t.Parallel()
 
-	c, err := newClient("http://pmm.test/")
+	c, err := newClient("http://127.0.0.1/")
 	require.NoError(t, err)
 
 	var read atomic.Int64
@@ -322,7 +322,7 @@ func TestQANServiceTypesBounded(t *testing.T) {
 func TestVMResponseBounded(t *testing.T) {
 	t.Parallel()
 
-	c, err := newClient("http://pmm.test/")
+	c, err := newClient("http://127.0.0.1/")
 	require.NoError(t, err)
 
 	var read atomic.Int64
@@ -577,5 +577,28 @@ func TestBackingCallRedirectRefused(t *testing.T) {
 			}
 			assert.Zero(t, elsewhere.Load(), "a backing call followed the redirect")
 		})
+	}
+}
+
+// TestNewClientLoopbackOnly pins that the loopback URL takes only a loopback host, and that the error never echoes it.
+func TestNewClientLoopbackOnly(t *testing.T) {
+	t.Parallel()
+
+	for _, u := range []string{"http://127.0.0.1:8080/", "http://127.0.0.2/", "http://[::1]:8080/", "http://localhost:8080/", "http://LocalHost/v1/"} {
+		_, err := newClient(u)
+		require.NoError(t, err, u)
+	}
+	for _, u := range []string{
+		"http://pmm.test/",
+		"http://user:secret@10.0.0.1:8080/",
+		"http://example.com/?token=secret",
+		"http://0.0.0.0:8080/",
+		"http://[::]:8080/",
+		"http://localhost.example.com/",
+		"http://127.0.0.1.example.com/",
+	} {
+		_, err := newClient(u)
+		require.Error(t, err, u)
+		assert.Equal(t, "invalid loopback URL (PMM_DEV_MCP_LOOPBACK_URL): the host must be a loopback address or localhost", err.Error(), u)
 	}
 }

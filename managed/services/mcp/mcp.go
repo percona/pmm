@@ -109,7 +109,8 @@ type Params struct {
 	// false, the handler answers 404 so that the feature is invisible.
 	Enabled func() bool
 	// LoopbackURL is the base URL of PMM's REST API as seen from inside the
-	// server (nginx's plain-HTTP listener). Defaults to DefaultLoopbackURL.
+	// server (nginx's plain-HTTP listener); its host must be a loopback
+	// address or localhost. Defaults to DefaultLoopbackURL.
 	LoopbackURL string
 	// API overrides the PMM API client; tests use it to inject fakes.
 	API pmmAPI
