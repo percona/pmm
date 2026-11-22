@@ -1111,6 +1111,23 @@ func TestSchemaTool(t *testing.T) {
 		require.Len(t, stub.starts, 1, "the EXPLAIN only")
 	})
 
+	// The plan is parsed for its tables only within the bound pmm_get_explain parses a plan within.
+	t.Run("MySQLPlanOverInputBound", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		plan := `{"query_block": {"select_id": 1, "table": {"table_name": "t", "access_type": "ALL", "attached_condition": "` +
+			strings.Repeat("x", maxPlanInputBytes) + `"}}}`
+		stub.explain = explainOutput(t, []byte(plan), "SELECT 1")
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assert.Equal(t, "error: no_query_source\nthe EXPLAIN plan is larger than 4 MiB, the most PMM parses of a plan; "+
+			"pass service_id, database and tables to name the tables", text)
+		require.Len(t, stub.starts, 1, "the EXPLAIN only")
+	})
+
 	t.Run("TwelveTables", func(t *testing.T) {
 		t.Parallel()
 
