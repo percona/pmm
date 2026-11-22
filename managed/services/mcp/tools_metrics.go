@@ -253,19 +253,12 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 		return shapeSeries(in.Query, series, plan.limit, nil, "", ""), nil
 	}
 
-	note, fitRead, err := fitAnswer(in.Query, &plan, matched, read)
+	note, err := s.fitRange(ctx, auth, uid, in.Query, &plan, selectors, matched, read)
 	if err != nil {
 		return metricsResult{}, err
 	}
 	if note != "" {
 		notes = append(notes, note)
-	}
-	// A raised step can read further back than the span the selectors were counted over.
-	if fitRead > read {
-		_, err = s.checkSeriesCount(ctx, auth, uid, selectors, from.Add(-(fitRead - plan.span())), to)
-		if err != nil {
-			return metricsResult{}, narrowIfTooLarge(err, in.Query)
-		}
 	}
 	series, err := s.api.QueryRange(ctx, auth, uid, promRequest{
 		Query: in.Query, Start: plan.start, End: plan.end, Step: plan.step, Timeout: metricsTimeout,
@@ -274,6 +267,39 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 		return metricsResult{}, narrowIfTooLarge(err, in.Query)
 	}
 	return shapeSeries(in.Query, series, plan.limit, &window{From: plan.start, To: plan.end}, formatStep(plan.step), strings.Join(notes, " ")), nil
+}
+
+// fitRange fits the answer of a range query under the read cap with fitAnswer and returns its note. A raised step can
+// read further back than the span the selectors were counted over, where they can match more series: they are counted
+// again, and the answer is fitted to the larger count.
+func (s *Service) fitRange(
+	ctx context.Context, auth callerAuth, uid, expr string, plan *metricsPlan, selectors []string, matched matchedSeries, read time.Duration,
+) (string, error) {
+	unfitStep := plan.step
+	note, fitRead, err := fitAnswer(expr, plan, matched, read)
+	if err != nil {
+		return "", err
+	}
+	for range maxStepRaises {
+		if fitRead <= read {
+			break
+		}
+		var recount matchedSeries
+		recount, err = s.checkSeriesCount(ctx, auth, uid, selectors, plan.start.Add(-(fitRead - plan.span())), plan.end)
+		if err != nil {
+			return "", narrowIfTooLarge(err, expr)
+		}
+		read = fitRead
+		if recount.count > matched.count {
+			matched = recount
+			plan.step = unfitStep
+			note, fitRead, err = fitAnswer(expr, plan, matched, read)
+			if err != nil {
+				return "", err
+			}
+		}
+	}
+	return note, nil
 }
 
 // fitAnswer raises the step of a range query without an aggregation, whose answer has at most seriesPerMatched series

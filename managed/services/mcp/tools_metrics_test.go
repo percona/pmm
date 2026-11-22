@@ -24,6 +24,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -604,6 +605,43 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
 		assert.Contains(t, text, "this selector matches more than 2000 series over the span")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
+	})
+
+	t.Run("RaisedStepFitsTheWiderCount", func(t *testing.T) {
+		t.Parallel()
+
+		// 500 series over the hour and 11s fit at 1m59s; 1500 over the wider span read at 1m59s fit only at 6m7s.
+		from := testNow.Add(-6 * time.Hour)
+		narrow := unixOf(from.Add(-11 * time.Second))
+		fake := newFakePMM(t, metricsRoutes(nil))
+		next := fake.server.Config.Handler
+		var mu sync.Mutex
+		var starts []string
+		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+			if req.URL.Path != vmAPI+"series" {
+				next.ServeHTTP(rw, req)
+				return
+			}
+			start := req.URL.Query().Get("start")
+			mu.Lock()
+			starts = append(starts, start)
+			mu.Unlock()
+			n := 1500
+			if start == narrow {
+				n = 500
+			}
+			rw.Header().Set("Content-Type", "application/json")
+			_, _ = rw.Write(seriesBody(n))
+		})
+		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+			"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-6h",
+		})
+		require.False(t, isError, text)
+		assert.Equal(t, "6m7s", res.Step)
+		assert.Contains(t, res.Note, "The step was raised from 11s to 6m7s so that the answer for up to 1500 series fits")
+		mu.Lock()
+		defer mu.Unlock()
+		assert.Equal(t, []string{narrow, unixOf(from.Add(-119 * time.Second)), unixOf(from.Add(-367 * time.Second))}, starts)
 	})
 
 	t.Run("UnraisedStepCountsOnce", func(t *testing.T) {
