@@ -1000,12 +1000,20 @@ func TestListMetricsTool(t *testing.T) {
 	t.Run("ThousandAndOneIsTruncated", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(numbered("db", 1001))}}))
+		// Three hex digits keep a page of 1000 values within 16 KiB.
+		short := func(n int) []string {
+			out := make([]string, n)
+			for i := range out {
+				out[i] = fmt.Sprintf("%03x", i)
+			}
+			return out
+		}
+		fake := newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(short(1001))}}))
 		res, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000, "offset": 1000})
 		require.False(t, isError, text)
 
 		assert.Equal(t, 1001, res.Page.Total)
-		assert.Equal(t, []string{"db1000"}, res.Values)
+		assert.Equal(t, []string{"3e8"}, res.Values)
 		assert.True(t, res.Page.Truncated, "the last page is still truncated: VictoriaMetrics had more")
 		assert.Contains(t, res.Hint, "more than 1000")
 		assert.Contains(t, res.Hint, "narrow it with match")
@@ -1016,7 +1024,7 @@ func TestListMetricsTool(t *testing.T) {
 		require.False(t, isError, text)
 		assert.Contains(t, text, "showing 1–1000 of 1001; pass offset=1000 for more")
 
-		fake = newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(numbered("db", 1000))}}))
+		fake = newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(short(1000))}}))
 		res, text, isError = listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000})
 		require.False(t, isError, text)
 		assert.False(t, res.Page.Truncated)
@@ -1093,6 +1101,56 @@ func TestListMetricsTool(t *testing.T) {
 		assert.Contains(t, textOf(t, r), fmt.Sprintf("pass offset=%d for more", len(res.Series)))
 		for _, s := range res.Series {
 			assert.NotNil(t, s)
+		}
+	})
+
+	t.Run("EveryKindStaysWithinTheBudget", func(t *testing.T) {
+		t.Parallel()
+
+		long := numbered(strings.Repeat("v", 200), 1000)
+		for _, tc := range []struct {
+			args   map[string]any
+			routes map[string]fixture
+			advice string
+			shown  func(listMetricsResult) int
+		}{
+			{
+				args:   map[string]any{"kind": "names", "limit": 1000},
+				routes: map[string]fixture{vmNames: {body: stringsBody(long)}},
+				advice: "narrow the search",
+				shown:  func(r listMetricsResult) int { return len(r.Names) },
+			},
+			{
+				args:   map[string]any{"kind": "labels", "limit": 1000},
+				routes: map[string]fixture{vmLabels: {body: stringsBody(long)}},
+				advice: "narrow it with match",
+				shown:  func(r listMetricsResult) int { return len(r.Labels) },
+			},
+			{
+				args:   map[string]any{"kind": "values", "label": "service_name", "limit": 1000},
+				routes: map[string]fixture{vmValues: {body: stringsBody(long)}},
+				advice: "narrow it with match",
+				shown:  func(r listMetricsResult) int { return len(r.Values) },
+			},
+		} {
+			fake := newFakePMM(t, listRoutes(tc.routes))
+			r := callTool(t, connect(t, newQANService(t, fake, false)), "pmm_list_metrics", tc.args)
+			require.False(t, r.IsError, textOf(t, r))
+			res := structured[listMetricsResult](t, r)
+
+			kind := tc.args["kind"]
+			size := len(textOf(t, r)) + len(mustJSON(t, r.StructuredContent))
+			assert.LessOrEqual(t, size, 16<<10, "%s: text plus structured content", kind)
+			assert.Greater(t, size, 12<<10, "%s: as many entries as fit are kept", kind)
+			shown := tc.shown(res)
+			assert.Positive(t, shown, kind)
+			assert.Less(t, shown, 1000, kind)
+			assert.True(t, res.Page.Truncated, kind)
+			assert.Equal(t, 1000, res.Page.Total, kind)
+			assert.Equal(t, shown, res.Page.Limit, kind)
+			assert.Contains(t, res.Hint, "do not fit in 16 KiB", kind)
+			assert.Contains(t, res.Hint, tc.advice, kind)
+			assert.Contains(t, textOf(t, r), fmt.Sprintf("pass offset=%d for more", shown), kind)
 		}
 	})
 

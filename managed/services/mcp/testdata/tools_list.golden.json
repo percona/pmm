@@ -888,7 +888,7 @@
   },
   {
     "name": "pmm_list_metrics",
-    "description": "Discover what PMM's metrics hold before writing a query. kind names (default) lists metric names matching search, optionally of one service (service_id or service_name); over limit names it returns groups of names by prefix with counts instead. kind labels lists label names, kind values the values of one label, and kind series the label sets of the series, each narrowed by match selectors (required for series). Each looks back at most 7 days (period_from, default 1 hour), returns at most 1000 entries from VictoriaMetrics, and pages with offset and limit (default 100, at most 1000); series are also held to 16 KiB.",
+    "description": "Discover what PMM's metrics hold before writing a query. kind names (default) lists metric names matching search, optionally of one service (service_id or service_name); over limit names it returns groups of names by prefix with counts instead. kind labels lists label names, kind values the values of one label, and kind series the label sets of the series, each narrowed by match selectors (required for series). Each looks back at most 7 days (period_from, default 1 hour), returns at most 1000 entries from VictoriaMetrics, and pages with offset and limit (default 100, at most 1000); a page is also held to 16 KiB.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {

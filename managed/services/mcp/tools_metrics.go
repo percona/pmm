@@ -69,7 +69,7 @@ func (s *Service) registerMetricsTools(server *mcp.Server) {
 			"optionally of one service (service_id or service_name); over limit names it returns groups of names by prefix with counts instead. " +
 			"kind labels lists label names, kind values the values of one label, and kind series the label sets of the series, each narrowed by match " +
 			"selectors (required for series). Each looks back at most 7 days (period_from, default 1 hour), returns at most 1000 entries from " +
-			"VictoriaMetrics, and pages with offset and limit (default 100, at most 1000); series are also held to 16 KiB.",
+			"VictoriaMetrics, and pages with offset and limit (default 100, at most 1000); a page is also held to 16 KiB.",
 		Annotations: readOnly("List metrics"),
 	}, s.listMetrics)
 
@@ -777,6 +777,7 @@ func (s *Service) listMetrics(ctx context.Context, req *mcp.CallToolRequest, in 
 		return listMetricsResult{}, err
 	}
 
+	res = fitList(res)
 	if total > maxListed {
 		res.Page.Truncated = true
 	}
@@ -847,7 +848,7 @@ func pageNames(res listMetricsResult, names []string, offset, limit int) (listMe
 	return res, nil
 }
 
-// pageSeries sets the series of one page, fewer than the page when they would not fit maxMetricsBytes.
+// pageSeries sets the series of one page, in the order of their labels.
 func pageSeries(res listMetricsResult, series []map[string]string, offset, limit int) (listMetricsResult, error) {
 	keyed := make([]string, len(series))
 	for i, labels := range series {
@@ -867,32 +868,39 @@ func pageSeries(res listMetricsResult, series []map[string]string, offset, limit
 		sorted = append(sorted, labels)
 	}
 
-	shown, pg, err := paginate(sorted, offset, limit, defaultListLimit, maxListed)
-	if err != nil {
-		return res, err
-	}
-	res.Series, res.Page = shown, pg
+	var err error
+	res.Series, res.Page, err = paginate(sorted, offset, limit, defaultListLimit, maxListed)
+	return res, err
+}
 
+// fitList keeps the most entries of a page, of any kind, whose text and structured content fit maxMetricsBytes.
+func fitList(res listMetricsResult) listMetricsResult {
 	if measure(res) <= maxMetricsBytes {
-		return res, nil
+		return res
 	}
 
-	const cutHint = "the series do not fit in 16 KiB, so some are left out: narrow match with a service_name or node_name matcher, or read the next page with offset"
+	hint := "The " + res.Kind + " do not fit in 16 KiB, so some are left out: " + narrowAdvice(res.Kind) + ", or read the next page with offset."
+	if res.Hint != "" {
+		hint = res.Hint + ". " + hint
+	}
 	cut := func(n int) listMetricsResult {
 		r := res
-		r.Series = shown[:n]
+		r.Names, r.Groups, r.Labels = res.Names[:min(n, len(res.Names))], res.Groups[:min(n, len(res.Groups))], res.Labels[:min(n, len(res.Labels))]
+		r.Values, r.Series = res.Values[:min(n, len(res.Values))], res.Series[:min(n, len(res.Series))]
 		r.Page.Limit = n
 		r.Page.Truncated = true
-		r.Hint = strings.TrimSpace(res.Hint + " " + cutHint)
+		r.Hint = hint
 		return r
 	}
-	kept := sort.Search(len(shown), func(n int) bool { return measure(cut(n+1)) > maxMetricsBytes })
+	// One kind of entries is set, so the page holds this many.
+	shown := len(res.Names) + len(res.Groups) + len(res.Labels) + len(res.Values) + len(res.Series)
+	kept := sort.Search(shown, func(n int) bool { return measure(cut(n+1)) > maxMetricsBytes })
 	res = cut(kept)
 	if kept == 0 {
-		res.Series = nil
-		res.Hint = strings.TrimSpace(res.Hint + fmt.Sprintf(" The series at offset %d alone does not fit in 16 KiB: pass offset=%d to skip it.", offset, offset+1))
+		res.Names, res.Groups, res.Labels, res.Values, res.Series = nil, nil, nil, nil, nil
+		res.Hint += fmt.Sprintf(" The entry at offset %d alone does not fit in 16 KiB: pass offset=%d to skip it.", res.Page.Offset, res.Page.Offset+1)
 	}
-	return res, nil
+	return res
 }
 
 // measure is what a result costs: its text plus its structured content.
