@@ -254,6 +254,11 @@ func (t *statusTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+	if resp.StatusCode >= http.StatusMultipleChoices && resp.StatusCode < http.StatusBadRequest {
+		// An error here stops both HTTP clients from following the redirect, so the caller's credentials stay on the loopback.
+		_ = resp.Body.Close()
+		return nil, &statusError{status: resp.StatusCode, method: req.Method, path: req.URL.Path, message: "a backing call does not follow redirects"}
+	}
 	if resp.StatusCode < http.StatusBadRequest {
 		return resp, nil
 	}

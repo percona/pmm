@@ -25,6 +25,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -532,4 +533,49 @@ func TestBackingCallCredentials(t *testing.T) {
 		keys[callerKey(callerAuthFromHeader(http.Header{"Authorization": {authorization}}))] = true
 	}
 	assert.Len(t, keys, 1)
+}
+
+// TestBackingCallRedirectRefused pins that neither the generated clients nor the raw HTTP calls follow a redirect, so
+// the caller's credentials go nowhere but the loopback.
+func TestBackingCallRedirectRefused(t *testing.T) {
+	t.Parallel()
+
+	for _, status := range []int{http.StatusMovedPermanently, http.StatusFound, http.StatusTemporaryRedirect, http.StatusPermanentRedirect} {
+		t.Run(strconv.Itoa(status), func(t *testing.T) {
+			t.Parallel()
+
+			var elsewhere atomic.Int32
+			target := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
+				elsewhere.Add(1)
+				rw.Header().Set("Content-Type", "application/json")
+				_, _ = rw.Write([]byte(`{}`))
+			}))
+			t.Cleanup(target.Close)
+			loopback := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				http.Redirect(rw, req, target.URL+req.URL.Path, status)
+			}))
+			t.Cleanup(loopback.Close)
+			c, err := newClient(loopback.URL + "/")
+			require.NoError(t, err)
+
+			for name, call := range map[string]func() error{
+				"generated": func() error {
+					_, err := c.Version(t.Context(), testAuth)
+					return err
+				},
+				"raw": func() error {
+					_, err := c.GetDatasourceByName(t.Context(), testAuth, "Metrics")
+					return err
+				},
+			} {
+				err := call()
+				require.Error(t, err, name)
+				te := mapError(err)
+				assert.Equal(t, codePMMUnavailable, te.code, name)
+				assert.Contains(t, te.message, "redirect", name)
+				assert.NotContains(t, te.message, target.URL, name)
+			}
+			assert.Zero(t, elsewhere.Load(), "a backing call followed the redirect")
+		})
+	}
 }
