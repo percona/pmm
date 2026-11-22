@@ -176,7 +176,7 @@ func (t noteToken) isIdent() bool {
 // tokenizeNote splits a rewritten statement into tokens, leaving out literals and
 // comments.
 func tokenizeNote(s string) []noteToken {
-	marks := sqlMarks(s, true)
+	marks := sqlMarks(s, true, false)
 	var out []noteToken
 	for i := 0; i < len(s); {
 		c := s[i]

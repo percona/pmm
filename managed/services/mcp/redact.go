@@ -23,6 +23,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"unicode"
 )
 
 // This file masks literal values in execution plans and agent errors when
@@ -88,6 +89,11 @@ var mysqlIdentifierKeys = []string{
 // pgIdentifierKeys are the JSON plan keys whose strings are only names.
 var pgIdentifierKeys = []string{"Relation Name", "Schema", "Alias", "Index Name", "CTE Name"}
 
+// mysqlOwnName matches the names MySQL gives its own tables and keys in a plan, such as <derived2>, <union1,2>,
+// <union temporary> and <auto_key0>.
+var mysqlOwnName = regexp.MustCompile(`^<(?:(?:derived|subquery|union|intersect|except|auto_key)[0-9]+(?:,[0-9]+)*|` +
+	`(?:union |intersect |except )?temporary|auto_distinct_key|group_key|hash_distinct_key)>$`)
+
 // mysqlNumber matches the numeric strings MySQL writes into a JSON plan -
 // costs, "filtered", data sizes such as "1K" - which are kept.
 var mysqlNumber = regexp.MustCompile(`^[0-9]+(\.[0-9]+)?[KMGTPE]?$`)
@@ -141,7 +147,19 @@ func maskSQLLiterals(s string, doubleQuotedStrings bool) string {
 // maskSQL is maskSQLLiterals that also reports whether s holds a quoted or
 // dollar-quoted string outside its comments, under either backslash reading.
 func maskSQL(s string, doubleQuotedStrings bool) (string, bool) {
-	marks := sqlMarks(s, doubleQuotedStrings)
+	marks := sqlMarks(s, doubleQuotedStrings, false)
+	return renderMarks(s, marks), slices.Contains(marks, stringMark)
+}
+
+// maskMySQLPlanText masks a text of a MySQL plan like maskSQLLiterals, and the
+// text of every backquoted name that is not a plain name: MySQL names an
+// unaliased select-list expression after its own text, literals included.
+func maskMySQLPlanText(s string) string {
+	return renderMarks(s, sqlMarks(s, true, true))
+}
+
+// renderMarks writes s with each run of marked bytes replaced by one ?.
+func renderMarks(s string, marks []byte) string {
 	var b strings.Builder
 	b.Grow(len(s))
 	for i := range len(s) {
@@ -152,31 +170,34 @@ func maskSQL(s string, doubleQuotedStrings bool) (string, bool) {
 			b.WriteByte('?')
 		}
 	}
-	return b.String(), slices.Contains(marks, stringMark)
+	return b.String()
 }
 
 // Marks for the bytes of a SQL fragment; a higher one outranks a lower.
 const (
 	plainMark byte = iota
+	nameMark
 	commentMark
 	numberMark
 	stringMark
 )
 
 // sqlMarks marks the bytes of s that either backslash reading puts in a
-// literal or a comment.
-func sqlMarks(s string, doubleQuotedStrings bool) []byte {
-	marks := scanSQL(s, doubleQuotedStrings, true)
-	for i, m := range scanSQL(s, doubleQuotedStrings, false) {
+// literal or a comment, and with plainNames the text of each quoted
+// identifier that is not a plain name.
+func sqlMarks(s string, doubleQuotedStrings, plainNames bool) []byte {
+	marks := scanSQL(s, doubleQuotedStrings, true, plainNames)
+	for i, m := range scanSQL(s, doubleQuotedStrings, false, plainNames) {
 		marks[i] = max(marks[i], m)
 	}
 	return marks
 }
 
 // scanSQL marks the bytes of s that belong to a literal or a comment under one
-// backslash reading. Identifiers are never backslash-escaped, whatever the
-// reading.
-func scanSQL(s string, doubleQuotedStrings, backslashEscapes bool) []byte {
+// backslash reading, and with plainNames the text of each quoted identifier
+// that is not a plain name. Identifiers are never backslash-escaped, whatever
+// the reading.
+func scanSQL(s string, doubleQuotedStrings, backslashEscapes, plainNames bool) []byte {
 	marks := make([]byte, len(s))
 	for i := 0; i < len(s); {
 		c := s[i]
@@ -194,7 +215,11 @@ func scanSQL(s string, doubleQuotedStrings, backslashEscapes bool) []byte {
 			}
 			i = markRange(marks, from, end, commentMark) + len("*/")
 		case (c == '`' && doubleQuotedStrings) || (c == '"' && !doubleQuotedStrings):
-			i = quotedEnd(s, i, false)
+			end := quotedEnd(s, i, false)
+			if plainNames && end > i+1 && !isPlainName(s[i+1:end-1]) {
+				markRange(marks, i+1, end-1, nameMark)
+			}
+			i = end
 		case c == '\'' || c == '"':
 			i = markRange(marks, i, quotedEnd(s, i, backslashEscapes), stringMark)
 		case isDigit(c) && (i == 0 || !isIdentByte(s[i-1])):
@@ -334,13 +359,29 @@ func isIdentByte(c byte) bool {
 	return c == '_' || c == '$' || isDigit(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
 }
 
+// isPlainName reports whether a name is a plain name, of letters, digits, _ and $, that is not a number such as 42 or
+// 0x1F, which MySQL names a column of that constant after.
+func isPlainName(name string) bool {
+	if name == "" || isDigit(name[0]) && numberEnd(name, 0) == len(name) {
+		return false
+	}
+	for _, r := range name {
+		if r != '_' && r != '$' && !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return true
+}
+
 // maskMySQLPlan masks literals in a MySQL EXPLAIN FORMAT=JSON plan. Every
 // string value is masked: literals sit in the *condition keys and in version
-// 2's "operation" and "ranges". The rewritten statement, format version 2's
+// 2's "operation" and "ranges", and in a name MySQL gave a select-list
+// expression after its text. The rewritten statement, format version 2's
 // "query" and Note 1003 of the SHOW WARNINGS that pmm-agent appends, is
 // withheld, and pmm-agent's real_table_name, a word of the statement, is left
-// out. The keys that hold only names and the numeric strings MySQL writes for
-// costs are kept. It reports false when the plan is not JSON.
+// out. Plain names and MySQL's own names in the keys that hold only names, and
+// the numeric strings MySQL writes for costs, are kept. It reports false when
+// the plan is not JSON.
 func maskMySQLPlan(plan string) (string, bool) {
 	var out []byte
 	members, err := jsonObjectMembers([]byte(plan))
@@ -410,9 +451,12 @@ func maskMySQLValue(path []string, v any) any {
 		case slices.Contains(path, "query"):
 			return statementWithheld
 		case slices.Contains(mysqlIdentifierKeys, key):
-			return v
+			if isPlainName(v) || mysqlOwnName.MatchString(v) {
+				return v
+			}
+			return "?"
 		case !mysqlNumber.MatchString(v):
-			return maskSQLLiterals(v, true)
+			return maskMySQLPlanText(v)
 		}
 	}
 	return v
@@ -679,14 +723,14 @@ func maskTraditionalExtra(table string) string {
 	columns := strings.Count(lines[0], "|") + 1
 	// A one-column body, such as the tree format, is masked as one text, so a literal across lines stays one literal.
 	if columns == 1 {
-		return maskSQLLiterals(table, true)
+		return maskMySQLPlanText(table)
 	}
 	for i, line := range lines {
 		cells := strings.SplitN(line, "|", columns)
 		if len(cells) < columns {
 			return planWithheld
 		}
-		cells[len(cells)-1] = maskSQLLiterals(cells[len(cells)-1], true)
+		cells[len(cells)-1] = maskMySQLPlanText(cells[len(cells)-1])
 		lines[i] = strings.Join(cells, "|")
 	}
 	return strings.Join(lines, "\n")

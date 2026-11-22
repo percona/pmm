@@ -132,6 +132,24 @@ func TestMaskMySQLPlan(t *testing.T) {
 	assert.Contains(t, got, "`t`.`2nd_col` = ?", "conditions are still masked")
 	assert.NotContains(t, got, "real_table_name", "pmm-agent parses it from the statement text")
 
+	// MySQL names an unaliased select-list expression after its text: a derived table's or a CTE's column can be named
+	// 'gold-tier' or total * 1.0773. A name that is not a plain name is masked, in name keys and in backquotes.
+	got, ok = maskMySQLPlan(`{"query_block": {"table": {"table_name": "d", "used_columns": ["customer_id", "zq-tier-4401", ` +
+		`"SUM(total) * 2.0517", "42", "0x1F", "Ünïcode_naïve$1"], "key": "<auto_key0>", "possible_keys": ["<auto_key0>", "<x y>"], ` +
+		`"attached_condition": "((` + "`d`.`SUM(total) * 2.0517` > 5) and (`d`.`zq-tier-4401` = `d`.`Ünïcode_naïve$1`) and (`d`.`42` = 1)" + `)", ` +
+		`"materialized_from_subquery": {"query_block": {"table": {"table_name": "<derived2>"}}}}}, ` +
+		`"union_result": {"table_name": "<union1,2>"}}`)
+	assert.True(t, ok)
+	for _, literal := range []string{"zq-tier", "4401", "2.0517", `"42"`, "`42`", "0x1F", "x y"} {
+		assert.NotContains(t, got, literal)
+	}
+	for _, kept := range []string{
+		`"customer_id"`, `"Ünïcode_naïve$1"`, `"key": "<auto_key0>"`, `"table_name": "<derived2>"`, `"table_name": "<union1,2>"`,
+		"`d`.`?` > ?", "`d`.`?` = `d`.`Ünïcode_naïve$1`",
+	} {
+		assert.Contains(t, got, kept)
+	}
+
 	_, ok = maskMySQLPlan("id | select_type | table")
 	assert.False(t, ok, "a non-JSON plan is reported, not passed off as masked")
 
@@ -408,6 +426,8 @@ func TestRedactPlan(t *testing.T) {
 	assert.NotContains(t, got, "123-45-6789")
 	assert.NotContains(t, got, "a|b", "a | inside the condition stays in the masked cell")
 	assert.Contains(t, got, "1  |SIMPLE      |t     |ALL  |5000 |Using where with pushed condition: ((`t`.`ssn` = ?) or (`t`.`tag` = ?))")
+	got = redactPlan(engineMySQL, formatTraditional, "id |Extra\n1  |Using where with pushed condition: (`t`.`zq-vip 7731` = 1)", true)
+	assert.Contains(t, got, "(`t`.`?` = ?)", "a name that is not a plain name is masked")
 
 	// A cell with a line break moves the rest of its row onto a line with fewer cells, which can't be matched to columns.
 	broken := "id |select_type |table |type |Extra\n" +
