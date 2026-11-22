@@ -1266,7 +1266,10 @@ func TestCheckTablesRefusesAtCap(t *testing.T) {
 func TestConfigTool(t *testing.T) {
 	t.Parallel()
 
-	fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{vmQuery + " ?mysql_global_variables_": {file: "vm_variables.json"}}))
+	fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{
+		vmQuery + " ?mysql_global_variables_": {file: "vm_variables.json"},
+		vmQuery + " ?pg_settings_":            {file: "vm_empty.json"},
+	}))
 	session := connect(t, newQANService(t, fake, true))
 
 	res := callTool(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "at": "now-1h"})
@@ -1330,18 +1333,31 @@ func TestConfigTool(t *testing.T) {
 	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "engine": "mysql"})
 	assert.False(t, isError, text)
 
-	// No variable matches: the text keeps its message and gains the time and the link.
+	// No variable matches the filter: the text says so, with the time and the link.
 	res = callTool(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "filter": "nothing_matches"})
 	got := structured[configResult](t, res)
 	assert.Empty(t, got.Variables)
 	assert.Equal(t, page{Limit: 200}, got.Page)
 	assert.Equal(t, strings.Join([]string{
-		"No configuration variables found for that service (check the service and that its metrics are being collected).",
+		"None of the service's 4 configuration variables match the filter: check its text, or call pmm_get_config without it.",
 		"At: 2026-09-14T12:00:00Z",
 		"",
 		"[View this service in PMM QAN ↗](" + got.PMMURL + ")",
 	}, "\n"), textOf(t, res))
 	assert.Equal(t, "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from="+ms(testNow.Add(-time.Hour))+"&to="+ms(testNow)+"&var-service_name=shop-mysql", got.PMMURL)
+
+	// The service has no variables at all, with or without a filter.
+	for _, args := range []map[string]any{{"service_id": "svc-2"}, {"service_id": "svc-2", "filter": "work_mem"}} {
+		res = callTool(t, session, "pmm_get_config", args)
+		got = structured[configResult](t, res)
+		assert.Empty(t, got.Variables)
+		assert.Equal(t, strings.Join([]string{
+			"No configuration variables found for that service (check the service and that its metrics are being collected).",
+			"At: 2026-09-14T12:00:00Z",
+			"",
+			"[View this service in PMM QAN ↗](" + got.PMMURL + ")",
+		}, "\n"), textOf(t, res), "%v", args)
+	}
 
 	t.Run("InvalidPagingBeforeAnyCall", func(t *testing.T) {
 		t.Parallel()
