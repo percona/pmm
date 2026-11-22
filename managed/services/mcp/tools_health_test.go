@@ -299,6 +299,16 @@ func TestServiceHealthTool(t *testing.T) {
 		assert.Contains(t, text, "cannot evaluate the expression")
 	})
 
+	t.Run("EveryQueriedSignalFailsWithoutANode", func(t *testing.T) {
+		t.Parallel()
+
+		noNode := `{"status":"success","data":{"resultType":"vector","result":[{"metric":{"service_id":"svc-1","service_name":"shop-mysql","service_type":"mysql"},"value":[1789387200,"1789387140"]}]}}`
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {body: []byte(noNode)}, vmQueryRange: healthBadExpr}))
+		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		require.True(t, isError, "the node signals were not queried, so every queried signal failed: %+v", res)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+	})
+
 	t.Run("NaNIsNull", func(t *testing.T) {
 		t.Parallel()
 

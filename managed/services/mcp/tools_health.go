@@ -382,10 +382,12 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 			notes = append(notes, fmt.Sprintf("%s: the largest of %d series.", results[j].Name, results[j].series))
 		}
 	}
+	queried := len(results)
 	if skipNode {
 		notes = append(notes, nodeUnknownNote)
+		queried -= len(healthSignals[engineNode])
 	}
-	if failed == len(results) {
+	if failed == queried {
 		return healthResult{}, firstError(errs)
 	}
 	res.Signals = results
