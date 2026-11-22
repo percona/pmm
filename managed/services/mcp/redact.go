@@ -36,6 +36,9 @@ import (
 // planWithheld replaces a plan body that could not be parsed for masking.
 const planWithheld = "(plan withheld: it could not be parsed to mask literal values, and PMM_MCP_RAW_SQL is off)"
 
+// statementWithheld replaces the rewritten statement MySQL puts in a plan.
+const statementWithheld = "(statement withheld: MySQL's rewritten statement can quote values, and PMM_MCP_RAW_SQL is off)"
+
 // mongoLiteralKeys are the MongoDB explain keys whose subtrees hold query
 // values, numbers included: the echoed command whole, with its filter,
 // bounds, comment and projection, and the parsed filter, index bounds,
@@ -77,7 +80,7 @@ var pgPropertyLine = regexp.MustCompile(`^(\s*[A-Za-z][A-Za-z0-9 -]*:)(.*)$`)
 var mysqlValueNumbers = []string{"limit", "limit_offset", "per_chunk_limit"}
 
 // mysqlIdentifierKeys are the JSON plan keys that hold only names, which masking
-// would mangle; real_table_name is not one, as pmm-agent parses it from the query.
+// would mangle.
 var mysqlIdentifierKeys = []string{
 	"table_name", "alias", "schema_name", "key", "index_name", "possible_keys", "used_key_parts", "used_columns",
 }
@@ -332,28 +335,20 @@ func isIdentByte(c byte) bool {
 }
 
 // maskMySQLPlan masks literals in a MySQL EXPLAIN FORMAT=JSON plan. Every
-// string value is masked: literals sit in the *condition keys, in the
-// rewritten statement (format version 2's "query", and Note 1003 of the SHOW
-// WARNINGS that pmm-agent appends), in version 2's "operation" and "ranges".
-// The keys that hold only names and the numeric strings MySQL writes for
+// string value is masked: literals sit in the *condition keys and in version
+// 2's "operation" and "ranges". The rewritten statement, format version 2's
+// "query" and Note 1003 of the SHOW WARNINGS that pmm-agent appends, is
+// withheld, and pmm-agent's real_table_name, a word of the statement, is left
+// out. The keys that hold only names and the numeric strings MySQL writes for
 // costs are kept. It reports false when the plan is not JSON.
 func maskMySQLPlan(plan string) (string, bool) {
-	out, err := rewriteJSON([]byte(plan), nil, func(path []string, v any) any {
-		switch v := v.(type) {
-		case json.Number:
-			if len(path) > 0 && slices.Contains(mysqlValueNumbers, path[len(path)-1]) {
-				return "?"
-			}
-		case string:
-			if len(path) > 0 && slices.Contains(mysqlIdentifierKeys, path[len(path)-1]) {
-				return v
-			}
-			if !mysqlNumber.MatchString(v) {
-				return maskSQLLiterals(v, true)
-			}
-		}
-		return v
-	})
+	var out []byte
+	members, err := jsonObjectMembers([]byte(plan))
+	if err == nil {
+		out, err = maskMySQLMembers(members)
+	} else {
+		out, err = rewriteJSON([]byte(plan), nil, maskMySQLValue)
+	}
 	if err != nil {
 		return "", false
 	}
@@ -363,6 +358,107 @@ func maskMySQLPlan(plan string) (string, bool) {
 		return "", false
 	}
 	return indented.String(), true
+}
+
+// maskMySQLMembers masks the top-level members of a MySQL plan, where pmm-agent adds warnings and real_table_name.
+func maskMySQLMembers(members []jsonMember) ([]byte, error) {
+	w := newJSONWriter()
+	w.out.WriteByte('{')
+	for _, m := range members {
+		if m.key == "real_table_name" {
+			continue
+		}
+		var value []byte
+		var err error
+		if m.key == "warnings" {
+			value, err = maskMySQLWarnings(m.value)
+		} else {
+			value, err = rewriteJSON(m.value, nil, func(path []string, v any) any {
+				return maskMySQLValue(append([]string{m.key}, path...), v)
+			})
+		}
+		if err != nil {
+			return nil, err
+		}
+		if w.out.Len() > 1 {
+			w.out.WriteByte(',')
+		}
+		err = w.scalar(m.key)
+		if err != nil {
+			return nil, err
+		}
+		w.out.WriteByte(':')
+		w.out.Write(value)
+	}
+	w.out.WriteByte('}')
+	return w.out.Bytes(), nil
+}
+
+// maskMySQLValue masks one scalar of a MySQL plan; path holds the keys on the way to it.
+func maskMySQLValue(path []string, v any) any {
+	key := ""
+	if len(path) > 0 {
+		key = path[len(path)-1]
+	}
+	switch v := v.(type) {
+	case json.Number:
+		if slices.Contains(mysqlValueNumbers, key) {
+			return "?"
+		}
+	case string:
+		switch {
+		case slices.Contains(path, "query"):
+			return statementWithheld
+		case slices.Contains(mysqlIdentifierKeys, key):
+			return v
+		case !mysqlNumber.MatchString(v):
+			return maskSQLLiterals(v, true)
+		}
+	}
+	return v
+}
+
+// maskMySQLWarnings masks the SHOW WARNINGS rows pmm-agent appends to a plan, objects with Level, Code and Message.
+// The message of Note 1003 is the rewritten statement and is withheld, as is any message whose code is not a number
+// or not there; the other messages are masked. A row that is not an object is masked whole.
+func maskMySQLWarnings(raw json.RawMessage) ([]byte, error) {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	var warnings any
+	err := dec.Decode(&warnings)
+	if err != nil {
+		return nil, err
+	}
+	rows, ok := warnings.([]any)
+	switch {
+	case warnings == nil:
+	case !ok:
+		warnings = "?"
+	default:
+		for i, row := range rows {
+			fields, ok := row.(map[string]any)
+			if !ok {
+				rows[i] = "?"
+				continue
+			}
+			code, _ := fields["Code"].(json.Number)
+			for k, v := range fields {
+				switch {
+				case k == "Code" && code != "":
+				case k == "Message" && (code == "" || code == "1003"):
+					fields[k] = statementWithheld
+				default:
+					fields[k] = maskMySQLValue([]string{"warnings", k}, v)
+				}
+			}
+		}
+	}
+	w := newJSONWriter()
+	err = w.enc.Encode(warnings)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.TrimRight(w.scratch.Bytes(), "\n"), nil
 }
 
 // maskMongoPlan masks every value beneath the keys that hold query values, and
@@ -631,6 +727,50 @@ func maskQuoted(msg string) string {
 		}
 	}
 	return b.String()
+}
+
+// jsonMember is one member of a JSON object, its value not decoded.
+type jsonMember struct {
+	key   string
+	value json.RawMessage
+}
+
+// jsonObjectMembers splits a JSON document that is one object into its members, in order.
+func jsonObjectMembers(doc []byte) ([]jsonMember, error) {
+	dec := json.NewDecoder(bytes.NewReader(doc))
+	tok, err := dec.Token()
+	if err != nil {
+		return nil, err
+	}
+	if tok != json.Delim('{') {
+		return nil, errors.New("not a JSON object")
+	}
+	var members []jsonMember
+	for dec.More() {
+		keyTok, err := dec.Token()
+		if err != nil {
+			return nil, err
+		}
+		key, ok := keyTok.(string)
+		if !ok {
+			return nil, errors.New("non-string object key")
+		}
+		var value json.RawMessage
+		err = dec.Decode(&value)
+		if err != nil {
+			return nil, err
+		}
+		members = append(members, jsonMember{key: key, value: value})
+	}
+	_, err = dec.Token()
+	if err != nil {
+		return nil, err
+	}
+	_, err = dec.Token()
+	if !errors.Is(err, io.EOF) {
+		return nil, errors.New("trailing data after JSON value")
+	}
+	return members, nil
 }
 
 // rewriteJSON re-emits a JSON document compactly with every scalar leaf passed

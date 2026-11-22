@@ -130,7 +130,7 @@ func TestMaskMySQLPlan(t *testing.T) {
 		assert.Contains(t, got, name)
 	}
 	assert.Contains(t, got, "`t`.`2nd_col` = ?", "conditions are still masked")
-	assert.Contains(t, got, `"real_table_name": "?fa_codes"`, "pmm-agent parses it from the statement text")
+	assert.NotContains(t, got, "real_table_name", "pmm-agent parses it from the statement text")
 
 	_, ok = maskMySQLPlan("id | select_type | table")
 	assert.False(t, ok, "a non-JSON plan is reported, not passed off as masked")
@@ -143,34 +143,55 @@ func TestMaskMySQLPlan(t *testing.T) {
 	got, ok = maskMySQLPlan(v2)
 	assert.True(t, ok)
 	assert.NotContains(t, got, "x@y.com")
+	assert.Contains(t, got, `"query": "`+statementWithheld+`"`, "the rewritten statement is withheld")
 	assert.NotContains(t, got, "a@b")
 	assert.Contains(t, got, `"operation": "Filter: (`+"`t`.`email`"+` = ?)"`)
 	assert.Contains(t, got, `"operation": "Index range scan on t using email"`)
 	assert.Contains(t, got, `"estimated_rows": 10.5`)
 }
 
-// TestMaskMySQLPlanWarnings covers the SHOW WARNINGS pmm-agent appends to a JSON
-// plan, whose Note 1003 is the rewritten statement with every literal in it.
+// TestMaskMySQLPlanWarnings covers the SHOW WARNINGS and real_table_name that
+// pmm-agent adds to a JSON plan. Note 1003 is the rewritten statement, which
+// names an unaliased select-list expression after its own text, literals
+// included, so it is withheld.
 func TestMaskMySQLPlanWarnings(t *testing.T) {
 	t.Parallel()
 
+	// Captured on Percona Server 8.0.46, with pmm-agent's additions.
 	plan := `{
-  "query_block": {"select_id": 1, "table": {"table_name": "orders", "access_type": "ALL",
-    "attached_condition": "(` + "`school`.`orders`.`region`" + ` = 'emea')"}},
-  "real_table_name": "orders",
+  "query_block": {"select_id": 1, "table": {"table_name": "help_topic", "access_type": "ALL",
+    "attached_condition": "(('MEDIUMBLOB' = 'bob'))"}},
+  "real_table_name": "alice@corp.example",
   "warnings": [
+    {"Code": 1739, "Level": "Warning", "Message": "Cannot use ref access on index 'name' due to type or collation conversion on field 'name'"},
     {"Code": 1003, "Level": "Note",
-     "Message": "/* select#1 */ select count(0) from ` + "`school`.`orders`" + ` where ((` + "`school`.`orders`.`status`" + ` = 'paid') and (` + "`school`.`orders`.`region`" + ` = 'emea'))"}
+     "Message": "/* select#1 */ select exists(/* select#2 */ select 1 from ` + "`mysql`.`user`" + ` where (` + "`mysql`.`user`.`User`" + ` = 'alice')) AS ` +
+		"`EXISTS(SELECT 1 FROM mysql.user WHERE user = 'alice')`" + `,('42' * 1.2) AS ` + "`help_topic_id * 1.2`" + `,'vip' AS ` + "`vip`" + ` from ` +
+		"`mysql`.`help_topic`" + ` where (('MEDIUMBLOB' = 'bob'))"}
   ]
 }`
 	got, ok := maskMySQLPlan(plan)
 	assert.True(t, ok)
-	assert.NotContains(t, got, "emea")
-	assert.NotContains(t, got, "paid")
+	for _, literal := range []string{"alice", "bob", "1.2", "vip", "42"} {
+		assert.NotContains(t, got, literal)
+	}
+	assert.NotContains(t, got, "real_table_name", "pmm-agent takes it from the statement text")
+	assert.Contains(t, got, `"Message": "`+statementWithheld+`"`)
 	assert.Contains(t, got, `"Code": 1003`, "warning codes are not literals")
 	assert.Contains(t, got, `"Level": "Note"`)
-	assert.Contains(t, got, "`school`.`orders`.`status` = ?", "the rewritten statement keeps its shape")
-	assert.Contains(t, got, `"real_table_name": "orders"`)
+	assert.Contains(t, got, `"Message": "Cannot use ref access on index ? due to type or collation conversion on field ?"`,
+		"other warnings are masked, not withheld")
+	assert.Less(t, strings.Index(got, "query_block"), strings.Index(got, "warnings"), "member order is kept")
+
+	// A message whose code is missing or not a number may be the statement.
+	got, ok = maskMySQLPlan(`{"warnings": [{"Level": "Note", "Message": "select 'alice'"}, {"Code": "1003", "Message": "select 'bob'"}, "x"]}`)
+	assert.True(t, ok)
+	assert.Equal(t, 2, strings.Count(got, statementWithheld), got)
+	assert.NotContains(t, got, "x\"")
+
+	got, ok = maskMySQLPlan(`{"query_block": {"select_id": 1}, "warnings": null, "real_table_name": "t"}`)
+	assert.True(t, ok)
+	assert.JSONEq(t, `{"query_block": {"select_id": 1}, "warnings": null}`, got, "pmm-agent writes null when MySQL has no warnings")
 }
 
 func TestMaskPGPlan(t *testing.T) {
