@@ -64,6 +64,7 @@ func serveTestTool(t *testing.T, params Params, fn toolFunc[testInput, testResul
 
 	s, err := New(params)
 	require.NoError(t, err)
+	t.Cleanup(func() { assertLimitersEmpty(t, s) })
 	logger, hook := test.NewNullLogger()
 	logger.SetLevel(logrus.TraceLevel)
 	s.l = logrus.NewEntry(logger).WithField("component", "mcp")

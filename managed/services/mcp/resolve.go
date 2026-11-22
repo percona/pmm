@@ -110,11 +110,18 @@ func (s *Service) resolveLive(ctx context.Context, auth callerAuth, ref queryRef
 	if err != nil {
 		return nil, nil, err
 	}
+	// Deferred so that a lookup that fails or panics gives the slot back; a resolved one hands it to the caller.
+	handedOver := false
+	defer func() {
+		if !handedOver {
+			release()
+		}
+	}()
 	resolved, err := s.resolveQuery(ctx, auth, ref)
 	if err != nil {
-		release()
 		return nil, nil, err
 	}
+	handedOver = true
 	return resolved, release, nil
 }
 

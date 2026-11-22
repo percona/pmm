@@ -28,6 +28,7 @@ import (
 	"testing"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -226,7 +227,25 @@ func newTestService(t *testing.T, fake *fakePMM) *Service {
 		RawSQL:  func() bool { return true },
 	})
 	require.NoError(t, err)
+	t.Cleanup(func() { assertLimitersEmpty(t, s) })
 	return s
+}
+
+// assertLimitersEmpty checks that no call left a slot of s's limiters, or of its client's VictoriaMetrics slots, taken.
+func assertLimitersEmpty(t *testing.T, s *Service) {
+	t.Helper()
+
+	for name, l := range map[string]*limiter{"live": s.live, "liveByService": s.liveByService, "metrics": s.metrics} {
+		l.mu.Lock()
+		total, byKey := l.total, maps.Clone(l.byKey)
+		l.mu.Unlock()
+		assert.Zero(t, total, "%s limiter: slots still taken", name)
+		assert.Empty(t, byKey, "%s limiter: slots still taken", name)
+	}
+	c, ok := s.api.(*client)
+	if ok {
+		assert.Empty(t, c.vmSlots, "VictoriaMetrics slots still taken")
+	}
 }
 
 // connect starts an httptest server around the MCP handler and opens a client

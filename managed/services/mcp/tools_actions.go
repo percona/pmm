@@ -397,6 +397,7 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 	if err != nil {
 		return schemaResult{}, err
 	}
+	defer releaseLookup()
 	svc, err := s.engineOf(ctx, auth, in.ServiceID)
 	releaseLookup()
 	if err != nil {

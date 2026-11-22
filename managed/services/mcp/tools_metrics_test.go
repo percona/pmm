@@ -352,8 +352,9 @@ func TestQueryMetricsTool(t *testing.T) {
 			release()
 		}
 		for i := range maxMetricCallsPerReplica {
-			_, hit := s.metrics.acquire(fmt.Sprintf("other-%d", i))
+			release, hit := s.metrics.acquire(fmt.Sprintf("other-%d", i))
 			require.Equal(t, limitNone, hit)
+			t.Cleanup(release)
 		}
 		_, text, isError = metricsCall(t, s, args)
 		require.True(t, isError, text)

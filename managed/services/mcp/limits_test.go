@@ -28,7 +28,10 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -337,6 +340,7 @@ func TestQANCallsShareMetricSlots(t *testing.T) {
 		for range maxMetricCallsPerCaller {
 			rel, hit := s.metrics.acquire(key)
 			require.Equal(t, limitNone, hit)
+			t.Cleanup(rel)
 			rels = append(rels, rel)
 		}
 
@@ -365,8 +369,9 @@ func TestQANCallsShareMetricSlots(t *testing.T) {
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
 		for i := range maxMetricCallsPerReplica {
-			_, hit := s.metrics.acquire("other-" + strconv.Itoa(i))
+			rel, hit := s.metrics.acquire("other-" + strconv.Itoa(i))
 			require.Equal(t, limitNone, hit)
+			t.Cleanup(rel)
 		}
 		for name, a := range args {
 			text, isError := callText(t, session, name, a)
@@ -444,8 +449,9 @@ func TestLiveLookupSharesMetricCaps(t *testing.T) {
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
 		for range maxMetricCallsPerCaller {
-			_, hit := s.metrics.acquire(key)
+			rel, hit := s.metrics.acquire(key)
 			require.Equal(t, limitNone, hit)
+			t.Cleanup(rel)
 		}
 		for _, tool := range tools {
 			text, isError := callText(t, session, tool, map[string]any{"queryid": "QID-AAA"})
@@ -535,6 +541,7 @@ func TestInventoryAndConfigShareMetricCaps(t *testing.T) {
 	for range maxMetricCallsPerCaller {
 		rel, hit := s.metrics.acquire(key)
 		require.Equal(t, limitNone, hit)
+		t.Cleanup(rel)
 		rels = append(rels, rel)
 	}
 	for name, a := range args {
@@ -617,4 +624,37 @@ func TestSchemaByNameLookupSharesMetricCaps(t *testing.T) {
 			assert.Zero(t, n, "the live part holds no metric slot: %v", held)
 		}
 	})
+}
+
+// TestLookupPanicReleasesSlot pins that a panic in the query lookup of pmm_get_explain, or in the service lookup of
+// pmm_get_schema with named tables, gives the lookup's metric-call slot back.
+func TestLookupPanicReleasesSlot(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		tool string
+		args map[string]any
+	}{
+		"QueryLookup":   {tool: "pmm_get_explain", args: map[string]any{"queryid": "QID-AAA"}},
+		"ServiceLookup": {tool: "pmm_get_schema", args: map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}}},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			api := newMockPmmAPI(t)
+			api.On("GetDatasourceByName", mock.Anything, mock.Anything, mock.Anything).Run(func(mock.Arguments) { panic("boom in lookup") }).Return(nil, nil)
+			s, err := New(Params{API: api, Enabled: func() bool { return true }})
+			require.NoError(t, err)
+			logger, _ := test.NewNullLogger()
+			s.l = logrus.NewEntry(logger)
+			session := connect(t, s)
+
+			for range maxMetricCallsPerCaller + 1 {
+				text, isError := callText(t, session, tc.tool, tc.args)
+				assert.True(t, isError)
+				require.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
+			}
+			assertLimitersEmpty(t, s)
+		})
+	}
 }

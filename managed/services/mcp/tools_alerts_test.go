@@ -555,8 +555,9 @@ func TestAlertsTool(t *testing.T) {
 			release()
 		}
 		for i := range maxMetricCallsPerReplica {
-			_, hit := s.metrics.acquire(fmt.Sprintf("other-%d", i))
+			release, hit := s.metrics.acquire(fmt.Sprintf("other-%d", i))
 			require.Equal(t, limitNone, hit)
+			t.Cleanup(release)
 		}
 		text, isError = callText(t, session, "pmm_alerts", nil)
 		require.True(t, isError, text)

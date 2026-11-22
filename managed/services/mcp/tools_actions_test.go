@@ -1843,8 +1843,9 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		held()
 		text, isError = callText(t, session, "pmm_get_schema", schemaArgs)
 		assert.False(t, isError, text)
-		_, hit = s.liveByService.acquire("svc-1")
-		assert.Equal(t, limitNone, hit)
+		free, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+		free()
 	})
 
 	t.Run("PerServiceWaits", func(t *testing.T) {
