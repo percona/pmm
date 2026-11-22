@@ -144,6 +144,40 @@ func TestShapeSeries(t *testing.T) {
 		assert.NotContains(t, string(mustJSON(t, got)), "internal-")
 	})
 
+	t.Run("InternalLabelsThatTellSeriesApart", func(t *testing.T) {
+		t.Parallel()
+
+		// sum by (node_id) (rate(node_cpu_seconds_total[5m])) over three nodes.
+		byNode := make([]metricSeries, 3)
+		for i := range byNode {
+			byNode[i] = mkSeries(map[string]string{"node_id": "node-" + strconv.Itoa(i)}, 2, constant(float64(i)))
+		}
+
+		got := shapeSeries("x", byNode, 0, nil, "", "")
+
+		assert.Empty(t, got.SharedLabels)
+		require.Len(t, got.Series, 3)
+		for i, s := range got.Series {
+			assert.Equal(t, map[string]string{"node_id": "node-" + strconv.Itoa(2-i)}, s.Labels)
+		}
+		assert.Contains(t, got.render(), `{node_id="node-2"} min=2`)
+
+		// Two series that only node_id and instance tell apart: those two are kept on every series, the equal job is not.
+		mixed := []metricSeries{
+			mkSeries(map[string]string{"service_name": "a", "node_id": "n1", "instance": "i1", "job": "j"}, 2, constant(3)),
+			mkSeries(map[string]string{"service_name": "a", "node_id": "n2", "instance": "i2", "job": "j"}, 2, constant(2)),
+			mkSeries(map[string]string{"service_name": "b", "node_id": "n3", "instance": "i3", "job": "j"}, 2, constant(1)),
+		}
+
+		got = shapeSeries("x", mixed, 0, nil, "", "")
+
+		assert.Empty(t, got.SharedLabels)
+		require.Len(t, got.Series, 3)
+		assert.Equal(t, map[string]string{"service_name": "a", "node_id": "n1", "instance": "i1"}, got.Series[0].Labels)
+		assert.Equal(t, map[string]string{"service_name": "a", "node_id": "n2", "instance": "i2"}, got.Series[1].Labels)
+		assert.Equal(t, map[string]string{"service_name": "b", "node_id": "n3", "instance": "i3"}, got.Series[2].Labels)
+	})
+
 	t.Run("RawPointsWhenTheyFit", func(t *testing.T) {
 		t.Parallel()
 
@@ -159,7 +193,7 @@ func TestShapeSeries(t *testing.T) {
 			assert.Len(t, s.Points, 50)
 		}
 		assert.LessOrEqual(t, sizeOf(t, got), maxMetricsBytes)
-		assert.NotContains(t, got.render(), "2025-01-01T", "raw points belong in the structured content only")
+		assert.NotContains(t, got.render(), "2025-01-01T00:00:00Z", "raw points belong in the structured content only; the text has last_at")
 		validateMetricsOutput(t, got)
 	})
 
@@ -396,6 +430,68 @@ func TestShapeSeriesBudgetBoundary(t *testing.T) {
 	t.Fatal("no padding put the bare result within 100 bytes of the budget")
 }
 
+func TestShapeSeriesKeepsTheMostThatFit(t *testing.T) {
+	t.Parallel()
+
+	for pad := 0; pad < 2000; pad += 197 {
+		series := make([]metricSeries, maxSeriesShown)
+		for i := range series {
+			series[i] = mkSeries(map[string]string{"q": fmt.Sprintf("%03d-%s", i, strings.Repeat("x", pad))}, 2, constant(float64(i)))
+		}
+		got := shapeSeries("x", series, maxSeriesShown, nil, "", "")
+		assert.LessOrEqual(t, sizeOf(t, got), maxMetricsBytes, "pad %d", pad)
+		if len(got.Series) == maxSeriesShown {
+			continue
+		}
+
+		kept := make([]rankedSeries, len(got.Series)+1)
+		for i := range kept {
+			kept[i] = rankSeries(series[maxSeriesShown-1-i])
+		}
+		head := metricsResult{Query: "x"}
+		assert.Greater(t, sizeOf(t, buildMetricsResult(head, kept, maxSeriesShown, false)), maxMetricsBytes, "pad %d: one more series does not fit", pad)
+	}
+}
+
+func TestShapeSeriesLargeLabelsTakeBoundedTime(t *testing.T) {
+	t.Parallel()
+
+	big := strings.Repeat("x", 26<<10)
+	for _, tc := range []struct {
+		name   string
+		labels func(i int) map[string]string
+		fit    int
+	}{
+		// Every series has a label of its own that is over 16 KiB alone.
+		{name: "LabelsOfTheirOwn", labels: func(i int) map[string]string { return map[string]string{"q": fmt.Sprintf("%03d-%s", i, big)} }},
+		// Every other series has the same 4 KiB label, which no two series shown can share.
+		{name: "RepeatedLabels", fit: 2, labels: func(i int) map[string]string {
+			if i%2 == 0 {
+				return map[string]string{"n": strconv.Itoa(i)}
+			}
+			return map[string]string{"n": strconv.Itoa(i), "q": big[:4<<10]}
+		}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			series := make([]metricSeries, maxSeriesShown)
+			for i := range series {
+				series[i] = mkSeries(tc.labels(i), 2, constant(float64(i)))
+			}
+
+			began := time.Now()
+			got := shapeSeries("x", series, maxSeriesShown, nil, "", "")
+			elapsed := time.Since(began)
+
+			assert.Less(t, elapsed, time.Second)
+			assert.Len(t, got.Series, tc.fit)
+			assert.True(t, got.Truncated)
+			assert.LessOrEqual(t, sizeOf(t, got), maxMetricsBytes)
+		})
+	}
+}
+
 func TestMetricsResultRender(t *testing.T) {
 	t.Parallel()
 
@@ -409,7 +505,7 @@ func TestMetricsResultRender(t *testing.T) {
 	assert.Contains(t, text, "Query: up")
 	assert.Contains(t, text, "Step: 15s")
 	assert.Contains(t, text, `Shared labels: {env="prod"}`)
-	assert.Contains(t, text, `{service_name="c"} min=7 avg=7 max=7 last=7`)
+	assert.Contains(t, text, `{service_name="c"} min=7 avg=7 max=7 last=7 at 2025-01-01T00:01:00Z`)
 	assert.Contains(t, text, `{service_name="a\nb"} min=1.235`)
 	assert.Equal(t, 1, strings.Count(text, "a\\nb"), "a newline in a label value stays on one line")
 }
@@ -514,13 +610,13 @@ func TestAnswerStep(t *testing.T) {
 		{name: "ManySeriesRaiseTheStep", matched: matchedSeries{count: 500, labelBytes: 150000}, span: 6 * time.Hour, step: 11 * time.Second, raised: true},
 		{name: "TheCapAtTheDefaultStep", matched: matchedSeries{count: 2000, labelBytes: 600000}, span: 6 * day, step: 260 * time.Second, raised: true},
 		{name: "ALargeStepFits", matched: matchedSeries{count: 500, labelBytes: 150000}, span: 6 * time.Hour, step: 10 * time.Minute},
-		{name: "LabelsAloneOverTheCap", matched: matchedSeries{count: 2000, labelBytes: 4 << 20}, span: 6 * time.Hour, step: 11 * time.Second},
 		{name: "NoSeries", span: 6 * time.Hour, step: 11 * time.Second},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := answerStep(tc.matched, tc.span, tc.step)
+			got, ok := answerStep(tc.matched, tc.span, tc.step)
+			require.True(t, ok)
 			if !tc.raised {
 				assert.Equal(t, tc.step, got)
 				return
@@ -529,6 +625,61 @@ func TestAnswerStep(t *testing.T) {
 			assert.Equal(t, got, ceilSecond(got), "a whole number of seconds")
 			assert.LessOrEqual(t, answerBytes(tc.matched, tc.span, got), maxRangeAnswerBytes)
 			assert.Greater(t, answerBytes(tc.matched, tc.span, got-time.Second), maxRangeAnswerBytes, "the smallest step that fits")
+		})
+	}
+
+	t.Run("LabelsAloneOverTheCap", func(t *testing.T) {
+		t.Parallel()
+
+		_, ok := answerStep(matchedSeries{count: 2000, labelBytes: 4 << 20}, 6*time.Hour, 11*time.Second)
+		assert.False(t, ok)
+	})
+}
+
+func TestAnswerStepFitsTheReadCap(t *testing.T) {
+	t.Parallel()
+
+	// VictoriaMetrics writes each value in Go's shortest float format, up to 17 significant digits, as in 0.0033333333333333335.
+	const value = `"0.0033333333333333335"`
+	require.Len(t, value, 23)
+
+	for _, tc := range []struct {
+		name  string
+		count int
+		span  time.Duration
+	}{
+		{name: "FiveHundredOverSixHours", count: 500, span: 6 * time.Hour},
+		{name: "TwoThousandOverSixDays", count: 2000, span: 6 * day},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			var matched matchedSeries
+			metrics := make([]string, tc.count)
+			for i := range metrics {
+				labels := map[string]string{"__name__": "mysql_global_status_questions", "service_name": fmt.Sprintf("db%d", i)}
+				matched.count++
+				for k, v := range labels {
+					matched.labelBytes += len(k) + len(v) + answerLabelBytes
+				}
+				metrics[i] = string(mustJSON(t, labels))
+			}
+			step, ok := answerStep(matched, tc.span, chooseStep(tc.span, 0))
+			require.True(t, ok)
+
+			start := time.Unix(1700000000, 0)
+			points := make([]string, int(tc.span/step)+1)
+			for i := range points {
+				points[i] = "[" + strconv.FormatInt(start.Add(time.Duration(i)*step).Unix(), 10) + "," + value + "]"
+			}
+			values := strings.Join(points, ",")
+			result := make([]string, tc.count)
+			for i, m := range metrics {
+				result[i] = `{"metric":` + m + `,"values":[` + values + `]}`
+			}
+			answer := `{"status":"success","data":{"resultType":"matrix","result":[` + strings.Join(result, ",") + `]}}`
+
+			assert.LessOrEqual(t, len(answer), maxVMResponseBytes, "at step %s", step)
 		})
 	}
 }

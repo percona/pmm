@@ -65,7 +65,7 @@ var orderMetrics = map[string]ordering{
 // groupByDimensions are the qan-api2 dimensions a report can be grouped by.
 var groupByDimensions = []string{groupByQuery, "service_name", "database", "schema", "username", "client_host", "application_name", "cmd_type"}
 
-// labelKey matches a label or dimension name; any other name is rejected (PMM-15715).
+// labelKey matches a label or dimension name; any other name is rejected.
 var labelKey = regexp.MustCompile(`^[a-z_][a-z0-9_]*$`)
 
 // baseColumns are on every report row already.
@@ -267,7 +267,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	total := int(report.TotalRows)
 	var note string
 	if visibleSearch {
-		if len(rows) >= maxSearchCandidates {
+		if int(report.TotalRows) > maxSearchCandidates {
 			note = fmt.Sprintf("The search read the first %d rows of the report in order_by order; "+
 				"narrow the window or the filters to search the rest.", maxSearchCandidates)
 		}
@@ -440,7 +440,7 @@ func parseOrderBy(orderBy string) (string, string, string, error) {
 }
 
 // reportLabels merges the labels input with the service_name and service_id
-// shortcuts, and checks every name and value (PMM-15715).
+// shortcuts, and checks every name and value.
 func reportLabels(in topQueriesInput) (map[string][]string, error) {
 	labels := maps.Clone(in.Labels)
 	if labels == nil {
@@ -477,6 +477,9 @@ func reportLabels(in topQueriesInput) (map[string][]string, error) {
 func (q *reportQuery) row(row qanReportRow, rank int, engine string, raw bool) queryRow {
 	numQueries := finite(row.NumQueries)
 	load := finite(row.Load)
+	if nq, ok := row.Metrics["num_queries"]; ok && nq.Stats != nil && numQueries == 0 {
+		numQueries = finite(nq.Stats.Sum)
+	}
 	var total, avg float64
 	if qt, ok := row.Metrics["query_time"]; ok && qt.Stats != nil {
 		total = finite(qt.Stats.Sum)
@@ -484,9 +487,6 @@ func (q *reportQuery) row(row qanReportRow, rank int, engine string, raw bool) q
 		if avg == 0 && numQueries > 0 {
 			avg = total / numQueries
 		}
-	}
-	if nq, ok := row.Metrics["num_queries"]; ok && nq.Stats != nil && numQueries == 0 {
-		numQueries = finite(nq.Stats.Sum)
 	}
 	if ld, ok := row.Metrics["load"]; ok && ld.Stats != nil && load == 0 {
 		load = finite(ld.Stats.SumPerSec)
@@ -649,9 +649,19 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 		}
 		return queryDetailResult{}, newToolError(codeNotFound, "no data for this query in %s%s", windowText(w), hint)
 	}
-	// qan-api2 joins the names of several services, so only a name of one asked service filters the link and reads the version.
+	// qan-api2 joins the names of several services, so only a name of one asked service filters the link, goes in
+	// query_ref and reads the version. Without the metrics, the detail is the example's, of the one service it names.
 	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(serviceIDs, svc.ServiceID) })
-	if named := servicesNamed(asked, d.serviceName); len(named) == 1 {
+	var named []serviceInfo
+	switch {
+	case d.metricsErr != nil && d.example != nil && d.example.ServiceID != "":
+		named = slices.DeleteFunc(asked, func(svc serviceInfo) bool { return svc.ServiceID != d.example.ServiceID })
+	case d.serviceName != "":
+		named = servicesNamed(asked, d.serviceName)
+	}
+	if len(named) == 1 {
+		d.serviceID = named[0].ServiceID
+		d.serviceName = named[0].ServiceName
 		d.linkService = named[0].ServiceName
 		if d.engine != "" {
 			d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID, time.Time{})
@@ -667,7 +677,8 @@ type queryDetail struct {
 	queryID string
 	engine  string
 	version string
-	// serviceID is the request's service_id, else the stored example's.
+	// serviceID is the request's service_id, else the one service the metadata, or without the metrics the example,
+	// names; empty when the detail is of several.
 	serviceID   string
 	serviceName string
 	// linkService is the service name the link filters by, empty when the detail is not of one service.
@@ -725,7 +736,7 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 	d := &queryDetail{queryID: in.QueryID, serviceID: in.ServiceID, metrics: metrics, metricsErr: metricsErr, exampleErr: exampleErr}
 	if metrics != nil {
 		d.fingerprint = metrics.Fingerprint
-		// qan-api2 never fills the metadata's service_id, so query_ref takes it from the request or the example.
+		// qan-api2 never fills the metadata's service_id, so query_ref takes it from the request or the service list.
 		if metrics.Metadata != nil {
 			d.database = metrics.Metadata.Database
 			d.schema = metrics.Metadata.Schema
@@ -741,7 +752,6 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 		if d.engine == "" {
 			d.engine = d.example.ServiceType
 		}
-		d.serviceID = cmp.Or(d.serviceID, d.example.ServiceID)
 		d.tables = d.example.Tables
 	}
 	return d, nil
@@ -802,7 +812,7 @@ func windowLine(w window) string {
 	return "Window: " + windowText(w)
 }
 
-// checkQANValue rejects a QAN filter value with a quote or a backslash (PMM-15715).
+// checkQANValue rejects a QAN filter value with a quote or a backslash.
 func checkQANValue(input, value string) error {
 	if strings.ContainsAny(value, `'\`) {
 		return newToolError(codeInvalidInput, "%s must not contain a quote (') or a backslash (\\)", input)
@@ -814,12 +824,16 @@ func checkQANValue(input, value string) error {
 const withheldFingerprint = "(fingerprint withheld: PMM stored this statement unnormalized, and PMM_MCP_RAW_SQL is off)"
 
 // fingerprintText masks a fingerprint unless raw SQL is on, under its engine's quoting or, if unknown, under both:
-// a SQL one with a quoted string is a raw statement and is withheld.
+// a SQL one with a quoted string is a raw statement and is withheld. A text that starts with "db." and is not of a
+// SQL engine is a MongoDB one, withheld when its quotes don't pair.
 func fingerprintText(fingerprint, engine string, raw bool) string {
 	if raw {
 		return fingerprint
 	}
-	if strings.HasPrefix(fingerprint, "db.") {
+	if strings.HasPrefix(fingerprint, "db.") && engine != engineMySQL && engine != enginePostgreSQL {
+		if !mongoQuotesPair(fingerprint) {
+			return withheldFingerprint
+		}
 		return maskMongoFingerprint(fingerprint)
 	}
 	masked, quoted := maskSQL(fingerprint, engine == engineMySQL)
@@ -835,21 +849,11 @@ func fingerprintText(fingerprint, engine string, raw bool) string {
 // maskEitherQuoting is maskSQL for a text of unknown engine: a byte is masked when MySQL's or PostgreSQL's quoting
 // masks it, and the text is quoted when either finds a quoted string in it.
 func maskEitherQuoting(s string) (string, bool) {
-	marks := sqlMarks(s, true)
-	for i, m := range sqlMarks(s, false) {
+	marks := sqlMarks(s, true, false)
+	for i, m := range sqlMarks(s, false, false) {
 		marks[i] = max(marks[i], m)
 	}
-	var b strings.Builder
-	b.Grow(len(s))
-	for i := range len(s) {
-		switch {
-		case marks[i] == plainMark:
-			b.WriteByte(s[i])
-		case i == 0 || marks[i-1] == plainMark:
-			b.WriteByte('?')
-		}
-	}
-	return b.String(), slices.Contains(marks, stringMark)
+	return renderMarks(s, marks), slices.Contains(marks, stringMark)
 }
 
 // quotingMatters reports whether a SQL fingerprint reads differently under MySQL
@@ -863,7 +867,7 @@ func quotingMatters(fingerprint string) bool {
 
 // reportEngines returns the engine whose quoting reads each queryid's
 // fingerprint: the report's one SQL engine when its filters or QAN's data name
-// one, else each row's own, from rowEngines over the report's own request body (PMM-15529).
+// one, else each row's own, from rowEngines over the report's own request body.
 func (s *Service) reportEngines(
 	ctx context.Context, auth callerAuth, q *reportQuery, body qan_service.GetReportBody, rows []qanReportRow, from, to time.Time,
 	services func() ([]serviceInfo, error),
@@ -916,14 +920,18 @@ func (s *Service) reportEngine(
 // rowEngines finds each ambiguous queryid's engine with one more report, the
 // same one filtered to MySQL: a queryid with all of its calls there is MySQL,
 // one absent is PostgreSQL, and one in both stays unknown, so it is withheld.
+// A queryid that checkQANValue refuses is not sent, and stays unknown too.
 func (s *Service) rowEngines(ctx context.Context, auth callerAuth, body qan_service.GetReportBody, rows []qanReportRow) map[string]string {
 	calls := make(map[string]float64)
 	var ids []string
 	for _, r := range rows {
-		if r.Dimension != "" && quotingMatters(r.Fingerprint) {
+		if r.Dimension != "" && quotingMatters(r.Fingerprint) && checkQANValue(groupByQuery, r.Dimension) == nil {
 			ids = append(ids, r.Dimension)
 			calls[r.Dimension] = finite(r.NumQueries)
 		}
+	}
+	if len(ids) == 0 {
+		return nil
 	}
 	body.Labels = append(slices.Clone(body.Labels),
 		&qan_service.GetReportParamsBodyLabelsItems0{Key: groupByQuery, Value: ids},

@@ -109,7 +109,8 @@ func TestServiceHealthTool(t *testing.T) {
 		assert.Equal(t, window{From: testNow.Add(-time.Hour), To: testNow}, res.Window)
 		assert.False(t, res.Partial)
 		assert.Empty(t, res.Note)
-		assert.Equal(t, "https://pmm.example.com/graph/d/mysql-instance-summary?var-service_name=shop-mysql", res.PMMURL)
+		assert.Equal(t, "https://pmm.example.com/graph/d/mysql-instance-summary?var-service_name=shop-mysql&from="+
+			ms(testNow.Add(-time.Hour))+"&to="+ms(testNow), res.PMMURL, "the dashboard opens on the window")
 
 		require.Len(t, res.Signals, len(healthSignals[engineMySQL])+len(healthSignals[engineNode]))
 		for _, sig := range res.Signals {
@@ -297,6 +298,35 @@ func TestServiceHealthTool(t *testing.T) {
 		require.True(t, isError, "%+v", res)
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
 		assert.Contains(t, text, "cannot evaluate the expression")
+	})
+
+	t.Run("EveryQueriedSignalFailsWithoutANode", func(t *testing.T) {
+		t.Parallel()
+
+		noNode := `{"status":"success","data":{"resultType":"vector","result":[{"metric":{"service_id":"svc-1","service_name":"shop-mysql","service_type":"mysql"},"value":[1789387200,"1789387140"]}]}}`
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {body: []byte(noNode)}, vmQueryRange: healthBadExpr}))
+		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		require.True(t, isError, "the node signals were not queried, so every queried signal failed: %+v", res)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+	})
+
+	t.Run("NonFiniteValuesAreCounted", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, healthRoutes(map[string]fixture{
+			onQuery("mysql_global_status_innodb_buffer_pool_reads"): {body: healthMatrix(testNow, "0.5", "+Inf", "NaN", "0.25")},
+		}))
+		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		require.False(t, isError, text)
+
+		ratio := signalByName(t, res, "buffer_pool_miss_ratio")
+		require.NotNil(t, ratio.Max)
+		assert.InDelta(t, 0.5, *ratio.Max, 1e-9)
+		require.NotNil(t, ratio.Last)
+		const want = "buffer_pool_miss_ratio: 2 non-finite values (NaN or infinite) are left out of min, avg and max."
+		assert.Contains(t, res.Note, want)
+		assert.Contains(t, text, want)
+		assert.NotContains(t, res.Note, nanNote, "no value is null")
 	})
 
 	t.Run("NaNIsNull", func(t *testing.T) {
@@ -517,6 +547,16 @@ func collectKeys(v any, keys *[]string) {
 			collectKeys(child, keys)
 		}
 	}
+}
+
+func TestHealthTextServiceNameOnOneLine(t *testing.T) {
+	t.Parallel()
+
+	r := healthResult{ServiceName: "db1\nqps [ops]: min=0", Engine: engineMySQL, Window: window{From: testNow.Add(-time.Hour), To: testNow}}
+
+	lines := strings.Split(r.render(), "\n")
+	assert.Equal(t, "Health signals of db1 qps [ops]: min=0 (mysql)", lines[0])
+	assert.Len(t, lines, 2)
 }
 
 func TestServiceHealthDeadline(t *testing.T) {

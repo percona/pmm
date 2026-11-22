@@ -43,7 +43,7 @@ type catalogEntry struct {
 	Engine      string   `json:"engine,omitempty" jsonschema:"Engine the entry belongs to; left out for an entry every engine has."`
 	Aggregation string   `json:"aggregation,omitempty" jsonschema:"How QAN reports the metric: sum, or avg for a per-call average (qan_columns)."`
 	Meaning     string   `json:"meaning,omitempty" jsonschema:"What the metric measures (metrics)."`
-	Unit        string   `json:"unit,omitempty" jsonschema:"Unit of the value query returns, as Grafana names it: short, ops, bytes, Bps, s or none (metrics)."`
+	Unit        string   `json:"unit,omitempty" jsonschema:"Unit of the value query returns: short, ops, bytes, Bps, s, dateTimeAsSystem or none (metrics)."`
 	Type        string   `json:"type,omitempty" jsonschema:"counter, which only grows (query it with rate), or gauge (metrics)."`
 	Labels      []string `json:"labels,omitempty" jsonschema:"Label names on the metric's samples as the exporter exposes them; PMM adds its own (metrics)."`
 	Query       string   `json:"query,omitempty" jsonschema:"A ready MetricsQL expression for pmm_query_metrics; replace <service> (or <node>) with a name (metrics)."`

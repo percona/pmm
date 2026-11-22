@@ -42,6 +42,8 @@ const (
 	codeAgentUnreachable       errorCode = "agent_unreachable"
 	codePMMUnavailable         errorCode = "pmm_unavailable"
 	codeRateLimited            errorCode = "rate_limited"
+	// The code of a call that its client abandoned, whose result never reaches the client.
+	codeCanceled errorCode = "canceled"
 )
 
 // toolError is the typed error every tool returns on failure. The MCP SDK
@@ -109,7 +111,7 @@ func (e *statusError) Error() string {
 // mapError converts any error raised by the PMM API client into a toolError.
 // HTTP 401/403 become unauthorized with PMM's own message passed through,
 // 404 not_found, 400 and 422 invalid_input; everything else is pmm_unavailable except
-// deadlines, which are timeout.
+// deadlines, which are timeout, and cancellations, which are canceled.
 func mapError(err error) *toolError {
 	te, ok := errors.AsType[*toolError](err)
 	if ok {
@@ -134,6 +136,9 @@ func mapError(err error) *toolError {
 		}
 	}
 
+	if errors.Is(err, context.Canceled) {
+		return newToolError(codeCanceled, "the call was canceled: %s", err)
+	}
 	if errors.Is(err, context.DeadlineExceeded) {
 		return newToolError(codeTimeout, "PMM API call did not complete in time: %s", err)
 	}

@@ -56,7 +56,7 @@ pmm_get_explain and pmm_get_schema; a queryid alone searches the last hour. A li
 short ends with "showing a-b of n; pass offset=... for more": page with offset.
 Reference data, such as the QAN metric names that pmm_top_queries takes in
 columns and order_by, comes from pmm_catalog.
-For what is wrong now, call pmm_alerts (firing and pending alerts).
+For what is wrong now, call pmm_alerts (firing, recovering and pending alerts).
 
 For metrics, start with pmm_service_health for one service. Before writing a
 pmm_query_metrics query in MetricsQL, read pmm_catalog(kind: metrics, engine: the
@@ -109,7 +109,8 @@ type Params struct {
 	// false, the handler answers 404 so that the feature is invisible.
 	Enabled func() bool
 	// LoopbackURL is the base URL of PMM's REST API as seen from inside the
-	// server (nginx's plain-HTTP listener). Defaults to DefaultLoopbackURL.
+	// server (nginx's plain-HTTP listener); its host must be a loopback
+	// address or localhost. Defaults to DefaultLoopbackURL.
 	LoopbackURL string
 	// API overrides the PMM API client; tests use it to inject fakes.
 	API pmmAPI
@@ -194,21 +195,20 @@ func New(params Params) (*Service, error) {
 	})
 	s.registerTools(server)
 
-	s.handler = http.NewCrossOriginProtection().Handler(refuseBatches(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
+	s.handler = http.NewCrossOriginProtection().Handler(refuseBatches(withAfterRequest(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return server
 	}, &mcp.StreamableHTTPOptions{
 		// No session table: every request carries its own credentials and is
 		// authorized on its own by nginx, so nothing has to be replicated in HA
-		// mode and restarts are transparent to clients.
+		// mode and restarts are transparent to clients. A call therefore never
+		// outlives its HTTP request, and addTool cancels it when the request ends.
 		Stateless: true,
-		// A client that disconnects cancels its call, and with it the call's unfinished actions; protocol 2026-07-28 and later only.
-		PropagateRequestCancellation: true,
 		// nginx sends the public Host over a loopback connection, which the SDK's
 		// DNS-rebinding guard rejects; Handler's loopback-peer check and the
 		// cross-origin check above protect /mcp instead.
 		DisableLocalhostProtection: true,
 		MaxRequestBodyBytes:        maxRequestBodyBytes,
-	})))
+	}))))
 
 	return s, nil
 }
@@ -234,6 +234,25 @@ func (s *Service) Handler() http.Handler {
 			return
 		}
 		s.handler.ServeHTTP(rw, req)
+	})
+}
+
+// afterRequestKey is the context key of withAfterRequest's function.
+type afterRequestKey struct{}
+
+// afterRequestFunc runs f when the HTTP request ends, and returns a function that stops it, as context.AfterFunc does.
+type afterRequestFunc func(f func()) func() bool
+
+// withAfterRequest stores an afterRequestFunc among the request's context values, which the SDK passes on to a tool
+// call, so that addTool can cancel the call when the request ends; the SDK's PropagateRequestCancellation covers
+// protocol 2026-07-28 only.
+func withAfterRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		ctx := req.Context()
+		after := afterRequestFunc(func(f func()) func() bool {
+			return context.AfterFunc(ctx, f)
+		})
+		next.ServeHTTP(rw, req.WithContext(context.WithValue(ctx, afterRequestKey{}, after)))
 	})
 }
 

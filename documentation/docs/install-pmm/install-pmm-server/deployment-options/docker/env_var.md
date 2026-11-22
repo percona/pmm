@@ -72,6 +72,15 @@ Enable or disable specific PMM features:
 | `PMM_ENABLE_AZURE_DISCOVER` | `false` | Enables Azure database discovery |
 | `PMM_ENABLE_INTERNAL_PG_QAN` | Not set (disabled) | Enables Query Analytics (QAN) for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` or `true` to enable, or `0` or `false` to explicitly disable. When set to either value, neither **Configuration > Settings > Advanced settings** nor `pmm-admin inventory change agent` can override it. Leave it unset to control [QAN for PMM Server's internal PostgreSQL](../../../../use/qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql) from the UI. |
 
+### MCP endpoint
+Enable and configure the [MCP endpoint](../../../../api/mcp.md) that AI assistants use to read PMM data. For the details of each variable, see [Configuration](../../../../api/mcp.md#configuration).
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PMM_ENABLE_MCP` | `false` | Enables the MCP endpoint at `/mcp`. When disabled, `/mcp` answers 404. Unless this variable is set, an administrator can also [enable or disable the endpoint](../../../../api/mcp.md#enable-the-endpoint) on a running server. |
+| `PMM_MCP_RAW_SQL` | `false` | Allows MCP tool output to include literal values from your data: query examples, the explained statement, and the literals in execution plans and agent errors. When off, statements are shown as normalized fingerprints and plan literals are replaced with `?`. Removing the variable turns raw SQL off at the next start. |
+| `PMM_MCP_ACTION_TIMEOUT` | `15s` | How long the pmm-agent actions of one `pmm_get_explain` or `pmm_get_schema` call can run, all together. The maximum is `9m`. The last value is kept when the variable is removed: set it to `15s` to return to the default. |
+
 ### Debugging and troubleshooting
 Use these variables when diagnosing issues with PMM Server:
 

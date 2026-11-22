@@ -9,12 +9,14 @@ The endpoint is read-only. Every tool is registered with the MCP `readOnlyHint` 
 
 ## How it works
 
-The MCP server runs inside pmm-managed and speaks MCP Streamable HTTP. It holds no credentials of its own: each tool call goes back out through PMM's public REST API with the caller's own credentials, so a client can never see or do more through MCP than it could with the same token and `curl`. Authorization is enforced per call by the same rules as for every other PMM API request, including [label-based access control](../admin/roles/access-control/intro.md) where it applies. A token goes to PMM's API as `Authorization: Bearer <token>`, without cookies, whether the client sent it as a Bearer value or as Basic `api_key:<token>` or `service_token:<token>`. Basic credentials of a user and a session cookie go as sent.
+The MCP server runs inside pmm-managed and speaks MCP Streamable HTTP. It holds no credentials of its own: each tool call goes back out through PMM's public REST API with the caller's own credentials, so a client can never see or do more through MCP than it could with the same token and `curl`. Authorization is enforced per call by the same rules as for every other PMM API request, including [label-based access control](../admin/roles/access-control/intro.md) where it applies. A token goes to PMM's API as `Authorization: Bearer <token>`, without cookies, whether the client sent it as a Bearer value or as Basic `api_key:<token>` or `service_token:<token>`. Basic credentials of a user and a session cookie go as sent. A session cookie lasts only until Grafana rotates the session, every 60 minutes in PMM, so give an MCP client a token or Basic credentials.
 
 The endpoint is only reachable through PMM's nginx, which authenticates every request. A connection made directly to pmm-managed, bypassing nginx, is answered with 404 even when pmm-managed listens on a routable interface.
 
+A tool call lasts as long as its HTTP request, whatever MCP protocol version the client uses. If the client disconnects, PMM cancels the call and any pmm-agent action that the call started, and the call stops counting toward the [calls-in-flight limits](#rate-limits).
+
 !!! note "Service-account tokens and access control"
-    With [access control](../admin/roles/access-control/intro.md) off, a Viewer service-account token works for every tool. With access control on, PMM refuses service-account tokens on the Query Analytics and metrics APIs, so every tool except `pmm_version` and `pmm_catalog` returns `unauthorized` for a token. In that case, connect with the credentials of a PMM user, sent as Basic authentication. The user's Access Roles then filter the Query Analytics and metrics data that the tools read.
+    With [access control](../admin/roles/access-control/intro.md) off, a Viewer service-account token works for every tool. With access control on, PMM refuses service-account tokens on the Query Analytics and metrics APIs, so every tool except `pmm_version`, `pmm_catalog` and `pmm_alerts` returns `unauthorized` for a token. In that case, connect with the credentials of a PMM user, sent as Basic authentication. The user's Access Roles then filter the Query Analytics and metrics data that the tools read. They don't filter `pmm_alerts`, which shows the alerts of every folder that the caller can read, as PMM's Alerts page does.
 
 ## Enable the endpoint
 
@@ -110,8 +112,8 @@ The server sends the recommended order to the client on connect: `pmm_version`, 
 | `pmm_query_metrics` | The result of a MetricsQL query on PMM's metrics: instant at `time`, or over a range with `period_from`, `period_to` and `step`. Returns the top `limit` series by maximum, as raw points or summaries. See [Metrics tools](#metrics-tools) | `GET /graph/api/datasources/name/Metrics`, then the datasource proxy: `/api/v1/query`, `/api/v1/query_range` and `/api/v1/series` |
 | `pmm_list_metrics` | What the metrics hold: metric names that contain `search` (`kind=names`, the default), label names (`labels`), the values of one label (`values`) or the label sets of series (`series`). Pages with `limit` and `offset` | `GET /graph/api/datasources/name/Metrics`, then the datasource proxy: `/api/v1/label/{name}/values`, `/api/v1/labels` and `/api/v1/series` |
 | `pmm_service_health` | The triage signals of one service and its node over a window: for each, min, avg, max, last and the time of the newest sample, or `no_data`, or its own error. It reports what was measured and judges nothing | `GET /graph/api/datasources/name/Metrics`, then the datasource proxy: the service list (`/api/v1/query` on `up`) and `/api/v1/query_range` |
-| `pmm_get_config` | The server's numeric configuration variables (`SHOW GLOBAL VARIABLES` style) plus the version, from the metrics PMM already collects; addressed by `service_id` like the other tools (`service_name` is also accepted); an `engine` other than the service's own is `invalid_input`; page with `limit` and `offset` | `GET /graph/api/datasources/name/Metrics`, the Grafana datasource proxy: the service list and the variables |
-| `pmm_alerts` | The alerts firing now and the pending ones, firing ones first and within each state the most severe and newest first, with state, severity, labels, summary, description, start time, whether a silence mutes the alert and until when, and a link to its rule; optional `service_id`, `service_name`, `node_name` and `severity` filters; page with `limit` and `offset`. See [Alerts](#alerts) | Grafana's rules API (`GET /graph/api/prometheus/grafana/api/v1/rules`), Grafana's Alertmanager API for silences, and the service list |
+| `pmm_get_config` | The server's numeric configuration variables (`SHOW GLOBAL VARIABLES` style) plus the version, from the metrics PMM already collects; addressed by `service_id` like the other tools (`service_name` is also accepted); an `engine` other than the service's own is `invalid_input`; `filter` keeps the variables whose name contains its text, and an empty result says whether the filter or the service left nothing; page with `limit` and `offset` | `GET /graph/api/datasources/name/Metrics`, the Grafana datasource proxy: the service list and the variables |
+| `pmm_alerts` | The alerts firing now, the recovering ones and the pending ones, in that order and within each state the most severe and newest first, with state, severity, labels, summary, description, start time, whether a silence mutes the alert and until when, and a link to its rule; optional `service_id`, `service_name`, `node_name` and `severity` filters; page with `limit` and `offset`. See [Alerts](#alerts) | Grafana's rules API (`GET /graph/api/prometheus/grafana/api/v1/rules`), and Grafana's Alertmanager API for silences |
 
 Most results link to the same data in PMM, so you can check an answer in PMM itself. The link is the `pmm_url` field, and the text shows it too:
 
@@ -122,10 +124,10 @@ Most results link to the same data in PMM, so you can check an answer in PMM its
 | `pmm_get_explain` | QAN on the window the query was read in, with the query selected on its **Explain** tab |
 | `pmm_get_config` | QAN for the service, over the hour before `at` |
 | `pmm_inventory` | The instance summary dashboard of each MySQL, PostgreSQL, MongoDB, HAProxy and ProxySQL service (ProxySQL's dashboard selects by node, so a ProxySQL service without a node name has no link) |
-| `pmm_service_health` | The instance summary dashboard of the service |
+| `pmm_service_health` | The instance summary dashboard of the service, over the window of the signals |
 | `pmm_alerts` | The alert rule of each alert in PMM's alerting |
 
-`pmm_version`, `pmm_catalog`, `pmm_get_schema`, `pmm_query_metrics` and `pmm_list_metrics` carry no link. Links use the PMM public address setting when it is set, otherwise the host name the client connected to.
+`pmm_version`, `pmm_catalog`, `pmm_get_schema`, `pmm_query_metrics` and `pmm_list_metrics` carry no link. Links use the PMM public address setting when it is set, otherwise the host name and scheme the client connected with.
 
 ### Query references
 
@@ -240,11 +242,13 @@ Results carry provenance. `pmm_url` is the link to the same data in PMM, as list
 | `pmm_list_metrics` | 100 | 1000 | names, labels, values or series |
 | `pmm_alerts` | 50 | 200 | alerts |
 
-A list that doesn't fit ends with `showing a–b of n; pass offset=… for more`. Pass that `offset` to get the next page. Other limits apply to one item: an execution plan is cut at 64 KiB, and the definition and indexes of one table at 32 KiB each. A cut item sets `truncated` and says so in its text.
+A list that doesn't fit ends with `showing a–b of n; pass offset=… for more`. Pass that `offset` to get the next page. Other limits apply to one item: an execution plan is cut at 64 KiB, and the definition and indexes of one table at 32 KiB each. A cut item sets `truncated` and says so in its text. A plan is read whole before it is masked, so a plan that pmm-agent returns larger than 4 MiB is withheld instead, and so is a stored PostgreSQL plan of that size when raw SQL is off.
 
 ### Untrusted fields
 
-Some text in a result comes from your databases or from users: fingerprints, query examples, execution plans, table definitions, label and dimension values, variable values, the names of services, nodes, databases, schemas and tables, metric label values, service addresses, version strings, alert names, labels, summaries and descriptions, and the message of a failed part's error. The `outputSchema` description of each such field starts with `Untrusted.`. Some clients, Claude Code among them, don't pass output schemas to the model, so the server's instructions also name these kinds of text and tell the model to treat them as data, not instructions. The instructions name more than the schemas mark: the QAN dimension values user, client host and application name, the `environment` and `cluster` of a service, and the links in alert summaries and descriptions.
+Some text in a result comes from your databases or from users: fingerprints, query examples, execution plans, table definitions, label and dimension values, variable names and values, the names of services, nodes, databases, schemas and tables, metric names and label values, service addresses, version strings, alert names, labels, summaries and descriptions, and the message of a failed part's error. The `outputSchema` description of each such field starts with `Untrusted.`. Some clients, Claude Code among them, don't pass output schemas to the model, so the server's instructions also name these kinds of text and tell the model to treat them as data, not instructions. The instructions name more than the schemas mark: the QAN dimension values user, client host and application name, the `environment` and `cluster` of a service, and the links in alert summaries and descriptions.
+
+The text of `pmm_list_metrics` quotes metric names and the prefixes of name groups, as it quotes label names and values, so that none can span lines. The text of `pmm_get_config` quotes a variable name that holds a character other than a letter, a digit, `_` or `:`.
 
 Metric label values, and the names, labels, summaries and descriptions of alerts, are returned as stored, not masked: they aren't SQL statements, and the same caller sees them in PMM (ADR-07). Alert text is written by whoever authors the alert rule or the monitored system, so a client must treat it as untrusted. This mark is advice to the model, not a security boundary. A model can still be misled by hostile text in a query. What bounds the damage is that every tool is read-only and runs with the caller's own token and roles.
 
@@ -262,9 +266,9 @@ Input that doesn't match a tool's input schema, such as a missing required argum
 
 ## Alerts
 
-`pmm_alerts` lists the alerts that are firing now, and the pending ones. It answers what is wrong at this moment, with the severity, labels, summary and description of each alert, its state, when it started, and a link to its rule in PMM. It doesn't silence or acknowledge anything.
+`pmm_alerts` lists the alerts that are firing now, the recovering ones and the pending ones. It answers what is wrong at this moment, with the severity, labels, summary and description of each alert, its state, when it started, and a link to its rule in PMM. It doesn't silence or acknowledge anything.
 
-The list comes from Grafana's rules API, called with your credentials. Grafana's folder permissions apply, so a Viewer gets what PMM's alert page shows to a Viewer. Every result starts with the note "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet.", also returned as `note`.
+The list comes from Grafana's rules API, called with your credentials. Grafana's folder permissions apply, so a Viewer gets what PMM's alert page shows to a Viewer. Every result starts with the note "Firing, recovering and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet.", also returned as `note`.
 
 ### Filters and paging
 
@@ -279,31 +283,23 @@ All arguments are optional:
 | `limit` | At most this many alerts per page: default 50, maximum 200 |
 | `offset` | Skips this many alerts, for the next page |
 
-An alert that lacks a label never matches a filter on that label. Firing alerts come first, then pending ones. Within each, the most severe alerts come first (`emergency`, `alert`, `critical`, `error`, `warning`, other severities, then none), the newest first within a severity.
+An alert that lacks a label never matches a filter on that label. Firing alerts come first, then recovering ones, then pending ones. Within each state, the most severe alerts come first (`emergency`, `alert`, `critical`, `error`, `warning`, other severities, then none), the newest first within a severity.
 
 ### What the list holds
 
-MCP narrows the list to the services and nodes in your service list over the last 7 days, so that `pmm_alerts` is consistent with the other tools. It doesn't change what you can read in PMM, where the alert page shows the alerts that Grafana's permissions allow. An alert is kept in these cases:
+`pmm_alerts` shows the alerts of every folder that you can read, whatever your [Access Roles](../admin/roles/access-control/intro.md), as PMM's Alerts page does. Unlike the other tools, it doesn't narrow its list to your service list, and it reads no metrics.
 
-- It comes from one of PMM's own rules: the PMM Server component rules, and the HA rules on an HA deployment. It is shown whatever service or node it names.
-- It has no `service_id`, `service_name`, `node_id` or `node_name` label.
-- Its service labels name a service in your service list. If it has no service labels, its node labels name a node in your service list.
+A `service_id`, `service_name` or `node_name` filter matches the alert's labels, whether or not the service or node is in your service list. A value that no alert carries returns an empty list. Its text names the filters, for example "No firing, recovering or pending alerts match the service_name filter", so that a mistyped value isn't read as a server without alerts.
 
-A `node_name` filter for a node outside your service list answers `not_found`, and so does a `service_id` or `service_name` filter for a service outside it. This includes `pmm-server`. PMM's own alerts and the down alerts of RDS and Azure services name `node_name="pmm-server"`. Even so, the filter answers `not_found` unless `pmm-server` is in your service list, which needs `up` samples that you can read.
+### Firing, recovering and pending alerts only
 
-### Firing and pending alerts only
+`pmm_alerts` shows the alerts that are firing now, the recovering ones and the pending ones. An alert is pending while its rule's condition holds but the rule waits out its pending period before it fires; `state` is `pending`, and `starts_at` is when it went pending. A firing alert has `state` set to `firing`, and `starts_at` is when it started firing. Grafana evaluates a rule at its group's interval, and the rule then waits out its pending period before it fires. So a problem that began a few minutes ago can be pending, or not yet listed at all: an empty list doesn't mean that no rule covers the problem.
 
-`pmm_alerts` shows the alerts that are firing now, and the pending ones. An alert is pending while its rule's condition holds but the rule waits out its pending period before it fires; `state` is `pending`, and `starts_at` is when it went pending. A firing alert has `state` set to `firing`, and `starts_at` is when it started firing. Grafana evaluates a rule at its group's interval, and the rule then waits out its pending period before it fires. So a problem that began a few minutes ago can be pending, or not yet listed at all: an empty list doesn't mean that no rule covers the problem.
-
-`pmm_alerts` doesn't show resolved alerts. It also doesn't show alerts that Grafana keeps firing after they recover (`keep_firing_for`, shown as **Recovering** in Grafana). PMM's alert templates don't use `keep_firing_for`.
+An alert is recovering when its rule's condition no longer holds but the rule keeps it firing for its **Keep firing for** period (shown as **Recovering** in Grafana); `state` is `recovering`, and `starts_at` is when it began recovering. A recovering alert still sends notifications, and a silence mutes it as it mutes a firing one. `pmm_alerts` doesn't show resolved alerts.
 
 It also doesn't show the `DatasourceNoData` and `DatasourceError` alerts that Grafana raises for a rule whose no-data or error handling is set to **No Data** or **Error**, even though Grafana sends notifications for them. PMM's own rules and the rules made from PMM's alert templates don't raise them: a rule made from a template shows an evaluation error as a firing alert, which `pmm_alerts` lists.
 
 Silenced alerts are included. An alert that a silence mutes has `silenced` set to `true` and `silenced_until` set to the end of the silence. When several silences mute one alert, `silenced_until` is the latest end. A pending alert always has `silenced` set to `false`: Grafana sends an alert to the Alertmanager, which applies silences, only once it fires.
-
-### Alerts and the service list
-
-A service that has sent no `up` sample for an hour leaves `pmm_inventory`, but its alerts stay in `pmm_alerts` for 7 days, because the list for alerts looks back 7 days. After 7 days without samples, its alerts leave `pmm_alerts` too.
 
 ### Not in MCP
 
@@ -325,7 +321,7 @@ Use the tools in this order:
 3. `pmm_list_metrics` finds metrics that the catalogue doesn't list, and the label values to filter by.
 4. `pmm_query_metrics` runs a MetricsQL query. Aggregate first, for example `sum by (service_name) (rate(mysql_global_status_questions[5m]))` or `topk(10, …)`, and filter by `service_name` or `service_id`. Use an instant query (`time`, default now) for the current value and a range query (`period_from`, `period_to`) for a trend.
 
-`pmm_query_metrics` takes `query`, `time` or `period_from`, `period_to` and `step`, and `limit`. Without `period_from` and `period_to`, the query is instant. A range query needs at least one of them: `period_to` defaults to now and `period_from` to an hour before `period_to`, so `period_from=now-1h` reads the last hour. `step` is a whole number of seconds, written as `30s`, `5m` or `1h`. Without `step`, the server chooses the smallest one that keeps the range within 2,000 points. Each query runs with a timeout of 25 seconds.
+`pmm_query_metrics` takes `query`, `time` or `period_from`, `period_to` and `step`, and `limit`. Without `period_from` and `period_to`, the query is instant. A range query needs at least one of them: `period_to` defaults to now and `period_from` to an hour before `period_to`, so `period_from=now-1h` reads the last hour. `step` is a whole number of seconds, written as `30s`, `5m` or `1h`. Without `step`, the server chooses the smallest one that keeps the range within 2,000 points. A `step` that you give must keep the range within 2,000 points too: a smaller one is refused with `invalid_input`, and the message names the smallest step that fits. Each query runs with a timeout of 25 seconds.
 
 ### Metrics catalogue
 
@@ -335,7 +331,7 @@ Use the tools in this order:
 
 `pmm_service_health` takes a `service_id` from `pmm_inventory`, and optionally `period_from` and `period_to` (default the last hour, or the hour before `period_to` when only `period_to` is given). The window is just under 7 days at most, since the signals also read about 5 minutes before it and a call reads at most 7 days. A longer window is `invalid_input`, and the message names the longest window that fits. It runs one fixed query for each signal, taken from the PMM dashboards: 9 for a MySQL service, 7 for PostgreSQL and 9 for MongoDB, then 6 for its node (CPU, load, memory, disk read and write latency, and free space). It runs at most 4 queries at a time.
 
-Each signal reports `min`, `avg`, `max`, `last` and `last_at`, the time of the newest sample, with its unit and the metric it reads. The unit uses Grafana's names: `ops` is per second, `short` is a plain number, `percentunit` is a ratio from 0 to 1, and `none` is a code. A signal that returns no series is `no_data`. A signal whose query fails carries its own `error`, and the result sets `partial`. If every query fails, the call fails with the first error. A value that is `null` is NaN or infinite, for example a ratio whose denominator is 0. If a query returns several series, the signal reports the one with the largest maximum, and the note says how many there were.
+Each signal reports `min`, `avg`, `max`, `last` and `last_at`, the time of the newest sample, with its unit and the metric it reads. The unit uses Grafana's names: `ops` is per second, `short` is a plain number, `percentunit` is a ratio from 0 to 1, and `none` is a code. A signal that returns no series is `no_data`. A signal whose query fails carries its own `error`, and the result sets `partial`. If every query that runs fails, the call fails with the first error: the node signals that aren't queried because the service's node is unknown don't count. A value that is `null` is NaN or infinite, for example a ratio whose denominator is 0. NaN and infinite values are left out of `min`, `avg` and `max`, and the note says how many there were for each signal. If a query returns several series, the signal reports the one with the largest maximum, and the note says how many there were.
 
 These signals need a word on what they measure:
 
@@ -378,7 +374,7 @@ A rollup over an expression that isn't a selector, such as `rate(sum(x)[1h])`, r
 
 ### Series cap
 
-Before a query runs, the server counts the series of each selector over the time read. A selector that matches more than 2,000 series refuses the query with `invalid_input`. Narrow it with a `service_*` or `node_*` matcher and aggregate. When the server raises the step of a range query and the query then reads further back, it counts the series again over the longer time.
+Before a query runs, the server counts the series of each selector over the time read. A selector that matches more than 2,000 series refuses the query with `invalid_input`. Narrow it with a `service_*` or `node_*` matcher and aggregate. When the server raises the step of a range query and the query then reads further back, it counts the series again over the longer time. If they are more, the server estimates the [size of the answer](#read-cap) again from the larger count.
 
 ### Response budget
 
@@ -387,20 +383,22 @@ A `pmm_query_metrics` result is shaped to fit these limits:
 - **Series.** At most `limit` series, 20 by default and 100 at most. They are the series with the largest maximum.
 - **Points.** At most 2,000 points in all.
 - **Size.** At most 16 KiB, counting the text and the structured content together. When the query alone takes up that much, for example because JSON escapes each `<`, `>` and `&` to six bytes, the result shows only its first 200 bytes in `query`.
-- **Summaries.** When the raw points don't fit in the points or in the size, every series carries a summary instead of points: `min`, `avg`, `max`, `last` and `last_at`. `summarized` is `true`.
+- **Summaries.** When the raw points don't fit in the points or in the size, every series carries a summary instead of points: `min`, `avg`, `max`, `last` and `last_at`. `summarized` is `true`. The text shows each series on one line with its summary, `last_at` included; raw points are in the structured content only.
 - **Fewer series.** When even the summaries are over 16 KiB, the result keeps fewer series. `truncated` is `true`, and the hint says how many series it left out and how to narrow the query. `total_series` is the number the query returned.
 - **Nulls.** NaN and infinite values are `null` in points and are left out of `min`, `avg` and `max`. The `note` says how many.
-- **Labels.** PMM's internal labels `agent_id`, `agent_type`, `node_id`, `machine_id`, `instance` and `job` are dropped. A label with the same value on every series shown appears once, in `shared_labels`.
+- **Labels.** PMM's internal labels `agent_id`, `agent_type`, `node_id`, `machine_id`, `instance` and `job` are dropped. If two series shown would then have the same labels, as with `sum by (node_id) (...)`, the internal labels whose values differ between them are kept on every series shown. A label with the same value on every series shown appears once, in `shared_labels`.
 
-`pmm_list_metrics` looks back 1 hour by default and at most 7 days (`period_from`). MCP asks VictoriaMetrics for at most 1,001 entries, so `page.total` is at most 1,001. When VictoriaMetrics has more than 1,000, the result sets `truncated` and a hint to narrow the request. When `kind=names` finds more names than `limit`, the result lists groups of names by prefix with their counts instead. Series are also held to 16 KiB. A single series larger than that is left out, and the hint names the `offset` that skips it. `search` is a literal substring: a regular expression character in it, such as `.*`, matches only itself. The name search reads metric names only, so it doesn't need a metric name or a scope. The `match` selectors of the other kinds follow the [execution budget](#execution-budget) with a lookbehind of 0, and there are at most 10.
+`pmm_list_metrics` looks back 1 hour by default and at most 7 days (`period_from`). MCP asks VictoriaMetrics for at most 1,001 entries, so `page.total` is at most 1,001. When VictoriaMetrics has more than 1,000, the result sets `truncated` and a hint to narrow the request. When `kind=names` finds more names than `limit`, the result lists groups of names by prefix with their counts instead. Every page of every kind is also held to 16 KiB, counting the text and the structured content together: a page that doesn't fit keeps fewer entries, sets `truncated`, and the hint says how to narrow the request or to read on with `offset`. A single entry larger than that is left out, and the hint names the `offset` that skips it. `search` is a literal substring of at most 200 characters: a regular expression character in it, such as `.*`, matches only itself. The name search reads metric names only, so it doesn't need a metric name or a scope. The `match` selectors of the other kinds follow the [execution budget](#execution-budget) with a lookbehind of 0, and there are at most 10. Each is a series selector alone, a metric name with label matchers such as `mysql_up{service_name="db1"}`: a function, an operator, a range or an `offset` is `invalid_input`.
 
 ### Read cap
 
 MCP reads at most 4 MiB of any response from the datasource proxy. A longer response fails the call. For a query or a selector that a model wrote, the error is `invalid_input` with a hint to narrow it with a `service_name` or `node_name` matcher and to aggregate. In other cases it's `pmm_unavailable`.
 
-Before a range query without an aggregation runs, the server estimates the size of its answer from the series that its selectors match, about 32 bytes per point plus the labels of each series. A function that returns several series for each one it reads counts each of them: `aggr_over_time` one for each function it names, `rollup_candlestick` four, and `rollup` and the other `rollup_*` functions three, unless a second argument picks one. If the estimate is over 3.5 MiB, the server raises the step so that the answer fits, and `note` says to what. For example, the few hundred series of `{__name__=~"mysql_global_status_.*", service_name="db1"}` over 6 hours come back as summaries at a raised step. If you gave `step`, it isn't raised: a step that is too small is refused, and the hint names the smallest one that fits. A query with an aggregation can return fewer series than its selectors match, so it runs at its step.
+Before a range query without an aggregation runs, the server estimates the size of its answer from the series that its selectors match, about 40 bytes per point plus the labels of each series. A function that returns several series for each one it reads counts each of them: `aggr_over_time` one for each function it names, `rollup_candlestick` four, and `rollup` and the other `rollup_*` functions three, unless a second argument picks one. If the estimate is over 3.5 MiB, the server raises the step so that the answer fits, and `note` says to what. For example, the few hundred series of `{__name__=~"mysql_global_status_.*", service_name="db1"}` over 6 hours come back as summaries at a raised step. If you gave `step`, it isn't raised: a step that is too small is refused, and the hint names the smallest one that fits. If not even one point per series fits, for example because the labels of the series alone take 3.5 MiB, no step helps: the query is refused with `invalid_input` and a hint to narrow the selectors or aggregate. A query with an aggregation can return fewer series than its selectors match, so it runs at its step.
 
 `pmm_alerts` reads at most 16 MiB of each response from Grafana's alerting APIs. A longer response fails the call with `pmm_unavailable`, and the message names the limit.
+
+MCP also reads at most 16 MiB of each Query Analytics report and query metrics response. `pmm_top_queries` and `pmm_query_detail` read them, and so does the query lookup of `pmm_get_explain` and `pmm_get_schema`. A longer response fails the call with `pmm_unavailable`, and the message names the limit.
 
 ### Rate limits
 
@@ -408,9 +406,9 @@ The limits are per caller, identified by a hash of the credential, and per PMM S
 
 | Limit | Applies to | Value |
 |-------|------------|-------|
-| Calls in flight, per caller | `pmm_inventory`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_top_queries`, `pmm_query_detail`, `pmm_alerts`, and the query lookup of `pmm_get_explain` and `pmm_get_schema` | 4 |
+| Calls in flight, per caller | `pmm_inventory`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_top_queries`, `pmm_query_detail`, `pmm_alerts`, the query lookup of `pmm_get_explain` and `pmm_get_schema`, and the service lookup of `pmm_get_schema` with named tables | 4 |
 | Calls in flight, per replica | The same tools | 8 |
-| Call rate, per caller | `pmm_inventory`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_alerts` | 60 a minute, 10 at once |
+| Call rate, per caller | `pmm_inventory`, `pmm_get_config`, `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health`, `pmm_alerts`, and the service lookup of `pmm_get_schema` with named tables | 60 a minute, 10 at once |
 | Live-inspection calls in flight, per caller | `pmm_get_explain` for MySQL and MongoDB, `pmm_get_schema` | 2 |
 | Live-inspection calls in flight, per replica | The same calls | 8 |
 | Live-inspection calls in flight, per service and replica | The same calls | 1 |
@@ -420,11 +418,11 @@ A token is one caller, whether it's sent as Bearer or as Basic credentials. Othe
 
 `/mcp` answers HTTP 400 to a JSON-RPC batch, so send one request per call.
 
-A call of `pmm_query_metrics`, `pmm_list_metrics`, `pmm_service_health` or `pmm_alerts` counts once, however many queries it runs. In addition, every request that MCP sends to VictoriaMetrics takes one of the replica's slots. The replica has half of VictoriaMetrics' limit on concurrent queries, at least 1, so dashboards and alert evaluation keep the other half. VictoriaMetrics' own default for that limit is twice the number of CPUs, at most 16. The environment variable `VM_search_maxConcurrentRequests` sets the limit instead (see [VictoriaMetrics environment variables](../reference/third-party/victoria.md#environment-variables)), and MCP takes half of the value it sets. A request waits for a slot until the deadline of its call.
+A call of `pmm_query_metrics`, `pmm_list_metrics` or `pmm_service_health` counts once, however many queries it runs. In addition, every request that MCP sends to VictoriaMetrics takes one of the replica's slots. The replica has half of VictoriaMetrics' limit on concurrent queries, at least 1, so dashboards and alert evaluation keep the other half. VictoriaMetrics' own default for that limit is twice the number of CPUs, at most 16. The environment variable `VM_search_maxConcurrentRequests` sets the limit instead (see [VictoriaMetrics environment variables](../reference/third-party/victoria.md#environment-variables)), and MCP takes half of the value it sets. A request waits for a slot until the deadline of its call.
 
 MCP has no fleet size of its own. PMM's [hardware sizing](../install-pmm/plan-pmm-installation/hardware_and_system.md) applies. This is the setup that MCP was load-tested on, not a limit: a server with 4 CPU cores and 8 GB of memory that monitored 53 MySQL services. Five clients called the metric tools at the caps for 10 minutes, once with about 2 days of data and once with about 6. In both runs no alert-rule evaluation failed and no PMM Server component restarted. The p95 of a dashboard query went from 47 ms to 170 ms with 2 days of data and from 50 ms to 167 ms with 6. VictoriaMetrics' CPU peaked at 2.3 and 2.9 cores, and the p95 of an answered metric call rose from 2.9 s to 6.7 s.
 
-A call refused for its rate is `rate_limited` and says in the message how many seconds to wait. `_meta["com.percona/error"]` carries the wait as `retry_after`, in whole seconds, at least 1. A call refused for the calls in flight is `rate_limited` without `retry_after`. A live-inspection call on a service that already has one in flight waits up to 10 seconds for it to finish, then runs; it is `rate_limited` if the other call is still running then, or if `PMM_MCP_ACTION_TIMEOUT` ends first. While it waits, it holds no other live-inspection slot and has taken no token. A live-inspection call refused for the calls in flight takes no token.
+A call refused for its rate is `rate_limited` and says in the message how many seconds to wait. `_meta["com.percona/error"]` carries the wait as `retry_after`, in whole seconds, at least 1. A call refused for the calls in flight is `rate_limited` without `retry_after`. A live-inspection call on a service that already has one in flight waits up to 10 seconds for it to finish, then runs; it is `rate_limited` if the other call is still running then, or if `PMM_MCP_ACTION_TIMEOUT` ends first. While it waits, it holds no other live-inspection slot and has taken no live-inspection token. A live-inspection call refused for the calls in flight takes no live-inspection token.
 
 ### QAN window
 
@@ -438,7 +436,7 @@ A call refused for its rate is `rate_limited` and says in the message how many s
 
 `pmm_inventory` reads no inventory API, only the metrics your token can read. `pmm_alerts` shows the alerts that Grafana's folder permissions let your token read.
 
-With access control on, the role must belong to a PMM user rather than a service account: PMM refuses service-account tokens on the Query Analytics and metrics APIs that every tool except `pmm_version` and `pmm_catalog` reads.
+With access control on, the role must belong to a PMM user rather than a service account: PMM refuses service-account tokens on the Query Analytics and metrics APIs that every tool except `pmm_version`, `pmm_catalog` and `pmm_alerts` reads.
 
 A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain` and `pmm_get_schema`, exactly as it can through the REST API, so those tools expose execution plans and table definitions to any user who can view dashboards.
 
@@ -457,14 +455,16 @@ Set them on the PMM Server container like other `PMM_*` variables, for example `
 
     With `PMM_MCP_RAW_SQL` off, the default, MCP keeps those values out of tool output:
 
-    - Example statements are replaced by their fingerprints, masked like any fingerprint: numbers and the text of comments become `?`, and a fingerprint with quoted text is withheld.
-    - Literals in execution plans and MongoDB fingerprints are replaced with `?`.
+    - Example statements are replaced by their fingerprints, masked like any fingerprint: numbers and the text of comments become `?`, and a fingerprint with quoted text, or with a quoted name that doesn't close, is withheld.
+    - Literals in execution plans and MongoDB fingerprints are replaced with `?`. A MongoDB fingerprint with a single quote, or with a double quote that doesn't close, is withheld.
+    - MySQL plans leave out pmm-agent's `real_table_name`, and replace the statement that MySQL rewrites into the plan with a note that it is withheld: the message of `SHOW WARNINGS` note 1003, and the `query` of `explain_json_format_version=2`. MySQL names a select-list expression that has no alias after its own text, literals included. So a name in a MySQL plan that isn't a plain name, made of letters, digits, `_` and `$`, is replaced with `?`. A constant that is itself a plain name, such as `'gold'`, can still show as the column name of a derived table or a CTE.
+    - In a PostgreSQL text plan, numbers are kept only in the `cost` and `actual` figures of each node. Other numbers, such as the count of `Workers Planned`, become `?`.
     - A SQL fingerprint that PMM stored unnormalized is withheld. If an unfiltered `pmm_top_queries` covers both MySQL and PostgreSQL data, PMM looks up each query's engine with one more report; a fingerprint that contains quoted text is withheld when its query ran under both engines, or when that lookup fails. To see such a fingerprint, filter by `service_name`.
     - With raw SQL off, `search` matches the query text as `pmm_top_queries` shows it. A `?` in `search` matches a `?` that the text shows, whatever value it masks.
     - `group_by=username` and `group_by=client_host` return database user names and client addresses, as the QAN dashboard does for the same role. `PMM_MCP_RAW_SQL` does not hide them.
     - An agent error that can quote the statement is withheld, and its error code is kept.
 
-    Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions from `pmm_get_schema` are returned as they are, so `CHECK` and `DEFAULT` constants and partition bounds are not masked. To keep literals from being collected at all, disable query examples at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.
+    Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions from `pmm_get_schema` are returned as they are, so `CHECK` and `DEFAULT` constants and partition bounds are not masked. To stop PMM from collecting query examples, disable them at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.
 
 ### Operator metrics
 
@@ -472,7 +472,7 @@ pmm-managed exports three metrics about MCP tool calls, next to its other metric
 
 | Metric | Type | Labels | What it counts |
 |--------|------|--------|----------------|
-| `pmm_managed_mcp_tool_calls_total` | Counter | `tool`, `code` | Tool calls that ended. `code` is `ok`, or the [error code](#errors) of a failed call. |
+| `pmm_managed_mcp_tool_calls_total` | Counter | `tool`, `code` | Tool calls that ended. `code` is `ok`, the [error code](#errors) of a failed call, or `canceled` for a call that its client abandoned. |
 | `pmm_managed_mcp_tool_duration_seconds` | Histogram | `tool` | How long each tool call took. |
 | `pmm_managed_mcp_tool_calls_in_flight` | Gauge | `tool` | Tool calls running now. |
 

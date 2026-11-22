@@ -25,6 +25,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -33,6 +34,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 )
 
 const vmProxy = "/graph/api/datasources/proxy/uid/metrics-uid/"
@@ -262,7 +265,7 @@ func TestAlertingResponseBounded(t *testing.T) {
 		t.Run(path, func(t *testing.T) {
 			t.Parallel()
 
-			c, err := newClient("http://pmm.test/")
+			c, err := newClient("http://127.0.0.1/")
 			require.NoError(t, err)
 			var read atomic.Int64
 			var body string
@@ -294,7 +297,7 @@ func TestAlertingResponseBounded(t *testing.T) {
 func TestQANServiceTypesBounded(t *testing.T) {
 	t.Parallel()
 
-	c, err := newClient("http://pmm.test/")
+	c, err := newClient("http://127.0.0.1/")
 	require.NoError(t, err)
 
 	var read atomic.Int64
@@ -321,7 +324,7 @@ func TestQANServiceTypesBounded(t *testing.T) {
 func TestVMResponseBounded(t *testing.T) {
 	t.Parallel()
 
-	c, err := newClient("http://pmm.test/")
+	c, err := newClient("http://127.0.0.1/")
 	require.NoError(t, err)
 
 	var read atomic.Int64
@@ -385,6 +388,13 @@ func TestVMRequestLimit(t *testing.T) {
 	err = call(ctx)
 	require.Error(t, err)
 	assert.Equal(t, codeTimeout, mapError(err).code)
+	assert.EqualValues(t, 2, arrived.Load(), "a request that gave up sent nothing")
+
+	ctx, cancel = context.WithCancel(t.Context())
+	cancel()
+	err = call(ctx)
+	require.ErrorIs(t, err, context.Canceled)
+	assert.Equal(t, codeCanceled, mapError(err).code, "a call abandoned while it waits is canceled, not timeout")
 	assert.EqualValues(t, 2, arrived.Load(), "a request that gave up sent nothing")
 
 	once.Do(func() { close(release) })
@@ -525,4 +535,115 @@ func TestBackingCallCredentials(t *testing.T) {
 		keys[callerKey(callerAuthFromHeader(http.Header{"Authorization": {authorization}}))] = true
 	}
 	assert.Len(t, keys, 1)
+}
+
+// TestBackingCallRedirectRefused pins that neither the generated clients nor the raw HTTP calls follow a redirect, so
+// the caller's credentials go nowhere but the loopback.
+func TestBackingCallRedirectRefused(t *testing.T) {
+	t.Parallel()
+
+	for _, status := range []int{http.StatusMovedPermanently, http.StatusFound, http.StatusTemporaryRedirect, http.StatusPermanentRedirect} {
+		t.Run(strconv.Itoa(status), func(t *testing.T) {
+			t.Parallel()
+
+			var elsewhere atomic.Int32
+			target := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
+				elsewhere.Add(1)
+				rw.Header().Set("Content-Type", "application/json")
+				_, _ = rw.Write([]byte(`{}`))
+			}))
+			t.Cleanup(target.Close)
+			loopback := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				http.Redirect(rw, req, target.URL+req.URL.Path, status)
+			}))
+			t.Cleanup(loopback.Close)
+			c, err := newClient(loopback.URL + "/")
+			require.NoError(t, err)
+
+			for name, call := range map[string]func() error{
+				"generated": func() error {
+					_, err := c.Version(t.Context(), testAuth)
+					return err
+				},
+				"raw": func() error {
+					_, err := c.GetDatasourceByName(t.Context(), testAuth, "Metrics")
+					return err
+				},
+			} {
+				err := call()
+				require.Error(t, err, name)
+				te := mapError(err)
+				assert.Equal(t, codePMMUnavailable, te.code, name)
+				assert.Contains(t, te.message, "redirect", name)
+				assert.NotContains(t, te.message, target.URL, name)
+			}
+			assert.Zero(t, elsewhere.Load(), "a backing call followed the redirect")
+		})
+	}
+}
+
+// TestNewClientLoopbackOnly pins that the loopback URL takes only a loopback host, and that the error never echoes it.
+func TestNewClientLoopbackOnly(t *testing.T) {
+	t.Parallel()
+
+	for _, u := range []string{"http://127.0.0.1:8080/", "http://127.0.0.2/", "http://[::1]:8080/", "http://localhost:8080/", "http://LocalHost/v1/"} {
+		_, err := newClient(u)
+		require.NoError(t, err, u)
+	}
+	for _, u := range []string{
+		"http://pmm.test/",
+		"http://user:secret@10.0.0.1:8080/",
+		"http://example.com/?token=secret",
+		"http://0.0.0.0:8080/",
+		"http://[::]:8080/",
+		"http://localhost.example.com/",
+		"http://127.0.0.1.example.com/",
+	} {
+		_, err := newClient(u)
+		require.Error(t, err, u)
+		assert.Equal(t, "invalid loopback URL (PMM_DEV_MCP_LOOPBACK_URL): the host must be a loopback address or localhost", err.Error(), u)
+	}
+}
+
+// TestQANResponseBounded pins that a QAN report or query-metrics response is read up to maxQANResponseBytes and no
+// further, and that a large legitimate one, over the datasource proxy's 4 MiB, still decodes.
+func TestQANResponseBounded(t *testing.T) {
+	t.Parallel()
+
+	for path, call := range map[string]func(c *client) error{
+		"/v1/qan/metrics:getReport": func(c *client) error {
+			_, err := c.GetReport(t.Context(), testAuth, qan_service.GetReportBody{})
+			return err
+		},
+		"/v1/qan:getMetrics": func(c *client) error {
+			_, err := c.GetMetrics(t.Context(), testAuth, qan_service.GetMetricsBody{})
+			return err
+		},
+	} {
+		t.Run(path, func(t *testing.T) {
+			t.Parallel()
+
+			c, err := newClient("http://127.0.0.1/")
+			require.NoError(t, err)
+			var read atomic.Int64
+			var size int
+			c.http = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+				assert.Equal(t, path, r.URL.Path)
+				body := io.MultiReader(strings.NewReader("{"), bytes.NewReader(bytes.Repeat([]byte(" "), size)), strings.NewReader("}"))
+				return &http.Response{StatusCode: http.StatusOK, Header: http.Header{}, Body: countingBody{r: body, n: &read}}, nil
+			})}
+
+			size = 10 << 20
+			require.NoError(t, call(c))
+
+			read.Store(0)
+			size = maxQANResponseBytes
+			err = call(c)
+			require.ErrorIs(t, err, errResponseTooLarge)
+			assert.LessOrEqual(t, read.Load(), int64(maxQANResponseBytes+1))
+			te := mapError(err)
+			assert.Equal(t, codePMMUnavailable, te.code)
+			assert.Equal(t, "POST "+path+": response is larger than the read limit of 16 MiB", te.message)
+		})
+	}
 }

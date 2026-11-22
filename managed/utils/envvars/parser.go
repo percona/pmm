@@ -289,7 +289,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case pkgenv.EnableMCP:
 			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				err = fmt.Errorf("invalid value '%s' for environment variable %s", v, k)
 				errs = append(errs, err)
 				continue
 			}
@@ -299,7 +299,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case pkgenv.MCPRawSQL:
 			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				err = fmt.Errorf("invalid value '%s' for environment variable %s", v, k)
 				errs = append(errs, err)
 				continue
 			}
@@ -309,7 +309,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case pkgenv.MCPActionTimeout:
 			d, err := time.ParseDuration(v)
 			if err != nil || d <= 0 {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				err = fmt.Errorf("invalid value '%s' for environment variable %s", v, k)
 				errs = append(errs, err)
 				continue
 			}

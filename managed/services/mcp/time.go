@@ -94,6 +94,9 @@ func parseWindow(from, to string, now time.Time) (time.Time, time.Time, error) {
 		return time.Time{}, time.Time{}, err
 	}
 	start = start.UTC().Truncate(time.Second)
+	if !end.After(start) && to == "" {
+		return time.Time{}, time.Time{}, newToolError(codeInvalidInput, "period_from (%s) must be before now", echo(from))
+	}
 	if !end.After(start) {
 		return time.Time{}, time.Time{}, newToolError(codeInvalidInput, "period_to (%s) must be after period_from (%s)", echo(to), echo(from))
 	}

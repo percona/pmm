@@ -228,6 +228,8 @@ type signalResult struct {
 
 	// series is how many series the query returned.
 	series int
+	// nonFinite is how many values of the series reported were NaN or infinite.
+	nonFinite int
 }
 
 // healthResult is the result of pmm_service_health.
@@ -239,14 +241,14 @@ type healthResult struct {
 	Signals     []signalResult `json:"signals" jsonschema:"The engine's signals, then the node's."`
 	Partial     bool           `json:"partial" jsonschema:"True when some signals failed; they carry their own error."`
 	Note        string         `json:"note,omitempty" jsonschema:"What no_data and null values can mean."`
-	PMMURL      string         `json:"pmm_url,omitempty" jsonschema:"Link to the service's instance summary dashboard in PMM."`
+	PMMURL      string         `json:"pmm_url,omitempty" jsonschema:"Link to the service's instance summary dashboard in PMM, over the window."`
 }
 
 var _ renderer = healthResult{}
 
 func (r healthResult) render() string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "Health signals of %s (%s)\n%s\n", echo(r.ServiceName), r.Engine, windowLine(r.Window))
+	fmt.Fprintf(&b, "Health signals of %s (%s)\n%s\n", oneLine(r.ServiceName), r.Engine, windowLine(r.Window))
 	for _, sig := range r.Signals {
 		switch {
 		case sig.Error != nil:
@@ -349,7 +351,7 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		ServiceName: svc.ServiceName,
 		Engine:      svc.Engine,
 		Window:      window{From: start, To: end},
-		PMMURL:      serviceURL(s.publicBaseURL(ctx, req.Extra.Header), svc),
+		PMMURL:      serviceWindowURL(s.publicBaseURL(ctx, req.Extra.Header), svc, start, end),
 	}
 
 	skipNode := svc.NodeID == "" && svc.NodeName == ""
@@ -381,11 +383,16 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		if results[j].series > 1 {
 			notes = append(notes, fmt.Sprintf("%s: the largest of %d series.", results[j].Name, results[j].series))
 		}
+		if results[j].nonFinite > 0 {
+			notes = append(notes, fmt.Sprintf("%s: %d non-finite values (NaN or infinite) are left out of min, avg and max.", results[j].Name, results[j].nonFinite))
+		}
 	}
+	queried := len(results)
 	if skipNode {
 		notes = append(notes, nodeUnknownNote)
+		queried -= len(healthSignals[engineNode])
 	}
-	if failed == len(results) {
+	if failed == queried {
 		return healthResult{}, firstError(errs)
 	}
 	res.Signals = results
@@ -504,6 +511,7 @@ func (s *Service) runSignal(ctx context.Context, rr rangeRequest, sig signal, qu
 		return res, nil
 	}
 	res.Min, res.Avg, res.Max, res.Last = best.summary.Min, best.summary.Avg, best.summary.Max, best.summary.Last
+	res.nonFinite = best.nonFinite
 	lastAt := best.summary.LastAt
 	res.LastAt = &lastAt
 	return res, nil

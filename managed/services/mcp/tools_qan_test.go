@@ -155,6 +155,20 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 		fingerprintText("SELECT status, count(*) FROM orders GROUP BY 1 ORDER BY 2 DESC LIMIT $1", "", false))
 	assert.Equal(t, "SELECT CAST($1 AS varchar(?)) FROM t", fingerprintText("SELECT CAST($1 AS varchar(255)) FROM t", "", false))
 
+	// A dollar-quote tag may hold non-ASCII letters, and its string is a literal like any other.
+	for _, tag := range []string{"$p$", "$п$"} {
+		fp := "ALTER ROLE app PASSWORD " + tag + "my secret text" + tag
+		assert.Equal(t, withheldFingerprint, fingerprintText(fp, enginePostgreSQL, false), fp)
+	}
+
+	// An identifier quote that never closes is read as a string, so the fingerprint is withheld.
+	for engine, fp := range map[string]string{
+		engineMySQL:      "SELECT `a FROM t WHERE ssn = 'SECRET'",
+		enginePostgreSQL: `INSERT INTO "users (email) VALUES ('alice@example.com')`,
+	} {
+		assert.Equal(t, withheldFingerprint, fingerprintText(fp, engine, false), fp)
+	}
+
 	// MySQL quoting for a MySQL service: a backticked name is a name.
 	assert.Equal(t, "SELECT `id` FROM `2fa_tokens` WHERE `o'neil` = ?",
 		fingerprintText("SELECT `id` FROM `2fa_tokens` WHERE `o'neil` = ?", engineMySQL, false))
@@ -182,6 +196,17 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 	}
 	assert.Contains(t, got, `db.orders.aggregate([{"$match":{"email":"?"}}, {"$lookup":{"from":?,"pipeline":[{"$match":{"email":?}}]}}`,
 		"keys, stages and the agent's own ? survive")
+	assert.Equal(t, got, fingerprintText(mongo, engineMongoDB, false))
+
+	// The MongoDB masker reads only texts that are not of a SQL engine, and withholds those whose quotes it can't pair.
+	for engine, fp := range map[string]string{
+		engineMySQL:      `db.users.find('alice@example.com')`,
+		enginePostgreSQL: `db.users.find('alice@example.com')`,
+		engineMongoDB:    `db.users.find({'email': 'alice@example.com'})`,
+		"":               `db.users.find({"email": "alice@example.com})`,
+	} {
+		assert.Equal(t, withheldFingerprint, fingerprintText(fp, engine, false), engine)
+	}
 }
 
 // TestTopQueriesQuotingFollowsTheService pins that a report filtered to one
@@ -744,7 +769,7 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.Nil(t, got.MetricsError)
 		assert.InDelta(t, 1200, got.Metrics["calls"], 1e-9)
 		assert.Empty(t, got.Example)
-		assert.Empty(t, got.QueryRef.ServiceID, "neither the request nor a stored example names the service")
+		assert.Equal(t, "svc-1", got.QueryRef.ServiceID, "the metadata names one service of the list")
 
 		text := textOf(t, res)
 		assert.Contains(t, text, "\npartial: qan/query:getExample failed (unauthorized)\n")
@@ -767,8 +792,24 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.Nil(t, got.Metrics)
 		assert.Equal(t, "shop", got.Schema)
 		assert.Equal(t, rawExample, got.Example)
-		assert.Equal(t, "svc-1", got.QueryRef.ServiceID, "from the stored example")
+		assert.Equal(t, "svc-1", got.QueryRef.ServiceID, "without the metrics, the detail is the example's, of the service it names")
+		assert.Equal(t, "shop-mysql", got.ServiceName)
+		assert.Contains(t, got.PMMURL, "shop-mysql", "the link filters by that service")
 		assert.Contains(t, textOf(t, res), "\npartial: qan:getMetrics failed (unauthorized)\n")
+	})
+
+	t.Run("NoServiceNameMatchesNoService", func(t *testing.T) {
+		t.Parallel()
+
+		routes := qanRoutes()
+		routes[serviceListKey] = fixture{body: []byte(`{"status": "success", "data": {"resultType": "vector", "result": [` +
+			`{"metric": {"service_id": "svc-1", "service_name": "shop-mysql", "service_type": "mysql"}, "value": [1789387200, "1"]}, ` +
+			`{"metric": {"service_id": "svc-unnamed", "service_type": "mysql"}, "value": [1789387200, "1"]}]}}`)}
+		routes["POST /v1/qan:getMetrics"] = fixture{body: []byte(`{"fingerprint": "SELECT ?", "metadata": {"service_type": "mysql"}}`)}
+		session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+
+		got := structured[queryDetailResult](t, callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"}))
+		assert.Empty(t, got.QueryRef.ServiceID, "metadata without a service name names no service")
 	})
 
 	t.Run("QueryRefServiceID", func(t *testing.T) {
@@ -784,7 +825,7 @@ func TestQueryDetailTool(t *testing.T) {
 		}{
 			{"RequestWithoutExample", "svc-request", noExample, "svc-request"},
 			{"RequestOverExample", "svc-request", example, "svc-request"},
-			{"Example", "", example, "svc-example"},
+			{"ExampleAlone", "", example, ""},
 			{"Neither", "", noExample, ""},
 		} {
 			api := newMockPmmAPI(t)
@@ -907,6 +948,9 @@ func TestLinks(t *testing.T) {
 	assert.Empty(t, s.publicBaseURL(t.Context(), http.Header{}))
 	assert.Equal(t, "https://pmm.local/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local"}}))
 	assert.Equal(t, "http://pmm.local:8080/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local:8080"}, "X-Forwarded-Proto": {"http"}}))
+	assert.Equal(t, "http://pmm.local:8080/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local:8080"}, "X-Forwarded-Proto": {"HTTP"}}))
+	assert.Equal(t, "https://pmm.local/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local"}, "X-Forwarded-Proto": {"javascript"}}),
+		"a scheme other than http or https is not used")
 	s.publicAddress = func(_ context.Context) string { return "pmm.example.com" }
 	assert.Equal(t, "https://pmm.example.com/", s.publicBaseURL(t.Context(), http.Header{"X-Forwarded-Host": {"pmm.local"}}))
 	s.publicAddress = func(_ context.Context) string { return "http://pmm.example.com:8080/" }
@@ -914,7 +958,7 @@ func TestLinks(t *testing.T) {
 }
 
 // TestQANValuesAreChecked pins that a QAN filter value with a quote or a
-// backslash is rejected before any QAN call (PMM-15715).
+// backslash is rejected before any QAN call.
 func TestQANValuesAreChecked(t *testing.T) {
 	t.Parallel()
 
@@ -1169,6 +1213,13 @@ func TestTopQueriesReportInputs(t *testing.T) {
 func mixedEngineReports(t *testing.T, status int) *fakePMM {
 	t.Helper()
 
+	return mixedEngineReportsFrom(t, status, "report_mixed_engines.json")
+}
+
+// mixedEngineReportsFrom is mixedEngineReports with the first report read from file.
+func mixedEngineReportsFrom(t *testing.T, status int, file string) *fakePMM {
+	t.Helper()
+
 	routes := qanRoutes()
 	routes["POST /v1/qan/metrics:getFilters"] = fixture{file: "filters_mixed.json"}
 	fake := newFakePMM(t, routes)
@@ -1183,7 +1234,7 @@ func mixedEngineReports(t *testing.T, status int) *fakePMM {
 		fake.requests = append(fake.requests, recordedRequest{method: req.Method, path: req.URL.Path, header: req.Header.Clone(), body: body})
 		fake.mu.Unlock()
 
-		file := "report_mixed_engines.json"
+		file := file
 		if strings.Contains(string(body), `"service_type"`) {
 			if status != 0 {
 				rw.WriteHeader(status)
@@ -1254,6 +1305,24 @@ func TestTopQueriesEnginePerRow(t *testing.T) {
 		require.Len(t, reqs, 2)
 		assert.Equal(t, "/*%*/", unmarshalBody[qan_service.GetReportBody](t, reqs[0]).Search)
 		assert.Equal(t, "/*%*/", unmarshalBody[qan_service.GetReportBody](t, reqs[1]).Search)
+	})
+
+	t.Run("QuotedQueryIDStaysUnknown", func(t *testing.T) {
+		t.Parallel()
+
+		// qan-api2 joins filter values into its SQL, so a queryid with a quote is not sent back in a filter.
+		fake := mixedEngineReportsFrom(t, 0, "report_mixed_engines_quoted_id.json")
+		session := connect(t, newQANService(t, fake, false))
+		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+		require.False(t, isError, text)
+		assert.Equal(t, "SELECT `id` FROM `o'neil` WHERE `id` = ?", fingerprintOf(t, text, "Q-MY"))
+		assert.Equal(t, withheldFingerprint, fingerprintOf(t, text, `Q-X') OR ('1`), "its engine stays unknown")
+
+		reqs := fake.requestsTo("/v1/qan/metrics:getReport")
+		require.Len(t, reqs, 2)
+		body := unmarshalBody[qan_service.GetReportBody](t, reqs[1])
+		assert.Equal(t, []string{"Q-MY"}, body.Labels[0].Value)
+		assert.EqualValues(t, 1, body.Limit)
 	})
 
 	t.Run("CallerFiltersServiceType", func(t *testing.T) {
@@ -1342,7 +1411,7 @@ func TestTopQueriesSharedServiceName(t *testing.T) {
 }
 
 // TestQueryDetailSeveralServices pins that a detail summed over several services, whose metadata joins their names,
-// links to QAN without a service filter and reads no version.
+// links to QAN without a service filter, reads no version and carries a query_ref without service_id.
 func TestQueryDetailSeveralServices(t *testing.T) {
 	t.Parallel()
 
@@ -1360,12 +1429,14 @@ func TestQueryDetailSeveralServices(t *testing.T) {
 	}
 
 	fake, got := detail(t, "shop-mysql, shop-postgres")
+	assert.Empty(t, got.QueryRef.ServiceID, "the stored example names one of the services")
 	assert.NotContains(t, got.PMMURL, "var-service_name")
 	assert.Contains(t, got.PMMURL, "filter_by=QID-AAA")
 	assert.Empty(t, got.Version)
 	assert.Empty(t, queriesWith(fake, "mysql_version_info"))
 
 	fake, got = detail(t, "shop-mysql")
+	assert.Equal(t, "svc-1", got.QueryRef.ServiceID)
 	assert.Contains(t, got.PMMURL, "var-service_name=shop-mysql")
 	assert.Equal(t, "8.0.46-37", got.Version)
 	assert.Len(t, queriesWith(fake, "mysql_version_info"), 1)
@@ -1541,6 +1612,12 @@ func TestTopQueriesSearch(t *testing.T) {
 		_, got, text = search(t, false, searchReport(t, maxSearchCandidates-1, 0, many[1:]...), map[string]any{"search": "users"})
 		assert.Empty(t, got.Note)
 		assert.NotContains(t, text, "The search read")
+
+		// The note says that QAN has rows the search did not read, so it needs more matching rows than were read.
+		_, got, _ = search(t, false, searchReport(t, maxSearchCandidates, 0, many...), map[string]any{"search": "users"})
+		assert.Empty(t, got.Note, "every matching row was read")
+		_, got, _ = search(t, false, searchReport(t, maxSearchCandidates+1, 0, many...), map[string]any{"search": "users"})
+		assert.Equal(t, want, got.Note)
 	})
 }
 
@@ -1563,4 +1640,20 @@ func TestFingerprintUnknownEngineMasksEitherQuoting(t *testing.T) {
 		assert.False(t, quoted, fp)
 		assert.Equal(t, want, fingerprintText(fp, "", false), fp)
 	}
+}
+
+// TestRowAverageFromNestedCalls pins that a row whose top-level count is 0 takes its calls from the nested
+// num_queries before it derives the average from them.
+func TestRowAverageFromNestedCalls(t *testing.T) {
+	t.Parallel()
+
+	var row qanReportRow
+	err := json.Unmarshal([]byte(`{"dimension": "app", "metrics": {
+		"num_queries": {"stats": {"sum": 4}},
+		"query_time": {"stats": {"sum": 8}}}}`), &row)
+	require.NoError(t, err)
+
+	r := (&reportQuery{groupBy: "username", orderBy: "load"}).row(row, 1, "", false)
+	assert.InDelta(t, 4, r.Calls, 0)
+	assert.InDelta(t, 2, r.QueryTimeAvg, 0)
 }

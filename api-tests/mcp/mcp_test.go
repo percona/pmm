@@ -20,6 +20,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
+	"maps"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -205,6 +206,59 @@ func TestUnauthenticated(t *testing.T) {
 	require.NoError(t, json.Unmarshal(b, &m))
 	assert.EqualValues(t, 16, m["code"])
 	assert.Equal(t, "Unauthorized", m["message"])
+}
+
+// postAdmin sends body to /mcp with the admin credentials and header, and returns the status and body of the answer.
+func postAdmin(t *testing.T, body string, header http.Header) (int, string) {
+	t.Helper()
+
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, endpoint(), strings.NewReader(body))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json, text/event-stream")
+	maps.Copy(req.Header, header)
+
+	resp, err := httpClient(true).Do(req)
+	require.NoError(t, err)
+	t.Cleanup(func() { assert.NoError(t, resp.Body.Close()) })
+	b, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	t.Logf("Response: %d %s", resp.StatusCode, b)
+	return resp.StatusCode, string(b)
+}
+
+// TestOrigin checks the cross-origin check behind nginx, which passes the client's Host on to pmm-managed.
+func TestOrigin(t *testing.T) {
+	t.Parallel()
+
+	initialize := `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"pmm-api-tests","version":"1"}}}`
+
+	t.Run("CrossSite", func(t *testing.T) {
+		t.Parallel()
+
+		status, _ := postAdmin(t, initialize, http.Header{"Origin": {"https://mcp-client.example"}})
+		assert.Equal(t, http.StatusForbidden, status)
+	})
+
+	t.Run("SameOrigin", func(t *testing.T) {
+		t.Parallel()
+
+		origin := pmmapitests.BaseURL.Scheme + "://" + pmmapitests.BaseURL.Host
+		status, body := postAdmin(t, initialize, http.Header{"Origin": {origin}})
+		assert.Equal(t, http.StatusOK, status)
+		assert.Contains(t, body, `"pmm-mcp"`)
+	})
+}
+
+// TestBatchRefused checks that a JSON-RPC batch gets 400 through nginx, on the last protocol version that has batches.
+func TestBatchRefused(t *testing.T) {
+	t.Parallel()
+
+	batch := `[{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pmm_version","arguments":{}}},` +
+		`{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"pmm_version","arguments":{}}}]`
+	status, body := postAdmin(t, batch, http.Header{"Mcp-Protocol-Version": {"2025-03-26"}})
+	assert.Equal(t, http.StatusBadRequest, status)
+	assert.Equal(t, "JSON-RPC batches are not supported\n", body)
 }
 
 func TestListTools(t *testing.T) {

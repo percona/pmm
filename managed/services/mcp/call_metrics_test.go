@@ -17,11 +17,14 @@ package mcp
 
 import (
 	"context"
+	"fmt"
 	"maps"
 	"testing"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -120,6 +123,43 @@ func TestToolCallMetrics(t *testing.T) {
 
 	assert.InDelta(t, float64(len(codes)+3), gathered(t, reg, "pmm_managed_mcp_tool_duration_seconds", tool), 0)
 	assert.Zero(t, gathered(t, reg, "pmm_managed_mcp_tool_calls_in_flight", tool))
+}
+
+// TestCanceledToolCall pins that a call its client abandons is counted and logged as canceled, at Debug, and not as
+// pmm_unavailable.
+func TestCanceledToolCall(t *testing.T) {
+	t.Parallel()
+
+	reg := prometheus.NewRegistry()
+	started := make(chan struct{})
+	session, hook := serveTestTool(t, Params{API: &mockPmmAPI{}, Registerer: reg},
+		func(ctx context.Context, _ *mcp.CallToolRequest, _ testInput) (testResult, error) {
+			close(started)
+			<-ctx.Done()
+			return testResult{}, fmt.Errorf("Get \"http://127.0.0.1/v1/server/version\": %w", ctx.Err())
+		})
+	calls := func(code string) float64 {
+		return gathered(t, reg, "pmm_managed_mcp_tool_calls_total", map[string]string{"tool": "pmm_test", "code": code})
+	}
+
+	ctx, cancel := context.WithCancel(t.Context())
+	done := make(chan error)
+	go func() {
+		_, err := session.CallTool(ctx, &mcp.CallToolParams{Name: "pmm_test", Arguments: map[string]any{}})
+		done <- err
+	}()
+	<-started
+	cancel()
+	require.Error(t, <-done)
+
+	// The call is counted before it is logged.
+	require.Eventually(t, func() bool { return len(hook.AllEntries()) > 0 }, 5*time.Second, 10*time.Millisecond)
+	entry := hook.AllEntries()[0]
+	assert.Equal(t, "Tool call failed.", entry.Message)
+	assert.Equal(t, "canceled", entry.Data["code"])
+	assert.Equal(t, logrus.DebugLevel, entry.Level)
+	assert.InDelta(t, 1, calls("canceled"), 0)
+	assert.Zero(t, calls(string(codePMMUnavailable)))
 }
 
 func TestToolCallMetricsRegistration(t *testing.T) {

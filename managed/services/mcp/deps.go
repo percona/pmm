@@ -174,17 +174,17 @@ type queryMetrics struct {
 	Metadata    *queryMetadata         `json:"metadata"`
 }
 
-// grafanaAlert is one firing alert of a rule that Grafana's rules API returned to the caller.
+// grafanaAlert is one firing, recovering or pending alert of a rule that Grafana's rules API returned to the caller.
 type grafanaAlert struct {
-	RuleUID string
-	// PMMRule is true for a rule PMM provisions: file provenance and a UID of PMM's catalog.
-	PMMRule     bool
+	RuleUID     string
 	Labels      map[string]string
 	Annotations map[string]string
 	// Pending is true for an alert whose rule waits out its pending period, false for a firing one.
-	Pending  bool
-	StartsAt time.Time
-	Silenced bool
+	Pending bool
+	// Recovering is true for an alert whose condition cleared but whose rule keeps it firing for its keep-firing-for period.
+	Recovering bool
+	StartsAt   time.Time
+	Silenced   bool
 	// SilencedUntil is the latest end of the silences that mute the alert; nil when it is not silenced or no end is known.
 	SilencedUntil *time.Time
 

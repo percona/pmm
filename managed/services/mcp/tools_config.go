@@ -19,6 +19,7 @@ import (
 	"cmp"
 	"context"
 	"fmt"
+	"regexp"
 	"slices"
 	"sort"
 	"strconv"
@@ -52,17 +53,24 @@ type configResult struct {
 	Variables   []variable `json:"variables" jsonschema:"Variables on this page, sorted by name."`
 	Page        page       `json:"page" jsonschema:"Paging of the variables that match filter."`
 	PMMURL      string     `json:"pmm_url" jsonschema:"Link to the service in PMM Query Analytics, over the hour before at."`
+
+	// unfiltered is how many variables the service has, set when a filter is given.
+	unfiltered int
 }
 
 // variable is one server variable of a pmm_get_config result.
 type variable struct {
-	Name  string `json:"name" jsonschema:"Variable name, without the exporter's metric prefix."`
+	Name  string `json:"name" jsonschema:"Untrusted. Variable name, without the exporter's metric prefix."`
 	Value string `json:"value" jsonschema:"Untrusted. Value as PMM's metrics hold it."`
 }
 
 func (r configResult) render() string {
 	view := link("View this service in PMM QAN", r.PMMURL)
 	at := "At: " + r.At.UTC().Format(time.RFC3339)
+	if r.Page.Total == 0 && r.unfiltered > 0 {
+		return fmt.Sprintf("None of the service's %d configuration variables match the filter: check its text, or call pmm_get_config without it.\n", r.unfiltered) +
+			at + "\n\n" + view
+	}
 	if r.Page.Total == 0 {
 		return "No configuration variables found for that service (check the service and that its metrics are being collected).\n" + at + "\n\n" + view
 	}
@@ -76,7 +84,11 @@ func (r configResult) render() string {
 	}
 	lines := []string{header, "-- " + at}
 	for _, v := range r.Variables {
-		lines = append(lines, v.Name+"\t"+v.Value)
+		name := v.Name
+		if !plainVariableName.MatchString(name) {
+			name = strconv.Quote(name)
+		}
+		lines = append(lines, name+"\t"+v.Value)
 	}
 	text := strings.Join(lines, "\n") + "\n\n" + view
 	if m := r.Page.marker(); m != "" {
@@ -84,6 +96,9 @@ func (r configResult) render() string {
 	}
 	return text
 }
+
+// plainVariableName is what a variable name taken from an exporter's metric name looks like; the text quotes any other.
+var plainVariableName = regexp.MustCompile(`^[a-zA-Z0-9_:]+$`)
 
 // configMetrics maps an engine to the metric prefix the exporter uses for
 // numeric server variables.
@@ -198,6 +213,9 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 		Variables:   make([]variable, 0, len(paged)),
 		Page:        pg,
 		PMMURL:      qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), serviceName, at.Add(-hourWindow), at),
+	}
+	if in.Filter != "" {
+		r.unfiltered = len(variables)
 	}
 	for _, name := range paged {
 		r.Variables = append(r.Variables, variable{Name: name, Value: variables[name]})

@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -64,6 +65,10 @@ const (
 
 	// Bound of QAN's filter lists read into memory.
 	maxQANFiltersBytes = 4 << 20
+
+	// Bound of a QAN report or query-metrics response read into memory. The largest one MCP asks for, a 200-row
+	// search report with 14 columns, 239-point sparklines and 2,048-character fingerprints, is about 9.2 MiB.
+	maxQANResponseBytes = 16 << 20
 
 	// One mebibyte, the unit in which a read limit is reported.
 	mib = 1 << 20
@@ -144,7 +149,7 @@ type client struct {
 }
 
 // vmDefaultMaxConcurrentRequests is VictoriaMetrics' default -search.maxConcurrentRequests on cpus CPUs, as
-// getDefaultMaxConcurrentRequests in app/victoria-metrics/main.go computes it at v1.154.0.
+// getDefaultMaxConcurrentRequests in app/victoria-metrics/main.go computes it at v1.156.0.
 func vmDefaultMaxConcurrentRequests(cpus int) int {
 	return min(vmRequestsPerCPU*cpus, maxVMDefaultRequests)
 }
@@ -164,7 +169,8 @@ func maxVMRequestsPerReplica() int {
 	return max(limit/vmReplicaShare, 1)
 }
 
-// newClient builds a pmmAPI implementation against the given base URL.
+// newClient builds a pmmAPI implementation against the given base URL, whose host must be a loopback address or
+// localhost, so that the caller's credentials never leave the server.
 //
 // Its errors never echo the URL: it comes from PMM_DEV_MCP_LOOPBACK_URL, can
 // carry userinfo or a query token, and main logs this error on startup.
@@ -175,6 +181,11 @@ func newClient(baseURL string) (*client, error) {
 	}
 	if base.Scheme == "" || base.Host == "" {
 		return nil, errors.New("invalid loopback URL (PMM_DEV_MCP_LOOPBACK_URL): scheme and host are required")
+	}
+	host := base.Hostname()
+	ip := net.ParseIP(host)
+	if !strings.EqualFold(host, "localhost") && (ip == nil || !ip.IsLoopback()) {
+		return nil, errors.New("invalid loopback URL (PMM_DEV_MCP_LOOPBACK_URL): the host must be a loopback address or localhost")
 	}
 	if base.Path == "" {
 		base.Path = "/"
@@ -253,6 +264,11 @@ func (t *statusTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	resp, err := t.next.RoundTrip(req)
 	if err != nil {
 		return nil, err
+	}
+	if resp.StatusCode >= http.StatusMultipleChoices && resp.StatusCode < http.StatusBadRequest {
+		// An error here stops both HTTP clients from following the redirect, so the caller's credentials stay on the loopback.
+		_ = resp.Body.Close()
+		return nil, &statusError{status: resp.StatusCode, method: req.Method, path: req.URL.Path, message: "a backing call does not follow redirects"}
 	}
 	if resp.StatusCode < http.StatusBadRequest {
 		return resp, nil
@@ -544,16 +560,15 @@ func listValues(match []string, start, end time.Time, limit int) url.Values {
 	return v
 }
 
-// Alerts returns the firing and pending alerts of the rules Grafana's rules API returns to the caller, which follows the caller's folder permissions.
+// Alerts returns the firing, recovering and pending alerts of the rules Grafana's rules API returns to the caller, which follows the caller's folder permissions.
 func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, error) {
 	var resp struct {
 		Status string `json:"status"`
 		Data   struct {
 			Groups []struct {
 				Rules []struct {
-					UID        string `json:"uid"`
-					Provenance string `json:"provenance"`
-					Alerts     []struct {
+					UID    string `json:"uid"`
+					Alerts []struct {
 						Labels      map[string]string `json:"labels"`
 						Annotations map[string]string `json:"annotations"`
 						State       string            `json:"state"`
@@ -563,7 +578,7 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 			} `json:"groups"`
 		} `json:"data"`
 	}
-	err := c.getAlertingJSON(ctx, auth, "graph/api/prometheus/grafana/api/v1/rules", url.Values{"state": {"firing", "pending"}}, &resp)
+	err := c.getAlertingJSON(ctx, auth, "graph/api/prometheus/grafana/api/v1/rules", url.Values{"state": {"firing", "recovering", "pending"}}, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -574,15 +589,15 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 	var out []grafanaAlert
 	for _, group := range resp.Data.Groups {
 		for _, rule := range group.Rules {
-			pmmRule := isPMMRule(rule.Provenance, rule.UID)
 			for _, a := range rule.Alerts {
-				// A state is Alerting or Pending, alone or with a reason, such as "Alerting (NoData)".
+				// A state is Alerting, Recovering or Pending, alone or with a reason, such as "Alerting (NoData)".
 				firing := a.State == "Alerting" || strings.HasPrefix(a.State, "Alerting (")
+				recovering := a.State == "Recovering" || strings.HasPrefix(a.State, "Recovering (")
 				pending := a.State == "Pending" || strings.HasPrefix(a.State, "Pending (")
-				if !firing && !pending {
+				if !firing && !recovering && !pending {
 					continue
 				}
-				alert := grafanaAlert{RuleUID: rule.UID, PMMRule: pmmRule, Labels: a.Labels, Annotations: a.Annotations, Pending: pending}
+				alert := grafanaAlert{RuleUID: rule.UID, Labels: a.Labels, Annotations: a.Annotations, Pending: pending, Recovering: recovering}
 				if a.ActiveAt != nil {
 					alert.StartsAt = a.ActiveAt.UTC()
 				}
@@ -634,7 +649,11 @@ func (c *client) getVM(ctx context.Context, auth callerAuth, uid, endpoint strin
 	case c.vmSlots <- struct{}{}:
 		defer func() { <-c.vmSlots }()
 	case <-ctx.Done():
-		return newToolError(codeTimeout, "no free metrics request slot before the deadline: %s", ctx.Err())
+		err := ctx.Err()
+		if errors.Is(err, context.Canceled) {
+			return fmt.Errorf("waiting for a metrics request slot: %w", err)
+		}
+		return newToolError(codeTimeout, "no free metrics request slot before the deadline: %s", err)
 	}
 
 	path := "graph/api/datasources/proxy/uid/" + url.PathEscape(uid) + "/" + endpoint
@@ -656,9 +675,10 @@ func (c *client) getAlertingJSON(ctx context.Context, auth callerAuth, path stri
 	return err
 }
 
-// postJSON performs an authenticated POST with a JSON body and decodes the response.
+// postJSON performs an authenticated POST with a JSON body and decodes the response, of which it reads at most
+// maxQANResponseBytes.
 func (c *client) postJSON(ctx context.Context, auth callerAuth, path string, body, out any) error {
-	return c.postJSONLimited(ctx, auth, path, body, out, 0)
+	return c.postJSONLimited(ctx, auth, path, body, out, maxQANResponseBytes)
 }
 
 // postJSONLimited is postJSON that reads at most maxBytes of the response, as doJSONLimited does.

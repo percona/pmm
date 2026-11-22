@@ -1,0 +1,8 @@
+{
+  "total_rows": 2,
+  "rows": [
+    {"rank": 0, "dimension": "", "fingerprint": "", "num_queries": 170, "load": 0.26, "metrics": {}},
+    {"rank": 1, "dimension": "Q-MY", "fingerprint": "SELECT `id` FROM `o'neil` WHERE `id` = ?", "num_queries": 100, "load": 0.2, "metrics": {}},
+    {"rank": 2, "dimension": "Q-X') OR ('1", "fingerprint": "SELECT \"id\" FROM \"users\" WHERE \"email\" = $1", "num_queries": 70, "load": 0.06, "metrics": {}}
+  ]
+}

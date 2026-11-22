@@ -1,0 +1,248 @@
+{
+  "explainVersion": "1",
+  "queryPlanner": {
+    "namespace": "shop.logs",
+    "parsedQuery": {
+      "$and": [
+        {
+          "host": {
+            "$eq": "db9.zq-internal.example"
+          }
+        },
+        {
+          "severity": {
+            "$gte": {
+              "$numberInt": "4417"
+            }
+          }
+        }
+      ]
+    },
+    "indexFilterSet": false,
+    "queryHash": "A6016E4E",
+    "planCacheShapeHash": "A6016E4E",
+    "planCacheKey": "D0FF986E",
+    "optimizationTimeMillis": {
+      "$numberInt": "0"
+    },
+    "maxIndexedOrSolutionsReached": false,
+    "maxIndexedAndSolutionsReached": false,
+    "maxScansToExplodeReached": false,
+    "prunedSimilarIndexes": false,
+    "winningPlan": {
+      "isCached": false,
+      "stage": "FETCH",
+      "inputStage": {
+        "stage": "IXSCAN",
+        "keyPattern": {
+          "host": {
+            "$numberInt": "1"
+          },
+          "severity": {
+            "$numberInt": "1"
+          }
+        },
+        "indexName": "host_1_severity_1",
+        "isMultiKey": false,
+        "multiKeyPaths": {
+          "host": [],
+          "severity": []
+        },
+        "isUnique": false,
+        "isSparse": false,
+        "isPartial": false,
+        "indexVersion": {
+          "$numberInt": "2"
+        },
+        "direction": "forward",
+        "indexBounds": {
+          "host": [
+            "[\"db9.zq-internal.example\", \"db9.zq-internal.example\"]"
+          ],
+          "severity": [
+            "[4417, inf.0]"
+          ]
+        }
+      }
+    },
+    "rejectedPlans": []
+  },
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": {
+      "$numberInt": "0"
+    },
+    "executionTimeMillis": {
+      "$numberInt": "0"
+    },
+    "totalKeysExamined": {
+      "$numberInt": "0"
+    },
+    "totalDocsExamined": {
+      "$numberInt": "0"
+    },
+    "executionStages": {
+      "isCached": false,
+      "stage": "FETCH",
+      "nReturned": {
+        "$numberInt": "0"
+      },
+      "executionTimeMillisEstimate": {
+        "$numberInt": "0"
+      },
+      "works": {
+        "$numberInt": "1"
+      },
+      "advanced": {
+        "$numberInt": "0"
+      },
+      "needTime": {
+        "$numberInt": "0"
+      },
+      "needYield": {
+        "$numberInt": "0"
+      },
+      "saveState": {
+        "$numberInt": "0"
+      },
+      "restoreState": {
+        "$numberInt": "0"
+      },
+      "isEOF": {
+        "$numberInt": "1"
+      },
+      "docsExamined": {
+        "$numberInt": "0"
+      },
+      "alreadyHasObj": {
+        "$numberInt": "0"
+      },
+      "inputStage": {
+        "stage": "IXSCAN",
+        "nReturned": {
+          "$numberInt": "0"
+        },
+        "executionTimeMillisEstimate": {
+          "$numberInt": "0"
+        },
+        "works": {
+          "$numberInt": "1"
+        },
+        "advanced": {
+          "$numberInt": "0"
+        },
+        "needTime": {
+          "$numberInt": "0"
+        },
+        "needYield": {
+          "$numberInt": "0"
+        },
+        "saveState": {
+          "$numberInt": "0"
+        },
+        "restoreState": {
+          "$numberInt": "0"
+        },
+        "isEOF": {
+          "$numberInt": "1"
+        },
+        "keyPattern": {
+          "host": {
+            "$numberInt": "1"
+          },
+          "severity": {
+            "$numberInt": "1"
+          }
+        },
+        "indexName": "host_1_severity_1",
+        "isMultiKey": false,
+        "multiKeyPaths": {
+          "host": [],
+          "severity": []
+        },
+        "isUnique": false,
+        "isSparse": false,
+        "isPartial": false,
+        "indexVersion": {
+          "$numberInt": "2"
+        },
+        "direction": "forward",
+        "indexBounds": {
+          "host": [
+            "[\"db9.zq-internal.example\", \"db9.zq-internal.example\"]"
+          ],
+          "severity": [
+            "[4417, inf.0]"
+          ]
+        },
+        "keysExamined": {
+          "$numberInt": "0"
+        },
+        "seeks": {
+          "$numberInt": "1"
+        },
+        "dupsTested": {
+          "$numberInt": "0"
+        },
+        "dupsDropped": {
+          "$numberInt": "0"
+        }
+      }
+    },
+    "allPlansExecution": []
+  },
+  "queryShapeHash": "65DDD0DF017B940AB850A894949CDD98BF148CD70FA3537E8889BDD40C61B41A",
+  "command": {
+    "find": "logs",
+    "filter": {
+      "host": "db9.zq-internal.example",
+      "severity": {
+        "$gte": {
+          "$numberInt": "4417"
+        }
+      }
+    },
+    "$db": "shop"
+  },
+  "serverInfo": {
+    "host": "84eb35d83431",
+    "port": {
+      "$numberInt": "27017"
+    },
+    "version": "8.0.38-16",
+    "gitVersion": "698ce1e560ca22dc7a65bb189cae1964b9220661"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalQueryFacetMaxOutputDocSizeBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalDocumentSourceGroupMaxMemoryBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalQueryMaxBlockingSortMemoryUsageBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalQueryProhibitBlockingMergeOnMongoS": {
+      "$numberInt": "0"
+    },
+    "internalQueryMaxAddToSetBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalQueryFrameworkControl": "trySbeRestricted",
+    "internalQueryPlannerIgnoreIndexWithCollationForRegex": {
+      "$numberInt": "1"
+    }
+  },
+  "ok": {
+    "$numberDouble": "1.0"
+  }
+}

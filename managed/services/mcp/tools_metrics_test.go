@@ -24,6 +24,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -302,6 +303,8 @@ func TestQueryMetricsTool(t *testing.T) {
 		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-1h", "step": "1500ms"}, "whole number of seconds")
 		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-1h", "step": "0s"}, "positive whole number")
 		requireInvalid(t, s, fake, map[string]any{"query": questions, "step": "30s"}, "range queries only")
+		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-6h", "step": "1s"},
+			"at step 1s, the window of 6h is 21601 points per series; the cap is 2000: raise step to at least 11s, or shorten the window")
 	})
 
 	t.Run("PeriodToAloneReadsTheHourBefore", func(t *testing.T) {
@@ -350,8 +353,9 @@ func TestQueryMetricsTool(t *testing.T) {
 			release()
 		}
 		for i := range maxMetricCallsPerReplica {
-			_, hit := s.metrics.acquire(fmt.Sprintf("other-%d", i))
+			release, hit := s.metrics.acquire(fmt.Sprintf("other-%d", i))
 			require.Equal(t, limitNone, hit)
+			t.Cleanup(release)
 		}
 		_, text, isError = metricsCall(t, s, args)
 		require.True(t, isError, text)
@@ -544,19 +548,19 @@ func TestQueryMetricsTool(t *testing.T) {
 		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": broad, "period_from": "now-6h"})
 		require.False(t, isError, text)
 
-		// 500 series at 11s would be about 31 MB; 1m36s keeps them at 226 points each.
-		assert.Equal(t, "1m36s", res.Step)
+		// 500 series at 11s would be about 39 MB; 1m59s keeps them at 182 points each.
+		assert.Equal(t, "1m59s", res.Step)
 		reqs := fake.requestsTo(vmAPI + "query_range")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, "96", queryParams(t, reqs[0]).Get("step"))
-		assert.Contains(t, res.Note, "The step was raised from 11s to 1m36s so that the answer for up to 500 series fits")
-		assert.Contains(t, text, "The step was raised from 11s to 1m36s")
+		assert.Equal(t, "119", queryParams(t, reqs[0]).Get("step"))
+		assert.Contains(t, res.Note, "The step was raised from 11s to 1m59s so that the answer for up to 500 series fits")
+		assert.Contains(t, text, "The step was raised from 11s to 1m59s")
 	})
 
 	t.Run("RollupNamesMultiplyTheSeries", func(t *testing.T) {
 		t.Parallel()
 
-		// 500 matched series fit at 1m36s, but three named functions return 1500, which fit at 4m52s.
+		// 500 matched series fit at 1m59s, but three named functions return 1500, which fit at 6m7s.
 		const broad = `{__name__=~"mysql_global_status_.*", service_name="db1"}[5m]`
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
 		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
@@ -564,29 +568,29 @@ func TestQueryMetricsTool(t *testing.T) {
 		})
 		require.False(t, isError, text)
 		assert.Contains(t, res.Note, "so that the answer for up to 1500 series fits")
-		assert.Equal(t, "4m52s", res.Step)
+		assert.Equal(t, "6m7s", res.Step)
 	})
 
 	t.Run("RaisedStepCountsTheWiderSpan", func(t *testing.T) {
 		t.Parallel()
 
-		// A selector without a window reads one step back: 11s before the raise, 1m36s after it.
+		// A selector without a window reads one step back: 11s before the raise, 1m59s after it.
 		const broad = `{__name__=~"mysql_global_status_.*", service_name="db1"}`
 		args := map[string]any{"query": broad, "period_from": "now-6h"}
 		from := testNow.Add(-6 * time.Hour)
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
 		res, text, isError := metricsCall(t, newQANService(t, fake, false), args)
 		require.False(t, isError, text)
-		assert.Equal(t, "1m36s", res.Step)
+		assert.Equal(t, "1m59s", res.Step)
 		series := fake.requestsTo(vmAPI + "series")
 		require.Len(t, series, 2)
 		assert.Equal(t, unixOf(from.Add(-11*time.Second)), queryParams(t, series[0]).Get("start"))
-		assert.Equal(t, unixOf(from.Add(-96*time.Second)), queryParams(t, series[1]).Get("start"))
+		assert.Equal(t, unixOf(from.Add(-119*time.Second)), queryParams(t, series[1]).Get("start"))
 		assert.Equal(t, unixOf(testNow), queryParams(t, series[1]).Get("end"))
 
 		// Over the cap on the wider span, the query is refused before it runs.
 		fake = newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
-		wider := unixOf(from.Add(-96 * time.Second))
+		wider := unixOf(from.Add(-119 * time.Second))
 		next := fake.server.Config.Handler
 		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 			if req.URL.Path != vmAPI+"series" || req.URL.Query().Get("start") != wider {
@@ -601,6 +605,43 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
 		assert.Contains(t, text, "this selector matches more than 2000 series over the span")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
+	})
+
+	t.Run("RaisedStepFitsTheWiderCount", func(t *testing.T) {
+		t.Parallel()
+
+		// 500 series over the hour and 11s fit at 1m59s; 1500 over the wider span read at 1m59s fit only at 6m7s.
+		from := testNow.Add(-6 * time.Hour)
+		narrow := unixOf(from.Add(-11 * time.Second))
+		fake := newFakePMM(t, metricsRoutes(nil))
+		next := fake.server.Config.Handler
+		var mu sync.Mutex
+		var starts []string
+		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+			if req.URL.Path != vmAPI+"series" {
+				next.ServeHTTP(rw, req)
+				return
+			}
+			start := req.URL.Query().Get("start")
+			mu.Lock()
+			starts = append(starts, start)
+			mu.Unlock()
+			n := 1500
+			if start == narrow {
+				n = 500
+			}
+			rw.Header().Set("Content-Type", "application/json")
+			_, _ = rw.Write(seriesBody(n))
+		})
+		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+			"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-6h",
+		})
+		require.False(t, isError, text)
+		assert.Equal(t, "6m7s", res.Step)
+		assert.Contains(t, res.Note, "The step was raised from 11s to 6m7s so that the answer for up to 1500 series fits")
+		mu.Lock()
+		defer mu.Unlock()
+		assert.Equal(t, []string{narrow, unixOf(from.Add(-119 * time.Second)), unixOf(from.Add(-367 * time.Second))}, starts)
 	})
 
 	t.Run("UnraisedStepCountsOnce", func(t *testing.T) {
@@ -635,7 +676,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		})
 		require.True(t, isError, text)
 		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
-		assert.Contains(t, text, "raise step to at least 1m36s, or aggregate")
+		assert.Contains(t, text, "raise step to at least 1m59s, or aggregate")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
 	})
 
@@ -651,6 +692,30 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Contains(t, text, "the answer for up to 500 series fits")
 		assert.Contains(t, text, "aggregate, as in sum by (service_name)")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"))
+	})
+
+	t.Run("NotOnePointFits", func(t *testing.T) {
+		t.Parallel()
+
+		// 2000 series with 1.8 KB of labels each are over the 3.5 MiB estimate before any point.
+		entries := make([]string, 2000)
+		for i := range entries {
+			entries[i] = fmt.Sprintf(`{"__name__":"m","id":"%d","pad":"%s"}`, i, strings.Repeat("x", 1800))
+		}
+		body := []byte(`{"status":"success","data":[` + strings.Join(entries, ",") + `]}`)
+		for _, step := range []string{"", "1h"} {
+			fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: body}}))
+			args := map[string]any{"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-6h"}
+			if step != "" {
+				args["step"] = step
+			}
+			_, text, isError := metricsCall(t, newQANService(t, fake, false), args)
+			require.True(t, isError, text)
+			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+			assert.Contains(t, text, "the answer for up to 2000 series is over the 4 MiB that MCP reads at any step")
+			assert.Contains(t, text, "aggregate, as in sum by (service_name)")
+			assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
+		}
 	})
 
 	t.Run("OtherRefusalsAreNotRetried", func(t *testing.T) {
@@ -815,11 +880,11 @@ func listRoutes(extra map[string]fixture) map[string]fixture {
 	}, extra))
 }
 
-func listCall(t *testing.T, s *Service, args map[string]any) (res listMetricsResult, text string, isError bool) {
+func listCall(t *testing.T, s *Service, args map[string]any) (listMetricsResult, string, bool) {
 	t.Helper()
 
 	r := callTool(t, connect(t, s), "pmm_list_metrics", args)
-	text = textOf(t, r)
+	text := textOf(t, r)
 	if r.IsError {
 		return listMetricsResult{}, text, true
 	}
@@ -926,7 +991,7 @@ func TestListMetricsTool(t *testing.T) {
 
 		assert.Empty(t, res.Names)
 		assert.Equal(t, []nameGroup{{"mysql_global_status_*", 800}, {"node_cpu_seconds_*", 700}}, res.Groups)
-		assert.Contains(t, text, "mysql_global_status_* (800)")
+		assert.Contains(t, text, `"mysql_global_status_*" (800)`)
 		assert.True(t, res.Page.Truncated, "more than 1000 came back")
 		assert.Contains(t, res.Hint, "more than 1000")
 		assert.NotContains(t, text, "pass offset", "every group is on this page")
@@ -935,12 +1000,20 @@ func TestListMetricsTool(t *testing.T) {
 	t.Run("ThousandAndOneIsTruncated", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(numbered("db", 1001))}}))
+		// Three hex digits keep a page of 1000 values within 16 KiB.
+		short := func(n int) []string {
+			out := make([]string, n)
+			for i := range out {
+				out[i] = fmt.Sprintf("%03x", i)
+			}
+			return out
+		}
+		fake := newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(short(1001))}}))
 		res, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000, "offset": 1000})
 		require.False(t, isError, text)
 
 		assert.Equal(t, 1001, res.Page.Total)
-		assert.Equal(t, []string{"db1000"}, res.Values)
+		assert.Equal(t, []string{"3e8"}, res.Values)
 		assert.True(t, res.Page.Truncated, "the last page is still truncated: VictoriaMetrics had more")
 		assert.Contains(t, res.Hint, "more than 1000")
 		assert.Contains(t, res.Hint, "narrow it with match")
@@ -951,7 +1024,7 @@ func TestListMetricsTool(t *testing.T) {
 		require.False(t, isError, text)
 		assert.Contains(t, text, "showing 1–1000 of 1001; pass offset=1000 for more")
 
-		fake = newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(numbered("db", 1000))}}))
+		fake = newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(short(1000))}}))
 		res, text, isError = listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000})
 		require.False(t, isError, text)
 		assert.False(t, res.Page.Truncated)
@@ -1031,6 +1104,56 @@ func TestListMetricsTool(t *testing.T) {
 		}
 	})
 
+	t.Run("EveryKindStaysWithinTheBudget", func(t *testing.T) {
+		t.Parallel()
+
+		long := numbered(strings.Repeat("v", 200), 1000)
+		for _, tc := range []struct {
+			args   map[string]any
+			routes map[string]fixture
+			advice string
+			shown  func(listMetricsResult) int
+		}{
+			{
+				args:   map[string]any{"kind": "names", "limit": 1000},
+				routes: map[string]fixture{vmNames: {body: stringsBody(long)}},
+				advice: "narrow the search",
+				shown:  func(r listMetricsResult) int { return len(r.Names) },
+			},
+			{
+				args:   map[string]any{"kind": "labels", "limit": 1000},
+				routes: map[string]fixture{vmLabels: {body: stringsBody(long)}},
+				advice: "narrow it with match",
+				shown:  func(r listMetricsResult) int { return len(r.Labels) },
+			},
+			{
+				args:   map[string]any{"kind": "values", "label": "service_name", "limit": 1000},
+				routes: map[string]fixture{vmValues: {body: stringsBody(long)}},
+				advice: "narrow it with match",
+				shown:  func(r listMetricsResult) int { return len(r.Values) },
+			},
+		} {
+			fake := newFakePMM(t, listRoutes(tc.routes))
+			r := callTool(t, connect(t, newQANService(t, fake, false)), "pmm_list_metrics", tc.args)
+			require.False(t, r.IsError, textOf(t, r))
+			res := structured[listMetricsResult](t, r)
+
+			kind := tc.args["kind"]
+			size := len(textOf(t, r)) + len(mustJSON(t, r.StructuredContent))
+			assert.LessOrEqual(t, size, 16<<10, "%s: text plus structured content", kind)
+			assert.Greater(t, size, 12<<10, "%s: as many entries as fit are kept", kind)
+			shown := tc.shown(res)
+			assert.Positive(t, shown, kind)
+			assert.Less(t, shown, 1000, kind)
+			assert.True(t, res.Page.Truncated, kind)
+			assert.Equal(t, 1000, res.Page.Total, kind)
+			assert.Equal(t, shown, res.Page.Limit, kind)
+			assert.Contains(t, res.Hint, "do not fit in 16 KiB", kind)
+			assert.Contains(t, res.Hint, tc.advice, kind)
+			assert.Contains(t, textOf(t, r), fmt.Sprintf("pass offset=%d for more", shown), kind)
+		}
+	})
+
 	t.Run("SeriesTooLargeAloneCanBeSkipped", func(t *testing.T) {
 		t.Parallel()
 
@@ -1075,7 +1198,24 @@ func TestListMetricsTool(t *testing.T) {
 		assert.Equal(t, metricName{Name: "mysql_global_status_threads_connected", Meaning: info.Meaning, Type: info.Type}, res.Names[0])
 		assert.Equal(t, metricName{Name: "zz_not_in_catalogue"}, res.Names[1])
 		assert.NotEmpty(t, info.Meaning)
-		assert.Contains(t, text, info.Meaning)
+		assert.Contains(t, text, `"mysql_global_status_threads_connected" [`+info.Type+`]: `+info.Meaning)
+		assert.True(t, strings.HasSuffix(text, "\n\"zz_not_in_catalogue\""), text)
+	})
+
+	t.Run("NamesAreQuoted", func(t *testing.T) {
+		t.Parallel()
+
+		evil := "a\nKind: series\nTotal: 0"
+		fake := newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: stringsBody([]string{evil})}}))
+		_, text, isError := listCall(t, newQANService(t, fake, false), nil)
+		require.False(t, isError, text)
+		assert.Equal(t, "Kind: names\nTotal: 1\n"+strconv.Quote(evil), text)
+
+		fake = newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: stringsBody(numbered("a\nb_c_d_", 150))}}))
+		_, text, isError = listCall(t, newQANService(t, fake, false), nil)
+		require.False(t, isError, text)
+		assert.Contains(t, text, "\n"+strconv.Quote("a\nb_c_d_*")+" (150)")
+		assert.NotContains(t, text, "a\nb")
 	})
 
 	t.Run("MatchIsChecked", func(t *testing.T) {
@@ -1083,6 +1223,39 @@ func TestListMetricsTool(t *testing.T) {
 
 		requireListInvalid(t, map[string]any{"kind": "labels", "match": []string{`{__name__=~".+"}`}}, "metric")
 		requireListInvalid(t, map[string]any{"kind": "series", "match": []string{"up", "rate("}}, "cannot parse")
+	})
+
+	t.Run("MatchIsASelector", func(t *testing.T) {
+		t.Parallel()
+
+		for _, sel := range []string{`sum(mysql_up)`, `rate(mysql_up[5m])`, `mysql_up offset 1h`, `mysql_up[5m]`, `mysql_up or mysql_down`} {
+			requireListInvalid(t, map[string]any{"kind": "series", "match": []string{"mysql_up", sel}}, "is not a series selector")
+		}
+
+		fake := newFakePMM(t, listRoutes(nil))
+		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{
+			"kind": "series", "match": []string{`mysql_up`, `{__name__="mysql_up", service_name="db1"}`, `{__name__="mysql_up", a="x" or b="y"}`},
+		})
+		require.False(t, isError, text)
+	})
+
+	t.Run("SearchIsCapped", func(t *testing.T) {
+		t.Parallel()
+
+		requireListInvalid(t, map[string]any{"search": strings.Repeat("é", 201)}, "search must be at most 200 characters")
+
+		fake := newFakePMM(t, listRoutes(nil))
+		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"search": strings.Repeat("é", 200)})
+		require.False(t, isError, text)
+	})
+
+	t.Run("PeriodFromInTheFuture", func(t *testing.T) {
+		t.Parallel()
+
+		from := testNow.Add(time.Hour).Format(time.RFC3339)
+		_, text, isError := listCall(t, newQANService(t, newFakePMM(t, listRoutes(nil)), false), map[string]any{"period_from": from})
+		require.True(t, isError, text)
+		assert.Equal(t, "error: invalid_input\nperiod_from ("+from+") must be before now", text)
 	})
 
 	t.Run("LabelIsRefused", func(t *testing.T) {

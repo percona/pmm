@@ -22,6 +22,7 @@ import (
 	"maps"
 	"math"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -41,10 +42,10 @@ const maxPoints = 2000
 // maxHintExprBytes bounds the expression a hint quotes back, so that a long one cannot use up the byte budget.
 const maxHintExprBytes = 200
 
-// The estimate of a range answer's size: bytes per point, such as [1700000000,"12345"], per series besides its labels,
-// and per label besides its name and value, as in "name":"value",.
+// The estimate of a range answer's size: bytes per point, such as [1700000000,"0.0033333333333333335"], with a value of
+// up to 17 significant digits, per series besides its labels, and per label besides its name and value, as in "name":"value",.
 const (
-	answerPointBytes  = 32
+	answerPointBytes  = 40
 	answerSeriesBytes = 32
 	answerLabelBytes  = 6
 )
@@ -71,18 +72,18 @@ func answerBytes(m matchedSeries, span, step time.Duration) int {
 	return m.labelBytes + m.count*(answerSeriesBytes+points*answerPointBytes)
 }
 
-// answerStep returns the smallest step, not under step, whose answer of the matched series is within maxRangeAnswerBytes;
-// step itself when the answer fits, or when even one point per series does not.
-func answerStep(m matchedSeries, span, step time.Duration) time.Duration {
+// answerStep returns the smallest step, not under step, whose answer of the matched series is within maxRangeAnswerBytes,
+// and false when not even one point per series is.
+func answerStep(m matchedSeries, span, step time.Duration) (time.Duration, bool) {
 	if m.count == 0 || answerBytes(m, span, step) <= maxRangeAnswerBytes {
-		return step
+		return step, true
 	}
 	perSeries := (maxRangeAnswerBytes - m.labelBytes - m.count*answerSeriesBytes) / (m.count * answerPointBytes)
 	if perSeries < 1 {
-		return step
+		return step, false
 	}
 	// span/step + 1 points fit in perSeries when the step is over span/perSeries.
-	return max(step, (span/time.Duration(perSeries)).Truncate(time.Second)+time.Second)
+	return max(step, (span/time.Duration(perSeries)).Truncate(time.Second)+time.Second), true
 }
 
 // outPoint is one raw point of a series; V is null for NaN and ±Inf.
@@ -93,7 +94,7 @@ type outPoint struct {
 
 // seriesSummary is one series of a metrics result.
 type seriesSummary struct {
-	Labels map[string]string `json:"labels" jsonschema:"Untrusted. The series' labels other than shared_labels and PMM's internal ones; empty when there are none."`
+	Labels map[string]string `json:"labels" jsonschema:"Untrusted. Labels other than shared_labels and PMM's internal ones that tell no series apart; empty when none."`
 	Min    *float64          `json:"min" jsonschema:"Smallest finite value; null when there is none."`
 	Avg    *float64          `json:"avg" jsonschema:"Average of the finite values; null when there is none."`
 	Max    *float64          `json:"max" jsonschema:"Largest finite value; null when there is none."`
@@ -136,8 +137,12 @@ func (r metricsResult) render() string {
 	}
 	b.WriteString("\n")
 	for _, s := range r.Series {
-		fmt.Fprintf(&b, "%s min=%s avg=%s max=%s last=%s\n",
+		fmt.Fprintf(&b, "%s min=%s avg=%s max=%s last=%s",
 			renderLabels(s.Labels), fmtOptional(s.Min), fmtOptional(s.Avg), fmtOptional(s.Max), fmtOptional(s.Last))
+		if !s.LastAt.IsZero() {
+			b.WriteString(" at " + s.LastAt.UTC().Format(time.RFC3339))
+		}
+		b.WriteString("\n")
 	}
 	if r.Hint != "" {
 		b.WriteString("\n" + r.Hint + "\n")
@@ -199,16 +204,46 @@ func shapeSeries(expr string, series []metricSeries, limit int, w *window, step,
 	}
 
 	raw := points <= maxPoints
+	if n := labelsFit(kept); n < len(kept) {
+		raw = false
+		kept = kept[:n]
+	}
 	res := buildMetricsResult(head, kept, len(series), raw)
-	if raw && metricsSize(res) > maxMetricsBytes {
+	size := metricsSize(res)
+	if raw && size > maxMetricsBytes {
 		raw = false
 		res = buildMetricsResult(head, kept, len(series), raw)
+		size = metricsSize(res)
 	}
-	for metricsSize(res) > maxMetricsBytes && len(kept) > 0 {
-		kept = kept[:len(kept)-1]
-		res = buildMetricsResult(head, kept, len(series), raw)
+	if size <= maxMetricsBytes {
+		return res
 	}
-	return res
+	// Each series kept adds a row, so the size grows with the count, and a binary search builds the result log2(limit) times.
+	fit := sort.Search(len(kept), func(n int) bool {
+		return metricsSize(buildMetricsResult(head, kept[:n+1], len(series), raw)) > maxMetricsBytes
+	})
+	return buildMetricsResult(head, kept[:fit], len(series), raw)
+}
+
+// labelsFit returns how many of the series, from the first, can fit in maxMetricsBytes: a result shows each distinct
+// label other than the internal ones at least once in its text and once in its JSON, which bounds its size from below.
+func labelsFit(series []rankedSeries) int {
+	seen := make(map[[2]string]bool)
+	size := 0
+	for i, s := range series {
+		for k, v := range s.summary.Labels {
+			if slices.Contains(internalLabels, k) || seen[[2]string{k, v}] {
+				continue
+			}
+			seen[[2]string{k, v}] = true
+			// Once in the text and once in the JSON.
+			size += len(k) + len(v) + len(k) + len(v)
+		}
+		if size > maxMetricsBytes {
+			return i
+		}
+	}
+	return len(series)
 }
 
 // metricsSize is what a response costs: its text plus its structured content.
@@ -218,16 +253,9 @@ func metricsSize(r metricsResult) int {
 	return len(r.render()) + len(b)
 }
 
-// rankSeries drops a series' internal labels and computes its statistics over the finite points.
+// rankSeries computes a series' statistics over the finite points.
 func rankSeries(s metricSeries) rankedSeries {
-	labels := make(map[string]string, len(s.Labels))
-	for k, v := range s.Labels {
-		if !slices.Contains(internalLabels, k) {
-			labels[k] = v
-		}
-	}
-
-	r := rankedSeries{summary: seriesSummary{Labels: labels}, max: math.Inf(-1), points: make([]outPoint, len(s.Points))}
+	r := rankedSeries{summary: seriesSummary{Labels: s.Labels}, max: math.Inf(-1), points: make([]outPoint, len(s.Points))}
 	var sum float64
 	finite := 0
 	lo, hi := math.Inf(1), math.Inf(-1)
@@ -273,9 +301,10 @@ func buildMetricsResult(head metricsResult, kept []rankedSeries, total int, raw 
 	res.Truncated = len(kept) < total
 	res.Summarized = !raw
 
+	labels := visibleLabels(kept)
 	var shared map[string]string
 	if len(kept) > 1 {
-		shared = sharedLabels(kept)
+		shared = sharedLabels(labels)
 	}
 	if len(shared) > 0 {
 		res.SharedLabels = shared
@@ -284,8 +313,8 @@ func buildMetricsResult(head metricsResult, kept []rankedSeries, total int, raw 
 	nonFinite := 0
 	for i, s := range kept {
 		row := s.summary
-		row.Labels = make(map[string]string, len(s.summary.Labels))
-		for k, v := range s.summary.Labels {
+		row.Labels = make(map[string]string, len(labels[i]))
+		for k, v := range labels[i] {
 			if _, ok := shared[k]; !ok {
 				row.Labels[k] = v
 			}
@@ -310,12 +339,53 @@ func buildMetricsResult(head metricsResult, kept []rankedSeries, total int, raw 
 	return res
 }
 
-// sharedLabels returns the labels that every series has with the same value.
-func sharedLabels(series []rankedSeries) map[string]string {
-	shared := maps.Clone(series[0].summary.Labels)
-	for _, s := range series[1:] {
+// visibleLabels returns the labels of each series without PMM's internal ones, except the internal ones whose
+// values differ between series that the other labels do not tell apart.
+func visibleLabels(series []rankedSeries) []map[string]string {
+	out := make([]map[string]string, len(series))
+	groups := make(map[string][]int)
+	for i, s := range series {
+		out[i] = make(map[string]string, len(s.summary.Labels))
+		for k, v := range s.summary.Labels {
+			if !slices.Contains(internalLabels, k) {
+				out[i][k] = v
+			}
+		}
+		key := renderLabels(out[i])
+		groups[key] = append(groups[key], i)
+	}
+
+	var keep []string
+	for _, group := range groups {
+		first := series[group[0]].summary.Labels
+		for _, k := range internalLabels {
+			v, ok := first[k]
+			differs := slices.ContainsFunc(group[1:], func(i int) bool {
+				w, has := series[i].summary.Labels[k]
+				return has != ok || w != v
+			})
+			if differs && !slices.Contains(keep, k) {
+				keep = append(keep, k)
+			}
+		}
+	}
+	for i, s := range series {
+		for _, k := range keep {
+			v, ok := s.summary.Labels[k]
+			if ok {
+				out[i][k] = v
+			}
+		}
+	}
+	return out
+}
+
+// sharedLabels returns the labels that every label set has with the same value.
+func sharedLabels(labels []map[string]string) map[string]string {
+	shared := maps.Clone(labels[0])
+	for _, l := range labels[1:] {
 		for k, v := range shared {
-			if got, ok := s.summary.Labels[k]; !ok || got != v {
+			if got, ok := l[k]; !ok || got != v {
 				delete(shared, k)
 			}
 		}

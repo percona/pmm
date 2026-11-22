@@ -23,6 +23,7 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"unicode"
 )
 
 // This file masks literal values in execution plans and agent errors when
@@ -35,6 +36,12 @@ import (
 
 // planWithheld replaces a plan body that could not be parsed for masking.
 const planWithheld = "(plan withheld: it could not be parsed to mask literal values, and PMM_MCP_RAW_SQL is off)"
+
+// planTooLarge replaces a plan over maxPlanInputBytes, which is not parsed.
+const planTooLarge = "(plan withheld: it is larger than 4 MiB, the most PMM parses of a plan)"
+
+// statementWithheld replaces the rewritten statement MySQL puts in a plan.
+const statementWithheld = "(statement withheld: MySQL's rewritten statement can quote values, and PMM_MCP_RAW_SQL is off)"
 
 // mongoLiteralKeys are the MongoDB explain keys whose subtrees hold query
 // values, numbers included: the echoed command whole, with its filter,
@@ -51,10 +58,10 @@ var mongoLiteralKeys = []string{
 
 // mongoPlanKeys are the MongoDB explain keys whose values are plan structure
 // or statistics, never a query value: stage, index and collection names, plan
-// hashes, server version, and the execution counters. Every other string and
-// number is masked, including the slot-based engine's "slots" and "stages"
-// text and the bounds of a find's min and max; an index's keyPattern is kept
-// as well.
+// hashes, server version, and the execution counters. They are kept only on
+// the plan's own structure (mongoPlanContainers), as is an index's keyPattern.
+// Every other string and number is masked, including the slot-based engine's
+// "slots" and "stages" text and the bounds of a find's min and max.
 var mongoPlanKeys = []string{
 	"stage", "indexName", "namespace", "direction", "queryFramework", "explainVersion",
 	"planCacheKey", "planCacheShapeHash", "queryHash", "queryShapeHash",
@@ -64,11 +71,18 @@ var mongoPlanKeys = []string{
 	"isEOF", "seeks", "dupsTested", "dupsDropped", "indexVersion", "ok",
 }
 
-// pgPropertyLine matches a PostgreSQL text-plan property line: "Filter:",
-// "Index Cond:", "Sort Key:", "Group Key:", "Output:" and every other
-// "<Label>: <value>" line under a node. Node lines never match: their text
-// reaches "(cost=" or "->" before any colon.
-var pgPropertyLine = regexp.MustCompile(`^(\s*[A-Za-z][A-Za-z0-9 -]*:)(.*)$`)
+// mongoPlanContainers are the MongoDB explain keys whose objects are the plan's
+// own structure. Any other object, such as a compound text index's indexPrefix
+// with the query's values under their field names, is masked whole.
+var mongoPlanContainers = []string{
+	"queryPlanner", "winningPlan", "rejectedPlans", "queryPlan", "slotBasedPlan", "inputStage", "inputStages",
+	"executionStats", "executionStages", "allPlansExecution", "serverInfo", "shards", "stages", "$cursor",
+}
+
+// pgEstimates matches the trailing "(cost=" and "(actual " groups of a
+// PostgreSQL text-plan node line, whose numbers are estimates and measurements.
+var pgEstimates = regexp.MustCompile(`(?:\s+\((?:cost=[0-9.]+\.\.[0-9.]+ rows=[0-9.]+ width=[0-9]+|` +
+	`actual (?:time=[0-9.]+\.\.[0-9.]+ )?rows=[0-9.]+ loops=[0-9]+)\))+$`)
 
 // mysqlValueNumbers are the JSON plan keys whose numbers come from the query's
 // own values rather than estimates, in format version 2: a Limit node's LIMIT
@@ -77,13 +91,18 @@ var pgPropertyLine = regexp.MustCompile(`^(\s*[A-Za-z][A-Za-z0-9 -]*:)(.*)$`)
 var mysqlValueNumbers = []string{"limit", "limit_offset", "per_chunk_limit"}
 
 // mysqlIdentifierKeys are the JSON plan keys that hold only names, which masking
-// would mangle; real_table_name is not one, as pmm-agent parses it from the query.
+// would mangle.
 var mysqlIdentifierKeys = []string{
 	"table_name", "alias", "schema_name", "key", "index_name", "possible_keys", "used_key_parts", "used_columns",
 }
 
 // pgIdentifierKeys are the JSON plan keys whose strings are only names.
 var pgIdentifierKeys = []string{"Relation Name", "Schema", "Alias", "Index Name", "CTE Name"}
+
+// mysqlOwnName matches the names MySQL gives its own tables and keys in a plan, such as <derived2>, <union1,2>,
+// <union temporary> and <auto_key0>.
+var mysqlOwnName = regexp.MustCompile(`^<(?:(?:derived|subquery|union|intersect|except|auto_key)[0-9]+(?:,[0-9]+)*|` +
+	`(?:union |intersect |except )?temporary|auto_distinct_key|group_key|hash_distinct_key)>$`)
 
 // mysqlNumber matches the numeric strings MySQL writes into a JSON plan -
 // costs, "filtered", data sizes such as "1K" - which are kept.
@@ -103,11 +122,12 @@ var mongoErrorName = regexp.MustCompile(`^\(([A-Za-z0-9]+)\) `)
 const mongoExplainPrefix = "cannot explain this type of query\n"
 
 // safeActionError matches the action errors that cannot quote the statement:
-// pmm-agent's own fixed texts (agent/runner/actions), and network errors,
-// which name only hosts and ports. Any other error message is withheld when
-// raw SQL is off.
+// pmm-agent's own fixed texts (agent/runner/actions, and the context error it
+// reports when an action outlives its limit), and network errors, which name
+// only hosts and ports. Any other error message is withheld when raw SQL is off.
 var safeActionError = regexp.MustCompile(`^(?:` +
 	`query to EXPLAIN is empty|` +
+	`context deadline exceeded|` +
 	`query EXPLAIN failed because the query exceeded max length and got trimmed\. Set max-query-length to a larger value|` +
 	`query EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE|` +
 	`cannot JSON encode the explain response|` +
@@ -138,7 +158,19 @@ func maskSQLLiterals(s string, doubleQuotedStrings bool) string {
 // maskSQL is maskSQLLiterals that also reports whether s holds a quoted or
 // dollar-quoted string outside its comments, under either backslash reading.
 func maskSQL(s string, doubleQuotedStrings bool) (string, bool) {
-	marks := sqlMarks(s, doubleQuotedStrings)
+	marks := sqlMarks(s, doubleQuotedStrings, false)
+	return renderMarks(s, marks), slices.Contains(marks, stringMark)
+}
+
+// maskMySQLPlanText masks a text of a MySQL plan like maskSQLLiterals, and the
+// text of every backquoted name that is not a plain name: MySQL names an
+// unaliased select-list expression after its own text, literals included.
+func maskMySQLPlanText(s string) string {
+	return renderMarks(s, sqlMarks(s, true, true))
+}
+
+// renderMarks writes s with each run of marked bytes replaced by one ?.
+func renderMarks(s string, marks []byte) string {
 	var b strings.Builder
 	b.Grow(len(s))
 	for i := range len(s) {
@@ -149,31 +181,34 @@ func maskSQL(s string, doubleQuotedStrings bool) (string, bool) {
 			b.WriteByte('?')
 		}
 	}
-	return b.String(), slices.Contains(marks, stringMark)
+	return b.String()
 }
 
 // Marks for the bytes of a SQL fragment; a higher one outranks a lower.
 const (
 	plainMark byte = iota
+	nameMark
 	commentMark
 	numberMark
 	stringMark
 )
 
 // sqlMarks marks the bytes of s that either backslash reading puts in a
-// literal or a comment.
-func sqlMarks(s string, doubleQuotedStrings bool) []byte {
-	marks := scanSQL(s, doubleQuotedStrings, true)
-	for i, m := range scanSQL(s, doubleQuotedStrings, false) {
+// literal or a comment, and with plainNames the text of each quoted
+// identifier that is not a plain name.
+func sqlMarks(s string, doubleQuotedStrings, plainNames bool) []byte {
+	marks := scanSQL(s, doubleQuotedStrings, true, plainNames)
+	for i, m := range scanSQL(s, doubleQuotedStrings, false, plainNames) {
 		marks[i] = max(marks[i], m)
 	}
 	return marks
 }
 
 // scanSQL marks the bytes of s that belong to a literal or a comment under one
-// backslash reading. Identifiers are never backslash-escaped, whatever the
-// reading.
-func scanSQL(s string, doubleQuotedStrings, backslashEscapes bool) []byte {
+// backslash reading, and with plainNames the text of each quoted identifier
+// that is not a plain name. Identifiers are never backslash-escaped, whatever
+// the reading; one that does not close is marked as a string to the end of s.
+func scanSQL(s string, doubleQuotedStrings, backslashEscapes, plainNames bool) []byte {
 	marks := make([]byte, len(s))
 	for i := 0; i < len(s); {
 		c := s[i]
@@ -191,7 +226,15 @@ func scanSQL(s string, doubleQuotedStrings, backslashEscapes bool) []byte {
 			}
 			i = markRange(marks, from, end, commentMark) + len("*/")
 		case (c == '`' && doubleQuotedStrings) || (c == '"' && !doubleQuotedStrings):
-			i = quotedEnd(s, i, false)
+			end, closed := quotedClose(s, i, false)
+			switch {
+			case !closed:
+				i = markRange(marks, i, len(s), stringMark)
+			case plainNames && !isPlainName(s[i+1:end-1]):
+				i = markRange(marks, i+1, end-1, nameMark) + 1
+			default:
+				i = end
+			}
 		case c == '\'' || c == '"':
 			i = markRange(marks, i, quotedEnd(s, i, backslashEscapes), stringMark)
 		case isDigit(c) && (i == 0 || !isIdentByte(s[i-1])):
@@ -252,10 +295,11 @@ func lineEnd(s string, i int) int {
 // dollarQuoteEnd returns the index just past the PostgreSQL dollar-quoted
 // string ($$...$$ or $tag$...$tag$) that starts at s[start], or false when
 // s[start] opens none, as in the $1 placeholder. An unterminated string
-// extends to the end of s.
+// extends to the end of s. A tag follows identifier rules, so its letters
+// include every non-ASCII byte.
 func dollarQuoteEnd(s string, start int) (int, bool) {
 	k := start + 1
-	for k < len(s) && s[k] != '$' && isIdentByte(s[k]) && (k > start+1 || !isDigit(s[k])) {
+	for k < len(s) && s[k] != '$' && (isIdentByte(s[k]) || s[k] >= 0x80) && (k > start+1 || !isDigit(s[k])) {
 		k++
 	}
 	if k >= len(s) || s[k] != '$' {
@@ -273,6 +317,12 @@ func dollarQuoteEnd(s string, start int) (int, bool) {
 // A doubled quote does not end it, nor, when backslashEscapes is set, a
 // backslash-escaped one; an unterminated run extends to the end of s.
 func quotedEnd(s string, start int, backslashEscapes bool) int {
+	end, _ := quotedClose(s, start, backslashEscapes)
+	return end
+}
+
+// quotedClose is quotedEnd that also reports whether the run closes.
+func quotedClose(s string, start int, backslashEscapes bool) (int, bool) {
 	q := s[start]
 	for j := start + 1; j < len(s); j++ {
 		switch {
@@ -283,37 +333,43 @@ func quotedEnd(s string, start int, backslashEscapes bool) int {
 				j++
 				continue
 			}
-			return j + 1
+			return j + 1, true
 		}
 	}
-	return len(s)
+	return len(s), false
 }
 
 // numberEnd returns the index just past the numeric literal that starts at
-// s[start]: decimal, fractional, exponent, 0x-hex or 0b-binary.
+// s[start]: decimal, fractional or exponent, or after 0x, 0o or 0b
+// hexadecimal, octal or binary. Underscores between digits, which
+// PostgreSQL 16 takes, are part of it.
 func numberEnd(s string, start int) int {
 	j := start
-	if s[j] == '0' && j+1 < len(s) && strings.IndexByte("xXbB", s[j+1]) >= 0 {
+	if s[j] == '0' && j+1 < len(s) && strings.IndexByte("xXoObB", s[j+1]) >= 0 {
 		j += 2
-		for j < len(s) && isHexDigit(s[j]) {
+		for j < len(s) && (isHexDigit(s[j]) || s[j] == '_') {
 			j++
 		}
 		return j
 	}
-	for j < len(s) && (isDigit(s[j]) || s[j] == '.') {
-		j++
-	}
+	j = digitsEnd(s, j, true)
 	if j < len(s) && (s[j] == 'e' || s[j] == 'E') {
 		k := j + 1
 		if k < len(s) && (s[k] == '+' || s[k] == '-') {
 			k++
 		}
 		if k < len(s) && isDigit(s[k]) {
-			j = k
-			for j < len(s) && isDigit(s[j]) {
-				j++
-			}
+			j = digitsEnd(s, k, false)
 		}
+	}
+	return j
+}
+
+// digitsEnd returns the index just past the digits from s[j], with the
+// underscores between them and, with point set, decimal points.
+func digitsEnd(s string, j int, point bool) int {
+	for j < len(s) && (isDigit(s[j]) || point && s[j] == '.' || s[j] == '_' && j+1 < len(s) && isDigit(s[j+1])) {
+		j++
 	}
 	return j
 }
@@ -330,29 +386,37 @@ func isIdentByte(c byte) bool {
 	return c == '_' || c == '$' || isDigit(c) || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
 }
 
-// maskMySQLPlan masks literals in a MySQL EXPLAIN FORMAT=JSON plan. Every
-// string value is masked: literals sit in the *condition keys, in the
-// rewritten statement (format version 2's "query", and Note 1003 of the SHOW
-// WARNINGS that pmm-agent appends), in version 2's "operation" and "ranges".
-// The keys that hold only names and the numeric strings MySQL writes for
-// costs are kept. It reports false when the plan is not JSON.
-func maskMySQLPlan(plan string) (string, bool) {
-	out, err := rewriteJSON([]byte(plan), nil, func(path []string, v any) any {
-		switch v := v.(type) {
-		case json.Number:
-			if len(path) > 0 && slices.Contains(mysqlValueNumbers, path[len(path)-1]) {
-				return "?"
-			}
-		case string:
-			if len(path) > 0 && slices.Contains(mysqlIdentifierKeys, path[len(path)-1]) {
-				return v
-			}
-			if !mysqlNumber.MatchString(v) {
-				return maskSQLLiterals(v, true)
-			}
+// isPlainName reports whether a name is a plain name, of letters, digits, _ and $, that is not a number such as 42 or
+// 0x1F, which MySQL names a column of that constant after.
+func isPlainName(name string) bool {
+	if name == "" || isDigit(name[0]) && numberEnd(name, 0) == len(name) {
+		return false
+	}
+	for _, r := range name {
+		if r != '_' && r != '$' && !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			return false
 		}
-		return v
-	})
+	}
+	return true
+}
+
+// maskMySQLPlan masks literals in a MySQL EXPLAIN FORMAT=JSON plan. Every
+// string value is masked: literals sit in the *condition keys and in version
+// 2's "operation" and "ranges", and in a name MySQL gave a select-list
+// expression after its text. The rewritten statement, format version 2's
+// "query" and Note 1003 of the SHOW WARNINGS that pmm-agent appends, is
+// withheld, and pmm-agent's real_table_name, a word of the statement, is left
+// out. Plain names and MySQL's own names in the keys that hold only names, and
+// the numeric strings MySQL writes for costs, are kept. It reports false when
+// the plan is not JSON.
+func maskMySQLPlan(plan string) (string, bool) {
+	var out []byte
+	members, err := jsonObjectMembers([]byte(plan))
+	if err == nil {
+		out, err = maskMySQLMembers(members)
+	} else {
+		out, err = rewriteJSON([]byte(plan), nil, maskMySQLValue)
+	}
 	if err != nil {
 		return "", false
 	}
@@ -364,9 +428,114 @@ func maskMySQLPlan(plan string) (string, bool) {
 	return indented.String(), true
 }
 
+// maskMySQLMembers masks the top-level members of a MySQL plan, where pmm-agent adds warnings and real_table_name.
+func maskMySQLMembers(members []jsonMember) ([]byte, error) {
+	w := newJSONWriter()
+	w.out.WriteByte('{')
+	for _, m := range members {
+		if m.key == "real_table_name" {
+			continue
+		}
+		var value []byte
+		var err error
+		if m.key == "warnings" {
+			value, err = maskMySQLWarnings(m.value)
+		} else {
+			value, err = rewriteJSON(m.value, nil, func(path []string, v any) any {
+				return maskMySQLValue(append([]string{m.key}, path...), v)
+			})
+		}
+		if err != nil {
+			return nil, err
+		}
+		if w.out.Len() > 1 {
+			w.out.WriteByte(',')
+		}
+		err = w.scalar(m.key)
+		if err != nil {
+			return nil, err
+		}
+		w.out.WriteByte(':')
+		w.out.Write(value)
+	}
+	w.out.WriteByte('}')
+	return w.out.Bytes(), nil
+}
+
+// maskMySQLValue masks one scalar of a MySQL plan; path holds the keys on the way to it.
+func maskMySQLValue(path []string, v any) any {
+	key := ""
+	if len(path) > 0 {
+		key = path[len(path)-1]
+	}
+	switch v := v.(type) {
+	case json.Number:
+		if slices.Contains(mysqlValueNumbers, key) {
+			return "?"
+		}
+	case string:
+		switch {
+		case slices.Contains(path, "query"):
+			return statementWithheld
+		case slices.Contains(mysqlIdentifierKeys, key):
+			if isPlainName(v) || mysqlOwnName.MatchString(v) {
+				return v
+			}
+			return "?"
+		case !mysqlNumber.MatchString(v):
+			return maskMySQLPlanText(v)
+		}
+	}
+	return v
+}
+
+// maskMySQLWarnings masks the SHOW WARNINGS rows pmm-agent appends to a plan, objects with Level, Code and Message.
+// The message of Note 1003 is the rewritten statement and is withheld, as is any message whose code is not a number
+// or not there; the other messages are masked. A row that is not an object is masked whole.
+func maskMySQLWarnings(raw json.RawMessage) ([]byte, error) {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	var warnings any
+	err := dec.Decode(&warnings)
+	if err != nil {
+		return nil, err
+	}
+	rows, ok := warnings.([]any)
+	switch {
+	case warnings == nil:
+	case !ok:
+		warnings = "?"
+	default:
+		for i, row := range rows {
+			fields, ok := row.(map[string]any)
+			if !ok {
+				rows[i] = "?"
+				continue
+			}
+			code, _ := fields["Code"].(json.Number)
+			for k, v := range fields {
+				switch {
+				case k == "Code" && code != "":
+				case k == "Message" && (code == "" || code == "1003"):
+					fields[k] = statementWithheld
+				default:
+					fields[k] = maskMySQLValue([]string{"warnings", k}, v)
+				}
+			}
+		}
+	}
+	w := newJSONWriter()
+	err = w.enc.Encode(warnings)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.TrimRight(w.scratch.Bytes(), "\n"), nil
+}
+
 // maskMongoPlan masks every value beneath the keys that hold query values, and
-// every string and number outside mongoPlanKeys and keyPattern, keeping stage
-// names, index names, statistics and the field names of the filter. Booleans
+// every string and number that is not a mongoPlanKeys value or a keyPattern on
+// the plan's own structure, keeping stage names, index names, statistics and
+// the field names of the filter. Booleans
 // and nulls carry no data and are kept. A command's comment, and a $literal or
 // $const value, is masked whole.
 func maskMongoPlan(plan string) string {
@@ -379,11 +548,15 @@ func maskMongoPlan(plan string) string {
 			return v
 		}
 		// An extended-JSON number ({"$numberInt": "1"}) belongs to its parent key.
-		key := path[len(path)-1]
-		if strings.HasPrefix(key, "$number") && len(path) > 1 {
-			key = path[len(path)-2]
+		keys := path
+		if strings.HasPrefix(path[len(path)-1], "$number") && len(path) > 1 {
+			keys = path[:len(path)-1]
 		}
-		if slices.Contains(path, "keyPattern") || slices.Contains(mongoPlanKeys, key) {
+		key, parents := keys[len(keys)-1], keys[:len(keys)-1]
+		if i := slices.Index(path, "keyPattern"); i >= 0 && onMongoPlan(path[:i]) {
+			return v
+		}
+		if slices.Contains(mongoPlanKeys, key) && onMongoPlan(parents) {
 			return v
 		}
 		return "?"
@@ -392,6 +565,11 @@ func maskMongoPlan(plan string) string {
 		return planWithheld
 	}
 	return string(out)
+}
+
+// onMongoPlan reports whether keys lead through the plan's own structure only.
+func onMongoPlan(keys []string) bool {
+	return !slices.ContainsFunc(keys, func(k string) bool { return !slices.Contains(mongoPlanContainers, k) })
 }
 
 // mongoOpaque reports whether path ends at a value whose keys are data too: a command's comment, which an application
@@ -412,11 +590,11 @@ func mongoLiteralKey(k string) bool {
 	return slices.Contains(mongoLiteralKeys, k) || strings.HasPrefix(k, "$") && k != "$cursor" && !strings.HasPrefix(k, "$number")
 }
 
-// maskPGPlan masks literals in a pg_stat_monitor stored plan. Text plans are
-// masked on every property line, so node lines with their cost and row
-// estimates survive; a property holding a lone number, such as
-// "Workers Planned: 2", is kept. A JSON plan is masked in every string value
-// but names: its numbers are estimates, and its literals sit in expressions.
+// maskPGPlan masks literals in a pg_stat_monitor stored plan. A text plan is
+// masked as one text, so a constant that spans lines is one literal, and only
+// the trailing estimate groups of its node lines keep their numbers. A JSON
+// plan is masked in every string value but names: its numbers are estimates,
+// and its literals sit in expressions.
 func maskPGPlan(plan string) string {
 	trimmed := strings.TrimSpace(plan)
 	if strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
@@ -433,41 +611,20 @@ func maskPGPlan(plan string) string {
 		return string(out)
 	}
 
-	lines := strings.Split(plan, "\n")
-	out := make([]string, 0, len(lines))
-	for i := 0; i < len(lines); i++ {
-		m := pgPropertyLine.FindStringSubmatch(lines[i])
-		if m == nil || strings.Trim(m[2], " 0123456789") == "" {
-			out = append(out, lines[i])
-			continue
+	marks := sqlMarks(plan, false, false)
+	for start := 0; start < len(plan); {
+		end := lineEnd(plan, start)
+		loc := pgEstimates.FindStringIndex(plan[start:end])
+		if loc != nil {
+			for i := start + loc[0]; i < start+loc[1]; i++ {
+				if marks[i] == numberMark {
+					marks[i] = plainMark
+				}
+			}
 		}
-		// A newline inside a constant or a quoted identifier is printed as
-		// is, so the value runs on while either is open.
-		value := m[2]
-		for pgQuoteOpen(value) && i+1 < len(lines) {
-			i++
-			value += "\n" + lines[i]
-		}
-		out = append(out, m[1]+maskSQLLiterals(value, false))
+		start = end + 1
 	}
-	return strings.Join(out, "\n")
-}
-
-// pgQuoteOpen reports whether s ends inside a single-quoted constant or a
-// double-quoted identifier. Each kind of quote is ignored inside the other, so
-// the apostrophe in "o'neil" opens nothing, and a doubled quote closes and
-// reopens.
-func pgQuoteOpen(s string) bool {
-	var open byte
-	for i := range len(s) {
-		switch c := s[i]; {
-		case open == 0 && (c == '\'' || c == '"'):
-			open = c
-		case c == open:
-			open = 0
-		}
-	}
-	return open != 0
+	return renderMarks(plan, marks)
 }
 
 // maskMongoFingerprint masks the values in a MongoDB fingerprint, a shell call
@@ -519,6 +676,24 @@ func maskMongoFingerprint(fingerprint string) string {
 		}
 	}
 	return b.String()
+}
+
+// mongoQuotesPair reports whether a MongoDB fingerprint holds no single quote and every double quote in it closes, so
+// that maskMongoFingerprint finds every string.
+func mongoQuotesPair(fingerprint string) bool {
+	for i := 0; i < len(fingerprint); i++ {
+		switch fingerprint[i] {
+		case '\'':
+			return false
+		case '"':
+			end, closed := quotedClose(fingerprint, i, true)
+			if !closed {
+				return false
+			}
+			i = end - 1
+		}
+	}
+	return true
 }
 
 // jsonValueEnd returns the index just past the JSON value that starts at s[start]: a string, a brace or bracket
@@ -582,14 +757,14 @@ func maskTraditionalExtra(table string) string {
 	columns := strings.Count(lines[0], "|") + 1
 	// A one-column body, such as the tree format, is masked as one text, so a literal across lines stays one literal.
 	if columns == 1 {
-		return maskSQLLiterals(table, true)
+		return maskMySQLPlanText(table)
 	}
 	for i, line := range lines {
 		cells := strings.SplitN(line, "|", columns)
 		if len(cells) < columns {
 			return planWithheld
 		}
-		cells[len(cells)-1] = maskSQLLiterals(cells[len(cells)-1], true)
+		cells[len(cells)-1] = maskMySQLPlanText(cells[len(cells)-1])
 		lines[i] = strings.Join(cells, "|")
 	}
 	return strings.Join(lines, "\n")
@@ -630,6 +805,50 @@ func maskQuoted(msg string) string {
 		}
 	}
 	return b.String()
+}
+
+// jsonMember is one member of a JSON object, its value not decoded.
+type jsonMember struct {
+	key   string
+	value json.RawMessage
+}
+
+// jsonObjectMembers splits a JSON document that is one object into its members, in order.
+func jsonObjectMembers(doc []byte) ([]jsonMember, error) {
+	dec := json.NewDecoder(bytes.NewReader(doc))
+	tok, err := dec.Token()
+	if err != nil {
+		return nil, err
+	}
+	if tok != json.Delim('{') {
+		return nil, errors.New("not a JSON object")
+	}
+	var members []jsonMember
+	for dec.More() {
+		keyTok, err := dec.Token()
+		if err != nil {
+			return nil, err
+		}
+		key, ok := keyTok.(string)
+		if !ok {
+			return nil, errors.New("non-string object key")
+		}
+		var value json.RawMessage
+		err = dec.Decode(&value)
+		if err != nil {
+			return nil, err
+		}
+		members = append(members, jsonMember{key: key, value: value})
+	}
+	_, err = dec.Token()
+	if err != nil {
+		return nil, err
+	}
+	_, err = dec.Token()
+	if !errors.Is(err, io.EOF) {
+		return nil, errors.New("trailing data after JSON value")
+	}
+	return members, nil
 }
 
 // rewriteJSON re-emits a JSON document compactly with every scalar leaf passed

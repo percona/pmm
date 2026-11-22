@@ -52,6 +52,7 @@ func TestCheckExpr(t *testing.T) {
 		want []string
 	}{
 		{expr: `rate(mysql_global_status_questions[5m])`, span: 6 * day},
+		{name: "a number with a leading zero, which the metricsql of PMM's VictoriaMetrics parses", expr: `hour() > 09`, span: time.Hour},
 		{expr: `sum by (service_name) (rate(mysql_global_status_questions{service_name="db1"}[5m]))`, span: time.Hour},
 		{expr: `{__name__=~"mysql_global_status_.*", service_name=~"db1|db2"}`, span: time.Hour},
 		{expr: `{__name__=~"mysql_global_status_.*", service_name=~"db\\.prod"}`, span: time.Hour},

@@ -32,6 +32,7 @@ import (
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/api/actions/v1/json/client/actions_service"
@@ -226,6 +227,33 @@ func TestExplainTool(t *testing.T) {
 		assert.True(t, got.Truncated)
 		assert.Equal(t, strings.Repeat("x", 64<<10), got.Plan)
 		assert.Contains(t, textOf(t, res), "```\n"+got.Plan+"\n```\n(plan cut at 64 KiB)\n"+livePlanNote+"\n\n[View this query in PMM QAN ↗]("+got.PMMURL+")")
+	})
+
+	// A plan is parsed whole to be masked, so one over the bound is withheld before any parsing.
+	t.Run("PlanOverInputBound", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		plan := `{"query_block": {"table": {"attached_condition": "(` + "`t`.`a`" + ` = '` + strings.Repeat("x", maxPlanInputBytes) + `')"}}}`
+		envelope, err := json.Marshal(map[string]any{"explain_result": base64.StdEncoding.EncodeToString([]byte(plan))})
+		require.NoError(t, err)
+		stub.explain = string(envelope)
+		session := connect(t, newQANService(t, fake, false))
+
+		got := structured[explainResult](t, callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"}))
+		assert.Equal(t, planTooLarge, got.Plan)
+		assert.False(t, got.Truncated)
+
+		// A stored plan is masked as one text, so it is bound the same way.
+		fake, _ = actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
+		stored, err := json.Marshal(map[string]any{"planid": "PLAN-1", "query_plan": strings.Repeat("Seq Scan on t\n", maxPlanInputBytes/10)})
+		require.NoError(t, err)
+		fake.routes["GET /v1/qan/query/QID-PG/plan"] = fixture{body: stored}
+		session = connect(t, newQANService(t, fake, false))
+
+		got = structured[explainResult](t, callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"}))
+		assert.Equal(t, planTooLarge, got.Plan)
 	})
 
 	t.Run("MongoDBStoredExample", func(t *testing.T) {
@@ -1238,7 +1266,10 @@ func TestCheckTablesRefusesAtCap(t *testing.T) {
 func TestConfigTool(t *testing.T) {
 	t.Parallel()
 
-	fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{vmQuery + " ?mysql_global_variables_": {file: "vm_variables.json"}}))
+	fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{
+		vmQuery + " ?mysql_global_variables_": {file: "vm_variables.json"},
+		vmQuery + " ?pg_settings_":            {file: "vm_empty.json"},
+	}))
 	session := connect(t, newQANService(t, fake, true))
 
 	res := callTool(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "at": "now-1h"})
@@ -1302,18 +1333,31 @@ func TestConfigTool(t *testing.T) {
 	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "engine": "mysql"})
 	assert.False(t, isError, text)
 
-	// No variable matches: the text keeps its message and gains the time and the link.
+	// No variable matches the filter: the text says so, with the time and the link.
 	res = callTool(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "filter": "nothing_matches"})
 	got := structured[configResult](t, res)
 	assert.Empty(t, got.Variables)
 	assert.Equal(t, page{Limit: 200}, got.Page)
 	assert.Equal(t, strings.Join([]string{
-		"No configuration variables found for that service (check the service and that its metrics are being collected).",
+		"None of the service's 4 configuration variables match the filter: check its text, or call pmm_get_config without it.",
 		"At: 2026-09-14T12:00:00Z",
 		"",
 		"[View this service in PMM QAN ↗](" + got.PMMURL + ")",
 	}, "\n"), textOf(t, res))
 	assert.Equal(t, "https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?from="+ms(testNow.Add(-time.Hour))+"&to="+ms(testNow)+"&var-service_name=shop-mysql", got.PMMURL)
+
+	// The service has no variables at all, with or without a filter.
+	for _, args := range []map[string]any{{"service_id": "svc-2"}, {"service_id": "svc-2", "filter": "work_mem"}} {
+		res = callTool(t, session, "pmm_get_config", args)
+		got = structured[configResult](t, res)
+		assert.Empty(t, got.Variables)
+		assert.Equal(t, strings.Join([]string{
+			"No configuration variables found for that service (check the service and that its metrics are being collected).",
+			"At: 2026-09-14T12:00:00Z",
+			"",
+			"[View this service in PMM QAN ↗](" + got.PMMURL + ")",
+		}, "\n"), textOf(t, res), "%v", args)
+	}
 
 	t.Run("InvalidPagingBeforeAnyCall", func(t *testing.T) {
 		t.Parallel()
@@ -1815,8 +1859,9 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 		held()
 		text, isError = callText(t, session, "pmm_get_schema", schemaArgs)
 		assert.False(t, isError, text)
-		_, hit = s.liveByService.acquire("svc-1")
-		assert.Equal(t, limitNone, hit)
+		free, hit := s.liveByService.acquire("svc-1")
+		require.Equal(t, limitNone, hit)
+		free()
 	})
 
 	t.Run("PerServiceWaits", func(t *testing.T) {
@@ -2183,4 +2228,25 @@ func TestExplainDatabaseDescription(t *testing.T) {
 	desc := schema.Properties["database"].Description
 	assert.NotContains(t, desc, "override")
 	assert.Contains(t, desc, "pmm-agent still switches to the schema QAN recorded for the query")
+}
+
+// TestRunActionPollErrorOutlastedByCancel pins that a failed poll keeps its own error when the cancel after it
+// outlasts the call's deadline.
+func TestRunActionPollErrorOutlastedByCancel(t *testing.T) {
+	t.Parallel()
+
+	api := newMockPmmAPI(t)
+	api.On("StartServiceAction", mock.Anything, mock.Anything, mock.Anything).Return(&actions_service.StartServiceActionOKBody{
+		MysqlShowCreateTable: &actions_service.StartServiceActionOKBodyMysqlShowCreateTable{ActionID: "a1"},
+	}, nil)
+	api.On("GetAction", mock.Anything, mock.Anything, "a1").Return(nil, newToolError(codePMMUnavailable, "poll failed"))
+	api.On("CancelAction", mock.Anything, mock.Anything, "a1").Run(func(mock.Arguments) { time.Sleep(300 * time.Millisecond) }).Return(nil)
+	s, err := New(Params{API: api})
+	require.NoError(t, err)
+
+	ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+	defer cancel()
+	_, err = s.runAction(ctx, callerAuth{}, actions_service.StartServiceActionBody{}, false)
+	require.Error(t, err)
+	assert.Equal(t, codePMMUnavailable, mapError(err).code, err.Error())
 }

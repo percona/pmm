@@ -22,7 +22,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -38,12 +37,10 @@ import (
 
 const (
 	// The note of every pmm_alerts result, as managed/services/mcp/tools_alerts.go words it.
-	alertsNote     = "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
+	alertsNote     = "Firing, recovering and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
 	alertsMaxLimit = 200
-	// The look-back of pmm_alerts' service list.
-	alertListLookback = 7 * 24 * time.Hour
 
-	// How long TestAlertsNarrowing waits for its rules to fire and for its silence to mark an alert.
+	// How long TestAlertsUnderAccessRoles waits for its rules to fire and for its silence to mark an alert.
 	alertsWait = 3 * time.Minute
 )
 
@@ -102,7 +99,7 @@ func TestAlerts(t *testing.T) {
 		}
 		for _, a := range out.Alerts {
 			assert.NotEmpty(t, a.Name)
-			assert.Contains(t, []string{"firing", "pending"}, a.State, a.Name)
+			assert.Contains(t, []string{"firing", "recovering", "pending"}, a.State, a.Name)
 			assert.False(t, a.StartsAt.IsZero(), a.Name)
 			assert.Contains(t, a.PMMURL, "/graph/alerting/", a.Name)
 			for name := range a.Labels {
@@ -111,13 +108,16 @@ func TestAlerts(t *testing.T) {
 		}
 	})
 
-	t.Run("ServiceOutsideList", func(t *testing.T) {
+	t.Run("FilterMatchingNoAlert", func(t *testing.T) {
 		t.Parallel()
 
-		const name = "mcp-alerts-no-such-service"
-		res := (&caller{session: session}).call(t, "pmm_alerts", map[string]any{"service_name": name})
-		res.requireNotInList(t, "", alertListLookback)
-		assert.NotContains(t, res.text, name)
+		var out alertsOutput
+		res := (&caller{session: session}).call(t, "pmm_alerts", map[string]any{"service_name": "mcp-alerts-no-such-service"})
+		res.requireOK(t)
+		res.decode(t, &out)
+		assert.Empty(t, out.Alerts)
+		assert.Zero(t, out.Page.Total)
+		assert.Equal(t, alertsNote+"\nNo firing, recovering or pending alerts found.", res.text)
 	})
 
 	t.Run("LimitOverMaximum", func(t *testing.T) {
@@ -165,7 +165,7 @@ func requireAdminRequest(t *testing.T, method, path string, payload, out any) {
 	}
 }
 
-// alertRules are the titles of the rules TestAlertsNarrowing creates.
+// alertRules are the titles of the rules TestAlertsUnderAccessRoles creates.
 type alertRules struct {
 	// services fires once per MySQL service.
 	services string
@@ -400,17 +400,6 @@ func restrictedViewer(t *testing.T, login, filter string) string {
 	return basicAuthorization(login, matrixPassword)
 }
 
-// hiding returns a caller whose every response is checked for the service's name and IDs.
-func hiding(t *testing.T, authorization string, service inventoryRow) *caller {
-	t.Helper()
-
-	return &caller{
-		session:   connectWith(t, authorization),
-		hiddenRE:  regexp.MustCompile(`(?:^|[^A-Za-z0-9_-])` + regexp.QuoteMeta(service.ServiceName) + `(?:$|[^A-Za-z0-9_-])`),
-		hiddenIDs: []string{service.ServiceID},
-	}
-}
-
 // alertsOf calls pmm_alerts with the largest page and returns its result.
 func alertsOf(t *testing.T, c *caller) alertsOutput {
 	t.Helper()
@@ -438,9 +427,10 @@ func waitForSilence(t *testing.T, c *caller, rule, serviceName string) alertsOut
 	return out
 }
 
-// TestAlertsNarrowing creates rules that fire for mysql-a and mysql-b, for every node and for no service or node, one in a
-// folder without Viewer access, and a silence on mysql-a's alert, and checks what pmm_alerts returns under Access Roles.
-func TestAlertsNarrowing(t *testing.T) {
+// TestAlertsUnderAccessRoles creates rules that fire for mysql-a and mysql-b, for every node and for no service or node, one in a
+// folder without Viewer access, and a silence on mysql-a's alert, and checks that pmm_alerts returns the alerts of every folder
+// the caller can read, whatever its Access Roles.
+func TestAlertsUnderAccessRoles(t *testing.T) {
 	if !pmmapitests.RunMCPAccessRoleTests {
 		t.Skip("Needs TestAccessRoleMatrix's environment, of which it uses mysql-a and mysql-b, each on its own node. It creates " +
 			"alert rules, folders, a silence, Access Roles and users, and turns Access Control on, so it changes server-wide " +
@@ -483,7 +473,7 @@ func TestAlertsNarrowing(t *testing.T) {
 	})
 	silenceEnd := silenceAlert(t, current[rules.services].uid, "mysql-a")
 
-	// Every node whose series the rule reads; under {service_name!="mysql-b"} the caller's list holds them all.
+	// Every node whose series the rule reads.
 	allNodes := current[rules.node].values("node_name")
 
 	t.Run("Admin", func(t *testing.T) {
@@ -507,45 +497,36 @@ func TestAlertsNarrowing(t *testing.T) {
 		assert.Len(t, out.ofRule(rules.hidden), 1, "the package's admin reads every folder")
 	})
 
-	t.Run("ViewerOfA", func(t *testing.T) {
-		authorization := restrictedViewer(t, fmt.Sprintf("mcp-alerts-a-%d", suffix), `{service_name="mysql-a"}`)
-		waitForServiceList(t, authorization, []string{"mysql-a"})
-		viewer := hiding(t, authorization, b)
+	for _, tc := range []struct {
+		login, filter string
+		list          []string
+	}{
+		{login: "mcp-alerts-a", filter: `{service_name="mysql-a"}`, list: []string{"mysql-a"}},
+		{login: "mcp-alerts-not-b", filter: `{service_name!="mysql-b"}`, list: without(all, "mysql-b")},
+	} {
+		t.Run(tc.login, func(t *testing.T) {
+			authorization := restrictedViewer(t, fmt.Sprintf("%s-%d", tc.login, suffix), tc.filter)
+			// The Access Role hides mysql-b from the other tools; pmm_alerts shows its alerts all the same.
+			waitForServiceList(t, authorization, tc.list)
+			viewer := &caller{session: connectWith(t, authorization)}
 
-		out := waitForSilence(t, viewer, rules.services, "mysql-a")
-		ofServices := out.ofRule(rules.services)
-		require.Len(t, ofServices, 1)
-		assert.Equal(t, "mysql-a", ofServices[0].Labels["service_name"])
-		assert.Equal(t, a.ServiceID, ofServices[0].Labels["service_id"])
-		assert.True(t, ofServices[0].Silenced)
-		assert.NotNil(t, ofServices[0].SilencedUntil)
-		assert.Equal(t, []string{a.NodeName}, labelValues(out.ofRule(rules.node), "node_name"), "only the node of mysql-a is in the list")
-		assert.Len(t, out.ofRule(rules.server), 1, "an alert that names no service or node is shown")
-		assert.Empty(t, out.ofRule(rules.hidden), "the rule's folder gives Viewers no access")
-		for _, alert := range out.Alerts {
-			assert.NotEqual(t, b.NodeName, alert.Labels["node_name"], "alert %s", alert.Name)
-		}
+			out := waitForSilence(t, viewer, rules.services, "mysql-a")
+			ofServices := out.ofRule(rules.services)
+			assert.Equal(t, mysql, intersection(labelValues(ofServices, "service_name"), mysql...), "every MySQL service, mysql-b included")
+			for _, alert := range ofServices {
+				assert.Equal(t, alert.Labels["service_name"] == "mysql-a", alert.Silenced, "alert of %s", alert.Labels["service_name"])
+			}
+			assert.Equal(t, allNodes, labelValues(out.ofRule(rules.node), "node_name"), "every node")
+			assert.Len(t, out.ofRule(rules.server), 1, "an alert that names no service or node is shown")
+			assert.Empty(t, out.ofRule(rules.hidden), "the rule's folder gives Viewers no access")
 
-		res := viewer.call(t, "pmm_alerts", map[string]any{"service_name": "mysql-b"})
-		res.requireNotInList(t, "", alertListLookback)
-		res = viewer.call(t, "pmm_alerts", map[string]any{"node_name": b.NodeName})
-		res.requireNotInList(t, "", alertListLookback)
-		assert.NotContains(t, res.text, b.NodeName)
-	})
-
-	t.Run("ViewerNotB", func(t *testing.T) {
-		authorization := restrictedViewer(t, fmt.Sprintf("mcp-alerts-not-b-%d", suffix), `{service_name!="mysql-b"}`)
-		waitForServiceList(t, authorization, without(all, "mysql-b"))
-		viewer := hiding(t, authorization, b)
-
-		out := alertsOf(t, viewer)
-		assert.Equal(t, without(mysql, "mysql-b"), labelValues(out.ofRule(rules.services), "service_name"), "every MySQL service but mysql-b")
-		assert.Equal(t, allNodes, labelValues(out.ofRule(rules.node), "node_name"), "node_exporter's series carry no service_name, so every node is in the list")
-		assert.Contains(t, labelValues(out.ofRule(rules.node), "node_name"), b.NodeName)
-		assert.Len(t, out.ofRule(rules.server), 1)
-		assert.Empty(t, out.ofRule(rules.hidden), "the rule's folder gives Viewers no access")
-
-		res := viewer.call(t, "pmm_alerts", map[string]any{"service_name": "mysql-b"})
-		res.requireNotInList(t, "", alertListLookback)
-	})
+			var filtered alertsOutput
+			res := viewer.call(t, "pmm_alerts", map[string]any{"service_name": "mysql-b"})
+			res.requireOK(t)
+			res.decode(t, &filtered)
+			ofB := filtered.ofRule(rules.services)
+			require.Len(t, ofB, 1, "the alert of mysql-b")
+			assert.Equal(t, b.ServiceID, ofB[0].Labels["service_id"])
+		})
+	}
 }

@@ -16,10 +16,15 @@
 package mcp
 
 import (
+	"bytes"
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMaskSQLLiterals(t *testing.T) {
@@ -49,8 +54,14 @@ func TestMaskSQLLiterals(t *testing.T) {
 		{"MySQLNoBackslashEscapes", `path = 'C:\' and pw = 'hunter2'`, true, "path = ?"},
 		{"PostgreSQLDollarQuoted", "SELECT $$hunter2$$, $q$secret$q$ WHERE id = $1", false, "SELECT ?, ? WHERE id = $1"},
 		{"PostgreSQLUnterminatedDollarQuote", "SELECT $$hunter2", false, "SELECT ?"},
+		{"PostgreSQLDollarQuoteNonASCIITag", "ALTER ROLE app PASSWORD $п$my secret text$п$ VALID UNTIL $1", false, "ALTER ROLE app PASSWORD ? VALID UNTIL $1"},
 		{"MySQLDollarIsIdentifier", "SELECT c$d, `a$b` FROM t", true, "SELECT c$d, `a$b` FROM t"},
 		{"Binary", "flags = 0b1010", true, "flags = ?"},
+		// PostgreSQL 16 takes octal literals and underscores between digits.
+		{
+			"PostgreSQL16Numbers", "a = 1_000_000 AND b = 0o17 AND c = 0x1F AND d = 0b101 AND e = 0x_FF_FF AND f = 1_000.000_5e1_0", false,
+			"a = ? AND b = ? AND c = ? AND d = ? AND e = ? AND f = ?",
+		},
 		// An apostrophe in a comment must not pair with a real quote.
 		{"LineComment", "note = 'x' -- it's\n AND ssn = 'SECRET'", false, "note = ? --?\n AND ssn = ?"},
 		{"MySQLHashComment", "SELECT * FROM t WHERE id = ? # customer john.doe@example.com\nAND a = 1", true, "SELECT * FROM t WHERE id = ? #?\nAND a = ?"},
@@ -62,6 +73,10 @@ func TestMaskSQLLiterals(t *testing.T) {
 		// A backtick means nothing to PostgreSQL; a stray one must not hide
 		// the literals after it.
 		{"PostgreSQLBacktick", "SELECT `a FROM t WHERE ssn = 'SECRET'", false, "SELECT `a FROM t WHERE ssn = ?"},
+		// A quoted identifier that never closes is read as a string, to the end.
+		{"MySQLUnclosedIdentifier", "SELECT `a FROM t WHERE ssn = 'SECRET'", true, "SELECT ?"},
+		{"MySQLUnclosedIdentifierDoubledQuote", "SELECT `a`` FROM t WHERE ssn = 42", true, "SELECT ?"},
+		{"PostgreSQLUnclosedIdentifier", `INSERT INTO "users (email) VALUES ('alice@example.com')`, false, "INSERT INTO ?"},
 		// PostgreSQL comments nest; MySQL ones end at the first */.
 		{"PostgreSQLNestedComment", "SELECT * FROM t /* a /* nested */ secret */ WHERE a = $1", false, "SELECT * FROM t /*?*/ WHERE a = $1"},
 		{"MySQLCommentsDoNotNest", "/* a /* b */ x = 'y'", true, "/*?*/ x = ?"},
@@ -129,7 +144,25 @@ func TestMaskMySQLPlan(t *testing.T) {
 		assert.Contains(t, got, name)
 	}
 	assert.Contains(t, got, "`t`.`2nd_col` = ?", "conditions are still masked")
-	assert.Contains(t, got, `"real_table_name": "?fa_codes"`, "pmm-agent parses it from the statement text")
+	assert.NotContains(t, got, "real_table_name", "pmm-agent parses it from the statement text")
+
+	// MySQL names an unaliased select-list expression after its text: a derived table's or a CTE's column can be named
+	// 'gold-tier' or total * 1.0773. A name that is not a plain name is masked, in name keys and in backquotes.
+	got, ok = maskMySQLPlan(`{"query_block": {"table": {"table_name": "d", "used_columns": ["customer_id", "zq-tier-4401", ` +
+		`"SUM(total) * 2.0517", "42", "0x1F", "Ünïcode_naïve$1"], "key": "<auto_key0>", "possible_keys": ["<auto_key0>", "<x y>"], ` +
+		`"attached_condition": "((` + "`d`.`SUM(total) * 2.0517` > 5) and (`d`.`zq-tier-4401` = `d`.`Ünïcode_naïve$1`) and (`d`.`42` = 1)" + `)", ` +
+		`"materialized_from_subquery": {"query_block": {"table": {"table_name": "<derived2>"}}}}}, ` +
+		`"union_result": {"table_name": "<union1,2>"}}`)
+	assert.True(t, ok)
+	for _, literal := range []string{"zq-tier", "4401", "2.0517", `"42"`, "`42`", "0x1F", "x y"} {
+		assert.NotContains(t, got, literal)
+	}
+	for _, kept := range []string{
+		`"customer_id"`, `"Ünïcode_naïve$1"`, `"key": "<auto_key0>"`, `"table_name": "<derived2>"`, `"table_name": "<union1,2>"`,
+		"`d`.`?` > ?", "`d`.`?` = `d`.`Ünïcode_naïve$1`",
+	} {
+		assert.Contains(t, got, kept)
+	}
 
 	_, ok = maskMySQLPlan("id | select_type | table")
 	assert.False(t, ok, "a non-JSON plan is reported, not passed off as masked")
@@ -142,34 +175,195 @@ func TestMaskMySQLPlan(t *testing.T) {
 	got, ok = maskMySQLPlan(v2)
 	assert.True(t, ok)
 	assert.NotContains(t, got, "x@y.com")
+	assert.Contains(t, got, `"query": "`+statementWithheld+`"`, "the rewritten statement is withheld")
 	assert.NotContains(t, got, "a@b")
 	assert.Contains(t, got, `"operation": "Filter: (`+"`t`.`email`"+` = ?)"`)
 	assert.Contains(t, got, `"operation": "Index range scan on t using email"`)
 	assert.Contains(t, got, `"estimated_rows": 10.5`)
 }
 
-// TestMaskMySQLPlanWarnings covers the SHOW WARNINGS pmm-agent appends to a JSON
-// plan, whose Note 1003 is the rewritten statement with every literal in it.
+// TestMaskMySQLPlanWarnings covers the SHOW WARNINGS and real_table_name that
+// pmm-agent adds to a JSON plan. Note 1003 is the rewritten statement, which
+// names an unaliased select-list expression after its own text, literals
+// included, so it is withheld.
 func TestMaskMySQLPlanWarnings(t *testing.T) {
 	t.Parallel()
 
+	// Captured on Percona Server 8.0.46, with pmm-agent's additions.
 	plan := `{
-  "query_block": {"select_id": 1, "table": {"table_name": "orders", "access_type": "ALL",
-    "attached_condition": "(` + "`school`.`orders`.`region`" + ` = 'emea')"}},
-  "real_table_name": "orders",
+  "query_block": {"select_id": 1, "table": {"table_name": "help_topic", "access_type": "ALL",
+    "attached_condition": "(('MEDIUMBLOB' = 'bob'))"}},
+  "real_table_name": "alice@corp.example",
   "warnings": [
+    {"Code": 1739, "Level": "Warning", "Message": "Cannot use ref access on index 'name' due to type or collation conversion on field 'name'"},
     {"Code": 1003, "Level": "Note",
-     "Message": "/* select#1 */ select count(0) from ` + "`school`.`orders`" + ` where ((` + "`school`.`orders`.`status`" + ` = 'paid') and (` + "`school`.`orders`.`region`" + ` = 'emea'))"}
+     "Message": "/* select#1 */ select exists(/* select#2 */ select 1 from ` + "`mysql`.`user`" + ` where (` + "`mysql`.`user`.`User`" + ` = 'alice')) AS ` +
+		"`EXISTS(SELECT 1 FROM mysql.user WHERE user = 'alice')`" + `,('42' * 1.2) AS ` + "`help_topic_id * 1.2`" + `,'vip' AS ` + "`vip`" + ` from ` +
+		"`mysql`.`help_topic`" + ` where (('MEDIUMBLOB' = 'bob'))"}
   ]
 }`
 	got, ok := maskMySQLPlan(plan)
 	assert.True(t, ok)
-	assert.NotContains(t, got, "emea")
-	assert.NotContains(t, got, "paid")
+	for _, literal := range []string{"alice", "bob", "1.2", "vip", "42"} {
+		assert.NotContains(t, got, literal)
+	}
+	assert.NotContains(t, got, "real_table_name", "pmm-agent takes it from the statement text")
+	assert.Contains(t, got, `"Message": "`+statementWithheld+`"`)
 	assert.Contains(t, got, `"Code": 1003`, "warning codes are not literals")
 	assert.Contains(t, got, `"Level": "Note"`)
-	assert.Contains(t, got, "`school`.`orders`.`status` = ?", "the rewritten statement keeps its shape")
-	assert.Contains(t, got, `"real_table_name": "orders"`)
+	assert.Contains(t, got, `"Message": "Cannot use ref access on index ? due to type or collation conversion on field ?"`,
+		"other warnings are masked, not withheld")
+	assert.Less(t, strings.Index(got, "query_block"), strings.Index(got, "warnings"), "member order is kept")
+
+	// A message whose code is missing or not a number may be the statement.
+	got, ok = maskMySQLPlan(`{"warnings": [{"Level": "Note", "Message": "select 'alice'"}, {"Code": "1003", "Message": "select 'bob'"}, "x"]}`)
+	assert.True(t, ok)
+	assert.Equal(t, 2, strings.Count(got, statementWithheld), got)
+	assert.NotContains(t, got, "x\"")
+
+	got, ok = maskMySQLPlan(`{"query_block": {"select_id": 1}, "warnings": null, "real_table_name": "t"}`)
+	assert.True(t, ok)
+	assert.JSONEq(t, `{"query_block": {"select_id": 1}, "warnings": null}`, got, "pmm-agent writes null when MySQL has no warnings")
+}
+
+// TestMaskCapturedPlans masks every plan captured from a live server in testdata/explain, in the shape pmm-agent
+// returns it, and checks that no literal of the explained statement is left.
+func TestMaskCapturedPlans(t *testing.T) {
+	t.Parallel()
+
+	t.Run("MySQL", func(t *testing.T) {
+		t.Parallel()
+
+		files, err := filepath.Glob("testdata/explain/*.json")
+		require.NoError(t, err)
+		require.Len(t, files, 130)
+		for _, file := range files {
+			m := fixtureName.FindStringSubmatch(filepath.Base(file))
+			require.NotNil(t, m, file)
+
+			t.Run(filepath.Base(file), func(t *testing.T) {
+				t.Parallel()
+
+				sql, err := os.ReadFile(filepath.Join("testdata", "explain", m[2]+".sql"))
+				require.NoError(t, err)
+				plan, err := os.ReadFile(file)
+				require.NoError(t, err)
+				statement := strings.TrimSpace(string(sql))
+				// pmm-agent adds the word after the statement's last FROM as real_table_name.
+				table, _, _ := strings.Cut(statement[strings.LastIndex(statement, "FROM ")+len("FROM "):], " ")
+				name, err := json.Marshal(table)
+				require.NoError(t, err)
+				agentPlan := `{"real_table_name": ` + string(name) + `, ` + strings.TrimPrefix(strings.TrimSpace(string(plan)), "{")
+
+				got := redactPlan(engineMySQL, formatJSON, agentPlan, true)
+				require.NotEqual(t, planWithheld, got)
+				for _, literal := range sqlLiterals(statement) {
+					assert.NotContains(t, got, literal)
+				}
+				assert.NotContains(t, got, "real_table_name")
+				assert.NotContains(t, got, "select#", "the rewritten statement is left out")
+				assert.Contains(t, got, statementWithheld)
+				assert.Contains(t, got, `"access_type": "`, "the plan keeps its shape")
+			})
+		}
+	})
+
+	t.Run("MongoDB", func(t *testing.T) {
+		t.Parallel()
+
+		files, err := filepath.Glob("testdata/explain/mongodb/psmdb-*.json")
+		require.NoError(t, err)
+		require.Len(t, files, 2)
+		for _, file := range files {
+			t.Run(filepath.Base(file), func(t *testing.T) {
+				t.Parallel()
+
+				// psmdb-<version>-<case>.json explains <case>.example.json.
+				parts := strings.SplitN(strings.TrimSuffix(filepath.Base(file), ".json"), "-", 3)
+				example, err := os.ReadFile(filepath.Join("testdata", "explain", "mongodb", parts[2]+".example.json"))
+				require.NoError(t, err)
+				plan, err := os.ReadFile(file)
+				require.NoError(t, err)
+
+				got := redactPlan(engineMongoDB, formatJSON, string(plan), true)
+				require.NotEqual(t, planWithheld, got)
+				literals := mongoFilterLiterals(t, example)
+				require.NotEmpty(t, literals)
+				for _, literal := range literals {
+					assert.NotContains(t, got, literal)
+				}
+				assert.Contains(t, got, `"stage":"FETCH"`, "the plan keeps its shape")
+			})
+		}
+	})
+}
+
+// sqlLiterals returns the literals of a MySQL statement worth searching a masked text for: each string, its words of 5
+// or more characters, and each number of 4 or more characters.
+func sqlLiterals(statement string) []string {
+	marks := scanSQL(statement, true, true, false)
+	var out []string
+	for i := 0; i < len(marks); {
+		j := i
+		for j < len(marks) && marks[j] == marks[i] {
+			j++
+		}
+		text := statement[i:j]
+		switch marks[i] {
+		case stringMark:
+			text = text[1 : len(text)-1]
+			out = append(out, text)
+			for word := range strings.FieldsSeq(text) {
+				if len(word) >= 5 {
+					out = append(out, word)
+				}
+			}
+		case numberMark:
+			if len(text) >= 4 {
+				out = append(out, text)
+			}
+		}
+		i = j
+	}
+	return out
+}
+
+// mongoFilterLiterals returns the values of a MongoDB query example's filter, with the words of each string and the
+// numbers of 4 or more characters.
+func mongoFilterLiterals(t *testing.T, example []byte) []string {
+	t.Helper()
+
+	var doc struct {
+		Command struct {
+			Filter any `json:"filter"`
+		} `json:"command"`
+	}
+	dec := json.NewDecoder(bytes.NewReader(example))
+	dec.UseNumber()
+	require.NoError(t, dec.Decode(&doc))
+	var out []string
+	var walk func(v any)
+	walk = func(v any) {
+		switch v := v.(type) {
+		case map[string]any:
+			for _, value := range v {
+				walk(value)
+			}
+		case []any:
+			for _, value := range v {
+				walk(value)
+			}
+		case string:
+			out = append(out, v)
+			out = append(out, strings.Fields(v)...)
+		case json.Number:
+			if len(v) >= 4 {
+				out = append(out, v.String())
+			}
+		}
+	}
+	walk(doc.Command.Filter)
+	return out
 }
 
 func TestMaskPGPlan(t *testing.T) {
@@ -199,7 +393,7 @@ func TestMaskPGPlan(t *testing.T) {
 		assert.Contains(t, got, "(cost=0.00..458.00 rows=1 width=64)", "estimates are not on predicate lines")
 		assert.NotContains(t, got, "vip", "every property line is masked, not only predicates")
 		assert.NotContains(t, got, "month")
-		assert.Contains(t, got, "Workers Planned: 2", "a lone number is a planner count, not a literal")
+		assert.Contains(t, got, "Workers Planned: ?", "numbers are kept only in a node's estimates")
 		assert.NotContains(t, got, "123-45-6789", "a literal's continuation lines are masked too")
 		assert.NotContains(t, got, "secret")
 		assert.Contains(t, got, "Filter: (note = ?::text)\n  ->  Seq Scan on tags  (cost=0.00..2.00 rows=1 width=4)",
@@ -208,6 +402,22 @@ func TestMaskPGPlan(t *testing.T) {
 		// A newline inside a quoted identifier is printed as is too.
 		got = maskPGPlan("Seq Scan on t\n  Filter: (\"my\ncol\" = 'secret'::text)")
 		assert.NotContains(t, got, "secret")
+
+		// Every line is masked, whatever its label, and only the trailing estimate groups of a node keep their numbers.
+		got = maskPGPlan("Hash Join  (cost=10.50..20.75 rows=100 width=8) (actual time=0.015..0.250 rows=98 loops=1)\n" +
+			"  Some_Label: 'secret-1'\n" +
+			"  ->  Seq Scan on t  (cost=0.00..1.00 rows=1 width=4) (actual rows=1.00 loops=1)\n" +
+			"        Rows Removed by Filter: 4417\n" +
+			"  InitPlan 1 (returns $0)\n" +
+			"    ->  Result  (cost=0.00..0.01 rows=1 width=4)\n" +
+			"Seq Scan on t2 (secret 7731) and 'secret-2'")
+		assert.Equal(t, "Hash Join  (cost=10.50..20.75 rows=100 width=8) (actual time=0.015..0.250 rows=98 loops=1)\n"+
+			"  Some_Label: ?\n"+
+			"  ->  Seq Scan on t  (cost=0.00..1.00 rows=1 width=4) (actual rows=1.00 loops=1)\n"+
+			"        Rows Removed by Filter: ?\n"+
+			"  InitPlan ? (returns $0)\n"+
+			"    ->  Result  (cost=0.00..0.01 rows=1 width=4)\n"+
+			"Seq Scan on t2 (secret ?) and ?", got)
 
 		// The apostrophe of a double-quoted identifier opens no constant.
 		got = maskPGPlan("Seq Scan on t\n  Filter: (\"o'neil\" = 'x')\n  ->  Index Scan on i  (cost=1.00..2.00 rows=3 width=4)")
@@ -317,6 +527,19 @@ func TestMaskMongoPlan(t *testing.T) {
 	assert.Contains(t, got, `"email":{"$eq":"?"}`)
 	assert.Contains(t, got, `"stage":"COLLSCAN"`)
 
+	// A compound text index's indexPrefix holds the query's equality values under their field names, which can be
+	// named like a plan key: plan keys count only on the plan's own structure.
+	prefix := `{"queryPlanner":{"winningPlan":{"stage":"TEXT_MATCH","indexPrefix":{"host":"db7.internal.example",` +
+		`"keyPattern":"secret-k"},"indexName":"host_1_message_text","inputStage":{"stage":"IXSCAN","keyPattern":{"host":1,"_fts":"text"},` +
+		`"keysExamined":3}}},"unknown":{"version":"secret-v","nReturned":4417}}`
+	got = maskMongoPlan(prefix)
+	for _, literal := range []string{"db7.internal.example", "secret", "4417"} {
+		assert.NotContains(t, got, literal)
+	}
+	assert.Contains(t, got, `"indexPrefix":{"host":"?","keyPattern":"?"}`)
+	assert.Contains(t, got, `"keyPattern":{"host":1,"_fts":"text"},"keysExamined":3`)
+	assert.Contains(t, got, `"stage":"TEXT_MATCH"`)
+
 	assert.Equal(t, planWithheld, maskMongoPlan("not json"))
 }
 
@@ -386,6 +609,10 @@ func TestRedactPlan(t *testing.T) {
 	assert.NotContains(t, got, "123-45-6789")
 	assert.NotContains(t, got, "a|b", "a | inside the condition stays in the masked cell")
 	assert.Contains(t, got, "1  |SIMPLE      |t     |ALL  |5000 |Using where with pushed condition: ((`t`.`ssn` = ?) or (`t`.`tag` = ?))")
+	got = redactPlan(engineMySQL, formatTraditional, "id |Extra\n1  |Using where with pushed condition: (`t`.`zq-vip 7731` = 1)", true)
+	assert.Contains(t, got, "(`t`.`?` = ?)", "a name that is not a plain name is masked")
+	got = redactPlan(engineMySQL, formatTraditional, "id |Extra\n1  |Using where with pushed condition: (`t`.`ssn = '123-45-6789')", true)
+	assert.NotContains(t, got, "123-45-6789", "a name that does not close is masked to the end")
 
 	// A cell with a line break moves the rest of its row onto a line with fewer cells, which can't be matched to columns.
 	broken := "id |select_type |table |type |Extra\n" +
@@ -511,6 +738,7 @@ func TestMapActionErrorRedaction(t *testing.T) {
 	// pmm-agent's own texts and network errors quote no statement.
 	for _, kept := range []string{
 		"query to EXPLAIN is empty",
+		"context deadline exceeded",
 		"dial tcp 10.0.0.5:3306: connect: connection refused",
 		"database name is not included in this query. Explain could not be triggered without this info: Error 1046 (3D000): No database selected",
 	} {

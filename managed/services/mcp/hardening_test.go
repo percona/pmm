@@ -33,7 +33,7 @@ import (
 	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 )
 
-// This file covers the PMM-15528 hardening changes. Each test names the
+// This file covers the hardening changes. Each test names the
 // behaviour it pins rather than the function it calls, so a regression reads
 // as a broken promise rather than a broken implementation detail.
 
@@ -482,7 +482,7 @@ func TestConfigByServiceName(t *testing.T) {
 //
 // Only PostgreSQL has stored plans - pg_stat_monitor captures one per digest -
 // so the probe runs for PostgreSQL alone. It sends service_id, which qan-api2
-// ignores until PMM-15697. These tests pin what the probe does promise.
+// ignores. These tests pin what the probe does promise.
 func TestStoredPlanProbe(t *testing.T) {
 	t.Parallel()
 

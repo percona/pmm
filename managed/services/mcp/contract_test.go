@@ -167,10 +167,10 @@ func TestUntrustedFieldsMarked(t *testing.T) {
 			"tables[].database", "tables[].name", "tables[].definition", "tables[].indexes",
 			"tables[].definition_error.message", "tables[].indexes_error.message", "unresolved", "not_fetched",
 		},
-		"pmm_get_config":     {"service_name", "version", "variables[].value"},
+		"pmm_get_config":     {"service_name", "version", "variables[].name", "variables[].value"},
 		"pmm_catalog":        {},
 		"pmm_query_metrics":  {"series[].labels", "shared_labels"},
-		"pmm_list_metrics":   {"labels", "values", "series"},
+		"pmm_list_metrics":   {"names[].name", "groups[].prefix", "labels", "values", "series"},
 		"pmm_service_health": {"service_name", "signals[].error.message"},
 	}
 	tools := listedTools(t)
@@ -560,12 +560,10 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 			},
 		},
 		"pmm_alerts": {
-			{name: "NoRules", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{"GET " + rulesPath: {body: []byte(`{"status":"success","data":{"groups":[]}}`)}}))},
-			{name: "NothingInTheList", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{serviceListKey: {file: "vm_empty.json"}}))},
-			{name: "Narrowed", fake: routed(alertsRoutes("alerts_up_negative.json"))},
-			{name: "RulesFail", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{"GET " + rulesPath: failed})), wantErr: true},
-			{name: "SilencesFail", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{"GET " + silencesPath: failed})), wantErr: true},
-			{name: "ServiceListFails", fake: routed(withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{serviceListKey: failed})), wantErr: true},
+			{name: "NoRules", fake: routed(withRoutes(alertsRoutes(), map[string]fixture{"GET " + rulesPath: {body: []byte(`{"status":"success","data":{"groups":[]}}`)}}))},
+			{name: "Alerts", fake: routed(alertsRoutes())},
+			{name: "RulesFail", fake: routed(withRoutes(alertsRoutes(), map[string]fixture{"GET " + rulesPath: failed})), wantErr: true},
+			{name: "SilencesFail", fake: routed(withRoutes(alertsRoutes(), map[string]fixture{"GET " + silencesPath: failed})), wantErr: true},
 		},
 		"pmm_list_metrics": {
 			{name: "NoNames", fake: routed(listRoutes(map[string]fixture{vmNames: {body: stringsBody(nil)}}))},

@@ -1,7 +1,7 @@
 [
   {
     "name": "pmm_alerts",
-    "description": "List the alerts firing now in PMM's alerting, and the pending ones whose rule waits out its pending period, from the alert rules your Grafana folder permissions let you read. Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet. The list holds the alerts of the services and nodes in your service list (those whose up series you can read and that sent metrics in the last 7 days), the alerts that name no service or node, and PMM Server's own alerts. Each alert has its severity, labels, summary, description, start time, whether a silence mutes it and until when, and a link to its rule in PMM; firing alerts come first, then pending ones, each the most severe and newest first. Filter by service_id, service_name, node_name or severity. Read only: it does not silence or acknowledge alerts.",
+    "description": "List the alerts firing now in PMM's alerting, the recovering ones whose condition cleared but whose rule keeps them firing for a while, and the pending ones whose rule waits out its pending period, from the alert rules your Grafana folder permissions let you read. Firing, recovering and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet. It lists the alerts that Grafana's rules API returns to you, as PMM's Alerts page does; Access Roles don't narrow them. Each alert has its severity, labels, summary, description, start time, whether a silence mutes it and until when, and a link to its rule in PMM; firing alerts come first, then recovering, then pending ones, each the most severe and newest first. Filter by service_id, service_name, node_name or severity. Read only: it does not silence or acknowledge alerts.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -36,7 +36,7 @@
       "additionalProperties": false,
       "properties": {
         "alerts": {
-          "description": "Firing and pending alerts on this page.",
+          "description": "Firing, recovering and pending alerts on this page.",
           "items": {
             "additionalProperties": false,
             "properties": {
@@ -75,11 +75,11 @@
                 ]
               },
               "starts_at": {
-                "description": "When the alert started firing, or, for a pending alert, when it went pending.",
+                "description": "When the alert started firing, recovering or pending; left out when Grafana gives no time.",
                 "type": "string"
               },
               "state": {
-                "description": "firing, or pending while the alert's rule waits out its pending period before it fires.",
+                "description": "firing; recovering when its condition cleared but its rule keeps it firing; or pending before it fires.",
                 "type": "string"
               },
               "summary": {
@@ -90,7 +90,6 @@
             "required": [
               "name",
               "state",
-              "starts_at",
               "silenced",
               "pmm_url"
             ],
@@ -143,7 +142,7 @@
       "idempotentHint": true,
       "openWorldHint": false,
       "readOnlyHint": true,
-      "title": "Firing and pending alerts"
+      "title": "Firing, recovering and pending alerts"
     }
   },
   {
@@ -213,7 +212,7 @@
                 "type": "string"
               },
               "unit": {
-                "description": "Unit of the value query returns, as Grafana names it: short, ops, bytes, Bps, s or none (metrics).",
+                "description": "Unit of the value query returns: short, ops, bytes, Bps, s, dateTimeAsSystem or none (metrics).",
                 "type": "string"
               }
             },
@@ -333,7 +332,7 @@
             "additionalProperties": false,
             "properties": {
               "name": {
-                "description": "Variable name, without the exporter's metric prefix.",
+                "description": "Untrusted. Variable name, without the exporter's metric prefix.",
                 "type": "string"
               },
               "value": {
@@ -889,7 +888,7 @@
   },
   {
     "name": "pmm_list_metrics",
-    "description": "Discover what PMM's metrics hold before writing a query. kind names (default) lists metric names matching search, optionally of one service (service_id or service_name); over limit names it returns groups of names by prefix with counts instead. kind labels lists label names, kind values the values of one label, and kind series the label sets of the series, each narrowed by match selectors (required for series). Each looks back at most 7 days (period_from, default 1 hour), returns at most 1000 entries from VictoriaMetrics, and pages with offset and limit (default 100, at most 1000); series are also held to 16 KiB.",
+    "description": "Discover what PMM's metrics hold before writing a query. kind names (default) lists metric names matching search, optionally of one service (service_id or service_name); over limit names it returns groups of names by prefix with counts instead. kind labels lists label names, kind values the values of one label, and kind series the label sets of the series, each narrowed by match selectors (required for series). Each looks back at most 7 days (period_from, default 1 hour), returns at most 1000 entries from VictoriaMetrics, and pages with offset and limit (default 100, at most 1000); a page is also held to 16 KiB.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -906,7 +905,7 @@
           "type": "integer"
         },
         "match": {
-          "description": "kinds labels, values, series: series selectors such as mysql_up; required for series; each names a metric",
+          "description": "kinds labels, values, series: plain selectors such as mysql_up; required for series; each names a metric",
           "items": {
             "type": "string"
           },
@@ -924,7 +923,7 @@
           "type": "string"
         },
         "search": {
-          "description": "kind names: text a metric name contains, such as mongodb or innodb_buffer; empty lists every name",
+          "description": "kind names: text a metric name contains, such as mongodb; at most 200 characters; empty lists every name",
           "type": "string"
         },
         "service_id": {
@@ -951,7 +950,7 @@
                 "type": "integer"
               },
               "prefix": {
-                "description": "The shared prefix; ends in _* for a group of several names.",
+                "description": "Untrusted. The shared prefix; ends in _* for a group of several names.",
                 "type": "string"
               }
             },
@@ -994,7 +993,7 @@
                 "type": "string"
               },
               "name": {
-                "description": "The metric name.",
+                "description": "Untrusted. The metric name.",
                 "type": "string"
               },
               "type": {
@@ -1354,7 +1353,7 @@
                 "additionalProperties": {
                   "type": "string"
                 },
-                "description": "Untrusted. The series' labels other than shared_labels and PMM's internal ones; empty when there are none.",
+                "description": "Untrusted. Labels other than shared_labels and PMM's internal ones that tell no series apart; empty when none.",
                 "type": "object"
               },
               "last": {
@@ -1527,7 +1526,7 @@
           "type": "boolean"
         },
         "pmm_url": {
-          "description": "Link to the service's instance summary dashboard in PMM.",
+          "description": "Link to the service's instance summary dashboard in PMM, over the window.",
           "type": "string"
         },
         "service_id": {

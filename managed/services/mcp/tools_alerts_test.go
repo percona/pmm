@@ -34,11 +34,9 @@ const (
 	silencesPath = "/graph/api/alertmanager/grafana/api/v2/silences"
 )
 
-// alertsRoutes serves the alert fixtures, with up as the service list.
-func alertsRoutes(up string) map[string]fixture {
+// alertsRoutes serves the alert fixtures.
+func alertsRoutes() map[string]fixture {
 	return map[string]fixture{
-		"GET /graph/api/datasources/name/Metrics": {file: "datasource_metrics.json"},
-		serviceListKey:        {file: up},
 		"GET " + rulesPath:    {file: "alerts_rules.json"},
 		"GET " + amAlertsPath: {file: "alerts_am_alerts.json"},
 		"GET " + silencesPath: {file: "alerts_silences.json"},
@@ -70,12 +68,13 @@ func alertKeys(rows []alertRow) []string {
 	return out
 }
 
-// firingAlert is one alert of rulesBody; pending makes it a pending one.
+// firingAlert is one alert of rulesBody; pending or recovering puts it in that state.
 type firingAlert struct {
-	rule     string
-	labels   map[string]string
-	activeAt time.Time
-	pending  bool
+	rule       string
+	labels     map[string]string
+	activeAt   time.Time
+	pending    bool
+	recovering bool
 }
 
 // rulesBody is a rules API response in the shape of alerts_rules.json, with one rule per alert.
@@ -87,8 +86,11 @@ func rulesBody(t *testing.T, alerts ...firingAlert) []byte {
 		labels := map[string]string{"alertname": a.rule, "grafana_folder": "Alerts"}
 		maps.Copy(labels, a.labels)
 		ruleState, alertState := "firing", "Alerting"
-		if a.pending {
+		switch {
+		case a.pending:
 			ruleState, alertState = "pending", "Pending"
+		case a.recovering:
+			ruleState, alertState = "recovering", "Recovering"
 		}
 		rules = append(rules, map[string]any{
 			"state":      ruleState,
@@ -114,114 +116,39 @@ func rulesBody(t *testing.T, alerts ...firingAlert) []byte {
 	})
 }
 
-func TestKeepAlert(t *testing.T) {
-	t.Parallel()
-
-	// A restricted caller's list: one service and its node, and a host whose node_exporter series it can read.
-	list := newServiceSet(
-		[]serviceInfo{{ServiceID: "svc-a", ServiceName: "shop-a", Engine: engineMySQL, NodeID: "node-a", NodeName: "host-a"}},
-		[]nodeInfo{{NodeID: "node-a", NodeName: "host-a"}, {NodeID: "node-bare", NodeName: "bare-host"}},
-	)
-	alert := func(labels ...string) grafanaAlert {
-		a := grafanaAlert{RuleUID: "user-rule", Labels: map[string]string{"alertname": "Some alert", "severity": "warning"}}
-		for i := 0; i < len(labels); i += 2 {
-			a.Labels[labels[i]] = labels[i+1]
-		}
-		return a
-	}
-	pmmRule := func(uid string, labels ...string) grafanaAlert {
-		a := alert(labels...)
-		a.RuleUID, a.PMMRule = uid, true
-		return a
-	}
-	editorRule := alert("pmm_provisioned", "1", "service_id", "svc-b", "service_name", "shop-b")
-	editorRule.RuleUID, editorRule.PMMRule = "pmm-ha-no-leader", isPMMRule("", "pmm-ha-no-leader")
-	annotated := alert("service_id", "svc-a", "service_name", "shop-a")
-	annotated.Annotations = map[string]string{"summary": "shop-b is down", "description": "svc-b on host-b does not answer"}
-	hiddenInAnnotation := alert("instance", "x")
-	hiddenInAnnotation.Annotations = map[string]string{"summary": "shop-b is down"}
-
-	for _, tc := range []struct {
-		name  string
-		alert grafanaAlert
-		keep  bool
-	}{
-		{name: "a service in the list", alert: alert("service_id", "svc-a", "service_name", "shop-a", "node_id", "node-a", "node_name", "host-a"), keep: true},
-		{name: "a node in the list", alert: alert("node_id", "node-bare", "node_name", "bare-host"), keep: true},
-		{name: "a service outside the list", alert: alert("service_id", "svc-b", "service_name", "shop-b"), keep: false},
-		{name: "only a service_name outside the list", alert: alert("service_name", "shop-b"), keep: false},
-		{
-			name:  "a service in the list on a node outside it, as an RDS service's down alert names pmm-server",
-			alert: alert("service_id", "svc-a", "service_name", "shop-a", "node_name", "pmm-server"),
-			keep:  true,
-		},
-		{name: "a listed service_id with a service_name outside the list", alert: alert("service_id", "svc-a", "service_name", "shop-b"), keep: false},
-		{name: "a node outside the list", alert: alert("node_name", "host-b"), keep: false},
-		{name: "a listed node_id with a node_name outside the list", alert: alert("node_id", "node-a", "node_name", "host-b"), keep: false},
-		{name: "PMM's HA rule on a replica's PMM_HA_NODE_ID", alert: pmmRule("pmm-ha-node-unreachable", "node_id", "pmm-server-1"), keep: true},
-		{name: "PMM's ClickHouse rule on HA, with service_name clickhouse", alert: pmmRule("pmm-clickhouse-down", "service_name", "clickhouse"), keep: true},
-		{
-			name:  "PMM's Grafana rule on a standalone server",
-			alert: pmmRule("pmm-grafana-down", "node_name", "pmm-server", "instance", "pmm-server", "job", "grafana", "pmm_provisioned", "1"),
-			keep:  true,
-		},
-		{
-			name:  "a user's rule labelled pmm_provisioned on a service outside the list",
-			alert: alert("pmm_provisioned", "1", "service_id", "svc-b", "service_name", "shop-b"),
-			keep:  false,
-		},
-		{name: "an Editor's rule with a catalog UID and no provenance on a service outside the list", alert: editorRule, keep: false},
-		{name: "no service or node label", alert: alert("instance", "x", "job", "custom"), keep: true},
-		{name: "a template rule's node-level alert on a listed node", alert: alert("service_name", "[no value]", "node_name", "host-a"), keep: true},
-		{name: "a template rule's node-level alert on a node outside the list", alert: alert("service_name", "[no value]", "node_name", "host-b"), keep: false},
-		{name: "a template rule's server-level alert", alert: alert("service_name", "[no value]", "node_name", "[no value]"), keep: true},
-		{name: "every service and node label [no value]", alert: alert("service_id", "[no value]", "service_name", "[no value]", "node_id", "[no value]", "node_name", "[no value]"), keep: true},
-		{name: "an annotation naming a hidden service on a listed service's alert", alert: annotated, keep: true},
-		{name: "an annotation naming a hidden service on a server-level alert", alert: hiddenInAnnotation, keep: true},
-		{name: "a node_name equal to a listed service's name", alert: alert("node_name", "shop-a"), keep: false},
-		{name: "a node_id equal to a listed service's id", alert: alert("node_id", "svc-a"), keep: false},
-		{name: "a service_name equal to a listed node's name", alert: alert("service_name", "host-a"), keep: false},
-		{name: "a service_id equal to a listed node's id", alert: alert("service_id", "node-a"), keep: false},
-	} {
-		assert.Equal(t, tc.keep, list.keepAlert(tc.alert), tc.name)
-	}
-}
-
-func TestIsPMMRule(t *testing.T) {
-	t.Parallel()
-
-	assert.True(t, isPMMRule("file", "pmm-grafana-down"))
-	assert.True(t, isPMMRule("file", "pmm-ha-node-unreachable"))
-	assert.False(t, isPMMRule("", "pmm-ha-no-leader"), "a catalog UID without provenance")
-	assert.False(t, isPMMRule("api", "pmm-grafana-down"), "a catalog UID with API provenance")
-	assert.False(t, isPMMRule("file", "custom-file-rule"), "a file-provisioned rule outside the catalog")
-}
-
 func TestAlertsTool(t *testing.T) {
 	t.Parallel()
 
-	note := "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
+	note := "Firing, recovering and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
 	at := func(hour, minute int) time.Time { return time.Date(2026, 9, 14, hour, minute, 0, 0, time.UTC) }
 	ptr := func(v time.Time) *time.Time { return &v }
 
-	t.Run("NarrowedToTheServiceList", func(t *testing.T) {
+	t.Run("EveryAlertOfTheRules", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, alertsRoutes("alerts_up.json"))
+		fake := newFakePMM(t, alertsRoutes())
 		got, text := callAlerts(t, fake, nil)
 
 		assert.Equal(t, []string{
 			"PMM Grafana is down@pmm-server",
+			"Fake leader@shop-b",
+			"PostgreSQL down@shop-d",
+			"MySQL down@shop-b",
 			"MySQL down@shop-a",
+			"MySQL down@shop-rds",
+			"MySQL down@shop-gone",
 			"MySQL down@shop-quiet",
+			"ProxySQL down@proxy-1",
 			"Node high CPU@host-a",
 			"Node high CPU@host-shared",
+			"Node high CPU@host-b",
 			"Too many connections@shop-a",
 			"Too many connections@shop-c",
+			"Node high CPU@bare-host",
 			"Vector one@-",
 			"Too many connections@shop-quiet",
 		}, alertKeys(got.Alerts), "the pending alert comes after the firing ones")
-		assert.Equal(t, page{Total: 9, Offset: 0, Limit: 50}, got.Page)
+		assert.Equal(t, page{Total: 17, Offset: 0, Limit: 50}, got.Page)
 		assert.Equal(t, note, got.Note)
 		assert.True(t, strings.HasPrefix(text, note+"\n- critical | PMM Grafana is down | node=pmm-server | since 2026-09-14T11:45:00Z | "), text)
 		fake.assertForwardedAuth(t)
@@ -238,11 +165,11 @@ func TestAlertsTool(t *testing.T) {
 			Description: "MySQL shop-a on host-a is down.",
 			StartsAt:    at(11, 0),
 			PMMURL:      "https://pmm.example.com/graph/alerting/grafana/mysql-down/view",
-		}, got.Alerts[1], "an Alertmanager alert with one more label is not this alert's")
+		}, got.Alerts[4], "an Alertmanager alert with one more label is not this alert's")
 
 		rules := fake.requestsTo(rulesPath)
 		require.Len(t, rules, 1)
-		assert.Equal(t, []string{"firing", "pending"}, queryOf(t, rules[0])["state"])
+		assert.Equal(t, []string{"firing", "recovering", "pending"}, queryOf(t, rules[0])["state"])
 		am := fake.requestsTo(amAlertsPath)
 		require.Len(t, am, 1)
 		assert.Equal(t, "false", queryOf(t, am[0]).Get("active"))
@@ -252,9 +179,9 @@ func TestAlertsTool(t *testing.T) {
 	t.Run("SilenceJoinedByRuleUIDAndLabelSet", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, alertsRoutes("alerts_up.json"))
+		fake := newFakePMM(t, alertsRoutes())
 		got, text := callAlerts(t, fake, nil)
-		require.Len(t, got.Alerts, 9)
+		require.Len(t, got.Alerts, 17)
 		byKey := map[string]alertRow{}
 		for i, key := range alertKeys(got.Alerts) {
 			byKey[key] = got.Alerts[i]
@@ -286,6 +213,19 @@ func TestAlertsTool(t *testing.T) {
 		assert.NotContains(t, alertKeys(got.Alerts), "Hidden rule@shop-a", "an Alertmanager alert never adds an alert")
 		assert.NotContains(t, text, "Hidden rule")
 		assert.Equal(t, 2, strings.Count(text, "silenced until"), text)
+
+		// The rules API keeps a label whose template expands to an empty string; Grafana's Alertmanager drops it.
+		fake = newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
+			"GET " + rulesPath: {body: rulesBody(t, firingAlert{rule: "empty", labels: map[string]string{"severity": "warning", "instance": ""}, activeAt: at(9, 0)})},
+			"GET " + amAlertsPath: {body: mustJSON(t, []map[string]any{{
+				"labels": map[string]string{"alertname": "empty", "grafana_folder": "Alerts", "severity": "warning", ruleUIDLabel: "rule-000"},
+				"status": map[string]any{"inhibitedBy": []string{}, "silencedBy": []string{"5f1c2b7e-0000-4000-8000-000000000001"}, "state": "suppressed"},
+			}})},
+		}))
+		got, _ = callAlerts(t, fake, nil)
+		require.Len(t, got.Alerts, 1)
+		assert.True(t, got.Alerts[0].Silenced, "a label with an empty value is left out of the join")
+		assert.Equal(t, ptr(time.Date(2026, 9, 15, 8, 0, 0, 0, time.UTC)), got.Alerts[0].SilencedUntil)
 	})
 
 	t.Run("PendingAlertIsNeverSilenced", func(t *testing.T) {
@@ -298,7 +238,7 @@ func TestAlertsTool(t *testing.T) {
 		labels, ok := earlier["labels"].(map[string]any)
 		require.True(t, ok)
 		labels["service_id"], labels["service_name"] = "svc-quiet", "shop-quiet"
-		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
 			"GET " + amAlertsPath: {body: mustJSON(t, []map[string]any{earlier})},
 		}))
 
@@ -321,7 +261,7 @@ func TestAlertsTool(t *testing.T) {
 		conn := am[0]
 		require.Equal(t, "conn", conn["labels"].(map[string]any)[ruleUIDLabel])
 		conn["status"] = map[string]any{"inhibitedBy": []string{}, "silencedBy": []string{"5f1c2b7e-0000-4000-8000-0000000000ff"}, "state": "suppressed"}
-		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
 			"GET " + amAlertsPath: {body: mustJSON(t, []map[string]any{conn})},
 		}))
 
@@ -338,7 +278,7 @@ func TestAlertsTool(t *testing.T) {
 	t.Run("Text", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, alertsRoutes("alerts_up.json"))
+		fake := newFakePMM(t, alertsRoutes())
 		_, text := callAlerts(t, fake, map[string]any{"service_name": "shop-a"})
 		assert.Equal(t, strings.Join([]string{
 			note,
@@ -362,7 +302,7 @@ func TestAlertsTool(t *testing.T) {
 	t.Run("Filters", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, alertsRoutes("alerts_up.json"))
+		fake := newFakePMM(t, alertsRoutes())
 		for _, tc := range []struct {
 			args map[string]any
 			want []string
@@ -373,14 +313,20 @@ func TestAlertsTool(t *testing.T) {
 				map[string]any{"node_name": "host-a"},
 				[]string{"MySQL down@shop-a", "MySQL down@shop-quiet", "Node high CPU@host-a", "Too many connections@shop-a", "Too many connections@shop-quiet"},
 			},
-			{map[string]any{"node_name": "host-shared"}, []string{"Node high CPU@host-shared", "Too many connections@shop-c"}},
+			{map[string]any{"node_name": "host-shared"}, []string{"PostgreSQL down@shop-d", "Node high CPU@host-shared", "Too many connections@shop-c"}},
 			{
 				map[string]any{"severity": "WARNING"},
-				[]string{"Node high CPU@host-a", "Node high CPU@host-shared", "Too many connections@shop-a", "Too many connections@shop-c", "Too many connections@shop-quiet"},
+				[]string{
+					"Node high CPU@host-a", "Node high CPU@host-shared", "Node high CPU@host-b", "Too many connections@shop-a", "Too many connections@shop-c",
+					"Node high CPU@bare-host", "Too many connections@shop-quiet",
+				},
 			},
 			{
 				map[string]any{"severity": "critical"},
-				[]string{"PMM Grafana is down@pmm-server", "MySQL down@shop-a", "MySQL down@shop-quiet"},
+				[]string{
+					"PMM Grafana is down@pmm-server", "Fake leader@shop-b", "PostgreSQL down@shop-d", "MySQL down@shop-b", "MySQL down@shop-a",
+					"MySQL down@shop-rds", "MySQL down@shop-gone", "MySQL down@shop-quiet", "ProxySQL down@proxy-1",
+				},
 			},
 			{map[string]any{"service_name": "shop-a", "severity": "warning"}, []string{"Too many connections@shop-a"}},
 			{map[string]any{"service_id": "svc-c", "severity": "critical"}, []string{}},
@@ -392,26 +338,47 @@ func TestAlertsTool(t *testing.T) {
 		}
 	})
 
-	t.Run("FilterOutsideTheList", func(t *testing.T) {
+	t.Run("NotNarrowedToTheServiceList", func(t *testing.T) {
 		t.Parallel()
 
-		want := "error: not_found\n" + errNotInList(window{From: testNow.Add(-7 * day), To: testNow}, testNow, "").message
-		assert.Contains(t, want, "searched 2026-09-07T12:00:00Z – 2026-09-14T12:00:00Z")
-		for _, args := range []map[string]any{
-			{"service_id": "svc-b"},
-			{"service_name": "shop-b"},
-			{"node_name": "host-b"},
-			{"service_id": "svc-gone"},
-			{"service_id": "svc-a", "service_name": "shop-b"},
+		// The caller's up series name shop-a, shop-quiet and shop-c only.
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
+			"GET /graph/api/datasources/name/Metrics": {file: "datasource_metrics.json"},
+			serviceListKey: {file: "alerts_up.json"},
+		}))
+		got, _ := callAlerts(t, fake, map[string]any{"service_name": "shop-b"})
+		assert.Equal(t, []string{"Fake leader@shop-b", "MySQL down@shop-b"}, alertKeys(got.Alerts))
+		got, _ = callAlerts(t, fake, map[string]any{"node_name": "host-b"})
+		assert.Equal(t, []string{"MySQL down@shop-b", "Node high CPU@host-b"}, alertKeys(got.Alerts))
+
+		alerting := len(fake.requestsTo(rulesPath)) + len(fake.requestsTo(amAlertsPath)) + len(fake.requestsTo(silencesPath))
+		assert.Equal(t, alerting, fake.requestCount(), "only Grafana's alerting APIs are read")
+		assert.Zero(t, listQueries(fake), "no service list is read")
+	})
+
+	t.Run("FilterMatchingNoAlert", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tc := range []struct {
+			args map[string]any
+			want string
+		}{
+			{map[string]any{"service_id": "svc-none"}, "No firing, recovering or pending alerts match the service_id filter: check its value, or call pmm_alerts without it."},
+			{map[string]any{"service_name": "shop-none"}, "No firing, recovering or pending alerts match the service_name filter: check its value, or call pmm_alerts without it."},
+			{map[string]any{"node_name": "host-none"}, "No firing, recovering or pending alerts match the node_name filter: check its value, or call pmm_alerts without it."},
+			{
+				map[string]any{"service_id": "svc-a", "service_name": "shop-b"},
+				"No firing, recovering or pending alerts match the service_id and service_name filters: check their values, or call pmm_alerts without them.",
+			},
+			{
+				map[string]any{"service_name": "shop-b", "node_name": "host-a", "severity": "warning"},
+				"No firing, recovering or pending alerts match the service_name, node_name and severity filters: check their values, or call pmm_alerts without them.",
+			},
 		} {
-			fake := newFakePMM(t, alertsRoutes("alerts_up.json"))
-			text, isError := callText(t, connect(t, newQANService(t, fake, false)), "pmm_alerts", args)
-			assert.True(t, isError, "%v", args)
-			assert.Equal(t, want, text, "%v", args)
-			for _, part := range []string{"svc-", "shop-", "host-"} {
-				assert.NotContains(t, text, part, "%v", args)
-			}
-			assert.Empty(t, fake.requestsTo(rulesPath), "%v: the filter is refused before any alert is read", args)
+			got, text := callAlerts(t, newFakePMM(t, alertsRoutes()), tc.args)
+			assert.Empty(t, got.Alerts, "%v", tc.args)
+			assert.Zero(t, got.Page.Total, "%v", tc.args)
+			assert.Equal(t, note+"\n"+tc.want, text, "%v", tc.args)
 		}
 	})
 
@@ -425,7 +392,7 @@ func TestAlertsTool(t *testing.T) {
 			}
 			return firingAlert{rule: name, labels: labels, activeAt: activeAt}
 		}
-		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
 			"GET " + rulesPath: {body: rulesBody(t,
 				server("b-warning-old", "warning", at(9, 0)),
 				server("a-critical-old", "Critical", at(9, 0)),
@@ -454,7 +421,7 @@ func TestAlertsTool(t *testing.T) {
 	t.Run("Pending", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
 			"GET " + rulesPath: {body: rulesBody(t,
 				firingAlert{rule: "b-critical-pending", labels: map[string]string{"severity": "critical"}, activeAt: at(11, 30), pending: true},
 				firingAlert{rule: "a-warning-firing", labels: map[string]string{"severity": "warning"}, activeAt: at(9, 0)},
@@ -468,6 +435,32 @@ func TestAlertsTool(t *testing.T) {
 		assert.Equal(t, at(11, 0), got.Alerts[1].StartsAt, "a pending alert's start is when it went pending")
 		assert.False(t, got.Alerts[1].Silenced)
 		assert.Contains(t, text, "\n- emergency | c-emergency-pending | pending | since 2026-09-14T11:00:00Z | ")
+		assert.Contains(t, text, "\n- warning | a-warning-firing | since 2026-09-14T09:00:00Z | ")
+	})
+
+	t.Run("Recovering", func(t *testing.T) {
+		t.Parallel()
+
+		// The Alertmanager alert of the recovering alert, rule-001, silenced until 2026-09-15T08:00:00Z.
+		am := []map[string]any{{
+			"labels": map[string]string{"alertname": "c-recovering", "grafana_folder": "Alerts", "severity": "warning", ruleUIDLabel: "rule-001"},
+			"status": map[string]any{"inhibitedBy": []string{}, "silencedBy": []string{"5f1c2b7e-0000-4000-8000-000000000001"}, "state": "suppressed"},
+		}}
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
+			"GET " + rulesPath: {body: rulesBody(t,
+				firingAlert{rule: "b-critical-pending", labels: map[string]string{"severity": "critical"}, activeAt: at(11, 30), pending: true},
+				firingAlert{rule: "c-recovering", labels: map[string]string{"severity": "warning"}, activeAt: at(11, 50), recovering: true},
+				firingAlert{rule: "a-warning-firing", labels: map[string]string{"severity": "warning"}, activeAt: at(9, 0)},
+			)},
+			"GET " + amAlertsPath: {body: mustJSON(t, am)},
+		}))
+		got, text := callAlerts(t, fake, nil)
+		require.Equal(t, []string{"a-warning-firing@-", "c-recovering@-", "b-critical-pending@-"}, alertKeys(got.Alerts),
+			"firing alerts come first, then recovering, then pending ones")
+		assert.Equal(t, []string{"firing", "recovering", "pending"}, []string{got.Alerts[0].State, got.Alerts[1].State, got.Alerts[2].State})
+		assert.True(t, got.Alerts[1].Silenced, "a recovering alert still fires in the Alertmanager")
+		assert.Equal(t, ptr(time.Date(2026, 9, 15, 8, 0, 0, 0, time.UTC)), got.Alerts[1].SilencedUntil)
+		assert.Contains(t, text, "\n- warning | c-recovering | recovering | since 2026-09-14T11:50:00Z | silenced until 2026-09-15T08:00:00Z | ")
 		assert.Contains(t, text, "\n- warning | a-warning-firing | since 2026-09-14T09:00:00Z | ")
 	})
 
@@ -486,7 +479,7 @@ func TestAlertsTool(t *testing.T) {
 		body := mustJSON(t, map[string]any{"status": "success", "data": map[string]any{"groups": []map[string]any{{
 			"name": "Outage", "rules": []map[string]any{{"uid": "outage", "name": "Outage", "provenance": nil, "alerts": alerts}},
 		}}}})
-		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
 			"GET " + rulesPath:    {body: body},
 			"GET " + amAlertsPath: {body: []byte("[]")},
 		}))
@@ -512,7 +505,7 @@ func TestAlertsTool(t *testing.T) {
 				activeAt: testNow.Add(-time.Duration(i) * time.Minute),
 			})
 		}
-		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
 			"GET " + rulesPath:    {body: rulesBody(t, many...)},
 			"GET " + amAlertsPath: {body: []byte("[]")},
 		}))
@@ -560,7 +553,7 @@ func TestAlertsTool(t *testing.T) {
 	t.Run("CallsInFlight", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, alertsRoutes("alerts_up.json"))
+		fake := newFakePMM(t, alertsRoutes())
 		s := newQANService(t, fake, false)
 		session := connect(t, s)
 		key := callerKey(callerAuth{authorization: testToken})
@@ -585,8 +578,9 @@ func TestAlertsTool(t *testing.T) {
 			release()
 		}
 		for i := range maxMetricCallsPerReplica {
-			_, hit := s.metrics.acquire(fmt.Sprintf("other-%d", i))
+			release, hit := s.metrics.acquire(fmt.Sprintf("other-%d", i))
 			require.Equal(t, limitNone, hit)
+			t.Cleanup(release)
 		}
 		text, isError = callText(t, session, "pmm_alerts", nil)
 		require.True(t, isError, text)
@@ -598,7 +592,7 @@ func TestAlertsTool(t *testing.T) {
 	t.Run("CallRate", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, alertsRoutes("alerts_up.json"))
+		fake := newFakePMM(t, alertsRoutes())
 		s := newQANService(t, fake, false)
 		session := connect(t, s)
 
@@ -632,34 +626,17 @@ func TestAlertsTool(t *testing.T) {
 			amAlertsPath: "error: unauthorized\nPMM returned 401 on GET " + amAlertsPath + ": Unauthorized",
 			silencesPath: "error: unauthorized\nPMM returned 401 on GET " + silencesPath + ": Unauthorized",
 		} {
-			fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{"GET " + path: unauthorized}))
+			fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{"GET " + path: unauthorized}))
 			text, isError := callText(t, connect(t, newQANService(t, fake, false)), "pmm_alerts", nil)
 			assert.True(t, isError, path)
 			assert.Equal(t, want, text, path)
 		}
 	})
 
-	t.Run("ServiceListFails", func(t *testing.T) {
-		t.Parallel()
-
-		for want, fx := range map[errorCode]fixture{
-			codePMMUnavailable: failed,
-			codeUnauthorized:   {file: "error_401.json", status: http.StatusUnauthorized},
-		} {
-			fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{serviceListKey: fx}))
-			text, isError := callText(t, connect(t, newQANService(t, fake, false)), "pmm_alerts", nil)
-			assert.True(t, isError, text)
-			assert.True(t, strings.HasPrefix(text, "error: "+string(want)+"\n"), text)
-			assert.Empty(t, fake.requestsTo(rulesPath), "no alert is read without the list")
-			assert.Empty(t, fake.requestsTo(amAlertsPath))
-			assert.Empty(t, fake.requestsTo(silencesPath))
-		}
-	})
-
 	t.Run("EmptyResultCarriesTheNote", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
 			"GET " + rulesPath: {body: []byte(`{"status":"success","data":{"groups":[],"totals":{}}}`)},
 		}))
 		res := callTool(t, connect(t, newQANService(t, fake, false)), "pmm_alerts", nil)
@@ -667,94 +644,28 @@ func TestAlertsTool(t *testing.T) {
 		assert.Empty(t, got.Alerts)
 		assert.Equal(t, page{Total: 0, Offset: 0, Limit: 50}, got.Page)
 		assert.Equal(t, note, got.Note)
-		assert.Equal(t, note+"\nNo firing or pending alerts found.", textOf(t, res))
+		assert.Equal(t, note+"\nNo firing, recovering or pending alerts found.", textOf(t, res))
 		assert.Contains(t, string(mustJSON(t, res.StructuredContent)), `"alerts":[]`)
 		assert.Empty(t, fake.requestsTo(amAlertsPath), "no silence state to read")
 
-		got, text := callAlerts(t, newFakePMM(t, alertsRoutes("alerts_up.json")), map[string]any{"severity": "none"})
+		got, text := callAlerts(t, newFakePMM(t, alertsRoutes()), map[string]any{"severity": "none"})
 		assert.Empty(t, got.Alerts)
 		assert.Equal(t, note, got.Note)
-		assert.Equal(t, note+"\nNo firing or pending alerts found.", text)
+		assert.Equal(t, note+"\nNo firing, recovering or pending alerts match the severity filter: check its value, or call pmm_alerts without it.", text)
 	})
 
 	t.Run("NoSilencesReadWithoutASilencedAlert", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, withRoutes(alertsRoutes("alerts_up.json"), map[string]fixture{
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
 			"GET " + amAlertsPath: {body: []byte("[]")},
 		}))
 		got, _ := callAlerts(t, fake, nil)
-		require.Len(t, got.Alerts, 9)
+		require.Len(t, got.Alerts, 17)
 		for _, row := range got.Alerts {
 			assert.False(t, row.Silenced, row.Name)
 		}
 		assert.Empty(t, fake.requestsTo(silencesPath))
-	})
-
-	t.Run("AQuietServiceStaysForSevenDays", func(t *testing.T) {
-		t.Parallel()
-
-		fake := newFakePMM(t, alertsRoutes("alerts_up.json"))
-		got, _ := callAlerts(t, fake, nil)
-		keys := alertKeys(got.Alerts)
-		assert.Contains(t, keys, "MySQL down@shop-quiet", "the service's last up sample is 3 hours old")
-		assert.NotContains(t, keys, "MySQL down@shop-gone", "the service's last up sample is 8 days old")
-
-		lists := queriesWith(fake, "tlast_over_time(up[")
-		require.Len(t, lists, 1)
-		q := queryOf(t, lists[0])
-		assert.Equal(t, fmt.Sprintf(serviceListQuery, int64(alertListLookback/time.Second)), q.Get("query"))
-		assert.Contains(t, q.Get("query"), "up[604800s]")
-		assert.Equal(t, "1789387200", q.Get("time"))
-	})
-
-	t.Run("TwoServicesOnOneNode", func(t *testing.T) {
-		t.Parallel()
-
-		got, _ := callAlerts(t, newFakePMM(t, alertsRoutes("alerts_up.json")), nil)
-		keys := alertKeys(got.Alerts)
-		assert.Contains(t, keys, "Too many connections@shop-c")
-		assert.Contains(t, keys, "Node high CPU@host-shared", "the node's own alert")
-		assert.NotContains(t, keys, "PostgreSQL down@shop-d", "the other service on the node")
-	})
-
-	t.Run("PMMRulesByProvenanceAndCatalogUID", func(t *testing.T) {
-		t.Parallel()
-
-		got, _ := callAlerts(t, newFakePMM(t, alertsRoutes("alerts_up.json")), nil)
-		require.NotEmpty(t, got.Alerts)
-		assert.Equal(t, "PMM Grafana is down@pmm-server", alertKeys(got.Alerts)[0])
-		assert.Equal(t, "https://pmm.example.com/graph/alerting/grafana/pmm-grafana-down/view", got.Alerts[0].PMMURL)
-		assert.NotContains(t, alertKeys(got.Alerts), "Fake leader@shop-b", "a catalog UID without file provenance")
-	})
-
-	t.Run("NegativeAccessRoleFilter", func(t *testing.T) {
-		t.Parallel()
-
-		// The list as VictoriaMetrics returns it for {service_name!="shop-b"}: every service but B, and every node_exporter series.
-		got, _ := callAlerts(t, newFakePMM(t, alertsRoutes("alerts_up_negative.json")), nil)
-		keys := alertKeys(got.Alerts)
-		assert.NotContains(t, keys, "MySQL down@shop-b")
-		assert.NotContains(t, keys, "Fake leader@shop-b")
-		assert.Contains(t, keys, "Node high CPU@host-b", "the node-only alert of B's host")
-		assert.Contains(t, keys, "PostgreSQL down@shop-d")
-		assert.Contains(t, keys, "MySQL down@shop-a")
-	})
-
-	t.Run("ServiceWhoseAgentRunsOnAnotherNode", func(t *testing.T) {
-		t.Parallel()
-
-		// The list as VictoriaMetrics returns it for {environment="prod"}; the mysql_down alert names the pmm-agent's node and no environment.
-		got, _ := callAlerts(t, newFakePMM(t, alertsRoutes("alerts_up_prod.json")), nil)
-		assert.Equal(t, []string{"PMM Grafana is down@pmm-server", "MySQL down@shop-rds", "Vector one@-"}, alertKeys(got.Alerts))
-		assert.Equal(t, "pmm-server", got.Alerts[1].Labels["node_name"])
-	})
-
-	t.Run("AccessControlOff", func(t *testing.T) {
-		t.Parallel()
-
-		got, _ := callAlerts(t, newFakePMM(t, alertsRoutes("alerts_up_all.json")), nil)
-		assert.Equal(t, []string{"PMM Grafana is down@pmm-server", "ProxySQL down@proxy-1", "Node high CPU@bare-host", "Vector one@-"}, alertKeys(got.Alerts))
 	})
 
 	t.Run("Description", func(t *testing.T) {
@@ -763,6 +674,7 @@ func TestAlertsTool(t *testing.T) {
 		tool := listedTools(t)["pmm_alerts"]
 		require.NotNil(t, tool)
 		assert.Contains(t, tool.Description, note)
+		assert.Contains(t, tool.Description, "Access Roles don't narrow them")
 		assert.NotContains(t, strings.ToLower(tool.Description), "restrict")
 	})
 }
@@ -778,7 +690,7 @@ func TestAlertRuleURL(t *testing.T) {
 func TestAlertsTextOneLinePerAlert(t *testing.T) {
 	t.Parallel()
 
-	note := "Firing and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
+	note := "Firing, recovering and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet."
 	r := alertsResult{
 		Note: note,
 		Page: page{Total: 1, Limit: 50},
@@ -821,4 +733,25 @@ func TestAlertFilters(t *testing.T) {
 	assert.True(t, alertsInput{ServiceID: "svc-a", ServiceName: "shop-a", NodeName: "host-a", Severity: "CRITICAL"}.matches(alert))
 	assert.False(t, alertsInput{ServiceName: "Shop-A"}.matches(alert), "names compare exactly")
 	assert.False(t, alertsInput{Severity: "crit"}.matches(alert))
+}
+
+// TestAlertsPendingPageWithoutStart pins that a page of pending alerts reads no silence state, so a failing
+// Alertmanager doesn't fail it, and that an alert without Grafana's activeAt shows no start time.
+func TestAlertsPendingPageWithoutStart(t *testing.T) {
+	t.Parallel()
+
+	rules := `{"status":"success","data":{"groups":[{"name":"MySQL","file":"Alerts","rules":[{"name":"MySQL down","uid":"mysql-down",` +
+		`"alerts":[{"labels":{"alertname":"MySQL down","service_id":"svc-a","service_name":"shop-a","node_name":"host-a"},"state":"Pending"}]}]}]}}`
+	fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
+		"GET " + rulesPath:    {body: []byte(rules)},
+		"GET " + amAlertsPath: {status: http.StatusInternalServerError, body: []byte(`{"message":"boom"}`)},
+	}))
+	res := callTool(t, connect(t, newQANService(t, fake, false)), "pmm_alerts", nil)
+	got := structured[alertsResult](t, res)
+	require.Len(t, got.Alerts, 1)
+	assert.Equal(t, alertPending, got.Alerts[0].State)
+	assert.True(t, got.Alerts[0].StartsAt.IsZero())
+	assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "starts_at")
+	assert.NotContains(t, textOf(t, res), "since")
+	assert.Empty(t, fake.requestsTo(amAlertsPath))
 }
