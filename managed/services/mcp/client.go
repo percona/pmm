@@ -149,7 +149,7 @@ type client struct {
 }
 
 // vmDefaultMaxConcurrentRequests is VictoriaMetrics' default -search.maxConcurrentRequests on cpus CPUs, as
-// getDefaultMaxConcurrentRequests in app/victoria-metrics/main.go computes it at v1.154.0.
+// getDefaultMaxConcurrentRequests in app/victoria-metrics/main.go computes it at v1.156.0.
 func vmDefaultMaxConcurrentRequests(cpus int) int {
 	return min(vmRequestsPerCPU*cpus, maxVMDefaultRequests)
 }
