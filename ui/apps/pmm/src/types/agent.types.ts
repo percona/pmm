@@ -58,7 +58,7 @@ export enum LogLevel {
   debug = 'LOG_LEVEL_DEBUG',
 }
 
-// Settings of an agent from the /v1/management/services API; for secrets and
+// Settings of an agent from the /v1/management/agents API; for secrets and
 // certificates it only says whether they are set, or nothing at all
 export interface ServiceAgent {
   agentId: string;

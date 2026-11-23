@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 import { SwitchInput, TextInput } from '@percona/peak-ui';
 import type { FC } from 'react';
 import type { ServiceAgent } from 'types/agent.types';
-import type { ManagedServiceType } from 'types/services.types';
+import { ManagedServiceType } from 'types/services.types';
 import { Messages } from '../EditService.messages';
 import type { EditServiceFormValues } from '../EditService.schema';
 import type { SettingName } from '../EditService.types';
@@ -19,6 +19,18 @@ const certificateFieldProps = (helperText: string) => ({
   helperText,
 });
 
+const getKeyHelperText = (
+  serviceType: ManagedServiceType,
+  isTlsKeySet: boolean
+) => {
+  if (isTlsKeySet) {
+    return tls.keyStored;
+  }
+
+  // Valkey agents don't report whether a key is stored
+  return serviceType === ManagedServiceType.valkey ? tls.keepStored : '';
+};
+
 interface Props {
   serviceType: ManagedServiceType;
   exporter: ServiceAgent;
@@ -26,7 +38,7 @@ interface Props {
 
 export const TlsSettings: FC<Props> = ({ serviceType, exporter }) => {
   const isShown = useIsSettingShown(serviceType);
-  const keyHelperText = exporter.isTlsKeySet ? tls.keyStored : tls.keepStored;
+  const keyHelperText = getKeyHelperText(serviceType, exporter.isTlsKeySet);
   const certificates: [SettingName, string, string][] = [
     ['tlsCa', tls.tlsCa, tls.keepStored],
     ['tlsCert', tls.tlsCert, tls.keepStored],

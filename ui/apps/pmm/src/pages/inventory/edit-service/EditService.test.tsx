@@ -639,6 +639,43 @@ describe('EditService', () => {
     expect(screen.queryByTestId('edit-service-form')).not.toBeInTheDocument();
   });
 
+  it('says whether a TLS key is stored', async () => {
+    vi.mocked(getEditableService).mockResolvedValue(
+      editable({}, [
+        agent(AgentType.mysqldExporter, { tls: true, isTlsKeySet: true }),
+      ])
+    );
+    const { unmount } = renderEditService();
+
+    expect(
+      await screen.findByLabelText('TLS client key')
+    ).toHaveAccessibleDescription('A key is stored. Leave blank to keep it.');
+    unmount();
+
+    vi.mocked(getEditableService).mockResolvedValue(
+      editable({}, [agent(AgentType.mysqldExporter, { tls: true })])
+    );
+    renderEditService();
+
+    expect(
+      await screen.findByLabelText('TLS client key')
+    ).not.toHaveAccessibleDescription();
+  });
+
+  // Valkey agents don't report whether a key is stored
+  it('says a blank Valkey TLS key keeps the current one', async () => {
+    vi.mocked(getEditableService).mockResolvedValue(
+      editable({ serviceType: ManagedServiceType.valkey }, [
+        agent(AgentType.valkeyExporter, { tls: true }),
+      ])
+    );
+    renderEditService();
+
+    expect(
+      await screen.findByLabelText('TLS client key')
+    ).toHaveAccessibleDescription('Leave blank to keep the current one');
+  });
+
   it('says when the service no longer exists', async () => {
     vi.mocked(getEditableService).mockResolvedValue(null);
     renderEditService('missing');
