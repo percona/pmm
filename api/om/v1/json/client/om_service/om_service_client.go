@@ -59,6 +59,8 @@ type ClientService interface {
 
 	DeleteInventoryService(params *DeleteInventoryServiceParams, opts ...ClientOption) (*DeleteInventoryServiceOK, error)
 
+	DeleteSettingOverride(params *DeleteSettingOverrideParams, opts ...ClientOption) (*DeleteSettingOverrideOK, error)
+
 	GetBootstrapRun(params *GetBootstrapRunParams, opts ...ClientOption) (*GetBootstrapRunOK, error)
 
 	GetInventoryConfig(params *GetInventoryConfigParams, opts ...ClientOption) (*GetInventoryConfigOK, error)
@@ -68,6 +70,8 @@ type ClientService interface {
 	GetInventoryRun(params *GetInventoryRunParams, opts ...ClientOption) (*GetInventoryRunOK, error)
 
 	GetInventoryService(params *GetInventoryServiceParams, opts ...ClientOption) (*GetInventoryServiceOK, error)
+
+	GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error)
 
 	GetTopology(params *GetTopologyParams, opts ...ClientOption) (*GetTopologyOK, error)
 
@@ -90,6 +94,8 @@ type ClientService interface {
 	TriggerTopologyCollection(params *TriggerTopologyCollectionParams, opts ...ClientOption) (*TriggerTopologyCollectionOK, error)
 
 	UpdateInventoryConfig(params *UpdateInventoryConfigParams, opts ...ClientOption) (*UpdateInventoryConfigOK, error)
+
+	UpdateSettings(params *UpdateSettingsParams, opts ...ClientOption) (*UpdateSettingsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -266,6 +272,50 @@ func (a *Client) DeleteInventoryService(params *DeleteInventoryServiceParams, op
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*DeleteInventoryServiceDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+DeleteSettingOverride reverts an operations setting
+
+Removes a scope's override for one setting. Idempotent: removing an absent override changes nothing.
+*/
+func (a *Client) DeleteSettingOverride(params *DeleteSettingOverrideParams, opts ...ClientOption) (*DeleteSettingOverrideOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewDeleteSettingOverrideParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DeleteSettingOverride",
+		Method:             "DELETE",
+		PathPattern:        "/v1/om/settings/overrides/{key}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteSettingOverrideReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*DeleteSettingOverrideOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*DeleteSettingOverrideDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -486,6 +536,50 @@ func (a *Client) GetInventoryService(params *GetInventoryServiceParams, opts ...
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetInventoryServiceDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetSettings gets operations settings
+
+Returns every Operations policy setting resolved for a scope: a cluster override, else the global value, else the registry default. A secret setting reports only whether it is set.
+*/
+func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewGetSettingsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetSettings",
+		Method:             "GET",
+		PathPattern:        "/v1/om/settings",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetSettingsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*GetSettingsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*GetSettingsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -970,6 +1064,50 @@ func (a *Client) UpdateInventoryConfig(params *UpdateInventoryConfigParams, opts
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*UpdateInventoryConfigDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UpdateSettings changes operations settings
+
+Applies a batch of settings changes atomically for a scope: one invalid field rejects the whole batch and writes nothing.
+*/
+func (a *Client) UpdateSettings(params *UpdateSettingsParams, opts ...ClientOption) (*UpdateSettingsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewUpdateSettingsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UpdateSettings",
+		Method:             "PUT",
+		PathPattern:        "/v1/om/settings",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateSettingsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*UpdateSettingsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*UpdateSettingsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
