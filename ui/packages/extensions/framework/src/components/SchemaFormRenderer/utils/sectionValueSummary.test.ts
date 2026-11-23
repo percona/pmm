@@ -19,6 +19,7 @@ import { describe, expect, it } from 'vitest';
 import type { FormSection, PluginField } from '@pmm-extensions/api';
 import {
   EMPTY_SECTION_SUMMARY,
+  SENSITIVE_VALUE_SUMMARY,
   summariseFieldValue,
   summariseSection,
   summariseSectionValues,
@@ -33,6 +34,19 @@ describe('summariseFieldValue', () => {
 
   it.each([undefined, null, ''])('skips the empty value %p', (value) => {
     expect(summariseFieldValue(text, value)).toBeNull();
+  });
+
+  it('masks a credential, naming only that it is set', () => {
+    const password: PluginField = {
+      type: 'string',
+      name: 'password',
+      label: 'Password',
+      sensitive: true,
+    };
+    expect(summariseFieldValue(password, 's3cret')).toBe(
+      `Password: ${SENSITIVE_VALUE_SUMMARY}`
+    );
+    expect(summariseFieldValue(password, '')).toBeNull();
   });
 
   it('resolves a choice value to its option label', () => {

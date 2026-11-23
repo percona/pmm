@@ -17,6 +17,7 @@ package om
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"maps"
@@ -29,6 +30,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/xdg-go/stringprep"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -43,12 +45,13 @@ import (
 const (
 	defaultInventoryRunLimit = 20
 	maxInventoryRunLimit     = 100
+
+	extensionsNotConfigured = "PMM Extensions is not configured, set PMM_ENABLE_EXTENSIONS=1 on PMM Server"
 )
 
 func (s *Service) inventoryProbe() (extensionsApp, error) {
 	if s.probe == nil {
-		return extensionsApp{}, status.Error(codes.FailedPrecondition,
-			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the inventory app")
+		return extensionsApp{}, status.Error(codes.FailedPrecondition, extensionsNotConfigured)
 	}
 	return s.probe.app, nil
 }
@@ -95,9 +98,10 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 		return nil, err
 	}
 
+	support := s.readInstallSupport(ctx)
 	response := &omv1.ListInventoryHostsResponse{Hosts: make([]*omv1.InventoryHost, 0, len(hosts))}
 	for _, host := range hosts {
-		proto := inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID])
+		proto := inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support)
 		if req.AutomationEligible != nil && proto.AutomationEligible != req.GetAutomationEligible() {
 			continue
 		}
@@ -165,8 +169,9 @@ func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHo
 	if err != nil {
 		return nil, err
 	}
+	support := s.readInstallSupport(ctx)
 	return &omv1.GetInventoryHostResponse{
-		Host: inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID]),
+		Host: inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support),
 	}, nil
 }
 
@@ -434,6 +439,9 @@ func runIgnoredSettings(planned extensionsTriggerBootstrapRunRequest, accepted *
 			break
 		}
 	}
+	if _, ok := runStep(*accepted, createAdminUserStep); planned.CreateAdminUser && !ok {
+		ignored = append(ignored, "the administrator user")
+	}
 	return strings.Join(ignored, ", ")
 }
 
@@ -452,13 +460,46 @@ func sameMemberConfig(accepted, planned extensionsMemberConfig) bool {
 	return planned.Hidden == accepted.Hidden && planned.DelaySecs == accepted.DelaySecs
 }
 
-// abandonMisconfiguredRun cancels a run PMM cannot use. Best-effort: the caller already reports the
-// failure, and an app too old for the settings is also too old for :cancel.
-func (s *Service) abandonMisconfiguredRun(ctx context.Context, runID string) {
+// abandonRun cancels a run PMM cannot carry through, best-effort.
+func (s *Service) abandonRun(ctx context.Context, runID, reason string) {
+	s.l.Warnf("bootstrap run %s: cancelling it: %s", runID, reason)
 	_, err := s.bootstrap.cancelRun(ctx, runID)
 	if err != nil {
-		s.l.Warnf("bootstrap run %s: failed to cancel a run PMM Extensions would not configure: %s", runID, err)
+		s.l.Warnf("bootstrap run %s: failed to cancel it: %s", runID, err)
 	}
+}
+
+// newAdminSecret returns a secret for the named administrator (nil if none) and any password PMM generated.
+func newAdminSecret(req *omv1.TriggerHostBootstrapRequest) (*models.OmBootstrapSecret, string, error) {
+	username, password := req.GetAdminUsername(), req.GetAdminPassword()
+	if username == "" {
+		if password != "" {
+			return nil, "", status.Error(codes.InvalidArgument, "admin_password needs admin_username")
+		}
+		return nil, "", nil
+	}
+	if username == bootstrapMongoDBUsername {
+		return nil, "", status.Errorf(codes.InvalidArgument,
+			"admin_username %s is reserved for PMM's monitoring user", bootstrapMongoDBUsername)
+	}
+	generated := ""
+	if password == "" {
+		generated = rand.Text()
+		password = generated
+	}
+	// mongod runs a SCRAM-SHA-256 password through SASLprep, so one it rejects would fail every createUser attempt.
+	_, err := stringprep.SASLprep.Prepare(password)
+	if err != nil {
+		return nil, "", status.Errorf(codes.InvalidArgument,
+			"admin_password has characters MongoDB does not accept in a password: %s", err)
+	}
+
+	secret, err := newBootstrapSecret()
+	if err != nil {
+		return nil, "", status.Errorf(codes.Internal, "failed to generate the run's credentials: %s", err)
+	}
+	secret.AdminUsername, secret.AdminPassword = username, password
+	return secret, generated, nil
 }
 
 // executorUnusable says why nothing can be dispatched to this host, or "" if nothing is known to be wrong.
@@ -481,27 +522,14 @@ func executorUnusable(host extensionsHost) string {
 	return ""
 }
 
-// supportedBootstrapOSIDs mirrors om_bootstrap's OperatingSystem enum, which remains the source of truth,
-// so an unsupported OS fails at trigger time rather than mid-run.
-var supportedBootstrapOSIDs = map[string]bool{"ubuntu": true, "rocky": true}
-
-func supportedBootstrapOSNames() string {
-	names := make([]string, 0, len(supportedBootstrapOSIDs))
-	for id := range supportedBootstrapOSIDs {
-		names = append(names, id)
-	}
-	slices.Sort(names)
-	return strings.Join(names, ", ")
-}
-
 // refuseNodesNotReadyToInstall rejects the request, naming every node that cannot be installed onto,
 // and otherwise returns the one OS the selected nodes share.
-func refuseNodesNotReadyToInstall(nodeIDs []string, hosts []extensionsHost) (string, error) {
+func refuseNodesNotReadyToInstall(nodeIDs []string, hosts []extensionsHost, support installSupport) (string, error) {
 	blocked := make([]string, 0, len(hosts))
 	osIDs := make(map[string][]string)
 	for i, host := range hosts {
 		name := hostDisplayName(host, nodeIDs[i])
-		problems := hostNotReadyReasons(host)
+		problems := hostNotReadyReasons(host, support)
 		if len(problems) > 0 {
 			blocked = append(blocked, fmt.Sprintf("%s: %s", name, strings.Join(problems, "; ")))
 			continue
@@ -534,21 +562,18 @@ func refuseNodesNotReadyToInstall(nodeIDs []string, hosts []extensionsHost) (str
 
 // hostNotReadyReasons returns why an install on this node would fail, as opposed to why it must not be
 // attempted at all, which is hostNotATargetReasons.
-func hostNotReadyReasons(host extensionsHost) []string {
+func hostNotReadyReasons(host extensionsHost, support installSupport) []string {
 	var reasons []string
 	if host.ExecutorHost == nil || *host.ExecutorHost == "" {
 		reasons = append(reasons, "no automation agent is registered for it, so nothing can be dispatched to it")
 	} else if unusable := executorUnusable(host); unusable != "" {
 		reasons = append(reasons, unusable)
 	}
-	switch osID, _ := host.Observed["os_id"].(string); {
-	case osID == "":
+	if observedString(host.Observed, "os_id") == nil {
 		reasons = append(reasons,
 			"no scan has reported its operating system, so its scans are not landing")
-	case !supportedBootstrapOSIDs[osID]:
-		reasons = append(reasons,
-			fmt.Sprintf("it runs %s, which Operations does not support installing onto (supported: %s)",
-				osID, supportedBootstrapOSNames()))
+	} else if reason, _ := support.releaseReason(host.Observed); reason != "" {
+		reasons = append(reasons, reason)
 	}
 	return reasons
 }
@@ -592,8 +617,7 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 	if s.bootstrap == nil {
-		return nil, status.Error(codes.FailedPrecondition,
-			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the bootstrap app")
+		return nil, status.Error(codes.FailedPrecondition, extensionsNotConfigured)
 	}
 	nodeIDs := req.GetNodeIds()
 	if len(nodeIDs) != 1 && len(nodeIDs) != 3 {
@@ -602,6 +626,11 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 	}
 
 	err = validateMemberConfigs(nodeIDs, req.GetMemberConfigs())
+	if err != nil {
+		return nil, err
+	}
+
+	secret, generatedPassword, err := newAdminSecret(req)
 	if err != nil {
 		return nil, err
 	}
@@ -624,7 +653,15 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 
-	osID, err := refuseNodesNotReadyToInstall(nodeIDs, hosts)
+	support := s.readInstallSupport(ctx)
+	if support.err != nil {
+		return nil, support.err
+	}
+	osID, err := refuseNodesNotReadyToInstall(nodeIDs, hosts, support)
+	if err != nil {
+		return nil, err
+	}
+	err = support.refuseUnsupportedMongoDBVersion(req.GetMongodbVersion(), nodeIDs, hosts)
 	if err != nil {
 		return nil, err
 	}
@@ -647,16 +684,17 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 	}
 
 	planned := extensionsTriggerBootstrapRunRequest{
-		Hosts:          executorHosts,
-		InstallMethod:  "packages",
-		OS:             osID,
-		MongoDBVersion: req.GetMongodbVersion(),
-		ReplicaSetName: req.GetReplicaSetName(),
-		DataPath:       req.GetDataPath(),
-		LogPath:        req.GetLogPath(),
-		Port:           req.GetPort(),
-		BindIP:         req.GetBindIp(),
-		MemberConfigs:  memberConfigs,
+		Hosts:           executorHosts,
+		InstallMethod:   "packages",
+		OS:              osID,
+		MongoDBVersion:  req.GetMongodbVersion(),
+		ReplicaSetName:  req.GetReplicaSetName(),
+		DataPath:        req.GetDataPath(),
+		LogPath:         req.GetLogPath(),
+		Port:            req.GetPort(),
+		BindIP:          req.GetBindIp(),
+		MemberConfigs:   memberConfigs,
+		CreateAdminUser: secret != nil,
 	}
 	run, err := s.bootstrap.triggerRun(ctx, planned)
 	if err != nil {
@@ -665,11 +703,21 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 
 	ignored := runIgnoredSettings(planned, run)
 	if ignored != "" {
-		s.abandonMisconfiguredRun(ctx, run.ID)
+		s.abandonRun(ctx, run.ID, "PMM Extensions did not apply "+ignored)
 		return nil, status.Errorf(codes.FailedPrecondition,
 			"PMM Extensions accepted the run but did not apply %s, so it would come up on its own defaults "+
 				"instead of the settings you chose; its om_bootstrap app is older than this PMM. "+
 				"The run has been cancelled", ignored)
+	}
+
+	if secret != nil {
+		secret.RunID = run.ID
+		err = models.CreateOmBootstrapSecret(s.db.Querier, secret)
+		if err != nil {
+			s.abandonRun(ctx, run.ID, fmt.Sprintf("failed to store its credentials: %s", err))
+			return nil, status.Errorf(codes.Internal,
+				"failed to store the run's credentials, so the run has been cancelled: %s", err)
+		}
 	}
 
 	if environment, cluster := req.GetEnvironment(), req.GetCluster(); environment != "" || cluster != "" {
@@ -681,7 +729,7 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		}
 	}
 
-	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID}, nil
+	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID, GeneratedAdminPassword: generatedPassword}, nil
 }
 
 // inventoryHostsByExecutor returns every inventory host that has an executor, keyed by executor host name.
@@ -847,8 +895,7 @@ func (s *Service) nodeIDForExecutorHost(ctx context.Context, executorHost string
 
 func (s *Service) bootstrapProbe() (*bootstrapClient, error) {
 	if s.bootstrap == nil {
-		return nil, status.Error(codes.FailedPrecondition,
-			"PMM Extensions is not configured; set PMM_EXTENSIONS_URL and PMM_EXTENSIONS_TOKEN to reach the bootstrap app")
+		return nil, status.Error(codes.FailedPrecondition, extensionsNotConfigured)
 	}
 	return s.bootstrap, nil
 }
@@ -1014,6 +1061,16 @@ func bootstrapStepsToProto(steps []extensionsBootstrapStep) []*omv1.BootstrapSte
 	return proto
 }
 
+// inventorySettingsClass is om_inventory's settings class on PMM Extensions' admin settings router.
+const inventorySettingsClass = "OmInventorySettings"
+
+// inventorySwitchKey is om_inventory's ENABLED flag, which follows PMM's Operations for MongoDB switch.
+const inventorySwitchKey = "ENABLED"
+
+// errInventorySwitchKey refuses a change Run would undo on its next tick.
+var errInventorySwitchKey = status.Error(codes.InvalidArgument,
+	"ENABLED follows PMM's Operations for MongoDB switch; turn Operations for MongoDB on or off in PMM Settings instead")
+
 // GetInventoryConfig returns the inventory app's configuration.
 func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryConfigRequest) (*omv1.GetInventoryConfigResponse, error) {
 	probe, err := s.inventoryProbe()
@@ -1039,7 +1096,10 @@ const (
 
 func validateConfigValues(values *structpb.Struct) error {
 	fields := values.GetFields()
+	_, switchKey := fields[inventorySwitchKey]
 	switch {
+	case switchKey:
+		return errInventorySwitchKey
 	case len(fields) == 0:
 		return status.Error(codes.InvalidArgument, "values must name at least one field to change")
 	case len(fields) > maxConfigFields:
@@ -1086,8 +1146,8 @@ func (s *Service) UpdateInventoryConfig(ctx context.Context, req *omv1.UpdateInv
 	}
 
 	applied := []extensionsSetting{}
-	call := inventoryCall{method: http.MethodPatch, path: "config", body: req.GetValues().AsMap()}
-	err = probe.call(ctx, call, &applied)
+	call := inventoryCall{method: http.MethodPatch, path: inventorySettingsClass, body: req.GetValues().AsMap()}
+	err = probe.client.settings().call(ctx, call, &applied)
 	if err != nil {
 		return nil, err
 	}
@@ -1113,18 +1173,21 @@ func (s *Service) DeleteInventoryConfigOverride(
 	if err != nil {
 		return nil, err
 	}
+	if req.GetKey() == inventorySwitchKey {
+		return nil, errInventorySwitchKey
+	}
 
-	call := inventoryCall{method: http.MethodDelete, path: inventoryPath("config", req.GetKey())}
-	err = probe.call(ctx, call, nil)
+	call := inventoryCall{method: http.MethodDelete, path: inventoryPath(inventorySettingsClass, req.GetKey())}
+	err = probe.client.settings().call(ctx, call, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &omv1.DeleteInventoryConfigOverrideResponse{}, nil
 }
 
-func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServer bool) *omv1.InventoryHost {
+func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServer bool, support installSupport) *omv1.InventoryHost {
 	executor := executorToProto(host.Observed)
-	eligible, reasons, byDesign := automationEligibility(executor, pmmAgentConnected, isPMMServer, host)
+	eligible, reasons, byDesign := automationEligibility(executor, pmmAgentConnected, isPMMServer, host, support)
 	out := &omv1.InventoryHost{
 		NodeId:                    host.NodeID,
 		Name:                      host.Name,
@@ -1142,6 +1205,7 @@ func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServ
 		AutomationBlockedReasons:  reasons,
 		AutomationBlockedByDesign: byDesign,
 		IsPmmServerNode:           isPMMServer,
+		SupportedMongodbVersions:  support.release(host.Observed).versions,
 	}
 	for _, service := range host.Services {
 		out.Services = append(out.Services, inventoryServiceToProto(service))
@@ -1178,6 +1242,7 @@ func automationEligibility(
 	pmmAgentConnected bool,
 	isPMMServer bool,
 	host extensionsHost,
+	support installSupport,
 ) (bool, []string, bool) {
 	reasons := hostNotATargetReasons(isPMMServer, host)
 	byDesign := len(reasons) > 0
@@ -1195,16 +1260,10 @@ func automationEligibility(
 	} else if !executor.GetDriverHealthy() {
 		reasons = append(reasons, "this node's automation agent cannot run jobs")
 	}
-	switch osID, _ := host.Observed["os_id"].(string); {
-	case osID == "":
-		reasons = append(reasons, "no scan has reported this node's operating system yet")
-	case !supportedBootstrapOSIDs[osID]:
-		// Nothing is wrong with the node; Operations just does not install onto its distribution.
-		byDesign = true
-		reasons = append(reasons, fmt.Sprintf(
-			"this node runs %s, which Operations cannot install onto (supported: %s)",
-			osID, supportedBootstrapOSNames(),
-		))
+	reason, releaseByDesign := support.releaseReason(host.Observed)
+	if reason != "" {
+		byDesign = byDesign || releaseByDesign
+		reasons = append(reasons, reason)
 	}
 	if host.Address == nil || *host.Address == "" {
 		reasons = append(reasons, "PMM has no address for this node")
@@ -1302,12 +1361,17 @@ func inventoryRunEntitiesToProto(nodes []extensionsRunNode) []*omv1.InventoryRun
 func inventorySettingsToProto(settings []extensionsSetting) []*omv1.InventorySetting {
 	out := make([]*omv1.InventorySetting, 0, len(settings))
 	for _, setting := range settings {
+		reload := extensionsReloadToProto(setting.Reload)
+		// Read as fixed, matching the refusal of a change to it.
+		if setting.Key == inventorySwitchKey {
+			reload = omv1.SettingReload_SETTING_RELOAD_NOT_OVERRIDABLE
+		}
 		out = append(out, &omv1.InventorySetting{
 			Key:          setting.Key,
 			Value:        anyToValue(setting.Value),
 			DefaultValue: anyToValue(setting.DefaultValue),
 			Type:         setting.Type,
-			Reload:       extensionsReloadToProto(setting.Reload),
+			Reload:       reload,
 			HasOverride:  setting.HasOverride,
 			IsAdvanced:   setting.IsAdvanced,
 			Description:  optionalString(setting.Description),

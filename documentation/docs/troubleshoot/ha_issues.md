@@ -1,0 +1,446 @@
+# Troubleshoot PMM HA Cluster issues
+
+Use this page when a PMM High Availability (HA) Cluster is unreachable, has no leader, or has stopped collecting data. For problems that aren't specific to HA, such as dashboards, agents, or queries on an otherwise healthy server, see [Troubleshoot PMM](index.md).
+
+!!! note "Default values used in examples"
+    The examples assume the default namespace `pmm` and release name `pmm-ha`, which gives three PMM Server pods: `pmm-ha-0`, `pmm-ha-1`, and `pmm-ha-2`. If you used different values, adjust the commands accordingly.
+
+## Before you begin
+
+Set these variables so you can copy the commands as-is. The `curl` examples use `-k` to accept self-signed certificates; remove it if your PMM Server has a trusted certificate.
+
+```sh
+export PMM_URL="https://<your-pmm-address>"
+export PASSWORD="<admin-password>"
+```
+
+## Check cluster health
+
+Run these three commands first. They tell you whether the pods are up, whether HA is active, and which node holds the leader role:
+
+```sh
+# 1. Are all PMM Server pods running and ready?
+kubectl get pods -n pmm
+
+# 2. Is HA enabled?
+curl -sk -u admin:$PASSWORD "$PMM_URL/v1/ha/status"
+
+# 3. Which node is the leader, and are all nodes healthy?
+curl -sk -u admin:$PASSWORD "$PMM_URL/v1/ha/nodes"
+```
+
+What to look for:
+
+- **Pods:** All three `pmm-ha-*` pods show `Running` with all containers ready (`1/1`). A pod in `Pending` or `CrashLoopBackOff`, or one with a rising restart count, is the first thing to fix.
+- **`/v1/ha/status`:** Returns `{"status":"Enabled"}` when HA is active. Any other value means the server is not running in HA mode.
+- **`/v1/ha/nodes`:** Lists each node with its role (`NODE_ROLE_LEADER` or `NODE_ROLE_FOLLOWER`) and status. A healthy cluster has exactly one leader and all other nodes as followers. If the number of entries is fewer than `expected_nodes`, a node is missing. `expected_nodes` reflects the replica count from installation and does not change when a node goes down.
+
+## Find the logs for each component
+
+Each component stores its logs differently. Use the table below to find the right pod and command for what you're investigating:
+{.power-number}
+
+1. Find the pod name for the component you want to investigate. Pod names with a random suffix change on every deployment, so look them up by label:
+
+    | Component | Pods | How to read the logs |
+    |-----------|------|----------------------|
+    | **PMM Server** | `pmm-ha-0`, `-1`, `-2` | Files under `/srv/logs/` inside the pod (see below) |
+    | **HAProxy** | `pmm-ha-haproxy-*` | `kubectl logs <pod> -n pmm` |
+    | **ClickHouse** | `pmm-ha-pmmdb-0-0-0`, `-0-1-0`, `-0-2-0` | `kubectl logs <pod> -n pmm -c clickhouse` |
+    | **ClickHouse Keeper** | `pmm-ha-keeper-keeper-0-*-0` | `kubectl logs <pod> -n pmm` |
+    | **VictoriaMetrics** | `vmstorage-*`, `vmselect-*`, `vminsert-*` | `kubectl logs <pod> -n pmm` |
+    | **PostgreSQL** | `pmm-ha-pg-db-instance1-*-0` | `kubectl logs <pod> -n pmm` |
+    | **Operators** | `pmm-operators-*` | `kubectl logs <pod> -n pmm` |
+
+    ```sh
+    kubectl get pods -n pmm -l app.kubernetes.io/component=pmm-server
+    kubectl get pods -n pmm -l clickhouse.altinity.com/chi=pmm-ha
+    kubectl get pods -n pmm -l app.kubernetes.io/name=haproxy
+    ```
+
+2. Collect namespace events. Most installation problems are only visible there:
+
+    ```sh
+    kubectl get events -n pmm --sort-by=.metadata.creationTimestamp
+    ```
+
+## PMM Server logs show only startup messages
+
+`kubectl logs` on a PMM Server pod returns `supervisord` output such as `INFO success: grafana entered RUNNING state`, and none of the messages you are looking for.
+
+**Cause:** PMM Server processes write to log files on the `/srv` volume instead of to the container output.
+
+**Fix:** Read the log files inside the pod:
+
+```sh
+kubectl exec -n pmm pmm-ha-0 -c pmm-ha -- tail -100 /srv/logs/pmm-managed.log
+```
+
+`/srv/logs/` also contains `grafana.log`, `nginx.log`, `pmm-agent.log`, `qan-api2.log`, `vmalert.log`, `vmproxy.log`, and `supervisord.log`.
+
+!!! note ""
+    `/srv` is a persistent volume, so these logs survive a pod restart and contain messages from earlier runs. Check the timestamps before concluding that a message relates to the problem you are investigating.
+
+## Cannot log in with the admin password
+
+Every login attempt fails with 401 and the message `Invalid username or password`, even though you are using the password from your installation.
+
+**Cause:** Two different problems produce the same error:
+
+- Grafana has locked the admin user after five failed login attempts.
+- Grafana's admin password is out of sync with the password stored in the `pmm-secret` secret.
+
+To fix it:
+{.power-number}
+
+1. Clear the failed login attempts, then try logging in again:
+
+    ```sh
+    kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c '
+      H="${GF_DATABASE_HOST%%:*}"; P="${GF_DATABASE_HOST##*:}"
+      PGPASSWORD="$GF_DATABASE_PASSWORD" psql -h "$H" -p "$P" -U "$GF_DATABASE_USER" \
+        -d "$GF_DATABASE_NAME" -c "DELETE FROM login_attempt;"'
+    ```
+
+2. If you still can't log in, the admin password is out of sync with `pmm-secret`. Reset the Grafana admin password to the value stored in the secret. A password that the Helm chart generates has no symbol, so the command turns off the [password policy](../admin/manage-users/add_users.md#password-requirements) for this reset only:
+
+    ```sh
+    kubectl exec -n pmm statefulset/pmm-ha -c pmm-ha -- bash -c 'printf %s "$PMM_ADMIN_PASSWORD" | GF_AUTH_BASIC_PASSWORD_POLICY=false grafana-cli \
+      --homepath /usr/share/grafana --config /etc/grafana/grafana.ini \
+      --configOverrides "cfg:database.type=$GF_DATABASE_TYPE cfg:database.host=$GF_DATABASE_HOST cfg:database.name=$GF_DATABASE_NAME cfg:database.user=$GF_DATABASE_USER cfg:database.password=$GF_DATABASE_PASSWORD cfg:database.ssl_mode=$GF_DATABASE_SSL_MODE" \
+      admin reset-admin-password --password-from-stdin'
+    ```
+
+3. Log in with the password from the secret.
+
+## Pods stay in Pending state
+
+One or more pods never start and remain `Pending`.
+
+**Cause:** The cluster does not have enough CPU or memory, or a volume cannot be provisioned.
+
+**Fix:** Check why the scheduler rejected the pod:
+
+```sh
+kubectl describe pod <pod-name> -n pmm
+kubectl get pv,pvc -n pmm
+```
+
+Add a node, or reduce the resource requests in your values file. If you reduce the requests, delete the Pending pod manually. A `StatefulSet` does not recreate a pending pod when the template changes, so it keeps its original request.
+
+## Pods restart after you add your own certificates
+
+In PMM 3.8.0 to 3.10.0, PMM Server pods keep restarting after you add your own certificates in the `certs` section of your values file. The pod log shows `mkdir: cannot create directory '/srv/nginx/tmp': Read-only file system`.
+
+**Fix:** [Remove the certificates from your Helm release](../admin/security/ssl_encryption.md#if-pmm-server-doesnt-start-after-you-add-your-own-certificates).
+
+## PMM returns errors for a few seconds after a pod restarts
+
+Requests fail with 5xx errors for a short time after a PMM Server pod is restarted or deleted, then recover on their own.
+
+**Cause:** HAProxy sends all traffic to the leader only. It checks `/v1/server/leaderHealthCheck`, which returns 200 on the leader and 400 on followers. While a new leader is being elected, no pod passes the check.
+
+**Fix:** This is expected. Wait for the election to finish and retry. If a page was open when this happened, reload it. The browser can keep showing the request that failed during the election.
+
+## PMM is permanently unreachable
+
+Requests keep failing and do not recover.
+
+**Fix:** Check that the HAProxy service has endpoints:
+
+```sh
+kubectl get endpoints pmm-ha-haproxy -n pmm
+```
+
+If the endpoint list is empty, the HAProxy pods are not running or not ready. Check the pod logs to find out why.
+
+If endpoints exist but PMM is still unreachable, the HAProxy pods are up but no PMM Server pod is acting as leader. Ask each PMM Server pod directly which one is the leader:
+
+```sh
+for p in pmm-ha-0 pmm-ha-1 pmm-ha-2; do
+  printf '%s -> ' "$p"
+  kubectl exec -n pmm "$p" -c pmm-ha -- \
+    curl -sk -o /dev/null -w '%{http_code}\n' https://127.0.0.1:8443/v1/server/leaderHealthCheck
+done
+```
+
+Exactly one pod must answer 200. If none does, see the sections below.
+
+To reach PMM while you investigate, connect directly to a PMM Server pod, bypassing HAProxy:
+
+```sh
+kubectl port-forward -n pmm pmm-ha-0 18443:8443
+```
+
+PMM is then available at `https://127.0.0.1:18443`.
+
+## No leader is elected, or there is more than one
+
+PMM does not serve requests, or the cluster behaves inconsistently.
+
+**Fix:** If PMM is unreachable, use the per-pod leader health checks above and inspect the surviving pods' logs as described in [No quorum](#no-quorum-cluster-is-unreachable-after-losing-multiple-replicas). The Grafana proxy is unavailable when HAProxy has no leader to route to.
+
+If PMM is reachable, check the HA metrics through the Grafana data source proxy, using the UID of the Metrics data source:
+
+```sh
+curl -sk -u admin:$PASSWORD \
+  "$PMM_URL/graph/api/datasources/proxy/uid/<datasource-uid>/api/v1/query?query=pmm_ha_leader_status"
+```
+
+Interpret the result:
+
+| Query | Healthy value | Meaning if different |
+|-------|---------------|----------------------|
+| `sum(pmm_ha_leader_status)` | `1` | `0` means no leader; above `1` means split brain |
+| `count(pmm_ha_up{role="voter"} == 1)` | Number of replicas | If the count is lower than expected, a node is down. PMM still works with 2 out of 3 nodes alive. If only 1 node is alive, PMM stops. |
+| `pmm_ha_raft_term` | Stable | A rapidly increasing value means the leader keeps changing |
+
+The `node_id` label on these metrics is the pod name.
+
+!!! note ""
+    Immediately after a failover these values are briefly inconsistent because the metrics are only updated at the next scrape. Wait and query again before concluding that the cluster is broken.
+
+## No quorum: cluster is unreachable after losing multiple replicas
+
+PMM HA uses the Raft consensus protocol, which requires a majority (quorum) of the three PMM Server replicas to be reachable to hold a valid election: at least 2 of 3. If two replicas are lost at the same time (for example, two nodes fail together, or the `StatefulSet` is scaled down too far), the single remaining replica cannot elect itself leader. HAProxy only routes traffic to a replica that passes its leader health check, so with no leader, every request fails with `503`, even though the surviving replica is otherwise healthy.
+
+This is different from a normal rolling restart (during an upgrade, for example), where the two surviving replicas out of three still form a quorum and elect a new leader within seconds. Quorum loss does not self-resolve.
+
+**Confirm this is what's happening.** On the surviving replica, look for a repeating election loop in the logs with no successful election:
+
+```sh
+kubectl exec -n <namespace> <surviving-pod> -c pmm-ha -- \
+  grep -i "raft" /srv/logs/pmm-managed.log | tail -20
+```
+
+A cluster stuck without quorum repeats lines like these indefinitely:
+
+```text
+[WARN]  raft: Election timeout reached, restarting election
+[ERROR] raft: failed to make requestVote RPC: target="{Voter pmm-ha-1 ...}" error="dial tcp: lookup pmm-ha-1... no such host"
+```
+
+**Fix:** Bring at least one more of the original replicas back online so two of the three can reach each other again:
+
+```sh
+kubectl get pods -n <namespace> -l app.kubernetes.io/component=pmm-server
+kubectl describe pod <pod-name> -n <namespace>   # check why it isn't Running
+```
+
+No manual Raft intervention is needed: as soon as a second replica becomes network-reachable, the two members elect a leader immediately. In testing, restoring service after a full quorum loss took about a minute, almost all of it Kubernetes rescheduling and starting the pod, not waiting on the election itself.
+
+!!! danger "If none of the original replicas can come back"
+    If a replica's underlying storage or node is permanently unrecoverable, manually reconstituting Raft membership with new replicas is an advanced recovery scenario. Treat it as a case for Percona Support rather than improvising: forcing Raft membership changes incorrectly on a cluster with mismatched logs can lead to split-brain and data loss.
+
+## Check status in the UI before troubleshooting data issues
+
+If dashboards or Query Analytics are empty, check the state of your cluster in the PMM UI before you start reading logs.
+
+**PMM HA Health Overview dashboard:** Go to **Dashboards > PMM Health > PMM HA Health Overview**. The dashboard shows the health of each component (PMM, PostgreSQL, ClickHouse, VictoriaMetrics, and HAProxy), together with pod count, pod restarts, and storage usage for each data store.
+
+If a component is reported as unhealthy here, troubleshoot that component first. An empty dashboard or empty Query Analytics is usually a symptom of a component that is not running.
+
+**Inventory page:** Go to **Inventory**. On the **Nodes** tab, check that all `pmm-ha` nodes are present and their **Status** is **Up**. On the **Services** tab, check that the services you added are listed and that their **Monitoring** status is **OK**.
+
+If a service is missing from Inventory, the problem is with adding the service, not with storing or displaying its data.
+
+## Dashboards show no data
+
+Dashboards are empty, but PMM itself is working.
+
+First check the PMM HA Health Overview dashboard and the Inventory page as described above. Continue only if all components are healthy and your services are listed.
+
+**Cause:** In HA mode, metrics are stored in an external VictoriaMetrics cluster. The single-node query path that PMM uses in a standard installation is not available. Requesting it returns:
+
+```
+missing route for "/prometheus/api/v1/query"
+```
+
+**Fix:** Query metrics through the Grafana data source proxy instead, which is what Explore uses:
+
+```
+/graph/api/datasources/proxy/uid/<datasource-uid>/api/v1/query
+```
+
+If Explore returns data but a dashboard does not, the problem is with the dashboard, not with HA.
+
+Also check that the VictoriaMetrics pods are running:
+
+```sh
+kubectl get pods -n pmm | grep -E 'vmstorage|vmselect|vminsert|vmagent'
+```
+
+!!! note ""
+    Metrics for a newly added service appear after a few scrape intervals. An empty result immediately after adding a service does not indicate a problem.
+
+## Query Analytics (QAN) shows no data
+
+The [PMM Query Analytics](../use/qan/index.md) dashboard shows no queries, but other dashboards for the same database, such as **MySQL Instance Summary**, still show data like CPU usage and connections. 
+
+This means PMM can reach your database, so the problem is with collecting or storing QAN data. In PMM HA, QAN data is stored in a separate ClickHouse cluster, not on the PMM Server pod.
+
+### Find out why QAN shows no data
+
+Don't try to fix this by enabling **Query Analytics for PMM Server** under **Configuration > Settings > Advanced Settings**. That setting shows queries from the PMM Server database, not from your databases, and PMM HA already turns it on. If you try, you see the error `QAN for internal PostgreSQL is already configured via an environment variable`.
+
+Instead, check where QAN data stops, in this order:
+
+1. Go to **All Dashboards > PMM Health > PMM HA Health Overview** and check that ClickHouse is healthy. You can't see QAN data until ClickHouse is running.
+2. Go to **Inventory > Services** and check that the agents for your database are running. PMM collects QAN data through these agents, so fix any agent that isn't running.
+3. Check that the ClickHouse pods and their Keeper pods are running:
+
+    ```sh
+    kubectl get pods -n pmm -l clickhouse.altinity.com/chi=pmm-ha
+    ```
+
+4. Read the ClickHouse logs and look for errors:
+
+    ```sh
+    kubectl logs -n pmm pmm-ha-pmmdb-0-0-0 -c clickhouse --tail=100
+    ```
+
+5. Read `qan-api2.log` on the PMM Server pod and look for errors:
+
+    ```sh
+    kubectl exec -n pmm pmm-ha-0 -c pmm-ha -- tail -100 /srv/logs/qan-api2.log
+    ```
+
+## Query Analytics shows different data on different PMM nodes
+
+The [PMM Query Analytics](../use/qan/index.md) dashboard misses queries or shows changing totals after a PMM pod restarts or the leader changes.
+
+**Cause:** Your PMM HA setup stores QAN data across multiple ClickHouse servers that share a single `pmm` database and keep it synchronized.
+
+In PMM versions earlier than 3.11.0, a server that was unavailable during installation, or that lost its data during a pod restart or restore, could create a separate `pmm` database instead of rejoining the shared database.
+
+When this happens, ClickHouse doesn't synchronize the separate database with the others. As a result, your QAN data becomes split across servers, and the dashboard displays only part of the data.
+
+Each `pmm` database has its own ID, called a UUID. To find the server with the separate database, compare the UUIDs across your servers.
+
+**Check:** Run the following command to see the UUID of the `pmm` database on each of your ClickHouse servers. The server that shows a different UUID, or no UUID at all, has the separate database:
+
+```sh
+CHU=$(kubectl get secret -n pmm pmm-secret -o jsonpath='{.data.PMM_CLICKHOUSE_USER}' | base64 -d)
+CHPW=$(kubectl get secret -n pmm pmm-secret -o jsonpath='{.data.PMM_CLICKHOUSE_PASSWORD}' | base64 -d)
+for r in 0 1 2; do
+  kubectl exec -n pmm pmm-ha-pmmdb-0-$r-0 -c clickhouse -- clickhouse-client -u "$CHU" --password "$CHPW" \
+    -q "SELECT uuid FROM system.databases WHERE name = 'pmm'"
+done
+```
+
+**Fix:** We recommend that you [upgrade PMM](../pmm-upgrade/upgrade_helm_ha.md) to 3.11.0 or later. PMM then repairs this automatically. Every 10 minutes, the HA leader checks the copies on all ClickHouse servers and keeps the one with the most data. It replaces every copy that doesn't match and creates the database on any server that has none. ClickHouse then copies the data from the kept copy to the other servers. Data that exists only in a replaced copy is deleted.
+
+To check what PMM changed and how much data it removed, [find the leader pod](#check-cluster-health) and search its `qan-api2.log`:
+
+```sh
+kubectl exec -n pmm <leader-pod> -c pmm-ha -- grep pmm-db /srv/logs/qan-api2.log
+```
+
+Each log line tells you what happened:
+
+- `Recreated the pmm database ...`: the server held a mismatched copy, so PMM replaced it. `dropped_rows` shows how many rows were deleted.
+- `Created the missing pmm database ...`: the server had no `pmm` database, so PMM created it.
+- `Skipped the pmm database check.`: a ClickHouse server didn't respond, so PMM made no changes. PMM checks again in 10 minutes.
+- `Failed to recreate the pmm database.`: PMM couldn't replace the mismatched copy on a server. The error in the log explains why. PMM tries again in 10 minutes.
+
+## A backup or restore fails
+
+`pmm-backup.sh` exits with an error, or a scheduled backup Job fails.
+
+**Cause:** One of the components couldn't be backed up or restored, the storage isn't reachable, or an earlier run that didn't finish is still holding a lock.
+
+**Fix:** Check the log of the most recent run:
+
+```sh
+kubectl exec -n pmm deploy/pmm-ha-backup-tools -- sh -c 'ls -t /backups/logs | head'
+kubectl exec -n pmm deploy/pmm-ha-backup-tools -- tail -50 /backups/logs/<log-file>
+```
+
+Then check whether a lock is still held:
+
+```sh
+kubectl get leases -n pmm | grep pmm-backup
+```
+
+A lock from a run that was stopped expires after 15 minutes. A new run started before then is refused on purpose, so it can't interfere with the stopped one. Wait for the lock to expire, then run the backup or restore again.
+
+## A restore was interrupted and PMM stays down
+
+After a restore was stopped part-way, PMM is unreachable and the PMM Server pods don't come back.
+
+**Cause:** A restore scales PMM Server and VictoriaMetrics down to zero before replacing their data. If it's stopped before it scales them back up, for example because its node was replaced, they stay at zero. PMM Server is scaled back up by the next restore, but VictoriaMetrics is not, so the next restore refuses to start.
+
+**Fix:**
+{.power-number}
+
+1. Scale VictoriaMetrics back to the replica counts from your values file. The defaults are 3 `vmstorage` and 2 `vminsert` replicas:
+
+    ```sh
+    kubectl patch vmcluster pmm-ha-vmcluster -n pmm --type=merge \
+      -p '{"spec":{"vmstorage":{"replicaCount":3},"vminsert":{"replicaCount":2}}}'
+    ```
+
+2. Wait for any leftover restore locks to expire:
+
+    ```sh
+    kubectl get leases -n pmm | grep pmm-backup
+    ```
+
+3. Run the restore again. To avoid another interruption, run it as a Job. See [Restore in place](../install-pmm/backup-restore-HA-clustered.md#restore-in-place).
+
+## A backup or restore Job stays in Pending state
+
+A Job created from the `pmm-ha-backup` CronJob never starts.
+
+**Cause:** With S3 storage, the Job must run on the same node as the `pmm-ha-backup-tools` pod, because they share a `ReadWriteOnce` volume. If that node has no free CPU or memory, the Job can't be scheduled. The scheduler reports a pod affinity error rather than a resource shortage.
+
+**Fix:** Free resources on that node. Before a restore, scaling PMM Server to zero is usually enough, since the restore does this anyway:
+
+```sh
+kubectl scale statefulset pmm-ha -n pmm --replicas=0
+```
+
+To avoid this permanently, set `centralBackupStorage.accessMode: ReadWriteMany` in your values file, so the Job can run on any node.
+
+## PMM Client pods fail after a restore into another namespace
+
+After you restore a backup into another namespace, the `pmm-ha-client` or PostgreSQL `pmm-client` containers restart repeatedly with authentication errors.
+
+**Cause:** The restore replaced the Grafana database, so PMM now uses the source installation's admin password. The new namespace's `pmm-secret` still holds its own password, so the clients can't authenticate.
+
+**Fix:** Set `PMM_ADMIN_PASSWORD` in the new namespace's `pmm-secret` to the source installation's admin password, then restart the failing pods. See [Restore into another namespace](../install-pmm/backup-restore-HA-clustered.md#restore-into-another-namespace).
+
+## High memory usage
+
+PMM pods are consuming more memory than expected.
+
+**Cause:** Resource limits may be set too high for the workload, or retention settings are keeping more data than the cluster can sustain.
+
+**Fix:** Check which pods are using the most memory, then examine their resource configuration:
+
+```sh
+kubectl top pods -n pmm
+kubectl describe pod <pod-name> -n pmm
+```
+
+Adjust `resources.requests` and `resources.limits` in your values file, or reduce the retention period for VictoriaMetrics and ClickHouse.
+
+## Resources stay in Terminating state
+
+A pod or other resource stays in `Terminating` indefinitely during deletion or uninstall.
+
+**Cause:** Kubernetes finalizers are preventing deletion. PMM HA resources use finalizers to ensure clean shutdown. If the controller that processes them is removed first, the finalizers are never cleared and the resource blocks.
+
+**Fix:** Remove the finalizers manually:
+
+```sh
+kubectl patch <resource-type> <resource-name> -n pmm \
+  -p '{"metadata":{"finalizers":[]}}' --type=merge
+```
+
+## See also
+
+- [Understand PMM High Availability Cluster](../install-pmm/HA-clustered.md)
+- [Install PMM HA Cluster](../install-pmm/install-HA-clustered.md)
+- [Back up and restore PMM HA Cluster](../install-pmm/backup-restore-HA-clustered.md)
+- [Upgrade PMM HA Cluster using Helm](../pmm-upgrade/upgrade_helm_ha.md)

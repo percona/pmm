@@ -126,19 +126,17 @@ func (t *mySQLBackupTask) Type() models.ScheduledTaskType {
 func (t *mySQLBackupTask) Data() *models.ScheduledTaskData {
 	return &models.ScheduledTaskData{
 		MySQLBackupTask: &models.MySQLBackupTaskData{
-			CommonBackupTaskData: models.CommonBackupTaskData{
-				ServiceID:     t.ServiceID,
-				ClusterName:   t.ClusterName,
-				LocationID:    t.LocationID,
-				Name:          t.Name,
-				Description:   t.Description,
-				Retention:     t.Retention,
-				DataModel:     t.DataModel,
-				Mode:          t.Mode,
-				Retries:       t.Retries,
-				RetryInterval: t.RetryInterval,
-				Folder:        t.Folder,
-			},
+			ServiceID:     t.ServiceID,
+			ClusterName:   t.ClusterName,
+			LocationID:    t.LocationID,
+			Name:          t.Name,
+			Description:   t.Description,
+			Retention:     t.Retention,
+			DataModel:     t.DataModel,
+			Mode:          t.Mode,
+			Retries:       t.Retries,
+			RetryInterval: t.RetryInterval,
+			Folder:        t.Folder,
 		},
 	}
 }
@@ -190,19 +188,17 @@ func (t *mongoDBBackupTask) Type() models.ScheduledTaskType {
 func (t *mongoDBBackupTask) Data() *models.ScheduledTaskData {
 	return &models.ScheduledTaskData{
 		MongoDBBackupTask: &models.MongoBackupTaskData{
-			CommonBackupTaskData: models.CommonBackupTaskData{
-				ServiceID:     t.ServiceID,
-				ClusterName:   t.ClusterName,
-				LocationID:    t.LocationID,
-				Name:          t.Name,
-				Description:   t.Description,
-				DataModel:     t.DataModel,
-				Mode:          t.Mode,
-				Retention:     t.Retention,
-				Retries:       t.Retries,
-				RetryInterval: t.RetryInterval,
-				Folder:        t.Folder,
-			},
+			ServiceID:     t.ServiceID,
+			ClusterName:   t.ClusterName,
+			LocationID:    t.LocationID,
+			Name:          t.Name,
+			Description:   t.Description,
+			DataModel:     t.DataModel,
+			Mode:          t.Mode,
+			Retention:     t.Retention,
+			Retries:       t.Retries,
+			RetryInterval: t.RetryInterval,
+			Folder:        t.Folder,
 		},
 	}
 }

@@ -43,10 +43,10 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-  DEFAULT_MONGODB_VERSION,
+  ADMIN_PASSWORD_MIN_LENGTH,
+  DEFAULT_ADMIN_USERNAME,
   OM_ROUTE_AUTOMATIONS,
   OM_ROUTE_NODES,
-  SUPPORTED_MONGODB_VERSIONS,
 } from './constants';
 import {
   MEMBER_CONSTRAINT_PHRASE,
@@ -56,7 +56,16 @@ import {
   validateElectionPlan,
 } from './electionPlan';
 import { OmHeader } from './components/OmHeader';
-import { configureBlockers, replicaSetNameError } from './installForm';
+import { GeneratedPasswordDialog } from './components/GeneratedPasswordDialog';
+import {
+  adminPasswordError,
+  adminPasswordMismatchError,
+  adminUsernameError,
+  commonMongodbVersions,
+  configureBlockers,
+  initialMongodbVersion,
+  replicaSetNameError,
+} from './installForm';
 import { dataDirFreeBytes, toHostRows } from './inventory';
 import { useOmInventoryHosts, useTriggerHostBootstrap } from './inventoryHooks';
 import { NodeNamesLinked } from './components/NodeNamesLinked';
@@ -92,16 +101,6 @@ function isSupportedHostCount(count: number): boolean {
   return count === 1 || count === 3;
 }
 
-/**
- * The Configure step's Security tab (PMM-15347/plan.md §6 Phase A) -- every
- * control here is fixed or disabled, not a form: keyFile is the only
- * intra-cluster auth mechanism this PoC builds, and LDAP/KMIP are explicitly
- * out of scope, matching mockup `03-configure-security.png` rendering both as
- * locked, visible-but-inert controls rather than hiding them outright. TLS and
- * encryption-at-rest aren't offered here at all yet -- neither is implemented
- * (plan.md §6 Phase C), so a control for either would be a choice with no
- * effect.
- */
 /**
  * How mongod's bindIp is chosen.
  *
@@ -168,7 +167,7 @@ const ElectionSettingsTable = ({
   <Table size="small">
     <TableHead>
       <TableRow>
-        <TableCell>Host</TableCell>
+        <TableCell>Node</TableCell>
         <TableCell align="right">Priority</TableCell>
         <TableCell align="center">Votes</TableCell>
         <TableCell align="center">Hidden</TableCell>
@@ -337,9 +336,13 @@ export const BootstrapPage = () => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [replicaSetName, setReplicaSetName] = useState('');
-  const [mongodbVersion, setMongodbVersion] = useState<string>(
-    DEFAULT_MONGODB_VERSION
-  );
+  const mongodbVersions = useMemo(() => commonMongodbVersions(hosts), [hosts]);
+  // Picked on entering Configure, then never swapped behind the user's back: a
+  // refetch that drops it empties the field and blocks Review instead.
+  const [mongodbVersion, setMongodbVersion] = useState('');
+  const selectedVersion = mongodbVersions.includes(mongodbVersion)
+    ? mongodbVersion
+    : '';
   const [environment, setEnvironment] = useState('');
   const [cluster, setCluster] = useState('');
   const [dataPath, setDataPath] = useState(DEFAULT_DATA_PATH);
@@ -350,6 +353,13 @@ export const BootstrapPage = () => {
   // network the machine is on, with nothing beside the field saying so.
   const [bindMode, setBindMode] = useState<BindMode>('own');
   const [customBindIp, setCustomBindIp] = useState(DEFAULT_BIND_IP);
+  const [adminUsername, setAdminUsername] = useState(DEFAULT_ADMIN_USERNAME);
+  const [passwordMode, setPasswordMode] = useState<'generate' | 'enter'>(
+    'generate'
+  );
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminPasswordConfirmation, setAdminPasswordConfirmation] =
+    useState('');
 
   // What the run as a whole asks for. In `own` mode every member names its own
   // address, so this is never consulted -- it is set to the first node's address
@@ -425,6 +435,7 @@ export const BootstrapPage = () => {
 
   const blockers = configureBlockers({
     replicaSetName,
+    mongodbVersion: selectedVersion,
     dataPath,
     logPath,
     port,
@@ -434,8 +445,24 @@ export const BootstrapPage = () => {
       config: memberConfigs[host.node_id] ?? defaultMemberConfig(),
     })),
     electionErrorCount: electionPlan.errors.length,
+    adminUsername,
+    adminPassword:
+      passwordMode === 'enter'
+        ? { value: adminPassword, confirmation: adminPasswordConfirmation }
+        : null,
   });
   const nameError = replicaSetNameError(replicaSetName);
+  const usernameError = adminUsernameError(adminUsername);
+  // Judged once typed, so an untouched field does not start out red.
+  const passwordError =
+    passwordMode === 'enter' && adminPassword !== ''
+      ? adminPasswordError(adminPassword)
+      : null;
+  const confirmationError =
+    passwordMode === 'enter' && adminPasswordConfirmation !== ''
+      ? adminPasswordMismatchError(adminPassword, adminPasswordConfirmation)
+      : null;
+  const generatedPassword = bootstrap.data?.generated_admin_password;
   // Sent as the cluster label, so the Fleet page shows a value the user saw here
   // rather than its own fallback to the replica set name.
   const effectiveCluster = cluster.trim() || replicaSetName;
@@ -449,6 +476,9 @@ export const BootstrapPage = () => {
           ? '1 selected node cannot'
           : `${blockedHosts.length} selected nodes cannot`
       } be installed onto. Fix each one on the node itself, or go back and change the selection.`,
+    blockedHosts.length === 0 &&
+      mongodbVersions.length === 0 &&
+      'The selected nodes have no MongoDB version in common. Go back and select nodes whose OS releases support the same one.',
   ].filter((blocker): blocker is string => typeof blocker === 'string');
 
   // A fresh selection (a different ?nodes= than last render) resets the wizard
@@ -457,7 +487,7 @@ export const BootstrapPage = () => {
   useEffect(() => {
     setActiveStep(0);
     setReplicaSetName('');
-    setMongodbVersion(DEFAULT_MONGODB_VERSION);
+    setMongodbVersion('');
     setEnvironment('');
     setCluster('');
     setDataPath(DEFAULT_DATA_PATH);
@@ -465,6 +495,10 @@ export const BootstrapPage = () => {
     setPort(DEFAULT_PORT);
     setBindMode('own');
     setCustomBindIp(DEFAULT_BIND_IP);
+    setAdminUsername(DEFAULT_ADMIN_USERNAME);
+    setPasswordMode('generate');
+    setAdminPassword('');
+    setAdminPasswordConfirmation('');
     bootstrap.reset();
     // bootstrap is a fresh object every render (useMutation), so it is deliberately
     // left out of the dependency list - including it would reset the wizard on every
@@ -483,6 +517,26 @@ export const BootstrapPage = () => {
     setMemberConfigs(defaultMemberConfigs(hosts));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hostIdsKey]);
+
+  // Review shows no blockers, so a refetch that invalidates the form sends the user back to see why.
+  useEffect(() => {
+    if (activeStep === 2 && blockers.length > 0) {
+      setActiveStep(1);
+    }
+  }, [activeStep, blockers.length]);
+
+  // Rendered by every return below, so a failed background refetch cannot take the password with it.
+  const passwordDialog = generatedPassword && (
+    <GeneratedPasswordDialog
+      username={adminUsername}
+      password={generatedPassword}
+      onSaved={() =>
+        navigate(
+          `${omBase}/${OM_ROUTE_AUTOMATIONS}?expand=${bootstrap.data?.run_id}`
+        )
+      }
+    />
+  );
 
   if (hostsQuery.isLoading) {
     return (
@@ -506,6 +560,7 @@ export const BootstrapPage = () => {
             Back to Nodes
           </Button>
         </Box>
+        {passwordDialog}
       </Stack>
     );
   }
@@ -522,6 +577,7 @@ export const BootstrapPage = () => {
             Back to Nodes
           </Button>
         </Box>
+        {passwordDialog}
       </Stack>
     );
   }
@@ -530,7 +586,7 @@ export const BootstrapPage = () => {
     const accepted = await bootstrap.mutateAsync({
       nodeIds: hosts.map((host) => host.node_id),
       replicaSetName,
-      mongodbVersion,
+      mongodbVersion: selectedVersion,
       environment: environment.trim() || undefined,
       cluster: effectiveCluster,
       dataPath,
@@ -551,11 +607,16 @@ export const BootstrapPage = () => {
           ];
         })
       ),
+      adminUsername,
+      adminPassword: passwordMode === 'enter' ? adminPassword : undefined,
     });
     enqueueSnackbar(
       `Install started on ${hosts.length === 1 ? hosts[0].name : `${hosts.length} nodes`}`,
       { variant: 'success' }
     );
+    if (accepted.generated_admin_password) {
+      return;
+    }
     navigate(`${omBase}/${OM_ROUTE_AUTOMATIONS}?expand=${accepted.run_id}`);
   };
 
@@ -632,13 +693,13 @@ export const BootstrapPage = () => {
             <TextField
               select
               label="MongoDB version"
-              value={mongodbVersion}
+              value={selectedVersion}
               onChange={(event) => setMongodbVersion(event.target.value)}
               required
               fullWidth
-              helperText="Percona Server for MongoDB, latest release of this major version."
+              helperText="Percona Server for MongoDB, latest release of this major version. Only versions every selected node's OS release supports are offered."
             >
-              {SUPPORTED_MONGODB_VERSIONS.map((version) => (
+              {mongodbVersions.map((version) => (
                 <MenuItem key={version} value={version}>
                   {version}
                 </MenuItem>
@@ -748,6 +809,67 @@ export const BootstrapPage = () => {
                 preview, those connections are unencrypted.
               </Alert>
             )}
+            <Typography variant="subtitle2" sx={{ pt: 1 }}>
+              Database administrator
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Created with the root role, for you to manage the replica set. PMM
+              keeps its password only until the user is created.
+            </Typography>
+            <TextField
+              label="Administrator username"
+              value={adminUsername}
+              onChange={(event) => setAdminUsername(event.target.value)}
+              required
+              fullWidth
+              error={usernameError !== null}
+              helperText={usernameError ?? 'Letters, digits, ., _, @ and -.'}
+            />
+            <TextField
+              select
+              label="Administrator password"
+              value={passwordMode}
+              onChange={(event) =>
+                setPasswordMode(event.target.value as 'generate' | 'enter')
+              }
+              fullWidth
+            >
+              <MenuItem value="generate">
+                Generate one, shown once after the install starts
+              </MenuItem>
+              <MenuItem value="enter">Enter one</MenuItem>
+            </TextField>
+            {passwordMode === 'enter' && (
+              <>
+                <TextField
+                  label="Password"
+                  type="password"
+                  autoComplete="new-password"
+                  value={adminPassword}
+                  onChange={(event) => setAdminPassword(event.target.value)}
+                  required
+                  fullWidth
+                  error={passwordError !== null}
+                  helperText={
+                    passwordError ??
+                    `At least ${ADMIN_PASSWORD_MIN_LENGTH} characters.`
+                  }
+                />
+                <TextField
+                  label="Confirm password"
+                  type="password"
+                  autoComplete="new-password"
+                  value={adminPasswordConfirmation}
+                  onChange={(event) =>
+                    setAdminPasswordConfirmation(event.target.value)
+                  }
+                  required
+                  fullWidth
+                  error={confirmationError !== null}
+                  helperText={confirmationError ?? ' '}
+                />
+              </>
+            )}
           </Stack>
           {hosts.length > 1 && (
             <Accordion
@@ -855,7 +977,7 @@ export const BootstrapPage = () => {
               {(
                 [
                   ['Replica set', replicaSetName || '—'],
-                  ['MongoDB version', mongodbVersion || '—'],
+                  ['MongoDB version', selectedVersion || '—'],
                   ['Environment', environment || '—'],
                   ['Cluster', effectiveCluster],
                   ['Data path', dataPath],
@@ -871,6 +993,13 @@ export const BootstrapPage = () => {
                           )
                           .join(', ')
                       : effectiveBindIp,
+                  ],
+                  ['Administrator', adminUsername],
+                  [
+                    'Administrator password',
+                    passwordMode === 'generate'
+                      ? 'Generated, shown once after the install starts'
+                      : 'Entered',
                   ],
                 ] as const
               ).map(([setting, value]) => (
@@ -942,7 +1071,12 @@ export const BootstrapPage = () => {
               // move the failure to the final button - which is the complaint
               // itself.
               disabled={selectionBlockers.length > 0}
-              onClick={() => setActiveStep(1)}
+              onClick={() => {
+                if (selectedVersion === '') {
+                  setMongodbVersion(initialMongodbVersion(mongodbVersions));
+                }
+                setActiveStep(1);
+              }}
             >
               Configure
             </Button>
@@ -1003,6 +1137,7 @@ export const BootstrapPage = () => {
           </Box>
         </Box>
       )}
+      {passwordDialog}
     </Stack>
   );
 };

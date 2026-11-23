@@ -466,6 +466,9 @@ export function useTriggerHostBootstrap() {
       port: number;
       bindIp: string;
       memberConfigs?: Record<string, OmBootstrapMemberConfig>;
+      adminUsername: string;
+      /** Omitted to have PMM generate one. */
+      adminPassword?: string;
     }
   >({
     mutationFn: ({
@@ -479,6 +482,8 @@ export function useTriggerHostBootstrap() {
       port,
       bindIp,
       memberConfigs,
+      adminUsername,
+      adminPassword,
     }) =>
       request<OmHostBootstrapAccepted>('/inventory/hosts:bootstrap', {
         method: 'POST',
@@ -501,6 +506,8 @@ export function useTriggerHostBootstrap() {
           ...(memberConfigs && Object.keys(memberConfigs).length > 0
             ? { member_configs: memberConfigs }
             : {}),
+          admin_username: adminUsername,
+          ...(adminPassword ? { admin_password: adminPassword } : {}),
         }),
       }),
   });

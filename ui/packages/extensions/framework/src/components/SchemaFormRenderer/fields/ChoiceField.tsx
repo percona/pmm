@@ -16,7 +16,6 @@
  */
 
 import { Controller, useFormContext } from 'react-hook-form';
-import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -68,7 +67,7 @@ export function ChoiceField({ field }: ChoiceFieldProps) {
                     <FormControlLabel
                       key={choice.value}
                       value={choice.value}
-                      disabled={choice.disabled}
+                      disabled={choice.disabled ?? undefined}
                       control={<Radio />}
                       label={renderChoiceLabel(choice)}
                     />
@@ -91,53 +90,33 @@ export function ChoiceField({ field }: ChoiceFieldProps) {
         isRequired={field.required}
         control={control}
         labelProps={{ caption: help.inline ?? help.tooltip }}
-        options={field.choices}
+        options={field.choices.map(({ label, value }) => ({ label, value }))}
         controllerProps={{ rules }}
       />
     );
   }
 
-  const labelId = `${field.name}-label`;
-
   return (
-    <Controller
+    <SchemaSelectShell
       name={field.name}
-      control={control}
+      label={field.label}
+      required={field.required}
       rules={rules}
-      render={({ field: rhfField, fieldState: { error } }) => (
-        <SchemaSelectShell
-          field={rhfField}
-          labelId={labelId}
-          label={field.label}
-          required={field.required}
-          error={error}
-          tooltip={help.tooltip}
-          inline={help.inline}
-          renderValue={(value) => {
-            if (value === undefined || value === null || value === '') {
-              return (
-                <Box component="span" sx={{ color: 'text.disabled' }}>
-                  Select…
-                </Box>
-              );
-            }
-            return (
-              field.choices.find((c) => c.value === value)?.label ??
-              String(value)
-            );
-          }}
+      tooltip={help.tooltip}
+      inline={help.inline}
+      renderValue={(value) =>
+        field.choices.find((c) => c.value === value)?.label ?? String(value)
+      }
+    >
+      {field.choices.map((choice) => (
+        <MenuItem
+          key={choice.value}
+          value={choice.value}
+          disabled={choice.disabled ?? undefined}
         >
-          {field.choices.map((choice) => (
-            <MenuItem
-              key={choice.value}
-              value={choice.value}
-              disabled={choice.disabled}
-            >
-              {renderChoiceLabel(choice)}
-            </MenuItem>
-          ))}
-        </SchemaSelectShell>
-      )}
-    />
+          {renderChoiceLabel(choice)}
+        </MenuItem>
+      ))}
+    </SchemaSelectShell>
   );
 }

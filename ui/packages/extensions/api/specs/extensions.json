@@ -10201,7 +10201,7 @@
       },
       "framework__StringField": {
         "additionalProperties": false,
-        "description": "Represent a single-line string input field.\n\n:param field_type: The discriminator literal; always ``\"string\"`` for this\n    class. Serialised as the JSON key ``\"type\"``.\n:type field_type: Literal[\"string\"]\n:param min_length: Optional minimum character length. Defaults to\n    ``None``.\n:type min_length: int | None\n:param max_length: Optional maximum character length. Defaults to\n    ``None``.\n:type max_length: int | None\n:param pattern: Optional regular expression the value must match.\n    Defaults to ``None``.\n:type pattern: NonEmptyStr | None\n:param placeholder: Optional placeholder text displayed when the field is\n    empty. Defaults to ``None``.\n:type placeholder: NonEmptyStr | None",
+        "description": "Represent a single-line string input field.\n\n:param field_type: The discriminator literal; always ``\"string\"`` for this\n    class. Serialised as the JSON key ``\"type\"``.\n:param min_length: Optional minimum character length. Defaults to\n    ``None``.\n:param max_length: Optional maximum character length. Defaults to\n    ``None``.\n:param pattern: Optional regular expression the value must match.\n    Defaults to ``None``.\n:param placeholder: Optional placeholder text displayed when the field is\n    empty. Defaults to ``None``.\n:param sensitive: Whether the value is a credential, which the client must\n    not display as typed. Defaults to ``False``.",
         "properties": {
           "default": {
             "anyOf": [
@@ -10351,6 +10351,11 @@
               }
             ],
             "title": "Requires"
+          },
+          "sensitive": {
+            "default": false,
+            "title": "Sensitive",
+            "type": "boolean"
           },
           "type": {
             "const": "string",
@@ -10594,7 +10599,7 @@
       },
       "framework__TextAreaField": {
         "additionalProperties": false,
-        "description": "Represent a multi-line string input field.\n\n:param field_type: The discriminator literal; always ``\"textarea\"`` for\n    this class. Serialised as the JSON key ``\"type\"``.\n:type field_type: Literal[\"textarea\"]\n:param rows: Optional number of visible text rows. Defaults to ``None``.\n:type rows: int | None\n:param placeholder: Optional placeholder text displayed when the field is\n    empty. Defaults to ``None``.\n:type placeholder: NonEmptyStr | None",
+        "description": "Represent a multi-line string input field.\n\n:param field_type: The discriminator literal; always ``\"textarea\"`` for\n    this class. Serialised as the JSON key ``\"type\"``.\n:param rows: Optional number of visible text rows. Defaults to ``None``.\n:param placeholder: Optional placeholder text displayed when the field is\n    empty. Defaults to ``None``.",
         "properties": {
           "default": {
             "anyOf": [
@@ -15930,7 +15935,7 @@
     },
     "/api/apps/atw/incidents/{incident_id}/executions/": {
       "get": {
-        "description": "List one incident's snippet executions, newest first, with live task status.\n\nEach row also reports the command line its snippet ran with, credential values\nmasked. A row whose snippet or upstream payload cannot supply what masking\nneeds reports its arguments as withheld; the page still returns.\n\n:param session: The database session.\n:param incident: The incident resolved from the ``incident_id`` path parameter.\n:param pagination: The offset/limit window for the page.\n:param tasks_api: The authenticated Tasks API client.\n:return: A paginated page of executions hydrated from the Tasks API, each with\n    its masked arguments or the reason they are absent.",
+        "description": "List one incident's snippet executions, newest first, with live task status.\n\nEach row also reports the command line its snippet ran with, credential values\nmasked. A row whose upstream payload is unavailable, or whose run recorded\narguments without a masked copy of them, reports its arguments as withheld;\nthe page still returns.\n\n:param session: The database session.\n:param incident: The incident resolved from the ``incident_id`` path parameter.\n:param pagination: The offset/limit window for the page.\n:param tasks_api: The authenticated Tasks API client.\n:return: A paginated page of executions hydrated from the Tasks API, each with\n    its masked arguments or the reason they are absent.",
         "operationId": "atw_atw_list_incident_executions_api_apps_atw_incidents__incident_id__executions__get",
         "parameters": [
           {

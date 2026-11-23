@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/alert"
 	"github.com/percona/pmm/managed/services"
 )
 
@@ -177,6 +178,7 @@ func TestProvisionedRuleContract(t *testing.T) {
 		"pmm-ha-quorum-at-risk":    {haBundleID, haFolderTitle, "PMM HA quorum at risk", "critical", 3 * time.Minute},
 		"pmm-ha-leader-flapping":   {haBundleID, haFolderTitle, "PMM HA leader is flapping", "warning", 5 * time.Minute},
 		"pmm-ha-node-unreachable":  {haBundleID, haFolderTitle, "PMM HA node unreachable", "warning", 5 * time.Minute},
+		"pmm-ha-disk-space-usage":  {haBundleID, haFolderTitle, "PMM HA disk space usage is high", "warning", 10 * time.Minute},
 		"pmm-victoriametrics-down": {componentsBundleID, componentsFolderTitle, "PMM VictoriaMetrics is down", "critical", 5 * time.Minute},
 		"pmm-clickhouse-down":      {componentsBundleID, componentsFolderTitle, "PMM ClickHouse is down", "critical", 5 * time.Minute},
 		"pmm-grafana-down":         {componentsBundleID, componentsFolderTitle, "PMM Grafana is down", "critical", 5 * time.Minute},
@@ -211,7 +213,7 @@ func TestProvisionedRuleContract(t *testing.T) {
 func renderedLabels(t *testing.T, templates map[string]models.Template, bundle provisioningBundle, rule provisionedRule) map[string]string {
 	t.Helper()
 
-	rendered, err := renderProvisionedRule(rule, templates[rule.templateName], testDatasourceUID)
+	rendered, err := renderProvisionedRule(rule, templates[rule.templateName], map[alert.Datasource]string{alert.Metrics: testDatasourceUID})
 	require.NoError(t, err)
 	assert.Equal(t, provisionedNoDataState, rendered.NoDataState)
 	assert.Equal(t, provisionedExecErrState, rendered.ExecErrState)
@@ -266,6 +268,17 @@ func TestRenderProvisioningFileRejectsMissingTemplate(t *testing.T) {
 
 	_, err := renderProvisioningFile(templates, testDatasourceUID, alertingEnabled(true), allGates(), nil)
 	require.ErrorContains(t, err, "pmm_clickhouse_down")
+}
+
+func TestRenderProvisioningFileRejectsClickHouseCatalogTemplate(t *testing.T) {
+	t.Parallel()
+
+	templates := shippedTemplates(t)
+	// The catalog looks templates up by name, so this replaces pmm_grafana_down.
+	templates["pmm_grafana_down"] = *templateFromYAML(t, clickhouseWiringYAML)
+
+	_, err := renderProvisioningFile(templates, testDatasourceUID, alertingEnabled(true), allGates(), nil)
+	require.ErrorContains(t, err, "template pmm_grafana_down runs on ClickHouse")
 }
 
 func TestValidateProvisioningFile(t *testing.T) {

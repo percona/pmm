@@ -19,6 +19,8 @@ import (
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
+
+	_ "github.com/percona/pmm/api/extensions/v1"
 )
 
 const (
@@ -99,6 +101,8 @@ const (
 	ProcessRole_PROCESS_ROLE_CONFIGSVR ProcessRole = 3
 	// A shard member.
 	ProcessRole_PROCESS_ROLE_SHARDSVR ProcessRole = 4
+	// An arbiter, in a shard or a plain replica set: it votes but holds no data.
+	ProcessRole_PROCESS_ROLE_ARBITER ProcessRole = 5
 )
 
 // Enum value maps for ProcessRole.
@@ -109,6 +113,7 @@ var (
 		2: "PROCESS_ROLE_MONGOS",
 		3: "PROCESS_ROLE_CONFIGSVR",
 		4: "PROCESS_ROLE_SHARDSVR",
+		5: "PROCESS_ROLE_ARBITER",
 	}
 	ProcessRole_value = map[string]int32{
 		"PROCESS_ROLE_UNSPECIFIED": 0,
@@ -116,6 +121,7 @@ var (
 		"PROCESS_ROLE_MONGOS":      2,
 		"PROCESS_ROLE_CONFIGSVR":   3,
 		"PROCESS_ROLE_SHARDSVR":    4,
+		"PROCESS_ROLE_ARBITER":     5,
 	}
 )
 
@@ -1916,9 +1922,9 @@ func (x *InventoryExecutor) GetDetail() string {
 
 // UnregisteredMongod is a mongod found running that PMM has no service for.
 //
-// The arbiter case, mostly: PMM registers no service for an arbiter, so nothing else
-// in OM would report the process at all. Also what stands in the way of installing
-// anything over a port that is already taken.
+// Most often an arbiter that was not added to PMM, which nothing else in OM would
+// report at all. Also what stands in the way of installing anything over a port that
+// is already taken.
 type UnregisteredMongod struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The port it is listening on.
@@ -2376,8 +2382,12 @@ type InventoryHost struct {
 	// included. Forgetting it would clear Operations' record of the machine PMM runs on,
 	// the next scan would put it straight back, and in between the fleet would be wrong.
 	IsPmmServerNode bool `protobuf:"varint,16,opt,name=is_pmm_server_node,json=isPmmServerNode,proto3" json:"is_pmm_server_node,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// The MongoDB versions, as major.minor and oldest first, that Operations installs onto
+	// this node's OS release. Empty when it installs none there, the release is not known,
+	// or PMM could not read the supported releases; automation_blocked_reasons says which.
+	SupportedMongodbVersions []string `protobuf:"bytes,17,rep,name=supported_mongodb_versions,json=supportedMongodbVersions,proto3" json:"supported_mongodb_versions,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *InventoryHost) Reset() {
@@ -2520,6 +2530,13 @@ func (x *InventoryHost) GetIsPmmServerNode() bool {
 		return x.IsPmmServerNode
 	}
 	return false
+}
+
+func (x *InventoryHost) GetSupportedMongodbVersions() []string {
+	if x != nil {
+		return x.SupportedMongodbVersions
+	}
+	return nil
 }
 
 // InventoryRunCounts is what one refresh saw.
@@ -4061,7 +4078,8 @@ type TriggerHostBootstrapRequest struct {
 	ReplicaSetName string `protobuf:"bytes,2,opt,name=replica_set_name,json=replicaSetName,proto3" json:"replica_set_name,omitempty"`
 	// The MongoDB version to install, e.g. "7.0.8". Only the major version
 	// selects the install source; PSMDB does not ship parallel repos per minor
-	// version.
+	// version. Every node's OS release has to support it, as each node's
+	// InventoryHost.supported_mongodb_versions lists.
 	MongodbVersion string `protobuf:"bytes,3,opt,name=mongodb_version,json=mongodbVersion,proto3" json:"mongodb_version,omitempty"`
 	// The monitoring environment to label the resulting service with, same free-form
 	// string as ManagementService's own AddMongoDBServiceParams.environment. Unset
@@ -4086,6 +4104,11 @@ type TriggerHostBootstrapRequest struct {
 	// named gets the same default, rather than its proto3 zero value; see
 	// BootstrapMemberConfig.priority. A key outside node_ids is rejected.
 	MemberConfigs map[string]*BootstrapMemberConfig `protobuf:"bytes,10,rep,name=member_configs,json=memberConfigs,proto3" json:"member_configs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// MongoDB administrator to create with the root role; empty creates none.
+	AdminUsername string `protobuf:"bytes,11,opt,name=admin_username,json=adminUsername,proto3" json:"admin_username,omitempty"`
+	// Administrator's password, valid under SASLprep; requires admin_username.
+	// Empty means PMM generates one and returns it in generated_admin_password.
+	AdminPassword string `protobuf:"bytes,12,opt,name=admin_password,json=adminPassword,proto3" json:"admin_password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4188,6 +4211,20 @@ func (x *TriggerHostBootstrapRequest) GetMemberConfigs() map[string]*BootstrapMe
 		return x.MemberConfigs
 	}
 	return nil
+}
+
+func (x *TriggerHostBootstrapRequest) GetAdminUsername() string {
+	if x != nil {
+		return x.AdminUsername
+	}
+	return ""
+}
+
+func (x *TriggerHostBootstrapRequest) GetAdminPassword() string {
+	if x != nil {
+		return x.AdminPassword
+	}
+	return ""
 }
 
 // BootstrapMemberConfig is one host's replica-set election settings, for
@@ -4293,21 +4330,16 @@ func (x *BootstrapMemberConfig) GetBindIp() string {
 	return ""
 }
 
-// TriggerHostBootstrapResponse acknowledges a queued bootstrap run.
-//
-// PMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS
-// off. Returned as soon as PMM Extensions' om_bootstrap app has planned the run, not
-// once it finishes -- PMM's own HA-leader-only stepper drives it forward from
-// here (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's
-// generated MongoDB user is created only once every host is up, minutes after
-// this response, and lives encrypted in PMM's own Postgres
-// (PMM-15347/questions.md Q7) -- there is nothing to hand back yet.
+// TriggerHostBootstrapResponse acknowledges a planned bootstrap run, before any host is touched.
 type TriggerHostBootstrapResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
-	RunId         string `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	RunId string `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	// Password PMM generated when admin_username came without admin_password.
+	// Only returned here: PMM deletes its copy once the install no longer needs it.
+	GeneratedAdminPassword string `protobuf:"bytes,2,opt,name=generated_admin_password,json=generatedAdminPassword,proto3" json:"generated_admin_password,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *TriggerHostBootstrapResponse) Reset() {
@@ -4343,6 +4375,13 @@ func (*TriggerHostBootstrapResponse) Descriptor() ([]byte, []int) {
 func (x *TriggerHostBootstrapResponse) GetRunId() string {
 	if x != nil {
 		return x.RunId
+	}
+	return ""
+}
+
+func (x *TriggerHostBootstrapResponse) GetGeneratedAdminPassword() string {
+	if x != nil {
+		return x.GeneratedAdminPassword
 	}
 	return ""
 }
@@ -5188,7 +5227,7 @@ var File_om_v1_om_proto protoreflect.FileDescriptor
 
 const file_om_v1_om_proto_rawDesc = "" +
 	"\n" +
-	"\x0eom/v1/om.proto\x12\x05om.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\x89\t\n" +
+	"\x0eom/v1/om.proto\x12\x05om.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\x89\t\n" +
 	"\x0fTopologyService\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12\x17\n" +
 	"\x04host\x18\x02 \x01(\tH\x00R\x04host\x88\x01\x01\x12\x1f\n" +
@@ -5378,7 +5417,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\r_probe_statusB\x11\n" +
 	"\x0f_server_runningB\x11\n" +
 	"\x0f_uptime_secondsB\x12\n" +
-	"\x10_replication_set\"\x9b\x06\n" +
+	"\x10_replication_set\"\xd9\x06\n" +
 	"\rInventoryHost\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -5396,7 +5435,8 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x13automation_eligible\x18\r \x01(\bR\x12automationEligible\x12<\n" +
 	"\x1aautomation_blocked_reasons\x18\x0e \x03(\tR\x18automationBlockedReasons\x12?\n" +
 	"\x1cautomation_blocked_by_design\x18\x0f \x01(\bR\x19automationBlockedByDesign\x12+\n" +
-	"\x12is_pmm_server_node\x18\x10 \x01(\bR\x0fisPmmServerNodeB\n" +
+	"\x12is_pmm_server_node\x18\x10 \x01(\bR\x0fisPmmServerNode\x12<\n" +
+	"\x1asupported_mongodb_versions\x18\x11 \x03(\tR\x18supportedMongodbVersionsB\n" +
 	"\n" +
 	"\b_addressB\x10\n" +
 	"\x0e_executor_hostB\x05\n" +
@@ -5520,7 +5560,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x06status\x18\x02 \x01(\x0e2\x10.om.v1.RunStatusR\x06status\x129\n" +
 	"\n" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12\x14\n" +
-	"\x05scope\x18\x04 \x03(\tR\x05scope\"\xec\x04\n" +
+	"\x05scope\x18\x04 \x03(\tR\x05scope\"\xea\x05\n" +
 	"\x1bTriggerHostBootstrapRequest\x12'\n" +
 	"\bnode_ids\x18\x01 \x03(\tB\f\xfaB\t\x92\x01\x06\b\x01\x10\x03\x18\x01R\anodeIds\x12E\n" +
 	"\x10replica_set_name\x18\x02 \x01(\tB\x1b\xfaB\x18r\x16\x10\x01\x18@2\x10^[A-Za-z0-9_-]+$R\x0ereplicaSetName\x120\n" +
@@ -5532,7 +5572,10 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x04port\x18\b \x01(\rB\v\xfaB\b*\x06\x18\xff\xff\x03(\x01R\x04port\x12 \n" +
 	"\abind_ip\x18\t \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06bindIp\x12\\\n" +
 	"\x0emember_configs\x18\n" +
-	" \x03(\v25.om.v1.TriggerHostBootstrapRequest.MemberConfigsEntryR\rmemberConfigs\x1a^\n" +
+	" \x03(\v25.om.v1.TriggerHostBootstrapRequest.MemberConfigsEntryR\rmemberConfigs\x12B\n" +
+	"\x0eadmin_username\x18\v \x01(\tB\x1b\xfaB\x18r\x16\x18@2\x12^[A-Za-z0-9._@-]*$R\radminUsername\x128\n" +
+	"\x0eadmin_password\x18\f \x01(\tB\x11\xfaB\n" +
+	"r\b\x10\b\x18\x80\x01\xd0\x01\x01\x88\xb5\x18\x01R\radminPassword\x1a^\n" +
 	"\x12MemberConfigsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x122\n" +
 	"\x05value\x18\x02 \x01(\v2\x1c.om.v1.BootstrapMemberConfigR\x05value:\x028\x01B\x0e\n" +
@@ -5549,9 +5592,10 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\t_priorityB\b\n" +
 	"\x06_votesB\n" +
 	"\n" +
-	"\b_bind_ip\"5\n" +
+	"\b_bind_ip\"u\n" +
 	"\x1cTriggerHostBootstrapResponse\x12\x15\n" +
-	"\x06run_id\x18\x01 \x01(\tR\x05runId\"\x88\x01\n" +
+	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12>\n" +
+	"\x18generated_admin_password\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\x16generatedAdminPassword\"\x88\x01\n" +
 	"\rBootstrapStep\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1b\n" +
@@ -5607,13 +5651,14 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\rServiceStatus\x12\x1e\n" +
 	"\x1aSERVICE_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11SERVICE_STATUS_UP\x10\x01\x12\x17\n" +
-	"\x13SERVICE_STATUS_DOWN\x10\x02*\x94\x01\n" +
+	"\x13SERVICE_STATUS_DOWN\x10\x02*\xae\x01\n" +
 	"\vProcessRole\x12\x1c\n" +
 	"\x18PROCESS_ROLE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13PROCESS_ROLE_MONGOD\x10\x01\x12\x17\n" +
 	"\x13PROCESS_ROLE_MONGOS\x10\x02\x12\x1a\n" +
 	"\x16PROCESS_ROLE_CONFIGSVR\x10\x03\x12\x19\n" +
-	"\x15PROCESS_ROLE_SHARDSVR\x10\x04*\x9e\x01\n" +
+	"\x15PROCESS_ROLE_SHARDSVR\x10\x04\x12\x18\n" +
+	"\x14PROCESS_ROLE_ARBITER\x10\x05*\x9e\x01\n" +
 	"\tRunStatus\x12\x1a\n" +
 	"\x16RUN_STATUS_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12RUN_STATUS_RUNNING\x10\x01\x12\x16\n" +

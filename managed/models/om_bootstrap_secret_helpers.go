@@ -37,24 +37,23 @@ func DecryptOmBootstrapSecret(secret OmBootstrapSecret) (OmBootstrapSecret, erro
 // omBootstrapSecretEncryption fails on the first field error rather than keeping that field untransformed,
 // so a plaintext credential is never stored next to encrypted ones.
 func omBootstrapSecretEncryption(secret OmBootstrapSecret, handler func(string) (string, error)) (OmBootstrapSecret, error) {
-	username, err := handler(secret.MongoDBUsername)
-	if err != nil {
-		return OmBootstrapSecret{}, fmt.Errorf("mongodb_username: %w", err)
+	fields := []struct {
+		column string
+		value  *string
+	}{
+		{"mongodb_username", &secret.MongoDBUsername},
+		{"mongodb_password", &secret.MongoDBPassword},
+		{"key_file", &secret.KeyFile},
+		{"admin_username", &secret.AdminUsername},
+		{"admin_password", &secret.AdminPassword},
 	}
-	secret.MongoDBUsername = username
-
-	password, err := handler(secret.MongoDBPassword)
-	if err != nil {
-		return OmBootstrapSecret{}, fmt.Errorf("mongodb_password: %w", err)
+	for _, field := range fields {
+		transformed, err := handler(*field.value)
+		if err != nil {
+			return OmBootstrapSecret{}, fmt.Errorf("%s: %w", field.column, err)
+		}
+		*field.value = transformed
 	}
-	secret.MongoDBPassword = password
-
-	keyFile, err := handler(secret.KeyFile)
-	if err != nil {
-		return OmBootstrapSecret{}, fmt.Errorf("key_file: %w", err)
-	}
-	secret.KeyFile = keyFile
-
 	return secret, nil
 }
 
@@ -73,6 +72,15 @@ func CreateOmBootstrapSecret(q *reform.Querier, secret *OmBootstrapSecret) error
 		return fmt.Errorf("failed to decrypt OM bootstrap secret just inserted: %w", err)
 	}
 	*secret = decrypted
+	return nil
+}
+
+// ClearOmBootstrapAdminPassword blanks a run's stored administrator password.
+func ClearOmBootstrapAdminPassword(q *reform.Querier, runID string) error {
+	_, err := q.Exec("UPDATE om_bootstrap_secrets SET admin_password = '' WHERE run_id = $1 AND admin_password <> ''", runID)
+	if err != nil {
+		return fmt.Errorf("failed to clear OM bootstrap admin password: %w", err)
+	}
 	return nil
 }
 

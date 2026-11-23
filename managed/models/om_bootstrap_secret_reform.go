@@ -32,6 +32,8 @@ func (v *omBootstrapSecretTableType) Columns() []string {
 		"mongodb_username",
 		"mongodb_password",
 		"key_file",
+		"admin_username",
+		"admin_password",
 		"created_at",
 	}
 }
@@ -61,6 +63,8 @@ var OmBootstrapSecretTable = &omBootstrapSecretTableType{
 			{Name: "MongoDBUsername", Type: "string", Column: "mongodb_username"},
 			{Name: "MongoDBPassword", Type: "string", Column: "mongodb_password"},
 			{Name: "KeyFile", Type: "string", Column: "key_file"},
+			{Name: "AdminUsername", Type: "string", Column: "admin_username"},
+			{Name: "AdminPassword", Type: "string", Column: "admin_password"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 		},
 		PKFieldIndex: 0,
@@ -70,12 +74,14 @@ var OmBootstrapSecretTable = &omBootstrapSecretTableType{
 
 // String returns a string representation of this struct or record.
 func (s OmBootstrapSecret) String() string {
-	res := make([]string, 5)
+	res := make([]string, 7)
 	res[0] = "RunID: " + reform.Inspect(s.RunID, true)
 	res[1] = "MongoDBUsername: " + reform.Inspect(s.MongoDBUsername, true)
 	res[2] = "MongoDBPassword: " + reform.Inspect(s.MongoDBPassword, true)
 	res[3] = "KeyFile: " + reform.Inspect(s.KeyFile, true)
-	res[4] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[4] = "AdminUsername: " + reform.Inspect(s.AdminUsername, true)
+	res[5] = "AdminPassword: " + reform.Inspect(s.AdminPassword, true)
+	res[6] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -87,6 +93,8 @@ func (s *OmBootstrapSecret) Values() []interface{} {
 		s.MongoDBUsername,
 		s.MongoDBPassword,
 		s.KeyFile,
+		s.AdminUsername,
+		s.AdminPassword,
 		s.CreatedAt,
 	}
 }
@@ -99,6 +107,8 @@ func (s *OmBootstrapSecret) Pointers() []interface{} {
 		&s.MongoDBUsername,
 		&s.MongoDBPassword,
 		&s.KeyFile,
+		&s.AdminUsername,
+		&s.AdminPassword,
 		&s.CreatedAt,
 	}
 }

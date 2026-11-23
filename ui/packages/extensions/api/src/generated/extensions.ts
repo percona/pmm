@@ -869,8 +869,9 @@ export interface paths {
      * @description List one incident's snippet executions, newest first, with live task status.
      *
      *     Each row also reports the command line its snippet ran with, credential values
-     *     masked. A row whose snippet or upstream payload cannot supply what masking
-     *     needs reports its arguments as withheld; the page still returns.
+     *     masked. A row whose upstream payload is unavailable, or whose run recorded
+     *     arguments without a masked copy of them, reports its arguments as withheld;
+     *     the page still returns.
      *
      *     :param session: The database session.
      *     :param incident: The incident resolved from the ``incident_id`` path parameter.
@@ -8920,19 +8921,16 @@ export interface components {
      *
      *     :param field_type: The discriminator literal; always ``"string"`` for this
      *         class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["string"]
      *     :param min_length: Optional minimum character length. Defaults to
      *         ``None``.
-     *     :type min_length: int | None
      *     :param max_length: Optional maximum character length. Defaults to
      *         ``None``.
-     *     :type max_length: int | None
      *     :param pattern: Optional regular expression the value must match.
      *         Defaults to ``None``.
-     *     :type pattern: NonEmptyStr | None
      *     :param placeholder: Optional placeholder text displayed when the field is
      *         empty. Defaults to ``None``.
-     *     :type placeholder: NonEmptyStr | None
+     *     :param sensitive: Whether the value is a credential, which the client must
+     *         not display as typed. Defaults to ``False``.
      */
     framework__StringField: {
       /** Default */
@@ -8965,6 +8963,11 @@ export interface components {
       required: boolean;
       /** Requires */
       requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * Sensitive
+       * @default false
+       */
+      sensitive: boolean;
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
@@ -9097,12 +9100,9 @@ export interface components {
      *
      *     :param field_type: The discriminator literal; always ``"textarea"`` for
      *         this class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["textarea"]
      *     :param rows: Optional number of visible text rows. Defaults to ``None``.
-     *     :type rows: int | None
      *     :param placeholder: Optional placeholder text displayed when the field is
      *         empty. Defaults to ``None``.
-     *     :type placeholder: NonEmptyStr | None
      */
     framework__TextAreaField: {
       /** Default */

@@ -114,14 +114,6 @@ reload-dashboards:
 	cp -r /root/go/src/github.com/percona/pmm/dashboards/dashboards /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards
 	supervisorctl restart grafana
 
-# TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
-# run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
-# 	go test -coverpkg="github.com/percona/pmm/managed/..." \
-# 			-tags maincover \
-# 			$(PMM_LD_FLAGS) \
-# 			-race -c -o bin/pmm-managed.test
-# 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
-
 psql:                           ## Open database for the pmm-managed instance in psql shell
 	PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed
 

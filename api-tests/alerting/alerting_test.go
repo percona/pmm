@@ -89,6 +89,18 @@ func TestRulesAPI(t *testing.T) {
 			require.NoError(t, err)
 		})
 
+		t.Run("invalid filter label", func(t *testing.T) {
+			t.Parallel()
+
+			params := createAlertRuleParams(t, templateName, folder.UID, &alerting.CreateRuleParamsBodyFiltersItems0{
+				Type:   new("FILTER_TYPE_MATCH"),
+				Label:  "service_name` OR 1=1",
+				Regexp: "x",
+			})
+			_, err := client.CreateRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Invalid filter: filter label 'service_name` OR 1=1' is not a valid label name.")
+		})
+
 		t.Run("unknown template", func(t *testing.T) {
 			t.Parallel()
 

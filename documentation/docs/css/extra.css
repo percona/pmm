@@ -103,17 +103,6 @@
   }
 }
 
-/* Percona live announcement banner */
-
-.md-banner {
-  text-align: center;
-}
-
-.md-banner,
-.md-banner * {
-  font-family: "Poppins", sans-serif !important;
-}
-
 /* Light and dark image pairs: ![...](image-light.png){ .only-light } and ![...](image-dark.png){ .only-dark }.
    The light copy shows by default, in print and in the PDF build. On screen, the percona-dark scheme
    swaps in the dark copy. Classes instead of #only-light/#only-dark URL fragments keep the links

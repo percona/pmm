@@ -22,8 +22,15 @@
  * the two cannot drift apart.
  */
 
-import { REPLICA_SET_NAME_PATTERN } from './constants';
-import type { OmBootstrapMemberConfig } from './types';
+import {
+  ADMIN_PASSWORD_MAX_LENGTH,
+  ADMIN_PASSWORD_MIN_LENGTH,
+  ADMIN_USERNAME_PATTERN,
+  DEFAULT_MONGODB_VERSION,
+  MONITORING_USERNAME,
+  REPLICA_SET_NAME_PATTERN,
+} from './constants';
+import type { OmBootstrapMemberConfig, OmInventoryHost } from './types';
 
 const REPLICA_SET_NAME_MAX_LENGTH = 64;
 
@@ -35,12 +42,34 @@ const MAX_DELAY_SECS = 4294967295;
 
 export interface ConfigureFormState {
   replicaSetName: string;
+  /** The chosen version, or '' when every selected node supports none of those offered. */
+  mongodbVersion: string;
   dataPath: string;
   logPath: string;
   port: string;
   customBindIp: string | null;
   members: { name: string; config: OmBootstrapMemberConfig }[];
   electionErrorCount: number;
+  adminUsername: string;
+  /** The typed password and its confirmation, or null when PMM generates one. */
+  adminPassword: { value: string; confirmation: string } | null;
+}
+
+/** The MongoDB versions every node's OS release supports, oldest first. */
+export function commonMongodbVersions(
+  hosts: Pick<OmInventoryHost, 'supported_mongodb_versions'>[]
+): string[] {
+  const [first, ...rest] = hosts;
+  return (first?.supported_mongodb_versions ?? []).filter((version) =>
+    rest.every((host) => host.supported_mongodb_versions.includes(version))
+  );
+}
+
+/** The default version when it is offered, else the newest offered, or '' for none. */
+export function initialMongodbVersion(versions: string[]): string {
+  return versions.includes(DEFAULT_MONGODB_VERSION)
+    ? DEFAULT_MONGODB_VERSION
+    : (versions.at(-1) ?? '');
 }
 
 /**
@@ -63,6 +92,46 @@ export function replicaSetNameError(name: string): string | null {
   return null;
 }
 
+/** Why an administrator username would be refused, or null when it is fine. */
+export function adminUsernameError(name: string): string | null {
+  if (name === '') {
+    return 'Enter an administrator username.';
+  }
+  if (!ADMIN_USERNAME_PATTERN.test(name)) {
+    return 'Administrator username can use only letters, digits, ., _, @ and -, up to 64 characters.';
+  }
+  if (name === MONITORING_USERNAME) {
+    return `${MONITORING_USERNAME} is PMM's monitoring user. Choose another administrator username.`;
+  }
+  return null;
+}
+
+/** Why a typed administrator password would be refused, or null when it is fine. */
+export function adminPasswordError(value: string): string | null {
+  // Code points, not UTF-16 units, so the limits match the server's.
+  const length = [...value].length;
+  if (length < ADMIN_PASSWORD_MIN_LENGTH) {
+    return `Administrator password must be at least ${ADMIN_PASSWORD_MIN_LENGTH} characters.`;
+  }
+  if (length > ADMIN_PASSWORD_MAX_LENGTH) {
+    return `Administrator password can be at most ${ADMIN_PASSWORD_MAX_LENGTH} characters.`;
+  }
+  if (/\p{Cc}/u.test(value)) {
+    return 'Administrator password cannot contain control characters.';
+  }
+  return null;
+}
+
+/** Why a typed password's confirmation would be refused, or null when the two match. */
+export function adminPasswordMismatchError(
+  value: string,
+  confirmation: string
+): string | null {
+  return value === confirmation
+    ? null
+    : 'The administrator passwords do not match.';
+}
+
 /**
  * Every reason the Configure step cannot go on to Review, in form order.
  *
@@ -80,6 +149,11 @@ export function configureBlockers(form: ConfigureFormState): string[] {
     if (nameError) {
       blockers.push(nameError);
     }
+  }
+  if (form.mongodbVersion === '') {
+    blockers.push(
+      'Choose a MongoDB version that every selected node supports.'
+    );
   }
   if (form.dataPath.trim() === '') {
     blockers.push('Enter a data path.');
@@ -117,6 +191,20 @@ export function configureBlockers(form: ConfigureFormState): string[] {
     ) {
       blockers.push(`Delay for ${name} must be a whole number of seconds.`);
     }
+  }
+  const usernameError = adminUsernameError(form.adminUsername);
+  if (usernameError) {
+    blockers.push(usernameError);
+  }
+  const passwordError =
+    form.adminPassword &&
+    (adminPasswordError(form.adminPassword.value) ??
+      adminPasswordMismatchError(
+        form.adminPassword.value,
+        form.adminPassword.confirmation
+      ));
+  if (passwordError) {
+    blockers.push(passwordError);
   }
   if (form.electionErrorCount === 1) {
     blockers.push('Fix the election settings problem shown above.');
