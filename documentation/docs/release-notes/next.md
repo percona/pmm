@@ -99,10 +99,10 @@ PostgreSQL recently [stopped supporting version 14](https://www.postgresql.org/s
 
 PMM already switched the built-in database of PMM Server to PostgreSQL 18 in PMM 3.10.0 and includes PostgreSQL 14 only to migrate existing data when upgrading from PMM 3.9.1 or earlier.
 
-Once PMM 3.13.0 ships without PostgreSQL 14, PMM won't be able to upgrade a PMM Server that runs PMM 3.9.1 or earlier directly. If your PMM Server runs PMM 3.9.1 or earlier:
+Once PMM 3.13.0 removes PostgreSQL 14, PMM can no longer migrate that data, so it can't upgrade a PMM Server that runs PMM 3.9.1 or earlier directly. If your PMM Server runs PMM 3.9.1 or earlier:
 
-- Before PMM 3.13.0 is out: upgrade to PMM 3.11.0 or 3.12.x as usual. Your data moves to PostgreSQL 18 automatically.
-- After PMM 3.13.0 is out: [upgrade in two steps](../pmm-upgrade/prepare_postgresql_14_removal.md#if-you-upgrade-after-pmm-3130-is-out). First upgrade to a version from PMM 3.10.0 through 3.12.x, then to PMM 3.13.0 or later.
+- before PMM 3.13.0: upgrade to PMM 3.11.0 or 3.12.x as usual. Your data moves to PostgreSQL 18 automatically.
+- after PMM 3.13.0: [upgrade in two steps](../pmm-upgrade/prepare_postgresql_14_removal.md#if-you-upgrade-after-pmm-3130-is-out). First upgrade to a version from PMM 3.10.0 through 3.12.x, then to PMM 3.13.0 or later.
 
 ##### Impact on external databases
 
