@@ -90,6 +90,24 @@ If you manage a large MongoDB fleet, you can now see right away which backup age
 
 [Find your failing backup agents](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) to get started.
 
+### Added support and deprecations
+
+#### PostgreSQL 14 deprecated in PMM Server
+
+PostgreSQL recently [stopped supporting version 14](https://www.postgresql.org/support/versioning/), so it no longer gets security fixes. Because of this, PMM deprecates PostgreSQL 14 in PMM 3.11.0 and will remove it completely in PMM 3.13.0 (expected January 2027).
+
+##### Impact on the built-in database
+
+PMM already switched the built-in database of PMM Server to PostgreSQL 18 in PMM 3.10.0 and includes PostgreSQL 14 only to migrate existing data when upgrading from PMM 3.9.1 or earlier.
+
+Once PMM 3.13.0 removes PostgreSQL 14, PMM can no longer migrate that data, so it can't upgrade a PMM Server that runs PMM 3.9.1 or earlier directly. If your PMM Server runs PMM 3.9.1 or earlier:
+
+- before PMM 3.13.0: upgrade to PMM 3.11.0 or 3.12.x as usual. Your data moves to PostgreSQL 18 automatically.
+- after PMM 3.13.0: [upgrade in two steps](../pmm-upgrade/prepare_postgresql_14_removal.md#if-you-upgrade-after-pmm-3130-is-out). First upgrade to a version from PMM 3.10.0 through 3.12.x, then to PMM 3.13.0 or later.
+
+##### Impact on external databases
+
+PMM 3.13.0 requires PostgreSQL 15 or later for external databases. If you configured PMM Server to use an external PostgreSQL database instead of the built-in one, and it runs an earlier version, upgrade it before you upgrade PMM Server to PMM 3.13.0.
 ### Change a monitored service from the command line without removing it
 
 Rotating a password or renewing a certificate no longer means removing a service and adding it again, or changing its agents one by one with `pmm-admin inventory change agent`, which PMM 3.7.0 introduced.
