@@ -25,7 +25,7 @@ To add the PostgreSQL datasource:
 3. Find and open the **Postgres** plugin.
 4. Select **Add new datasource**.
 5. Configure the connection parameters and click **Save & test**.
-6. If the test is successful, you can start using the datasource from the **Explore** page.
+6. If the test is successful, you can start using the datasource from the **Explore data** page.
 
 !!! note
 

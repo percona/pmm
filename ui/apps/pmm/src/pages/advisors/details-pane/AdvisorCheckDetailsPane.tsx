@@ -16,10 +16,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { CopyToClipboardButton } from '@percona/peak-ui';
 import { enqueueSnackbar } from 'notistack';
-import {
-  DRAWER_CLOSED_WIDTH,
-  DRAWER_WIDTH,
-} from 'components/sidebar/drawer/Drawer.constants';
+import { drawerWidth } from 'components/sidebar/drawer/Drawer.constants';
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import { useAdvisorCheck } from 'hooks/api/useAdvisors';
 import { AdvisorCheckRow } from 'types/advisors.types';
@@ -89,7 +86,7 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
   const { navOpen } = useNavigation();
   const open = !!check;
   // the pane never covers the main navigation
-  const sidebarWidth = navOpen ? DRAWER_WIDTH : DRAWER_CLOSED_WIDTH;
+  const sidebarWidth = drawerWidth(navOpen);
 
   // full definition (queries + script): the script is displayed and the whole
   // check is the payload for the dry-run Test

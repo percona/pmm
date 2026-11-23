@@ -4,7 +4,7 @@ PMM uses labels (key/value pairs) to tag the monitoring data it collects. Labels
 
 ## Where labels appear in PMM
 
-Labels are available as filters in dashboards, Query Analytics, and the **Explore** section.
+Labels are available as filters in dashboards, Query Analytics, and **Explore data**.
 
 On **dashboards**, labels appear as variable dropdowns at the top of the page. Use them to filter the metrics displayed, for example, to show only a specific environment, cluster, or service type.
 
@@ -12,13 +12,9 @@ In **Query Analytics**, labels appear as filter groups in the Filters panel on t
 
 ![QAN filters panel showing label-based filter groups](../images/QAN labels.jpg)
 
-In **Explore > PromQL builder**, labels appear as **Label filters** next to the metric selector. Select a label and value to narrow the metric results to a specific service or node.
+In **Explore data**, labels appear as **Label filters** next to the metric selector. Select a label and value to narrow the metric results to a specific service or node.
 
 ![PromQL builder showing Label filters](../images/metrics_labels.jpg)
-
-If you prefer to browse metrics without writing queries, you can also enable the **Explore metrics** plugin. Once enabled, it appears under **Explore** in the left sidebar and supports the same label-based filtering. See [Enable Explore metrics](../reference/ui/ui_components.md).
-
-![Explore metrics showing label filters](../images/PMM_Explore_metrics.png)
 
 ## Label types
 
@@ -78,7 +74,7 @@ pmm-admin add mysql --replication-set=MySet1 --environment=production ...
 pmm-admin add mysql --custom-labels="owner=joe,team=backend" ...
 ```
 
-You can also set labels through the PMM UI when adding a service under **Inventory > Add service**, or via the [PMM API](https://percona-pmm.readme.io/reference/changeservice).
+You can also set labels through the PMM UI when adding a service under **Inventory > Services > Add Service**, or via the [PMM API](https://percona-pmm.readme.io/reference/changeservice).
 
 To view labels on existing services, go to **Inventory > Services** in the PMM UI and click :material-chevron-down: next to the service. The **Labels** section lists the labels of the service.
 

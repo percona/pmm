@@ -10,7 +10,7 @@ You can edit users by changing the information or settings for an individual use
 You can grant or revoke admin access to a user as follows:
 {.power-number}
 
-1. Go to **Users and access**.
+1. Go to **Configuration > Users**.
 
 2. Locate the user account you want to update and click the Edit (pencil) icon. 
 
@@ -25,7 +25,7 @@ You can grant or revoke admin access to a user as follows:
 To change the organization role assigned to your user account:
 {.power-number}
 
-1. On the **Users and access**, click the user for whom you want to change the role.
+1. On the **Users** page, click the user for whom you want to change the role.
 
 2. Locate the user account you want to update and click the Edit (pencil) icon. 
 

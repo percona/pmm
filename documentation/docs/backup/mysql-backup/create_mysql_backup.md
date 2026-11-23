@@ -8,7 +8,7 @@ Before creating a backup, make sure to check the [MySQL backup prerequisites](my
 To create a backup:
 {.power-number}
 
-1. Go to  :material-history: **Backup > All backups**.
+1. Go to **Apps > All backups**.
 2. Click :material-plus-box-outline: **Create backup**.
 3. Specify the type of backup that you want to create: **On Demand** or **Schedule Backup**.
 4. Enter a unique name for this backup.
@@ -23,4 +23,4 @@ To create a backup:
 8.  Leave the **Folder** field as is. This field is relevant for MongoDB backups to ensure compatibility with PBM wokflows and comes prefilled with the cluster label.
 9. Expand **Advanced Settings** to specify the settings for retrying the backup in case of any issues. You can either let PMM retry the backup again (**Auto**), or do it again yourself (**Manual**). Auto retry mode enables you to select up to ten retries and an interval of up to eight hours between retries.
 10. To start creating the backup artifact, click **Backup** or **Schedule** at the top of the window, depending on whether you are creating a scheduled or an on-demand backup.
-11. Go to the **All Backups** tab, and check the **Status** column. An animated ellipsis icon :material-dots-horizontal: shows that a backup is currently being created.
+11. Go to **Apps > All backups** and check the **Status** column. An animated ellipsis icon :material-dots-horizontal: shows that a backup is currently being created.

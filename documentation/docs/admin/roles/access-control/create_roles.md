@@ -14,7 +14,7 @@ To create access roles in PMM:
 {.power-number}
 
 1. From the [main menu](../../../reference/ui/ui_components.md), go to **Configuration > Settings > Advanced Settings** and enable the **Access control** option.
-2. Go to **Users and access > Access Roles**.
+2. Go to **Configuration > Access roles**.
 3. Click **Create**.
 4. On the **Create role** page, enter a role name and description.
 5. Configure metrics access by setting label selectors:

@@ -9,7 +9,7 @@ To edit access roles:
 
 1. From the [main menu](../../../reference/ui/ui_components.md), go to **Configuration > Settings > Advanced settings** then enable **Access control**.
 
-2. Go to **Users and access > Access roles**.
+2. Go to **Configuration > Access roles**.
 
 3. In the **Options** column, click the ellipsis (three vertical dots) next to the role you want to edit, then select **Edit** to open the **Edit role** page.
 4. Make the required changes to the role.
@@ -25,7 +25,7 @@ To set a role as default, do the following:
 
 1. From [main menu](../../../reference/ui/ui_components.md), go to **Configuration > Settings > Advanced Settings** and enable the **Access control** option.
 
-2. Go to **Users and access > Access roles**.
+2. Go to **Configuration > Access roles**.
 
 3. On the **Options** column, click the ellipsis (three vertical dots) next to the role you want to set, then select **Set as default**.
 
@@ -37,7 +37,7 @@ To remove access roles, do the following:
 
 1. From [main menu](../../../reference/ui/ui_components.md), go to **Configuration > Settings > Advanced Settings** and enable the **Access control** option.
 
-2. Go to **Users and access > Access roles**.
+2. Go to **Configuration > Access roles**.
 
 3. In the **Options** column, click the ellipsis (three vertical dots) next to the role you want to remove, then select **Delete**. 
 4. Click **Confirm and delete role**.

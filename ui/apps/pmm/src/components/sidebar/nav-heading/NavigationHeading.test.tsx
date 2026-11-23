@@ -1,7 +1,16 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import {
+  fireEvent,
+  render as renderWithoutRouter,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { ReactElement } from 'react';
+import { wrapWithRouter } from 'utils/testUtils';
 import NavigationHeading from './NavigationHeading';
 
 const toggleFn = vitest.fn();
+
+const render = (ui: ReactElement) => renderWithoutRouter(wrapWithRouter(ui));
 
 describe('NavigationHeading', () => {
   beforeEach(() => {
@@ -26,6 +35,26 @@ describe('NavigationHeading', () => {
     expect(screen.queryByTestId('sidebar-open-button')).toBeInTheDocument();
   });
 
+  it('names its expand and collapse buttons', () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Collapse sidebar' })
+    ).toBeInTheDocument();
+
+    rerender(
+      wrapWithRouter(
+        <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+      )
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Expand sidebar' })
+    ).toBeInTheDocument();
+  });
+
   it('can close sidebar', () => {
     render(<NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />);
 
@@ -42,5 +71,130 @@ describe('NavigationHeading', () => {
     fireEvent.click(screen.getByTestId('sidebar-open-button'));
 
     expect(toggleFn).toHaveBeenCalled();
+  });
+
+  it('disables the expand button while it slides away', () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+    );
+
+    rerender(
+      wrapWithRouter(
+        <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+      )
+    );
+
+    expect(screen.getByTestId('sidebar-open-button')).toBeDisabled();
+  });
+
+  it('moves focus to the other toggle after a toggle had it', async () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+    );
+
+    screen.getByTestId('sidebar-open-button').focus();
+    fireEvent.click(screen.getByTestId('sidebar-open-button'));
+    rerender(
+      wrapWithRouter(
+        <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+      )
+    );
+
+    expect(screen.getByTestId('sidebar-close-button')).toHaveFocus();
+
+    fireEvent.click(screen.getByTestId('sidebar-close-button'));
+    rerender(
+      wrapWithRouter(
+        <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+      )
+    );
+
+    await waitFor(() =>
+      expect(screen.getByTestId('sidebar-open-button')).toHaveFocus()
+    );
+  });
+
+  it('leaves focus alone after a mouse click', () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+    );
+
+    screen.getByTestId('sidebar-open-button').focus();
+    fireEvent.click(screen.getByTestId('sidebar-open-button'), { detail: 1 });
+    rerender(
+      wrapWithRouter(
+        <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+      )
+    );
+
+    expect(screen.getByTestId('sidebar-close-button')).not.toHaveFocus();
+  });
+
+  it('leaves focus alone when the toggle did not have it', () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+    );
+
+    fireEvent.click(screen.getByTestId('sidebar-open-button'));
+    rerender(
+      wrapWithRouter(
+        <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+      )
+    );
+
+    expect(screen.getByTestId('sidebar-close-button')).not.toHaveFocus();
+  });
+
+  it.each([true, false])(
+    "links the logo to the user's home dashboard (open: %s)",
+    (sidebarOpen) => {
+      render(
+        <NavigationHeading
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={toggleFn}
+        />
+      );
+
+      expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute(
+        'href',
+        '/graph/'
+      );
+    }
+  );
+
+  it('names the logo in a tooltip only while collapsed', async () => {
+    const { rerender } = render(
+      <NavigationHeading sidebarOpen={false} onToggleSidebar={toggleFn} />
+    );
+
+    fireEvent.mouseOver(screen.getByRole('link', { name: 'Home' }));
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Home');
+
+    rerender(
+      wrapWithRouter(
+        <NavigationHeading sidebarOpen onToggleSidebar={toggleFn} />
+      )
+    );
+    fireEvent.mouseOver(screen.getByRole('link', { name: 'Home' }));
+
+    await waitFor(() =>
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    );
+  });
+
+  it('reports a click on the logo', () => {
+    const onNavigate = vi.fn();
+    render(
+      <NavigationHeading
+        sidebarOpen
+        onToggleSidebar={toggleFn}
+        onNavigate={onNavigate}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('link', { name: 'Home' }));
+
+    expect(onNavigate).toHaveBeenCalled();
   });
 });

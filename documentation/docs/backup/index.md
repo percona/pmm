@@ -9,11 +9,11 @@ PMM enables you to do all this with zero downtime and minimal performance impact
 For MySQL, use [MySQL Backups](../apps/mysql-backup.md) under **Apps > MySQL Backups**. It supports XtraBackup, Mydumper, and Binlog backups, with local storage and upload to Amazon S3, GCS, or rsync. It is intended to replace the legacy MySQL backup feature.
 
 !!! warning "Legacy MySQL backup feature"
-    The MySQL backup feature under **Backups > All backups** is intended to be replaced by [MySQL Backups](../apps/mysql-backup.md) when [PMM Extensions](../apps/index.md) reaches GA. Both options are currently in Tech Preview. Backups created in one are not visible in the other.
+    The MySQL backup feature under **Apps > All backups** is intended to be replaced by [MySQL Backups](../apps/mysql-backup.md) when [PMM Extensions](../apps/index.md) reaches GA. Both options are currently in Tech Preview. Backups created in one are not visible in the other.
 
 ## MongoDB backups
 
-Enable the **Backup Management** option in PMM's Advanced Settings to activate the **Backup** page from where you can:
+Enable the **Backup Management** option in PMM's Advanced Settings to show the backup pages under **Apps** in the main menu, from where you can:
 
 - Create and restore MongoDB backups
 - Automate backup scheduling

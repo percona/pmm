@@ -5,7 +5,7 @@
 
 Support diagnostics runs targeted diagnostic scripts on your database hosts and sends the results directly to your Percona support case in ServiceNow, without SSH access or manual file uploads.
 
-It is available under **Apps > Support diagnostics** in the sidebar, part of PMM's growing set of [database management apps](index.md).
+It is available as **Diagnostics** in the **Analyze** section of the main menu, and is part of PMM's growing set of [database management apps](index.md).
 
 ## When to use Support diagnostics vs PMM Dump
 
@@ -55,7 +55,7 @@ To confirm that PMM can reach ServiceNow with the saved credentials, click **Tes
 To collect and send diagnostics to your support case:
 {.power-number}
 
-1. Go to **Apps > Support diagnostics** in the sidebar.
+1. Go to **Diagnostics** in the sidebar.
 2. Click **New incident**. PMM creates the incident and opens it.
 3. Next to **Case**, add your ServiceNow case number. You can also enter it later, when you send the results.
 4. Select the diagnostic scripts to run, and fill in any **Shared parameters**.

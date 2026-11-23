@@ -2,6 +2,13 @@ import { IconName } from 'components/icon/Icon.types';
 import { SvgIconComponent } from './util.types';
 import { ChipProps } from '@mui/material/Chip';
 
+// A small add button beside an entry, outside its link so the two stay
+// separate targets.
+export interface NavItemAction {
+  label: string;
+  url: string;
+}
+
 export interface NavItem {
   id: string;
   text?: string;
@@ -10,7 +17,7 @@ export interface NavItem {
   url?: string;
   children?: NavItem[];
   isActive?: boolean;
-  // The child a collapsible parent links to; defaults to the first child.
+  // The child a collapsible parent links to; defaults to its first page.
   isDefault?: boolean;
   target?: HTMLAnchorElement['target'];
   onClick?: () => void;
@@ -18,5 +25,6 @@ export interface NavItem {
   badge?: ChipProps | React.ReactElement;
   badgeAlwaysVisible?: boolean;
   matches?: string[];
-  type?: 'menu-item' | 'menu-text' | 'menu-divider';
+  type?: 'menu-item' | 'menu-text' | 'menu-section';
+  action?: NavItemAction;
 }

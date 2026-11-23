@@ -140,7 +140,7 @@ To monitor a PCSM instance:
     If PCSM runs with a custom `--port`, use that value for `--listen-port`. The `--metrics-mode=push` flag makes PMM Client collect the metrics locally, so PCSM can keep listening on `localhost`.
 
 3. If you run several PCSM instances in an HA group, repeat steps 1 and 2 on the host of every instance. Use a different `--service-name` and the same `--cluster` value, so that you can select the whole group on the dashboard.
-4. If PMM monitors at least one MongoDB service, open **MongoDB > ClusterSync**. Otherwise, go to **All dashboards > Browse all dashboards** and open **MongoDB ClusterSync Details** in the **MongoDB** folder. The **Exporter Up** panel shows **UP** for each instance.
+4. If PMM monitors at least one MongoDB service, open **MongoDB > ClusterSync**. Otherwise, go to **Dashboards > All dashboards** and open **MongoDB ClusterSync Details** in the **MongoDB** folder. The **Exporter Up** panel shows **UP** for each instance.
 
 If you set `--environment`, that value also appears in the environment filters of the **Environments Overview** and **DB Cluster Summary** dashboards.
 
@@ -149,7 +149,7 @@ If you set `--environment`, that value also appears in the environment filters o
 To add an external service via PMM UI:
 {.power-number}
 
-1. In the PMM web interface, go to **Inventory > Add service > External Service**.
+1. In the PMM web interface, go to **Inventory > Services > Add Service > External Service**.
 
     ![!Add external service UI](../../../images/PMM_External_Serverless.png)
 

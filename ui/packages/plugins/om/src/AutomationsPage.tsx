@@ -27,7 +27,7 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
-import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
+import { Table, type MRT_ColumnDef } from '@percona/peak-ui';
 import { RunTime } from '@pmm-extensions/framework';
 import { bootstrapRunDisplayStatus } from './api';
 import {

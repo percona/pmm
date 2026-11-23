@@ -26,6 +26,7 @@ import { useAuth } from 'contexts/auth';
 import { ExtensionsAuthProvider } from 'extensions/ExtensionsAuthProvider';
 import { useReadonlySettings } from 'hooks/api/useSettings';
 import { Messages } from './OmPage.messages';
+import { OmSectionTabs } from './OmSectionTabs';
 
 /**
  * Host chrome for the OM page.
@@ -57,7 +58,11 @@ export const OmPage: FC<PropsWithChildren> = ({ children }) => {
   return (
     // An anonymous visitor is an org Viewer with no credential PMM Extensions accepts, so most
     // tabs could not load for them; an empty role list turns them away.
-    <Page maxWidth="full" roles={isAnonymous ? [] : undefined}>
+    <Page
+      maxWidth="full"
+      roles={isAnonymous ? [] : undefined}
+      topBar={settings?.omEnabled ? <OmSectionTabs /> : undefined}
+    >
       <Stack gap={3} sx={{ flex: 1 }}>
         {isLoading ? (
           <Stack alignItems="center" py={4}>

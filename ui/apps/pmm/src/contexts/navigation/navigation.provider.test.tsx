@@ -1,22 +1,11 @@
 import { renderHook } from '@testing-library/react';
-import { ReactElement } from 'react';
-import { MemoryRouterProps } from 'react-router-dom';
-import { NavItem } from 'types/navigation.types';
-import { User } from 'types/user.types';
-import {
-  EXTENSIONS_ATW_PATH,
-  EXTENSIONS_MYSQL_BACKUPS_PATH,
-  OM_PATH,
-} from 'lib/constants';
-import { findActiveNavItem } from 'utils/navigation.utils';
-import {
-  TEST_USER_ADMIN,
-  TEST_USER_EDITOR,
-  TEST_USER_VIEWER,
-} from 'utils/testStubs';
+import type { ReactElement } from 'react';
+import type { AuthContextProps } from 'contexts/auth';
+import { ServiceType } from 'types/services.types';
+import type { User } from 'types/user.types';
+import { TEST_USER_ADMIN, TEST_USER_VIEWER } from 'utils/testStubs';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithSettings, wrapWithUpdatesProvider } from 'utils/testUtils';
-import type { AuthContextProps } from 'contexts/auth';
 import { NavigationProvider } from './navigation.provider';
 import { useNavigation } from './navigation.hooks';
 import {
@@ -31,9 +20,12 @@ import {
   NAV_SIGN_IN,
   NAV_VALKEY,
 } from './navigation.constants';
+import { NAV_DIAGNOSTICS, NAV_REALTIME_QUERIES } from './navigation.tree';
+
+const serviceTypes = vi.hoisted(() => ({ current: [] as string[] }));
 
 vi.mock('hooks/api/useServices', () => ({
-  useServiceTypes: () => ({ data: { serviceTypes: [] } }),
+  useServiceTypes: () => ({ data: { serviceTypes: serviceTypes.current } }),
 }));
 
 vi.mock('hooks/api/useFolders', () => ({
@@ -48,14 +40,14 @@ vi.mock('hooks/theme', () => ({
   useColorMode: () => ({ colorMode: 'light', toggleColorMode: () => {} }),
 }));
 
+const ANONYMOUS_AUTH: AuthContextProps = {
+  isLoading: false,
+  isLoggedIn: false,
+  isAnonymous: true,
+};
+
 const renderNavTree = (
   user: User | null = TEST_USER_ADMIN,
-  routerProps?: MemoryRouterProps,
-  settings?: {
-    extensionsEnabled?: boolean;
-    backupManagementEnabled?: boolean;
-    omEnabled?: boolean;
-  },
   authContext?: AuthContextProps
 ) => {
   const { result } = renderHook(() => useNavigation(), {
@@ -63,45 +55,59 @@ const renderNavTree = (
       <TestWrapper
         authContext={authContext}
         userContext={{ isLoading: false, user: user ?? undefined }}
-        routerProps={routerProps}
       >
         {wrapWithSettings(
           wrapWithUpdatesProvider(
             <NavigationProvider>{children}</NavigationProvider>
           ) as ReactElement,
-          {
-            settings: {
-              backupManagementEnabled: true,
-              extensionsEnabled: true,
-              omEnabled: true,
-              ...settings,
-            },
-          }
+          { settings: { extensionsEnabled: true, omEnabled: true } }
         )}
       </TestWrapper>
     ),
   });
 
-  return result.current.navTree;
-};
-
-const findById = (items: NavItem[], id: string): NavItem | undefined =>
-  items.find((item) => item.id === id);
-
-const ANONYMOUS_AUTH: AuthContextProps = {
-  isLoading: false,
-  isLoggedIn: false,
-  isAnonymous: true,
+  return result.current.navTree.map((item) => item.id);
 };
 
 describe('NavigationProvider', () => {
-  describe('Anonymous visitors', () => {
-    const anonymousIds = () =>
-      renderNavTree(null, undefined, undefined, ANONYMOUS_AUTH).map(
-        (item) => item.id
-      );
+  afterEach(() => {
+    serviceTypes.current = [];
+  });
 
-    it('get every database menu, since they cannot list service types', () => {
+  it('serves the sectioned sidebar to a signed-in admin', () => {
+    const ids = renderNavTree();
+
+    expect(ids[0]).toBe('section-technologies');
+    expect(ids).toContain('section-technologies');
+    expect(ids).toContain('section-administration');
+    expect(ids).toContain('configuration');
+    expect(ids).toContain('help');
+    expect(ids).not.toContain('sign-in');
+  });
+
+  it('lists only the technologies PMM monitors', () => {
+    serviceTypes.current = [ServiceType.mysql];
+
+    const ids = renderNavTree();
+
+    expect(ids).toContain('mysql');
+    expect(ids).not.toContain('mongo');
+    expect(ids).toContain('system');
+  });
+
+  it('withholds administration from a viewer', () => {
+    const ids = renderNavTree(TEST_USER_VIEWER);
+
+    expect(ids).toContain(NAV_QAN.id);
+    expect(ids).not.toContain('section-administration');
+    expect(ids).not.toContain('configuration');
+    expect(ids).not.toContain('inventory');
+  });
+
+  describe('for an anonymous visitor', () => {
+    const anonymousIds = () => renderNavTree(null, ANONYMOUS_AUTH);
+
+    it('lists every database menu, since they cannot list service types', () => {
       expect(anonymousIds()).toEqual(
         expect.arrayContaining([
           NAV_MYSQL.id,
@@ -113,185 +119,22 @@ describe('NavigationProvider', () => {
       );
     });
 
-    it('get a sign-in entry and nothing that needs PMM APIs', () => {
+    it('offers sign in and nothing that needs PMM APIs', () => {
       const ids = anonymousIds();
 
       expect(ids).toContain(NAV_SIGN_IN.id);
       for (const id of [
         NAV_QAN.id,
-        NAV_INVENTORY.id,
+        NAV_REALTIME_QUERIES.id,
         NAV_ALERTS.id,
+        NAV_DIAGNOSTICS.id,
+        'apps',
+        NAV_INVENTORY.id,
         NAV_HELP.id,
         'account',
       ]) {
         expect(ids).not.toContain(id);
       }
-    });
-
-    it('leave Query Analytics in place for a signed-in Viewer', () => {
-      const ids = renderNavTree(TEST_USER_VIEWER).map((item) => item.id);
-
-      expect(ids).toContain(NAV_QAN.id);
-      expect(ids).not.toContain(NAV_SIGN_IN.id);
-    });
-  });
-
-  describe('Apps section', () => {
-    it.each([
-      ['admin', TEST_USER_ADMIN],
-      ['editor', TEST_USER_EDITOR],
-      ['viewer', TEST_USER_VIEWER],
-    ])('is a single collapsible group for %s', (_role, user) => {
-      const navTree = renderNavTree(user);
-      const management = findById(navTree, 'management');
-
-      expect(management).toBeDefined();
-      expect(management?.text).toBe('Apps');
-      expect(management?.url).toBeUndefined();
-      expect(management?.children?.map((child) => child.id)).toEqual([
-        'extensions-mysql-backups',
-        'extensions-atw',
-      ]);
-    });
-
-    it('does not leave the PMM Extensions apps as top-level entries', () => {
-      const ids = renderNavTree().map((item) => item.id);
-
-      expect(ids).not.toContain('extensions-atw');
-      expect(ids).not.toContain('extensions-mysql-backups');
-    });
-
-    it('preserves each child url, matches and icon', () => {
-      const management = findById(renderNavTree(), 'management');
-      const [mysqlBackups, atw] = management?.children || [];
-
-      expect(mysqlBackups).toMatchObject({
-        text: 'MySQL Backups',
-        url: EXTENSIONS_MYSQL_BACKUPS_PATH,
-        matches: ['*'],
-      });
-      expect(mysqlBackups?.icon).toBeDefined();
-
-      expect(atw).toMatchObject({
-        text: 'Support diagnostics',
-        url: EXTENSIONS_ATW_PATH,
-        matches: ['*'],
-      });
-      expect(atw?.icon).toBeDefined();
-    });
-
-    it('sits right below Inventory for an admin, moving nothing else', () => {
-      const ids = renderNavTree().map((item) => item.id);
-      // Only the block the section joins is pinned: asserting the whole tree
-      // would break on any unrelated nav addition without telling us anything
-      // about where Apps landed.
-      const block = ids.slice(ids.indexOf('inventory-divider'));
-
-      expect(block).toEqual([
-        'inventory-divider',
-        'inventory',
-        'management',
-        'backups',
-        'backups-divider',
-        'configuration',
-        'users-and-access',
-        'account',
-        'help',
-      ]);
-    });
-
-    it('is withheld when PMM Extensions is disabled in server settings', () => {
-      const ids = renderNavTree(TEST_USER_ADMIN, undefined, {
-        extensionsEnabled: false,
-      }).map((item) => item.id);
-
-      expect(ids).not.toContain('management');
-    });
-
-    it('opens the block for a viewer, who gets no Inventory of their own', () => {
-      const ids = renderNavTree(TEST_USER_VIEWER).map((item) => item.id);
-
-      expect(ids).not.toContain('inventory');
-      expect(ids).not.toContain('backups');
-      expect(ids).not.toContain('configuration');
-      expect(ids.indexOf('management')).toBe(
-        ids.indexOf('inventory-divider') + 1
-      );
-    });
-  });
-
-  describe('Operations (OpenManager)', () => {
-    const mongoChildIds = (navTree: NavItem[]) =>
-      findById(navTree, 'mongo')?.children?.map((child) => child.id);
-
-    it('is nested in the MongoDB menu, not a top-level entry', () => {
-      const navTree = renderNavTree();
-
-      expect(navTree.map((item) => item.id)).not.toContain('om');
-      // No MongoDB service is monitored here, so the menu exists for OM alone.
-      expect(mongoChildIds(navTree)).toEqual(['om']);
-    });
-
-    it('is withheld when the switch is off', () => {
-      // Gated on its own settings flag rather than on the PMM Extensions group:
-      // it is served by pmm-managed (PMM-15360).
-      const navTree = renderNavTree(TEST_USER_ADMIN, undefined, {
-        omEnabled: false,
-      });
-
-      expect(findById(navTree, 'mongo')).toBeUndefined();
-    });
-
-    it.each([
-      ['an editor', TEST_USER_EDITOR],
-      ['a viewer', TEST_USER_VIEWER],
-    ])('is shown to %s, who may look but not act', (_, user) => {
-      expect(mongoChildIds(renderNavTree(user))).toEqual(['om']);
-    });
-
-    it('is withheld from an anonymous reader', () => {
-      const navTree = renderNavTree(null, undefined, undefined, ANONYMOUS_AUTH);
-
-      expect(mongoChildIds(navTree)).not.toContain('om');
-    });
-
-    it.each([
-      ['om-fleet', OM_PATH],
-      ['om-nodes', `${OM_PATH}/nodes`],
-      ['om-automations', `${OM_PATH}/automations`],
-      ['om-settings', `${OM_PATH}/settings`],
-    ])('marks %s active inside the MongoDB menu', (childId, path) => {
-      const navTree = renderNavTree(TEST_USER_ADMIN, {
-        initialEntries: [path],
-      });
-      const om = findById(findById(navTree, 'mongo')?.children ?? [], 'om');
-      const active = findActiveNavItem(navTree, path);
-
-      expect(active?.id).toBe(childId);
-      expect(om?.children).toContain(active);
-    });
-  });
-
-  describe('deep links into a PMM Extensions app', () => {
-    it.each([
-      ['extensions-atw', EXTENSIONS_ATW_PATH],
-      ['extensions-atw', `${EXTENSIONS_ATW_PATH}/runs/abc`],
-      ['extensions-mysql-backups', EXTENSIONS_MYSQL_BACKUPS_PATH],
-      [
-        'extensions-mysql-backups',
-        `${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/123`,
-      ],
-    ])('marks %s active and keeps it inside Apps for %s', (childId, path) => {
-      const navTree = renderNavTree(TEST_USER_VIEWER, {
-        initialEntries: [path],
-      });
-      const management = findById(navTree, 'management');
-      const active = findActiveNavItem(navTree, path);
-
-      expect(active?.id).toBe(childId);
-      // The sidebar expands a section when its active child is the very object
-      // held in `children`, so identity — not just the id — has to match.
-      expect(management?.children).toContain(active);
     });
   });
 });

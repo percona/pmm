@@ -16,7 +16,7 @@ To populate every panel of this dashboard, make sure that:
 - For sharded clusters, the shard and config server `mongod` members are monitored, not only the `mongos` routers. The oplog and replication panels need data from `mongod` members.
 - The PMM monitoring user has the `read` role on the `local` database, which the oplog window panels need. For the required privileges, see [Set up MongoDB monitoring permissions](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-1-set-up-mongodb-monitoring-permissions).
 
-If PMM monitors at least one MongoDB service, open the dashboard from **MongoDB > ClusterSync**. Otherwise, go to **All dashboards > Browse all dashboards** and open **MongoDB ClusterSync Details** in the **MongoDB** folder.
+If PMM monitors at least one MongoDB service, open the dashboard from **MongoDB > ClusterSync**. Otherwise, go to **Dashboards > All dashboards** and open **MongoDB ClusterSync Details** in the **MongoDB** folder.
 
 ## Work through the dashboard
 

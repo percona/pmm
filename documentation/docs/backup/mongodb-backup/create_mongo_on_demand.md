@@ -5,7 +5,7 @@ Before creating a backup, make sure to check the [MongoDB backup prerequisites](
 To schedule or create an on-demand backup, check the instructions below. If you want to create a Point-in-time-recovery (PITR) backup instead, see [Create MongoDB PITR backups](create_PITR_mongo.md).
 {.power-number}
 
-1. Go to :material-history: **Backup > All backups**.
+1. Go to **Apps > All backups**.
 2. Click :material-plus-box-outline: **Create backup**.
 3. In the **Create Scheduled backup** window, select whether you want to create an **On Demand** or a **Schedule Backup**.
 4. Enter a unique name for the backup.
@@ -30,4 +30,4 @@ To schedule or create an on-demand backup, check the instructions below. If you 
             Unless you are using verified custom workflows, make sure to keep the default **Folder** value coming from the cluster name. Editing this field will impact PMM-PBM integration workflows.
 
 11. To start creating the backup artifact, click **Backup** or **Schedule** at the top of the window, depending on whether you are creating a scheduled or an on-demand backup.
-12. Go to the **All Backups** tab, and check the **Status** column. An animated ellipsis icon :material-dots-horizontal: shows that a backup is currently being created.
+12. Go to **Apps > All backups** and check the **Status** column. An animated ellipsis icon :material-dots-horizontal: shows that a backup is currently being created.

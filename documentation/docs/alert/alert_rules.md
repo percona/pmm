@@ -22,7 +22,7 @@ You can pick a built-in template, described in the [list of available alert temp
 Before you create alert rules, make sure that:
 
 - **Percona Alerting** is enabled in **Configuration > Settings > Advanced settings**. When it's disabled, the **Alerting** page shows only Grafana-managed alert rules, and you can't create alerts from PMM templates.
-- You have a folder to store your alert rules in. To check your folders, go to **All dashboards > Browse all dashboards**. To add one, click **New > New folder**.
+- You have a folder to store your alert rules in. To check your folders, go to **Dashboards > All dashboards**. To add one, click **New > New folder**.
 
 ### Create the rule
 
@@ -35,7 +35,7 @@ To create an alert rule from a template:
 4. In the **Filters** section, specify if you want the alert rule to apply only to specific services or nodes. For example: `service_name=ps5.7`. When creating alert rule filters, consider the following:
    
     - If you add more than one filter, the rule applies only where all of them match.
-    - **Label** must be an exact match. To find the labels you can use, open the :material-compass-outline: **Explore** menu in PMM, or check the [labels reference](../reference/labels-reference.md).
+    - **Label** must be an exact match. To find the labels you can use, open :material-compass-outline: **Explore data** in PMM, or check the [labels reference](../reference/labels-reference.md).
     - For query performance templates, filters apply to the [columns that the query returns](#filter-and-route-query-performance-alerts).
 
 5. Click **Save and Exit** to close the page and go to the **Alert Rules** tab where you can review, edit and silence your new alert.
@@ -59,12 +59,12 @@ These alerts are based on metrics, the health data that PMM collects from your n
 
 ### Write a server and database health template
 
-Write your own template with a [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query, in `expr` or in `queries`, using the [custom template fields](#define-a-custom-template). Before you add the query to the template, test it in the **Explore** section of PMM, where you can also query any PMM internal database.
+Write your own template with a [MetricsQL](https://docs.victoriametrics.com/MetricsQL.html) query, in `expr` or in `queries`, using the [custom template fields](#define-a-custom-template). Before you add the query to the template, test it in **Explore data**, where you can also query any PMM internal database.
 
 To test a MetricsQL query:
 {.power-number}
 
-1. On the main menu in PMM, choose **Explore > PromQL builder**.
+1. On the main menu in PMM, choose **Explore data**.
 2. Switch to **Code** mode, enter your expression in the **Metrics** field, and click **Run query**. MetricsQL is backward compatible with PromQL, so PromQL expressions work too.
 
 For example, to check the CPU usage, run this expression:
@@ -119,10 +119,10 @@ To cover every database type, don't rely on `m_query_time_max` alone, because on
 
 #### Test the query
 
-Before you add the query to a template, check its results in **Explore**:
+Before you add the query to a template, check its results in **Explore data**:
 {.power-number}
 
-1. In **Explore**, select the **ClickHouse** data source.
+1. In **Explore data**, select the **ClickHouse** data source.
 2. Select **SQL Editor**, and set **Query Type** to **Time Series**.
 3. Set the time range to **Last 5 minutes** to match what the alert rule reads.
 4. Enter the query and click **Run query**.

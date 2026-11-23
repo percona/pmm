@@ -93,4 +93,21 @@ describe('findActiveNavItem', () => {
 
     expect(activeItem?.id).toBe('inventory-services');
   });
+
+  it('never returns a section heading', () => {
+    const section: NavItem = {
+      id: 'section',
+      type: 'menu-section',
+      text: 'Browse',
+      url: '/browse',
+    };
+
+    expect(findActiveNavItem([section], '/browse')).toBeUndefined();
+  });
+
+  it('matches an item whose link carries a query string by its path', () => {
+    const item: NavItem = { id: 'item', url: '/page?var-namespace=pmm' };
+
+    expect(findActiveNavItem([item], '/page')?.id).toBe('item');
+  });
 });
