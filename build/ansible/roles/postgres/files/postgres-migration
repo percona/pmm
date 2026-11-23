@@ -62,12 +62,20 @@ psql_with_grafana_password() {
         -c '\getenv password GRAFANA_DB_PASSWORD' -f -
 }
 
-# Creates the grafana role with the password Grafana reads, and the database it owns.
-create_grafana_db() {
-    echo "Creating grafana role and database..."
+# Gives the grafana role the password Grafana reads, creating the role and the database it owns when missing.
+ensure_grafana_db() {
+    echo "Ensuring grafana role and database..."
     psql_with_grafana_password <<'SQL'
+SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'grafana') AS grafana_role_exists \gset
+\if :grafana_role_exists
+ALTER ROLE grafana PASSWORD :'password';
+\else
 CREATE ROLE grafana LOGIN PASSWORD :'password';
+\endif
+SELECT NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'grafana') AS grafana_db_missing \gset
+\if :grafana_db_missing
 CREATE DATABASE grafana OWNER grafana;
+\endif
 SQL
 }
 
@@ -144,7 +152,7 @@ upgrade_pg14_to_pg18() {
             continue
         fi
         if [ "$db" = "grafana" ]; then
-            create_grafana_db
+            ensure_grafana_db
         else
             echo "Creating $db role and database..."
             "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
@@ -198,10 +206,6 @@ init_postgres_cluster() {
     export PGPASSWORD="$POSTGRES_PASSWORD"
     "$POSTGRES_BIN_DIR/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
     create_pg_stat_statements
-    # Grafana connects as soon as supervisord starts it, so its database has to exist by then.
-    if [ -z "${GF_DATABASE_URL}" ] && [ -z "${GF_DATABASE_HOST}" ]; then
-        create_grafana_db
-    fi
     "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$STAGE_DIR" -w
     unset PGPASSWORD
 
@@ -238,8 +242,9 @@ ensure_postgres_password() {
     fi
 }
 
-# Gives the grafana role the password Grafana reads on every start, so a changed password takes effect.
-set_grafana_password() {
+# Grafana connects as soon as supervisord starts it, so this runs on every start before that, which
+# also makes a changed password take effect.
+prepare_grafana_db() {
     local started=0
 
     if [ -n "${GF_DATABASE_URL}" ] || [ -n "${GF_DATABASE_HOST}" ]; then
@@ -251,14 +256,7 @@ set_grafana_password() {
         started=1
     fi
 
-    echo "Setting the grafana role's password..."
-    # A cluster whose Grafana database used to be external has no grafana role to update.
-    psql_with_grafana_password <<'SQL'
-SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'grafana') AS grafana_role_exists \gset
-\if :grafana_role_exists
-ALTER ROLE grafana PASSWORD :'password';
-\endif
-SQL
+    ensure_grafana_db
 
     if [ "$started" -eq 1 ]; then
         "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR" -w
@@ -268,4 +266,4 @@ SQL
 upgrade_pg14_to_pg18
 init_postgres_cluster
 ensure_postgres_password
-set_grafana_password
+prepare_grafana_db
