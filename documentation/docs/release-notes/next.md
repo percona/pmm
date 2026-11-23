@@ -77,6 +77,7 @@ PMM has used [its own navigation](3.6.0.md#new-native-pmm-navigation-and-revampe
 You get the same services, nodes and agents, now with:
 
 - filtered views that you can bookmark and share, while your existing bookmarks keep working
+- credentials, TLS and query source settings that you can change without removing a service and adding it again
 - a simpler layout, with the details and actions of each service and node right in its row:
 
     ![Inventory page in native PMM UI](../images/PMM_Inventory_Services.png)
@@ -89,7 +90,40 @@ If you manage a large MongoDB fleet, you can now see right away which backup age
 
 [Find your failing backup agents](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) to get started.
 
+### Change a monitored service from the command line without removing it
+
+Rotating a password or renewing a certificate no longer means removing a service and adding it again, or changing its agents one by one with `pmm-admin inventory change agent`, which PMM 3.7.0 introduced.
+
+With `pmm-admin update`, you change the settings of a monitored service in one command, and PMM applies them to all its agents. The service keeps its ID, so its metrics, Query Analytics history, alerts, and backups stay with it. It works for MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, HAProxy, and external services, and it changes only the flags that you pass.
+
+Preview a change with `--dry-run` before you apply it. If you change the credentials, TLS settings, or address, PMM first checks the connection to the database, so a wrong value doesn't replace a working one.
+
+To get started, [change the settings of a monitored service](../use/commands/pmm-admin/update.md).
+
 ## 🔒 Security updates
+
+### ClickHouse remote code execution ([CVE-2026-116366](https://nvd.nist.gov/vuln/detail/CVE-2026-116366))
+
+CRITICAL severity. An unauthenticated attacker who can reach ClickHouse Server over the network can execute arbitrary code on the server.
+
+#### Affected installations
+
+The risk depends on how you deploy PMM:
+
+- PMM Server as a single container: Low risk. ClickHouse accepts connections only from within the container by default.
+- PMM HA: Affected. Other pods in the cluster can reach ClickHouse. Upgrade as soon as possible.
+- PMM with an external ClickHouse: Affected if your ClickHouse version doesn't include the fix.
+
+#### Mitigation options
+
+To fix the vulnerability, upgrade to a ClickHouse version that includes the fix. Upgrading keeps your Query Analytics data, but you can't go back to the older ClickHouse version afterwards. To upgrade safely:
+{.power-number}
+
+1. Back up PMM Server on [Docker](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md), [Podman](../install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md), [Helm](../install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.md) or a [PMM HA cluster](../install-pmm/backup-restore-HA-clustered.md#back-up-pmm-ha-cluster).
+2. Upgrade, depending on how you deploy PMM:
+    - PMM Server as a single container: [upgrade to PMM 3.11.0](../pmm-upgrade/index.md), which includes ClickHouse 26.3.62.3.
+    - PMM HA: [upgrade the `pmm-ha` Helm chart](../pmm-upgrade/upgrade_helm_ha.md) to version 1.9.0, which installs PMM 3.11.0 and includes ClickHouse Altinity Stable 26.3.60.10002. The upgrade restarts the ClickHouse and ClickHouse Keeper pods one at a time, and Query Analytics keeps collecting data.
+    - PMM with an external ClickHouse: upgrade your ClickHouse to a fixed release, such as 26.3.62.3 or a later 26.3 release. To find the fixed release for your version, check the [ClickHouse security changelog](https://clickhouse.com/docs/resources/changelogs/security-changelog).
 
 ### nginx HTTP/2 memory corruption ([CVE-2026-123007](https://nvd.nist.gov/vuln/detail/CVE-2026-123007), [CVE-2026-123633](https://nvd.nist.gov/vuln/detail/CVE-2026-123633))
 
@@ -132,6 +166,7 @@ To find the affected endpoints and update your automation, [check the PMM API re
 - [PMM-15002](https://perconadev.atlassian.net/browse/PMM-15002): The **Inventory** page now runs in [native PMM UI](#inventory-page-now-in-native-pmm-ui), so it looks and works like the rest of the PMM interface. You can also bookmark and share filtered views of your services and nodes, and your existing Inventory bookmarks keep working.
 - [PMM-15481](https://perconadev.atlassian.net/browse/PMM-15481): You can now export services from **Inventory > Services** to a CSV file. Click **Export** to download the selected services, or every service that matches the search and filters. Each row includes the status, the monitoring status, the agents that failed, and the labels of the service. For details, see [Export services to a CSV file](../use/dashboard-inventory.md#export-services-to-a-csv-file).
 - [PMM-15484](https://perconadev.atlassian.net/browse/PMM-15484): Added the **Failing Backup Agents** table to the [MongoDB Backup Details](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) dashboard. It lists only the PBM agents in **FAIL** or **DOWN** state.
+- [PMM-15674](https://perconadev.atlassian.net/browse/PMM-15674): You can now change how PMM monitors a service without removing the service and adding it again, so it keeps its ID and its history. In **Inventory**, [edit the service](../use/dashboard-inventory.md#edit-a-service) to change its credentials, TLS settings, Query Analytics source and options, metrics mode, log level and exporter options, as well as its labels.
 - [PMM-15699](https://perconadev.atlassian.net/browse/PMM-15699): **MongoDB > Operations** now calls PMM Extensions as the signed-in user, so PMM Extensions applies that user's role and records configuration changes under their name. API requests for nodes, scans, installs and settings must authenticate with a service account token or a PMM session. A request with a username and password gets `401 Unauthenticated`. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15825](https://perconadev.atlassian.net/browse/PMM-15825): Every signed-in PMM user can now open **MongoDB > Operations**. Viewers and Editors see every page except the install form. They can't scan nodes, start or abort installs, remove node entries, or change settings: those controls are disabled or hidden for them. Starting a scan now requires the Admin role, as installs already did. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15797](https://perconadev.atlassian.net/browse/PMM-15797): **MongoDB > Operations** now installs MongoDB only onto OS releases that Percona supports for the chosen version: MongoDB 7.0 onto Ubuntu 22.04 and 24.04 and Rocky Linux 8 and 9, and MongoDB 8.0 onto those and Rocky Linux 10. The **Nodes** page and the install form block a node on any other release, such as Ubuntu 20.04, and name the supported releases. The install form offers only the versions that every selected node supports. Before, an install onto Ubuntu 20.04 put an old MongoDB build on the node, and MongoDB 7.0 on Rocky Linux 10 failed partway through. For details, see [Operations for MongoDB](../use/mongodb-operations.md#check-nodes).
@@ -144,6 +179,7 @@ To find the affected endpoints and update your automation, [check the PMM API re
 - [PMM-15530](https://perconadev.atlassian.net/browse/PMM-15530): Every tool on the [MCP endpoint](../api/mcp.md) now returns structured JSON next to its text. Most results link to the same data in PMM, and a result read over a time range names that window. Errors carry a code and say whether a retry can help. Long lists of services, variables and queries are paged with `limit` and `offset`. The new `pmm_catalog` tool lists the Query Analytics columns that `pmm_top_queries` accepts.
 - [PMM-15529](https://perconadev.atlassian.net/browse/PMM-15529): On the [MCP endpoint](../api/mcp.md), `pmm_get_explain` and `pmm_get_schema` now work from a `query_ref` or from a `queryid` alone, and stay within your services. `pmm_query_detail` takes a `query_ref` too. A `query_ref` keeps the time window, so you can explain a query that you saw earlier. `pmm_get_schema` finds the tables of a MySQL query in a live plan. `pmm_query_detail` now reads only your services. `pmm_get_explain` no longer takes the `query` argument: for MongoDB, it explains the example that Query Analytics stored for the query. A `pmm_get_explain` call with `service_id` and `queryid` now searches only the last hour, unless it passes `period_from` and `period_to` or a `query_ref`. Before, such a call found MySQL and PostgreSQL queries of any age, and MongoDB queries of the last 24 hours. To explain an older query, pass `period_from` and `period_to` covering when it ran, or its `query_ref`. Live-inspection calls on one service (`pmm_get_schema`, and `pmm_get_explain` for MySQL and MongoDB) run one at a time per PMM Server replica, and a second call waits up to 10 seconds for the first.
 - [PMM-15790](https://perconadev.atlassian.net/browse/PMM-15790): The [MCP endpoint](../api/mcp.md) now answers questions about your metrics. The new `pmm_query_metrics` tool runs a MetricsQL query, instant or over a range, and returns the largest series as points or summaries that fit in 16 KiB. The new `pmm_list_metrics` tool lists metric names, label names, label values and series. The new `pmm_service_health` tool reads the triage signals of one service and its node, taken from the PMM dashboards, and judges nothing. `pmm_catalog` with `kind=metrics` lists the metrics of MySQL, PostgreSQL, MongoDB and the node, each with its meaning, unit and a ready query. Queries are checked before they run: an expression reads at most 7 days and a selector matches at most 2,000 series, or the call fails with the reason. Metric calls are limited per caller and per PMM Server replica, and a call that is refused for its rate says in `retry_after` how long to wait. Label-based access control applies to every metrics tool. `pmm_top_queries` and `pmm_query_detail` now read a window of at most 30 days. For the limits, see [Metrics tools](../api/mcp.md#metrics-tools).
+- [PMM-14146](https://perconadev.atlassian.net/browse/PMM-14146): You can now [change a monitored service](#change-a-monitored-service-from-the-command-line-without-removing-it) and all its agents with one command, `pmm-admin update`, instead of changing each agent with `pmm-admin inventory change agent`. Only a change of the service's cluster removes scheduled backups: those of the services in its current and its new cluster.
 - [PMM-13820](https://perconadev.atlassian.net/browse/PMM-13820): Improved documentation for PMM Client environment variables. The [pmm-agent configuration topic](../use/commands/pmm-agent.md#options-and-environment) now documents every variable that PMM Client accepts. The [Docker example](../install-pmm/install-pmm-client/docker.md#add-monitoring-services) for adding services at startup now correctly uses `PMM_AGENT_PRERUN_FILE` for the script file instead of `PMM_AGENT_PRERUN_SCRIPT`, which is meant for commands.
 
 ## ✅ Fixed issues
