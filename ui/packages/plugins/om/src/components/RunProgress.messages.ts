@@ -49,6 +49,4 @@ export const Messages = {
   nothingRolledBack:
     'Nothing had been installed, so there was nothing to roll back.',
   rolledBack: 'Every node was rolled back.',
-  showDetails: 'Show step details',
-  hideDetails: 'Hide step details',
 };

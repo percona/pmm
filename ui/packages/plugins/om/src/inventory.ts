@@ -427,7 +427,7 @@ const RUN_PERIOD_BY_ID: Record<string, OmRunPeriodDef> = Object.fromEntries(
 
 /** Consecutive scans that ended the same way, newest first. */
 export interface OmRunGroup {
-  /** The newest run's id, which keys the group's row. */
+  /** Keys the group's row: its newest run's id, or one kept by {@link keepGroupIds}. */
   id: string;
   runs: OmInventoryRun[];
 }
@@ -488,6 +488,45 @@ export function groupRuns(runs: OmInventoryRun[]): OmRunGroup[] {
   return groups;
 }
 
+/**
+ * `groups` with each one keeping the id of the earlier group it shares most runs with,
+ * so its row stays the same row as scans join it and older ones leave the list.
+ */
+export function keepGroupIds(
+  groups: OmRunGroup[],
+  earlier: OmRunGroup[]
+): OmRunGroup[] {
+  const earlierId = new Map(
+    earlier.flatMap((group) => group.runs.map((run) => [run.run_id, group.id]))
+  );
+  const own = new Set(groups.map((group) => group.id));
+  const taken = new Set<string>();
+  return groups.map((group) => {
+    const shared = new Map<string, number>();
+    for (const run of group.runs) {
+      const id = earlierId.get(run.run_id);
+      // Another group's own id stays with it, or two rows would share one.
+      if (
+        id !== undefined &&
+        !taken.has(id) &&
+        (id === group.id || !own.has(id))
+      ) {
+        shared.set(id, (shared.get(id) ?? 0) + 1);
+      }
+    }
+    let id = group.id;
+    let most = 0;
+    // On a tie the older group's id, met later: a scan seen running joins it.
+    for (const [candidate, count] of shared) {
+      if (count >= most) {
+        [id, most] = [candidate, count];
+      }
+    }
+    taken.add(id);
+    return id === group.id ? group : { ...group, id };
+  });
+}
+
 /** How many recent scans {@link expectedScanSeconds} takes the middle of. */
 const EXPECTED_FROM_RUNS = 5;
 
@@ -528,6 +567,32 @@ export function expectedScanSeconds(
   return durations.length % 2 === 1
     ? durations[middle]
     : (durations[middle - 1] + durations[middle]) / 2;
+}
+
+/**
+ * Whether a scan of `wanted` (every node when empty) has to wait: a scan request is
+ * still being sent, or a running scan overlaps it, which PMM Extensions would refuse.
+ */
+export function isScanHeld(
+  runs: OmInventoryRun[],
+  wanted: string[],
+  requesting = false
+): boolean {
+  return (
+    requesting ||
+    runs.some(
+      (run) => isRunActive(run.status) && scopesOverlap(run.scope, wanted)
+    )
+  );
+}
+
+/** Whether a scan of `wanted` collides with one of `scope`; empty is every node. */
+export function scopesOverlap(scope: string[], wanted: string[]): boolean {
+  return (
+    scope.length === 0 ||
+    wanted.length === 0 ||
+    scope.some((id) => wanted.includes(id))
+  );
 }
 
 /** How many runs to ask for when the window is unbounded (`all`). */

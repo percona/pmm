@@ -109,7 +109,10 @@ PMM scans every node automatically, every 10 minutes by default. PMM also scans 
 To scan right away, for example after you add a node, go to **MongoDB > Operations > Nodes** and do one of the following:
 
 - To scan every node, click **Scan all**.
+- To scan some nodes, select them and click **Scan selected**.
 - To scan one node, click **Scan** in its row.
+
+While a scan runs, **Scan all** is unavailable. **Scan** is unavailable only in the rows of the nodes that the scan covers, and **Scan selected** only when you select one of those nodes.
 
 ### Change the scan schedule
 
@@ -260,6 +263,8 @@ To find out why a service is failing, go to **MongoDB > Operations > Fleet** and
 To see what happened to an install, go to **MongoDB > Operations > Automations**, select the **Installs** tab, and expand the install to see the status of each node.
 
 #### The install failed
+
+To find out why an install failed, hover over its status on the **Installs** tab, or expand it to see the reason under the summary. To see each failed step's full output and task history, click **Show failure details**.
 
 When a step fails, PMM tries it once more. If it fails again, PMM rolls back the install on all nodes and removes the packages, configuration, and data it added. Failed pre-checks aren't retried.
 
