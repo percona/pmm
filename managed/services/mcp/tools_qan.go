@@ -882,7 +882,7 @@ func (s *Service) reportEngines(
 }
 
 // reportEngine returns the engine of a whole report: its one SQL service_type,
-// else the engine of the one service it is filtered to, else the only SQL
+// else the engine of the one service_id it is filtered to, else the only SQL
 // engine QAN holds data for in the window, else "".
 func (s *Service) reportEngine(
 	ctx context.Context, auth callerAuth, labels map[string][]string, from, to time.Time, services func() ([]serviceInfo, error),
@@ -893,17 +893,10 @@ func (s *Service) reportEngine(
 		}
 		return ""
 	}
-	var name, id string
+	// Not a service_name: the service list covers only the window's last 7 days, so it can miss a service of the name.
 	ids := labels["service_id"]
 	if len(ids) == 1 {
-		id = ids[0]
-	}
-	// A service_id filter decides which services the report reads, so a service_name beside it adds nothing.
-	if names := labels["service_name"]; len(names) == 1 && len(ids) == 0 {
-		name = names[0]
-	}
-	if name != "" || id != "" {
-		return serviceEngine(name, id, services)
+		return serviceEngine(ids[0], services)
 	}
 	types, err := s.api.QANServiceTypes(ctx, auth, from, to)
 	if err != nil {
@@ -959,28 +952,17 @@ func (s *Service) rowEngines(ctx context.Context, auth callerAuth, body qan_serv
 	return engines
 }
 
-// serviceEngine returns the engine of the service a report is filtered to, by
-// id or else by name, or "" when it is not found or the services of the name differ in engine.
-func serviceEngine(name, id string, services func() ([]serviceInfo, error)) string {
-	if name == "" && id == "" {
-		return ""
-	}
+// serviceEngine returns the engine of the service with the id, or "" when it is not in the list.
+func serviceEngine(id string, services func() ([]serviceInfo, error)) string {
 	list, err := services()
 	if err != nil {
 		return ""
 	}
-	if id != "" {
-		i := slices.IndexFunc(list, func(svc serviceInfo) bool { return svc.ServiceID == id })
-		if i < 0 {
-			return ""
-		}
-		return list[i].Engine
-	}
-	named := servicesNamed(list, name)
-	if len(named) == 0 || slices.ContainsFunc(named, func(svc serviceInfo) bool { return svc.Engine != named[0].Engine }) {
+	i := slices.IndexFunc(list, func(svc serviceInfo) bool { return svc.ServiceID == id })
+	if i < 0 {
 		return ""
 	}
-	return named[0].Engine
+	return list[i].Engine
 }
 
 // metricValue is one named diagnostic metric of pmm_query_detail.

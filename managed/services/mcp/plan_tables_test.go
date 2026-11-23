@@ -209,6 +209,11 @@ func TestAliasMap(t *testing.T) {
 			want: map[string]tableRef{"orders": o, "customers": c},
 		},
 		{
+			name: "partition selection before the alias",
+			plan: notePlan(t, "/* select#1 */ select `shop`.`o`.`id` AS `id` from `shop`.`orders` PARTITION (`p0`,`p1`) `o` join `shop`.`customers` PARTITION (`p2`) where 1"),
+			want: map[string]tableRef{"o": o, "customers": c},
+		},
+		{
 			name: "alias shadows another table name",
 			plan: notePlan(t, "select 1 from `shop`.`a` `b` join `shop`.`b` `a`"),
 			want: map[string]tableRef{

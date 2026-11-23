@@ -24,6 +24,7 @@ import (
 	"slices"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 // This file masks literal values in execution plans and agent errors when
@@ -592,9 +593,10 @@ func mongoLiteralKey(k string) bool {
 
 // maskPGPlan masks literals in a pg_stat_monitor stored plan. A text plan is
 // masked as one text, so a constant that spans lines is one literal, and only
-// the trailing estimate groups of its node lines keep their numbers. A JSON
-// plan is masked in every string value but names: its numbers are estimates,
-// and its literals sit in expressions.
+// the trailing estimate groups of its node lines keep their numbers and the
+// pgBoolProperty lines their true or false. A JSON plan is masked in every
+// string value but names: its numbers are estimates, and its literals sit in
+// expressions.
 func maskPGPlan(plan string) string {
 	trimmed := strings.TrimSpace(plan)
 	if strings.HasPrefix(trimmed, "{") || strings.HasPrefix(trimmed, "[") {
@@ -603,7 +605,7 @@ func maskPGPlan(plan string) string {
 			if !ok || len(path) > 0 && slices.Contains(pgIdentifierKeys, path[len(path)-1]) {
 				return v
 			}
-			return maskSQLLiterals(str, false)
+			return renderMarks(str, pgPlanMarks(str))
 		})
 		if err != nil {
 			return planWithheld
@@ -611,7 +613,7 @@ func maskPGPlan(plan string) string {
 		return string(out)
 	}
 
-	marks := sqlMarks(plan, false, false)
+	marks := pgPlanMarks(plan)
 	for start := 0; start < len(plan); {
 		end := lineEnd(plan, start)
 		loc := pgEstimates.FindStringIndex(plan[start:end])
@@ -622,9 +624,43 @@ func maskPGPlan(plan string) string {
 				}
 			}
 		}
+		// The label must be plain text, so that a line of a constant that spans lines stays masked.
+		prop := pgBoolProperty.FindStringSubmatchIndex(plan[start:end])
+		if prop != nil && !slices.ContainsFunc(marks[start:start+prop[2]], func(m byte) bool { return m != plainMark }) {
+			markRange(marks, start+prop[2], start+prop[3], plainMark)
+		}
 		start = end + 1
 	}
 	return renderMarks(plan, marks)
+}
+
+// pgBoolProperty matches a text-plan line whose true or false is a property of the node, not a constant.
+var pgBoolProperty = regexp.MustCompile(`^ *(?:Disabled|Single Copy|Inner Unique): (true|false)$`)
+
+// pgPlanMarks is sqlMarks for PostgreSQL, with each lowercase true and false that stands outside a double-quoted name
+// marked too: PostgreSQL prints a boolean constant that way, and a test such as IS TRUE in capitals.
+func pgPlanMarks(s string) []byte {
+	marks := sqlMarks(s, false, false)
+	for i := 0; i < len(s); {
+		switch {
+		case marks[i] != plainMark:
+			i++
+		case s[i] == '"':
+			i = quotedEnd(s, i, false)
+		case isIdentByte(s[i]) || s[i] >= utf8.RuneSelf:
+			j := i
+			for j < len(s) && (isIdentByte(s[j]) || s[j] >= utf8.RuneSelf) {
+				j++
+			}
+			if s[i:j] == "true" || s[i:j] == "false" {
+				markRange(marks, i, j, numberMark)
+			}
+			i = j
+		default:
+			i++
+		}
+	}
+	return marks
 }
 
 // maskMongoFingerprint masks the values in a MongoDB fingerprint, a shell call

@@ -444,6 +444,37 @@ func TestMaskPGPlan(t *testing.T) {
 		assert.Contains(t, got, `"Index Cond":"(id = ?)"`)
 	})
 
+	t.Run("Booleans", func(t *testing.T) {
+		t.Parallel()
+
+		// PostgreSQL prints a boolean constant as a bare lowercase true or false, and a test such as IS TRUE in capitals.
+		got := maskPGPlan("Gather\n" +
+			"  Workers Planned: 1\n" +
+			"  Single Copy: true\n" +
+			"  ->  Index Scan using t_active_idx on t\n" +
+			"        Index Cond: (active = true)\n" +
+			"        Filter: (COALESCE(flag, false) AND (\"true\" IS TRUE) AND (x IS DISTINCT FROM false) AND (truex = falsey))\n" +
+			"  ->  Seq Scan on n\n" +
+			"        Disabled: true\n" +
+			"        Filter: (note = 'a\n  Disabled: true'::text)\n" +
+			"  ->  Result\n" +
+			"        One-Time Filter: false")
+		assert.Equal(t, "Gather\n"+
+			"  Workers Planned: ?\n"+
+			"  Single Copy: true\n"+
+			"  ->  Index Scan using t_active_idx on t\n"+
+			"        Index Cond: (active = ?)\n"+
+			"        Filter: (COALESCE(flag, ?) AND (\"true\" IS TRUE) AND (x IS DISTINCT FROM ?) AND (truex = falsey))\n"+
+			"  ->  Seq Scan on n\n"+
+			"        Disabled: true\n"+
+			"        Filter: (note = ?::text)\n"+
+			"  ->  Result\n"+
+			"        One-Time Filter: ?", got)
+
+		got = maskPGPlan(`[{"Plan":{"Node Type":"Seq Scan","Parallel Aware":false,"Filter":"(COALESCE(flag, true))"}}]`)
+		assert.JSONEq(t, `[{"Plan":{"Node Type":"Seq Scan","Parallel Aware":false,"Filter":"(COALESCE(flag, ?))"}}]`, got)
+	})
+
 	t.Run("UnparseableJSONIsWithheld", func(t *testing.T) {
 		t.Parallel()
 
