@@ -8,29 +8,31 @@ import {
 import {
   addAzureService,
   addService,
-  changeService,
   discoverAzure,
   discoverRDS,
+  getEditableService,
   getService,
   getServiceTypes,
   listServices,
   listManagedServices,
   removeService,
+  updateService,
 } from 'api/services';
 import type {
   AddAzureDatabasePayload,
   AddServicePayload,
   BaseService,
-  ChangeServiceParams,
   DiscoverAzurePayload,
   DiscoverAzureResponse,
   DiscoverRDSPayload,
   DiscoverRDSResponse,
+  EditableService,
   ListServicesParams,
   ListServicesResponse,
   ListTypesResponse,
   ManagedServicesResponse,
   RemoveServiceParams,
+  UpdateServiceParams,
 } from 'types/services.types';
 import { invalidateInventory, removeEach } from 'utils/inventory.utils';
 
@@ -151,13 +153,24 @@ export const useDiscoverAzure = (
     ...options,
   });
 
-export const useChangeService = (
-  options?: Partial<UseMutationOptions<void, Error, ChangeServiceParams>>
+export const useEditableService = (
+  serviceId?: string,
+  options?: Partial<UseQueryOptions<EditableService | null>>
+) =>
+  useQuery({
+    queryKey: ['services:editable', serviceId],
+    queryFn: () => getEditableService(serviceId as string),
+    enabled: !!serviceId,
+    ...options,
+  });
+
+export const useUpdateService = (
+  options?: Partial<UseMutationOptions<string, Error, UpdateServiceParams>>
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: ChangeServiceParams) => changeService(params),
+    mutationFn: (params: UpdateServiceParams) => updateService(params),
     ...options,
     onSuccess: async (data, variables, onMutate, context) => {
       await options?.onSuccess?.(data, variables, onMutate, context);

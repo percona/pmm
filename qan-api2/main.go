@@ -26,6 +26,7 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof" //nolint:gosec
+	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -57,6 +58,7 @@ import (
 	"github.com/percona/pmm/utils/dsnutils"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/utils/secretfile"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 )
@@ -342,6 +344,24 @@ func runRetentionLoop(ctx context.Context, interval, retry time.Duration, drop f
 	}
 }
 
+// clickhouseDSN returns the ClickHouse DSN, with the password read from passwordFile when that is set.
+func clickhouseDSN(user, password, passwordFile, addr, database string) (string, error) {
+	if passwordFile != "" {
+		var err error
+		password, err = secretfile.Read(passwordFile)
+		if err != nil {
+			return "", fmt.Errorf("failed to read the ClickHouse password: %w", err)
+		}
+	}
+	u := url.URL{
+		Scheme: "clickhouse",
+		User:   url.UserPassword(user, password),
+		Host:   addr,
+		Path:   database,
+	}
+	return u.String(), nil
+}
+
 func main() {
 	log.SetFlags(0)
 
@@ -356,9 +376,12 @@ func main() {
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "ClickHouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUserF := kingpin.Flag("clickhouse-user", "ClickHouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "ClickHouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
+	clickhousePasswordFileF := kingpin.Flag("clickhouse-password-file", "File with the ClickHouse database user password, preferred over --clickhouse-password").
+		Envar("PMM_CLICKHOUSE_PASSWORD_FILE").String()
 
 	clickhouseIsClusterF := kingpin.Flag("clickhouse-cluster", "Is ClickHouse a cluster").Default("false").Envar("PMM_CLICKHOUSE_IS_CLUSTER").Bool()
 	clickhouseClusterNameF := kingpin.Flag("clickhouse-cluster-name", "ClickHouse cluster name").Default("").Envar("PMM_CLICKHOUSE_CLUSTER_NAME").String()
+	clickhouseNodesF := kingpin.Flag("clickhouse-nodes", "Comma-separated ClickHouse replica hosts (PMM HA)").Default("").Envar("PMM_CLICKHOUSE_NODES").String()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
@@ -385,15 +408,21 @@ func main() {
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	var dsn string
-	if *dsnF == defaultDsnF {
-		dsn = fmt.Sprintf(defaultDsnF, *clickhouseUserF, *clickhousePasswordF, *clickhouseAddrF, *clickhouseDatabaseF)
-	} else {
-		dsn = *dsnF
+	dsn := *dsnF
+	if dsn == defaultDsnF {
+		var err error
+		dsn, err = clickhouseDSN(*clickhouseUserF, *clickhousePasswordF, *clickhousePasswordFileF, *clickhouseAddrF, *clickhouseDatabaseF)
+		if err != nil {
+			l.Fatalf("Cannot build the ClickHouse DSN: %s.", err)
+		}
 	}
 	l.Info("DSN: ", dsnutils.RedactDSN(dsn))
 
-	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
+	chNodes, err := openNodes(dsn, *clickhouseNodesF)
+	if err != nil {
+		l.Fatalf("ClickHouse nodes: %v", err)
+	}
+	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF, chNodes)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
 	seedRetentionCounters()
@@ -443,6 +472,12 @@ func main() {
 			return DropOldPartition(ctx, db, *clickhouseDatabaseF, *dataRetentionF)
 		})
 	})
+
+	if len(chNodes) > 0 {
+		wg.Go(func() {
+			runPmmRepairLoop(ctx, chNodes, *clickhouseDatabaseF)
+		})
+	}
 
 	wg.Wait()
 }
