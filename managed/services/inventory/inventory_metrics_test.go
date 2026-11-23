@@ -24,16 +24,12 @@ import (
 	"testing"
 	"time"
 
-	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestNewInventoryMetricsCollector(t *testing.T) {
@@ -139,68 +135,184 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
 	})
+}
 
-	t.Run("Agent cluster comes from its service", func(t *testing.T) {
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+func TestAgentMetric(t *testing.T) {
+	t.Parallel()
 
-		withCluster, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
-			ServiceName: "mongos-with-cluster",
-			NodeID:      models.PMMServerNodeID,
-			Cluster:     "CL1",
-			Address:     new("127.0.0.1"),
-			Port:        new(uint16(27017)),
-		})
-		require.NoError(t, err)
-		withoutCluster, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
-			ServiceName: "mongos-without-cluster",
-			NodeID:      models.PMMServerNodeID,
-			Address:     new("127.0.0.1"),
-			Port:        new(uint16(27018)),
-		})
-		require.NoError(t, err)
+	// A remotely monitored service: it belongs to one node while its exporter runs on another.
+	serviceNode := &models.Node{
+		NodeID:       "N-remote",
+		NodeName:     "remote-node",
+		CustomLabels: []byte(`{"environment": "service-node-env", "cluster": "service-node-cluster"}`),
+	}
+	runsOnNode := &models.Node{
+		NodeID:       "N-server",
+		NodeName:     "server-node",
+		CustomLabels: []byte(`{"environment": "runs-on-env", "cluster": "runs-on-cluster"}`),
+	}
+	service := &models.Service{ServiceID: "S1", ServiceName: "mongos-1", NodeID: serviceNode.NodeID}
 
-		clusteredAgent, err := models.CreateAgent(db.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
-			PMMAgentID: models.PMMServerAgentID,
-			ServiceID:  withCluster.ServiceID,
-		})
-		require.NoError(t, err)
-		unclusteredAgent, err := models.CreateAgent(db.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
-			PMMAgentID: models.PMMServerAgentID,
-			ServiceID:  withoutCluster.ServiceID,
-		})
-		require.NoError(t, err)
+	pmmAgent := &models.Agent{AgentID: "PA1", AgentType: models.PMMAgentType, RunsOnNodeID: new(runsOnNode.NodeID), Version: new("3.11.0")}
+	exporter := &models.Agent{
+		AgentID:    "A1",
+		AgentType:  models.MongoDBExporterType,
+		PMMAgentID: new(pmmAgent.AgentID),
+		ServiceID:  new(service.ServiceID),
+		Status:     "AGENT_STATUS_RUNNING",
+	}
+	nodeExporter := &models.Agent{
+		AgentID:    "A2",
+		AgentType:  models.NodeExporterType,
+		PMMAgentID: new(pmmAgent.AgentID),
+		NodeID:     new(runsOnNode.NodeID),
+		Disabled:   true,
+	}
 
-		registry := &mockAgentsRegistry{}
-		registry.Test(t)
-		t.Cleanup(func() { registry.AssertExpectations(t) })
-		registry.On("IsConnected", models.PMMServerAgentID).Return(true)
+	agents := []*models.Agent{pmmAgent, exporter, nodeExporter}
+	nodes := map[string]*models.Node{serviceNode.NodeID: serviceNode, runsOnNode.NodeID: runsOnNode}
+	services := map[string]*models.Service{service.ServiceID: service}
 
-		reg := prom.NewPedanticRegistry()
-		require.NoError(t, reg.Register(NewInventoryMetricsCollector(NewInventoryMetrics(db, registry))))
-		families, err := reg.Gather()
-		require.NoError(t, err)
+	registry := &mockAgentsRegistry{}
+	registry.Test(t)
+	t.Cleanup(func() { registry.AssertExpectations(t) })
+	registry.On("IsConnected", pmmAgent.AgentID).Return(true)
 
-		clusters := make(map[string]string)
-		for _, family := range families {
-			if family.GetName() != "pmm_managed_inventory_agents" {
-				continue
+	inventoryMetrics := &InventoryMetrics{registry: registry}
+	agentMetrics := make([]Metric, 0, len(agents))
+	for _, agent := range agents {
+		agentMetrics = append(agentMetrics, inventoryMetrics.agentMetric(t.Context(), agent, agents, nodes, services))
+	}
+
+	metricsMock := &mockInventoryMetrics{}
+	metricsMock.Test(t)
+	metricsMock.On("GetAgentMetrics", mock.Anything).Return(agentMetrics, nil)
+	metricsMock.On("GetNodeMetrics", mock.Anything).Return([]Metric{}, nil)
+	metricsMock.On("GetServiceMetrics", mock.Anything).Return([]Metric{}, nil)
+
+	// The exporter takes environment and cluster from the node of its service, and node_id and
+	// node_name from the node it runs on. The agents without a service have neither label set.
+	const expected = `
+		# HELP pmm_managed_inventory_agents Inventory Agent
+		# TYPE pmm_managed_inventory_agents gauge
+		pmm_managed_inventory_agents{agent_id="A1",agent_type="mongodb_exporter",cluster="service-node-cluster",disabled="0",environment="service-node-env",node_id="N-server",node_name="server-node",pmm_agent_id="PA1",service_id="S1",service_name="mongos-1",version=""} 2
+		pmm_managed_inventory_agents{agent_id="A2",agent_type="node_exporter",cluster="",disabled="1",environment="",node_id="N-server",node_name="server-node",pmm_agent_id="PA1",service_id="",service_name="",version=""} 0
+		pmm_managed_inventory_agents{agent_id="PA1",agent_type="pmm-agent",cluster="",disabled="0",environment="",node_id="N-server",node_name="server-node",pmm_agent_id="",service_id="",service_name="",version="3.11.0"} 1
+	`
+	err := testutil.CollectAndCompare(NewInventoryMetricsCollector(metricsMock), strings.NewReader(expected), "pmm_managed_inventory_agents")
+	require.NoError(t, err)
+}
+
+func TestScrapedEnvironmentAndCluster(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name            string
+		nodeLabels      string
+		serviceLabels   string
+		environment     string
+		cluster         string
+		agentLabels     string
+		wantEnvironment string
+		wantCluster     string
+		wantErr         bool
+	}{
+		{
+			name: "nothing set",
+		},
+		{
+			name:            "service values",
+			environment:     "ENV1",
+			cluster:         "CL1",
+			wantEnvironment: "ENV1",
+			wantCluster:     "CL1",
+		},
+		{
+			name:            "inherited from the node",
+			nodeLabels:      `{"environment": "node-env", "cluster": "node-cluster"}`,
+			wantEnvironment: "node-env",
+			wantCluster:     "node-cluster",
+		},
+		{
+			name:            "service overrides the node",
+			nodeLabels:      `{"environment": "node-env", "cluster": "node-cluster"}`,
+			environment:     "ENV1",
+			cluster:         "CL1",
+			wantEnvironment: "ENV1",
+			wantCluster:     "CL1",
+		},
+		{
+			name:            "service custom label overrides the service field",
+			environment:     "ENV1",
+			cluster:         "CL1",
+			serviceLabels:   `{"environment": "custom-env", "cluster": "custom-cluster"}`,
+			wantEnvironment: "custom-env",
+			wantCluster:     "custom-cluster",
+		},
+		{
+			name:            "agent overrides the service",
+			environment:     "ENV1",
+			cluster:         "CL1",
+			agentLabels:     `{"environment": "agent-env", "cluster": "agent-cluster"}`,
+			wantEnvironment: "agent-env",
+			wantCluster:     "agent-cluster",
+		},
+		{
+			name:            "unreadable agent labels fall back to the service",
+			nodeLabels:      `{"environment": "node-env", "cluster": "node-cluster"}`,
+			environment:     "ENV1",
+			cluster:         "CL1",
+			agentLabels:     "not json",
+			wantEnvironment: "ENV1",
+			wantCluster:     "CL1",
+			wantErr:         true,
+		},
+		{
+			name:            "unreadable node labels fall back to the service",
+			nodeLabels:      "not json",
+			environment:     "ENV1",
+			cluster:         "CL1",
+			agentLabels:     `{"environment": "agent-env", "cluster": "agent-cluster"}`,
+			wantEnvironment: "ENV1",
+			wantCluster:     "CL1",
+			wantErr:         true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			node := &models.Node{NodeID: "N1", CustomLabels: []byte(tt.nodeLabels)}
+			service := &models.Service{
+				ServiceID:    "S1",
+				NodeID:       node.NodeID,
+				Environment:  tt.environment,
+				Cluster:      tt.cluster,
+				CustomLabels: []byte(tt.serviceLabels),
 			}
-			for _, metric := range family.GetMetric() {
-				labels := make(map[string]string)
-				for _, label := range metric.GetLabel() {
-					labels[label.GetName()] = label.GetValue()
-				}
-				clusters[labels["agent_id"]] = labels["cluster"]
-			}
-		}
+			agent := &models.Agent{AgentID: "A1", AgentType: models.MongoDBExporterType, CustomLabels: []byte(tt.agentLabels)}
 
-		require.Contains(t, clusters, clusteredAgent.AgentID)
-		require.Contains(t, clusters, unclusteredAgent.AgentID)
-		require.Contains(t, clusters, models.PMMServerAgentID)
-		assert.Equal(t, "CL1", clusters[clusteredAgent.AgentID])
-		assert.Empty(t, clusters[unclusteredAgent.AgentID])
-		assert.Empty(t, clusters[models.PMMServerAgentID])
+			environment, cluster, err := scrapedEnvironmentAndCluster(node, service, agent)
+
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+			assert.Equal(t, tt.wantEnvironment, environment)
+			assert.Equal(t, tt.wantCluster, cluster)
+		})
+	}
+
+	t.Run("no node", func(t *testing.T) {
+		t.Parallel()
+
+		service := &models.Service{ServiceID: "S1", Environment: "ENV1", Cluster: "CL1"}
+		environment, cluster, err := scrapedEnvironmentAndCluster(nil, service, &models.Agent{AgentID: "A1"})
+
+		require.NoError(t, err)
+		assert.Equal(t, "ENV1", environment)
+		assert.Equal(t, "CL1", cluster)
 	})
 }
