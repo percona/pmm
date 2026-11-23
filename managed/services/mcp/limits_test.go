@@ -185,6 +185,22 @@ func TestRateLimiter(t *testing.T) {
 	require.True(t, ok)
 	assert.Len(t, r.buckets, 1, "buckets refilled to the burst are deleted")
 	assert.Contains(t, r.buckets, "c")
+
+	t.Run("EarlierTimeRefillsNothingTwice", func(t *testing.T) {
+		t.Parallel()
+
+		// takeToken reads the time before it takes the lock, so a call can arrive with an earlier time than the last.
+		r := newRateLimiter(60, 1)
+		_, ok := r.take("a", now)
+		require.True(t, ok)
+		_, ok = r.take("a", now.Add(time.Second))
+		require.True(t, ok)
+		_, ok = r.take("a", now.Add(500*time.Millisecond))
+		require.False(t, ok)
+		wait, ok := r.take("a", now.Add(1500*time.Millisecond))
+		assert.False(t, ok, "the half second up to the newest time was refilled once already")
+		assert.Equal(t, 500*time.Millisecond, wait)
+	})
 }
 
 func TestRateLimitedRetryAfter(t *testing.T) {

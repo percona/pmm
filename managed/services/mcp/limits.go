@@ -176,7 +176,10 @@ func (r *rateLimiter) take(key string, now time.Time) (time.Duration, bool) {
 		r.buckets[key] = b
 	}
 	b.tokens = r.refilled(b, now)
-	b.last = now
+	// A call that read the time before a later one took the lock must not move last back, or the gap is refilled twice.
+	if now.After(b.last) {
+		b.last = now
+	}
 
 	if b.tokens < 1 {
 		return time.Duration((1 - b.tokens) / r.rate * float64(time.Second)), false
