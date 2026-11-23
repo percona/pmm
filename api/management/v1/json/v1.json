@@ -2810,7 +2810,7 @@
                       "x-order": 21
                     },
                     "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
                       "type": "boolean",
                       "x-order": 22
                     },
@@ -5039,7 +5039,7 @@
                           "x-order": 5
                         },
                         "tls_skip_verify": {
-                          "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                          "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
                           "type": "boolean",
                           "x-order": 6
                         },
@@ -6576,7 +6576,7 @@
                           "x-order": 5
                         },
                         "tls_skip_verify": {
-                          "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                          "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
                           "type": "boolean",
                           "x-order": 6
                         },
@@ -7230,7 +7230,7 @@
     },
     "/v1/management/services/{service_id}": {
       "put": {
-        "description": "Changes the settings of a Service and its Agents in place. Only the fields that are set are changed. The Service and the Agents that stay keep their IDs; QAN Agents that the change turns off are removed, and the ones it turns on are created with new IDs.",
+        "description": "Changes the settings of a Service and its Agents in place, given as the parameters of the Service's type. Only the fields that are set are changed. The Service and the Agents that stay keep their IDs; QAN Agents that the change turns off are removed, and the ones it turns on are created with new IDs.",
         "tags": [
           "ManagementService"
         ],
@@ -7802,7 +7802,7 @@
                       "x-order": 11
                     },
                     "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 12
@@ -7832,7 +7832,7 @@
                       "x-order": 16
                     },
                     "qan_postgresql_pgstatmonitor_agent": {
-                      "description": "If true, ensures qan-postgresql-pgstatmonitor-agent exists; without the pg_stat_monitor extension,\nqan-postgresql-pgstatements-agent is used instead, with a warning. If false, removes it.",
+                      "description": "If true, ensures qan-postgresql-pgstatmonitor-agent exists (not on RDS or Azure); if the connection check finds no\npg_stat_monitor extension, qan-postgresql-pgstatements-agent is used instead, with a warning. If false, removes it.",
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 17

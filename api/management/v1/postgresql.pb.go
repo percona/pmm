@@ -80,7 +80,7 @@ type AddPostgreSQLServiceParams struct {
 	DisableCommentsParsing bool `protobuf:"varint,21,opt,name=disable_comments_parsing,json=disableCommentsParsing,proto3" json:"disable_comments_parsing,omitempty"`
 	// Use TLS for database connections.
 	Tls bool `protobuf:"varint,22,opt,name=tls,proto3" json:"tls,omitempty"`
-	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+	// Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
 	TlsSkipVerify bool `protobuf:"varint,23,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	// Defines metrics flow model for this exporter.
 	// Metrics could be pushed to the server with vmagent,
@@ -406,7 +406,7 @@ type UpdatePostgreSQLServiceParams struct {
 	AgentPassword *string `protobuf:"bytes,11,opt,name=agent_password,json=agentPassword,proto3,oneof" json:"agent_password,omitempty"`
 	// Use TLS for database connections.
 	Tls *bool `protobuf:"varint,12,opt,name=tls,proto3,oneof" json:"tls,omitempty"`
-	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+	// Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
 	TlsSkipVerify *bool `protobuf:"varint,13,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3,oneof" json:"tls_skip_verify,omitempty"`
 	// TLS CA certificate.
 	TlsCa *string `protobuf:"bytes,14,opt,name=tls_ca,json=tlsCa,proto3,oneof" json:"tls_ca,omitempty"`
@@ -416,8 +416,8 @@ type UpdatePostgreSQLServiceParams struct {
 	TlsKey *string `protobuf:"bytes,16,opt,name=tls_key,json=tlsKey,proto3,oneof" json:"tls_key,omitempty"`
 	// If true, ensures qan-postgresql-pgstatements-agent exists; if false, removes it.
 	QanPostgresqlPgstatementsAgent *bool `protobuf:"varint,17,opt,name=qan_postgresql_pgstatements_agent,json=qanPostgresqlPgstatementsAgent,proto3,oneof" json:"qan_postgresql_pgstatements_agent,omitempty"`
-	// If true, ensures qan-postgresql-pgstatmonitor-agent exists; without the pg_stat_monitor extension,
-	// qan-postgresql-pgstatements-agent is used instead, with a warning. If false, removes it.
+	// If true, ensures qan-postgresql-pgstatmonitor-agent exists (not on RDS or Azure); if the connection check finds no
+	// pg_stat_monitor extension, qan-postgresql-pgstatements-agent is used instead, with a warning. If false, removes it.
 	QanPostgresqlPgstatmonitorAgent *bool `protobuf:"varint,18,opt,name=qan_postgresql_pgstatmonitor_agent,json=qanPostgresqlPgstatmonitorAgent,proto3,oneof" json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 	// Limit query length in QAN (zero: server-defined; -1: no limit).
 	MaxQueryLength *int32 `protobuf:"varint,19,opt,name=max_query_length,json=maxQueryLength,proto3,oneof" json:"max_query_length,omitempty"`
@@ -801,7 +801,7 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\" \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8d\x0f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x97\x0f\n" +
 	"\x1dUpdatePostgreSQLServiceParams\x12\x1d\n" +
 	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
 	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
@@ -825,8 +825,8 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\"qan_postgresql_pgstatmonitor_agent\x18\x12 \x01(\bH\x10R\x1fqanPostgresqlPgstatmonitorAgent\x88\x01\x01\x12-\n" +
 	"\x10max_query_length\x18\x13 \x01(\x05H\x11R\x0emaxQueryLength\x88\x01\x01\x129\n" +
 	"\x16disable_query_examples\x18\x14 \x01(\bH\x12R\x14disableQueryExamples\x88\x01\x01\x12=\n" +
-	"\x18disable_comments_parsing\x18\x15 \x01(\bH\x13R\x16disableCommentsParsing\x88\x01\x01\x12B\n" +
-	"\fmetrics_mode\x18\x16 \x01(\x0e2\x1a.management.v1.MetricsModeH\x14R\vmetricsMode\x88\x01\x01\x12B\n" +
+	"\x18disable_comments_parsing\x18\x15 \x01(\bH\x13R\x16disableCommentsParsing\x88\x01\x01\x12L\n" +
+	"\fmetrics_mode\x18\x16 \x01(\x0e2\x1a.management.v1.MetricsModeB\b\xfaB\x05\x82\x01\x02\x10\x01H\x14R\vmetricsMode\x88\x01\x01\x12B\n" +
 	"\x12disable_collectors\x18\x17 \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x125\n" +
 	"\x14auto_discovery_limit\x18\x18 \x01(\x05H\x15R\x12autoDiscoveryLimit\x88\x01\x01\x12=\n" +
 	"\x18max_exporter_connections\x18\x19 \x01(\x05H\x16R\x16maxExporterConnections\x88\x01\x01\x12B\n" +

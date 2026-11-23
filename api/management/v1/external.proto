@@ -96,7 +96,7 @@ message UpdateExternalServiceParams {
   // Group name of external service.
   optional string group = 10;
   // Defines metrics flow model for this exporter.
-  optional MetricsMode metrics_mode = 11;
+  optional MetricsMode metrics_mode = 11 [(validate.rules).enum.defined_only = true];
   // Skip TLS certificate and hostname validation.
   optional bool tls_skip_verify = 12;
   // Skip connection check.

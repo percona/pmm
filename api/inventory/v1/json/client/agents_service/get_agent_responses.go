@@ -3338,7 +3338,7 @@ type GetAgentOKBodyPostgresExporter struct {
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
-	// Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
+	// Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.

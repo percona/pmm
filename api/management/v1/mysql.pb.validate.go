@@ -533,7 +533,16 @@ func (m *UpdateMySQLServiceParams) validate(all bool) error {
 	}
 
 	if m.MetricsMode != nil {
-		// no validation rules for MetricsMode
+		if _, ok := MetricsMode_name[int32(m.GetMetricsMode())]; !ok {
+			err := UpdateMySQLServiceParamsValidationError{
+				field:  "MetricsMode",
+				reason: "value must be one of the defined enum values",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 	}
 
 	if m.LogLevel != nil {
