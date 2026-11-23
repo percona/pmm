@@ -23,6 +23,7 @@ import {
 import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
+import { applyInvertedTooltipStyles } from 'compat/tooltips';
 import {
   isWithinIframe,
   getLinkWithVariables,
@@ -95,6 +96,7 @@ export const initialize = () => {
 
   updateBodyClassByLocation(window.location);
   applyCustomStyles();
+  applyInvertedTooltipStyles(config.theme2);
   adjustToolbar();
 
   // -------- Theme relay: Grafana (right) → PMM UI (left) --------
@@ -108,6 +110,7 @@ export const initialize = () => {
   // Forward future ThemeChangedEvent to PMM UI.
   // Known Grafana type: evt.payload.colors.mode is 'light' | 'dark'
   getAppEvents().subscribe(ThemeChangedEvent, (evt: ThemeChangedEvent) => {
+    applyInvertedTooltipStyles(evt.payload);
     const nextMode = (evt.payload?.colors?.mode ?? 'light') as ColorMode;
     messenger.sendMessage({
       type: 'GRAFANA_THEME_CHANGED',
