@@ -22,6 +22,8 @@ The arguments depend on the service type:
 
 `pmm-admin update` takes the same flags as [`pmm-admin add`](add.md) for the same service type. To list them, run `pmm-admin update <SERVICE_TYPE> --help`.
 
+You can run the command on any node with a registered `pmm-agent`, not only on the node of the service. If you pass `--server-url`, use an Admin user or token. Files that you pass, such as TLS certificates and credentials files, are read from the machine where you run the command.
+
 ## Choose the service
 
 Before it changes anything, `pmm-admin update` needs to know which service to change. Tell it by name or by ID, or leave both out when the node has only one service of that type. External services work differently, so pick the tab for your case:
