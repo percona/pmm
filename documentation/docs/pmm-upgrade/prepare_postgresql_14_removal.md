@@ -41,7 +41,7 @@ The folders that the command lists show whether your data is already on PostgreS
 
 - `postgres18` folder: your data is already on PostgreSQL 18, so you don't need to do anything.
 - `postgres14` folder but no `postgres18` folder: your data is still on PostgreSQL 14, so upgrade to PMM 3.11.0, as described below.
-- no `postgres14` or `postgres18` folder: your PMM Server doesn't use the built-in database. If you run PMM HA, you don't need to do anything. If you use an external database, [check its version](#external-database).
+- no `postgres14` or `postgres18` folder: your PMM Server doesn't use the built-in database, which means it runs in PMM HA mode or uses an external database. With PMM HA, you don't need to do anything. With an external database, [make sure it runs PostgreSQL 15 or later](#external-database) before you upgrade to PMM 3.13.0.
 
 ### External database
 
