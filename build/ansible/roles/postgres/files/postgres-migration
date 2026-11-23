@@ -47,20 +47,25 @@ create_pg_stat_statements() {
         -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public"
 }
 
-# Creates the grafana role with the password Grafana reads, and the database it owns.
-create_grafana_db() {
+# Runs the SQL on stdin as postgres, with the password Grafana reads in the psql variable password.
+psql_with_grafana_password() {
     local password
 
-    echo "Creating grafana role and database..."
     password=$(< "$GRAFANA_DB_PASSWORD_FILE")
     # Grafana trims the whitespace around the file's content, so the role must not have it either.
     password="${password#"${password%%[![:space:]]*}"}"
     password="${password%"${password##*[![:space:]]}"}"
     # psql reads the password from its environment, which other users can't see, unlike its arguments.
-    # The statement carries the password, which pg_stat_statements must not record.
+    # The statements carry the password, which pg_stat_statements must not record.
     GRAFANA_DB_PASSWORD="$password" PGOPTIONS="-c pg_stat_statements.track_utility=off" \
-        "$POSTGRES_BIN_DIR/psql" -X -v ON_ERROR_STOP=1 -h /run/postgresql -U postgres -d postgres <<'SQL'
-\getenv password GRAFANA_DB_PASSWORD
+        "$POSTGRES_BIN_DIR/psql" -X -v ON_ERROR_STOP=1 -h /run/postgresql -U postgres -d postgres \
+        -c '\getenv password GRAFANA_DB_PASSWORD' -f -
+}
+
+# Creates the grafana role with the password Grafana reads, and the database it owns.
+create_grafana_db() {
+    echo "Creating grafana role and database..."
+    psql_with_grafana_password <<'SQL'
 CREATE ROLE grafana LOGIN PASSWORD :'password';
 CREATE DATABASE grafana OWNER grafana;
 SQL
@@ -233,6 +238,34 @@ ensure_postgres_password() {
     fi
 }
 
+# Gives the grafana role the password Grafana reads on every start, so a changed password takes effect.
+set_grafana_password() {
+    local started=0
+
+    if [ -n "${GF_DATABASE_URL}" ] || [ -n "${GF_DATABASE_HOST}" ]; then
+        return
+    fi
+
+    if ! "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off -c listen_addresses=" -w
+        started=1
+    fi
+
+    echo "Setting the grafana role's password..."
+    # A cluster whose Grafana database used to be external has no grafana role to update.
+    psql_with_grafana_password <<'SQL'
+SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'grafana') AS grafana_role_exists \gset
+\if :grafana_role_exists
+ALTER ROLE grafana PASSWORD :'password';
+\endif
+SQL
+
+    if [ "$started" -eq 1 ]; then
+        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR" -w
+    fi
+}
+
 upgrade_pg14_to_pg18
 init_postgres_cluster
 ensure_postgres_password
+set_grafana_password
