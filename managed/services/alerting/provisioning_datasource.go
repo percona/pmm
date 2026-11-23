@@ -54,6 +54,8 @@ import (
 // querying nothing, and no rules at all is a failure someone can see.
 const (
 	metricsDatasourceName = "Metrics"
+	// The other datasource template queries may run on, named in datasources.yml as well.
+	clickhouseDatasourceName = "ClickHouse"
 
 	// The query timeout matches the one PMM already uses for its Grafana database queries in
 	// telemetry.
