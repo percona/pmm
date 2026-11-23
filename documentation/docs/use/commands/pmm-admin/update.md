@@ -1,6 +1,6 @@
-# Update monitored services with `pmm-admin`
+# Update monitored services with pmm-admin
 
-Use `pmm-admin update` to change the settings of a service that PMM already monitors, without removing the service and adding it again. 
+Use `pmm-admin update` to change the settings of a service that PMM already monitors, without removing the service and adding it again.
 
 The service keeps its ID, and so does every agent that the update doesn't add or remove, so metrics and Query Analytics history, alerts, scheduled backups, and backup artifacts stay with the service. The only exception is a [change of the cluster](#change-the-cluster-of-a-service), which removes the scheduled backups.
 
@@ -222,7 +222,6 @@ A password or certificate file that you pass always counts as a change, even if 
 - the name of the service
 - the node and the pmm-agent that monitor the service (`--node-id`, `--pmm-agent-id`, and `--agent-node-id` and `--service-node-id` of an `external` service)
 - the address and the node properties of an `external-serverless` service
-- the monitoring user of a MySQL service (`--create-user`)
 
 To change them, [remove the service](../../remove-services.md) and add it again with `pmm-admin add`.
 
