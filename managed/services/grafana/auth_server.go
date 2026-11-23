@@ -79,6 +79,10 @@ var rules = map[string]role{
 	"/om.v1.OmService/CancelBootstrapRun":            admin,
 	"/om.v1.OmService/UpdateSettings":                admin,
 	"/om.v1.OmService/DeleteSettingOverride":         admin,
+	"/om.v1.OmService/ConfirmOperation":              admin,
+	"/om.v1.OmService/CancelOperation":               admin,
+	"/om.v1.OmService/ResumeOperation":               admin,
+	"/om.v1.OmService/AbandonOperation":              admin,
 
 	// Advisor check authoring and testing; see methodRules.
 	"/advisors.v1.AdvisorService/CreateAdvisorCheck": admin,
@@ -180,6 +184,9 @@ var methodRules = map[string]role{
 	// OM settings writes share /v1/om/settings (GET reads it) and sit under it.
 	http.MethodPut + " /v1/om/settings":               admin,
 	http.MethodDelete + " /v1/om/settings/overrides/": admin,
+
+	// OM operation actions are colon verbs under /v1/om/operations/, whose GET reads are viewer.
+	http.MethodPost + " /v1/om/operations/": admin,
 }
 
 var lbacPrefixes = []string{

@@ -5668,6 +5668,951 @@ func (x *DeleteSettingOverrideResponse) GetRemoved() bool {
 	return false
 }
 
+// Operation is one managed-cluster operation's history row: its lifecycle status and the
+// provenance around it.
+//
+// The inputs (params) and the review report are deliberately not on this surface. Both can
+// carry secrets, and until a caller's role reaches this service there is nothing to redact
+// them against, so they are withheld from every reader rather than shown to the wrong one.
+// report_digest, a hash, is safe and stands in for the reviewed report.
+type Operation struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operation's ID.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// The operation kind, a feature's registered name.
+	Kind string `protobuf:"bytes,2,opt,name=kind,proto3" json:"kind,omitempty"`
+	// The kind's contract version at creation; a resume refuses a different one.
+	KindVersion int32 `protobuf:"varint,3,opt,name=kind_version,json=kindVersion,proto3" json:"kind_version,omitempty"`
+	// The cluster it acts on; unset for a cluster-less operation.
+	ClusterId *string `protobuf:"bytes,4,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
+	// The parent operation, when this is a child.
+	ParentOperationId *string `protobuf:"bytes,5,opt,name=parent_operation_id,json=parentOperationId,proto3,oneof" json:"parent_operation_id,omitempty"`
+	// One of: checking, awaiting_confirmation, queued, running, cancelling, succeeded,
+	// failed, cancelled, rolled_back, abandoned, external. A string, not an enum, because
+	// the set is this service's own and a caller renders it rather than branching on it.
+	Status string `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	// The monotonic version the optimistic-concurrency fence reads; pass it back to a
+	// confirm, cancel, resume or abandon to bind the action to the state that was read.
+	Version int32 `protobuf:"varint,7,opt,name=version,proto3" json:"version,omitempty"`
+	// The plan revision a confirm binds to; a return-to-checking bumps it.
+	ParamsRevision int32 `protobuf:"varint,8,opt,name=params_revision,json=paramsRevision,proto3" json:"params_revision,omitempty"`
+	// What started it: user, schedule or policy.
+	Trigger string `protobuf:"bytes,9,opt,name=trigger,proto3" json:"trigger,omitempty"`
+	// The reviewed report's digest, sealed when the operation awaits confirmation.
+	ReportDigest *string `protobuf:"bytes,10,opt,name=report_digest,json=reportDigest,proto3,oneof" json:"report_digest,omitempty"`
+	// A stable machine-readable failure code, set once it fails.
+	ErrorCode *string `protobuf:"bytes,11,opt,name=error_code,json=errorCode,proto3,oneof" json:"error_code,omitempty"`
+	// Who confirmed it, when a confirmation was required.
+	ConfirmedBy *string `protobuf:"bytes,12,opt,name=confirmed_by,json=confirmedBy,proto3,oneof" json:"confirmed_by,omitempty"`
+	// Who cancelled it.
+	CancelledBy *string `protobuf:"bytes,13,opt,name=cancelled_by,json=cancelledBy,proto3,oneof" json:"cancelled_by,omitempty"`
+	// When it was created.
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// When it entered running. Unset until it does.
+	StartedAt *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	// When it reached a terminal status. Unset while not terminal.
+	FinishedAt *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
+	// The earliest it may run, for a scheduled operation.
+	NotBefore *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=not_before,json=notBefore,proto3" json:"not_before,omitempty"`
+	// When it will be abandoned if still unfinished.
+	DeadlineAt    *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=deadline_at,json=deadlineAt,proto3" json:"deadline_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Operation) Reset() {
+	*x = Operation{}
+	mi := &file_om_v1_om_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Operation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Operation) ProtoMessage() {}
+
+func (x *Operation) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Operation.ProtoReflect.Descriptor instead.
+func (*Operation) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{70}
+}
+
+func (x *Operation) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Operation) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *Operation) GetKindVersion() int32 {
+	if x != nil {
+		return x.KindVersion
+	}
+	return 0
+}
+
+func (x *Operation) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
+}
+
+func (x *Operation) GetParentOperationId() string {
+	if x != nil && x.ParentOperationId != nil {
+		return *x.ParentOperationId
+	}
+	return ""
+}
+
+func (x *Operation) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Operation) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *Operation) GetParamsRevision() int32 {
+	if x != nil {
+		return x.ParamsRevision
+	}
+	return 0
+}
+
+func (x *Operation) GetTrigger() string {
+	if x != nil {
+		return x.Trigger
+	}
+	return ""
+}
+
+func (x *Operation) GetReportDigest() string {
+	if x != nil && x.ReportDigest != nil {
+		return *x.ReportDigest
+	}
+	return ""
+}
+
+func (x *Operation) GetErrorCode() string {
+	if x != nil && x.ErrorCode != nil {
+		return *x.ErrorCode
+	}
+	return ""
+}
+
+func (x *Operation) GetConfirmedBy() string {
+	if x != nil && x.ConfirmedBy != nil {
+		return *x.ConfirmedBy
+	}
+	return ""
+}
+
+func (x *Operation) GetCancelledBy() string {
+	if x != nil && x.CancelledBy != nil {
+		return *x.CancelledBy
+	}
+	return ""
+}
+
+func (x *Operation) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Operation) GetStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartedAt
+	}
+	return nil
+}
+
+func (x *Operation) GetFinishedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return nil
+}
+
+func (x *Operation) GetNotBefore() *timestamppb.Timestamp {
+	if x != nil {
+		return x.NotBefore
+	}
+	return nil
+}
+
+func (x *Operation) GetDeadlineAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DeadlineAt
+	}
+	return nil
+}
+
+// OperationStep is one dispatch within an operation.
+//
+// The step's result payload is withheld for the same reason as the operation's params: it is
+// arbitrary executor output that can carry secrets, and this surface cannot yet gate it.
+type OperationStep struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The step's ID.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// What the step targets: member, replica_set, node or run.
+	TargetKind string `protobuf:"bytes,2,opt,name=target_kind,json=targetKind,proto3" json:"target_kind,omitempty"`
+	// The targeted resource's ID.
+	TargetId string `protobuf:"bytes,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`
+	// The phase it belongs to, e.g. "run".
+	Phase string `protobuf:"bytes,4,opt,name=phase,proto3" json:"phase,omitempty"`
+	// The step name within the phase.
+	Step string `protobuf:"bytes,5,opt,name=step,proto3" json:"step,omitempty"`
+	// Which attempt this is, from 1.
+	Attempt int32 `protobuf:"varint,6,opt,name=attempt,proto3" json:"attempt,omitempty"`
+	// One of: planned, dispatching, running, succeeded, failed, unknown.
+	Status string `protobuf:"bytes,7,opt,name=status,proto3" json:"status,omitempty"`
+	// The leader epoch it was dispatched under.
+	Epoch int64 `protobuf:"varint,8,opt,name=epoch,proto3" json:"epoch,omitempty"`
+	// The executor's task history ID, when it has one.
+	TaskHistoryId *string `protobuf:"bytes,9,opt,name=task_history_id,json=taskHistoryId,proto3,oneof" json:"task_history_id,omitempty"`
+	// When it was dispatched. Unset until it is.
+	DispatchedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=dispatched_at,json=dispatchedAt,proto3" json:"dispatched_at,omitempty"`
+	// When it finished. Unset while it runs.
+	FinishedAt    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OperationStep) Reset() {
+	*x = OperationStep{}
+	mi := &file_om_v1_om_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperationStep) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperationStep) ProtoMessage() {}
+
+func (x *OperationStep) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OperationStep.ProtoReflect.Descriptor instead.
+func (*OperationStep) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{71}
+}
+
+func (x *OperationStep) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *OperationStep) GetTargetKind() string {
+	if x != nil {
+		return x.TargetKind
+	}
+	return ""
+}
+
+func (x *OperationStep) GetTargetId() string {
+	if x != nil {
+		return x.TargetId
+	}
+	return ""
+}
+
+func (x *OperationStep) GetPhase() string {
+	if x != nil {
+		return x.Phase
+	}
+	return ""
+}
+
+func (x *OperationStep) GetStep() string {
+	if x != nil {
+		return x.Step
+	}
+	return ""
+}
+
+func (x *OperationStep) GetAttempt() int32 {
+	if x != nil {
+		return x.Attempt
+	}
+	return 0
+}
+
+func (x *OperationStep) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *OperationStep) GetEpoch() int64 {
+	if x != nil {
+		return x.Epoch
+	}
+	return 0
+}
+
+func (x *OperationStep) GetTaskHistoryId() string {
+	if x != nil && x.TaskHistoryId != nil {
+		return *x.TaskHistoryId
+	}
+	return ""
+}
+
+func (x *OperationStep) GetDispatchedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.DispatchedAt
+	}
+	return nil
+}
+
+func (x *OperationStep) GetFinishedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return nil
+}
+
+// ListOperationsRequest is the request for ListOperations.
+type ListOperationsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// When set, return only this cluster's operations; unset returns all of them.
+	ClusterId     *string `protobuf:"bytes,1,opt,name=cluster_id,json=clusterId,proto3,oneof" json:"cluster_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListOperationsRequest) Reset() {
+	*x = ListOperationsRequest{}
+	mi := &file_om_v1_om_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListOperationsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListOperationsRequest) ProtoMessage() {}
+
+func (x *ListOperationsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListOperationsRequest.ProtoReflect.Descriptor instead.
+func (*ListOperationsRequest) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{72}
+}
+
+func (x *ListOperationsRequest) GetClusterId() string {
+	if x != nil && x.ClusterId != nil {
+		return *x.ClusterId
+	}
+	return ""
+}
+
+// ListOperationsResponse returns the operation history, newest first.
+type ListOperationsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operations.
+	Operations    []*Operation `protobuf:"bytes,1,rep,name=operations,proto3" json:"operations,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListOperationsResponse) Reset() {
+	*x = ListOperationsResponse{}
+	mi := &file_om_v1_om_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListOperationsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListOperationsResponse) ProtoMessage() {}
+
+func (x *ListOperationsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListOperationsResponse.ProtoReflect.Descriptor instead.
+func (*ListOperationsResponse) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{73}
+}
+
+func (x *ListOperationsResponse) GetOperations() []*Operation {
+	if x != nil {
+		return x.Operations
+	}
+	return nil
+}
+
+// GetOperationRequest is the request for GetOperation.
+type GetOperationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operation to return.
+	OperationId   string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOperationRequest) Reset() {
+	*x = GetOperationRequest{}
+	mi := &file_om_v1_om_proto_msgTypes[74]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOperationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOperationRequest) ProtoMessage() {}
+
+func (x *GetOperationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[74]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOperationRequest.ProtoReflect.Descriptor instead.
+func (*GetOperationRequest) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{74}
+}
+
+func (x *GetOperationRequest) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+// GetOperationResponse returns one operation and its dispatched steps.
+type GetOperationResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operation.
+	Operation *Operation `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
+	// Its steps, by attempt then step.
+	Steps         []*OperationStep `protobuf:"bytes,2,rep,name=steps,proto3" json:"steps,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOperationResponse) Reset() {
+	*x = GetOperationResponse{}
+	mi := &file_om_v1_om_proto_msgTypes[75]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOperationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOperationResponse) ProtoMessage() {}
+
+func (x *GetOperationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[75]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOperationResponse.ProtoReflect.Descriptor instead.
+func (*GetOperationResponse) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{75}
+}
+
+func (x *GetOperationResponse) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
+func (x *GetOperationResponse) GetSteps() []*OperationStep {
+	if x != nil {
+		return x.Steps
+	}
+	return nil
+}
+
+// ConfirmOperationRequest is the request for ConfirmOperation.
+type ConfirmOperationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operation awaiting confirmation.
+	OperationId string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	// The version the caller reviewed. The confirm's optimistic fence: a rescan or any other
+	// change since the review has bumped it, so a stale confirm moves nothing.
+	Version       int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfirmOperationRequest) Reset() {
+	*x = ConfirmOperationRequest{}
+	mi := &file_om_v1_om_proto_msgTypes[76]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfirmOperationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfirmOperationRequest) ProtoMessage() {}
+
+func (x *ConfirmOperationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[76]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfirmOperationRequest.ProtoReflect.Descriptor instead.
+func (*ConfirmOperationRequest) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{76}
+}
+
+func (x *ConfirmOperationRequest) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+func (x *ConfirmOperationRequest) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+// ConfirmOperationResponse returns the operation as it now stands.
+type ConfirmOperationResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operation.
+	Operation     *Operation `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConfirmOperationResponse) Reset() {
+	*x = ConfirmOperationResponse{}
+	mi := &file_om_v1_om_proto_msgTypes[77]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConfirmOperationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConfirmOperationResponse) ProtoMessage() {}
+
+func (x *ConfirmOperationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[77]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConfirmOperationResponse.ProtoReflect.Descriptor instead.
+func (*ConfirmOperationResponse) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{77}
+}
+
+func (x *ConfirmOperationResponse) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
+// CancelOperationRequest is the request for CancelOperation.
+type CancelOperationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operation to cancel.
+	OperationId string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	// The version the caller read, fencing the cancel against a concurrent change.
+	Version       int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CancelOperationRequest) Reset() {
+	*x = CancelOperationRequest{}
+	mi := &file_om_v1_om_proto_msgTypes[78]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelOperationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelOperationRequest) ProtoMessage() {}
+
+func (x *CancelOperationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[78]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelOperationRequest.ProtoReflect.Descriptor instead.
+func (*CancelOperationRequest) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{78}
+}
+
+func (x *CancelOperationRequest) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+func (x *CancelOperationRequest) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+// CancelOperationResponse returns the operation as it now stands.
+type CancelOperationResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operation.
+	Operation     *Operation `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CancelOperationResponse) Reset() {
+	*x = CancelOperationResponse{}
+	mi := &file_om_v1_om_proto_msgTypes[79]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CancelOperationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelOperationResponse) ProtoMessage() {}
+
+func (x *CancelOperationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[79]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelOperationResponse.ProtoReflect.Descriptor instead.
+func (*CancelOperationResponse) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{79}
+}
+
+func (x *CancelOperationResponse) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
+// ResumeOperationRequest is the request for ResumeOperation.
+type ResumeOperationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The failed operation to resume.
+	OperationId string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	// The version the caller read, fencing the resume against a concurrent change.
+	Version       int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResumeOperationRequest) Reset() {
+	*x = ResumeOperationRequest{}
+	mi := &file_om_v1_om_proto_msgTypes[80]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResumeOperationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResumeOperationRequest) ProtoMessage() {}
+
+func (x *ResumeOperationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[80]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResumeOperationRequest.ProtoReflect.Descriptor instead.
+func (*ResumeOperationRequest) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{80}
+}
+
+func (x *ResumeOperationRequest) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+func (x *ResumeOperationRequest) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+// ResumeOperationResponse returns the operation as it now stands.
+type ResumeOperationResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operation.
+	Operation     *Operation `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResumeOperationResponse) Reset() {
+	*x = ResumeOperationResponse{}
+	mi := &file_om_v1_om_proto_msgTypes[81]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResumeOperationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResumeOperationResponse) ProtoMessage() {}
+
+func (x *ResumeOperationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[81]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResumeOperationResponse.ProtoReflect.Descriptor instead.
+func (*ResumeOperationResponse) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{81}
+}
+
+func (x *ResumeOperationResponse) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
+// AbandonOperationRequest is the request for AbandonOperation.
+type AbandonOperationRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The failed operation to abandon.
+	OperationId string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
+	// The version the caller read, fencing the abandon against a concurrent change.
+	Version       int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AbandonOperationRequest) Reset() {
+	*x = AbandonOperationRequest{}
+	mi := &file_om_v1_om_proto_msgTypes[82]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AbandonOperationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AbandonOperationRequest) ProtoMessage() {}
+
+func (x *AbandonOperationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[82]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AbandonOperationRequest.ProtoReflect.Descriptor instead.
+func (*AbandonOperationRequest) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{82}
+}
+
+func (x *AbandonOperationRequest) GetOperationId() string {
+	if x != nil {
+		return x.OperationId
+	}
+	return ""
+}
+
+func (x *AbandonOperationRequest) GetVersion() int32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+// AbandonOperationResponse returns the operation as it now stands.
+type AbandonOperationResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The operation.
+	Operation     *Operation `protobuf:"bytes,1,opt,name=operation,proto3" json:"operation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AbandonOperationResponse) Reset() {
+	*x = AbandonOperationResponse{}
+	mi := &file_om_v1_om_proto_msgTypes[83]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AbandonOperationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AbandonOperationResponse) ProtoMessage() {}
+
+func (x *AbandonOperationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[83]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AbandonOperationResponse.ProtoReflect.Descriptor instead.
+func (*AbandonOperationResponse) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{83}
+}
+
+func (x *AbandonOperationResponse) GetOperation() *Operation {
+	if x != nil {
+		return x.Operation
+	}
+	return nil
+}
+
 var File_om_v1_om_proto protoreflect.FileDescriptor
 
 const file_om_v1_om_proto_rawDesc = "" +
@@ -6121,7 +7066,89 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x03key\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x03keyB\r\n" +
 	"\v_cluster_id\"9\n" +
 	"\x1dDeleteSettingOverrideResponse\x12\x18\n" +
-	"\aremoved\x18\x01 \x01(\bR\aremoved*_\n" +
+	"\aremoved\x18\x01 \x01(\bR\aremoved\"\xd3\x06\n" +
+	"\tOperation\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04kind\x18\x02 \x01(\tR\x04kind\x12!\n" +
+	"\fkind_version\x18\x03 \x01(\x05R\vkindVersion\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x04 \x01(\tH\x00R\tclusterId\x88\x01\x01\x123\n" +
+	"\x13parent_operation_id\x18\x05 \x01(\tH\x01R\x11parentOperationId\x88\x01\x01\x12\x16\n" +
+	"\x06status\x18\x06 \x01(\tR\x06status\x12\x18\n" +
+	"\aversion\x18\a \x01(\x05R\aversion\x12'\n" +
+	"\x0fparams_revision\x18\b \x01(\x05R\x0eparamsRevision\x12\x18\n" +
+	"\atrigger\x18\t \x01(\tR\atrigger\x12(\n" +
+	"\rreport_digest\x18\n" +
+	" \x01(\tH\x02R\freportDigest\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"error_code\x18\v \x01(\tH\x03R\terrorCode\x88\x01\x01\x12&\n" +
+	"\fconfirmed_by\x18\f \x01(\tH\x04R\vconfirmedBy\x88\x01\x01\x12&\n" +
+	"\fcancelled_by\x18\r \x01(\tH\x05R\vcancelledBy\x88\x01\x01\x129\n" +
+	"\n" +
+	"created_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"started_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12;\n" +
+	"\vfinished_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"finishedAt\x129\n" +
+	"\n" +
+	"not_before\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\tnotBefore\x12;\n" +
+	"\vdeadline_at\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"deadlineAtB\r\n" +
+	"\v_cluster_idB\x16\n" +
+	"\x14_parent_operation_idB\x10\n" +
+	"\x0e_report_digestB\r\n" +
+	"\v_error_codeB\x0f\n" +
+	"\r_confirmed_byB\x0f\n" +
+	"\r_cancelled_by\"\x8e\x03\n" +
+	"\rOperationStep\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
+	"\vtarget_kind\x18\x02 \x01(\tR\n" +
+	"targetKind\x12\x1b\n" +
+	"\ttarget_id\x18\x03 \x01(\tR\btargetId\x12\x14\n" +
+	"\x05phase\x18\x04 \x01(\tR\x05phase\x12\x12\n" +
+	"\x04step\x18\x05 \x01(\tR\x04step\x12\x18\n" +
+	"\aattempt\x18\x06 \x01(\x05R\aattempt\x12\x16\n" +
+	"\x06status\x18\a \x01(\tR\x06status\x12\x14\n" +
+	"\x05epoch\x18\b \x01(\x03R\x05epoch\x12+\n" +
+	"\x0ftask_history_id\x18\t \x01(\tH\x00R\rtaskHistoryId\x88\x01\x01\x12?\n" +
+	"\rdispatched_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\fdispatchedAt\x12;\n" +
+	"\vfinished_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"finishedAtB\x12\n" +
+	"\x10_task_history_id\"J\n" +
+	"\x15ListOperationsRequest\x12\"\n" +
+	"\n" +
+	"cluster_id\x18\x01 \x01(\tH\x00R\tclusterId\x88\x01\x01B\r\n" +
+	"\v_cluster_id\"J\n" +
+	"\x16ListOperationsResponse\x120\n" +
+	"\n" +
+	"operations\x18\x01 \x03(\v2\x10.om.v1.OperationR\n" +
+	"operations\"A\n" +
+	"\x13GetOperationRequest\x12*\n" +
+	"\foperation_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voperationId\"r\n" +
+	"\x14GetOperationResponse\x12.\n" +
+	"\toperation\x18\x01 \x01(\v2\x10.om.v1.OperationR\toperation\x12*\n" +
+	"\x05steps\x18\x02 \x03(\v2\x14.om.v1.OperationStepR\x05steps\"h\n" +
+	"\x17ConfirmOperationRequest\x12*\n" +
+	"\foperation_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voperationId\x12!\n" +
+	"\aversion\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aversion\"J\n" +
+	"\x18ConfirmOperationResponse\x12.\n" +
+	"\toperation\x18\x01 \x01(\v2\x10.om.v1.OperationR\toperation\"g\n" +
+	"\x16CancelOperationRequest\x12*\n" +
+	"\foperation_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voperationId\x12!\n" +
+	"\aversion\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aversion\"I\n" +
+	"\x17CancelOperationResponse\x12.\n" +
+	"\toperation\x18\x01 \x01(\v2\x10.om.v1.OperationR\toperation\"g\n" +
+	"\x16ResumeOperationRequest\x12*\n" +
+	"\foperation_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voperationId\x12!\n" +
+	"\aversion\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aversion\"I\n" +
+	"\x17ResumeOperationResponse\x12.\n" +
+	"\toperation\x18\x01 \x01(\v2\x10.om.v1.OperationR\toperation\"h\n" +
+	"\x17AbandonOperationRequest\x12*\n" +
+	"\foperation_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voperationId\x12!\n" +
+	"\aversion\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aversion\"J\n" +
+	"\x18AbandonOperationResponse\x12.\n" +
+	"\toperation\x18\x01 \x01(\v2\x10.om.v1.OperationR\toperation*_\n" +
 	"\rServiceStatus\x12\x1e\n" +
 	"\x1aSERVICE_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11SERVICE_STATUS_UP\x10\x01\x12\x17\n" +
@@ -6167,7 +7194,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x1dOM_SETTING_SOURCE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19OM_SETTING_SOURCE_CLUSTER\x10\x01\x12\x1c\n" +
 	"\x18OM_SETTING_SOURCE_GLOBAL\x10\x02\x12\x1d\n" +
-	"\x19OM_SETTING_SOURCE_DEFAULT\x10\x032\x8a7\n" +
+	"\x19OM_SETTING_SOURCE_DEFAULT\x10\x032\xb2E\n" +
 	"\tOmService\x12\x89\x02\n" +
 	"\vGetTopology\x12\x19.om.v1.GetTopologyRequest\x1a\x1a.om.v1.GetTopologyResponse\"\xc2\x01\x92A\xa7\x01\x12\x18Get the MongoDB topology\x1a\x8a\x01Returns every monitored MongoDB service, grouped by environment then cluster, with its identity, replica-set state, reachability and load.\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/om/topology\x12\xee\x01\n" +
 	"\x10ListTopologyRuns\x12\x1e.om.v1.ListTopologyRunsRequest\x1a\x1f.om.v1.ListTopologyRunsResponse\"\x98\x01\x92Ay\x12\x14List collection runs\x1aaReturns the recorded collection runs, newest first, with what each one saw and any errors it hit.\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/om/topology/runs\x12\xf7\x01\n" +
@@ -6191,7 +7218,13 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x1dDeleteInventoryConfigOverride\x12+.om.v1.DeleteInventoryConfigOverrideRequest\x1a,.om.v1.DeleteInventoryConfigOverrideResponse\"\xc1\x01\x92A\x8e\x01\x12'Revert an inventory configuration field\x1acRemoves the override for one field so it returns to whatever the deployment configured. Idempotent.\x82\xd3\xe4\x93\x02)*'/v1/om/inventory/config/overrides/{key}\x12\xb2\x02\n" +
 	"\vGetSettings\x12\x19.om.v1.GetSettingsRequest\x1a\x1a.om.v1.GetSettingsResponse\"\xeb\x01\x92A\xd0\x01\x12\x17Get Operations settings\x1a\xb4\x01Returns every Operations policy setting resolved for a scope: a cluster override, else the global value, else the registry default. A secret setting reports only whether it is set.\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/om/settings\x12\x85\x02\n" +
 	"\x0eUpdateSettings\x12\x1c.om.v1.UpdateSettingsRequest\x1a\x1d.om.v1.UpdateSettingsResponse\"\xb5\x01\x92A\x97\x01\x12\x1aChange Operations settings\x1ayApplies a batch of settings changes atomically for a scope: one invalid field rejects the whole batch and writes nothing.\x82\xd3\xe4\x93\x02\x14:\x01*\x1a\x0f/v1/om/settings\x12\x94\x02\n" +
-	"\x15DeleteSettingOverride\x12#.om.v1.DeleteSettingOverrideRequest\x1a$.om.v1.DeleteSettingOverrideResponse\"\xaf\x01\x92A\x84\x01\x12\x1cRevert an Operations setting\x1adRemoves a scope's override for one setting. Idempotent: removing an absent override changes nothing.\x82\xd3\xe4\x93\x02!*\x1f/v1/om/settings/overrides/{key}Bp\n" +
+	"\x15DeleteSettingOverride\x12#.om.v1.DeleteSettingOverrideRequest\x1a$.om.v1.DeleteSettingOverrideResponse\"\xaf\x01\x92A\x84\x01\x12\x1cRevert an Operations setting\x1adRemoves a scope's override for one setting. Idempotent: removing an absent override changes nothing.\x82\xd3\xe4\x93\x02!*\x1f/v1/om/settings/overrides/{key}\x12\x99\x02\n" +
+	"\x0eListOperations\x12\x1c.om.v1.ListOperationsRequest\x1a\x1d.om.v1.ListOperationsResponse\"\xc9\x01\x92A\xac\x01\x12\x0fList operations\x1a\x98\x01Returns the managed-cluster operations, newest first, with each one's lifecycle status and provenance. Pass cluster_id to scope the list to one cluster.\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/om/operations\x12\xe1\x01\n" +
+	"\fGetOperation\x12\x1a.om.v1.GetOperationRequest\x1a\x1b.om.v1.GetOperationResponse\"\x97\x01\x92Al\x12\x10Get an operation\x1aXReturns one operation by ID, with its lifecycle status and every step it has dispatched.\x82\xd3\xe4\x93\x02\"\x12 /v1/om/operations/{operation_id}\x12\xc8\x02\n" +
+	"\x10ConfirmOperation\x12\x1e.om.v1.ConfirmOperationRequest\x1a\x1f.om.v1.ConfirmOperationResponse\"\xf2\x01\x92A\xbb\x01\x12\x14Confirm an operation\x1a\xa2\x01Releases an operation awaiting confirmation to run, binding the reviewed plan by version: a rescan or other change since the review moves nothing and returns 409.\x82\xd3\xe4\x93\x02-:\x01*\"(/v1/om/operations/{operation_id}:confirm\x12\xc0\x02\n" +
+	"\x0fCancelOperation\x12\x1d.om.v1.CancelOperationRequest\x1a\x1e.om.v1.CancelOperationResponse\"\xed\x01\x92A\xb7\x01\x12\x13Cancel an operation\x1a\x9f\x01Cancels a pre-running operation outright, releasing its locks; a running operation whose kind allows it goes to cancelling for compensation. Fenced by version.\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/om/operations/{operation_id}:cancel\x12\xd9\x02\n" +
+	"\x0fResumeOperation\x12\x1d.om.v1.ResumeOperationRequest\x1a\x1e.om.v1.ResumeOperationResponse\"\x86\x02\x92A\xd0\x01\x12\x13Resume an operation\x1a\xb8\x01Returns a failed, resumable operation to running, keeping the locks it held and clearing the attention it raised. Refused when the kind's contract version has moved. Fenced by version.\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/om/operations/{operation_id}:resume\x12\xbb\x02\n" +
+	"\x10AbandonOperation\x12\x1e.om.v1.AbandonOperationRequest\x1a\x1f.om.v1.AbandonOperationResponse\"\xe5\x01\x92A\xae\x01\x12\x14Abandon an operation\x1a\x95\x01Resolves a failed operation that will not be resumed: releases its locks and clears the attention it raised, leaving it abandoned. Fenced by version.\x82\xd3\xe4\x93\x02-:\x01*\"(/v1/om/operations/{operation_id}:abandonBp\n" +
 	"\tcom.om.v1B\aOmProtoP\x01Z%github.com/percona/pmm/api/om/v1;omv1\xa2\x02\x03OXX\xaa\x02\x05Om.V1\xca\x02\x05Om\\V1\xe2\x02\x11Om\\V1\\GPBMetadata\xea\x02\x06Om::V1b\x06proto3"
 
 var (
@@ -6208,7 +7241,7 @@ func file_om_v1_om_proto_rawDescGZIP() []byte {
 
 var (
 	file_om_v1_om_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
-	file_om_v1_om_proto_msgTypes  = make([]protoimpl.MessageInfo, 73)
+	file_om_v1_om_proto_msgTypes  = make([]protoimpl.MessageInfo, 87)
 	file_om_v1_om_proto_goTypes   = []any{
 		ServiceStatus(0),                              // 0: om.v1.ServiceStatus
 		ProcessRole(0),                                // 1: om.v1.ProcessRole
@@ -6289,144 +7322,184 @@ var (
 		(*UpdateSettingsResponse)(nil),                // 76: om.v1.UpdateSettingsResponse
 		(*DeleteSettingOverrideRequest)(nil),          // 77: om.v1.DeleteSettingOverrideRequest
 		(*DeleteSettingOverrideResponse)(nil),         // 78: om.v1.DeleteSettingOverrideResponse
-		nil,                                           // 79: om.v1.Summary.ProcessRoleCountsEntry
-		nil,                                           // 80: om.v1.SourceReport.DetailEntry
-		nil,                                           // 81: om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry
-		(*timestamppb.Timestamp)(nil),                 // 82: google.protobuf.Timestamp
-		(*structpb.Struct)(nil),                       // 83: google.protobuf.Struct
-		(*structpb.Value)(nil),                        // 84: google.protobuf.Value
+		(*Operation)(nil),                             // 79: om.v1.Operation
+		(*OperationStep)(nil),                         // 80: om.v1.OperationStep
+		(*ListOperationsRequest)(nil),                 // 81: om.v1.ListOperationsRequest
+		(*ListOperationsResponse)(nil),                // 82: om.v1.ListOperationsResponse
+		(*GetOperationRequest)(nil),                   // 83: om.v1.GetOperationRequest
+		(*GetOperationResponse)(nil),                  // 84: om.v1.GetOperationResponse
+		(*ConfirmOperationRequest)(nil),               // 85: om.v1.ConfirmOperationRequest
+		(*ConfirmOperationResponse)(nil),              // 86: om.v1.ConfirmOperationResponse
+		(*CancelOperationRequest)(nil),                // 87: om.v1.CancelOperationRequest
+		(*CancelOperationResponse)(nil),               // 88: om.v1.CancelOperationResponse
+		(*ResumeOperationRequest)(nil),                // 89: om.v1.ResumeOperationRequest
+		(*ResumeOperationResponse)(nil),               // 90: om.v1.ResumeOperationResponse
+		(*AbandonOperationRequest)(nil),               // 91: om.v1.AbandonOperationRequest
+		(*AbandonOperationResponse)(nil),              // 92: om.v1.AbandonOperationResponse
+		nil,                                           // 93: om.v1.Summary.ProcessRoleCountsEntry
+		nil,                                           // 94: om.v1.SourceReport.DetailEntry
+		nil,                                           // 95: om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry
+		(*timestamppb.Timestamp)(nil),                 // 96: google.protobuf.Timestamp
+		(*structpb.Struct)(nil),                       // 97: google.protobuf.Struct
+		(*structpb.Value)(nil),                        // 98: google.protobuf.Value
 	}
 )
 
 var file_om_v1_om_proto_depIdxs = []int32{
 	0,   // 0: om.v1.TopologyService.status:type_name -> om.v1.ServiceStatus
 	1,   // 1: om.v1.TopologyService.process_role:type_name -> om.v1.ProcessRole
-	82,  // 2: om.v1.TopologyService.observed_at:type_name -> google.protobuf.Timestamp
-	82,  // 3: om.v1.TopologyService.last_up_at:type_name -> google.protobuf.Timestamp
+	96,  // 2: om.v1.TopologyService.observed_at:type_name -> google.protobuf.Timestamp
+	96,  // 3: om.v1.TopologyService.last_up_at:type_name -> google.protobuf.Timestamp
 	9,   // 4: om.v1.Cluster.services:type_name -> om.v1.TopologyService
 	4,   // 5: om.v1.Cluster.type:type_name -> om.v1.ClusterType
 	5,   // 6: om.v1.Cluster.health:type_name -> om.v1.ClusterHealth
 	10,  // 7: om.v1.Environment.clusters:type_name -> om.v1.Cluster
-	79,  // 8: om.v1.Summary.process_role_counts:type_name -> om.v1.Summary.ProcessRoleCountsEntry
-	82,  // 9: om.v1.Snapshot.generated_at:type_name -> google.protobuf.Timestamp
-	82,  // 10: om.v1.Snapshot.observed_at:type_name -> google.protobuf.Timestamp
+	93,  // 8: om.v1.Summary.process_role_counts:type_name -> om.v1.Summary.ProcessRoleCountsEntry
+	96,  // 9: om.v1.Snapshot.generated_at:type_name -> google.protobuf.Timestamp
+	96,  // 10: om.v1.Snapshot.observed_at:type_name -> google.protobuf.Timestamp
 	13,  // 11: om.v1.GetTopologyResponse.snapshot:type_name -> om.v1.Snapshot
 	12,  // 12: om.v1.GetTopologyResponse.summary:type_name -> om.v1.Summary
 	11,  // 13: om.v1.GetTopologyResponse.environments:type_name -> om.v1.Environment
 	3,   // 14: om.v1.SourceReport.status:type_name -> om.v1.SourceStatus
-	80,  // 15: om.v1.SourceReport.detail:type_name -> om.v1.SourceReport.DetailEntry
+	94,  // 15: om.v1.SourceReport.detail:type_name -> om.v1.SourceReport.DetailEntry
 	2,   // 16: om.v1.TopologyRun.status:type_name -> om.v1.RunStatus
-	82,  // 17: om.v1.TopologyRun.start_time:type_name -> google.protobuf.Timestamp
-	82,  // 18: om.v1.TopologyRun.end_time:type_name -> google.protobuf.Timestamp
+	96,  // 17: om.v1.TopologyRun.start_time:type_name -> google.protobuf.Timestamp
+	96,  // 18: om.v1.TopologyRun.end_time:type_name -> google.protobuf.Timestamp
 	16,  // 19: om.v1.TopologyRun.counts:type_name -> om.v1.TopologyRunCounts
 	18,  // 20: om.v1.TopologyRun.errors:type_name -> om.v1.TopologyRunError
 	17,  // 21: om.v1.TopologyRun.sources:type_name -> om.v1.SourceReport
 	19,  // 22: om.v1.GetTopologyRunResponse.run:type_name -> om.v1.TopologyRun
 	19,  // 23: om.v1.ListTopologyRunsResponse.runs:type_name -> om.v1.TopologyRun
 	2,   // 24: om.v1.TriggerTopologyCollectionResponse.status:type_name -> om.v1.RunStatus
-	82,  // 25: om.v1.TriggerTopologyCollectionResponse.start_time:type_name -> google.protobuf.Timestamp
-	82,  // 26: om.v1.InventoryFreshness.first_seen_at:type_name -> google.protobuf.Timestamp
-	82,  // 27: om.v1.InventoryFreshness.last_attempt_at:type_name -> google.protobuf.Timestamp
-	82,  // 28: om.v1.InventoryFreshness.last_success_at:type_name -> google.protobuf.Timestamp
-	82,  // 29: om.v1.InventoryFreshness.failing_since:type_name -> google.protobuf.Timestamp
-	83,  // 30: om.v1.InventoryService.observed:type_name -> google.protobuf.Struct
+	96,  // 25: om.v1.TriggerTopologyCollectionResponse.start_time:type_name -> google.protobuf.Timestamp
+	96,  // 26: om.v1.InventoryFreshness.first_seen_at:type_name -> google.protobuf.Timestamp
+	96,  // 27: om.v1.InventoryFreshness.last_attempt_at:type_name -> google.protobuf.Timestamp
+	96,  // 28: om.v1.InventoryFreshness.last_success_at:type_name -> google.protobuf.Timestamp
+	96,  // 29: om.v1.InventoryFreshness.failing_since:type_name -> google.protobuf.Timestamp
+	97,  // 30: om.v1.InventoryService.observed:type_name -> google.protobuf.Struct
 	28,  // 31: om.v1.InventoryService.freshness:type_name -> om.v1.InventoryFreshness
 	26,  // 32: om.v1.InventoryHost.executor:type_name -> om.v1.InventoryExecutor
 	27,  // 33: om.v1.InventoryHost.unregistered_mongods:type_name -> om.v1.UnregisteredMongod
-	83,  // 34: om.v1.InventoryHost.observed:type_name -> google.protobuf.Struct
+	97,  // 34: om.v1.InventoryHost.observed:type_name -> google.protobuf.Struct
 	28,  // 35: om.v1.InventoryHost.freshness:type_name -> om.v1.InventoryFreshness
 	29,  // 36: om.v1.InventoryHost.services:type_name -> om.v1.InventoryService
 	6,   // 37: om.v1.InventoryRunEntity.resolution:type_name -> om.v1.ExecutorResolution
 	32,  // 38: om.v1.InventoryRunEntity.services:type_name -> om.v1.InventoryRunEntityService
 	2,   // 39: om.v1.InventoryRun.status:type_name -> om.v1.RunStatus
-	82,  // 40: om.v1.InventoryRun.start_time:type_name -> google.protobuf.Timestamp
-	82,  // 41: om.v1.InventoryRun.end_time:type_name -> google.protobuf.Timestamp
+	96,  // 40: om.v1.InventoryRun.start_time:type_name -> google.protobuf.Timestamp
+	96,  // 41: om.v1.InventoryRun.end_time:type_name -> google.protobuf.Timestamp
 	31,  // 42: om.v1.InventoryRun.counts:type_name -> om.v1.InventoryRunCounts
 	35,  // 43: om.v1.InventoryRun.failing_nodes:type_name -> om.v1.InventoryRunFailingNode
-	84,  // 44: om.v1.InventorySetting.value:type_name -> google.protobuf.Value
-	84,  // 45: om.v1.InventorySetting.default_value:type_name -> google.protobuf.Value
+	98,  // 44: om.v1.InventorySetting.value:type_name -> google.protobuf.Value
+	98,  // 45: om.v1.InventorySetting.default_value:type_name -> google.protobuf.Value
 	7,   // 46: om.v1.InventorySetting.reload:type_name -> om.v1.SettingReload
 	30,  // 47: om.v1.ListInventoryHostsResponse.hosts:type_name -> om.v1.InventoryHost
 	30,  // 48: om.v1.GetInventoryHostResponse.host:type_name -> om.v1.InventoryHost
 	29,  // 49: om.v1.ListInventoryServicesResponse.services:type_name -> om.v1.InventoryService
 	29,  // 50: om.v1.GetInventoryServiceResponse.service:type_name -> om.v1.InventoryService
-	82,  // 51: om.v1.ListInventoryRunsRequest.since:type_name -> google.protobuf.Timestamp
-	82,  // 52: om.v1.ListInventoryRunsRequest.until:type_name -> google.protobuf.Timestamp
+	96,  // 51: om.v1.ListInventoryRunsRequest.since:type_name -> google.protobuf.Timestamp
+	96,  // 52: om.v1.ListInventoryRunsRequest.until:type_name -> google.protobuf.Timestamp
 	34,  // 53: om.v1.ListInventoryRunsResponse.runs:type_name -> om.v1.InventoryRun
 	34,  // 54: om.v1.GetInventoryRunResponse.run:type_name -> om.v1.InventoryRun
 	33,  // 55: om.v1.GetInventoryRunResponse.entities:type_name -> om.v1.InventoryRunEntity
 	2,   // 56: om.v1.TriggerInventoryRefreshResponse.status:type_name -> om.v1.RunStatus
-	82,  // 57: om.v1.TriggerInventoryRefreshResponse.start_time:type_name -> google.protobuf.Timestamp
-	81,  // 58: om.v1.TriggerHostBootstrapRequest.member_configs:type_name -> om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry
+	96,  // 57: om.v1.TriggerInventoryRefreshResponse.start_time:type_name -> google.protobuf.Timestamp
+	95,  // 58: om.v1.TriggerHostBootstrapRequest.member_configs:type_name -> om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry
 	58,  // 59: om.v1.BootstrapHost.steps:type_name -> om.v1.BootstrapStep
 	58,  // 60: om.v1.BootstrapHost.rollback_steps:type_name -> om.v1.BootstrapStep
 	58,  // 61: om.v1.BootstrapHost.finalize_steps:type_name -> om.v1.BootstrapStep
 	59,  // 62: om.v1.GetBootstrapRunResponse.hosts:type_name -> om.v1.BootstrapHost
 	58,  // 63: om.v1.GetBootstrapRunResponse.run_steps:type_name -> om.v1.BootstrapStep
-	82,  // 64: om.v1.GetBootstrapRunResponse.started_at:type_name -> google.protobuf.Timestamp
-	82,  // 65: om.v1.GetBootstrapRunResponse.finished_at:type_name -> google.protobuf.Timestamp
+	96,  // 64: om.v1.GetBootstrapRunResponse.started_at:type_name -> google.protobuf.Timestamp
+	96,  // 65: om.v1.GetBootstrapRunResponse.finished_at:type_name -> google.protobuf.Timestamp
 	61,  // 66: om.v1.CancelBootstrapRunResponse.run:type_name -> om.v1.GetBootstrapRunResponse
 	61,  // 67: om.v1.ListBootstrapRunsResponse.runs:type_name -> om.v1.GetBootstrapRunResponse
 	36,  // 68: om.v1.GetInventoryConfigResponse.settings:type_name -> om.v1.InventorySetting
-	83,  // 69: om.v1.UpdateInventoryConfigRequest.values:type_name -> google.protobuf.Struct
+	97,  // 69: om.v1.UpdateInventoryConfigRequest.values:type_name -> google.protobuf.Struct
 	36,  // 70: om.v1.UpdateInventoryConfigResponse.settings:type_name -> om.v1.InventorySetting
-	84,  // 71: om.v1.OmSetting.value:type_name -> google.protobuf.Value
+	98,  // 71: om.v1.OmSetting.value:type_name -> google.protobuf.Value
 	8,   // 72: om.v1.OmSetting.source:type_name -> om.v1.OmSettingSource
 	72,  // 73: om.v1.GetSettingsResponse.settings:type_name -> om.v1.OmSetting
-	83,  // 74: om.v1.UpdateSettingsRequest.values:type_name -> google.protobuf.Struct
+	97,  // 74: om.v1.UpdateSettingsRequest.values:type_name -> google.protobuf.Struct
 	72,  // 75: om.v1.UpdateSettingsResponse.settings:type_name -> om.v1.OmSetting
-	56,  // 76: om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry.value:type_name -> om.v1.BootstrapMemberConfig
-	14,  // 77: om.v1.OmService.GetTopology:input_type -> om.v1.GetTopologyRequest
-	22,  // 78: om.v1.OmService.ListTopologyRuns:input_type -> om.v1.ListTopologyRunsRequest
-	20,  // 79: om.v1.OmService.GetTopologyRun:input_type -> om.v1.GetTopologyRunRequest
-	24,  // 80: om.v1.OmService.TriggerTopologyCollection:input_type -> om.v1.TriggerTopologyCollectionRequest
-	37,  // 81: om.v1.OmService.ListInventoryHosts:input_type -> om.v1.ListInventoryHostsRequest
-	39,  // 82: om.v1.OmService.GetInventoryHost:input_type -> om.v1.GetInventoryHostRequest
-	41,  // 83: om.v1.OmService.DeleteInventoryHost:input_type -> om.v1.DeleteInventoryHostRequest
-	43,  // 84: om.v1.OmService.ListInventoryServices:input_type -> om.v1.ListInventoryServicesRequest
-	45,  // 85: om.v1.OmService.GetInventoryService:input_type -> om.v1.GetInventoryServiceRequest
-	47,  // 86: om.v1.OmService.DeleteInventoryService:input_type -> om.v1.DeleteInventoryServiceRequest
-	49,  // 87: om.v1.OmService.ListInventoryRuns:input_type -> om.v1.ListInventoryRunsRequest
-	51,  // 88: om.v1.OmService.GetInventoryRun:input_type -> om.v1.GetInventoryRunRequest
-	53,  // 89: om.v1.OmService.TriggerInventoryRefresh:input_type -> om.v1.TriggerInventoryRefreshRequest
-	55,  // 90: om.v1.OmService.TriggerHostBootstrap:input_type -> om.v1.TriggerHostBootstrapRequest
-	60,  // 91: om.v1.OmService.GetBootstrapRun:input_type -> om.v1.GetBootstrapRunRequest
-	64,  // 92: om.v1.OmService.ListBootstrapRuns:input_type -> om.v1.ListBootstrapRunsRequest
-	62,  // 93: om.v1.OmService.CancelBootstrapRun:input_type -> om.v1.CancelBootstrapRunRequest
-	66,  // 94: om.v1.OmService.GetInventoryConfig:input_type -> om.v1.GetInventoryConfigRequest
-	68,  // 95: om.v1.OmService.UpdateInventoryConfig:input_type -> om.v1.UpdateInventoryConfigRequest
-	70,  // 96: om.v1.OmService.DeleteInventoryConfigOverride:input_type -> om.v1.DeleteInventoryConfigOverrideRequest
-	73,  // 97: om.v1.OmService.GetSettings:input_type -> om.v1.GetSettingsRequest
-	75,  // 98: om.v1.OmService.UpdateSettings:input_type -> om.v1.UpdateSettingsRequest
-	77,  // 99: om.v1.OmService.DeleteSettingOverride:input_type -> om.v1.DeleteSettingOverrideRequest
-	15,  // 100: om.v1.OmService.GetTopology:output_type -> om.v1.GetTopologyResponse
-	23,  // 101: om.v1.OmService.ListTopologyRuns:output_type -> om.v1.ListTopologyRunsResponse
-	21,  // 102: om.v1.OmService.GetTopologyRun:output_type -> om.v1.GetTopologyRunResponse
-	25,  // 103: om.v1.OmService.TriggerTopologyCollection:output_type -> om.v1.TriggerTopologyCollectionResponse
-	38,  // 104: om.v1.OmService.ListInventoryHosts:output_type -> om.v1.ListInventoryHostsResponse
-	40,  // 105: om.v1.OmService.GetInventoryHost:output_type -> om.v1.GetInventoryHostResponse
-	42,  // 106: om.v1.OmService.DeleteInventoryHost:output_type -> om.v1.DeleteInventoryHostResponse
-	44,  // 107: om.v1.OmService.ListInventoryServices:output_type -> om.v1.ListInventoryServicesResponse
-	46,  // 108: om.v1.OmService.GetInventoryService:output_type -> om.v1.GetInventoryServiceResponse
-	48,  // 109: om.v1.OmService.DeleteInventoryService:output_type -> om.v1.DeleteInventoryServiceResponse
-	50,  // 110: om.v1.OmService.ListInventoryRuns:output_type -> om.v1.ListInventoryRunsResponse
-	52,  // 111: om.v1.OmService.GetInventoryRun:output_type -> om.v1.GetInventoryRunResponse
-	54,  // 112: om.v1.OmService.TriggerInventoryRefresh:output_type -> om.v1.TriggerInventoryRefreshResponse
-	57,  // 113: om.v1.OmService.TriggerHostBootstrap:output_type -> om.v1.TriggerHostBootstrapResponse
-	61,  // 114: om.v1.OmService.GetBootstrapRun:output_type -> om.v1.GetBootstrapRunResponse
-	65,  // 115: om.v1.OmService.ListBootstrapRuns:output_type -> om.v1.ListBootstrapRunsResponse
-	63,  // 116: om.v1.OmService.CancelBootstrapRun:output_type -> om.v1.CancelBootstrapRunResponse
-	67,  // 117: om.v1.OmService.GetInventoryConfig:output_type -> om.v1.GetInventoryConfigResponse
-	69,  // 118: om.v1.OmService.UpdateInventoryConfig:output_type -> om.v1.UpdateInventoryConfigResponse
-	71,  // 119: om.v1.OmService.DeleteInventoryConfigOverride:output_type -> om.v1.DeleteInventoryConfigOverrideResponse
-	74,  // 120: om.v1.OmService.GetSettings:output_type -> om.v1.GetSettingsResponse
-	76,  // 121: om.v1.OmService.UpdateSettings:output_type -> om.v1.UpdateSettingsResponse
-	78,  // 122: om.v1.OmService.DeleteSettingOverride:output_type -> om.v1.DeleteSettingOverrideResponse
-	100, // [100:123] is the sub-list for method output_type
-	77,  // [77:100] is the sub-list for method input_type
-	77,  // [77:77] is the sub-list for extension type_name
-	77,  // [77:77] is the sub-list for extension extendee
-	0,   // [0:77] is the sub-list for field type_name
+	96,  // 76: om.v1.Operation.created_at:type_name -> google.protobuf.Timestamp
+	96,  // 77: om.v1.Operation.started_at:type_name -> google.protobuf.Timestamp
+	96,  // 78: om.v1.Operation.finished_at:type_name -> google.protobuf.Timestamp
+	96,  // 79: om.v1.Operation.not_before:type_name -> google.protobuf.Timestamp
+	96,  // 80: om.v1.Operation.deadline_at:type_name -> google.protobuf.Timestamp
+	96,  // 81: om.v1.OperationStep.dispatched_at:type_name -> google.protobuf.Timestamp
+	96,  // 82: om.v1.OperationStep.finished_at:type_name -> google.protobuf.Timestamp
+	79,  // 83: om.v1.ListOperationsResponse.operations:type_name -> om.v1.Operation
+	79,  // 84: om.v1.GetOperationResponse.operation:type_name -> om.v1.Operation
+	80,  // 85: om.v1.GetOperationResponse.steps:type_name -> om.v1.OperationStep
+	79,  // 86: om.v1.ConfirmOperationResponse.operation:type_name -> om.v1.Operation
+	79,  // 87: om.v1.CancelOperationResponse.operation:type_name -> om.v1.Operation
+	79,  // 88: om.v1.ResumeOperationResponse.operation:type_name -> om.v1.Operation
+	79,  // 89: om.v1.AbandonOperationResponse.operation:type_name -> om.v1.Operation
+	56,  // 90: om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry.value:type_name -> om.v1.BootstrapMemberConfig
+	14,  // 91: om.v1.OmService.GetTopology:input_type -> om.v1.GetTopologyRequest
+	22,  // 92: om.v1.OmService.ListTopologyRuns:input_type -> om.v1.ListTopologyRunsRequest
+	20,  // 93: om.v1.OmService.GetTopologyRun:input_type -> om.v1.GetTopologyRunRequest
+	24,  // 94: om.v1.OmService.TriggerTopologyCollection:input_type -> om.v1.TriggerTopologyCollectionRequest
+	37,  // 95: om.v1.OmService.ListInventoryHosts:input_type -> om.v1.ListInventoryHostsRequest
+	39,  // 96: om.v1.OmService.GetInventoryHost:input_type -> om.v1.GetInventoryHostRequest
+	41,  // 97: om.v1.OmService.DeleteInventoryHost:input_type -> om.v1.DeleteInventoryHostRequest
+	43,  // 98: om.v1.OmService.ListInventoryServices:input_type -> om.v1.ListInventoryServicesRequest
+	45,  // 99: om.v1.OmService.GetInventoryService:input_type -> om.v1.GetInventoryServiceRequest
+	47,  // 100: om.v1.OmService.DeleteInventoryService:input_type -> om.v1.DeleteInventoryServiceRequest
+	49,  // 101: om.v1.OmService.ListInventoryRuns:input_type -> om.v1.ListInventoryRunsRequest
+	51,  // 102: om.v1.OmService.GetInventoryRun:input_type -> om.v1.GetInventoryRunRequest
+	53,  // 103: om.v1.OmService.TriggerInventoryRefresh:input_type -> om.v1.TriggerInventoryRefreshRequest
+	55,  // 104: om.v1.OmService.TriggerHostBootstrap:input_type -> om.v1.TriggerHostBootstrapRequest
+	60,  // 105: om.v1.OmService.GetBootstrapRun:input_type -> om.v1.GetBootstrapRunRequest
+	64,  // 106: om.v1.OmService.ListBootstrapRuns:input_type -> om.v1.ListBootstrapRunsRequest
+	62,  // 107: om.v1.OmService.CancelBootstrapRun:input_type -> om.v1.CancelBootstrapRunRequest
+	66,  // 108: om.v1.OmService.GetInventoryConfig:input_type -> om.v1.GetInventoryConfigRequest
+	68,  // 109: om.v1.OmService.UpdateInventoryConfig:input_type -> om.v1.UpdateInventoryConfigRequest
+	70,  // 110: om.v1.OmService.DeleteInventoryConfigOverride:input_type -> om.v1.DeleteInventoryConfigOverrideRequest
+	73,  // 111: om.v1.OmService.GetSettings:input_type -> om.v1.GetSettingsRequest
+	75,  // 112: om.v1.OmService.UpdateSettings:input_type -> om.v1.UpdateSettingsRequest
+	77,  // 113: om.v1.OmService.DeleteSettingOverride:input_type -> om.v1.DeleteSettingOverrideRequest
+	81,  // 114: om.v1.OmService.ListOperations:input_type -> om.v1.ListOperationsRequest
+	83,  // 115: om.v1.OmService.GetOperation:input_type -> om.v1.GetOperationRequest
+	85,  // 116: om.v1.OmService.ConfirmOperation:input_type -> om.v1.ConfirmOperationRequest
+	87,  // 117: om.v1.OmService.CancelOperation:input_type -> om.v1.CancelOperationRequest
+	89,  // 118: om.v1.OmService.ResumeOperation:input_type -> om.v1.ResumeOperationRequest
+	91,  // 119: om.v1.OmService.AbandonOperation:input_type -> om.v1.AbandonOperationRequest
+	15,  // 120: om.v1.OmService.GetTopology:output_type -> om.v1.GetTopologyResponse
+	23,  // 121: om.v1.OmService.ListTopologyRuns:output_type -> om.v1.ListTopologyRunsResponse
+	21,  // 122: om.v1.OmService.GetTopologyRun:output_type -> om.v1.GetTopologyRunResponse
+	25,  // 123: om.v1.OmService.TriggerTopologyCollection:output_type -> om.v1.TriggerTopologyCollectionResponse
+	38,  // 124: om.v1.OmService.ListInventoryHosts:output_type -> om.v1.ListInventoryHostsResponse
+	40,  // 125: om.v1.OmService.GetInventoryHost:output_type -> om.v1.GetInventoryHostResponse
+	42,  // 126: om.v1.OmService.DeleteInventoryHost:output_type -> om.v1.DeleteInventoryHostResponse
+	44,  // 127: om.v1.OmService.ListInventoryServices:output_type -> om.v1.ListInventoryServicesResponse
+	46,  // 128: om.v1.OmService.GetInventoryService:output_type -> om.v1.GetInventoryServiceResponse
+	48,  // 129: om.v1.OmService.DeleteInventoryService:output_type -> om.v1.DeleteInventoryServiceResponse
+	50,  // 130: om.v1.OmService.ListInventoryRuns:output_type -> om.v1.ListInventoryRunsResponse
+	52,  // 131: om.v1.OmService.GetInventoryRun:output_type -> om.v1.GetInventoryRunResponse
+	54,  // 132: om.v1.OmService.TriggerInventoryRefresh:output_type -> om.v1.TriggerInventoryRefreshResponse
+	57,  // 133: om.v1.OmService.TriggerHostBootstrap:output_type -> om.v1.TriggerHostBootstrapResponse
+	61,  // 134: om.v1.OmService.GetBootstrapRun:output_type -> om.v1.GetBootstrapRunResponse
+	65,  // 135: om.v1.OmService.ListBootstrapRuns:output_type -> om.v1.ListBootstrapRunsResponse
+	63,  // 136: om.v1.OmService.CancelBootstrapRun:output_type -> om.v1.CancelBootstrapRunResponse
+	67,  // 137: om.v1.OmService.GetInventoryConfig:output_type -> om.v1.GetInventoryConfigResponse
+	69,  // 138: om.v1.OmService.UpdateInventoryConfig:output_type -> om.v1.UpdateInventoryConfigResponse
+	71,  // 139: om.v1.OmService.DeleteInventoryConfigOverride:output_type -> om.v1.DeleteInventoryConfigOverrideResponse
+	74,  // 140: om.v1.OmService.GetSettings:output_type -> om.v1.GetSettingsResponse
+	76,  // 141: om.v1.OmService.UpdateSettings:output_type -> om.v1.UpdateSettingsResponse
+	78,  // 142: om.v1.OmService.DeleteSettingOverride:output_type -> om.v1.DeleteSettingOverrideResponse
+	82,  // 143: om.v1.OmService.ListOperations:output_type -> om.v1.ListOperationsResponse
+	84,  // 144: om.v1.OmService.GetOperation:output_type -> om.v1.GetOperationResponse
+	86,  // 145: om.v1.OmService.ConfirmOperation:output_type -> om.v1.ConfirmOperationResponse
+	88,  // 146: om.v1.OmService.CancelOperation:output_type -> om.v1.CancelOperationResponse
+	90,  // 147: om.v1.OmService.ResumeOperation:output_type -> om.v1.ResumeOperationResponse
+	92,  // 148: om.v1.OmService.AbandonOperation:output_type -> om.v1.AbandonOperationResponse
+	120, // [120:149] is the sub-list for method output_type
+	91,  // [91:120] is the sub-list for method input_type
+	91,  // [91:91] is the sub-list for extension type_name
+	91,  // [91:91] is the sub-list for extension extendee
+	0,   // [0:91] is the sub-list for field type_name
 }
 
 func init() { file_om_v1_om_proto_init() }
@@ -6458,13 +7531,16 @@ func file_om_v1_om_proto_init() {
 	file_om_v1_om_proto_msgTypes[64].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[66].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[68].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[70].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[71].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[72].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_om_v1_om_proto_rawDesc), len(file_om_v1_om_proto_rawDesc)),
 			NumEnums:      9,
-			NumMessages:   73,
+			NumMessages:   87,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

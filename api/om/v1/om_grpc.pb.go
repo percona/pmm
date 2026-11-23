@@ -43,6 +43,12 @@ const (
 	OmService_GetSettings_FullMethodName                   = "/om.v1.OmService/GetSettings"
 	OmService_UpdateSettings_FullMethodName                = "/om.v1.OmService/UpdateSettings"
 	OmService_DeleteSettingOverride_FullMethodName         = "/om.v1.OmService/DeleteSettingOverride"
+	OmService_ListOperations_FullMethodName                = "/om.v1.OmService/ListOperations"
+	OmService_GetOperation_FullMethodName                  = "/om.v1.OmService/GetOperation"
+	OmService_ConfirmOperation_FullMethodName              = "/om.v1.OmService/ConfirmOperation"
+	OmService_CancelOperation_FullMethodName               = "/om.v1.OmService/CancelOperation"
+	OmService_ResumeOperation_FullMethodName               = "/om.v1.OmService/ResumeOperation"
+	OmService_AbandonOperation_FullMethodName              = "/om.v1.OmService/AbandonOperation"
 )
 
 // OmServiceClient is the client API for OmService service.
@@ -134,6 +140,18 @@ type OmServiceClient interface {
 	UpdateSettings(ctx context.Context, in *UpdateSettingsRequest, opts ...grpc.CallOption) (*UpdateSettingsResponse, error)
 	// DeleteSettingOverride reverts one Operations setting to its inherited value.
 	DeleteSettingOverride(ctx context.Context, in *DeleteSettingOverrideRequest, opts ...grpc.CallOption) (*DeleteSettingOverrideResponse, error)
+	// ListOperations returns the managed-cluster operation history, newest first.
+	ListOperations(ctx context.Context, in *ListOperationsRequest, opts ...grpc.CallOption) (*ListOperationsResponse, error)
+	// GetOperation returns one operation and its dispatched steps.
+	GetOperation(ctx context.Context, in *GetOperationRequest, opts ...grpc.CallOption) (*GetOperationResponse, error)
+	// ConfirmOperation releases an operation that is awaiting confirmation to run.
+	ConfirmOperation(ctx context.Context, in *ConfirmOperationRequest, opts ...grpc.CallOption) (*ConfirmOperationResponse, error)
+	// CancelOperation cancels an operation, or asks a running one to compensate.
+	CancelOperation(ctx context.Context, in *CancelOperationRequest, opts ...grpc.CallOption) (*CancelOperationResponse, error)
+	// ResumeOperation returns a failed, resumable operation to running.
+	ResumeOperation(ctx context.Context, in *ResumeOperationRequest, opts ...grpc.CallOption) (*ResumeOperationResponse, error)
+	// AbandonOperation resolves a failed operation, releasing its locks.
+	AbandonOperation(ctx context.Context, in *AbandonOperationRequest, opts ...grpc.CallOption) (*AbandonOperationResponse, error)
 }
 
 type omServiceClient struct {
@@ -374,6 +392,66 @@ func (c *omServiceClient) DeleteSettingOverride(ctx context.Context, in *DeleteS
 	return out, nil
 }
 
+func (c *omServiceClient) ListOperations(ctx context.Context, in *ListOperationsRequest, opts ...grpc.CallOption) (*ListOperationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListOperationsResponse)
+	err := c.cc.Invoke(ctx, OmService_ListOperations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *omServiceClient) GetOperation(ctx context.Context, in *GetOperationRequest, opts ...grpc.CallOption) (*GetOperationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetOperationResponse)
+	err := c.cc.Invoke(ctx, OmService_GetOperation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *omServiceClient) ConfirmOperation(ctx context.Context, in *ConfirmOperationRequest, opts ...grpc.CallOption) (*ConfirmOperationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfirmOperationResponse)
+	err := c.cc.Invoke(ctx, OmService_ConfirmOperation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *omServiceClient) CancelOperation(ctx context.Context, in *CancelOperationRequest, opts ...grpc.CallOption) (*CancelOperationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CancelOperationResponse)
+	err := c.cc.Invoke(ctx, OmService_CancelOperation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *omServiceClient) ResumeOperation(ctx context.Context, in *ResumeOperationRequest, opts ...grpc.CallOption) (*ResumeOperationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResumeOperationResponse)
+	err := c.cc.Invoke(ctx, OmService_ResumeOperation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *omServiceClient) AbandonOperation(ctx context.Context, in *AbandonOperationRequest, opts ...grpc.CallOption) (*AbandonOperationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AbandonOperationResponse)
+	err := c.cc.Invoke(ctx, OmService_AbandonOperation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OmServiceServer is the server API for OmService service.
 // All implementations must embed UnimplementedOmServiceServer
 // for forward compatibility.
@@ -463,6 +541,18 @@ type OmServiceServer interface {
 	UpdateSettings(context.Context, *UpdateSettingsRequest) (*UpdateSettingsResponse, error)
 	// DeleteSettingOverride reverts one Operations setting to its inherited value.
 	DeleteSettingOverride(context.Context, *DeleteSettingOverrideRequest) (*DeleteSettingOverrideResponse, error)
+	// ListOperations returns the managed-cluster operation history, newest first.
+	ListOperations(context.Context, *ListOperationsRequest) (*ListOperationsResponse, error)
+	// GetOperation returns one operation and its dispatched steps.
+	GetOperation(context.Context, *GetOperationRequest) (*GetOperationResponse, error)
+	// ConfirmOperation releases an operation that is awaiting confirmation to run.
+	ConfirmOperation(context.Context, *ConfirmOperationRequest) (*ConfirmOperationResponse, error)
+	// CancelOperation cancels an operation, or asks a running one to compensate.
+	CancelOperation(context.Context, *CancelOperationRequest) (*CancelOperationResponse, error)
+	// ResumeOperation returns a failed, resumable operation to running.
+	ResumeOperation(context.Context, *ResumeOperationRequest) (*ResumeOperationResponse, error)
+	// AbandonOperation resolves a failed operation, releasing its locks.
+	AbandonOperation(context.Context, *AbandonOperationRequest) (*AbandonOperationResponse, error)
 	mustEmbedUnimplementedOmServiceServer()
 }
 
@@ -563,6 +653,30 @@ func (UnimplementedOmServiceServer) UpdateSettings(context.Context, *UpdateSetti
 
 func (UnimplementedOmServiceServer) DeleteSettingOverride(context.Context, *DeleteSettingOverrideRequest) (*DeleteSettingOverrideResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteSettingOverride not implemented")
+}
+
+func (UnimplementedOmServiceServer) ListOperations(context.Context, *ListOperationsRequest) (*ListOperationsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListOperations not implemented")
+}
+
+func (UnimplementedOmServiceServer) GetOperation(context.Context, *GetOperationRequest) (*GetOperationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetOperation not implemented")
+}
+
+func (UnimplementedOmServiceServer) ConfirmOperation(context.Context, *ConfirmOperationRequest) (*ConfirmOperationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConfirmOperation not implemented")
+}
+
+func (UnimplementedOmServiceServer) CancelOperation(context.Context, *CancelOperationRequest) (*CancelOperationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CancelOperation not implemented")
+}
+
+func (UnimplementedOmServiceServer) ResumeOperation(context.Context, *ResumeOperationRequest) (*ResumeOperationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ResumeOperation not implemented")
+}
+
+func (UnimplementedOmServiceServer) AbandonOperation(context.Context, *AbandonOperationRequest) (*AbandonOperationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AbandonOperation not implemented")
 }
 func (UnimplementedOmServiceServer) mustEmbedUnimplementedOmServiceServer() {}
 func (UnimplementedOmServiceServer) testEmbeddedByValue()                   {}
@@ -999,6 +1113,114 @@ func _OmService_DeleteSettingOverride_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OmService_ListOperations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListOperationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).ListOperations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_ListOperations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).ListOperations(ctx, req.(*ListOperationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OmService_GetOperation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOperationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).GetOperation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_GetOperation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).GetOperation(ctx, req.(*GetOperationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OmService_ConfirmOperation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfirmOperationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).ConfirmOperation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_ConfirmOperation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).ConfirmOperation(ctx, req.(*ConfirmOperationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OmService_CancelOperation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelOperationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).CancelOperation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_CancelOperation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).CancelOperation(ctx, req.(*CancelOperationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OmService_ResumeOperation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResumeOperationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).ResumeOperation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_ResumeOperation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).ResumeOperation(ctx, req.(*ResumeOperationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OmService_AbandonOperation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AbandonOperationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).AbandonOperation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_AbandonOperation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).AbandonOperation(ctx, req.(*AbandonOperationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OmService_ServiceDesc is the grpc.ServiceDesc for OmService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1097,6 +1319,30 @@ var OmService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteSettingOverride",
 			Handler:    _OmService_DeleteSettingOverride_Handler,
+		},
+		{
+			MethodName: "ListOperations",
+			Handler:    _OmService_ListOperations_Handler,
+		},
+		{
+			MethodName: "GetOperation",
+			Handler:    _OmService_GetOperation_Handler,
+		},
+		{
+			MethodName: "ConfirmOperation",
+			Handler:    _OmService_ConfirmOperation_Handler,
+		},
+		{
+			MethodName: "CancelOperation",
+			Handler:    _OmService_CancelOperation_Handler,
+		},
+		{
+			MethodName: "ResumeOperation",
+			Handler:    _OmService_ResumeOperation_Handler,
+		},
+		{
+			MethodName: "AbandonOperation",
+			Handler:    _OmService_AbandonOperation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
