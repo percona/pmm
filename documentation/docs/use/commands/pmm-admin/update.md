@@ -1,6 +1,6 @@
 # Update monitored services with pmm-admin
 
-Use `pmm-admin update` to change the settings of a service that PMM already monitors, without removing the service and adding it again. The service and its agents keep their IDs, so metrics and Query Analytics history, alerts, scheduled backups, and backup artifacts stay with the service.
+Use `pmm-admin update` to change the settings of a service that PMM already monitors, without removing the service and adding it again. The service and its agents keep their IDs, so metrics and Query Analytics history, alerts, scheduled backups, and backup artifacts stay with the service. The only exception is a [change of the cluster](#change-the-cluster-of-a-service), which removes the scheduled backups.
 
 Starting with PMM 3.11.0, `pmm-admin update` supports MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, HAProxy, and external services.
 
@@ -11,6 +11,14 @@ Run the `update` command in the following format, where `SERVICE_TYPE` is one of
 ```bash
 pmm-admin update <SERVICE_TYPE> [NAME] [ADDRESS] [FLAGS]
 ```
+
+The arguments depend on the service type:
+
+| Service type | Arguments |
+|--------------|-----------|
+| `mysql`, `postgresql`, `mongodb`, `valkey`, `proxysql` | `[NAME] [ADDRESS]` |
+| `haproxy` | `[NAME]` |
+| `external`, `external-serverless` | None. Pass the service with a flag, as described in [Choose the service](#choose-the-service). |
 
 `pmm-admin update` takes the same flags as [`pmm-admin add`](add.md) for the same service type. To list them, run `pmm-admin update <SERVICE_TYPE> --help`.
 
@@ -42,11 +50,17 @@ pmm-admin update mysql mysql-prod --custom-labels=
 
 ## Choose the service
 
-`pmm-admin update` finds the service to change by the first of the following that applies:
+`pmm-admin update` changes the service that you pass in one of the following ways:
 
-- the ID that you pass with `--service-id`
-- the name that you pass as the `NAME` argument, or with `--service-name`
-- the only service of the given type on this node
+- by ID, with `--service-id`
+- by name, with the `NAME` argument or `--service-name`
+
+Pass the service only once: `pmm-admin update` rejects the `NAME` argument together with `--service-id` or `--service-name`. If you pass neither an ID nor a name, `pmm-admin update` changes the only service of the given type on this node, and fails if the node has none or more than one.
+
+External services have no `NAME` argument:
+
+- For an `external` service, pass `--service-name` or `--service-id`.
+- For an `external-serverless` service, pass `--external-name` or `--service-id`. One of them is required, because the service runs on a remote node of its own.
 
 ## Preview a change
 
@@ -64,7 +78,7 @@ pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --dry-run
     pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --disable-collectors=collstats
     ```
 
-    The output lists what changed on the server, each setting as the flag that sets it, followed by all current settings. A value that you pass but that equals the stored one isn't listed. Secrets show as `***`, and a changed secret or certificate file shows as `(new value)`:
+    The output lists what changed on the server, each setting as the flag that sets it, followed by all current settings. A value that you pass but that equals the stored one isn't listed, and if nothing changed, the output says `No settings changed.` Secrets show as `***`, and a changed secret or certificate file shows as `(new value)`. The following output is shortened:
 
     ```text
     MongoDB Service updated.
@@ -77,9 +91,13 @@ pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --dry-run
 
     Current settings:
       --environment=prod
+      ...
       --username=pmm
       --password=***
+      --metrics-mode=pull
+      ...
       --no-tls
+      ...
       --enable-all-collectors
       --disable-collectors=collstats
       --max-collections-limit=0
@@ -124,6 +142,12 @@ pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --dry-run
     pmm-admin update mysql mysql-prod --environment=staging --custom-labels=team=db,tier=1
     ```
 
+## Change the cluster of a service
+
+Scheduled backups belong to the cluster of a service. If you change the cluster with `--cluster`, PMM removes the scheduled backups of the service, so create them again after the update. Backup artifacts are kept.
+
+PMM rejects the change while a backup or a restore is running in the current or the new cluster. If this happens, run the update again after the backup or restore finishes.
+
 ## Use update in scripts
 
 With `--json`, `pmm-admin update` prints the result as JSON. The `changed` field tells whether any setting changed, and `changes` lists each changed setting with its previous and new value:
@@ -137,10 +161,16 @@ pmm-admin update mysql mysql-prod --log-level=info --json
 `pmm-admin update` can't change the following:
 
 - the name of the service
-- the node and the pmm-agent that monitor the service (`--node-id`, `--pmm-agent-id`)
+- the node and the pmm-agent that monitor the service (`--node-id`, `--pmm-agent-id`, and `--agent-node-id` and `--service-node-id` of an `external` service)
 - the address and the node properties of an `external-serverless` service
 
 To change them, [remove the service](../../remove-services.md) and add it again with `pmm-admin add`.
+
+The following restrictions also apply:
+
+- `--query-source` can't be changed for `pmm-server-postgresql`, the internal PostgreSQL database of PMM Server.
+- For a service on an Amazon RDS or Azure node, `--query-source` accepts only `perfschema` for MySQL and `pgstatements` for PostgreSQL, or `none`.
+- `--disable-collectors` isn't supported for Valkey services.
 
 ## See also
 
