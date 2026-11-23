@@ -68,6 +68,11 @@ export const toSecondsText = (duration: string) => {
   return seconds > 0 ? String(seconds) : '';
 };
 
+// The text as is, since a number past 6 decimals prints with an exponent,
+// less the leading zeros a protobuf duration rejects
+const toDurationText = (seconds: string) =>
+  `${seconds.trim().replace(/^0+(?=\d)/, '') || 0}s`;
+
 // The server stores a disabled rotation as zero, which the API takes as a
 // negative size
 export const toSlowlogFileSizeText = (bytes: number) =>
@@ -355,7 +360,7 @@ export const toServiceUpdate = (
 
   // Zero restores the default
   if (isEdited('connectionTimeout')) {
-    changes.connectionTimeout = `${Number(values.connectionTimeout) || 0}s`;
+    changes.connectionTimeout = toDurationText(values.connectionTimeout);
   }
 
   if (isEdited('querySource')) {

@@ -180,6 +180,9 @@ export const NUMBER_SETTINGS: Partial<Record<SettingName, number>> = {
 
 export const MAX_PORT = 65535;
 
+// The longest protobuf duration, 10,000 years
+export const MAX_DURATION_SECONDS = 315_576_000_000;
+
 export const MIB = 1024 * 1024;
 
 // What the server stores for a new slowlog QAN agent

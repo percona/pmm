@@ -441,6 +441,12 @@ describe('toServiceUpdate', () => {
       disableCollectors: [],
       connectionTimeout: '0s',
     });
+    expect(changes({ connectionTimeout: '0.0000001' })).toEqual({
+      connectionTimeout: '0.0000001s',
+    });
+    expect(changes({ connectionTimeout: '007' })).toEqual({
+      connectionTimeout: '7s',
+    });
     expect(changes({ maxSlowlogFileSize: '-1' })).toEqual({
       maxSlowlogFileSize: -1,
     });
@@ -593,11 +599,26 @@ describe('getEditServiceSchema', () => {
     });
   });
 
-  it('takes a blank connection timeout but not a negative one', () => {
-    expect(errors(values({ connectionTimeout: '' }))).toEqual({});
-    expect(errors(values({ connectionTimeout: '-1' }))).toEqual({
-      connectionTimeout: 'Enter a number of seconds, or leave blank',
-    });
+  it('takes a blank or decimal connection timeout', () => {
+    for (const connectionTimeout of ['', '0', '1.5', '.5', '0.000000001']) {
+      expect(errors(values({ connectionTimeout }))).toEqual({});
+    }
+  });
+
+  // The server would fail the whole save parsing these as a duration
+  it('rejects a connection timeout the API cannot parse', () => {
+    for (const connectionTimeout of [
+      '-1',
+      '1e3',
+      '1e400',
+      '1.',
+      '0.0000000001',
+      '315576000001',
+    ]) {
+      expect(errors(values({ connectionTimeout }))).toEqual({
+        connectionTimeout: 'Enter a number of seconds, or leave blank',
+      });
+    }
   });
 
   it('checks the extra DSN parameters', () => {

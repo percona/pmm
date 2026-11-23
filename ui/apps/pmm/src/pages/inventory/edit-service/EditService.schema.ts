@@ -1,7 +1,11 @@
 import { LogLevel, type RdsExporter } from 'types/agent.types';
 import { ManagedServiceType, MetricsMode } from 'types/services.types';
 import { z } from 'zod';
-import { MAX_PORT, NUMBER_SETTINGS } from './EditService.constants';
+import {
+  MAX_DURATION_SECONDS,
+  MAX_PORT,
+  NUMBER_SETTINGS,
+} from './EditService.constants';
 import { Messages } from './EditService.messages';
 import {
   QuerySource,
@@ -20,6 +24,8 @@ const DSN_PARAM_NAME_RE = /^\w+$/;
 // Mirrors the server's rule on aws_role_arn in api/inventory/v1/agents.proto
 const AWS_ROLE_ARN_RE = /^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role\/.+$/;
 const WHOLE_NUMBER_RE = /^-?\d+$/;
+// A protobuf duration takes no sign or exponent, and 9 decimals at most
+const DURATION_SECONDS_RE = /^\d*(\.\d{1,9})?$/;
 
 // The API requires a username for these
 const USERNAME_REQUIRED_TYPES = [
@@ -48,6 +54,9 @@ const isWholeNumber = (text: string, min: number, max = Infinity) =>
   WHOLE_NUMBER_RE.test(text.trim()) &&
   Number(text) >= min &&
   Number(text) <= max;
+
+const isDuration = (seconds: string) =>
+  DURATION_SECONDS_RE.test(seconds) && Number(seconds) <= MAX_DURATION_SECONDS;
 
 const editServiceFields = z.object({
   environment: z.string(),
@@ -153,7 +162,7 @@ const getSettingsErrors = (
 
   const timeout = values.connectionTimeout.trim();
 
-  if (isEdited('connectionTimeout') && timeout && !(Number(timeout) >= 0)) {
+  if (isEdited('connectionTimeout') && timeout && !isDuration(timeout)) {
     errors.push(['connectionTimeout', validation.invalidTimeout]);
   }
 
