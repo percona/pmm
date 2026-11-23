@@ -570,7 +570,7 @@ describe('IncidentWorkspacePage — feedback for a run that just started', () =>
     await user.click(
       await screen.findByRole(
         'button',
-        { name: 'Execute batch' },
+        { name: 'Run diagnostics' },
         { timeout: 3000 }
       )
     );
