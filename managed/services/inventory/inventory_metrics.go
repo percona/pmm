@@ -101,12 +101,8 @@ func getRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) stri
 }
 
 // scrapedEnvironmentAndCluster returns the environment and cluster labels that the metrics of
-// the service are scraped with: the labels of its Node, the Service and the Agent merged, so a
-// custom label on the Node or the Agent can set or override them. Reporting the same values lets
-// the inventory metric be matched with the service's own metrics.
-//
-// Labels that can't be merged must not take the inventory metric away for every agent, since the
-// service down alerts read it. The service's own values are returned then, along with the error.
+// the service are scraped with: its Node, Service and Agent labels merged. If they can't be
+// merged, it returns the service's own values along with the error.
 func scrapedEnvironmentAndCluster(node *models.Node, service *models.Service, agent *models.Agent) (string, string, error) {
 	labels, err := models.MergeLabels(node, service, agent)
 	if err != nil {
@@ -116,12 +112,8 @@ func scrapedEnvironmentAndCluster(node *models.Node, service *models.Service, ag
 	return labels["environment"], labels["cluster"], nil
 }
 
-// agentMetric returns the pmm_managed_inventory_agents series of one agent. The agents are needed
-// to find the pmm-agent that runs it, and the nodes and services are keyed by their IDs.
-//
-// Only an agent of a service gets an environment and a cluster: nothing reads them for an agent
-// of a node, such as node_exporter. Its own metrics do carry the node's labels, so the inventory
-// metric can't be matched with them by environment or cluster.
+// agentMetric returns the pmm_managed_inventory_agents series of one agent. Only an agent of a
+// service gets an environment and a cluster, since nothing reads them for an agent of a node.
 func (i *InventoryMetrics) agentMetric(
 	ctx context.Context,
 	agent *models.Agent,
@@ -167,7 +159,8 @@ func (i *InventoryMetrics) agentMetric(
 		var err error
 		environment, cluster, err = scrapedEnvironmentAndCluster(nodes[service.NodeID], service, agent)
 		if err != nil {
-			logger.Get(ctx).Warnf("Failed to merge the labels of agent %s, using the environment and cluster of its service: %s.", agent.AgentID, err)
+			logger.Get(ctx).WithError(err).WithField("agent_id", agent.AgentID).
+				Warn("Failed to merge the labels of the agent, using the environment and cluster of its service.")
 		}
 	}
 

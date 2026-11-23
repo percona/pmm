@@ -3,48 +3,25 @@ templates:
   - name: pmm_mongodb_cluster_no_active_mongos
     version: 1
     summary: MongoDB sharded cluster has no active mongos
-    # A down mongos loses its role: mongodb_exporter re-detects it on every scrape, so a failed
-    # connection is reported as mongodb_up{cluster_role=""} 0, and a lost host reports nothing.
-    # A cluster's mongos are therefore the services still enabled in the inventory with that
-    # cluster and environment and the mongos role somewhere in the last 7d of history, so a
-    # removed or relabeled mongos stops counting at the next inventory scrape. A total outage
-    # longer than 7d, or than the data retention if that is shorter, drops out of that history
-    # and resolves.
+    # A down mongos reports mongodb_up{cluster_role=""} 0 and a lost host reports nothing, so a
+    # cluster's mongos are the enabled inventory services that had the mongos role in the last 7d.
+    # A longer outage, or the data retention if that is shorter, drops out of that history and
+    # resolves.
     #
-    # Clusters are told apart by cluster and environment, so the same cluster name in two
-    # environments gives two alert instances. All mongos of one cluster need the same
-    # environment, or they count as separate clusters. Both labels are taken from the inventory
-    # metric only, which reports them for the agents of a service as that service is scraped
-    # (node, service and agent labels merged). Whether a mongos is active is matched to it by
-    # service_id, not by the labels on mongodb_up, so the two can't disagree while a label
-    # change is still reaching the client.
+    # Cluster and environment come from the inventory only and activity is matched by service_id,
+    # so the labels on mongodb_up can't disagree with them.
     #
-    # The inventory is read as of its last successful scrape in the last 5m: tlast_over_time
-    # gives each series the time of its last sample, and only those of the newest scrape are
-    # kept. A firing alert then survives a pmm-managed restart or a failed scrape of up to 5m,
-    # and a mongos missing from the newest scrape is not brought back. The newest scrape is
-    # taken per pmm-managed instance, since in HA each is scraped at its own time and they can
-    # differ during a rolling upgrade. An instance whose newest scrape is more than 60s behind
-    # the newest of all is left out, so one that stopped doesn't keep a mongos that was removed
-    # after it. When all of them stop, the last scrape still counts.
+    # tlast_over_time keeps the inventory of the newest scrape in the last 5m, per pmm-managed
+    # instance and without instances more than 60s behind: a firing alert survives a scrape gap
+    # and a removed mongos stops counting.
     #
-    # Everything is read 15s in the past. The samples of a scrape carry the time it started but
-    # become searchable as they arrive, so while a large inventory is still being ingested its
-    # newest scrape seems to hold only some of the rows, and the rest would be dropped. 15s
-    # covers a scrape at the default medium resolution, which times out after 9s. mongodb_up
-    # has the same offset so that both sides describe the same moment: otherwise a mongos
-    # removed from PMM would count as down for 15s longer.
+    # offset 15s skips a scrape that is still being ingested, which takes up to 9s at the default
+    # medium resolution. mongodb_up has it too, so that both sides describe the same moment.
     #
-    # A mongos counts as active only with a sample in the last 2m: Grafana's instant query
-    # otherwise keeps the last sample of a lost host for the 5m staleness window. This needs a
-    # high metrics resolution well under 2m; the Rare preset (60s) is the slowest that works.
-    # The inventory is scraped at the medium resolution: with the Rare preset (180s) the 5m
-    # window holds one or two scrapes, so a single failed one can still leave a short gap, and
-    # with a medium resolution above 5m the window is empty for part of every scrape cycle.
+    # Active means a sample in the last 2m, since an instant query keeps the last sample of a lost
+    # host for 5m. This needs a high resolution of 1m or less and a medium one of 3m or less.
     #
-    # Services without a cluster label are skipped, since their mongos can't be grouped. The
-    # '0 *' branch keeps one Normal instance per cluster and 'vector(0)' one when no sharded
-    # cluster is monitored, instead of No Data rows.
+    # '0 *' keeps one Normal instance per cluster and 'vector(0)' one when there is no cluster.
     expr: |-
       (
         count by (cluster, environment) (
