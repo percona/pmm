@@ -3279,6 +3279,317 @@
         }
       }
     },
+    "/v1/om/settings": {
+      "get": {
+        "description": "Returns every Operations policy setting resolved for a scope: a cluster override, else the global value, else the registry default. A secret setting reports only whether it is set.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get Operations settings",
+        "operationId": "GetSettings",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unset selects the global scope; set selects a cluster's effective settings.",
+            "name": "cluster_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetSettingsResponse returns the settings resolved for a scope.",
+              "type": "object",
+              "properties": {
+                "settings": {
+                  "type": "array",
+                  "items": {
+                    "description": "OmSetting is one Operations policy setting's effective value for a scope.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "description": "The setting key.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "description": "The effective value; omitted for a secret key.",
+                        "x-order": 1
+                      },
+                      "source": {
+                        "description": "OmSettingSource says where an effective setting value came from.",
+                        "type": "string",
+                        "default": "OM_SETTING_SOURCE_UNSPECIFIED",
+                        "enum": [
+                          "OM_SETTING_SOURCE_UNSPECIFIED",
+                          "OM_SETTING_SOURCE_CLUSTER",
+                          "OM_SETTING_SOURCE_GLOBAL",
+                          "OM_SETTING_SOURCE_DEFAULT"
+                        ],
+                        "x-order": 2
+                      },
+                      "has_override": {
+                        "description": "Whether an override is in effect, i.e. the value is not the registry default.",
+                        "type": "boolean",
+                        "x-order": 3
+                      },
+                      "secret": {
+                        "description": "Whether the value is held encrypted and never returned.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "is_set": {
+                        "description": "Whether a secret key has a value set.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "description": {
+                        "description": "The setting's documentation, where it has any.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Applies a batch of settings changes atomically for a scope: one invalid field rejects the whole batch and writes nothing.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Change Operations settings",
+        "operationId": "UpdateSettings",
+        "parameters": [
+          {
+            "description": "UpdateSettingsRequest is the request for UpdateSettings.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "UpdateSettingsRequest is the request for UpdateSettings.",
+              "type": "object",
+              "properties": {
+                "cluster_id": {
+                  "description": "Unset selects the global scope; set selects a cluster.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 0
+                },
+                "values": {
+                  "description": "The keys to change, as `{key: value}`; the batch is validated and applied atomically.",
+                  "type": "object",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "UpdateSettingsResponse returns the settings as they now stand for the scope.",
+              "type": "object",
+              "properties": {
+                "settings": {
+                  "type": "array",
+                  "items": {
+                    "description": "OmSetting is one Operations policy setting's effective value for a scope.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "description": "The setting key.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "description": "The effective value; omitted for a secret key.",
+                        "x-order": 1
+                      },
+                      "source": {
+                        "description": "OmSettingSource says where an effective setting value came from.",
+                        "type": "string",
+                        "default": "OM_SETTING_SOURCE_UNSPECIFIED",
+                        "enum": [
+                          "OM_SETTING_SOURCE_UNSPECIFIED",
+                          "OM_SETTING_SOURCE_CLUSTER",
+                          "OM_SETTING_SOURCE_GLOBAL",
+                          "OM_SETTING_SOURCE_DEFAULT"
+                        ],
+                        "x-order": 2
+                      },
+                      "has_override": {
+                        "description": "Whether an override is in effect, i.e. the value is not the registry default.",
+                        "type": "boolean",
+                        "x-order": 3
+                      },
+                      "secret": {
+                        "description": "Whether the value is held encrypted and never returned.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "is_set": {
+                        "description": "Whether a secret key has a value set.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "description": {
+                        "description": "The setting's documentation, where it has any.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/settings/overrides/{key}": {
+      "delete": {
+        "description": "Removes a scope's override for one setting. Idempotent: removing an absent override changes nothing.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Revert an Operations setting",
+        "operationId": "DeleteSettingOverride",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The setting whose override to remove for the scope.",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unset selects the global scope; set selects a cluster.",
+            "name": "cluster_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "DeleteSettingOverrideResponse acknowledges the revert.",
+              "type": "object",
+              "properties": {
+                "removed": {
+                  "description": "Whether an override was removed; false when none was in effect.",
+                  "type": "boolean",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/om/topology": {
       "get": {
         "description": "Returns every monitored MongoDB service, grouped by environment then cluster, with its identity, replica-set state, reachability and load.",

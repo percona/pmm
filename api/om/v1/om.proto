@@ -1168,6 +1168,70 @@ message DeleteInventoryConfigOverrideRequest {
 // DeleteInventoryConfigOverrideResponse acknowledges the revert.
 message DeleteInventoryConfigOverrideResponse {}
 
+// OmSettingSource says where an effective setting value came from.
+enum OmSettingSource {
+  OM_SETTING_SOURCE_UNSPECIFIED = 0;
+  OM_SETTING_SOURCE_CLUSTER = 1;
+  OM_SETTING_SOURCE_GLOBAL = 2;
+  OM_SETTING_SOURCE_DEFAULT = 3;
+}
+
+// OmSetting is one Operations policy setting's effective value for a scope.
+message OmSetting {
+  // The setting key.
+  string key = 1;
+  // The effective value; omitted for a secret key.
+  google.protobuf.Value value = 2;
+  // Where the effective value came from.
+  OmSettingSource source = 3;
+  // Whether an override is in effect, i.e. the value is not the registry default.
+  bool has_override = 4;
+  // Whether the value is held encrypted and never returned.
+  bool secret = 5;
+  // Whether a secret key has a value set.
+  bool is_set = 6;
+  // The setting's documentation, where it has any.
+  optional string description = 7;
+}
+
+// GetSettingsRequest is the request for GetSettings.
+message GetSettingsRequest {
+  // Unset selects the global scope; set selects a cluster's effective settings.
+  optional string cluster_id = 1;
+}
+
+// GetSettingsResponse returns the settings resolved for a scope.
+message GetSettingsResponse {
+  repeated OmSetting settings = 1;
+}
+
+// UpdateSettingsRequest is the request for UpdateSettings.
+message UpdateSettingsRequest {
+  // Unset selects the global scope; set selects a cluster.
+  optional string cluster_id = 1;
+  // The keys to change, as `{key: value}`; the batch is validated and applied atomically.
+  google.protobuf.Struct values = 2;
+}
+
+// UpdateSettingsResponse returns the settings as they now stand for the scope.
+message UpdateSettingsResponse {
+  repeated OmSetting settings = 1;
+}
+
+// DeleteSettingOverrideRequest is the request for DeleteSettingOverride.
+message DeleteSettingOverrideRequest {
+  // Unset selects the global scope; set selects a cluster.
+  optional string cluster_id = 1;
+  // The setting whose override to remove for the scope.
+  string key = 2 [(validate.rules).string.min_len = 1];
+}
+
+// DeleteSettingOverrideResponse acknowledges the revert.
+message DeleteSettingOverrideResponse {
+  // Whether an override was removed; false when none was in effect.
+  bool removed = 1;
+}
+
 // OmService provides the Operations for MongoDB topology and health API.
 service OmService {
   // GetTopology returns the whole MongoDB estate as one document.
@@ -1408,6 +1472,36 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Revert an inventory configuration field"
       description: "Removes the override for one field so it returns to whatever the deployment configured. Idempotent."
+    };
+  }
+
+  // GetSettings returns the Operations policy settings resolved for a scope.
+  rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {
+    option (google.api.http) = {get: "/v1/om/settings"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Operations settings"
+      description: "Returns every Operations policy setting resolved for a scope: a cluster override, else the global value, else the registry default. A secret setting reports only whether it is set."
+    };
+  }
+
+  // UpdateSettings changes Operations policy settings for a scope.
+  rpc UpdateSettings(UpdateSettingsRequest) returns (UpdateSettingsResponse) {
+    option (google.api.http) = {
+      put: "/v1/om/settings"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change Operations settings"
+      description: "Applies a batch of settings changes atomically for a scope: one invalid field rejects the whole batch and writes nothing."
+    };
+  }
+
+  // DeleteSettingOverride reverts one Operations setting to its inherited value.
+  rpc DeleteSettingOverride(DeleteSettingOverrideRequest) returns (DeleteSettingOverrideResponse) {
+    option (google.api.http) = {delete: "/v1/om/settings/overrides/{key}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Revert an Operations setting"
+      description: "Removes a scope's override for one setting. Idempotent: removing an absent override changes nothing."
     };
   }
 }

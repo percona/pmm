@@ -40,6 +40,9 @@ const (
 	OmService_GetInventoryConfig_FullMethodName            = "/om.v1.OmService/GetInventoryConfig"
 	OmService_UpdateInventoryConfig_FullMethodName         = "/om.v1.OmService/UpdateInventoryConfig"
 	OmService_DeleteInventoryConfigOverride_FullMethodName = "/om.v1.OmService/DeleteInventoryConfigOverride"
+	OmService_GetSettings_FullMethodName                   = "/om.v1.OmService/GetSettings"
+	OmService_UpdateSettings_FullMethodName                = "/om.v1.OmService/UpdateSettings"
+	OmService_DeleteSettingOverride_FullMethodName         = "/om.v1.OmService/DeleteSettingOverride"
 )
 
 // OmServiceClient is the client API for OmService service.
@@ -125,6 +128,12 @@ type OmServiceClient interface {
 	// setting rather than a List of its own, since a caller reading the configuration
 	// already has every answer that collection would give.
 	DeleteInventoryConfigOverride(ctx context.Context, in *DeleteInventoryConfigOverrideRequest, opts ...grpc.CallOption) (*DeleteInventoryConfigOverrideResponse, error)
+	// GetSettings returns the Operations policy settings resolved for a scope.
+	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
+	// UpdateSettings changes Operations policy settings for a scope.
+	UpdateSettings(ctx context.Context, in *UpdateSettingsRequest, opts ...grpc.CallOption) (*UpdateSettingsResponse, error)
+	// DeleteSettingOverride reverts one Operations setting to its inherited value.
+	DeleteSettingOverride(ctx context.Context, in *DeleteSettingOverrideRequest, opts ...grpc.CallOption) (*DeleteSettingOverrideResponse, error)
 }
 
 type omServiceClient struct {
@@ -335,6 +344,36 @@ func (c *omServiceClient) DeleteInventoryConfigOverride(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *omServiceClient) GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetSettingsResponse)
+	err := c.cc.Invoke(ctx, OmService_GetSettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *omServiceClient) UpdateSettings(ctx context.Context, in *UpdateSettingsRequest, opts ...grpc.CallOption) (*UpdateSettingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateSettingsResponse)
+	err := c.cc.Invoke(ctx, OmService_UpdateSettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *omServiceClient) DeleteSettingOverride(ctx context.Context, in *DeleteSettingOverrideRequest, opts ...grpc.CallOption) (*DeleteSettingOverrideResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteSettingOverrideResponse)
+	err := c.cc.Invoke(ctx, OmService_DeleteSettingOverride_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OmServiceServer is the server API for OmService service.
 // All implementations must embed UnimplementedOmServiceServer
 // for forward compatibility.
@@ -418,6 +457,12 @@ type OmServiceServer interface {
 	// setting rather than a List of its own, since a caller reading the configuration
 	// already has every answer that collection would give.
 	DeleteInventoryConfigOverride(context.Context, *DeleteInventoryConfigOverrideRequest) (*DeleteInventoryConfigOverrideResponse, error)
+	// GetSettings returns the Operations policy settings resolved for a scope.
+	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
+	// UpdateSettings changes Operations policy settings for a scope.
+	UpdateSettings(context.Context, *UpdateSettingsRequest) (*UpdateSettingsResponse, error)
+	// DeleteSettingOverride reverts one Operations setting to its inherited value.
+	DeleteSettingOverride(context.Context, *DeleteSettingOverrideRequest) (*DeleteSettingOverrideResponse, error)
 	mustEmbedUnimplementedOmServiceServer()
 }
 
@@ -506,6 +551,18 @@ func (UnimplementedOmServiceServer) UpdateInventoryConfig(context.Context, *Upda
 
 func (UnimplementedOmServiceServer) DeleteInventoryConfigOverride(context.Context, *DeleteInventoryConfigOverrideRequest) (*DeleteInventoryConfigOverrideResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteInventoryConfigOverride not implemented")
+}
+
+func (UnimplementedOmServiceServer) GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetSettings not implemented")
+}
+
+func (UnimplementedOmServiceServer) UpdateSettings(context.Context, *UpdateSettingsRequest) (*UpdateSettingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateSettings not implemented")
+}
+
+func (UnimplementedOmServiceServer) DeleteSettingOverride(context.Context, *DeleteSettingOverrideRequest) (*DeleteSettingOverrideResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteSettingOverride not implemented")
 }
 func (UnimplementedOmServiceServer) mustEmbedUnimplementedOmServiceServer() {}
 func (UnimplementedOmServiceServer) testEmbeddedByValue()                   {}
@@ -888,6 +945,60 @@ func _OmService_DeleteInventoryConfigOverride_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OmService_GetSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).GetSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_GetSettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).GetSettings(ctx, req.(*GetSettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OmService_UpdateSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).UpdateSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_UpdateSettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).UpdateSettings(ctx, req.(*UpdateSettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OmService_DeleteSettingOverride_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSettingOverrideRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).DeleteSettingOverride(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_DeleteSettingOverride_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).DeleteSettingOverride(ctx, req.(*DeleteSettingOverrideRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OmService_ServiceDesc is the grpc.ServiceDesc for OmService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -974,6 +1085,18 @@ var OmService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteInventoryConfigOverride",
 			Handler:    _OmService_DeleteInventoryConfigOverride_Handler,
+		},
+		{
+			MethodName: "GetSettings",
+			Handler:    _OmService_GetSettings_Handler,
+		},
+		{
+			MethodName: "UpdateSettings",
+			Handler:    _OmService_UpdateSettings_Handler,
+		},
+		{
+			MethodName: "DeleteSettingOverride",
+			Handler:    _OmService_DeleteSettingOverride_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
