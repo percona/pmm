@@ -258,6 +258,7 @@ func noteTables(note string) map[string]tableRef {
 		if ref.database == "" && ctes[ref.name] {
 			continue
 		}
+		j = skipPartitionList(toks, j)
 		key := ref.name
 		if j < len(toks) && toks[j].quoted {
 			key = toks[j].text
@@ -272,6 +273,18 @@ func noteTables(note string) map[string]tableRef {
 		delete(out, key)
 	}
 	return out
+}
+
+// skipPartitionList returns the index past the PARTITION (`p0`,…) list that MySQL prints between a table and its
+// alias when the statement selects partitions, or j when toks[j] starts none.
+func skipPartitionList(toks []noteToken, j int) int {
+	if j+1 >= len(toks) || !toks[j].isWord("partition") || !toks[j+1].punct || toks[j+1].text != "(" {
+		return j
+	}
+	for j < len(toks) && (!toks[j].punct || toks[j].text != ")") {
+		j++
+	}
+	return j + 1
 }
 
 // resolveTables turns plan entries into tables, and names that cannot be turned
