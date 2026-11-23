@@ -96,7 +96,7 @@ func TestHAPeerNodeName(t *testing.T) {
 		{peer: "   "},
 	} {
 		t.Run(tc.peer, func(t *testing.T) {
-			name, ok := haPeerNodeName(tc.peer)
+			name, ok := HAPeerNodeName(tc.peer)
 			assert.Equal(t, tc.ok, ok)
 			assert.Equal(t, tc.name, name)
 		})

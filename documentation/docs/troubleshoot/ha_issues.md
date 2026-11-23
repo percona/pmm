@@ -33,7 +33,7 @@ What to look for:
 
 - **Pods:** All three `pmm-ha-*` pods show `Running` with all containers ready (`1/1`). A pod in `Pending` or `CrashLoopBackOff`, or one with a rising restart count, is the first thing to fix.
 - **`/v1/ha/status`:** Returns `{"status":"Enabled"}` when HA is active. Any other value means the server is not running in HA mode.
-- **`/v1/ha/nodes`:** Lists each node with its role (`NODE_ROLE_LEADER` or `NODE_ROLE_FOLLOWER`) and status. A healthy cluster has exactly one leader and all other nodes as followers. If the number of entries is fewer than `expected_nodes`, a node is missing. `expected_nodes` reflects the replica count from installation and does not change when a node goes down.
+- **`/v1/ha/nodes`:** Lists each node with its role (`NODE_ROLE_LEADER` or `NODE_ROLE_FOLLOWER`) and status. A healthy cluster has exactly one leader and all other nodes as followers, each with the status `alive`. A node that is down stays in the list with the status `dead`. A node that shut down cleanly, for example while its pod restarts, shows `left` until the cluster removes it. It then drops out of the list. If the number of entries is fewer than `expected_nodes`, a node is missing: it shut down cleanly or hasn't joined yet. `expected_nodes` reflects the replica count from installation and does not change when a node goes down.
 
 ## Find the logs for each component
 
