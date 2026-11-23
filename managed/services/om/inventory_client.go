@@ -123,6 +123,8 @@ type extensionsSetting struct {
 	HasOverride  bool    `json:"has_override"`
 	IsAdvanced   bool    `json:"is_advanced"`
 	Description  *string `json:"description"`
+	Minimum      any     `json:"minimum"`
+	Maximum      any     `json:"maximum"`
 }
 
 // Detail is a string for the app's own errors and a list of per-field objects for a validation failure.
