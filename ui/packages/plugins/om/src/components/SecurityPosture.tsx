@@ -24,8 +24,8 @@ import { Alert, AlertTitle } from '@mui/material';
  * "inputs that are not inputs", which was the complaint. A tab that can never be
  * edited is worse than the same facts stated where the user is already looking, so the
  * tab is gone and this renders on the Configure step, again at Review, and once more
- * on a finished install's completion card - one wording in all three, so what the
- * user agreed to is what they are told they got.
+ * on a finished install's completion card. The body is the same in all three, so what
+ * the user agreed to is what they are told they got; the card gives it its own title.
  *
  * It must keep naming the mechanism and what is unavailable: the tab was the only place
  * that said keyFile, LDAP and KMIP/KMS at all, and dropping that would make the
