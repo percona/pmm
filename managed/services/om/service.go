@@ -64,6 +64,9 @@ type Service struct {
 	// settingsRegistry holds the Operations policy keys; empty this epic, populated by features.
 	settingsRegistry *models.OmSettingsRegistry
 
+	// operationRegistry holds the known operation kinds; empty this epic, populated by features.
+	operationRegistry *OperationRegistry
+
 	// ha is nil in most tests, which means this node is the leader.
 	ha haChecker
 
@@ -106,17 +109,24 @@ type Service struct {
 // New returns a new OM service.
 func New(db *reform.DB, vmClient victoriaMetricsClient, ha haChecker, l *logrus.Entry) *Service {
 	return &Service{
-		db:               db,
-		vmClient:         vmClient,
-		ha:               ha,
-		l:                l,
-		settingsRegistry: models.NewOmSettingsRegistry(),
+		db:                db,
+		vmClient:          vmClient,
+		ha:                ha,
+		l:                 l,
+		settingsRegistry:  models.NewOmSettingsRegistry(),
+		operationRegistry: NewOperationRegistry(),
 	}
 }
 
 // WithSettingsRegistry sets the Operations settings registry, letting features register their keys.
 func (s *Service) WithSettingsRegistry(reg *models.OmSettingsRegistry) *Service {
 	s.settingsRegistry = reg
+	return s
+}
+
+// WithOperationRegistry sets the operation-kind registry, letting features register their kinds.
+func (s *Service) WithOperationRegistry(reg *OperationRegistry) *Service {
+	s.operationRegistry = reg
 	return s
 }
 

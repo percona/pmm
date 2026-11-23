@@ -160,6 +160,7 @@ Go style, error handling, logging, and code generation follow the [global conven
 - `managed/services/agents/grpc/agent_server.go` — bidirectional agent stream handler
 - `managed/services/inventory/grpc/` — inventory API implementations
 - `managed/services/ha/` — HA/Raft implementation
+- `managed/services/om/` - managed-cluster operation lifecycle (driver, locks, history API); a feature adds an operation kind per [`dev/docs/managed/operation-kinds.md`](../dev/docs/managed/operation-kinds.md)
 - `managed/utils/envvars/parser.go` — environment variable parsing
 - `docker-compose.dev.yml` — development environment
 - `Makefile`, `Makefile.include` — build and development targets
