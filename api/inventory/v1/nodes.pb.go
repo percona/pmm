@@ -2310,7 +2310,7 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\x18NODE_TYPE_CONTAINER_NODE\x10\x02\x12\x19\n" +
 	"\x15NODE_TYPE_REMOTE_NODE\x10\x03\x12\x1d\n" +
 	"\x19NODE_TYPE_REMOTE_RDS_NODE\x10\x04\x12(\n" +
-	"$NODE_TYPE_REMOTE_AZURE_DATABASE_NODE\x10\x052\x84\a\n" +
+	"$NODE_TYPE_REMOTE_AZURE_DATABASE_NODE\x10\x052\x87\b\n" +
 	"\fNodesService\x12\x96\x01\n" +
 	"\tListNodes\x12\x1e.inventory.v1.ListNodesRequest\x1a\x1f.inventory.v1.ListNodesResponse\"H\x92A*\x12\n" +
 	"List Nodes\x1a\x1cReturns a list of all Nodes.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/inventory/nodes\x12\x9a\x01\n" +
@@ -2319,9 +2319,9 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\aAddNode\x12\x1c.inventory.v1.AddNodeRequest\x1a\x1d.inventory.v1.AddNodeResponse\";\x92A\x1a\x12\n" +
 	"Add a Node\x1a\fAdds a Node.\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/inventory/nodes\x12\x99\x01\n" +
 	"\n" +
-	"RemoveNode\x12\x1f.inventory.v1.RemoveNodeRequest\x1a .inventory.v1.RemoveNodeResponse\"H\x92A \x12\rRemove a Node\x1a\x0fRemoves a Node.\x82\xd3\xe4\x93\x02\x1f*\x1d/v1/inventory/nodes/{node_id}\x12\x9b\x02\n" +
+	"RemoveNode\x12\x1f.inventory.v1.RemoveNodeRequest\x1a .inventory.v1.RemoveNodeResponse\"H\x92A \x12\rRemove a Node\x1a\x0fRemoves a Node.\x82\xd3\xe4\x93\x02\x1f*\x1d/v1/inventory/nodes/{node_id}\x12\x9e\x03\n" +
 	"\n" +
-	"ChangeNode\x12\x1f.inventory.v1.ChangeNodeRequest\x1a .inventory.v1.ChangeNodeResponse\"\xc9\x01\x92A\x9d\x01\x12\rChange a Node\x1a\x8b\x01Changes the environment, node model, region, availability zone and custom labels of a Node. Only the fields set in the request are changed.\x82\xd3\xe4\x93\x02\":\x01*\x1a\x1d/v1/inventory/nodes/{node_id}B\xa4\x01\n" +
+	"ChangeNode\x12\x1f.inventory.v1.ChangeNodeRequest\x1a .inventory.v1.ChangeNodeResponse\"\xcc\x02\x92A\xa0\x02\x12\rChange a Node\x1a\x8e\x02Changes the environment, node model, region, availability zone and custom labels of a Node. Only the fields set in the request are changed, except that setting the environment, an empty one included, also removes an environment custom label from the Node and its Agents.\x82\xd3\xe4\x93\x02\":\x01*\x1a\x1d/v1/inventory/nodes/{node_id}B\xa4\x01\n" +
 	"\x10com.inventory.v1B\n" +
 	"NodesProtoP\x01Z3github.com/percona/pmm/api/inventory/v1;inventoryv1\xa2\x02\x03IXX\xaa\x02\fInventory.V1\xca\x02\fInventory\\V1\xe2\x02\x18Inventory\\V1\\GPBMetadata\xea\x02\rInventory::V1b\x06proto3"
 

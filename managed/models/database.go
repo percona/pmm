@@ -1958,7 +1958,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	// An Agent's environment label would override the Node environment once one is set.
-	agentLabels := withoutLabel(labels, nodeEnvironmentLabel)
+	agentLabels := withoutEnvironmentLabel(labels)
 
 	agent, err := createPMMAgentWithID(q, agentID, node.NodeID, agentLabels)
 	if err != nil {

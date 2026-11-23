@@ -375,7 +375,7 @@ service NodesService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change a Node"
-      description: "Changes the environment, node model, region, availability zone and custom labels of a Node. Only the fields set in the request are changed."
+      description: "Changes the environment, node model, region, availability zone and custom labels of a Node. Only the fields set in the request are changed, except that setting the environment, an empty one included, also removes an environment custom label from the Node and its Agents."
     };
   }
 }

@@ -111,7 +111,7 @@ func (a *Client) AddNode(params *AddNodeParams, opts ...ClientOption) (*AddNodeO
 /*
 ChangeNode changes a node
 
-Changes the environment, node model, region, availability zone and custom labels of a Node. Only the fields set in the request are changed.
+Changes the environment, node model, region, availability zone and custom labels of a Node. Only the fields set in the request are changed, except that setting the environment, an empty one included, also removes an environment custom label from the Node and its Agents.
 */
 func (a *Client) ChangeNode(params *ChangeNodeParams, opts ...ClientOption) (*ChangeNodeOK, error) {
 	// NOTE: parameters are not validated before sending

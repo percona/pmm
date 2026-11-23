@@ -33,14 +33,14 @@ import (
 // nodeEnvironmentLabel is the label that the Node environment sets and a custom label of that name overrides.
 const nodeEnvironmentLabel = "environment"
 
-// withoutLabel returns the labels without the named one: a copy when they have it, the labels themselves otherwise.
-func withoutLabel(labels map[string]string, name string) map[string]string {
-	if _, ok := labels[name]; !ok {
+// withoutEnvironmentLabel returns the labels without the environment one: a copy when they have it, the labels themselves otherwise.
+func withoutEnvironmentLabel(labels map[string]string) map[string]string {
+	if _, ok := labels[nodeEnvironmentLabel]; !ok {
 		return labels
 	}
 
 	res := maps.Clone(labels)
-	delete(res, name)
+	delete(res, nodeEnvironmentLabel)
 	return res
 }
 
@@ -181,6 +181,23 @@ func FindNodeByID(q *reform.Querier, id string) (*Node, error) {
 	return node, nil
 }
 
+// FindNodeByIDForUpdate finds a Node by ID and locks its row until the end of the transaction.
+func FindNodeByIDForUpdate(q *reform.Querier, id string) (*Node, error) {
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Node ID.")
+	}
+
+	row, err := q.SelectOneFrom(NodeTable, "WHERE node_id = $1 FOR UPDATE", id)
+	if errors.Is(err, reform.ErrNoRows) {
+		return nil, status.Errorf(codes.NotFound, "Node with ID %s not found.", id)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return row.(*Node), nil //nolint:forcetypeassert
+}
+
 // FindNodesByIDs finds Nodes by IDs.
 func FindNodesByIDs(q *reform.Querier, ids []string) ([]*Node, error) {
 	if len(ids) == 0 {
@@ -314,7 +331,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 	customLabels := params.CustomLabels
 	if environment != "" {
 		// A set environment replaces a custom label of the same name, which would otherwise override it.
-		customLabels = withoutLabel(customLabels, nodeEnvironmentLabel)
+		customLabels = withoutEnvironmentLabel(customLabels)
 	}
 	err = node.SetCustomLabels(customLabels)
 	if err != nil {
@@ -347,7 +364,8 @@ type ChangeNodeParams struct {
 
 // ChangeNode changes the labels of the Node with the given ID.
 func ChangeNode(q *reform.Querier, nodeID string, params *ChangeNodeParams) (*Node, error) {
-	node, err := FindNodeByID(q, nodeID)
+	// The lock keeps a concurrent change from invalidating the environment checks below.
+	node, err := FindNodeByIDForUpdate(q, nodeID)
 	if err != nil {
 		return nil, err
 	}
@@ -389,10 +407,10 @@ func ChangeNode(q *reform.Querier, nodeID string, params *ChangeNodeParams) (*No
 				return nil, err
 			}
 			if _, ok := stored[nodeEnvironmentLabel]; ok {
-				customLabels = withoutLabel(stored, nodeEnvironmentLabel)
+				customLabels = withoutEnvironmentLabel(stored)
 			}
 		} else {
-			customLabels = withoutLabel(customLabels, nodeEnvironmentLabel)
+			customLabels = withoutEnvironmentLabel(customLabels)
 		}
 
 	case node.Environment != "":
@@ -422,7 +440,7 @@ func ChangeNode(q *reform.Querier, nodeID string, params *ChangeNodeParams) (*No
 	}
 
 	if params.Environment != nil {
-		err = removeAgentsCustomLabel(q, node.NodeID, nodeEnvironmentLabel)
+		err = removeAgentsEnvironmentLabel(q, node.NodeID)
 		if err != nil {
 			return nil, err
 		}
@@ -446,33 +464,13 @@ func checkNodeRegionChange(q *reform.Querier, node *Node, region *string) error 
 	return err
 }
 
-// removeAgentsCustomLabel removes the named custom label from the Agents of the Node, as it overrides the Node's labels.
-func removeAgentsCustomLabel(q *reform.Querier, nodeID, name string) error {
-	agents, err := FindAgents(q, AgentFilters{NodeID: nodeID})
-	if err != nil {
-		return err
-	}
-
-	for _, agent := range agents {
-		labels, err := agent.GetCustomLabels()
-		if err != nil {
-			return err
-		}
-		if _, ok := labels[name]; !ok {
-			continue
-		}
-
-		err = agent.SetCustomLabels(withoutLabel(labels, name))
-		if err != nil {
-			return err
-		}
-		err = q.UpdateColumns(agent, "custom_labels", "updated_at")
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+// removeAgentsEnvironmentLabel removes the environment custom label, which overrides the Node environment, from the Node's Agents.
+func removeAgentsEnvironmentLabel(q *reform.Querier, nodeID string) error {
+	// A single statement removes only that key, so a concurrent change of the other labels is kept.
+	_, err := q.Exec(`UPDATE agents
+		SET custom_labels = NULLIF((custom_labels::jsonb - $2::text)::text, '{}'), updated_at = $3
+		WHERE node_id = $1 AND custom_labels::jsonb ? $2::text`, nodeID, nodeEnvironmentLabel, Now())
+	return err
 }
 
 // RemoveNode removes single Node.

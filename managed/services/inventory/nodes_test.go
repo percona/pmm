@@ -455,7 +455,7 @@ func TestNodes(t *testing.T) {
 		t.Cleanup(func() { teardown(t) })
 
 		node, err := ns.ChangeNode(ctx, &inventoryv1.ChangeNodeRequest{NodeId: "no-such-node", Environment: new("prod")})
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-node" not found.`), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID no-such-node not found.`), err)
 		assert.Nil(t, node)
 	})
 

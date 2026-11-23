@@ -161,6 +161,6 @@ func TestChangeNode(t *testing.T) {
 		t.Parallel()
 
 		_, err := changeNode("pmm-not-found", nodes.ChangeNodeBody{Environment: new("prod")})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Node with ID \"pmm-not-found\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Node with ID pmm-not-found not found.")
 	})
 }

@@ -293,6 +293,14 @@ func TestNodeHelpers(t *testing.T) {
 			labels, err := models.MergeLabels(node, nil, agent)
 			require.NoError(t, err)
 			assert.Equal(t, "prod", labels["environment"])
+
+			require.NoError(t, agent.SetCustomLabels(map[string]string{"environment": "pmm"}))
+			require.NoError(t, q.UpdateColumns(agent, "custom_labels"))
+			_, err = models.ChangeNode(q, "GenericNode", &models.ChangeNodeParams{Environment: new("qa")})
+			require.NoError(t, err)
+			agent, err = models.FindAgentByID(q, "node_exporter")
+			require.NoError(t, err)
+			assert.Nil(t, agent.CustomLabels)
 		})
 
 		t.Run("BlankEnvironmentIsNone", func(t *testing.T) {
@@ -341,7 +349,7 @@ func TestNodeHelpers(t *testing.T) {
 			defer teardown(t)
 
 			_, err := models.ChangeNode(q, "NoSuchNode", &models.ChangeNodeParams{Environment: new("prod")})
-			tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "NoSuchNode" not found.`), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID NoSuchNode not found.`), err)
 		})
 
 		t.Run("RemoteRDSRegionIsFixed", func(t *testing.T) {
