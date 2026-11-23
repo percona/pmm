@@ -7,14 +7,9 @@ import type { RdsExporter } from 'types/agent.types';
 import { Messages } from '../EditService.messages';
 import type { EditServiceFormValues } from '../EditService.schema';
 import { RdsAuthMode } from '../EditService.types';
+import { AUTH_MODE_OPTIONS } from './RdsCredentials.constants';
 
 const { rds } = Messages;
-
-const AUTH_MODE_OPTIONS = [
-  { value: RdsAuthMode.accessKey, label: rds.authMode.accessKey },
-  { value: RdsAuthMode.iamRole, label: rds.authMode.iamRole },
-  { value: RdsAuthMode.hostCredentials, label: rds.authMode.hostCredentials },
-];
 
 interface Props {
   exporter: RdsExporter;

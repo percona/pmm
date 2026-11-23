@@ -7,66 +7,19 @@ import {
   TextInput,
 } from '@percona/peak-ui';
 import type { FC } from 'react';
-import { type ManagedServiceType, MetricsMode } from 'types/services.types';
+import type { ManagedServiceType } from 'types/services.types';
 import { getLogLevels } from '../EditService.constants';
 import { Messages } from '../EditService.messages';
 import type { EditServiceFormValues } from '../EditService.schema';
-import type { SettingName } from '../EditService.types';
 import { SectionHeader } from '../section-header';
 import { useIsSettingShown } from '../useIsSettingShown';
+import {
+  FIELDS,
+  METRICS_MODE_OPTIONS,
+  SWITCHES,
+} from './MetricsSettings.constants';
 
 const { metrics } = Messages;
-
-const METRICS_MODE_OPTIONS = [
-  { value: MetricsMode.pull, label: metrics.pull },
-  { value: MetricsMode.push, label: metrics.push },
-];
-
-// Text and number settings, in the order the form shows them
-const FIELDS: [SettingName, string, string, boolean][] = [
-  [
-    'disableCollectors',
-    metrics.disableCollectors,
-    metrics.disableCollectorsDescription,
-    false,
-  ],
-  [
-    'tablestatsGroupTableLimit',
-    metrics.tablestatsGroupTableLimit,
-    metrics.tablestatsGroupTableLimitDescription,
-    true,
-  ],
-  [
-    'statsCollections',
-    metrics.statsCollections,
-    metrics.statsCollectionsDescription,
-    false,
-  ],
-  [
-    'collectionsLimit',
-    metrics.collectionsLimit,
-    metrics.collectionsLimitDescription,
-    true,
-  ],
-  [
-    'autoDiscoveryLimit',
-    metrics.autoDiscoveryLimit,
-    metrics.autoDiscoveryLimitDescription,
-    true,
-  ],
-  [
-    'maxExporterConnections',
-    metrics.maxExporterConnections,
-    metrics.maxExporterConnectionsDescription,
-    true,
-  ],
-];
-
-const SWITCHES: [SettingName, string][] = [
-  ['exposeExporter', metrics.exposeExporter],
-  ['enableAllCollectors', metrics.enableAllCollectors],
-  ['enableDiagnosticDataHistograms', metrics.enableDiagnosticDataHistograms],
-];
 
 interface Props {
   serviceType: ManagedServiceType;

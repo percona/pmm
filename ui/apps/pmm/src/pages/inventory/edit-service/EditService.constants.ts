@@ -1,4 +1,5 @@
 import { AgentType, LogLevel } from 'types/agent.types';
+import { NodeType } from 'types/nodes.types';
 import { ManagedServiceType } from 'types/services.types';
 import {
   QuerySource,
@@ -185,3 +186,8 @@ export const MIB = 1024 * 1024;
 export const DEFAULT_SLOWLOG_FILE_SIZE = 1024 * MIB;
 
 export const METRICS_SCHEMES = ['http', 'https'];
+
+export const CLOUD_NODE_TYPES = [
+  NodeType.remoteRds,
+  NodeType.remoteAzureDatabase,
+];

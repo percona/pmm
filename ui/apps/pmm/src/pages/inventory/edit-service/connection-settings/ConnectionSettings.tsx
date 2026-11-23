@@ -3,18 +3,13 @@ import { RadioGroup, SwitchInput, TextInput } from '@percona/peak-ui';
 import type { FC } from 'react';
 import type { ServiceAgent } from 'types/agent.types';
 import type { ManagedServiceType } from 'types/services.types';
-import { METRICS_SCHEMES } from '../EditService.constants';
 import { Messages } from '../EditService.messages';
 import type { EditServiceFormValues } from '../EditService.schema';
 import { SectionHeader } from '../section-header';
 import { useIsSettingShown } from '../useIsSettingShown';
+import { SCHEME_OPTIONS } from './ConnectionSettings.constants';
 
 const { connection, endpoint } = Messages;
-
-const SCHEME_OPTIONS = METRICS_SCHEMES.map((scheme) => ({
-  value: scheme,
-  label: scheme,
-}));
 
 // The API never returns secrets, so a blank field keeps the stored one
 const secretFieldProps = (helperText?: string) => ({

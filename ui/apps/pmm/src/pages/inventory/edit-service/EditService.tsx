@@ -7,12 +7,10 @@ import { useNode } from 'hooks/api/useNodes';
 import { useEditableService } from 'hooks/api/useServices';
 import type { FC } from 'react';
 import { useParams } from 'react-router-dom';
-import { NodeType } from 'types/nodes.types';
 import { OrgRole } from 'types/user.types';
 import { EditServiceForm } from './edit-service-form';
+import { CLOUD_NODE_TYPES } from './EditService.constants';
 import { Messages } from './EditService.messages';
-
-const CLOUD_NODE_TYPES = [NodeType.remoteRds, NodeType.remoteAzureDatabase];
 
 export const EditService: FC = () => {
   const { serviceId } = useParams();
