@@ -145,6 +145,39 @@ func addTestMySQL(ctx context.Context, t *testing.T, s *ManagementService, m *up
 	return resp.GetMysql().Service.ServiceId
 }
 
+func addTestPostgreSQL(ctx context.Context, t *testing.T, s *ManagementService, m *updateServiceMocks, pgStatMonitor bool) string {
+	t.Helper()
+
+	m.state.On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
+
+	resp, err := s.AddService(ctx, &managementv1.AddServiceRequest{
+		Service: &managementv1.AddServiceRequest_Postgresql{
+			Postgresql: &managementv1.AddPostgreSQLServiceParams{
+				NodeId:                          models.PMMServerNodeID,
+				PmmAgentId:                      models.PMMServerAgentID,
+				ServiceName:                     "postgresql-srv-1",
+				Address:                         "127.0.0.1",
+				Port:                            5432,
+				Username:                        "postgres",
+				QanPostgresqlPgstatmonitorAgent: pgStatMonitor,
+				SkipConnectionCheck:             true,
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	return resp.GetPostgresql().Service.ServiceId
+}
+
+// expectNoPGStatMonitor sets the expectations of a connection check that finds no pg_stat_monitor extension.
+func (m *updateServiceMocks) expectNoPGStatMonitor() {
+	m.cc.On("CheckConnectionToService", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
+	m.sib.On("GetInfoFromService", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once().
+		Run(func(args mock.Arguments) {
+			args.Get(3).(*models.Agent).PostgreSQLOptions.PGSMVersion = new("")
+		})
+}
+
 // serviceAgents returns the Agents of the Service by type.
 func serviceAgents(t *testing.T, q *reform.Querier, serviceID string) map[models.AgentType]*models.Agent {
 	t.Helper()
@@ -690,29 +723,9 @@ func TestUpdateService(t *testing.T) {
 
 	t.Run("PGStatMonitorFallsBackWithoutExtension", func(t *testing.T) {
 		ctx, s, m := setupUpdateService(t)
+		serviceID := addTestPostgreSQL(ctx, t, s, m, false)
 
-		m.state.On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
-		resp, err := s.AddService(ctx, &managementv1.AddServiceRequest{
-			Service: &managementv1.AddServiceRequest_Postgresql{
-				Postgresql: &managementv1.AddPostgreSQLServiceParams{
-					NodeId:              models.PMMServerNodeID,
-					PmmAgentId:          models.PMMServerAgentID,
-					ServiceName:         "postgresql-srv-1",
-					Address:             "127.0.0.1",
-					Port:                5432,
-					Username:            "postgres",
-					SkipConnectionCheck: true,
-				},
-			},
-		})
-		require.NoError(t, err)
-		serviceID := resp.GetPostgresql().Service.ServiceId
-
-		m.cc.On("CheckConnectionToService", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once()
-		m.sib.On("GetInfoFromService", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil).Once().
-			Run(func(args mock.Arguments) {
-				args.Get(3).(*models.Agent).PostgreSQLOptions.PGSMVersion = new("")
-			})
+		m.expectNoPGStatMonitor()
 		m.expectApplied()
 		updated, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
 			ServiceId: serviceID,
@@ -728,6 +741,105 @@ func TestUpdateService(t *testing.T) {
 		agents := serviceAgents(t, s.db.Querier, serviceID)
 		assert.Contains(t, agents, models.QANPostgreSQLPgStatementsAgentType)
 		assert.NotContains(t, agents, models.QANPostgreSQLPgStatMonitorAgentType)
+	})
+
+	t.Run("PGStatMonitorFallbackAddsOnePGStatStatementsAgent", func(t *testing.T) {
+		ctx, s, m := setupUpdateService(t)
+		serviceID := addTestPostgreSQL(ctx, t, s, m, false)
+
+		m.expectNoPGStatMonitor()
+		m.expectApplied()
+		_, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Postgresql{
+				Postgresql: &managementv1.UpdatePostgreSQLServiceParams{
+					QanPostgresqlPgstatementsAgent:  new(true),
+					QanPostgresqlPgstatmonitorAgent: new(true),
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		statements, err := models.FindAgents(s.db.Querier, models.AgentFilters{
+			ServiceID: serviceID,
+			AgentType: new(models.QANPostgreSQLPgStatementsAgentType),
+		})
+		require.NoError(t, err)
+		assert.Len(t, statements, 1)
+	})
+
+	t.Run("ExistingPGStatMonitorFallsBackWithoutExtension", func(t *testing.T) {
+		ctx, s, m := setupUpdateService(t)
+		serviceID := addTestPostgreSQL(ctx, t, s, m, true)
+		require.Contains(t, serviceAgents(t, s.db.Querier, serviceID), models.QANPostgreSQLPgStatMonitorAgentType)
+
+		// The new password points the Agents at a server without the extension.
+		m.expectNoPGStatMonitor()
+		m.expectApplied()
+		updated, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Postgresql{
+				Postgresql: &managementv1.UpdatePostgreSQLServiceParams{
+					Password:                        new("new_pass"),
+					QanPostgresqlPgstatmonitorAgent: new(true),
+				},
+			},
+		})
+		require.NoError(t, err)
+		assert.NotEmpty(t, updated.Warning)
+
+		agents := serviceAgents(t, s.db.Querier, serviceID)
+		assert.Contains(t, agents, models.QANPostgreSQLPgStatementsAgentType)
+		assert.NotContains(t, agents, models.QANPostgreSQLPgStatMonitorAgentType)
+	})
+
+	t.Run("PGStatMonitorFallbackNeedsAConnectionCheck", func(t *testing.T) {
+		ctx, s, m := setupUpdateService(t)
+		serviceID := addTestPostgreSQL(ctx, t, s, m, false)
+
+		// The extension was missing on the server the Service pointed to before.
+		exporter := serviceAgents(t, s.db.Querier, serviceID)[models.PostgresExporterType]
+		_, err := s.db.Exec(`UPDATE agents SET postgresql_options = jsonb_set(postgresql_options, '{pgsm_version}', '""') WHERE agent_id = $1`,
+			exporter.AgentID)
+		require.NoError(t, err)
+
+		m.expectApplied()
+		updated, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Postgresql{
+				Postgresql: &managementv1.UpdatePostgreSQLServiceParams{
+					QanPostgresqlPgstatmonitorAgent: new(true),
+					SkipConnectionCheck:             true,
+				},
+			},
+		})
+		require.NoError(t, err)
+		assert.Empty(t, updated.Warning)
+		assert.Contains(t, serviceAgents(t, s.db.Querier, serviceID), models.QANPostgreSQLPgStatMonitorAgentType)
+	})
+
+	t.Run("NameEndingWithAnID", func(t *testing.T) {
+		ctx, s, m := setupUpdateService(t)
+		serviceID := addTestMySQL(ctx, t, s, m, &managementv1.AddMySQLServiceParams{Address: "127.0.0.1", Port: 3306})
+		_, err := s.db.Exec(`UPDATE services SET service_name = $1 WHERE service_id = $2`, "mysql-"+serviceID, serviceID)
+		require.NoError(t, err)
+
+		m.expectApplied()
+		_, err = s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: "mysql-" + serviceID,
+			Service: &managementv1.UpdateServiceRequest_Mysql{
+				Mysql: &managementv1.UpdateMySQLServiceParams{Environment: new("qa")},
+			},
+		})
+		require.NoError(t, err)
+
+		_, err = s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: "00000000-0000-4000-8000-0000000000ff",
+			Service: &managementv1.UpdateServiceRequest_Mysql{
+				Mysql: &managementv1.UpdateMySQLServiceParams{Environment: new("qa")},
+			},
+		})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-0000000000ff" not found.`), err)
 	})
 
 	t.Run("ExternalListenPort", func(t *testing.T) {
@@ -810,4 +922,63 @@ func TestUpdateServiceRequestLogLevelValidation(t *testing.T) {
 	require.NoError(t, request(inventoryv1.LogLevel_LOG_LEVEL_UNSPECIFIED).Validate())
 	require.NoError(t, request(inventoryv1.LogLevel_LOG_LEVEL_DEBUG).Validate())
 	require.ErrorContains(t, request(99).Validate(), "value must be one of the defined enum values")
+}
+
+// A metrics mode outside the enum would turn push mode into pull mode without an error; the request validation refuses it.
+func TestUpdateServiceRequestMetricsModeValidation(t *testing.T) {
+	t.Parallel()
+
+	requests := map[string]func(m *managementv1.MetricsMode) *managementv1.UpdateServiceRequest{
+		"mysql": func(m *managementv1.MetricsMode) *managementv1.UpdateServiceRequest {
+			return &managementv1.UpdateServiceRequest{Service: &managementv1.UpdateServiceRequest_Mysql{
+				Mysql: &managementv1.UpdateMySQLServiceParams{MetricsMode: m},
+			}}
+		},
+		"mongodb": func(m *managementv1.MetricsMode) *managementv1.UpdateServiceRequest {
+			return &managementv1.UpdateServiceRequest{Service: &managementv1.UpdateServiceRequest_Mongodb{
+				Mongodb: &managementv1.UpdateMongoDBServiceParams{MetricsMode: m},
+			}}
+		},
+		"postgresql": func(m *managementv1.MetricsMode) *managementv1.UpdateServiceRequest {
+			return &managementv1.UpdateServiceRequest{Service: &managementv1.UpdateServiceRequest_Postgresql{
+				Postgresql: &managementv1.UpdatePostgreSQLServiceParams{MetricsMode: m},
+			}}
+		},
+		"proxysql": func(m *managementv1.MetricsMode) *managementv1.UpdateServiceRequest {
+			return &managementv1.UpdateServiceRequest{Service: &managementv1.UpdateServiceRequest_Proxysql{
+				Proxysql: &managementv1.UpdateProxySQLServiceParams{MetricsMode: m},
+			}}
+		},
+		"haproxy": func(m *managementv1.MetricsMode) *managementv1.UpdateServiceRequest {
+			return &managementv1.UpdateServiceRequest{Service: &managementv1.UpdateServiceRequest_Haproxy{
+				Haproxy: &managementv1.UpdateHAProxyServiceParams{MetricsMode: m},
+			}}
+		},
+		"external": func(m *managementv1.MetricsMode) *managementv1.UpdateServiceRequest {
+			return &managementv1.UpdateServiceRequest{Service: &managementv1.UpdateServiceRequest_External{
+				External: &managementv1.UpdateExternalServiceParams{MetricsMode: m},
+			}}
+		},
+		"valkey": func(m *managementv1.MetricsMode) *managementv1.UpdateServiceRequest {
+			return &managementv1.UpdateServiceRequest{Service: &managementv1.UpdateServiceRequest_Valkey{
+				Valkey: &managementv1.UpdateValkeyServiceParams{MetricsMode: m},
+			}}
+		},
+	}
+
+	for name, build := range requests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			request := func(mode managementv1.MetricsMode) *managementv1.UpdateServiceRequest {
+				r := build(&mode)
+				r.ServiceId = "service-id"
+				return r
+			}
+
+			require.NoError(t, request(managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED).Validate())
+			require.NoError(t, request(managementv1.MetricsMode_METRICS_MODE_PUSH).Validate())
+			require.ErrorContains(t, request(99).Validate(), "value must be one of the defined enum values")
+		})
+	}
 }

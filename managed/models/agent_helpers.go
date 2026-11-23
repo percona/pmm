@@ -266,6 +266,8 @@ type AgentFilters struct {
 	IgnoreNomad bool
 	// Disabled indicates whether to filter by disabled status.
 	Disabled *bool
+	// ForUpdate locks the returned rows until the end of the transaction.
+	ForUpdate bool
 }
 
 // decryptAgents decrypts Agent rows as returned by reform.
@@ -362,7 +364,11 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	if len(conditions) != 0 {
 		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
-	structs, err := q.SelectAllFrom(AgentTable, whereClause+" ORDER BY agent_id", args...)
+	tail := whereClause + " ORDER BY agent_id"
+	if filters.ForUpdate {
+		tail += " FOR UPDATE"
+	}
+	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
 	if err != nil {
 		return nil, err
 	}
