@@ -13,6 +13,14 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✨ Release highlights
 
+### Alert on slow queries with Query Analytics data
+
+In addition to alerting you about server and database health based on the metrics it collects, PMM can now also alert you about query performance, based on the query data you see in Query Analytics.
+
+The new built-in [**QAN slow queries**](../alert/templates_list.md#qan_alerts) template covers the most common case: it alerts you when the slowest query on a MySQL, PostgreSQL or MongoDB service runs longer than 10 seconds.
+
+To get started, [set up alerts on Query Analytics data](../alert/alert_rules.md#set-up-query-performance-alerts) using the built-in template or your own.
+
 ### Smarter Advisors that run on schedule, email results and suggest fixes
 
 You no longer need to open PMM to find out what Advisors found. [Schedule checks](../advisors/schedule-advisor-checks.md) to run when it suits your team, on the services that matter to you, and PMM can [email you a report](../advisors/advisors.md#get-advisor-results-by-email) after each run.
@@ -36,6 +44,31 @@ Upgrading to PMM 3.11.0 changes your existing Advisor settings, dashboards and A
     - `GET /v1/advisors/checks` instead of `GET /v1/advisors`
     - `GET /v1/advisors/insights` instead of `GET /v1/advisors/failedServices` and `GET /v1/advisors/checks/failed`
     - The `/v1/advisors/schedules` endpoints instead of the `advisor_run_intervals` setting and the `interval` field of checks
+
+#### Smarter Advisor checks for database versions
+
+When a database needs an upgrade, Advisors now give you one clear finding instead of several overlapping ones. The separate checks for newer versions, end of life and known vulnerabilities are replaced with a single version check for each database: [MySQL version check](../advisors/checks/mysql-version.md), [MongoDB version check](../advisors/checks/mongodb-version.md) and [PostgreSQL version check](../advisors/checks/postgresql-version-check.md).
+
+Each check tells you whether a newer version is available, and whether your current version has reached end of life (EOL) or reaches it within six months. The finding also explains why an upgrade matters and gives you what you need to plan it, such as what changes in the newer version, how long your current version is supported, or which security fixes your version is missing. This release also fixes six other MongoDB and PostgreSQL checks that failed or gave wrong results on default setups.
+
+##### What to expect after you upgrade
+
+After you upgrade to PMM 3.11.0, you will see fewer version checks in **Advisors > Catalog**  and new errors in **Advisors > Insights**:
+
+- Databases on a version that reached EOL in recent years now show an error. The old checks used outdated EOL dates, so they missed these versions:
+    - MySQL 8.0, including Percona Server for MySQL and Percona XtraDB Cluster 8.0
+    - MongoDB 5.0, 6.0 and 8.2
+    - PostgreSQL 11 to 14
+    - MariaDB 10.6
+    - Amazon RDS for MySQL versions past standard support, as "end of standard support"
+    - MongoDB 4.4 and PostgreSQL 10 and older, which showed a warning until now
+- Eight older version checks are removed, and the new check for the same database replaces them:
+    - `mongodb_EOL`, `mongodb_cve_version` and `mongodb_unsupported_version`: replaced by the **MongoDB version check**
+    - `mysql_unsupported_version_check` and `mysql_version_eol_57`: replaced by the **MySQL version check**
+    - `postgresql_cve_check`, `postgresql_eol_check` and `postgresql_unsupported_check`: replaced by the **PostgreSQL version check**
+
+    If you turned off one of these checks, turn off its replacement instead. For example, if you turned off `mongodb_EOL` to stop end-of-life findings for a MongoDB version that you plan to keep, turn off the **MongoDB version check**.
+- `mongodb_cve_version` and `postgresql_cve_check` listed specific vulnerabilities (CVEs), but their lists were no longer kept up to date. Instead, when your version is missing security fixes, all three version checks tell you and link to the vendor's security page, where you can see which vulnerabilities affect your version.
 
 ### Inventory page now in native PMM UI
 
@@ -81,6 +114,23 @@ To fix the vulnerability, upgrade to a ClickHouse version that includes the fix.
     - PMM HA: [upgrade the `pmm-ha` Helm chart](../pmm-upgrade/upgrade_helm_ha.md) to version 1.9.0, which installs PMM 3.11.0 and includes ClickHouse Altinity Stable 26.3.60.10002. The upgrade restarts the ClickHouse and ClickHouse Keeper pods one at a time, and Query Analytics keeps collecting data.
     - PMM with an external ClickHouse: upgrade your ClickHouse to a fixed release, such as 26.3.62.3 or a later 26.3 release. To find the fixed release for your version, check the [ClickHouse security changelog](https://clickhouse.com/docs/resources/changelogs/security-changelog).
 
+### nginx HTTP/2 memory corruption ([CVE-2026-123007](https://nvd.nist.gov/vuln/detail/CVE-2026-123007), [CVE-2026-123633](https://nvd.nist.gov/vuln/detail/CVE-2026-123633))
+
+[PMM-15947](https://perconadev.atlassian.net/browse/PMM-15947): Critical severity. PMM Server uses nginx for all connections to the PMM UI and API. An unauthenticated attacker who can reach PMM Server over HTTP or HTTPS could crash nginx, which makes PMM unavailable, or potentially run code on PMM Server.
+
+#### Affected installations
+
+All PMM Server deployments of PMM 3.10.0 and earlier. The risk depends on who can reach PMM Server over HTTP or HTTPS:
+
+- PMM Server reachable only from trusted networks: lower risk.
+- PMM Server reachable from untrusted networks or the internet: upgrade as soon as possible.
+
+#### How to fix
+
+[Upgrade to PMM 3.11.0](../pmm-upgrade/index.md). It includes nginx 1.30.7, which has the fixes from the [nginx security advisories](https://nginx.org/en/security_advisories.html). PMM Server now gets nginx from the nginx.org stable repository, because fixed Oracle Linux packages weren't available when this release was built.
+
+Until you upgrade, allow connections to PMM Server only from trusted networks.
+
 ### Go standard library HTTP/1 server crash ([CVE-2026-97054](https://nvd.nist.gov/vuln/detail/CVE-2026-97054))
 
 Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by rebuilding on Go 1.27.4.
@@ -97,6 +147,8 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 ## 📈 Improvements
 
+- [PMM-15193](https://perconadev.atlassian.net/browse/PMM-15193): The **Expression** panel on the **Alerts > Status** page now shows each step of an alert rule, including the query it runs and the step that fires the alert, so you can see why an alert fired.
+- [PMM-14023](https://perconadev.atlassian.net/browse/PMM-14023): Users with basic authentication can no longer set weak passwords. New and changed passwords need at least 12 characters, with uppercase and lowercase letters, a digit and a symbol. Existing passwords keep working until you change them. If your scripts create users or change passwords, for example with `change-admin-password`, [update them to use passwords that meet the requirements](../admin/manage-users/add_users.md#password-requirements).
 - [PMM-15239](https://perconadev.atlassian.net/browse/PMM-15239): The **Alert Status** page now groups alert severities into four bands: **Critical**, **Error**, **Warning** and **Info**. Each band has its own icon and label, so you can tell severities apart without relying on color. The **Severity** filter and sort work by band, and the alert details show the original level, for example **Reported as Emergency**. Alert labels stay the same. For how levels map to bands, see [Alert rules](../alert/alert_rules.md).
 - [PMM-15805](https://perconadev.atlassian.net/browse/PMM-15805): The **Services** tab on **MongoDB > Operations > Fleet** now shows why a service is failing. The **Collected** column shows the reason, for example **Database unreachable**, and the service details show the full error, what to do about it, and a link to the scan that failed. A **Down** service whose `mongod` or `mongos` wasn't running at its last scan shows **not running**. The **Clusters** tab now warns when scan results can't be read. For details, see [Operations for MongoDB](../use/mongodb-operations.md#scans).
 - [PMM-14109](https://perconadev.atlassian.net/browse/PMM-14109): Advisors now email a report after each run, keep a history of insights and runs, [run checks on schedules](#smarter-advisors-that-run-on-schedule-email-results-and-suggest-fixes) instead of fixed intervals, and support custom checks. The upgrade removes the run intervals and some Advisor API endpoints, and enables every check again.
@@ -105,33 +157,36 @@ To find the affected endpoints and update your automation, [check the PMM API re
 - [PMM-15484](https://perconadev.atlassian.net/browse/PMM-15484): Added the **Failing Backup Agents** table to the [MongoDB Backup Details](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) dashboard. It lists only the PBM agents in **FAIL** or **DOWN** state.
 - [PMM-15699](https://perconadev.atlassian.net/browse/PMM-15699): **MongoDB > Operations** now calls PMM Extensions as the signed-in user, so PMM Extensions applies that user's role and records configuration changes under their name. API requests for nodes, scans, installs and settings must authenticate with a service account token or a PMM session. A request with a username and password gets `401 Unauthenticated`. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15825](https://perconadev.atlassian.net/browse/PMM-15825): Every signed-in PMM user can now open **MongoDB > Operations**. Viewers and Editors see every page except the install form. They can't scan nodes, start or abort installs, remove node entries, or change settings: those controls are disabled or hidden for them. Starting a scan now requires the Admin role, as installs already did. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
+- [PMM-15797](https://perconadev.atlassian.net/browse/PMM-15797): **MongoDB > Operations** now installs MongoDB only onto OS releases that Percona supports for the chosen version: MongoDB 7.0 onto Ubuntu 22.04 and 24.04 and Rocky Linux 8 and 9, and MongoDB 8.0 onto those and Rocky Linux 10. The **Nodes** page and the install form block a node on any other release, such as Ubuntu 20.04, and name the supported releases. The install form offers only the versions that every selected node supports. Before, an install onto Ubuntu 20.04 put an old MongoDB build on the node, and MongoDB 7.0 on Rocky Linux 10 failed partway through. For details, see [Operations for MongoDB](../use/mongodb-operations.md#check-nodes).
 - [PMM-15846](https://perconadev.atlassian.net/browse/PMM-15846): The execution history of PMM Extensions apps, such as **MySQL Backups**, now shows a warning icon beside the status of a finished run whose logs were partly or wholly lost before PMM could store them, so you can spot it without opening the run. Hover over or tab to the icon for details. For more on task logs, see [Monitor backups](../apps/mysql-backup.md#monitor-backups).
+- [PMM-15891](https://perconadev.atlassian.net/browse/PMM-15891): PMM Server now makes it easier to keep passwords private. It copies the passwords and Grafana secret key from your environment variables to files that only it can read, so they're no longer in its service environments or configuration files. To also hide them from the container settings, for example in `docker inspect`, you can now [provide them in files](../admin/security/credentials_as_files.md) instead of environment variables.
+
+    To make sure that PMM Server starts after the upgrade, check your database passwords for spaces or line breaks at the start or end, and [remove them before you upgrade](../admin/security/credentials_as_files.md#remove-whitespace-from-database-passwords).
 
 - [PMM-15806](https://perconadev.atlassian.net/browse/PMM-15806): You can now search the **Clusters** tab on **MongoDB > Operations > Fleet** by cluster name and filter it by **Health**, **Type**, and **Environment**. The search and filters are saved in the page URL, so you can share a filtered view. Each cluster shows its type next to its name. The column chooser also adds optional **Type**, **Last seen**, **Max CPU**, and **Min conn. free** columns. For details, see [Operations for MongoDB](../use/mongodb-operations.md#view-fleet-health).
 
 ## ✅ Fixed issues
 
+- [PMM-15785](https://perconadev.atlassian.net/browse/PMM-15785): Fixed an issue in PMM High Availability setups where the [PMM Query Analytics](../use/qan/index.md) dashboard could miss queries or show changing totals. This could happen after installation, a pod restart, or a restore, when the ClickHouse servers that store QAN data ended up with mismatched copies of the data. PMM now checks the copies every 10 minutes and keeps the one with the most data. Data that exists only in the other copies is deleted. You can [check whether your installation is affected](../troubleshoot/ha_issues.md#query-analytics-shows-different-data-on-different-pmm-nodes) and see how much data PMM removed.
 - [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339): Fixed an issue where [turning on Grafana anonymous access](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#supported-external-variables) also let visitors who aren't signed in use PMM features such as Query Analytics. These visitors can now open only your dashboards.
-
 - [PMM-15654](https://perconadev.atlassian.net/browse/PMM-15654): Fixed the [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard hiding clusters added without `--environment` when **Environment** is set to **All** and another MongoDB service has an environment set. These clusters now appear under **All**.
-
 - [PMM-15801](https://perconadev.atlassian.net/browse/PMM-15801): Fixed an arbiter added to PMM showing no member state and **mongod** as its process on **MongoDB > Operations > Fleet**. An arbiter now shows **Arbiter** as its process, and **ARBITER** as its member state while it is running. The cluster's **Process** summary counts it as an arbiter. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
-
 - [PMM-15776](https://perconadev.atlassian.net/browse/PMM-15776): Fixed misleading help on **MongoDB > Operations > Settings**. **Connect to MongoDB** now says that scans log in with the `.mongodb_uri` file in the home directory of the user pmm-agent runs as, not with the monitoring credentials PMM holds. For details, see [Operations for MongoDB](../use/mongodb-operations.md#provide-mongodb-credentials-for-scans).
-
 - [PMM-15845](https://perconadev.atlassian.net/browse/PMM-15845): Fixed an issue where forms in PMM Extensions apps checked some rules that involve several fields only after you submitted the form, and then showed the error in a banner without marking a field. These rules are now checked while you fill in the form. For example, in **Apps > MySQL Backups**, choosing a GPG **Encryption format** with neither **Encrypt backup** nor **Encrypt after backup completes** turned on shows the error on both switches, and the backup isn't created until you fix it. For details, see [Encrypt backups](../apps/mysql-backup.md#encrypt-backups).
-
-- [PMM-18742](https://perconadev.atlassian.net/browse/PMM-18742): Updated the Grafana ClickHouse data source plugin to v4.23.4, built with Go 1.27.3. This fixes the high-severity Go vulnerabilities that image scanners reported in v4.21.3, including [CVE-2026-78669](https://nvd.nist.gov/vuln/detail/CVE-2026-78669) and the standard library findings listed in the [PMM 3.10.0 release notes](3.10.0.md#go-standard-library-vulnerabilities-in-the-clickhouse-data-source).
-
+- [PMM-18742](https://perconadev.atlassian.net/browse/PMM-18742): Updated the Grafana ClickHouse data source plugin to v4.23.5, built with Go 1.27.3. This fixes the high-severity Go vulnerabilities that image scanners reported in v4.21.3, including [CVE-2026-78669](https://nvd.nist.gov/vuln/detail/CVE-2026-78669), [CVE-2026-78661](https://nvd.nist.gov/vuln/detail/CVE-2026-78661) and the standard library findings listed in the [PMM 3.10.0 release notes](3.10.0.md#go-standard-library-vulnerabilities-in-the-clickhouse-data-source).
 - [PMM-18742](https://perconadev.atlassian.net/browse/PMM-18742): Updated [Nomad](../reference/nomad.md) to 2.1.1, which fixes [CVE-2026-78669](https://nvd.nist.gov/vuln/detail/CVE-2026-78669) and the `go-jose/v4` finding for [CVE-2026-116587](https://nvd.nist.gov/vuln/detail/CVE-2026-116587). Security scanners still report CVE-2026-116587 for Nomad's `go-jose/v3`, which has no fixed release.
-
+- [PMM-15947](https://perconadev.atlassian.net/browse/PMM-15947): Updated nginx in PMM Server from 1.26.3 to 1.30.7. This fixes [CVE-2026-123007](https://nvd.nist.gov/vuln/detail/CVE-2026-123007) and [CVE-2026-123633](https://nvd.nist.gov/vuln/detail/CVE-2026-123633) in HTTP/2 handling, and the other vulnerabilities that the [nginx security advisories](https://nginx.org/en/security_advisories.html) list as fixed in 1.30.7. PMM Server now gets nginx from the nginx.org stable repository instead of the Oracle Linux packages. For the versions of bundled components, see [PMM components and versions](../reference/pmm_components_and_versions.md).
 - [PMM-15772](https://perconadev.atlassian.net/browse/PMM-15772): Fixed an issue where you couldn't turn on Operations for MongoDB until you connected PMM Server to PMM Extensions manually. PMM Server now connects to PMM Extensions automatically. If you set `PMM_EXTENSIONS_URL`, `PMM_EXTENSIONS_TOKEN` and `EXTENSIONS_INTERNAL_TOKEN` for PMM 3.10.0, they keep working. If PMM still can't use PMM Extensions, turning on Operations for MongoDB now says why, for example that PMM Extensions is unreachable or rejects PMM's token. For details, see [Operations for MongoDB](../use/mongodb-operations.md#prepare-pmm-server).
-
 - [PMM-15860](https://perconadev.atlassian.net/browse/PMM-15860): Fixed **Automatic node scans** in **MongoDB > Operations > Settings** blocking **Scan** and **Scan all** on the **Nodes** page, and PMM turning automatic scans back on when it restarted. Turning off **Automatic node scans** now stops only the scans PMM starts on its own: the scheduled scans, the scan after each restart, and the scan when Operations for MongoDB is turned on. The setting stays off until you turn it back on. For details, see [Operations for MongoDB](../use/mongodb-operations.md#stop-automatic-scans).
-
 - [PMM-15559](https://perconadev.atlassian.net/browse/PMM-15559): Fixed an issue where the **Netstat: TCP** panel on the [Network Details](../reference/dashboards/dashboard-network-details.md) dashboard showed ever-growing totals instead of current activity. The panel now shows new connections, resets, and retransmits per second, so you can quickly spot spikes. Currently open connections are now shown on a separate scale on the right side of the chart, so you can compare them with new connections, resets, and retransmits.
-
 - [PMM-15910](https://perconadev.atlassian.net/browse/PMM-15910): Fixed an issue where PMM Server could stay unhealthy after an abrupt stop, for example `docker kill`, a host crash or running out of memory. The built-in PostgreSQL database refused to start because of lock files left over from the previous run. PMM Server now removes these files when it starts.
+- [PMM-15918](https://perconadev.atlassian.net/browse/PMM-15918): Fixed an issue where PMM Server didn't start after you added your own SSL certificates with the `pmm` or `pmm-ha` Helm chart, or mounted them read-only on Docker. You can now [mount your certificates](../admin/security/ssl_encryption.md#mount-certificates) without making the certificate directory owned by PMM Server.
+
+- [PMM-15828](https://perconadev.atlassian.net/browse/PMM-15828): Fixed several MongoDB dashboard panels that showed wrong values or ignored the **Environment** and **Cluster** filters. In [MongoDB Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md), **Chunk distribution** no longer under-reports shards when the cluster has more than one `mongos` router, **Chunks Move Events** and **Chunks Split Events** show the number of events in the last 10 minutes, and **MongoDB Versions** lists only members of the selected cluster. In [MongoDB ReplSet Summary](../reference/dashboards/dashboard-mongodb-replset-summary.md), **Query Efficiency** and **DBs** show correct values. Collection panels on both dashboards now exclude the `admin` and `config` databases. In [MongoDB Instances Overview](../reference/dashboards/dashboard-mongodb-instances-overview.md), **Availability** shows 0% instead of no data for a replica set that never had a primary, and **Time Since Election** follows the dashboard filters. [MongoDB MMAPv1 Details](../reference/dashboards/dashboard-mongodb-mmapv1-details.md) now lists MMAPv1 services in its service selector.
+
+- [PMM-15706](https://perconadev.atlassian.net/browse/PMM-15706): Fixed Advisor checks that used outdated end-of-life (EOL) dates and missed some [database versions that no longer get fixes](#smarter-advisor-checks-for-database-versions). Also fixed six checks that failed or gave wrong results on default setups: the MongoDB [multiple mongod services](../advisors/checks/multiple-mongod-running-in-a-node.md), [swap memory](../advisors/checks/mongodb-swap-allocation.md), [journal](../advisors/checks/mongodb-journal.md), [log level](../advisors/checks/mongodb-log-messages.md) and [maxSessions](../advisors/checks/mongodb-maxSessions.md) checks, and the PostgreSQL [WAL file accumulation](../advisors/checks/postgresql-wal-retention-check.md) check.
+
+- [PMM-15883](https://perconadev.atlassian.net/browse/PMM-15883): Fixed an issue where the [Query Analytics overview](../use/qan/panels/overview.md) table could show results that didn't match the current search, filters or time range when you changed them quickly, for example by changing the time range and then searching before the table reloaded. The table now always shows the results for your latest search, filters and time range, and keeps loading until those results arrive.
 
 ## 🔶 Known issues
 

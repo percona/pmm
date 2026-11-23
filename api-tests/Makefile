@@ -83,7 +83,9 @@ docker-build-image: ## Build Docker image with tests
 	-t $(DOCKER_IMAGE) $(CURDIR)/..
 	@echo "✅ Docker image '$(DOCKER_IMAGE)' built successfully."
 
+# The container outlives the run so CI can copy the JUnit report out of it.
 docker-run-tests: guard-PMM_SERVER_URL ## Run tests inside Docker container
+	@docker rm -f api-tests >/dev/null 2>&1 || true
 	docker run \
 	-e PMM_SERVER_URL=$(PMM_SERVER_URL) \
 	-e PMM_SERVER_INSECURE_TLS=$(PMM_SERVER_INSECURE_TLS) \
