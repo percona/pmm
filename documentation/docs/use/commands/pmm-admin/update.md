@@ -72,13 +72,13 @@ pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --dry-run
 
 ## Examples
 
-- Collect statistics from all collections and stop the `collstats` collector of a MongoDB service:
+- Remove the limit on the number of monitored collections and turn off the `collstats` collector of a MongoDB service:
 
     ```bash
     pmm-admin update mongodb mongodb-prod --max-collections-limit=0 --disable-collectors=collstats
     ```
 
-    The output lists what changed on the server, each setting as the flag that sets it, followed by all current settings. A value that you pass but that equals the stored one isn't listed, and if nothing changed, the output says `No settings changed.` Secrets show as `***`, and a changed secret or certificate file shows as `(new value)`. The following output is shortened:
+    The output lists what changed on the server, each setting as the flag that sets it, followed by all current settings. A value that you pass but that equals the stored one isn't listed, and if nothing changed, the output says `No settings changed.` Secrets show as `***`. A password or certificate file that you pass is always listed, as `(new value)`, even if it equals the stored one, because the output can't compare secrets. The following output is shortened:
 
     ```text
     MongoDB Service updated.
@@ -150,7 +150,7 @@ PMM rejects the change while a backup or a restore is running in the current or 
 
 ## Use update in scripts
 
-With `--json`, `pmm-admin update` prints the result as JSON. The `changed` field tells whether any setting changed, and `changes` lists each changed setting with its previous and new value:
+With `--json`, `pmm-admin update` prints the result as JSON. The `changed` field tells whether any setting changed, and `changes` lists each changed setting with its previous and new value. A password or certificate file that you pass always counts as a change, even if it equals the stored one:
 
 ```bash
 pmm-admin update mysql mysql-prod --log-level=info --json
