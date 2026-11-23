@@ -17,6 +17,8 @@ package commands
 import (
 	"strconv"
 	"time"
+
+	"github.com/alecthomas/kong"
 )
 
 // DurationString returns the string representation of a duration flag.
@@ -26,4 +28,20 @@ func DurationString(value *time.Duration) string {
 	}
 
 	return strconv.FormatFloat(value.Seconds(), 'f', -1, 64) + "s"
+}
+
+// TypedFlags returns the names of the flags and positional arguments given on the command line,
+// as opposed to having their default values.
+func TypedFlags(ctx *kong.Context) map[string]bool {
+	names := make(map[string]bool)
+	for _, p := range ctx.Path {
+		switch {
+		case p.Flag != nil:
+			names[p.Flag.Name] = true
+		case p.Positional != nil:
+			names[p.Positional.Name] = true
+		}
+	}
+
+	return names
 }
