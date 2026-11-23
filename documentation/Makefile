@@ -30,7 +30,7 @@ doc-build-image:    ## Build perconalab/pmm-doc-md:latest image
 	# @docker buildx build --platform=linux/amd64 --progress=plain -t perconalab/pmm-doc-md:latest -f documentation/resources/Dockerfile.build .
 
 doc-build-preview:  ## Build documentation and preview at http://localhost:8000
-	docker run --rm --platform=linux/amd64 -p 8000:8000 -v $(DIR):/docs -w /build perconalab/pmm-doc-md:latest \
+	docker run --rm --platform=linux/amd64 -p 8000:8000 -v $(DIR):/docs -w /build -e LLMS_TXT=false perconalab/pmm-doc-md:latest \
 	  bash -c " \
 			cp -r /docs/* /build/ && \
 			git init && \

@@ -4,18 +4,25 @@ INHERIT: mkdocs-base.yml
 site_url: https://docs.percona.com/percona-monitoring-and-management/
 
 # Added to the plugins in mkdocs-base.yml. They are here, not there, so that
-# mkdocs-pdf.yml doesn't load them: the PDF has no use for them, and the
-# perconalab/pmm-doc-md image used by `make doc-build-pdf-old` doesn't have them.
+# mkdocs-pdf.yml doesn't load them: the PDF has no use for them.
+#
+# They are in a group so that `make doc-build-preview` can turn them off
+# (LLMS_TXT=false): its perconalab/pmm-doc-md image has Python 3.8 and doesn't
+# have them, and percona-llmstxt needs Python 3.11+. They are on by default, so
+# the published site has them.
 plugins:
-  # llms.txt, llms-full.txt and a .md copy of every page, for AI agents.
-  # percona-llmstxt fills in the sections (from nav), base_url and the rest.
-  llmstxt:
-    full_output: llms-full.txt
-    markdown_description: >-
-      Each page below is also available as markdown. For the documentation of
-      all Percona products, see https://docs.percona.com/llms.txt.
-    sections: {}
-  percona-llmstxt: {}
+  group:
+    enabled: !ENV [LLMS_TXT, true]
+    plugins:
+      # llms.txt, llms-full.txt and a .md copy of every page, for AI agents.
+      # percona-llmstxt fills in the sections (from nav), base_url and the rest.
+      llmstxt:
+        full_output: llms-full.txt
+        markdown_description: >-
+          Each page below is also available as markdown. For the documentation of
+          all Percona products, see https://docs.percona.com/llms.txt.
+        sections: {}
+      percona-llmstxt: {}
 
 # Google Analytics configuration
 extra:
