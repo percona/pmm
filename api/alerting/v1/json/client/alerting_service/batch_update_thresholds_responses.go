@@ -422,8 +422,8 @@ type BatchUpdateThresholdsDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// batch update thresholds default body details items0
-	BatchUpdateThresholdsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// batch update thresholds default body details items0 additional properties
+	BatchUpdateThresholdsDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -458,7 +458,7 @@ func (o *BatchUpdateThresholdsDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 			}
 			result[k] = toadd
 		}
-		o.BatchUpdateThresholdsDefaultBodyDetailsItems0 = result
+		o.BatchUpdateThresholdsDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -479,12 +479,12 @@ func (o BatchUpdateThresholdsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, er
 		return nil, err
 	}
 
-	if len(o.BatchUpdateThresholdsDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.BatchUpdateThresholdsDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.BatchUpdateThresholdsDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.BatchUpdateThresholdsDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

@@ -201,7 +201,8 @@ type TriggerHostBootstrapBody struct {
 
 	// The MongoDB version to install, e.g. "7.0.8". Only the major version
 	// selects the install source; PSMDB does not ship parallel repos per minor
-	// version.
+	// version. Every node's OS release has to support it, as each node's
+	// InventoryHost.supported_mongodb_versions lists.
 	MongodbVersion string `json:"mongodb_version,omitempty"`
 
 	// The monitoring environment to label the resulting service with, same free-form
@@ -455,8 +456,8 @@ type TriggerHostBootstrapDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// trigger host bootstrap default body details items0
-	TriggerHostBootstrapDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// trigger host bootstrap default body details items0 additional properties
+	TriggerHostBootstrapDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -491,7 +492,7 @@ func (o *TriggerHostBootstrapDefaultBodyDetailsItems0) UnmarshalJSON(data []byte
 			}
 			result[k] = toadd
 		}
-		o.TriggerHostBootstrapDefaultBodyDetailsItems0 = result
+		o.TriggerHostBootstrapDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -512,12 +513,12 @@ func (o TriggerHostBootstrapDefaultBodyDetailsItems0) MarshalJSON() ([]byte, err
 		return nil, err
 	}
 
-	if len(o.TriggerHostBootstrapDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.TriggerHostBootstrapDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.TriggerHostBootstrapDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.TriggerHostBootstrapDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

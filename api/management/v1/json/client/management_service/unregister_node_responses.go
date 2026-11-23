@@ -309,8 +309,8 @@ type UnregisterNodeDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// unregister node default body details items0
-	UnregisterNodeDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// unregister node default body details items0 additional properties
+	UnregisterNodeDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -345,7 +345,7 @@ func (o *UnregisterNodeDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 			}
 			result[k] = toadd
 		}
-		o.UnregisterNodeDefaultBodyDetailsItems0 = result
+		o.UnregisterNodeDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -366,12 +366,12 @@ func (o UnregisterNodeDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.UnregisterNodeDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.UnregisterNodeDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.UnregisterNodeDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.UnregisterNodeDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

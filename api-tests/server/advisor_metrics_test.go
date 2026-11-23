@@ -74,7 +74,7 @@ func TestAdvisorMetrics(t *testing.T) {
 		}
 
 		for _, tc := range testCases {
-			result, _, err := promClient.Query(context.Background(),
+			result, _, _, err := promClient.Query(context.Background(),
 				tc.query, time.Now())
 
 			var actualValues []string

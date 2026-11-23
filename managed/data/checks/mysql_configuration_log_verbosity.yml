@@ -4,10 +4,9 @@ checks:
     name: mysql_configuration_log_verbosity
     summary: Check log verbosity
     description: Checks that warnings are being printed on the log
-    family: MYSQL
-    #author: Carlos
-    advisor: configuration_generic
-    interval: standard
+    technology: MYSQL
+    # author: Carlos Tutte
+    category: Logging
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES

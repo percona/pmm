@@ -22,11 +22,19 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import {
+  MemoryRouter,
+  RouterProvider,
+  createMemoryRouter,
+} from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
 import { FleetServicesTab } from '../src/FleetServicesTab';
-import { FLEET_NOT_COLLECTED } from '../src/constants';
+import {
+  FLEET_NOT_COLLECTED,
+  OPERATIONS_DOC_URL,
+  SERVICE_SCAN_ERROR_KIND,
+} from '../src/constants';
 import type {
   OmInventoryService,
   OmServiceStatus,
@@ -213,6 +221,100 @@ describe('FleetServicesTab', () => {
     expect(empty).not.toHaveTextContent('PMM has no MongoDB services');
   });
 
+  it('keeps the failing filter in the URL, beside the other parameters', async () => {
+    serve(ordersEstate());
+    scanned(null);
+    const router = createMemoryRouter(
+      [{ path: '/fleet', element: <FleetServicesTab /> }],
+      { initialEntries: ['/fleet?tab=services&services.f.failing=true'] }
+    );
+    render(<RouterProvider router={router} />);
+
+    expect(screen.getByTestId('om-empty-state')).toHaveTextContent(
+      'No service is failing a scan right now'
+    );
+
+    fireEvent.click(screen.getByText('0 failing a scan'));
+    expect(screen.queryByTestId('om-empty-state')).toBeNull();
+    await waitFor(() =>
+      expect(router.state.location.search).toBe('?tab=services')
+    );
+
+    expect(router.state.historyAction).toBe('REPLACE');
+  });
+
+  it('never shows the failing filter column', () => {
+    serve(ordersEstate());
+    scanned('2026-10-06T09:00:00Z');
+    renderTab();
+
+    expect(
+      screen.queryByRole('columnheader', { name: /Failing a scan/ })
+    ).toBeNull();
+  });
+
+  it('opens a failing link without the column filter row', () => {
+    serve(ordersEstate());
+    scanned('2026-10-06T09:00:00Z');
+    render(
+      <MemoryRouter initialEntries={['/?services.f.failing=true']}>
+        <FleetServicesTab />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByPlaceholderText(/^Filter by/)).toBeNull();
+  });
+
+  it('writes the failing filter as a peak-ui column filter', async () => {
+    serve(ordersEstate());
+    scanned('2026-10-06T09:00:00Z');
+    const router = createMemoryRouter(
+      [{ path: '/fleet', element: <FleetServicesTab /> }],
+      { initialEntries: ['/fleet?tab=services'] }
+    );
+    render(<RouterProvider router={router} />);
+
+    fireEvent.click(screen.getByText('1 failing a scan'));
+
+    await waitFor(() =>
+      expect(router.state.location.search).toBe(
+        '?tab=services&services.f.failing=true'
+      )
+    );
+  });
+
+  it.each([
+    ['unavailable', { data: undefined, isPending: false, isError: true }],
+    ['pending', { data: undefined, isPending: true, isError: false }],
+  ])(
+    'shows every service on a failing link while scan status is %s',
+    (_, inventory) => {
+      serve(ordersEstate());
+      useOmInventoryServices.mockReturnValue(inventory);
+      render(
+        <MemoryRouter initialEntries={['/?services.f.failing=true']}>
+          <FleetServicesTab />
+        </MemoryRouter>
+      );
+
+      expect(screen.queryByTestId('om-empty-state')).toBeNull();
+      expect(rowFor('orders-1')).toBeDefined();
+      expect(rowFor('orders-2')).toBeDefined();
+    }
+  );
+
+  it('ignores a failing value it does not know', () => {
+    serve(ordersEstate());
+    scanned(null);
+    render(
+      <MemoryRouter initialEntries={['/?services.f.failing=yes']}>
+        <FleetServicesTab />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByTestId('om-empty-state')).toBeNull();
+  });
+
   it('puts the local collection time and zone on the Collected hover', () => {
     const collected = new Date(Date.now() - 3 * 60 * 1000).toISOString();
     // Every fixture service shares service_id 30, so this one row of inventory joins
@@ -235,5 +337,297 @@ describe('FleetServicesTab', () => {
       'title',
       `${new Date(collected).toLocaleString()} (${browserTimezone()})`
     );
+  });
+  describe('Group by (PMM-15712)', () => {
+    const groupBy = (label: string) => {
+      fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Group by' }));
+      fireEvent.click(screen.getByRole('option', { name: label }));
+    };
+
+    it('opens flat, with no drag-to-group handle on any column header', () => {
+      renderTab();
+
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('None');
+      for (const header of screen.getAllByRole('columnheader')) {
+        expect(
+          within(header).queryByRole('button', { name: /move/i })
+        ).toBeNull();
+      }
+    });
+
+    it('names an unset environment, never "null" or "undefined"', () => {
+      serve(
+        topology([
+          {
+            env_name: null,
+            clusters: [
+              cluster({
+                name: 'a',
+                services: [service({ service_name: 'a-1' })],
+              }),
+            ],
+          },
+          {
+            env_name: undefined,
+            clusters: [
+              cluster({
+                name: 'b',
+                services: [service({ service_name: 'b-1' })],
+              }),
+            ],
+          },
+        ])
+      );
+      renderTab();
+
+      groupBy('Environment');
+
+      const header = rowFor('Unassigned environment');
+      expect(header).toHaveTextContent('(2)');
+      expect(
+        within(header).getByRole('button', {
+          name: 'Collapse Unassigned environment',
+        })
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/^(null|undefined)$/)).toBeNull();
+    });
+
+    it('keeps two clusters sharing a name, or both unnamed, in separate groups', () => {
+      serve(
+        topology([
+          {
+            env_name: 'production',
+            clusters: [
+              cluster({
+                name: 'orders',
+                services: [service({ service_name: 'orders-a' })],
+              }),
+              cluster({
+                name: 'orders',
+                services: [service({ service_name: 'orders-b' })],
+              }),
+              cluster({
+                name: null,
+                services: [service({ service_name: 'solo-a' })],
+              }),
+              cluster({
+                name: null,
+                services: [service({ service_name: 'solo-b' })],
+              }),
+            ],
+          },
+        ])
+      );
+      renderTab();
+
+      groupBy('Cluster');
+
+      expect(
+        screen.getAllByRole('button', { name: 'Collapse orders' })
+      ).toHaveLength(2);
+      expect(
+        screen.getAllByRole('button', { name: 'Collapse No cluster' })
+      ).toHaveLength(2);
+    });
+
+    it('groups by cluster from the select, with every group open', () => {
+      renderTab();
+
+      groupBy('Cluster');
+
+      const header = rowFor('orders');
+      expect(header).toHaveTextContent('(4)');
+      expect(
+        within(header).getByRole('button', { name: 'Collapse orders' })
+      ).toHaveAttribute('aria-expanded', 'true');
+      expect(
+        screen.getByRole('link', { name: 'orders-2' })
+      ).toBeInTheDocument();
+
+      groupBy('None');
+      expect(screen.queryByText('(4)')).toBeNull();
+    });
+
+    it('reopens grouped as the reader left it, every group open (PMM-15767)', () => {
+      const { unmount } = renderTab();
+      groupBy('Cluster');
+      unmount();
+
+      renderTab();
+
+      expect(
+        screen.getByRole('combobox', { name: 'Group by' })
+      ).toHaveTextContent('Cluster');
+      expect(
+        within(rowFor('orders')).getByRole('button', {
+          name: 'Collapse orders',
+        })
+      ).toHaveAttribute('aria-expanded', 'true');
+    });
+  });
+
+  describe('why a service is failing (PMM-15805)', () => {
+    const FAILING_SINCE = '2026-10-06T09:00:00Z';
+    const withScan = (overrides: Partial<OmInventoryService>) =>
+      useOmInventoryServices.mockReturnValue({
+        data: [
+          {
+            service_id: 's1',
+            node_id: 'n1',
+            observed: {},
+            ...overrides,
+            freshness: {
+              last_success_at: '2026-10-06T08:00:00Z',
+              last_attempt_at: '2026-10-06T10:00:00Z',
+              consecutive_failures: 0,
+              ...overrides.freshness,
+            },
+          } as OmInventoryService,
+        ],
+        isPending: false,
+        isError: false,
+      });
+    const failingWith = (
+      code: string,
+      overrides: Partial<OmInventoryService> = {}
+    ) =>
+      withScan({
+        ...overrides,
+        freshness: {
+          failing_since: FAILING_SINCE,
+          consecutive_failures: 2,
+          last_error: 'could not query the database: connection refused',
+          last_error_code: code,
+          ...overrides.freshness,
+        } as OmInventoryService['freshness'],
+      });
+
+    it.each(
+      Object.entries(SERVICE_SCAN_ERROR_KIND).filter(
+        ([code]) => code !== 'unknown'
+      )
+    )(
+      'shows a %s failure by its label in the default columns',
+      (code, kind) => {
+        serve(ordersEstate());
+        failingWith(code);
+        renderTab();
+
+        expect(
+          within(rowFor('orders-1')).getByTestId('om-scan-failure-reason')
+        ).toHaveTextContent(kind.label);
+        expect(
+          screen.queryByRole('columnheader', { name: /^Scan/ })
+        ).toBeNull();
+      }
+    );
+
+    it('shows an unknown failure by the first line of its raw error', () => {
+      serve(ordersEstate());
+      failingWith('something_new', {
+        freshness: {
+          last_error: 'payload exploded\nTraceback ...',
+        } as OmInventoryService['freshness'],
+      });
+      renderTab();
+
+      expect(
+        within(rowFor('orders-1')).getByTestId('om-scan-failure-reason')
+      ).toHaveTextContent('payload exploded');
+    });
+
+    it('keeps the Scan column in the chooser', () => {
+      renderTab();
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Show/Hide columns' })
+      );
+      expect(
+        within(screen.getByRole('menu')).getByText('Scan')
+      ).toBeInTheDocument();
+    });
+
+    it('states the label, raw error and hint in the drawer', () => {
+      serve(ordersEstate());
+      failingWith('no_output');
+      renderTab();
+      fireEvent.click(
+        within(rowFor('orders-1')).getByTestId('om-service-status')
+      );
+
+      const panel = within(
+        within(screen.getByRole('dialog')).getByTestId('scan-failure')
+      );
+      expect(
+        panel.getByText(
+          `Scans failing: ${SERVICE_SCAN_ERROR_KIND.no_output.label}`
+        )
+      ).toBeInTheDocument();
+      expect(panel.getByTestId('scan-error')).toHaveTextContent(
+        'could not query the database: connection refused'
+      );
+      expect(
+        panel.getByText(SERVICE_SCAN_ERROR_KIND.no_output.hint)
+      ).toBeInTheDocument();
+    });
+
+    it('reads a down service whose scan found no server process as "not running", dated by that scan', () => {
+      serve(ordersEstate('SERVICE_STATUS_DOWN'));
+      failingWith('database_unreachable', { server_running: false });
+      renderTab();
+
+      const caption = within(rowFor('orders-1')).getByTestId('om-not-running');
+      expect(caption).toHaveTextContent('not running');
+      expect(caption).toHaveAttribute(
+        'title',
+        expect.stringMatching(/last scanned, .* ago \(/)
+      );
+      expect(
+        within(rowFor('orders-1')).queryByTestId('om-down-for')
+      ).toBeNull();
+    });
+
+    it('leaves a down row as it is when a scan that reached the server read no process', () => {
+      serve(ordersEstate('SERVICE_STATUS_DOWN'));
+      withScan({ server_running: false });
+      renderTab();
+
+      const row = within(rowFor('orders-1'));
+      expect(row.queryByTestId('om-not-running')).toBeNull();
+      expect(row.getByTestId('om-down-for')).toBeInTheDocument();
+    });
+
+    it('leaves a down row as it is when server_running is unset', () => {
+      serve(ordersEstate('SERVICE_STATUS_DOWN'));
+      withScan({ server_running: null });
+      renderTab();
+
+      const row = within(rowFor('orders-1'));
+      expect(row.queryByTestId('om-not-running')).toBeNull();
+      expect(row.getByTestId('om-down-for')).toBeInTheDocument();
+    });
+
+    it('leaves a down row as it is when the failed scan brought no process facts', () => {
+      serve(ordersEstate('SERVICE_STATUS_DOWN'));
+      failingWith('timed_out', { server_running: false });
+      renderTab();
+
+      const row = within(rowFor('orders-1'));
+      expect(row.queryByTestId('om-not-running')).toBeNull();
+      expect(row.getByTestId('om-down-for')).toBeInTheDocument();
+    });
+
+    it('links an empty fleet to the Operations for MongoDB guide', () => {
+      serve(topology([]));
+      renderTab();
+
+      expect(
+        within(screen.getByTestId('om-empty-state')).getByRole('link', {
+          name: 'Read about Operations for MongoDB',
+        })
+      ).toHaveAttribute('href', OPERATIONS_DOC_URL);
+    });
   });
 });

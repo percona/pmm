@@ -22,7 +22,7 @@
     "@pmm-extensions/shared": "workspace:*",
     "@types/react-syntax-highlighter": "^15.5.13",
     "cronstrue": "^3.14.0",
-    "material-react-table": "^1.15.1",
+    "material-react-table": "^3.2.1",
     "prism-react-renderer": "^2.4.1",
     "prismjs": "^1.30.0",
     "react-syntax-highlighter": "^16.1.1",

@@ -20,6 +20,8 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
 import { AutomationsPage } from '../src/AutomationsPage';
+import { ADMIN_REQUIRED } from '../src/components/AdminAction';
+import { asReadOnlyReader } from './auth';
 import type { OmGetBootstrapRunResponse } from '../src/types';
 
 const { useOmBootstrapRuns } = vi.hoisted(() => ({
@@ -136,5 +138,35 @@ describe('AutomationsPage header', () => {
     expect(screen.getByTestId('location')).toHaveTextContent(
       '/operations/nodes?filter=unmonitored'
     );
+  });
+
+  it('disables Install MongoDB for a reader who may not act, and says why', () => {
+    asReadOnlyReader();
+    render(
+      <MemoryRouter initialEntries={['/operations/automations']}>
+        <AutomationsPage />
+      </MemoryRouter>
+    );
+
+    const install = screen.getByRole('link', { name: 'Install MongoDB' });
+    expect(install).toHaveAttribute('aria-disabled', 'true');
+    expect(install).toHaveAccessibleDescription(ADMIN_REQUIRED);
+  });
+
+  it('does not tell a reader who may not act to start an install', () => {
+    asReadOnlyReader();
+    useOmBootstrapRuns.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    });
+    render(
+      <MemoryRouter initialEntries={['/operations/automations']}>
+        <AutomationsPage />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText(/come back to what it did\.$/)).toBeInTheDocument();
+    expect(screen.queryByText(/Start one from a node/)).toBeNull();
   });
 });
