@@ -47,9 +47,9 @@ func FindOmBootstrapRunConfigByRunID(q *reform.Querier, runID string) (*OmBootst
 	return config, nil
 }
 
-// MarkOmBootstrapRunRegistered records that PMM has registered every host of one bootstrap run.
+// MarkOmBootstrapRunRegistered records that PMM has finished registering one bootstrap run, with what failed if anything.
 // It upserts because a run triggered without environment or cluster has no row yet.
-func MarkOmBootstrapRunRegistered(q *reform.Querier, runID string) error {
+func MarkOmBootstrapRunRegistered(q *reform.Querier, runID string, registrationErrors OmRegistrationErrors) error {
 	if runID == "" {
 		return NewInvalidArgumentError("run_id shouldn't be empty")
 	}
@@ -57,13 +57,16 @@ func MarkOmBootstrapRunRegistered(q *reform.Querier, runID string) error {
 	registeredAt := Now()
 	config, err := FindOmBootstrapRunConfigByRunID(q, runID)
 	if errors.Is(err, ErrNotFound) {
-		return CreateOmBootstrapRunConfig(q, &OmBootstrapRunConfig{RunID: runID, RegisteredAt: &registeredAt})
+		return CreateOmBootstrapRunConfig(q, &OmBootstrapRunConfig{
+			RunID: runID, RegisteredAt: &registeredAt, RegistrationErrors: registrationErrors,
+		})
 	}
 	if err != nil {
 		return err
 	}
 
 	config.RegisteredAt = &registeredAt
+	config.RegistrationErrors = registrationErrors
 	err = q.Update(config)
 	if err != nil {
 		return fmt.Errorf("failed to update OM bootstrap run config: %w", err)

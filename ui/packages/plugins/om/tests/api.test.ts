@@ -16,7 +16,11 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { bootstrapRunDisplayStatus, isBootstrapRunActive } from '../src/api';
+import {
+  bootstrapRunDisplayStatus,
+  canCancelBootstrapRun,
+  isBootstrapRunActive,
+} from '../src/api';
 import type { OmBootstrapStep, OmGetBootstrapRunResponse } from '../src/types';
 
 function step(
@@ -173,5 +177,46 @@ describe('bootstrapRunDisplayStatus', () => {
     });
 
     expect(bootstrapRunDisplayStatus(done)).toBe('succeeded');
+  });
+
+  it('reads as succeeded once confirm_monitoring has failed', () => {
+    const unregistered = run({
+      status: 'succeeded',
+      hosts: [
+        {
+          host: 'n1',
+          steps: [],
+          rollback_steps: [],
+          finalize_steps: [step('confirm_monitoring', 'failed')],
+        },
+      ],
+    });
+
+    expect(bootstrapRunDisplayStatus(unregistered)).toBe('succeeded');
+    expect(isBootstrapRunActive(unregistered)).toBe(false);
+  });
+});
+
+describe('canCancelBootstrapRun', () => {
+  const rollingBack = {
+    host: 'n1',
+    steps: [step('install_package', 'failed')],
+    rollback_steps: [step('stop_service', 'running')],
+    finalize_steps: [],
+  };
+
+  it('allows a running run', () => {
+    expect(canCancelBootstrapRun(run({ status: 'running' }))).toBe(true);
+  });
+
+  it('refuses a run that already asked to cancel, or has ended', () => {
+    expect(canCancelBootstrapRun(run({ cancel_requested: true }))).toBe(false);
+    expect(canCancelBootstrapRun(run({ status: 'succeeded' }))).toBe(false);
+  });
+
+  it('refuses a run that is rolling back', () => {
+    expect(
+      canCancelBootstrapRun(run({ status: 'running', hosts: [rollingBack] }))
+    ).toBe(false);
   });
 });

@@ -807,8 +807,11 @@ type ListBootstrapRunsOKBodyRunsItems0HostsItems0 struct {
 	//
 	// The last entry, named "confirm_monitoring", is PMM's own -- PMM Extensions never
 	// dispatches it. It stays "pending" until the run itself has succeeded, then
-	// "running" until PMM's inventory app notices the registered service, then
-	// "succeeded".
+	// "running" until PMM's inventory app lists this host's service or PMM has
+	// finished registering the run, and "succeeded" from then on. A host whose
+	// service PMM could not register or see within a few minutes is the exception:
+	// it reads "failed", with the reason in its detail, whenever the inventory app
+	// does not list its service.
 	FinalizeSteps []*ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0 `json:"finalize_steps"`
 }
 
