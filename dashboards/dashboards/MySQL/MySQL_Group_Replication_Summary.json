@@ -1794,13 +1794,40 @@
                 "type": "interval"
             },
             {
+                "allValue": ".*",
                 "current": {
                     "selected": false,
                     "text": "All",
                     "value": "$__all"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"mysql_perf_schema_replication_group_member_info|mysql_perf_schema_replication_group_5_member_info\"}, replication_set)",
+                "definition": "label_values({__name__=~\"mysql_perf_schema_replication_group_member_info|mysql_perf_schema_replication_group_5_member_info\"}, environment)",
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values({__name__=~\"mysql_perf_schema_replication_group_member_info|mysql_perf_schema_replication_group_5_member_info\"}, environment)",
+                    "refId": "Metrics-environment-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
+                "current": {
+                    "selected": false,
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
+                "definition": "label_values({__name__=~\"mysql_perf_schema_replication_group_member_info|mysql_perf_schema_replication_group_5_member_info\",environment=~\"$environment\"}, replication_set)",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Replication Set",
@@ -1808,7 +1835,7 @@
                 "name": "replication_set",
                 "options": [],
                 "query": {
-                    "query": "label_values({__name__=~\"mysql_perf_schema_replication_group_member_info|mysql_perf_schema_replication_group_5_member_info\"}, replication_set)",
+                    "query": "label_values({__name__=~\"mysql_perf_schema_replication_group_member_info|mysql_perf_schema_replication_group_5_member_info\",environment=~\"$environment\"}, replication_set)",
                     "refId": "Metrics-replication_set-Variable-Query"
                 },
                 "refresh": 2,
@@ -1924,34 +1951,6 @@
                 },
                 "refresh": 2,
                 "regex": "/(([0-9\\.]+)\\.([0-9\\.]+)\\.([0-9\\.]+)-?([0-9?]+))/",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Environment",
-                "multi": true,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                    "refId": "Metrics-environment-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
                 "skipUrlSync": false,
                 "sort": 5,
                 "tagValuesQuery": "",

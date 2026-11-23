@@ -6276,6 +6276,28 @@
                 "type": "interval"
             },
             {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(mysql_global_variables_rocksdb_block_cache_size, environment)",
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values(mysql_global_variables_rocksdb_block_cache_size, environment)",
+                    "refId": "Metrics-environment-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
                 "current": {
                     "isNone": true,
                     "text": "None",
@@ -6304,13 +6326,13 @@
                     "value": ""
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_global_variables_rocksdb_block_cache_size, service_name)",
+                "definition": "label_values(mysql_global_variables_rocksdb_block_cache_size{environment=~\"$environment\"}, service_name)",
                 "includeAll": false,
                 "label": "Service Name",
                 "name": "service_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_global_variables_rocksdb_block_cache_size, service_name)",
+                    "query": "label_values(mysql_global_variables_rocksdb_block_cache_size{environment=~\"$environment\"}, service_name)",
                     "refId": "Metrics-service_name-Variable-Query"
                 },
                 "refresh": 2,
@@ -6336,29 +6358,6 @@
                 },
                 "refresh": 2,
                 "regex": "/(([0-9\\.]+)\\.([0-9\\.]+)\\.([0-9\\.]+)-?([0-9?]+))/",
-                "sort": 5,
-                "type": "query"
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Environment",
-                "multi": true,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                    "refId": "Metrics-environment-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
                 "sort": 5,
                 "type": "query"
             },

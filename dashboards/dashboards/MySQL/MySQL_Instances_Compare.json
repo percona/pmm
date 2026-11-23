@@ -4431,6 +4431,37 @@
                 "type": "interval"
             },
             {
+                "allValue": ".*",
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(mysql_up, environment)",
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values(mysql_up, environment)",
+                    "refId": "Metrics-environment-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
                 "current": {
                     "isNone": true,
                     "selected": false,
@@ -4487,34 +4518,6 @@
                 "useTags": false
             },
             {
-                "allValue": ".*",
-                "current": {
-                    "selected": false,
-                    "text": "ps-dev",
-                    "value": "ps-dev"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values(mysql_up{node_name=~\"$node_name\"}, environment)",
-                "hide": 2,
-                "includeAll": false,
-                "label": "Environment",
-                "multi": false,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values(mysql_up{node_name=~\"$node_name\"}, environment)",
-                    "refId": "Metrics-environment-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
                 "current": {
                     "selected": false,
                     "text": "ps-dev-cluster",
@@ -4549,7 +4552,7 @@
                     "value": "ps_8.0_3.142.150.215_1"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_up, service_name)",
+                "definition": "label_values(mysql_up{environment=~\"$environment\"}, service_name)",
                 "hide": 0,
                 "includeAll": false,
                 "label": "Service Name",
@@ -4558,7 +4561,7 @@
                 "name": "service_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_up, service_name)",
+                    "query": "label_values(mysql_up{environment=~\"$environment\"}, service_name)",
                     "refId": "Metrics-service_name-Variable-Query"
                 },
                 "refresh": 2,

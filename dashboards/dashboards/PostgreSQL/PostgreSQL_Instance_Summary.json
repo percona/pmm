@@ -4734,17 +4734,41 @@
       {
         "allValue": ".*",
         "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": ["$__all"]
+        },
+        "definition": "label_values(pg_up, environment)",
+        "includeAll": true,
+        "label": "Environment",
+        "multi": true,
+        "name": "environment",
+        "options": [],
+        "query": {
+          "query": "label_values(pg_up, environment)",
+          "refId": "Metrics-environment-Variable-Query"
+        },
+        "refresh": 2,
+        "regex": "",
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
           "text": "All",
           "value": "$__all"
         },
-        "definition": "label_values(pg_up, cluster)",
+        "definition": "label_values(pg_up{environment=~\"$environment\"}, cluster)",
         "includeAll": true,
         "label": "Cluster",
         "multi": true,
         "name": "cluster",
         "options": [],
         "query": {
-          "query": "label_values(pg_up, cluster)",
+          "query": "label_values(pg_up{environment=~\"$environment\"}, cluster)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -4779,13 +4803,13 @@
           "text": "pmm-server-postgresql",
           "value": "pmm-server-postgresql"
         },
-        "definition": "label_values(pg_up{cluster=~\"$cluster\"}, service_name)",
+        "definition": "label_values(pg_up{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
         "includeAll": false,
         "label": "Service Name",
         "name": "service_name",
         "options": [],
         "query": {
-          "query": "label_values(pg_up{cluster=~\"$cluster\"}, service_name)",
+          "query": "label_values(pg_up{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
           "refId": "Metrics-service_name-Variable-Query"
         },
         "refresh": 2,

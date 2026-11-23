@@ -3452,6 +3452,27 @@
                 "type": "interval"
             },
             {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values(pg_up, environment)",
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values(pg_up, environment)",
+                    "refId": "Metrics-environment-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
                 "current": {
                     "text": "4194304",
                     "value": "4194304"
@@ -3495,13 +3516,13 @@
                     "text": "pmm-server-postgresql",
                     "value": "pmm-server-postgresql"
                 },
-                "definition": "label_values(pg_up, service_name)",
+                "definition": "label_values(pg_up{environment=~\"$environment\"}, service_name)",
                 "includeAll": false,
                 "label": "Service Name",
                 "name": "service_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(pg_up, service_name)",
+                    "query": "label_values(pg_up{environment=~\"$environment\"}, service_name)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
@@ -4228,28 +4249,6 @@
                 },
                 "refresh": 2,
                 "regex": "/ ([0-9\\.]+)/",
-                "sort": 5,
-                "type": "query"
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Environment",
-                "multi": true,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                    "refId": "Metrics-environment-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
                 "sort": 5,
                 "type": "query"
             },
