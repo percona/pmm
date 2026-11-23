@@ -141,6 +141,7 @@ To find the affected endpoints and update your automation, [check the PMM API re
     To make sure that PMM Server starts after the upgrade, check your database passwords for spaces or line breaks at the start or end, and [remove them before you upgrade](../admin/security/credentials_as_files.md#remove-whitespace-from-database-passwords).
 
 - [PMM-15806](https://perconadev.atlassian.net/browse/PMM-15806): You can now search the **Clusters** tab on **MongoDB > Operations > Fleet** by cluster name and filter it by **Health**, **Type**, and **Environment**. The search and filters are saved in the page URL, so you can share a filtered view. Each cluster shows its type next to its name. The column chooser also adds optional **Type**, **Last seen**, **Max CPU**, and **Min conn. free** columns. For details, see [Operations for MongoDB](../use/mongodb-operations.md#view-fleet-health).
+- [PMM-13270](https://perconadev.atlassian.net/browse/PMM-13270): Added the [**MongoDB sharded cluster has no active mongos**](../alert/templates_list.md#mongodb_alerts) alert template. It raises a critical alert when none of the mongos routers of a sharded cluster is responding, so you know when applications can no longer reach the cluster, whether the mongos processes are down or their hosts are unreachable. You get one alert per cluster and environment. The template counts only mongos services that have a cluster name, so [add each mongos with the same `--cluster` value](../install-pmm/install-pmm-client/connect-database/mongodb.md).
 
 ## ✅ Fixed issues
 
