@@ -4732,18 +4732,19 @@
         "type": "interval"
       },
       {
+        "allValue": ".*",
         "current": {
           "text": "All",
           "value": "$__all"
         },
-        "definition": "label_values(postgresql_up, cluster)",
+        "definition": "label_values(pg_up, cluster)",
         "includeAll": true,
         "label": "Cluster",
         "multi": true,
         "name": "cluster",
         "options": [],
         "query": {
-          "query": "label_values(postgresql_up, cluster)",
+          "query": "label_values(pg_up, cluster)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -4778,13 +4779,13 @@
           "text": "pmm-server-postgresql",
           "value": "pmm-server-postgresql"
         },
-        "definition": "label_values(pg_up, service_name)",
+        "definition": "label_values(pg_up{cluster=~\"$cluster\"}, service_name)",
         "includeAll": false,
         "label": "Service Name",
         "name": "service_name",
         "options": [],
         "query": {
-          "query": "label_values(pg_up, service_name)",
+          "query": "label_values(pg_up{cluster=~\"$cluster\"}, service_name)",
           "refId": "Metrics-service_name-Variable-Query"
         },
         "refresh": 2,
