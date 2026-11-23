@@ -166,6 +166,8 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 - [PMM-15921](https://perconadev.atlassian.net/browse/PMM-15921): Fixed an issue where installing a MongoDB replica set from **MongoDB > Operations** could show as running forever, with nodes stuck on **Installing**. Installs that are already stuck recover after you upgrade. If something goes wrong, the install now shows which node failed and why, so you know [what to fix](../use/mongodb-operations.md#an-install-fails-or-needs-stopping).
 
+- [PMM-15922](https://perconadev.atlassian.net/browse/PMM-15922): Fixed wrong values in the **Repl. lag**, **Conn. free** and **CPU** columns on the **Services** tab of **MongoDB > Operations > Fleet**. A primary showed the replication lag of its slowest secondary, and each secondary showed the worst lag of any member. Each member now shows only its own lag, and a primary shows none. After a primary and a secondary switched roles, **Conn. free** mixed figures from before and after the switch for up to a day, and **CPU** dropped below zero for about 30 seconds. Right after a switch, **Conn. free** now matches what MongoDB reports, and **CPU** follows the member's new load from its next scrape. With the **Rare** metrics resolution, **CPU** was blank in about a third of the refreshes. It now shows a value at every metrics resolution. The **Max repl. lag**, **Min conn. free** and **Max CPU** columns on the **Clusters** tab are corrected too. For details, see [Operations for MongoDB](../use/mongodb-operations.md#view-fleet-health).
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
