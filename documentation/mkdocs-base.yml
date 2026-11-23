@@ -423,6 +423,7 @@ nav:
           - admin/security/grafana_cookies.md
           - admin/security/data_encryption.md
           - admin/security/client_config_encryption.md
+          - admin/security/credentials_as_files.md
   - Administer:
       - admin/index.md
       - Manage users:
@@ -511,6 +512,7 @@ nav:
               - pmm-admin:
                 - pmm-admin overview: use/commands/pmm-admin/pmm-admin.md
                 - Add database services: use/commands/pmm-admin/add.md
+                - Update monitored services: use/commands/pmm-admin/update.md
                 - Manage inventory: use/commands/pmm-admin/inventory.md
                 - Configuration commands: use/commands/pmm-admin/config.md
                 - Status and diagnostics: use/commands/pmm-admin/status.md
