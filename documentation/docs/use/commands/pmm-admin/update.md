@@ -2,7 +2,7 @@
 
 Use `pmm-admin update` to change the settings of a service that PMM already monitors, without removing the service and adding it again.
 
-The service keeps its ID, and so does every agent that the update doesn't add or remove, so metrics and Query Analytics history, alerts, scheduled backups, and backup artifacts stay with the service. The only exception is a [change of the cluster](#change-the-cluster-of-a-service), which removes the scheduled backups.
+The service keeps its ID, and so does every agent that the update doesn't add or remove, so metrics and Query Analytics history, alerts, scheduled backups, and backup artifacts stay with the service. The only exception is a [change of the cluster](#change-the-cluster-of-a-service), which removes the scheduled backups of the services in both clusters.
 
 Starting with PMM 3.11.0, `pmm-admin update` supports MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, HAProxy, and external services.
 
@@ -30,7 +30,7 @@ Before it changes anything, `pmm-admin update` needs to know which service to ch
 
 === "By name"
 
-    Pass the name as the `NAME` argument or with `--service-name`:
+    Pass the name as the `NAME` argument or with `--service-name`. HAProxy services have no `--service-name` flag, so pass their name as the `NAME` argument:
 
     ```bash
     pmm-admin update mysql mysql-prod --log-level=info
@@ -190,16 +190,16 @@ Current settings:
 
 ## Change the cluster of a service
 
-To move a service to another cluster, pass `--cluster`. Scheduled backups belong to the cluster of a service, so PMM removes them when you change the cluster, and keeps the backup artifacts. To change the cluster:
+To move a service to another cluster, pass `--cluster`. Scheduled backups belong to the cluster of a service. When you change the cluster, PMM removes the scheduled backups of the service and of every other service in its current and its new cluster, and keeps the backup artifacts. To change the cluster:
 {.power-number}
 
-1. Note the settings of each scheduled backup of the service, because PMM removes these scheduled backups when you change the cluster.
+1. Note the settings of each scheduled backup of the services in the current and the new cluster, because PMM removes these scheduled backups when you change the cluster.
 
 2. Check that no backup or restore is running in the current or the new cluster. PMM rejects the change while one is running. If this happens, run the update again after the backup or restore finishes.
 
 3. Run `pmm-admin update` with `--cluster` set to the new cluster.
 
-4. Create the scheduled backups of the service again with the settings that you noted.
+4. Create the scheduled backups again with the settings that you noted.
 
 ## Use update in scripts
 
