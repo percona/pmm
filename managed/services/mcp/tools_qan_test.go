@@ -1325,6 +1325,20 @@ func TestTopQueriesEnginePerRow(t *testing.T) {
 		assert.EqualValues(t, 1, body.Limit)
 	})
 
+	t.Run("ServiceNameLeavesItToTheRows", func(t *testing.T) {
+		t.Parallel()
+
+		// The service list covers only the last 7 days of the window, so a MySQL service of the name can be missing from it.
+		fake := mixedEngineReports(t, 0)
+		session := connect(t, newQANService(t, fake, false))
+		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h", "service_name": "shop-postgres"})
+		require.False(t, isError, text)
+		assert.Equal(t, "SELECT `id` FROM `o'neil` WHERE `id` = ?", fingerprintOf(t, text, "Q-MY"))
+		assert.Equal(t, withheldFingerprint, fingerprintOf(t, text, "Q-BOTH"), "calls under both engines")
+		assert.Equal(t, `SELECT "id" FROM "users" WHERE "email" = $1`, fingerprintOf(t, text, "Q-PG"))
+		assert.Len(t, fake.requestsTo("/v1/qan/metrics:getReport"), 2)
+	})
+
 	t.Run("CallerFiltersServiceType", func(t *testing.T) {
 		t.Parallel()
 
@@ -1393,21 +1407,8 @@ func TestTopQueriesSharedServiceName(t *testing.T) {
 	pgOnly := func() ([]serviceInfo, error) {
 		return []serviceInfo{{ServiceID: "pg", ServiceName: "shop", Engine: enginePostgreSQL}}, nil
 	}
-	assert.Empty(t, serviceEngine("shop", "mysql-gone", pgOnly), "a service_id outside the list leaves the engine to the rows")
-	assert.Equal(t, enginePostgreSQL, serviceEngine("shop", "pg", pgOnly))
-
-	assert.Empty(t, serviceEngine("shop-re", "", func() ([]serviceInfo, error) {
-		return []serviceInfo{
-			{ServiceID: "a", ServiceName: "shop-re", Engine: engineMySQL},
-			{ServiceID: "b", ServiceName: "shop-re", Engine: enginePostgreSQL, LastSeen: testNow},
-		}, nil
-	}))
-	assert.Equal(t, engineMySQL, serviceEngine("shop-re", "", func() ([]serviceInfo, error) {
-		return []serviceInfo{
-			{ServiceID: "a", ServiceName: "shop-re", Engine: engineMySQL},
-			{ServiceID: "b", ServiceName: "shop-re", Engine: engineMySQL, LastSeen: testNow},
-		}, nil
-	}))
+	assert.Empty(t, serviceEngine("mysql-gone", pgOnly), "a service_id outside the list leaves the engine to the rows")
+	assert.Equal(t, enginePostgreSQL, serviceEngine("pg", pgOnly))
 }
 
 // TestQueryDetailSeveralServices pins that a detail summed over several services, whose metadata joins their names,
