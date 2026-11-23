@@ -75,7 +75,7 @@ To check the agents:
 
     ![PMM Inventory agents of a node](../images/PMM_Inventory_Node_Agents.png)
 
-2. Check the **Status** of each agent. **Running** and **Starting** are fine, and so is **Done** for an agent that is disabled by design. For the other values, [find out what the agent status means](#agent-status).
+2. Check the **Status** of each agent. **Running** and **Starting** are fine, and so is **Done** for an agent that is turned off, such as the **Real-Time Analytics MongoDB agent** outside a session. For the other values, [find out what the agent status means](#agent-status).
 3. To see the configuration of an agent, click :material-chevron-down: at the start of its row. The **Properties** section lists the labels and the options of the agent.
 4. To return to the inventory, click **Go back to services** or **Go back to nodes**.
 
@@ -137,7 +137,7 @@ To export services:
 2. To export only some services, search or filter the table, or select the checkboxes of the services to export.
 3. Click **Export**. PMM downloads the file as `inventory_services_export_{timestamp}.csv`.
 
-If you select services, the file contains only the selected services that match the search and filters. If you select no services, or none of the selected services match, the file contains every service that matches the search and filters, in the order of the table. This includes the services on other pages and in collapsed clusters. If no service matches, **Export** is disabled.
+If you select services that match the search and filters, the file contains only those services. Otherwise, it contains every service that matches the search and filters, in the order of the table. This includes the services on other pages and in collapsed clusters. If no service matches, **Export** is disabled.
 
 ### Exported columns
 
@@ -193,13 +193,13 @@ To edit a service:
 
 4. If the service is an Amazon RDS instance, select an option under **Authenticate with** in the **Amazon RDS credentials** section: **Access key**, **IAM role** or **Host credentials**. To create an access key or an IAM role for PMM, [set up AWS access for Amazon RDS](../install-pmm/install-pmm-client/connect-database/aws.md).
 
-    If you change the **Amazon RDS access key**, also enter the **Amazon RDS secret key** that goes with it. PMM keeps the stored secret key only with the stored access key.
+    If you change the **Amazon RDS access key**, also enter the **Amazon RDS secret key** that goes with it, because PMM can't use the stored secret key with a new access key.
 
 5. Click **Save changes**.
 6. Review the summary of the changes, then click **Confirm and save changes**. PMM saves only the settings that you changed, and opens the **Services** tab.
 
-    When a change affects how PMM connects to the service, or turns on a query source, PMM first checks that it can connect with the new settings. 
-    
+    When a change affects how PMM connects to the service, or turns on a query source, PMM first checks that it can connect with the new settings.
+
     If the check fails, PMM shows the error and doesn't save the settings. To save them anyway, for example because the database isn't ready for them yet, select **Skip the connection check** before you click **Confirm and save changes**. The option applies to that save only.
 
 If you changed the Amazon RDS credentials and the save fails, for example because the connection check fails, the credentials stay changed: PMM saves them before the other settings and shows a warning. Fix the error, then save the other settings again.
