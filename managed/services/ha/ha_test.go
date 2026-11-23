@@ -18,6 +18,7 @@ package ha
 import (
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/memberlist"
 	"github.com/stretchr/testify/assert"
@@ -154,6 +155,53 @@ func TestHAServer_ListNodes_ExpectedNodes(t *testing.T) {
 			require.NotNil(t, resp)
 			assert.Empty(t, resp.Nodes)
 			assert.Equal(t, tt.expectedNodes, resp.ExpectedNodes)
+		})
+	}
+}
+
+func TestHAServer_ListNodes_LostVoters(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name string
+		left bool
+		want string
+	}{
+		{name: "a failed voter is dead", want: "dead"},
+		{name: "a voter that left is left", left: true, want: "left"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			leader, leaderID, _ := newTestRaftCluster(t, 3)
+			ml := newTestMemberlist(t, leaderID)
+			s := newTestService(leaderID, leader, ml)
+			var lost string
+			for _, id := range raftServerIDs(t, leader) {
+				switch {
+				case id == leaderID:
+				case lost == "":
+					lost = id
+				default:
+					newTestMemberlist(t, id, ml.LocalNode().Address())
+				}
+			}
+			require.Eventually(t, func() bool { return ml.NumMembers() == 2 }, 5*time.Second, 10*time.Millisecond)
+			s.setLeft(lost, tc.left)
+
+			resp, err := NewHAServer(s).ListNodes(t.Context(), &hav1.ListNodesRequest{})
+			require.NoError(t, err)
+
+			statuses := make(map[string]string, len(resp.Nodes))
+			for _, node := range resp.Nodes {
+				statuses[node.NodeName] = node.Status
+				if node.NodeName == leaderID {
+					assert.Equal(t, hav1.NodeRole_NODE_ROLE_LEADER, node.Role)
+				}
+			}
+			assert.Len(t, resp.Nodes, 3)
+			assert.Equal(t, tc.want, statuses[lost])
+			assert.Equal(t, "alive", statuses[leaderID])
 		})
 	}
 }
