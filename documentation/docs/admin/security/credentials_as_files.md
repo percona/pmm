@@ -123,11 +123,79 @@ Grafana's `GF_SECURITY_ADMIN_PASSWORD__FILE`, `GF_DATABASE_PASSWORD__FILE` and `
 
 If you upgrade to PMM 3.11.0 or later from an installation that sets its credentials in environment variables, you don't have to switch to files. Your variables keep working, but starting with PMM 3.11.0, a few values behave differently. Before you upgrade, check your variables:
 
-- Check that no database password has leading or trailing whitespace. PMM Server now removes this whitespace when it reads a file, which could change the password that the database expects, so a database password with whitespace stops PMM Server from starting, and the error names the variable.
+- Check that no database password has leading or trailing whitespace, such as a space, or a newline from a Kubernetes Secret created from a file. PMM Server doesn't start with such a password. To fix it, see [Remove whitespace from database passwords](#remove-whitespace-from-database-passwords).
 - Check `GF_SECURITY_SECRET_KEY` for leading or trailing whitespace. If it has any, PMM Server keeps the key in the environment, where Grafana reads it as written, and logs a warning. Don't move such a key to a file: a file can't keep the whitespace, so the key would change, and existing secrets would become unreadable.
 - Check the admin password for leading or trailing whitespace. PMM Server drops it and logs a warning.
 - Check that `GF_SECURITY_ADMIN_PASSWORD` and `PMM_ADMIN_PASSWORD` have the same value, if you set both. If they differ, PMM Server uses `GF_SECURITY_ADMIN_PASSWORD`, the variable that Grafana read in earlier versions, and logs a warning.
 - Check that every file that a variable points to with Grafana's `$__file{<path>}` exists and isn't empty. PMM Server now reads these files itself when the container starts, so it doesn't start if one is missing, unreadable or empty. Other references with Grafana's syntax, such as `${OTHER_VARIABLE}`, work as before.
+
+### Remove whitespace from database passwords
+
+PMM Server doesn't start if one of these database passwords has spaces or line breaks at the start or end:
+
+- `PMM_POSTGRES_DBPASSWORD`: the PostgreSQL user of PMM Server
+- `GF_DATABASE_PASSWORD`: the PostgreSQL user of Grafana
+- `PMM_CLICKHOUSE_PASSWORD`: the ClickHouse user of PMM Server
+- `PMM_CLICKHOUSE_DATASOURCE_PASSWORD`: the read-only ClickHouse user of the Query Analytics data source
+
+This is because PMM Server reads these passwords from files. If you set them in environment variables, PMM Server copies them to files first. A file can't keep spaces or line breaks at the start or end, so PMM Server would log in to the database with a different password than the one the database has. Instead, PMM Server stops and its error tells you which variable to fix.
+
+Whitespace usually gets into a password by accident. For example, an environment file can have a space after `=`, and if you create a Kubernetes Secret from a file with `kubectl create secret --from-file`, the password keeps the line break at the end of the file.
+
+To remove the whitespace when you upgrade:
+{.power-number}
+
+1. Find the affected variables. In your current PMM Server container, run this check, which prints the name of each affected variable:
+
+    ```sh
+    docker exec pmm-server python3 -c 'import os
+    for k in ("PMM_POSTGRES_DBPASSWORD", "GF_DATABASE_PASSWORD", "PMM_CLICKHOUSE_PASSWORD", "PMM_CLICKHOUSE_DATASOURCE_PASSWORD"):
+        v = os.environ.get(k, "")
+        if v != v.strip(): print(k)'
+    ```
+
+    With Podman, use `podman exec pmm-server` instead of `docker exec pmm-server`. On Kubernetes, use `kubectl exec <pod> --namespace <namespace> --`.
+
+2. For each variable that the check prints, find out what else to do, depending on whether you use the built-in database or an external one:
+
+    | Variable | Built-in database | External database |
+    |----------|-------------------|-------------------|
+    | `PMM_POSTGRES_DBPASSWORD` | Nothing to change. PMM Server updates the password in the database when it starts. | Change the password in PostgreSQL. |
+    | `GF_DATABASE_PASSWORD` | Nothing to change if Grafana worked before the upgrade. Otherwise, remove the variable, because the built-in database accepts only the default password. | Nothing to change if Grafana worked before the upgrade. Otherwise, change the password in PostgreSQL. |
+    | `PMM_CLICKHOUSE_PASSWORD` | Remove the variable, because the built-in ClickHouse accepts only the default password. | Change the password in ClickHouse. |
+    | `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` | Remove the variable, because the built-in ClickHouse accepts only the default password. | Change the password in ClickHouse. |
+
+    Grafana has always ignored trailing whitespace in its password, so if Grafana worked, its database already uses the password without the whitespace.
+
+3. If the table tells you to change the password in the database, do it right before you upgrade. From then on, the running PMM Server can't open new connections to the database.
+4. Remove the whitespace where you set the variables, and upgrade PMM Server. With the `pmm` Helm chart, the variables are in `pmmEnv` or in the Secret you created. If you created the Secret with `kubectl create secret --from-file`, recreate it with `--from-literal` instead, so the password doesn't end with a line break.
+
+If you use the `pmm-ha` Helm chart, change the passwords through the chart and its Secrets instead. In the following steps, `pmm-secret` and `pmmuser-credentials` are the default Secret names:
+{.power-number}
+
+1. Run the check with `kubectl exec`, as in the previous steps.
+2. If the check prints `PMM_POSTGRES_DBPASSWORD`, remove the whitespace from the password in both Secrets. The PostgreSQL operator then changes the password in the database within seconds:
+
+    ```sh
+    kubectl patch secret pmm-secret --namespace <namespace> \
+      -p '{"stringData":{"PG_PASSWORD":"<password>"}}'
+    kubectl patch secret pmmuser-credentials --namespace <namespace> \
+      -p '{"stringData":{"password":"<password>"},"data":{"verifier":null}}'
+    ```
+
+    If you changed `pg-db.pmmUserName`, the second Secret is named `<pmmUserName>-credentials`. If a tool manages `pmm-secret`, [change the password in that tool instead](#if-a-tool-manages-your-secrets).
+
+3. Upgrade right away. Until the new pods run, the pods of the earlier version can't open new connections to PostgreSQL. If the check printed `PMM_CLICKHOUSE_DATASOURCE_PASSWORD`, also remove the whitespace from `clickhouse.datasource.password` in this upgrade. The chart then changes the password in ClickHouse too.
+
+If you already upgraded and PMM Server stops right after it starts, your data is safe: PMM Server stops before it changes anything. Fix the variables as described in the previous steps, including any password change in the database, and start PMM Server again. On Kubernetes, the pod restarts in a loop: after you fix the variables, delete the pod so that it starts with the fixed values. With the `pmm-ha` chart, only the first upgraded pod does this, and the other pods keep running the earlier version until you delete it.
+
+#### If a tool manages your Secrets
+
+If a tool such as External Secrets Operator manages `pmm-secret`, change `PG_PASSWORD` in the tool's source instead of patching `pmm-secret`, because the tool would undo your patch. Before you upgrade, check that the tool has copied the new value to `pmm-secret`. For example, force a sync:
+
+```sh
+kubectl annotate externalsecret <name> force-sync=$(date +%s) --overwrite --namespace <namespace>
+```
 
 ## Troubleshooting
 
@@ -142,7 +210,7 @@ If PMM Server doesn't start after you provide credentials, find the cause in the
 2. Check that every file you provide exists, isn't empty and is readable by UID 1000. This includes the files that file variables point to, the files in `PMM_SECRETS_DIR`, including the targets of links, and the files in `$__file{}` references.
 3. Check that `PMM_SECRETS_DIR` names a directory that exists.
 4. Check that you don't provide a credential both as a file and as an environment variable. If you do, remove the variable.
-5. Check that no credential variable is empty or contains only whitespace, and that no database password variable has leading or trailing whitespace. If one does, remove the whitespace.
+5. Check that no credential variable is empty or contains only whitespace, and that no database password variable has leading or trailing whitespace. If one does, remove the whitespace. For a database password, follow [Remove whitespace from database passwords](#remove-whitespace-from-database-passwords).
 6. Check that your files are outside `/run/pmm/secrets`, which PMM Server manages itself, and that nothing else is in that directory. Mount your credentials in another directory, such as `/etc/pmm/secrets`, and point `PMM_SECRETS_DIR` and the file variables there.
 
 ## Related topics

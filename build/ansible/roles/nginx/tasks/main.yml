@@ -8,26 +8,38 @@
     mode: 0775
   loop:
     - /usr/share/pmm-server/static/
-    - /srv/nginx/tmp/client/
-    - /srv/nginx/tmp/proxy/
-    - /srv/nginx/tmp/fastcgi/
-    - /srv/nginx/tmp/uwsgi/
-    - /srv/nginx/tmp/scgi/
+    - /srv/tmp/client/
+    - /srv/tmp/proxy/
+    - /srv/tmp/fastcgi/
+    - /srv/tmp/uwsgi/
+    - /srv/tmp/scgi/
     - /etc/nginx/conf.d/
     - /etc/nginx/extensions.d/
     - /etc/nginx/ssl/
 
-- name: Enable nginx 1.26 module stream
-  command: dnf -y module enable nginx:1.26
-  args:
-    creates: /etc/dnf/modules.d/nginx.module
+- name: Add nginx.org stable repository
+  yum_repository:
+    name: nginx-stable
+    description: nginx.org - Stable Repository
+    baseurl: https://nginx.org/packages/rhel/9/$basearch/
+    gpgkey: https://nginx.org/keys/nginx_signing.key
+    gpgcheck: yes
+    module_hotfixes: yes
+    enabled: no
 
 - name: Install nginx
   dnf:
-    name: nginx
+    name: nginx-{{ nginx_version }}
     state: installed
+    enablerepo: nginx-stable
     exclude:
       - logrotate-*
+
+# The package ships a port 80 server in conf.d, which nginx.conf includes.
+- name: Remove the default server shipped with the package
+  file:
+    path: /etc/nginx/conf.d/default.conf
+    state: absent
 
 - name: Add ssl-related files and scripts
   copy:
