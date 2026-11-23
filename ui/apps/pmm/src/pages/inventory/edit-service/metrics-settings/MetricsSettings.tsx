@@ -105,7 +105,8 @@ export const MetricsSettings: FC<Props> = ({ serviceType }) => {
               fullWidth: true,
               helperText: metrics.connectionTimeoutDescription,
               // Fractional seconds are valid, which the default step of 1 rejects
-              slotProps: { htmlInput: { step: 'any' } },
+              // FIXME: back to slotProps.htmlInput once peak-ui's TextInput merges it
+              inputProps: { step: 'any' },
             }}
           />
         </Stack>

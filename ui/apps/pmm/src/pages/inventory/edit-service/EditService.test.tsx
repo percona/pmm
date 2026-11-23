@@ -325,6 +325,18 @@ describe('EditService', () => {
     ).toHaveAttribute('step', 'any');
   });
 
+  // A wheel scroll over a focused number field would change its value
+  it('blurs the connection timeout on a wheel scroll', async () => {
+    renderEditService();
+
+    await screen.findByTestId('edit-service-form');
+    const input = screen.getByLabelText('Connection timeout (seconds)');
+    input.focus();
+    fireEvent.wheel(input);
+
+    expect(input).not.toHaveFocus();
+  });
+
   it('hides the QAN settings without a query source', async () => {
     renderEditService();
 
