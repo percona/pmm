@@ -15,7 +15,7 @@ export const Messages = {
   // be part-way through a form.
   notice: {
     signedOut:
-      'Your PMM session has expired and ServiceNow can no longer be reached. Sign in to PMM in a new tab, then retry. Your work on this page is saved.',
+      'Your PMM session has expired and the support platform can no longer be reached. Sign in to PMM in a new tab, then retry. Your work on this page is saved.',
     unreachable:
       'Lost the connection to the support platform. Anything you submit from this page will fail until it is back. Your work here is kept.',
   },

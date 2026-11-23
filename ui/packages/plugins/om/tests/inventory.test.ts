@@ -112,6 +112,7 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
   automation_blocked_reasons: [],
   automation_blocked_by_design: false,
   is_pmm_server_node: false,
+  supported_mongodb_versions: ['7.0', '8.0'],
   ...overrides,
 });
 
