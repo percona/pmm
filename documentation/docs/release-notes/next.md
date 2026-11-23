@@ -89,6 +89,16 @@ If you manage a large MongoDB fleet, you can now see right away which backup age
 
 [Find your failing backup agents](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) to get started.
 
+### Change a monitored service from the command line without removing it
+
+Rotating a password or renewing a certificate no longer means removing a service and adding it again, or changing its agents one by one with `pmm-admin inventory change agent`, which PMM 3.7.0 introduced.
+
+With `pmm-admin update`, you change the settings of a monitored service in one command, and PMM applies them to all its agents. The service keeps its ID, so its metrics, Query Analytics history, alerts, and backups stay with it. It works for MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, HAProxy, and external services, and it changes only the flags that you pass.
+
+Preview a change with `--dry-run` before you apply it. If you change the credentials, TLS settings, or address, PMM first checks the connection to the database, so a wrong value doesn't replace a working one.
+
+To get started, [change the settings of a monitored service](../use/commands/pmm-admin/update.md).
+
 ## 🔒 Security updates
 
 ### nginx HTTP/2 memory corruption ([CVE-2026-123007](https://nvd.nist.gov/vuln/detail/CVE-2026-123007), [CVE-2026-123633](https://nvd.nist.gov/vuln/detail/CVE-2026-123633))
@@ -137,7 +147,7 @@ To find the affected endpoints and update your automation, [check the PMM API re
 - [PMM-15797](https://perconadev.atlassian.net/browse/PMM-15797): **MongoDB > Operations** now installs MongoDB only onto OS releases that Percona supports for the chosen version: MongoDB 7.0 onto Ubuntu 22.04 and 24.04 and Rocky Linux 8 and 9, and MongoDB 8.0 onto those and Rocky Linux 10. The **Nodes** page and the install form block a node on any other release, such as Ubuntu 20.04, and name the supported releases. The install form offers only the versions that every selected node supports. Before, an install onto Ubuntu 20.04 put an old MongoDB build on the node, and MongoDB 7.0 on Rocky Linux 10 failed partway through. For details, see [Operations for MongoDB](../use/mongodb-operations.md#check-nodes).
 - [PMM-15846](https://perconadev.atlassian.net/browse/PMM-15846): The execution history of PMM Extensions apps, such as **MySQL Backups**, now shows a warning icon beside the status of a finished run whose logs were partly or wholly lost before PMM could store them, so you can spot it without opening the run. Hover over or tab to the icon for details. For more on task logs, see [Monitor backups](../apps/mysql-backup.md#monitor-backups).
 - [PMM-15806](https://perconadev.atlassian.net/browse/PMM-15806): You can now search the **Clusters** tab on **MongoDB > Operations > Fleet** by cluster name and filter it by **Health**, **Type**, and **Environment**. The search and filters are saved in the page URL, so you can share a filtered view. Each cluster shows its type next to its name. The column chooser also adds optional **Type**, **Last seen**, **Max CPU**, and **Min conn. free** columns. For details, see [Operations for MongoDB](../use/mongodb-operations.md#view-fleet-health).
-- [PMM-14146](https://perconadev.atlassian.net/browse/PMM-14146): Added the `pmm-admin update` command, which changes the settings of a monitored service without removing the service and adding it again. The service keeps its ID, so its metrics and Query Analytics history, alerts and backups stay with it. The command takes the same flags as `pmm-admin add` and changes only the ones that you pass. For details, see [Update monitored services with pmm-admin](../use/commands/pmm-admin/update.md).
+- [PMM-14146](https://perconadev.atlassian.net/browse/PMM-14146): You can now [change a monitored service](#change-a-monitored-service-from-the-command-line-without-removing-it) and all its agents with one command, `pmm-admin update`, instead of changing each agent with `pmm-admin inventory change agent`. Only a change of the service's cluster removes its scheduled backups.
 
 ## ✅ Fixed issues
 
