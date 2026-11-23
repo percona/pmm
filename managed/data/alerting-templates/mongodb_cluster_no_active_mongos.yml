@@ -6,40 +6,90 @@ templates:
     # A down mongos loses its role: mongodb_exporter re-detects it on every scrape, so a failed
     # connection is reported as mongodb_up{cluster_role=""} 0, and a lost host reports nothing.
     # A cluster's mongos are therefore the services still enabled in the inventory with that
-    # cluster label and the mongos role somewhere in the last 7d of history, so a removed or
-    # relabeled mongos stops counting at once. A total outage longer than 7d drops out of that
-    # history and resolves.
+    # cluster and environment and the mongos role somewhere in the last 7d of history, so a
+    # removed or relabeled mongos stops counting at the next inventory scrape. A total outage
+    # longer than 7d, or than the data retention if that is shorter, drops out of that history
+    # and resolves.
+    #
+    # Clusters are told apart by cluster and environment, so the same cluster name in two
+    # environments gives two alert instances. All mongos of one cluster need the same
+    # environment, or they count as separate clusters. Both labels are taken from the inventory
+    # metric only, which reports them for the agents of a service as that service is scraped
+    # (node, service and agent labels merged). Whether a mongos is active is matched to it by
+    # service_id, not by the labels on mongodb_up, so the two can't disagree while a label
+    # change is still reaching the client.
+    #
+    # The inventory is read as of its last successful scrape in the last 5m: tlast_over_time
+    # gives each series the time of its last sample, and only those of the newest scrape are
+    # kept. A firing alert then survives a pmm-managed restart or a failed scrape of up to 5m,
+    # and a mongos missing from the newest scrape is not brought back. The newest scrape is
+    # taken per pmm-managed instance, since in HA each is scraped at its own time and they can
+    # differ during a rolling upgrade. An instance whose newest scrape is more than 60s behind
+    # the newest of all is left out, so one that stopped doesn't keep a mongos that was removed
+    # after it. When all of them stop, the last scrape still counts.
+    #
+    # Everything is read 15s in the past. The samples of a scrape carry the time it started but
+    # become searchable as they arrive, so while a large inventory is still being ingested its
+    # newest scrape seems to hold only some of the rows, and the rest would be dropped. 15s
+    # covers a scrape at the default medium resolution, which times out after 9s. mongodb_up
+    # has the same offset so that both sides describe the same moment: otherwise a mongos
+    # removed from PMM would count as down for 15s longer.
     #
     # A mongos counts as active only with a sample in the last 2m: Grafana's instant query
-    # otherwise keeps the last sample of a lost host for the 5m staleness window.
+    # otherwise keeps the last sample of a lost host for the 5m staleness window. This needs a
+    # high metrics resolution well under 2m; the Rare preset (60s) is the slowest that works.
+    # The inventory is scraped at the medium resolution: with the Rare preset (180s) the 5m
+    # window holds one or two scrapes, so a single failed one can still leave a short gap, and
+    # with a medium resolution above 5m the window is empty for part of every scrape cycle.
     #
     # Services without a cluster label are skipped, since their mongos can't be grouped. The
     # '0 *' branch keeps one Normal instance per cluster and 'vector(0)' one when no sharded
     # cluster is monitored, instead of No Data rows.
     expr: |-
       (
-        count by (cluster) (
-          max by (cluster, service_id) (pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0", cluster!=""})
-          and on (service_id) max by (service_id) (last_over_time(mongodb_up{cluster_role="mongos"}[7d]))
+        count by (cluster, environment) (
+          max by (cluster, environment, service_id) (
+            tlast_over_time(pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0", cluster!=""}[5m] offset 15s)
+            == on (instance) group_left () (
+              max by (instance) (tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s))
+              > on () group_left () (max(tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s)) - 60)
+            )
+          )
+          and on (service_id) max by (service_id) (last_over_time(mongodb_up{cluster_role="mongos"}[7d] offset 15s))
         )
-        unless on (cluster) (
-          max by (cluster) (
-            mongodb_up{cluster_role="mongos", cluster!=""}
-            and last_over_time(mongodb_up{cluster_role="mongos", cluster!=""}[2m])
-          ) == 1
+        unless on (cluster, environment) (
+          max by (cluster, environment, service_id) (
+            tlast_over_time(pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0", cluster!=""}[5m] offset 15s)
+            == on (instance) group_left () (
+              max by (instance) (tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s))
+              > on () group_left () (max(tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s)) - 60)
+            )
+          )
+          and on (service_id) (
+            max by (service_id) (
+              mongodb_up{cluster_role="mongos"} offset 15s
+              and last_over_time(mongodb_up{cluster_role="mongos"}[2m] offset 15s)
+            ) == 1
+          )
         )
       )
-      or on (cluster) 0 * count by (cluster) (
-        max by (cluster, service_id) (pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0", cluster!=""})
-        and on (service_id) max by (service_id) (last_over_time(mongodb_up{cluster_role="mongos"}[7d]))
+      or on (cluster, environment) 0 * count by (cluster, environment) (
+        max by (cluster, environment, service_id) (
+          tlast_over_time(pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0", cluster!=""}[5m] offset 15s)
+          == on (instance) group_left () (
+            max by (instance) (tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s))
+            > on () group_left () (max(tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s)) - 60)
+          )
+        )
+        and on (service_id) max by (service_id) (last_over_time(mongodb_up{cluster_role="mongos"}[7d] offset 15s))
       )
       or on () vector(0)
     for: 1m
     severity: critical
     annotations:
-      summary: MongoDB sharded cluster '{{ $labels.cluster }}' has no active mongos
+      summary: "MongoDB sharded cluster '{{ $labels.cluster }}'{{ if $labels.environment }} ({{ $labels.environment }}){{ end }} has no active mongos"
       description: |-
-        None of the {{ $values.A.Value }} mongos routers monitored in cluster '{{ $labels.cluster }}' is responding.
+        None of the {{ $values.A.Value }} mongos routers monitored in cluster '{{ $labels.cluster }}'{{ if $labels.environment }} ({{ $labels.environment }}){{ end }} is responding.
         Applications can't read from or write to the sharded cluster until at least one mongos is back.
 
         Remediation steps:
