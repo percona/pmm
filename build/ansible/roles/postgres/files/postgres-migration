@@ -56,10 +56,11 @@ create_grafana_db() {
     # Grafana trims the whitespace around the file's content, so the role must not have it either.
     password="${password#"${password%%[![:space:]]*}"}"
     password="${password%"${password##*[![:space:]]}"}"
-    # psql interpolates :'password' only in a script it reads, not in -c. The statement carries the
-    # password, which pg_stat_statements must not record.
-    PGOPTIONS="-c pg_stat_statements.track_utility=off" "$POSTGRES_BIN_DIR/psql" -X -v ON_ERROR_STOP=1 \
-        -h /run/postgresql -U postgres -d postgres -v password="$password" <<'SQL'
+    # psql reads the password from its environment, which other users can't see, unlike its arguments.
+    # The statement carries the password, which pg_stat_statements must not record.
+    GRAFANA_DB_PASSWORD="$password" PGOPTIONS="-c pg_stat_statements.track_utility=off" \
+        "$POSTGRES_BIN_DIR/psql" -X -v ON_ERROR_STOP=1 -h /run/postgresql -U postgres -d postgres <<'SQL'
+\getenv password GRAFANA_DB_PASSWORD
 CREATE ROLE grafana LOGIN PASSWORD :'password';
 CREATE DATABASE grafana OWNER grafana;
 SQL
