@@ -10,7 +10,7 @@
  * unfiltered array. RealtimeOverview.test.tsx keeps the real table for other behavior.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { FC, useEffect } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import {
@@ -63,13 +63,17 @@ vi.mock('./table/OverviewTable', () => {
   const MockOverviewTable: FC<{
     onQuerySelected: (query: QueryData) => void;
     onNavigableQueriesChange: (queries: QueryData[]) => void;
-  }> = ({ onQuerySelected, onNavigableQueriesChange }) => {
+    actions: (props: { table: unknown }) => ReactNode;
+  }> = ({ onQuerySelected, onNavigableQueriesChange, actions }) => {
     useEffect(() => {
       onNavigableQueriesChange(mockNavigableQueries.get());
     }, [onNavigableQueriesChange]);
 
     return (
       <>
+        {actions({
+          table: { getPrePaginationRowModel: () => ({ rows: [] }) },
+        })}
         <button
           type="button"
           data-testid="mock-select-first-query"
@@ -177,6 +181,83 @@ describe('RealtimeOverview details pane navigation', () => {
     await waitFor(() => {
       expect(screen.getByTestId('details-pane-prev-button')).not.toBeDisabled();
       expect(screen.getByTestId('details-pane-next-button')).toBeDisabled();
+    });
+  });
+
+  describe('auto-refresh', () => {
+    const expectAutoRefreshRunning = () =>
+      waitFor(() =>
+        expect(
+          screen.getByTestId('overview-table-pause-button')
+        ).toBeInTheDocument()
+      );
+
+    const expectAutoRefreshPaused = () =>
+      waitFor(() =>
+        expect(
+          screen.getByTestId('overview-table-resume-button')
+        ).toBeInTheDocument()
+      );
+
+    const navigateNextThenPrevious = async () => {
+      fireEvent.click(screen.getByTestId('details-pane-next-button'));
+      await waitFor(() => {
+        expect(getOperationId()).toHaveTextContent('query-2');
+      });
+      fireEvent.click(screen.getByTestId('details-pane-prev-button'));
+      await waitFor(() => {
+        expect(getOperationId()).toHaveTextContent('query-1');
+      });
+    };
+
+    it('resumes after prev/next and closing the pane with the close button', async () => {
+      renderComponent();
+      await expectAutoRefreshRunning();
+      await openDetailsPaneOnFirstQuery();
+      await expectAutoRefreshPaused();
+
+      await navigateNextThenPrevious();
+      fireEvent.click(screen.getByTestId('details-pane-close-button'));
+
+      await expectAutoRefreshRunning();
+    });
+
+    it('resumes after prev/next and closing the pane with Escape', async () => {
+      renderComponent();
+      await expectAutoRefreshRunning();
+      await openDetailsPaneOnFirstQuery();
+
+      await navigateNextThenPrevious();
+      fireEvent.keyDown(document, { key: 'Escape' });
+
+      await expectAutoRefreshRunning();
+    });
+
+    it('stays paused after prev/next and close when it was paused before opening', async () => {
+      renderComponent();
+      await expectAutoRefreshRunning();
+      fireEvent.click(screen.getByTestId('overview-table-pause-button'));
+      await expectAutoRefreshPaused();
+
+      await openDetailsPaneOnFirstQuery();
+      await navigateNextThenPrevious();
+      fireEvent.click(screen.getByTestId('details-pane-close-button'));
+
+      await expectAutoRefreshPaused();
+    });
+
+    it('does not resume a manually paused refresh on Escape with the pane closed', async () => {
+      renderComponent();
+      await expectAutoRefreshRunning();
+      await openDetailsPaneOnFirstQuery();
+      fireEvent.click(screen.getByTestId('details-pane-close-button'));
+      await expectAutoRefreshRunning();
+
+      fireEvent.click(screen.getByTestId('overview-table-pause-button'));
+      await expectAutoRefreshPaused();
+      fireEvent.keyDown(document, { key: 'Escape' });
+
+      await expectAutoRefreshPaused();
     });
   });
 

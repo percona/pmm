@@ -48,12 +48,19 @@ const RealtimeOverviewPage: FC = () => {
   const { data: sessions = [], isLoading } = useRealtimeSessions();
 
   const handleQuerySelected = (query: QueryData) => {
+    // Prev/next and row clicks with the pane open would otherwise save the already-paused state
+    if (!selectedQuery) {
+      previousFetchingState.current = fetching;
+    }
     setSelectedQuery(query);
-    previousFetchingState.current = fetching;
     setFetching(false);
   };
 
   const handleCloseDetails = () => {
+    // Escape fires this even when the pane is closed
+    if (!selectedQuery) {
+      return;
+    }
     setSelectedQuery(undefined);
     setFetching(previousFetchingState.current);
   };
