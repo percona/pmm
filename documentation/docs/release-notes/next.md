@@ -90,6 +90,16 @@ If you manage a large MongoDB fleet, you can now see right away which backup age
 
 [Find your failing backup agents](../reference/dashboards/dashboard-mongodb-backup-details.md#failing-backup-agents) to get started.
 
+### Change a monitored service from the command line without removing it
+
+Rotating a password or renewing a certificate no longer means removing a service and adding it again, or changing its agents one by one with `pmm-admin inventory change agent`, which PMM 3.7.0 introduced.
+
+With `pmm-admin update`, you change the settings of a monitored service in one command, and PMM applies them to all its agents. The service keeps its ID, so its metrics, Query Analytics history, alerts, and backups stay with it. It works for MySQL, PostgreSQL, MongoDB, Valkey, ProxySQL, HAProxy, and external services, and it changes only the flags that you pass.
+
+Preview a change with `--dry-run` before you apply it. If you change the credentials, TLS settings, or address, PMM first checks the connection to the database, so a wrong value doesn't replace a working one.
+
+To get started, [change the settings of a monitored service](../use/commands/pmm-admin/update.md).
+
 ## 🔒 Security updates
 
 ### ClickHouse remote code execution ([CVE-2026-116366](https://nvd.nist.gov/vuln/detail/CVE-2026-116366))
@@ -166,6 +176,7 @@ To find the affected endpoints and update your automation, [check the PMM API re
     To make sure that PMM Server starts after the upgrade, check your database passwords for spaces or line breaks at the start or end, and [remove them before you upgrade](../admin/security/credentials_as_files.md#remove-whitespace-from-database-passwords).
 
 - [PMM-15806](https://perconadev.atlassian.net/browse/PMM-15806): You can now search the **Clusters** tab on **MongoDB > Operations > Fleet** by cluster name and filter it by **Health**, **Type**, and **Environment**. The search and filters are saved in the page URL, so you can share a filtered view. Each cluster shows its type next to its name. The column chooser also adds optional **Type**, **Last seen**, **Max CPU**, and **Min conn. free** columns. For details, see [Operations for MongoDB](../use/mongodb-operations.md#view-fleet-health).
+- [PMM-14146](https://perconadev.atlassian.net/browse/PMM-14146): You can now [change a monitored service](#change-a-monitored-service-from-the-command-line-without-removing-it) and all its agents with one command, `pmm-admin update`, instead of changing each agent with `pmm-admin inventory change agent`. Only a change of the service's cluster removes scheduled backups: those of the services in its current and its new cluster.
 - [PMM-13820](https://perconadev.atlassian.net/browse/PMM-13820): Improved documentation for PMM Client environment variables. The [pmm-agent configuration topic](../use/commands/pmm-agent.md#options-and-environment) now documents every variable that PMM Client accepts. The [Docker example](../install-pmm/install-pmm-client/docker.md#add-monitoring-services) for adding services at startup now correctly uses `PMM_AGENT_PRERUN_FILE` for the script file instead of `PMM_AGENT_PRERUN_SCRIPT`, which is meant for commands.
 
 ## ✅ Fixed issues
