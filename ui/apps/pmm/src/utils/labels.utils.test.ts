@@ -30,6 +30,13 @@ describe('custom labels', () => {
     });
   });
 
+  it('drops the space after the colon', () => {
+    expect(parseCustomLabels('team: db env: prod')).toEqual({
+      team: 'db',
+      env: 'prod',
+    });
+  });
+
   it.each([
     ['', true],
     ['team:db\nregion_name:eu', true],

@@ -12,7 +12,7 @@ export const splitCustomLabel = (entry: string): [string, string] => {
 
   return separator === -1
     ? [entry, '']
-    : [entry.slice(0, separator), entry.slice(separator + 1)];
+    : [entry.slice(0, separator), entry.slice(separator + 1).trim()];
 };
 
 // Labels are separated by new lines or spaces, but a space only starts a new

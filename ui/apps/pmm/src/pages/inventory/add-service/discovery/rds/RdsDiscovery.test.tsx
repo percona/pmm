@@ -75,19 +75,25 @@ describe('RdsDiscovery', () => {
     expect(enqueueSnackbar).not.toHaveBeenCalled();
   });
 
-  it("starts with PMM Server's identity and discovers with it again", async () => {
+  it('starts on an access key, as PMM Server has already discovered with its own identity', async () => {
     renderServiceForm(RdsDiscovery);
     await screen.findByText('rds-mysql');
 
-    expect(screen.getByLabelText("PMM Server's identity")).toBeChecked();
+    expect(screen.getByLabelText('Access key')).toBeChecked();
+    expect(screen.getByTestId('text-input-aws-access-key')).toBeInTheDocument();
+  });
+
+  it("discovers with PMM Server's identity again and keeps it chosen", async () => {
+    renderServiceForm(RdsDiscovery);
+    await screen.findByText('rds-mysql');
+
+    clickLabel("PMM Server's identity");
     expect(screen.getByTestId('rds-server-identity-note')).toBeInTheDocument();
-    expect(
-      screen.queryByTestId('text-input-aws-access-key')
-    ).not.toBeInTheDocument();
     submit();
 
     await waitFor(() => expect(discoverRDS).toHaveBeenCalledTimes(2));
     expect(lastDiscovery()).toEqual({});
+    expect(screen.getByLabelText("PMM Server's identity")).toBeChecked();
   });
 
   it('discovers with an IAM role ARN', async () => {
@@ -173,6 +179,7 @@ describe('RdsDiscovery', () => {
     expect(
       await screen.findByTestId('rds-server-discovery-failed')
     ).toBeInTheDocument();
+    expect(screen.getByLabelText('Access key')).toBeChecked();
     unmount();
 
     vi.mocked(discoverRDS).mockReturnValueOnce(new Promise(() => {}));
@@ -202,6 +209,7 @@ describe('RdsDiscovery', () => {
       'operation error RDS: DescribeDBInstances, get identity: get credentials: failed to refresh cached credentials, no EC2 IMDS role found, operation error ec2imds: GetMetadata, access disabled to EC2 IMDS via client option, or "AWS_EC2_METADATA_DISABLED" environment variable'
     );
 
+    clickLabel("PMM Server's identity");
     submit();
 
     await waitFor(() =>
@@ -218,7 +226,7 @@ describe('RdsDiscovery', () => {
     const message = `Failed to assume role ${ROLE_ARN}: failed to refresh cached credentials, denied`;
     rejectDiscovery(message);
 
-    submit();
+    discoverWithRole();
 
     await waitFor(() =>
       expect(enqueueSnackbar).toHaveBeenCalledWith(message, {

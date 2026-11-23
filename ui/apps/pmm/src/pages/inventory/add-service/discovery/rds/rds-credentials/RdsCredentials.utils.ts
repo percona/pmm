@@ -13,12 +13,14 @@ const getRdsAuthMode = (credentials: DiscoverRDSPayload) => {
 };
 
 export const toRdsCredentialsValues = (
-  credentials: DiscoverRDSPayload = {}
+  credentials?: DiscoverRDSPayload
 ): RdsCredentialsFormValues => ({
-  rdsAuthMode: getRdsAuthMode(credentials),
-  awsAccessKey: credentials.awsAccessKey ?? '',
-  awsSecretKey: credentials.awsSecretKey ?? '',
-  awsRoleArn: credentials.awsRoleArn ?? '',
+  rdsAuthMode: credentials
+    ? getRdsAuthMode(credentials)
+    : RdsAuthMode.accessKey,
+  awsAccessKey: credentials?.awsAccessKey ?? '',
+  awsSecretKey: credentials?.awsSecretKey ?? '',
+  awsRoleArn: credentials?.awsRoleArn ?? '',
 });
 
 // Only the chosen mode's fields are sent, since the server rejects keys next to a role.
