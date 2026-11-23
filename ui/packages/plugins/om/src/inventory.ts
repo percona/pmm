@@ -493,12 +493,18 @@ export function keepGroupIds(
   const earlierId = new Map(
     earlier.flatMap((group) => group.runs.map((run) => [run.run_id, group.id]))
   );
+  const own = new Set(groups.map((group) => group.id));
   const taken = new Set<string>();
   return groups.map((group) => {
     const shared = new Map<string, number>();
     for (const run of group.runs) {
       const id = earlierId.get(run.run_id);
-      if (id !== undefined && !taken.has(id)) {
+      // Another group's own id stays with it, or two rows would share one.
+      if (
+        id !== undefined &&
+        !taken.has(id) &&
+        (id === group.id || !own.has(id))
+      ) {
         shared.set(id, (shared.get(id) ?? 0) + 1);
       }
     }

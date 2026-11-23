@@ -735,6 +735,15 @@ describe('keepGroupIds', () => {
 
     expect(kept.map((g) => g.id)).toEqual(['e', 'c']);
   });
+
+  it('leaves a group its own id when an older cached page splits the group that kept it', () => {
+    // On the cached page r was still running, so it had not joined c yet.
+    const earlier = [{ ...group('r', 'c'), id: 'c' }];
+
+    expect(
+      keepGroupIds([group('r'), group('c')], earlier).map((g) => g.id)
+    ).toEqual(['r', 'c']);
+  });
 });
 
 describe('isScanHeld', () => {
