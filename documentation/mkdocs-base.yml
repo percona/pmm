@@ -124,15 +124,6 @@ plugins:
     css_dir: css
     javascript_dir: js
     canonical_version: null
-  # llms.txt, llms-full.txt and a .md copy of every page, for AI agents.
-  # percona-llmstxt fills in the sections (from nav), base_url and the rest.
-  llmstxt:
-    full_output: llms-full.txt
-    markdown_description: >-
-      Each page below is also available as markdown. For the documentation of
-      all Percona products, see https://docs.percona.com/llms.txt.
-    sections: {}
-  percona-llmstxt: {}
 
 extra:
   version:
