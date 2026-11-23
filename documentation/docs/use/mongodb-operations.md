@@ -258,7 +258,7 @@ To find out why a service is failing, go to **MongoDB > Operations > Fleet** and
 
 If an install step fails, PMM retries it once. If the retry also fails, PMM rolls back what it installed on all nodes: packages, configuration, and data. PMM doesn't retry failed pre-checks.
 
-To find out why an install failed, hover over its status on the **Installs** tab, or expand it to see the reason under the summary. To see each failed step's full output and task history, click **Show failure details**.
+To find out why an install failed, hover over its status on the **Installs** tab, or expand it to see the reason under the summary. To see each failed step's reason, the end of its output and its task history ID, click **Show failure details**.
 
 To stop an install that's running, expand it on the **Installs** tab and abort it. PMM then rolls back the install in the same way.
 
