@@ -626,6 +626,19 @@ describe('EditService', () => {
     expect(screen.queryByTestId('edit-service-form')).not.toBeInTheDocument();
   });
 
+  // Without the node type the form can't restrict a cloud node's query sources
+  it('does not show the form when the node fails to load', async () => {
+    vi.mocked(getNode).mockRejectedValue(new Error('timeout'));
+    renderEditService();
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('edit-service-loading')
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.queryByTestId('edit-service-form')).not.toBeInTheDocument();
+  });
+
   it('says when the service no longer exists', async () => {
     vi.mocked(getEditableService).mockResolvedValue(null);
     renderEditService('missing');

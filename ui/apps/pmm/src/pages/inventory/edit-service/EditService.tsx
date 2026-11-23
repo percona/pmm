@@ -41,7 +41,9 @@ export const EditService: FC = () => {
       {isLoaded && serviceQuery.isSuccess && !editable && (
         <Alert severity="error">{Messages.notFound}</Alert>
       )}
-      {isLoaded && editable && (
+      {/* The node type decides the query sources the form offers; the API
+          error notification reports a failed lookup */}
+      {isLoaded && editable && !nodeQuery.isError && (
         <EditServiceForm
           editable={editable}
           rdsExporter={exporterQuery.data ?? null}
