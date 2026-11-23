@@ -91,6 +91,23 @@ If you manage a large MongoDB fleet, you can now see right away which backup age
 
 ## 🔒 Security updates
 
+### nginx HTTP/2 memory corruption ([CVE-2026-123007](https://nvd.nist.gov/vuln/detail/CVE-2026-123007), [CVE-2026-123633](https://nvd.nist.gov/vuln/detail/CVE-2026-123633))
+
+[PMM-15947](https://perconadev.atlassian.net/browse/PMM-15947): Critical severity. PMM Server uses nginx for all connections to the PMM UI and API. An unauthenticated attacker who can reach PMM Server over HTTP or HTTPS could crash nginx, which makes PMM unavailable, or potentially run code on PMM Server.
+
+#### Affected installations
+
+All PMM Server deployments of PMM 3.10.0 and earlier. The risk depends on who can reach PMM Server over HTTP or HTTPS:
+
+- PMM Server reachable only from trusted networks: lower risk.
+- PMM Server reachable from untrusted networks or the internet: upgrade as soon as possible.
+
+#### How to fix
+
+[Upgrade to PMM 3.11.0](../pmm-upgrade/index.md). It includes nginx 1.30.7, which has the fixes from the [nginx security advisories](https://nginx.org/en/security_advisories.html). PMM Server now gets nginx from the nginx.org stable repository, because fixed Oracle Linux packages weren't available when this release was built.
+
+Until you upgrade, allow connections to PMM Server only from trusted networks.
+
 ### Go standard library HTTP/1 server crash ([CVE-2026-97054](https://nvd.nist.gov/vuln/detail/CVE-2026-97054))
 
 Fixed in `pmm-managed`, `pmm-agent`, `pmm-admin`, `qan-api2`, and `vmproxy` by rebuilding on Go 1.27.4.
@@ -127,12 +144,13 @@ To find the affected endpoints and update your automation, [check the PMM API re
 
 ## ✅ Fixed issues
 
+- [PMM-15785](https://perconadev.atlassian.net/browse/PMM-15785): Fixed an issue in PMM High Availability setups where the [PMM Query Analytics](../use/qan/index.md) dashboard could miss queries or show changing totals. This could happen after installation, a pod restart, or a restore, when the ClickHouse servers that store QAN data ended up with mismatched copies of the data. PMM now checks the copies every 10 minutes and keeps the one with the most data. Data that exists only in the other copies is deleted. You can [check whether your installation is affected](../troubleshoot/ha_issues.md#query-analytics-shows-different-data-on-different-pmm-nodes) and see how much data PMM removed.
 - [PMM-15339](https://perconadev.atlassian.net/browse/PMM-15339): Fixed an issue where [turning on Grafana anonymous access](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md#supported-external-variables) also let visitors who aren't signed in use PMM features such as Query Analytics. These visitors can now open only your dashboards.
 - [PMM-15654](https://perconadev.atlassian.net/browse/PMM-15654): Fixed the [MongoDB Sharded Cluster Summary](../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboard hiding clusters added without `--environment` when **Environment** is set to **All** and another MongoDB service has an environment set. These clusters now appear under **All**.
 - [PMM-15801](https://perconadev.atlassian.net/browse/PMM-15801): Fixed an arbiter added to PMM showing no member state and **mongod** as its process on **MongoDB > Operations > Fleet**. An arbiter now shows **Arbiter** as its process, and **ARBITER** as its member state while it is running. The cluster's **Process** summary counts it as an arbiter. For details, see [Operations for MongoDB](../use/mongodb-operations.md).
 - [PMM-15776](https://perconadev.atlassian.net/browse/PMM-15776): Fixed misleading help on **MongoDB > Operations > Settings**. **Connect to MongoDB** now says that scans log in with the `.mongodb_uri` file in the home directory of the user pmm-agent runs as, not with the monitoring credentials PMM holds. For details, see [Operations for MongoDB](../use/mongodb-operations.md#provide-mongodb-credentials-for-scans).
 - [PMM-15845](https://perconadev.atlassian.net/browse/PMM-15845): Fixed an issue where forms in PMM Extensions apps checked some rules that involve several fields only after you submitted the form, and then showed the error in a banner without marking a field. These rules are now checked while you fill in the form. For example, in **Apps > MySQL Backups**, choosing a GPG **Encryption format** with neither **Encrypt backup** nor **Encrypt after backup completes** turned on shows the error on both switches, and the backup isn't created until you fix it. For details, see [Encrypt backups](../apps/mysql-backup.md#encrypt-backups).
-- [PMM-18742](https://perconadev.atlassian.net/browse/PMM-18742): Updated the Grafana ClickHouse data source plugin to v4.23.4, built with Go 1.27.3. This fixes the high-severity Go vulnerabilities that image scanners reported in v4.21.3, including [CVE-2026-78669](https://nvd.nist.gov/vuln/detail/CVE-2026-78669) and the standard library findings listed in the [PMM 3.10.0 release notes](3.10.0.md#go-standard-library-vulnerabilities-in-the-clickhouse-data-source).
+- [PMM-18742](https://perconadev.atlassian.net/browse/PMM-18742): Updated the Grafana ClickHouse data source plugin to v4.23.5, built with Go 1.27.3. This fixes the high-severity Go vulnerabilities that image scanners reported in v4.21.3, including [CVE-2026-78669](https://nvd.nist.gov/vuln/detail/CVE-2026-78669), [CVE-2026-78661](https://nvd.nist.gov/vuln/detail/CVE-2026-78661) and the standard library findings listed in the [PMM 3.10.0 release notes](3.10.0.md#go-standard-library-vulnerabilities-in-the-clickhouse-data-source).
 - [PMM-18742](https://perconadev.atlassian.net/browse/PMM-18742): Updated [Nomad](../reference/nomad.md) to 2.1.1, which fixes [CVE-2026-78669](https://nvd.nist.gov/vuln/detail/CVE-2026-78669) and the `go-jose/v4` finding for [CVE-2026-116587](https://nvd.nist.gov/vuln/detail/CVE-2026-116587). Security scanners still report CVE-2026-116587 for Nomad's `go-jose/v3`, which has no fixed release.
 - [PMM-15947](https://perconadev.atlassian.net/browse/PMM-15947): Updated nginx in PMM Server from 1.26.3 to 1.30.7. This fixes [CVE-2026-123007](https://nvd.nist.gov/vuln/detail/CVE-2026-123007) and [CVE-2026-123633](https://nvd.nist.gov/vuln/detail/CVE-2026-123633) in HTTP/2 handling, and the other vulnerabilities that the [nginx security advisories](https://nginx.org/en/security_advisories.html) list as fixed in 1.30.7. PMM Server now gets nginx from the nginx.org stable repository instead of the Oracle Linux packages. For the versions of bundled components, see [PMM components and versions](../reference/pmm_components_and_versions.md).
 - [PMM-15772](https://perconadev.atlassian.net/browse/PMM-15772): Fixed an issue where you couldn't turn on Operations for MongoDB until you connected PMM Server to PMM Extensions manually. PMM Server now connects to PMM Extensions automatically. If you set `PMM_EXTENSIONS_URL`, `PMM_EXTENSIONS_TOKEN` and `EXTENSIONS_INTERNAL_TOKEN` for PMM 3.10.0, they keep working. If PMM still can't use PMM Extensions, turning on Operations for MongoDB now says why, for example that PMM Extensions is unreachable or rejects PMM's token. For details, see [Operations for MongoDB](../use/mongodb-operations.md#prepare-pmm-server).
