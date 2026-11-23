@@ -21,6 +21,7 @@ import {
   toInventoryService,
   toManagedService,
   toServiceAgent,
+  toUpdateServicePayload,
 } from './inventory.utils';
 
 export const getServiceTypes = async (): Promise<ListTypesResponse> => {
@@ -84,33 +85,15 @@ export const getEditableService = async (
   };
 };
 
-// Maps and lists are wrapped, so that an empty one reaches the server as a
-// value that clears the stored one
-const WRAPPED_CHANGES = new Set([
-  'customLabels',
-  'extraDsnParams',
-  'disableCollectors',
-  'statsCollections',
-]);
-
-const toSnakeCase = (name: string) =>
-  name.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-
 // Resolves with the server's warning, if any
 export const updateService = async ({
   serviceId,
   serviceType,
   changes,
 }: UpdateServiceParams): Promise<string> => {
-  const params = Object.fromEntries(
-    Object.entries(changes).map(([name, value]) => [
-      toSnakeCase(name),
-      WRAPPED_CHANGES.has(name) ? { values: value } : value,
-    ])
-  );
   const res = await api.put<{ warning?: string }>(
     `/management/services/${serviceId}`,
-    { [serviceType]: params },
+    { [serviceType]: toUpdateServicePayload(changes) },
     RAW_REQUEST
   );
 

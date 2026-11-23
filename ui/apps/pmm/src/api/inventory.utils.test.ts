@@ -19,6 +19,7 @@ import {
   toManagedNode,
   toManagedService,
   toServiceAgent,
+  toUpdateServicePayload,
   type NodePayload,
   type ServicePayload,
 } from './inventory.utils';
@@ -420,6 +421,24 @@ describe('toServiceAgent', () => {
       disabledCollectors: [],
       extraDsnParams: {},
       autoDiscoveryLimit: 0,
+    });
+  });
+});
+
+describe('toUpdateServicePayload', () => {
+  it('names the changes as the API does and wraps maps and lists', () => {
+    expect(
+      toUpdateServicePayload({
+        replicationSet: '',
+        customLabels: { teamName: 'db' },
+        disableCollectors: [],
+        qanMysqlSlowlog: true,
+      })
+    ).toEqual({
+      replication_set: '',
+      custom_labels: { values: { teamName: 'db' } },
+      disable_collectors: { values: [] },
+      qan_mysql_slowlog: true,
     });
   });
 });

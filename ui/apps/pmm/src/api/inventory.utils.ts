@@ -17,6 +17,7 @@ import type {
   InventoryService,
   ManagedService,
   ManagedServiceType,
+  ServiceChanges,
   ServiceStatus,
 } from 'types/services.types';
 import { api } from './api';
@@ -416,3 +417,24 @@ export const findRdsExporter = (agents: AgentPayload[] = []) => {
 
   return exporters.length === 1 ? toRdsExporter(exporters[0]) : null;
 };
+
+// Maps and lists are wrapped, so that an empty one reaches the server as a
+// value that clears the stored one
+const WRAPPED_CHANGES = new Set([
+  'customLabels',
+  'extraDsnParams',
+  'disableCollectors',
+  'statsCollections',
+]);
+
+const toSnakeCase = (name: string) =>
+  name.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+
+// Names the changes as the API does, leaving label keys as typed
+export const toUpdateServicePayload = (changes: ServiceChanges) =>
+  Object.fromEntries(
+    Object.entries(changes).map(([name, value]) => [
+      toSnakeCase(name),
+      WRAPPED_CHANGES.has(name) ? { values: value } : value,
+    ])
+  );
