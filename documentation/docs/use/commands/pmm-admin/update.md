@@ -156,6 +156,8 @@ With `--json`, `pmm-admin update` prints the result as JSON. The `changed` field
 pmm-admin update mysql mysql-prod --log-level=info --json
 ```
 
+When a change of `--query-source` adds or removes a Query Analytics agent, `changes` lists only `--query-source`, not the settings that come or go with the agent, such as `--max-query-length`. To read the current value of every setting, use the `settings` field.
+
 ## Settings that update can't change
 
 `pmm-admin update` can't change the following:
