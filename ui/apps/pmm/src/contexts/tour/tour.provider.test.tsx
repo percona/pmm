@@ -1,7 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { TEST_USER_ADMIN } from 'utils/testStubs';
-import { createAnonymousUser } from 'contexts/user/user.utils';
 import { addAlerting } from 'contexts/navigation/navigation.utils';
 import { User } from 'types/user.types';
 import { NavItem } from 'types/navigation.types';
@@ -38,7 +37,7 @@ vi.mock('utils/dom.utils', () => ({
   waitForVisible: () => Promise.resolve(true),
 }));
 
-const renderAtAlerting = (user: User) => {
+const renderAtAlerting = (user: User | undefined) => {
   mocks.user = user;
 
   return render(
@@ -63,7 +62,7 @@ describe('TourProvider', () => {
   });
 
   it('does not start the alerting tour for anonymous users', async () => {
-    renderAtAlerting(createAnonymousUser());
+    renderAtAlerting(undefined);
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 

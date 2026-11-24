@@ -31,6 +31,16 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
+// Label values of the Advisor notifications metric.
+const (
+	notificationKindRun    = "run"
+	notificationKindShared = "shared"
+	notificationKindTest   = "test"
+
+	notificationResultSent   = "sent"
+	notificationResultFailed = "failed"
+)
+
 // maxEmailedInsights caps EmailInsights, so the email stays readable and a broad filter can't make
 // the server format the whole insights history.
 const maxEmailedInsights = 200
@@ -122,6 +132,7 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, run *models.
 	body := buildAdvisorEmailReport(run, severities, sCounts, tCounts, texts)
 
 	err = s.sendAdvisorEmail(recipients, subject, body)
+	s.countNotification(notificationKindRun, err)
 	if err != nil {
 		s.l.Warnf("Advisor notification: failed to email run %s: %v", runID, err)
 		return
@@ -159,7 +170,18 @@ func (s *Service) SendTestNotification(recipients []string, severities []common.
 		&models.AdvisorRun{ID: runID, TriggeredBy: models.CheckTriggeredByUser}, severities, sCounts, tCounts, texts,
 	)
 
-	return s.sendAdvisorEmail(recipients, subject, body)
+	err := s.sendAdvisorEmail(recipients, subject, body)
+	s.countNotification(notificationKindTest, err)
+	return err
+}
+
+// countNotification counts an Advisor email of the given kind as sent or failed.
+func (s *Service) countNotification(kind string, err error) {
+	result := notificationResultSent
+	if err != nil {
+		result = notificationResultFailed
+	}
+	s.mNotifications.WithLabelValues(kind, result).Inc()
 }
 
 // testReportPreamble opens the test email, so that a recipient who was not the one pressing the
@@ -337,6 +359,7 @@ func (s *Service) EmailInsights(ctx context.Context, filters models.InsightFilte
 
 	subject := fmt.Sprintf("PMM Advisor Insights: %d insight(s) shared with you", len(texts))
 	err = s.sendAdvisorEmail(recipients, subject, buildSharedInsightsEmail(filters, counts, texts))
+	s.countNotification(notificationKindShared, err)
 	if err != nil {
 		return 0, err
 	}

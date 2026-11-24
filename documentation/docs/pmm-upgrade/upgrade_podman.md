@@ -14,6 +14,8 @@ Before starting the upgrade, complete these preparation steps to ensure you can 
     curl -ku admin:admin https://localhost/v1/version
     ```
 
+3. If your current version is PMM 3.9.1 or earlier and you use the built-in database, this upgrade also migrates your PMM Server data from PostgreSQL 14 to PostgreSQL 18, so the first start takes longer than usual. [Prepare for the PostgreSQL migration](prepare_postgresql_14_removal.md#check-whether-this-affects-you).
+
 ## Upgrade steps
 
 Follow these steps to upgrade your PMM Server while preserving your monitoring data and settings. In case of any issues, you can restore your system using the backup created in the preparation steps.
