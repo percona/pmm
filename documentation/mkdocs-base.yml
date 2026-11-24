@@ -453,6 +453,7 @@ nav:
               - Upgrade HA Cluster on Kubernetes: pmm-upgrade/upgrade_helm_ha.md
           - pmm-upgrade/migrating_from_pmm_2.md
           - pmm-upgrade/migrate_from_ovf.md
+          - pmm-upgrade/prepare_postgresql_14_removal.md
           - pmm-upgrade/upgrade_aws.md
       - Upgrade PMM Client: pmm-upgrade/upgrade_client.md
   - Uninstall:
@@ -477,6 +478,7 @@ nav:
       - Troubleshoot PMM HA Cluster: troubleshoot/ha_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.11.0": release-notes/3.11.0.md
       - "PMM 3.10.0 (2026-10-22)": release-notes/3.10.0.md
       - "PMM 3.9.1 (2026-08-19)": release-notes/3.9.1.md
       - "PMM 3.9.0 (2026-07-30)": release-notes/3.9.0.md

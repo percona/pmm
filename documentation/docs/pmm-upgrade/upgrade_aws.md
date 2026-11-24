@@ -22,13 +22,15 @@ To upgrade PMM Server on AWS:
 
 2. Connect to your PMM Server instance via SSH using the `admin` user.
 
-3. Update the PMM Server image in the environment file. Replace `X.Y.Z` with your target version:
+3. If your current version is PMM 3.9.1 or earlier and you use the built-in database, this upgrade also migrates your PMM Server data from PostgreSQL 14 to PostgreSQL 18, so the first start takes longer than usual. [Prepare for the PostgreSQL migration](prepare_postgresql_14_removal.md#check-whether-this-affects-you).
+
+4. Update the PMM Server image in the environment file. Replace `X.Y.Z` with your target version:
 
     ```sh
     sed -i "s|PMM_IMAGE=.*|PMM_IMAGE=docker.io/percona/pmm-server:X.Y.Z|g" ~/.config/systemd/user/pmm-server.env
     ```
 
-4. Pull the new image, then restart PMM Server. The `&&` operators stop the commands if the pull fails, so PMM Server keeps running the current version:
+5. Pull the new image, then restart PMM Server. The `&&` operators stop the commands if the pull fails, so PMM Server keeps running the current version:
 
     ```sh
     source ~/.config/systemd/user/pmm-server.env && \
