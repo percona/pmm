@@ -20,13 +20,16 @@ import { defaultMemberConfig } from '../src/electionPlan';
 import {
   adminPasswordError,
   adminPasswordMismatchError,
+  commonMongodbVersions,
   type ConfigureFormState,
   configureBlockers,
+  initialMongodbVersion,
   replicaSetNameError,
 } from '../src/installForm';
 
 const validForm = (): ConfigureFormState => ({
   replicaSetName: 'rs0',
+  mongodbVersion: '7.0',
   dataPath: '/var/lib/mongo',
   logPath: '/var/log/mongodb/mongod.log',
   port: '27017',
@@ -35,6 +38,38 @@ const validForm = (): ConfigureFormState => ({
   electionErrorCount: 0,
   adminUsername: 'admin',
   adminPassword: null,
+});
+
+describe('commonMongodbVersions', () => {
+  const node = (...versions: string[]) => ({
+    supported_mongodb_versions: versions,
+  });
+
+  it('keeps only the versions every node supports', () => {
+    expect(
+      commonMongodbVersions([
+        node('7.0', '8.0'),
+        node('8.0'),
+        node('7.0', '8.0'),
+      ])
+    ).toEqual(['8.0']);
+  });
+
+  it('offers nothing when the nodes share no version, or none is selected', () => {
+    expect(commonMongodbVersions([node('7.0'), node('8.0')])).toEqual([]);
+    expect(commonMongodbVersions([])).toEqual([]);
+  });
+});
+
+describe('initialMongodbVersion', () => {
+  it('starts on the default when it is offered', () => {
+    expect(initialMongodbVersion(['7.0', '8.0'])).toBe('7.0');
+  });
+
+  it('starts on the newest version offered otherwise', () => {
+    expect(initialMongodbVersion(['8.0'])).toBe('8.0');
+    expect(initialMongodbVersion([])).toBe('');
+  });
 });
 
 describe('replicaSetNameError', () => {
@@ -67,6 +102,12 @@ describe('configureBlockers', () => {
   it('asks for a replica set name when it is empty', () => {
     expect(configureBlockers({ ...validForm(), replicaSetName: '' })).toEqual([
       'Enter a replica set name.',
+    ]);
+  });
+
+  it('asks for a MongoDB version when none every node supports is chosen', () => {
+    expect(configureBlockers({ ...validForm(), mongodbVersion: '' })).toEqual([
+      'Choose a MongoDB version that every selected node supports.',
     ]);
   });
 
