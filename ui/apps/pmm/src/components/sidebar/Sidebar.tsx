@@ -9,10 +9,9 @@ import { useNavigation } from 'contexts/navigation';
 import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
 import { SidebarNavItem } from './nav-item';
-import { LABEL_WIDTH_VAR } from './nav-item/SidebarNavItem.styles';
+import { DRAWER_WIDTH } from './drawer/Drawer.constants';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
-import { listItemTextClasses } from '@mui/material/ListItemText';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { SidebarScrollButton, useScrollEdges } from './scroll-button';
 import { useTheme } from '@mui/material/styles';
@@ -27,7 +26,6 @@ export const Sidebar: FC = () => {
   const { navTree, navOpen, setNavOpen } = useNavigation();
   const [activeItem, setActiveItem] = useState<NavItemType>();
   const [animating, setAnimating] = useState(false);
-  const [labelWidths, setLabelWidths] = useState<Record<string, string>>({});
   const location = useLocation();
   const theme = useTheme();
   const isNarrow = useMediaQuery(theme.breakpoints.down('md'));
@@ -50,44 +48,17 @@ export const Sidebar: FC = () => {
     });
   };
 
-  // Labels hold a single line while the drawer moves, however it was opened or
-  // closed. Nothing moves under reduced motion, so they are free at once.
+  // Set for as long as the drawer moves, however it was opened or closed.
+  // Nothing moves under reduced motion.
   const [prevNavOpen, setPrevNavOpen] = useState(navOpen);
   if (navOpen !== prevNavOpen) {
     setPrevNavOpen(navOpen);
     setAnimating(!reduceMotion);
   }
 
-  const setSidebarOpen = useCallback(
-    (open: boolean) => {
-      // Recorded only from a settled, open drawer: mid-animation widths would
-      // break labels into more lines.
-      // Kept by entry rather than on the label, so an entry that remounts
-      // while collapsed still opens at its width.
-      if (navOpen && !open && !animating && list) {
-        const widths: Record<string, string> = {};
-
-        list
-          .querySelectorAll<HTMLElement>(`.${listItemTextClasses.root}`)
-          .forEach((label) => {
-            const testId =
-              label.closest<HTMLElement>('[data-navlevel]')?.dataset.testid;
-
-            if (testId) {
-              widths[testId] = `${label.getBoundingClientRect().width}px`;
-            }
-          });
-        setLabelWidths(widths);
-      }
-
-      setNavOpen(open);
-    },
-    [navOpen, animating, list, setNavOpen]
-  );
-
   const toggleSidebar = useCallback(
-    () => setSidebarOpen(!navOpen),
-    [setSidebarOpen, navOpen]
+    () => setNavOpen(!navOpen),
+    [setNavOpen, navOpen]
   );
 
   // Released when the paper's own width transition ends, not on a timer: the
@@ -116,9 +87,9 @@ export const Sidebar: FC = () => {
   const handleNavItemClick = useCallback(() => {
     // autoclose sidebar when layout is narrow
     if (isNarrow) {
-      setSidebarOpen(false);
+      setNavOpen(false);
     }
-  }, [isNarrow, setSidebarOpen]);
+  }, [isNarrow, setNavOpen]);
 
   const renderItem = (item: NavItemType) => (
     <SidebarNavItem
@@ -156,7 +127,10 @@ export const Sidebar: FC = () => {
           disablePadding
           sx={[
             {
-              width: '100%',
+              // Laid out at the open width while the drawer moves, so labels
+              // slide out of view instead of rewrapping; the paper clips it.
+              width: animating ? DRAWER_WIDTH : '100%',
+              flexShrink: 0,
               overflowY: 'auto',
               overflowX: 'hidden',
               pb: 3,
@@ -164,19 +138,6 @@ export const Sidebar: FC = () => {
             },
             hiddenScrollbarMixin,
             scrollFadeMixin(canScrollUp, canScrollDown),
-            // Labels keep their open width while the drawer moves or is collapsed,
-            // so they slide out of view rather than rewrap.
-            (animating || !navOpen) && {
-              [`.${listItemTextClasses.root}`]: {
-                flex: `0 0 var(${LABEL_WIDTH_VAR}, auto)`,
-              },
-              ...Object.fromEntries(
-                Object.entries(labelWidths).map(([testId, width]) => [
-                  `[data-testid="${testId}"] .${listItemTextClasses.root}`,
-                  { [LABEL_WIDTH_VAR]: width },
-                ])
-              ),
-            },
           ]}
         >
           <Box component="li" ref={startRef} aria-hidden sx={edgeMarker} />

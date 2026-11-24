@@ -1,10 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { NavigationContext } from 'contexts/navigation/navigation.context';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import { TestWrapper } from 'utils/testWrapper';
@@ -46,36 +41,15 @@ const renderSidebar = (
     </TestWrapper>
   );
 
-const labelWidth = (label: Element) =>
-  getComputedStyle(label).getPropertyValue('--sidebar-label-width').trim();
+const inSidebar = (selector: string) =>
+  screen.getByTestId('pmm-sidebar').querySelector(selector) as HTMLElement;
 
 describe('Sidebar', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("records each label's expanded width as the drawer starts to close", () => {
-    renderSidebar(true, [
-      { id: 'overview', text: 'Overview', url: '/graph/' },
-      { id: 'summary', text: 'Databases on Kubernetes - Summary', url: '/x' },
-    ]);
-    const labels = screen
-      .getByTestId('pmm-sidebar')
-      .querySelectorAll<HTMLElement>('.MuiListItemText-root');
-
-    expect(labels).toHaveLength(2);
-    labels.forEach((label) =>
-      expect(labelWidth(label)).not.toMatch(/^\d+(\.\d+)?px$/)
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
-
-    labels.forEach((label) =>
-      expect(labelWidth(label)).toMatch(/^\d+(\.\d+)?px$/)
-    );
-  });
-
-  it('records the widths too when a narrow layout closes after a click', () => {
+  it('closes after a click on a narrow layout', () => {
     vi.stubGlobal('matchMedia', (query: string) => ({
       matches: query.includes('max-width'),
       media: query,
@@ -83,43 +57,26 @@ describe('Sidebar', () => {
       removeEventListener: () => {},
     }));
     renderSidebar(true, [{ id: 'overview', text: 'Overview', url: '/x' }]);
-    const [label] = screen
-      .getByTestId('pmm-sidebar')
-      .querySelectorAll<HTMLElement>('.MuiListItemText-root');
 
     fireEvent.click(screen.getByRole('link', { name: 'Overview' }));
 
-    expect(labelWidth(label)).toMatch(/^\d+(\.\d+)?px$/);
+    expect(
+      screen.getByRole('button', { name: 'Expand sidebar' })
+    ).toBeInTheDocument();
   });
 
-  it('keeps a recorded width for an entry that remounts while collapsed', async () => {
-    renderSidebar(
-      true,
-      [
-        {
-          id: 'mysql',
-          text: 'MySQL',
-          url: '/graph/d/mysql',
-          children: [
-            { id: 'mysql-summary', text: 'Summary', url: '/graph/d/summary' },
-          ],
-        },
-      ],
-      ['/graph/d/summary']
-    );
+  it('lays the list out at the open width only while the drawer moves', () => {
+    renderSidebar(true, [{ id: 'overview', text: 'Overview', url: '/x' }]);
 
     fireEvent.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
 
-    await waitForElementToBeRemoved(() =>
-      screen.queryByTestId('navitem-mysql-summary')
-    );
+    expect(getComputedStyle(inSidebar('ul')).width).toBe('256px');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Expand sidebar' }));
+    fireEvent.transitionEnd(inSidebar('.MuiDrawer-paper'), {
+      propertyName: 'width',
+    });
 
-    const label = screen
-      .getByTestId('navitem-mysql-summary')
-      .querySelector('.MuiListItemText-root');
-    expect(labelWidth(label as Element)).toMatch(/^\d+(\.\d+)?px$/);
+    expect(getComputedStyle(inSidebar('ul')).width).toBe('100%');
   });
 
   it.each([

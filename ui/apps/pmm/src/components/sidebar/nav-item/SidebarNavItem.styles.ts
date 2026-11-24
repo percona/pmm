@@ -1,13 +1,9 @@
 import { listItemTextClasses } from '@mui/material/ListItemText';
 import { Theme } from '@mui/material/styles';
-import { DRAWER_WIDTH } from '../drawer/Drawer.constants';
 import { appearOnOpenMixin, drawerTransition } from '../drawer/Drawer.styles';
 
 // The rail row's height: NavItem's 24px icon line.
 const RAIL_LABEL_HEIGHT = 24;
-
-// A label's width while the drawer moves or is collapsed; the sidebar records it as the drawer closes.
-export const LABEL_WIDTH_VAR = '--sidebar-label-width';
 
 export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
   const drawerTiming = drawerTransition(theme, drawerOpen);
@@ -55,15 +51,6 @@ export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
       },
     },
     itemEnd: drawerOpen ? { mr: itemEnd } : {},
-    // Before it is measured open, a top-level label assumes its open width: the
-    // drawer less the end gap, padding and 24px icon (2px without an icon).
-    labelWidthEstimate: (hasIcon: boolean, hasButton: boolean) => ({
-      [`.${listItemTextClasses.root}`]: {
-        [LABEL_WIDTH_VAR]: `calc(${DRAWER_WIDTH}px - ${theme.spacing(itemEnd)} - ${
-          hasIcon ? theme.spacing(5) : theme.spacing(0.25)
-        } - ${hasButton ? theme.spacing(5.5) : theme.spacing(2)})`,
-      },
-    }),
     // Open, top-level items run flush left and round off on the right;
     // collapsed, they are square rows that centre the 24px icon.
     navItemRoot: drawerOpen

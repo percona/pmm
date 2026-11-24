@@ -164,9 +164,6 @@ const SidebarNavItem: FC<NavItemProps> = ({
                 styles.navItem,
                 styles.itemEnd,
                 level === 0 && styles.navItemRoot,
-                level === 0 &&
-                  !item.badgeAlwaysVisible &&
-                  styles.labelWidthEstimate(!!item.icon, true),
                 level > 0 && !!item.icon && styles.childIcon,
                 styles.navItemWithButton,
               ]}
@@ -309,9 +306,6 @@ const SidebarNavItem: FC<NavItemProps> = ({
             styles.navItem,
             styles.itemEnd,
             level === 0 && styles.navItemRoot,
-            level === 0 &&
-              !item.badge &&
-              styles.labelWidthEstimate(!!item.icon, !!item.action),
             level > 0 && !!item.icon && styles.childIcon,
             !!item.action && styles.navItemWithButton,
           ]}
