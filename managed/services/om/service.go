@@ -72,6 +72,9 @@ type Service struct {
 
 	probe *probeSource
 
+	// scanScheduler requests managed-cluster scans on a cadence; nil leaves managed scans off.
+	scanScheduler *ScanScheduler
+
 	// tick overrides refreshInterval; only tests set it.
 	tick time.Duration
 
@@ -144,6 +147,27 @@ func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 	s.probe = probe
 	s.l.Infof("om_inventory estate at %s", probe.app.endpoint(""))
 	return s
+}
+
+// WithScanScheduler composes the managed-scan scheduler against PMM Extensions' om_inventory app,
+// leader-gated on this node; an empty URL leaves managed scans off.
+func (s *Service) WithScanScheduler(extensionsURL, token string) *Service {
+	if extensionsURL == "" {
+		return s
+	}
+	client := newExtensionsClient(extensionsURL, token)
+	requester := newInventoryScanRequester(client)
+	s.scanScheduler = NewScanScheduler(s.db, s.l.WithField("component", "om-scans"), requester).WithLeader(s.ha)
+	return s
+}
+
+// RunScanScheduler runs the managed-scan scheduler until the context is cancelled, or returns at once
+// when WithScanScheduler left it off.
+func (s *Service) RunScanScheduler(ctx context.Context) {
+	if s.scanScheduler == nil {
+		return
+	}
+	s.scanScheduler.Run(ctx)
 }
 
 // Enabled returns true if OpenManager is enabled.
