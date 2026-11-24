@@ -1,4 +1,10 @@
-import { forwardRef, useEffect, useRef, useState, type ReactElement } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  useRef,
+  useState,
+  type ReactElement,
+} from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -9,7 +15,10 @@ import Tabs from '@mui/material/Tabs';
 import KeyboardArrowDownOutlined from '@mui/icons-material/KeyboardArrowDownOutlined';
 import KeyboardArrowUpOutlined from '@mui/icons-material/KeyboardArrowUpOutlined';
 import type { SxProps, Theme } from '@mui/material/styles';
-import { unstable_useEnhancedEffect as useEnhancedEffect, useForkRef } from '@mui/material/utils';
+import {
+  unstable_useEnhancedEffect as useEnhancedEffect,
+  useForkRef,
+} from '@mui/material/utils';
 import { BottomPanelCloseIcon } from '../icons';
 import Tooltip from '../tooltip';
 import type {
@@ -24,7 +33,8 @@ const DEFAULT_LABELS: DetailsPaneLabels = {
   close: 'Close details',
 };
 
-const toSxArray = (sx: SxProps<Theme> | undefined) => (Array.isArray(sx) ? sx : [sx]);
+const toSxArray = (sx: SxProps<Theme> | undefined) =>
+  Array.isArray(sx) ? sx : [sx];
 
 interface HeaderButtonProps {
   /** Tooltip and accessible name. */
@@ -39,11 +49,22 @@ interface HeaderButtonProps {
   buttonProps?: DetailsPaneButtonProps;
 }
 
-const HeaderButton = ({ label, icon, onClick, disabled, buttonProps }: HeaderButtonProps) => (
+const HeaderButton = ({
+  label,
+  icon,
+  onClick,
+  disabled,
+  buttonProps,
+}: HeaderButtonProps) => (
   <Tooltip title={label} arrow describeChild>
     {/* A disabled button fires no events, so the tooltip listens on this wrapper. */}
     <span>
-      <IconButton aria-label={label} {...buttonProps} onClick={onClick} disabled={disabled}>
+      <IconButton
+        aria-label={label}
+        {...buttonProps}
+        onClick={onClick}
+        disabled={disabled}
+      >
         {icon}
       </IconButton>
     </span>
@@ -85,12 +106,14 @@ const DetailsPane = forwardRef<HTMLDivElement, DetailsPaneProps>(
     const returnFocusRef = useRef<HTMLElement | null>(null);
 
     const requestedTab = tab ?? ownTab ?? defaultTab;
-    const selectedTab = tabs.find((item) => item.value === requestedTab) ?? tabs[0];
+    const selectedTab =
+      tabs.find((item) => item.value === requestedTab) ?? tabs[0];
 
     useEnhancedEffect(() => {
       const pane = paneRef.current;
       const doc = pane?.ownerDocument ?? document;
-      const focused = doc.activeElement instanceof HTMLElement ? doc.activeElement : null;
+      const focused =
+        doc.activeElement instanceof HTMLElement ? doc.activeElement : null;
       if (open) {
         if (!pane?.contains(focused)) {
           returnFocusRef.current = focused;
@@ -165,10 +188,19 @@ const DetailsPane = forwardRef<HTMLDivElement, DetailsPaneProps>(
               sx={{ minWidth: 0 }}
             >
               {tabs.map((item) => (
-                <Tab key={item.value} {...item.tabProps} value={item.value} label={item.label} />
+                <Tab
+                  key={item.value}
+                  {...item.tabProps}
+                  value={item.value}
+                  label={item.label}
+                />
               ))}
             </Tabs>
-            <Stack direction="row" alignItems="center" sx={{ flex: 'none', gap: 0.5, mr: -1 }}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              sx={{ flex: 'none', gap: 0.5, mr: -1 }}
+            >
               {navigation && (
                 <>
                   <HeaderButton

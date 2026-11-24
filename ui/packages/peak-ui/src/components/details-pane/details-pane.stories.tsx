@@ -19,9 +19,24 @@ interface Server {
 }
 
 const SERVERS: Server[] = [
-  { id: 'srv-001', name: 'db-production-01', region: 'us-east-1', status: 'Healthy' },
-  { id: 'srv-002', name: 'db-staging-02', region: 'eu-central-1', status: 'Warning' },
-  { id: 'srv-003', name: 'db-development-03', region: 'ap-southeast-1', status: 'Healthy' },
+  {
+    id: 'srv-001',
+    name: 'db-production-01',
+    region: 'us-east-1',
+    status: 'Healthy',
+  },
+  {
+    id: 'srv-002',
+    name: 'db-staging-02',
+    region: 'eu-central-1',
+    status: 'Warning',
+  },
+  {
+    id: 'srv-003',
+    name: 'db-development-03',
+    region: 'ap-southeast-1',
+    status: 'Healthy',
+  },
 ];
 
 const serverTabs = (server: Server | undefined): DetailsPaneProps['tabs'] => [
@@ -42,7 +57,12 @@ const serverTabs = (server: Server | undefined): DetailsPaneProps['tabs'] => [
     value: 'raw-data',
     label: 'Raw data',
     content: server && (
-      <CodeBlock language="json" content={JSON.stringify(server, null, 2)} copyable wrap />
+      <CodeBlock
+        language="json"
+        content={JSON.stringify(server, null, 2)}
+        copyable
+        wrap
+      />
     ),
   },
 ];
@@ -100,7 +120,11 @@ const ServerListWithPane = ({
       <DetailsPane
         open={!!selected}
         onClose={() => setSelected(undefined)}
-        tabs={manyTabs ? [...serverTabs(selected), ...extraTabs(selected)] : serverTabs(selected)}
+        tabs={
+          manyTabs
+            ? [...serverTabs(selected), ...extraTabs(selected)]
+            : serverTabs(selected)
+        }
         defaultTab={defaultTab}
         navigation={withNavigation ? navigation : undefined}
         labels={labels}
@@ -140,7 +164,9 @@ const meta: Meta<typeof DetailsPane> = {
     tabs: { control: false },
     navigation: { control: false },
   },
-  render: (args) => <ServerListWithPane labels={args.labels} defaultTab={args.defaultTab} />,
+  render: (args) => (
+    <ServerListWithPane labels={args.labels} defaultTab={args.defaultTab} />
+  ),
 };
 
 export default meta;
@@ -156,7 +182,11 @@ export const RawDataFirst: Story = {
 export const NamedButtons: Story = {
   name: 'Buttons named after the item',
   args: {
-    labels: { previous: 'Previous server', next: 'Next server', close: 'Close server details' },
+    labels: {
+      previous: 'Previous server',
+      next: 'Next server',
+      close: 'Close server details',
+    },
   },
 };
 

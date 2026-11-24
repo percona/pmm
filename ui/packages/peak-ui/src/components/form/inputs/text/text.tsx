@@ -3,14 +3,19 @@ import { kebabize } from '../../../../utils';
 import { Controller, FieldValues, useFormContext } from 'react-hook-form';
 import { TextInputProps } from './text.types';
 
-type InputChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
+type InputChangeEvent = React.ChangeEvent<
+  HTMLInputElement | HTMLTextAreaElement
+>;
 type SelectSlotProps = NonNullable<TextFieldProps['slotProps']>['select'];
 type SlotPropsWithChange =
   | { onChange?: (event: InputChangeEvent, ...rest: unknown[]) => void }
   | undefined;
 
 // A slot's own onChange replaces the TextField's in MUI, so the form write is composed into it.
-const withStoreValue = (slot: unknown, storeValue: (event: InputChangeEvent) => void) => {
+const withStoreValue = (
+  slot: unknown,
+  storeValue: (event: InputChangeEvent) => void
+) => {
   const compose = (props: SlotPropsWithChange) => {
     if (!props) return props;
     const { onChange: slotOnChange, ...slotProps } = props;
@@ -42,17 +47,26 @@ const TextInput = <T extends FieldValues = FieldValues>({
   const formContext = useFormContext<T>();
   const contextControl = formContext?.control;
 
-  const { sx: textFieldPropsSx, onChange, slotProps, ...restFieldProps } = textFieldProps;
+  const {
+    sx: textFieldPropsSx,
+    onChange,
+    slotProps,
+    ...restFieldProps
+  } = textFieldProps;
   const { sx: formHelperTextPropsSx } = formHelperTextProps;
 
   return (
     <Controller
       name={name}
       control={control ?? contextControl}
-      render={({ field: { onChange: fieldOnChange, ...field }, fieldState: { error } }) => {
+      render={({
+        field: { onChange: fieldOnChange, ...field },
+        fieldState: { error },
+      }) => {
         const storeValue = (event: InputChangeEvent) => {
           const transformed: unknown = onChange?.(event);
-          const isValue = typeof transformed === 'string' || typeof transformed === 'number';
+          const isValue =
+            typeof transformed === 'string' || typeof transformed === 'number';
           fieldOnChange(isValue ? transformed : event);
         };
 
@@ -66,7 +80,10 @@ const TextInput = <T extends FieldValues = FieldValues>({
             onChange={storeValue}
             slotProps={{
               ...slotProps,
-              input: withStoreValue(slotProps?.input ?? restFieldProps.InputProps, storeValue),
+              input: withStoreValue(
+                slotProps?.input ?? restFieldProps.InputProps,
+                storeValue
+              ),
               select: withStoreValue(
                 slotProps?.select ?? restFieldProps.SelectProps,
                 storeValue
