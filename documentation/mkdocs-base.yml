@@ -355,7 +355,6 @@ nav:
                   - advisors/checks/mongodb-scram-sha-256.md
                   - advisors/checks/mongodb-bindip.md
                   - advisors/checks/mongodb-cve-2025-14847.md
-                  - advisors/checks/mongodb-cve-version.md
                   - advisors/checks/mongodb-localhost-bypass.md
                   - advisors/checks/mysql-automatic-expired-password.md
                   - advisors/checks/mysql_automatic_sp_privileges_enabled.md
@@ -375,20 +374,13 @@ nav:
                   - advisors/checks/security-non-root-accounts-super-privileges.md
                   - advisors/checks/security-user-without-password.md
                   - advisors/checks/mysql-test-database.md
-                  - advisors/checks/postgresql-cve-check.md
                   - advisors/checks/postgresql-expiring-passwd.md
                   - advisors/checks/postgresql-super-role.md
               - Versions:
-                  - advisors/checks/mongodb-eol.md
                   - advisors/checks/mongodb-fcv-mismatch.md
-                  - advisors/checks/mongodb-unsupported-version.md
                   - advisors/checks/mongodb-version.md
-                  - advisors/checks/mysql_unsupported_version_check.md
                   - advisors/checks/mysql-version.md
-                  - advisors/checks/mysql_version_eol_57.md
-                  - advisors/checks/postgresql-eol-check.md
                   - advisors/checks/postgresql-extension-check.md
-                  - advisors/checks/postgresql-unsupported-check.md
                   - advisors/checks/postgresql-version-check.md
       - Percona Alerting:
           - alert/index.md
@@ -433,6 +425,7 @@ nav:
           - admin/security/grafana_cookies.md
           - admin/security/data_encryption.md
           - admin/security/client_config_encryption.md
+          - admin/security/credentials_as_files.md
   - Administer:
       - admin/index.md
       - Manage users:
@@ -462,6 +455,7 @@ nav:
               - Upgrade HA Cluster on Kubernetes: pmm-upgrade/upgrade_helm_ha.md
           - pmm-upgrade/migrating_from_pmm_2.md
           - pmm-upgrade/migrate_from_ovf.md
+          - pmm-upgrade/prepare_postgresql_14_removal.md
           - pmm-upgrade/upgrade_aws.md
       - Upgrade PMM Client: pmm-upgrade/upgrade_client.md
   - Uninstall:
@@ -486,6 +480,7 @@ nav:
       - Troubleshoot PMM HA Cluster: troubleshoot/ha_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.11.0": release-notes/3.11.0.md
       - "PMM 3.10.0 (2026-10-22)": release-notes/3.10.0.md
       - "PMM 3.9.1 (2026-08-19)": release-notes/3.9.1.md
       - "PMM 3.9.0 (2026-07-30)": release-notes/3.9.0.md
@@ -520,6 +515,7 @@ nav:
               - pmm-admin:
                 - pmm-admin overview: use/commands/pmm-admin/pmm-admin.md
                 - Add database services: use/commands/pmm-admin/add.md
+                - Update monitored services: use/commands/pmm-admin/update.md
                 - Manage inventory: use/commands/pmm-admin/inventory.md
                 - Configuration commands: use/commands/pmm-admin/config.md
                 - Status and diagnostics: use/commands/pmm-admin/status.md
@@ -570,6 +566,7 @@ nav:
           - MongoDB dashboards:
               - reference/dashboards/dashboard-mongodb-collection_overview.md
               - reference/dashboards/dashboard-mongodb-unused-indexes.md
+              - reference/dashboards/dashboard-mongodb-top-queries.md
               - reference/dashboards/dashboard-mongodb-oplog-details.md
               - reference/dashboards/dashboard-mongodb-cluster-summary.md
               - reference/dashboards/dashboard-mongodb-instance-summary.md
@@ -581,6 +578,7 @@ nav:
               - reference/dashboards/dashboard-mongodb-mmapv1-details.md
               - reference/dashboards/dashboard-mongodb-wiredtiger-details.md
               - reference/dashboards/dashboard-mongodb-backup-details.md
+              - reference/dashboards/dashboard-mongodb-clustersync-details.md
           - PostgreSQL dashboards:
               - reference/dashboards/dashboard-postgresql-instance-summary.md
               - reference/dashboards/dashboard-postgresql-instances-compare.md
