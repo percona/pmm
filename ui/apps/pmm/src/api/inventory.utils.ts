@@ -6,14 +6,18 @@ import axios, {
 import {
   type ManagedAgent,
   type RdsExporter,
+  type ServiceAgent,
   AgentStatus,
   AgentType,
+  LogLevel,
 } from 'types/agent.types';
 import type { ManagedNode, NodeType } from 'types/nodes.types';
 import type {
   BaseService,
+  InventoryService,
   ManagedService,
   ManagedServiceType,
+  ServiceChanges,
   ServiceStatus,
 } from 'types/services.types';
 import { api } from './api';
@@ -61,6 +65,44 @@ interface AgentPayload {
   aws_access_key?: string;
   aws_role_arn?: string;
   is_aws_secret_key_set?: boolean;
+  username?: string;
+  is_password_set?: boolean;
+  is_agent_password_set?: boolean;
+  tls?: boolean;
+  tls_skip_verify?: boolean;
+  log_level?: LogLevel;
+  push_metrics?: boolean;
+  expose_exporter?: boolean;
+  connection_timeout?: string;
+  disabled_collectors?: string[];
+  max_query_length?: number;
+  // An int64, which the API sends as a string
+  max_query_log_size?: string;
+  query_examples_disabled?: boolean;
+  comments_parsing_disabled?: boolean;
+  table_count_tablestats_group_limit?: number;
+  listen_port?: number;
+  metrics_scheme?: string;
+  metrics_path?: string;
+  mysql_options?: {
+    is_tls_key_set?: boolean;
+    extra_dsn_params?: Record<string, string>;
+  };
+  mongo_db_options?: {
+    is_tls_certificate_key_set?: boolean;
+    is_tls_certificate_key_file_password_set?: boolean;
+    authentication_mechanism?: string;
+    authentication_database?: string;
+    stats_collections?: string[];
+    collections_limit?: number;
+    enable_all_collectors?: boolean;
+    enable_diagnostic_data_histograms?: boolean;
+  };
+  postgresql_options?: {
+    is_ssl_key_set?: boolean;
+    auto_discovery_limit?: number;
+    max_exporter_connections?: number;
+  };
   [key: string]: PayloadValue;
 }
 
@@ -122,6 +164,12 @@ interface InventoryServicePayload {
   cluster: string;
   replication_set: string;
   custom_labels?: Record<string, string>;
+  // Only the service types that have them carry these
+  address?: string;
+  port?: number;
+  socket?: string;
+  database_name?: string;
+  group?: string;
 }
 
 // The service is nested under its type, e.g. { mysql: { ... } }
@@ -279,6 +327,63 @@ export const toBaseService = (
   customLabels: payload.custom_labels ?? {},
 });
 
+export const toInventoryService = (
+  serviceType: ManagedServiceType,
+  payload: InventoryServicePayload
+): InventoryService => ({
+  ...toBaseService(payload),
+  serviceType,
+  address: payload.address ?? '',
+  port: payload.port ?? 0,
+  socket: payload.socket ?? '',
+  databaseName: payload.database_name ?? '',
+  group: payload.group ?? '',
+});
+
+export const toServiceAgent = (payload: AgentPayload): ServiceAgent => {
+  const mysql = payload.mysql_options ?? {};
+  const mongodb = payload.mongo_db_options ?? {};
+  const postgresql = payload.postgresql_options ?? {};
+
+  return {
+    agentId: payload.agent_id,
+    agentType: payload.agent_type,
+    username: payload.username ?? '',
+    isPasswordSet: !!payload.is_password_set,
+    isAgentPasswordSet: !!payload.is_agent_password_set,
+    tls: !!payload.tls,
+    tlsSkipVerify: !!payload.tls_skip_verify,
+    isTlsKeySet:
+      !!mysql.is_tls_key_set ||
+      !!postgresql.is_ssl_key_set ||
+      !!mongodb.is_tls_certificate_key_set,
+    isTlsCertificateKeyFilePasswordSet:
+      !!mongodb.is_tls_certificate_key_file_password_set,
+    logLevel: payload.log_level || LogLevel.unspecified,
+    pushMetrics: !!payload.push_metrics,
+    exposeExporter: !!payload.expose_exporter,
+    connectionTimeout: payload.connection_timeout ?? '',
+    disabledCollectors: payload.disabled_collectors ?? [],
+    maxQueryLength: payload.max_query_length ?? 0,
+    maxQueryLogSize: Number(payload.max_query_log_size ?? 0),
+    queryExamplesDisabled: !!payload.query_examples_disabled,
+    commentsParsingDisabled: !!payload.comments_parsing_disabled,
+    tablestatsGroupTableLimit: payload.table_count_tablestats_group_limit ?? 0,
+    extraDsnParams: mysql.extra_dsn_params ?? {},
+    authenticationMechanism: mongodb.authentication_mechanism ?? '',
+    authenticationDatabase: mongodb.authentication_database ?? '',
+    statsCollections: mongodb.stats_collections ?? [],
+    collectionsLimit: mongodb.collections_limit ?? 0,
+    enableAllCollectors: !!mongodb.enable_all_collectors,
+    enableDiagnosticDataHistograms: !!mongodb.enable_diagnostic_data_histograms,
+    autoDiscoveryLimit: postgresql.auto_discovery_limit ?? 0,
+    maxExporterConnections: postgresql.max_exporter_connections ?? 0,
+    listenPort: payload.listen_port ?? 0,
+    metricsScheme: payload.metrics_scheme ?? '',
+    metricsPath: payload.metrics_path ?? '',
+  };
+};
+
 export const toManagedNode = (payload: NodePayload): ManagedNode => ({
   nodeId: payload.node_id,
   nodeType: payload.node_type,
@@ -312,3 +417,24 @@ export const findRdsExporter = (agents: AgentPayload[] = []) => {
 
   return exporters.length === 1 ? toRdsExporter(exporters[0]) : null;
 };
+
+// Maps and lists are wrapped, so that an empty one reaches the server as a
+// value that clears the stored one
+const WRAPPED_CHANGES = new Set([
+  'customLabels',
+  'extraDsnParams',
+  'disableCollectors',
+  'statsCollections',
+]);
+
+const toSnakeCase = (name: string) =>
+  name.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+
+// Names the changes as the API does, leaving label keys as typed
+export const toUpdateServicePayload = (changes: ServiceChanges) =>
+  Object.fromEntries(
+    Object.entries(changes).map(([name, value]) => [
+      toSnakeCase(name),
+      WRAPPED_CHANGES.has(name) ? { values: value } : value,
+    ])
+  );

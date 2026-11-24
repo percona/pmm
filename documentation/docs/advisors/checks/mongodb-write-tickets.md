@@ -13,14 +13,6 @@ The check reads the parameter, under either name, from the startup options with 
 
 To learn how MongoDB uses the parameter, read about [storageEngineConcurrentWriteTransactions](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.storageEngineConcurrentWriteTransactions) in the MongoDB documentation. To check the value that MongoDB uses at runtime, use the [MongoDB write tickets at runtime](mongodb-non-default-runtime-write-tickets.md) check.
 
-## Rule
-
-The check runs a `MONGODB_GETCMDLINEOPTS` query:
-
-```javascript
-db.adminCommand( { getCmdLineOpts: 1 } ).parsed.setParameter.storageEngineConcurrentWriteTransactions
-```
-
 ## Resolution
 
 For MongoDB 7.0 and later, remove the parameter from the `setParameter` section of the configuration file and from the command line, then restart `mongod`. Keep the parameter only if MongoDB Support recommended it.
