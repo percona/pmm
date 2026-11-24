@@ -60,7 +60,7 @@ function formatGenericDetail(detail: unknown): string {
  */
 function ExecutorGoneBlock({ detail }: { detail: ExecutorGoneDetail }) {
   const summary =
-    detail.message || 'This run is no longer available on the executor.';
+    detail.message || 'This run is no longer available on the host.';
   const technicalRows: [string, string][] = [];
   if (detail.resource_type) {
     technicalRows.push(['Resource type', detail.resource_type]);
@@ -84,9 +84,7 @@ function ExecutorGoneBlock({ detail }: { detail: ExecutorGoneDetail }) {
         {summary}
       </Typography>
       {detail.executor_name && (
-        <Typography variant="body2">
-          Executor: {detail.executor_name}
-        </Typography>
+        <Typography variant="body2">Host: {detail.executor_name}</Typography>
       )}
       {hasTechnicalDetail && (
         <Accordion
