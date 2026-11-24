@@ -19,6 +19,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
+- [PMM-15905](https://perconadev.atlassian.net/browse/PMM-15905): Fixed an issue where a table that remembers your hidden columns, such as those on the **Inventory**, **Advisors** and **Real-Time Analytics** pages, could hide them again the next time you opened the page after its column visibility was reset.
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?
