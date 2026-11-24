@@ -110,7 +110,7 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
   {
     accessorKey: 'health',
     header: columns.health,
-    size: 150,
+    size: 170,
     filterFn: anyOf((row) => row.health),
     // Worst first ascending
     sortingFn: (a, b, columnId) =>
@@ -122,7 +122,7 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     accessorFn: GROUP_VALUE.versions,
     id: 'versions',
     header: columns.versions,
-    size: 110,
+    size: 100,
     filterFn: anyOfIncludes((row) => row.versions),
     // As versions, not strings: 7.0.9-1 is older than 7.0.24-13.
     // A cluster with no version known goes after the rest.

@@ -83,9 +83,11 @@ export const Messages = {
     oneDown: (member: string) => `${member} down`,
     someDown: (down: number, total: number) =>
       `${down} of ${total} members down`,
-    noMembers: 'No members in this snapshot',
+    noMembers: 'No members found',
     notReporting: (count: number, total: number) =>
-      `${count} of ${total} ${pluralize(total, 'member')} not reporting`,
+      count === total
+        ? 'No members reporting'
+        : `${count} of ${total} not reporting`,
   },
   membersUnreported: '?',
   membersUnreportedTooltip: 'No member has reported in this snapshot',

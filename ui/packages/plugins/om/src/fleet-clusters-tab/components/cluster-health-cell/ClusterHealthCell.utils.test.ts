@@ -71,11 +71,15 @@ describe('healthReason', () => {
 
   it('counts the silent members of an unknown cluster, or says it has none', () => {
     expect(healthReason(rowOf(['SERVICE_STATUS_UP', SILENT]))).toEqual({
-      text: '1 of 2 members not reporting',
+      text: '1 of 2 not reporting',
       members: ['host-2'],
     });
+    expect(healthReason(rowOf([SILENT, SILENT]))).toEqual({
+      text: 'No members reporting',
+      members: ['host-1', 'host-2'],
+    });
     expect(healthReason(rowOf([]))).toEqual({
-      text: 'No members in this snapshot',
+      text: 'No members found',
     });
   });
 });
