@@ -1,0 +1,109 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package om
+
+import (
+	"encoding/json"
+	"testing"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
+)
+
+func installRegistry(t *testing.T) *OperationRegistry {
+	t.Helper()
+	reg := NewOperationRegistry()
+	require.NoError(t, reg.Register(InstallKind()))
+	return reg
+}
+
+func checkingInstallOp(t *testing.T, db *reform.DB, nodeIDs ...string) *models.OmOperation {
+	t.Helper()
+	params, err := json.Marshal(installParams{NodeIDs: nodeIDs})
+	require.NoError(t, err)
+	op := &models.OmOperation{
+		ID: uuid.New().String(), Kind: installKind, KindVersion: 1,
+		Status: models.OmOperationChecking, Version: 1, ParamsRevision: 1,
+		Trigger: models.OmTriggerUser, Principal: []byte(`{}`), Params: params, ErrorFields: []byte("{}"),
+	}
+	require.NoError(t, db.Insert(op))
+	return op
+}
+
+func installFactReader(perNode map[string]map[string]any) *fakeFactReader {
+	facts := make(map[string]map[string]any, len(perNode))
+	at := make(map[string]time.Time, len(perNode))
+	now := time.Now()
+	for node, f := range perNode {
+		facts[node] = f
+		at[node] = now
+	}
+	return &fakeFactReader{facts: facts, at: at}
+}
+
+func TestInstallDriverRunsWhenNodesAreReady(t *testing.T) {
+	db := lockTestDB(t)
+	reg := installRegistry(t)
+	op := checkingInstallOp(t, db, "node-a", "node-b")
+	reader := installFactReader(map[string]map[string]any{"node-a": nodeFacts(), "node-b": nodeFacts()})
+	runner := newTestRunner(t, db, reg, newFactCheckProvider(reader), pendingStepExecutorProvider{})
+
+	runner.Tick(t.Context())
+
+	// Readiness passes, the gate takes the node locks, and with no steps yet the install drives to succeeded.
+	state, _ := opStatus(t, db, op.ID)
+	assert.Equal(t, string(models.OmOperationSucceeded), state)
+	assert.Equal(t, 0, heldLocks(t, db, op.ID))
+}
+
+func TestInstallDriverBlocksWhenANodeIsNotReady(t *testing.T) {
+	db := lockTestDB(t)
+	reg := installRegistry(t)
+	op := checkingInstallOp(t, db, "node-a", "node-b")
+	unready := nodeFacts()
+	unready[factPortFree] = false
+	reader := installFactReader(map[string]map[string]any{"node-a": nodeFacts(), "node-b": unready})
+	runner := newTestRunner(t, db, reg, newFactCheckProvider(reader), pendingStepExecutorProvider{})
+
+	runner.Tick(t.Context())
+
+	state, _ := opStatus(t, db, op.ID)
+	require.Equal(t, string(models.OmOperationFailed), state)
+	var code string
+	require.NoError(t, db.QueryRow("SELECT error_code FROM om_operations WHERE id = $1", op.ID).Scan(&code))
+	assert.Contains(t, code, "port is in use")
+	assert.Equal(t, 0, heldLocks(t, db, op.ID))
+}
+
+func TestInstallDriverBlocksWhenANodeWasNotScanned(t *testing.T) {
+	db := lockTestDB(t)
+	reg := installRegistry(t)
+	op := checkingInstallOp(t, db, "node-a", "node-b")
+	// node-b has no observation, so its facts read as absent and every rule over them blocks fail-closed.
+	reader := installFactReader(map[string]map[string]any{"node-a": nodeFacts()})
+	runner := newTestRunner(t, db, reg, newFactCheckProvider(reader), pendingStepExecutorProvider{})
+
+	runner.Tick(t.Context())
+
+	state, _ := opStatus(t, db, op.ID)
+	assert.Equal(t, string(models.OmOperationFailed), state)
+	assert.Equal(t, 0, heldLocks(t, db, op.ID))
+}
