@@ -143,6 +143,26 @@ export const getStyles = (theme: Theme, drawerOpen: boolean, level: number) => {
       opacity: showHeading ? 0 : 1,
       transition: theme.transitions.create('opacity', drawerTiming),
     },
+    headingEnd: {
+      whiteSpace: 'nowrap',
+    },
+    // In the chip's own lettering, not the heading's.
+    sectionBadge: {
+      display: 'inline-flex',
+      verticalAlign: 'middle',
+      ml: 1,
+      my: -0.25,
+      textTransform: 'none',
+      letterSpacing: 'normal',
+    },
+    // A heading with a badge wraps rather than lose its end under it, with
+    // room between its lines for the badge.
+    headingWraps: {
+      [`.${listItemTextClasses.primary}`]: {
+        whiteSpace: 'normal',
+        lineHeight: '16px',
+      },
+    },
     sectionHeading: {
       m: 0,
       minHeight: 0,

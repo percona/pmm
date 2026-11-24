@@ -392,6 +392,24 @@ describe('SidebarNavItem', () => {
     expect(screen.getByText('Browse')).toBeInTheDocument();
   });
 
+  it("shows a heading's badge next to its label", () => {
+    renderNavItem({
+      props: {
+        item: {
+          id: 'app',
+          type: 'menu-section',
+          text: 'App',
+          badge: { label: 'Preview' },
+          badgeAlwaysVisible: true,
+        },
+      },
+    });
+
+    expect(screen.getByTestId('navitem-app-section')).toHaveTextContent(
+      'AppPreview'
+    );
+  });
+
   it('renders a heading inside an open group', () => {
     renderNavItem({
       props: {

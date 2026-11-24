@@ -249,6 +249,11 @@ const SidebarNavItem: FC<NavItemProps> = ({
 
   if (item.type === 'menu-section') {
     const showHeading = drawerOpen || level > 0;
+    // A badge keeps to the heading's last word, so a heading too long for both
+    // breaks before that word rather than leave the badge on a line of its own.
+    const text = item.text ?? '';
+    const headingStart = text.slice(0, text.lastIndexOf(' ') + 1);
+    const headingEnd = text.slice(headingStart.length);
 
     // The collapsed rail has no room for a label, so the section reads as a
     // divider. One element serves both states so its height can animate.
@@ -260,7 +265,24 @@ const SidebarNavItem: FC<NavItemProps> = ({
         sx={[styles.sectionRow, !!inFlyout && styles.flyoutSection]}
       >
         <Box sx={styles.sectionLabel} aria-hidden={!showHeading}>
-          <ListItemText primary={item.text} sx={styles.sectionHeading} />
+          <ListItemText
+            primary={
+              item.badge ? (
+                <>
+                  {headingStart}
+                  <Box component="span" sx={styles.headingEnd}>
+                    {headingEnd}
+                    <Box component="span" sx={styles.sectionBadge}>
+                      <NavItemBadge badge={item.badge} />
+                    </Box>
+                  </Box>
+                </>
+              ) : (
+                item.text
+              )
+            }
+            sx={[styles.sectionHeading, !!item.badge && styles.headingWraps]}
+          />
         </Box>
         <Box sx={styles.sectionLine} aria-hidden />
       </ListItem>
