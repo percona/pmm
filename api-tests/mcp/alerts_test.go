@@ -16,10 +16,7 @@
 package mcp
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"slices"
@@ -130,42 +127,6 @@ func TestAlerts(t *testing.T) {
 	})
 }
 
-// adminRequest sends a JSON request to the server under test as the package's admin and returns the status and body.
-func adminRequest(t *testing.T, method, path string, query url.Values, payload any) (int, []byte) {
-	t.Helper()
-
-	var body io.Reader
-	if payload != nil {
-		b, err := json.Marshal(payload)
-		require.NoError(t, err)
-		body = bytes.NewReader(b)
-	}
-	u := pmmapitests.BaseURL.ResolveReference(&url.URL{Path: path, RawQuery: query.Encode()})
-	u.User = nil
-	req, err := http.NewRequestWithContext(pmmapitests.Context, method, u.String(), body)
-	require.NoError(t, err)
-	req.Header.Set("Authorization", adminAuthorization())
-	req.Header.Set("Content-Type", "application/json")
-	res, err := httpClient(false).Do(req)
-	require.NoError(t, err)
-	defer res.Body.Close()
-	b, err := io.ReadAll(res.Body)
-	require.NoError(t, err)
-	return res.StatusCode, b
-}
-
-// requireAdminRequest is adminRequest that fails the test unless the status is 2xx (Grafana answers 202 to a new silence), and
-// decodes the body into out when out is not nil.
-func requireAdminRequest(t *testing.T, method, path string, payload, out any) {
-	t.Helper()
-
-	code, body := adminRequest(t, method, path, nil, payload)
-	require.True(t, code >= 200 && code < 300, "%s %s: %d %s", method, path, code, body)
-	if out != nil {
-		require.NoError(t, json.Unmarshal(body, out))
-	}
-}
-
 // alertRules are the titles of the rules TestAlertsUnderAccessRoles creates.
 type alertRules struct {
 	// services fires once per MySQL service.
@@ -185,7 +146,7 @@ func createAlertRules(t *testing.T, suffix int64) alertRules {
 	template := createServerTemplate(t, suffix)
 	visible := createFolder(t, fmt.Sprintf("mcp-visible-%d", suffix), "MCP api-tests, visible")
 	hidden := createFolder(t, fmt.Sprintf("mcp-hidden-%d", suffix), "MCP api-tests, no Viewer access")
-	requireAdminRequest(t, http.MethodPost, "graph/api/access-control/folders/"+hidden+"/builtInRoles/Viewer", map[string]string{"permission": ""}, nil)
+	requireJSON(t, adminAuthorization(), http.MethodPost, "graph/api/access-control/folders/"+hidden+"/builtInRoles/Viewer", nil, map[string]string{"permission": ""}, nil)
 
 	rules := alertRules{
 		services: fmt.Sprintf("MCP alerts services %d", suffix),
@@ -265,9 +226,11 @@ templates:
 func createFolder(t *testing.T, uid, title string) string {
 	t.Helper()
 
-	requireAdminRequest(t, http.MethodPost, "graph/api/folders", map[string]string{"uid": uid, "title": title}, nil)
+	requireJSON(t, adminAuthorization(), http.MethodPost, "graph/api/folders", nil, map[string]string{"uid": uid, "title": title}, nil)
 	t.Cleanup(func() {
-		code, body := adminRequest(t, http.MethodDelete, "graph/api/folders/"+uid, url.Values{"forceDeleteRules": {"true"}}, nil)
+		code, body, err := request(pmmapitests.Context, http.MethodDelete, "graph/api/folders/"+uid, url.Values{"forceDeleteRules": {"true"}},
+			http.Header{"Authorization": {adminAuthorization()}}, nil)
+		require.NoError(t, err)
 		if code != http.StatusOK {
 			t.Errorf("failed to delete folder %s: %d %s", uid, code, body)
 		}
@@ -330,7 +293,7 @@ func firingRules(t *testing.T) map[string]firingRule {
 			} `json:"groups"`
 		} `json:"data"`
 	}
-	getJSON(t, adminAuthorization(), "graph/api/prometheus/grafana/api/v1/rules", nil, &resp)
+	requireJSON(t, adminAuthorization(), http.MethodGet, "graph/api/prometheus/grafana/api/v1/rules", nil, nil, &resp)
 	rules := map[string]firingRule{}
 	for _, group := range resp.Data.Groups {
 		for _, rule := range group.Rules {
@@ -372,7 +335,7 @@ func silenceAlert(t *testing.T, ruleUID, serviceName string) time.Time {
 	var created struct {
 		SilenceID string `json:"silenceID"`
 	}
-	requireAdminRequest(t, http.MethodPost, "graph/api/alertmanager/grafana/api/v2/silences", map[string]any{
+	requireJSON(t, adminAuthorization(), http.MethodPost, "graph/api/alertmanager/grafana/api/v2/silences", nil, map[string]any{
 		"matchers": []map[string]any{
 			{"name": "__alert_rule_uid__", "value": ruleUID, "isRegex": false, "isEqual": true},
 			{"name": "service_name", "value": serviceName, "isRegex": false, "isEqual": true},
@@ -384,7 +347,9 @@ func silenceAlert(t *testing.T, ruleUID, serviceName string) time.Time {
 	}, &created)
 	require.NotEmpty(t, created.SilenceID)
 	t.Cleanup(func() {
-		code, body := adminRequest(t, http.MethodDelete, "graph/api/alertmanager/grafana/api/v2/silence/"+created.SilenceID, nil, nil)
+		code, body, err := request(pmmapitests.Context, http.MethodDelete, "graph/api/alertmanager/grafana/api/v2/silence/"+created.SilenceID, nil,
+			http.Header{"Authorization": {adminAuthorization()}}, nil)
+		require.NoError(t, err)
 		if code != http.StatusOK {
 			t.Errorf("failed to expire silence %s: %d %s", created.SilenceID, code, body)
 		}
