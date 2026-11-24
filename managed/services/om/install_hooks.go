@@ -64,3 +64,51 @@ func installOnEnterRunning(tx *reform.TX, op *models.OmOperation) error {
 	_, err = tx.Exec("UPDATE om_operations SET cluster_id = $1 WHERE id = $2", clusterID, op.ID)
 	return err
 }
+
+// installOnSucceeded records the installed members and marks the cluster managed in the success
+// transaction, idempotent on the members it already added; the node and service links come separately.
+func installOnSucceeded(tx *reform.TX, op *models.OmOperation) error {
+	clusterID := installRecordID(op.ID, "cluster")
+	added := 0
+	err := tx.QueryRow(
+		"SELECT count(*) FROM om_cluster_members WHERE cluster_id = $1 AND added_by_operation = $2",
+		clusterID, op.ID).Scan(&added)
+	if err != nil {
+		return err
+	}
+	if added == 0 {
+		err = insertInstalledMembers(tx, op, clusterID)
+		if err != nil {
+			return err
+		}
+	}
+	_, err = tx.Exec(
+		"UPDATE om_clusters SET status = 'managed', updated_at = now() WHERE id = $1 AND status = 'installing'",
+		clusterID)
+	return err
+}
+
+// insertInstalledMembers adds one accepted mongod member per target node, keyed by host and numbered in
+// node order as rs.initiate numbers a fresh replica set.
+func insertInstalledMembers(tx *reform.TX, op *models.OmOperation, clusterID string) error {
+	replicaSetRef := installRecordID(op.ID, "replica_set")
+	params := installParamsOf(op)
+	for i, nodeID := range params.NodeIDs {
+		rsMemberID := int32(i)
+		member := &models.OmClusterMember{
+			ID:               installRecordID(op.ID, "member:"+nodeID),
+			ClusterID:        clusterID,
+			ReplicaSetRef:    &replicaSetRef,
+			Process:          models.OmMemberMongod,
+			Host:             params.Hosts[nodeID],
+			RSMemberID:       &rsMemberID,
+			State:            models.OmMemberAccepted,
+			AddedByOperation: op.ID,
+		}
+		err := tx.Insert(member)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
