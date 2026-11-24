@@ -91,6 +91,12 @@ func startGate(
 			outcome = StartStaleInput
 			return returnToChecking(tx, op.ID, true)
 		}
+		if kind.OnEnterRunning != nil {
+			err = kind.OnEnterRunning(tx, op)
+			if err != nil {
+				return err
+			}
+		}
 		outcome = StartedRunning
 		return enterRunning(tx, op.ID)
 	})

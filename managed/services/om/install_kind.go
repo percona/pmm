@@ -94,8 +94,9 @@ func InstallKind() OperationKind {
 			}
 			return resources
 		},
-		Steps:    func(*models.OmOperation) []StepPlan { return nil },
-		CheckSet: installReadinessCheckSet(),
+		Steps:          func(*models.OmOperation) []StepPlan { return nil },
+		OnEnterRunning: installOnEnterRunning,
+		CheckSet:       installReadinessCheckSet(),
 		Subjects: func(op *models.OmOperation) []CheckSubject {
 			params := installParamsOf(op)
 			subjects := make([]CheckSubject, 0, len(params.NodeIDs))

@@ -68,10 +68,46 @@ func TestInstallDriverRunsWhenNodesAreReady(t *testing.T) {
 
 	runner.Tick(t.Context())
 
-	// Readiness passes, the gate takes the node locks, and with no steps yet the install drives to succeeded.
+	// Readiness passes, the gate takes the node locks, the enter-running hook creates the cluster, and
+	// with no steps yet the install drives to succeeded.
 	state, _ := opStatus(t, db, op.ID)
 	assert.Equal(t, string(models.OmOperationSucceeded), state)
 	assert.Equal(t, 0, heldLocks(t, db, op.ID))
+
+	clusterID := installRecordID(op.ID, "cluster")
+	cluster, err := db.FindByPrimaryKeyFrom(models.OmClusterTable, clusterID)
+	require.NoError(t, err)
+	record := cluster.(*models.OmCluster)
+	assert.Equal(t, models.OmClusterInstalling, record.Status)
+	assert.Equal(t, models.OmClusterInstalled, record.Origin)
+	assert.Equal(t, op.ID, record.CreatedBy)
+
+	var linked string
+	require.NoError(t, db.QueryRow("SELECT cluster_id FROM om_operations WHERE id = $1", op.ID).Scan(&linked))
+	assert.Equal(t, clusterID, linked, "the operation is linked to the cluster it created")
+
+	var replicaSets int
+	require.NoError(t, db.QueryRow("SELECT count(*) FROM om_replica_sets WHERE cluster_id = $1", clusterID).Scan(&replicaSets))
+	assert.Equal(t, 1, replicaSets)
+}
+
+func TestInstallOnEnterRunningIsIdempotent(t *testing.T) {
+	db := lockTestDB(t)
+	op := checkingInstallOp(t, db, "node-a")
+
+	for range 2 {
+		err := db.InTransactionContext(t.Context(), nil, func(tx *reform.TX) error {
+			return installOnEnterRunning(tx, op)
+		})
+		require.NoError(t, err)
+	}
+
+	clusterID := installRecordID(op.ID, "cluster")
+	var clusters, replicaSets int
+	require.NoError(t, db.QueryRow("SELECT count(*) FROM om_clusters WHERE id = $1", clusterID).Scan(&clusters))
+	require.NoError(t, db.QueryRow("SELECT count(*) FROM om_replica_sets WHERE cluster_id = $1", clusterID).Scan(&replicaSets))
+	assert.Equal(t, 1, clusters, "a re-run creates no second cluster")
+	assert.Equal(t, 1, replicaSets, "a re-run creates no second replica set")
 }
 
 func TestInstallDriverBlocksWhenANodeIsNotReady(t *testing.T) {
