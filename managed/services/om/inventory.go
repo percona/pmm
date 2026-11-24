@@ -626,7 +626,11 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 
-	params, err := installPlanParams(nodeIDs, req)
+	hostsByNode := make(map[string]string, len(nodeIDs))
+	for i, nodeID := range nodeIDs {
+		hostsByNode[nodeID] = pointer.GetString(hosts[i].ExecutorHost)
+	}
+	params, err := installPlanParams(nodeIDs, hostsByNode, req)
 	if err != nil {
 		return nil, err
 	}
@@ -666,7 +670,7 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 
 // installPlanParams seals the request's non-secret settings into the install operation's params; the
 // admin password is never placed here, only in the write-ahead secret.
-func installPlanParams(nodeIDs []string, req *omv1.TriggerHostBootstrapRequest) ([]byte, error) {
+func installPlanParams(nodeIDs []string, hostsByNode map[string]string, req *omv1.TriggerHostBootstrapRequest) ([]byte, error) {
 	memberConfigs := make(map[string]json.RawMessage, len(req.GetMemberConfigs()))
 	for nodeID, member := range req.GetMemberConfigs() {
 		raw, err := protojson.Marshal(member)
@@ -677,6 +681,7 @@ func installPlanParams(nodeIDs []string, req *omv1.TriggerHostBootstrapRequest) 
 	}
 	params, err := json.Marshal(installParams{
 		NodeIDs:        nodeIDs,
+		Hosts:          hostsByNode,
 		ReplicaSetName: req.GetReplicaSetName(),
 		MongoDBVersion: req.GetMongodbVersion(),
 		DataPath:       req.GetDataPath(),

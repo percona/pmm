@@ -40,6 +40,9 @@ func driveChecking(
 	if err != nil {
 		return "", err
 	}
+	if staleOrMissing(checkSet, facts, ages) {
+		return requestRescan(op, scanRequester)
+	}
 	if op.ReportDigest != nil {
 		stale, err := reportStale(checkSet, *op.ReportDigest, facts, ages)
 		if err != nil {
@@ -58,6 +61,21 @@ func driveChecking(
 	}
 	recheck := func(*reform.TX) (bool, error) { return false, nil }
 	return startGate(ctx, db, op, models.OmOperationChecking, op.Version, nil, kind, lockSubjects(kind.LockSet(op)), recheck)
+}
+
+// staleOrMissing reports whether a fact the check set declares is absent or over its max age, so the
+// driver requests a fresh scan and stays checking instead of judging readiness on stale or missing input.
+func staleOrMissing(checkSet CheckSet, facts map[string]any, ages map[string]time.Duration) bool {
+	for _, declared := range checkSet.Facts {
+		_, present := facts[declared.Name]
+		if !present {
+			return true
+		}
+		if declared.MaxAge > 0 && ages[declared.Name] > declared.MaxAge {
+			return true
+		}
+	}
+	return false
 }
 
 // clusterScope returns an operation's cluster id, or the empty string for a cluster-less install.
