@@ -44,11 +44,7 @@ func installOp(t *testing.T, nodeIDs ...string) *models.OmOperation {
 }
 
 func nodeFacts() map[string]any {
-	facts := make(map[string]any, len(passingInstallFacts()))
-	for name, value := range passingInstallFacts() {
-		facts[name] = value
-	}
-	return facts
+	return passingInstallFacts()
 }
 
 func TestCheckInputsAggregatesAndPasses(t *testing.T) {

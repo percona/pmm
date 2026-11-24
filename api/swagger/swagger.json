@@ -36237,11 +36237,11 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "TriggerHostBootstrapResponse acknowledges a planned bootstrap run, before any host is touched.",
+              "description": "TriggerHostBootstrapResponse acknowledges a managed install operation, before any host is touched.",
               "type": "object",
               "properties": {
-                "run_id": {
-                  "description": "The om_bootstrap run's id. Poll GetBootstrapRun for its progress.",
+                "operation_id": {
+                  "description": "The install operation's id. Poll GetOperation for its progress.",
                   "type": "string",
                   "x-order": 0
                 },

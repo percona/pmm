@@ -4383,11 +4383,11 @@ func (x *BootstrapMemberConfig) GetBindIp() string {
 	return ""
 }
 
-// TriggerHostBootstrapResponse acknowledges a planned bootstrap run, before any host is touched.
+// TriggerHostBootstrapResponse acknowledges a managed install operation, before any host is touched.
 type TriggerHostBootstrapResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
-	RunId string `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	// The install operation's id. Poll GetOperation for its progress.
+	OperationId string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
 	// Password PMM generated when admin_username came without admin_password.
 	// Only returned here: PMM deletes its copy once the install no longer needs it.
 	GeneratedAdminPassword string `protobuf:"bytes,2,opt,name=generated_admin_password,json=generatedAdminPassword,proto3" json:"generated_admin_password,omitempty"`
@@ -4425,9 +4425,9 @@ func (*TriggerHostBootstrapResponse) Descriptor() ([]byte, []int) {
 	return file_om_v1_om_proto_rawDescGZIP(), []int{48}
 }
 
-func (x *TriggerHostBootstrapResponse) GetRunId() string {
+func (x *TriggerHostBootstrapResponse) GetOperationId() string {
 	if x != nil {
-		return x.RunId
+		return x.OperationId
 	}
 	return ""
 }
@@ -6982,9 +6982,9 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\t_priorityB\b\n" +
 	"\x06_votesB\n" +
 	"\n" +
-	"\b_bind_ip\"u\n" +
-	"\x1cTriggerHostBootstrapResponse\x12\x15\n" +
-	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12>\n" +
+	"\b_bind_ip\"\x81\x01\n" +
+	"\x1cTriggerHostBootstrapResponse\x12!\n" +
+	"\foperation_id\x18\x01 \x01(\tR\voperationId\x12>\n" +
 	"\x18generated_admin_password\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\x16generatedAdminPassword\"\x88\x01\n" +
 	"\rBootstrapStep\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +

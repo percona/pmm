@@ -986,10 +986,10 @@ message BootstrapMemberConfig {
   optional string bind_ip = 5;
 }
 
-// TriggerHostBootstrapResponse acknowledges a planned bootstrap run, before any host is touched.
+// TriggerHostBootstrapResponse acknowledges a managed install operation, before any host is touched.
 message TriggerHostBootstrapResponse {
-  // The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
-  string run_id = 1;
+  // The install operation's id. Poll GetOperation for its progress.
+  string operation_id = 1;
   // Password PMM generated when admin_username came without admin_password.
   // Only returned here: PMM deletes its copy once the install no longer needs it.
   string generated_admin_password = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
