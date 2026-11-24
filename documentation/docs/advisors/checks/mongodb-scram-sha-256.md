@@ -12,23 +12,6 @@ MongoDB v3.0 changed the default authentication mechanism from `MONGODB-CR` to `
 
 To learn more, see [Authentication Mechanisms](https://docs.mongodb.com/drivers/go/current/fundamentals/auth/) in the MongoDB documentation.
 
-## Rule
-MONGODB_GETPARAMETER
-```
-db.adminCommand( { getParameter : 1,  "authenticationMechanisms" : 1 } )
-
-
- authMechanism = "SCRAM-SHA-256" not in parsed.get("authenicationMechanisms")
-          if authMechanism:
-              results.append({
-                  "summary": "MongoDB is not using the default SCRAM-SHA-256 authenticationMechanisms - v4.0 and above",
-                  "description": "To follow optimal security practices, see the following documentation",
-                  "read_more_url": "https://docs.mongodb.com/drivers/go/current/fundamentals/auth/",
-                  "severity": "warning",
-              })
-          return results
-```
-
 ## Resolution
 `SCRAM-SHA-256` authentication algorithm is the default one in MongoDB v4.0 and above. If you haven't explicitly configured a different method, no action is required. 
 

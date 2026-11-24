@@ -121,7 +121,7 @@ describe('TaskFilesDialog', () => {
     );
     await waitFor(() =>
       expect(
-        screen.getByText('No files available for this task run.')
+        screen.getByText('No files available for this run.')
       ).toBeInTheDocument()
     );
   });
