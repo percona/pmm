@@ -19,6 +19,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/sirupsen/logrus"
+	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 // Scan profiles pmm-managed requests; the monitored sweep keeps its own path and is not one of these.
@@ -29,24 +34,42 @@ const (
 	scanProfileUninstallCheck = "uninstall_check"
 )
 
+// subjectKindMember labels a managed member as a scan subject, matching the kind the start gate reads
+// its observation back under.
+const subjectKindMember = "member"
+
+// scanSubject is one host a scan collects facts for, carrying the key pmm-managed stores and reads the
+// observation under so the write and the read agree.
+type scanSubject struct {
+	SubjectKind string  `json:"subject_kind"`
+	SubjectKey  string  `json:"subject_key"`
+	Host        string  `json:"host"`
+	ServiceID   string  `json:"service_id,omitempty"`
+	Port        *uint16 `json:"port,omitempty"`
+}
+
 // scanRequest is the body pmm-managed POSTs to request a scan: the profile that picks the fact set,
-// an idempotency key so a retry fulfils once, and the subject as a driver operation or a cluster.
+// an idempotency key so a retry fulfils once, the subject as a driver operation or a cluster, and the
+// per-host subjects to collect facts for.
 type scanRequest struct {
-	Profile        string `json:"profile"`
-	IdempotencyKey string `json:"idempotency_key"`
-	OperationID    string `json:"operation_id,omitempty"`
-	ClusterID      string `json:"cluster_id,omitempty"`
+	Profile        string        `json:"profile"`
+	IdempotencyKey string        `json:"idempotency_key"`
+	OperationID    string        `json:"operation_id,omitempty"`
+	ClusterID      string        `json:"cluster_id,omitempty"`
+	Subjects       []scanSubject `json:"subjects"`
 }
 
 // inventoryScanRequester requests scans from PMM Extensions' om_inventory app, fulfilling the driver's
 // ScanRequester seam and the scheduler's per-cluster requests.
 type inventoryScanRequester struct {
+	db  *reform.DB
+	l   *logrus.Entry
 	app extensionsApp
 }
 
 // newInventoryScanRequester builds a requester against om_inventory on the configured Extensions client.
-func newInventoryScanRequester(client *extensionsClient) *inventoryScanRequester {
-	return &inventoryScanRequester{app: client.app(probeAppModule)}
+func newInventoryScanRequester(db *reform.DB, l *logrus.Entry, client *extensionsClient) *inventoryScanRequester {
+	return &inventoryScanRequester{db: db, l: l, app: client.app(probeAppModule)}
 }
 
 // RequestScan fulfils the driver's rescan seam: it asks om_inventory to scan an operation under the
@@ -57,12 +80,47 @@ func (r *inventoryScanRequester) RequestScan(operationID, profile, idempotencyKe
 	})
 }
 
-// RequestClusterScan asks om_inventory for a scan of one cluster, as the scheduler does on the settings
-// cadence; the key folds repeat requests in the same window into one fulfilment.
+// RequestClusterScan asks om_inventory for a scan of one cluster's members, as the scheduler does on
+// the settings cadence; the key folds repeat requests in the same window into one fulfilment.
 func (r *inventoryScanRequester) RequestClusterScan(ctx context.Context, clusterID, profile, idempotencyKey string) error {
+	subjects, err := r.memberSubjects(clusterID)
+	if err != nil {
+		return err
+	}
 	return r.post(ctx, scanRequest{
-		Profile: profile, IdempotencyKey: idempotencyKey, ClusterID: clusterID,
+		Profile: profile, IdempotencyKey: idempotencyKey, ClusterID: clusterID, Subjects: subjects,
 	})
+}
+
+// memberSubjects lists a cluster's live members as the per-host subjects a scan collects facts for,
+// each keyed by its member id so the stored observation matches the read.
+func (r *inventoryScanRequester) memberSubjects(clusterID string) ([]scanSubject, error) {
+	rows, err := r.db.SelectAllFrom(models.OmClusterMemberTable, "WHERE cluster_id = $1 AND removed_at IS NULL ORDER BY id", clusterID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list members of cluster '%s': %w", clusterID, err)
+	}
+	subjects := make([]scanSubject, 0, len(rows))
+	for _, row := range rows {
+		member := row.(*models.OmClusterMember) //nolint:forcetypeassert
+		subject := scanSubject{SubjectKind: subjectKindMember, SubjectKey: member.ID, Host: member.Host}
+		if member.ServiceID != nil {
+			subject.ServiceID = *member.ServiceID
+			subject.Port = r.memberPort(*member.ServiceID)
+		}
+		subjects = append(subjects, subject)
+	}
+	return subjects, nil
+}
+
+// memberPort returns the port the member's registered service listens on, or nil when the service
+// cannot be resolved, so the scan request's own port fallback applies.
+func (r *inventoryScanRequester) memberPort(serviceID string) *uint16 {
+	service, err := models.FindServiceByID(r.db.Querier, serviceID)
+	if err != nil {
+		r.l.WithField("service_id", serviceID).WithError(err).Warn("failed to resolve the member service port; the scan falls back to the default")
+		return nil
+	}
+	return service.Port
 }
 
 // post sends one scan request as pmm-managed's own work and maps a failure to a profile-named error.
