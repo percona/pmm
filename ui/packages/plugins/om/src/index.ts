@@ -48,7 +48,6 @@ export {
   OM_TOPOLOGY_RUNS_LIMIT,
 } from './topologyHooks';
 export {
-  OM_ROUTE_AUTOMATIONS,
   OM_ROUTE_FLEET,
   OM_ROUTE_NODES,
   OM_ROUTE_INSTALL,

@@ -229,19 +229,36 @@ describe('buildNavTree', () => {
     const apps = findById(build(), 'apps')?.children;
 
     expect(ids(apps)).toEqual([
-      'app-operations-for-mongodb',
       'extensions-mysql-backups',
+      'section-operations-for-mongodb',
+      'om-fleet',
+      'om-nodes',
+      'om-automations',
+      'om-settings',
       'section-backups',
       'backup-inventory',
       'scheduled-backups',
       'restore-history',
       'storage-locations',
     ]);
-    expect(findById(apps, 'app-operations-for-mongodb')?.url).toBe(OM_PATH);
+    expect(findById(apps, 'om-fleet')?.url).toBe(OM_PATH);
+  });
+
+  it('marks the Operations for MongoDB heading as a developer preview', () => {
+    const heading = findById(
+      findById(build(), 'apps')?.children,
+      'section-operations-for-mongodb'
+    );
+
+    expect(heading?.badge).toBeDefined();
+    expect(heading?.badgeAlwaysVisible).toBe(true);
   });
 
   it.each([
-    ['app-operations-for-mongodb', `${OM_PATH}/automations`],
+    ['om-fleet', OM_PATH],
+    ['om-nodes', `${OM_PATH}/nodes/install`],
+    ['om-automations', `${OM_PATH}/automations`],
+    ['om-settings', `${OM_PATH}/settings`],
     ['scheduled-backups', '/graph/backup/scheduled'],
     ['backup-inventory', '/graph/backup/new'],
     ['extensions-mysql-backups', `${EXTENSIONS_MYSQL_BACKUPS_PATH}/backups/1`],
@@ -372,8 +389,12 @@ describe('buildNavTree', () => {
     expect(ids(tree)).not.toContain('explore');
     expect(ids(tree)).not.toContain('inventory');
     expect(ids(findById(tree, 'apps')?.children)).toEqual([
-      'app-operations-for-mongodb',
       'extensions-mysql-backups',
+      'section-operations-for-mongodb',
+      'om-fleet',
+      'om-nodes',
+      'om-automations',
+      'om-settings',
     ]);
   });
 

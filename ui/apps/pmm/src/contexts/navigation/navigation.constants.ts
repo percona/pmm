@@ -840,19 +840,38 @@ export const NAV_APPS: NavItem = {
   text: 'Apps',
 };
 
-// Its own tabs carry Fleet, Nodes, Automations and Settings, so it needs one
-// entry, highlighted on all of them.
-export const NAV_OM: NavItem = {
-  id: 'app-operations-for-mongodb',
-  text: 'Operations for MongoDB',
-  url: OM_PATH,
-  matches: ['*'],
-  badge: createElement(PreviewChip, { level: 'developer' }),
-  badgeAlwaysVisible: true,
-};
+// Listed under Apps, under its heading.
+export const NAV_OM: NavItem[] = [
+  {
+    ...section('operations-for-mongodb', 'Operations for MongoDB'),
+    badge: createElement(PreviewChip, { level: 'developer' }),
+    badgeAlwaysVisible: true,
+  },
+  {
+    id: 'om-fleet',
+    text: 'Fleet',
+    url: OM_PATH,
+  },
+  {
+    // Its install form, at nodes/install, starts from a node selection here.
+    id: 'om-nodes',
+    text: 'Nodes',
+    url: `${OM_PATH}/nodes`,
+    matches: ['*'],
+  },
+  {
+    id: 'om-automations',
+    text: 'Automations',
+    url: `${OM_PATH}/automations`,
+  },
+  {
+    id: 'om-settings',
+    text: 'Settings',
+    url: `${OM_PATH}/settings`,
+  },
+];
 
-// Listed under Apps, under their heading. Grafana's backup pages have no tabs
-// of their own, so each one is an entry.
+// Listed under Apps, under their heading.
 export const NAV_BACKUPS: NavItem[] = [
   section('backups', 'Backups'),
   {

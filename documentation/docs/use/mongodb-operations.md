@@ -38,7 +38,7 @@ Until you enable Operations for MongoDB, **Apps > Operations for MongoDB** doesn
 
     Start PMM Server with `PMM_ENABLE_OM=1`. While this variable is set, you can't change the setting in the UI. The **Operations for MongoDB** toggle stays visible, but **Apply changes** returns an error.
 
-After you enable it, **Apps > Operations for MongoDB** appears in the side menu with a **Preview** label. It includes these tabs:
+After you enable it, **Apps > Operations for MongoDB** appears in the side menu with a **Preview** label. It includes these pages:
 
 - **Fleet**: check the health of every MongoDB cluster that PMM monitors.
 - **Nodes**: see every node PMM knows about and whether it's ready to be scanned or have Percona Server for MongoDB installed.

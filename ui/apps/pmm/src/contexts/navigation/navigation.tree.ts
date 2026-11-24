@@ -132,16 +132,18 @@ export const buildNavTree = ({
     analysis.push(NAV_DIAGNOSTICS);
   }
 
-  // OM is served by pmm-managed, so it is not gated with PMM Extensions: any
-  // signed-in user while the switch is on. Actions inside are admin-only.
   const apps: NavItem[] = [];
 
-  if (user && settings?.omEnabled) {
-    apps.push(NAV_OM);
-  }
-
+  // First, as it has no heading: after another app's entries it would read
+  // as one of them.
   if (extensions) {
     apps.push(NAV_EXTENSIONS_MYSQL_BACKUPS);
+  }
+
+  // OM is served by pmm-managed, so it is not gated with PMM Extensions: any
+  // signed-in user while the switch is on. Actions inside are admin-only.
+  if (user && settings?.omEnabled) {
+    apps.push(...NAV_OM);
   }
 
   if (user?.isPMMAdmin && settings?.backupManagementEnabled) {
