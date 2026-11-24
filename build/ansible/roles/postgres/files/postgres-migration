@@ -47,14 +47,27 @@ create_pg_stat_statements() {
         -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public"
 }
 
+# Prints the argument without the leading and trailing whitespace that Go's strings.TrimSpace removes, whatever the locale.
+trim_space() {
+    local LC_ALL=C value=$1
+    # The UTF-8 encodings of the characters Go's unicode.IsSpace matches.
+    local space=$'([\t\n\v\f\r ]|\xc2[\x85\xa0]|\xe1\x9a\x80|\xe2\x80[\x80-\x8a\xa8\xa9\xaf]|\xe2\x81\x9f|\xe3\x80\x80)'
+
+    while [[ $value =~ ^$space ]]; do
+        value=${value:${#BASH_REMATCH[0]}}
+    done
+    while [[ $value =~ $space$ ]]; do
+        value=${value:0:${#value}-${#BASH_REMATCH[0]}}
+    done
+    printf '%s' "$value"
+}
+
 # Runs the SQL on stdin as postgres, with the password Grafana reads in the psql variable password.
 psql_with_grafana_password() {
     local password
 
-    password=$(< "$GRAFANA_DB_PASSWORD_FILE")
-    # Grafana trims the whitespace around the file's content, so the role must not have it either.
-    password="${password#"${password%%[![:space:]]*}"}"
-    password="${password%"${password##*[![:space:]]}"}"
+    # Grafana trims the file's content with strings.TrimSpace, so the role must not keep that whitespace either.
+    password=$(trim_space "$(< "$GRAFANA_DB_PASSWORD_FILE")")
     # psql reads the password from its environment, which other users can't see, unlike its arguments.
     # The statements carry the password, which pg_stat_statements must not record.
     GRAFANA_DB_PASSWORD="$password" PGOPTIONS="-c pg_stat_statements.track_utility=off" \
