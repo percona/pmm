@@ -49,6 +49,22 @@ func clusterWithStatus(t *testing.T, q *reform.Querier, status models.OmClusterS
 	return c.ID
 }
 
+func TestWithScanSchedulerComposition(t *testing.T) {
+	db := lockTestDB(t)
+	l := logrus.WithField("test", t.Name())
+
+	off := New(db, nil, nil, l).WithScanScheduler("", "")
+	assert.Nil(t, off.scanScheduler, "an empty Extensions URL leaves managed scans off")
+	off.RunScanScheduler(t.Context())
+
+	on := New(db, nil, nil, l).WithScanScheduler("http://extensions.test", "token")
+	require.NotNil(t, on.scanScheduler, "a configured Extensions URL composes the scheduler")
+
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+	on.RunScanScheduler(ctx)
+}
+
 func TestScanSchedulerRequestsManagedClustersOnly(t *testing.T) {
 	db := lockTestDB(t)
 	managedA := clusterWithStatus(t, db.Querier, models.OmClusterManaged)
