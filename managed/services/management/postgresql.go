@@ -193,9 +193,8 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 	return res, nil
 }
 
-// validateEnabledCollectors checks the postgres_exporter collectors to enable against the exporter that the
-// pmm-agent runs. A pmm-agent that hasn't reported its version yet isn't checked: its exporter configuration
-// leaves out the flags that the exporter doesn't take.
+// validateEnabledCollectors checks the postgres_exporter collectors to enable against the exporter of the pmm-agent,
+// without the version check while the pmm-agent hasn't reported its version.
 func validateEnabledCollectors(q *reform.Querier, pmmAgentID string, enabled, disabled []string) error {
 	if len(enabled) == 0 {
 		return nil

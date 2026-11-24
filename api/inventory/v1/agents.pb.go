@@ -1045,7 +1045,7 @@ type PostgresExporter struct {
 	PushMetricsEnabled bool `protobuf:"varint,9,opt,name=push_metrics_enabled,json=pushMetricsEnabled,proto3" json:"push_metrics_enabled,omitempty"`
 	// List of disabled collector names.
 	DisabledCollectors []string `protobuf:"bytes,10,rep,name=disabled_collectors,json=disabledCollectors,proto3" json:"disabled_collectors,omitempty"`
-	// List of enabled collector names: collectors that the exporter doesn't run by default.
+	// List of collector names to enable, as configured, which can include collectors that the exporter runs by default.
 	EnabledCollectors []string `protobuf:"bytes,29,rep,name=enabled_collectors,json=enabledCollectors,proto3" json:"enabled_collectors,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,20,opt,name=status,proto3,enum=inventory.v1.AgentStatus" json:"status,omitempty"`

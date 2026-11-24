@@ -1188,9 +1188,11 @@ type ChangeMetricsResolutionsParams struct {
 
 // ChangeExporterOptions contains ExporterOptions fields that can be changed.
 type ChangeExporterOptions struct {
-	PushMetrics        *bool
-	DisabledCollectors []string // nil = no change, empty = clear, populated = set
-	EnabledCollectors  []string // nil = no change, empty = clear, populated = set
+	PushMetrics *bool
+	// nil = no change, empty = clear, populated = set
+	DisabledCollectors []string
+	// nil = no change, empty = clear, populated = set
+	EnabledCollectors  []string
 	ExposeExporter     *bool
 	MetricsScheme      *string
 	MetricsPath        *string

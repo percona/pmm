@@ -124,7 +124,7 @@ func TestValidatePostgresExporterCollectors(t *testing.T) {
 		t.Parallel()
 
 		err := ValidatePostgresExporterCollectors([]string{"custom_query.hr"}, nil, v360)
-		require.EqualError(t, err, `unknown postgres_exporter collector "custom_query.hr"; the collectors are: `+
+		require.EqualError(t, err, `unknown postgres_exporter collector 'custom_query.hr'; the collectors are: `+
 			`database, database_wraparound, extensions, locks, long_running_transactions, postmaster, process_idle, `+
 			`replication, replication_slot, stat_activity_autovacuum, stat_bgwriter, stat_database, stat_io, `+
 			`stat_statements, stat_user_tables, stat_wal_receiver, statio_user_indexes, statio_user_tables, wal`)
@@ -134,17 +134,17 @@ func TestValidatePostgresExporterCollectors(t *testing.T) {
 		t.Parallel()
 
 		err := ValidatePostgresExporterCollectors([]string{"wal"}, []string{"locks", "wal"}, v360)
-		require.EqualError(t, err, `collector "wal" is both enabled and disabled`)
+		require.EqualError(t, err, `collector wal is both enabled and disabled`)
 	})
 
 	t.Run("CollectorNewerThanExporter", func(t *testing.T) {
 		t.Parallel()
 
 		err := ValidatePostgresExporterCollectors([]string{"stat_io"}, nil, version.MustParse("3.5.0"))
-		require.EqualError(t, err, `collector "stat_io" needs pmm-agent 3.6.0 or newer, but the pmm-agent is 3.5.0`)
+		require.EqualError(t, err, `collector stat_io needs pmm-agent 3.6.0 or newer, but the pmm-agent is 3.5.0`)
 
 		err = ValidatePostgresExporterCollectors([]string{"wal"}, nil, version.MustParse("2.40.1"))
-		require.EqualError(t, err, `collector "wal" needs pmm-agent 2.41.0-0 or newer, but the pmm-agent is 2.40.1`)
+		require.EqualError(t, err, `collector wal needs pmm-agent 2.41.0-0 or newer, but the pmm-agent is 2.40.1`)
 	})
 
 	t.Run("UnknownVersion", func(t *testing.T) {

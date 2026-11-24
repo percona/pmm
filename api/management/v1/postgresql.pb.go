@@ -88,8 +88,8 @@ type AddPostgreSQLServiceParams struct {
 	MetricsMode MetricsMode `protobuf:"varint,24,opt,name=metrics_mode,json=metricsMode,proto3,enum=management.v1.MetricsMode" json:"metrics_mode,omitempty"`
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `protobuf:"bytes,25,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
-	// List of postgres_exporter collector names to enable in this exporter, e.g. long_running_transactions.
-	// A collector that the exporter runs by default needs no entry. A name can't be in both lists.
+	// List of postgres_exporter collector names to enable in this exporter, e.g. long_running_transactions; one that the
+	// exporter runs by default needs no entry, and a name can't also be in disable_collectors.
 	EnableCollectors []string `protobuf:"bytes,35,rep,name=enable_collectors,json=enableCollectors,proto3" json:"enable_collectors,omitempty"`
 	// TLS CA certificate.
 	TlsCa string `protobuf:"bytes,26,opt,name=tls_ca,json=tlsCa,proto3" json:"tls_ca,omitempty"`

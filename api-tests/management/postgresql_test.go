@@ -514,10 +514,10 @@ func TestAddPostgreSQL(t *testing.T) {
 		}
 
 		_, err := add([]string{"custom_query.hr"}, nil)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `unknown postgres_exporter collector "custom_query.hr"`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `unknown postgres_exporter collector 'custom_query.hr'`)
 
 		_, err = add([]string{"wal"}, []string{"wal"})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `collector "wal" is both enabled and disabled`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `collector wal is both enabled and disabled`)
 
 		resp, err := add([]string{"long_running_transactions", "stat_wal_receiver"}, []string{"locks"})
 		require.NoError(t, err)

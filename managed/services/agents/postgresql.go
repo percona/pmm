@@ -39,8 +39,8 @@ var (
 	postgresMaxExporterConnsVersion      = version.MustParse("2.41.2-0")
 )
 
-// pmmEnabledPostgresExporterCollectors are the collectors that PMM runs although postgres_exporter doesn't by
-// default. Disabling one of them turns it off.
+// pmmEnabledPostgresExporterCollectors are the collectors that PMM runs, unless disabled, although postgres_exporter
+// doesn't by default.
 var pmmEnabledPostgresExporterCollectors = []string{
 	// pg_wal_segments and pg_wal_size_bytes; pg_ls_waldir needs a superuser or a member of pg_monitor.
 	"wal",

@@ -108,7 +108,7 @@ type UniversalAgent struct {
 	Disabled bool `protobuf:"varint,9,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// List of disabled collector names.
 	DisabledCollectors []string `protobuf:"bytes,10,rep,name=disabled_collectors,json=disabledCollectors,proto3" json:"disabled_collectors,omitempty"`
-	// List of enabled collector names: collectors that the exporter doesn't run by default.
+	// List of collector names to enable, as configured, which can include collectors that the exporter runs by default.
 	EnabledCollectors []string `protobuf:"bytes,46,rep,name=enabled_collectors,json=enabledCollectors,proto3" json:"enabled_collectors,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,11,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`

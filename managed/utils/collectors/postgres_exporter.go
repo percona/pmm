@@ -32,8 +32,8 @@ var PostgresExporterCollectorsVersion = version.MustParse("2.41.0-0")
 type postgresExporterCollector struct {
 	// enabledByDefault is true when the exporter runs the collector unless it gets --no-collector.<name>.
 	enabledByDefault bool
-	// since is the first pmm-agent version whose postgres_exporter has the collector, when that is later than
-	// PostgresExporterCollectorsVersion. An older exporter doesn't know the collector's flags and exits on them.
+	// since is the first pmm-agent version whose postgres_exporter has the collector, if later than
+	// PostgresExporterCollectorsVersion.
 	since *version.Parsed
 }
 
@@ -78,24 +78,22 @@ func (c postgresExporterCollector) minVersion() *version.Parsed {
 	return PostgresExporterCollectorsVersion
 }
 
-// ValidatePostgresExporterCollectors checks the collectors to enable in postgres_exporter: each one must be a
-// built-in collector of the exporter, supported by the exporter of the given pmm-agent version, and not also
-// disabled. A nil pmmAgentVersion, of a pmm-agent that hasn't reported one yet, skips the version check; the
-// exporter configuration leaves out the flags that its exporter doesn't take.
+// ValidatePostgresExporterCollectors checks that each collector to enable is a built-in one of postgres_exporter that
+// isn't also disabled and, unless pmmAgentVersion is nil, that the exporter of that pmm-agent version has.
 func ValidatePostgresExporterCollectors(enabled, disabled []string, pmmAgentVersion *version.Parsed) error {
 	for _, name := range enabled {
 		c, ok := postgresExporterCollectors[name]
 		if !ok {
-			return fmt.Errorf("unknown postgres_exporter collector %q; the collectors are: %s",
+			return fmt.Errorf("unknown postgres_exporter collector '%s'; the collectors are: %s",
 				name, strings.Join(slices.Sorted(maps.Keys(postgresExporterCollectors)), ", "))
 		}
 
 		if slices.Contains(disabled, name) {
-			return fmt.Errorf("collector %q is both enabled and disabled", name)
+			return fmt.Errorf("collector %s is both enabled and disabled", name)
 		}
 
 		if pmmAgentVersion != nil && !c.supported(pmmAgentVersion) {
-			return fmt.Errorf("collector %q needs pmm-agent %s or newer, but the pmm-agent is %s",
+			return fmt.Errorf("collector %s needs pmm-agent %s or newer, but the pmm-agent is %s",
 				name, c.minVersion(), pmmAgentVersion)
 		}
 	}
@@ -103,11 +101,8 @@ func ValidatePostgresExporterCollectors(enabled, disabled []string, pmmAgentVers
 	return nil
 }
 
-// PostgresExporterCollectorArgs returns the postgres_exporter arguments that turn collectors on and off:
-// --collector.<name> for an enabled collector that the exporter doesn't run by default, and
-// --no-collector.<name> for a disabled collector that it does. Disabling wins. Names that aren't built-in
-// collectors, or whose collector the exporter of this pmm-agent version doesn't have, give no argument:
-// the exporter exits on a flag it doesn't know.
+// PostgresExporterCollectorArgs returns --no-collector.<name> for each disabled collector that runs by default and
+// --collector.<name> for each other enabled one that doesn't, leaving out the ones this pmm-agent's exporter lacks.
 func PostgresExporterCollectorArgs(enabled, disabled []string, pmmAgentVersion *version.Parsed) []string {
 	var args []string
 	for _, name := range slices.Sorted(maps.Keys(postgresExporterCollectors)) {

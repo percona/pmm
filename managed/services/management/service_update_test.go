@@ -751,7 +751,7 @@ func TestUpdateService(t *testing.T) {
 		addRequest := &managementv1.AddServiceRequest{Service: &managementv1.AddServiceRequest_Postgresql{Postgresql: add}}
 		_, err = s.AddService(ctx, addRequest)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument,
-			`collector "stat_io" needs pmm-agent 3.6.0 or newer, but the pmm-agent is 3.5.0`), err)
+			`collector stat_io needs pmm-agent 3.6.0 or newer, but the pmm-agent is 3.5.0`), err)
 
 		m.state.On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
 		add.EnableCollectors = []string{"long_running_transactions"}
@@ -772,7 +772,7 @@ func TestUpdateService(t *testing.T) {
 				},
 			},
 		})
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `collector "locks" is both enabled and disabled`), err)
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `collector locks is both enabled and disabled`), err)
 
 		m.expectApplied()
 		updated, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
