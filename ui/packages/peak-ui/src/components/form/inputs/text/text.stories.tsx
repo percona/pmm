@@ -6,6 +6,8 @@ import TextInput from './text';
 import { TextInputProps } from './text.types';
 import { useState } from 'react';
 import { IconButton, InputAdornment } from '@mui/material';
+import type { TextFieldProps } from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import { SearchOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
 
 type ExpandedTextInputProps = TextInputProps & {
@@ -669,5 +671,56 @@ export const TextArea: Story = {
     multiline: true,
     minRows: 3,
     maxRows: 5,
+  },
+};
+
+export const TransformOnChange: Story = {
+  parameters: {
+    docs: {
+      source: {
+        code: `
+const methods = useForm({ defaultValues: { host: '' } });
+
+return (
+  <FormProvider {...methods}>
+    <TextInput
+      name="host"
+      label="Host"
+      textFieldProps={{
+        placeholder: "Type a host name",
+        onChange: (e) => e.target.value.toUpperCase(),
+      }}
+    />
+    <Typography>Stored value: {JSON.stringify(methods.watch('host'))}</Typography>
+  </FormProvider>
+);
+        `,
+      },
+    },
+  },
+  args: {
+    name: 'host',
+    label: 'Host',
+    placeholder: 'Type a host name',
+  },
+  render: function TransformOnChange({ name, label, placeholder }) {
+    const methods = useForm({ defaultValues: { [name]: '' } });
+
+    return (
+      <FormProvider {...methods}>
+        <TextInput
+          name={name}
+          label={label}
+          textFieldProps={{
+            placeholder,
+            onChange: ((e: React.ChangeEvent<HTMLInputElement>) =>
+              e.target.value.toUpperCase()) as TextFieldProps['onChange'],
+          }}
+        />
+        <Typography data-testid="stored-value" sx={{ mt: 2 }}>
+          Stored value: {JSON.stringify(methods.watch(name))}
+        </Typography>
+      </FormProvider>
+    );
   },
 };

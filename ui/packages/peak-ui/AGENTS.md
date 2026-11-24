@@ -71,6 +71,7 @@ const methods = useForm<Values>({ defaultValues: { host: '' } });
 
 - `name` is required and is the react-hook-form field path. Wrap inputs in `FormProvider` (preferred) or pass `control` explicitly. Never render an input outside both.
 - **Do not pass `value`, `onChange`, or `defaultValue`.** The Controller owns them; set defaults in `useForm({ defaultValues })`.
+- **TextInput transforms:** a `textFieldProps.onChange` that returns a string or number stores that instead of the typed text (e.g. `(e) => e.target.value.toUpperCase()`); any other result, including `null`, `undefined` or a promise, stores the typed text, so return `''` to clear. A `textFieldProps.onBlur` must return the text to store.
 - **Validation belongs to react-hook-form:** `controllerProps={{ rules }}` or a resolver (zod, yup). Text-style inputs show the field error as helper text; toggle-style inputs (checkbox, switch, radio, toggle group) do not surface it, so render the error yourself. `isRequired` only adds the asterisk and `required` attribute; it does not validate.
 - Props for the wrapped MUI input go through its slot prop (`textFieldProps`, `selectFieldProps`, `slotProps`, ...), never spread onto the Peak UI component.
 - Inputs are generic over your form values; type them (`<TextInput<Values> name="host" />`) so `name` is checked.
