@@ -117,6 +117,35 @@ func TestInstallOnEnterRunningIsIdempotent(t *testing.T) {
 	assert.Equal(t, 1, replicaSets, "a re-run creates no second replica set")
 }
 
+func TestInstallOnTerminalTombstonesRecords(t *testing.T) {
+	db := lockTestDB(t)
+	op := checkingInstallOp(t, db, "node-a", "node-b")
+	require.NoError(t, db.InTransactionContext(t.Context(), nil, func(tx *reform.TX) error {
+		err := installOnEnterRunning(tx, op)
+		if err != nil {
+			return err
+		}
+		return installOnSucceeded(tx, op)
+	}))
+
+	require.NoError(t, db.InTransactionContext(t.Context(), nil, func(tx *reform.TX) error {
+		return installOnTerminal(tx, op)
+	}))
+
+	clusterID := installRecordID(op.ID, "cluster")
+	var clusterStatus string
+	var removedAt *time.Time
+	require.NoError(t, db.QueryRow("SELECT status, removed_at FROM om_clusters WHERE id = $1", clusterID).Scan(&clusterStatus, &removedAt))
+	assert.Equal(t, string(models.OmClusterRemoved), clusterStatus)
+	assert.NotNil(t, removedAt)
+
+	var liveMembers, liveReplicaSets int
+	require.NoError(t, db.QueryRow("SELECT count(*) FROM om_cluster_members WHERE cluster_id = $1 AND removed_at IS NULL", clusterID).Scan(&liveMembers))
+	require.NoError(t, db.QueryRow("SELECT count(*) FROM om_replica_sets WHERE cluster_id = $1 AND removed_at IS NULL", clusterID).Scan(&liveReplicaSets))
+	assert.Equal(t, 0, liveMembers, "members are tombstoned")
+	assert.Equal(t, 0, liveReplicaSets, "replica sets are tombstoned")
+}
+
 func TestInstallDriverBlocksWhenANodeIsNotReady(t *testing.T) {
 	db := lockTestDB(t)
 	reg := installRegistry(t)

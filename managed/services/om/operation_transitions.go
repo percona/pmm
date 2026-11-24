@@ -59,7 +59,7 @@ func resumeOperation(ctx context.Context, db *reform.DB, op *models.OmOperation,
 
 // abandonOperation moves a failed operation to abandoned on an admin's explicit resolution, releasing
 // its locks and clearing the operation_failed it raised. It reports whether it abandoned.
-func abandonOperation(ctx context.Context, db *reform.DB, op *models.OmOperation, seenVersion int32) (bool, error) {
+func abandonOperation(ctx context.Context, db *reform.DB, op *models.OmOperation, seenVersion int32, kind OperationKind) (bool, error) {
 	abandoned := false
 	err := db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		moved, err := advanceStatus(tx.Querier, op.ID, models.OmOperationFailed, models.OmOperationAbandoned, seenVersion)
@@ -74,7 +74,16 @@ func abandonOperation(ctx context.Context, db *reform.DB, op *models.OmOperation
 		if err != nil {
 			return err
 		}
-		return clearOperationFailed(tx.Querier, *op.ClusterID)
+		if op.ClusterID != nil {
+			err = clearOperationFailed(tx.Querier, *op.ClusterID)
+			if err != nil {
+				return err
+			}
+		}
+		if kind.OnTerminal != nil {
+			return kind.OnTerminal(tx, op)
+		}
+		return nil
 	})
 	return abandoned, err
 }

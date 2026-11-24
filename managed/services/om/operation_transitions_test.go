@@ -52,7 +52,7 @@ func TestAbandonClearsAttentionAndReleasesLocks(t *testing.T) {
 	require.NoError(t, acquireLocks(db.Querier, op.ID, []LockResource{{Kind: "cluster", ID: clusterID, Mode: models.OmLockExclusive}}))
 	raiseAttention(t, db.Querier, clusterID, AttentionOperationFailed, "")
 
-	abandoned, err := abandonOperation(t.Context(), db, op, 1)
+	abandoned, err := abandonOperation(t.Context(), db, op, 1, OperationKind{})
 	require.NoError(t, err)
 	assert.True(t, abandoned)
 

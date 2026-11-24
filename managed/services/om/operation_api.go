@@ -140,7 +140,8 @@ func (s *Service) AbandonOperation(ctx context.Context, req *omv1.AbandonOperati
 	if err != nil {
 		return nil, operationReadError(err)
 	}
-	moved, err := abandonOperation(ctx, s.db, op, req.GetVersion())
+	kind, _ := s.operationRegistry.Kind(op.Kind)
+	moved, err := abandonOperation(ctx, s.db, op, req.GetVersion(), kind)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

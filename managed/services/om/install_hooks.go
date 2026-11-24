@@ -88,6 +88,28 @@ func installOnSucceeded(tx *reform.TX, op *models.OmOperation) error {
 	return err
 }
 
+// installOnTerminal tombstones the records an install created when it ends on a non-success terminal, so
+// a retry may reuse the cluster name and hosts the live-unique indexes guard.
+func installOnTerminal(tx *reform.TX, op *models.OmOperation) error {
+	clusterID := installRecordID(op.ID, "cluster")
+	_, err := tx.Exec(
+		"UPDATE om_cluster_members SET removed_at = now(), removed_by_operation = $2 WHERE cluster_id = $1 AND removed_at IS NULL",
+		clusterID, op.ID)
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(
+		"UPDATE om_replica_sets SET removed_at = now() WHERE cluster_id = $1 AND removed_at IS NULL",
+		clusterID)
+	if err != nil {
+		return err
+	}
+	_, err = tx.Exec(
+		"UPDATE om_clusters SET status = 'removed', removed_at = now(), updated_at = now() WHERE id = $1 AND removed_at IS NULL",
+		clusterID)
+	return err
+}
+
 // insertInstalledMembers adds one accepted mongod member per target node, keyed by host and numbered in
 // node order as rs.initiate numbers a fresh replica set.
 func insertInstalledMembers(tx *reform.TX, op *models.OmOperation, clusterID string) error {
