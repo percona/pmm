@@ -19,6 +19,7 @@ import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
 import ExploreOutlined from '@mui/icons-material/ExploreOutlined';
 import Groups from '@mui/icons-material/Groups';
 import HelpOutline from '@mui/icons-material/HelpOutline';
+import InsightsOutlined from '@mui/icons-material/InsightsOutlined';
 import Logout from '@mui/icons-material/Logout';
 import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
@@ -483,10 +484,21 @@ export const NAV_EXPLORE: NavItem = {
   text: 'Explore data',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore`,
   matches: [
-    '*',
     `${PMM_NEW_NAV_GRAFANA_PATH}/drilldown`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/a/:appId/explore`,
   ],
+};
+
+// The Grafana Metrics Drilldown plugin, which PMM doesn't ship.
+export const METRICS_DRILLDOWN_APP = 'grafana-metricsdrilldown-app';
+
+// Listed only with that plugin, which opens it on its own pages.
+export const NAV_EXPLORE_METRICS: NavItem = {
+  id: 'explore-metrics',
+  icon: InsightsOutlined,
+  text: 'Explore metrics',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore/metrics`,
+  matches: ['*', `${PMM_NEW_NAV_GRAFANA_PATH}/a/${METRICS_DRILLDOWN_APP}/*`],
 };
 
 //

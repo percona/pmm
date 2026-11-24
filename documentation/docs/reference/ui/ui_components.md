@@ -30,6 +30,7 @@ Some entries appear only when they apply. A database appears under **Monitor** o
 | :material-bell-outline: | Alerts | Analyze | Create and manage [alerts](../../alert/index.md) that notify you when metrics exceed thresholds. |
 | :material-earth: | Advisors | Analyze | Run health assessment checks on your databases and view recommendations for improving performance. |
 | :material-compass-outline: | Explore data | Analyze | Investigate metrics without creating dashboards, for example with custom [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/) queries. |
+| :material-chart-line: | Explore metrics | Analyze | Browse metrics and filter them by label without writing queries. Appears only after you [install the Grafana Metrics Drilldown plugin](#enable-explore-metrics-menu). |
 | :material-toolbox-outline: | Diagnostics | Analyze | Run diagnostic scripts on your database hosts and send the results to your Percona Support case. See [Support diagnostics](../../apps/support-diagnostics.md). |
 | :material-view-grid-outline: | Dashboards | Browse | Browse all dashboards, create [folders](../../use/dashboards-panels/manage-dashboards/create-folders.md), import dashboards, create playlists, and manage snapshots. |
 | :material-apps: | Apps | Browse | Open [Operations for MongoDB](../../use/mongodb-operations.md) and [MySQL Backups](../../apps/mysql-backup.md), and manage your [database backups](../../backup/index.md) and storage locations. |
@@ -75,3 +76,15 @@ Filter your monitoring data using these contextual options:
 - **PMM Annotations**: Toggle visibility of important events on your timelines
 
 These selectors change based on the dashboard you're viewing, showing only relevant options.
+
+## Enable **Explore metrics** menu
+
+Explore metrics lets you visually browse and filter available metrics without writing PromQL queries. It is powered by the Grafana Metrics Drilldown plugin, which you can enable from the **Plugins** page:
+{.power-number}
+
+1. Click the PMM logo to open your home dashboard.
+2. Click :material-magnify: in the top bar, type **plugins** and select **Plugins**.
+3. On the **Plugins** page, search for **Grafana Metrics Drilldown**.
+4. Select the plugin and click **Install**.
+
+This adds **Explore metrics** under **Analyze** in the main menu. For more information, see [Grafana Metrics Drilldown](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/metrics).

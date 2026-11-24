@@ -216,6 +216,32 @@ describe('buildNavTree', () => {
     expect(analysis(build()).slice(0, 3)).toEqual(shared);
   });
 
+  it('lists Explore metrics only with the Grafana plugin behind it', () => {
+    const withPlugin = {
+      ...SETTINGS,
+      frontend: {
+        ...SETTINGS.frontend,
+        apps: { 'grafana-metricsdrilldown-app': {} },
+      },
+    } as unknown as CombinedSettings;
+    const tree = build({ settings: withPlugin });
+
+    expect(ids(build())).not.toContain('explore-metrics');
+    expect(ids(tree)).toContain('explore-metrics');
+    expect(
+      ids(build({ user: TEST_USER_VIEWER, settings: withPlugin }))
+    ).not.toContain('explore-metrics');
+    expect(findActiveNavItem(tree, '/graph/explore/metrics')?.id).toBe(
+      'explore-metrics'
+    );
+    // Where Grafana takes that link.
+    expect(
+      findActiveNavItem(tree, '/graph/a/grafana-metricsdrilldown-app/drilldown')
+        ?.id
+    ).toBe('explore-metrics');
+    expect(findActiveNavItem(tree, '/graph/explore')?.id).toBe('explore');
+  });
+
   it('keeps the Advisors pages as a group', () => {
     expect(ids(findById(build(), 'advisors')?.children)).toEqual([
       'advisors-insights',

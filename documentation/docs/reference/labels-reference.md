@@ -16,6 +16,8 @@ In **Explore data**, labels appear as **Label filters** next to the metric selec
 
 ![PromQL builder showing Label filters](../images/metrics_labels.jpg)
 
+If you prefer to browse metrics without writing queries, you can also enable **Explore metrics**. Once enabled, it appears under **Analyze** in the main menu and supports the same label-based filtering. See [Enable Explore metrics](ui/ui_components.md#enable-explore-metrics-menu).
+
 ## Label types
 
 PMM supports two types of labels:

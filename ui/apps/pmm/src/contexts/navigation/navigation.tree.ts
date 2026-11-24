@@ -8,10 +8,12 @@ import { ServiceType } from 'types/services.types';
 import type { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import type { User } from 'types/user.types';
 import {
+  METRICS_DRILLDOWN_APP,
   NAV_APPS,
   NAV_BACKUPS,
   NAV_DIAGNOSTICS,
   NAV_EXPLORE,
+  NAV_EXPLORE_METRICS,
   NAV_EXTENSIONS_MYSQL_BACKUPS,
   NAV_FOLDER_MAP,
   NAV_HELP,
@@ -126,6 +128,10 @@ export const buildNavTree = ({
 
   if (user?.isEditor && settings?.frontend.exploreEnabled) {
     analysis.push(NAV_EXPLORE);
+
+    if (METRICS_DRILLDOWN_APP in settings.frontend.apps) {
+      analysis.push(NAV_EXPLORE_METRICS);
+    }
   }
 
   if (extensions) {
