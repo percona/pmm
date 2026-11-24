@@ -18,6 +18,7 @@ package env
 import (
 	"errors"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -202,24 +203,58 @@ func TestParseMCPActionTimeout(t *testing.T) {
 func TestGetMCPActionTimeout(t *testing.T) {
 	for _, tc := range []struct {
 		name  string
-		set   bool
+		key   string
 		value string
 		want  time.Duration
 	}{
 		{name: "not set"},
-		{name: "valid", set: true, value: "30S", want: 30 * time.Second},
-		{name: "too long", set: true, value: "10m"},
-		{name: "invalid", set: true, value: "soon"},
+		{name: "valid", key: MCPActionTimeout, value: "30S", want: 30 * time.Second},
+		{name: "lowercase name", key: strings.ToLower(MCPActionTimeout), value: "45s", want: 45 * time.Second},
+		{name: "too long", key: MCPActionTimeout, value: "10m"},
+		{name: "invalid", key: MCPActionTimeout, value: "soon"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Setenv(MCPActionTimeout, tc.value)
-			if !tc.set {
-				os.Unsetenv(MCPActionTimeout)
+			unsetEnv(t, MCPActionTimeout)
+			unsetEnv(t, strings.ToLower(MCPActionTimeout))
+			if tc.key != "" {
+				t.Setenv(tc.key, tc.value)
 			}
 
 			assert.Equal(t, tc.want, GetMCPActionTimeout())
 		})
 	}
+}
+
+func TestGetMCPRawSQL(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		key   string
+		value string
+		want  bool
+	}{
+		{name: "not set"},
+		{name: "true", key: MCPRawSQL, value: "TRUE", want: true},
+		{name: "false", key: MCPRawSQL, value: "false"},
+		{name: "lowercase name", key: strings.ToLower(MCPRawSQL), value: "true", want: true},
+		{name: "invalid", key: MCPRawSQL, value: "yes please"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			unsetEnv(t, MCPRawSQL)
+			unsetEnv(t, strings.ToLower(MCPRawSQL))
+			if tc.key != "" {
+				t.Setenv(tc.key, tc.value)
+			}
+
+			assert.Equal(t, tc.want, GetMCPRawSQL())
+		})
+	}
+}
+
+// unsetEnv unsets key for the test and restores its value afterwards.
+func unsetEnv(t *testing.T, key string) {
+	t.Helper()
+	t.Setenv(key, "")
+	os.Unsetenv(key)
 }
 
 func TestExtensionsEnabled(t *testing.T) {

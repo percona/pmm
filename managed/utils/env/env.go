@@ -125,8 +125,28 @@ func ParseMCPActionTimeout(v string) (time.Duration, error) {
 // GetMCPActionTimeout returns the PMM_MCP_ACTION_TIMEOUT duration, or zero when it is not set or not accepted,
 // which envvars.ParseEnvVars has reported at startup.
 func GetMCPActionTimeout() time.Duration {
-	d, _ := ParseMCPActionTimeout(os.Getenv(MCPActionTimeout))
+	d, _ := ParseMCPActionTimeout(lookupFold(MCPActionTimeout))
 	return d
+}
+
+// GetMCPRawSQL reports whether PMM_MCP_RAW_SQL is true; a value that is not set or not a boolean, which
+// envvars.ParseEnvVars has reported at startup, reads as false.
+func GetMCPRawSQL() bool {
+	b, err := strconv.ParseBool(strings.ToLower(lookupFold(MCPRawSQL)))
+	return err == nil && b
+}
+
+// lookupFold returns the value of the environment variable key, or "" when it is not set, matching its name
+// case-insensitively and taking the last match, as envvars.ParseEnvVars does.
+func lookupFold(key string) string {
+	var value string
+	for _, kv := range os.Environ() {
+		k, v, _ := strings.Cut(kv, "=")
+		if strings.EqualFold(k, key) {
+			value = v
+		}
+	}
+	return value
 }
 
 // ExtensionsEnabled reports whether PMM Extensions is enabled for this process.
