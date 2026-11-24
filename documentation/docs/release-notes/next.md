@@ -19,6 +19,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
+- [PMM-15921](https://perconadev.atlassian.net/browse/PMM-15921): Fixed an issue where installing a MongoDB replica set from **MongoDB > Operations** could show as running forever, with nodes stuck on **Installing**. Installs that are already stuck recover after you upgrade. If something goes wrong, the install now shows which node failed and why, so you know [what to fix](../use/mongodb-operations.md#an-install-fails-or-needs-stopping).
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?

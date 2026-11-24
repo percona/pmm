@@ -17,6 +17,7 @@ package om
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -2241,13 +2242,184 @@ func TestCancelBootstrapRun(t *testing.T) {
 	t.Run("an already-terminal run answers the conflict PMM Extensions reports", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusConflict, `{"detail": "Run run-abc is already rolled_back"}`)
+		stub := newSEPStubSeqCodes(t, []int{http.StatusOK, http.StatusConflict}, []string{
+			`{"id": "run-abc", "status": "rolled_back", "hosts": [{"host": "n1", "rollback_steps": [{"name": "stop_service", "status": "succeeded"}]}], "run_steps": []}`,
+			`{"detail": "Run run-abc is already rolled_back"}`,
+		})
 		svc := stub.service(t)
 
 		_, err := svc.CancelBootstrapRun(callerContext(t), &omv1.CancelBootstrapRunRequest{RunId: "run-abc"})
 
 		require.Error(t, err)
 		assert.Equal(t, codes.Aborted, status.Code(err))
+	})
+
+	for name, hosts := range map[string]string{
+		"a run already rolling back": `[{"host": "n1", "steps": [{"name": "install_package", "status": "failed", "attempt_count": 2}],
+			"rollback_steps": [{"name": "stop_service", "status": "running", "attempt_count": 1}]}]`,
+		"a run about to roll back": `[{"host": "n1", "steps": [{"name": "install_package", "status": "failed", "attempt_count": 2}],
+			"rollback_steps": [{"name": "stop_service", "status": "pending"}]}]`,
+	} {
+		t.Run("refuses "+name+" without reaching PMM Extensions' :cancel", func(t *testing.T) {
+			t.Parallel()
+
+			stub := newSEPStub(t, http.StatusOK, `{"id": "run-abc", "status": "running", "hosts": `+hosts+`, "run_steps": []}`)
+			svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+			_, err := svc.CancelBootstrapRun(callerContext(t), &omv1.CancelBootstrapRunRequest{RunId: "run-abc"})
+
+			require.Error(t, err)
+			assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+			require.Len(t, stub.calls, 1)
+			assert.Equal(t, http.MethodGet, stub.calls[0].method)
+		})
+	}
+
+	t.Run("passes a repeated cancel through, which PMM Extensions answers as a no-op", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `{"id": "run-abc", "status": "running", "cancel_requested": true,
+			"hosts": [{"host": "n1", "rollback_steps": [{"name": "stop_service", "status": "running", "attempt_count": 1}]}], "run_steps": []}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.CancelBootstrapRun(callerContext(t), &omv1.CancelBootstrapRunRequest{RunId: "run-abc"})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 2)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.calls[1].path)
+	})
+}
+
+func TestConfirmMonitoringStep(t *testing.T) {
+	t.Parallel()
+
+	registeredAt := time.Now()
+	gaveUp := models.OmRegistrationErrors{"n1": "This node's MongoDB service isn't showing as monitored yet. If it's missing from PMM Inventory, add it to PMM manually."}
+	otherGaveUp := models.OmRegistrationErrors{"n2": "This node isn't on the Nodes page. Reconnect it to PMM, then add its MongoDB service manually."}
+	listed := map[string]extensionsHost{"n1": {NodeID: "node-1", Services: []extensionsService{
+		{ServiceID: "s1", Name: "n1-mongod", Port: new(int32(27017))},
+	}}}
+	gone := map[string]extensionsHost{"n1": {NodeID: "node-1"}}
+
+	for _, tc := range []struct {
+		name            string
+		status          string
+		config          models.OmBootstrapRunConfig
+		hostsByExecutor map[string]extensionsHost
+		want            string
+		wantDetail      string
+	}{
+		{name: "pending until the run succeeds", status: bootstrapRunRunning, hostsByExecutor: listed, want: bootstrapStepPending},
+		{name: "confirmed by the install's own service", status: bootstrapRunSucceeded, hostsByExecutor: listed, want: bootstrapStepSucceeded},
+		{name: "waiting while the stepper registers the run", status: bootstrapRunSucceeded, hostsByExecutor: gone, want: bootstrapStepRunning},
+		{
+			name: "a registered run stays confirmed after its service is gone", status: bootstrapRunSucceeded,
+			config: models.OmBootstrapRunConfig{RegisteredAt: &registeredAt}, hostsByExecutor: gone, want: bootstrapStepSucceeded,
+		},
+		{
+			name: "a registered run stays confirmed when the lookup failed", status: bootstrapRunSucceeded,
+			config: models.OmBootstrapRunConfig{RegisteredAt: &registeredAt}, want: bootstrapStepSucceeded,
+		},
+		{
+			name: "fails a host the stepper gave up on, with its reason", status: bootstrapRunSucceeded,
+			config:          models.OmBootstrapRunConfig{RegisteredAt: &registeredAt, RegistrationErrors: gaveUp},
+			hostsByExecutor: gone, want: bootstrapStepFailed, wantDetail: "This node's MongoDB service isn't showing as monitored yet. If it's missing from PMM Inventory, add it to PMM manually.",
+		},
+		{
+			name: "a confirmed host stays succeeded when the stepper gave up on another host", status: bootstrapRunSucceeded,
+			config:          models.OmBootstrapRunConfig{RegisteredAt: &registeredAt, RegistrationErrors: otherGaveUp},
+			hostsByExecutor: gone, want: bootstrapStepSucceeded,
+		},
+		{
+			name: "confirms a host the stepper gave up on once the inventory app lists it", status: bootstrapRunSucceeded,
+			config:          models.OmBootstrapRunConfig{RegisteredAt: &registeredAt, RegistrationErrors: gaveUp},
+			hostsByExecutor: listed, want: bootstrapStepSucceeded,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			run := &extensionsBootstrapRun{Status: tc.status, Port: 27017}
+			step := confirmMonitoringStep(run, tc.config, "n1", tc.hostsByExecutor)
+
+			assert.Equal(t, confirmMonitoringStepName, step.GetName())
+			assert.Equal(t, tc.want, step.GetStatus())
+			assert.Equal(t, tc.wantDetail, step.GetDetail())
+		})
+	}
+}
+
+// Not parallel: storeTestDB recreates the shared test database.
+func TestBootstrapRunRegistered(t *testing.T) {
+	run := `{"id": "run-abc", "status": "succeeded", "port": 27017,
+		"started_at": "2026-01-01T00:00:00Z", "finished_at": "2026-01-01T00:05:00Z",
+		"hosts": [{"host": "n1", "steps": [], "rollback_steps": [], "finalize_steps": []}], "run_steps": []}`
+	confirmed := func(t *testing.T, response *omv1.GetBootstrapRunResponse) {
+		t.Helper()
+		steps := response.GetHosts()[0].GetFinalizeSteps()
+		assert.Equal(t, "succeeded", steps[len(steps)-1].GetStatus())
+		assert.Equal(t, "prod", response.GetEnvironment())
+	}
+	register := func(t *testing.T, svc *Service) {
+		t.Helper()
+		require.NoError(t, models.CreateOmBootstrapRunConfig(svc.db.Querier,
+			&models.OmBootstrapRunConfig{RunID: "run-abc", Environment: "prod"}))
+		require.NoError(t, models.MarkOmBootstrapRunRegistered(svc.db.Querier, "run-abc", nil))
+	}
+
+	t.Run("GetBootstrapRun reads a registered run as confirmed without asking the inventory app", func(t *testing.T) {
+		stub := newSEPStub(t, http.StatusOK, run)
+		svc := stub.bootstrapService(t)
+		register(t, svc)
+
+		response, err := svc.GetBootstrapRun(callerContext(t), &omv1.GetBootstrapRunRequest{RunId: "run-abc"})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 1)
+		confirmed(t, response)
+	})
+
+	t.Run("ListBootstrapRuns reads a registered run as confirmed without asking the inventory app", func(t *testing.T) {
+		stub := newSEPStub(t, http.StatusOK, "["+run+"]")
+		svc := stub.bootstrapService(t)
+		register(t, svc)
+
+		response, err := svc.ListBootstrapRuns(callerContext(t), &omv1.ListBootstrapRunsRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 1)
+		require.Len(t, response.GetRuns(), 1)
+		confirmed(t, response.GetRuns()[0])
+	})
+
+	t.Run("asks the inventory app about a run the stepper gave up on, and fails its unlisted host", func(t *testing.T) {
+		stub := newSEPStubSeq(t, http.StatusOK, run,
+			`{"items": [{"node_id": "node-1", "executor_host": "n1", "services": []}], "total": 1, "offset": 0, "limit": 200}`)
+		svc := stub.bootstrapService(t)
+		require.NoError(t, models.MarkOmBootstrapRunRegistered(svc.db.Querier, "run-abc",
+			models.OmRegistrationErrors{"n1": "This node isn't on the Nodes page. Reconnect it to PMM, then add its MongoDB service manually."}))
+
+		response, err := svc.GetBootstrapRun(callerContext(t), &omv1.GetBootstrapRunRequest{RunId: "run-abc"})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 2)
+		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[1].path)
+		steps := response.GetHosts()[0].GetFinalizeSteps()
+		assert.Equal(t, "failed", steps[len(steps)-1].GetStatus())
+		assert.Equal(t, "This node isn't on the Nodes page. Reconnect it to PMM, then add its MongoDB service manually.", steps[len(steps)-1].GetDetail())
+	})
+
+	t.Run("fails the request when the stored configuration cannot be read, rather than reading the run as unregistered", func(t *testing.T) {
+		stub := newSEPStub(t, http.StatusOK, run)
+		svc := stub.bootstrapService(t)
+		sqlDB, ok := svc.db.DBInterface().(*sql.DB)
+		require.True(t, ok)
+		require.NoError(t, sqlDB.Close())
+
+		_, err := svc.GetBootstrapRun(callerContext(t), &omv1.GetBootstrapRunRequest{RunId: "run-abc"})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.Internal, status.Code(err))
 	})
 }
 

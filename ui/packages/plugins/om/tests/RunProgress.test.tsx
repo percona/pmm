@@ -335,6 +335,41 @@ describe('RunProgress', () => {
     expect(screen.queryByLabelText('Install summary')).not.toBeInTheDocument();
   });
 
+  it('says the rollback failed when a run ended with a rollback step out of retries', () => {
+    renderWithClient(
+      <RunProgress
+        run={run({
+          status: 'failed',
+          finished_at: '2026-01-01T00:05:00Z',
+          error:
+            'install_package failed on n1 after 2 attempts; rollback failed: remove_config failed on n1 after 2 attempts; clean up n1 by hand',
+          hosts: [
+            host({
+              host: 'n1',
+              steps: [
+                { ...step('install_package', 'failed'), attempt_count: 2 },
+              ],
+              rollback_steps: [
+                step('stop_service', 'succeeded'),
+                { ...step('remove_config', 'failed'), attempt_count: 2 },
+                step('purge_package', 'pending'),
+              ],
+            }),
+          ],
+        })}
+      />
+    );
+
+    expect(
+      screen.getByText(
+        'The rollback failed. Clean up the nodes named in the error by hand.'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('Every node was rolled back.')
+    ).not.toBeInTheDocument();
+  });
+
   // PMM Extensions skips every teardown step on a host it never installed on.
   it('says nothing was rolled back when every rollback step was skipped', () => {
     renderWithClient(
@@ -530,6 +565,54 @@ describe('RunProgress', () => {
     expect(
       screen.queryByRole('button', { name: 'Abort' })
     ).not.toBeInTheDocument();
+  });
+
+  it('offers no Abort button while the run rolls back', () => {
+    renderWithClient(
+      <RunProgress
+        run={run({
+          status: 'running',
+          hosts: [
+            host({
+              steps: [
+                { ...step('install_package', 'failed'), attempt_count: 2 },
+              ],
+              rollback_steps: [step('stop_service', 'running')],
+            }),
+          ],
+        })}
+      />
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Abort' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('disables Abort while a finished install confirms its monitoring, and says why', async () => {
+    renderWithClient(
+      <RunProgress
+        run={run({
+          status: 'succeeded',
+          finished_at: '2026-01-01T00:05:00Z',
+          hosts: [
+            host({
+              finalize_steps: [
+                step('enable_auth', 'succeeded'),
+                step('confirm_monitoring', 'running'),
+              ],
+            }),
+          ],
+        })}
+      />
+    );
+
+    const abort = screen.getByRole('button', { name: 'Abort' });
+    expect(abort).toBeDisabled();
+    fireEvent.mouseOver(abort.parentElement as HTMLElement);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      "Finished installs can't be aborted."
+    );
   });
 
   it('closes the Abort confirmation when the admin role goes away', async () => {

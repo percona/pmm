@@ -74,7 +74,7 @@ func nextFinalizeAction(host extensionsBootstrapHost) *stepAction {
 }
 
 // nextRollbackAction returns nil for a rollback step that exhausted its retries: that needs an operator,
-// so the stepper reports it instead of retrying forever.
+// so the stepper ends the run as failed instead of retrying forever.
 func nextRollbackAction(host extensionsBootstrapHost) *stepAction {
 	for _, step := range host.RollbackSteps {
 		switch step.Status {
@@ -144,13 +144,30 @@ func rolledBackReason(run extensionsBootstrapRun) string {
 	if nothingRolledBack(run) {
 		outcome = "nothing had been installed, so there was nothing to roll back"
 	}
+	return rollbackCause(run) + "; " + outcome
+}
+
+func rollbackFailedReason(run extensionsBootstrapRun) string {
+	var failures, hosts []string
+	for _, host := range run.Hosts {
+		parts := exhaustedParts(host.Host, host.RollbackSteps)
+		if len(parts) > 0 {
+			failures = append(failures, parts...)
+			hosts = append(hosts, host.Host)
+		}
+	}
+	return fmt.Sprintf("%s; rollback failed: %s; clean up %s by hand",
+		rollbackCause(run), strings.Join(failures, "; "), strings.Join(hosts, ", "))
+}
+
+func rollbackCause(run extensionsBootstrapRun) string {
 	if !runExhaustedRetries(run) {
-		return "an operator requested cancellation; " + outcome
+		return "an operator requested cancellation"
 	}
 	if summary := exhaustedStepsSummary(run); summary != "" {
-		return summary + "; " + outcome
+		return summary
 	}
-	return "a step exhausted its retries; " + outcome
+	return "a step exhausted its retries"
 }
 
 // nothingRolledBack reports whether every rollback step was skipped, as happens when nothing was installed.
@@ -168,10 +185,20 @@ func nothingRolledBack(run extensionsBootstrapRun) bool {
 }
 
 func exhaustedStepsSummary(run extensionsBootstrapRun) string {
+	parts := make([]string, 0, len(run.Hosts))
+	for _, host := range run.Hosts {
+		parts = append(parts, exhaustedParts(host.Host, slices.Concat(host.Steps, host.FinalizeSteps))...)
+	}
+	parts = append(parts, exhaustedParts("", run.RunSteps)...)
+	return strings.Join(parts, "; ")
+}
+
+// exhaustedParts describes each step out of retries; host is empty for run-level steps.
+func exhaustedParts(host string, steps []extensionsBootstrapStep) []string {
 	var parts []string
-	describe := func(host string, step extensionsBootstrapStep) {
+	for _, step := range steps {
 		if !exhausted(step) {
-			return
+			continue
 		}
 		part := step.Name + " failed"
 		if host != "" {
@@ -185,15 +212,7 @@ func exhaustedStepsSummary(run extensionsBootstrapRun) string {
 		}
 		parts = append(parts, part)
 	}
-	for _, host := range run.Hosts {
-		for _, step := range slices.Concat(host.Steps, host.FinalizeSteps) {
-			describe(host.Host, step)
-		}
-	}
-	for _, step := range run.RunSteps {
-		describe("", step)
-	}
-	return strings.Join(parts, "; ")
+	return parts
 }
 
 func runStepsExhaustedRetries(run extensionsBootstrapRun) bool {
@@ -262,6 +281,27 @@ func adminPasswordSpent(run extensionsBootstrapRun) bool {
 		return true
 	}
 	return step.Status == bootstrapStepSucceeded || step.Status == bootstrapStepSkipped
+}
+
+// runRollbackFailed reports whether a rollback has gone as far as it can, with nothing left running
+// and a step out of retries.
+func runRollbackFailed(run extensionsBootstrapRun) bool {
+	if slices.ContainsFunc(run.RunSteps, stepRunning) {
+		return false
+	}
+	var failed bool
+	for _, host := range run.Hosts {
+		if nextRollbackAction(host) != nil ||
+			slices.ContainsFunc(slices.Concat(host.Steps, host.FinalizeSteps, host.RollbackSteps), stepRunning) {
+			return false
+		}
+		failed = failed || slices.ContainsFunc(host.RollbackSteps, exhausted)
+	}
+	return failed
+}
+
+func stepRunning(step extensionsBootstrapStep) bool {
+	return step.Status == bootstrapStepRunning
 }
 
 func runRollbackDone(run extensionsBootstrapRun) bool {
