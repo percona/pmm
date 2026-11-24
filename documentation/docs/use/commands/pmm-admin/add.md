@@ -358,6 +358,11 @@ Control which metrics PMM collects:
 
 - `--enable-all-collectors`: Enable all collectors. By default, PMM enables only `diagnosticdata` and `replicasetstatus`. This flag also enables `collstats`, `dbstats`, `indexstats`, and `topmetrics`.
 
+- `--enable-diagnostic-data-histograms`: Collect histogram metrics from the MongoDB `getDiagnosticData` command. Off by default. `--enable-all-collectors` doesn't include this option, so pass it explicitly, even when you use `--enable-all-collectors`. This option sets the `mongodb_exporter` flag `--collector.diagnosticdata-histograms`.
+
+    !!! warning "Higher memory usage"
+        This option can significantly increase `mongodb_exporter` memory usage, depending on how many histogram buckets MongoDB returns.
+
 - `--disable-collectors`: Comma-separated list of collectors to exclude.
 
 - `--max-collections-limit`: Maximum number of collections to monitor. Set to `-1` to let PMM decide (default), or `0` for unlimited. A very high value can impact CPU and memory usage.
@@ -382,14 +387,14 @@ PMM collects metrics at different intervals based on collector performance:
 
 ### Environment variables
 
-Pass environment variables to the MongoDB exporter using `--agent-env-vars`. Only variables already set in the `pmm-agent` environment will be passed:
+Use `--agent-env-vars` to pass environment variable names to the MongoDB exporter. PMM stores only the names, so your values stay on the PMM Client host. To learn about naming rules or update the list later without re-adding the service, see [Pass environment variables to the exporter](inventory.md#pass-environment-variables-to-the-exporter). For example:
 
 ```bash
 pmm-admin add mongodb \
   mongodb-prod 192.168.1.20:27017 \
   --username=pmm \
   --password=pass \
-  --agent-env-vars="LOG_LEVEL,OTHER_VAR"
+  --agent-env-vars="KRB5_KTNAME,KRB5_CONFIG"
 ```
 
 ### Examples

@@ -1,10 +1,28 @@
-import {
+import type {
+  BaseService,
+  EditableService,
   ListServicesParams,
   ListServicesResponse,
   ListTypesResponse,
+  ManagedServiceType,
   ManagedServicesResponse,
+  RemoveServiceParams,
+  UpdateServiceParams,
 } from 'types/services.types';
 import { api } from './api';
+import {
+  type GetServicePayload,
+  type ListAgentsPayload,
+  type ListServicesPayload,
+  getIfExists,
+  RAW_REQUEST,
+  RAW_RESPONSE,
+  toBaseService,
+  toInventoryService,
+  toManagedService,
+  toServiceAgent,
+  toUpdateServicePayload,
+} from './inventory.utils';
 
 export const getServiceTypes = async (): Promise<ListTypesResponse> => {
   const res = await api.post('/inventory/services:getTypes');
@@ -21,6 +39,63 @@ export const listServices = async (
 export const listManagedServices = async (
   params: ListServicesParams
 ): Promise<ManagedServicesResponse> => {
-  const res = await api.get('/management/services', { params });
-  return res.data;
+  const res = await api.get<ListServicesPayload>('/management/services', {
+    params,
+    ...RAW_RESPONSE,
+  });
+  return { services: (res.data.services ?? []).map(toManagedService) };
+};
+
+export const getService = async (
+  serviceId: string
+): Promise<BaseService | null> => {
+  const payload = await getIfExists<GetServicePayload>(
+    `/inventory/services/${serviceId}`
+  );
+  return payload && toBaseService(Object.values(payload)[0]);
+};
+
+export const removeService = async ({
+  serviceId,
+  force,
+}: RemoveServiceParams) => {
+  await api.delete(`/inventory/services/${serviceId}`, { params: { force } });
+};
+
+export const getEditableService = async (
+  serviceId: string
+): Promise<EditableService | null> => {
+  const payload = await getIfExists<GetServicePayload>(
+    `/inventory/services/${serviceId}`
+  );
+
+  if (!payload) {
+    return null;
+  }
+
+  const [serviceType, service] = Object.entries(payload)[0];
+  const res = await api.get<ListAgentsPayload>('/management/agents', {
+    params: { serviceId },
+    ...RAW_RESPONSE,
+  });
+
+  return {
+    service: toInventoryService(serviceType as ManagedServiceType, service),
+    agents: (res.data.agents ?? []).map(toServiceAgent),
+  };
+};
+
+// Resolves with the server's warning, if any
+export const updateService = async ({
+  serviceId,
+  serviceType,
+  changes,
+}: UpdateServiceParams): Promise<string> => {
+  const res = await api.put<{ warning?: string }>(
+    `/management/services/${serviceId}`,
+    { [serviceType]: toUpdateServicePayload(changes) },
+    RAW_REQUEST
+  );
+
+  return res.data.warning ?? '';
 };

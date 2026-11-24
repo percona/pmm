@@ -17,6 +17,7 @@ package models_test
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -24,6 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -43,18 +45,13 @@ func TestSettings(t *testing.T) {
 				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
-			DataRetention: 30 * 24 * time.Hour,
-			AWSPartitions: []string{"aws"},
-			SaaS: models.Advisors{
-				AdvisorRunIntervals: models.AdvisorsRunIntervals{
-					StandardInterval: 24 * time.Hour,
-					RareInterval:     78 * time.Hour,
-					FrequentInterval: 4 * time.Hour,
-				},
-			},
-			DefaultRoleID:  1,
-			EncryptedItems: actual.EncryptedItems,
+			DataRetention:           30 * 24 * time.Hour,
+			AdvisorHistoryRetention: 30 * 24 * time.Hour,
+			AWSPartitions:           []string{"aws"},
+			DefaultRoleID:           1,
+			EncryptedItems:          actual.EncryptedItems,
 		}
+		expected.AdvisorNotifications.Severities = models.DefaultAdvisorNotificationSeverities()
 		assert.Equal(t, expected, actual)
 	})
 
@@ -68,17 +65,76 @@ func TestSettings(t *testing.T) {
 				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
-			DataRetention: 30 * 24 * time.Hour,
-			AWSPartitions: []string{"aws"},
-			SaaS: models.Advisors{
-				AdvisorRunIntervals: models.AdvisorsRunIntervals{
-					StandardInterval: 24 * time.Hour,
-					RareInterval:     78 * time.Hour,
-					FrequentInterval: 4 * time.Hour,
-				},
-			},
+			DataRetention:           30 * 24 * time.Hour,
+			AdvisorHistoryRetention: 30 * 24 * time.Hour,
+			AWSPartitions:           []string{"aws"},
 		}
+		expected.AdvisorNotifications.Severities = models.DefaultAdvisorNotificationSeverities()
 		assert.Equal(t, expected, s)
+	})
+
+	t.Run("AdvisorNotifications", func(t *testing.T) {
+		// Severities are deduplicated and stored most severe first.
+		settings, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			EnableAdvisorNotifications:    new(true),
+			AdvisorNotificationSeverities: []common.Severity{common.Info, common.Critical, common.Info},
+			AdvisorHistoryRetention:       48 * time.Hour,
+		})
+		require.NoError(t, err)
+		assert.True(t, settings.IsAdvisorNotificationsEnabled())
+		assert.Equal(t, []common.Severity{common.Critical, common.Info}, settings.AdvisorNotifications.Severities)
+		assert.Equal(t, 48*time.Hour, settings.AdvisorHistoryRetention)
+
+		// Empty leaves the stored severities alone.
+		settings, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{})
+		require.NoError(t, err)
+		assert.Equal(t, []common.Severity{common.Critical, common.Info}, settings.AdvisorNotifications.Severities)
+
+		// A severity advisors don't use is rejected.
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationSeverities: []common.Severity{common.Error, common.Notice},
+		})
+		require.ErrorContains(t, err, "advisor_notification_severities")
+	})
+
+	t.Run("AdvisorNotificationEmailAddresses", func(t *testing.T) {
+		settings, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{"a@example.com", "b@example.com", "a@example.com"},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"a@example.com", "b@example.com"}, settings.AdvisorNotifications.EmailAddresses)
+
+		// Nil leaves the stored recipients alone.
+		settings, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"a@example.com", "b@example.com"}, settings.AdvisorNotifications.EmailAddresses)
+
+		// An empty non-nil slice clears them.
+		settings, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{},
+		})
+		require.NoError(t, err)
+		assert.Empty(t, settings.AdvisorNotifications.EmailAddresses)
+
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{"not-an-email"},
+		})
+		require.ErrorContains(t, err, "invalid address 'not-an-email'")
+
+		// A display name would make the stored list ambiguous for the sender.
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{"DBA <dba@example.com>"},
+		})
+		require.ErrorContains(t, err, "expected a bare email address")
+
+		tooMany := make([]string, 21)
+		for i := range tooMany {
+			tooMany[i] = fmt.Sprintf("a%d@example.com", i)
+		}
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: tooMany,
+		})
+		require.ErrorContains(t, err, "at most 20 addresses are allowed")
 	})
 
 	t.Run("Validation", func(t *testing.T) {
@@ -171,7 +227,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Advisors.Enabled)
 
 			// disable telemetry, enable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -180,7 +236,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.False(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Advisors.Enabled)
 
 			// disable Advisors, enable Telemetry
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -189,7 +245,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.False(t, *ns.SaaS.Enabled)
+			assert.False(t, *ns.Advisors.Enabled)
 
 			// enable both
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -198,7 +254,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Advisors.Enabled)
 
 			// disable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -206,7 +262,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.False(t, *ns.SaaS.Enabled)
+			assert.False(t, *ns.Advisors.Enabled)
 
 			// enable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -214,7 +270,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Advisors.Enabled)
 
 			// restore initial default state
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -223,7 +279,7 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Advisors.Enabled)
 		})
 
 		t.Run("Check that telemetry disabling resets telemetry UUID", func(t *testing.T) {
@@ -246,27 +302,6 @@ func TestSettings(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.Empty(t, ns.Telemetry.UUID)
-		})
-
-		t.Run("disable checks", func(t *testing.T) {
-			disChecks := []string{"one", "two", "three"}
-
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableAdvisorChecks: disChecks,
-			})
-			require.NoError(t, err)
-			assert.ElementsMatch(t, ns.SaaS.DisabledAdvisors, disChecks)
-		})
-
-		t.Run("enable checks", func(t *testing.T) {
-			disChecks := []string{"one", "two", "three"}
-
-			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAdvisorChecks: disChecks})
-			require.NoError(t, err)
-
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAdvisorChecks: []string{"two"}})
-			require.NoError(t, err)
-			assert.ElementsMatch(t, ns.SaaS.DisabledAdvisors, []string{"one", "three"})
 		})
 
 		t.Run("enable azure discover", func(t *testing.T) {

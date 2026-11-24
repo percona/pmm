@@ -96,7 +96,7 @@ func TestNodeService(t *testing.T) {
 				vmClient.AssertExpectations(t)
 			}
 
-			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient, nil, false)
+			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient, nil, nil, false)
 
 			return ctx, s, teardown
 		}
@@ -307,7 +307,7 @@ func TestNodeService(t *testing.T) {
 			grafanaClient := &mockGrafanaClient{}
 			grafanaClient.Test(t)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, nil, false)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -348,7 +348,7 @@ func TestNodeService(t *testing.T) {
 				},
 			}
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Once()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
@@ -405,7 +405,7 @@ func TestNodeService(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
@@ -431,7 +431,7 @@ func TestNodeService(t *testing.T) {
 					Value:     1,
 				},
 			}
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Once()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
@@ -503,8 +503,8 @@ func TestNodeService(t *testing.T) {
 			}
 			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
 			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
-			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil).Once()
-			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil, nil).Once()
 			// convertAgentToProto + connectivity gate for the stale-status fallback
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
@@ -531,8 +531,8 @@ func TestNodeService(t *testing.T) {
 			}
 			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
 			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
-			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil).Once()
-			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil, nil).Once()
 			// convertAgentToProto + connectivity gate for the stale-status fallback
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(false).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(false).Once()
@@ -584,7 +584,7 @@ func TestNodeService(t *testing.T) {
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, nil, false)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -620,7 +620,7 @@ func TestNodeService(t *testing.T) {
 					Value:     1,
 				},
 			}
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Times(1)
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil, nil).Times(1)
 
 			expected := &managementv1.GetNodeResponse{
 				Node: &managementv1.UniversalNode{
@@ -667,8 +667,8 @@ func TestNodeService(t *testing.T) {
 			}
 			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
 			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
-			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil).Once()
-			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil, nil).Once()
 			// connectivity gate for the stale-status fallback
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 

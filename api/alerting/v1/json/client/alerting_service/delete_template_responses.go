@@ -307,8 +307,8 @@ type DeleteTemplateDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// delete template default body details items0
-	DeleteTemplateDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// delete template default body details items0 additional properties
+	DeleteTemplateDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -343,7 +343,7 @@ func (o *DeleteTemplateDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 			}
 			result[k] = toadd
 		}
-		o.DeleteTemplateDefaultBodyDetailsItems0 = result
+		o.DeleteTemplateDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -364,12 +364,12 @@ func (o DeleteTemplateDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.DeleteTemplateDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.DeleteTemplateDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.DeleteTemplateDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.DeleteTemplateDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

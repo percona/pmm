@@ -307,8 +307,8 @@ type RemoveScheduledBackupDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// remove scheduled backup default body details items0
-	RemoveScheduledBackupDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// remove scheduled backup default body details items0 additional properties
+	RemoveScheduledBackupDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -343,7 +343,7 @@ func (o *RemoveScheduledBackupDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 			}
 			result[k] = toadd
 		}
-		o.RemoveScheduledBackupDefaultBodyDetailsItems0 = result
+		o.RemoveScheduledBackupDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -364,12 +364,12 @@ func (o RemoveScheduledBackupDefaultBodyDetailsItems0) MarshalJSON() ([]byte, er
 		return nil, err
 	}
 
-	if len(o.RemoveScheduledBackupDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.RemoveScheduledBackupDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.RemoveScheduledBackupDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.RemoveScheduledBackupDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

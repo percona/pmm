@@ -17,7 +17,7 @@ type mockVictoriaMetricsClient struct {
 }
 
 // Query provides a mock function with given fields: ctx, query, ts, opts
-func (_m *mockVictoriaMetricsClient) Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error) {
+func (_m *mockVictoriaMetricsClient) Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, v1.Infos, error) {
 	_va := make([]interface{}, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
@@ -33,8 +33,9 @@ func (_m *mockVictoriaMetricsClient) Query(ctx context.Context, query string, ts
 
 	var r0 model.Value
 	var r1 v1.Warnings
-	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, time.Time, ...v1.Option) (model.Value, v1.Warnings, error)); ok {
+	var r2 v1.Infos
+	var r3 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, time.Time, ...v1.Option) (model.Value, v1.Warnings, v1.Infos, error)); ok {
 		return rf(ctx, query, ts, opts...)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, string, time.Time, ...v1.Option) model.Value); ok {
@@ -53,13 +54,21 @@ func (_m *mockVictoriaMetricsClient) Query(ctx context.Context, query string, ts
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, string, time.Time, ...v1.Option) error); ok {
+	if rf, ok := ret.Get(2).(func(context.Context, string, time.Time, ...v1.Option) v1.Infos); ok {
 		r2 = rf(ctx, query, ts, opts...)
 	} else {
-		r2 = ret.Error(2)
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(v1.Infos)
+		}
 	}
 
-	return r0, r1, r2
+	if rf, ok := ret.Get(3).(func(context.Context, string, time.Time, ...v1.Option) error); ok {
+		r3 = rf(ctx, query, ts, opts...)
+	} else {
+		r3 = ret.Error(3)
+	}
+
+	return r0, r1, r2, r3
 }
 
 // newMockVictoriaMetricsClient creates a new instance of mockVictoriaMetricsClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

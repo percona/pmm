@@ -38,7 +38,7 @@ install-race:                   ## Install qan-api2 binary with race detector
 	go install -v -race ./...
 
 TEST_CONTAINER_NAME := pmm-clickhouse-test
-TEST_IMAGE_NAME := clickhouse/clickhouse-server:25.3.6.56
+TEST_IMAGE_NAME := clickhouse/clickhouse-server:26.3.62.3
 
 start-clickhouse:
 	@if [ "$$(uname)" = "Darwin" ]; then \
@@ -81,7 +81,7 @@ test:                           ## Run tests (run `make test-env-up` beforehand)
 	go test -race -count=1 ./...
 
 test-cover:                     ## Run tests and collect coverage information (run `make test-env-up` beforehand)
-	go test -count=1 -coverprofile=cover.out -covermode=count ./...
+	go test -race -count=1 -coverprofile=cover.out -covermode=atomic ./...
 
 RUN_FLAGS = ## -todo-use-kingpin-for-flags
 

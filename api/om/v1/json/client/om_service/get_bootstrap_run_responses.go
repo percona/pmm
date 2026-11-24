@@ -310,8 +310,8 @@ type GetBootstrapRunDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// get bootstrap run default body details items0
-	GetBootstrapRunDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// get bootstrap run default body details items0 additional properties
+	GetBootstrapRunDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -346,7 +346,7 @@ func (o *GetBootstrapRunDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 			}
 			result[k] = toadd
 		}
-		o.GetBootstrapRunDefaultBodyDetailsItems0 = result
+		o.GetBootstrapRunDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -367,12 +367,12 @@ func (o GetBootstrapRunDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.GetBootstrapRunDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.GetBootstrapRunDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.GetBootstrapRunDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.GetBootstrapRunDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}
