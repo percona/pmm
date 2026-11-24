@@ -10,6 +10,10 @@ import {
 
 Colors that are meant to be used on charts and other similar infographics. It’s a bit more brand agnostic, even though it consumes from the brand palette. It’s meant to be more discernible and to help read that type of graphics we see on charts and infographics.
 
+Components read these colors from the theme as `theme.palette.charts.chart1` to `chart7` (in `sx`, `'charts.chart1'`), never as hex values. The chart components in **Data display/Charts** take a `color` of `primary` or one of these keys. Any `@mui/x-charts` chart rendered under a Peak theme uses them, in order, as its default series colors.
+
+In dark mode every chart color holds 3:1 contrast against both surfaces. In light mode only `chart6` does, so a mark drawn in another chart color needs a text label next to it (as the Distribution Bar legend gives it); single-series charts default to `primary`, which holds 3:1 in every theme.
+
 ### Light mode
 
 <div className="light-preview">

@@ -77,6 +77,8 @@ Every documented story carries exactly **one** maturity status on its meta (defa
 
 React 19, the version PMM UI runs: the `react` and `react-dom` peer ranges match `apps/pmm`, and a spec keeps them equal. TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with sourcemaps; peer deps (MUI, Emotion, React, `react-hook-form`) are externalized. The theme names Poppins and Roboto Mono; the `@fontsource/*` dependencies are declared but not imported, so consumers load fonts themselves (see `AGENTS.md`).
 
+Charts (`src/components/charts/`) build on `@mui/x-charts` 9, a required peer and the only MUI X package on 9 (the date pickers stay on MUI X 7, so `@mui/x-internals` is installed twice; that is expected). It is MIT, and so are its dependencies (ISC for the bundled d3). **Never add or import `@mui/x-charts-pro` or `@mui/x-charts-premium`, or any other `@mui/x-*-pro`/`-premium` package**: they are commercial and need a license key. `src/package-manifest.spec.ts` fails if `package.json` lists one. Chart marks read colors as `theme.palette.charts.chart1` to `chart7` or `primary`, never literals (helpers in `src/design/chart-colors.ts`). BaseTheme also sets them as the default series colors of every `@mui/x-charts` chart (`MuiChartsDataProvider`); `src/design/themes/chart-palette.spec.ts` checks their contrast and pins the light-mode chart colors that are below 3:1 today, so a token change has to update that list on purpose.
+
 ## MUI Conventions
 
 The "Naming and layout conventions" in `AGENTS.md` (`component` not `as`, `gap` not `spacing`, theme keys not literals) are binding for library code too.
@@ -114,7 +116,7 @@ The `<Box sx={{ mr: -1.75 }} />` rendered when no `icon` is passed is intentiona
 
 ### Tooltip
 
-- Tooltips render in the **inverted** app mode (light app → dark tooltip surface, dark app → light tooltip surface). Don't add per-theme tooltip overrides — change `BaseTheme` instead where possible.
+- Tooltips render in the **inverted** app mode (light app → dark tooltip surface, dark app → light tooltip surface). Don't add per-theme tooltip overrides — change `BaseTheme` instead where possible. `MuiChartsTooltip` follows the same surface, so chart tooltips match.
 - Link styling inside tooltips lives as a nested `& .MuiLink-root` rule _inside_ the tooltip override, **not** in `MuiLink.styleOverrides`. Don't move link styles back to `MuiLink`.
 
 ### Action token model (state colors)

@@ -89,6 +89,7 @@ const methods = useForm<Values>({ defaultValues: { host: '' } });
 
 - The package is published as ESM only (`"type": "module"`); there is no CommonJS build.
 - React, MUI, Emotion, notistack, and react-hook-form are peer dependencies, not bundled; the app installs them. The install command lives in the package `README.md` (also in `node_modules/@percona/peak-ui`), and the authoritative list is `peerDependencies` in `package.json`. Add a date adapter (e.g. `date-fns`) if you use date/time inputs.
+- Install `@mui/x-charts` 9, the MIT package, even if you don't use the chart components: the package entry and the theme import it, so any import from Peak UI fails without it. Date pickers stay on MUI X 7, which is fine. Never install `@mui/x-charts-pro` or `@mui/x-charts-premium`: they are commercial and need a license key. Under a Peak theme, `@mui/x-charts` charts you render yourself already default to the brand chart colors and the inverted tooltip; pass `color` on a series only to pick a specific one.
 
 ## Links
 

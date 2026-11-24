@@ -16,7 +16,7 @@ Install the package and its peer dependencies (for date/time picker inputs, also
 ```bash
 pnpm add @percona/peak-ui \
   react react-dom \
-  @mui/material @mui/icons-material @mui/utils @mui/x-date-pickers \
+  @mui/material @mui/icons-material @mui/utils @mui/x-date-pickers @mui/x-charts \
   @emotion/react @emotion/styled \
   notistack react-hook-form
 ```

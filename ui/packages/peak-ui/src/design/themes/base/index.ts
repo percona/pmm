@@ -8,6 +8,7 @@ export {
   shape,
 } from './BaseTheme';
 export type {
+  ChartPalette,
   Primitives,
   SemanticTokens,
   PrimaryTokens,

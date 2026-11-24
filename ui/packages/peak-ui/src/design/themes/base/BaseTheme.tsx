@@ -11,6 +11,27 @@ import { MultiSectionDigitalClockClassKey } from '@mui/x-date-pickers';
 import { inputBaseClasses } from '@mui/material/InputBase';
 import { outlinedInputClasses } from '@mui/material/OutlinedInput';
 import { listSubheaderClasses } from '@mui/material/ListSubheader';
+import { chartsTooltipClasses } from '@mui/x-charts/ChartsTooltip';
+import type {} from '@mui/x-charts/themeAugmentation';
+import { CHART_SERIES_COLORS } from '../../chart-colors';
+
+/** The seven categorical series colors charts read as `theme.palette.charts`. */
+export interface ChartPalette {
+  /** First series color. */
+  chart1: string;
+  /** Second series color. */
+  chart2: string;
+  /** Third series color. */
+  chart3: string;
+  /** Fourth series color. */
+  chart4: string;
+  /** Fifth series color. */
+  chart5: string;
+  /** Sixth series color. */
+  chart6: string;
+  /** Seventh series color. */
+  chart7: string;
+}
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
@@ -27,6 +48,7 @@ declare module '@mui/material/styles' {
       dividerStronger?: string;
       contour?: string;
     };
+    charts?: Partial<ChartPalette>;
   }
 
   interface Palette extends PaletteOptions {
@@ -36,7 +58,9 @@ declare module '@mui/material/styles' {
       dividerStronger: string;
       contour: string;
     };
+    charts: ChartPalette;
   }
+
   interface SimplePaletteColorOptions {
     surface?: string;
     hover?: string;
@@ -596,6 +620,9 @@ const buttonVariantStyles = (variant: string, theme: Theme): CSSObject => {
   }
 };
 
+const invertedTokens = (theme: Theme) =>
+  theme.palette.mode === 'light' ? semanticTokensDark : semanticTokensLight;
+
 const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
   const tokens = mode === 'light' ? semanticTokensLight : semanticTokensDark;
   const primary = mode === 'light' ? defaultPrimaryLight : defaultPrimaryDark;
@@ -687,6 +714,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         dividerStronger: tokens.lines.dividerStronger,
         contour: tokens.lines.contour,
       },
+      charts: tokens.charts,
     },
     typography: {
       code: codeTypography,
@@ -1336,10 +1364,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           // Tooltips always render in the inverse mode: light app → dark surface, dark app → light surface
           // The inversion is centralized here so consumers inherit it via deepmerge without their own overrides.
           tooltip: ({ theme }) => {
-            const inverted =
-              theme.palette.mode === 'light'
-                ? semanticTokensDark
-                : semanticTokensLight;
+            const inverted = invertedTokens(theme);
             return {
               ...theme.typography.caption,
               boxShadow: theme.shadows[8],
@@ -1355,12 +1380,42 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
               },
             };
           },
-          arrow: ({ theme }) => {
-            const inverted =
-              theme.palette.mode === 'light'
-                ? semanticTokensDark
-                : semanticTokensLight;
-            return { color: inverted.surfaces.elevation1 };
+          arrow: ({ theme }) => ({
+            color: invertedTokens(theme).surfaces.elevation1,
+          }),
+        },
+      },
+      MuiChartsDataProvider: {
+        defaultProps: {
+          colors: CHART_SERIES_COLORS.map((key) => tokens.charts[key]),
+        },
+      },
+      // Chart tooltips follow the same inverted surface as MuiTooltip
+      MuiChartsTooltip: {
+        styleOverrides: {
+          paper: ({ theme }) => {
+            const inverted = invertedTokens(theme);
+            return {
+              backgroundColor: inverted.surfaces.elevation1,
+              color: inverted.text.primary,
+              border: 'none',
+              boxShadow: theme.shadows[8],
+            };
+          },
+          table: ({ theme }) => ({
+            '& caption': {
+              borderBottomColor: invertedTokens(theme).lines.divider,
+            },
+          }),
+          cell: ({ theme }) => {
+            const inverted = invertedTokens(theme);
+            return {
+              color: inverted.text.primary,
+              [`&.${chartsTooltipClasses.valueCell}, &.${chartsTooltipClasses.axisValueCell}`]:
+                {
+                  color: inverted.text.primary,
+                },
+            };
           },
         },
       },
