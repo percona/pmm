@@ -68,7 +68,8 @@ type resolvedQuery struct {
 	ExampleErr error
 }
 
-// refFromInput builds a query reference from query_ref or from the flat queryid, service_id and period fields.
+// refFromInput builds a query reference from query_ref or from the flat queryid, service_id and period fields, and
+// checks its window and, with checkQANValue, its queryid and service_id.
 func refFromInput(ref *queryRefInput, queryID, serviceID, periodFrom, periodTo string, now time.Time) (queryRef, error) {
 	flat := queryID != "" || serviceID != "" || periodFrom != "" || periodTo != ""
 	switch {
@@ -92,7 +93,7 @@ func refFromInput(ref *queryRefInput, queryID, serviceID, periodFrom, periodTo s
 	if err != nil {
 		return queryRef{}, err
 	}
-	err = checkQANWindow(from, to)
+	err = cmp.Or(checkQANWindow(from, to), checkQANValue("queryid", queryID), checkQANValue("service_id", serviceID))
 	if err != nil {
 		return queryRef{}, err
 	}
@@ -105,10 +106,6 @@ func (s *Service) resolveLive(
 	ctx context.Context, auth callerAuth, in *queryRefInput, queryID, serviceID, periodFrom, periodTo string,
 ) (*resolvedQuery, func(), error) {
 	ref, err := refFromInput(in, queryID, serviceID, periodFrom, periodTo, s.now())
-	if err != nil {
-		return nil, nil, err
-	}
-	err = cmp.Or(checkQANValue("queryid", ref.QueryID), checkQANValue("service_id", ref.ServiceID))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -132,15 +129,15 @@ func (s *Service) resolveLive(
 }
 
 // resolveQuery finds the one service in the caller's list that the query ran on, with its database, tables and stored
-// example. The caller checks the queryid and service_id with checkQANValue.
+// example, for a reference that refFromInput built.
 func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRef) (*resolvedQuery, error) {
 	w := window{From: ref.PeriodFrom, To: ref.PeriodTo}
-	services, ids, err := s.callerServices(ctx, auth, ref.ServiceID, w)
+	asked, ids, err := s.callerServices(ctx, auth, ref.ServiceID, w)
 	if err != nil {
 		return nil, err
 	}
 
-	candidates, total, err := s.queryCandidates(ctx, auth, ref, services, ids)
+	candidates, total, err := s.queryCandidates(ctx, auth, ref, asked, ids)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +159,7 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 	ref.ServiceID = svc.ServiceID
 	out := &resolvedQuery{Service: svc, Ref: ref}
 
-	d, err := s.fetchQueryDetail(ctx, auth, queryDetailInput{QueryID: ref.QueryID, ServiceID: svc.ServiceID}, []string{svc.ServiceID}, ref.PeriodFrom, ref.PeriodTo)
+	d, err := s.fetchQueryDetail(ctx, auth, ref, []string{svc.ServiceID})
 	if err != nil {
 		// Both detail calls failed: a stored plan needs neither, and the paths that use one answer its error.
 		d = &queryDetail{metricsErr: err, exampleErr: err}
@@ -241,33 +238,47 @@ func listCutHint(w window, now time.Time) string {
 	return "; only services that sent metrics in " + span + ", were searched: for a service that stopped earlier, end the window while it still sent them"
 }
 
-// callerServices returns the caller's services and the ids of those that QAN may be asked about: the given one,
+// callerServices returns the services of the caller's list that QAN may be asked about, and their ids: the given one,
 // which must be in the list, else every one that passes checkQANValue.
 func (s *Service) callerServices(ctx context.Context, auth callerAuth, serviceID string, w window) ([]serviceInfo, []string, error) {
 	services, err := s.listServices(ctx, auth, w)
 	if err != nil {
 		return nil, nil, err
 	}
-	ids := make([]string, 0, len(services))
-	for _, svc := range services {
-		if checkQANValue("service_id", svc.ServiceID) == nil {
-			ids = append(ids, svc.ServiceID)
-		}
-	}
-	if serviceID != "" {
-		if !slices.Contains(ids, serviceID) {
-			return nil, nil, errNotInList(w, s.now(), "")
-		}
-		ids = []string{serviceID}
-	}
-	if len(ids) == 0 {
+	asked := slices.DeleteFunc(services, func(svc serviceInfo) bool {
+		return checkQANValue("service_id", svc.ServiceID) != nil || serviceID != "" && svc.ServiceID != serviceID
+	})
+	if len(asked) == 0 {
 		return nil, nil, errNotInList(w, s.now(), "")
 	}
-	return services, ids, nil
+	ids := make([]string, 0, len(asked))
+	for _, svc := range asked {
+		ids = append(ids, svc.ServiceID)
+	}
+	return asked, ids, nil
 }
 
-// queryCandidates returns the services of the caller's list that the query was seen on, and the report's total row count.
-func (s *Service) queryCandidates(ctx context.Context, auth callerAuth, ref queryRef, services []serviceInfo, ids []string) ([]serviceInfo, int64, error) {
+// findService looks a service up in the caller's service list of the window: the one with the id, or without an id,
+// the newest one with the name.
+func (s *Service) findService(ctx context.Context, auth callerAuth, w window, id, name string) (serviceInfo, error) {
+	services, err := s.listServices(ctx, auth, w)
+	if err != nil {
+		return serviceInfo{}, err
+	}
+	var found []serviceInfo
+	if id == "" && name != "" {
+		found = servicesNamed(services, name)
+	} else {
+		found = slices.DeleteFunc(services, func(svc serviceInfo) bool { return svc.ServiceID != id })
+	}
+	if len(found) == 0 {
+		return serviceInfo{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
+	}
+	return slices.MaxFunc(found, func(a, b serviceInfo) int { return a.LastSeen.Compare(b.LastSeen) }), nil
+}
+
+// queryCandidates returns the services of asked, whose ids are ids, that the query was seen on, and the report's total row count.
+func (s *Service) queryCandidates(ctx context.Context, auth callerAuth, ref queryRef, asked []serviceInfo, ids []string) ([]serviceInfo, int64, error) {
 	report, err := s.api.GetReport(ctx, auth, qan_service.GetReportBody{
 		PeriodStartFrom: strfmt.DateTime(ref.PeriodFrom),
 		PeriodStartTo:   strfmt.DateTime(ref.PeriodTo),
@@ -285,7 +296,6 @@ func (s *Service) queryCandidates(ctx context.Context, auth callerAuth, ref quer
 		return nil, 0, err
 	}
 
-	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(ids, svc.ServiceID) })
 	var out []serviceInfo
 	for _, row := range report.Rows {
 		if row.Dimension == "" {
@@ -303,26 +313,23 @@ func (s *Service) queryCandidates(ctx context.Context, auth callerAuth, ref quer
 
 // ambiguousMessage lists the candidate services and asks for a service_id where the caller's input form takes one.
 func ambiguousMessage(candidates []serviceInfo, total int64, fromQueryRef bool) string {
-	listed := candidates[:min(len(candidates), maxListedCandidates)]
-	names := make([]string, 0, len(listed))
-	for _, svc := range listed {
+	names := make([]string, 0, len(candidates))
+	for _, svc := range candidates {
 		names = append(names, fmt.Sprintf("%s (%s)", svc.ServiceName, svc.ServiceID))
 	}
-	text := "the query was seen on several services: " + strings.Join(names, ", ")
-	if more := max(total, int64(len(candidates))) - int64(len(listed)); len(candidates) > len(listed) && more > 0 {
-		text += fmt.Sprintf(", and %d more", more)
-	}
+	text := "the query was seen on several services: " + listedNames(names, int(total))
 	if fromQueryRef {
 		return text + "; set service_id inside query_ref to one of these"
 	}
 	return text + "; pass service_id to choose one"
 }
 
-// listedNames joins names for a message, at most maxListedCandidates of them, and counts the rest.
-func listedNames(names []string) string {
+// listedNames joins names for a message, at most maxListedCandidates of them, and when it leaves some out, counts the
+// rest of total, or of the names when they are more.
+func listedNames(names []string, total int) string {
 	text := strings.Join(names[:min(len(names), maxListedCandidates)], ", ")
-	if more := len(names) - maxListedCandidates; more > 0 {
-		text += fmt.Sprintf(", and %d more", more)
+	if len(names) > maxListedCandidates {
+		text += fmt.Sprintf(", and %d more", max(total, len(names))-maxListedCandidates)
 	}
 	return text
 }

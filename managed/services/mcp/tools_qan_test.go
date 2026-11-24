@@ -834,7 +834,7 @@ func TestQueryDetailTool(t *testing.T) {
 			s, err := New(Params{API: api, Enabled: func() bool { return true }})
 			require.NoError(t, err)
 
-			d, err := s.fetchQueryDetail(t.Context(), callerAuth{}, queryDetailInput{QueryID: "Q", ServiceID: tc.serviceID}, []string{"svc-a"}, from, testNow)
+			d, err := s.fetchQueryDetail(t.Context(), callerAuth{}, queryRef{QueryID: "Q", ServiceID: tc.serviceID, PeriodFrom: from, PeriodTo: testNow}, []string{"svc-a"})
 			require.NoError(t, err)
 			ref := d.result(true, "", from, testNow).QueryRef
 			assert.Equal(t, queryRef{QueryID: "Q", ServiceID: tc.want, PeriodFrom: from, PeriodTo: testNow}, ref, tc.name)
@@ -1383,7 +1383,8 @@ func TestTopQueriesSharedServiceName(t *testing.T) {
 	t.Parallel()
 
 	routes := withRoutes(qanRoutes(), map[string]fixture{serviceListKey: {file: "vm_up_list.json"}})
-	session := connect(t, newQANService(t, newFakePMM(t, routes), true))
+	s := newQANService(t, newFakePMM(t, routes), true)
+	session := connect(t, s)
 	got := structured[topQueriesResult](t, callTool(t, session, "pmm_top_queries", map[string]any{"service_name": "shop-re"}))
 	require.NotEmpty(t, got.Rows)
 	for _, row := range got.Rows {
@@ -1402,11 +1403,9 @@ func TestTopQueriesSharedServiceName(t *testing.T) {
 	assert.Equal(t, shortcutURL, got.PMMURL, "labels.service_name links to the same workload as service_name")
 	assert.Contains(t, got.PMMURL, "var-service_name=shop-mysql")
 
-	pgOnly := func() ([]serviceInfo, error) {
-		return []serviceInfo{{ServiceID: "pg", ServiceName: "shop", Engine: enginePostgreSQL}}, nil
-	}
-	assert.Empty(t, serviceEngine("mysql-gone", pgOnly), "a service_id outside the list leaves the engine to the rows")
-	assert.Equal(t, enginePostgreSQL, serviceEngine("pg", pgOnly))
+	byID := func(id string) map[string][]string { return map[string][]string{"service_id": {id}} }
+	assert.Empty(t, s.reportEngine(t.Context(), testAuth, byID("mysql-gone"), s.lastHour()), "a service_id outside the list leaves the engine to the rows")
+	assert.Equal(t, enginePostgreSQL, s.reportEngine(t.Context(), testAuth, byID("svc-2"), s.lastHour()))
 }
 
 // TestQueryDetailSeveralServices pins that a detail summed over several services, whose metadata joins their names,

@@ -312,15 +312,10 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 	defer release()
 
 	w := window{From: start, To: end}
-	services, err := s.listServices(ctx, auth, w)
+	svc, err := s.findService(ctx, auth, w, in.ServiceID, "")
 	if err != nil {
 		return healthResult{}, err
 	}
-	i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceID == in.ServiceID })
-	if i < 0 {
-		return healthResult{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
-	}
-	svc := services[i]
 	if !slices.Contains([]string{engineMySQL, enginePostgreSQL, engineMongoDB}, svc.Engine) {
 		kind := "is " + svc.Engine
 		if svc.Engine == "" {

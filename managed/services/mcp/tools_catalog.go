@@ -98,32 +98,27 @@ func (s *Service) registerCatalogTools(server *mcp.Server) {
 }
 
 func (s *Service) catalog(_ context.Context, _ *mcp.CallToolRequest, in catalogInput) (catalogResult, error) {
-	if !slices.Contains(catalogKinds, in.Kind) {
+	var engines []string
+	var entries []catalogEntry
+	switch in.Kind {
+	case catalogKindQANColumns:
+		engines = []string{engineMySQL, enginePostgreSQL, engineMongoDB}
+		for _, c := range qanColumns {
+			aggregation := "sum"
+			if c.avg {
+				aggregation = "avg"
+			}
+			entries = append(entries, catalogEntry{Name: c.name, Engine: c.engine, Aggregation: aggregation})
+		}
+	case catalogKindMetrics:
+		engines, entries = metricsEngines, slices.Clone(metricsCatalog)
+	default:
 		return catalogResult{}, newToolError(codeInvalidInput, "kind must be one of %s; got '%s'", strings.Join(catalogKinds, ", "), echo(in.Kind))
-	}
-	engines := []string{engineMySQL, enginePostgreSQL, engineMongoDB}
-	if in.Kind == catalogKindMetrics {
-		engines = metricsEngines
 	}
 	if in.Engine != "" && !slices.Contains(engines, in.Engine) {
 		return catalogResult{}, newToolError(codeInvalidInput, "engine must be one of %s; got '%s'", strings.Join(engines, ", "), echo(in.Engine))
 	}
-
-	if in.Kind == catalogKindMetrics {
-		entries := slices.DeleteFunc(slices.Clone(metricsCatalog), func(m catalogEntry) bool { return in.Engine != "" && m.Engine != in.Engine })
-		return catalogResult{Kind: in.Kind, Engine: in.Engine, Entries: entries}, nil
-	}
-
-	entries := make([]catalogEntry, 0, len(qanColumns))
-	for _, c := range qanColumns {
-		if in.Engine != "" && c.engine != "" && c.engine != in.Engine {
-			continue
-		}
-		aggregation := "sum"
-		if c.avg {
-			aggregation = "avg"
-		}
-		entries = append(entries, catalogEntry{Name: c.name, Engine: c.engine, Aggregation: aggregation})
-	}
+	// An entry without an engine is every engine's.
+	entries = slices.DeleteFunc(entries, func(e catalogEntry) bool { return in.Engine != "" && e.Engine != "" && e.Engine != in.Engine })
 	return catalogResult{Kind: in.Kind, Engine: in.Engine, Entries: entries}, nil
 }

@@ -392,7 +392,7 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 		return schemaResult{}, err
 	}
 	defer releaseLookup()
-	svc, err := s.engineOf(ctx, auth, in.ServiceID)
+	svc, err := s.findService(ctx, auth, s.lastHour(), in.ServiceID, "")
 	releaseLookup()
 	if err != nil {
 		return schemaResult{}, err
@@ -442,7 +442,7 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 		if len(resolved.Databases) > 1 {
 			return schemaResult{}, newToolError(codeInvalidInput,
 				"the query ran in several databases: %s; pass service_id, database and tables to read its tables in one of them",
-				listedNames(resolved.Databases))
+				listedNames(resolved.Databases, len(resolved.Databases)))
 		}
 		for _, name := range resolved.Tables {
 			t := tableRef{database: resolved.Database, name: name}

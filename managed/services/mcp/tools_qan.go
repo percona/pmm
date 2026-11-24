@@ -23,7 +23,6 @@ import (
 	"regexp"
 	"slices"
 	"strings"
-	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -128,26 +127,24 @@ type columnStat struct {
 
 func (r topQueriesResult) render() string {
 	workload := link("Open this workload in PMM QAN", r.PMMURL)
+	var text string
 	if len(r.Rows) == 0 {
 		header := "No queries found for that service / time window."
 		if r.Page.Offset > 0 {
 			header = r.Page.pastEnd("report")
 		}
-		text := header + "\n" + windowLine(r.Window) + "\n\n" + workload
-		if r.Note != "" {
-			text += "\n" + r.Note
+		text = header + "\n" + windowLine(r.Window) + "\n\n" + workload
+	} else {
+		lines := make([]string, 0, len(r.Rows))
+		for _, row := range r.Rows {
+			lines = append(lines, r.renderRow(row))
 		}
-		return text
-	}
-	lines := make([]string, 0, len(r.Rows))
-	for _, row := range r.Rows {
-		lines = append(lines, r.renderRow(row))
-	}
-	text := fmt.Sprintf("Rows %d-%d of %d (group_by=%s, order_by=%s):\n%s\n\n%s",
-		r.Page.Offset+1, r.Page.Offset+len(r.Rows), r.Page.Total, r.GroupBy, r.OrderBy, windowLine(r.Window), strings.Join(lines, "\n"))
-	text += "\n\n" + workload
-	if m := r.Page.marker(); m != "" {
-		text += "\n" + m
+		text = fmt.Sprintf("Rows %d-%d of %d (group_by=%s, order_by=%s):\n%s\n\n%s",
+			r.Page.Offset+1, r.Page.Offset+len(r.Rows), r.Page.Total, r.GroupBy, r.OrderBy, windowLine(r.Window), strings.Join(lines, "\n"))
+		text += "\n\n" + workload
+		if m := r.Page.marker(); m != "" {
+			text += "\n" + m
+		}
 	}
 	if r.Note != "" {
 		text += "\n" + r.Note
@@ -245,13 +242,11 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	if err != nil {
 		return topQueriesResult{}, err
 	}
-	// The engine and the query_ref lookups share one read of the service list, made when the first of them needs it.
-	services := sync.OnceValues(func() ([]serviceInfo, error) {
-		return s.listServices(ctx, auth, window{From: from, To: to})
-	})
-	rowEngine := func(string) string { return "" }
+	w := window{From: from, To: to}
+	var engine string
+	var engines map[string]string
 	if !raw && q.groupBy == groupByQuery && slices.ContainsFunc(report.Rows, func(r qanReportRow) bool { return quotingMatters(r.Fingerprint) }) {
-		rowEngine = s.reportEngines(ctx, auth, q, body, report.Rows, from, to, services)
+		engine, engines = s.reportEngines(ctx, auth, q, body, report.Rows, w)
 	}
 
 	// Confirmed against PMM 3.8.1: rows[0] is the TOTAL aggregate (empty
@@ -262,12 +257,12 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		if i == 0 && row.Dimension == "" {
 			continue
 		}
-		rows = append(rows, q.row(row, q.offset+len(rows)+1, rowEngine(row.Dimension), raw))
+		rows = append(rows, q.row(row, q.offset+len(rows)+1, cmp.Or(engine, engines[row.Dimension]), raw))
 	}
 	total := int(report.TotalRows)
 	var note string
 	if visibleSearch {
-		if int(report.TotalRows) > maxSearchCandidates {
+		if total > maxSearchCandidates {
 			note = fmt.Sprintf("The search read the first %d rows of the report in order_by order; "+
 				"narrow the window or the filters to search the rest.", maxSearchCandidates)
 		}
@@ -283,7 +278,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		serviceName = names[0]
 	}
 	if q.groupBy == groupByQuery && len(rows) > 0 {
-		serviceID := s.pinnedServiceID(q.labels, services)
+		serviceID := s.pinnedServiceID(ctx, auth, q.labels, w)
 		for i := range rows {
 			if rows[i].Dimension != "" {
 				rows[i].QueryRef = &queryRef{QueryID: rows[i].Dimension, ServiceID: serviceID, PeriodFrom: from, PeriodTo: to}
@@ -296,7 +291,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		Page:    page{Total: total, Offset: q.offset, Limit: int(q.body.Limit), Truncated: q.offset+len(rows) < total},
 		GroupBy: q.groupBy,
 		OrderBy: q.orderBy,
-		Window:  window{From: from, To: to},
+		Window:  w,
 		PMMURL:  qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), serviceName, from, to),
 		Note:    note,
 	}, nil
@@ -317,7 +312,7 @@ func showsSearch(row queryRow, search string) bool {
 
 // pinnedServiceID returns the id of the one service a report's filters pin, by one service_id or else one service_name
 // that names one service of the caller's service list among the filtered service_ids, and "" when they pin none or that lookup fails.
-func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([]serviceInfo, error)) string {
+func (s *Service) pinnedServiceID(ctx context.Context, auth callerAuth, labels map[string][]string, w window) string {
 	ids := labels["service_id"]
 	if len(ids) == 1 {
 		return ids[0]
@@ -326,7 +321,7 @@ func (s *Service) pinnedServiceID(labels map[string][]string, services func() ([
 	if len(names) != 1 {
 		return ""
 	}
-	list, err := services()
+	list, err := s.listServices(ctx, auth, w)
 	if err != nil {
 		s.l.WithField("tool", "pmm_top_queries").Debugf("Cannot list services, query_ref will have no service_id: %s.", err)
 		return ""
@@ -594,29 +589,7 @@ func (r queryDetailResult) render() string {
 }
 
 func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in queryDetailInput) (queryDetailResult, error) {
-	var from, to time.Time
-	if in.QueryRef != nil {
-		ref, err := refFromInput(in.QueryRef, in.QueryID, in.ServiceID, in.PeriodFrom, in.PeriodTo, s.now())
-		if err != nil {
-			return queryDetailResult{}, err
-		}
-		in = queryDetailInput{QueryID: ref.QueryID, ServiceID: ref.ServiceID}
-		from, to = ref.PeriodFrom, ref.PeriodTo
-	} else {
-		if in.QueryID == "" {
-			return queryDetailResult{}, newToolError(codeInvalidInput, "pass query_ref, as pmm_top_queries or pmm_query_detail return it, or pass queryid")
-		}
-		var err error
-		from, to, err = parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
-		if err != nil {
-			return queryDetailResult{}, err
-		}
-	}
-	err := cmp.Or(checkQANValue("queryid", in.QueryID), checkQANValue("service_id", in.ServiceID))
-	if err != nil {
-		return queryDetailResult{}, err
-	}
-	err = checkQANWindow(from, to)
+	ref, err := refFromInput(in.QueryRef, in.QueryID, in.ServiceID, in.PeriodFrom, in.PeriodTo, s.now())
 	if err != nil {
 		return queryDetailResult{}, err
 	}
@@ -627,12 +600,13 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 	defer release()
 
-	services, serviceIDs, err := s.callerServices(ctx, auth, in.ServiceID, window{From: from, To: to})
+	w := window{From: ref.PeriodFrom, To: ref.PeriodTo}
+	asked, serviceIDs, err := s.callerServices(ctx, auth, ref.ServiceID, w)
 	if err != nil {
 		return queryDetailResult{}, err
 	}
 
-	d, err := s.fetchQueryDetail(ctx, auth, in, serviceIDs, from, to)
+	d, err := s.fetchQueryDetail(ctx, auth, ref, serviceIDs)
 	if err != nil {
 		return queryDetailResult{}, err
 	}
@@ -642,7 +616,6 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 		if failed != nil {
 			return queryDetailResult{}, failed
 		}
-		w := window{From: from, To: to}
 		hint := listCutHint(w, s.now())
 		if hint == "" {
 			hint = "; widen period_from or check the id with pmm_top_queries"
@@ -651,7 +624,6 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 	// qan-api2 joins the names of several services, so only a name of one asked service filters the link, goes in
 	// query_ref and reads the version. Without the metrics, the detail is the example's, of the one service it names.
-	asked := slices.DeleteFunc(slices.Clone(services), func(svc serviceInfo) bool { return !slices.Contains(serviceIDs, svc.ServiceID) })
 	var named []serviceInfo
 	switch {
 	case d.metricsErr != nil && d.example != nil && d.example.ServiceID != "":
@@ -663,12 +635,10 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 		d.serviceID = named[0].ServiceID
 		d.serviceName = named[0].ServiceName
 		d.linkService = named[0].ServiceName
-		if d.engine != "" {
-			d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID, time.Time{})
-		}
+		d.version = s.serviceVersion(ctx, auth, d.engine, named[0].ServiceID, time.Time{})
 	}
 
-	return d.result(s.rawSQL, s.publicBaseURL(ctx, req.Extra.Header), from, to), nil
+	return d.result(s.rawSQL, s.publicBaseURL(ctx, req.Extra.Header), ref.PeriodFrom, ref.PeriodTo), nil
 }
 
 // queryDetail is the merged view of qan:getMetrics and qan/query:getExample
@@ -694,23 +664,23 @@ type queryDetail struct {
 	exampleErr error
 }
 
-// fetchQueryDetail runs the two QAN calls, each tolerated independently so
+// fetchQueryDetail runs the two QAN calls for the query over its window, each tolerated independently so
 // partial data still returns with the other's error; it fails only when both fail.
 // Both calls are limited to serviceIDs, which the caller has checked against the service list.
-func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in queryDetailInput, serviceIDs []string, from, to time.Time) (*queryDetail, error) {
+func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, ref queryRef, serviceIDs []string) (*queryDetail, error) {
 	labels := []*qan_service.GetMetricsParamsBodyLabelsItems0{
-		{Key: groupByQuery, Value: []string{in.QueryID}},
+		{Key: groupByQuery, Value: []string{ref.QueryID}},
 		{Key: "service_id", Value: serviceIDs},
 	}
 	exampleLabels := []*qan_service.GetQueryExampleParamsBodyLabelsItems0{
-		{Key: groupByQuery, Value: []string{in.QueryID}},
+		{Key: groupByQuery, Value: []string{ref.QueryID}},
 		{Key: "service_id", Value: serviceIDs},
 	}
 
 	metrics, metricsErr := s.api.GetMetrics(ctx, auth, qan_service.GetMetricsBody{
-		PeriodStartFrom: strfmt.DateTime(from),
-		PeriodStartTo:   strfmt.DateTime(to),
-		FilterBy:        in.QueryID,
+		PeriodStartFrom: strfmt.DateTime(ref.PeriodFrom),
+		PeriodStartTo:   strfmt.DateTime(ref.PeriodTo),
+		FilterBy:        ref.QueryID,
 		GroupBy:         groupByQuery,
 		Labels:          labels,
 		Totals:          false,
@@ -719,9 +689,9 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 		s.l.Debugf("qan:getMetrics failed: %s.", metricsErr)
 	}
 	examples, exampleErr := s.api.GetQueryExample(ctx, auth, qan_service.GetQueryExampleBody{
-		PeriodStartFrom: strfmt.DateTime(from),
-		PeriodStartTo:   strfmt.DateTime(to),
-		FilterBy:        in.QueryID,
+		PeriodStartFrom: strfmt.DateTime(ref.PeriodFrom),
+		PeriodStartTo:   strfmt.DateTime(ref.PeriodTo),
+		FilterBy:        ref.QueryID,
 		GroupBy:         groupByQuery,
 		Labels:          exampleLabels,
 		Limit:           1,
@@ -733,7 +703,7 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 		return nil, metricsErr
 	}
 
-	d := &queryDetail{queryID: in.QueryID, serviceID: in.ServiceID, metrics: metrics, metricsErr: metricsErr, exampleErr: exampleErr}
+	d := &queryDetail{queryID: ref.QueryID, serviceID: ref.ServiceID, metrics: metrics, metricsErr: metricsErr, exampleErr: exampleErr}
 	if metrics != nil {
 		d.fingerprint = metrics.Fingerprint
 		// qan-api2 never fills the metadata's service_id, so query_ref takes it from the request or the service list.
@@ -830,14 +800,18 @@ func fingerprintText(fingerprint, engine string, raw bool) string {
 	if raw {
 		return fingerprint
 	}
-	if strings.HasPrefix(fingerprint, "db.") && engine != engineMySQL && engine != enginePostgreSQL {
+	sqlEngine := engine == engineMySQL || engine == enginePostgreSQL
+	if strings.HasPrefix(fingerprint, "db.") && !sqlEngine {
 		if !mongoQuotesPair(fingerprint) {
 			return withheldFingerprint
 		}
 		return maskMongoFingerprint(fingerprint)
 	}
-	masked, quoted := maskSQL(fingerprint, engine == engineMySQL)
-	if engine != engineMySQL && engine != enginePostgreSQL {
+	var masked string
+	var quoted bool
+	if sqlEngine {
+		masked, quoted = maskSQL(fingerprint, engine == engineMySQL)
+	} else {
 		masked, quoted = maskEitherQuoting(fingerprint)
 	}
 	if quoted {
@@ -862,28 +836,24 @@ func quotingMatters(fingerprint string) bool {
 	return fingerprintText(fingerprint, engineMySQL, false) != fingerprintText(fingerprint, enginePostgreSQL, false)
 }
 
-// reportEngines returns the engine whose quoting reads each queryid's
-// fingerprint: the report's one SQL engine when its filters or QAN's data name
-// one, else each row's own, from rowEngines over the report's own request body.
+// reportEngines returns the engine whose quoting reads every queryid's fingerprint, the report's one SQL engine when
+// its filters or QAN's data name one; else, unless the caller filters service_type, "" and each queryid's engine
+// from rowEngines over the report's own request body.
 func (s *Service) reportEngines(
-	ctx context.Context, auth callerAuth, q *reportQuery, body qan_service.GetReportBody, rows []qanReportRow, from, to time.Time,
-	services func() ([]serviceInfo, error),
-) func(string) string {
-	engine := s.reportEngine(ctx, auth, q.labels, from, to, services)
+	ctx context.Context, auth callerAuth, q *reportQuery, body qan_service.GetReportBody, rows []qanReportRow, w window,
+) (string, map[string]string) {
+	engine := s.reportEngine(ctx, auth, q.labels, w)
 	if _, filtered := q.labels["service_type"]; engine != "" || filtered {
 		// A service_type filter is the caller's; rowEngines would replace it.
-		return func(string) string { return engine }
+		return engine, nil
 	}
-	engines := s.rowEngines(ctx, auth, body, rows)
-	return func(queryID string) string { return engines[queryID] }
+	return "", s.rowEngines(ctx, auth, body, rows)
 }
 
 // reportEngine returns the engine of a whole report: its one SQL service_type,
 // else the engine of the one service_id it is filtered to, else the only SQL
 // engine QAN holds data for in the window, else "".
-func (s *Service) reportEngine(
-	ctx context.Context, auth callerAuth, labels map[string][]string, from, to time.Time, services func() ([]serviceInfo, error),
-) string {
+func (s *Service) reportEngine(ctx context.Context, auth callerAuth, labels map[string][]string, w window) string {
 	if types, ok := labels["service_type"]; ok {
 		if len(types) == 1 && (types[0] == engineMySQL || types[0] == enginePostgreSQL) {
 			return types[0]
@@ -893,9 +863,13 @@ func (s *Service) reportEngine(
 	// Not a service_name: the service list covers only the window's last 7 days, so it can miss a service of the name.
 	ids := labels["service_id"]
 	if len(ids) == 1 {
-		return serviceEngine(ids[0], services)
+		svc, err := s.findService(ctx, auth, w, ids[0], "")
+		if err != nil {
+			return ""
+		}
+		return svc.Engine
 	}
-	types, err := s.api.QANServiceTypes(ctx, auth, from, to)
+	types, err := s.api.QANServiceTypes(ctx, auth, w.From, w.To)
 	if err != nil {
 		s.l.WithField("tool", "pmm_top_queries").Debugf("qan metrics:getFilters failed: %s.", err)
 		return ""
@@ -947,19 +921,6 @@ func (s *Service) rowEngines(ctx context.Context, auth callerAuth, body qan_serv
 		}
 	}
 	return engines
-}
-
-// serviceEngine returns the engine of the service with the id, or "" when it is not in the list.
-func serviceEngine(id string, services func() ([]serviceInfo, error)) string {
-	list, err := services()
-	if err != nil {
-		return ""
-	}
-	i := slices.IndexFunc(list, func(svc serviceInfo) bool { return svc.ServiceID == id })
-	if i < 0 {
-		return ""
-	}
-	return list[i].Engine
 }
 
 // metricValue is one named diagnostic metric of pmm_query_detail.
@@ -1018,7 +979,7 @@ func keyMetrics(m map[string]metricStats) []metricValue {
 // engine; any failure returns "".
 func (s *Service) serviceVersion(ctx context.Context, auth callerAuth, engine, serviceID string, at time.Time) string {
 	vm, ok := versionMetrics[engine]
-	if !ok || serviceID == "" {
+	if !ok {
 		return ""
 	}
 	samples, err := s.queryMetrics(ctx, auth, vm.metric+`{service_id="`+escapeLabel(serviceID)+`"}`, at)
@@ -1031,18 +992,4 @@ func (s *Service) serviceVersion(ctx context.Context, auth callerAuth, engine, s
 // escapeLabel escapes a value used inside a PromQL label matcher.
 func escapeLabel(v string) string {
 	return strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(v)
-}
-
-// engineOf looks a service up in the service list of the last hour and returns it.
-func (s *Service) engineOf(ctx context.Context, auth callerAuth, serviceID string) (serviceInfo, error) {
-	w := s.lastHour()
-	services, err := s.listServices(ctx, auth, w)
-	if err != nil {
-		return serviceInfo{}, err
-	}
-	i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceID == serviceID })
-	if i < 0 {
-		return serviceInfo{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
-	}
-	return services[i], nil
 }

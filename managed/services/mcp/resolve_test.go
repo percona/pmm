@@ -636,7 +636,7 @@ func TestMetadataValues(t *testing.T) {
 	for i := range maxListedCandidates + 5 {
 		names = append(names, fmt.Sprintf("db%02d", i))
 	}
-	text := listedNames(names)
+	text := listedNames(names, len(names))
 	assert.True(t, strings.HasSuffix(text, "db19, and 5 more"), text)
 	assert.NotContains(t, text, "db20")
 }
