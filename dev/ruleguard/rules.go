@@ -50,6 +50,7 @@ func quoteVerbInLogs(m dsl.Matcher) {
 		`$log.Errorf($format, $*_)`,
 		`$log.Fatalf($format, $*_)`,
 		`$log.Panicf($format, $*_)`,
+		`$log.Logf($_, $format, $*_)`,
 	).
 		Where(m["format"].Text.Matches(quoteVerb) && m["log"].Type.Implements("logrus.FieldLogger")).
 		Report(quoteVerbMessage)
