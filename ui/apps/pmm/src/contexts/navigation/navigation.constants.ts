@@ -354,7 +354,7 @@ export const NAV_VALKEY: NavItem = {
       id: 'valkey-cluster-details',
       text: 'Cluster Details',
       icon: Graph5Icon,
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-cluster-details/valkey-redis-cluster-detail`,
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-cluster-details/valkey-redis-cluster-details`,
     },
     {
       id: 'valkey-replication',

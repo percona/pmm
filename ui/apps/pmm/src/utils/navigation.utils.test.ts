@@ -110,4 +110,42 @@ describe('findActiveNavItem', () => {
 
     expect(findActiveNavItem([item], '/page')?.id).toBe('item');
   });
+
+  it.each([
+    '/graph/d/valkey-cluster-details/valkey-redis-cluster-detail',
+    '/graph/d/valkey-cluster-details/valkey-redis-cluster-details',
+    '/graph/d/valkey-cluster-details',
+  ])('matches a dashboard by its UID on %s', (pathname) => {
+    const item: NavItem = {
+      id: 'dashboard',
+      url: '/graph/d/valkey-cluster-details/valkey-redis-cluster-detail',
+    };
+
+    expect(findActiveNavItem([item], pathname)?.id).toBe('dashboard');
+  });
+
+  it('matches a dashboard linked without a slug once Grafana adds one', () => {
+    const item: NavItem = {
+      id: 'dashboard',
+      url: '/graph/d/mongodb-cluster-summary',
+    };
+
+    expect(
+      findActiveNavItem(
+        [item],
+        '/graph/d/mongodb-cluster-summary/mongodb-sharded-cluster-summary'
+      )?.id
+    ).toBe('dashboard');
+  });
+
+  it('does not match a dashboard whose UID only starts with the same text', () => {
+    const item: NavItem = {
+      id: 'dashboard',
+      url: '/graph/d/valkey-cluster/valkey-cluster',
+    };
+
+    expect(
+      findActiveNavItem([item], '/graph/d/valkey-cluster-details/details')
+    ).toBeUndefined();
+  });
 });

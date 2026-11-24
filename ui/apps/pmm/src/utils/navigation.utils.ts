@@ -45,11 +45,20 @@ export const isActive = (item: NavItem, pathname: string): boolean => {
   return Boolean(exactMatch || additionalMatch);
 };
 
+// Grafana swaps a dashboard link's slug, or adds a missing one, for one made
+// from the dashboard's title, so a dashboard matches by its UID alone.
+const DASHBOARD_PATH = /^(.*\/d\/[^/]+)(?:\/[^/]*)?$/;
+
 const matchesUrl = (pathname: string, url: string, match?: string) => {
   const path = normalizePath(url);
 
   if (!match) {
-    return !!matchPath({ path, end: true }, pathname);
+    const dashboard = path.match(DASHBOARD_PATH)?.[1];
+
+    return !!matchPath(
+      { path: dashboard ? `${dashboard}/*` : path, end: true },
+      pathname
+    );
   }
 
   if (match === '*') {
