@@ -1,13 +1,18 @@
 import type { SxProps, Theme } from '@mui/material';
+import deepmerge from '@mui/utils/deepmerge';
 
-const flattenSx = (sx: SxProps<Theme>, theme: Theme): Record<string, unknown> => {
-  if (typeof sx === 'function') return (sx as (t: Theme) => Record<string, unknown>)(theme);
+type StyleObject = Record<string, unknown>;
+
+const flattenSx = (sx: SxProps<Theme>, theme: Theme): StyleObject => {
+  if (typeof sx === 'function') return (sx as (t: Theme) => StyleObject)(theme);
   if (Array.isArray(sx))
-    return Object.assign(
-      {},
-      ...sx.filter(Boolean).map((s) => flattenSx(s as SxProps<Theme>, theme))
-    );
-  return (sx ?? {}) as Record<string, unknown>;
+    return sx
+      .filter(Boolean)
+      .reduce<StyleObject>(
+        (merged, s) => deepmerge(merged, flattenSx(s as SxProps<Theme>, theme)),
+        {}
+      );
+  return (sx ?? {}) as StyleObject;
 };
 
 const mergeSx = (
@@ -16,10 +21,8 @@ const mergeSx = (
 ): SxProps<Theme> | undefined => {
   if (!consumerSx) return defaultSx;
   if (!defaultSx) return consumerSx;
-  return ((theme: Theme) => ({
-    ...flattenSx(defaultSx, theme),
-    ...flattenSx(consumerSx, theme),
-  })) as SxProps<Theme>;
+  return ((theme: Theme) =>
+    deepmerge(flattenSx(defaultSx, theme), flattenSx(consumerSx, theme))) as SxProps<Theme>;
 };
 
 export { flattenSx, mergeSx };

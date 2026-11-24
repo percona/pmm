@@ -40,6 +40,11 @@ describe('flattenSx', () => {
     });
   });
 
+  it('deep-merges nested blocks across array entries', () => {
+    const sx: SxProps<Theme> = [{ '& > button': { flex: 1 } }, { '& > button': { color: 'red' } }];
+    expect(flattenSx(sx, theme)).toEqual({ '& > button': { flex: 1, color: 'red' } });
+  });
+
   it('handles nested arrays', () => {
     const sx = [[{ color: 'red' }, { mx: 1 }], { py: 2 }];
     expect(flattenSx(sx as unknown as SxProps<Theme>, theme)).toEqual({
@@ -89,6 +94,21 @@ describe('mergeSx', () => {
     const result = mergeSx(defaultSx, consumerSx);
     const resolved = (result as (t: Theme) => Record<string, unknown>)(theme);
     expect(resolved).toEqual({ color: 'green', mx: 1, py: 5 });
+  });
+
+  it('keeps default nested declarations the consumer does not override', () => {
+    const result = mergeSx(
+      { '@media (max-width:599.95px)': { flexDirection: 'row' }, '& > button': { flex: 1 } },
+      {
+        '@media (max-width:599.95px)': { color: 'red' },
+        '& > button': { flex: 2, fontWeight: 700 },
+      }
+    );
+    const resolved = (result as (t: Theme) => Record<string, unknown>)(theme);
+    expect(resolved).toEqual({
+      '@media (max-width:599.95px)': { flexDirection: 'row', color: 'red' },
+      '& > button': { flex: 2, fontWeight: 700 },
+    });
   });
 
   it('merges array-style sx props', () => {
