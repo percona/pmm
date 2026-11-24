@@ -38,7 +38,11 @@ func installRegistry(t *testing.T) *OperationRegistry {
 
 func checkingInstallOp(t *testing.T, db *reform.DB, nodeIDs ...string) *models.OmOperation {
 	t.Helper()
-	params, err := json.Marshal(installParams{NodeIDs: nodeIDs})
+	hosts := make(map[string]string, len(nodeIDs))
+	for _, nodeID := range nodeIDs {
+		hosts[nodeID] = "exec-" + nodeID
+	}
+	params, err := json.Marshal(installParams{NodeIDs: nodeIDs, Hosts: hosts})
 	require.NoError(t, err)
 	op := &models.OmOperation{
 		ID: uuid.New().String(), Kind: installKind, KindVersion: 1,
@@ -79,7 +83,7 @@ func TestInstallDriverRunsWhenNodesAreReady(t *testing.T) {
 	cluster, err := db.FindByPrimaryKeyFrom(models.OmClusterTable, clusterID)
 	require.NoError(t, err)
 	record := cluster.(*models.OmCluster)
-	assert.Equal(t, models.OmClusterInstalling, record.Status)
+	assert.Equal(t, models.OmClusterManaged, record.Status, "a succeeded install leaves the cluster managed")
 	assert.Equal(t, models.OmClusterInstalled, record.Origin)
 	assert.Equal(t, op.ID, record.CreatedBy)
 
@@ -87,9 +91,11 @@ func TestInstallDriverRunsWhenNodesAreReady(t *testing.T) {
 	require.NoError(t, db.QueryRow("SELECT cluster_id FROM om_operations WHERE id = $1", op.ID).Scan(&linked))
 	assert.Equal(t, clusterID, linked, "the operation is linked to the cluster it created")
 
-	var replicaSets int
+	var replicaSets, members int
 	require.NoError(t, db.QueryRow("SELECT count(*) FROM om_replica_sets WHERE cluster_id = $1", clusterID).Scan(&replicaSets))
+	require.NoError(t, db.QueryRow("SELECT count(*) FROM om_cluster_members WHERE cluster_id = $1 AND removed_at IS NULL", clusterID).Scan(&members))
 	assert.Equal(t, 1, replicaSets)
+	assert.Equal(t, 2, members, "a member is recorded for each installed node")
 }
 
 func TestInstallOnEnterRunningIsIdempotent(t *testing.T) {
