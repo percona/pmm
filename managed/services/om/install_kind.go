@@ -38,6 +38,10 @@ const (
 	factHostPackageInstall   = "host.package_install"
 )
 
+// subjectKindInstallNode labels a target node as an install-readiness subject, the key its install_check
+// facts are read under.
+const subjectKindInstallNode = "install_node"
+
 // installFactMaxAge bounds how old an install-readiness fact may be before it reads as missing.
 const installFactMaxAge = 5 * time.Minute
 
@@ -66,10 +70,11 @@ func installParamsOf(op *models.OmOperation) installParams {
 // run, exempt from attention as it creates a fresh cluster; its steps and hooks come in later phases.
 func InstallKind() OperationKind {
 	return OperationKind{
-		Kind:      installKind,
-		Resumable: true,
-		Deadline:  30 * time.Minute,
-		Attention: AttentionPolicy{ExemptAll: true},
+		Kind:        installKind,
+		ClusterLess: true,
+		Resumable:   true,
+		Deadline:    30 * time.Minute,
+		Attention:   AttentionPolicy{ExemptAll: true},
 		LockSet: func(op *models.OmOperation) []LockResource {
 			params := installParamsOf(op)
 			resources := make([]LockResource, 0, len(params.NodeIDs))
@@ -78,7 +83,16 @@ func InstallKind() OperationKind {
 			}
 			return resources
 		},
-		Steps: func(*models.OmOperation) []StepPlan { return nil },
+		Steps:    func(*models.OmOperation) []StepPlan { return nil },
+		CheckSet: installReadinessCheckSet(),
+		Subjects: func(op *models.OmOperation) []CheckSubject {
+			params := installParamsOf(op)
+			subjects := make([]CheckSubject, 0, len(params.NodeIDs))
+			for _, nodeID := range params.NodeIDs {
+				subjects = append(subjects, CheckSubject{Kind: subjectKindInstallNode, Key: nodeID})
+			}
+			return subjects
+		},
 	}
 }
 

@@ -58,7 +58,7 @@ func startGate(
 	ctx context.Context, db *reform.DB, op *models.OmOperation, from models.OmOperationStatus,
 	seenVersion int32, confirm *ConfirmGuard, kind OperationKind, lockSubjects []string, recheck Recheck,
 ) (StartOutcome, error) {
-	if op.ClusterID == nil {
+	if op.ClusterID == nil && !kind.ClusterLess {
 		return "", errors.New("start gate needs a cluster-scoped operation")
 	}
 	outcome := StartRejected
@@ -75,7 +75,7 @@ func startGate(
 		if err != nil {
 			return err
 		}
-		_, blocked, err := checkAttentionGate(tx.Querier, kind.Attention, *op.ClusterID, lockSubjects)
+		_, blocked, err := checkAttentionGate(tx.Querier, kind.Attention, clusterScope(op), lockSubjects)
 		if err != nil {
 			return err
 		}
