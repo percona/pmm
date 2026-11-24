@@ -129,7 +129,7 @@ The table lists every `mongodb_pbm_*` metric with its labels and values, includi
 
 PMM Client reads the metrics from the collections that PBM keeps in the `admin` database of your cluster.
 
-???+ info "PBM metrics reference"
+??? info "List of PBM metrics"
 
     | Metric | Labels | Available in | Description |
     |--------|--------|--------------|-------------|
@@ -163,7 +163,7 @@ If your monitoring user has a custom role that grants `find` only on specific PB
 
 ### Example queries
 
-Use the following queries as a starting point for your own panels and alert rules. To turn a query into an alert, [define a custom template](../../alert/alert_rules.md#define-a-custom-template) with it as the expression. The queries group by the `cluster` label, which you set with the `--cluster` option when you add the service.
+The queries in this section group by the `cluster` label, which you set with the `--cluster` option when you add the service. To turn a query into an alert, [define a custom template](../../alert/alert_rules.md#define-a-custom-template) with it as the expression. Use the following queries as a starting point for your own panels and alert rules:
 
 - Backups that keep failing: `max by (cluster, type) (mongodb_pbm_cluster_backup_failures_since_last_success) > 0`
 - PITR recovery point more than 30 minutes behind: `time() - max by (cluster) (mongodb_pbm_cluster_pitr_recovery_point_ts) > 1800`
