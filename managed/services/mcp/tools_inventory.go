@@ -229,10 +229,7 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 		filtered = append(filtered, svc)
 	}
 
-	paged, pg, err := paginate(filtered, in.Offset, in.Limit, inventoryDefaultLimit, inventoryMaxLimit)
-	if err != nil {
-		return inventoryResult{}, err
-	}
+	paged, pg := paginate(filtered, in.Offset, in.Limit, inventoryDefaultLimit)
 
 	base := s.publicBaseURL(ctx, req.Extra.Header)
 	rows := make([]serviceRow, 0, len(paged))

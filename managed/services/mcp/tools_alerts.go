@@ -215,10 +215,7 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 	kept := slices.DeleteFunc(all, func(a grafanaAlert) bool { return !in.matches(a) })
 	slices.SortFunc(kept, compareAlerts)
 
-	paged, pg, err := paginate(kept, in.Offset, in.Limit, alertsDefaultLimit, alertsMaxLimit)
-	if err != nil {
-		return alertsResult{}, err
-	}
+	paged, pg := paginate(kept, in.Offset, in.Limit, alertsDefaultLimit)
 	// Only firing and recovering alerts reach the Alertmanager, so a page of pending ones needs no silence state.
 	if slices.ContainsFunc(paged, func(a grafanaAlert) bool { return !a.Pending }) {
 		err = s.joinSilences(ctx, auth, paged)
@@ -232,9 +229,6 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 	for _, a := range paged {
 		labels := maps.Clone(a.Labels)
 		maps.DeleteFunc(labels, func(name, _ string) bool { return strings.HasPrefix(name, "__") })
-		if len(labels) == 0 {
-			labels = nil
-		}
 		rows = append(rows, alertRow{
 			Name:          a.Labels["alertname"],
 			Severity:      a.Labels["severity"],

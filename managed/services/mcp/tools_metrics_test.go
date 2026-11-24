@@ -17,7 +17,6 @@ package mcp
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -28,6 +27,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/VictoriaMetrics/metricsql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -805,28 +805,6 @@ func TestQueryMetricsTool(t *testing.T) {
 	})
 }
 
-func TestSelectorsOf(t *testing.T) {
-	t.Parallel()
-
-	got, err := selectorsOf(`rate(mysql_global_status_questions{service_name="db1"}[5m]) / mysql_up`, 0)
-	require.NoError(t, err)
-	assert.Equal(t, []string{`{__name__="mysql_global_status_questions", service_name="db1"}`, `{__name__="mysql_up"}`}, got)
-
-	got, err = selectorsOf(`{__name__=~"mysql_global_status_.*", service_name="db1" or service_name="db2"}`, time.Minute)
-	require.NoError(t, err)
-	assert.Equal(t, []string{
-		`{__name__=~"mysql_global_status_.*", service_name="db1"}`,
-		`{service_name="db2"}`,
-	}, got, "one per OR group")
-
-	for _, expr := range []string{`rate(`, `mysql_up @ 100`} {
-		_, err = selectorsOf(expr, time.Minute)
-		te, ok := errors.AsType[*toolError](err)
-		require.True(t, ok, expr)
-		assert.Equal(t, codeInvalidInput, te.code, expr)
-	}
-}
-
 func TestSeriesPerMatched(t *testing.T) {
 	t.Parallel()
 
@@ -842,11 +820,12 @@ func TestSeriesPerMatched(t *testing.T) {
 		`ROLLUP_RATE(m[5m])`:                               3,
 		`rollup(rate(m[5m])[1h:1m])`:                       3,
 		`rollup(aggr_over_time(("a", "b"), m[5m])[1h:1m])`: 6,
-		// An aggregation can return fewer series, and a query that does not parse is refused before.
+		// An aggregation can return fewer series.
 		`sum(aggr_over_time(("a", "b"), m[5m]))`: 0,
-		`rate(`:                                  0,
 	} {
-		assert.Equal(t, want, seriesPerMatched(expr), expr)
+		e, err := metricsql.Parse(expr)
+		require.NoError(t, err, expr)
+		assert.Equal(t, want, seriesPerMatched(e), expr)
 	}
 }
 
@@ -1187,7 +1166,7 @@ func TestListMetricsTool(t *testing.T) {
 	t.Run("CatalogueMeaning", func(t *testing.T) {
 		t.Parallel()
 
-		info, ok := metricInfoByName("mysql_global_status_threads_connected")
+		info, ok := metricsCatalogIndex()["mysql_global_status_threads_connected"]
 		require.True(t, ok)
 		body := stringsBody([]string{"zz_not_in_catalogue", "mysql_global_status_threads_connected"})
 		fake := newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: body}}))

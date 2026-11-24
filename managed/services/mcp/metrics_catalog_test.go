@@ -197,22 +197,22 @@ func TestMetricsCatalogUnitsMatchQueries(t *testing.T) {
 		"node_boot_time_seconds":              {"dateTimeAsSystem", `node_boot_time_seconds{node_name="<node>"} * 1000`},
 		"node_time_seconds":                   {"dateTimeAsSystem", `node_time_seconds{node_name="<node>"} * 1000`},
 	} {
-		i, ok := metricInfoByName(name)
+		i, ok := metricsCatalogIndex()[name]
 		require.True(t, ok, name)
 		assert.Equal(t, want.unit, i.Unit, name)
 		assert.Equal(t, want.query, i.Query, name)
 	}
 }
 
-func TestMetricInfoByName(t *testing.T) {
+func TestMetricsCatalogIndex(t *testing.T) {
 	t.Parallel()
 
-	i, ok := metricInfoByName("mysql_global_status_threads_connected")
+	i, ok := metricsCatalogIndex()["mysql_global_status_threads_connected"]
 	require.True(t, ok)
 	assert.Equal(t, engineMySQL, i.Engine)
 	assert.Equal(t, "gauge", i.Type)
 
-	_, ok = metricInfoByName("mysql_global_status_qcache_hits")
+	_, ok = metricsCatalogIndex()["mysql_global_status_qcache_hits"]
 	assert.False(t, ok)
 }
 

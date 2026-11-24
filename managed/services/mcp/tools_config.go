@@ -201,10 +201,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 		names = append(names, name)
 	}
 	sort.Strings(names)
-	paged, pg, err := paginate(names, in.Offset, in.Limit, configDefaultLimit, configMaxLimit)
-	if err != nil {
-		return configResult{}, err
-	}
+	paged, pg := paginate(names, in.Offset, in.Limit, configDefaultLimit)
 
 	r := configResult{
 		ServiceName: serviceName,

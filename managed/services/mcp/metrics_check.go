@@ -87,31 +87,45 @@ type stepTooSmallError struct {
 
 func (e *stepTooSmallError) Unwrap() error { return e.toolError }
 
-// checkExpr refuses, before any request, an expression that would read more than 7 days or select too broadly,
-// and returns the span it reads, the range plus the largest lookbehind, taking span 0 for an instant query and
-// a step of 0 or less as instantStep.
-func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
-	if step <= 0 {
-		step = instantStep
-	}
+// parseExpr parses expr, refusing before any request one over the size cap, and one that metricsql.Parse would expand.
+func parseExpr(expr string) (metricsql.Expr, error) { //nolint:ireturn
 	if len(expr) > maxExprBytes {
-		return 0, newToolError(codeInvalidInput, "the expression is %d bytes; the cap is 4 KiB (%d bytes): query fewer metrics per call", len(expr), maxExprBytes)
+		return nil, newToolError(codeInvalidInput, "the expression is %d bytes; the cap is 4 KiB (%d bytes): query fewer metrics per call", len(expr), maxExprBytes)
 	}
 	err := checkBeforeParse(expr)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	e, err := metricsql.Parse(expr)
 	if err != nil {
-		return 0, newToolError(codeInvalidInput, "cannot parse the expression: %s", echo(err.Error()))
+		return nil, newToolError(codeInvalidInput, "cannot parse the expression: %s", echo(err.Error()))
 	}
+	return e, nil
+}
 
-	w, err := walkSelectors(e, step)
+// checkExpr parses expr and checks it with checkParsed, returning the span it reads.
+func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
+	e, err := parseExpr(expr)
 	if err != nil {
 		return 0, err
 	}
+	read, _, err := checkParsed(e, span, step)
+	return read, err
+}
+
+// checkParsed refuses, before any request, an expression that would read more than 7 days or select too broadly,
+// and returns the span it reads, the range plus the largest lookbehind, and its selectors, taking span 0 for an
+// instant query and a step of 0 or less as instantStep.
+func checkParsed(e metricsql.Expr, span, step time.Duration) (time.Duration, []selector, error) {
+	if step <= 0 {
+		step = instantStep
+	}
+	w, err := walkSelectors(e, step)
+	if err != nil {
+		return 0, nil, err
+	}
 	if len(w.selectors) > maxSelectors {
-		return 0, newToolError(codeInvalidInput,
+		return 0, nil, newToolError(codeInvalidInput,
 			"the expression has %d selectors, each OR group inside braces counting as one; the cap is %d selectors: query fewer metrics per call",
 			len(w.selectors), maxSelectors)
 	}
@@ -119,19 +133,19 @@ func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
 	for _, s := range w.selectors {
 		err = checkSelector(s)
 		if err != nil {
-			return 0, err
+			return 0, nil, err
 		}
 		lookbehind = max(lookbehind, s.lookbehind)
 	}
 
 	read := addCapped(span, lookbehind)
 	if read == math.MaxInt64 {
-		return 0, newToolError(codeInvalidInput,
+		return 0, nil, newToolError(codeInvalidInput,
 			"the query reads more than %[1]s; the cap is %[1]s: shorten the range, or the rollup windows, subquery ranges, subquery steps and offsets",
 			formatSpan(maxSpan))
 	}
 	if read > maxSpan {
-		return 0, newToolError(codeInvalidInput,
+		return 0, nil, newToolError(codeInvalidInput,
 			"the query reads %s (range %s + lookbehind %s); the cap is %s: shorten the range, or the rollup windows, subquery ranges, subquery steps and offsets",
 			formatSpan(read), formatSpan(span), formatSpan(lookbehind), formatSpan(maxSpan))
 	}
@@ -139,15 +153,15 @@ func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
 	minStep := read / maxPoints
 	for _, s := range w.subquerySteps {
 		if s < minStep {
-			return 0, subqueryStepError(s, read, minStep)
+			return 0, nil, subqueryStepError(s, read, minStep)
 		}
 	}
 	if w.queryStepSubquery && step < minStep {
 		te := subqueryStepError(step, read, minStep)
 		if span == 0 {
-			return 0, te
+			return 0, nil, te
 		}
-		return 0, &stepTooSmallError{toolError: te, minStep: ceilSecond(minStep), reason: "a subquery's step is at least the span read ÷ 2000"}
+		return 0, nil, &stepTooSmallError{toolError: te, minStep: ceilSecond(minStep), reason: "a subquery's step is at least the span read ÷ 2000"}
 	}
 
 	for _, sq := range w.implicitSubqueries {
@@ -160,17 +174,17 @@ func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
 				"at the query's step of %s, a rollup over an expression that is not a selector runs as a subquery of %d points per series; "+
 					"the cap is %d: raise step to at least %s, or shorten that rollup's window",
 				formatSpan(sq.step), int64(math.Ceil(points)), maxImplicitPoints, formatSpan(ceilSecond(minStep)))
-			return 0, &stepTooSmallError{toolError: te, minStep: ceilSecond(minStep), reason: "a rollup over an expression stays within 4000 points per series"}
+			return 0, nil, &stepTooSmallError{toolError: te, minStep: ceilSecond(minStep), reason: "a rollup over an expression stays within 4000 points per series"}
 		}
 	}
 
 	for _, rw := range w.windows {
 		err = checkWindow(rw, span)
 		if err != nil {
-			return 0, err
+			return 0, nil, err
 		}
 	}
-	return read, nil
+	return read, w.selectors, nil
 }
 
 // subqueryStepError is the refusal of a subquery step under minStep, the span read divided by maxPoints.
@@ -636,14 +650,6 @@ func closingQuote(s string, start int) int {
 	return len(s)
 }
 
-func endOfComment(s string, start int) int {
-	n := strings.IndexByte(s[start:], '\n')
-	if n < 0 {
-		return len(s)
-	}
-	return start + n
-}
-
 // nextByte returns the first byte from i on that is neither space nor part of a comment, 0 at the end.
 func nextByte(s string, i int) byte {
 	for i < len(s) {
@@ -651,7 +657,11 @@ func nextByte(s string, i int) byte {
 		case ' ', '\t', '\n', '\v', '\f', '\r':
 			i++
 		case '#':
-			i = endOfComment(s, i)
+			n := strings.IndexByte(s[i:], '\n')
+			if n < 0 {
+				return 0
+			}
+			i += n
 		default:
 			return s[i]
 		}
@@ -661,14 +671,11 @@ func nextByte(s string, i int) byte {
 
 // echo returns s cut to maxEchoBytes on a rune boundary, with an ellipsis when cut.
 func echo(s string) string {
-	if len(s) <= maxEchoBytes {
-		return s
+	cut, ok := capText(s, maxEchoBytes)
+	if ok {
+		return cut + "…"
 	}
-	n := maxEchoBytes
-	for n > 0 && !utf8.RuneStart(s[n]) {
-		n--
-	}
-	return s[:n] + "…"
+	return s
 }
 
 // durationOf returns the absolute value of d, the i unit being step, capped at the largest time.Duration.
@@ -704,12 +711,5 @@ func formatSpan(d time.Duration) string {
 			return s
 		}
 	}
-	r := rest.String()
-	if strings.HasSuffix(r, "m0s") {
-		r = strings.TrimSuffix(r, "0s")
-	}
-	if strings.HasSuffix(r, "h0m") {
-		r = strings.TrimSuffix(r, "0m")
-	}
-	return s + r
+	return s + formatStep(rest)
 }

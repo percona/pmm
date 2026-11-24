@@ -16,8 +16,8 @@
 package mcp
 
 import (
+	"cmp"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
@@ -37,7 +37,8 @@ const (
 	// Series one selector may match over the span a query reads.
 	maxSeriesPerSelector = 2000
 
-	// Times a step the caller did not choose rises before the query is refused with the last hint.
+	// Times the rules raise a step the caller did not choose before the query is refused with the last hint, and times
+	// the selectors are counted again over the longer span a raised step reads.
 	maxStepRaises = 4
 )
 
@@ -80,9 +81,7 @@ func (s *Service) registerMetricsTools(server *mcp.Server) {
 // metricsPlan is a validated call of pmm_query_metrics.
 type metricsPlan struct {
 	instant bool
-	// at is the evaluation time of an instant query.
-	at time.Time
-	// start and end bound a range query.
+	// start and end bound a range query; both are the evaluation time of an instant query.
 	start, end time.Time
 	// step is the step of a range query; stepGiven tells whether the caller chose it.
 	step      time.Duration
@@ -92,10 +91,16 @@ type metricsPlan struct {
 
 // span is the range a query covers; an instant query covers none.
 func (p metricsPlan) span() time.Duration {
-	if p.instant {
-		return 0
-	}
 	return p.end.Sub(p.start)
+}
+
+// check checks e at the plan's step with checkParsed, and the root of an instant query with checkInstantRoot.
+func (p metricsPlan) check(e metricsql.Expr) (time.Duration, []selector, error) {
+	read, selectors, err := checkParsed(e, p.span(), p.step)
+	if err == nil && p.instant {
+		err = checkInstantRoot(e)
+	}
+	return read, selectors, err
 }
 
 func (s *Service) planMetrics(in queryMetricsInput) (metricsPlan, error) {
@@ -118,7 +123,8 @@ func (s *Service) planMetrics(in queryMetricsInput) (metricsPlan, error) {
 			return metricsPlan{}, err
 		}
 		plan.instant = true
-		plan.at = at.UTC().Truncate(time.Second)
+		plan.end = at.UTC().Truncate(time.Second)
+		plan.start = plan.end
 		return plan, nil
 	}
 
@@ -178,174 +184,168 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 	if err != nil {
 		return metricsResult{}, err
 	}
-
-	checkStep := instantStep
-	if !plan.instant {
-		checkStep = plan.step
-	}
-	read, err := checkExpr(in.Query, plan.span(), checkStep)
-	// A step the caller did not choose rises to what the rules need, each raise checked against every rule again;
-	// one the caller chose never changes.
-	chosen := plan.step
-	var reasons []string
-	for range maxStepRaises {
-		tooSmall, ok := errors.AsType[*stepTooSmallError](err)
-		if !ok || plan.instant || plan.stepGiven || tooSmall.minStep <= plan.step {
-			break
-		}
-		plan.step = tooSmall.minStep
-		reasons = appendOnce(reasons, tooSmall.reason)
-		checkStep = plan.step
-		read, err = checkExpr(in.Query, plan.span(), checkStep)
-	}
-	raised := strings.Join(reasons, ", and ")
+	e, err := parseExpr(in.Query)
 	if err != nil {
-		te, ok := errors.AsType[*toolError](err)
-		if ok && plan.step != chosen {
-			return metricsResult{}, newToolError(te.code, "the step rises to %s so that %s; at that step: %s", formatStep(plan.step), raised, te.message)
-		}
 		return metricsResult{}, err
 	}
-	var notes []string
-	if plan.step != chosen {
-		notes = append(notes, fmt.Sprintf("The step was raised from %s to %s so that %s.", formatStep(chosen), formatStep(plan.step), raised))
-	}
-	if plan.instant {
-		err = checkInstantRoot(in.Query)
+	auth := callerAuthFromHeader(req.Extra.Header)
+	narrow := "narrow the query with a service_name or node_name matcher, and aggregate, as in sum by (service_name) (" + hintExpr(in.Query) + ")"
+
+	// Each pass checks the expression at the step, and a refusal can raise a step the caller did not choose. Once it
+	// passes, the selectors are counted over the span it reads, again whenever a raise makes it read further back, and
+	// the count can raise the step so that the answer fits under the read cap.
+	raise := stepRaise{expr: in.Query, chosen: plan.step, ruleStep: plan.step, per: seriesPerMatched(e)}
+	var uid string
+	// counted is the span the selectors were last counted over, and counts how many times they were.
+	counted, counts := time.Duration(-1), 0
+	for {
+		read, selectors, err := plan.check(e)
+		if err != nil {
+			err = raise.afterRefusal(&plan, err)
+			if err != nil {
+				return metricsResult{}, err
+			}
+			continue
+		}
+		if read <= counted || counts > maxStepRaises {
+			break
+		}
+
+		if uid == "" {
+			var release func()
+			uid, release, err = s.startMetricsRequests(ctx, auth)
+			if err != nil {
+				return metricsResult{}, err
+			}
+			defer release()
+		}
+		matched, err := s.checkSeriesCount(ctx, auth, uid, selectors, plan.start.Add(plan.span()-read), plan.end)
+		if err != nil {
+			return metricsResult{}, narrowIfTooLarge(err, narrow)
+		}
+		counted, counts = read, counts+1
+		step, err := raise.fitAnswer(plan, matched)
 		if err != nil {
 			return metricsResult{}, err
 		}
-	}
-
-	auth := callerAuthFromHeader(req.Extra.Header)
-	release, err := s.startMetricCall(auth)
-	if err != nil {
-		return metricsResult{}, err
-	}
-	defer release()
-
-	uid, err := s.metricsDatasourceUID(ctx, auth)
-	if err != nil {
-		return metricsResult{}, err
-	}
-
-	selectors, err := selectorsOf(in.Query, checkStep)
-	if err != nil {
-		return metricsResult{}, err
-	}
-	from, to := plan.at, plan.at
-	if !plan.instant {
-		from, to = plan.start, plan.end
-	}
-	matched, err := s.checkSeriesCount(ctx, auth, uid, selectors, from.Add(-(read - plan.span())), to)
-	if err != nil {
-		return metricsResult{}, narrowIfTooLarge(err, in.Query)
+		if step == plan.step {
+			break
+		}
+		plan.step = step
 	}
 
 	if plan.instant {
-		samples, err := s.api.QueryInstant(ctx, auth, uid, promRequest{Query: in.Query, Time: plan.at})
+		samples, err := s.api.QueryInstant(ctx, auth, uid, promRequest{Query: in.Query, Time: plan.end})
 		if err != nil {
-			return metricsResult{}, narrowIfTooLarge(err, in.Query)
+			return metricsResult{}, narrowIfTooLarge(err, narrow)
 		}
 		series := make([]metricSeries, len(samples))
 		for i, sample := range samples {
-			series[i] = metricSeries{Labels: sample.Labels, Points: []point{{T: plan.at, V: sample.Value}}}
+			series[i] = metricSeries{Labels: sample.Labels, Points: []point{{T: plan.end, V: sample.Value}}}
 		}
 		return shapeSeries(in.Query, series, plan.limit, nil, "", ""), nil
 	}
-
-	note, err := s.fitRange(ctx, auth, uid, in.Query, &plan, selectors, matched, read)
+	series, err := s.api.QueryRange(ctx, auth, uid, promRequest{Query: in.Query, Start: plan.start, End: plan.end, Step: plan.step})
 	if err != nil {
-		return metricsResult{}, err
+		return metricsResult{}, narrowIfTooLarge(err, narrow)
 	}
-	if note != "" {
-		notes = append(notes, note)
-	}
-	series, err := s.api.QueryRange(ctx, auth, uid, promRequest{
-		Query: in.Query, Start: plan.start, End: plan.end, Step: plan.step,
-	})
-	if err != nil {
-		return metricsResult{}, narrowIfTooLarge(err, in.Query)
-	}
-	return shapeSeries(in.Query, series, plan.limit, &window{From: plan.start, To: plan.end}, formatStep(plan.step), strings.Join(notes, " ")), nil
+	return shapeSeries(in.Query, series, plan.limit, &window{From: plan.start, To: plan.end}, formatStep(plan.step), raise.note(plan.step)), nil
 }
 
-// fitRange fits the answer of a range query under the read cap with fitAnswer and returns its note. A raised step can
-// read further back than the span the selectors were counted over, where they can match more series: they are counted
-// again, and the answer is fitted to the larger count.
-func (s *Service) fitRange(
-	ctx context.Context, auth callerAuth, uid, expr string, plan *metricsPlan, selectors []string, matched matchedSeries, read time.Duration,
-) (string, error) {
-	unfitStep := plan.step
-	note, fitRead, err := fitAnswer(expr, plan, matched, read)
-	if err != nil {
-		return "", err
-	}
-	for range maxStepRaises {
-		if fitRead <= read {
-			break
-		}
-		var recount matchedSeries
-		recount, err = s.checkSeriesCount(ctx, auth, uid, selectors, plan.start.Add(-(fitRead - plan.span())), plan.end)
-		if err != nil {
-			return "", narrowIfTooLarge(err, expr)
-		}
-		read = fitRead
-		if recount.count > matched.count {
-			matched = recount
-			plan.step = unfitStep
-			note, fitRead, err = fitAnswer(expr, plan, matched, read)
-			if err != nil {
-				return "", err
-			}
-		}
-	}
-	return note, nil
+// stepRaise is how the step of a query rises from the one planMetrics chose: to ruleStep, which the rules that reasons
+// name need, then so that the answer fits under the read cap. A step the caller gave never rises.
+type stepRaise struct {
+	expr             string
+	chosen, ruleStep time.Duration
+	reasons          []string
+	ruleRaises       int
+	// per is how many series the answer has for each series its selectors match, 0 when it needs no fitting.
+	per int
+	// matched is the largest count of the selectors' series, and answered the series of the answer last fitted.
+	matched  matchedSeries
+	answered int
 }
 
-// fitAnswer raises the step of a range query without an aggregation, whose answer has at most seriesPerMatched series
-// for each series its selectors match, so that the answer fits under the read cap, and returns the note that says so
-// and the span the query reads at its final step; a step the caller gave is refused instead, and so is any step when
-// not even one point per series fits.
-func fitAnswer(expr string, plan *metricsPlan, matched matchedSeries, read time.Duration) (string, time.Duration, error) {
-	per := seriesPerMatched(expr)
-	if per == 0 {
-		return "", read, nil
-	}
-	matched = matchedSeries{count: matched.count * per, labelBytes: matched.labelBytes * per}
-	step, ok := answerStep(matched, plan.span(), plan.step)
-	if !ok {
-		return "", 0, newToolError(codeInvalidInput,
-			"the answer for up to %d series is over the 4 MiB that MCP reads at any step: narrow the selectors with a service_name or node_name matcher, "+
-				"or aggregate, as in sum by (service_name) (%s)", matched.count, hintExpr(expr))
-	}
-	if step == plan.step {
-		return "", read, nil
-	}
-	if plan.stepGiven {
-		return "", 0, newToolError(codeInvalidInput,
-			"at step %s, the answer for up to %d series is over the 4 MiB that MCP reads: raise step to at least %s, or aggregate, as in sum by (service_name) (%s)",
-			formatStep(plan.step), matched.count, formatStep(step), hintExpr(expr))
-	}
-	raisedRead, err := checkExpr(expr, plan.span(), step)
-	if err != nil {
-		return "", 0, newToolError(codeInvalidInput,
+// afterRefusal raises plan's step to what the rule that refused it needs, at most maxStepRaises times, and returns
+// nil; otherwise it returns the refusal, with why the step rose to where it was refused.
+func (r *stepRaise) afterRefusal(plan *metricsPlan, err error) error {
+	if plan.step != r.ruleStep {
+		return newToolError(codeInvalidInput,
 			"the answer for up to %d series fits in the 4 MiB that MCP reads only at a step of %s or more, and at that step the query reads past its budget: "+
-				"aggregate, as in sum by (service_name) (%s), or narrow the selectors", matched.count, formatStep(step), hintExpr(expr))
+				"aggregate, as in sum by (service_name) (%s), or narrow the selectors", r.answered, formatStep(plan.step), hintExpr(r.expr))
 	}
-	note := fmt.Sprintf("The step was raised from %s to %s so that the answer for up to %d series fits in the 4 MiB that MCP reads; aggregate for a finer step.",
-		formatStep(plan.step), formatStep(step), matched.count)
-	plan.step = step
-	return note, raisedRead, nil
+	tooSmall, ok := errors.AsType[*stepTooSmallError](err)
+	if ok && !plan.instant && !plan.stepGiven && tooSmall.minStep > plan.step && r.ruleRaises < maxStepRaises {
+		plan.step, r.ruleStep = tooSmall.minStep, tooSmall.minStep
+		r.reasons = appendOnce(r.reasons, tooSmall.reason)
+		r.ruleRaises++
+		return nil
+	}
+	te, ok := errors.AsType[*toolError](err)
+	if ok && plan.step != r.chosen {
+		return newToolError(te.code, "the step rises to %s so that %s; at that step: %s", formatStep(plan.step), strings.Join(r.reasons, ", and "), te.message)
+	}
+	return err
 }
 
-// seriesPerMatched returns how many series expr can return for each series its selectors match, or 0 when it has an
-// aggregation, which can return fewer, or does not parse, which checkExpr has refused.
-func seriesPerMatched(expr string) int {
-	e, err := metricsql.Parse(expr)
-	if err != nil {
-		return 0
+// fitAnswer returns the smallest step, from the one the rules need, at which the answer of the largest count so far
+// of a range query without an aggregation fits under the read cap. It refuses any step when not even one point per
+// series fits, and a step the caller gave that is too small.
+func (r *stepRaise) fitAnswer(plan metricsPlan, matched matchedSeries) (time.Duration, error) {
+	if matched.count > r.matched.count {
+		r.matched = matched
 	}
+	if plan.instant || r.per == 0 {
+		return plan.step, nil
+	}
+	answer := matchedSeries{count: r.matched.count * r.per, labelBytes: r.matched.labelBytes * r.per}
+	step, ok := answerStep(answer, plan.span(), r.ruleStep)
+	if !ok {
+		return 0, newToolError(codeInvalidInput,
+			"the answer for up to %d series is over the 4 MiB that MCP reads at any step: narrow the selectors with a service_name or node_name matcher, "+
+				"or aggregate, as in sum by (service_name) (%s)", answer.count, hintExpr(r.expr))
+	}
+	if step != plan.step && plan.stepGiven {
+		return 0, newToolError(codeInvalidInput,
+			"at step %s, the answer for up to %d series is over the 4 MiB that MCP reads: raise step to at least %s, or aggregate, as in sum by (service_name) (%s)",
+			formatStep(plan.step), answer.count, formatStep(step), hintExpr(r.expr))
+	}
+	r.answered = answer.count
+	return step, nil
+}
+
+// note says why the step rose to step, empty when it did not.
+func (r *stepRaise) note(step time.Duration) string {
+	var notes []string
+	if r.ruleStep != r.chosen {
+		notes = append(notes, fmt.Sprintf("The step was raised from %s to %s so that %s.",
+			formatStep(r.chosen), formatStep(r.ruleStep), strings.Join(r.reasons, ", and ")))
+	}
+	if step != r.ruleStep {
+		notes = append(notes, fmt.Sprintf("The step was raised from %s to %s so that the answer for up to %d series fits in the 4 MiB that MCP reads; "+
+			"aggregate for a finer step.", formatStep(r.ruleStep), formatStep(step), r.answered))
+	}
+	return strings.Join(notes, " ")
+}
+
+// startMetricsRequests takes a metric-call slot for the caller and finds the Metrics datasource, returning its UID and
+// the slot's release.
+func (s *Service) startMetricsRequests(ctx context.Context, auth callerAuth) (string, func(), error) {
+	release, err := s.startMetricCall(auth)
+	if err != nil {
+		return "", nil, err
+	}
+	uid, err := s.metricsDatasourceUID(ctx, auth)
+	if err != nil {
+		release()
+		return "", nil, err
+	}
+	return uid, release, nil
+}
+
+// seriesPerMatched returns how many series e can return for each series its selectors match, or 0 when it has an
+// aggregation, which can return fewer.
+func seriesPerMatched(e metricsql.Expr) int {
 	aggregated := false
 	metricsql.VisitAll(e, func(e metricsql.Expr) {
 		_, ok := e.(*metricsql.AggrFuncExpr)
@@ -402,13 +402,13 @@ func resultsPerSeries(e metricsql.Expr) int {
 	}
 }
 
-// narrowIfTooLarge turns a response over the 4 MiB bound into advice to narrow the query: the expression is the model's own.
-func narrowIfTooLarge(err error, expr string) error {
+// narrowIfTooLarge turns a response over the 4 MiB bound into advice to narrow the request: the expression or
+// selectors are the model's own.
+func narrowIfTooLarge(err error, advice string) error {
 	if !errors.Is(err, errResponseTooLarge) {
 		return err
 	}
-	return newToolError(codeInvalidInput,
-		"the answer is larger than 4 MiB: narrow the query with a service_name or node_name matcher, and aggregate, as in sum by (service_name) (%s)", hintExpr(expr))
+	return newToolError(codeInvalidInput, "the answer is larger than 4 MiB: %s", advice)
 }
 
 // hintExpr is the caller's expression as a hint quotes it, or <expr> when it is long.
@@ -421,11 +421,7 @@ func hintExpr(expr string) string {
 
 // checkInstantRoot refuses an instant query whose root is a range selector or a subquery, which
 // VictoriaMetrics answers with a range of samples per series rather than one value.
-func checkInstantRoot(expr string) error {
-	e, err := metricsql.Parse(expr)
-	if err != nil {
-		return newToolError(codeInvalidInput, "cannot parse the expression: %s", echo(err.Error()))
-	}
+func checkInstantRoot(e metricsql.Expr) error {
 	for {
 		re, ok := e.(*metricsql.RollupExpr)
 		if !ok {
@@ -441,23 +437,6 @@ func checkInstantRoot(expr string) error {
 			"wrap it in a rollup such as last_over_time() or rate(), or send a range query with period_from and period_to")
 }
 
-// selectorsOf returns each selector of expr, one per OR group, in MetricsQL form, as walked at step.
-func selectorsOf(expr string, step time.Duration) ([]string, error) {
-	e, err := metricsql.Parse(expr)
-	if err != nil {
-		return nil, newToolError(codeInvalidInput, "cannot parse the expression: %s", echo(err.Error()))
-	}
-	w, err := walkSelectors(e, step)
-	if err != nil {
-		return nil, err
-	}
-	out := make([]string, len(w.selectors))
-	for i, sel := range w.selectors {
-		out[i] = sel.String()
-	}
-	return out, nil
-}
-
 // matchedSeries is what the selectors of a query match: how many series, and the bytes their labels take in a JSON answer.
 type matchedSeries struct {
 	count      int
@@ -466,9 +445,10 @@ type matchedSeries struct {
 
 // checkSeriesCount refuses a query one of whose selectors matches more than maxSeriesPerSelector series over [start, end],
 // and returns what they all match.
-func (s *Service) checkSeriesCount(ctx context.Context, auth callerAuth, uid string, selectors []string, start, end time.Time) (matchedSeries, error) {
+func (s *Service) checkSeriesCount(ctx context.Context, auth callerAuth, uid string, selectors []selector, start, end time.Time) (matchedSeries, error) {
 	var m matchedSeries
-	for _, sel := range selectors {
+	for _, selector := range selectors {
+		sel := selector.String()
 		series, err := s.api.Series(ctx, auth, uid, []string{sel}, start, end, maxSeriesPerSelector+1)
 		if err != nil {
 			return matchedSeries{}, err
@@ -592,7 +572,9 @@ func (r listMetricsResult) render() string {
 
 // listPlan is a validated call of pmm_list_metrics.
 type listPlan struct {
-	kind       string
+	kind string
+	// label is the label whose values kind names or values lists.
+	label      string
 	match      []string
 	start, end time.Time
 	limit      int
@@ -651,42 +633,34 @@ func (s *Service) planList(in listMetricsInput) (listPlan, error) {
 		return listPlan{}, newToolError(codeInvalidInput,
 			"period_from looks back %s; the cap is %s: use a later start", formatSpan(lookback), formatSpan(maxListLookback))
 	}
-	// The list endpoints read the index over the window, not samples, so a selector has no lookbehind: span 0.
 	for _, sel := range in.Match {
-		_, err = checkExpr(sel, 0, instantStep)
+		e, err := parseExpr(sel)
 		if err != nil {
 			return listPlan{}, err
 		}
-		err = checkMatch(sel)
+		// The list endpoints read the index over the window, not samples, so a selector has no lookbehind: span 0.
+		_, _, err = checkParsed(e, 0, instantStep)
 		if err != nil {
 			return listPlan{}, err
+		}
+		// A function, an operator, a range or an offset is refused: a match is a series selector alone.
+		_, ok := e.(*metricsql.MetricExpr)
+		if !ok {
+			return listPlan{}, newToolError(codeInvalidInput,
+				"match '%s' is not a series selector: write a metric name and label matchers, such as mysql_up{service_name=\"db1\"}, "+
+					"without functions, operators, ranges or offset", echo(sel))
 		}
 	}
 
-	match := in.Match
+	plan := listPlan{kind: kind, label: in.Label, match: in.Match, start: start, end: end, limit: cmp.Or(in.Limit, defaultListLimit)}
 	if kind == listKindNames {
+		plan.label = "__name__"
 		sel := nameSelector(in.Search, in.ServiceID, in.ServiceName)
-		match = nil
 		if sel != "" {
-			match = []string{sel}
+			plan.match = []string{sel}
 		}
 	}
-	return listPlan{kind: kind, match: match, start: start, end: end, limit: in.Limit}, nil
-}
-
-// checkMatch refuses a match that is not a series selector alone: a function, an operator, a range or an offset.
-func checkMatch(sel string) error {
-	e, err := metricsql.Parse(sel)
-	if err != nil {
-		return newToolError(codeInvalidInput, "cannot parse the expression: %s", echo(err.Error()))
-	}
-	_, ok := e.(*metricsql.MetricExpr)
-	if ok {
-		return nil
-	}
-	return newToolError(codeInvalidInput,
-		"match '%s' is not a series selector: write a metric name and label matchers, such as mysql_up{service_name=\"db1\"}, "+
-			"without functions, operators, ranges or offset", echo(sel))
+	return plan, nil
 }
 
 // nameSelector is the selector of a name search (names containing search, of the service when one is given), empty
@@ -745,59 +719,50 @@ func (s *Service) listMetrics(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 
 	auth := callerAuthFromHeader(req.Extra.Header)
-	release, err := s.startMetricCall(auth)
+	uid, release, err := s.startMetricsRequests(ctx, auth)
 	if err != nil {
 		return listMetricsResult{}, err
 	}
 	defer release()
 
-	uid, err := s.metricsDatasourceUID(ctx, auth)
+	var values []string
+	var series []map[string]string
+	switch plan.kind {
+	case listKindLabels:
+		values, err = s.api.Labels(ctx, auth, uid, plan.match, plan.start, plan.end, maxListed+1)
+	case listKindSeries:
+		series, err = s.api.Series(ctx, auth, uid, plan.match, plan.start, plan.end, maxListed+1)
+	default:
+		values, err = s.api.LabelValues(ctx, auth, uid, plan.label, plan.match, plan.start, plan.end, maxListed+1)
+	}
 	if err != nil {
-		return listMetricsResult{}, err
+		return listMetricsResult{}, narrowIfTooLarge(err,
+			"narrow the request with a longer search, a service_name, or a match selector with a service_name or node_name matcher")
 	}
 
 	res := listMetricsResult{Kind: plan.kind}
-	var total int
+	total := len(values) + len(series)
+	if total > maxListed {
+		res.Hint = "VictoriaMetrics returned more than 1000 entries, so some are not listed: " + narrowAdvice(plan.kind)
+	}
+	slices.Sort(values)
+	values = slices.Compact(values)
 	switch plan.kind {
 	case listKindNames:
-		var names []string
-		names, err = s.api.LabelValues(ctx, auth, uid, "__name__", plan.match, plan.start, plan.end, maxListed+1)
-		if err != nil {
-			return listMetricsResult{}, narrowList(err)
-		}
-		total = len(names)
-		res.Hint = moreHint(plan.kind, total)
-		res, err = pageNames(res, tidy(names), in.Offset, plan.limit)
+		res = pageNames(res, values, in.Offset, plan.limit)
 	case listKindLabels:
-		var labels []string
-		labels, err = s.api.Labels(ctx, auth, uid, plan.match, plan.start, plan.end, maxListed+1)
-		if err != nil {
-			return listMetricsResult{}, narrowList(err)
-		}
-		total = len(labels)
-		res.Hint = moreHint(plan.kind, total)
-		res.Labels, res.Page, err = paginate(tidy(labels), in.Offset, plan.limit, defaultListLimit, maxListed)
+		res.Labels, res.Page = paginate(values, in.Offset, plan.limit, defaultListLimit)
 	case listKindValues:
-		var values []string
-		values, err = s.api.LabelValues(ctx, auth, uid, in.Label, plan.match, plan.start, plan.end, maxListed+1)
-		if err != nil {
-			return listMetricsResult{}, narrowList(err)
-		}
-		total = len(values)
-		res.Hint = moreHint(plan.kind, total)
-		res.Values, res.Page, err = paginate(tidy(values), in.Offset, plan.limit, defaultListLimit, maxListed)
+		res.Values, res.Page = paginate(values, in.Offset, plan.limit, defaultListLimit)
 	case listKindSeries:
-		var series []map[string]string
-		series, err = s.api.Series(ctx, auth, uid, plan.match, plan.start, plan.end, maxListed+1)
-		if err != nil {
-			return listMetricsResult{}, narrowList(err)
+		// In the order of their labels, each label set a JSON object even when VictoriaMetrics sent null.
+		slices.SortStableFunc(series, func(a, b map[string]string) int { return strings.Compare(renderLabels(a), renderLabels(b)) })
+		for i, labels := range series {
+			if labels == nil {
+				series[i] = map[string]string{}
+			}
 		}
-		total = len(series)
-		res.Hint = moreHint(plan.kind, total)
-		res, err = pageSeries(res, series, in.Offset, plan.limit)
-	}
-	if err != nil {
-		return listMetricsResult{}, err
+		res.Series, res.Page = paginate(series, in.Offset, plan.limit, defaultListLimit)
 	}
 
 	res = fitList(res)
@@ -805,21 +770,6 @@ func (s *Service) listMetrics(ctx context.Context, req *mcp.CallToolRequest, in 
 		res.Page.Truncated = true
 	}
 	return res, nil
-}
-
-// tidy sorts values and drops repeats.
-func tidy(values []string) []string {
-	out := slices.Clone(values)
-	slices.Sort(out)
-	return slices.Compact(out)
-}
-
-// moreHint tells that VictoriaMetrics had more than maxListed entries; empty when it did not.
-func moreHint(kind string, total int) string {
-	if total <= maxListed {
-		return ""
-	}
-	return "VictoriaMetrics returned more than 1000 entries, so some are not listed: " + narrowAdvice(kind)
 }
 
 func narrowAdvice(kind string) string {
@@ -833,72 +783,25 @@ func narrowAdvice(kind string) string {
 	}
 }
 
-// narrowList turns a response over the 4 MiB bound into advice to narrow the request.
-func narrowList(err error) error {
-	if !errors.Is(err, errResponseTooLarge) {
-		return err
-	}
-	return newToolError(codeInvalidInput,
-		"the answer is larger than 4 MiB: narrow the request with a longer search, a service_name, or a match selector with a service_name or node_name matcher")
-}
-
 // pageNames sets the names of one page, or their groups when there are more than limit.
-func pageNames(res listMetricsResult, names []string, offset, limit int) (listMetricsResult, error) {
-	if limit == 0 {
-		limit = defaultListLimit
-	}
+func pageNames(res listMetricsResult, names []string, offset, limit int) listMetricsResult {
 	names, groups := groupNames(names, limit)
-	var err error
 	if groups != nil {
-		res.Groups, res.Page, err = paginate(groups, offset, limit, defaultListLimit, maxListed)
-		return res, err
+		res.Groups, res.Page = paginate(groups, offset, limit, defaultListLimit)
+		return res
 	}
-	names, res.Page, err = paginate(names, offset, limit, defaultListLimit, maxListed)
-	if err != nil {
-		return res, err
-	}
+	names, res.Page = paginate(names, offset, limit, defaultListLimit)
 	res.Names = make([]metricName, len(names))
 	for i, n := range names {
-		res.Names[i] = metricName{Name: n}
-		info, ok := metricInfoByName(n)
-		if ok {
-			res.Names[i].Meaning, res.Names[i].Type = info.Meaning, info.Type
-		}
+		entry := metricsCatalogIndex()[n]
+		res.Names[i] = metricName{Name: n, Meaning: entry.Meaning, Type: entry.Type}
 	}
-	if len(res.Names) == 0 {
-		res.Names = nil
-	}
-	return res, nil
-}
-
-// pageSeries sets the series of one page, in the order of their labels.
-func pageSeries(res listMetricsResult, series []map[string]string, offset, limit int) (listMetricsResult, error) {
-	keyed := make([]string, len(series))
-	for i, labels := range series {
-		keyed[i] = renderLabels(labels)
-	}
-	order := make([]int, len(series))
-	for i := range order {
-		order[i] = i
-	}
-	sort.SliceStable(order, func(a, b int) bool { return keyed[order[a]] < keyed[order[b]] })
-	sorted := make([]map[string]string, 0, len(series))
-	for _, i := range order {
-		labels := series[i]
-		if labels == nil {
-			labels = map[string]string{}
-		}
-		sorted = append(sorted, labels)
-	}
-
-	var err error
-	res.Series, res.Page, err = paginate(sorted, offset, limit, defaultListLimit, maxListed)
-	return res, err
+	return res
 }
 
 // fitList keeps the most entries of a page, of any kind, whose text and structured content fit maxMetricsBytes.
 func fitList(res listMetricsResult) listMetricsResult {
-	if measure(res) <= maxMetricsBytes {
+	if resultSize(res) <= maxMetricsBytes {
 		return res
 	}
 
@@ -917,18 +820,10 @@ func fitList(res listMetricsResult) listMetricsResult {
 	}
 	// One kind of entries is set, so the page holds this many.
 	shown := len(res.Names) + len(res.Groups) + len(res.Labels) + len(res.Values) + len(res.Series)
-	kept := sort.Search(shown, func(n int) bool { return measure(cut(n+1)) > maxMetricsBytes })
+	kept := sort.Search(shown, func(n int) bool { return resultSize(cut(n+1)) > maxMetricsBytes })
 	res = cut(kept)
 	if kept == 0 {
-		res.Names, res.Groups, res.Labels, res.Values, res.Series = nil, nil, nil, nil, nil
 		res.Hint += fmt.Sprintf(" The entry at offset %d alone does not fit in 16 KiB: pass offset=%d to skip it.", res.Page.Offset, res.Page.Offset+1)
 	}
 	return res
-}
-
-// measure is what a result costs: its text plus its structured content.
-func measure(r listMetricsResult) int {
-	// A result holds only strings and numbers, so it always marshals.
-	b, _ := json.Marshal(r) //nolint:errchkjson
-	return len(r.render()) + len(b)
 }

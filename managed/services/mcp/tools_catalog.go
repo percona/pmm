@@ -110,7 +110,8 @@ func (s *Service) catalog(_ context.Context, _ *mcp.CallToolRequest, in catalogI
 	}
 
 	if in.Kind == catalogKindMetrics {
-		return metricsCatalogResult(in.Engine), nil
+		entries := slices.DeleteFunc(slices.Clone(metricsCatalog), func(m catalogEntry) bool { return in.Engine != "" && m.Engine != in.Engine })
+		return catalogResult{Kind: in.Kind, Engine: in.Engine, Entries: entries}, nil
 	}
 
 	entries := make([]catalogEntry, 0, len(qanColumns))
@@ -125,17 +126,4 @@ func (s *Service) catalog(_ context.Context, _ *mcp.CallToolRequest, in catalogI
 		entries = append(entries, catalogEntry{Name: c.name, Engine: c.engine, Aggregation: aggregation})
 	}
 	return catalogResult{Kind: in.Kind, Engine: in.Engine, Entries: entries}, nil
-}
-
-func metricsCatalogResult(engine string) catalogResult {
-	entries := make([]catalogEntry, 0, len(metricsCatalog))
-	for _, m := range metricsCatalog {
-		if engine != "" && m.Engine != engine {
-			continue
-		}
-		entries = append(entries, catalogEntry{
-			Name: m.Name, Engine: m.Engine, Meaning: m.Meaning, Unit: m.Unit, Type: m.Type, Labels: m.Labels, Query: m.Query,
-		})
-	}
-	return catalogResult{Kind: catalogKindMetrics, Engine: engine, Entries: entries}
 }

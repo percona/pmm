@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"slices"
@@ -352,7 +353,7 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		ServiceID:   svc.ServiceID,
 		ServiceName: svc.ServiceName,
 		Engine:      svc.Engine,
-		Window:      window{From: start, To: end},
+		Window:      w,
 		PMMURL:      serviceWindowURL(s.publicBaseURL(ctx, req.Extra.Header), svc, start, end),
 	}
 
@@ -395,7 +396,7 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		queried -= len(healthSignals[engineNode])
 	}
 	if failed == queried {
-		return healthResult{}, firstError(errs)
+		return healthResult{}, cmp.Or(errs...)
 	}
 	res.Signals = results
 	res.Note = strings.Join(notes, " ")
@@ -439,15 +440,6 @@ func appendOnce(notes []string, note string) []string {
 	return append(notes, note)
 }
 
-func firstError(errs []error) error {
-	for _, err := range errs {
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // runSignals runs the signal queries, at most maxHealthQueries at a time, and returns each signal's result and failure by position.
 func (s *Service) runSignals(ctx context.Context, rr rangeRequest, signals []signal, queries []string, skipNode bool) ([]signalResult, []error) {
 	results := make([]signalResult, len(signals))
@@ -466,7 +458,7 @@ func (s *Service) runSignals(ctx context.Context, rr rangeRequest, signals []sig
 				results[j], err = s.runSignal(ctx, rr, sig, queries[j])
 				return err
 			})
-			if errs[j] != nil && results[j].Error == nil {
+			if errs[j] != nil {
 				results[j].Error = partErrorOf(errs[j])
 			}
 			return nil
@@ -477,17 +469,15 @@ func (s *Service) runSignals(ctx context.Context, rr rangeRequest, signals []sig
 	return results, errs
 }
 
-// runSignal runs one signal's query; a failure is in the result's error and also returned.
+// runSignal runs one signal's query.
 func (s *Service) runSignal(ctx context.Context, rr rangeRequest, sig signal, query string) (signalResult, error) {
 	res := signalResult{Name: sig.Name, Unit: sig.Unit, Source: sig.Source}
 	err := ctx.Err()
 	if err != nil {
-		res.Error = partErrorOf(err)
 		return res, err
 	}
 	series, err := s.api.QueryRange(ctx, rr.auth, rr.uid, promRequest{Query: query, Start: rr.start, End: rr.end, Step: rr.step})
 	if err != nil {
-		res.Error = partErrorOf(err)
 		return res, err
 	}
 
