@@ -16,10 +16,11 @@ export const splitCustomLabel = (entry: string): [string, string] => {
 };
 
 // Labels are separated by new lines or spaces, but a space only starts a new
-// label before another "name:", so values can hold spaces
+// label before another "name:" and not right after a colon, so values can hold
+// spaces and colons
 export const splitCustomLabelEntries = (text: string) =>
   text
-    .split(/\n|\s+(?=[^\s:]+:)/)
+    .split(/\n|(?<![:\s])\s+(?=[^\s:]+:)/)
     .map((entry) => entry.trim())
     .filter(Boolean);
 

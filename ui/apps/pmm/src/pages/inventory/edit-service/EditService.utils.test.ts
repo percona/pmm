@@ -477,7 +477,7 @@ describe('getEditServiceSchema', () => {
     );
     expect(
       errors(
-        values({ customLabels: 'note:see y: team:db' }),
+        values({ customLabels: 'note:see y:\nteam:db' }),
         null,
         ManagedServiceType.mysql,
         initial

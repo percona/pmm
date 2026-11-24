@@ -35,6 +35,10 @@ describe('custom labels', () => {
       team: 'db',
       env: 'prod',
     });
+    expect(parseCustomLabels('url: http://db  endpoint:  db:3306')).toEqual({
+      url: 'http://db',
+      endpoint: 'db:3306',
+    });
   });
 
   it.each([
@@ -44,6 +48,7 @@ describe('custom labels', () => {
     ['team', false],
     ['team:', false],
     ['endpoint:db:3306', true],
+    ['url: http://db', true],
     ['owner:DB Team', true],
     ['team:db 1team:db', false],
     ['1team:db', false],
