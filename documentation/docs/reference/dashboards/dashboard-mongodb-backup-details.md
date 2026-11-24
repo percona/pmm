@@ -119,38 +119,41 @@ Use this to catch performance problems early. If a backup that normally takes a 
 
 Tracking duration trends also helps you schedule maintenance windows accurately.
 
-## PBM metrics
+## PBM metrics for custom dashboards and alerts
 
-PMM reads the `mongodb_pbm_*` metrics from the collections that PBM keeps in the `admin` database of your cluster. Use these metrics in **Explore**, in your own dashboards, and in your own alert rules.
+The panels on this dashboard cover backup configuration, PITR status, agent status, backup sizes, and backup durations. You might want to go beyond them with your own dashboards and alert rules, for example to catch a failed restore, a PITR recovery point that falls behind, or PBM agents that run different versions. 
 
-The following table lists the metrics behind this dashboard:
+To build your own dashboards and alert rules, find the metric you need in the following table, then use its labels to filter and group your queries. 
 
-| Metric | Labels | Description |
-|--------|--------|-------------|
-| `mongodb_pbm_cluster_backup_configured` | – | `1` if PBM has a configuration, `0` if it doesn't. |
-| `mongodb_pbm_cluster_pitr_backup_enabled` | – | `1` if PITR is enabled, `0` if it isn't. |
-| `mongodb_pbm_agent_status` | `host`, `replica_set`, `role`, `self` | Status of the PBM agent of each replica set member: `0` is OK, `1` is failing or not registered, `2` is lost, which means no heartbeat for more than 30 seconds. |
-| `mongodb_pbm_backup_size_bytes` | `name`, `type`, `status`, `opid`, `host`, `replica_set`, `self` | Size of each backup. |
-| `mongodb_pbm_backup_duration_seconds` | `name`, `type`, `status`, `opid`, `host`, `replica_set`, `self` | Duration of each backup. For a backup in progress, the time since it started. |
-| `mongodb_pbm_backup_last_transition_ts` | `name`, `type`, `status`, `opid`, `host`, `replica_set`, `self` | Time when each backup last changed its status, in seconds since the epoch. |
+The table lists every `mongodb_pbm_*` metric with its labels and values, including the ones that no panel shows. The **Available in** column shows the PMM Client version that collects each metric. You can also query the metrics in **Explore**. 
 
-The following table lists the metrics that are available starting with PMM Client 3.11.0. No dashboard panel or alert template uses them yet:
+PMM Client reads the metrics from the collections that PBM keeps in the `admin` database of your cluster.
 
-| Metric | Labels | Description |
-|--------|--------|-------------|
-| `mongodb_pbm_cluster_backup_failures_since_last_success` | `type` | Number of backups of this type that failed after the last successful one. It counts the backups that PBM marked as failed and the unfinished backups whose agents stopped. It returns to `0` with the next successful backup of this type. |
-| `mongodb_pbm_cluster_pitr_recovery_point_ts` | – | Latest time that you can restore the whole cluster to with PITR, in seconds since the epoch. It is the oldest of the `mongodb_pbm_pitr_last_write_ts` values and matches the end of the PITR range in `pbm list`. |
-| `mongodb_pbm_pitr_last_write_ts` | `replica_set` | Time of the last oplog write that PBM saved for the replica set, in seconds since the epoch. |
-| `mongodb_pbm_restore_status` | – | Status of the most recent restore: `0` is no restore recorded, `1` is running, `2` is failed, `3` is completed. |
-| `mongodb_pbm_restore_duration_seconds` | `name`, `backup`, `type`, `status`, `opid` | Duration of each of the 10 most recent restores. |
-| `mongodb_pbm_restore_last_transition_ts` | `name`, `backup`, `type`, `status`, `opid` | Time when each of the 10 most recent restores last changed its status, in seconds since the epoch. |
-| `mongodb_pbm_agent_version_info` | `host`, `replica_set`, `self`, `version` | Version of the PBM agent of the monitored node. Through `mongos`, the version of every agent in the cluster. The value is always `1`. |
+???+ info "PBM metrics reference"
 
-When you read the new metrics, keep the following in mind:
+    | Metric | Labels | Available in | Description |
+    |--------|--------|--------------|-------------|
+    | `mongodb_pbm_cluster_backup_configured` | None | 3.10.0 and later | `1` if PBM has a configuration, `0` if it doesn't. |
+    | `mongodb_pbm_cluster_pitr_backup_enabled` | None | 3.10.0 and later | `1` if PITR is enabled, `0` if it isn't. |
+    | `mongodb_pbm_agent_status` | `host`, `replica_set`, `role`, `self` | 3.10.0 and later | Status of the PBM agent of each replica set member: `0` is OK, `1` is failing or not registered, `2` is lost, which means no heartbeat for more than 30 seconds. |
+    | `mongodb_pbm_backup_size_bytes` | `name`, `type`, `status`, `opid`, `host`, `replica_set`, `self` | 3.10.0 and later | Size of each backup. |
+    | `mongodb_pbm_backup_duration_seconds` | `name`, `type`, `status`, `opid`, `host`, `replica_set`, `self` | 3.10.0 and later | Duration of each backup. For a backup in progress, the time since it started. |
+    | `mongodb_pbm_backup_last_transition_ts` | `name`, `type`, `status`, `opid`, `host`, `replica_set`, `self` | 3.10.0 and later | Time when each backup last changed its status, in seconds since the epoch. |
+    | `mongodb_pbm_cluster_backup_failures_since_last_success` | `type` | 3.11.0 and later | Number of backups of this type that failed after the last successful one. It counts the backups that PBM marked as failed and the unfinished backups whose agents stopped. It returns to `0` with the next successful backup of this type. |
+    | `mongodb_pbm_cluster_pitr_recovery_point_ts` | None | 3.11.0 and later | Latest time that you can restore to with PITR, in seconds since the epoch. It is the oldest of the `mongodb_pbm_pitr_last_write_ts` values and matches the end of the PITR range in `pbm list`. A replica set without PITR chunks is left out, so check `mongodb_pbm_pitr_last_write_ts` for each `replica_set` to confirm that all of them are covered. |
+    | `mongodb_pbm_pitr_last_write_ts` | `replica_set` | 3.11.0 and later | Time of the last oplog write that PBM saved for the replica set, in seconds since the epoch. |
+    | `mongodb_pbm_restore_status` | None | 3.11.0 and later | Status of the most recent restore: `0` is no restore recorded, `1` is running, `2` is failed, `3` is completed. |
+    | `mongodb_pbm_restore_duration_seconds` | `name`, `backup`, `type`, `status`, `opid` | 3.11.0 and later | Duration of each of the 10 most recent restores. |
+    | `mongodb_pbm_restore_last_transition_ts` | `name`, `backup`, `type`, `status`, `opid` | 3.11.0 and later | Time when each of the 10 most recent restores last changed its status, in seconds since the epoch. |
+    | `mongodb_pbm_agent_version_info` | `host`, `replica_set`, `self`, `version` | 3.11.0 and later | Version of the PBM agent of the monitored node. Through `mongos`, the version of every agent in the cluster. The value is always `1`. |
 
-- The PITR metrics exist only while PITR is enabled. They advance once per oplog slice, every 10 minutes by default (`pitr.oplogSpanMin`), and pause while PBM runs a logical backup or a restore.
-- The restore metrics cover logical restores as they run. A physical, incremental, or external restore appears only after you run `pbm config --force-resync`, and a restore that failed on some nodes counts as failed.
-- Every monitored node of a cluster reports the same cluster-wide values, so aggregate them, for example with `max by (cluster)`.
+### Build reliable queries
+
+When you build a dashboard or an alert on these metrics, account for how they behave:
+
+- To alert on PITR lag, expect no series while PITR is disabled. The PITR metrics advance once per oplog slice, every 10 minutes by default (`pitr.oplogSpanMin`), and pause while PBM runs a logical backup or a restore, so set a threshold that allows for these pauses.
+- To alert on failed restores, use `mongodb_pbm_restore_status` for logical restores, which it covers as they run. A physical, incremental, or external restore appears only after you run `pbm config --force-resync`, and a restore that failed on some nodes counts as failed. A restore that fails before PBM writes its metadata never appears, even after a resync, so check the PBM restore status and logs for such restores.
+- To get one series for each cluster, aggregate the backup failure, PITR, and restore metrics, for example with `max by (cluster)`. Every monitored node of a cluster reports the same cluster-wide values for them.
 
 ### Required privileges
 
@@ -160,9 +163,10 @@ If your monitoring user has a custom role that grants `find` only on specific PB
 
 ### Example queries
 
-Use the following queries as a starting point for your own panels and alert rules:
+Use the following queries as a starting point for your own panels and alert rules. To turn a query into an alert, [define a custom template](../../alert/alert_rules.md#define-a-custom-template) with it as the expression. The queries group by the `cluster` label, which you set with the `--cluster` option when you add the service.
 
 - Backups that keep failing: `max by (cluster, type) (mongodb_pbm_cluster_backup_failures_since_last_success) > 0`
 - PITR recovery point more than 30 minutes behind: `time() - max by (cluster) (mongodb_pbm_cluster_pitr_recovery_point_ts) > 1800`
+- PITR enabled, but no recovery point: `mongodb_pbm_cluster_pitr_backup_enabled == 1 unless on (cluster) mongodb_pbm_cluster_pitr_recovery_point_ts`
 - Most recent restore failed: `max by (cluster) (mongodb_pbm_restore_status) == 2`
 - PBM agents of different versions in one cluster: `count by (cluster) (count by (cluster, version) (mongodb_pbm_agent_version_info)) > 1`
