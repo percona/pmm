@@ -756,11 +756,20 @@ func (s *Service) listMetrics(ctx context.Context, req *mcp.CallToolRequest, in 
 		res.Values, res.Page = paginate(values, in.Offset, plan.limit, defaultListLimit)
 	case listKindSeries:
 		// In the order of their labels, each label set a JSON object even when VictoriaMetrics sent null.
-		slices.SortStableFunc(series, func(a, b map[string]string) int { return strings.Compare(renderLabels(a), renderLabels(b)) })
+		type keyedSeries struct {
+			key    string
+			labels map[string]string
+		}
+		keyed := make([]keyedSeries, len(series))
 		for i, labels := range series {
 			if labels == nil {
-				series[i] = map[string]string{}
+				labels = map[string]string{}
 			}
+			keyed[i] = keyedSeries{key: renderLabels(labels), labels: labels}
+		}
+		slices.SortStableFunc(keyed, func(a, b keyedSeries) int { return strings.Compare(a.key, b.key) })
+		for i, k := range keyed {
+			series[i] = k.labels
 		}
 		res.Series, res.Page = paginate(series, in.Offset, plan.limit, defaultListLimit)
 	}

@@ -26,6 +26,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -97,6 +98,9 @@ func connectWith(t *testing.T, authorization string) *mcp.ClientSession {
 	return session
 }
 
+// plainClient is the client request sends with, shared so that requests reuse its connections.
+var plainClient = sync.OnceValue(func() *http.Client { return httpClient("") })
+
 // request sends a request to path of the server under test with header and body, and returns the status and body of the answer.
 func request(ctx context.Context, method, path string, query url.Values, header http.Header, body []byte) (int, []byte, error) {
 	u := pmmapitests.BaseURL.ResolveReference(&url.URL{Path: path, RawQuery: query.Encode()})
@@ -106,7 +110,7 @@ func request(ctx context.Context, method, path string, query url.Values, header 
 		return 0, nil, err
 	}
 	maps.Copy(req.Header, header)
-	res, err := httpClient("").Do(req)
+	res, err := plainClient().Do(req)
 	if err != nil {
 		return 0, nil, err
 	}

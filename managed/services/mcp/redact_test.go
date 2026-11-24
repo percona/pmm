@@ -638,6 +638,9 @@ func TestRedactPlan(t *testing.T) {
 		"an envelope that was not unwrapped still carries the explained statement")
 	assert.Equal(t, table, redactPlan(engineMySQL, formatTraditional, table, true), "a traditional table prints no predicates")
 	assert.Equal(t, planWithheld, redactPlan(engineMySQL, formatJSON, table, true), "a JSON request that is not JSON is withheld")
+	jsonForTraditional := redactPlan(engineMySQL, formatTraditional, `{"attached_condition":"((a = 'secret') or ((b | 1) = 3))"}`, true)
+	assert.NotContains(t, jsonForTraditional, "'secret'", "JSON is masked as JSON whatever format was asked for")
+	assert.Contains(t, jsonForTraditional, "(a = ?)")
 	assert.Equal(t, planWithheld, redactPlan("valkey", formatJSON, "anything", true))
 
 	// MySQL NDB Cluster prints a pushed condition in the Extra column.

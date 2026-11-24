@@ -960,21 +960,22 @@ func (w *jsonWriter) scalar(v any) error {
 //
 // The decoded flag reports whether a MySQL result was unwrapped from its envelope. One
 // that was not still carries the explained statement, so it is withheld. A
-// MySQL plan asked for as traditional is pmm-agent's table, masked in its
-// Extra column, and one asked for as JSON is masked as JSON, or withheld when
-// it is not a JSON object.
+// MySQL plan that is a JSON object is masked as JSON whatever format was asked
+// for; one asked for as traditional that is not JSON is pmm-agent's table,
+// masked in its Extra column. Anything else is withheld.
 func redactPlan(engine, format, plan string, decoded bool) string {
 	switch {
 	case engine == engineMongoDB:
 		return maskMongoPlan(plan)
 	case engine != engineMySQL || !decoded:
 		return planWithheld
-	case format == formatTraditional:
-		return maskTraditionalExtra(plan)
 	}
 	masked, ok := maskMySQLPlan(plan)
-	if !ok {
-		return planWithheld
+	if ok {
+		return masked
 	}
-	return masked
+	if format == formatTraditional {
+		return maskTraditionalExtra(plan)
+	}
+	return planWithheld
 }
