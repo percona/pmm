@@ -47,10 +47,9 @@ func TestGrafanaDatasourceDSN(t *testing.T) {
 		t.Setenv("GF_DATABASE_HOST", "pg.example:5432")
 		t.Setenv("GF_DATABASE_NAME", "grafana")
 		t.Setenv("GF_DATABASE_USER", "gfuser")
-		t.Setenv("GF_DATABASE_PASSWORD", "secret")
 		t.Setenv("GF_DATABASE_SSL_MODE", "require")
 
-		dsn, err := grafanaDatasourceDSN(fallback)
+		dsn, err := grafanaDatasourceDSN("secret", fallback)
 		require.NoError(t, err)
 		assert.Equal(t, "postgres://gfuser:secret@pg.example:5432/grafana?sslmode=require", dsn)
 	})
@@ -61,7 +60,7 @@ func TestGrafanaDatasourceDSN(t *testing.T) {
 		// would fail against a database Grafana itself reaches happily.
 		t.Setenv("GF_DATABASE_HOST", "pg.example:5432")
 
-		dsn, err := grafanaDatasourceDSN(fallback)
+		dsn, err := grafanaDatasourceDSN(bundledGrafanaPassword, fallback)
 		require.NoError(t, err)
 		assert.Equal(t, "postgres://grafana:grafana@pg.example:5432/grafana?sslmode=disable", dsn)
 	})
@@ -75,7 +74,7 @@ func TestGrafanaDatasourceDSN(t *testing.T) {
 		t.Setenv("GF_DATABASE_CLIENT_CERT_PATH", "/certs/client.crt")
 		t.Setenv("GF_DATABASE_CLIENT_KEY_PATH", "/certs/client.key")
 
-		dsn, err := grafanaDatasourceDSN(fallback)
+		dsn, err := grafanaDatasourceDSN(bundledGrafanaPassword, fallback)
 		require.NoError(t, err)
 		assert.Equal(t,
 			"postgres://grafana:grafana@pg.example:5432/grafana"+
@@ -86,7 +85,7 @@ func TestGrafanaDatasourceDSN(t *testing.T) {
 	t.Run("accepts the legacy single URL", func(t *testing.T) {
 		t.Setenv("GF_DATABASE_URL", "postgres://user:pass@pg.example:5432/gf?sslmode=verify-full")
 
-		dsn, err := grafanaDatasourceDSN(fallback)
+		dsn, err := grafanaDatasourceDSN(bundledGrafanaPassword, fallback)
 		require.NoError(t, err)
 		assert.Equal(t, "postgres://user:pass@pg.example:5432/gf?sslmode=verify-full", dsn)
 	})
@@ -94,13 +93,20 @@ func TestGrafanaDatasourceDSN(t *testing.T) {
 	t.Run("uses the bundled database when nothing is configured", func(t *testing.T) {
 		// The ansible role creates this database and user under exactly this condition, so the
 		// branches cannot disagree.
-		dsn, err := grafanaDatasourceDSN(fallback)
+		dsn, err := grafanaDatasourceDSN(bundledGrafanaPassword, fallback)
 		require.NoError(t, err)
 		assert.Equal(t, "postgres://grafana:grafana@127.0.0.1:5432/grafana?sslmode=disable", dsn)
 	})
 
+	t.Run("uses the given password for the bundled database", func(t *testing.T) {
+		// The caller passes the password PMM resolved, which need not be the bundled default.
+		dsn, err := grafanaDatasourceDSN("from-file", fallback)
+		require.NoError(t, err)
+		assert.Equal(t, "postgres://grafana:from-file@127.0.0.1:5432/grafana?sslmode=disable", dsn)
+	})
+
 	t.Run("reports having nowhere to look", func(t *testing.T) {
-		_, err := grafanaDatasourceDSN(grafanaDBFallback{})
+		_, err := grafanaDatasourceDSN(bundledGrafanaPassword, grafanaDBFallback{})
 		require.Error(t, err)
 	})
 }
