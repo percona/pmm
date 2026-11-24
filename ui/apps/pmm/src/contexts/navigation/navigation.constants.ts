@@ -3,7 +3,9 @@ import {
   PMM_LOGOUT_URL,
   PMM_NEW_NAV_GRAFANA_PATH,
   PMM_NEW_NAV_PATH,
+  EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  OM_PATH,
   PMM_ADD_SERVICE_URL,
   PMM_INVENTORY_NODES_PATH,
   PMM_INVENTORY_PATH,
@@ -24,6 +26,9 @@ import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicatio
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
 import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
 import Search from '@mui/icons-material/Search';
+import TrackChanges from '@mui/icons-material/TrackChanges';
+import { createElement } from 'react';
+import { PreviewChip } from 'components/preview-chip';
 import {
   CirclesExtIcon,
   Graph4Icon,
@@ -38,6 +43,7 @@ import {
   ProxyIcon,
   QueryStatsIcon,
   SearchInsightsIcon,
+  SupportDiagnosticsIcon,
 } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 
@@ -394,6 +400,16 @@ export const NAV_QAN: NavItem = {
   matches: ['*'],
 };
 
+// Stored query metrics and live query sessions are separate jobs, so each is
+// its own entry rather than a tab inside one Query analytics page.
+export const NAV_REALTIME_QUERIES: NavItem = {
+  id: 'realtime-queries',
+  icon: TrackChanges,
+  text: 'Real-time queries',
+  url: `${PMM_NEW_NAV_PATH}/rta`,
+  matches: ['*'],
+};
+
 //
 // Dashboards
 //
@@ -471,6 +487,26 @@ export const NAV_EXPLORE: NavItem = {
     `${PMM_NEW_NAV_GRAFANA_PATH}/drilldown`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/a/:appId/explore`,
   ],
+};
+
+//
+// PMM Extensions apps
+//
+// They are a technical preview.
+const TECH_PREVIEW: Pick<NavItem, 'badge' | 'badgeAlwaysVisible'> = {
+  badge: createElement(PreviewChip, { level: 'tech' }),
+  badgeAlwaysVisible: true,
+};
+
+// The ATW app runs diagnostic checks against monitored databases; sending the
+// results to a Percona Support case is one action inside it, not its purpose.
+export const NAV_DIAGNOSTICS: NavItem = {
+  id: 'extensions-atw',
+  icon: SupportDiagnosticsIcon,
+  text: 'Diagnostics',
+  url: EXTENSIONS_ATW_PATH,
+  matches: ['*'],
+  ...TECH_PREVIEW,
 };
 
 //
@@ -610,6 +646,13 @@ export const section = (id: string, text: string): NavItem => ({
   type: 'menu-section',
   text,
 });
+
+export const NAV_SECTIONS = {
+  technologies: section('technologies', 'Monitor'),
+  analysis: section('analysis', 'Analyze'),
+  browse: section('browse', 'Browse'),
+  administration: section('administration', 'Administer'),
+};
 
 //
 // Configuration
@@ -791,6 +834,23 @@ export const NAV_HIGH_AVAILABILITY: NavItem = {
 //
 // Apps
 //
+export const NAV_APPS: NavItem = {
+  id: 'apps',
+  icon: AppsRounded,
+  text: 'Apps',
+};
+
+// Its own tabs carry Fleet, Nodes, Automations and Settings, so it needs one
+// entry, highlighted on all of them.
+export const NAV_OM: NavItem = {
+  id: 'app-operations-for-mongodb',
+  text: 'Operations for MongoDB',
+  url: OM_PATH,
+  matches: ['*'],
+  badge: createElement(PreviewChip, { level: 'developer' }),
+  badgeAlwaysVisible: true,
+};
+
 // Listed under Apps, under their heading. Grafana's backup pages have no tabs
 // of their own, so each one is an entry.
 export const NAV_BACKUPS: NavItem[] = [
@@ -823,4 +883,5 @@ export const NAV_EXTENSIONS_MYSQL_BACKUPS: NavItem = {
   text: 'MySQL Backups',
   url: EXTENSIONS_MYSQL_BACKUPS_PATH,
   matches: ['*'],
+  ...TECH_PREVIEW,
 };

@@ -1,16 +1,6 @@
-import AppsRounded from '@mui/icons-material/AppsRounded';
-import TrackChanges from '@mui/icons-material/TrackChanges';
-import { SupportDiagnosticsIcon } from '@percona/peak-ui';
 import type { ColorMode } from '@pmm/shared';
-import { PreviewChip } from 'components/preview-chip';
-import { createElement } from 'react';
 import type { CombinedSettings } from 'contexts/settings';
-import {
-  EXTENSIONS_ATW_PATH,
-  OM_PATH,
-  PMM_NEW_NAV_GRAFANA_PATH,
-  PMM_NEW_NAV_PATH,
-} from 'lib/constants';
+import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import type { DashboardFolder } from 'types/folders.types';
 import type { HAInfo } from 'types/ha.types';
 import type { NavItem } from 'types/navigation.types';
@@ -18,7 +8,9 @@ import { ServiceType } from 'types/services.types';
 import type { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import type { User } from 'types/user.types';
 import {
+  NAV_APPS,
   NAV_BACKUPS,
+  NAV_DIAGNOSTICS,
   NAV_EXPLORE,
   NAV_EXTENSIONS_MYSQL_BACKUPS,
   NAV_FOLDER_MAP,
@@ -26,13 +18,15 @@ import {
   NAV_INVENTORY,
   NAV_MONGO,
   NAV_MYSQL,
+  NAV_OM,
   NAV_OS,
   NAV_OTHER_DASHBOARDS_TEMPLATE,
   NAV_POSTGRESQL,
   NAV_QAN,
+  NAV_REALTIME_QUERIES,
+  NAV_SECTIONS,
   NAV_SIGN_IN,
   NAV_VALKEY,
-  section,
 } from './navigation.constants';
 import {
   addAccount,
@@ -42,15 +36,6 @@ import {
   addDashboards,
   addHighAvailability,
 } from './navigation.utils';
-
-// The sidebar, read top to bottom (see PMM-15353).
-
-export const NAV_SECTIONS = {
-  technologies: section('technologies', 'Monitor'),
-  analysis: section('analysis', 'Analyze'),
-  browse: section('browse', 'Browse'),
-  administration: section('administration', 'Administer'),
-};
 
 // A copy of the technology's menu with its Grafana folder of other dashboards
 // appended, so the shared constant never changes.
@@ -83,50 +68,6 @@ const TECHNOLOGIES: [ServiceType | undefined, NavItem][] = [
   [undefined, NAV_OS],
 ];
 
-// Stored query metrics and live query sessions are separate jobs, so each is
-// its own entry rather than a tab inside one Query analytics page.
-export const NAV_REALTIME_QUERIES: NavItem = {
-  id: 'realtime-queries',
-  icon: TrackChanges,
-  text: 'Real-time queries',
-  url: `${PMM_NEW_NAV_PATH}/rta`,
-  matches: ['*'],
-};
-
-// PMM Extensions apps are a technical preview.
-const TECH_PREVIEW: Pick<NavItem, 'badge' | 'badgeAlwaysVisible'> = {
-  badge: createElement(PreviewChip, { level: 'tech' }),
-  badgeAlwaysVisible: true,
-};
-
-// The ATW app runs diagnostic checks against monitored databases; sending the
-// results to a Percona Support case is one action inside it, not its purpose.
-export const NAV_DIAGNOSTICS: NavItem = {
-  id: 'extensions-atw',
-  icon: SupportDiagnosticsIcon,
-  text: 'Diagnostics',
-  url: EXTENSIONS_ATW_PATH,
-  matches: ['*'],
-  ...TECH_PREVIEW,
-};
-
-// Its own tabs carry Fleet, Nodes, Automations and Settings, so it needs one
-// entry, highlighted on all of them.
-export const NAV_OM: NavItem = {
-  id: 'app-operations-for-mongodb',
-  text: 'Operations for MongoDB',
-  url: OM_PATH,
-  matches: ['*'],
-  badge: createElement(PreviewChip, { level: 'developer' }),
-  badgeAlwaysVisible: true,
-};
-
-export const NAV_APPS: NavItem = {
-  id: 'apps',
-  icon: AppsRounded,
-  text: 'Apps',
-};
-
 export interface NavTreeInput {
   user?: User;
   isLoggedIn: boolean;
@@ -144,6 +85,7 @@ export interface NavTreeInput {
 const withSection = (heading: NavItem, items: NavItem[]): NavItem[] =>
   items.length ? [heading, ...items] : [];
 
+// The sidebar, read top to bottom (see PMM-15353).
 export const buildNavTree = ({
   user,
   isLoggedIn,
@@ -199,7 +141,7 @@ export const buildNavTree = ({
   }
 
   if (extensions) {
-    apps.push({ ...NAV_EXTENSIONS_MYSQL_BACKUPS, ...TECH_PREVIEW });
+    apps.push(NAV_EXTENSIONS_MYSQL_BACKUPS);
   }
 
   if (user?.isPMMAdmin && settings?.backupManagementEnabled) {

@@ -10,6 +10,7 @@ import { NavigationProvider } from './navigation.provider';
 import { useNavigation } from './navigation.hooks';
 import {
   NAV_ALERTS,
+  NAV_DIAGNOSTICS,
   NAV_HELP,
   NAV_INVENTORY,
   NAV_MONGO,
@@ -17,10 +18,10 @@ import {
   NAV_OS,
   NAV_POSTGRESQL,
   NAV_QAN,
+  NAV_REALTIME_QUERIES,
   NAV_SIGN_IN,
   NAV_VALKEY,
 } from './navigation.constants';
-import { NAV_DIAGNOSTICS, NAV_REALTIME_QUERIES } from './navigation.tree';
 
 const serviceTypes = vi.hoisted(() => ({ current: [] as string[] }));
 
