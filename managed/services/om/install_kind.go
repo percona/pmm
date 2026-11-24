@@ -100,6 +100,7 @@ func InstallKind() OperationKind {
 		},
 		OnEnterRunning: installOnEnterRunning,
 		OnSucceeded:    installOnSucceeded,
+		OnTerminal:     installOnTerminal,
 		CheckSet:       installReadinessCheckSet(),
 		Subjects: func(op *models.OmOperation) []CheckSubject {
 			params := installParamsOf(op)
