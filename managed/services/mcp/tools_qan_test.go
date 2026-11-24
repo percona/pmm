@@ -829,9 +829,7 @@ func TestQueryDetailTool(t *testing.T) {
 			{"Neither", "", noExample, ""},
 		} {
 			api := newMockPmmAPI(t)
-			// qan-api2 never fills the metadata's service_id; one that is set must still be ignored.
-			api.On("GetMetrics", mock.Anything, mock.Anything, mock.Anything).
-				Return(&queryMetrics{Fingerprint: "SELECT ?", Metadata: &queryMetadata{ServiceID: "svc-metadata"}}, nil)
+			api.On("GetMetrics", mock.Anything, mock.Anything, mock.Anything).Return(&queryMetrics{Fingerprint: "SELECT ?", Metadata: &queryMetadata{}}, nil)
 			api.On("GetQueryExample", mock.Anything, mock.Anything, mock.Anything).Return(tc.examples, nil)
 			s, err := New(Params{API: api, Enabled: func() bool { return true }})
 			require.NoError(t, err)

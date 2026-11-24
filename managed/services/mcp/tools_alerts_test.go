@@ -556,7 +556,7 @@ func TestAlertsTool(t *testing.T) {
 		fake := newFakePMM(t, alertsRoutes())
 		s := newQANService(t, fake, false)
 		session := connect(t, s)
-		key := callerKey(callerAuth{authorization: testToken})
+		key := keyOf(callerAuth{authorization: testToken})
 
 		releases := make([]func(), 0, maxMetricCallsPerCaller)
 		for range maxMetricCallsPerCaller {

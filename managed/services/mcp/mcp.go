@@ -149,10 +149,10 @@ func New(params Params) (*Service, error) {
 		actionTimeout:   cmp.Or(params.ActionTimeout, DefaultActionTimeout),
 		publicAddress:   params.PublicAddress,
 		now:             time.Now,
-		live:            newLimiter(maxLiveCallsPerCaller, maxLiveCallsPerReplica),
-		liveByService:   newLimiter(maxLiveCallsPerService, maxLiveCallsPerReplica),
+		live:            newLimiter("live-inspection", maxLiveCallsPerCaller, maxLiveCallsPerReplica),
+		liveByService:   newLimiter("live-inspection", maxLiveCallsPerService, maxLiveCallsPerReplica),
 		liveServiceWait: liveServiceWait,
-		metrics:         newLimiter(maxMetricCallsPerCaller, maxMetricCallsPerReplica),
+		metrics:         newLimiter("metric", maxMetricCallsPerCaller, maxMetricCallsPerReplica),
 		liveRate:        newRateLimiter(liveCallsPerMinute, liveCallsBurst),
 		metricRate:      newRateLimiter(metricCallsPerMinute, metricCallsBurst),
 		callMetrics:     newCallMetrics(),
@@ -163,11 +163,7 @@ func New(params Params) (*Service, error) {
 		s.enabled = func() bool { return false }
 	}
 	if s.api == nil {
-		loopback := params.LoopbackURL
-		if loopback == "" {
-			loopback = DefaultLoopbackURL
-		}
-		c, err := newClient(loopback)
+		c, err := newClient(cmp.Or(params.LoopbackURL, DefaultLoopbackURL))
 		if err != nil {
 			return nil, fmt.Errorf("mcp: %w", err)
 		}
@@ -189,7 +185,7 @@ func New(params Params) (*Service, error) {
 	})
 	s.registerTools(server)
 
-	s.handler = http.NewCrossOriginProtection().Handler(refuseBatches(withAfterRequest(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
+	s.handler = http.NewCrossOriginProtection().Handler(refuseBatches(withRequestContext(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server {
 		return server
 	}, &mcp.StreamableHTTPOptions{
 		// No session table: every request carries its own credentials and is
@@ -231,22 +227,16 @@ func (s *Service) Handler() http.Handler {
 	})
 }
 
-// afterRequestKey is the context key of withAfterRequest's function.
-type afterRequestKey struct{}
+// requestContextKey is the context key under which withRequestContext stores the HTTP request's context.
+type requestContextKey struct{}
 
-// afterRequestFunc runs f when the HTTP request ends, and returns a function that stops it, as context.AfterFunc does.
-type afterRequestFunc func(f func()) func() bool
-
-// withAfterRequest stores an afterRequestFunc among the request's context values, which the SDK passes on to a tool
-// call, so that addTool can cancel the call when the request ends; the SDK's PropagateRequestCancellation covers
-// protocol 2026-07-28 only.
-func withAfterRequest(next http.Handler) http.Handler {
+// withRequestContext stores the request's context among its own values, which the SDK passes on to a tool call without
+// the request's cancellation, so that addTool can cancel the call when the request ends; the SDK's
+// PropagateRequestCancellation covers protocol 2026-07-28 only.
+func withRequestContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
-		after := afterRequestFunc(func(f func()) func() bool {
-			return context.AfterFunc(ctx, f)
-		})
-		next.ServeHTTP(rw, req.WithContext(context.WithValue(ctx, afterRequestKey{}, after)))
+		next.ServeHTTP(rw, req.WithContext(context.WithValue(ctx, requestContextKey{}, ctx)))
 	})
 }
 

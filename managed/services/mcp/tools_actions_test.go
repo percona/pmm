@@ -1147,7 +1147,7 @@ func TestSchemaTool(t *testing.T) {
 		mongoExplain(fake)
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
-		key := callerKey(callerAuth{authorization: testToken})
+		key := keyOf(callerAuth{authorization: testToken})
 		relService, hit := s.liveByService.acquire("svc-mongo")
 		require.Equal(t, limitNone, hit)
 		defer relService()
@@ -1178,7 +1178,7 @@ func TestSchemaTool(t *testing.T) {
 		s := newQANService(t, fake, true)
 		s.liveServiceWait = 50 * time.Millisecond
 		session := connect(t, s)
-		key := callerKey(callerAuth{authorization: testToken})
+		key := keyOf(callerAuth{authorization: testToken})
 		rel1, hit := s.live.acquire(key)
 		require.Equal(t, limitNone, hit)
 		rel2, hit := s.live.acquire(key)
@@ -1779,7 +1779,7 @@ func headers(text string) []string {
 func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Parallel()
 
-	key := callerKey(callerAuth{authorization: testToken})
+	key := keyOf(callerAuth{authorization: testToken})
 	take := func(t *testing.T, s *Service, key string) func() {
 		t.Helper()
 

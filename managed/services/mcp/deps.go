@@ -37,25 +37,24 @@ import (
 type callerAuth struct {
 	authorization string
 	cookie        string
+	// key identifies the caller to the limits, as callerKey builds it.
+	key string
 }
 
 // callerAuthFromHeader extracts the caller's credentials from the MCP request headers.
 func callerAuthFromHeader(h http.Header) callerAuth {
 	token := auth.GetTokenFromHeaders(h)
 	if token != "" {
-		return callerAuth{authorization: "Bearer " + token}
+		return callerAuth{authorization: "Bearer " + token, key: callerKey(token, "", "")}
 	}
 
-	return callerAuth{
-		authorization: h.Get("Authorization"),
-		cookie:        h.Get("Cookie"),
-	}
+	authorization, cookie := h.Get("Authorization"), h.Get("Cookie")
+	return callerAuth{authorization: authorization, cookie: cookie, key: callerKey("", authorization, cookie)}
 }
 
 // datasource is a Grafana datasource as returned by GET /graph/api/datasources/name/{name}.
 type datasource struct {
 	UID  string `json:"uid"`
-	Name string `json:"name"`
 	Type string `json:"type"`
 }
 
@@ -68,7 +67,7 @@ type metricSample struct {
 // lenientFloat decodes a JSON number or a numeric string: qan-api2 (grpc-gateway
 // with protojson) encodes NaN and infinite float values as the strings "NaN",
 // "Infinity" and "-Infinity" - live-observed in sparkline fields on 3.8.1 -
-// which the generated go-swagger client rejects for float32 fields.
+// which the generated response types reject for float32 fields.
 type lenientFloat float64
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -119,25 +118,16 @@ func nullable(v float64) *float64 {
 // metricStats is the per-metric statistics block of QAN responses
 // (Stat in qan.v1 profile.proto, MetricValues in qan.v1 object_details.proto).
 type metricStats struct {
-	Rate           lenientFloat `json:"rate"`
-	Cnt            lenientFloat `json:"cnt"`
-	Sum            lenientFloat `json:"sum"`
-	Min            lenientFloat `json:"min"`
-	Max            lenientFloat `json:"max"`
-	P99            lenientFloat `json:"p99"`
-	Avg            lenientFloat `json:"avg"`
-	SumPerSec      lenientFloat `json:"sum_per_sec"`
-	PercentOfTotal lenientFloat `json:"percent_of_total"`
+	Sum       lenientFloat `json:"sum"`
+	Avg       lenientFloat `json:"avg"`
+	SumPerSec lenientFloat `json:"sum_per_sec"`
 }
 
 // qanReportRow is one row of POST /v1/qan/metrics:getReport.
 type qanReportRow struct {
-	Rank        int64        `json:"rank"`
 	Dimension   string       `json:"dimension"`
-	Database    string       `json:"database"`
 	Fingerprint string       `json:"fingerprint"`
 	NumQueries  lenientFloat `json:"num_queries"`
-	QPS         lenientFloat `json:"qps"`
 	Load        lenientFloat `json:"load"`
 	Metrics     map[string]struct {
 		Stats *metricStats `json:"stats"`
@@ -152,24 +142,15 @@ type qanReport struct {
 
 // queryMetadata is the metadata block of POST /v1/qan:getMetrics.
 type queryMetadata struct {
-	ServiceName    string `json:"service_name"`
-	Database       string `json:"database"`
-	Schema         string `json:"schema"`
-	Username       string `json:"username"`
-	ReplicationSet string `json:"replication_set"`
-	Cluster        string `json:"cluster"`
-	ServiceType    string `json:"service_type"`
-	ServiceID      string `json:"service_id"`
-	Environment    string `json:"environment"`
-	NodeID         string `json:"node_id"`
-	NodeName       string `json:"node_name"`
-	NodeType       string `json:"node_type"`
+	ServiceName string `json:"service_name"`
+	Database    string `json:"database"`
+	Schema      string `json:"schema"`
+	ServiceType string `json:"service_type"`
 }
 
 // queryMetrics is the response of POST /v1/qan:getMetrics, without sparklines.
 type queryMetrics struct {
 	Metrics     map[string]metricStats `json:"metrics"`
-	TextMetrics map[string]string      `json:"text_metrics"`
 	Fingerprint string                 `json:"fingerprint"`
 	Metadata    *queryMetadata         `json:"metadata"`
 }
@@ -187,9 +168,6 @@ type grafanaAlert struct {
 	Silenced   bool
 	// SilencedUntil is the latest end of the silences that mute the alert; nil when it is not silenced or no end is known.
 	SilencedUntil *time.Time
-
-	// labelKey is labelSetKey of Labels, set before the alerts are sorted so that each key is built once.
-	labelKey string
 }
 
 // amAlertStatus is the status of an alert of Grafana's Alertmanager.

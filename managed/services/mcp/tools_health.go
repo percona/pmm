@@ -491,7 +491,7 @@ func (s *Service) runSignal(ctx context.Context, rr rangeRequest, sig signal, qu
 		res.Error = partErrorOf(err)
 		return res, err
 	}
-	series, err := s.api.QueryRange(ctx, rr.auth, rr.uid, promRequest{Query: query, Start: rr.start, End: rr.end, Step: rr.step, Timeout: metricsTimeout})
+	series, err := s.api.QueryRange(ctx, rr.auth, rr.uid, promRequest{Query: query, Start: rr.start, End: rr.end, Step: rr.step})
 	if err != nil {
 		res.Error = partErrorOf(err)
 		return res, err

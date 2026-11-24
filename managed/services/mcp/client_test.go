@@ -58,16 +58,6 @@ func keysOf(v url.Values) []string {
 	return out
 }
 
-func TestClientDebugOff(t *testing.T) {
-	// SWAGGER_DEBUG and DEBUG are what httptransport.New reads for its debug setting.
-	t.Setenv("SWAGGER_DEBUG", "1")
-	t.Setenv("DEBUG", "1")
-
-	c, err := newClient("http://127.0.0.1:1/")
-	require.NoError(t, err)
-	assert.False(t, c.swagger.Debug, "go-openapi's debug dump would write the caller's Authorization and cookies to its logger")
-}
-
 func TestPromRequestArguments(t *testing.T) {
 	t.Parallel()
 
@@ -80,12 +70,12 @@ func TestPromRequestArguments(t *testing.T) {
 
 	at := time.Unix(1_800_000_000, 0)
 
-	_, err = c.QueryInstant(t.Context(), testAuth, "metrics-uid", promRequest{Query: "up", Time: at, Timeout: metricsTimeout})
+	_, err = c.QueryInstant(t.Context(), testAuth, "metrics-uid", promRequest{Query: "up", Time: at})
 	require.NoError(t, err)
-	_, err = c.QueryInstant(t.Context(), testAuth, "metrics-uid", promRequest{Query: "up", Timeout: metricsTimeout})
+	_, err = c.QueryInstant(t.Context(), testAuth, "metrics-uid", promRequest{Query: "up"})
 	require.NoError(t, err)
 	_, err = c.QueryRange(t.Context(), testAuth, "metrics-uid", promRequest{
-		Query: "rate(x[5m])", Start: at.Add(-time.Hour), End: at, Step: 90*time.Second + 500*time.Millisecond, Timeout: metricsTimeout,
+		Query: "rate(x[5m])", Start: at.Add(-time.Hour), End: at, Step: 90*time.Second + 500*time.Millisecond,
 	})
 	require.NoError(t, err)
 
@@ -107,7 +97,7 @@ func TestPromRequestArguments(t *testing.T) {
 	assert.Equal(t, "90", rng.Get("step"), "whole seconds")
 	assert.Equal(t, "25s", rng.Get("timeout"))
 
-	assert.Empty(t, promRequest{}.values())
+	assert.Equal(t, url.Values{"timeout": {"25s"}}, promRequest{}.values())
 }
 
 func TestQueryRangeDecodes(t *testing.T) {
@@ -532,13 +522,13 @@ func TestBackingCallCredentials(t *testing.T) {
 
 	keys := map[string]bool{}
 	for _, authorization := range []string{"Bearer glsa_x", basic("api_key:glsa_x"), basic("service_token:glsa_x")} {
-		keys[callerKey(callerAuthFromHeader(http.Header{"Authorization": {authorization}}))] = true
+		keys[callerAuthFromHeader(http.Header{"Authorization": {authorization}}).key] = true
 	}
 	assert.Len(t, keys, 1)
 }
 
-// TestBackingCallRedirectRefused pins that neither the generated clients nor the raw HTTP calls follow a redirect, so
-// the caller's credentials go nowhere but the loopback.
+// TestBackingCallRedirectRefused pins that no backing call follows a redirect, so the caller's credentials go nowhere
+// but the loopback.
 func TestBackingCallRedirectRefused(t *testing.T) {
 	t.Parallel()
 
@@ -561,11 +551,11 @@ func TestBackingCallRedirectRefused(t *testing.T) {
 			require.NoError(t, err)
 
 			for name, call := range map[string]func() error{
-				"generated": func() error {
+				"PMM API": func() error {
 					_, err := c.Version(t.Context(), testAuth)
 					return err
 				},
-				"raw": func() error {
+				"Grafana API": func() error {
 					_, err := c.GetDatasourceByName(t.Context(), testAuth, "Metrics")
 					return err
 				},

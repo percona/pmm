@@ -56,15 +56,20 @@ func (s *Service) publicBaseURL(ctx context.Context, h http.Header) string {
 	return ""
 }
 
-// qanOverviewURL links to the QAN ranked overview for a service and window.
-func qanOverviewURL(base, serviceName string, from, to time.Time) string {
+// windowQuery is a dashboard's time range [from, to] and, when serviceName is set, its service_name variable.
+func windowQuery(serviceName string, from, to time.Time) url.Values {
 	q := url.Values{}
 	q.Set("from", strconv.FormatInt(from.UnixMilli(), 10))
 	q.Set("to", strconv.FormatInt(to.UnixMilli(), 10))
 	if serviceName != "" {
 		q.Set("var-service_name", serviceName)
 	}
-	return base + qanPath + "?" + q.Encode()
+	return q
+}
+
+// qanOverviewURL links to the QAN ranked overview for a service and window.
+func qanOverviewURL(base, serviceName string, from, to time.Time) string {
+	return base + qanPath + "?" + windowQuery(serviceName, from, to).Encode()
 }
 
 // serviceURL links to the engine's instance summary dashboard for a service,
@@ -91,18 +96,13 @@ func serviceWindowURL(base string, svc serviceInfo, from, to time.Time) string {
 	if u == "" {
 		return ""
 	}
-	return u + "&from=" + strconv.FormatInt(from.UnixMilli(), 10) + "&to=" + strconv.FormatInt(to.UnixMilli(), 10)
+	return u + "&" + windowQuery("", from, to).Encode()
 }
 
 // qanQueryURL links to QAN with one query pre-selected; detailsTab may be
 // "" (default), "explain" or "tables".
 func qanQueryURL(base, queryID, serviceName string, from, to time.Time, detailsTab string) string {
-	q := url.Values{}
-	q.Set("from", strconv.FormatInt(from.UnixMilli(), 10))
-	q.Set("to", strconv.FormatInt(to.UnixMilli(), 10))
-	if serviceName != "" {
-		q.Set("var-service_name", serviceName)
-	}
+	q := windowQuery(serviceName, from, to)
 	q.Set("filter_by", queryID)
 	q.Set("query_selected", "true")
 	if detailsTab != "" {

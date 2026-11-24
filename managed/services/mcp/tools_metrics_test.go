@@ -331,7 +331,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		fake := newFakePMM(t, metricsRoutes(nil))
 		s := newQANService(t, fake, false)
 		args := map[string]any{"query": questions}
-		key := callerKey(callerAuth{authorization: testToken})
+		key := keyOf(callerAuth{authorization: testToken})
 
 		releases := make([]func(), 0, maxMetricCallsPerCaller)
 		for range maxMetricCallsPerCaller {
@@ -1334,7 +1334,7 @@ func TestListMetricsTool(t *testing.T) {
 
 		fake := newFakePMM(t, listRoutes(nil))
 		s := newQANService(t, fake, false)
-		key := callerKey(callerAuth{authorization: testToken})
+		key := keyOf(callerAuth{authorization: testToken})
 		releases := make([]func(), 0, maxMetricCallsPerCaller)
 		for range maxMetricCallsPerCaller - 1 {
 			release, hit := s.metrics.acquire(key)

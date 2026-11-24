@@ -38,7 +38,7 @@ import (
 func TestLimiter(t *testing.T) {
 	t.Parallel()
 
-	l := newLimiter(2, 3)
+	l := newLimiter("test", 2, 3)
 	relA1, hit1 := l.acquire("a")
 	relA2, hit2 := l.acquire("a")
 	_, hit3 := l.acquire("a")
@@ -66,7 +66,7 @@ func TestLimiter(t *testing.T) {
 func TestLimiterPerService(t *testing.T) {
 	t.Parallel()
 
-	l := newLimiter(maxLiveCallsPerService, maxLiveCallsPerReplica)
+	l := newLimiter("live-inspection", maxLiveCallsPerService, maxLiveCallsPerReplica)
 	rel1, hit := l.acquire("svc-1")
 	require.Equal(t, limitNone, hit)
 	_, hit = l.acquire("svc-1")
@@ -90,37 +90,37 @@ func TestCallerKey(t *testing.T) {
 	t.Run("SameCaller", func(t *testing.T) {
 		t.Parallel()
 
-		bearer := callerKey(callerAuth{authorization: "Bearer T"})
-		assert.Equal(t, bearer, callerKey(callerAuth{authorization: basic("service_token:T")}))
-		assert.Equal(t, bearer, callerKey(callerAuth{authorization: "Bearer T", cookie: "x=1"}))
-		assert.Equal(t, bearer, callerKey(callerAuth{authorization: "Bearer T", cookie: "pmm_session=s"}))
+		bearer := keyOf(callerAuth{authorization: "Bearer T"})
+		assert.Equal(t, bearer, keyOf(callerAuth{authorization: basic("service_token:T")}))
+		assert.Equal(t, bearer, keyOf(callerAuth{authorization: "Bearer T", cookie: "x=1"}))
+		assert.Equal(t, bearer, keyOf(callerAuth{authorization: "Bearer T", cookie: "pmm_session=s"}))
 
-		alice := callerKey(callerAuth{authorization: basic("alice:pw")})
-		assert.Equal(t, alice, callerKey(callerAuth{authorization: basic("ALICE:pw")}))
+		alice := keyOf(callerAuth{authorization: basic("alice:pw")})
+		assert.Equal(t, alice, keyOf(callerAuth{authorization: basic("ALICE:pw")}))
 
-		both := callerKey(callerAuth{authorization: basic("alice:pw"), cookie: "pmm_session=s"})
-		assert.Equal(t, both, callerKey(callerAuth{authorization: basic("bob:x"), cookie: "pmm_session=t"}))
+		both := keyOf(callerAuth{authorization: basic("alice:pw"), cookie: "pmm_session=s"})
+		assert.Equal(t, both, keyOf(callerAuth{authorization: basic("bob:x"), cookie: "pmm_session=t"}))
 		assert.NotEqual(t, both, alice)
-		assert.NotEqual(t, both, callerKey(callerAuth{cookie: "pmm_session=s"}))
-		assert.NotEqual(t, both, callerKey(callerAuth{}))
+		assert.NotEqual(t, both, keyOf(callerAuth{cookie: "pmm_session=s"}))
+		assert.NotEqual(t, both, keyOf(callerAuth{}))
 
-		assert.Equal(t, callerKey(callerAuth{cookie: "pmm_session=abc"}), callerKey(callerAuth{cookie: "pmm_session=%61bc"}))
+		assert.Equal(t, keyOf(callerAuth{cookie: "pmm_session=abc"}), keyOf(callerAuth{cookie: "pmm_session=%61bc"}))
 
-		session := callerKey(callerAuth{cookie: "pmm_session=s1"})
-		assert.Equal(t, session, callerKey(callerAuth{cookie: "pmm_session=s1; other=1"}))
+		session := keyOf(callerAuth{cookie: "pmm_session=s1"})
+		assert.Equal(t, session, keyOf(callerAuth{cookie: "pmm_session=s1; other=1"}))
 	})
 
 	t.Run("DifferentCallers", func(t *testing.T) {
 		t.Parallel()
 
 		keys := []string{
-			callerKey(callerAuth{authorization: "Bearer T1"}),
-			callerKey(callerAuth{authorization: "Bearer T2"}),
-			callerKey(callerAuth{authorization: basic("alice:pw")}),
-			callerKey(callerAuth{authorization: basic("bob:pw")}),
-			callerKey(callerAuth{cookie: "pmm_session=s1"}),
-			callerKey(callerAuth{cookie: "pmm_session=s2"}),
-			callerKey(callerAuth{}),
+			keyOf(callerAuth{authorization: "Bearer T1"}),
+			keyOf(callerAuth{authorization: "Bearer T2"}),
+			keyOf(callerAuth{authorization: basic("alice:pw")}),
+			keyOf(callerAuth{authorization: basic("bob:pw")}),
+			keyOf(callerAuth{cookie: "pmm_session=s1"}),
+			keyOf(callerAuth{cookie: "pmm_session=s2"}),
+			keyOf(callerAuth{}),
 		}
 		seen := map[string]bool{}
 		for _, k := range keys {
@@ -133,7 +133,7 @@ func TestCallerKey(t *testing.T) {
 		t.Parallel()
 
 		sum := sha256.Sum256([]byte("token\x00T"))
-		assert.Equal(t, hex.EncodeToString(sum[:]), callerKey(callerAuth{authorization: "Bearer T"}))
+		assert.Equal(t, hex.EncodeToString(sum[:]), keyOf(callerAuth{authorization: "Bearer T"}))
 	})
 
 	t.Run("NoSecretInKey", func(t *testing.T) {
@@ -144,7 +144,7 @@ func TestCallerKey(t *testing.T) {
 			{authorization: basic("aliceuser:pw")},
 			{cookie: "pmm_session=sessionvalue"},
 		} {
-			key := callerKey(a)
+			key := keyOf(a)
 			for _, secret := range []string{"secrettoken", "aliceuser", "sessionvalue"} {
 				assert.NotContains(t, key, secret)
 			}
@@ -340,7 +340,7 @@ func TestQANWindowCap(t *testing.T) {
 func TestQANCallsShareMetricSlots(t *testing.T) {
 	t.Parallel()
 
-	key := callerKey(callerAuth{authorization: testToken})
+	key := keyOf(callerAuth{authorization: testToken})
 	args := map[string]map[string]any{
 		"pmm_top_queries":  {"period_from": "now-1h"},
 		"pmm_query_detail": {"queryid": "QID-AAA", "period_from": "now-1h"},
@@ -431,7 +431,7 @@ func TestQANCallsShareMetricSlots(t *testing.T) {
 func TestLiveLookupSharesMetricCaps(t *testing.T) {
 	t.Parallel()
 
-	key := callerKey(callerAuth{authorization: testToken})
+	key := keyOf(callerAuth{authorization: testToken})
 	tools := []string{"pmm_get_explain", "pmm_get_schema"}
 
 	t.Run("WindowCap", func(t *testing.T) {
@@ -531,7 +531,7 @@ func TestLiveLookupSharesMetricCaps(t *testing.T) {
 func TestInventoryAndConfigShareMetricCaps(t *testing.T) {
 	t.Parallel()
 
-	key := callerKey(callerAuth{authorization: testToken})
+	key := keyOf(callerAuth{authorization: testToken})
 	args := map[string]map[string]any{
 		"pmm_inventory":  {},
 		"pmm_get_config": {"service_id": "svc-1"},
@@ -585,7 +585,7 @@ func TestInventoryAndConfigShareMetricCaps(t *testing.T) {
 func TestSchemaByNameLookupSharesMetricCaps(t *testing.T) {
 	t.Parallel()
 
-	key := callerKey(callerAuth{authorization: testToken})
+	key := keyOf(callerAuth{authorization: testToken})
 	args := map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}}
 
 	t.Run("RateLimited", func(t *testing.T) {

@@ -243,7 +243,7 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 	}
 
 	if plan.instant {
-		samples, err := s.api.QueryInstant(ctx, auth, uid, promRequest{Query: in.Query, Time: plan.at, Timeout: metricsTimeout})
+		samples, err := s.api.QueryInstant(ctx, auth, uid, promRequest{Query: in.Query, Time: plan.at})
 		if err != nil {
 			return metricsResult{}, narrowIfTooLarge(err, in.Query)
 		}
@@ -262,7 +262,7 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 		notes = append(notes, note)
 	}
 	series, err := s.api.QueryRange(ctx, auth, uid, promRequest{
-		Query: in.Query, Start: plan.start, End: plan.end, Step: plan.step, Timeout: metricsTimeout,
+		Query: in.Query, Start: plan.start, End: plan.end, Step: plan.step,
 	})
 	if err != nil {
 		return metricsResult{}, narrowIfTooLarge(err, in.Query)

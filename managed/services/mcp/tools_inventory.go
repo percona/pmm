@@ -401,7 +401,7 @@ func (s *Service) queryMetrics(ctx context.Context, auth callerAuth, promql stri
 	if err != nil {
 		return nil, err
 	}
-	return s.api.QueryInstant(ctx, auth, uid, promRequest{Query: promql, Time: at, Timeout: metricsTimeout})
+	return s.api.QueryInstant(ctx, auth, uid, promRequest{Query: promql, Time: at})
 }
 
 // metricsDatasourceName is the stable name PMM provisions its VictoriaMetrics

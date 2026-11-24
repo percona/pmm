@@ -96,7 +96,7 @@ func newToolError(code errorCode, format string, args ...any) *toolError {
 }
 
 // statusError is produced by the loopback transport for every non-2xx response
-// so that all generated clients and the raw Grafana calls share one mapping.
+// so that all backing calls share one mapping.
 type statusError struct {
 	status  int
 	method  string

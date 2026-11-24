@@ -633,7 +633,7 @@ func TestServiceHealthLimits(t *testing.T) {
 		c.vmSlots = make(chan struct{}, vmSlots)
 
 		obs := &observed{callSlots: map[int]bool{}, callerSlots: map[int]bool{}, minSlotsSeen: 1 << 30}
-		key := callerKey(callerAuth{authorization: testToken})
+		key := keyOf(callerAuth{authorization: testToken})
 		next := fake.server.Config.Handler
 		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 			if r.URL.Path != vmAPI+"query_range" {

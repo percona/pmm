@@ -49,8 +49,6 @@ const (
 	// Metric calls per minute one caller may start, and how many it may start at once.
 	metricCallsPerMinute = 60
 	metricCallsBurst     = 10
-
-	sessionCookieName = "pmm_session"
 )
 
 // limitHit says which cap refused a call.
@@ -64,6 +62,8 @@ const (
 
 // limiter bounds the calls in flight per key and in total.
 type limiter struct {
+	// kind names the calls in the answer to a refused one, such as "metric".
+	kind      string
 	mu        sync.Mutex
 	perCaller int
 	perTotal  int
@@ -73,8 +73,21 @@ type limiter struct {
 	released chan struct{}
 }
 
-func newLimiter(perCaller, total int) *limiter {
-	return &limiter{perCaller: perCaller, perTotal: total, byKey: map[string]int{}, released: make(chan struct{})}
+func newLimiter(kind string, perCaller, total int) *limiter {
+	return &limiter{kind: kind, perCaller: perCaller, perTotal: total, byKey: map[string]int{}, released: make(chan struct{})}
+}
+
+// refusal is the rate_limited answer to a call that hit refused, or nil for limitNone.
+func (l *limiter) refusal(hit limitHit) error {
+	switch hit {
+	case limitPerCaller:
+		return newToolError(codeRateLimited,
+			"at most %d %s calls can be in flight for these credentials; retry when one finishes", l.perCaller, l.kind)
+	case limitPerReplica:
+		return newToolError(codeRateLimited, "this replica already has %d %s calls in flight; retry when one finishes", l.perTotal, l.kind)
+	case limitNone:
+	}
+	return nil
 }
 
 // acquire takes a slot for key. It returns a release function and limitNone, or nil
@@ -194,7 +207,7 @@ func (r *rateLimiter) refilled(b *bucket, now time.Time) float64 {
 
 // takeToken takes one token from r for the caller, or answers rate_limited with retry_after.
 func (s *Service) takeToken(r *rateLimiter, a callerAuth) error {
-	wait, ok := r.take(callerKey(a), s.now())
+	wait, ok := r.take(a.key, s.now())
 	if ok {
 		return nil
 	}
@@ -203,20 +216,16 @@ func (s *Service) takeToken(r *rateLimiter, a callerAuth) error {
 	return te
 }
 
-// callerKey identifies the caller by a hash of its credential, so that the same
-// token sent as Bearer or Basic, with or without a cookie, counts as one caller.
-func callerKey(a callerAuth) string {
-	h := http.Header{}
-	h.Set("Authorization", a.authorization)
-	if token := auth.GetTokenFromHeaders(h); token != "" {
+// callerKey identifies the caller by a hash of its credential: its token when it sent one, so that the same token sent
+// as Bearer or Basic, with or without a cookie, counts as one caller, else its Basic-auth user or session cookie.
+func callerKey(token, authorization, cookie string) string {
+	if token != "" {
 		return hashKey("token\x00" + token)
 	}
 
-	req := &http.Request{Header: h}
+	req := &http.Request{Header: http.Header{"Authorization": {authorization}, "Cookie": {cookie}}}
 	user, _, isBasic := req.BasicAuth()
-
-	cookieReq := &http.Request{Header: http.Header{"Cookie": {a.cookie}}}
-	c, cookieErr := cookieReq.Cookie(sessionCookieName)
+	c, cookieErr := req.Cookie(auth.SessionCookieName)
 
 	if isBasic && cookieErr == nil {
 		// Grafana falls back from Basic to the session, so neither value alone identifies the caller.
@@ -250,17 +259,10 @@ func (s *Service) startLive(ctx context.Context, a callerAuth, serviceID string)
 	if err != nil {
 		return nil, err
 	}
-	release, hit := s.live.acquire(callerKey(a))
-	switch hit {
-	case limitPerCaller:
+	release, hit := s.live.acquire(a.key)
+	if hit != limitNone {
 		releaseService()
-		return nil, newToolError(codeRateLimited,
-			"at most %d live-inspection calls can be in flight for these credentials; retry when one finishes", maxLiveCallsPerCaller)
-	case limitPerReplica:
-		releaseService()
-		return nil, newToolError(codeRateLimited,
-			"this replica already has %d live-inspection calls in flight; retry when one finishes", maxLiveCallsPerReplica)
-	case limitNone:
+		return nil, s.live.refusal(hit)
 	}
 	err = s.takeToken(s.liveRate, a)
 	if err != nil {
@@ -277,8 +279,6 @@ func (s *Service) startLive(ctx context.Context, a callerAuth, serviceID string)
 // startLiveOn takes the live-inspection slot of a service, waiting up to liveServiceWait for it, or answers rate_limited;
 // a call whose deadline passes while it waits answers rate_limited too.
 func (s *Service) startLiveOn(ctx context.Context, serviceID string) (func(), error) {
-	inFlight := newToolError(codeRateLimited,
-		"a live-inspection call on this service is still in flight after %s; retry when it finishes", s.liveServiceWait)
 	release, hit, err := s.liveByService.acquireWait(ctx, serviceID, s.liveServiceWait)
 	if errors.Is(err, context.DeadlineExceeded) {
 		return nil, newToolError(codeRateLimited,
@@ -287,13 +287,12 @@ func (s *Service) startLiveOn(ctx context.Context, serviceID string) (func(), er
 	if err != nil {
 		return nil, err
 	}
-	switch hit {
-	case limitPerCaller:
-		return nil, inFlight
-	case limitPerReplica:
+	if hit == limitPerCaller {
 		return nil, newToolError(codeRateLimited,
-			"this replica already has %d live-inspection calls in flight; retry when one finishes", maxLiveCallsPerReplica)
-	case limitNone:
+			"a live-inspection call on this service is still in flight after %s; retry when it finishes", s.liveServiceWait)
+	}
+	if hit != limitNone {
+		return nil, s.liveByService.refusal(hit)
 	}
 	return release, nil
 }
@@ -309,15 +308,9 @@ func (s *Service) startMetricCall(a callerAuth) (func(), error) {
 
 // startMetrics takes a metric-call slot for the caller, or answers rate_limited.
 func (s *Service) startMetrics(a callerAuth) (func(), error) {
-	release, hit := s.metrics.acquire(callerKey(a))
-	switch hit {
-	case limitPerCaller:
-		return nil, newToolError(codeRateLimited,
-			"at most %d metric calls can be in flight for these credentials; retry when one finishes", maxMetricCallsPerCaller)
-	case limitPerReplica:
-		return nil, newToolError(codeRateLimited,
-			"this replica already has %d metric calls in flight; retry when one finishes", maxMetricCallsPerReplica)
-	case limitNone:
+	release, hit := s.metrics.acquire(a.key)
+	if hit != limitNone {
+		return nil, s.metrics.refusal(hit)
 	}
 	return release, nil
 }

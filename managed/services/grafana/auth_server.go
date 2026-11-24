@@ -38,6 +38,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 const (
@@ -863,10 +864,6 @@ func (s *AuthServer) retryWithRotatedSession(ctx context.Context, authHeaders ht
 	return sessionCookieForClient(setCookies), u, nil
 }
 
-// sessionCookieName is the name of the Grafana session cookie
-// (login_cookie_name in grafana.ini).
-const sessionCookieName = "pmm_session"
-
 // sessionCookieForClient extracts the rotated session cookie from setCookies and
 // rewrites its path for the top level: Grafana scopes its cookies to the /graph
 // sub-path, but API clients need the session cookie on /v1 paths too (nginx does
@@ -877,7 +874,7 @@ const sessionCookieName = "pmm_session"
 // Grafana page load.
 func sessionCookieForClient(setCookies []string) []string {
 	for _, c := range (&http.Response{Header: http.Header{"Set-Cookie": setCookies}}).Cookies() {
-		if c.Name != sessionCookieName {
+		if c.Name != auth.SessionCookieName {
 			continue
 		}
 		c.Path = "/"

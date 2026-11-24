@@ -54,6 +54,18 @@ func listQueries(f *fakePMM) int {
 	return len(queriesWith(f, "tlast_over_time(up["))
 }
 
+// keyOf is the caller key of a request that sends a's credentials as its Authorization and Cookie headers.
+func keyOf(a callerAuth) string {
+	h := http.Header{}
+	if a.authorization != "" {
+		h.Set("Authorization", a.authorization)
+	}
+	if a.cookie != "" {
+		h.Set("Cookie", a.cookie)
+	}
+	return callerAuthFromHeader(h).key
+}
+
 // fixture is one canned PMM API response, keyed by "METHOD /path", or by "METHOD /path ?TEXT" to answer only a request
 // whose query contains TEXT, ahead of the plain key and of any shorter TEXT.
 type fixture struct {
