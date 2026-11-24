@@ -1,7 +1,7 @@
 # Sourced by build-server-binaries.
 
-# https://github.com/grafana/clickhouse-datasource/releases/tag/v4.23.4
-clickhouse_datasource_version=4.23.4
+# https://github.com/grafana/clickhouse-datasource/releases/tag/v4.23.5
+clickhouse_datasource_version=4.23.5
 # https://github.com/grafana/grafana-polystat-panel/releases/tag/v2.1.16
 polystat_panel_version=2.1.16
 # The Grafana plugin catalog names its builds linux-amd64 and linux-arm64.
