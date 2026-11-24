@@ -67,6 +67,20 @@ type extensionsBootstrapRun struct {
 	CancelRequested bool                              `json:"cancel_requested"`
 }
 
+type extensionsTriggerBootstrapRunRequest struct {
+	Hosts           []string                          `json:"hosts"`
+	InstallMethod   string                            `json:"install_method"`
+	OS              string                            `json:"os"`
+	MongoDBVersion  string                            `json:"mongodb_version"`
+	ReplicaSetName  string                            `json:"replica_set_name"`
+	DataPath        string                            `json:"data_path"`
+	LogPath         string                            `json:"log_path"`
+	Port            uint32                            `json:"port"`
+	BindIP          string                            `json:"bind_ip"`
+	MemberConfigs   map[string]extensionsMemberConfig `json:"member_configs,omitempty"`
+	CreateAdminUser bool                              `json:"create_admin_user,omitempty"`
+}
+
 // extensionsMemberConfig uses pointers so unset fields are omitted and om_bootstrap's defaults apply;
 // zero Priority and Votes would ask for a member that can neither vote nor be elected.
 type extensionsMemberConfig struct {
@@ -168,6 +182,19 @@ func (c *bootstrapClient) supportedReleases(ctx context.Context) ([]extensionsSu
 		return nil, err
 	}
 	return distributions, nil
+}
+
+func (c *bootstrapClient) triggerRun(ctx context.Context, req extensionsTriggerBootstrapRunRequest) (*extensionsBootstrapRun, error) {
+	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
+	defer cancel()
+
+	run := &extensionsBootstrapRun{}
+	call := inventoryCall{method: http.MethodPost, path: "runs", body: req}
+	err := c.app.call(ctx, call, run)
+	if err != nil {
+		return nil, err
+	}
+	return run, nil
 }
 
 func (c *bootstrapClient) dispatchStep(ctx context.Context, runID, host, stepName string, params map[string]string) (*extensionsBootstrapRun, error) {
