@@ -62,6 +62,14 @@
     group: root
     mode: 0770
 
+- name: Create a directory for credential files
+  file:
+    path: /run/pmm
+    state: directory
+    owner: pmm
+    group: root
+    mode: 0770
+
 - name: Create /etc/supervisord.d dir
   file:
     path: /etc/supervisord.d
