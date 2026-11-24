@@ -36,7 +36,10 @@ export interface DetailsPaneLabels {
 }
 
 /** Props for an icon button in the pane header; `data-testid` is allowed. */
-export type DetailsPaneButtonProps = Omit<IconButtonProps, 'onClick' | 'disabled' | 'children'> & {
+export type DetailsPaneButtonProps = Omit<
+  IconButtonProps,
+  'onClick' | 'disabled' | 'children'
+> & {
   /** Test id for the button. */
   'data-testid'?: string;
 };

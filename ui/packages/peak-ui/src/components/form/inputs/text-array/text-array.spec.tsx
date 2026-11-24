@@ -39,7 +39,9 @@ it('should add / remove fields', () => {
 
 it('should store edits to an existing row', () => {
   const StoredValue = () => (
-    <span data-testid="stored-value">{useWatch({ name: 'people.0.person' })}</span>
+    <span data-testid="stored-value">
+      {useWatch({ name: 'people.0.person' })}
+    </span>
   );
 
   render(

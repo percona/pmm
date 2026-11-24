@@ -29,7 +29,9 @@ function UrlStateHarness({
   return (
     <>
       <div data-testid="global-filter">{tableProps.state.globalFilter}</div>
-      <div data-testid="global-filter-type">{typeof tableProps.state.globalFilter}</div>
+      <div data-testid="global-filter-type">
+        {typeof tableProps.state.globalFilter}
+      </div>
       <div data-testid="sorting">
         {tableProps.state.sorting
           .map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`)
@@ -84,7 +86,9 @@ function UrlStateHarness({
       <button
         type="button"
         data-testid="clear-global-filter"
-        onClick={() => tableProps.onGlobalFilterChange(undefined as unknown as string)}
+        onClick={() =>
+          tableProps.onGlobalFilterChange(undefined as unknown as string)
+        }
       >
         Clear search
       </button>

@@ -1,6 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form';
+import {
+  FormProvider,
+  useForm,
+  useFormContext,
+  useWatch,
+} from 'react-hook-form';
 import { MenuItem, TextFieldProps } from '@mui/material';
 import TextInput from './text';
 
@@ -27,9 +32,12 @@ const Form = ({
 };
 
 const type = (value: string) =>
-  fireEvent.change(screen.getByTestId('text-input-host'), { target: { value } });
+  fireEvent.change(screen.getByTestId('text-input-host'), {
+    target: { value },
+  });
 
-const storedValue = () => JSON.parse(screen.getByTestId('stored-value').textContent ?? '');
+const storedValue = () =>
+  JSON.parse(screen.getByTestId('stored-value').textContent ?? '');
 
 describe('TextInput', () => {
   it('stores the raw text when no onChange is given', () => {
@@ -42,8 +50,13 @@ describe('TextInput', () => {
   });
 
   it('stores the value returned by textFieldProps.onChange', () => {
-    const toUpper = (e: React.ChangeEvent<HTMLInputElement>) => e.target.value.toUpperCase();
-    render(<Form textFieldProps={{ onChange: toUpper as TextFieldProps['onChange'] }} />);
+    const toUpper = (e: React.ChangeEvent<HTMLInputElement>) =>
+      e.target.value.toUpperCase();
+    render(
+      <Form
+        textFieldProps={{ onChange: toUpper as TextFieldProps['onChange'] }}
+      />
+    );
 
     type('abc');
 
@@ -98,7 +111,9 @@ describe('TextInput', () => {
         <TextInput
           name="host"
           textFieldProps={{
-            InputProps: { onChange: () => (storedWhenCalled = getValues('host')) },
+            InputProps: {
+              onChange: () => (storedWhenCalled = getValues('host')),
+            },
           }}
         />
       );
@@ -117,7 +132,13 @@ describe('TextInput', () => {
 
   it('stores the text when slotProps.input is a callback with its own onChange', () => {
     const onInputChange = vi.fn();
-    render(<Form textFieldProps={{ slotProps: { input: () => ({ onChange: onInputChange }) } }} />);
+    render(
+      <Form
+        textFieldProps={{
+          slotProps: { input: () => ({ onChange: onInputChange }) },
+        }}
+      />
+    );
 
     type('abc');
 
@@ -128,14 +149,20 @@ describe('TextInput', () => {
   it.each<[string, TextFieldProps]>([
     ['InputProps', { InputProps: { onChange: undefined } }],
     ['slotProps.input', { slotProps: { input: { onChange: undefined } } }],
-    ['a slotProps.input callback', { slotProps: { input: () => ({ onChange: undefined }) } }],
-  ])('stores the text when the onChange of %s is explicitly undefined', (_, textFieldProps) => {
-    render(<Form textFieldProps={textFieldProps} />);
+    [
+      'a slotProps.input callback',
+      { slotProps: { input: () => ({ onChange: undefined }) } },
+    ],
+  ])(
+    'stores the text when the onChange of %s is explicitly undefined',
+    (_, textFieldProps) => {
+      render(<Form textFieldProps={textFieldProps} />);
 
-    type('abc');
+      type('abc');
 
-    expect(storedValue()).toBe('abc');
-  });
+      expect(storedValue()).toBe('abc');
+    }
+  );
 
   it('stores the chosen option of a native select with its own SelectProps.onChange', () => {
     const onSelectChange = vi.fn();
@@ -237,8 +264,11 @@ describe('TextInput', () => {
   });
 
   it('stores the value returned by textFieldProps.onBlur', () => {
-    const trim = (e: React.FocusEvent<HTMLInputElement>) => e.target.value.trim();
-    render(<Form textFieldProps={{ onBlur: trim as TextFieldProps['onBlur'] }} />);
+    const trim = (e: React.FocusEvent<HTMLInputElement>) =>
+      e.target.value.trim();
+    render(
+      <Form textFieldProps={{ onBlur: trim as TextFieldProps['onBlur'] }} />
+    );
 
     type('  abc  ');
     fireEvent.blur(screen.getByTestId('text-input-host'));

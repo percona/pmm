@@ -16,10 +16,20 @@ const tabs: DetailsPaneProps['tabs'] = [
   },
 ];
 
-const navigation = () => ({ isFirst: false, isLast: false, next: vi.fn(), previous: vi.fn() });
+const navigation = () => ({
+  isFirst: false,
+  isLast: false,
+  next: vi.fn(),
+  previous: vi.fn(),
+});
 
 const renderPane = (props: Partial<DetailsPaneProps> = {}) => {
-  const allProps: DetailsPaneProps = { open: true, onClose: vi.fn(), tabs, ...props };
+  const allProps: DetailsPaneProps = {
+    open: true,
+    onClose: vi.fn(),
+    tabs,
+    ...props,
+  };
   const theme = createTheme(getThemeOptions('base')('light'));
   const result = render(
     <ThemeProvider theme={theme}>
@@ -39,7 +49,10 @@ describe('DetailsPane', () => {
   it('shows the first tab and only its content', () => {
     renderPane();
 
-    expect(screen.getByRole('tab', { name: 'Details' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Details' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
     expect(screen.getByText('Details content')).toBeInTheDocument();
     expect(screen.queryByText('Raw content')).not.toBeInTheDocument();
   });
@@ -101,7 +114,10 @@ describe('DetailsPane', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
 
     rerender({ open: true });
-    const event = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+    const event = new KeyboardEvent('keydown', {
+      key: 'Escape',
+      cancelable: true,
+    });
     event.preventDefault();
     document.dispatchEvent(event);
 
@@ -111,8 +127,12 @@ describe('DetailsPane', () => {
   it('hides the arrows without navigation', () => {
     renderPane();
 
-    expect(screen.queryByRole('button', { name: 'Previous' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Previous' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Next' })
+    ).not.toBeInTheDocument();
   });
 
   it('steps through rows with the arrows', () => {
@@ -127,7 +147,9 @@ describe('DetailsPane', () => {
   });
 
   it('disables the arrows at either end', () => {
-    renderPane({ navigation: { ...navigation(), isFirst: true, isLast: true } });
+    renderPane({
+      navigation: { ...navigation(), isFirst: true, isLast: true },
+    });
 
     expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
@@ -139,12 +161,17 @@ describe('DetailsPane', () => {
       labels: { previous: 'Previous query', next: 'Next query' },
       previousButtonProps: { 'data-testid': 'prev' },
       nextButtonProps: { 'data-testid': 'next' },
-      closeButtonProps: { 'data-testid': 'close', 'aria-label': 'Close details pane' },
+      closeButtonProps: {
+        'data-testid': 'close',
+        'aria-label': 'Close details pane',
+      },
     });
 
     expect(screen.getByTestId('prev')).toHaveAccessibleName('Previous query');
     expect(screen.getByTestId('next')).toHaveAccessibleName('Next query');
-    expect(screen.getByTestId('close')).toHaveAccessibleName('Close details pane');
+    expect(screen.getByTestId('close')).toHaveAccessibleName(
+      'Close details pane'
+    );
   });
 
   it('returns focus to where it was before the pane opened when it closes', () => {
@@ -196,14 +223,22 @@ describe('DetailsPane', () => {
   it('lets the user scroll to tabs that do not fit', () => {
     renderPane();
 
-    expect(screen.getByRole('tablist').parentElement).toHaveClass('MuiTabs-scrollableX');
+    expect(screen.getByRole('tablist').parentElement).toHaveClass(
+      'MuiTabs-scrollableX'
+    );
   });
 
   it('forwards the ref to the pane surface', () => {
     const ref = createRef<HTMLDivElement>();
     render(
       <ThemeProvider theme={createTheme(getThemeOptions('base')('light'))}>
-        <DetailsPane ref={ref} data-testid="pane" open onClose={vi.fn()} tabs={tabs} />
+        <DetailsPane
+          ref={ref}
+          data-testid="pane"
+          open
+          onClose={vi.fn()}
+          tabs={tabs}
+        />
       </ThemeProvider>
     );
 
