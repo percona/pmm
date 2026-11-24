@@ -177,6 +177,23 @@ func TestClickHouseTemplate(t *testing.T) {
 		}
 	})
 
+	t.Run("pmm_qan_slow_queries filtered to MongoDB returns only MongoDB services", func(t *testing.T) {
+		data := createRule(t, "pmm_qan_slow_queries", "test-qan-slow-queries-mongodb", []*alerting.CreateRuleParamsBodyFiltersItems0{
+			{Type: new("FILTER_TYPE_MATCH"), Label: "service_type", Regexp: "mongodb"},
+		})
+
+		results := assertEvaluates(t, data)
+		require.Contains(t, results, "A")
+		// Grafana turns each row into a series whose value field carries the label columns.
+		for _, frame := range results["A"].Frames {
+			for _, field := range frame.Schema.Fields {
+				if field.Labels != nil {
+					assert.Equal(t, "mongodb", field.Labels["service_type"], "series %s", field.Labels["service_name"])
+				}
+			}
+		}
+	})
+
 	t.Run("built-in pmm_qan_slow_queries evaluates with its threshold step", func(t *testing.T) {
 		data := createRule(t, "pmm_qan_slow_queries", "test-qan-slow-queries", nil)
 
@@ -205,10 +222,18 @@ func queryByRefID(t *testing.T, data []*models.AlertQuery, refID string) *models
 type evalResult struct {
 	Error  string `json:"error"`
 	Frames []struct {
+		Schema struct {
+			Fields []evalField `json:"fields"`
+		} `json:"schema"`
 		Data struct {
 			Values [][]any `json:"values"`
 		} `json:"data"`
 	} `json:"frames"`
+}
+
+// A field of an eval result frame.
+type evalField struct {
+	Labels map[string]string `json:"labels"`
 }
 
 func assertEvaluates(t *testing.T, data []*models.AlertQuery) map[string]evalResult {

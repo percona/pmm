@@ -97,6 +97,8 @@ When you create a rule from a query performance template, filters apply to the c
 - Filters apply after any `LIMIT` in the query.
 - Custom labels that you add to nodes and services aren't available to these queries, so a filter on a custom label doesn't narrow Query Analytics alerts.
 
+For example, to get slow query alerts for MongoDB only, create a rule from the **QAN slow queries** template and add the filter `service_type=mongodb`. For MongoDB, the template compares the longest run of each query in the last 5 minutes with the threshold, so a single slow execution is enough to fire the alert.
+
 Each rule queries ClickHouse separately. To alert on many services, create one rule and route the alerts by the `service_name` label in your notification policies.
 
 ### Write a query performance template
