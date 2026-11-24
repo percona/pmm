@@ -38,8 +38,6 @@ import (
 	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 )
 
-const vmProxy = "/graph/api/datasources/proxy/uid/metrics-uid/"
-
 var testAuth = callerAuth{authorization: testToken}
 
 func queryOf(t *testing.T, r recordedRequest) url.Values {
@@ -62,8 +60,8 @@ func TestPromRequestArguments(t *testing.T) {
 	t.Parallel()
 
 	fake := newFakePMM(t, map[string]fixture{
-		"GET " + vmProxy + "api/v1/query":       {body: []byte(`{"status":"success","data":{"result":[]}}`)},
-		"GET " + vmProxy + "api/v1/query_range": {body: []byte(`{"status":"success","data":{"result":[]}}`)},
+		vmQuery:      {body: []byte(`{"status":"success","data":{"result":[]}}`)},
+		vmQueryRange: {body: []byte(`{"status":"success","data":{"result":[]}}`)},
 	})
 	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)
@@ -79,7 +77,7 @@ func TestPromRequestArguments(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	instant := fake.requestsTo(vmProxy + "api/v1/query")
+	instant := fake.requestsTo(vmAPI + "query")
 	require.Len(t, instant, 2)
 	withTime := queryOf(t, instant[0])
 	assert.ElementsMatch(t, []string{"query", "time", "timeout"}, keysOf(withTime))
@@ -90,7 +88,7 @@ func TestPromRequestArguments(t *testing.T) {
 	assert.ElementsMatch(t, []string{"query", "timeout"}, keysOf(noTime))
 	assert.Equal(t, "up", noTime.Get("query"))
 
-	rng := queryOf(t, fake.requestsTo(vmProxy + "api/v1/query_range")[0])
+	rng := queryOf(t, fake.requestsTo(vmAPI + "query_range")[0])
 	assert.ElementsMatch(t, []string{"query", "start", "end", "step", "timeout"}, keysOf(rng))
 	assert.Equal(t, "1799996400", rng.Get("start"))
 	assert.Equal(t, "1800000000", rng.Get("end"))
@@ -106,7 +104,7 @@ func TestQueryRangeDecodes(t *testing.T) {
 	body := `{"status":"success","data":{"resultType":"matrix","result":[` +
 		`{"metric":{"service_name":"db1","__name__":"m"},"values":[[1800000000,"1.5"],[1800000060.5,"NaN"],[1800000120,"+Inf"]]},` +
 		`{"metric":{"service_name":"db2"},"values":[]}]}}`
-	fake := newFakePMM(t, map[string]fixture{"GET " + vmProxy + "api/v1/query_range": {body: []byte(body)}})
+	fake := newFakePMM(t, map[string]fixture{vmQueryRange: {body: []byte(body)}})
 	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)
 
@@ -128,9 +126,9 @@ func TestListCallsArguments(t *testing.T) {
 	t.Parallel()
 
 	fake := newFakePMM(t, map[string]fixture{
-		"GET " + vmProxy + "api/v1/label/__name__/values": {body: []byte(`{"status":"success","data":["a","b"]}`)},
-		"GET " + vmProxy + "api/v1/labels":                {body: []byte(`{"status":"success","data":["job","service_name"]}`)},
-		"GET " + vmProxy + "api/v1/series":                {body: []byte(`{"status":"success","data":[{"__name__":"a","service_name":"db1"}]}`)},
+		"GET " + vmAPI + "label/__name__/values": {body: []byte(`{"status":"success","data":["a","b"]}`)},
+		"GET " + vmAPI + "labels":                {body: []byte(`{"status":"success","data":["job","service_name"]}`)},
+		vmSeries:                                 {body: []byte(`{"status":"success","data":[{"__name__":"a","service_name":"db1"}]}`)},
 	})
 	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)
@@ -149,9 +147,9 @@ func TestListCallsArguments(t *testing.T) {
 	assert.Equal(t, []map[string]string{{"__name__": "a", "service_name": "db1"}}, series)
 
 	for path, limit := range map[string]string{
-		vmProxy + "api/v1/label/__name__/values": "50",
-		vmProxy + "api/v1/labels":                "50",
-		vmProxy + "api/v1/series":                "2001",
+		vmAPI + "label/__name__/values": "50",
+		vmAPI + "labels":                "50",
+		vmAPI + "series":                "2001",
 	} {
 		reqs := fake.requestsTo(path)
 		require.Len(t, reqs, 1, path)
@@ -192,7 +190,7 @@ func TestMapError422(t *testing.T) {
 	assert.Contains(t, te.message, "cannot parse query: unexpected token")
 
 	fake := newFakePMM(t, map[string]fixture{
-		"GET " + vmProxy + "api/v1/query": {status: http.StatusUnprocessableEntity, body: []byte("cannot parse query\n")},
+		vmQuery: {status: http.StatusUnprocessableEntity, body: []byte("cannot parse query\n")},
 	})
 	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)
@@ -438,7 +436,7 @@ func TestLabelValuesRefusesAPathLabel(t *testing.T) {
 	t.Parallel()
 
 	fake := newFakePMM(t, map[string]fixture{
-		"GET " + vmProxy + "api/v1/label/mysql_up/values": {body: []byte(`{"status":"success","data":["a"]}`)},
+		"GET " + vmAPI + "label/mysql_up/values": {body: []byte(`{"status":"success","data":["a"]}`)},
 	})
 	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)

@@ -18,7 +18,6 @@ package mcp
 import (
 	"context"
 	"encoding/json"
-	"strings"
 	"testing"
 	"time"
 
@@ -122,7 +121,7 @@ func TestToolPanic(t *testing.T) {
 	res := callTool(t, session, "pmm_test", map[string]any{"panic": true})
 	require.True(t, res.IsError)
 	text := res.Content[0].(*mcp.TextContent).Text
-	assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
+	assertToolError(t, text, codePMMUnavailable, "")
 	assert.NotContains(t, text, "panic value")
 	assert.Equal(t, map[string]any{"code": "pmm_unavailable", "retryable": true}, res.Meta["com.percona/error"])
 
@@ -173,7 +172,7 @@ func TestStructuredAndErrorResults(t *testing.T) {
 		require.True(t, res.IsError)
 		require.Nil(t, res.StructuredContent)
 		require.Equal(t, map[string]any{"code": "not_found", "retryable": false}, res.Meta["com.percona/error"])
-		require.True(t, strings.HasPrefix(res.Content[0].(*mcp.TextContent).Text, "error: not_found\n"))
+		assertToolError(t, textOf(t, res), codeNotFound, "")
 	})
 }
 
@@ -220,7 +219,7 @@ func TestToolRenderPanic(t *testing.T) {
 
 	res := callTool(t, session, "pmm_test", nil)
 	require.True(t, res.IsError)
-	assert.True(t, strings.HasPrefix(res.Content[0].(*mcp.TextContent).Text, "error: pmm_unavailable\n"))
+	assertToolError(t, textOf(t, res), codePMMUnavailable, "")
 }
 
 func TestWorkerPanic(t *testing.T) {

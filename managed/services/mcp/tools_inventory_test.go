@@ -165,7 +165,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{"limit": 300})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 	})
 
 	t.Run("InvalidPagingBeforeAnyCall", func(t *testing.T) {
@@ -275,7 +275,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: unauthorized\n"), text)
+		assertToolError(t, text, codeUnauthorized, "")
 	})
 
 	t.Run("Unauthorized", func(t *testing.T) {
@@ -310,7 +310,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_version", nil)
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\ncannot reach the PMM API:"), text)
+		assertToolError(t, text, codePMMUnavailable, "cannot reach the PMM API:")
 	})
 }
 

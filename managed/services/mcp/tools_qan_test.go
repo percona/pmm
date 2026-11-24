@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"slices"
 	"strconv"
@@ -310,22 +309,22 @@ func TestTopQueriesTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"order_by": "rows"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\norder_by"), text)
+		assertToolError(t, text, codeInvalidInput, "order_by")
 
 		text, isError = callText(t, session, "pmm_top_queries", map[string]any{"limit": 500})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nlimit"), text)
+		assertToolError(t, text, codeInvalidInput, "limit")
 
 		text, isError = callText(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h", "period_to": "now-2h"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nperiod_to"), text)
+		assertToolError(t, text, codeInvalidInput, "period_to")
 	})
 
 	t.Run("Empty", func(t *testing.T) {
 		t.Parallel()
 
 		routes := qanRoutes()
-		routes["POST /v1/qan/metrics:getReport"] = fixture{file: "example_empty.json"}
+		routes["POST /v1/qan/metrics:getReport"] = fixture{file: "empty.json"}
 		fake := newFakePMM(t, routes)
 		session := connect(t, newQANService(t, fake, true))
 
@@ -518,7 +517,7 @@ func TestQueryDetailTool(t *testing.T) {
 		t.Parallel()
 
 		routes := qanRoutes()
-		routes["POST /v1/qan/query:getExample"] = fixture{file: "example_empty.json"}
+		routes["POST /v1/qan/query:getExample"] = fixture{file: "empty.json"}
 		fake := newFakePMM(t, routes)
 		session := connect(t, newQANService(t, fake, true))
 
@@ -554,7 +553,7 @@ func TestQueryDetailTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: unauthorized\n"), text)
+		assertToolError(t, text, codeUnauthorized, "")
 	})
 
 	t.Run("NoData", func(t *testing.T) {
@@ -562,13 +561,13 @@ func TestQueryDetailTool(t *testing.T) {
 
 		routes := qanRoutes()
 		routes["POST /v1/qan:getMetrics"] = fixture{file: "metrics_empty.json"}
-		routes["POST /v1/qan/query:getExample"] = fixture{file: "example_empty.json"}
+		routes["POST /v1/qan/query:getExample"] = fixture{file: "empty.json"}
 		fake := newFakePMM(t, routes)
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-ZZZ"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: not_found\n"), text)
+		assertToolError(t, text, codeNotFound, "")
 		assert.Contains(t, text, "no data for this query in 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z; widen period_from")
 		assert.NotContains(t, text, "QID-ZZZ")
 		assert.NotContains(t, text, "only services")
@@ -655,7 +654,7 @@ func TestQueryDetailTool(t *testing.T) {
 		}{
 			{
 				name:   "MetricsFailNoExample",
-				routes: map[string]fixture{"POST /v1/qan:getMetrics": failed, "POST /v1/qan/query:getExample": {file: "example_empty.json"}},
+				routes: map[string]fixture{"POST /v1/qan:getMetrics": failed, "POST /v1/qan/query:getExample": {file: "empty.json"}},
 				path:   "/v1/qan:getMetrics",
 			},
 			{
@@ -669,7 +668,7 @@ func TestQueryDetailTool(t *testing.T) {
 			res := callTool(t, session, "pmm_query_detail", map[string]any{"queryid": "QID-AAA"})
 			text := textOf(t, res)
 			assert.True(t, res.IsError, "%s: %s", tc.name, text)
-			assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\nPMM returned 500 on POST "+tc.path+": "), "%s: %s", tc.name, text)
+			assertToolError(t, text, codePMMUnavailable, "PMM returned 500 on POST "+tc.path+": ")
 			assert.Equal(t, map[string]any{"code": "pmm_unavailable", "retryable": true}, res.Meta["com.percona/error"], tc.name)
 		}
 	})
@@ -975,7 +974,7 @@ func TestQANValuesAreChecked(t *testing.T) {
 
 		text, isError := callText(t, session, tc.tool, tc.args)
 		assert.True(t, isError, "%s %v", tc.tool, tc.args)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		for _, path := range []string{"/v1/qan/metrics:getReport", "/v1/qan:getMetrics", "/v1/qan/query:getExample"} {
 			assert.Empty(t, fake.requestsTo(path), "%s %v -> %s", tc.tool, tc.args, path)
 		}
@@ -1010,7 +1009,7 @@ func TestRefusedInputEchoIsBounded(t *testing.T) {
 		session := connect(t, newQANService(t, newFakePMM(t, qanRoutes()), true))
 		text, isError := callText(t, session, tc.tool, tc.args)
 		require.True(t, isError, "%s %v", tc.tool, tc.args)
-		require.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Less(t, len(text), 3*maxEchoBytes, "%s: %s", tc.tool, text)
 	}
 }
@@ -1180,7 +1179,7 @@ func TestTopQueriesReportInputs(t *testing.T) {
 		} {
 			text, isError := callText(t, session, "pmm_top_queries", tc.args)
 			assert.True(t, isError, "%v", tc.args)
-			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"+tc.prefix), "%v: %s", tc.args, text)
+			assertToolError(t, text, codeInvalidInput, tc.prefix)
 		}
 		assert.Empty(t, fake.requestsTo("/v1/qan/metrics:getReport"))
 	})
@@ -1221,27 +1220,19 @@ func mixedEngineReportsFrom(t *testing.T, status int, file string) *fakePMM {
 	routes := qanRoutes()
 	routes["POST /v1/qan/metrics:getFilters"] = fixture{file: "filters_mixed.json"}
 	fake := newFakePMM(t, routes)
-	prev := fake.server.Config.Handler
-	fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+	fake.handle(func(rw http.ResponseWriter, req *http.Request, body []byte) bool {
 		if req.URL.Path != "/v1/qan/metrics:getReport" {
-			prev.ServeHTTP(rw, req)
-			return
+			return false
 		}
-		body, _ := io.ReadAll(req.Body)
-		fake.mu.Lock()
-		fake.requests = append(fake.requests, recordedRequest{method: req.Method, path: req.URL.Path, header: req.Header.Clone(), body: body})
-		fake.mu.Unlock()
-
-		file := file
+		fx := fixture{file: file}
 		if strings.Contains(string(body), `"service_type"`) {
+			fx = fixture{file: "report_mixed_engines_mysql.json"}
 			if status != 0 {
-				rw.WriteHeader(status)
-				return
+				fx = fixture{body: []byte{}, status: status}
 			}
-			file = "report_mixed_engines_mysql.json"
 		}
-		rw.Header().Set("Content-Type", "application/json")
-		_, _ = rw.Write(readFixture(t, file))
+		fake.reply(rw, req, fx)
+		return true
 	})
 	return fake
 }

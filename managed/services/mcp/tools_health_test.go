@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"maps"
 	"net/http"
-	"net/url"
 	"reflect"
 	"regexp"
 	"slices"
@@ -62,17 +61,6 @@ func healthRoutes(extra map[string]fixture) map[string]fixture {
 // onQuery routes the range queries whose text contains text.
 func onQuery(text string) string { return vmQueryRange + " ?" + text }
 
-func healthCall(t *testing.T, s *Service, args map[string]any) (healthResult, string, bool) {
-	t.Helper()
-
-	r := callTool(t, connect(t, s), "pmm_service_health", args)
-	text := textOf(t, r)
-	if r.IsError {
-		return healthResult{}, text, true
-	}
-	return structured[healthResult](t, r), text, false
-}
-
 func signalByName(t *testing.T, res healthResult, name string) signalResult {
 	t.Helper()
 
@@ -81,14 +69,13 @@ func signalByName(t *testing.T, res healthResult, name string) signalResult {
 	return res.Signals[i]
 }
 
-func rangeQueries(fake *fakePMM) []string {
-	var out []string
-	for _, r := range fake.requestsTo(vmAPI + "query_range") {
-		v, err := url.ParseQuery(r.query)
-		if err != nil {
-			continue
-		}
-		out = append(out, v.Get("query"))
+func rangeQueries(t *testing.T, fake *fakePMM) []string {
+	t.Helper()
+
+	requests := fake.requestsTo(vmAPI + "query_range")
+	out := make([]string, 0, len(requests))
+	for _, r := range requests {
+		out = append(out, queryOf(t, r).Get("query"))
 	}
 	return out
 }
@@ -100,7 +87,7 @@ func TestServiceHealthTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, healthRoutes(nil))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		assert.Equal(t, "svc-1", res.ServiceID)
@@ -144,10 +131,10 @@ func TestServiceHealthTool(t *testing.T) {
 			}
 			want = append(want, fmt.Sprintf(sig.Query, selector))
 		}
-		assert.ElementsMatch(t, want, rangeQueries(fake), "each signal's query once, with its selector")
+		assert.ElementsMatch(t, want, rangeQueries(t, fake), "each signal's query once, with its selector")
 
 		for _, r := range fake.requestsTo(vmAPI + "query_range") {
-			p := queryParams(t, r)
+			p := queryOf(t, r)
 			assert.Equal(t, unixOf(testNow.Add(-time.Hour)), p.Get("start"))
 			assert.Equal(t, unixOf(testNow), p.Get("end"))
 			assert.Equal(t, "2", p.Get("step"))
@@ -160,11 +147,11 @@ func TestServiceHealthTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, healthRoutes(nil))
-		_, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		_, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		nodeQueries, serviceQueries := 0, 0
-		for _, q := range rangeQueries(fake) {
+		for _, q := range rangeQueries(t, fake) {
 			switch {
 			case strings.Contains(q, `node_id="node-1"`):
 				nodeQueries++
@@ -185,11 +172,11 @@ func TestServiceHealthTool(t *testing.T) {
 
 		for id, engine := range map[string]string{"svc-2": enginePostgreSQL, "svc-mongo": engineMongoDB} {
 			fake := newFakePMM(t, healthRoutes(nil))
-			res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": id})
+			res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": id})
 			require.False(t, isError, text)
 			assert.Equal(t, engine, res.Engine)
 			assert.Len(t, res.Signals, len(healthSignals[engine])+len(healthSignals[engineNode]), engine)
-			assert.Len(t, rangeQueries(fake), len(res.Signals), engine)
+			assert.Len(t, rangeQueries(t, fake), len(res.Signals), engine)
 		}
 	})
 
@@ -200,7 +187,7 @@ func TestServiceHealthTool(t *testing.T) {
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{
 			onQuery("mysql_global_status_threads_running"): {body: healthMatrix(old, "4", "5")},
 		}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		sig := signalByName(t, res, "threads_running")
@@ -218,7 +205,7 @@ func TestServiceHealthTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{onQuery("node_load1"): {body: healthEmpty}}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		sig := signalByName(t, res, "load1")
@@ -239,7 +226,7 @@ func TestServiceHealthTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{vmQueryRange: {body: healthEmpty}}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		require.Len(t, res.Signals, len(healthSignals[engineMySQL])+len(healthSignals[engineNode]))
@@ -256,7 +243,7 @@ func TestServiceHealthTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{onQuery("mysql_global_status_threads_running"): {body: healthEmpty}}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		assert.True(t, signalByName(t, res, "threads_running").NoData)
@@ -267,7 +254,7 @@ func TestServiceHealthTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{onQuery("mysql_global_status_slow_queries"): healthBadExpr}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		assert.True(t, res.Partial)
@@ -294,9 +281,9 @@ func TestServiceHealthTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{vmQueryRange: healthBadExpr}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.True(t, isError, "%+v", res)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "cannot evaluate the expression")
 	})
 
@@ -305,9 +292,9 @@ func TestServiceHealthTool(t *testing.T) {
 
 		noNode := `{"status":"success","data":{"resultType":"vector","result":[{"metric":{"service_id":"svc-1","service_name":"shop-mysql","service_type":"mysql"},"value":[1789387200,"1789387140"]}]}}`
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {body: []byte(noNode)}, vmQueryRange: healthBadExpr}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.True(t, isError, "the node signals were not queried, so every queried signal failed: %+v", res)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 	})
 
 	t.Run("NonFiniteValuesAreCounted", func(t *testing.T) {
@@ -316,7 +303,7 @@ func TestServiceHealthTool(t *testing.T) {
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{
 			onQuery("mysql_global_status_innodb_buffer_pool_reads"): {body: healthMatrix(testNow, "0.5", "+Inf", "NaN", "0.25")},
 		}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		ratio := signalByName(t, res, "buffer_pool_miss_ratio")
@@ -336,7 +323,7 @@ func TestServiceHealthTool(t *testing.T) {
 			onQuery("mysql_global_status_innodb_buffer_pool_reads"): {body: healthMatrix(testNow, "0.5", "NaN")},
 			onQuery("mysql_global_status_threads_running"):          {body: healthMatrix(testNow, "NaN")},
 		}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		ratio := signalByName(t, res, "buffer_pool_miss_ratio")
@@ -367,7 +354,7 @@ func TestServiceHealthTool(t *testing.T) {
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{
 			onQuery("mongodb_mongod_replset_member_replication_lag"): {body: healthMatrix(testNow, "0", "0")},
 		}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-mongo"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-mongo"})
 		require.False(t, isError, text)
 
 		lag := signalByName(t, res, "replication_lag")
@@ -385,7 +372,7 @@ func TestServiceHealthTool(t *testing.T) {
 		two := `{"status":"success","data":{"resultType":"matrix","result":[` +
 			`{"metric":{"a":"1"},"values":[[` + unixOf(testNow) + `,"2"]]},{"metric":{"a":"2"},"values":[[` + unixOf(testNow) + `,"9"]]}]}}`
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{onQuery("mysql_global_status_threads_running"): {body: []byte(two)}}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		sig := signalByName(t, res, "threads_running")
@@ -400,7 +387,7 @@ func TestServiceHealthTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, healthRoutes(nil))
-		_, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-other-secret"})
+		_, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-other-secret"})
 		require.True(t, isError)
 		assert.Equal(t, "error: not_found\n"+errNotInList(window{From: testNow.Add(-time.Hour), To: testNow}, testNow, "; use pmm_inventory to list service ids").message, text)
 		assert.NotContains(t, text, "svc-other-secret")
@@ -411,7 +398,7 @@ func TestServiceHealthTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {file: "vm_up_list.json"}}))
-		_, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-px"})
+		_, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-px"})
 		require.True(t, isError)
 		assert.Equal(t, "error: invalid_input\npmm_service_health covers MySQL, PostgreSQL and MongoDB services; service 'proxy-1' is proxysql; use pmm_query_metrics for its metrics", text)
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"))
@@ -423,9 +410,9 @@ func TestServiceHealthTool(t *testing.T) {
 		fake := newFakePMM(t, healthRoutes(nil))
 		s := newQANService(t, fake, false)
 		for _, from := range []string{"now-7d", "now-30d", testNow.AddDate(-9, 0, 0).Format(time.RFC3339)} {
-			_, text, isError := healthCall(t, s, map[string]any{"service_id": "svc-1", "period_from": from})
+			_, text, isError := callAs[healthResult](t, s, "pmm_service_health", map[string]any{"service_id": "svc-1", "period_from": from})
 			require.True(t, isError, from)
-			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+			assertToolError(t, text, codeInvalidInput, "")
 			assert.Contains(t, text, "the cap is 7d, counting the 5m3s the signals read before the window: pass a window of at most 6d23h54m57s")
 		}
 		assert.Zero(t, fake.requestCount(), "refused before the inventory and any query")
@@ -434,10 +421,10 @@ func TestServiceHealthTool(t *testing.T) {
 		s.metricRate.mu.Unlock()
 
 		largest := testNow.Add(-(7*24*time.Hour - 5*time.Minute - 3*time.Second)).Format(time.RFC3339)
-		_, text, isError := healthCall(t, s, map[string]any{"service_id": "svc-1", "period_from": largest})
+		_, text, isError := callAs[healthResult](t, s, "pmm_service_health", map[string]any{"service_id": "svc-1", "period_from": largest})
 		require.False(t, isError, "the largest window the hint names: %s", text)
 
-		_, text, isError = healthCall(t, s, map[string]any{"service_id": "svc-1", "period_from": "now-6d"})
+		_, text, isError = callAs[healthResult](t, s, "pmm_service_health", map[string]any{"service_id": "svc-1", "period_from": "now-6d"})
 		require.False(t, isError, text)
 		assert.NotEmpty(t, fake.requestsTo(vmAPI+"query_range"))
 	})
@@ -449,10 +436,10 @@ func TestServiceHealthTool(t *testing.T) {
 			{"metric":{"service_id":"svc-old","service_name":"shop-mysql","service_type":"mysql","node_id":"node-old","node_name":"demo-node"},"value":[1789387200,"1789384200"]},
 			{"metric":{"service_id":"svc-new","service_name":"shop-mysql","service_type":"mysql","node_id":"node-new","node_name":"demo-node"},"value":[1789387200,"1789387140"]}]}}`
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {body: []byte(list)}}))
-		_, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-old"})
+		_, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-old"})
 		require.False(t, isError, text)
 
-		for _, q := range rangeQueries(fake) {
+		for _, q := range rangeQueries(t, fake) {
 			assert.NotContains(t, q, "svc-new", q)
 			assert.NotContains(t, q, "node-new", q)
 			assert.NotContains(t, q, `service_name="shop-mysql"`, q)
@@ -465,11 +452,11 @@ func TestServiceHealthTool(t *testing.T) {
 
 		list := `{"status":"success","data":{"resultType":"vector","result":[{"metric":{"service_id":"svc-1","service_name":"shop-mysql","service_type":"mysql","node_name":"demo-node"},"value":[1789387200,"1789387140"]}]}}`
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {body: []byte(list)}}))
-		_, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		_, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
 		nodeQueries := 0
-		for _, q := range rangeQueries(fake) {
+		for _, q := range rangeQueries(t, fake) {
 			if strings.Contains(q, `node_name="demo-node"`) {
 				nodeQueries++
 			}
@@ -482,11 +469,11 @@ func TestServiceHealthTool(t *testing.T) {
 
 		noNode := `{"status":"success","data":{"resultType":"vector","result":[{"metric":{"service_id":"svc-1","service_name":"shop-mysql","service_type":"mysql"},"value":[1789387200,"1789387140"]}]}}`
 		fake := newFakePMM(t, healthRoutes(map[string]fixture{serviceListKey: {body: []byte(noNode)}}))
-		res, text, isError := healthCall(t, newQANService(t, fake, false), map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, newQANService(t, fake, false), "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 
-		assert.Len(t, rangeQueries(fake), len(healthSignals[engineMySQL]))
-		for _, q := range rangeQueries(fake) {
+		assert.Len(t, rangeQueries(t, fake), len(healthSignals[engineMySQL]))
+		for _, q := range rangeQueries(t, fake) {
 			assert.NotContains(t, q, "node_name", "a node signal never runs with an empty node name")
 		}
 		assert.True(t, signalByName(t, res, "load1").NoData)
@@ -634,11 +621,9 @@ func TestServiceHealthLimits(t *testing.T) {
 
 		obs := &observed{callSlots: map[int]bool{}, callerSlots: map[int]bool{}, minSlotsSeen: 1 << 30}
 		key := keyOf(callerAuth{authorization: testToken})
-		next := fake.server.Config.Handler
-		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		fake.handle(func(_ http.ResponseWriter, r *http.Request, _ []byte) bool {
 			if r.URL.Path != vmAPI+"query_range" {
-				next.ServeHTTP(rw, r)
-				return
+				return false
 			}
 			s.metrics.mu.Lock()
 			total, perCaller := s.metrics.total, s.metrics.byKey[key]
@@ -658,10 +643,10 @@ func TestServiceHealthLimits(t *testing.T) {
 			obs.mu.Lock()
 			obs.inFlight--
 			obs.mu.Unlock()
-			next.ServeHTTP(rw, r)
+			return false
 		})
 
-		res, text, isError := healthCall(t, s, map[string]any{"service_id": "svc-1"})
+		res, text, isError := callAs[healthResult](t, s, "pmm_service_health", map[string]any{"service_id": "svc-1"})
 		require.False(t, isError, text)
 		assert.False(t, res.Partial)
 		assert.Greater(t, len(res.Signals), 8, "more signals than the request slots of any run")
@@ -875,20 +860,16 @@ func evalFunc(t *testing.T, e *metricsql.FuncExpr, series []fixtureSeries) []fix
 
 	name := strings.ToLower(e.Name)
 	switch name {
-	case "rate", "irate", "max_over_time", "avg_over_time":
+	case "rate", "irate", "max_over_time":
 		require.Len(t, e.Args, 1, name)
 		return withoutName(evalAt(t, e.Args[0], series))
-	case "clamp_min", "clamp_max":
+	case "clamp_min":
 		require.Len(t, e.Args, 2, name)
 		limit, ok := e.Args[1].(*metricsql.NumberExpr)
 		require.True(t, ok, name)
 		out := withoutName(evalAt(t, e.Args[0], series))
 		for i := range out {
-			if name == "clamp_min" {
-				out[i].value = max(out[i].value, limit.N)
-			} else {
-				out[i].value = min(out[i].value, limit.N)
-			}
+			out[i].value = max(out[i].value, limit.N)
 		}
 		return out
 	}
@@ -935,8 +916,6 @@ func evalAggr(t *testing.T, e *metricsql.AggrFuncExpr, series []fixtureSeries) [
 			}
 		case "max":
 			v = slices.Max(values)
-		case "min":
-			v = slices.Min(values)
 		default:
 			require.FailNow(t, "the evaluator does not handle the aggregation "+e.Name)
 		}
@@ -951,17 +930,6 @@ func evalBinary(t *testing.T, e *metricsql.BinaryOpExpr, series []fixtureSeries)
 	require.Empty(t, e.GroupModifier.Op, "on() and ignoring()")
 	op := strings.ToLower(e.Op)
 	left := evalAt(t, e.Left, series)
-	if n, ok := e.Right.(*metricsql.NumberExpr); ok {
-		var out []fixtureSeries
-		for _, s := range left {
-			v, keep := applyOp(t, op, s.value, n.N)
-			if keep {
-				out = append(out, fixtureSeries{labels: s.labels, value: v})
-			}
-		}
-		return out
-	}
-
 	right := evalAt(t, e.Right, series)
 	if op == "or" {
 		out := slices.Clone(left)
@@ -978,32 +946,23 @@ func evalBinary(t *testing.T, e *metricsql.BinaryOpExpr, series []fixtureSeries)
 		if i < 0 {
 			continue
 		}
-		v, keep := applyOp(t, op, l.value, right[i].value)
-		if keep {
-			out = append(out, fixtureSeries{labels: withoutName([]fixtureSeries{l})[0].labels, value: v})
-		}
+		out = append(out, fixtureSeries{labels: withoutName([]fixtureSeries{l})[0].labels, value: applyOp(t, op, l.value, right[i].value)})
 	}
 	return out
 }
 
-// applyOp returns a op b, and whether the series is kept: a comparison keeps a when it holds.
-func applyOp(t *testing.T, op string, a, b float64) (float64, bool) {
+// applyOp returns a op b.
+func applyOp(t *testing.T, op string, a, b float64) float64 {
 	t.Helper()
 
 	switch op {
-	case "+":
-		return a + b, true
 	case "-":
-		return a - b, true
-	case "*":
-		return a * b, true
+		return a - b
 	case "/":
-		return a / b, true
-	case ">":
-		return a, a > b
+		return a / b
 	}
 	require.FailNow(t, "the evaluator does not handle the operator "+op)
-	return 0, false
+	return 0
 }
 
 // signature identifies a label set, the metric name aside, as vector matching does.

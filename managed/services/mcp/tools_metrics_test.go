@@ -19,11 +19,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"slices"
 	"strconv"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -79,34 +77,16 @@ func matrixBody(n, points int, prefix string) []byte {
 	return []byte(`{"status":"success","data":{"resultType":"matrix","result":[` + strings.Join(entries, ",") + `]}}`)
 }
 
-func queryParams(t *testing.T, r recordedRequest) url.Values {
-	t.Helper()
-
-	v, err := url.ParseQuery(r.query)
-	require.NoError(t, err)
-	return v
-}
-
 func unixOf(t time.Time) string { return strconv.FormatInt(t.Unix(), 10) }
 
-// metricsCall calls pmm_query_metrics and returns the result, its text and whether it is an error.
-func metricsCall(t *testing.T, s *Service, args map[string]any) (metricsResult, string, bool) {
+// requireInvalid checks that s refuses a call of the tool name as invalid input, with a message that holds want, before
+// any request to fake.
+func requireInvalid(t *testing.T, s *Service, fake *fakePMM, name string, args map[string]any, want string) {
 	t.Helper()
 
-	r := callTool(t, connect(t, s), "pmm_query_metrics", args)
-	text := textOf(t, r)
-	if r.IsError {
-		return metricsResult{}, text, true
-	}
-	return structured[metricsResult](t, r), text, false
-}
-
-func requireInvalid(t *testing.T, s *Service, fake *fakePMM, args map[string]any, want string) {
-	t.Helper()
-
-	_, text, isError := metricsCall(t, s, args)
+	text, isError := callText(t, connect(t, s), name, args)
 	require.True(t, isError, "%v: %s", args, text)
-	assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+	assertToolError(t, text, codeInvalidInput, "")
 	assert.Contains(t, text, want)
 	assert.Zero(t, fake.requestCount(), "%v sent a request", args)
 }
@@ -120,7 +100,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(nil))
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions})
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions})
 		require.False(t, isError, text)
 
 		assert.Equal(t, questions, res.Query)
@@ -133,7 +113,7 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		reqs := fake.requestsTo(vmAPI + "query")
 		require.Len(t, reqs, 1)
-		p := queryParams(t, reqs[0])
+		p := queryOf(t, reqs[0])
 		assert.Equal(t, questions, p.Get("query"))
 		assert.Equal(t, unixOf(testNow), p.Get("time"))
 		assert.Equal(t, "25s", p.Get("timeout"))
@@ -144,7 +124,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		// The selector is counted over the span read: one step of 5m back for an instant query, plus the 5m window.
 		series := fake.requestsTo(vmAPI + "series")
 		require.Len(t, series, 1)
-		sp := queryParams(t, series[0])
+		sp := queryOf(t, series[0])
 		assert.Equal(t, []string{`{__name__="mysql_global_status_questions", service_name="db1"}`}, sp["match[]"])
 		assert.Equal(t, unixOf(testNow.Add(-5*time.Minute)), sp.Get("start"))
 		assert.Equal(t, unixOf(testNow), sp.Get("end"))
@@ -155,18 +135,18 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(nil))
-		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions, "time": "now-2h"})
+		_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions, "time": "now-2h"})
 		require.False(t, isError, text)
 		reqs := fake.requestsTo(vmAPI + "query")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, unixOf(testNow.Add(-2*time.Hour)), queryParams(t, reqs[0]).Get("time"))
+		assert.Equal(t, unixOf(testNow.Add(-2*time.Hour)), queryOf(t, reqs[0]).Get("time"))
 	})
 
 	t.Run("Range", func(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(nil))
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions, "period_from": "now-2h"})
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-2h"})
 		require.False(t, isError, text)
 
 		from := testNow.Add(-2 * time.Hour)
@@ -178,7 +158,7 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		reqs := fake.requestsTo(vmAPI + "query_range")
 		require.Len(t, reqs, 1)
-		p := queryParams(t, reqs[0])
+		p := queryOf(t, reqs[0])
 		assert.Equal(t, unixOf(from), p.Get("start"))
 		assert.Equal(t, unixOf(testNow), p.Get("end"))
 		assert.Equal(t, "4", p.Get("step"))
@@ -187,7 +167,7 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		series := fake.requestsTo(vmAPI + "series")
 		require.Len(t, series, 1)
-		sp := queryParams(t, series[0])
+		sp := queryOf(t, series[0])
 		assert.Equal(t, unixOf(from.Add(-5*time.Minute)), sp.Get("start"), "the span read includes the 5m window")
 		assert.Equal(t, unixOf(testNow), sp.Get("end"))
 	})
@@ -196,26 +176,26 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(nil))
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions, "period_from": "now-2h", "step": "10m"})
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-2h", "step": "10m"})
 		require.False(t, isError, text)
 		assert.Equal(t, "10m", res.Step)
-		assert.Equal(t, "600", queryParams(t, fake.requestsTo(vmAPI + "query_range")[0]).Get("step"))
+		assert.Equal(t, "600", queryOf(t, fake.requestsTo(vmAPI + "query_range")[0]).Get("step"))
 	})
 
 	t.Run("RefusedExpressionSendsNothing", func(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(nil))
-		requireInvalid(t, newQANService(t, fake, false), fake, map[string]any{"query": `{__name__=~"mysql_global_.*"}`}, "service_id, service_name")
+		requireInvalid(t, newQANService(t, fake, false), fake, "pmm_query_metrics", map[string]any{"query": `{__name__=~"mysql_global_.*"}`}, "service_id, service_name")
 		// A negative offset reads after the window the series are counted over.
-		requireInvalid(t, newQANService(t, fake, false), fake,
+		requireInvalid(t, newQANService(t, fake, false), fake, "pmm_query_metrics",
 			map[string]any{"query": `sum(rate(node_cpu_seconds_total[5m] offset -6d))`, "time": "now-6d"}, "a negative offset is not accepted")
-		requireInvalid(t, newQANService(t, fake, false), fake,
+		requireInvalid(t, newQANService(t, fake, false), fake, "pmm_query_metrics",
 			map[string]any{"query": `rate(node_cpu_seconds_total{node_name="n1"}[5m] offset -6d)`, "period_from": "now-145h", "period_to": "now-6d"},
 			"a negative offset is not accepted")
-		requireInvalid(t, newQANService(t, fake, false), fake,
+		requireInvalid(t, newQANService(t, fake, false), fake, "pmm_query_metrics",
 			map[string]any{"query": questions, "period_from": "now-7d"}, "the cap is 7d")
-		requireInvalid(t, newQANService(t, fake, false), fake, map[string]any{"query": "rate("}, "cannot parse")
+		requireInvalid(t, newQANService(t, fake, false), fake, "pmm_query_metrics", map[string]any{"query": "rate("}, "cannot parse")
 	})
 
 	t.Run("InstantRangeIsRefused", func(t *testing.T) {
@@ -236,7 +216,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		for _, q := range ranges {
 			fake := newFakePMM(t, metricsRoutes(nil))
 			s := newQANService(t, fake, false)
-			requireInvalid(t, s, fake, map[string]any{"query": q, "time": "now-1h"}, "wrap it in a rollup such as last_over_time() or rate(), or send a range query")
+			requireInvalid(t, s, fake, "pmm_query_metrics", map[string]any{"query": q, "time": "now-1h"}, "wrap it in a rollup such as last_over_time() or rate(), or send a range query")
 
 			s.metricRate.mu.Lock()
 			assert.Empty(t, s.metricRate.buckets, "%s took a token", q)
@@ -250,14 +230,14 @@ func TestQueryMetricsTool(t *testing.T) {
 			`max_over_time(rate(mysql_global_status_questions{service_name="db1"}[5m])[1h:1m])`,
 		} {
 			fake := newFakePMM(t, metricsRoutes(nil))
-			_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": q})
+			_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": q})
 			require.False(t, isError, "%s: %s", q, text)
 			assert.Len(t, fake.requestsTo(vmAPI+"query"), 1, q)
 		}
 
 		for _, q := range ranges {
 			fake := newFakePMM(t, metricsRoutes(nil))
-			_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": q, "period_from": "now-1h", "step": "1m"})
+			_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": q, "period_from": "now-1h", "step": "1m"})
 			require.False(t, isError, "a range query of %s: %s", q, text)
 			assert.Len(t, fake.requestsTo(vmAPI+"query_range"), 1, q)
 		}
@@ -267,7 +247,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmQuery: {body: vectorBody(300)}}))
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions})
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions})
 		require.False(t, isError, text)
 		assert.Len(t, res.Series, 20)
 		assert.Equal(t, 300, res.TotalSeries)
@@ -282,12 +262,12 @@ func TestQueryMetricsTool(t *testing.T) {
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmQuery: {body: vectorBody(300)}}))
 		s := newQANService(t, fake, false)
 		for _, limit := range []int{101, -1} {
-			requireInvalid(t, s, fake, map[string]any{"query": questions, "limit": limit}, "limit must be between 1 and 100")
+			requireInvalid(t, s, fake, "pmm_query_metrics", map[string]any{"query": questions, "limit": limit}, "limit must be between 1 and 100")
 		}
-		res, text, isError := metricsCall(t, s, map[string]any{"query": questions, "limit": 50})
+		res, text, isError := callAs[metricsResult](t, s, "pmm_query_metrics", map[string]any{"query": questions, "limit": 50})
 		require.False(t, isError, text)
 		assert.Len(t, res.Series, 50)
-		res, _, _ = metricsCall(t, s, map[string]any{"query": questions, "limit": 3})
+		res, _, _ = callAs[metricsResult](t, s, "pmm_query_metrics", map[string]any{"query": questions, "limit": 3})
 		assert.Len(t, res.Series, 3)
 	})
 
@@ -296,14 +276,14 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		fake := newFakePMM(t, metricsRoutes(nil))
 		s := newQANService(t, fake, false)
-		requireInvalid(t, s, fake, map[string]any{"query": questions, "time": "now", "period_from": "now-1h"}, "use either time, or period_from and period_to")
-		requireInvalid(t, s, fake, map[string]any{"query": questions, "time": "now", "period_to": "now"}, "use either time")
-		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-1h", "step": "1d"}, "step '1d' is not a duration")
-		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-1h", "step": "5i"}, "step '5i' is not a duration")
-		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-1h", "step": "1500ms"}, "whole number of seconds")
-		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-1h", "step": "0s"}, "positive whole number")
-		requireInvalid(t, s, fake, map[string]any{"query": questions, "step": "30s"}, "range queries only")
-		requireInvalid(t, s, fake, map[string]any{"query": questions, "period_from": "now-6h", "step": "1s"},
+		requireInvalid(t, s, fake, "pmm_query_metrics", map[string]any{"query": questions, "time": "now", "period_from": "now-1h"}, "use either time, or period_from and period_to")
+		requireInvalid(t, s, fake, "pmm_query_metrics", map[string]any{"query": questions, "time": "now", "period_to": "now"}, "use either time")
+		requireInvalid(t, s, fake, "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-1h", "step": "1d"}, "step '1d' is not a duration")
+		requireInvalid(t, s, fake, "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-1h", "step": "5i"}, "step '5i' is not a duration")
+		requireInvalid(t, s, fake, "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-1h", "step": "1500ms"}, "whole number of seconds")
+		requireInvalid(t, s, fake, "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-1h", "step": "0s"}, "positive whole number")
+		requireInvalid(t, s, fake, "pmm_query_metrics", map[string]any{"query": questions, "step": "30s"}, "range queries only")
+		requireInvalid(t, s, fake, "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-6h", "step": "1s"},
 			"at step 1s, the window of 6h is 21601 points per series; the cap is 2000: raise step to at least 11s, or shorten the window")
 	})
 
@@ -312,7 +292,7 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		fake := newFakePMM(t, metricsRoutes(nil))
 		s := newQANService(t, fake, false)
-		res, text, isError := metricsCall(t, s, map[string]any{"query": questions, "period_to": "now-10m"})
+		res, text, isError := callAs[metricsResult](t, s, "pmm_query_metrics", map[string]any{"query": questions, "period_to": "now-10m"})
 		require.False(t, isError, text)
 
 		end := testNow.Add(-10 * time.Minute)
@@ -320,7 +300,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Equal(t, window{From: end.Add(-time.Hour), To: end}, *res.Window)
 		reqs := fake.requestsTo(vmAPI + "query_range")
 		require.Len(t, reqs, 1)
-		p := queryParams(t, reqs[0])
+		p := queryOf(t, reqs[0])
 		assert.Equal(t, unixOf(end.Add(-time.Hour)), p.Get("start"))
 		assert.Equal(t, unixOf(end), p.Get("end"))
 	})
@@ -339,15 +319,15 @@ func TestQueryMetricsTool(t *testing.T) {
 			require.Equal(t, limitNone, hit)
 			releases = append(releases, release)
 		}
-		_, text, isError := metricsCall(t, s, args)
+		_, text, isError := callAs[metricsResult](t, s, "pmm_query_metrics", args)
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Contains(t, text, "at most 4 metric calls")
 		assert.Zero(t, fake.requestCount())
 
 		// A refused expression is reported before the limit.
-		_, text, _ = metricsCall(t, s, map[string]any{"query": "rate("})
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		_, text, _ = callAs[metricsResult](t, s, "pmm_query_metrics", map[string]any{"query": "rate("})
+		assertToolError(t, text, codeInvalidInput, "")
 
 		for _, release := range releases {
 			release()
@@ -357,9 +337,9 @@ func TestQueryMetricsTool(t *testing.T) {
 			require.Equal(t, limitNone, hit)
 			t.Cleanup(release)
 		}
-		_, text, isError = metricsCall(t, s, args)
+		_, text, isError = callAs[metricsResult](t, s, "pmm_query_metrics", args)
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Contains(t, text, "this replica already has 8 metric calls")
 		assert.Zero(t, fake.requestCount())
 	})
@@ -372,16 +352,16 @@ func TestQueryMetricsTool(t *testing.T) {
 		// This test counts slots, not tokens: its calls outnumber the burst on a frozen clock.
 		s.metricRate = newRateLimiter(60000, 1000)
 		for range 2 * maxMetricCallsPerCaller {
-			_, text, isError := metricsCall(t, s, map[string]any{"query": questions})
+			_, text, isError := callAs[metricsResult](t, s, "pmm_query_metrics", map[string]any{"query": questions})
 			require.False(t, isError, text)
 		}
 		// A failed call releases its slot too.
 		bad := newFakePMM(t, nil)
 		s.api = newTestService(t, bad).api
 		for range 2 * maxMetricCallsPerCaller {
-			_, text, isError := metricsCall(t, s, map[string]any{"query": questions})
+			_, text, isError := callAs[metricsResult](t, s, "pmm_query_metrics", map[string]any{"query": questions})
 			require.True(t, isError)
-			assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
+			assertToolError(t, text, codePMMUnavailable, "")
 		}
 	})
 
@@ -390,16 +370,16 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		const hint = "this selector matches more than 2000 series over the span; narrow it with a service_name or node_name matcher, and aggregate"
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(2001)}}))
-		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions, "period_from": "now-1h"})
+		_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-1h"})
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, hint)
 		assert.Len(t, fake.requestsTo(vmAPI+"series"), 1)
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query"))
 
 		fake = newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(2000)}}))
-		_, text, isError = metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions, "period_from": "now-1h"})
+		_, text, isError = callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-1h"})
 		require.False(t, isError, text)
 		assert.Len(t, fake.requestsTo(vmAPI+"query_range"), 1)
 	})
@@ -408,14 +388,14 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(nil))
-		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+		_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{
 			"query": `mysql_up{service_name="db1"} / on() mysql_global_status_uptime{service_name="db1"}`,
 		})
 		require.False(t, isError, text)
 		series := fake.requestsTo(vmAPI + "series")
 		require.Len(t, series, 2)
-		assert.Equal(t, []string{`{__name__="mysql_up", service_name="db1"}`}, queryParams(t, series[0])["match[]"])
-		assert.Equal(t, []string{`{__name__="mysql_global_status_uptime", service_name="db1"}`}, queryParams(t, series[1])["match[]"])
+		assert.Equal(t, []string{`{__name__="mysql_up", service_name="db1"}`}, queryOf(t, series[0])["match[]"])
+		assert.Equal(t, []string{`{__name__="mysql_global_status_uptime", service_name="db1"}`}, queryOf(t, series[1])["match[]"])
 	})
 
 	t.Run("StepRisesForAnImplicitSubquery", func(t *testing.T) {
@@ -425,20 +405,20 @@ func TestQueryMetricsTool(t *testing.T) {
 		fake := newFakePMM(t, metricsRoutes(nil))
 		s := newQANService(t, fake, false)
 
-		res, text, isError := metricsCall(t, s, map[string]any{"query": nested, "period_from": "now-15m"})
+		res, text, isError := callAs[metricsResult](t, s, "pmm_query_metrics", map[string]any{"query": nested, "period_from": "now-15m"})
 		require.False(t, isError, text)
 		assert.Equal(t, "2s", res.Step, "1s would be 4800 points; the result says the step used")
 		assert.Contains(t, res.Note, "The step was raised from 1s to 2s so that a rollup over an expression stays within 4000 points per series")
 		reqs := fake.requestsTo(vmAPI + "query_range")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, "2", queryParams(t, reqs[0]).Get("step"))
+		assert.Equal(t, "2", queryOf(t, reqs[0]).Get("step"))
 
 		// A step the caller gave is never raised.
 		fake2 := newFakePMM(t, metricsRoutes(nil))
-		requireInvalid(t, newQANService(t, fake2, false), fake2,
+		requireInvalid(t, newQANService(t, fake2, false), fake2, "pmm_query_metrics",
 			map[string]any{"query": nested, "period_from": "now-15m", "step": "1s"}, "raise step to at least 2s")
 
-		res, text, isError = metricsCall(t, s, map[string]any{"query": nested, "period_from": "now-15m", "step": "3s"})
+		res, text, isError = callAs[metricsResult](t, s, "pmm_query_metrics", map[string]any{"query": nested, "period_from": "now-15m", "step": "3s"})
 		require.False(t, isError, text)
 		assert.Equal(t, "3s", res.Step)
 	})
@@ -450,16 +430,16 @@ func TestQueryMetricsTool(t *testing.T) {
 		fake := newFakePMM(t, metricsRoutes(nil))
 		s := newQANService(t, fake, false)
 
-		res, text, isError := metricsCall(t, s, map[string]any{"query": peak, "period_from": "now-1h"})
+		res, text, isError := callAs[metricsResult](t, s, "pmm_query_metrics", map[string]any{"query": peak, "period_from": "now-1h"})
 		require.False(t, isError, text)
 		assert.Equal(t, "4s", res.Step, "[1h:] runs at the query's step, so it rises with it")
 		assert.Contains(t, res.Note, "The step was raised from 2s to 4s so that a subquery's step is at least the span read ÷ 2000")
 		reqs := fake.requestsTo(vmAPI + "query_range")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, "4", queryParams(t, reqs[0]).Get("step"))
+		assert.Equal(t, "4", queryOf(t, reqs[0]).Get("step"))
 
 		// A rollup window inside [5m:] is read at the query's step too.
-		res, text, isError = metricsCall(t, s, map[string]any{
+		res, text, isError = callAs[metricsResult](t, s, "pmm_query_metrics", map[string]any{
 			"query":       `max_over_time(avg_over_time(mysql_global_status_questions{service_name="db1"}[90m])[5m:])`,
 			"period_from": "now-24h",
 		})
@@ -470,7 +450,7 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		// A step the caller gave is never raised.
 		fake2 := newFakePMM(t, metricsRoutes(nil))
-		requireInvalid(t, newQANService(t, fake2, false), fake2,
+		requireInvalid(t, newQANService(t, fake2, false), fake2, "pmm_query_metrics",
 			map[string]any{"query": peak, "period_from": "now-1h", "step": "2s"}, "the subquery step 2s is too small")
 	})
 
@@ -478,7 +458,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(nil))
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions, "period_from": "now-15m"})
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-15m"})
 		require.False(t, isError, text)
 		assert.Equal(t, "1s", res.Step)
 	})
@@ -498,7 +478,7 @@ func TestQueryMetricsTool(t *testing.T) {
 			{query: `quantile_over_time(0.99, ` + m + `[6d23h])`, from: "now-1h", step: "5m1s", note: "The step was raised from 2s to 5m1s " + note},
 		} {
 			fake := newFakePMM(t, metricsRoutes(nil))
-			res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": tc.query, "period_from": tc.from})
+			res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": tc.query, "period_from": tc.from})
 			require.False(t, isError, "%s: %s", tc.query, text)
 			assert.Equal(t, tc.step, res.Step, tc.query)
 			assert.Contains(t, res.Note, tc.note, tc.query)
@@ -507,7 +487,7 @@ func TestQueryMetricsTool(t *testing.T) {
 			require.Len(t, reqs, 1, tc.query)
 			step, err := time.ParseDuration(tc.step)
 			require.NoError(t, err)
-			assert.Equal(t, strconv.Itoa(int(step.Seconds())), queryParams(t, reqs[0]).Get("step"), tc.query)
+			assert.Equal(t, strconv.Itoa(int(step.Seconds())), queryOf(t, reqs[0]).Get("step"), tc.query)
 		}
 	})
 
@@ -516,7 +496,7 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		// At the raised step, the implicit subquery's lead steps take the read past 7 days.
 		fake := newFakePMM(t, metricsRoutes(nil))
-		requireInvalid(t, newQANService(t, fake, false), fake, map[string]any{
+		requireInvalid(t, newQANService(t, fake, false), fake, "pmm_query_metrics", map[string]any{
 			"query":       `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[3d])[1h])`,
 			"period_from": "now-5640m",
 		}, "the step rises to 3h41m19s so that rollup windows read at most 2000 hours of samples per series; at that step: the query reads")
@@ -527,15 +507,15 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		const long = `quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[6d23h])`
 		fake := newFakePMM(t, metricsRoutes(nil))
-		requireInvalid(t, newQANService(t, fake, false), fake,
+		requireInvalid(t, newQANService(t, fake, false), fake, "pmm_query_metrics",
 			map[string]any{"query": long, "period_from": "now-1h", "step": "2s"}, "raise step to at least 5m1s, shorten the window, or send an instant query")
 
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": long})
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": long})
 		require.False(t, isError, text)
 		assert.Len(t, res.Series, 2, "an instant query reads the window once")
 
 		fake2 := newFakePMM(t, metricsRoutes(nil))
-		requireInvalid(t, newQANService(t, fake2, false), fake2,
+		requireInvalid(t, newQANService(t, fake2, false), fake2, "pmm_query_metrics",
 			map[string]any{"query": `max_over_time(quantile_over_time(0.99, mysql_global_status_questions{service_name="db1"}[3d])[3d])`},
 			"give the subquery a step of at least 2h47m47s")
 	})
@@ -545,14 +525,14 @@ func TestQueryMetricsTool(t *testing.T) {
 
 		const broad = `{__name__=~"mysql_global_status_.*", service_name="db1"}`
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": broad, "period_from": "now-6h"})
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": broad, "period_from": "now-6h"})
 		require.False(t, isError, text)
 
 		// 500 series at 11s would be about 39 MB; 1m59s keeps them at 182 points each.
 		assert.Equal(t, "1m59s", res.Step)
 		reqs := fake.requestsTo(vmAPI + "query_range")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, "119", queryParams(t, reqs[0]).Get("step"))
+		assert.Equal(t, "119", queryOf(t, reqs[0]).Get("step"))
 		assert.Contains(t, res.Note, "The step was raised from 11s to 1m59s so that the answer for up to 500 series fits")
 		assert.Contains(t, text, "The step was raised from 11s to 1m59s")
 	})
@@ -563,7 +543,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		// 500 matched series fit at 1m59s, but three named functions return 1500, which fit at 6m7s.
 		const broad = `{__name__=~"mysql_global_status_.*", service_name="db1"}[5m]`
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{
 			"query": `aggr_over_time(("min_over_time", "max_over_time", "avg_over_time"), ` + broad + `)`, "period_from": "now-6h",
 		})
 		require.False(t, isError, text)
@@ -579,30 +559,28 @@ func TestQueryMetricsTool(t *testing.T) {
 		args := map[string]any{"query": broad, "period_from": "now-6h"}
 		from := testNow.Add(-6 * time.Hour)
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), args)
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", args)
 		require.False(t, isError, text)
 		assert.Equal(t, "1m59s", res.Step)
 		series := fake.requestsTo(vmAPI + "series")
 		require.Len(t, series, 2)
-		assert.Equal(t, unixOf(from.Add(-11*time.Second)), queryParams(t, series[0]).Get("start"))
-		assert.Equal(t, unixOf(from.Add(-119*time.Second)), queryParams(t, series[1]).Get("start"))
-		assert.Equal(t, unixOf(testNow), queryParams(t, series[1]).Get("end"))
+		assert.Equal(t, unixOf(from.Add(-11*time.Second)), queryOf(t, series[0]).Get("start"))
+		assert.Equal(t, unixOf(from.Add(-119*time.Second)), queryOf(t, series[1]).Get("start"))
+		assert.Equal(t, unixOf(testNow), queryOf(t, series[1]).Get("end"))
 
 		// Over the cap on the wider span, the query is refused before it runs.
 		fake = newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
 		wider := unixOf(from.Add(-119 * time.Second))
-		next := fake.server.Config.Handler
-		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		fake.handle(func(rw http.ResponseWriter, req *http.Request, _ []byte) bool {
 			if req.URL.Path != vmAPI+"series" || req.URL.Query().Get("start") != wider {
-				next.ServeHTTP(rw, req)
-				return
+				return false
 			}
-			rw.Header().Set("Content-Type", "application/json")
-			_, _ = rw.Write(seriesBody(2001))
+			fake.reply(rw, req, fixture{body: seriesBody(2001)})
+			return true
 		})
-		_, text, isError = metricsCall(t, newQANService(t, fake, false), args)
+		_, text, isError = callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", args)
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "this selector matches more than 2000 series over the span")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
 	})
@@ -614,33 +592,28 @@ func TestQueryMetricsTool(t *testing.T) {
 		from := testNow.Add(-6 * time.Hour)
 		narrow := unixOf(from.Add(-11 * time.Second))
 		fake := newFakePMM(t, metricsRoutes(nil))
-		next := fake.server.Config.Handler
-		var mu sync.Mutex
-		var starts []string
-		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		fake.handle(func(rw http.ResponseWriter, req *http.Request, _ []byte) bool {
 			if req.URL.Path != vmAPI+"series" {
-				next.ServeHTTP(rw, req)
-				return
+				return false
 			}
-			start := req.URL.Query().Get("start")
-			mu.Lock()
-			starts = append(starts, start)
-			mu.Unlock()
 			n := 1500
-			if start == narrow {
+			if req.URL.Query().Get("start") == narrow {
 				n = 500
 			}
-			rw.Header().Set("Content-Type", "application/json")
-			_, _ = rw.Write(seriesBody(n))
+			fake.reply(rw, req, fixture{body: seriesBody(n)})
+			return true
 		})
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{
 			"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-6h",
 		})
 		require.False(t, isError, text)
 		assert.Equal(t, "6m7s", res.Step)
 		assert.Contains(t, res.Note, "The step was raised from 11s to 6m7s so that the answer for up to 1500 series fits")
-		mu.Lock()
-		defer mu.Unlock()
+		requests := fake.requestsTo(vmAPI + "series")
+		starts := make([]string, 0, len(requests))
+		for _, r := range requests {
+			starts = append(starts, queryOf(t, r).Get("start"))
+		}
 		assert.Equal(t, []string{narrow, unixOf(from.Add(-119 * time.Second)), unixOf(from.Add(-367 * time.Second))}, starts)
 	})
 
@@ -648,7 +621,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
-		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+		_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{
 			"query": `sum by (service_name) (rate({__name__=~"mysql_global_status_.*", service_name="db1"}[5m]))`, "period_from": "now-6h",
 		})
 		require.False(t, isError, text)
@@ -659,7 +632,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
-		res, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+		res, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{
 			"query": `sum by (service_name) (rate({__name__=~"mysql_global_status_.*", service_name="db1"}[5m]))`, "period_from": "now-6h",
 		})
 		require.False(t, isError, text)
@@ -671,11 +644,11 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
-		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+		_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{
 			"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-6h", "step": "11s",
 		})
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "raise step to at least 1m59s, or aggregate")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
 	})
@@ -684,11 +657,11 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: seriesBody(500)}}))
-		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{
+		_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{
 			"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-10070m",
 		})
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "the answer for up to 500 series fits")
 		assert.Contains(t, text, "aggregate, as in sum by (service_name)")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"))
@@ -709,9 +682,9 @@ func TestQueryMetricsTool(t *testing.T) {
 			if step != "" {
 				args["step"] = step
 			}
-			_, text, isError := metricsCall(t, newQANService(t, fake, false), args)
+			_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", args)
 			require.True(t, isError, text)
-			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+			assertToolError(t, text, codeInvalidInput, "")
 			assert.Contains(t, text, "the answer for up to 2000 series is over the 4 MiB that MCP reads at any step")
 			assert.Contains(t, text, "aggregate, as in sum by (service_name)")
 			assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs")
@@ -722,7 +695,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(nil))
-		requireInvalid(t, newQANService(t, fake, false), fake,
+		requireInvalid(t, newQANService(t, fake, false), fake, "pmm_query_metrics",
 			map[string]any{"query": `max_over_time(mysql_up[7d])`, "period_from": "now-1d"}, "the cap is 7d")
 	})
 
@@ -730,9 +703,9 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmQueryRange: {body: []byte(strings.Repeat(" ", 5<<20))}}))
-		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions, "period_from": "now-1h"})
+		_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-1h"})
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "narrow the query")
 		assert.Contains(t, text, "sum by (service_name)")
 	})
@@ -741,9 +714,9 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmSeries: {body: []byte(strings.Repeat(" ", 5<<20))}}))
-		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions})
+		_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions})
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Empty(t, fake.requestsTo(vmAPI+"query"))
 	})
 
@@ -751,9 +724,9 @@ func TestQueryMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, metricsRoutes(map[string]fixture{vmQueryRange: {body: []byte(`{"status":"error","error":"bad query"}`), status: 422}}))
-		_, text, isError := metricsCall(t, newQANService(t, fake, false), map[string]any{"query": questions, "period_from": "now-1h"})
+		_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{"query": questions, "period_from": "now-1h"})
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "bad query")
 	})
 
@@ -859,26 +832,12 @@ func listRoutes(extra map[string]fixture) map[string]fixture {
 	}, extra))
 }
 
-func listCall(t *testing.T, s *Service, args map[string]any) (listMetricsResult, string, bool) {
-	t.Helper()
-
-	r := callTool(t, connect(t, s), "pmm_list_metrics", args)
-	text := textOf(t, r)
-	if r.IsError {
-		return listMetricsResult{}, text, true
-	}
-	return structured[listMetricsResult](t, r), text, false
-}
-
+// requireListInvalid is requireInvalid for pmm_list_metrics on a new fake PMM.
 func requireListInvalid(t *testing.T, args map[string]any, want string) {
 	t.Helper()
 
 	fake := newFakePMM(t, listRoutes(nil))
-	_, text, isError := listCall(t, newQANService(t, fake, false), args)
-	require.True(t, isError, "%v: %s", args, text)
-	assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
-	assert.Contains(t, text, want)
-	assert.Zero(t, fake.requestCount(), "%v sent a request", args)
+	requireInvalid(t, newQANService(t, fake, false), fake, "pmm_list_metrics", args, want)
 }
 
 func TestListMetricsTool(t *testing.T) {
@@ -888,12 +847,12 @@ func TestListMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, listRoutes(nil))
-		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"search": ".*"})
+		_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"search": ".*"})
 		require.False(t, isError, text)
 
 		reqs := fake.requestsTo(vmAPI + "label/__name__/values")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, []string{`{__name__=~".*\\.\\*.*"}`}, queryParams(t, reqs[0])["match[]"])
+		assert.Equal(t, []string{`{__name__=~".*\\.\\*.*"}`}, queryOf(t, reqs[0])["match[]"])
 		fake.assertForwardedAuth(t)
 	})
 
@@ -901,30 +860,30 @@ func TestListMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, listRoutes(nil))
-		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"search": "mongodb", "service_name": "db1"})
+		_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"search": "mongodb", "service_name": "db1"})
 		require.False(t, isError, text)
 		reqs := fake.requestsTo(vmAPI + "label/__name__/values")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, []string{`{__name__=~".*mongodb.*",service_name="db1"}`}, queryParams(t, reqs[0])["match[]"])
+		assert.Equal(t, []string{`{__name__=~".*mongodb.*",service_name="db1"}`}, queryOf(t, reqs[0])["match[]"])
 
 		fake = newFakePMM(t, listRoutes(nil))
-		_, text, isError = listCall(t, newQANService(t, fake, false), map[string]any{"service_id": `/service_id/a"b`})
+		_, text, isError = callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"service_id": `/service_id/a"b`})
 		require.False(t, isError, text)
 		reqs = fake.requestsTo(vmAPI + "label/__name__/values")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, []string{`{service_id="/service_id/a\"b"}`}, queryParams(t, reqs[0])["match[]"])
+		assert.Equal(t, []string{`{service_id="/service_id/a\"b"}`}, queryOf(t, reqs[0])["match[]"])
 	})
 
 	t.Run("NoSearchNoMatch", func(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, listRoutes(nil))
-		res, text, isError := listCall(t, newQANService(t, fake, false), nil)
+		res, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", nil)
 		require.False(t, isError, text)
 		assert.Equal(t, "names", res.Kind)
 		reqs := fake.requestsTo(vmAPI + "label/__name__/values")
 		require.Len(t, reqs, 1)
-		assert.False(t, queryParams(t, reqs[0]).Has("match[]"))
+		assert.False(t, queryOf(t, reqs[0]).Has("match[]"))
 	})
 
 	t.Run("EveryRequestIsBounded", func(t *testing.T) {
@@ -938,11 +897,11 @@ func TestListMetricsTool(t *testing.T) {
 		}
 		for endpoint, args := range argsOf {
 			fake := newFakePMM(t, listRoutes(nil))
-			_, text, isError := listCall(t, newQANService(t, fake, false), args)
+			_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", args)
 			require.False(t, isError, "%s: %s", endpoint, text)
 			reqs := fake.requestsTo(vmAPI + endpoint)
 			require.Len(t, reqs, 1, endpoint)
-			p := queryParams(t, reqs[0])
+			p := queryOf(t, reqs[0])
 			assert.Equal(t, "1001", p.Get("limit"), endpoint)
 			assert.Equal(t, unixOf(testNow), p.Get("end"), endpoint)
 			assert.Equal(t, unixOf(testNow.Add(-time.Hour)), p.Get("start"), endpoint)
@@ -953,11 +912,11 @@ func TestListMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, listRoutes(nil))
-		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"period_from": "now-6h"})
+		_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"period_from": "now-6h"})
 		require.False(t, isError, text)
 		reqs := fake.requestsTo(vmAPI + "label/__name__/values")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, unixOf(testNow.Add(-6*time.Hour)), queryParams(t, reqs[0]).Get("start"))
+		assert.Equal(t, unixOf(testNow.Add(-6*time.Hour)), queryOf(t, reqs[0]).Get("start"))
 	})
 
 	t.Run("NamesOverTheLimitAreGrouped", func(t *testing.T) {
@@ -965,7 +924,7 @@ func TestListMetricsTool(t *testing.T) {
 
 		names := slices.Concat(numbered("mysql_global_status_", 800), numbered("node_cpu_seconds_total_", 700))
 		fake := newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: stringsBody(names)}}))
-		res, text, isError := listCall(t, newQANService(t, fake, false), nil)
+		res, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", nil)
 		require.False(t, isError, text)
 
 		assert.Empty(t, res.Names)
@@ -988,7 +947,7 @@ func TestListMetricsTool(t *testing.T) {
 			return out
 		}
 		fake := newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(short(1001))}}))
-		res, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000, "offset": 1000})
+		res, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"kind": "values", "label": "service_name", "limit": 1000, "offset": 1000})
 		require.False(t, isError, text)
 
 		assert.Equal(t, 1001, res.Page.Total)
@@ -999,12 +958,12 @@ func TestListMetricsTool(t *testing.T) {
 		assert.Contains(t, text, res.Hint)
 		assert.NotContains(t, text, "pass offset", "no entry follows the last page")
 
-		_, text, isError = listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000})
+		_, text, isError = callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"kind": "values", "label": "service_name", "limit": 1000})
 		require.False(t, isError, text)
 		assert.Contains(t, text, "showing 1–1000 of 1001; pass offset=1000 for more")
 
 		fake = newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(short(1000))}}))
-		res, text, isError = listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "limit": 1000})
+		res, text, isError = callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"kind": "values", "label": "service_name", "limit": 1000})
 		require.False(t, isError, text)
 		assert.False(t, res.Page.Truncated)
 		assert.Empty(t, res.Hint)
@@ -1014,13 +973,13 @@ func TestListMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, listRoutes(nil))
-		res, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"kind": "labels", "match": []string{"mysql_up"}})
+		res, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"kind": "labels", "match": []string{"mysql_up"}})
 		require.False(t, isError, text)
 
 		assert.Equal(t, []string{"job", "service_name"}, res.Labels)
 		reqs := fake.requestsTo(vmAPI + "labels")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, []string{"mysql_up"}, queryParams(t, reqs[0])["match[]"])
+		assert.Equal(t, []string{"mysql_up"}, queryOf(t, reqs[0])["match[]"])
 	})
 
 	t.Run("RefusedInputs", func(t *testing.T) {
@@ -1046,7 +1005,7 @@ func TestListMetricsTool(t *testing.T) {
 		reversed := slices.Clone(values)
 		slices.Reverse(reversed)
 		fake := newFakePMM(t, listRoutes(map[string]fixture{vmValues: {body: stringsBody(reversed)}}))
-		res, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"kind": "values", "label": "service_name", "offset": 100})
+		res, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"kind": "values", "label": "service_name", "offset": 100})
 		require.False(t, isError, text)
 
 		assert.Equal(t, values[100:200], res.Values, "sorted, 101 to 200")
@@ -1140,14 +1099,14 @@ func TestListMetricsTool(t *testing.T) {
 		fake := newFakePMM(t, listRoutes(map[string]fixture{vmSeries: {body: body}}))
 		s := newQANService(t, fake, false)
 		args := map[string]any{"kind": "series", "match": []string{"mysql_up"}}
-		res, text, isError := listCall(t, s, args)
+		res, text, isError := callAs[listMetricsResult](t, s, "pmm_list_metrics", args)
 		require.False(t, isError, text)
 		assert.Empty(t, res.Series)
 		assert.True(t, res.Page.Truncated)
 		assert.Contains(t, res.Hint, "pass offset=1 to skip it")
 
 		args["offset"] = 1
-		res, text, isError = listCall(t, s, args)
+		res, text, isError = callAs[listMetricsResult](t, s, "pmm_list_metrics", args)
 		require.False(t, isError, text)
 		assert.Equal(t, []map[string]string{{"__name__": "mysql_up", "b": "y"}}, res.Series)
 	})
@@ -1170,7 +1129,7 @@ func TestListMetricsTool(t *testing.T) {
 		require.True(t, ok)
 		body := stringsBody([]string{"zz_not_in_catalogue", "mysql_global_status_threads_connected"})
 		fake := newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: body}}))
-		res, text, isError := listCall(t, newQANService(t, fake, false), nil)
+		res, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", nil)
 		require.False(t, isError, text)
 
 		require.Len(t, res.Names, 2)
@@ -1186,12 +1145,12 @@ func TestListMetricsTool(t *testing.T) {
 
 		evil := "a\nKind: series\nTotal: 0"
 		fake := newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: stringsBody([]string{evil})}}))
-		_, text, isError := listCall(t, newQANService(t, fake, false), nil)
+		_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", nil)
 		require.False(t, isError, text)
 		assert.Equal(t, "Kind: names\nTotal: 1\n"+strconv.Quote(evil), text)
 
 		fake = newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: stringsBody(numbered("a\nb_c_d_", 150))}}))
-		_, text, isError = listCall(t, newQANService(t, fake, false), nil)
+		_, text, isError = callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", nil)
 		require.False(t, isError, text)
 		assert.Contains(t, text, "\n"+strconv.Quote("a\nb_c_d_*")+" (150)")
 		assert.NotContains(t, text, "a\nb")
@@ -1212,7 +1171,7 @@ func TestListMetricsTool(t *testing.T) {
 		}
 
 		fake := newFakePMM(t, listRoutes(nil))
-		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{
+		_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{
 			"kind": "series", "match": []string{`mysql_up`, `{__name__="mysql_up", service_name="db1"}`, `{__name__="mysql_up", a="x" or b="y"}`},
 		})
 		require.False(t, isError, text)
@@ -1224,7 +1183,7 @@ func TestListMetricsTool(t *testing.T) {
 		requireListInvalid(t, map[string]any{"search": strings.Repeat("é", 201)}, "search must be at most 200 characters")
 
 		fake := newFakePMM(t, listRoutes(nil))
-		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"search": strings.Repeat("é", 200)})
+		_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"search": strings.Repeat("é", 200)})
 		require.False(t, isError, text)
 	})
 
@@ -1232,7 +1191,7 @@ func TestListMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		from := testNow.Add(time.Hour).Format(time.RFC3339)
-		_, text, isError := listCall(t, newQANService(t, newFakePMM(t, listRoutes(nil)), false), map[string]any{"period_from": from})
+		_, text, isError := callAs[listMetricsResult](t, newQANService(t, newFakePMM(t, listRoutes(nil)), false), "pmm_list_metrics", map[string]any{"period_from": from})
 		require.True(t, isError, text)
 		assert.Equal(t, "error: invalid_input\nperiod_from ("+from+") must be before now", text)
 	})
@@ -1259,11 +1218,11 @@ func TestListMetricsTool(t *testing.T) {
 		}
 
 		fake := newFakePMM(t, listRoutes(nil))
-		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"period_from": "now-7d"})
+		_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"period_from": "now-7d"})
 		require.False(t, isError, text)
 		reqs := fake.requestsTo(vmAPI + "label/__name__/values")
 		require.Len(t, reqs, 1)
-		assert.Equal(t, unixOf(testNow.Add(-7*24*time.Hour)), queryParams(t, reqs[0]).Get("start"))
+		assert.Equal(t, unixOf(testNow.Add(-7*24*time.Hour)), queryOf(t, reqs[0]).Get("start"))
 
 		requireListInvalid(t, map[string]any{"period_from": "2026-09-01T00:00:00Z"}, "the cap is 7d")
 	})
@@ -1278,7 +1237,7 @@ func TestListMetricsTool(t *testing.T) {
 		} {
 			args["period_from"] = "now-7d"
 			fake := newFakePMM(t, listRoutes(nil))
-			_, text, isError := listCall(t, newQANService(t, fake, false), args)
+			_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", args)
 			require.False(t, isError, "%v: %s", args, text)
 			assert.Equal(t, 1, fake.requestCount()-len(fake.requestsTo("/graph/api/datasources/name/Metrics")), "%v", args)
 
@@ -1291,9 +1250,9 @@ func TestListMetricsTool(t *testing.T) {
 		t.Parallel()
 
 		fake := newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: []byte(`{"status":"error","error":"bad matcher"}`), status: 422}}))
-		_, text, isError := listCall(t, newQANService(t, fake, false), map[string]any{"search": "mysql"})
+		_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", map[string]any{"search": "mysql"})
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "bad matcher")
 	})
 
@@ -1302,9 +1261,9 @@ func TestListMetricsTool(t *testing.T) {
 
 		body := []byte(`{"status":"success","data":[` + strings.Repeat(`"`+strings.Repeat("x", 1000)+`",`, 5000) + `"x"]}`)
 		fake := newFakePMM(t, listRoutes(map[string]fixture{vmNames: {body: body}}))
-		_, text, isError := listCall(t, newQANService(t, fake, false), nil)
+		_, text, isError := callAs[listMetricsResult](t, newQANService(t, fake, false), "pmm_list_metrics", nil)
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "larger than 4 MiB: narrow the request")
 	})
 
@@ -1327,7 +1286,7 @@ func TestListMetricsTool(t *testing.T) {
 			{"kind": "values", "label": "service_name"},
 			{"kind": "series", "match": []string{"up"}},
 		} {
-			_, text, isError := listCall(t, s, args)
+			_, text, isError := callAs[listMetricsResult](t, s, "pmm_list_metrics", args)
 			require.False(t, isError, "%v takes more than one slot: %s", args, text)
 		}
 
@@ -1335,9 +1294,9 @@ func TestListMetricsTool(t *testing.T) {
 		require.Equal(t, limitNone, hit, "a finished call released its slot")
 		releases = append(releases, release)
 		before := fake.requestCount()
-		_, text, isError := listCall(t, s, nil)
+		_, text, isError := callAs[listMetricsResult](t, s, "pmm_list_metrics", nil)
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Equal(t, before, fake.requestCount(), "no request is sent without a slot")
 		for _, release := range releases {
 			release()

@@ -212,7 +212,7 @@ func TestRateLimitedRetryAfter(t *testing.T) {
 
 		text := textOf(t, res)
 		require.True(t, res.IsError, text)
-		require.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		meta, ok := res.Meta["com.percona/error"].(map[string]any)
 		require.True(t, ok, "%v", res.Meta)
 		assert.Equal(t, "rate_limited", meta["code"])
@@ -226,7 +226,7 @@ func TestRateLimitedRetryAfter(t *testing.T) {
 	t.Run("Live", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
 		args := map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}}
@@ -278,7 +278,7 @@ func TestRateLimitedRetryAfter(t *testing.T) {
 		for range 2 * metricCallsBurst {
 			text, isError := callText(t, session, "pmm_query_metrics", map[string]any{"query": "up", "period_from": "now-30d"})
 			require.True(t, isError)
-			require.True(t, strings.HasPrefix(text, "error: invalid_input"), text)
+			assertToolError(t, text, codeInvalidInput, "")
 		}
 		s.metricRate.mu.Lock()
 		defer s.metricRate.mu.Unlock()
@@ -322,7 +322,7 @@ func TestQANWindowCap(t *testing.T) {
 	} {
 		text, isError := callText(t, session, tc.name, tc.args)
 		assert.True(t, isError, tc.name)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "30 days", tc.name)
 	}
 	assert.Zero(t, fake.requestCount(), "a refused window reaches no backend")
@@ -335,6 +335,48 @@ func TestQANWindowCap(t *testing.T) {
 	assert.False(t, isError, text)
 	text, isError = callText(t, session, "pmm_query_detail", detail)
 	assert.False(t, isError, text)
+}
+
+// heldSlots records how many metric-call slots a caller held at each request the fake PMM received, under "action" for
+// the actions API and "lookup" for the rest.
+type heldSlots struct {
+	mu   sync.Mutex
+	held map[string][]int
+}
+
+// watchSlots starts recording the metric-call slots key holds in s at each request fake receives.
+func watchSlots(fake *fakePMM, s *Service, key string) *heldSlots {
+	h := &heldSlots{held: map[string][]int{}}
+	fake.handle(func(_ http.ResponseWriter, r *http.Request, _ []byte) bool {
+		s.metrics.mu.Lock()
+		n := s.metrics.byKey[key]
+		s.metrics.mu.Unlock()
+		kind := "lookup"
+		if strings.HasPrefix(r.URL.Path, "/v1/actions") {
+			kind = "action"
+		}
+		h.mu.Lock()
+		h.held[kind] = append(h.held[kind], n)
+		h.mu.Unlock()
+		return false
+	})
+	return h
+}
+
+// assertReleasedBeforeLive checks that the lookup held one slot at each of its requests, and the live part none.
+func (h *heldSlots) assertReleasedBeforeLive(t *testing.T) {
+	t.Helper()
+
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	require.NotEmpty(t, h.held["lookup"])
+	require.NotEmpty(t, h.held["action"])
+	for _, n := range h.held["lookup"] {
+		assert.Equal(t, 1, n, "the lookup holds one metric slot: %v", h.held)
+	}
+	for _, n := range h.held["action"] {
+		assert.Zero(t, n, "the live part holds no metric slot: %v", h.held)
+	}
 }
 
 func TestQANCallsShareMetricSlots(t *testing.T) {
@@ -363,7 +405,7 @@ func TestQANCallsShareMetricSlots(t *testing.T) {
 		for name, a := range args {
 			text, isError := callText(t, session, name, a)
 			assert.True(t, isError, name)
-			assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+			assertToolError(t, text, codeRateLimited, "")
 			assert.Contains(t, text, "at most 4 metric calls can be in flight for these credentials", name)
 		}
 		assert.Zero(t, fake.requestCount())
@@ -401,27 +443,17 @@ func TestQANCallsShareMetricSlots(t *testing.T) {
 
 		fake := newFakePMM(t, qanRoutes())
 		s := newQANService(t, fake, true)
-		var mu sync.Mutex
-		var held []int
-		next := fake.server.Config.Handler
-		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			s.metrics.mu.Lock()
-			n := s.metrics.byKey[key]
-			s.metrics.mu.Unlock()
-			mu.Lock()
-			held = append(held, n)
-			mu.Unlock()
-			next.ServeHTTP(rw, r)
-		})
+		held := watchSlots(fake, s, key)
 
 		text, isError := callText(t, connect(t, s), "pmm_query_detail", args["pmm_query_detail"])
 		require.False(t, isError, text)
 
-		mu.Lock()
-		defer mu.Unlock()
-		require.GreaterOrEqual(t, len(held), 2, "the call makes several backend requests")
-		for _, n := range held {
-			assert.Equal(t, 1, n, fmt.Sprint(held))
+		held.mu.Lock()
+		defer held.mu.Unlock()
+		assert.Empty(t, held.held["action"])
+		require.GreaterOrEqual(t, len(held.held["lookup"]), 2, "the call makes several backend requests")
+		for _, n := range held.held["lookup"] {
+			assert.Equal(t, 1, n, fmt.Sprint(held.held))
 		}
 	})
 }
@@ -448,7 +480,7 @@ func TestLiveLookupSharesMetricCaps(t *testing.T) {
 			} {
 				text, isError := callText(t, session, tool, args)
 				assert.True(t, isError, tool)
-				assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+				assertToolError(t, text, codeInvalidInput, "")
 				assert.Contains(t, text, "the window is longer than the cap of 30 days", tool)
 			}
 		}
@@ -486,36 +518,12 @@ func TestLiveLookupSharesMetricCaps(t *testing.T) {
 				postgresQuery(fake)
 			}
 			s := newQANService(t, fake, true)
-			var mu sync.Mutex
-			held := map[string][]int{}
-			next := fake.server.Config.Handler
-			fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-				s.metrics.mu.Lock()
-				n := s.metrics.byKey[key]
-				s.metrics.mu.Unlock()
-				kind := "lookup"
-				if strings.HasPrefix(r.URL.Path, "/v1/actions") {
-					kind = "action"
-				}
-				mu.Lock()
-				held[kind] = append(held[kind], n)
-				mu.Unlock()
-				next.ServeHTTP(rw, r)
-			})
+			held := watchSlots(fake, s, key)
 
 			text, isError := callText(t, connect(t, s), tool, map[string]any{"queryid": "QID-AAA"})
 			require.False(t, isError, text)
 
-			mu.Lock()
-			defer mu.Unlock()
-			require.NotEmpty(t, held["lookup"])
-			require.NotEmpty(t, held["action"])
-			for _, n := range held["lookup"] {
-				assert.Equal(t, 1, n, "the lookup holds one metric slot: %v", held)
-			}
-			for _, n := range held["action"] {
-				assert.Zero(t, n, "the live part holds no metric slot: %v", held)
-			}
+			held.assertReleasedBeforeLive(t)
 			s.metrics.mu.Lock()
 			assert.Empty(t, s.metrics.byKey)
 			s.metrics.mu.Unlock()
@@ -547,7 +555,7 @@ func TestInventoryAndConfigShareMetricCaps(t *testing.T) {
 	} {
 		text, isError := callText(t, session, name, a)
 		assert.True(t, isError, name)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 	}
 	s.metricRate.mu.Lock()
 	assert.Empty(t, s.metricRate.buckets, "refused input takes no token")
@@ -591,7 +599,7 @@ func TestSchemaByNameLookupSharesMetricCaps(t *testing.T) {
 	t.Run("RateLimited", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		for range metricCallsBurst {
 			_, ok := s.metricRate.take(key, testNow)
@@ -600,45 +608,21 @@ func TestSchemaByNameLookupSharesMetricCaps(t *testing.T) {
 
 		text, isError := callText(t, connect(t, s), "pmm_get_schema", map[string]any{"service_id": "svc-unknown", "database": "shop", "tables": []string{"customers"}})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Zero(t, listQueries(fake), "a refused call reaches no service-list query")
 	})
 
 	t.Run("SlotReleasedBeforeLive", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
-		var mu sync.Mutex
-		held := map[string][]int{}
-		next := fake.server.Config.Handler
-		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			s.metrics.mu.Lock()
-			n := s.metrics.byKey[key]
-			s.metrics.mu.Unlock()
-			kind := "lookup"
-			if strings.HasPrefix(r.URL.Path, "/v1/actions") {
-				kind = "action"
-			}
-			mu.Lock()
-			held[kind] = append(held[kind], n)
-			mu.Unlock()
-			next.ServeHTTP(rw, r)
-		})
+		held := watchSlots(fake, s, key)
 
 		text, isError := callText(t, connect(t, s), "pmm_get_schema", args)
 		require.False(t, isError, text)
 
-		mu.Lock()
-		defer mu.Unlock()
-		require.NotEmpty(t, held["lookup"])
-		require.NotEmpty(t, held["action"])
-		for _, n := range held["lookup"] {
-			assert.Equal(t, 1, n, "the lookup holds one metric slot: %v", held)
-		}
-		for _, n := range held["action"] {
-			assert.Zero(t, n, "the live part holds no metric slot: %v", held)
-		}
+		held.assertReleasedBeforeLive(t)
 	})
 }
 
@@ -668,7 +652,7 @@ func TestLookupPanicReleasesSlot(t *testing.T) {
 			for range maxMetricCallsPerCaller + 1 {
 				text, isError := callText(t, session, tc.tool, tc.args)
 				assert.True(t, isError)
-				require.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
+				assertToolError(t, text, codePMMUnavailable, "")
 			}
 			assertLimitersEmpty(t, s)
 		})

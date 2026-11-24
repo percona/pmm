@@ -82,18 +82,16 @@ func TestNoCredentialsInLogs(t *testing.T) {
 		"Unauthorized": func(t *testing.T) *fakePMM {
 			t.Helper()
 			fake := newFakePMM(t, nil)
-			body := readFixture(t, "error_401.json")
-			fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
-				rw.Header().Set("Content-Type", "application/json")
-				rw.WriteHeader(http.StatusUnauthorized)
-				_, _ = rw.Write(body)
+			fake.handle(func(rw http.ResponseWriter, req *http.Request, _ []byte) bool {
+				fake.reply(rw, req, fixture{file: "error_401.json", status: http.StatusUnauthorized})
+				return true
 			})
 			return fake
 		},
 		"ServerError": func(t *testing.T) *fakePMM {
 			t.Helper()
 			fake := newFakePMM(t, qanRoutes())
-			failWhen(t, fake, func(*http.Request) bool { return true })
+			failWhen(fake, func(*http.Request) bool { return true })
 			return fake
 		},
 	}
@@ -105,12 +103,11 @@ func TestNoCredentialsInLogs(t *testing.T) {
 
 				fake := backend(t)
 				var forwarded atomic.Int64
-				next := fake.server.Config.Handler
-				fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				fake.handle(func(_ http.ResponseWriter, req *http.Request, _ []byte) bool {
 					if carries(req.Header, header) {
 						forwarded.Add(1)
 					}
-					next.ServeHTTP(rw, req)
+					return false
 				})
 
 				s := newQANService(t, fake, true)

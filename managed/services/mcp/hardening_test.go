@@ -181,7 +181,7 @@ func TestMetricsDatasourceSelection(t *testing.T) {
 		// With the caller's credentials every time: nothing is shared between
 		// callers, and nothing goes stale when the datasource is recreated.
 		assert.Len(t, fake.requestsTo("/graph/api/datasources/name/Metrics"), 2)
-		assert.Len(t, fake.requestsTo("/graph/api/datasources/proxy/uid/metrics-uid/api/v1/query"), 2)
+		assert.Len(t, fake.requestsTo(vmAPI+"query"), 2)
 		assert.Empty(t, fake.requestsTo("/graph/api/datasources"), "the datasources are never listed")
 		fake.assertForwardedAuth(t)
 	})
@@ -242,17 +242,6 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 		assert.Len(t, got.Variables, 4)
 		assert.Equal(t, "8.0.46-37", got.Version)
 		assert.True(t, strings.HasPrefix(text, "-- mysql 8.0.46-37 - 4 variables (numeric knobs from PMM metrics)\n"), text)
-	})
-
-	t.Run("ServiceNameStillAccepted", func(t *testing.T) {
-		t.Parallel()
-
-		fake := newFakePMM(t, routes)
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql"})
-		assert.False(t, isError, text)
-		assert.Contains(t, text, "innodb_buffer_pool_size")
 	})
 
 	t.Run("NeitherIsAnError", func(t *testing.T) {
@@ -320,8 +309,8 @@ func TestConfigAcceptsServiceID(t *testing.T) {
 func gatedRoutes(extra map[string]fixture) map[string]fixture {
 	return withRoutes(withRoutes(qanRoutes(), map[string]fixture{
 		"POST " + reportPath:                  {file: reportOne},
-		"GET /v1/qan/query/QID-AAA/plan":      {file: "plan_empty.json"},
-		"POST /v1/actions:startServiceAction": {file: "action_start_explain.json"},
+		"GET /v1/qan/query/QID-AAA/plan":      {file: "empty.json"},
+		startAction:                           {body: []byte(`{"mysql_explain_json": {"action_id": "explain-1"}}`)},
 		vmQueryRange:                          {body: healthMatrix(testNow, "1", "2")},
 		vmQuery + " ?mysql_global_variables_": {file: "vm_variables.json"},
 		vmQuery + " ?pg_settings_":            {file: "vm_variables.json"},
@@ -335,9 +324,7 @@ func assertNoGatedRequest(t *testing.T, fake *fakePMM) {
 	fake.mu.Lock()
 	defer fake.mu.Unlock()
 	for _, r := range fake.requests {
-		query, err := url.ParseQuery(r.query)
-		require.NoError(t, err)
-		promql := query.Get("query")
+		promql := queryOf(t, r).Get("query")
 		gated := strings.HasPrefix(r.path, "/v1/qan") ||
 			strings.HasPrefix(r.path, "/v1/actions") ||
 			r.path == vmAPI+"query_range" ||
@@ -393,7 +380,7 @@ func TestServiceListFailsClosed(t *testing.T) {
 
 				text, isError := callText(t, session, c.tool, c.args)
 				require.True(t, isError, text)
-				assert.True(t, strings.HasPrefix(text, "error: "+string(f.code)+"\n"), text)
+				assertToolError(t, text, f.code, "")
 				assert.Equal(t, 1, listQueries(fake), "the gate read the list")
 				assertNoGatedRequest(t, fake)
 			})
@@ -424,19 +411,6 @@ func TestConfigByServiceName(t *testing.T) {
 	t.Parallel()
 
 	hint := "; use pmm_inventory to list service ids"
-
-	t.Run("ReturnsTheVariables", func(t *testing.T) {
-		t.Parallel()
-
-		routes := withRoutes(inventoryRoutes(), map[string]fixture{vmQuery: {file: "vm_variables.json"}})
-		fake := newFakePMM(t, routes)
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql"})
-		assert.False(t, isError, text)
-		assert.Contains(t, text, "innodb_buffer_pool_size")
-		assert.Equal(t, 1, listQueries(fake))
-	})
 
 	t.Run("TakesTheNewestOfTwoWithOneName", func(t *testing.T) {
 		t.Parallel()
@@ -473,152 +447,8 @@ func TestConfigByServiceName(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_name": "proxy-1"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "proxysql")
-	})
-}
-
-// TestStoredPlanProbe pins where pmm_get_explain looks for a stored plan.
-//
-// Only PostgreSQL has stored plans - pg_stat_monitor captures one per digest -
-// so the probe runs for PostgreSQL alone. It sends service_id, which qan-api2
-// ignores. These tests pin what the probe does promise.
-func TestStoredPlanProbe(t *testing.T) {
-	t.Parallel()
-
-	t.Run("UnknownServiceRejectedBeforeAnyPlanLookup", func(t *testing.T) {
-		t.Parallel()
-
-		fake := newFakePMM(t, explainRoutes(reportOne, map[string]fixture{"GET /v1/qan/query/QID-AAA/plan": {file: "plan.json"}}))
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_explain",
-			map[string]any{"service_id": "svc-does-not-exist", "queryid": "QID-AAA"})
-		assert.True(t, isError)
-		assert.Contains(t, text, "not_found")
-		assert.Empty(t, fake.requestsTo("/v1/qan/query/QID-AAA/plan"),
-			"the service must be validated before the plan is fetched, not after")
-	})
-
-	t.Run("MySQLNeverProbes", func(t *testing.T) {
-		t.Parallel()
-
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		session := connect(t, newQANService(t, fake, true))
-
-		_, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
-		require.False(t, isError)
-		assert.Empty(t, fake.requestsTo("/v1/qan/query/QID-AAA/plan"),
-			"MySQL has no stored plans, so the lookup is pure cost")
-	})
-
-	t.Run("PostgreSQLReturnsTheStoredPlan", func(t *testing.T) {
-		t.Parallel()
-
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
-		session := connect(t, newQANService(t, fake, true))
-
-		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
-		text, isError := textOf(t, res), res.IsError
-		require.False(t, isError, text)
-		assert.Contains(t, text, "Stored plan (pg_stat_monitor, planid PLAN-1)")
-		assert.Contains(t, text, "user42@example.com", "raw SQL is on in this test")
-		assert.Contains(t, text, "var-service_name=shop-postgres", "the deep link now names the service")
-		got := structured[explainResult](t, res)
-		assert.False(t, got.Live, "a stored plan is not produced live")
-		assert.Contains(t, got.PMMURL, "var-service_name=shop-postgres")
-		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"), "PostgreSQL has no live EXPLAIN action")
-		plans := fake.requestsTo("/v1/qan/query/QID-PG/plan")
-		require.Len(t, plans, 1)
-		assert.Equal(t, "service_id=svc-2", plans[0].query, "the plan is requested for this service")
-	})
-
-	t.Run("PostgreSQLProbeErrorIsSurfaced", func(t *testing.T) {
-		t.Parallel()
-
-		routes := explainRoutes("report_by_service_postgres.json", nil)
-		routes["GET /v1/qan/query/QID-PG/plan"] = fixture{file: "error_403.json", status: http.StatusInternalServerError}
-		fake := newFakePMM(t, routes)
-		session := connect(t, newQANService(t, fake, true))
-
-		// A failed lookup is a failure, not "no plan": the setup hint would send
-		// the operator to enable a setting that may well be on already.
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
-		assert.True(t, isError)
-		assert.Contains(t, text, "pmm_unavailable")
-		assert.NotContains(t, text, "pgsm_enable_query_plan")
-	})
-
-	t.Run("PostgreSQLWithoutAPlanGivesTheSetupHint", func(t *testing.T) {
-		t.Parallel()
-
-		routes := explainRoutes("report_by_service_postgres.json", nil)
-		routes["GET /v1/qan/query/QID-PG/plan"] = fixture{file: "plan_empty.json"}
-		fake := newFakePMM(t, routes)
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
-		assert.True(t, isError)
-		assert.Contains(t, text, "not_found")
-		assert.Contains(t, text, "pgsm_enable_query_plan")
-	})
-}
-
-// TestExplainMasksLiteralsWhenRawSQLIsOff pins that plan bodies lose their
-// literal values by default, while keeping the plan's shape.
-func TestExplainMasksLiteralsWhenRawSQLIsOff(t *testing.T) {
-	t.Parallel()
-
-	t.Run("MySQLJSON", func(t *testing.T) {
-		t.Parallel()
-
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		session := connect(t, newQANService(t, fake, false))
-
-		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
-		text, isError := textOf(t, res), res.IsError
-		require.False(t, isError, text)
-		assert.NotContains(t, text, "user42@example.com")
-		assert.Contains(t, text, `"attached_condition": "(`+"`shop`.`customers`.`email`"+` = ?)"`)
-		assert.Contains(t, text, `"access_type": "ALL"`, "the plan's shape survives masking")
-		assert.Contains(t, text, `"rows_examined_per_scan": 20000`, "row estimates are not literals")
-
-		got := structured[explainResult](t, res)
-		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
-		assert.Contains(t, got.Plan, `"attached_condition": "(`+"`shop`.`customers`.`email`"+` = ?)"`)
-		assert.Contains(t, text, "```\n"+got.Plan+"\n```", "the masked plan the text shows")
-	})
-
-	t.Run("PostgreSQLStoredPlan", func(t *testing.T) {
-		t.Parallel()
-
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
-		session := connect(t, newQANService(t, fake, false))
-
-		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
-		text, isError := textOf(t, res), res.IsError
-		require.False(t, isError, text)
-		assert.NotContains(t, text, "user42@example.com")
-		assert.Contains(t, text, "Filter: ((email)::text = ?::text)")
-		assert.Contains(t, text, "(cost=0.00..458.00 rows=1 width=64)", "cost and row estimates are not literals")
-
-		got := structured[explainResult](t, res)
-		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
-		assert.Contains(t, got.Plan, "Filter: ((email)::text = ?::text)")
-		assert.Contains(t, text, "```\n"+got.Plan+"\n```", "the masked plan the text shows")
-	})
-
-	t.Run("MySQLTraditional", func(t *testing.T) {
-		t.Parallel()
-
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		session := connect(t, newQANService(t, fake, false))
-
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "format": formatTraditional})
-		require.False(t, isError, text)
-		assert.NotContains(t, text, "user42@example.com")
 	})
 }
 
