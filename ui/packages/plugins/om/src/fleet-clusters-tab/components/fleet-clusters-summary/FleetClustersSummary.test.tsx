@@ -42,13 +42,13 @@ describe('FleetClustersSummary', () => {
     useOmTopology.mockReturnValue({ data: mixedEstate() });
   });
 
-  it('counts the clusters and each state, worst first, leaving out the empty ones', () => {
+  it('counts the clusters and their members', () => {
     useOmTopology.mockReturnValue({
       data: topology([
         {
           env_name: 'production',
           clusters: [
-            cluster({ name: 'a', services: [service({})] }),
+            cluster({ name: 'a', services: [service({}), service({})] }),
             cluster({ name: 'b', services: [service({})] }),
             cluster({
               name: 'c',
@@ -62,18 +62,16 @@ describe('FleetClustersSummary', () => {
     renderSummary();
 
     expect(screen.getByTestId('om-fleet-summary')).toHaveTextContent(
-      '3 clusters1 down2 healthy'
+      '3 clusters · 4 members'
     );
-    expect(screen.queryByText(/degraded|unknown/)).toBeNull();
-    expect(
-      screen.getByTestId('om-cluster-health-icon-down')
-    ).toBeInTheDocument();
   });
 
   it('counts the whole fleet', () => {
     renderSummary();
 
-    expect(screen.getByText('2 clusters')).toBeInTheDocument();
+    expect(screen.getByTestId('om-fleet-summary')).toHaveTextContent(
+      /^2 clusters ·/
+    );
   });
 
   it('keeps the fallback until there is a cluster to count', () => {

@@ -37,6 +37,12 @@ export const Messages = {
   summary: {
     clusters: (count: number) => `${count} ${pluralize(count, 'cluster')}`,
     health: (count: number, label: string) => `${count} ${label.toLowerCase()}`,
+    members: (count: number) => `${count} ${pluralize(count, 'member')}`,
+  },
+  healthCard: {
+    title: 'Fleet health',
+    unhealthy: (total: number) => `${pluralize(total, 'cluster')} unhealthy`,
+    showUnhealthy: 'Show unhealthy clusters',
   },
   install: 'Install new cluster',
   installTooltip:
@@ -81,6 +87,9 @@ export const Messages = {
     notReporting: (count: number, total: number) =>
       `${count} of ${total} ${pluralize(total, 'member')} not reporting`,
   },
+  membersUnreported: '?',
+  membersUnreportedTooltip: 'No member has reported in this snapshot',
+  lastSeenStale: (limit: string) => `Not observed for over ${limit}`,
   thresholds: {
     lagAbove: (limit: string) => `Above ${limit}, the alert threshold`,
     oplogBelow: (limit: string) =>

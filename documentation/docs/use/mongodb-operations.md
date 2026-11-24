@@ -218,20 +218,21 @@ To view fleet health:
 {.power-number}
 
 1. Go to **MongoDB > Operations > Fleet**.
-2. On the **Clusters** tab, check the summary at the top: how many environments, clusters, and services PMM monitors, and how many services are up or down.
-3. To narrow the list, type part of a cluster name in **Search clusters**, or select values in the **Health**, **Type**, and **Environment** filters. A cluster must match the search and every filter that you set. Within one filter, any selected value matches. The filters are saved in the page URL, so you can share the filtered view. To reset, click **Clear filters**.
-4. By default, clusters are grouped by environment. If you change **Group by**, the table keeps your choice for the browser session. For each cluster, check the following columns:
+2. On the **Clusters** tab, check the **Fleet health** card: how many clusters are not healthy, out of all clusters, and how many are **Down**, **Degraded**, **Unknown** or **Healthy**. To list only the clusters that are not healthy, click **Show unhealthy clusters**. The page title shows how many clusters and members PMM monitors.
+3. To narrow the list, type part of a cluster name in **Filter clusters by name**, or select values in the **Health**, **Type**, **Environment**, and **Version** filters. Each option shows how many clusters it matches with the other filters and the search applied. A cluster must match the search and every filter that you set. Within one filter, any selected value matches. The search and filters are saved in the page URL, so you can share the filtered view. To reset them, click **Clear all**.
+4. In **Group by**, select how to group the clusters: **Health status**, **Environment**, **Type**, **Version**, or **None**. If PMM monitors more than one environment, clusters are grouped by environment by default, and otherwise by health status. The table keeps your choice for the browser session. Next to **Group by**, the page shows how many groups and clusters match, and how long ago the data was refreshed.
+5. For each cluster, check the following columns:
 
-    - **Health**: the overall state of the cluster, for example **Healthy**.
-    - **Services**: the number of services in the cluster.
-    - **Process**: the member types in the cluster, for example routers, shards and arbiters.
-    - **Max repl. lag**: the highest replication lag across members.
-    - **Min oplog window**: the smallest oplog window across members.
+    - **Members**: the members that are up, out of all members. The count is red while a member is down, and shows **?** for up while no member has reported.
+    - **Environment**: the environment that the cluster's services are registered in.
+    - **Health**: the overall state of the cluster, and below it the reason, for example which member is down.
+    - **Version**: the version that the cluster runs. **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
+    - **Last seen**: when PMM last observed the least recently observed member. A clock icon marks a time more than 5 minutes ago.
 
-    To add columns that are hidden by default, such as **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
+    To add the **Max repl. lag**, **Oplog window**, **Services**, **Process**, **Max CPU**, and **Min conn. free** columns, click **Show/Hide columns** at the end of the **Group by** row. In **Max repl. lag**, a lag of 30 seconds or more is marked in red, with an icon. In **Oplog window**, a window shorter than 1 hour is marked in amber, with an icon.
 
-5. Expand a cluster's row to find the member that causes poor health or high replication lag.
-6. Select the **Services** tab to check whether a specific service is up or down.
+6. Expand a cluster's row to see its members.
+7. Select the **Services** tab to check whether a specific service is up or down.
 
 The page shows when its data was last refreshed and when the nodes were last scanned. To load the latest data, click **Refresh**.
 

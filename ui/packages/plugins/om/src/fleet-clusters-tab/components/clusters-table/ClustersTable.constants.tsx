@@ -19,7 +19,6 @@ import type { ReactNode } from 'react';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import type { MRT_ColumnDef } from 'material-react-table';
-import { Age } from '../../../components/Age';
 import { Percent } from '../../../components/Metric';
 import { Unavailable } from '../../../components/Unavailable';
 import { formatCompactDuration } from '../../../format';
@@ -41,8 +40,10 @@ import {
   environmentLabel,
 } from '../../FleetClustersTab.utils';
 import { ClusterHealthCell } from '../cluster-health-cell';
+import { ClusterMembersCell } from '../cluster-members-cell';
 import { ClusterTypeCell } from '../cluster-type-cell';
 import { ClusterVersionCell } from '../cluster-version-cell';
+import { LastSeenCell } from '../last-seen-cell';
 import { ThresholdValue } from '../threshold-value';
 import { UpdateAvailableChip } from '../update-available-chip';
 
@@ -70,12 +71,11 @@ export const DEFAULT_COLUMN: Partial<MRT_ColumnDef<OmClusterRow>> = {
     }) ?? (cell.renderValue() as ReactNode),
 };
 
-/** In the design's order; the last four are in the chooser, hidden at first. */
 export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
   {
     accessorKey: 'cluster_name',
     header: columns.cluster,
-    size: 200,
+    size: 160,
     // The only column the search reads.
     enableGlobalFilter: true,
     // Plain text until it has somewhere to lead: <ClusterNameLink />, PMM-15879.
@@ -87,14 +87,30 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     accessorFn: GROUP_VALUE.type,
     id: 'type',
     header: columns.type,
-    size: 150,
+    size: 120,
     filterFn: anyOf((row) => TYPE_FILTER_VALUE[row.type]),
     Cell: ({ row: { original } }) => <ClusterTypeCell cluster={original} />,
   },
   {
+    accessorFn: (row) => row.up_services,
+    id: 'members',
+    header: columns.members,
+    size: 115,
+    Header: withTooltip(columns.members, columnTooltips.members),
+    Cell: ({ row: { original } }) => <ClusterMembersCell cluster={original} />,
+  },
+  {
+    accessorFn: GROUP_VALUE.env_name,
+    id: 'env_name',
+    header: columns.environment,
+    size: 200,
+    filterFn: anyOf((row) => row.env_name || UNNAMED_ENVIRONMENT_VALUE),
+    Cell: ({ row: { original } }) => environmentLabel(original),
+  },
+  {
     accessorKey: 'health',
     header: columns.health,
-    size: 200,
+    size: 150,
     filterFn: anyOf((row) => row.health),
     // Worst first ascending
     sortingFn: (a, b, columnId) =>
@@ -103,19 +119,10 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     Cell: ({ row: { original } }) => <ClusterHealthCell cluster={original} />,
   },
   {
-    accessorFn: (row) => row.up_services,
-    id: 'members',
-    header: columns.members,
-    size: 110,
-    Header: withTooltip(columns.members, columnTooltips.members),
-    Cell: ({ row: { original } }) =>
-      `${original.up_services}/${original.total_services}`,
-  },
-  {
     accessorFn: GROUP_VALUE.versions,
     id: 'versions',
     header: columns.versions,
-    size: 160,
+    size: 110,
     filterFn: anyOfIncludes((row) => row.versions),
     // As versions, not strings: 7.0.9-1 is older than 7.0.24-13.
     // A cluster with no version known goes after the rest.
@@ -130,9 +137,21 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     ),
   },
   {
+    accessorFn: (row) =>
+      row.last_seen_at ? Date.parse(row.last_seen_at) : undefined,
+    id: 'last_seen_at',
+    header: columns.lastSeen,
+    size: 115,
+    sortUndefined: 'last',
+    Header: withTooltip(columns.lastSeen, columnTooltips.lastSeen),
+    Cell: ({ row: { original } }) => (
+      <LastSeenCell lastSeenAt={original.last_seen_at} />
+    ),
+  },
+  {
     accessorKey: 'max_replication_lag_seconds',
     header: columns.maxReplicationLag,
-    size: 130,
+    size: 125,
     Header: withTooltip(
       columns.maxReplicationLag,
       columnTooltips.maxReplicationLag
@@ -152,7 +171,7 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
   {
     accessorKey: 'min_oplog_window_seconds',
     header: columns.minOplogWindow,
-    size: 130,
+    size: 140,
     Header: withTooltip(columns.minOplogWindow, columnTooltips.minOplogWindow),
     Cell: ({ row: { original } }) => {
       const seconds = original.min_oplog_window_seconds;
@@ -167,29 +186,6 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
         />
       );
     },
-  },
-  {
-    accessorFn: GROUP_VALUE.env_name,
-    id: 'env_name',
-    header: columns.environment,
-    size: 150,
-    filterFn: anyOf((row) => row.env_name || UNNAMED_ENVIRONMENT_VALUE),
-    Cell: ({ row: { original } }) => environmentLabel(original),
-  },
-  {
-    accessorFn: (row) =>
-      row.last_seen_at ? Date.parse(row.last_seen_at) : undefined,
-    id: 'last_seen_at',
-    header: columns.lastSeen,
-    size: 110,
-    sortUndefined: 'last',
-    Header: withTooltip(columns.lastSeen, columnTooltips.lastSeen),
-    Cell: ({ row: { original } }) =>
-      original.last_seen_at ? (
-        <Age value={original.last_seen_at} />
-      ) : (
-        <Unavailable reason="service_not_observed" />
-      ),
   },
   { accessorKey: 'total_services', header: columns.services, size: 100 },
   {

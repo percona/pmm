@@ -16,21 +16,11 @@
  */
 
 import { useMemo } from 'react';
-import Divider from '@mui/material/Divider';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { CLUSTER_HEALTH_LABEL } from '../../../constants';
 import { toClusterRows } from '../../../topology';
 import { useOmTopology } from '../../../topologyHooks';
-import { HEALTH_FILTER_VALUES } from '../../FleetClustersTab.constants';
 import { Messages } from '../../FleetClustersTab.messages';
-import { countValues } from '../../FleetClustersTab.utils';
-import { ClusterHealthIcon } from '../cluster-health-icon';
 
-/**
- * The whole fleet in a line, for the page header: how many clusters, and how many in
- * each state, worst first. Unfiltered; the Group by bar counts the matches.
- */
 export const FleetClustersSummary = ({
   fallback,
 }: {
@@ -42,32 +32,15 @@ export const FleetClustersSummary = ({
   if (!rows.length) {
     return fallback;
   }
-  const byHealth = countValues(rows, (row) => row.health);
+  const members = rows.reduce((sum, row) => sum + row.total_services, 0);
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      gap={1.5}
-      flexWrap="wrap"
+    <Typography
+      variant="body2"
+      color="text.secondary"
       data-testid="om-fleet-summary"
     >
-      <Typography variant="body2" color="text.secondary">
-        {Messages.summary.clusters(rows.length)}
-      </Typography>
-      <Divider orientation="vertical" flexItem />
-      {HEALTH_FILTER_VALUES.filter((health) => byHealth[health]).map(
-        (health) => (
-          <Stack key={health} direction="row" alignItems="center" gap={0.5}>
-            <ClusterHealthIcon health={health} />
-            <Typography variant="body2" color="text.secondary">
-              {Messages.summary.health(
-                byHealth[health],
-                CLUSTER_HEALTH_LABEL[health]
-              )}
-            </Typography>
-          </Stack>
-        )
-      )}
-    </Stack>
+      {Messages.summary.clusters(rows.length)} ·{' '}
+      {Messages.summary.members(members)}
+    </Typography>
   );
 };

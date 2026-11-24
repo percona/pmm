@@ -46,6 +46,8 @@ const ERROR_TEXT =
 const STATUS_RED: Record<string, number> = {
   // a cluster's replication lag over its alert threshold
   'fleet-clusters-tab/components/threshold-value/ThresholdValue.constants.tsx': 1,
+  // a cluster's members count while one of them is down
+  'fleet-clusters-tab/components/cluster-members-cell/ClusterMembersCell.tsx': 1,
   // "N down", a service's "failing 3h", and its failure's short reason
   'FleetServicesTab.tsx': 3,
   // "N cannot be scanned", a failing node's row

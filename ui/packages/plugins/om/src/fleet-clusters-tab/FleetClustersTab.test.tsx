@@ -371,16 +371,16 @@ describe('FleetClustersTab', () => {
     expect(empty).not.toHaveTextContent('PMM has no MongoDB services');
   });
 
-  describe('counts carry no status colour (Pedro, 2026-10-06 and 2026-10-07)', () => {
-    const { error, success } = pmmThemeOptions('light').palette as Record<
-      'error' | 'success',
+  describe('members (PMM-15878)', () => {
+    const { error } = pmmThemeOptions('light').palette as Record<
+      'error',
       { main: string }
     >;
     const RED = hexToRgb(error.main);
-    const GREEN = hexToRgb(success.main);
     const colourOf = (element: HTMLElement) => getComputedStyle(element).color;
+    const silent = { status: 'SERVICE_STATUS_UNSPECIFIED' } as const;
 
-    it("states a cluster's members as up out of total, in plain text", () => {
+    beforeEach(() => {
       useOmTopology.mockReturnValue({
         data: topology([
           {
@@ -393,10 +393,20 @@ describe('FleetClustersTab', () => {
                   service({ service_name: 'mixed-2', ...down }),
                 ],
               }),
+              cluster({
+                name: 'calm',
+                services: [
+                  service({ service_name: 'calm-1' }),
+                  service({ service_name: 'calm-2' }),
+                ],
+              }),
               cluster({ name: 'empty', services: [] }),
               cluster({
-                name: 'dark',
-                services: [service({ service_name: 'dark-1', ...down })],
+                name: 'quiet',
+                services: [
+                  service({ service_name: 'quiet-1', ...silent }),
+                  service({ service_name: 'quiet-2', ...silent }),
+                ],
               }),
             ],
           },
@@ -404,11 +414,24 @@ describe('FleetClustersTab', () => {
         isPending: false,
         isError: false,
       });
+    });
+
+    it('marks the count red while a member is down', () => {
       renderPage();
 
-      for (const text of ['1/2', '0/0', '0/1']) {
-        expect([RED, GREEN]).not.toContain(colourOf(screen.getByText(text)));
-      }
+      expect(colourOf(screen.getByText('1/2'))).toBe(RED);
+      expect(colourOf(screen.getByText('2/2'))).not.toBe(RED);
+      expect(colourOf(screen.getByText('0/0'))).not.toBe(RED);
+    });
+
+    it('shows ? for up while no member has reported', async () => {
+      renderPage();
+
+      const unreported = screen.getByText('?/2');
+      fireEvent.mouseOver(unreported);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        'No member has reported in this snapshot'
+      );
     });
   });
 
@@ -1054,7 +1077,7 @@ describe('FleetClustersTab', () => {
       ).toHaveTextContent('Replica set');
     });
 
-    it("opens in the design's column order, CPU and free connections in the chooser", () => {
+    it("opens in the ticket's column order, the rest in the chooser", () => {
       renderPage();
 
       expect(
@@ -1066,12 +1089,10 @@ describe('FleetClustersTab', () => {
       ).toEqual([
         'Cluster name',
         'Type',
-        'Health',
         'Members',
-        'Version',
-        'Max repl. lag',
-        'Oplog window',
         'Environment',
+        'Health',
+        'Version',
         'Last seen',
       ]);
 
@@ -1199,6 +1220,8 @@ describe('FleetClustersTab', () => {
 
     it('marks lag over 30s and an oplog window under 1h with an icon and a tooltip', async () => {
       renderPage();
+      showColumn('Max repl. lag');
+      showColumn('Oplog window');
 
       const lag = within(rowNamed('lagging')).getByTestId('om-threshold-error');
       expect(lag).toHaveTextContent('47s');

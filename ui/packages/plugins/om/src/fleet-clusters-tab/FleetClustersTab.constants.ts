@@ -55,8 +55,9 @@ export const TYPE_GROUP_ORDER: OmClusterType[] = [
   'CLUSTER_TYPE_STANDALONE',
 ];
 
-/** Hidden to fit 1440px with the nav open; all of them are a click away in the chooser. */
 export const HIDDEN_BY_DEFAULT: MRT_VisibilityState = {
+  max_replication_lag_seconds: false,
+  min_oplog_window_seconds: false,
   total_services: false,
   roles: false,
   max_cpu_percent: false,
@@ -68,6 +69,9 @@ export const LAG_ALERT_SECONDS = 30;
 
 /** An oplog window below this reads as a warning; to confirm with design. */
 export const OPLOG_WARN_SECONDS = 60 * 60;
+
+/** A last seen older than this gets a clock: pmm-managed's om `staleAfter`. */
+export const LAST_SEEN_STALE_SECONDS = 5 * 60;
 
 /** Worst first, the order the health filter offers them in. */
 export const HEALTH_FILTER_VALUES: OmClusterHealth[] = [

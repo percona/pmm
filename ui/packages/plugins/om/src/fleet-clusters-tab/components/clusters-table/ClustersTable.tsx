@@ -42,6 +42,7 @@ import { useClusterColumnVisibility } from '../../useClusterColumnVisibility';
 import { useGroupedExpansion } from '../../useGroupedExpansion';
 import { ClusterFilterBar } from '../cluster-filter-bar';
 import { ClusterMembersTable } from '../cluster-members-table';
+import { FleetHealthCard } from '../fleet-health-card';
 import { GroupByBar } from '../group-by-bar';
 import { GroupHeader } from '../group-header';
 import { CLUSTER_COLUMNS, DEFAULT_COLUMN } from './ClustersTable.constants';
@@ -113,6 +114,7 @@ export const ClustersTable = ({
       // Above the table rather than in its toolbar row, as the design has them.
       renderTopToolbar={({ table }) => (
         <Stack gap={2} sx={{ pb: 2 }}>
+          <FleetHealthCard table={table} rows={rows} />
           <ClusterFilterBar table={table} rows={rows} />
           <GroupByBar
             table={table}

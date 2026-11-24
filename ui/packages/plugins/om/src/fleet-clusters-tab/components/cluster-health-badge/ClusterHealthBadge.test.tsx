@@ -23,11 +23,11 @@ import { ClusterHealthBadge } from './ClusterHealthBadge';
 
 describe('ClusterHealthBadge', () => {
   it.each([
-    ['healthy', 'Healthy'],
-    ['degraded', 'Degraded'],
-    ['down', 'Down'],
-    ['unknown', 'Unknown'],
-  ] as const)('reads %s as "%s" with its own glyph', (health, label) => {
+    ['healthy', 'Healthy', 'CheckCircleIcon'],
+    ['degraded', 'Degraded', 'WarningRoundedIcon'],
+    ['down', 'Down', 'ReportIcon'],
+    ['unknown', 'Unknown', 'HelpIcon'],
+  ] as const)('reads %s as "%s" with its own glyph', (health, label, icon) => {
     render(
       <ThemeContextProvider themeOptions={pmmThemeOptions}>
         <ClusterHealthBadge health={health as OmClusterHealth} />
@@ -37,8 +37,6 @@ describe('ClusterHealthBadge', () => {
     const chip = screen.getByTestId('om-cluster-health');
     expect(chip).toHaveTextContent(label);
     expect(chip).toHaveClass('MuiChip-outlined');
-    expect(
-      chip.querySelector(`[data-testid="om-cluster-health-icon-${health}"]`)
-    ).not.toBeNull();
+    expect(chip.querySelector(`[data-testid="${icon}"]`)).not.toBeNull();
   });
 });
