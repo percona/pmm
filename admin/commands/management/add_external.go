@@ -51,9 +51,17 @@ func (res *addExternalResult) String() string {
 }
 
 // AddExternalCommand is used by Kong for CLI flags and commands.
+type AddExternalCommand struct {
+	ExternalFlags
+
+	ListenPort uint16 `placeholder:"port" required:"" help:"Listen port of external exporter for scraping metrics. (Required)"`
+}
+
+// ExternalFlags holds the flags that adding and updating an External Service share. --listen-port is not one of
+// them: add requires it, and update must be able to leave it out.
 //
 //nolint:lll
-type AddExternalCommand struct {
+type ExternalFlags struct {
 	flags.MetricsModeFlags
 
 	ServiceName         string            `default:"${hostname}${externalDefaultServiceName}" help:"Service name (autodetected default: ${hostname}${externalDefaultServiceName})"`
@@ -63,7 +71,6 @@ type AddExternalCommand struct {
 	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
 	Scheme              string            `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
 	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
-	ListenPort          uint16            `placeholder:"port" required:"" help:"Listen port of external exporter for scraping metrics. (Required)"`
 	NodeID              string            `name:"service-node-id" help:"Node ID where service runs (default is autodetected)"`
 	Environment         string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
@@ -71,7 +78,7 @@ type AddExternalCommand struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
+	TLSSkipVerify       bool              `negatable:"" help:"Skip TLS certificate verification"`
 }
 
 // GetCredentials returns the credentials for AddExternalCommand.
