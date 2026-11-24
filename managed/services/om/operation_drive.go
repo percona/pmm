@@ -33,7 +33,7 @@ func driveChecking(
 	ctx context.Context, db *reform.DB, op *models.OmOperation, kind OperationKind, checkSet CheckSet,
 	facts map[string]any, ages map[string]time.Duration, scanRequester ScanRequester,
 ) (StartOutcome, error) {
-	if op.ClusterID == nil {
+	if op.ClusterID == nil && !kind.ClusterLess {
 		return "", errors.New("driver needs a cluster-scoped operation")
 	}
 	digest, err := computeReportDigest(checkSet, facts)
@@ -49,7 +49,7 @@ func driveChecking(
 			return requestRescan(op, scanRequester)
 		}
 	}
-	block := runBlockingRules(checkSet, CheckContext{ClusterID: *op.ClusterID, Facts: facts})
+	block := runBlockingRules(checkSet, CheckContext{ClusterID: clusterScope(op), Facts: facts})
 	if block.Blocked {
 		return failChecking(ctx, db, op, block.Reason)
 	}
@@ -58,6 +58,14 @@ func driveChecking(
 	}
 	recheck := func(*reform.TX) (bool, error) { return false, nil }
 	return startGate(ctx, db, op, models.OmOperationChecking, op.Version, nil, kind, lockSubjects(kind.LockSet(op)), recheck)
+}
+
+// clusterScope returns an operation's cluster id, or the empty string for a cluster-less install.
+func clusterScope(op *models.OmOperation) string {
+	if op.ClusterID == nil {
+		return ""
+	}
+	return *op.ClusterID
 }
 
 // requestRescan issues a scan request for a stale or over-age report and leaves the operation

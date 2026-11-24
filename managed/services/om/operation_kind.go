@@ -45,6 +45,7 @@ func (p AttentionPolicy) Exempt(reason string) bool {
 // kind-specific code. Later epics register kinds; this ticket ships only a test kind.
 type OperationKind struct {
 	Kind                    string
+	ClusterLess             bool
 	ConfirmsFor             func(models.OmOperationTrigger) bool
 	ConfirmPhrase           func(op *models.OmOperation) string
 	CancellableWhileRunning bool
@@ -52,6 +53,8 @@ type OperationKind struct {
 	NonInterruptibleSteps   map[string]bool
 	LockSet                 func(op *models.OmOperation) []LockResource
 	Steps                   func(op *models.OmOperation) []StepPlan
+	CheckSet                CheckSet
+	Subjects                func(op *models.OmOperation) []CheckSubject
 	Deadline                time.Duration
 	Attention               AttentionPolicy
 	AuthMethods             []string
