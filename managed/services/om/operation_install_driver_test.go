@@ -65,12 +65,12 @@ func TestInstallDriverRunsWhenNodesAreReady(t *testing.T) {
 	reg := installRegistry(t)
 	op := checkingInstallOp(t, db, "node-a", "node-b")
 	reader := installFactReader(map[string]map[string]any{"node-a": nodeFacts(), "node-b": nodeFacts()})
-	runner := newTestRunner(t, db, reg, newFactCheckProvider(reader), pendingStepExecutorProvider{})
+	runner := newTestRunner(t, db, reg, newFactCheckProvider(reader), fakeExecutorProvider{result: StepResultOk})
 
 	runner.Tick(t.Context())
 
 	// Readiness passes, the gate takes the node locks, the enter-running hook creates the cluster, and
-	// with no steps yet the install drives to succeeded.
+	// the bootstrap step succeeds, so the install drives to succeeded.
 	state, _ := opStatus(t, db, op.ID)
 	assert.Equal(t, string(models.OmOperationSucceeded), state)
 	assert.Equal(t, 0, heldLocks(t, db, op.ID))

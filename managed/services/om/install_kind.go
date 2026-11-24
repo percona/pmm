@@ -52,6 +52,7 @@ const installDeadline = 30 * time.Minute
 type installParams struct {
 	NodeIDs        []string                   `json:"node_ids"`
 	Hosts          map[string]string          `json:"hosts,omitempty"`
+	OS             string                     `json:"os,omitempty"`
 	ReplicaSetName string                     `json:"replica_set_name"`
 	MongoDBVersion string                     `json:"mongodb_version"`
 	DataPath       string                     `json:"data_path"`
@@ -91,7 +92,12 @@ func InstallKind() OperationKind {
 			}
 			return resources
 		},
-		Steps:          func(*models.OmOperation) []StepPlan { return nil },
+		Steps: func(op *models.OmOperation) []StepPlan {
+			return []StepPlan{{
+				Phase: installBootstrapPhase, Step: installBootstrapStep,
+				TargetKind: models.OmStepTargetRun, TargetID: op.ID,
+			}}
+		},
 		OnEnterRunning: installOnEnterRunning,
 		CheckSet:       installReadinessCheckSet(),
 		Subjects: func(op *models.OmOperation) []CheckSubject {
