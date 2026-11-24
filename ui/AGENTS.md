@@ -210,6 +210,9 @@ make test
 # Lint (oxlint) and format (oxfmt)
 make lint
 make format        # make format-check in CI
+
+# Type-check (tsc)
+make check-types
 ```
 
 Inside the PMM devcontainer (`make env-up` then `make env` from the repo root), `make run-ui` (main UI HMR via Vite on port 5173) and `make run-qan-ui` (QAN livereload on port 35730) replace `make dev` and wire the dev servers into the bundled Grafana automatically. See `ui/README.md` for details.
