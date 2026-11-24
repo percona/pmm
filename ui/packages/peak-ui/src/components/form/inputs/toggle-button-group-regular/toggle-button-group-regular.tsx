@@ -10,7 +10,9 @@ const { firstButton, middleButton, lastButton } = toggleButtonGroupClasses;
 const { disabled } = toggleButtonClasses;
 
 const withDisabled = (...classNames: string[]) =>
-  classNames.flatMap((name) => [`& .${name}`, `& .${name}.${disabled}`]).join(', ');
+  classNames
+    .flatMap((name) => [`& .${name}`, `& .${name}.${disabled}`])
+    .join(', ');
 
 const pillSx =
   (fullWidth: boolean): SxProps<Theme> =>

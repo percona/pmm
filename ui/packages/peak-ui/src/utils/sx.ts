@@ -22,7 +22,10 @@ const mergeSx = (
   if (!consumerSx) return defaultSx;
   if (!defaultSx) return consumerSx;
   return ((theme: Theme) =>
-    deepmerge(flattenSx(defaultSx, theme), flattenSx(consumerSx, theme))) as SxProps<Theme>;
+    deepmerge(
+      flattenSx(defaultSx, theme),
+      flattenSx(consumerSx, theme)
+    )) as SxProps<Theme>;
 };
 
 export { flattenSx, mergeSx };

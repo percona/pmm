@@ -12,7 +12,13 @@ import ToggleButtonGroupInputRegular from './toggle-button-group-regular';
 const theme = createTheme(getThemeOptions('base')('light'));
 const PILL = `${theme.shape.borderRadiusFull}px`;
 
-const Wrapper = ({ children, appTheme = theme }: { children: ReactNode; appTheme?: Theme }) => {
+const Wrapper = ({
+  children,
+  appTheme = theme,
+}: {
+  children: ReactNode;
+  appTheme?: Theme;
+}) => {
   const methods = useForm({ defaultValues: { view: 'table' } });
   return (
     <ThemeProvider theme={appTheme}>
@@ -40,7 +46,10 @@ const renderRegular = (
 ) =>
   render(
     <Wrapper appTheme={appTheme}>
-      <ToggleButtonGroupInputRegular name="view" toggleButtonGroupProps={toggleButtonGroupProps}>
+      <ToggleButtonGroupInputRegular
+        name="view"
+        toggleButtonGroupProps={toggleButtonGroupProps}
+      >
         {children}
       </ToggleButtonGroupInputRegular>
     </Wrapper>
@@ -93,7 +102,9 @@ describe('ToggleButtonGroupInputRegular', () => {
     renderRegular();
     expect(group()).not.toHaveClass('MuiToggleButtonGroup-fullWidth');
     expect(group()).toHaveStyle({ width: 'fit-content' });
-    expect(screen.getByTestId('btn-table')).not.toHaveClass('MuiToggleButton-fullWidth');
+    expect(screen.getByTestId('btn-table')).not.toHaveClass(
+      'MuiToggleButton-fullWidth'
+    );
   });
 
   it('sizes each button to its label instead of splitting the width evenly', () => {
@@ -112,9 +123,13 @@ describe('ToggleButtonGroupInputRegular', () => {
 
   it('rounds only the outer corners', () => {
     renderRegular();
-    expect(declared('btn-table', 'border-radius')).toContain(`${PILL} 0 0 ${PILL}`);
+    expect(declared('btn-table', 'border-radius')).toContain(
+      `${PILL} 0 0 ${PILL}`
+    );
     expect(declared('btn-graph', 'border-radius')).toContain('0px');
-    expect(declared('btn-raw', 'border-radius')).toContain(`0 ${PILL} ${PILL} 0`);
+    expect(declared('btn-raw', 'border-radius')).toContain(
+      `0 ${PILL} ${PILL} 0`
+    );
   });
 
   it('rounds every corner of a single-button group', () => {
@@ -174,7 +189,9 @@ describe('ToggleButtonGroupInputRegular', () => {
       expect(declared(id, 'border-left-width', 'Mui-disabled')).toContain('0px')
     );
     ['btn-table', 'btn-graph'].forEach((id) =>
-      expect(declared(id, 'border-right-width', 'Mui-disabled')).toContain('0px')
+      expect(declared(id, 'border-right-width', 'Mui-disabled')).toContain(
+        '0px'
+      )
     );
   });
 
@@ -185,8 +202,12 @@ describe('ToggleButtonGroupInputRegular', () => {
 
   it('keeps the stacked MUI corners on a vertical group', () => {
     renderRegular({ orientation: 'vertical' });
-    expect(declared('btn-table', 'border-radius')).not.toContain(`${PILL} 0 0 ${PILL}`);
-    expect(declared('btn-raw', 'border-radius')).not.toContain(`0 ${PILL} ${PILL} 0`);
+    expect(declared('btn-table', 'border-radius')).not.toContain(
+      `${PILL} 0 0 ${PILL}`
+    );
+    expect(declared('btn-raw', 'border-radius')).not.toContain(
+      `0 ${PILL} ${PILL} 0`
+    );
     expect(group()).not.toHaveStyle({ width: 'fit-content' });
   });
 });
