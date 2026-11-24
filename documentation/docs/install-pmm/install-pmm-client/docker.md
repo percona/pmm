@@ -160,30 +160,56 @@ To confirm your node is being monitored:
 
 ## Add monitoring services
 
-After installing PMM Client, you add database services to monitor with the [`pmm-admin`](../../use/commands/pmm-admin/pmm-admin.md) command. Run it in the container once; the Node keeps the Services you add across restarts:
+After you install PMM Client, add the databases you want to monitor with [`pmm-admin add`](../../use/commands/pmm-admin/pmm-admin.md). You can add them once from inside the running container, or have the container add them every time it starts. Choose the option that fits how you manage the container:
 
-```bash
-docker exec -t pmm-client pmm-admin add mysql --username=pmm --password=pass --query-source=perfschema --host=mysql-host
-```
+=== "Add services once"
 
-If you would rather declare the Services together with the container, use the `PMM_AGENT_PRERUN_SCRIPT` argument to pass a script with the `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]` commands. `pmm-agent` runs the script on every start, after setup. `pmm-admin add` reports a Service which exists already as an error, and a failing script stops the container, so make the script tolerate the Services it added on an earlier start, for example by appending `|| true` to each command.
+    Run `pmm-admin add` in the container. PMM keeps the services you add when the container restarts, so you only need to do this once:
 
-```bash
- docker run \
- --name pmm-client \
- -e PMM_AGENT_SETUP_NODE_NAME=my_node_name \
- -e PMM_AGENT_SETUP_NODE_TYPE=container \
- -e PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443 \
- -e PMM_AGENT_SERVER_USERNAME=service_token \
- -e PMM_AGENT_SERVER_PASSWORD=YOUR_GLSA_TOKEN \
- -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
- -e PMM_AGENT_SETUP=1 \
- -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
- -v pmm-client-config:/usr/local/percona/pmm/config \
- -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
- -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
- percona/pmm-client:3
-```
+    ```bash
+    docker exec -t pmm-client pmm-admin add mysql --username=pmm --password=pass --query-source=perfschema --host=mysql-host
+    ```
+
+=== "Add services on every start"
+
+    To keep the services together with the container definition, for example when you recreate the container from a script, add them from a script that the container runs on every start:
+    {.power-number}
+
+    1. Create a script with your `pmm-admin add` commands. Because the script runs on every start, add `|| true` to each command so that a service added on an earlier start doesn't stop the container:
+
+        ```bash
+        #!/bin/sh
+        pmm-admin add mysql --username=pmm --password=pass --query-source=perfschema --host=mysql-host || true
+        ```
+
+    2. Make the script executable:
+
+        ```bash
+        chmod +x pmm-prerun.sh
+        ```
+
+    3. Start the container with the script mounted and its path in `PMM_AGENT_PRERUN_FILE`:
+
+        ```bash
+        docker run \
+        --name pmm-client \
+        -e PMM_AGENT_SETUP_NODE_NAME=my_node_name \
+        -e PMM_AGENT_SETUP_NODE_TYPE=container \
+        -e PMM_AGENT_SERVER_ADDRESS=X.X.X.X:443 \
+        -e PMM_AGENT_SERVER_USERNAME=service_token \
+        -e PMM_AGENT_SERVER_PASSWORD=YOUR_GLSA_TOKEN \
+        -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
+        -e PMM_AGENT_SETUP=1 \
+        -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
+        -v pmm-client-config:/usr/local/percona/pmm/config \
+        -e PMM_AGENT_PRERUN_FILE=/opt/percona/pmm-prerun.sh \
+        -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
+        percona/pmm-client:3
+        ```
+
+    If the script fails, the container stops, unless `PMM_AGENT_SIDECAR` is set. To find out why, check the container logs with `docker logs pmm-client`.
+
+    To pass the commands directly instead of a script file, set them in `PMM_AGENT_PRERUN_SCRIPT`. For all the variables the container accepts, see [Configure the PMM Client container](../../use/commands/pmm-agent.md#configure-the-pmm-client-container).
 
 ## Tips for Docker configuration
 

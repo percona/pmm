@@ -173,13 +173,10 @@ export const addAlerting = (
 
   if (user) {
     children.push(NAV_ALERTS_SILENCES);
+    children.push(NAV_ALERTS_GROUPS);
 
-    if (!user.isAnonymous) {
-      children.push(NAV_ALERTS_GROUPS);
-
-      if (unifiedAlertingEnabled && user.isPMMAdmin) {
-        children.push(NAV_ALERTS_SETTINGS);
-      }
+    if (unifiedAlertingEnabled && user.isPMMAdmin) {
+      children.push(NAV_ALERTS_SETTINGS);
     }
 
     if (unifiedAlertingEnabled) {
