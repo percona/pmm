@@ -524,7 +524,7 @@ func (s *Supervisor) startInstance(agentID string) uint64 {
 // retireInstance forgets instance if it is still the current one for agentID.
 //
 // A forwarder exiting is what ends an instance, not a DONE status, so that no status the forwarder
-// still has to send is dropped. See PMM-15431.
+// still has to send is dropped.
 func (s *Supervisor) retireInstance(agentID string, instance uint64) {
 	s.arw.Lock()
 	defer s.arw.Unlock()
@@ -862,11 +862,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 			}
 			cancel()
 
-			// Before returning to tryStartProcess, which retries: its next attempt
-			// calls startInstance, and from that moment this attempt's forwarder is
-			// the stale one and storeLastStatus drops the statuses it
-			// still has to send. Bounded, because forward parks on a full
-			// s.changes and this runs with s.rw held. See PMM-15431.
+			// The retry's startInstance makes this forwarder stale, which drops what it has left to send,
+			// so it drains first; the wait is bounded, as this runs with s.rw held.
 			s.waitForwarderDrained(agentID, done)
 
 			return err
