@@ -121,12 +121,15 @@ function intRange(setting: OmInventorySetting): { min: number; max?: number } {
 /** The rule an integer field states under its box. */
 function intHint(setting: OmInventorySetting): string {
   const { min, max } = intRange(setting);
-  if (max !== undefined) {
-    return `A whole number from ${min} to ${max}.`;
+  if (max === undefined) {
+    return min === 1
+      ? 'A whole number greater than zero.'
+      : `A whole number of at least ${min}.`;
   }
-  return min === 1
-    ? 'A whole number greater than zero.'
-    : `A whole number of at least ${min}.`;
+  // Without a minimum from the app, 1 is only this form's floor, not a rule to state.
+  return typeof setting.minimum === 'number'
+    ? `A whole number from ${min} to ${max}.`
+    : `A whole number greater than zero, at most ${max}.`;
 }
 
 /**
@@ -164,9 +167,15 @@ const isRefusal = (entry: unknown): entry is Refusal =>
   Array.isArray((entry as Refusal).loc) &&
   typeof (entry as Refusal).msg === 'string';
 
+/** A refusal's reason, with the setting keys it names spelled as their labels. */
+const refusalReason = (msg: string) =>
+  msg
+    .replace(/^Value error, /, '')
+    .replace(/\b[A-Z][A-Z_]+\b/g, (word) => SETTING_LABEL[word] ?? word);
+
 /**
- * One line per field the app refused; a cross-field rule names its fields itself and
- * is shown once.
+ * One line per reason the app gave, after the fields it refused for that reason; a
+ * cross-field rule names its fields itself.
  */
 function refusals(message: string, labelOf: (key: string) => string): string[] {
   let detail: unknown;
@@ -182,14 +191,19 @@ function refusals(message: string, labelOf: (key: string) => string): string[] {
   ) {
     return [message];
   }
-  const lines = detail.map(({ loc, msg, type }) => {
-    const reason = msg.replace(/^Value error, /, '');
+  const fields = new Map<string, string[]>();
+  for (const { loc, msg, type } of detail) {
+    const reason = refusalReason(msg);
     const key = loc[0] === 'body' ? loc[1] : undefined;
-    return type === 'cross_field' || typeof key !== 'string'
-      ? reason
-      : `${labelOf(key)}: ${reason}`;
-  });
-  return [...new Set(lines)];
+    const named = fields.get(reason) ?? [];
+    if (type !== 'cross_field' && typeof key === 'string') {
+      named.push(labelOf(key));
+    }
+    fields.set(reason, named);
+  }
+  return [...fields].map(([reason, named]) =>
+    named.length ? `${[...new Set(named)].join(', ')}: ${reason}` : reason
+  );
 }
 
 /** One field, rendered as whatever can edit it. */

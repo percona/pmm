@@ -135,11 +135,29 @@ describe('ConfigForm', () => {
 
     const items = within(screen.getByRole('alert')).getAllByRole('listitem');
     expect(items.map((item) => item.textContent)).toEqual([
-      'Scan every: SCHEDULE must be from 10 minutes to 1 day',
-      'Job poll interval (Advanced tab): Input should be less than or equal to 30',
-      'MongoDB connect timeout (Scanning tab): Input should be less than or equal to 30',
-      rule,
+      'Scan every: Scan schedule must be from 10 minutes to 1 day',
+      'Job poll interval (Advanced tab), MongoDB connect timeout (Scanning tab): Input should be less than or equal to 30',
+      'Repository timeout, MongoDB connect timeout, Scan job timeout: Repository timeout + MongoDB connect timeout must not exceed half of Scan job timeout',
     ]);
+  });
+
+  it('names both schedule fields on one line when the schedule is refused', () => {
+    const msg = 'Value error, SCHEDULE must be from 10 minutes to 1 day';
+    useUpdateOmInventoryConfig.mockReturnValue({
+      ...idle,
+      isError: true,
+      error: new Error(
+        JSON.stringify([
+          { loc: ['body', 'SCHEDULE__every'], msg, type: 'value_error' },
+          { loc: ['body', 'SCHEDULE__period'], msg, type: 'value_error' },
+        ])
+      ),
+    });
+    render(<ConfigForm group="general" />);
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Could not save: Scan every, Period: Scan schedule must be from 10 minutes to 1 day'
+    );
   });
 
   it('states the range the app reports and refuses a value outside it', () => {
@@ -156,7 +174,7 @@ describe('ConfigForm', () => {
 
     expect(screen.getByText('A whole number from 1 to 8.')).toBeInTheDocument();
     expect(
-      screen.getByText('A whole number from 1 to 86400.')
+      screen.getByText('A whole number greater than zero, at most 86400.')
     ).toBeInTheDocument();
     expect(
       screen.getByText('A whole number of at least 10.')
@@ -237,7 +255,7 @@ describe('ConfigForm', () => {
     render(<ConfigForm group="general" />);
 
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'Could not reset: Period: SCHEDULE must be from 10 minutes to 1 day'
+      'Could not reset: Period: Scan schedule must be from 10 minutes to 1 day'
     );
   });
 

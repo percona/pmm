@@ -340,6 +340,7 @@ export const RUN_STATUS_COLOR: Record<OmTopologyRunStatus, ChipProps['color']> =
  */
 export const SETTING_LABEL: Record<string, string> = {
   AUTO_SCAN: 'Automatic node scans',
+  SCHEDULE: 'Scan schedule',
   SCHEDULE__every: 'Scan every',
   SCHEDULE__period: 'Period',
   PROBE_DATABASE: 'Connect to MongoDB',
@@ -381,15 +382,16 @@ export const SETTING_HELP: Record<string, string> = {
   REPO_URL:
     'The file each node fetches to prove it can install packages. Point it at a mirror on an air-gapped network, or every node reports as failing.',
   REPO_TIMEOUT:
-    'Short on purpose: a repository slower than this is not usable by a package manager either.',
-  CONNECT_TIMEOUT: 'Per-target connect and server-selection timeout.',
+    'Short on purpose: a repository slower than this is not usable by a package manager either. Together with MongoDB connect timeout, at most half of Scan job timeout.',
+  CONNECT_TIMEOUT:
+    'Per-target connect and server-selection timeout. Together with Repository timeout, at most half of Scan job timeout.',
   TASK_TIMEOUT: 'How long to wait for one scan job before giving up on it.',
   POLL_INTERVAL: 'How often a running job is checked for completion.',
   MAX_CONCURRENT_PROBES:
     'Ceiling on scan jobs at once. Each scan runs as a job on its node, so this caps the load on PMM and on the nodes.',
   RUN_RETENTION: 'How many scan rows to keep before the oldest are removed.',
   STALE_RUN_AFTER:
-    'How long a scan may stay running before its worker is presumed gone. Must exceed the slowest legitimate scan.',
+    'How long a scan may stay running before its worker is presumed gone. Must be longer than Scan job timeout and than the slowest legitimate scan.',
 };
 
 /** One bootstrap step's status, as a short label. */
