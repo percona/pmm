@@ -53,6 +53,7 @@ type RunOutcome string
 // Running-phase outcomes.
 const (
 	RunStepSucceeded      RunOutcome = "step_succeeded"
+	RunStepPending        RunOutcome = "step_pending"
 	RunStepFailed         RunOutcome = "step_failed"
 	RunFenced             RunOutcome = "fenced"
 	RunOperationSucceeded RunOutcome = "operation_succeeded"
@@ -66,9 +67,14 @@ func driveRunning(ctx context.Context, db *reform.DB, operationID string, kind O
 		return "", err
 	}
 	done := succeededSteps(steps)
+	pending := nonTerminalStepByPlan(steps)
 	for _, plan := range kind.Steps(op) {
-		if done[plan.Phase+"/"+plan.Step] {
+		key := plan.Phase + "/" + plan.Step
+		if done[key] {
 			continue
+		}
+		if step := pending[key]; step != nil {
+			return reprobeStep(ctx, db, op, plan, step, executor)
 		}
 		return driveStep(ctx, db, op, plan, executor, cachedEpoch)
 	}
@@ -88,6 +94,51 @@ func succeededSteps(steps []*models.OmOperationStep) map[string]bool {
 		}
 	}
 	return done
+}
+
+// nonTerminalStepByPlan indexes the in-flight steps (dispatched, running or unknown) by phase and step
+// name, so the driver re-probes an already-dispatched step rather than opening a second one.
+func nonTerminalStepByPlan(steps []*models.OmOperationStep) map[string]*models.OmOperationStep {
+	pending := make(map[string]*models.OmOperationStep)
+	for _, s := range steps {
+		if s.Status == models.OmStepSucceeded || s.Status == models.OmStepFailed {
+			continue
+		}
+		pending[s.Phase+"/"+s.Step] = s
+	}
+	return pending
+}
+
+// reprobeStep re-runs an in-flight step's executor under its own idempotency key and resolves it: an
+// inconclusive result leaves it pending for the next tick, Ok succeeds it, and a failure fails the run.
+func reprobeStep(ctx context.Context, db *reform.DB, op *models.OmOperation, plan StepPlan, step *models.OmOperationStep, executor StepExecutor) (RunOutcome, error) {
+	result, resultJSON, err := executor.Run(ctx, plan, step.IdempotencyKey)
+	if err != nil {
+		return "", err
+	}
+	if mapStepResult(result) == models.OmStepUnknown {
+		return RunStepPending, nil
+	}
+	moved := false
+	err = db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var resolveErr error
+		if step.Status == models.OmStepUnknown {
+			moved, resolveErr = resolveUnknownStep(tx.Querier, step.ID, mapStepResult(result) == models.OmStepSucceeded)
+			return resolveErr
+		}
+		moved, resolveErr = recordStepResult(tx.Querier, step.ID, step.Status, result, resultJSON)
+		return resolveErr
+	})
+	if err != nil {
+		return "", err
+	}
+	if !moved {
+		return RunStepPending, nil
+	}
+	if mapStepResult(result) == models.OmStepSucceeded {
+		return RunStepSucceeded, nil
+	}
+	return failRunningOperation(ctx, db, op.ID, *op.ClusterID, string(result))
 }
 
 // driveStep dispatches one step under the fence, runs it through the executor outside the transaction
@@ -118,10 +169,14 @@ func driveStep(ctx context.Context, db *reform.DB, op *models.OmOperation, plan 
 	if err != nil {
 		return "", err
 	}
-	if mapStepResult(result) == models.OmStepSucceeded {
+	switch mapStepResult(result) {
+	case models.OmStepSucceeded:
 		return RunStepSucceeded, nil
+	case models.OmStepUnknown:
+		return RunStepPending, nil
+	default:
+		return failRunningOperation(ctx, db, op.ID, *op.ClusterID, string(result))
 	}
-	return failRunningOperation(ctx, db, op.ID, *op.ClusterID, string(result))
 }
 
 // finalizeSucceeded moves a running operation to succeeded, runs its onSucceeded hook, deletes the

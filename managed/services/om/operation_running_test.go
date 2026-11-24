@@ -34,6 +34,19 @@ func (f *fakeExecutor) Run(context.Context, StepPlan, string) (StepResultKind, [
 	return f.result, []byte(`{"kind":"` + string(f.result) + `"}`), nil
 }
 
+// sequenceExecutor returns one result per Run call, so a test can drive a step from an inconclusive
+// result to a terminal one across ticks; the last result repeats once the sequence is spent.
+type sequenceExecutor struct {
+	results []StepResultKind
+	calls   int
+}
+
+func (e *sequenceExecutor) Run(context.Context, StepPlan, string) (StepResultKind, []byte, error) {
+	result := e.results[min(e.calls, len(e.results)-1)]
+	e.calls++
+	return result, []byte(`{}`), nil
+}
+
 func runningKind(onSucceeded *bool) OperationKind {
 	return OperationKind{
 		Kind: "test",
@@ -55,6 +68,50 @@ func runningOp(t *testing.T, db *reform.DB, clusterID string) (string, int64) {
 	op := opWithStatus(t, db.Querier, clusterID, models.OmOperationRunning)
 	require.NoError(t, acquireLocks(db.Querier, op.ID, []LockResource{{Kind: "cluster", ID: clusterID, Mode: models.OmLockExclusive}}))
 	return op.ID, acquireLease(t, db.Querier, "driver")
+}
+
+func TestDriveRunningReprobesAnInconclusiveStepToSuccess(t *testing.T) {
+	db := lockTestDB(t)
+	clusterID := lockCluster(t, db.Querier)
+	opID, epoch := runningOp(t, db, clusterID)
+	ran := false
+	kind := runningKind(&ran)
+	executor := &sequenceExecutor{results: []StepResultKind{StepResultUnknown, StepResultOk}}
+
+	outcome, err := driveRunning(t.Context(), db, opID, kind, executor, epoch)
+	require.NoError(t, err)
+	assert.Equal(t, RunStepPending, outcome, "an inconclusive dispatch leaves the step pending")
+
+	outcome, err = driveRunning(t.Context(), db, opID, kind, executor, epoch)
+	require.NoError(t, err)
+	assert.Equal(t, RunStepSucceeded, outcome, "the re-probe resolves the unknown step")
+
+	outcome, err = driveRunning(t.Context(), db, opID, kind, executor, epoch)
+	require.NoError(t, err)
+	assert.Equal(t, RunOperationSucceeded, outcome)
+	assert.Equal(t, 2, executor.calls, "the step dispatched once and was re-probed once")
+	assert.Equal(t, 1, stepCount(t, db, opID), "the re-probe reused the step rather than opening a second")
+}
+
+func TestDriveRunningReprobesAnInconclusiveStepToFailure(t *testing.T) {
+	db := lockTestDB(t)
+	clusterID := lockCluster(t, db.Querier)
+	opID, epoch := runningOp(t, db, clusterID)
+	ran := false
+	kind := runningKind(&ran)
+	executor := &sequenceExecutor{results: []StepResultKind{StepResultUnknown, StepResultFailed}}
+
+	outcome, err := driveRunning(t.Context(), db, opID, kind, executor, epoch)
+	require.NoError(t, err)
+	assert.Equal(t, RunStepPending, outcome)
+
+	outcome, err = driveRunning(t.Context(), db, opID, kind, executor, epoch)
+	require.NoError(t, err)
+	assert.Equal(t, RunStepFailed, outcome)
+
+	var status string
+	require.NoError(t, db.QueryRow("SELECT status FROM om_operations WHERE id = $1", opID).Scan(&status))
+	assert.Equal(t, string(models.OmOperationFailed), status)
 }
 
 func TestDriveRunningDispatchesAndSucceeds(t *testing.T) {
