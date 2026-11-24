@@ -185,6 +185,13 @@ func TestClickHouseTemplate(t *testing.T) {
 		assert.NotEqual(t, clickHouseUID, queryByRefID(t, data, "T_threshold").DatasourceUID)
 		assertEvaluates(t, data)
 	})
+
+	t.Run("built-in pmm_mongodb_collection_scans evaluates", func(t *testing.T) {
+		data := createRule(t, "pmm_mongodb_collection_scans", "test-mongodb-collection-scans", nil)
+
+		assert.Equal(t, clickHouseUID, queryByRefID(t, data, "A").DatasourceUID)
+		assertEvaluates(t, data)
+	})
 }
 
 func queryByRefID(t *testing.T, data []*models.AlertQuery, refID string) *models.AlertQuery {

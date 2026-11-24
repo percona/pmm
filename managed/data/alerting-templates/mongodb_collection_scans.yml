@@ -1,0 +1,42 @@
+---
+templates:
+  - name: pmm_mongodb_collection_scans
+    version: 1
+    summary: MongoDB collection scans
+    queries:
+      - ref_id: A
+        datasource: clickhouse
+        # One row per service with a constant time, so the reduce never sees a gap. Every column
+        # but query_time becomes an alert label.
+        expr: |-
+          SELECT $__toTime AS time,
+                 service_name, service_id, service_type, node_name, node_id, node_type, node_model, machine_id,
+                 container_id, container_name, environment, cluster, replication_set, region, az,
+                 max(m_query_time_max) AS query_time
+          FROM pmm.metrics
+          WHERE period_start >= $__fromTime AND period_start <= $__toTime
+            AND service_type = 'mongodb' AND m_full_scan_sum > 0
+          GROUP BY ALL
+    expressions:
+      - ref_id: B
+        type: reduce
+        reducer: max
+        expression: $A
+      - ref_id: C
+        type: math
+        expression: "$B > [[ .threshold ]]"
+    condition: C
+    params:
+      - name: threshold
+        summary: Query execution time
+        unit: s
+        type: float
+        range: [0, 3600]
+        value: 5
+    for: 1m
+    severity: warning
+    annotations:
+      summary: Slow collection scans on {{ $labels.service_name }} ({{ $labels.node_name }})
+      description: |-
+        A query class that scanned a whole collection on {{ $labels.service_name }} took {{ printf "%.2f" $values.B.Value }}s, more than [[ .threshold ]]s.
+        The time is the longest run of the query class, which may include runs that used an index. Check Query Analytics for queries with a COLLSCAN plan and add the missing index.

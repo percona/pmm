@@ -476,9 +476,39 @@ func TestBuildRuleDataForQANSlowQueries(t *testing.T) {
 	assert.Equal(t, grafanaExprDatasourceUID, byRef["B"].DatasourceUID)
 	assert.Contains(t, byRef, "T_threshold")
 
-	// A filter on a label the SQL drops would silently read as empty, so pin the standard labels it returns.
+	assertReturnsQANLabels(t, byRef["A"])
+}
+
+func TestBuildRuleDataForMongoDBCollectionScans(t *testing.T) {
+	t.Parallel()
+
+	template, err := parseAlertTemplate(shippedTemplates(t)["pmm_mongodb_collection_scans"].Yaml)
+	require.NoError(t, err)
+
+	built, err := buildGrafanaRuleData(template, testDatasourceUIDs, "rule-1", map[string]string{"threshold": "5"}, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "C", built.condition)
+
+	byRef := dataByRefID(t, built.data)
+	assert.Equal(t, "clickhouse-uid", byRef["A"].DatasourceUID)
+	assert.Equal(t, grafanaExprDatasourceUID, byRef["B"].DatasourceUID)
+	assert.NotContains(t, byRef, "T_threshold")
+	assert.Equal(t, "$B > 5", expressionOf(t, byRef["C"]))
+
 	var model clickhouseQueryModel
 	require.NoError(t, json.Unmarshal(byRef["A"].Model, &model))
+	assert.Contains(t, model.RawSQL, "service_type = 'mongodb'")
+	assert.Contains(t, model.RawSQL, "m_full_scan_sum > 0")
+	assertReturnsQANLabels(t, byRef["A"])
+}
+
+// assertReturnsQANLabels pins the standard labels a QAN template's SQL returns, as a filter
+// on a label the SQL drops would silently read as empty.
+func assertReturnsQANLabels(t *testing.T, query services.Data) {
+	t.Helper()
+
+	var model clickhouseQueryModel
+	require.NoError(t, json.Unmarshal(query.Model, &model))
 	for _, label := range []string{
 		"service_name", "service_id", "service_type", "node_name", "node_id", "node_type", "node_model", "machine_id",
 		"container_id", "container_name", "environment", "cluster", "replication_set", "region", "az",

@@ -91,11 +91,12 @@ Whether the component alerts fire depends on which component fails and how:
 <a id="qan_alerts"></a>
 ### Query Analytics templates
 
-Use these templates to get alerted when queries slow down on your services, based on the data that Query Analytics collects. You can also [write your own Query Analytics template](alert_rules.md#set-up-query-performance-alerts).
+Use these templates to get alerted when queries slow down or scan whole collections on your services, based on the data that Query Analytics collects. You can also [write your own Query Analytics template](alert_rules.md#set-up-query-performance-alerts).
 
 | Area | Template name | Description | Database technology |
 | :----|:------------- | :---------- | :------------------ |
 | QAN | **QAN slow queries** | Alerts when the slowest query on a service in the last 5 minutes runs longer than 10 seconds (default threshold). Uses the maximum query time for MySQL slow log and MongoDB, and the average query time for PostgreSQL and MySQL Performance Schema. Alerts carry the standard node and service labels, such as `service_name`, `node_name`, `region`, and `environment`, so you can filter and route them like metric alerts. You can [set per-node threshold overrides](alert-thresholds.md) without editing the rule. | MySQL, MongoDB, PostgreSQL |
+| QAN | **MongoDB collection scans** | Alerts when a query that scans a whole collection (a `COLLSCAN` plan) on a MongoDB service runs longer than 5 seconds (default threshold) in the last 5 minutes. Use it to find queries that are missing an index. The query time is the longest run of the query, which can include runs that used an index. Requires Query Analytics for MongoDB, from the profiler or the slow query log. Alerts carry the same standard node and service labels as **QAN slow queries**. | MongoDB |
 
 <a id="mongodb_alerts"></a>
 ### MongoDB templates

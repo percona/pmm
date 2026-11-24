@@ -4,8 +4,8 @@ Alert rules tell PMM when to notify you about a problem. Each rule is based on a
 
 Rules created from templates are called Percona templated alerts. They fall into two categories, based on what they watch:
 
-- **[Server and database health alerts](#set-up-server-and-database-health-alerts)**: based on metrics, the health data that PMM collects from your nodes and services, such as CPU load or connections. All built-in templates except **QAN slow queries** belong to this category.
-- **[Query performance alerts](#set-up-query-performance-alerts)**: based on Query Analytics data, how individual queries perform, as you see it in Query Analytics (QAN). Starting with PMM 3.11.0, the built-in **QAN slow queries** template and your own templates can alert on query performance.
+- **[Server and database health alerts](#set-up-server-and-database-health-alerts)**: based on metrics, the health data that PMM collects from your nodes and services, such as CPU load or connections. All built-in templates except the [Query Analytics templates](templates_list.md#qan_alerts) belong to this category.
+- **[Query performance alerts](#set-up-query-performance-alerts)**: based on Query Analytics data, how individual queries perform, as you see it in Query Analytics (QAN). Starting with PMM 3.11.0, built-in Query Analytics templates, such as **QAN slow queries**, and your own templates can alert on query performance.
 
 You create alert rules the same way for both categories, from a built-in template or from a custom template that you write. The section for each category explains what is specific to it, including how to write your own template.
 
@@ -77,7 +77,7 @@ When the template is ready, add it on the **Alerts > Templates** page by clickin
 
 ## Set up query performance alerts
 
-These alerts are based on Query Analytics data, the query performance data that PMM collects from your services, such as query time. Starting with PMM 3.11.0, PMM includes the built-in [**QAN slow queries**](templates_list.md#qan_alerts) template. To use it, [create an alert rule](#create-an-alert-rule) from it and set the threshold that fits your services. If it doesn't fit, write your own.
+These alerts are based on Query Analytics data, the query performance data that PMM collects from your services, such as query time. Starting with PMM 3.11.0, PMM includes built-in [Query Analytics templates](templates_list.md#qan_alerts), such as **QAN slow queries**. To use one, [create an alert rule](#create-an-alert-rule) from it and set the threshold that fits your services. If none fits, write your own.
 
 Query performance alerts work like server and database health alerts, with a few differences in timing and filtering.
 
