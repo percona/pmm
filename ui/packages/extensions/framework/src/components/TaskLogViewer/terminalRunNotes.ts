@@ -31,9 +31,8 @@
  */
 export const NON_FAILURE_TERMINAL_NOTES: Partial<Record<string, string>> = {
   stopped: 'This run was stopped before it finished.',
-  lost: 'The executor stopped reporting on this run, so its outcome is unknown.',
-  stale:
-    'This run was skipped because the executor could not place it before the staleness threshold.',
+  lost: 'The host stopped reporting on this run, so its outcome is unknown.',
+  stale: 'This run was skipped because it did not start in time.',
   unlaunchable:
-    'The executor node could not launch this run, so the payload never executed. This is not a script failure.',
+    'The host could not launch this run because a command it needs is not available there. Nothing was executed, so this is not a script failure.',
 };

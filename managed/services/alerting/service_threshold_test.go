@@ -288,8 +288,8 @@ func TestBuiltInOverridableTemplates(t *testing.T) {
 	t.Parallel()
 
 	// Only node scope resolves so far, so a template qualifies when it is
-	// multi-expression and aggregates by node_name.
-	want := []string{"pmm_node_high_cpu_load"}
+	// multi-expression and its result carries a node_name label.
+	want := []string{"pmm_node_high_cpu_load", "pmm_qan_slow_queries"}
 
 	files, err := filepath.Glob(filepath.Join("..", "..", "data", "alerting-templates", "*.yml"))
 	require.NoError(t, err)
