@@ -133,11 +133,12 @@ var safeActionError = regexp.MustCompile(`^(?:` +
 	`query EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE|` +
 	`cannot JSON encode the explain response|` +
 	`unsupported output format [A-Za-z_]+|` +
-	`(?:command|operation) [A-Za-z]+ is not supported for explain|` +
 	`database name is not included in this query\. Explain could not be triggered without this info: Error 1046 \(3D000\): No database selected` +
 	`)$|^(?:dial tcp |server selection error: |connection\([^)]*\) error occurred during connection handshake: )`)
 
-// maskSQLLiterals replaces string and numeric literals in a SQL fragment with ?.
+// maskSQL replaces string and numeric literals in a SQL fragment with ?, and
+// reports whether s holds a quoted or dollar-quoted string outside its
+// comments.
 //
 // Identifiers are copied through untouched: backquoted ones when
 // doubleQuotedStrings is set, as in MySQL, and double-quoted ones when it is
@@ -151,19 +152,12 @@ var safeActionError = regexp.MustCompile(`^(?:` +
 // the text is scanned both ways and a byte is masked when either reading puts
 // it in a literal: guessing wrong then over-masks instead of leaking the next
 // literal.
-func maskSQLLiterals(s string, doubleQuotedStrings bool) string {
-	masked, _ := maskSQL(s, doubleQuotedStrings)
-	return masked
-}
-
-// maskSQL is maskSQLLiterals that also reports whether s holds a quoted or
-// dollar-quoted string outside its comments, under either backslash reading.
 func maskSQL(s string, doubleQuotedStrings bool) (string, bool) {
 	marks := sqlMarks(s, doubleQuotedStrings, false)
 	return renderMarks(s, marks), slices.Contains(marks, stringMark)
 }
 
-// maskMySQLPlanText masks a text of a MySQL plan like maskSQLLiterals, and the
+// maskMySQLPlanText masks a text of a MySQL plan like maskSQL, and the
 // text of every backquoted name that is not a plain name: MySQL names an
 // unaliased select-list expression after its own text, literals included.
 func maskMySQLPlanText(s string) string {
@@ -198,8 +192,12 @@ const (
 // literal or a comment, and with plainNames the text of each quoted
 // identifier that is not a plain name.
 func sqlMarks(s string, doubleQuotedStrings, plainNames bool) []byte {
-	marks := scanSQL(s, doubleQuotedStrings, true, plainNames)
-	for i, m := range scanSQL(s, doubleQuotedStrings, false, plainNames) {
+	return maxMarks(scanSQL(s, doubleQuotedStrings, true, plainNames), scanSQL(s, doubleQuotedStrings, false, plainNames))
+}
+
+// maxMarks raises each of marks to the other's mark of the same byte where that outranks it, and returns marks.
+func maxMarks(marks, other []byte) []byte {
+	for i, m := range other {
 		marks[i] = max(marks[i], m)
 	}
 	return marks
@@ -408,59 +406,49 @@ func isPlainName(name string) bool {
 // "query" and Note 1003 of the SHOW WARNINGS that pmm-agent appends, is
 // withheld, and pmm-agent's real_table_name, a word of the statement, is left
 // out. Plain names and MySQL's own names in the keys that hold only names, and
-// the numeric strings MySQL writes for costs, are kept. It reports false when
-// the plan is not JSON.
+// the numeric strings MySQL writes for costs, are kept. The keys come out
+// sorted, as pmm-agent sends them. It reports false when the plan is not a
+// JSON object.
 func maskMySQLPlan(plan string) (string, bool) {
-	var out []byte
-	members, err := jsonObjectMembers([]byte(plan))
-	if err == nil {
-		out, err = maskMySQLMembers(members)
-	} else {
-		out, err = rewriteJSON([]byte(plan), nil, maskMySQLValue)
-	}
+	root, err := decodeMySQLPlan([]byte(plan))
 	if err != nil {
 		return "", false
 	}
-	var indented bytes.Buffer
-	err = json.Indent(&indented, out, "", "  ")
-	if err != nil {
-		return "", false
-	}
-	return indented.String(), true
-}
-
-// maskMySQLMembers masks the top-level members of a MySQL plan, where pmm-agent adds warnings and real_table_name.
-func maskMySQLMembers(members []jsonMember) ([]byte, error) {
-	w := newJSONWriter()
-	w.out.WriteByte('{')
-	for _, m := range members {
-		if m.key == "real_table_name" {
+	delete(root, "real_table_name")
+	for key, v := range root {
+		if key == "warnings" {
+			root[key] = maskMySQLWarnings(v)
 			continue
 		}
-		var value []byte
-		var err error
-		if m.key == "warnings" {
-			value, err = maskMySQLWarnings(m.value)
-		} else {
-			value, err = rewriteJSON(m.value, nil, func(path []string, v any) any {
-				return maskMySQLValue(append([]string{m.key}, path...), v)
-			})
-		}
-		if err != nil {
-			return nil, err
-		}
-		if w.out.Len() > 1 {
-			w.out.WriteByte(',')
-		}
-		err = w.scalar(m.key)
-		if err != nil {
-			return nil, err
-		}
-		w.out.WriteByte(':')
-		w.out.Write(value)
+		root[key] = maskMySQLTree([]string{key}, v)
 	}
-	w.out.WriteByte('}')
-	return w.out.Bytes(), nil
+	var b strings.Builder
+	enc := json.NewEncoder(&b)
+	enc.SetEscapeHTML(false)
+	enc.SetIndent("", "  ")
+	err = enc.Encode(root)
+	if err != nil {
+		return "", false
+	}
+	return strings.TrimSuffix(b.String(), "\n"), true
+}
+
+// maskMySQLTree masks the scalars of a value of a MySQL plan in place; path holds the keys on the way to it.
+func maskMySQLTree(path []string, v any) any {
+	switch v := v.(type) {
+	case map[string]any:
+		for key, child := range v {
+			v[key] = maskMySQLTree(append(path, key), child)
+		}
+		return v
+	case []any:
+		for i, child := range v {
+			v[i] = maskMySQLTree(path, child)
+		}
+		return v
+	default:
+		return maskMySQLValue(path, v)
+	}
 }
 
 // maskMySQLValue masks one scalar of a MySQL plan; path holds the keys on the way to it.
@@ -493,44 +481,32 @@ func maskMySQLValue(path []string, v any) any {
 // maskMySQLWarnings masks the SHOW WARNINGS rows pmm-agent appends to a plan, objects with Level, Code and Message.
 // The message of Note 1003 is the rewritten statement and is withheld, as is any message whose code is not a number
 // or not there; the other messages are masked. A row that is not an object is masked whole.
-func maskMySQLWarnings(raw json.RawMessage) ([]byte, error) {
-	dec := json.NewDecoder(bytes.NewReader(raw))
-	dec.UseNumber()
-	var warnings any
-	err := dec.Decode(&warnings)
-	if err != nil {
-		return nil, err
-	}
+func maskMySQLWarnings(warnings any) any {
 	rows, ok := warnings.([]any)
 	switch {
 	case warnings == nil:
+		return nil
 	case !ok:
-		warnings = "?"
-	default:
-		for i, row := range rows {
-			fields, ok := row.(map[string]any)
-			if !ok {
-				rows[i] = "?"
-				continue
-			}
-			code, _ := fields["Code"].(json.Number)
-			for k, v := range fields {
-				switch {
-				case k == "Code" && code != "":
-				case k == "Message" && (code == "" || code == "1003"):
-					fields[k] = statementWithheld
-				default:
-					fields[k] = maskMySQLValue([]string{"warnings", k}, v)
-				}
+		return "?"
+	}
+	for i, row := range rows {
+		fields, ok := row.(map[string]any)
+		if !ok {
+			rows[i] = "?"
+			continue
+		}
+		code, _ := fields["Code"].(json.Number)
+		for k, v := range fields {
+			switch {
+			case k == "Code" && code != "":
+			case k == "Message" && (code == "" || code == "1003"):
+				fields[k] = statementWithheld
+			default:
+				fields[k] = maskMySQLTree([]string{"warnings", k}, v)
 			}
 		}
 	}
-	w := newJSONWriter()
-	err = w.enc.Encode(warnings)
-	if err != nil {
-		return nil, err
-	}
-	return bytes.TrimRight(w.scratch.Bytes(), "\n"), nil
+	return rows
 }
 
 // maskMongoPlan masks every value beneath the keys that hold query values, and
@@ -858,50 +834,6 @@ func maskQuoted(msg string) string {
 	return b.String()
 }
 
-// jsonMember is one member of a JSON object, its value not decoded.
-type jsonMember struct {
-	key   string
-	value json.RawMessage
-}
-
-// jsonObjectMembers splits a JSON document that is one object into its members, in order.
-func jsonObjectMembers(doc []byte) ([]jsonMember, error) {
-	dec := json.NewDecoder(bytes.NewReader(doc))
-	tok, err := dec.Token()
-	if err != nil {
-		return nil, err
-	}
-	if tok != json.Delim('{') {
-		return nil, errors.New("not a JSON object")
-	}
-	var members []jsonMember
-	for dec.More() {
-		keyTok, err := dec.Token()
-		if err != nil {
-			return nil, err
-		}
-		key, ok := keyTok.(string)
-		if !ok {
-			return nil, errors.New("non-string object key")
-		}
-		var value json.RawMessage
-		err = dec.Decode(&value)
-		if err != nil {
-			return nil, err
-		}
-		members = append(members, jsonMember{key: key, value: value})
-	}
-	_, err = dec.Token()
-	if err != nil {
-		return nil, err
-	}
-	_, err = dec.Token()
-	if !errors.Is(err, io.EOF) {
-		return nil, errors.New("trailing data after JSON value")
-	}
-	return members, nil
-}
-
 // rewriteJSON re-emits a JSON document compactly with every scalar leaf passed
 // through leaf, keeping key order. The leaf function receives the object keys on the way to
 // the value (array positions are not part of the path) and the value itself:
@@ -1028,26 +960,21 @@ func (w *jsonWriter) scalar(v any) error {
 //
 // The decoded flag reports whether a MySQL result was unwrapped from its envelope. One
 // that was not still carries the explained statement, so it is withheld. A
-// JSON plan is masked whatever format was asked for; a plan that is not JSON
-// and was asked for as traditional is pmm-agent's table, masked in its Extra
-// column. Anything else is withheld.
+// MySQL plan asked for as traditional is pmm-agent's table, masked in its
+// Extra column, and one asked for as JSON is masked as JSON, or withheld when
+// it is not a JSON object.
 func redactPlan(engine, format, plan string, decoded bool) string {
-	switch engine {
-	case engineMySQL:
-		if !decoded {
-			return planWithheld
-		}
-		masked, ok := maskMySQLPlan(plan)
-		if ok {
-			return masked
-		}
-		if format == formatTraditional {
-			return maskTraditionalExtra(plan)
-		}
-		return planWithheld
-	case engineMongoDB:
+	switch {
+	case engine == engineMongoDB:
 		return maskMongoPlan(plan)
-	default:
+	case engine != engineMySQL || !decoded:
+		return planWithheld
+	case format == formatTraditional:
+		return maskTraditionalExtra(plan)
+	}
+	masked, ok := maskMySQLPlan(plan)
+	if !ok {
 		return planWithheld
 	}
+	return masked
 }

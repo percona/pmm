@@ -25,10 +25,10 @@ import (
 	"regexp"
 	"slices"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/percona/pmm/api/actions/v1/json/client/actions_service"
 )
@@ -239,17 +239,12 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 	base := s.publicBaseURL(ctx, req.Extra.Header)
-	now := s.now()
-	ref, err := refFromInput(in.QueryRef, in.QueryID, in.ServiceID, in.PeriodFrom, in.PeriodTo, now)
-	if err != nil {
-		return explainResult{}, err
-	}
 	// One PMM_MCP_ACTION_TIMEOUT bounds the whole call, lookups and actions alike.
 	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout)
 	defer cancel()
 	raw := s.rawSQL
 
-	resolved, releaseLookup, err := s.resolveLive(ctx, auth, ref)
+	resolved, releaseLookup, err := s.resolveLive(ctx, auth, in.QueryRef, in.QueryID, in.ServiceID, in.PeriodFrom, in.PeriodTo)
 	if err != nil {
 		return explainResult{}, err
 	}
@@ -381,6 +376,9 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 			"pass query_ref or queryid to fetch a query's tables, or service_id, database and tables to name them")
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
+	// One PMM_MCP_ACTION_TIMEOUT bounds the whole call, lookups and actions alike.
+	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout)
+	defer cancel()
 	if queryForm {
 		return s.queryTables(ctx, auth, in, infoTypes)
 	}
@@ -389,9 +387,6 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 	if err != nil {
 		return schemaResult{}, err
 	}
-	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout)
-	defer cancel()
-
 	releaseLookup, err := s.startMetricCall(auth)
 	if err != nil {
 		return schemaResult{}, err
@@ -422,15 +417,7 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 
 // queryTables fetches the tables of a query: PostgreSQL's from QAN's example, MySQL's from a live EXPLAIN plan.
 func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInput, infoTypes string) (schemaResult, error) {
-	ref, err := refFromInput(in.QueryRef, in.QueryID, in.ServiceID, in.PeriodFrom, in.PeriodTo, s.now())
-	if err != nil {
-		return schemaResult{}, err
-	}
-	// One PMM_MCP_ACTION_TIMEOUT bounds the whole call, lookups and actions alike.
-	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout)
-	defer cancel()
-
-	resolved, releaseLookup, err := s.resolveLive(ctx, auth, ref)
+	resolved, releaseLookup, err := s.resolveLive(ctx, auth, in.QueryRef, in.QueryID, in.ServiceID, in.PeriodFrom, in.PeriodTo)
 	if err != nil {
 		return schemaResult{}, err
 	}
@@ -519,15 +506,15 @@ func (s *Service) planTablesOf(ctx context.Context, auth callerAuth, resolved *r
 			"the EXPLAIN plan is larger than 4 MiB, the most PMM parses of a plan; pass service_id, database and tables to name the tables")
 	}
 	// Only the plan is read: the explained statement can be the stored example, literals included.
-	plan, err := decodeExplainEnvelope(output)
+	envelope, err := decodeExplainEnvelope(output)
 	if err != nil {
 		return nil, nil, newToolError(codePMMUnavailable, "cannot read the EXPLAIN output: %s", err)
 	}
-	entries, err := planTables(plan)
+	entries, err := planTables(envelope.ExplainResult)
 	if err != nil {
 		return nil, nil, newToolError(codePMMUnavailable, "cannot read the EXPLAIN plan: %s", err)
 	}
-	tables, unresolved := resolveTables(entries, aliasMap(plan), resolved.Database)
+	tables, unresolved := resolveTables(entries, aliasMap(envelope.ExplainResult), resolved.Database)
 	return tables, unresolved, nil
 }
 
@@ -591,26 +578,27 @@ func (s *Service) tableInfo(ctx context.Context, auth callerAuth, svc serviceInf
 
 	outputs := make([]string, len(jobs))
 	errs := make([]error, len(jobs))
-	slots := make(chan struct{}, maxActionsInFlight)
-	var wg sync.WaitGroup
+	var g errgroup.Group
+	g.SetLimit(maxActionsInFlight)
 	for i, job := range jobs {
-		wg.Go(func() {
-			select {
-			case slots <- struct{}{}:
-				defer func() { <-slots }()
-				// SHOW CREATE TABLE and SHOW INDEX errors quote only the caller's
-				// identifiers, never a value, so they are not masked.
-				errs[i] = recoverPanic(s.l, func() error {
-					var err error
-					outputs[i], err = s.runAction(ctx, auth, job.body, false)
-					return err
-				})
-			case <-ctx.Done():
-				errs[i] = s.deadlineOr(ctx, "", ctx.Err())
+		g.Go(func() error {
+			err := ctx.Err()
+			if err != nil {
+				errs[i] = s.deadlineOr(ctx, "", err)
+				return nil
 			}
+			// SHOW CREATE TABLE and SHOW INDEX errors quote only the caller's
+			// identifiers, never a value, so they are not masked.
+			errs[i] = recoverPanic(s.l, func() error {
+				var err error
+				outputs[i], err = s.runAction(ctx, auth, job.body, false)
+				return err
+			})
+			return nil
 		})
 	}
-	wg.Wait()
+	// Each job keeps its own error.
+	_ = g.Wait()
 	if !slices.Contains(errs, nil) {
 		return schemaResult{}, errs[0]
 	}
@@ -740,27 +728,28 @@ func (s *Service) deadlineOr(ctx context.Context, actionID string, err error) er
 	return newToolError(codeTimeout, "action %s did not complete within %s (PMM_MCP_ACTION_TIMEOUT)", actionID, s.actionTimeout)
 }
 
-// actionIDOf finds the action id under whichever oneof key PMM answered with.
+// actionIDOf returns the action id under the oneof key PMM answered with, of the actions MCP starts.
 func actionIDOf(res *actions_service.StartServiceActionOKBody) string {
-	if res == nil {
+	switch {
+	case res == nil:
+		return ""
+	case res.MysqlExplain != nil:
+		return res.MysqlExplain.ActionID
+	case res.MysqlExplainJSON != nil:
+		return res.MysqlExplainJSON.ActionID
+	case res.MongodbExplain != nil:
+		return res.MongodbExplain.ActionID
+	case res.MysqlShowCreateTable != nil:
+		return res.MysqlShowCreateTable.ActionID
+	case res.MysqlShowIndex != nil:
+		return res.MysqlShowIndex.ActionID
+	case res.PostgresqlShowCreateTable != nil:
+		return res.PostgresqlShowCreateTable.ActionID
+	case res.PostgresqlShowIndex != nil:
+		return res.PostgresqlShowIndex.ActionID
+	default:
 		return ""
 	}
-	b, err := json.Marshal(res)
-	if err != nil {
-		return ""
-	}
-	var m map[string]struct {
-		ActionID string `json:"action_id"`
-	}
-	if json.Unmarshal(b, &m) != nil {
-		return ""
-	}
-	for _, v := range m {
-		if v.ActionID != "" {
-			return v.ActionID
-		}
-	}
-	return ""
 }
 
 // mapActionStartError refines the generic HTTP mapping for startServiceAction:
@@ -881,6 +870,9 @@ const withheldMessage = "(message withheld: it can quote the statement, and PMM_
 // pass for the error's own.
 func mapActionError(actionErr string, redact bool) *toolError {
 	rest := strings.TrimPrefix(actionErr, mongoExplainPrefix)
+	if mongoUnsupportedExplain.MatchString(rest) {
+		return newToolError(codeInvalidInput, "%s\n%s", actionErr, mongoExplainRemediation)
+	}
 	prefix := actionErr[:len(actionErr)-len(rest)]
 	mysqlHeader := mysqlErrorHeader.FindStringSubmatch(rest)
 	mongoName := mongoErrorName.FindStringSubmatch(rest)
@@ -894,9 +886,6 @@ func mapActionError(actionErr string, redact bool) *toolError {
 		code, safe, header = known.code, known.identifiers, mysqlHeader[0]
 	case mongoName != nil:
 		code, header = mongoErrors[mongoName[1]], mongoName[0]
-	}
-	if mongoUnsupportedExplain.MatchString(rest) {
-		return newToolError(codeInvalidInput, "%s\n%s", actionErr, mongoExplainRemediation)
 	}
 	if code == "" {
 		code = classifyErrorText(maskQuoted(rest))
@@ -929,27 +918,39 @@ func classifyErrorText(text string) errorCode {
 	}
 }
 
-// decodeExplainOutput unwraps the MySQL explain envelope
-// {explain_result: <base64 plan>, explained_query, is_dml} (source-confirmed in
-// agent/runner/actions/mysql_explain_action.go). With raw SQL disabled the
-// explained statement (a real query with literals) is omitted; literals in the
-// plan body are masked separately, by redactPlan. It reports whether output
-// was such an envelope: anything else is returned unchanged.
-func decodeExplainOutput(output string, rawSQL bool) (string, bool) {
-	var envelope struct {
-		ExplainResult  string `json:"explain_result"`
-		ExplainedQuery string `json:"explained_query"`
-		IsDML          bool   `json:"is_dml"`
-	}
+// explainEnvelope is the output of pmm-agent's MySQL explain action (agent/runner/actions/mysql_explain_action.go): the
+// plan, and the statement it explained, a real query with literals.
+type explainEnvelope struct {
+	ExplainResult  []byte `json:"explain_result"`
+	ExplainedQuery string `json:"explained_query"`
+	IsDML          bool   `json:"is_dml"`
+}
+
+// decodeExplainEnvelope decodes the MySQL explain envelope, and fails when output is not one or holds no plan.
+func decodeExplainEnvelope(output string) (explainEnvelope, error) {
+	var envelope explainEnvelope
 	err := json.Unmarshal([]byte(output), &envelope)
-	if err != nil || envelope.ExplainResult == "" {
-		return output, false
+	badBase64, ok := errors.AsType[base64.CorruptInputError](err)
+	switch {
+	case ok:
+		return explainEnvelope{}, fmt.Errorf("explain_result is not base64: %w", badBase64)
+	case err != nil:
+		return explainEnvelope{}, fmt.Errorf("explain output is not an envelope: %w", err)
+	case len(envelope.ExplainResult) == 0:
+		return explainEnvelope{}, errors.New("explain output has no explain_result")
 	}
-	plan, err := base64.StdEncoding.DecodeString(envelope.ExplainResult)
+	return envelope, nil
+}
+
+// decodeExplainOutput unwraps the MySQL explain envelope. With raw SQL disabled the explained statement is omitted;
+// literals in the plan body are masked separately, by redactPlan. It reports whether output was such an envelope:
+// anything else is returned unchanged.
+func decodeExplainOutput(output string, rawSQL bool) (string, bool) {
+	envelope, err := decodeExplainEnvelope(output)
 	if err != nil {
 		return output, false
 	}
-	text := strings.TrimRight(string(plan), "\n")
+	text := strings.TrimRight(string(envelope.ExplainResult), "\n")
 	if rawSQL && envelope.ExplainedQuery != "" {
 		prefix := "-- " + envelope.ExplainedQuery
 		if envelope.IsDML {

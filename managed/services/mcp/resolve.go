@@ -99,10 +99,16 @@ func refFromInput(ref *queryRefInput, queryID, serviceID, periodFrom, periodTo s
 	return queryRef{QueryID: queryID, ServiceID: serviceID, PeriodFrom: from, PeriodTo: to, fromQueryRef: ref != nil}, nil
 }
 
-// resolveLive resolves a query for a live-inspection tool under one metric-call slot, as the QAN tools take, and
-// returns the release of that slot, which the caller calls before the live part.
-func (s *Service) resolveLive(ctx context.Context, auth callerAuth, ref queryRef) (*resolvedQuery, func(), error) {
-	err := cmp.Or(checkQANValue("queryid", ref.QueryID), checkQANValue("service_id", ref.ServiceID))
+// resolveLive resolves the query of a live-inspection tool's input under one metric-call slot, as the QAN tools take,
+// and returns the release of that slot, which the caller calls before the live part.
+func (s *Service) resolveLive(
+	ctx context.Context, auth callerAuth, in *queryRefInput, queryID, serviceID, periodFrom, periodTo string,
+) (*resolvedQuery, func(), error) {
+	ref, err := refFromInput(in, queryID, serviceID, periodFrom, periodTo, s.now())
+	if err != nil {
+		return nil, nil, err
+	}
+	err = cmp.Or(checkQANValue("queryid", ref.QueryID), checkQANValue("service_id", ref.ServiceID))
 	if err != nil {
 		return nil, nil, err
 	}
@@ -125,18 +131,11 @@ func (s *Service) resolveLive(ctx context.Context, auth callerAuth, ref queryRef
 	return resolved, release, nil
 }
 
-// resolveQuery finds the one service in the caller's list that the query ran on, with its database, tables and stored example.
+// resolveQuery finds the one service in the caller's list that the query ran on, with its database, tables and stored
+// example. The caller checks the queryid and service_id with checkQANValue.
 func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRef) (*resolvedQuery, error) {
-	err := checkQANValue("queryid", ref.QueryID)
-	if err != nil {
-		return nil, err
-	}
-	err = checkQANValue("service_id", ref.ServiceID)
-	if err != nil {
-		return nil, err
-	}
-
-	services, ids, err := s.callerServices(ctx, auth, ref.ServiceID, window{From: ref.PeriodFrom, To: ref.PeriodTo})
+	w := window{From: ref.PeriodFrom, To: ref.PeriodTo}
+	services, ids, err := s.callerServices(ctx, auth, ref.ServiceID, w)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +145,6 @@ func (s *Service) resolveQuery(ctx context.Context, auth callerAuth, ref queryRe
 		return nil, err
 	}
 
-	w := window{From: ref.PeriodFrom, To: ref.PeriodTo}
 	widen := "pass period_from and period_to covering when it ran, or its query_ref from pmm_top_queries"
 	if ref.fromQueryRef {
 		widen = "pass a query_ref whose period covers when it ran"

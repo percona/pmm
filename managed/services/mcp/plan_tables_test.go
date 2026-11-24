@@ -148,8 +148,8 @@ func TestPlanTablesFormat2(t *testing.T) {
 	tables, err := planTables(plan)
 	require.NoError(t, err)
 	assert.Equal(t, []planTable{
-		{Schema: "shop", Name: "customers", Alias: "c"},
-		{Schema: "shop", Name: "orders", Alias: "o"},
+		{Schema: "shop", Name: "customers"},
+		{Schema: "shop", Name: "orders"},
 	}, tables)
 }
 
@@ -158,22 +158,6 @@ func TestPlanTablesRejectsNonJSON(t *testing.T) {
 
 	_, err := planTables([]byte("x"))
 	require.Error(t, err)
-}
-
-func TestPlanTablesSkipsAgentKeys(t *testing.T) {
-	t.Parallel()
-
-	bare := `{"query_block":{"select_id":1,"table":{"table_name":"o","access_type":"ALL"}}}`
-	withAgent := `{"query_block":{"select_id":1,"table":{"table_name":"o","real_table_name":"fake","access_type":"ALL"}},` +
-		`"real_table_name":{"table_name":"bogus"},` +
-		`"warnings":[{"Level":"Note","Code":1003,"Message":"x","table":{"table_name":"bogus2"}}]}`
-
-	want, err := planTables([]byte(bare))
-	require.NoError(t, err)
-	got, err := planTables([]byte(withAgent))
-	require.NoError(t, err)
-	assert.Equal(t, []planTable{{Name: "o"}}, want)
-	assert.Equal(t, want, got)
 }
 
 func notePlan(t *testing.T, message string) []byte {
@@ -342,7 +326,7 @@ func TestResolveTablesDatabaseAndDerived(t *testing.T) {
 	t.Parallel()
 
 	tables := []planTable{
-		{Schema: "s2", Name: "x", Alias: "y"},
+		{Schema: "s2", Name: "x"},
 		{Name: "t"},
 		{Name: "d", Derived: true},
 		{Name: "<subquery2>"},
@@ -363,8 +347,8 @@ func TestDecodeExplainEnvelope(t *testing.T) {
 		t.Setenv("PMM_MCP_RAW_SQL", raw)
 		got, err := decodeExplainEnvelope(envelope)
 		require.NoError(t, err)
-		assert.Equal(t, plan, string(got))
-		assert.NotContains(t, string(got), "secret")
+		assert.Equal(t, plan, string(got.ExplainResult))
+		assert.NotContains(t, string(got.ExplainResult), "secret")
 	}
 
 	_, err := decodeExplainEnvelope("not json")

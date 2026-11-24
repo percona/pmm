@@ -849,10 +849,7 @@ func fingerprintText(fingerprint, engine string, raw bool) string {
 // maskEitherQuoting is maskSQL for a text of unknown engine: a byte is masked when MySQL's or PostgreSQL's quoting
 // masks it, and the text is quoted when either finds a quoted string in it.
 func maskEitherQuoting(s string) (string, bool) {
-	marks := sqlMarks(s, true, false)
-	for i, m := range sqlMarks(s, false, false) {
-		marks[i] = max(marks[i], m)
-	}
+	marks := maxMarks(sqlMarks(s, true, false), sqlMarks(s, false, false))
 	return renderMarks(s, marks), slices.Contains(marks, stringMark)
 }
 

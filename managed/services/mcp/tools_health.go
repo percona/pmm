@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"slices"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -452,34 +452,28 @@ func firstError(errs []error) error {
 func (s *Service) runSignals(ctx context.Context, rr rangeRequest, signals []signal, queries []string, skipNode bool) ([]signalResult, []error) {
 	results := make([]signalResult, len(signals))
 	errs := make([]error, len(signals))
-	jobs := make(chan int)
-
-	var wg sync.WaitGroup
-	for range min(maxHealthQueries, len(signals)) {
-		wg.Go(func() {
-			for j := range jobs {
-				sig := signals[j]
-				results[j] = signalResult{Name: sig.Name, Unit: sig.Unit, Source: sig.Source}
-				errs[j] = recoverPanic(s.l, func() error {
-					var err error
-					results[j], err = s.runSignal(ctx, rr, sig, queries[j])
-					return err
-				})
-				if errs[j] != nil && results[j].Error == nil {
-					results[j].Error = partErrorOf(errs[j])
-				}
-			}
-		})
-	}
+	var g errgroup.Group
+	g.SetLimit(maxHealthQueries)
 	for j, sig := range signals {
 		if sig.Node && skipNode {
 			results[j] = signalResult{Name: sig.Name, Unit: sig.Unit, Source: sig.Source, NoData: true}
 			continue
 		}
-		jobs <- j
+		g.Go(func() error {
+			results[j] = signalResult{Name: sig.Name, Unit: sig.Unit, Source: sig.Source}
+			errs[j] = recoverPanic(s.l, func() error {
+				var err error
+				results[j], err = s.runSignal(ctx, rr, sig, queries[j])
+				return err
+			})
+			if errs[j] != nil && results[j].Error == nil {
+				results[j].Error = partErrorOf(errs[j])
+			}
+			return nil
+		})
 	}
-	close(jobs)
-	wg.Wait()
+	// Each signal keeps its own error.
+	_ = g.Wait()
 	return results, errs
 }
 
