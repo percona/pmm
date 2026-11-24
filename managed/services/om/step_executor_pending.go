@@ -27,6 +27,8 @@ import (
 type pendingStepExecutorProvider struct{}
 
 // Executor returns an executor that refuses to run, which no step-less kind reaches.
+//
+//nolint:ireturn
 func (pendingStepExecutorProvider) Executor(*models.OmOperation, OperationKind) (StepExecutor, error) {
 	return pendingStepExecutor{}, nil
 }

@@ -7034,7 +7034,7 @@ func (m *TriggerHostBootstrapResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for RunId
+	// no validation rules for OperationId
 
 	// no validation rules for GeneratedAdminPassword
 

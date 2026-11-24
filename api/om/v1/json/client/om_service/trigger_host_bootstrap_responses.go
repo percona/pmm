@@ -560,12 +560,12 @@ func (o *TriggerHostBootstrapDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 }
 
 /*
-TriggerHostBootstrapOKBody TriggerHostBootstrapResponse acknowledges a planned bootstrap run, before any host is touched.
+TriggerHostBootstrapOKBody TriggerHostBootstrapResponse acknowledges a managed install operation, before any host is touched.
 swagger:model TriggerHostBootstrapOKBody
 */
 type TriggerHostBootstrapOKBody struct {
-	// The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
-	RunID string `json:"run_id,omitempty"`
+	// The install operation's id. Poll GetOperation for its progress.
+	OperationID string `json:"operation_id,omitempty"`
 
 	// Password PMM generated when admin_username came without admin_password.
 	// Only returned here: PMM deletes its copy once the install no longer needs it.

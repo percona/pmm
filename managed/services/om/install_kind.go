@@ -48,12 +48,23 @@ const installFactMaxAge = 5 * time.Minute
 // installMinFreeSpaceBytes is the free space an install needs at the data path before it begins.
 const installMinFreeSpaceBytes float64 = 5 << 30
 
-// installParams carries an install operation's target nodes and their configuration, stored in
-// om_operations.params and read back by the lock set and the steps.
+// installDeadline bounds how long an install may stay queued and running before it is timed out.
+const installDeadline = 30 * time.Minute
+
+// installParams is an install operation's sealed, non-secret plan, stored in om_operations.params and
+// read back by the lock set, the check subjects and the later phases; the admin password is never here.
 type installParams struct {
 	NodeIDs        []string                   `json:"node_ids"`
-	MemberConfigs  map[string]json.RawMessage `json:"member_configs,omitempty"`
+	ReplicaSetName string                     `json:"replica_set_name"`
 	MongoDBVersion string                     `json:"mongodb_version"`
+	DataPath       string                     `json:"data_path"`
+	LogPath        string                     `json:"log_path"`
+	Port           uint32                     `json:"port"`
+	BindIP         string                     `json:"bind_ip"`
+	MemberConfigs  map[string]json.RawMessage `json:"member_configs,omitempty"`
+	Environment    string                     `json:"environment,omitempty"`
+	Cluster        string                     `json:"cluster,omitempty"`
+	AdminUsername  string                     `json:"admin_username,omitempty"`
 }
 
 // installParamsOf reads an install operation's params, returning an empty value when they are unset or
@@ -73,7 +84,7 @@ func InstallKind() OperationKind {
 		Kind:        installKind,
 		ClusterLess: true,
 		Resumable:   true,
-		Deadline:    30 * time.Minute,
+		Deadline:    installDeadline,
 		Attention:   AttentionPolicy{ExemptAll: true},
 		LockSet: func(op *models.OmOperation) []LockResource {
 			params := installParamsOf(op)
