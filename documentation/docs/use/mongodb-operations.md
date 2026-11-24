@@ -219,12 +219,11 @@ To view fleet health:
 4. By default, clusters are grouped by environment. If you change **Group by**, the table keeps your choice for the browser session. For each cluster, check the following columns:
 
     - **Health**: the overall state of the cluster, for example **Healthy**.
-    - **Services**: the number of services in the cluster.
     - **Process**: the member types in the cluster, for example routers, shards and arbiters.
     - **Max repl. lag**: the highest replication lag across members.
     - **Min oplog window**: the smallest oplog window across members.
 
-    To add columns that are hidden by default, such as **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
+    To add columns that are hidden by default, such as **Services**, **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
 
 5. Expand a cluster's row to find the member that causes poor health or high replication lag.
 6. Select the **Services** tab to check whether a specific service is up or down.
@@ -245,7 +244,7 @@ If the reason isn't clear, go to **MongoDB > Operations > Automations**, select 
 
 The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look for **Partial** scans on the **Scans** tab, or check the **Services** tab as described below.
 
-To find out why a service is failing, go to **MongoDB > Operations > Fleet** and select the **Services** tab. The **Collected** column shows the reason in red, for example **Database unreachable** or **Database authentication failed**. Click the service's status to open its details, which show the full error and what to do about it. When PMM knows which scan failed, the details also link to it. A **Down** service marked **not running** had no `mongod` or `mongos` running at its last scan.
+To find out why a service is failing, go to **MongoDB > Operations > Fleet** and select the **Services** tab. The **Collected** column shows the reason in red, for example **Database unreachable** or **Database authentication failed**. Click the service's row to open its details, which show the full error and what to do about it. When PMM knows which scan failed, the details also link to it. A **Down** service marked **not running** had no `mongod` or `mongos` running at its last scan.
 
 ### Installs
 

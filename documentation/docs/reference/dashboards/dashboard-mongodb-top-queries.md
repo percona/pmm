@@ -2,7 +2,7 @@
 
 This dashboard ranks MongoDB queries by time spent, executions, documents examined, query targeting, and collection scans. It also shows the busiest collections and the users who run the most queries. Use these rankings to decide which queries and collections to optimize first.
 
-Open it from **MongoDB > Top queries** in the main menu. Use the filters at the top to scope the view to an environment, cluster, node, service, replica set, or node type. The **QAN Agent** filter limits the query panels to one Query Analytics (QAN) source, the profiler or mongolog.
+Open it from **MongoDB > Top queries** in the main menu. Use the filters at the top to scope the view to an environment, cluster, node, service, replica set, or **Type**. The **QAN Agent** filter limits the query panels to one Query Analytics (QAN) source, the profiler or mongolog.
 
 ## Prerequisites
 
@@ -85,7 +85,7 @@ Both panels show the rate at the end of the selected time range. After a workloa
 
 ### Top 10 Hottest Collections by Read
 
-Shows read operations per second for each collection. Only queries count; `getmore` operations are excluded. This is the same measure as **Top 5 Hottest Collections by Read (Rate)** on the [MongoDB Collections Overview](dashboard-mongodb-collection_overview.md) dashboard.
+Shows read operations per second for each collection. Only queries count, and `getmore` operations are excluded. This is the same measure as **Top 5 Hottest Collections by Read (Rate)** on the [MongoDB Collections Overview](dashboard-mongodb-collection_overview.md) dashboard.
 
 ### Top 10 Hottest Collections by Write
 
