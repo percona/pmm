@@ -17,6 +17,7 @@ package om
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -73,11 +74,44 @@ func newInventoryScanRequester(db *reform.DB, l *logrus.Entry, client *extension
 }
 
 // RequestScan fulfils the driver's rescan seam: it asks om_inventory to scan an operation under the
-// profile the check set named, keyed so a retried request fulfils once.
+// profile the check set named, keyed so a retried request fulfils once. An install carries its target
+// nodes as subjects, since a bare operation has no cluster for om_inventory to resolve them from.
 func (r *inventoryScanRequester) RequestScan(operationID, profile, idempotencyKey string) error {
+	var subjects []scanSubject
+	if profile == scanProfileInstallCheck {
+		var err error
+		subjects, err = r.installSubjects(operationID)
+		if err != nil {
+			return err
+		}
+	}
 	return r.post(context.Background(), scanRequest{
-		Profile: profile, IdempotencyKey: idempotencyKey, OperationID: operationID,
+		Profile: profile, IdempotencyKey: idempotencyKey, OperationID: operationID, Subjects: subjects,
 	})
+}
+
+// installSubjects lists an install operation's target nodes as install-node scan subjects; a kind that
+// is not install carries none, so om_inventory resolves its subjects from the operation's cluster.
+func (r *inventoryScanRequester) installSubjects(operationID string) ([]scanSubject, error) {
+	row, err := r.db.FindByPrimaryKeyFrom(models.OmOperationTable, operationID)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to read operation '%s': %w", operationID, err)
+	}
+	op := row.(*models.OmOperation) //nolint:forcetypeassert
+	if op.Kind != installKind {
+		return nil, nil
+	}
+	params := installParamsOf(op)
+	subjects := make([]scanSubject, 0, len(params.NodeIDs))
+	for _, nodeID := range params.NodeIDs {
+		subjects = append(subjects, scanSubject{
+			SubjectKind: subjectKindInstallNode, SubjectKey: nodeID, Host: params.Hosts[nodeID],
+		})
+	}
+	return subjects, nil
 }
 
 // RequestClusterScan asks om_inventory for a scan of one cluster's members, as the scheduler does on

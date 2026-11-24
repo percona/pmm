@@ -93,6 +93,39 @@ func TestRequestScanPostsOperationRequest(t *testing.T) {
 	assert.Empty(t, gotBody.Subjects)
 }
 
+func TestRequestScanPostsInstallNodeSubjects(t *testing.T) {
+	db := lockTestDB(t)
+	params, err := json.Marshal(installParams{
+		NodeIDs: []string{"node-a", "node-b"},
+		Hosts:   map[string]string{"node-a": "exec-a", "node-b": "exec-b"},
+	})
+	require.NoError(t, err)
+	op := &models.OmOperation{
+		ID: uuid.New().String(), Kind: installKind, KindVersion: 1,
+		Status: models.OmOperationChecking, Version: 1, ParamsRevision: 1,
+		Trigger: models.OmTriggerUser, Principal: []byte(`{}`), Params: params, ErrorFields: []byte("{}"),
+	}
+	require.NoError(t, db.Insert(op))
+
+	var gotBody scanRequest
+	requester := scanRequesterFor(t, db, func(w http.ResponseWriter, r *http.Request) {
+		assert.NoError(t, json.NewDecoder(r.Body).Decode(&gotBody))
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	err = requester.RequestScan(op.ID, scanProfileInstallCheck, op.ID+":1")
+	require.NoError(t, err)
+	assert.Equal(t, scanProfileInstallCheck, gotBody.Profile)
+	assert.Equal(t, op.ID, gotBody.OperationID)
+	require.Len(t, gotBody.Subjects, 2)
+	byKey := make(map[string]string, 2)
+	for _, subject := range gotBody.Subjects {
+		assert.Equal(t, subjectKindInstallNode, subject.SubjectKind)
+		byKey[subject.SubjectKey] = subject.Host
+	}
+	assert.Equal(t, map[string]string{"node-a": "exec-a", "node-b": "exec-b"}, byKey)
+}
+
 func TestRequestClusterScanPostsMemberSubjects(t *testing.T) {
 	db := lockTestDB(t)
 	clusterID := lockCluster(t, db.Querier)

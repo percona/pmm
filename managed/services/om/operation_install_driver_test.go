@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -115,7 +116,7 @@ func TestInstallDriverBlocksWhenANodeIsNotReady(t *testing.T) {
 	reg := installRegistry(t)
 	op := checkingInstallOp(t, db, "node-a", "node-b")
 	unready := nodeFacts()
-	unready[factPortFree] = false
+	unready[factNoMongod] = false
 	reader := installFactReader(map[string]map[string]any{"node-a": nodeFacts(), "node-b": unready})
 	runner := newTestRunner(t, db, reg, newFactCheckProvider(reader), pendingStepExecutorProvider{})
 
@@ -125,21 +126,24 @@ func TestInstallDriverBlocksWhenANodeIsNotReady(t *testing.T) {
 	require.Equal(t, string(models.OmOperationFailed), state)
 	var code string
 	require.NoError(t, db.QueryRow("SELECT error_code FROM om_operations WHERE id = $1", op.ID).Scan(&code))
-	assert.Contains(t, code, "port is in use")
+	assert.Contains(t, code, "already runs mongod")
 	assert.Equal(t, 0, heldLocks(t, db, op.ID))
 }
 
-func TestInstallDriverBlocksWhenANodeWasNotScanned(t *testing.T) {
+func TestInstallDriverRescansWhenANodeWasNotScanned(t *testing.T) {
 	db := lockTestDB(t)
 	reg := installRegistry(t)
 	op := checkingInstallOp(t, db, "node-a", "node-b")
-	// node-b has no observation, so its facts read as absent and every rule over them blocks fail-closed.
+	// node-b has no observation yet, so its facts read as absent; readiness cannot be judged, so the
+	// driver requests a scan and leaves the operation checking rather than failing it fail-closed.
 	reader := installFactReader(map[string]map[string]any{"node-a": nodeFacts()})
-	runner := newTestRunner(t, db, reg, newFactCheckProvider(reader), pendingStepExecutorProvider{})
+	scans := &fakeScanRequester{}
+	runner := NewRunner(db, logrus.WithField("test", t.Name()), reg, newFactCheckProvider(reader), pendingStepExecutorProvider{}, scans)
 
 	runner.Tick(t.Context())
 
 	state, _ := opStatus(t, db, op.ID)
-	assert.Equal(t, string(models.OmOperationFailed), state)
+	assert.Equal(t, string(models.OmOperationChecking), state)
+	assert.Len(t, scans.requests, 1)
 	assert.Equal(t, 0, heldLocks(t, db, op.ID))
 }

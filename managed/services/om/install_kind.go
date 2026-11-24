@@ -25,17 +25,13 @@ import (
 // installKind is the operation kind that installs MongoDB on one or three nodes as a managed cluster.
 const installKind = "install"
 
-// Install-readiness fact names: the install_check facts collected per install_node, aggregated across
-// the operation's nodes into the one check context the driver evaluates.
+// Install-readiness fact names, as PMM Extensions' install_check scan stores them per install_node and
+// the check provider aggregates across the operation's nodes into the one check context the driver reads.
 const (
-	factNodesReachable       = "nodes_reachable"
-	factOSSupported          = "os_supported"
-	factPortFree             = "port_free"
-	factNoMongodPresent      = "no_mongod_present"
-	factRepoReachable        = "repo_reachable"
-	factPackageManagerUsable = "package_manager_usable"
-	factFreeSpaceBytes       = "free_space_bytes"
-	factHostPackageInstall   = "host.package_install"
+	factRepoReachable         = "repo.reachable"
+	factPackageManagerPresent = "install_readiness.package_manager_present"
+	factNoMongod              = "install_readiness.no_mongod"
+	factFreeSpaceBytes        = "install_readiness.data_dir_free_bytes"
 )
 
 // subjectKindInstallNode labels a target node as an install-readiness subject, the key its install_check
@@ -55,6 +51,7 @@ const installDeadline = 30 * time.Minute
 // read back by the lock set, the check subjects and the later phases; the admin password is never here.
 type installParams struct {
 	NodeIDs        []string                   `json:"node_ids"`
+	Hosts          map[string]string          `json:"hosts,omitempty"`
 	ReplicaSetName string                     `json:"replica_set_name"`
 	MongoDBVersion string                     `json:"mongodb_version"`
 	DataPath       string                     `json:"data_path"`
@@ -108,28 +105,20 @@ func InstallKind() OperationKind {
 	}
 }
 
-// installReadinessCheckSet declares install readiness's facts and rules, read over facts aggregated
-// across the nodes so a boolean passes only when every node does and free_space_bytes is the least.
+// installReadinessCheckSet declares install readiness's facts and rules, aggregated across the nodes so
+// a boolean passes only when every node does; the OS and version checks stay in the synchronous trigger.
 func installReadinessCheckSet() CheckSet {
 	return CheckSet{
 		Facts: []CheckFact{
-			{Name: factNodesReachable, MaxAge: installFactMaxAge},
-			{Name: factOSSupported, MaxAge: installFactMaxAge},
-			{Name: factPortFree, MaxAge: installFactMaxAge},
-			{Name: factNoMongodPresent, MaxAge: installFactMaxAge},
 			{Name: factRepoReachable, MaxAge: installFactMaxAge},
-			{Name: factPackageManagerUsable, MaxAge: installFactMaxAge},
+			{Name: factPackageManagerPresent, MaxAge: installFactMaxAge},
+			{Name: factNoMongod, MaxAge: installFactMaxAge},
 			{Name: factFreeSpaceBytes, MaxAge: installFactMaxAge},
-			{Name: factHostPackageInstall, MaxAge: installFactMaxAge},
 		},
 		Rules: []BlockingRule{
-			boolFactRule(factNodesReachable, "a target node is unreachable"),
-			boolFactRule(factOSSupported, "a target node runs an unsupported OS"),
-			boolFactRule(factPortFree, "the MongoDB port is in use on a target node"),
-			boolFactRule(factNoMongodPresent, "a target node already runs mongod"),
 			boolFactRule(factRepoReachable, "the package repository is unreachable from a target node"),
-			boolFactRule(factPackageManagerUsable, "the package manager is unusable on a target node"),
-			boolFactRule(factHostPackageInstall, "a target node cannot install packages, elevation is blocked"),
+			boolFactRule(factPackageManagerPresent, "a target node has no usable package manager"),
+			boolFactRule(factNoMongod, "a target node already runs mongod"),
 			freeSpaceRule(factFreeSpaceBytes, installMinFreeSpaceBytes),
 		},
 	}

@@ -61,7 +61,7 @@ func TestCheckInputsAggregatesAndPasses(t *testing.T) {
 
 	set, facts, ages, err := provider.CheckInputs(t.Context(), installOp(t, "node-a", "node-b"), InstallKind())
 	require.NoError(t, err)
-	assert.Equal(t, true, facts[factNodesReachable])
+	assert.Equal(t, true, facts[factRepoReachable])
 	assert.InDelta(t, float64(6<<30), facts[factFreeSpaceBytes], 0, "the least free space wins")
 	assert.Equal(t, 2*time.Minute, ages[factFreeSpaceBytes], "the oldest age wins")
 	assert.False(t, runBlockingRules(set, CheckContext{Facts: facts}).Blocked)
@@ -71,7 +71,7 @@ func TestCheckInputsBlocksWhenOneNodeFails(t *testing.T) {
 	now := time.Now()
 	a := nodeFacts()
 	b := nodeFacts()
-	b[factPortFree] = false
+	b[factNoMongod] = false
 	reader := &fakeFactReader{
 		facts: map[string]map[string]any{"node-a": a, "node-b": b},
 		at:    map[string]time.Time{"node-a": now, "node-b": now},
@@ -80,17 +80,17 @@ func TestCheckInputsBlocksWhenOneNodeFails(t *testing.T) {
 
 	set, facts, _, err := provider.CheckInputs(t.Context(), installOp(t, "node-a", "node-b"), InstallKind())
 	require.NoError(t, err)
-	assert.Equal(t, false, facts[factPortFree])
+	assert.Equal(t, false, facts[factNoMongod])
 	block := runBlockingRules(set, CheckContext{Facts: facts})
 	assert.True(t, block.Blocked)
-	assert.Equal(t, factPortFree, block.Path)
+	assert.Equal(t, factNoMongod, block.Path)
 }
 
 func TestCheckInputsLeavesOutAMissingFact(t *testing.T) {
 	now := time.Now()
 	a := nodeFacts()
 	b := nodeFacts()
-	delete(b, factOSSupported)
+	delete(b, factPackageManagerPresent)
 	reader := &fakeFactReader{
 		facts: map[string]map[string]any{"node-a": a, "node-b": b},
 		at:    map[string]time.Time{"node-a": now, "node-b": now},
@@ -99,9 +99,9 @@ func TestCheckInputsLeavesOutAMissingFact(t *testing.T) {
 
 	set, facts, _, err := provider.CheckInputs(t.Context(), installOp(t, "node-a", "node-b"), InstallKind())
 	require.NoError(t, err)
-	_, present := facts[factOSSupported]
+	_, present := facts[factPackageManagerPresent]
 	assert.False(t, present, "a fact missing from a node is left out so its rule blocks")
 	block := runBlockingRules(set, CheckContext{Facts: facts})
 	assert.True(t, block.Blocked)
-	assert.Equal(t, factOSSupported, block.Path)
+	assert.Equal(t, factPackageManagerPresent, block.Path)
 }

@@ -27,14 +27,10 @@ import (
 
 func passingInstallFacts() map[string]any {
 	return map[string]any{
-		factNodesReachable:       true,
-		factOSSupported:          true,
-		factPortFree:             true,
-		factNoMongodPresent:      true,
-		factRepoReachable:        true,
-		factPackageManagerUsable: true,
-		factHostPackageInstall:   true,
-		factFreeSpaceBytes:       installMinFreeSpaceBytes,
+		factRepoReachable:         true,
+		factPackageManagerPresent: true,
+		factNoMongod:              true,
+		factFreeSpaceBytes:        installMinFreeSpaceBytes,
 	}
 }
 
@@ -44,10 +40,7 @@ func TestInstallReadinessPasses(t *testing.T) {
 }
 
 func TestInstallReadinessBlocksEachFailedBoolFact(t *testing.T) {
-	facts := []string{
-		factNodesReachable, factOSSupported, factPortFree, factNoMongodPresent,
-		factRepoReachable, factPackageManagerUsable, factHostPackageInstall,
-	}
+	facts := []string{factRepoReachable, factPackageManagerPresent, factNoMongod}
 	set := installReadinessCheckSet()
 	for _, fact := range facts {
 		t.Run(fact, func(t *testing.T) {
