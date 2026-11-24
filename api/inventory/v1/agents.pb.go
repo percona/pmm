@@ -1037,7 +1037,7 @@ type PostgresExporter struct {
 	Username string `protobuf:"bytes,5,opt,name=username,proto3" json:"username,omitempty"`
 	// Use TLS for database connections.
 	Tls bool `protobuf:"varint,6,opt,name=tls,proto3" json:"tls,omitempty"`
-	// Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
+	// Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.
 	TlsSkipVerify bool `protobuf:"varint,7,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -6604,7 +6604,7 @@ type AddPostgresExporterParams struct {
 	Password string `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
 	// Use TLS for database connections.
 	Tls bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
-	// Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
+	// Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.
 	TlsSkipVerify bool `protobuf:"varint,6,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,7,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`

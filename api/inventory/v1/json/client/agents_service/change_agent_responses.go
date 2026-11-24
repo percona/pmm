@@ -4203,7 +4203,7 @@ type ChangeAgentOKBodyPostgresExporter struct {
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
-	// Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
+	// Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.

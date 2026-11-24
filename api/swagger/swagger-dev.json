@@ -9712,7 +9712,7 @@
                         "x-order": 5
                       },
                       "tls_skip_verify": {
-                        "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
+                        "description": "Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.",
                         "type": "boolean",
                         "x-order": 6
                       },
@@ -11679,7 +11679,7 @@
                       "x-order": 4
                     },
                     "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
+                      "description": "Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.",
                       "type": "boolean",
                       "x-order": 5
                     },
@@ -13402,7 +13402,7 @@
                       "x-order": 5
                     },
                     "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
+                      "description": "Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.",
                       "type": "boolean",
                       "x-order": 6
                     },
@@ -15492,7 +15492,7 @@
                       "x-order": 5
                     },
                     "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
+                      "description": "Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.",
                       "type": "boolean",
                       "x-order": 6
                     },
@@ -19659,7 +19659,7 @@
                       "x-order": 5
                     },
                     "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
+                      "description": "Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.",
                       "type": "boolean",
                       "x-order": 6
                     },
@@ -28090,7 +28090,7 @@
                       "x-order": 21
                     },
                     "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
+                      "description": "Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.",
                       "type": "boolean",
                       "x-order": 22
                     },
@@ -30319,7 +30319,7 @@
                           "x-order": 5
                         },
                         "tls_skip_verify": {
-                          "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
+                          "description": "Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.",
                           "type": "boolean",
                           "x-order": 6
                         },
@@ -31856,7 +31856,7 @@
                           "x-order": 5
                         },
                         "tls_skip_verify": {
-                          "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
+                          "description": "Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.",
                           "type": "boolean",
                           "x-order": 6
                         },
@@ -33082,7 +33082,7 @@
                       "x-order": 11
                     },
                     "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.",
+                      "description": "Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.",
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 12
@@ -33112,7 +33112,7 @@
                       "x-order": 16
                     },
                     "qan_postgresql_pgstatmonitor_agent": {
-                      "description": "If true, ensures qan-postgresql-pgstatmonitor-agent exists (not on RDS or Azure); if the connection check finds no\npg_stat_monitor extension, qan-postgresql-pgstatements-agent is used instead, with a warning. If false, removes it.",
+                      "description": "If true, ensures qan-postgresql-pgstatmonitor-agent exists (not on RDS or Azure); if false, removes it. If the connection\ncheck finds no pg_stat_monitor extension, an existing or requested one is replaced by pg_stat_statements, with a warning.",
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 17

@@ -4748,7 +4748,7 @@ type UpdateServiceParamsBodyPostgresql struct {
 	// Use TLS for database connections.
 	TLS *bool `json:"tls,omitempty"`
 
-	// Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
+	// Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.
 	TLSSkipVerify *bool `json:"tls_skip_verify,omitempty"`
 
 	// TLS CA certificate.
@@ -4763,8 +4763,8 @@ type UpdateServiceParamsBodyPostgresql struct {
 	// If true, ensures qan-postgresql-pgstatements-agent exists; if false, removes it.
 	QANPostgresqlPgstatementsAgent *bool `json:"qan_postgresql_pgstatements_agent,omitempty"`
 
-	// If true, ensures qan-postgresql-pgstatmonitor-agent exists (not on RDS or Azure); if the connection check finds no
-	// pg_stat_monitor extension, qan-postgresql-pgstatements-agent is used instead, with a warning. If false, removes it.
+	// If true, ensures qan-postgresql-pgstatmonitor-agent exists (not on RDS or Azure); if false, removes it. If the connection
+	// check finds no pg_stat_monitor extension, an existing or requested one is replaced by pg_stat_statements, with a warning.
 	QANPostgresqlPgstatmonitorAgent *bool `json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 
 	// Limit query length in QAN (zero: server-defined; -1: no limit).

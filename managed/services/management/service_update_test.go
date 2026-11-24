@@ -793,6 +793,46 @@ func TestUpdateService(t *testing.T) {
 		assert.NotContains(t, agents, models.QANPostgreSQLPgStatMonitorAgentType)
 	})
 
+	t.Run("ExistingPGStatMonitorFallsBackWithoutQuerySource", func(t *testing.T) {
+		ctx, s, m := setupUpdateService(t)
+		serviceID := addTestPostgreSQL(ctx, t, s, m, true)
+
+		m.expectNoPGStatMonitor()
+		m.expectApplied()
+		updated, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Postgresql{
+				Postgresql: &managementv1.UpdatePostgreSQLServiceParams{Password: new("new_pass")},
+			},
+		})
+		require.NoError(t, err)
+		assert.NotEmpty(t, updated.Warning)
+
+		agents := serviceAgents(t, s.db.Querier, serviceID)
+		assert.Contains(t, agents, models.QANPostgreSQLPgStatementsAgentType)
+		assert.NotContains(t, agents, models.QANPostgreSQLPgStatMonitorAgentType)
+	})
+
+	t.Run("NoPGStatMonitorNoFallback", func(t *testing.T) {
+		ctx, s, m := setupUpdateService(t)
+		serviceID := addTestPostgreSQL(ctx, t, s, m, false)
+
+		m.expectNoPGStatMonitor()
+		m.expectApplied()
+		updated, err := s.UpdateService(ctx, &managementv1.UpdateServiceRequest{
+			ServiceId: serviceID,
+			Service: &managementv1.UpdateServiceRequest_Postgresql{
+				Postgresql: &managementv1.UpdatePostgreSQLServiceParams{Password: new("new_pass")},
+			},
+		})
+		require.NoError(t, err)
+		assert.Empty(t, updated.Warning)
+
+		agents := serviceAgents(t, s.db.Querier, serviceID)
+		assert.NotContains(t, agents, models.QANPostgreSQLPgStatementsAgentType)
+		assert.NotContains(t, agents, models.QANPostgreSQLPgStatMonitorAgentType)
+	})
+
 	t.Run("PGStatMonitorFallbackNeedsAConnectionCheck", func(t *testing.T) {
 		ctx, s, m := setupUpdateService(t)
 		serviceID := addTestPostgreSQL(ctx, t, s, m, false)

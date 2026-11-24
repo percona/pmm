@@ -80,7 +80,7 @@ type AddPostgreSQLServiceParams struct {
 	DisableCommentsParsing bool `protobuf:"varint,21,opt,name=disable_comments_parsing,json=disableCommentsParsing,proto3" json:"disable_comments_parsing,omitempty"`
 	// Use TLS for database connections.
 	Tls bool `protobuf:"varint,22,opt,name=tls,proto3" json:"tls,omitempty"`
-	// Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
+	// Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.
 	TlsSkipVerify bool `protobuf:"varint,23,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
 	// Defines metrics flow model for this exporter.
 	// Metrics could be pushed to the server with vmagent,
@@ -406,7 +406,7 @@ type UpdatePostgreSQLServiceParams struct {
 	AgentPassword *string `protobuf:"bytes,11,opt,name=agent_password,json=agentPassword,proto3,oneof" json:"agent_password,omitempty"`
 	// Use TLS for database connections.
 	Tls *bool `protobuf:"varint,12,opt,name=tls,proto3,oneof" json:"tls,omitempty"`
-	// Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
+	// Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.
 	TlsSkipVerify *bool `protobuf:"varint,13,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3,oneof" json:"tls_skip_verify,omitempty"`
 	// TLS CA certificate.
 	TlsCa *string `protobuf:"bytes,14,opt,name=tls_ca,json=tlsCa,proto3,oneof" json:"tls_ca,omitempty"`
@@ -416,8 +416,8 @@ type UpdatePostgreSQLServiceParams struct {
 	TlsKey *string `protobuf:"bytes,16,opt,name=tls_key,json=tlsKey,proto3,oneof" json:"tls_key,omitempty"`
 	// If true, ensures qan-postgresql-pgstatements-agent exists; if false, removes it.
 	QanPostgresqlPgstatementsAgent *bool `protobuf:"varint,17,opt,name=qan_postgresql_pgstatements_agent,json=qanPostgresqlPgstatementsAgent,proto3,oneof" json:"qan_postgresql_pgstatements_agent,omitempty"`
-	// If true, ensures qan-postgresql-pgstatmonitor-agent exists (not on RDS or Azure); if the connection check finds no
-	// pg_stat_monitor extension, qan-postgresql-pgstatements-agent is used instead, with a warning. If false, removes it.
+	// If true, ensures qan-postgresql-pgstatmonitor-agent exists (not on RDS or Azure); if false, removes it. If the connection
+	// check finds no pg_stat_monitor extension, an existing or requested one is replaced by pg_stat_statements, with a warning.
 	QanPostgresqlPgstatmonitorAgent *bool `protobuf:"varint,18,opt,name=qan_postgresql_pgstatmonitor_agent,json=qanPostgresqlPgstatmonitorAgent,proto3,oneof" json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 	// Limit query length in QAN (zero: server-defined; -1: no limit).
 	MaxQueryLength *int32 `protobuf:"varint,19,opt,name=max_query_length,json=maxQueryLength,proto3,oneof" json:"max_query_length,omitempty"`

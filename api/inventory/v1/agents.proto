@@ -259,7 +259,7 @@ message PostgresExporter {
   string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 6;
-  // Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
+  // Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.
   bool tls_skip_verify = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
@@ -1218,7 +1218,7 @@ message AddPostgresExporterParams {
   string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Use TLS for database connections.
   bool tls = 5;
-  // Skip TLS certificate and hostname validation. Uses sslmode=require instead of verify-ca.
+  // Skip TLS certificate validation: sslmode=require instead of verify-ca. Neither mode validates the hostname.
   bool tls_skip_verify = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
