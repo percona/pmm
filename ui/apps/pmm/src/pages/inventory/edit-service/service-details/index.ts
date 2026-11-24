@@ -1,0 +1,1 @@
+export { ServiceDetails } from './ServiceDetails';
