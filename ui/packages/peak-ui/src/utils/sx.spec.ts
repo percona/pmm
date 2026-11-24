@@ -43,8 +43,13 @@ describe('flattenSx', () => {
   });
 
   it('deep-merges nested blocks across array entries', () => {
-    const sx: SxProps<Theme> = [{ '& > button': { flex: 1 } }, { '& > button': { color: 'red' } }];
-    expect(flattenSx(sx, theme)).toEqual({ '& > button': { flex: 1, color: 'red' } });
+    const sx: SxProps<Theme> = [
+      { '& > button': { flex: 1 } },
+      { '& > button': { color: 'red' } },
+    ];
+    expect(flattenSx(sx, theme)).toEqual({
+      '& > button': { flex: 1, color: 'red' },
+    });
   });
 
   it('handles nested arrays', () => {
@@ -102,7 +107,10 @@ describe('mergeSx', () => {
 
   it('keeps default nested declarations the consumer does not override', () => {
     const result = mergeSx(
-      { '@media (max-width:599.95px)': { flexDirection: 'row' }, '& > button': { flex: 1 } },
+      {
+        '@media (max-width:599.95px)': { flexDirection: 'row' },
+        '& > button': { flex: 1 },
+      },
       {
         '@media (max-width:599.95px)': { color: 'red' },
         '& > button': { flex: 2, fontWeight: 700 },
