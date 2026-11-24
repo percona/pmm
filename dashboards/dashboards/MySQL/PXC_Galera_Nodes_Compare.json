@@ -718,7 +718,7 @@
             "targets": [
                 {
                     "datasource": "Metrics",
-                    "expr": "(avg by (service_name) (max_over_time(mysql_global_status_wsrep_cluster_size{service_name=~\"$service_name\"}[$interval])) or \navg by (service_name) (max_over_time(mysql_global_status_wsrep_cluster_size{service_name=~\"$service_name\"}[5m]))) * on(service_name) group_left(wsrep_cluster_name) (avg by (service_name) (mysql_galera_variables_info{wsrep_cluster_name=\"$cluster\",service_name=~\"$service_name\"})) > 0",
+                    "expr": "(avg by (service_name) (max_over_time(mysql_global_status_wsrep_cluster_size{service_name=~\"$service_name\"}[$interval])) or \navg by (service_name) (max_over_time(mysql_global_status_wsrep_cluster_size{service_name=~\"$service_name\"}[5m]))) * on(service_name) group_left(wsrep_cluster_name) (avg by (service_name) (mysql_galera_variables_info{environment=~\"$environment\",wsrep_cluster_name=\"$cluster\",service_name=~\"$service_name\"})) > 0",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
