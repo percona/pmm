@@ -167,6 +167,23 @@ func TestStartPTPgSummaryAction(t *testing.T) {
 		}
 	}
 
+	t.Run("no pmm-agent for remote service", func(t *testing.T) {
+		t.Parallel()
+
+		s, mock := setupActionsServer(t, models.PostgreSQLServiceType, models.RemoteRDSNodeType)
+		service := &models.Service{ServiceID: testServiceID, ServiceType: models.PostgreSQLServiceType, ServiceName: "service", NodeID: testNodeID}
+		mock.ExpectQuery(`SELECT .+ FROM "services" WHERE service_id = \$1`).
+			WithArgs(testServiceID).
+			WillReturnRows(sqlmock.NewRows(models.ServiceTable.Columns()).AddRow(rowValues(t, service)...))
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE service_id = \$1`).
+			WithArgs(testServiceID).
+			WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()))
+
+		_, err := s.StartPTPgSummaryAction(t.Context(), req)
+		assertFailedPrecondition(t, err, "No pmm-agent found for service service-id")
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
 	t.Run("no pmm-agent on node", func(t *testing.T) {
 		t.Parallel()
 

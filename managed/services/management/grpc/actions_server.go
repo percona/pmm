@@ -470,6 +470,9 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 		if err != nil {
 			return nil, err
 		}
+		if len(pmmAgents) == 0 {
+			return nil, status.Errorf(codes.FailedPrecondition, "No pmm-agent found for service %s", req.ServiceId)
+		}
 		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(req.PmmAgentId, pmmAgents)
 		if err != nil {
 			return nil, err
