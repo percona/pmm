@@ -16,8 +16,10 @@
 package env
 
 import (
+	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -160,6 +162,62 @@ func TestGetBool(t *testing.T) {
 			}
 			result := GetBool(tt.envKey)
 			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestParseMCPActionTimeout(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		value   string
+		want    time.Duration
+		wantErr string
+		tooLong bool
+	}{
+		{value: "30s", want: 30 * time.Second},
+		{value: "15S", want: 15 * time.Second},
+		{value: "9m", want: MaxMCPActionTimeout},
+		{value: "9m1s", wantErr: "PMM_MCP_ACTION_TIMEOUT=9m1s is longer than the maximum of 9m0s and is ignored: the default is used", tooLong: true},
+		{value: "0s", wantErr: "invalid value '0s' for environment variable PMM_MCP_ACTION_TIMEOUT"},
+		{value: "-1s", wantErr: "invalid value '-1s' for environment variable PMM_MCP_ACTION_TIMEOUT"},
+		{value: "soon", wantErr: "invalid value 'soon' for environment variable PMM_MCP_ACTION_TIMEOUT"},
+		{value: "", wantErr: "invalid value '' for environment variable PMM_MCP_ACTION_TIMEOUT"},
+	} {
+		t.Run(tc.value, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := ParseMCPActionTimeout(tc.value)
+			assert.Equal(t, tc.want, got)
+			if tc.wantErr == "" {
+				require.NoError(t, err)
+				return
+			}
+			require.EqualError(t, err, tc.wantErr)
+			assert.Equal(t, tc.tooLong, errors.Is(err, ErrMCPActionTimeoutTooLong))
+		})
+	}
+}
+
+func TestGetMCPActionTimeout(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		set   bool
+		value string
+		want  time.Duration
+	}{
+		{name: "not set"},
+		{name: "valid", set: true, value: "30S", want: 30 * time.Second},
+		{name: "too long", set: true, value: "10m"},
+		{name: "invalid", set: true, value: "soon"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Setenv(MCPActionTimeout, tc.value)
+			if !tc.set {
+				os.Unsetenv(MCPActionTimeout)
+			}
+
+			assert.Equal(t, tc.want, GetMCPActionTimeout())
 		})
 	}
 }

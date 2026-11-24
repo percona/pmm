@@ -150,12 +150,6 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 	if len(errs) != 0 {
 		return errs
 	}
-	// Raw SQL has no API setting, so the environment is its only source: a
-	// missing PMM_MCP_RAW_SQL means off, and removing the variable turns raw
-	// SQL off at the next start instead of keeping the last value.
-	if envSettings.EnableMCPRawSQL == nil {
-		envSettings.EnableMCPRawSQL = new(false)
-	}
 
 	var oldSettings, newSettings *models.Settings
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {

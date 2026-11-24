@@ -610,27 +610,15 @@ func TestExplainMasksLiteralsWhenRawSQLIsOff(t *testing.T) {
 		assert.Contains(t, text, "```\n"+got.Plan+"\n```", "the masked plan the text shows")
 	})
 
-	// Each read of the setting is a settings query, and two reads that
-	// disagree would keep the explained statement while skipping the masking.
-	t.Run("SettingReadOncePerCall", func(t *testing.T) {
+	t.Run("MySQLTraditional", func(t *testing.T) {
 		t.Parallel()
 
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		s := newQANService(t, fake, false)
-		var reads atomic.Int32
-		s.rawSQL = func() bool {
-			// Flip on every read: only a single read can yield a consistent answer.
-			return reads.Add(1)%2 == 0
-		}
-		session := connect(t, s)
+		session := connect(t, newQANService(t, fake, false))
 
-		for _, format := range []string{formatJSON, formatTraditional} {
-			reads.Store(0)
-			text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "format": format})
-			require.False(t, isError, text)
-			assert.Equal(t, int32(1), reads.Load(), format)
-			assert.NotContains(t, text, "user42@example.com", format)
-		}
+		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "format": formatTraditional})
+		require.False(t, isError, text)
+		assert.NotContains(t, text, "user42@example.com")
 	})
 }
 
@@ -742,7 +730,7 @@ func TestServesRequestsProxiedByNginx(t *testing.T) {
 }
 
 // TestDefaultsAreOff pins that both security-relevant switches default to off
-// when no callback is supplied, so a wiring mistake cannot expose the endpoint
+// when the caller leaves them out, so a wiring mistake cannot expose the endpoint
 // or un-redact its output.
 func TestDefaultsAreOff(t *testing.T) {
 	t.Parallel()
@@ -751,7 +739,8 @@ func TestDefaultsAreOff(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.False(t, s.enabled(), "the endpoint must default to disabled")
-	assert.False(t, s.rawSQL(), "raw SQL must default to off")
+	assert.False(t, s.rawSQL, "raw SQL must default to off")
+	assert.Equal(t, DefaultActionTimeout, s.actionTimeout)
 
 	// Disabled means invisible, not an error the caller can distinguish.
 	srv := httptest.NewServer(s.Handler())

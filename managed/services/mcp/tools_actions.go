@@ -245,10 +245,9 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		return explainResult{}, err
 	}
 	// One PMM_MCP_ACTION_TIMEOUT bounds the whole call, lookups and actions alike.
-	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
+	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout)
 	defer cancel()
-	// Read once: each read is a settings query, and two reads could disagree.
-	raw := s.rawSQL()
+	raw := s.rawSQL
 
 	resolved, releaseLookup, err := s.resolveLive(ctx, auth, ref)
 	if err != nil {
@@ -390,7 +389,7 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 	if err != nil {
 		return schemaResult{}, err
 	}
-	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
+	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout)
 	defer cancel()
 
 	releaseLookup, err := s.startMetricCall(auth)
@@ -428,7 +427,7 @@ func (s *Service) queryTables(ctx context.Context, auth callerAuth, in schemaInp
 		return schemaResult{}, err
 	}
 	// One PMM_MCP_ACTION_TIMEOUT bounds the whole call, lookups and actions alike.
-	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout())
+	ctx, cancel := context.WithTimeout(ctx, s.actionTimeout)
 	defer cancel()
 
 	resolved, releaseLookup, err := s.resolveLive(ctx, auth, ref)
@@ -510,7 +509,7 @@ func (s *Service) planTablesOf(ctx context.Context, auth callerAuth, resolved *r
 			ServiceID: resolved.Service.ServiceID, QueryID: resolved.Ref.QueryID, Database: resolved.Database, Placeholders: placeholders,
 		},
 	}
-	output, err := s.runAction(ctx, auth, body, !s.rawSQL())
+	output, err := s.runAction(ctx, auth, body, !s.rawSQL)
 	if err != nil {
 		storedExample := resolved.Example != "" && len(placeholders) == 0
 		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative, storedExample)
@@ -736,9 +735,9 @@ func (s *Service) deadlineOr(ctx context.Context, actionID string, err error) er
 		return err
 	}
 	if actionID == "" {
-		return newToolError(codeTimeout, "the action did not start within %s (PMM_MCP_ACTION_TIMEOUT)", s.actionTimeout())
+		return newToolError(codeTimeout, "the action did not start within %s (PMM_MCP_ACTION_TIMEOUT)", s.actionTimeout)
 	}
-	return newToolError(codeTimeout, "action %s did not complete within %s (PMM_MCP_ACTION_TIMEOUT)", actionID, s.actionTimeout())
+	return newToolError(codeTimeout, "action %s did not complete within %s (PMM_MCP_ACTION_TIMEOUT)", actionID, s.actionTimeout)
 }
 
 // actionIDOf finds the action id under whichever oneof key PMM answered with.

@@ -231,7 +231,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	}
 	defer release()
 
-	raw := s.rawSQL()
+	raw := s.rawSQL
 	// With raw SQL off, QAN's search also reads text that the caller sees masked or withheld, so this tool matches
 	// the search against the rows as shown, and pages them itself.
 	visibleSearch := !raw && q.groupBy == groupByQuery && strings.TrimSpace(in.Search) != ""
@@ -668,7 +668,7 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 		}
 	}
 
-	return d.result(s.rawSQL(), s.publicBaseURL(ctx, req.Extra.Header), from, to), nil
+	return d.result(s.rawSQL, s.publicBaseURL(ctx, req.Extra.Header), from, to), nil
 }
 
 // queryDetail is the merged view of qan:getMetrics and qan/query:getExample

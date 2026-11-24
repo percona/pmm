@@ -596,7 +596,7 @@ func TestExplainTool(t *testing.T) {
 
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_running.json")
 		s := newQANService(t, fake, true)
-		s.actionTimeout = func() time.Duration { return 700 * time.Millisecond }
+		s.actionTimeout = 700 * time.Millisecond
 		session := connect(t, s)
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
@@ -827,11 +827,6 @@ func TestSchemaTool(t *testing.T) {
 		fake, stub := newActionStub(t, 0)
 		postgresQuery(fake)
 		s := newQANService(t, fake, true)
-		var rawReads atomic.Int32
-		s.rawSQL = func() bool {
-			rawReads.Add(1)
-			return true
-		}
 		session := connect(t, s)
 
 		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA", "placeholders": []string{"ignored"}})
@@ -846,7 +841,6 @@ func TestSchemaTool(t *testing.T) {
 			"### shop_pg.orders\n```sql\nCREATE TABLE `orders` (`id` int)\n```\n\n"+
 			"### shop_pg.customers\n```sql\nCREATE TABLE `customers` (`id` int)\n```", textOf(t, res))
 		assert.ElementsMatch(t, []string{"orders", "customers"}, ddlTables(t, stub.starts, "svc-2", "shop_pg"), "no EXPLAIN for PostgreSQL")
-		assert.Zero(t, rawReads.Load(), "PostgreSQL renders no statement")
 	})
 
 	t.Run("PostgreSQLManyTables", func(t *testing.T) {
@@ -909,11 +903,6 @@ func TestSchemaTool(t *testing.T) {
 		fake, stub := newActionStub(t, 0)
 		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-derived-table.json"), "SELECT 1")
 		s := newQANService(t, fake, true)
-		var rawReads atomic.Int32
-		s.rawSQL = func() bool {
-			rawReads.Add(1)
-			return true
-		}
 		session := connect(t, s)
 
 		from, to := testNow.Add(-3*time.Hour), testNow.Add(-2*time.Hour)
@@ -935,7 +924,6 @@ func TestSchemaTool(t *testing.T) {
 			"Unresolved, not fetched (derived tables, CTEs, unions and names the plan doesn't tie to a table): d; "+
 			"pass the tables behind them as service_id, database and tables.\n"+
 			"Tables found in a live plan: what the database would choose now, not during the window.", textOf(t, res))
-		assert.EqualValues(t, 1, rawReads.Load(), "raw SQL is read once")
 
 		require.Len(t, stub.starts, 3)
 		assert.Equal(t, &actions_service.StartServiceActionParamsBodyMysqlExplainJSON{
@@ -1649,7 +1637,7 @@ func TestActionDeadlineIsPerCall(t *testing.T) {
 
 	fake, stub := newActionStub(t, 0, "index-customers")
 	s := newQANService(t, fake, true)
-	s.actionTimeout = func() time.Duration { return time.Second }
+	s.actionTimeout = time.Second
 	session := connect(t, s)
 
 	start := time.Now()
@@ -1737,7 +1725,7 @@ func TestSchemaManyTables(t *testing.T) {
 
 		fake, stub := newActionStub(t, 0, "ddl-slow")
 		s := newQANService(t, fake, true)
-		s.actionTimeout = func() time.Duration { return time.Second }
+		s.actionTimeout = time.Second
 		session := connect(t, s)
 
 		start := time.Now()
@@ -1768,7 +1756,7 @@ func TestSchemaManyTables(t *testing.T) {
 
 		fake, stub := newActionStub(t, 0, "ddl-x", "ddl-y")
 		s := newQANService(t, fake, true)
-		s.actionTimeout = func() time.Duration { return 500 * time.Millisecond }
+		s.actionTimeout = 500 * time.Millisecond
 		session := connect(t, s)
 		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"x", "y"}})
 		assert.True(t, isError)

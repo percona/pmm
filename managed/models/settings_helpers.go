@@ -92,10 +92,6 @@ type ChangeSettingsParams struct {
 
 	// Enable the MCP endpoint.
 	EnableMCP *bool
-	// Allow MCP tool output to include statements with literal values.
-	EnableMCPRawSQL *bool
-	// MCPActionTimeout bounds EXPLAIN / SHOW CREATE TABLE polling in the MCP tools. Zero keeps the current value.
-	MCPActionTimeout time.Duration
 
 	// EnableVMCache enables caching for vmdb search queries
 	EnableVMCache *bool
@@ -241,14 +237,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableMCP != nil {
 		settings.MCP.Enabled = params.EnableMCP
-	}
-
-	if params.EnableMCPRawSQL != nil {
-		settings.MCP.RawSQL = params.EnableMCPRawSQL
-	}
-
-	if params.MCPActionTimeout != 0 {
-		settings.MCP.ActionTimeout = params.MCPActionTimeout
 	}
 
 	if params.EnableBackupManagement != nil {

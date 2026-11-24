@@ -17,6 +17,7 @@ package mcp
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"fmt"
 	"io"
@@ -86,8 +87,8 @@ type Service struct {
 	enabled       func() bool
 	api           pmmAPI
 	handler       http.Handler
-	rawSQL        func() bool
-	actionTimeout func() time.Duration
+	rawSQL        bool
+	actionTimeout time.Duration
 	publicAddress func(context.Context) string
 	now           func() time.Time
 	live          *limiter
@@ -114,13 +115,13 @@ type Params struct {
 	LoopbackURL string
 	// API overrides the PMM API client; tests use it to inject fakes.
 	API pmmAPI
-	// RawSQL reports whether tool output may include statements with literal
-	// values (query examples, the explained statement on EXPLAIN output).
-	// When it returns false, only normalized text is emitted. Defaults to false.
-	RawSQL func() bool
-	// ActionTimeout returns the EXPLAIN / SHOW CREATE TABLE polling deadline.
-	// Defaults to DefaultActionTimeout.
-	ActionTimeout func() time.Duration
+	// RawSQL allows tool output to include statements with literal values
+	// (query examples, the explained statement on EXPLAIN output).
+	// When false, only normalized text is emitted.
+	RawSQL bool
+	// ActionTimeout is the EXPLAIN / SHOW CREATE TABLE polling deadline.
+	// Zero means DefaultActionTimeout.
+	ActionTimeout time.Duration
 	// PublicAddress returns settings.PMMPublicAddress (may be empty); used for "View in PMM" links.
 	PublicAddress func(context.Context) string
 	// Registerer receives the tool call metrics; when nil, they are kept but not exported.
@@ -145,7 +146,7 @@ func New(params Params) (*Service, error) {
 		enabled:         params.Enabled,
 		api:             params.API,
 		rawSQL:          params.RawSQL,
-		actionTimeout:   params.ActionTimeout,
+		actionTimeout:   cmp.Or(params.ActionTimeout, DefaultActionTimeout),
 		publicAddress:   params.PublicAddress,
 		now:             time.Now,
 		live:            newLimiter(maxLiveCallsPerCaller, maxLiveCallsPerReplica),
@@ -156,17 +157,10 @@ func New(params Params) (*Service, error) {
 		metricRate:      newRateLimiter(metricCallsPerMinute, metricCallsBurst),
 		callMetrics:     newCallMetrics(),
 	}
-	// Both switches default to off when the caller supplies no callback, so a
-	// wiring mistake cannot expose the endpoint or un-redact its output. This
-	// matches models.MCPEnabledDefault / models.MCPRawSQLDefault.
+	// The endpoint defaults to off when the caller supplies no callback, so a
+	// wiring mistake cannot expose it. This matches models.MCPEnabledDefault.
 	if s.enabled == nil {
 		s.enabled = func() bool { return false }
-	}
-	if s.rawSQL == nil {
-		s.rawSQL = func() bool { return false }
-	}
-	if s.actionTimeout == nil {
-		s.actionTimeout = func() time.Duration { return DefaultActionTimeout }
 	}
 	if s.api == nil {
 		loopback := params.LoopbackURL

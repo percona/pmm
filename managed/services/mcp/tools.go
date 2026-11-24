@@ -54,7 +54,7 @@ func addTool[In any, Out renderer](s *Service, server *mcp.Server, tool *mcp.Too
 		start := time.Now()
 		end := s.callMetrics.begin(t.Name)
 
-		ctx, cancel := context.WithTimeout(ctx, s.actionTimeout()+toolTimeoutSlack)
+		ctx, cancel := context.WithTimeout(ctx, s.actionTimeout+toolTimeoutSlack)
 		defer cancel()
 		// A client that disconnects cancels its call, and with it the call's unfinished actions.
 		afterRequest, ok := ctx.Value(afterRequestKey{}).(afterRequestFunc)

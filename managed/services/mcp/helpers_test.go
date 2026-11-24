@@ -224,7 +224,7 @@ func newTestService(t *testing.T, fake *fakePMM) *Service {
 	s, err := New(Params{
 		API:     c,
 		Enabled: func() bool { return true },
-		RawSQL:  func() bool { return true },
+		RawSQL:  true,
 	})
 	require.NoError(t, err)
 	t.Cleanup(func() { assertLimitersEmpty(t, s) })
