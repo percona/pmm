@@ -75,6 +75,9 @@ type Service struct {
 	// scanScheduler requests managed-cluster scans on a cadence; nil leaves managed scans off.
 	scanScheduler *ScanScheduler
 
+	// operationRunner drives registered operation kinds on a cadence; nil leaves the driver off.
+	operationRunner *Runner
+
 	// tick overrides refreshInterval; only tests set it.
 	tick time.Duration
 
@@ -169,6 +172,36 @@ func (s *Service) RunScanScheduler(ctx context.Context) {
 		return
 	}
 	s.scanScheduler.Run(ctx)
+}
+
+// WithOperationRunner registers the operation kinds and composes a leader-gated driver that reads their
+// readiness facts from PMM Extensions' om_inventory; an empty URL leaves the driver off.
+func (s *Service) WithOperationRunner(extensionsURL, token string) *Service {
+	if extensionsURL == "" {
+		return s
+	}
+	err := s.operationRegistry.Register(InstallKind())
+	if err != nil {
+		s.l.WithError(err).Error("failed to register the install operation kind")
+		return s
+	}
+	client := newExtensionsClient(extensionsURL, token)
+	checks := newFactCheckProvider(newFactReader(client))
+	requester := newInventoryScanRequester(s.db, client)
+	s.operationRunner = NewRunner(
+		s.db, s.l.WithField("component", "om-operations"), s.operationRegistry,
+		checks, pendingStepExecutorProvider{}, requester,
+	).WithLeader(s.ha, "")
+	return s
+}
+
+// RunOperationRunner drives registered operations until the context is cancelled, or returns at once
+// when WithOperationRunner left the driver off.
+func (s *Service) RunOperationRunner(ctx context.Context) {
+	if s.operationRunner == nil {
+		return
+	}
+	s.operationRunner.Run(ctx)
 }
 
 // Enabled returns true if OpenManager is enabled.
