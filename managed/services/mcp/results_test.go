@@ -39,8 +39,7 @@ func TestPaginate(t *testing.T) {
 	t.Run("Empty", func(t *testing.T) {
 		t.Parallel()
 
-		got, p, err := paginate([]int{}, 0, 0, 50, 200)
-		require.NoError(t, err)
+		got, p := paginate([]int{}, 0, 0, 50)
 		assert.Empty(t, got)
 		assert.Equal(t, page{Total: 0, Offset: 0, Limit: 50, Truncated: false}, p)
 		assert.Empty(t, p.marker())
@@ -49,8 +48,7 @@ func TestPaginate(t *testing.T) {
 	t.Run("ExactlyLimit", func(t *testing.T) {
 		t.Parallel()
 
-		got, p, err := paginate(items(50), 0, 0, 50, 200)
-		require.NoError(t, err)
+		got, p := paginate(items(50), 0, 0, 50)
 		assert.Len(t, got, 50)
 		assert.False(t, p.Truncated)
 		assert.Empty(t, p.marker())
@@ -59,8 +57,7 @@ func TestPaginate(t *testing.T) {
 	t.Run("OneOver", func(t *testing.T) {
 		t.Parallel()
 
-		got, p, err := paginate(items(51), 0, 0, 50, 200)
-		require.NoError(t, err)
+		got, p := paginate(items(51), 0, 0, 50)
 		assert.Len(t, got, 50)
 		assert.Equal(t, page{Total: 51, Offset: 0, Limit: 50, Truncated: true}, p)
 		assert.Equal(t, "showing 1–50 of 51; pass offset=50 for more", p.marker())
@@ -69,8 +66,7 @@ func TestPaginate(t *testing.T) {
 	t.Run("SecondPage", func(t *testing.T) {
 		t.Parallel()
 
-		got, p, err := paginate(items(51), 50, 0, 50, 200)
-		require.NoError(t, err)
+		got, p := paginate(items(51), 50, 0, 50)
 		assert.Equal(t, []int{50}, got)
 		assert.False(t, p.Truncated)
 	})
@@ -78,8 +74,7 @@ func TestPaginate(t *testing.T) {
 	t.Run("OffsetPastEnd", func(t *testing.T) {
 		t.Parallel()
 
-		got, p, err := paginate(items(3), 10, 0, 50, 200)
-		require.NoError(t, err)
+		got, p := paginate(items(3), 10, 0, 50)
 		assert.Empty(t, got)
 		assert.Equal(t, page{Total: 3, Offset: 10, Limit: 50, Truncated: false}, p)
 	})
@@ -87,8 +82,7 @@ func TestPaginate(t *testing.T) {
 	t.Run("ExplicitLimit", func(t *testing.T) {
 		t.Parallel()
 
-		got, p, err := paginate(items(10), 2, 3, 50, 200)
-		require.NoError(t, err)
+		got, p := paginate(items(10), 2, 3, 50)
 		assert.Equal(t, []int{2, 3, 4}, got)
 		assert.Equal(t, 3, p.Limit)
 		assert.Equal(t, "showing 3–5 of 10; pass offset=5 for more", p.marker())
@@ -102,7 +96,7 @@ func TestPaginate(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			_, _, err := paginate(items(5), tc.offset, tc.limit, 50, 200)
+			err := checkPage(tc.offset, tc.limit, 200)
 			require.Error(t, err)
 			assert.Equal(t, codeInvalidInput, mapError(err).code)
 		})

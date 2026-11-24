@@ -16,14 +16,15 @@
 package mcp
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"slices"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -311,15 +312,10 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 	defer release()
 
 	w := window{From: start, To: end}
-	services, err := s.listServices(ctx, auth, w)
+	svc, err := s.findService(ctx, auth, w, in.ServiceID, "")
 	if err != nil {
 		return healthResult{}, err
 	}
-	i := slices.IndexFunc(services, func(svc serviceInfo) bool { return svc.ServiceID == in.ServiceID })
-	if i < 0 {
-		return healthResult{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
-	}
-	svc := services[i]
 	if !slices.Contains([]string{engineMySQL, enginePostgreSQL, engineMongoDB}, svc.Engine) {
 		kind := "is " + svc.Engine
 		if svc.Engine == "" {
@@ -352,7 +348,7 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		ServiceID:   svc.ServiceID,
 		ServiceName: svc.ServiceName,
 		Engine:      svc.Engine,
-		Window:      window{From: start, To: end},
+		Window:      w,
 		PMMURL:      serviceWindowURL(s.publicBaseURL(ctx, req.Extra.Header), svc, start, end),
 	}
 
@@ -395,7 +391,7 @@ func (s *Service) serviceHealth(ctx context.Context, req *mcp.CallToolRequest, i
 		queried -= len(healthSignals[engineNode])
 	}
 	if failed == queried {
-		return healthResult{}, firstError(errs)
+		return healthResult{}, cmp.Or(errs...)
 	}
 	res.Signals = results
 	res.Note = strings.Join(notes, " ")
@@ -439,61 +435,44 @@ func appendOnce(notes []string, note string) []string {
 	return append(notes, note)
 }
 
-func firstError(errs []error) error {
-	for _, err := range errs {
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // runSignals runs the signal queries, at most maxHealthQueries at a time, and returns each signal's result and failure by position.
 func (s *Service) runSignals(ctx context.Context, rr rangeRequest, signals []signal, queries []string, skipNode bool) ([]signalResult, []error) {
 	results := make([]signalResult, len(signals))
 	errs := make([]error, len(signals))
-	jobs := make(chan int)
-
-	var wg sync.WaitGroup
-	for range min(maxHealthQueries, len(signals)) {
-		wg.Go(func() {
-			for j := range jobs {
-				sig := signals[j]
-				results[j] = signalResult{Name: sig.Name, Unit: sig.Unit, Source: sig.Source}
-				errs[j] = recoverPanic(s.l, func() error {
-					var err error
-					results[j], err = s.runSignal(ctx, rr, sig, queries[j])
-					return err
-				})
-				if errs[j] != nil && results[j].Error == nil {
-					results[j].Error = partErrorOf(errs[j])
-				}
-			}
-		})
-	}
+	var g errgroup.Group
+	g.SetLimit(maxHealthQueries)
 	for j, sig := range signals {
 		if sig.Node && skipNode {
 			results[j] = signalResult{Name: sig.Name, Unit: sig.Unit, Source: sig.Source, NoData: true}
 			continue
 		}
-		jobs <- j
+		g.Go(func() error {
+			results[j] = signalResult{Name: sig.Name, Unit: sig.Unit, Source: sig.Source}
+			errs[j] = recoverPanic(s.l, func() error {
+				var err error
+				results[j], err = s.runSignal(ctx, rr, sig, queries[j])
+				return err
+			})
+			if errs[j] != nil {
+				results[j].Error = partErrorOf(errs[j])
+			}
+			return nil
+		})
 	}
-	close(jobs)
-	wg.Wait()
+	// Each signal keeps its own error.
+	_ = g.Wait()
 	return results, errs
 }
 
-// runSignal runs one signal's query; a failure is in the result's error and also returned.
+// runSignal runs one signal's query.
 func (s *Service) runSignal(ctx context.Context, rr rangeRequest, sig signal, query string) (signalResult, error) {
 	res := signalResult{Name: sig.Name, Unit: sig.Unit, Source: sig.Source}
 	err := ctx.Err()
 	if err != nil {
-		res.Error = partErrorOf(err)
 		return res, err
 	}
-	series, err := s.api.QueryRange(ctx, rr.auth, rr.uid, promRequest{Query: query, Start: rr.start, End: rr.end, Step: rr.step, Timeout: metricsTimeout})
+	series, err := s.api.QueryRange(ctx, rr.auth, rr.uid, promRequest{Query: query, Start: rr.start, End: rr.end, Step: rr.step})
 	if err != nil {
-		res.Error = partErrorOf(err)
 		return res, err
 	}
 

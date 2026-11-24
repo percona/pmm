@@ -160,24 +160,11 @@ type loadReport struct {
 	Pass               bool       `json:"pass"`
 }
 
-// bearerTransport sends one service-account token with every request.
-type bearerTransport struct {
-	next  http.RoundTripper
-	token string
-}
-
-func (t *bearerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req = req.Clone(req.Context())
-	req.Header.Set("Authorization", "Bearer "+t.token)
-	return t.next.RoundTrip(req)
-}
-
 func connectWithToken(ctx context.Context, token string) (*mcp.ClientSession, error) {
-	base := httpClient(false)
 	client := mcp.NewClient(&mcp.Implementation{Name: "pmm-mcp-load", Version: "1"}, nil)
 	return client.Connect(ctx, &mcp.StreamableClientTransport{
 		Endpoint:   endpoint(),
-		HTTPClient: &http.Client{Transport: &bearerTransport{next: base.Transport, token: token}},
+		HTTPClient: httpClient("Bearer " + token),
 	}, nil)
 }
 
@@ -235,12 +222,11 @@ func serviceIDs(t *testing.T) []string {
 
 // admin reads VictoriaMetrics as Admin through the Grafana datasource proxy.
 type admin struct {
-	client *http.Client
-	uid    string
+	uid string
 }
 
 func newAdmin(ctx context.Context) (*admin, error) {
-	a := &admin{client: httpClient(true)}
+	a := &admin{}
 	body, err := a.get(ctx, "graph/api/datasources/name/"+datasourceName, nil)
 	if err != nil {
 		return nil, err
@@ -260,23 +246,12 @@ func newAdmin(ctx context.Context) (*admin, error) {
 }
 
 func (a *admin) get(ctx context.Context, path string, query url.Values) ([]byte, error) {
-	u := pmmapitests.BaseURL.ResolveReference(&url.URL{Path: path, RawQuery: query.Encode()})
-	u.User = nil
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	status, b, err := request(ctx, http.MethodGet, path, query, http.Header{"Authorization": {adminAuthorization()}}, nil)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := a.client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("GET %s answered %d: %s", path, resp.StatusCode, b)
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("GET %s answered %d: %s", path, status, b)
 	}
 	return b, nil
 }

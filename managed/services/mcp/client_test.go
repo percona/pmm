@@ -38,8 +38,6 @@ import (
 	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 )
 
-const vmProxy = "/graph/api/datasources/proxy/uid/metrics-uid/"
-
 var testAuth = callerAuth{authorization: testToken}
 
 func queryOf(t *testing.T, r recordedRequest) url.Values {
@@ -58,38 +56,28 @@ func keysOf(v url.Values) []string {
 	return out
 }
 
-func TestClientDebugOff(t *testing.T) {
-	// SWAGGER_DEBUG and DEBUG are what httptransport.New reads for its debug setting.
-	t.Setenv("SWAGGER_DEBUG", "1")
-	t.Setenv("DEBUG", "1")
-
-	c, err := newClient("http://127.0.0.1:1/")
-	require.NoError(t, err)
-	assert.False(t, c.swagger.Debug, "go-openapi's debug dump would write the caller's Authorization and cookies to its logger")
-}
-
 func TestPromRequestArguments(t *testing.T) {
 	t.Parallel()
 
 	fake := newFakePMM(t, map[string]fixture{
-		"GET " + vmProxy + "api/v1/query":       {body: []byte(`{"status":"success","data":{"result":[]}}`)},
-		"GET " + vmProxy + "api/v1/query_range": {body: []byte(`{"status":"success","data":{"result":[]}}`)},
+		vmQuery:      {body: []byte(`{"status":"success","data":{"result":[]}}`)},
+		vmQueryRange: {body: []byte(`{"status":"success","data":{"result":[]}}`)},
 	})
 	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)
 
 	at := time.Unix(1_800_000_000, 0)
 
-	_, err = c.QueryInstant(t.Context(), testAuth, "metrics-uid", promRequest{Query: "up", Time: at, Timeout: metricsTimeout})
+	_, err = c.QueryInstant(t.Context(), testAuth, "metrics-uid", promRequest{Query: "up", Time: at})
 	require.NoError(t, err)
-	_, err = c.QueryInstant(t.Context(), testAuth, "metrics-uid", promRequest{Query: "up", Timeout: metricsTimeout})
+	_, err = c.QueryInstant(t.Context(), testAuth, "metrics-uid", promRequest{Query: "up"})
 	require.NoError(t, err)
 	_, err = c.QueryRange(t.Context(), testAuth, "metrics-uid", promRequest{
-		Query: "rate(x[5m])", Start: at.Add(-time.Hour), End: at, Step: 90*time.Second + 500*time.Millisecond, Timeout: metricsTimeout,
+		Query: "rate(x[5m])", Start: at.Add(-time.Hour), End: at, Step: 90*time.Second + 500*time.Millisecond,
 	})
 	require.NoError(t, err)
 
-	instant := fake.requestsTo(vmProxy + "api/v1/query")
+	instant := fake.requestsTo(vmAPI + "query")
 	require.Len(t, instant, 2)
 	withTime := queryOf(t, instant[0])
 	assert.ElementsMatch(t, []string{"query", "time", "timeout"}, keysOf(withTime))
@@ -100,14 +88,14 @@ func TestPromRequestArguments(t *testing.T) {
 	assert.ElementsMatch(t, []string{"query", "timeout"}, keysOf(noTime))
 	assert.Equal(t, "up", noTime.Get("query"))
 
-	rng := queryOf(t, fake.requestsTo(vmProxy + "api/v1/query_range")[0])
+	rng := queryOf(t, fake.requestsTo(vmAPI + "query_range")[0])
 	assert.ElementsMatch(t, []string{"query", "start", "end", "step", "timeout"}, keysOf(rng))
 	assert.Equal(t, "1799996400", rng.Get("start"))
 	assert.Equal(t, "1800000000", rng.Get("end"))
 	assert.Equal(t, "90", rng.Get("step"), "whole seconds")
 	assert.Equal(t, "25s", rng.Get("timeout"))
 
-	assert.Empty(t, promRequest{}.values())
+	assert.Equal(t, url.Values{"timeout": {"25s"}}, promRequest{}.values())
 }
 
 func TestQueryRangeDecodes(t *testing.T) {
@@ -116,7 +104,7 @@ func TestQueryRangeDecodes(t *testing.T) {
 	body := `{"status":"success","data":{"resultType":"matrix","result":[` +
 		`{"metric":{"service_name":"db1","__name__":"m"},"values":[[1800000000,"1.5"],[1800000060.5,"NaN"],[1800000120,"+Inf"]]},` +
 		`{"metric":{"service_name":"db2"},"values":[]}]}}`
-	fake := newFakePMM(t, map[string]fixture{"GET " + vmProxy + "api/v1/query_range": {body: []byte(body)}})
+	fake := newFakePMM(t, map[string]fixture{vmQueryRange: {body: []byte(body)}})
 	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)
 
@@ -138,9 +126,9 @@ func TestListCallsArguments(t *testing.T) {
 	t.Parallel()
 
 	fake := newFakePMM(t, map[string]fixture{
-		"GET " + vmProxy + "api/v1/label/__name__/values": {body: []byte(`{"status":"success","data":["a","b"]}`)},
-		"GET " + vmProxy + "api/v1/labels":                {body: []byte(`{"status":"success","data":["job","service_name"]}`)},
-		"GET " + vmProxy + "api/v1/series":                {body: []byte(`{"status":"success","data":[{"__name__":"a","service_name":"db1"}]}`)},
+		"GET " + vmAPI + "label/__name__/values": {body: []byte(`{"status":"success","data":["a","b"]}`)},
+		"GET " + vmAPI + "labels":                {body: []byte(`{"status":"success","data":["job","service_name"]}`)},
+		vmSeries:                                 {body: []byte(`{"status":"success","data":[{"__name__":"a","service_name":"db1"}]}`)},
 	})
 	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)
@@ -159,9 +147,9 @@ func TestListCallsArguments(t *testing.T) {
 	assert.Equal(t, []map[string]string{{"__name__": "a", "service_name": "db1"}}, series)
 
 	for path, limit := range map[string]string{
-		vmProxy + "api/v1/label/__name__/values": "50",
-		vmProxy + "api/v1/labels":                "50",
-		vmProxy + "api/v1/series":                "2001",
+		vmAPI + "label/__name__/values": "50",
+		vmAPI + "labels":                "50",
+		vmAPI + "series":                "2001",
 	} {
 		reqs := fake.requestsTo(path)
 		require.Len(t, reqs, 1, path)
@@ -202,7 +190,7 @@ func TestMapError422(t *testing.T) {
 	assert.Contains(t, te.message, "cannot parse query: unexpected token")
 
 	fake := newFakePMM(t, map[string]fixture{
-		"GET " + vmProxy + "api/v1/query": {status: http.StatusUnprocessableEntity, body: []byte("cannot parse query\n")},
+		vmQuery: {status: http.StatusUnprocessableEntity, body: []byte("cannot parse query\n")},
 	})
 	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)
@@ -448,7 +436,7 @@ func TestLabelValuesRefusesAPathLabel(t *testing.T) {
 	t.Parallel()
 
 	fake := newFakePMM(t, map[string]fixture{
-		"GET " + vmProxy + "api/v1/label/mysql_up/values": {body: []byte(`{"status":"success","data":["a"]}`)},
+		"GET " + vmAPI + "label/mysql_up/values": {body: []byte(`{"status":"success","data":["a"]}`)},
 	})
 	c, err := newClient(fake.server.URL + "/")
 	require.NoError(t, err)
@@ -532,13 +520,13 @@ func TestBackingCallCredentials(t *testing.T) {
 
 	keys := map[string]bool{}
 	for _, authorization := range []string{"Bearer glsa_x", basic("api_key:glsa_x"), basic("service_token:glsa_x")} {
-		keys[callerKey(callerAuthFromHeader(http.Header{"Authorization": {authorization}}))] = true
+		keys[callerAuthFromHeader(http.Header{"Authorization": {authorization}}).key] = true
 	}
 	assert.Len(t, keys, 1)
 }
 
-// TestBackingCallRedirectRefused pins that neither the generated clients nor the raw HTTP calls follow a redirect, so
-// the caller's credentials go nowhere but the loopback.
+// TestBackingCallRedirectRefused pins that no backing call follows a redirect, so the caller's credentials go nowhere
+// but the loopback.
 func TestBackingCallRedirectRefused(t *testing.T) {
 	t.Parallel()
 
@@ -561,11 +549,11 @@ func TestBackingCallRedirectRefused(t *testing.T) {
 			require.NoError(t, err)
 
 			for name, call := range map[string]func() error{
-				"generated": func() error {
+				"PMM API": func() error {
 					_, err := c.Version(t.Context(), testAuth)
 					return err
 				},
-				"raw": func() error {
+				"Grafana API": func() error {
 					_, err := c.GetDatasourceByName(t.Context(), testAuth, "Metrics")
 					return err
 				},

@@ -54,12 +54,8 @@ func checkPage(offset, limit, maxAllowed int) error {
 	return nil
 }
 
-// paginate returns the requested slice of items; limit 0 means defLimit.
-func paginate[T any](items []T, offset, limit, defLimit, maxAllowed int) ([]T, page, error) {
-	err := checkPage(offset, limit, maxAllowed)
-	if err != nil {
-		return nil, page{}, err
-	}
+// paginate returns the requested slice of items, for an offset and limit checkPage accepted; limit 0 means defLimit.
+func paginate[T any](items []T, offset, limit, defLimit int) ([]T, page) {
 	if limit == 0 {
 		limit = defLimit
 	}
@@ -67,7 +63,7 @@ func paginate[T any](items []T, offset, limit, defLimit, maxAllowed int) ([]T, p
 	total := len(items)
 	start := min(offset, total)
 	end := min(start+limit, total)
-	return items[start:end], page{Total: total, Offset: offset, Limit: limit, Truncated: end < total}, nil
+	return items[start:end], page{Total: total, Offset: offset, Limit: limit, Truncated: end < total}
 }
 
 // window is the time range a result covers.

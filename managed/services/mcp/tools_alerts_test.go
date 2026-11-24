@@ -556,7 +556,7 @@ func TestAlertsTool(t *testing.T) {
 		fake := newFakePMM(t, alertsRoutes())
 		s := newQANService(t, fake, false)
 		session := connect(t, s)
-		key := callerKey(callerAuth{authorization: testToken})
+		key := keyOf(callerAuth{authorization: testToken})
 
 		releases := make([]func(), 0, maxMetricCallsPerCaller)
 		for range maxMetricCallsPerCaller {
@@ -566,13 +566,13 @@ func TestAlertsTool(t *testing.T) {
 		}
 		text, isError := callText(t, session, "pmm_alerts", nil)
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Contains(t, text, "at most 4 metric calls can be in flight for these credentials")
 		assert.Zero(t, fake.requestCount())
 
 		// Invalid paging is reported before the limit.
 		text, _ = callText(t, session, "pmm_alerts", map[string]any{"limit": alertsMaxLimit + 1})
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 
 		for _, release := range releases {
 			release()
@@ -584,7 +584,7 @@ func TestAlertsTool(t *testing.T) {
 		}
 		text, isError = callText(t, session, "pmm_alerts", nil)
 		require.True(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Contains(t, text, "this replica already has 8 metric calls")
 		assert.Zero(t, fake.requestCount())
 	})

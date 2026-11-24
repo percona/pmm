@@ -22,40 +22,19 @@ const engineNode = "node"
 // metricsEngines are the engines pmm_catalog's metrics catalogue has entries for.
 var metricsEngines = []string{engineMySQL, enginePostgreSQL, engineMongoDB, engineNode}
 
-// metricInfo is one metric of the metrics catalogue.
-type metricInfo struct {
-	Name   string
-	Engine string
-	// Meaning is one line saying what the metric measures.
-	Meaning string
-	// Unit is the unit of the value Query returns.
-	Unit string
-	// Type is counter or gauge.
-	Type string
-	// Labels are the label names on the metric's samples as the exporter exposes them.
-	Labels []string
-	// Query is a MetricsQL expression with <service> (or <node>, for node metrics) to replace with a name.
-	Query string
-}
-
-var metricInfoIndex = sync.OnceValue(func() map[string]metricInfo {
-	m := make(map[string]metricInfo, len(metricsCatalog))
+// metricsCatalogIndex returns the entries of metricsCatalog by metric name.
+var metricsCatalogIndex = sync.OnceValue(func() map[string]catalogEntry {
+	m := make(map[string]catalogEntry, len(metricsCatalog))
 	for _, i := range metricsCatalog {
 		m[i.Name] = i
 	}
 	return m
 })
 
-// metricInfoByName returns the catalogue entry of a metric.
-func metricInfoByName(name string) (metricInfo, bool) {
-	i, ok := metricInfoIndex()[name]
-	return i, ok
-}
-
 // metricsCatalog lists the dashboard and health-signal metrics present in the exporter output captured under
 // testdata/exporters (Oracle MySQL 8.0.46, PostgreSQL 17, Percona Server for MongoDB 7.0 as a secondary, and
 // node_exporter), so a family only other versions expose, such as Percona Server's innodb_mem_* or 5.7's query cache, is not listed.
-var metricsCatalog = []metricInfo{
+var metricsCatalog = []catalogEntry{
 	{
 		Name: "mysql_global_status_aborted_clients", Engine: engineMySQL,
 		Meaning: "Connections closed without a proper client disconnect, per second.",

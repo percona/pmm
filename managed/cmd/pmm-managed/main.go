@@ -1285,9 +1285,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	mcpService, err := mcp.New(mcp.Params{
 		Enabled:       func() bool { return mcpSettings().IsMCPEnabled() },
-		LoopbackURL:   envvars.GetEnv(pkgenv.MCPLoopbackURL, mcp.DefaultLoopbackURL),
-		RawSQL:        func() bool { return mcpSettings().IsMCPRawSQLEnabled() },
-		ActionTimeout: func() time.Duration { return mcpSettings().MCPActionTimeout() },
+		LoopbackURL:   os.Getenv(pkgenv.MCPLoopbackURL),
+		RawSQL:        pkgenv.GetMCPRawSQL(),
+		ActionTimeout: pkgenv.GetMCPActionTimeout(),
 		PublicAddress: func(context.Context) string { return mcpSettings().PMMPublicAddress },
 		Registerer:    prom.DefaultRegisterer,
 	})

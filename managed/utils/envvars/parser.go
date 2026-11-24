@@ -47,9 +47,6 @@ const (
 	EnvVMInsertPrefix = "VMINSERT_"
 	// EnvVMStoragePrefix is the prefix for environment variables related to VMStorage.
 	EnvVMStoragePrefix = "VMSTORAGE_"
-
-	// The longest PMM_MCP_ACTION_TIMEOUT accepted: with the call's 45 s of slack it stays under nginx's 600 s limit.
-	maxMCPActionTimeout = 9 * time.Minute
 )
 
 // InvalidDurationError invalid duration error.
@@ -299,29 +296,21 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.EnableMCP = &b
 
 		case pkgenv.MCPRawSQL:
-			b, err := strconv.ParseBool(v)
+			// Not a stored setting: pmm-managed reads it at startup with env.GetBool.
+			_, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value '%s' for environment variable %s", v, k)
-				errs = append(errs, err)
-				continue
+				errs = append(errs, fmt.Errorf("invalid value '%s' for environment variable %s", v, k))
 			}
-
-			envSettings.EnableMCPRawSQL = &b
 
 		case pkgenv.MCPActionTimeout:
-			d, err := time.ParseDuration(v)
-			if err != nil || d <= 0 {
-				err = fmt.Errorf("invalid value '%s' for environment variable %s", v, k)
+			// Not a stored setting: pmm-managed reads it at startup with env.GetMCPActionTimeout.
+			_, err := pkgenv.ParseMCPActionTimeout(v)
+			switch {
+			case errors.Is(err, pkgenv.ErrMCPActionTimeoutTooLong):
+				warns = append(warns, err.Error())
+			case err != nil:
 				errs = append(errs, err)
-				continue
 			}
-			if d > maxMCPActionTimeout {
-				warns = append(warns, fmt.Sprintf("%s=%s is longer than the maximum of %s and is ignored: the current value is kept",
-					k, v, maxMCPActionTimeout))
-				continue
-			}
-
-			envSettings.MCPActionTimeout = d
 
 		case pkgenv.PlatformAddress:
 			// This variable is not part of the settings and is parsed separately.

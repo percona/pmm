@@ -17,7 +17,8 @@
 package mcp
 
 import (
-	"encoding/base64"
+	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"maps"
@@ -25,6 +26,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -40,19 +42,6 @@ import (
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
-// basicAuthTransport adds the credentials from the test server URL to every request.
-type basicAuthTransport struct {
-	next     http.RoundTripper
-	user     string
-	password string
-}
-
-func (t *basicAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req = req.Clone(req.Context())
-	req.SetBasicAuth(t.user, t.password)
-	return t.next.RoundTrip(req)
-}
-
 // authorizationTransport sends the Authorization value on every request.
 type authorizationTransport struct {
 	next          http.RoundTripper
@@ -65,21 +54,19 @@ func (t *authorizationTransport) RoundTrip(req *http.Request) (*http.Response, e
 	return t.next.RoundTrip(req)
 }
 
-// httpClient returns an HTTP client for the PMM Server under test; withAuth
-// adds the admin credentials from the server URL.
-func httpClient(withAuth bool) *http.Client {
+// httpClient returns an HTTP client for the PMM Server under test that sends authorization, unless it is empty, with
+// every request.
+func httpClient(authorization string) *http.Client {
 	transport := &http.Transport{}
 	if pmmapitests.BaseURL.Scheme == "https" {
 		transport.TLSClientConfig = tlsconfig.Get()
 		transport.TLSClientConfig.ServerName = pmmapitests.BaseURL.Hostname()
 		transport.TLSClientConfig.InsecureSkipVerify = pmmapitests.ServerInsecureTLS
 	}
-	var rt http.RoundTripper = transport
-	if withAuth && pmmapitests.BaseURL.User != nil {
-		password, _ := pmmapitests.BaseURL.User.Password()
-		rt = &basicAuthTransport{next: transport, user: pmmapitests.BaseURL.User.Username(), password: password}
+	if authorization == "" {
+		return &http.Client{Transport: transport}
 	}
-	return &http.Client{Transport: rt}
+	return &http.Client{Transport: &authorizationTransport{next: transport, authorization: authorization}}
 }
 
 // endpoint returns the /mcp URL without the userinfo of the test server URL:
@@ -90,18 +77,11 @@ func endpoint() string {
 	return u.String()
 }
 
-// connect opens an authenticated MCP session against the server under test.
+// connect opens an MCP session against the server under test with the admin credentials of its URL.
 func connect(t *testing.T) *mcp.ClientSession {
 	t.Helper()
 
-	client := mcp.NewClient(&mcp.Implementation{Name: "pmm-api-tests", Version: "1"}, nil)
-	session, err := client.Connect(pmmapitests.Context, &mcp.StreamableClientTransport{
-		Endpoint:   endpoint(),
-		HTTPClient: httpClient(true),
-	}, nil)
-	require.NoError(t, err)
-	t.Cleanup(func() { _ = session.Close() })
-	return session
+	return connectWith(t, adminAuthorization())
 }
 
 // connectWith opens an MCP session that sends authorization, a Bearer token or Basic credentials, on every request.
@@ -111,11 +91,69 @@ func connectWith(t *testing.T, authorization string) *mcp.ClientSession {
 	client := mcp.NewClient(&mcp.Implementation{Name: "pmm-api-tests", Version: "1"}, nil)
 	session, err := client.Connect(pmmapitests.Context, &mcp.StreamableClientTransport{
 		Endpoint:   endpoint(),
-		HTTPClient: &http.Client{Transport: &authorizationTransport{next: httpClient(false).Transport, authorization: authorization}},
+		HTTPClient: httpClient(authorization),
 	}, nil)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = session.Close() })
 	return session
+}
+
+// plainClient is the client request sends with, shared so that requests reuse its connections.
+var plainClient = sync.OnceValue(func() *http.Client { return httpClient("") })
+
+// request sends a request to path of the server under test with header and body, and returns the status and body of the answer.
+func request(ctx context.Context, method, path string, query url.Values, header http.Header, body []byte) (int, []byte, error) {
+	u := pmmapitests.BaseURL.ResolveReference(&url.URL{Path: path, RawQuery: query.Encode()})
+	u.User = nil
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), bytes.NewReader(body))
+	if err != nil {
+		return 0, nil, err
+	}
+	maps.Copy(req.Header, header)
+	res, err := plainClient().Do(req)
+	if err != nil {
+		return 0, nil, err
+	}
+	defer res.Body.Close()
+	b, err := io.ReadAll(res.Body)
+	return res.StatusCode, b, err
+}
+
+// postMCP sends body to /mcp as an MCP client does, with authorization unless it is empty and with header, and returns the
+// status and body of the answer.
+func postMCP(t *testing.T, authorization, body string, header http.Header) (int, string) {
+	t.Helper()
+
+	h := http.Header{"Content-Type": {"application/json"}, "Accept": {"application/json, text/event-stream"}}
+	if authorization != "" {
+		h.Set("Authorization", authorization)
+	}
+	maps.Copy(h, header)
+	status, b, err := request(pmmapitests.Context, http.MethodPost, "mcp", nil, h, []byte(body))
+	require.NoError(t, err)
+	t.Logf("Response: %d %s", status, b)
+	return status, string(b)
+}
+
+// requireJSON sends a request with authorization, and payload as its JSON body unless it is nil, fails the test unless
+// the answer is 2xx (Grafana answers 202 to a new silence), and decodes the answer into out unless it is nil.
+func requireJSON(t *testing.T, authorization, method, path string, query url.Values, payload, out any) {
+	t.Helper()
+
+	header := http.Header{"Authorization": {authorization}}
+	var body []byte
+	if payload != nil {
+		var err error
+		body, err = json.Marshal(payload)
+		require.NoError(t, err)
+		header.Set("Content-Type", "application/json")
+	}
+	status, b, err := request(pmmapitests.Context, method, path, query, header, body)
+	require.NoError(t, err)
+	require.True(t, status >= 200 && status < 300, "%s %s: %d %s", method, path, status, b)
+	if out != nil {
+		require.NoError(t, json.Unmarshal(b, out))
+	}
 }
 
 const (
@@ -186,45 +224,15 @@ func TestUnauthenticated(t *testing.T) {
 	t.Parallel()
 
 	body := `{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"pmm-api-tests","version":"1"}}}`
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, endpoint(), strings.NewReader(body))
-	require.NoError(t, err)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json, text/event-stream")
-
-	resp, err := httpClient(false).Do(req)
-	require.NoError(t, err)
-	t.Cleanup(func() { assert.NoError(t, resp.Body.Close()) })
-
-	b, err := io.ReadAll(resp.Body)
-	require.NoError(t, err)
-	t.Logf("Response: %s", b)
+	status, b := postMCP(t, "", body, nil)
 
 	// nginx auth_request answers 401 with pmm-managed's JSON body; the MCP
 	// handler itself never emits 401.
-	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	assert.Equal(t, http.StatusUnauthorized, status)
 	var m map[string]any
-	require.NoError(t, json.Unmarshal(b, &m))
+	require.NoError(t, json.Unmarshal([]byte(b), &m))
 	assert.EqualValues(t, 16, m["code"])
 	assert.Equal(t, "Unauthorized", m["message"])
-}
-
-// postAdmin sends body to /mcp with the admin credentials and header, and returns the status and body of the answer.
-func postAdmin(t *testing.T, body string, header http.Header) (int, string) {
-	t.Helper()
-
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, endpoint(), strings.NewReader(body))
-	require.NoError(t, err)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json, text/event-stream")
-	maps.Copy(req.Header, header)
-
-	resp, err := httpClient(true).Do(req)
-	require.NoError(t, err)
-	t.Cleanup(func() { assert.NoError(t, resp.Body.Close()) })
-	b, err := io.ReadAll(resp.Body)
-	require.NoError(t, err)
-	t.Logf("Response: %d %s", resp.StatusCode, b)
-	return resp.StatusCode, string(b)
 }
 
 // TestOrigin checks the cross-origin check behind nginx, which passes the client's Host on to pmm-managed.
@@ -236,7 +244,7 @@ func TestOrigin(t *testing.T) {
 	t.Run("CrossSite", func(t *testing.T) {
 		t.Parallel()
 
-		status, _ := postAdmin(t, initialize, http.Header{"Origin": {"https://mcp-client.example"}})
+		status, _ := postMCP(t, adminAuthorization(), initialize, http.Header{"Origin": {"https://mcp-client.example"}})
 		assert.Equal(t, http.StatusForbidden, status)
 	})
 
@@ -244,7 +252,7 @@ func TestOrigin(t *testing.T) {
 		t.Parallel()
 
 		origin := pmmapitests.BaseURL.Scheme + "://" + pmmapitests.BaseURL.Host
-		status, body := postAdmin(t, initialize, http.Header{"Origin": {origin}})
+		status, body := postMCP(t, adminAuthorization(), initialize, http.Header{"Origin": {origin}})
 		assert.Equal(t, http.StatusOK, status)
 		assert.Contains(t, body, `"pmm-mcp"`)
 	})
@@ -256,7 +264,7 @@ func TestBatchRefused(t *testing.T) {
 
 	batch := `[{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pmm_version","arguments":{}}},` +
 		`{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"pmm_version","arguments":{}}}]`
-	status, body := postAdmin(t, batch, http.Header{"Mcp-Protocol-Version": {"2025-03-26"}})
+	status, body := postMCP(t, adminAuthorization(), batch, http.Header{"Mcp-Protocol-Version": {"2025-03-26"}})
 	assert.Equal(t, http.StatusBadRequest, status)
 	assert.Equal(t, "JSON-RPC batches are not supported\n", body)
 }
@@ -438,25 +446,7 @@ func adminAuthorization() string {
 		return ""
 	}
 	password, _ := pmmapitests.BaseURL.User.Password()
-	return "Basic " + base64.StdEncoding.EncodeToString([]byte(pmmapitests.BaseURL.User.Username()+":"+password))
-}
-
-// getJSON GETs a path of the server under test with authorization and decodes the JSON answer into out.
-func getJSON(t *testing.T, authorization, path string, query url.Values, out any) {
-	t.Helper()
-
-	u := pmmapitests.BaseURL.ResolveReference(&url.URL{Path: path, RawQuery: query.Encode()})
-	u.User = nil
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, u.String(), nil)
-	require.NoError(t, err)
-	req.Header.Set("Authorization", authorization)
-	res, err := httpClient(false).Do(req)
-	require.NoError(t, err)
-	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body)
-	require.NoError(t, err)
-	require.Equal(t, http.StatusOK, res.StatusCode, "GET %s: %s", path, body)
-	require.NoError(t, json.Unmarshal(body, out))
+	return basicAuthorization(pmmapitests.BaseURL.User.Username(), password)
 }
 
 // upRows returns the rows of the service-list query for the last hour, read through the Metrics datasource with authorization.
@@ -466,7 +456,7 @@ func upRows(t *testing.T, authorization string) []map[string]string {
 	var ds struct {
 		UID string `json:"uid"`
 	}
-	getJSON(t, authorization, "graph/api/datasources/name/Metrics", nil, &ds)
+	requireJSON(t, authorization, http.MethodGet, "graph/api/datasources/name/Metrics", nil, nil, &ds)
 	require.NotEmpty(t, ds.UID)
 
 	var answer struct {
@@ -476,7 +466,7 @@ func upRows(t *testing.T, authorization string) []map[string]string {
 			} `json:"result"`
 		} `json:"data"`
 	}
-	getJSON(t, authorization, "graph/api/datasources/proxy/uid/"+ds.UID+"/api/v1/query", url.Values{"query": {serviceListQuery}}, &answer)
+	requireJSON(t, authorization, http.MethodGet, "graph/api/datasources/proxy/uid/"+ds.UID+"/api/v1/query", url.Values{"query": {serviceListQuery}}, nil, &answer)
 
 	rows := make([]map[string]string, 0, len(answer.Data.Result))
 	for _, r := range answer.Data.Result {

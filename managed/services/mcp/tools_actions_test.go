@@ -20,13 +20,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"slices"
 	"strconv"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -39,56 +37,33 @@ import (
 	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
 )
 
-// sequenceFixtures answers a path with successive fixtures (polling).
-type sequenceFixtures struct {
-	files []string
-	calls atomic.Int32
-}
-
-func actionRoutes(t *testing.T, start, done string) (*fakePMM, *sequenceFixtures) {
-	t.Helper()
-
-	routes := qanRoutes()
-	routes["POST "+reportPath] = fixture{file: reportOne}
-	routes["GET /v1/qan/query/QID-AAA/plan"] = fixture{file: "plan_empty.json"}
-	routes["GET /v1/qan/query/QID-PG/plan"] = fixture{file: "plan.json"}
-	routes["POST /v1/actions:startServiceAction"] = fixture{file: start}
-	seq := &sequenceFixtures{files: []string{"action_running.json", "action_running.json", done}}
-	fake := newFakePMM(t, routes)
-
-	// GetAction polls: two "not done" answers, then the final fixture.
-	prev := fake.server.Config.Handler
-	fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		if strings.HasPrefix(req.URL.Path, "/v1/actions/") {
-			i := int(seq.calls.Add(1)) - 1
-			if i >= len(seq.files) {
-				i = len(seq.files) - 1
-			}
-			fake.mu.Lock()
-			fake.requests = append(fake.requests, recordedRequest{method: req.Method, path: req.URL.Path, header: req.Header.Clone()})
-			fake.mu.Unlock()
-			rw.Header().Set("Content-Type", "application/json")
-			_, _ = rw.Write(readFixture(t, seq.files[i]))
-			return
-		}
-		prev.ServeHTTP(rw, req)
-	})
-	return fake, seq
-}
-
-// explainRoutes returns the routes of an explain call on a service: the resolver's report names it.
-func explainRoutes(report string, extra map[string]fixture) map[string]fixture {
-	routes := withRoutes(qanRoutes(), map[string]fixture{
-		"POST " + reportPath: {file: report},
-	})
-	return withRoutes(routes, extra)
-}
-
 // mongoExplain makes a fake PMM resolve a MongoDB query that has a stored example.
 func mongoExplain(fake *fakePMM) {
 	fake.routes["POST "+reportPath] = fixture{file: "report_by_service_mongo.json"}
 	fake.routes["POST /v1/qan:getMetrics"] = fixture{file: "metrics_mongo.json"}
 	fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_mongo.json"}
+}
+
+// storedPlanRoutes returns the routes of a call whose resolver finds the query on the PostgreSQL service, where QID-PG has a stored plan.
+func storedPlanRoutes() map[string]fixture {
+	return withRoutes(resolveRoutes("report_by_service_postgres.json"), map[string]fixture{"GET /v1/qan/query/QID-PG/plan": {file: "plan.json"}})
+}
+
+// startAction is the route of startServiceAction.
+const startAction = "POST /v1/actions:startServiceAction"
+
+// syntaxError1064 is the error of a MySQL EXPLAIN of a fingerprint's placeholders.
+const syntaxError1064 = "Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server " +
+	"version for the right syntax to use near '?' at line 1"
+
+// customersQuery is the statement customersExplain explained, with the literal its plan holds too.
+const customersQuery = "SELECT id, email FROM customers WHERE email = 'user42@example.com'"
+
+// customersExplain returns the output of a mysql_explain_json action that explained customersQuery.
+func customersExplain(t *testing.T) string {
+	t.Helper()
+
+	return explainOutput(t, readFixture(t, "explain_customers.json"), customersQuery)
 }
 
 func TestExplainTool(t *testing.T) {
@@ -97,13 +72,15 @@ func TestExplainTool(t *testing.T) {
 	t.Run("MySQLLive", func(t *testing.T) {
 		t.Parallel()
 
-		fake, seq := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake, stub := newActionStub(t, 0)
+		stub.explain = customersExplain(t)
+		stub.pending = 2
 		session := connect(t, newQANService(t, fake, true))
 
 		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
 		text, isError := textOf(t, res), res.IsError
 		assert.False(t, isError)
-		assert.True(t, strings.HasPrefix(text, "EXPLAIN (json, mysql shop-mysql):\n```\n-- SELECT * FROM customers WHERE email = 'user42@example.com'\n{\n  \"query_block\""), text)
+		assert.True(t, strings.HasPrefix(text, "EXPLAIN (json, mysql shop-mysql):\n```\n-- "+customersQuery+"\n{\n  \"query_block\""), text)
 		assert.Contains(t, text, `"access_type": "ALL"`)
 		assert.Contains(t, text, "details_tab=explain&filter_by=QID-AAA")
 		fake.assertForwardedAuth(t)
@@ -131,19 +108,37 @@ func TestExplainTool(t *testing.T) {
 		assert.Equal(t, "svc-1", body.MysqlExplainJSON.ServiceID)
 		assert.Equal(t, "QID-AAA", body.MysqlExplainJSON.QueryID)
 		assert.Equal(t, "shop", body.MysqlExplainJSON.Database, "the database QAN recorded")
-		assert.EqualValues(t, 3, seq.calls.Load())
-		assert.Equal(t, "/v1/actions//action_id/explain-1", fake.requestsTo("/v1/actions//action_id/explain-1")[0].path)
+		assert.Equal(t, 3, stub.polls, "polled until the action was done")
+		assert.Len(t, fake.requestsTo("/v1/actions/explain-"), 3)
+	})
+
+	t.Run("MySQLJSONRedacted", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.explain = customersExplain(t)
+		session := connect(t, newQANService(t, fake, false))
+
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
+		text := textOf(t, res)
+		got := structured[explainResult](t, res)
+		assert.Contains(t, text, `"attached_condition": "(`+"`shop`.`customers`.`email`"+` = ?)"`)
+		assert.Contains(t, text, `"access_type": "ALL"`, "the plan's shape survives masking")
+		assert.Contains(t, text, `"rows_examined_per_scan": 20000`, "row estimates are not literals")
+		assert.Contains(t, got.Plan, `"attached_condition": "(`+"`shop`.`customers`.`email`"+` = ?)"`)
+		assert.Contains(t, text, "```\n"+got.Plan+"\n```", "the masked plan the text shows")
 	})
 
 	t.Run("MySQLTraditionalRedacted", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake, stub := newActionStub(t, 0)
+		stub.explain = customersExplain(t)
 		session := connect(t, newQANService(t, fake, false))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "format": "traditional", "placeholders": []string{"a"}})
 		assert.False(t, isError)
-		assert.NotContains(t, text, "user42@example.com'\n{")
+		assert.NotContains(t, text, "user42@example.com")
 		assert.True(t, strings.HasPrefix(text, "EXPLAIN (traditional, mysql shop-mysql):\n```\n{\n"), text)
 		body := unmarshalBody[actions_service.StartServiceActionBody](t, fake.requestsTo("/v1/actions:startServiceAction")[0])
 		require.NotNil(t, body.MysqlExplain)
@@ -153,8 +148,7 @@ func TestExplainTool(t *testing.T) {
 	t.Run("StoredPlan", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
+		fake := newFakePMM(t, storedPlanRoutes())
 		session := connect(t, newQANService(t, fake, true))
 
 		res := callTool(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-PG"})
@@ -184,35 +178,65 @@ func TestExplainTool(t *testing.T) {
 		assert.Equal(t, "service_id=svc-2", plans[0].query, "the plan is requested for the resolved service")
 	})
 
-	// The stored plan needs only the queryid and the service, so the detail calls are not needed.
-	t.Run("StoredPlanDetailFetchFails", func(t *testing.T) {
+	t.Run("StoredPlanRedacted", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
-		failWhen(t, fake, func(req *http.Request) bool {
-			return req.URL.Path == "/v1/qan:getMetrics" || req.URL.Path == "/v1/qan/query:getExample"
-		})
-		session := connect(t, newQANService(t, fake, true))
+		session := connect(t, newQANService(t, newFakePMM(t, storedPlanRoutes()), false))
 
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-PG"})
-		assert.False(t, isError, text)
-		assert.True(t, strings.HasPrefix(text, "Stored plan (pg_stat_monitor, planid PLAN-1):\n"), text)
-		require.Len(t, fake.requestsTo("/v1/qan/query/QID-PG/plan"), 1)
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
+		text, isError := textOf(t, res), res.IsError
+		require.False(t, isError, text)
+		assert.NotContains(t, text, "user42@example.com")
+		assert.Contains(t, text, "Filter: ((email)::text = ?::text)")
+		assert.Contains(t, text, "(cost=0.00..458.00 rows=1 width=64)", "cost and row estimates are not literals")
+
+		got := structured[explainResult](t, res)
+		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
+		assert.Contains(t, got.Plan, "Filter: ((email)::text = ?::text)")
+		assert.Contains(t, text, "```\n"+got.Plan+"\n```", "the masked plan the text shows")
 	})
 
 	t.Run("PostgreSQLWithoutPlan", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
+		fake := newFakePMM(t, withRoutes(storedPlanRoutes(), map[string]fixture{"GET /v1/qan/query/QID-AAA/plan": {file: "empty.json"}}))
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: not_found\nno stored plan for this query. "), text)
+		assertToolError(t, text, codeNotFound, "no stored plan for this query. ")
 		assert.NotContains(t, text, "QID-AAA")
 		assert.Contains(t, text, "pgsm_enable_query_plan=on")
+	})
+
+	// A failed lookup is a failure, not "no plan": the setup hint would send
+	// the operator to enable a setting that may well be on already.
+	t.Run("PostgreSQLProbeErrorIsSurfaced", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, withRoutes(storedPlanRoutes(), map[string]fixture{
+			"GET /v1/qan/query/QID-PG/plan": {file: "error_403.json", status: http.StatusInternalServerError},
+		}))
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
+		assert.True(t, isError)
+		assertToolError(t, text, codePMMUnavailable, "")
+		assert.NotContains(t, text, "pgsm_enable_query_plan")
+	})
+
+	t.Run("UnknownServiceRejectedBeforeAnyPlanLookup", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, withRoutes(resolveRoutes(reportOne), map[string]fixture{"GET /v1/qan/query/QID-AAA/plan": {file: "plan.json"}}))
+		session := connect(t, newQANService(t, fake, true))
+
+		text, isError := callText(t, session, "pmm_get_explain",
+			map[string]any{"service_id": "svc-does-not-exist", "queryid": "QID-AAA"})
+		assert.True(t, isError)
+		assertToolError(t, text, codeNotFound, "")
+		assert.Empty(t, fake.requestsTo("/v1/qan/query/QID-AAA/plan"),
+			"the service must be validated before the plan is fetched, not after")
 	})
 
 	t.Run("PlanCapped", func(t *testing.T) {
@@ -245,11 +269,9 @@ func TestExplainTool(t *testing.T) {
 		assert.False(t, got.Truncated)
 
 		// A stored plan is masked as one text, so it is bound the same way.
-		fake, _ = actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
 		stored, err := json.Marshal(map[string]any{"planid": "PLAN-1", "query_plan": strings.Repeat("Seq Scan on t\n", maxPlanInputBytes/10)})
 		require.NoError(t, err)
-		fake.routes["GET /v1/qan/query/QID-PG/plan"] = fixture{body: stored}
+		fake = newFakePMM(t, withRoutes(storedPlanRoutes(), map[string]fixture{"GET /v1/qan/query/QID-PG/plan": {body: stored}}))
 		session = connect(t, newQANService(t, fake, false))
 
 		got = structured[explainResult](t, callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"}))
@@ -293,80 +315,20 @@ func TestExplainTool(t *testing.T) {
 
 		fake, stub := newActionStub(t, 0)
 		mongoExplain(fake)
-		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_empty.json"}
+		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "empty.json"}
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: no_query_source\nno stored query example for queryid 'QID-AAA' in 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z"), text)
+		assertToolError(t, text, codeNoQuerySource, "no stored query example for queryid 'QID-AAA' in 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z")
 		assert.NotContains(t, text, "pass an explicit query")
 		assert.Empty(t, stub.starts)
-	})
-
-	// A failed example call is not an absent example: its error is the answer.
-	t.Run("MongoDBExampleFetchFails", func(t *testing.T) {
-		t.Parallel()
-
-		fake, stub := newActionStub(t, 0)
-		mongoExplain(fake)
-		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan/query:getExample" })
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
-		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
-		assert.NotContains(t, text, "no_query_source")
-		assert.Empty(t, stub.starts)
-	})
-
-	// pmm-managed picks the MySQL statement itself, so the example call is not needed.
-	t.Run("MySQLExampleFetchFails", func(t *testing.T) {
-		t.Parallel()
-
-		fake, stub := newActionStub(t, 0)
-		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan/query:getExample" })
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
-		assert.False(t, isError, text)
-		require.Len(t, stub.starts, 1)
-		require.NotNil(t, stub.starts[0].MysqlExplainJSON)
-		assert.Equal(t, "shop", stub.starts[0].MysqlExplainJSON.Database)
-	})
-
-	// A failed metrics call can drop the database the MySQL EXPLAIN runs in: its error is the answer.
-	t.Run("MySQLMetricsFetchFails", func(t *testing.T) {
-		t.Parallel()
-
-		fake, stub := newActionStub(t, 0)
-		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan:getMetrics" })
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
-		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
-		assert.Empty(t, stub.starts)
-	})
-
-	// A MongoDB explain runs on the stored example only, so the metrics call is not needed.
-	t.Run("MongoDBMetricsFetchFails", func(t *testing.T) {
-		t.Parallel()
-
-		fake, stub := newActionStub(t, 0)
-		mongoExplain(fake)
-		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan:getMetrics" })
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
-		assert.False(t, isError, text)
-		require.Len(t, stub.starts, 1)
-		require.NotNil(t, stub.starts[0].MongodbExplain)
 	})
 
 	t.Run("QueryRefForm", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake, _ := newActionStub(t, 0)
 		session := connect(t, newQANService(t, fake, true))
 
 		from, to := testNow.Add(-3*time.Hour), testNow.Add(-2*time.Hour)
@@ -380,20 +342,20 @@ func TestExplainTool(t *testing.T) {
 	t.Run("QueryRefWithQueryID", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake := newFakePMM(t, resolveRoutes(reportOne))
 		session := connect(t, newQANService(t, fake, true))
 
 		ref := map[string]any{"queryid": "QID-AAA", "period_from": "2026-09-14T11:00:00Z", "period_to": "2026-09-14T12:00:00Z"}
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"query_ref": ref, "queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\npass query_ref alone"), text)
+		assertToolError(t, text, codeInvalidInput, "pass query_ref alone")
 		assert.Empty(t, fake.requestsTo(reportPath))
 	})
 
 	t.Run("DatabaseOverridesResolved", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake, _ := newActionStub(t, 0)
 		session := connect(t, newQANService(t, fake, true))
 
 		_, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA", "database": "other"})
@@ -404,46 +366,32 @@ func TestExplainTool(t *testing.T) {
 		assert.Equal(t, "svc-1", body.MysqlExplainJSON.ServiceID, "the resolved service")
 	})
 
-	t.Run("PostgreSQLIgnoresDetailError", func(t *testing.T) {
-		t.Parallel()
-
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
-		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan/query:getExample" })
-		session := connect(t, newQANService(t, fake, true))
-
-		res := callTool(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-PG"})
-		got := structured[explainResult](t, res)
-		assert.Equal(t, enginePostgreSQL, got.Engine)
-		assert.Contains(t, got.Plan, "Seq Scan on customers")
-	})
-
 	t.Run("PlaceholdersCountError", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		fake.routes["POST /v1/actions:startServiceAction"] = fixture{file: "error_400_placeholders.json", status: http.StatusBadRequest}
-		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_empty.json"}
+		fake := newFakePMM(t, withRoutes(resolveRoutes(reportOne), map[string]fixture{
+			startAction:                     {file: "error_400_placeholders.json", status: http.StatusBadRequest},
+			"POST /v1/qan/query:getExample": {file: "empty.json"},
+		}))
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
 		assert.Equal(t, "error: invalid_input\nthe number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, "+
 			"in order, or none when QAN stored a query example", text)
-		assert.Contains(t, text, "placeholders")
-		assert.NotContains(t, text, "EXPLAIN could not run")
 	})
 
 	t.Run("PlaceholderError", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_error_1064.json")
-		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_empty.json"}
+		fake, stub := newActionStub(t, 0)
+		stub.errs = map[string]string{"explain-": syntaxError1064}
+		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "empty.json"}
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nEXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064"), text)
+		assertToolError(t, text, codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064")
 		assert.Contains(t, text, "pass placeholders")
 	})
 
@@ -453,38 +401,42 @@ func TestExplainTool(t *testing.T) {
 
 		for _, tc := range []struct {
 			name    string
-			start   fixture
-			done    string
+			fake    func(t *testing.T) *fakePMM
 			code    errorCode
 			message string
 		}{
 			// The row read records placeholders: the call can pass them.
 			{
 				"PlaceholdersCount",
-				fixture{file: "error_400_placeholders.json", status: http.StatusBadRequest},
-				"action_done_explain.json",
+				func(t *testing.T) *fakePMM {
+					t.Helper()
+					return newFakePMM(t, withRoutes(resolveRoutes(reportOne), map[string]fixture{
+						startAction: {file: "error_400_placeholders.json", status: http.StatusBadRequest},
+					}))
+				},
 				codeInvalidInput, rowWithoutExampleMessage,
 			},
 			// The row read records none: nothing the call passes fits it.
 			{
 				"Error1064",
-				fixture{file: "action_start_explain.json"},
-				"action_done_error_1064.json",
+				func(t *testing.T) *fakePMM {
+					t.Helper()
+					fake, stub := newActionStub(t, 0)
+					stub.errs = map[string]string{"explain-": syntaxError1064}
+					return fake
+				},
 				codeNoQuerySource, rowWithoutStatementMessage,
 			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
 
-				fake, _ := actionRoutes(t, "action_start_explain.json", tc.done)
-				fake.routes["POST /v1/actions:startServiceAction"] = tc.start
-				session := connect(t, newQANService(t, fake, false))
+				session := connect(t, newQANService(t, tc.fake(t), false))
 
 				res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
 				assert.True(t, res.IsError)
 				assert.Equal(t, map[string]any{"code": string(tc.code), "retryable": false}, res.Meta["com.percona/error"])
 				assert.Equal(t, "error: "+string(tc.code)+"\n"+tc.message, textOf(t, res))
-				assert.NotContains(t, textOf(t, res), "Enable query examples")
 			})
 		}
 	})
@@ -493,24 +445,26 @@ func TestExplainTool(t *testing.T) {
 	t.Run("PlaceholderErrorWithPlaceholders", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_error_1064.json")
+		fake, stub := newActionStub(t, 0)
+		stub.errs = map[string]string{"explain-": syntaxError1064}
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain",
 			map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "placeholders": []string{"1"}})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nEXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064"), text)
+		assertToolError(t, text, codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064")
 	})
 
 	t.Run("PrivilegeError", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_error_denied.json")
+		fake, stub := newActionStub(t, 0)
+		stub.errs = map[string]string{"explain-": "Error 1142 (42000): SELECT command denied to user 'pmm'@'%' for table 'customers'"}
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: insufficient_privileges\nError 1142"), text)
+		assertToolError(t, text, codeInsufficientPrivileges, "Error 1142")
 	})
 
 	t.Run("MongoDBUnsupportedOperation", func(t *testing.T) {
@@ -518,7 +472,7 @@ func TestExplainTool(t *testing.T) {
 
 		fake, stub := newActionStub(t, 0)
 		mongoExplain(fake)
-		stub.explainErr = "cannot explain this type of query\noperation insert is not supported for explain"
+		stub.errs = map[string]string{"explain-": "cannot explain this type of query\noperation insert is not supported for explain"}
 		session := connect(t, newQANService(t, fake, false))
 
 		res := callTool(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
@@ -526,7 +480,7 @@ func TestExplainTool(t *testing.T) {
 		assert.Nil(t, res.StructuredContent)
 		assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"])
 		text := textOf(t, res)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\ncannot explain this type of query\noperation insert is not supported for explain"), text)
+		assertToolError(t, text, codeInvalidInput, "cannot explain this type of query\noperation insert is not supported for explain")
 		assert.Contains(t, text, "pmm-agent explains MongoDB queries, updates, removes and getMores, and the find, findAndModify, update, "+
 			"aggregate, count, distinct, mapReduce, group and getMore commands; it refuses inserts, drops and other commands. "+
 			"Pick another query from pmm_top_queries")
@@ -575,9 +529,9 @@ func TestExplainTool(t *testing.T) {
 	t.Run("TrimmedQuery", func(t *testing.T) {
 		t.Parallel()
 
-		routes := explainRoutes(reportOne, map[string]fixture{
-			"GET /v1/qan/query/QID-AAA/plan":      {file: "plan_empty.json"},
-			"POST /v1/actions:startServiceAction": {file: "error_500_query_trimmed.json", status: http.StatusInternalServerError},
+		routes := withRoutes(resolveRoutes(reportOne), map[string]fixture{
+			"GET /v1/qan/query/QID-AAA/plan": {file: "empty.json"},
+			startAction:                      {file: "error_500_query_trimmed.json", status: http.StatusInternalServerError},
 		})
 		fake := newFakePMM(t, routes)
 		session := connect(t, newQANService(t, fake, true))
@@ -587,55 +541,58 @@ func TestExplainTool(t *testing.T) {
 		assert.Nil(t, res.StructuredContent)
 		assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"])
 		text := textOf(t, res)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "QAN stored this query trimmed (pmm-agent max-query-length), so it can't be explained; pick another query, or raise max-query-length on the agent")
 	})
 
 	t.Run("Timeout", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_running.json")
+		fake, _ := newActionStub(t, 0, "explain-")
+		// A cancel that fails leaves the timeout the answer.
+		failWhen(fake, func(req *http.Request) bool { return req.URL.Path == "/v1/actions:cancelAction" })
 		s := newQANService(t, fake, true)
-		s.actionTimeout = func() time.Duration { return 700 * time.Millisecond }
+		s.actionTimeout = 700 * time.Millisecond
 		session := connect(t, s)
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: timeout\naction /action_id/explain-1 did not complete within 700ms"), text)
+		assertToolError(t, text, codeTimeout, "action explain- did not complete within 700ms")
+		assert.Len(t, fake.requestsTo("/v1/actions:cancelAction"), 1)
 	})
 
 	t.Run("AgentUnavailable", func(t *testing.T) {
 		t.Parallel()
 
-		routes := explainRoutes(reportOne, map[string]fixture{
-			"GET /v1/qan/query/QID-AAA/plan":      {file: "plan_empty.json"},
-			"POST /v1/actions:startServiceAction": {file: "error_no_agent.json", status: http.StatusBadRequest},
+		routes := withRoutes(resolveRoutes(reportOne), map[string]fixture{
+			"GET /v1/qan/query/QID-AAA/plan": {file: "empty.json"},
+			startAction:                      {file: "error_no_agent.json", status: http.StatusBadRequest},
 		})
 		fake := newFakePMM(t, routes)
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: agent_unreachable\n"), text)
+		assertToolError(t, text, codeAgentUnreachable, "")
 	})
 
 	t.Run("Validation", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake := newFakePMM(t, resolveRoutes(reportOne))
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nservice_id, period_from and period_to need a queryid"), text)
+		assertToolError(t, text, codeInvalidInput, "service_id, period_from and period_to need a queryid")
 
 		text, isError = callText(t, session, "pmm_get_explain", map[string]any{})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\npass query_ref"), text)
+		assertToolError(t, text, codeInvalidInput, "pass query_ref")
 
 		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA", "format": "tree"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nformat"), text)
+		assertToolError(t, text, codeInvalidInput, "format")
 		assert.Empty(t, fake.requestsTo(reportPath))
 
 		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-404", "queryid": "QID-AAA"})
@@ -647,15 +604,103 @@ func TestExplainTool(t *testing.T) {
 	t.Run("ExplainStartRejectedHasNoPlaceholderAdvice", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		fake.routes["POST /v1/actions:startServiceAction"] = fixture{file: "error_400_invalid.json", status: http.StatusBadRequest}
+		fake := newFakePMM(t, withRoutes(resolveRoutes(reportOne), map[string]fixture{
+			startAction: {file: "error_400_invalid.json", status: http.StatusBadRequest},
+		}))
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.NotContains(t, text, "placeholder syntax")
 	})
+}
+
+// TestDetailFetchFails pins which failed QAN detail call is the answer of pmm_get_explain and pmm_get_schema, before
+// any action, and which one they do without.
+func TestDetailFetchFails(t *testing.T) {
+	t.Parallel()
+
+	const (
+		metrics     = "/v1/qan:getMetrics"
+		example     = "/v1/qan/query:getExample"
+		unavailable = "error: pmm_unavailable\n"
+	)
+	queries := map[string]func(t *testing.T, fake *fakePMM, stub *actionStub){
+		engineMySQL: func(t *testing.T, _ *fakePMM, stub *actionStub) {
+			t.Helper()
+			stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-join-aliases.json"), "SELECT 1")
+		},
+		enginePostgreSQL: func(_ *testing.T, fake *fakePMM, _ *actionStub) {
+			postgresQuery(fake)
+			fake.routes["GET /v1/qan/query/QID-PG/plan"] = fixture{file: "plan.json"}
+		},
+		engineMongoDB: func(_ *testing.T, fake *fakePMM, _ *actionStub) { mongoExplain(fake) },
+	}
+	storedPlan := "Stored plan (pg_stat_monitor, planid PLAN-1):\n```\nSeq Scan on customers"
+	schemaText := "queryid: QID-AAA\nWindow: 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z\nservice: shop-mysql (mysql)\n\n### shop."
+	mysqlExplain := actions_service.StartServiceActionBody{MysqlExplainJSON: &actions_service.StartServiceActionParamsBodyMysqlExplainJSON{
+		ServiceID: "svc-1", QueryID: "QID-AAA", Database: "shop",
+	}}
+	mongodbExplain := actions_service.StartServiceActionBody{MongodbExplain: &actions_service.StartServiceActionParamsBodyMongodbExplain{
+		ServiceID: "svc-mongo", Query: `db.customers.find({"email": "user42@example.com", "age": {"$gt": 4417}})`,
+	}}
+	ddl := func(table string) actions_service.StartServiceActionBody {
+		return actions_service.StartServiceActionBody{MysqlShowCreateTable: &actions_service.StartServiceActionParamsBodyMysqlShowCreateTable{
+			ServiceID: "svc-1", Database: "shop", TableName: table,
+		}}
+	}
+
+	for _, tc := range []struct {
+		name   string
+		tool   string
+		engine string
+		fail   []string
+		// text is the start of the call's text: an error's text for a call that fails.
+		text   string
+		starts []actions_service.StartServiceActionBody
+	}{
+		// The stored plan needs only the queryid and the service.
+		{"ExplainStoredPlanDetails", "pmm_get_explain", enginePostgreSQL, []string{metrics, example}, storedPlan, nil},
+		{"ExplainStoredPlanExample", "pmm_get_explain", enginePostgreSQL, []string{example}, storedPlan, nil},
+		// pmm-managed picks the MySQL statement itself.
+		{"ExplainMySQLExample", "pmm_get_explain", engineMySQL, []string{example}, "EXPLAIN (json, mysql shop-mysql):\n", []actions_service.StartServiceActionBody{mysqlExplain}},
+		// A failed metrics call can drop the database the MySQL EXPLAIN runs in.
+		{"ExplainMySQLMetrics", "pmm_get_explain", engineMySQL, []string{metrics}, unavailable, nil},
+		// A failed example call is not an absent example.
+		{"ExplainMongoDBExample", "pmm_get_explain", engineMongoDB, []string{example}, unavailable, nil},
+		// A MongoDB explain runs on the stored example only.
+		{"ExplainMongoDBMetrics", "pmm_get_explain", engineMongoDB, []string{metrics}, "EXPLAIN (json, mongodb shop-mongo):\n", []actions_service.StartServiceActionBody{mongodbExplain}},
+		// The tables of a MySQL query come from its plan.
+		{"SchemaMySQLExample", "pmm_get_schema", engineMySQL, []string{example}, schemaText, []actions_service.StartServiceActionBody{mysqlExplain, ddl("customers"), ddl("orders")}},
+		// A failed metrics call can drop the database the EXPLAIN needs.
+		{"SchemaMySQLMetrics", "pmm_get_schema", engineMySQL, []string{metrics}, unavailable, nil},
+		// A failed example call is not an example without tables.
+		{"SchemaPostgreSQLExample", "pmm_get_schema", enginePostgreSQL, []string{example}, unavailable, nil},
+		// A failed metrics call drops the database a PostgreSQL table is read in.
+		{"SchemaPostgreSQLMetrics", "pmm_get_schema", enginePostgreSQL, []string{metrics}, unavailable, nil},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			fake, stub := newActionStub(t, 0)
+			queries[tc.engine](t, fake, stub)
+			failWhen(fake, func(req *http.Request) bool { return slices.Contains(tc.fail, req.URL.Path) })
+			queryID := "QID-AAA"
+			if tc.text == storedPlan {
+				queryID = "QID-PG"
+			}
+
+			text, isError := callText(t, connect(t, newQANService(t, fake, true)), tc.tool, map[string]any{"queryid": queryID})
+			assert.Equal(t, tc.text == unavailable, isError, text)
+			assert.True(t, strings.HasPrefix(text, tc.text), text)
+			assert.NotContains(t, text, "no_query_source")
+			assert.ElementsMatch(t, tc.starts, stub.starts)
+			if tc.text == storedPlan {
+				assert.Len(t, fake.requestsTo("/v1/qan/query/QID-PG/plan"), 1)
+			}
+		})
+	}
 }
 
 // explainOutput is the output of a mysql_explain_json action that explained query with plan.
@@ -724,7 +769,9 @@ func TestSchemaTool(t *testing.T) {
 	t.Run("MySQL", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, stub := newActionStub(t, 0)
+		stub.outputs = map[string]string{"ddl-customers": "CREATE TABLE `customers` (\n  `id` bigint NOT NULL AUTO_INCREMENT,\n  `email` varchar(255) NOT NULL,\n  " +
+			"PRIMARY KEY (`id`)\n) ENGINE=InnoDB\n"}
 		session := connect(t, newQANService(t, fake, true))
 
 		res := callTool(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}})
@@ -789,12 +836,13 @@ func TestSchemaTool(t *testing.T) {
 	t.Run("SyntaxErrorHasNoExplainAdvice", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_error_1064.json")
+		fake, stub := newActionStub(t, 0)
+		stub.errs = map[string]string{"ddl-customers": syntaxError1064}
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nError 1064"), text)
+		assertToolError(t, text, codeInvalidInput, "Error 1064")
 		assert.NotContains(t, text, "placeholders")
 	})
 
@@ -827,11 +875,6 @@ func TestSchemaTool(t *testing.T) {
 		fake, stub := newActionStub(t, 0)
 		postgresQuery(fake)
 		s := newQANService(t, fake, true)
-		var rawReads atomic.Int32
-		s.rawSQL = func() bool {
-			rawReads.Add(1)
-			return true
-		}
 		session := connect(t, s)
 
 		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA", "placeholders": []string{"ignored"}})
@@ -846,7 +889,6 @@ func TestSchemaTool(t *testing.T) {
 			"### shop_pg.orders\n```sql\nCREATE TABLE `orders` (`id` int)\n```\n\n"+
 			"### shop_pg.customers\n```sql\nCREATE TABLE `customers` (`id` int)\n```", textOf(t, res))
 		assert.ElementsMatch(t, []string{"orders", "customers"}, ddlTables(t, stub.starts, "svc-2", "shop_pg"), "no EXPLAIN for PostgreSQL")
-		assert.Zero(t, rawReads.Load(), "PostgreSQL renders no statement")
 	})
 
 	t.Run("PostgreSQLManyTables", func(t *testing.T) {
@@ -888,32 +930,12 @@ func TestSchemaTool(t *testing.T) {
 		assert.Empty(t, stub.starts)
 	})
 
-	// A failed example call is not an example without tables: its error is the answer.
-	t.Run("PostgreSQLExampleFetchFails", func(t *testing.T) {
-		t.Parallel()
-
-		fake, stub := newActionStub(t, 0)
-		postgresQuery(fake)
-		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan/query:getExample" })
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
-		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
-		assert.Empty(t, stub.starts)
-	})
-
 	t.Run("MySQLByQueryID", func(t *testing.T) {
 		t.Parallel()
 
 		fake, stub := newActionStub(t, 0)
 		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-derived-table.json"), "SELECT 1")
 		s := newQANService(t, fake, true)
-		var rawReads atomic.Int32
-		s.rawSQL = func() bool {
-			rawReads.Add(1)
-			return true
-		}
 		session := connect(t, s)
 
 		from, to := testNow.Add(-3*time.Hour), testNow.Add(-2*time.Hour)
@@ -935,7 +957,6 @@ func TestSchemaTool(t *testing.T) {
 			"Unresolved, not fetched (derived tables, CTEs, unions and names the plan doesn't tie to a table): d; "+
 			"pass the tables behind them as service_id, database and tables.\n"+
 			"Tables found in a live plan: what the database would choose now, not during the window.", textOf(t, res))
-		assert.EqualValues(t, 1, rawReads.Load(), "raw SQL is read once")
 
 		require.Len(t, stub.starts, 3)
 		assert.Equal(t, &actions_service.StartServiceActionParamsBodyMysqlExplainJSON{
@@ -973,16 +994,15 @@ func TestSchemaTool(t *testing.T) {
 		t.Parallel()
 
 		fake, stub := newActionStub(t, 0)
-		stub.explainErr = "Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server " +
-			"version for the right syntax to use near '?' at line 1"
-		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "example_empty.json"}
+		stub.errs = map[string]string{"explain-": syntaxError1064}
+		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "empty.json"}
 		session := connect(t, newQANService(t, fake, true))
 
 		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
 		text := textOf(t, res)
 		assert.True(t, res.IsError)
 		assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"])
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nEXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064"), text)
+		assertToolError(t, text, codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064")
 		assert.Contains(t, text, "pass placeholders (one value per ?, in order), or pass service_id, database and tables")
 		require.Len(t, stub.starts, 1, "no DDL action after a failed EXPLAIN")
 		assert.NotNil(t, stub.starts[0].MysqlExplainJSON)
@@ -993,8 +1013,7 @@ func TestSchemaTool(t *testing.T) {
 		t.Parallel()
 
 		fake, stub := newActionStub(t, 0)
-		stub.explainErr = "Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server " +
-			"version for the right syntax to use near '?' at line 1"
+		stub.errs = map[string]string{"explain-": syntaxError1064}
 		session := connect(t, newQANService(t, fake, true))
 
 		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
@@ -1007,8 +1026,9 @@ func TestSchemaTool(t *testing.T) {
 	t.Run("MySQLPlaceholdersCountError", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
-		fake.routes["POST /v1/actions:startServiceAction"] = fixture{file: "error_400_placeholders.json", status: http.StatusBadRequest}
+		fake := newFakePMM(t, withRoutes(resolveRoutes(reportOne), map[string]fixture{
+			startAction: {file: "error_400_placeholders.json", status: http.StatusBadRequest},
+		}))
 		session := connect(t, newQANService(t, fake, true))
 
 		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA", "placeholders": []string{"1", "2"}})
@@ -1016,50 +1036,6 @@ func TestSchemaTool(t *testing.T) {
 		assert.Equal(t, "error: invalid_input\nthe number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, "+
 			"in order, or none when QAN stored a query example; or pass service_id, database and tables instead of a query reference", text)
 		assert.Len(t, fake.requestsTo("/v1/actions:startServiceAction"), 1)
-	})
-
-	// The tables of a MySQL query come from its plan, so the example call is not needed.
-	t.Run("MySQLExampleFetchFails", func(t *testing.T) {
-		t.Parallel()
-
-		fake, stub := newActionStub(t, 0)
-		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-join-aliases.json"), "SELECT 1")
-		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan/query:getExample" })
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
-		assert.False(t, isError, text)
-		assert.NotEmpty(t, stub.starts)
-	})
-
-	// A failed metrics call drops the database a PostgreSQL table is read in: its error is the answer.
-	t.Run("PostgreSQLMetricsFetchFails", func(t *testing.T) {
-		t.Parallel()
-
-		fake, stub := newActionStub(t, 0)
-		postgresQuery(fake)
-		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan:getMetrics" })
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
-		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
-		assert.Empty(t, stub.starts)
-	})
-
-	// A failed metrics call can drop the database the EXPLAIN needs: its error is the answer.
-	t.Run("MySQLDetailFetchFails", func(t *testing.T) {
-		t.Parallel()
-
-		fake, stub := newActionStub(t, 0)
-		stub.explain = explainOutput(t, readFixture(t, "explain/mysql-8.0-join-aliases.json"), "SELECT 1")
-		failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/qan:getMetrics" })
-		session := connect(t, newQANService(t, fake, true))
-
-		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
-		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
-		assert.Empty(t, stub.starts)
 	})
 
 	// The explained statement only feeds the alias map: even with raw SQL on it is not returned.
@@ -1159,7 +1135,7 @@ func TestSchemaTool(t *testing.T) {
 		mongoExplain(fake)
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
-		key := callerKey(callerAuth{authorization: testToken})
+		key := keyOf(callerAuth{authorization: testToken})
 		relService, hit := s.liveByService.acquire("svc-mongo")
 		require.Equal(t, limitNone, hit)
 		defer relService()
@@ -1190,7 +1166,7 @@ func TestSchemaTool(t *testing.T) {
 		s := newQANService(t, fake, true)
 		s.liveServiceWait = 50 * time.Millisecond
 		session := connect(t, s)
-		key := callerKey(callerAuth{authorization: testToken})
+		key := keyOf(callerAuth{authorization: testToken})
 		rel1, hit := s.live.acquire(key)
 		require.Equal(t, limitNone, hit)
 		rel2, hit := s.live.acquire(key)
@@ -1198,7 +1174,7 @@ func TestSchemaTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Contains(t, text, "these credentials")
 		assert.Empty(t, stub.starts)
 		rel1()
@@ -1208,7 +1184,7 @@ func TestSchemaTool(t *testing.T) {
 		require.Equal(t, limitNone, hit)
 		text, isError = callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited\na live-inspection call on this service is still in flight after 50ms"), text)
+		assertToolError(t, text, codeRateLimited, "a live-inspection call on this service is still in flight after 50ms")
 		assert.Empty(t, stub.starts)
 		held()
 
@@ -1251,7 +1227,7 @@ func TestSchemaTool(t *testing.T) {
 			assert.True(t, res.IsError, "%v", tc.args)
 			assert.Nil(t, res.StructuredContent, "%v", tc.args)
 			assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"], "the handler's envelope, not an SDK refusal: %v", tc.args)
-			assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"+tc.prefix), "%v: %s", tc.args, text)
+			assertToolError(t, text, codeInvalidInput, tc.prefix)
 		}
 		assert.Empty(t, stub.starts)
 		assert.Empty(t, fake.requestsTo(reportPath))
@@ -1336,7 +1312,7 @@ func TestConfigTool(t *testing.T) {
 
 	text, isError = callText(t, session, "pmm_get_config", map[string]any{"service_name": "shop-mysql", "engine": "mongodb"})
 	assert.True(t, isError)
-	assert.True(t, strings.HasPrefix(text, "error: invalid_input\nengine"), text)
+	assertToolError(t, text, codeInvalidInput, "engine")
 
 	// An engine other than the service's own reads no variables of the wrong kind.
 	before := len(fake.requestsTo(vmAPI + "query"))
@@ -1396,15 +1372,7 @@ func TestConfigTool(t *testing.T) {
 	t.Run("Paging", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, inventoryRoutes())
-		prev := fake.server.Config.Handler
-		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			if strings.HasSuffix(req.URL.Path, "/api/v1/query") && strings.Contains(req.URL.Query().Get("query"), "mysql_global_variables_") {
-				writeJSON(rw, vmVariables(250))
-				return
-			}
-			prev.ServeHTTP(rw, req)
-		})
+		fake := newFakePMM(t, withRoutes(inventoryRoutes(), map[string]fixture{vmQuery + " ?mysql_global_variables_": {body: mustJSON(t, vmVariables(250))}}))
 		session := connect(t, newQANService(t, fake, true))
 
 		res := callTool(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1"})
@@ -1439,7 +1407,7 @@ func TestConfigTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_config", map[string]any{"service_id": "svc-1", "limit": 1001})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\nlimit must be between 1 and 1000; got 1001"), text)
+		assertToolError(t, text, codeInvalidInput, "limit must be between 1 and 1000; got 1001")
 	})
 }
 
@@ -1497,24 +1465,28 @@ func TestDecodeExplainOutput(t *testing.T) {
 }
 
 // actionStub fakes the actions API with one action per start, named
-// <kind>-<table> (kind ddl, index or explain). GetAction answers done at once,
-// except for the action ids in slow, which never finish. The first barrier
-// starts wait for each other, for up to 2 s, so a caller that starts actions
-// one at a time fails.
+// <kind>-<table> (kind ddl, index or explain) and answered under the oneof key
+// of its kind. GetAction answers done after pending polls, except for the
+// action ids in slow, which never finish. The first barrier starts wait for
+// each other, for up to 2 s, so a caller that starts actions one at a time
+// fails.
 type actionStub struct {
 	barrier int
 	slow    []string
+	// pending is how many polls of each action answer not done before it finishes.
+	pending int
 	// explain is the output of an explain action.
 	explain string
-	// explainErr is the error of an explain action, instead of its output.
-	explainErr string
 	// outputs replaces the output of the action ids it names.
 	outputs map[string]string
+	// errs is the error of the action ids it names, instead of their output.
+	errs map[string]string
 
 	mu          sync.Mutex
 	release     chan struct{}
 	starts      []actions_service.StartServiceActionBody
 	polls       int
+	pollsOf     map[string]int
 	inFlight    int
 	maxInFlight int
 	// cancels and cancelAuth record each cancelAction call's action id and Authorization.
@@ -1529,28 +1501,27 @@ func (a *actionStub) cancelled() []string {
 	return slices.Clone(a.cancels)
 }
 
+// newActionStub returns a fake PMM whose resolver finds QID-AAA on the MySQL service, with an actionStub for its actions API.
 func newActionStub(t *testing.T, barrier int, slow ...string) (*fakePMM, *actionStub) {
 	t.Helper()
 
-	stub := &actionStub{barrier: barrier, slow: slow, release: make(chan struct{})}
+	stub := &actionStub{barrier: barrier, slow: slow, release: make(chan struct{}), pollsOf: map[string]int{}}
 	if barrier == 0 {
 		close(stub.release)
 	}
-	fake := newFakePMM(t, withRoutes(qanRoutes(), map[string]fixture{"POST " + reportPath: {file: reportOne}}))
-	prev := fake.server.Config.Handler
-	fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+	fake := newFakePMM(t, resolveRoutes(reportOne))
+	fake.handle(func(rw http.ResponseWriter, req *http.Request, body []byte) bool {
 		switch {
 		case req.URL.Path == "/v1/actions:startServiceAction":
-			body, _ := io.ReadAll(req.Body)
 			stub.start(rw, body)
 		case req.URL.Path == "/v1/actions:cancelAction":
-			body, _ := io.ReadAll(req.Body)
 			stub.cancel(rw, body, req.Header.Get("Authorization"))
 		case strings.HasPrefix(req.URL.Path, "/v1/actions/"):
 			stub.get(rw, strings.TrimPrefix(req.URL.Path, "/v1/actions/"))
 		default:
-			prev.ServeHTTP(rw, req)
+			return false
 		}
+		return true
 	})
 	return fake, stub
 }
@@ -1562,16 +1533,25 @@ func (a *actionStub) start(rw http.ResponseWriter, body []byte) {
 		http.Error(rw, `{"message":"cannot decode the start body"}`, http.StatusBadRequest)
 		return
 	}
-	id := "explain-"
+	var id, key string
 	switch {
+	case b.MysqlExplain != nil:
+		id, key = "explain-", "mysql_explain"
+	case b.MysqlExplainJSON != nil:
+		id, key = "explain-", "mysql_explain_json"
+	case b.MongodbExplain != nil:
+		id, key = "explain-", "mongodb_explain"
 	case b.MysqlShowCreateTable != nil:
-		id = "ddl-" + b.MysqlShowCreateTable.TableName
+		id, key = "ddl-"+b.MysqlShowCreateTable.TableName, "mysql_show_create_table"
 	case b.MysqlShowIndex != nil:
-		id = "index-" + b.MysqlShowIndex.TableName
+		id, key = "index-"+b.MysqlShowIndex.TableName, "mysql_show_index"
 	case b.PostgresShowCreateTable != nil:
-		id = "ddl-" + b.PostgresShowCreateTable.TableName
+		id, key = "ddl-"+b.PostgresShowCreateTable.TableName, "postgresql_show_create_table"
 	case b.PostgresShowIndex != nil:
-		id = "index-" + b.PostgresShowIndex.TableName
+		id, key = "index-"+b.PostgresShowIndex.TableName, "postgresql_show_index"
+	default:
+		http.Error(rw, `{"message":"an action the stub does not run"}`, http.StatusBadRequest)
+		return
 	}
 
 	a.mu.Lock()
@@ -1589,7 +1569,7 @@ func (a *actionStub) start(rw http.ResponseWriter, body []byte) {
 		http.Error(rw, `{"message":"barrier not reached: the actions did not start concurrently"}`, http.StatusInternalServerError)
 		return
 	}
-	writeJSON(rw, map[string]map[string]string{"mysql_show_create_table": {"action_id": id}})
+	writeJSON(rw, map[string]map[string]string{key: {"action_id": id}})
 }
 
 func (a *actionStub) cancel(rw http.ResponseWriter, body []byte, authorization string) {
@@ -1607,9 +1587,10 @@ func (a *actionStub) cancel(rw http.ResponseWriter, body []byte, authorization s
 }
 
 func (a *actionStub) get(rw http.ResponseWriter, id string) {
-	done := !slices.Contains(a.slow, id)
 	a.mu.Lock()
 	a.polls++
+	a.pollsOf[id]++
+	done := !slices.Contains(a.slow, id) && a.pollsOf[id] > a.pending
 	if done {
 		a.inFlight--
 	}
@@ -1619,16 +1600,12 @@ func (a *actionStub) get(rw http.ResponseWriter, id string) {
 	if o, ok := a.outputs[id]; ok {
 		output = o
 	}
-	var actionErr string
-	if kind == "explain" {
-		actionErr = a.explainErr
-	}
 	writeJSON(rw, struct {
 		ActionID string `json:"action_id"`
 		Done     bool   `json:"done"`
 		Output   string `json:"output"`
 		Error    string `json:"error"`
-	}{id, done, output, actionErr})
+	}{id, done, output, a.errs[id]})
 }
 
 // writeJSON answers with v as JSON.
@@ -1649,7 +1626,7 @@ func TestActionDeadlineIsPerCall(t *testing.T) {
 
 	fake, stub := newActionStub(t, 0, "index-customers")
 	s := newQANService(t, fake, true)
-	s.actionTimeout = func() time.Duration { return time.Second }
+	s.actionTimeout = time.Second
 	session := connect(t, s)
 
 	start := time.Now()
@@ -1737,7 +1714,7 @@ func TestSchemaManyTables(t *testing.T) {
 
 		fake, stub := newActionStub(t, 0, "ddl-slow")
 		s := newQANService(t, fake, true)
-		s.actionTimeout = func() time.Duration { return time.Second }
+		s.actionTimeout = time.Second
 		session := connect(t, s)
 
 		start := time.Now()
@@ -1768,11 +1745,11 @@ func TestSchemaManyTables(t *testing.T) {
 
 		fake, stub := newActionStub(t, 0, "ddl-x", "ddl-y")
 		s := newQANService(t, fake, true)
-		s.actionTimeout = func() time.Duration { return 500 * time.Millisecond }
+		s.actionTimeout = 500 * time.Millisecond
 		session := connect(t, s)
 		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"x", "y"}})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: timeout\naction ddl-x did not complete"), text)
+		assertToolError(t, text, codeTimeout, "action ddl-x did not complete")
 		assert.ElementsMatch(t, []string{"ddl-x", "ddl-y"}, stub.cancelled())
 	})
 }
@@ -1791,7 +1768,7 @@ func headers(text string) []string {
 func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Parallel()
 
-	key := callerKey(callerAuth{authorization: testToken})
+	key := keyOf(callerAuth{authorization: testToken})
 	take := func(t *testing.T, s *Service, key string) func() {
 		t.Helper()
 
@@ -1804,7 +1781,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Run("PerCaller", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
 		rel1 := take(t, s, key)
@@ -1812,12 +1789,13 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_schema", schemaArgs)
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Contains(t, text, "these credentials")
 		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
 
 		// The stored PostgreSQL plan is passive and not limited.
 		fake.routes["POST "+reportPath] = fixture{file: "report_by_service_postgres.json"}
+		fake.routes["GET /v1/qan/query/QID-PG/plan"] = fixture{file: "plan.json"}
 		text, isError = callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-2", "queryid": "QID-PG"})
 		assert.False(t, isError, text)
 
@@ -1830,7 +1808,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Run("PerReplica", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
 		rels := make([]func(), 0, maxLiveCallsPerReplica)
@@ -1840,7 +1818,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Contains(t, text, "this replica")
 		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
 		for _, rel := range rels {
@@ -1851,7 +1829,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Run("PerService", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		s.liveServiceWait = 50 * time.Millisecond
 		session := connect(t, s)
@@ -1860,7 +1838,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_schema", schemaArgs)
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Contains(t, text, "a live-inspection call on this service is still in flight after 50ms; retry when it finishes")
 		assert.NotContains(t, text, "svc-1")
 		assert.Empty(t, fake.requestsTo("/v1/actions:startServiceAction"))
@@ -1884,7 +1862,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Run("PerServiceWaits", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
 		held, hit := s.liveByService.acquire("svc-1")
@@ -1899,7 +1877,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Run("WaitHoldsNoCallerSlotOrToken", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
 		held, hit := s.liveByService.acquire("svc-1")
@@ -1933,7 +1911,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Run("RefusedCallTakesNoToken", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		s.liveServiceWait = 50 * time.Millisecond
 		session := connect(t, s)
@@ -1964,7 +1942,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Run("DeadlineWhileWaiting", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		held, hit := s.liveByService.acquire("svc-1")
 		require.Equal(t, limitNone, hit)
@@ -1988,7 +1966,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Run("PerServiceWaitCancelled", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		held, hit := s.liveByService.acquire("svc-1")
 		require.Equal(t, limitNone, hit)
@@ -2051,7 +2029,8 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 	t.Run("FailedCallReleases", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_error_1064.json")
+		fake, stub := newActionStub(t, 0)
+		stub.errs = map[string]string{"ddl-customers": syntaxError1064}
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
 
@@ -2110,7 +2089,7 @@ func TestLiveInspectionRateLimited(t *testing.T) {
 func TestEngineOfOutsideList(t *testing.T) {
 	t.Parallel()
 
-	fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+	fake, _ := newActionStub(t, 0)
 	s := newQANService(t, fake, true)
 	session := connect(t, s)
 
@@ -2127,7 +2106,7 @@ func TestEngineOfOutsideList(t *testing.T) {
 func TestExplainOlderServiceSharingAName(t *testing.T) {
 	t.Parallel()
 
-	fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+	fake, _ := newActionStub(t, 0)
 	fake.routes[serviceListKey] = fixture{file: "vm_up_list.json"}
 	fake.routes["POST "+reportPath] = fixture{file: "report_by_service_re.json"}
 	session := connect(t, newQANService(t, fake, true))

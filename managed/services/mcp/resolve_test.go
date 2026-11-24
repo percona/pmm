@@ -16,16 +16,13 @@
 package mcp
 
 import (
-	"context"
 	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"slices"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
@@ -322,7 +319,7 @@ func TestResolveQuery(t *testing.T) {
 		},
 		{
 			name:       "mongodb database",
-			routes:     with(resolveRoutes("report_by_service_mongo.json"), "POST /v1/qan:getMetrics", "metrics_mongo.json", "POST /v1/qan/query:getExample", "example_empty.json"),
+			routes:     with(resolveRoutes("report_by_service_mongo.json"), "POST /v1/qan:getMetrics", "metrics_mongo.json", "POST /v1/qan/query:getExample", "empty.json"),
 			ref:        hour,
 			wantReport: 1,
 			check: func(t *testing.T, got *resolvedQuery) {
@@ -473,7 +470,7 @@ func TestResolveRemediationFollowsInputForm(t *testing.T) {
 				return
 			}
 			assert.True(t, isError)
-			assert.True(t, strings.HasPrefix(text, "error: "+string(tt.wantErr)+"\n"), text)
+			assertToolError(t, text, tt.wantErr, "")
 			assert.Contains(t, text, tt.wantText)
 			if tt.notText != "" {
 				assert.NotContains(t, text, tt.notText)
@@ -518,103 +515,88 @@ func sortedByEngine(ids []string) []string {
 	return out
 }
 
-// refProbeResult is the result of the probe tool that runs refFromInput.
-type refProbeResult struct {
-	Ref queryRef `json:"ref"`
-}
-
-func (r refProbeResult) render() string {
-	return "ref: " + r.Ref.QueryID
-}
-
-type refProbeInput struct {
-	QueryRef   *queryRefInput `json:"query_ref,omitempty"`
-	QueryID    string         `json:"queryid,omitempty"`
-	ServiceID  string         `json:"service_id,omitempty"`
-	PeriodFrom string         `json:"period_from,omitempty"`
-	PeriodTo   string         `json:"period_to,omitempty"`
-}
-
 func TestRefFromInput(t *testing.T) {
 	t.Parallel()
 
-	fake := newFakePMM(t, qanRoutes())
-	s := newQANService(t, fake, true)
-
-	server := mcp.NewServer(&mcp.Implementation{Name: "probe", Version: "0"}, nil)
-	addTool(s, server, &mcp.Tool{Name: "probe"}, func(_ context.Context, _ *mcp.CallToolRequest, in refProbeInput) (refProbeResult, error) {
-		ref, err := refFromInput(in.QueryRef, in.QueryID, in.ServiceID, in.PeriodFrom, in.PeriodTo, testNow)
-		return refProbeResult{Ref: ref}, err
-	})
-	srv := httptest.NewServer(mcp.NewStreamableHTTPHandler(func(*http.Request) *mcp.Server { return server }, nil))
-	t.Cleanup(srv.Close)
-	client := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "0"}, nil)
-	session, err := client.Connect(t.Context(), &mcp.StreamableClientTransport{Endpoint: srv.URL}, nil)
-	require.NoError(t, err)
-	t.Cleanup(func() { _ = session.Close() })
-
+	const (
+		alone    = "pass query_ref alone, without queryid, service_id, period_from or period_to; to choose a service, set service_id inside query_ref"
+		needsRef = "query_ref needs queryid, period_from and period_to; pass it as pmm_top_queries or pmm_query_detail return it"
+		needsID  = "service_id, period_from and period_to need a queryid"
+	)
 	from := testNow.Add(-2 * time.Hour).Format(time.RFC3339)
 	to := testNow.Add(-time.Hour).Format(time.RFC3339)
 	tests := []struct {
-		name string
-		args map[string]any
-		want *queryRef
+		name       string
+		ref        *queryRefInput
+		queryID    string
+		serviceID  string
+		periodFrom string
+		periodTo   string
+		want       queryRef
+		// wantErr is the message of the invalid_input error the input gets.
+		wantErr string
 	}{
 		{
 			name: "query_ref alone",
-			args: map[string]any{"query_ref": map[string]any{"queryid": "QID-AAA", "service_id": "svc-1", "period_from": from, "period_to": to}},
-			want: &queryRef{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: testNow.Add(-2 * time.Hour), PeriodTo: testNow.Add(-time.Hour)},
+			ref:  &queryRefInput{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: from, PeriodTo: to},
+			want: queryRef{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: testNow.Add(-2 * time.Hour), PeriodTo: testNow.Add(-time.Hour), fromQueryRef: true},
 		},
 		{
-			name: "queryid with a window",
-			args: map[string]any{"queryid": "QID-AAA", "service_id": "svc-1", "period_from": from, "period_to": to},
-			want: &queryRef{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: testNow.Add(-2 * time.Hour), PeriodTo: testNow.Add(-time.Hour)},
+			name:    "queryid with a window",
+			queryID: "QID-AAA", serviceID: "svc-1", periodFrom: from, periodTo: to,
+			want: queryRef{QueryID: "QID-AAA", ServiceID: "svc-1", PeriodFrom: testNow.Add(-2 * time.Hour), PeriodTo: testNow.Add(-time.Hour)},
 		},
 		{
-			name: "queryid without a window",
-			args: map[string]any{"queryid": "QID-AAA"},
-			want: &queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow},
+			name:    "queryid without a window",
+			queryID: "QID-AAA",
+			want:    queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow},
 		},
 		{
-			name: "queryid with period_to alone",
-			args: map[string]any{"queryid": "QID-AAA", "period_to": to},
-			want: &queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-2 * time.Hour), PeriodTo: testNow.Add(-time.Hour)},
+			name:    "queryid with period_to alone",
+			queryID: "QID-AAA", periodTo: to,
+			want: queryRef{QueryID: "QID-AAA", PeriodFrom: testNow.Add(-2 * time.Hour), PeriodTo: testNow.Add(-time.Hour)},
 		},
 		{
-			name: "both forms",
-			args: map[string]any{"queryid": "QID-AAA", "query_ref": map[string]any{"queryid": "QID-AAA", "period_from": from, "period_to": to}},
+			name:    "both forms",
+			ref:     &queryRefInput{QueryID: "QID-AAA", PeriodFrom: from, PeriodTo: to},
+			queryID: "QID-AAA",
+			wantErr: alone,
 		},
 		{
-			name: "query_ref beside service_id",
-			args: map[string]any{"service_id": "svc-1", "query_ref": map[string]any{"queryid": "QID-AAA", "period_from": from, "period_to": to}},
+			name:      "query_ref beside service_id",
+			ref:       &queryRefInput{QueryID: "QID-AAA", PeriodFrom: from, PeriodTo: to},
+			serviceID: "svc-1",
+			wantErr:   alone,
 		},
 		{
-			name: "query_ref beside period_from",
-			args: map[string]any{"period_from": from, "query_ref": map[string]any{"queryid": "QID-AAA", "period_from": from, "period_to": to}},
+			name:       "query_ref beside period_from",
+			ref:        &queryRefInput{QueryID: "QID-AAA", PeriodFrom: from, PeriodTo: to},
+			periodFrom: from,
+			wantErr:    alone,
 		},
-		{name: "neither", args: map[string]any{}},
-		{name: "query_ref without queryid", args: map[string]any{"query_ref": map[string]any{"period_from": from, "period_to": to}}},
-		{name: "query_ref without a window", args: map[string]any{"query_ref": map[string]any{"queryid": "QID-AAA"}}},
-		{name: "service_id alone", args: map[string]any{"service_id": "svc-1"}},
-		{name: "period_from alone", args: map[string]any{"period_from": from}},
+		{name: "neither", wantErr: "pass query_ref, as pmm_top_queries or pmm_query_detail return it, or pass queryid"},
+		{name: "query_ref without queryid", ref: &queryRefInput{PeriodFrom: from, PeriodTo: to}, wantErr: needsRef},
+		{name: "query_ref without a window", ref: &queryRefInput{QueryID: "QID-AAA"}, wantErr: needsRef},
+		{name: "service_id alone", serviceID: "svc-1", wantErr: needsID},
+		{name: "period_from alone", periodFrom: from, wantErr: needsID},
 		{
-			name: "query_ref with a bad time",
-			args: map[string]any{"query_ref": map[string]any{"queryid": "QID-AAA", "period_from": "yesterday", "period_to": to}},
+			name:    "query_ref with a bad time",
+			ref:     &queryRefInput{QueryID: "QID-AAA", PeriodFrom: "yesterday", PeriodTo: to},
+			wantErr: "invalid time 'yesterday': use RFC3339 (2026-09-14T10:00:00Z) or a relative expression such as now-1h",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			res := callTool(t, session, "probe", tt.args)
-			if tt.want != nil {
-				got := structured[refProbeResult](t, res)
-				assert.Equal(t, *tt.want, got.Ref)
+			got, err := refFromInput(tt.ref, tt.queryID, tt.serviceID, tt.periodFrom, tt.periodTo, testNow)
+			if tt.wantErr == "" {
+				require.NoError(t, err)
+				assert.Equal(t, tt.want, got)
 				return
 			}
-			require.True(t, res.IsError)
-			assert.True(t, strings.HasPrefix(textOf(t, res), "error: invalid_input\n"), textOf(t, res))
-			assert.NotEmpty(t, res.Meta)
+			assert.Equal(t, newToolError(codeInvalidInput, "%s", tt.wantErr), err)
+			assert.Zero(t, got)
 		})
 	}
 }
@@ -636,7 +618,7 @@ func TestMetadataValues(t *testing.T) {
 	for i := range maxListedCandidates + 5 {
 		names = append(names, fmt.Sprintf("db%02d", i))
 	}
-	text := listedNames(names)
+	text := listedNames(names, len(names))
 	assert.True(t, strings.HasSuffix(text, "db19, and 5 more"), text)
 	assert.NotContains(t, text, "db20")
 }

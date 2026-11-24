@@ -19,7 +19,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
 	"maps"
 	"net/http"
 	"net/url"
@@ -286,23 +285,6 @@ func intersection(names []string, keep ...string) []string {
 	return slices.DeleteFunc(slices.Clone(names), func(n string) bool { return !slices.Contains(keep, n) })
 }
 
-// inventoryStatus returns the HTTP status of GET /v1/inventory/services for authorization.
-func inventoryStatus(t *testing.T, authorization string) int {
-	t.Helper()
-
-	u := pmmapitests.BaseURL.ResolveReference(&url.URL{Path: "v1/inventory/services"})
-	u.User = nil
-	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, u.String(), nil)
-	require.NoError(t, err)
-	req.Header.Set("Authorization", authorization)
-	res, err := httpClient(false).Do(req)
-	require.NoError(t, err)
-	defer res.Body.Close()
-	_, err = io.Copy(io.Discard, res.Body)
-	require.NoError(t, err)
-	return res.StatusCode
-}
-
 type inventoryRow struct {
 	ServiceID   string `json:"service_id"`
 	ServiceName string `json:"service_name"`
@@ -520,8 +502,9 @@ func TestAccessRoleMatrix(t *testing.T) {
 					authorization := basicAuthorization(login, matrixPassword)
 					waitForServiceList(t, authorization, allowed)
 
-					want := inventoryStatusFor(c)
-					assert.Equal(t, want, inventoryStatus(t, authorization), "GET /v1/inventory/services")
+					status, _, err := request(pmmapitests.Context, http.MethodGet, "v1/inventory/services", nil, http.Header{"Authorization": {authorization}}, nil)
+					require.NoError(t, err)
+					assert.Equal(t, inventoryStatusFor(c), status, "GET /v1/inventory/services")
 
 					ch := &caller{session: connectWith(t, authorization)}
 					if len(hidden) > 0 {

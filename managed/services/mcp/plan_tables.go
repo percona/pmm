@@ -17,10 +17,11 @@ package mcp
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"maps"
 	"slices"
 	"strings"
 )
@@ -35,104 +36,59 @@ import (
 type planTable struct {
 	Schema  string
 	Name    string
-	Alias   string
 	Derived bool
 }
 
-// planNode is a JSON value that keeps the order of an object's keys.
-type planNode struct {
-	keys     []string
-	children []*planNode
-	isObject bool
-	isString bool
-	str      string
-}
-
-func (n *planNode) get(key string) (*planNode, bool) {
-	i := slices.Index(n.keys, key)
-	if i < 0 {
-		return nil, false
-	}
-	return n.children[i], true
-}
-
-func (n *planNode) text(key string) string {
-	c, ok := n.get(key)
-	if !ok || !c.isString {
-		return ""
-	}
-	return c.str
-}
-
-func parsePlanNode(dec *json.Decoder) (*planNode, error) {
-	tok, err := dec.Token()
-	if err != nil {
-		return nil, err
-	}
-	switch v := tok.(type) {
-	case json.Delim:
-		n := &planNode{isObject: v == '{'}
-		for dec.More() {
-			if n.isObject {
-				key, err := dec.Token()
-				if err != nil {
-					return nil, err
-				}
-				n.keys = append(n.keys, fmt.Sprint(key))
-			}
-			child, err := parsePlanNode(dec)
-			if err != nil {
-				return nil, err
-			}
-			n.children = append(n.children, child)
-		}
-		_, err = dec.Token()
-		if err != nil {
-			return nil, err
-		}
-		return n, nil
-	case string:
-		return &planNode{isString: true, str: v}, nil
-	default:
-		return &planNode{}, nil
-	}
-}
-
-// agentPlanKeys are the keys pmm-agent adds to the plan; they are not plan structure.
-var agentPlanKeys = []string{"warnings", "real_table_name"}
-
-// planTables lists the table entries of a MySQL JSON plan, format 1 or 2, in plan order.
-func planTables(plan []byte) ([]planTable, error) {
+// decodeMySQLPlan decodes a MySQL JSON plan, its numbers as json.Number. As pmm-agent decodes MySQL's plan into a map
+// and encodes it again, every object's keys arrive sorted, and a map loses no order of theirs.
+func decodeMySQLPlan(plan []byte) (map[string]any, error) {
 	dec := json.NewDecoder(bytes.NewReader(plan))
-	root, err := parsePlanNode(dec)
+	dec.UseNumber()
+	var root any
+	err := dec.Decode(&root)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse the plan: %w", err)
 	}
-	if !root.isObject {
+	object, ok := root.(map[string]any)
+	if !ok {
 		return nil, errors.New("the plan is not a JSON object")
+	}
+	_, err = dec.Token()
+	if !errors.Is(err, io.EOF) {
+		return nil, errors.New("trailing data after JSON value")
+	}
+	return object, nil
+}
+
+// planTables lists the table entries of a MySQL JSON plan, format 1 or 2, in plan order, an object's keys taken in
+// sorted order.
+func planTables(plan []byte) ([]planTable, error) {
+	root, err := decodeMySQLPlan(plan)
+	if err != nil {
+		return nil, err
 	}
 	var out []planTable
 	collectPlanTables(root, &out)
 	return out, nil
 }
 
-func collectPlanTables(n *planNode, out *[]planTable) {
-	if n.isObject {
-		if name := n.text("table_name"); name != "" {
-			t := planTable{Schema: n.text("schema_name"), Name: name, Alias: n.text("alias")}
-			_, materialized := n.get("materialized_from_subquery")
-			_, hasInputs := n.get("inputs")
-			t.Derived = materialized || (t.Schema == "" && hasInputs)
-			if !slices.Contains(*out, t) {
-				*out = append(*out, t)
-			}
+func collectPlanTables(v any, out *[]planTable) {
+	switch v := v.(type) {
+	case map[string]any:
+		name, _ := v["table_name"].(string)
+		if name != "" {
+			schema, _ := v["schema_name"].(string)
+			_, materialized := v["materialized_from_subquery"]
+			_, hasInputs := v["inputs"]
+			*out = append(*out, planTable{Schema: schema, Name: name, Derived: materialized || (schema == "" && hasInputs)})
 		}
-	}
-	for i, c := range n.children {
-		if n.isObject && slices.Contains(agentPlanKeys, n.keys[i]) {
-			continue
+		for _, key := range slices.Sorted(maps.Keys(v)) {
+			collectPlanTables(v[key], out)
 		}
-		collectPlanTables(c, out)
+	case []any:
+		for _, c := range v {
+			collectPlanTables(c, out)
+		}
 	}
 }
 
@@ -317,25 +273,4 @@ func resolveTables(tables []planTable, aliases map[string]tableRef, database str
 		}
 	}
 	return resolved, unresolved
-}
-
-// decodeExplainEnvelope returns the plan inside the explain envelope
-// {explain_result: <base64 plan>, explained_query, is_dml}. The explained
-// statement is not returned.
-func decodeExplainEnvelope(output string) ([]byte, error) {
-	var envelope struct {
-		ExplainResult string `json:"explain_result"`
-	}
-	err := json.Unmarshal([]byte(output), &envelope)
-	if err != nil {
-		return nil, fmt.Errorf("explain output is not an envelope: %w", err)
-	}
-	if envelope.ExplainResult == "" {
-		return nil, errors.New("explain output has no explain_result")
-	}
-	plan, err := base64.StdEncoding.DecodeString(envelope.ExplainResult)
-	if err != nil {
-		return nil, fmt.Errorf("explain_result is not base64: %w", err)
-	}
-	return plan, nil
 }

@@ -35,8 +35,6 @@ const (
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
 	MCPEnabledDefault                  = false
-	MCPRawSQLDefault                   = false
-	MCPActionTimeoutDefault            = 15 * time.Second
 	InternalPgQANEnabledDefault        = false
 	AdvisorNotificationsEnabledDefault = false
 	OMEnabledDefault                   = false
@@ -139,10 +137,6 @@ type Settings struct {
 	MCP struct {
 		// Enabled is true if the MCP endpoint is enabled.
 		Enabled *bool `json:"enabled"`
-		// RawSQL is true if tool output may include statements with literal values.
-		RawSQL *bool `json:"raw_sql"`
-		// ActionTimeout bounds EXPLAIN / SHOW CREATE TABLE polling.
-		ActionTimeout time.Duration `json:"action_timeout"`
 	} `json:"mcp"`
 
 	// Contains all encrypted tables in format 'db.table.column'.
@@ -236,22 +230,6 @@ func (s *Settings) IsMCPEnabled() bool {
 		return *s.MCP.Enabled
 	}
 	return MCPEnabledDefault
-}
-
-// IsMCPRawSQLEnabled returns true if MCP tool output may include statements with literal values.
-func (s *Settings) IsMCPRawSQLEnabled() bool {
-	if s.MCP.RawSQL != nil {
-		return *s.MCP.RawSQL
-	}
-	return MCPRawSQLDefault
-}
-
-// MCPActionTimeout returns the polling deadline for agent actions run by the MCP tools.
-func (s *Settings) MCPActionTimeout() time.Duration {
-	if s.MCP.ActionTimeout > 0 {
-		return s.MCP.ActionTimeout
-	}
-	return MCPActionTimeoutDefault
 }
 
 // IsOMEnabled returns true if OpenManager is enabled.

@@ -28,20 +28,15 @@ import (
 	"net/url"
 	"os"
 	"regexp"
-	goruntime "runtime"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/go-openapi/runtime"
-	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	actionsClient "github.com/percona/pmm/api/actions/v1/json/client"
 	"github.com/percona/pmm/api/actions/v1/json/client/actions_service"
-	qanClient "github.com/percona/pmm/api/qan/v1/json/client"
 	"github.com/percona/pmm/api/qan/v1/json/client/qan_service"
-	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
@@ -90,17 +85,17 @@ const (
 // errResponseTooLarge is wrapped in the error of a response longer than the bound its call reads.
 var errResponseTooLarge = errors.New("response is larger than the read limit")
 
-// promRequest holds the arguments of a VictoriaMetrics query; zero ones are not sent.
+// promRequest holds the arguments of a VictoriaMetrics query; zero ones are not sent, and the timeout argument is
+// always metricsTimeout.
 type promRequest struct {
 	Query      string
 	Time       time.Time
 	Start, End time.Time
 	Step       time.Duration
-	Timeout    time.Duration
 }
 
 func (r promRequest) values() url.Values {
-	v := url.Values{}
+	v := url.Values{"timeout": {metricsTimeout.String()}}
 	if r.Query != "" {
 		v.Set("query", r.Query)
 	}
@@ -115,9 +110,6 @@ func (r promRequest) values() url.Values {
 	}
 	if r.Step > 0 {
 		v.Set("step", strconv.FormatInt(int64(r.Step/time.Second), 10))
-	}
-	if r.Timeout > 0 {
-		v.Set("timeout", r.Timeout.String())
 	}
 	return v
 }
@@ -134,17 +126,10 @@ type metricSeries struct {
 	Points []point
 }
 
-// client implements pmmAPI over the generated go-swagger clients (PMM's /v1
-// API) and net/http (Grafana paths), all through the nginx loopback.
+// client implements pmmAPI with net/http, every call through the nginx loopback.
 type client struct {
-	base *url.URL
-	http *http.Client
-
-	swagger *httptransport.Runtime
-	server  *serverClient.PMMServerAPI
-	qan     *qanClient.PMMQANAPI
-	actions *actionsClient.PMMActionsAPI
-
+	base    *url.URL
+	http    *http.Client
 	vmSlots chan struct{}
 }
 
@@ -158,7 +143,7 @@ func vmDefaultMaxConcurrentRequests(cpus int) int {
 // dashboards and alert evaluation keep the other half.
 func maxVMRequestsPerReplica() int {
 	// VictoriaMetrics counts the CPUs as GOMAXPROCS, which it sets from the container's CPU quota.
-	limit := vmDefaultMaxConcurrentRequests(goruntime.GOMAXPROCS(0))
+	limit := vmDefaultMaxConcurrentRequests(runtime.GOMAXPROCS(0))
 	v, ok := os.LookupEnv("VM_search_maxConcurrentRequests")
 	if ok && v != "" {
 		n, err := strconv.Atoi(v)
@@ -195,67 +180,16 @@ func newClient(baseURL string) (*client, error) {
 	if !ok {
 		return nil, fmt.Errorf("unexpected default transport %T", http.DefaultTransport)
 	}
-	rt := &statusTransport{next: transport.Clone()}
-
-	// No SetLogger here: it assigns go-openapi's package-global
-	// middleware.Logger, so it would re-route logging for every go-openapi
-	// client in pmm-managed, and it races when clients are built concurrently.
-	swagger := httptransport.New(base.Host, base.Path, []string{base.Scheme})
-	swagger.Transport = rt
-	// SWAGGER_DEBUG and DEBUG make go-openapi dump whole requests, Authorization and cookies included. Set the field,
-	// not SetDebug: that writes a package global, which races between clients.
-	swagger.Debug = false
 
 	return &client{
 		base:    base,
-		http:    &http.Client{Transport: rt},
-		swagger: swagger,
-		server:  serverClient.New(swagger, nil),
-		qan:     qanClient.New(swagger, nil),
-		actions: actionsClient.New(swagger, nil),
+		http:    &http.Client{Transport: &statusTransport{next: transport.Clone()}},
 		vmSlots: make(chan struct{}, maxVMRequestsPerReplica()),
 	}, nil
 }
 
-// AuthenticateRequest implements runtime.ClientAuthInfoWriter: the caller's
-// credentials are set on the backing call as callerAuthFromHeader canonicalized them.
-func (a callerAuth) AuthenticateRequest(r runtime.ClientRequest, _ strfmt.Registry) error {
-	if a.authorization != "" {
-		err := r.SetHeaderParam("Authorization", a.authorization)
-		if err != nil {
-			return err
-		}
-	}
-	if a.cookie != "" {
-		err := r.SetHeaderParam("Cookie", a.cookie)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// apply sets the caller's headers on a raw net/http request.
-func (a callerAuth) apply(req *http.Request) {
-	if a.authorization != "" {
-		req.Header.Set("Authorization", a.authorization)
-	}
-	if a.cookie != "" {
-		req.Header.Set("Cookie", a.cookie)
-	}
-}
-
-// option returns a generated-client option that authenticates one operation
-// with the caller's credentials. The generated packages each declare their own
-// ClientOption type over the same function signature.
-func (a callerAuth) option() func(*runtime.ClientOperation) {
-	return func(op *runtime.ClientOperation) {
-		op.AuthInfo = a
-	}
-}
-
-// statusTransport turns every non-2xx response into a statusError so that the
-// generated clients and the raw Grafana calls share one error mapping.
+// statusTransport turns every non-2xx response into a statusError, so that every backing call shares one error
+// mapping and none follows a redirect.
 type statusTransport struct {
 	next http.RoundTripper
 }
@@ -266,7 +200,7 @@ func (t *statusTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 	if resp.StatusCode >= http.StatusMultipleChoices && resp.StatusCode < http.StatusBadRequest {
-		// An error here stops both HTTP clients from following the redirect, so the caller's credentials stay on the loopback.
+		// An error here stops the HTTP client from following the redirect, so the caller's credentials stay on the loopback.
 		_ = resp.Body.Close()
 		return nil, &statusError{status: resp.StatusCode, method: req.Method, path: req.URL.Path, message: "a backing call does not follow redirects"}
 	}
@@ -305,19 +239,19 @@ func messageFromBody(body []byte) string {
 }
 
 func (c *client) Version(ctx context.Context, auth callerAuth) (*server_service.VersionOKBody, error) {
-	params := server_service.NewVersionParamsWithContext(ctx).WithTimeout(callTimeout)
-	res, err := c.server.ServerService.Version(params, auth.option())
+	var out server_service.VersionOKBody
+	err := c.do(ctx, auth, http.MethodGet, "v1/server/version", nil, nil, &out, 0)
 	if err != nil {
 		return nil, err
 	}
-	return res.Payload, nil
+	return &out, nil
 }
 
-// GetReport and GetMetrics bypass the generated client: qan-api2 encodes NaN
-// sparkline values as strings, which the swagger types reject (see lenientFloat).
+// GetReport and GetMetrics decode into their own types, not the generated ones: qan-api2 encodes NaN sparkline values
+// as strings, which the generated types reject (see lenientFloat).
 func (c *client) GetReport(ctx context.Context, auth callerAuth, body qan_service.GetReportBody) (*qanReport, error) {
 	var out qanReport
-	err := c.postJSON(ctx, auth, "v1/qan/metrics:getReport", body, &out)
+	err := c.do(ctx, auth, http.MethodPost, "v1/qan/metrics:getReport", nil, body, &out, maxQANResponseBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +260,7 @@ func (c *client) GetReport(ctx context.Context, auth callerAuth, body qan_servic
 
 func (c *client) GetMetrics(ctx context.Context, auth callerAuth, body qan_service.GetMetricsBody) (*queryMetrics, error) {
 	var out queryMetrics
-	err := c.postJSON(ctx, auth, "v1/qan:getMetrics", body, &out)
+	err := c.do(ctx, auth, http.MethodPost, "v1/qan:getMetrics", nil, body, &out, maxQANResponseBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -347,7 +281,7 @@ func (c *client) QANServiceTypes(ctx context.Context, auth callerAuth, from, to 
 		PeriodStartTo:   strfmt.DateTime(to),
 		Labels:          []*qan_service.GetFilteredMetricsNamesParamsBodyLabelsItems0{},
 	}
-	err := c.postJSONLimited(ctx, auth, "v1/qan/metrics:getFilters", body, &out, maxQANFiltersBytes)
+	err := c.do(ctx, auth, http.MethodPost, "v1/qan/metrics:getFilters", nil, body, &out, maxQANFiltersBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -359,54 +293,56 @@ func (c *client) QANServiceTypes(ctx context.Context, auth callerAuth, from, to 
 }
 
 func (c *client) GetQueryExample(ctx context.Context, auth callerAuth, body qan_service.GetQueryExampleBody) (*qan_service.GetQueryExampleOKBody, error) {
-	params := qan_service.NewGetQueryExampleParamsWithContext(ctx).WithTimeout(callTimeout).WithBody(body)
-	res, err := c.qan.QANService.GetQueryExample(params, auth.option())
+	var out qan_service.GetQueryExampleOKBody
+	err := c.do(ctx, auth, http.MethodPost, "v1/qan/query:getExample", nil, body, &out, 0)
 	if err != nil {
 		return nil, err
 	}
-	return res.Payload, nil
+	return &out, nil
 }
 
 func (c *client) GetQueryPlan(ctx context.Context, auth callerAuth, queryID, serviceID string) (*qan_service.GetQueryPlanOKBody, error) {
-	params := qan_service.NewGetQueryPlanParamsWithContext(ctx).WithTimeout(callTimeout).WithQueryid(queryID).WithServiceID(new(serviceID))
-	res, err := c.qan.QANService.GetQueryPlan(params, auth.option())
+	var query url.Values
+	if serviceID != "" {
+		query = url.Values{"service_id": {serviceID}}
+	}
+	var out qan_service.GetQueryPlanOKBody
+	err := c.do(ctx, auth, http.MethodGet, "v1/qan/query/"+url.PathEscape(queryID)+"/plan", query, nil, &out, 0)
 	if err != nil {
 		return nil, err
 	}
-	return res.Payload, nil
+	return &out, nil
 }
 
 func (c *client) StartServiceAction(
 	ctx context.Context, auth callerAuth, body actions_service.StartServiceActionBody,
 ) (*actions_service.StartServiceActionOKBody, error) {
-	params := actions_service.NewStartServiceActionParamsWithContext(ctx).WithTimeout(callTimeout).WithBody(body)
-	res, err := c.actions.ActionsService.StartServiceAction(params, auth.option())
+	var out actions_service.StartServiceActionOKBody
+	err := c.do(ctx, auth, http.MethodPost, "v1/actions:startServiceAction", nil, body, &out, 0)
 	if err != nil {
 		return nil, err
 	}
-	return res.Payload, nil
+	return &out, nil
 }
 
 func (c *client) GetAction(ctx context.Context, auth callerAuth, actionID string) (*actions_service.GetActionOKBody, error) {
-	params := actions_service.NewGetActionParamsWithContext(ctx).WithTimeout(callTimeout).WithActionID(actionID)
-	res, err := c.actions.ActionsService.GetAction(params, auth.option())
+	var out actions_service.GetActionOKBody
+	err := c.do(ctx, auth, http.MethodGet, "v1/actions/"+url.PathEscape(actionID), nil, nil, &out, 0)
 	if err != nil {
 		return nil, err
 	}
-	return res.Payload, nil
+	return &out, nil
 }
 
 func (c *client) CancelAction(ctx context.Context, auth callerAuth, actionID string) error {
-	params := actions_service.NewCancelActionParamsWithContext(ctx).WithTimeout(callTimeout).
-		WithBody(actions_service.CancelActionBody{ActionID: actionID})
-	_, err := c.actions.ActionsService.CancelAction(params, auth.option())
-	return err
+	var out any
+	return c.do(ctx, auth, http.MethodPost, "v1/actions:cancelAction", nil, actions_service.CancelActionBody{ActionID: actionID}, &out, 0)
 }
 
 // GetDatasourceByName returns the Grafana datasource with the given name.
 func (c *client) GetDatasourceByName(ctx context.Context, auth callerAuth, name string) (*datasource, error) {
 	var out datasource
-	err := c.getJSON(ctx, auth, "graph/api/datasources/name/"+url.PathEscape(name), nil, &out)
+	err := c.do(ctx, auth, http.MethodGet, "graph/api/datasources/name/"+url.PathEscape(name), nil, nil, &out, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -417,25 +353,19 @@ func (c *client) GetDatasourceByName(ctx context.Context, auth callerAuth, name 
 // proxy (uid-based path), which is Viewer-accessible and LBAC-filtered, unlike
 // the raw /prometheus path that requires admin.
 func (c *client) QueryInstant(ctx context.Context, auth callerAuth, uid string, r promRequest) ([]metricSample, error) {
-	var resp struct {
-		Status string `json:"status"`
-		Data   struct {
-			Result []struct {
-				Metric map[string]string `json:"metric"`
-				Value  []json.RawMessage `json:"value"`
-			} `json:"result"`
-		} `json:"data"`
+	type vector struct {
+		Result []struct {
+			Metric map[string]string `json:"metric"`
+			Value  []json.RawMessage `json:"value"`
+		} `json:"result"`
 	}
-	err := c.getVM(ctx, auth, uid, "api/v1/query", r.values(), &resp)
+	data, err := promData[vector](ctx, c, auth, uid, "api/v1/query", r.values(), "metrics query")
 	if err != nil {
 		return nil, err
 	}
-	if resp.Status != "success" {
-		return nil, newToolError(codePMMUnavailable, "metrics query failed with status '%s'", resp.Status)
-	}
 
-	samples := make([]metricSample, 0, len(resp.Data.Result))
-	for _, res := range resp.Data.Result {
+	samples := make([]metricSample, 0, len(data.Result))
+	for _, res := range data.Result {
 		if len(res.Value) != vectorSampleLen {
 			continue
 		}
@@ -450,25 +380,19 @@ func (c *client) QueryInstant(ctx context.Context, auth callerAuth, uid string, 
 
 // QueryRange runs a range PromQL query through the Grafana datasource proxy.
 func (c *client) QueryRange(ctx context.Context, auth callerAuth, uid string, r promRequest) ([]metricSeries, error) {
-	var resp struct {
-		Status string `json:"status"`
-		Data   struct {
-			Result []struct {
-				Metric map[string]string   `json:"metric"`
-				Values [][]json.RawMessage `json:"values"`
-			} `json:"result"`
-		} `json:"data"`
+	type matrix struct {
+		Result []struct {
+			Metric map[string]string   `json:"metric"`
+			Values [][]json.RawMessage `json:"values"`
+		} `json:"result"`
 	}
-	err := c.getVM(ctx, auth, uid, "api/v1/query_range", r.values(), &resp)
+	data, err := promData[matrix](ctx, c, auth, uid, "api/v1/query_range", r.values(), "metrics query")
 	if err != nil {
 		return nil, err
 	}
-	if resp.Status != "success" {
-		return nil, newToolError(codePMMUnavailable, "metrics query failed with status '%s'", resp.Status)
-	}
 
-	out := make([]metricSeries, 0, len(resp.Data.Result))
-	for _, res := range resp.Data.Result {
+	out := make([]metricSeries, 0, len(data.Result))
+	for _, res := range data.Result {
 		points := make([]point, 0, len(res.Values))
 		for _, val := range res.Values {
 			if len(val) != vectorSampleLen {
@@ -503,43 +427,18 @@ func (c *client) LabelValues(ctx context.Context, auth callerAuth, uid, label st
 	if !labelNamePattern.MatchString(label) {
 		return nil, errBadLabel(label)
 	}
-	return c.listStrings(ctx, auth, uid, "api/v1/label/"+url.PathEscape(label)+"/values", match, start, end, limit)
+	endpoint := "api/v1/label/" + url.PathEscape(label) + "/values"
+	return promData[[]string](ctx, c, auth, uid, endpoint, listValues(match, start, end, limit), "metrics list request")
 }
 
 // Labels lists the label names of the series matching match.
 func (c *client) Labels(ctx context.Context, auth callerAuth, uid string, match []string, start, end time.Time, limit int) ([]string, error) {
-	return c.listStrings(ctx, auth, uid, "api/v1/labels", match, start, end, limit)
+	return promData[[]string](ctx, c, auth, uid, "api/v1/labels", listValues(match, start, end, limit), "metrics list request")
 }
 
 // Series lists the label sets of the series matching match.
 func (c *client) Series(ctx context.Context, auth callerAuth, uid string, match []string, start, end time.Time, limit int) ([]map[string]string, error) {
-	var resp struct {
-		Status string              `json:"status"`
-		Data   []map[string]string `json:"data"`
-	}
-	err := c.getVM(ctx, auth, uid, "api/v1/series", listValues(match, start, end, limit), &resp)
-	if err != nil {
-		return nil, err
-	}
-	if resp.Status != "success" {
-		return nil, newToolError(codePMMUnavailable, "metrics series request failed with status '%s'", resp.Status)
-	}
-	return resp.Data, nil
-}
-
-func (c *client) listStrings(ctx context.Context, auth callerAuth, uid, endpoint string, match []string, start, end time.Time, limit int) ([]string, error) {
-	var resp struct {
-		Status string   `json:"status"`
-		Data   []string `json:"data"`
-	}
-	err := c.getVM(ctx, auth, uid, endpoint, listValues(match, start, end, limit), &resp)
-	if err != nil {
-		return nil, err
-	}
-	if resp.Status != "success" {
-		return nil, newToolError(codePMMUnavailable, "metrics list request failed with status '%s'", resp.Status)
-	}
-	return resp.Data, nil
+	return promData[[]map[string]string](ctx, c, auth, uid, "api/v1/series", listValues(match, start, end, limit), "metrics series request")
 }
 
 // listValues is the argument set of the label, label-values and series endpoints.
@@ -578,7 +477,7 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 			} `json:"groups"`
 		} `json:"data"`
 	}
-	err := c.getAlertingJSON(ctx, auth, "graph/api/prometheus/grafana/api/v1/rules", url.Values{"state": {"firing", "recovering", "pending"}}, &resp)
+	err := c.getAlerting(ctx, auth, "graph/api/prometheus/grafana/api/v1/rules", url.Values{"state": {"firing", "recovering", "pending"}}, &resp)
 	if err != nil {
 		return nil, err
 	}
@@ -611,7 +510,7 @@ func (c *client) Alerts(ctx context.Context, auth callerAuth) ([]grafanaAlert, e
 // SilencedAlerts returns the Alertmanager's alerts that are not active: silenced, inhibited or not yet processed.
 func (c *client) SilencedAlerts(ctx context.Context, auth callerAuth) ([]amAlert, error) {
 	var out []amAlert
-	err := c.getAlertingJSON(ctx, auth, "graph/api/alertmanager/grafana/api/v2/alerts", url.Values{"active": {"false"}}, &out)
+	err := c.getAlerting(ctx, auth, "graph/api/alertmanager/grafana/api/v2/alerts", url.Values{"active": {"false"}}, &out)
 	if err != nil {
 		return nil, err
 	}
@@ -621,7 +520,7 @@ func (c *client) SilencedAlerts(ctx context.Context, auth callerAuth) ([]amAlert
 // Silences returns the Alertmanager's silences.
 func (c *client) Silences(ctx context.Context, auth callerAuth) ([]amSilence, error) {
 	var out []amSilence
-	err := c.getAlertingJSON(ctx, auth, "graph/api/alertmanager/grafana/api/v2/silences", nil, &out)
+	err := c.getAlerting(ctx, auth, "graph/api/alertmanager/grafana/api/v2/silences", nil, &out)
 	if err != nil {
 		return nil, err
 	}
@@ -642,72 +541,69 @@ func parseSampleValue(raw json.RawMessage) (float64, bool) {
 	return v, true
 }
 
-// getVM sends one request to VictoriaMetrics through the datasource proxy, holding one of the replica's
+// promData sends one request to VictoriaMetrics through the datasource proxy and returns the data of its answer, or
+// pmm_unavailable naming the request as what when the answer's status is not success. It holds one of the replica's
 // VictoriaMetrics slots until it has read the response, of which it reads at most maxVMResponseBytes.
-func (c *client) getVM(ctx context.Context, auth callerAuth, uid, endpoint string, query url.Values, out any) error {
+func promData[T any](ctx context.Context, c *client, auth callerAuth, uid, endpoint string, query url.Values, what string) (T, error) { //nolint:ireturn
+	var zero T
 	select {
 	case c.vmSlots <- struct{}{}:
 		defer func() { <-c.vmSlots }()
 	case <-ctx.Done():
 		err := ctx.Err()
 		if errors.Is(err, context.Canceled) {
-			return fmt.Errorf("waiting for a metrics request slot: %w", err)
+			return zero, fmt.Errorf("waiting for a metrics request slot: %w", err)
 		}
-		return newToolError(codeTimeout, "no free metrics request slot before the deadline: %s", err)
+		return zero, newToolError(codeTimeout, "no free metrics request slot before the deadline: %s", err)
 	}
 
+	var resp struct {
+		Status string `json:"status"`
+		Data   T      `json:"data"`
+	}
 	path := "graph/api/datasources/proxy/uid/" + url.PathEscape(uid) + "/" + endpoint
-	return c.doJSONLimited(ctx, auth, http.MethodGet, path, query, nil, out, maxVMResponseBytes)
+	err := c.do(ctx, auth, http.MethodGet, path, query, nil, &resp, maxVMResponseBytes)
+	if err != nil {
+		return zero, err
+	}
+	if resp.Status != "success" {
+		return zero, newToolError(codePMMUnavailable, "%s failed with status '%s'", what, resp.Status)
+	}
+	return resp.Data, nil
 }
 
-// getJSON performs an authenticated GET on a path relative to the base URL and
-// decodes the JSON response.
-func (c *client) getJSON(ctx context.Context, auth callerAuth, path string, query url.Values, out any) error {
-	return c.doJSON(ctx, auth, http.MethodGet, path, query, nil, out)
-}
-
-// getAlertingJSON is getJSON for Grafana's alerting APIs, of which it reads at most maxAlertingResponseBytes.
-func (c *client) getAlertingJSON(ctx context.Context, auth callerAuth, path string, query url.Values, out any) error {
-	err := c.doJSONLimited(ctx, auth, http.MethodGet, path, query, nil, out, maxAlertingResponseBytes)
+// getAlerting sends a GET to one of Grafana's alerting APIs, of whose response it reads at most maxAlertingResponseBytes.
+func (c *client) getAlerting(ctx context.Context, auth callerAuth, path string, query url.Values, out any) error {
+	err := c.do(ctx, auth, http.MethodGet, path, query, nil, out, maxAlertingResponseBytes)
 	if errors.Is(err, errResponseTooLarge) {
-		return newToolError(codePMMUnavailable, "Grafana's response to GET /%s is larger than the 16 MiB limit; open PMM's Alerting page to see the alerts", path)
+		return newToolError(codePMMUnavailable,
+			"Grafana's response to GET /%s is larger than the %d MiB limit; open PMM's Alerting page to see the alerts", path, maxAlertingResponseBytes/mib)
 	}
 	return err
 }
 
-// postJSON performs an authenticated POST with a JSON body and decodes the response, of which it reads at most
-// maxQANResponseBytes.
-func (c *client) postJSON(ctx context.Context, auth callerAuth, path string, body, out any) error {
-	return c.postJSONLimited(ctx, auth, path, body, out, maxQANResponseBytes)
-}
-
-// postJSONLimited is postJSON that reads at most maxBytes of the response, as doJSONLimited does.
-func (c *client) postJSONLimited(ctx context.Context, auth callerAuth, path string, body, out any, maxBytes int64) error {
-	b, err := json.Marshal(body)
-	if err != nil {
-		return fmt.Errorf("encoding request for POST %s: %w", path, err)
-	}
-	return c.doJSONLimited(ctx, auth, http.MethodPost, path, nil, b, out, maxBytes)
-}
-
-func (c *client) doJSON(ctx context.Context, auth callerAuth, method, path string, query url.Values, body []byte, out any) error {
-	return c.doJSONLimited(ctx, auth, method, path, query, body, out, 0)
-}
-
-// doJSONLimited is doJSON that fails with an error wrapping errResponseTooLarge when the response is longer than
-// maxBytes; zero means no limit.
-func (c *client) doJSONLimited(ctx context.Context, auth callerAuth, method, path string, query url.Values, body []byte, out any, maxBytes int64) error {
+// do sends one request with the caller's credentials to path, escaped and relative to the loopback URL, with body
+// encoded as JSON unless it is nil, and decodes the JSON response into out. It reads at most maxBytes of the response,
+// all of it when maxBytes is zero, and fails with an error wrapping errResponseTooLarge on a longer one.
+func (c *client) do(ctx context.Context, auth callerAuth, method, path string, query url.Values, body, out any, maxBytes int64) error {
 	ctx, cancel := context.WithTimeout(ctx, callTimeout)
 	defer cancel()
 
-	u := c.base.ResolveReference(&url.URL{Path: path})
+	u, err := c.base.Parse(path)
+	if err != nil {
+		return err
+	}
 	if query != nil {
 		u.RawQuery = query.Encode()
 	}
 
 	var reader io.Reader
 	if body != nil {
-		reader = bytes.NewReader(body)
+		b, err := json.Marshal(body)
+		if err != nil {
+			return fmt.Errorf("encoding request for %s %s: %w", method, path, err)
+		}
+		reader = bytes.NewReader(b)
 	}
 	req, err := http.NewRequestWithContext(ctx, method, u.String(), reader)
 	if err != nil {
@@ -717,7 +613,12 @@ func (c *client) doJSONLimited(ctx context.Context, auth callerAuth, method, pat
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	auth.apply(req)
+	if auth.authorization != "" {
+		req.Header.Set("Authorization", auth.authorization)
+	}
+	if auth.cookie != "" {
+		req.Header.Set("Cookie", auth.cookie)
+	}
 
 	resp, err := c.http.Do(req)
 	if err != nil {

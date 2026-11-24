@@ -16,13 +16,14 @@
 package mcp
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"math"
 	"net/http"
 	"slices"
-	"sort"
 	"strings"
 	"time"
 
@@ -37,8 +38,6 @@ const (
 	engineHAProxy    = "haproxy"
 	engineValkey     = "valkey"
 	engineExternal   = "external"
-
-	unknownVersion = "unknown"
 
 	inventoryDefaultLimit = 50
 	inventoryMaxLimit     = 200
@@ -122,11 +121,7 @@ func (r inventoryResult) render() string {
 	var lines []string
 	lines = append(lines, fmt.Sprintf("Monitored services (%d):", r.Page.Total))
 	for _, svc := range r.Services {
-		version := svc.Version
-		if version == "" {
-			version = unknownVersion
-		}
-		row := fmt.Sprintf("- %s | %s %s | id=%s", svc.ServiceName, svc.Engine, version, svc.ServiceID)
+		row := fmt.Sprintf("- %s | %s %s | id=%s", svc.ServiceName, svc.Engine, cmp.Or(svc.Version, "unknown"), svc.ServiceID)
 		if svc.NodeName != "" {
 			row += " | node=" + svc.NodeName
 		}
@@ -229,29 +224,23 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 		filtered = append(filtered, svc)
 	}
 
-	paged, pg, err := paginate(filtered, in.Offset, in.Limit, inventoryDefaultLimit, inventoryMaxLimit)
-	if err != nil {
-		return inventoryResult{}, err
-	}
+	paged, pg := paginate(filtered, in.Offset, in.Limit, inventoryDefaultLimit)
 
 	base := s.publicBaseURL(ctx, req.Extra.Header)
 	rows := make([]serviceRow, 0, len(paged))
 	for _, svc := range paged {
-		row := serviceRow{
+		rows = append(rows, serviceRow{
 			ServiceID:   svc.ServiceID,
 			ServiceName: svc.ServiceName,
 			Engine:      svc.Engine,
+			Version:     svc.Version,
 			NodeID:      svc.NodeID,
 			NodeName:    svc.NodeName,
 			Environment: svc.Environment,
 			Cluster:     svc.Cluster,
 			LastSeen:    svc.LastSeen,
 			PMMURL:      serviceURL(base, svc),
-		}
-		if svc.Version != unknownVersion {
-			row.Version = svc.Version
-		}
-		rows = append(rows, row)
+		})
 	}
 	return inventoryResult{Services: rows, Page: pg, filtered: len(filtered) == 0 && len(services) > 0}, nil
 }
@@ -310,35 +299,9 @@ func (s *Service) listServices(ctx context.Context, auth callerAuth, w window) (
 		}
 	}
 
-	out := make([]serviceInfo, 0, len(byID))
-	for _, svc := range byID {
-		out = append(out, svc)
-	}
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].Engine != out[j].Engine {
-			return out[i].Engine < out[j].Engine
-		}
-		if out[i].ServiceName != out[j].ServiceName {
-			return out[i].ServiceName < out[j].ServiceName
-		}
-		return out[i].ServiceID < out[j].ServiceID
-	})
-	return out, nil
-}
-
-// serviceNamed returns, among the services with the name, the one with the newest last_seen.
-func serviceNamed(services []serviceInfo, name string) (serviceInfo, bool) {
-	var found serviceInfo
-	ok := false
-	for _, svc := range services {
-		if svc.ServiceName != name {
-			continue
-		}
-		if !ok || svc.LastSeen.After(found.LastSeen) {
-			found, ok = svc, true
-		}
-	}
-	return found, ok
+	return slices.SortedFunc(maps.Values(byID), func(a, b serviceInfo) int {
+		return cmp.Or(cmp.Compare(a.Engine, b.Engine), cmp.Compare(a.ServiceName, b.ServiceName), cmp.Compare(a.ServiceID, b.ServiceID))
+	}), nil
 }
 
 // servicesNamed returns the services with the name.
@@ -352,21 +315,13 @@ func servicesNamed(services []serviceInfo, name string) []serviceInfo {
 	return out
 }
 
-// enrichVersions fills empty versions from the exporters' version metrics,
-// one instant query per engine. Any failure degrades to "unknown".
+// enrichVersions sets the services' versions from the exporters' version metrics, one instant query per engine;
+// a version that cannot be read stays empty.
 func (s *Service) enrichVersions(ctx context.Context, auth callerAuth, services []serviceInfo) {
 	l := s.l.WithField("tool", "pmm_inventory")
-	needed := map[string]bool{}
-	for _, svc := range services {
-		if svc.Version == "" {
-			needed[svc.Engine] = true
-		}
-	}
-
 	versions := map[string]map[string]string{}
-	for engine := range needed {
-		vm, ok := versionMetrics[engine]
-		if !ok {
+	for engine, vm := range versionMetrics {
+		if !slices.ContainsFunc(services, func(svc serviceInfo) bool { return svc.Engine == engine }) {
 			continue
 		}
 		samples, err := s.queryMetrics(ctx, auth, vm.metric, time.Time{})
@@ -384,14 +339,7 @@ func (s *Service) enrichVersions(ctx context.Context, auth callerAuth, services 
 	}
 
 	for i := range services {
-		if services[i].Version != "" {
-			continue
-		}
-		if v := versions[services[i].Engine][services[i].ServiceID]; v != "" {
-			services[i].Version = v
-		} else {
-			services[i].Version = unknownVersion
-		}
+		services[i].Version = versions[services[i].Engine][services[i].ServiceID]
 	}
 }
 
@@ -401,7 +349,7 @@ func (s *Service) queryMetrics(ctx context.Context, auth callerAuth, promql stri
 	if err != nil {
 		return nil, err
 	}
-	return s.api.QueryInstant(ctx, auth, uid, promRequest{Query: promql, Time: at, Timeout: metricsTimeout})
+	return s.api.QueryInstant(ctx, auth, uid, promRequest{Query: promql, Time: at})
 }
 
 // metricsDatasourceName is the stable name PMM provisions its VictoriaMetrics

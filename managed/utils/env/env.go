@@ -17,10 +17,12 @@
 package env
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -65,6 +67,12 @@ const (
 	ClickHouseConfig = "PMM_CLICKHOUSE_CONFIG"
 )
 
+// MaxMCPActionTimeout is the longest PMM_MCP_ACTION_TIMEOUT accepted: with the call's 45 s of slack it stays under nginx's 600 s limit.
+const MaxMCPActionTimeout = 9 * time.Minute
+
+// ErrMCPActionTimeoutTooLong is wrapped by the error ParseMCPActionTimeout returns for a value longer than MaxMCPActionTimeout.
+var ErrMCPActionTimeoutTooLong = errors.New("longer than the maximum of " + MaxMCPActionTimeout.String())
+
 // LookupBool returns the boolean value of the environment variable. It tells the three states
 // of an optional boolean apart:
 //   - (nil, nil) when the variable is not set,
@@ -99,6 +107,46 @@ func GetBool(key string) bool {
 		return false
 	}
 	return *b
+}
+
+// ParseMCPActionTimeout parses a PMM_MCP_ACTION_TIMEOUT value; a value longer than MaxMCPActionTimeout is ignored
+// rather than refused, so its error wraps ErrMCPActionTimeoutTooLong for envvars.ParseEnvVars to report as a warning.
+func ParseMCPActionTimeout(v string) (time.Duration, error) {
+	d, err := time.ParseDuration(strings.ToLower(v))
+	if err != nil || d <= 0 {
+		return 0, fmt.Errorf("invalid value '%s' for environment variable %s", v, MCPActionTimeout)
+	}
+	if d > MaxMCPActionTimeout {
+		return 0, fmt.Errorf("%s=%s is %w and is ignored: the default is used", MCPActionTimeout, v, ErrMCPActionTimeoutTooLong)
+	}
+	return d, nil
+}
+
+// GetMCPActionTimeout returns the PMM_MCP_ACTION_TIMEOUT duration, or zero when it is not set or not accepted,
+// which envvars.ParseEnvVars has reported at startup.
+func GetMCPActionTimeout() time.Duration {
+	d, _ := ParseMCPActionTimeout(lookupFold(MCPActionTimeout))
+	return d
+}
+
+// GetMCPRawSQL reports whether PMM_MCP_RAW_SQL is true; a value that is not set or not a boolean, which
+// envvars.ParseEnvVars has reported at startup, reads as false.
+func GetMCPRawSQL() bool {
+	b, err := strconv.ParseBool(strings.ToLower(lookupFold(MCPRawSQL)))
+	return err == nil && b
+}
+
+// lookupFold returns the value of the environment variable key, or "" when it is not set, matching its name
+// case-insensitively and taking the last match, as envvars.ParseEnvVars does.
+func lookupFold(key string) string {
+	var value string
+	for _, kv := range os.Environ() {
+		k, v, _ := strings.Cut(kv, "=")
+		if strings.EqualFold(k, key) {
+			value = v
+		}
+	}
+	return value
 }
 
 // ExtensionsEnabled reports whether PMM Extensions is enabled for this process.

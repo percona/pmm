@@ -30,10 +30,9 @@ import (
 
 // The response budget of pmm_query_metrics.
 const (
-	defaultSeries       = 20
-	maxSeriesShown      = 100
-	maxMetricsBytes     = 16 << 10
-	defaultMetricsRange = time.Hour
+	defaultSeries   = 20
+	maxSeriesShown  = 100
+	maxMetricsBytes = 16 << 10
 )
 
 // maxPoints bounds the points of a response, and the steps of a query or a subquery over the span it reads.
@@ -183,13 +182,9 @@ type rankedSeries struct {
 func shapeSeries(expr string, series []metricSeries, limit int, w *window, step, note string) metricsResult {
 	head := metricsResult{Query: expr, Window: w, Step: step, Note: note}
 	// The JSON escapes <, > and & to six bytes each, so a query echoed twice can be over the budget alone.
-	if metricsSize(buildMetricsResult(head, nil, len(series), false)) > maxMetricsBytes {
+	if resultSize(buildMetricsResult(head, nil, len(series), false)) > maxMetricsBytes {
 		head.Query = echo(expr)
 	}
-	if limit <= 0 {
-		limit = defaultSeries
-	}
-	limit = min(limit, maxSeriesShown)
 
 	ranked := make([]rankedSeries, len(series))
 	for i, s := range series {
@@ -209,18 +204,18 @@ func shapeSeries(expr string, series []metricSeries, limit int, w *window, step,
 		kept = kept[:n]
 	}
 	res := buildMetricsResult(head, kept, len(series), raw)
-	size := metricsSize(res)
+	size := resultSize(res)
 	if raw && size > maxMetricsBytes {
 		raw = false
 		res = buildMetricsResult(head, kept, len(series), raw)
-		size = metricsSize(res)
+		size = resultSize(res)
 	}
 	if size <= maxMetricsBytes {
 		return res
 	}
 	// Each series kept adds a row, so the size grows with the count, and a binary search builds the result log2(limit) times.
 	fit := sort.Search(len(kept), func(n int) bool {
-		return metricsSize(buildMetricsResult(head, kept[:n+1], len(series), raw)) > maxMetricsBytes
+		return resultSize(buildMetricsResult(head, kept[:n+1], len(series), raw)) > maxMetricsBytes
 	})
 	return buildMetricsResult(head, kept[:fit], len(series), raw)
 }
@@ -246,9 +241,9 @@ func labelsFit(series []rankedSeries) int {
 	return len(series)
 }
 
-// metricsSize is what a response costs: its text plus its structured content.
-func metricsSize(r metricsResult) int {
-	// A result holds no NaN or ±Inf and no unsupported type, so it always marshals.
+// resultSize is what a result costs: its text plus its structured content.
+func resultSize(r renderer) int {
+	// A metrics or list result holds no NaN or ±Inf and no unsupported type, so it always marshals.
 	b, _ := json.Marshal(r) //nolint:errchkjson
 	return len(r.render()) + len(b)
 }
@@ -302,12 +297,8 @@ func buildMetricsResult(head metricsResult, kept []rankedSeries, total int, raw 
 	res.Summarized = !raw
 
 	labels := visibleLabels(kept)
-	var shared map[string]string
 	if len(kept) > 1 {
-		shared = sharedLabels(labels)
-	}
-	if len(shared) > 0 {
-		res.SharedLabels = shared
+		res.SharedLabels = sharedLabels(labels)
 	}
 
 	nonFinite := 0
@@ -315,7 +306,7 @@ func buildMetricsResult(head metricsResult, kept []rankedSeries, total int, raw 
 		row := s.summary
 		row.Labels = make(map[string]string, len(labels[i]))
 		for k, v := range labels[i] {
-			if _, ok := shared[k]; !ok {
+			if _, ok := res.SharedLabels[k]; !ok {
 				row.Labels[k] = v
 			}
 		}
@@ -398,10 +389,7 @@ func leftOutHint(expr string, left, shown int) string {
 		return fmt.Sprintf("%d series are left out: their labels are too large to show. "+
 			"Narrow the query, or aggregate away the large labels with sum by (service_name) (<expr>).", left)
 	}
-	if len(expr) > maxHintExprBytes {
-		expr = "<expr>"
-	}
 	return fmt.Sprintf("%d series are left out; %d are shown, the largest by maximum. "+
 		"Narrow the selectors with a service_* or node_* matcher, keep the largest with topk(10, %[3]s), "+
-		"or aggregate with sum by (service_name) (%[3]s).", left, shown, expr)
+		"or aggregate with sum by (service_name) (%[3]s).", left, shown, hintExpr(expr))
 }

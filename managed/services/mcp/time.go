@@ -103,12 +103,12 @@ func parseWindow(from, to string, now time.Time) (time.Time, time.Time, error) {
 	return start, end, nil
 }
 
-// fmtNum renders a metric with at most three decimals, like the QAN UI.
+// fmtNum renders a number without an exponent, in the fewest digits that read back as the same float64.
 func fmtNum(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
-// fmtNum3 rounds to three decimals before rendering.
+// fmtNum3 rounds to three decimals before rendering, like the QAN UI.
 func fmtNum3(f float64) string {
 	r := math.Round(f*1000) / 1000 //nolint:mnd
 	// math.Round(-0.4) is negative zero, which would render as "-0".

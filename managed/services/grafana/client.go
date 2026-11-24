@@ -153,8 +153,6 @@ func maskDumps(args []any) []any {
 		switch a := a.(type) {
 		case []byte:
 			out[i] = maskDump(a)
-		case string:
-			out[i] = string(maskDump([]byte(a)))
 		default:
 			out[i] = a
 		}

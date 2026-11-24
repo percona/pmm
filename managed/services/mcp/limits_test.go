@@ -38,7 +38,7 @@ import (
 func TestLimiter(t *testing.T) {
 	t.Parallel()
 
-	l := newLimiter(2, 3)
+	l := newLimiter("test", 2, 3)
 	relA1, hit1 := l.acquire("a")
 	relA2, hit2 := l.acquire("a")
 	_, hit3 := l.acquire("a")
@@ -66,7 +66,7 @@ func TestLimiter(t *testing.T) {
 func TestLimiterPerService(t *testing.T) {
 	t.Parallel()
 
-	l := newLimiter(maxLiveCallsPerService, maxLiveCallsPerReplica)
+	l := newLimiter("live-inspection", maxLiveCallsPerService, maxLiveCallsPerReplica)
 	rel1, hit := l.acquire("svc-1")
 	require.Equal(t, limitNone, hit)
 	_, hit = l.acquire("svc-1")
@@ -90,37 +90,37 @@ func TestCallerKey(t *testing.T) {
 	t.Run("SameCaller", func(t *testing.T) {
 		t.Parallel()
 
-		bearer := callerKey(callerAuth{authorization: "Bearer T"})
-		assert.Equal(t, bearer, callerKey(callerAuth{authorization: basic("service_token:T")}))
-		assert.Equal(t, bearer, callerKey(callerAuth{authorization: "Bearer T", cookie: "x=1"}))
-		assert.Equal(t, bearer, callerKey(callerAuth{authorization: "Bearer T", cookie: "pmm_session=s"}))
+		bearer := keyOf(callerAuth{authorization: "Bearer T"})
+		assert.Equal(t, bearer, keyOf(callerAuth{authorization: basic("service_token:T")}))
+		assert.Equal(t, bearer, keyOf(callerAuth{authorization: "Bearer T", cookie: "x=1"}))
+		assert.Equal(t, bearer, keyOf(callerAuth{authorization: "Bearer T", cookie: "pmm_session=s"}))
 
-		alice := callerKey(callerAuth{authorization: basic("alice:pw")})
-		assert.Equal(t, alice, callerKey(callerAuth{authorization: basic("ALICE:pw")}))
+		alice := keyOf(callerAuth{authorization: basic("alice:pw")})
+		assert.Equal(t, alice, keyOf(callerAuth{authorization: basic("ALICE:pw")}))
 
-		both := callerKey(callerAuth{authorization: basic("alice:pw"), cookie: "pmm_session=s"})
-		assert.Equal(t, both, callerKey(callerAuth{authorization: basic("bob:x"), cookie: "pmm_session=t"}))
+		both := keyOf(callerAuth{authorization: basic("alice:pw"), cookie: "pmm_session=s"})
+		assert.Equal(t, both, keyOf(callerAuth{authorization: basic("bob:x"), cookie: "pmm_session=t"}))
 		assert.NotEqual(t, both, alice)
-		assert.NotEqual(t, both, callerKey(callerAuth{cookie: "pmm_session=s"}))
-		assert.NotEqual(t, both, callerKey(callerAuth{}))
+		assert.NotEqual(t, both, keyOf(callerAuth{cookie: "pmm_session=s"}))
+		assert.NotEqual(t, both, keyOf(callerAuth{}))
 
-		assert.Equal(t, callerKey(callerAuth{cookie: "pmm_session=abc"}), callerKey(callerAuth{cookie: "pmm_session=%61bc"}))
+		assert.Equal(t, keyOf(callerAuth{cookie: "pmm_session=abc"}), keyOf(callerAuth{cookie: "pmm_session=%61bc"}))
 
-		session := callerKey(callerAuth{cookie: "pmm_session=s1"})
-		assert.Equal(t, session, callerKey(callerAuth{cookie: "pmm_session=s1; other=1"}))
+		session := keyOf(callerAuth{cookie: "pmm_session=s1"})
+		assert.Equal(t, session, keyOf(callerAuth{cookie: "pmm_session=s1; other=1"}))
 	})
 
 	t.Run("DifferentCallers", func(t *testing.T) {
 		t.Parallel()
 
 		keys := []string{
-			callerKey(callerAuth{authorization: "Bearer T1"}),
-			callerKey(callerAuth{authorization: "Bearer T2"}),
-			callerKey(callerAuth{authorization: basic("alice:pw")}),
-			callerKey(callerAuth{authorization: basic("bob:pw")}),
-			callerKey(callerAuth{cookie: "pmm_session=s1"}),
-			callerKey(callerAuth{cookie: "pmm_session=s2"}),
-			callerKey(callerAuth{}),
+			keyOf(callerAuth{authorization: "Bearer T1"}),
+			keyOf(callerAuth{authorization: "Bearer T2"}),
+			keyOf(callerAuth{authorization: basic("alice:pw")}),
+			keyOf(callerAuth{authorization: basic("bob:pw")}),
+			keyOf(callerAuth{cookie: "pmm_session=s1"}),
+			keyOf(callerAuth{cookie: "pmm_session=s2"}),
+			keyOf(callerAuth{}),
 		}
 		seen := map[string]bool{}
 		for _, k := range keys {
@@ -133,7 +133,7 @@ func TestCallerKey(t *testing.T) {
 		t.Parallel()
 
 		sum := sha256.Sum256([]byte("token\x00T"))
-		assert.Equal(t, hex.EncodeToString(sum[:]), callerKey(callerAuth{authorization: "Bearer T"}))
+		assert.Equal(t, hex.EncodeToString(sum[:]), keyOf(callerAuth{authorization: "Bearer T"}))
 	})
 
 	t.Run("NoSecretInKey", func(t *testing.T) {
@@ -144,7 +144,7 @@ func TestCallerKey(t *testing.T) {
 			{authorization: basic("aliceuser:pw")},
 			{cookie: "pmm_session=sessionvalue"},
 		} {
-			key := callerKey(a)
+			key := keyOf(a)
 			for _, secret := range []string{"secrettoken", "aliceuser", "sessionvalue"} {
 				assert.NotContains(t, key, secret)
 			}
@@ -212,7 +212,7 @@ func TestRateLimitedRetryAfter(t *testing.T) {
 
 		text := textOf(t, res)
 		require.True(t, res.IsError, text)
-		require.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		meta, ok := res.Meta["com.percona/error"].(map[string]any)
 		require.True(t, ok, "%v", res.Meta)
 		assert.Equal(t, "rate_limited", meta["code"])
@@ -226,7 +226,7 @@ func TestRateLimitedRetryAfter(t *testing.T) {
 	t.Run("Live", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		session := connect(t, s)
 		args := map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}}
@@ -278,7 +278,7 @@ func TestRateLimitedRetryAfter(t *testing.T) {
 		for range 2 * metricCallsBurst {
 			text, isError := callText(t, session, "pmm_query_metrics", map[string]any{"query": "up", "period_from": "now-30d"})
 			require.True(t, isError)
-			require.True(t, strings.HasPrefix(text, "error: invalid_input"), text)
+			assertToolError(t, text, codeInvalidInput, "")
 		}
 		s.metricRate.mu.Lock()
 		defer s.metricRate.mu.Unlock()
@@ -322,7 +322,7 @@ func TestQANWindowCap(t *testing.T) {
 	} {
 		text, isError := callText(t, session, tc.name, tc.args)
 		assert.True(t, isError, tc.name)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "30 days", tc.name)
 	}
 	assert.Zero(t, fake.requestCount(), "a refused window reaches no backend")
@@ -337,10 +337,52 @@ func TestQANWindowCap(t *testing.T) {
 	assert.False(t, isError, text)
 }
 
+// heldSlots records how many metric-call slots a caller held at each request the fake PMM received, under "action" for
+// the actions API and "lookup" for the rest.
+type heldSlots struct {
+	mu   sync.Mutex
+	held map[string][]int
+}
+
+// watchSlots starts recording the metric-call slots key holds in s at each request fake receives.
+func watchSlots(fake *fakePMM, s *Service, key string) *heldSlots {
+	h := &heldSlots{held: map[string][]int{}}
+	fake.handle(func(_ http.ResponseWriter, r *http.Request, _ []byte) bool {
+		s.metrics.mu.Lock()
+		n := s.metrics.byKey[key]
+		s.metrics.mu.Unlock()
+		kind := "lookup"
+		if strings.HasPrefix(r.URL.Path, "/v1/actions") {
+			kind = "action"
+		}
+		h.mu.Lock()
+		h.held[kind] = append(h.held[kind], n)
+		h.mu.Unlock()
+		return false
+	})
+	return h
+}
+
+// assertReleasedBeforeLive checks that the lookup held one slot at each of its requests, and the live part none.
+func (h *heldSlots) assertReleasedBeforeLive(t *testing.T) {
+	t.Helper()
+
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	require.NotEmpty(t, h.held["lookup"])
+	require.NotEmpty(t, h.held["action"])
+	for _, n := range h.held["lookup"] {
+		assert.Equal(t, 1, n, "the lookup holds one metric slot: %v", h.held)
+	}
+	for _, n := range h.held["action"] {
+		assert.Zero(t, n, "the live part holds no metric slot: %v", h.held)
+	}
+}
+
 func TestQANCallsShareMetricSlots(t *testing.T) {
 	t.Parallel()
 
-	key := callerKey(callerAuth{authorization: testToken})
+	key := keyOf(callerAuth{authorization: testToken})
 	args := map[string]map[string]any{
 		"pmm_top_queries":  {"period_from": "now-1h"},
 		"pmm_query_detail": {"queryid": "QID-AAA", "period_from": "now-1h"},
@@ -363,7 +405,7 @@ func TestQANCallsShareMetricSlots(t *testing.T) {
 		for name, a := range args {
 			text, isError := callText(t, session, name, a)
 			assert.True(t, isError, name)
-			assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+			assertToolError(t, text, codeRateLimited, "")
 			assert.Contains(t, text, "at most 4 metric calls can be in flight for these credentials", name)
 		}
 		assert.Zero(t, fake.requestCount())
@@ -401,27 +443,17 @@ func TestQANCallsShareMetricSlots(t *testing.T) {
 
 		fake := newFakePMM(t, qanRoutes())
 		s := newQANService(t, fake, true)
-		var mu sync.Mutex
-		var held []int
-		next := fake.server.Config.Handler
-		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			s.metrics.mu.Lock()
-			n := s.metrics.byKey[key]
-			s.metrics.mu.Unlock()
-			mu.Lock()
-			held = append(held, n)
-			mu.Unlock()
-			next.ServeHTTP(rw, r)
-		})
+		held := watchSlots(fake, s, key)
 
 		text, isError := callText(t, connect(t, s), "pmm_query_detail", args["pmm_query_detail"])
 		require.False(t, isError, text)
 
-		mu.Lock()
-		defer mu.Unlock()
-		require.GreaterOrEqual(t, len(held), 2, "the call makes several backend requests")
-		for _, n := range held {
-			assert.Equal(t, 1, n, fmt.Sprint(held))
+		held.mu.Lock()
+		defer held.mu.Unlock()
+		assert.Empty(t, held.held["action"])
+		require.GreaterOrEqual(t, len(held.held["lookup"]), 2, "the call makes several backend requests")
+		for _, n := range held.held["lookup"] {
+			assert.Equal(t, 1, n, fmt.Sprint(held.held))
 		}
 	})
 }
@@ -431,7 +463,7 @@ func TestQANCallsShareMetricSlots(t *testing.T) {
 func TestLiveLookupSharesMetricCaps(t *testing.T) {
 	t.Parallel()
 
-	key := callerKey(callerAuth{authorization: testToken})
+	key := keyOf(callerAuth{authorization: testToken})
 	tools := []string{"pmm_get_explain", "pmm_get_schema"}
 
 	t.Run("WindowCap", func(t *testing.T) {
@@ -448,7 +480,7 @@ func TestLiveLookupSharesMetricCaps(t *testing.T) {
 			} {
 				text, isError := callText(t, session, tool, args)
 				assert.True(t, isError, tool)
-				assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+				assertToolError(t, text, codeInvalidInput, "")
 				assert.Contains(t, text, "the window is longer than the cap of 30 days", tool)
 			}
 		}
@@ -486,36 +518,12 @@ func TestLiveLookupSharesMetricCaps(t *testing.T) {
 				postgresQuery(fake)
 			}
 			s := newQANService(t, fake, true)
-			var mu sync.Mutex
-			held := map[string][]int{}
-			next := fake.server.Config.Handler
-			fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-				s.metrics.mu.Lock()
-				n := s.metrics.byKey[key]
-				s.metrics.mu.Unlock()
-				kind := "lookup"
-				if strings.HasPrefix(r.URL.Path, "/v1/actions") {
-					kind = "action"
-				}
-				mu.Lock()
-				held[kind] = append(held[kind], n)
-				mu.Unlock()
-				next.ServeHTTP(rw, r)
-			})
+			held := watchSlots(fake, s, key)
 
 			text, isError := callText(t, connect(t, s), tool, map[string]any{"queryid": "QID-AAA"})
 			require.False(t, isError, text)
 
-			mu.Lock()
-			defer mu.Unlock()
-			require.NotEmpty(t, held["lookup"])
-			require.NotEmpty(t, held["action"])
-			for _, n := range held["lookup"] {
-				assert.Equal(t, 1, n, "the lookup holds one metric slot: %v", held)
-			}
-			for _, n := range held["action"] {
-				assert.Zero(t, n, "the live part holds no metric slot: %v", held)
-			}
+			held.assertReleasedBeforeLive(t)
 			s.metrics.mu.Lock()
 			assert.Empty(t, s.metrics.byKey)
 			s.metrics.mu.Unlock()
@@ -531,7 +539,7 @@ func TestLiveLookupSharesMetricCaps(t *testing.T) {
 func TestInventoryAndConfigShareMetricCaps(t *testing.T) {
 	t.Parallel()
 
-	key := callerKey(callerAuth{authorization: testToken})
+	key := keyOf(callerAuth{authorization: testToken})
 	args := map[string]map[string]any{
 		"pmm_inventory":  {},
 		"pmm_get_config": {"service_id": "svc-1"},
@@ -547,7 +555,7 @@ func TestInventoryAndConfigShareMetricCaps(t *testing.T) {
 	} {
 		text, isError := callText(t, session, name, a)
 		assert.True(t, isError, name)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 	}
 	s.metricRate.mu.Lock()
 	assert.Empty(t, s.metricRate.buckets, "refused input takes no token")
@@ -585,13 +593,13 @@ func TestInventoryAndConfigShareMetricCaps(t *testing.T) {
 func TestSchemaByNameLookupSharesMetricCaps(t *testing.T) {
 	t.Parallel()
 
-	key := callerKey(callerAuth{authorization: testToken})
+	key := keyOf(callerAuth{authorization: testToken})
 	args := map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}}
 
 	t.Run("RateLimited", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
 		for range metricCallsBurst {
 			_, ok := s.metricRate.take(key, testNow)
@@ -600,45 +608,21 @@ func TestSchemaByNameLookupSharesMetricCaps(t *testing.T) {
 
 		text, isError := callText(t, connect(t, s), "pmm_get_schema", map[string]any{"service_id": "svc-unknown", "database": "shop", "tables": []string{"customers"}})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: rate_limited\n"), text)
+		assertToolError(t, text, codeRateLimited, "")
 		assert.Zero(t, listQueries(fake), "a refused call reaches no service-list query")
 	})
 
 	t.Run("SlotReleasedBeforeLive", func(t *testing.T) {
 		t.Parallel()
 
-		fake, _ := actionRoutes(t, "action_start_showcreate.json", "action_done_ddl.json")
+		fake, _ := newActionStub(t, 0)
 		s := newQANService(t, fake, true)
-		var mu sync.Mutex
-		held := map[string][]int{}
-		next := fake.server.Config.Handler
-		fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			s.metrics.mu.Lock()
-			n := s.metrics.byKey[key]
-			s.metrics.mu.Unlock()
-			kind := "lookup"
-			if strings.HasPrefix(r.URL.Path, "/v1/actions") {
-				kind = "action"
-			}
-			mu.Lock()
-			held[kind] = append(held[kind], n)
-			mu.Unlock()
-			next.ServeHTTP(rw, r)
-		})
+		held := watchSlots(fake, s, key)
 
 		text, isError := callText(t, connect(t, s), "pmm_get_schema", args)
 		require.False(t, isError, text)
 
-		mu.Lock()
-		defer mu.Unlock()
-		require.NotEmpty(t, held["lookup"])
-		require.NotEmpty(t, held["action"])
-		for _, n := range held["lookup"] {
-			assert.Equal(t, 1, n, "the lookup holds one metric slot: %v", held)
-		}
-		for _, n := range held["action"] {
-			assert.Zero(t, n, "the live part holds no metric slot: %v", held)
-		}
+		held.assertReleasedBeforeLive(t)
 	})
 }
 
@@ -668,7 +652,7 @@ func TestLookupPanicReleasesSlot(t *testing.T) {
 			for range maxMetricCallsPerCaller + 1 {
 				text, isError := callText(t, session, tc.tool, tc.args)
 				assert.True(t, isError)
-				require.True(t, strings.HasPrefix(text, "error: pmm_unavailable\n"), text)
+				assertToolError(t, text, codePMMUnavailable, "")
 			}
 			assertLimitersEmpty(t, s)
 		})

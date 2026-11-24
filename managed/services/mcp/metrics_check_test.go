@@ -511,6 +511,15 @@ func TestWalkSelectors(t *testing.T) {
 			expr: `q[1h:1d] offset 1000i`, step: 5 * time.Minute,
 			want: []string{`{__name__="q"} 1003d1h5m`}, steps: []time.Duration{day},
 		},
+		{
+			expr: `rate(mysql_global_status_questions{service_name="db1"}[5m]) / mysql_up`, step: time.Minute,
+			want: []string{`{__name__="mysql_global_status_questions", service_name="db1"} 5m`, `{__name__="mysql_up"} 1m`},
+		},
+		{
+			// One selector per OR group.
+			expr: `{__name__=~"mysql_global_status_.*", service_name="db1" or service_name="db2"}`, step: time.Minute,
+			want: []string{`{__name__=~"mysql_global_status_.*", service_name="db1"} 1m`, `{service_name="db2"} 1m`},
+		},
 	} {
 		t.Run(tc.expr, func(t *testing.T) {
 			t.Parallel()

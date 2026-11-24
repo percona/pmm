@@ -72,7 +72,7 @@ func TestShapeSeries(t *testing.T) {
 		}
 		series[7] = mkSeries(map[string]string{"service_name": "huge"}, 3, constant(1e6))
 
-		got := shapeSeries("rate(x[5m])", series, 0, nil, "", "")
+		got := shapeSeries("rate(x[5m])", series, defaultSeries, nil, "", "")
 
 		require.Len(t, got.Series, defaultSeries)
 		assert.Equal(t, "huge", got.Series[0].Labels["service_name"])
@@ -88,7 +88,7 @@ func TestShapeSeries(t *testing.T) {
 		validateMetricsOutput(t, got)
 	})
 
-	t.Run("LimitIsClamped", func(t *testing.T) {
+	t.Run("Limit", func(t *testing.T) {
 		t.Parallel()
 
 		series := make([]metricSeries, 300)
@@ -96,17 +96,13 @@ func TestShapeSeries(t *testing.T) {
 			series[i] = mkSeries(map[string]string{"n": strconv.Itoa(i)}, 1, constant(float64(i)))
 		}
 
-		got := shapeSeries("x", series, 1000, nil, "", "")
-
-		assert.LessOrEqual(t, len(got.Series), maxSeriesShown)
-		assert.Greater(t, len(got.Series), defaultSeries)
 		assert.Len(t, shapeSeries("x", series, 5, nil, "", "").Series, 5)
 	})
 
 	t.Run("FewSeriesAreNotTruncated", func(t *testing.T) {
 		t.Parallel()
 
-		got := shapeSeries("x", []metricSeries{mkSeries(map[string]string{"a": "1"}, 3, constant(1))}, 0, nil, "", "")
+		got := shapeSeries("x", []metricSeries{mkSeries(map[string]string{"a": "1"}, 3, constant(1))}, defaultSeries, nil, "", "")
 
 		assert.False(t, got.Truncated)
 		assert.Empty(t, got.Hint)
@@ -128,7 +124,7 @@ func TestShapeSeries(t *testing.T) {
 			series[i] = mkSeries(labels, 2, constant(float64(i)))
 		}
 
-		got := shapeSeries("x", series, 0, nil, "", "")
+		got := shapeSeries("x", series, defaultSeries, nil, "", "")
 
 		assert.Equal(t, map[string]string{"env": "prod"}, got.SharedLabels)
 		for _, s := range got.Series {
@@ -153,7 +149,7 @@ func TestShapeSeries(t *testing.T) {
 			byNode[i] = mkSeries(map[string]string{"node_id": "node-" + strconv.Itoa(i)}, 2, constant(float64(i)))
 		}
 
-		got := shapeSeries("x", byNode, 0, nil, "", "")
+		got := shapeSeries("x", byNode, defaultSeries, nil, "", "")
 
 		assert.Empty(t, got.SharedLabels)
 		require.Len(t, got.Series, 3)
@@ -169,7 +165,7 @@ func TestShapeSeries(t *testing.T) {
 			mkSeries(map[string]string{"service_name": "b", "node_id": "n3", "instance": "i3", "job": "j"}, 2, constant(1)),
 		}
 
-		got = shapeSeries("x", mixed, 0, nil, "", "")
+		got = shapeSeries("x", mixed, defaultSeries, nil, "", "")
 
 		assert.Empty(t, got.SharedLabels)
 		require.Len(t, got.Series, 3)
@@ -186,7 +182,7 @@ func TestShapeSeries(t *testing.T) {
 			series[i] = mkSeries(map[string]string{"n": strconv.Itoa(i)}, 50, constant(float64(i)))
 		}
 
-		got := shapeSeries("x", series, 0, nil, "", "")
+		got := shapeSeries("x", series, defaultSeries, nil, "", "")
 
 		assert.False(t, got.Summarized)
 		for _, s := range got.Series {
@@ -205,7 +201,7 @@ func TestShapeSeries(t *testing.T) {
 			series[i] = mkSeries(map[string]string{"n": strconv.Itoa(i)}, 200, constant(float64(i)))
 		}
 
-		got := shapeSeries("x", series, 0, nil, "", "")
+		got := shapeSeries("x", series, defaultSeries, nil, "", "")
 
 		assert.True(t, got.Summarized)
 		assert.Len(t, got.Series, 20)
@@ -224,7 +220,7 @@ func TestShapeSeries(t *testing.T) {
 			mkSeries(map[string]string{"n": "1"}, 1000, constant(2.5)),
 		}
 
-		got := shapeSeries("x", series, 0, nil, "", "")
+		got := shapeSeries("x", series, defaultSeries, nil, "", "")
 
 		assert.True(t, got.Summarized, "2,000 points are within maxPoints but far over 16 KiB")
 		assert.Len(t, got.Series, 2)
@@ -262,7 +258,7 @@ func TestShapeSeries(t *testing.T) {
 		values := []float64{1, math.NaN(), math.Inf(1), 3}
 		series := []metricSeries{mkSeries(map[string]string{"a": "1"}, len(values), func(i int) float64 { return values[i] })}
 
-		got := shapeSeries("x", series, 0, nil, "", "")
+		got := shapeSeries("x", series, defaultSeries, nil, "", "")
 
 		b, err := json.Marshal(got)
 		require.NoError(t, err)
@@ -292,7 +288,7 @@ func TestShapeSeries(t *testing.T) {
 			})
 		}
 
-		got := shapeSeries("x", series, 0, nil, "", "")
+		got := shapeSeries("x", series, defaultSeries, nil, "", "")
 
 		require.True(t, got.Summarized)
 		assert.Contains(t, got.Note, "1 non-finite values")
@@ -305,7 +301,7 @@ func TestShapeSeries(t *testing.T) {
 
 		series := []metricSeries{mkSeries(map[string]string{"query": strings.Repeat("x", 20<<10)}, 2, constant(1))}
 
-		got := shapeSeries("x", series, 0, nil, "", "")
+		got := shapeSeries("x", series, defaultSeries, nil, "", "")
 
 		assert.Empty(t, got.Series)
 		assert.NotNil(t, got.Series)
@@ -325,7 +321,7 @@ func TestShapeSeries(t *testing.T) {
 			mkSeries(map[string]string{"a": "ok"}, 2, constant(1)),
 		}
 
-		got := shapeSeries("x", series, 0, nil, "", "")
+		got := shapeSeries("x", series, defaultSeries, nil, "", "")
 
 		require.Len(t, got.Series, 3)
 		assert.Equal(t, []string{"tail", "ok", "nan"}, []string{got.Series[0].Labels["a"], got.Series[1].Labels["a"], got.Series[2].Labels["a"]})
@@ -344,7 +340,7 @@ func TestShapeSeries(t *testing.T) {
 
 		series := []metricSeries{mkSeries(map[string]string{"agent_id": "a", "job": "j"}, 2, constant(1))}
 
-		got := shapeSeries("x", series, 0, nil, "", "")
+		got := shapeSeries("x", series, defaultSeries, nil, "", "")
 
 		require.Len(t, got.Series, 1)
 		assert.NotNil(t, got.Series[0].Labels)
@@ -359,7 +355,7 @@ func TestShapeSeries(t *testing.T) {
 		t.Parallel()
 
 		for _, in := range [][]metricSeries{nil, {}} {
-			got := shapeSeries("x", in, 0, nil, "", "")
+			got := shapeSeries("x", in, defaultSeries, nil, "", "")
 
 			assert.NotNil(t, got.Series)
 			assert.Zero(t, got.TotalSeries)
@@ -498,7 +494,7 @@ func TestMetricsResultRender(t *testing.T) {
 	got := shapeSeries("up", []metricSeries{
 		mkSeries(map[string]string{"service_name": "a\nb", "env": "prod"}, 2, constant(1.23456)),
 		mkSeries(map[string]string{"service_name": "c", "env": "prod"}, 2, constant(7)),
-	}, 0, nil, "15s", "")
+	}, defaultSeries, nil, "15s", "")
 
 	text := got.render()
 
@@ -556,7 +552,7 @@ func TestRankSeriesAverageOfLargeValues(t *testing.T) {
 	require.NotNil(t, r.summary.Avg)
 	assert.InEpsilon(t, 1e308, *r.summary.Avg, 1e-9, "the sum overflows; the average does not")
 
-	res := shapeSeries("vector(1e308)", []metricSeries{s}, 0, &window{From: start, To: start.Add(time.Hour)}, "1s", "")
+	res := shapeSeries("vector(1e308)", []metricSeries{s}, defaultSeries, &window{From: start, To: start.Add(time.Hour)}, "1s", "")
 	_, err := json.Marshal(res)
 	require.NoError(t, err)
 
@@ -570,7 +566,7 @@ func TestRankSeriesAverageOfLargeValues(t *testing.T) {
 	require.NotNil(t, r.summary.Avg)
 	assert.InEpsilon(t, math.MaxFloat64, *r.summary.Avg, 1e-9, "three overflowing samples still average finite")
 
-	res = shapeSeries("vector(1e308)", []metricSeries{s}, 0, &window{From: start, To: start.Add(time.Hour)}, "1s", "")
+	res = shapeSeries("vector(1e308)", []metricSeries{s}, defaultSeries, &window{From: start, To: start.Add(time.Hour)}, "1s", "")
 	_, err = json.Marshal(res)
 	require.NoError(t, err)
 }

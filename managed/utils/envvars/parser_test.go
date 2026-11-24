@@ -67,10 +67,9 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_MCP_ACTION_TIMEOUT=30s",
 			"PMM_DEV_MCP_LOOPBACK_URL=http://127.0.0.1:8080/",
 		}
+		// PMM_MCP_RAW_SQL and PMM_MCP_ACTION_TIMEOUT are validated but not stored in the settings.
 		expectedEnvVars := &models.ChangeSettingsParams{
-			EnableMCP:        new(false),
-			EnableMCPRawSQL:  new(false),
-			MCPActionTimeout: 30 * time.Second,
+			EnableMCP: new(false),
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
@@ -78,22 +77,26 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 
-		_, gotErrs, _ = ParseEnvVars([]string{"PMM_ENABLE_MCP=maybe", "PMM_MCP_RAW_SQL=sometimes", "PMM_MCP_ACTION_TIMEOUT=-1s"})
+		_, gotErrs, _ = ParseEnvVars([]string{
+			"PMM_ENABLE_MCP=maybe", "PMM_MCP_RAW_SQL=sometimes", "PMM_MCP_RAW_SQL=", "PMM_MCP_ACTION_TIMEOUT=-1s", "PMM_MCP_ACTION_TIMEOUT=soon",
+		})
 		assert.Equal(t, []error{
 			errors.New("invalid value 'maybe' for environment variable PMM_ENABLE_MCP"),
 			errors.New("invalid value 'sometimes' for environment variable PMM_MCP_RAW_SQL"),
+			errors.New("invalid value '' for environment variable PMM_MCP_RAW_SQL"),
 			errors.New("invalid value '-1s' for environment variable PMM_MCP_ACTION_TIMEOUT"),
+			errors.New("invalid value 'soon' for environment variable PMM_MCP_ACTION_TIMEOUT"),
 		}, gotErrs)
 
-		gotEnvVars, gotErrs, gotWarns = ParseEnvVars([]string{"PMM_MCP_ACTION_TIMEOUT=9m"})
-		assert.Equal(t, &models.ChangeSettingsParams{MCPActionTimeout: 9 * time.Minute}, gotEnvVars)
+		gotEnvVars, gotErrs, gotWarns = ParseEnvVars([]string{"PMM_MCP_RAW_SQL=TRue", "PMM_MCP_ACTION_TIMEOUT=9M"})
+		assert.Equal(t, &models.ChangeSettingsParams{}, gotEnvVars)
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 
 		gotEnvVars, gotErrs, gotWarns = ParseEnvVars([]string{"PMM_MCP_ACTION_TIMEOUT=9m1s"})
-		assert.Equal(t, &models.ChangeSettingsParams{}, gotEnvVars, "a zero MCPActionTimeout keeps the current value")
+		assert.Equal(t, &models.ChangeSettingsParams{}, gotEnvVars)
 		assert.Nil(t, gotErrs)
-		assert.Equal(t, []string{"PMM_MCP_ACTION_TIMEOUT=9m1s is longer than the maximum of 9m0s and is ignored: the current value is kept"}, gotWarns)
+		assert.Equal(t, []string{"PMM_MCP_ACTION_TIMEOUT=9m1s is longer than the maximum of 9m0s and is ignored: the default is used"}, gotWarns)
 	})
 
 	t.Run("Unknown env variables", func(t *testing.T) {

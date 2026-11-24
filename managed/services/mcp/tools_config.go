@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -146,26 +145,10 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	}
 	defer release()
 
-	w := window{From: at.Add(-hourWindow), To: at}
-	services, err := s.listServices(ctx, auth, w)
+	svc, err := s.findService(ctx, auth, window{From: at.Add(-hourWindow), To: at}, in.ServiceID, in.ServiceName)
 	if err != nil {
 		return configResult{}, err
 	}
-	var svc serviceInfo
-	var found bool
-	if in.ServiceID != "" {
-		i := slices.IndexFunc(services, func(o serviceInfo) bool { return o.ServiceID == in.ServiceID })
-		found = i >= 0
-		if found {
-			svc = services[i]
-		}
-	} else {
-		svc, found = serviceNamed(services, in.ServiceName)
-	}
-	if !found {
-		return configResult{}, errNotInList(w, s.now(), "; use pmm_inventory to list service ids")
-	}
-	serviceName := svc.ServiceName
 	if in.Engine != "" && svc.Engine != "" && in.Engine != svc.Engine {
 		return configResult{}, newToolError(codeInvalidInput, "engine %s doesn't match the service, which is %s; leave engine out", in.Engine, svc.Engine)
 	}
@@ -174,7 +157,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	prefix, ok := configMetrics[engine]
 	if !ok {
 		return configResult{}, newToolError(codeInvalidInput,
-			"pmm_get_config covers MySQL and PostgreSQL services; service '%s' is %s", serviceName, engine)
+			"pmm_get_config covers MySQL and PostgreSQL services; service '%s' is %s", svc.ServiceName, engine)
 	}
 
 	samples, err := s.queryMetrics(ctx, auth,
@@ -185,11 +168,10 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 
 	variables := map[string]string{}
 	for _, sample := range samples {
-		name := sample.Labels["__name__"]
-		if !strings.HasPrefix(name, prefix) {
-			continue
+		name, ok := strings.CutPrefix(sample.Labels["__name__"], prefix)
+		if ok {
+			variables[name] = formatMetricValue(sample.Value)
 		}
-		variables[strings.TrimPrefix(name, prefix)] = formatMetricValue(sample.Value)
 	}
 
 	names := make([]string, 0, len(variables))
@@ -200,19 +182,16 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 		}
 		names = append(names, name)
 	}
-	sort.Strings(names)
-	paged, pg, err := paginate(names, in.Offset, in.Limit, configDefaultLimit, configMaxLimit)
-	if err != nil {
-		return configResult{}, err
-	}
+	slices.Sort(names)
+	paged, pg := paginate(names, in.Offset, in.Limit, configDefaultLimit)
 
 	r := configResult{
-		ServiceName: serviceName,
+		ServiceName: svc.ServiceName,
 		Engine:      engine,
 		At:          at,
 		Variables:   make([]variable, 0, len(paged)),
 		Page:        pg,
-		PMMURL:      qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), serviceName, at.Add(-hourWindow), at),
+		PMMURL:      qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), svc.ServiceName, at.Add(-hourWindow), at),
 	}
 	if in.Filter != "" {
 		r.unfiltered = len(variables)
@@ -226,11 +205,11 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	return r, nil
 }
 
-// formatMetricValue renders integers without an exponent and keeps other
-// numbers as-is; Prometheus returns values as strings, sometimes exponential.
+// formatMetricValue renders an integer within int64 with all its digits, which fmtNum rounds past 2^53, and any other
+// number as fmtNum does.
 func formatMetricValue(v float64) string {
 	if v == float64(int64(v)) {
 		return strconv.FormatInt(int64(v), 10)
 	}
-	return strconv.FormatFloat(v, 'f', -1, 64)
+	return fmtNum(v)
 }

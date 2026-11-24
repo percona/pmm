@@ -165,7 +165,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{"limit": 300})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: invalid_input\n"), text)
+		assertToolError(t, text, codeInvalidInput, "")
 	})
 
 	t.Run("InvalidPagingBeforeAnyCall", func(t *testing.T) {
@@ -275,7 +275,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_inventory", map[string]any{})
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: unauthorized\n"), text)
+		assertToolError(t, text, codeUnauthorized, "")
 	})
 
 	t.Run("Unauthorized", func(t *testing.T) {
@@ -310,7 +310,7 @@ func TestInventoryTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_version", nil)
 		assert.True(t, isError)
-		assert.True(t, strings.HasPrefix(text, "error: pmm_unavailable\ncannot reach the PMM API:"), text)
+		assertToolError(t, text, codePMMUnavailable, "cannot reach the PMM API:")
 	})
 }
 
@@ -379,11 +379,11 @@ func TestServiceList(t *testing.T) {
 			{ServiceID: "svc-px", ServiceName: "proxy-1", Engine: "proxysql", NodeID: "node-1", NodeName: "demo-node", LastSeen: at(1789387140)},
 		}, got)
 
-		svc, ok := serviceNamed(got, "shop-re")
-		require.True(t, ok)
+		svc, err := s.findService(t.Context(), testAuth, s.lastHour(), "", "shop-re")
+		require.NoError(t, err)
 		assert.Equal(t, "svc-re-new", svc.ServiceID)
-		_, ok = serviceNamed(got, "unknown")
-		assert.False(t, ok)
+		_, err = s.findService(t.Context(), testAuth, s.lastHour(), "", "unknown")
+		assert.Equal(t, codeNotFound, mapError(err).code)
 	})
 
 	t.Run("QueryHasNoComparisonOnUp", func(t *testing.T) {

@@ -17,7 +17,6 @@ package mcp
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"maps"
@@ -61,20 +60,14 @@ func withRoutes(routes, extra map[string]fixture) map[string]fixture {
 	return routes
 }
 
-// failWhen makes the fake PMM answer the requests match accepts with HTTP 500, ahead of its routes and stubs.
-func failWhen(t *testing.T, fake *fakePMM, match func(*http.Request) bool) {
-	t.Helper()
-
-	body := readFixture(t, failed.file)
-	next := fake.server.Config.Handler
-	fake.server.Config.Handler = http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+// failWhen makes the fake PMM answer the requests match accepts with HTTP 500, ahead of its routes and handlers.
+func failWhen(fake *fakePMM, match func(*http.Request) bool) {
+	fake.handle(func(rw http.ResponseWriter, req *http.Request, _ []byte) bool {
 		if !match(req) {
-			next.ServeHTTP(rw, req)
-			return
+			return false
 		}
-		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(failed.status)
-		_, _ = rw.Write(body)
+		fake.reply(rw, req, failed)
+		return true
 	})
 }
 
@@ -217,7 +210,7 @@ func TestErrorsCarryNoStructuredContent(t *testing.T) {
 			meta, ok := res.Meta["com.percona/error"].(map[string]any)
 			require.True(t, ok, "_meta: %v", res.Meta)
 			code, _ := meta["code"].(string)
-			assert.True(t, strings.HasPrefix(text, "error: "+code+"\n"), text)
+			assertToolError(t, text, errorCode(code), "")
 		})
 	}
 }
@@ -281,24 +274,14 @@ func TestRedactionInBothRenderings(t *testing.T) {
 		"pmm_get_explain": {
 			fake: func(t *testing.T) *fakePMM {
 				t.Helper()
-				fake, _ := actionRoutes(t, "action_start_explain.json", "action_done_explain.json")
+				fake, stub := newActionStub(t, 0)
+				stub.explain = customersExplain(t)
 				return fake
 			},
 			args: map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"},
 			sql: func(t *testing.T) []string {
 				t.Helper()
-				var action struct {
-					Output string `json:"output"`
-				}
-				require.NoError(t, json.Unmarshal(readFixture(t, "action_done_explain.json"), &action))
-				var envelope struct {
-					ExplainResult  string `json:"explain_result"`
-					ExplainedQuery string `json:"explained_query"`
-				}
-				require.NoError(t, json.Unmarshal([]byte(action.Output), &envelope))
-				plan, err := base64.StdEncoding.DecodeString(envelope.ExplainResult)
-				require.NoError(t, err)
-				return []string{envelope.ExplainedQuery, string(plan)}
+				return []string{customersQuery, string(readFixture(t, "explain_customers.json"))}
 			},
 		},
 		// DDL comes back unmasked (ADR-07); the statement EXPLAIN ran to find the tables must not.
@@ -373,7 +356,6 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 			return newFakePMM(t, routes)
 		}
 	}
-	const versionQuery = "GET /graph/api/datasources/proxy/uid/metrics-uid/api/v1/query"
 	schemaArgs := map[string]any{"service_id": "svc-1", "database": "shop", "tables": []string{"customers"}, "info_types": "all"}
 
 	scenarios := map[string][]scenario{
@@ -386,9 +368,9 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 			{
 				name: "VersionsFail",
 				fake: routed(withRoutes(inventoryRoutes(), map[string]fixture{
-					versionQuery + " ?mysql_version_info":   failed,
-					versionQuery + " ?pg_static":            failed,
-					versionQuery + " ?mongodb_version_info": failed,
+					vmQuery + " ?mysql_version_info":   failed,
+					vmQuery + " ?pg_static":            failed,
+					vmQuery + " ?mongodb_version_info": failed,
 				})),
 			},
 		},
@@ -408,14 +390,14 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				name: "Empty",
 				fake: routed(withRoutes(qanRoutes(), map[string]fixture{
 					"POST /v1/qan:getMetrics":       {file: "metrics_empty.json"},
-					"POST /v1/qan/query:getExample": {file: "example_empty.json"},
+					"POST /v1/qan/query:getExample": {file: "empty.json"},
 				})),
 				args:    map[string]any{"queryid": "QID-AAA"},
 				wantErr: true,
 			},
 			{
 				name: "ExampleFails",
-				fake: routed(withRoutes(qanRoutes(), map[string]fixture{"POST /v1/qan/query:getExample": failed, versionQuery: {file: "vm_empty.json"}})),
+				fake: routed(withRoutes(qanRoutes(), map[string]fixture{"POST /v1/qan/query:getExample": failed, vmQuery: {file: "vm_empty.json"}})),
 				args: map[string]any{"queryid": "QID-AAA"},
 			},
 		},
@@ -424,14 +406,14 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				name: "NoStoredPlan",
 				fake: routed(withRoutes(qanRoutes(), map[string]fixture{
 					"POST " + reportPath:            {file: "report_by_service_postgres.json"},
-					"GET /v1/qan/query/QID-PG/plan": {file: "plan_empty.json"},
+					"GET /v1/qan/query/QID-PG/plan": {file: "empty.json"},
 				})),
 				args:    map[string]any{"service_id": "svc-2", "queryid": "QID-PG"},
 				wantErr: true,
 				check: func(t *testing.T, fake *fakePMM, text string) {
 					t.Helper()
 					assert.Len(t, fake.requestsTo("/v1/qan/query/QID-PG/plan"), 1, "the resolver passed and the plan was looked up")
-					assert.True(t, strings.HasPrefix(text, "error: not_found\nno stored plan for this query. "), text)
+					assertToolError(t, text, codeNotFound, "no stored plan for this query. ")
 					assert.NotContains(t, text, "QID-PG")
 				},
 			},
@@ -440,7 +422,7 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				fake: func(t *testing.T) *fakePMM {
 					t.Helper()
 					fake, _ := newActionStub(t, 0)
-					failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/actions/explain-" })
+					failWhen(fake, func(req *http.Request) bool { return req.URL.Path == "/v1/actions/explain-" })
 					return fake
 				},
 				args:    map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"},
@@ -473,7 +455,7 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 				fake: func(t *testing.T) *fakePMM {
 					t.Helper()
 					fake, _ := newActionStub(t, 0)
-					failWhen(t, fake, func(req *http.Request) bool { return req.URL.Path == "/v1/actions/index-customers" })
+					failWhen(fake, func(req *http.Request) bool { return req.URL.Path == "/v1/actions/index-customers" })
 					return fake
 				},
 				args: schemaArgs,
@@ -482,15 +464,15 @@ func TestEmptyAndDegradedResults(t *testing.T) {
 		"pmm_get_config": {
 			{
 				name: "Empty",
-				fake: routed(withRoutes(inventoryRoutes(), map[string]fixture{versionQuery: {file: "vm_empty.json"}})),
+				fake: routed(withRoutes(inventoryRoutes(), map[string]fixture{vmQuery: {file: "vm_empty.json"}})),
 				args: map[string]any{"service_name": "shop-mysql"},
 			},
 			{
 				name: "VersionFails",
 				fake: func(t *testing.T) *fakePMM {
 					t.Helper()
-					fake := newFakePMM(t, withRoutes(inventoryRoutes(), map[string]fixture{versionQuery: {file: "vm_variables.json"}}))
-					failWhen(t, fake, func(req *http.Request) bool {
+					fake := newFakePMM(t, withRoutes(inventoryRoutes(), map[string]fixture{vmQuery: {file: "vm_variables.json"}}))
+					failWhen(fake, func(req *http.Request) bool {
 						return strings.Contains(req.URL.Query().Get("query"), "mysql_version_info")
 					})
 					return fake

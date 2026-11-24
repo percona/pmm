@@ -29,6 +29,9 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// SessionCookieName is the name of PMM's Grafana session cookie (login_cookie_name in grafana.ini).
+const SessionCookieName = "pmm_session"
+
 // GetTokenFromHeaders returns authorization token if it is found in provided HTTP headers.
 func GetTokenFromHeaders(authHeaders http.Header) string {
 	authHeader := authHeaders.Get("Authorization")

@@ -54,6 +54,18 @@ func listQueries(f *fakePMM) int {
 	return len(queriesWith(f, "tlast_over_time(up["))
 }
 
+// keyOf is the caller key of a request that sends a's credentials as its Authorization and Cookie headers.
+func keyOf(a callerAuth) string {
+	h := http.Header{}
+	if a.authorization != "" {
+		h.Set("Authorization", a.authorization)
+	}
+	if a.cookie != "" {
+		h.Set("Cookie", a.cookie)
+	}
+	return callerAuthFromHeader(h).key
+}
+
 // fixture is one canned PMM API response, keyed by "METHOD /path", or by "METHOD /path ?TEXT" to answer only a request
 // whose query contains TEXT, ahead of the plain key and of any shorter TEXT.
 type fixture struct {
@@ -74,6 +86,9 @@ type recordedRequest struct {
 	body   []byte
 }
 
+// handler answers a request, whose body it is given, ahead of the fake PMM's routes, or returns false to leave it to them.
+type handler func(rw http.ResponseWriter, req *http.Request, body []byte) bool
+
 // fakePMM replays testdata fixtures and records every request so tests can
 // assert the forwarded credentials and request bodies.
 type fakePMM struct {
@@ -82,6 +97,7 @@ type fakePMM struct {
 
 	mu       sync.Mutex
 	routes   map[string]fixture
+	handlers []handler
 	requests []recordedRequest
 }
 
@@ -109,16 +125,33 @@ func (f *fakePMM) serve(rw http.ResponseWriter, req *http.Request) {
 		header: req.Header.Clone(),
 		body:   body,
 	})
+	handlers := f.handlers
 	fx, ok := f.route(req)
 	f.mu.Unlock()
 
+	for _, h := range handlers {
+		if h(rw, req, body) {
+			return
+		}
+	}
 	if !ok {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusNotFound)
 		_, _ = rw.Write([]byte(`{"code":5,"error":"no fixture for ` + req.Method + " " + req.URL.Path + `","message":"not found"}`))
 		return
 	}
+	f.reply(rw, req, fx)
+}
 
+// handle makes h answer requests ahead of the routes and of the handlers added before it.
+func (f *fakePMM) handle(h handler) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.handlers = append([]handler{h}, f.handlers...)
+}
+
+// reply answers req with fx.
+func (f *fakePMM) reply(rw http.ResponseWriter, req *http.Request, fx fixture) {
 	if fx.block {
 		<-req.Context().Done()
 		return
@@ -224,7 +257,7 @@ func newTestService(t *testing.T, fake *fakePMM) *Service {
 	s, err := New(Params{
 		API:     c,
 		Enabled: func() bool { return true },
-		RawSQL:  func() bool { return true },
+		RawSQL:  true,
 	})
 	require.NoError(t, err)
 	t.Cleanup(func() { assertLimitersEmpty(t, s) })
@@ -301,6 +334,13 @@ func callText(t *testing.T, session *mcp.ClientSession, name string, args map[st
 	return text.Text, res.IsError
 }
 
+// assertToolError checks that text is the error text of code, whose message starts with prefix.
+func assertToolError(t *testing.T, text string, code errorCode, prefix string) {
+	t.Helper()
+
+	assert.True(t, strings.HasPrefix(text, "error: "+string(code)+"\n"+prefix), text)
+}
+
 // callTool calls a tool through the session and returns the whole result.
 func callTool(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) *mcp.CallToolResult {
 	t.Helper()
@@ -309,6 +349,20 @@ func callTool(t *testing.T, session *mcp.ClientSession, name string, args map[st
 	require.NoError(t, err)
 	require.NotEmpty(t, res.Content)
 	return res
+}
+
+// callAs calls a tool on a new session to s, and returns its structured result as T unless it is an error, its text and
+// its error flag.
+func callAs[T any](t *testing.T, s *Service, name string, args map[string]any) (T, string, bool) {
+	t.Helper()
+
+	res := callTool(t, connect(t, s), name, args)
+	text := textOf(t, res)
+	if res.IsError {
+		var zero T
+		return zero, text, true
+	}
+	return structured[T](t, res), text, false
 }
 
 // mustJSON marshals v or fails the test.

@@ -105,11 +105,10 @@ func TestHAPeerNodeName(t *testing.T) {
 
 // TestMCPDefaultsAreOff pins that an empty settings row, which is also what
 // pmm-managed's MCP wiring falls back to when settings cannot be read, leaves
-// the endpoint off and its output masked.
+// the endpoint off.
 func TestMCPDefaultsAreOff(t *testing.T) {
 	t.Parallel()
 
 	var s Settings
 	assert.False(t, s.IsMCPEnabled())
-	assert.False(t, s.IsMCPRawSQLEnabled())
 }

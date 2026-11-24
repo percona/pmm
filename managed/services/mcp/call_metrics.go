@@ -74,14 +74,17 @@ func (m *callMetrics) register(r prometheus.Registerer) error {
 	return nil
 }
 
-// begin counts a call of tool in flight, and returns the function that records its end with its result code.
-func (m *callMetrics) begin(tool string) func(code string) {
+// begin counts a call of tool in flight, and returns the function that records its end with its result code and
+// returns its duration.
+func (m *callMetrics) begin(tool string) func(code string) time.Duration {
 	start := time.Now()
 	inFlight := m.inFlight.WithLabelValues(tool)
 	inFlight.Inc()
-	return func(code string) {
+	return func(code string) time.Duration {
+		duration := time.Since(start)
 		inFlight.Dec()
-		m.duration.WithLabelValues(tool).Observe(time.Since(start).Seconds())
+		m.duration.WithLabelValues(tool).Observe(duration.Seconds())
 		m.calls.WithLabelValues(tool, code).Inc()
+		return duration
 	}
 }

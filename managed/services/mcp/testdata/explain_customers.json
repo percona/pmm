@@ -1,0 +1,14 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "2014.25"
+    },
+    "table": {
+      "table_name": "customers",
+      "access_type": "ALL",
+      "rows_examined_per_scan": 20000,
+      "attached_condition": "(`shop`.`customers`.`email` = 'user42@example.com')"
+    }
+  }
+}
