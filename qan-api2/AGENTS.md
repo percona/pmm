@@ -28,7 +28,7 @@ PMM UI / API clients
 |------|----------|---------|
 | 9911 | gRPC | `CollectorService` (data ingestion) and `QANService` (analytics) |
 | 9922 | HTTP/JSON | gRPC-Gateway REST API |
-| 9933 | HTTP | Debug endpoints (`/debug/metrics`, `/debug/pprof`, `/debug/vars`) |
+| 9933 | HTTP | Debug endpoints, listed at `/debug` |
 
 ## Domain Model
 
@@ -93,6 +93,7 @@ CLI flags (parsed via `kingpin`):
 - `--clickhouse-addr`, `--clickhouse-name`, `--clickhouse-user`, `--clickhouse-password` — ClickHouse connection parameters
 - `--clickhouse-cluster` — enable cluster mode
 - `--clickhouse-cluster-name` — cluster name for ReplicatedMergeTree
+- `--clickhouse-nodes` (`PMM_CLICKHOUSE_NODES`) — PMM HA ClickHouse replicas; keeps one `pmm` database on all of them (`pmmdb.go`)
 - `--data-retention` — how long to keep data (default 30 days)
 - `--debug`, `--trace` — logging levels
 
