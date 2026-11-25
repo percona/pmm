@@ -75,7 +75,7 @@ To provide credentials:
 {.power-number}
 
 1. Choose a MongoDB user with the `clusterMonitor` role. You can reuse the PMM monitoring user, which already has this role.
-2. On every node that runs MongoDB, create the `/root/.mongodb_uri` file with one line:
+2. On every node that runs MongoDB, create the `.mongodb_uri` file in root's home directory (`/root/.mongodb_uri`), because pmm-agent runs as root. Give the file one line:
 
     ```
     mongodb://<user>:<password>@<host>:<port>
