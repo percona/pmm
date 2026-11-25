@@ -23,6 +23,12 @@ describe('Agents utils', () => {
     expect(getAgentTypeName(AgentType.qanMysqlSlowlogAgent)).toBe(
       'QAN MySQL Slow Query Log agent'
     );
+    expect(getAgentTypeName(AgentType.rtaMysqlAgent)).toBe(
+      'Real-Time Analytics MySQL agent'
+    );
+    expect(getAgentTypeName(AgentType.rtaMongodbAgent)).toBe(
+      'Real-Time Analytics MongoDB agent'
+    );
     expect(getAgentTypeName('future_agent-type' as AgentType)).toBe(
       'Future agent type'
     );
