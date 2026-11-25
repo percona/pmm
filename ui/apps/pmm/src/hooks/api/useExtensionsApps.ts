@@ -35,13 +35,22 @@ export const useExtensionsApps = () => {
   });
 };
 
-/** Fetch the app list again, once, when the calling component mounts. */
-export const useRefreshExtensionsApps = () => {
+/**
+ * Fetch the app list again when the calling component mounts, and whenever
+ * `appSlug` changes: the router keeps one Extensions page mounted while the
+ * user moves from one app to the next.
+ *
+ * A fetch still in flight is cancelled first. Invalidating would otherwise join
+ * it, and a first fetch that fails would then leave no list behind it.
+ */
+export const useRefreshExtensionsApps = (appSlug?: string) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    void queryClient.invalidateQueries({
-      queryKey: EXTENSIONS_APPS_QUERY_KEY,
-    });
-  }, [queryClient]);
+    const queryKey = EXTENSIONS_APPS_QUERY_KEY;
+
+    void queryClient
+      .cancelQueries({ queryKey })
+      .then(() => queryClient.invalidateQueries({ queryKey }));
+  }, [queryClient, appSlug]);
 };

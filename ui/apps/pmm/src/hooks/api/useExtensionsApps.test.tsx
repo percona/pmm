@@ -120,4 +120,41 @@ describe('useRefreshExtensionsApps', () => {
       queryClient.getQueryState(EXTENSIONS_APPS_QUERY_KEY)?.isInvalidated
     ).toBe(false);
   });
+
+  it('fetches the list again for each app the user moves to', async () => {
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useExtensionsApps(), { wrapper });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    const refresh = renderHook(
+      ({ appSlug }) => useRefreshExtensionsApps(appSlug),
+      { wrapper, initialProps: { appSlug: 'pg-backups' } }
+    );
+    await waitFor(() => expect(fetchApps).toHaveBeenCalledTimes(2));
+
+    refresh.rerender({ appSlug: 'pg-backups' });
+    refresh.rerender({ appSlug: 'disk-free' });
+
+    await waitFor(() => expect(fetchApps).toHaveBeenCalledTimes(3));
+  });
+
+  it('starts over instead of joining a fetch that is still in flight', async () => {
+    let failFirst: (error: Error) => void = () => {};
+    fetchApps.mockImplementationOnce(
+      () =>
+        new Promise((_, reject) => {
+          failFirst = reject;
+        })
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useExtensionsApps(), { wrapper });
+    await waitFor(() => expect(fetchApps).toHaveBeenCalledOnce());
+
+    renderHook(() => useRefreshExtensionsApps(), { wrapper });
+    await waitFor(() => expect(fetchApps).toHaveBeenCalledTimes(2));
+    failFirst(new Error('exchange failed'));
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toHaveLength(1);
+  });
 });

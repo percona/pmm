@@ -76,7 +76,9 @@ const renderExtensionsPage = ({
   isLoading = false,
   settings = { extensionsEnabled: true },
   version,
+  path = '/',
 }: {
+  path?: string;
   user?: User;
   isLoading?: boolean;
   settings?: { extensionsEnabled?: boolean };
@@ -96,7 +98,10 @@ const renderExtensionsPage = ({
           tree = wrapWithVersion(tree, version);
         }
         return (
-          <TestWrapper userContext={{ isLoading: false, user }}>
+          <TestWrapper
+            userContext={{ isLoading: false, user }}
+            routerProps={{ initialEntries: [path] }}
+          >
             {tree}
           </TestWrapper>
         );
@@ -124,6 +129,12 @@ describe('ExtensionsPage', () => {
     renderExtensionsPage();
 
     expect(useRefreshExtensionsApps).toHaveBeenCalled();
+  });
+
+  it('refreshes the app list for the app the page shows', () => {
+    renderExtensionsPage({ path: '/extensions/pg-backups/backups/123' });
+
+    expect(useRefreshExtensionsApps).toHaveBeenLastCalledWith('pg-backups');
   });
 
   it('leaves the app list alone when PMM Extensions is disabled', () => {

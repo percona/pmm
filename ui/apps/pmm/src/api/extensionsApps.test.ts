@@ -1,43 +1,76 @@
-import axios from 'axios';
+import axios, {
+  AxiosError,
+  type AxiosResponse,
+  type InternalAxiosRequestConfig,
+} from 'axios';
 import type * as Axios from 'axios';
-import type * as TokenStore from 'extensions/extensionsTokenStore';
 import { getExtensionsApps } from './extensionsApps';
+import { initExtensionsAuth } from 'extensions/bootstrap';
 import {
   getExtensionsAuthState,
-  getExtensionsToken,
+  recordExtensionsToken,
+  resetExtensionsAuthStore,
 } from 'extensions/extensionsTokenStore';
 
-const { get, post } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }));
+// Every axios instance, `@pmm-extensions/api`'s `apiClient` included, sends
+// through this adapter, so the interceptors installed on them really run.
+const { adapter } = vi.hoisted(() => ({ adapter: vi.fn() }));
 
 vi.mock('axios', async (importOriginal) => {
   const actual = await importOriginal<typeof Axios>();
   return {
+    ...actual,
     default: {
       ...actual.default,
-      // A real instance, so `@pmm-extensions/api` can still install its
-      // interceptors, with the transport replaced.
-      create: vi.fn((config) =>
-        Object.assign(actual.default.create(config), { get, post })
-      ),
+      create: vi.fn((config) => actual.default.create({ ...config, adapter })),
     },
   };
 });
 
-vi.mock('extensions/extensionsTokenStore', async (importOriginal) => ({
-  ...(await importOriginal<typeof TokenStore>()),
-  getExtensionsToken: vi.fn(() => null),
-}));
-
-const heldToken = vi.mocked(getExtensionsToken);
-
 const APPS = [{ app_key: 'atw' }];
 
+const respond =
+  (routes: Record<string, number>) =>
+  async (config: InternalAxiosRequestConfig): Promise<AxiosResponse> => {
+    const status = routes[config.url ?? ''] ?? 404;
+    const response = {
+      data:
+        config.url === '/apps/'
+          ? APPS
+          : { access_token: 'nav-bearer', expires_in: 300 },
+      status,
+      statusText: '',
+      headers: {},
+      config,
+    };
+    if (status >= 400) {
+      throw new AxiosError(
+        `Request failed with status code ${status}`,
+        'ERR_BAD_REQUEST',
+        config,
+        null,
+        response
+      );
+    }
+    return response;
+  };
+
+const requests = () =>
+  adapter.mock.calls.map(([config]) => ({
+    url: config.url,
+    authorization: config.headers.Authorization,
+  }));
+
 beforeEach(() => {
-  get.mockReset().mockResolvedValue({ data: APPS });
-  post.mockReset().mockResolvedValue({
-    data: { access_token: 'nav-bearer', expires_in: 300 },
-  });
-  heldToken.mockReturnValue(null);
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] });
+  adapter.mockReset();
+  resetExtensionsAuthStore();
+  initExtensionsAuth();
+});
+
+afterEach(() => {
+  resetExtensionsAuthStore();
+  vi.useRealTimers();
 });
 
 describe('getExtensionsApps', () => {
@@ -52,40 +85,58 @@ describe('getExtensionsApps', () => {
   });
 
   it('reuses the bearer an open Extensions page holds', async () => {
-    heldToken.mockReturnValue('page-bearer');
+    recordExtensionsToken('page-bearer', 300);
+    adapter.mockImplementation(respond({ '/apps/': 200 }));
 
     await expect(getExtensionsApps()).resolves.toEqual(APPS);
 
-    expect(post).not.toHaveBeenCalled();
-    expect(get).toHaveBeenCalledWith('/apps/', {
-      headers: { Authorization: 'Bearer page-bearer' },
-    });
+    expect(requests()).toEqual([
+      { url: '/apps/', authorization: 'Bearer page-bearer' },
+    ]);
   });
 
   it('exchanges the session when no bearer is held', async () => {
-    await getExtensionsApps();
-
-    expect(post).toHaveBeenCalledOnce();
-    expect(post).toHaveBeenCalledWith('/oauth/session/exchange');
-    expect(get).toHaveBeenCalledWith('/apps/', {
-      headers: { Authorization: 'Bearer nav-bearer' },
-    });
-  });
-
-  it('leaves the token store untouched, so no renewal starts', async () => {
-    await getExtensionsApps();
-
-    expect(getExtensionsAuthState()).toEqual({ phase: 'idle', notice: null });
-  });
-
-  it('rejects without marking the session signed out', async () => {
-    post.mockRejectedValue(
-      Object.assign(new Error('unauthorized'), { response: { status: 401 } })
+    adapter.mockImplementation(
+      respond({ '/oauth/session/exchange': 200, '/apps/': 200 })
     );
 
-    await expect(getExtensionsApps()).rejects.toThrow('unauthorized');
+    await expect(getExtensionsApps()).resolves.toEqual(APPS);
 
-    expect(get).not.toHaveBeenCalled();
-    expect(getExtensionsAuthState()).toEqual({ phase: 'idle', notice: null });
+    expect(requests()).toEqual([
+      { url: '/oauth/session/exchange', authorization: undefined },
+      { url: '/apps/', authorization: 'Bearer nav-bearer' },
+    ]);
   });
+
+  it('records no bearer, so no renewal ever starts', async () => {
+    adapter.mockImplementation(
+      respond({ '/oauth/session/exchange': 200, '/apps/': 200 })
+    );
+
+    await getExtensionsApps();
+    await vi.advanceTimersByTimeAsync(600_000);
+
+    expect(getExtensionsAuthState()).toEqual({ phase: 'idle', notice: null });
+    expect(adapter).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    ['the exchange', { '/oauth/session/exchange': 401 }],
+    ['the list', { '/oauth/session/exchange': 200, '/apps/': 401 }],
+  ])(
+    'rejects without signing the user out when %s is refused',
+    async (_, routes) => {
+      adapter.mockImplementation(respond(routes));
+
+      await expect(getExtensionsApps()).rejects.toBeInstanceOf(AxiosError);
+      await vi.advanceTimersByTimeAsync(600_000);
+
+      expect(getExtensionsAuthState()).toEqual({
+        phase: 'idle',
+        notice: null,
+      });
+      // No mint and no retry behind the nav's back.
+      expect(adapter).toHaveBeenCalledTimes(Object.keys(routes).length);
+    }
+  );
 });
