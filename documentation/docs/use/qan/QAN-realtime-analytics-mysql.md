@@ -122,9 +122,11 @@ You can start RTA from the PMM UI or from the command line:
 
         ![Cluster/Service drop-down with services grouped under MongoDB and MySQL](../../images/RTA_MySQL_select_service.png)
 
-        The live query table appears and starts updating automatically.
+        The **Real-time sessions** list opens, with a row for each session you started.
 
-    4. (Optional) To watch more services at once, for example a primary and its replicas, select all of them in step 3. To add a service later, click **All sessions**, then **+ New session**.
+    4. To open the live query table, click the session's name in the **Session** column. The table starts updating automatically.
+
+    5. (Optional) To watch more services at once, for example a primary and its replicas, select all of them in step 3. To add a service later, click **All sessions**, then **+ New session**.
 
 === "From the command line"
 

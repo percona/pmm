@@ -52,8 +52,9 @@ You can start RTA from the PMM UI or from the command line:
 
     1. Go to **Query Analytics** in the sidebar.
     2. Select the **Real-time** tab. If sessions are already running, the tab opens the sessions list. Click **+ New session** there.
-    3. Select a MongoDB service from the **Cluster/Service** drop-down and click **Start session**.
-    4. (Optional) To watch more services at once, for example all members of a replica set, select all of them in step 3. To add a service later, click **All sessions**, then **+ New session**.
+    3. Select a MongoDB service from the **Cluster/Service** drop-down and click **Start session**. The **Real-time sessions** list opens, with a row for each session you started.
+    4. To open the live operations table, click the session's name in the **Session** column. The table starts updating automatically.
+    5. (Optional) To watch more services at once, for example all members of a replica set, select all of them in step 3. To add a service later, click **All sessions**, then **+ New session**.
 
 === "From the command line"
 
