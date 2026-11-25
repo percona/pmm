@@ -25,6 +25,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -257,11 +258,12 @@ func rtaMySQLAgentConfig(service *models.Service, agent *models.Agent, pmmAgentV
 	}
 
 	return &agentv1.SetStateRequest_BuiltinAgent{
-		Type:        inventoryv1.AgentType_AGENT_TYPE_RTA_MYSQL_AGENT,
-		Dsn:         agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
-		RtaOptions:  apiRTAOptions,
-		ServiceId:   service.ServiceID,
-		ServiceName: service.ServiceName,
+		Type:                inventoryv1.AgentType_AGENT_TYPE_RTA_MYSQL_AGENT,
+		Dsn:                 agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		RtaOptions:          apiRTAOptions,
+		ServiceId:           service.ServiceID,
+		ServiceName:         service.ServiceName,
+		RtaSessionStartTime: timestamppb.New(agent.CreatedAt),
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

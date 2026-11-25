@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -850,6 +851,7 @@ func Test_rtaMongoDBAgentConfig(t *testing.T) {
 				RTAOptions: models.RTAOptions{
 					CollectInterval: new(2 * time.Second),
 				},
+				CreatedAt: time.Date(2026, 11, 25, 15, 0, 0, 0, time.UTC),
 			},
 			pmmAgentVersion: version.MustParse("3.7.0"),
 			want: &agentv1.SetStateRequest_BuiltinAgent{
@@ -858,8 +860,9 @@ func Test_rtaMongoDBAgentConfig(t *testing.T) {
 				RtaOptions: &inventoryv1.RTAOptions{
 					CollectInterval: durationpb.New(2 * time.Second),
 				},
-				ServiceId:   "service-id-1",
-				ServiceName: "mongodb-service-1",
+				ServiceId:           "service-id-1",
+				ServiceName:         "mongodb-service-1",
+				RtaSessionStartTime: timestamppb.New(time.Date(2026, 11, 25, 15, 0, 0, 0, time.UTC)),
 				TextFiles: &agentv1.TextFiles{
 					TemplateLeftDelim:  "{{",
 					TemplateRightDelim: "}}",
