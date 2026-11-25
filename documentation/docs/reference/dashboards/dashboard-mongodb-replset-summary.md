@@ -32,7 +32,11 @@ A count lower than expected means a member may be offline or removed. Fewer memb
 
 ### DBs
 
-Shows the total number of user-created databases in the replica set.
+Shows the number of user-created databases in the replica set. The system databases `admin`, `config`, and `local` aren't counted.
+
+Use this to track database growth over time.
+
+If the panel shows **No data**, add the replica set members with [`--enable-all-collectors`](../../use/commands/pmm-admin/add.md#collector-options) so that PMM collects database statistics.
 
 ### Last Election
 

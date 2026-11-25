@@ -67,7 +67,11 @@ Shows how many shards are currently being drained via `removeShard`. A non-zero 
 
 ### DBs
 
-Shows the number of user-created databases in the cluster. Watch this over time to track database growth.
+Shows the number of user-created databases in the cluster, both sharded and unsharded. The system databases `admin`, `config`, and `local` aren't counted.
+
+Use this to track database growth over time.
+
+If the panel shows **No data**, add the `mongos` service with [`--enable-all-collectors`](../../use/commands/pmm-admin/add.md#collector-options) so that PMM collects database statistics.
 
 ### Balancer Enabled
 
@@ -191,11 +195,11 @@ Shows the rate of change in chunks per shard over time. Positive values mean chu
 
 ### Chunks Move Events
 
-Shows the rate of chunk migrations between shards over time. Sustained high migration rates can consume network and disk I/O on the affected shards and increase replication lag. Investigate if chunk moves are frequent during peak traffic hours.
+Shows the number of chunk migrations between shards in the last 10 minutes, as reported by the `mongos` changelog. Sustained high migration counts can consume network and disk I/O on the affected shards and increase replication lag. Investigate if chunk moves are frequent during peak traffic hours.
 
-### Chunk Split Events
+### Chunks Split Events
 
-Shows the rate at which chunks are being split over time. Splits happen automatically when a chunk grows beyond the configured maximum size. A high split rate indicates rapid data growth or a sharding key with low cardinality that is causing hotspots.
+Shows the number of chunk splits in the last 10 minutes, as reported by the `mongos` changelog. Splits happen automatically when a chunk grows beyond the configured maximum size. A high split count indicates rapid data growth or a sharding key with low cardinality that is causing hotspots.
 
 ## Replication
 
