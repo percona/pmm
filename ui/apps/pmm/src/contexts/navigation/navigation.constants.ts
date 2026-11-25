@@ -923,3 +923,17 @@ export const NAV_EXTENSIONS_MYSQL_BACKUPS: NavItem = {
   url: EXTENSIONS_MYSQL_BACKUPS_PATH,
   matches: ['*'],
 };
+
+// Apps with a dedicated route keep their own label and icon; the side-car's list
+// decides only whether they show and where. Keyed by app key.
+export const NAV_EXTENSIONS_DEDICATED_APPS: Record<string, NavItem> = {
+  atw: NAV_EXTENSIONS_ATW,
+  mysql_backups: NAV_EXTENSIONS_MYSQL_BACKUPS,
+};
+
+// Shown while the app list loads or when it cannot be fetched, in the list's
+// own order (by `nav_order`), so the section does not reorder when it arrives.
+export const NAV_EXTENSIONS_FALLBACK_APPS: NavItem[] = [
+  NAV_EXTENSIONS_ATW,
+  NAV_EXTENSIONS_MYSQL_BACKUPS,
+];

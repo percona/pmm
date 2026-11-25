@@ -10,11 +10,20 @@ import {
   addDashboardItems,
   addOm,
 } from './navigation.utils';
-import { NAV_MONGO } from './navigation.constants';
+import {
+  NAV_EXTENSIONS_ATW,
+  NAV_EXTENSIONS_MYSQL_BACKUPS,
+  NAV_MONGO,
+} from './navigation.constants';
+import {
+  DEFAULT_EXTENSIONS_APP_ICON,
+  type ExtensionsApp,
+} from 'extensions/extensionsApps';
 import { ServiceType } from 'types/services.types';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  EXTENSIONS_PATH,
   PMM_NEW_NAV_GRAFANA_PATH,
 } from 'lib/constants';
 import { PreviewChip } from 'components/preview-chip';
@@ -86,6 +95,35 @@ describe('addAlerting', () => {
   });
 });
 
+const extensionsApp = (overrides: Partial<ExtensionsApp>): ExtensionsApp => ({
+  key: 'pg_backups',
+  slug: 'pg-backups',
+  label: 'PostgreSQL Backups',
+  icon: DEFAULT_EXTENSIONS_APP_ICON,
+  order: 10,
+  enabled: true,
+  customUi: false,
+  blockedBy: [],
+  ...overrides,
+});
+
+const LISTED_ATW = extensionsApp({
+  key: 'atw',
+  slug: 'atw',
+  label: 'ATW',
+  order: 3,
+  customUi: true,
+});
+const LISTED_MYSQL_BACKUPS = extensionsApp({
+  key: 'mysql_backups',
+  slug: 'mysql-backups',
+  label: 'MySQL backups',
+  order: 8,
+});
+
+const childIdsOf = (items: ReturnType<typeof addExtensionsApps>) =>
+  (items[0]?.children || []).map((child) => child.id);
+
 describe('addExtensionsApps', () => {
   it('returns one Apps section instead of two flat entries', () => {
     const items = addExtensionsApps();
@@ -105,20 +143,86 @@ describe('addExtensionsApps', () => {
     expect(addExtensionsApps()[0].url).toBeUndefined();
   });
 
-  it('keeps each app url and matches on the children', () => {
-    const children = addExtensionsApps()[0].children || [];
+  describe('before the app list arrives', () => {
+    it('shows the apps with a dedicated route, in nav order', () => {
+      const children = addExtensionsApps()[0].children || [];
 
-    expect(children.map((child) => child.id)).toEqual([
-      'extensions-mysql-backups',
-      'extensions-atw',
-    ]);
-    expect(children[0]).toMatchObject({
-      url: EXTENSIONS_MYSQL_BACKUPS_PATH,
-      matches: ['*'],
+      expect(children.map((child) => child.id)).toEqual([
+        'extensions-atw',
+        'extensions-mysql-backups',
+      ]);
+      expect(children[0]).toMatchObject({
+        url: EXTENSIONS_ATW_PATH,
+        matches: ['*'],
+      });
+      expect(children[1]).toMatchObject({
+        url: EXTENSIONS_MYSQL_BACKUPS_PATH,
+        matches: ['*'],
+      });
     });
-    expect(children[1]).toMatchObject({
-      url: EXTENSIONS_ATW_PATH,
-      matches: ['*'],
+  });
+
+  describe('from the app list', () => {
+    it('adds a listed schema-driven app under its slug', () => {
+      const items = addExtensionsApps([extensionsApp({})]);
+
+      expect(items[0].children).toEqual([
+        {
+          id: 'extensions-pg-backups',
+          icon: DEFAULT_EXTENSIONS_APP_ICON,
+          text: 'PostgreSQL Backups',
+          url: `${EXTENSIONS_PATH}/pg-backups`,
+          matches: ['*'],
+        },
+      ]);
+    });
+
+    it('follows the order of the list', () => {
+      const items = addExtensionsApps([
+        LISTED_ATW,
+        LISTED_MYSQL_BACKUPS,
+        extensionsApp({}),
+      ]);
+
+      expect(childIdsOf(items)).toEqual([
+        'extensions-atw',
+        'extensions-mysql-backups',
+        'extensions-pg-backups',
+      ]);
+    });
+
+    it('keeps the label and icon of an app with a dedicated route', () => {
+      const [atw, mysqlBackups] =
+        addExtensionsApps([LISTED_ATW, LISTED_MYSQL_BACKUPS])[0].children || [];
+
+      expect(atw).toBe(NAV_EXTENSIONS_ATW);
+      expect(mysqlBackups).toBe(NAV_EXTENSIONS_MYSQL_BACKUPS);
+    });
+
+    it('drops a disabled app, including one with a dedicated route', () => {
+      const items = addExtensionsApps([
+        { ...LISTED_ATW, enabled: false },
+        LISTED_MYSQL_BACKUPS,
+        extensionsApp({ enabled: false }),
+      ]);
+
+      expect(childIdsOf(items)).toEqual(['extensions-mysql-backups']);
+    });
+
+    it('drops a custom-page app that has no dedicated route', () => {
+      const items = addExtensionsApps([
+        LISTED_MYSQL_BACKUPS,
+        extensionsApp({ customUi: true }),
+      ]);
+
+      expect(childIdsOf(items)).toEqual(['extensions-mysql-backups']);
+    });
+
+    it('drops the section when no listed app has an item', () => {
+      expect(addExtensionsApps([])).toEqual([]);
+      expect(addExtensionsApps([{ ...LISTED_ATW, enabled: false }])).toEqual(
+        []
+      );
     });
   });
 });

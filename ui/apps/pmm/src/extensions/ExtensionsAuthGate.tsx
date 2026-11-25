@@ -52,10 +52,10 @@ const ExtensionsAuthNoticeBar: FC<{ kind: ExtensionsAuthNotice }> = ({
 /**
  * Holds a PMM Extensions route until a side-car bearer has been minted from the PMM session.
  *
- * Gating here rather than exchanging at app startup keeps the side-car out of the boot
- * path for the PMM users who never open a PMM Extensions page — the UI has no
- * `PMM_ENABLE_EXTENSIONS` flag to check, so an eager exchange would hit the side-car on every
- * page load for everybody.
+ * Gating here rather than exchanging at app startup keeps the renewal timer off
+ * the boot path for the PMM users who never open a PMM Extensions page. The
+ * navigation fetches the app list at load when `settings.extensionsEnabled` is
+ * on, but with a bearer of its own that is never renewed (`api/extensionsApps.ts`).
  *
  * It also removes a race the token provider cannot: `setTokenProvider` is
  * synchronous, so a plugin's first queries would otherwise fire before the

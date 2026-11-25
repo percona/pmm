@@ -39,8 +39,10 @@ export const PMM_QAN_URL = `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-anal
 // each plugin's `routeBase`) and the navigation builder (`url` / `matches`), so
 // the two cannot drift: a plugin's absolute nav links resolve against
 // `routeBase`, and a mismatch silently sends them outside the mount.
-export const EXTENSIONS_ATW_PATH = `${PMM_NEW_NAV_PATH}/extensions/atw`;
-export const EXTENSIONS_MYSQL_BACKUPS_PATH = `${PMM_NEW_NAV_PATH}/extensions/mysql-backups`;
+// Every other schema-driven app is mounted under `EXTENSIONS_PATH` by slug.
+export const EXTENSIONS_PATH = `${PMM_NEW_NAV_PATH}/extensions`;
+export const EXTENSIONS_ATW_PATH = `${EXTENSIONS_PATH}/atw`;
+export const EXTENSIONS_MYSQL_BACKUPS_PATH = `${EXTENSIONS_PATH}/mysql-backups`;
 
 // In-app (router-relative, no basename) path of the settings tab that owns the
 // ServiceNow connection — handed to the Support diagnostics app so its disabled

@@ -33,6 +33,7 @@ import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useHaInfo } from 'hooks/api/useHA';
 import { useAuth } from 'contexts/auth';
 import { ServiceType } from 'types/services.types';
+import { useExtensionsApps } from 'hooks/api/useExtensionsApps';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
@@ -52,6 +53,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { data: haInfo } = useHaInfo({
     enabled: !!user,
   });
+  const { data: extensionsApps } = useExtensionsApps();
 
   const navTree = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [];
@@ -114,7 +116,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       // PMM Extensions navigation is withheld when the integration is disabled
       // (PMM_ENABLE_EXTENSIONS).
       if (settings?.extensionsEnabled) {
-        items.push(...addExtensionsApps());
+        items.push(...addExtensionsApps(extensionsApps));
       }
 
       if (user.isPMMAdmin) {
@@ -155,6 +157,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     versionInfo,
     isLoggedIn,
     isAnonymous,
+    extensionsApps,
   ]);
 
   return (

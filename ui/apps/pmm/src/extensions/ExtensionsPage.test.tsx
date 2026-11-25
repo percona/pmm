@@ -17,10 +17,17 @@ import { Messages as VersionMismatchMessages } from './ExtensionsVersionMismatch
 
 // The gate mints a side-car bearer on mount; this suite is about who reaches it, so
 // hold it open and let the page render its children.
+import { useRefreshExtensionsApps } from 'hooks/api/useExtensionsApps';
+
 vi.mock('./ExtensionsAuthGate', () => ({
   ExtensionsAuthGate: ({ children }: { children: React.ReactNode }) => (
     <>{children}</>
   ),
+}));
+
+// The refresh needs a QueryClient, and is covered with the hook.
+vi.mock('hooks/api/useExtensionsApps', () => ({
+  useRefreshExtensionsApps: vi.fn(),
 }));
 
 // Settings-gating cases never needed app-info; mocking useAppInfo keeps them
@@ -111,6 +118,20 @@ describe('ExtensionsPage', () => {
     renderExtensionsPage({ user: TEST_USER_VIEWER });
 
     expect(screen.getByTestId('extensions-plugin')).toBeInTheDocument();
+  });
+
+  it('refreshes the app list once the page is past the auth gate', () => {
+    renderExtensionsPage();
+
+    expect(useRefreshExtensionsApps).toHaveBeenCalled();
+  });
+
+  it('leaves the app list alone when PMM Extensions is disabled', () => {
+    vi.mocked(useRefreshExtensionsApps).mockClear();
+
+    renderExtensionsPage({ settings: { extensionsEnabled: false } });
+
+    expect(useRefreshExtensionsApps).not.toHaveBeenCalled();
   });
 
   it('renders an unavailable message when PMM Extensions is disabled', () => {

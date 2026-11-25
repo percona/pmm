@@ -51,8 +51,8 @@ import {
   NAV_HIGH_AVAILABILITY_OVERVIEW,
   NAV_HOME_PAGE,
   NAV_MANAGEMENT,
-  NAV_EXTENSIONS_ATW,
-  NAV_EXTENSIONS_MYSQL_BACKUPS,
+  NAV_EXTENSIONS_DEDICATED_APPS,
+  NAV_EXTENSIONS_FALLBACK_APPS,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { DashboardFolder } from 'types/folders.types';
@@ -61,6 +61,10 @@ import { HighAvailabilityIcon } from 'components/ha-icon';
 import { HighAvailabilityBadge } from 'components/ha-badge';
 import { PreviewChip } from 'components/preview-chip';
 import { HAInfo } from 'types/ha.types';
+import {
+  type ExtensionsApp,
+  extensionsAppPath,
+} from 'extensions/extensionsApps';
 
 export const addOtherDashboardsItem = (
   rootNode: NavItem,
@@ -318,24 +322,55 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
   return NAV_HOME_PAGE;
 };
 
-// PMM Extensions apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
-// is lifted from the side-car's appNavConfig as data only — no PMM Extensions nav component is used.
-// Deliberately unconditional: reachability is not the gate, the per-control
-// mutation capability is (PMM-15358, and NavigationProvider for placement).
 // A collapsible with no children renders as an expandable shell that opens on
 // nothing, so a section drops out with its last child rather than outliving it.
 // Callers spread the result, which is what lets it contribute no entry at all.
 export const addSection = (section: NavItem, children: NavItem[]): NavItem[] =>
   children.length ? [{ ...section, children }] : [];
 
-export const addExtensionsApps = (): NavItem[] =>
+const toExtensionsAppNavItems = (app: ExtensionsApp): NavItem[] => {
+  if (!app.enabled) {
+    return [];
+  }
+
+  const dedicated = NAV_EXTENSIONS_DEDICATED_APPS[app.key];
+
+  if (dedicated) {
+    return [dedicated];
+  }
+
+  // A custom page needs a dedicated route; the generic one cannot render it.
+  if (app.customUi) {
+    return [];
+  }
+
+  return [
+    {
+      id: `extensions-${app.slug}`,
+      icon: app.icon,
+      text: app.label,
+      url: extensionsAppPath(app.slug),
+      matches: ['*'],
+    },
+  ];
+};
+
+/**
+ * The Apps section, built from the side-car's app list (already in nav order).
+ * Until the list arrives, or when it cannot be fetched, `apps` is undefined and
+ * the apps with a dedicated route stand in for it.
+ *
+ * Shown to every signed-in user: reachability is not the gate, the per-control
+ * mutation capability is (PMM-15358, and NavigationProvider for placement).
+ */
+export const addExtensionsApps = (apps?: ExtensionsApp[]): NavItem[] =>
   addSection(
     {
       ...NAV_MANAGEMENT,
       badge: <PreviewChip level="tech" />,
       badgeAlwaysVisible: true,
     },
-    [NAV_EXTENSIONS_MYSQL_BACKUPS, NAV_EXTENSIONS_ATW]
+    apps ? apps.flatMap(toExtensionsAppNavItems) : NAV_EXTENSIONS_FALLBACK_APPS
   );
 
 /**

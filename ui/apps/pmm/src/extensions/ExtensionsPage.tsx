@@ -8,6 +8,16 @@ import { useSettings } from 'contexts/settings';
 import { ExtensionsAuthGate } from './ExtensionsAuthGate';
 import { ExtensionsAuthProvider } from './ExtensionsAuthProvider';
 import { ExtensionsVersionMismatchAlert } from './ExtensionsVersionMismatchAlert';
+import { useRefreshExtensionsApps } from 'hooks/api/useExtensionsApps';
+
+/**
+ * Fetches the app list again once the page holds a bearer, so the Apps section
+ * catches up with apps enabled or disabled since the page loaded.
+ */
+const RefreshExtensionsApps: FC = () => {
+  useRefreshExtensionsApps();
+  return null;
+};
 
 /**
  * Shared container for PMM Extensions apps mounted as native PMM routes.
@@ -65,6 +75,7 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
       <Stack gap={3} sx={{ flex: 1 }}>
         <ExtensionsAuthProvider>
           <ExtensionsAuthGate>
+            <RefreshExtensionsApps />
             <Stack gap={3} sx={{ flex: 1 }}>
               <ExtensionsVersionMismatchAlert />
               {/*
