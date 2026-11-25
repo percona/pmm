@@ -84,6 +84,16 @@ func ClearOmBootstrapAdminPassword(q *reform.Querier, runID string) error {
 	return nil
 }
 
+// RebindOmBootstrapSecretRun moves a staged secret from one run id to another, so an install
+// operation that stored it under its own id hands it to the run its executor later created.
+func RebindOmBootstrapSecretRun(q *reform.Querier, fromRunID, toRunID string) error {
+	_, err := q.Exec("UPDATE om_bootstrap_secrets SET run_id = $1 WHERE run_id = $2", toRunID, fromRunID)
+	if err != nil {
+		return fmt.Errorf("failed to rebind OM bootstrap secret: %w", err)
+	}
+	return nil
+}
+
 // FindOmBootstrapSecretByRunID returns one run's stored secret, decrypted, or ErrNotFound.
 func FindOmBootstrapSecretByRunID(q *reform.Querier, runID string) (*OmBootstrapSecret, error) {
 	if runID == "" {
