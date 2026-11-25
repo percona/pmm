@@ -1,6 +1,6 @@
 # List of available alert templates
 
-Use these templates to get alerted about common problems, such as high CPU load or a database going down, without writing the alert rules yourself. You [create an alert rule from a template](alert_rules.md#add-an-alert-rule-based-on-a-template) and adjust the values if you need to. Some templates, such as the ones for PMM itself, are [already turned on for you](built_in_alerts.md).
+Use these templates to get alerted about common problems, such as high CPU load or a database going down, without writing the alert rules yourself. You [create an alert rule from a template](alert_rules.md#create-an-alert-rule) and adjust the values if you need to. Some templates, such as the ones for PMM itself, are [already turned on for you](built_in_alerts.md).
 
 ## Template catalog
 
@@ -10,6 +10,7 @@ Browse the alert templates by what they monitor:
 - [PMM templates](#pmm_alerts)
 - [PMM High Availability (HA)templates](#pmm_ha_alerts)
 - [PMM internal component templates](#pmm_component_alerts)
+- [Query Analytics templates](#qan_alerts)
 - [MongoDB templates](#mongodb_alerts)
 - [PBM templates](#pbm_alerts)
 - [MySQL templates](#mysql_alerts)
@@ -42,7 +43,7 @@ You don't need to create rules from these templates yourself. PMM adds them to e
 
 | Template name | Description |
 |:------------- | :---------- |
-| **PMM HA cluster has no active leader** | Alerts when no PMM Server node is the leader. While this lasts, you can't open the PMM UI or use the API, and cluster-wide tasks such as advisor checks and scheduled backups stop. |
+| **PMM HA cluster has no active leader** | Alerts when no PMM Server node is the leader. While this lasts, you can't open the PMM UI or use the API, and cluster-wide tasks such as Advisor checks and scheduled backups stop. |
 | **PMM HA split-brain detected** | Alerts when more than one node acts as the leader at the same time, because the nodes have formed separate clusters instead of one. |
 | **PMM HA leader is flapping** | Alerts when a node goes through more than 5 leader elections within 10 minutes, usually because of an unstable network or a node that keeps restarting. |
 | **PMM HA node unreachable** | Alerts when fewer PMM Server nodes report in than the number configured in `PMM_HA_PEERS`, which means at least one node is down or cut off from the others. |
@@ -86,6 +87,15 @@ Whether the component alerts fire depends on which component fails and how:
 | ClickHouse or the QAN API is down | The matching alert always fires, because VictoriaMetrics keeps running and records the failure. |
 | A VictoriaMetrics or ClickHouse pod on a PMM HA Cluster isn't monitored by the `pmm-ha` Helm chart | The alert for that pod stays silent instead of firing. |
 | A PMM Client stops reporting | These alerts cover PMM Server only. Use the *PMM agent down* template instead. |
+
+<a id="qan_alerts"></a>
+### Query Analytics templates
+
+Use these templates to get alerted when queries slow down on your services, based on the data that Query Analytics collects. You can also [write your own Query Analytics template](alert_rules.md#set-up-query-performance-alerts).
+
+| Area | Template name | Description | Database technology |
+| :----|:------------- | :---------- | :------------------ |
+| QAN | **QAN slow queries** | Alerts when the slowest query on a service in the last 5 minutes runs longer than 10 seconds (default threshold). Uses the maximum query time for MySQL slow log and MongoDB, and the average query time for PostgreSQL and MySQL Performance Schema. Alerts carry the standard node and service labels, such as `service_name`, `node_name`, `region`, and `environment`, so you can filter and route them like metric alerts. You can [set per-node threshold overrides](alert-thresholds.md) without editing the rule. | MySQL, MongoDB, PostgreSQL |
 
 <a id="mongodb_alerts"></a>
 ### MongoDB templates
