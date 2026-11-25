@@ -31,6 +31,9 @@ export const getSessionRows = (sessions: RealtimeSession[]): SessionRow[] => {
         status: areAllRunning
           ? RealtimeSessionStatus.running
           : RealtimeSessionStatus.unspecified,
+        statusMessage: areAllRunning
+          ? getClusterWarnings(services)
+          : undefined,
         startTime: earliestStartedAt,
         serviceSessions: services,
       });
@@ -38,6 +41,18 @@ export const getSessionRows = (sessions: RealtimeSession[]): SessionRow[] => {
   }
 
   return rows;
+};
+
+// Each finding of the cluster's services on its own line, prefixed with the service name
+const getClusterWarnings = (services: SessionRow[]): string | undefined => {
+  const findings = services.flatMap((service) =>
+    (service.statusMessage ?? '')
+      .split('\n')
+      .filter((line) => line.trim() !== '')
+      .map((line) => `${service.sessionName}: ${line}`)
+  );
+
+  return findings.length > 0 ? findings.join('\n') : undefined;
 };
 
 const getClusters = (

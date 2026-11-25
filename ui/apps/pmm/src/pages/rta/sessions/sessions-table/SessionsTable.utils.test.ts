@@ -63,3 +63,36 @@ describe('getSessionRows status message', () => {
     );
   });
 });
+
+describe('getSessionRows cluster warnings', () => {
+  const session = (serviceId: string, statusMessage?: string) => ({
+    ...TEST_REAL_TIME_SESSION_MYSQL,
+    serviceId,
+    serviceName: serviceId,
+    status: RealtimeSessionStatus.running,
+    statusMessage,
+  });
+
+  it('gathers the warnings of its running services, naming each service', () => {
+    const [cluster] = getSessionRows([
+      session('mysql-1'),
+      session(
+        'mysql-2',
+        'The consumer is disabled.\nThe instrument is disabled.'
+      ),
+      session('mysql-3', 'The instrument is disabled.'),
+    ]);
+
+    expect(cluster.type).toBe('cluster');
+    expect(cluster.status).toBe(RealtimeSessionStatus.running);
+    expect(cluster.statusMessage).toBe(
+      'mysql-2: The consumer is disabled.\nmysql-2: The instrument is disabled.\nmysql-3: The instrument is disabled.'
+    );
+  });
+
+  it('stays plain when no service has a warning', () => {
+    const [cluster] = getSessionRows([session('mysql-1'), session('mysql-2')]);
+
+    expect(cluster.statusMessage).toBeUndefined();
+  });
+});
