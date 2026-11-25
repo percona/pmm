@@ -34,7 +34,7 @@ func quoteVerbInErrors(m dsl.Matcher) {
 		`status.Newf($_, $format, $*_)`,
 	).
 		Where(m["format"].Text.Matches(quoteVerb)).
-		Report(quoteVerbMessage)
+		Report(quoteVerbMessage).At(m["format"])
 }
 
 func quoteVerbInLogs(m dsl.Matcher) {
@@ -53,7 +53,7 @@ func quoteVerbInLogs(m dsl.Matcher) {
 		`$log.Logf($_, $format, $*_)`,
 	).
 		Where(m["format"].Text.Matches(quoteVerb) && m["log"].Type.Implements("logrus.FieldLogger")).
-		Report(quoteVerbMessage)
+		Report(quoteVerbMessage).At(m["format"])
 
 	m.Match(
 		`logrus.Tracef($format, $*_)`,
@@ -67,5 +67,5 @@ func quoteVerbInLogs(m dsl.Matcher) {
 		`logrus.Panicf($format, $*_)`,
 	).
 		Where(m["format"].Text.Matches(quoteVerb)).
-		Report(quoteVerbMessage)
+		Report(quoteVerbMessage).At(m["format"])
 }
