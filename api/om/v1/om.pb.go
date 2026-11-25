@@ -851,7 +851,10 @@ type Cluster struct {
 	// What buildDocument inferred about this group's shape.
 	Type ClusterType `protobuf:"varint,4,opt,name=type,proto3,enum=om.v1.ClusterType" json:"type,omitempty"`
 	// Reserved for the health pipeline. Always UNSPECIFIED today.
-	Health        ClusterHealth `protobuf:"varint,5,opt,name=health,proto3,enum=om.v1.ClusterHealth" json:"health,omitempty"`
+	Health ClusterHealth `protobuf:"varint,5,opt,name=health,proto3,enum=om.v1.ClusterHealth" json:"health,omitempty"`
+	// Whether Operations manages this cluster: at least one observed service is a live
+	// member of a managed cluster record. A plain monitored cluster is false.
+	Managed       bool `protobuf:"varint,6,opt,name=managed,proto3" json:"managed,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -919,6 +922,13 @@ func (x *Cluster) GetHealth() ClusterHealth {
 		return x.Health
 	}
 	return ClusterHealth_CLUSTER_HEALTH_UNSPECIFIED
+}
+
+func (x *Cluster) GetManaged() bool {
+	if x != nil {
+		return x.Managed
+	}
+	return false
 }
 
 // Environment represents one monitoring environment.
@@ -6663,13 +6673,14 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\f_config_pathB\a\n" +
 	"\x05_argvB\x0e\n" +
 	"\f_observed_atB\r\n" +
-	"\v_last_up_at\"\xc5\x01\n" +
+	"\v_last_up_at\"\xdf\x01\n" +
 	"\aCluster\x12\x17\n" +
 	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x122\n" +
 	"\bservices\x18\x02 \x03(\v2\x16.om.v1.TopologyServiceR\bservices\x12\x0e\n" +
 	"\x02id\x18\x03 \x01(\tR\x02id\x12&\n" +
 	"\x04type\x18\x04 \x01(\x0e2\x12.om.v1.ClusterTypeR\x04type\x12,\n" +
-	"\x06health\x18\x05 \x01(\x0e2\x14.om.v1.ClusterHealthR\x06healthB\a\n" +
+	"\x06health\x18\x05 \x01(\x0e2\x14.om.v1.ClusterHealthR\x06health\x12\x18\n" +
+	"\amanaged\x18\x06 \x01(\bR\amanagedB\a\n" +
 	"\x05_name\"f\n" +
 	"\vEnvironment\x12\x1e\n" +
 	"\benv_name\x18\x01 \x01(\tH\x00R\aenvName\x88\x01\x01\x12*\n" +

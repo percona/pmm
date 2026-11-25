@@ -40137,6 +40137,11 @@
                                 "CLUSTER_HEALTH_UNSPECIFIED"
                               ],
                               "x-order": 4
+                            },
+                            "managed": {
+                              "description": "Whether Operations manages this cluster: at least one observed service is a live\nmember of a managed cluster record. A plain monitored cluster is false.",
+                              "type": "boolean",
+                              "x-order": 5
                             }
                           }
                         },

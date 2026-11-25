@@ -91,3 +91,22 @@ func InsertInstallMarker(tx *reform.TX, markerID, clusterID, operationID, runID 
 	}
 	return nil
 }
+
+// ManagedMemberServiceIDs returns the PMM service ids of live members of a managed cluster, so the
+// observed topology can mark which of its clusters Operations manages.
+func ManagedMemberServiceIDs(q *reform.Querier) (map[string]bool, error) {
+	rows, err := q.SelectAllFrom(OmClusterMemberTable,
+		"WHERE removed_at IS NULL AND service_id IS NOT NULL "+
+			"AND cluster_id IN (SELECT id FROM om_clusters WHERE status = 'managed' AND removed_at IS NULL)")
+	if err != nil {
+		return nil, fmt.Errorf("failed to select managed member services: %w", err)
+	}
+	out := make(map[string]bool, len(rows))
+	for _, row := range rows {
+		member := row.(*OmClusterMember) //nolint:forcetypeassert
+		if member.ServiceID != nil {
+			out[*member.ServiceID] = true
+		}
+	}
+	return out, nil
+}

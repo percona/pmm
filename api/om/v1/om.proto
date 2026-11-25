@@ -204,6 +204,9 @@ message Cluster {
   ClusterType type = 4;
   // Reserved for the health pipeline. Always UNSPECIFIED today.
   ClusterHealth health = 5;
+  // Whether Operations manages this cluster: at least one observed service is a live
+  // member of a managed cluster record. A plain monitored cluster is false.
+  bool managed = 6;
 }
 
 // Environment represents one monitoring environment.
