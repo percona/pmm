@@ -141,7 +141,7 @@ message QueryData {
   google.protobuf.Duration query_execution_duration = 6;
   // Timestamp when the query data was collected by Real-Time Analytics agent.
   google.protobuf.Timestamp query_collect_time = 7;
-  // Client address (host:port).
+  // Client address: host:port for MongoDB, the client host for MySQL.
   string client_address = 8;
   // Database-specific payload.
   oneof payload {

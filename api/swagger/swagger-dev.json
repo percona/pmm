@@ -42338,7 +42338,7 @@
                         "x-order": 6
                       },
                       "client_address": {
-                        "description": "Client address (host:port).",
+                        "description": "Client address: host:port for MongoDB, the client host for MySQL.",
                         "type": "string",
                         "x-order": 7
                       },

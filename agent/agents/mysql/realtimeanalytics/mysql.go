@@ -79,6 +79,8 @@ SELECT /* pmm-agent:rta */
     IF(pps.NAME IN ('thread/sql/one_connection', 'thread/thread_pool/tp_one_connection'),
        CONCAT(pps.PROCESSLIST_USER, '@', CONVERT(pps.PROCESSLIST_HOST USING utf8mb4)),
        REPLACE(pps.NAME, 'thread/', '')) AS user,
+    IF(pps.NAME IN ('thread/sql/one_connection', 'thread/thread_pool/tp_one_connection'),
+       CONVERT(pps.PROCESSLIST_HOST USING utf8mb4), NULL) AS client_address,
     pps.PROCESSLIST_DB AS db,
     pps.PROCESSLIST_COMMAND AS command,
     pps.PROCESSLIST_STATE AS state,
@@ -1359,6 +1361,7 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 		QueryText:              queryText,
 		QueryRawJson:           string(rawJSON),
 		QueryExecutionDuration: execDuration,
+		ClientAddress:          mapString(row, "client_address"),
 		Payload: &rtav1.QueryData_MySqlPayload{
 			MySqlPayload: mysqlPayload,
 		},

@@ -587,7 +587,7 @@ type QueryData struct {
 	QueryExecutionDuration *durationpb.Duration `protobuf:"bytes,6,opt,name=query_execution_duration,json=queryExecutionDuration,proto3" json:"query_execution_duration,omitempty"`
 	// Timestamp when the query data was collected by Real-Time Analytics agent.
 	QueryCollectTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=query_collect_time,json=queryCollectTime,proto3" json:"query_collect_time,omitempty"`
-	// Client address (host:port).
+	// Client address: host:port for MongoDB, the client host for MySQL.
 	ClientAddress string `protobuf:"bytes,8,opt,name=client_address,json=clientAddress,proto3" json:"client_address,omitempty"`
 	// Database-specific payload.
 	//

@@ -93,6 +93,7 @@ func TestBuildQueryData(t *testing.T) {
 	row := map[string]any{
 		"conn_id":           int64(42),
 		"user":              "sbtest@localhost",
+		"client_address":    "10.0.0.5",
 		"db":                "sbtest",
 		"command":           "Query",
 		"state":             "executing",
@@ -113,6 +114,7 @@ func TestBuildQueryData(t *testing.T) {
 	assert.Equal(t, "rta-mysql", qd.ServiceName)
 	assert.Equal(t, "42", qd.QueryId)
 	assert.Equal(t, "SELECT 1", qd.QueryText)
+	assert.Equal(t, "10.0.0.5", qd.ClientAddress)
 	// statement_latency is in picoseconds.
 	assert.Equal(t, 2*time.Millisecond, qd.QueryExecutionDuration.AsDuration())
 
@@ -136,6 +138,23 @@ func TestBuildQueryData(t *testing.T) {
 	assert.Contains(t, parsed, "statement_latency")
 	assert.Contains(t, parsed, "trx_state")
 	assert.Nil(t, parsed["pid"], "NULL columns are preserved as JSON null")
+}
+
+func TestClientAddressIsOnlyForConnections(t *testing.T) {
+	t.Parallel()
+
+	// A background thread has no client, so its address must stay empty rather than its host.
+	assert.Contains(t, currentQueriesSQLTemplate,
+		"IF(pps.NAME IN ('thread/sql/one_connection', 'thread/thread_pool/tp_one_connection'),\n"+
+			"       CONVERT(pps.PROCESSLIST_HOST USING utf8mb4), NULL) AS client_address")
+
+	qd := (&MySQLRTA{}).buildQueryData(map[string]any{
+		"conn_id":           int64(5),
+		"current_statement": "SELECT 1",
+		"user":              "event_scheduler",
+		"client_address":    nil,
+	}, nil)
+	assert.Empty(t, qd.ClientAddress)
 }
 
 func TestBuildQueryDataFullScanAndMissing(t *testing.T) {

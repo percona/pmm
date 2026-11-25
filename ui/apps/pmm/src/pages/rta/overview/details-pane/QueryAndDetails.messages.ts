@@ -34,7 +34,7 @@ export const Messages = {
       'The type of action the database is performing, such as query, insert, update, or command.',
     username: 'The database user who started this operation.',
     clientAddress:
-      'The IP address and port of the application sending this query.',
+      'The address of the application sending this query: host and port for MongoDB, host for MySQL.',
     service: 'The PMM service name for this database instance.',
     clientAppName:
       'The name of the application or driver that started this operation.',

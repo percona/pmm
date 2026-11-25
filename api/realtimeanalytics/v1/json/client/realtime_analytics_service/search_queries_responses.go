@@ -592,7 +592,7 @@ type SearchQueriesOKBodyQueriesItems0 struct {
 	// Format: date-time
 	QueryCollectTime strfmt.DateTime `json:"query_collect_time,omitempty"`
 
-	// Client address (host:port).
+	// Client address: host:port for MongoDB, the client host for MySQL.
 	ClientAddress string `json:"client_address,omitempty"`
 
 	// mongo db payload

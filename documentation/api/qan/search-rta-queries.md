@@ -163,7 +163,7 @@ A DDL statement that waits for an open transaction, such as an `ALTER TABLE`, re
 | `queries[].query_raw_json` | string | Raw JSON representation of the query |
 | `queries[].query_execution_duration` | string | Current query execution time |
 | `queries[].query_collect_time` | string (date-time) | When the query data was collected |
-| `queries[].client_address` | string | Client address (host:port) |
+| `queries[].client_address` | string | Client address: host:port for MongoDB, the client host for MySQL |
 | `queries[].mongo_db_payload` | object | MongoDB-specific query information |
 | `queries[].mongo_db_payload.db_instance_address` | string | MongoDB instance address (host:port) |
 | `queries[].mongo_db_payload.client_app_name` | string | Client application name |
