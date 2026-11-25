@@ -16,7 +16,10 @@
 package om
 
 import (
+	"database/sql"
+	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"gopkg.in/reform.v1"
@@ -85,7 +88,36 @@ func installOnSucceeded(tx *reform.TX, op *models.OmOperation) error {
 	_, err = tx.Exec(
 		"UPDATE om_clusters SET status = 'managed', updated_at = now() WHERE id = $1 AND status = 'installing'",
 		clusterID)
-	return err
+	if err != nil {
+		return err
+	}
+	runID, err := installRunID(tx, op.ID)
+	if err != nil {
+		return err
+	}
+	return models.InsertInstallMarker(tx, installRecordID(op.ID, "marker"), clusterID, op.ID, runID)
+}
+
+// installRunID reads the om_bootstrap run id the bootstrap step recorded, for the install marker.
+func installRunID(tx *reform.TX, operationID string) (string, error) {
+	var result []byte
+	err := tx.QueryRow(
+		"SELECT result FROM om_operation_steps WHERE operation_id = $1 AND phase = $2 AND step = $3 ORDER BY attempt DESC LIMIT 1",
+		operationID, installBootstrapPhase, installBootstrapStep).Scan(&result)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", nil
+	}
+	if err != nil {
+		return "", fmt.Errorf("failed to read the install step: %w", err)
+	}
+	ref := installRunRef{}
+	if len(result) > 0 {
+		err = json.Unmarshal(result, &ref)
+		if err != nil {
+			return "", fmt.Errorf("failed to parse the install run reference: %w", err)
+		}
+	}
+	return ref.RunID, nil
 }
 
 // installOnTerminal tombstones the records an install created when it ends on a non-success terminal, so
