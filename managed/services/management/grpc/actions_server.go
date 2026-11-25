@@ -463,19 +463,30 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 		return nil, err
 	}
 
+	agentFilter := models.AgentFilters{ServiceID: req.ServiceId, AgentType: new(models.PostgresExporterType)}
+	postgresExporters, err := models.FindAgents(s.db.Querier, agentFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	exportersCount := len(postgresExporters)
+	if exportersCount < 1 {
+		return nil, status.Errorf(codes.FailedPrecondition, "No postgres exporter")
+	}
+	if exportersCount > 1 {
+		return nil, status.Errorf(codes.FailedPrecondition, "Found more than one postgres exporter")
+	}
+
 	var pmmAgentID string
 	switch node.NodeType {
 	case models.RemoteNodeType, models.RemoteRDSNodeType, models.RemoteAzureDatabaseNodeType:
-		pmmAgents, err := models.FindPMMAgentsForService(s.db.Querier, req.ServiceId)
-		if err != nil {
-			return nil, err
-		}
-		if len(pmmAgents) == 0 {
+		// The summary uses the exporter's credentials and network path, so it runs on the exporter's pmm-agent.
+		pmmAgentID = pointer.GetString(postgresExporters[0].PMMAgentID)
+		if pmmAgentID == "" {
 			return nil, status.Errorf(codes.FailedPrecondition, "No pmm-agent found for service %s", req.ServiceId)
 		}
-		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(req.PmmAgentId, pmmAgents)
-		if err != nil {
-			return nil, err
+		if req.PmmAgentId != "" && req.PmmAgentId != pmmAgentID {
+			return nil, status.Error(codes.FailedPrecondition, "Couldn't find pmm-agent-id to run action")
 		}
 	default:
 		pmmAgents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, service.NodeID)
@@ -498,20 +509,6 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 	res, err := models.CreateActionResult(s.db.Querier, pmmAgentID)
 	if err != nil {
 		return nil, err
-	}
-
-	agentFilter := models.AgentFilters{ServiceID: req.ServiceId, AgentType: new(models.PostgresExporterType)}
-	postgresExporters, err := models.FindAgents(s.db.Querier, agentFilter)
-	if err != nil {
-		return nil, err
-	}
-
-	exportersCount := len(postgresExporters)
-	if exportersCount < 1 {
-		return nil, status.Errorf(codes.FailedPrecondition, "No postgres exporter")
-	}
-	if exportersCount > 1 {
-		return nil, status.Errorf(codes.FailedPrecondition, "Found more than one postgres exporter")
 	}
 
 	if pointer.GetString(service.Socket) != "" {

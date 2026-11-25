@@ -85,26 +85,23 @@ func expectNoPMMAgentsOnNode(mock sqlmock.Sqlmock) {
 		WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()))
 }
 
-// expectPMMAgentForService mocks the lookup of the pmm-agent that runs the exporter of the test Service.
-func expectPMMAgentForService(t *testing.T, mock sqlmock.Sqlmock, pmmAgentID string) {
+// expectPostgresExporter mocks the lookup of the postgres_exporter of the test Service, run by the given pmm-agent.
+func expectPostgresExporter(t *testing.T, mock sqlmock.Sqlmock, pmmAgentID *string) {
 	t.Helper()
 
 	service := &models.Service{ServiceID: testServiceID, ServiceType: models.PostgreSQLServiceType, ServiceName: "service", NodeID: testNodeID}
 	exporter := &models.Agent{
 		AgentID:    "exporter-id",
 		AgentType:  models.PostgresExporterType,
-		PMMAgentID: new(pmmAgentID),
+		PMMAgentID: pmmAgentID,
 		ServiceID:  new(testServiceID),
 	}
-	pmmAgent := &models.Agent{AgentID: pmmAgentID, AgentType: models.PMMAgentType, RunsOnNodeID: new("pmm-agent-node-id")}
-	mock.ExpectQuery(`SELECT .+ FROM "services" WHERE service_id = \$1`).
+	mock.ExpectQuery(`SELECT .+ FROM "services" WHERE .+ LIMIT 1`).
 		WithArgs(testServiceID).
 		WillReturnRows(sqlmock.NewRows(models.ServiceTable.Columns()).AddRow(rowValues(t, service)...))
-	mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE service_id = \$1`).
-		WithArgs(testServiceID).
+	mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE service_id = \$1 AND agent_type = \$2`).
+		WithArgs(testServiceID, models.PostgresExporterType).
 		WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()).AddRow(rowValues(t, exporter)...))
-	mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE agent_id IN .+ AND agent_type = 'pmm-agent'`).
-		WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()).AddRow(rowValues(t, pmmAgent)...))
 }
 
 func assertFailedPrecondition(t *testing.T, err error, message string) {
@@ -147,18 +144,23 @@ func TestStartPTPgSummaryAction(t *testing.T) {
 
 	req := &actionsv1.StartPTPgSummaryActionParams{ServiceId: testServiceID}
 
+	// expectActionResult mocks the action result insert and fails it, so the test stops before the action is sent to a pmm-agent.
+	expectActionResult := func(mock sqlmock.Sqlmock, pmmAgentID string) error {
+		errStop := errors.New("stop after the pmm-agent is chosen")
+		mock.ExpectQuery(`INSERT INTO "action_results"`).
+			WithArgs(sqlmock.AnyArg(), pmmAgentID, false, "", "", sqlmock.AnyArg(), sqlmock.AnyArg()).
+			WillReturnError(errStop)
+		return errStop
+	}
+
 	for _, nodeType := range remoteNodeTypes {
 		for _, pmmAgentID := range []string{models.PMMServerAgentID, "pmm-agent-id"} {
 			t.Run(string(nodeType)+"/"+pmmAgentID, func(t *testing.T) {
 				t.Parallel()
 
 				s, mock := setupActionsServer(t, models.PostgreSQLServiceType, nodeType)
-				expectPMMAgentForService(t, mock, pmmAgentID)
-				mock.ExpectQuery(`INSERT INTO "action_results"`).
-					WithArgs(sqlmock.AnyArg(), pmmAgentID, false, "", "", sqlmock.AnyArg(), sqlmock.AnyArg()).
-					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow("action-id"))
-				errStop := errors.New("stop after the action result is created")
-				mock.ExpectQuery(`SELECT .+ FROM "services" WHERE .+ LIMIT 1`).WillReturnError(errStop)
+				expectPostgresExporter(t, mock, new(pmmAgentID))
+				errStop := expectActionResult(mock, pmmAgentID)
 
 				_, err := s.StartPTPgSummaryAction(t.Context(), req)
 				require.ErrorIs(t, err, errStop)
@@ -167,20 +169,51 @@ func TestStartPTPgSummaryAction(t *testing.T) {
 		}
 	}
 
+	t.Run("requested pmm-agent runs the exporter", func(t *testing.T) {
+		t.Parallel()
+
+		s, mock := setupActionsServer(t, models.PostgreSQLServiceType, models.RemoteRDSNodeType)
+		expectPostgresExporter(t, mock, new("pmm-agent-id"))
+		errStop := expectActionResult(mock, "pmm-agent-id")
+
+		_, err := s.StartPTPgSummaryAction(t.Context(), &actionsv1.StartPTPgSummaryActionParams{ServiceId: testServiceID, PmmAgentId: "pmm-agent-id"})
+		require.ErrorIs(t, err, errStop)
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("requested pmm-agent does not run the exporter", func(t *testing.T) {
+		t.Parallel()
+
+		s, mock := setupActionsServer(t, models.PostgreSQLServiceType, models.RemoteRDSNodeType)
+		expectPostgresExporter(t, mock, new(models.PMMServerAgentID))
+
+		_, err := s.StartPTPgSummaryAction(t.Context(), &actionsv1.StartPTPgSummaryActionParams{ServiceId: testServiceID, PmmAgentId: "pmm-agent-id"})
+		assertFailedPrecondition(t, err, "Couldn't find pmm-agent-id to run action")
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
 	t.Run("no pmm-agent for remote service", func(t *testing.T) {
 		t.Parallel()
 
 		s, mock := setupActionsServer(t, models.PostgreSQLServiceType, models.RemoteRDSNodeType)
-		service := &models.Service{ServiceID: testServiceID, ServiceType: models.PostgreSQLServiceType, ServiceName: "service", NodeID: testNodeID}
-		mock.ExpectQuery(`SELECT .+ FROM "services" WHERE service_id = \$1`).
-			WithArgs(testServiceID).
-			WillReturnRows(sqlmock.NewRows(models.ServiceTable.Columns()).AddRow(rowValues(t, service)...))
-		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE service_id = \$1`).
-			WithArgs(testServiceID).
-			WillReturnRows(sqlmock.NewRows(models.AgentTable.Columns()))
+		expectPostgresExporter(t, mock, nil)
 
 		_, err := s.StartPTPgSummaryAction(t.Context(), req)
 		assertFailedPrecondition(t, err, "No pmm-agent found for service service-id")
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("exporter lookup fails", func(t *testing.T) {
+		t.Parallel()
+
+		s, mock := setupActionsServer(t, models.PostgreSQLServiceType, models.RemoteRDSNodeType)
+		errLookup := errors.New("lookup failed")
+		mock.ExpectQuery(`SELECT .+ FROM "services" WHERE .+ LIMIT 1`).
+			WithArgs(testServiceID).
+			WillReturnError(errLookup)
+
+		_, err := s.StartPTPgSummaryAction(t.Context(), req)
+		require.ErrorIs(t, err, errLookup)
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
 
@@ -188,6 +221,7 @@ func TestStartPTPgSummaryAction(t *testing.T) {
 		t.Parallel()
 
 		s, mock := setupActionsServer(t, models.PostgreSQLServiceType, models.GenericNodeType)
+		expectPostgresExporter(t, mock, new("pmm-agent-id"))
 		expectNoPMMAgentsOnNode(mock)
 
 		_, err := s.StartPTPgSummaryAction(t.Context(), req)
