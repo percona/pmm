@@ -27,7 +27,8 @@ export const useExtensionsApps = () => {
 
   return useQuery({
     queryKey: EXTENSIONS_APPS_QUERY_KEY,
-    queryFn: async () => toExtensionsApps(await getExtensionsApps()),
+    queryFn: async ({ signal }) =>
+      toExtensionsApps(await getExtensionsApps(signal)),
     enabled: !!user && !!settings?.extensionsEnabled,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
@@ -40,8 +41,9 @@ export const useExtensionsApps = () => {
  * `appSlug` changes: the router keeps one Extensions page mounted while the
  * user moves from one app to the next.
  *
- * A fetch still in flight is cancelled first. Invalidating would otherwise join
- * it, and a first fetch that fails would then leave no list behind it.
+ * A fetch still in flight is cancelled first, its requests aborted. Invalidating
+ * would otherwise join it, and a first fetch that fails would then leave no list
+ * behind it.
  */
 export const useRefreshExtensionsApps = (appSlug?: string) => {
   const queryClient = useQueryClient();

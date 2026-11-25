@@ -157,4 +157,17 @@ describe('useRefreshExtensionsApps', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toHaveLength(1);
   });
+  it('aborts the requests of the fetch it replaces', async () => {
+    fetchApps.mockImplementationOnce(() => new Promise(() => {}));
+    const { wrapper } = setup();
+    renderHook(() => useExtensionsApps(), { wrapper });
+    await waitFor(() => expect(fetchApps).toHaveBeenCalledOnce());
+    const [firstSignal] = fetchApps.mock.calls[0];
+    expect(firstSignal?.aborted).toBe(false);
+
+    renderHook(() => useRefreshExtensionsApps(), { wrapper });
+
+    await waitFor(() => expect(fetchApps).toHaveBeenCalledTimes(2));
+    expect(firstSignal?.aborted).toBe(true);
+  });
 });

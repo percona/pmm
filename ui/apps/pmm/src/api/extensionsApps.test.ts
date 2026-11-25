@@ -108,6 +108,20 @@ describe('getExtensionsApps', () => {
     ]);
   });
 
+  it('passes the abort signal to the exchange and to the list', async () => {
+    adapter.mockImplementation(
+      respond({ '/oauth/session/exchange': 200, '/apps/': 200 })
+    );
+    const { signal } = new AbortController();
+
+    await getExtensionsApps(signal);
+
+    expect(adapter.mock.calls.map(([config]) => config.signal)).toEqual([
+      signal,
+      signal,
+    ]);
+  });
+
   it('records no bearer, so no renewal ever starts', async () => {
     adapter.mockImplementation(
       respond({ '/oauth/session/exchange': 200, '/apps/': 200 })

@@ -26,20 +26,27 @@ const sidecar = axios.create({
  * Exchange the PMM session cookie for a side-car bearer used for this one
  * request. It is not recorded in the token store, so it schedules no renewal.
  */
-const exchangeSession = async (): Promise<string> => {
-  const { data } = await sidecar.post<MintedToken>('/oauth/session/exchange');
+const exchangeSession = async (signal?: AbortSignal): Promise<string> => {
+  const { data } = await sidecar.post<MintedToken>(
+    '/oauth/session/exchange',
+    undefined,
+    { signal }
+  );
   return data.access_token;
 };
 
 /**
  * Every app the side-car serves, with its navigation metadata. Reuses the
  * bearer an open Extensions page holds, and exchanges the session only when
- * there is none.
+ * there is none. `signal` aborts whichever of the two requests is in flight.
  */
-export const getExtensionsApps = async (): Promise<EnabledApp[]> => {
-  const token = getExtensionsToken() ?? (await exchangeSession());
+export const getExtensionsApps = async (
+  signal?: AbortSignal
+): Promise<EnabledApp[]> => {
+  const token = getExtensionsToken() ?? (await exchangeSession(signal));
   const { data } = await sidecar.get<EnabledApp[]>('/apps/', {
     headers: { Authorization: `Bearer ${token}` },
+    signal,
   });
   return data;
 };

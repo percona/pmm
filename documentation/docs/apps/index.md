@@ -12,6 +12,8 @@ PMM Apps extend PMM with database management capabilities. They enable you to ru
 
 More operations and database types will be added in future releases.
 
+The **Apps** menu follows PMM Extensions: it lists each app that is enabled there, so an app you disable in PMM Extensions leaves the menu. If PMM can't reach PMM Extensions when it loads, the menu still shows **Support diagnostics** and **MySQL Backups**.
+
 ## Get started
 
 To enable the available apps and the **Apps** menu, [deploy PMM Extensions](deploy-pmm-extensions.md).

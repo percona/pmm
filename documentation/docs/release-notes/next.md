@@ -17,6 +17,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## 📈 Improvements
 
+- [PMM-15948](https://perconadev.atlassian.net/browse/PMM-15948): The **Apps** menu now lists the apps that are enabled in PMM Extensions, so a new app can appear in PMM without a PMM upgrade, and an app you disable in PMM Extensions leaves the menu. Opening a disabled app's page tells you that it's disabled. For details, see [Database management apps](../apps/index.md).
+
 ## ✅ Fixed issues
 
 ## 🔶 Known issues
