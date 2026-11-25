@@ -454,7 +454,11 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 
 	merged := mergeFacts(results, defaultPrecedence)
 	generatedAt := time.Now()
-	doc := applyHealth(buildDocument(services, merged, generatedAt, maxAge))
+	managedServices, err := models.ManagedMemberServiceIDs(s.db.Querier)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to read managed services: %w", err)
+	}
+	doc := applyHealth(buildDocument(services, merged, generatedAt, maxAge, managedServices))
 
 	response := &omv1.GetTopologyResponse{
 		Snapshot: &omv1.Snapshot{

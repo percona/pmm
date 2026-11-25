@@ -324,6 +324,8 @@ func (m *Cluster) validate(all bool) error {
 
 	// no validation rules for Health
 
+	// no validation rules for Managed
+
 	if m.Name != nil {
 		// no validation rules for Name
 	}
