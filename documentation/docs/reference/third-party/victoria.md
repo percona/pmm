@@ -45,6 +45,19 @@ To set downsampling, use the `downsampling.period` parameter as follows:
 
 This instructs VictoriaMetrics to [deduplicate](https://docs.victoriametrics.com/#deduplication) samples older than 20 days with 10 minute intervals and samples older than 120 days with two hour intervals.
 
+### Prepare for the end of downsampling
+
+PMM 3.11.0 deprecates downsampling, which you configure with `VM_downsampling_period`. It keeps working in PMM 3.11.0, but PMM 3.12.0 will remove it, because PMM 3.12.0 will switch to the official open source release of VictoriaMetrics, which doesn't include downsampling.
+
+Once PMM 3.12.0 is out and you upgrade to it, PMM ignores the variable and logs a warning at startup. New metrics stay at full resolution, so they need more disk space, and data that is already downsampled stays downsampled.
+
+Downsampling saves disk space by keeping fewer samples of older data. To keep disk use under control without it, choose one of these options before you upgrade to PMM 3.12.0:
+
+- set `VM_dedup_minScrapeInterval` to deduplicate all data, not only old data.
+- collect metrics less often with the [metrics resolution](../../configure-pmm/metrics_res.md) settings.
+- shorten the retention period or add disk space.
+- send metrics to an [external VictoriaMetrics Enterprise database](#using-victoriametrics-external-database-instance), which is a Technical Preview feature.
+
 ## Using VictoriaMetrics external database instance
 
 !!! caution alert alert-warning "Important/Caution"
