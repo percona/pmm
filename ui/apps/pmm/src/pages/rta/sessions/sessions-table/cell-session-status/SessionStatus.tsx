@@ -84,7 +84,11 @@ const SessionStatus: FC<Props> = ({ session }) => {
 
     return (
       <StatusMessageTooltip
-        intro={Messages.runningWithWarnings}
+        intro={
+          session.type === 'cluster'
+            ? Messages.clusterRunningWithWarnings
+            : Messages.runningWithWarnings
+        }
         message={session.statusMessage}
       >
         {runningFor}

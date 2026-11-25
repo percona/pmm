@@ -95,3 +95,27 @@ describe('SessionStatus warnings', () => {
     expect(content).toHaveStyle({ overflowY: 'auto' });
   });
 });
+
+describe('SessionStatus cluster', () => {
+  it('flags a running cluster whose services cannot collect everything', async () => {
+    renderStatus(
+      row({
+        type: 'cluster',
+        status: RealtimeSessionStatus.running,
+        statusMessage:
+          'mysql-2: The wait/lock/metadata/sql/mdl instrument is disabled, so metadata lock waits cannot be detected.',
+      })
+    );
+
+    expect(screen.getByText(/Running for/)).toBeInTheDocument();
+    fireEvent.mouseOver(screen.getByTestId('session-status-message'));
+
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toHaveTextContent(
+      'some details cannot be collected from these services'
+    );
+    expect(tooltip).toHaveTextContent(
+      'mysql-2: The wait/lock/metadata/sql/mdl'
+    );
+  });
+});
