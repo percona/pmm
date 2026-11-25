@@ -15,27 +15,27 @@ type mockOmService struct {
 	mock.Mock
 }
 
-// IsAvailable provides a mock function with given fields: ctx
-func (_m *mockOmService) IsAvailable(ctx context.Context) bool {
+// CheckAvailable provides a mock function with given fields: ctx
+func (_m *mockOmService) CheckAvailable(ctx context.Context) error {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
-		panic("no return value specified for IsAvailable")
+		panic("no return value specified for CheckAvailable")
 	}
 
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(context.Context) bool); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
 		r0 = rf(ctx)
 	} else {
-		r0 = ret.Get(0).(bool)
+		r0 = ret.Error(0)
 	}
 
 	return r0
 }
 
-// SyncInventoryEnabled provides a mock function with given fields: ctx, enabled
-func (_m *mockOmService) SyncInventoryEnabled(ctx context.Context, enabled bool) {
-	_m.Called(ctx, enabled)
+// SyncInventoryEnabled provides a mock function with given fields: ctx
+func (_m *mockOmService) SyncInventoryEnabled(ctx context.Context) {
+	_m.Called(ctx)
 }
 
 // TriggerTopologyCollection provides a mock function with given fields: ctx, req

@@ -476,7 +476,12 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         1. Select **Inventory > Services**. 
         2. Find your MongoDB service in the list and verify that its **Status** shows **Up**.
         3. Verify the **Service Name**, **Address**, and other connection details are correct.
-        4. Check that the **Monitoring** column shows **OK**. To see each agent, click **OK**. The **MongoDB exporter** and your Query Analytics agent (**QAN MongoDB Profiler agent** or **QAN MongoDB Mongo Log agent**) show **Running**. The **Real-Time Analytics MongoDB agent** shows **Running** only during a Real-Time Analytics session, and **Done** otherwise.
+        4. Check that the **Monitoring** column shows **OK**.
+        5. To check each agent, click **OK**. The agents show these statuses:
+
+            - **MongoDB exporter**: **Running**
+            - your Query Analytics agent, **QAN MongoDB Profiler agent** or **QAN MongoDB Mongo Log agent**: **Running**
+            - **Real-Time Analytics MongoDB agent**: **Running** during a Real-Time Analytics session, and **Done** otherwise
 
 2. Verify data collection:
 
@@ -507,7 +512,7 @@ If you need to remove MongoDB service from PMM, follow these steps:
 
     1. Go to **Inventory > Services**.
     2. Select the checkbox of the service that you want to remove, then click **Delete**.
-    3. To also remove the agents of the service, select **Force mode**.
+    3. Select **Force mode**. PMM can't remove a service that still has agents, and Force mode removes them with the service. Force mode also removes the scheduled backups and restore history of the service, but keeps its backup artifacts.
     4. Click **Yes, delete service**.
 
 ## Related topics
