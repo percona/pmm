@@ -42,6 +42,7 @@ type ScanScheduler struct {
 	scans    clusterScanRequester
 	ha       haChecker
 	interval time.Duration
+	reader   factObservationReader
 }
 
 // NewScanScheduler builds a scheduler that requests managed scans on a default thirty-second cadence.
@@ -58,6 +59,13 @@ func (s *ScanScheduler) WithLeader(ha haChecker) *ScanScheduler {
 // WithInterval sets the managed-scan cadence.
 func (s *ScanScheduler) WithInterval(interval time.Duration) *ScanScheduler {
 	s.interval = interval
+	return s
+}
+
+// WithReader attaches the fact reader the accepted-state reconcile reads managed-scan facts through;
+// without one the reconcile is off and the scheduler only requests scans.
+func (s *ScanScheduler) WithReader(reader factObservationReader) *ScanScheduler {
+	s.reader = reader
 	return s
 }
 
@@ -97,6 +105,7 @@ func (s *ScanScheduler) Tick(ctx context.Context) {
 			s.l.WithField("cluster_id", clusterID).WithError(err).Warn("failed to request managed scan")
 		}
 	}
+	s.reconcileAcceptedStates(ctx)
 }
 
 // managedClusterIDs returns the ids of the live managed clusters a managed scan runs for.
