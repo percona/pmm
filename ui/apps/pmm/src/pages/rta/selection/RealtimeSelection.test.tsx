@@ -25,6 +25,7 @@ import {
 } from 'utils/testStubs';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Messages as RtaMessages } from '../messages';
+import { createRealtimeOverviewUrl } from 'utils/link.utils';
 
 vi.mock('api/services');
 vi.mock('api/rta');
@@ -282,6 +283,35 @@ describe('RealtimeSelection', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalled();
       });
+    });
+
+    it('opens the overview when the session list refetch finds the new session', async () => {
+      vi.mocked(realtimeApi.getRunningSessions)
+        .mockResolvedValueOnce([])
+        .mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+      vi.mocked(realtimeApi.startSession).mockResolvedValue({
+        session: TEST_REAL_TIME_SESSION_MYSQL,
+      });
+      vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
+        mysql: [TEST_VERSIONED_MYSQL_SERVICE],
+      });
+
+      renderComponent();
+
+      fireEvent.click(await screen.findByTitle('Open'));
+      fireEvent.click(
+        within(await screen.findByRole('listbox')).getByText(
+          TEST_VERSIONED_MYSQL_SERVICE.serviceName
+        )
+      );
+      fireEvent.click(screen.getByTestId('start-realtime-session'));
+
+      await waitFor(() =>
+        expect(screen.getByTestId('realtime-sessions')).toBeInTheDocument()
+      );
+      expect(mockNavigate).toHaveBeenCalledExactlyOnceWith(
+        createRealtimeOverviewUrl([TEST_REAL_TIME_SESSION_MYSQL.serviceId])
+      );
     });
 
     it('navigates to the session list when the started services mix technologies', async () => {

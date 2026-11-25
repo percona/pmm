@@ -16,22 +16,22 @@ const RealtimeSelectionForm: FC<Props> = ({ onSuccess }) => {
   const { user } = useUser();
   const [serviceIds, setServiceIds] = useState<string[]>([]);
   const { availableServices } = useAvailableServices();
-  const startSessions = useStartSessions();
+  // Hook-level callbacks: the session list refetch after a start can unmount
+  // this form, and TanStack Query skips per-call callbacks once it unmounts.
+  const startSessions = useStartSessions({
+    onSuccess: (responses) => {
+      enqueueSnackbar(Messages.startSuccess, { variant: 'success' });
+      setServiceIds([]);
+      onSuccess?.(responses.map((r) => r.session));
+    },
+    onError: (error) => {
+      const message =
+        error instanceof Error ? error.message : Messages.startError;
+      enqueueSnackbar(message, { variant: 'error' });
+    },
+  });
 
-  const handleStart = async () => {
-    await startSessions.mutateAsync(serviceIds, {
-      onSuccess: (responses) => {
-        enqueueSnackbar(Messages.startSuccess, { variant: 'success' });
-        setServiceIds([]);
-        onSuccess?.(responses.map((r) => r.session));
-      },
-      onError: (error) => {
-        const message =
-          error instanceof Error ? error.message : Messages.startError;
-        enqueueSnackbar(message, { variant: 'error' });
-      },
-    });
-  };
+  const handleStart = () => startSessions.mutate(serviceIds);
 
   return (
     <Stack gap={3} sx={{ width: '100%' }}>
