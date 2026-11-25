@@ -550,19 +550,30 @@ func (m *MySQLRTA) checkStatementConsumers(ctx context.Context) {
 			continue
 		}
 
-		// The remedy names both switches: enabling only one still records nothing.
-		remedy := fmt.Sprintf("UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='%s'",
-			consumer.name)
-		config := fmt.Sprintf("performance_schema_consumer_%s=ON", consumer.name)
-		if consumer.instrument != "" {
-			remedy += fmt.Sprintf("; UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='%s'",
-				consumer.instrument)
-			config += fmt.Sprintf(" and performance_schema_instrument='%s=ON'", consumer.instrument)
-		}
-
-		m.warnUserf("%s, so %s are not collected. Enable it (%s, or %s in the config) and restart the Real-Time Analytics session",
-			m.describeDisabled(consumer.name, consumerOn, consumer.instrument, instrumentOn), consumer.lost, remedy, config)
+		m.warnUserf("%s, so %s are not collected. %s and restart the Real-Time Analytics session",
+			m.describeDisabled(consumer.name, consumerOn, consumer.instrument, instrumentOn), consumer.lost,
+			enableRemedy(consumer.name, consumerOn, consumer.instrument, instrumentOn))
 	}
+}
+
+// enableRemedy tells how to turn on whichever switches are off, naming each one that is.
+func enableRemedy(consumer string, consumerOn bool, instrument string, instrumentOn bool) string {
+	var statements, config []string
+	if !consumerOn {
+		statements = append(statements, fmt.Sprintf("UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='%s'", consumer))
+		config = append(config, fmt.Sprintf("performance_schema_consumer_%s=ON", consumer))
+	}
+	if !instrumentOn {
+		statements = append(statements, fmt.Sprintf("UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='%s'", instrument))
+		config = append(config, fmt.Sprintf("performance_schema_instrument='%s=ON'", instrument))
+	}
+
+	pronoun := "it"
+	if len(statements) > 1 {
+		pronoun = "them"
+	}
+
+	return fmt.Sprintf("Enable %s (%s, or %s in the config)", pronoun, strings.Join(statements, "; "), strings.Join(config, " and "))
 }
 
 // warnUserf logs a startup finding and keeps it for the RUNNING status message.

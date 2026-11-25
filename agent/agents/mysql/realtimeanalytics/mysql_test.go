@@ -1354,6 +1354,42 @@ func TestDescribeDisabledNamesTheHalfThatIsOff(t *testing.T) {
 	assert.Contains(t, both, "i instrument")
 }
 
+func TestEnableRemedyNamesOnlyTheSwitchesThatAreOff(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "Enable it (UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='c', "+
+		"or performance_schema_consumer_c=ON in the config)", enableRemedy("c", false, "i", true))
+	assert.Equal(t, "Enable it (UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='i', "+
+		"or performance_schema_instrument='i=ON' in the config)", enableRemedy("c", true, "i", false))
+	assert.Equal(t, "Enable them (UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='c'; "+
+		"UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='i', "+
+		"or performance_schema_consumer_c=ON and performance_schema_instrument='i=ON' in the config)", enableRemedy("c", false, "i", false))
+}
+
+func TestStatementConsumerAndInstrumentOffAskToEnableThem(t *testing.T) {
+	t.Parallel()
+
+	// Stock MariaDB has both the transactions consumer and the transaction instrument off.
+	m, mock := newMockedRTA(t)
+	mock.ExpectQuery("setup_consumers").WithArgs("events_statements_current").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
+	mock.ExpectQuery("setup_consumers").WithArgs("events_transactions_current").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("NO"))
+	mock.ExpectQuery("setup_instruments").WithArgs("transaction").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("NO"))
+
+	m.checkStatementConsumers(t.Context())
+
+	require.NoError(t, mock.ExpectationsWereMet())
+	require.Len(t, m.warnings, 1)
+	assert.Equal(t, "The events_transactions_current consumer and the transaction instrument are disabled, "+
+		"so transaction state, duration and autocommit are not collected. "+
+		"Enable them (UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='events_transactions_current'; "+
+		"UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='transaction', "+
+		"or performance_schema_consumer_events_transactions_current=ON and performance_schema_instrument='transaction=ON' in the config) "+
+		"and restart the Real-Time Analytics session", m.warnings[0])
+}
+
 func TestStartupWarningsAreKeptForTheRunningStatus(t *testing.T) {
 	t.Parallel()
 
