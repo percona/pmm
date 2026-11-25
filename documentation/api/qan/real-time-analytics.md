@@ -32,7 +32,7 @@ RTA works with MongoDB and MySQL services. Before you start a session, make sure
 | Database | Minimum PMM Client | Service type |
 |----------|--------------------|--------------|
 | MongoDB | 3.7.0 | `SERVICE_TYPE_MONGODB_SERVICE` |
-| MySQL, Percona Server for MySQL and MariaDB | 3.11.0 | `SERVICE_TYPE_MYSQL_SERVICE` |
+| MySQL, Percona Server for MySQL and MariaDB | 3.12.0 | `SERVICE_TYPE_MYSQL_SERVICE` |
 
 ### Unsupported service types
 

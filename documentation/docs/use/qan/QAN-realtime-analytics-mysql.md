@@ -33,7 +33,7 @@ RTA needs at least one MySQL service monitored by PMM. If you haven't set one up
 
 You need:
 
-- **PMM Client 3.11.0 or later** on the monitored host. Run `pmm-admin status` to check.
+- **PMM Client 3.12.0 or later** on the monitored host. Run `pmm-admin status` to check.
 - **`performance_schema` enabled** on the monitored server. RTA doesn't start without it.
 - **The standard PMM monitoring user**. RTA reuses your existing MySQL exporter credentials and needs nothing beyond the grants PMM already documents:
 
@@ -377,7 +377,7 @@ To fix it:
 {.power-number}
 
 1. In the sessions list, hover over the **Error** status to see which check failed.
-2. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.11.0, upgrade it. A service with an older PMM Client doesn't appear in the **Cluster/Service** drop-down.
+2. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.12.0, upgrade it. A service with an older PMM Client doesn't appear in the **Cluster/Service** drop-down.
 3. Check that `performance_schema` is on: run `SELECT @@performance_schema;`. If it returns `0`, turn it on in the server configuration and restart the server. This setting applies only at startup, so you can't change it while the server is running.
 4. Check the grants of the monitoring user: it needs `SELECT` to start a session and `PROCESS` to read lock information. If either is missing, grant it. For the full list, see [Check the service requirements](#check-the-service-requirements).
 5. Check your role: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. If you're not an Admin, ask one to start the session.

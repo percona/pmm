@@ -18,7 +18,7 @@ Returns a list of services that support Real-time Analytics. Use this endpoint t
 This endpoint returns only services whose PMM Agent supports Real-time Analytics:
 
 - MongoDB services need PMM Agent 3.7.0 or later.
-- MySQL services need PMM Agent 3.11.0 or later.
+- MySQL services need PMM Agent 3.12.0 or later.
 
 Services with an older PMM Agent don't appear in the results, even if they're registered in PMM. To include them, [upgrade PMM Client](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_client.html) on those hosts.
 

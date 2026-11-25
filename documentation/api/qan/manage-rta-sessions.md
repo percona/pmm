@@ -241,7 +241,7 @@ If PMM can't start a session, the request fails with an HTTP status and an error
 
 - HTTP `400`: `Service <name> (id <ID>) has pmm-agent with version <version> not supporting Real-Time Analytics; pmm-agent <version> or later is required.`
 
-    PMM Client on the database host is too old. RTA needs PMM Client 3.7.0 or later for MongoDB, and 3.11.0 or later for MySQL. [Upgrade PMM Client](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_client.html) on that host. Adding an RTA agent with `POST /v1/inventory/agents`, using `rta_mysql_agent` or `rta_mongodb_agent`, fails with the same error when that PMM Agent has reported an older version.
+    PMM Client on the database host is too old. RTA needs PMM Client 3.7.0 or later for MongoDB, and 3.12.0 or later for MySQL. [Upgrade PMM Client](https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/upgrade_client.html) on that host. Adding an RTA agent with `POST /v1/inventory/agents`, using `rta_mysql_agent` or `rta_mongodb_agent`, fails with the same error when that PMM Agent has reported an older version.
 
 ### Session shows ERROR status
 

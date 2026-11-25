@@ -22,7 +22,7 @@ For MySQL, RTA also shows:
 - statements waiting for locks, the transactions holding those locks and how long they've been waiting, so you can end the transaction at the head of the chain
 - inefficient queries, based on row counts and full table scans, while they're still running
 
-RTA for MySQL needs PMM Client 3.11.0 or later on the database host, and you can also control it through the [Real-time Analytics API](https://percona-pmm.readme.io/reference/real-time-analytics). To get started, go to **Query Analytics > Real-time** and [start a session for a MySQL service](../use/qan/QAN-realtime-analytics-mysql.md#start-an-rta-session).
+RTA for MySQL needs PMM Client 3.12.0 or later on the database host, and you can also control it through the [Real-time Analytics API](https://percona-pmm.readme.io/reference/real-time-analytics). To get started, go to **Query Analytics > Real-time** and [start a session for a MySQL service](../use/qan/QAN-realtime-analytics-mysql.md#start-an-rta-session).
 
 ## 🔒 Security updates
 

@@ -132,7 +132,9 @@ func TestRTAAgentRunnable(t *testing.T) {
 		want    bool
 	}{
 		{name: "MySQL RTA on 3.10.1 is withheld", row: rtaMySQL, service: mysql, version: "3.10.1"},
-		{name: "MySQL RTA on 3.11.0 is sent", row: rtaMySQL, service: mysql, version: "3.11.0", want: true},
+		{name: "MySQL RTA on 3.11.0 is withheld", row: rtaMySQL, service: mysql, version: "3.11.0"},
+		{name: "MySQL RTA on 3.12.0-rc is sent", row: rtaMySQL, service: mysql, version: "3.12.0-rc", want: true},
+		{name: "MySQL RTA on 3.12.0 is sent", row: rtaMySQL, service: mysql, version: "3.12.0", want: true},
 		{name: "MongoDB RTA on 3.6.0 is withheld", row: rtaMongo, service: mongo, version: "3.6.0"},
 		{name: "MongoDB RTA on 3.9.1 is sent", row: rtaMongo, service: mongo, version: "3.9.1", want: true},
 		{name: "other agents on 3.9.1 are sent", row: exporter, service: mysql, version: "3.9.1", want: true},
