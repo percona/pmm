@@ -14,3 +14,15 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package grafana
+
+import (
+	"context"
+	"net/http"
+
+	"github.com/sirupsen/logrus"
+)
+
+// callerAuthenticator authenticates a request and returns the caller's LBAC filters.
+type callerAuthenticator interface {
+	callerFilters(ctx context.Context, req *http.Request, l *logrus.Entry) ([]string, *authError)
+}

@@ -212,8 +212,13 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 		return 0, err
 	}
 
+	return c.getUserID(ctx, authHeaders)
+}
+
+// getUserID returns the ID of the identity the headers authenticate, which is 0 for one that isn't a user.
+func (c *Client) getUserID(ctx context.Context, authHeaders http.Header) (int, error) {
 	var m map[string]any
-	err = c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
+	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
 		return 0, err
 	}
@@ -941,6 +946,17 @@ func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, author
 		response[i] = r
 	}
 	return response, nil
+}
+
+// queryAnnotations finds annotations as the caller and returns Grafana's items unchanged.
+func (c *Client) queryAnnotations(ctx context.Context, authHeaders http.Header, params url.Values) ([]json.RawMessage, error) {
+	var items []json.RawMessage
+	err := c.do(ctx, http.MethodGet, "/api/annotations", params.Encode(), authHeaders, nil, &items)
+	if err != nil {
+		return nil, err
+	}
+
+	return items, nil
 }
 
 type grafanaHealthResponse struct {

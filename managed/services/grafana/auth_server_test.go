@@ -19,16 +19,20 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
 
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/grpc/codes"
@@ -136,6 +140,14 @@ func (c *countingRejectingClient) getAuthUser(context.Context, http.Header) (aut
 
 func (c *countingRejectingClient) rotateSessionToken(context.Context, http.Header) ([]string, error) {
 	c.rotateCalls++
+	return nil, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}
+}
+
+func (c *countingRejectingClient) getUserID(context.Context, http.Header) (int, error) {
+	return 0, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}
+}
+
+func (c *countingRejectingClient) queryAnnotations(context.Context, http.Header, url.Values) ([]json.RawMessage, error) {
 	return nil, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}
 }
 
@@ -684,6 +696,166 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			require.Emptyf(t, rw.Header().Get(lbacHeaderName), "userID=%d", userID)
 		}
 	})
+
+	//nolint:paralleltest
+	t.Run("shall return the caller's filters for scoped annotations", func(t *testing.T) {
+		l := logrus.WithField("test", t.Name())
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/scoped-annotations", nil)
+		require.NoError(t, err)
+		req.SetBasicAuth("admin", "admin")
+
+		filters, authErr := s.callerFilters(ctx, req, l)
+		require.Nil(t, authErr)
+		assert.Equal(t, []string{"filter A"}, filters)
+
+		req, err = http.NewRequestWithContext(ctx, http.MethodGet, "/scoped-annotations", nil)
+		require.NoError(t, err)
+
+		_, authErr = s.callerFilters(ctx, req, l)
+		require.NotNil(t, authErr)
+		assert.Equal(t, codes.Unauthenticated, authErr.code)
+	})
+}
+
+func TestCallerFilters(t *testing.T) {
+	t.Parallel()
+
+	newRequest := func(t *testing.T, header, value string) *http.Request {
+		t.Helper()
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/scoped-annotations", nil)
+		if header != "" {
+			req.Header.Set(header, value)
+		}
+		return req
+	}
+	// The access control state is set directly, so only a caller that reaches the LBAC lookup needs a database.
+	newServer := func(c clientInterface, db *reform.DB, accessControlEnabled bool) *AuthServer {
+		s := NewAuthServer(c, db)
+		s.accessControl = &accessControl{enabled: accessControlEnabled, lastUpdated: time.Now()}
+		return s
+	}
+	probe := url.Values{"from": {"1"}, "to": {"1"}, "limit": {"1"}, "type": {"annotation"}}
+	token := http.Header{"Authorization": {"Bearer glsa_abc"}}
+	l := logrus.WithField("test", t.Name())
+
+	t.Run("an anonymous visitor Grafana lets read annotations gets no filters", func(t *testing.T) {
+		t.Parallel()
+
+		c := newMockClientInterface(t)
+		c.On("queryAnnotations", mock.Anything, http.Header{}, probe).Return([]json.RawMessage{}, nil).Once()
+		s := newServer(c, nil, false)
+
+		filters, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		require.Nil(t, authErr)
+		assert.Empty(t, filters)
+	})
+
+	t.Run("a caller Grafana doesn't authenticate is refused", func(t *testing.T) {
+		t.Parallel()
+
+		c := newMockClientInterface(t)
+		c.On("queryAnnotations", mock.Anything, http.Header{}, probe).
+			Return(nil, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}).Once()
+		s := newServer(c, nil, false)
+
+		_, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, authErr)
+	})
+
+	t.Run("a caller without permission to read annotations is refused", func(t *testing.T) {
+		t.Parallel()
+
+		c := newMockClientInterface(t)
+		c.On("queryAnnotations", mock.Anything, token, probe).
+			Return(nil, &clientError{Code: http.StatusForbidden, ErrorMessage: "Permission denied"}).Once()
+		s := newServer(c, nil, false)
+
+		_, authErr := s.callerFilters(t.Context(), newRequest(t, "Authorization", "Bearer glsa_abc"), l)
+		assert.Equal(t, &authError{code: codes.PermissionDenied, message: "Permission denied"}, authErr)
+	})
+
+	t.Run("an unreachable Grafana is an internal error", func(t *testing.T) {
+		t.Parallel()
+
+		c := newMockClientInterface(t)
+		c.On("queryAnnotations", mock.Anything, http.Header{}, probe).Return(nil, errors.New("connection refused")).Once()
+		s := newServer(c, nil, false)
+
+		_, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		assert.Equal(t, &authError{code: codes.Internal, message: "Internal server error."}, authErr)
+	})
+
+	t.Run("an anonymous visitor is refused when access control is on", func(t *testing.T) {
+		t.Parallel()
+
+		c := newMockClientInterface(t)
+		c.On("getUserID", mock.Anything, http.Header{}).
+			Return(0, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}).Once()
+		s := newServer(c, nil, true)
+
+		_, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, authErr)
+	})
+
+	t.Run("an identity without a user ID gets no filters and needs no role", func(t *testing.T) {
+		t.Parallel()
+
+		// The render service taking alert screenshots: Grafana returns a profile without an ID,
+		// and refuses the role lookup that getAuthUser would make.
+		c := newMockClientInterface(t)
+		c.On("getUserID", mock.Anything, http.Header{"Cookie": {"renderKey=abc"}}).Return(0, nil).Once()
+		s := newServer(c, nil, true)
+
+		filters, authErr := s.callerFilters(t.Context(), newRequest(t, "Cookie", "renderKey=abc"), l)
+		require.Nil(t, authErr)
+		assert.Empty(t, filters)
+	})
+
+	t.Run("a service account token gets no filters", func(t *testing.T) {
+		t.Parallel()
+
+		// Grafana answers /api/user for a service account with a profile whose ID is 0.
+		c := newMockClientInterface(t)
+		c.On("getUserID", mock.Anything, token).Return(0, nil).Once()
+		s := newServer(c, nil, true)
+
+		filters, authErr := s.callerFilters(t.Context(), newRequest(t, "Authorization", "Bearer glsa_abc"), l)
+		require.Nil(t, authErr)
+		assert.Empty(t, filters)
+	})
+
+	t.Run("a token Grafana refuses is refused", func(t *testing.T) {
+		t.Parallel()
+
+		c := newMockClientInterface(t)
+		c.On("getUserID", mock.Anything, token).
+			Return(0, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Invalid API key"}).Once()
+		s := newServer(c, nil, true)
+
+		_, authErr := s.callerFilters(t.Context(), newRequest(t, "Authorization", "Bearer glsa_abc"), l)
+		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Invalid API key"}, authErr)
+	})
+
+	t.Run("a failed access role lookup is an internal error", func(t *testing.T) {
+		t.Parallel()
+
+		sqlDB, sqlMock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+			assert.NoError(t, sqlMock.ExpectationsWereMet())
+		})
+		sqlMock.ExpectQuery(`user_roles\.user_id = \$1`).WithArgs(7).WillReturnError(errors.New("connection reset"))
+		sqlMock.ExpectClose()
+
+		c := newMockClientInterface(t)
+		c.On("getUserID", mock.Anything, http.Header{}).Return(7, nil).Once()
+		s := newServer(c, reform.NewDB(sqlDB, postgresql.Dialect, nil), true)
+
+		_, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		assert.Equal(t, &authError{code: codes.Internal, message: "Internal server error."}, authErr)
+	})
 }
 
 // With access control on, a filtered route needs a user to filter by. An anonymous visitor and a
@@ -828,6 +1000,14 @@ func (s stubClient) getAuthUser(context.Context, http.Header) (authUser, error) 
 }
 
 func (s stubClient) rotateSessionToken(context.Context, http.Header) ([]string, error) {
+	return nil, nil
+}
+
+func (s stubClient) getUserID(context.Context, http.Header) (int, error) {
+	return s.user.userID, nil
+}
+
+func (s stubClient) queryAnnotations(context.Context, http.Header, url.Values) ([]json.RawMessage, error) {
 	return nil, nil
 }
 

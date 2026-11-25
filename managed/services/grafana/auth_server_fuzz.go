@@ -22,8 +22,10 @@ package grafana
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 
 	"github.com/sirupsen/logrus"
 )
@@ -35,6 +37,14 @@ func (clientStub) getAuthUser(context.Context, http.Header) (authUser, error) {
 }
 
 func (clientStub) rotateSessionToken(context.Context, http.Header) ([]string, error) {
+	return nil, nil
+}
+
+func (clientStub) getUserID(context.Context, http.Header) (int, error) {
+	return 0, nil
+}
+
+func (clientStub) queryAnnotations(context.Context, http.Header, url.Values) ([]json.RawMessage, error) {
 	return nil, nil
 }
 
