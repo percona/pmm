@@ -42545,7 +42545,7 @@
                             "x-order": 15
                           },
                           "lock_time": {
-                            "description": "Time the statement has spent waiting for table locks, from\nevents_statements_current.LOCK_TIME. Unset when the server did not measure it.",
+                            "description": "Time the statement has spent waiting for locks, from events_statements_current.LOCK_TIME:\ntable and row lock waits on MySQL 8.0.28 and later, table lock waits only on MariaDB and older\nMySQL, never metadata lock waits. A wait counts only once it ends, so a statement that is still\nblocked reports about 0. Unset when the server did not measure it.",
                             "type": "string",
                             "x-order": 16
                           }

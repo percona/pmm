@@ -234,7 +234,7 @@ Killing a problem statement helps only until it runs again. To fix it at the sou
 A statement that runs for a long time is either doing too much work or waiting for something. To tell which, check its **Details** tab:
 
 - To check for a missing index, compare **Rows examined** with **Rows sent**. If the server examines far more rows than it returns, and **Full scan** is **Yes**, the statement probably needs an index. On a running statement, these counters can lag behind, as described in [Known limitations](#known-limitations).
-- To check whether the statement is waiting for table locks, look at **Lock time**, in milliseconds. A high lock time means that the statement spent its time waiting rather than working. To find out what's holding the lock, see [Find out what is blocking a query](#find-out-what-is-blocking-a-query).
+- To check how long the statement has waited for locks, look at **Lock time**, in milliseconds. A high lock time means that the statement spent its time waiting rather than working. On MySQL 8.0.28 and later, it counts table and row lock waits. On MariaDB and older MySQL versions, it counts only table lock waits. Metadata lock waits never count. A wait counts only once it ends, so a statement that's still blocked shows a lock time of about 0. To find out whether a statement is blocked right now, and what's holding the lock, see [Find out what is blocking a query](#find-out-what-is-blocking-a-query).
 
 ### See the full text of a long statement
 

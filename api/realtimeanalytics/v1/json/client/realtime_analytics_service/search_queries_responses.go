@@ -919,8 +919,10 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
 	// agent's 64 KiB cap, so it may not be the whole statement.
 	QueryTextTruncated bool `json:"query_text_truncated,omitempty"`
 
-	// Time the statement has spent waiting for table locks, from
-	// events_statements_current.LOCK_TIME. Unset when the server did not measure it.
+	// Time the statement has spent waiting for locks, from events_statements_current.LOCK_TIME:
+	// table and row lock waits on MySQL 8.0.28 and later, table lock waits only on MariaDB and older
+	// MySQL, never metadata lock waits. A wait counts only once it ends, so a statement that is still
+	// blocked reports about 0. Unset when the server did not measure it.
 	LockTime string `json:"lock_time,omitempty"`
 }
 

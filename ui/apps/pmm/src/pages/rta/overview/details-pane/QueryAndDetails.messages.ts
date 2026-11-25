@@ -55,6 +55,6 @@ export const Messages = {
     fullScan:
       'Whether the statement performed a full table scan instead of using an index.',
     lockTime:
-      'How long the statement has waited for table locks, in milliseconds. performance_schema reports it as LOCK_TIME.',
+      'How long the statement has waited for locks, in milliseconds, from performance_schema LOCK_TIME. MySQL 8.0.28 and later count table and row lock waits but not metadata lock waits; MariaDB and older MySQL count table locks only. A wait is added only when it ends, so a statement that is still blocked shows about 0.',
   },
 };
