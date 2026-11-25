@@ -16,6 +16,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -68,6 +69,25 @@ func LinkInstalledMemberByHost(q *reform.Querier, host, nodeID, serviceID, expor
 		nodeID, serviceID, exporterAgentID, host)
 	if err != nil {
 		return fmt.Errorf("failed to link the installed member on host %s: %w", host, err)
+	}
+	return nil
+}
+
+// InsertInstallMarker records the cluster-scoped kind=marker owned item (on_release=keep) carrying the
+// om_bootstrap run id, idempotent on the marker's stable id so a recovered success hook writes it once.
+func InsertInstallMarker(tx *reform.TX, markerID, clusterID, operationID, runID string) error {
+	spec, err := json.Marshal(map[string]string{"run_id": runID})
+	if err != nil {
+		return fmt.Errorf("failed to encode the install marker spec: %w", err)
+	}
+	_, err = tx.Exec(
+		"INSERT INTO om_owned_items "+
+			"(id, cluster_id, kind, natural_key, action, purpose, state, spec, on_release, created_by_operation, created_at, updated_at) "+
+			"VALUES ($1, $2, 'marker', 'install', 'created', 'install', 'present', $3, 'keep', $4, now(), now()) "+
+			"ON CONFLICT (id) DO NOTHING",
+		markerID, clusterID, spec, operationID)
+	if err != nil {
+		return fmt.Errorf("failed to insert the install marker: %w", err)
 	}
 	return nil
 }

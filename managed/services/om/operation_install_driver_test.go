@@ -96,6 +96,11 @@ func TestInstallDriverRunsWhenNodesAreReady(t *testing.T) {
 	require.NoError(t, db.QueryRow("SELECT count(*) FROM om_cluster_members WHERE cluster_id = $1 AND removed_at IS NULL", clusterID).Scan(&members))
 	assert.Equal(t, 1, replicaSets)
 	assert.Equal(t, 2, members, "a member is recorded for each installed node")
+
+	var markers int
+	require.NoError(t, db.QueryRow(
+		"SELECT count(*) FROM om_owned_items WHERE cluster_id = $1 AND kind = 'marker' AND state = 'present'", clusterID).Scan(&markers))
+	assert.Equal(t, 1, markers, "a succeeded install records a cluster install marker")
 }
 
 func TestInstallOnEnterRunningIsIdempotent(t *testing.T) {

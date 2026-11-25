@@ -149,6 +149,40 @@ func TestLinkInstalledMemberByHost(t *testing.T) {
 	})
 }
 
+func TestInsertInstallMarker(t *testing.T) {
+	db := omTestDB(t)
+	clusterID := newCluster(t, db.Querier)
+	opID := newOperation(t, db.Querier, &clusterID)
+	markerID := uuid.New().String()
+
+	err := db.InTransactionContext(t.Context(), nil, func(tx *reform.TX) error {
+		return models.InsertInstallMarker(tx, markerID, clusterID, opID, "run-123")
+	})
+	require.NoError(t, err)
+
+	var kind, naturalKey, onRelease, state string
+	var spec []byte
+	require.NoError(t, db.QueryRow(
+		"SELECT kind, natural_key, on_release, state, spec FROM om_owned_items WHERE id = $1", markerID).Scan(
+		&kind, &naturalKey, &onRelease, &state, &spec))
+	assert.Equal(t, "marker", kind)
+	assert.Equal(t, "install", naturalKey)
+	assert.Equal(t, "keep", onRelease)
+	assert.Equal(t, "present", state)
+	assert.JSONEq(t, `{"run_id":"run-123"}`, string(spec))
+
+	t.Run("is idempotent on the marker id", func(t *testing.T) {
+		err := db.InTransactionContext(t.Context(), nil, func(tx *reform.TX) error {
+			return models.InsertInstallMarker(tx, markerID, clusterID, opID, "run-123")
+		})
+		require.NoError(t, err)
+		var count int
+		require.NoError(t, db.QueryRow(
+			"SELECT count(*) FROM om_owned_items WHERE cluster_id = $1 AND kind = 'marker'", clusterID).Scan(&count))
+		assert.Equal(t, 1, count)
+	})
+}
+
 func TestOmSecretEncryptedAtRest(t *testing.T) {
 	db := omTestDB(t)
 	clusterID := newCluster(t, db.Querier)
