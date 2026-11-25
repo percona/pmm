@@ -78,6 +78,38 @@ describe('getAgentsMonitoringStatus', () => {
       [agent(AgentType.rtaMongodbAgent, AgentStatus.done, true)],
       MonitoringStatus.ok,
     ],
+    [
+      'only the RTA MySQL agent disabled',
+      [
+        agent(AgentType.mysqldExporter, AgentStatus.running),
+        agent(AgentType.rtaMysqlAgent, AgentStatus.done, true),
+      ],
+      MonitoringStatus.ok,
+    ],
+    [
+      'only the RTA MySQL agent failing',
+      [
+        agent(AgentType.mysqldExporter, AgentStatus.running),
+        agent(AgentType.rtaMysqlAgent, AgentStatus.waiting),
+      ],
+      MonitoringStatus.ok,
+    ],
+    [
+      'only the RTA MongoDB agent failing',
+      [
+        agent(AgentType.mongodbExporter, AgentStatus.running),
+        agent(AgentType.rtaMongodbAgent, AgentStatus.initializationError),
+      ],
+      MonitoringStatus.ok,
+    ],
+    [
+      'an exporter failing next to a running RTA agent',
+      [
+        agent(AgentType.mysqldExporter, AgentStatus.waiting),
+        agent(AgentType.rtaMysqlAgent, AgentStatus.running),
+      ],
+      MonitoringStatus.failed,
+    ],
   ])('with %s', (_, agents, status) => {
     expect(getAgentsMonitoringStatus(agents)).toBe(status);
   });
