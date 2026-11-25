@@ -134,11 +134,11 @@ PMM Client reads the metrics from the collections that PBM keeps in the `admin` 
     | Metric | Labels | Available in | Description |
     |--------|--------|--------------|-------------|
     | `mongodb_pbm_cluster_backup_configured` | None | 3.0.0 and later | `1` if PBM has a configuration, `0` if it doesn't. |
-    | `mongodb_pbm_cluster_pitr_backup_enabled` | None | 3.0.0 and later | `1` if PITR is enabled, `0` if it isn't. |
-    | `mongodb_pbm_agent_status` | `host`, `replica_set`, `role`, `self` | 3.0.0 and later | Status of the PBM agent of each replica set member: `0` is OK, `1` is failing or not registered, `2` is lost, which means no heartbeat for more than 30 seconds. |
-    | `mongodb_pbm_backup_size_bytes` | `name`, `type`, `status`, `opid`, `host`, `replica_set`, `self` | 3.0.0 and later | Size of each backup. |
-    | `mongodb_pbm_backup_duration_seconds` | `name`, `type`, `status`, `opid`, `host`, `replica_set`, `self` | 3.0.0 and later | Duration of each backup. For a backup in progress, the time since it started. |
-    | `mongodb_pbm_backup_last_transition_ts` | `name`, `type`, `status`, `opid`, `host`, `replica_set`, `self` | 3.4.0 and later | Time when each backup last changed its status, in seconds since the epoch. |
+    | `mongodb_pbm_cluster_pitr_backup_enabled` | None | 3.0.0 and later | `1` if PITR is enabled, `0` if it isn't. No series if PBM has no configuration, so check `mongodb_pbm_cluster_backup_configured` first. |
+    | `mongodb_pbm_agent_status` | `host`, `replica_set`, `role`, and from 3.1.0 `self` | 3.0.0 and later | Status of the PBM agent of each replica set member: `0` is OK, `1` is failing or not registered, `2` is lost, which means no heartbeat for more than 30 seconds. |
+    | `mongodb_pbm_backup_size_bytes` | `name`, `status`, `opid`, and from 3.5.0 `type`, `host`, `replica_set`, `self` | 3.0.0 and later | Size of each backup. |
+    | `mongodb_pbm_backup_duration_seconds` | `name`, `status`, `opid`, and from 3.5.0 `type`, `host`, `replica_set`, `self` | 3.0.0 and later | Duration of each backup. For a backup in progress, the time since it started. |
+    | `mongodb_pbm_backup_last_transition_ts` | `name`, `status`, `opid`, and from 3.5.0 `type`, `host`, `replica_set`, `self` | 3.4.0 and later | Time when each backup last changed its status, in seconds since the epoch. |
     | `mongodb_pbm_cluster_backup_failures_since_last_success` | `type` | 3.11.0 and later | Number of backups of this type that failed after the last successful one. It counts the backups that PBM marked as failed and the unfinished backups whose agents stopped. It returns to `0` with the next successful backup of this type. |
     | `mongodb_pbm_cluster_pitr_recovery_point_ts` | None | 3.11.0 and later | Latest time that you can restore to with PITR, in seconds since the epoch. It is the oldest of the `mongodb_pbm_pitr_last_write_ts` values and matches the end of the PITR range in `pbm list`. A replica set without PITR chunks is left out, so check `mongodb_pbm_pitr_last_write_ts` for each `replica_set` to confirm that all of them are covered. |
     | `mongodb_pbm_pitr_last_write_ts` | `replica_set` | 3.11.0 and later | Time of the last oplog write that PBM saved for the replica set, in seconds since the epoch. |
