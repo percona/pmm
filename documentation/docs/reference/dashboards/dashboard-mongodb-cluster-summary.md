@@ -67,7 +67,11 @@ Shows how many shards are currently being drained via `removeShard`. A non-zero 
 
 ### DBs
 
-Shows the number of user-created databases in the cluster. Watch this over time to track database growth.
+Shows the number of user-created databases in the cluster, both sharded and unsharded. The system databases `admin`, `config`, and `local` aren't counted.
+
+Use this to track database growth over time.
+
+If the panel shows **No data**, add the `mongos` service with [`--enable-all-collectors`](../../use/commands/pmm-admin/add.md#collector-options) so that PMM collects database statistics.
 
 ### Balancer Enabled
 
