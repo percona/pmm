@@ -1154,7 +1154,7 @@
                     "text": "All",
                     "value": "$__all"
                 },
-                "definition": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
+                "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\"}, set)",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Replica Set",
@@ -1163,7 +1163,7 @@
                 "name": "replset",
                 "options": [],
                 "query": {
-                    "query": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
+                    "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\"}, set)",
                     "refId": "Metrics-replset-Variable-Query"
                 },
                 "refresh": 2,

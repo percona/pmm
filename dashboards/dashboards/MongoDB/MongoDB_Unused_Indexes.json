@@ -925,7 +925,7 @@
                     "text": "All",
                     "value": "$__all"
                 },
-                "definition": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
+                "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\"}, set)",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Replication Set",
@@ -933,7 +933,7 @@
                 "name": "replication_set",
                 "options": [],
                 "query": {
-                    "query": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
+                    "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\"}, set)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
