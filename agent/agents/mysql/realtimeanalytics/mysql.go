@@ -87,13 +87,14 @@ SELECT /* pmm-agent:rta */
     IF(sel.END_EVENT_ID IS NULL, sel.SQL_TEXT, NULL) AS current_sql_text,
     IF(sel.END_EVENT_ID IS NULL, sel.EVENT_ID, NULL) AS statement_event_id,
     IF(sel.END_EVENT_ID IS NULL, sel.TIMER_WAIT, NULL) AS statement_latency,
-    sel.LOCK_TIME AS lock_latency,
-    sel.ROWS_EXAMINED AS rows_examined,
-    sel.ROWS_SENT AS rows_sent,
-    sel.ROWS_AFFECTED AS rows_affected,
-    sel.CREATED_TMP_TABLES AS tmp_tables,
-    sel.CREATED_TMP_DISK_TABLES AS tmp_disk_tables,
+    IF(sel.END_EVENT_ID IS NULL, sel.LOCK_TIME, NULL) AS lock_latency,
+    IF(sel.END_EVENT_ID IS NULL, sel.ROWS_EXAMINED, NULL) AS rows_examined,
+    IF(sel.END_EVENT_ID IS NULL, sel.ROWS_SENT, NULL) AS rows_sent,
+    IF(sel.END_EVENT_ID IS NULL, sel.ROWS_AFFECTED, NULL) AS rows_affected,
+    IF(sel.END_EVENT_ID IS NULL, sel.CREATED_TMP_TABLES, NULL) AS tmp_tables,
+    IF(sel.END_EVENT_ID IS NULL, sel.CREATED_TMP_DISK_TABLES, NULL) AS tmp_disk_tables,
     CASE
+        WHEN sel.END_EVENT_ID IS NOT NULL THEN NULL
         WHEN sel.NO_GOOD_INDEX_USED IS NULL AND sel.NO_INDEX_USED IS NULL THEN NULL
         WHEN sel.NO_GOOD_INDEX_USED > 0 OR sel.NO_INDEX_USED > 0 THEN 'YES'
         ELSE 'NO'
@@ -143,7 +144,7 @@ var optionalProcesslistColumns = []struct {
 	{
 		table:  "events_statements_current",
 		column: "CPU_TIME",
-		outer:  ",\n    sel.CPU_TIME AS cpu_latency",
+		outer:  ",\n    IF(sel.END_EVENT_ID IS NULL, sel.CPU_TIME, NULL) AS cpu_latency",
 		inner:  ", s.CPU_TIME",
 	},
 }

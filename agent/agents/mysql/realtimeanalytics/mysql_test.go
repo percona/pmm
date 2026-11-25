@@ -1177,6 +1177,43 @@ func TestFullScanSQLYieldsNullWhenNothingWasMeasured(t *testing.T) {
 		"the old expression fabricated 'NO' from NULLs")
 }
 
+func TestStatementColumnsComeOnlyFromTheRunningStatement(t *testing.T) {
+	t.Parallel()
+
+	m, mock := newMockedRTA(t)
+	for _, column := range optionalProcesslistColumns {
+		mock.ExpectQuery("information_schema.COLUMNS").
+			WithArgs(column.table, column.column).
+			WillReturnRows(sqlmock.NewRows([]string{"c"}).AddRow(1))
+	}
+	expectConsumerProbes(mock, true)
+
+	query, err := m.buildCurrentQueriesSQL(t.Context())
+	require.NoError(t, err)
+	require.NoError(t, mock.ExpectationsWereMet())
+
+	// A thread whose current statement is not instrumented keeps its last completed event, whose
+	// counters must not be shown as the running statement's.
+	selectList, _, _ := strings.Cut(query, "\nFROM ")
+	items := regexp.MustCompile(`,\n {4}\b`).Split(selectList, -1)
+	var checked []string
+	for _, item := range items {
+		if !strings.Contains(strings.ReplaceAll(item, "sel.END_EVENT_ID", ""), "sel.") {
+			continue
+		}
+
+		alias := regexp.MustCompile(`AS (\w+)$`).FindStringSubmatch(item)
+		require.NotNil(t, alias, item)
+		checked = append(checked, alias[1])
+		assert.Contains(t, item, "sel.END_EVENT_ID IS", "%s must be gated on the statement still running", alias[1])
+	}
+
+	assert.Subset(t, checked, []string{
+		"lock_latency", "rows_examined", "rows_sent", "rows_affected", "tmp_tables", "tmp_disk_tables",
+		"full_scan", "cpu_latency",
+	})
+}
+
 func TestFullScanIsUnsetWhenTheServerDidNotSayEither(t *testing.T) {
 	t.Parallel()
 
