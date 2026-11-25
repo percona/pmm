@@ -608,10 +608,12 @@ func convertTemplate(l *logrus.Entry, template models.Template, at *alert.Templa
 		Yaml:        template.Yaml,
 	}
 
-	t.CreatedAt = timestamppb.New(template.CreatedAt)
-	err = t.CreatedAt.CheckValid()
-	if err != nil {
-		return nil, err
+	if !template.CreatedAt.IsZero() {
+		t.CreatedAt = timestamppb.New(template.CreatedAt)
+		err = t.CreatedAt.CheckValid()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	applyMultiExpressionFields(t, at)
