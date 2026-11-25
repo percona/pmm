@@ -3,7 +3,7 @@
 # https://www.mkdocs.org/user-guide/configuration/
 
 site_name: Percona Monitoring and Management
-site_description: Documentation
+site_description: "Percona Monitoring and Management 3 (PMM), an open source platform for monitoring and managing MySQL, PostgreSQL and MongoDB, with install, configure, dashboards, query analytics, alerting and backup guides"
 site_author: Percona LLC
 site_url: ""
 use_directory_urls: false
