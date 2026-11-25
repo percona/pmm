@@ -229,7 +229,7 @@ To view fleet health:
     - **Version**: the version that the cluster runs. **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
     - **Last seen**: when PMM last observed the least recently observed member. A clock icon marks a time more than 5 minutes ago.
 
-    To add the **Max repl. lag**, **Oplog window**, **Services**, **Process**, **Max CPU**, and **Min conn. free** columns, click **Show/Hide columns** at the end of the **Group by** row. In **Max repl. lag**, a lag of 30 seconds or more is marked in red, with an icon. In **Oplog window**, a window shorter than 1 hour is marked in amber, with an icon.
+    To add the **Max repl. lag**, **Oplog window**, **Services**, **Process**, **Max CPU**, and **Min conn. free** columns, click **Show/Hide columns** at the end of the **Group by** row. The table keeps the columns that you choose in this browser. In **Max repl. lag**, a lag of 30 seconds or more is marked in red, with an icon. In **Oplog window**, a window shorter than 1 hour is marked in amber, with an icon.
 
 6. Expand a cluster's row to see its members.
 7. Select the **Services** tab to check whether a specific service is up or down.

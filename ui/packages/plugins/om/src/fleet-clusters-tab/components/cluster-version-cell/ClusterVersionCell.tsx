@@ -40,7 +40,12 @@ export const ClusterVersionCell = ({ cluster }: { cluster: OmClusterRow }) => {
           </Box>
         }
       >
-        <Typography variant="body2" component="span" color="warning.main">
+        <Typography
+          variant="body2"
+          component="span"
+          color="warning.main"
+          tabIndex={0}
+        >
           {Messages.versions.mixed}
         </Typography>
       </Tooltip>
@@ -52,7 +57,9 @@ export const ClusterVersionCell = ({ cluster }: { cluster: OmClusterRow }) => {
   // Shards or routers on different versions, each set consistent: not drift.
   return (
     <Tooltip title={cluster.versions.join(', ')}>
-      <span>{Messages.versions.count(cluster.versions.length)}</span>
+      <span tabIndex={0}>
+        {Messages.versions.count(cluster.versions.length)}
+      </span>
     </Tooltip>
   );
 };

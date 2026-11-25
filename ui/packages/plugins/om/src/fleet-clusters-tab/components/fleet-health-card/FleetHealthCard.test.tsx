@@ -60,14 +60,18 @@ describe('FleetHealthCard', () => {
     expect(screen.queryByTestId('om-fleet-health-unknown')).toBeNull();
   });
 
-  it('filters the table to the unhealthy states present', () => {
+  it('filters the table to every unhealthy state, present or not', () => {
     const { setFilterValue } = renderCard(rowsOf('down', 'unknown', 'healthy'));
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Show unhealthy clusters' })
     );
 
-    expect(setFilterValue).toHaveBeenCalledWith(['down', 'unknown']);
+    expect(setFilterValue).toHaveBeenCalledWith([
+      'down',
+      'degraded',
+      'unknown',
+    ]);
   });
 
   it('offers no filter when every cluster is healthy', () => {

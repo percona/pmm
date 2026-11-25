@@ -16,6 +16,12 @@
  */
 
 import type { OmClusterHealth } from '../../../types';
+import { HEALTH_FILTER_VALUES } from '../../FleetClustersTab.constants';
+
+/** Every state but healthy, so the filter still matches a cluster that changes state later. */
+export const UNHEALTHY_STATES = HEALTH_FILTER_VALUES.filter(
+  (health) => health !== 'healthy'
+);
 
 /** The bar's segment colour per state, matching its status icon. */
 export const HEALTH_BAR_COLOR: Record<OmClusterHealth, string> = {

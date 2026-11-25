@@ -26,8 +26,11 @@ export const getEnvironmentValue = (row: OmClusterRow) =>
   row.env_name || UNNAMED_ENVIRONMENT_VALUE;
 
 export const getEnvironments = (rows: OmClusterRow[]) =>
-  [...new Set(rows.map(getEnvironmentValue))].sort((a, b) =>
-    a.localeCompare(b)
+  // The unnamed environment last, as in Group by.
+  [...new Set(rows.map(getEnvironmentValue))].sort(
+    (a, b) =>
+      Number(a === UNNAMED_ENVIRONMENT_VALUE) -
+        Number(b === UNNAMED_ENVIRONMENT_VALUE) || a.localeCompare(b)
   );
 
 /** Each filter's value, as its options and the URL spell it. */

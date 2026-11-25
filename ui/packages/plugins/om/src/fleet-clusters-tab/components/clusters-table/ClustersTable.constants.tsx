@@ -78,7 +78,6 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     size: 160,
     // The only column the search reads.
     enableGlobalFilter: true,
-    // Plain text until it has somewhere to lead: <ClusterNameLink />, PMM-15879.
     Cell: ({ row: { original } }) =>
       original.cluster_name ?? <Unavailable reason="not_applicable" />,
   },
@@ -92,7 +91,10 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     Cell: ({ row: { original } }) => <ClusterTypeCell cluster={original} />,
   },
   {
-    accessorFn: (row) => row.up_services,
+    // The share up, ascending on the first click, so clusters in trouble lead.
+    accessorFn: (row) =>
+      row.total_services ? row.up_services / row.total_services : -1,
+    sortDescFirst: false,
     id: 'members',
     header: columns.members,
     size: 115,

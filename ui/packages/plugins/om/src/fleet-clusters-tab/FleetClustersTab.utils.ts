@@ -34,7 +34,7 @@ import { Messages } from './FleetClustersTab.messages';
 import type { ClusterGrouping, GroupingColumn } from './FleetClustersTab.types';
 
 export const environmentLabel = (row: OmClusterRow) =>
-  row.env_name ?? Messages.unnamedEnvironment;
+  row.env_name || Messages.unnamedEnvironment;
 
 export const typeLabel = (row: OmClusterRow) => CLUSTER_TYPE_LABEL[row.type];
 
@@ -154,7 +154,8 @@ export const countValues = (
   rows: OmClusterRow[],
   valuesOf: (row: OmClusterRow) => string | string[] | undefined
 ) => {
-  const counts: Record<string, number> = {};
+  // No prototype, so a value named `constructor` starts from zero.
+  const counts: Record<string, number> = Object.create(null);
   for (const row of rows) {
     for (const value of [valuesOf(row) ?? []].flat()) {
       counts[value] = (counts[value] ?? 0) + 1;

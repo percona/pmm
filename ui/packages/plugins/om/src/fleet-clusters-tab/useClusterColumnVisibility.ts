@@ -27,7 +27,10 @@ const STORAGE_KEY = `${CLUSTERS_TABLE_NAME}.columns`;
 const read = (): MRT_VisibilityState => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : HIDDEN_BY_DEFAULT;
+    // Over the defaults, so a column hidden by default later stays hidden.
+    return stored
+      ? { ...HIDDEN_BY_DEFAULT, ...JSON.parse(stored) }
+      : HIDDEN_BY_DEFAULT;
   } catch {
     return HIDDEN_BY_DEFAULT;
   }

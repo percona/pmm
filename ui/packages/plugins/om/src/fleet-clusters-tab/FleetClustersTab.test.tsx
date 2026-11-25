@@ -488,6 +488,24 @@ describe('FleetClustersTab', () => {
       ]);
     });
 
+    it('labels an empty environment name as unassigned', () => {
+      const [named, unnamed] = twoEnvironments().environments;
+      useOmTopology.mockReturnValue({
+        data: topology([named, { ...unnamed, env_name: '' }]),
+        isPending: false,
+        isError: false,
+      });
+      renderPage();
+
+      expect(groupSummaries()).toEqual([
+        'production: 2',
+        'Unassigned environment: 2',
+      ]);
+      expect(
+        screen.getAllByRole('cell', { name: 'Unassigned environment' })
+      ).toHaveLength(2);
+    });
+
     it('leads each group with its down or degraded cluster', () => {
       renderPage();
 
@@ -975,6 +993,15 @@ describe('FleetClustersTab', () => {
         ]);
       });
 
+      it('lists the unnamed environment after the named ones, as Group by does', () => {
+        renderAt('/fleet');
+
+        expect(optionNames('Environment')).toEqual([
+          'production · 2',
+          'Unassigned environment · 2',
+        ]);
+      });
+
       it('offers Clear all only while a search or filter is on', () => {
         renderAt('/fleet');
         expect(screen.queryByRole('button', { name: 'Clear all' })).toBeNull();
@@ -1163,6 +1190,49 @@ describe('FleetClustersTab', () => {
           row.textContent?.includes('older') ? 'older' : 'newer'
         )
       ).toEqual(['older', 'newer']);
+    });
+
+    it('sorts Members by the share of members up, clusters with none first', () => {
+      const members = (name: string, up: number, total: number) =>
+        cluster({
+          name,
+          services: Array.from({ length: total }, (_, index) =>
+            service({
+              service_name: `${name}-${index + 1}`,
+              ...(index < up ? {} : down),
+            })
+          ),
+        });
+      useOmTopology.mockReturnValue({
+        data: topology([
+          {
+            env_name: 'production',
+            clusters: [
+              members('alpha', 1, 1),
+              members('bravo', 1, 5),
+              members('charlie', 0, 3),
+              members('delta', 0, 0),
+            ],
+          },
+        ]),
+        isPending: false,
+        isError: false,
+      });
+      renderPage();
+      groupBy('None');
+
+      fireEvent.click(
+        within(
+          screen.getByRole('columnheader', { name: /^Members/ })
+        ).getByText('Members')
+      );
+
+      const names = ['alpha', 'bravo', 'charlie', 'delta'];
+      expect(
+        clusterRows().map((row) =>
+          names.find((name) => row.textContent?.includes(name))
+        )
+      ).toEqual(['delta', 'charlie', 'bravo', 'alpha']);
     });
   });
 

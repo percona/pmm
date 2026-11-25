@@ -30,7 +30,10 @@ import { HEALTH_FILTER_VALUES } from '../../FleetClustersTab.constants';
 import { Messages } from '../../FleetClustersTab.messages';
 import { countValues } from '../../FleetClustersTab.utils';
 import { ClusterHealthIcon } from '../cluster-health-icon';
-import { HEALTH_BAR_COLOR } from './FleetHealthCard.constants';
+import {
+  HEALTH_BAR_COLOR,
+  UNHEALTHY_STATES,
+} from './FleetHealthCard.constants';
 
 const { healthCard } = Messages;
 
@@ -113,7 +116,7 @@ export const FleetHealthCard = ({
                 size="small"
                 endIcon={<FilterListIcon />}
                 onClick={() =>
-                  table.getColumn('health').setFilterValue(unhealthy)
+                  table.getColumn('health').setFilterValue(UNHEALTHY_STATES)
                 }
               >
                 {healthCard.showUnhealthy}
