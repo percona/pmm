@@ -19,7 +19,7 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## ✅ Fixed issues
 
-- [PMM-15965](https://perconadev.atlassian.net/browse/PMM-15965): Fixed the replica set filter on the [MongoDB Collections Overview](../reference/dashboards/dashboard-mongodb-collection_overview.md), [MongoDB Unused Indexes](../reference/dashboards/dashboard-mongodb-unused-indexes.md) and [MongoDB Oplog Details](../reference/dashboards/dashboard-mongodb-oplog-details.md) dashboards listing replica sets from every environment. The filter now lists only the replica sets in the selected **Environment**, so choosing one no longer leaves the dashboard empty.
+- [PMM-15965](https://perconadev.atlassian.net/browse/PMM-15965): Fixed an issue where the replica set filter on the [MongoDB Collections Overview](../reference/dashboards/dashboard-mongodb-collection_overview.md), [MongoDB Unused Indexes](../reference/dashboards/dashboard-mongodb-unused-indexes.md) and [MongoDB Oplog Details](../reference/dashboards/dashboard-mongodb-oplog-details.md) dashboards could list replica sets from other environments. The **Replication Set** and **Replica Set** filters now list only the replica sets in the selected **Environment**, so choosing one no longer leaves the dashboard empty.
 
 ## 🔶 Known issues
 
