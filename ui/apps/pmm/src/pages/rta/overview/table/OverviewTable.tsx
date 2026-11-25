@@ -4,13 +4,13 @@ import {
   type MRT_VisibilityState,
   type MaterialReactTableProps,
 } from 'material-react-table';
-import { Table, useNavigableRows } from '@percona/peak-ui';
+import { EmptyState, Table, useNavigableRows } from '@percona/peak-ui';
 import { useMemo, useState, type FC } from 'react';
 import type { QueryData } from 'types/rta.types';
 import { ServiceType } from 'types/services.types';
 import { getOverviewTableColumns } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
-import { boxClasses } from '@mui/material/Box';
+import Box, { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
 import { filterCommaSeparated, filterElapsedTime } from './OverviewTable.utils';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
@@ -83,6 +83,26 @@ const OverviewTable: FC<Props> = ({
         columns={columns}
         data={queries}
         noDataMessage={noDataMessage}
+        // The empty row is as wide as all the columns; keep the message, which can be a long
+        // error, inside the visible part of the table so that it wraps instead of being cut off.
+        emptyState={
+          <Box
+            data-testid="overview-table-empty-state"
+            sx={{
+              position: 'sticky',
+              left: 0,
+              width: '100cqw',
+              whiteSpace: 'pre-line',
+            }}
+          >
+            <EmptyState
+              size="small"
+              width="100%"
+              title={noDataMessage}
+              titleComponent="p"
+            />
+          </Box>
+        }
         muiTopToolbarProps={{
           sx: {
             mb: 0.5,
@@ -124,6 +144,8 @@ const OverviewTable: FC<Props> = ({
         muiTableContainerProps={{
           sx: {
             flex: 1,
+            // Lets the empty state size itself to the visible width with cqw.
+            containerType: 'inline-size',
             // TODO: use theme.shape.borderRadiusMd (8px) once percona-ui
             // publishes the Shape tokens (percona-ui#37, not in 1.0.23)
             borderRadius: '8px',
