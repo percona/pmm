@@ -238,11 +238,15 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 			s.l.Warnf("bootstrap run %s: executor %s has no row in the inventory app yet", run.ID, host.Host)
 			continue
 		}
-		err = s.registerBootstrapHost(ctx, inventoryHost.NodeID, host.Host, run.ReplicaSetName, run.Port, environment, cluster,
+		refs, err := s.registerBootstrapHost(ctx, inventoryHost.NodeID, host.Host, run.ReplicaSetName, run.Port, environment, cluster,
 			secret.MongoDBUsername, secret.MongoDBPassword)
 		if err != nil {
 			s.l.Warnf("bootstrap run %s: failed to register %s with PMM: %s", run.ID, host.Host, err)
 			continue
+		}
+		err = models.LinkInstalledMemberByHost(s.db.Querier, host.Host, refs.nodeID, refs.serviceID, refs.exporterAgentID)
+		if err != nil {
+			s.l.Warnf("bootstrap run %s: registered %s but failed to link its member: %s", run.ID, host.Host, err)
 		}
 		done++
 		if len(inventoryHost.Services) == 0 {
