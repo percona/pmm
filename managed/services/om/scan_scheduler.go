@@ -34,6 +34,12 @@ type clusterScanRequester interface {
 	RequestClusterScan(ctx context.Context, clusterID, profile, idempotencyKey string) error
 }
 
+// metricsFactReader reads the current exporter-metric facts for services, keyed by service id, so the
+// accepted state baselines fcv and replica-set config from metrics rather than a privileged scan.
+type metricsFactReader interface {
+	ServiceMetricsFacts(ctx context.Context, serviceIDs []string) (map[string]map[string]any, error)
+}
+
 // ScanScheduler asks PMM Extensions, on the leader and on a fixed cadence, to scan every managed
 // cluster under the managed profile; the monitored sweep keeps its own path and is untouched.
 type ScanScheduler struct {
@@ -43,6 +49,7 @@ type ScanScheduler struct {
 	ha       haChecker
 	interval time.Duration
 	reader   factObservationReader
+	metrics  metricsFactReader
 }
 
 // NewScanScheduler builds a scheduler that requests managed scans on a default thirty-second cadence.
@@ -66,6 +73,13 @@ func (s *ScanScheduler) WithInterval(interval time.Duration) *ScanScheduler {
 // without one the reconcile is off and the scheduler only requests scans.
 func (s *ScanScheduler) WithReader(reader factObservationReader) *ScanScheduler {
 	s.reader = reader
+	return s
+}
+
+// WithMetricsReader attaches the reader the accepted-state reconcile baselines fcv and replica-set
+// config from; without one the reconcile is off, like a missing scan reader.
+func (s *ScanScheduler) WithMetricsReader(metrics metricsFactReader) *ScanScheduler {
+	s.metrics = metrics
 	return s
 }
 
