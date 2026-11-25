@@ -89,6 +89,7 @@ func (cmd *AddAgentQANMongoDBMongologAgentCommand) RunCmd() (commands.Result, er
 				CustomLabels:                  *customLabels,
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,
 				MaxQueryLength:                cmd.MaxQueryLength,
+				DisableQueryExamples:          cmd.DisableQueryExamples,
 				TLS:                           cmd.TLS,
 				TLSSkipVerify:                 cmd.TLSSkipVerify,
 				TLSCertificateKey:             tlsCertificateKey,

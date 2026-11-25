@@ -43,14 +43,15 @@ const (
 )
 
 // New creates new mongolog.
-func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, logFilePrefix string, maxQueryLength int32) *Mongolog {
+func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, logFilePrefix string, maxQueryLength int32, disableQueryExamples bool) *Mongolog {
 	return &Mongolog{
-		mongoDSN:       mongoDSN,
-		logFilePrefix:  logFilePrefix,
-		maxQueryLength: maxQueryLength,
-		logger:         logger,
-		w:              w,
-		agentID:        agentID,
+		mongoDSN:             mongoDSN,
+		logFilePrefix:        logFilePrefix,
+		maxQueryLength:       maxQueryLength,
+		disableQueryExamples: disableQueryExamples,
+		logger:               logger,
+		w:                    w,
+		agentID:              agentID,
 	}
 }
 
@@ -74,8 +75,9 @@ type Mongolog struct {
 	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
 
 	// others
-	logFilePrefix  string
-	maxQueryLength int32
+	logFilePrefix        string
+	maxQueryLength       int32
+	disableQueryExamples bool
 }
 
 // Start starts analyzer but doesn't wait until it exits.
@@ -107,7 +109,7 @@ func (l *Mongolog) Start(ctx context.Context) error {
 	}
 
 	// create aggregator which collects documents and aggregates them into qan report
-	l.aggregator = aggregator.New(time.Now(), l.agentID, l.logger, l.maxQueryLength)
+	l.aggregator = aggregator.New(time.Now(), l.agentID, l.logger, l.maxQueryLength, l.disableQueryExamples)
 	reportChan := l.aggregator.Start() //nolint:contextcheck // PMM-13947
 
 	// create sender which sends qan reports and start it

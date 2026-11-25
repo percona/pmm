@@ -37,6 +37,8 @@ type MongoDB struct {
 	mongoDSN       string
 	logFilePrefix  string
 	maxQueryLength int32
+
+	disableQueryExamples bool
 }
 
 // Params represent Agent parameters.
@@ -45,6 +47,8 @@ type Params struct {
 	AgentID        string
 	LogFilePrefix  string // for development and testing
 	MaxQueryLength int32
+
+	DisableQueryExamples bool
 }
 
 // New creates new MongoDB QAN service.
@@ -60,12 +64,13 @@ func New(params *Params, l *logrus.Entry) (*MongoDB, error) {
 
 func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 	return &MongoDB{
-		agentID:        params.AgentID,
-		mongoDSN:       mongoDSN,
-		logFilePrefix:  params.LogFilePrefix,
-		maxQueryLength: params.MaxQueryLength,
-		l:              l,
-		changes:        make(chan agents.Change, 10), //nolint:mnd
+		agentID:              params.AgentID,
+		mongoDSN:             mongoDSN,
+		logFilePrefix:        params.LogFilePrefix,
+		maxQueryLength:       params.MaxQueryLength,
+		disableQueryExamples: params.DisableQueryExamples,
+		l:                    l,
+		changes:              make(chan agents.Change, 10), //nolint:mnd
 	}
 }
 
@@ -82,7 +87,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	log = mongolog.New(m.mongoDSN, m.l, m, m.agentID, m.logFilePrefix, m.maxQueryLength)
+	log = mongolog.New(m.mongoDSN, m.l, m, m.agentID, m.logFilePrefix, m.maxQueryLength, m.disableQueryExamples)
 	err := log.Start(ctx)
 	if err != nil {
 		m.l.Errorf("can't run mongolog, reason: %v", err)

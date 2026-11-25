@@ -12377,6 +12377,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 14
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-order": 15
                     }
                   },
                   "x-order": 11
@@ -12472,6 +12477,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 14
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-order": 15
                     }
                   },
                   "x-order": 12
@@ -18478,6 +18488,12 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 15
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 10
@@ -18616,6 +18632,12 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 15
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 11
@@ -27903,6 +27925,11 @@
                       "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
                       "type": "boolean",
                       "x-order": 36
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-order": 37
                     }
                   },
                   "x-order": 1
@@ -32992,6 +33019,12 @@
                       "description": "Skip connection check.",
                       "type": "boolean",
                       "x-order": 30
+                    },
+                    "disable_query_examples": {
+                      "description": "Disable query examples.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 31
                     }
                   },
                   "x-order": 1

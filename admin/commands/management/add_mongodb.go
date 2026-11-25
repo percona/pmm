@@ -75,6 +75,7 @@ type AddMongoDBCommand struct {
 	CustomLabels                   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck            bool              `help:"Skip connection check"`
 	MaxQueryLength                 int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+	DisableQueryExamples           bool              `negatable:"" name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                            bool              `negatable:"" help:"Use TLS to connect to the database"`
 	TLSSkipVerify                  bool              `negatable:"" help:"Skip TLS certificate verification"`
 	TLSCertificateKeyFile          string            `help:"Path to TLS certificate PEM file"`
@@ -192,6 +193,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				EnvironmentVariableNames:      agentVarNames,
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,
 				MaxQueryLength:                cmd.MaxQueryLength,
+				DisableQueryExamples:          cmd.DisableQueryExamples,
 				TLS:                           cmd.TLS,
 				TLSSkipVerify:                 cmd.TLSSkipVerify,
 				TLSCertificateKey:             tlsCertificateKey,

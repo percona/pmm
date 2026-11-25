@@ -78,7 +78,8 @@ type ChangeAgentQANMongoDBMongologAgentCommand struct {
 	TLSCaFile                     *string `help:"Path to certificate authority file"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
-	MaxQueryLength *int32 `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+	MaxQueryLength       *int32 `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+	DisableQueryExamples *bool  `help:"Disable query examples"`
 
 	// MongoDB specific options
 	AuthenticationMechanism *string `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
@@ -126,6 +127,7 @@ func (cmd *ChangeAgentQANMongoDBMongologAgentCommand) RunCmd() (commands.Result,
 		TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
 		TLSCa:                         tlsCa,
 		MaxQueryLength:                cmd.MaxQueryLength,
+		DisableQueryExamples:          cmd.DisableQueryExamples,
 		AuthenticationMechanism:       cmd.AuthenticationMechanism,
 		AuthenticationDatabase:        cmd.AuthenticationDatabase,
 		LogLevel:                      convertLogLevelPtr(cmd.LogLevel),
@@ -192,6 +194,13 @@ func (cmd *ChangeAgentQANMongoDBMongologAgentCommand) RunCmd() (commands.Result,
 	}
 	if cmd.MaxQueryLength != nil {
 		changes = append(changes, fmt.Sprintf("changed max query length to %d", *cmd.MaxQueryLength))
+	}
+	if cmd.DisableQueryExamples != nil {
+		if *cmd.DisableQueryExamples {
+			changes = append(changes, "disabled query examples")
+		} else {
+			changes = append(changes, "enabled query examples")
+		}
 	}
 	if cmd.AuthenticationMechanism != nil {
 		changes = append(changes, "changed authentication mechanism to "+*cmd.AuthenticationMechanism)

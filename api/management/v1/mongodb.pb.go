@@ -116,8 +116,10 @@ type AddMongoDBServiceParams struct {
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,38,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Enable collecting histogram bucket metrics from getDiagnosticData.
 	EnableDiagnosticDataHistograms bool `protobuf:"varint,39,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3" json:"enable_diagnostic_data_histograms,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
+	// Disable query examples.
+	DisableQueryExamples bool `protobuf:"varint,40,opt,name=disable_query_examples,json=disableQueryExamples,proto3" json:"disable_query_examples,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *AddMongoDBServiceParams) Reset() {
@@ -409,6 +411,13 @@ func (x *AddMongoDBServiceParams) GetEnableDiagnosticDataHistograms() bool {
 	return false
 }
 
+func (x *AddMongoDBServiceParams) GetDisableQueryExamples() bool {
+	if x != nil {
+		return x.DisableQueryExamples
+	}
+	return false
+}
+
 // UpdateMongoDBServiceParams holds the MongoDB Service settings to change. Only the fields that are set are changed.
 // A map or list field replaces the stored one, and an empty one clears it.
 type UpdateMongoDBServiceParams struct {
@@ -477,8 +486,10 @@ type UpdateMongoDBServiceParams struct {
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,30,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck bool `protobuf:"varint,31,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Disable query examples.
+	DisableQueryExamples *bool `protobuf:"varint,32,opt,name=disable_query_examples,json=disableQueryExamples,proto3,oneof" json:"disable_query_examples,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *UpdateMongoDBServiceParams) Reset() {
@@ -728,6 +739,13 @@ func (x *UpdateMongoDBServiceParams) GetSkipConnectionCheck() bool {
 	return false
 }
 
+func (x *UpdateMongoDBServiceParams) GetDisableQueryExamples() bool {
+	if x != nil && x.DisableQueryExamples != nil {
+		return *x.DisableQueryExamples
+	}
+	return false
+}
+
 type MongoDBServiceResult struct {
 	state              protoimpl.MessageState      `protogen:"open.v1"`
 	Service            *v1.MongoDBService          `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -808,7 +826,7 @@ var File_management_v1_mongodb_proto protoreflect.FileDescriptor
 
 const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xaa\x0e\n" +
+	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xe0\x0e\n" +
 	"\x17AddMongoDBServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -848,10 +866,11 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\x1aenvironment_variable_names\x18$ \x03(\tR\x18environmentVariableNames\x12*\n" +
 	"\x11rta_mongodb_agent\x18% \x01(\bR\x0frtaMongodbAgent\x12R\n" +
 	"\x12connection_timeout\x18& \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12I\n" +
-	"!enable_diagnostic_data_histograms\x18' \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
+	"!enable_diagnostic_data_histograms\x18' \x01(\bR\x1eenableDiagnosticDataHistograms\x124\n" +
+	"\x16disable_query_examples\x18( \x01(\bR\x14disableQueryExamples\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xf0\x10\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xc6\x11\n" +
 	"\x1aUpdateMongoDBServiceParams\x12\x1d\n" +
 	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
 	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
@@ -885,7 +904,8 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\tlog_level\x18\x1c \x01(\x0e2\x16.inventory.v1.LogLevelB\b\xfaB\x05\x82\x01\x02\x10\x01H\x17R\blogLevel\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x1d \x01(\bH\x18R\x0eexposeExporter\x88\x01\x01\x12R\n" +
 	"\x12connection_timeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x122\n" +
-	"\x15skip_connection_check\x18\x1f \x01(\bR\x13skipConnectionCheckB\n" +
+	"\x15skip_connection_check\x18\x1f \x01(\bR\x13skipConnectionCheck\x129\n" +
+	"\x16disable_query_examples\x18  \x01(\bH\x19R\x14disableQueryExamples\x88\x01\x01B\n" +
 	"\n" +
 	"\b_addressB\a\n" +
 	"\x05_portB\t\n" +
@@ -913,7 +933,8 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\"_enable_diagnostic_data_histogramsB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\x95\x03\n" +
+	"\x10_expose_exporterB\x19\n" +
+	"\x17_disable_query_examples\"\x95\x03\n" +
 	"\x14MongoDBServiceResult\x126\n" +
 	"\aservice\x18\x01 \x01(\v2\x1c.inventory.v1.MongoDBServiceR\aservice\x12H\n" +
 	"\x10mongodb_exporter\x18\x02 \x01(\v2\x1d.inventory.v1.MongoDBExporterR\x0fmongodbExporter\x12W\n" +

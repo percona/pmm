@@ -202,6 +202,8 @@ func (m *AddMongoDBServiceParams) validate(all bool) error {
 
 	// no validation rules for EnableDiagnosticDataHistograms
 
+	// no validation rules for DisableQueryExamples
+
 	if len(errors) > 0 {
 		return AddMongoDBServiceParamsMultiError(errors)
 	}
@@ -568,6 +570,10 @@ func (m *UpdateMongoDBServiceParams) validate(all bool) error {
 
 	if m.ExposeExporter != nil {
 		// no validation rules for ExposeExporter
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
 	}
 
 	if len(errors) > 0 {

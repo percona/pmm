@@ -47,11 +47,12 @@ const (
 )
 
 // New returns configured *Aggregator.
-func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLength int32) *Aggregator {
+func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLength int32, disableQueryExamples bool) *Aggregator {
 	aggregator := &Aggregator{
-		agentID:        agentID,
-		logger:         logger,
-		maxQueryLength: maxQueryLength,
+		agentID:              agentID,
+		logger:               logger,
+		maxQueryLength:       maxQueryLength,
+		disableQueryExamples: disableQueryExamples,
 	}
 
 	// create duration from interval
@@ -69,9 +70,10 @@ func New(timeStart time.Time, agentID string, logger *logrus.Entry, maxQueryLeng
 
 // Aggregator aggregates system.profile document.
 type Aggregator struct {
-	agentID        string
-	maxQueryLength int32
-	logger         *logrus.Entry
+	agentID              string
+	maxQueryLength       int32
+	disableQueryExamples bool
+	logger               *logrus.Entry
 
 	// provides
 	reportChan chan *report.Report
@@ -270,7 +272,6 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 		}
 
 		fingerprint, _ := truncate.Query(v.Fingerprint, a.maxQueryLength, truncate.GetMongoDBDefaultMaxQueryLength())
-		query, truncated := truncate.Query(v.Query, a.maxQueryLength, truncate.GetMongoDBDefaultMaxQueryLength())
 		bucket := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Queryid:             v.ID, // PMM-13466
@@ -283,13 +284,18 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 				PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()), //nolint:gosec
 				PeriodLengthSecs:    uint32(a.d.Seconds()),
-				Example:             query,
-				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:          float32(v.Count),
-				IsTruncated:         truncated,
 				Comments:            nil, // PMM-11866
 			},
 			Mongodb: &agentv1.MetricsBucket_MongoDB{},
+		}
+
+		// Query examples contain real values, so they are not sent when disabled.
+		if !a.disableQueryExamples {
+			query, truncated := truncate.Query(v.Query, a.maxQueryLength, truncate.GetMongoDBDefaultMaxQueryLength())
+			bucket.Common.Example = query
+			bucket.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
+			bucket.Common.IsTruncated = truncated
 		}
 
 		bucket.Common.MQueryTimeCnt = float32(v.Count) // PMM-13788

@@ -80,6 +80,7 @@ func (cmd *UpdateMongoDBCommand) RunCmd() (commands.Result, error) {
 		AuthenticationMechanism:        cmd.str("authentication-mechanism", cmd.AuthenticationMechanism),
 		AuthenticationDatabase:         cmd.str("authentication-database", cmd.AuthenticationDatabase),
 		MaxQueryLength:                 cmd.num32("max-query-length", cmd.MaxQueryLength),
+		DisableQueryExamples:           cmd.boolean("disable-queryexamples", cmd.DisableQueryExamples),
 		MetricsMode:                    cmd.metricsMode(cmd.MetricsMode),
 		CollectionsLimit:               cmd.num32("max-collections-limit", cmd.CollectionsLimit),
 		EnableAllCollectors:            cmd.boolean("enable-all-collectors", cmd.EnableAllCollectors),
@@ -163,6 +164,7 @@ func mongodbSettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {
 		agentSettings(
 			qan,
 			setting{Flag: "--max-query-length", Value: strconv.Itoa(int(qan.MaxQueryLength))},
+			boolSetting("--disable-queryexamples", qan.QueryExamplesDisabled),
 		),
 		[]setting{
 			boolSetting("--enable-all-collectors", options.EnableAllCollectors),

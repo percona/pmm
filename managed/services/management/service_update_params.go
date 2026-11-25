@@ -177,7 +177,8 @@ func mongodbServiceChange(p *managementv1.UpdateMongoDBServiceParams) *serviceCh
 		},
 		metricsMode: p.MetricsMode,
 		qan: models.ChangeQANOptions{
-			MaxQueryLength: p.MaxQueryLength,
+			MaxQueryLength:        p.MaxQueryLength,
+			QueryExamplesDisabled: p.DisableQueryExamples,
 		},
 		qanAgents: qanAgents(map[models.AgentType]*bool{
 			models.QANMongoDBProfilerAgentType: p.QanMongodbProfiler,
