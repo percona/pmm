@@ -16,16 +16,16 @@
                 "showIn": 0,
                 "tags": [
                     "pmm_annotation",
-                    "$node_name",
-                    "$service_name"
+                    "pmm_scope:node_name:pg_up{environment=~\"${environment:regex}\",node_name=~\"${node_name:regex}\"}",
+                    "pmm_scope:service_name:pg_up{node_name=~\"${node_name:regex}\",environment=~\"${environment:regex}\",service_name=~\"${service_name:regex}\"}"
                 ],
                 "target": {
                     "limit": 100,
                     "matchAny": true,
                     "tags": [
                         "pmm_annotation",
-                        "$node_name",
-                        "$service_name"
+                        "pmm_scope:node_name:pg_up{environment=~\"${environment:regex}\",node_name=~\"${node_name:regex}\"}",
+                        "pmm_scope:service_name:pg_up{node_name=~\"${node_name:regex}\",environment=~\"${environment:regex}\",service_name=~\"${service_name:regex}\"}"
                     ],
                     "type": "tags"
                 },

@@ -16,16 +16,16 @@
                 "showIn": 0,
                 "tags": [
                     "pmm_annotation",
-                    "$node_name",
-                    "$service_name"
+                    "pmm_scope:node_name:mongodb_up{environment=~\"${environment:regex}\",cluster=~\"${cluster:regex}\",node_name=~\"${node_name:regex}\"}",
+                    "pmm_scope:service_name:mongodb_up{environment=~\"${environment:regex}\",cluster=~\"${cluster:regex}\",node_name=~\"${node_name:regex}\",service_name=~\"${service_name:regex}\"}"
                 ],
                 "target": {
                     "limit": 100,
                     "matchAny": true,
                     "tags": [
                         "pmm_annotation",
-                        "$node_name",
-                        "$service_name"
+                        "pmm_scope:node_name:mongodb_up{environment=~\"${environment:regex}\",cluster=~\"${cluster:regex}\",node_name=~\"${node_name:regex}\"}",
+                        "pmm_scope:service_name:mongodb_up{environment=~\"${environment:regex}\",cluster=~\"${cluster:regex}\",node_name=~\"${node_name:regex}\",service_name=~\"${service_name:regex}\"}"
                     ],
                     "type": "tags"
                 },

@@ -118,14 +118,14 @@ jobs:
           count=$(wc -l < changed_dashboards.txt | tr -d ' ')
           echo "count=$count" >> $GITHUB_OUTPUT
 
-          # The cleanup script's tests include a whole-tree gate over every
-          # dashboard, so only run them when the PR changes a dashboard, the
+          # The cleanup and scope-annotation tests include whole-tree gates over
+          # every dashboard, so only run them when the PR changes a dashboard, the
           # scripts under test, or this workflow -- whoever edits the gate needs
           # to see it run. Nothing else may be gated on the state of the tree.
           # The pattern must cover every module `discover -p 'test_*.py'` would
           # pick up, or a PR adding one never runs it.
           if [ "$count" -ne 0 ] \
-            || grep -qE '^(dashboards/misc/(cleanup-dash\.py|test_.*\.py)|\.github/workflows/dashboards\.yml)$' changed_files.txt; then
+            || grep -qE '^(dashboards/misc/(cleanup-dash\.py|scope-annotations\.py|test_.*\.py)|\.github/workflows/dashboards\.yml)$' changed_files.txt; then
             echo "tooling=1" >> $GITHUB_OUTPUT
           else
             echo "tooling=0" >> $GITHUB_OUTPUT

@@ -13,14 +13,14 @@
                 "showIn": 0,
                 "tags": [
                     "pmm_annotation",
-                    "$node_name"
+                    "pmm_scope:node_name:vm_app_version{agent_type=\"vmagent\",node_name=~\"${node_name:regex}\"}"
                 ],
                 "target": {
                     "limit": 100,
                     "matchAny": true,
                     "tags": [
                         "pmm_annotation",
-                        "$node_name"
+                        "pmm_scope:node_name:vm_app_version{agent_type=\"vmagent\",node_name=~\"${node_name:regex}\"}"
                     ],
                     "type": "tags"
                 },
