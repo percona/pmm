@@ -105,6 +105,50 @@ func TestOmAppendClusterState(t *testing.T) {
 	})
 }
 
+func TestLinkInstalledMemberByHost(t *testing.T) {
+	db := omTestDB(t)
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{NodeName: "node00"})
+	require.NoError(t, err)
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+	addr, port := node.NodeID, uint16(27017)
+	service, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "node00-mongod", NodeID: node.NodeID, Address: &addr, Port: &port,
+	})
+	require.NoError(t, err)
+	exporter, err := models.CreateAgent(db.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
+		PMMAgentID: pmmAgent.AgentID, ServiceID: service.ServiceID, SkipConnectionCheck: true,
+	})
+	require.NoError(t, err)
+
+	clusterID := newCluster(t, db.Querier)
+	opID := newOperation(t, db.Querier, &clusterID)
+	rsRef := newReplicaSet(t, db.Querier, clusterID, "rs0-id")
+	rsMemberID := int32(0)
+	member := &models.OmClusterMember{
+		ID: uuid.New().String(), ClusterID: clusterID, ReplicaSetRef: &rsRef, Process: models.OmMemberMongod,
+		Host: "node00", RSMemberID: &rsMemberID, State: models.OmMemberAccepted, AddedByOperation: opID,
+	}
+	require.NoError(t, db.Insert(member))
+
+	require.NoError(t, models.LinkInstalledMemberByHost(db.Querier, "node00", node.NodeID, service.ServiceID, exporter.AgentID))
+
+	require.NoError(t, db.Reload(member))
+	require.NotNil(t, member.NodeID)
+	assert.Equal(t, node.NodeID, *member.NodeID)
+	require.NotNil(t, member.ServiceID)
+	assert.Equal(t, service.ServiceID, *member.ServiceID)
+	require.NotNil(t, member.ExporterAgentID)
+	assert.Equal(t, exporter.AgentID, *member.ExporterAgentID)
+
+	t.Run("leaves an already-linked member and an unknown host untouched", func(t *testing.T) {
+		require.NoError(t, models.LinkInstalledMemberByHost(db.Querier, "node00", node.NodeID, service.ServiceID, exporter.AgentID))
+		require.NoError(t, models.LinkInstalledMemberByHost(db.Querier, "no-such-host", node.NodeID, service.ServiceID, exporter.AgentID))
+		require.NoError(t, db.Reload(member))
+		assert.Equal(t, node.NodeID, *member.NodeID)
+	})
+}
+
 func TestOmSecretEncryptedAtRest(t *testing.T) {
 	db := omTestDB(t)
 	clusterID := newCluster(t, db.Querier)

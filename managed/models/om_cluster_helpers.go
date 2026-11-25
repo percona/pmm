@@ -58,3 +58,16 @@ func AppendClusterState(tx *reform.TX, clusterID string, schemaVersion int32, do
 
 	return state, nil
 }
+
+// LinkInstalledMemberByHost connects a live, not-yet-linked installed member to the PMM node, service
+// and exporter registered for its host; a run that recorded no such member links nothing.
+func LinkInstalledMemberByHost(q *reform.Querier, host, nodeID, serviceID, exporterAgentID string) error {
+	_, err := q.Exec(
+		"UPDATE om_cluster_members SET node_id = $1, service_id = NULLIF($2, ''), exporter_agent_id = NULLIF($3, '') "+
+			"WHERE host = $4 AND removed_at IS NULL AND node_id IS NULL",
+		nodeID, serviceID, exporterAgentID, host)
+	if err != nil {
+		return fmt.Errorf("failed to link the installed member on host %s: %w", host, err)
+	}
+	return nil
+}
