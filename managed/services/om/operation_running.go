@@ -117,6 +117,17 @@ func reprobeStep(ctx context.Context, db *reform.DB, op *models.OmOperation, pla
 		return "", err
 	}
 	if mapStepResult(result) == models.OmStepUnknown {
+		// Persist the run reference the executor just recorded so the next probe reuses the run
+		// instead of opening a second; an already-unknown step already carries it.
+		if step.Status != models.OmStepUnknown {
+			err = db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+				_, e := recordStepResult(tx.Querier, step.ID, step.Status, result, resultJSON)
+				return e
+			})
+			if err != nil {
+				return "", err
+			}
+		}
 		return RunStepPending, nil
 	}
 	moved := false
