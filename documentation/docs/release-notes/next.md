@@ -17,6 +17,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## 📈 Improvements
 
+- [PMM-15971](https://perconadev.atlassian.net/browse/PMM-15971): Updated Grafana to 12.4.16, which fixes 11 security vulnerabilities, including the high-severity [CVE-2026-102589](https://nvd.nist.gov/vuln/detail/CVE-2026-102589), [CVE-2026-106475](https://nvd.nist.gov/vuln/detail/CVE-2026-106475) and [CVE-2026-111000](https://nvd.nist.gov/vuln/detail/CVE-2026-111000). For the full list, see the [Grafana 12.4.15](https://github.com/grafana/grafana/releases/tag/v12.4.15) and [12.4.16](https://github.com/grafana/grafana/releases/tag/v12.4.16) release notes.
+
 ## ✅ Fixed issues
 
 ## 🔶 Known issues
