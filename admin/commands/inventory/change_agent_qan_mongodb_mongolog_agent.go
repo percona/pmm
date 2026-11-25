@@ -79,7 +79,7 @@ type ChangeAgentQANMongoDBMongologAgentCommand struct {
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength       *int32 `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
-	DisableQueryExamples *bool  `help:"Disable query examples"`
+	DisableQueryExamples *bool  `name:"disable-queryexamples" help:"Disable query examples"`
 
 	// MongoDB specific options
 	AuthenticationMechanism *string `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
