@@ -368,6 +368,7 @@ After configuring your database server, add a MongoDB service using either the u
         --host=127.0.0.1 \
         --port=27017 \
         --cluster=my_cluster_or_rs_name \
+        --environment=my_environment_name \
         --query-source=none
         ```
 

@@ -71,7 +71,7 @@ Shows the number of user-created databases in the cluster, both sharded and unsh
 
 Use this to track database growth over time.
 
-If the panel shows **No data**, add the `mongos` service with [`--enable-all-collectors`](../../use/commands/pmm-admin/add.md#collector-options) so that PMM collects database statistics.
+If the panel shows **No data**, add the `mongos` service with [`--enable-all-collectors`](../../use/commands/pmm-admin/add.md#collector-options) so that PMM collects database statistics. If the `mongos` service is already registered, [update it](../../use/commands/pmm-admin/update.md) with `pmm-admin update mongodb <service_name> --enable-all-collectors`.
 
 ### Balancer Enabled
 

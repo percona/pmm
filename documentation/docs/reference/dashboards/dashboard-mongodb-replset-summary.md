@@ -36,7 +36,7 @@ Shows the number of user-created databases in the replica set. The system databa
 
 Use this to track database growth over time.
 
-If the panel shows **No data**, add the replica set members with [`--enable-all-collectors`](../../use/commands/pmm-admin/add.md#collector-options) so that PMM collects database statistics.
+If the panel shows **No data**, add the replica set members with [`--enable-all-collectors`](../../use/commands/pmm-admin/add.md#collector-options) so that PMM collects database statistics. If the members are already registered, [update each one](../../use/commands/pmm-admin/update.md) with `pmm-admin update mongodb <service_name> --enable-all-collectors`.
 
 ### Last Election
 
