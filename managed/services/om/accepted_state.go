@@ -36,7 +36,7 @@ const (
 // reconcileAcceptedStates writes the first accepted state for every managed cluster that has none yet,
 // from its members' managed-scan facts; a cluster whose facts are not in yet is left for a later tick.
 func (s *ScanScheduler) reconcileAcceptedStates(ctx context.Context) {
-	if s.reader == nil {
+	if s.reader == nil || s.metrics == nil {
 		return
 	}
 	clusters, err := clustersNeedingAcceptedState(s.db.Querier)
@@ -65,7 +65,7 @@ func (s *ScanScheduler) writeAcceptedState(ctx context.Context, clusterID, opera
 		members[i] = row.(*models.OmClusterMember) //nolint:forcetypeassert
 	}
 
-	state, ready := buildInstallAcceptedState(ctx, s.reader, members)
+	state, ready := buildInstallAcceptedState(ctx, s.reader, s.metrics, members)
 	if !ready {
 		return
 	}
@@ -92,9 +92,26 @@ func (s *ScanScheduler) writeAcceptedState(ctx context.Context, clusterID, opera
 	}
 }
 
-// buildInstallAcceptedState assembles a cluster's accepted state from each member's managed-scan facts,
-// reporting false until every member's observation is in so the reconcile retries on a later tick.
-func buildInstallAcceptedState(ctx context.Context, reader factObservationReader, members []*models.OmClusterMember) (*models.AcceptedState, bool) {
+// buildInstallAcceptedState assembles a cluster's accepted state from each member's credential-free
+// scan facts and its service's exporter-metric facts, reporting false until every member's are in.
+func buildInstallAcceptedState(
+	ctx context.Context,
+	reader factObservationReader,
+	metrics metricsFactReader,
+	members []*models.OmClusterMember,
+) (*models.AcceptedState, bool) {
+	serviceIDs := make([]string, 0, len(members))
+	for _, member := range members {
+		if member.ServiceID == nil {
+			return nil, false
+		}
+		serviceIDs = append(serviceIDs, *member.ServiceID)
+	}
+	metricFacts, err := metrics.ServiceMetricsFacts(ctx, serviceIDs)
+	if err != nil {
+		return nil, false
+	}
+
 	state := &models.AcceptedState{
 		Auth:        models.AcceptedAuth{Mechanisms: []string{installAuthMechanism}, Membership: installAuthMembership},
 		ReplicaSets: map[string]models.AcceptedReplicaSet{},
@@ -105,12 +122,13 @@ func buildInstallAcceptedState(ctx context.Context, reader factObservationReader
 		if err != nil || len(facts) == 0 {
 			return nil, false
 		}
+		memberMetrics := metricFacts[*member.ServiceID]
 		binaryVersion, _ := facts["binary_version"].(string)
-		fcv, _ := facts["database.fcv"].(string)
 		configSHA, _ := facts["database.config_sha256"].(string)
 		setName, _ := facts["database.set_name"].(string)
-		rsVersion, versionOK := facts["database.rs_config_version"].(float64)
-		rsTerm, termOK := facts["database.rs_config_term"].(float64)
+		fcv, _ := memberMetrics[fieldFCV].(string)
+		rsVersion, versionOK := memberMetrics[fieldRSConfigVersion].(float64)
+		rsTerm, termOK := memberMetrics[fieldRSConfigTerm].(float64)
 		if binaryVersion == "" || fcv == "" || configSHA == "" || setName == "" || !versionOK || !termOK || member.RSMemberID == nil {
 			return nil, false
 		}

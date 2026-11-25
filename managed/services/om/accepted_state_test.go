@@ -16,6 +16,7 @@
 package om
 
 import (
+	"context"
 	"testing"
 
 	"github.com/google/uuid"
@@ -26,23 +27,50 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-func memberFacts() map[string]any {
+// memberScanFacts are the credential-free facts the on-host scan produces for a member.
+func memberScanFacts() map[string]any {
 	return map[string]any{
-		"binary_version":             "8.0.38",
-		"database.fcv":               "8.0",
-		"database.config_sha256":     "abc123",
-		"database.set_name":          "rs0",
-		"database.rs_config_version": float64(1),
-		"database.rs_config_term":    float64(2),
+		"binary_version":         "8.0.38",
+		"database.config_sha256": "abc123",
+		"database.set_name":      "rs0",
 	}
+}
+
+// memberMetricFacts are the facts the exporter metrics carry for a member's service.
+func memberMetricFacts() map[string]any {
+	return map[string]any{
+		fieldFCV:             "8.0",
+		fieldRSConfigVersion: float64(1),
+		fieldRSConfigTerm:    float64(2),
+	}
+}
+
+type fakeMetricsFactReader struct {
+	facts map[string]map[string]any
+	err   error
+}
+
+func (f *fakeMetricsFactReader) ServiceMetricsFacts(_ context.Context, serviceIDs []string) (map[string]map[string]any, error) {
+	if f.err != nil {
+		return nil, f.err
+	}
+	out := make(map[string]map[string]any, len(serviceIDs))
+	for _, id := range serviceIDs {
+		if facts, ok := f.facts[id]; ok {
+			out[id] = facts
+		}
+	}
+	return out, nil
 }
 
 func TestBuildInstallAcceptedState(t *testing.T) {
 	rsMemberID := int32(0)
-	members := []*models.OmClusterMember{{ID: "m0", Host: "node00", RSMemberID: &rsMemberID}}
-	reader := &fakeFactReader{facts: map[string]map[string]any{"m0": memberFacts()}}
+	serviceID := "svc-m0"
+	members := []*models.OmClusterMember{{ID: "m0", Host: "node00", RSMemberID: &rsMemberID, ServiceID: &serviceID}}
+	reader := &fakeFactReader{facts: map[string]map[string]any{"m0": memberScanFacts()}}
+	metrics := &fakeMetricsFactReader{facts: map[string]map[string]any{serviceID: memberMetricFacts()}}
 
-	state, ready := buildInstallAcceptedState(t.Context(), reader, members)
+	state, ready := buildInstallAcceptedState(t.Context(), reader, metrics, members)
 	require.True(t, ready)
 	assert.Equal(t, "8.0", state.FCV)
 	assert.Equal(t, []string{installAuthMechanism}, state.Auth.Mechanisms)
@@ -59,17 +87,33 @@ func TestBuildInstallAcceptedState(t *testing.T) {
 	require.NoError(t, err, "the built state is a valid document")
 
 	_, ready = buildInstallAcceptedState(t.Context(),
-		&fakeFactReader{facts: map[string]map[string]any{"m0": {"binary_version": "8.0.38"}}}, members)
+		&fakeFactReader{facts: map[string]map[string]any{"m0": {"binary_version": "8.0.38"}}}, metrics, members)
 	assert.False(t, ready, "an incomplete observation is not ready")
 
-	_, ready = buildInstallAcceptedState(t.Context(), &fakeFactReader{}, members)
+	_, ready = buildInstallAcceptedState(t.Context(), &fakeFactReader{}, metrics, members)
 	assert.False(t, ready, "a member with no observation yet is not ready")
+
+	_, ready = buildInstallAcceptedState(t.Context(), reader, &fakeMetricsFactReader{}, members)
+	assert.False(t, ready, "a member whose metrics are not in yet is not ready")
+
+	unlinked := []*models.OmClusterMember{{ID: "m0", Host: "node00", RSMemberID: &rsMemberID}}
+	_, ready = buildInstallAcceptedState(t.Context(), reader, metrics, unlinked)
+	assert.False(t, ready, "a member not yet linked to a service is not ready")
 }
 
 func TestReconcileWritesAcceptedStateOnce(t *testing.T) {
 	db := lockTestDB(t)
 	clusterID := uuid.New().String()
 	opID := uuid.New().String()
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{NodeName: "node00"})
+	require.NoError(t, err)
+	port := uint16(27017)
+	address := "127.0.0.1"
+	service, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "node00-mongod", NodeID: node.NodeID, Address: &address, Port: &port,
+	})
+	require.NoError(t, err)
 
 	require.NoError(t, db.Insert(&models.OmCluster{
 		ID: clusterID, Name: "rs0", Kind: models.OmClusterReplicaSet,
@@ -84,12 +128,14 @@ func TestReconcileWritesAcceptedStateOnce(t *testing.T) {
 	rsMemberID := int32(0)
 	member := &models.OmClusterMember{
 		ID: uuid.New().String(), ClusterID: clusterID, ReplicaSetRef: &rs.ID, Process: models.OmMemberMongod,
-		Host: "node00", RSMemberID: &rsMemberID, State: models.OmMemberAccepted, AddedByOperation: opID,
+		Host: "node00", RSMemberID: &rsMemberID, ServiceID: &service.ServiceID, State: models.OmMemberAccepted, AddedByOperation: opID,
 	}
 	require.NoError(t, db.Insert(member))
 
-	reader := &fakeFactReader{facts: map[string]map[string]any{member.ID: memberFacts()}}
-	scheduler := NewScanScheduler(db, logrus.WithField("test", t.Name()), &fakeClusterScanRequester{}).WithReader(reader)
+	reader := &fakeFactReader{facts: map[string]map[string]any{member.ID: memberScanFacts()}}
+	metrics := &fakeMetricsFactReader{facts: map[string]map[string]any{service.ServiceID: memberMetricFacts()}}
+	scheduler := NewScanScheduler(db, logrus.WithField("test", t.Name()), &fakeClusterScanRequester{}).
+		WithReader(reader).WithMetricsReader(metrics)
 
 	scheduler.Tick(t.Context())
 
@@ -115,7 +161,7 @@ func TestReconcileWaitsForFacts(t *testing.T) {
 	clusterID := clusterWithStatus(t, db.Querier, models.OmClusterManaged)
 
 	scheduler := NewScanScheduler(db, logrus.WithField("test", t.Name()), &fakeClusterScanRequester{}).
-		WithReader(&fakeFactReader{})
+		WithReader(&fakeFactReader{}).WithMetricsReader(&fakeMetricsFactReader{})
 	scheduler.Tick(t.Context())
 
 	var version *int32
