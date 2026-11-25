@@ -78,7 +78,7 @@ PMM checks these requirements during scans and reports the results so you can fi
 
 ### Provide MongoDB credentials for scans
 
-Scans log in to MongoDB on each node to read the replica set state. They don't use the monitoring credentials that PMM already holds, so you need to provide credentials even for instances that PMM monitors.
+Scans log in to MongoDB on each node to read the replica set state. They don't use the monitoring credentials that PMM already holds, so provide credentials even for instances that PMM monitors.
 
 To provide credentials:
 {.power-number}
@@ -99,7 +99,11 @@ To provide credentials:
     chmod 600 /root/.mongodb_uri
     ```
 
-4. To check the credentials, click **Scan** in the node's row on the **Nodes** page. Then go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan. If the password is wrong, the scan shows as **Partial**, and the service appears in red with **(no answer)**. Hover over it to see the error. If the file is missing, no error is shown. Scans still report the running version, but not the replica set state.
+4. To check the credentials, click **Scan** in the node's row on the **Nodes** page.
+5. Go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan:
+
+    - If the scan shows **Partial** and the service shows **(no answer)** in red, MongoDB may have rejected the password. To see the error, hover over the service.
+    - If the scan shows the running version but no replica set state, and no error, check that the file exists.
 
 #### Scan without credentials
 
@@ -258,15 +262,25 @@ PMM signs you in to PMM Extensions with your PMM session, and PMM Extensions acc
 
 If the container sets it to `false`, remove the variable and recreate the container.
 
-### A node shows no data or a service is failing
+### A node shows no data or Needs attention
 
-If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
+If a node shows no data, or **Needs attention** in the **Automation** column on **MongoDB > Operations > Nodes**:
+{.power-number}
 
-If the reason isn't clear, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for that node.
+1. Read the reason under the node's status, and fix it on the node.
+2. If the reason isn't clear, open **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for the node.
+3. If a scan shows **Partial**, MongoDB may be rejecting the scan credentials. Check [the node's service](#a-service-is-failing).
 
-The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look for **Partial** scans on the **Scans** tab, or check the **Services** tab as described below.
+### A service is failing
 
-To find out why a service is failing, go to **MongoDB > Operations > Fleet** and select the **Services** tab. The **Collected** column shows the reason in red, for example **Database unreachable** or **Database authentication failed**. Click the service's row to open its details, which show the full error and what to do about it. When PMM knows which scan failed, the details also link to it. A **Down** service marked **not running** had no `mongod` or `mongos` running at its last scan.
+If a service shows **Down** or no data on **MongoDB > Operations > Fleet**:
+{.power-number}
+
+1. Select the **Services** tab and find the service.
+2. Read the reason in the **Collected** column, for example **Database unreachable** or **Database authentication failed**.
+3. Click the service's status to see the full error and what to do about it.
+
+A service marked **not running** had no `mongod` or `mongos` running when PMM last scanned its node.
 
 ### An install fails or has to stop
 
