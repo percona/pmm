@@ -57,12 +57,17 @@ type installStepExecutor struct {
 // Run creates the om_bootstrap run on the first probe and maps its status on each later one: a succeeded
 // run is ok, a failed or rolled-back run fails, and a still-running one is inconclusive.
 func (e *installStepExecutor) Run(ctx context.Context, _ StepPlan, idempotencyKey string) (StepResultKind, []byte, error) {
+	ctx = asService(ctx)
 	runID, err := e.runIDFromStep(idempotencyKey)
 	if err != nil {
 		return "", nil, err
 	}
 	if runID == "" {
 		run, err := e.bootstrap.triggerRun(ctx, e.plannedRun())
+		if err != nil {
+			return "", nil, err
+		}
+		err = models.RebindOmBootstrapSecretRun(e.db.Querier, e.op.ID, run.ID)
 		if err != nil {
 			return "", nil, err
 		}
