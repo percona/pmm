@@ -145,7 +145,7 @@ PMM Client reads the metrics from the collections that PBM keeps in the `admin` 
     | `mongodb_pbm_restore_status` | None | 3.11.0 and later | Status of the most recent restore: `0` is no restore recorded, `1` is running, `2` is failed, `3` is completed. |
     | `mongodb_pbm_restore_duration_seconds` | `name`, `backup`, `type`, `status`, `opid` | 3.11.0 and later | Duration of each of the 10 most recent restores. |
     | `mongodb_pbm_restore_last_transition_ts` | `name`, `backup`, `type`, `status`, `opid` | 3.11.0 and later | Time when each of the 10 most recent restores last changed its status, in seconds since the epoch. |
-    | `mongodb_pbm_agent_version_info` | `host`, `replica_set`, `self`, `version` | 3.11.0 and later | Version of the PBM agent of the monitored node. Through `mongos`, the version of every agent in the cluster. The value is always `1`. |
+    | `mongodb_pbm_agent_version_info` | `host`, `replica_set`, `self`, `version` | 3.11.0 and later | Reports the PBM agent version in the `version` label, one series for each agent. The sample value is always `1` and carries no information, so read or group by the `version` label. A monitored node reports its own agent, and `mongos` reports every agent in the cluster. |
 
 ### Build reliable queries
 
