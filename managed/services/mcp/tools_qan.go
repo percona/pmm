@@ -156,7 +156,7 @@ func (r topQueriesResult) render() string {
 // average time, the requested columns, and for queryid rows the fingerprint.
 func (r topQueriesResult) renderRow(row queryRow) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "%d. [%s] load=%s calls=%s total=%s avg=%s", row.Rank, cmp.Or(row.Dimension, "(empty)"),
+	fmt.Fprintf(&b, "%d. [%s] load=%s calls=%s total=%s avg=%s", row.Rank, cmp.Or(oneLine(row.Dimension), "(empty)"),
 		fmtNum3(row.Load), fmtNum(row.Calls), fmtSeconds(row.QueryTimeTotal), fmtSeconds(row.QueryTimeAvg))
 	for _, st := range row.stats {
 		c, _ := qanColumnByName(st.name)
@@ -169,7 +169,7 @@ func (r topQueriesResult) renderRow(row queryRow) string {
 		}
 	}
 	if r.GroupBy == groupByQuery {
-		b.WriteString("\n   " + cmp.Or(row.Fingerprint, row.Dimension))
+		b.WriteString("\n" + indentLines(cmp.Or(row.Fingerprint, row.Dimension)))
 	}
 	return b.String()
 }
@@ -547,23 +547,27 @@ func (r queryDetailResult) render() string {
 		if r.Version != "" {
 			engine += " " + r.Version
 		}
-		parts = append(parts, "engine: "+engine)
+		parts = append(parts, "engine: "+oneLine(engine))
 	}
 	if r.ServiceName != "" {
-		parts = append(parts, "service: "+r.ServiceName)
+		parts = append(parts, "service: "+oneLine(r.ServiceName))
 	}
 	// QAN fills database for PostgreSQL and MongoDB, schema for MySQL.
 	if r.Database != "" {
-		parts = append(parts, "database: "+r.Database)
+		parts = append(parts, "database: "+oneLine(r.Database))
 	}
 	if r.Schema != "" {
-		parts = append(parts, "schema: "+r.Schema)
+		parts = append(parts, "schema: "+oneLine(r.Schema))
 	}
 	if len(r.Tables) > 0 {
-		parts = append(parts, "tables: "+strings.Join(r.Tables, ", "))
+		tables := make([]string, 0, len(r.Tables))
+		for _, table := range r.Tables {
+			tables = append(tables, oneLine(table))
+		}
+		parts = append(parts, "tables: "+strings.Join(tables, ", "))
 	}
 	if r.Fingerprint != "" {
-		parts = append(parts, "fingerprint:\n"+r.Fingerprint)
+		parts = append(parts, "fingerprint:\n"+indentLines(r.Fingerprint))
 	}
 	if len(r.keyMetrics) > 0 {
 		parts = append(parts, "metrics: "+metricsText(r.keyMetrics))
@@ -573,7 +577,7 @@ func (r queryDetailResult) render() string {
 		if r.rawSQL {
 			label = "example:"
 		}
-		parts = append(parts, label+"\n```sql\n"+r.Example+"\n```")
+		parts = append(parts, label+"\n```sql\n"+indentLines(r.Example)+"\n```")
 	}
 	for _, p := range []struct {
 		call string

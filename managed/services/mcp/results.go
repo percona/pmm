@@ -17,6 +17,7 @@ package mcp
 
 import (
 	"fmt"
+	"regexp"
 	"time"
 	"unicode/utf8"
 )
@@ -93,6 +94,14 @@ type partError struct {
 func partErrorOf(err error) *partError {
 	te := mapError(err)
 	return &partError{Code: te.code, Message: te.message}
+}
+
+// lineBreak matches a line break: CRLF, or one of the characters that end a line.
+var lineBreak = regexp.MustCompile(`\r\n|[\n\v\f\r\x{85}\x{2028}\x{2029}]`)
+
+// indentLines indents every line of s by three spaces, so that a multi-line value such as a statement stays inside its entry of a text.
+func indentLines(s string) string {
+	return "   " + lineBreak.ReplaceAllLiteralString(s, "\n   ")
 }
 
 // capText cuts s to at most maxBytes on a UTF-8 boundary and reports whether it cut.
