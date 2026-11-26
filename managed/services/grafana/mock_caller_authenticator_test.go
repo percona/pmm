@@ -16,7 +16,7 @@ type mockCallerAuthenticator struct {
 }
 
 // callerFilters provides a mock function with given fields: ctx, req, l
-func (_m *mockCallerAuthenticator) callerFilters(ctx context.Context, req *http.Request, l *logrus.Entry) ([]string, *authError) {
+func (_m *mockCallerAuthenticator) callerFilters(ctx context.Context, req *http.Request, l *logrus.Entry) ([]string, bool, *authError) {
 	ret := _m.Called(ctx, req, l)
 
 	if len(ret) == 0 {
@@ -24,8 +24,9 @@ func (_m *mockCallerAuthenticator) callerFilters(ctx context.Context, req *http.
 	}
 
 	var r0 []string
-	var r1 *authError
-	if rf, ok := ret.Get(0).(func(context.Context, *http.Request, *logrus.Entry) ([]string, *authError)); ok {
+	var r1 bool
+	var r2 *authError
+	if rf, ok := ret.Get(0).(func(context.Context, *http.Request, *logrus.Entry) ([]string, bool, *authError)); ok {
 		return rf(ctx, req, l)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, *http.Request, *logrus.Entry) []string); ok {
@@ -36,15 +37,21 @@ func (_m *mockCallerAuthenticator) callerFilters(ctx context.Context, req *http.
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *http.Request, *logrus.Entry) *authError); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, *http.Request, *logrus.Entry) bool); ok {
 		r1 = rf(ctx, req, l)
 	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(*authError)
+		r1 = ret.Get(1).(bool)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, *http.Request, *logrus.Entry) *authError); ok {
+		r2 = rf(ctx, req, l)
+	} else {
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(*authError)
 		}
 	}
 
-	return r0, r1
+	return r0, r1, r2
 }
 
 // newMockCallerAuthenticator creates a new instance of mockCallerAuthenticator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

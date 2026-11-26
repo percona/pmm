@@ -35,7 +35,7 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-// fakeGrafana serves its newest-first items to GET /api/annotations, filtered the way Grafana's SQL does,
+// fakeGrafana serves its items, in the given order, to GET /api/annotations, filtered the way Grafana's SQL does,
 // written independently of the handler's matcher.
 type fakeGrafana struct {
 	items  []string
@@ -164,9 +164,10 @@ func itemJSON(t *testing.T, id, alertID int, tags []string) string {
 		AlertID      int      `json:"alertId"`
 		DashboardUID string   `json:"dashboardUID"`
 		Time         int      `json:"time"`
+		TimeEnd      int      `json:"timeEnd"`
 		Text         string   `json:"text"`
 		Tags         []string `json:"tags"`
-	}{ID: id, AlertID: alertID, Time: 1700000000000 + id, Text: fmt.Sprintf("annotation %d", id), Tags: tags})
+	}{ID: id, AlertID: alertID, Time: 1700000000000 + id, TimeEnd: 1700000000000 + id, Text: fmt.Sprintf("annotation %d", id), Tags: tags})
 	require.NoError(t, err)
 	return string(b)
 }
@@ -197,15 +198,17 @@ func newScopedRequest(t *testing.T, method string, q url.Values) *http.Request {
 
 	req := httptest.NewRequestWithContext(t.Context(), method, "/scoped-annotations?"+q.Encode(), nil)
 	req.Header.Set("Cookie", "grafana_session=abc")
+	req.Header.Set("Authorization", "Bearer glsa_abc")
+	req.Header.Set("X-Grafana-Org-Id", "2")
 	return req
 }
 
-// serveScoped sends a GET to h, which must ask auth once for that caller's filters.
+// serveScoped sends a GET to h, which must ask auth once for that caller's filters and may expand its scope tags.
 func serveScoped(t *testing.T, h *ScopedAnnotationsHandler, auth *mockCallerAuthenticator, q url.Values, filters []string, authErr *authError) *httptest.ResponseRecorder {
 	t.Helper()
 
 	req := newScopedRequest(t, http.MethodGet, q)
-	auth.On("callerFilters", mock.Anything, req, h.l).Return(filters, authErr).Once()
+	auth.On("callerFilters", mock.Anything, req, h.l).Return(filters, authErr == nil, authErr).Once()
 
 	rw := httptest.NewRecorder()
 	h.ServeHTTP(rw, req)
@@ -287,6 +290,8 @@ func TestScopedAnnotationsHandler(t *testing.T) {
 		assert.Equal(t, "50", gq.Get("limit"))
 		assert.Equal(t, "1700000000000", gq.Get("from"))
 		assert.Equal(t, "grafana_session=abc", g.seen()[0].Header.Get("Cookie"))
+		assert.Equal(t, "Bearer glsa_abc", g.seen()[0].Header.Get("Authorization"))
+		assert.Equal(t, "2", g.seen()[0].Header.Get("X-Grafana-Org-Id"))
 	})
 
 	t.Run("limits names with the caller's LBAC filters", func(t *testing.T) {
@@ -304,12 +309,12 @@ func TestScopedAnnotationsHandler(t *testing.T) {
 		assert.Equal(t, filters, v.seen()[0].URL.Query()["extra_filters[]"])
 	})
 
-	t.Run("matches in memory above the tag query size", func(t *testing.T) {
+	t.Run("matches in memory from 500 names on and keeps the newest", func(t *testing.T) {
 		t.Parallel()
 
-		names := make([]string, 0, maxTagsPerQuery+1)
+		names := make([]string, 0, maxNamesPerQuery+1)
 		names = append(names, "host:a:b")
-		for i := range maxTagsPerQuery {
+		for i := range maxNamesPerQuery {
 			names = append(names, fmt.Sprintf("svc-%03d", i))
 		}
 		g := &fakeGrafana{items: []string{
@@ -324,7 +329,7 @@ func TestScopedAnnotationsHandler(t *testing.T) {
 
 		rw := serveScoped(t, h, auth, url.Values{"tags": {"pmm_annotation", serviceScope}, "matchAny": {"true"}}, nil, nil)
 		require.Equal(t, http.StatusOK, rw.Code, rw.Body.String())
-		assert.Equal(t, []int{13, 10, 12}, responseIDs(t, rw))
+		assert.Equal(t, []int{13, 12, 10}, responseIDs(t, rw))
 
 		require.Len(t, g.seen(), 1)
 		gq := g.seen()[0].URL.Query()
@@ -335,7 +340,7 @@ func TestScopedAnnotationsHandler(t *testing.T) {
 
 		rw = serveScoped(t, h, auth, url.Values{"tags": {"pmm_annotation", serviceScope}, "limit": {"2"}}, nil, nil)
 		require.Equal(t, http.StatusOK, rw.Code, rw.Body.String())
-		assert.Equal(t, []int{13, 10}, responseIDs(t, rw))
+		assert.Equal(t, []int{13, 12}, responseIDs(t, rw))
 	})
 
 	t.Run("matches like Grafana's tag query on both paths", func(t *testing.T) {
@@ -350,8 +355,8 @@ func TestScopedAnnotationsHandler(t *testing.T) {
 			annotationJSON(t, 21, "db:primary"),
 		}
 		names := []string{"db", "svc-7", "svc-8"}
-		fillers := make([]string, 0, maxTagsPerQuery)
-		for i := range maxTagsPerQuery {
+		fillers := make([]string, 0, maxNamesPerQuery)
+		for i := range maxNamesPerQuery {
 			fillers = append(fillers, fmt.Sprintf("filler-%03d", i))
 		}
 
@@ -497,6 +502,101 @@ func TestScopedAnnotationsHandler(t *testing.T) {
 		assert.Equal(t, http.StatusBadGateway, rw.Code)
 		assert.JSONEq(t, `{"message":"Bad Gateway"}`, rw.Body.String())
 		require.Len(t, g.seen(), 1)
+	})
+
+	t.Run("serves plain tags only to a caller whose scope tags may not be expanded", func(t *testing.T) {
+		t.Parallel()
+
+		g := &fakeGrafana{items: []string{annotationJSON(t, 2, "svc-1"), annotationJSON(t, 1, "pmm_annotation")}}
+		v := &fakeVM{values: map[string][]string{"service_name": {"svc-1"}}}
+		h, auth := setupScopedAnnotations(t, g, v)
+		req := newScopedRequest(t, http.MethodGet, url.Values{"tags": {"pmm_annotation", serviceScope}})
+		auth.On("callerFilters", mock.Anything, req, h.l).Return(nil, false, nil).Once()
+
+		rw := httptest.NewRecorder()
+		h.ServeHTTP(rw, req)
+
+		require.Equal(t, http.StatusOK, rw.Code, rw.Body.String())
+		assert.Equal(t, []int{1}, responseIDs(t, rw))
+		assert.Empty(t, v.seen())
+		require.Len(t, g.seen(), 1)
+		assert.Equal(t, []string{"pmm_annotation"}, g.seen()[0].URL.Query()["tags"])
+	})
+
+	t.Run("returns the caller's refusal with its status", func(t *testing.T) {
+		t.Parallel()
+
+		for code, status := range map[codes.Code]int{
+			codes.PermissionDenied: http.StatusForbidden,
+			codes.Internal:         http.StatusInternalServerError,
+		} {
+			v := &fakeVM{}
+			h, auth := setupScopedAnnotations(t, &fakeGrafana{}, v)
+
+			rw := serveScoped(t, h, auth, url.Values{"tags": {serviceScope}}, nil, &authError{code: code, message: "Refused"})
+
+			assert.Equal(t, status, rw.Code, code)
+			assert.JSONEq(t, `{"message":"Refused"}`, rw.Body.String())
+			assert.Empty(t, v.seen())
+		}
+	})
+
+	t.Run("returns Bad Gateway for an annotation it can't decode", func(t *testing.T) {
+		t.Parallel()
+
+		names := make([]string, 0, maxNamesPerQuery)
+		for i := range maxNamesPerQuery {
+			names = append(names, fmt.Sprintf("svc-%03d", i))
+		}
+		g := &fakeGrafana{items: []string{annotationJSON(t, 2, "svc-001"), `{"id":"two","tags":["svc-001"]}`}}
+		v := &fakeVM{values: map[string][]string{"service_name": names}}
+		h, auth := setupScopedAnnotations(t, g, v)
+
+		rw := serveScoped(t, h, auth, url.Values{"tags": {serviceScope}}, nil, nil)
+
+		assert.Equal(t, http.StatusBadGateway, rw.Code)
+		assert.JSONEq(t, `{"message":"Bad Gateway"}`, rw.Body.String())
+	})
+
+	t.Run("uses Grafana's default limit and caps large ones", func(t *testing.T) {
+		t.Parallel()
+
+		for limit, sent := range map[string]string{
+			"0":          "100",
+			"-5":         "100",
+			"2000000000": strconv.Itoa(windowReadLimit),
+		} {
+			g := &fakeGrafana{}
+			v := &fakeVM{values: map[string][]string{"service_name": {"svc-1"}}}
+			h, auth := setupScopedAnnotations(t, g, v)
+
+			rw := serveScoped(t, h, auth, url.Values{"tags": {serviceScope}, "limit": {limit}}, nil, nil)
+
+			require.Equal(t, http.StatusOK, rw.Code, rw.Body.String())
+			require.Len(t, g.seen(), 1)
+			assert.Equal(t, sent, g.seen()[0].URL.Query().Get("limit"), "limit=%s", limit)
+		}
+	})
+
+	t.Run("chooses the window read by names, not plain tags", func(t *testing.T) {
+		t.Parallel()
+
+		tags := make([]string, 0, maxNamesPerQuery+2)
+		for i := range maxNamesPerQuery + 1 {
+			tags = append(tags, fmt.Sprintf("plain-%03d", i))
+		}
+		tags = append(tags, serviceScope)
+		g := &fakeGrafana{}
+		v := &fakeVM{values: map[string][]string{"service_name": {"svc-1"}}}
+		h, auth := setupScopedAnnotations(t, g, v)
+
+		rw := serveScoped(t, h, auth, url.Values{"tags": tags}, nil, nil)
+
+		require.Equal(t, http.StatusOK, rw.Code, rw.Body.String())
+		require.Len(t, g.seen(), 1)
+		gq := g.seen()[0].URL.Query()
+		assert.Len(t, gq["tags"], maxNamesPerQuery+2)
+		assert.Equal(t, "true", gq.Get("matchAny"))
 	})
 
 	t.Run("allows only GET", func(t *testing.T) {

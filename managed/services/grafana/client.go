@@ -123,6 +123,24 @@ func (e *clientError) Error() string {
 // to respBody. It returns wrapped clientError on any other status, or other fatal errors.
 // Ctx is used only for cancelation.
 func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, target any) error { //nolint:funcorder
+	return c.stream(ctx, method, path, rawQuery, headers, body, func(r io.Reader) error {
+		b, err := io.ReadAll(r)
+		if err != nil {
+			return fmt.Errorf("failed to read http response body: %w", err)
+		}
+
+		if len(b) != 0 && target != nil {
+			err = json.Unmarshal(b, target)
+			if err != nil {
+				return fmt.Errorf("failed to unmarshal http response body: %w", err)
+			}
+		}
+		return nil
+	})
+}
+
+// stream makes HTTP request with given parameters and passes a successful response's body to read, or returns clientError for any other status.
+func (c *Client) stream(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, read func(io.Reader) error) error { //nolint:funcorder
 	u := url.URL{
 		Scheme:   "http",
 		Host:     c.addr,
@@ -146,11 +164,11 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	}
 	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read http response body: %w", err)
-	}
 	if resp.StatusCode < 200 || resp.StatusCode > 202 {
+		b, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read http response body: %w", err)
+		}
 		cErr := &clientError{
 			Method: req.Method,
 			URL:    req.URL.String(),
@@ -161,13 +179,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		return cErr
 	}
 
-	if len(b) != 0 && target != nil {
-		err = json.Unmarshal(b, target)
-		if err != nil {
-			return fmt.Errorf("failed to unmarshal http response body: %w", err)
-		}
-	}
-	return nil
+	return read(resp.Body)
 }
 
 type authUser struct {
@@ -957,6 +969,33 @@ func (c *Client) queryAnnotations(ctx context.Context, authHeaders http.Header, 
 	}
 
 	return items, nil
+}
+
+// eachAnnotation finds annotations as the caller and passes Grafana's items to fn one at a time, as they are read.
+func (c *Client) eachAnnotation(ctx context.Context, authHeaders http.Header, params url.Values, fn func(json.RawMessage) error) error {
+	return c.stream(ctx, http.MethodGet, "/api/annotations", params.Encode(), authHeaders, nil, func(r io.Reader) error {
+		d := json.NewDecoder(r)
+		tok, err := d.Token()
+		if err != nil {
+			return fmt.Errorf("failed to decode annotations: %w", err)
+		}
+		if tok != json.Delim('[') {
+			return fmt.Errorf("failed to decode annotations: unexpected %v", tok)
+		}
+
+		for d.More() {
+			var item json.RawMessage
+			err = d.Decode(&item)
+			if err != nil {
+				return fmt.Errorf("failed to decode annotation: %w", err)
+			}
+			err = fn(item)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 type grafanaHealthResponse struct {

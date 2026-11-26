@@ -22,7 +22,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// callerAuthenticator authenticates a request and returns the caller's LBAC filters.
+// callerAuthenticator authenticates a request and returns the caller's LBAC filters and whether its scope tags may be expanded.
 type callerAuthenticator interface {
-	callerFilters(ctx context.Context, req *http.Request, l *logrus.Entry) ([]string, *authError)
+	callerFilters(ctx context.Context, req *http.Request, l *logrus.Entry) ([]string, bool, *authError)
 }

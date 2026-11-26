@@ -16,6 +16,7 @@
 package grafana
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
@@ -41,9 +42,9 @@ const (
 	// only bounds direct calls; a multi-select of many names must still fit.
 	maxScopeSelectorLength = 64 << 10
 
-	// Above this many tags, one read of the time window matched here is faster than a tag query.
-	maxTagsPerQuery = 500
-	// That read is capped; Grafana returns the newest annotations first.
+	// From this many names on, one read of the time window matched here is faster than a tag query.
+	maxNamesPerQuery = 500
+	// That read takes at most this many of the newest annotations in the window, and no caller gets more.
 	windowReadLimit = 100000
 
 	// Grafana's own default for a query without a limit.
@@ -107,25 +108,27 @@ func (h *ScopedAnnotationsHandler) ServeHTTP(rw http.ResponseWriter, req *http.R
 		return
 	}
 
-	filters, authErr := h.auth.callerFilters(ctx, req, h.l)
+	filters, expand, authErr := h.auth.callerFilters(ctx, req, h.l)
 	if authErr != nil {
 		h.writeError(rw, statusForAuthError(authErr.code), authErr.message)
 		return
 	}
 
-	names, err := h.expandScopes(ctx, scopes, q.Get("from"), q.Get("to"), filters)
-	if errors.Is(err, errInvalidTimeRange) {
-		h.writeError(rw, http.StatusBadRequest, err.Error())
-		return
+	var names []string
+	if expand {
+		names, err = h.expandScopes(ctx, scopes, q.Get("from"), q.Get("to"), filters)
+		if errors.Is(err, errInvalidTimeRange) {
+			h.writeError(rw, http.StatusBadRequest, err.Error())
+			return
+		}
+		if err != nil {
+			// Global annotations don't need VictoriaMetrics, so keep serving the plain tags.
+			h.l.Warnf("Serving plain tags only, failed to expand scope tags: %s", err)
+			names = nil
+		}
 	}
-	if err != nil {
-		// Global annotations don't need VictoriaMetrics, so keep serving the plain tags.
-		h.l.Warnf("Serving plain tags only, failed to expand scope tags: %s", err)
-		names = nil
-	}
-	tags = append(tags, names...)
 
-	items, err := h.findAnnotations(ctx, req, q, tags, limit)
+	items, err := h.findAnnotations(ctx, req, q, tags, names, limit)
 	if err != nil {
 		cErr, ok := errors.AsType[*clientError](err)
 		if ok && (cErr.Code == http.StatusUnauthorized || cErr.Code == http.StatusForbidden) {
@@ -173,7 +176,7 @@ func parseScopeTags(tags []string) ([]string, []scope, error) {
 	return plain, scopes, nil
 }
 
-// parseLimit returns the query's limit, or Grafana's default when it is missing or not positive.
+// parseLimit returns the query's limit, at most windowReadLimit, or Grafana's default when it is missing or not positive.
 func parseLimit(v string) (int, error) {
 	if v == "" {
 		return defaultAnnotationsLimit, nil
@@ -187,7 +190,7 @@ func parseLimit(v string) (int, error) {
 		return defaultAnnotationsLimit, nil
 	}
 
-	return n, nil
+	return min(n, windowReadLimit), nil
 }
 
 // expandScopes returns the sorted, distinct label values the scopes select in the time range,
@@ -263,8 +266,9 @@ func (h *ScopedAnnotationsHandler) labelValues(ctx context.Context, s scope, par
 	return res.Data, nil
 }
 
-// findAnnotations asks Grafana, as the caller, for annotations carrying any of the tags.
-func (h *ScopedAnnotationsHandler) findAnnotations(ctx context.Context, req *http.Request, q url.Values, tags []string, limit int) ([]json.RawMessage, error) {
+// findAnnotations asks Grafana, as the caller, for annotations carrying any of the plain tags or names.
+func (h *ScopedAnnotationsHandler) findAnnotations(ctx context.Context, req *http.Request, q url.Values, plain, names []string, limit int) ([]json.RawMessage, error) {
+	tags := slices.Concat(plain, names)
 	if len(tags) == 0 {
 		return []json.RawMessage{}, nil
 	}
@@ -279,7 +283,7 @@ func (h *ScopedAnnotationsHandler) findAnnotations(ctx context.Context, req *htt
 	params := maps.Clone(q)
 	params.Del("tags")
 
-	if len(tags) <= maxTagsPerQuery {
+	if len(names) < maxNamesPerQuery {
 		params["tags"] = tags
 		params.Set("matchAny", "true")
 		params.Set("limit", strconv.Itoa(limit))
@@ -290,59 +294,89 @@ func (h *ScopedAnnotationsHandler) findAnnotations(ctx context.Context, req *htt
 	params.Set("limit", strconv.Itoa(windowReadLimit))
 	// Alert state history is stored as annotations too; PMM annotations never are.
 	params.Set("type", "annotation")
-	items, err := h.c.queryAnnotations(ctx, authHeaders, params)
+
+	matcher := newTagMatcher(tags)
+	var kept []annotationItem
+	err := h.c.eachAnnotation(ctx, authHeaders, params, func(raw json.RawMessage) error {
+		item := annotationItem{raw: raw}
+		err := json.Unmarshal(raw, &item)
+		if err != nil {
+			return fmt.Errorf("failed to decode annotation: %w", err)
+		}
+		if !matcher.matches(item.Tags) {
+			return nil
+		}
+
+		kept = append(kept, item)
+		// Trimming at twice the limit bounds memory however many annotations the window holds.
+		if len(kept) == 2*limit {
+			kept = newestFirst(kept, limit)
+		}
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return matchAnnotations(items, tags, limit)
+	kept = newestFirst(kept, limit)
+	res := make([]json.RawMessage, 0, len(kept))
+	for _, item := range kept {
+		res = append(res, item.raw)
+	}
+	return res, nil
 }
 
-// matchAnnotations returns, in Grafana's order, up to limit items carrying any of the tags,
-// matched the way Grafana's tag query does (pkg/services/annotations/annotationsimpl/xorm_store.go).
-func matchAnnotations(items []json.RawMessage, tags []string, limit int) ([]json.RawMessage, error) {
+// annotationItem is an annotation from Grafana with the fields that decide whether and where it is served.
+type annotationItem struct {
+	raw     json.RawMessage
+	ID      int64    `json:"id"`
+	Time    int64    `json:"time"`
+	TimeEnd int64    `json:"timeEnd"`
+	Tags    []string `json:"tags"`
+}
+
+// newestFirst returns at most limit of the items, sorted the way Grafana's annotation query sorts them.
+func newestFirst(items []annotationItem, limit int) []annotationItem {
+	slices.SortFunc(items, func(a, b annotationItem) int {
+		return cmp.Or(cmp.Compare(b.TimeEnd, a.TimeEnd), cmp.Compare(b.Time, a.Time), cmp.Compare(b.ID, a.ID))
+	})
+	return items[:min(len(items), limit)]
+}
+
+// tagMatcher matches tags the way Grafana's tag query does (pkg/services/annotations/annotationsimpl/xorm_store.go).
+type tagMatcher struct {
 	// A requested tag without a value matches every value of its key.
-	anyValue := make(map[string]struct{})
-	exact := make(map[tagPair]struct{})
+	anyValue map[string]struct{}
+	exact    map[tagPair]struct{}
+}
+
+func newTagMatcher(tags []string) tagMatcher {
+	m := tagMatcher{
+		anyValue: make(map[string]struct{}),
+		exact:    make(map[tagPair]struct{}),
+	}
 	for _, t := range tags {
 		p := parseTag(t)
 		if p.value == "" {
-			anyValue[p.key] = struct{}{}
+			m.anyValue[p.key] = struct{}{}
 			continue
 		}
-		exact[p] = struct{}{}
+		m.exact[p] = struct{}{}
 	}
 	// Grafana drops tags with an empty key.
-	delete(anyValue, "")
+	delete(m.anyValue, "")
 
-	res := make([]json.RawMessage, 0, min(limit, len(items)))
-	for _, item := range items {
-		var a struct {
-			Tags []string `json:"tags"`
-		}
-		err := json.Unmarshal(item, &a)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode annotation: %w", err)
-		}
+	return m
+}
 
-		// Grafana returns the tags as last written, but matches its parsed copy of them.
-		matches := slices.ContainsFunc(a.Tags, func(t string) bool {
-			p := parseTag(t)
-			_, key := anyValue[p.key]
-			_, pair := exact[p]
-			return key || pair
-		})
-		if !matches {
-			continue
-		}
-
-		res = append(res, item)
-		if len(res) == limit {
-			break
-		}
-	}
-
-	return res, nil
+// matches reports whether any stored tag matches; Grafana returns the tags as last written, but matches its parsed copy of them.
+func (m tagMatcher) matches(stored []string) bool {
+	return slices.ContainsFunc(stored, func(t string) bool {
+		p := parseTag(t)
+		_, key := m.anyValue[p.key]
+		_, pair := m.exact[p]
+		return key || pair
+	})
 }
 
 // tagPair is a tag as Grafana stores it in its tag table.

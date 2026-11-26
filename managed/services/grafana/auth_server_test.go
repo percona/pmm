@@ -696,26 +696,6 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			require.Emptyf(t, rw.Header().Get(lbacHeaderName), "userID=%d", userID)
 		}
 	})
-
-	//nolint:paralleltest
-	t.Run("shall return the caller's filters for scoped annotations", func(t *testing.T) {
-		l := logrus.WithField("test", t.Name())
-
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/scoped-annotations", nil)
-		require.NoError(t, err)
-		req.SetBasicAuth("admin", "admin")
-
-		filters, authErr := s.callerFilters(ctx, req, l)
-		require.Nil(t, authErr)
-		assert.Equal(t, []string{"filter A"}, filters)
-
-		req, err = http.NewRequestWithContext(ctx, http.MethodGet, "/scoped-annotations", nil)
-		require.NoError(t, err)
-
-		_, authErr = s.callerFilters(ctx, req, l)
-		require.NotNil(t, authErr)
-		assert.Equal(t, codes.Unauthenticated, authErr.code)
-	})
 }
 
 func TestCallerFilters(t *testing.T) {
@@ -735,6 +715,16 @@ func TestCallerFilters(t *testing.T) {
 		s.accessControl = &accessControl{enabled: accessControlEnabled, lastUpdated: time.Now()}
 		return s
 	}
+	newDB := func(t *testing.T) (*reform.DB, sqlmock.Sqlmock) {
+		t.Helper()
+		sqlDB, sqlMock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+			assert.NoError(t, sqlMock.ExpectationsWereMet())
+		})
+		return reform.NewDB(sqlDB, postgresql.Dialect, nil), sqlMock
+	}
 	probe := url.Values{"from": {"1"}, "to": {"1"}, "limit": {"1"}, "type": {"annotation"}}
 	token := http.Header{"Authorization": {"Bearer glsa_abc"}}
 	l := logrus.WithField("test", t.Name())
@@ -746,8 +736,9 @@ func TestCallerFilters(t *testing.T) {
 		c.On("queryAnnotations", mock.Anything, http.Header{}, probe).Return([]json.RawMessage{}, nil).Once()
 		s := newServer(c, nil, false)
 
-		filters, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		filters, expand, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
 		require.Nil(t, authErr)
+		assert.True(t, expand)
 		assert.Empty(t, filters)
 	})
 
@@ -759,7 +750,8 @@ func TestCallerFilters(t *testing.T) {
 			Return(nil, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}).Once()
 		s := newServer(c, nil, false)
 
-		_, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		_, expand, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		assert.False(t, expand)
 		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, authErr)
 	})
 
@@ -771,7 +763,8 @@ func TestCallerFilters(t *testing.T) {
 			Return(nil, &clientError{Code: http.StatusForbidden, ErrorMessage: "Permission denied"}).Once()
 		s := newServer(c, nil, false)
 
-		_, authErr := s.callerFilters(t.Context(), newRequest(t, "Authorization", "Bearer glsa_abc"), l)
+		_, expand, authErr := s.callerFilters(t.Context(), newRequest(t, "Authorization", "Bearer glsa_abc"), l)
+		assert.False(t, expand)
 		assert.Equal(t, &authError{code: codes.PermissionDenied, message: "Permission denied"}, authErr)
 	})
 
@@ -782,8 +775,28 @@ func TestCallerFilters(t *testing.T) {
 		c.On("queryAnnotations", mock.Anything, http.Header{}, probe).Return(nil, errors.New("connection refused")).Once()
 		s := newServer(c, nil, false)
 
-		_, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		_, expand, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		assert.False(t, expand)
 		assert.Equal(t, &authError{code: codes.Internal, message: "Internal server error."}, authErr)
+	})
+
+	t.Run("a user gets the filters of their access roles", func(t *testing.T) {
+		t.Parallel()
+
+		db, sqlMock := newDB(t)
+		now := time.Now()
+		sqlMock.ExpectQuery(`user_roles\.user_id = \$1`).WithArgs(7).
+			WillReturnRows(sqlmock.NewRows(models.RoleTable.Columns()).AddRow(int64(1), "prod only", "", `{environment="prod"}`, now, now))
+		sqlMock.ExpectClose()
+
+		c := newMockClientInterface(t)
+		c.On("getUserID", mock.Anything, http.Header{"Cookie": {"pmm_session=abc"}}).Return(7, nil).Once()
+		s := newServer(c, db, true)
+
+		filters, expand, authErr := s.callerFilters(t.Context(), newRequest(t, "Cookie", "pmm_session=abc"), l)
+		require.Nil(t, authErr)
+		assert.True(t, expand)
+		assert.Equal(t, []string{`{environment="prod"}`}, filters)
 	})
 
 	t.Run("an anonymous visitor is refused when access control is on", func(t *testing.T) {
@@ -794,25 +807,27 @@ func TestCallerFilters(t *testing.T) {
 			Return(0, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}).Once()
 		s := newServer(c, nil, true)
 
-		_, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		_, expand, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		assert.False(t, expand)
 		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, authErr)
 	})
 
-	t.Run("an identity without a user ID gets no filters and needs no role", func(t *testing.T) {
+	t.Run("the renderer's scope tags stay unexpanded when access control is on", func(t *testing.T) {
 		t.Parallel()
 
-		// The render service taking alert screenshots: Grafana returns a profile without an ID,
+		// The render service taking alert screenshots: Grafana returns a profile whose ID is 0,
 		// and refuses the role lookup that getAuthUser would make.
 		c := newMockClientInterface(t)
 		c.On("getUserID", mock.Anything, http.Header{"Cookie": {"renderKey=abc"}}).Return(0, nil).Once()
 		s := newServer(c, nil, true)
 
-		filters, authErr := s.callerFilters(t.Context(), newRequest(t, "Cookie", "renderKey=abc"), l)
+		filters, expand, authErr := s.callerFilters(t.Context(), newRequest(t, "Cookie", "renderKey=abc"), l)
 		require.Nil(t, authErr)
+		assert.False(t, expand)
 		assert.Empty(t, filters)
 	})
 
-	t.Run("a service account token gets no filters", func(t *testing.T) {
+	t.Run("a service account token's scope tags stay unexpanded when access control is on", func(t *testing.T) {
 		t.Parallel()
 
 		// Grafana answers /api/user for a service account with a profile whose ID is 0.
@@ -820,8 +835,9 @@ func TestCallerFilters(t *testing.T) {
 		c.On("getUserID", mock.Anything, token).Return(0, nil).Once()
 		s := newServer(c, nil, true)
 
-		filters, authErr := s.callerFilters(t.Context(), newRequest(t, "Authorization", "Bearer glsa_abc"), l)
+		filters, expand, authErr := s.callerFilters(t.Context(), newRequest(t, "Authorization", "Bearer glsa_abc"), l)
 		require.Nil(t, authErr)
+		assert.False(t, expand)
 		assert.Empty(t, filters)
 	})
 
@@ -833,27 +849,24 @@ func TestCallerFilters(t *testing.T) {
 			Return(0, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Invalid API key"}).Once()
 		s := newServer(c, nil, true)
 
-		_, authErr := s.callerFilters(t.Context(), newRequest(t, "Authorization", "Bearer glsa_abc"), l)
+		_, expand, authErr := s.callerFilters(t.Context(), newRequest(t, "Authorization", "Bearer glsa_abc"), l)
+		assert.False(t, expand)
 		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Invalid API key"}, authErr)
 	})
 
 	t.Run("a failed access role lookup is an internal error", func(t *testing.T) {
 		t.Parallel()
 
-		sqlDB, sqlMock, err := sqlmock.New()
-		require.NoError(t, err)
-		t.Cleanup(func() {
-			require.NoError(t, sqlDB.Close())
-			assert.NoError(t, sqlMock.ExpectationsWereMet())
-		})
+		db, sqlMock := newDB(t)
 		sqlMock.ExpectQuery(`user_roles\.user_id = \$1`).WithArgs(7).WillReturnError(errors.New("connection reset"))
 		sqlMock.ExpectClose()
 
 		c := newMockClientInterface(t)
 		c.On("getUserID", mock.Anything, http.Header{}).Return(7, nil).Once()
-		s := newServer(c, reform.NewDB(sqlDB, postgresql.Dialect, nil), true)
+		s := newServer(c, db, true)
 
-		_, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		_, expand, authErr := s.callerFilters(t.Context(), newRequest(t, "", ""), l)
+		assert.False(t, expand)
 		assert.Equal(t, &authError{code: codes.Internal, message: "Internal server error."}, authErr)
 	})
 }
