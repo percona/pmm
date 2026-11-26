@@ -57,6 +57,10 @@ var mongoLiteralKeys = []string{
 	"parsedQuery", "filter", "indexBounds", "pipeline", "query", "q", "u", "update", "updates", "let",
 }
 
+// mongoOpaqueOperators are the MongoDB operators and stages whose value is data whole, keys included: $literal, and the
+// $const the parsed pipeline shows it as, $comment, which takes any value, and $documents, whose documents are its input.
+var mongoOpaqueOperators = []string{"$literal", "$const", "$comment", "$documents"}
+
 // mongoPlanKeys are the MongoDB explain keys whose values are plan structure
 // or statistics, never a query value: stage, index and collection names, plan
 // hashes, server version, and the execution counters. They are kept only on
@@ -513,8 +517,8 @@ func maskMySQLWarnings(warnings any) any {
 // every string and number that is not a mongoPlanKeys value or a keyPattern on
 // the plan's own structure, keeping stage names, index names, statistics and
 // the field names of the filter. Booleans
-// and nulls carry no data and are kept. A command's comment, and a $literal or
-// $const value, is masked whole.
+// and nulls carry no data and are kept. A command's comment, and the value of
+// a mongoOpaqueOperators key, is masked whole.
 func maskMongoPlan(plan string) string {
 	out, err := rewriteJSON([]byte(plan), mongoOpaque, func(path []string, v any) any {
 		if len(path) == 0 || slices.ContainsFunc(path, mongoLiteralKey) {
@@ -550,10 +554,10 @@ func onMongoPlan(keys []string) bool {
 }
 
 // mongoOpaque reports whether path ends at a value whose keys are data too: a command's comment, which an application
-// can fill with anything, or a $literal, which the parsed pipeline shows as $const.
+// can fill with anything, or the value of a mongoOpaqueOperators key.
 func mongoOpaque(path []string) bool {
 	n := len(path)
-	if n > 0 && (path[n-1] == "$literal" || path[n-1] == "$const") {
+	if n > 0 && slices.Contains(mongoOpaqueOperators, path[n-1]) {
 		return true
 	}
 	return n > 1 && path[n-1] == "comment" && (path[n-2] == "command" || path[n-2] == "originatingCommand")
@@ -644,7 +648,7 @@ func pgPlanMarks(s string) []byte {
 // the values of aggregation stages other than $match in place. A string
 // followed by a colon is a key and is kept, like the "?" of a masked value;
 // every other string, every number, and every true, false and null within the
-// call's braces or brackets is masked. The value of a $literal or $const key,
+// call's braces or brackets is masked. The value of a mongoOpaqueOperators key,
 // and of a runCommand's comment, is masked whole, keys included.
 func maskMongoFingerprint(fingerprint string) string {
 	command := strings.HasPrefix(fingerprint, "db.runCommand(")
@@ -660,7 +664,7 @@ func maskMongoFingerprint(fingerprint string) string {
 			key := strings.HasPrefix(fingerprint[value:], ":")
 			name := fingerprint[i:j]
 			switch {
-			case key && (name == `"$literal"` || name == `"$const"` || command && depth == 1 && name == `"comment"`):
+			case key && (slices.Contains(mongoOpaqueOperators, name[1:len(name)-1]) || command && depth == 1 && name == `"comment"`):
 				value = len(fingerprint) - len(strings.TrimLeft(fingerprint[value+1:], " "))
 				b.WriteString(fingerprint[i:value])
 				if value < len(fingerprint) {
