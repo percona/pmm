@@ -11,10 +11,10 @@ Use it to confirm that the migration is healthy and doesn't overload the source 
 To populate every panel of this dashboard, make sure that:
 
 - PCSM 1.0.0 or later is running. PMM does not support earlier PCSM versions.
-- Each PCSM instance is added to PMM as an external service. For the steps, see [Monitor Percona ClusterSync for MongoDB](../../install-pmm/install-pmm-client/connect-database/external.md#monitor-percona-clustersync-for-mongodb).
-- The source and target clusters are monitored by PMM, and every service of a cluster is added with the same `--cluster` value. For the steps, see [Add MongoDB service to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm).
+- Each PCSM instance is [added to PMM as an external service](../../install-pmm/install-pmm-client/connect-database/external.md#monitor-percona-clustersync-for-mongodb).
+- The source and target clusters are monitored by PMM, and every service of a cluster is [added](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm) with the same `--cluster` value.
 - For sharded clusters, the shard and config server `mongod` members are monitored, not only the `mongos` routers. The oplog and replication panels need data from `mongod` members.
-- The PMM monitoring user has the `read` role on the `local` database, which the oplog window panels need. For the required privileges, see [Set up MongoDB monitoring permissions](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-1-set-up-mongodb-monitoring-permissions).
+- The PMM monitoring user has the [required privileges](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-1-set-up-mongodb-monitoring-permissions), including the `read` role on the `local` database, which the oplog window panels need.
 
 If PMM monitors at least one MongoDB service, open the dashboard from **MongoDB > ClusterSync**. Otherwise, go to **All dashboards > Browse all dashboards** and open **MongoDB ClusterSync Details** in the **MongoDB** folder.
 

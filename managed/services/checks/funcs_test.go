@@ -18,6 +18,7 @@ package checks
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -314,4 +315,82 @@ func TestIPIsPrivate(t *testing.T) {
 			assert.Equal(t, tc.expected, res)
 		})
 	}
+}
+
+// runDateScript runs expr in a check script with the clock fixed to 2026-11-13T01:30:00+02:00, which is 2026-11-12 in UTC.
+func runDateScript(t *testing.T, expr string) (string, error) {
+	t.Helper()
+
+	fixed, err := time.Parse(time.RFC3339, "2026-11-13T01:30:00+02:00")
+	require.NoError(t, err)
+
+	script := "def check_context(rows, context):\n" +
+		"    current_date = context.get(\"current_date\", fail)\n" +
+		"    days_until = context.get(\"days_until\", fail)\n" +
+		"    return [{\"summary\": str(" + expr + "), \"severity\": \"warning\"}]\n"
+
+	funcs, err := GetFuncsForVersion(2)
+	require.NoError(t, err)
+	env, err := starlark.NewEnv(t.Name(), script, funcs)
+	require.NoError(t, err)
+
+	res, err := env.Run("date", nil, additionalContext(func() time.Time { return fixed }), t.Log)
+	if err != nil {
+		return "", err
+	}
+	require.Len(t, res, 1)
+
+	return res[0].Summary, nil
+}
+
+func TestCurrentDate(t *testing.T) {
+	t.Parallel()
+
+	got, err := runDateScript(t, "current_date()")
+	require.NoError(t, err)
+	assert.Equal(t, "2026-11-12", got)
+
+	_, err = runDateScript(t, `current_date("2026-11-12")`)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "expected 0 arguments, got 1")
+}
+
+func TestDaysUntil(t *testing.T) {
+	t.Parallel()
+
+	for date, expected := range map[string]string{
+		"2026-11-12": "0",
+		"2026-11-13": "1",
+		"2026-11-11": "-1",
+		"2027-05-14": "183",
+		"2026-04-30": "-196",
+	} {
+		t.Run(date, func(t *testing.T) {
+			t.Parallel()
+			got, err := runDateScript(t, `days_until("`+date+`")`)
+			require.NoError(t, err)
+			assert.Equal(t, expected, got)
+		})
+	}
+
+	t.Run("malformed", func(t *testing.T) {
+		t.Parallel()
+		_, err := runDateScript(t, `days_until("2026-13-01")`)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), `days_until: failed to parse '2026-13-01': parsing time "2026-13-01": month out of range`)
+	})
+
+	t.Run("not a string", func(t *testing.T) {
+		t.Parallel()
+		_, err := runDateScript(t, `days_until(1)`)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "expected string argument")
+	})
+
+	t.Run("wrong arg count", func(t *testing.T) {
+		t.Parallel()
+		_, err := runDateScript(t, `days_until("2026-11-12", 1)`)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "expected 1 argument, got 2")
+	})
 }

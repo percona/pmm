@@ -297,7 +297,7 @@ If you need to remove a Valkey or Redis service from monitoring:
     1. Navigate to **Inventory > Services**.
     2. Find your Valkey/Redis service in the **Services** tab.
     3. Click :material-dots-vertical: next to the service, then select **Delete**.
-    4. To also remove the agents of the service, select **Force mode**.
+    4. Select **Force mode**. PMM can't remove a service that still has agents, and Force mode removes them with the service.
     5. Click **Yes, delete service**.
 
 ## Next steps

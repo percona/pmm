@@ -7,14 +7,9 @@ import type { RdsExporter } from 'types/agent.types';
 import { Messages } from '../EditService.messages';
 import type { EditServiceFormValues } from '../EditService.schema';
 import { RdsAuthMode } from '../EditService.types';
+import { AUTH_MODE_OPTIONS } from './RdsCredentials.constants';
 
 const { rds } = Messages;
-
-const AUTH_MODE_OPTIONS = [
-  { value: RdsAuthMode.accessKey, label: rds.authMode.accessKey },
-  { value: RdsAuthMode.iamRole, label: rds.authMode.iamRole },
-  { value: RdsAuthMode.hostCredentials, label: rds.authMode.hostCredentials },
-];
 
 interface Props {
   exporter: RdsExporter;
@@ -24,6 +19,11 @@ export const RdsCredentials: FC<Props> = ({ exporter }) => {
   const mode = useWatch<EditServiceFormValues, 'rdsAuthMode'>({
     name: 'rdsAuthMode',
   });
+  const accessKey = useWatch<EditServiceFormValues, 'awsAccessKey'>({
+    name: 'awsAccessKey',
+  });
+  const keepsSecretKey =
+    exporter.isAwsSecretKeySet && accessKey.trim() === exporter.awsAccessKey;
 
   return (
     <Stack gap={2} data-testid="rds-credentials">
@@ -56,7 +56,7 @@ export const RdsCredentials: FC<Props> = ({ exporter }) => {
               type: 'password',
               autoComplete: 'new-password',
               fullWidth: true,
-              placeholder: exporter.isAwsSecretKeySet
+              placeholder: keepsSecretKey
                 ? rds.awsSecretKeyStored
                 : rds.awsSecretKey,
             }}

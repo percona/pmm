@@ -185,6 +185,11 @@
     },
     {
       "type": "dashboard",
+      "name": "MongoDB Top Queries",
+      "path": "dashboards/MongoDB/MongoDB_Top_Queries.json"
+    },
+    {
+      "type": "dashboard",
       "name": "MySQL Table Details",
       "path": "dashboards/MySQL/MySQL_Table_Details.json"
     },

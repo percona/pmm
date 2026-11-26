@@ -150,16 +150,18 @@ PMM protects an exporter's output from unauthorized access by adding an authoriz
 
 You can set the password for the default `admin` user on first startup with the `GF_SECURITY_ADMIN_PASSWORD` environment variable, and optionally set a custom admin username with `GF_SECURITY_ADMIN_USER`.
 
-These variables are applied only during initial PMM data initialization. They are ignored on subsequent starts and container restarts.
+These variables are applied only during initial PMM data initialization. They are ignored on subsequent starts and container restarts. Use a password that meets the [password requirements](../admin/manage-users/add_users.md#password-requirements), and keep it in single quotes so that your shell doesn't interpret the symbols in it. If the password contains a single quote, write it as `'\''`.
 
 ```sh
 docker run -d --name pmm-server \
   -e GF_SECURITY_ADMIN_USER="your_username" \
-  -e GF_SECURITY_ADMIN_PASSWORD="your_secure_password" \
+  -e GF_SECURITY_ADMIN_PASSWORD='your_secure_password' \
   -p 443:8443 \
   --volume pmm-data:/srv \
   percona/pmm-server:latest
 ```
+
+Grafana replaces `${...}` in the startup password, even inside single quotes. If your password contains `${`, set it after startup with `change-admin-password` instead.
 
 ## How to change the PMM password for the default admin user?
 
@@ -168,17 +170,19 @@ Once PMM has started, you can use either of the following to change the password
 - a helper script `change-admin-password`:
 
 ```sh
-docker exec -t pmm-server change-admin-password your_secure_password
+docker exec -t pmm-server change-admin-password 'your_secure_password'
 ```
 
 - or a code snippet:
 
 ```sh
-PMM_PASSWORD="mypassword"
+PMM_PASSWORD='your_secure_password'
 echo "Waiting for PMM to initialize to set password..."
 until [ $(docker inspect -f {% raw %}'{{.State.Health.Status}}'{% endraw %} pmm-server) = "healthy" ]; do sleep 1; done
-docker exec -t pmm-server bash -c  "grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password $PMM_PASSWORD"
+printf %s "$PMM_PASSWORD" | docker exec -i pmm-server grafana cli --homepath /usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password --password-from-stdin
 ```
+
+If the new password doesn't meet the [password requirements](../admin/manage-users/add_users.md#password-requirements), both commands fail with `the new password doesn't meet the password policy criteria`. Keep the password in single quotes so that your shell doesn't interpret the symbols in it. If the password contains a single quote, write it as `'\''`.
 
 ## How to use a non-default listen-port for pmm-admin?
 
@@ -194,10 +198,10 @@ Example: To use the listen-port 8000
 pmm-admin --pmm-agent-listen-port=8000 add postgresql --username=pmm-agent --password=pmm-agent-password --query-source=pgstatmonitor nameofpostgres
 ```
 
-If you are using AMI, you can change the default password through SSH by using the following command:
+If you are using AMI, you can change the default password through SSH with the following command, using a password that meets the [password requirements](../admin/manage-users/add_users.md#password-requirements):
 
 ```sh
-change-admin-password <new_password>
+change-admin-password '<new_password>'
 ```
 
 ## How does PMM handle personal and confidential data?

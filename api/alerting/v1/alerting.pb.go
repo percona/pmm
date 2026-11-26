@@ -88,6 +88,58 @@ func (TemplateSource) EnumDescriptor() ([]byte, []int) {
 	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{0}
 }
 
+// DatasourceType is the built-in Grafana datasource a template query runs against.
+type DatasourceType int32
+
+const (
+	DatasourceType_DATASOURCE_TYPE_UNSPECIFIED DatasourceType = 0
+	// VictoriaMetrics, queried with MetricsQL.
+	DatasourceType_DATASOURCE_TYPE_METRICS DatasourceType = 1
+	// ClickHouse (QAN data), queried with SQL as a time series.
+	DatasourceType_DATASOURCE_TYPE_CLICKHOUSE DatasourceType = 2
+)
+
+// Enum value maps for DatasourceType.
+var (
+	DatasourceType_name = map[int32]string{
+		0: "DATASOURCE_TYPE_UNSPECIFIED",
+		1: "DATASOURCE_TYPE_METRICS",
+		2: "DATASOURCE_TYPE_CLICKHOUSE",
+	}
+	DatasourceType_value = map[string]int32{
+		"DATASOURCE_TYPE_UNSPECIFIED": 0,
+		"DATASOURCE_TYPE_METRICS":     1,
+		"DATASOURCE_TYPE_CLICKHOUSE":  2,
+	}
+)
+
+func (x DatasourceType) Enum() *DatasourceType {
+	p := new(DatasourceType)
+	*p = x
+	return p
+}
+
+func (x DatasourceType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DatasourceType) Descriptor() protoreflect.EnumDescriptor {
+	return file_alerting_v1_alerting_proto_enumTypes[1].Descriptor()
+}
+
+func (DatasourceType) Type() protoreflect.EnumType {
+	return &file_alerting_v1_alerting_proto_enumTypes[1]
+}
+
+func (x DatasourceType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DatasourceType.Descriptor instead.
+func (DatasourceType) EnumDescriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{1}
+}
+
 // FilterType represents filter matching type.
 type FilterType int32
 
@@ -122,11 +174,11 @@ func (x FilterType) String() string {
 }
 
 func (FilterType) Descriptor() protoreflect.EnumDescriptor {
-	return file_alerting_v1_alerting_proto_enumTypes[1].Descriptor()
+	return file_alerting_v1_alerting_proto_enumTypes[2].Descriptor()
 }
 
 func (FilterType) Type() protoreflect.EnumType {
-	return &file_alerting_v1_alerting_proto_enumTypes[1]
+	return &file_alerting_v1_alerting_proto_enumTypes[2]
 }
 
 func (x FilterType) Number() protoreflect.EnumNumber {
@@ -135,7 +187,7 @@ func (x FilterType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use FilterType.Descriptor instead.
 func (FilterType) EnumDescriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{1}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{2}
 }
 
 // ThresholdScope says what a threshold override's target refers to.
@@ -182,11 +234,11 @@ func (x ThresholdScope) String() string {
 }
 
 func (ThresholdScope) Descriptor() protoreflect.EnumDescriptor {
-	return file_alerting_v1_alerting_proto_enumTypes[2].Descriptor()
+	return file_alerting_v1_alerting_proto_enumTypes[3].Descriptor()
 }
 
 func (ThresholdScope) Type() protoreflect.EnumType {
-	return &file_alerting_v1_alerting_proto_enumTypes[2]
+	return &file_alerting_v1_alerting_proto_enumTypes[3]
 }
 
 func (x ThresholdScope) Number() protoreflect.EnumNumber {
@@ -195,7 +247,7 @@ func (x ThresholdScope) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ThresholdScope.Descriptor instead.
 func (ThresholdScope) EnumDescriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{2}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{3}
 }
 
 // BoolParamDefinition represents boolean parameter's default value.
@@ -504,13 +556,15 @@ func (*ParamDefinition_Float) isParamDefinition_Value() {}
 
 func (*ParamDefinition_String_) isParamDefinition_Value() {}
 
-// TemplateQuery represents a PromQL query step in a multi-query alert template.
+// TemplateQuery represents a query step in a multi-query alert template.
 type TemplateQuery struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Reference ID of the query (e.g. "A").
 	RefId string `protobuf:"bytes,1,opt,name=ref_id,json=refId,proto3" json:"ref_id,omitempty"`
-	// PromQL query expression with templating parameters (placeholders kept intact).
-	Expr          string `protobuf:"bytes,2,opt,name=expr,proto3" json:"expr,omitempty"`
+	// Query expression with templating parameters (placeholders kept intact).
+	Expr string `protobuf:"bytes,2,opt,name=expr,proto3" json:"expr,omitempty"`
+	// Datasource the query runs against.
+	Datasource    DatasourceType `protobuf:"varint,3,opt,name=datasource,proto3,enum=alerting.v1.DatasourceType" json:"datasource,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -559,15 +613,24 @@ func (x *TemplateQuery) GetExpr() string {
 	return ""
 }
 
+func (x *TemplateQuery) GetDatasource() DatasourceType {
+	if x != nil {
+		return x.Datasource
+	}
+	return DatasourceType_DATASOURCE_TYPE_UNSPECIFIED
+}
+
 // TemplateExpression represents a server-side expression step in a multi-query alert template.
 type TemplateExpression struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Reference ID of the expression (e.g. "C").
 	RefId string `protobuf:"bytes,1,opt,name=ref_id,json=refId,proto3" json:"ref_id,omitempty"`
-	// Expression type. Currently only "math" is supported.
+	// Expression type: "math" or "reduce".
 	Type string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	// Expression body referencing other steps by ref ID (e.g. "$A > $B").
-	Expression    string `protobuf:"bytes,3,opt,name=expression,proto3" json:"expression,omitempty"`
+	// Expression body referencing other steps by ref ID (e.g. "$A > $B", or "$A" for reduce).
+	Expression string `protobuf:"bytes,3,opt,name=expression,proto3" json:"expression,omitempty"`
+	// Reducer of a "reduce" expression (e.g. "max").
+	Reducer       string `protobuf:"bytes,4,opt,name=reducer,proto3" json:"reducer,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -623,6 +686,13 @@ func (x *TemplateExpression) GetExpression() string {
 	return ""
 }
 
+func (x *TemplateExpression) GetReducer() string {
+	if x != nil {
+		return x.Reducer
+	}
+	return ""
+}
+
 // Template represents Alert Template that is used to create Alert Rule.
 type Template struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -630,7 +700,7 @@ type Template struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Short human-readable summary.
 	Summary string `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`
-	// PromQL query expression with templating parameters.
+	// Query expression with templating parameters; for multi-query templates, a copy of queries[0].expr.
 	Expr string `protobuf:"bytes,3,opt,name=expr,proto3" json:"expr,omitempty"`
 	// Query parameters definitions.
 	Params []*ParamDefinition `protobuf:"bytes,4,rep,name=params,proto3" json:"params,omitempty"`
@@ -648,7 +718,7 @@ type Template struct {
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// YAML template file content. Empty for built-in and SaaS templates.
 	Yaml string `protobuf:"bytes,11,opt,name=yaml,proto3" json:"yaml,omitempty"`
-	// PromQL query steps for multi-query templates. Empty for single-expression templates.
+	// Query steps for multi-query templates. Empty for single-expression templates.
 	Queries []*TemplateQuery `protobuf:"bytes,12,rep,name=queries,proto3" json:"queries,omitempty"`
 	// Server-side expression steps for multi-query templates. Empty for single-expression templates.
 	Expressions []*TemplateExpression `protobuf:"bytes,13,rep,name=expressions,proto3" json:"expressions,omitempty"`
@@ -2174,16 +2244,20 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x05float\x18\x06 \x01(\v2!.alerting.v1.FloatParamDefinitionH\x00R\x05float\x12<\n" +
 	"\x06string\x18\a \x01(\v2\".alerting.v1.StringParamDefinitionH\x00R\x06string\x12 \n" +
 	"\voverridable\x18\b \x01(\bR\voverridableB\a\n" +
-	"\x05value\":\n" +
+	"\x05value\"w\n" +
 	"\rTemplateQuery\x12\x15\n" +
 	"\x06ref_id\x18\x01 \x01(\tR\x05refId\x12\x12\n" +
-	"\x04expr\x18\x02 \x01(\tR\x04expr\"_\n" +
+	"\x04expr\x18\x02 \x01(\tR\x04expr\x12;\n" +
+	"\n" +
+	"datasource\x18\x03 \x01(\x0e2\x1b.alerting.v1.DatasourceTypeR\n" +
+	"datasource\"y\n" +
 	"\x12TemplateExpression\x12\x15\n" +
 	"\x06ref_id\x18\x01 \x01(\tR\x05refId\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1e\n" +
 	"\n" +
 	"expression\x18\x03 \x01(\tR\n" +
-	"expression\"\xff\x05\n" +
+	"expression\x12\x18\n" +
+	"\areducer\x18\x04 \x01(\tR\areducer\"\xff\x05\n" +
 	"\bTemplate\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\asummary\x18\x02 \x01(\tR\asummary\x12\x12\n" +
@@ -2315,7 +2389,11 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x18TEMPLATE_SOURCE_BUILT_IN\x10\x01\x12\x18\n" +
 	"\x14TEMPLATE_SOURCE_SAAS\x10\x02\x12\x1d\n" +
 	"\x19TEMPLATE_SOURCE_USER_FILE\x10\x03\x12\x1c\n" +
-	"\x18TEMPLATE_SOURCE_USER_API\x10\x04*Z\n" +
+	"\x18TEMPLATE_SOURCE_USER_API\x10\x04*n\n" +
+	"\x0eDatasourceType\x12\x1f\n" +
+	"\x1bDATASOURCE_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17DATASOURCE_TYPE_METRICS\x10\x01\x12\x1e\n" +
+	"\x1aDATASOURCE_TYPE_CLICKHOUSE\x10\x02*Z\n" +
 	"\n" +
 	"FilterType\x12\x1b\n" +
 	"\x17FILTER_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -2352,109 +2430,111 @@ func file_alerting_v1_alerting_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+	file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 	file_alerting_v1_alerting_proto_msgTypes  = make([]protoimpl.MessageInfo, 32)
 	file_alerting_v1_alerting_proto_goTypes   = []any{
 		TemplateSource(0),                     // 0: alerting.v1.TemplateSource
-		FilterType(0),                         // 1: alerting.v1.FilterType
-		ThresholdScope(0),                     // 2: alerting.v1.ThresholdScope
-		(*BoolParamDefinition)(nil),           // 3: alerting.v1.BoolParamDefinition
-		(*FloatParamDefinition)(nil),          // 4: alerting.v1.FloatParamDefinition
-		(*StringParamDefinition)(nil),         // 5: alerting.v1.StringParamDefinition
-		(*ParamDefinition)(nil),               // 6: alerting.v1.ParamDefinition
-		(*TemplateQuery)(nil),                 // 7: alerting.v1.TemplateQuery
-		(*TemplateExpression)(nil),            // 8: alerting.v1.TemplateExpression
-		(*Template)(nil),                      // 9: alerting.v1.Template
-		(*ListTemplatesRequest)(nil),          // 10: alerting.v1.ListTemplatesRequest
-		(*ListTemplatesResponse)(nil),         // 11: alerting.v1.ListTemplatesResponse
-		(*CreateTemplateRequest)(nil),         // 12: alerting.v1.CreateTemplateRequest
-		(*CreateTemplateResponse)(nil),        // 13: alerting.v1.CreateTemplateResponse
-		(*UpdateTemplateRequest)(nil),         // 14: alerting.v1.UpdateTemplateRequest
-		(*UpdateTemplateResponse)(nil),        // 15: alerting.v1.UpdateTemplateResponse
-		(*DeleteTemplateRequest)(nil),         // 16: alerting.v1.DeleteTemplateRequest
-		(*DeleteTemplateResponse)(nil),        // 17: alerting.v1.DeleteTemplateResponse
-		(*Filter)(nil),                        // 18: alerting.v1.Filter
-		(*ParamValue)(nil),                    // 19: alerting.v1.ParamValue
-		(*CreateRuleRequest)(nil),             // 20: alerting.v1.CreateRuleRequest
-		(*CreateRuleResponse)(nil),            // 21: alerting.v1.CreateRuleResponse
-		(*Threshold)(nil),                     // 22: alerting.v1.Threshold
-		(*ListThresholdsRequest)(nil),         // 23: alerting.v1.ListThresholdsRequest
-		(*ListThresholdsResponse)(nil),        // 24: alerting.v1.ListThresholdsResponse
-		(*SetThresholdRequest)(nil),           // 25: alerting.v1.SetThresholdRequest
-		(*SetThresholdResponse)(nil),          // 26: alerting.v1.SetThresholdResponse
-		(*ClearThresholdRequest)(nil),         // 27: alerting.v1.ClearThresholdRequest
-		(*ClearThresholdResponse)(nil),        // 28: alerting.v1.ClearThresholdResponse
-		(*ThresholdUpdate)(nil),               // 29: alerting.v1.ThresholdUpdate
-		(*BatchUpdateThresholdsRequest)(nil),  // 30: alerting.v1.BatchUpdateThresholdsRequest
-		(*BatchUpdateThresholdsResponse)(nil), // 31: alerting.v1.BatchUpdateThresholdsResponse
-		nil,                                   // 32: alerting.v1.Template.LabelsEntry
-		nil,                                   // 33: alerting.v1.Template.AnnotationsEntry
-		nil,                                   // 34: alerting.v1.CreateRuleRequest.CustomLabelsEntry
-		ParamUnit(0),                          // 35: alerting.v1.ParamUnit
-		ParamType(0),                          // 36: alerting.v1.ParamType
-		(*durationpb.Duration)(nil),           // 37: google.protobuf.Duration
-		v1.Severity(0),                        // 38: management.v1.Severity
-		(*timestamppb.Timestamp)(nil),         // 39: google.protobuf.Timestamp
+		DatasourceType(0),                     // 1: alerting.v1.DatasourceType
+		FilterType(0),                         // 2: alerting.v1.FilterType
+		ThresholdScope(0),                     // 3: alerting.v1.ThresholdScope
+		(*BoolParamDefinition)(nil),           // 4: alerting.v1.BoolParamDefinition
+		(*FloatParamDefinition)(nil),          // 5: alerting.v1.FloatParamDefinition
+		(*StringParamDefinition)(nil),         // 6: alerting.v1.StringParamDefinition
+		(*ParamDefinition)(nil),               // 7: alerting.v1.ParamDefinition
+		(*TemplateQuery)(nil),                 // 8: alerting.v1.TemplateQuery
+		(*TemplateExpression)(nil),            // 9: alerting.v1.TemplateExpression
+		(*Template)(nil),                      // 10: alerting.v1.Template
+		(*ListTemplatesRequest)(nil),          // 11: alerting.v1.ListTemplatesRequest
+		(*ListTemplatesResponse)(nil),         // 12: alerting.v1.ListTemplatesResponse
+		(*CreateTemplateRequest)(nil),         // 13: alerting.v1.CreateTemplateRequest
+		(*CreateTemplateResponse)(nil),        // 14: alerting.v1.CreateTemplateResponse
+		(*UpdateTemplateRequest)(nil),         // 15: alerting.v1.UpdateTemplateRequest
+		(*UpdateTemplateResponse)(nil),        // 16: alerting.v1.UpdateTemplateResponse
+		(*DeleteTemplateRequest)(nil),         // 17: alerting.v1.DeleteTemplateRequest
+		(*DeleteTemplateResponse)(nil),        // 18: alerting.v1.DeleteTemplateResponse
+		(*Filter)(nil),                        // 19: alerting.v1.Filter
+		(*ParamValue)(nil),                    // 20: alerting.v1.ParamValue
+		(*CreateRuleRequest)(nil),             // 21: alerting.v1.CreateRuleRequest
+		(*CreateRuleResponse)(nil),            // 22: alerting.v1.CreateRuleResponse
+		(*Threshold)(nil),                     // 23: alerting.v1.Threshold
+		(*ListThresholdsRequest)(nil),         // 24: alerting.v1.ListThresholdsRequest
+		(*ListThresholdsResponse)(nil),        // 25: alerting.v1.ListThresholdsResponse
+		(*SetThresholdRequest)(nil),           // 26: alerting.v1.SetThresholdRequest
+		(*SetThresholdResponse)(nil),          // 27: alerting.v1.SetThresholdResponse
+		(*ClearThresholdRequest)(nil),         // 28: alerting.v1.ClearThresholdRequest
+		(*ClearThresholdResponse)(nil),        // 29: alerting.v1.ClearThresholdResponse
+		(*ThresholdUpdate)(nil),               // 30: alerting.v1.ThresholdUpdate
+		(*BatchUpdateThresholdsRequest)(nil),  // 31: alerting.v1.BatchUpdateThresholdsRequest
+		(*BatchUpdateThresholdsResponse)(nil), // 32: alerting.v1.BatchUpdateThresholdsResponse
+		nil,                                   // 33: alerting.v1.Template.LabelsEntry
+		nil,                                   // 34: alerting.v1.Template.AnnotationsEntry
+		nil,                                   // 35: alerting.v1.CreateRuleRequest.CustomLabelsEntry
+		ParamUnit(0),                          // 36: alerting.v1.ParamUnit
+		ParamType(0),                          // 37: alerting.v1.ParamType
+		(*durationpb.Duration)(nil),           // 38: google.protobuf.Duration
+		v1.Severity(0),                        // 39: management.v1.Severity
+		(*timestamppb.Timestamp)(nil),         // 40: google.protobuf.Timestamp
 	}
 )
 
 var file_alerting_v1_alerting_proto_depIdxs = []int32{
-	35, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
-	36, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
-	3,  // 2: alerting.v1.ParamDefinition.bool:type_name -> alerting.v1.BoolParamDefinition
-	4,  // 3: alerting.v1.ParamDefinition.float:type_name -> alerting.v1.FloatParamDefinition
-	5,  // 4: alerting.v1.ParamDefinition.string:type_name -> alerting.v1.StringParamDefinition
-	6,  // 5: alerting.v1.Template.params:type_name -> alerting.v1.ParamDefinition
-	37, // 6: alerting.v1.Template.for:type_name -> google.protobuf.Duration
-	38, // 7: alerting.v1.Template.severity:type_name -> management.v1.Severity
-	32, // 8: alerting.v1.Template.labels:type_name -> alerting.v1.Template.LabelsEntry
-	33, // 9: alerting.v1.Template.annotations:type_name -> alerting.v1.Template.AnnotationsEntry
-	0,  // 10: alerting.v1.Template.source:type_name -> alerting.v1.TemplateSource
-	39, // 11: alerting.v1.Template.created_at:type_name -> google.protobuf.Timestamp
-	7,  // 12: alerting.v1.Template.queries:type_name -> alerting.v1.TemplateQuery
-	8,  // 13: alerting.v1.Template.expressions:type_name -> alerting.v1.TemplateExpression
-	9,  // 14: alerting.v1.ListTemplatesResponse.templates:type_name -> alerting.v1.Template
-	1,  // 15: alerting.v1.Filter.type:type_name -> alerting.v1.FilterType
-	36, // 16: alerting.v1.ParamValue.type:type_name -> alerting.v1.ParamType
-	19, // 17: alerting.v1.CreateRuleRequest.params:type_name -> alerting.v1.ParamValue
-	37, // 18: alerting.v1.CreateRuleRequest.for:type_name -> google.protobuf.Duration
-	38, // 19: alerting.v1.CreateRuleRequest.severity:type_name -> management.v1.Severity
-	34, // 20: alerting.v1.CreateRuleRequest.custom_labels:type_name -> alerting.v1.CreateRuleRequest.CustomLabelsEntry
-	18, // 21: alerting.v1.CreateRuleRequest.filters:type_name -> alerting.v1.Filter
-	37, // 22: alerting.v1.CreateRuleRequest.interval:type_name -> google.protobuf.Duration
-	35, // 23: alerting.v1.Threshold.unit:type_name -> alerting.v1.ParamUnit
-	2,  // 24: alerting.v1.Threshold.scope:type_name -> alerting.v1.ThresholdScope
-	2,  // 25: alerting.v1.ListThresholdsRequest.scope:type_name -> alerting.v1.ThresholdScope
-	22, // 26: alerting.v1.ListThresholdsResponse.thresholds:type_name -> alerting.v1.Threshold
-	2,  // 27: alerting.v1.SetThresholdRequest.scope:type_name -> alerting.v1.ThresholdScope
-	22, // 28: alerting.v1.SetThresholdResponse.threshold:type_name -> alerting.v1.Threshold
-	2,  // 29: alerting.v1.ClearThresholdRequest.scope:type_name -> alerting.v1.ThresholdScope
-	2,  // 30: alerting.v1.ThresholdUpdate.scope:type_name -> alerting.v1.ThresholdScope
-	29, // 31: alerting.v1.BatchUpdateThresholdsRequest.updates:type_name -> alerting.v1.ThresholdUpdate
-	22, // 32: alerting.v1.BatchUpdateThresholdsResponse.thresholds:type_name -> alerting.v1.Threshold
-	10, // 33: alerting.v1.AlertingService.ListTemplates:input_type -> alerting.v1.ListTemplatesRequest
-	12, // 34: alerting.v1.AlertingService.CreateTemplate:input_type -> alerting.v1.CreateTemplateRequest
-	14, // 35: alerting.v1.AlertingService.UpdateTemplate:input_type -> alerting.v1.UpdateTemplateRequest
-	16, // 36: alerting.v1.AlertingService.DeleteTemplate:input_type -> alerting.v1.DeleteTemplateRequest
-	20, // 37: alerting.v1.AlertingService.CreateRule:input_type -> alerting.v1.CreateRuleRequest
-	23, // 38: alerting.v1.AlertingService.ListThresholds:input_type -> alerting.v1.ListThresholdsRequest
-	25, // 39: alerting.v1.AlertingService.SetThreshold:input_type -> alerting.v1.SetThresholdRequest
-	27, // 40: alerting.v1.AlertingService.ClearThreshold:input_type -> alerting.v1.ClearThresholdRequest
-	30, // 41: alerting.v1.AlertingService.BatchUpdateThresholds:input_type -> alerting.v1.BatchUpdateThresholdsRequest
-	11, // 42: alerting.v1.AlertingService.ListTemplates:output_type -> alerting.v1.ListTemplatesResponse
-	13, // 43: alerting.v1.AlertingService.CreateTemplate:output_type -> alerting.v1.CreateTemplateResponse
-	15, // 44: alerting.v1.AlertingService.UpdateTemplate:output_type -> alerting.v1.UpdateTemplateResponse
-	17, // 45: alerting.v1.AlertingService.DeleteTemplate:output_type -> alerting.v1.DeleteTemplateResponse
-	21, // 46: alerting.v1.AlertingService.CreateRule:output_type -> alerting.v1.CreateRuleResponse
-	24, // 47: alerting.v1.AlertingService.ListThresholds:output_type -> alerting.v1.ListThresholdsResponse
-	26, // 48: alerting.v1.AlertingService.SetThreshold:output_type -> alerting.v1.SetThresholdResponse
-	28, // 49: alerting.v1.AlertingService.ClearThreshold:output_type -> alerting.v1.ClearThresholdResponse
-	31, // 50: alerting.v1.AlertingService.BatchUpdateThresholds:output_type -> alerting.v1.BatchUpdateThresholdsResponse
-	42, // [42:51] is the sub-list for method output_type
-	33, // [33:42] is the sub-list for method input_type
-	33, // [33:33] is the sub-list for extension type_name
-	33, // [33:33] is the sub-list for extension extendee
-	0,  // [0:33] is the sub-list for field type_name
+	36, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
+	37, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
+	4,  // 2: alerting.v1.ParamDefinition.bool:type_name -> alerting.v1.BoolParamDefinition
+	5,  // 3: alerting.v1.ParamDefinition.float:type_name -> alerting.v1.FloatParamDefinition
+	6,  // 4: alerting.v1.ParamDefinition.string:type_name -> alerting.v1.StringParamDefinition
+	1,  // 5: alerting.v1.TemplateQuery.datasource:type_name -> alerting.v1.DatasourceType
+	7,  // 6: alerting.v1.Template.params:type_name -> alerting.v1.ParamDefinition
+	38, // 7: alerting.v1.Template.for:type_name -> google.protobuf.Duration
+	39, // 8: alerting.v1.Template.severity:type_name -> management.v1.Severity
+	33, // 9: alerting.v1.Template.labels:type_name -> alerting.v1.Template.LabelsEntry
+	34, // 10: alerting.v1.Template.annotations:type_name -> alerting.v1.Template.AnnotationsEntry
+	0,  // 11: alerting.v1.Template.source:type_name -> alerting.v1.TemplateSource
+	40, // 12: alerting.v1.Template.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 13: alerting.v1.Template.queries:type_name -> alerting.v1.TemplateQuery
+	9,  // 14: alerting.v1.Template.expressions:type_name -> alerting.v1.TemplateExpression
+	10, // 15: alerting.v1.ListTemplatesResponse.templates:type_name -> alerting.v1.Template
+	2,  // 16: alerting.v1.Filter.type:type_name -> alerting.v1.FilterType
+	37, // 17: alerting.v1.ParamValue.type:type_name -> alerting.v1.ParamType
+	20, // 18: alerting.v1.CreateRuleRequest.params:type_name -> alerting.v1.ParamValue
+	38, // 19: alerting.v1.CreateRuleRequest.for:type_name -> google.protobuf.Duration
+	39, // 20: alerting.v1.CreateRuleRequest.severity:type_name -> management.v1.Severity
+	35, // 21: alerting.v1.CreateRuleRequest.custom_labels:type_name -> alerting.v1.CreateRuleRequest.CustomLabelsEntry
+	19, // 22: alerting.v1.CreateRuleRequest.filters:type_name -> alerting.v1.Filter
+	38, // 23: alerting.v1.CreateRuleRequest.interval:type_name -> google.protobuf.Duration
+	36, // 24: alerting.v1.Threshold.unit:type_name -> alerting.v1.ParamUnit
+	3,  // 25: alerting.v1.Threshold.scope:type_name -> alerting.v1.ThresholdScope
+	3,  // 26: alerting.v1.ListThresholdsRequest.scope:type_name -> alerting.v1.ThresholdScope
+	23, // 27: alerting.v1.ListThresholdsResponse.thresholds:type_name -> alerting.v1.Threshold
+	3,  // 28: alerting.v1.SetThresholdRequest.scope:type_name -> alerting.v1.ThresholdScope
+	23, // 29: alerting.v1.SetThresholdResponse.threshold:type_name -> alerting.v1.Threshold
+	3,  // 30: alerting.v1.ClearThresholdRequest.scope:type_name -> alerting.v1.ThresholdScope
+	3,  // 31: alerting.v1.ThresholdUpdate.scope:type_name -> alerting.v1.ThresholdScope
+	30, // 32: alerting.v1.BatchUpdateThresholdsRequest.updates:type_name -> alerting.v1.ThresholdUpdate
+	23, // 33: alerting.v1.BatchUpdateThresholdsResponse.thresholds:type_name -> alerting.v1.Threshold
+	11, // 34: alerting.v1.AlertingService.ListTemplates:input_type -> alerting.v1.ListTemplatesRequest
+	13, // 35: alerting.v1.AlertingService.CreateTemplate:input_type -> alerting.v1.CreateTemplateRequest
+	15, // 36: alerting.v1.AlertingService.UpdateTemplate:input_type -> alerting.v1.UpdateTemplateRequest
+	17, // 37: alerting.v1.AlertingService.DeleteTemplate:input_type -> alerting.v1.DeleteTemplateRequest
+	21, // 38: alerting.v1.AlertingService.CreateRule:input_type -> alerting.v1.CreateRuleRequest
+	24, // 39: alerting.v1.AlertingService.ListThresholds:input_type -> alerting.v1.ListThresholdsRequest
+	26, // 40: alerting.v1.AlertingService.SetThreshold:input_type -> alerting.v1.SetThresholdRequest
+	28, // 41: alerting.v1.AlertingService.ClearThreshold:input_type -> alerting.v1.ClearThresholdRequest
+	31, // 42: alerting.v1.AlertingService.BatchUpdateThresholds:input_type -> alerting.v1.BatchUpdateThresholdsRequest
+	12, // 43: alerting.v1.AlertingService.ListTemplates:output_type -> alerting.v1.ListTemplatesResponse
+	14, // 44: alerting.v1.AlertingService.CreateTemplate:output_type -> alerting.v1.CreateTemplateResponse
+	16, // 45: alerting.v1.AlertingService.UpdateTemplate:output_type -> alerting.v1.UpdateTemplateResponse
+	18, // 46: alerting.v1.AlertingService.DeleteTemplate:output_type -> alerting.v1.DeleteTemplateResponse
+	22, // 47: alerting.v1.AlertingService.CreateRule:output_type -> alerting.v1.CreateRuleResponse
+	25, // 48: alerting.v1.AlertingService.ListThresholds:output_type -> alerting.v1.ListThresholdsResponse
+	27, // 49: alerting.v1.AlertingService.SetThreshold:output_type -> alerting.v1.SetThresholdResponse
+	29, // 50: alerting.v1.AlertingService.ClearThreshold:output_type -> alerting.v1.ClearThresholdResponse
+	32, // 51: alerting.v1.AlertingService.BatchUpdateThresholds:output_type -> alerting.v1.BatchUpdateThresholdsResponse
+	43, // [43:52] is the sub-list for method output_type
+	34, // [34:43] is the sub-list for method input_type
+	34, // [34:34] is the sub-list for extension type_name
+	34, // [34:34] is the sub-list for extension extendee
+	0,  // [0:34] is the sub-list for field type_name
 }
 
 func init() { file_alerting_v1_alerting_proto_init() }
@@ -2483,7 +2563,7 @@ func file_alerting_v1_alerting_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_alerting_v1_alerting_proto_rawDesc), len(file_alerting_v1_alerting_proto_rawDesc)),
-			NumEnums:      3,
+			NumEnums:      4,
 			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   1,
