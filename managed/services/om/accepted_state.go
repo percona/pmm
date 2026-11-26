@@ -19,8 +19,10 @@ import (
 	"context"
 	"fmt"
 
+	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/reform.v1"
 
+	omv1 "github.com/percona/pmm/api/om/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -65,7 +67,15 @@ func (s *ScanScheduler) writeAcceptedState(ctx context.Context, clusterID, opera
 		members[i] = row.(*models.OmClusterMember) //nolint:forcetypeassert
 	}
 
-	state, ready := buildInstallAcceptedState(ctx, s.reader, s.metrics, members)
+	var params installParams
+	record, err := s.db.FindByPrimaryKeyFrom(models.OmOperationTable, operationID)
+	if err != nil {
+		s.l.WithField("cluster_id", clusterID).WithError(err).Warn("failed to read the install operation; writing the accepted state without its params")
+	} else {
+		params = installParamsOf(record.(*models.OmOperation)) //nolint:forcetypeassert
+	}
+
+	state, ready := buildInstallAcceptedState(ctx, s.reader, s.metrics, members, params)
 	if !ready {
 		return
 	}
@@ -99,6 +109,7 @@ func buildInstallAcceptedState(
 	reader factObservationReader,
 	metrics metricsFactReader,
 	members []*models.OmClusterMember,
+	params installParams,
 ) (*models.AcceptedState, bool) {
 	serviceIDs := make([]string, 0, len(members))
 	for _, member := range members {
@@ -137,7 +148,7 @@ func buildInstallAcceptedState(
 			ObservedFrom: models.AcceptedObservedFrom{ConfigVersion: int32(rsVersion), Term: int64(rsTerm)},
 		}
 		rsMemberID := *member.RSMemberID
-		state.Members[member.ID] = models.AcceptedMember{
+		accepted := models.AcceptedMember{
 			Process:       string(models.OmMemberMongod),
 			Host:          member.Host,
 			ReplicaSet:    setName,
@@ -146,12 +157,61 @@ func buildInstallAcceptedState(
 			Install:       models.AcceptedInstall{Method: installMethod},
 			ConfigSHA256:  configSHA,
 			RSMemberID:    &rsMemberID,
+			DataPath:      params.DataPath,
+			LogPath:       params.LogPath,
 		}
+		applyMemberConfig(&accepted, memberConfigFromParams(params, member))
+		state.Members[member.ID] = accepted
 	}
 	if len(state.Members) == 0 {
 		return nil, false
 	}
 	return state, true
+}
+
+// memberConfigFromParams returns a member's requested replica settings, or nil when the node has no
+// entry and MongoDB's defaults apply.
+func memberConfigFromParams(params installParams, member *models.OmClusterMember) *omv1.BootstrapMemberConfig {
+	if member.NodeID == nil {
+		return nil
+	}
+	raw, ok := params.MemberConfigs[*member.NodeID]
+	if !ok {
+		return nil
+	}
+	cfg := &omv1.BootstrapMemberConfig{}
+	err := protojson.Unmarshal(raw, cfg)
+	if err != nil {
+		return nil
+	}
+	return cfg
+}
+
+// applyMemberConfig records only the replica settings the install request set, leaving a field the
+// request omitted at MongoDB's default.
+func applyMemberConfig(member *models.AcceptedMember, cfg *omv1.BootstrapMemberConfig) {
+	if cfg == nil {
+		return
+	}
+	if cfg.Votes != nil {
+		votes := int32(0)
+		if *cfg.Votes {
+			votes = 1
+		}
+		member.Votes = &votes
+	}
+	if cfg.Priority != nil {
+		priority := float64(*cfg.Priority)
+		member.Priority = &priority
+	}
+	if cfg.Hidden {
+		hidden := true
+		member.Hidden = &hidden
+	}
+	if cfg.DelaySecs > 0 {
+		delay := int64(cfg.DelaySecs)
+		member.SecondaryDelay = &delay
+	}
 }
 
 // clustersNeedingAcceptedState returns the managed clusters with no accepted state yet, mapped to the

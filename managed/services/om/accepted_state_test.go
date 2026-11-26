@@ -17,13 +17,16 @@ package om
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/encoding/protojson"
 
+	omv1 "github.com/percona/pmm/api/om/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -66,11 +69,22 @@ func (f *fakeMetricsFactReader) ServiceMetricsFacts(_ context.Context, serviceID
 func TestBuildInstallAcceptedState(t *testing.T) {
 	rsMemberID := int32(0)
 	serviceID := "svc-m0"
-	members := []*models.OmClusterMember{{ID: "m0", Host: "node00", RSMemberID: &rsMemberID, ServiceID: &serviceID}}
+	nodeID := "node0"
+	members := []*models.OmClusterMember{{ID: "m0", Host: "node00", RSMemberID: &rsMemberID, ServiceID: &serviceID, NodeID: &nodeID}}
 	reader := &fakeFactReader{facts: map[string]map[string]any{"m0": memberScanFacts()}}
 	metrics := &fakeMetricsFactReader{facts: map[string]map[string]any{serviceID: memberMetricFacts()}}
 
-	state, ready := buildInstallAcceptedState(t.Context(), reader, metrics, members)
+	votes := true
+	priority := uint32(2)
+	memberCfg, err := protojson.Marshal(&omv1.BootstrapMemberConfig{Votes: &votes, Priority: &priority, Hidden: true})
+	require.NoError(t, err)
+	params := installParams{
+		DataPath:      "/var/lib/mongo",
+		LogPath:       "/var/log/mongodb/mongod.log",
+		MemberConfigs: map[string]json.RawMessage{nodeID: memberCfg},
+	}
+
+	state, ready := buildInstallAcceptedState(t.Context(), reader, metrics, members, params)
 	require.True(t, ready)
 	assert.Equal(t, "8.0", state.FCV)
 	assert.Equal(t, []string{installAuthMechanism}, state.Auth.Mechanisms)
@@ -82,22 +96,31 @@ func TestBuildInstallAcceptedState(t *testing.T) {
 	assert.Equal(t, "abc123", member.ConfigSHA256)
 	assert.Equal(t, installMethod, member.Install.Method)
 	assert.Equal(t, "node00", member.Host)
+	assert.Equal(t, "/var/lib/mongo", member.DataPath)
+	assert.Equal(t, "/var/log/mongodb/mongod.log", member.LogPath)
+	require.NotNil(t, member.Votes)
+	assert.Equal(t, int32(1), *member.Votes)
+	require.NotNil(t, member.Priority)
+	assert.InDelta(t, float64(2), *member.Priority, 0)
+	require.NotNil(t, member.Hidden)
+	assert.True(t, *member.Hidden)
+	assert.Nil(t, member.SecondaryDelay, "an unset delay keeps MongoDB's default and is not recorded")
 
-	_, err := models.MarshalAcceptedState(state)
+	_, err = models.MarshalAcceptedState(state)
 	require.NoError(t, err, "the built state is a valid document")
 
 	_, ready = buildInstallAcceptedState(t.Context(),
-		&fakeFactReader{facts: map[string]map[string]any{"m0": {"binary_version": "8.0.38"}}}, metrics, members)
+		&fakeFactReader{facts: map[string]map[string]any{"m0": {"binary_version": "8.0.38"}}}, metrics, members, params)
 	assert.False(t, ready, "an incomplete observation is not ready")
 
-	_, ready = buildInstallAcceptedState(t.Context(), &fakeFactReader{}, metrics, members)
+	_, ready = buildInstallAcceptedState(t.Context(), &fakeFactReader{}, metrics, members, params)
 	assert.False(t, ready, "a member with no observation yet is not ready")
 
-	_, ready = buildInstallAcceptedState(t.Context(), reader, &fakeMetricsFactReader{}, members)
+	_, ready = buildInstallAcceptedState(t.Context(), reader, &fakeMetricsFactReader{}, members, params)
 	assert.False(t, ready, "a member whose metrics are not in yet is not ready")
 
 	unlinked := []*models.OmClusterMember{{ID: "m0", Host: "node00", RSMemberID: &rsMemberID}}
-	_, ready = buildInstallAcceptedState(t.Context(), reader, metrics, unlinked)
+	_, ready = buildInstallAcceptedState(t.Context(), reader, metrics, unlinked, params)
 	assert.False(t, ready, "a member not yet linked to a service is not ready")
 }
 
