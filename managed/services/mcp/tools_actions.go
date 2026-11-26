@@ -753,11 +753,15 @@ func actionIDOf(res *actions_service.StartServiceActionOKBody) string {
 
 // mapActionStartError refines the generic HTTP mapping for startServiceAction:
 // pmm-managed answers FailedPrecondition / NotFound when no pmm-agent can run
-// the action, which is an agent problem rather than bad input.
+// the action, which is an agent problem rather than bad input, and 500 when
+// pmm-agent refuses to explain the query, which is not an outage.
 func mapActionStartError(err error) error {
 	te := mapError(err)
 	if strings.Contains(te.message, "query exceeded max length and got trimmed") {
 		return newToolError(codeInvalidInput, "%s\n%s", te.message, trimmedQueryRemediation)
+	}
+	if strings.Contains(te.message, "query EXPLAIN functionality is supported only for DML queries") {
+		return newToolError(codeInvalidInput, "%s", te.message)
 	}
 	msg := strings.ToLower(te.message)
 	if strings.Contains(msg, "agent") && (te.code == codeInvalidInput || te.code == codeNotFound) {

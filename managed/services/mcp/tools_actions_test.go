@@ -29,6 +29,8 @@ import (
 	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -571,6 +573,44 @@ func TestExplainTool(t *testing.T) {
 		text := textOf(t, res)
 		assertToolError(t, text, codeInvalidInput, "")
 		assert.Contains(t, text, "QAN stored this query trimmed (pmm-agent max-query-length), so it can't be explained; pick another query, or raise max-query-length on the agent")
+	})
+
+	// pmm-agent refuses to create a MySQL EXPLAIN of a statement other than DML, and pmm-managed answers 500.
+	t.Run("NotDML", func(t *testing.T) {
+		t.Parallel()
+
+		const message = "failed to create action: query EXPLAIN functionality is supported only for DML queries - " +
+			"SELECT, INSERT, UPDATE, DELETE and REPLACE"
+		for _, tc := range []struct {
+			tool string
+			args map[string]any
+		}{
+			{"pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"}},
+			{"pmm_get_schema", map[string]any{"queryid": "QID-AAA"}},
+		} {
+			t.Run(tc.tool, func(t *testing.T) {
+				t.Parallel()
+
+				fake := newFakePMM(t, withRoutes(resolveRoutes(reportOne), map[string]fixture{
+					startAction: {body: mustJSON(t, map[string]any{"code": 13, "error": message, "message": message}), status: http.StatusInternalServerError},
+				}))
+				s := newQANService(t, fake, true)
+				logger, hook := test.NewNullLogger()
+				logger.SetLevel(logrus.TraceLevel)
+				s.l = logrus.NewEntry(logger)
+				session := connect(t, s)
+
+				res := callTool(t, session, tc.tool, tc.args)
+				assert.True(t, res.IsError)
+				assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"])
+				assert.Equal(t, "error: invalid_input\nPMM returned 500 on POST /v1/actions:startServiceAction: "+message, textOf(t, res))
+				entries := hook.AllEntries()
+				require.NotEmpty(t, entries)
+				for _, e := range entries {
+					assert.Greater(t, e.Level, logrus.WarnLevel, "logged at %s: %s", e.Level, e.Message)
+				}
+			})
+		}
 	})
 
 	t.Run("Timeout", func(t *testing.T) {
