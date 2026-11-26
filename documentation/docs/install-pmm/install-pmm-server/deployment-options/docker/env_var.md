@@ -216,6 +216,15 @@ Configure connections to external database services:
 | `PMM_CLICKHOUSE_*` | ClickHouse connection settings |
 | `PMM_POSTGRES_*` | PostgreSQL connection settings |
 
+### Credentials as files
+
+Use these variables to provide PMM Server's credentials in files instead of environment variables. To choose the credentials and name their files, [provide PMM Server credentials in files](../../../../admin/security/credentials_as_files.md).
+
+| Variable | Description |
+|----------|-------------|
+| `PMM_SECRETS_DIR` | Directory with one file per credential, named after the credential, for example `admin-password` |
+| `PMM_ADMIN_PASSWORD_FILE`, `PMM_GRAFANA_SECRET_KEY_FILE`, `PMM_POSTGRES_PASSWORD_FILE`, `PMM_GRAFANA_DB_PASSWORD_FILE`, `PMM_CLICKHOUSE_PASSWORD_FILE`, `PMM_CLICKHOUSE_DATASOURCE_PASSWORD_FILE` | Path to the file of one credential. Takes precedence over `PMM_SECRETS_DIR` |
+
 
 ### HA variables
 
@@ -274,7 +283,7 @@ For parameter details, see [Nomad client garbage collection documentation](https
 ### Supported external variables
 PMM Server passes these variables to integrated components:
 
-- **Grafana**: All `GF_*` variables (e.g., `GF_SECURITY_ADMIN_PASSWOR`)
+- **Grafana**: All `GF_*` variables, such as `GF_AUTH_ANONYMOUS_ENABLED`. Set this to `true` to let visitors view your dashboards without signing in. These visitors can't use PMM features such as Query Analytics.
 - **VictoriaMetrics**: All `VM_*` variables (e.g., VM_retentionPeriod)
 - **Kubernetes**: All `KUBERNETES_*` variables
 - **System variables**: Standard variables like `HOME`, `PATH`, etc.

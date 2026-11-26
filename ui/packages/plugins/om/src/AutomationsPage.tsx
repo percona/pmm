@@ -35,6 +35,8 @@ import {
   BOOTSTRAP_RUN_LABEL,
   OM_ROUTE_NODES,
 } from './constants';
+import { useAuth } from '@pmm-extensions/api';
+import { AdminAction } from './components/AdminAction';
 import { OmHeader } from './components/OmHeader';
 import { EmptyState } from './components/EmptyState';
 import { RunProgress } from './components/RunProgress';
@@ -154,6 +156,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
  */
 const AutomationsInstallsTab = () => {
   const omBase = useOmBase();
+  const { canMutate } = useAuth();
   const {
     data: runs,
     isLoading,
@@ -193,7 +196,8 @@ const AutomationsInstallsTab = () => {
           action={{ label: 'Go to Nodes', to: `${omBase}/${OM_ROUTE_NODES}` }}
         >
           Every MongoDB install Operations runs is recorded here, so you can
-          watch one happen and come back to what it did. Start one from a node.
+          watch one happen and come back to what it did.
+          {canMutate && ' Start one from a node.'}
         </EmptyState>
       ) : (
         <Table
@@ -261,13 +265,15 @@ export const AutomationsPage = () => {
         actions={
           // Installs start from a node, so this opens Nodes on the ones with nothing
           // monitored on them yet.
-          <Button
-            variant="contained"
-            component={RouterLink}
-            to={`${omBase}/${OM_ROUTE_NODES}?filter=unmonitored`}
-          >
-            Install MongoDB
-          </Button>
+          <AdminAction>
+            <Button
+              variant="contained"
+              component={RouterLink}
+              to={`${omBase}/${OM_ROUTE_NODES}?filter=unmonitored`}
+            >
+              Install MongoDB
+            </Button>
+          </AdminAction>
         }
       />
       <Tabs

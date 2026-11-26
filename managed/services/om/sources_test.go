@@ -174,6 +174,25 @@ func TestAbandonedSeriesDoesNotStaleTheLiveOne(t *testing.T) {
 		"exporter_up must carry the live series' age, not the abandoned one's")
 }
 
+// A stopped exporter target starts a new mongodb_up series without cluster_role, so the arbiter
+// label survives only on the abandoned series and must carry that series' age.
+func TestNodeTypeComesFromTheUpSeries(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 11, 3, 12, 0, 0, 0, time.UTC)
+	vm := stubVM{lag: map[string]model.Vector{metricUp: {
+		lagSample(600, "cluster_role", "arbiter"),
+		lagSample(2),
+	}}}
+	src := metricsSource{vm: vm, l: logrus.WithField("test", t.Name()), now: now}
+	fact := factFor(src.collect(t.Context(), []*models.Service{{ServiceID: testServiceID}}), fieldNodeType)
+
+	require.NotNil(t, fact, "expected a node-type fact")
+	assert.Equal(t, nodeTypeArbiter, fact.Value)
+	require.NotNil(t, fact.ObservedAt)
+	assert.Equal(t, now.Add(-10*time.Minute), fact.ObservedAt.UTC())
+}
+
 // mongodb_exporter is scraped at hr and lr resolutions; the lr series' age exceeds volatileMaxAge
 // for most of every minute, so reducing across both reports a healthy service DOWN.
 func TestEveryQueryNarrowsToTheHighResolutionJob(t *testing.T) {

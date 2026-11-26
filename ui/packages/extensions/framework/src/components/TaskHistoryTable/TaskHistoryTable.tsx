@@ -19,6 +19,7 @@ import { useCallback, useMemo, useState } from 'react';
 import DownloadIcon from '@mui/icons-material/Download';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -87,6 +88,38 @@ function canProbeDownloadableFiles(entry: TaskHistoryEntry): boolean {
     entry.id !== null &&
     entry.id !== undefined &&
     Boolean(entry.task?.output_files_path)
+  );
+}
+
+const INCOMPLETE_LOGS_LABEL = 'Captured logs are incomplete';
+
+/**
+ * Flags a finished run whose log output was partly or wholly lost before it
+ * could be stored. Running rows are skipped: their streams report
+ * `incomplete` until the terminal capture verdict, and `unknown` covers runs
+ * that predate capture tracking, so neither is a loss.
+ */
+function IncompleteLogsIndicator({ entry }: { entry: TaskHistoryEntry }) {
+  if (entry.log_capture !== 'incomplete' || isRunningStatus(entry.status)) {
+    return null;
+  }
+  return (
+    <Tooltip
+      describeChild
+      title={`${INCOMPLETE_LOGS_LABEL}: some of this run's log output was lost before it could be stored.`}
+    >
+      <Box
+        component="span"
+        role="img"
+        aria-label={INCOMPLETE_LOGS_LABEL}
+        // Focusable so keyboard users can reach the tooltip.
+        tabIndex={0}
+        data-testid="incomplete-logs-indicator"
+        sx={{ display: 'inline-flex' }}
+      >
+        <WarningAmberIcon color="warning" fontSize="small" />
+      </Box>
+    </Tooltip>
   );
 }
 
@@ -201,9 +234,14 @@ function TaskHistoryTableView({
       {
         id: 'status',
         header: 'Status',
-        size: 100,
+        size: 120,
         accessorFn: (row) => row.status,
-        Cell: ({ row }) => <StatusBadge status={row.original.status} />,
+        Cell: ({ row }) => (
+          <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+            <StatusBadge status={row.original.status} />
+            <IncompleteLogsIndicator entry={row.original} />
+          </Stack>
+        ),
       },
       ...(hideTaskNameColumn
         ? []

@@ -557,7 +557,7 @@ describe('IncidentListPage — ServiceNow connection banner', () => {
       expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
     });
     expect(
-      screen.getByText(/Sending requires a valid ServiceNow connection/i)
+      screen.getByText(/Sending to a support case needs a valid connection/i)
     ).toBeTruthy();
     expect(screen.getByTestId('atw-send-unavailable-settings')).toHaveAttribute(
       'href',

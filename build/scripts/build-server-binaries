@@ -11,6 +11,7 @@
 # Usage:
 #   build-server-binaries                       # build all components
 #   build-server-binaries grafana pmm-managed   # build selected components
+#   NO_S3_CACHE=1 build-server-binaries         # don't download from or upload to the S3 cache
 
 set -o errexit
 set -o xtrace
@@ -130,7 +131,7 @@ cached_build() {
 
     if [ -n "${FORCE_REBUILD}" ]; then
         rm -f ${tarball}
-    elif [ ! -f "${tarball}" ]; then
+    elif [ ! -f "${tarball}" ] && [ -z "${NO_S3_CACHE}" ]; then
         aws s3 cp --region us-east-2 --no-progress --no-sign-request ${s3_url} ${tarball} || :
     fi
 
@@ -142,7 +143,9 @@ cached_build() {
         build ${stage_dir}
 
         tar -C ${stage_dir} -zcpf ${tarball} .
-        aws s3 cp --region us-east-2 --no-progress ${tarball} ${s3_url} || :
+        if [ -z "${NO_S3_CACHE}" ]; then
+            aws s3 cp --region us-east-2 --no-progress ${tarball} ${s3_url} || :
+        fi
     fi
 
     tar -C ${binaries_dir} -zxpf ${tarball}

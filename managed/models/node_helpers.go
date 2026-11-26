@@ -427,7 +427,7 @@ func FindStaleHANodes(q *reform.Querier, localHANodeID string, haPeers []string)
 			continue
 		}
 
-		name, ok := haPeerNodeName(peer)
+		name, ok := HAPeerNodeName(peer)
 		if !ok {
 			// Trusting the rest would treat a partial list as the whole cluster and remove live replicas.
 			l.WithField("peer", peer).Warn("Can't read a node name from a PMM_HA_PEERS entry, so no stale HA nodes are reported.")
@@ -502,10 +502,10 @@ func RemoveStaleHANode(q *reform.Querier, nodeID string) error {
 	return removeNode(q, nodeID, RemoveCascade, true)
 }
 
-// haPeerNodeName maps a PMM_HA_PEERS entry ("pmm-ha-0.pmm-ha.pmm.svc.cluster.local:9761") to a Node
+// HAPeerNodeName maps a PMM_HA_PEERS entry ("pmm-ha-0.pmm-ha.pmm.svc.cluster.local:9761") to a Node
 // name: the first label is the pod's PMM_HA_NODE_ID. Reports false for entries with no name, like
 // bare IPv4 or IPv6 addresses.
-func haPeerNodeName(peer string) (string, bool) {
+func HAPeerNodeName(peer string) (string, bool) {
 	peer = strings.TrimSpace(peer)
 	// Test the whole entry before cutting at ":": an unbracketed IPv6 literal would otherwise be cut
 	// into its first group, and the "2001" of "2001:db8::7" reads like a node name. Only IPv6 entries

@@ -4473,11 +4473,13 @@ func (*StartActionRequest_PTSummaryParams) Descriptor() ([]byte, []int) {
 
 // PTPgSummaryParams describes parameters for PT PG summary.
 type StartActionRequest_PTPgSummaryParams struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Host          string                 `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`
-	Port          uint32                 `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
-	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
-	Password      string                 `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Host     string                 `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`
+	Port     uint32                 `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
+	Username string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	Password string                 `protobuf:"bytes,4,opt,name=password,proto3" json:"password,omitempty"`
+	// Connect over SSL; the server certificate is not verified.
+	Tls           bool `protobuf:"varint,5,opt,name=tls,proto3" json:"tls,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4538,6 +4540,13 @@ func (x *StartActionRequest_PTPgSummaryParams) GetPassword() string {
 		return x.Password
 	}
 	return ""
+}
+
+func (x *StartActionRequest_PTPgSummaryParams) GetTls() bool {
+	if x != nil {
+		return x.Tls
+	}
+	return false
 }
 
 // PTMongoDBSummaryParams describes parameters for PT MongoDB summary.
@@ -6726,7 +6735,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x11QueryActionResult\x12\x18\n" +
 	"\acolumns\x18\x01 \x03(\tR\acolumns\x12.\n" +
 	"\x04rows\x18\x02 \x03(\v2\x1a.agent.v1.QueryActionSliceR\x04rows\x12,\n" +
-	"\x04docs\x18\x03 \x03(\v2\x18.agent.v1.QueryActionMapR\x04docs\"\x9d-\n" +
+	"\x04docs\x18\x03 \x03(\v2\x18.agent.v1.QueryActionMapR\x04docs\"\xb0-\n" +
 	"\x12StartActionRequest\x12\x1b\n" +
 	"\taction_id\x18\x01 \x01(\tR\bactionId\x123\n" +
 	"\atimeout\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x12c\n" +
@@ -6790,12 +6799,13 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x05query\x18\x02 \x01(\tR\x05query\x122\n" +
 	"\n" +
 	"text_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1a\x11\n" +
-	"\x0fPTSummaryParams\x1a\x7f\n" +
+	"\x0fPTSummaryParams\x1a\x91\x01\n" +
 	"\x11PTPgSummaryParams\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12 \n" +
 	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
-	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x1a\x84\x01\n" +
+	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x10\n" +
+	"\x03tls\x18\x05 \x01(\bR\x03tls\x1a\x84\x01\n" +
 	"\x16PTMongoDBSummaryParams\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12 \n" +

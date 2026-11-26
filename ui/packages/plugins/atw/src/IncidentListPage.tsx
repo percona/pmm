@@ -230,8 +230,8 @@ export function IncidentListPage() {
       </Stack>
       {showIntro && (
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Open an incident to run diagnostic snippets and review their results
-          in one place.
+          Open an incident to run diagnostic scripts and review their results in
+          one place.
         </Typography>
       )}
 

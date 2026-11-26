@@ -20,6 +20,8 @@ import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
 import { AutomationsScansTab } from '../src/AutomationsScansTab';
+import { ADMIN_REQUIRED } from '../src/components/AdminAction';
+import { asReadOnlyReader } from './auth';
 import type { OmInventoryRun } from '../src/types';
 
 const {
@@ -264,5 +266,14 @@ describe('AutomationsScansTab', () => {
     expect(screen.getByTestId('om-error')).toHaveTextContent(
       'The scan failed: PMM Extensions did not answer'
     );
+  });
+
+  it('disables Scan all nodes for a reader who may not act, and says why', () => {
+    asReadOnlyReader();
+    renderAt('/');
+
+    const scanAll = screen.getByRole('button', { name: 'Scan all nodes' });
+    expect(scanAll).toBeDisabled();
+    expect(scanAll).toHaveAccessibleDescription(ADMIN_REQUIRED);
   });
 });

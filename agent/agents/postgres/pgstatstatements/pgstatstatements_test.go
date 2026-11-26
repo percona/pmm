@@ -164,7 +164,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCities:     "1563925687573067138",
 			selectAllCitiesLong: "-3196437048361615995",
 		}
-	case "18":
+	case "18", "19":
 		selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN ($1 /*, ... */)"
 		truncatedMSharedBlksHitSum = float32(8)
 		isTruncated = false
@@ -173,7 +173,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		require.NoError(t, err)
 
 		switch {
-		case minor >= 2 && !isPercona || minor >= 3 && isPercona:
+		case majorVersion == "19" || minor >= 2 && !isPercona || minor >= 3 && isPercona:
 			digests = map[string]string{
 				selectAllCities:     "-7353212999726668504",
 				selectAllCitiesLong: "954639919948531541",

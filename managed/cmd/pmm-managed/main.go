@@ -112,6 +112,7 @@ import (
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
+	"github.com/percona/pmm/managed/utils/secrets"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
@@ -134,6 +135,8 @@ const (
 
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
+
+	advisorHistoryCleanInterval = time.Hour
 
 	defaultContextTimeout = 10 * time.Second
 	pProfProfileDuration  = 30 * time.Second
@@ -329,7 +332,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementSvc := management.NewManagementService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
-		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
+		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient), mgmtServices,
 		deps.internalNodePrefixes,
 		deps.ha.Params().Enabled,
 	)
@@ -392,9 +395,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs               *server.Logs
-	authServer         *grafana.AuthServer
-	currentUserHandler http.Handler
+	logs       *server.Logs
+	authServer *grafana.AuthServer
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -474,8 +476,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
-	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
-	mux.Handle("/v1/users/current", deps.currentUserHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -727,6 +727,19 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 	return db, nil
 }
 
+// readCredential returns secrets.Value, warning when the default applies and exiting when a resolved credential can't
+// be read, because with the default pmm-managed would reset its database password.
+func readCredential(l *logrus.Entry, value string, name secrets.Name, defaultValue string) string {
+	v, err := secrets.Value(value, name, defaultValue)
+	switch {
+	case errors.Is(err, secrets.ErrNotResolved):
+		l.Warnf("Credential %s has no file in %s, so PMM Server uses the default value.", name, secrets.Dir)
+	case err != nil:
+		l.Fatalf("Cannot read credential %s: %s.", name, err)
+	}
+	return v
+}
+
 func main() { //nolint:gocognit,maintidx,cyclop
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
@@ -740,7 +753,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	kingpin.HelpFlag.Short('h')
 
 	// Base URL only: each consumer appends its own /api/apps/<module> path.
-	// Optional; without it OM builds its document from PMM's own inventory and metrics alone.
+	// When unset, om.ResolveExtensions fills both in for the side-car PMM_ENABLE_EXTENSIONS provisions.
 	extensionsURLF := kingpin.Flag("extensions-url", "Base URL of the PMM Extensions API, e.g. http://127.0.0.1:8000").
 		Envar("PMM_EXTENSIONS_URL").String()
 	extensionsTokenF := kingpin.Flag("extensions-token", "Bearer token for the PMM Extensions API").
@@ -775,8 +788,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	postgresSSLCAPathF := kingpin.Flag("postgres-ssl-ca-path", "PostgreSQL SSL CA root certificate path").
 		Envar("PMM_POSTGRES_SSL_CA_PATH").
 		String()
-	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
-		Default("pmm-managed").
+	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password; read from "+secrets.Dir+" when unset").
 		Envar("PMM_POSTGRES_DBPASSWORD").
 		String()
 	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
@@ -839,7 +851,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
-	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
+	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password; read from "+secrets.Dir+" when unset").
+		Envar("PMM_CLICKHOUSE_PASSWORD").String()
 
 	// Nomad garbage collection flags
 	nomadGCIntervalF := kingpin.Flag("nomad-gc-interval", "Interval at which Nomad attempts to garbage collect terminal allocation directories.").
@@ -900,6 +913,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	haService := ha.New(haParams)
 
+	*postgresDBPasswordF = readCredential(l, *postgresDBPasswordF, secrets.PostgresPassword, "pmm-managed")
+	*clickhousePasswordF = readCredential(l, *clickhousePasswordF, secrets.ClickHousePassword, "clickhouse")
+
 	cfg := config.NewService()
 	err := cfg.Load()
 	if err != nil {
@@ -927,6 +943,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	pmmdb.DSN.Params = q.Encode()
 
 	grafanadb := ds.GrafanaDBSelect
+	grafanadb.Credentials.Password = readCredential(l, os.Getenv("GF_DATABASE_PASSWORD"), secrets.GrafanaDBPassword, grafanadb.Credentials.Password)
 	grafanadb.DSN.Scheme = "postgres"
 	grafanadb.DSN.Host = *postgresAddrF
 	grafanadb.DSN.DB = "grafana"
@@ -1003,6 +1020,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	cleaner := clean.New(db)
+	advisorHistoryCleaner := clean.NewInsights(db)
 	externalRules := vmalert.NewExternalRules()
 	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
 	if err != nil {
@@ -1055,7 +1073,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				Addr:        *postgresAddrF,
 				DBName:      *postgresDBNameF,
 				DBUsername:  *postgresDBUsernameF,
-				DBPassword:  *postgresDBPasswordF,
 				SSLMode:     *postgresSSLModeF,
 				SSLCAPath:   *postgresSSLCAPathF,
 				SSLKeyPath:  *postgresSSLKeyPathF,
@@ -1159,8 +1176,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	// Constructed ahead of serverParams so server.Server can hold it for the OpenManager enable/disable switch.
 	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
-	omService.WithProbeSource(*extensionsURLF, *extensionsTokenF)
-	omService.WithBootstrapSource(*extensionsURLF, *extensionsTokenF)
+	extensionsURL, extensionsToken := om.ResolveExtensions(*extensionsURLF, *extensionsTokenF, logrus.WithField("component", "om"))
+	omService.WithProbeSource(extensionsURL, extensionsToken)
+	omService.WithBootstrapSource(extensionsURL, extensionsToken)
 	omService.WithAgentRegistry(agentsRegistry)
 	omService.WithStateUpdater(agentsStateUpdater)
 	prom.MustRegister(om.NewMetricsCollector(omService))
@@ -1353,9 +1371,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:               logs,
-			authServer:         authServer,
-			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
+			logs:       logs,
+			authServer: authServer,
 		})
 	})
 
@@ -1365,6 +1382,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
+		return nil
+	}))
+
+	haService.AddLeaderService(ha.NewContextService("advisor-history-cleaner", func(ctx context.Context) error {
+		advisorHistoryCleaner.Run(ctx, advisorHistoryCleanInterval)
 		return nil
 	}))
 

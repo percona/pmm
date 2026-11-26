@@ -22,7 +22,7 @@
       - python3-pip
       - rsync
       - iproute
-      - nss_wrapper
+      - nss_wrapper-libs
     state: latest
 
 - name: Create groups
@@ -109,13 +109,12 @@
     - /usr/share/licenses/percona-grafana
     - /usr/share/doc/percona-grafana
 
-- name: Set ownership on built-in advisors, checks and alerting templates
+- name: Set ownership on built-in checks and alerting templates
   file:
     path: "{{ item }}"
     owner: pmm
     group: root
   with_fileglob:
-    - /usr/local/percona/advisors/*.yml
     - /usr/local/percona/checks/*.yml
     - /usr/local/percona/alerting-templates/*.yml
 
@@ -177,6 +176,13 @@
     owner: pmm
     group: root
     mode: 0664
+
+- name: Resolve credentials to files
+  command: pmm-managed-init secrets
+  become: true
+  become_user: pmm
+  become_method: su
+  changed_when: True
 
 # Launch pmm-managed-init first as it may update supervisord configuration on start
 - name: Generate new supervisor config

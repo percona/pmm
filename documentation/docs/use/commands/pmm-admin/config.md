@@ -40,7 +40,7 @@ pmm-admin config [<node-address> [<node-type> [<node-name>]]] [FLAGS]
 
 ### Flags
 
-- `--server-url=URL`:   PMM Server URL in `https://username:password@pmm-server-host/` format
+- `--server-url=URL`:   PMM Server URL in `https://username:password@pmm-server-host/` format. Wrap the URL in single quotes if it contains special characters.
 
 - `--server-insecure-tls`:   Skip PMM Server TLS certificate validation
 
@@ -90,7 +90,7 @@ pmm-admin register [<node-address> [<node-type> [<node-name>]]] [FLAGS]
 
 ### Flags
 
-- `--server-url=URL`:   PMM Server URL in `https://username:password@pmm-server-host/` format
+- `--server-url=URL`:   PMM Server URL in `https://username:password@pmm-server-host/` format. Wrap the URL in single quotes if it contains special characters.
 
 - `--machine-id=ID`:   Node machine-id (default is auto-detected)
 

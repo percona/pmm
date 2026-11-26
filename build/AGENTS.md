@@ -21,7 +21,7 @@ The `/build` directory contains everything needed to build, package, and distrib
 
 PMM Server components are built as plain binaries and static assets — they are
 not packaged as RPMs because they are only ever shipped inside the server
-Docker image (PMM-14804). PMM Client components keep RPM/DEB packaging for
+Docker image. PMM Client components keep RPM/DEB packaging for
 distribution to client hosts.
 
 ```
@@ -48,11 +48,12 @@ Client: Source code (Go)
 | `postgres` | Install and configure PostgreSQL for pmm-managed |
 | `extensions` | PMM Extensions side-car integration helpers copied into the image and invoked from the entrypoint (no `tasks/`); publishes the side-car's secrets when `PMM_ENABLE_EXTENSIONS` is set |
 | `supervisord` | Configure Supervisord for process management |
-| `dashboards` | Provision PMM Grafana dashboards |
 | `initialization` | PMM Server first-run setup |
 | `pmm-images` | Image metadata and version info |
 
 ### Cloud-Specific Roles
+
+In `build/packer/ansible/roles/`, except `init-admin-password-ami`.
 
 | Role | Purpose |
 |------|---------|
@@ -99,5 +100,6 @@ make rpmbuild-el9         # Build RPM build environment image
 - `build/ansible/roles/` — All Ansible roles for server components
 - `build/scripts/build-server-binaries` — Server component binary builds (driver: container, S3 cache)
 - `build/scripts/server/` — One build recipe per server component
+- `build/scripts/build-pmm-local` — Build a PMM Server Docker image from source on a Linux host, without Jenkins
 - `build/packer/pmm.json` — Machine image definitions
 - `build/scripts/` — Build scripts for all artifact types

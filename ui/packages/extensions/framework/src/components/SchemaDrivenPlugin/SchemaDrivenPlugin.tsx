@@ -290,6 +290,7 @@ function PluginEditPage({
         loading: updateEntity.isPending,
         defaultValues,
         capabilities: schema.capabilities,
+        failRules: entitySchema.fail_when,
         renderField,
         submitError,
         fieldErrors,
@@ -302,6 +303,7 @@ function PluginEditPage({
           submitError={submitError}
           fieldErrors={fieldErrors}
           defaultValues={defaultValues}
+          failRules={entitySchema.fail_when}
           renderField={renderField}
         />
       )}

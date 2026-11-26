@@ -27,10 +27,10 @@ export function TableField({ field }: TableFieldProps) {
     <TableSelector
       name={field.name}
       label={field.label}
-      description={field.description}
+      description={field.description ?? undefined}
       required={field.required}
       dependsOn={field.depends_on}
-      allowCustom={field.allow_custom}
+      allowCustom={field.allow_custom ?? undefined}
     />
   );
 }

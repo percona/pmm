@@ -205,7 +205,7 @@ export function CategoryFilters({ onSnippetsChange }: CategoryFiltersProps) {
   if (categoriesQuery.error && !categoriesQuery.data) {
     return (
       <Alert severity="error">
-        Failed to load ATW categories: {categoriesQuery.error.message}
+        Couldn&apos;t load script categories: {categoriesQuery.error.message}
       </Alert>
     );
   }
