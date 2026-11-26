@@ -217,35 +217,12 @@ func noteTables(note string) map[string]tableRef {
 		if !table {
 			continue
 		}
-		j := i + 1
-		for toks[i].isWord("update") && j < len(toks) && (toks[j].isWord("low_priority") || toks[j].isWord("ignore")) {
-			j++
-		}
-		if j+1 < len(toks) && toks[j].punct && toks[j].text == "(" && toks[j+1].isIdent() {
-			j++
-		}
-		if j >= len(toks) || !toks[j].isIdent() {
+		key, ref, ok := tableAfter(toks, i, ctes)
+		if !ok {
 			continue
 		}
-		ref := tableRef{name: toks[j].text}
-		j++
-		if j+1 < len(toks) && toks[j].punct && toks[j].text == "." && toks[j+1].isIdent() {
-			ref.database, ref.name = ref.name, toks[j+1].text
-			j += 2
-		}
-		if j < len(toks) && toks[j].punct && toks[j].text == "." {
-			continue
-		}
-		if ref.database == "" && ctes[ref.name] {
-			continue
-		}
-		j = skipPartitionList(toks, j)
-		key := ref.name
-		if j < len(toks) && toks[j].quoted {
-			key = toks[j].text
-		}
-		prev, ok := out[key]
-		if ok && prev != ref {
+		prev, seen := out[key]
+		if seen && prev != ref {
 			ambiguous[key] = true
 		}
 		out[key] = ref
@@ -254,6 +231,39 @@ func noteTables(note string) map[string]tableRef {
 		delete(out, key)
 	}
 	return out
+}
+
+// tableAfter reads the table that the keyword toks[i] introduces, with the alias or name it goes by; ok is false when
+// toks[i] is followed by no table, by a column of one, or by a CTE.
+func tableAfter(toks []noteToken, i int, ctes map[string]bool) (string, tableRef, bool) {
+	j := i + 1
+	for toks[i].isWord("update") && j < len(toks) && (toks[j].isWord("low_priority") || toks[j].isWord("ignore")) {
+		j++
+	}
+	if j+1 < len(toks) && toks[j].punct && toks[j].text == "(" && toks[j+1].isIdent() {
+		j++
+	}
+	if j >= len(toks) || !toks[j].isIdent() {
+		return "", tableRef{}, false
+	}
+	ref := tableRef{name: toks[j].text}
+	j++
+	if j+1 < len(toks) && toks[j].punct && toks[j].text == "." && toks[j+1].isIdent() {
+		ref.database, ref.name = ref.name, toks[j+1].text
+		j += 2
+	}
+	if j < len(toks) && toks[j].punct && toks[j].text == "." {
+		return "", tableRef{}, false
+	}
+	if ref.database == "" && ctes[ref.name] {
+		return "", tableRef{}, false
+	}
+	j = skipPartitionList(toks, j)
+	key := ref.name
+	if j < len(toks) && toks[j].quoted {
+		key = toks[j].text
+	}
+	return key, ref, true
 }
 
 // skipPartitionList returns the index past the PARTITION (`p0`,…) list that MySQL prints between a table and its
