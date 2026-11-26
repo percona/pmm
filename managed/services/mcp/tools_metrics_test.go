@@ -635,8 +635,7 @@ func TestQueryMetricsTool(t *testing.T) {
 			"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-6h",
 		})
 		require.True(t, isError, text)
-		assertToolError(t, text, codeInvalidInput, "")
-		assert.Contains(t, text, "the step that fits the answer in the 4 MiB that MCP reads keeps rising, since each rise makes the query read further back, "+
+		assertToolError(t, text, codeInvalidInput, "the step that fits the answer in the 4 MiB that MCP reads keeps rising, since each rise makes the query read further back, "+
 			"where its selectors match more series: aggregate, as in sum by (service_name) ({__name__=~\"mysql_global_status_.*\", service_name=\"db1\"})")
 		assert.Len(t, fake.requestsTo(vmAPI+"series"), maxStepRaises+1)
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs over a span it did not count")

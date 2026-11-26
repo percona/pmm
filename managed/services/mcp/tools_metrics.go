@@ -367,7 +367,7 @@ func seriesPerMatched(e metricsql.Expr) int {
 var minMaxAvg = []string{"min", "max", "avg"}
 
 // rollupResults are the rollup functions that return a series for each of their results, for each series they read,
-// unless a second argument picks one result.
+// unless a non-empty second argument picks one result.
 var rollupResults = map[string][]string{
 	"rollup":                 minMaxAvg,
 	"rollup_candlestick":     {"open", "high", "low", "close"},
@@ -388,16 +388,9 @@ func resultsPerSeries(e metricsql.Expr) int {
 		return max(resultsPerSeries(e.Left), resultsPerSeries(e.Right))
 	case *metricsql.AggrFuncExpr:
 		// An aggregation returns at most as many series as it reads.
-		most := 1
-		for _, arg := range e.Args {
-			most = max(most, resultsPerSeries(arg))
-		}
-		return most
+		return mostResults(e.Args)
 	case *metricsql.FuncExpr:
-		most := 1
-		for _, arg := range e.Args {
-			most = max(most, resultsPerSeries(arg))
-		}
+		most := mostResults(e.Args)
 		name := strings.ToLower(e.Name)
 		if name == "aggr_over_time" {
 			var names []string
@@ -406,13 +399,32 @@ func resultsPerSeries(e metricsql.Expr) int {
 			}
 			return min(most*max(len(names), 1), maxRollupNames+1)
 		}
-		if results, ok := rollupResults[name]; ok && len(e.Args) == 1 {
+		if results, ok := rollupResults[name]; ok && !picksOneResult(e.Args) {
 			return min(most*len(results), maxRollupNames+1)
 		}
 		return most
 	default:
 		return 1
 	}
+}
+
+// mostResults returns the largest resultsPerSeries of args, and 1 for none.
+func mostResults(args []metricsql.Expr) int {
+	most := 1
+	for _, arg := range args {
+		most = max(most, resultsPerSeries(arg))
+	}
+	return most
+}
+
+// picksOneResult tells whether a rollupResults function's arguments name one result: VictoriaMetrics returns all of
+// them for a missing or empty second argument.
+func picksOneResult(args []metricsql.Expr) bool {
+	if len(args) < 2 {
+		return false
+	}
+	tag, ok := args[1].(*metricsql.StringExpr)
+	return ok && tag.S != ""
 }
 
 // narrowIfTooLarge turns a response over the 4 MiB bound into advice to narrow the request: the expression or

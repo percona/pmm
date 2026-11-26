@@ -237,6 +237,8 @@ func TestCheckExpr(t *testing.T) {
 		{name: "rollup_candlestick over rollup makes 12", expr: nest(1, `rollup_candlestick(`, `rollup(up[5m])`), want: []string{multiply}},
 		{name: "rollup over rollup makes 9", expr: `rollup(rollup(up[5m])[1h:])`, want: []string{multiply}},
 		{name: "rollup that picks one result over rollup", expr: nest(1, `rollup(`, `rollup(up[5m], "max")`)},
+		{name: "an empty second argument picks every result", expr: `count(rollup(rollup(up[5m], "")[1h:], ""))`, want: []string{multiply}},
+		{name: "an empty second argument on rollup_candlestick", expr: nest(1, `rollup_candlestick(`, `rollup(up[5m], "")`), want: []string{multiply}},
 		{name: "an aggregation between the levels", expr: nest(1, eight, `topk(1000, `+eight+`up[5m]))`), want: []string{multiply}},
 		{name: "an operator between the levels", expr: nest(1, eight, eight+`up[5m]) + 0`), want: []string{multiply}},
 		{
