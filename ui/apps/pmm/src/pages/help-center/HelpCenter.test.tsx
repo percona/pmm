@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { HelpCenter } from './HelpCenter';
 import { CARD_IDS } from './HelpCenter.constants';
 import { MemoryRouter } from 'react-router-dom';
@@ -47,6 +47,11 @@ describe('HelpCenter', () => {
     expect(
       screen.getByRole('link', { name: 'Manage datasets' })
     ).toHaveAttribute('href', '/pmm-dump');
+    expect(
+      within(screen.getByTestId(`help-card-${CARD_IDS.pmmDump}`)).getByText(
+        'PMM Dump'
+      )
+    ).toBeVisible();
     expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(7);
   });
 

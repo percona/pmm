@@ -68,7 +68,7 @@ export const getCardData = ({
   },
   {
     id: CARD_IDS.pmmDump,
-    title: 'PMM dump',
+    title: 'PMM Dump',
     description:
       'Generate datasets to securely share your data with Percona Support. This helps our experts quickly diagnose and replicate issues.',
     buttons: [
