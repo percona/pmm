@@ -1528,6 +1528,9 @@ func TestDecodeExplainOutput(t *testing.T) {
 	assert.Equal(t, "plan", first(decodeExplainOutput(envelope, false)))
 	assert.Equal(t, "-- UPDATE t\n-- (DML statement rewritten to an equivalent SELECT by pmm-agent)\nplan",
 		first(decodeExplainOutput(`{"explain_result":"cGxhbg==","explained_query":"UPDATE t","is_dml":true}`, true)))
+	// Every line of a multi-line statement is commented out.
+	assert.Equal(t, "-- SELECT id\n-- FROM t\n--   WHERE id = 1\nplan",
+		first(decodeExplainOutput(`{"explain_result":"cGxhbg==","explained_query":"SELECT id\nFROM t\n  WHERE id = 1","is_dml":false}`, true)))
 	assert.Equal(t, "not json", first(decodeExplainOutput("not json", true)))
 	assert.Equal(t, `{"other":1}`, first(decodeExplainOutput(`{"other":1}`, true)))
 }

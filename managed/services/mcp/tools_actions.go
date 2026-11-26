@@ -975,7 +975,7 @@ func decodeExplainOutput(output string, rawSQL bool) (string, bool) {
 	}
 	text := strings.TrimRight(string(envelope.ExplainResult), "\n")
 	if rawSQL && envelope.ExplainedQuery != "" {
-		prefix := "-- " + envelope.ExplainedQuery
+		prefix := "-- " + strings.ReplaceAll(envelope.ExplainedQuery, "\n", "\n-- ")
 		if envelope.IsDML {
 			prefix += "\n-- (DML statement rewritten to an equivalent SELECT by pmm-agent)"
 		}
