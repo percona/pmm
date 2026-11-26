@@ -171,6 +171,55 @@ func TestMongoDBActionsReplWithSSL(t *testing.T) {
 	})
 }
 
+func TestMongoDBActionsArbiter(t *testing.T) {
+	t.Parallel()
+
+	dsn := tests.GetTestMongoDBArbiterDSN(t)
+
+	run := func(t *testing.T, dsn, command string, arg any) ([]byte, error) {
+		t.Helper()
+		a, err := NewMongoDBQueryAdmincommandAction("", 0, dsn, nil, command, arg, t.TempDir())
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithTimeout(t.Context(), time.Second)
+		defer cancel()
+		return a.Run(ctx)
+	}
+
+	// An arbiter stores no users, so it rejects these commands from every connection.
+	for command, arg := range map[string]any{
+		"getParameter":      "*",
+		"getCmdLineOpts":    1,
+		"replSetGetStatus":  1,
+		"getDiagnosticData": 1,
+	} {
+		t.Run(command, func(t *testing.T) {
+			t.Parallel()
+			_, err := run(t, dsn, command, arg)
+			require.ErrorIs(t, err, ErrMongoDBArbiter)
+			assert.ErrorContains(t, err, "(Unauthorized)")
+		})
+	}
+
+	t.Run("buildInfo", func(t *testing.T) {
+		t.Parallel()
+		// Since MongoDB 8.1 buildInfo requires authentication too.
+		b, err := run(t, dsn, "buildInfo", 1)
+		if err != nil {
+			require.ErrorIs(t, err, ErrMongoDBArbiter)
+			return
+		}
+		assert.InDelta(t, 1.0, convertToObjxMap(t, b).Get("ok").Data(), 0.0001)
+	})
+
+	t.Run("Unauthorized on a data node", func(t *testing.T) {
+		t.Parallel()
+		_, err := run(t, "mongodb://127.0.0.1:27017/admin", "getCmdLineOpts", 1)
+		require.ErrorContains(t, err, "(Unauthorized)")
+		assert.NotErrorIs(t, err, ErrMongoDBArbiter)
+	})
+}
+
 func runAction(t *testing.T, dsn string, files *agentv1.TextFiles, command string, arg any, tempDir string) []byte {
 	t.Helper()
 	a, err := NewMongoDBQueryAdmincommandAction("", 0, dsn, files, command, arg, tempDir)

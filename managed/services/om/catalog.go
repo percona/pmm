@@ -95,6 +95,7 @@ const (
 	fieldState            = "state"
 	fieldEndpoint         = "endpoint"
 	fieldClusterRole      = "cluster_role"
+	fieldNodeType         = "node_type"
 	fieldExporterUp       = "exporter_up"
 	fieldCPUUsage         = "cpu_usage_percent"
 	fieldConnectionsFree  = "connections_free_percent"
@@ -128,6 +129,10 @@ var clusterRoles = map[string]omv1.ProcessRole{
 	"configsvr": omv1.ProcessRole_PROCESS_ROLE_CONFIGSVR,
 	"shardsvr":  omv1.ProcessRole_PROCESS_ROLE_SHARDSVR,
 }
+
+// nodeTypeArbiter is mongodb_up's cluster_role for an arbiter, which reports no replica-set state:
+// the exporter turns its replSetGetStatus collector off.
+const nodeTypeArbiter = "arbiter"
 
 // unmeasured is the gauge sentinel: a number for every service, and not 0, which is a legitimate reading.
 const unmeasured = -1

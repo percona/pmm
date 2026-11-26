@@ -67,7 +67,7 @@ export function ChoiceField({ field }: ChoiceFieldProps) {
                     <FormControlLabel
                       key={choice.value}
                       value={choice.value}
-                      disabled={choice.disabled}
+                      disabled={choice.disabled ?? undefined}
                       control={<Radio />}
                       label={renderChoiceLabel(choice)}
                     />
@@ -90,7 +90,7 @@ export function ChoiceField({ field }: ChoiceFieldProps) {
         isRequired={field.required}
         control={control}
         labelProps={{ caption: help.inline ?? help.tooltip }}
-        options={field.choices}
+        options={field.choices.map(({ label, value }) => ({ label, value }))}
         controllerProps={{ rules }}
       />
     );
@@ -112,7 +112,7 @@ export function ChoiceField({ field }: ChoiceFieldProps) {
         <MenuItem
           key={choice.value}
           value={choice.value}
-          disabled={choice.disabled}
+          disabled={choice.disabled ?? undefined}
         >
           {renderChoiceLabel(choice)}
         </MenuItem>

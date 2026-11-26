@@ -74,7 +74,7 @@ domain/v1/
 
 PMM follows [AIP-122](https://google.aip.dev/122) and [AIP-136](https://google.aip.dev/136) for `google.api.http` paths.
 
-- **Collection identifiers are `lowerCamelCase`** — `/v1/management/enrollmentTokens`, `/v1/advisors/failedServices`. Not kebab-case, not snake_case.
+- **Collection identifiers are `lowerCamelCase`** — `/v1/advisors/notificationSettings`, `/v1/server/leaderHealthCheck`. Not kebab-case, not snake_case.
 - **Custom methods use `:verb` in `lowerCamelCase`** — `/v1/inventory/services:getTypes`, `/v1/realtimeanalytics/sessions:start`.
 - **Path parameters keep the proto field name**, which is `snake_case` — `/v1/management/nodes/{node_id}`.
 
@@ -113,11 +113,11 @@ make gen
 # From api/ directory — generates API code only
 make gen
 
-# Lint proto files
-make check   # runs buf lint
+# From repo root — buf lint, golangci-lint, go-sumtype
+make check
 
-# Serve API docs locally
-cd api && make serve
+# From repo root — serve API docs locally
+make serve
 ```
 
 ### What `make gen` Does

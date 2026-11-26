@@ -1,23 +1,37 @@
 import { render, screen } from '@testing-library/react';
-import { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useAuth } from '@pmm-extensions/api';
+import { AuthContext } from 'contexts/auth';
+import type { OrgRole, User } from 'types/user.types';
+import {
+  TEST_USER_ADMIN,
+  TEST_USER_EDITOR,
+  TEST_USER_VIEWER,
+} from 'utils/testStubs';
 import { OmPage } from './OmPage';
 import { Messages } from './OmPage.messages';
 
-const { useReadonlySettings } = vi.hoisted(() => ({
+const { useReadonlySettings, useUser } = vi.hoisted(() => ({
   useReadonlySettings: vi.fn(),
+  useUser: vi.fn(),
 }));
 
 vi.mock('hooks/api/useSettings', () => ({ useReadonlySettings }));
-vi.mock('contexts/user', () => ({
-  useUser: () => ({ user: { isPMMAdmin: true } }),
-}));
+vi.mock('contexts/user', () => ({ useUser }));
 vi.mock('components/page', () => ({
-  Page: (({ children }) => <>{children}</>) as FC<PropsWithChildren>,
+  Page: (({ children, roles }) => (
+    <div data-testid="page" data-roles={roles?.join(',') ?? 'any'}>
+      {children}
+    </div>
+  )) as FC<PropsWithChildren<{ roles?: OrgRole[] }>>,
 }));
+
+const CanMutate = () => <>{String(useAuth().canMutate)}</>;
 
 describe('OmPage', () => {
   beforeEach(() => {
+    useUser.mockReturnValue({ user: TEST_USER_ADMIN });
     useReadonlySettings.mockReturnValue({
       data: { omEnabled: true },
       isLoading: false,
@@ -55,5 +69,41 @@ describe('OmPage', () => {
 
     expect(screen.getByTestId('om-switched-off')).toBeInTheDocument();
     expect(screen.queryByTestId('om-developer-preview')).toBeNull();
+  });
+
+  it.each<[string, User, string]>([
+    ['an admin may act', TEST_USER_ADMIN, 'true'],
+    ['an editor may only look', TEST_USER_EDITOR, 'false'],
+    ['a viewer may only look', TEST_USER_VIEWER, 'false'],
+  ])('tells the plugin whether %s', (_, user, canMutate) => {
+    useUser.mockReturnValue({ user });
+
+    render(
+      <OmPage>
+        <CanMutate />
+      </OmPage>
+    );
+
+    expect(screen.getByTestId('page')).toHaveTextContent(canMutate);
+  });
+
+  it.each<[string, User | undefined, boolean, string]>([
+    ['admits a signed-in viewer', TEST_USER_VIEWER, false, 'any'],
+    ['turns an anonymous visitor away', undefined, true, ''],
+  ])('%s', (_, user, isAnonymous, roles) => {
+    useUser.mockReturnValue({ user });
+
+    render(
+      <AuthContext.Provider
+        value={{ isLoading: false, isLoggedIn: !isAnonymous, isAnonymous }}
+      >
+        <OmPage>content</OmPage>
+      </AuthContext.Provider>
+    );
+
+    expect(screen.getByTestId('page')).toHaveAttribute('data-roles', roles);
+    expect(useReadonlySettings).toHaveBeenLastCalledWith({
+      enabled: !isAnonymous,
+    });
   });
 });

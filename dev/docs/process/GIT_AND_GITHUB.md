@@ -10,7 +10,7 @@ Make sure your `git user.name` is set, and `user.email` is set to your corporate
 
 Use topic branches in the same repository instead of GitHub forks if you have such permissions.
 
-Name topic branches like this: `PMM-1234-short-description`. Always start with `PMM-XXXX` or `SAAS-XXXX`. Never omit a short description. Separate words with dashes, not underscore. Use only lowercase letters.
+Name topic branches like this: `PMM-1234-short-description`. Always start with `PMM-XXXX`. Never omit a short description. Separate words with dashes, not underscore. Use only lowercase letters.
 
 If you are community contributor and there is no ticket exists, either create one or just use `short-description` style for your forked repo branch.
 

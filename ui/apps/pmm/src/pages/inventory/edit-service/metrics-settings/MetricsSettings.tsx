@@ -1,0 +1,94 @@
+import MenuItem from '@mui/material/MenuItem';
+import Stack from '@mui/material/Stack';
+import {
+  RadioGroup,
+  SelectInput,
+  SwitchInput,
+  TextInput,
+} from '@percona/peak-ui';
+import type { FC } from 'react';
+import type { ManagedServiceType } from 'types/services.types';
+import { getLogLevels } from '../EditService.constants';
+import { Messages } from '../EditService.messages';
+import type { EditServiceFormValues } from '../EditService.schema';
+import { SectionHeader } from '../section-header';
+import { useIsSettingShown } from '../useIsSettingShown';
+import {
+  FIELDS,
+  METRICS_MODE_OPTIONS,
+  SWITCHES,
+} from './MetricsSettings.constants';
+
+const { metrics } = Messages;
+
+interface Props {
+  serviceType: ManagedServiceType;
+}
+
+export const MetricsSettings: FC<Props> = ({ serviceType }) => {
+  const isShown = useIsSettingShown(serviceType);
+  const switches = SWITCHES.filter(([name]) => isShown(name));
+
+  return (
+    <Stack gap={2} data-testid="metrics-settings">
+      <SectionHeader title={metrics.title} />
+      <RadioGroup<EditServiceFormValues>
+        name="metricsMode"
+        label={metrics.metricsMode}
+        options={METRICS_MODE_OPTIONS}
+      />
+      {isShown('logLevel') && (
+        <Stack direction={{ xs: 'column', md: 'row' }} gap={2}>
+          <SelectInput<EditServiceFormValues>
+            name="logLevel"
+            label={metrics.logLevel}
+            formControlProps={{ fullWidth: true }}
+          >
+            {getLogLevels(serviceType).map((level) => (
+              <MenuItem key={level} value={level}>
+                {metrics.logLevels[level]}
+              </MenuItem>
+            ))}
+          </SelectInput>
+          <TextInput<EditServiceFormValues>
+            name="connectionTimeout"
+            label={metrics.connectionTimeout}
+            textFieldProps={{
+              type: 'number',
+              fullWidth: true,
+              helperText: metrics.connectionTimeoutDescription,
+              // Fractional seconds are valid, which the default step of 1 rejects
+              // FIXME: back to slotProps.htmlInput once peak-ui's TextInput merges it
+              inputProps: { step: 'any' },
+            }}
+          />
+        </Stack>
+      )}
+      {FIELDS.filter(([name]) => isShown(name)).map(
+        ([name, label, helperText, isNumber]) => (
+          <TextInput<EditServiceFormValues>
+            key={name}
+            name={name}
+            label={label}
+            textFieldProps={{
+              type: isNumber ? 'number' : 'text',
+              fullWidth: true,
+              helperText,
+            }}
+          />
+        )
+      )}
+      {!!switches.length && (
+        <Stack>
+          {switches.map(([name, label]) => (
+            <SwitchInput<EditServiceFormValues>
+              key={name}
+              name={name}
+              label={label}
+            />
+          ))}
+        </Stack>
+      )}
+    </Stack>
+  );
+};

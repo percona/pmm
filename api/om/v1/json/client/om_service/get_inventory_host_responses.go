@@ -599,6 +599,11 @@ type GetInventoryHostOKBodyHost struct {
 	// the next scan would put it straight back, and in between the fleet would be wrong.
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
 
+	// The MongoDB versions, as major.minor and oldest first, that Operations installs onto
+	// this node's OS release. Empty when it installs none there, the release is not known,
+	// or PMM could not read the supported releases; automation_blocked_reasons says which.
+	SupportedMongodbVersions []string `json:"supported_mongodb_versions"`
+
 	// executor
 	Executor *GetInventoryHostOKBodyHostExecutor `json:"executor,omitempty"`
 
@@ -1380,9 +1385,9 @@ func (o *GetInventoryHostOKBodyHostServicesItems0Freshness) UnmarshalBinary(b []
 /*
 GetInventoryHostOKBodyHostUnregisteredMongodsItems0 UnregisteredMongod is a mongod found running that PMM has no service for.
 //
-// The arbiter case, mostly: PMM registers no service for an arbiter, so nothing else
-// in OM would report the process at all. Also what stands in the way of installing
-// anything over a port that is already taken.
+// Most often an arbiter that was not added to PMM, which nothing else in OM would
+// report at all. Also what stands in the way of installing anything over a port that
+// is already taken.
 swagger:model GetInventoryHostOKBodyHostUnregisteredMongodsItems0
 */
 type GetInventoryHostOKBodyHostUnregisteredMongodsItems0 struct {

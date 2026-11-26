@@ -4,6 +4,7 @@ set -o errexit nounset
 
 declare -r doc_dir=$(git rev-parse --show-toplevel)/documentation
 declare -r img_dir="${doc_dir}/docs/images"
+declare -r readme=$(git rev-parse --show-toplevel)/README.md
 declare -r exceptions="^PMM.png"
 declare -r action="${ACTION:-}"
 declare file=""
@@ -17,7 +18,7 @@ else
 fi
 
 for file in $(ls -1 "${img_dir}"); do
-  if ! grep -r --include "*.md" --include "mkdocs*.yml" -m 1 -q $file "${doc_dir}"; then
+  if ! grep -r --include "*.md" --include "mkdocs*.yml" -m 1 -q $file "${doc_dir}" "${readme}"; then
     if [[ "$file" =~ ${exceptions} ]]; then 
       continue
     fi

@@ -15,6 +15,7 @@ To configure SSH access:
 2. Enter your public key in the **SSH key** field.
 3. Click **Apply changes**.
 
+For more information on AMI deployments, see [Deploy PMM Server on AWS](../aws/deploy_aws.md).
 !!! caution alert alert-warning "Keep a session open while you test"
     PMM won't warn you if you apply a key whose private key you don't have. Applying a new key doesn't disconnect active connections, so you can verify access before closing the old session.
 

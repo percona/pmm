@@ -462,13 +462,18 @@ func (c *Client) processSupervisorRequests(ctx context.Context, reported <-chan 
 				if collect == nil {
 					continue
 				}
-				resp, err := c.channel.SendAndWaitResponse(ctx, collect)
-				if err != nil {
-					c.l.Error(err)
-					continue
-				}
-				if resp == nil {
-					c.l.Warn("Failed to send QanCollect request.")
+				for _, req := range c.splitQANCollectRequest(collect) {
+					resp, err := c.channel.SendAndWaitResponse(ctx, req)
+					if err != nil {
+						c.l.Error(err)
+						break
+					}
+					if resp == nil {
+						// The channel is closed, so the remaining chunks would be no-ops.
+						c.l.Warn("Failed to send QanCollect request.")
+
+						break
+					}
 				}
 			case <-ctx.Done():
 				c.l.Infof("Supervisor QANRequests() channel drained.")
@@ -1224,6 +1229,10 @@ func argListFromPgParams(pParams *agentv1.StartActionRequest_PTPgSummaryParams) 
 	pswd := strings.TrimSpace(pParams.Password)
 	if pswd != "" {
 		args = append(args, "--password", pswd)
+	}
+
+	if pParams.Tls {
+		args = append(args, "--no-disable-ssl")
 	}
 
 	return args

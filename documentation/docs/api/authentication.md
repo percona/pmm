@@ -1,12 +1,5 @@
 # Service accounts authentication
 
-!!! caution alert alert-warning "Deprecation notice"
-    Starting with version 3, PMM no longer uses API keys as the primary method for controlling access to the PMM Server components and resources. Instead, PMM is now leveraging Grafana service accounts, which have limited scopes and offer enhanced security compared to API keys.
-
-### Automatic migration of API keys
-
-When you install PMM v3.x, any existing API keys will be seamlessly converted to service accounts with corresponding service tokens. For more information about the migration, see [Migrate PMM 2 to PMM 3](../pmm-upgrade/migrating_from_pmm_2.md).
-
 Service accounts in PMM provide a secure and efficient way to manage access to the PMM Server and its resources. They serve as a replacement for the basic authentication and API keys used in previous versions of PMM (v.2 and earlier).
 
 With service accounts, you can:
@@ -21,6 +14,14 @@ Creating multiple tokens for the same service account is beneficial in the follo
 - when a token becomes compromised and needs to be replaced. Instead of revoking the entire service account, you can rotate or replace the affected token without disrupting other applications using the same service account.
 - when you want to implement token lifecycle management. You can set expiration dates for individual tokens, ensuring that they are regularly rotated and reducing the risk of unauthorized access.
 
+## Migrate from API keys
+
+Starting with PMM 3, Grafana service accounts replace API keys for controlling access to PMM Server. Service accounts have limited scopes, so each one gets only the permissions that it needs. 
+
+When you upgrade from PMM 2, PMM converts your existing API keys to service accounts with matching service tokens. 
+
+To prepare the rest of the upgrade, follow [Migrate PMM 2 to PMM 3](../pmm-upgrade/migrating_from_pmm_2.md).
+
 ## Service Account name management
 
 To prevent node registration failures, PMM automatically manages service account names that exceed 200 characters using a `{prefix}_{hash}` pattern. For example, a very long service account name will be automatically shortened while maintaining uniqueness:
@@ -30,7 +31,11 @@ To prevent node registration failures, PMM automatically manages service account
 
 ## Generate a service account and token
 
-PMM uses Grafana service account tokens for authentication. These tokens are randomly generated strings that serve as alternatives to API keys or basic authentication passwords.
+PMM uses Grafana service account tokens for authentication. These tokens are randomly generated strings that serve as alternatives to API keys or basic authentication passwords. 
+
+If [access control](../admin/roles/access-control/intro.md) is enabled, though, a token can't read Query Analytics or metrics data, because it has no access roles to filter the data by. 
+
+For these API calls, authenticate with a user account that has the matching access role instead.
 
 Here's how to generate a service account token:
 {.power-number}

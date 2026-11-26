@@ -56,6 +56,7 @@ const (
 // RunBootstrapStepper drives bootstrap runs forward until ctx is cancelled; it must run on the HA leader only.
 // Each tick re-reads run state from PMM Extensions, so a new leader after a failover resumes where the last stopped.
 func (s *Service) RunBootstrapStepper(ctx context.Context) {
+	ctx = asService(ctx)
 	ticker := time.NewTicker(bootstrapPollInterval)
 	defer ticker.Stop()
 
@@ -237,7 +238,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *extensionsBoots
 			s.l.Warnf("bootstrap run %s: executor %s has no row in the inventory app yet", run.ID, host.Host)
 			continue
 		}
-		err = s.registerBootstrapHost(ctx, inventoryHost.NodeID, host.Host, run.ReplicaSetName, environment, cluster,
+		err = s.registerBootstrapHost(ctx, inventoryHost.NodeID, host.Host, run.ReplicaSetName, run.Port, environment, cluster,
 			secret.MongoDBUsername, secret.MongoDBPassword)
 		if err != nil {
 			s.l.Warnf("bootstrap run %s: failed to register %s with PMM: %s", run.ID, host.Host, err)

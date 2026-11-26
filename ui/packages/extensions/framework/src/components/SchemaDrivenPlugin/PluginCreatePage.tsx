@@ -85,6 +85,7 @@ export function PluginCreatePage({
   const itemName = resolveItemDisplayName(recordSchema);
   const sections = multi ? entitySchema!.forms : schema.forms!;
   const capabilities = multi ? undefined : schema.capabilities;
+  const failRules = multi ? entitySchema!.fail_when : schema.fail_when;
 
   const [{ submitError, fieldErrors }, setSubmitErrorState] =
     useState<SubmitErrorState>(EMPTY_SUBMIT_ERROR);
@@ -168,6 +169,7 @@ export function PluginCreatePage({
         onSubmit: handleSubmit,
         loading: create.isPending,
         capabilities,
+        failRules,
         renderField,
         submitError,
         fieldErrors,
@@ -180,6 +182,7 @@ export function PluginCreatePage({
           submitError={submitError}
           fieldErrors={fieldErrors}
           capabilities={capabilities}
+          failRules={failRules}
           itemName={itemName}
           renderField={renderField}
         />

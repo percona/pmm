@@ -47,6 +47,16 @@ func GetTestMongoDBReplicatedDSN(tb testing.TB) string {
 	return "mongodb://127.0.0.1:27020,127.0.0.1:27021/admin?replicaSet=rs0"
 }
 
+// GetTestMongoDBArbiterDSN returns DNS for the arbiter of the MongoDB test replica set with authentication.
+// An arbiter stores no users, so the DSN has no credentials.
+func GetTestMongoDBArbiterDSN(tb testing.TB) string {
+	tb.Helper()
+	if testing.Short() {
+		tb.Skip("-short flag is passed, skipping test with real database.")
+	}
+	return "mongodb://127.0.0.1:27025/admin?directConnection=true"
+}
+
 // GetTestMongoDBWithSSLDSN returns DNS template and files for MongoDB test database with ssl.
 func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentv1.TextFiles) {
 	tb.Helper()

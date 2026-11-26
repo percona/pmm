@@ -17,6 +17,8 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
+
+	managementv1 "github.com/percona/pmm/api/management/v1"
 )
 
 // ensure the imports are used
@@ -33,6 +35,8 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 	_ = sort.Sort
+
+	_ = managementv1.Severity(0)
 )
 
 // Validate checks the field values on VersionInfo with the rules defined in
@@ -154,8 +158,7 @@ func (e VersionInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionInfoValidationError{}
@@ -257,8 +260,7 @@ func (e VersionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionRequestValidationError{}
@@ -420,8 +422,7 @@ func (e VersionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionResponseValidationError{}
@@ -521,8 +522,7 @@ func (e ReadinessRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadinessRequestValidationError{}
@@ -624,8 +624,7 @@ func (e ReadinessResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadinessResponseValidationError{}
@@ -727,8 +726,7 @@ func (e LeaderHealthCheckRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LeaderHealthCheckRequestValidationError{}
@@ -830,8 +828,7 @@ func (e LeaderHealthCheckResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LeaderHealthCheckResponseValidationError{}
@@ -937,8 +934,7 @@ func (e CheckUpdatesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckUpdatesRequestValidationError{}
@@ -1077,8 +1073,7 @@ func (e DockerVersionInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DockerVersionInfoValidationError{}
@@ -1271,8 +1266,7 @@ func (e CheckUpdatesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckUpdatesResponseValidationError{}
@@ -1374,8 +1368,7 @@ func (e ListChangeLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListChangeLogsRequestValidationError{}
@@ -1540,8 +1533,7 @@ func (e ListChangeLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListChangeLogsResponseValidationError{}
@@ -1647,8 +1639,7 @@ func (e UpdateStatusRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateStatusRequestValidationError{}
@@ -1754,8 +1745,7 @@ func (e UpdateStatusResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateStatusResponseValidationError{}
@@ -1944,8 +1934,7 @@ func (e MetricsResolutionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MetricsResolutionsValidationError{}
@@ -1957,196 +1946,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = MetricsResolutionsValidationError{}
-
-// Validate checks the field values on AdvisorRunIntervals with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AdvisorRunIntervals) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AdvisorRunIntervals with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AdvisorRunIntervalsMultiError, or nil if none found.
-func (m *AdvisorRunIntervals) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AdvisorRunIntervals) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetStandardInterval()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AdvisorRunIntervalsValidationError{
-					field:  "StandardInterval",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AdvisorRunIntervalsValidationError{
-					field:  "StandardInterval",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetStandardInterval()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AdvisorRunIntervalsValidationError{
-				field:  "StandardInterval",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetRareInterval()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AdvisorRunIntervalsValidationError{
-					field:  "RareInterval",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AdvisorRunIntervalsValidationError{
-					field:  "RareInterval",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRareInterval()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AdvisorRunIntervalsValidationError{
-				field:  "RareInterval",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetFrequentInterval()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AdvisorRunIntervalsValidationError{
-					field:  "FrequentInterval",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AdvisorRunIntervalsValidationError{
-					field:  "FrequentInterval",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetFrequentInterval()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AdvisorRunIntervalsValidationError{
-				field:  "FrequentInterval",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AdvisorRunIntervalsMultiError(errors)
-	}
-
-	return nil
-}
-
-// AdvisorRunIntervalsMultiError is an error wrapping multiple validation
-// errors returned by AdvisorRunIntervals.ValidateAll() if the designated
-// constraints aren't met.
-type AdvisorRunIntervalsMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AdvisorRunIntervalsMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AdvisorRunIntervalsMultiError) AllErrors() []error { return m }
-
-// AdvisorRunIntervalsValidationError is the validation error returned by
-// AdvisorRunIntervals.Validate if the designated constraints aren't met.
-type AdvisorRunIntervalsValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AdvisorRunIntervalsValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AdvisorRunIntervalsValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AdvisorRunIntervalsValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AdvisorRunIntervalsValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AdvisorRunIntervalsValidationError) ErrorName() string {
-	return "AdvisorRunIntervalsValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AdvisorRunIntervalsValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAdvisorRunIntervals.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause,
-	)
-}
-
-var _ error = AdvisorRunIntervalsValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AdvisorRunIntervalsValidationError{}
 
 // Validate checks the field values on Settings with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
@@ -2242,35 +2041,6 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for PmmPublicAddress
 
-	if all {
-		switch v := interface{}(m.GetAdvisorRunIntervals()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, SettingsValidationError{
-					field:  "AdvisorRunIntervals",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, SettingsValidationError{
-					field:  "AdvisorRunIntervals",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetAdvisorRunIntervals()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingsValidationError{
-				field:  "AdvisorRunIntervals",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	// no validation rules for BackupManagementEnabled
 
 	// no validation rules for AzurediscoverEnabled
@@ -2286,6 +2056,37 @@ func (m *Settings) validate(all bool) error {
 	// no validation rules for ExtensionsEnabled
 
 	// no validation rules for OmEnabled
+
+	// no validation rules for AdvisorNotificationsEnabled
+
+	if all {
+		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAdvisorHistoryRetention()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingsValidationError{
+				field:  "AdvisorHistoryRetention",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
@@ -2351,8 +2152,7 @@ func (e SettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SettingsValidationError{}
@@ -2472,8 +2272,7 @@ func (e ReadOnlySettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadOnlySettingsValidationError{}
@@ -2575,8 +2374,7 @@ func (e GetSettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetSettingsRequestValidationError{}
@@ -2678,8 +2476,7 @@ func (e GetReadOnlySettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetReadOnlySettingsRequestValidationError{}
@@ -2810,8 +2607,7 @@ func (e GetSettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetSettingsResponseValidationError{}
@@ -2943,8 +2739,7 @@ func (e GetReadOnlySettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetReadOnlySettingsResponseValidationError{}
@@ -3038,11 +2833,11 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetAdvisorRunIntervals()).(type) {
+		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
-					field:  "AdvisorRunIntervals",
+					field:  "AdvisorHistoryRetention",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -3050,16 +2845,16 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
-					field:  "AdvisorRunIntervals",
+					field:  "AdvisorHistoryRetention",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAdvisorRunIntervals()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetAdvisorHistoryRetention()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeSettingsRequestValidationError{
-				field:  "AdvisorRunIntervals",
+				field:  "AdvisorHistoryRetention",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -3141,6 +2936,41 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		// no validation rules for EnableOm
 	}
 
+	if m.EnableAdvisorNotifications != nil {
+		// no validation rules for EnableAdvisorNotifications
+	}
+
+	if m.AdvisorNotificationEmailAddresses != nil {
+		if all {
+			switch v := interface{}(m.GetAdvisorNotificationEmailAddresses()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "AdvisorNotificationEmailAddresses",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "AdvisorNotificationEmailAddresses",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetAdvisorNotificationEmailAddresses()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeSettingsRequestValidationError{
+					field:  "AdvisorNotificationEmailAddresses",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ChangeSettingsRequestMultiError(errors)
 	}
@@ -3208,8 +3038,7 @@ func (e ChangeSettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeSettingsRequestValidationError{}
@@ -3340,8 +3169,7 @@ func (e ChangeSettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeSettingsResponseValidationError{}

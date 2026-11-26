@@ -3,6 +3,7 @@ import { type MRT_Row } from 'material-react-table';
 import { ALL_STATES_FILTER, SILENCED_FILTER } from '../AlertsPage.constants';
 import { AlertRow, AlertsTableRow } from '../AlertsPage.types';
 import { groupAlertsByNode } from '../AlertsPage.utils';
+import { getSeverityBand, SEVERITY_BAND_ORDER } from '../alert-severity';
 import { GRAFANA_SUB_PATH, TIME_FORMAT } from 'lib/constants';
 import { tz } from '@date-fns/tz/tz';
 import {
@@ -133,4 +134,24 @@ export const sortByService = (a: AlertsTableRow, b: AlertsTableRow) => {
   const valueA = a.serviceName === NO_VALUE ? '' : a.serviceName;
   const valueB = b.serviceName === NO_VALUE ? '' : b.serviceName;
   return valueA.localeCompare(valueB, undefined, { sensitivity: 'base' });
+};
+
+export const UNKNOWN_SEVERITY = 'unknown';
+
+// Rows are filtered by severity band, so an Emergency alert matches Critical.
+export const getSeverityFilterValue = (severity?: string) =>
+  getSeverityBand(severity) ?? UNKNOWN_SEVERITY;
+
+// Most severe first; unrecognized severities sort last.
+const severityRank = (severity?: string) => {
+  const band = getSeverityBand(severity);
+  return band ? SEVERITY_BAND_ORDER.indexOf(band) : SEVERITY_BAND_ORDER.length;
+};
+
+export const sortBySeverity = (a: AlertsTableRow, b: AlertsTableRow) => {
+  if (a.type === 'node' || b.type === 'node') {
+    return 0;
+  }
+
+  return severityRank(a.labels.severity) - severityRank(b.labels.severity);
 };

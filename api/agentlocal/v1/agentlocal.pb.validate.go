@@ -191,8 +191,7 @@ func (e ServerInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ServerInfoValidationError{}
@@ -301,8 +300,7 @@ func (e AgentInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AgentInfoValidationError{}
@@ -404,8 +402,7 @@ func (e StatusRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StatusRequestValidationError{}
@@ -580,8 +577,7 @@ func (e StatusResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StatusResponseValidationError{}
@@ -681,8 +677,7 @@ func (e ReloadRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReloadRequestValidationError{}
@@ -782,8 +777,7 @@ func (e ReloadResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReloadResponseValidationError{}

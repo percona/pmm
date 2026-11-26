@@ -158,7 +158,11 @@ export type AlertSeverity =
   | 'warning'
   | 'notice'
   | 'info'
+  | 'informational'
   | 'debug';
+
+// PMM collapses the eight RFC5424 levels into four display bands, see PMM-15239.
+export type AlertSeverityBand = 'critical' | 'error' | 'warning' | 'info';
 
 export type GrafanaRulerLabels = Record<string, string>;
 export type GrafanaRulerAnnotations = Record<string, string>;

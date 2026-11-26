@@ -136,7 +136,7 @@ var metricSignals = []metricSignal{
 			{fieldClusterRole, "cl_role"},
 		},
 	},
-	{metric: metricUp, valueField: fieldExporterUp},
+	{metric: metricUp, labels: []labelSignal{{fieldNodeType, "cluster_role"}}, valueField: fieldExporterUp},
 	{metric: metricMongosShards, presenceField: fieldIsMongos},
 	// Each member reports lag against every secondary; the max is the worst lag this node saw.
 	{metric: metricReplicationLag, valueField: fieldReplicationLag, reduceMax: true},
@@ -330,7 +330,7 @@ func (r *metricsRun) observedAt(age float64) *time.Time {
 // each skips samples without a service_id label; guessing from the instance label would mix
 // exporter generations.
 func (s metricsSource) each(ctx context.Context, result *SourceResult, query string, apply func(string, model.Metric, float64)) {
-	value, warnings, err := s.vm.Query(ctx, query, s.now)
+	value, warnings, _, err := s.vm.Query(ctx, query, s.now)
 	if err != nil {
 		s.l.Warnf("query '%s' failed: %s", query, err)
 		result.Errors = append(result.Errors, RunError{

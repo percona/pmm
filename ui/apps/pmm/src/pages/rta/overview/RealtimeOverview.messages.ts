@@ -3,5 +3,4 @@ export const Messages = {
   pause: 'Pause',
   resume: 'Resume',
   refresh: 'Refresh',
-  export: 'Export',
 };

@@ -99,13 +99,6 @@ describe('useFirstLoginRedirect', () => {
     expect(localStorage.getItem(FIRST_LOGIN_KEY)).toBeNull();
   });
 
-  it('does not redirect an anonymous user', () => {
-    renderAt('/graph', { ...TEST_USER_ADMIN, isAnonymous: true });
-
-    expect(screen.getByTestId('location')).toHaveTextContent('/graph');
-    expect(localStorage.getItem(FIRST_LOGIN_KEY)).toBeNull();
-  });
-
   it('does not yank the user off a page they opened while the user was still loading', () => {
     // `user` resolves after mount, by which time the user may have clicked into a dashboard.
     render(<LateUser path="/graph/" />);

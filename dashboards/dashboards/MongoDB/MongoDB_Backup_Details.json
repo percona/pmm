@@ -721,12 +721,304 @@
             "type": "state-timeline"
         },
         {
+            "description": "PBM agents that are failing right now, one row per agent. Healthy agents and arbiters, which can't run pbm-agent, are not listed.\n\n**FAIL**: pbm-agent reports an error connecting to PBM, mongod or backup storage, or no pbm-agent has registered on the node. **DOWN**: PBM lost the agent's heartbeat; the agent is stopped or unreachable. Run `pbm status` on the node for the exact reason.\n\n**Failing for**: time since the agent last reported OK, or since PMM first saw it, within the last 24 hours. **N/A** when the node isn't monitored by PMM.\n\n**PMM service** opens the node's MongoDB Instance Summary. It's empty when the node's own exporter isn't reporting, for example when the node is down.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "noValue": "No failing backup agents",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "1": {
+                                                "color": "red",
+                                                "index": 0,
+                                                "text": "FAIL"
+                                            },
+                                            "2": {
+                                                "color": "red",
+                                                "index": 1,
+                                                "text": "DOWN"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background"
+                                }
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Failing for"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "-1": {
+                                                "index": 0,
+                                                "text": "N/A"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "unit",
+                                "value": "dtdurations"
+                            },
+                            {
+                                "id": "noValue",
+                                "value": "> 24h"
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PMM service"
+                        },
+                        "properties": [
+                            {
+                                "id": "filterable",
+                                "value": false
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "MongoDB Instance Summary",
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?var-service_name=${__data.fields.service_name:percentencode}&${__url_time_range}"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "PMM node"
+                        },
+                        "properties": [
+                            {
+                                "id": "filterable",
+                                "value": false
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Host"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 300
+                            },
+                            {
+                                "id": "filterable",
+                                "value": false
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Replica set"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            },
+                            {
+                                "id": "filterable",
+                                "value": false
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byType",
+                            "options": "string"
+                        },
+                        "properties": [
+                            {
+                                "id": "noValue",
+                                "value": ""
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 18
+            },
+            "id": 14,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "enablePagination": true,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Status"
+                    },
+                    {
+                        "desc": false,
+                        "displayName": "Host"
+                    }
+                ]
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (environment, cluster, replica_set, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0",
+                    "format": "table",
+                    "instant": true,
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "(((time() - max_over_time(timestamp(max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self!=\"0\"}) == 0)[24h:1m])) or ((time() - min_over_time(timestamp(max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self!=\"0\"}))[24h:1m])) < 86340)) or (((max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0) unless on (environment, cluster, host) max by (environment, cluster, host) (max_over_time(mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self!=\"0\"}[7d]))) * 0 - 1)) and on (environment, cluster, host) (max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0)",
+                    "format": "table",
+                    "instant": true,
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (environment, cluster, host, service_name, node_name) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\", self=\"1\"}) and on (environment, cluster, host) (max by (environment, cluster, host) (mongodb_pbm_agent_status{environment=~\"$environment\", cluster=~\"$cluster\", role!=\"A\"}) > 0)",
+                    "format": "table",
+                    "instant": true,
+                    "range": false,
+                    "refId": "C"
+                }
+            ],
+            "title": "Failing Backup Agents",
+            "transformations": [
+                {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
+                    "id": "partitionByValues",
+                    "options": {
+                        "fields": [
+                            "Value #A"
+                        ],
+                        "keepFields": true,
+                        "naming": {
+                            "asLabels": false
+                        }
+                    }
+                },
+                {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Value #C": true
+                        },
+                        "includeByName": {},
+                        "indexByName": {
+                            "Value #A": 0,
+                            "Value #B": 5,
+                            "cluster": 3,
+                            "environment": 4,
+                            "host": 1,
+                            "node_name": 7,
+                            "replica_set": 2,
+                            "service_name": 6
+                        },
+                        "renameByName": {
+                            "Value #A": "Status",
+                            "Value #B": "Failing for",
+                            "cluster": "Cluster",
+                            "environment": "Environment",
+                            "host": "Host",
+                            "node_name": "PMM node",
+                            "replica_set": "Replica set",
+                            "service_name": "PMM service"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
             "collapsed": false,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 18
+                "y": 28
             },
             "id": 9,
             "panels": [],
@@ -789,7 +1081,7 @@
                 "h": 9,
                 "w": 24,
                 "x": 0,
-                "y": 19
+                "y": 29
             },
             "id": 6,
             "options": {
@@ -937,7 +1229,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 0,
-                "y": 28
+                "y": 38
             },
             "id": 4,
             "options": {
@@ -1047,7 +1339,7 @@
                 "h": 9,
                 "w": 12,
                 "x": 12,
-                "y": 28
+                "y": 38
             },
             "id": 5,
             "options": {

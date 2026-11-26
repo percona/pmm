@@ -87,7 +87,7 @@ The Query Analytics panel lives in `pmm-app/src/pmm-qan/` and is registered as a
 - **Config**: `pmm-app/jest.config.js` extends `pmm-app/.config/jest.config.js`; sets `TZ=GMT`
 - **Pattern**: ~35 co-located `*.test.tsx` / `*.test.ts` files under `pmm-app/src/`
 - **Run**: `make test` (from `dashboards/`) or `yarn test:ci` (from `pmm-app/`)
-- **Linting**: `yarn lint` runs ESLint on `src/**/*.{ts,tsx}`; `yarn typecheck` runs `tsc --noEmit`
+- **Linting**: `yarn lint:check` runs ESLint on `src/` as CI does (`yarn lint` applies `--fix`); `yarn typecheck` runs `tsc --noEmit`
 
 ## Development Workflow
 
@@ -108,7 +108,7 @@ yarn build
 yarn test:ci
 
 # Lint and typecheck
-yarn lint && yarn typecheck
+yarn lint:check && yarn typecheck
 ```
 
 ### Docker Development

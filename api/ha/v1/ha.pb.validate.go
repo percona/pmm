@@ -122,8 +122,7 @@ func (e ListNodesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListNodesRequestValidationError{}
@@ -227,8 +226,7 @@ func (e HANodeValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = HANodeValidationError{}
@@ -366,8 +364,7 @@ func (e ListNodesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListNodesResponseValidationError{}
@@ -467,8 +464,7 @@ func (e StatusRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StatusRequestValidationError{}
@@ -572,8 +568,7 @@ func (e StatusResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StatusResponseValidationError{}

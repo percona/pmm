@@ -1,6 +1,6 @@
 import {
-  FC,
-  PropsWithChildren,
+  type FC,
+  type PropsWithChildren,
   useEffect,
   useMemo,
   useRef,
@@ -15,6 +15,7 @@ import {
   ensureClientSessionListener,
   useClientSession,
 } from './auth.clientSession';
+import { MIN_ROTATE_DELAY_MS } from './auth.constants';
 import { ROTATE_TOKEN_QUERY_KEY } from './auth.queryKeys';
 import {
   getRefetchInterval,
@@ -23,7 +24,7 @@ import {
 } from './auth.utils';
 import { consumeReturnTo } from './auth.returnTo';
 import { constructUrl } from 'utils/link.utils';
-import { AxiosError, HttpStatusCode } from 'axios';
+import { type AxiosError, HttpStatusCode } from 'axios';
 import { useFrontendSettings } from 'hooks/api/useSettings';
 
 export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
@@ -38,23 +39,35 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     ensureClientSessionListener();
   }, []);
 
-  const { error, isLoading, data } = useQuery({
+  const { error, isLoading, isFetched, data } = useQuery({
     queryKey: ROTATE_TOKEN_QUERY_KEY,
     queryFn: async () => {
       const token = await rotateToken();
       establishClientSession();
       return token;
     },
-    refetchInterval: () => getRefetchInterval(),
+    refetchInterval: (query) => {
+      if (query.state.data) {
+        return getRefetchInterval();
+      }
+      // An anonymous visitor has no session to rotate. Anyone else retries soon, not at the
+      // session deadline, so a failed check (a 502 while Grafana starts) recovers.
+      return settings.data?.anonymousEnabled ? false : MIN_ROTATE_DELAY_MS;
+    },
     refetchIntervalInBackground: true,
-    refetchOnWindowFocus: () => (isSessionExpired() ? 'always' : false),
+    // Without a session, returning to the tab checks for a sign-in made in another tab.
+    refetchOnWindowFocus: (query) =>
+      !query.state.data || isSessionExpired() ? 'always' : false,
     retry: false,
   });
 
+  // A refetch without data goes back to pending; holding the tree back then would re-mount the
+  // Grafana iframe, so only the first check counts as loading.
+  const isCheckingSession = isLoading && !isFetched;
   const hasServerSession = Boolean(data);
   const isLoggedIn = hasServerSession && clientSessionEstablished;
-  const isAuthenticated =
-    isLoggedIn || Boolean(settings.data?.anonymousEnabled);
+  const isAnonymous = !isLoggedIn && Boolean(settings.data?.anonymousEnabled);
+  const isAuthenticated = isLoggedIn || isAnonymous;
 
   // Pick up the URL the user asked for before being bounced to login.
   useEffect(() => {
@@ -110,7 +123,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     settings.data?.anonymousEnabled,
   ]);
 
-  if (isLoading || settings.isLoading) {
+  if (isCheckingSession || settings.isLoading) {
     return null;
   }
 
@@ -134,7 +147,9 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ isLoading, isLoggedIn }}>
+    <AuthContext.Provider
+      value={{ isLoading: isCheckingSession, isLoggedIn, isAnonymous }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -29,8 +29,7 @@ export const useFirstLoginRedirect = () => {
     if (
       !bootedAtHomeRef.current ||
       !GRAFANA_HOME_PATHS.includes(location.pathname) ||
-      !user ||
-      user.isAnonymous
+      !user
     ) {
       return;
     }

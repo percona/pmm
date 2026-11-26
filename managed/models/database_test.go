@@ -558,4 +558,44 @@ func TestDatabaseMigrations(t *testing.T) {
 		}
 		assert.Equal(t, expected, actual)
 	})
+
+	t.Run("advisor schedules and runs migrations: interval settings are dropped, the switch kept and the default schedule created", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(127))
+		t.Cleanup(func() {
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		_, err := sqlDB.ExecContext(
+			t.Context(),
+			`UPDATE settings SET settings = settings || jsonb_build_object('sass', jsonb_build_object(
+				'enabled', false,
+				'advisor_run_intervals', jsonb_build_object('rare_interval', 280800000000000)))`,
+		)
+		require.NoError(t, err)
+
+		// the default schedule is created on the full schema only
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, nil)
+
+		var hasSaaS bool
+		var advisors string
+		err = sqlDB.QueryRowContext(t.Context(), `SELECT settings ? 'sass', settings ->> 'advisors' FROM settings`).Scan(&hasSaaS, &advisors)
+		require.NoError(t, err)
+		assert.False(t, hasSaaS)
+		assert.JSONEq(t, `{"enabled": false}`, advisors)
+
+		var names []string
+		err = sqlDB.QueryRowContext(t.Context(), `SELECT array_agg(name) FROM advisor_schedules`).Scan(pq.Array(&names))
+		require.NoError(t, err)
+		assert.Equal(t, []string{"All checks daily"}, names)
+
+		// deleting every schedule is a choice the next start keeps
+		_, err = sqlDB.ExecContext(t.Context(), `DELETE FROM advisor_schedules`)
+		require.NoError(t, err)
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, nil)
+
+		var count int
+		err = sqlDB.QueryRowContext(t.Context(), `SELECT count(*) FROM advisor_schedules`).Scan(&count)
+		require.NoError(t, err)
+		assert.Zero(t, count)
+	})
 }
