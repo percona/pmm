@@ -577,7 +577,7 @@ func (r queryDetailResult) render() string {
 		if r.rawSQL {
 			label = "example:"
 		}
-		parts = append(parts, label+"\n```sql\n"+indentLines(r.Example)+"\n```")
+		parts = append(parts, label+"\n"+fenced("sql", indentLines(r.Example)))
 	}
 	for _, p := range []struct {
 		call string
@@ -794,8 +794,8 @@ func checkQANValue(input, value string) error {
 	return nil
 }
 
-// withheldFingerprint replaces a SQL fingerprint that still holds a literal.
-const withheldFingerprint = "(fingerprint withheld: PMM stored this statement unnormalized, and PMM_MCP_RAW_SQL is off)"
+// withheldFingerprint replaces a fingerprint that holds a literal or can't be masked reliably.
+const withheldFingerprint = "(fingerprint withheld: it can't be masked reliably, and PMM_MCP_RAW_SQL is off)"
 
 // fingerprintText masks a fingerprint unless raw SQL is on, under its engine's quoting or, if unknown, under both:
 // a SQL one with a quoted string is a raw statement and is withheld. A text that starts with "db." and is not of a

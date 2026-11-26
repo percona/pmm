@@ -116,7 +116,7 @@ func (r explainResult) render() string {
 	if !r.Live {
 		header = "Stored plan (pg_stat_monitor, planid " + r.planID + "):"
 	}
-	text := header + "\n```\n" + r.Plan + "\n```"
+	text := header + "\n" + fenced("", r.Plan)
 	if r.Truncated {
 		text += "\n" + cutNote("plan", maxPlanBytes)
 	}
@@ -652,12 +652,12 @@ func schemaBodies(svc serviceInfo, t tableRef) (actions_service.StartServiceActi
 
 // schemaPart renders one action's part of its table's block.
 func schemaPart(indexes bool, text string, cut bool, pe *partError) string {
-	what, part := "definition", "```sql\n"+text+"\n```"
+	what, part := "definition", fenced("sql", text)
 	switch {
 	case pe != nil:
 		return fmt.Sprintf("error: %s\n%s", pe.Code, pe.Message)
 	case indexes:
-		what, part = "indexes", "indexes:\n```\n"+text+"\n```"
+		what, part = "indexes", "indexes:\n"+fenced("", text)
 	case strings.TrimSpace(text) == "":
 		return "No DDL returned for that table."
 	}
@@ -671,7 +671,7 @@ func schemaPart(indexes bool, text string, cut bool, pe *partError) string {
 // until it is done or ctx ends; ctx carries the tool call's one action
 // deadline. With redact set, literals in the action's error are masked.
 func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_service.StartServiceActionBody, redact bool) (string, error) {
-	// The start ends cancelTimeout after the call, so that an action that pmm-agent got as the call ended is cancelled.
+	// The start can outlast the call by cancelTimeout, so that an action that pmm-agent got as the call ended is cancelled.
 	startCtx, cancelStart := context.WithCancel(context.WithoutCancel(ctx))
 	stopStart := context.AfterFunc(ctx, func() { time.AfterFunc(cancelTimeout, cancelStart) })
 	started, err := s.api.StartServiceAction(startCtx, auth, body)

@@ -1134,11 +1134,11 @@ func TestQANTextKeepsValuesInPlace(t *testing.T) {
 		"   SELECT *",
 		"   FROM orders",
 		"example:",
-		"```sql",
+		"````sql",
 		"   SELECT *",
 		"   ```",
 		"   partial: qan:getMetrics failed (timeout)",
-		"```",
+		"````",
 		"",
 		"[View this query in PMM QAN ↗](https://pmm.example.com/qan)",
 	}, "\n"), detail.render())

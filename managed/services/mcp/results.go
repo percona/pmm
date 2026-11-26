@@ -18,6 +18,7 @@ package mcp
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 	"unicode/utf8"
 )
@@ -102,6 +103,15 @@ var lineBreak = regexp.MustCompile(`\r\n|[\n\v\f\r\x{85}\x{2028}\x{2029}]`)
 // indentLines indents every line of s by three spaces, so that a multi-line value such as a statement stays inside its entry of a text.
 func indentLines(s string) string {
 	return "   " + lineBreak.ReplaceAllLiteralString(s, "\n   ")
+}
+
+// fenced wraps s in a Markdown code block whose fence is longer than any run of backticks in s.
+func fenced(lang, s string) string {
+	fence := "```"
+	for strings.Contains(s, fence) {
+		fence += "`"
+	}
+	return fence + lang + "\n" + s + "\n" + fence
 }
 
 // capText cuts s to at most maxBytes on a UTF-8 boundary and reports whether it cut.

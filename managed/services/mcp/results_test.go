@@ -103,6 +103,14 @@ func TestPaginate(t *testing.T) {
 	}
 }
 
+func TestFenced(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "```sql\nSELECT 1\n```", fenced("sql", "SELECT 1"))
+	assert.Equal(t, "````\na ``` b\n````", fenced("", "a ``` b"))
+	assert.Equal(t, "`````\n````\n`````", fenced("", "````"))
+}
+
 func TestCapText(t *testing.T) {
 	t.Parallel()
 
