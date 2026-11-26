@@ -40,6 +40,8 @@ func TestCheckExpr(t *testing.T) {
 		capped   = "the cap is 7d"
 		perValue = "it creates a series for each distinct value, so its result can't be bounded"
 		perPhi   = "it creates a series for each phi argument, so its result grows with its arguments"
+		// subtracts is the hint of a duration with a minus sign after its first character.
+		subtracts = "subtracts a term; write each window, offset and subquery step without a minus sign inside, as a sum such as 19d22h"
 	)
 	for _, tc := range []struct {
 		name string
@@ -288,6 +290,20 @@ func TestCheckExpr(t *testing.T) {
 		{expr: `rate(mysql_global_status_questions[5m])[1151i:1d]`, want: []string{capped, "reads 1154d5m"}},
 		{expr: `rate(mysql_global_status_questions[5m])[1900i:1h]`, want: []string{capped, "reads 79d7h5m"}},
 		{expr: `mysql_global_status_questions[1h:1d] offset 1000i`, want: []string{capped, "reads 1003d1h5m"}},
+
+		// A window, offset or subquery step that subtracts is refused: a negative i term shrinks it as the step grows.
+		{expr: `count(last_over_time(up[1h:1d] offset 20d))`, want: []string{capped, "reads 23d1h5m"}},
+		{expr: `count(last_over_time(up[1h:1d] offset 20d-20i))`, want: []string{subtracts, "the duration 20d-20i subtracts"}},
+		{expr: `count(last_over_time(up[1h:1d] offset 3650d-3650i))`, want: []string{subtracts, "the duration 3650d-3650i subtracts"}},
+		{expr: `max_over_time(rate(mysql_global_status_questions{service_name="db1"}[5m])[1000d:1d])`, want: []string{capped}},
+		{
+			expr: `max_over_time(rate(mysql_global_status_questions{service_name="db1"}[5m])[1000d-1000i:1d])`,
+			want: []string{subtracts, "the duration 1000d-1000i subtracts"},
+		},
+		{name: "a subquery step that subtracts", expr: `max_over_time(rate(x{service_name="a"}[5m])[1h: 1d-23h])`, want: []string{subtracts, "1d-23h"}},
+		{name: "a selector window that subtracts", expr: `rate(x{service_name="a"}[1h-1i])`, span: time.Hour, want: []string{subtracts, "1h-1i"}},
+		{name: "a negative offset that subtracts", expr: `x{service_name="a"} offset -1h-1i`, want: []string{subtracts, "-1h-1i"}},
+		{name: "a window that adds an i term", expr: `rate(x{service_name="a"}[1h1i])`, span: time.Hour},
 
 		// A subquery no step was written for may take at most 4,000 points per series at the query's step.
 		{
