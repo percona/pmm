@@ -296,7 +296,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.EnableMCP = &b
 
 		case pkgenv.MCPRawSQL:
-			// Not a stored setting: pmm-managed reads it at startup with env.GetBool.
+			// Not a stored setting: pmm-managed reads it at startup with env.GetMCPRawSQL.
 			_, err := strconv.ParseBool(v)
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value '%s' for environment variable %s", v, k))
