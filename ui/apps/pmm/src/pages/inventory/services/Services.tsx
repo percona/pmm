@@ -23,7 +23,7 @@ import { PMM_ADD_SERVICE_URL } from 'lib/constants';
 import { enqueueSnackbar } from 'notistack';
 import { type FC, useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { DeleteModal } from '../components/delete-modal';
+import { DeleteModal } from 'components/delete-modal';
 import {
   CLUSTERS_SWITCH_KEY,
   getUrlStateOptions,
@@ -253,6 +253,7 @@ export const Services: FC = () => {
         }}
       />
       <DeleteModal
+        testId="inventory-delete-modal"
         open={!!servicesToDelete.length}
         title={Messages.delete.title}
         warning={Messages.delete.warning}

@@ -21,7 +21,7 @@ import { type FC, useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router-dom';
 import type { ManagedAgent } from 'types/agent.types';
 import { OrgRole } from 'types/user.types';
-import { DeleteModal } from '../components/delete-modal';
+import { DeleteModal } from 'components/delete-modal';
 import { LabelsList } from '../components/labels-list';
 import {
   getUrlStateOptions,
@@ -138,6 +138,7 @@ export const Agents: FC = () => {
         />
       </Stack>
       <DeleteModal
+        testId="inventory-delete-modal"
         open={!!agentsToDelete.length}
         title={Messages.delete.title}
         message={Messages.delete.message(agentsToDelete.length)}

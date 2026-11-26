@@ -15,7 +15,7 @@ import { useNodes, useRemoveNodes } from 'hooks/api/useNodes';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
 import { enqueueSnackbar } from 'notistack';
 import { type FC, useMemo, useState } from 'react';
-import { DeleteModal } from '../components/delete-modal';
+import { DeleteModal } from 'components/delete-modal';
 import {
   getUrlStateOptions,
   INVENTORY_REFETCH_INTERVAL,
@@ -191,6 +191,7 @@ export const Nodes: FC = () => {
         onClose={() => setThresholdsNode(null)}
       />
       <DeleteModal
+        testId="inventory-delete-modal"
         open={!!nodesToDelete.length}
         title={Messages.delete.title}
         message={Messages.delete.message(nodesToDelete.length)}
