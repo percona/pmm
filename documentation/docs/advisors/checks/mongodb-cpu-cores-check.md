@@ -11,20 +11,6 @@ To avoid performance issues, see the following documentation to determine the nu
 - [MongoDB 5.0 Production notes](https://www.mongodb.com/docs/v5.0/administration/production-notes/#std-label-prod-notes-ram)
 - [MongoDB 6.0 Production notes](https://www.mongodb.com/docs/v6.0/administration/production-notes/#std-label-prod-notes-ram)
 
-## Rule 
-```MONGODB_GETDIAGNOSTICDATA
-db.adminCommand({'getDiagnosticData':1}).data.systemMetrics.cpu.num_cpus
-
-
-data = docs[0]["data"]
-          print(repr(data))
-          systemMetrics = data.get("systemMetrics", {})
-          print(repr(systemMetrics))
-          cpu = systemMetrics.get("cpu", {})
-          numcpu = int(cpu.get("num_cpus", fail))
-
-``` 
-
 ## Resolution
 Increase the number of CPU cores so that it does not impact the performance.
 

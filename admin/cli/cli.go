@@ -55,6 +55,7 @@ type PMMAdminCommands struct {
 	Remove     management.RemoveCommand     `cmd:"" help:"Remove Service from monitoring"`
 	Register   management.RegisterCommand   `cmd:"" help:"Register current Node with PMM Server"`
 	Add        management.AddCommand        `cmd:"" help:"Add Service to monitoring"`
+	Update     management.UpdateCommand     `cmd:"" help:"Change a monitored Service in place (only passed flags are changed)"`
 	Inventory  inventory.InventoryCommand   `cmd:"" hidden:"" help:"Inventory commands"`
 	Version    commands.VersionCommand      `cmd:"" help:"Print version"`
 	Completion commands.CompletionCommand   `cmd:"" help:"Outputs shell code for initialising tab completions"`
@@ -86,6 +87,12 @@ type CmdWithContextRunner interface {
 	RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error)
 }
 
+// TypedFlagsSetter represents a command that needs to know which flags and arguments are given on the command line,
+// as opposed to having their default values.
+type TypedFlagsSetter interface {
+	SetTypedFlags(names map[string]bool)
+}
+
 // usageErrorExitCode mirrors Kong's internal exitUsageError, used when the
 // binary is invoked without a subcommand.
 const usageErrorExitCode = 80
@@ -103,6 +110,11 @@ func run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	}
 
 	i := ctx.Selected().Target.Addr().Interface()
+
+	setter, ok := i.(TypedFlagsSetter)
+	if ok {
+		setter.SetTypedFlags(commands.TypedFlags(ctx))
+	}
 
 	switch cmd := i.(type) {
 	case CmdWithContextRunner:

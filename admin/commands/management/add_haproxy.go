@@ -44,6 +44,14 @@ func (res *addHAProxyResult) String() string {
 
 // AddHAProxyCommand is used by Kong for CLI flags and commands.
 type AddHAProxyCommand struct {
+	HAProxyFlags
+
+	ListenPort uint16 `placeholder:"port" required:"" help:"Listen port of haproxy exposing the metrics for scraping metrics (Required)"`
+}
+
+// HAProxyFlags holds the flags that adding and updating an HAProxy Service share. --listen-port is not one of
+// them: add requires it, and update must be able to leave it out.
+type HAProxyFlags struct {
 	flags.MetricsModeFlags
 
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-haproxy" help:"Service name (autodetected default: ${hostname}-haproxy)"`
@@ -52,14 +60,13 @@ type AddHAProxyCommand struct {
 	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
 	Scheme              string            `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
 	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
-	ListenPort          uint16            `placeholder:"port" required:"" help:"Listen port of haproxy exposing the metrics for scraping metrics (Required)"`
 	NodeID              string            `help:"Node ID (default is autodetected)"`
 	Environment         string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
 	ReplicationSet      string            `placeholder:"rs1" help:"Replication set name"`
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
+	TLSSkipVerify       bool              `negatable:"" help:"Skip TLS certificate verification"`
 }
 
 // GetCredentials returns the credentials for AddHAProxyCommand.

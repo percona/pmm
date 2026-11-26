@@ -262,7 +262,7 @@ func TestSessionExchange(t *testing.T) {
 		t.Parallel()
 
 		stub := newExtensionsStub(t, http.StatusOK, []int{http.StatusOK}, []string{emptyHostsPage, `[]`})
-		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+		svc := stub.service(t)
 		ctx := callerContext(t, "grpcgateway-cookie", "pmm_session=session-1")
 
 		_, err := svc.ListInventoryHosts(ctx, &omv1.ListInventoryHostsRequest{})
