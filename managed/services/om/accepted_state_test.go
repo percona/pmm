@@ -36,6 +36,9 @@ func memberScanFacts() map[string]any {
 		"binary_version":         "8.0.38",
 		"database.config_sha256": "abc123",
 		"database.set_name":      "rs0",
+		"database.config_file":   "/etc/mongod.conf",
+		"database.keyfile_path":  "/etc/mongodb-keyfile",
+		"database.tls_mode":      "requireTLS",
 	}
 }
 
@@ -105,6 +108,9 @@ func TestBuildInstallAcceptedState(t *testing.T) {
 	require.NotNil(t, member.Hidden)
 	assert.True(t, *member.Hidden)
 	assert.Nil(t, member.SecondaryDelay, "an unset delay keeps MongoDB's default and is not recorded")
+	assert.Equal(t, "/etc/mongod.conf", member.Config.File)
+	assert.Equal(t, "/etc/mongodb-keyfile", member.KeyfilePath)
+	assert.Equal(t, "requireTLS", state.Auth.TLS.Mode)
 
 	_, err = models.MarshalAcceptedState(state)
 	require.NoError(t, err, "the built state is a valid document")

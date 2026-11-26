@@ -161,6 +161,16 @@ func buildInstallAcceptedState(
 			LogPath:       params.LogPath,
 		}
 		applyMemberConfig(&accepted, memberConfigFromParams(params, member))
+		configFile, _ := facts["database.config_file"].(string)
+		keyfilePath, _ := facts["database.keyfile_path"].(string)
+		tlsMode, _ := facts["database.tls_mode"].(string)
+		accepted.KeyfilePath = keyfilePath
+		if configFile != "" {
+			accepted.Config = models.AcceptedConfig{File: configFile}
+		}
+		if tlsMode != "" {
+			state.Auth.TLS.Mode = tlsMode
+		}
 		state.Members[member.ID] = accepted
 	}
 	if len(state.Members) == 0 {
