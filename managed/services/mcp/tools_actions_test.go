@@ -366,21 +366,46 @@ func TestExplainTool(t *testing.T) {
 		assert.Equal(t, "svc-1", body.MysqlExplainJSON.ServiceID, "the resolved service")
 	})
 
+	// QAN stored no example in the window, and pmm-managed refused the number of placeholders passed.
 	t.Run("PlaceholdersCountError", func(t *testing.T) {
 		t.Parallel()
 
-		fake := newFakePMM(t, withRoutes(resolveRoutes(reportOne), map[string]fixture{
-			startAction:                     {file: "error_400_placeholders.json", status: http.StatusBadRequest},
-			"POST /v1/qan/query:getExample": {file: "empty.json"},
-		}))
-		session := connect(t, newQANService(t, fake, true))
+		for name, tc := range map[string]struct {
+			placeholders []string
+			message      string
+		}{
+			// Without placeholders, the count error means that the row records some.
+			"WithoutPlaceholders": {
+				nil,
+				"the stored row that PMM's EXPLAIN reads for this query has no query example and records placeholders: " +
+					"pass one value per ? in the fingerprint, in order",
+			},
+			// With placeholders, the row can record none, as a perfschema row whose statement pmm-agent didn't see does.
+			"WithPlaceholders": {
+				[]string{"1", "2"},
+				"the number of placeholders doesn't match the stored row that PMM's EXPLAIN reads for this query: it takes none " +
+					"when it holds a query example or records no placeholders, else one value per ? in the fingerprint, in order; " +
+					"call without placeholders to tell which",
+			},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
 
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA"})
-		assert.True(t, isError)
-		assert.Equal(t, "error: invalid_input\nthe number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, "+
-			"in order, or none when QAN stored a query example", text)
+				fake := newFakePMM(t, withRoutes(resolveRoutes(reportOne), map[string]fixture{
+					startAction:                     {file: "error_400_placeholders.json", status: http.StatusBadRequest},
+					"POST /v1/qan/query:getExample": {file: "empty.json"},
+				}))
+				session := connect(t, newQANService(t, fake, true))
+
+				text, isError := callText(t, session, "pmm_get_explain", map[string]any{"queryid": "QID-AAA", "placeholders": tc.placeholders})
+				assert.True(t, isError)
+				assert.Equal(t, "error: invalid_input\n"+tc.message, text)
+			})
+		}
 	})
 
+	// QAN stored no example in the window, and the row PMM's EXPLAIN read records no placeholders, so it explained the
+	// fingerprint: placeholders can't fit that row, and the message must not ask for them.
 	t.Run("PlaceholderError", func(t *testing.T) {
 		t.Parallel()
 
@@ -389,10 +414,13 @@ func TestExplainTool(t *testing.T) {
 		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "empty.json"}
 		session := connect(t, newQANService(t, fake, true))
 
-		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
-		assert.True(t, isError)
-		assertToolError(t, text, codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064")
-		assert.Contains(t, text, "pass placeholders")
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
+		assert.True(t, res.IsError)
+		assert.Equal(t, map[string]any{"code": "no_query_source", "retryable": false}, res.Meta["com.percona/error"])
+		assert.Equal(t, "error: no_query_source\nEXPLAIN could not run on the fingerprint: "+syntaxError1064+". QAN stored no example of "+
+			"this query in the window, and the stored row that PMM's EXPLAIN reads for it records no placeholders, so placeholders "+
+			"don't fit it; calling again usually reads the same row. Enable query examples for this service in PMM, or explain an "+
+			"example that pmm_query_detail shows for another window in a database client", textOf(t, res))
 	})
 
 	// QAN stored an example in the window, but the action read a stored row without one.
@@ -999,11 +1027,10 @@ func TestSchemaTool(t *testing.T) {
 		session := connect(t, newQANService(t, fake, true))
 
 		res := callTool(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA"})
-		text := textOf(t, res)
 		assert.True(t, res.IsError)
-		assert.Equal(t, map[string]any{"code": "invalid_input", "retryable": false}, res.Meta["com.percona/error"])
-		assertToolError(t, text, codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): Error 1064")
-		assert.Contains(t, text, "pass placeholders (one value per ?, in order), or pass service_id, database and tables")
+		assert.Equal(t, map[string]any{"code": "no_query_source", "retryable": false}, res.Meta["com.percona/error"])
+		assert.Equal(t, "error: no_query_source\nEXPLAIN could not run on the fingerprint: "+syntaxError1064+". "+
+			rowWithoutPlaceholdersMessage+schemaCountAlternative, textOf(t, res))
 		require.Len(t, stub.starts, 1, "no DDL action after a failed EXPLAIN")
 		assert.NotNil(t, stub.starts[0].MysqlExplainJSON)
 	})
@@ -1033,8 +1060,9 @@ func TestSchemaTool(t *testing.T) {
 
 		text, isError := callText(t, session, "pmm_get_schema", map[string]any{"queryid": "QID-AAA", "placeholders": []string{"1", "2"}})
 		assert.True(t, isError)
-		assert.Equal(t, "error: invalid_input\nthe number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, "+
-			"in order, or none when QAN stored a query example; or pass service_id, database and tables instead of a query reference", text)
+		assert.Equal(t, "error: invalid_input\nthe number of placeholders doesn't match the stored row that PMM's EXPLAIN reads for this "+
+			"query: it takes none when it holds a query example or records no placeholders, else one value per ? in the fingerprint, "+
+			"in order; call without placeholders to tell which; or pass service_id, database and tables instead of a query reference", text)
 		assert.Len(t, fake.requestsTo("/v1/actions:startServiceAction"), 1)
 	})
 
