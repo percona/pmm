@@ -4,3 +4,5 @@ export * from './theme-context-provider';
 export * from './themes';
 
 export * from './utils';
+
+export type { ChartColor } from './chart-colors';

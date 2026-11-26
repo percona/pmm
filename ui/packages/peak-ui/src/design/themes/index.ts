@@ -3,6 +3,7 @@ export {
   primitives,
   semanticTokensLight,
   semanticTokensDark,
+  type ChartPalette,
   type Primitives,
   type SemanticTokens,
 } from './base';
