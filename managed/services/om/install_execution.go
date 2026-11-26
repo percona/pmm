@@ -20,7 +20,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 
+	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/reform.v1"
 
@@ -52,6 +54,7 @@ type installStepExecutor struct {
 	db        *reform.DB
 	bootstrap bootstrapRunner
 	op        *models.OmOperation
+	l         *logrus.Entry
 }
 
 // Run creates the om_bootstrap run on the first probe and maps its status on each later one: a succeeded
@@ -79,6 +82,7 @@ func (e *installStepExecutor) Run(ctx context.Context, _ StepPlan, idempotencyKe
 	}
 	switch run.Status {
 	case bootstrapRunSucceeded:
+		e.recordInstalledManifest(run)
 		return stepResult(StepResultOk, runID)
 	case bootstrapRunFailed, bootstrapRunRolledBack:
 		return stepResult(StepResultFailed, runID)
@@ -153,11 +157,35 @@ func (e *installStepExecutor) plannedRun() extensionsTriggerBootstrapRunRequest 
 	}
 }
 
+// recordInstalledManifest stores the repo, package set and control unit a succeeded bootstrap run
+// installed on the operation's params, best-effort, so the accepted state records what to later uninstall.
+func (e *installStepExecutor) recordInstalledManifest(run *extensionsBootstrapRun) {
+	params := installParamsOf(e.op)
+	if params.Repo == run.Repo && params.ControlUnit == run.ControlUnit && slices.Equal(params.Packages, run.Packages) {
+		return
+	}
+	params.Repo = run.Repo
+	params.Packages = run.Packages
+	params.ControlUnit = run.ControlUnit
+	encoded, err := json.Marshal(params)
+	if err != nil {
+		e.l.Warnf("install %s: failed to encode the install manifest: %s", e.op.ID, err)
+		return
+	}
+	_, err = e.db.Exec("UPDATE om_operations SET params = $1 WHERE id = $2", encoded, e.op.ID)
+	if err != nil {
+		e.l.Warnf("install %s: failed to record the install manifest: %s", e.op.ID, err)
+		return
+	}
+	e.op.Params = encoded
+}
+
 // installStepExecutorProvider hands the install step executor to an install operation and the pending
 // stub to any other kind, which has no steps yet.
 type installStepExecutorProvider struct {
 	db        *reform.DB
 	bootstrap bootstrapRunner
+	l         *logrus.Entry
 }
 
 // Executor returns the install executor for an install operation, else the pending stub.
@@ -165,7 +193,7 @@ type installStepExecutorProvider struct {
 //nolint:ireturn
 func (p installStepExecutorProvider) Executor(op *models.OmOperation, kind OperationKind) (StepExecutor, error) {
 	if kind.Kind == installKind {
-		return &installStepExecutor{db: p.db, bootstrap: p.bootstrap, op: op}, nil
+		return &installStepExecutor{db: p.db, bootstrap: p.bootstrap, op: op, l: p.l}, nil
 	}
 	return pendingStepExecutor{}, nil
 }

@@ -63,6 +63,9 @@ type installParams struct {
 	Environment    string                     `json:"environment,omitempty"`
 	Cluster        string                     `json:"cluster,omitempty"`
 	AdminUsername  string                     `json:"admin_username,omitempty"`
+	Repo           string                     `json:"repo,omitempty"`
+	Packages       []string                   `json:"packages,omitempty"`
+	ControlUnit    string                     `json:"control_unit,omitempty"`
 }
 
 // installParamsOf reads an install operation's params, returning an empty value when they are unset or

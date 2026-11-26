@@ -85,6 +85,9 @@ func TestBuildInstallAcceptedState(t *testing.T) {
 		DataPath:      "/var/lib/mongo",
 		LogPath:       "/var/log/mongodb/mongod.log",
 		MemberConfigs: map[string]json.RawMessage{nodeID: memberCfg},
+		Repo:          "percona-release",
+		Packages:      []string{"percona-server-mongodb"},
+		ControlUnit:   "mongod",
 	}
 
 	state, ready := buildInstallAcceptedState(t.Context(), reader, metrics, members, params)
@@ -111,6 +114,9 @@ func TestBuildInstallAcceptedState(t *testing.T) {
 	assert.Equal(t, "/etc/mongod.conf", member.Config.File)
 	assert.Equal(t, "/etc/mongodb-keyfile", member.KeyfilePath)
 	assert.Equal(t, "requireTLS", state.Auth.TLS.Mode)
+	assert.Equal(t, "mongod", member.Control.Unit)
+	assert.Equal(t, "percona-release", member.Install.Repo)
+	assert.Equal(t, []string{"percona-server-mongodb"}, member.Install.Packages)
 
 	_, err = models.MarshalAcceptedState(state)
 	require.NoError(t, err, "the built state is a valid document")
