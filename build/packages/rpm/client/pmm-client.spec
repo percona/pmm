@@ -219,7 +219,7 @@ fi
 %attr(-,pmm-agent,pmm-agent) /usr/local/percona/pmm
 
 %changelog
-* Mon Aug 25 2025 Alex Demidoff <alexander.demidoff@percona.com>
+* Thu Nov 26 2026 Alex Demidoff <alexander.demidoff@percona.com>
 - PMM-12362 rootless systemd user
 
 * Wed May 21 2025 Talha Bin Rizwan <talha.rizwan@percona.com>
