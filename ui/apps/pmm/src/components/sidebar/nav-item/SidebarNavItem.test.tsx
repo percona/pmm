@@ -194,6 +194,34 @@ describe('SidebarNavItem', () => {
     );
   });
 
+  it('links a collapsible item to its new first child when its children change', () => {
+    const tree = (item: NavTreeItem) => (
+      <ThemeContextProvider themeOptions={pmmThemeOptions}>
+        {wrapWithRouter(
+          <SidebarNavItem
+            activeItem={{ id: 'not-found', url: '/not-found' }}
+            item={item}
+            drawerOpen={true}
+            level={0}
+          />
+        )}
+      </ThemeContextProvider>
+    );
+    const { rerender } = render(tree(TEST_NAV_TREE));
+
+    rerender(
+      tree({
+        ...TEST_NAV_TREE,
+        children: [{ id: 'level-11', text: 'level-11', url: '/0/11' }],
+      })
+    );
+
+    expect(screen.getByTestId('navitem-level-0')).toHaveAttribute(
+      'href',
+      '/0/11'
+    );
+  });
+
   it('links Inventory to the Services list', () => {
     renderNavItem({ props: { item: NAV_INVENTORY } });
 

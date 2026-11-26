@@ -14,7 +14,10 @@ import { useLocation } from 'react-router-dom';
 import { useGrafana } from 'contexts/grafana';
 
 export const useLinkWithVariables = (url?: string) => {
-  const [link, setLink] = useState(url);
+  // Tagged with the URL it was resolved for, so a changed URL is followed at once
+  // and a late answer for a previous URL is ignored.
+  const [resolved, setResolved] = useState<{ url: string; link: string }>();
+  const link = resolved && resolved.url === url ? resolved.link : url;
   const location = useLocation();
   const { grafanaReady } = useGrafana();
 
@@ -43,9 +46,11 @@ export const useLinkWithVariables = (url?: string) => {
 
     // if it's the current dashboards just update url
     if (url.includes(location.pathname)) {
-      setLink(constructUrl(location));
+      setResolved({ url, link: constructUrl(location) });
     } else if (grafanaReady) {
-      enhanceWithVariables(url).then(setLink);
+      enhanceWithVariables(url).then((expanded) =>
+        setResolved({ url, link: expanded })
+      );
     }
   }, [url, location, grafanaReady]);
 

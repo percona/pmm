@@ -14,7 +14,7 @@ export const EXTENSIONS_APPS_QUERY_KEY = [
 ] as const;
 
 /**
- * The PMM Extensions apps, for the Apps section and the generic app route.
+ * The PMM Extensions apps, for the Apps section and the guard on the app routes.
  *
  * Fetched once per page load while Extensions is enabled, and kept for the
  * session: a refetch happens only when an Extensions page mounts
