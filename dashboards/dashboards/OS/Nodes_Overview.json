@@ -1056,7 +1056,7 @@
                         {
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "count by (region) (\nsum by (node_name,region) (label_replace(label_replace(up{node_type=~\"generic|remote_rds|container|remote\",region=~\"$region\",node_name=~\"$node_name\",environment=~\"$environment\"},\"region\", \"$2\", \"region\", \"(.*) (..)\"),\"region\", \"$1\", \"region\", \"(..)-(.*)\")\n))",
+                            "expr": "count by (region) (\nsum by (node_name,region) (label_replace(label_replace(up{node_type=~\"generic|remote_rds|container|remote\",region=~\"$region\",node_name=~\"$node_name\",node_type=~\"$node_type\",environment=~\"$environment\"},\"region\", \"$2\", \"region\", \"(.*) (..)\"),\"region\", \"$1\", \"region\", \"(..)-(.*)\")\n))",
                             "format": "table",
                             "instant": false,
                             "interval": "$interval",
