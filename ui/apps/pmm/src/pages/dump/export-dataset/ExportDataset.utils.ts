@@ -1,18 +1,19 @@
 import { subHours } from 'date-fns';
-import { StartDumpPayload } from 'types/dump.types';
-import { ListServicesResponse } from 'types/services.types';
-import { ExportDatasetFormValues } from './ExportDataset.schema';
+import type { StartDumpPayload } from 'types/dump.types';
+import type { ListServicesResponse } from 'types/services.types';
+import type { ExportDatasetFormValues } from './ExportDataset.schema';
 
 export const getDefaultValues = (): ExportDatasetFormValues => {
   const endTime = new Date();
   endTime.setSeconds(0, 0);
 
   return {
+    serviceScope: 'all',
     serviceNames: [],
     startTime: subHours(endTime, 12),
     endTime,
     exportQan: false,
-    ignoreLoad: true,
+    ignoreLoad: false,
     enableEncryption: false,
     encryptionPassword: '',
   };
@@ -28,10 +29,13 @@ export const getServiceOptions = (response: ListServicesResponse = {}) =>
     )
   ).sort();
 
-export const toStartDumpPayload = (
-  values: ExportDatasetFormValues
-): StartDumpPayload => ({
+export const toStartDumpPayload = ({
+  serviceScope,
+  serviceNames,
+  ...values
+}: ExportDatasetFormValues): StartDumpPayload => ({
   ...values,
+  serviceNames: serviceScope === 'all' ? [] : serviceNames,
   startTime: values.startTime.toISOString(),
   endTime: values.endTime.toISOString(),
   encryptionPassword: values.enableEncryption ? values.encryptionPassword : '',

@@ -1,37 +1,43 @@
 export const Messages = {
-  pageTitle: 'Export new dataset',
-  summary:
-    'Simplify troubleshooting and accelerate issue resolution by securely sharing relevant data with Percona Support.',
-  title: 'Select data to export',
-  services: 'Service names',
-  allServices: 'All services',
+  pageTitle: 'Create dataset',
+  sections: {
+    services: 'Services',
+    timeRange: 'Time range',
+    data: 'Data to include',
+    security: 'Security',
+    serverLoad: 'Server load',
+  },
+  timeRangeDescription:
+    'A longer window makes a larger archive and a longer export.',
+  allServices: (count?: number) =>
+    count === undefined ? 'All services' : `All services (${count})`,
+  selectedServices: 'Only selected services',
+  services: 'Services',
   noServices: 'No services available',
   servicesError: 'Could not load services.',
   retry: 'Retry',
   startTime: 'Start time',
   endTime: 'End time',
-  exportQan: 'Export QAN',
+  exportQan: 'Include Query Analytics (QAN)',
   exportQanHelp:
-    'Include Query Analytics (QAN) metrics alongside core metrics in the export.',
-  ignoreLoad: 'Ignore load',
-  ignoreLoadHelp:
-    'Bypass the default resource limit restrictions to export faster.',
-  enableEncryption: 'Enable encryption',
-  enableEncryptionHelp:
-    'Protect the exported dataset with password-based encryption.',
+    'Adds query examples, which can contain data from your queries.',
+  enableEncryption: 'Encrypt the archive',
+  enableEncryptionHelp: 'You need the password to open the archive.',
   encryptionPassword: 'Encryption password',
-  encryptionPasswordPlaceholder: 'Password',
+  passwordRules:
+    'At least 8 characters, with a letter, a number and a special character.',
+  passwordWarning:
+    "PMM doesn't store this password and can't recover it. Share it with Percona Support in your ticket, separately from the archive.",
+  ignoreLoad: 'Export even when PMM Server is busy',
+  ignoreLoadHelp:
+    "When off, the export pauses while PMM Server's CPU or memory is high and stops if the load becomes critical. When on, it runs regardless, and dashboards can slow down until it finishes.",
   create: 'Create dataset',
   creating: 'Creating...',
   cancel: 'Cancel',
-  success: 'Dataset creation started.',
+  success: 'Dataset creation started. It runs in the background.',
   validation: {
     validRange: 'Please select a valid time range.',
     futureDate: 'Dates cannot be in the future.',
-    passwordRequired: 'Encryption password is required.',
-    passwordLength: 'Password must contain at least 8 characters.',
-    passwordLetter: 'Password must contain a letter.',
-    passwordNumber: 'Password must contain a number.',
-    passwordSpecial: 'Password must contain a special character.',
+    servicesRequired: 'Select at least one service.',
   },
 };

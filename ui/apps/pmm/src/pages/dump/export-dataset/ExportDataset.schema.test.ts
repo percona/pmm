@@ -1,6 +1,12 @@
 import { exportDatasetSchema } from './ExportDataset.schema';
 import { getDefaultValues, toStartDumpPayload } from './ExportDataset.utils';
 
+const issuesFor = (values: Parameters<typeof exportDatasetSchema.parse>[0]) => {
+  const result = exportDatasetSchema.safeParse(values);
+
+  return result.success ? [] : result.error.issues;
+};
+
 describe('exportDatasetSchema', () => {
   it('accepts the default unencrypted form', () => {
     expect(exportDatasetSchema.safeParse(getDefaultValues()).success).toBe(
@@ -12,41 +18,81 @@ describe('exportDatasetSchema', () => {
     const values = getDefaultValues();
     values.startTime = values.endTime;
 
-    const result = exportDatasetSchema.safeParse(values);
-
-    expect(result.success).toBe(false);
+    expect(exportDatasetSchema.safeParse(values).success).toBe(false);
   });
 
-  it('enforces encryption password complexity', () => {
-    const values = {
+  it('requires a service when only selected services are exported', () => {
+    const issues = issuesFor({
       ...getDefaultValues(),
-      enableEncryption: true,
-      encryptionPassword: 'password',
-    };
+      serviceScope: 'selected',
+      serviceNames: [],
+    });
 
-    const result = exportDatasetSchema.safeParse(values);
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].path).toEqual(['encryptionPassword']);
-    }
+    expect(issues).toEqual([
+      expect.objectContaining({
+        path: ['serviceNames'],
+        message: 'Select at least one service.',
+      }),
+    ]);
   });
 
-  it('maps valid values to an API payload', () => {
-    const values = {
-      ...getDefaultValues(),
-      serviceNames: ['mysql'],
-      exportQan: true,
-      enableEncryption: true,
-      encryptionPassword: 'Password1!',
-    };
+  it('accepts all services with an empty list', () => {
+    expect(
+      issuesFor({
+        ...getDefaultValues(),
+        serviceScope: 'all',
+        serviceNames: [],
+      })
+    ).toEqual([]);
+  });
 
-    expect(toStartDumpPayload(values)).toMatchObject({
+  it('reports every password rule at once', () => {
+    const issues = issuesFor({
+      ...getDefaultValues(),
+      enableEncryption: true,
+      encryptionPassword: 'abc',
+    });
+
+    expect(issues).toEqual([
+      expect.objectContaining({
+        path: ['encryptionPassword'],
+        message:
+          'At least 8 characters, with a letter, a number and a special character.',
+      }),
+    ]);
+  });
+});
+
+describe('toStartDumpPayload', () => {
+  it('sends the selected services without the scope', () => {
+    const payload = toStartDumpPayload({
+      ...getDefaultValues(),
+      serviceScope: 'selected',
       serviceNames: ['mysql'],
       exportQan: true,
-      ignoreLoad: true,
       enableEncryption: true,
       encryptionPassword: 'Password1!',
     });
+
+    expect(payload).toEqual(
+      expect.objectContaining({
+        serviceNames: ['mysql'],
+        exportQan: true,
+        ignoreLoad: false,
+        enableEncryption: true,
+        encryptionPassword: 'Password1!',
+      })
+    );
+    expect(payload).not.toHaveProperty('serviceScope');
+  });
+
+  it('sends an empty list for all services, even after picking some', () => {
+    const payload = toStartDumpPayload({
+      ...getDefaultValues(),
+      serviceScope: 'all',
+      serviceNames: ['mysql'],
+    });
+
+    expect(payload.serviceNames).toEqual([]);
   });
 });
