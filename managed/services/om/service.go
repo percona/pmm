@@ -215,7 +215,7 @@ func (s *Service) WithOperationRunner(extensionsURL, token string) *Service {
 	client := newExtensionsClient(extensionsURL, token)
 	checks := newFactCheckProvider(newFactReader(client))
 	requester := newInventoryScanRequester(s.db, client)
-	executors := installStepExecutorProvider{db: s.db, bootstrap: s.bootstrap}
+	executors := installStepExecutorProvider{db: s.db, bootstrap: s.bootstrap, l: s.l}
 	s.operationRunner = NewRunner(
 		s.db, s.l.WithField("component", "om-operations"), s.operationRegistry,
 		checks, executors, requester,

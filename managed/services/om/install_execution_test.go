@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -113,4 +114,28 @@ func TestInstallExecutorMapsRunStatus(t *testing.T) {
 			assert.Nil(t, fake.triggered, "a run already exists, so no second one is created")
 		})
 	}
+}
+
+func TestInstallExecutorRecordsManifest(t *testing.T) {
+	db := lockTestDB(t)
+	op := installOpWithPlan(t, db)
+	key := op.ID + "/run/bootstrap/1"
+	insertBootstrapStep(t, db, op, key, []byte(`{"run_id":"run-1"}`))
+	fake := &fakeBootstrapRunner{run: &extensionsBootstrapRun{
+		ID: "run-1", Status: bootstrapRunSucceeded,
+		Repo: "percona-release", Packages: []string{"percona-server-mongodb"}, ControlUnit: "mongod",
+	}}
+	executor := &installStepExecutor{db: db, bootstrap: fake, op: op, l: logrus.WithField("test", t.Name())}
+
+	result, _, err := executor.Run(t.Context(), StepPlan{}, key)
+	require.NoError(t, err)
+	require.Equal(t, StepResultOk, result)
+
+	var raw []byte
+	require.NoError(t, db.QueryRow("SELECT params FROM om_operations WHERE id = $1", op.ID).Scan(&raw))
+	manifest := installParams{}
+	require.NoError(t, json.Unmarshal(raw, &manifest))
+	assert.Equal(t, "percona-release", manifest.Repo)
+	assert.Equal(t, []string{"percona-server-mongodb"}, manifest.Packages)
+	assert.Equal(t, "mongod", manifest.ControlUnit)
 }
