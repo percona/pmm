@@ -8,7 +8,6 @@ import {
   ProxyIcon,
 } from '@percona/peak-ui';
 import type { UseTableUrlStateOptions } from 'hooks/utils/useTableUrlState';
-import { type MRT_RowData, type MRT_TableOptions } from 'material-react-table';
 import type { FC } from 'react';
 import { ManagedServiceType, ServiceStatus } from 'types/services.types';
 import { type InventoryEntity, MonitoringStatus } from './Inventory.types';
@@ -30,16 +29,6 @@ export const getUrlStateOptions = (
   paramPrefix: INVENTORY_URL_PREFIX[entity],
   defaults: { pagination: { pageIndex: 0, pageSize: INVENTORY_PAGE_SIZE } },
 });
-
-export const INVENTORY_TABLE_OPTIONS = {
-  enableStickyHeader: true,
-  // Sorting, filters and columns stay reachable from the headers and toolbar,
-  // while the header space goes to the column names
-  enableColumnActions: false,
-  positionActionsColumn: 'last',
-  positionToolbarAlertBanner: 'none',
-  globalFilterFn: 'contains',
-} satisfies Partial<MRT_TableOptions<MRT_RowData>>;
 
 // Persists the services' cluster view, under the key Grafana used
 export const CLUSTERS_SWITCH_KEY = 'pmm-organize-by-clusters';

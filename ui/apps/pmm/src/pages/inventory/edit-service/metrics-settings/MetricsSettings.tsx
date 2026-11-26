@@ -11,7 +11,7 @@ import type { ManagedServiceType } from 'types/services.types';
 import { getLogLevels } from '../EditService.constants';
 import { Messages } from '../EditService.messages';
 import type { EditServiceFormValues } from '../EditService.schema';
-import { SectionHeader } from '../section-header';
+import { SectionHeader } from 'components/section-header';
 import { useIsSettingShown } from '../useIsSettingShown';
 import {
   FIELDS,

@@ -7,7 +7,7 @@ import { ManagedServiceType } from 'types/services.types';
 import { Messages } from '../EditService.messages';
 import type { EditServiceFormValues } from '../EditService.schema';
 import type { SettingName } from '../EditService.types';
-import { SectionHeader } from '../section-header';
+import { SectionHeader } from 'components/section-header';
 import { useIsSettingShown } from '../useIsSettingShown';
 
 const { tls } = Messages;

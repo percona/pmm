@@ -24,11 +24,12 @@ import { enqueueSnackbar } from 'notistack';
 import { type FC, useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { DeleteModal } from 'components/delete-modal';
+import { DEFAULT_TABLE_OPTIONS } from 'lib/table.constants';
+import { TableMessages } from 'lib/table.messages';
 import {
   CLUSTERS_SWITCH_KEY,
   getUrlStateOptions,
   INVENTORY_REFETCH_INTERVAL,
-  INVENTORY_TABLE_OPTIONS,
 } from '../Inventory.constants';
 import { Messages as InventoryMessages } from '../Inventory.messages';
 import {
@@ -108,7 +109,7 @@ export const Services: FC = () => {
   return (
     <>
       <Table
-        {...INVENTORY_TABLE_OPTIONS}
+        {...DEFAULT_TABLE_OPTIONS}
         {...tableProps}
         state={{
           ...tableProps.state,
@@ -209,7 +210,7 @@ export const Services: FC = () => {
             >
               {!!selectedServices.length && (
                 <Typography variant="body2">
-                  {InventoryMessages.selected(selectedServices.length)}
+                  {TableMessages.selected(selectedServices.length)}
                 </Typography>
               )}
               <Button

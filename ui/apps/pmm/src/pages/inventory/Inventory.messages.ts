@@ -37,5 +37,4 @@ export const Messages = {
     delete: 'Delete',
     rowActions: 'Row actions',
   },
-  selected: (count: number) => `${count} selected`,
 };

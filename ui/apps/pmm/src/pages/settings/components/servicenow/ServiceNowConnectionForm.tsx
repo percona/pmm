@@ -29,7 +29,7 @@ import {
   extensionsErrorMessage,
   toFormValues,
 } from './ServiceNowConnection.utils';
-import { SecretField } from './SecretField';
+import { SecretField } from 'components/secret-field';
 
 interface Props {
   declaredNames: string[];

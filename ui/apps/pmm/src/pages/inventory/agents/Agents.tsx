@@ -22,11 +22,12 @@ import { Link as RouterLink, useParams } from 'react-router-dom';
 import type { ManagedAgent } from 'types/agent.types';
 import { OrgRole } from 'types/user.types';
 import { DeleteModal } from 'components/delete-modal';
+import { DEFAULT_TABLE_OPTIONS } from 'lib/table.constants';
+import { TableMessages } from 'lib/table.messages';
 import { LabelsList } from '../components/labels-list';
 import {
   getUrlStateOptions,
   INVENTORY_REFETCH_INTERVAL,
-  INVENTORY_TABLE_OPTIONS,
 } from '../Inventory.constants';
 import { Messages as InventoryMessages } from '../Inventory.messages';
 import { toLabelTags } from '../Inventory.utils';
@@ -91,7 +92,7 @@ export const Agents: FC = () => {
           </Typography>
         )}
         <Table
-          {...INVENTORY_TABLE_OPTIONS}
+          {...DEFAULT_TABLE_OPTIONS}
           {...tableProps}
           state={{ ...tableProps.state, isLoading }}
           tableName="inventory-agents"
@@ -129,7 +130,7 @@ export const Agents: FC = () => {
                 </Button>
                 {!!selectedAgents.length && (
                   <Typography variant="body2">
-                    {InventoryMessages.selected(selectedAgents.length)}
+                    {TableMessages.selected(selectedAgents.length)}
                   </Typography>
                 )}
               </Stack>

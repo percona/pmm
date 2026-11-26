@@ -7,7 +7,7 @@ import { PMM_SERVER_POSTGRESQL, QUERY_SOURCES } from '../EditService.constants';
 import { Messages } from '../EditService.messages';
 import type { EditServiceFormValues } from '../EditService.schema';
 import { QuerySource } from '../EditService.types';
-import { SectionHeader } from '../section-header';
+import { SectionHeader } from 'components/section-header';
 import { useIsSettingShown } from '../useIsSettingShown';
 
 const { qan } = Messages;

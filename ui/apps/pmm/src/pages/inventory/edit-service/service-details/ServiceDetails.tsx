@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 import type { FC } from 'react';
 import type { InventoryService } from 'types/services.types';
 import { Messages } from '../EditService.messages';
-import { SectionHeader } from '../section-header';
+import { SectionHeader } from 'components/section-header';
 
 const { details } = Messages;
 
