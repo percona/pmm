@@ -40,7 +40,7 @@ All services are composed and wired in `managed/cmd/pmm-managed/main.go`.
 
 - **gRPC** (port 7771) — primary API protocol
 - **REST/JSON** (port 7772) — gRPC-Gateway, auto-generated from proto definitions
-- **Debug** (port 7773) — `/debug/metrics`, `/debug/pprof`, `/debug/vars`
+- **Debug** (port 7773) — the debug endpoints listed at `/debug`
 
 Some gRPC server implementations live in `services/*/grpc/` subdirectories. They delegate to the parent service package for business logic. This is legacy, and newer services must implement gRPC directly in the service package.
 
@@ -54,20 +54,13 @@ Some gRPC server implementations live in `services/*/grpc/` subdirectories. They
 | **Service** | `services` | `service_model.go` | DB/app: mysql, mongodb, postgresql, proxysql, haproxy, external, valkey |
 | **Agent** | `agents` | `agent_model.go` | Monitoring agent: pmm-agent, exporters, QAN agents, vmagent, etc. |
 | **Settings** | `settings` | `settings.go` | Server configuration (JSONB, singleton row) |
-| **BackupLocation** | `backup_locations` | — | S3/local backup storage targets |
-| **Artifact** | `artifacts` | — | Backup artifacts |
-| **ScheduledTask** | `scheduled_tasks` | — | Scheduled backup tasks |
-| **RestoreHistory** | `restore_history` | — | Backup restore records |
-| **Role** | `roles` | — | Access control roles |
+| **BackupLocation** | `backup_locations` | `location_model.go` | S3/local backup storage targets |
+| **Artifact** | `artifacts` | `artifact_model.go` | Backup artifacts |
+| **ScheduledTask** | `scheduled_tasks` | `scheduled_task_models.go` | Scheduled backup tasks |
+| **RestoreHistory** | `restore_history` | `restore_history_model.go` | Backup restore records |
+| **Role** | `roles` | `role_model.go` | Access control roles |
 
-### Relationships
-
-```
-Node (1) ──→ (N) Service
-Service (1) ──→ (N) Agent (via service_id)
-Node (1) ──→ (N) Agent (via runs_on_node_id)
-PMM Agent (1) ──→ (N) Child Agent (via pmm_agent_id)
-```
+Relationships between Nodes, Services and Agents: see the root [Domain Model](../AGENTS.md#domain-model).
 
 ### Database Layer (reform ORM)
 
@@ -91,8 +84,9 @@ type Node struct {
 - Check `reform.ErrNoRows` explicitly for "not found"
 - Use `models.Find*()` helpers, not `q.Reload()` or `q.SelectOneFrom()` directly
 - Transactions: `db.InTransactionContext(ctx, nil, func(tx *reform.TX) error { ... })`
+- Read what a write depends on inside the same transaction; validate request-only input before it opens, and send signals (`RequestStateUpdate`, `RequestConfigurationUpdate`) only after it commits
 - Schema migrations in `models/database.go` (`databaseSchema` map, versioned)
-- No column `DEFAULT`s in `databaseSchema`: reform writes every column, Go zero values included, so a database default never applies. To add a `NOT NULL` column to a table with rows, add it with a `DEFAULT` to backfill them, then `DROP DEFAULT` in the same migration
+- No column `DEFAULT`s in `databaseSchema`, even though older migrations have them — don't copy those: reform writes every column, Go zero values included, so a database default never applies. To add a `NOT NULL` column to a table with rows, add it with a `DEFAULT` to backfill them, then `DROP DEFAULT` in the same migration
 
 ## Configuration
 
@@ -126,6 +120,7 @@ PMM supports HA via **Raft consensus** (`services/ha/`):
 - Distributed state using `hashicorp/raft`
 - Agent states synchronized across nodes via gossip
 - Leader election determines which node runs certain operations (e.g., scheduled backups)
+- A settings change reconfigures only the replica that handled the request unless every replica picks it up; state read at startup can differ between replicas, especially during a rolling upgrade
 
 ## Patterns and Conventions
 
@@ -137,8 +132,6 @@ Go style, error handling, logging, and code generation follow the [global conven
 ### Don't
 - Don't connect to a real database in unit tests — use `github.com/DATA-DOG/go-sqlmock` to mock SQL queries; reserve `testdb.Open` for integration tests that genuinely require fixtures or migrations
 - Don't use `gorm` or other ORMs — only `reform`
-- Don't commit test binaries or artifacts
-- Don't create subshells in Makefiles without reason
 
 ## Testing
 
@@ -161,6 +154,4 @@ Go style, error handling, logging, and code generation follow the [global conven
 - `managed/services/inventory/grpc/` — inventory API implementations
 - `managed/services/ha/` — HA/Raft implementation
 - `managed/utils/envvars/parser.go` — environment variable parsing
-- `docker-compose.dev.yml` — development environment
-- `Makefile`, `Makefile.include` — build and development targets
 - `managed/CONTRIBUTING.md` — pmm-managed contribution notes (dev setup, patterns)
