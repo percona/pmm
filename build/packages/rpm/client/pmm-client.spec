@@ -140,6 +140,9 @@ if [ $1 -eq 1 ]; then
 fi
 if [ $1 -eq 2 ]; then
     /usr/bin/systemctl stop pmm-agent.service >/dev/null 2>&1 ||:
+    if [ "$(getent passwd pmm-agent | cut -d: -f7)" = "/bin/false" ]; then
+        /usr/sbin/usermod -s /sbin/nologin pmm-agent >/dev/null 2>&1 || :
+    fi
 fi
 
 %post
@@ -149,6 +152,7 @@ do
   %{__ln_s} -f /usr/local/percona/pmm/bin/$file /usr/sbin/$file
 done
 %systemd_post pmm-agent.service
+chown -R pmm-agent:pmm-agent /usr/local/percona/pmm
 if [ $1 -eq 1 ]; then
     if [ ! -f /usr/local/percona/pmm/config/pmm-agent.yaml ]; then
         install -d -m 0755 -o pmm-agent -g pmm-agent /usr/local/percona/pmm/config

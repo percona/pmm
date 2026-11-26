@@ -11,7 +11,7 @@ case "$1" in
     configure)
         chown -R pmm-agent:pmm-agent /usr/local/percona/pmm
         if [ ! -f /usr/local/percona/pmm/config/pmm-agent.yaml ]; then
-            install -d -m 0755 /usr/local/percona/pmm/config
+            install -d -m 0755 -o pmm-agent -g pmm-agent /usr/local/percona/pmm/config
             install -m 0660 -o pmm-agent -g pmm-agent /dev/null /usr/local/percona/pmm/config/pmm-agent.yaml
         fi
 
