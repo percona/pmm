@@ -8,7 +8,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentation">
+        <meta name="description" content="Use this list to find a built-in Advisor check and learn what it finds. Each check runs on one type of database: MySQL, PostgreSQL or MongoDB. To see how to fix what a check finds, click its summary. To check for something that no built-in check covers, develop your own check.">
       
       
         <meta name="author" content="Percona LLC">
@@ -20,7 +20,7 @@
         <link rel="prev" href="develop-advisor-checks.html">
       
       
-        <link rel="next" href="checks/mongodb-version-check.html">
+        <link rel="next" href="checks/mongodb-active-vs-available-connections.html">
       
       
         
@@ -48,7 +48,7 @@
 
     
       
-        <title>Advisor details - Percona Monitoring and Management</title>
+        <title>List of advisors and checks - Percona Monitoring and Management</title>
       
     
     
@@ -110,7 +110,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Advisor details" />
+                 <meta property="og:title" content="Percona Monitoring and Management - List of advisors and checks" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -208,7 +208,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Advisor details
+              List of advisors and checks
             
           </span>
         </div>
@@ -4864,7 +4864,35 @@
   <span class="md-ellipsis">
     
   
-    Advisor details
+    Run Advisor checks and review results
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="schedule-advisor-checks.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schedule Advisor checks
   
 
     
@@ -4892,7 +4920,7 @@
   <span class="md-ellipsis">
     
   
-    Develop custom advisors
+    Develop Advisor checks
   
 
     
@@ -4923,10 +4951,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_6_8_3" id="__nav_6_8_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_4" id="__nav_6_8_4_label" tabindex="0">
             
   
   
@@ -4944,8 +4972,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_8_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_6_8_3">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_8_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6_8_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -4968,6 +4996,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
@@ -4976,7 +5006,7 @@
   <span class="md-ellipsis">
     
   
-    Advisor details
+    List of advisors and checks
   
 
     
@@ -4994,7 +5024,7 @@
   <span class="md-ellipsis">
     
   
-    Advisor details
+    List of advisors and checks
   
 
     
@@ -5010,6 +5040,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -5018,113 +5050,123 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#list-of-advisors-and-checks" class="md-nav__link">
+  <a href="#connections" class="md-nav__link">
     <span class="md-ellipsis">
       
-        List of advisors and checks
+        Connections
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="List of advisors and checks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configuration-advisors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration advisors
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-advisors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Performance advisors
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#security-advisors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Security advisors
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#query-advisors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Query advisors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#list-of-checks" class="md-nav__link">
+  <a href="#durability" class="md-nav__link">
     <span class="md-ellipsis">
       
-        List of checks
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="List of checks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#mongodb" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        MongoDB
+        Durability
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#mysql" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
     <span class="md-ellipsis">
       
-        MySQL
+        Logging
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#postgresql" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#maintenance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PostgreSQL
+        Maintenance
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#replication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-indexes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema &amp; indexes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-topics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related topics
+      
+    </span>
+  </a>
   
 </li>
       
@@ -5152,17 +5194,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_8_3_2" id="__nav_6_8_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_4_2" id="__nav_6_8_4_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Configuration advisors
+    Connections
   
 
     
@@ -5173,338 +5215,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_4_2">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Configuration advisors
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_1" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_2_1" id="__nav_6_8_3_2_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Version configuration checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_2_1">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Version configuration checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-version-check.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB version check
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-version.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB versions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql_unsupported_version_check.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Unsupported MySQL version
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql_version_eol_57.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Percona Server for MySQL 5.7 End-Of-Life
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-eol-check.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Percona Distribution for PostgreSQL End Of Life
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-extension-check.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PostgreSQL outdated extensions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-unsupported-check.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PostgreSQL version compatibility
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-version-check.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PostgreSQL version
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_2_2" id="__nav_6_8_3_2_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Generic configuration checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_2_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Generic configuration checks
+    Connections
   
 
           </label>
@@ -5545,14 +5261,14 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/mongodb-high-wiredTiger-cache.html" class="md-nav__link">
+      <a href="checks/mongodb-connection-spike.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Check WiredTiger cache size
+    MongoDB Connections sudden spike
   
 
     
@@ -5565,6 +5281,173 @@
   
 
               
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongo-high-connections.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB high connections
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-maxSessions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check the maxSessions value
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql_configuration_max_connections_usage.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL max connection usage check
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/configuration-pg-high-max-connections.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL max_connections set too high
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_8_4_3" id="__nav_6_8_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Durability
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Durability
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -5581,146 +5464,6 @@
     
   
     MongoDB journal enabled
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-log-messages.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB logLevel is not default
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-read-tickets.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB read ticket is more than 128
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-write-tickets.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB write ticket is more than 128
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-non-default-runtime-write-tickets.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Write tickets during runtime are &gt; 128
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql_automatic_sp_privileges_enabled.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Automatic_sp_privileges configuration for MySQL
   
 
     
@@ -5825,14 +5568,14 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/configuration-check-general-log.html" class="md-nav__link">
+      <a href="checks/mysql-innodb-redolog-disabled.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    MySQL General log is active
+    Redo log is disabled in this instance
   
 
     
@@ -5909,14 +5652,14 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/configuration-check-tmp-table-size-limit.html" class="md-nav__link">
+      <a href="checks/configuration-check-sync-binlog.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    MySQL Temporary tables dimension is capped by max_heap_table_size
+    MySQL check binary log sync status
   
 
     
@@ -5937,14 +5680,14 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/mysql-warnings-not-being-logged.html" class="md-nav__link">
+      <a href="checks/innodb-strict-mode.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Warnings are not being logged
+    MySQL InnoDB strict mode not correct
   
 
     
@@ -5993,6 +5736,34 @@
   
   
     <li class="md-nav__item">
+      <a href="checks/performance-pg-archiver-failing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL Archiver is failing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="checks/configuration-pg-check-fsync-enabled.html" class="md-nav__link">
         
   
@@ -6001,6 +5772,173 @@
     
   
     fsync is disabled on PostgreSQL configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_8_4_4" id="__nav_6_8_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Logging
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-log-messages.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB logLevel is not default
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/configuration-check-general-log.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL General log is active
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql-warnings-not-being-logged.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Warnings are not being logged
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/configuration-pg-log-autovacuum-disabled.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL log_autovacuum_min_duration is disabled (Set to -1)
   
 
     
@@ -6070,6 +6008,61 @@
 
               
             
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_8_4_5" id="__nav_6_8_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Maintenance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
               
                 
   
@@ -6077,14 +6070,14 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/postgresql-wal-retention-check.html" class="md-nav__link">
+      <a href="checks/mongodb-collections-fragmented.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Postgres WAL retention check
+    MongoDB fragmented collections
   
 
     
@@ -6105,14 +6098,154 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/performance-pg-archiver-failing.html" class="md-nav__link">
+      <a href="checks/configuration-pg-settings-changed.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    PostgreSQL Archiver is failing
+    Settings changed on a instance that requires a restart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/postgresql-tables-per-table-vacuum-settings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check the tables that have “per table” vacuum settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/postgresql-table-bloat-in-bytes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check Table bloat in bytes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/postgresql-table-bloat-in-percentage-of-table-size.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Table bloat in percentage of table size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/postgresql-transaction-id-wraparound-is-approaching.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transaction ID wraparound is approaching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/postgresql-vacuum-sanity-check.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL Vacuum sanity
   
 
     
@@ -6149,17 +6282,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4_6" >
         
           
-          <label class="md-nav__link" for="__nav_6_8_3_2_3" id="__nav_6_8_3_2_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_4_6" id="__nav_6_8_4_6_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Resources configuration checks
+    Performance
   
 
     
@@ -6170,12 +6303,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_2_3">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_4_6">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Resources configuration checks
+    Performance
   
 
           </label>
@@ -6188,14 +6321,768 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/mongodb-collections-fragmented.html" class="md-nav__link">
+      <a href="checks/mongodb-read-tickets.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    MongoDB fragmented collections
+    MongoDB read ticket is more than 128
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-write-tickets.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB write tickets in the startup options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-non-default-runtime-write-tickets.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB write tickets at runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql-ahi-efficiency-performance-basic-check.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InnoDB Adaptive Hash Index (AHI) efficiency check
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/configuration-check-tmp-table-size-limit.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL Temporary tables dimension is capped by max_heap_table_size
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/configuration-innodb-file-format.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL InnoDB file format in use
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/configuration-innodb-flush-method.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL InnoDB file format in use
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/innodb_redo_logs_not_sized_correctly.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InnoDB redo log size advisor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql_performance_temp_ondisk_table_high.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance check for On-Disk Temporary MySQL tables
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/performance-pg-low-cache-hit-ratio.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL cache hit ratio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/postgresql-tmpfiles-check.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL temporary files written to disk check
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_8_4_7" id="__nav_6_8_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replication
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Replication
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-chunk-imbalance.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB balancer is disabled
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-oplog-sizing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB Oplog Sizing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-psa-architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB PSA Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongo-check-the-replica-set-topology.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check the replica set topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongo-replication-lag.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB replication lag
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/configuration-check-relay-log-purge.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL relay log on the replica node is not automatically purged
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/configuration-check-replica-not-read-only.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL Replica node is not configured as READ-ONLY
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/configuration-check-replica-verifying-checksum.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL enforced data integrity checking is disabled
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/sql-processing-not-multi-threaded.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replica SQL processing not multi-threaded
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql-log-replica-updates.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL server replicating events are not logged
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/replica_running_skipping_errors_or_idempotent_mode.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The advisor checks for two replication specific configuration options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/performance-pg-stale-replication-slot.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL stale replication slot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_8_4_8" id="__nav_6_8_4_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Resources
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Resources
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-high-wiredTiger-cache.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check WiredTiger cache size
   
 
     
@@ -6272,42 +7159,14 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/mongodb-fcv-mismatch.html" class="md-nav__link">
+      <a href="checks/multiple-mongod-running-in-a-node.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    MongoDB FeatureCompatibilityVersion
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-maxSessions.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Check the maxSessions value
+    MongoDB - Multiple mongod service running in a single node
   
 
     
@@ -6433,703 +7292,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_2_4" id="__nav_6_8_3_2_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Connection configuration checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_2_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Connection configuration checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-connection-spike.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB Connections sudden spike
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongo-high-connections.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB high connections
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql_configuration_max_connections_usage.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL max connection usage check
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/configuration-pg-high-max-connections.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PostgreSQL max_connections set too high
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_2_5" id="__nav_6_8_3_2_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Replication configuration checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_2_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Replication configuration checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-psa-architecture.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB PSA Architecture
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-replicaset-topology.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB replica set topology
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/check-the-replica-set-topology.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB replica set topology
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongo-check-the-replica-set-topology.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Check the replica set topology
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/configuration-check-relay-log-purge.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL relay log on the replica node is not automatically purged
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/configuration-check-replica-not-read-only.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL Replica node is not configured as READ-ONLY
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/configuration-check-replica-verifying-checksum.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL enforced data integrity checking is disabled
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/check-replica-verifying-checksum.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL enforced data integrity checking is disabled
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/sql-processing-not-multi-threaded.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Replica SQL processing not multi-threaded
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/configuration-check-sync-binlog.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL check binary log sync status
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql-log-replica-updates.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL server replicating events are not logged
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/replica_running_skipping_errors_or_idempotent_mode.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    The advisor checks for two replication specific configuration options
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_2_6" id="__nav_6_8_3_2_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    InnoDB configuration checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_2_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    InnoDB configuration checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/innodb_redo_logs_not_sized_correctly.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    InnoDB redo log size advisor
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql-innodb-redolog-disabled.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Redo log is disabled in this instance
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/configuration-innodb-file-format.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL InnoDB file format in use
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
               
                 
   
@@ -7193,42 +7355,14 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/configuration-innodb-flush-method.html" class="md-nav__link">
+      <a href="checks/postgresql-wal-retention-check.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    MySQL InnoDB file format in use
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/innodb-strict-mode.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL InnoDB strict mode not correct
+    Postgres WAL retention check
   
 
     
@@ -7265,17 +7399,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_2_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4_9" >
         
           
-          <label class="md-nav__link" for="__nav_6_8_3_2_7" id="__nav_6_8_3_2_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_4_9" id="__nav_6_8_4_9_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Vacuum configuration checks
+    Schema and indexes
   
 
     
@@ -7286,1624 +7420,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_2_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_2_7">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_4_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_4_9">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Vacuum configuration checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/configuration-pg-log-autovacuum-disabled.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PostgreSQL log_autovacuum_min_duration is disabled (Set to -1)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-tables-per-table-vacuum-settings.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Check the tables that have “per table” vacuum settings
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-transaction-id-wraparound-is-approaching.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Transaction ID wraparound is approaching
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-vacuum-sanity-check.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PostgreSQL Vacuum sanity
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_3" id="__nav_6_8_3_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Performance advisors
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Performance advisors
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_3_1" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_3_1" id="__nav_6_8_3_3_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Generic performance checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_3_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_3_1">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Generic performance checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/multiple-mongod-running-in-a-node.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB - Multiple mongod service running in a single node
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql-ahi-efficiency-performance-basic-check.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    InnoDB Adaptive Hash Index (AHI) efficiency check
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/performance-pg-low-cache-hit-ratio.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PostgreSQL cache hit ratio
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/configuration-pg-settings-changed.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Settings changed on a instance that requires a restart
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-tmpfiles-check.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PostgreSQL temporary files written to disk check
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_3_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_3_2" id="__nav_6_8_3_3_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Vacuum performance checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_3_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Vacuum performance checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-table-bloat-in-bytes.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Check Table bloat in bytes
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-table-bloat-in-percentage-of-table-size.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Table bloat in percentage of table size
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_3_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_3_3" id="__nav_6_8_3_3_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Replication performance checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_3_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Replication performance checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-chunk-imbalance.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB sharding - chunk imbalance across shards
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-oplog-sizing.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB Oplog Sizing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongo-replication-lag.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB replication lag
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/performance-pg-stale-replication-slot.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PostgreSQL stale replication slot
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_4" id="__nav_6_8_3_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Security advisors
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_3_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Security advisors
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4_1" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_4_1" id="__nav_6_8_3_4_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CVE security checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_4_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_4_1">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    CVE security checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-cve-check.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Security vulnerabilities
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_4_2" id="__nav_6_8_3_4_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configuration security checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_4_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Configuration security checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-scram-sha-256.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB not using the default SCRAM-SHA-256 authentication
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/local-option-of-load-data-enabled.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Verify if local infile global variable is disabled
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql_configuration_secure_file_priv_empty.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL secure_file_priv configuration option empty check
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql_password_expiry.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL expired passwords
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql-secure-transport-only.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL secure transport only
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/default-password-lifetime.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MySQL InnoDB password lifetime
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/validate-password-policy.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Policy-based password validation does not perform dictionary checks
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/postgresql-expiring-passwd.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    PostgreSQL roles with expiring passwords
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_4_3" id="__nav_6_8_3_4_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Authentication security checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Authentication security checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-localhost-bypass.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Check mongodb localhost bypass
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/security-anonymous-user.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Anonymous users
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/security-user-with-open-to-the-word-scope.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    User with open to the word scope
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/root-account-can-login-remotely.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Root account can log in remotely
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/security-user-not-using-ssl-protocol.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    s: User not using SSL protocol to connect
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/security-non-root-accounts-super-privileges.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Too many accounts with SUPER privileges
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/security-user-without-password.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    s: There are users without passwords
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_4_4" id="__nav_6_8_3_4_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Replication security checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_4_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Replication security checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/replica-without-replication-slave-account.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Replica without replication slave account
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mysql-replication-privileges.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Replication privileges
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_4_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_4_5" id="__nav_6_8_3_4_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Connection security checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_4_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_4_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Connection security checks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="checks/mongodb-bindip.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MongoDB BindIP Check
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_5" id="__nav_6_8_3_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Query advisors
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_3_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Query advisors
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_5_1" >
-        
-          
-          <label class="md-nav__link" for="__nav_6_8_3_5_1" id="__nav_6_8_3_5_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Index query checks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_5_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_5_1">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Index query checks
+    Schema and indexes
   
 
           </label>
@@ -8972,14 +7494,14 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/mysql_performance_temp_ondisk_table_high.html" class="md-nav__link">
+      <a href="checks/datadesign-mysql-indexes-larger-than-data.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Performance check for On-Disk Temporary MySQL tables
+    Index size is larger than data size
   
 
     
@@ -9128,17 +7650,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_3_5_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4_10" >
         
           
-          <label class="md-nav__link" for="__nav_6_8_3_5_2" id="__nav_6_8_3_5_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8_4_10" id="__nav_6_8_4_10_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Schema design query checks
+    Security
   
 
     
@@ -9149,12 +7671,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_8_3_5_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6_8_3_5_2">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_4_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_4_10">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Schema design query checks
+    Security
   
 
           </label>
@@ -9167,14 +7689,686 @@
   
   
     <li class="md-nav__item">
-      <a href="checks/datadesign-mysql-indexes-larger-than-data.html" class="md-nav__link">
+      <a href="checks/mongodb-authentication.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Index size is larger than data size
+    MongoDB authentication is disabled
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-scram-sha-256.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB not using the default SCRAM-SHA-256 authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-bindip.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB BindIP Check
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-cve-2025-14847.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB Zlib compression vulnerability (CVE-2025-14847)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-localhost-bypass.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Check mongodb localhost bypass
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql-automatic-expired-password.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL automatic password expiration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql_automatic_sp_privileges_enabled.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automatic_sp_privileges configuration for MySQL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/local-option-of-load-data-enabled.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verify if local infile global variable is disabled
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql_configuration_secure_file_priv_empty.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL secure_file_priv configuration option empty check
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql_password_expiry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL expired passwords
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql-private-networks-only.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL accounts accessible from public networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/replica-without-replication-slave-account.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replica without replication slave account
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql-secure-transport-only.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL secure transport only
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/security-anonymous-user.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Anonymous users
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/security-user-with-open-to-the-word-scope.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User with open to the word scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/default-password-lifetime.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL InnoDB password lifetime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/validate-password-policy.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Policy-based password validation does not perform dictionary checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql-replication-privileges.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replication privileges
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/root-account-can-login-remotely.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Root account can log in remotely
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/security-user-not-using-ssl-protocol.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    s: User not using SSL protocol to connect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/security-non-root-accounts-super-privileges.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Too many accounts with SUPER privileges
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/security-user-without-password.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    s: There are users without passwords
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql-test-database.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL test database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/postgresql-expiring-passwd.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL roles with expiring passwords
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/postgresql-super-role.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL users with superuser privileges
   
 
     
@@ -9191,6 +8385,193 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8_4_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_8_4_11" id="__nav_6_8_4_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Versions
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_8_4_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_8_4_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Versions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-fcv-mismatch.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB FeatureCompatibilityVersion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mongodb-version.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB versions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/mysql-version.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL version
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/postgresql-extension-check.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL outdated extensions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/postgresql-version-check.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL version
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -10576,6 +9957,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../admin/security/credentials_as_files.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provide PMM Server credentials in files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -11609,6 +11018,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../pmm-upgrade/prepare_postgresql_14_removal.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prepare for the PostgreSQL 14 removal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
         
   
@@ -12374,6 +11811,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-notes/3.11.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.11.0 (2026-11-26)
   
 
     
@@ -13463,6 +12928,34 @@
     
   
     Add database services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../use/commands/pmm-admin/update.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update monitored services
   
 
     
@@ -15107,6 +14600,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/dashboards/dashboard-mongodb-top-queries.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB Top Queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
@@ -15395,6 +14916,34 @@
     
   
     MongoDB Backup Details dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/dashboards/dashboard-mongodb-clustersync-details.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB ClusterSync Details
   
 
     
@@ -16676,7 +16225,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                       <div data-banner="data-banner" class="edit-contrib-banner">
   <div class="banner-content">
     <!-- Edit link centered -->
-    <a href="https://github.com/percona/pmm/edit/pmm-3.10.0/documentation/docs/advisors/advisor-details.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/pmm-3.11.0/documentation/docs/advisors/advisor-details.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -16717,6 +16266,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -16725,113 +16276,123 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#list-of-advisors-and-checks" class="md-nav__link">
+  <a href="#connections" class="md-nav__link">
     <span class="md-ellipsis">
       
-        List of advisors and checks
+        Connections
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="List of advisors and checks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#configuration-advisors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration advisors
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#performance-advisors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Performance advisors
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#security-advisors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Security advisors
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#query-advisors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Query advisors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#list-of-checks" class="md-nav__link">
+  <a href="#durability" class="md-nav__link">
     <span class="md-ellipsis">
       
-        List of checks
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="List of checks">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#mongodb" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        MongoDB
+        Durability
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#mysql" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
     <span class="md-ellipsis">
       
-        MySQL
+        Logging
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#postgresql" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#maintenance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PostgreSQL
+        Maintenance
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#replication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-indexes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema &amp; indexes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-topics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related topics
+      
+    </span>
+  </a>
   
 </li>
       
@@ -16856,814 +16417,768 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
       
     
-    <a href="https://github.com/percona/pmm/raw/pmm-3.10.0/documentation/docs/advisors/advisor-details.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/pmm-3.11.0/documentation/docs/advisors/advisor-details.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-  <h1>Advisor details</h1>
-
-<h2 id="list-of-advisors-and-checks">List of advisors and checks<a class="headerlink" href="#list-of-advisors-and-checks" title="Permanent link">&para;</a></h2>
-<p>Percona Monitoring and Management (PMM) offers four categories of database advisors to help you improve database performance: Configuration, Performance, Query and Security advisors.</p>
-<p>Each advisor includes a set of automated checks that investigate specific ranges of possible issues and areas of improvement: security threats, non-compliance issues, performance degradation, query and index optimization strategies etc. </p>
-<p>Here&rsquo;s the complete list of database advisors and available checks:</p>
-<h3 id="configuration-advisors">Configuration advisors<a class="headerlink" href="#configuration-advisors" title="Permanent link">&para;</a></h3>
+<h1 id="list-of-advisors-and-checks">List of advisors and checks<a class="headerlink" href="#list-of-advisors-and-checks" title="Permanent link">&para;</a></h1>
+<p>Use this list to find a built-in Advisor check and learn what it finds. Each check runs on one type of database: MySQL, PostgreSQL or MongoDB. To see how to fix what a check finds, click its summary. To check for something that no built-in check covers, <a href="develop-advisor-checks.html">develop your own check</a>.</p>
+<p>The checks are grouped by the same categories that <strong>Advisors &gt; Catalog</strong> uses: <a href="#connections">Connections</a>, <a href="#durability">Durability</a>, <a href="#logging">Logging</a>, <a href="#maintenance">Maintenance</a>, <a href="#performance">Performance</a>, <a href="#replication">Replication</a>, <a href="#resources">Resources</a>, <a href="#schema-indexes">Schema &amp; indexes</a>, <a href="#security">Security</a> and <a href="#versions">Versions</a>.</p>
+<h2 id="connections">Connections<a class="headerlink" href="#connections" title="Permanent link">&para;</a></h2>
+<p>Use these checks to catch connection limits that are set too high, and connection counts that approach the limit or spike suddenly, before clients start getting connection errors:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Advisor name</th>
-<th style="text-align: left;">Description</th>
-<th style="text-align: left;">Database technology</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Version configuration</strong></td>
-<td style="text-align: left;">Notifies of newly released database versions to streamline database maintenance and ensure the most up-to-date performance.</td>
-<td style="text-align: left;">MySQL, MongoDB, PostgreSQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Generic configuration</strong></td>
-<td style="text-align: left;">Provides basic recommendations for improving your database configuration.</td>
-<td style="text-align: left;">MySQL, MongoDB, PostgreSQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Resources configuration</strong></td>
-<td style="text-align: left;">Watches your database and gives you recommendations for efficient management of resources like binaries architecture, CPU number versus DB Configuration, etc.</td>
-<td style="text-align: left;">MySQL, MongoDB</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Connection configuration</strong></td>
-<td style="text-align: left;">Provides recommendations on configuring database connection parameters for improving database performance.</td>
-<td style="text-align: left;">MySQL, MongoDB, PostgreSQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Replication configuration</strong></td>
-<td style="text-align: left;">Provides recommendations for scalable replication in database clusters.</td>
-<td style="text-align: left;">MySQL, MongoDB</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>InnoDB configuration</strong></td>
-<td style="text-align: left;">Advises on configuring InnoDB optimization for high performance.</td>
-<td style="text-align: left;">MySQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Vacuum configuration</strong></td>
-<td style="text-align: left;">Provides recommendations on optimizing Vacuum operations.</td>
-<td style="text-align: left;">PostgreSQL</td>
-</tr>
-</tbody>
-</table>
-<h3 id="performance-advisors">Performance advisors<a class="headerlink" href="#performance-advisors" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Advisor name</th>
-<th style="text-align: left;">Description</th>
-<th style="text-align: left;">Database technology</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Generic performance</strong></td>
-<td style="text-align: left;">Provides basic database configuration recommendations for high-performance query execution.</td>
-<td style="text-align: left;">MongoDB, PostgreSQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Vacuum performance</strong></td>
-<td style="text-align: left;">Helps improve the efficiency and execution speed of database Vacuum commands.</td>
-<td style="text-align: left;">PostgreSQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Replication performance</strong></td>
-<td style="text-align: left;">Checks efficient replication usage of your database.</td>
-<td style="text-align: left;">MongoDB, PostgreSQL</td>
-</tr>
-</tbody>
-</table>
-<h3 id="security-advisors">Security advisors<a class="headerlink" href="#security-advisors" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Advisor name</th>
-<th style="text-align: left;">Description</th>
-<th style="text-align: left;">Database technology</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>CVE security</strong></td>
-<td style="text-align: left;">Informs you of any database versions affected by CVE.</td>
-<td style="text-align: left;">MongoDB, PostgreSQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Configuration security</strong></td>
-<td style="text-align: left;">Checks your database configuration to ensure that security best practices are correctly implemented.</td>
-<td style="text-align: left;">MySQL, MongoDB, PostgreSQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Authentication security</strong></td>
-<td style="text-align: left;">Ensures that all database authentication parameters are configured securely.</td>
-<td style="text-align: left;">MySQL, MongoDB, PostgreSQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Replication security</strong></td>
-<td style="text-align: left;">Helps safeguard data replication by assessing security risks and providing recommendations for improving protection.</td>
-<td style="text-align: left;">MySQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Connection security</strong></td>
-<td style="text-align: left;">Helps identify security issues on network connections and provides recommendations for enhancing security.</td>
-<td style="text-align: left;">MySQL, MongoDB</td>
-</tr>
-</tbody>
-</table>
-<h3 id="query-advisors">Query advisors<a class="headerlink" href="#query-advisors" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Advisor name</th>
-<th style="text-align: left;">Description</th>
-<th style="text-align: left;">Database technology</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;"><strong>Index query</strong></td>
-<td style="text-align: left;">Provides query and index optimization strategies for peak database performance.</td>
-<td style="text-align: left;">MySQL, MongoDB, PostgreSQL</td>
-</tr>
-<tr>
-<td style="text-align: left;"><strong>Schema design query</strong></td>
-<td style="text-align: left;">Helps create efficient database schemas by analyzing queries and offering suggestions for optimization.</td>
-<td style="text-align: left;">MySQL</td>
-</tr>
-</tbody>
-</table>
-<h2 id="list-of-checks">List of checks<a class="headerlink" href="#list-of-checks" title="Permanent link">&para;</a></h2>
-<p>Every advisor consists of one or more advisor checks. Here is the full list of checks: </p>
-<h3 id="mongodb">MongoDB<a class="headerlink" href="#mongodb" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Advisor</th>
-<th style="text-align: left;">Check Name</th>
-<th style="text-align: left;">Description</th>
 <th style="text-align: left;">Summary</th>
+<th style="text-align: left;">Check name</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">What it checks</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">Connection configuration</td>
-<td style="text-align: left;">mongodb_connection_sudden_spike</td>
-<td style="text-align: left;">Warns about any significant increase in the number of connections exceeding 50% of the recent or typical connection count.</td>
-<td style="text-align: left;">MongoDB Sudden Increase in Connection Count</td>
-</tr>
-<tr>
-<td style="text-align: left;">Connection configuration</td>
-<td style="text-align: left;">mongodb_connections</td>
-<td style="text-align: left;">Returns the current number of connections as an informational notice when connection counts exceed 5000.</td>
-<td style="text-align: left;">MongoDB high connections</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mongo_cache_size</td>
-<td style="text-align: left;">Warns when Mongo wiredtiger cache size is greater than the default 50%.</td>
-<td style="text-align: left;">Mongo Storage Cache</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mongodb_active_vs_available_connections</td>
+<td style="text-align: left;"><a href="checks/mongodb-active-vs-available-connections.html">MongoDB Active vs Available Connections</a></td>
+<td style="text-align: left;"><code>mongodb_active_vs_available_connections</code></td>
+<td style="text-align: left;">MongoDB</td>
 <td style="text-align: left;">Warns if the ratio between active and available connections is higher than 75%.</td>
-<td style="text-align: left;">MongoDB Active vs Available connections</td>
 </tr>
 <tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mongodb_journal</td>
-<td style="text-align: left;">Warns if the journal is disabled.</td>
-<td style="text-align: left;">MongoDB Journal</td>
+<td style="text-align: left;"><a href="checks/mongodb-connection-spike.html">MongoDB - sudden increase in connection count</a></td>
+<td style="text-align: left;"><code>mongodb_connection_sudden_spike</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns about any significant increase in the number of connections exceeding 50% of the recent or typical connection count.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mongodb_loglevel</td>
-<td style="text-align: left;">Warns if MongoDB is not using the default Log level.</td>
-<td style="text-align: left;">MongoDB Non-Default Log Level</td>
+<td style="text-align: left;"><a href="checks/mongo-high-connections.html">MongoDB High connections</a></td>
+<td style="text-align: left;"><code>mongodb_connections</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Returns the current number of connections as a warning when connection counts exceed 5000.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mongodb_read_tickets</td>
-<td style="text-align: left;">Warns if MongoDB is using more than 128 read tickets.</td>
-<td style="text-align: left;">MongoDB Read Tickets</td>
+<td style="text-align: left;"><a href="checks/mongodb-maxSessions.html">MongoDB maxSessions</a></td>
+<td style="text-align: left;"><code>mongodb_maxsessions</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if MongoDB is configured with a <code>maxSessions</code> value other than the default value of <code>1000000</code>.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mongodb_write_tickets</td>
-<td style="text-align: left;">Warns if MongoDB is using more than 128 write tickets.</td>
-<td style="text-align: left;">MongoDB Write Tickets</td>
+<td style="text-align: left;"><a href="checks/mysql_configuration_max_connections_usage.html">Check max connections usage</a></td>
+<td style="text-align: left;"><code>mysql_configuration_max_connections_usage</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Reports how close the highest number of connections came to the <code>max_connections</code> limit.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mongodb_write_tickets_runtime</td>
-<td style="text-align: left;">Warns if MongoDB is using more than 128 write tickets during runtime.</td>
-<td style="text-align: left;">MongoDB - Configuration Write Ticket Check</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication configuration</td>
-<td style="text-align: left;">mongodb_psa_architecture_check</td>
-<td style="text-align: left;">Raises an error if the replicaSet is utilizing a PSA (Primary-Secondary-Arbiter) architecture.</td>
-<td style="text-align: left;">MongoDB PSA Architecture</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication configuration</td>
-<td style="text-align: left;">mongodb_replicaset_topology</td>
-<td style="text-align: left;">Warns if the Replica Set has less than three data-bearing nodes.</td>
-<td style="text-align: left;">MongoDB Replica Set Topology</td>
-</tr>
-<tr>
-<td style="text-align: left;">Resources configuration</td>
-<td style="text-align: left;">mongodb_collection_fragmented</td>
-<td style="text-align: left;">Warns if the storage size exceeds the data size of a collection, indicating potential fragmentation. This suggests the need for compaction or an initial sync to reclaim disk space.</td>
-<td style="text-align: left;">MongoDB collections fragmented</td>
-</tr>
-<tr>
-<td style="text-align: left;">Resources configuration</td>
-<td style="text-align: left;">mongodb_cpucores</td>
-<td style="text-align: left;">Warns if the number of CPU cores does not meet the minimum recommended requirements according to best practices.</td>
-<td style="text-align: left;">MongoDB CPU Cores</td>
-</tr>
-<tr>
-<td style="text-align: left;">Resources configuration</td>
-<td style="text-align: left;">mongodb_dbpath_mount</td>
-<td style="text-align: left;">Warns if dbpath does not have a dedicated mount point.</td>
-<td style="text-align: left;">MongoDB - Separate Mount Point Other Than &ldquo;/&rdquo; Partition for dbpath.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Resources configuration</td>
-<td style="text-align: left;">mongodb_fcv_check</td>
-<td style="text-align: left;">Warns if there is a mismatch between the MongoDB version and the internal FCV (Feature Compatibility Version) parameter setting.</td>
-<td style="text-align: left;">MongoDB - FCV Mismatch</td>
-</tr>
-<tr>
-<td style="text-align: left;">Resources configuration</td>
-<td style="text-align: left;">mongodb_maxsessions</td>
-<td style="text-align: left;">Warns if MongoDB is configured with a maxSessions value other than the default value of 1000000.</td>
-<td style="text-align: left;">MongoDB maxSessions</td>
-</tr>
-<tr>
-<td style="text-align: left;">Resources configuration</td>
-<td style="text-align: left;">mongodb_swap_allocation</td>
-<td style="text-align: left;">Warns if there is no swap memory allocated to your instance.</td>
-<td style="text-align: left;">MongoDB - Allocate Swap Memory</td>
-</tr>
-<tr>
-<td style="text-align: left;">Resources configuration</td>
-<td style="text-align: left;">mongodb_taskexecutor</td>
-<td style="text-align: left;">Warns if the count of MongoDB TaskExecutorPoolSize exceeds the number of available CPU cores.</td>
-<td style="text-align: left;">MongoDB TaskExecutorPoolSize High</td>
-</tr>
-<tr>
-<td style="text-align: left;">Resources configuration</td>
-<td style="text-align: left;">mongodb_xfs_ftype</td>
-<td style="text-align: left;">Warns if dbpath is not using the XFS filesystem type.</td>
-<td style="text-align: left;">MongoDB - XFS</td>
-</tr>
-<tr>
-<td style="text-align: left;">Version configuration</td>
-<td style="text-align: left;">mongodb_EOL</td>
-<td style="text-align: left;">Raises an error or a warning if your current PSMDB or MongoDB version has reached or is nearing its End-of-Life (EOL) status.</td>
-<td style="text-align: left;">MongoDB Version EOL</td>
-</tr>
-<tr>
-<td style="text-align: left;">Version configuration</td>
-<td style="text-align: left;">mongodb_unsupported_version</td>
-<td style="text-align: left;">Raises an error if your current PSMDB or MongoDB version is not supported.</td>
-<td style="text-align: left;">MongoDB Unsupported Version</td>
-</tr>
-<tr>
-<td style="text-align: left;">Version configuration</td>
-<td style="text-align: left;">mongodb_version</td>
-<td style="text-align: left;">Provides information on current MongoDB or Percona Server for MongoDB versions used in your environment. It also offers details on other available minor or major versions that you may consider for upgrades.</td>
-<td style="text-align: left;">MongoDB Version Check</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic performance</td>
-<td style="text-align: left;">mongodb_multiple_services</td>
-<td style="text-align: left;">Warns if multiple mongod services are detected running on a single node.</td>
-<td style="text-align: left;">MongoDB - Multiple mongod Services</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication performance</td>
-<td style="text-align: left;">mongodb_chunk_imbalance</td>
-<td style="text-align: left;">Warns if the distribution of chunks across shards is imbalanced.</td>
-<td style="text-align: left;">MongoDB Sharding - Chunk Imbalance Across Shards</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication performance</td>
-<td style="text-align: left;">mongodb_oplog_size_recommendation</td>
-<td style="text-align: left;">Warns if the oplog window is below a 24-hour period and provides a recommended oplog size based on your instance.</td>
-<td style="text-align: left;">MongoDB - Oplog Recovery Window is Low</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication performance</td>
-<td style="text-align: left;">mongodb_replication_lag</td>
-<td style="text-align: left;">Warns if the replica set member lags behind the primary by more than 10 seconds.</td>
-<td style="text-align: left;">MongoDB Replication Lag</td>
-</tr>
-<tr>
-<td style="text-align: left;">Index query</td>
-<td style="text-align: left;">mongodb_shard_collection_inconsistent_indexes</td>
-<td style="text-align: left;">Warns if there are inconsistent indexes across shards for sharded collections. Missing or inconsistent indexes across shards can have a negative impact on performance.</td>
-<td style="text-align: left;">MongoDB Sharding - Inconsistent Indexes Across Shards</td>
-</tr>
-<tr>
-<td style="text-align: left;">Index query</td>
-<td style="text-align: left;">mongodb_unused_index</td>
-<td style="text-align: left;">Warns if there are unused indexes on any database collection in your instance. This requires enabling the &ldquo;indexStats&rdquo; collector.</td>
-<td style="text-align: left;">MongoDB - Unused Indexes</td>
-</tr>
-<tr>
-<td style="text-align: left;">Authentication security</td>
-<td style="text-align: left;">mongodb_auth</td>
-<td style="text-align: left;">Warns if MongoDB authentication is disabled.</td>
-<td style="text-align: left;">MongoDB Authentication</td>
-</tr>
-<tr>
-<td style="text-align: left;">Authentication security</td>
-<td style="text-align: left;">mongodb_localhost_auth_bypass</td>
-<td style="text-align: left;">Warns if MongoDB localhost bypass is enabled.</td>
-<td style="text-align: left;">MongoDB localhost authentication bypass enabled</td>
-</tr>
-<tr>
-<td style="text-align: left;">Configuration security</td>
-<td style="text-align: left;">mongodb_authmech_scramsha256</td>
-<td style="text-align: left;">Warns if MongoDB is not using the default SHA-256 hashing function as its SCRAM authentication method.</td>
-<td style="text-align: left;">MongoDB Security AuthMech Check</td>
-</tr>
-<tr>
-<td style="text-align: left;">Connection security</td>
-<td style="text-align: left;">mongodb_bindip</td>
-<td style="text-align: left;">Warns if the MongoDB network binding is not set as Recommended.</td>
-<td style="text-align: left;">MonogDB IP Bindings</td>
-</tr>
-<tr>
-<td style="text-align: left;">CVE security</td>
-<td style="text-align: left;">mongodb_cve_version</td>
-<td style="text-align: left;">Shows an error if MongoDB or Percona Server for MongoDB version is older than the latest version containing CVE (Common Vulnerabilities and Exposures) fixes.</td>
-<td style="text-align: left;">MongoDB CVE Version</td>
+<td style="text-align: left;"><a href="checks/configuration-pg-high-max-connections.html">PostgreSQL max_connections too high</a></td>
+<td style="text-align: left;"><code>postgresql_max_connections</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Warns if <code>max_connections</code> is above 300. PostgreSQL handles many connections badly, even idle ones.</td>
 </tr>
 </tbody>
 </table>
-<h3 id="mysql">MySQL<a class="headerlink" href="#mysql" title="Permanent link">&para;</a></h3>
+<h2 id="durability">Durability<a class="headerlink" href="#durability" title="Permanent link">&para;</a></h2>
+<p>Use these checks to make sure that committed data survives a crash. They flag a disabled journal, redo log, binary log or fsync, and settings that weaken data integrity:</p>
 <table>
 <thead>
 <tr>
-<th style="text-align: left;">Advisor</th>
-<th style="text-align: left;">Check name</th>
-<th style="text-align: left;">Description</th>
 <th style="text-align: left;">Summary</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: left;">Connection configuration</td>
-<td style="text-align: left;">mysql_configuration_max_connections_usage</td>
-<td style="text-align: left;">Checks the MySQL max_connections configuration option to ensure maximum utilization is achieved.</td>
-<td style="text-align: left;">Check Max Connections Usage</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_automatic_sp_privileges_enabled</td>
-<td style="text-align: left;">Checks if the automatic_sp_privileges configuration is ON.</td>
-<td style="text-align: left;">Checks if automatic_sp_privileges configuration is ON.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_config_binlog_retention_period</td>
-<td style="text-align: left;">Checks whether binlogs are being rotated too frequently, which is not recommended, except in very specific cases.</td>
-<td style="text-align: left;">Binlogs Retention Check</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_config_binlog_row_image</td>
-<td style="text-align: left;">Advises when to set binlog_row_image=FULL.</td>
-<td style="text-align: left;">Binlogs Raw Image is Not Set to FULL</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_config_binlogs_checksummed</td>
-<td style="text-align: left;">Advises when to set binlog_checksum=CRC32 to improve consistency and reliability.</td>
-<td style="text-align: left;">Server is Not Configured to Enforce Data Integrity</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_config_general_log</td>
-<td style="text-align: left;">Checks whether the general log is enabled.</td>
-<td style="text-align: left;">General Log is Enabled</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_config_log_bin</td>
-<td style="text-align: left;">Checks whether the binlog is enabled or disabled.</td>
-<td style="text-align: left;">Binary Log is disabled</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_config_sql_mode</td>
-<td style="text-align: left;">Checks whether the server has specific values configured in sql_mode to ensure maximum data integrity.</td>
-<td style="text-align: left;">Server is Not Configured to Enforce Data Integrity</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_config_tmp_table_size_limit</td>
-<td style="text-align: left;">Checks whether the size of temporary tables exceeds the size of heap tables.</td>
-<td style="text-align: left;">Temp Table Size is Larger Than Heap Table Size</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_configuration_log_verbosity</td>
-<td style="text-align: left;">Checks whether warnings are being printed on the log.</td>
-<td style="text-align: left;">Check Log Verbosity</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_test_database</td>
-<td style="text-align: left;">Notifies if there are database named &lsquo;test&rsquo; or &lsquo;test_%&rsquo;.</td>
-<td style="text-align: left;">MySQL Test Database</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">mysql_timezone</td>
-<td style="text-align: left;">Verifies whether the time zone is correctly loaded.</td>
-<td style="text-align: left;">MySQL configuration check</td>
-</tr>
-<tr>
-<td style="text-align: left;">InnoDB configuration</td>
-<td style="text-align: left;">innodb_redo_logs_not_sized_correctly</td>
-<td style="text-align: left;">Reviews the InnoDB redo log size and provides suggestions if it is configured too low.</td>
-<td style="text-align: left;">InnoDB Redo Log Size is Not Configured Correctly.</td>
-</tr>
-<tr>
-<td style="text-align: left;">InnoDB configuration</td>
-<td style="text-align: left;">mysql_ahi_efficiency_performance_basic_check</td>
-<td style="text-align: left;">Checks the efficiency and effectiveness of InnoDB&rsquo;s Adaptive Hash Index (AHI).</td>
-<td style="text-align: left;">InnoDB Adaptive Hash Index (AHI) Efficiency</td>
-</tr>
-<tr>
-<td style="text-align: left;">InnoDB configuration</td>
-<td style="text-align: left;">mysql_config_innodb_redolog_disabled</td>
-<td style="text-align: left;">Warns when the MySQL InnoDB Redo log is set to OFF, which poses a significant security risk and compromises data integrity. The MySQL InnoDB Redo log is a crucial component for maintaining the ACID (Atomicity, Consistency, Isolation, Durability) properties in MySQL databases.</td>
-<td style="text-align: left;">Redo Log is Disabled in This Instance</td>
-</tr>
-<tr>
-<td style="text-align: left;">InnoDB configuration</td>
-<td style="text-align: left;">mysql_configuration_innodb_file_format</td>
-<td style="text-align: left;">Verifies whether InnoDB is configured with the recommended file format.</td>
-<td style="text-align: left;">MySQL InnoDB File Format</td>
-</tr>
-<tr>
-<td style="text-align: left;">InnoDB configuration</td>
-<td style="text-align: left;">mysql_configuration_innodb_file_maxlimit</td>
-<td style="text-align: left;">Checks whether InnoDB is configured with the recommended auto-extend settings.</td>
-<td style="text-align: left;">InnoDB Tablespace Size Has a Maximum Limit.</td>
-</tr>
-<tr>
-<td style="text-align: left;">InnoDB configuration</td>
-<td style="text-align: left;">mysql_configuration_innodb_file_per_table_not_enabled</td>
-<td style="text-align: left;">Warns when innodb_file_per_table is not enabled.</td>
-<td style="text-align: left;">innodb_file_per_table Not Enabled</td>
-</tr>
-<tr>
-<td style="text-align: left;">InnoDB configuration</td>
-<td style="text-align: left;">mysql_configuration_innodb_flush_method</td>
-<td style="text-align: left;">Checks whether InnoDB is configured with the recommended flush method.</td>
-<td style="text-align: left;">MySQL InnoDB Flush Method</td>
-</tr>
-<tr>
-<td style="text-align: left;">InnoDB configuration</td>
-<td style="text-align: left;">mysql_configuration_innodb_strict_mode</td>
-<td style="text-align: left;">Warns about password lifetime.</td>
-<td style="text-align: left;">InnoDB strict mode</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication configuration</td>
-<td style="text-align: left;">mysql_config_relay_log_purge</td>
-<td style="text-align: left;">Identifies whether a replica node has relay-logs purge set.</td>
-<td style="text-align: left;">Automatic Relay Log Purging is OFF</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication configuration</td>
-<td style="text-align: left;">mysql_config_replication_bp1</td>
-<td style="text-align: left;">Identifies whether a replica node is in read-only mode and if <em>checksum</em> is enabled.</td>
-<td style="text-align: left;">Checks basic best practices when setting replica node.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication configuration</td>
-<td style="text-align: left;">mysql_config_slave_parallel_workers</td>
-<td style="text-align: left;">Identifies whether replication is single-threaded.</td>
-<td style="text-align: left;">Replication is Single-Threaded</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication configuration</td>
-<td style="text-align: left;">mysql_config_sync_binlog</td>
-<td style="text-align: left;">Checks whether the binlog is synchronized before a transaction is committed.</td>
-<td style="text-align: left;">Sync Binlog Disabled</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication configuration</td>
-<td style="text-align: left;">mysql_log_replica_updates</td>
-<td style="text-align: left;">Checks if a replica is safely logging replicated transactions.</td>
-<td style="text-align: left;">MySQL Configuration Check</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication configuration</td>
-<td style="text-align: left;">replica_running_skipping_errors_or_idempotent_mode</td>
-<td style="text-align: left;">Reviews replication status to check if it is configured to skip errors or if the slave_exec_mode is set to be <em>idempotent</em>.</td>
-<td style="text-align: left;">Replica is skipping errors or slave_exec_mode is Idempotent.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Resources configuration</td>
-<td style="text-align: left;">mysql_32binary_on_64system</td>
-<td style="text-align: left;">Notifies if version_compile_machine equals i686.</td>
-<td style="text-align: left;">Check if Binaries are 32 Bits</td>
-</tr>
-<tr>
-<td style="text-align: left;">Version configuration</td>
-<td style="text-align: left;">mysql_unsupported_version_check</td>
-<td style="text-align: left;">Warns against an unsupported Mysql version.</td>
-<td style="text-align: left;">Checks Mysql Version</td>
-</tr>
-<tr>
-<td style="text-align: left;">Version configuration</td>
-<td style="text-align: left;">mysql_version</td>
-<td style="text-align: left;">Warns if MySQL, Percona Server for MySQL, or MariaDB version is not the latest available one.</td>
-<td style="text-align: left;">MySQL Version</td>
-</tr>
-<tr>
-<td style="text-align: left;">Version configuration</td>
-<td style="text-align: left;">mysql_version_eol_57</td>
-<td style="text-align: left;">Checks if the server version is EOL.</td>
-<td style="text-align: left;">End Of Life Server Version (5.7).</td>
-</tr>
-<tr>
-<td style="text-align: left;">Index Query</td>
-<td style="text-align: left;">mysql_performance_temp_ondisk_table_high</td>
-<td style="text-align: left;">Warns if there are too many on-disk temporary tables being created due to unoptimized query execution.</td>
-<td style="text-align: left;">Too Many on Disk Temporary Tables</td>
-</tr>
-<tr>
-<td style="text-align: left;">Index query</td>
-<td style="text-align: left;">mysql_tables_without_pk</td>
-<td style="text-align: left;">Checks tables without primary keys.</td>
-<td style="text-align: left;">MySQL check for a table without Primary Key</td>
-</tr>
-<tr>
-<td style="text-align: left;">Schema design query</td>
-<td style="text-align: left;">mysql_indexes_larger</td>
-<td style="text-align: left;">Check all the tables to see if any have indexes larger than data. This indicates a sub-optimal schema and should be reviewed.</td>
-<td style="text-align: left;">Tables with index sizes larger than data</td>
-</tr>
-<tr>
-<td style="text-align: left;">Authentication aecurity</td>
-<td style="text-align: left;">mysql_automatic_expired_password</td>
-<td style="text-align: left;">Warns if the MySQL parameter for automatic password expiry is not active.</td>
-<td style="text-align: left;">MySQL Automatic User Expired Password</td>
-</tr>
-<tr>
-<td style="text-align: left;">Authentication security</td>
-<td style="text-align: left;">mysql_security_anonymous_user</td>
-<td style="text-align: left;">Verifies if anonymous users are present, as this would contradict security best practices.</td>
-<td style="text-align: left;">Anonymous User (You must remove any anonymous user)</td>
-</tr>
-<tr>
-<td style="text-align: left;">Authentication security</td>
-<td style="text-align: left;">mysql_security_open_to_world_host</td>
-<td style="text-align: left;">Checks whether host definitions are set as &lsquo;%&rsquo; since this is overly permissive and could pose security risks.</td>
-<td style="text-align: left;">UserS Have Host Definition &lsquo;%&rsquo; Which is Too Open</td>
-</tr>
-<tr>
-<td style="text-align: left;">Authentication security</td>
-<td style="text-align: left;">mysql_security_root_not_local</td>
-<td style="text-align: left;">Checks whether the root user has a host definition that is not set to 127.0.0.1 or localhost.</td>
-<td style="text-align: left;">Root User can connect from non-local location</td>
-</tr>
-<tr>
-<td style="text-align: left;">Authentication security</td>
-<td style="text-align: left;">mysql_security_user_ssl</td>
-<td style="text-align: left;">Reports users who are not using a secure SSL protocol to connect.</td>
-<td style="text-align: left;">Users Not Using Secure SSL</td>
-</tr>
-<tr>
-<td style="text-align: left;">Authentication security</td>
-<td style="text-align: left;">mysql_security_user_super_not_local</td>
-<td style="text-align: left;">Reports users with super privileges who are not connecting from the local host or the host is not fully restricted (e.g., 192.168.%).</td>
-<td style="text-align: left;">Users have super privileges with remote and too open access</td>
-</tr>
-<tr>
-<td style="text-align: left;">Authentication security</td>
-<td style="text-align: left;">mysql_security_user_without_password</td>
-<td style="text-align: left;">Reports users without passwords.</td>
-<td style="text-align: left;">Users without password</td>
-</tr>
-<tr>
-<td style="text-align: left;">Configuration security</td>
-<td style="text-align: left;">mysql_config_local_infile</td>
-<td style="text-align: left;">Checks if the &ldquo;LOAD DATA INFILE&rdquo; functionality is active.</td>
-<td style="text-align: left;">Load data in file active</td>
-</tr>
-<tr>
-<td style="text-align: left;">Configuration security</td>
-<td style="text-align: left;">mysql_configuration_secure_file_priv_empty</td>
-<td style="text-align: left;">Warns when  secure_file_priv is empty as this enables users with FILE privilege to create files at any location where MySQL server has Write permission.</td>
-<td style="text-align: left;">secure_file_priv is Empty</td>
-</tr>
-<tr>
-<td style="text-align: left;">Configuration security</td>
-<td style="text-align: left;">mysql_password_expiry</td>
-<td style="text-align: left;">Checks if MySQL user passwords are expired or expiring within the next 30 days.</td>
-<td style="text-align: left;">Check MySQL user password expiry</td>
-</tr>
-<tr>
-<td style="text-align: left;">Configuration security</td>
-<td style="text-align: left;">mysql_require_secure_transport</td>
-<td style="text-align: left;">Checks the status of <em>mysql_secure_transport_only</em>.</td>
-<td style="text-align: left;">MySQL configuration check</td>
-</tr>
-<tr>
-<td style="text-align: left;">Configuration security</td>
-<td style="text-align: left;">mysql_security_password_lifetime</td>
-<td style="text-align: left;">Warns about password lifetime.</td>
-<td style="text-align: left;">InnoDB password lifetime</td>
-</tr>
-<tr>
-<td style="text-align: left;">Configuration security</td>
-<td style="text-align: left;">mysql_security_password_policy</td>
-<td style="text-align: left;">Checks for password policy.</td>
-<td style="text-align: left;">MySQL security check for password</td>
-</tr>
-<tr>
-<td style="text-align: left;">Connection security</td>
-<td style="text-align: left;">mysql_private_networks_only</td>
-<td style="text-align: left;">Notifies about MySQL accounts that are allowed to connect from public networks.</td>
-<td style="text-align: left;">MySQL users with granted public networks access</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication security</td>
-<td style="text-align: left;">mysql_replication_grants</td>
-<td style="text-align: left;">Checks if replication is configured on a node without user grants.</td>
-<td style="text-align: left;">MySQL security check for replication user</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication security</td>
-<td style="text-align: left;">mysql_security_replication_grants_mixed</td>
-<td style="text-align: left;">Checks if replication privileges are mixed with more elevated privileges.</td>
-<td style="text-align: left;">Replication privileges</td>
-</tr>
-</tbody>
-</table>
-<h3 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th style="text-align: left;">Advisor</th>
 <th style="text-align: left;">Check name</th>
-<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">What it checks</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">Connection configuration</td>
-<td style="text-align: left;">postgresql_max_connections_1</td>
-<td style="text-align: left;">Notifies if the <em>max_connections</em> configuration option is set to a high value (above 300). PostgreSQL doesn&rsquo;t cope well with having many connections even if they are idle. The recommended value is below 300.</td>
+<td style="text-align: left;"><a href="checks/mongodb-journal.html">MongoDB Journal</a></td>
+<td style="text-align: left;"><code>mongodb_journal</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if the journal is explicitly disabled on MongoDB older than 7.0.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">postgresql_archiver_failing_1</td>
+<td style="text-align: left;"><a href="checks/binlog-retention-period.html">Binlogs retention check</a></td>
+<td style="text-align: left;"><code>mysql_config_binlog_retention_period</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether binlogs are being rotated too frequently, which is not recommended, except in very specific cases.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/binlog-row-image.html">Binlogs raw image is not set to FULL</a></td>
+<td style="text-align: left;"><code>mysql_config_binlog_row_image</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Advises when to set <code>binlog_row_image=FULL</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/binlog-checksum-value.html">Binlogs are not checksummed</a></td>
+<td style="text-align: left;"><code>mysql_config_binlogs_checksummed</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Advises when to set <code>binlog_checksum=CRC32</code> to improve consistency and reliability.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql-innodb-redolog-disabled.html">Redo log is disabled in this instance</a></td>
+<td style="text-align: left;"><code>mysql_config_innodb_redolog_disabled</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Warns if the InnoDB redo log is turned off, which puts data integrity at risk.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-check-log-bin.html">Binary Log is disabled</a></td>
+<td style="text-align: left;"><code>mysql_config_log_bin</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether the binlog is enabled or disabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-check-sql-mode.html">Server is not configured to enforce data integrity</a></td>
+<td style="text-align: left;"><code>mysql_config_sql_mode</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether the server has specific values configured in <code>sql_mode</code> to ensure maximum data integrity.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-check-sync-binlog.html">Sync binlog is disabled</a></td>
+<td style="text-align: left;"><code>mysql_config_sync_binlog</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether the binlog is synchronized before a transaction is committed.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/innodb-strict-mode.html">InnoDB strict mode</a></td>
+<td style="text-align: left;"><code>mysql_configuration_innodb_strict_mode</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Warns if <code>innodb_strict_mode</code> is disabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/time-zone-data-not-loaded.html">MySQL time zone tables are not loaded</a></td>
+<td style="text-align: left;"><code>mysql_timezone</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Verifies whether the time zone is correctly loaded.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/performance-pg-archiver-failing.html">PostgreSQL Archiver is failing</a></td>
+<td style="text-align: left;"><code>postgresql_archiver_failing</code></td>
+<td style="text-align: left;">PostgreSQL</td>
 <td style="text-align: left;">Verifies if the archiver has failed.</td>
 </tr>
 <tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">postgresql_fsync_1</td>
-<td style="text-align: left;">Returns an error if the <em>fsync</em> configuration option is set to OFF, as this can lead to database corruptions.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">postgresql_log_checkpoints_1</td>
-<td style="text-align: left;">Notifies if the <em>log_checkpoints</em> configuration option is not enabled. It is recommended to enable the logging of checkpoint information, as that provides a lot of useful information with almost no drawbacks.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">postgresql_logging_recommendation_checks</td>
-<td style="text-align: left;">Verifies whether the recommended minimum logging features are enabled.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic configuration</td>
-<td style="text-align: left;">postgresql_wal_retention_check</td>
-<td style="text-align: left;">Checks if there are too many WAL files retained in the WAL directory.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Vacuum configuration</td>
-<td style="text-align: left;">postgresql_log_autovacuum_min_duration_1</td>
-<td style="text-align: left;">Notifies if the <em>log_autovacuum_min_duration configuration</em> option is set to -1 (disabled). It is recommended to enable the logging of autovacuum run information, as it provides a lot of useful information with almost no drawbacks.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Vacuum configuration</td>
-<td style="text-align: left;">postgresql_table_autovac_settings</td>
-<td style="text-align: left;">Returns tables where autovacuum parameters are specified along with the corresponding autovacuum settings.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Vacuum configuration</td>
-<td style="text-align: left;">postgresql_txid_wraparound_approaching</td>
-<td style="text-align: left;">Verifies the age of databases and alerts if the transaction ID wraparound issue is nearing.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Vacuum configuration</td>
-<td style="text-align: left;">postgresql_vacuum_sanity_check</td>
-<td style="text-align: left;">This performs a quick check of some vacuum parameters.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Version configuration</td>
-<td style="text-align: left;">postgresql_eol_check</td>
-<td style="text-align: left;">Checks if the currently installed PostgreSQL version has reached its EOL and is no longer supported.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Version configuration</td>
-<td style="text-align: left;">postgresql_extension_check</td>
-<td style="text-align: left;">Lists outdated extensions with newer versions available.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Version configuration</td>
-<td style="text-align: left;">postgresql_unsupported_check</td>
-<td style="text-align: left;">Verifies if the currently installed version is supported by Percona.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Version configuration</td>
-<td style="text-align: left;">postgresql_version_check</td>
-<td style="text-align: left;">Checks if the currently installed version is outdated for its release level.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic performance</td>
-<td style="text-align: left;">postgresql_cache_hit_ratio_1</td>
-<td style="text-align: left;">Checks the hit ratio of one or more databases and raises a complaint when they are too low.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic performance</td>
-<td style="text-align: left;">postgresql_config_changes_need_restart_1</td>
-<td style="text-align: left;">Warns if there are any settings or configurations that have been changed and require a server restart or reload.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Generic performance</td>
-<td style="text-align: left;">postgresql_tmpfiles_check</td>
-<td style="text-align: left;">Reports the number of temporary files and the number of bytes written to disk since the last statistics reset.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Replication performance</td>
-<td style="text-align: left;">postgresql_stale_replication_slot_1</td>
-<td style="text-align: left;">Warns if there is a stale replication slot. Stale replication slots will lead to WAL file accumulation and can result in a database server outage.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Vacuum performance</td>
-<td style="text-align: left;">postgresql_table_bloat_bytes</td>
-<td style="text-align: left;">Verifies the size of the table bloat in bytes across all databases and raises alerts accordingly.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Vacuum performance</td>
-<td style="text-align: left;">postgresql_table_bloat_in_percentage</td>
-<td style="text-align: left;">Verifies the size of the table bloat in the percentage of the total table size and alerts accordingly.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Index query</td>
-<td style="text-align: left;">postgresql_number_of_index_check</td>
-<td style="text-align: left;">Lists relations with more than ten indexes.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Index query</td>
-<td style="text-align: left;">postgresql_sequential_scan_check</td>
-<td style="text-align: left;">Checks for tables with excessive sequential scans.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Index query</td>
-<td style="text-align: left;">postgresql_unused_index_check</td>
-<td style="text-align: left;">Lists relations with indexes that have not been used since the statistics were last reset.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Authentication security</td>
-<td style="text-align: left;">postgresql_super_role</td>
-<td style="text-align: left;">Notifies if there are users with Superuser role.</td>
-</tr>
-<tr>
-<td style="text-align: left;">Configuration security</td>
-<td style="text-align: left;">postgresql_expiring_passwd_check</td>
-<td style="text-align: left;">Checks for passwords that are expiring and displays the time left before they expire.</td>
-</tr>
-<tr>
-<td style="text-align: left;">CVE security</td>
-<td style="text-align: left;">postgresql_cve_check</td>
-<td style="text-align: left;">Checks if the currently installed version has reported security vulnerabilities.</td>
+<td style="text-align: left;"><a href="checks/configuration-pg-check-fsync-enabled.html">PostgreSQL fsync is set to off</a></td>
+<td style="text-align: left;"><code>postgresql_fsync</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Returns an error if the <code>fsync</code> configuration option is <code>OFF</code>, as this can lead to database corruption.</td>
 </tr>
 </tbody>
 </table>
+<h2 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h2>
+<p>Use these checks to make sure that your databases log enough to diagnose problems, without logging so much that the logs grow out of control:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Summary</th>
+<th style="text-align: left;">Check name</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-log-messages.html">MongoDB Non-Default Log Level</a></td>
+<td style="text-align: left;"><code>mongodb_loglevel</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if MongoDB is explicitly set to a non-default log level.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-check-general-log.html">General Log is enabled</a></td>
+<td style="text-align: left;"><code>mysql_config_general_log</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether the general log is enabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql-warnings-not-being-logged.html">Check log verbosity</a></td>
+<td style="text-align: left;"><code>mysql_configuration_log_verbosity</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether warnings are being printed on the log.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-pg-log-autovacuum-disabled.html">PostgreSQL Autovacuum Logging Is Disabled</a></td>
+<td style="text-align: left;"><code>postgresql_log_autovacuum_min_duration</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Notifies if <code>log_autovacuum_min_duration</code> is set to <code>-1</code>, which turns off autovacuum logging.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-pg-log-checkpoints-disabled.html">PostgreSQL Checkpoints Logging Disabled</a></td>
+<td style="text-align: left;"><code>postgresql_log_checkpoints</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Notifies if <code>log_checkpoints</code> is turned off.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-logging-recommendations.html">Check for minimal logging</a></td>
+<td style="text-align: left;"><code>postgresql_logging_recommendation_checks</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Verifies whether the recommended minimum logging features are enabled.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="maintenance">Maintenance<a class="headerlink" href="#maintenance" title="Permanent link">&para;</a></h2>
+<p>Use these checks to keep your databases healthy over time. They flag bloat, fragmentation, vacuum settings, an approaching transaction ID wraparound and settings that wait for a restart:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Summary</th>
+<th style="text-align: left;">Check name</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-collections-fragmented.html">MongoDB Collections Fragmented</a></td>
+<td style="text-align: left;"><code>mongodb_collection_fragmented</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if the storage size exceeds the data size of a collection, indicating potential fragmentation. To reclaim the disk space, compact the collection or run an initial sync.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-pg-settings-changed.html">Configuration change requires restart/reload</a></td>
+<td style="text-align: left;"><code>postgresql_config_changes_need_restart</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Warns if there are any settings or configurations that have been changed and require a server restart or reload.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-tables-per-table-vacuum-settings.html">Check whether there is any table level autovacuum settings</a></td>
+<td style="text-align: left;"><code>postgresql_table_autovac_settings</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Returns tables where autovacuum parameters are specified along with the corresponding autovacuum settings.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-table-bloat-in-bytes.html">Check amount of bloat in tables if greater than 250MB</a></td>
+<td style="text-align: left;"><code>postgresql_table_bloat_bytes</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Verifies the size of the table bloat in bytes across all databases and raises alerts accordingly.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-table-bloat-in-percentage-of-table-size.html">PostgreSQL Table Bloat in percentage of the table size</a></td>
+<td style="text-align: left;"><code>postgresql_table_bloat_in_percentage</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Verifies the size of the table bloat in the percentage of the total table size and alerts accordingly.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-transaction-id-wraparound-is-approaching.html">PostgreSQL Transaction ID Wraparound approaching</a></td>
+<td style="text-align: left;"><code>postgresql_txid_wraparound_approaching</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Verifies the age of databases and alerts if the transaction ID wraparound issue is nearing.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-vacuum-sanity-check.html">PostgreSQL vacuum setting quick check</a></td>
+<td style="text-align: left;"><code>postgresql_vacuum_sanity_check</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Checks some key vacuum parameters.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<p>Use these checks to find settings and workloads that slow down queries, such as ticket limits, a low cache hit ratio, temporary tables written to disk and InnoDB settings:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Summary</th>
+<th style="text-align: left;">Check name</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-read-tickets.html">MongoDB Read Tickets</a></td>
+<td style="text-align: left;"><code>mongodb_read_tickets</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if MongoDB is using more than 128 read tickets.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-write-tickets.html">MongoDB write Tickets</a></td>
+<td style="text-align: left;"><code>mongodb_write_tickets</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if the MongoDB startup options set more than 128 write tickets or, starting with MongoDB 7.0, any fixed number of write tickets.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-non-default-runtime-write-tickets.html">MongoDB Configuration Write ticket Check</a></td>
+<td style="text-align: left;"><code>mongodb_write_tickets_runtime</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if MongoDB is using more than 128 write tickets during runtime or, starting with MongoDB 7.0, any fixed number of write tickets.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql-ahi-efficiency-performance-basic-check.html">InnoDB Adaptive Hash Index (AHI) efficiency checker</a></td>
+<td style="text-align: left;"><code>mysql_ahi_efficiency_performance_basic_check</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks the efficiency and effectiveness of InnoDB&rsquo;s Adaptive Hash Index (AHI).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-check-tmp-table-size-limit.html">Temp table size is larger than Heap Table size</a></td>
+<td style="text-align: left;"><code>mysql_config_tmp_table_size_limit</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether the size of temporary tables exceeds the size of heap tables.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-innodb-file-format.html">MySQL InnoDB file format</a></td>
+<td style="text-align: left;"><code>mysql_configuration_innodb_file_format</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Verifies whether InnoDB is configured with the recommended file format.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-innodb-flush-method.html">MySQL InnoDB flush method</a></td>
+<td style="text-align: left;"><code>mysql_configuration_innodb_flush_method</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether InnoDB is configured with the recommended flush method.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/innodb_redo_logs_not_sized_correctly.html">Checks if InnoDB redo log size is not configured correctly</a></td>
+<td style="text-align: left;"><code>mysql_innodb_redo_logs_not_sized_correctly</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Reviews the InnoDB redo log size and provides suggestions if it is configured too low.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql_performance_temp_ondisk_table_high.html">Too many on-disk temporary tables</a></td>
+<td style="text-align: left;"><code>mysql_performance_temp_ondisk_table_high</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Warns if there are too many on-disk temporary tables being created due to unoptimized query execution.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/performance-pg-low-cache-hit-ratio.html">PostgreSQL cache hit ratio</a></td>
+<td style="text-align: left;"><code>postgresql_cache_hit_ratio</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Checks the hit ratio of one or more databases and raises a complaint when they are too low.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-tmpfiles-check.html">PostgreSQL temporary file statistics</a></td>
+<td style="text-align: left;"><code>postgresql_tmpfiles_check</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Reports the number of temporary files and the number of bytes written to disk since the last statistics reset.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="replication">Replication<a class="headerlink" href="#replication" title="Permanent link">&para;</a></h2>
+<p>Use these checks to make sure that replicas stay in sync and can take over. They flag replication lag, risky replica settings, a short oplog window and fragile topologies:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Summary</th>
+<th style="text-align: left;">Check name</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-chunk-imbalance.html">MongoDB Balancer is disabled</a></td>
+<td style="text-align: left;"><code>mongodb_balancer</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if the balancer process is disabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-oplog-sizing.html">MongoDB Oplog Recovery Window Low</a></td>
+<td style="text-align: left;"><code>mongodb_oplog_size_recommendation</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if the oplog window is below a 24-hour period and provides a recommended oplog size based on your instance.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-psa-architecture.html">MongoDB PSA Architecture</a></td>
+<td style="text-align: left;"><code>mongodb_psa_architecture_check</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Raises an error if the replica set is utilizing a PSA (Primary-Secondary-Arbiter) architecture.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongo-check-the-replica-set-topology.html">MongoDB Replica Set Topology</a></td>
+<td style="text-align: left;"><code>mongodb_replicaset_topology</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if the Replica Set has less than three data-bearing nodes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongo-replication-lag.html">MongoDB Replication Lag</a></td>
+<td style="text-align: left;"><code>mongodb_replication_lag</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if the replica set member lags behind the primary by more than 10 seconds.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-check-relay-log-purge.html">Automatic relay log purging is off</a></td>
+<td style="text-align: left;"><code>mysql_config_relay_log_purge</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Identifies whether a replica node has relay-logs purge set.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-check-replica-not-read-only.html">Checks for basic best practices when setting a replica node</a></td>
+<td style="text-align: left;"><code>mysql_config_replication_bp1</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Identifies whether a replica node is in read-only mode and if <code>checksum</code> is enabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/sql-processing-not-multi-threaded.html">Replication is single threaded</a></td>
+<td style="text-align: left;"><code>mysql_config_slave_parallel_workers</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Identifies whether replication is single-threaded.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql-log-replica-updates.html">Replicated transactions are not logged</a></td>
+<td style="text-align: left;"><code>mysql_log_replica_updates</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks if a replica is safely logging replicated transactions.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/replica_running_skipping_errors_or_idempotent_mode.html">Checks if replica configured is skipping errors or slave_exec_mode is idempotent</a></td>
+<td style="text-align: left;"><code>mysql_replica_running_skipping_errors_or_idempotent_mode</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Reviews replication status to check if it is configured to skip errors or if the <code>slave_exec_mode</code> is set to <code>IDEMPOTENT</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/performance-pg-stale-replication-slot.html">PostgreSQL Stale Replication Slot</a></td>
+<td style="text-align: left;"><code>postgresql_stale_replication_slot</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Warns if there is a stale replication slot. Stale replication slots will lead to WAL file accumulation and can result in a database server outage.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h2>
+<p>Use these checks to make sure that each server has the CPU, memory, swap, storage layout and file settings that the database needs:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Summary</th>
+<th style="text-align: left;">Check name</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-high-wiredTiger-cache.html">Mongo Storage Cache</a></td>
+<td style="text-align: left;"><code>mongodb_cache_size</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns when Mongo WiredTiger cache size is greater than the default 50%.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-cpu-cores-check.html">MongoDB CPU cores</a></td>
+<td style="text-align: left;"><code>mongodb_cpucores</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if the number of CPU cores does not meet the minimum recommended requirements according to best practices.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-dbpath-mount.html">MongoDB separate mount point other than &ldquo;/&rdquo; partition for dbpath</a></td>
+<td style="text-align: left;"><code>mongodb_dbpath_mount</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if <code>dbpath</code> does not have a dedicated mount point.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/multiple-mongod-running-in-a-node.html">MongoDB - Multiple mongod services</a></td>
+<td style="text-align: left;"><code>mongodb_multiple_services</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if multiple mongod services are running on a single node.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-swap-allocation.html">MongoDB - allocate swap memory</a></td>
+<td style="text-align: left;"><code>mongodb_swap_allocation</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if there is no swap memory allocated to your instance.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-task-executorPoolSize-high.html">MongoDB TaskExecutorPoolSize High</a></td>
+<td style="text-align: left;"><code>mongodb_taskexecutor</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if the count of MongoDB <code>TaskExecutorPoolSize</code> exceeds the number of available CPU cores.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-xfs.html">MongoDB - xfs</a></td>
+<td style="text-align: left;"><code>mongodb_xfs_ftype</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if <code>dbpath</code> is not using the XFS filesystem type.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/platform-mysql-binaries-32-bit.html">Check if binaries are 32 bits</a></td>
+<td style="text-align: left;"><code>mysql_32binary_on_64system</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Notifies if <code>version_compile_machine</code> equals <code>i686</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/configuration-check-innodb-data-file-path.html">InnoDB Tablespace size has a maximum limit</a></td>
+<td style="text-align: left;"><code>mysql_configuration_innodb_file_maxlimit</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether InnoDB is configured with the recommended auto-extend settings.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql_configuration_innodb_file_per_table_not_enabled.html">innodb_file_per_table not enabled</a></td>
+<td style="text-align: left;"><code>mysql_configuration_innodb_file_per_table_not_enabled</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Warns when <code>innodb_file_per_table</code> is not enabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-wal-retention-check.html">Check for WAL file accumulation</a></td>
+<td style="text-align: left;"><code>postgresql_wal_retention_check</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Checks if there are too many WAL files retained in the WAL directory.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="schema-indexes">Schema &amp; indexes<a class="headerlink" href="#schema-indexes" title="Permanent link">&para;</a></h2>
+<p>Use these checks to find unused, inconsistent or oversized indexes, tables without a primary key and excessive sequential scans:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Summary</th>
+<th style="text-align: left;">Check name</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-inconsistent-indexes-across-shards.html">MongoDB Inconsistent Indexes Across Shards</a></td>
+<td style="text-align: left;"><code>mongodb_shard_collection_inconsistent_indexes</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if there are inconsistent indexes across shards for sharded collections. Missing or inconsistent indexes across shards can have a negative impact on performance.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-unused-indexes.html">MongoDB - Unused Indexes</a></td>
+<td style="text-align: left;"><code>mongodb_unused_index</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if there are unused indexes on any database collection in your instance. This requires enabling the <code>indexStats</code> collector.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/datadesign-mysql-indexes-larger-than-data.html">Are there tables with index sizes larger than data?</a></td>
+<td style="text-align: left;"><code>mysql_indexes_larger</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks for tables whose indexes are larger than their data, which suggests a schema to review.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/tables-found-without-primary-keys.html">MySQL check for table without Primary Key</a></td>
+<td style="text-align: left;"><code>mysql_tables_without_pk</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks tables without primary keys.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-high-number-of-indexes-check.html">Check for relations with a high number of indexes</a></td>
+<td style="text-align: left;"><code>postgresql_number_of_index_check</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Lists relations with more than ten indexes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-sequential-scan-check.html">PostgreSQL sequential scan check</a></td>
+<td style="text-align: left;"><code>postgresql_sequential_scan_check</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Checks for tables with excessive sequential scans.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-unused-index-check.html">Check for relations that have unused indexes</a></td>
+<td style="text-align: left;"><code>postgresql_unused_index_check</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Lists relations with indexes that have not been used since the statistics were last reset.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<p>Use these checks to find weak access and password settings, risky users and privileges, and versions with known vulnerabilities:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Summary</th>
+<th style="text-align: left;">Check name</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-authentication.html">MongoDB authentication</a></td>
+<td style="text-align: left;"><code>mongodb_auth</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if MongoDB authentication is disabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-scram-sha-256.html">MongoDB Security AuthMech Check</a></td>
+<td style="text-align: left;"><code>mongodb_authmech_scramsha256</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if MongoDB is not using the default SHA-256 hashing function as its SCRAM authentication method.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-bindip.html">MonogDB IP bindings</a></td>
+<td style="text-align: left;"><code>mongodb_bindip</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if the MongoDB network binding is not set as Recommended.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-cve-2025-14847.html">MongoDB Zlib Compression Heap Memory Vulnerability (CVE-2025-14847)</a></td>
+<td style="text-align: left;"><code>mongodb_cve_2025_14847_zlib</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Checks whether MongoDB Server is vulnerable to CVE-2025-14847 with active Zlib compression.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-localhost-bypass.html">MongoDB localhost authentication bypass enabled</a></td>
+<td style="text-align: left;"><code>mongodb_localhost_auth_bypass</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if MongoDB localhost bypass is enabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql-automatic-expired-password.html">MySQL Automatic User Expired Password</a></td>
+<td style="text-align: left;"><code>mysql_automatic_expired_password</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Warns if the MySQL parameter for automatic password expiry is not active.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql_automatic_sp_privileges_enabled.html">Checks if automatic_sp_privileges configuration is ON</a></td>
+<td style="text-align: left;"><code>mysql_automatic_sp_privileges_enabled</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks if the <code>automatic_sp_privileges</code> configuration is <code>ON</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/local-option-of-load-data-enabled.html">Load data in file active</a></td>
+<td style="text-align: left;"><code>mysql_config_local_infile</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks if the <code>LOAD DATA INFILE</code> functionality is active.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql_configuration_secure_file_priv_empty.html">secure_file_priv is empty</a></td>
+<td style="text-align: left;"><code>mysql_configuration_secure_file_priv_empty</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Warns when <code>secure_file_priv</code> is empty as this enables users with the <code>FILE</code> privilege to create files at any location where MySQL server has Write permission.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql_password_expiry.html">Check MySQL user password expiry</a></td>
+<td style="text-align: left;"><code>mysql_password_expiry</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks if MySQL user passwords are expired or expiring within the next 30 days.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql-private-networks-only.html">MySQL Users With Granted Public Networks Access</a></td>
+<td style="text-align: left;"><code>mysql_private_networks_only</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Notifies about MySQL accounts that are allowed to connect from public networks.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/replica-without-replication-slave-account.html">MySQL security check for replication user</a></td>
+<td style="text-align: left;"><code>mysql_replication_grants</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks if replication is configured on a node without user grants.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql-secure-transport-only.html">Secure transport is not required</a></td>
+<td style="text-align: left;"><code>mysql_require_secure_transport</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether <code>require_secure_transport</code> is enabled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/security-anonymous-user.html">Anonymous user (you must remove any anonymous user)</a></td>
+<td style="text-align: left;"><code>mysql_security_anonymous_user</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Verifies if anonymous users are present, as this would contradict security best practices.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/security-user-with-open-to-the-word-scope.html">User(s) has/have host definition &lsquo;%&rsquo; which is too open</a></td>
+<td style="text-align: left;"><code>mysql_security_open_to_world_host</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether host definitions are set as <code>%</code> since this is overly permissive and could pose security risks.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/default-password-lifetime.html">Password lifetime is not enforced</a></td>
+<td style="text-align: left;"><code>mysql_security_password_lifetime</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Warns about password lifetime.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/validate-password-policy.html">MySQL security check for password</a></td>
+<td style="text-align: left;"><code>mysql_security_password_policy</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks for password policy.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql-replication-privileges.html">Replication privileges</a></td>
+<td style="text-align: left;"><code>mysql_security_replication_grants_mixed</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks if replication privileges are mixed with more elevated privileges.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/root-account-can-login-remotely.html">Root user can connect from non local location</a></td>
+<td style="text-align: left;"><code>mysql_security_root_not_local</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Checks whether the root user has a host definition that is not set to <code>127.0.0.1</code> or <code>localhost</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/security-user-not-using-ssl-protocol.html">User(s) not using secure SSL protocol to connect</a></td>
+<td style="text-align: left;"><code>mysql_security_user_ssl</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Reports users who are not using a secure SSL protocol to connect.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/security-non-root-accounts-super-privileges.html">Users have super privileges with remote or lack access restrictions</a></td>
+<td style="text-align: left;"><code>mysql_security_user_super_not_local</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Reports users with super privileges who can connect from a remote or loosely restricted host, such as <code>192.168.%</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/security-user-without-password.html">User(s) without password</a></td>
+<td style="text-align: left;"><code>mysql_security_user_without_password</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Reports users without passwords.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql-test-database.html">MySQL test Database</a></td>
+<td style="text-align: left;"><code>mysql_test_database</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Notifies if there are database named <code>test</code> or <code>test_%</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-expiring-passwd.html">Check for password expiration</a></td>
+<td style="text-align: left;"><code>postgresql_expiring_passwd_check</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Checks for passwords that are expiring and displays the time left before they expire.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-super-role.html">PostgreSQL Super Role</a></td>
+<td style="text-align: left;"><code>postgresql_super_role</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Notifies if there are users with Superuser role.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="versions">Versions<a class="headerlink" href="#versions" title="Permanent link">&para;</a></h2>
+<p>Use these checks to find database versions that have reached end of life, aren&rsquo;t supported or have a newer release, and outdated extensions:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Summary</th>
+<th style="text-align: left;">Check name</th>
+<th style="text-align: left;">Technology</th>
+<th style="text-align: left;">What it checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-fcv-mismatch.html">MongoDB - FCV mismatch</a></td>
+<td style="text-align: left;"><code>mongodb_fcv_check</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Warns if there is a mismatch between the MongoDB version and the internal FCV (Feature Compatibility Version) parameter setting.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mongodb-version.html">MongoDB version check</a></td>
+<td style="text-align: left;"><code>mongodb_version</code></td>
+<td style="text-align: left;">MongoDB</td>
+<td style="text-align: left;">Returns an error if your MongoDB or Percona Server for MongoDB release series has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer minor version or release series is available, and links to its release notes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/mysql-version.html">MySQL version check</a></td>
+<td style="text-align: left;"><code>mysql_version</code></td>
+<td style="text-align: left;">MySQL</td>
+<td style="text-align: left;">Returns an error if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL release series has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer release of the series is available, and links to its release notes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-extension-check.html">Check for outdated extensions</a></td>
+<td style="text-align: left;"><code>postgresql_extension_check</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Lists outdated extensions with newer versions available.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><a href="checks/postgresql-version-check.html">PostgreSQL version check</a></td>
+<td style="text-align: left;"><code>postgresql_version_check</code></td>
+<td style="text-align: left;">PostgreSQL</td>
+<td style="text-align: left;">Returns an error if your PostgreSQL major version has reached its end of life, and a warning if it will within 6 months. Otherwise, warns if a newer minor or major version is available, and links to its release notes.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="related-topics">Related topics<a class="headerlink" href="#related-topics" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="advisors.html">Run Advisor checks and review results</a></li>
+<li><a href="schedule-advisor-checks.html">Schedule Advisor checks</a></li>
+<li><a href="develop-advisor-checks.html">Develop Advisor checks</a></li>
+</ul>
 
 
 
@@ -17686,7 +17201,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 3, 2025 10:33:16 UTC">November 3, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 19, 2026 09:29:49 UTC">November 19, 2026</span>
   </span>
 
     
