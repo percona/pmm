@@ -58,6 +58,9 @@ export function LogStepTabs({
       scrollButtons="auto"
       sx={{
         minHeight: 36,
+        px: 1,
+        borderBottom: 1,
+        borderColor: 'divider',
         '& .MuiTab-root': { minHeight: 36, py: 0.5, whiteSpace: 'nowrap' },
       }}
     >

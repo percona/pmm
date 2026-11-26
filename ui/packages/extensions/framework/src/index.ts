@@ -113,6 +113,7 @@ export type {
 export {
   TaskRunDetailDrawer,
   LastRunCard,
+  RunTime,
   runFailureReason,
 } from './components/TaskRunDetailDrawer';
 export type {

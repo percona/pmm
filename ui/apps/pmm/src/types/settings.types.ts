@@ -1,3 +1,5 @@
+import { Severity } from './severity.types';
+
 export interface ReadonlySettings {
   updatesEnabled: boolean;
   telemetryEnabled: boolean;
@@ -8,6 +10,7 @@ export interface ReadonlySettings {
   azurediscoverEnabled: boolean;
   enableAccessControl: boolean;
   extensionsEnabled: boolean;
+  omEnabled: boolean;
 }
 
 export interface MetricsResolutions {
@@ -16,10 +19,9 @@ export interface MetricsResolutions {
   lr: string;
 }
 
-export interface AdvisorRunIntervals {
-  rareInterval: string;
-  standardInterval: string;
-  frequentInterval: string;
+/** common.StringArray — lets the API tell an unset list from one cleared to empty. */
+export interface StringArray {
+  values: string[];
 }
 
 export interface GetReadonlySettingsResponse {
@@ -31,7 +33,10 @@ export interface Settings extends ReadonlySettings {
   dataRetention?: string;
   sshKey?: string;
   awsPartitions?: string[];
-  advisorRunIntervals?: AdvisorRunIntervals;
+  advisorHistoryRetention?: string;
+  advisorNotificationsEnabled?: boolean;
+  advisorNotificationSeverities?: Severity[];
+  advisorNotificationEmailAddresses?: string[];
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
   defaultRoleId?: number;
@@ -46,13 +51,17 @@ export interface UpdateSettingsPayload {
   enableTelemetry?: boolean;
   enableAlerting?: boolean;
   enableAdvisor?: boolean;
-  advisorRunIntervals?: AdvisorRunIntervals;
+  advisorHistoryRetention?: string;
+  enableAdvisorNotifications?: boolean;
+  advisorNotificationSeverities?: Severity[];
+  advisorNotificationEmailAddresses?: StringArray;
   enableBackupManagement?: boolean;
   enableAzurediscover?: boolean;
   enableUpdates?: boolean;
   enableAccessControl?: boolean;
   enableInternalPgQan?: boolean;
   awsPartitions?: string[];
+  enableOm?: boolean;
 }
 
 export interface FrontendSettings extends GetFrontendSettingsResponse {}

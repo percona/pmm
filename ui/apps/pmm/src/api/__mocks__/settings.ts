@@ -16,6 +16,7 @@ export const READONLY_SETTINGS_MOCK: ReadonlySettings = {
   azurediscoverEnabled: false,
   enableAccessControl: false,
   extensionsEnabled: false,
+  omEnabled: false,
 };
 
 export const SETTINGS_MOCK: Settings = {
@@ -27,11 +28,6 @@ export const SETTINGS_MOCK: Settings = {
   },
   dataRetention: '2592000s',
   awsPartitions: ['aws'],
-  advisorRunIntervals: {
-    rareInterval: '280800s',
-    standardInterval: '86400s',
-    frequentInterval: '14400s',
-  },
   enableInternalPgQan: false,
   defaultRoleId: 1,
 };

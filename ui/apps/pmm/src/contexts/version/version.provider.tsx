@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useAuth } from 'contexts/auth';
 import { useServerVersion } from 'hooks/api/useServerVersion';
 import { reloadPage } from 'utils/dom.utils';
 import { VersionContext } from './version.context';
@@ -28,7 +29,9 @@ import {
  * inside the Grafana iframe; consumers prompt for that case instead.
  */
 export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
-  const { data } = useServerVersion();
+  const { isLoggedIn } = useAuth();
+  // PMM's APIs refuse anonymous visitors.
+  const { data } = useServerVersion({ enabled: isLoggedIn });
   const [isOutdated, setIsOutdated] = useState(false);
   const baseline = useRef('');
   const reloading = useRef(false);

@@ -2,6 +2,17 @@
 name: QAN
 
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "api-tests/**"
+      - "build/**"
+      - "dashboards/**"
+      - "dev/**"
+      - "documentation/**"
+      - "ui/**"
+
   pull_request:
     paths-ignore:
       - "admin/**"
@@ -39,13 +50,17 @@ jobs:
       - name: Initialize CI environment
         run: make test-env-up
 
-      - name: Run Tests
-        run: |
-          make test
-
       - name: Run Tests Coverage
         run: |
           make test-cover
+
+      - name: Upload coverage results
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: qan-api2/cover.out
+          flags: qan-api2
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run debug commands on failure
         if: ${{ failure() }}

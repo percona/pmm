@@ -78,6 +78,15 @@ const ACTIVE_SEND_STATUSES: ReadonlySet<AtwSendLog['status']> = new Set([
 /** Rows per page for both incident and execution lists. */
 export const ATW_PAGE_SIZE = 20;
 
+/**
+ * How many incidents the list fetches in one request — the side-car's
+ * pagination ceiling. The list sorts and filters on columns the side-car
+ * neither sorts nor filters by (run totals, last activity), so it works on one
+ * fetched window rather than a server page; the newest incidents are the ones
+ * a returning user is looking for.
+ */
+export const ATW_INCIDENT_LIST_LIMIT = 200;
+
 const incidentsKey = ['atw', 'incidents'] as const;
 
 function incidentExecutionsKey(incidentId: string) {

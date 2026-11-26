@@ -106,6 +106,8 @@ message ListLabelValues {
 // GetQueryPlanRequest defines filtering by queryid.
 message GetQueryPlanRequest {
   string queryid = 1;
+  // Service ID to scope the plan to; empty matches any service.
+  string service_id = 2;
 }
 
 // GetQueryPlanResponse contains planid and query_plan.

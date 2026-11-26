@@ -1,6 +1,6 @@
-# PMM 2.x APIs.
+# PMM 3.x API.
 
-All generated files (Go code, Swagger spec, documentation) are already stored in this repository.
+All generated files (Go code, Swagger spec, documentation) are stored in this directory.
 
 ## Browsing documentation
 
@@ -10,7 +10,7 @@ make serve
 ```
 
 
-## Updating APIs
+## Updating API
 
 1. Edit `.proto` files. Do not edit Swagger, `.pb.go`, `.pb.gw.go`. You can use `make clean` to remove all generated files.
 

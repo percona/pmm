@@ -224,6 +224,8 @@ func local_request_QANService_ExplainFingerprintByQueryID_0(ctx context.Context,
 	return msg, metadata, err
 }
 
+var filter_QANService_GetQueryPlan_0 = &utilities.DoubleArray{Encoding: map[string]int{"queryid": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+
 func request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, client QANServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetQueryPlanRequest
@@ -237,6 +239,12 @@ func request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Ma
 	protoReq.Queryid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "queryid", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_QANService_GetQueryPlan_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
@@ -258,6 +266,12 @@ func local_request_QANService_GetQueryPlan_0(ctx context.Context, marshaler runt
 	protoReq.Queryid, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "queryid", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_QANService_GetQueryPlan_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	msg, err := server.GetQueryPlan(ctx, &protoReq)
 	return msg, metadata, err

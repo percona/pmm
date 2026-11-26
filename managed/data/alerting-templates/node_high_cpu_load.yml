@@ -19,6 +19,7 @@ templates:
         type: float
         range: [0, 100]
         value: 80
+        overridable: true
     for: 5m
     severity: warning
     annotations:

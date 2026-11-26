@@ -13,13 +13,37 @@ import {
   PMM_SERVICENOW_SETTINGS_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  OM_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
-import { Redirect, SettingsRedirect } from 'components/redirect';
+import {
+  EditServiceRedirect,
+  InventoryRedirect,
+  Redirect,
+  SettingsRedirect,
+  advisorsRedirects,
+} from 'components/redirect';
+import {
+  Agents,
+  EditService,
+  Inventory,
+  Nodes,
+  Services,
+} from 'pages/inventory';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { PersistedFilters } from 'components/persisted-filters';
+import { AdvisorsList } from 'pages/advisors';
+import { CHECK_FILTER_PARAMS } from 'pages/advisors/AdvisorsList.constants';
+import { AdvisorInsights } from 'pages/advisors/insights';
+import { INSIGHT_FILTER_PARAMS } from 'pages/advisors/insights/AdvisorInsights.filters';
+import { AdvisorRuns } from 'pages/advisors/runs';
+import { RUN_FILTER_PARAMS } from 'pages/advisors/runs/AdvisorRuns.filters';
+import { AdvisorScheduler } from 'pages/advisors/scheduler';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
+import { OmApp } from '@pmm/plugins-om';
+import { OmPage } from 'om/OmPage';
 import { SchemaDrivenPlugin } from '@pmm-extensions/framework';
 import {
   getMysqlBackupsTaskExecuteActions,
@@ -72,6 +96,40 @@ const router = createBrowserRouter(
               element: <Settings />,
             },
             {
+              path: 'inventory',
+              children: [
+                {
+                  path: '',
+                  element: <Navigate to="services" replace />,
+                },
+                {
+                  element: <Inventory />,
+                  children: [
+                    {
+                      path: 'services',
+                      element: <Services />,
+                    },
+                    {
+                      path: 'nodes',
+                      element: <Nodes />,
+                    },
+                  ],
+                },
+                {
+                  path: 'services/:serviceId/agents',
+                  element: <Agents />,
+                },
+                {
+                  path: 'services/:serviceId/edit',
+                  element: <EditService />,
+                },
+                {
+                  path: 'nodes/:nodeId/agents',
+                  element: <Agents />,
+                },
+              ],
+            },
+            {
               path: 'rta',
               children: [
                 {
@@ -92,6 +150,48 @@ const router = createBrowserRouter(
                 },
               ],
             },
+            {
+              path: 'advisors',
+              children: [
+                {
+                  path: '',
+                  element: (
+                    <PersistedFilters
+                      storageKey="pmm-ui.advisors.catalog.filters"
+                      params={CHECK_FILTER_PARAMS}
+                    >
+                      <AdvisorsList />
+                    </PersistedFilters>
+                  ),
+                },
+                {
+                  path: 'insights',
+                  element: (
+                    <PersistedFilters
+                      storageKey="pmm-ui.advisors.insights.filters"
+                      params={INSIGHT_FILTER_PARAMS}
+                    >
+                      <AdvisorInsights />
+                    </PersistedFilters>
+                  ),
+                },
+                {
+                  path: 'runs',
+                  element: (
+                    <PersistedFilters
+                      storageKey="pmm-ui.advisors.runs.filters"
+                      params={RUN_FILTER_PARAMS}
+                    >
+                      <AdvisorRuns />
+                    </PersistedFilters>
+                  ),
+                },
+                {
+                  path: 'scheduler',
+                  element: <AdvisorScheduler />,
+                },
+              ],
+            },
             // PMM Extensions apps mounted as native routes. Both plugins compose their own
             // <Routes>, so the paths are splats.
             {
@@ -109,6 +209,25 @@ const router = createBrowserRouter(
                 <ExtensionsPage>
                   <AtwApp deliverySettingsPath={PMM_SERVICENOW_SETTINGS_PATH} />
                 </ExtensionsPage>
+              ),
+            },
+            {
+              // OM (OpenManager) is bespoke like ATW: OmApp composes its
+              // own <Routes>, so this must be a splat.
+              //
+              // All four pages are under it now. Inventory used to be mounted
+              // separately inside ExtensionsPage, because it read the Extensions
+              // app directly and needed a bearer minted from the PMM session;
+              // pmm-managed proxies the estate at /v1/om/inventory, so no OM path
+              // in the browser talks to the side-car any more. That is why OmPage
+              // rather than ExtensionsPage, and why a sick side-car now shows an
+              // error inside a page that still renders instead of blanking it --
+              // ExtensionsAuthGate fails closed.
+              path: `${relativeToNav(OM_PATH)}/*`,
+              element: (
+                <OmPage>
+                  <OmApp />
+                </OmPage>
               ),
             },
             {
@@ -138,6 +257,19 @@ const router = createBrowserRouter(
               path: 'graph/alerting/alerts',
               element: <Navigate to="/alerting/status" replace />,
             },
+            {
+              path: 'graph/inventory/*',
+              element: <InventoryRedirect />,
+            },
+            {
+              path: 'graph/edit-instance/:serviceId',
+              element: <EditServiceRedirect />,
+            },
+            {
+              path: 'edit-instance/:serviceId',
+              element: <EditServiceRedirect />,
+            },
+            ...advisorsRedirects,
             // Grafana routes are handled at the Main component level
             {
               path: 'graph/*',

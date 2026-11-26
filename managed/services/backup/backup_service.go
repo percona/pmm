@@ -198,8 +198,8 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			break
 		}
 
-		var pgErr *pq.Error
-		if errors.As(errTX, &pgErr) {
+		pgErr, ok := errors.AsType[*pq.Error](errTX)
+		if ok {
 			// Serialization failure error code
 			if pgErr.Code == "40001" {
 				s.l.Infof("Transaction serialization failure, retry iteration %d", i)
@@ -236,8 +236,8 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		err = status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
-		var target models.AgentNotSupportedError
-		if errors.As(err, &target) {
+		target, ok := errors.AsType[models.AgentNotSupportedError](err)
+		if ok {
 			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
 				Status: models.ErrorBackupStatus.Pointer(),
 			})

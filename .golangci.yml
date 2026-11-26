@@ -36,6 +36,13 @@ linters:
     - wsl                 # too annoying
     - wsl_v5              # too annoying
   settings:
+    gocritic:
+      enabled-checks:
+        - ruleguard
+      settings:
+        ruleguard:
+          failOn: dsl,import
+          rules: ${config-path}/dev/ruleguard/rules.go
     cyclop:
       max-complexity: 30
     depguard:
@@ -61,6 +68,11 @@ linters:
         - pmm-managed
       capital: true
       period: true
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment  # layout micro-optimisation; reordering fields hurts readability and kong's --help order
+        - shadow          # mostly idiomatic err shadowing
     inamedparam:
       skip-single-param: true
     ireturn:
@@ -114,7 +126,6 @@ linters:
           - nonamedreturns   # not critical for tests, albeit desirable
           - testpackage      # senseless
           - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
-          - unusedwrite      # not critical for tests
         path: _test\.go
       - linters:
           - recvcheck

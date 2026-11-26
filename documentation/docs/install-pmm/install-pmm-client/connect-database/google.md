@@ -23,7 +23,7 @@ To add a MySQL instance on Google Cloud:
 
 5. Log into the PMM user interface.
 
-6. Select **Inventory > Add Service > MySQL**.
+6. Select **Inventory > Add service > MySQL**.
 
 7. Fill in the details for the remote MySQL instance and make sure to enable the **Use performance schema** option.
 

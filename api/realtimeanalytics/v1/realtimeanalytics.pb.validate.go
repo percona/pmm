@@ -130,8 +130,7 @@ func (e ListServicesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListServicesRequestValidationError{}
@@ -267,8 +266,7 @@ func (e ListServicesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListServicesResponseValidationError{}
@@ -432,8 +430,7 @@ func (e SessionValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SessionValidationError{}
@@ -537,8 +534,7 @@ func (e ListSessionsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListSessionsRequestValidationError{}
@@ -674,8 +670,7 @@ func (e ListSessionsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListSessionsResponseValidationError{}
@@ -788,8 +783,7 @@ func (e StartSessionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartSessionRequestValidationError{}
@@ -920,8 +914,7 @@ func (e StartSessionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartSessionResponseValidationError{}
@@ -1034,8 +1027,7 @@ func (e StopSessionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StopSessionRequestValidationError{}
@@ -1137,8 +1129,7 @@ func (e StopSessionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StopSessionResponseValidationError{}
@@ -1274,8 +1265,7 @@ func (e SearchQueriesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SearchQueriesRequestValidationError{}
@@ -1411,8 +1401,7 @@ func (e SearchQueriesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SearchQueriesResponseValidationError{}

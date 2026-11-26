@@ -74,6 +74,21 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
+	t.Run("Credential file variables", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_SECRETS_DIR=/etc/pmm/secrets",
+			"PMM_CLICKHOUSE_PASSWORD_FILE=/etc/pmm/ch",
+			"PMM_GRAFANA_SECRET_KEY_FILE=/etc/pmm/key",
+		}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, &models.ChangeSettingsParams{}, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("AWS SDK env variables", func(t *testing.T) {
 		t.Parallel()
 
@@ -89,12 +104,19 @@ func TestEnvVarValidator(t *testing.T) {
 	t.Run("PMM Extensions env variables", func(t *testing.T) {
 		t.Parallel()
 
-		envs := []string{"PMM_ENABLE_EXTENSIONS=1", "PMM_EXTENSIONS_POSTGRES_PASSWORD=s3cr3t", "PMM_EXTENSIONS_ADDRESS=pmm-extensions:9000"}
+		envs := []string{
+			"PMM_ENABLE_EXTENSIONS=1",
+			"PMM_EXTENSIONS_POSTGRES_PASSWORD=s3cr3t",
+			"PMM_EXTENSIONS_ADDRESS=pmm-extensions:9000",
+			"PMM_EXTENSIONS_URL=http://pmm-extensions:9000",
+			"PMM_EXTENSIONS_TOKEN=s3cr3t-bearer",
+		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
 		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Nil(t, gotErrs)
+		// An unrecognized variable is warned about as KEY=VALUE, which would leak the secrets above.
 		assert.Nil(t, gotWarns)
 	})
 

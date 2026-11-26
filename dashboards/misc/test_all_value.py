@@ -28,6 +28,8 @@ SERVICE_VARIABLES = {'service_name', 'service'}
 # Lists already narrowed by a single-select parent, so they stay small. A node_name parent doesn't
 # count: every remote service sits on the PMM Server node.
 BOUNDED = {
+    # ClusterSync services only; ".+" would widen its go_* and up panels to every exporter.
+    ('MongoDB/MongoDB_ClusterSync_Details.json', 'service_name'),
     ('MongoDB/MongoDB_Cluster_Summary.json', 'node_name'),
     ('MongoDB/MongoDB_Cluster_Summary.json', 'service_name'),
     ('MongoDB/MongoDB_InMemory_Details.json', 'node_name'),
@@ -88,6 +90,7 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
 
         Wrap the filter as $__conditionalAll(col IN (${var:singlequote}), $var):
         the ClickHouse plugin drops it on All, and singlequote escapes quotes.
+        An anchored regex, match(col, '^${var:regex}$'), is valid SQL on the raw allValue too.
         Service variables are the exception, see test_list_variables.
         """
         bad = []
@@ -98,7 +101,8 @@ class TestFleetVariablesHaveAllValue(unittest.TestCase):
             custom = {n for n, v in first_variables(dashboard).items() if v.get('allValue')}
             for sql in raw_sql(dashboard.get('panels', [])):
                 for name in sorted(custom - SERVICE_VARIABLES):
-                    if re.search(VAR_REF.format(name=re.escape(name)), strip_conditional_all(sql, name)):
+                    rest = re.sub(rf"'\^\$\{{{re.escape(name)}:regex\}}\$'", '', strip_conditional_all(sql, name))
+                    if re.search(VAR_REF.format(name=re.escape(name)), rest):
                         bad.append(f'{rel}: ${name}')
         self.assertEqual(sorted(set(bad)), [], 'Wrap these in $__conditionalAll(col IN '
                          '(${var:singlequote}), $var):\n' + '\n'.join(sorted(set(bad))))

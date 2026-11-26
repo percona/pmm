@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/alert"
 )
 
 // PMM provisions a fixed set of alert rules from its own built-in templates, so that a server
@@ -104,6 +105,7 @@ var builtinBundles = []provisioningBundle{
 			{uid: "pmm-ha-quorum-at-risk", templateName: "pmm_ha_quorum_at_risk"},
 			{uid: "pmm-ha-leader-flapping", templateName: "pmm_ha_leader_flapping"},
 			{uid: "pmm-ha-node-unreachable", templateName: "pmm_ha_node_unreachable"},
+			{uid: "pmm-ha-disk-space-usage", templateName: "pmm_ha_disk_space_usage"},
 		},
 		enabled: func(gates bundleGates) bool {
 			return gates.haEnabled && gates.haAlertsEnabled
@@ -144,7 +146,9 @@ func catalogUIDs() []string {
 
 // validateCatalog checks the invariants Grafana enforces at startup, where a violation means
 // Grafana refuses to start rather than reporting a bad rule. Called from the renderer so a mistake
-// surfaces as a rendering failure - which degrades to "no bundle" - instead of a dead PMM.
+// surfaces as a rendering failure - which degrades to "no bundle" - instead of a dead PMM. It also
+// keeps every catalog template on Metrics, the only datasource the provisioner resolves, including
+// rules a gate keeps from being rendered.
 func validateCatalog(templates map[string]models.Template) error {
 	if provisionedInterval%grafanaSchedulerBaseInterval != 0 {
 		return fmt.Errorf("evaluation interval %s is not a multiple of %s", provisionedInterval, grafanaSchedulerBaseInterval)
@@ -172,6 +176,14 @@ func validateCatalog(templates map[string]models.Template) error {
 			if template.For < provisionedInterval {
 				return fmt.Errorf("template %s has for=%s, shorter than the evaluation interval %s",
 					rule.templateName, template.For, provisionedInterval)
+			}
+
+			parsed, err := parseAlertTemplate(template.Yaml)
+			if err != nil {
+				return fmt.Errorf("template %s: %w", rule.templateName, err)
+			}
+			if parsed.UsesDatasource(alert.ClickHouse) {
+				return fmt.Errorf("template %s runs on ClickHouse, which provisioned rules do not support", rule.templateName)
 			}
 		}
 	}

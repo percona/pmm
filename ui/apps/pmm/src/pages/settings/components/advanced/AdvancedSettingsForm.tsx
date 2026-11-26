@@ -24,11 +24,11 @@ import {
   FEATURE_MANAGEMENT_SETTINGS,
   MAX_DAYS,
   MIN_DAYS,
-  MIN_STT_CHECK_INTERVAL,
-  STT_CHECK_INTERVALS,
+  DEVELOPER_PREVIEW_DOC_URL,
   TECHNICAL_PREVIEW_DOC_URL,
 } from './Advanced.constants';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
+import { OM_PATH, PMM_BASE_PATH } from 'lib/constants';
 import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
   AdvancedSettingsFormValues,
@@ -39,7 +39,6 @@ import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
 import { formControlLabelClasses } from '@mui/material/FormControlLabel';
-import { helperTextTestId } from 'utils/mui.utils';
 
 export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   settings,
@@ -65,10 +64,14 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
     mode: 'onChange',
   });
 
-  const { handleSubmit, reset, resetField, watch, setValue } = methods;
+  const { handleSubmit, reset, resetField, setValue } = methods;
 
-  const sttEnabled = watch('stt');
+  // Keyed on the saved value, not the draft: otherwise flipping it off would disable
+  // the switch before Apply and leave no way back.
+  const omSwitchBlocked = !settings.extensionsEnabled && !settings.omEnabled;
+
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
+  const m = Messages.advanced;
 
   useEffect(() => {
     reset(toFormValues(settings));
@@ -83,11 +86,30 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   }, [retentionLockedByHa, resetField]);
 
   const onSubmit = async (values: AdvancedSettingsFormValues) => {
+    const omJustEnabled = values.openManager && !settings.omEnabled;
     await updateSettings(
       toPayload(values, loadedRetention, retentionLockedByHa),
       {
         onSuccess: () => {
-          enqueueSnackbar(Messages.service.success, { variant: 'success' });
+          enqueueSnackbar(
+            omJustEnabled ? (
+              <>
+                {m.openManagerEnabled}{' '}
+                {/* Plain href: SnackbarProvider is mounted outside RouterProvider, so a
+                    routed link has no router context here. */}
+                <Link
+                  href={`${PMM_BASE_PATH}${OM_PATH}`}
+                  color="inherit"
+                  underline="always"
+                >
+                  {m.openManagerEnabledAction}
+                </Link>
+              </>
+            ) : (
+              Messages.service.success
+            ),
+            { variant: 'success' }
+          );
           reset(values);
         },
         onError: (error) => {
@@ -99,8 +121,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
       }
     );
   };
-
-  const m = Messages.advanced;
 
   return (
     <FormProvider {...methods}>
@@ -177,9 +197,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 sx: { minWidth: 120, maxWidth: 240 },
                 size: 'small',
               }}
-              formHelperTextProps={helperTextTestId(
-                'retention-field-error-message'
-              )}
             />
             <Typography variant="body1" color="text.secondary">
               {m.retentionUnits}
@@ -301,53 +318,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
           </Stack>
         </Stack>
 
-        <Stack gap={1} data-testid="advanced-advisors">
-          <SettingsFieldLabel
-            label={m.advisorsLabel}
-            description={m.advisorsTooltip}
-            readMoreLink={m.advisorsLink}
-            data-testid="advanced-advisors-label"
-          />
-          <Stack gap={1}>
-            <SwitchInput name="stt" label={m.advisorsLabel} />
-          </Stack>
-          {sttEnabled && (
-            <Stack gap={2}>
-              <Typography
-                variant="body1"
-                sx={{ maxWidth: MAX_LABEL_WIDTH }}
-                data-testid="check-intervals-label"
-              >
-                {m.sttCheckIntervalTooltip}
-              </Typography>
-              <Stack direction="row" columnGap={2} rowGap={3} flexWrap="wrap">
-                {STT_CHECK_INTERVALS.map(({ name, label }) => (
-                  <TextInput
-                    key={name}
-                    name={name}
-                    label={label}
-                    textFieldProps={{
-                      type: 'number',
-                      slotProps: {
-                        htmlInput: {
-                          min: MIN_STT_CHECK_INTERVAL,
-                          step: 0.1,
-                          'data-testid': `${name}-number-input`,
-                        },
-                      },
-                      size: 'small',
-                      sx: { minWidth: 80, maxWidth: 120 },
-                    }}
-                    formHelperTextProps={helperTextTestId(
-                      `${name}-field-error-message`
-                    )}
-                  />
-                ))}
-              </Stack>
-            </Stack>
-          )}
-        </Stack>
-
         <Stack gap={2}>
           <SettingsFieldLabel
             label={
@@ -437,6 +407,59 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 </IconButton>
               </Tooltip>
             </Stack>
+          </Stack>
+        </Stack>
+
+        <Stack gap={2}>
+          <SettingsFieldLabel
+            data-testid="advanced-developer-preview"
+            label={
+              <>
+                <WarningIcon
+                  color="warning"
+                  sx={{ fontSize: 26, verticalAlign: '-6px' }}
+                />{' '}
+                {m.developerPreviewLegend}
+              </>
+            }
+            description={
+              <>
+                {m.developerPreviewDescription}
+                <strong>{m.developerPreviewWarning}</strong>
+                {m.developerPreviewDescriptionSuffix}{' '}
+              </>
+            }
+            readMoreLink={DEVELOPER_PREVIEW_DOC_URL}
+            readMoreText={m.developerPreviewLinkText}
+          />
+          <Stack
+            gap={0.5}
+            sx={{
+              [`.${formControlLabelClasses.root}`]: {
+                marginRight: 0,
+              },
+            }}
+            data-testid="advanced-open-manager"
+          >
+            {/* `labelCaption` keeps the help tied to the control for a screen reader. */}
+            <SwitchInput
+              name="openManager"
+              label={m.openManagerLabel}
+              labelCaption={m.openManagerTooltip}
+              switchFieldProps={{ disabled: omSwitchBlocked }}
+            />
+            {/* `validateEnableOm` refuses this server-side; stating it here turns a
+                failed save into a precondition the reader can act on. */}
+            {omSwitchBlocked && (
+              <Typography
+                variant="caption"
+                color="warning.main"
+                maxWidth={MAX_LABEL_WIDTH}
+                data-testid="advanced-open-manager-blocked"
+              >
+                {m.openManagerRequiresExtensions}
+              </Typography>
+            )}
           </Stack>
         </Stack>
 

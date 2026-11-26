@@ -131,8 +131,7 @@ func TestConnectionRequestDialTimeoutPostgreSQLCloudDefaults(t *testing.T) {
 		expectNodeQuery(mock, "node-id", models.RemoteRDSNodeType)
 
 		service := &models.Service{
-			ServiceType: models.PostgreSQLServiceType,
-			NodeID:      "node-id",
+			NodeID: "node-id",
 		}
 		agent := &models.Agent{
 			AgentType: models.PostgresExporterType,

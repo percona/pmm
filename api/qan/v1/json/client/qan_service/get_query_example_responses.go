@@ -471,8 +471,8 @@ type GetQueryExampleDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// get query example default body details items0
-	GetQueryExampleDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// get query example default body details items0 additional properties
+	GetQueryExampleDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -507,7 +507,7 @@ func (o *GetQueryExampleDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) err
 			}
 			result[k] = toadd
 		}
-		o.GetQueryExampleDefaultBodyDetailsItems0 = result
+		o.GetQueryExampleDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -528,12 +528,12 @@ func (o GetQueryExampleDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 
-	if len(o.GetQueryExampleDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.GetQueryExampleDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.GetQueryExampleDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.GetQueryExampleDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

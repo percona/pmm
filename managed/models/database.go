@@ -17,6 +17,7 @@ package models
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -82,6 +83,17 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "mongo_options", CustomEncryptHandler: EncryptMongoDBOptionsHandler, CustomDecryptHandler: DecryptMongoDBOptionsHandler},
 			{Name: "mysql_options", CustomEncryptHandler: EncryptMySQLOptionsHandler, CustomDecryptHandler: DecryptMySQLOptionsHandler},
 			{Name: "postgresql_options", CustomEncryptHandler: EncryptPostgreSQLOptionsHandler, CustomDecryptHandler: DecryptPostgreSQLOptionsHandler},
+		},
+	},
+	{
+		Name:        "om_bootstrap_secrets",
+		Identifiers: []string{"run_id"},
+		Columns: []encryption.Column{
+			{Name: "mongodb_username"},
+			{Name: "mongodb_password"},
+			{Name: "key_file"},
+			{Name: "admin_username"},
+			{Name: "admin_password"},
 		},
 	},
 }
@@ -1190,30 +1202,215 @@ var databaseSchema = [][]string{
 		`UPDATE dumps SET encrypted = false`,
 	},
 	119: {
-		// Before environment variable names were restricted to agents pmm-agent starts as a separate
-		// process, addMongoDB copied the requested names onto the QAN and RTA agents it created
-		// alongside mongodb_exporter. Nothing ever read them there: only mongodbExporterConfig calls
-		// GetEnvironmentVariableNames, and no API type exposes the field for those agent types, so
-		// the rows have no way to be cleared through the API and would keep the dead value forever.
+		// Only mongodb_exporter reads environment variables; clear the unused copies on other agents.
 		`UPDATE agents SET environment_variables = NULL
 			WHERE environment_variables IS NOT NULL
 			AND agent_type <> 'mongodb_exporter'`,
 	},
 	120: {
-		// Migration 110 filled instance_id only for Nodes that existed then; the inventory API
-		// kept creating remote RDS Nodes without it. Before 3.4.0 that API took the DB instance
-		// identifier as the address, so a bare address is the identifier. An endpoint address is
-		// left alone: its first label is only right for a standard instance endpoint, not for a
-		// cluster endpoint, a CNAME or an IP, and a wrong identifier is harder to spot than none.
-		// AWS stores DB instance identifiers in lowercase and rds_exporter matches them exactly,
-		// so identifiers stored as typed are lowercased too, as createNodeWithID now does.
+		// Lowercase RDS instance IDs, as AWS stores them and rds_exporter matches them exactly; fill missing
+		// ones from a bare address, which is the instance identifier (endpoint addresses are left alone).
 		`UPDATE nodes SET instance_id = lower(instance_id) WHERE node_type = 'remote_rds' AND instance_id <> lower(instance_id)`,
 		`UPDATE nodes SET instance_id = lower(address) WHERE node_type = 'remote_rds' AND instance_id = '' AND address NOT LIKE '%.%'`,
+	},
+	121: {
+		`CREATE TABLE alert_rules (
+			rule_id VARCHAR NOT NULL CHECK (rule_id <> ''),
+			params JSONB NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (rule_id)
+		)`,
+
+		// target is polymorphic - a node_id, a service_id, or a cluster label value -
+		// so it carries no foreign key: cluster is a label value with no referent table.
+		// Rows for a deleted node or service are removed by the removal API instead.
+		`CREATE TABLE alert_rule_threshold_overrides (
+			id VARCHAR NOT NULL,
+			rule_id VARCHAR NOT NULL,
+			param_name VARCHAR NOT NULL CHECK (param_name <> ''),
+			scope VARCHAR NOT NULL CHECK (scope <> ''),
+			target VARCHAR NOT NULL CHECK (target <> ''),
+			-- NaN equals itself in PostgreSQL, so <> 'NaN' is the check that rejects it.
+			value DOUBLE PRECISION NOT NULL
+				CHECK (value <> 'NaN'::float8 AND value > '-Infinity'::float8 AND value < 'Infinity'::float8),
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id),
+			UNIQUE (rule_id, param_name, scope, target),
+			FOREIGN KEY (rule_id) REFERENCES alert_rules (rule_id) ON DELETE CASCADE
+		)`,
+
+		`CREATE INDEX alert_rule_threshold_overrides_target_idx
+			ON alert_rule_threshold_overrides (scope, target)`,
+	},
+	122: {
+		`CREATE TABLE om_topology_runs (
+			run_id            VARCHAR PRIMARY KEY,
+			started_at        TIMESTAMP NOT NULL,
+			finished_at       TIMESTAMP,
+			status            VARCHAR NOT NULL,
+			services_total    INTEGER NOT NULL DEFAULT 0,
+			services_resolved INTEGER NOT NULL DEFAULT 0,
+			services_orphaned INTEGER NOT NULL DEFAULT 0,
+			probes_ok         INTEGER NOT NULL DEFAULT 0,
+			services_stale    INTEGER NOT NULL DEFAULT 0,
+			origin_node       VARCHAR NOT NULL DEFAULT '',
+			sources           JSONB,
+			errors            JSONB,
+			created_at        TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX om_topology_runs_started_at_idx ON om_topology_runs (started_at DESC)`,
+
+		`CREATE TABLE om_topology_snapshots (
+			run_id         VARCHAR PRIMARY KEY REFERENCES om_topology_runs (run_id) ON DELETE CASCADE,
+			generated_at   TIMESTAMP NOT NULL,
+			observed_at    TIMESTAMP,
+			stale          BOOLEAN NOT NULL DEFAULT false,
+			schema_version INTEGER NOT NULL,
+			document       JSONB NOT NULL,
+			created_at     TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX om_topology_snapshots_generated_at_idx ON om_topology_snapshots (generated_at DESC)`,
+	},
+	123: {
+		`CREATE TABLE om_bootstrap_secrets (
+			run_id           VARCHAR PRIMARY KEY,
+			mongodb_username VARCHAR NOT NULL,
+			mongodb_password VARCHAR NOT NULL,
+			key_file         VARCHAR NOT NULL,
+			created_at       TIMESTAMP NOT NULL
+		)`,
+	},
+	124: {
+		`CREATE TABLE om_bootstrap_run_configs (
+			run_id        VARCHAR PRIMARY KEY,
+			environment   VARCHAR NOT NULL,
+			cluster       VARCHAR NOT NULL,
+			created_at    TIMESTAMP NOT NULL,
+			registered_at TIMESTAMP
+		)`,
+	},
+	125: {
+		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_username VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE om_bootstrap_secrets ADD COLUMN admin_password VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE om_bootstrap_secrets ALTER COLUMN admin_username DROP DEFAULT, ALTER COLUMN admin_password DROP DEFAULT`,
+	},
+	126: {
+		`CREATE TABLE advisor_insights (
+			id VARCHAR NOT NULL,
+			run_id VARCHAR NOT NULL,
+			check_name VARCHAR NOT NULL CHECK (check_name <> ''),
+			category VARCHAR NOT NULL,
+			service_id VARCHAR NOT NULL,
+			service_name VARCHAR NOT NULL,
+			service_type VARCHAR NOT NULL,
+			node_id VARCHAR NOT NULL,
+			node_name VARCHAR NOT NULL,
+			environment VARCHAR NOT NULL,
+			cluster VARCHAR NOT NULL,
+			replication_set VARCHAR NOT NULL,
+			region VARCHAR NOT NULL,
+			az VARCHAR NOT NULL,
+			status VARCHAR NOT NULL CHECK (status <> ''),
+			summary VARCHAR NOT NULL,
+			description TEXT NOT NULL,
+			outcome TEXT NOT NULL,
+			read_more_url VARCHAR NOT NULL,
+			severity VARCHAR,
+			labels TEXT,
+			checked_at TIMESTAMP,
+			triggered_by VARCHAR NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE INDEX advisor_insights_run_id_idx ON advisor_insights (run_id)`,
+		`CREATE INDEX advisor_insights_service_id_idx ON advisor_insights (service_id)`,
+		`CREATE INDEX advisor_insights_checked_at_idx ON advisor_insights (checked_at)`,
+	},
+	127: {
+		`CREATE TABLE advisor_checks (
+			name VARCHAR(128) NOT NULL CHECK (name <> ''),
+			source VARCHAR NOT NULL CHECK (source <> ''),
+			version INTEGER NOT NULL,
+			summary VARCHAR NOT NULL,
+			description TEXT NOT NULL,
+			category VARCHAR NOT NULL,
+			technology VARCHAR NOT NULL,
+			disabled BOOLEAN NOT NULL,
+			disabled_service_ids JSONB,
+			queries TEXT NOT NULL,
+			script TEXT NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (name)
+		)`,
+
+		// Checks disabled in earlier versions are not carried over.
+		`UPDATE settings SET settings = settings #- '{sass,disabled_advisors}'`,
+
+		// Per-check interval overrides, replaced by Advisor schedules.
+		`DROP TABLE IF EXISTS check_settings`,
+	},
+	128: {
+		// Days are time.Weekday values and the time of day is HH:MM, both in UTC.
+		`CREATE TABLE advisor_schedules (
+			id VARCHAR NOT NULL,
+			name VARCHAR NOT NULL CHECK (name <> ''),
+			enabled BOOLEAN NOT NULL,
+			days_of_week SMALLINT[] NOT NULL,
+			time_of_day VARCHAR(5) NOT NULL,
+			check_names VARCHAR[] NOT NULL,
+			service_ids VARCHAR[] NOT NULL,
+			email_mode VARCHAR NOT NULL,
+			email_addresses VARCHAR[] NOT NULL,
+			email_severities SMALLINT[] NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE UNIQUE INDEX advisor_schedules_name_idx ON advisor_schedules (lower(name))`,
+		// migrateDB creates the default schedule.
+	},
+	129: {
+		`CREATE TABLE advisor_runs (
+			id VARCHAR NOT NULL,
+			triggered_by VARCHAR NOT NULL,
+			status VARCHAR NOT NULL,
+			check_names VARCHAR[],
+			service_ids VARCHAR[],
+			schedule_id VARCHAR REFERENCES advisor_schedules (id) ON DELETE SET NULL,
+			schedule_name VARCHAR NOT NULL,
+			scheduled_for TIMESTAMP,
+			started_at TIMESTAMP NOT NULL,
+			finished_at TIMESTAMP,
+			planned_checks_count INTEGER NOT NULL,
+			planned_services_count INTEGER NOT NULL,
+			checks_count INTEGER NOT NULL,
+			services_count INTEGER NOT NULL,
+			findings_count INTEGER NOT NULL,
+			errors_count INTEGER NOT NULL,
+			severity_counts TEXT,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE INDEX advisor_runs_started_at_idx ON advisor_runs (started_at)`,
+		`CREATE INDEX advisor_runs_schedule_id_idx ON advisor_runs (schedule_id)`,
+		// At most one queued or running run, so claiming the run slot is a single
+		// atomic insert on every HA node.
+		`CREATE UNIQUE INDEX advisor_runs_active_idx ON advisor_runs ((true)) WHERE status IN ('queued', 'running')`,
+
+		// Advisor schedules replace the interval settings; only the on/off switch carries over.
+		`UPDATE settings SET settings = (settings - 'sass') || jsonb_build_object('advisors', jsonb_build_object('enabled', settings #> '{sass,enabled}'))`,
 	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
-// Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
+// Go's zero values and non-zero default values in database don't play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
 // OpenDB just validates its arguments without creating a connection to the database.
@@ -1319,7 +1516,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	err := migrateDB(db, params)
+	err := migrateDB(ctx, db, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1499,8 +1696,11 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	return nil
 }
 
+// advisorSchedulesVersion is the schema version that adds the advisor_schedules table.
+const advisorSchedulesVersion = 128
+
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams) error {
+func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
@@ -1522,27 +1722,21 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
 	return db.InTransaction(func(tx *reform.TX) error {
-		for version := currentVersion + 1; version <= latestVersion; version++ {
-			if params.Logf != nil {
-				params.Logf("Migrating database to schema version %d ...", version)
-			}
+		err := applySchemaMigrations(tx, currentVersion, latestVersion, params.Logf)
+		if err != nil {
+			return err
+		}
 
-			queries := databaseSchema[version]
-			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
-			for _, q := range queries {
-				q = strings.TrimSpace(q)
-				_, err := tx.Exec(q)
-				if err != nil {
-					return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
-				}
-			}
+		err = seedDefaultAdvisorSchedule(ctx, tx.Querier, currentVersion, latestVersion)
+		if err != nil {
+			return err
 		}
 
 		if params.SetupFixtures == SkipFixtures {
 			return nil
 		}
 
-		err := encryptOnMigration(tx, params)
+		err = encryptOnMigration(tx, params)
 		if err != nil {
 			return err
 		}
@@ -1568,6 +1762,50 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 		return nil
 	})
+}
+
+// applySchemaMigrations applies the schema versions after currentVersion up to
+// latestVersion.
+func applySchemaMigrations(tx *reform.TX, currentVersion, latestVersion int, logf reform.Printf) error {
+	for version := currentVersion + 1; version <= latestVersion; version++ {
+		if logf != nil {
+			logf("Migrating database to schema version %d ...", version)
+		}
+
+		queries := databaseSchema[version]
+		queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
+		for _, q := range queries {
+			q = strings.TrimSpace(q)
+			_, err := tx.Exec(q)
+			if err != nil {
+				return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// seedDefaultAdvisorSchedule creates the default schedule in the migration run that adds its table,
+// from DefaultAdvisorSchedule, so changing the default needs no migration. The schedule is written
+// with the current model, so only a run to the latest schema version creates it.
+func seedDefaultAdvisorSchedule(ctx context.Context, q *reform.Querier, currentVersion, latestVersion int) error {
+	if currentVersion >= advisorSchedulesVersion || latestVersion != len(databaseSchema)-1 {
+		return nil
+	}
+
+	s := DefaultAdvisorSchedule()
+	err := normalizeAdvisorSchedule(s)
+	if err != nil {
+		return err
+	}
+	// not uuid.NewString: tests make that source deterministic, and migrating must not shift their IDs
+	id, err := uuid.NewRandomFromReader(rand.Reader)
+	if err != nil {
+		return err
+	}
+	s.ID = id.String()
+	return q.WithContext(ctx).Insert(s)
 }
 
 // encryptOnMigration encrypts the columns that are not encrypted yet. It runs before anything else

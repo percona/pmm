@@ -56,6 +56,9 @@ const (
 	// lookups Grafana can process in parallel, so a larger client-side pool would never drain.
 	defaultMaxIdleConns        = 100
 	defaultMaxIdleConnsPerHost = 100
+
+	// PMM supports a single Grafana organization, hard-coded to ID 1.
+	pmmOrgID = "1"
 )
 
 // Client represents a client for Grafana API.
@@ -116,36 +119,6 @@ func (e *clientError) Error() string {
 	return fmt.Sprintf("clientError: %s %s -> %d %s", e.Method, e.URL, e.Code, e.Body)
 }
 
-// CurrentUserHTTPResponse maps errors returned by Client calls used from current-user HTTP handlers
-// to an HTTP status and a small JSON body. Non-Grafana errors (e.g. dial failures) map to 502.
-func CurrentUserHTTPResponse(err error) (int, map[string]string) {
-	var cErr *clientError
-	if !errors.As(err, &cErr) {
-		return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
-	}
-
-	switch cErr.Code {
-	case http.StatusUnauthorized:
-		msg := cErr.ErrorMessage
-		if msg == "" {
-			msg = "Unauthorized"
-		}
-		return http.StatusUnauthorized, map[string]string{"message": msg}
-	case http.StatusForbidden:
-		msg := cErr.ErrorMessage
-		if msg == "" {
-			msg = "Forbidden"
-		}
-		return http.StatusForbidden, map[string]string{"message": msg}
-	default:
-		if cErr.Code >= 500 { //nolint:mnd
-			return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
-		}
-		// Other Grafana 4xx responses are treated as upstream errors for this proxy endpoint.
-		return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
-	}
-}
-
 // do makes HTTP request with given parameters, and decodes JSON response with 200 OK status
 // to respBody. It returns wrapped clientError on any other status, or other fatal errors.
 // Ctx is used only for cancelation.
@@ -200,30 +173,6 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 type authUser struct {
 	role   role
 	userID int
-}
-
-// CurrentUser represents Grafana user payload.
-type CurrentUser struct {
-	ID                             int    `json:"id"`
-	Email                          string `json:"email"`
-	Name                           string `json:"name"`
-	Login                          string `json:"login"`
-	CreatedAt                      string `json:"createdAt"`
-	OrgID                          int    `json:"orgId"`
-	IsAnonymous                    bool   `json:"isAnonymous"`
-	IsDisabled                     bool   `json:"isDisabled"`
-	IsExternal                     bool   `json:"isExternal"`
-	IsExtarnallySynced             bool   `json:"isExtarnallySynced"`
-	IsGrafanaAdmin                 bool   `json:"isGrafanaAdmin"`
-	IsGrafanaAdminExternallySynced bool   `json:"isGrafanaAdminExternallySynced"`
-	Theme                          string `json:"theme"`
-}
-
-// CurrentUserOrg represents Grafana org payload.
-type CurrentUserOrg struct {
-	OrgID int    `json:"orgId"`
-	Name  string `json:"name"`
-	Role  string `json:"role"`
 }
 
 // role defines Grafana user role within the organization
@@ -285,7 +234,7 @@ var emptyUser = authUser{
 // getAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
 // Ctx is used only for cancelation.
-func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error) {
+func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if API Key or Service Token is authorized.
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
@@ -304,24 +253,6 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	var m map[string]any
 	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
-		if hasAuthorizationHeader(authHeaders) {
-			return emptyUser, err
-		}
-		var cErr *clientError
-		if !errors.As(err, &cErr) {
-			return emptyUser, err
-		}
-		if cErr.Code != http.StatusUnauthorized {
-			return emptyUser, err
-		}
-		anonymousEnabled, anonymousRole := c.getAnonymousRoleFromSettings(ctx, l)
-		if anonymousEnabled {
-			l.Debugf("Grafana returned 401 for /api/user with no credentials; using anonymous role %q.", anonymousRole.String())
-			return authUser{
-				role:   anonymousRole,
-				userID: 0,
-			}, nil
-		}
 		return emptyUser, err
 	}
 
@@ -366,6 +297,48 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	}, nil
 }
 
+// rotateSessionToken calls the Grafana session token rotation endpoint with the
+// session cookie from authHeaders. Grafana rejects tokens older than the rotation
+// interval until a client rotates them explicitly. It returns the Set-Cookie
+// headers carrying the rotated token; they may be empty if a concurrent request
+// has already rotated it.
+func (c *Client) rotateSessionToken(ctx context.Context, authHeaders http.Header) ([]string, error) {
+	u := url.URL{
+		Scheme: "http",
+		Host:   c.addr,
+		Path:   "/api/user/auth-tokens/rotate",
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create http request: %w", err)
+	}
+	req.Header.Set("Cookie", authHeaders.Get("Cookie"))
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute http request: %w", err)
+	}
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read http response body: %w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		cErr := &clientError{
+			Method: req.Method,
+			URL:    req.URL.String(),
+			Code:   resp.StatusCode,
+			Body:   string(b),
+		}
+		// add ErrorMessage
+		_ = json.Unmarshal(b, cErr)
+		return nil, cErr
+	}
+
+	return resp.Header.Values("Set-Cookie"), nil
+}
+
 func (c *Client) convertRole(role string) role {
 	switch role {
 	case "Viewer":
@@ -379,168 +352,8 @@ func (c *Client) convertRole(role string) role {
 	}
 }
 
-// Grafana /api/frontend/settings may include user org id/name; org role for anonymous comes from anonymousOrgRole.
-type frontendUserSettingsFull struct {
-	OrgID   int    `json:"orgId"`
-	OrgName string `json:"orgName"`
-}
-
-type frontendSettingsFull struct {
-	AnonymousEnabled bool                     `json:"anonymousEnabled"`
-	AnonymousOrgRole string                   `json:"anonymousOrgRole"`
-	User             frontendUserSettingsFull `json:"user"`
-}
-
-func (c *Client) getAnonymousRoleFromSettings(ctx context.Context, l *logrus.Entry) (bool, role) {
-	settings, err := c.getFrontendSettings(ctx)
-	if err != nil {
-		return false, none
-	}
-
-	if !settings.AnonymousEnabled {
-		return false, none
-	}
-
-	parsedRole := c.convertRole(resolveAnonymousOrgRole(settings.AnonymousOrgRole))
-	if parsedRole == none {
-		return false, none
-	}
-	l.Debugf("Grafana anonymous mode is enabled with role %q.", parsedRole.String())
-	return true, parsedRole
-}
-
-func (c *Client) getFrontendSettings(ctx context.Context) (frontendSettingsFull, error) {
-	var settings frontendSettingsFull
-	err := c.do(ctx, http.MethodGet, "/api/frontend/settings", "", nil, nil, &settings)
-	if err != nil {
-		return frontendSettingsFull{}, err
-	}
-
-	return settings, nil
-}
-
-func hasAuthorizationHeader(authHeaders http.Header) bool {
-	return authHeaders.Get("Authorization") != ""
-}
-
-// Grafana organization role strings as returned by /api/frontend/settings (camelCase JSON keys).
-const (
-	grafanaOrgRoleViewer       = "Viewer"
-	grafanaOrgRoleEditor       = "Editor"
-	grafanaOrgRoleAdmin        = "Admin"
-	grafanaOrgRoleGrafanaAdmin = "GrafanaAdmin"
-	grafanaOrgRoleNone         = "None"
-)
-
-// resolveAnonymousOrgRole maps anonymousOrgRole from /api/frontend/settings ([auth.anonymous] org_role)
-// to the org role string PMM uses for anonymous Grafana auth. Grafana does not populate user.orgRole
-// in this payload; only anonymousOrgRole is authoritative. Deprecated elevated roles are clamped to Viewer.
-func resolveAnonymousOrgRole(anonymousOrgRole string) string {
-	anonymousOrgRole = strings.TrimSpace(anonymousOrgRole)
-
-	switch anonymousOrgRole {
-	case grafanaOrgRoleViewer:
-		return grafanaOrgRoleViewer
-	case grafanaOrgRoleEditor, grafanaOrgRoleAdmin, grafanaOrgRoleGrafanaAdmin:
-		return grafanaOrgRoleViewer
-	default:
-		return grafanaOrgRoleNone
-	}
-}
-
-// GetCurrentUser returns current Grafana user.
-// If anonymous mode is enabled and no auth headers are present, it returns
-// a synthetic anonymous user when /api/user responds with 401.
-func (c *Client) GetCurrentUser(ctx context.Context, authHeaders http.Header) (CurrentUser, error) {
-	var user CurrentUser
-	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &user)
-	if err == nil {
-		return user, nil
-	}
-
-	if hasAuthorizationHeader(authHeaders) {
-		return CurrentUser{}, err
-	}
-	var cErr *clientError
-	if !errors.As(err, &cErr) {
-		return CurrentUser{}, err
-	}
-	if cErr.Code != http.StatusUnauthorized {
-		return CurrentUser{}, err
-	}
-
-	settings, settingsErr := c.getFrontendSettings(ctx)
-	if settingsErr != nil || !settings.AnonymousEnabled {
-		return CurrentUser{}, err
-	}
-	role := resolveAnonymousOrgRole(settings.AnonymousOrgRole)
-	if role == grafanaOrgRoleNone {
-		return CurrentUser{}, err
-	}
-
-	orgID := settings.User.OrgID
-	if orgID == 0 {
-		orgID = 1
-	}
-
-	return CurrentUser{
-		ID:             0,
-		Email:          "",
-		Name:           "Anonymous",
-		Login:          "anonymous",
-		OrgID:          orgID,
-		IsAnonymous:    true,
-		IsGrafanaAdmin: false,
-	}, nil
-}
-
-// GetCurrentUserOrgs returns current Grafana user organizations.
-// If anonymous mode is enabled and no auth headers are present, it returns
-// a synthetic org list when /api/user/orgs responds with 401.
-func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header) ([]CurrentUserOrg, error) {
-	var orgs []CurrentUserOrg
-	err := c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &orgs)
-	if err == nil {
-		return orgs, nil
-	}
-
-	if hasAuthorizationHeader(authHeaders) {
-		return nil, err
-	}
-	var cErr *clientError
-	if !errors.As(err, &cErr) {
-		return nil, err
-	}
-	if cErr.Code != http.StatusUnauthorized {
-		return nil, err
-	}
-
-	settings, settingsErr := c.getFrontendSettings(ctx)
-	if settingsErr != nil || !settings.AnonymousEnabled {
-		return nil, err
-	}
-	role := resolveAnonymousOrgRole(settings.AnonymousOrgRole)
-	if role == grafanaOrgRoleNone {
-		return nil, err
-	}
-
-	orgID := settings.User.OrgID
-	if orgID == 0 {
-		orgID = 1
-	}
-	orgName := settings.User.OrgName
-	if orgName == "" {
-		orgName = "Main Org."
-	}
-
-	return []CurrentUserOrg{
-		{
-			OrgID: orgID,
-			Name:  orgName,
-			Role:  role,
-		},
-	}, nil
-}
+// errServiceTokenRejected marks Grafana's answer to a service token it did not authenticate.
+var errServiceTokenRejected = errors.New("service token rejected")
 
 func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
 	header := http.Header{}
@@ -549,6 +362,11 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role
 	var k map[string]any
 	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k)
 	if err != nil {
+		// The route has no sign-in middleware, so a token Grafana rejects gets 400 rather than 401, see PMM-15692.
+		cErr, ok := errors.AsType[*clientError](err)
+		if ok && cErr.Code == http.StatusBadRequest {
+			return none, fmt.Errorf("%w: %w", errServiceTokenRejected, err)
+		}
 		return none, err
 	}
 
@@ -761,6 +579,61 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 	}
 
 	return nil
+}
+
+// ListPMMRuleIDs returns the identity label of every Grafana alert rule that carries one,
+// which is how PMM-created rules identify themselves.
+//
+// The label is read rather than the rule's UID because a copied rule gets a new UID while
+// keeping the label, so this reports which rules still exist in terms of the identity PMM
+// keys its threshold overrides on.
+func (c *Client) ListPMMRuleIDs(ctx context.Context) (map[string]struct{}, error) {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// The ruler returns every folder's groups keyed by folder title. Only the rule
+	// labels matter here, so the rest of the payload is left unmodelled.
+	type rulerRule struct {
+		Labels map[string]string `json:"labels"`
+	}
+
+	type rulerGroup struct {
+		Rules []rulerRule `json:"rules"`
+	}
+
+	// Pinned to PMM's org: the ruler otherwise answers for the caller's current org, and
+	// the sweep would reap every row whose rule lives in the org it did not see.
+	headers := authHeaders.Clone()
+	headers.Set("X-Grafana-Org-Id", pmmOrgID)
+
+	var folders map[string][]rulerGroup
+
+	err = c.do(ctx, http.MethodGet, "/api/ruler/grafana/api/v1/rules", "", headers, nil, &folders)
+	if err != nil {
+		return nil, err
+	}
+
+	// do skips decoding an empty body, which must not read as "no rules": the sweep
+	// deletes whatever this omits.
+	if folders == nil {
+		return nil, errors.New("empty ruler response")
+	}
+
+	ids := make(map[string]struct{})
+	for _, groups := range folders {
+		for _, group := range groups {
+			for _, rule := range group.Rules {
+				id := rule.Labels[services.PMMRuleIDLabel]
+				if id != "" {
+					ids[id] = struct{}{}
+				}
+			}
+		}
+	}
+
+	return ids, nil
 }
 
 func validateDurations(intervalD, forD string) error {

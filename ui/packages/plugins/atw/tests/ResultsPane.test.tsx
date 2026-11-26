@@ -21,13 +21,20 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { DeliverySettingsProvider } from '../src/deliverySettings';
 import { ResultsPane } from '../src/ResultsPane';
+
+/** Skip Collapse/Accordion transition work that dominates wall time under CI. */
+const testTheme = createTheme({
+  transitions: { create: () => 'none' },
+});
 
 /** Flipped per test to cover the read-only (non-admin) rendering. */
 let mockCanMutate = true;
@@ -63,7 +70,9 @@ function renderPane(ui: ReactNode) {
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
   });
   return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    <ThemeProvider theme={testTheme}>
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
@@ -115,9 +124,15 @@ describe('ResultsPane', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Run snippets from the Collect pane/i)
+        screen.getByText(/Run diagnostic scripts from Collect/i)
       ).toBeTruthy();
     });
+    // An empty pane is not news: plain text, not an info alert.
+    expect(
+      screen
+        .getByText(/Run diagnostic scripts from Collect/i)
+        .closest('[role="alert"]')
+    ).toBeNull();
   });
 
   it('does not point a read-only session at the withheld Collect pane', async () => {
@@ -665,6 +680,89 @@ describe('ResultsPane diagnostics send', () => {
     ).toBeNull();
   });
 
+  it('names a re-sent execution by the loaded page’s title, since the send log records only the file', async () => {
+    routeGet({
+      executions: {
+        items: [{ ...FINISHED_EXECUTION, snippet_title: 'Slow Query' }],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+      sendJobs: {
+        items: [
+          failedJob({
+            error: 'boom',
+            executions: [
+              {
+                id: FINISHED_EXECUTION.id,
+                task_history_id: FINISHED_EXECUTION.task_history_id,
+                snippet_filename: FINISHED_EXECUTION.snippet_filename,
+              },
+            ],
+          }),
+        ],
+        total: 1,
+        offset: 0,
+        limit: 50,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Re-send' })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Re-send' }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('Slow Query')).toBeTruthy();
+    expect(within(dialog).queryByText('diag/slow-query.sh')).toBeNull();
+  });
+
+  it('names a paged-out re-sent run by the title of another run of its file', async () => {
+    routeGet({
+      executions: {
+        items: [{ ...FINISHED_EXECUTION, snippet_title: 'Slow Query' }],
+        total: 40,
+        offset: 0,
+        limit: 20,
+      },
+      sendJobs: {
+        items: [
+          failedJob({
+            error: 'boom',
+            executions: [
+              {
+                id: FINISHED_EXECUTION.id,
+                task_history_id: FINISHED_EXECUTION.task_history_id,
+                snippet_filename: FINISHED_EXECUTION.snippet_filename,
+              },
+              {
+                id: 'exec-98',
+                task_history_id: 98,
+                snippet_filename: FINISHED_EXECUTION.snippet_filename,
+              },
+            ],
+          }),
+        ],
+        total: 1,
+        offset: 0,
+        limit: 50,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Re-send' })).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Re-send' }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getAllByText('Slow Query')).toHaveLength(2);
+    expect(within(dialog).queryByText('diag/slow-query.sh')).toBeNull();
+  });
+
   it('flags a send history it could not load', async () => {
     mockedApi.get.mockImplementation((url: string) => {
       if (url.includes('/send-jobs/')) {
@@ -739,22 +837,16 @@ const rowToggle = (filename: string) =>
 /**
  * How the toggle presents itself to a screen reader.
  *
- * MUI leaves the native `checked` property false in the mixed state, so the
- * indeterminate case has to be read off an attribute. `aria-checked="mixed"`
- * is the contract a screen reader consumes, but MUI only started emitting it
- * after 7.3.7 — the version this repo's lockfile resolves — so fall back to
- * the `data-indeterminate` attribute MUI documents for that release.
+ * MUI reports the mixed state as `aria-checked="mixed"` and leaves the native
+ * `checked` property false, so asserting the ARIA state pins the contract a
+ * screen reader actually consumes rather than MUI's own markup.
  */
-const toggleState = () => {
-  const toggle = selectAllToggle();
-  const indeterminate =
-    toggle.getAttribute('aria-checked') === 'mixed' ||
-    toggle.getAttribute('data-indeterminate') === 'true';
-  if (indeterminate) {
-    return 'mixed';
-  }
-  return toggle.checked ? 'checked' : 'unchecked';
-};
+const toggleState = () =>
+  selectAllToggle().getAttribute('aria-checked') === 'mixed'
+    ? 'mixed'
+    : selectAllToggle().checked
+      ? 'checked'
+      : 'unchecked';
 
 /** Serve `pages` keyed by offset, so a case can select across a page flip. */
 function pagesByOffset(pages: Record<number, unknown[]>, total: number) {
@@ -1062,7 +1154,7 @@ describe('ResultsPane send-unavailable notice', () => {
       expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
     });
     expect(
-      screen.getByText(/Sending requires a valid ServiceNow connection/i)
+      screen.getByText(/Sending to a support case needs a valid connection/i)
     ).toBeTruthy();
     expect(
       screen.getByTestId('atw-send-unavailable-settings').getAttribute('href')
@@ -1343,6 +1435,65 @@ describe('ResultsPane rerun actions', () => {
         screen.getByRole('button', { name: 'Edit parameters and run again' })
       ).toBeTruthy();
     });
+    expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
+  });
+
+  it('offers no rerun on a closed incident, whose Collect pane is gone', async () => {
+    const serveOpen = mockedApi.get.getMockImplementation() as (
+      url: string
+    ) => Promise<unknown>;
+    mockedApi.get.mockImplementation((url: string) =>
+      url === '/apps/atw/incidents/inc-1'
+        ? Promise.resolve({
+            data: {
+              id: 'inc-1',
+              case_ref: 'CS0001',
+              closed_at: '2026-07-30T12:00:00Z',
+            },
+          })
+        : serveOpen(url)
+    );
+    renderPane(
+      <ResultsPane
+        incidentId="inc-1"
+        remembered={new Map([[42, { snippets: [], values: {} }]])}
+      />
+    );
+    await expandRow();
+
+    // Settled once the incident read has resolved and rendered; before that
+    // the pane cannot yet know the incident is closed.
+    await waitFor(() =>
+      expect(mockedApi.get).toHaveBeenCalledWith('/apps/atw/incidents/inc-1')
+    );
+    await act(async () => {});
+    expect(
+      screen.queryByRole('button', { name: 'Edit parameters and run again' })
+    ).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
+  });
+
+  it('offers no rerun until the incident has loaded and is known to be open', async () => {
+    const serveOpen = mockedApi.get.getMockImplementation() as (
+      url: string
+    ) => Promise<unknown>;
+    mockedApi.get.mockImplementation((url: string) =>
+      url === '/apps/atw/incidents/inc-1'
+        ? new Promise(() => {})
+        : serveOpen(url)
+    );
+    renderPane(
+      <ResultsPane
+        incidentId="inc-1"
+        remembered={new Map([[42, { snippets: [], values: {} }]])}
+      />
+    );
+    await expandRow();
+
+    await act(async () => {});
+    expect(
+      screen.queryByRole('button', { name: 'Edit parameters and run again' })
+    ).toBeNull();
     expect(screen.queryByRole('button', { name: 'Run again' })).toBeNull();
   });
 
@@ -1686,20 +1837,53 @@ describe('ResultsPane execution rows', () => {
     });
   });
 
-  it('counts up while a run is still going', async () => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
-    vi.setSystemTime(new Date('2026-07-22T10:00:05Z'));
+  it.each([
+    ['untitled first', [null, 'MySQL Summary']],
+    ['titled first', ['MySQL Summary', null]],
+  ])(
+    'labels each run of one file by its own title (%s)',
+    async (_order, titles) => {
+      routeGet({
+        executions: {
+          items: titles.map((title, index) => ({
+            ...NAMED_EXECUTION,
+            id: `exec-${index}`,
+            task_history_id: 40 + index,
+            snippet_title: title,
+          })),
+          total: 2,
+          offset: 0,
+          limit: 20,
+        },
+      });
+
+      renderPane(<ResultsPane incidentId="inc-1" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('MySQL Summary')).toBeTruthy();
+      });
+      expect(screen.getByText('pt-mysql-summary.sh')).toBeTruthy();
+    }
+  );
+
+  it('appends the filename to rows whose different scripts share a title', async () => {
     routeGet({
       executions: {
         items: [
+          NAMED_EXECUTION,
           {
             ...NAMED_EXECUTION,
-            id: 'exec-live',
-            task_status: 'running',
-            finished_at: null,
+            id: 'exec-named-again',
+            task_history_id: 32,
+          },
+          {
+            ...NAMED_EXECUTION,
+            id: 'exec-twin',
+            snippet_filename: 'ops/mysql-summary.sh',
+            task_history_id: 33,
           },
         ],
-        total: 1,
+        total: 3,
         offset: 0,
         limit: 20,
       },
@@ -1708,14 +1892,48 @@ describe('ResultsPane execution rows', () => {
     renderPane(<ResultsPane incidentId="inc-1" />);
 
     await waitFor(() => {
-      expect(screen.getByText('5.0s')).toBeTruthy();
+      expect(
+        screen.getAllByText('MySQL Summary (pt-mysql-summary.sh)')
+      ).toHaveLength(2);
     });
+    expect(
+      screen.getByText('MySQL Summary (ops/mysql-summary.sh)')
+    ).toBeTruthy();
+  });
 
-    await act(async () => {
-      vi.advanceTimersByTime(3000);
-    });
-    expect(screen.getByText('8.0s')).toBeTruthy();
-    vi.useRealTimers();
+  it('counts up while a run is still going', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      vi.setSystemTime(new Date('2026-07-22T10:00:05Z'));
+      routeGet({
+        executions: {
+          items: [
+            {
+              ...NAMED_EXECUTION,
+              id: 'exec-live',
+              task_status: 'running',
+              finished_at: null,
+            },
+          ],
+          total: 1,
+          offset: 0,
+          limit: 20,
+        },
+      });
+
+      renderPane(<ResultsPane incidentId="inc-1" />);
+
+      await waitFor(() => {
+        expect(screen.getByText('5.0s')).toBeTruthy();
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+      expect(screen.getByText('8.0s')).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('says a run is only queued rather than inventing a start time', async () => {
@@ -1800,13 +2018,15 @@ describe('ResultsPane — executions that just started', () => {
   }
 
   beforeEach(() => {
+    // Earlier cases in this file use fake timers; never let that leak here.
+    vi.useRealTimers();
     vi.clearAllMocks();
     mockedApi.get.mockImplementation(
-      async (url: string, config?: { params?: { offset: number } }) => {
+      (url: string, config?: { params?: { offset: number } }) => {
         if (url.includes('/executions/')) {
-          return pageAt(config?.params?.offset ?? 0, 20);
+          return Promise.resolve(pageAt(config?.params?.offset ?? 0, 20));
         }
-        return paginated([]);
+        return Promise.resolve(paginated([]));
       }
     );
   });
@@ -1822,6 +2042,8 @@ describe('ResultsPane — executions that just started', () => {
     expect(screen.getAllByTestId('atw-execution-row-new')).toHaveLength(1);
   });
 
+  // Five page flips of twenty MUI accordions each — under a loaded CI
+  // worker the default 5s budget is not enough even when the reset is correct.
   it('returns a reader on a later page to the top for every new batch', async () => {
     // One client across every rerender: a fresh one would refetch from scratch
     // and hide whether the pane's own page state actually moved.
@@ -1829,12 +2051,14 @@ describe('ResultsPane — executions that just started', () => {
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
     });
     const withHighlight = (highlightedTaskIds: Set<number>) => (
-      <QueryClientProvider client={queryClient}>
-        <ResultsPane
-          incidentId="inc-1"
-          highlightedTaskIds={highlightedTaskIds}
-        />
-      </QueryClientProvider>
+      <ThemeProvider theme={testTheme}>
+        <QueryClientProvider client={queryClient}>
+          <ResultsPane
+            incidentId="inc-1"
+            highlightedTaskIds={highlightedTaskIds}
+          />
+        </QueryClientProvider>
+      </ThemeProvider>
     );
     const { rerender } = render(withHighlight(new Set()));
 
@@ -1853,5 +2077,6 @@ describe('ResultsPane — executions that just started', () => {
 
     rerender(withHighlight(new Set([2])));
     expect(await screen.findByText('diag/script-0.sh')).toBeVisible();
-  });
+    expect(screen.queryByText('diag/script-20.sh')).not.toBeInTheDocument();
+  }, 20_000);
 });

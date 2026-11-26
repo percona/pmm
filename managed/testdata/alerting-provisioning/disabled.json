@@ -24,6 +24,10 @@
     },
     {
       "orgId": 1,
+      "uid": "pmm-ha-disk-space-usage"
+    },
+    {
+      "orgId": 1,
       "uid": "pmm-victoriametrics-down"
     },
     {

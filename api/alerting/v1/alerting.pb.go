@@ -35,7 +35,7 @@ const (
 	TemplateSource_TEMPLATE_SOURCE_UNSPECIFIED TemplateSource = 0
 	// Template that is shipped with PMM Server releases.
 	TemplateSource_TEMPLATE_SOURCE_BUILT_IN TemplateSource = 1
-	// Template that is downloaded from check.percona.com.
+	// Template that is downloaded from check.percona.com. Deprecated.
 	TemplateSource_TEMPLATE_SOURCE_SAAS TemplateSource = 2
 	// Templated loaded from user-suplied file.
 	TemplateSource_TEMPLATE_SOURCE_USER_FILE TemplateSource = 3
@@ -88,6 +88,58 @@ func (TemplateSource) EnumDescriptor() ([]byte, []int) {
 	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{0}
 }
 
+// DatasourceType is the built-in Grafana datasource a template query runs against.
+type DatasourceType int32
+
+const (
+	DatasourceType_DATASOURCE_TYPE_UNSPECIFIED DatasourceType = 0
+	// VictoriaMetrics, queried with MetricsQL.
+	DatasourceType_DATASOURCE_TYPE_METRICS DatasourceType = 1
+	// ClickHouse (QAN data), queried with SQL as a time series.
+	DatasourceType_DATASOURCE_TYPE_CLICKHOUSE DatasourceType = 2
+)
+
+// Enum value maps for DatasourceType.
+var (
+	DatasourceType_name = map[int32]string{
+		0: "DATASOURCE_TYPE_UNSPECIFIED",
+		1: "DATASOURCE_TYPE_METRICS",
+		2: "DATASOURCE_TYPE_CLICKHOUSE",
+	}
+	DatasourceType_value = map[string]int32{
+		"DATASOURCE_TYPE_UNSPECIFIED": 0,
+		"DATASOURCE_TYPE_METRICS":     1,
+		"DATASOURCE_TYPE_CLICKHOUSE":  2,
+	}
+)
+
+func (x DatasourceType) Enum() *DatasourceType {
+	p := new(DatasourceType)
+	*p = x
+	return p
+}
+
+func (x DatasourceType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DatasourceType) Descriptor() protoreflect.EnumDescriptor {
+	return file_alerting_v1_alerting_proto_enumTypes[1].Descriptor()
+}
+
+func (DatasourceType) Type() protoreflect.EnumType {
+	return &file_alerting_v1_alerting_proto_enumTypes[1]
+}
+
+func (x DatasourceType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DatasourceType.Descriptor instead.
+func (DatasourceType) EnumDescriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{1}
+}
+
 // FilterType represents filter matching type.
 type FilterType int32
 
@@ -122,11 +174,11 @@ func (x FilterType) String() string {
 }
 
 func (FilterType) Descriptor() protoreflect.EnumDescriptor {
-	return file_alerting_v1_alerting_proto_enumTypes[1].Descriptor()
+	return file_alerting_v1_alerting_proto_enumTypes[2].Descriptor()
 }
 
 func (FilterType) Type() protoreflect.EnumType {
-	return &file_alerting_v1_alerting_proto_enumTypes[1]
+	return &file_alerting_v1_alerting_proto_enumTypes[2]
 }
 
 func (x FilterType) Number() protoreflect.EnumNumber {
@@ -135,7 +187,67 @@ func (x FilterType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use FilterType.Descriptor instead.
 func (FilterType) EnumDescriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{1}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{2}
+}
+
+// ThresholdScope says what a threshold override's target refers to.
+//
+// Only THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and
+// cluster already, but every RPC rejects them with Unimplemented for now.
+type ThresholdScope int32
+
+const (
+	// Treated as node.
+	ThresholdScope_THRESHOLD_SCOPE_UNSPECIFIED ThresholdScope = 0
+	// Target is a Node ID.
+	ThresholdScope_THRESHOLD_SCOPE_NODE ThresholdScope = 1
+	// Target is a Service ID. Not implemented yet.
+	ThresholdScope_THRESHOLD_SCOPE_SERVICE ThresholdScope = 2
+	// Target is a cluster label value. Not implemented yet.
+	ThresholdScope_THRESHOLD_SCOPE_CLUSTER ThresholdScope = 3
+)
+
+// Enum value maps for ThresholdScope.
+var (
+	ThresholdScope_name = map[int32]string{
+		0: "THRESHOLD_SCOPE_UNSPECIFIED",
+		1: "THRESHOLD_SCOPE_NODE",
+		2: "THRESHOLD_SCOPE_SERVICE",
+		3: "THRESHOLD_SCOPE_CLUSTER",
+	}
+	ThresholdScope_value = map[string]int32{
+		"THRESHOLD_SCOPE_UNSPECIFIED": 0,
+		"THRESHOLD_SCOPE_NODE":        1,
+		"THRESHOLD_SCOPE_SERVICE":     2,
+		"THRESHOLD_SCOPE_CLUSTER":     3,
+	}
+)
+
+func (x ThresholdScope) Enum() *ThresholdScope {
+	p := new(ThresholdScope)
+	*p = x
+	return p
+}
+
+func (x ThresholdScope) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ThresholdScope) Descriptor() protoreflect.EnumDescriptor {
+	return file_alerting_v1_alerting_proto_enumTypes[3].Descriptor()
+}
+
+func (ThresholdScope) Type() protoreflect.EnumType {
+	return &file_alerting_v1_alerting_proto_enumTypes[3]
+}
+
+func (x ThresholdScope) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ThresholdScope.Descriptor instead.
+func (ThresholdScope) EnumDescriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{3}
 }
 
 // BoolParamDefinition represents boolean parameter's default value.
@@ -311,7 +423,11 @@ type ParamDefinition struct {
 	//	*ParamDefinition_Bool
 	//	*ParamDefinition_Float
 	//	*ParamDefinition_String_
-	Value         isParamDefinition_Value `protobuf_oneof:"value"`
+	Value isParamDefinition_Value `protobuf_oneof:"value"`
+	// Whether this parameter's threshold can be overridden per target without editing the
+	// rule. Only set for templates that support it; the scopes it may be set at are
+	// reported per rule by ListThresholds.
+	Overridable   bool `protobuf:"varint,8,opt,name=overridable,proto3" json:"overridable,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -408,6 +524,13 @@ func (x *ParamDefinition) GetString_() *StringParamDefinition {
 	return nil
 }
 
+func (x *ParamDefinition) GetOverridable() bool {
+	if x != nil {
+		return x.Overridable
+	}
+	return false
+}
+
 type isParamDefinition_Value interface {
 	isParamDefinition_Value()
 }
@@ -433,13 +556,15 @@ func (*ParamDefinition_Float) isParamDefinition_Value() {}
 
 func (*ParamDefinition_String_) isParamDefinition_Value() {}
 
-// TemplateQuery represents a PromQL query step in a multi-query alert template.
+// TemplateQuery represents a query step in a multi-query alert template.
 type TemplateQuery struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Reference ID of the query (e.g. "A").
 	RefId string `protobuf:"bytes,1,opt,name=ref_id,json=refId,proto3" json:"ref_id,omitempty"`
-	// PromQL query expression with templating parameters (placeholders kept intact).
-	Expr          string `protobuf:"bytes,2,opt,name=expr,proto3" json:"expr,omitempty"`
+	// Query expression with templating parameters (placeholders kept intact).
+	Expr string `protobuf:"bytes,2,opt,name=expr,proto3" json:"expr,omitempty"`
+	// Datasource the query runs against.
+	Datasource    DatasourceType `protobuf:"varint,3,opt,name=datasource,proto3,enum=alerting.v1.DatasourceType" json:"datasource,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -488,15 +613,24 @@ func (x *TemplateQuery) GetExpr() string {
 	return ""
 }
 
+func (x *TemplateQuery) GetDatasource() DatasourceType {
+	if x != nil {
+		return x.Datasource
+	}
+	return DatasourceType_DATASOURCE_TYPE_UNSPECIFIED
+}
+
 // TemplateExpression represents a server-side expression step in a multi-query alert template.
 type TemplateExpression struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Reference ID of the expression (e.g. "C").
 	RefId string `protobuf:"bytes,1,opt,name=ref_id,json=refId,proto3" json:"ref_id,omitempty"`
-	// Expression type. Currently only "math" is supported.
+	// Expression type: "math" or "reduce".
 	Type string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
-	// Expression body referencing other steps by ref ID (e.g. "$A > $B").
-	Expression    string `protobuf:"bytes,3,opt,name=expression,proto3" json:"expression,omitempty"`
+	// Expression body referencing other steps by ref ID (e.g. "$A > $B", or "$A" for reduce).
+	Expression string `protobuf:"bytes,3,opt,name=expression,proto3" json:"expression,omitempty"`
+	// Reducer of a "reduce" expression (e.g. "max").
+	Reducer       string `protobuf:"bytes,4,opt,name=reducer,proto3" json:"reducer,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -552,6 +686,13 @@ func (x *TemplateExpression) GetExpression() string {
 	return ""
 }
 
+func (x *TemplateExpression) GetReducer() string {
+	if x != nil {
+		return x.Reducer
+	}
+	return ""
+}
+
 // Template represents Alert Template that is used to create Alert Rule.
 type Template struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -559,7 +700,7 @@ type Template struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Short human-readable summary.
 	Summary string `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`
-	// PromQL query expression with templating parameters.
+	// Query expression with templating parameters; for multi-query templates, a copy of queries[0].expr.
 	Expr string `protobuf:"bytes,3,opt,name=expr,proto3" json:"expr,omitempty"`
 	// Query parameters definitions.
 	Params []*ParamDefinition `protobuf:"bytes,4,rep,name=params,proto3" json:"params,omitempty"`
@@ -577,7 +718,7 @@ type Template struct {
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// YAML template file content. Empty for built-in and SaaS templates.
 	Yaml string `protobuf:"bytes,11,opt,name=yaml,proto3" json:"yaml,omitempty"`
-	// PromQL query steps for multi-query templates. Empty for single-expression templates.
+	// Query steps for multi-query templates. Empty for single-expression templates.
 	Queries []*TemplateQuery `protobuf:"bytes,12,rep,name=queries,proto3" json:"queries,omitempty"`
 	// Server-side expression steps for multi-query templates. Empty for single-expression templates.
 	Expressions []*TemplateExpression `protobuf:"bytes,13,rep,name=expressions,proto3" json:"expressions,omitempty"`
@@ -1402,7 +1543,12 @@ func (x *CreateRuleRequest) GetInterval() *durationpb.Duration {
 }
 
 type CreateRuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifier PMM assigns to a rule whose thresholds can be overridden per target.
+	// Empty when the rule has no overridable parameters, since nothing can be keyed on it.
+	// This is the rule's identity for threshold purposes rather than its Grafana UID:
+	// copying or renaming the rule in Grafana preserves it.
+	RuleId        string `protobuf:"bytes,1,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1437,6 +1583,637 @@ func (*CreateRuleResponse) Descriptor() ([]byte, []int) {
 	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{18}
 }
 
+func (x *CreateRuleResponse) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
+}
+
+// Threshold is one overridable parameter of one rule, as it applies to one target.
+type Threshold struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifier PMM assigned to the rule. Unique per parameter in a target-scoped listing,
+	// but a listing without a target reports one entry per overridden target, so there the
+	// same rule_id and param_name can repeat, differing in scope and target. Key on rule_id,
+	// param_name, scope and target together rather than on rule_id alone.
+	RuleId string `protobuf:"bytes,1,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
+	// Machine-readable name of the overridable parameter.
+	ParamName string `protobuf:"bytes,2,opt,name=param_name,json=paramName,proto3" json:"param_name,omitempty"`
+	// Short human-readable parameter summary, as it was when the rule was created.
+	Summary string `protobuf:"bytes,3,opt,name=summary,proto3" json:"summary,omitempty"`
+	// Parameter unit.
+	Unit ParamUnit `protobuf:"varint,4,opt,name=unit,proto3,enum=alerting.v1.ParamUnit" json:"unit,omitempty"`
+	// Value the rule falls back to when no override applies.
+	DefaultValue float64 `protobuf:"fixed64,5,opt,name=default_value,json=defaultValue,proto3" json:"default_value,omitempty"`
+	// Value the rule currently evaluates this target against.
+	EffectiveValue float64 `protobuf:"fixed64,6,opt,name=effective_value,json=effectiveValue,proto3" json:"effective_value,omitempty"`
+	// Whether effective_value comes from an override rather than the default.
+	IsOverridden bool `protobuf:"varint,7,opt,name=is_overridden,json=isOverridden,proto3" json:"is_overridden,omitempty"`
+	// Scope the effective override was set at. Unspecified when not overridden.
+	Scope ThresholdScope `protobuf:"varint,8,opt,name=scope,proto3,enum=alerting.v1.ThresholdScope" json:"scope,omitempty"`
+	// Target the effective override was set on. Empty when not overridden.
+	Target        string `protobuf:"bytes,9,opt,name=target,proto3" json:"target,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Threshold) Reset() {
+	*x = Threshold{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Threshold) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Threshold) ProtoMessage() {}
+
+func (x *Threshold) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Threshold.ProtoReflect.Descriptor instead.
+func (*Threshold) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *Threshold) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
+}
+
+func (x *Threshold) GetParamName() string {
+	if x != nil {
+		return x.ParamName
+	}
+	return ""
+}
+
+func (x *Threshold) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *Threshold) GetUnit() ParamUnit {
+	if x != nil {
+		return x.Unit
+	}
+	return ParamUnit_PARAM_UNIT_UNSPECIFIED
+}
+
+func (x *Threshold) GetDefaultValue() float64 {
+	if x != nil {
+		return x.DefaultValue
+	}
+	return 0
+}
+
+func (x *Threshold) GetEffectiveValue() float64 {
+	if x != nil {
+		return x.EffectiveValue
+	}
+	return 0
+}
+
+func (x *Threshold) GetIsOverridden() bool {
+	if x != nil {
+		return x.IsOverridden
+	}
+	return false
+}
+
+func (x *Threshold) GetScope() ThresholdScope {
+	if x != nil {
+		return x.Scope
+	}
+	return ThresholdScope_THRESHOLD_SCOPE_UNSPECIFIED
+}
+
+func (x *Threshold) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+type ListThresholdsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Scope of the target to report thresholds for.
+	Scope ThresholdScope `protobuf:"varint,1,opt,name=scope,proto3,enum=alerting.v1.ThresholdScope" json:"scope,omitempty"`
+	// Target to report thresholds for. When set, every overridable parameter is returned
+	// for that target, overridden or not. When empty, only existing overrides are
+	// returned, since there is otherwise no bounded set to enumerate.
+	Target string `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
+	// Return only thresholds of this rule.
+	RuleId        string `protobuf:"bytes,3,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListThresholdsRequest) Reset() {
+	*x = ListThresholdsRequest{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListThresholdsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListThresholdsRequest) ProtoMessage() {}
+
+func (x *ListThresholdsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListThresholdsRequest.ProtoReflect.Descriptor instead.
+func (*ListThresholdsRequest) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListThresholdsRequest) GetScope() ThresholdScope {
+	if x != nil {
+		return x.Scope
+	}
+	return ThresholdScope_THRESHOLD_SCOPE_UNSPECIFIED
+}
+
+func (x *ListThresholdsRequest) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *ListThresholdsRequest) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
+}
+
+type ListThresholdsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Thresholds    []*Threshold           `protobuf:"bytes,1,rep,name=thresholds,proto3" json:"thresholds,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListThresholdsResponse) Reset() {
+	*x = ListThresholdsResponse{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListThresholdsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListThresholdsResponse) ProtoMessage() {}
+
+func (x *ListThresholdsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListThresholdsResponse.ProtoReflect.Descriptor instead.
+func (*ListThresholdsResponse) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ListThresholdsResponse) GetThresholds() []*Threshold {
+	if x != nil {
+		return x.Thresholds
+	}
+	return nil
+}
+
+type SetThresholdRequest struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Scope     ThresholdScope         `protobuf:"varint,1,opt,name=scope,proto3,enum=alerting.v1.ThresholdScope" json:"scope,omitempty"`
+	Target    string                 `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
+	RuleId    string                 `protobuf:"bytes,3,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
+	ParamName string                 `protobuf:"bytes,4,opt,name=param_name,json=paramName,proto3" json:"param_name,omitempty"`
+	// Must be finite and within the parameter's declared range.
+	Value         float64 `protobuf:"fixed64,5,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetThresholdRequest) Reset() {
+	*x = SetThresholdRequest{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetThresholdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetThresholdRequest) ProtoMessage() {}
+
+func (x *SetThresholdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetThresholdRequest.ProtoReflect.Descriptor instead.
+func (*SetThresholdRequest) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *SetThresholdRequest) GetScope() ThresholdScope {
+	if x != nil {
+		return x.Scope
+	}
+	return ThresholdScope_THRESHOLD_SCOPE_UNSPECIFIED
+}
+
+func (x *SetThresholdRequest) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *SetThresholdRequest) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
+}
+
+func (x *SetThresholdRequest) GetParamName() string {
+	if x != nil {
+		return x.ParamName
+	}
+	return ""
+}
+
+func (x *SetThresholdRequest) GetValue() float64 {
+	if x != nil {
+		return x.Value
+	}
+	return 0
+}
+
+type SetThresholdResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Threshold     *Threshold             `protobuf:"bytes,1,opt,name=threshold,proto3" json:"threshold,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetThresholdResponse) Reset() {
+	*x = SetThresholdResponse{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetThresholdResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetThresholdResponse) ProtoMessage() {}
+
+func (x *SetThresholdResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetThresholdResponse.ProtoReflect.Descriptor instead.
+func (*SetThresholdResponse) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *SetThresholdResponse) GetThreshold() *Threshold {
+	if x != nil {
+		return x.Threshold
+	}
+	return nil
+}
+
+type ClearThresholdRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Scope         ThresholdScope         `protobuf:"varint,1,opt,name=scope,proto3,enum=alerting.v1.ThresholdScope" json:"scope,omitempty"`
+	Target        string                 `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
+	RuleId        string                 `protobuf:"bytes,3,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
+	ParamName     string                 `protobuf:"bytes,4,opt,name=param_name,json=paramName,proto3" json:"param_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClearThresholdRequest) Reset() {
+	*x = ClearThresholdRequest{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClearThresholdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClearThresholdRequest) ProtoMessage() {}
+
+func (x *ClearThresholdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClearThresholdRequest.ProtoReflect.Descriptor instead.
+func (*ClearThresholdRequest) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *ClearThresholdRequest) GetScope() ThresholdScope {
+	if x != nil {
+		return x.Scope
+	}
+	return ThresholdScope_THRESHOLD_SCOPE_UNSPECIFIED
+}
+
+func (x *ClearThresholdRequest) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *ClearThresholdRequest) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
+}
+
+func (x *ClearThresholdRequest) GetParamName() string {
+	if x != nil {
+		return x.ParamName
+	}
+	return ""
+}
+
+type ClearThresholdResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ClearThresholdResponse) Reset() {
+	*x = ClearThresholdResponse{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClearThresholdResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClearThresholdResponse) ProtoMessage() {}
+
+func (x *ClearThresholdResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClearThresholdResponse.ProtoReflect.Descriptor instead.
+func (*ClearThresholdResponse) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{25}
+}
+
+// ThresholdUpdate sets or clears one override.
+type ThresholdUpdate struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Scope     ThresholdScope         `protobuf:"varint,1,opt,name=scope,proto3,enum=alerting.v1.ThresholdScope" json:"scope,omitempty"`
+	Target    string                 `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
+	RuleId    string                 `protobuf:"bytes,3,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
+	ParamName string                 `protobuf:"bytes,4,opt,name=param_name,json=paramName,proto3" json:"param_name,omitempty"`
+	// Omit to clear the override rather than set it.
+	Value         *float64 `protobuf:"fixed64,5,opt,name=value,proto3,oneof" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ThresholdUpdate) Reset() {
+	*x = ThresholdUpdate{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ThresholdUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ThresholdUpdate) ProtoMessage() {}
+
+func (x *ThresholdUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ThresholdUpdate.ProtoReflect.Descriptor instead.
+func (*ThresholdUpdate) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *ThresholdUpdate) GetScope() ThresholdScope {
+	if x != nil {
+		return x.Scope
+	}
+	return ThresholdScope_THRESHOLD_SCOPE_UNSPECIFIED
+}
+
+func (x *ThresholdUpdate) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *ThresholdUpdate) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
+}
+
+func (x *ThresholdUpdate) GetParamName() string {
+	if x != nil {
+		return x.ParamName
+	}
+	return ""
+}
+
+func (x *ThresholdUpdate) GetValue() float64 {
+	if x != nil && x.Value != nil {
+		return *x.Value
+	}
+	return 0
+}
+
+type BatchUpdateThresholdsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Applied in one transaction: either every update lands or none does. A client
+	// editing several rows at once cannot otherwise report which ones took effect.
+	Updates       []*ThresholdUpdate `protobuf:"bytes,1,rep,name=updates,proto3" json:"updates,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BatchUpdateThresholdsRequest) Reset() {
+	*x = BatchUpdateThresholdsRequest{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchUpdateThresholdsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchUpdateThresholdsRequest) ProtoMessage() {}
+
+func (x *BatchUpdateThresholdsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchUpdateThresholdsRequest.ProtoReflect.Descriptor instead.
+func (*BatchUpdateThresholdsRequest) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *BatchUpdateThresholdsRequest) GetUpdates() []*ThresholdUpdate {
+	if x != nil {
+		return x.Updates
+	}
+	return nil
+}
+
+type BatchUpdateThresholdsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Thresholds that were set, in request order. Cleared ones are omitted.
+	Thresholds    []*Threshold `protobuf:"bytes,1,rep,name=thresholds,proto3" json:"thresholds,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BatchUpdateThresholdsResponse) Reset() {
+	*x = BatchUpdateThresholdsResponse{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BatchUpdateThresholdsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BatchUpdateThresholdsResponse) ProtoMessage() {}
+
+func (x *BatchUpdateThresholdsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BatchUpdateThresholdsResponse.ProtoReflect.Descriptor instead.
+func (*BatchUpdateThresholdsResponse) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *BatchUpdateThresholdsResponse) GetThresholds() []*Threshold {
+	if x != nil {
+		return x.Thresholds
+	}
+	return nil
+}
+
 var File_alerting_v1_alerting_proto protoreflect.FileDescriptor
 
 const file_alerting_v1_alerting_proto_rawDesc = "" +
@@ -1457,7 +2234,7 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x15StringParamDefinition\x12\x1d\n" +
 	"\adefault\x18\x01 \x01(\tH\x00R\adefault\x88\x01\x01B\n" +
 	"\n" +
-	"\b_default\"\xe3\x02\n" +
+	"\b_default\"\x85\x03\n" +
 	"\x0fParamDefinition\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\x12!\n" +
 	"\asummary\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\asummary\x12*\n" +
@@ -1465,17 +2242,22 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x04type\x18\x04 \x01(\x0e2\x16.alerting.v1.ParamTypeR\x04type\x126\n" +
 	"\x04bool\x18\x05 \x01(\v2 .alerting.v1.BoolParamDefinitionH\x00R\x04bool\x129\n" +
 	"\x05float\x18\x06 \x01(\v2!.alerting.v1.FloatParamDefinitionH\x00R\x05float\x12<\n" +
-	"\x06string\x18\a \x01(\v2\".alerting.v1.StringParamDefinitionH\x00R\x06stringB\a\n" +
-	"\x05value\":\n" +
+	"\x06string\x18\a \x01(\v2\".alerting.v1.StringParamDefinitionH\x00R\x06string\x12 \n" +
+	"\voverridable\x18\b \x01(\bR\voverridableB\a\n" +
+	"\x05value\"w\n" +
 	"\rTemplateQuery\x12\x15\n" +
 	"\x06ref_id\x18\x01 \x01(\tR\x05refId\x12\x12\n" +
-	"\x04expr\x18\x02 \x01(\tR\x04expr\"_\n" +
+	"\x04expr\x18\x02 \x01(\tR\x04expr\x12;\n" +
+	"\n" +
+	"datasource\x18\x03 \x01(\x0e2\x1b.alerting.v1.DatasourceTypeR\n" +
+	"datasource\"y\n" +
 	"\x12TemplateExpression\x12\x15\n" +
 	"\x06ref_id\x18\x01 \x01(\tR\x05refId\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1e\n" +
 	"\n" +
 	"expression\x18\x03 \x01(\tR\n" +
-	"expression\"\xff\x05\n" +
+	"expression\x12\x18\n" +
+	"\areducer\x18\x04 \x01(\tR\areducer\"\xff\x05\n" +
 	"\bTemplate\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\asummary\x18\x02 \x01(\tR\asummary\x12\x12\n" +
@@ -1550,26 +2332,89 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	" \x01(\v2\x19.google.protobuf.DurationR\binterval\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x14\n" +
-	"\x12CreateRuleResponse*\xa6\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"-\n" +
+	"\x12CreateRuleResponse\x12\x17\n" +
+	"\arule_id\x18\x01 \x01(\tR\x06ruleId\"\xc7\x02\n" +
+	"\tThreshold\x12\x17\n" +
+	"\arule_id\x18\x01 \x01(\tR\x06ruleId\x12\x1d\n" +
+	"\n" +
+	"param_name\x18\x02 \x01(\tR\tparamName\x12\x18\n" +
+	"\asummary\x18\x03 \x01(\tR\asummary\x12*\n" +
+	"\x04unit\x18\x04 \x01(\x0e2\x16.alerting.v1.ParamUnitR\x04unit\x12#\n" +
+	"\rdefault_value\x18\x05 \x01(\x01R\fdefaultValue\x12'\n" +
+	"\x0feffective_value\x18\x06 \x01(\x01R\x0eeffectiveValue\x12#\n" +
+	"\ris_overridden\x18\a \x01(\bR\fisOverridden\x121\n" +
+	"\x05scope\x18\b \x01(\x0e2\x1b.alerting.v1.ThresholdScopeR\x05scope\x12\x16\n" +
+	"\x06target\x18\t \x01(\tR\x06target\"{\n" +
+	"\x15ListThresholdsRequest\x121\n" +
+	"\x05scope\x18\x01 \x01(\x0e2\x1b.alerting.v1.ThresholdScopeR\x05scope\x12\x16\n" +
+	"\x06target\x18\x02 \x01(\tR\x06target\x12\x17\n" +
+	"\arule_id\x18\x03 \x01(\tR\x06ruleId\"P\n" +
+	"\x16ListThresholdsResponse\x126\n" +
+	"\n" +
+	"thresholds\x18\x01 \x03(\v2\x16.alerting.v1.ThresholdR\n" +
+	"thresholds\"\xc9\x01\n" +
+	"\x13SetThresholdRequest\x121\n" +
+	"\x05scope\x18\x01 \x01(\x0e2\x1b.alerting.v1.ThresholdScopeR\x05scope\x12\x1f\n" +
+	"\x06target\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06target\x12 \n" +
+	"\arule_id\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06ruleId\x12&\n" +
+	"\n" +
+	"param_name\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tparamName\x12\x14\n" +
+	"\x05value\x18\x05 \x01(\x01R\x05value\"L\n" +
+	"\x14SetThresholdResponse\x124\n" +
+	"\tthreshold\x18\x01 \x01(\v2\x16.alerting.v1.ThresholdR\tthreshold\"\xb5\x01\n" +
+	"\x15ClearThresholdRequest\x121\n" +
+	"\x05scope\x18\x01 \x01(\x0e2\x1b.alerting.v1.ThresholdScopeR\x05scope\x12\x1f\n" +
+	"\x06target\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06target\x12 \n" +
+	"\arule_id\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06ruleId\x12&\n" +
+	"\n" +
+	"param_name\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tparamName\"\x18\n" +
+	"\x16ClearThresholdResponse\"\xd4\x01\n" +
+	"\x0fThresholdUpdate\x121\n" +
+	"\x05scope\x18\x01 \x01(\x0e2\x1b.alerting.v1.ThresholdScopeR\x05scope\x12\x1f\n" +
+	"\x06target\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06target\x12 \n" +
+	"\arule_id\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06ruleId\x12&\n" +
+	"\n" +
+	"param_name\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tparamName\x12\x19\n" +
+	"\x05value\x18\x05 \x01(\x01H\x00R\x05value\x88\x01\x01B\b\n" +
+	"\x06_value\"`\n" +
+	"\x1cBatchUpdateThresholdsRequest\x12@\n" +
+	"\aupdates\x18\x01 \x03(\v2\x1c.alerting.v1.ThresholdUpdateB\b\xfaB\x05\x92\x01\x02\b\x01R\aupdates\"W\n" +
+	"\x1dBatchUpdateThresholdsResponse\x126\n" +
+	"\n" +
+	"thresholds\x18\x01 \x03(\v2\x16.alerting.v1.ThresholdR\n" +
+	"thresholds*\xa6\x01\n" +
 	"\x0eTemplateSource\x12\x1f\n" +
 	"\x1bTEMPLATE_SOURCE_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18TEMPLATE_SOURCE_BUILT_IN\x10\x01\x12\x18\n" +
 	"\x14TEMPLATE_SOURCE_SAAS\x10\x02\x12\x1d\n" +
 	"\x19TEMPLATE_SOURCE_USER_FILE\x10\x03\x12\x1c\n" +
-	"\x18TEMPLATE_SOURCE_USER_API\x10\x04*Z\n" +
+	"\x18TEMPLATE_SOURCE_USER_API\x10\x04*n\n" +
+	"\x0eDatasourceType\x12\x1f\n" +
+	"\x1bDATASOURCE_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17DATASOURCE_TYPE_METRICS\x10\x01\x12\x1e\n" +
+	"\x1aDATASOURCE_TYPE_CLICKHOUSE\x10\x02*Z\n" +
 	"\n" +
 	"FilterType\x12\x1b\n" +
 	"\x17FILTER_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11FILTER_TYPE_MATCH\x10\x01\x12\x18\n" +
-	"\x14FILTER_TYPE_MISMATCH\x10\x022\xfe\x04\n" +
+	"\x14FILTER_TYPE_MISMATCH\x10\x02*\x85\x01\n" +
+	"\x0eThresholdScope\x12\x1f\n" +
+	"\x1bTHRESHOLD_SCOPE_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14THRESHOLD_SCOPE_NODE\x10\x01\x12\x1b\n" +
+	"\x17THRESHOLD_SCOPE_SERVICE\x10\x02\x12\x1b\n" +
+	"\x17THRESHOLD_SCOPE_CLUSTER\x10\x032\x9a\t\n" +
 	"\x0fAlertingService\x12v\n" +
 	"\rListTemplates\x12!.alerting.v1.ListTemplatesRequest\x1a\".alerting.v1.ListTemplatesResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/alerting/templates\x12|\n" +
 	"\x0eCreateTemplate\x12\".alerting.v1.CreateTemplateRequest\x1a#.alerting.v1.CreateTemplateResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/alerting/templates\x12\x83\x01\n" +
 	"\x0eUpdateTemplate\x12\".alerting.v1.UpdateTemplateRequest\x1a#.alerting.v1.UpdateTemplateResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\x1a\x1d/v1/alerting/templates/{name}\x12\x80\x01\n" +
 	"\x0eDeleteTemplate\x12\".alerting.v1.DeleteTemplateRequest\x1a#.alerting.v1.DeleteTemplateResponse\"%\x82\xd3\xe4\x93\x02\x1f*\x1d/v1/alerting/templates/{name}\x12l\n" +
 	"\n" +
-	"CreateRule\x12\x1e.alerting.v1.CreateRuleRequest\x1a\x1f.alerting.v1.CreateRuleResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/alerting/rulesB\xa0\x01\n" +
+	"CreateRule\x12\x1e.alerting.v1.CreateRuleRequest\x1a\x1f.alerting.v1.CreateRuleResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/alerting/rules\x12z\n" +
+	"\x0eListThresholds\x12\".alerting.v1.ListThresholdsRequest\x1a#.alerting.v1.ListThresholdsResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/v1/alerting/thresholds\x12w\n" +
+	"\fSetThreshold\x12 .alerting.v1.SetThresholdRequest\x1a!.alerting.v1.SetThresholdResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/alerting/thresholds\x12\x83\x01\n" +
+	"\x0eClearThreshold\x12\".alerting.v1.ClearThresholdRequest\x1a#.alerting.v1.ClearThresholdResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/alerting/thresholds:clear\x12\x9e\x01\n" +
+	"\x15BatchUpdateThresholds\x12).alerting.v1.BatchUpdateThresholdsRequest\x1a*.alerting.v1.BatchUpdateThresholdsResponse\".\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/alerting/thresholds:batchUpdateB\xa0\x01\n" +
 	"\x0fcom.alerting.v1B\rAlertingProtoP\x01Z1github.com/percona/pmm/api/alerting/v1;alertingv1\xa2\x02\x03AXX\xaa\x02\vAlerting.V1\xca\x02\vAlerting\\V1\xe2\x02\x17Alerting\\V1\\GPBMetadata\xea\x02\fAlerting::V1b\x06proto3"
 
 var (
@@ -1585,80 +2430,111 @@ func file_alerting_v1_alerting_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_alerting_v1_alerting_proto_msgTypes  = make([]protoimpl.MessageInfo, 22)
+	file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+	file_alerting_v1_alerting_proto_msgTypes  = make([]protoimpl.MessageInfo, 32)
 	file_alerting_v1_alerting_proto_goTypes   = []any{
-		TemplateSource(0),              // 0: alerting.v1.TemplateSource
-		FilterType(0),                  // 1: alerting.v1.FilterType
-		(*BoolParamDefinition)(nil),    // 2: alerting.v1.BoolParamDefinition
-		(*FloatParamDefinition)(nil),   // 3: alerting.v1.FloatParamDefinition
-		(*StringParamDefinition)(nil),  // 4: alerting.v1.StringParamDefinition
-		(*ParamDefinition)(nil),        // 5: alerting.v1.ParamDefinition
-		(*TemplateQuery)(nil),          // 6: alerting.v1.TemplateQuery
-		(*TemplateExpression)(nil),     // 7: alerting.v1.TemplateExpression
-		(*Template)(nil),               // 8: alerting.v1.Template
-		(*ListTemplatesRequest)(nil),   // 9: alerting.v1.ListTemplatesRequest
-		(*ListTemplatesResponse)(nil),  // 10: alerting.v1.ListTemplatesResponse
-		(*CreateTemplateRequest)(nil),  // 11: alerting.v1.CreateTemplateRequest
-		(*CreateTemplateResponse)(nil), // 12: alerting.v1.CreateTemplateResponse
-		(*UpdateTemplateRequest)(nil),  // 13: alerting.v1.UpdateTemplateRequest
-		(*UpdateTemplateResponse)(nil), // 14: alerting.v1.UpdateTemplateResponse
-		(*DeleteTemplateRequest)(nil),  // 15: alerting.v1.DeleteTemplateRequest
-		(*DeleteTemplateResponse)(nil), // 16: alerting.v1.DeleteTemplateResponse
-		(*Filter)(nil),                 // 17: alerting.v1.Filter
-		(*ParamValue)(nil),             // 18: alerting.v1.ParamValue
-		(*CreateRuleRequest)(nil),      // 19: alerting.v1.CreateRuleRequest
-		(*CreateRuleResponse)(nil),     // 20: alerting.v1.CreateRuleResponse
-		nil,                            // 21: alerting.v1.Template.LabelsEntry
-		nil,                            // 22: alerting.v1.Template.AnnotationsEntry
-		nil,                            // 23: alerting.v1.CreateRuleRequest.CustomLabelsEntry
-		ParamUnit(0),                   // 24: alerting.v1.ParamUnit
-		ParamType(0),                   // 25: alerting.v1.ParamType
-		(*durationpb.Duration)(nil),    // 26: google.protobuf.Duration
-		v1.Severity(0),                 // 27: management.v1.Severity
-		(*timestamppb.Timestamp)(nil),  // 28: google.protobuf.Timestamp
+		TemplateSource(0),                     // 0: alerting.v1.TemplateSource
+		DatasourceType(0),                     // 1: alerting.v1.DatasourceType
+		FilterType(0),                         // 2: alerting.v1.FilterType
+		ThresholdScope(0),                     // 3: alerting.v1.ThresholdScope
+		(*BoolParamDefinition)(nil),           // 4: alerting.v1.BoolParamDefinition
+		(*FloatParamDefinition)(nil),          // 5: alerting.v1.FloatParamDefinition
+		(*StringParamDefinition)(nil),         // 6: alerting.v1.StringParamDefinition
+		(*ParamDefinition)(nil),               // 7: alerting.v1.ParamDefinition
+		(*TemplateQuery)(nil),                 // 8: alerting.v1.TemplateQuery
+		(*TemplateExpression)(nil),            // 9: alerting.v1.TemplateExpression
+		(*Template)(nil),                      // 10: alerting.v1.Template
+		(*ListTemplatesRequest)(nil),          // 11: alerting.v1.ListTemplatesRequest
+		(*ListTemplatesResponse)(nil),         // 12: alerting.v1.ListTemplatesResponse
+		(*CreateTemplateRequest)(nil),         // 13: alerting.v1.CreateTemplateRequest
+		(*CreateTemplateResponse)(nil),        // 14: alerting.v1.CreateTemplateResponse
+		(*UpdateTemplateRequest)(nil),         // 15: alerting.v1.UpdateTemplateRequest
+		(*UpdateTemplateResponse)(nil),        // 16: alerting.v1.UpdateTemplateResponse
+		(*DeleteTemplateRequest)(nil),         // 17: alerting.v1.DeleteTemplateRequest
+		(*DeleteTemplateResponse)(nil),        // 18: alerting.v1.DeleteTemplateResponse
+		(*Filter)(nil),                        // 19: alerting.v1.Filter
+		(*ParamValue)(nil),                    // 20: alerting.v1.ParamValue
+		(*CreateRuleRequest)(nil),             // 21: alerting.v1.CreateRuleRequest
+		(*CreateRuleResponse)(nil),            // 22: alerting.v1.CreateRuleResponse
+		(*Threshold)(nil),                     // 23: alerting.v1.Threshold
+		(*ListThresholdsRequest)(nil),         // 24: alerting.v1.ListThresholdsRequest
+		(*ListThresholdsResponse)(nil),        // 25: alerting.v1.ListThresholdsResponse
+		(*SetThresholdRequest)(nil),           // 26: alerting.v1.SetThresholdRequest
+		(*SetThresholdResponse)(nil),          // 27: alerting.v1.SetThresholdResponse
+		(*ClearThresholdRequest)(nil),         // 28: alerting.v1.ClearThresholdRequest
+		(*ClearThresholdResponse)(nil),        // 29: alerting.v1.ClearThresholdResponse
+		(*ThresholdUpdate)(nil),               // 30: alerting.v1.ThresholdUpdate
+		(*BatchUpdateThresholdsRequest)(nil),  // 31: alerting.v1.BatchUpdateThresholdsRequest
+		(*BatchUpdateThresholdsResponse)(nil), // 32: alerting.v1.BatchUpdateThresholdsResponse
+		nil,                                   // 33: alerting.v1.Template.LabelsEntry
+		nil,                                   // 34: alerting.v1.Template.AnnotationsEntry
+		nil,                                   // 35: alerting.v1.CreateRuleRequest.CustomLabelsEntry
+		ParamUnit(0),                          // 36: alerting.v1.ParamUnit
+		ParamType(0),                          // 37: alerting.v1.ParamType
+		(*durationpb.Duration)(nil),           // 38: google.protobuf.Duration
+		v1.Severity(0),                        // 39: management.v1.Severity
+		(*timestamppb.Timestamp)(nil),         // 40: google.protobuf.Timestamp
 	}
 )
 
 var file_alerting_v1_alerting_proto_depIdxs = []int32{
-	24, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
-	25, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
-	2,  // 2: alerting.v1.ParamDefinition.bool:type_name -> alerting.v1.BoolParamDefinition
-	3,  // 3: alerting.v1.ParamDefinition.float:type_name -> alerting.v1.FloatParamDefinition
-	4,  // 4: alerting.v1.ParamDefinition.string:type_name -> alerting.v1.StringParamDefinition
-	5,  // 5: alerting.v1.Template.params:type_name -> alerting.v1.ParamDefinition
-	26, // 6: alerting.v1.Template.for:type_name -> google.protobuf.Duration
-	27, // 7: alerting.v1.Template.severity:type_name -> management.v1.Severity
-	21, // 8: alerting.v1.Template.labels:type_name -> alerting.v1.Template.LabelsEntry
-	22, // 9: alerting.v1.Template.annotations:type_name -> alerting.v1.Template.AnnotationsEntry
-	0,  // 10: alerting.v1.Template.source:type_name -> alerting.v1.TemplateSource
-	28, // 11: alerting.v1.Template.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 12: alerting.v1.Template.queries:type_name -> alerting.v1.TemplateQuery
-	7,  // 13: alerting.v1.Template.expressions:type_name -> alerting.v1.TemplateExpression
-	8,  // 14: alerting.v1.ListTemplatesResponse.templates:type_name -> alerting.v1.Template
-	1,  // 15: alerting.v1.Filter.type:type_name -> alerting.v1.FilterType
-	25, // 16: alerting.v1.ParamValue.type:type_name -> alerting.v1.ParamType
-	18, // 17: alerting.v1.CreateRuleRequest.params:type_name -> alerting.v1.ParamValue
-	26, // 18: alerting.v1.CreateRuleRequest.for:type_name -> google.protobuf.Duration
-	27, // 19: alerting.v1.CreateRuleRequest.severity:type_name -> management.v1.Severity
-	23, // 20: alerting.v1.CreateRuleRequest.custom_labels:type_name -> alerting.v1.CreateRuleRequest.CustomLabelsEntry
-	17, // 21: alerting.v1.CreateRuleRequest.filters:type_name -> alerting.v1.Filter
-	26, // 22: alerting.v1.CreateRuleRequest.interval:type_name -> google.protobuf.Duration
-	9,  // 23: alerting.v1.AlertingService.ListTemplates:input_type -> alerting.v1.ListTemplatesRequest
-	11, // 24: alerting.v1.AlertingService.CreateTemplate:input_type -> alerting.v1.CreateTemplateRequest
-	13, // 25: alerting.v1.AlertingService.UpdateTemplate:input_type -> alerting.v1.UpdateTemplateRequest
-	15, // 26: alerting.v1.AlertingService.DeleteTemplate:input_type -> alerting.v1.DeleteTemplateRequest
-	19, // 27: alerting.v1.AlertingService.CreateRule:input_type -> alerting.v1.CreateRuleRequest
-	10, // 28: alerting.v1.AlertingService.ListTemplates:output_type -> alerting.v1.ListTemplatesResponse
-	12, // 29: alerting.v1.AlertingService.CreateTemplate:output_type -> alerting.v1.CreateTemplateResponse
-	14, // 30: alerting.v1.AlertingService.UpdateTemplate:output_type -> alerting.v1.UpdateTemplateResponse
-	16, // 31: alerting.v1.AlertingService.DeleteTemplate:output_type -> alerting.v1.DeleteTemplateResponse
-	20, // 32: alerting.v1.AlertingService.CreateRule:output_type -> alerting.v1.CreateRuleResponse
-	28, // [28:33] is the sub-list for method output_type
-	23, // [23:28] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	36, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
+	37, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
+	4,  // 2: alerting.v1.ParamDefinition.bool:type_name -> alerting.v1.BoolParamDefinition
+	5,  // 3: alerting.v1.ParamDefinition.float:type_name -> alerting.v1.FloatParamDefinition
+	6,  // 4: alerting.v1.ParamDefinition.string:type_name -> alerting.v1.StringParamDefinition
+	1,  // 5: alerting.v1.TemplateQuery.datasource:type_name -> alerting.v1.DatasourceType
+	7,  // 6: alerting.v1.Template.params:type_name -> alerting.v1.ParamDefinition
+	38, // 7: alerting.v1.Template.for:type_name -> google.protobuf.Duration
+	39, // 8: alerting.v1.Template.severity:type_name -> management.v1.Severity
+	33, // 9: alerting.v1.Template.labels:type_name -> alerting.v1.Template.LabelsEntry
+	34, // 10: alerting.v1.Template.annotations:type_name -> alerting.v1.Template.AnnotationsEntry
+	0,  // 11: alerting.v1.Template.source:type_name -> alerting.v1.TemplateSource
+	40, // 12: alerting.v1.Template.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 13: alerting.v1.Template.queries:type_name -> alerting.v1.TemplateQuery
+	9,  // 14: alerting.v1.Template.expressions:type_name -> alerting.v1.TemplateExpression
+	10, // 15: alerting.v1.ListTemplatesResponse.templates:type_name -> alerting.v1.Template
+	2,  // 16: alerting.v1.Filter.type:type_name -> alerting.v1.FilterType
+	37, // 17: alerting.v1.ParamValue.type:type_name -> alerting.v1.ParamType
+	20, // 18: alerting.v1.CreateRuleRequest.params:type_name -> alerting.v1.ParamValue
+	38, // 19: alerting.v1.CreateRuleRequest.for:type_name -> google.protobuf.Duration
+	39, // 20: alerting.v1.CreateRuleRequest.severity:type_name -> management.v1.Severity
+	35, // 21: alerting.v1.CreateRuleRequest.custom_labels:type_name -> alerting.v1.CreateRuleRequest.CustomLabelsEntry
+	19, // 22: alerting.v1.CreateRuleRequest.filters:type_name -> alerting.v1.Filter
+	38, // 23: alerting.v1.CreateRuleRequest.interval:type_name -> google.protobuf.Duration
+	36, // 24: alerting.v1.Threshold.unit:type_name -> alerting.v1.ParamUnit
+	3,  // 25: alerting.v1.Threshold.scope:type_name -> alerting.v1.ThresholdScope
+	3,  // 26: alerting.v1.ListThresholdsRequest.scope:type_name -> alerting.v1.ThresholdScope
+	23, // 27: alerting.v1.ListThresholdsResponse.thresholds:type_name -> alerting.v1.Threshold
+	3,  // 28: alerting.v1.SetThresholdRequest.scope:type_name -> alerting.v1.ThresholdScope
+	23, // 29: alerting.v1.SetThresholdResponse.threshold:type_name -> alerting.v1.Threshold
+	3,  // 30: alerting.v1.ClearThresholdRequest.scope:type_name -> alerting.v1.ThresholdScope
+	3,  // 31: alerting.v1.ThresholdUpdate.scope:type_name -> alerting.v1.ThresholdScope
+	30, // 32: alerting.v1.BatchUpdateThresholdsRequest.updates:type_name -> alerting.v1.ThresholdUpdate
+	23, // 33: alerting.v1.BatchUpdateThresholdsResponse.thresholds:type_name -> alerting.v1.Threshold
+	11, // 34: alerting.v1.AlertingService.ListTemplates:input_type -> alerting.v1.ListTemplatesRequest
+	13, // 35: alerting.v1.AlertingService.CreateTemplate:input_type -> alerting.v1.CreateTemplateRequest
+	15, // 36: alerting.v1.AlertingService.UpdateTemplate:input_type -> alerting.v1.UpdateTemplateRequest
+	17, // 37: alerting.v1.AlertingService.DeleteTemplate:input_type -> alerting.v1.DeleteTemplateRequest
+	21, // 38: alerting.v1.AlertingService.CreateRule:input_type -> alerting.v1.CreateRuleRequest
+	24, // 39: alerting.v1.AlertingService.ListThresholds:input_type -> alerting.v1.ListThresholdsRequest
+	26, // 40: alerting.v1.AlertingService.SetThreshold:input_type -> alerting.v1.SetThresholdRequest
+	28, // 41: alerting.v1.AlertingService.ClearThreshold:input_type -> alerting.v1.ClearThresholdRequest
+	31, // 42: alerting.v1.AlertingService.BatchUpdateThresholds:input_type -> alerting.v1.BatchUpdateThresholdsRequest
+	12, // 43: alerting.v1.AlertingService.ListTemplates:output_type -> alerting.v1.ListTemplatesResponse
+	14, // 44: alerting.v1.AlertingService.CreateTemplate:output_type -> alerting.v1.CreateTemplateResponse
+	16, // 45: alerting.v1.AlertingService.UpdateTemplate:output_type -> alerting.v1.UpdateTemplateResponse
+	18, // 46: alerting.v1.AlertingService.DeleteTemplate:output_type -> alerting.v1.DeleteTemplateResponse
+	22, // 47: alerting.v1.AlertingService.CreateRule:output_type -> alerting.v1.CreateRuleResponse
+	25, // 48: alerting.v1.AlertingService.ListThresholds:output_type -> alerting.v1.ListThresholdsResponse
+	27, // 49: alerting.v1.AlertingService.SetThreshold:output_type -> alerting.v1.SetThresholdResponse
+	29, // 50: alerting.v1.AlertingService.ClearThreshold:output_type -> alerting.v1.ClearThresholdResponse
+	32, // 51: alerting.v1.AlertingService.BatchUpdateThresholds:output_type -> alerting.v1.BatchUpdateThresholdsResponse
+	43, // [43:52] is the sub-list for method output_type
+	34, // [34:43] is the sub-list for method input_type
+	34, // [34:34] is the sub-list for extension type_name
+	34, // [34:34] is the sub-list for extension extendee
+	0,  // [0:34] is the sub-list for field type_name
 }
 
 func init() { file_alerting_v1_alerting_proto_init() }
@@ -1681,13 +2557,14 @@ func file_alerting_v1_alerting_proto_init() {
 		(*ParamValue_Float)(nil),
 		(*ParamValue_String_)(nil),
 	}
+	file_alerting_v1_alerting_proto_msgTypes[26].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_alerting_v1_alerting_proto_rawDesc), len(file_alerting_v1_alerting_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   22,
+			NumEnums:      4,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

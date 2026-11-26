@@ -16,6 +16,7 @@
 package telemetry
 
 import (
+	"slices"
 	"testing"
 	"time"
 
@@ -23,7 +24,13 @@ import (
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 	"gopkg.in/yaml.v3"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestServiceConfigUnmarshal(t *testing.T) {
@@ -121,6 +128,28 @@ reporting:
 	require.NoError(t, err)
 }
 
+func TestInitDisableStartDelay(t *testing.T) {
+	for _, tc := range []struct {
+		value       string
+		sendOnStart bool
+	}{
+		{value: "1", sendOnStart: true},
+		{value: "false", sendOnStart: false},
+	} {
+		t.Run(tc.value, func(t *testing.T) {
+			t.Setenv(envDisableStartDelay, tc.value)
+
+			logger, _ := test.NewNullLogger()
+			cfg := ServiceConfig{
+				SaasHostname: "check.localhost",
+				Reporting:    ReportingConfig{SendOnStart: !tc.sendOnStart},
+			}
+			require.NoError(t, cfg.Init(logger.WithField("test", t.Name())))
+			assert.Equal(t, tc.sendOnStart, cfg.Reporting.SendOnStart)
+		})
+	}
+}
+
 // Only the Helm charts set PMM_INSTALL_METHOD, and kubelet sets KUBERNETES_SERVICE_HOST in every
 // Pod, so this pair of presence flags is what separates a Kubernetes deployment from a Docker one.
 func TestDefaultConfigReportsKubernetesDeployment(t *testing.T) {
@@ -206,4 +235,147 @@ func TestDefaultConfigReportsKubernetesDeployment(t *testing.T) {
 			assert.Equal(t, "1", metric.Value, "%s must report presence only", metric.Key)
 		}
 	})
+}
+
+// Not parallel: testdb.Open recreates the database TestRunTelemetryService also uses.
+func TestDefaultConfigReportsMongoOpsEnabled(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logEntry := logger.WithField("test", t.Name())
+	cfg := ServiceConfig{l: logEntry}
+
+	telemetry, err := cfg.loadMetricsConfig("")
+	require.NoError(t, err)
+
+	idx := slices.IndexFunc(telemetry, func(c Config) bool { return c.ID == "PMMServerMongoOpsEnabled" })
+	require.NotEqual(t, -1, idx, "PMMServerMongoOpsEnabled datapoint is missing")
+	mongoOps := telemetry[idx]
+	assert.Equal(t, string(dsPMMDBSelect), mongoOps.Source)
+	assert.Equal(t, []ConfigData{{MetricName: "pmm_server_mongo_ops_enabled", Column: "mongo_ops_enabled"}}, mongoOps.Data)
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+
+	report := func(t *testing.T) []*telemetryv1.GenericReport_Metric {
+		t.Helper()
+
+		metrics, err := fetchMetricsFromDB(t.Context(), logEntry, 5*time.Second, sqlDB, mongoOps)
+		require.NoError(t, err)
+
+		return metrics
+	}
+	enabled := func(value string) []*telemetryv1.GenericReport_Metric {
+		return []*telemetryv1.GenericReport_Metric{{Key: "pmm_server_mongo_ops_enabled", Value: value}}
+	}
+
+	t.Run("never switched", func(t *testing.T) {
+		assert.Equal(t, enabled("0"), report(t))
+	})
+
+	t.Run("switched on", func(t *testing.T) {
+		_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableOM: new(true)})
+		require.NoError(t, err)
+
+		assert.Equal(t, enabled("1"), report(t))
+	})
+
+	t.Run("switched off", func(t *testing.T) {
+		_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableOM: new(false)})
+		require.NoError(t, err)
+
+		assert.Equal(t, enabled("0"), report(t))
+	})
+
+	// The path server.UpdateSettingsFromEnv takes at startup.
+	t.Run("PMM_ENABLE_OM", func(t *testing.T) {
+		envSettings, errs, _ := envvars.ParseEnvVars([]string{"PMM_ENABLE_OM=true"})
+		require.Empty(t, errs)
+		_, err := models.UpdateSettings(sqlDB, envSettings)
+		require.NoError(t, err)
+
+		assert.Equal(t, enabled("1"), report(t))
+	})
+}
+
+// Not parallel: testdb.Open recreates the database TestRunTelemetryService also uses.
+func TestDefaultConfigReportsAdvisorUsage(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logEntry := logger.WithField("test", t.Name())
+	cfg := ServiceConfig{l: logEntry}
+
+	telemetry, err := cfg.loadMetricsConfig("")
+	require.NoError(t, err)
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	q := reform.NewDB(sqlDB, postgresql.Dialect, nil).Querier
+	now := models.Now()
+
+	for _, c := range []*models.AdvisorCheck{
+		{Name: "mysql_version", Source: models.BuiltinCheckSource, Disabled: true},
+		{Name: "postgresql_version", Source: models.BuiltinCheckSource},
+		{Name: "custom_telemetry_canary", Source: models.UserCheckSource, Disabled: true},
+	} {
+		c.Queries, c.CreatedAt, c.UpdatedAt = []byte("[]"), now, now
+		_, err = models.CreateAdvisorCheck(q, c)
+		require.NoError(t, err)
+	}
+	_, err = models.ChangeAdvisorCheckDisabledServices(t.Context(), q, "postgresql_version", []string{"svc-1"})
+	require.NoError(t, err)
+
+	for _, r := range []*models.AdvisorRun{
+		{TriggeredBy: models.CheckTriggeredByScheduler, Status: models.AdvisorRunStatusCompleted, StartedAt: now.Add(-time.Hour), FindingsCount: 3, ErrorsCount: 1},
+		{TriggeredBy: models.CheckTriggeredByUser, Status: models.AdvisorRunStatusAborted, StartedAt: now.Add(-time.Hour)},
+		// outside the 24-hour window
+		{TriggeredBy: models.CheckTriggeredByScheduler, Status: models.AdvisorRunStatusCompleted, StartedAt: now.Add(-48 * time.Hour), FindingsCount: 5},
+	} {
+		require.NoError(t, models.CreateAdvisorRun(t.Context(), q, r))
+	}
+
+	_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+		EnableAdvisorNotifications:        new(true),
+		AdvisorNotificationEmailAddresses: []string{"dba@example.com", "ops@example.com"},
+	})
+	require.NoError(t, err)
+
+	// the migration seeds one enabled schedule that emails the settings' recipients
+	expected := map[string]map[string]string{
+		"AdvisorsChecksDisabled": {"advisor_checks_disabled": `["mysql_version"]`},
+		"AdvisorRuns": {
+			"advisor_runs_24h":               "2",
+			"advisor_runs_by_user_24h":       "1",
+			"advisor_runs_scheduled_24h":     "1",
+			"advisor_runs_not_completed_24h": "1",
+			"advisor_findings_24h":           "3",
+			"advisor_run_errors_24h":         "1",
+		},
+		"AdvisorSchedules": {
+			"advisor_schedules_count":        "1",
+			"advisor_schedules_enabled":      "1",
+			"advisor_schedules_custom_email": "0",
+			"advisor_schedules_email_off":    "0",
+		},
+		"AdvisorChecks": {
+			"advisor_user_checks_count":                       "1",
+			"advisor_builtin_checks_disabled_count":           "1",
+			"advisor_checks_disabled_for_some_services_count": "1",
+		},
+		"AdvisorNotificationSettings": {
+			"pmm_server_advisor_notifications_enabled":         "1",
+			"pmm_server_advisor_notification_recipients_count": "2",
+		},
+		"AdvisorHistoryRetention": {"pmm_server_advisor_history_retention": "2592000000000000"},
+	}
+	for id, want := range expected {
+		t.Run(id, func(t *testing.T) {
+			idx := slices.IndexFunc(telemetry, func(c Config) bool { return c.ID == id })
+			require.NotEqual(t, -1, idx, "%s datapoint is missing", id)
+
+			metrics, err := fetchMetricsFromDB(t.Context(), logEntry, 5*time.Second, sqlDB, telemetry[idx])
+			require.NoError(t, err)
+
+			got := make(map[string]string, len(metrics))
+			for _, m := range metrics {
+				got[m.Key] = m.Value
+			}
+			assert.Equal(t, want, got)
+		})
+	}
 }

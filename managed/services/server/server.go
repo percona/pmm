@@ -38,6 +38,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
+	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/distribution"
@@ -48,6 +49,9 @@ import (
 
 // pmmInitProgram is the supervisord program running PMM Server initialization and upgrade tasks.
 const pmmInitProgram = "pmm-init"
+
+// omSwitchEffectsTimeout keeps an unresponsive side-car from holding applyOMSwitch's goroutine forever.
+const omSwitchEffectsTimeout = 5 * time.Minute
 
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
@@ -67,6 +71,7 @@ type Server struct {
 	haService            haService
 	updater              *Updater
 	nomad                nomadService
+	omService            omService
 
 	l *logrus.Entry
 
@@ -99,6 +104,7 @@ type Params struct {
 	Dus                  *distribution.Service
 	HAService            haService
 	Nomad                nomadService
+	OmService            omService
 }
 
 // NewServer returns new server for Server service.
@@ -124,6 +130,7 @@ func NewServer(params *Params) (*Server, error) {
 		updater:              params.Updater,
 		haService:            params.HAService,
 		nomad:                params.Nomad,
+		omService:            params.OmService,
 		l:                    logrus.WithField("component", "server"),
 		envSettings:          &models.ChangeSettingsParams{},
 	}
@@ -144,14 +151,21 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 		return errs
 	}
 
+	var oldSettings, newSettings *models.Settings
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		_, err := models.UpdateSettings(tx, envSettings)
+		var err error
+		oldSettings, err = models.GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		newSettings, err = models.UpdateSettings(tx, envSettings)
 		return err
 	})
 	if err != nil {
 		return []error{err}
 	}
 	s.envSettings = envSettings
+	s.createDefaultAdvisorSchedule(ctx, oldSettings, newSettings)
 
 	s.retentionM.Lock()
 	s.retentionFromEnv = envSettings.DataRetention
@@ -242,7 +256,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 			if err != nil {
 				return nil, err
 			}
-			grpcCode := codes.Code(code)
+			grpcCode := codes.Code(code) //nolint:gosec // debug-only value from the dummy field
 			return nil, status.Errorf(grpcCode, "gRPC code %d (%s)", grpcCode, grpcCode)
 		}
 	}
@@ -426,18 +440,17 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 			Mr: durationpb.New(settings.MetricsResolutions.MR),
 			Lr: durationpb.New(settings.MetricsResolutions.LR),
 		},
-		AdvisorRunIntervals: &serverv1.AdvisorRunIntervals{
-			RareInterval:     durationpb.New(settings.SaaS.AdvisorRunIntervals.RareInterval),
-			StandardInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.StandardInterval),
-			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
-		},
-		DataRetention:        durationpb.New(settings.DataRetention),
-		SshKey:               settings.SSHKey,
-		AwsPartitions:        settings.AWSPartitions,
-		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
-		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
-		PmmPublicAddress:     settings.PMMPublicAddress,
-		EnableInternalPgQan:  !disableInternalPgQan,
+		DataRetention:                     durationpb.New(settings.DataRetention),
+		AdvisorHistoryRetention:           durationpb.New(settings.AdvisorHistoryRetention),
+		AdvisorNotificationSeverities:     advisorSeveritiesToAPI(settings.AdvisorNotifications.Severities),
+		AdvisorNotificationsEnabled:       settings.IsAdvisorNotificationsEnabled(),
+		AdvisorNotificationEmailAddresses: settings.AdvisorNotifications.EmailAddresses,
+		SshKey:                            settings.SSHKey,
+		AwsPartitions:                     settings.AWSPartitions,
+		AdvisorEnabled:                    settings.IsAdvisorsEnabled(),
+		AzurediscoverEnabled:              settings.IsAzureDiscoverEnabled(),
+		PmmPublicAddress:                  settings.PMMPublicAddress,
+		EnableInternalPgQan:               !disableInternalPgQan,
 
 		AlertingEnabled:         settings.IsAlertingEnabled(),
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
@@ -448,6 +461,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 		DefaultRoleId:       convertDefaultRoleID(settings.DefaultRoleID),
 
 		ExtensionsEnabled: pkgenv.ExtensionsEnabled(),
+		OmEnabled:         settings.IsOMEnabled(),
 	}
 
 	return res
@@ -473,6 +487,7 @@ func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.Re
 		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
 		EnableAccessControl:     settings.IsAccessControlEnabled(),
 		ExtensionsEnabled:       pkgenv.ExtensionsEnabled(),
+		OmEnabled:               settings.IsOMEnabled(),
 	}
 
 	return res
@@ -543,6 +558,11 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via PMM_ENABLE_AZURE_DISCOVER environment variable.")
 	}
 
+	err := s.validateEnableOm(ctx, req.EnableOm)
+	if err != nil {
+		return err
+	}
+
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
 		return status.Error(
 			codes.FailedPrecondition,
@@ -589,6 +609,34 @@ func (s *Server) refuseDataRetentionChangeInHA(requested time.Duration, stored *
 			"Set it with the pmm-ha chart's dataRetentionDays value (rendered as PMM_DATA_RETENTION) and apply it with helm upgrade.")
 }
 
+func (s *Server) validateEnableOm(ctx context.Context, enableOm *bool) error {
+	if enableOm != nil && s.envSettings.EnableOM != nil && *enableOm != *s.envSettings.EnableOM {
+		return status.Error(codes.FailedPrecondition, "Operations for MongoDB is set by the PMM_ENABLE_OM environment variable and can't be changed here.")
+	}
+
+	if enableOm == nil || !*enableOm {
+		return nil
+	}
+
+	currentSettings, err := models.GetSettings(s.db.WithContext(ctx))
+	if err != nil {
+		return status.Errorf(codes.Internal, "failed to get server settings: %s", err)
+	}
+
+	if currentSettings.IsOMEnabled() {
+		return nil
+	}
+	if s.omService == nil {
+		return status.Error(codes.FailedPrecondition, "Operations for MongoDB cannot be enabled: PMM Extensions is not configured")
+	}
+	err = s.omService.CheckAvailable(ctx)
+	if err != nil {
+		return status.Errorf(codes.FailedPrecondition, "Operations for MongoDB cannot be enabled: %s", status.Convert(err).Message())
+	}
+
+	return nil
+}
+
 // ChangeSettings changes PMM Server settings.
 func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) {
 	s.envRW.RLock()
@@ -609,7 +657,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 
 		metricsRes := req.MetricsResolutions
-		advisorsRunInterval := req.AdvisorRunIntervals
 		settingsParams := &models.ChangeSettingsParams{
 			EnableUpdates:          req.EnableUpdates,
 			EnableTelemetry:        req.EnableTelemetry,
@@ -620,23 +667,36 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			EnableBackupManagement: req.EnableBackupManagement,
 			EnableAccessControl:    req.EnableAccessControl,
 			EnableInternalPgQAN:    req.EnableInternalPgQan,
-			AdvisorsRunInterval: models.AdvisorsRunIntervals{
-				RareInterval:     advisorsRunInterval.GetRareInterval().AsDuration(),
-				StandardInterval: advisorsRunInterval.GetStandardInterval().AsDuration(),
-				FrequentInterval: advisorsRunInterval.GetFrequentInterval().AsDuration(),
-			},
+			EnableOM:               req.EnableOm,
 			MetricsResolutions: models.MetricsResolutions{
 				HR: metricsRes.GetHr().AsDuration(),
 				MR: metricsRes.GetMr().AsDuration(),
 				LR: metricsRes.GetLr().AsDuration(),
 			},
-			DataRetention: req.DataRetention.AsDuration(),
-			SSHKey:        req.SshKey,
+			DataRetention:                 req.DataRetention.AsDuration(),
+			AdvisorHistoryRetention:       req.AdvisorHistoryRetention.AsDuration(),
+			EnableAdvisorNotifications:    req.EnableAdvisorNotifications,
+			AdvisorNotificationSeverities: advisorSeveritiesFromAPI(req.AdvisorNotificationSeverities),
+			SSHKey:                        req.SshKey,
 		}
 
 		if req.AwsPartitions != nil {
 			// Nil treated as "do not change", empty slice treated as "reset to default"
 			settingsParams.AWSPartitions = req.AwsPartitions.Values
+		}
+
+		if req.AdvisorNotificationEmailAddresses != nil {
+			// Nil treated as "do not change", empty slice treated as "clear the recipients";
+			// protojson decodes an empty array as nil, hence the non-nil copy.
+			settingsParams.AdvisorNotificationEmailAddresses = append([]string{}, req.AdvisorNotificationEmailAddresses.Values...)
+		}
+
+		// Notifications with nobody to notify would fail silently at run-completion time, so
+		// reject the combination here rather than at delivery. The effective state is checked, not
+		// just this request's fields, because either half may already be stored.
+		err = validateAdvisorNotificationRecipients(oldSettings, settingsParams)
+		if err != nil {
+			return err
 		}
 
 		var errInvalidArgument *models.InvalidArgumentError
@@ -697,42 +757,62 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		return nil, err
 	}
 
-	// If Advisors run intervals are changed reset timers.
-	if oldSettings.SaaS.AdvisorRunIntervals != newSettings.SaaS.AdvisorRunIntervals {
-		s.checksService.UpdateIntervals(
-			newSettings.SaaS.AdvisorRunIntervals.RareInterval,
-			newSettings.SaaS.AdvisorRunIntervals.StandardInterval,
-			newSettings.SaaS.AdvisorRunIntervals.FrequentInterval,
-		)
-	}
+	s.createDefaultAdvisorSchedule(ctx, oldSettings, newSettings)
 
-	// When Advisor is moved from disabled to enabled state, force checks download and execution.
-	var advisorsStarted bool
-	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
-		advisorsStarted = true
-		err := s.checksService.StartChecks(nil)
-		if err != nil {
-			s.l.Error(err)
-		}
-	}
-
-	// When Advisor is moved from enabled to disabled state, drop all existing alerts.
+	// When Advisor is moved from enabled to disabled state, drop all existing check results.
 	if oldSettings.IsAdvisorsEnabled() && !newSettings.IsAdvisorsEnabled() {
-		s.checksService.CleanupAlerts()
+		s.checksService.CleanupCheckResults()
 	}
 
 	// When telemetry state is switched force alert templates and Advisor check files collection.
 	// If telemetry switched off that will drop previously downloaded files.
 	if oldSettings.IsTelemetryEnabled() != newSettings.IsTelemetryEnabled() {
 		s.templatesService.CollectTemplates(ctx)
-		if !advisorsStarted {
-			s.checksService.UpdateAdvisorsList(ctx)
-		}
+		s.checksService.UpdateAdvisorsList(ctx)
 	}
+
+	s.applyOMSwitch(ctx, oldSettings, newSettings)
 
 	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, disableInternalPgQan),
 	}, nil
+}
+
+// createDefaultAdvisorSchedule creates the default Advisor schedule when Advisors
+// are turned on and no schedule exists. Turning them on starts no run.
+func (s *Server) createDefaultAdvisorSchedule(ctx context.Context, oldSettings, newSettings *models.Settings) {
+	if oldSettings.IsAdvisorsEnabled() || !newSettings.IsAdvisorsEnabled() {
+		return
+	}
+
+	err := s.checksService.CreateDefaultSchedule(ctx)
+	if err != nil {
+		s.l.Error(err)
+	}
+}
+
+// applyOMSwitch runs in the background because its PMM Extensions calls can outlast the client's timeout
+// on a change that is already saved. Failures are only logged.
+func (s *Server) applyOMSwitch(ctx context.Context, oldSettings, newSettings *models.Settings) {
+	enabled := newSettings.IsOMEnabled()
+	if s.omService == nil || oldSettings.IsOMEnabled() == enabled {
+		return
+	}
+
+	ctx = context.WithoutCancel(ctx)
+	go func() {
+		ctx, cancel := context.WithTimeout(ctx, omSwitchEffectsTimeout)
+		defer cancel()
+
+		// Sync first: om_inventory skips a sweep while it is disabled, so collecting earlier would do nothing.
+		s.omService.SyncInventoryEnabled(ctx)
+		if enabled {
+			_, err := s.omService.TriggerTopologyCollection(ctx, &omv1.TriggerTopologyCollectionRequest{})
+			if err != nil {
+				s.l.WithError(err).Warn("failed to trigger OpenManager topology collection after enabling")
+			}
+		}
+	}()
 }
 
 // internalPgQANDisabled reports whether QAN on PMM Server's own PostgreSQL is currently off.

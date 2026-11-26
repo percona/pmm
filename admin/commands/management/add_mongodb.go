@@ -75,19 +75,19 @@ type AddMongoDBCommand struct {
 	CustomLabels                   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck            bool              `help:"Skip connection check"`
 	MaxQueryLength                 int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
-	TLS                            bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify                  bool              `help:"Skip TLS certificate verification"`
+	TLS                            bool              `negatable:"" help:"Use TLS to connect to the database"`
+	TLSSkipVerify                  bool              `negatable:"" help:"Skip TLS certificate verification"`
 	TLSCertificateKeyFile          string            `help:"Path to TLS certificate PEM file"`
 	TLSCertificateKeyFilePassword  string            `help:"Password for certificate"`
 	TLSCaFile                      string            `help:"Path to certificate authority file"`
 	AuthenticationMechanism        string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
 	AuthenticationDatabase         string            `help:"Authentication database. Default is empty. Use $external for ssl certificates"`
-	EnableAllCollectors            bool              `help:"Enable all collectors"`
-	EnableDiagnosticDataHistograms bool              `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
+	EnableAllCollectors            bool              `negatable:"" help:"Enable all collectors"`
+	EnableDiagnosticDataHistograms bool              `negatable:"" help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
 	DisableCollectors              []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections               []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit               int32             `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value"`
-	ExposeExporter                 bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	ExposeExporter                 bool              `negatable:"" name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	AgentEnvVars                   []string          `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from pmm-agent's environment), e.g. 'VAR1,VAR2'"`
 	ConnectionTimeout              *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }

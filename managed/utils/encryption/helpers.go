@@ -25,7 +25,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// KeyPath returns the path PMM reads the encryption key from.
+// KeyPath returns the path PMM reads the encryption key from, or an empty string in tests that keep the key in memory.
 func KeyPath() string {
 	customKeyPath := os.Getenv(CustomEncryptionKeyPathEnvVar)
 	if customKeyPath != "" {
@@ -33,7 +33,7 @@ func KeyPath() string {
 	}
 
 	if isTest() {
-		return "./encryption.key"
+		return ""
 	}
 
 	return DefaultEncryptionKeyPath

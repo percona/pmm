@@ -28,15 +28,15 @@ Query Analytics offers two ways to analyze queries:
 
 ### Requirements for Profiler
 
-    - Profiling enabled for Query Analytics
-    - Appropriate user roles: `clusterMonitor`, `read` (local), and custom monitoring roles. For MongoDB 8.0+: Additional `directShardOperations` role required for sharded clusters
+- Profiling enabled for Query Analytics
+- Appropriate user roles: `clusterMonitor`, `read` (local), and custom monitoring roles. For MongoDB 8.0+: Additional `directShardOperations` role required for sharded clusters
 
-    ### Requirements for Mongolog
+### Requirements for Mongolog
 
-    - MongoDB configured to log slow operations to a file
-    - MongoDB server has write permissions to the log directory and file
-    - PMM agent has read permissions to the MongoDB log file
-    - Appropriate user roles: `clusterMonitor`, or custom monitoring roles (`getCmdLineOpts` privilege on `{ cluster: true }`)
+- MongoDB configured to log slow operations to a file
+- MongoDB server has write permissions to the log directory and file
+- PMM agent has read permissions to the MongoDB log file
+- Appropriate user roles: `clusterMonitor`, or custom monitoring roles (`getCmdLineOpts` privilege on `{ cluster: true }`)
 
 ## Dashboard components
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.

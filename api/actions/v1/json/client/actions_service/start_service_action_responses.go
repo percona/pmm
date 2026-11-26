@@ -1049,8 +1049,8 @@ type StartServiceActionDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// start service action default body details items0
-	StartServiceActionDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// start service action default body details items0 additional properties
+	StartServiceActionDefaultBodyDetailsItems0AdditionalProperties map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
@@ -1085,7 +1085,7 @@ func (o *StartServiceActionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 			}
 			result[k] = toadd
 		}
-		o.StartServiceActionDefaultBodyDetailsItems0 = result
+		o.StartServiceActionDefaultBodyDetailsItems0AdditionalProperties = result
 	}
 
 	return nil
@@ -1106,12 +1106,12 @@ func (o StartServiceActionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error
 		return nil, err
 	}
 
-	if len(o.StartServiceActionDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.StartServiceActionDefaultBodyDetailsItems0AdditionalProperties) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.StartServiceActionDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.StartServiceActionDefaultBodyDetailsItems0AdditionalProperties)
 	if err != nil {
 		return nil, err
 	}

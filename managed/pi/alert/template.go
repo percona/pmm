@@ -97,7 +97,7 @@ type Template struct {
 	Version     uint32               `yaml:"version"`               // required
 	Summary     string               `yaml:"summary"`               // required
 	Expr        string               `yaml:"expr,omitempty"`        // required for single-expression templates
-	Queries     []TemplateQuery      `yaml:"queries,omitempty"`     // optional PromQL query steps
+	Queries     []TemplateQuery      `yaml:"queries,omitempty"`     // optional query steps
 	Expressions []TemplateExpression `yaml:"expressions,omitempty"` // optional Grafana expression steps
 	Condition   string               `yaml:"condition,omitempty"`   // required for multi-expression templates
 	Params      []Parameter          `yaml:"params,omitempty"`      // optional
@@ -142,6 +142,11 @@ func (r *Template) Validate() error {
 	}
 
 	err = r.validateParams()
+	if err != nil {
+		return err
+	}
+
+	err = r.validateOverridableParams()
 	if err != nil {
 		return err
 	}

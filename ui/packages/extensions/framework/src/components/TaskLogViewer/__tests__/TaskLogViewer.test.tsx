@@ -132,9 +132,15 @@ describe('TaskLogViewer', () => {
     return handle;
   }
 
-  /** The primary stdout/stderr strip; a per-step strip is a second tablist. */
+  /** The stdout/stderr strip; a per-step strip is a separate tablist. */
   function getPrimaryTabList() {
-    return screen.getAllByRole('tablist')[0];
+    const tabList = screen
+      .getByRole('tab', { name: 'stdout' })
+      .closest<HTMLElement>('[role="tablist"]');
+    if (!tabList) {
+      throw new Error('stdout tab is not inside a tablist');
+    }
+    return tabList;
   }
 
   function getTechnicalDetailsToggle() {
@@ -987,7 +993,7 @@ describe('TaskLogViewer', () => {
     );
   });
 
-  it('renders the step strip above the log body, hidden for a single step', async () => {
+  it('renders the step strip above the stdout/stderr strip, hidden for a single step', async () => {
     render(
       <QueryWrapper>
         <TaskLogViewer taskHistoryId="34" taskStatus="RUNNING" />
@@ -1021,11 +1027,12 @@ describe('TaskLogViewer', () => {
     });
     await waitFor(() => expect(screen.getAllByRole('tablist')).toHaveLength(2));
 
-    const stepTabList = screen.getAllByRole('tablist')[1];
-    const logOutput = screen.getByTestId('log-output');
-    // The step strip's DOM position precedes the log body it controls.
+    const primaryTabList = getPrimaryTabList();
+    const stepTab = screen.getByRole('tab', { name: 'second-step' });
+    // A step picks which output the stream tabs switch, so it comes first.
+    expect(primaryTabList).not.toContainElement(stepTab);
     expect(
-      stepTabList.compareDocumentPosition(logOutput) &
+      stepTab.compareDocumentPosition(primaryTabList) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
   });
@@ -1171,7 +1178,7 @@ describe('TaskLogViewer', () => {
     });
 
     await waitFor(() =>
-      expect(screen.getByText('Not in executor')).toBeInTheDocument()
+      expect(screen.getByText('Cannot run on this host')).toBeInTheDocument()
     );
     expect(screen.getByText(/could not launch this run/i)).toBeInTheDocument();
   });
@@ -1253,8 +1260,8 @@ describe('TaskLogViewer', () => {
     });
     await waitFor(() => expect(screen.getByText('gone')).toBeInTheDocument());
     // The sentence names the host directly, not behind the expand.
-    expect(screen.getByText(/nomad-a/)).toBeInTheDocument();
-    expect(screen.getByText('Not in executor')).toBeInTheDocument();
+    expect(screen.getByText('Host: nomad-a')).toBeInTheDocument();
+    expect(screen.getByText('No longer on host')).toBeInTheDocument();
 
     // The job id is technical detail, behind its own (separate) expand from
     // the page's Execution-events "Technical details" section below.

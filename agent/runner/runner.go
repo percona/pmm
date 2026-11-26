@@ -389,7 +389,12 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 		var errMsg string
 		if err != nil {
 			errMsg = err.Error()
-			l.Warnf("Action terminated with error: %+v", err)
+			if errors.Is(err, actions.ErrMongoDBArbiter) {
+				// Advisors run such queries on every check run, and they can never succeed.
+				l.Debugf("Action terminated with error: %+v", err)
+			} else {
+				l.Warnf("Action terminated with error: %+v", err)
+			}
 			l.Debugf("Action produced output: %s", string(output))
 		}
 		r.sendActionsMessage(&agentv1.ActionResultRequest{
