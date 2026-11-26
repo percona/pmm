@@ -795,14 +795,14 @@ const withheldFingerprint = "(fingerprint withheld: PMM stored this statement un
 
 // fingerprintText masks a fingerprint unless raw SQL is on, under its engine's quoting or, if unknown, under both:
 // a SQL one with a quoted string is a raw statement and is withheld. A text that starts with "db." and is not of a
-// SQL engine is a MongoDB one, withheld when its quotes don't pair.
+// SQL engine is a MongoDB one, withheld unless mongoMaskable.
 func fingerprintText(fingerprint, engine string, raw bool) string {
 	if raw {
 		return fingerprint
 	}
 	sqlEngine := engine == engineMySQL || engine == enginePostgreSQL
 	if strings.HasPrefix(fingerprint, "db.") && !sqlEngine {
-		if !mongoQuotesPair(fingerprint) {
+		if !mongoMaskable(fingerprint) {
 			return withheldFingerprint
 		}
 		return maskMongoFingerprint(fingerprint)

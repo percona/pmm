@@ -658,6 +658,35 @@ func TestMaskMongoFingerprintOpaqueValues(t *testing.T) {
 	}
 }
 
+// TestMongoFingerprintCollectionName pins that a fingerprint is withheld when a quote, brace or bracket can sit in its
+// collection name, which pmm-agent writes as it is, and that other names are kept.
+func TestMongoFingerprintCollectionName(t *testing.T) {
+	t.Parallel()
+
+	for _, fp := range []string{
+		// An odd number of escaped quotes in a value restores the parity that the quote in the name breaks.
+		`db.c".aggregate([{"$addFields":{"owner":"alice@example.com","size":"27\" monitor"}}])`,
+		`db.a(b".find({"owner":"alice@example.com","size":"27\" monitor"})`,
+		`db.x.find(".aggregate([{"$addFields":{"owner":"alice@example.com","size":"27\" monitor"}}])`,
+		// A closing brace in the name leaves the stages at depth 0, where a bare true, false or null is a name.
+		`db.x}}}.aggregate([{"$addFields":{"is_vip":true}}])`,
+		`db.x]].find({"vip":true})`,
+		// A call pmm-agent doesn't write leaves the end of the name unknown.
+		`db.users.count({"email":"?"})`,
+	} {
+		assert.Equal(t, withheldFingerprint, fingerprintText(fp, engineMongoDB, false), fp)
+	}
+
+	for fp, want := range map[string]string{
+		`db.my.coll(v2).find({"email":"?","vip":true})`: `db.my.coll(v2).find({"email":"?","vip":?})`,
+		`db.x.find(.find({"email":"?"})`:                `db.x.find(.find({"email":"?"})`,
+		`db.runCommand({"find":"c","filter":{}})`:       `db.runCommand({"find":?,"filter":{}})`,
+		`db.c.insert(?)`: `db.c.insert(?)`,
+	} {
+		assert.Equal(t, want, fingerprintText(fp, engineMongoDB, false), fp)
+	}
+}
+
 func TestRedactPlan(t *testing.T) {
 	t.Parallel()
 

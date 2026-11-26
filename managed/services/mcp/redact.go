@@ -709,9 +709,24 @@ func jsonLiteralLen(s string) int {
 	return 0
 }
 
-// mongoQuotesPair reports whether a MongoDB fingerprint holds no single quote and every double quote in it closes, so
-// that maskMongoFingerprint finds every string.
-func mongoQuotesPair(fingerprint string) bool {
+// mongoCalls are the calls that the MongoDB fingerprints pmm-agent writes (agent/agents/mongodb/shared/fingerprinter)
+// make: db.runCommand, and the call on a collection that follows its name.
+var mongoCalls = []string{".find(", ".insert(", ".update(", ".deleteOne(", ".deleteMany(", ".aggregate(", ".runCommand("}
+
+// mongoMaskable reports whether maskMongoFingerprint finds every string and nesting level of a MongoDB fingerprint:
+// it holds no single quote, every double quote in it closes, and it makes a mongoCalls call with no double quote,
+// brace or bracket up to the end of the last one, since pmm-agent writes the collection name before it unescaped.
+func mongoMaskable(fingerprint string) bool {
+	call := -1
+	for _, c := range mongoCalls {
+		i := strings.LastIndex(fingerprint, c)
+		if i >= 0 {
+			call = max(call, i+len(c))
+		}
+	}
+	if call < 0 || strings.ContainsAny(fingerprint[:call], `"{}[]`) {
+		return false
+	}
 	for i := 0; i < len(fingerprint); i++ {
 		switch fingerprint[i] {
 		case '\'':
