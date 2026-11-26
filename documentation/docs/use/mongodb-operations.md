@@ -1,11 +1,20 @@
 # Install and monitor MongoDB clusters
 
 !!! warning "Developer Preview"
-    Operations for MongoDB is a Developer Preview feature in PMM 3.10.0. Use it for testing and feedback only, not in production.
+    Operations for MongoDB is a Developer Preview feature. Use it for testing and feedback only, not in production.
 
-Operations for MongoDB enables you to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, review the [limitations](#limitations) that apply in this Developer Preview release.
+Use Operations for MongoDB to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, [review the limitations](#check-what-isnt-supported-yet) that apply in this Developer Preview release.
 
-Every signed-in PMM user can open **MongoDB > Operations** and see all of its pages, except the install form. Only PMM Admins can scan nodes, start or abort installs, remove node entries, and change settings. For other users, these controls are disabled or hidden. Any user can click **Refresh** on **Fleet**.
+## Check your role
+
+Monitoring and installing need different roles. Any signed-in PMM user can monitor clusters in **MongoDB > Operations**: check fleet health, open every page except the install form, and click **Refresh** on **Fleet**. To scan nodes and install replica sets, check that you have the [Admin role](../admin/roles/index.md). Only Admins can:
+
+- scan nodes
+- start or abort installs
+- remove node entries
+- change settings
+
+For other users, these controls are disabled or hidden.
 
 ## Prepare PMM Server
 
@@ -69,13 +78,13 @@ PMM checks these requirements during scans and reports the results so you can fi
 
 ### Provide MongoDB credentials for scans
 
-Scans log in to MongoDB on each node to read the replica set state. They don't use the monitoring credentials that PMM already holds, so you need to provide credentials even for instances that PMM monitors.
+Scans log in to MongoDB on each node to read the replica set state. They don't use the monitoring credentials that PMM already holds, so provide credentials even for instances that PMM monitors.
 
 To provide credentials:
 {.power-number}
 
 1. Choose a MongoDB user with the `clusterMonitor` role. You can reuse the PMM monitoring user, which already has this role.
-2. On every node that runs MongoDB, create the `/root/.mongodb_uri` file with one line:
+2. On every node that runs MongoDB, create the `.mongodb_uri` file in root's home directory (`/root/.mongodb_uri`), because pmm-agent runs as root. Give the file one line:
 
     ```
     mongodb://<user>:<password>@<host>:<port>
@@ -90,7 +99,11 @@ To provide credentials:
     chmod 600 /root/.mongodb_uri
     ```
 
-4. To check the credentials, click **Scan** in the node's row on the **Nodes** page. Then go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan. If the password is wrong, the scan shows as **Partial**, and the service appears in red with **(no answer)**. Hover over it to see the error. If the file is missing, no error is shown. Scans still report the running version, but not the replica set state.
+4. To check the credentials, click **Scan** in the node's row on the **Nodes** page.
+5. Go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan:
+
+    - If the scan shows **Partial** and the service shows **(no answer)** in red, MongoDB may have rejected the password. To see the error, hover over the service.
+    - If the scan shows the running version but no replica set state, and no error, check that the file exists.
 
 #### Scan without credentials
 
@@ -102,7 +115,7 @@ With **Connect to MongoDB** off, scans collect only process and OS details and t
 
 A scan checks what runs on a node and whether you can install MongoDB on it. Until PMM scans a node, the node shows no data.
 
-PMM scans every node automatically, every 10 minutes by default. PMM also scans every node after each restart and when Operations for MongoDB is turned on.
+With automatic scans on, PMM scans every node every 10 minutes by default. PMM also scans every node after each restart and when Operations for MongoDB is turned on.
 
 ### Run a scan now
 
@@ -133,42 +146,49 @@ PMM then no longer scans on a schedule, when it restarts, or when Operations for
 
 ## Install a replica set
 
-PMM supports single-member and three-member replica sets. Each node must have at least one completed scan before you can select it for installation.
+PMM installs single-member and three-member replica sets. You can select a node for an install once it has at least one completed scan.
 
-### Before you install
+### Prerequisites
 
-Check your nodes and reduce the security exposure before you start the install.
+Before you install, check your nodes and reduce the security exposure, so that the install doesn't fail halfway or leave MongoDB open to your network.
 
-#### Check nodes
+#### Check your nodes
 
-Make sure each node meets the following conditions before you start. If a node doesn't, PMM blocks it and shows the reason in the **Automation** column on the **Nodes** page:
+PMM checks some requirements only when the install starts, and some not at all. To avoid a failed install, check each node before you start:
+{.power-number}
 
-- **Supported OS release**: a release of Ubuntu or Rocky Linux listed in the table that follows, matched on `ID` and `VERSION_ID` in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported. All nodes in one install must run the same OS.
-- **No existing MongoDB**: `mongod` must not be installed or running, and PMM must have no MongoDB service registered for the node.
-- **Not the PMM Server host**: don't install on the host that runs PMM Server.
-- **Working scans**: the node's scans must succeed. While they fail, PMM blocks the node and shows the scan error and how long scans have been failing.
-- **Repository access**: the node must reach Percona's repository at `repo.percona.com`, directly or through a proxy. PMM blocks the node when its last scan couldn't reach the repository.
-- **Package manager**: the node's last scan must have found a package manager, `apt-get` on Ubuntu or `dnf` on Rocky Linux.
+1. Go to **MongoDB > Operations > Nodes** and check the **Automation** column of each node you plan to use. PMM blocks a node, and shows the reason there, when the node:
 
-PMM installs each MongoDB version only onto the OS releases that Percona's [release lifecycle for MongoDB](https://www.percona.com/release-lifecycle-percona-software-for-mongodb/) supports. Ubuntu matches on the exact release, and Rocky Linux on the major version, so Rocky Linux 9.4 counts as 9. The following table lists the supported releases:
+    - runs an OS release that PMM doesn't [support for MongoDB](#supported-os-releases), such as Ubuntu 20.04
+    - already has `mongod` installed or running, or a MongoDB service registered in PMM
+    - runs PMM Server
+    - fails its scans, and PMM shows the scan error and how long the scans have been failing
+    - can't reach Percona's repository at `repo.percona.com`, directly or through a proxy, according to its last scan
+    - has no package manager, `apt-get` on Ubuntu or `dnf` on Rocky Linux, according to its last scan
+
+    If the **Nodes** page shows **Unregistered mongod**, the node runs a mongod that isn't in PMM, most often an arbiter. [Add it to PMM](../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm), an arbiter without a username and password and any other mongod with the credentials it needs. You still can't install on that node.
+
+2. Log in to each node and check what the **Nodes** page doesn't show. If one of these isn't true, the install fails at its pre-check, before anything on the nodes changes:
+
+    - `/etc/mongod.conf` doesn't exist.
+    - The data directory, `/var/lib/mongo` by default, is missing or empty, with at least 5 GiB free. For the default data directory, the install form already blocks a node whose last scan found less than 5 GiB free.
+    - Nothing else listens on the MongoDB port, `27017` by default.
+    - Each member resolves the PMM node names of all members, including its own, through DNS or `/etc/hosts`. Members address each other by these names.
+    - On Ubuntu, `curl` is installed. PMM downloads the Percona repository package with it.
+
+3. Check that each member can reach the other members on the MongoDB port. PMM can't check this before the install, because it can only test it once `mongod` is running. If a member can't reach the others, the install fails when PMM forms the replica set, and PMM rolls it back.
+
+#### Supported OS releases
+
+PMM installs each MongoDB version only onto the OS releases that Percona's [release lifecycle for MongoDB](https://www.percona.com/release-lifecycle-percona-software-for-mongodb/) supports. Ubuntu matches on the exact release, and Rocky Linux on the major version, so Rocky Linux 9.4 counts as 9. PMM matches on `ID` and `VERSION_ID` in `/etc/os-release`. RHEL, AlmaLinux, Oracle Linux, and Debian aren't supported.
+
+All nodes in one install must run the same OS, because PMM doesn't start an install whose nodes run different operating systems. The install form offers only the MongoDB versions that every selected node supports:
 
 | OS release | MongoDB 7.0 | MongoDB 8.0 |
 |------------|-------------|-------------|
 | Ubuntu 22.04, 24.04 | Supported | Supported |
 | Rocky Linux 8, 9 | Supported | Supported |
 | Rocky Linux 10 | Not supported | Supported |
-
-PMM blocks a node whose release isn't listed, such as Ubuntu 20.04. The install form offers only the versions that every selected node supports.
-
-PMM checks the following conditions only when the install starts, and the **Nodes** page doesn't show them. Check them yourself before you start. If a node doesn't meet them, the install fails at the pre-check, before anything on the nodes changes:
-
-- **No MongoDB configuration**: `/etc/mongod.conf` must not exist.
-- **Free data directory**: the data directory (default `/var/lib/mongo`) must be missing or empty, with at least 5 GiB free. For the default data directory, the install form already blocks a node whose last scan found less than 5 GiB free.
-- **Free port**: nothing else must be listening on the chosen port (default `27017`).
-- **Resolvable node names**: replica set members address each other by their PMM node names. Every member must resolve the node names of all members, including its own, through DNS or `/etc/hosts`.
-- **`curl` on Ubuntu**: PMM downloads the Percona repository package with `curl`.
-
-Also make sure that each member can reach the other members on the MongoDB port. PMM can't check this before the install, because it can only test it once `mongod` is running. If a member can't reach the others, the install fails when PMM forms the replica set, and PMM rolls it back.
 
 #### Reduce security exposure
 
@@ -194,10 +214,6 @@ Once your nodes pass the checks and you've reduced the security exposure, you're
     - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB. If a selected node runs Rocky Linux 10, the form offers only 8.0.
     - **Replica set name**: the name must not be in use in the same environment and cluster: by a replica set that PMM monitors, by an install that's running, or by a successful install whose members PMM hasn't registered yet. If you leave **Cluster** empty, PMM uses the replica set name as the cluster.
     - **Data path** (default `/var/lib/mongo`), **Log path** (default `/var/log/mongodb/mongod.log`), and **Port** (default `27017`).
-
-        !!! note "Keep the default port"
-            In PMM 3.10.0, PMM registers the service for monitoring on port `27017` even if you install on another port, so monitoring doesn't work. This is a [known issue](https://perconadev.atlassian.net/browse/PMM-15764).
-
     - **Listen on**: by default, each member listens on its own address. PMM always adds `127.0.0.1`.
     - Optional, for three-node installs only: per-member **priority**, **votes**, **hidden**, and **delay** settings for replica set elections.
     - Optional: **environment** and **cluster** labels for PMM.
@@ -225,12 +241,11 @@ To view fleet health:
 4. By default, clusters are grouped by environment. If you change **Group by**, the table keeps your choice for the browser session. For each cluster, check the following columns:
 
     - **Health**: the overall state of the cluster, for example **Healthy**.
-    - **Services**: the number of services in the cluster.
-    - **Process**: the member types in the cluster, for example routers, shards and arbiters.
+    - **Members**: how many members are up, out of all the members in the cluster.
     - **Max repl. lag**: the highest replication lag across members.
     - **Min oplog window**: the smallest oplog window across members.
 
-    To add columns that are hidden by default, such as **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
+    To add columns that are hidden by default, such as **Services**, **Process**, **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. **Process** shows the member types in the cluster, for example routers, shards and arbiters. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
 
 5. Expand a cluster's row to find the member that causes poor health or high replication lag.
 6. Select the **Services** tab to check whether a specific service is up or down.
@@ -239,32 +254,50 @@ The page shows when its data was last refreshed and when the nodes were last sca
 
 ## Troubleshoot
 
+Find the symptom that you see, and follow its steps.
+
 ### Pages don't load
 
-If **Nodes**, **Automations** or **Settings** can't load and the error says **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container. PMM signs you in to PMM Extensions with your PMM session. PMM Extensions accepts that session only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default. If the container sets it to `false`, remove the variable and recreate the container.
+If **Nodes**, **Automations** or **Settings** doesn't load and shows **PMM Extensions did not accept the PMM session**, check the `pmm-extensions` container.
 
-### Scans
+PMM signs you in to PMM Extensions with your PMM session, and PMM Extensions accepts it only while `EXTENSIONS__AMBIENT_SESSION_SSO_ENABLED` is on, which is the default.
 
-If a node shows no data or **Needs attention** in the **Automation** column, check the reason that appears under the status and fix it on the node.
+If the container sets it to `false`, remove the variable and recreate the container.
 
-If the reason isn't clear, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for that node.
+### A node shows no data or Needs attention
 
-The **Nodes** page doesn't flag rejected MongoDB credentials. To find them, look for **Partial** scans on the **Scans** tab, or check the **Services** tab as described below.
+If a node shows no data, or **Needs attention** in the **Automation** column on **MongoDB > Operations > Nodes**:
+{.power-number}
 
-To find out why a service is failing, go to **MongoDB > Operations > Fleet** and select the **Services** tab. The **Collected** column shows the reason in red, for example **Database unreachable** or **Database authentication failed**. Click the service's status to open its details, which show the full error and what to do about it. When PMM knows which scan failed, the details also link to it. A **Down** service marked **not running** had no `mongod` or `mongos` running at its last scan.
+1. Read the reason under the node's status, and fix it on the node.
+2. If the reason isn't clear, open **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for the node.
+3. If a scan shows **Partial**, MongoDB may be rejecting the scan credentials. Check [the node's service](#a-service-is-failing).
 
-### Installs
+### A service is failing
+
+If a service shows **Down** or no data on **MongoDB > Operations > Fleet**:
+{.power-number}
+
+1. Select the **Services** tab and find the service.
+2. Read the reason in the **Collected** column, for example **Database unreachable** or **Database authentication failed**.
+3. Click the service's status to see the full error and what to do about it.
+
+A service marked **not running** had no `mongod` or `mongos` running when PMM last scanned its node.
+
+### An install fails or has to stop
 
 If an install step fails, PMM retries it once. If the retry also fails, PMM rolls back what it installed on all nodes: packages, configuration, and data. PMM doesn't retry failed pre-checks.
 
 To stop an install that's running, expand it on the **Installs** tab and abort it. PMM then rolls back the install in the same way.
 
+### Installs are blocked on every node
+
 If a node on the **Nodes** page shows **PMM could not read from PMM Extensions which OS releases Operations installs onto**, PMM can't read the list of supported OS releases, so it blocks installs onto every node. The rest of the reason says why. Make sure that PMM Extensions is running and on the [same version as PMM Server](../apps/deploy-pmm-extensions.md#check-versions-before-deploying), then reload the **Nodes** page.
 
-## Limitations
+## Check what isn't supported yet
 
-Operations for MongoDB is a Developer Preview feature in PMM 3.10.0: you can try it out, but it isn't complete or supported for production yet. It has the following limitations:
+Operations for MongoDB is a Developer Preview feature: you can try it out, but it isn't complete or supported for production yet. It has the following limitations:
 
 - You can install only replica sets with 1 or 3 members, not sharded clusters or standalone instances, though Fleet still shows any sharded clusters that PMM already monitors.
 - No TLS or encryption at rest. Members authenticate to each other with a keyfile. TLS and encryption at rest are planned for a future release.
-- Installs on the [supported releases](#check-nodes) of Ubuntu and Rocky Linux only, using Percona packages.
+- Installs on the [supported releases](#supported-os-releases) of Ubuntu and Rocky Linux only, using Percona packages.
