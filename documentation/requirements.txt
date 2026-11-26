@@ -13,3 +13,5 @@ mkdocs-bootstrap-tables-plugin
 mkdocs-section-index
 mkdocs-meta-descriptions-plugin
 mike
+mkdocs-llmstxt>=0.5.1,<0.6
+mkdocs-percona-llmstxt>=0.4.0,<0.5
