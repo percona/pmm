@@ -284,13 +284,12 @@ func TestAlertsTool(t *testing.T) {
 			note,
 			"- critical | MySQL down | service=shop-a | node=host-a | since 2026-09-14T11:00:00Z | " +
 				"[View in PMM ↗](https://pmm.example.com/graph/alerting/grafana/mysql-down/view)",
-			"  labels: grafana_folder=Alerts, percona_alerting=1, template_name=pmm_mysql_down",
+			"  labels: grafana_folder=Alerts",
 			"  MySQL down (shop-a)",
 			"  MySQL shop-a on host-a is down.",
 			"- warning | Too many connections | service=shop-a | node=host-a | since 2026-09-14T10:00:00Z | silenced until 2026-09-15T08:00:00Z | " +
 				"[View in PMM ↗](https://pmm.example.com/graph/alerting/grafana/conn/view)",
-			"  labels: environment=dev, grafana_folder=Alerts, node_type=generic, percona_alerting=1, service_type=mysql, " +
-				"template_name=pmm_mysql_too_many_connections",
+			"  labels: environment=dev, grafana_folder=Alerts, node_type=generic, service_type=mysql",
 			"  MySQL too many connections (shop-a)",
 			"  95% of connections (more than 80%) are used by shop-a on host-a.",
 		}, "\n"), text)
@@ -300,7 +299,7 @@ func TestAlertsTool(t *testing.T) {
 			note,
 			"- info | Vector one | since 2026-09-14T08:00:00Z | silenced until 2026-09-14T18:00:00Z | " +
 				"[View in PMM ↗](https://pmm.example.com/graph/alerting/grafana/vector-one/view)",
-			"  labels: grafana_folder=Alerts, percona_alerting=1, template_name=vector_one",
+			"  labels: grafana_folder=Alerts",
 			"  Always firing",
 			"  A rule on vector(1).",
 		}, "\n"), text, "[no value] labels are absent")

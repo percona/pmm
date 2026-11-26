@@ -59,6 +59,9 @@ var alertStateOrder = []string{alertFiring, alertRecovering, alertPending}
 // shownLabels are the labels that the first text line of an alert shows: its name, severity, service and node.
 var shownLabels = []string{"alertname", "severity", "service_name", "service_id", "node_name", "node_id"}
 
+// templateLabels mark an alert of a PMM alert template and are the same on all of its alerts, so its text leaves them out.
+var templateLabels = []string{"percona_alerting", "template_name"}
+
 // labelValue returns a label's value, empty when the label is absent or [no value].
 func labelValue(labels map[string]string, name string) string {
 	v := labels[name]
@@ -136,12 +139,13 @@ func capAlertText(s string) string {
 	return s
 }
 
-// otherLabels writes an alert's labels that its first text line leaves out, other than empty and [no value] ones, as name=value pairs on one line.
+// otherLabels writes an alert's labels that its first text line leaves out, other than templateLabels and empty and [no value] ones,
+// as name=value pairs on one line.
 func otherLabels(labels map[string]string) string {
 	var pairs []string
 	for _, name := range slices.Sorted(maps.Keys(labels)) {
 		value := labelValue(labels, name)
-		if value != "" && !slices.Contains(shownLabels, name) {
+		if value != "" && !slices.Contains(shownLabels, name) && !slices.Contains(templateLabels, name) {
 			pairs = append(pairs, oneLine(name)+"="+oneLine(value))
 		}
 	}

@@ -270,7 +270,7 @@ Input that doesn't match a tool's input schema, such as a missing required argum
 
 The list comes from Grafana's rules API, called with your credentials. Grafana's folder permissions apply, so a Viewer gets what PMM's alert page shows to a Viewer. Every result starts with the note "Firing, recovering and pending alerts only; resolved alerts are not shown. A rule fires only after its pending period, so a problem that began minutes ago may be pending or not listed yet.", also returned as `note`.
 
-In the text, the first line of an alert shows its severity, name, state, service, node, start time and silence, and the link to its rule. The lines that follow show its other labels, its summary and its description. The labels line tells apart the alerts of one rule, such as the alerts of one service that differ only in their exporter's `job`. It leaves out labels that are empty or set to `[no value]`.
+In the text, the first line of an alert shows its severity, name, state, service, node, start time and silence, and the link to its rule. The lines that follow show its other labels, its summary and its description. The labels line tells apart the alerts of one rule, such as the alerts of one service that differ only in their exporter's `job`. It leaves out labels that are empty or set to `[no value]`, and `percona_alerting` and `template_name`, which every alert of a PMM alert template carries. Both stay in the structured content.
 
 ### Filters and paging
 
