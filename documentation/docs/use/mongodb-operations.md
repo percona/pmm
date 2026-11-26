@@ -115,7 +115,7 @@ With **Connect to MongoDB** off, scans collect only process and OS details and t
 
 A scan checks what runs on a node and whether you can install MongoDB on it. Until PMM scans a node, the node shows no data.
 
-PMM scans every node automatically, every 10 minutes by default. PMM also scans every node after each restart and when Operations for MongoDB is turned on.
+With automatic scans on, PMM scans every node every 10 minutes by default. PMM also scans every node after each restart and when Operations for MongoDB is turned on.
 
 ### Run a scan now
 
