@@ -5,44 +5,48 @@ import {
   isObjectEmpty,
 } from './usePersistentColumnVisibility.utils';
 
+const readVisibility = (key: string): MRT_VisibilityState => {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : {};
+  } catch {
+    return {};
+  }
+};
+
 const usePersistentColumnVisibility = (
   key: string
 ): [
   MRT_VisibilityState,
   (updater: MRT_Updater<MRT_VisibilityState>) => void,
 ] => {
-  const [localStorageValue, setLocalStorageValue] =
-    useState<MRT_VisibilityState>(() => {
-      try {
-        const value = localStorage.getItem(key);
-        if (value) {
-          return JSON.parse(value);
-        }
-        return {};
-      } catch {
-        return {};
-      }
-    });
+  const [stored, setStored] = useState(() => ({
+    key,
+    value: readVisibility(key),
+  }));
 
-  const setLocalStorageStateValue = (
-    updater: MRT_Updater<MRT_VisibilityState>
-  ) => {
-    setLocalStorageValue((prevValues: MRT_VisibilityState) =>
-      updater instanceof Function ? updater(prevValues) : updater
-    );
+  if (stored.key !== key) {
+    setStored({ key, value: readVisibility(key) });
+  }
+
+  const setVisibility = (updater: MRT_Updater<MRT_VisibilityState>) => {
+    setStored((prev) => ({
+      key: prev.key,
+      value: updater instanceof Function ? updater(prev.value) : updater,
+    }));
   };
 
   useEffect(() => {
-    const hiddenColumns = filterHiddenColumns(localStorageValue);
+    const hiddenColumns = filterHiddenColumns(stored.value);
 
     if (!isObjectEmpty(hiddenColumns)) {
-      localStorage.setItem(key, JSON.stringify(hiddenColumns));
+      localStorage.setItem(stored.key, JSON.stringify(hiddenColumns));
     } else {
-      localStorage.removeItem(key);
+      localStorage.removeItem(stored.key);
     }
-  }, [key, localStorageValue]);
+  }, [stored]);
 
-  return [localStorageValue, setLocalStorageStateValue];
+  return [stored.value, setVisibility];
 };
 
 export default usePersistentColumnVisibility;

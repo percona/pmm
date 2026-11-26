@@ -29,4 +29,36 @@ describe('usePersistentColumnVisibility', () => {
 
     expect(localStorage.getItem(KEY)).toBeNull();
   });
+
+  it('reads the hidden columns of the new key when the key changes', () => {
+    localStorage.setItem('table-a', JSON.stringify({ id: false }));
+    localStorage.setItem('table-b', JSON.stringify({ name: false }));
+    const { result, rerender } = renderHook(
+      ({ key }) => usePersistentColumnVisibility(key),
+      { initialProps: { key: 'table-a' } }
+    );
+
+    rerender({ key: 'table-b' });
+
+    expect(result.current[0]).toEqual({ name: false });
+    expect(JSON.parse(localStorage.getItem('table-a') ?? '')).toEqual({
+      id: false,
+    });
+    expect(JSON.parse(localStorage.getItem('table-b') ?? '')).toEqual({
+      name: false,
+    });
+  });
+
+  it('keeps the hidden columns of the old key out of a new key', () => {
+    localStorage.setItem('table-a', JSON.stringify({ id: false }));
+    const { result, rerender } = renderHook(
+      ({ key }) => usePersistentColumnVisibility(key),
+      { initialProps: { key: 'table-a' } }
+    );
+
+    rerender({ key: 'table-b' });
+
+    expect(result.current[0]).toEqual({});
+    expect(localStorage.getItem('table-b')).toBeNull();
+  });
 });
