@@ -38,7 +38,7 @@ const (
 	maxSeriesPerSelector = 2000
 
 	// Times the rules raise a step the caller did not choose before the query is refused with the last hint, and times
-	// the selectors are counted again over the longer span a raised step reads.
+	// the selectors are counted again over the longer span a raised step reads before a query that would read further is refused.
 	maxStepRaises = 4
 )
 
@@ -207,8 +207,14 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 			}
 			continue
 		}
-		if read <= counted || counts > maxStepRaises {
+		if read <= counted {
 			break
+		}
+		if counts > maxStepRaises {
+			return metricsResult{}, newToolError(codeInvalidInput,
+				"the step that fits the answer in the 4 MiB that MCP reads keeps rising, since each rise makes the query read further back, "+
+					"where its selectors match more series: aggregate, as in sum by (service_name) (%s), or narrow the selectors with a service_name "+
+					"or node_name matcher", hintExpr(in.Query))
 		}
 
 		if uid == "" {

@@ -376,7 +376,7 @@ A rollup over an expression that isn't a selector, such as `rate(sum(x)[1h])`, r
 
 ### Series cap
 
-Before a query runs, the server counts the series of each selector over the time read. A selector that matches more than 2,000 series refuses the query with `invalid_input`. Narrow it with a `service_*` or `node_*` matcher and aggregate. When the server raises the step of a range query and the query then reads further back, it counts the series again over the longer time. If they are more, the server estimates the [size of the answer](#read-cap) again from the larger count.
+Before a query runs, the server counts the series of each selector over the time read. A selector that matches more than 2,000 series refuses the query with `invalid_input`. Narrow it with a `service_*` or `node_*` matcher and aggregate. When the server raises the step of a range query and the query then reads further back, it counts the series again over the longer time. If they are more, the server estimates the [size of the answer](#read-cap) again from the larger count. It counts them at most 5 times. If the step that fits the answer still makes the query read further back after the fifth count, the query is refused with `invalid_input` and a hint to aggregate or narrow the selectors.
 
 ### Response budget
 
