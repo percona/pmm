@@ -71,7 +71,7 @@ For example, `pmm-agent` manages the other agents on its node, `node_exporter` c
 To check the agents:
 {.power-number}
 
-1. Click the **Monitoring** status of the service or node, or the **Agents** badge in its details. The page shows the agents under **Service <name> / Agents** or **Node <name> / Agents**:
+1. Click the **Monitoring** status of the service or node, or the **Agents** badge in its details. The page shows the agents under **Service `<name>` / Agents** or **Node `<name>` / Agents**:
 
     ![PMM Inventory agents of a node](../images/PMM_Inventory_Node_Agents.png)
 
