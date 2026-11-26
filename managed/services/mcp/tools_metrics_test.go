@@ -117,7 +117,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Equal(t, questions, p.Get("query"))
 		assert.Equal(t, unixOf(testNow), p.Get("time"))
 		assert.Equal(t, "25s", p.Get("timeout"))
-		assert.False(t, p.Has("step"))
+		assert.Equal(t, "300", p.Get("step"))
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"))
 		fake.assertForwardedAuth(t)
 

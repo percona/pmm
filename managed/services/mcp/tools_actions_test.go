@@ -1297,7 +1297,7 @@ func TestConfigTool(t *testing.T) {
 
 	queries := queriesWith(fake, "mysql_global_variables_")
 	require.Len(t, queries, 1)
-	assert.Equal(t, `query=%7B__name__%3D~%22mysql_global_variables_.%2B%22%2C+service_id%3D%22svc-1%22%7D&time=`+strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10)+`&timeout=25s`, queries[0].query)
+	assert.Equal(t, `query=%7B__name__%3D~%22mysql_global_variables_.%2B%22%2C+service_id%3D%22svc-1%22%7D&step=300&time=`+strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10)+`&timeout=25s`, queries[0].query)
 	list := queriesWith(fake, "tlast_over_time(up[3600s])")
 	require.Len(t, list, 1)
 	assert.Equal(t, strconv.FormatInt(testNow.Add(-time.Hour).Unix(), 10), queryOf(t, list[0]).Get("time"))
