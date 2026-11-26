@@ -206,7 +206,9 @@ export function usePerconaTableUrlState({
   const columnFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
-  const lastWrittenParamsKeyRef = useRef<string | null>(null);
+  // Keys written to the URL that the router has not rendered yet, oldest first.
+  const pendingWrittenKeysRef = useRef<string[]>([]);
+  // The URL as it will be once pending writes land; the base for the next write.
   const latestSearchParamsRef = useRef(searchParams);
   const latestTableStateRef = useRef(state);
 
@@ -215,16 +217,20 @@ export function usePerconaTableUrlState({
   }, [state]);
 
   useEffect(() => {
-    latestSearchParamsRef.current = searchParams;
-  }, [searchParams, searchParamsKey]);
-
-  useEffect(() => {
     const incomingKey = normalizeSearchParamsKey(searchParams);
-    if (lastWrittenParamsKeyRef.current === incomingKey) {
-      lastWrittenParamsKeyRef.current = null;
+    const pendingKeys = pendingWrittenKeysRef.current;
+    const pendingIndex = pendingKeys.indexOf(incomingKey);
+    if (pendingIndex !== -1) {
+      // The router may skip superseded writes, so drop every older pending key too.
+      pendingKeys.splice(0, pendingIndex + 1);
+      if (pendingKeys.length === 0) {
+        latestSearchParamsRef.current = searchParams;
+      }
       return;
     }
 
+    pendingWrittenKeysRef.current = [];
+    latestSearchParamsRef.current = searchParams;
     clearDebouncedUrlWriteTimers(columnFilterTimerRef, globalFilterTimerRef);
 
     setState((prev) => {
@@ -247,7 +253,8 @@ export function usePerconaTableUrlState({
       if (nextKey === currentKey) {
         return;
       }
-      lastWrittenParamsKeyRef.current = nextKey;
+      pendingWrittenKeysRef.current.push(nextKey);
+      latestSearchParamsRef.current = nextParams;
       setSearchParams(nextParams, { replace });
     },
     [replace, setSearchParams, urlOptions]
