@@ -23,8 +23,6 @@ type PGParams struct {
 	DBName string
 	// DBUsername represent postgresql database username.
 	DBUsername string
-	// DBPassword represent postgresql database user password.
-	DBPassword string
 	// SSLMode represent postgresql database ssl mode.
 	SSLMode string
 	// SSLCAPath represent postgresql database root ssl CA cert path.

@@ -40,13 +40,16 @@ env-remove:           ## Remove devcontainer and its volumes
 
 TARGET ?= _bash
 
+# docker exec -t fails when stdin isn't a terminal, as when an agent runs make.
+DOCKER_EXEC_TTY = $(if $(shell [ -t 0 ] && echo y),-t)
+
 env:                  ## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server make $(TARGET)
+	docker exec -i $(DOCKER_EXEC_TTY) --workdir=/root/go/src/github.com/percona/pmm pmm-server make $(TARGET)
 
 env-root:             ## Run `make TARGET` in devcontainer (`make env-root TARGET=help`); TARGET defaults to bash
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm --user root pmm-server make $(TARGET)
+	docker exec -i $(DOCKER_EXEC_TTY) --workdir=/root/go/src/github.com/percona/pmm --user root pmm-server make $(TARGET)
 
 rotate-encryption:    ## Rotate encryption key
 	go run ./encryption-rotation/main.go

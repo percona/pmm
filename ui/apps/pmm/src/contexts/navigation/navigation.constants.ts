@@ -221,9 +221,19 @@ export const NAV_MONGO: NavItem = {
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-unused-indexes/mongodb-unused-indexes`,
     },
     {
+      id: 'mongo-top-queries',
+      text: 'Top queries',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-top-queries/mongodb-top-queries`,
+    },
+    {
       id: 'mongo-oplog-details',
       text: 'Oplog',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-oplog-details/mongodb-oplog-details`,
+    },
+    {
+      id: 'mongo-clustersync-details',
+      text: 'ClusterSync',
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-clustersync-details/mongodb-clustersync-details`,
     },
   ],
 };
@@ -587,13 +597,33 @@ export const NAV_ADVISORS: NavItem = {
   id: 'advisors',
   icon: NetworkIntelligenceIcon,
   text: 'Advisors',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
+  url: `${PMM_NEW_NAV_PATH}/advisors`,
+};
+
+// the sidebar links a parent item to its first child's url, so the Advisors
+// children are listed explicitly (Insights is first, see addAdvisors)
+export const NAV_ADVISORS_CHECKS: NavItem = {
+  id: 'advisors-checks',
+  text: 'Catalog',
+  url: `${PMM_NEW_NAV_PATH}/advisors`,
 };
 
 export const NAV_ADVISORS_INSIGHTS = {
   id: 'advisors-insights',
-  text: 'Advisor insights',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`,
+  text: 'Insights',
+  url: `${PMM_NEW_NAV_PATH}/advisors/insights`,
+};
+
+export const NAV_ADVISORS_RUNS = {
+  id: 'advisors-runs',
+  text: 'Run history',
+  url: `${PMM_NEW_NAV_PATH}/advisors/runs`,
+};
+
+export const NAV_ADVISORS_SCHEDULER = {
+  id: 'advisors-scheduler',
+  text: 'Scheduler',
+  url: `${PMM_NEW_NAV_PATH}/advisors/scheduler`,
 };
 
 //
