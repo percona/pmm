@@ -11,7 +11,7 @@ export interface SessionRow {
   serviceType?: ServiceType;
   startTime: string;
   status: RealtimeSessionStatus;
-  // Only service rows carry one; see RealtimeSession.statusMessage.
+  // See RealtimeSession.statusMessage; a running cluster row gathers its services' warnings.
   statusMessage?: string;
   serviceSessions: SessionRow[];
 }

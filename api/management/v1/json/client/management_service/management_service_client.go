@@ -77,6 +77,8 @@ type ClientService interface {
 
 	UnregisterNode(params *UnregisterNodeParams, opts ...ClientOption) (*UnregisterNodeOK, error)
 
+	UpdateService(params *UpdateServiceParams, opts ...ClientOption) (*UpdateServiceOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -648,6 +650,50 @@ func (a *Client) UnregisterNode(params *UnregisterNodeParams, opts ...ClientOpti
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*UnregisterNodeDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UpdateService updates a service
+
+Changes the settings of a Service and its Agents in place. Only the fields that are set are changed. The Service and the Agents that stay keep their IDs; QAN Agents that the change turns off are removed, and the ones it turns on are created with new IDs.
+*/
+func (a *Client) UpdateService(params *UpdateServiceParams, opts ...ClientOption) (*UpdateServiceOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewUpdateServiceParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UpdateService",
+		Method:             "PUT",
+		PathPattern:        "/v1/management/services/{service_id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*UpdateServiceOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*UpdateServiceDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

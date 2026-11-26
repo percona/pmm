@@ -60,10 +60,12 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     type: Opaque
     data:
     # base64 encoded password
-    # encode some password: `echo -n "admin" | base64`
+    # encode some password: `echo -n 'admin' | base64`
       PMM_ADMIN_PASSWORD: YWRtaW4=
     EOF
     ```
+
+    Use a password that meets the [password requirements](../../../../admin/manage-users/add_users.md#password-requirements). Don't use `${` in `PMM_ADMIN_PASSWORD`. Grafana replaces `${...}` in it.
 
 2. Verify the secret was created and retrieve the password if needed:
 

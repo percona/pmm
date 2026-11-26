@@ -64,15 +64,17 @@ To install PMM HA:
     4. Create PMM secret with your passwords:
       ```sh
       kubectl create secret generic pmm-secret \
-        --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
-        --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
-        --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
-        --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
-        --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
-        --from-literal=PG_PASSWORD="postgres-password" \
-        --from-literal=GF_PASSWORD="grafana-password" \
+        --from-literal=PMM_ADMIN_PASSWORD='your-secure-password' \
+        --from-literal=PMM_CLICKHOUSE_USER='clickhouse_pmm' \
+        --from-literal=PMM_CLICKHOUSE_PASSWORD='clickhouse-password' \
+        --from-literal=PMM_HA_VM_USERNAME='victoriametrics_pmm' \
+        --from-literal=PMM_HA_VM_PASSWORD='vm-password' \
+        --from-literal=PG_PASSWORD='postgres-password' \
+        --from-literal=GF_PASSWORD='grafana-password' \
         --namespace pmm
       ```
+
+        Keep the single quotes so that your shell doesn't interpret the symbols in the passwords. If a password contains a single quote, write it as `'\''`. Don't use `${` in `PMM_ADMIN_PASSWORD`. Grafana replaces `${...}` in it, even inside single quotes.
 
     5. Install PMM HA:
 
@@ -192,43 +194,49 @@ To install PMM HA:
 
         ```sh
         kubectl create secret generic pmm-secret \
-          --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
-          --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
-          --from-literal=PMM_CLICKHOUSE_PASSWORD="your-clickhouse-password" \
-          --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
-          --from-literal=PMM_HA_VM_PASSWORD="your-vm-password" \
-          --from-literal=PG_PASSWORD="your-postgres-password" \
-          --from-literal=GF_PASSWORD="your-grafana-password" \
+          --from-literal=PMM_ADMIN_PASSWORD='your-secure-password' \
+          --from-literal=PMM_CLICKHOUSE_USER='clickhouse_pmm' \
+          --from-literal=PMM_CLICKHOUSE_PASSWORD='your-clickhouse-password' \
+          --from-literal=PMM_HA_VM_USERNAME='victoriametrics_pmm' \
+          --from-literal=PMM_HA_VM_PASSWORD='your-vm-password' \
+          --from-literal=PG_PASSWORD='your-postgres-password' \
+          --from-literal=GF_PASSWORD='your-grafana-password' \
           --namespace pmm
         ```
 
+        Keep the single quotes so that your shell doesn't interpret the symbols in the passwords. If a password contains a single quote, write it as `'\''`. Don't use `${` in `PMM_ADMIN_PASSWORD`. Grafana replaces `${...}` in it, even inside single quotes.
+
     === "Using YAML file"
 
-    If you prefer to manage the secret as a file, create pmm-secret.yaml:
-    {.power-number}
+        If you prefer to manage the secret as a file, create `pmm-secret.yaml`:
+        {.power-number}
 
-    1. Create `pmm-secret.yaml`:
-    ```yaml
-        apiVersion: v1
-        kind: Secret
-        metadata:
-          name: pmm-secret
-          namespace: pmm
-        type: Opaque
-        stringData:
-          PMM_ADMIN_PASSWORD: "your-secure-password"
-          PMM_CLICKHOUSE_USER: "clickhouse_pmm"
-          PMM_CLICKHOUSE_PASSWORD: "your-clickhouse-password"
-          PMM_HA_VM_USERNAME: "victoriametrics_pmm"
-          PMM_HA_VM_PASSWORD: "your-vm-password"
-          PG_PASSWORD: "your-postgres-password"
-          GF_PASSWORD: "your-grafana-password"
-    ```
+        1. Create `pmm-secret.yaml`:
 
-    2. Apply it:
-    ```sh
-        kubectl apply -f pmm-secret.yaml
-    ```
+            ```yaml
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: pmm-secret
+              namespace: pmm
+            type: Opaque
+            stringData:
+              PMM_ADMIN_PASSWORD: "your-secure-password"
+              PMM_CLICKHOUSE_USER: "clickhouse_pmm"
+              PMM_CLICKHOUSE_PASSWORD: "your-clickhouse-password"
+              PMM_HA_VM_USERNAME: "victoriametrics_pmm"
+              PMM_HA_VM_PASSWORD: "your-vm-password"
+              PG_PASSWORD: "your-postgres-password"
+              GF_PASSWORD: "your-grafana-password"
+            ```
+
+            Don't use `${` in `PMM_ADMIN_PASSWORD`. Grafana replaces `${...}` in it.
+
+        2. Apply it:
+
+            ```sh
+            kubectl apply -f pmm-secret.yaml
+            ```
 
     ### Step 5: Install PMM HA
 
@@ -371,15 +379,17 @@ To install PMM HA:
 
         ```sh
         kubectl create secret generic pmm-secret \
-          --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
-          --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
-          --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
-          --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
-          --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
-          --from-literal=PG_PASSWORD="postgres-password" \
-          --from-literal=GF_PASSWORD="grafana-password" \
+          --from-literal=PMM_ADMIN_PASSWORD='your-secure-password' \
+          --from-literal=PMM_CLICKHOUSE_USER='clickhouse_pmm' \
+          --from-literal=PMM_CLICKHOUSE_PASSWORD='clickhouse-password' \
+          --from-literal=PMM_HA_VM_USERNAME='victoriametrics_pmm' \
+          --from-literal=PMM_HA_VM_PASSWORD='vm-password' \
+          --from-literal=PG_PASSWORD='postgres-password' \
+          --from-literal=GF_PASSWORD='grafana-password' \
           --namespace pmm
         ```
+
+        Keep the single quotes so that your shell doesn't interpret the symbols in the passwords. If a password contains a single quote, write it as `'\''`. Don't use `${` in `PMM_ADMIN_PASSWORD`. Grafana replaces `${...}` in it, even inside single quotes.
 
         The chart creates a separate read-only ClickHouse user for the Grafana data source and stores its credentials in the `pmm-ha-clickhouse-datasource` secret. You don't need to add them to `pmm-secret`. To set them yourself, use the `clickhouse.datasource.user` and `clickhouse.datasource.password` Helm values.
 

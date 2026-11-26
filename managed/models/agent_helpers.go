@@ -61,20 +61,27 @@ type MySQLOptionsParams interface {
 	GetExtraDsnParams() map[string]string
 }
 
-// MySQLOptionsFromRequest creates MySQLOptions object from request.
-func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
-	if params.GetExtraDsnParams() != nil {
-		// keep a list of "supported" parameters and fail early if there are unsupported ones.
-		// this prevents unsupported parameters from being passed to the mysql config.
-		for k := range params.GetExtraDsnParams() {
-			switch k {
-			case "allowCleartextPasswords":
-				continue
-			default:
-				return MySQLOptions{}, status.Errorf(codes.InvalidArgument, "Unsupported DSN parameter: %s", k)
-			}
+// ValidateMySQLExtraDSNParams fails on extra DSN parameters that are not supported, so they never reach the MySQL config.
+func ValidateMySQLExtraDSNParams(params map[string]string) error {
+	for k := range params {
+		switch k {
+		case "allowCleartextPasswords":
+			continue
+		default:
+			return status.Errorf(codes.InvalidArgument, "Unsupported DSN parameter: %s", k)
 		}
 	}
+
+	return nil
+}
+
+// MySQLOptionsFromRequest creates MySQLOptions object from request.
+func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
+	err := ValidateMySQLExtraDSNParams(params.GetExtraDsnParams())
+	if err != nil {
+		return MySQLOptions{}, err
+	}
+
 	return MySQLOptions{
 		TLSCa:          params.GetTlsCa(),
 		TLSCert:        params.GetTlsCert(),
@@ -1195,7 +1202,8 @@ type ChangeExporterOptions struct {
 	MetricsScheme      *string
 	MetricsPath        *string
 	MetricsResolutions *ChangeMetricsResolutionsParams
-	ConnectionTimeout  *time.Duration
+	// nil = no change, zero = default, positive = set
+	ConnectionTimeout *time.Duration
 }
 
 // ChangeQANOptions contains QANOptions fields that can be changed.
@@ -1243,6 +1251,8 @@ type ChangeMySQLOptions struct {
 	TLSCert                        *string
 	TLSKey                         *string
 	TableCountTablestatsGroupLimit *int32
+	// nil = no change, empty = clear, populated = set
+	ExtraDSNParams *map[string]string
 }
 
 // ChangePostgreSQLOptions contains PostgreSQLOptions fields that can be changed.
@@ -1304,7 +1314,7 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 	}
 
 	if o := p.MySQLOptions; o != nil {
-		if o.TLSCa != nil || o.TLSCert != nil || o.TLSKey != nil {
+		if o.TLSCa != nil || o.TLSCert != nil || o.TLSKey != nil || o.ExtraDSNParams != nil {
 			return true
 		}
 	}
@@ -1438,10 +1448,12 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 			row.ExporterOptions.MetricsPath = *params.ExporterOptions.MetricsPath
 		}
 
-		if pointer.Get(params.ExporterOptions.ConnectionTimeout) == 0 {
-			row.ExporterOptions.ConnectionTimeout = nil
-		} else {
-			row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
+		if params.ExporterOptions.ConnectionTimeout != nil {
+			if *params.ExporterOptions.ConnectionTimeout == 0 {
+				row.ExporterOptions.ConnectionTimeout = nil
+			} else {
+				row.ExporterOptions.ConnectionTimeout = params.ExporterOptions.ConnectionTimeout
+			}
 		}
 	}
 
@@ -1552,6 +1564,17 @@ func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) 
 		}
 		if params.MySQLOptions.TableCountTablestatsGroupLimit != nil {
 			row.MySQLOptions.TableCountTablestatsGroupLimit = *params.MySQLOptions.TableCountTablestatsGroupLimit
+		}
+		if params.MySQLOptions.ExtraDSNParams != nil {
+			err = ValidateMySQLExtraDSNParams(*params.MySQLOptions.ExtraDSNParams)
+			if err != nil {
+				return nil, err
+			}
+
+			row.MySQLOptions.ExtraDSNParams = nil
+			if len(*params.MySQLOptions.ExtraDSNParams) != 0 {
+				row.MySQLOptions.ExtraDSNParams = *params.MySQLOptions.ExtraDSNParams
+			}
 		}
 	}
 

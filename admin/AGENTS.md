@@ -36,7 +36,7 @@ pmm-admin
 
 1. User runs a command (e.g., `pmm-admin add mysql`)
 2. Kong parses flags and dispatches to the appropriate command struct
-3. The command constructs an API request using generated Swagger clients from `/api/*/json/client/`
+3. The command constructs an API request using generated Swagger clients from `/api/*/v1/json/client/`
 4. The request is sent to pmm-managed via HTTP/JSON (gRPC-Gateway)
 5. The response is formatted and displayed
 
@@ -80,7 +80,7 @@ pmm-admin supports multiple output formats via `commands.Result` interface:
 ## Patterns and Conventions
 
 ### Do
-- Use generated Swagger clients from `/api/*/json/client/` for API calls
+- Use generated Swagger clients from `/api/*/v1/json/client/` for API calls
 - Follow the existing command struct pattern for new commands
 - Use Kong annotations (`help`, `default`, `required`, etc.) for flag documentation
 - Add both management (high-level) and inventory (low-level) commands when introducing new service types

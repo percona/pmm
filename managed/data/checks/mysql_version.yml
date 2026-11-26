@@ -2,8 +2,8 @@
 checks:
   - version: 2
     name: mysql_version
-    summary: MySQL Version
-    description: This check returns warnings if MySQL, Percona Server for MySQL, or MariaDB version is not the latest one.
+    summary: MySQL version check
+    description: This check returns an error if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL release series has reached end of life, a warning if it reaches end of life within 6 months, and otherwise a warning if a newer release of the series is available.
     technology: MYSQL
     category: Versions
     queries:
@@ -12,164 +12,339 @@ checks:
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
-      # major versions missing from these tables are not checked
+      # The latest release of each series, keyed by major*100+minor (8.0 is 800); a server is compared only with its own series.
+      # A series missing from its distribution's table gets no finding; RELEASE_NOTES lists the source of each row.
       LATEST_VERSIONS = {
-          # recommend MySQL 5.7.x to all 5.x.x users
-          # recommend MySQL 8.x.x only to existing 8.x.x users
           "oracle": {
-              5: 50744,  # https://dev.mysql.com/doc/relnotes/mysql/5.7/en/
-              8: 80038,  # https://dev.mysql.com/doc/relnotes/mysql/8.0/en/
+              507: 50744,
+              800: 80046,
+              804: 80413,
+              907: 90704,
           },
 
-          # recommend PS 5.7.x to all 5.x.x users
-          # recommend PS 8.x.x only to existing 8.x.x users
           "percona_server": {
-              5: 50744,  # https://www.percona.com/downloads/Percona-Server-5.7/LATEST/
-              8: 80037,  # https://www.percona.com/downloads/Percona-Server-LATEST/
+              507: 50744,
+              800: 80046,
+              804: 80411,
+              907: 90702,
           },
 
-          # recommend PXC 5.7.x to all 5.x.x users
-          # recommend PXC 8.x.x only to existing 8.x.x users
           "percona_xtradb_cluster": {
-              5: 50744,  # https://www.percona.com/downloads/Percona-XtraDB-Cluster-57/LATEST/
-              8: 80036,  # https://www.percona.com/downloads/Percona-XtraDB-Cluster-LATEST/
+              507: 50744,
+              800: 80046,
+              804: 80411,
+              907: 90702,
           },
 
-          # recommend MySQL 5.7.x to all 5.x.x users
-          # recommend MySQL 8.x.x only to existing 8.x.x users
-          "rds": {  # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html
-              5: 50738,
-              8: 80028,
+          "rds": {
+              507: 50744,
+              800: 80046,
+              804: 80411,
           },
 
-          # recommend MariaDB 10.4.x to all 5.x.x and 10.x.x users
-          "mariadb": {  # https://mariadb.com/kb/en/release-notes-mariadb-104-series/
-              5: 100426,
-              10: 100902,
+          # https://downloads.mariadb.org/rest-api/mariadb/
+          "mariadb": {
+              1006: 100628,
+              1011: 101119,
+              1104: 110413,
+              1108: 110809,
+              1203: 120303,
           },
       }
 
+      # The release notes of each series in LATEST_VERSIONS; a finding that suggests a newer release links to them.
+      # The Percona pages differ in naming, so each series has its full URL.
+      RDS_VERSIONS_URL = "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html"
+      RELEASE_NOTES = {
+          "oracle": {
+              507: "https://dev.mysql.com/doc/relnotes/mysql/5.7/en/",
+              800: "https://dev.mysql.com/doc/relnotes/mysql/8.0/en/",
+              804: "https://dev.mysql.com/doc/relnotes/mysql/8.4/en/",
+              907: "https://dev.mysql.com/doc/relnotes/mysql/9.7/en/",
+          },
+          "percona_server": {
+              507: "https://docs.percona.com/percona-server/5.7/release-notes/release-notes_index.html",
+              800: "https://docs.percona.com/percona-server/8.0/release-notes/release-notes_index.html",
+              804: "https://docs.percona.com/percona-server/8.4/release-notes/release-notes-index.html",
+              907: "https://docs.percona.com/percona-server/9.7/release-notes/release-notes-index.html",
+          },
+          "percona_xtradb_cluster": {
+              507: "https://docs.percona.com/percona-xtradb-cluster/5.7/release-notes/release-notes_index.html",
+              800: "https://docs.percona.com/percona-xtradb-cluster/8.0/release-notes/release-notes_index.html",
+              804: "https://docs.percona.com/percona-xtradb-cluster/8.4/release-notes/release-notes_index.html",
+              907: "https://docs.percona.com/percona-xtradb-cluster/9.7/release-notes/release-notes-index.html",
+          },
+          "rds": {
+              507: RDS_VERSIONS_URL,
+              800: RDS_VERSIONS_URL,
+              804: RDS_VERSIONS_URL,
+          },
+          "mariadb": {
+              1006: "https://mariadb.com/docs/release-notes/community-server/mariadb-10-6-series/what-is-mariadb-106",
+              1011: "https://mariadb.com/docs/release-notes/community-server/mariadb-10-11-series/what-is-mariadb-1011",
+              1104: "https://mariadb.com/docs/release-notes/community-server/mariadb-11-4-series/what-is-mariadb-114",
+              1108: "https://mariadb.com/docs/release-notes/community-server/mariadb-11-8-series/what-is-mariadb-118",
+              1203: "https://mariadb.com/docs/release-notes/community-server/12.3/mariadb-12.3-changes-and-improvements",
+          },
+      }
+
+      # The lifecycle policy that the EOL dates of each distribution come from.
+      LIFECYCLE = {
+          "oracle": "https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html",
+          "percona_server": "https://www.percona.com/release-lifecycle-overview/",
+          "percona_xtradb_cluster": "https://www.percona.com/release-lifecycle-overview/",
+          "rds": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html#MySQL.Concepts.VersionMgmt.ReleaseCalendar",
+          "mariadb": "https://mariadb.org/about/#maintenance-policy",
+      }
+
+      # Oracle MySQL EOL, also for Percona Server and PXC unless EOL_PERCONA differs: the end of Extended Support for an LTS series,
+      # the next release for an Innovation series, added once EOL. https://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf
+      EOL_ORACLE = {
+          (5, 5): "2018-12-31",
+          (5, 6): "2021-02-28",
+          (5, 7): "2023-10-31",
+          (8, 0): "2026-04-30",
+          (8, 1): "2023-10-25",
+          (8, 2): "2024-01-16",
+          (8, 3): "2024-04-30",
+          (8, 4): "2032-04-30",
+          (9, 0): "2024-10-15",
+          (9, 1): "2025-01-21",
+          (9, 2): "2025-04-15",
+          (9, 3): "2025-07-22",
+          (9, 4): "2025-10-21",
+          (9, 5): "2026-01-20",
+          (9, 6): "2026-04-21",
+          (9, 7): "2034-04-30",
+          (26, 7): "2026-10-20",
+      }
+
+      # Only where Percona states a date different from Oracle's.
+      # https://www.percona.com/services/policies/percona-software-support-lifecycle
+      EOL_PERCONA = {
+          "percona_server": {
+              (5, 5): "2018-12-01",
+              (5, 6): "2021-02-01",
+              (5, 7): "2023-10-01",
+              (8, 0): "2026-04-01",
+              (9, 7): "2034-04-21",
+          },
+          "percona_xtradb_cluster": {
+              (5, 5): "2016-09-22",
+              (5, 6): "2021-02-01",
+              (5, 7): "2023-10-01",
+              (8, 0): "2026-04-01",
+          },
+      }
+
+      # Community end of life from LIFECYCLE["mariadb"]; short-term series from https://endoflife.date/mariadb.
+      # Add a short-term series only once it is EOL.
+      EOL_MARIADB = {
+          (5, 1): "2015-02-01",
+          (5, 2): "2015-11-10",
+          (5, 3): "2017-03-01",
+          (5, 5): "2020-04-11",
+          (10, 0): "2019-03-31",
+          (10, 1): "2020-10-17",
+          (10, 2): "2022-05-23",
+          (10, 3): "2023-05-25",
+          (10, 4): "2024-06-18",
+          (10, 5): "2025-06-24",
+          (10, 6): "2026-07-06",
+          (10, 7): "2023-02-09",
+          (10, 8): "2023-05-20",
+          (10, 9): "2023-08-22",
+          (10, 10): "2023-11-17",
+          (10, 11): "2028-02-16",
+          (11, 0): "2024-06-06",
+          (11, 1): "2024-08-21",
+          (11, 2): "2024-11-21",
+          (11, 3): "2024-05-29",
+          (11, 4): "2029-05-29",
+          (11, 5): "2024-11-21",
+          (11, 6): "2025-02-13",
+          (11, 7): "2025-05-12",
+          (11, 8): "2028-06-04",
+          (12, 0): "2025-11-18",
+          (12, 1): "2026-02-13",
+          (12, 2): "2026-05-28",
+          (12, 3): "2029-06-12",
+      }
+
+      # RDS end of standard support.
+      # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Concepts.VersionMgmt.html#MySQL.Concepts.VersionMgmt.ReleaseCalendar
+      EOL_RDS = {
+          (5, 7): "2024-02-29",
+          (8, 0): "2026-07-31",
+          (8, 4): "2029-07-31",
+      }
+
+      # A series that reaches EOL within this many days gets a warning.
+      WARN_DAYS = 183
+
+      PRODUCTS = {
+          "oracle": "MySQL",
+          "percona_server": "Percona Server for MySQL",
+          "percona_xtradb_cluster": "Percona XtraDB Cluster",
+          "rds": "Amazon RDS for MySQL",
+          "mariadb": "MariaDB",
+      }
+
+      SECURITY_NOTE = " Newer releases can include security fixes; see which ones affect your version: https://www.oracle.com/security-alerts/."
+      MARIADB_SECURITY_NOTE = " Newer releases can include security fixes; see which ones affect your version: https://mariadb.com/docs/server/security/cve/community-server."
+
+      # MariaDB prefixes its version with this for old replication clients.
+      MARIADB_PREFIX = "5.5.5-"
+
+      def detect(vars):
+          """
+          Returns the distribution of the server described by SHOW VARIABLES (a dict of name to value):
+          "mariadb", "aurora", "rds", "percona_xtradb_cluster", "percona_server" or "oracle".
+          """
+
+          version = vars.get("version", "").lower()
+          comment = vars.get("version_comment", "").lower()
+          if "mariadb" in version or "mariadb" in comment:
+              return "mariadb"
+
+          for name in vars:
+              if name.startswith("aurora_"):
+                  return "aurora"
+
+          if "rdsdbbin" in vars.get("basedir", "") or "rdsdbdata" in vars.get("datadir", ""):
+              return "rds"
+
+          if "percona xtradb cluster" in comment:
+              return "percona_xtradb_cluster"
+
+          if "percona server" in comment:
+              return "percona_server"
+
+          return "oracle"
+
+      def eol_date(dist, key):
+          if dist == "rds":
+              return EOL_RDS.get(key)
+
+          if dist == "mariadb":
+              return EOL_MARIADB.get(key)
+
+          return EOL_PERCONA.get(dist, {}).get(key) or EOL_ORACLE.get(key)
+
+      def release_notes(dist, key):
+          url = RELEASE_NOTES[dist].get(key)
+          if not url:
+              return ""
+
+          return " Release notes: {}.".format(url)
+
+      def eol_result(dist, series, date, days, labels, newer):
+          """
+          Returns the EOL finding. newer is a sentence about the latest release of the series, used only before the EOL date.
+          """
+
+          rds = dist == "rds"
+          lifecycle = " Lifecycle policy: {}.".format(LIFECYCLE[dist])
+          if days < 0:
+              if rds:
+                  summary = "Amazon RDS for MySQL {} reached end of standard support".format(series)
+                  description = "Amazon RDS for MySQL {} reached the end of standard support on {}. AWS now runs it under Amazon RDS Extended Support, which is charged, until you upgrade. Upgrade to a major version in standard support.".format(series, date)
+              else:
+                  summary = "{} {} reached end of life".format(PRODUCTS[dist], series)
+                  description = "{} {} reached its End-of-Life date on {}. EOL versions no longer receive bug or security fixes from the vendor. Upgrade to a supported release series.".format(PRODUCTS[dist], series, date)
+
+              return {
+                  "summary": summary,
+                  "description": description + lifecycle,
+                  "read_more_url": read_url.format("mysql-version"),
+                  "severity": "error",
+                  "labels": labels,
+              }
+
+          if rds:
+              summary = "Amazon RDS for MySQL {} reaches end of standard support on {}".format(series, date)
+              description = "Amazon RDS for MySQL {} reaches the end of standard support on {}. After that date, AWS enrolls it in Amazon RDS Extended Support, which is charged. Plan an upgrade to a major version in standard support.".format(series, date)
+          else:
+              summary = "{} {} reaches end of life on {}".format(PRODUCTS[dist], series, date)
+              description = "{} {} End-of-Life date is {}. After that date it no longer gets bug fixes or security fixes. Plan your upgrade to a supported release series.".format(PRODUCTS[dist], series, date)
+
+          return {
+              "summary": summary,
+              "description": description + lifecycle + newer,
+              "read_more_url": read_url.format("mysql-version"),
+              "severity": "warning",
+              "labels": labels,
+          }
+
       def check_context(docs, context):
           """
-          This check returns warnings if MySQL, Percona Server for MySQL, or MariaDB version is not the latest one.
+          This check returns an error if your MySQL, Percona Server for MySQL, Percona XtraDB Cluster, MariaDB or Amazon RDS for MySQL
+          release series has reached end of life, a warning if it reaches end of life within 6 months,
+          and otherwise a warning if a newer release of the series is available.
           """
 
           format_version_num = context.get("format_version_num", fail)
           parse_version = context.get("parse_version", fail)
+          days_until = context.get("days_until", fail)
 
-          rows = docs[0]
-          # extract information from variables
-          is_percona_server, is_percona_xdb_cluster, is_mariadb, is_rds, is_aurora = False, False, False, False, False
-          for row in rows:
-              name, value = row["Variable_name"], row["Value"]
-              print(name, "=", value)
+          vars = {}
+          for row in docs[0]:
+              vars[row["Variable_name"]] = row["Value"]
 
-              if name == "version":
-                  versionS = value
-              if name == "version_comment":
-                  value = value.lower()
-                  is_percona_server = 'percona server' in value
-                  is_percona_xdb_cluster = 'percona xtradb cluster' in value
-                  is_mariadb = 'mariadb' in value
-              if name == "basedir" and not is_rds:
-                  is_rds = 'rdsdbbin' in value
-              if name == "datadir" and not is_rds:
-                  is_rds = 'rdsdbdata' in value
-              if name.startswith('aurora_'):
-                  is_aurora = True
+          if "version" not in vars:
+              return []
+
+          dist = detect(vars)
+          if dist == "aurora":
+              return []
+
+          current = vars["version"]
+          if dist == "mariadb" and current.startswith(MARIADB_PREFIX):
+              current = current[len(MARIADB_PREFIX):]
 
           # parse_version returns a dict with keys: major, minor, patch, rest, num
-          version = parse_version(versionS)
-          major = version["major"]
+          version = parse_version(current)
           num = version["num"]
-          print("version =", repr(version))
+          key = version["major"] * 100 + version["minor"]
+          series = "{}.{}".format(version["major"], version["minor"])
+          latest = LATEST_VERSIONS[dist].get(key, 0)
 
-          results = []
+          security_note = SECURITY_NOTE
+          if dist == "mariadb":
+              security_note = MARIADB_SECURITY_NOTE
 
-          if is_percona_server:
-              latest = LATEST_VERSIONS["percona_server"].get(major, 0)
-              if latest > num:
-                  results.append({
-                      "summary": "Newer version of Percona Server for MySQL is available",
-                      "description": "Current version is {}, the latest available version is {}.".format(
-                          format_version_num(num), format_version_num(latest)),
-                      "read_more_url": read_url.format("mysql-version"),
-                      "severity": "warning",
-                      "labels": {
-                          "current": format_version_num(num),
-                          "latest": format_version_num(latest),
-                      },
-                  })
+          # A series past or near its EOL gets only the EOL finding: a newer release of it is no fix.
+          date = eol_date(dist, (version["major"], version["minor"]))
+          if date:
+              days = days_until(date)
+              if days <= WARN_DAYS:
+                  labels = {
+                      "current": current,
+                      "series": series,
+                      "eol_date": date,
+                  }
+                  newer = ""
+                  if latest > num:
+                      newer = " Until then, upgrade to the latest release of this series, {}.".format(format_version_num(latest)) + release_notes(dist, key) + security_note
 
-              return results
+                  return [eol_result(dist, series, date, days, labels, newer)]
 
-          if is_percona_xdb_cluster:
-              latest = LATEST_VERSIONS["percona_xtradb_cluster"].get(major, 0)
-              if latest > num:
-                  results.append({
-                      "summary": "Newer version of Percona XtraDB Cluster is available",
-                      "description": "Current version is {}, the latest available version is {}.".format(
-                          format_version_num(num), format_version_num(latest)),
-                      "read_more_url": read_url.format("mysql-version"),
-                      "severity": "warning",
-                      "labels": {
-                          "current": format_version_num(num),
-                          "latest": format_version_num(latest),
-                      },
-                  })
+          if latest <= num:
+              return []
 
-              return results
+          description = "Current version is {}, the latest release of {} {} is {}.".format(current, PRODUCTS[dist], series, format_version_num(latest))
+          if date and dist == "rds":
+              description += " {} {} reaches end of standard support on {}.".format(PRODUCTS[dist], series, date)
+          elif date:
+              description += " {} {} reaches end of life on {}.".format(PRODUCTS[dist], series, date)
 
-          if is_aurora:
-              print("Aurora is not supported yet")
-              return results
-
-          if is_rds:
-              latest = LATEST_VERSIONS["rds"].get(major, 0)
-              if latest > num:
-                  results.append({
-                      "summary": "Newer version of MySQL is available",
-                      "description": "Current version is {}, the latest available version is {}.".format(
-                          format_version_num(num), format_version_num(latest)),
-                      "read_more_url": read_url.format("mysql-version"),
-                      "severity": "warning",
-                      "labels": {
-                          "current": format_version_num(num),
-                          "latest": format_version_num(latest),
-                      },
-                  })
-
-              return results
-
-          if is_mariadb:
-              latest = LATEST_VERSIONS["mariadb"].get(major, 0)
-              if latest > num:
-                  results.append({
-                      "summary": "Newer version of MariaDB is available",
-                      "description": "Current version is {}, the latest available version is {}.".format(
-                          format_version_num(num), format_version_num(latest)),
-                      "read_more_url": read_url.format("mysql-version"),
-                      "severity": "warning",
-                      "labels": {
-                          "current": format_version_num(num),
-                          "latest": format_version_num(latest),
-                      },
-                  })
-
-              return results
-
-          if True:  # Oracle MySQL
-              latest = LATEST_VERSIONS["oracle"].get(major, 0)
-              if latest > num:
-                  results.append({
-                      "summary": "Newer version of MySQL is available",
-                      "description": "Current version is {}, the latest available version is {}.".format(
-                          format_version_num(num), format_version_num(latest)),
-                      "read_more_url": read_url.format("mysql-version"),
-                      "severity": "warning",
-                      "labels": {
-                          "current": format_version_num(num),
-                          "latest": format_version_num(latest),
-                      },
-                  })
-              return results
+          return [{
+              "summary": "Newer version of {} is available".format(PRODUCTS[dist]),
+              "description": description + release_notes(dist, key) + security_note,
+              "read_more_url": read_url.format("mysql-version"),
+              "severity": "warning",
+              "labels": {
+                  "current": current,
+                  "latest": format_version_num(latest),
+              },
+          }]

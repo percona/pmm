@@ -1110,14 +1110,14 @@ func addStallingCheck(t *testing.T) (string, string) {
 	return name, serviceID
 }
 
-// requestAs sends a request to PMM Server as the Grafana user whose password is
-// its login, and returns the response status and body.
+// requestAs sends a request to PMM Server as a Grafana user made by createUser,
+// and returns the response status and body.
 func requestAs(t *testing.T, login, method, path string, body any) (int, []byte) {
 	t.Helper()
 
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
-	u.User = url.UserPassword(login, login)
+	u.User = url.UserPassword(login, userPassword)
 	u.Path = path
 
 	var r io.Reader

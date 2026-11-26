@@ -165,3 +165,24 @@ describe('OverviewTable Elapsed time filter', () => {
     );
   });
 });
+
+describe('OverviewTable empty state', () => {
+  it('keeps a long message within the visible width of the table', () => {
+    const message =
+      'Real-Time Analytics could not start for ps-1: the performance_schema processlist is not accessible';
+    render(
+      <TestWrapper>
+        <OverviewTable
+          queries={[]}
+          noDataMessage={message}
+          onQuerySelected={vi.fn()}
+          onNavigableQueriesChange={vi.fn()}
+        />
+      </TestWrapper>
+    );
+
+    const emptyState = screen.getByTestId('overview-table-empty-state');
+    expect(emptyState).toHaveTextContent(message);
+    expect(emptyState).toHaveStyle({ position: 'sticky', left: '0px' });
+  });
+});

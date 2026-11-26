@@ -122,7 +122,7 @@ describe('RealtimeSelection', () => {
       });
       expect(
         screen.getByText(
-          /MySQL and PostgreSQL with PMM Client 3\.11\.0 or later/
+          /MySQL and PostgreSQL with PMM Client 3\.12\.0 or later/
         )
       ).toBeInTheDocument();
     });
