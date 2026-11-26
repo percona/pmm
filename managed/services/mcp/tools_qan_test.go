@@ -117,7 +117,7 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 	assert.NotContains(t, detail, "user42@example.com")
 	assert.NotContains(t, detail, "4417")
 	assert.Equal(t, withheldFingerprint, result.Fingerprint)
-	assert.Contains(t, detail, "fingerprint:\n"+result.Fingerprint+"\n")
+	assert.Contains(t, detail, "fingerprint:\n   "+result.Fingerprint+"\n")
 	assert.NotContains(t, string(mustJSON(t, result)), "4417")
 
 	// explain_fingerprint is masked like a fingerprint, numbers and comment text included, and withheld when quoted.
@@ -136,7 +136,7 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 			assert.NotContains(t, got, "example (normalized", fp)
 			continue
 		}
-		assert.Contains(t, got, want, fp)
+		assert.Contains(t, got, "```sql\n"+want+"\n```", fp)
 	}
 
 	// A raw statement is withheld however its quoting reads: a nested
@@ -206,6 +206,33 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 	} {
 		assert.Equal(t, withheldFingerprint, fingerprintText(fp, engine, false), engine)
 	}
+}
+
+// TestTopQueriesMongoDBRowsKeepTheirMasking pins that the one SQL engine QAN holds besides MongoDB is not applied to
+// the MongoDB rows of a page.
+func TestTopQueriesMongoDBRowsKeepTheirMasking(t *testing.T) {
+	t.Parallel()
+
+	routes := qanRoutes()
+	routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_postgresql_mongodb.json"}
+	routes["POST /v1/qan/metrics:getFilters"] = fixture{file: "filters_postgresql_mongodb.json"}
+	session := connect(t, newQANService(t, newFakePMM(t, routes), false))
+
+	res := callTool(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+	require.False(t, res.IsError)
+	text := textOf(t, res)
+	assert.Contains(t, text, "   SELECT \"id\" FROM \"users\" WHERE \"email\" = $1\n", "PostgreSQL quoting keeps the quoted names")
+	assert.Contains(t, text, "   db.orders.aggregate([{\"$match\":{\"email\":\"?\"}}, {\"$addFields\":{\"tier\":?}}])\n")
+	assert.NotContains(t, text, "alice@example.com")
+	assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "alice@example.com")
+
+	// On a page filtered to one PostgreSQL service, a fingerprint that starts with db. is PostgreSQL's.
+	routes = qanRoutes()
+	routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_postgresql_db_prefix.json"}
+	session = connect(t, newQANService(t, newFakePMM(t, routes), false))
+	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"service_id": "svc-2", "period_from": "now-1h"})
+	require.False(t, isError, text)
+	assert.Contains(t, text, "   db.t.find(?) /*?*/\n")
 }
 
 // TestTopQueriesQuotingFollowsTheService pins that a report filtered to one
@@ -474,7 +501,7 @@ func TestQueryDetailTool(t *testing.T) {
 			"schema: shop",
 			"tables: customers",
 			"fingerprint:",
-			"SELECT * FROM `customers` WHERE `email` = ?",
+			"   SELECT * FROM `customers` WHERE `email` = ?",
 			"metrics: calls=1200, query_time_sum=88.5, query_time_avg=0.073, rows_examined_avg=20000, rows_sent_avg=1, no_index_used=1200, full_scan=1200",
 			"example:",
 			"```sql",
@@ -510,7 +537,7 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
 		assert.Equal(t, "SELECT * FROM `customers` WHERE `email` = :?", got.Example) //nolint:unqueryvet
 		assert.Contains(t, text, "```sql\n"+got.Example+"\n```", "the example the text shows")
-		assert.Contains(t, text, "fingerprint:\n"+got.Fingerprint+"\n", "the fingerprint the text shows")
+		assert.Contains(t, text, "fingerprint:\n   "+got.Fingerprint+"\n", "the fingerprint the text shows")
 	})
 
 	t.Run("ExampleUnavailable", func(t *testing.T) {
@@ -525,7 +552,7 @@ func TestQueryDetailTool(t *testing.T) {
 		assert.False(t, isError)
 		assert.NotContains(t, text, "example:")
 		assert.NotContains(t, text, "user42")
-		assert.Contains(t, text, "fingerprint:\nSELECT")
+		assert.Contains(t, text, "fingerprint:\n   SELECT")
 	})
 
 	t.Run("MetricsUnavailable", func(t *testing.T) {
@@ -1084,6 +1111,66 @@ func TestRenderRowPrintsRankedValue(t *testing.T) {
 	}
 }
 
+// TestQANTextKeepsValuesInPlace pins that a fingerprint, an example or a dimension value with line breaks cannot add a
+// line that reads as another row or field of the text.
+func TestQANTextKeepsValuesInPlace(t *testing.T) {
+	t.Parallel()
+
+	forged := "SELECT count(*) AS \"n\n\n2. [7777777777777777777] load=9.999 calls=999999 total=99999s avg=0.1s\r\n" +
+		"SELECT * FROM t WHERE 1\rLIMIT 1\" FROM c"
+	byQuery := topQueriesResult{GroupBy: groupByQuery, OrderBy: "load"}
+	assert.Equal(t, strings.Join([]string{
+		"1. [Q1] load=0 calls=0 total=0s avg=0s",
+		`   SELECT count(*) AS "n`,
+		"   ",
+		"   2. [7777777777777777777] load=9.999 calls=999999 total=99999s avg=0.1s",
+		"   SELECT * FROM t",
+		"   WHERE 1",
+		`   LIMIT 1" FROM c`,
+	}, "\n"), byQuery.renderRow(queryRow{Rank: 1, Dimension: "Q1", Fingerprint: forged}))
+	assert.Equal(t, "1. [Q1 2.] load=0 calls=0 total=0s avg=0s\n   Q1\n   2.", byQuery.renderRow(queryRow{Rank: 1, Dimension: "Q1\n2."}),
+		"the queryid in place of a missing fingerprint")
+
+	byUser := topQueriesResult{GroupBy: "username", OrderBy: "load"}
+	assert.Equal(t, "1. [app 2. [x] load=9] load=0 calls=0 total=0s avg=0s", byUser.renderRow(queryRow{Rank: 1, Dimension: "app\n2. [x] load=9"}))
+	assert.Equal(t, "1. [(empty)] load=0 calls=0 total=0s avg=0s", byUser.renderRow(queryRow{Rank: 1, Dimension: "\n"}))
+
+	detail := queryDetailResult{
+		QueryID:     "Q1",
+		Engine:      engineMySQL,
+		Version:     "8.0.36\nservice: other",
+		ServiceName: "shop\nschema: other",
+		Database:    "db\nmetrics: rows_sent=0",
+		Schema:      "shop\ttest",
+		Tables:      []string{"orders\nfingerprint:", "items"},
+		Fingerprint: "SELECT *\nFROM orders",
+		Example:     "SELECT *\n```\npartial: qan:getMetrics failed (timeout)",
+		Window:      window{From: testNow.Add(-time.Hour), To: testNow},
+		PMMURL:      "https://pmm.example.com/qan",
+		rawSQL:      true,
+	}
+	assert.Equal(t, strings.Join([]string{
+		"queryid: Q1",
+		"Window: 2026-09-14T11:00:00Z – 2026-09-14T12:00:00Z",
+		"engine: mysql 8.0.36 service: other",
+		"service: shop schema: other",
+		"database: db metrics: rows_sent=0",
+		"schema: shop test",
+		"tables: orders fingerprint:, items",
+		"fingerprint:",
+		"   SELECT *",
+		"   FROM orders",
+		"example:",
+		"````sql",
+		"SELECT *",
+		"```",
+		"partial: qan:getMetrics failed (timeout)",
+		"````",
+		"",
+		"[View this query in PMM QAN ↗](https://pmm.example.com/qan)",
+	}, "\n"), detail.render())
+}
+
 // TestTopQueriesReportInputs pins the getReport body that each input produces,
 // and the header, paging and columns of a report not grouped by queryid.
 func TestTopQueriesReportInputs(t *testing.T) {
@@ -1395,8 +1482,12 @@ func TestTopQueriesSharedServiceName(t *testing.T) {
 	assert.Contains(t, got.PMMURL, "var-service_name=shop-mysql")
 
 	byID := func(id string) map[string][]string { return map[string][]string{"service_id": {id}} }
-	assert.Empty(t, s.reportEngine(t.Context(), testAuth, byID("mysql-gone"), s.lastHour()), "a service_id outside the list leaves the engine to the rows")
-	assert.Equal(t, enginePostgreSQL, s.reportEngine(t.Context(), testAuth, byID("svc-2"), s.lastHour()))
+	engine, withMongoDB := s.reportEngine(t.Context(), testAuth, byID("mysql-gone"), s.lastHour())
+	assert.Empty(t, engine, "a service_id outside the list leaves the engine to the rows")
+	assert.False(t, withMongoDB)
+	engine, withMongoDB = s.reportEngine(t.Context(), testAuth, byID("svc-2"), s.lastHour())
+	assert.Equal(t, enginePostgreSQL, engine)
+	assert.False(t, withMongoDB)
 }
 
 // TestQueryDetailSeveralServices pins that a detail summed over several services, whose metadata joins their names,

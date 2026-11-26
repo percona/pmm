@@ -349,7 +349,7 @@ func (c *client) GetDatasourceByName(ctx context.Context, auth callerAuth, name 
 	return &out, nil
 }
 
-// QueryInstant runs an instant PromQL query through the Grafana datasource
+// QueryInstant runs an instant PromQL query at step instantStep through the Grafana datasource
 // proxy (uid-based path), which is Viewer-accessible and LBAC-filtered, unlike
 // the raw /prometheus path that requires admin.
 func (c *client) QueryInstant(ctx context.Context, auth callerAuth, uid string, r promRequest) ([]metricSample, error) {
@@ -359,6 +359,9 @@ func (c *client) QueryInstant(ctx context.Context, auth callerAuth, uid string, 
 			Value  []json.RawMessage `json:"value"`
 		} `json:"result"`
 	}
+	// Without a step, VictoriaMetrics resolves i units and implicit subquery steps at its lookback delta, which its
+	// flags can set apart from instantStep, the step the checks measure an instant query at.
+	r.Step = instantStep
 	data, err := promData[vector](ctx, c, auth, uid, "api/v1/query", r.values(), "metrics query")
 	if err != nil {
 		return nil, err

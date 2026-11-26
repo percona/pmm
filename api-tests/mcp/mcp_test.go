@@ -302,8 +302,8 @@ func TestReadOnlySettingsReportMCP(t *testing.T) {
 	// with the full settings. The shipped default, off, is pinned by
 	// TestMCPDefaultsAreOff in managed/models rather than here, since this
 	// package cannot know how the server under test was started.
-	assert.True(t, settings.Payload.Settings.EnableMcp)
-	assert.Equal(t, settings.Payload.Settings.EnableMcp, readOnly.Payload.Settings.EnableMcp)
+	assert.True(t, settings.Payload.Settings.McpEnabled)
+	assert.Equal(t, settings.Payload.Settings.McpEnabled, readOnly.Payload.Settings.McpEnabled)
 }
 
 func TestVersion(t *testing.T) {

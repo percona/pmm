@@ -38,7 +38,7 @@ const (
 	maxSeriesPerSelector = 2000
 
 	// Times the rules raise a step the caller did not choose before the query is refused with the last hint, and times
-	// the selectors are counted again over the longer span a raised step reads.
+	// the selectors are counted again over the longer span a raised step reads before a query that would read further is refused.
 	maxStepRaises = 4
 )
 
@@ -207,8 +207,14 @@ func (s *Service) metricsQuery(ctx context.Context, req *mcp.CallToolRequest, in
 			}
 			continue
 		}
-		if read <= counted || counts > maxStepRaises {
+		if read <= counted {
 			break
+		}
+		if counts > maxStepRaises {
+			return metricsResult{}, newToolError(codeInvalidInput,
+				"the step that fits the answer in the 4 MiB that MCP reads keeps rising, since each rise makes the query read further back, "+
+					"where its selectors match more series: aggregate, as in sum by (service_name) (%s), or narrow the selectors with a service_name "+
+					"or node_name matcher", hintExpr(in.Query))
 		}
 
 		if uid == "" {
@@ -372,34 +378,53 @@ var rollupResults = map[string][]string{
 	"rollup_scrape_interval": minMaxAvg,
 }
 
-// resultsPerSeries returns how many series e returns at most for each series it reads: the functions an aggr_over_time
-// call names, or the results of a rollupResults function, multiplied when nested.
+// resultsPerSeries returns how many series e returns at most for each series it reads, up to maxRollupNames+1: the
+// functions an aggr_over_time call names, or the results of a rollupResults function, multiplied when nested.
 func resultsPerSeries(e metricsql.Expr) int {
 	switch e := e.(type) {
 	case *metricsql.RollupExpr:
 		return resultsPerSeries(e.Expr)
 	case *metricsql.BinaryOpExpr:
 		return max(resultsPerSeries(e.Left), resultsPerSeries(e.Right))
+	case *metricsql.AggrFuncExpr:
+		// An aggregation returns at most as many series as it reads.
+		return mostResults(e.Args)
 	case *metricsql.FuncExpr:
-		most := 1
-		for _, arg := range e.Args {
-			most = max(most, resultsPerSeries(arg))
-		}
+		most := mostResults(e.Args)
 		name := strings.ToLower(e.Name)
 		if name == "aggr_over_time" {
 			var names []string
 			for _, arg := range e.Args {
 				names = appendRollupNames(names, arg)
 			}
-			return most * max(len(names), 1)
+			return min(most*max(len(names), 1), maxRollupNames+1)
 		}
-		if results, ok := rollupResults[name]; ok && len(e.Args) == 1 {
-			return most * len(results)
+		if results, ok := rollupResults[name]; ok && !picksOneResult(e.Args) {
+			return min(most*len(results), maxRollupNames+1)
 		}
 		return most
 	default:
 		return 1
 	}
+}
+
+// mostResults returns the largest resultsPerSeries of args, and 1 for none.
+func mostResults(args []metricsql.Expr) int {
+	most := 1
+	for _, arg := range args {
+		most = max(most, resultsPerSeries(arg))
+	}
+	return most
+}
+
+// picksOneResult tells whether a rollupResults function's arguments name one result. An empty name counts as none:
+// the VictoriaMetrics that PMM ships refuses it, and later versions return every result for it.
+func picksOneResult(args []metricsql.Expr) bool {
+	if len(args) <= 1 {
+		return false
+	}
+	tag, ok := args[len(args)-1].(*metricsql.StringExpr)
+	return ok && tag.S != ""
 }
 
 // narrowIfTooLarge turns a response over the 4 MiB bound into advice to narrow the request: the expression or

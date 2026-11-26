@@ -65,7 +65,8 @@ var templateKeywords = []string{"with", "ttf", "ru", "range_median", "alias"}
 // seriesPerValueFuncs are the functions that create a series for each distinct sample value.
 var seriesPerValueFuncs = []string{"count_values", "count_values_over_time", "histogram", "histogram_over_time"}
 
-// maxRollupNames bounds the functions one aggr_over_time call names, since it returns a series for each.
+// maxRollupNames bounds the functions one aggr_over_time call names, since it returns a series for each, and the series
+// that nested calls return for each series they read.
 const maxRollupNames = 8
 
 // seriesPerPhiFuncs map each function that creates a series for each phi argument to its single-phi form.
@@ -113,9 +114,9 @@ func checkExpr(expr string, span, step time.Duration) (time.Duration, error) {
 	return read, err
 }
 
-// checkParsed refuses, before any request, an expression that would read more than 7 days or select too broadly,
-// and returns the span it reads, the range plus the largest lookbehind, and its selectors, taking span 0 for an
-// instant query and a step of 0 or less as instantStep.
+// checkParsed refuses, before any request, an expression that would read more than 7 days, select too broadly or
+// return more than maxRollupNames series for each series it reads, and returns the span it reads, the range plus the
+// largest lookbehind, and its selectors, taking span 0 for an instant query and a step of 0 or less as instantStep.
 func checkParsed(e metricsql.Expr, span, step time.Duration) (time.Duration, []selector, error) {
 	if step <= 0 {
 		step = instantStep
@@ -123,6 +124,12 @@ func checkParsed(e metricsql.Expr, span, step time.Duration) (time.Duration, []s
 	w, err := walkSelectors(e, step)
 	if err != nil {
 		return 0, nil, err
+	}
+	// VictoriaMetrics builds every series of every level, whatever aggregation wraps them.
+	if resultsPerSeries(e) > maxRollupNames {
+		return 0, nil, newToolError(codeInvalidInput,
+			"nested aggr_over_time(), rollup() and rollup_*() calls multiply their series: the expression returns more than %[1]d series "+
+				"for each series it reads; the cap is %[1]d: nest fewer of them, or split the query into several calls", maxRollupNames)
 	}
 	if len(w.selectors) > maxSelectors {
 		return 0, nil, newToolError(codeInvalidInput,
@@ -447,6 +454,15 @@ func (w *exprWalk) rollup(re *metricsql.RollupExpr, p path) error {
 		return newToolError(codeInvalidInput,
 			"the @ modifier is not accepted: it reads outside the query's time range; set the query's time or period instead")
 	}
+	for _, d := range []*metricsql.DurationExpr{re.Window, re.Offset, re.Step} {
+		s := string(d.AppendString(nil))
+		// A minus after the first character negates every term after it: with an i term among them, the duration
+		// shrinks as the step grows, so sizing it at the larger of two steps no longer covers both.
+		if strings.LastIndexByte(s, '-') > 0 {
+			return newToolError(codeInvalidInput,
+				"the duration %s subtracts a term; write each window, offset and subquery step without a minus sign inside, as a sum such as 19d22h", echo(s))
+		}
+	}
 	// The series count reads back from the query's time, so it never sees what a negative offset reads.
 	if re.Offset != nil && re.Offset.Duration(p.step.Milliseconds()) < 0 {
 		return newToolError(codeInvalidInput,
@@ -467,8 +483,9 @@ func (w *exprWalk) rollup(re *metricsql.RollupExpr, p path) error {
 	if inner == 0 {
 		inner = p.step
 	}
-	// A nested subquery resolves i in its window and offset at the enclosing step, while an
-	// instant query's root subquery runs as a range query at its own step; the larger covers both.
+	// A nested subquery resolves i in its window and offset at the enclosing step, while an instant query's root
+	// subquery runs as a range query at its own step; the larger covers both, as a duration without a minus inside
+	// never shrinks as the step grows.
 	units := max(p.step, inner)
 	p.lookbehind = addCapped(p.lookbehind, durationOf(re.Offset, units))
 	// [range:] outside any subquery with a written step runs at the query's step, so it rises with that step.

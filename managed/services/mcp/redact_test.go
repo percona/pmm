@@ -559,6 +559,18 @@ func TestMaskMongoPlan(t *testing.T) {
 	assert.Contains(t, got, `"email":{"$eq":"?"}`)
 	assert.Contains(t, got, `"stage":"COLLSCAN"`)
 
+	// A $comment takes any value and a $documents stage's documents are its input, so both are values, keys included.
+	opaque := `{"command":{"find":"people","filter":{"name":"a","$comment":{"ticket-4711 cust_SECRET_4713@example.com":1}}},` +
+		`"originatingCommand":{"aggregate":"c","pipeline":[{"$match":{"$comment":{"cust_SECRET_4714":"y"}}},` +
+		`{"$unionWith":{"coll":"c","pipeline":[{"$documents":[{"cust_SECRET_4715":{"note":"z"}}]}]}}]},` +
+		`"queryPlanner":{"winningPlan":{"stage":"COLLSCAN"}}}`
+	got = maskMongoPlan(opaque)
+	assert.NotContains(t, got, "cust_SECRET")
+	assert.Contains(t, got, `"filter":{"name":"?","$comment":"?"}`)
+	assert.Contains(t, got, `{"$match":{"$comment":"?"}}`)
+	assert.Contains(t, got, `"pipeline":[{"$documents":"?"}]`)
+	assert.Contains(t, got, `"stage":"COLLSCAN"`)
+
 	// A compound text index's indexPrefix holds the query's equality values under their field names, which can be
 	// named like a plan key: plan keys count only on the plan's own structure.
 	prefix := `{"queryPlanner":{"winningPlan":{"stage":"TEXT_MATCH","indexPrefix":{"host":"db7.internal.example",` +
@@ -602,6 +614,22 @@ func TestMaskMongoFingerprintOpaqueValues(t *testing.T) {
 			want: `db.c.find({"comment":{"$eq":"?"}})`,
 		},
 		{
+			// pmm-agent masks the leaf values of a $comment but keeps the keys of an object value.
+			name: "CommentOperator",
+			in:   `db.people.find({"$comment":{"ticket-4711 cust_SECRET_6@example.com":"?"},"name":"?"})`,
+			want: `db.people.find({"$comment":?,"name":"?"})`,
+		},
+		{
+			name: "CommentOperatorInStages",
+			in:   `db.c.aggregate([{"$match":{"a":"?","$comment":"?"}}, {"$project":{"x":{"$comment":{"cust_SECRET_7":1}}}}])`,
+			want: `db.c.aggregate([{"$match":{"a":"?","$comment":?}}, {"$project":{"x":{"$comment":?}}}])`,
+		},
+		{
+			name: "DocumentsStage",
+			in:   `db.c.aggregate([{"$unionWith":{"coll":"c","pipeline":[{"$documents":[{"cust_SECRET_8":1,"n":{"cust_SECRET_9":true}}]}]}}])`,
+			want: `db.c.aggregate([{"$unionWith":{"coll":?,"pipeline":[{"$documents":?}]}}])`,
+		},
+		{
 			// pmm-agent leaves a $match nested in another stage unmasked, booleans and nulls included.
 			name: "BareWords",
 			in: `db.null.aggregate([{"$match":{"a":"?"}}, {"$lookup":{"from":"o","pipeline":[` +
@@ -627,6 +655,35 @@ func TestMaskMongoFingerprintOpaqueValues(t *testing.T) {
 			assert.Equal(t, tc.want, got)
 			assert.NotContains(t, got, "cust_SECRET")
 		})
+	}
+}
+
+// TestMongoFingerprintCollectionName pins that a fingerprint is withheld when a quote, brace or bracket can sit in its
+// collection name, which pmm-agent writes as it is, and that other names are kept.
+func TestMongoFingerprintCollectionName(t *testing.T) {
+	t.Parallel()
+
+	for _, fp := range []string{
+		// An odd number of escaped quotes in a value restores the parity that the quote in the name breaks.
+		`db.c".aggregate([{"$addFields":{"owner":"alice@example.com","size":"27\" monitor"}}])`,
+		`db.a(b".find({"owner":"alice@example.com","size":"27\" monitor"})`,
+		`db.x.find(".aggregate([{"$addFields":{"owner":"alice@example.com","size":"27\" monitor"}}])`,
+		// A closing brace in the name leaves the stages at depth 0, where a bare true, false or null is a name.
+		`db.x}}}.aggregate([{"$addFields":{"is_vip":true}}])`,
+		`db.x]].find({"vip":true})`,
+		// A call pmm-agent doesn't write leaves the end of the name unknown.
+		`db.users.count({"email":"?"})`,
+	} {
+		assert.Equal(t, withheldFingerprint, fingerprintText(fp, engineMongoDB, false), fp)
+	}
+
+	for fp, want := range map[string]string{
+		`db.my.coll(v2).find({"email":"?","vip":true})`: `db.my.coll(v2).find({"email":"?","vip":?})`,
+		`db.x.find(.find({"email":"?"})`:                `db.x.find(.find({"email":"?"})`,
+		`db.runCommand({"find":"c","filter":{}})`:       `db.runCommand({"find":?,"filter":{}})`,
+		`db.c.insert(?)`: `db.c.insert(?)`,
+	} {
+		assert.Equal(t, want, fingerprintText(fp, engineMongoDB, false), fp)
 	}
 }
 

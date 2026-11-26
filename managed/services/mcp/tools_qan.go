@@ -156,7 +156,7 @@ func (r topQueriesResult) render() string {
 // average time, the requested columns, and for queryid rows the fingerprint.
 func (r topQueriesResult) renderRow(row queryRow) string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "%d. [%s] load=%s calls=%s total=%s avg=%s", row.Rank, cmp.Or(row.Dimension, "(empty)"),
+	fmt.Fprintf(&b, "%d. [%s] load=%s calls=%s total=%s avg=%s", row.Rank, cmp.Or(oneLine(row.Dimension), "(empty)"),
 		fmtNum3(row.Load), fmtNum(row.Calls), fmtSeconds(row.QueryTimeTotal), fmtSeconds(row.QueryTimeAvg))
 	for _, st := range row.stats {
 		c, _ := qanColumnByName(st.name)
@@ -169,7 +169,7 @@ func (r topQueriesResult) renderRow(row queryRow) string {
 		}
 	}
 	if r.GroupBy == groupByQuery {
-		b.WriteString("\n   " + cmp.Or(row.Fingerprint, row.Dimension))
+		b.WriteString("\n" + indentLines(cmp.Or(row.Fingerprint, row.Dimension)))
 	}
 	return b.String()
 }
@@ -547,23 +547,27 @@ func (r queryDetailResult) render() string {
 		if r.Version != "" {
 			engine += " " + r.Version
 		}
-		parts = append(parts, "engine: "+engine)
+		parts = append(parts, "engine: "+oneLine(engine))
 	}
 	if r.ServiceName != "" {
-		parts = append(parts, "service: "+r.ServiceName)
+		parts = append(parts, "service: "+oneLine(r.ServiceName))
 	}
 	// QAN fills database for PostgreSQL and MongoDB, schema for MySQL.
 	if r.Database != "" {
-		parts = append(parts, "database: "+r.Database)
+		parts = append(parts, "database: "+oneLine(r.Database))
 	}
 	if r.Schema != "" {
-		parts = append(parts, "schema: "+r.Schema)
+		parts = append(parts, "schema: "+oneLine(r.Schema))
 	}
 	if len(r.Tables) > 0 {
-		parts = append(parts, "tables: "+strings.Join(r.Tables, ", "))
+		tables := make([]string, 0, len(r.Tables))
+		for _, table := range r.Tables {
+			tables = append(tables, oneLine(table))
+		}
+		parts = append(parts, "tables: "+strings.Join(tables, ", "))
 	}
 	if r.Fingerprint != "" {
-		parts = append(parts, "fingerprint:\n"+r.Fingerprint)
+		parts = append(parts, "fingerprint:\n"+indentLines(r.Fingerprint))
 	}
 	if len(r.keyMetrics) > 0 {
 		parts = append(parts, "metrics: "+metricsText(r.keyMetrics))
@@ -573,7 +577,7 @@ func (r queryDetailResult) render() string {
 		if r.rawSQL {
 			label = "example:"
 		}
-		parts = append(parts, label+"\n```sql\n"+r.Example+"\n```")
+		parts = append(parts, label+"\n"+fenced("sql", r.Example))
 	}
 	for _, p := range []struct {
 		call string
@@ -790,19 +794,19 @@ func checkQANValue(input, value string) error {
 	return nil
 }
 
-// withheldFingerprint replaces a SQL fingerprint that still holds a literal.
-const withheldFingerprint = "(fingerprint withheld: PMM stored this statement unnormalized, and PMM_MCP_RAW_SQL is off)"
+// withheldFingerprint replaces a fingerprint that holds a literal or can't be masked reliably.
+const withheldFingerprint = "(fingerprint withheld: it can't be masked reliably, and PMM_MCP_RAW_SQL is off)"
 
 // fingerprintText masks a fingerprint unless raw SQL is on, under its engine's quoting or, if unknown, under both:
 // a SQL one with a quoted string is a raw statement and is withheld. A text that starts with "db." and is not of a
-// SQL engine is a MongoDB one, withheld when its quotes don't pair.
+// SQL engine is a MongoDB one, withheld unless mongoMaskable.
 func fingerprintText(fingerprint, engine string, raw bool) string {
 	if raw {
 		return fingerprint
 	}
 	sqlEngine := engine == engineMySQL || engine == enginePostgreSQL
 	if strings.HasPrefix(fingerprint, "db.") && !sqlEngine {
-		if !mongoQuotesPair(fingerprint) {
+		if !mongoMaskable(fingerprint) {
 			return withheldFingerprint
 		}
 		return maskMongoFingerprint(fingerprint)
@@ -837,12 +841,21 @@ func quotingMatters(fingerprint string) bool {
 }
 
 // reportEngines returns the engine whose quoting reads every queryid's fingerprint, the report's one SQL engine when
-// its filters or QAN's data name one; else, unless the caller filters service_type, "" and each queryid's engine
-// from rowEngines over the report's own request body.
+// its filters or QAN's data name one, or that engine for each row but MongoDB's when MongoDB shares the window; else,
+// unless the caller filters service_type, "" and each queryid's engine from rowEngines over the report's own request body.
 func (s *Service) reportEngines(
 	ctx context.Context, auth callerAuth, q *reportQuery, body qan_service.GetReportBody, rows []qanReportRow, w window,
 ) (string, map[string]string) {
-	engine := s.reportEngine(ctx, auth, q.labels, w)
+	engine, withMongoDB := s.reportEngine(ctx, auth, q.labels, w)
+	if withMongoDB {
+		engines := make(map[string]string, len(rows))
+		for _, r := range rows {
+			if !strings.HasPrefix(r.Fingerprint, "db.") {
+				engines[r.Dimension] = engine
+			}
+		}
+		return "", engines
+	}
 	if _, filtered := q.labels["service_type"]; engine != "" || filtered {
 		// A service_type filter is the caller's; rowEngines would replace it.
 		return engine, nil
@@ -852,33 +865,35 @@ func (s *Service) reportEngines(
 
 // reportEngine returns the engine of a whole report: its one SQL service_type,
 // else the engine of the one service_id it is filtered to, else the only SQL
-// engine QAN holds data for in the window, else "".
-func (s *Service) reportEngine(ctx context.Context, auth callerAuth, labels map[string][]string, w window) string {
+// engine QAN holds data for in the window, else "". The bool is set when that
+// last engine shares the window with MongoDB data, whose rows it doesn't read.
+func (s *Service) reportEngine(ctx context.Context, auth callerAuth, labels map[string][]string, w window) (string, bool) {
 	if types, ok := labels["service_type"]; ok {
 		if len(types) == 1 && (types[0] == engineMySQL || types[0] == enginePostgreSQL) {
-			return types[0]
+			return types[0], false
 		}
-		return ""
+		return "", false
 	}
 	// Not a service_name: the service list covers only the window's last 7 days, so it can miss a service of the name.
 	ids := labels["service_id"]
 	if len(ids) == 1 {
 		svc, err := s.findService(ctx, auth, w, ids[0], "")
 		if err != nil {
-			return ""
+			return "", false
 		}
-		return svc.Engine
+		return svc.Engine, false
 	}
 	types, err := s.api.QANServiceTypes(ctx, auth, w.From, w.To)
 	if err != nil {
 		s.l.WithField("tool", "pmm_top_queries").Debugf("qan metrics:getFilters failed: %s.", err)
-		return ""
+		return "", false
 	}
+	withMongoDB := slices.Contains(types, engineMongoDB)
 	sqlTypes := slices.DeleteFunc(types, func(t string) bool { return t == engineMongoDB })
 	if len(sqlTypes) != 1 {
-		return ""
+		return "", false
 	}
-	return sqlTypes[0]
+	return sqlTypes[0], withMongoDB
 }
 
 // rowEngines finds each ambiguous queryid's engine with one more report, the

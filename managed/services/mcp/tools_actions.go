@@ -112,11 +112,11 @@ type explainResult struct {
 }
 
 func (r explainResult) render() string {
-	header := fmt.Sprintf("EXPLAIN (%s, %s %s):", r.Format, r.Engine, r.ServiceName)
+	header := fmt.Sprintf("EXPLAIN (%s, %s %s):", r.Format, r.Engine, oneLine(r.ServiceName))
 	if !r.Live {
 		header = "Stored plan (pg_stat_monitor, planid " + r.planID + "):"
 	}
-	text := header + "\n```\n" + r.Plan + "\n```"
+	text := header + "\n" + fenced("", r.Plan)
 	if r.Truncated {
 		text += "\n" + cutNote("plan", maxPlanBytes)
 	}
@@ -161,13 +161,13 @@ func (r schemaResult) render() string {
 	var parts []string
 	if r.QueryRef != nil {
 		parts = append(parts, "queryid: "+r.QueryRef.QueryID+"\n"+windowLine(window{From: r.QueryRef.PeriodFrom, To: r.QueryRef.PeriodTo})+
-			"\nservice: "+r.service.ServiceName+" ("+r.service.Engine+")")
+			"\nservice: "+oneLine(r.service.ServiceName)+" ("+r.service.Engine+")")
 		if len(r.Tables) == 0 {
 			parts = append(parts, "No base table found in the plan.")
 		}
 	}
 	for _, t := range r.Tables {
-		block := "### " + t.Database + "." + t.Name
+		block := "### " + oneLine(t.Database) + "." + oneLine(t.Name)
 		if r.definitions {
 			block += "\n" + schemaPart(false, t.Definition, t.definitionCut, t.DefinitionError)
 		}
@@ -180,11 +180,11 @@ func (r schemaResult) render() string {
 	var notes []string
 	if len(r.NotFetched) > 0 {
 		notes = append(notes, fmt.Sprintf("Not fetched, the %d-table cap was reached: %s; pass them as service_id, database and tables.",
-			maxSchemaTables, strings.Join(r.NotFetched, ", ")))
+			maxSchemaTables, oneLineList(r.NotFetched)))
 	}
 	if len(r.Unresolved) > 0 {
 		notes = append(notes, "Unresolved, not fetched (derived tables, CTEs, unions and names the plan doesn't tie to a table): "+
-			strings.Join(r.Unresolved, ", ")+"; pass the tables behind them as service_id, database and tables.")
+			oneLineList(r.Unresolved)+"; pass the tables behind them as service_id, database and tables.")
 	}
 	if r.Note != "" {
 		notes = append(notes, r.Note)
@@ -304,8 +304,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 
 	output, err := s.runAction(ctx, auth, body, !raw)
 	if err != nil {
-		storedExample := svc.Engine == engineMySQL && resolved.Example != "" && len(in.Placeholders) == 0
-		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "", storedExample)
+		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "", resolved, in.Placeholders)
 	}
 
 	plan := planTooLarge
@@ -498,8 +497,7 @@ func (s *Service) planTablesOf(ctx context.Context, auth callerAuth, resolved *r
 	}
 	output, err := s.runAction(ctx, auth, body, !s.rawSQL)
 	if err != nil {
-		storedExample := resolved.Example != "" && len(placeholders) == 0
-		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative, storedExample)
+		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative, resolved, placeholders)
 	}
 	if len(output) > maxPlanInputBytes {
 		return nil, nil, newToolError(codeNoQuerySource,
@@ -653,12 +651,12 @@ func schemaBodies(svc serviceInfo, t tableRef) (actions_service.StartServiceActi
 
 // schemaPart renders one action's part of its table's block.
 func schemaPart(indexes bool, text string, cut bool, pe *partError) string {
-	what, part := "definition", "```sql\n"+text+"\n```"
+	what, part := "definition", fenced("sql", text)
 	switch {
 	case pe != nil:
 		return fmt.Sprintf("error: %s\n%s", pe.Code, pe.Message)
 	case indexes:
-		what, part = "indexes", "indexes:\n```\n"+text+"\n```"
+		what, part = "indexes", "indexes:\n"+fenced("", text)
 	case strings.TrimSpace(text) == "":
 		return "No DDL returned for that table."
 	}
@@ -672,13 +670,23 @@ func schemaPart(indexes bool, text string, cut bool, pe *partError) string {
 // until it is done or ctx ends; ctx carries the tool call's one action
 // deadline. With redact set, literals in the action's error are masked.
 func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_service.StartServiceActionBody, redact bool) (string, error) {
-	started, err := s.api.StartServiceAction(ctx, auth, body)
+	// The start can outlast the call by cancelTimeout, so that an action that pmm-agent got as the call ended is cancelled.
+	startCtx, cancelStart := context.WithCancel(context.WithoutCancel(ctx))
+	stopStart := context.AfterFunc(ctx, func() { time.AfterFunc(cancelTimeout, cancelStart) })
+	started, err := s.api.StartServiceAction(startCtx, auth, body)
+	stopStart()
+	cancelStart()
 	if err != nil {
 		return "", s.deadlineOr(ctx, "", mapActionStartError(err))
 	}
 	actionID := actionIDOf(started)
 	if actionID == "" {
 		return "", newToolError(codePMMUnavailable, "no action_id returned by startServiceAction")
+	}
+	if ctx.Err() != nil {
+		s.cancelAction(ctx, auth, actionID)
+		// The start answered only after the call ended, so the action did not start in time.
+		return "", s.deadlineOr(ctx, "", ctx.Err())
 	}
 
 	delay := pollInitialDelay
@@ -754,11 +762,15 @@ func actionIDOf(res *actions_service.StartServiceActionOKBody) string {
 
 // mapActionStartError refines the generic HTTP mapping for startServiceAction:
 // pmm-managed answers FailedPrecondition / NotFound when no pmm-agent can run
-// the action, which is an agent problem rather than bad input.
+// the action, which is an agent problem rather than bad input, and 500 when
+// pmm-agent refuses to explain the query, which is not an outage.
 func mapActionStartError(err error) error {
 	te := mapError(err)
 	if strings.Contains(te.message, "query exceeded max length and got trimmed") {
 		return newToolError(codeInvalidInput, "%s\n%s", te.message, trimmedQueryRemediation)
+	}
+	if strings.Contains(te.message, "query EXPLAIN functionality is supported only for DML queries") {
+		return newToolError(codeInvalidInput, "%s", te.message)
 	}
 	msg := strings.ToLower(te.message)
 	if strings.Contains(msg, "agent") && (te.code == codeInvalidInput || te.code == codeNotFound) {
@@ -767,27 +779,36 @@ func mapActionStartError(err error) error {
 	return te
 }
 
-// mysqlExplainError gives a failed MySQL EXPLAIN action's placeholder errors their remediation: hint follows a 1064,
-// and alternative follows the placeholder-count message. With storedExample (QAN stored an example in the window and
-// the call passed no placeholders), either error means PMM read a stored row of the query without the example.
-func mysqlExplainError(err error, hint, alternative string, storedExample bool) error {
+// mysqlExplainError gives a failed MySQL EXPLAIN action's placeholder errors their remediation: hint follows a 1064 of
+// a call that passed placeholders, and alternative the other messages, which depend on whether QAN stored an example
+// of resolved's query in the window.
+func mysqlExplainError(err error, hint, alternative string, resolved *resolvedQuery, placeholders []string) error {
 	te, ok := errors.AsType[*toolError](err)
 	if !ok || te.code != codeInvalidInput {
 		return err
 	}
 	countError := strings.Contains(te.message, placeholdersCountError)
 	syntaxError := strings.HasPrefix(te.message, "Error 1064 ")
+	storedExample := resolved.Example != ""
+	// pmm-managed wants as many placeholders as the stored row it reads records, none when the row holds an example:
+	// without placeholders, a count error means that the row records some, and a 1064 that it records none.
 	switch {
-	case storedExample && syntaxError:
-		// With no placeholders passed, that row records none, so no placeholders fit it either.
-		return newToolError(codeNoQuerySource, "%s%s", rowWithoutStatementMessage, alternative)
-	case storedExample && countError:
+	case len(placeholders) > 0 && countError:
+		return newToolError(codeInvalidInput, "%s%s", placeholdersCountMessage, alternative)
+	case len(placeholders) > 0 && syntaxError:
+		// The placeholders fit the row's count, so their values made the statement invalid.
+		return newToolError(codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): %s. %s", te.message, hint)
+	case (countError || syntaxError) && resolved.ExampleErr != nil:
+		// The remediation depends on whether QAN stored an example, which the failed lookup can't tell.
+		return resolved.ExampleErr
+	case countError && storedExample:
 		return newToolError(codeInvalidInput, "%s%s", rowWithoutExampleMessage, alternative)
 	case countError:
-		return newToolError(codeInvalidInput, "%s%s", placeholdersCountMessage, alternative)
+		return newToolError(codeInvalidInput, "%s%s", rowWithPlaceholdersMessage, alternative)
+	case syntaxError && storedExample:
+		return newToolError(codeNoQuerySource, "%s%s", rowWithoutStatementMessage, alternative)
 	case syntaxError:
-		// MySQL answered 1064: EXPLAIN ran on the ? fingerprint because no concrete statement was available.
-		return newToolError(codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): %s. %s", te.message, hint)
+		return newToolError(codeNoQuerySource, "EXPLAIN could not run on the fingerprint: %s. %s%s", te.message, rowWithoutPlaceholdersMessage, alternative)
 	default:
 		return err
 	}
@@ -800,15 +821,21 @@ const (
 	schemaCountAlternative  = "; or pass service_id, database and tables instead of a query reference"
 	trimmedQueryRemediation = "QAN stored this query trimmed (pmm-agent max-query-length), so it can't be explained; " +
 		"pick another query, or raise max-query-length on the agent"
-	// pmm-managed's 400 for a MySQL explain whose placeholder values do not fit the statement.
+	// pmm-managed's 400 for a MySQL explain whose number of placeholders differs from what the stored row records.
 	placeholdersCountError   = "placeholders count is not correct"
-	placeholdersCountMessage = "the number of placeholders doesn't match the statement: pass one value per ? in the fingerprint, " +
-		"in order, or none when QAN stored a query example"
+	placeholdersCountMessage = "the number of placeholders doesn't match the stored row that PMM's EXPLAIN reads for this query: " +
+		"it takes none when it holds a query example or records no placeholders, else one value per ? in the fingerprint, in order; " +
+		"call without placeholders to tell which"
+	rowWithPlaceholdersMessage = "the stored row that PMM's EXPLAIN reads for this query has no query example and records " +
+		"placeholders: pass one value per ? in the fingerprint, in order"
 	rowWithoutExampleMessage = "QAN stored an example of this query, but the stored row that PMM's EXPLAIN reads for it has none: " +
 		"pass one value per ? in the fingerprint, in order"
 	rowWithoutStatementMessage = "QAN stored an example of this query, but the stored row that PMM's EXPLAIN reads for it has " +
 		"none and records no placeholders, so there is no statement to explain and placeholders don't fit it; calling again " +
 		"usually reads the same row. pmm_query_detail shows the stored example, which can be explained in a database client"
+	rowWithoutPlaceholdersMessage = "QAN stored no example of this query in the window, and the stored row that PMM's EXPLAIN " +
+		"reads for it records no placeholders, so placeholders don't fit it; calling again usually reads the same row. Enable " +
+		"query examples for this service in PMM, or explain an example that pmm_query_detail shows for another window in a database client"
 	mongoExplainRemediation = "pmm-agent explains MongoDB queries, updates, removes and getMores, and the find, findAndModify, " +
 		"update, aggregate, count, distinct, mapReduce, group and getMore commands; it refuses inserts, drops and other commands. " +
 		"Pick another query from pmm_top_queries"
@@ -870,10 +897,12 @@ const withheldMessage = "(message withheld: it can quote the statement, and PMM_
 // pass for the error's own.
 func mapActionError(actionErr string, redact bool) *toolError {
 	rest := strings.TrimPrefix(actionErr, mongoExplainPrefix)
-	if mongoUnsupportedExplain.MatchString(rest) {
-		return newToolError(codeInvalidInput, "%s\n%s", actionErr, mongoExplainRemediation)
-	}
 	prefix := actionErr[:len(actionErr)-len(rest)]
+	// The database's text can name tables and statements, so it stays on one line of the answer.
+	text := prefix + collapseSpace(rest)
+	if mongoUnsupportedExplain.MatchString(rest) {
+		return newToolError(codeInvalidInput, "%s\n%s", text, mongoExplainRemediation)
+	}
 	mysqlHeader := mysqlErrorHeader.FindStringSubmatch(rest)
 	mongoName := mongoErrorName.FindStringSubmatch(rest)
 
@@ -891,7 +920,7 @@ func mapActionError(actionErr string, redact bool) *toolError {
 		code = classifyErrorText(maskQuoted(rest))
 	}
 
-	msg := actionErr
+	msg := text
 	if redact && !safe {
 		msg = prefix + header + withheldMessage
 	}
@@ -952,7 +981,7 @@ func decodeExplainOutput(output string, rawSQL bool) (string, bool) {
 	}
 	text := strings.TrimRight(string(envelope.ExplainResult), "\n")
 	if rawSQL && envelope.ExplainedQuery != "" {
-		prefix := "-- " + envelope.ExplainedQuery
+		prefix := "-- " + lineBreak.ReplaceAllLiteralString(envelope.ExplainedQuery, "\n-- ")
 		if envelope.IsDML {
 			prefix += "\n-- (DML statement rewritten to an equivalent SELECT by pmm-agent)"
 		}

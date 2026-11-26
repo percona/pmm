@@ -92,9 +92,9 @@ func collectPlanTables(v any, out *[]planTable) {
 	}
 }
 
-// aliasMap maps the alias, or the table name when there is none, of each FROM
-// entry in Note 1003 to its table. An alias or name that stands for two different
-// tables in the note is left out: it cannot be told apart.
+// aliasMap maps the alias, or the table name when there is none, of each table
+// noteTables finds in Note 1003 to its table. An alias or name that stands for two
+// different tables in the note is left out: it cannot be told apart.
 func aliasMap(plan []byte) map[string]tableRef {
 	var envelope struct {
 		Warnings []struct {
@@ -178,7 +178,8 @@ func tokenizeNote(s string) []noteToken {
 	return out
 }
 
-// noteTables returns the FROM, JOIN and STRAIGHT_JOIN entries of a rewritten statement by alias or name.
+// noteTables returns the tables of a rewritten statement by alias or name: the FROM entries of a SELECT or DELETE, the
+// JOIN and STRAIGHT_JOIN entries, the table of an UPDATE, and the INTO table of an INSERT or REPLACE.
 func noteTables(note string) map[string]tableRef {
 	toks := tokenizeNote(note)
 
@@ -191,11 +192,35 @@ func noteTables(note string) map[string]tableRef {
 
 	out := map[string]tableRef{}
 	ambiguous := map[string]bool{}
+	// queries holds, for the statement and each open parenthesis, whether a SELECT or DELETE started in it, so that the
+	// FROM of a function such as EXTRACT(YEAR FROM ...) is not read as a clause.
+	queries := []bool{false}
 	for i := range toks {
-		if !toks[i].isWord("from") && !toks[i].isWord("join") && !toks[i].isWord("straight_join") {
+		table := false
+		switch {
+		case toks[i].punct && toks[i].text == "(":
+			queries = append(queries, false)
+		case toks[i].punct && toks[i].text == ")" && len(queries) > 1:
+			queries = queries[:len(queries)-1]
+		case toks[i].isWord("select") || toks[i].isWord("delete"):
+			queries[len(queries)-1] = true
+		case toks[i].isWord("from"):
+			table = queries[len(queries)-1]
+		case toks[i].isWord("join") || toks[i].isWord("straight_join"):
+			table = true
+		// The UPDATE of FOR UPDATE and of ON DUPLICATE KEY UPDATE names no table.
+		case toks[i].isWord("update"):
+			table = i == 0 || !toks[i-1].isWord("for") && !toks[i-1].isWord("key")
+		case toks[i].isWord("into"):
+			table = toks[0].isWord("insert") || toks[0].isWord("replace")
+		}
+		if !table {
 			continue
 		}
 		j := i + 1
+		for toks[i].isWord("update") && j < len(toks) && (toks[j].isWord("low_priority") || toks[j].isWord("ignore")) {
+			j++
+		}
 		if j+1 < len(toks) && toks[j].punct && toks[j].text == "(" && toks[j+1].isIdent() {
 			j++
 		}

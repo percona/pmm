@@ -98,6 +98,27 @@ func TestPlanTablesFixtures(t *testing.T) {
 	}
 }
 
+// TestPlanTablesDMLFixtures resolves the format 1 plans in testdata/explain/dml, written in the shape MySQL 8.0
+// returns for UPDATE shop.orders SET status = 'paid' WHERE id = 1 and DELETE FROM shop.orders WHERE id = 1, which
+// name the table without its schema.
+func TestPlanTablesDMLFixtures(t *testing.T) {
+	t.Parallel()
+
+	for _, file := range []string{"mysql-8.0-update.json", "mysql-8.0-delete.json"} {
+		t.Run(file, func(t *testing.T) {
+			t.Parallel()
+
+			plan, err := os.ReadFile(filepath.Join("testdata", "explain", "dml", file))
+			require.NoError(t, err)
+			tables, err := planTables(plan)
+			require.NoError(t, err)
+			resolved, unresolved := resolveTables(tables, aliasMap(plan), "db")
+			assert.Equal(t, []tableRef{{database: "shop", name: "orders"}}, resolved)
+			assert.Empty(t, unresolved)
+		})
+	}
+}
+
 // TestAliasMapAliasShadowsTable reads the alias-shadows-table fixtures, where alias b is table a and alias a is table b,
 // so a map that swaps them fails here while the resolved table set stays the same.
 func TestAliasMapAliasShadowsTable(t *testing.T) {
@@ -279,6 +300,62 @@ func TestAliasMap(t *testing.T) {
 			name: "block comment",
 			plan: notePlan(t, "select 1 from `shop`.`orders` /* join `shop`.`secret` `s` */ where 1"),
 			want: map[string]tableRef{"orders": o},
+		},
+		{
+			name: "update",
+			plan: notePlan(t, "update `shop`.`orders` set `shop`.`orders`.`status` = 'paid' where (`shop`.`orders`.`id` = 1)"),
+			want: map[string]tableRef{"orders": o},
+		},
+		{
+			name: "update with options and an alias",
+			plan: notePlan(t, "update low_priority ignore `shop`.`orders` `o` set `shop`.`o`.`status` = 'paid' where (`shop`.`o`.`id` = 1)"),
+			want: map[string]tableRef{"o": o},
+		},
+		{
+			name: "multi-table update",
+			plan: notePlan(t, "update `shop`.`orders` `o` join `shop`.`customers` `c` set `shop`.`o`.`status` = 'paid' "+
+				"where ((`shop`.`o`.`customer_id` = `shop`.`c`.`id`) and (`shop`.`c`.`region` = 'eu'))"),
+			want: map[string]tableRef{"o": o, "c": c},
+		},
+		{
+			name: "update with a subquery",
+			plan: notePlan(t, "update `shop`.`orders` set `shop`.`orders`.`status` = 'paid' where `shop`.`orders`.`customer_id` in "+
+				"(/* select#2 */ select `shop`.`c`.`id` from `shop`.`customers` `c` where (`shop`.`c`.`region` = 'eu'))"),
+			want: map[string]tableRef{"orders": o, "c": c},
+		},
+		{
+			name: "insert select",
+			plan: notePlan(t, "insert into `shop`.`orders` (`shop`.`orders`.`id`,`shop`.`orders`.`customer_id`) "+
+				"/* select#1 */ select (`shop`.`customers`.`id` + 100) AS `id + 100`,`shop`.`customers`.`id` AS `id` "+
+				"from `shop`.`customers` where (`shop`.`customers`.`region` = 'eu')"),
+			want: map[string]tableRef{"orders": o, "customers": c},
+		},
+		{
+			name: "replace select",
+			plan: notePlan(t, "replace into `shop`.`orders` /* select#1 */ select `shop`.`c`.`id` AS `id` from `shop`.`customers` `c`"),
+			want: map[string]tableRef{"orders": o, "c": c},
+		},
+		{
+			name: "insert values on duplicate key update",
+			plan: notePlan(t, "insert ignore into `shop`.`orders` (`shop`.`orders`.`id`,`shop`.`orders`.`total`) values (1,10.00) "+
+				"on duplicate key update `total` = (`shop`.`orders`.`total` + 1)"),
+			want: map[string]tableRef{"orders": o},
+		},
+		{
+			name: "locking clause",
+			plan: notePlan(t, "/* select#1 */ select `shop`.`o`.`id` AS `id` from `shop`.`orders` `o` for update of `o` skip locked"),
+			want: map[string]tableRef{"o": o},
+		},
+		{
+			name: "into of a select",
+			plan: notePlan(t, "/* select#1 */ select `shop`.`o`.`id` AS `id` from `shop`.`orders` `o` into outfile 'x'"),
+			want: map[string]tableRef{"o": o},
+		},
+		{
+			name: "from of a function",
+			plan: notePlan(t, "/* select#1 */ select extract(year from `o`.`created`) AS `y` from `shop`.`orders` `o` "+
+				"where ((trim(leading 'x' from `o`.`note`) = 'y') and exists(/* select#2 */ select 1 from `shop`.`customers` `c`))"),
+			want: map[string]tableRef{"o": o, "c": c},
 		},
 	}
 	for _, tc := range tests {

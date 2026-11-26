@@ -17,6 +17,8 @@ package mcp
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
 	"time"
 	"unicode/utf8"
 )
@@ -93,6 +95,50 @@ type partError struct {
 func partErrorOf(err error) *partError {
 	te := mapError(err)
 	return &partError{Code: te.code, Message: te.message}
+}
+
+// lineBreak matches a line break: CRLF, or one of the characters that end a line.
+var lineBreak = regexp.MustCompile(`\r\n|[\n\v\f\r\x{85}\x{2028}\x{2029}]`)
+
+// indentLines indents every line of s by three spaces, so that a multi-line value such as a statement stays inside its entry of a text.
+func indentLines(s string) string {
+	return "   " + lineBreak.ReplaceAllLiteralString(s, "\n   ")
+}
+
+// oneLine collapses s's whitespace, newlines included, and cuts it to the echo length, so that a field stays on its line of a text.
+func oneLine(s string) string {
+	return echo(collapseSpace(s))
+}
+
+// collapseSpace replaces each run of whitespace in s, newlines included, with one space.
+func collapseSpace(s string) string {
+	return strings.Join(strings.Fields(s), " ")
+}
+
+// oneLineList joins the oneLine of each of names with ", ".
+func oneLineList(names []string) string {
+	lines := make([]string, len(names))
+	for i, name := range names {
+		lines[i] = oneLine(name)
+	}
+	return strings.Join(lines, ", ")
+}
+
+// fenced wraps s in a Markdown code block whose fence is longer than any run of backticks in s.
+func fenced(lang, s string) string {
+	var longest, run int
+	for i := range len(s) {
+		run++
+		if s[i] != '`' {
+			run = 0
+		}
+		longest = max(longest, run)
+	}
+	fence := "```"
+	if longest >= len(fence) {
+		fence = strings.Repeat("`", longest+1)
+	}
+	return fence + lang + "\n" + s + "\n" + fence
 }
 
 // capText cuts s to at most maxBytes on a UTF-8 boundary and reports whether it cut.

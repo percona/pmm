@@ -1062,7 +1062,7 @@ type ChangeSettingsOKBodySettings struct {
 	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
 
 	// True if the Model Context Protocol endpoint (/mcp) is enabled.
-	EnableMcp bool `json:"enable_mcp,omitempty"`
+	McpEnabled bool `json:"mcp_enabled,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`

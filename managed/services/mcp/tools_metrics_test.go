@@ -117,7 +117,7 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Equal(t, questions, p.Get("query"))
 		assert.Equal(t, unixOf(testNow), p.Get("time"))
 		assert.Equal(t, "25s", p.Get("timeout"))
-		assert.False(t, p.Has("step"))
+		assert.Equal(t, "300", p.Get("step"))
 		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"))
 		fake.assertForwardedAuth(t)
 
@@ -617,6 +617,31 @@ func TestQueryMetricsTool(t *testing.T) {
 		assert.Equal(t, []string{narrow, unixOf(from.Add(-119 * time.Second)), unixOf(from.Add(-367 * time.Second))}, starts)
 	})
 
+	t.Run("StepThatKeepsRisingIsRefused", func(t *testing.T) {
+		t.Parallel()
+
+		// Each count over the wider span a raised step reads finds more series, which raise the step again.
+		counts := []int{200, 400, 800, 1600, 2000}
+		fake := newFakePMM(t, metricsRoutes(nil))
+		fake.handle(func(rw http.ResponseWriter, req *http.Request, _ []byte) bool {
+			if req.URL.Path != vmAPI+"series" {
+				return false
+			}
+			n := counts[min(len(fake.requestsTo(vmAPI+"series")), len(counts))-1]
+			fake.reply(rw, req, fixture{body: seriesBody(n)})
+			return true
+		})
+		_, text, isError := callAs[metricsResult](t, newQANService(t, fake, false), "pmm_query_metrics", map[string]any{
+			"query": `{__name__=~"mysql_global_status_.*", service_name="db1"}`, "period_from": "now-6h",
+		})
+		require.True(t, isError, text)
+		assert.Equal(t, "error: invalid_input\nthe step that fits the answer in the 4 MiB that MCP reads keeps rising, since each rise makes the query read further back, "+
+			"where its selectors match more series: aggregate, as in sum by (service_name) ({__name__=~\"mysql_global_status_.*\", service_name=\"db1\"}), "+
+			"or narrow the selectors with a service_name or node_name matcher", text)
+		assert.Len(t, fake.requestsTo(vmAPI+"series"), maxStepRaises+1)
+		assert.Empty(t, fake.requestsTo(vmAPI+"query_range"), "the query is refused before it runs over a span it did not count")
+	})
+
 	t.Run("UnraisedStepCountsOnce", func(t *testing.T) {
 		t.Parallel()
 
@@ -793,6 +818,8 @@ func TestSeriesPerMatched(t *testing.T) {
 		`ROLLUP_RATE(m[5m])`:                               3,
 		`rollup(rate(m[5m])[1h:1m])`:                       3,
 		`rollup(aggr_over_time(("a", "b"), m[5m])[1h:1m])`: 6,
+		// 3^40 series per series is over the largest int; the product stops one past the cap.
+		strings.Repeat("rollup(", 40) + "m[5m])" + strings.Repeat("[1h:])", 39): maxRollupNames + 1,
 		// An aggregation can return fewer series.
 		`sum(aggr_over_time(("a", "b"), m[5m]))`: 0,
 	} {

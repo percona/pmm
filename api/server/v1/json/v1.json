@@ -339,7 +339,7 @@
                       "type": "string",
                       "x-order": 22
                     },
-                    "enable_mcp": {
+                    "mcp_enabled": {
                       "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
                       "type": "boolean",
                       "x-order": 23
@@ -726,7 +726,7 @@
                       "type": "string",
                       "x-order": 22
                     },
-                    "enable_mcp": {
+                    "mcp_enabled": {
                       "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
                       "type": "boolean",
                       "x-order": 23
@@ -841,7 +841,7 @@
                       "type": "boolean",
                       "x-order": 9
                     },
-                    "enable_mcp": {
+                    "mcp_enabled": {
                       "description": "True if the Model Context Protocol endpoint (/mcp) is enabled.",
                       "type": "boolean",
                       "x-order": 10

@@ -80,13 +80,15 @@ func TestPromRequestArguments(t *testing.T) {
 	instant := fake.requestsTo(vmAPI + "query")
 	require.Len(t, instant, 2)
 	withTime := queryOf(t, instant[0])
-	assert.ElementsMatch(t, []string{"query", "time", "timeout"}, keysOf(withTime))
+	assert.ElementsMatch(t, []string{"query", "time", "step", "timeout"}, keysOf(withTime))
 	assert.Equal(t, "1800000000", withTime.Get("time"))
+	assert.Equal(t, "300", withTime.Get("step"), "the step the checker measures an instant query at, not VictoriaMetrics' lookback delta")
 	assert.Equal(t, "25s", withTime.Get("timeout"))
 
 	noTime := queryOf(t, instant[1])
-	assert.ElementsMatch(t, []string{"query", "timeout"}, keysOf(noTime))
+	assert.ElementsMatch(t, []string{"query", "step", "timeout"}, keysOf(noTime))
 	assert.Equal(t, "up", noTime.Get("query"))
+	assert.Equal(t, "300", noTime.Get("step"))
 
 	rng := queryOf(t, fake.requestsTo(vmAPI + "query_range")[0])
 	assert.ElementsMatch(t, []string{"query", "start", "end", "step", "timeout"}, keysOf(rng))

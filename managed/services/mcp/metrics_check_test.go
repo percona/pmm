@@ -17,6 +17,7 @@ package mcp
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -35,11 +36,27 @@ func TestCheckExpr(t *testing.T) {
 	long := `mysql_up{service_name="` + strings.Repeat("a", 5000-len(`mysql_up{service_name=""}`)) + `"}`
 	require.Len(t, long, 5000)
 
+	const eight = `aggr_over_time(("min_over_time", "max_over_time", "avg_over_time", "sum_over_time", "count_over_time", "last_over_time", ` +
+		`"first_over_time", "stddev_over_time"), `
+	// nest wraps e in levels calls opened by open, each over a subquery of the level below whose rollup label is copied to keep its series apart.
+	nest := func(levels int, open, e string) string {
+		for i := range levels {
+			e = fmt.Sprintf(`%slabel_copy(%s, "rollup", "r%d")[1h:])`, open, e, i)
+		}
+		return e
+	}
+	deep := `count(` + nest(17, eight, eight+`up[5m])`) + `)`
+	require.Less(t, len(deep), maxExprBytes)
+
 	const (
 		scope    = "service_id, service_name, node_id or node_name"
 		capped   = "the cap is 7d"
 		perValue = "it creates a series for each distinct value, so its result can't be bounded"
 		perPhi   = "it creates a series for each phi argument, so its result grows with its arguments"
+		multiply = "nested aggr_over_time(), rollup() and rollup_*() calls multiply their series: the expression returns more than 8 series " +
+			"for each series it reads; the cap is 8: nest fewer of them, or split the query into several calls"
+		// subtracts is the hint of a duration with a minus sign after its first character.
+		subtracts = "subtracts a term; write each window, offset and subquery step without a minus sign inside, as a sum such as 19d22h"
 	)
 	for _, tc := range []struct {
 		name string
@@ -209,6 +226,21 @@ func TestCheckExpr(t *testing.T) {
 			span: time.Hour,
 			want: []string{"aggr_over_time() names 9 functions and returns a series for each; the cap is 8: split it into several calls"},
 		},
+		// Nested, the functions that return several series for each one they read multiply them, whatever wraps them.
+		{name: "two nested levels of 8 functions under count", expr: `count(` + nest(1, eight, eight+`up[5m])`) + `)`, want: []string{multiply}},
+		{name: "three nested levels of 8 functions under topk", expr: `topk(1, ` + nest(2, eight, eight+`up[5m])`) + `)`, want: []string{multiply}},
+		{name: "18 nested levels of 8 functions", expr: deep, want: []string{multiply}},
+		{
+			name: "2 functions over 4 make 8",
+			expr: nest(1, `aggr_over_time(("min_over_time", "max_over_time"), `, `aggr_over_time(("min_over_time", "max_over_time", "avg_over_time", "sum_over_time"), up[5m])`),
+		},
+		{name: "rollup_candlestick over rollup makes 12", expr: nest(1, `rollup_candlestick(`, `rollup(up[5m])`), want: []string{multiply}},
+		{name: "rollup over rollup makes 9", expr: `rollup(rollup(up[5m])[1h:])`, want: []string{multiply}},
+		{name: "rollup that picks one result over rollup", expr: nest(1, `rollup(`, `rollup(up[5m], "max")`)},
+		{name: "an empty second argument counts every result", expr: `count(rollup(rollup(up[5m], "")[1h:], ""))`, want: []string{multiply}},
+		{name: "an empty second argument under rollup_candlestick counts every result", expr: nest(1, `rollup_candlestick(`, `rollup(up[5m], "")`), want: []string{multiply}},
+		{name: "an aggregation between the levels", expr: nest(1, eight, `topk(1000, `+eight+`up[5m]))`), want: []string{multiply}},
+		{name: "an operator between the levels", expr: nest(1, eight, eight+`up[5m]) + 0`), want: []string{multiply}},
 		{
 			name: "aggr_over_time naming a function twice",
 			expr: `aggr_over_time(("max_over_time", "min_over_time", "max_over_time"), mysql_up{service_name="db1"}[5m])`, span: time.Hour,
@@ -288,6 +320,20 @@ func TestCheckExpr(t *testing.T) {
 		{expr: `rate(mysql_global_status_questions[5m])[1151i:1d]`, want: []string{capped, "reads 1154d5m"}},
 		{expr: `rate(mysql_global_status_questions[5m])[1900i:1h]`, want: []string{capped, "reads 79d7h5m"}},
 		{expr: `mysql_global_status_questions[1h:1d] offset 1000i`, want: []string{capped, "reads 1003d1h5m"}},
+
+		// A window, offset or subquery step that subtracts is refused: a negative i term shrinks it as the step grows.
+		{expr: `count(last_over_time(up[1h:1d] offset 20d))`, want: []string{capped, "reads 23d1h5m"}},
+		{expr: `count(last_over_time(up[1h:1d] offset 20d-20i))`, want: []string{subtracts, "the duration 20d-20i subtracts"}},
+		{expr: `count(last_over_time(up[1h:1d] offset 3650d-3650i))`, want: []string{subtracts, "the duration 3650d-3650i subtracts"}},
+		{expr: `max_over_time(rate(mysql_global_status_questions{service_name="db1"}[5m])[1000d:1d])`, want: []string{capped}},
+		{
+			expr: `max_over_time(rate(mysql_global_status_questions{service_name="db1"}[5m])[1000d-1000i:1d])`,
+			want: []string{subtracts, "the duration 1000d-1000i subtracts"},
+		},
+		{name: "a subquery step that subtracts", expr: `max_over_time(rate(x{service_name="a"}[5m])[1h: 1d-23h])`, want: []string{subtracts, "1d-23h"}},
+		{name: "a selector window that subtracts", expr: `rate(x{service_name="a"}[1h-1i])`, span: time.Hour, want: []string{subtracts, "1h-1i"}},
+		{name: "a negative offset that subtracts", expr: `x{service_name="a"} offset -1h-1i`, want: []string{subtracts, "-1h-1i"}},
+		{name: "a window that adds an i term", expr: `rate(x{service_name="a"}[1h1i])`, span: time.Hour},
 
 		// A subquery no step was written for may take at most 4,000 points per series at the query's step.
 		{
