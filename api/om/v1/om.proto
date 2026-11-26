@@ -594,6 +594,10 @@ message InventoryHost {
   // included. Forgetting it would clear Operations' record of the machine PMM runs on,
   // the next scan would put it straight back, and in between the fleet would be wrong.
   bool is_pmm_server_node = 16;
+  // The MongoDB versions, as major.minor and oldest first, that Operations installs onto
+  // this node's OS release. Empty when it installs none there, the release is not known,
+  // or PMM could not read the supported releases; automation_blocked_reasons says which.
+  repeated string supported_mongodb_versions = 17;
 }
 
 // InventoryRunCounts is what one refresh saw.
@@ -901,7 +905,8 @@ message TriggerHostBootstrapRequest {
   }];
   // The MongoDB version to install, e.g. "7.0.8". Only the major version
   // selects the install source; PSMDB does not ship parallel repos per minor
-  // version.
+  // version. Every node's OS release has to support it, as each node's
+  // InventoryHost.supported_mongodb_versions lists.
   string mongodb_version = 3 [(validate.rules).string.min_len = 1];
   // The monitoring environment to label the resulting service with, same free-form
   // string as ManagementService's own AddMongoDBServiceParams.environment. Unset

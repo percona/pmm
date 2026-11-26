@@ -9,13 +9,6 @@ The default number of read tickets is 128. You can adjust it for both your `mong
 
 For more information, see [wiredTigerConcurrentReadTransactions in the MongoDB documentation](https://docs.mongodb.com/manual/reference/parameters/#mongodb-parameter-param.wiredTigerConcurrentReadTransactions).
 
-
-
-## Rule
-MONGODB_GETPARAMETER
-
-`db.adminCommand( { setParameter: 1, "wiredTigerConcurrentReadTransactions": "128"  } )`
-
 ## Resolution
 TAdjust the number of write tickets allowed into the WiredTiger storage engine. 
 

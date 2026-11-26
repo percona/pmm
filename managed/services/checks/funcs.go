@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -103,10 +104,55 @@ func formatVersionNum(args ...any) (any, error) {
 
 // GetAdditionalContext returns additional functions to be used in check scripts.
 func GetAdditionalContext() map[string]starlark.GoFunc {
+	return additionalContext(time.Now)
+}
+
+// additionalContext returns the functions of GetAdditionalContext, with current_date and days_until reading the clock now.
+// Tests pass a fixed clock, so they don't share any state.
+func additionalContext(now func() time.Time) map[string]starlark.GoFunc {
 	return map[string]starlark.GoFunc{
 		"ip_is_private":      ipIsPrivate,
 		"parse_version":      parseVersion,
 		"format_version_num": formatVersionNum,
+		"current_date":       currentDate(now),
+		"days_until":         daysUntil(now),
+	}
+}
+
+const dateLayout = "2006-01-02"
+
+// currentDate returns a function that takes no arguments and returns today's UTC date, by the clock now, as a YYYY-MM-DD string.
+func currentDate(now func() time.Time) starlark.GoFunc {
+	return func(args ...any) (any, error) {
+		if l := len(args); l != 0 {
+			return nil, fmt.Errorf("expected 0 arguments, got %d", l)
+		}
+
+		return now().UTC().Format(dateLayout), nil
+	}
+}
+
+// daysUntil returns a function that returns the whole days from today (UTC), by the clock now,
+// until a YYYY-MM-DD date as int64, negative for a past date.
+func daysUntil(now func() time.Time) starlark.GoFunc {
+	return func(args ...any) (any, error) {
+		if l := len(args); l != 1 {
+			return nil, fmt.Errorf("expected 1 argument, got %d", l)
+		}
+
+		s, ok := args[0].(string)
+		if !ok {
+			return nil, fmt.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
+		}
+
+		d, err := time.Parse(dateLayout, s)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse '%s': %w", s, err)
+		}
+
+		today := now().UTC().Truncate(24 * time.Hour) //nolint:mnd
+
+		return int64(d.Sub(today) / (24 * time.Hour)), nil //nolint:mnd
 	}
 }
 

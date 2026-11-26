@@ -63,13 +63,13 @@ type AddValkeyCommand struct {
 	ReplicationSet      string            `help:"Replication set name"`
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
-	TLS                 bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
+	TLS                 bool              `negatable:"" help:"Use TLS to connect to the database"`
+	TLSSkipVerify       bool              `negatable:"" help:"Skip TLS certificates validation"`
 	TLSCaFile           string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile         string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile          string            `name:"tls-key" help:"Path to client key file"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	ExposeExporter      bool              `negatable:"" name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }
 

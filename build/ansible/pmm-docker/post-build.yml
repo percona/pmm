@@ -12,6 +12,11 @@
       become_user: pmm
       become_method: su
 
+    - name: Remove the credential files the build resolved
+      file:
+        path: /run/pmm/secrets
+        state: absent
+
     - name: Cleanup dnf cache
       command: dnf clean all
 

@@ -33,28 +33,39 @@ const (
 	defaultMaxSlowlogFileSize        = 1 << 30 // 1 GB
 )
 
+// storedTablestatsGroupTableLimit converts the limit as documented in the API to the stored form:
+// zero selects the default and any negative value disables the tablestats group.
+func storedTablestatsGroupTableLimit(limit int32) int32 {
+	switch {
+	case limit == 0:
+		return defaultTablestatsGroupTableLimit
+	case limit < 0:
+		return -1
+	default:
+		return limit
+	}
+}
+
+// storedMaxSlowlogFileSize converts the size as documented in the API to the stored form:
+// zero selects the default and any negative value, stored as zero, disables rotation.
+func storedMaxSlowlogFileSize(size int64) int64 {
+	switch {
+	case size == 0:
+		return defaultMaxSlowlogFileSize
+	case size < 0:
+		return 0
+	default:
+		return size
+	}
+}
+
 // AddMySQL adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
 func (s *ManagementService) addMySQL(ctx context.Context, req *managementv1.AddMySQLServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
 	mysql := &managementv1.MySQLServiceResult{}
 
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		// tweak according to API docs
-		tablestatsGroupTableLimit := req.TablestatsGroupTableLimit
-		if tablestatsGroupTableLimit == 0 {
-			tablestatsGroupTableLimit = defaultTablestatsGroupTableLimit
-		}
-		if tablestatsGroupTableLimit < 0 {
-			tablestatsGroupTableLimit = -1
-		}
-
-		// tweak according to API docs
-		maxSlowlogFileSize := req.MaxSlowlogFileSize
-		if maxSlowlogFileSize == 0 {
-			maxSlowlogFileSize = defaultMaxSlowlogFileSize
-		}
-		if maxSlowlogFileSize < 0 {
-			maxSlowlogFileSize = 0
-		}
+		tablestatsGroupTableLimit := storedTablestatsGroupTableLimit(req.TablestatsGroupTableLimit)
+		maxSlowlogFileSize := storedMaxSlowlogFileSize(req.MaxSlowlogFileSize)
 
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {

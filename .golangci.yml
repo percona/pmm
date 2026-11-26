@@ -36,6 +36,13 @@ linters:
     - wsl                 # too annoying
     - wsl_v5              # too annoying
   settings:
+    gocritic:
+      enabled-checks:
+        - ruleguard
+      settings:
+        ruleguard:
+          failOn: dsl,import
+          rules: ${config-path}/dev/ruleguard/rules.go
     cyclop:
       max-complexity: 30
     depguard:

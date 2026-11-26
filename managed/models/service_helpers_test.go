@@ -489,6 +489,79 @@ func TestServiceHelpers(t *testing.T) {
 		assert.Equal(t, "external", ns.ExternalGroup)
 	})
 
+	t.Run("ApplyServiceChange", func(t *testing.T) {
+		t.Run("AddressReplacesSocket", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			s3, err := models.FindServiceByIDForUpdate(q, "S3")
+			require.NoError(t, err)
+
+			s3, err = models.ApplyServiceChange(q, s3, &models.ChangeServiceParams{
+				Address: new("10.0.0.1"),
+				Port:    new(uint16(3306)),
+			})
+			require.NoError(t, err)
+			assert.Nil(t, s3.Socket)
+
+			stored, err := models.FindServiceByID(q, "S3")
+			require.NoError(t, err)
+			assert.Equal(t, "10.0.0.1", pointer.GetString(stored.Address))
+			assert.Equal(t, uint16(3306), pointer.GetUint16(stored.Port))
+			assert.Nil(t, stored.Socket)
+		})
+
+		t.Run("SocketReplacesAddress", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			s2, err := models.FindServiceByID(q, "S2")
+			require.NoError(t, err)
+
+			s2, err = models.ApplyServiceChange(q, s2, &models.ChangeServiceParams{Socket: new("/tmp/mysql.sock")})
+			require.NoError(t, err)
+			assert.Equal(t, "/tmp/mysql.sock", pointer.GetString(s2.Socket))
+			assert.Nil(t, s2.Address)
+			assert.Nil(t, s2.Port)
+		})
+
+		t.Run("RejectsSocketAndAddress", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			s2, err := models.FindServiceByID(q, "S2")
+			require.NoError(t, err)
+
+			_, err = models.ApplyServiceChange(q, s2, &models.ChangeServiceParams{
+				Socket:  new("/tmp/mysql.sock"),
+				Address: new("10.0.0.1"),
+			})
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Socket and address cannot be specified together."), err)
+		})
+
+		t.Run("KeepsUnsetFieldsAndAppliesDefaults", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			s4, err := models.FindServiceByID(q, "S4")
+			require.NoError(t, err)
+
+			s4, err = models.ApplyServiceChange(q, s4, &models.ChangeServiceParams{
+				ExternalGroup: new(""),
+				CustomLabels:  &map[string]string{"team": "db"},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "external", s4.ExternalGroup)
+
+			stored, err := models.FindServiceByID(q, "S4")
+			require.NoError(t, err)
+			assert.Equal(t, s4.Environment, stored.Environment)
+			labels, err := stored.GetCustomLabels()
+			require.NoError(t, err)
+			assert.Equal(t, map[string]string{"team": "db"}, labels)
+		})
+	})
+
 	t.Run("Software versions record created when adding a service", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
