@@ -45,6 +45,9 @@ const (
 
 	// The Alertmanager label that carries an alert's rule UID.
 	ruleUIDLabel = "__alert_rule_uid__"
+
+	// Bytes of an alert's summary, of its description and of each of its label values in a result, at most.
+	maxAlertTextBytes = 16 * kiB
 )
 
 // severityOrder lists the severities that come ahead of every other one, in order.
@@ -52,6 +55,9 @@ var severityOrder = []string{"emergency", "alert", "critical", "error", "warning
 
 // alertStateOrder lists the states of pmm_alerts rows in the order they are listed.
 var alertStateOrder = []string{alertFiring, alertRecovering, alertPending}
+
+// shownLabels are the labels that the first text line of an alert shows: its name, severity, service and node.
+var shownLabels = []string{"alertname", "severity", "service_name", "service_id", "node_name", "node_id"}
 
 // labelValue returns a label's value, empty when the label is absent or [no value].
 func labelValue(labels map[string]string, name string) string {
@@ -96,9 +102,9 @@ func (in alertsInput) filterNames() []string {
 type alertRow struct {
 	Name          string            `json:"name" jsonschema:"Untrusted. The alert rule's title."`
 	Severity      string            `json:"severity,omitempty" jsonschema:"Untrusted. The alert's severity label, left out when it has none or it is [no value]."`
-	Labels        map[string]string `json:"labels,omitempty" jsonschema:"Untrusted. The alert's labels, without Grafana's internal labels that start with __."`
-	Summary       string            `json:"summary,omitempty" jsonschema:"Untrusted. The alert's summary annotation."`
-	Description   string            `json:"description,omitempty" jsonschema:"Untrusted. The alert's description annotation."`
+	Labels        map[string]string `json:"labels,omitempty" jsonschema:"Untrusted. The alert's labels, without Grafana's internal __ ones; each value cut at 16 KiB."`
+	Summary       string            `json:"summary,omitempty" jsonschema:"Untrusted. The alert's summary annotation, cut at 16 KiB."`
+	Description   string            `json:"description,omitempty" jsonschema:"Untrusted. The alert's description annotation, cut at 16 KiB."`
 	State         string            `json:"state" jsonschema:"firing; recovering when its condition cleared but its rule keeps it firing; or pending before it fires."`
 	StartsAt      time.Time         `json:"starts_at,omitzero" jsonschema:"When the alert started firing, recovering or pending; left out when Grafana gives no time."`
 	Silenced      bool              `json:"silenced" jsonschema:"True when a silence mutes the alert's notifications; false while it is pending."`
@@ -116,9 +122,30 @@ type alertsResult struct {
 	filters []string
 }
 
-// oneLine collapses s's whitespace, newlines included, and cuts it to the echo length, so an alert field stays on its line.
+// oneLine collapses s's whitespace, newlines included, and cuts it to the echo length, so that a field stays on its line of a text.
 func oneLine(s string) string {
 	return echo(strings.Join(strings.Fields(s), " "))
+}
+
+// capAlertText cuts s at maxAlertTextBytes on a rune boundary, with an ellipsis when cut.
+func capAlertText(s string) string {
+	cut, ok := capText(s, maxAlertTextBytes)
+	if ok {
+		return cut + "…"
+	}
+	return s
+}
+
+// otherLabels writes an alert's labels that its first text line leaves out, other than empty and [no value] ones, as name=value pairs on one line.
+func otherLabels(labels map[string]string) string {
+	var pairs []string
+	for _, name := range slices.Sorted(maps.Keys(labels)) {
+		value := labelValue(labels, name)
+		if value != "" && !slices.Contains(shownLabels, name) {
+			pairs = append(pairs, oneLine(name)+"="+oneLine(value))
+		}
+	}
+	return strings.Join(pairs, ", ")
 }
 
 func (r alertsResult) render() string {
@@ -155,8 +182,13 @@ func (r alertsResult) render() string {
 		}
 		parts = append(parts, link("View in PMM", a.PMMURL))
 		lines = append(lines, "- "+strings.Join(parts, " | "))
-		if summary := oneLine(a.Summary); summary != "" {
-			lines = append(lines, "  "+summary)
+		if labels := otherLabels(a.Labels); labels != "" {
+			lines = append(lines, "  labels: "+labels)
+		}
+		for _, text := range []string{a.Summary, a.Description} {
+			if line := oneLine(text); line != "" {
+				lines = append(lines, "  "+line)
+			}
 		}
 	}
 	if m := r.Page.marker(); m != "" {
@@ -232,12 +264,15 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 	for _, a := range paged {
 		labels := maps.Clone(a.Labels)
 		maps.DeleteFunc(labels, func(name, _ string) bool { return strings.HasPrefix(name, "__") })
+		for name, value := range labels {
+			labels[name] = capAlertText(value)
+		}
 		rows = append(rows, alertRow{
-			Name:          a.Labels["alertname"],
-			Severity:      labelValue(a.Labels, "severity"),
+			Name:          labels["alertname"],
+			Severity:      labelValue(labels, "severity"),
 			Labels:        labels,
-			Summary:       a.Annotations["summary"],
-			Description:   a.Annotations["description"],
+			Summary:       capAlertText(a.Annotations["summary"]),
+			Description:   capAlertText(a.Annotations["description"]),
 			State:         alertState(a),
 			StartsAt:      a.StartsAt,
 			Silenced:      a.Silenced,

@@ -41,14 +41,14 @@
             "additionalProperties": false,
             "properties": {
               "description": {
-                "description": "Untrusted. The alert's description annotation.",
+                "description": "Untrusted. The alert's description annotation, cut at 16 KiB.",
                 "type": "string"
               },
               "labels": {
                 "additionalProperties": {
                   "type": "string"
                 },
-                "description": "Untrusted. The alert's labels, without Grafana's internal labels that start with __.",
+                "description": "Untrusted. The alert's labels, without Grafana's internal __ ones; each value cut at 16 KiB.",
                 "type": "object"
               },
               "name": {
@@ -83,7 +83,7 @@
                 "type": "string"
               },
               "summary": {
-                "description": "Untrusted. The alert's summary annotation.",
+                "description": "Untrusted. The alert's summary annotation, cut at 16 KiB.",
                 "type": "string"
               }
             },

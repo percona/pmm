@@ -284,10 +284,15 @@ func TestAlertsTool(t *testing.T) {
 			note,
 			"- critical | MySQL down | service=shop-a | node=host-a | since 2026-09-14T11:00:00Z | " +
 				"[View in PMM ↗](https://pmm.example.com/graph/alerting/grafana/mysql-down/view)",
+			"  labels: grafana_folder=Alerts, percona_alerting=1, template_name=pmm_mysql_down",
 			"  MySQL down (shop-a)",
+			"  MySQL shop-a on host-a is down.",
 			"- warning | Too many connections | service=shop-a | node=host-a | since 2026-09-14T10:00:00Z | silenced until 2026-09-15T08:00:00Z | " +
 				"[View in PMM ↗](https://pmm.example.com/graph/alerting/grafana/conn/view)",
+			"  labels: environment=dev, grafana_folder=Alerts, node_type=generic, percona_alerting=1, service_type=mysql, " +
+				"template_name=pmm_mysql_too_many_connections",
 			"  MySQL too many connections (shop-a)",
+			"  95% of connections (more than 80%) are used by shop-a on host-a.",
 		}, "\n"), text)
 
 		_, text = callAlerts(t, fake, map[string]any{"severity": "info"})
@@ -295,8 +300,74 @@ func TestAlertsTool(t *testing.T) {
 			note,
 			"- info | Vector one | since 2026-09-14T08:00:00Z | silenced until 2026-09-14T18:00:00Z | " +
 				"[View in PMM ↗](https://pmm.example.com/graph/alerting/grafana/vector-one/view)",
+			"  labels: grafana_folder=Alerts, percona_alerting=1, template_name=vector_one",
 			"  Always firing",
+			"  A rule on vector(1).",
 		}, "\n"), text, "[no value] labels are absent")
+	})
+
+	t.Run("InstancesOfOneRule", func(t *testing.T) {
+		t.Parallel()
+
+		// One rule fires once per exporter resolution; the instances differ only in job.
+		instance := func(job string) map[string]any {
+			return map[string]any{
+				"labels": map[string]string{
+					"alertname": "MCP open test", "severity": "warning", "service_name": "mysql-1", "node_name": "node-1",
+					"job": job, "instance": "", "agent_id": "[no value]",
+				},
+				"annotations": map[string]string{"summary": "mysql-1 is down"},
+				"state":       "Alerting",
+				"activeAt":    "2026-09-14T11:00:00Z",
+			}
+		}
+		rules := mustJSON(t, map[string]any{"status": "success", "data": map[string]any{"groups": []map[string]any{{
+			"name": "MySQL", "file": "Alerts", "rules": []map[string]any{{
+				"name": "MCP open test", "uid": "open",
+				"alerts": []map[string]any{instance("mysqld_exporter_hr"), instance("mysqld_exporter_mr"), instance("mysqld_exporter_lr")},
+			}},
+		}}}})
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{"GET " + rulesPath: {body: rules}}))
+		_, text := callAlerts(t, fake, nil)
+		line := "- warning | MCP open test | service=mysql-1 | node=node-1 | since 2026-09-14T11:00:00Z | " +
+			"[View in PMM ↗](https://pmm.example.com/graph/alerting/grafana/open/view)"
+		assert.Equal(t, strings.Join([]string{
+			note,
+			line, "  labels: job=mysqld_exporter_hr", "  mysql-1 is down",
+			line, "  labels: job=mysqld_exporter_lr", "  mysql-1 is down",
+			line, "  labels: job=mysqld_exporter_mr", "  mysql-1 is down",
+		}, "\n"), text, "the labels the first line leaves out, without empty and [no value] ones")
+	})
+
+	t.Run("LongText", func(t *testing.T) {
+		t.Parallel()
+
+		long := strings.Repeat("x", 20<<10)
+		rules := mustJSON(t, map[string]any{"status": "success", "data": map[string]any{"groups": []map[string]any{{
+			"name": "Long", "file": "Alerts", "rules": []map[string]any{{
+				"name": "Long", "uid": "long",
+				"alerts": []map[string]any{{
+					"labels":      map[string]string{"alertname": "Long", "severity": "warning", "job": long},
+					"annotations": map[string]string{"summary": long, "description": long},
+					"state":       "Alerting",
+				}},
+			}},
+		}}}})
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{"GET " + rulesPath: {body: rules}}))
+		got, text := callAlerts(t, fake, nil)
+		require.Len(t, got.Alerts, 1)
+		capped := strings.Repeat("x", 16<<10) + "…"
+		assert.Equal(t, capped, got.Alerts[0].Summary)
+		assert.Equal(t, capped, got.Alerts[0].Description)
+		assert.Equal(t, capped, got.Alerts[0].Labels["job"])
+		shown := strings.Repeat("x", 200) + "…"
+		assert.Equal(t, strings.Join([]string{
+			note,
+			"- warning | Long | [View in PMM ↗](https://pmm.example.com/graph/alerting/grafana/long/view)",
+			"  labels: job=" + shown,
+			"  " + shown,
+			"  " + shown,
+		}, "\n"), text)
 	})
 
 	t.Run("Filters", func(t *testing.T) {
@@ -709,19 +780,22 @@ func TestAlertsTextOneLinePerAlert(t *testing.T) {
 		Note: note,
 		Page: page{Total: 1, Limit: 50},
 		Alerts: []alertRow{{
-			Name:     "Disk\n- critical | Fake alert",
-			Severity: "warning\r\n",
-			Labels:   map[string]string{"service_name": "shop-a\n- x", "node_name": "host\ta"},
-			Summary:  "line one\nline two",
-			StartsAt: time.Date(2026, 9, 14, 10, 0, 0, 0, time.UTC),
-			PMMURL:   "https://pmm.example.com/graph/alerting/grafana/disk/view",
+			Name:        "Disk\n- critical | Fake alert",
+			Severity:    "warning\r\n",
+			Labels:      map[string]string{"service_name": "shop-a\n- x", "node_name": "host\ta", "job": "a\n- b", "x\ny": "z"},
+			Summary:     "line one\nline two",
+			Description: "line three\r\n- critical | line four",
+			StartsAt:    time.Date(2026, 9, 14, 10, 0, 0, 0, time.UTC),
+			PMMURL:      "https://pmm.example.com/graph/alerting/grafana/disk/view",
 		}},
 	}
 	assert.Equal(t, strings.Join([]string{
 		note,
 		"- warning | Disk - critical | Fake alert | service=shop-a - x | node=host a | since 2026-09-14T10:00:00Z | " +
 			"[View in PMM ↗](https://pmm.example.com/graph/alerting/grafana/disk/view)",
+		"  labels: job=a - b, x y=z",
 		"  line one line two",
+		"  line three - critical | line four",
 	}, "\n"), r.render())
 }
 
