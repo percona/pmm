@@ -283,7 +283,7 @@ All arguments are optional:
 | `limit` | At most this many alerts per page: default 50, maximum 200 |
 | `offset` | Skips this many alerts, for the next page |
 
-An alert that lacks a label never matches a filter on that label. Firing alerts come first, then recovering ones, then pending ones. Within each state, the most severe alerts come first (`emergency`, `alert`, `critical`, `error`, `warning`, other severities, then none), the newest first within a severity.
+An alert that lacks a label never matches a filter on that label. A `service_id`, `service_name`, `node_name` or `severity` label set to `[no value]`, which Grafana writes when a rule's template reads a label that the series doesn't have, counts as missing. Firing alerts come first, then recovering ones, then pending ones. Within each state, the most severe alerts come first (`emergency`, `alert`, `critical`, `error`, `warning`, other severities, then none), the newest first within a severity.
 
 ### What the list holds
 

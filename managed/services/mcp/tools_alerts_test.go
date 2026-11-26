@@ -405,6 +405,7 @@ func TestAlertsTool(t *testing.T) {
 				server("a-warning-new", "warning", at(11, 0)),
 				server("i-alert", "Alert", at(9, 0)),
 				server("j-emergency", "emergency", at(8, 0)),
+				server("k-no-value", "[no value]", at(11, 45)),
 			)},
 		}))
 		got, _ := callAlerts(t, fake, nil)
@@ -414,8 +415,21 @@ func TestAlertsTool(t *testing.T) {
 			"c-error@-",
 			"a-warning-new@-", "h-warning-new@-", "b-warning-old@-",
 			"e-high@-", "d-info@-",
-			"f-none@-",
-		}, alertKeys(got.Alerts))
+			"k-no-value@-", "f-none@-",
+		}, alertKeys(got.Alerts), "[no value] ranks as no severity")
+	})
+
+	t.Run("SeverityNoValue", func(t *testing.T) {
+		t.Parallel()
+
+		fake := newFakePMM(t, withRoutes(alertsRoutes(), map[string]fixture{
+			"GET " + rulesPath: {body: rulesBody(t, firingAlert{rule: "templated", labels: map[string]string{"severity": "[no value]"}, activeAt: at(11, 0)})},
+		}))
+		got, text := callAlerts(t, fake, nil)
+		require.Len(t, got.Alerts, 1)
+		assert.Empty(t, got.Alerts[0].Severity, "[no value] counts as no severity")
+		assert.Equal(t, "[no value]", got.Alerts[0].Labels["severity"])
+		assert.Contains(t, text, "\n- templated | since 2026-09-14T11:00:00Z | ", text)
 	})
 
 	t.Run("Pending", func(t *testing.T) {
@@ -715,7 +729,7 @@ func TestAlertFilters(t *testing.T) {
 	t.Parallel()
 
 	bare := grafanaAlert{Labels: map[string]string{"alertname": "No labels"}}
-	allNoValue := grafanaAlert{Labels: map[string]string{"alertname": "Server", "service_name": "[no value]", "node_name": "[no value]"}}
+	allNoValue := grafanaAlert{Labels: map[string]string{"alertname": "Server", "service_name": "[no value]", "node_name": "[no value]", "severity": "[no value]"}}
 	for _, in := range []alertsInput{
 		{ServiceID: "svc-a"},
 		{ServiceName: "shop-a"},
@@ -723,6 +737,7 @@ func TestAlertFilters(t *testing.T) {
 		{Severity: "warning"},
 		{ServiceName: "[no value]"},
 		{NodeName: "[no value]"},
+		{Severity: "[no value]"},
 	} {
 		assert.False(t, in.matches(bare), "%+v: an alert without the label", in)
 		assert.False(t, in.matches(allNoValue), "%+v: an alert whose label is [no value]", in)

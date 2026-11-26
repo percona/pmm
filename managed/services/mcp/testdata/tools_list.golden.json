@@ -60,7 +60,7 @@
                 "type": "string"
               },
               "severity": {
-                "description": "Untrusted. The alert's severity label, left out when it has none.",
+                "description": "Untrusted. The alert's severity label, left out when it has none or it is [no value].",
                 "type": "string"
               },
               "silenced": {

@@ -76,7 +76,7 @@ func (in alertsInput) matches(a grafanaAlert) bool {
 	return (in.ServiceID == "" || labelValue(a.Labels, "service_id") == in.ServiceID) &&
 		(in.ServiceName == "" || labelValue(a.Labels, "service_name") == in.ServiceName) &&
 		(in.NodeName == "" || labelValue(a.Labels, "node_name") == in.NodeName) &&
-		(in.Severity == "" || strings.EqualFold(a.Labels["severity"], in.Severity))
+		(in.Severity == "" || strings.EqualFold(labelValue(a.Labels, "severity"), in.Severity))
 }
 
 // filterNames returns the names of the call's filters, in the order the input lists them.
@@ -95,7 +95,7 @@ func (in alertsInput) filterNames() []string {
 // alertRow is one alert in the result of pmm_alerts.
 type alertRow struct {
 	Name          string            `json:"name" jsonschema:"Untrusted. The alert rule's title."`
-	Severity      string            `json:"severity,omitempty" jsonschema:"Untrusted. The alert's severity label, left out when it has none."`
+	Severity      string            `json:"severity,omitempty" jsonschema:"Untrusted. The alert's severity label, left out when it has none or it is [no value]."`
 	Labels        map[string]string `json:"labels,omitempty" jsonschema:"Untrusted. The alert's labels, without Grafana's internal labels that start with __."`
 	Summary       string            `json:"summary,omitempty" jsonschema:"Untrusted. The alert's summary annotation."`
 	Description   string            `json:"description,omitempty" jsonschema:"Untrusted. The alert's description annotation."`
@@ -234,7 +234,7 @@ func (s *Service) alerts(ctx context.Context, req *mcp.CallToolRequest, in alert
 		maps.DeleteFunc(labels, func(name, _ string) bool { return strings.HasPrefix(name, "__") })
 		rows = append(rows, alertRow{
 			Name:          a.Labels["alertname"],
-			Severity:      a.Labels["severity"],
+			Severity:      labelValue(a.Labels, "severity"),
 			Labels:        labels,
 			Summary:       a.Annotations["summary"],
 			Description:   a.Annotations["description"],
@@ -350,7 +350,7 @@ func alertState(a grafanaAlert) string {
 // compareAlerts orders firing alerts first, then recovering, then pending ones, then by severity, case-insensitively and
 // other severities alphabetically, then newest first, then by name.
 func compareAlerts(a, b grafanaAlert) int {
-	sa, sb := strings.ToLower(a.Labels["severity"]), strings.ToLower(b.Labels["severity"])
+	sa, sb := strings.ToLower(labelValue(a.Labels, "severity")), strings.ToLower(labelValue(b.Labels, "severity"))
 	c := cmp.Or(
 		cmp.Compare(slices.Index(alertStateOrder, alertState(a)), slices.Index(alertStateOrder, alertState(b))),
 		cmp.Compare(severityRank(sa), severityRank(sb)),
