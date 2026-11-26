@@ -1,7 +1,7 @@
 # Install and monitor MongoDB clusters
 
 !!! warning "Developer Preview"
-    Operations for MongoDB is a Developer Preview feature in PMM 3.10.0. Use it for testing and feedback only, not in production.
+    Operations for MongoDB is a Developer Preview feature. Use it for testing and feedback only, not in production.
 
 Use Operations for MongoDB to check the health of every MongoDB cluster that PMM monitors, and to install Percona Server for MongoDB replica sets on empty nodes without SSH access. Before you start, [review the limitations](#check-what-isnt-supported-yet) that apply in this Developer Preview release.
 
@@ -239,11 +239,11 @@ To view fleet health:
 4. By default, clusters are grouped by environment. If you change **Group by**, the table keeps your choice for the browser session. For each cluster, check the following columns:
 
     - **Health**: the overall state of the cluster, for example **Healthy**.
-    - **Process**: the member types in the cluster, for example routers, shards and arbiters.
+    - **Members**: how many members are up, out of all the members in the cluster.
     - **Max repl. lag**: the highest replication lag across members.
     - **Min oplog window**: the smallest oplog window across members.
 
-    To add columns that are hidden by default, such as **Services**, **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
+    To add columns that are hidden by default, such as **Services**, **Process**, **Type**, **Versions**, **Last seen**, **Max CPU**, and **Min conn. free**, click **Show/Hide columns** in the table toolbar. **Process** shows the member types in the cluster, for example routers, shards and arbiters. In the **Versions** column, **Mixed** means that a replica set runs more than one version among the members that hold data. **N versions** means that the cluster's members, routers and arbiters included, run N different versions. To see the versions, hover over the cell.
 
 5. Expand a cluster's row to find the member that causes poor health or high replication lag.
 6. Select the **Services** tab to check whether a specific service is up or down.
@@ -294,7 +294,7 @@ If a node on the **Nodes** page shows **PMM could not read from PMM Extensions w
 
 ## Check what isn't supported yet
 
-Operations for MongoDB is a Developer Preview feature in PMM 3.10.0: you can try it out, but it isn't complete or supported for production yet. It has the following limitations:
+Operations for MongoDB is a Developer Preview feature: you can try it out, but it isn't complete or supported for production yet. It has the following limitations:
 
 - You can install only replica sets with 1 or 3 members, not sharded clusters or standalone instances, though Fleet still shows any sharded clusters that PMM already monitors.
 - No TLS or encryption at rest. Members authenticate to each other with a keyfile. TLS and encryption at rest are planned for a future release.
