@@ -27,16 +27,30 @@ import { clusterHealthRank, compareVersions } from '../topology';
 import type { OmClusterRow, OmProcessRole } from '../types';
 import {
   MIXED_VERSIONS,
-  TYPE_GROUP_ORDER,
+  TYPE_FILTER_VALUE,
+  TYPE_ORDER,
   UNKNOWN_VERSION,
+  UNNAMED_ENVIRONMENT_VALUE,
 } from './FleetClustersTab.constants';
 import { Messages } from './FleetClustersTab.messages';
-import type { ClusterGrouping, GroupingColumn } from './FleetClustersTab.types';
+import type {
+  ClusterGrouping,
+  FilterColumn,
+  GroupingColumn,
+} from './FleetClustersTab.types';
 
 export const environmentLabel = (row: OmClusterRow) =>
   row.env_name || Messages.unnamedEnvironment;
 
 export const typeLabel = (row: OmClusterRow) => CLUSTER_TYPE_LABEL[row.type];
+
+export const getEnvironmentValue = (row: OmClusterRow) =>
+  row.env_name || UNNAMED_ENVIRONMENT_VALUE;
+
+/** Environment filter values in Group by's order: by name, the unnamed one last. */
+export const compareEnvironmentValues = (a: string, b: string) =>
+  Number(a === UNNAMED_ENVIRONMENT_VALUE) -
+    Number(b === UNNAMED_ENVIRONMENT_VALUE) || a.localeCompare(b);
 
 /** `3 mongod · 1 Router`, in the order the API lists the roles. */
 export const describeRoles = (
@@ -86,8 +100,8 @@ export const groupLabel = (row: OmClusterRow, grouping: GroupingColumn) => {
 };
 
 const typeRank = (row: OmClusterRow) => {
-  const rank = TYPE_GROUP_ORDER.indexOf(row.type);
-  return rank < 0 ? TYPE_GROUP_ORDER.length : rank;
+  const rank = TYPE_ORDER.indexOf(row.type);
+  return rank < 0 ? TYPE_ORDER.length : rank;
 };
 
 /** Mixed after every single version, unknown after that. */
@@ -99,10 +113,8 @@ const GROUP_ORDER: Record<
   (a: OmClusterRow, b: OmClusterRow) => number
 > = {
   health: (a, b) => clusterHealthRank(a.health) - clusterHealthRank(b.health),
-  // The unnamed environment last.
   env_name: (a, b) =>
-    Number(!a.env_name) - Number(!b.env_name) ||
-    (a.env_name ?? '').localeCompare(b.env_name ?? ''),
+    compareEnvironmentValues(getEnvironmentValue(a), getEnvironmentValue(b)),
   type: (a, b) => typeRank(a) - typeRank(b),
   // Newest first.
   versions: (a, b) =>
@@ -131,21 +143,28 @@ export const pickedValues = (value: unknown): string[] =>
       ? []
       : [String(value)];
 
-/** Exact match on any picked value; MRT's multi-select default matches `prod` in `preprod`. */
-export const anyOf =
-  (
-    valueOf: (row: OmClusterRow) => string | undefined
-  ): MRT_FilterFn<OmClusterRow> =>
-  (row, _columnId, picked: unknown) => {
-    const value = valueOf(row.original);
-    return value !== undefined && pickedValues(picked).includes(value);
-  };
+/** Each filter's value, as its options, its counts and the URL spell it. */
+const FILTER_VALUE: Record<
+  FilterColumn,
+  (row: OmClusterRow) => string | string[] | undefined
+> = {
+  health: (row) => row.health,
+  type: (row) => TYPE_FILTER_VALUE[row.type],
+  env_name: getEnvironmentValue,
+  versions: (row) => row.versions,
+};
 
-/** Any picked value among a cluster's several; for the Version filter. */
-export const anyOfIncludes =
-  (valuesOf: (row: OmClusterRow) => string[]): MRT_FilterFn<OmClusterRow> =>
+export const getFilterValue = (id: FilterColumn, row: OmClusterRow) =>
+  FILTER_VALUE[id](row);
+
+/**
+ * Exact match of any picked value against the row's filter value, or any of its values
+ * for Version; MRT's multi-select default matches `prod` in `preprod`.
+ */
+export const filterBy =
+  (id: FilterColumn): MRT_FilterFn<OmClusterRow> =>
   (row, _columnId, picked: unknown) => {
-    const values = valuesOf(row.original);
+    const values = [getFilterValue(id, row.original) ?? []].flat();
     return pickedValues(picked).some((value) => values.includes(value));
   };
 

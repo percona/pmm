@@ -15,13 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-
+/** The colour of a value past its threshold; StatusIcon draws the matching glyph. */
 export const THRESHOLDS_VALUE_CUE = {
-  error: { color: 'error.main', icon: <ErrorOutlineIcon fontSize="inherit" /> },
-  warning: {
-    color: 'warning.main',
-    icon: <WarningAmberIcon fontSize="inherit" />,
-  },
+  error: { color: 'error.main' },
+  warning: { color: 'warning.main' },
 } as const;

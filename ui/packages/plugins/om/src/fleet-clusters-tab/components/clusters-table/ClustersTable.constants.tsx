@@ -27,17 +27,14 @@ import type { OmClusterHealth, OmClusterRow } from '../../../types';
 import {
   LAG_ALERT_SECONDS,
   OPLOG_WARN_SECONDS,
-  TYPE_FILTER_VALUE,
-  UNNAMED_ENVIRONMENT_VALUE,
 } from '../../FleetClustersTab.constants';
 import { Messages } from '../../FleetClustersTab.messages';
 import {
   GROUP_VALUE,
-  anyOf,
-  anyOfIncludes,
   compareVersionLists,
   describeRoles,
   environmentLabel,
+  filterBy,
 } from '../../FleetClustersTab.utils';
 import { ClusterHealthCell } from '../cluster-health-cell';
 import { ClusterMembersCell } from '../cluster-members-cell';
@@ -87,7 +84,7 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     id: 'type',
     header: columns.type,
     size: 120,
-    filterFn: anyOf((row) => TYPE_FILTER_VALUE[row.type]),
+    filterFn: filterBy('type'),
     Cell: ({ row: { original } }) => <ClusterTypeCell cluster={original} />,
   },
   {
@@ -106,14 +103,14 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     id: 'env_name',
     header: columns.environment,
     size: 200,
-    filterFn: anyOf((row) => row.env_name || UNNAMED_ENVIRONMENT_VALUE),
+    filterFn: filterBy('env_name'),
     Cell: ({ row: { original } }) => environmentLabel(original),
   },
   {
     accessorKey: 'health',
     header: columns.health,
     size: 170,
-    filterFn: anyOf((row) => row.health),
+    filterFn: filterBy('health'),
     // Worst first ascending
     sortingFn: (a, b, columnId) =>
       clusterHealthRank(a.getValue<OmClusterHealth>(columnId)) -
@@ -125,7 +122,7 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     id: 'versions',
     header: columns.versions,
     size: 100,
-    filterFn: anyOfIncludes((row) => row.versions),
+    filterFn: filterBy('versions'),
     // As versions, not strings: 7.0.9-1 is older than 7.0.24-13.
     // A cluster with no version known goes after the rest.
     sortingFn: ({ original: a }, { original: b }) =>

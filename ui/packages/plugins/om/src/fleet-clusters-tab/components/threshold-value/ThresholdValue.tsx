@@ -17,6 +17,7 @@
 
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
+import { StatusIcon } from '@percona/peak-ui';
 import { Duration } from '../../../components/Metric';
 import { THRESHOLDS_VALUE_CUE } from './ThresholdValue.constants';
 
@@ -38,7 +39,7 @@ export const ThresholdValue = ({
   if (!crossed) {
     return <Duration value={seconds} />;
   }
-  const { color, icon } = THRESHOLDS_VALUE_CUE[level];
+  const { color } = THRESHOLDS_VALUE_CUE[level];
   return (
     <Tooltip title={reason}>
       <Stack
@@ -49,7 +50,11 @@ export const ThresholdValue = ({
         sx={{ color, width: 'fit-content' }}
         data-testid={`om-threshold-${level}`}
       >
-        {icon}
+        <StatusIcon
+          size="small"
+          severity={level}
+          data-testid={`om-threshold-icon-${level}`}
+        />
         <Duration value={seconds} />
       </Stack>
     </Tooltip>

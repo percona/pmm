@@ -18,14 +18,14 @@
 import Chip from '@mui/material/Chip';
 import { CLUSTER_HEALTH_COLOR, CLUSTER_HEALTH_LABEL } from '../../../constants';
 import type { OmClusterHealth } from '../../../types';
-import { HEALTH_CHIP_ICON } from './ClusterHealthBadge.constants';
+import { ClusterHealthIcon } from '../cluster-health-icon';
 
-/** A cluster's state as an outlined chip: its own glyph, word and color. */
+/** A cluster's state as an outlined chip: the tab's status icon, word and color. */
 export const ClusterHealthBadge = ({ health }: { health: OmClusterHealth }) => (
   <Chip
     size="small"
     variant="outlined"
-    icon={HEALTH_CHIP_ICON[health]}
+    icon={<ClusterHealthIcon health={health} />}
     label={CLUSTER_HEALTH_LABEL[health]}
     color={CLUSTER_HEALTH_COLOR[health]}
     data-testid="om-cluster-health"

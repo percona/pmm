@@ -17,32 +17,9 @@
 
 import type { OmClusterRow } from '../../../types';
 import {
-  TYPE_FILTER_VALUE,
-  UNNAMED_ENVIRONMENT_VALUE,
-} from '../../FleetClustersTab.constants';
-import type { FilterColumn } from '../../FleetClustersTab.types';
-
-export const getEnvironmentValue = (row: OmClusterRow) =>
-  row.env_name || UNNAMED_ENVIRONMENT_VALUE;
+  compareEnvironmentValues,
+  getEnvironmentValue,
+} from '../../FleetClustersTab.utils';
 
 export const getEnvironments = (rows: OmClusterRow[]) =>
-  // The unnamed environment last, as in Group by.
-  [...new Set(rows.map(getEnvironmentValue))].sort(
-    (a, b) =>
-      Number(a === UNNAMED_ENVIRONMENT_VALUE) -
-        Number(b === UNNAMED_ENVIRONMENT_VALUE) || a.localeCompare(b)
-  );
-
-/** Each filter's value, as its options and the URL spell it. */
-const FILTER_VALUE: Record<
-  FilterColumn,
-  (row: OmClusterRow) => string | string[] | undefined
-> = {
-  health: (row) => row.health,
-  type: (row) => TYPE_FILTER_VALUE[row.type],
-  env_name: getEnvironmentValue,
-  versions: (row) => row.versions,
-};
-
-export const getFilterValue = (id: FilterColumn, row: OmClusterRow) =>
-  FILTER_VALUE[id](row);
+  [...new Set(rows.map(getEnvironmentValue))].sort(compareEnvironmentValues);

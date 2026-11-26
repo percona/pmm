@@ -39,11 +39,12 @@ import { Messages } from '../../FleetClustersTab.messages';
 import type { FilterColumn } from '../../FleetClustersTab.types';
 import {
   countValues,
+  getFilterValue,
   pickedValues,
   versionOptions,
   withPicked,
 } from '../../FleetClustersTab.utils';
-import { getFilterValue, getEnvironments } from './ClusterFilterBar.utils';
+import { getEnvironments } from './ClusterFilterBar.utils';
 
 /**
  * The name search and the filters, above the table. Driven by the table's state, so

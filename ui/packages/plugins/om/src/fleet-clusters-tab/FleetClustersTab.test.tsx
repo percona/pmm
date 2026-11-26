@@ -946,6 +946,21 @@ describe('FleetClustersTab', () => {
         ]);
       });
 
+      it('lists the Type options in the order Group by draws the type groups', () => {
+        useOmTopology.mockReturnValue({
+          data: threeTypes(),
+          isPending: false,
+          isError: false,
+        });
+        renderAt('/fleet');
+
+        expect(optionNames('Type')).toEqual([
+          'Sharded · 1',
+          'Replica set · 1',
+          'Standalone · 1',
+        ]);
+      });
+
       it('filters by version, a mixed cluster matching each of its versions', async () => {
         useOmTopology.mockReturnValue({
           data: threeTypes(),
@@ -1295,10 +1310,14 @@ describe('FleetClustersTab', () => {
 
       const lag = within(rowNamed('lagging')).getByTestId('om-threshold-error');
       expect(lag).toHaveTextContent('47s');
-      expect(lag.querySelector('svg')).not.toBeNull();
+      expect(within(lag).getByTestId('om-threshold-icon-error')).toBeTruthy();
+      const oplog = within(rowNamed('lagging')).getByTestId(
+        'om-threshold-warning'
+      );
+      expect(oplog).toHaveTextContent('52m');
       expect(
-        within(rowNamed('lagging')).getByTestId('om-threshold-warning')
-      ).toHaveTextContent('52m');
+        within(oplog).getByTestId('om-threshold-icon-warning')
+      ).toBeTruthy();
       expect(
         within(rowNamed('calm')).queryByTestId(/om-threshold-/)
       ).toBeNull();

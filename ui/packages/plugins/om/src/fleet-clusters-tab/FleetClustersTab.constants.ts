@@ -48,8 +48,8 @@ export const GROUP_BY_OPTIONS: GroupByOption[] = GROUPINGS.map((value) => ({
 export const MIXED_VERSIONS = '(mixed)';
 export const UNKNOWN_VERSION = '(unknown)';
 
-/** Type groups lead with the cluster that has the most moving parts. */
-export const TYPE_GROUP_ORDER: OmClusterType[] = [
+/** Type groups and options lead with the cluster that has the most moving parts. */
+export const TYPE_ORDER: OmClusterType[] = [
   'CLUSTER_TYPE_SHARDED',
   'CLUSTER_TYPE_REPLICA_SET',
   'CLUSTER_TYPE_STANDALONE',
@@ -95,12 +95,10 @@ export const HEALTH_OPTIONS: FilterOption[] = HEALTH_FILTER_VALUES.map(
   (value) => ({ value, label: CLUSTER_HEALTH_LABEL[value] })
 );
 
-export const TYPE_OPTIONS: FilterOption[] = Object.entries(
-  TYPE_FILTER_VALUE
-).map(([type, value]) => ({
-  value,
-  label: CLUSTER_TYPE_LABEL[type as OmClusterType] ?? value,
-}));
+export const TYPE_OPTIONS: FilterOption[] = TYPE_ORDER.flatMap((type) => {
+  const value = TYPE_FILTER_VALUE[type];
+  return value ? [{ value, label: CLUSTER_TYPE_LABEL[type] ?? value }] : [];
+});
 
 /** Trouble first within each group; being the default, it stays out of the URL. */
 export const DEFAULT_SORTING: MRT_SortingState = [
