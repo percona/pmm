@@ -17,6 +17,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 
 ## 📈 Improvements
 
+- [PMM-15848](https://perconadev.atlassian.net/browse/PMM-15848): When PMM Extensions isn't using a setting that you saved for MongoDB operations, a warning under the setting now tells you why. PMM Extensions ignores a saved value when a later change to its deployment conflicts with it. For example, if the deployment later sets **Scan job timeout** to two hours, a saved **Consider a scan stuck after** of one hour no longer makes sense, so PMM Extensions uses its deployed value instead. Until now, nothing told you. To act on the warning, [fix or reset the saved value](../use/mongodb-operations.md#a-saved-setting-isnt-in-effect).
+
 ## ✅ Fixed issues
 
 ## 🔶 Known issues

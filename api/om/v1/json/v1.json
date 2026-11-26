@@ -878,7 +878,7 @@
                         "x-order": 4
                       },
                       "has_override": {
-                        "description": "Whether an override is in effect, which is how \"why is it set to this\" is\nanswerable without also reading the deployment's configuration file.",
+                        "description": "Whether an override is stored, which is how \"why is it set to this\" is\nanswerable without also reading the deployment's configuration file. It is in\neffect unless override_ignored_reason is set.",
                         "type": "boolean",
                         "x-order": 5
                       },
@@ -892,6 +892,12 @@
                         "type": "string",
                         "x-nullable": true,
                         "x-order": 7
+                      },
+                      "override_ignored_reason": {
+                        "description": "Why the stored override is ignored and value is the deployed one, e.g.\n\"STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT\".\nIt names fields and the rule they break, never values. Unset while the override\nis in effect, when there is none, and for an app too old to report it.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 8
                       }
                     }
                   },
@@ -996,7 +1002,7 @@
                         "x-order": 4
                       },
                       "has_override": {
-                        "description": "Whether an override is in effect, which is how \"why is it set to this\" is\nanswerable without also reading the deployment's configuration file.",
+                        "description": "Whether an override is stored, which is how \"why is it set to this\" is\nanswerable without also reading the deployment's configuration file. It is in\neffect unless override_ignored_reason is set.",
                         "type": "boolean",
                         "x-order": 5
                       },
@@ -1010,6 +1016,12 @@
                         "type": "string",
                         "x-nullable": true,
                         "x-order": 7
+                      },
+                      "override_ignored_reason": {
+                        "description": "Why the stored override is ignored and value is the deployed one, e.g.\n\"STALE_RUN_AFTER, TASK_TIMEOUT: STALE_RUN_AFTER must exceed TASK_TIMEOUT\".\nIt names fields and the rule they break, never values. Unset while the override\nis in effect, when there is none, and for an app too old to report it.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 8
                       }
                     }
                   },
