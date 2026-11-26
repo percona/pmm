@@ -671,13 +671,22 @@ func schemaPart(indexes bool, text string, cut bool, pe *partError) string {
 // until it is done or ctx ends; ctx carries the tool call's one action
 // deadline. With redact set, literals in the action's error are masked.
 func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_service.StartServiceActionBody, redact bool) (string, error) {
-	started, err := s.api.StartServiceAction(ctx, auth, body)
+	// The start ends cancelTimeout after the call, so that an action that pmm-agent got as the call ended is cancelled.
+	startCtx, cancelStart := context.WithCancel(context.WithoutCancel(ctx))
+	stopStart := context.AfterFunc(ctx, func() { time.AfterFunc(cancelTimeout, cancelStart) })
+	started, err := s.api.StartServiceAction(startCtx, auth, body)
+	stopStart()
+	cancelStart()
 	if err != nil {
 		return "", s.deadlineOr(ctx, "", mapActionStartError(err))
 	}
 	actionID := actionIDOf(started)
 	if actionID == "" {
 		return "", newToolError(codePMMUnavailable, "no action_id returned by startServiceAction")
+	}
+	if ctx.Err() != nil {
+		s.cancelAction(ctx, auth, actionID)
+		return "", s.deadlineOr(ctx, actionID, ctx.Err())
 	}
 
 	delay := pollInitialDelay

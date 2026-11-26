@@ -2314,3 +2314,75 @@ func TestRunActionPollErrorOutlastedByCancel(t *testing.T) {
 	require.Error(t, err)
 	assert.Equal(t, codePMMUnavailable, mapError(err).code, err.Error())
 }
+
+// TestRunActionStartOutlivesCall pins that an action whose start answers after the call ended is cancelled on
+// pmm-agent, not left running there.
+func TestRunActionStartOutlivesCall(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		timeout time.Duration
+		cancel  bool
+		message string
+	}{
+		"Canceled":         {timeout: time.Minute, cancel: true, message: "error: canceled\nthe call was canceled: context canceled"},
+		"DeadlineExceeded": {timeout: 100 * time.Millisecond, message: "error: timeout\naction a1 did not complete within 15s (PMM_MCP_ACTION_TIMEOUT)"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx, cancel := context.WithTimeout(t.Context(), tc.timeout)
+			defer cancel()
+			body := actions_service.StartServiceActionBody{
+				MysqlShowCreateTable: &actions_service.StartServiceActionParamsBodyMysqlShowCreateTable{ServiceID: "svc", Database: "db", TableName: "t"},
+			}
+			api := newMockPmmAPI(t)
+			// The call ends while the start is in flight, and pmm-managed then answers the start that it got.
+			api.On("StartServiceAction", mock.Anything, callerAuth{}, body).Return(
+				func(startCtx context.Context, _ callerAuth, _ actions_service.StartServiceActionBody) (*actions_service.StartServiceActionOKBody, error) {
+					if tc.cancel {
+						cancel()
+					}
+					<-ctx.Done()
+					err := startCtx.Err()
+					if err != nil {
+						return nil, err
+					}
+					return &actions_service.StartServiceActionOKBody{
+						MysqlShowCreateTable: &actions_service.StartServiceActionOKBodyMysqlShowCreateTable{ActionID: "a1"},
+					}, nil
+				}).Once()
+			api.On("CancelAction", mock.Anything, callerAuth{}, "a1").Return(nil).Once()
+			s, err := New(Params{API: api})
+			require.NoError(t, err)
+
+			_, err = s.runAction(ctx, callerAuth{}, body, false)
+			require.Error(t, err)
+			assert.Equal(t, tc.message, mapError(err).Error())
+		})
+	}
+
+	// A start that never answers ends cancelTimeout after the call.
+	t.Run("StartNeverAnswers", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := context.WithCancel(t.Context())
+		api := newMockPmmAPI(t)
+		api.On("StartServiceAction", mock.Anything, callerAuth{}, actions_service.StartServiceActionBody{}).Return(
+			func(startCtx context.Context, _ callerAuth, _ actions_service.StartServiceActionBody) (*actions_service.StartServiceActionOKBody, error) {
+				cancel()
+				<-startCtx.Done()
+				return nil, startCtx.Err()
+			}).Once()
+		s, err := New(Params{API: api})
+		require.NoError(t, err)
+
+		start := time.Now()
+		_, err = s.runAction(ctx, callerAuth{}, actions_service.StartServiceActionBody{}, false)
+		elapsed := time.Since(start)
+		require.Error(t, err)
+		assert.Equal(t, "error: canceled\nthe call was canceled: context canceled", mapError(err).Error())
+		assert.GreaterOrEqual(t, elapsed, cancelTimeout)
+		assert.Less(t, elapsed, 2*cancelTimeout)
+	})
+}
