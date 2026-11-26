@@ -377,7 +377,7 @@ PMM Server talks to pmm-agents and API clients already deployed in the field, so
 ### Dependencies and new files
 - Prefer the standard library and deps already in `go.mod` / `ui/package.json`; a new dependency needs justification and an AGPL-3-compatible license (CI runs a license check).
 - Go: `go get`, then `go mod tidy`. UI: `pnpm add` from `ui/` (or `pnpm --filter <pkg> add` for one workspace package).
-- New Go source files need the AGPL-3 Percona license header — copy it from an existing `.go` file or run `go tool license-eye -c .licenserc.yaml header fix`. Enforced by `make check-license` (exemptions: `agent/`, `admin/`, `utils/`, mocks).
+- New Go source files need the Percona license header that `.licenserc.yaml` assigns to their path (Apache-2.0 for the paths in its second rule, AGPL-3 elsewhere) — copy it from a neighboring `.go` file or run `go tool license-eye -c .licenserc.yaml header fix`. Enforced by `make check-license`; each rule's `paths-ignore` in `.licenserc.yaml` lists the files it skips.
 
 ### Graceful Shutdown
 - Handle `SIGTERM` and `SIGINT` by canceling parent context
