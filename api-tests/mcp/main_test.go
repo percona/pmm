@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 		l.Fatalf("Cannot read PMM Server settings: %s.", err)
 	}
 
-	if !res.Payload.Settings.EnableMcp {
+	if !res.Payload.Settings.McpEnabled {
 		err = setMCPEnabled(true)
 		if err != nil {
 			l.Fatalf("Cannot enable the MCP endpoint: %s.", err)

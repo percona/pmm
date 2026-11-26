@@ -32,7 +32,7 @@ The endpoint is **off by default**: until it is enabled, `/mcp` answers 404. Ena
       -d '{"enable_mcp": true}'
     ```
 
-The current state is reported as `enable_mcp` in `GET /v1/server/settings/readonly`. Setting it back to `false` disables the endpoint again at once. When `PMM_ENABLE_MCP` is set, it takes precedence: a change that contradicts it is rejected.
+The current state is reported as `mcp_enabled` in `GET /v1/server/settings/readonly`. Setting it back to `false` disables the endpoint again at once. When `PMM_ENABLE_MCP` is set, it takes precedence: a change that contradicts it is rejected.
 
 ## Create a token
 
@@ -448,7 +448,7 @@ A Viewer token can start the read-only pmm-agent actions behind `pmm_get_explain
 
 | Environment variable | Default | Effect |
 |----------------------|---------|--------|
-| `PMM_ENABLE_MCP` | `false` | Enables the endpoint. When disabled, `/mcp` answers 404. The state is shown as `enable_mcp` in `GET /v1/server/settings/readonly`, and, unless this variable is set, it can also be changed at runtime: see [Enable the endpoint](#enable-the-endpoint). |
+| `PMM_ENABLE_MCP` | `false` | Enables the endpoint. When disabled, `/mcp` answers 404. The state is shown as `mcp_enabled` in `GET /v1/server/settings/readonly`, and, unless this variable is set, it can also be changed at runtime: see [Enable the endpoint](#enable-the-endpoint). |
 | `PMM_MCP_RAW_SQL` | `false` | Allows tool output to include literal values from your data: query examples, the explained statement, and the literals in execution plans and agent errors. When off, statements are shown as normalized fingerprints, plan literals are replaced with `?`, and agent errors that can quote a statement are withheld. Removing the variable turns raw SQL off at the next start. |
 | `PMM_MCP_ACTION_TIMEOUT` | `15s` | How long the pmm-agent actions of one `pmm_get_explain` or `pmm_get_schema` call may run, all together. Actions still running then are cancelled on pmm-agent, which can add up to 5 seconds before the call answers, or 10 seconds for an action that was still starting, and end with a `timeout` error. Each pmm-agent action also stops on its own after 10 seconds, with the same error. The maximum is `9m`: a longer value is ignored with a warning in the log, and the default is used. With the 45 seconds a call has beyond its actions, that stays under the 600 seconds after which nginx ends a request to `/mcp`. |
 

@@ -962,7 +962,7 @@ type Settings struct {
 	// Advisor check results history retention.
 	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,26,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`
 	// True if the Model Context Protocol endpoint (/mcp) is enabled.
-	EnableMcp     bool `protobuf:"varint,27,opt,name=enable_mcp,json=enableMcp,proto3" json:"enable_mcp,omitempty"`
+	McpEnabled    bool `protobuf:"varint,27,opt,name=mcp_enabled,json=mcpEnabled,proto3" json:"mcp_enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1160,9 +1160,9 @@ func (x *Settings) GetAdvisorHistoryRetention() *durationpb.Duration {
 	return nil
 }
 
-func (x *Settings) GetEnableMcp() bool {
+func (x *Settings) GetMcpEnabled() bool {
 	if x != nil {
-		return x.EnableMcp
+		return x.McpEnabled
 	}
 	return false
 }
@@ -1191,7 +1191,7 @@ type ReadOnlySettings struct {
 	// True if Operations for MongoDB is enabled.
 	OmEnabled bool `protobuf:"varint,10,opt,name=om_enabled,json=omEnabled,proto3" json:"om_enabled,omitempty"`
 	// True if the Model Context Protocol endpoint (/mcp) is enabled.
-	EnableMcp     bool `protobuf:"varint,11,opt,name=enable_mcp,json=enableMcp,proto3" json:"enable_mcp,omitempty"`
+	McpEnabled    bool `protobuf:"varint,11,opt,name=mcp_enabled,json=mcpEnabled,proto3" json:"mcp_enabled,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1296,9 +1296,9 @@ func (x *ReadOnlySettings) GetOmEnabled() bool {
 	return false
 }
 
-func (x *ReadOnlySettings) GetEnableMcp() bool {
+func (x *ReadOnlySettings) GetMcpEnabled() bool {
 	if x != nil {
-		return x.EnableMcp
+		return x.McpEnabled
 	}
 	return false
 }
@@ -1764,7 +1764,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x12MetricsResolutions\x12)\n" +
 	"\x02hr\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x02hr\x12)\n" +
 	"\x02mr\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x02mr\x12)\n" +
-	"\x02lr\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x02lr\"\xbf\n" +
+	"\x02lr\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x02lr\"\xc1\n" +
 	"\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
@@ -1791,9 +1791,9 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x1dadvisor_notifications_enabled\x18\x17 \x01(\bR\x1badvisorNotificationsEnabled\x12_\n" +
 	"\x1fadvisor_notification_severities\x18\x18 \x03(\x0e2\x17.management.v1.SeverityR\x1dadvisorNotificationSeverities\x12O\n" +
 	"$advisor_notification_email_addresses\x18\x19 \x03(\tR!advisorNotificationEmailAddresses\x12U\n" +
-	"\x19advisor_history_retention\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetention\x12\x1d\n" +
-	"\n" +
-	"enable_mcp\x18\x1b \x01(\bR\tenableMcpJ\x04\b\f\x10\rJ\x04\b\x14\x10\x15R\x15advisor_run_intervalsR\x16update_snooze_duration\"\xfc\x03\n" +
+	"\x19advisor_history_retention\x18\x1a \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetention\x12\x1f\n" +
+	"\vmcp_enabled\x18\x1b \x01(\bR\n" +
+	"mcpEnabledJ\x04\b\f\x10\rJ\x04\b\x14\x10\x15R\x15advisor_run_intervalsR\x16update_snooze_duration\"\xfe\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1806,9 +1806,9 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x12extensions_enabled\x18\t \x01(\bR\x11extensionsEnabled\x12\x1d\n" +
 	"\n" +
 	"om_enabled\x18\n" +
-	" \x01(\bR\tomEnabled\x12\x1d\n" +
-	"\n" +
-	"enable_mcp\x18\v \x01(\bR\tenableMcp\"\x14\n" +
+	" \x01(\bR\tomEnabled\x12\x1f\n" +
+	"\vmcp_enabled\x18\v \x01(\bR\n" +
+	"mcpEnabled\"\x14\n" +
 	"\x12GetSettingsRequest\"\x1c\n" +
 	"\x1aGetReadOnlySettingsRequest\"F\n" +
 	"\x13GetSettingsResponse\x12/\n" +

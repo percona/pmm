@@ -2088,7 +2088,7 @@ func (m *Settings) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for EnableMcp
+	// no validation rules for McpEnabled
 
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
@@ -2209,7 +2209,7 @@ func (m *ReadOnlySettings) validate(all bool) error {
 
 	// no validation rules for OmEnabled
 
-	// no validation rules for EnableMcp
+	// no validation rules for McpEnabled
 
 	if len(errors) > 0 {
 		return ReadOnlySettingsMultiError(errors)
