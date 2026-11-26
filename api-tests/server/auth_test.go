@@ -40,6 +40,7 @@ import (
 const (
 	pmmServiceTokenName   = "pmm-agent-service-token"
 	pmmServiceAccountName = "pmm-agent-service-account"
+	userPassword          = "Basic-auth-password-1"
 )
 
 func TestAuth(t *testing.T) {
@@ -185,6 +186,8 @@ func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Res
 }
 
 func TestBasicAuthPermissions(t *testing.T) {
+	t.Parallel()
+
 	ts := strconv.FormatInt(time.Now().Unix(), 10)
 	none := "none-" + ts
 	viewer := "viewer-" + ts
@@ -192,16 +195,16 @@ func TestBasicAuthPermissions(t *testing.T) {
 	admin := "admin-" + ts
 
 	noneID := createUser(t, none)
-	defer deleteUser(t, noneID)
+	t.Cleanup(func() { deleteUser(t, noneID) })
 
 	viewerID := createUserWithRole(t, viewer, "Viewer")
-	defer deleteUser(t, viewerID)
+	t.Cleanup(func() { deleteUser(t, viewerID) })
 
 	editorID := createUserWithRole(t, editor, "Editor")
-	defer deleteUser(t, editorID)
+	t.Cleanup(func() { deleteUser(t, editorID) })
 
 	adminID := createUserWithRole(t, admin, "Admin")
-	defer deleteUser(t, adminID)
+	t.Cleanup(func() { deleteUser(t, adminID) })
 
 	type userCase struct {
 		userType   string
@@ -258,12 +261,16 @@ func TestBasicAuthPermissions(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			for _, user := range test.userCase {
 				t.Run("Basic auth "+user.userType, func(t *testing.T) {
+					t.Parallel()
+
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
-					u.User = url.UserPassword(user.login, user.login)
+					u.User = url.UserPassword(user.login, userPassword)
 					u.Path = test.url
 
 					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
@@ -315,7 +322,7 @@ func createUser(t *testing.T, login string) int {
 		"name":     login,
 		"email":    login + "@percona.invalid",
 		"login":    login,
-		"password": login,
+		"password": userPassword,
 	})
 	require.NoError(t, err)
 
@@ -356,6 +363,8 @@ func setRole(t *testing.T, userID int, role string) {
 }
 
 func TestServiceAccountPermissions(t *testing.T) {
+	t.Parallel()
+
 	// service account role options: viewer, editor, admin
 	// service token role options: editor, admin
 	// basic auth format is skipped, endpoint /auth/serviceaccount (to get info about currently used token in request) requires Bearer authorization
@@ -366,20 +375,20 @@ func TestServiceAccountPermissions(t *testing.T) {
 	viewerNodeName := nodeName + "-viewer"
 	viewerAccountID := createServiceAccountWithRole(t, "Viewer", viewerNodeName)
 	viewerTokenID, viewerToken := createServiceToken(t, viewerAccountID, viewerNodeName)
-	defer deleteServiceAccount(t, viewerAccountID)
-	defer deleteServiceToken(t, viewerAccountID, viewerTokenID)
+	t.Cleanup(func() { deleteServiceAccount(t, viewerAccountID) })
+	t.Cleanup(func() { deleteServiceToken(t, viewerAccountID, viewerTokenID) })
 
 	editorNodeName := nodeName + "-editor"
 	editorAccountID := createServiceAccountWithRole(t, "Editor", editorNodeName)
 	editorTokenID, editorToken := createServiceToken(t, editorAccountID, editorNodeName)
-	defer deleteServiceAccount(t, editorAccountID)
-	defer deleteServiceToken(t, editorAccountID, editorTokenID)
+	t.Cleanup(func() { deleteServiceAccount(t, editorAccountID) })
+	t.Cleanup(func() { deleteServiceToken(t, editorAccountID, editorTokenID) })
 
 	adminNodeName := nodeName + "-admin"
 	adminAccountID := createServiceAccountWithRole(t, "Admin", adminNodeName)
 	adminTokenID, adminToken := createServiceToken(t, adminAccountID, adminNodeName)
-	defer deleteServiceAccount(t, adminAccountID)
-	defer deleteServiceToken(t, adminAccountID, adminTokenID)
+	t.Cleanup(func() { deleteServiceAccount(t, adminAccountID) })
+	t.Cleanup(func() { deleteServiceToken(t, adminAccountID, adminTokenID) })
 
 	type userCase struct {
 		userType     string
@@ -416,8 +425,12 @@ func TestServiceAccountPermissions(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			for _, user := range test.userCase {
 				t.Run("Service Token auth "+user.userType, func(t *testing.T) {
+					t.Parallel()
+
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -439,6 +452,8 @@ func TestServiceAccountPermissions(t *testing.T) {
 				})
 
 				t.Run("Basic auth with Service Token "+user.userType, func(t *testing.T) {
+					t.Parallel()
+
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
 					u.User = url.UserPassword("service_token", user.serviceToken)

@@ -32,8 +32,8 @@ RTA works with MongoDB, MySQL and PostgreSQL services. Before you start a sessio
 | Database | Minimum PMM Client | Service type |
 |----------|--------------------|--------------|
 | MongoDB | 3.7.0 | `SERVICE_TYPE_MONGODB_SERVICE` |
-| MySQL, Percona Server for MySQL and MariaDB | 3.11.0 | `SERVICE_TYPE_MYSQL_SERVICE` |
-| PostgreSQL | 3.11.0 | `SERVICE_TYPE_POSTGRESQL_SERVICE` |
+| MySQL, Percona Server for MySQL and MariaDB | 3.12.0 | `SERVICE_TYPE_MYSQL_SERVICE` |
+| PostgreSQL | 3.12.0 | `SERVICE_TYPE_POSTGRESQL_SERVICE` |
 
 RTA isn't available for PMM Server's own PostgreSQL database (`pmm-server-postgresql`).
 

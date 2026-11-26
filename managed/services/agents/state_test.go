@@ -17,11 +17,16 @@ package agents
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/version"
 )
 
 func TestGroupRDSExporters(t *testing.T) {
@@ -134,15 +139,53 @@ func TestRTAAgentRunnable(t *testing.T) {
 		want    bool
 	}{
 		{name: "MySQL RTA on 3.10.1 is withheld", row: rtaMySQL, service: mysql, version: "3.10.1"},
-		{name: "MySQL RTA on 3.11.0 is sent", row: rtaMySQL, service: mysql, version: "3.11.0", want: true},
+		{name: "MySQL RTA on 3.11.0 is withheld", row: rtaMySQL, service: mysql, version: "3.11.0"},
+		{name: "MySQL RTA on 3.12.0-rc is sent", row: rtaMySQL, service: mysql, version: "3.12.0-rc", want: true},
+		{name: "MySQL RTA on 3.12.0 is sent", row: rtaMySQL, service: mysql, version: "3.12.0", want: true},
 		{name: "MongoDB RTA on 3.6.0 is withheld", row: rtaMongo, service: mongo, version: "3.6.0"},
 		{name: "MongoDB RTA on 3.9.1 is sent", row: rtaMongo, service: mongo, version: "3.9.1", want: true},
 		{name: "PostgreSQL RTA on 3.10.1 is withheld", row: rtaPostgres, service: postgres, version: "3.10.1"},
-		{name: "PostgreSQL RTA on 3.11.0 is sent", row: rtaPostgres, service: postgres, version: "3.11.0", want: true},
+		{name: "PostgreSQL RTA on 3.11.0 is withheld", row: rtaPostgres, service: postgres, version: "3.11.0"},
+		{name: "PostgreSQL RTA on 3.12.0-rc is sent", row: rtaPostgres, service: postgres, version: "3.12.0-rc", want: true},
 		{name: "other agents on 3.9.1 are sent", row: exporter, service: mysql, version: "3.9.1", want: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			assert.Equal(t, tc.want, rtaAgentRunnable(tc.row, tc.service, tc.version))
+		})
+	}
+}
+
+func TestRTAAgentConfigChangesWithSession(t *testing.T) {
+	t.Parallel()
+
+	// A stop and a start within one state update batch reach pmm-agent as a single SetState; the
+	// session start time is what tells it to restart the agent, so that it reports a fresh status.
+	mysql := &models.Service{ServiceID: "service-mysql", ServiceType: models.MySQLServiceType, Address: new("127.0.0.1"), Port: new(uint16(3306))}
+	mongo := &models.Service{ServiceID: "service-mongo", ServiceType: models.MongoDBServiceType, Address: new("127.0.0.1"), Port: new(uint16(27017))}
+	pmmAgentVersion := version.MustParse("3.12.0")
+	firstStart := time.Date(2026, 11, 25, 15, 0, 0, 0, time.UTC)
+	restart := firstStart.Add(500 * time.Millisecond)
+
+	for _, tc := range []struct {
+		name    string
+		service *models.Service
+		config  func(*models.Service, *models.Agent, *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent
+		typ     models.AgentType
+	}{
+		{name: "MySQL", service: mysql, config: rtaMySQLAgentConfig, typ: models.RTAMySQLAgentType},
+		{name: "MongoDB", service: mongo, config: rtaMongoDBAgentConfig, typ: models.RTAMongoDBAgentType},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			row := &models.Agent{AgentID: "rta-1", AgentType: tc.typ, Username: new("user"), CreatedAt: firstStart}
+			before := tc.config(tc.service, row, pmmAgentVersion)
+
+			row.CreatedAt = restart
+			after := tc.config(tc.service, row, pmmAgentVersion)
+
+			assert.Equal(t, timestamppb.New(restart), after.RtaSessionStartTime)
+			assert.False(t, proto.Equal(before, after), "a new session must change the built-in agent parameters")
 		})
 	}
 }

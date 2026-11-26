@@ -41,6 +41,17 @@ func main() {
 	if on, _ := strconv.ParseBool(os.Getenv("PMM_TRACE")); on {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
+
+	// The entrypoint runs this step before supervisord starts; see runSecrets.
+	if len(os.Args) > 1 && os.Args[1] == "secrets" {
+		err := runSecrets()
+		if err != nil {
+			logrus.Errorf("Credentials error: %s", err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
 	disableInternalClickhouse, _ := strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
 	clickHouseConfig, err := clickhouse.GetClickHouseConfig(os.Getenv(env.ClickHouseConfig))

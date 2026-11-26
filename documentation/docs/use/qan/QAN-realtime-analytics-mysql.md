@@ -33,7 +33,7 @@ RTA needs at least one MySQL service monitored by PMM. If you haven't set one up
 
 You need:
 
-- **PMM Client 3.11.0 or later** on the monitored host. Run `pmm-admin status` to check.
+- **PMM Client 3.12.0 or later** on the monitored host. Run `pmm-admin status` to check.
 - **`performance_schema` enabled** on the monitored server. RTA doesn't start without it.
 - **The standard PMM monitoring user**. RTA reuses your existing MySQL exporter credentials and needs nothing beyond the grants PMM already documents:
 
@@ -122,9 +122,11 @@ You can start RTA from the PMM UI or from the command line:
 
         ![Cluster/Service drop-down with services grouped under MongoDB and MySQL](../../images/RTA_MySQL_select_service.png)
 
-        The live query table appears and starts updating automatically. If the sessions list opens instead, click the service name to open the live query table.
+        The **Real-time sessions** list opens, with a row for each session you started.
 
-    4. (Optional) To watch more services at once, for example a primary and its replicas, select all of them in step 3. To add a service later, click **All sessions**, then **+ New session**.
+    4. To open the live query table, click the session's name in the **Session** column. The table starts updating automatically.
+
+    5. (Optional) To watch more services at once, for example a primary and its replicas, select all of them in step 3. To add a service later, click **All sessions**, then **+ New session**.
 
 === "From the command line"
 
@@ -232,7 +234,7 @@ Killing a problem statement helps only until it runs again. To fix it at the sou
 A statement that runs for a long time is either doing too much work or waiting for something. To tell which, check its **Details** tab:
 
 - To check for a missing index, compare **Rows examined** with **Rows sent**. If the server examines far more rows than it returns, and **Full scan** is **Yes**, the statement probably needs an index. On a running statement, these counters can lag behind, as described in [Known limitations](#known-limitations).
-- To check whether the statement is waiting for table locks, look at **Lock time**, in milliseconds. A high lock time means that the statement spent its time waiting rather than working. To find out what's holding the lock, see [Find out what is blocking a query](#find-out-what-is-blocking-a-query).
+- To check how long the statement has waited for locks, look at **Lock time**, in milliseconds. A high lock time means that the statement spent its time waiting rather than working. On MySQL 8.0.28 and later, it counts table and row lock waits. On MariaDB and older MySQL versions, it counts only table lock waits. Metadata lock waits never count. A wait counts only once it ends, so a statement that's still blocked shows a lock time of about 0. To find out whether a statement is blocked right now, and what's holding the lock, see [Find out what is blocking a query](#find-out-what-is-blocking-a-query).
 
 ### See the full text of a long statement
 
@@ -375,7 +377,7 @@ To fix it:
 {.power-number}
 
 1. In the sessions list, hover over the **Error** status to see which check failed.
-2. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.11.0, upgrade it. A service with an older PMM Client doesn't appear in the **Cluster/Service** drop-down.
+2. Check the PMM Client version: run `pmm-admin status` on the monitored host. If PMM Client is older than 3.12.0, upgrade it. A service with an older PMM Client doesn't appear in the **Cluster/Service** drop-down.
 3. Check that `performance_schema` is on: run `SELECT @@performance_schema;`. If it returns `0`, turn it on in the server configuration and restart the server. This setting applies only at startup, so you can't change it while the server is running.
 4. Check the grants of the monitoring user: it needs `SELECT` to start a session and `PROCESS` to read lock information. If either is missing, grant it. For the full list, see [Check the service requirements](#check-the-service-requirements).
 5. Check your role: only users with the **Admin** [role](../../admin/roles/index.md) can start or stop sessions. If you're not an Admin, ask one to start the session.

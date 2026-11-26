@@ -35,6 +35,7 @@ export const Messages = {
     [AgentType.nomadAgent]: 'Nomad agent',
     [AgentType.valkeyExporter]: 'Valkey exporter',
     [AgentType.rtaMongodbAgent]: 'Real-Time Analytics MongoDB agent',
+    [AgentType.rtaMysqlAgent]: 'Real-Time Analytics MySQL agent',
   } satisfies Record<AgentType, string>,
   empty: 'No agents available',
   delete: {

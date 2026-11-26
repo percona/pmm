@@ -91,6 +91,19 @@ type extensionsMemberConfig struct {
 	BindIP    *string `json:"bind_ip,omitempty"`
 }
 
+// extensionsSupportedOS is one distribution om_bootstrap installs onto, with the MongoDB versions of each release.
+type extensionsSupportedOS struct {
+	OS           string                       `json:"os"`
+	Name         string                       `json:"name"`
+	ReleaseMatch string                       `json:"release_match"`
+	Releases     []extensionsSupportedRelease `json:"releases"`
+}
+
+type extensionsSupportedRelease struct {
+	Version         string   `json:"version"`
+	MongoDBVersions []string `json:"mongodb_versions"`
+}
+
 // extensionsDispatchStepRequest carries per-dispatch secrets that om_bootstrap never persists.
 type extensionsDispatchStepRequest struct {
 	Params map[string]string `json:"params,omitempty"`
@@ -155,6 +168,20 @@ func (c *bootstrapClient) getRun(ctx context.Context, runID string) (*extensions
 		return nil, err
 	}
 	return run, nil
+}
+
+// supportedReleases returns the OS releases om_bootstrap installs each MongoDB version onto.
+func (c *bootstrapClient) supportedReleases(ctx context.Context) ([]extensionsSupportedOS, error) {
+	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
+	defer cancel()
+
+	distributions := []extensionsSupportedOS{}
+	call := inventoryCall{method: http.MethodGet, path: "supported-releases"}
+	err := c.app.call(ctx, call, &distributions)
+	if err != nil {
+		return nil, err
+	}
+	return distributions, nil
 }
 
 func (c *bootstrapClient) triggerRun(ctx context.Context, req extensionsTriggerBootstrapRunRequest) (*extensionsBootstrapRun, error) {

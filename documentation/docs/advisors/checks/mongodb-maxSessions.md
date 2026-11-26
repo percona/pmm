@@ -10,13 +10,6 @@ The parameter also needs to be set at the configuration file.
 
 To avoid performance issues, see [The (In)famous MongoDB Message blogpost](https://www.percona.com/blog/mongodb-message-cannot-add-session-into-the-cache-toomanylogicalsessions/) to check and set the right value for your environment.
 
-## Rule
-
-``` MONGODB_GETCMDLINEOPTS
-# to fetch the value
-db.adminCommand( { getCmdLineOpts: 1  } )
-```
- 
 ## Resolution
 Instead of increasing **maxSessions**, reduce the setting of the **logicalSessionRefreshMillis** parameter from the default interval of 5 minutes to 2 minutes, for example. You can tweak the time suitable for your environment by setting and checking the performance of open sessions.
 

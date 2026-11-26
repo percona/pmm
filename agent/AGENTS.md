@@ -40,7 +40,7 @@ What keeps it out:
 
 ### Local API
 
-`agentlocal` exposes a local gRPC + JSON API for status, Prometheus metrics, pprof debug endpoints, and config reload.
+`agentlocal` serves a JSON API on `127.0.0.1:7777` by default (`PMM_AGENT_LISTEN_ADDRESS`, `PMM_AGENT_LISTEN_PORT`) for status, config reload, and the debug endpoints listed at `/debug`; it proxies a gRPC server on a random loopback port.
 
 ## Key Packages and Responsibilities
 
@@ -107,7 +107,7 @@ pmm-agent has **no direct database access**. All state comes from pmm-managed vi
 - **Benchmarks**: `make bench` for slowlog and postgres parsers
 - **Coverage**: `maincover_test.go` with `maincover` build tag
 - **Golden files**: parser tests use golden files in `testdata/` directories
-- **Linting**: `make check-all` before submitting PRs
+- **Linting**: `make check-all` from the repo root before submitting PRs
 
 ## Code Generation
 

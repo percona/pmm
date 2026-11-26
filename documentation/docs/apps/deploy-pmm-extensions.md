@@ -159,14 +159,14 @@ If your environment pulls images from a registry other than Docker Hub, change t
                   --group-add 0 \
                   -e SECRETS_DIR=/run/secrets/extensions \
                   -e GF_SECURITY_ADMIN_USER=admin \
-                  -e GF_SECURITY_ADMIN_PASSWORD=admin \
+                  -e GF_SECURITY_ADMIN_PASSWORD='admin' \
                   -e BASE_URL=https://<PMM_PUBLIC_ADDRESS>/extensions \
                   -v pmm-extensions:/run/secrets/extensions:ro \
                   -v pmm-extensions-state:/home/extensions/state \
                   percona/pmm-extensions:3.10.0
                 ```
 
-    5. If you changed the default PMM admin password, set `GF_SECURITY_ADMIN_PASSWORD` to match. PMM Extensions uses it to create its service account token. If the value is wrong, the container starts, but the apps can't connect to PMM, and `docker logs pmm-extensions` shows the error.
+    5. If you changed the default PMM admin password, set `GF_SECURITY_ADMIN_PASSWORD` to match, and keep it in single quotes so that your shell doesn't interpret the symbols in it. PMM Extensions uses it to create its service account token. If the value is wrong, the container starts, but the apps can't connect to PMM, and `docker logs pmm-extensions` shows the error.
 
 === "New PMM install"
 

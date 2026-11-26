@@ -93,6 +93,7 @@ func TestBuildQueryData(t *testing.T) {
 	row := map[string]any{
 		"conn_id":           int64(42),
 		"user":              "sbtest@localhost",
+		"client_address":    "10.0.0.5",
 		"db":                "sbtest",
 		"command":           "Query",
 		"state":             "executing",
@@ -113,6 +114,7 @@ func TestBuildQueryData(t *testing.T) {
 	assert.Equal(t, "rta-mysql", qd.ServiceName)
 	assert.Equal(t, "42", qd.QueryId)
 	assert.Equal(t, "SELECT 1", qd.QueryText)
+	assert.Equal(t, "10.0.0.5", qd.ClientAddress)
 	// statement_latency is in picoseconds.
 	assert.Equal(t, 2*time.Millisecond, qd.QueryExecutionDuration.AsDuration())
 
@@ -136,6 +138,23 @@ func TestBuildQueryData(t *testing.T) {
 	assert.Contains(t, parsed, "statement_latency")
 	assert.Contains(t, parsed, "trx_state")
 	assert.Nil(t, parsed["pid"], "NULL columns are preserved as JSON null")
+}
+
+func TestClientAddressIsOnlyForConnections(t *testing.T) {
+	t.Parallel()
+
+	// A background thread has no client, so its address must stay empty rather than its host.
+	assert.Contains(t, currentQueriesSQLTemplate,
+		"IF(pps.NAME IN ('thread/sql/one_connection', 'thread/thread_pool/tp_one_connection'),\n"+
+			"       CONVERT(pps.PROCESSLIST_HOST USING utf8mb4), NULL) AS client_address")
+
+	qd := (&MySQLRTA{}).buildQueryData(map[string]any{
+		"conn_id":           int64(5),
+		"current_statement": "SELECT 1",
+		"user":              "event_scheduler",
+		"client_address":    nil,
+	}, nil)
+	assert.Empty(t, qd.ClientAddress)
 }
 
 func TestBuildQueryDataFullScanAndMissing(t *testing.T) {
@@ -1177,6 +1196,43 @@ func TestFullScanSQLYieldsNullWhenNothingWasMeasured(t *testing.T) {
 		"the old expression fabricated 'NO' from NULLs")
 }
 
+func TestStatementColumnsComeOnlyFromTheRunningStatement(t *testing.T) {
+	t.Parallel()
+
+	m, mock := newMockedRTA(t)
+	for _, column := range optionalProcesslistColumns {
+		mock.ExpectQuery("information_schema.COLUMNS").
+			WithArgs(column.table, column.column).
+			WillReturnRows(sqlmock.NewRows([]string{"c"}).AddRow(1))
+	}
+	expectConsumerProbes(mock, true)
+
+	query, err := m.buildCurrentQueriesSQL(t.Context())
+	require.NoError(t, err)
+	require.NoError(t, mock.ExpectationsWereMet())
+
+	// A thread whose current statement is not instrumented keeps its last completed event, whose
+	// counters must not be shown as the running statement's.
+	selectList, _, _ := strings.Cut(query, "\nFROM ")
+	items := regexp.MustCompile(`,\n {4}\b`).Split(selectList, -1)
+	var checked []string
+	for _, item := range items {
+		if !strings.Contains(strings.ReplaceAll(item, "sel.END_EVENT_ID", ""), "sel.") {
+			continue
+		}
+
+		alias := regexp.MustCompile(`AS (\w+)$`).FindStringSubmatch(item)
+		require.NotNil(t, alias, item)
+		checked = append(checked, alias[1])
+		assert.Contains(t, item, "sel.END_EVENT_ID IS", "%s must be gated on the statement still running", alias[1])
+	}
+
+	assert.Subset(t, checked, []string{
+		"lock_latency", "rows_examined", "rows_sent", "rows_affected", "tmp_tables", "tmp_disk_tables",
+		"full_scan", "cpu_latency",
+	})
+}
+
 func TestFullScanIsUnsetWhenTheServerDidNotSayEither(t *testing.T) {
 	t.Parallel()
 
@@ -1296,6 +1352,42 @@ func TestDescribeDisabledNamesTheHalfThatIsOff(t *testing.T) {
 	both := m.describeDisabled("c", false, "i", false)
 	assert.Contains(t, both, "c consumer")
 	assert.Contains(t, both, "i instrument")
+}
+
+func TestEnableRemedyNamesOnlyTheSwitchesThatAreOff(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "Enable it (UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='c', "+
+		"or performance_schema_consumer_c=ON in the config)", enableRemedy("c", false, "i", true))
+	assert.Equal(t, "Enable it (UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='i', "+
+		"or performance_schema_instrument='i=ON' in the config)", enableRemedy("c", true, "i", false))
+	assert.Equal(t, "Enable them (UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='c'; "+
+		"UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='i', "+
+		"or performance_schema_consumer_c=ON and performance_schema_instrument='i=ON' in the config)", enableRemedy("c", false, "i", false))
+}
+
+func TestStatementConsumerAndInstrumentOffAskToEnableThem(t *testing.T) {
+	t.Parallel()
+
+	// Stock MariaDB has both the transactions consumer and the transaction instrument off.
+	m, mock := newMockedRTA(t)
+	mock.ExpectQuery("setup_consumers").WithArgs("events_statements_current").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("YES"))
+	mock.ExpectQuery("setup_consumers").WithArgs("events_transactions_current").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("NO"))
+	mock.ExpectQuery("setup_instruments").WithArgs("transaction").
+		WillReturnRows(sqlmock.NewRows([]string{"ENABLED"}).AddRow("NO"))
+
+	m.checkStatementConsumers(t.Context())
+
+	require.NoError(t, mock.ExpectationsWereMet())
+	require.Len(t, m.warnings, 1)
+	assert.Equal(t, "The events_transactions_current consumer and the transaction instrument are disabled, "+
+		"so transaction state, duration and autocommit are not collected. "+
+		"Enable them (UPDATE performance_schema.setup_consumers SET ENABLED='YES' WHERE NAME='events_transactions_current'; "+
+		"UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='transaction', "+
+		"or performance_schema_consumer_events_transactions_current=ON and performance_schema_instrument='transaction=ON' in the config) "+
+		"and restart the Real-Time Analytics session", m.warnings[0])
 }
 
 func TestStartupWarningsAreKeptForTheRunningStatus(t *testing.T) {

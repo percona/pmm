@@ -96,6 +96,9 @@ message SetStateRequest {
     // Service name of the service where the agent connects to.
     // Currently used by Real-Time Analytics built-in agent only.
     string service_name = 13;
+    // Start time of the Real-Time Analytics session, so that starting a new session restarts the
+    // built-in agent even when a stop and the start reach pmm-agent as one state update.
+    google.protobuf.Timestamp rta_session_start_time = 14;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }

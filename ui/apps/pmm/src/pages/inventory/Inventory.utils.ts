@@ -34,14 +34,22 @@ export const isAgentFailed = (agent: ManagedAgent) =>
   !isAgentRunning(agent) &&
   !(agent.disabled && agent.status === AgentStatus.done);
 
-export const getAgentsMonitoringStatus = (agents: ManagedAgent[]) => {
+// RTA agents run only during an on-demand session, which reports its own status
+const RTA_AGENT_TYPES: AgentType[] = [
+  AgentType.rtaMongodbAgent,
+  AgentType.rtaMysqlAgent,
+];
+
+export const getAgentsMonitoringStatus = (allAgents: ManagedAgent[]) => {
+  const agents = allAgents.filter(
+    (agent) => !RTA_AGENT_TYPES.includes(agent.agentType)
+  );
+
   if (agents.some(isAgentFailed)) {
     return MonitoringStatus.failed;
   }
 
-  const disabledAgents = agents.filter(
-    (agent) => agent.disabled && agent.agentType !== AgentType.rtaMongodbAgent
-  );
+  const disabledAgents = agents.filter((agent) => agent.disabled);
 
   // pg_stat_statements is disabled on purpose when pg_stat_monitor is used
   if (
