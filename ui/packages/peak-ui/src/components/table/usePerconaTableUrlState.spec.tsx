@@ -5,7 +5,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useRef, useState } from 'react';
 import { usePerconaTableUrlState } from './usePerconaTableUrlState';
 
@@ -306,6 +306,152 @@ describe('usePerconaTableUrlState', () => {
     await waitFor(() => {
       expect(screen.getByTestId('global-filter').textContent).toBe('from-url');
       expect(screen.getByTestId('search').textContent).toBe('q=from-url');
+    });
+  });
+
+  describe('when the router renders written URLs late', () => {
+    const CPU_MIN_2 = 'f.cpu=%5B%222%22%2C%22%22%5D';
+    const CPU_MIN_23 = 'f.cpu=%5B%2223%22%2C%22%22%5D';
+
+    function DelayedRouterHarness() {
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams()
+      );
+      const queueRef = useRef<URLSearchParams[]>([]);
+      const [queued, setQueued] = useState(0);
+      const { tableProps } = usePerconaTableUrlState({
+        searchParams,
+        setSearchParams: (next) => {
+          queueRef.current.push(next);
+          setQueued(queueRef.current.length);
+        },
+        debounceMs: 0,
+      });
+      const setMin = (min: string) =>
+        tableProps.onColumnFiltersChange([{ id: 'cpu', value: [min, ''] }]);
+
+      return (
+        <>
+          <div data-testid="filters">
+            {tableProps.state.columnFilters
+              .map((f) => `${f.id}=${f.value}`)
+              .join(',')}
+          </div>
+          <div data-testid="search">{searchParams.toString()}</div>
+          <div data-testid="queued">{queued}</div>
+          <button
+            type="button"
+            data-testid="set-min-2"
+            onClick={() => setMin('2')}
+          />
+          <button
+            type="button"
+            data-testid="set-min-23"
+            onClick={() => setMin('23')}
+          />
+          <button
+            type="button"
+            data-testid="clear-min"
+            onClick={() => setMin('')}
+          />
+          <button
+            type="button"
+            data-testid="deliver-next"
+            onClick={() => {
+              const next = queueRef.current.shift();
+              setQueued(queueRef.current.length);
+              if (next) setSearchParams(next);
+            }}
+          />
+          <button
+            type="button"
+            data-testid="deliver-latest-only"
+            onClick={() => {
+              const next = queueRef.current.at(-1);
+              queueRef.current = [];
+              setQueued(0);
+              if (next) setSearchParams(next);
+            }}
+          />
+          <button
+            type="button"
+            data-testid="sync-from-url"
+            onClick={() => setSearchParams(new URLSearchParams('q=from-url'))}
+          />
+        </>
+      );
+    }
+
+    const click = async (testId: string) => {
+      await act(async () => {
+        screen.getByTestId(testId).click();
+        vi.advanceTimersByTime(0);
+      });
+    };
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('removes a cleared bound whose write had not rendered yet', async () => {
+      render(<DelayedRouterHarness />);
+
+      await click('set-min-2');
+      await click('clear-min');
+      expect(screen.getByTestId('queued').textContent).toBe('2');
+
+      await click('deliver-next');
+      expect(screen.getByTestId('search').textContent).toBe(CPU_MIN_2);
+      expect(screen.getByTestId('filters').textContent).toBe('cpu=,');
+
+      await click('deliver-next');
+      expect(screen.getByTestId('search').textContent).toBe('');
+      expect(screen.getByTestId('filters').textContent).toBe('cpu=,');
+    });
+
+    it('keeps the newer value when an older write renders', async () => {
+      render(<DelayedRouterHarness />);
+
+      await click('set-min-2');
+      await click('set-min-23');
+
+      await click('deliver-next');
+      expect(screen.getByTestId('search').textContent).toBe(CPU_MIN_2);
+      expect(screen.getByTestId('filters').textContent).toBe('cpu=23,');
+
+      await click('deliver-next');
+      expect(screen.getByTestId('search').textContent).toBe(CPU_MIN_23);
+      expect(screen.getByTestId('filters').textContent).toBe('cpu=23,');
+    });
+
+    it('accepts the newest write when the router skips older ones', async () => {
+      render(<DelayedRouterHarness />);
+
+      await click('set-min-2');
+      await click('set-min-23');
+      await click('deliver-latest-only');
+      expect(screen.getByTestId('search').textContent).toBe(CPU_MIN_23);
+      expect(screen.getByTestId('filters').textContent).toBe('cpu=23,');
+
+      await click('sync-from-url');
+      expect(screen.getByTestId('search').textContent).toBe('q=from-url');
+      expect(screen.getByTestId('filters').textContent).toBe('');
+    });
+
+    it('follows an external URL change that lands before its own pending write', async () => {
+      render(<DelayedRouterHarness />);
+
+      await click('set-min-2');
+      await click('sync-from-url');
+      expect(screen.getByTestId('filters').textContent).toBe('');
+
+      await click('deliver-next');
+      expect(screen.getByTestId('search').textContent).toBe(CPU_MIN_2);
+      expect(screen.getByTestId('filters').textContent).toBe('cpu=2,');
     });
   });
 
