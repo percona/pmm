@@ -1435,9 +1435,9 @@ Only scale down after confirming `pmm-0` is the leader.
 
 ### VictoriaMetrics limitations
 
-PMM HA Cluster doesn't support the following VictoriaMetrics Enterprise features:
+PMM doesn't support the following VictoriaMetrics Enterprise features, on a single PMM Server or in PMM HA Cluster:
 
-- **Prometheus data imports**: you can't import existing Prometheus data files.
+- **Prometheus data files**: PMM doesn't read existing Prometheus data files.
 - **Metrics downsampling**: PMM doesn't automatically reduce the resolution of older metrics.
 
 If you rely on either feature, plan for it before you deploy PMM HA Cluster. For details, see [Check if your metrics workflows are supported](HA-clustered.md#check-if-your-metrics-workflows-are-supported).

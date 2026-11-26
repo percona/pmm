@@ -237,6 +237,46 @@ func TestDefaultConfigReportsKubernetesDeployment(t *testing.T) {
 	})
 }
 
+// VictoriaMetrics in PMM Server ignores VM_downsampling_period, so the variable's presence counts
+// the servers that expect downsampling and do not get it.
+func TestDefaultConfigReportsIgnoredDownsampling(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logEntry := logger.WithField("test", t.Name())
+	cfg := ServiceConfig{l: logEntry}
+
+	telemetry, err := cfg.loadMetricsConfig("")
+	require.NoError(t, err)
+
+	idx := slices.IndexFunc(telemetry, func(c Config) bool { return c.ID == "PMMServerVMDownsamplingPeriod" })
+	require.NotEqual(t, -1, idx, "PMMServerVMDownsamplingPeriod datapoint is missing")
+	downsampling := telemetry[idx]
+
+	dataSource := NewDataSourceEnvVars(DSConfigEnvVars{Enabled: true}, logEntry)
+	report := func(t *testing.T) []*telemetryv1.GenericReport_Metric {
+		t.Helper()
+
+		metrics, err := dataSource.FetchMetrics(t.Context(), downsampling)
+		require.NoError(t, err)
+		metrics, err = transformExportValues(&downsampling, metrics)
+		require.NoError(t, err)
+
+		return metrics
+	}
+
+	t.Run("set", func(t *testing.T) {
+		t.Setenv("VM_downsampling_period", "20d:10m,120d:2h")
+
+		assert.Equal(t, []*telemetryv1.GenericReport_Metric{{Key: "pmm_server_vm_downsampling_period", Value: "1"}}, report(t))
+	})
+
+	// t.Setenv cannot unset a variable, but the datasource skips unset and empty values alike.
+	t.Run("not set", func(t *testing.T) {
+		t.Setenv("VM_downsampling_period", "")
+
+		assert.Empty(t, report(t))
+	})
+}
+
 // Not parallel: testdb.Open recreates the database TestRunTelemetryService also uses.
 func TestDefaultConfigReportsMongoOpsEnabled(t *testing.T) {
 	logger, _ := test.NewNullLogger()

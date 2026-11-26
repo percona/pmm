@@ -49,6 +49,15 @@ const (
 	EnvVMStoragePrefix = "VMSTORAGE_"
 )
 
+// ignoredVMEnvVars maps the VM_* variables that VictoriaMetrics in PMM Server silently ignores to
+// what the operator loses. VictoriaMetrics matches the names case-sensitively.
+var ignoredVMEnvVars = map[string]string{
+	"VM_downsampling_period": "VictoriaMetrics in PMM Server has no downsampling, " +
+		"so new metrics stay at full resolution and use more disk space",
+	"VM_prometheusDataPath": "VictoriaMetrics in PMM Server does not read Prometheus data files, " +
+		"so the metrics stored in them are not available",
+}
+
 // InvalidDurationError invalid duration error.
 type InvalidDurationError string
 
@@ -71,6 +80,8 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
 //   - PMM_ENABLE_OM enables OpenManager;
 //   - the environment variables prefixed with GF_ are related to Grafana.
+//   - the environment variables prefixed with VM_ are read by VictoriaMetrics itself; the ones in
+//     ignoredVMEnvVars are reported as warnings.
 //   - the environment variables prefixed with VMAGENT_ are forwarded to every vmagent PMM Server manages;
 //     VMAGENT_remoteWrite_url is validated by checkVMAgentRemoteWriteOverride.
 //   - the environment variables related to proxies
@@ -299,6 +310,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 			// skip Victoria Metrics' environment variables
 			if strings.HasPrefix(k, "VM_") {
+				lost, ignored := ignoredVMEnvVars[p[0]]
+				if ignored && p[1] != "" {
+					warns = append(warns, p[0]+" is set but is ignored: "+lost)
+				}
 				continue
 			}
 

@@ -58,12 +58,12 @@ Other platforms such as GKE, AKS, and on-premises Kubernetes may work but aren't
 
 ### Check if your metrics workflows are supported
 
-PMM HA Cluster doesn't support the following VictoriaMetrics Enterprise features:
+PMM doesn't support the following VictoriaMetrics Enterprise features, on a single PMM Server or in PMM HA Cluster:
 
-- **Prometheus data imports**: you can't import existing Prometheus data files.
+- **Prometheus data files**: PMM doesn't read existing Prometheus data files.
 - **Metrics downsampling**: PMM doesn't automatically reduce the resolution of older metrics.
 
-If you rely on either feature, plan for it before you deploy PMM HA Cluster.
+If you rely on either feature, plan for it before you deploy PMM HA Cluster. For the alternatives, see [Downsampling and Prometheus data files](../reference/third-party/victoria.md#downsampling-and-prometheus-data-files).
 
 ## Plan your resources
 

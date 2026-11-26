@@ -37,13 +37,37 @@ The environment variable must be prepended with `VM_`.
 
 ### Example
 
-To set downsampling, use the `downsampling.period` parameter as follows:
+To let queries run for up to two minutes, use the `search.maxQueryDuration` parameter as follows:
 
 ```
--e VM_downsampling_period=20d:10m,120d:2h
+-e VM_search_maxQueryDuration=120s
 ```
 
-This instructs VictoriaMetrics to [deduplicate](https://docs.victoriametrics.com/#deduplication) samples older than 20 days with 10 minute intervals and samples older than 120 days with two hour intervals.
+This instructs VictoriaMetrics to stop a query that runs for longer than 120 seconds. The default in PMM is 90 seconds.
+
+## Downsampling and Prometheus data files
+
+Starting with PMM 3.12.0, PMM Server includes the official open source release of VictoriaMetrics. This release doesn't include downsampling and doesn't read Prometheus data files.
+
+If one of the following environment variables is set, PMM ignores it and logs a warning at startup:
+
+- `VM_downsampling_period`: new metrics stay at full resolution, so they need more disk space. Data that is already downsampled stays downsampled.
+- `VM_prometheusDataPath`: metrics stored in Prometheus data files no longer appear in PMM.
+
+### Limit disk use without downsampling
+
+Downsampling saves disk space by keeping fewer samples of older data. Without downsampling, PMM stores more samples. For example, a PMM Server that used `VM_downsampling_period=20d:10m` with the default 30-day retention stores about 1.5 times as many samples. A PMM Server that used `VM_downsampling_period=20d:10m,120d:2h` with one year of retention stores more than 10 times as many samples.
+
+To limit disk use, choose one of the following options:
+
+- Set `VM_dedup_minScrapeInterval` to keep one sample per interval for each time series. This setting applies to all data, including the most recent metrics.
+- Collect metrics less often with the [metrics resolution](../../configure-pmm/metrics_res.md) settings.
+- Shorten the [data retention](../../configure-pmm/advanced_settings.md#data-retention) period, or add disk space.
+- Send metrics to an [external VictoriaMetrics Enterprise database](#using-victoriametrics-external-database-instance), which is a Technical Preview feature.
+
+### Import Prometheus data files
+
+To import metrics that are stored in Prometheus data files, use the [`vmctl prometheus`](https://docs.victoriametrics.com/victoriametrics/vmctl/prometheus/) command, which reads a Prometheus snapshot and writes its metrics to VictoriaMetrics. PMM Server doesn't include `vmctl`. To get `vmctl`, download the `vmutils` archive from the [VictoriaMetrics releases](https://github.com/VictoriaMetrics/VictoriaMetrics/releases) page.
 
 ## Using VictoriaMetrics external database instance
 
