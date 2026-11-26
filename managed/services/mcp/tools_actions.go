@@ -304,8 +304,7 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 
 	output, err := s.runAction(ctx, auth, body, !raw)
 	if err != nil {
-		storedExample := svc.Engine == engineMySQL && resolved.Example != ""
-		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "", storedExample, in.Placeholders)
+		return explainResult{}, mysqlExplainError(err, explainPlaceholderHint, "", resolved, in.Placeholders)
 	}
 
 	plan := planTooLarge
@@ -498,7 +497,7 @@ func (s *Service) planTablesOf(ctx context.Context, auth callerAuth, resolved *r
 	}
 	output, err := s.runAction(ctx, auth, body, !s.rawSQL)
 	if err != nil {
-		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative, resolved.Example != "", placeholders)
+		return nil, nil, mysqlExplainError(err, schemaPlaceholderHint, schemaCountAlternative, resolved, placeholders)
 	}
 	if len(output) > maxPlanInputBytes {
 		return nil, nil, newToolError(codeNoQuerySource,
@@ -686,7 +685,8 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 	}
 	if ctx.Err() != nil {
 		s.cancelAction(ctx, auth, actionID)
-		return "", s.deadlineOr(ctx, actionID, ctx.Err())
+		// The start answered only after the call ended, so the action did not start in time.
+		return "", s.deadlineOr(ctx, "", ctx.Err())
 	}
 
 	delay := pollInitialDelay
@@ -780,15 +780,16 @@ func mapActionStartError(err error) error {
 }
 
 // mysqlExplainError gives a failed MySQL EXPLAIN action's placeholder errors their remediation: hint follows a 1064 of
-// a call that passed placeholders, and alternative the other messages; storedExample is set when QAN stored an example
-// of the query in the window.
-func mysqlExplainError(err error, hint, alternative string, storedExample bool, placeholders []string) error {
+// a call that passed placeholders, and alternative the other messages, which depend on whether QAN stored an example
+// of resolved's query in the window.
+func mysqlExplainError(err error, hint, alternative string, resolved *resolvedQuery, placeholders []string) error {
 	te, ok := errors.AsType[*toolError](err)
 	if !ok || te.code != codeInvalidInput {
 		return err
 	}
 	countError := strings.Contains(te.message, placeholdersCountError)
 	syntaxError := strings.HasPrefix(te.message, "Error 1064 ")
+	storedExample := resolved.Example != ""
 	// pmm-managed wants as many placeholders as the stored row it reads records, none when the row holds an example:
 	// without placeholders, a count error means that the row records some, and a 1064 that it records none.
 	switch {
@@ -797,6 +798,9 @@ func mysqlExplainError(err error, hint, alternative string, storedExample bool, 
 	case len(placeholders) > 0 && syntaxError:
 		// The placeholders fit the row's count, so their values made the statement invalid.
 		return newToolError(codeInvalidInput, "EXPLAIN could not run on the fingerprint (placeholder syntax): %s. %s", te.message, hint)
+	case (countError || syntaxError) && resolved.ExampleErr != nil:
+		// The remediation depends on whether QAN stored an example, which the failed lookup can't tell.
+		return resolved.ExampleErr
 	case countError && storedExample:
 		return newToolError(codeInvalidInput, "%s%s", rowWithoutExampleMessage, alternative)
 	case countError:

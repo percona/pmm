@@ -425,6 +425,21 @@ func TestExplainTool(t *testing.T) {
 			"example that pmm_query_detail shows for another window in a database client", textOf(t, res))
 	})
 
+	// Without the example lookup, the advice can't say whether QAN stored an example, so the lookup's failure is the answer.
+	t.Run("PlaceholderErrorAfterExampleLookupFailed", func(t *testing.T) {
+		t.Parallel()
+
+		fake, stub := newActionStub(t, 0)
+		stub.errs = map[string]string{"explain-": syntaxError1064}
+		fake.routes["POST /v1/qan/query:getExample"] = fixture{file: "error_403.json", status: http.StatusForbidden}
+		session := connect(t, newQANService(t, fake, true))
+
+		res := callTool(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})
+		assert.True(t, res.IsError)
+		assert.Equal(t, map[string]any{"code": "unauthorized", "retryable": false}, res.Meta["com.percona/error"])
+		assert.Equal(t, "error: unauthorized\nPMM returned 403 on POST /v1/qan/query:getExample: Access denied", textOf(t, res))
+	})
+
 	// QAN stored an example in the window, but the action read a stored row without one.
 	t.Run("RowWithoutExample", func(t *testing.T) {
 		t.Parallel()
@@ -2358,7 +2373,7 @@ func TestRunActionStartOutlivesCall(t *testing.T) {
 		message string
 	}{
 		"Canceled":         {timeout: time.Minute, cancel: true, message: "error: canceled\nthe call was canceled: context canceled"},
-		"DeadlineExceeded": {timeout: 100 * time.Millisecond, message: "error: timeout\naction a1 did not complete within 15s (PMM_MCP_ACTION_TIMEOUT)"},
+		"DeadlineExceeded": {timeout: 100 * time.Millisecond, message: "error: timeout\nthe action did not start within 15s (PMM_MCP_ACTION_TIMEOUT)"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
