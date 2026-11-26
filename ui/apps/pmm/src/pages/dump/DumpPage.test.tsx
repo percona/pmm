@@ -126,7 +126,7 @@ describe('DumpPage', () => {
     );
   });
 
-  it('disables Delete with a reason while the dataset is being created', async () => {
+  it('warns that deleting a dataset being created does not stop its export', async () => {
     renderPage([CREATING]);
 
     fireEvent.click(
@@ -134,10 +134,11 @@ describe('DumpPage', () => {
         name: 'Row Actions',
       })
     );
-    const remove = await screen.findByRole('menuitem', { name: /Delete/ });
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete' }));
 
-    expect(remove).toHaveAttribute('aria-disabled', 'true');
-    expect(remove).toHaveTextContent('Available once the export finishes');
+    expect(await screen.findByTestId('dump-delete-modal')).toHaveTextContent(
+      "Deleting a dataset that is still being created doesn't stop its export."
+    );
   });
 
   it('opens the logs from the Failed status', async () => {
@@ -179,14 +180,12 @@ describe('DumpPage', () => {
     );
   });
 
-  it('disables Create dataset while a dataset is being created', async () => {
+  it('keeps Create dataset available while a dataset is being created', async () => {
     renderPage([CREATING]);
     await row('creating');
-    const create = screen.getByTestId('create-dataset');
 
-    expect(create).toHaveAttribute('aria-disabled', 'true');
-    expect(await hover(create)).toHaveTextContent(
-      'Another dataset is being created. You can create one when it finishes.'
+    expect(screen.getByTestId('create-dataset')).not.toHaveAttribute(
+      'aria-disabled'
     );
   });
 

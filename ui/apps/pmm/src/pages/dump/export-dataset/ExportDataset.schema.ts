@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Messages } from './ExportDataset.messages';
+import { toWallClock } from './ExportDataset.time';
 
 const isStrongPassword = (password: string) =>
   password.length >= 8 &&
@@ -7,19 +8,21 @@ const isStrongPassword = (password: string) =>
   /\d/.test(password) &&
   /[^A-Za-z0-9]/.test(password);
 
-export const exportDatasetSchema = z
-  .object({
-    serviceScope: z.enum(['all', 'selected']),
-    serviceNames: z.array(z.string()),
-    startTime: z.date(),
-    endTime: z.date(),
-    exportQan: z.boolean(),
-    ignoreLoad: z.boolean(),
-    enableEncryption: z.boolean(),
-    encryptionPassword: z.string(),
-  })
-  .superRefine((values, context) => {
-    const now = new Date();
+const exportDatasetFields = z.object({
+  serviceScope: z.enum(['all', 'selected']),
+  serviceNames: z.array(z.string()),
+  startTime: z.date(),
+  endTime: z.date(),
+  exportQan: z.boolean(),
+  ignoreLoad: z.boolean(),
+  enableEncryption: z.boolean(),
+  encryptionPassword: z.string(),
+});
+
+// Dates hold wall-clock time in the PMM timezone; see ExportDataset.time.ts
+export const createExportDatasetSchema = (timezone: string) =>
+  exportDatasetFields.superRefine((values, context) => {
+    const now = toWallClock(new Date(), timezone);
     if (values.serviceScope === 'selected' && !values.serviceNames.length) {
       context.addIssue({
         code: 'custom',
@@ -60,4 +63,4 @@ export const exportDatasetSchema = z
     }
   });
 
-export type ExportDatasetFormValues = z.infer<typeof exportDatasetSchema>;
+export type ExportDatasetFormValues = z.infer<typeof exportDatasetFields>;

@@ -2,7 +2,11 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { listDumps, startDump } from 'api/dump';
 import { listServices } from 'api/services';
 import { DumpStatus } from 'types/dump.types';
-import { TEST_DUMP, TEST_SERVICES_WITH_ONE_MYSQL } from 'utils/testStubs';
+import {
+  TEST_DUMP,
+  TEST_SERVICES_WITH_ONE_MYSQL,
+  TEST_USER_ADMIN,
+} from 'utils/testStubs';
 import {
   wrapWithQueryProvider,
   wrapWithSnackbarProvider,
@@ -30,7 +34,7 @@ describe('ExportDataset', () => {
     vi.mocked(startDump).mockResolvedValue({ dumpId: 'new' });
   });
 
-  it('defaults to all services and does not ignore load', async () => {
+  it('defaults to all services and to exporting even when busy', async () => {
     renderForm();
 
     expect(
@@ -38,7 +42,7 @@ describe('ExportDataset', () => {
     ).toBeChecked();
     expect(
       screen.getByLabelText(/^Export even when PMM Server is busy/)
-    ).not.toBeChecked();
+    ).toBeChecked();
   });
 
   it('shows the service picker only for selected services', async () => {
@@ -64,7 +68,7 @@ describe('ExportDataset', () => {
     await waitFor(() => expect(startDump).toHaveBeenCalled());
     const payload = vi.mocked(startDump).mock.calls[0][0];
     expect(payload).toEqual(
-      expect.objectContaining({ serviceNames: [], ignoreLoad: false })
+      expect.objectContaining({ serviceNames: [], ignoreLoad: true })
     );
     expect(payload).not.toHaveProperty('serviceScope');
   });
@@ -78,7 +82,7 @@ describe('ExportDataset', () => {
     await waitFor(() => expect(createButton()).toBeEnabled());
   });
 
-  it('blocks creation while another dataset is being created', async () => {
+  it('notes another dataset being created but still allows creating one', async () => {
     vi.mocked(listDumps).mockResolvedValue({
       dumps: [{ ...TEST_DUMP, status: DumpStatus.InProgress }],
     });
@@ -86,10 +90,25 @@ describe('ExportDataset', () => {
 
     expect(
       await screen.findByText(
-        'Another dataset is being created. You can create one when it finishes.'
+        'Another dataset is being created. A new one starts only after that export finishes.'
       )
     ).toBeVisible();
-    expect(createButton()).toBeDisabled();
+    await waitFor(() => expect(createButton()).toBeEnabled());
+  });
+
+  it('names the time zone of the time range', async () => {
+    render(
+      <TestWrapper
+        userContext={{
+          user: { ...TEST_USER_ADMIN, preferences: { timezone: 'Asia/Tokyo' } },
+          isLoading: false,
+        }}
+      >
+        {wrapWithQueryProvider(wrapWithSnackbarProvider(<ExportDataset />))}
+      </TestWrapper>
+    );
+
+    expect(await screen.findByText(/Times are in Asia\/Tokyo\./)).toBeVisible();
   });
 
   it("warns that the encryption password can't be recovered", async () => {

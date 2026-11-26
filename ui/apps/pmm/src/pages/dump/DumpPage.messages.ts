@@ -5,7 +5,7 @@ export const Messages = {
   learnMore: 'Learn more',
   createDataset: 'Create dataset',
   creatingBlocked:
-    'Another dataset is being created. You can create one when it finishes.',
+    'Another dataset is being created. A new one starts only after that export finishes.',
   loadError: 'Could not load datasets.',
   notAvailable: 'N/A',
   emptyTitle: 'No datasets yet',
@@ -39,11 +39,8 @@ export const Messages = {
   },
   reasons: {
     notReady: 'Available once the dataset is ready',
-    creating: 'Available once the export finishes',
     bulkNotReady: (count: number, total: number) =>
       `${count} of ${total} selected datasets ${count === 1 ? "isn't" : "aren't"} ready`,
-    bulkCreating: (count: number, total: number) =>
-      `${count} of ${total} selected datasets ${count === 1 ? 'is' : 'are'} still being created`,
   },
   downloading: (count: number) =>
     `Downloading ${count} archives. If your browser asks, allow multiple downloads.`,
@@ -54,6 +51,8 @@ export const Messages = {
       "The archives are removed from PMM Server. Copies you already downloaded aren't affected.",
     confirm: (count: number) =>
       count === 1 ? 'Delete dataset' : `Delete ${count} datasets`,
+    creatingWarning:
+      "Deleting a dataset that is still being created doesn't stop its export.",
     success: 'Dataset deleted successfully.',
     multipleSuccess: 'Datasets deleted successfully.',
   },

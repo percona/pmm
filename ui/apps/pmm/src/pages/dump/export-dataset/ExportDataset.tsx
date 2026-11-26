@@ -15,6 +15,7 @@ import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { useDumps, useStartDump } from 'hooks/api/useDump';
 import { useServices } from 'hooks/api/useServices';
+import { useTimezone } from 'hooks/utils/useTimezone';
 import { PMM_DUMP_PATH } from 'lib/constants';
 import { enqueueSnackbar } from 'notistack';
 import { type FC, useMemo } from 'react';
@@ -27,18 +28,20 @@ import { isDumpCreating } from '../DumpPage.utils';
 import { Messages } from './ExportDataset.messages';
 import {
   type ExportDatasetFormValues,
-  exportDatasetSchema,
+  createExportDatasetSchema,
 } from './ExportDataset.schema';
 import {
   getDefaultValues,
   getServiceOptions,
   toStartDumpPayload,
+  toWallClock,
 } from './ExportDataset.utils';
 
 export const ExportDataset: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   const isAdmin = !!user?.isPMMAdmin;
+  const timezone = useTimezone();
   const {
     data: services,
     isLoading: isLoadingServices,
@@ -52,8 +55,8 @@ export const ExportDataset: FC = () => {
     isLoadingServices || isServicesError ? undefined : serviceOptions.length;
   const isAnotherCreating = !!dumps?.dumps.some(isDumpCreating);
   const methods = useForm<ExportDatasetFormValues>({
-    resolver: zodResolver(exportDatasetSchema),
-    defaultValues: getDefaultValues(),
+    resolver: zodResolver(createExportDatasetSchema(timezone)),
+    defaultValues: getDefaultValues(timezone),
     mode: 'onChange',
   });
   const {
@@ -67,7 +70,7 @@ export const ExportDataset: FC = () => {
   });
 
   const onSubmit = (values: ExportDatasetFormValues) =>
-    startDump(toStartDumpPayload(values), {
+    startDump(toStartDumpPayload(values, timezone), {
       onSuccess: () => {
         enqueueSnackbar(Messages.success, { variant: 'success' });
         navigate(PMM_DUMP_PATH);
@@ -170,7 +173,7 @@ export const ExportDataset: FC = () => {
           <Stack gap={2}>
             <SectionHeader
               title={Messages.sections.timeRange}
-              description={Messages.timeRangeDescription}
+              description={`${Messages.timeRangeDescription} ${Messages.timeZone(timezone)}`}
             />
             <Stack direction={{ xs: 'column', sm: 'row' }} gap={2}>
               <Controller
@@ -182,7 +185,7 @@ export const ExportDataset: FC = () => {
                     label={Messages.startTime}
                     value={field.value}
                     onChange={(value) => value && field.onChange(value)}
-                    maxDateTime={new Date()}
+                    maxDateTime={toWallClock(new Date(), timezone)}
                     slotProps={{
                       textField: {
                         error: !!fieldState.error,
@@ -204,7 +207,7 @@ export const ExportDataset: FC = () => {
                     label={Messages.endTime}
                     value={field.value}
                     onChange={(value) => value && field.onChange(value)}
-                    maxDateTime={new Date()}
+                    maxDateTime={toWallClock(new Date(), timezone)}
                     slotProps={{
                       textField: {
                         error: !!fieldState.error,
@@ -277,7 +280,7 @@ export const ExportDataset: FC = () => {
               type="submit"
               variant="contained"
               data-testid="create-dataset-submit-button"
-              disabled={isPending || !isValid || isAnotherCreating}
+              disabled={isPending || !isValid}
             >
               {isPending ? Messages.creating : Messages.create}
             </Button>

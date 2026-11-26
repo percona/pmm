@@ -64,14 +64,9 @@ export const DumpPage: FC = () => {
   });
   const dumps = useMemo(() => data?.dumps ?? [], [data]);
   const selectedDumps = dumps.filter(({ dumpId }) => rowSelection[dumpId]);
-  const isCreating = dumps.some(isDumpCreating);
   const notReadyCount = countWhere(selectedDumps, (dump) => !isDumpReady(dump));
-  const creatingCount = countWhere(selectedDumps, isDumpCreating);
   const notReadyReason = notReadyCount
     ? Messages.reasons.bulkNotReady(notReadyCount, selectedDumps.length)
-    : undefined;
-  const creatingReason = creatingCount
-    ? Messages.reasons.bulkCreating(creatingCount, selectedDumps.length)
     : undefined;
 
   const showLogs = useCallback((dump: Dump) => {
@@ -190,7 +185,6 @@ export const DumpPage: FC = () => {
             }}
             renderRowActionMenuItems={({ row: { original }, closeMenu }) => {
               const isReady = isDumpReady(original);
-              const isDumpBeingCreated = isDumpCreating(original);
 
               return [
                 <MenuItem
@@ -223,7 +217,6 @@ export const DumpPage: FC = () => {
                 </MenuItem>,
                 <MenuItem
                   key="delete"
-                  disabled={isDumpBeingCreated}
                   onClick={() => {
                     setDumpsToDelete([original]);
                     closeMenu();
@@ -234,9 +227,6 @@ export const DumpPage: FC = () => {
                   </ListItemIcon>
                   <ListItemText
                     primary={Messages.actions.delete}
-                    secondary={
-                      isDumpBeingCreated ? Messages.reasons.creating : undefined
-                    }
                     slotProps={{ primary: { color: 'error' } }}
                   />
                 </MenuItem>,
@@ -278,33 +268,25 @@ export const DumpPage: FC = () => {
                         {Messages.actions.sendToSupport}
                       </Button>
                     </ReasonTooltip>
-                    <ReasonTooltip reason={creatingReason}>
-                      <Button
-                        color="error"
-                        startIcon={<DeleteOutlineIcon />}
-                        disabled={!!creatingReason}
-                        onClick={() => setDumpsToDelete(selectedDumps)}
-                        data-testid="dump-delete-selected"
-                      >
-                        {Messages.actions.delete}
-                      </Button>
-                    </ReasonTooltip>
+                    <Button
+                      color="error"
+                      startIcon={<DeleteOutlineIcon />}
+                      onClick={() => setDumpsToDelete(selectedDumps)}
+                      data-testid="dump-delete-selected"
+                    >
+                      {Messages.actions.delete}
+                    </Button>
                   </>
                 )}
-                <ReasonTooltip
-                  reason={isCreating ? Messages.creatingBlocked : undefined}
+                <Button
+                  component={RouterLink}
+                  to={PMM_DUMP_NEW_PATH}
+                  variant="contained"
+                  startIcon={<AddOutlinedIcon />}
+                  data-testid="create-dataset"
                 >
-                  <Button
-                    component={RouterLink}
-                    to={PMM_DUMP_NEW_PATH}
-                    variant="contained"
-                    startIcon={<AddOutlinedIcon />}
-                    disabled={isCreating}
-                    data-testid="create-dataset"
-                  >
-                    {Messages.createDataset}
-                  </Button>
-                </ReasonTooltip>
+                  {Messages.createDataset}
+                </Button>
               </Stack>
             )}
           />
@@ -316,6 +298,11 @@ export const DumpPage: FC = () => {
         title={Messages.delete.title(dumpsToDelete.length)}
         message={Messages.delete.message}
         confirmLabel={Messages.delete.confirm(dumpsToDelete.length)}
+        warning={
+          dumpsToDelete.some(isDumpCreating)
+            ? Messages.delete.creatingWarning
+            : undefined
+        }
         onConfirm={handleDelete}
         onClose={() => setDumpsToDelete([])}
       >

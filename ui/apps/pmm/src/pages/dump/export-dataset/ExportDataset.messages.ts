@@ -9,6 +9,7 @@ export const Messages = {
   },
   timeRangeDescription:
     'A longer window makes a larger archive and a longer export.',
+  timeZone: (timezone: string) => `Times are in ${timezone}.`,
   allServices: (count?: number) =>
     count === undefined ? 'All services' : `All services (${count})`,
   selectedServices: 'Only selected services',
@@ -30,7 +31,7 @@ export const Messages = {
     "PMM doesn't store this password and can't recover it. Share it with Percona Support in your ticket, separately from the archive.",
   ignoreLoad: 'Export even when PMM Server is busy',
   ignoreLoadHelp:
-    "When off, the export pauses while PMM Server's CPU or memory is high and stops if the load becomes critical. When on, it runs regardless, and dashboards can slow down until it finishes.",
+    'On by default so the export finishes even on a busy server, though dashboards can slow down meanwhile. Turned off, PMM Server is protected, but the export fails if the server stays busy for about 10 seconds.',
   create: 'Create dataset',
   creating: 'Creating...',
   cancel: 'Cancel',
