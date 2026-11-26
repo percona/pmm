@@ -21,6 +21,8 @@ import (
 
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 // victoriaMetricsClient is a subset of methods of prometheus' API used by this package.
@@ -45,4 +47,16 @@ type agentConnectionChecker interface {
 // since pmm-agent only starts a new exporter in response to this push.
 type agentStateUpdater interface {
 	RequestStateUpdate(ctx context.Context, pmmAgentID string)
+}
+
+// CheckProvider supplies a checking operation's declared check set and the current facts the driver
+// evaluates it against. E0-T4's health projection implements it; a fake stands in for tests.
+type CheckProvider interface {
+	CheckInputs(ctx context.Context, op *models.OmOperation, kind OperationKind) (CheckSet, map[string]any, map[string]time.Duration, error)
+}
+
+// StepExecutorProvider supplies the executor that runs a running operation's steps on the host.
+// E0-T3 implements it; a fake stands in for tests.
+type StepExecutorProvider interface {
+	Executor(op *models.OmOperation, kind OperationKind) (StepExecutor, error)
 }

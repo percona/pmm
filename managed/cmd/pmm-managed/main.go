@@ -1164,6 +1164,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	omService.WithBootstrapSource(extensionsURL, extensionsToken)
 	omService.WithAgentRegistry(agentsRegistry)
 	omService.WithStateUpdater(agentsStateUpdater)
+	omService.WithScanScheduler(extensionsURL, extensionsToken)
+	omService.WithOperationRunner(extensionsURL, extensionsToken)
 	prom.MustRegister(om.NewMetricsCollector(omService))
 
 	serverParams := &server.Params{
@@ -1270,6 +1272,14 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	wg.Go(func() {
 		externalExporterStatusSvc.Run(ctx)
+	})
+
+	wg.Go(func() {
+		omService.RunScanScheduler(ctx)
+	})
+
+	wg.Go(func() {
+		omService.RunOperationRunner(ctx)
 	})
 
 	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {

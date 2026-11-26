@@ -29,6 +29,7 @@ export const cluster = (overrides: Partial<OmCluster>): OmCluster => ({
   services: [],
   id: `cluster-${nextClusterID++}`,
   type: 'CLUSTER_TYPE_REPLICA_SET',
+  managed: false,
   ...overrides,
 });
 

@@ -38,6 +38,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -79,6 +80,35 @@ func TestHealthCheckRulesMatchTheProto(t *testing.T) {
 			got, found := rules[path]
 			require.True(t, found, "%s serves %s, which the rules map does not name", method, path)
 			assert.Equal(t, none, got, "%s must stay reachable without authentication", path)
+		})
+	}
+}
+
+// TestOmSettingsAuthDefaultDeny requires every OmService settings method to resolve to admin unless
+// it is the one viewer-readable method, so a new one cannot silently widen access.
+func TestOmSettingsAuthDefaultDeny(t *testing.T) {
+	t.Parallel()
+
+	service := omv1.File_om_v1_om_proto.Services().ByName("OmService")
+	require.NotNil(t, service, "OmService is missing from the descriptor")
+
+	readAllowlist := map[string]struct{}{"GetSettings": {}}
+	methods := service.Methods()
+	for i := range methods.Len() {
+		name := string(methods.Get(i).Name())
+		if !strings.Contains(name, "Setting") {
+			continue
+		}
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			got, _ := resolveRule(http.MethodPost, "/om.v1.OmService/"+name, logrus.WithField("test", t.Name()))
+			_, isRead := readAllowlist[name]
+			if isRead {
+				assert.Equal(t, viewer, got)
+			} else {
+				assert.Equal(t, admin, got)
+			}
 		})
 	}
 }
@@ -267,6 +297,14 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/om.v1.OmService/TriggerHostBootstrap", admin},
 		{http.MethodPost, "/om.v1.OmService/CancelBootstrapRun", admin},
 		{http.MethodPost, "/om.v1.OmService/GetBootstrapRun", viewer},
+
+		// OM settings: GetSettings is the viewer read; writes are admin (default-deny).
+		{http.MethodGet, "/v1/om/settings", viewer},
+		{http.MethodPut, "/v1/om/settings", admin},
+		{http.MethodDelete, "/v1/om/settings/overrides/retention_days", admin},
+		{http.MethodPost, "/om.v1.OmService/GetSettings", viewer},
+		{http.MethodPost, "/om.v1.OmService/UpdateSettings", admin},
+		{http.MethodPost, "/om.v1.OmService/DeleteSettingOverride", admin},
 
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},

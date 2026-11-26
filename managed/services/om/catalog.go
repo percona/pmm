@@ -37,6 +37,13 @@ const (
 	// Oplog bounds as epoch seconds; their difference is the window. A standalone emits neither.
 	metricOplogHead = "mongodb_mongod_replset_oplog_head_timestamp"
 	metricOplogTail = "mongodb_mongod_replset_oplog_tail_timestamp"
+	// The featureCompatibilityVersion, carried as the `version` label, so the accepted state reads it
+	// from the exporter rather than an authenticated getParameter on the host.
+	metricFCV = "mongodb_fcv_feature_compatibility_version"
+	// The replica-set configuration version and term, as metric values, so the accepted state
+	// baselines them from the exporter rather than an authenticated replSetGetConfig on the host.
+	metricRSConfigVersion = "mongodb_members_configVersion"
+	metricRSConfigTerm    = "mongodb_members_configTerm"
 )
 
 // Derived percentages: %[1]s is the series matcher and %[2]s the window. An irate over 30s needs two
@@ -80,6 +87,9 @@ var sourceQueries = []string{
 	metricReplicationLag,
 	metricOplogHead,
 	metricOplogTail,
+	metricFCV,
+	metricRSConfigVersion,
+	metricRSConfigTerm,
 }
 
 // Document field names. They match PMM Extensions' om_inventory app, so its facts need no translation.
@@ -107,6 +117,9 @@ const (
 	fieldConfigPath       = "config_path"
 	fieldArgv             = "argv"
 	fieldLastUp           = "last_up_at"
+	fieldFCV              = "fcv"
+	fieldRSConfigVersion  = "rs_config_version"
+	fieldRSConfigTerm     = "rs_config_term"
 )
 
 // volatileFields describe now rather than the service. Read past volatileMaxAge they yield nothing,

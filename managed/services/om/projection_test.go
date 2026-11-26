@@ -78,7 +78,7 @@ func TestBuildDocument(t *testing.T) {
 
 		// Dropping it would shrink the estate every time something broke.
 		services := []*models.Service{mongoService("s1", "mongo-1", "c1", "rs0", "prod")}
-		doc := buildDocument(services, map[string]map[string]MergedField{}, projectionNow, projectionMaxAge)
+		doc := buildDocument(services, map[string]map[string]MergedField{}, projectionNow, projectionMaxAge, nil)
 
 		svc := onlyService(t, doc)
 		assert.Equal(t, "mongo-1", svc.ServiceName)
@@ -88,6 +88,19 @@ func TestBuildDocument(t *testing.T) {
 		assert.Nil(t, svc.Version)
 		assert.Equal(t, int32(1), doc.summary.TotalServices)
 		assert.Equal(t, int32(1), doc.summary.DownServices)
+	})
+
+	t.Run("marks a cluster managed when one of its services is a managed member", func(t *testing.T) {
+		t.Parallel()
+
+		services := []*models.Service{mongoService("s1", "mongo-1", "c1", "rs0", "prod")}
+		fields := map[string]map[string]MergedField{"s1": liveFacts("PRIMARY", nil)}
+
+		doc := buildDocument(services, fields, projectionNow, projectionMaxAge, map[string]bool{"s1": true})
+		assert.True(t, doc.environments[0].Clusters[0].Managed)
+
+		doc = buildDocument(services, fields, projectionNow, projectionMaxAge, nil)
+		assert.False(t, doc.environments[0].Clusters[0].Managed, "a monitored-only cluster is not managed")
 	})
 
 	t.Run("a stopped service reads DOWN once its up flag ages out", func(t *testing.T) {
@@ -103,7 +116,7 @@ func TestBuildDocument(t *testing.T) {
 		}
 
 		services := []*models.Service{mongoService("s1", "mongo-1", "c1", "rs0", "prod")}
-		doc := buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge)
+		doc := buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge, nil)
 
 		svc := onlyService(t, doc)
 		assert.Equal(t, omv1.ServiceStatus_SERVICE_STATUS_DOWN, svc.Status)
@@ -120,7 +133,7 @@ func TestBuildDocument(t *testing.T) {
 		delete(fields, fieldExporterUp)
 
 		services := []*models.Service{mongoService("s1", "mongo-1", "c1", "rs0", "prod")}
-		doc := buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge)
+		doc := buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge, nil)
 
 		svc := onlyService(t, doc)
 		assert.Equal(t, omv1.ServiceStatus_SERVICE_STATUS_DOWN, svc.Status)
@@ -139,15 +152,15 @@ func TestBuildDocument(t *testing.T) {
 		}
 		services := []*models.Service{mongoService("s1", "mongo-1", "c1", "rs0", "prod")}
 
-		doc := buildDocument(services, map[string]map[string]MergedField{"s1": withOplog(1000, 400)}, projectionNow, projectionMaxAge)
+		doc := buildDocument(services, map[string]map[string]MergedField{"s1": withOplog(1000, 400)}, projectionNow, projectionMaxAge, nil)
 		assert.InDelta(t, 600.0, onlyService(t, doc).GetOplogWindowSeconds(), 0.001)
 
 		// head < tail is mismatched scrapes or clock skew: unknown, not a negative duration.
-		doc = buildDocument(services, map[string]map[string]MergedField{"s1": withOplog(400, 1000)}, projectionNow, projectionMaxAge)
+		doc = buildDocument(services, map[string]map[string]MergedField{"s1": withOplog(400, 1000)}, projectionNow, projectionMaxAge, nil)
 		assert.Nil(t, onlyService(t, doc).OplogWindowSeconds)
 
 		// A standalone emits neither.
-		doc = buildDocument(services, map[string]map[string]MergedField{"s1": liveFacts("PRIMARY", nil)}, projectionNow, projectionMaxAge)
+		doc = buildDocument(services, map[string]map[string]MergedField{"s1": liveFacts("PRIMARY", nil)}, projectionNow, projectionMaxAge, nil)
 		assert.Nil(t, onlyService(t, doc).OplogWindowSeconds)
 	})
 
@@ -176,7 +189,7 @@ func TestBuildDocument(t *testing.T) {
 		} {
 			doc := buildDocument(services,
 				map[string]map[string]MergedField{"s1": liveFacts("PRIMARY", tc.extra)},
-				projectionNow, projectionMaxAge)
+				projectionNow, projectionMaxAge, nil)
 			assert.Equal(t, tc.want, onlyService(t, doc).ProcessRole, tc.name)
 		}
 	})
@@ -202,7 +215,7 @@ func TestBuildDocument(t *testing.T) {
 				fieldNodeType:   {Value: nodeTypeArbiter, Source: sourceMetrics, ObservedAt: &tc.seenAt},
 			})
 
-			svc := onlyService(t, buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge))
+			svc := onlyService(t, buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge, nil))
 			assert.Equal(t, tc.wantState, svc.GetState(), tc.name)
 			assert.Equal(t, omv1.ProcessRole_PROCESS_ROLE_ARBITER, svc.ProcessRole, tc.name)
 		}
@@ -233,7 +246,7 @@ func TestBuildDocument(t *testing.T) {
 			"s1": inv("", "", ""),
 			"s2": inv("", "rs0", "prod"),
 			"s3": inv("cl1", "rs0", "prod"),
-		}, projectionNow, projectionMaxAge)
+		}, projectionNow, projectionMaxAge, nil)
 
 		// Environments sort by grouping key, so "UNSPECIFIED" comes before "prod", as in PMM Extensions.
 		require.Len(t, doc.environments, 2)
@@ -260,7 +273,7 @@ func TestBuildDocument(t *testing.T) {
 		for _, service := range services {
 			merged[service.ServiceID] = liveFacts("SECONDARY", nil)
 		}
-		doc := buildDocument(services, merged, projectionNow, projectionMaxAge)
+		doc := buildDocument(services, merged, projectionNow, projectionMaxAge, nil)
 
 		names := make([]string, 0, len(doc.environments[0].Clusters[0].Services))
 		for _, svc := range doc.environments[0].Clusters[0].Services {
@@ -284,7 +297,7 @@ func TestBuildDocument(t *testing.T) {
 			"s3": liveFacts("", map[string]MergedField{
 				fieldIsMongos: {Value: true, Source: sourceMetrics, ObservedAt: &observed},
 			}),
-		}, projectionNow, projectionMaxAge)
+		}, projectionNow, projectionMaxAge, nil)
 
 		assert.Equal(t, int32(3), doc.summary.TotalServices)
 		assert.Equal(t, int32(2), doc.summary.UpServices)
@@ -308,7 +321,7 @@ func TestBuildDocument(t *testing.T) {
 		doc := buildDocument(services, map[string]map[string]MergedField{
 			"s1": {fieldExporterUp: {Value: 1.0, Source: sourceMetrics, ObservedAt: &older}},
 			"s2": {fieldExporterUp: {Value: 1.0, Source: sourceMetrics, ObservedAt: &newest}},
-		}, projectionNow, projectionMaxAge)
+		}, projectionNow, projectionMaxAge, nil)
 
 		assert.Equal(t, newest, doc.observedAt)
 		assert.False(t, isStale(doc, projectionNow))
@@ -327,7 +340,7 @@ func TestLastUpAt(t *testing.T) {
 	}
 	services := []*models.Service{mongoService("s1", "mongo-1", "c1", "rs0", "prod")}
 	build := func(fields map[string]MergedField) *omv1.TopologyService {
-		return onlyService(t, buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge))
+		return onlyService(t, buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge, nil))
 	}
 
 	t.Run("a member down for a known interval says when it was last up", func(t *testing.T) {

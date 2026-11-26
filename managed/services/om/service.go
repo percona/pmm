@@ -61,10 +61,22 @@ type Service struct {
 	vmClient victoriaMetricsClient
 	l        *logrus.Entry
 
+	// settingsRegistry holds the Operations policy keys; empty this epic, populated by features.
+	settingsRegistry *models.OmSettingsRegistry
+
+	// operationRegistry holds the known operation kinds; empty this epic, populated by features.
+	operationRegistry *OperationRegistry
+
 	// ha is nil in most tests, which means this node is the leader.
 	ha haChecker
 
 	probe *probeSource
+
+	// scanScheduler requests managed-cluster scans on a cadence; nil leaves managed scans off.
+	scanScheduler *ScanScheduler
+
+	// operationRunner drives registered operation kinds on a cadence; nil leaves the driver off.
+	operationRunner *Runner
 
 	// tick overrides refreshInterval; only tests set it.
 	tick time.Duration
@@ -103,11 +115,25 @@ type Service struct {
 // New returns a new OM service.
 func New(db *reform.DB, vmClient victoriaMetricsClient, ha haChecker, l *logrus.Entry) *Service {
 	return &Service{
-		db:       db,
-		vmClient: vmClient,
-		ha:       ha,
-		l:        l,
+		db:                db,
+		vmClient:          vmClient,
+		ha:                ha,
+		l:                 l,
+		settingsRegistry:  models.NewOmSettingsRegistry(),
+		operationRegistry: NewOperationRegistry(),
 	}
+}
+
+// WithSettingsRegistry sets the Operations settings registry, letting features register their keys.
+func (s *Service) WithSettingsRegistry(reg *models.OmSettingsRegistry) *Service {
+	s.settingsRegistry = reg
+	return s
+}
+
+// WithOperationRegistry sets the operation-kind registry, letting features register their kinds.
+func (s *Service) WithOperationRegistry(reg *OperationRegistry) *Service {
+	s.operationRegistry = reg
+	return s
 }
 
 // WithProbeSource attaches PMM Extensions' om_inventory app as a fact source; an empty URL leaves it off.
@@ -124,6 +150,87 @@ func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 	s.probe = probe
 	s.l.Infof("om_inventory estate at %s", probe.app.endpoint(""))
 	return s
+}
+
+// WithScanScheduler composes the managed-scan scheduler against PMM Extensions' om_inventory app,
+// leader-gated on this node; an empty URL leaves managed scans off.
+func (s *Service) WithScanScheduler(extensionsURL, token string) *Service {
+	if extensionsURL == "" {
+		return s
+	}
+	client := newExtensionsClient(extensionsURL, token)
+	l := s.l.WithField("component", "om-scans")
+	requester := newInventoryScanRequester(s.db, l, client)
+	s.scanScheduler = NewScanScheduler(s.db, l, requester).
+		WithLeader(s.ha).WithReader(newFactReader(client)).WithMetricsReader(s)
+	return s
+}
+
+// RunScanScheduler runs the managed-scan scheduler until the context is cancelled, or returns at once
+// when WithScanScheduler left it off.
+func (s *Service) RunScanScheduler(ctx context.Context) {
+	if s.scanScheduler == nil {
+		return
+	}
+	s.scanScheduler.Run(ctx)
+}
+
+// ServiceMetricsFacts returns the current exporter-metric facts for the given services, keyed by
+// service id, so the accepted state baselines cluster facts from metrics rather than a scan.
+func (s *Service) ServiceMetricsFacts(ctx context.Context, serviceIDs []string) (map[string]map[string]any, error) {
+	if len(serviceIDs) == 0 {
+		return map[string]map[string]any{}, nil
+	}
+	services := make([]*models.Service, 0, len(serviceIDs))
+	for _, id := range serviceIDs {
+		services = append(services, &models.Service{ServiceID: id})
+	}
+	result := metricsSource{vm: s.vmClient, l: s.l, now: time.Now()}.collect(ctx, services)
+	if result.Status == SourceFailed {
+		return nil, fmt.Errorf("failed to read metrics facts for %d service(s)", len(serviceIDs))
+	}
+	merged := mergeFacts([]SourceResult{result}, defaultPrecedence)
+	out := make(map[string]map[string]any, len(merged))
+	for serviceID, fields := range merged {
+		facts := make(map[string]any, len(fields))
+		for field, held := range fields {
+			facts[field] = held.Value
+		}
+		out[serviceID] = facts
+	}
+	return out, nil
+}
+
+// WithOperationRunner registers the operation kinds and composes a leader-gated driver that reads their
+// readiness facts from PMM Extensions' om_inventory; an empty URL leaves the driver off.
+func (s *Service) WithOperationRunner(extensionsURL, token string) *Service {
+	if extensionsURL == "" {
+		return s
+	}
+	err := s.operationRegistry.Register(InstallKind())
+	if err != nil {
+		s.l.WithError(err).Error("failed to register the install operation kind")
+		return s
+	}
+	client := newExtensionsClient(extensionsURL, token)
+	l := s.l.WithField("component", "om-operations")
+	checks := newFactCheckProvider(newFactReader(client))
+	requester := newInventoryScanRequester(s.db, l, client)
+	executors := installStepExecutorProvider{db: s.db, bootstrap: s.bootstrap, l: s.l}
+	s.operationRunner = NewRunner(
+		s.db, l, s.operationRegistry,
+		checks, executors, requester,
+	).WithLeader(s.ha, "")
+	return s
+}
+
+// RunOperationRunner drives registered operations until the context is cancelled, or returns at once
+// when WithOperationRunner left the driver off.
+func (s *Service) RunOperationRunner(ctx context.Context) {
+	if s.operationRunner == nil {
+		return
+	}
+	s.operationRunner.Run(ctx)
 }
 
 // Enabled returns true if OpenManager is enabled.
@@ -375,7 +482,11 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 
 	merged := mergeFacts(results, defaultPrecedence)
 	generatedAt := time.Now()
-	doc := applyHealth(buildDocument(services, merged, generatedAt, maxAge))
+	managedServices, err := models.ManagedMemberServiceIDs(s.db.Querier)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to read managed services: %w", err)
+	}
+	doc := applyHealth(buildDocument(services, merged, generatedAt, maxAge, managedServices))
 
 	response := &omv1.GetTopologyResponse{
 		Snapshot: &omv1.Snapshot{
