@@ -136,7 +136,7 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 			assert.NotContains(t, got, "example (normalized", fp)
 			continue
 		}
-		assert.Contains(t, got, "```sql\n   "+strings.ReplaceAll(want, "\n", "\n   ")+"\n```", fp)
+		assert.Contains(t, got, "```sql\n"+want+"\n```", fp)
 	}
 
 	// A raw statement is withheld however its quoting reads: a nested
@@ -478,7 +478,7 @@ func TestQueryDetailTool(t *testing.T) {
 			"metrics: calls=1200, query_time_sum=88.5, query_time_avg=0.073, rows_examined_avg=20000, rows_sent_avg=1, no_index_used=1200, full_scan=1200",
 			"example:",
 			"```sql",
-			"   SELECT * FROM customers WHERE email = 'user42@example.com'",
+			"SELECT * FROM customers WHERE email = 'user42@example.com'",
 			"```",
 			"",
 			"[View this query in PMM QAN ↗](https://pmm.example.com/graph/d/pmm-qan/pmm-query-analytics?" +
@@ -509,7 +509,7 @@ func TestQueryDetailTool(t *testing.T) {
 		got := structured[queryDetailResult](t, res)
 		assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "user42@example.com")
 		assert.Equal(t, "SELECT * FROM `customers` WHERE `email` = :?", got.Example) //nolint:unqueryvet
-		assert.Contains(t, text, "```sql\n   "+got.Example+"\n```", "the example the text shows")
+		assert.Contains(t, text, "```sql\n"+got.Example+"\n```", "the example the text shows")
 		assert.Contains(t, text, "fingerprint:\n   "+got.Fingerprint+"\n", "the fingerprint the text shows")
 	})
 
@@ -1135,9 +1135,9 @@ func TestQANTextKeepsValuesInPlace(t *testing.T) {
 		"   FROM orders",
 		"example:",
 		"````sql",
-		"   SELECT *",
-		"   ```",
-		"   partial: qan:getMetrics failed (timeout)",
+		"SELECT *",
+		"```",
+		"partial: qan:getMetrics failed (timeout)",
 		"````",
 		"",
 		"[View this query in PMM QAN ↗](https://pmm.example.com/qan)",

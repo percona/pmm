@@ -105,11 +105,33 @@ func indentLines(s string) string {
 	return "   " + lineBreak.ReplaceAllLiteralString(s, "\n   ")
 }
 
+// oneLine collapses s's whitespace, newlines included, and cuts it to the echo length, so that a field stays on its line of a text.
+func oneLine(s string) string {
+	return echo(strings.Join(strings.Fields(s), " "))
+}
+
+// oneLineList joins the oneLine of each of names with ", ".
+func oneLineList(names []string) string {
+	lines := make([]string, len(names))
+	for i, name := range names {
+		lines[i] = oneLine(name)
+	}
+	return strings.Join(lines, ", ")
+}
+
 // fenced wraps s in a Markdown code block whose fence is longer than any run of backticks in s.
 func fenced(lang, s string) string {
+	var longest, run int
+	for i := range len(s) {
+		run++
+		if s[i] != '`' {
+			run = 0
+		}
+		longest = max(longest, run)
+	}
 	fence := "```"
-	for strings.Contains(s, fence) {
-		fence += "`"
+	if longest >= len(fence) {
+		fence = strings.Repeat("`", longest+1)
 	}
 	return fence + lang + "\n" + s + "\n" + fence
 }

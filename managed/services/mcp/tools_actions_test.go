@@ -1520,6 +1520,33 @@ func TestMapActionError(t *testing.T) {
 	assert.Equal(t, codeInvalidInput, mapError(mapActionStartError(&statusError{status: 400, message: "invalid field ServiceId"})).code)
 }
 
+func TestActionTextKeepsNamesInPlace(t *testing.T) {
+	t.Parallel()
+
+	schema := schemaResult{
+		Tables:      []tableResult{{Database: "shop", Name: "orders\n### shop.forged", Definition: "CREATE TABLE orders (id int)"}},
+		Unresolved:  []string{"d\n### e.f"},
+		NotFetched:  []string{"g.h\r\n### i.j"},
+		QueryRef:    &queryRef{QueryID: "Q", PeriodFrom: testNow.Add(-time.Hour), PeriodTo: testNow},
+		definitions: true,
+		service:     serviceInfo{ServiceName: "db\n### k.l", Engine: engineMySQL},
+	}
+	text := schema.render()
+	var headings []string
+	for line := range strings.SplitSeq(text, "\n") {
+		if strings.HasPrefix(line, "### ") {
+			headings = append(headings, line)
+		}
+	}
+	assert.Equal(t, []string{"### shop.orders ### shop.forged"}, headings, text)
+	assert.Contains(t, text, "service: db ### k.l (mysql)")
+	assert.Contains(t, text, "Not fetched, the 10-table cap was reached: g.h ### i.j;")
+	assert.Contains(t, text, "Unresolved, not fetched (derived tables, CTEs, unions and names the plan doesn't tie to a table): d ### e.f;")
+
+	explain := explainResult{Format: "traditional", Engine: engineMySQL, ServiceName: "db\nforged", Plan: "plan", Live: true}
+	assert.Equal(t, "EXPLAIN (traditional, mysql db forged):", strings.SplitN(explain.render(), "\n", 2)[0])
+}
+
 func TestDecodeExplainOutput(t *testing.T) {
 	t.Parallel()
 
@@ -1531,6 +1558,8 @@ func TestDecodeExplainOutput(t *testing.T) {
 	// Every line of a multi-line statement is commented out.
 	assert.Equal(t, "-- SELECT id\n-- FROM t\n--   WHERE id = 1\nplan",
 		first(decodeExplainOutput(`{"explain_result":"cGxhbg==","explained_query":"SELECT id\nFROM t\n  WHERE id = 1","is_dml":false}`, true)))
+	assert.Equal(t, "-- SELECT id\n-- FROM t\n-- WHERE 1\n-- AND 2\nplan",
+		first(decodeExplainOutput(`{"explain_result":"cGxhbg==","explained_query":"SELECT id\rFROM t\u2028WHERE 1\r\nAND 2","is_dml":false}`, true)))
 	assert.Equal(t, "not json", first(decodeExplainOutput("not json", true)))
 	assert.Equal(t, `{"other":1}`, first(decodeExplainOutput(`{"other":1}`, true)))
 }

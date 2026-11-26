@@ -577,7 +577,7 @@ func (r queryDetailResult) render() string {
 		if r.rawSQL {
 			label = "example:"
 		}
-		parts = append(parts, label+"\n"+fenced("sql", indentLines(r.Example)))
+		parts = append(parts, label+"\n"+fenced("sql", r.Example))
 	}
 	for _, p := range []struct {
 		call string

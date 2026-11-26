@@ -420,10 +420,10 @@ func mostResults(args []metricsql.Expr) int {
 // picksOneResult tells whether a rollupResults function's arguments name one result: VictoriaMetrics returns all of
 // them for a missing or empty second argument.
 func picksOneResult(args []metricsql.Expr) bool {
-	if len(args) < 2 {
+	if len(args) <= 1 {
 		return false
 	}
-	tag, ok := args[1].(*metricsql.StringExpr)
+	tag, ok := args[len(args)-1].(*metricsql.StringExpr)
 	return ok && tag.S != ""
 }
 

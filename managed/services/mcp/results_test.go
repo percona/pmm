@@ -109,6 +109,10 @@ func TestFenced(t *testing.T) {
 	assert.Equal(t, "```sql\nSELECT 1\n```", fenced("sql", "SELECT 1"))
 	assert.Equal(t, "````\na ``` b\n````", fenced("", "a ``` b"))
 	assert.Equal(t, "`````\n````\n`````", fenced("", "````"))
+	assert.Equal(t, "````\n` `` ```\n````", fenced("", "` `` ```"))
+
+	long := strings.Repeat("`", 1<<15)
+	assert.Equal(t, "`"+long+"\n"+long+"\n`"+long, fenced("", long))
 }
 
 func TestCapText(t *testing.T) {

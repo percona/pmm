@@ -112,7 +112,7 @@ type explainResult struct {
 }
 
 func (r explainResult) render() string {
-	header := fmt.Sprintf("EXPLAIN (%s, %s %s):", r.Format, r.Engine, r.ServiceName)
+	header := fmt.Sprintf("EXPLAIN (%s, %s %s):", r.Format, r.Engine, oneLine(r.ServiceName))
 	if !r.Live {
 		header = "Stored plan (pg_stat_monitor, planid " + r.planID + "):"
 	}
@@ -161,13 +161,13 @@ func (r schemaResult) render() string {
 	var parts []string
 	if r.QueryRef != nil {
 		parts = append(parts, "queryid: "+r.QueryRef.QueryID+"\n"+windowLine(window{From: r.QueryRef.PeriodFrom, To: r.QueryRef.PeriodTo})+
-			"\nservice: "+r.service.ServiceName+" ("+r.service.Engine+")")
+			"\nservice: "+oneLine(r.service.ServiceName)+" ("+r.service.Engine+")")
 		if len(r.Tables) == 0 {
 			parts = append(parts, "No base table found in the plan.")
 		}
 	}
 	for _, t := range r.Tables {
-		block := "### " + t.Database + "." + t.Name
+		block := "### " + oneLine(t.Database) + "." + oneLine(t.Name)
 		if r.definitions {
 			block += "\n" + schemaPart(false, t.Definition, t.definitionCut, t.DefinitionError)
 		}
@@ -180,11 +180,11 @@ func (r schemaResult) render() string {
 	var notes []string
 	if len(r.NotFetched) > 0 {
 		notes = append(notes, fmt.Sprintf("Not fetched, the %d-table cap was reached: %s; pass them as service_id, database and tables.",
-			maxSchemaTables, strings.Join(r.NotFetched, ", ")))
+			maxSchemaTables, oneLineList(r.NotFetched)))
 	}
 	if len(r.Unresolved) > 0 {
 		notes = append(notes, "Unresolved, not fetched (derived tables, CTEs, unions and names the plan doesn't tie to a table): "+
-			strings.Join(r.Unresolved, ", ")+"; pass the tables behind them as service_id, database and tables.")
+			oneLineList(r.Unresolved)+"; pass the tables behind them as service_id, database and tables.")
 	}
 	if r.Note != "" {
 		notes = append(notes, r.Note)
@@ -975,7 +975,7 @@ func decodeExplainOutput(output string, rawSQL bool) (string, bool) {
 	}
 	text := strings.TrimRight(string(envelope.ExplainResult), "\n")
 	if rawSQL && envelope.ExplainedQuery != "" {
-		prefix := "-- " + strings.ReplaceAll(envelope.ExplainedQuery, "\n", "\n-- ")
+		prefix := "-- " + lineBreak.ReplaceAllLiteralString(envelope.ExplainedQuery, "\n-- ")
 		if envelope.IsDML {
 			prefix += "\n-- (DML statement rewritten to an equivalent SELECT by pmm-agent)"
 		}

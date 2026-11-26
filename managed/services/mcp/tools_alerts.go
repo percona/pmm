@@ -125,11 +125,6 @@ type alertsResult struct {
 	filters []string
 }
 
-// oneLine collapses s's whitespace, newlines included, and cuts it to the echo length, so that a field stays on its line of a text.
-func oneLine(s string) string {
-	return echo(strings.Join(strings.Fields(s), " "))
-}
-
 // capAlertText cuts s at maxAlertTextBytes on a rune boundary, with an ellipsis when cut.
 func capAlertText(s string) string {
 	cut, ok := capText(s, maxAlertTextBytes)
