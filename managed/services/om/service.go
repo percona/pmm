@@ -61,10 +61,19 @@ type Service struct {
 	vmClient victoriaMetricsClient
 	l        *logrus.Entry
 
+	// settingsRegistry holds the Operations policy keys; empty this epic, populated by features.
+	settingsRegistry *models.OmSettingsRegistry
+
+	// operationRegistry holds the known operation kinds; empty this epic, populated by features.
+	operationRegistry *OperationRegistry
+
 	// ha is nil in most tests, which means this node is the leader.
 	ha haChecker
 
 	probe *probeSource
+
+	// scanScheduler requests managed-cluster scans on a cadence; nil leaves managed scans off.
+	scanScheduler *ScanScheduler
 
 	// tick overrides refreshInterval; only tests set it.
 	tick time.Duration
@@ -103,11 +112,25 @@ type Service struct {
 // New returns a new OM service.
 func New(db *reform.DB, vmClient victoriaMetricsClient, ha haChecker, l *logrus.Entry) *Service {
 	return &Service{
-		db:       db,
-		vmClient: vmClient,
-		ha:       ha,
-		l:        l,
+		db:                db,
+		vmClient:          vmClient,
+		ha:                ha,
+		l:                 l,
+		settingsRegistry:  models.NewOmSettingsRegistry(),
+		operationRegistry: NewOperationRegistry(),
 	}
+}
+
+// WithSettingsRegistry sets the Operations settings registry, letting features register their keys.
+func (s *Service) WithSettingsRegistry(reg *models.OmSettingsRegistry) *Service {
+	s.settingsRegistry = reg
+	return s
+}
+
+// WithOperationRegistry sets the operation-kind registry, letting features register their kinds.
+func (s *Service) WithOperationRegistry(reg *OperationRegistry) *Service {
+	s.operationRegistry = reg
+	return s
 }
 
 // WithProbeSource attaches PMM Extensions' om_inventory app as a fact source; an empty URL leaves it off.
@@ -124,6 +147,28 @@ func (s *Service) WithProbeSource(extensionsURL, token string) *Service {
 	s.probe = probe
 	s.l.Infof("om_inventory estate at %s", probe.app.endpoint(""))
 	return s
+}
+
+// WithScanScheduler composes the managed-scan scheduler against PMM Extensions' om_inventory app,
+// leader-gated on this node; an empty URL leaves managed scans off.
+func (s *Service) WithScanScheduler(extensionsURL, token string) *Service {
+	if extensionsURL == "" {
+		return s
+	}
+	client := newExtensionsClient(extensionsURL, token)
+	l := s.l.WithField("component", "om-scans")
+	requester := newInventoryScanRequester(s.db, l, client)
+	s.scanScheduler = NewScanScheduler(s.db, l, requester).WithLeader(s.ha)
+	return s
+}
+
+// RunScanScheduler runs the managed-scan scheduler until the context is cancelled, or returns at once
+// when WithScanScheduler left it off.
+func (s *Service) RunScanScheduler(ctx context.Context) {
+	if s.scanScheduler == nil {
+		return
+	}
+	s.scanScheduler.Run(ctx)
 }
 
 // Enabled returns true if OpenManager is enabled.

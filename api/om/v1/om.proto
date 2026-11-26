@@ -1168,6 +1168,231 @@ message DeleteInventoryConfigOverrideRequest {
 // DeleteInventoryConfigOverrideResponse acknowledges the revert.
 message DeleteInventoryConfigOverrideResponse {}
 
+// OmSettingSource says where an effective setting value came from.
+enum OmSettingSource {
+  OM_SETTING_SOURCE_UNSPECIFIED = 0;
+  OM_SETTING_SOURCE_CLUSTER = 1;
+  OM_SETTING_SOURCE_GLOBAL = 2;
+  OM_SETTING_SOURCE_DEFAULT = 3;
+}
+
+// OmSetting is one Operations policy setting's effective value for a scope.
+message OmSetting {
+  // The setting key.
+  string key = 1;
+  // The effective value; omitted for a secret key.
+  google.protobuf.Value value = 2;
+  // Where the effective value came from.
+  OmSettingSource source = 3;
+  // Whether an override is in effect, i.e. the value is not the registry default.
+  bool has_override = 4;
+  // Whether the value is held encrypted and never returned.
+  bool secret = 5;
+  // Whether a secret key has a value set.
+  bool is_set = 6;
+  // The setting's documentation, where it has any.
+  optional string description = 7;
+}
+
+// GetSettingsRequest is the request for GetSettings.
+message GetSettingsRequest {
+  // Unset selects the global scope; set selects a cluster's effective settings.
+  optional string cluster_id = 1;
+}
+
+// GetSettingsResponse returns the settings resolved for a scope.
+message GetSettingsResponse {
+  repeated OmSetting settings = 1;
+}
+
+// UpdateSettingsRequest is the request for UpdateSettings.
+message UpdateSettingsRequest {
+  // Unset selects the global scope; set selects a cluster.
+  optional string cluster_id = 1;
+  // The keys to change, as `{key: value}`; the batch is validated and applied atomically.
+  google.protobuf.Struct values = 2;
+}
+
+// UpdateSettingsResponse returns the settings as they now stand for the scope.
+message UpdateSettingsResponse {
+  repeated OmSetting settings = 1;
+}
+
+// DeleteSettingOverrideRequest is the request for DeleteSettingOverride.
+message DeleteSettingOverrideRequest {
+  // Unset selects the global scope; set selects a cluster.
+  optional string cluster_id = 1;
+  // The setting whose override to remove for the scope.
+  string key = 2 [(validate.rules).string.min_len = 1];
+}
+
+// DeleteSettingOverrideResponse acknowledges the revert.
+message DeleteSettingOverrideResponse {
+  // Whether an override was removed; false when none was in effect.
+  bool removed = 1;
+}
+
+// Operation is one managed-cluster operation's history row: its lifecycle status and the
+// provenance around it.
+//
+// The inputs (params) and the review report are deliberately not on this surface. Both can
+// carry secrets, and until a caller's role reaches this service there is nothing to redact
+// them against, so they are withheld from every reader rather than shown to the wrong one.
+// report_digest, a hash, is safe and stands in for the reviewed report.
+message Operation {
+  // The operation's ID.
+  string id = 1;
+  // The operation kind, a feature's registered name.
+  string kind = 2;
+  // The kind's contract version at creation; a resume refuses a different one.
+  int32 kind_version = 3;
+  // The cluster it acts on; unset for a cluster-less operation.
+  optional string cluster_id = 4;
+  // The parent operation, when this is a child.
+  optional string parent_operation_id = 5;
+  // One of: checking, awaiting_confirmation, queued, running, cancelling, succeeded,
+  // failed, cancelled, rolled_back, abandoned, external. A string, not an enum, because
+  // the set is this service's own and a caller renders it rather than branching on it.
+  string status = 6;
+  // The monotonic version the optimistic-concurrency fence reads; pass it back to a
+  // confirm, cancel, resume or abandon to bind the action to the state that was read.
+  int32 version = 7;
+  // The plan revision a confirm binds to; a return-to-checking bumps it.
+  int32 params_revision = 8;
+  // What started it: user, schedule or policy.
+  string trigger = 9;
+  // The reviewed report's digest, sealed when the operation awaits confirmation.
+  optional string report_digest = 10;
+  // A stable machine-readable failure code, set once it fails.
+  optional string error_code = 11;
+  // Who confirmed it, when a confirmation was required.
+  optional string confirmed_by = 12;
+  // Who cancelled it.
+  optional string cancelled_by = 13;
+  // When it was created.
+  google.protobuf.Timestamp created_at = 14;
+  // When it entered running. Unset until it does.
+  google.protobuf.Timestamp started_at = 15;
+  // When it reached a terminal status. Unset while not terminal.
+  google.protobuf.Timestamp finished_at = 16;
+  // The earliest it may run, for a scheduled operation.
+  google.protobuf.Timestamp not_before = 17;
+  // When it will be abandoned if still unfinished.
+  google.protobuf.Timestamp deadline_at = 18;
+}
+
+// OperationStep is one dispatch within an operation.
+//
+// The step's result payload is withheld for the same reason as the operation's params: it is
+// arbitrary executor output that can carry secrets, and this surface cannot yet gate it.
+message OperationStep {
+  // The step's ID.
+  string id = 1;
+  // What the step targets: member, replica_set, node or run.
+  string target_kind = 2;
+  // The targeted resource's ID.
+  string target_id = 3;
+  // The phase it belongs to, e.g. "run".
+  string phase = 4;
+  // The step name within the phase.
+  string step = 5;
+  // Which attempt this is, from 1.
+  int32 attempt = 6;
+  // One of: planned, dispatching, running, succeeded, failed, unknown.
+  string status = 7;
+  // The leader epoch it was dispatched under.
+  int64 epoch = 8;
+  // The executor's task history ID, when it has one.
+  optional string task_history_id = 9;
+  // When it was dispatched. Unset until it is.
+  google.protobuf.Timestamp dispatched_at = 10;
+  // When it finished. Unset while it runs.
+  google.protobuf.Timestamp finished_at = 11;
+}
+
+// ListOperationsRequest is the request for ListOperations.
+message ListOperationsRequest {
+  // When set, return only this cluster's operations; unset returns all of them.
+  optional string cluster_id = 1;
+}
+
+// ListOperationsResponse returns the operation history, newest first.
+message ListOperationsResponse {
+  // The operations.
+  repeated Operation operations = 1;
+}
+
+// GetOperationRequest is the request for GetOperation.
+message GetOperationRequest {
+  // The operation to return.
+  string operation_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// GetOperationResponse returns one operation and its dispatched steps.
+message GetOperationResponse {
+  // The operation.
+  Operation operation = 1;
+  // Its steps, by attempt then step.
+  repeated OperationStep steps = 2;
+}
+
+// ConfirmOperationRequest is the request for ConfirmOperation.
+message ConfirmOperationRequest {
+  // The operation awaiting confirmation.
+  string operation_id = 1 [(validate.rules).string.min_len = 1];
+  // The version the caller reviewed. The confirm's optimistic fence: a rescan or any other
+  // change since the review has bumped it, so a stale confirm moves nothing.
+  int32 version = 2 [(validate.rules).int32.gte = 1];
+}
+
+// ConfirmOperationResponse returns the operation as it now stands.
+message ConfirmOperationResponse {
+  // The operation.
+  Operation operation = 1;
+}
+
+// CancelOperationRequest is the request for CancelOperation.
+message CancelOperationRequest {
+  // The operation to cancel.
+  string operation_id = 1 [(validate.rules).string.min_len = 1];
+  // The version the caller read, fencing the cancel against a concurrent change.
+  int32 version = 2 [(validate.rules).int32.gte = 1];
+}
+
+// CancelOperationResponse returns the operation as it now stands.
+message CancelOperationResponse {
+  // The operation.
+  Operation operation = 1;
+}
+
+// ResumeOperationRequest is the request for ResumeOperation.
+message ResumeOperationRequest {
+  // The failed operation to resume.
+  string operation_id = 1 [(validate.rules).string.min_len = 1];
+  // The version the caller read, fencing the resume against a concurrent change.
+  int32 version = 2 [(validate.rules).int32.gte = 1];
+}
+
+// ResumeOperationResponse returns the operation as it now stands.
+message ResumeOperationResponse {
+  // The operation.
+  Operation operation = 1;
+}
+
+// AbandonOperationRequest is the request for AbandonOperation.
+message AbandonOperationRequest {
+  // The failed operation to abandon.
+  string operation_id = 1 [(validate.rules).string.min_len = 1];
+  // The version the caller read, fencing the abandon against a concurrent change.
+  int32 version = 2 [(validate.rules).int32.gte = 1];
+}
+
+// AbandonOperationResponse returns the operation as it now stands.
+message AbandonOperationResponse {
+  // The operation.
+  Operation operation = 1;
+}
+
 // OmService provides the Operations for MongoDB topology and health API.
 service OmService {
   // GetTopology returns the whole MongoDB estate as one document.
@@ -1408,6 +1633,102 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Revert an inventory configuration field"
       description: "Removes the override for one field so it returns to whatever the deployment configured. Idempotent."
+    };
+  }
+
+  // GetSettings returns the Operations policy settings resolved for a scope.
+  rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {
+    option (google.api.http) = {get: "/v1/om/settings"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Operations settings"
+      description: "Returns every Operations policy setting resolved for a scope: a cluster override, else the global value, else the registry default. A secret setting reports only whether it is set."
+    };
+  }
+
+  // UpdateSettings changes Operations policy settings for a scope.
+  rpc UpdateSettings(UpdateSettingsRequest) returns (UpdateSettingsResponse) {
+    option (google.api.http) = {
+      put: "/v1/om/settings"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change Operations settings"
+      description: "Applies a batch of settings changes atomically for a scope: one invalid field rejects the whole batch and writes nothing."
+    };
+  }
+
+  // DeleteSettingOverride reverts one Operations setting to its inherited value.
+  rpc DeleteSettingOverride(DeleteSettingOverrideRequest) returns (DeleteSettingOverrideResponse) {
+    option (google.api.http) = {delete: "/v1/om/settings/overrides/{key}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Revert an Operations setting"
+      description: "Removes a scope's override for one setting. Idempotent: removing an absent override changes nothing."
+    };
+  }
+
+  // ListOperations returns the managed-cluster operation history, newest first.
+  rpc ListOperations(ListOperationsRequest) returns (ListOperationsResponse) {
+    option (google.api.http) = {get: "/v1/om/operations"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List operations"
+      description: "Returns the managed-cluster operations, newest first, with each one's lifecycle status and provenance. Pass cluster_id to scope the list to one cluster."
+    };
+  }
+
+  // GetOperation returns one operation and its dispatched steps.
+  rpc GetOperation(GetOperationRequest) returns (GetOperationResponse) {
+    option (google.api.http) = {get: "/v1/om/operations/{operation_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get an operation"
+      description: "Returns one operation by ID, with its lifecycle status and every step it has dispatched."
+    };
+  }
+
+  // ConfirmOperation releases an operation that is awaiting confirmation to run.
+  rpc ConfirmOperation(ConfirmOperationRequest) returns (ConfirmOperationResponse) {
+    option (google.api.http) = {
+      post: "/v1/om/operations/{operation_id}:confirm"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Confirm an operation"
+      description: "Releases an operation awaiting confirmation to run, binding the reviewed plan by version: a rescan or other change since the review moves nothing and returns 409."
+    };
+  }
+
+  // CancelOperation cancels an operation, or asks a running one to compensate.
+  rpc CancelOperation(CancelOperationRequest) returns (CancelOperationResponse) {
+    option (google.api.http) = {
+      post: "/v1/om/operations/{operation_id}:cancel"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Cancel an operation"
+      description: "Cancels a pre-running operation outright, releasing its locks; a running operation whose kind allows it goes to cancelling for compensation. Fenced by version."
+    };
+  }
+
+  // ResumeOperation returns a failed, resumable operation to running.
+  rpc ResumeOperation(ResumeOperationRequest) returns (ResumeOperationResponse) {
+    option (google.api.http) = {
+      post: "/v1/om/operations/{operation_id}:resume"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Resume an operation"
+      description: "Returns a failed, resumable operation to running, keeping the locks it held and clearing the attention it raised. Refused when the kind's contract version has moved. Fenced by version."
+    };
+  }
+
+  // AbandonOperation resolves a failed operation, releasing its locks.
+  rpc AbandonOperation(AbandonOperationRequest) returns (AbandonOperationResponse) {
+    option (google.api.http) = {
+      post: "/v1/om/operations/{operation_id}:abandon"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Abandon an operation"
+      description: "Resolves a failed operation that will not be resumed: releases its locks and clears the attention it raised, leaving it abandoned. Fenced by version."
     };
   }
 }

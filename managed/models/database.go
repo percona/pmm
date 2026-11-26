@@ -96,6 +96,13 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "admin_password"},
 		},
 	},
+	{
+		Name:        "om_secrets",
+		Identifiers: []string{"id"},
+		Columns: []encryption.Column{
+			{Name: "payload"},
+		},
+	},
 }
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
@@ -1406,6 +1413,521 @@ var databaseSchema = [][]string{
 
 		// Advisor schedules replace the interval settings; only the on/off switch carries over.
 		`UPDATE settings SET settings = (settings - 'sass') || jsonb_build_object('advisors', jsonb_build_object('enabled', settings #> '{sass,enabled}'))`,
+	},
+	{
+		// Operations for MongoDB (PMM-15859): managed-cluster data model.
+		`CREATE TABLE om_clusters (
+  id               UUID PRIMARY KEY,
+  name             TEXT NOT NULL,
+  kind             TEXT NOT NULL CHECK (kind IN ('replica_set', 'sharded')),
+  origin           TEXT NOT NULL CHECK (origin IN ('installed', 'imported')),
+  status           TEXT NOT NULL CHECK (status IN ('installing', 'importing', 'monitored', 'managed', 'removing', 'removed')),
+  mongo_cluster_id TEXT,
+  state_version    INTEGER,
+  created_by       TEXT NOT NULL,
+  created_at       TIMESTAMPTZ NOT NULL,
+  updated_at       TIMESTAMPTZ NOT NULL,
+  removed_at       TIMESTAMPTZ,
+  CHECK ((status = 'removed') = (removed_at IS NOT NULL))
+)`,
+		`CREATE UNIQUE INDEX om_clusters_live_mongo_cluster_id ON om_clusters (mongo_cluster_id)
+  WHERE removed_at IS NULL AND mongo_cluster_id IS NOT NULL`,
+		`CREATE FUNCTION om_clusters_origin_fixed() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.origin <> OLD.origin THEN
+    RAISE EXCEPTION 'om_clusters.origin is set once' USING ERRCODE = 'check_violation';
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_clusters_origin_fixed BEFORE UPDATE ON om_clusters
+  FOR EACH ROW EXECUTE FUNCTION om_clusters_origin_fixed()`,
+		`CREATE TABLE om_replica_sets (
+  id             UUID PRIMARY KEY,
+  cluster_id     UUID NOT NULL REFERENCES om_clusters (id),
+  name           TEXT NOT NULL,
+  replica_set_id TEXT,
+  role           TEXT NOT NULL CHECK (role IN ('replica_set', 'shard', 'config')),
+  created_at     TIMESTAMPTZ NOT NULL,
+  removed_at     TIMESTAMPTZ,
+  UNIQUE (cluster_id, id)
+)`,
+		`CREATE UNIQUE INDEX om_replica_sets_live_id ON om_replica_sets (replica_set_id)
+  WHERE removed_at IS NULL AND replica_set_id IS NOT NULL`,
+		`CREATE UNIQUE INDEX om_replica_sets_live_name ON om_replica_sets (cluster_id, name) WHERE removed_at IS NULL`,
+		`CREATE TABLE om_operations (
+  id                   UUID PRIMARY KEY,
+  kind                 TEXT NOT NULL,
+  kind_version         INTEGER NOT NULL,
+  cluster_id           UUID REFERENCES om_clusters (id),
+  parent_operation_id  UUID REFERENCES om_operations (id),
+  status               TEXT NOT NULL CHECK (status IN ('checking', 'awaiting_confirmation', 'queued', 'running', 'cancelling',
+                         'succeeded', 'failed', 'cancelled', 'rolled_back', 'abandoned',
+                         'external')),
+
+  version              INTEGER NOT NULL,
+  params_revision      INTEGER NOT NULL,
+  trigger              TEXT NOT NULL CHECK (trigger IN ('user', 'schedule', 'policy')),
+  principal            JSONB NOT NULL,
+  params               JSONB NOT NULL,
+  report               JSONB,
+  report_digest        TEXT,
+  error_code           TEXT,
+  error_fields         JSONB NOT NULL,
+  state_version_before INTEGER,
+  state_version_after  INTEGER,
+  not_before           TIMESTAMPTZ,
+  deadline_at          TIMESTAMPTZ,
+  confirmed_by         TEXT,
+  cancelled_by         TEXT,
+  created_at           TIMESTAMPTZ NOT NULL,
+  started_at           TIMESTAMPTZ,
+  finished_at          TIMESTAMPTZ
+)`,
+		`CREATE INDEX om_operations_cluster ON om_operations (cluster_id, created_at DESC)`,
+		`CREATE FUNCTION om_operations_cluster_set_once() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF OLD.cluster_id IS NOT NULL AND NEW.cluster_id IS DISTINCT FROM OLD.cluster_id THEN
+    RAISE EXCEPTION 'om_operations.cluster_id is set once' USING ERRCODE = 'check_violation';
+  END IF;
+  -- On null -> a cluster (import confirm), no already-recorded child may belong to a different one.
+  IF OLD.cluster_id IS NULL AND NEW.cluster_id IS NOT NULL THEN
+    IF EXISTS (SELECT 1 FROM om_cluster_members WHERE (added_by_operation = NEW.id OR removed_by_operation = NEW.id) AND cluster_id <> NEW.cluster_id)
+       OR EXISTS (SELECT 1 FROM om_owned_items WHERE (created_by_operation = NEW.id OR removed_by_operation = NEW.id) AND cluster_id <> NEW.cluster_id)
+       OR EXISTS (SELECT 1 FROM om_cluster_states WHERE operation_id = NEW.id AND cluster_id <> NEW.cluster_id)
+       OR EXISTS (SELECT 1 FROM om_secrets WHERE operation_id = NEW.id AND cluster_id IS NOT NULL AND cluster_id <> NEW.cluster_id)
+       OR EXISTS (SELECT 1 FROM om_operations WHERE parent_operation_id = NEW.id AND cluster_id IS NOT NULL AND cluster_id <> NEW.cluster_id)
+       OR EXISTS (SELECT 1 FROM om_operation_steps s WHERE s.operation_id = NEW.id AND s.target_kind = 'member'
+                    AND NOT EXISTS (SELECT 1 FROM om_cluster_members m WHERE m.id = s.target_id::uuid AND m.cluster_id = NEW.cluster_id))
+       OR EXISTS (SELECT 1 FROM om_locks l WHERE l.operation_id = NEW.id
+                    AND ((l.resource_kind = 'cluster' AND l.resource_id <> NEW.cluster_id::text)
+                      OR (l.resource_kind = 'member' AND NOT EXISTS (SELECT 1 FROM om_cluster_members m WHERE m.id = l.resource_id::uuid AND m.cluster_id = NEW.cluster_id)))) THEN
+      RAISE EXCEPTION 'om_operations.cluster_id % conflicts with an already-recorded child', NEW.cluster_id USING ERRCODE = 'foreign_key_violation';
+    END IF;
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_operations_cluster_set_once BEFORE UPDATE ON om_operations
+  FOR EACH ROW EXECUTE FUNCTION om_operations_cluster_set_once()`,
+		`CREATE TABLE om_cluster_states (
+  cluster_id     UUID NOT NULL REFERENCES om_clusters (id),
+  version        INTEGER NOT NULL CHECK (version > 0),
+  schema_version INTEGER NOT NULL,
+  document       JSONB NOT NULL,
+  operation_id   UUID NOT NULL REFERENCES om_operations (id),
+  created_at     TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (cluster_id, version)
+)`,
+		`CREATE FUNCTION om_cluster_states_append_only() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  RAISE EXCEPTION 'om_cluster_states is append-only' USING ERRCODE = 'check_violation';
+END $$`,
+		`CREATE TRIGGER om_cluster_states_append_only BEFORE UPDATE OR DELETE ON om_cluster_states
+  FOR EACH ROW EXECUTE FUNCTION om_cluster_states_append_only()`,
+		`ALTER TABLE om_clusters ADD CONSTRAINT om_clusters_current_state
+  FOREIGN KEY (id, state_version) REFERENCES om_cluster_states (cluster_id, version) DEFERRABLE INITIALLY DEFERRED`,
+		`ALTER TABLE om_operations ADD CONSTRAINT om_operations_state_before
+  FOREIGN KEY (cluster_id, state_version_before) REFERENCES om_cluster_states (cluster_id, version) DEFERRABLE INITIALLY DEFERRED`,
+		`ALTER TABLE om_operations ADD CONSTRAINT om_operations_state_after
+  FOREIGN KEY (cluster_id, state_version_after) REFERENCES om_cluster_states (cluster_id, version) DEFERRABLE INITIALLY DEFERRED`,
+		`CREATE TABLE om_cluster_members (
+  id                  UUID PRIMARY KEY,
+  cluster_id          UUID NOT NULL REFERENCES om_clusters (id),
+  replica_set_ref     UUID,
+  process             TEXT NOT NULL CHECK (process IN ('mongod', 'mongos')),
+  host                TEXT NOT NULL,
+  rs_member_id        INTEGER,
+  state               TEXT NOT NULL CHECK (state IN ('pending_add', 'accepted', 'pending_remove')),
+  node_id             VARCHAR REFERENCES nodes (node_id) ON DELETE SET NULL,
+  service_id          VARCHAR REFERENCES services (service_id) ON DELETE SET NULL,
+  exporter_agent_id   VARCHAR REFERENCES agents (agent_id) ON DELETE SET NULL,
+  added_by_operation  UUID NOT NULL REFERENCES om_operations (id),
+  removed_by_operation UUID REFERENCES om_operations (id),
+  created_at          TIMESTAMPTZ NOT NULL,
+  removed_at          TIMESTAMPTZ,
+  CHECK ((process = 'mongod') = (replica_set_ref IS NOT NULL AND rs_member_id IS NOT NULL)),
+  UNIQUE (cluster_id, id)
+)`,
+		`ALTER TABLE om_cluster_members ADD CONSTRAINT om_cluster_members_replica_set_fk
+  FOREIGN KEY (cluster_id, replica_set_ref) REFERENCES om_replica_sets (cluster_id, id) DEFERRABLE INITIALLY DEFERRED`,
+		`CREATE UNIQUE INDEX om_members_live_rs_id ON om_cluster_members (replica_set_ref, rs_member_id) WHERE removed_at IS NULL`,
+		`CREATE UNIQUE INDEX om_members_live_host ON om_cluster_members (cluster_id, host) WHERE removed_at IS NULL`,
+		`CREATE UNIQUE INDEX om_members_live_service ON om_cluster_members (service_id) WHERE removed_at IS NULL AND service_id IS NOT NULL`,
+		`CREATE INDEX om_members_node ON om_cluster_members (node_id) WHERE node_id IS NOT NULL`,
+		`CREATE TABLE om_secrets (
+  id              UUID PRIMARY KEY,
+  purpose         TEXT NOT NULL,
+  discriminator   TEXT,
+  cluster_id      UUID REFERENCES om_clusters (id),
+  replica_set_ref UUID,
+  operation_id    UUID REFERENCES om_operations (id),
+  owner_kind      TEXT,
+  generation      TEXT NOT NULL CHECK (generation IN ('current', 'pending', 'retired')),
+  username        TEXT,
+  payload         TEXT NOT NULL,
+  created_at      TIMESTAMPTZ NOT NULL,
+  rotated_at      TIMESTAMPTZ,
+  expires_at      TIMESTAMPTZ,
+  CHECK (cluster_id IS NOT NULL OR operation_id IS NOT NULL OR owner_kind IS NOT NULL OR (purpose = 'setting' AND discriminator IS NOT NULL)),
+  CHECK (replica_set_ref IS NULL OR cluster_id IS NOT NULL),
+  CHECK (generation <> 'pending' OR operation_id IS NOT NULL),
+  CHECK (purpose <> 'administrator' OR (operation_id IS NOT NULL AND cluster_id IS NULL AND expires_at IS NOT NULL)),
+  CHECK ((discriminator IS NOT NULL) = (purpose = 'setting')),
+  UNIQUE (cluster_id, id)
+)`,
+		`ALTER TABLE om_secrets ADD CONSTRAINT om_secrets_replica_set_fk
+  FOREIGN KEY (cluster_id, replica_set_ref) REFERENCES om_replica_sets (cluster_id, id) DEFERRABLE INITIALLY DEFERRED`,
+		`CREATE UNIQUE INDEX om_secrets_current ON om_secrets
+  (purpose, cluster_id, COALESCE(replica_set_ref, '00000000-0000-0000-0000-000000000000'), COALESCE(discriminator, ''))
+  WHERE generation = 'current' AND cluster_id IS NOT NULL`,
+		`CREATE UNIQUE INDEX om_secrets_current_global ON om_secrets
+  (purpose, COALESCE(discriminator, ''))
+  WHERE generation = 'current' AND cluster_id IS NULL AND operation_id IS NULL`,
+		`CREATE TABLE om_owned_items (
+  id                   UUID PRIMARY KEY,
+  cluster_id           UUID NOT NULL REFERENCES om_clusters (id),
+  replica_set_ref      UUID,
+  member_id            UUID,
+  kind                 TEXT NOT NULL,
+  natural_key          TEXT NOT NULL,
+  action               TEXT NOT NULL CHECK (action IN ('created', 'adopted', 'changed', 'handed_over')),
+  purpose              TEXT NOT NULL,
+  state                TEXT NOT NULL CHECK (state IN ('planned', 'present', 'removed')),
+  spec                 JSONB NOT NULL,
+  before               JSONB,
+  before_secret_id     UUID,
+  on_release           TEXT NOT NULL CHECK (on_release IN ('remove', 'revert', 'keep', 'ask')),
+  secret_id            UUID,
+  created_by_operation UUID NOT NULL REFERENCES om_operations (id),
+  removed_by_operation UUID REFERENCES om_operations (id),
+  created_at           TIMESTAMPTZ NOT NULL,
+  updated_at           TIMESTAMPTZ NOT NULL,
+  CHECK ((kind IN ('user', 'role')) = (replica_set_ref IS NOT NULL)),
+  CHECK (kind NOT IN ('file', 'unit_dropin') OR member_id IS NOT NULL),
+  CHECK ((action = 'changed') = (kind = 'change')),
+  CHECK (kind <> 'change' OR state = 'removed' OR before IS NOT NULL OR before_secret_id IS NOT NULL),
+  CHECK (state <> 'removed' OR before_secret_id IS NULL)
+)`,
+		`CREATE UNIQUE INDEX om_owned_items_live ON om_owned_items
+  (cluster_id, kind, COALESCE(replica_set_ref, '00000000-0000-0000-0000-000000000000'),
+   COALESCE(member_id, '00000000-0000-0000-0000-000000000000'), natural_key)
+  WHERE state <> 'removed'`,
+		`ALTER TABLE om_owned_items
+  ADD CONSTRAINT om_owned_items_replica_set_fk FOREIGN KEY (cluster_id, replica_set_ref)
+    REFERENCES om_replica_sets (cluster_id, id) DEFERRABLE INITIALLY DEFERRED,
+  ADD CONSTRAINT om_owned_items_member_fk FOREIGN KEY (cluster_id, member_id)
+    REFERENCES om_cluster_members (cluster_id, id) DEFERRABLE INITIALLY DEFERRED,
+  ADD CONSTRAINT om_owned_items_secret_fk FOREIGN KEY (cluster_id, secret_id)
+    REFERENCES om_secrets (cluster_id, id) ON DELETE SET NULL (secret_id) DEFERRABLE INITIALLY DEFERRED,
+  ADD CONSTRAINT om_owned_items_before_secret_fk FOREIGN KEY (cluster_id, before_secret_id)
+    REFERENCES om_secrets (cluster_id, id) ON DELETE RESTRICT DEFERRABLE INITIALLY DEFERRED`,
+		`CREATE FUNCTION om_assert_op_cluster(row_cluster UUID, op UUID) RETURNS void LANGUAGE plpgsql AS $$
+DECLARE opc UUID;
+BEGIN
+  IF op IS NULL OR row_cluster IS NULL THEN RETURN; END IF;
+  SELECT cluster_id INTO opc FROM om_operations WHERE id = op FOR NO KEY UPDATE;
+  IF opc IS NOT NULL AND opc <> row_cluster THEN
+    RAISE EXCEPTION 'operation % belongs to cluster %, not %', op, opc, row_cluster USING ERRCODE = 'foreign_key_violation';
+  END IF;
+END $$`,
+		`CREATE FUNCTION om_cluster_members_op_cluster() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF TG_OP = 'INSERT' OR NEW.added_by_operation IS DISTINCT FROM OLD.added_by_operation THEN
+    PERFORM om_assert_op_cluster(NEW.cluster_id, NEW.added_by_operation);
+  END IF;
+  IF TG_OP = 'INSERT' OR NEW.removed_by_operation IS DISTINCT FROM OLD.removed_by_operation THEN
+    PERFORM om_assert_op_cluster(NEW.cluster_id, NEW.removed_by_operation);
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_cluster_members_op_cluster BEFORE INSERT OR UPDATE ON om_cluster_members
+  FOR EACH ROW EXECUTE FUNCTION om_cluster_members_op_cluster()`,
+		`CREATE FUNCTION om_owned_items_op_cluster() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF TG_OP = 'INSERT' OR NEW.created_by_operation IS DISTINCT FROM OLD.created_by_operation THEN
+    PERFORM om_assert_op_cluster(NEW.cluster_id, NEW.created_by_operation);
+  END IF;
+  IF TG_OP = 'INSERT' OR NEW.removed_by_operation IS DISTINCT FROM OLD.removed_by_operation THEN
+    PERFORM om_assert_op_cluster(NEW.cluster_id, NEW.removed_by_operation);
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_owned_items_op_cluster BEFORE INSERT OR UPDATE ON om_owned_items
+  FOR EACH ROW EXECUTE FUNCTION om_owned_items_op_cluster()`,
+		`CREATE FUNCTION om_cluster_states_op_cluster() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  PERFORM om_assert_op_cluster(NEW.cluster_id, NEW.operation_id);
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_cluster_states_op_cluster BEFORE INSERT ON om_cluster_states
+  FOR EACH ROW EXECUTE FUNCTION om_cluster_states_op_cluster()`,
+		`CREATE FUNCTION om_secrets_op_cluster() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF TG_OP = 'INSERT' OR NEW.operation_id IS DISTINCT FROM OLD.operation_id THEN
+    PERFORM om_assert_op_cluster(NEW.cluster_id, NEW.operation_id);
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_secrets_op_cluster BEFORE INSERT OR UPDATE ON om_secrets
+  FOR EACH ROW EXECUTE FUNCTION om_secrets_op_cluster()`,
+		`CREATE FUNCTION om_operations_parent_cluster() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.parent_operation_id = NEW.id THEN
+    RAISE EXCEPTION 'operation % cannot be its own parent', NEW.id USING ERRCODE = 'check_violation';
+  END IF;
+  -- Only when the reference or this op's cluster changes - not on an ordinary status/version update,
+  -- so a transition never locks the parent row (keeps the fence from widening into a deadlock surface).
+  IF TG_OP = 'INSERT'
+     OR NEW.parent_operation_id IS DISTINCT FROM OLD.parent_operation_id
+     OR NEW.cluster_id IS DISTINCT FROM OLD.cluster_id THEN
+    PERFORM om_assert_op_cluster(NEW.cluster_id, NEW.parent_operation_id);
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_operations_parent_cluster BEFORE INSERT OR UPDATE ON om_operations
+  FOR EACH ROW EXECUTE FUNCTION om_operations_parent_cluster()`,
+		`CREATE FUNCTION om_cluster_members_cluster_immutable() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.cluster_id IS DISTINCT FROM OLD.cluster_id OR NEW.id IS DISTINCT FROM OLD.id THEN
+    RAISE EXCEPTION 'om_cluster_members.id and cluster_id are immutable' USING ERRCODE = 'check_violation';
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_cluster_members_cluster_immutable BEFORE UPDATE ON om_cluster_members
+  FOR EACH ROW EXECUTE FUNCTION om_cluster_members_cluster_immutable()`,
+		`CREATE FUNCTION om_replica_sets_cluster_immutable() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.cluster_id IS DISTINCT FROM OLD.cluster_id OR NEW.id IS DISTINCT FROM OLD.id THEN
+    RAISE EXCEPTION 'om_replica_sets.id and cluster_id are immutable' USING ERRCODE = 'check_violation';
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_replica_sets_cluster_immutable BEFORE UPDATE ON om_replica_sets
+  FOR EACH ROW EXECUTE FUNCTION om_replica_sets_cluster_immutable()`,
+		`CREATE FUNCTION om_secrets_cluster_immutable() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.cluster_id IS DISTINCT FROM OLD.cluster_id THEN
+    RAISE EXCEPTION 'om_secrets.cluster_id is immutable' USING ERRCODE = 'check_violation';
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_secrets_cluster_immutable BEFORE UPDATE ON om_secrets
+  FOR EACH ROW EXECUTE FUNCTION om_secrets_cluster_immutable()`,
+		`CREATE FUNCTION om_owned_items_cluster_immutable() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.cluster_id IS DISTINCT FROM OLD.cluster_id THEN
+    RAISE EXCEPTION 'om_owned_items.cluster_id is immutable' USING ERRCODE = 'check_violation';
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_owned_items_cluster_immutable BEFORE UPDATE ON om_owned_items
+  FOR EACH ROW EXECUTE FUNCTION om_owned_items_cluster_immutable()`,
+		`CREATE TABLE om_settings (
+  id         UUID PRIMARY KEY,
+  key        TEXT NOT NULL,
+  cluster_id UUID REFERENCES om_clusters (id),
+  value      JSONB NOT NULL,
+  updated_by TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+)`,
+		`CREATE UNIQUE INDEX om_settings_global ON om_settings (key) WHERE cluster_id IS NULL`,
+		`CREATE UNIQUE INDEX om_settings_cluster ON om_settings (key, cluster_id) WHERE cluster_id IS NOT NULL`,
+		`CREATE TABLE om_leader_lease (
+  singleton  BOOLEAN PRIMARY KEY DEFAULT true CHECK (singleton),
+  epoch      BIGINT NOT NULL DEFAULT 1,
+  holder     TEXT,
+  expires_at TIMESTAMPTZ
+)`,
+		`INSERT INTO om_leader_lease (singleton, epoch) VALUES (true, 1)`,
+		`CREATE FUNCTION om_acquire_leader_lease(who TEXT, ttl INTERVAL) RETURNS BIGINT LANGUAGE plpgsql AS $$
+DECLARE e BIGINT;
+BEGIN
+  -- Keep the epoch only on a live renewal by the same holder; advance it on a takeover AND on a
+  -- same-holder reacquire after the lease expired (the holder cannot be sure no one acted in the gap).
+  UPDATE om_leader_lease
+     SET epoch = CASE WHEN holder = who AND expires_at IS NOT NULL AND expires_at > clock_timestamp() THEN epoch ELSE epoch + 1 END,
+         holder = who, expires_at = clock_timestamp() + ttl
+   WHERE singleton
+   RETURNING epoch INTO e;
+  RETURN e;
+END $$`,
+		`CREATE TABLE om_operation_steps (
+  id              UUID PRIMARY KEY,
+  operation_id    UUID NOT NULL REFERENCES om_operations (id),
+  target_kind     TEXT NOT NULL CHECK (target_kind IN ('member', 'replica_set', 'node', 'run')),
+  target_id       TEXT NOT NULL,
+  phase           TEXT NOT NULL,
+  step            TEXT NOT NULL,
+  attempt         INTEGER NOT NULL CHECK (attempt > 0),
+  idempotency_key TEXT NOT NULL UNIQUE,
+  epoch           BIGINT NOT NULL,
+  status          TEXT NOT NULL CHECK (status IN ('planned', 'dispatching', 'running', 'succeeded', 'failed', 'unknown')),
+  result          JSONB,
+  task_history_id TEXT,
+  dispatched_at   TIMESTAMPTZ,
+  finished_at     TIMESTAMPTZ,
+  UNIQUE (operation_id, target_kind, target_id, phase, step, attempt)
+)`,
+		`CREATE FUNCTION om_operation_steps_target_scope() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE opc UUID;
+BEGIN
+  IF NEW.target_kind = 'run' THEN
+    IF NEW.target_id <> NEW.operation_id::text THEN
+      RAISE EXCEPTION 'run-level step % must target its own operation', NEW.id USING ERRCODE = 'foreign_key_violation';
+    END IF;
+  ELSIF NEW.target_kind = 'member' THEN
+    IF NEW.target_id <> NEW.target_id::uuid::text THEN
+      RAISE EXCEPTION 'step target_id % is not canonical UUID text', NEW.target_id USING ERRCODE = 'check_violation';
+    END IF;
+    SELECT cluster_id INTO opc FROM om_operations WHERE id = NEW.operation_id;
+    IF opc IS NOT NULL AND NOT EXISTS (SELECT 1 FROM om_cluster_members WHERE id = NEW.target_id::uuid AND cluster_id = opc AND removed_at IS NULL) THEN
+      RAISE EXCEPTION 'step % targets a member not live in operation cluster %', NEW.id, opc USING ERRCODE = 'foreign_key_violation';
+    END IF;
+  ELSIF NEW.target_kind = 'replica_set' THEN
+    IF NEW.target_id <> NEW.target_id::uuid::text THEN
+      RAISE EXCEPTION 'step target_id % is not canonical UUID text', NEW.target_id USING ERRCODE = 'check_violation';
+    END IF;
+    SELECT cluster_id INTO opc FROM om_operations WHERE id = NEW.operation_id;
+    IF opc IS NOT NULL AND NOT EXISTS (SELECT 1 FROM om_replica_sets WHERE id = NEW.target_id::uuid AND cluster_id = opc AND removed_at IS NULL) THEN
+      RAISE EXCEPTION 'step % targets a replica set not live in operation cluster %', NEW.id, opc USING ERRCODE = 'foreign_key_violation';
+    END IF;
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_operation_steps_target_scope BEFORE INSERT ON om_operation_steps
+  FOR EACH ROW EXECUTE FUNCTION om_operation_steps_target_scope()`,
+		`CREATE FUNCTION om_operation_steps_identity_immutable() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.operation_id <> OLD.operation_id OR NEW.target_kind <> OLD.target_kind OR NEW.target_id <> OLD.target_id
+     OR NEW.phase <> OLD.phase OR NEW.step <> OLD.step OR NEW.attempt <> OLD.attempt
+     OR NEW.idempotency_key <> OLD.idempotency_key OR NEW.epoch <> OLD.epoch THEN
+    RAISE EXCEPTION 'om_operation_steps identity columns are immutable' USING ERRCODE = 'check_violation';
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_operation_steps_identity_immutable BEFORE UPDATE ON om_operation_steps
+  FOR EACH ROW EXECUTE FUNCTION om_operation_steps_identity_immutable()`,
+		`CREATE TABLE om_attention (
+  cluster_id   UUID NOT NULL REFERENCES om_clusters (id),
+  reason       TEXT NOT NULL,
+  subject_kind TEXT NOT NULL CHECK (subject_kind IN ('cluster', 'replica_set', 'member')),
+  subject_id   UUID NOT NULL,
+  path         TEXT NOT NULL DEFAULT '',
+  detail       JSONB NOT NULL DEFAULT '{}',
+  evidence     JSONB NOT NULL DEFAULT '{}',
+  observed_at  TIMESTAMPTZ NOT NULL,
+  resolved_at  TIMESTAMPTZ,
+  since        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (cluster_id, reason, subject_kind, subject_id, path)
+)`,
+		`CREATE FUNCTION om_attention_upsert(c UUID, r TEXT, sk TEXT, sid UUID, p TEXT, d JSONB, ev JSONB, obs TIMESTAMPTZ)
+RETURNS boolean LANGUAGE plpgsql AS $$
+DECLARE n integer;
+BEGIN
+  INSERT INTO om_attention AS a (cluster_id, reason, subject_kind, subject_id, path, detail, evidence, observed_at)
+  VALUES (c, r, sk, sid, p, d, ev, obs)
+  ON CONFLICT (cluster_id, reason, subject_kind, subject_id, path) DO UPDATE
+    SET detail = EXCLUDED.detail, evidence = EXCLUDED.evidence, observed_at = EXCLUDED.observed_at, resolved_at = NULL
+    WHERE a.observed_at < EXCLUDED.observed_at;
+  GET DIAGNOSTICS n = ROW_COUNT;
+  RETURN n > 0;
+END $$`,
+		`CREATE FUNCTION om_attention_clear(c UUID, r TEXT, sk TEXT, sid UUID, p TEXT, obs TIMESTAMPTZ)
+RETURNS boolean LANGUAGE plpgsql AS $$
+DECLARE n integer;
+BEGIN
+  UPDATE om_attention
+     SET resolved_at = obs, observed_at = obs
+   WHERE cluster_id = c AND reason = r AND subject_kind = sk AND subject_id = sid AND path = p
+     AND observed_at < obs;
+  GET DIAGNOSTICS n = ROW_COUNT;
+  RETURN n > 0;
+END $$`,
+		`CREATE FUNCTION om_attention_subject_check() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.subject_kind = 'cluster' THEN
+    IF NEW.subject_id <> NEW.cluster_id THEN
+      RAISE EXCEPTION 'attention subject % is not cluster %', NEW.subject_id, NEW.cluster_id USING ERRCODE = 'foreign_key_violation';
+    END IF;
+  ELSIF NEW.subject_kind = 'replica_set' THEN
+    IF NOT EXISTS (SELECT 1 FROM om_replica_sets WHERE id = NEW.subject_id AND cluster_id = NEW.cluster_id AND removed_at IS NULL) THEN
+      RAISE EXCEPTION 'attention subject % is not a live replica set of cluster %', NEW.subject_id, NEW.cluster_id USING ERRCODE = 'foreign_key_violation';
+    END IF;
+  ELSIF NEW.subject_kind = 'member' THEN
+    IF NOT EXISTS (SELECT 1 FROM om_cluster_members WHERE id = NEW.subject_id AND cluster_id = NEW.cluster_id AND removed_at IS NULL) THEN
+      RAISE EXCEPTION 'attention subject % is not a live member of cluster %', NEW.subject_id, NEW.cluster_id USING ERRCODE = 'foreign_key_violation';
+    END IF;
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_attention_subject_check BEFORE INSERT OR UPDATE ON om_attention
+  FOR EACH ROW EXECUTE FUNCTION om_attention_subject_check()`,
+		`CREATE TABLE om_lock_resources (
+  resource_kind TEXT NOT NULL,
+  resource_id   TEXT NOT NULL,
+  version       BIGINT NOT NULL,
+  PRIMARY KEY (resource_kind, resource_id)
+)`,
+		`CREATE TABLE om_locks (
+  resource_kind TEXT NOT NULL,
+  resource_id   TEXT NOT NULL,
+  operation_id  UUID NOT NULL REFERENCES om_operations (id),
+  mode          TEXT NOT NULL CHECK (mode IN ('shared', 'exclusive')),
+  acquired_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (resource_kind, resource_id, operation_id),
+  FOREIGN KEY (resource_kind, resource_id) REFERENCES om_lock_resources (resource_kind, resource_id)
+)`,
+		`CREATE FUNCTION om_locks_check() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE holder RECORD;
+BEGIN
+  INSERT INTO om_lock_resources AS r (resource_kind, resource_id, version) VALUES (NEW.resource_kind, NEW.resource_id, 1)
+    ON CONFLICT (resource_kind, resource_id) DO UPDATE SET version = r.version + 1;
+  SELECT operation_id, mode INTO holder FROM om_locks
+   WHERE resource_kind = NEW.resource_kind AND resource_id = NEW.resource_id AND operation_id <> NEW.operation_id
+     AND (NEW.mode = 'exclusive' OR mode = 'exclusive')
+   LIMIT 1;
+  IF FOUND THEN
+    RAISE EXCEPTION 'lock conflict on % %', NEW.resource_kind, NEW.resource_id
+      USING ERRCODE = 'lock_not_available',
+            DETAIL = format('holder_operation_id=%s;holder_mode=%s;requested_mode=%s', holder.operation_id, holder.mode, NEW.mode);
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_locks_check BEFORE INSERT ON om_locks FOR EACH ROW EXECUTE FUNCTION om_locks_check()`,
+		`CREATE FUNCTION om_locks_scope() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE opc UUID;
+BEGIN
+  -- A cluster/member resource_id must be canonical UUID text, so two spellings of one id cannot
+  -- become two lock rows (two exclusive holders of the same member).
+  IF NEW.resource_kind IN ('cluster', 'member') AND NEW.resource_id <> NEW.resource_id::uuid::text THEN
+    RAISE EXCEPTION 'lock resource_id % is not canonical UUID text', NEW.resource_id USING ERRCODE = 'check_violation';
+  END IF;
+  SELECT cluster_id INTO opc FROM om_operations WHERE id = NEW.operation_id;
+  IF opc IS NULL THEN RETURN NEW; END IF;
+  IF NEW.resource_kind = 'cluster' AND NEW.resource_id <> opc::text THEN
+    RAISE EXCEPTION 'operation (cluster %) cannot lock cluster %', opc, NEW.resource_id USING ERRCODE = 'foreign_key_violation';
+  ELSIF NEW.resource_kind = 'member'
+        AND NOT EXISTS (SELECT 1 FROM om_cluster_members WHERE id = NEW.resource_id::uuid AND cluster_id = opc) THEN
+    RAISE EXCEPTION 'operation (cluster %) cannot lock member % of another cluster', opc, NEW.resource_id USING ERRCODE = 'foreign_key_violation';
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_locks_a_scope BEFORE INSERT ON om_locks FOR EACH ROW EXECUTE FUNCTION om_locks_scope()`,
+		`CREATE FUNCTION om_locks_mode_immutable() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NEW.mode <> OLD.mode THEN
+    RAISE EXCEPTION 'om_locks.mode is immutable; release and re-acquire' USING ERRCODE = 'check_violation';
+  END IF;
+  RETURN NEW;
+END $$`,
+		`CREATE TRIGGER om_locks_mode_immutable BEFORE UPDATE ON om_locks FOR EACH ROW EXECUTE FUNCTION om_locks_mode_immutable()`,
+		`CREATE FUNCTION om_acquire_locks(op UUID, resources TEXT[][]) RETURNS void LANGUAGE plpgsql AS $$
+DECLARE r RECORD;
+BEGIN
+  FOR r IN SELECT resources[i][1] AS k, resources[i][2] AS id, resources[i][3] AS m
+             FROM generate_subscripts(resources, 1) AS i ORDER BY 1, 2 LOOP
+    INSERT INTO om_locks (resource_kind, resource_id, operation_id, mode) VALUES (r.k, r.id, op, r.m);
+  END LOOP;
+END $$`,
 	},
 }
 
