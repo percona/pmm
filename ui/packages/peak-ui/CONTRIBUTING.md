@@ -41,7 +41,7 @@ When a change touches an export or a prop PMM uses, also run `make ci` from `ui/
 
 ## Chromatic
 
-A pull request that touches this package, `ui/pnpm-lock.yaml`, `ui/pnpm-workspace.yaml` or `ui/tsconfig.base.json` gets a Peak UI Chromatic check, and Merge Gatekeeper waits for it. Neither re-runs on its own:
+A pull request that touches this package, `ui/.nvmrc`, `ui/pnpm-lock.yaml`, `ui/pnpm-workspace.yaml` or `ui/tsconfig.base.json` gets a Peak UI Chromatic check, and Merge Gatekeeper waits for it. Neither re-runs on its own:
 
 - Visual changes fail the check. Review and accept them in Chromatic, then re-run the failed Peak UI Chromatic job, then Merge Gatekeeper.
 - A pull request from a fork waits for a maintainer to approve the `chromatic-external` environment. If that takes longer than Merge Gatekeeper's 20 minutes, re-run Merge Gatekeeper once the Chromatic job finishes.

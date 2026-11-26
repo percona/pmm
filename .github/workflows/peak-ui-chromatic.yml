@@ -8,6 +8,7 @@ on:
       - main
     paths:
       - "ui/packages/peak-ui/**"
+      - "ui/.nvmrc"
       - "ui/pnpm-workspace.yaml"
       - "ui/pnpm-lock.yaml"
       - "ui/tsconfig.base.json"
@@ -15,6 +16,7 @@ on:
   pull_request:
     paths:
       - "ui/packages/peak-ui/**"
+      - "ui/.nvmrc"
       - "ui/pnpm-workspace.yaml"
       - "ui/pnpm-lock.yaml"
       - "ui/tsconfig.base.json"
@@ -22,6 +24,7 @@ on:
   pull_request_target:
     paths:
       - "ui/packages/peak-ui/**"
+      - "ui/.nvmrc"
       - "ui/pnpm-workspace.yaml"
       - "ui/pnpm-lock.yaml"
       - "ui/tsconfig.base.json"
