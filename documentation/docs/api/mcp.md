@@ -468,7 +468,7 @@ Set them on the PMM Server container like other `PMM_*` variables, for example `
     - `group_by=username` and `group_by=client_host` return database user names and client addresses, as the QAN dashboard does for the same role. `PMM_MCP_RAW_SQL` does not hide them.
     - An agent error that can quote the statement is withheld, and its error code is kept.
 
-    Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions from `pmm_get_schema` are returned as they are, so `CHECK` and `DEFAULT` constants and partition bounds are not masked. To stop PMM from collecting query examples, disable them at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.
+    Masking keeps the plan's shape: access type, table and index names, rows, and MongoDB's execution counters. A plan that can't be parsed for masking is withheld. Table definitions and indexes from `pmm_get_schema` are returned as they are, even with `PMM_MCP_RAW_SQL` off. None of the values that they hold is masked: `CHECK` and `DEFAULT` constants, partition bounds, `ENUM` and `SET` value lists, generated-column expressions, column and table comments, the `AUTO_INCREMENT` counter, and the predicates of PostgreSQL partial indexes. To stop PMM from collecting query examples, disable them at the source with `pmm-admin add … --disable-queryexamples`. This also stops `pmm_get_explain` from resolving `?` placeholders automatically for MySQL.
 
 ### Operator metrics
 
