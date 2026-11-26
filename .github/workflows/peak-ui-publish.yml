@@ -12,7 +12,7 @@ on:
         description: Version to pack when not run on a tag, e.g. 3.99.0-dryrun
         type: string
       dry_run:
-        description: Pack and check only
+        description: Pack and check only (only a run on a tag can publish)
         type: boolean
         default: true
 
