@@ -3,7 +3,7 @@
 # https://www.mkdocs.org/user-guide/configuration/
 
 site_name: Percona Monitoring and Management
-site_description: "site_description: "Percona Monitoring and Management (PMM) is an open source database monitoring, management and observability solution for MySQL, PostgreSQL, MongoDB, Valkey and Redis. This documentation covers installation, configuration, dashboards, Query Analytics and alerting."
+site_description: "Percona Monitoring and Management (PMM) is an open source database monitoring, management and observability solution for MySQL, PostgreSQL, MongoDB, Valkey and Redis. This documentation covers installation, configuration, dashboards, Query Analytics and alerting."
 site_author: Percona LLC
 site_url: ""
 use_directory_urls: false
