@@ -121,15 +121,15 @@ func (r inventoryResult) render() string {
 	var lines []string
 	lines = append(lines, fmt.Sprintf("Monitored services (%d):", r.Page.Total))
 	for _, svc := range r.Services {
-		row := fmt.Sprintf("- %s | %s %s | id=%s", svc.ServiceName, svc.Engine, cmp.Or(svc.Version, "unknown"), svc.ServiceID)
+		row := fmt.Sprintf("- %s | %s %s | id=%s", oneLine(svc.ServiceName), oneLine(svc.Engine), cmp.Or(oneLine(svc.Version), "unknown"), oneLine(svc.ServiceID))
 		if svc.NodeName != "" {
-			row += " | node=" + svc.NodeName
+			row += " | node=" + oneLine(svc.NodeName)
 		}
 		if svc.Environment != "" {
-			row += " | environment=" + svc.Environment
+			row += " | environment=" + oneLine(svc.Environment)
 		}
 		if svc.Cluster != "" {
-			row += " | cluster=" + svc.Cluster
+			row += " | cluster=" + oneLine(svc.Cluster)
 		}
 		row += " | last_seen=" + svc.LastSeen.UTC().Format(time.RFC3339)
 		if svc.PMMURL != "" {

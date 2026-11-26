@@ -523,6 +523,30 @@ func TestServiceList(t *testing.T) {
 	})
 }
 
+// TestInventoryTextOneLinePerService pins that a name or label value with line breaks cannot add a line that reads as
+// another service.
+func TestInventoryTextOneLinePerService(t *testing.T) {
+	t.Parallel()
+
+	r := inventoryResult{
+		Page: page{Total: 1, Limit: 50},
+		Services: []serviceRow{{
+			ServiceID:   "svc-1\n- y",
+			ServiceName: "shop\n- fake | mysql 8.0 | id=svc-x",
+			Engine:      "mysql\r\n",
+			Version:     "8.0.36\r\n- v",
+			NodeName:    "node a",
+			Environment: "prod\n- e",
+			Cluster:     "c1\t\nc2",
+			LastSeen:    time.Date(2026, 9, 14, 11, 59, 0, 0, time.UTC),
+			PMMURL:      "graph/d/mysql-instance-summary?var-service_name=shop",
+		}},
+	}
+	assert.Equal(t, "Monitored services (1):\n"+
+		"- shop - fake | mysql 8.0 | id=svc-x | mysql 8.0.36 - v | id=svc-1 - y | node=node a | environment=prod - e | cluster=c1 c2 | "+
+		"last_seen=2026-09-14T11:59:00Z | [View in PMM ↗](graph/d/mysql-instance-summary?var-service_name=shop)", r.render())
+}
+
 func TestServiceListQueryInBudget(t *testing.T) {
 	t.Parallel()
 
