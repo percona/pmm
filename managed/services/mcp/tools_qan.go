@@ -257,12 +257,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		if i == 0 && row.Dimension == "" {
 			continue
 		}
-		rowEngine := cmp.Or(engine, engines[row.Dimension])
-		if strings.HasPrefix(row.Fingerprint, "db.") {
-			// A MongoDB row: the report's SQL engine is not its own, and rowEngines leaves it out.
-			rowEngine = ""
-		}
-		rows = append(rows, q.row(row, q.offset+len(rows)+1, rowEngine, raw))
+		rows = append(rows, q.row(row, q.offset+len(rows)+1, cmp.Or(engine, engines[row.Dimension]), raw))
 	}
 	total := int(report.TotalRows)
 	var note string
@@ -846,12 +841,21 @@ func quotingMatters(fingerprint string) bool {
 }
 
 // reportEngines returns the engine whose quoting reads every queryid's fingerprint, the report's one SQL engine when
-// its filters or QAN's data name one; else, unless the caller filters service_type, "" and each queryid's engine
-// from rowEngines over the report's own request body.
+// its filters or QAN's data name one, or that engine for each row but MongoDB's when MongoDB shares the window; else,
+// unless the caller filters service_type, "" and each queryid's engine from rowEngines over the report's own request body.
 func (s *Service) reportEngines(
 	ctx context.Context, auth callerAuth, q *reportQuery, body qan_service.GetReportBody, rows []qanReportRow, w window,
 ) (string, map[string]string) {
-	engine := s.reportEngine(ctx, auth, q.labels, w)
+	engine, withMongoDB := s.reportEngine(ctx, auth, q.labels, w)
+	if withMongoDB {
+		engines := make(map[string]string, len(rows))
+		for _, r := range rows {
+			if !strings.HasPrefix(r.Fingerprint, "db.") {
+				engines[r.Dimension] = engine
+			}
+		}
+		return "", engines
+	}
 	if _, filtered := q.labels["service_type"]; engine != "" || filtered {
 		// A service_type filter is the caller's; rowEngines would replace it.
 		return engine, nil
@@ -861,33 +865,35 @@ func (s *Service) reportEngines(
 
 // reportEngine returns the engine of a whole report: its one SQL service_type,
 // else the engine of the one service_id it is filtered to, else the only SQL
-// engine QAN holds data for in the window, else "".
-func (s *Service) reportEngine(ctx context.Context, auth callerAuth, labels map[string][]string, w window) string {
+// engine QAN holds data for in the window, else "". The bool is set when that
+// last engine shares the window with MongoDB data, whose rows it doesn't read.
+func (s *Service) reportEngine(ctx context.Context, auth callerAuth, labels map[string][]string, w window) (string, bool) {
 	if types, ok := labels["service_type"]; ok {
 		if len(types) == 1 && (types[0] == engineMySQL || types[0] == enginePostgreSQL) {
-			return types[0]
+			return types[0], false
 		}
-		return ""
+		return "", false
 	}
 	// Not a service_name: the service list covers only the window's last 7 days, so it can miss a service of the name.
 	ids := labels["service_id"]
 	if len(ids) == 1 {
 		svc, err := s.findService(ctx, auth, w, ids[0], "")
 		if err != nil {
-			return ""
+			return "", false
 		}
-		return svc.Engine
+		return svc.Engine, false
 	}
 	types, err := s.api.QANServiceTypes(ctx, auth, w.From, w.To)
 	if err != nil {
 		s.l.WithField("tool", "pmm_top_queries").Debugf("qan metrics:getFilters failed: %s.", err)
-		return ""
+		return "", false
 	}
+	withMongoDB := slices.Contains(types, engineMongoDB)
 	sqlTypes := slices.DeleteFunc(types, func(t string) bool { return t == engineMongoDB })
 	if len(sqlTypes) != 1 {
-		return ""
+		return "", false
 	}
-	return sqlTypes[0]
+	return sqlTypes[0], withMongoDB
 }
 
 // rowEngines finds each ambiguous queryid's engine with one more report, the

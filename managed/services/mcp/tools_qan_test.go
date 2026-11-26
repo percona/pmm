@@ -208,8 +208,6 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 	}
 }
 
-// TestTopQueriesQuotingFollowsTheService pins that a report filtered to one
-// service reads its fingerprints with that engine's quoting.
 // TestTopQueriesMongoDBRowsKeepTheirMasking pins that the one SQL engine QAN holds besides MongoDB is not applied to
 // the MongoDB rows of a page.
 func TestTopQueriesMongoDBRowsKeepTheirMasking(t *testing.T) {
@@ -227,8 +225,18 @@ func TestTopQueriesMongoDBRowsKeepTheirMasking(t *testing.T) {
 	assert.Contains(t, text, "   db.orders.aggregate([{\"$match\":{\"email\":\"?\"}}, {\"$addFields\":{\"tier\":?}}])\n")
 	assert.NotContains(t, text, "alice@example.com")
 	assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "alice@example.com")
+
+	// On a page filtered to one PostgreSQL service, a fingerprint that starts with db. is PostgreSQL's.
+	routes = qanRoutes()
+	routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_postgresql_db_prefix.json"}
+	session = connect(t, newQANService(t, newFakePMM(t, routes), false))
+	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"service_id": "svc-2", "period_from": "now-1h"})
+	require.False(t, isError, text)
+	assert.Contains(t, text, "   db.t.find(?) /*?*/\n")
 }
 
+// TestTopQueriesQuotingFollowsTheService pins that a report filtered to one
+// service reads its fingerprints with that engine's quoting.
 func TestTopQueriesQuotingFollowsTheService(t *testing.T) {
 	t.Parallel()
 
@@ -1474,8 +1482,12 @@ func TestTopQueriesSharedServiceName(t *testing.T) {
 	assert.Contains(t, got.PMMURL, "var-service_name=shop-mysql")
 
 	byID := func(id string) map[string][]string { return map[string][]string{"service_id": {id}} }
-	assert.Empty(t, s.reportEngine(t.Context(), testAuth, byID("mysql-gone"), s.lastHour()), "a service_id outside the list leaves the engine to the rows")
-	assert.Equal(t, enginePostgreSQL, s.reportEngine(t.Context(), testAuth, byID("svc-2"), s.lastHour()))
+	engine, withMongoDB := s.reportEngine(t.Context(), testAuth, byID("mysql-gone"), s.lastHour())
+	assert.Empty(t, engine, "a service_id outside the list leaves the engine to the rows")
+	assert.False(t, withMongoDB)
+	engine, withMongoDB = s.reportEngine(t.Context(), testAuth, byID("svc-2"), s.lastHour())
+	assert.Equal(t, enginePostgreSQL, engine)
+	assert.False(t, withMongoDB)
 }
 
 // TestQueryDetailSeveralServices pins that a detail summed over several services, whose metadata joins their names,

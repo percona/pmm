@@ -897,10 +897,12 @@ const withheldMessage = "(message withheld: it can quote the statement, and PMM_
 // pass for the error's own.
 func mapActionError(actionErr string, redact bool) *toolError {
 	rest := strings.TrimPrefix(actionErr, mongoExplainPrefix)
-	if mongoUnsupportedExplain.MatchString(rest) {
-		return newToolError(codeInvalidInput, "%s\n%s", actionErr, mongoExplainRemediation)
-	}
 	prefix := actionErr[:len(actionErr)-len(rest)]
+	// The database's text can name tables and statements, so it stays on one line of the answer.
+	text := prefix + collapseSpace(rest)
+	if mongoUnsupportedExplain.MatchString(rest) {
+		return newToolError(codeInvalidInput, "%s\n%s", text, mongoExplainRemediation)
+	}
 	mysqlHeader := mysqlErrorHeader.FindStringSubmatch(rest)
 	mongoName := mongoErrorName.FindStringSubmatch(rest)
 
@@ -918,7 +920,7 @@ func mapActionError(actionErr string, redact bool) *toolError {
 		code = classifyErrorText(maskQuoted(rest))
 	}
 
-	msg := actionErr
+	msg := text
 	if redact && !safe {
 		msg = prefix + header + withheldMessage
 	}

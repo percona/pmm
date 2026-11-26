@@ -107,7 +107,12 @@ func indentLines(s string) string {
 
 // oneLine collapses s's whitespace, newlines included, and cuts it to the echo length, so that a field stays on its line of a text.
 func oneLine(s string) string {
-	return echo(strings.Join(strings.Fields(s), " "))
+	return echo(collapseSpace(s))
+}
+
+// collapseSpace replaces each run of whitespace in s, newlines included, with one space.
+func collapseSpace(s string) string {
+	return strings.Join(strings.Fields(s), " ")
 }
 
 // oneLineList joins the oneLine of each of names with ", ".

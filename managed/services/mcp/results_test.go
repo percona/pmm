@@ -115,6 +115,13 @@ func TestFenced(t *testing.T) {
 	assert.Equal(t, "`"+long+"\n"+long+"\n`"+long, fenced("", long))
 }
 
+// TestFencedIsLinear counts allocations, which the other tests running in parallel would add to.
+func TestFencedIsLinear(t *testing.T) { //nolint:paralleltest // AllocsPerRun counts the allocations of every goroutine.
+	s := strings.Repeat("``a", 1<<14) + strings.Repeat("`", 1<<14)
+	allocs := testing.AllocsPerRun(1, func() { fenced("", s) })
+	assert.LessOrEqual(t, allocs, 2.0, "one fence and one result, not one fence per backtick")
+}
+
 func TestCapText(t *testing.T) {
 	t.Parallel()
 

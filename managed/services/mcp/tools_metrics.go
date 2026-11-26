@@ -367,7 +367,7 @@ func seriesPerMatched(e metricsql.Expr) int {
 var minMaxAvg = []string{"min", "max", "avg"}
 
 // rollupResults are the rollup functions that return a series for each of their results, for each series they read,
-// unless a non-empty second argument picks one result.
+// unless a second argument picks one result.
 var rollupResults = map[string][]string{
 	"rollup":                 minMaxAvg,
 	"rollup_candlestick":     {"open", "high", "low", "close"},
@@ -417,8 +417,8 @@ func mostResults(args []metricsql.Expr) int {
 	return most
 }
 
-// picksOneResult tells whether a rollupResults function's arguments name one result: VictoriaMetrics returns all of
-// them for a missing or empty second argument.
+// picksOneResult tells whether a rollupResults function's arguments name one result. An empty name counts as none:
+// the VictoriaMetrics that PMM ships refuses it, and later versions return every result for it.
 func picksOneResult(args []metricsql.Expr) bool {
 	if len(args) <= 1 {
 		return false
