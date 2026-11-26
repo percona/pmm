@@ -2,12 +2,17 @@ import type { QueryData } from 'types/rta.types';
 import { ServiceType } from 'types/services.types';
 import { type CsvRow, downloadCsv, toCsvValue } from 'utils/csv.utils';
 import { isPlainObject } from 'utils/object.utils';
-import { lockTimeMs, soleBlocker } from '../table/OverviewTable.utils';
+import {
+  lockTimeMs,
+  soleBlocker,
+  sqlPayload,
+} from '../table/OverviewTable.utils';
 
 // MongoDB keeps the mongodb_rta_export name it shipped with in 3.9.
 const RTA_EXPORT_FILENAME_PREFIX: Partial<Record<ServiceType, string>> = {
   [ServiceType.mongodb]: 'mongodb_rta_export',
   [ServiceType.mysql]: 'mysql_rta_export',
+  [ServiceType.posgresql]: 'postgresql_rta_export',
 };
 
 // Headers that differ from the API field name. Every other field falls back to
@@ -93,10 +98,17 @@ export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
   }
 
   // The API omits a false flag, and an empty cell would not say whether the text is complete.
-  if (query.mySqlPayload) {
+  const payload = sqlPayload(query);
+  if (payload) {
     row[toCsvHeader('queryTextTruncated')] = Boolean(
-      query.mySqlPayload.queryTextTruncated
+      payload.queryTextTruncated
     );
+  }
+
+  // Flattening would let PostgreSQL's own query_id overwrite operation_id, the backend pid.
+  if (query.postgresqlPayload) {
+    row[toCsvHeader('queryId')] = toCsvValue(query.queryId);
+    row[toCsvHeader('pgQueryId')] = toCsvValue(query.postgresqlPayload.queryId);
   }
 
   const blocker = soleBlocker(query);

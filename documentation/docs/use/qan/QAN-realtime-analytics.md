@@ -2,7 +2,7 @@
 
 Use Real-time Query Analytics (RTA) to see what your MongoDB services are doing right now. RTA shows the operations that are running, so you can find the ones that are slow, scanning whole collections or waiting for a lock.
 
-RTA also supports MySQL, Percona Server for MySQL and MariaDB, but shows different data for them. For those services, [follow the MySQL instructions](QAN-realtime-analytics-mysql.md) instead.
+RTA also supports MySQL, Percona Server for MySQL, MariaDB and PostgreSQL, but shows different data for them. For those services, follow the [MySQL instructions](QAN-realtime-analytics-mysql.md) or the [PostgreSQL instructions](QAN-realtime-analytics-postgresql.md) instead.
 
 ## Choose between RTA and QAN
 
@@ -102,7 +102,7 @@ To find the operations behind your problem:
 On a busy server, the live operations table can list many operations at once. To narrow it down to the ones behind your problem:
 {.power-number}
 
-1. If several sessions are running, select only the services you're investigating in **Cluster/Service**. The view shows one database type at a time, so you can't combine MongoDB and MySQL services in it.
+1. If several sessions are running, select only the services you're investigating in **Cluster/Service**. The view shows one database type at a time, so you can't combine MongoDB services with MySQL or PostgreSQL services in it.
 2. To find specific operations, click :material-filter-variant: **Show/Hide filters** and filter by query text, or by a **Min** and **Max** elapsed time.
 
 ### Pause the view
@@ -306,6 +306,7 @@ MongoDB's `currentOp()` doesn't return the original query text, so RTA reconstru
 ## Related topics
 
 - [Real-time Query Analytics for MySQL](QAN-realtime-analytics-mysql.md)
+- [Real-time Query Analytics for PostgreSQL](QAN-realtime-analytics-postgresql.md)
 - [Query Analytics overview](index.md)
 - [Connect MongoDB to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md)
 - [MongoDB dashboards](../../reference/dashboards/dashboard-mongodb-instance-summary.md)

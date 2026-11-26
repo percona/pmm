@@ -59,6 +59,7 @@ var agentTypes = map[inventoryv1.AgentType]models.AgentType{
 	inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT:                        models.NomadAgentType,
 	inventoryv1.AgentType_AGENT_TYPE_RTA_MONGODB_AGENT:                  models.RTAMongoDBAgentType,
 	inventoryv1.AgentType_AGENT_TYPE_RTA_MYSQL_AGENT:                    models.RTAMySQLAgentType,
+	inventoryv1.AgentType_AGENT_TYPE_RTA_POSTGRESQL_AGENT:               models.RTAPostgreSQLAgentType,
 }
 
 func agentType(req *inventoryv1.ListAgentsRequest) *models.AgentType {
@@ -124,6 +125,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 			res.RtaMongodbAgent = append(res.RtaMongodbAgent, agent)
 		case *inventoryv1.RTAMySQLAgent:
 			res.RtaMysqlAgent = append(res.RtaMysqlAgent, agent)
+		case *inventoryv1.RTAPostgreSQLAgent:
+			res.RtaPostgresqlAgent = append(res.RtaPostgresqlAgent, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -180,6 +183,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 		res.Agent = &inventoryv1.GetAgentResponse_RtaMongodbAgent{RtaMongodbAgent: agent}
 	case *inventoryv1.RTAMySQLAgent:
 		res.Agent = &inventoryv1.GetAgentResponse_RtaMysqlAgent{RtaMysqlAgent: agent}
+	case *inventoryv1.RTAPostgreSQLAgent:
+		res.Agent = &inventoryv1.GetAgentResponse_RtaPostgresqlAgent{RtaPostgresqlAgent: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}

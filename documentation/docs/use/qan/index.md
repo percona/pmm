@@ -20,10 +20,10 @@ Query Analytics offers two ways to analyze queries:
 | **Purpose** | Live troubleshooting | Performance optimization |
 | **Time range** | Live data (updates every 1-5 seconds) | Historical data (configurable retention) |
 | **Use case** | Spot problematic operations during incidents | Analyze trends and optimize past performance |
-| **Database support** | MongoDB (Technical Preview) | MySQL, PostgreSQL, MongoDB |
+| **Database support** | MongoDB (Technical Preview), MySQL, PostgreSQL (Technical Preview) | MySQL, PostgreSQL, MongoDB |
 | **Data retention** | Temporary (refreshes with new data) | Persistent (stored for analysis) |
 | **Refresh rate** | Live updates (1-5 seconds, configurable) | Historical snapshots |
-| **Query details** | Raw operation data from `db.currentOp()` (no aggregation, grouping, or processing) | Aggregated metrics and query fingerprints |
+| **Query details** | Raw operation data from `db.currentOp()` (MongoDB), the process list and Performance Schema (MySQL) or `pg_stat_activity` (PostgreSQL), with no aggregation, grouping, or processing | Aggregated metrics and query fingerprints |
 | **Best for** | "What's slowing down my database right now?" | "Which queries should I optimize?" |
 
 ### Requirements for Profiler
@@ -69,4 +69,6 @@ If you experience Query Analytics performance issues in low-memory environments 
 ## Get started
 
 - [Stored metrics QAN](../qan/QAN-stored-metrics.md) 
-- [Real-time analytics for MongoDB](../qan/QAN-realtime-analytics.md) 
+- [Real-time analytics for MongoDB](../qan/QAN-realtime-analytics.md)
+- [Real-time analytics for MySQL](../qan/QAN-realtime-analytics-mysql.md)
+- [Real-time analytics for PostgreSQL](../qan/QAN-realtime-analytics-postgresql.md)

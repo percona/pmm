@@ -9,6 +9,9 @@ export const Messages = {
     'The blocker ran this statement last and is now idle, but its open transaction still holds the lock. The lock may come from an earlier statement. To release it, commit or roll back the transaction, or end the connection.',
   idleNoteNoTransaction:
     'The blocker ran this statement last and is now idle, but it still holds the lock, for example after LOCK TABLES. The lock is released when that connection unlocks it, for example with UNLOCK TABLES, or when the connection ends.',
+  // PostgreSQL has no LOCK TABLES outside a transaction: an idle session holds a session-level lock.
+  idleNoteSessionLock:
+    'The blocker ran this statement last and is now idle outside any transaction, but it still holds a session-level lock, such as an advisory lock. The lock may come from an earlier statement.',
   noStatementIdleInTransaction:
     'No current statement: the connection is idle in a transaction, and the server reported no last statement. To see the last statement of idle connections, enable the events_statements_current consumer.',
   noStatementIdle:
@@ -27,7 +30,10 @@ export const Messages = {
     row: 'Row lock (InnoDB)',
     metadata: 'Metadata lock (MDL)',
   },
-  idleInTransaction: (age: string) => `Sleep · idle in transaction ${age}`,
+  idleInTransaction: (command: string, age: string) =>
+    command === 'Sleep'
+      ? `Sleep · idle in transaction ${age}`
+      : `${command} ${age}`,
   otherBlockers: (count: number) =>
     count === 1
       ? '1 more transaction ahead'
@@ -44,6 +50,9 @@ export const Messages = {
     `Committing or rolling back the transaction of connection ${connId} releases this statement.`,
   resolveHintMetadata: (connId: number | string) =>
     `Connection ${connId} holds a metadata lock on this table. The lock is released when that statement or transaction ends.`,
+  // A PostgreSQL session idle outside any transaction can only hold a session-level lock.
+  resolveHintSessionLock: (connId: number | string) =>
+    `Connection ${connId} is idle outside any transaction, so it holds a session-level lock, such as an advisory lock from pg_advisory_lock(). Committing or rolling back doesn't release it. Calling pg_advisory_unlock() in that session, or ending the session, releases this statement.`,
   resolveHintRoots: (count: number, queued: number) =>
     `${count} transactions hold locks that this statement waits for, so it stays blocked until all ${count} finish.${
       queued > 0
