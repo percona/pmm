@@ -210,6 +210,25 @@ func TestRawFingerprintIsMasked(t *testing.T) {
 
 // TestTopQueriesQuotingFollowsTheService pins that a report filtered to one
 // service reads its fingerprints with that engine's quoting.
+// TestTopQueriesMongoDBRowsKeepTheirMasking pins that the one SQL engine QAN holds besides MongoDB is not applied to
+// the MongoDB rows of a page.
+func TestTopQueriesMongoDBRowsKeepTheirMasking(t *testing.T) {
+	t.Parallel()
+
+	routes := qanRoutes()
+	routes["POST /v1/qan/metrics:getReport"] = fixture{file: "report_postgresql_mongodb.json"}
+	routes["POST /v1/qan/metrics:getFilters"] = fixture{file: "filters_postgresql_mongodb.json"}
+	session := connect(t, newQANService(t, newFakePMM(t, routes), false))
+
+	res := callTool(t, session, "pmm_top_queries", map[string]any{"period_from": "now-1h"})
+	require.False(t, res.IsError)
+	text := textOf(t, res)
+	assert.Contains(t, text, "   SELECT \"id\" FROM \"users\" WHERE \"email\" = $1\n", "PostgreSQL quoting keeps the quoted names")
+	assert.Contains(t, text, "   db.orders.aggregate([{\"$match\":{\"email\":\"?\"}}, {\"$addFields\":{\"tier\":?}}])\n")
+	assert.NotContains(t, text, "alice@example.com")
+	assert.NotContains(t, string(mustJSON(t, res.StructuredContent)), "alice@example.com")
+}
+
 func TestTopQueriesQuotingFollowsTheService(t *testing.T) {
 	t.Parallel()
 

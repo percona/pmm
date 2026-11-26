@@ -1,0 +1,5 @@
+{
+  "labels": {
+    "service_type": {"name": [{"value": "mongodb", "main_metric_percent": 0.4}, {"value": "postgresql", "main_metric_percent": 0.6}]}
+  }
+}

@@ -257,7 +257,12 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 		if i == 0 && row.Dimension == "" {
 			continue
 		}
-		rows = append(rows, q.row(row, q.offset+len(rows)+1, cmp.Or(engine, engines[row.Dimension]), raw))
+		rowEngine := cmp.Or(engine, engines[row.Dimension])
+		if strings.HasPrefix(row.Fingerprint, "db.") {
+			// A MongoDB row: the report's SQL engine is not its own, and rowEngines leaves it out.
+			rowEngine = ""
+		}
+		rows = append(rows, q.row(row, q.offset+len(rows)+1, rowEngine, raw))
 	}
 	total := int(report.TotalRows)
 	var note string
