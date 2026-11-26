@@ -17,6 +17,7 @@ package mcp
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -35,11 +36,25 @@ func TestCheckExpr(t *testing.T) {
 	long := `mysql_up{service_name="` + strings.Repeat("a", 5000-len(`mysql_up{service_name=""}`)) + `"}`
 	require.Len(t, long, 5000)
 
+	const eight = `aggr_over_time(("min_over_time", "max_over_time", "avg_over_time", "sum_over_time", "count_over_time", "last_over_time", ` +
+		`"first_over_time", "stddev_over_time"), `
+	// nest wraps e in levels calls opened by open, each over a subquery of the level below whose rollup label is copied to keep its series apart.
+	nest := func(levels int, open, e string) string {
+		for i := range levels {
+			e = fmt.Sprintf(`%slabel_copy(%s, "rollup", "r%d")[1h:])`, open, e, i)
+		}
+		return e
+	}
+	deep := `count(` + nest(17, eight, eight+`up[5m])`) + `)`
+	require.Less(t, len(deep), maxExprBytes)
+
 	const (
 		scope    = "service_id, service_name, node_id or node_name"
 		capped   = "the cap is 7d"
 		perValue = "it creates a series for each distinct value, so its result can't be bounded"
 		perPhi   = "it creates a series for each phi argument, so its result grows with its arguments"
+		multiply = "nested aggr_over_time(), rollup() and rollup_*() calls multiply their series: the expression returns more than 8 series " +
+			"for each series it reads; the cap is 8: nest fewer of them, or split the query into several calls"
 		// subtracts is the hint of a duration with a minus sign after its first character.
 		subtracts = "subtracts a term; write each window, offset and subquery step without a minus sign inside, as a sum such as 19d22h"
 	)
@@ -211,6 +226,19 @@ func TestCheckExpr(t *testing.T) {
 			span: time.Hour,
 			want: []string{"aggr_over_time() names 9 functions and returns a series for each; the cap is 8: split it into several calls"},
 		},
+		// Nested, the functions that return several series for each one they read multiply them, whatever wraps them.
+		{name: "two nested levels of 8 functions under count", expr: `count(` + nest(1, eight, eight+`up[5m])`) + `)`, want: []string{multiply}},
+		{name: "three nested levels of 8 functions under topk", expr: `topk(1, ` + nest(2, eight, eight+`up[5m])`) + `)`, want: []string{multiply}},
+		{name: "18 nested levels of 8 functions", expr: deep, want: []string{multiply}},
+		{
+			name: "2 functions over 4 make 8",
+			expr: nest(1, `aggr_over_time(("min_over_time", "max_over_time"), `, `aggr_over_time(("min_over_time", "max_over_time", "avg_over_time", "sum_over_time"), up[5m])`),
+		},
+		{name: "rollup_candlestick over rollup makes 12", expr: nest(1, `rollup_candlestick(`, `rollup(up[5m])`), want: []string{multiply}},
+		{name: "rollup over rollup makes 9", expr: `rollup(rollup(up[5m])[1h:])`, want: []string{multiply}},
+		{name: "rollup that picks one result over rollup", expr: nest(1, `rollup(`, `rollup(up[5m], "max")`)},
+		{name: "an aggregation between the levels", expr: nest(1, eight, `topk(1000, `+eight+`up[5m]))`), want: []string{multiply}},
+		{name: "an operator between the levels", expr: nest(1, eight, eight+`up[5m]) + 0`), want: []string{multiply}},
 		{
 			name: "aggr_over_time naming a function twice",
 			expr: `aggr_over_time(("max_over_time", "min_over_time", "max_over_time"), mysql_up{service_name="db1"}[5m])`, span: time.Hour,

@@ -793,6 +793,8 @@ func TestSeriesPerMatched(t *testing.T) {
 		`ROLLUP_RATE(m[5m])`:                               3,
 		`rollup(rate(m[5m])[1h:1m])`:                       3,
 		`rollup(aggr_over_time(("a", "b"), m[5m])[1h:1m])`: 6,
+		// 3^40 series per series is over the largest int; the product stops one past the cap.
+		strings.Repeat("rollup(", 40) + "m[5m])" + strings.Repeat("[1h:])", 39): maxRollupNames + 1,
 		// An aggregation can return fewer series.
 		`sum(aggr_over_time(("a", "b"), m[5m]))`: 0,
 	} {

@@ -372,14 +372,21 @@ var rollupResults = map[string][]string{
 	"rollup_scrape_interval": minMaxAvg,
 }
 
-// resultsPerSeries returns how many series e returns at most for each series it reads: the functions an aggr_over_time
-// call names, or the results of a rollupResults function, multiplied when nested.
+// resultsPerSeries returns how many series e returns at most for each series it reads, up to maxRollupNames+1: the
+// functions an aggr_over_time call names, or the results of a rollupResults function, multiplied when nested.
 func resultsPerSeries(e metricsql.Expr) int {
 	switch e := e.(type) {
 	case *metricsql.RollupExpr:
 		return resultsPerSeries(e.Expr)
 	case *metricsql.BinaryOpExpr:
 		return max(resultsPerSeries(e.Left), resultsPerSeries(e.Right))
+	case *metricsql.AggrFuncExpr:
+		// An aggregation returns at most as many series as it reads.
+		most := 1
+		for _, arg := range e.Args {
+			most = max(most, resultsPerSeries(arg))
+		}
+		return most
 	case *metricsql.FuncExpr:
 		most := 1
 		for _, arg := range e.Args {
@@ -391,10 +398,10 @@ func resultsPerSeries(e metricsql.Expr) int {
 			for _, arg := range e.Args {
 				names = appendRollupNames(names, arg)
 			}
-			return most * max(len(names), 1)
+			return min(most*max(len(names), 1), maxRollupNames+1)
 		}
 		if results, ok := rollupResults[name]; ok && len(e.Args) == 1 {
-			return most * len(results)
+			return min(most*len(results), maxRollupNames+1)
 		}
 		return most
 	default:
