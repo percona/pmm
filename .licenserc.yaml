@@ -5,6 +5,7 @@ header:
       - "agent/**"
       - "admin/**"
       - "utils/**"
+      - "dev/ruleguard/**"
       - "**/mock_*"
       - "**/*.pb.go"
       - "**/*.pb.gw.go"
@@ -24,6 +25,7 @@ header:
       - "agent/**/*.go"
       - "admin/**/*.go"
       - "utils/**/*.go"
+      - "dev/ruleguard/**/*.go"
     paths-ignore:
       - "**/*_reform.go"
       - "**/mock_*"
