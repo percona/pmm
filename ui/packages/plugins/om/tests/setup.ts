@@ -31,6 +31,7 @@ vi.mock('@pmm-extensions/api', async (importOriginal) => {
 afterEach(() => {
   cleanup();
   auth.canMutate = true;
-  // The Fleet tables keep their grouping for the session; one test's must not leak.
+  // The Fleet tables keep grouping and column choices; one test's must not leak.
   sessionStorage.clear();
+  localStorage.clear();
 });

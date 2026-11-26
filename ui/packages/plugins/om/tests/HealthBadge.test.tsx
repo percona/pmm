@@ -18,8 +18,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { ClusterHealthBadge, StatusBadge } from '../src/components/HealthBadge';
-import type { OmClusterHealth, OmServiceStatus } from '../src/types';
+import { StatusBadge } from '../src/components/HealthBadge';
+import type { OmServiceStatus } from '../src/types';
 
 describe('StatusBadge', () => {
   const hoursAgo = (hours: number) =>
@@ -126,23 +126,4 @@ describe('StatusBadge', () => {
     expect(down).toHaveClass('MuiChip-filled');
     expect(up).toHaveClass('MuiChip-outlined');
   });
-});
-
-describe('ClusterHealthBadge', () => {
-  it.each([
-    ['healthy', 'Healthy', 'CheckCircleOutlineIcon', 'MuiChip-outlined'],
-    ['degraded', 'Degraded', 'WarningAmberIcon', 'MuiChip-filled'],
-    ['down', 'Down', 'ErrorOutlineIcon', 'MuiChip-filled'],
-    ['unknown', 'Unknown', 'HelpOutlineIcon', 'MuiChip-outlined'],
-  ] as const)(
-    'reads %s as "%s" with its own icon',
-    (health, label, icon, variant) => {
-      render(<ClusterHealthBadge health={health as OmClusterHealth} />);
-
-      const chip = screen.getByTestId('om-cluster-health');
-      expect(chip).toHaveTextContent(label);
-      expect(chip).toHaveClass(variant);
-      expect(chip.querySelector(`[data-testid="${icon}"]`)).not.toBeNull();
-    }
-  );
 });

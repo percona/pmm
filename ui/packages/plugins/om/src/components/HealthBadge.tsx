@@ -16,16 +16,15 @@
  */
 
 import type { ReactElement } from 'react';
-import { Stack, Tooltip, Typography } from '@mui/material';
+import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { formatTimestamp } from '@pmm-extensions/framework';
 import {
-  CLUSTER_HEALTH_COLOR,
-  CLUSTER_HEALTH_LABEL,
   METRICS_LOOKBACK,
   RUN_STATUS_COLOR,
   RUN_STATUS_LABEL,
@@ -35,23 +34,12 @@ import {
 import { isRunActive } from '../api';
 import { formatAge, formatCompactDuration } from '../format';
 import { ageSeconds } from '../inventory';
-import type {
-  OmClusterHealth,
-  OmServiceStatus,
-  OmTopologyRunStatus,
-} from '../types';
+import type { OmServiceStatus, OmTopologyRunStatus } from '../types';
 
 const SERVICE_STATUS_ICON: Record<OmServiceStatus, ReactElement> = {
   SERVICE_STATUS_UP: <CheckCircleOutlineIcon />,
   SERVICE_STATUS_DOWN: <ErrorOutlineIcon />,
   SERVICE_STATUS_UNSPECIFIED: <HelpOutlineIcon />,
-};
-
-const CLUSTER_HEALTH_ICON: Record<OmClusterHealth, ReactElement> = {
-  healthy: <CheckCircleOutlineIcon />,
-  degraded: <WarningAmberIcon />,
-  down: <ErrorOutlineIcon />,
-  unknown: <HelpOutlineIcon />,
 };
 
 /**
@@ -188,25 +176,6 @@ const DownFor = ({ lastUpAt }: { lastUpAt?: string | null }) => {
         {text}
       </Typography>
     </Tooltip>
-  );
-};
-
-/**
- * A cluster's state as a chip. Filled only for the states that need someone: a
- * degraded or down cluster, never a healthy one.
- */
-export const ClusterHealthBadge = ({ health }: { health: OmClusterHealth }) => {
-  return (
-    <Chip
-      size="small"
-      icon={CLUSTER_HEALTH_ICON[health]}
-      label={CLUSTER_HEALTH_LABEL[health]}
-      color={CLUSTER_HEALTH_COLOR[health]}
-      variant={
-        health === 'down' || health === 'degraded' ? 'filled' : 'outlined'
-      }
-      data-testid="om-cluster-health"
-    />
   );
 };
 

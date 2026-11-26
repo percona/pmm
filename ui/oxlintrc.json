@@ -80,7 +80,6 @@
       "files": [
         "packages/extensions/framework/src/components/SchemaListView/SchemaListView.tsx",
         "packages/extensions/framework/src/components/TaskHistoryTable/TaskHistoryTable.tsx",
-        "packages/plugins/om/src/FleetClustersTab.tsx",
         "packages/plugins/om/src/FleetServicesTab.tsx",
         "packages/plugins/om/src/NodesPage.tsx"
       ],
