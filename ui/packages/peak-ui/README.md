@@ -58,3 +58,5 @@ cd ui && pnpm install
 ## Releases
 
 Versions follow PMM: every PMM release tag (`v3.x.y`) publishes `@percona/peak-ui@3.x.y` to npm from GitHub Actions, with provenance. Each version ships a generated `CHANGELOG.md`; a release without Peak UI changes says `No changes to Peak UI`. Nobody publishes by hand.
+
+Versions follow PMM, not semver, so a minor or patch release can carry a breaking change. Outside PMM, pin an exact version and read the "Breaking changes" section of `CHANGELOG.md` before you upgrade.

@@ -48,7 +48,7 @@ A pull request that touches this package, `ui/.nvmrc`, `ui/pnpm-lock.yaml`, `ui/
 
 ## Changelog and breaking changes
 
-Every PMM release publishes Peak UI with a generated `CHANGELOG.md` (`scripts/changelog.mjs`): the titles of PMM commits since the previous release that touch files that ship. A pull request that breaks the public API keeps a `BREAKING CHANGE: <what consumers must do>` line in its squash commit message, so the changelog lists it under "Breaking changes".
+Every PMM release publishes Peak UI with a generated `CHANGELOG.md` (`scripts/changelog.mjs`): the titles of PMM commits since the previous release that touch files that ship. A pull request that breaks the public API keeps a `BREAKING CHANGE: <what consumers must do>` line in its squash commit message, so the changelog lists it under "Breaking changes". Versions follow PMM, not semver, so a breaking change can ship in a minor or patch release, and that line is how consumers find out.
 
 ## Porting a PR from percona/peak-ui
 
