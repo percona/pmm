@@ -1,28 +1,34 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
 import Stack from '@mui/material/Stack';
 import { Dialog, DialogTitle, TextInput } from '@percona/peak-ui';
-import { FC } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
-import { enqueueSnackbar } from 'notistack';
+import { SecretField } from 'components/secret-field';
 import { useUploadDumps } from 'hooks/api/useDump';
+import { enqueueSnackbar } from 'notistack';
+import type { FC } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import type { Dump } from 'types/dump.types';
+import { DatasetSummary } from '../dataset-summary';
 import { Messages } from './SendToSupport.messages';
 import {
-  SendToSupportFormValues,
+  type SendToSupportFormValues,
   sendToSupportSchema,
 } from './SendToSupport.schema';
 import { SEND_TO_SUPPORT_DEFAULT_VALUES } from './SendToSupport.utils';
 
 interface SendToSupportProps {
-  dumpIds: string[];
+  dumps: Dump[];
   open: boolean;
   onClose: () => void;
 }
 
 export const SendToSupport: FC<SendToSupportProps> = ({
-  dumpIds,
+  dumps,
   open,
   onClose,
 }) => {
@@ -37,6 +43,7 @@ export const SendToSupport: FC<SendToSupportProps> = ({
     handleSubmit,
     reset,
   } = methods;
+  const hasEncrypted = dumps.some(({ encrypted }) => encrypted);
 
   const close = () => {
     reset(SEND_TO_SUPPORT_DEFAULT_VALUES);
@@ -45,7 +52,7 @@ export const SendToSupport: FC<SendToSupportProps> = ({
 
   const onSubmit = (values: SendToSupportFormValues) =>
     upload(
-      { dumpIds, sftpParameters: values },
+      { dumpIds: dumps.map(({ dumpId }) => dumpId), sftpParameters: values },
       {
         onSuccess: () => {
           enqueueSnackbar(Messages.success, { variant: 'success' });
@@ -66,15 +73,24 @@ export const SendToSupport: FC<SendToSupportProps> = ({
       <FormProvider {...methods}>
         <Stack component="form" onSubmit={handleSubmit(onSubmit)}>
           <DialogTitle onClose={isPending ? undefined : close}>
-            {Messages.title}
+            {Messages.title(dumps.length)}
           </DialogTitle>
           <DialogContent>
             <Stack gap={2} pt={1}>
+              <Alert severity="info">{Messages.sftpInfo}</Alert>
+              <List dense disablePadding>
+                {dumps.map((dump) => (
+                  <ListItem key={dump.dumpId} disableGutters>
+                    <DatasetSummary dump={dump} />
+                  </ListItem>
+                ))}
+              </List>
               <TextInput
                 name="address"
                 label={Messages.address}
+                isRequired
                 textFieldProps={{
-                  placeholder: Messages.addressPlaceholder,
+                  helperText: Messages.addressHelp,
                   slotProps: {
                     htmlInput: { 'data-testid': 'dump-support-address' },
                   },
@@ -83,21 +99,18 @@ export const SendToSupport: FC<SendToSupportProps> = ({
               <TextInput
                 name="user"
                 label={Messages.user}
+                isRequired
                 textFieldProps={{
                   slotProps: {
                     htmlInput: { 'data-testid': 'dump-support-user' },
                   },
                 }}
               />
-              <TextInput
+              <SecretField
                 name="password"
                 label={Messages.password}
-                textFieldProps={{
-                  type: 'password',
-                  slotProps: {
-                    htmlInput: { 'data-testid': 'dump-support-password' },
-                  },
-                }}
+                testId="dump-support-password"
+                isRequired
               />
               <TextInput
                 name="directory"
@@ -108,6 +121,9 @@ export const SendToSupport: FC<SendToSupportProps> = ({
                   },
                 }}
               />
+              {hasEncrypted && (
+                <Alert severity="warning">{Messages.encryptedWarning}</Alert>
+              )}
             </Stack>
           </DialogContent>
           <DialogActions>

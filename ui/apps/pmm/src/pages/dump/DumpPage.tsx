@@ -1,15 +1,12 @@
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DownloadIcon from '@mui/icons-material/Download';
 import SendIcon from '@mui/icons-material/Send';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import Alert from '@mui/material/Alert';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
-import CircularProgress from '@mui/material/CircularProgress';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
+import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -18,99 +15,95 @@ import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import type { TableRowProps } from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
-import { Dialog, DialogTitle, Table } from '@percona/peak-ui';
-import { MRT_ColumnDef, MRT_RowSelectionState } from 'material-react-table';
-import { FC, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { enqueueSnackbar } from 'notistack';
+import { Table, type MRT_RowSelectionState } from '@percona/peak-ui';
+import { DeleteModal } from 'components/delete-modal';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { useDeleteDumps, useDumps } from 'hooks/api/useDump';
-import { useTimezone } from 'hooks/utils/useTimezone';
+import { useTableUrlState } from 'hooks/utils/useTableUrlState';
 import { PMM_DUMP_NEW_PATH } from 'lib/constants';
-import { Dump, DumpStatus } from 'types/dump.types';
+import { DEFAULT_TABLE_OPTIONS } from 'lib/table.constants';
+import { TableMessages } from 'lib/table.messages';
+import { MRT_ToggleRowActionMenuButton } from 'material-react-table';
+import { enqueueSnackbar } from 'notistack';
+import { type FC, useCallback, useMemo, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import type { Dump } from 'types/dump.types';
 import { OrgRole } from 'types/user.types';
-import { DUMP_STATUS } from './DumpPage.constants';
-import { Messages } from './DumpPage.messages';
-import {
-  downloadDumps,
-  formatDate,
-  formatTimeRange,
-  isDumpReady,
-} from './DumpPage.utils';
+import { DatasetSummary } from './components/dataset-summary';
+import { DumpEmptyState } from './components/dump-empty-state';
 import { DumpLogsDialog } from './components/dump-logs/DumpLogsDialog';
+import { ReasonTooltip } from './components/reason-tooltip';
 import { SendToSupport } from './components/send-to-support/SendToSupport';
+import { getDumpColumns } from './DumpPage.columns';
+import {
+  DUMP_TABLE_NAME,
+  DUMP_URL_STATE_OPTIONS,
+  PMM_DUMP_DOCS_URL,
+} from './DumpPage.constants';
+import { Messages } from './DumpPage.messages';
+import { downloadDumps, isDumpCreating, isDumpReady } from './DumpPage.utils';
+
+const countWhere = (dumps: Dump[], predicate: (dump: Dump) => boolean) =>
+  dumps.filter(predicate).length;
 
 export const DumpPage: FC = () => {
   const { user } = useUser();
-  const timezone = useTimezone();
   const { data, isLoading, isError } = useDumps({
     enabled: !!user?.isPMMAdmin,
   });
-  const { mutate: remove, isPending: isDeleting } = useDeleteDumps();
+  const { mutateAsync: removeDumps } = useDeleteDumps();
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
-  const [deleteIds, setDeleteIds] = useState<string[]>([]);
-  const [supportIds, setSupportIds] = useState<string[]>([]);
-  const [logsDumpId, setLogsDumpId] = useState<string | null>(null);
+  const [dumpsToDelete, setDumpsToDelete] = useState<Dump[]>([]);
+  const [supportDumps, setSupportDumps] = useState<Dump[]>([]);
+  const [logsDump, setLogsDump] = useState<Dump | null>(null);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
-  const dumps = data?.dumps ?? [];
+  const { tableProps } = useTableUrlState({
+    ...DUMP_URL_STATE_OPTIONS,
+    additionalState: { rowSelection },
+  });
+  const dumps = useMemo(() => data?.dumps ?? [], [data]);
   const selectedDumps = dumps.filter(({ dumpId }) => rowSelection[dumpId]);
-  const allSelectedReady = selectedDumps.every(isDumpReady);
+  const isCreating = dumps.some(isDumpCreating);
+  const notReadyCount = countWhere(selectedDumps, (dump) => !isDumpReady(dump));
+  const creatingCount = countWhere(selectedDumps, isDumpCreating);
+  const notReadyReason = notReadyCount
+    ? Messages.reasons.bulkNotReady(notReadyCount, selectedDumps.length)
+    : undefined;
+  const creatingReason = creatingCount
+    ? Messages.reasons.bulkCreating(creatingCount, selectedDumps.length)
+    : undefined;
 
-  const columns = useMemo<MRT_ColumnDef<Dump>[]>(
-    () => [
-      {
-        accessorKey: 'dumpId',
-        header: Messages.columns.id,
-      },
-      {
-        accessorKey: 'status',
-        header: Messages.columns.status,
-        Cell: ({ cell }) => {
-          const { label, color } = DUMP_STATUS[cell.getValue<DumpStatus>()];
-          return <Chip size="small" label={label} color={color} />;
-        },
-      },
-      {
-        accessorKey: 'createdAt',
-        header: Messages.columns.created,
-        Cell: ({ cell }) => formatDate(cell.getValue<string>(), timezone),
-      },
-      {
-        id: 'timeRange',
-        header: Messages.columns.timeRange,
-        accessorFn: formatTimeRange,
-      },
-      {
-        accessorKey: 'startTime',
-        header: Messages.columns.start,
-        Cell: ({ cell }) => formatDate(cell.getValue<string>(), timezone),
-      },
-      {
-        accessorKey: 'endTime',
-        header: Messages.columns.end,
-        Cell: ({ cell }) => formatDate(cell.getValue<string>(), timezone),
-      },
-    ],
-    [timezone]
-  );
+  const showLogs = useCallback((dump: Dump) => {
+    setLogsDump(dump);
+    setIsLogsOpen(true);
+  }, []);
+  const columns = useMemo(() => getDumpColumns(showLogs), [showLogs]);
 
-  const confirmDelete = () =>
-    remove(
-      { dumpIds: deleteIds },
-      {
-        onSuccess: () => {
-          enqueueSnackbar(
-            deleteIds.length === 1
-              ? Messages.delete.success
-              : Messages.delete.multipleSuccess,
-            { variant: 'success' }
-          );
-          setDeleteIds([]);
-          setRowSelection({});
-        },
-      }
+  const download = (items: Dump[]) => {
+    if (items.length > 1) {
+      enqueueSnackbar(Messages.downloading(items.length), { variant: 'info' });
+    }
+    downloadDumps(items);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await removeDumps({ dumpIds: dumpsToDelete.map(({ dumpId }) => dumpId) });
+    } catch {
+      // The API interceptor already notified the error
+      return;
+    }
+
+    enqueueSnackbar(
+      dumpsToDelete.length === 1
+        ? Messages.delete.success
+        : Messages.delete.multipleSuccess,
+      { variant: 'success' }
     );
+    setRowSelection({});
+    setDumpsToDelete([]);
+  };
 
   return (
     <Page
@@ -118,196 +111,230 @@ export const DumpPage: FC = () => {
       maxWidth="full"
       roles={user?.isPMMAdmin ? undefined : [OrgRole.Admin]}
     >
-      <Typography>{Messages.description}</Typography>
-      <Stack gap={2} data-testid="pmm-dump-page" mt={1}>
+      <Stack gap={2} data-testid="pmm-dump-page">
+        <Typography>
+          {Messages.description}{' '}
+          <Link
+            href={PMM_DUMP_DOCS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {Messages.learnMore}
+          </Link>
+        </Typography>
         {isError && <Alert severity="error">{Messages.loadError}</Alert>}
-        {isLoading ? (
-          <Box display="flex" justifyContent="center" p={4}>
-            <CircularProgress aria-label={Messages.loading} />
-          </Box>
+        {!isLoading && !isError && !dumps.length ? (
+          <DumpEmptyState />
         ) : (
           <Table
-            tableName="pmm-dump"
+            {...DEFAULT_TABLE_OPTIONS}
+            {...tableProps}
+            state={{
+              ...tableProps.state,
+              isLoading,
+              columnVisibility: { dumpId: false },
+            }}
+            tableName={DUMP_TABLE_NAME}
             columns={columns}
             data={dumps}
-            noDataMessage={Messages.empty}
-            getRowId={(row) => row.dumpId}
+            getRowId={({ dumpId }) => dumpId}
+            noDataMessage={Messages.emptyTitle}
+            enableRowSelection
+            onRowSelectionChange={setRowSelection}
+            enableHiding={false}
+            enableGlobalFilter={false}
             muiTableBodyRowProps={({ row, isDetailPanel }) =>
               isDetailPanel
                 ? {}
                 : ({
                     'data-testid': `dump-row-${row.original.dumpId}`,
-                  } as unknown as TableRowProps)
+                  } as TableRowProps)
             }
-            enableRowSelection
             enableRowActions
-            enableExpanding
-            enableHiding={false}
-            enableGlobalFilter={false}
-            positionToolbarAlertBanner="none"
-            onRowSelectionChange={setRowSelection}
-            state={{ rowSelection }}
-            initialState={{
-              pagination: { pageIndex: 0, pageSize: 25 },
-              columnVisibility: { dumpId: false },
+            displayColumnDefOptions={{
+              'mrt-row-actions': {
+                size: 96,
+                // Not renderRowActions: the menu button renders that callback
+                // in its place, so nesting the button in it recurses
+                Cell: ({ cell, row, staticRowIndex, table }) => {
+                  const isReady = isDumpReady(row.original);
+
+                  return (
+                    <Stack direction="row" alignItems="center">
+                      <ReasonTooltip
+                        reason={
+                          isReady
+                            ? Messages.actions.download
+                            : Messages.reasons.notReady
+                        }
+                      >
+                        <IconButton
+                          aria-label={Messages.actions.download}
+                          disabled={!isReady}
+                          onClick={() => download([row.original])}
+                          data-testid={`dump-download-${row.original.dumpId}`}
+                        >
+                          <DownloadIcon />
+                        </IconButton>
+                      </ReasonTooltip>
+                      <MRT_ToggleRowActionMenuButton
+                        cell={cell}
+                        row={row}
+                        staticRowIndex={staticRowIndex}
+                        table={table}
+                      />
+                    </Stack>
+                  );
+                },
+              },
             }}
-            renderDetailPanel={({ row }) =>
-              row.original.serviceNames.length > 0 ? (
-                <Box px={2} py={1}>
-                  <Typography fontWeight="bold">
-                    {Messages.columns.services}
-                  </Typography>
-                  <List dense disablePadding>
-                    {row.original.serviceNames.map((service) => (
-                      <ListItem key={service} disableGutters>
-                        {service}
-                      </ListItem>
-                    ))}
-                  </List>
-                </Box>
-              ) : null
-            }
-            renderRowActionMenuItems={({ row, closeMenu }) => [
-              <MenuItem
-                key="download"
-                disabled={!isDumpReady(row.original)}
-                onClick={() => {
-                  downloadDumps([row.original]);
-                  closeMenu();
-                }}
-              >
-                <ListItemIcon>
-                  <DownloadIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>{Messages.actions.download}</ListItemText>
-              </MenuItem>,
-              <MenuItem
-                key="support"
-                disabled={!isDumpReady(row.original)}
-                onClick={() => {
-                  setSupportIds([row.original.dumpId]);
-                  closeMenu();
-                }}
-              >
-                <ListItemIcon>
-                  <SendIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>{Messages.actions.sendToSupport}</ListItemText>
-              </MenuItem>,
-              <MenuItem
-                key="logs"
-                onClick={() => {
-                  setLogsDumpId(row.original.dumpId);
-                  setIsLogsOpen(true);
-                  closeMenu();
-                }}
-              >
-                <ListItemIcon>
-                  <VisibilityOutlinedIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>{Messages.actions.viewLogs}</ListItemText>
-              </MenuItem>,
-              <MenuItem
-                key="delete"
-                onClick={() => {
-                  setDeleteIds([row.original.dumpId]);
-                  closeMenu();
-                }}
-              >
-                <ListItemIcon>
-                  <DeleteOutlineIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>{Messages.actions.delete}</ListItemText>
-              </MenuItem>,
-            ]}
+            renderRowActionMenuItems={({ row: { original }, closeMenu }) => {
+              const isReady = isDumpReady(original);
+              const isDumpBeingCreated = isDumpCreating(original);
+
+              return [
+                <MenuItem
+                  key="support"
+                  disabled={!isReady}
+                  onClick={() => {
+                    setSupportDumps([original]);
+                    closeMenu();
+                  }}
+                >
+                  <ListItemIcon>
+                    <SendIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={Messages.actions.sendToSupport}
+                    secondary={isReady ? undefined : Messages.reasons.notReady}
+                  />
+                </MenuItem>,
+                <MenuItem
+                  key="logs"
+                  onClick={() => {
+                    showLogs(original);
+                    closeMenu();
+                  }}
+                >
+                  <ListItemIcon>
+                    <VisibilityOutlinedIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={Messages.actions.viewLogs} />
+                </MenuItem>,
+                <MenuItem
+                  key="delete"
+                  disabled={isDumpBeingCreated}
+                  onClick={() => {
+                    setDumpsToDelete([original]);
+                    closeMenu();
+                  }}
+                >
+                  <ListItemIcon>
+                    <DeleteOutlineIcon color="error" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={Messages.actions.delete}
+                    secondary={
+                      isDumpBeingCreated ? Messages.reasons.creating : undefined
+                    }
+                    slotProps={{ primary: { color: 'error' } }}
+                  />
+                </MenuItem>,
+              ];
+            }}
             renderTopToolbarCustomActions={() => (
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack
+                direction="row"
+                alignItems="center"
+                flexWrap="wrap"
+                columnGap={2}
+                rowGap={1}
+              >
                 {!!selectedDumps.length && (
                   <>
                     <Typography
                       variant="body2"
                       data-testid="dump-selected-count"
                     >
-                      {Messages.selected(selectedDumps.length)}
+                      {TableMessages.selected(selectedDumps.length)}
                     </Typography>
-                    <Button
-                      startIcon={<SendIcon />}
-                      data-testid="dump-sendToSupport"
-                      disabled={!allSelectedReady}
-                      onClick={() =>
-                        setSupportIds(selectedDumps.map(({ dumpId }) => dumpId))
-                      }
-                    >
-                      {Messages.actions.sendToSupport}
-                    </Button>
-                    <Button
-                      startIcon={<DownloadIcon />}
-                      data-testid="dump-download-selected"
-                      disabled={!allSelectedReady}
-                      onClick={() => downloadDumps(selectedDumps)}
-                    >
-                      {Messages.actions.downloadSelected(selectedDumps.length)}
-                    </Button>
-                    <Button
-                      color="error"
-                      startIcon={<DeleteOutlineIcon />}
-                      data-testid="dump-delete-selected"
-                      onClick={() =>
-                        setDeleteIds(selectedDumps.map(({ dumpId }) => dumpId))
-                      }
-                    >
-                      {Messages.actions.deleteSelected(selectedDumps.length)}
-                    </Button>
+                    <ReasonTooltip reason={notReadyReason}>
+                      <Button
+                        startIcon={<DownloadIcon />}
+                        disabled={!!notReadyReason}
+                        onClick={() => download(selectedDumps)}
+                        data-testid="dump-download-selected"
+                      >
+                        {Messages.actions.download}
+                      </Button>
+                    </ReasonTooltip>
+                    <ReasonTooltip reason={notReadyReason}>
+                      <Button
+                        startIcon={<SendIcon />}
+                        disabled={!!notReadyReason}
+                        onClick={() => setSupportDumps(selectedDumps)}
+                        data-testid="dump-sendToSupport"
+                      >
+                        {Messages.actions.sendToSupport}
+                      </Button>
+                    </ReasonTooltip>
+                    <ReasonTooltip reason={creatingReason}>
+                      <Button
+                        color="error"
+                        startIcon={<DeleteOutlineIcon />}
+                        disabled={!!creatingReason}
+                        onClick={() => setDumpsToDelete(selectedDumps)}
+                        data-testid="dump-delete-selected"
+                      >
+                        {Messages.actions.delete}
+                      </Button>
+                    </ReasonTooltip>
                   </>
                 )}
-                <Button
-                  component={RouterLink}
-                  startIcon={<AddOutlinedIcon />}
-                  to={PMM_DUMP_NEW_PATH}
-                  variant="contained"
-                  data-testid="create-dataset"
+                <ReasonTooltip
+                  reason={isCreating ? Messages.creatingBlocked : undefined}
                 >
-                  {Messages.createDataset}
-                </Button>
+                  <Button
+                    component={RouterLink}
+                    to={PMM_DUMP_NEW_PATH}
+                    variant="contained"
+                    startIcon={<AddOutlinedIcon />}
+                    disabled={isCreating}
+                    data-testid="create-dataset"
+                  >
+                    {Messages.createDataset}
+                  </Button>
+                </ReasonTooltip>
               </Stack>
             )}
           />
         )}
       </Stack>
-      <Dialog
-        open={deleteIds.length > 0}
-        onClose={() => setDeleteIds([])}
-        loading={isDeleting}
+      <DeleteModal
+        testId="dump-delete-modal"
+        open={!!dumpsToDelete.length}
+        title={Messages.delete.title(dumpsToDelete.length)}
+        message={Messages.delete.message}
+        confirmLabel={Messages.delete.confirm(dumpsToDelete.length)}
+        onConfirm={handleDelete}
+        onClose={() => setDumpsToDelete([])}
       >
-        <DialogTitle onClose={() => setDeleteIds([])}>
-          {Messages.delete.title}
-        </DialogTitle>
-        <DialogContent>
-          {deleteIds.length === 1
-            ? Messages.delete.single
-            : Messages.delete.multiple}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteIds([])} disabled={isDeleting}>
-            {Messages.delete.cancel}
-          </Button>
-          <Button
-            variant="contained"
-            onClick={confirmDelete}
-            disabled={isDeleting}
-          >
-            {Messages.delete.confirm}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <List dense>
+          {dumpsToDelete.map((dump) => (
+            <ListItem key={dump.dumpId} disableGutters>
+              <DatasetSummary dump={dump} />
+            </ListItem>
+          ))}
+        </List>
+      </DeleteModal>
       <SendToSupport
-        open={supportIds.length > 0}
-        dumpIds={supportIds}
-        onClose={() => setSupportIds([])}
+        open={!!supportDumps.length}
+        dumps={supportDumps}
+        onClose={() => setSupportDumps([])}
       />
       <DumpLogsDialog
-        key={logsDumpId}
-        dumpId={logsDumpId}
+        key={logsDump?.dumpId}
+        dump={logsDump}
         open={isLogsOpen}
         onClose={() => setIsLogsOpen(false)}
       />

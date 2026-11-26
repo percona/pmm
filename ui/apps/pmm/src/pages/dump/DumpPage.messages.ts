@@ -1,53 +1,69 @@
 export const Messages = {
   title: 'PMM Dump',
   description:
-    'Simplify troubleshooting and accelerate issue resolution by securely sharing relevant data, ensuring a smoother support experience.',
+    'Export metrics and Query Analytics data from this PMM Server into an archive you can download or upload to Percona Support.',
+  learnMore: 'Learn more',
   createDataset: 'Create dataset',
-  empty: 'No dumps available',
-  notAvailable: 'N/A',
-  loading: 'Loading datasets',
+  creatingBlocked:
+    'Another dataset is being created. You can create one when it finishes.',
   loadError: 'Could not load datasets.',
-  selected: (count: number) =>
-    count > 1 ? `${count} rows selected:` : '1 row selected:',
+  notAvailable: 'N/A',
+  emptyTitle: 'No datasets yet',
+  emptyDescription:
+    "A dataset is an archive of this server's metrics, and optionally Query Analytics data, for a time window you choose. Percona Support uses it to investigate issues.",
+  allServices: 'All services',
+  moreServices: (count: number) => `+${count}`,
+  encrypted: 'Encrypted',
+  encryptedHint:
+    'Opening the archive needs the password set when the dataset was created.',
   columns: {
     id: 'ID',
     status: 'Status',
+    services: 'Services',
+    dataFrom: 'Data from',
     created: 'Created',
-    timeRange: 'Time range',
-    start: 'Start date',
-    end: 'End date',
-    services: 'Service names',
   },
   status: {
-    unspecified: 'Unspecified',
-    inProgress: 'In progress',
-    success: 'Success',
-    error: 'Error',
+    ready: 'Ready',
+    creating: 'Creating…',
+    failed: 'Failed',
+    unknown: 'Unknown',
+    startedAgo: (time: string) => `started ${time}`,
+    seeWhatWentWrong: 'See what went wrong',
   },
   actions: {
     download: 'Download',
-    downloadSelected: (count: number) =>
-      `Download ${count} ${count === 1 ? 'item' : 'items'}`,
-    delete: 'Delete',
-    deleteSelected: (count: number) =>
-      `Delete ${count} ${count === 1 ? 'item' : 'items'}`,
     sendToSupport: 'Send to Support',
     viewLogs: 'View logs',
+    delete: 'Delete',
   },
+  reasons: {
+    notReady: 'Available once the dataset is ready',
+    creating: 'Available once the export finishes',
+    bulkNotReady: (count: number, total: number) =>
+      `${count} of ${total} selected datasets ${count === 1 ? "isn't" : "aren't"} ready`,
+    bulkCreating: (count: number, total: number) =>
+      `${count} of ${total} selected datasets ${count === 1 ? 'is' : 'are'} still being created`,
+  },
+  downloading: (count: number) =>
+    `Downloading ${count} archives. If your browser asks, allow multiple downloads.`,
   delete: {
-    title: 'Delete PMM dump',
-    single: 'Are you sure you want to delete this PMM dump?',
-    multiple: 'Are you sure you want to delete these PMM dumps?',
+    title: (count: number) =>
+      count === 1 ? 'Delete this dataset?' : `Delete ${count} datasets?`,
+    message:
+      "The archives are removed from PMM Server. Copies you already downloaded aren't affected.",
+    confirm: (count: number) =>
+      count === 1 ? 'Delete dataset' : `Delete ${count} datasets`,
     success: 'Dataset deleted successfully.',
     multipleSuccess: 'Datasets deleted successfully.',
-    cancel: 'Cancel',
-    confirm: 'Delete',
   },
   logs: {
-    title: (id: string) => `Logs for ${id}`,
+    title: 'Dataset logs',
+    running: "Export running. New lines appear as they're written.",
+    finished: 'Export finished.',
     empty: 'No logs available.',
     loading: 'Loading logs',
-    error: 'Could not load dump logs.',
+    error: 'Could not load dataset logs.',
     close: 'Close',
   },
 };
