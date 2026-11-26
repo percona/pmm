@@ -122,4 +122,32 @@ describe('useLinkWithVariables', () => {
 
     expect(result.current).toBe('/extensions/task-manager');
   });
+
+  it('should keep the current dashboard expansion when a previous one arrives last', async () => {
+    const OTHER = '/graph/d/node-memory/memory-details';
+    let resolveFirst: (value: { url: string }) => void = () => {};
+    vi.mocked(messenger.sendMessageWithResult)
+      .mockReturnValueOnce(
+        new Promise((r) => {
+          resolveFirst = r;
+        })
+      )
+      .mockResolvedValueOnce({
+        url: '/d/node-memory/memory-details?var-node_name=node-2',
+      });
+    const { result, rerender } = renderWithUrl(TARGET);
+
+    await waitFor(() =>
+      expect(messenger.sendMessageWithResult).toHaveBeenCalledTimes(1)
+    );
+    rerender({ url: OTHER });
+    await waitFor(() =>
+      expect(result.current).toBe(`${OTHER}?var-node_name=node-2`)
+    );
+    await act(async () => {
+      resolveFirst({ url: '/d/node-cpu/cpu-utilization?var-node_name=node-1' });
+    });
+
+    expect(result.current).toBe(`${OTHER}?var-node_name=node-2`);
+  });
 });

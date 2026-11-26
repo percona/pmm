@@ -14,8 +14,7 @@ import { useLocation } from 'react-router-dom';
 import { useGrafana } from 'contexts/grafana';
 
 export const useLinkWithVariables = (url?: string) => {
-  // Tagged with the URL it was resolved for, so a changed URL is followed at once
-  // and a late answer for a previous URL is ignored.
+  // Tagged with the URL it was resolved for, so a changed URL is followed at once.
   const [resolved, setResolved] = useState<{ url: string; link: string }>();
   const link = resolved && resolved.url === url ? resolved.link : url;
   const location = useLocation();
@@ -48,9 +47,16 @@ export const useLinkWithVariables = (url?: string) => {
     if (url.includes(location.pathname)) {
       setResolved({ url, link: constructUrl(location) });
     } else if (grafanaReady) {
-      enhanceWithVariables(url).then((expanded) =>
-        setResolved({ url, link: expanded })
-      );
+      // Grafana can answer out of order, so drop an answer for a superseded URL
+      let stale = false;
+      enhanceWithVariables(url).then((expanded) => {
+        if (!stale) {
+          setResolved({ url, link: expanded });
+        }
+      });
+      return () => {
+        stale = true;
+      };
     }
   }, [url, location, grafanaReady]);
 
