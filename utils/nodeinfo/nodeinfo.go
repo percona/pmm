@@ -1,17 +1,16 @@
 // Copyright (C) 2023 Percona LLC
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Affero General Public License for more details.
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU Affero General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 // Package nodeinfo provides information about current node.
 package nodeinfo
@@ -19,9 +18,24 @@ package nodeinfo
 import (
 	"net"
 	"os"
+	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 )
+
+// containerMarkerFiles are files created inside the container: Docker creates /.dockerenv, Podman
+// creates /run/.containerenv, and systemd running as PID 1 in a container (LXC, LXD,
+// systemd-nspawn) writes the runtime name to /run/systemd/container. The last one matters because
+// systemd does not pass its own "container" variable on to the services it starts, so an agent
+// running as a unit cannot see it.
+var containerMarkerFiles = []string{".dockerenv", "run/.containerenv", "run/systemd/container"}
+
+// containerCgroupMarkers are substrings of the /proc/1/cgroup paths under cgroup v1, where those
+// paths carry the runtime name and the container ID; "docker-" catches the systemd cgroup driver,
+// which nests containers as /system.slice/docker-<id>.scope. Under cgroup v2 the file usually
+// holds just "0::/", so it can confirm a container but never rule one out.
+var containerCgroupMarkers = []string{"/docker/", "docker-", "/lxc/", "/kubepods", "containerd", "crio-", "libpod"}
 
 // NodeInfo contains node information.
 type NodeInfo struct {
@@ -36,17 +50,35 @@ type NodeInfo struct {
 // Get returns node information for current node.
 func Get() *NodeInfo {
 	return &NodeInfo{
-		Container:     checkContainer(),
+		Container:     checkContainer("/"),
 		Distro:        readDistro(),
 		MachineID:     readMachineID(),
 		PublicAddress: readPublicAddress(),
 	}
 }
 
-func checkContainer() bool {
-	// https://stackoverflow.com/a/20012536
-	b, _ := os.ReadFile("/proc/1/cgroup")
-	return strings.Contains(string(b), "/docker/") || strings.Contains(string(b), "/lxc/")
+// checkContainer reports whether the current process runs inside a container.
+// The root argument is the filesystem root to probe; it is "/" outside of tests.
+func checkContainer(root string) bool {
+	for _, name := range containerMarkerFiles {
+		_, err := os.Stat(filepath.Join(root, name))
+		if err == nil {
+			return true
+		}
+	}
+
+	// Podman and LXC set "container" for the processes they start; Kubernetes injects its service
+	// host into every Pod.
+	if os.Getenv("container") != "" || os.Getenv("KUBERNETES_SERVICE_HOST") != "" {
+		return true
+	}
+
+	b, _ := os.ReadFile(filepath.Join(root, "proc/1/cgroup")) //nolint:gosec
+	cgroup := string(b)
+
+	return slices.ContainsFunc(containerCgroupMarkers, func(marker string) bool {
+		return strings.Contains(cgroup, marker)
+	})
 }
 
 func readDistro() string {

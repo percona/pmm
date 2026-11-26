@@ -1,4 +1,4 @@
-// Copyright 2023 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,21 +18,23 @@ package serviceinfobroker
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"math"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/gomodule/redigo/redis"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -76,6 +78,15 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 		return sib.getPostgreSQLInfo(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return sib.getProxySQLInfo(ctx, msg.Dsn)
+	case inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:
+		return sib.getValkeyInfo(
+			ctx,
+			msg.Dsn,
+			msg.Tls,
+			msg.TextFiles,
+			msg.TlsSkipVerify,
+			id,
+		)
 	// NOTE: these types may be implemented later.
 	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
 		return &agentv1.ServiceInfoResponse{}
@@ -124,7 +135,8 @@ func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, file
 	defer db.Close() //nolint:errcheck
 
 	var count uint64
-	if err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
+	err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ COUNT(*) FROM information_schema.tables").Scan(&count)
+	if err != nil {
 		res.Error = err.Error()
 		return &res
 	}
@@ -135,7 +147,8 @@ func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, file
 	}
 
 	var version string
-	if err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ VERSION()").Scan(&version); err != nil {
+	err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ VERSION()").Scan(&version)
+	if err != nil {
 		res.Error = err.Error()
 	}
 
@@ -156,7 +169,7 @@ func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, fi
 		return &res
 	}
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		sib.l.Debugf("failed to parse DSN: %s", err)
 		res.Error = err.Error()
@@ -171,7 +184,8 @@ func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, fi
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
 
-	if err = client.Ping(ctx, nil); err != nil {
+	err = client.Ping(ctx, nil)
+	if err != nil {
 		sib.l.Debugf("getMongoDBInfo: failed to Ping: %s", err)
 		res.Error = err.Error()
 		return &res
@@ -230,7 +244,8 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	res.DatabaseList = databaseList
 
 	var version string
-	if err = db.QueryRowContext(ctx, "SHOW /* agent='serviceinfobroker' */ SERVER_VERSION").Scan(&version); err != nil {
+	err = db.QueryRowContext(ctx, "SHOW /* agent='serviceinfobroker' */ SERVER_VERSION").Scan(&version)
+	if err != nil {
 		res.Error = err.Error()
 	}
 	res.Version = version
@@ -243,6 +258,66 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	res.PgsmVersion = &pgsmVersion
 
 	return &res
+}
+
+func (sib *ServiceInfoBroker) getValkeyInfo(
+	ctx context.Context,
+	dsn string,
+	useTLS bool,
+	files *agentv1.TextFiles,
+	tlsSkipVerify bool,
+	id uint32,
+) *agentv1.ServiceInfoResponse {
+	var res agentv1.ServiceInfoResponse
+	var err error
+
+	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, "get-valkey-info", strconv.Itoa(int(id)))
+	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	defer templates.CleanupTempDir(tempdir, sib.l)
+	if err != nil {
+		sib.l.Debugf("getValkeyInfo: failed to Render DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	opts, err := tlshelpers.GetValkeyTLSConfig(files, useTLS, tlsSkipVerify)
+	if err != nil {
+		sib.l.Debugf("getValkeyInfo: failed to get TLS config: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+	c, err := redis.DialURLContext(ctx, dsn, opts...)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+	defer c.Close() //nolint:errcheck
+
+	infoOutput, err := redis.String(c.Do("INFO", "server"))
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+	valkeyVersion, err := extractValkeyVersion(infoOutput)
+	if err != nil {
+		valkeyVersion = "unknown"
+	}
+	res.Version = valkeyVersion
+	return &res
+}
+
+func extractValkeyVersion(infoString string) (string, error) {
+	re := regexp.MustCompile(`(?m)^valkey_version:(.*)$`)
+	matches := re.FindStringSubmatch(infoString)
+	if len(matches) > 1 {
+		return matches[1], nil
+	}
+	re = regexp.MustCompile(`(?m)^redis_version:(.*)$`)
+	matches = re.FindStringSubmatch(infoString)
+	if len(matches) > 1 {
+		return matches[1], nil
+	}
+	return "", errors.New("failed to get Valkey version")
 }
 
 func (sib *ServiceInfoBroker) getProxySQLInfo(ctx context.Context, dsn string) *agentv1.ServiceInfoResponse {
@@ -264,7 +339,8 @@ func (sib *ServiceInfoBroker) getProxySQLInfo(ctx context.Context, dsn string) *
 	defer db.Close() //nolint:errcheck
 
 	var version string
-	if err := db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ @@GLOBAL.'admin-version'").Scan(&version); err != nil {
+	err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ @@GLOBAL.'admin-version'").Scan(&version)
+	if err != nil {
 		res.Error = err.Error()
 	}
 

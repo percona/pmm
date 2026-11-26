@@ -4,6 +4,7 @@ header:
     paths-ignore:
       - "agent/**"
       - "admin/**"
+      - "utils/**"
       - "**/mock_*"
       - "**/*.pb.go"
       - "**/*.pb.gw.go"
@@ -13,6 +14,7 @@ header:
       - "**/amclient/**"
       - "**/ammodels/**"
       - "qan-api2/migrations/**"
+      - "managed/pi/common/severity_string.go"
     license:
       spdx-id: AGPL-3.0-or-later
       copyright-owner: Percona LLC
@@ -21,6 +23,7 @@ header:
   - paths:
       - "agent/**/*.go"
       - "admin/**/*.go"
+      - "utils/**/*.go"
     paths-ignore:
       - "**/*_reform.go"
       - "**/mock_*"

@@ -1,0 +1,162 @@
+syntax = "proto3";
+
+package realtimeanalytics.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "inventory/v1/services.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "realtimeanalytics/v1/query.proto";
+import "validate/validate.proto";
+
+// Services related messages
+
+message ListServicesRequest {
+  // Return only services filtered by service type.
+  inventory.v1.ServiceType service_type = 1;
+}
+
+message ListServicesResponse {
+  repeated inventory.v1.MongoDBService mongodb = 1;
+}
+
+// Session related messages
+
+// Status represents actual Real-Time Analytics session status.
+enum SessionStatus {
+  SESSION_STATUS_UNSPECIFIED = 0;
+  // Session encountered an error.
+  SESSION_STATUS_ERROR = 1;
+  // Session is running.
+  SESSION_STATUS_RUNNING = 2;
+  // Session has been stopped or disabled.
+  SESSION_STATUS_DOWN = 3;
+}
+
+// Session represents an active Real-Time Analytics session.
+message Session {
+  // Service identifier that has enabled Real-Time Analytics session.
+  string service_id = 1;
+  // Service name.
+  string service_name = 2;
+  // Cluster name the service belongs to.
+  string cluster_name = 3;
+  // Timestamp when the Real-Time Analytics session started.
+  google.protobuf.Timestamp start_time = 4;
+  // Query collect interval.
+  google.protobuf.Duration collect_interval = 5;
+  // Current status of the Real-Time Analytics session.
+  SessionStatus status = 6;
+}
+
+// ListSessionsRequest contains optional filters for listing active Real-Time Analytics Sessions for a particular cluster.
+message ListSessionsRequest {
+  // Optional filter by cluster name.
+  string cluster_name = 1;
+}
+
+// ListSessionsResponse returns the list of currently active Real-Time Analytics Sessions.
+message ListSessionsResponse {
+  // List of active Real-Time Analytics Sessions.
+  repeated Session sessions = 1;
+}
+
+// StartSessionRequest contains parameters for starting Real-Time Analytics session.
+message StartSessionRequest {
+  // Required service identifier the Real-Time Analytics session shall be started for.
+  string service_id = 1 [(validate.rules).string = {min_len: 1}];
+}
+
+// StartSessionResponse is the response for starting Real-Time Analytics session.
+message StartSessionResponse {
+  Session session = 1;
+}
+
+// StopSessionRequest contains parameters for stopping Real-Time Analytics session.
+message StopSessionRequest {
+  // Required service identifier the Real-Time Analytics session shall be stopped for.
+  string service_id = 1 [(validate.rules).string = {min_len: 1}];
+}
+
+// StopSessionResponse is the response for stopping Real-Time Analytics session.
+message StopSessionResponse {
+  // Empty response for now.
+}
+
+// Query related messages
+
+// SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.
+message SearchQueriesRequest {
+  // Optional filter by Service identifiers.
+  repeated string service_ids = 1 [(validate.rules).repeated = {
+    min_items: 1
+    unique: true
+  }];
+
+  // Optional limit the number of queries in response.
+  int64 limit = 2;
+}
+
+// SearchQueriesResponse returns the list of currently active Real-Time Analytics session Queries.
+message SearchQueriesResponse {
+  // List of active Real-Time Analytics session Queries.
+  repeated QueryData queries = 1;
+}
+
+// RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.
+service RealtimeAnalyticsService {
+  // ListServices returns a list of Services that support Real-Time Analytics filtered by type.
+  rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
+    option (google.api.http) = {get: "/v1/realtimeanalytics/services"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Services that support Real-Time Analytics"
+      description: "Returns a list of Services that support Real-Time Analytics filtered by type."
+    };
+  }
+
+  // ListSessions returns the list of currently running Real-Time Analytics Sessions.
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse) {
+    option (google.api.http) = {get: "/v1/realtimeanalytics/sessions"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Running Real-Time Analytics Sessions"
+      description: "Returns the list of all currently running Real-Time Analytics sessions with their details including service, cluster and status information."
+    };
+  }
+
+  // StartSession starts Real-Time Analytics session for a specified service.
+  rpc StartSession(StartSessionRequest) returns (StartSessionResponse) {
+    option (google.api.http) = {
+      post: "/v1/realtimeanalytics/sessions:start"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Start Real-Time Analytics session"
+      description: "Start Real-Time Analytics session for a specified service."
+    };
+  }
+
+  // StopSession stops Real-Time Analytics session for a specified service.
+  rpc StopSession(StopSessionRequest) returns (StopSessionResponse) {
+    option (google.api.http) = {
+      post: "/v1/realtimeanalytics/sessions:stop"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Stop Real-Time Analytics session"
+      description: "Stop Real-Time Analytics session for a specified service."
+    };
+  }
+
+  // SearchQueries returns the list of currently running Database Queries that match criteria(s).
+  rpc SearchQueries(SearchQueriesRequest) returns (SearchQueriesResponse) {
+    option (google.api.http) = {
+      post: "/v1/realtimeanalytics/queries:search"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Running Database Queries in a particular services"
+      description: "Returns list of currently running Database queries in a particular services"
+    };
+  }
+}

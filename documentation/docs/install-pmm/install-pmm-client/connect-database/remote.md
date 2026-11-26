@@ -34,4 +34,4 @@ If you see timeout errors, increase the metric resolution values in PMM:
 
 ![!image](../../../images/scrape_targets_03.png)
 
-Higher resolution values (lower collection frequency) provide more time for remote agents to respond, reducing timeout errors while maintaining effective monitoring.RetryClaude can make mistakes. Please double-check responses.
+Higher resolution values (lower collection frequency) provide more time for remote agents to respond, reducing timeout errors while maintaining effective monitoring.

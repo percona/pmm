@@ -16,13 +16,13 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -43,7 +43,7 @@ func checkServiceUniqueID(q *reform.Querier, id string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Service with ID %q already exists.", id)
@@ -55,7 +55,7 @@ func checkServiceUniqueName(q *reform.Querier, name string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Service with name %q already exists.", name)
@@ -97,34 +97,34 @@ type ServiceFilters struct {
 // FindServices returns Services by filters.
 func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	idx := 1
 	if filters.NodeID != "" {
-		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "node_id = "+q.Placeholder(idx))
 		args = append(args, filters.NodeID)
 		idx++
 	}
 	if filters.ExternalGroup != "" {
-		conditions = append(conditions, fmt.Sprintf("external_group = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "external_group = "+q.Placeholder(idx))
 		args = append(args, filters.ExternalGroup)
 		idx++
 	}
 	if filters.ServiceType != nil {
-		conditions = append(conditions, fmt.Sprintf("service_type = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "service_type = "+q.Placeholder(idx))
 		args = append(args, filters.ServiceType)
 		idx++
 	}
 	if filters.Cluster != "" {
-		conditions = append(conditions, fmt.Sprintf("cluster = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "cluster = "+q.Placeholder(idx))
 		args = append(args, filters.Cluster)
 	}
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
-	structs, err := q.SelectAllFrom(ServiceTable, fmt.Sprintf("%s ORDER BY service_id", whereClause), args...)
+	structs, err := q.SelectAllFrom(ServiceTable, whereClause+" ORDER BY service_id", args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	services := make([]*Service, len(structs))
@@ -137,14 +137,15 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 
 // FindActiveServiceTypes returns all active Service Types.
 func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
-	query := fmt.Sprintf(`SELECT DISTINCT service_type FROM %s`, ServiceTable.s.SQLName)
+	query := "SELECT DISTINCT service_type FROM " + ServiceTable.s.SQLName
 	rows, err := q.Query(query)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	defer func() {
-		if rowsErr := rows.Close(); rowsErr != nil {
+		rowsErr := rows.Close()
+		if rowsErr != nil {
 			logrus.Debug(rowsErr)
 		}
 	}()
@@ -152,7 +153,37 @@ func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
 	var res []ServiceType
 	for rows.Next() {
 		var serviceType ServiceType
-		if err = rows.Scan(&serviceType); err != nil {
+		err = rows.Scan(&serviceType)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, serviceType)
+	}
+
+	return res, nil
+}
+
+// FindActiveUserServiceTypes returns all active Service Types, excluding pmm-server-postgresql service.
+func FindActiveUserServiceTypes(q *reform.Querier) ([]ServiceType, error) {
+	query := fmt.Sprintf(`SELECT DISTINCT service_type FROM %s WHERE service_name != $1`, ServiceTable.s.SQLName)
+	rows, err := q.Query(query, PMMServerPostgreSQLServiceName)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		rowsErr := rows.Close()
+		if rowsErr != nil {
+			logrus.Debug(rowsErr)
+		}
+	}()
+
+	var res []ServiceType
+	for rows.Next() {
+		var serviceType ServiceType
+		err = rows.Scan(&serviceType)
+		if err != nil {
 			return nil, err
 		}
 
@@ -174,10 +205,27 @@ func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Service with ID %q not found.", id)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return row, nil
+}
+
+// FindServiceByIDForUpdate searches Service by ID and locks its row until the end of the transaction.
+func FindServiceByIDForUpdate(q *reform.Querier, id string) (*Service, error) {
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Service ID.")
+	}
+
+	row, err := q.SelectOneFrom(ServiceTable, "WHERE service_id = $1 FOR UPDATE", id)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Service with ID %s not found.", id)
+		}
+		return nil, err
+	}
+
+	return row.(*Service), nil //nolint:forcetypeassert
 }
 
 // FindServicesByIDs finds Services by IDs.
@@ -188,14 +236,14 @@ func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, er
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p)
-	args := make([]interface{}, len(ids))
+	args := make([]any, len(ids))
 	for i, id := range ids {
 		args[i] = id
 	}
 
 	all, err := q.SelectAllFrom(ServiceTable, tail, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	services := make(map[string]*Service, len(all))
@@ -219,13 +267,13 @@ func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Service with name %q not found.", name)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &service, nil
 }
 
-// AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB, External) Services.
+// AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB, External, and Valkey) Services.
 type AddDBMSServiceParams struct {
 	ServiceName    string
 	NodeID         string
@@ -244,8 +292,9 @@ type AddDBMSServiceParams struct {
 // Must be performed in transaction.
 func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSServiceParams) (*Service, error) {
 	switch serviceType {
-	case MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType:
-		if err := validateDBConnectionOptions(params.Socket, params.Address, params.Port); err != nil {
+	case MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType, ValkeyServiceType:
+		err := validateDBConnectionOptions(params.Socket, params.Address, params.Port)
+		if err != nil {
 			return nil, err
 		}
 		if params.ExternalGroup != "" {
@@ -265,14 +314,17 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 	}
 
 	id := uuid.New().String()
-	if err := checkServiceUniqueID(q, id); err != nil {
+	err := checkServiceUniqueID(q, id)
+	if err != nil {
 		return nil, err
 	}
-	if err := checkServiceUniqueName(q, params.ServiceName); err != nil {
+	err = checkServiceUniqueName(q, params.ServiceName)
+	if err != nil {
 		return nil, err
 	}
 
-	if _, err := FindNodeByID(q, params.NodeID); err != nil {
+	_, err = FindNodeByID(q, params.NodeID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -298,14 +350,17 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		Socket:         params.Socket,
 		ExternalGroup:  params.ExternalGroup,
 	}
-	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+	err = row.SetCustomLabels(params.CustomLabels)
+	if err != nil {
 		return nil, err
 	}
-	if err := q.Insert(row); err != nil {
-		return nil, errors.WithStack(err)
+	err = q.Insert(row)
+	if err != nil {
+		return nil, err
 	}
 
-	if err := initSoftwareVersions(q, id, serviceType); err != nil {
+	err = initSoftwareVersions(q, id, serviceType)
+	if err != nil {
 		return nil, err
 	}
 
@@ -314,7 +369,7 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 
 // RemoveService removes single Service.
 // If associated service software versions entry exists it is removed by the ON DELETE CASCADE option.
-func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
+func RemoveService(q *reform.Querier, id string, mode RemoveMode) error { //nolint:gocognit
 	s, err := FindServiceByID(q, id)
 	if err != nil {
 		return err
@@ -322,22 +377,22 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 	// find agents and artifacts
 	agents, err := FindAgents(q, AgentFilters{ServiceID: id})
 	if err != nil {
-		return errors.Wrap(err, "failed to select Agent IDs")
+		return fmt.Errorf("failed to select Agent IDs: %w", err)
 	}
 
 	artifacts, err := FindArtifacts(q, ArtifactFilters{ServiceID: id})
 	if err != nil {
-		return errors.Wrap(err, "failed to select artifacts")
+		return fmt.Errorf("failed to select artifacts: %w", err)
 	}
 
 	restoreItems, err := FindRestoreHistoryItems(q, RestoreHistoryItemFilters{ServiceID: id})
 	if err != nil {
-		return errors.Wrap(err, "failed to select restore history items")
+		return fmt.Errorf("failed to select restore history items: %w", err)
 	}
 
 	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{ServiceID: id})
 	if err != nil {
-		return errors.Wrap(err, "failed to select scheduled tasks")
+		return fmt.Errorf("failed to select scheduled tasks: %w", err)
 	}
 
 	switch mode {
@@ -359,24 +414,28 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 		}
 	case RemoveCascade:
 		for _, a := range agents {
-			if _, err := RemoveAgent(q, a.AgentID, RemoveCascade); err != nil {
+			_, err = RemoveAgent(q, a.AgentID, RemoveCascade)
+			if err != nil {
 				return err
 			}
 		}
 		for _, a := range artifacts {
-			if _, err := UpdateArtifact(q, a.ID, UpdateArtifactParams{
-				ServiceID: pointer.ToString(""),
-			}); err != nil {
+			_, err = UpdateArtifact(q, a.ID, UpdateArtifactParams{
+				ServiceID: new(""),
+			})
+			if err != nil {
 				return err
 			}
 		}
 		for _, i := range restoreItems {
-			if err := RemoveRestoreHistoryItem(q, i.ID); err != nil {
+			err = RemoveRestoreHistoryItem(q, i.ID)
+			if err != nil {
 				return err
 			}
 		}
 		for _, t := range tasks {
-			if err := RemoveScheduledTask(q, t.ID); err != nil {
+			err = RemoveScheduledTask(q, t.ID)
+			if err != nil {
 				return err
 			}
 		}
@@ -384,7 +443,17 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error {
 		panic(fmt.Errorf("unhandled RemoveMode %v", mode))
 	}
 
-	return errors.Wrap(q.Delete(s), "failed to delete Service")
+	// See RemoveNode: override rows are not reachable by cascade, so they go here.
+	err = DeleteThresholdOverridesForTarget(q, ThresholdScopeService, id)
+	if err != nil {
+		return err
+	}
+
+	err = q.Delete(s)
+	if err != nil {
+		return fmt.Errorf("failed to delete Service: %w", err)
+	}
+	return nil
 }
 
 // ValidateServiceType checks argument value is in the list of supported types.
@@ -398,7 +467,7 @@ func ValidateServiceType(serviceType ServiceType) error {
 		ExternalServiceType:
 		return nil
 	default:
-		return errors.Wrapf(ErrInvalidServiceType, "unknown service type '%s'", string(serviceType))
+		return fmt.Errorf("unknown service type '%s': %w", serviceType, ErrInvalidServiceType)
 	}
 }
 
@@ -445,11 +514,102 @@ func ChangeStandardLabels(q *reform.Querier, serviceID string, labels ServiceSta
 		return nil
 	}
 
-	if err = q.UpdateColumns(s, columns...); err != nil {
+	err = q.UpdateColumns(s, columns...)
+	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// ChangeServiceParams contains Service fields that can be changed; nil means no change.
+type ChangeServiceParams struct {
+	Environment    *string
+	Cluster        *string
+	ReplicationSet *string
+	ExternalGroup  *string
+	// empty map - remove all custom labels, non-empty - change, nil - no change
+	CustomLabels *map[string]string
+	Database     *string
+	// An address or port replaces the socket, and a socket replaces the address and port.
+	Address *string
+	Port    *uint16
+	Socket  *string
+}
+
+// IsEndpointChange reports whether the change moves the Service to another address, port, socket or database.
+func (p *ChangeServiceParams) IsEndpointChange() bool {
+	return p.Address != nil || p.Port != nil || p.Socket != nil || p.Database != nil
+}
+
+// ApplyServiceChange changes the Service fields set in params and stores the Service.
+// Must be performed in transaction.
+func ApplyServiceChange(q *reform.Querier, row *Service, params *ChangeServiceParams) (*Service, error) {
+	// Applied to a copy, so the caller's row is left as it was if the change is rejected.
+	rowCopy := *row
+	row = &rowCopy
+
+	if params.Environment != nil {
+		row.Environment = *params.Environment
+	}
+	if params.Cluster != nil {
+		row.Cluster = *params.Cluster
+	}
+	if params.ReplicationSet != nil {
+		row.ReplicationSet = *params.ReplicationSet
+	}
+	if params.ExternalGroup != nil {
+		row.ExternalGroup = *params.ExternalGroup
+		if row.ExternalGroup == "" {
+			row.ExternalGroup = "external"
+		}
+	}
+	if params.Database != nil {
+		row.DatabaseName = *params.Database
+		if row.DatabaseName == "" {
+			row.DatabaseName = "postgres"
+		}
+	}
+	if params.CustomLabels != nil {
+		err := row.SetCustomLabels(*params.CustomLabels)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if params.Address != nil {
+		row.Address = pointer.ToStringOrNil(*params.Address)
+	}
+	if params.Port != nil {
+		row.Port = pointer.ToUint16OrNil(*params.Port)
+	}
+	if params.Socket != nil {
+		row.Socket = pointer.ToStringOrNil(*params.Socket)
+	}
+	switch {
+	case (params.Address != nil || params.Port != nil) && params.Socket == nil:
+		row.Socket = nil
+	case params.Socket != nil && params.Address == nil && params.Port == nil:
+		row.Address = nil
+		row.Port = nil
+	}
+
+	switch row.ServiceType {
+	case MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType, ValkeyServiceType:
+		err := validateDBConnectionOptions(row.Socket, row.Address, row.Port)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		// HAProxy and External Services are scraped through their exporter, not their own address.
+	}
+
+	err := q.Update(row)
+	if err != nil {
+		return nil, err
+	}
+
+	return row, nil
 }
 
 func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType ServiceType) error {
@@ -457,13 +617,14 @@ func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType Servi
 	case MySQLServiceType:
 		fallthrough
 	case MongoDBServiceType:
-		if _, err := CreateServiceSoftwareVersions(q, CreateServiceSoftwareVersionsParams{
+		_, err := CreateServiceSoftwareVersions(q, CreateServiceSoftwareVersionsParams{
 			ServiceID:        serviceID,
 			ServiceType:      serviceType,
 			SoftwareVersions: []SoftwareVersion{},
 			NextCheckAt:      time.Now(),
-		}); err != nil {
-			return errors.Wrapf(err, "couldn't initialize software versions for service %s", serviceID)
+		})
+		if err != nil {
+			return fmt.Errorf("couldn't initialize software versions for service %s: %w", serviceID, err)
 		}
 	default:
 		return nil

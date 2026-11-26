@@ -19,8 +19,6 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
@@ -40,6 +38,7 @@ var acceptableServiceTypes = map[string][]string{
 	types.ServiceTypeMySQLService:      {types.ServiceTypeName(types.ServiceTypeMySQLService)},
 	types.ServiceTypeMongoDBService:    {types.ServiceTypeName(types.ServiceTypeMongoDBService)},
 	types.ServiceTypePostgreSQLService: {types.ServiceTypeName(types.ServiceTypePostgreSQLService)},
+	types.ServiceTypeValkeyService:     {types.ServiceTypeName(types.ServiceTypeValkeyService)},
 	types.ServiceTypeProxySQLService:   {types.ServiceTypeName(types.ServiceTypeProxySQLService)},
 	types.ServiceTypeHAProxyService:    {types.ServiceTypeName(types.ServiceTypeHAProxyService)},
 	types.ServiceTypeExternalService:   {types.ServiceTypeName(types.ServiceTypeExternalService)},
@@ -88,8 +87,8 @@ func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 	}
 
 	params := &services.ListServicesParams{
-		NodeID:        pointer.ToString(cmd.NodeID),
-		ExternalGroup: pointer.ToString(cmd.ExternalGroup),
+		NodeID:        new(cmd.NodeID),
+		ExternalGroup: new(cmd.ExternalGroup),
 		ServiceType:   serviceType,
 		Context:       commands.Ctx,
 	}
@@ -105,7 +104,14 @@ func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 		return net.JoinHostPort(address, strconv.FormatInt(port, 10))
 	}
 
-	var servicesList []listResultService //nolint:prealloc
+	servicesList := make([]listResultService, 0,
+		len(result.Payload.Mysql)+
+			len(result.Payload.Mongodb)+
+			len(result.Payload.Postgresql)+
+			len(result.Payload.Valkey)+
+			len(result.Payload.Proxysql)+
+			len(result.Payload.Haproxy)+
+			len(result.Payload.External))
 	for _, s := range result.Payload.Mysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMySQLService,
@@ -125,6 +131,14 @@ func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 	for _, s := range result.Payload.Postgresql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypePostgreSQLService,
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
+			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),
+		})
+	}
+	for _, s := range result.Payload.Valkey {
+		servicesList = append(servicesList, listResultService{
+			ServiceType: types.ServiceTypeValkeyService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
 			AddressPort: getAddressPort(s.Socket, s.Address, s.Port),

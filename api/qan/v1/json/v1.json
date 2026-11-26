@@ -15,6 +15,56 @@
     "version": "v1"
   },
   "paths": {
+    "/v1/qan/health": {
+      "get": {
+        "description": "Returns readiness of QAN API2 service.",
+        "tags": [
+          "QANService"
+        ],
+        "summary": "Health Check",
+        "operationId": "HealthCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "HealthCheckResponse is empty, based on returned error qan-api2 is ready or not.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/qan/metrics:getFilters": {
       "post": {
         "description": "Provides a filtered map of metrics names.",
@@ -140,7 +190,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -211,7 +261,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -860,11 +910,29 @@
                               "format": "float",
                               "x-order": 74
                             },
+                            "m_wal_buffers_full_sum_per_sec": {
+                              "description": "Total number of times WAL buffers become full.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 75
+                            },
+                            "m_parallel_workers_to_launch_sum_per_sec": {
+                              "description": "Total number of parallel workers to launch.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 76
+                            },
+                            "m_parallel_workers_launched_sum_per_sec": {
+                              "description": "Total number of parallel workers launched.",
+                              "type": "number",
+                              "format": "float",
+                              "x-order": 77
+                            },
                             "m_plan_time_sum_per_sec": {
                               "description": "Plan time in per seconds.",
                               "type": "number",
                               "format": "float",
-                              "x-order": 75
+                              "x-order": 78
                             }
                           }
                         },
@@ -920,7 +988,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -944,6 +1012,12 @@
             "name": "queryid",
             "in": "path",
             "required": true
+          },
+          {
+            "type": "string",
+            "description": "Service ID to scope the plan to; empty matches any service.",
+            "name": "service_id",
+            "in": "query"
           }
         ],
         "responses": {
@@ -988,7 +1062,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1066,7 +1140,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1246,7 +1320,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1324,7 +1398,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1407,7 +1481,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1527,7 +1601,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -1630,7 +1704,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -2234,11 +2308,29 @@
                         "format": "float",
                         "x-order": 74
                       },
+                      "m_wal_buffers_full_sum_per_sec": {
+                        "description": "Total number of times WAL buffers become full.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 75
+                      },
+                      "m_parallel_workers_to_launch_sum_per_sec": {
+                        "description": "Total number of parallel workers to launch.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 76
+                      },
+                      "m_parallel_workers_launched_sum_per_sec": {
+                        "description": "Total number of parallel workers launched.",
+                        "type": "number",
+                        "format": "float",
+                        "x-order": 77
+                      },
                       "m_plan_time_sum_per_sec": {
                         "description": "Plan time in per seconds.",
                         "type": "number",
                         "format": "float",
-                        "x-order": 75
+                        "x-order": 78
                       }
                     }
                   },
@@ -2380,7 +2472,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -2393,6 +2485,7 @@
   },
   "tags": [
     {
+      "description": "QANService provides an API to interact with PMM Query Analytics.",
       "name": "QANService"
     }
   ]

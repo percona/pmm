@@ -18,9 +18,11 @@ package tlshelpers
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/pkg/errors"
+
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // RegisterMySQLCerts is used for register TLS config before sql.Open is called.
@@ -29,21 +31,33 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 		return nil
 	}
 
-	ca := x509.NewCertPool()
-	cert, err := tls.X509KeyPair([]byte(files["tlsCert"]), []byte(files["tlsKey"]))
-	if err != nil {
-		return errors.Wrap(err, "register MySQL client cert failed")
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: tlsSkipVerify, // #nosec G402
 	}
 
-	if ok := ca.AppendCertsFromPEM([]byte(files["tlsCa"])); ok {
-		err = mysql.RegisterTLSConfig("custom", &tls.Config{
-			RootCAs:            ca,
-			Certificates:       []tls.Certificate{cert},
-			InsecureSkipVerify: tlsSkipVerify, // #nosec G402
-		})
+	var certs []tls.Certificate
+	// Only load client cert/key if both are provided
+	if files[agentv1.TLSCertFileName] != "" && files[agentv1.TLSKeyFileName] != "" {
+		cert, err := tls.X509KeyPair([]byte(files[agentv1.TLSCertFileName]), []byte(files[agentv1.TLSKeyFileName]))
 		if err != nil {
-			return errors.Wrap(err, "register MySQL CA cert failed")
+			return fmt.Errorf("register MySQL client cert failed: %w", err)
 		}
+
+		certs = append(certs, cert)
+	}
+
+	if len(certs) != 0 {
+		tlsConfig.Certificates = certs
+	}
+
+	ca := x509.NewCertPool()
+	if ok := ca.AppendCertsFromPEM([]byte(files[agentv1.TLSCaFileName])); ok {
+		tlsConfig.RootCAs = ca
+	}
+
+	err := mysql.RegisterTLSConfig("custom", tlsConfig)
+	if err != nil {
+		return fmt.Errorf("register MySQL CA cert failed: %w", err)
 	}
 
 	return nil

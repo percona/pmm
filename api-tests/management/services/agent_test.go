@@ -36,7 +36,8 @@ func TestListAgentVersions(t *testing.T) {
 		resp, err := client.Default.ManagementService.ListAgentVersions(
 			&mgmtSvc.ListAgentVersionsParams{
 				Context: ctx,
-			})
+			},
+		)
 		require.NoError(t, err)
 		require.Len(t, resp.Payload.AgentVersions, 1)
 

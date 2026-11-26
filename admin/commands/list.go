@@ -110,11 +110,13 @@ func (res *listResult) String() string {
 
 func convertTabs(template string) (string, error) {
 	var buf bytes.Buffer
-	w := tabwriter.NewWriter(&buf, 4, 4, 8, ' ', tabwriter.TabIndent)
-	if _, err := io.WriteString(w, template); err != nil {
+	w := tabwriter.NewWriter(&buf, 4, 4, 8, ' ', tabwriter.TabIndent) //nolint:mnd
+	_, err := io.WriteString(w, template)
+	if err != nil {
 		return "", err
 	}
-	if err := w.Flush(); err != nil {
+	err = w.Flush()
+	if err != nil {
 		return "", err
 	}
 	return buf.String(), nil
@@ -136,7 +138,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) {
 	}
 
 	servicesRes, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-		NodeID:  pointer.ToString(cmd.NodeID),
+		NodeID:  new(cmd.NodeID),
 		Context: Ctx,
 	})
 	if err != nil {
@@ -172,6 +174,7 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 	servicesList = append(servicesList, mysqlServices(servicesRes)...)
 	servicesList = append(servicesList, mongodbServices(servicesRes)...)
 	servicesList = append(servicesList, postgresqlServices(servicesRes)...)
+	servicesList = append(servicesList, valkeyServices(servicesRes)...)
 	servicesList = append(servicesList, proxysqlServices(servicesRes)...)
 	servicesList = append(servicesList, haproxyServices(servicesRes)...)
 	servicesList = append(servicesList, externalServices(servicesRes)...)
@@ -210,6 +213,19 @@ func postgresqlServices(servicesRes *services.ListServicesOK) []listResultServic
 	for _, s := range servicesRes.Payload.Postgresql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypePostgreSQLService,
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
+			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
+		})
+	}
+	return servicesList
+}
+
+func valkeyServices(servicesRes *services.ListServicesOK) []listResultService {
+	servicesList := make([]listResultService, 0, len(servicesRes.Payload.Valkey))
+	for _, s := range servicesRes.Payload.Valkey {
+		servicesList = append(servicesList, listResultService{
+			ServiceType: types.ServiceTypeValkeyService,
 			ServiceID:   s.ServiceID,
 			ServiceName: s.ServiceName,
 			AddressPort: getSocketOrHost(s.Socket, s.Address, s.Port),
@@ -273,14 +289,15 @@ func getMetricsMode(s bool) string {
 }
 
 func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent {
-	pmmAgentIDs := make(map[string]struct{})
-	agentsList := []listResultAgent{}
+	pmmAgentIDs := make(map[string]struct{}, len(agentsRes.Payload.PMMAgent))
+	agentsList := make([]listResultAgent, 0, len(agentsRes.Payload.PMMAgent))
 
 	agentsList = append(agentsList, pmmAgents(agentsRes, nodeID, pmmAgentIDs)...)
 	agentsList = append(agentsList, nodeExporters(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, mysqldExporters(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, mongodbExporters(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, postgresExporters(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, valkeyExporters(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, proxysqlExporters(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, rdsExporters(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, qanMysqlPerfschemaAgents(agentsRes, pmmAgentIDs)...)
@@ -292,6 +309,7 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 	agentsList = append(agentsList, externalExporters(agentsRes, nodeID)...)
 	agentsList = append(agentsList, vmAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, nomadAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, rtaMongodbAgents(agentsRes, pmmAgentIDs)...)
 
 	return agentsList
 }
@@ -340,6 +358,24 @@ func postgresExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]st
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agentsList = append(agentsList, listResultAgent{
 				AgentType:   types.AgentTypePostgresExporter,
+				AgentID:     a.AgentID,
+				ServiceID:   a.ServiceID,
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: getMetricsMode(a.PushMetricsEnabled),
+				Port:        a.ListenPort,
+			})
+		}
+	}
+	return agentsList
+}
+
+func valkeyExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
+	for _, a := range agentsRes.Payload.ValkeyExporter {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType:   types.AgentTypeValkeyExporter,
 				AgentID:     a.AgentID,
 				ServiceID:   a.ServiceID,
 				Status:      getStatus(a.Status),
@@ -565,5 +601,23 @@ func nodeExporters(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct
 			})
 		}
 	}
+	return agentsList
+}
+
+func rtaMongodbAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
+
+	for _, a := range agentsRes.Payload.RtaMongodbAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType: types.AgentTypeRTAMongoDBAgent,
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status),
+				Disabled:  a.Disabled,
+			})
+		}
+	}
+
 	return agentsList
 }

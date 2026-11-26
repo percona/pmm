@@ -1,18 +1,22 @@
-# pmm-agent - PMM Client agent
+# Configure the pmm-agent daemon
+
+`pmm-agent` is the daemon process that runs on each monitored host. It manages exporters, collects metrics, and handles communication between your databases and PMM Server. 
+
+You typically don't interact with pmm-agent directly, `pmm-admin` communicates with PMM Server, which then sends commands to `pmm-agent`. 
 
 ## NAME
 
-`pmm-agent` - The PMM Client daemon program.
+`pmm-agent`: The PMM Client daemon program.
 
-## SYNOPSIS
+## Syntax
 
 `pmm-agent [command] [options]`
 
-## DESCRIPTION
+## Description
 
 `pmm-agent`, part of the PMM Client package, runs as a daemon process on all monitored hosts.
 
-## COMMANDS
+## Commands
 
 `pmm-agent run`
 : Run pmm-agent (default).
@@ -20,149 +24,145 @@
 `pmm-agent setup [node-address] [node-type] [node-name]`
 : Configure local pmm-agent (requires root permissions)
 
+    Running `setup` again for a registered pmm-agent keeps its registration, along with the Node and every Service on it:
+
+    - The Node is registered again only when the PMM Server address changed, when PMM Server no longer knows the pmm-agent on that Node, or with `--force`.
+    - If PMM Server has the pmm-agent on a Node with another name, `setup` stops. Re-run it with that name as the `node-name` argument to keep that Node together with its Services, or use `--force` to register the name you gave as a new Node instead, which leaves the other Node and its Services on PMM Server with nothing monitoring them.
+    - Settings which describe the Node, such as `--custom-labels`, `--disable-collectors` or the `node-type` argument, only take effect when the Node is registered. `setup` lists the ones it did not apply, and reports a registered Node address or type which differs from the one you gave.
+    - The credentials given to `setup` only serve to register the Node. A registered pmm-agent keeps its service token, and `setup` says so when the credentials you gave were not the ones used.
+    - Without `--config-file`, as when `pmm-admin config` runs `setup`, the configuration file is left unchanged, so settings it holds beyond the flags given are kept.
+    - If PMM Server cannot be reached, or answers something pmm-agent cannot interpret, the registration is kept, a warning is written to standard error and `setup` still succeeds, so that a Client can be set up while PMM Server is unavailable.
+    - If the configuration file is encrypted, pass `--config-file-key-file`. Without the key `setup` cannot tell whether the pmm-agent is registered, and stops instead of guessing.
+    - `--skip-registration` needs an Agent ID already in hand, from `--id`, `PMM_AGENT_ID`, or a configuration file given with `--config-file`. It stops when nothing supplied one, rather than adopting the ID of a configuration file it only located through the running pmm-agent.
+
 `pmm-agent help [command]`
 : Show help (for command) and exit.
 
-## OPTIONS AND ENVIRONMENT
+## Options and environment
 
-Most options can be set via environment variables (shown in parentheses).
+When you run `pmm-agent` from the command line, pass options as flags. When you run PMM Client in a container or as a service, set them as environment variables instead, so you don't have to change the start command. 
 
-| Option                                 | Environment variable                | Description
-| -------------------------------------- | ----------------------------------- | -----------------------------
-| `--server-password=SERVER-PASSWORD`    | `PMM_AGENT_SERVER_PASSWORD`         | Password to connect to PMM Server.
-| `--server-username=SERVER-USERNAME`    | `PMM_AGENT_SERVER_USERNAME`         | Username to connect to PMM Server.
-| `--server-address=host:port`           | `PMM_AGENT_SERVER_ADDRESS`          | PMM Server address and port number.
-| `--server-insecure-tls`                | `PMM_AGENT_SERVER_INSECURE_TLS`     | Skip PMM Server TLS certificate validation.
-| `--az=AZ`                              | `PMM_AGENT_SETUP_AZ`                | Node availability zone.
-| `--config-file=path_to/pmm-agent.yaml` | `PMM_AGENT_CONFIG_FILE`             | Configuration file path and name.
-| `--container-id=CONTAINER-ID`          | `PMM_AGENT_SETUP_CONTAINER_ID`      | Container ID.
-| `--container-name=CONTAINER-NAME`      | `PMM_AGENT_SETUP_CONTAINER_NAME`    | Container name.
-| `--debug`                              | `PMM_AGENT_DEBUG`                   | Enable debug output.
-| `--distro=distro`                      | `PMM_AGENT_SETUP_DISTRO`            | Node OS distribution (default is auto-detected).
-| `--force`                              | `PMM_AGENT_SETUP_FORCE`             | Remove Node with that name and all dependent Services and Agents (if existing).
-| `--id=...`                   | `PMM_AGENT_ID`                      | ID of this pmm-agent.
-| `--listen-address=LISTEN-ADDRESS`      | `PMM_AGENT_LISTEN_ADDRESS`          | Agent local API address.
-| `--listen-port=LISTEN-PORT`            | `PMM_AGENT_LISTEN_PORT`             | Agent local API port.
-| `--machine-id=machine-id`              | `PMM_AGENT_SETUP_MACHINE_ID`        | Node machine ID (default is auto-detected).
-| `--metrics-mode=auto`                  | `PMM_AGENT_SETUP_METRICS_MODE`      | Metrics flow mode for agents node-exporter. Can be `push` (agent will push metrics), `pull` (server scrapes metrics from agent) or `auto` (chosen by server).
-| `--node-model=NODE-MODEL`              | `PMM_AGENT_SETUP_NODE_MODEL`        | Node model.
-| `--paths-base=PATH`                    | `PMM_AGENT_PATHS_BASE`              | Base path for PMM client, where all binaries, tools and collectors are located. If not set, default is `/usr/local/percona/pmm`.
-| `--paths-exporters_base=PATH`          | `PMM_AGENT_PATHS_EXPORTERS_BASE`    | Base path for exporters to use. If not set, or set to a relative path, uses value of `--paths-base` prepended to it.
-| `--paths-mongodb_exporter=PATH`        | `PMM_AGENT_PATHS_MONGODB_EXPORTER`  | Path to `mongodb_exporter`.
-| `--paths-mysqld_exporter=PATH`         | `PMM_AGENT_PATHS_MYSQLD_EXPORTER`   | Path to `mysqld_exporter`.
-| `--paths-node_exporter=PATH`           | `PMM_AGENT_PATHS_NODE_EXPORTER`     | Path to `node_exporter`.
-| `--paths-postgres_exporter=PATH`       | `PMM_AGENT_PATHS_POSTGRES_EXPORTER` | Path to `postgres_exporter`.
-| `--paths-proxysql_exporter=PATH`       | `PMM_AGENT_PATHS_PROXYSQL_EXPORTER` | Path to `proxysql_exporter`.
-| `--paths-pt-summary=PATH`              | `PMM_AGENT_PATHS_PT_SUMMARY`        | Path to `pt-summary`.
-| `--paths-pt-mysql-summary=PATH`        | `PMM_AGENT_PATHS_PT_MYSQL_SUMMARY`  | Path to `pt-mysql-summary`.
-| `--paths-pt-pg-summary=PATH`           | `PMM_AGENT_PATHS_PT_PG_SUMMARY`     | Path to `pt-pg-summary`.
-| `--paths-tempdir=PATH`                 | `PMM_AGENT_PATHS_TEMPDIR`           | Temporary directory for exporters.
-| `--ports-max=PORTS-MAX`                | `PMM_AGENT_PORTS_MAX`               | Highest allowed port number for listening sockets.
-| `--ports-min=PORTS-MIN`                | `PMM_AGENT_PORTS_MIN`               | Lowest allowed port number for listening sockets.
-| `--region=REGION`                      | `PMM_AGENT_SETUP_REGION`            | Node region.
-| `--skip-registration`                  | `PMM_AGENT_SETUP_SKIP_REGISTRATION` | Skip registration on PMM Server.
-| `--trace`                              | `PMM_AGENT_TRACE`                   | Enable trace output (implies `--debug`).
-| `-h`, `--help`                         |                                     | Show help (synonym for `pmm-agent help`).
-| `--version`                            |                                     | Show application version, PMM version, time-stamp, git commit hash and branch.
-| `--expose-exporter` | | If you enable this flag, any IP address on the local network and anywhere on the internet can access node exporter endpoints. If the flag is disabled, node exporter endpoints can be accessed only locally.
+Use the following table to find the flag or variable for the setting you want to change. Options with no variable, such as `--version`, work only as flags:
 
-## CONFIG FILE
+| Option | Environment variable | Description |
+|--------|----------------------|-------------|
+| `--agent-password=PASSWORD` | `PMM_AGENT_SETUP_NODE_PASSWORD` | Custom password for the `/metrics` endpoint of `node_exporter`. |
+| `--az=AZ` | `PMM_AGENT_SETUP_AZ` | Node availability zone. |
+| `--config-file=path_to/pmm-agent.yaml` | `PMM_AGENT_CONFIG_FILE` | Configuration file path and name. |
+| `--config-file-key-file` | `PMM_AGENT_CONFIG_FILE_KEY_FILE` | Path to RSA private key for config file encryption. See [Encrypt the PMM Client configuration file](../../admin/security/client_config_encryption.md). |
+| `--config-file-key-password` | `PMM_AGENT_CONFIG_FILE_KEY_PASSWORD` | Password for the RSA private key, if the key has one. |
+| `--container-id=CONTAINER-ID` | `PMM_AGENT_SETUP_CONTAINER_ID` | Container ID. |
+| `--container-name=CONTAINER-NAME` | `PMM_AGENT_SETUP_CONTAINER_NAME` | Container name. |
+| `--custom-labels=KEY=VALUE,...` | `PMM_AGENT_SETUP_CUSTOM_LABELS` | Custom labels for the Node, in `key=value,key=value` format. |
+| `--debug` | `PMM_AGENT_DEBUG` | Turn on debug output. |
+| `--disable-collectors=COLLECTORS` | `PMM_AGENT_SETUP_DISABLE_COLLECTORS` | Comma-separated list of `node_exporter` collectors to turn off. |
+| `--distro=distro` | `PMM_AGENT_SETUP_DISTRO` | Node OS distribution. Detected automatically by default. |
+| `--expose-exporter` | `PMM_AGENT_EXPOSE_EXPORTER` | Make `node_exporter` listen on all network interfaces (`0.0.0.0`) instead of only on localhost, so that other hosts can reach its metrics endpoint. To limit who can read the metrics, set `--agent-password` and restrict access with a firewall. |
+| `--force` | `PMM_AGENT_SETUP_FORCE` | Register the Node even if this pmm-agent is registered, removing any existing Node with that name and its Services and Agents. |
+| `--id=...` | `PMM_AGENT_ID` | ID of this pmm-agent. |
+| `--listen-address=LISTEN-ADDRESS` | `PMM_AGENT_LISTEN_ADDRESS` | Agent local API address. |
+| `--listen-port=LISTEN-PORT` | `PMM_AGENT_LISTEN_PORT` | Agent local API port. |
+| `--log-level=LEVEL` | `PMM_AGENT_LOG_LEVEL` | Log level: `debug`, `info`, `warn`, `error` or `fatal`. Default is `info`. `--debug` and `--trace` take precedence over this setting. |
+| `--log-lines-count=N` | `PMM_AGENT_LOG_LINES_COUNT` | Number of most recent log lines to include for PMM Server and each exporter and agent when you download logs. Default is `1024`. |
+| `--machine-id=machine-id` | `PMM_AGENT_SETUP_MACHINE_ID` | Node machine ID. Detected automatically by default. |
+| `--metrics-mode=auto` | `PMM_AGENT_SETUP_METRICS_MODE` | How metrics reach PMM Server: `push` (pmm-agent sends them), `pull` (PMM Server collects them) or `auto` (PMM Server decides). |
+| `--node-model=NODE-MODEL` | `PMM_AGENT_SETUP_NODE_MODEL` | Node model. |
+| `--paths-azure_exporter=PATH` | `PMM_AGENT_PATHS_AZURE_EXPORTER` | Path to `azure_exporter`. |
+| `--paths-base=PATH` | `PMM_AGENT_PATHS_BASE` | Base path for PMM Client, where its binaries, tools and collectors are located. Default is `/usr/local/percona/pmm`. |
+| `--paths-exporters_base=PATH` | `PMM_AGENT_PATHS_EXPORTERS_BASE` | Base path for exporters. A relative path is resolved under `--paths-base`. Default is `exporters` under `--paths-base`. |
+| `--paths-mongodb_exporter=PATH` | `PMM_AGENT_PATHS_MONGODB_EXPORTER` | Path to `mongodb_exporter`. |
+| `--paths-mysqld_exporter=PATH` | `PMM_AGENT_PATHS_MYSQLD_EXPORTER` | Path to `mysqld_exporter`. |
+| `--paths-node_exporter=PATH` | `PMM_AGENT_PATHS_NODE_EXPORTER` | Path to `node_exporter`. |
+| `--paths-nomad=PATH` | `PMM_AGENT_PATHS_NOMAD` | Path to the `nomad` binary. Default is `tools/nomad` under `--paths-base`. |
+| `--paths-nomad-data-dir=PATH` | `PMM_AGENT_PATHS_NOMAD_DATA_DIR` | Nomad data directory. Default is `data/nomad` under `--paths-base`. |
+| `--paths-postgres_exporter=PATH` | `PMM_AGENT_PATHS_POSTGRES_EXPORTER` | Path to `postgres_exporter`. |
+| `--paths-proxysql_exporter=PATH` | `PMM_AGENT_PATHS_PROXYSQL_EXPORTER` | Path to `proxysql_exporter`. |
+| `--paths-pt-mongodb-summary=PATH` | `PMM_AGENT_PATHS_PT_MONGODB_SUMMARY` | Path to `pt-mongodb-summary`. |
+| `--paths-pt-mysql-summary=PATH` | `PMM_AGENT_PATHS_PT_MYSQL_SUMMARY` | Path to `pt-mysql-summary`. |
+| `--paths-pt-pg-summary=PATH` | `PMM_AGENT_PATHS_PT_PG_SUMMARY` | Path to `pt-pg-summary`. |
+| `--paths-pt-summary=PATH` | `PMM_AGENT_PATHS_PT_SUMMARY` | Path to `pt-summary`. |
+| `--paths-tempdir=PATH` | `PMM_AGENT_PATHS_TEMPDIR` | Temporary directory for exporters. |
+| `--paths-valkey-exporter=PATH` | `PMM_AGENT_PATHS_VALKEY_EXPORTER` | Path to `valkey_exporter`. |
+| `--perfschema-refresh-rate=SECONDS` | `PMM_AGENT_PERFSCHEMA_REFRESH_RATE` | How often PMM reads Performance Schema data for Query Analytics, in seconds. Default is `5`. |
+| `--ports-max=PORTS-MAX` | `PMM_AGENT_PORTS_MAX` | Highest allowed port number for listening sockets. |
+| `--ports-min=PORTS-MIN` | `PMM_AGENT_PORTS_MIN` | Lowest allowed port number for listening sockets. |
+| `--proc-mounts-path=PATH` | `PMM_AGENT_SETUP_PROC_MOUNTS_PATH` | Path to the `/proc/mounts` file that `node_exporter` uses. |
+| `--region=REGION` | `PMM_AGENT_SETUP_REGION` | Node region. |
+| `--runner-capacity=N` | `PMM_AGENT_RUNNER_CAPACITY` | Maximum number of actions and jobs that pmm-agent runs at the same time. Default is `32`. |
+| `--runner-max-connections-per-service=N` | `PMM_AGENT_RUNNER_MAX_CONNECTIONS_PER_SERVICE` | Maximum number of actions and jobs that pmm-agent runs at the same time against one database instance. Default is `2`. |
+| `--server-address=host:port` | `PMM_AGENT_SERVER_ADDRESS` | PMM Server address and port number. |
+| `--server-insecure-tls` | `PMM_AGENT_SERVER_INSECURE_TLS` | Skip PMM Server TLS certificate validation. |
+| `--server-password=SERVER-PASSWORD` | `PMM_AGENT_SERVER_PASSWORD` | Password to connect to PMM Server. |
+| `--server-username=SERVER-USERNAME` | `PMM_AGENT_SERVER_USERNAME` | Username to connect to PMM Server. |
+| `--skip-registration` | `PMM_AGENT_SETUP_SKIP_REGISTRATION` | Skip registration on PMM Server. |
+| `--trace` | `PMM_AGENT_TRACE` | Turn on trace output, which includes debug output. |
+| `--window-connected-time=DURATION` | `PMM_AGENT_WINDOW_CONNECTED_TIME` | Time window over which pmm-agent tracks its connection status to PMM Server. Default is `1h`. |
+| `--version` |  | Show application version, PMM version, time-stamp, git commit hash and branch. |
+| `-h`, `--help` |  | Show help. Same as `pmm-agent help`. |
 
-PMM manages the configuration file, and it's not recommended to modify it manually. However, if necessary, you can make adjustments to specific properties in the config file, such as the username or password used for authorization through service accounts.
+## Configure the PMM Client container
 
-To do this, set the username to `service_token` and add your service token as the password. For more information about service account authorization, see [Service accounts authentication](../../api/authentication.md).
+If you run PMM Client as a container (`percona/pmm-client`), you configure it with environment variables. Besides the `pmm-agent` variables in the previous table, use the following variables to register the container with PMM Server, add services when it starts, and restart `pmm-agent` if it fails:
 
-## USAGE AND EXAMPLES OF `paths-base` FLAG
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PMM_AGENT_SETUP` | `false` | Set to `true` to register the container with PMM Server when it starts. |
+| `PMM_AGENT_PRERUN_FILE` | Not set | Path to an executable script that the container runs every time it starts, for example to [add services](../../install-pmm/install-pmm-client/docker.md#add-monitoring-services) with `pmm-admin add`. |
+| `PMM_AGENT_PRERUN_SCRIPT` | Not set | Shell commands that the container runs every time it starts. Use it instead of `PMM_AGENT_PRERUN_FILE` to pass the commands directly. You can't set both. |
+| `PMM_AGENT_SIDECAR` | `false` | Set to `true` to restart `pmm-agent` automatically if it fails, for example when PMM Client runs as a sidecar container in Kubernetes. |
+| `PMM_AGENT_SIDECAR_SLEEP` | `1` | Seconds to wait before restarting `pmm-agent`. Applies only when `PMM_AGENT_SIDECAR` is `true`. |
 
-Since 2.23.0 this flag could be used for easier setup of PMM agent. With this flag the root permissions for PMM client aren't needed anymore and it will be fully working.
+## Switch to a service account token
 
-**Examples:**
+PMM creates and manages the `pmm-agent` configuration file for you, so you don't normally edit it. Edit it only to change how `pmm-agent` authenticates to PMM Server, for example to use a [service account token](../../api/authentication.md) instead of a username and password.
 
-- **Case 1:** There are no root permissions for `/usr/local/percona/pmm` folder or there is a need to change default folder for PMM files.
-Command:
-````
-pmm-agent setup --paths-base=/home/user/custom/pmm --config-file=pmm-agent-dev.yaml --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin
-````
-Config output:
-````
-# Updated by `pmm-agent setup`.
----
-id: be568008-b1b4-4bd9-98c7-392d1f4b724e
-listen-address: 127.0.0.1
-listen-port: 7777
-server:
-    address: 127.0.0.1:443
-    username: admin
-    password: admin
-    insecure-tls: true
-paths:
-    paths_base: /home/user/custom/pmm
-    exporters_base: /home/user/custom/pmm/exporters
-    node_exporter: /home/user/custom/pmm/exporters/node_exporter
-    mysqld_exporter: /home/user/custom/pmm/exporters/mysqld_exporter
-    mongodb_exporter: /home/user/custom/pmm/exporters/mongodb_exporter
-    postgres_exporter: /home/user/custom/pmm/exporters/postgres_exporter
-    proxysql_exporter: /home/user/custom/pmm/exporters/proxysql_exporter
-    rds_exporter: /home/user/custom/pmm/exporters/rds_exporter
-    azure_exporter: /home/user/custom/pmm/exporters/azure_exporter
-    vmagent: /home/user/custom/pmm/exporters/vmagent
-    tempdir: /tmp
-    pt_summary: /home/user/custom/pmm/tools/pt-summary
-    pt_pg_summary: /home/user/custom/pmm/tools/pt-pg-summary
-    pt_mysql_summary: /home/user/custom/pmm/tools/pt-mysql-summary
-    pt_mongodb_summary: /home/user/custom/pmm/tools/pt-mongodb-summary
-ports:
-    min: 42000
-    max: 51999
-debug: false
-trace: false
+To authenticate with a service account token:
+{.power-number}
 
-````
-As could be seen above, base for all exporters and tools was changed only by setting `--paths-base`. With this tag the folder for PMM that doesn't require root access could be specified.
+1. Open the configuration file. By default, it's `/usr/local/percona/pmm/config/pmm-agent.yaml`.
 
-- **Case 2:** The older `--paths-exporters_base` flag could be passed along with the `--paths-base`
-Command:
-````
-pmm-agent setup --paths-base=/home/user/custom/pmm --paths-exporters_base=/home/user/exporters --config-file=pmm-agent-dev.yaml --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin
-````
-Config output:
-````
-# Updated by `pmm-agent setup`.
----
-id: afce1917-8836-4857-b3e5-ad372c2ddbe5
-listen-address: 127.0.0.1
-listen-port: 7777
-server:
-    address: 127.0.0.1:443
-    username: admin
-    password: admin
-    insecure-tls: true
-paths:
-    paths_base: /home/user/custom/pmm
-    exporters_base: /home/user/exporters
-    node_exporter: /home/user/exporters/node_exporter
-    mysqld_exporter: /home/user/exporters/mysqld_exporter
-    mongodb_exporter: /home/user/exporters/mongodb_exporter
-    postgres_exporter: /home/user/exporters/postgres_exporter
-    proxysql_exporter: /home/user/exporters/proxysql_exporter
-    rds_exporter: /home/user/exporters/rds_exporter
-    azure_exporter: /home/user/exporters/azure_exporter
-    vmagent: /home/user/exporters/vmagent
-    tempdir: /tmp
-    pt_summary: /home/user/custom/pmm/tools/pt-summary
-    pt_pg_summary: /home/user/custom/pmm/tools/pt-pg-summary
-    pt_mysql_summary: /home/user/custom/pmm/tools/pt-mysql-summary
-    pt_mongodb_summary: /home/user/custom/pmm/tools/pt-mongodb-summary
-ports:
-    min: 42000
-    max: 51999
-debug: false
-trace: false
-````
-As could be seen above the behavior for the `--paths-base` was the same, but paths for all exporters were overwritten by the `--paths-exporter_base` flag.
+2. In the `server` section, set the username to `service_token` and the password to your token:
 
-**Summary:**
-Flag `--paths-base` will set path for all exporters and tools, but each one could be overridden by specific flag (like `--paths-mongodb_exporter`, `--paths-pt-mysql-summary` and etc).
+    ```yaml
+    server:
+      username: service_token
+      password: <your-service-account-token>
+    ```
+
+3. Restart `pmm-agent`. If PMM Client runs in a container, restart the container instead:
+
+    ```sh
+    sudo systemctl restart pmm-agent
+    ```
+
+The configuration file stores this token in plain text. To protect it, [encrypt the PMM Client configuration file](../../admin/security/client_config_encryption.md).
+
+## Install PMM Client files in a custom location
+
+By default, PMM Client keeps its exporters and tools in `/usr/local/percona/pmm`, which needs root permissions. To run PMM Client without root, or to keep its files somewhere else, set a different base path when you register `pmm-agent`. All exporters and tools then use that path.
+
+To use a custom location:
+{.power-number}
+
+1. Register `pmm-agent` with `--paths-base` set to a directory that the `pmm-agent` user can write to:
+
+    ```sh
+    pmm-agent setup --paths-base=/home/user/pmm --config-file=pmm-agent.yaml \
+      --server-address=<pmm-server-address>:443 \
+      --server-username=service_token --server-password=<service-account-token>
+    ```
+
+2. Check the `paths` section of the configuration file. Every exporter and tool path now starts with your base path:
+
+    ```yaml
+    paths:
+        paths_base: /home/user/pmm
+        exporters_base: /home/user/pmm/exporters
+        node_exporter: /home/user/pmm/exporters/node_exporter
+        pt_summary: /home/user/pmm/tools/pt-summary
+    ```
+
+To keep the exporters in a separate directory, also pass `--paths-exporters_base`, for example `--paths-exporters_base=/home/user/exporters`. To move a single exporter or tool, use its own flag, such as `--paths-mongodb_exporter` or `--paths-pt-mysql-summary`. For all path flags, see [Options and environment](#options-and-environment).
 
 ## LOGGING
 

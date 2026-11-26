@@ -18,6 +18,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	_ "expvar" // register /debug/vars
 	"fmt"
 	"html/template"
@@ -38,7 +39,6 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -49,15 +49,16 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/protobuf/encoding/protojson"
 
 	qanv1 "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 	aservice "github.com/percona/pmm/qan-api2/services/analytics"
 	rservice "github.com/percona/pmm/qan-api2/services/receiver"
 	"github.com/percona/pmm/qan-api2/utils/interceptors"
+	"github.com/percona/pmm/utils/dsnutils"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/utils/secretfile"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 )
@@ -67,6 +68,29 @@ const (
 	defaultDsnF     = "clickhouse://%s:%s@%s/%s"
 	maxIdleConns    = 5
 	maxOpenConns    = 10
+)
+
+const (
+	// How often retention runs when it is working.
+	defaultDropOldPartitionInterval = 24 * time.Hour
+	// How soon to try again after the first pass that failed. Short, so that a transient
+	// ClickHouse problem costs minutes rather than a whole day of retention. It doubles with
+	// each consecutive failure, up to defaultDropOldPartitionInterval.
+	retentionRetryInterval = 5 * time.Minute
+)
+
+// Outcome of one pass of the retention loop. A rising failed count is how an operator learns
+// that nothing is deleting anything, which otherwise only shows up much later as a full disk.
+var mRetentionPasses = prom.NewCounterVec(prom.CounterOpts{
+	Namespace: "qan_api2",
+	Subsystem: "retention",
+	Name:      "passes_total",
+	Help:      "Total number of data retention passes by outcome.",
+}, []string{"result"})
+
+const (
+	retentionApplied = "applied"
+	retentionFailed  = "failed"
 )
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -88,13 +112,15 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
-			grpc_validator.UnaryServerInterceptor())),
+			grpc_validator.UnaryServerInterceptor(),
+		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream,
-			grpc_validator.StreamServerInterceptor())),
+			grpc_validator.StreamServerInterceptor(),
+		)),
 	)
 
-	aserv := aservice.NewService(rm, mm)
+	aserv := aservice.NewService(db, rm, mm)
 	qanv1.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
 	qanv1.RegisterQANServiceServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
@@ -106,7 +132,6 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 		l.Debug("RPC response latency histogram enabled.")
 		grpc_prometheus.EnableHandlingTimeHistogram()
 	}
-	grpc_prometheus.Register(grpcServer)
 
 	// run server until it is stopped gracefully or not
 	go func() {
@@ -138,29 +163,27 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	l.Infof("Starting server on http://%s/ ...", jsonBindF)
 
 	marshaller := &grpc_gateway.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{ //nolint:exhaustivestruct
-			UseEnumNumbers:  false,
-			EmitUnpopulated: true,
-			UseProtoNames:   true,
-			Indent:          "  ",
-		},
-		UnmarshalOptions: protojson.UnmarshalOptions{ //nolint:exhaustivestruct
-			DiscardUnknown: true,
-		},
+		UseEnumNumbers:  false,
+		EmitUnpopulated: false, // PMM-14566
+		UseProtoNames:   true,
+		Indent:          "  ",
+		DiscardUnknown:  true,
 	}
 
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithIncomingHeaderMatcher(customMatcher),
 		grpc_gateway.WithMetadata(gatewayAnnotator),
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
-		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
+	)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
 		qanv1.RegisterQANServiceHandlerFromEndpoint,
 	} {
-		if err := r(ctx, proxyMux, grpcBindF, opts); err != nil {
+		err := r(ctx, proxyMux, grpcBindF, opts)
+		if err != nil {
 			l.Panic(err)
 		}
 	}
@@ -170,11 +193,12 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	server := &http.Server{ //nolint:gosec
 		Addr:     jsonBindF,
-		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
+		ErrorLog: log.New(logrus.StandardLogger().WriterLevel(logrus.ErrorLevel), "runJSONServer: ", 0),
 		Handler:  mux,
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Println("Server stopped.")
@@ -182,9 +206,10 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err := server.Shutdown(ctx) //nolint:contextcheck
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s \n", err)
-		server.Close() //nolint:errcheck
+		_ = server.Close()
 	}
 	cancel()
 }
@@ -226,16 +251,17 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 		l.Panic(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
-		rw.Write(buf.Bytes()) //nolint:errcheck
+		_, _ = rw.Write(buf.Bytes())
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))
 
 	server := &http.Server{ //nolint:gosec
 		Addr:     debugBindF,
-		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
+		ErrorLog: log.New(logrus.StandardLogger().WriterLevel(logrus.ErrorLevel), "runDebugServer: ", 0),
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Info("Server stopped.")
@@ -243,15 +269,101 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err = server.Shutdown(ctx) //nolint:contextcheck
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
 }
 
+// seedRetentionCounters gives every outcome a zero series from the start, so that an increase()
+// over a condition that has never happened reads as zero rather than as no data.
+func seedRetentionCounters() {
+	for _, result := range []string{retentionApplied, retentionFailed} {
+		mRetentionPasses.WithLabelValues(result)
+	}
+}
+
+// runRetentionLoop calls drop for partitions older than the retention period every interval,
+// until ctx is canceled. A pass that failed is retried after retry instead, which doubles with
+// each consecutive failure up to interval.
+//
+// Every replica runs one of these against the same ClickHouse. Once a rollout completes they all
+// share one retention period, and DROP PARTITION is a no-op once the partition is gone, so the
+// repeated work is harmless. During a rolling upgrade that changes the period they do disagree:
+// a replica still on the old, shorter period drops partitions the new one was meant to keep, and
+// those cannot be recovered.
+//
+// Nothing here can fail loudly on its own: a node that never applies retention shows up much
+// later as a full disk. So every pass records its outcome in mRetentionPasses, and the first
+// failures are retried in minutes rather than waited out for a day.
+func runRetentionLoop(ctx context.Context, interval, retry time.Duration, drop func(context.Context) error) {
+	l := logrus.WithField("component", "retention")
+	backoff := retry
+
+	for {
+		start := time.Now()
+		result := retentionApplied
+
+		err := drop(ctx)
+		if ctx.Err() != nil {
+			// Our own shutdown cut the pass short. Reporting that as a retention problem
+			// would send an operator looking for a fault that is not there, and "will
+			// retry" would be a lie: the loop is about to return.
+			return
+		}
+
+		// Measured from the start of the iteration, so the cadence does not slip by however
+		// long the drop took.
+		deadline := start.Add(interval)
+		if err != nil {
+			result = retentionFailed
+			l.WithError(err).WithField("retry_in", backoff).Error("Failed to apply data retention, will retry.")
+			// The retry is measured from the end of the failed pass instead. A drop that
+			// took longer to fail than the retry interval would otherwise be retried with
+			// no delay at all, turning a degraded ClickHouse into a tight retry loop.
+			deadline = time.Now().Add(backoff)
+			// Nothing here can tell a transient failure from a permanent one, and a
+			// partition that can never be dropped would otherwise keep a once-a-day task
+			// running every few minutes for good, on every replica. Growing the delay back
+			// towards the normal interval keeps the short retry for the transient case and
+			// lets a stuck one settle, with the failed counter still carrying the signal.
+			backoff = min(backoff+backoff, interval)
+		} else {
+			backoff = retry
+		}
+		mRetentionPasses.WithLabelValues(result).Inc()
+
+		t := time.NewTimer(time.Until(deadline))
+		select {
+		case <-ctx.Done():
+			t.Stop()
+			return
+		case <-t.C:
+		}
+	}
+}
+
+// clickhouseDSN returns the ClickHouse DSN, with the password read from passwordFile when that is set.
+func clickhouseDSN(user, password, passwordFile, addr, database string) (string, error) {
+	if passwordFile != "" {
+		var err error
+		password, err = secretfile.Read(passwordFile)
+		if err != nil {
+			return "", fmt.Errorf("failed to read the ClickHouse password: %w", err)
+		}
+	}
+	u := url.URL{
+		Scheme: "clickhouse",
+		User:   url.UserPassword(user, password),
+		Host:   addr,
+		Path:   database,
+	}
+	return u.String(), nil
+}
+
 func main() {
 	log.SetFlags(0)
-	log.SetPrefix("stdlog: ")
 
 	kingpin.Version(version.ShortInfo())
 	kingpin.HelpFlag.Short('h')
@@ -264,15 +376,22 @@ func main() {
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "ClickHouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUserF := kingpin.Flag("clickhouse-user", "ClickHouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "ClickHouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
+	clickhousePasswordFileF := kingpin.Flag("clickhouse-password-file", "File with the ClickHouse database user password, preferred over --clickhouse-password").
+		Envar("PMM_CLICKHOUSE_PASSWORD_FILE").String()
+
+	clickhouseIsClusterF := kingpin.Flag("clickhouse-cluster", "Is ClickHouse a cluster").Default("false").Envar("PMM_CLICKHOUSE_IS_CLUSTER").Bool()
+	clickhouseClusterNameF := kingpin.Flag("clickhouse-cluster-name", "ClickHouse cluster name").Default("").Envar("PMM_CLICKHOUSE_CLUSTER_NAME").String()
+	clickhouseNodesF := kingpin.Flag("clickhouse-nodes", "Comma-separated ClickHouse replica hosts (PMM HA)").Default("").Envar("PMM_CLICKHOUSE_NODES").String()
 
 	debugF := kingpin.Flag("debug", "Enable debug logging").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug)").Bool()
 
 	kingpin.Parse()
 
-	log.Printf("%s.", version.ShortInfo())
-
 	logger.SetupGlobalLogger()
+
+	logrus.Printf("%s.", version.ShortInfo())
+	logrus.Printf("Clickhouse address: %s", *clickhouseAddrF)
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
@@ -289,23 +408,25 @@ func main() {
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	var dsn string
-	if *dsnF == defaultDsnF {
-		dsn = fmt.Sprintf(defaultDsnF, *clickhouseUserF, *clickhousePasswordF, *clickhouseAddrF, *clickhouseDatabaseF)
-	} else {
-		dsn = *dsnF
+	dsn := *dsnF
+	if dsn == defaultDsnF {
+		var err error
+		dsn, err = clickhouseDSN(*clickhouseUserF, *clickhousePasswordF, *clickhousePasswordFileF, *clickhouseAddrF, *clickhouseDatabaseF)
+		if err != nil {
+			l.Fatalf("Cannot build the ClickHouse DSN: %s.", err)
+		}
 	}
+	l.Info("DSN: ", dsnutils.RedactDSN(dsn))
 
-	u, err := url.Parse(dsn)
+	chNodes, err := openNodes(dsn, *clickhouseNodesF)
 	if err != nil {
-		l.Error("Failed to parse DSN: ", err)
-	} else {
-		l.Info("DSN: ", u.Redacted())
+		l.Fatalf("ClickHouse nodes: %v", err)
 	}
-
-	db := NewDB(dsn, maxIdleConns, maxOpenConns)
-
+	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF, chNodes)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
+
+	seedRetentionCounters()
+	prom.MustRegister(mRetentionPasses)
 
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
@@ -313,7 +434,7 @@ func main() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		log.Printf("Got %s, shutting down...\n", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
+		l.Infof("Got %s, shutting down...\n", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 		cancel()
 	}()
 
@@ -323,11 +444,10 @@ func main() {
 	mbm := models.NewMetricsBucket(db)
 	prom.MustRegister(mbm)
 	mbmCtx, mbmCancel := context.WithCancel(context.Background())
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+
+	wg.Go(func() {
 		mbm.Run(mbmCtx)
-	}()
+	})
 
 	wg.Add(1)
 	go func() {
@@ -339,33 +459,25 @@ func main() {
 		runGRPCServer(ctx, db, mbm, *grpcBindF)
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runJSONServer(ctx, *grpcBindF, *jsonBindF)
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		runDebugServer(ctx, *debugBindF)
-	}()
+	})
 
-	ticker := time.NewTicker(24 * time.Hour)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for {
-			// Drop old partitions once in 24h.
-			DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				// nothing
-			}
-		}
-	}()
+	wg.Go(func() {
+		runRetentionLoop(ctx, defaultDropOldPartitionInterval, retentionRetryInterval, func(ctx context.Context) error {
+			return DropOldPartition(ctx, db, *clickhouseDatabaseF, *dataRetentionF)
+		})
+	})
+
+	if len(chNodes) > 0 {
+		wg.Go(func() {
+			runPmmRepairLoop(ctx, chNodes, *clickhouseDatabaseF)
+		})
+	}
 
 	wg.Wait()
 }

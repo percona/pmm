@@ -17,6 +17,8 @@ package client
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net"
 	"path/filepath"
 	"strconv"
@@ -24,13 +26,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+	// Installing the gzip encoding registers it as an available compressor.
+	// GRPC will automatically negotiate and use gzip if the client supports it.
+	grpc_gzip "google.golang.org/grpc/encoding/gzip"
+	"google.golang.org/grpc/keepalive"
 	grpcstatus "google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -45,6 +50,7 @@ import (
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
 )
@@ -54,6 +60,15 @@ const (
 	backoffMinDelay   = 1 * time.Second
 	backoffMaxDelay   = 15 * time.Second
 	clockDriftWarning = 5 * time.Second
+	// Keepalive settings detect silently dropped connections:
+	// if nothing is received for keepaliveTime, a transport ping is sent;
+	// if the ack does not arrive within keepaliveTimeout, the connection is closed
+	// and the client reconnects. See PMM-15200.
+	keepaliveTime    = 30 * time.Second
+	keepaliveTimeout = 15 * time.Second
+	// One slot is enough for the state queue: a SetStateRequest carries the whole desired
+	// state, so one that has not been applied yet is fully superseded by a newer one.
+	setStatesCap = 1
 )
 
 // configGetter allows to get a config.
@@ -78,9 +93,10 @@ type Client struct {
 
 	runner *runner.Runner
 
-	rw      sync.RWMutex
-	md      *agentv1.ServerConnectMetadata
-	channel *channel.Channel
+	rw         sync.RWMutex
+	md         *agentv1.ServerConnectMetadata
+	channel    *channel.Channel
+	rtaChannel *channel.RTAChannel
 
 	cus      *connectionuptime.Service
 	logStore *tailog.Store
@@ -89,7 +105,16 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, sib serviceInfoBroker, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
+func New(
+	cfg configGetter,
+	supervisor supervisor,
+	r *runner.Runner,
+	connectionChecker connectionChecker,
+	sv softwareVersioner,
+	sib serviceInfoBroker,
+	cus *connectionuptime.Service,
+	logStore *tailog.Store,
+) *Client {
 	return &Client{
 		cfg:               cfg,
 		supervisor:        supervisor,
@@ -133,20 +158,58 @@ func (c *Client) Run(ctx context.Context) error {
 		c.l.Errorf("%s is not provided, halting.", missing)
 		<-ctx.Done()
 		close(c.done)
-		return errors.Wrap(ctx.Err(), "missing "+missing)
+		return fmt.Errorf("missing "+missing+": %w", ctx.Err())
 	}
 
 	// try to connect until success, or until ctx is canceled
-	var dialResult *dialResult
-	var dialErr error
+	var (
+		agentServiceDialResult                          *dialResult
+		rtaChannel                                      *channel.RTAChannel
+		sharedConn                                      *grpc.ClientConn
+		connErr, agentServiceDialErr, rtaServiceDialErr error
+	)
 	for {
-		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
-		dialResult, dialErr = dial(dialCtx, cfg, c.l)
+		sharedConn, connErr = createConnectionToServer(cfg, c.l)
+		if connErr != nil {
+			c.l.Errorf("Failed to create gRPC connection to server %s: %s.", cfg.Server.Address, connErr)
+		} else {
+			// try to create gRPC streams to Agents and RTA services only in case gRPC connection to server was created successfully.
+			agentServiceDialCtx, agentServiceDialCancel := context.WithTimeout(ctx, c.dialTimeout)
+			agentServiceDialResult, agentServiceDialErr = createChannelToAgentService(agentServiceDialCtx, sharedConn, cfg, c.l)
 
-		c.cus.RegisterConnectionStatus(time.Now(), dialErr == nil)
-		dialCancel()
-		if dialResult != nil {
-			break
+			agentServiceDialCancel()
+
+			if agentServiceDialErr != nil {
+				c.l.Errorf("Failed to create gRPC stream to Agents service: %s.", agentServiceDialErr)
+			} else {
+				c.cus.RegisterConnectionStatus(time.Now(), agentServiceDialErr == nil)
+				// connected to Agent service successfully
+				// create a separate gRPC stream to RTA service only after successfully connecting to Agent service.
+				// RTA stream shares the same underlying connection with Agent service.
+				rtaServiceDialCtx, rtaServiceDialCancel := context.WithTimeout(ctx, c.dialTimeout)
+				rtaChannel, rtaServiceDialErr = createChannelToRealTimeAnalyticsService(rtaServiceDialCtx, sharedConn, cfg, c.l)
+
+				rtaServiceDialCancel()
+
+				if rtaServiceDialErr != nil {
+					c.l.Errorf("Failed to create communication channel to Real-Time Analytics service: %s.", rtaServiceDialErr)
+				} else {
+					// stop connection loop retries - we are connected to both Agents and RTA services successfully.
+					break
+				}
+			}
+		}
+
+		// if we are here -> something went wrong:
+		// either connection creation failed, or some of channels creation failed.
+		// close the connection if it was created.
+		if sharedConn != nil {
+			err := sharedConn.Close()
+			if err != nil {
+				c.l.Errorf("Connection closed: %s.", err)
+			}
+
+			c.l.Debug("Connection closed.")
 		}
 
 		retryCtx, retryCancel := context.WithTimeout(ctx, c.backoff.Delay())
@@ -158,8 +221,17 @@ func (c *Client) Run(ctx context.Context) error {
 	}
 	if ctx.Err() != nil {
 		close(c.done)
-		if dialErr != nil {
-			return dialErr
+
+		if connErr != nil {
+			return connErr
+		}
+
+		if agentServiceDialErr != nil {
+			return agentServiceDialErr
+		}
+
+		if rtaServiceDialErr != nil {
+			return rtaServiceDialErr
 		}
 		return ctx.Err()
 	}
@@ -167,7 +239,8 @@ func (c *Client) Run(ctx context.Context) error {
 	c.backoff.Reset()
 
 	defer func() {
-		if err := dialResult.conn.Close(); err != nil {
+		err := sharedConn.Close()
+		if err != nil {
 			c.l.Errorf("Connection closed: %s.", err)
 			return
 		}
@@ -175,77 +248,119 @@ func (c *Client) Run(ctx context.Context) error {
 	}()
 
 	c.rw.Lock()
-	c.md = dialResult.md
-	c.channel = dialResult.channel
+	c.md = agentServiceDialResult.md
+	c.channel = agentServiceDialResult.channel
+	c.rtaChannel = rtaChannel
 	c.rw.Unlock()
 
-	// Once the client is connected, ctx cancellation is ignored by it.
-	//
-	// We start goroutines, and terminate the gRPC connection and exit Run when any of them exits:
-	//
-	// 1. processActionResults reads action results from action runner and sends them to the channel.
-	//    It exits when the action runner is stopped by cancelling ctx.
-	//
-	// 2. processSupervisorRequests reads requests (status changes and QAN data) from the supervisor and sends them to the channel.
-	//    It exits when the supervisor is stopped by the caller.
-	//    Caller stops supervisor when Run is left and gRPC connection is closed.
-	//
-	// 3. processChannelRequests reads requests from the channel and processes them.
-	//    It exits when an unexpected message is received from the channel, or when can't be received at all.
-	//    When Run is left, caller stops supervisor, and that allows processSupervisorRequests to exit.
-	//
-	// Done() channel is closed when all three goroutines exited.
-
-	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
-	// https://jira.percona.com/browse/PMM-4245
-
-	c.supervisor.ClearChangesChannel()
-	c.SendActualStatuses()
-
-	oneDone := make(chan struct{}, 4)
-	go func() {
-		c.processActionResults(ctx)
-		c.l.Debug("processActionResults is finished")
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processJobsResults(ctx)
-		c.l.Debug("processJobsResults is finished")
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processSupervisorRequests(ctx)
-		c.l.Debug("processSupervisorRequests is finished")
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processChannelRequests(ctx)
-		c.l.Debug("processChannelRequests is finished")
-		oneDone <- struct{}{}
-	}()
-
-	<-oneDone
-	go func() {
-		<-oneDone
-		<-oneDone
-		<-oneDone
-		c.l.Info("Done.")
-		close(c.done)
-	}()
+	c.runProcessors(ctx)
 	return nil
 }
 
-// SendActualStatuses sends status of running agents to server.
-func (c *Client) SendActualStatuses() {
+// runProcessors starts the goroutines that serve the connection and blocks until the first of them
+// exits - that is how Run reports the connection is finished. Done() closes once they have all
+// exited.
+//
+// Their ctx is the connection's. Run's caller cancels it after Run has returned, but so does a
+// signal, or the supervisor, runner or local server finishing (see agent/commands/run.go) - any of
+// which can happen while Run is still here.
+//
+//  1. processActionResults and processJobsResults send action and job results from the runner to
+//     the channel. They exit when the runner is stopped by cancelling ctx.
+//
+//  2. processSupervisorRequests sends status changes, QAN and RTA data from the supervisor to the
+//     channel. Its loops exit on ctx. Reporting the actual statuses is a goroutine of its own,
+//     outside this accounting, because it takes the supervisor's lock and acquiring a lock cannot
+//     be cancelled; the status forwarding waits for it, or for ctx.
+//
+//  3. processChannelRequests reads requests from the channel and processes them; processPings
+//     answers Ping from a queue of its own. Both exit when the channel is closed.
+//
+// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
+// https://jira.percona.com/browse/PMM-4245
+func (c *Client) runProcessors(ctx context.Context) {
+	// The statuses those buffered changes describe are reported from the actual state below
+	// instead, which is why they can be dropped here.
+	c.supervisor.ClearChangesChannel()
+
+	// Kept out of the accounting below as well as off the request loop: applying a state can
+	// take as long as the agents it replaces take to stop, and Done() gates the reconnect that
+	// drains what they are waiting on. See processSetStates.
+	setStates := make(chan *agentv1.SetStateRequest, setStatesCap)
+	go func() {
+		c.processSetStates(ctx, setStates)
+		c.l.Debug("processSetStates is finished")
+	}()
+
+	// Out for the same reason, and it is the same lock: reporting the actual statuses starts by
+	// asking the supervisor for its Agents list, and a SetState from the connection before this
+	// one can still be holding s.rw. Acquiring a lock cannot be cancelled, so under the
+	// accounting below this would keep Done() - and the reconnect waiting on it - past the
+	// cancellation of ctx. The channel is captured here rather than read inside, so that a
+	// snapshot outliving its connection sends on its own closed channel, where it is a no-op,
+	// instead of on the one the next connection installs. See PMM-15431.
+	c.rw.RLock()
+	channel := c.channel
+	c.rw.RUnlock()
+
+	reported := make(chan struct{})
+	go func() {
+		defer close(reported)
+		c.SendActualStatuses(ctx, channel)
+		c.l.Debug("SendActualStatuses is finished")
+	}()
+
+	var wg sync.WaitGroup
+	firstDone := make(chan struct{}, 1)
+	start := func(name string, process func(context.Context)) {
+		wg.Go(func() {
+			process(ctx)
+			c.l.Debugf("%s is finished", name)
+			select {
+			case firstDone <- struct{}{}:
+			default:
+			}
+		})
+	}
+
+	start("processActionResults", c.processActionResults)
+	start("processJobsResults", c.processJobsResults)
+	start("processSupervisorRequests", func(ctx context.Context) {
+		c.processSupervisorRequests(ctx, reported)
+	})
+	start("processPings", c.processPings)
+	start("processChannelRequests", func(ctx context.Context) {
+		c.processChannelRequests(ctx, setStates)
+	})
+
+	<-firstDone
+	go func() {
+		wg.Wait()
+		c.l.Info("Done.")
+		close(c.done)
+	}()
+}
+
+// SendActualStatuses sends status of running agents to server over channel.
+//
+// The channel is a parameter rather than c.channel because this can outlive the connection it
+// belongs to - see runProcessors - and c.channel is by then the next connection's.
+func (c *Client) SendActualStatuses(ctx context.Context, channel *channel.Channel) {
+	if channel == nil {
+		return
+	}
+
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
-		resp, err := c.channel.SendAndWaitResponse(
+		resp, err := channel.SendAndWaitResponse(
+			ctx,
 			&agentv1.StateChangedRequest{
 				AgentId:         agent.AgentId,
 				Status:          agent.Status,
 				ListenPort:      agent.ListenPort,
 				ProcessExecPath: agent.GetProcessExecPath(),
-			})
+			},
+		)
 		if err != nil {
 			c.l.Error(err)
 			continue
@@ -268,7 +383,7 @@ func (c *Client) processActionResults(ctx context.Context) {
 			if result == nil {
 				continue
 			}
-			resp, err := c.channel.SendAndWaitResponse(result)
+			resp, err := c.channel.SendAndWaitResponse(ctx, result)
 			if err != nil {
 				c.l.Error(err)
 				continue
@@ -301,12 +416,23 @@ func (c *Client) processJobsResults(ctx context.Context) {
 	}
 }
 
-func (c *Client) processSupervisorRequests(ctx context.Context) {
+// processSupervisorRequests forwards what the supervisor reports to the channel.
+//
+// The reported channel closes once the actual statuses have been sent, which the forwarding waits
+// for: a change the supervisor reports next must not be overtaken by that snapshot. It is waited
+// for here rather than in runProcessors, which would hold up the request loop and pings too - by
+// then they have to be answering, or the server sees a connection that says nothing at all and
+// drops it as stale - and on ctx as well, because the snapshot takes a lock and so cannot be
+// relied on to finish. See PMM-15431.
+func (c *Client) processSupervisorRequests(ctx context.Context, reported <-chan struct{}) { //nolint:gocognit
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
+		select {
+		case <-reported:
+		case <-ctx.Done():
+			return
+		}
 
 		for {
 			select {
@@ -314,7 +440,7 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 				if state == nil {
 					continue
 				}
-				resp, err := c.channel.SendAndWaitResponse(state)
+				resp, err := c.channel.SendAndWaitResponse(ctx, state)
 				if err != nil {
 					c.l.Error(err)
 					continue
@@ -327,37 +453,119 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 				return
 			}
 		}
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for {
 			select {
 			case collect := <-c.supervisor.QANRequests():
 				if collect == nil {
 					continue
 				}
-				resp, err := c.channel.SendAndWaitResponse(collect)
-				if err != nil {
-					c.l.Error(err)
-					continue
-				}
-				if resp == nil {
-					c.l.Warn("Failed to send QanCollect request.")
+				for _, req := range c.splitQANCollectRequest(collect) {
+					resp, err := c.channel.SendAndWaitResponse(ctx, req)
+					if err != nil {
+						c.l.Error(err)
+						break
+					}
+					if resp == nil {
+						// The channel is closed, so the remaining chunks would be no-ops.
+						c.l.Warn("Failed to send QanCollect request.")
+
+						break
+					}
 				}
 			case <-ctx.Done():
 				c.l.Infof("Supervisor QANRequests() channel drained.")
 				return
 			}
 		}
-	}()
+	})
 
+	wg.Go(func() {
+		for {
+			select {
+			case collect := <-c.supervisor.RTARequests():
+				if collect == nil {
+					continue
+				}
+
+				c.rtaChannel.Send(collect)
+			case <-ctx.Done():
+				c.l.Infof("Supervisor RTARequests() channel drained.")
+				return
+			}
+		}
+	})
 	wg.Wait()
 }
 
-func (c *Client) processChannelRequests(ctx context.Context) {
+// processPings answers Ping from its own goroutine, so that a pong is never queued behind a request
+// the loop below has not got to yet. Some of what that loop runs is bounded only by the user's own
+// timeouts - a connection check carrying --connection-timeout, gathering software versions - and
+// for as long as one of those runs the agent would otherwise look dead to the server.
+// See "the request loop must never block indefinitely" in agent/AGENTS.md (PMM-15431).
+func (c *Client) processPings(ctx context.Context) {
+	for {
+		select {
+		case req, more := <-c.channel.Pings():
+			if !more {
+				return
+			}
+			c.channel.Send(&channel.AgentResponse{
+				ID: req.ID,
+				Payload: &agentv1.Pong{
+					CurrentTime: timestamppb.Now(),
+				},
+			})
+			c.cus.RegisterConnectionStatus(time.Now(), true)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+// processSetStates applies desired states, one at a time, off the request loop: applying one waits
+// for the agents it replaces to stop, and that wait reaches the server.
+// See "the request loop must never block indefinitely" in agent/AGENTS.md (PMM-15431).
+//
+// Answering from the loop instead of from here makes SetStateResponse mean what agent.proto already
+// says it means - acceptance, not application. The server only logs it, learns the outcome from the
+// StateChanged requests that follow, and gives the response 5s, which applying a large state could
+// exceed on its own.
+func (c *Client) processSetStates(ctx context.Context, setStates <-chan *agentv1.SetStateRequest) {
+	for {
+		select {
+		case state := <-setStates:
+			// Both cases can be ready at once, and a state whose connection is already
+			// gone is superseded by the one the next connection starts with. ctx goes
+			// to SetState as well: this goroutine is deliberately not covered by the
+			// WaitGroup that gates Done(), so the next connection can be up and its own
+			// state applied while this call is still waiting for the Supervisor's lock.
+			if ctx.Err() != nil {
+				return
+			}
+			c.supervisor.SetState(ctx, state)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+// requestSetState queues state for processSetStates, replacing one that has not been applied yet.
+// It never blocks: blocking the request loop is what PMM-15431 is about.
+func (c *Client) requestSetState(setStates chan *agentv1.SetStateRequest, state *agentv1.SetStateRequest) {
+	select {
+	case <-setStates:
+		c.l.Debug("Dropping a state update that was superseded before it was applied.")
+	default:
+	}
+
+	// Single producer, so the slot freed above is still free and this cannot block.
+	setStates <- state
+}
+
+func (c *Client) processChannelRequests(ctx context.Context, setStates chan *agentv1.SetStateRequest) {
 LOOP:
 	for {
 		select {
@@ -368,17 +576,14 @@ LOOP:
 			var responsePayload agentv1.AgentResponsePayload
 			var status *grpcstatus.Status
 			switch p := req.Payload.(type) {
-			case *agentv1.Ping:
-				responsePayload = &agentv1.Pong{
-					CurrentTime: timestamppb.Now(),
-				}
 			case *agentv1.SetStateRequest:
-				c.supervisor.SetState(p)
+				c.requestSetState(setStates, p)
 				responsePayload = &agentv1.SetStateResponse{}
 
 			case *agentv1.StartActionRequest:
 				responsePayload = &agentv1.StartActionResponse{}
-				if err := c.handleStartActionRequest(p); err != nil {
+				err := c.handleStartActionRequest(p)
+				if err != nil {
 					status = convertAgentErrorToGrpcStatus(err)
 					break
 				}
@@ -395,7 +600,8 @@ LOOP:
 
 			case *agentv1.StartJobRequest:
 				var resp agentv1.StartJobResponse
-				if err := c.handleStartJobRequest(p); err != nil {
+				err := c.handleStartJobRequest(p)
+				if err != nil {
 					resp.Error = err.Error()
 				}
 				responsePayload = &resp
@@ -412,7 +618,8 @@ LOOP:
 				responsePayload = &agentv1.GetVersionsResponse{Versions: c.handleVersionsRequest(p)}
 			case *agentv1.PBMSwitchPITRRequest:
 				var resp agentv1.PBMSwitchPITRResponse
-				if err := c.handlePBMSwitchRequest(ctx, p, req.ID); err != nil {
+				err := c.handlePBMSwitchRequest(ctx, p, req.ID)
+				if err != nil {
 					resp.Error = err.Error()
 				}
 				responsePayload = &resp
@@ -439,7 +646,8 @@ LOOP:
 			break LOOP
 		}
 	}
-	if err := c.channel.Wait(); err != nil {
+	err := c.channel.Wait()
+	if err != nil {
 		c.l.Debugf("Channel closed: %s.", err)
 		return
 	}
@@ -448,7 +656,8 @@ LOOP:
 
 func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 	timeout := p.Timeout.AsDuration()
-	if err := p.Timeout.CheckValid(); err != nil {
+	timeoutErr := p.Timeout.CheckValid()
+	if timeoutErr != nil {
 		timeout = 0
 	}
 
@@ -497,7 +706,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 			params.MongodbQueryGetparameterParams.TextFiles,
 			"getParameter",
 			"*",
-			cfg.Paths.TempDir)
+			cfg.Paths.TempDir,
+		)
 
 	case *agentv1.StartActionRequest_MongodbQueryBuildinfoParams:
 		action, err = actions.NewMongoDBQueryAdmincommandAction(
@@ -507,7 +717,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 			params.MongodbQueryBuildinfoParams.TextFiles,
 			"buildInfo",
 			1,
-			cfg.Paths.TempDir)
+			cfg.Paths.TempDir,
+		)
 
 	case *agentv1.StartActionRequest_MongodbQueryGetcmdlineoptsParams:
 		action, err = actions.NewMongoDBQueryAdmincommandAction(
@@ -517,7 +728,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 			params.MongodbQueryGetcmdlineoptsParams.TextFiles,
 			"getCmdLineOpts",
 			1,
-			cfg.Paths.TempDir)
+			cfg.Paths.TempDir,
+		)
 
 	case *agentv1.StartActionRequest_MongodbQueryReplsetgetstatusParams:
 		action, err = actions.NewMongoDBQueryAdmincommandAction(
@@ -527,7 +739,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 			params.MongodbQueryReplsetgetstatusParams.TextFiles,
 			"replSetGetStatus",
 			1,
-			cfg.Paths.TempDir)
+			cfg.Paths.TempDir,
+		)
 
 	case *agentv1.StartActionRequest_MongodbQueryGetdiagnosticdataParams:
 		action, err = actions.NewMongoDBQueryAdmincommandAction(
@@ -537,7 +750,8 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 			params.MongodbQueryGetdiagnosticdataParams.TextFiles,
 			"getDiagnosticData",
 			1,
-			cfg.Paths.TempDir)
+			cfg.Paths.TempDir,
+		)
 
 	case *agentv1.StartActionRequest_PtSummaryParams:
 		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTSummary, []string{})
@@ -558,23 +772,25 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 		case agentv1.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_PBM_AGENT:
 			service = "pbm-agent"
 		default:
-			return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid service '%s' specified in mongod restart request", params.RestartSysServiceParams.SystemService)
+			return fmt.Errorf("invalid service '%s' specified in mongod restart request: %w",
+				params.RestartSysServiceParams.SystemService, agenterrors.ErrInvalidArgument)
 		}
 		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
-		return errors.Wrapf(agenterrors.ErrActionUnimplemented, "invalid action type request: %T", params)
+		return fmt.Errorf("invalid action type request: %T: %w", params, agenterrors.ErrActionUnimplemented)
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "failed to create action")
+		return fmt.Errorf("failed to create action: %w", err)
 	}
 
 	return c.runner.StartAction(action)
 }
 
 func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
-	if err := p.Timeout.CheckValid(); err != nil {
+	err := p.Timeout.CheckValid()
+	if err != nil {
 		return err
 	}
 	timeout := p.Timeout.AsDuration()
@@ -594,7 +810,7 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
 		default:
-			return errors.Errorf("unknown location config: %T", j.MysqlBackup.LocationConfig)
+			return fmt.Errorf("unknown location config: %T", j.MysqlBackup.LocationConfig)
 		}
 
 		dbConnCfg := jobs.DBConnConfig{
@@ -619,7 +835,7 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
 		default:
-			return errors.Errorf("unknown location config: %T", j.MysqlRestoreBackup.LocationConfig)
+			return fmt.Errorf("unknown location config: %T", j.MysqlRestoreBackup.LocationConfig)
 		}
 
 		job = jobs.NewMySQLRestoreJob(p.JobId, timeout, j.MysqlRestoreBackup.Name, locationConfig, j.MysqlRestoreBackup.Folder)
@@ -642,12 +858,12 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
-			return errors.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
+			return fmt.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
 		}
 
 		dsn, err := c.getMongoDSN(j.MongodbBackup.Dsn, j.MongodbBackup.TextFiles, p.JobId)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 
 		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dsn, locationConfig,
@@ -674,19 +890,19 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
-			return errors.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
+			return fmt.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
 		}
 
 		dsn, err := c.getMongoDSN(j.MongodbRestoreBackup.Dsn, j.MongodbRestoreBackup.TextFiles, p.JobId)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 
 		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
 			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dsn, locationConfig,
 			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name)
 	default:
-		return errors.Errorf("unknown job type: %T", j)
+		return fmt.Errorf("unknown job type: %T", j)
 	}
 
 	return c.runner.StartJob(job)
@@ -697,7 +913,7 @@ func (c *Client) getMongoDSN(dsn string, files *agentv1.TextFiles, jobID string)
 	res, err := templates.RenderDSN(dsn, files, tempDir)
 	defer templates.CleanupTempDir(tempDir, c.l)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	// TODO following line is a quick patch. Come up with something better.
@@ -730,18 +946,22 @@ func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
 }
 
 type dialResult struct {
-	conn         *grpc.ClientConn
-	streamCancel context.CancelFunc
-	channel      *channel.Channel
-	md           *agentv1.ServerConnectMetadata
+	channel *channel.Channel
+	md      *agentv1.ServerConnectMetadata
 }
 
-// dial tries to connect to the server once.
-// State changes are logged via l. Returned error is not user-visible.
-func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialResult, error) {
+// createConnectionToServer tries to connect to the server once.
+func createConnectionToServer(cfg *config.Config, l *logrus.Entry) (*grpc.ClientConn, error) {
 	opts := []grpc.DialOption{
-		grpc.WithBlock(),
 		grpc.WithUserAgent("pmm-agent/" + version.Version),
+		grpc.WithDefaultCallOptions(
+			// Wait for connection to be ready before sending RPC calls
+			grpc.WaitForReady(true),
+		),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:    keepaliveTime,
+			Timeout: keepaliveTimeout,
+		}),
 	}
 	if cfg.Server.WithoutTLS {
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -766,28 +986,29 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		}
 	}
 
-	l.Infof("Connecting to %s ...", cfg.Server.FilteredURL())
-	conn, err := grpc.DialContext(dialCtx, cfg.Server.Address, opts...)
+	l.Infof("Creating gRPC client to %s ...", cfg.Server.FilteredURL())
+
+	conn, err := grpc.NewClient(cfg.Server.Address, opts...)
 	if err != nil {
 		msg := err.Error()
+		l.Errorf("Failed to create gRPC client to %s: %s.", cfg.Server.Address, msg)
 
-		// improve error message in that particular case
-		if errors.Is(err, context.DeadlineExceeded) {
-			msg = "timeout"
-		}
-
-		l.Errorf("Failed to connect to %s: %s.", cfg.Server.Address, msg)
-		return nil, errors.Wrap(err, "failed to dial")
+		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
-	l.Infof("Connected to %s.", cfg.Server.Address)
 
+	return conn, nil
+}
+
+// createChannelToAgentService tries to create a two-way communication channel to the agent service using the provided gRPC connection.
+func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn, cfg *config.Config, l *logrus.Entry) (*dialResult, error) {
 	// gRPC stream is created without lifetime timeout.
 	// However, we need to cancel it if two-way communication channel can't be established
 	// when pmm-managed is down. A separate timer is used for that.
 	streamCtx, streamCancel := context.WithCancel(context.Background())
 	teardown := func() {
 		streamCancel()
-		if err := conn.Close(); err != nil {
+		err := conn.Close()
+		if err != nil {
 			l.Debugf("Connection closed: %s.", err)
 			return
 		}
@@ -800,7 +1021,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	streamCancelT := time.AfterFunc(time.Until(d), streamCancel)
 	defer streamCancelT.Stop()
 
-	l.Info("Establishing two-way communication channel ...")
+	l.Infof("Establishing two-way communication channel to Agents Service at %s ...", cfg.Server.FilteredURL())
 	start := time.Now()
 	streamCtx = agentv1.AddAgentConnectMetadata(streamCtx, &agentv1.AgentConnectMetadata{
 		ID:      cfg.ID,
@@ -808,9 +1029,9 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	})
 	stream, err := agentv1.NewAgentServiceClient(conn).Connect(streamCtx) //nolint:contextcheck
 	if err != nil {
-		l.Errorf("Failed to establish two-way communication channel: %s.", err)
+		l.Errorf("Failed to establish two-way communication channel to Agents Service: %s.", err)
 		teardown()
-		return nil, errors.Wrap(err, "failed to connect")
+		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
 	// So far, nginx can handle all that itself without pmm-managed.
@@ -818,16 +1039,17 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	// to ensure that pmm-managed is alive and that Agent ID is valid.
 
 	channel := channel.New(stream)
-	_, clockDrift, err := getNetworkInformation(channel) // ping/pong
+
+	_, clockDrift, err := getNetworkInformation(dialCtx, channel) // ping/pong
 	if err != nil {
 		msg := err.Error()
 
 		// improve error message
-		if s, ok := grpcstatus.FromError(errors.Cause(err)); ok {
+		if s, ok := grpcstatus.FromError(err); ok {
 			msg = strings.TrimSuffix(s.Message(), ".")
 		}
 
-		l.Errorf("Failed to establish two-way communication channel: %s.", msg)
+		l.Errorf("Failed to establish two-way communication channel to Agents Service: %s.", msg)
 		teardown()
 		return nil, err
 	}
@@ -838,7 +1060,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	if err != nil {
 		l.Errorf("Failed to receive server metadata: %s.", err)
 		teardown()
-		return nil, errors.Wrap(err, "failed to receive server metadata")
+		return nil, fmt.Errorf("failed to receive server metadata: %w", err)
 	}
 	if md.ServerVersion == "" {
 		l.Errorf("Server metadata does not contain server version.")
@@ -850,21 +1072,68 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	if clockDrift > clockDriftWarning || -clockDrift > clockDriftWarning {
 		level = logrus.WarnLevel
 	}
-	l.Logf(level, "Two-way communication channel established in %s. Estimated clock drift: %s.",
+
+	l.Logf(level, "Two-way communication channel to Agents Service established in %s. Estimated clock drift: %s.",
 		time.Since(start), clockDrift)
 
 	return &dialResult{
-		conn:         conn,
-		streamCancel: streamCancel,
-		channel:      channel,
-		md:           md,
+		channel: channel,
+		md:      md,
 	}, nil
 }
 
-func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
+// createChannelToRealTimeAnalyticsService tries to create a uni-directional communication channel to the Real-Time Analytics service using the provided gRPC connection.
+func createChannelToRealTimeAnalyticsService(dialCtx context.Context, conn *grpc.ClientConn, cfg *config.Config, l *logrus.Entry) (*channel.RTAChannel, error) {
+	// gRPC stream is created without lifetime timeout.
+	// However, we need to cancel it if communication channel can't be established
+	// when pmm-managed is down. A separate timer is used for that.
+	streamCtx, streamCancel := context.WithCancel(context.Background())
+	teardown := func() {
+		streamCancel()
+
+		err := conn.Close()
+		if err != nil {
+			l.Debugf("Connection closed: %s.", err)
+			return
+		}
+
+		l.Debugf("Connection closed.")
+	}
+
+	d, ok := dialCtx.Deadline()
+	if !ok {
+		panic("no deadline in dialCtx")
+	}
+
+	streamCancelT := time.AfterFunc(time.Until(d), streamCancel)
+	defer streamCancelT.Stop()
+
+	l.Infof("Establishing client streaming communication channel to Real-Time Analytics Service at %s ...", cfg.Server.FilteredURL())
+
+	start := time.Now()
+	streamCtx = agentv1.AddAgentConnectMetadata(streamCtx, &agentv1.AgentConnectMetadata{
+		ID:      cfg.ID,
+		Version: version.Version,
+	})
+	// Send the RPC compressed.
+	stream, err := rtav1.NewCollectorServiceClient(conn).Collect(streamCtx, grpc.UseCompressor(grpc_gzip.Name)) //nolint:contextcheck
+	if err != nil {
+		l.Errorf("Failed to establish client streaming communication channel to Real-Time Analytics Service: %s.", err)
+		teardown()
+
+		return nil, fmt.Errorf("failed to connect: %w", err)
+	}
+
+	l.Logf(logrus.InfoLevel, "Client streaming communication channel to Real-Time Analytics Service established in %s.",
+		time.Since(start))
+
+	return channel.NewRTAChannel(stream), nil
+}
+
+func getNetworkInformation(ctx context.Context, channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	start := time.Now()
 	var resp agentv1.ServerResponsePayload
-	resp, err = channel.SendAndWaitResponse(&agentv1.Ping{})
+	resp, err = channel.SendAndWaitResponse(ctx, &agentv1.Ping{})
 	if err != nil {
 		return latency, clockDrift, err
 	}
@@ -877,16 +1146,16 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 	serverTime := currentTime.AsTime()
 	err = currentTime.CheckValid()
 	if err != nil {
-		err = errors.Wrap(err, "Failed to decode Ping")
+		err = fmt.Errorf("failed to decode Ping: %w", err)
 		return latency, clockDrift, err
 	}
-	latency = roundtrip / 2
+	latency = roundtrip / 2 //nolint:mnd
 	clockDrift = serverTime.Sub(start) - latency
 	return latency, clockDrift, err
 }
 
 // GetNetworkInformation sends ping request to the server and returns info about latency and clock drift.
-func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
+func (c *Client) GetNetworkInformation(ctx context.Context) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	c.rw.RLock()
 	channel := c.channel
 	c.rw.RUnlock()
@@ -895,7 +1164,7 @@ func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err
 		return latency, clockDrift, err
 	}
 
-	latency, clockDrift, err = getNetworkInformation(channel)
+	latency, clockDrift, err = getNetworkInformation(ctx, channel)
 	return latency, clockDrift, err
 }
 
@@ -923,6 +1192,7 @@ func (c *Client) Describe(chan<- *prometheus.Desc) {
 func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	c.rw.RLock()
 	channel := c.channel
+	rtaChannel := c.rtaChannel
 	c.rw.RUnlock()
 
 	desc := prometheus.NewDesc("pmm_agent_connected", "Has value 1 if two-way communication channel is established.", nil, nil)
@@ -932,6 +1202,11 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	} else {
 		ch <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, 0)
 	}
+
+	if rtaChannel != nil {
+		rtaChannel.Collect(ch)
+	}
+
 	c.supervisor.Collect(ch)
 }
 
@@ -954,6 +1229,10 @@ func argListFromPgParams(pParams *agentv1.StartActionRequest_PTPgSummaryParams) 
 	pswd := strings.TrimSpace(pParams.Password)
 	if pswd != "" {
 		args = append(args, "--password", pswd)
+	}
+
+	if pParams.Tls {
+		args = append(args, "--no-disable-ssl")
 	}
 
 	return args

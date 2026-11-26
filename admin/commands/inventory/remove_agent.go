@@ -15,8 +15,6 @@
 package inventory
 
 import (
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
@@ -44,7 +42,7 @@ type RemoveAgentCommand struct {
 func (cmd *RemoveAgentCommand) RunCmd() (commands.Result, error) {
 	params := &agents.RemoveAgentParams{
 		AgentID: cmd.AgentID,
-		Force:   pointer.ToBool(cmd.Force),
+		Force:   new(cmd.Force),
 		Context: commands.Ctx,
 	}
 	_, err := client.Default.AgentsService.RemoveAgent(params)

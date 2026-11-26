@@ -19,36 +19,28 @@ package server
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
-	advisorClient "github.com/percona/pmm/api/advisors/v1/json/client"
-	advisor "github.com/percona/pmm/api/advisors/v1/json/client/advisor_service"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
-func restoreSettingsDefaults(t *testing.T) {
+// RestoreSettingsDefaults restores PMM Server settings to their default values.
+func RestoreSettingsDefaults(t *testing.T) {
 	t.Helper()
 
 	res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 		Body: server.ChangeSettingsBody{
-			EnableAdvisor:   pointer.ToBool(true),
-			EnableTelemetry: pointer.ToBool(true),
-			EnableAlerting:  pointer.ToBool(true),
-			EnableUpdates:   pointer.ToBool(true),
+			EnableAdvisor:   new(true),
+			EnableTelemetry: new(true),
+			EnableAlerting:  new(true),
+			EnableUpdates:   new(true),
 			MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 				Hr: "5s",
 				Mr: "10s",
 				Lr: "60s",
-			},
-			AdvisorRunIntervals: &server.ChangeSettingsParamsBodyAdvisorRunIntervals{
-				FrequentInterval: "14400s",
-				StandardInterval: "86400s",
-				RareInterval:     "280800s",
 			},
 			DataRetention: "2592000s",
 			AWSPartitions: &server.ChangeSettingsParamsBodyAWSPartitions{
@@ -66,39 +58,6 @@ func restoreSettingsDefaults(t *testing.T) {
 		Lr: "60s",
 	}
 	assert.Equal(t, expectedResolutions, res.Payload.Settings.MetricsResolutions)
-	expectedAdvisorRunIntervals := &server.ChangeSettingsOKBodySettingsAdvisorRunIntervals{
-		FrequentInterval: "14400s",
-		StandardInterval: "86400s",
-		RareInterval:     "280800s",
-	}
-	assert.Equal(t, expectedAdvisorRunIntervals, res.Payload.Settings.AdvisorRunIntervals)
 	assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
 	assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
-}
-
-func restoreCheckIntervalDefaults(t *testing.T) {
-	t.Helper()
-
-	resp, err := advisorClient.Default.AdvisorService.ListAdvisorChecks(nil)
-	require.NoError(t, err)
-	require.NotEmpty(t, resp.Payload.Checks)
-
-	var params *advisor.ChangeAdvisorChecksParams
-
-	for _, check := range resp.Payload.Checks {
-		params = &advisor.ChangeAdvisorChecksParams{
-			Body: advisor.ChangeAdvisorChecksBody{
-				Params: []*advisor.ChangeAdvisorChecksParamsBodyParamsItems0{
-					{
-						Name:     check.Name,
-						Interval: pointer.ToString(advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD.String()),
-					},
-				},
-			},
-			Context: pmmapitests.Context,
-		}
-
-		_, err = advisorClient.Default.AdvisorService.ChangeAdvisorChecks(params)
-		require.NoError(t, err)
-	}
 }

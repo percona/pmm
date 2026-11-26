@@ -17,10 +17,11 @@ package management
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -36,6 +37,8 @@ import (
 
 // ManagementService allows to interact with services.
 type ManagementService struct { //nolint:revive
+	managementv1.UnimplementedManagementServiceServer
+
 	db            *reform.DB
 	r             agentsRegistry
 	state         agentsStateUpdater
@@ -45,15 +48,33 @@ type ManagementService struct { //nolint:revive
 	vc            versionCache
 	grafanaClient grafanaClient
 	vmClient      victoriaMetricsClient
+	stm           scheduledTasksRemover
 	l             *logrus.Entry
 
-	managementv1.UnimplementedManagementServiceServer
+	// internalNodePrefixes holds the Node name prefixes reserved for the internal
+	// infrastructure of this PMM deployment, e.g. its HA persistence layer.
+	internalNodePrefixes []string
+	// haEnabled indicates whether this PMM Server is a node of an HA cluster.
+	haEnabled bool
 }
 
-type statusMetrics struct {
-	status      int
-	serviceType string
+// upMetricSelectors match the per-service-type "up" metrics that back the service status.
+var upMetricSelectors = []string{
+	`pg_up{collector="exporter",job=~".*_hr$"}`,
+	`mysql_up{job=~".*_hr$"}`,
+	`mongodb_up{job=~".*_hr$"}`,
+	`proxysql_up{job=~".*_hr$"}`,
+	`haproxy_backend_status{state="UP"}`,
+	`redis_up{job=~".*_hr$"}`,
+	`up{service_type='external'}`,
 }
+
+// staleStatusWindow bounds how old an "up" sample may be to still derive a service status
+// when no fresh sample exists. Vmagents replay buffered data oldest-first after an outage,
+// so the newest sample VM has can be as old as the outage plus the replay backlog; the window
+// must comfortably cover both. It only applies while the service's pmm-agent is connected,
+// so a wide window does not keep dead clients' statuses alive.
+const staleStatusWindow = "24h"
 
 // NewManagementService creates a ManagementService instance.
 func NewManagementService(
@@ -66,35 +87,128 @@ func NewManagementService(
 	vc versionCache,
 	grafanaClient grafanaClient,
 	vmClient victoriaMetricsClient,
+	stm scheduledTasksRemover,
+	internalNodePrefixes []string,
+	haEnabled bool,
 ) *ManagementService {
 	return &ManagementService{
-		db:            db,
-		r:             r,
-		state:         state,
-		cc:            cc,
-		sib:           sib,
-		vmdb:          vmdb,
-		vc:            vc,
-		grafanaClient: grafanaClient,
-		vmClient:      vmClient,
-		l:             logrus.WithField("service", "management"),
+		db:                   db,
+		r:                    r,
+		state:                state,
+		cc:                   cc,
+		sib:                  sib,
+		vmdb:                 vmdb,
+		vc:                   vc,
+		grafanaClient:        grafanaClient,
+		vmClient:             vmClient,
+		stm:                  stm,
+		l:                    logrus.WithField("service", "management"),
+		internalNodePrefixes: internalNodePrefixes,
+		haEnabled:            haEnabled,
 	}
+}
+
+// isInternalNode reports whether the Node belongs to the internal infrastructure of this
+// PMM deployment and therefore must not host user monitoring workloads.
+//
+// In an HA deployment that covers the PMM Server Nodes themselves: they are expected to spend
+// their resources on serving PMM, and a Client is pre-provisioned to carry the monitoring instead.
+// A single-node deployment keeps its Node available, as it is the only one there is.
+func (s *ManagementService) isInternalNode(node *models.Node) bool {
+	if s.haEnabled && node.IsPMMServerNode {
+		return true
+	}
+
+	for _, prefix := range s.internalNodePrefixes {
+		if strings.HasPrefix(node.NodeName, prefix) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // A map to check if the service is supported.
 // NOTE: known external services appear to match the vendor names,
-// (e.g. "mysql", "mongodb", "postgresql", "proxysql", "haproxy"),
+// (e.g. "mysql", "mongodb", "postgresql", "valkey", "proxysql", "haproxy"),
 // which is why ServiceType_EXTERNAL_SERVICE is not part of this map.
 var supportedServices = map[string]inventoryv1.ServiceType{
 	string(models.MySQLServiceType):      inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 	string(models.MongoDBServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 	string(models.PostgreSQLServiceType): inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+	string(models.ValkeyServiceType):     inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
 	string(models.ProxySQLServiceType):   inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 	string(models.HAProxyServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 }
 
+// localAddresses resolve to the Node an Agent runs on. Monitoring them delegates no work to
+// that Node beyond what it already does for itself.
+var localAddresses = map[string]struct{}{"": {}, "localhost": {}, "127.0.0.1": {}, "::1": {}}
+
+// checkNodeIsEligible rejects requests which delegate monitoring of a remote address to an
+// Agent running on a Node reserved for the internal infrastructure of this PMM deployment.
+// Those Nodes still monitor the services inside their own pod, hence the address check.
+func (s *ManagementService) checkNodeIsEligible(ctx context.Context, pmmAgentID, address string) error {
+	if pmmAgentID == "" || (len(s.internalNodePrefixes) == 0 && !s.haEnabled) {
+		return nil
+	}
+	_, isLocal := localAddresses[address]
+	if isLocal {
+		return nil
+	}
+
+	agent, err := models.FindAgentByID(s.db.WithContext(ctx), pmmAgentID)
+	if err != nil {
+		return err
+	}
+	nodeID := pointer.GetString(agent.RunsOnNodeID)
+	if nodeID == "" {
+		return nil
+	}
+
+	node, err := models.FindNodeByID(s.db.WithContext(ctx), nodeID)
+	if err != nil {
+		return err
+	}
+	if !s.isInternalNode(node) {
+		return nil
+	}
+
+	return status.Errorf(codes.FailedPrecondition,
+		"Node '%s' is a part of the internal infrastructure of this PMM deployment and cannot monitor other services.", node.NodeName)
+}
+
+// addServiceTarget returns the pmm-agent which is to run the Service's Agents together with the
+// address it is to monitor, for the Service types which delegate monitoring to an existing Node.
+func addServiceTarget(req *managementv1.AddServiceRequest) (string, string) {
+	switch req.Service.(type) {
+	case *managementv1.AddServiceRequest_Mysql:
+		return req.GetMysql().GetPmmAgentId(), req.GetMysql().GetAddress()
+	case *managementv1.AddServiceRequest_Mongodb:
+		return req.GetMongodb().GetPmmAgentId(), req.GetMongodb().GetAddress()
+	case *managementv1.AddServiceRequest_Postgresql:
+		return req.GetPostgresql().GetPmmAgentId(), req.GetPostgresql().GetAddress()
+	case *managementv1.AddServiceRequest_Proxysql:
+		return req.GetProxysql().GetPmmAgentId(), req.GetProxysql().GetAddress()
+	case *managementv1.AddServiceRequest_Valkey:
+		return req.GetValkey().GetPmmAgentId(), req.GetValkey().GetAddress()
+	case *managementv1.AddServiceRequest_Rds:
+		return req.GetRds().GetPmmAgentId(), req.GetRds().GetAddress()
+	default:
+		// External and HAProxy Services are scraped on the Node their exporter runs on,
+		// so they cannot offload work onto it.
+		return "", ""
+	}
+}
+
 // AddService add a Service and its Agents.
 func (s *ManagementService) AddService(ctx context.Context, req *managementv1.AddServiceRequest) (*managementv1.AddServiceResponse, error) {
+	pmmAgentID, address := addServiceTarget(req)
+	err := s.checkNodeIsEligible(ctx, pmmAgentID, address)
+	if err != nil {
+		return nil, err
+	}
+
 	switch req.Service.(type) {
 	case *managementv1.AddServiceRequest_Mysql:
 		return s.addMySQL(ctx, req.GetMysql())
@@ -110,44 +224,24 @@ func (s *ManagementService) AddService(ctx context.Context, req *managementv1.Ad
 		return s.addExternal(ctx, req.GetExternal())
 	case *managementv1.AddServiceRequest_Rds:
 		return s.addRDS(ctx, req.GetRds())
+	case *managementv1.AddServiceRequest_Valkey:
+		return s.addValkey(ctx, req.GetValkey())
 	default:
-		return nil, errors.Errorf("invalid request %v", req.GetService())
+		return nil, status.Error(codes.InvalidArgument, "invalid service type")
 	}
 }
 
 // ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
-func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.ListServicesRequest) (*managementv1.ListServicesResponse, error) {
+func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.ListServicesRequest) (*managementv1.ListServicesResponse, error) { //nolint:gocognit
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
 		ServiceType:   services.ProtoToModelServiceType(req.ServiceType),
 		ExternalGroup: req.ExternalGroup,
 	}
 
-	agentToAPI := func(agent *models.Agent) *managementv1.UniversalAgent {
-		return &managementv1.UniversalAgent{
-			AgentId:     agent.AgentID,
-			AgentType:   string(agent.AgentType),
-			Status:      agent.Status,
-			IsConnected: s.r.IsConnected(agent.AgentID),
-		}
-	}
-
-	query := `pg_up{collector="exporter",job=~".*_hr$"}
-		or mysql_up{job=~".*_hr$"}
-		or mongodb_up{job=~".*_hr$"}
-		or proxysql_up{job=~".*_hr$"}
-		or haproxy_backend_status{state="UP"}
-	`
-	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	metrics, err := s.queryUpMetrics(ctx, false)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute an instant VM query")
-	}
-
-	metrics := make(map[string]statusMetrics, len(result.(model.Vector))) //nolint:forcetypeassert
-	for _, v := range result.(model.Vector) {                             //nolint:forcetypeassert
-		serviceID := string(v.Metric[model.LabelName("service_id")])
-		serviceType := string(v.Metric[model.LabelName("service_type")])
-		metrics[serviceID] = statusMetrics{status: int(v.Value), serviceType: serviceType}
+		return nil, err
 	}
 
 	var (
@@ -188,6 +282,24 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 		return nil, errTX
 	}
 
+	// vmagents replay buffered samples oldest-first after a disconnect, so during a fleet-wide
+	// reconnect VM can lag behind by many minutes while services are actually fine. For supported
+	// services without a fresh sample, fall back to the last sample within staleStatusWindow —
+	// gated below on the service's pmm-agent being connected, so a dead client stays UNKNOWN.
+	staleMetrics := map[string]int{}
+	for _, service := range services {
+		_, hasFresh := metrics[service.ServiceID]
+		_, isSupported := supportedServices[string(service.ServiceType)]
+		if !hasFresh && isSupported {
+			staleMetrics, err = s.queryUpMetrics(ctx, true)
+			if err != nil {
+				return nil, err
+			}
+			break
+		}
+	}
+	connectedCache := make(map[string]bool)
+
 	nodeMap := make(map[string]string, len(nodes))
 	for _, node := range nodes {
 		nodeMap[node.NodeID] = node.NodeName
@@ -195,70 +307,142 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 
 	resultSvc := make([]*managementv1.UniversalService, len(services))
 	for i, service := range services {
-		labels, err := service.GetCustomLabels()
+		var serviceAgents []*models.Agent
+		for _, agent := range agents {
+			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
+				serviceAgents = append(serviceAgents, agent)
+			}
+		}
+
+		svc, err := s.universalService(service, nodeMap[service.NodeID], serviceAgents)
 		if err != nil {
 			return nil, err
 		}
 
-		svc := &managementv1.UniversalService{
-			Address:        pointer.GetString(service.Address),
-			Agents:         []*managementv1.UniversalAgent{},
-			Cluster:        service.Cluster,
-			CreatedAt:      timestamppb.New(service.CreatedAt),
-			CustomLabels:   labels,
-			DatabaseName:   service.DatabaseName,
-			Environment:    service.Environment,
-			ExternalGroup:  service.ExternalGroup,
-			NodeId:         service.NodeID,
-			Port:           uint32(pointer.GetUint16(service.Port)),
-			ReplicationSet: service.ReplicationSet,
-			ServiceId:      service.ServiceID,
-			ServiceType:    string(service.ServiceType),
-			ServiceName:    service.ServiceName,
-			Socket:         pointer.GetString(service.Socket),
-			UpdatedAt:      timestamppb.New(service.UpdatedAt),
-			Version:        pointer.GetString(service.Version),
+		_, isSupported := supportedServices[string(service.ServiceType)]
+		freshUp, hasFresh := metrics[service.ServiceID]
+		staleUp, hasStale := staleMetrics[service.ServiceID]
+		switch {
+		case hasFresh:
+			svc.Status = serviceStatusFromUp(freshUp)
+		case !isSupported:
+			svc.Status = managementv1.UniversalService_STATUS_UNSPECIFIED
+		case hasStale && s.hasConnectedPMMAgent(agents, service, connectedCache):
+			svc.Status = serviceStatusFromUp(staleUp)
+		default:
+			svc.Status = managementv1.UniversalService_STATUS_UNKNOWN
 		}
 
-		if metric, ok := metrics[service.ServiceID]; ok {
-			switch metric.status {
-			// We assume there can only be values of either 1(UP) or 0(DOWN).
-			case 0:
-				svc.Status = managementv1.UniversalService_STATUS_DOWN
-			case 1:
-				svc.Status = managementv1.UniversalService_STATUS_UP
-			}
-		} else {
-			// In case there is no metric, we need to assign different values for supported and unsupported service types.
-			if _, ok := supportedServices[metric.serviceType]; ok {
-				svc.Status = managementv1.UniversalService_STATUS_UNKNOWN
-			} else {
-				svc.Status = managementv1.UniversalService_STATUS_UNSPECIFIED
-			}
-		}
-
-		nodeName, ok := nodeMap[service.NodeID]
-		if ok {
-			svc.NodeName = nodeName
-		}
-
-		var uAgents []*managementv1.UniversalAgent
-
-		for _, agent := range agents {
-			if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
-				uAgents = append(uAgents, agentToAPI(agent))
-			}
-		}
-
-		svc.Agents = uAgents
 		resultSvc[i] = svc
 	}
 
 	return &managementv1.ListServicesResponse{Services: resultSvc}, nil
 }
 
+// universalService converts a Service and the given Agents to the API representation, leaving the status unspecified.
+func (s *ManagementService) universalService(service *models.Service, nodeName string, agents []*models.Agent) (*managementv1.UniversalService, error) {
+	labels, err := service.GetCustomLabels()
+	if err != nil {
+		return nil, err
+	}
+
+	svc := &managementv1.UniversalService{
+		Address:        pointer.GetString(service.Address),
+		Cluster:        service.Cluster,
+		CreatedAt:      timestamppb.New(service.CreatedAt),
+		CustomLabels:   labels,
+		DatabaseName:   service.DatabaseName,
+		Environment:    service.Environment,
+		ExternalGroup:  service.ExternalGroup,
+		NodeId:         service.NodeID,
+		NodeName:       nodeName,
+		Port:           uint32(pointer.GetUint16(service.Port)),
+		ReplicationSet: service.ReplicationSet,
+		ServiceId:      service.ServiceID,
+		ServiceType:    string(service.ServiceType),
+		ServiceName:    service.ServiceName,
+		Socket:         pointer.GetString(service.Socket),
+		UpdatedAt:      timestamppb.New(service.UpdatedAt),
+		Version:        pointer.GetString(service.Version),
+	}
+
+	for _, agent := range agents {
+		ag, err := s.agentToAPI(agent)
+		if err != nil {
+			return nil, err
+		}
+		svc.Agents = append(svc.Agents, ag)
+	}
+
+	return svc, nil
+}
+
+// queryUpMetrics returns the values of the per-service "up" metrics keyed by service ID.
+// With stale=true it returns the most recent sample within staleStatusWindow instead of
+// only fresh (non-stale) samples.
+func (s *ManagementService) queryUpMetrics(ctx context.Context, stale bool) (map[string]int, error) {
+	selectors := make([]string, len(upMetricSelectors))
+	for i, sel := range upMetricSelectors {
+		if stale {
+			sel = fmt.Sprintf("last_over_time(%s[%s])", sel, staleStatusWindow)
+		}
+		selectors[i] = sel
+	}
+
+	result, _, _, err := s.vmClient.Query(ctx, strings.Join(selectors, " or "), time.Now())
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
+	}
+
+	vector, ok := result.(model.Vector)
+	if !ok {
+		return nil, fmt.Errorf("unexpected VM query result type %T", result)
+	}
+	metrics := make(map[string]int, len(vector))
+	for _, v := range vector {
+		metrics[string(v.Metric[model.LabelName("service_id")])] = int(v.Value)
+	}
+	return metrics, nil
+}
+
+// serviceStatusFromUp converts an "up" metric value to a service status.
+func serviceStatusFromUp(up int) managementv1.UniversalService_Status {
+	// We assume there can only be values of either 1(UP) or 0(DOWN).
+	switch up {
+	case 0:
+		return managementv1.UniversalService_STATUS_DOWN
+	case 1:
+		return managementv1.UniversalService_STATUS_UP
+	default:
+		return managementv1.UniversalService_STATUS_UNKNOWN
+	}
+}
+
+// hasConnectedPMMAgent reports whether a pmm-agent that runs this service's exporters
+// is currently connected. The connectedCache map memoizes registry lookups within one request.
+func (s *ManagementService) hasConnectedPMMAgent(agents []*models.Agent, service *models.Service, connectedCache map[string]bool) bool {
+	for _, agent := range agents {
+		if !IsServiceAgent(agent, service) {
+			continue
+		}
+		pmmAgentID := pointer.GetString(agent.PMMAgentID)
+		if pmmAgentID == "" {
+			continue
+		}
+		connected, ok := connectedCache[pmmAgentID]
+		if !ok {
+			connected = s.r.IsConnected(pmmAgentID)
+			connectedCache[pmmAgentID] = connected
+		}
+		if connected {
+			return true
+		}
+	}
+	return false
+}
+
 // RemoveService removes a Service along with its Agents.
-func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) {
+func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) { //nolint:gocognit
 	err := s.validateRequest(req)
 	if err != nil {
 		return nil, err
@@ -330,7 +514,8 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			}
 
 			if len(pmmAgentIDs) <= 1 {
-				if err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade); err != nil {
+				err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}

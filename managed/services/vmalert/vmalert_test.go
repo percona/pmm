@@ -16,7 +16,6 @@
 package vmalert
 
 import (
-	"context"
 	"database/sql"
 	"strings"
 	"testing"
@@ -40,7 +39,7 @@ func setupVMAlert(t *testing.T) (*reform.DB, *ExternalRules, *Service) {
 	svc, err := NewVMAlert(rules, "http://127.0.0.1:8880/")
 	check.NoError(err)
 
-	check.NoError(svc.IsReady(context.Background()))
+	check.NoError(svc.IsReady(t.Context()))
 
 	return db, rules, svc
 }
@@ -58,14 +57,14 @@ func TestVMAlert(t *testing.T) {
 		check := require.New(t)
 		db, rules, svc := setupVMAlert(t)
 		defer teardownVMAlert(t, rules, db)
-		check.NoError(svc.updateConfiguration(context.Background()))
+		check.NoError(svc.updateConfiguration(t.Context()))
 	})
 
 	t.Run("Normal", func(t *testing.T) {
 		check := require.New(t)
 		db, rules, svc := setupVMAlert(t)
 		defer teardownVMAlert(t, rules, db)
-		check.NoError(svc.updateConfiguration(context.Background()))
+		check.NoError(svc.updateConfiguration(t.Context()))
 		check.NoError(rules.WriteRules(strings.TrimSpace(`
 groups:
   - name: example
@@ -78,6 +77,6 @@ groups:
       annotations:
           summary: High request latency
 			`)))
-		check.NoError(svc.updateConfiguration(context.Background()))
+		check.NoError(svc.updateConfiguration(t.Context()))
 	})
 }

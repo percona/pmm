@@ -44,27 +44,27 @@ func (res *addAgentNodeExporterResult) String() string {
 
 // AddAgentNodeExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentNodeExporterCommand struct {
+	flags.LogLevelNoFatalFlags
+
 	PMMAgentID        string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	CustomLabels      map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	PushMetrics       bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	ExposeExporter    bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-
-	flags.LogLevelNoFatalFlags
 }
 
 // RunCmd runs the command for AddAgentNodeExporterCommand.
 func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 	params := &agents.AddAgentParams{
 		Body: agents.AddAgentBody{
 			NodeExporter: &agents.AddAgentParamsBodyNodeExporter{
 				PMMAgentID:        cmd.PMMAgentID,
-				CustomLabels:      customLabels,
+				CustomLabels:      *customLabels,
 				PushMetrics:       cmd.PushMetrics,
 				ExposeExporter:    cmd.ExposeExporter,
 				DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:          cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:          cmd.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

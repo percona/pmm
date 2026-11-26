@@ -17,7 +17,9 @@ package management
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -40,6 +42,13 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+// boundedCtx matches the context of a Grafana call made for a Node, which has to carry a deadline of
+// its own rather than the cancellation of the request.
+var boundedCtx = mock.MatchedBy(func(ctx context.Context) bool {
+	_, ok := ctx.Deadline()
+	return ok
+})
+
 func TestNodeService(t *testing.T) {
 	t.Run("NodeRegistration", func(t *testing.T) {
 		getTestNodeName := func() string {
@@ -48,7 +57,7 @@ func TestNodeService(t *testing.T) {
 		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
 
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -69,7 +78,7 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
@@ -87,7 +96,7 @@ func TestNodeService(t *testing.T) {
 				vmClient.AssertExpectations(t)
 			}
 
-			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient)
+			s := NewManagementService(db, r, state, nil, nil, vmdb, nil, authProvider, vmClient, nil, nil, false)
 
 			return ctx, s, teardown
 		}
@@ -119,7 +128,7 @@ func TestNodeService(t *testing.T) {
 				Token: "test-token",
 			}
 			assert.Equal(t, expected, res)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("Exist", func(t *testing.T) {
@@ -128,7 +137,7 @@ func TestNodeService(t *testing.T) {
 				NodeName: getTestNodeName(),
 			})
 			assert.Nil(t, res)
-			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-node" already exists.`), err)
+			tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name test-node already exists.`), err)
 		})
 
 		t.Run("Reregister", func(t *testing.T) {
@@ -138,7 +147,7 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 			s.grafanaClient = authProvider
 
 			_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
@@ -159,7 +168,7 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 			s.grafanaClient = authProvider
 
 			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
@@ -184,19 +193,22 @@ func TestNodeService(t *testing.T) {
 				Token: "test-token",
 			}
 			assert.Equal(t, expected, res)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 
 		t.Run("Register/Unregister", func(t *testing.T) {
 			serviceAccountID := int(0)
 			nodeName := getTestNodeName()
 			reregister := true
-			force := true
+			// The request below is forced, but --force says to unregister the Node with everything on it,
+			// not to delete service tokens pmm-agent never created, so it must not reach Grafana as its own
+			// force.
+			const deleteForeignTokens = false
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+			authProvider.On("DeleteServiceAccount", boundedCtx, nodeName, deleteForeignTokens).Return("", nil)
 			s.grafanaClient = authProvider
 
 			state := &mockAgentsStateUpdater{}
@@ -219,14 +231,38 @@ func TestNodeService(t *testing.T) {
 				Region:     "region",
 				Reregister: true,
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			res, err := s.UnregisterNode(ctx, &managementv1.UnregisterNodeRequest{
 				NodeId: resRegister.GenericNode.NodeId,
 				Force:  true,
 			})
-			assert.NoError(t, err)
-			assert.Equal(t, "", res.Warning)
+			require.NoError(t, err)
+			assert.Empty(t, res.Warning)
+		})
+
+		t.Run("Grafana-failure", func(t *testing.T) {
+			// A Node which keeps the name while its service account was never created is one nothing can
+			// take back: pmm-agent stores no ID until the registration succeeds, so it registers again on
+			// every start, and every attempt meets the name the failed one left behind.
+			nodeName := "test-node-grafana-down"
+			errGrafana := errors.New("connection refused")
+
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccount", boundedCtx, nodeName, false).Return(0, "", errGrafana)
+			s.grafanaClient = authProvider
+			defer authProvider.AssertExpectations(t)
+
+			_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName: nodeName,
+				Address:  "grafana.down.org",
+			})
+			require.ErrorIs(t, err, errGrafana)
+
+			_, err = models.FindNodeByName(s.db.Querier, nodeName)
+			tests.AssertGRPCError(t, status.Newf(codes.NotFound, "Node with name %q not found.", nodeName), err)
 		})
 	})
 
@@ -241,7 +277,7 @@ func TestNodeService(t *testing.T) {
 				return now
 			}
 
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -271,7 +307,7 @@ func TestNodeService(t *testing.T) {
 			grafanaClient := &mockGrafanaClient{}
 			grafanaClient.Test(t)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, nil, false)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -312,7 +348,7 @@ func TestNodeService(t *testing.T) {
 				},
 			}
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Once()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
@@ -321,20 +357,21 @@ func TestNodeService(t *testing.T) {
 			expected := &managementv1.ListNodesResponse{
 				Nodes: []*managementv1.UniversalNode{
 					{
-						NodeId:        "pmm-server",
-						NodeType:      "generic",
-						NodeName:      "pmm-server",
-						MachineId:     "",
-						Distro:        "",
-						NodeModel:     "",
-						ContainerId:   "",
-						ContainerName: "",
-						Address:       "127.0.0.1",
-						Region:        "",
-						Az:            "",
-						CustomLabels:  nil,
-						CreatedAt:     timestamppb.New(now),
-						UpdatedAt:     timestamppb.New(now),
+						NodeId:          "pmm-server",
+						NodeType:        "container",
+						NodeName:        "pmm-server",
+						MachineId:       "",
+						Distro:          "",
+						NodeModel:       "",
+						ContainerId:     "",
+						ContainerName:   "",
+						Address:         "127.0.0.1",
+						Region:          "",
+						Az:              "",
+						CustomLabels:    nil,
+						CreatedAt:       timestamppb.New(now),
+						UpdatedAt:       timestamppb.New(now),
+						IsPmmServerNode: true,
 						Agents: []*managementv1.UniversalNode_Agent{
 							{
 								AgentId:     nodeExporterID,
@@ -368,7 +405,7 @@ func TestNodeService(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
@@ -394,32 +431,33 @@ func TestNodeService(t *testing.T) {
 					Value:     1,
 				},
 			}
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Once()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil, nil).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
 			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{
-				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeType: inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE,
 			})
 			require.NoError(t, err)
 
 			expected := &managementv1.ListNodesResponse{
 				Nodes: []*managementv1.UniversalNode{
 					{
-						NodeId:        "pmm-server",
-						NodeType:      "generic",
-						NodeName:      "pmm-server",
-						MachineId:     "",
-						Distro:        "",
-						NodeModel:     "",
-						ContainerId:   "",
-						ContainerName: "",
-						Address:       "127.0.0.1",
-						Region:        "",
-						Az:            "",
-						CustomLabels:  nil,
-						CreatedAt:     timestamppb.New(now),
-						UpdatedAt:     timestamppb.New(now),
+						NodeId:          "pmm-server",
+						NodeType:        "container",
+						NodeName:        "pmm-server",
+						MachineId:       "",
+						Distro:          "",
+						NodeModel:       "",
+						ContainerId:     "",
+						ContainerName:   "",
+						Address:         "127.0.0.1",
+						Region:          "",
+						Az:              "",
+						CustomLabels:    nil,
+						CreatedAt:       timestamppb.New(now),
+						UpdatedAt:       timestamppb.New(now),
+						IsPmmServerNode: true,
 						Agents: []*managementv1.UniversalNode_Agent{
 							{
 								AgentId:     nodeExporterID,
@@ -448,6 +486,62 @@ func TestNodeService(t *testing.T) {
 
 			assert.Equal(t, expected, res)
 		})
+
+		t.Run("should fall back to last-known status when the agent is connected", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			staleMetric := model.Vector{
+				&model.Sample{
+					Metric: model.Metric{
+						"__name__": "up",
+						"node_id":  "pmm-server",
+					},
+					Timestamp: 1,
+					Value:     1,
+				},
+			}
+			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
+			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil, nil).Once()
+			// convertAgentToProto + connectivity gate for the stale-status fallback
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Twice()
+			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
+
+			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
+			require.NoError(t, err)
+			require.Len(t, res.Nodes, 1)
+			assert.Equal(t, managementv1.UniversalNode_STATUS_UP, res.Nodes[0].Status)
+		})
+
+		t.Run("should stay unknown without fresh samples when the agent is disconnected", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			staleMetric := model.Vector{
+				&model.Sample{
+					Metric: model.Metric{
+						"__name__": "up",
+						"node_id":  "pmm-server",
+					},
+					Timestamp: 1,
+					Value:     1,
+				},
+			}
+			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
+			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil, nil).Once()
+			// convertAgentToProto + connectivity gate for the stale-status fallback
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(false).Twice()
+			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(false).Once()
+
+			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
+			require.NoError(t, err)
+			require.Len(t, res.Nodes, 1)
+			assert.Equal(t, managementv1.UniversalNode_STATUS_UNKNOWN, res.Nodes[0].Status)
+		})
 	})
 
 	t.Run("GetNode", func(t *testing.T) {
@@ -460,7 +554,7 @@ func TestNodeService(t *testing.T) {
 			models.Now = func() time.Time {
 				return now
 			}
-			ctx := logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(t.Context(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -490,7 +584,7 @@ func TestNodeService(t *testing.T) {
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, nil, false)
 
 			teardown := func(t *testing.T) {
 				t.Helper()
@@ -526,25 +620,26 @@ func TestNodeService(t *testing.T) {
 					Value:     1,
 				},
 			}
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Times(1)
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil, nil).Times(1)
 
 			expected := &managementv1.GetNodeResponse{
 				Node: &managementv1.UniversalNode{
-					NodeId:        "pmm-server",
-					NodeType:      "generic",
-					NodeName:      "pmm-server",
-					MachineId:     "",
-					Distro:        "",
-					NodeModel:     "",
-					ContainerId:   "",
-					ContainerName: "",
-					Address:       "127.0.0.1",
-					Region:        "",
-					Az:            "",
-					CustomLabels:  nil,
-					CreatedAt:     timestamppb.New(now),
-					UpdatedAt:     timestamppb.New(now),
-					Status:        managementv1.UniversalNode_STATUS_UP,
+					NodeId:          "pmm-server",
+					NodeType:        "container",
+					NodeName:        "pmm-server",
+					MachineId:       "",
+					Distro:          "",
+					NodeModel:       "",
+					ContainerId:     "",
+					ContainerName:   "",
+					Address:         "127.0.0.1",
+					Region:          "",
+					Az:              "",
+					CustomLabels:    nil,
+					CreatedAt:       timestamppb.New(now),
+					UpdatedAt:       timestamppb.New(now),
+					Status:          managementv1.UniversalNode_STATUS_UP,
+					IsPmmServerNode: true,
 				},
 			}
 
@@ -554,6 +649,35 @@ func TestNodeService(t *testing.T) {
 
 			require.NoError(t, err)
 			assert.Equal(t, expected, node)
+		})
+
+		t.Run("should fall back to last-known status when the agent is connected", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			staleMetric := model.Vector{
+				&model.Sample{
+					Metric: model.Metric{
+						"__name__": "up",
+						"node_id":  "pmm-server",
+					},
+					Timestamp: 1,
+					Value:     1,
+				},
+			}
+			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
+			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil, nil).Once()
+			// connectivity gate for the stale-status fallback
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
+
+			node, err := s.GetNode(ctx, &managementv1.GetNodeRequest{
+				NodeId: models.PMMServerNodeID,
+			})
+
+			require.NoError(t, err)
+			assert.Equal(t, managementv1.UniversalNode_STATUS_UP, node.Node.Status)
 		})
 
 		t.Run("should return an error if such node_id doesn't exist", func(t *testing.T) {

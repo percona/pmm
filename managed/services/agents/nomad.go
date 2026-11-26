@@ -17,10 +17,9 @@ package agents
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"text/template"
-
-	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -69,6 +68,13 @@ client {
     "driver.allowlist" = "raw_exec"
   }
 
+  # Garbage collection settings
+  gc_interval = "{{ .GCInterval }}"
+  gc_disk_usage_threshold = {{ .GCDiskUsageThreshold }}
+  gc_inode_usage_threshold = {{ .GCInodeUsageThreshold }}
+  gc_max_allocs = {{ .GCMaxAllocs }}
+  gc_parallel_destroys = {{ .GCParallelDestroys }}
+
   # optional labels assigned to Nomad Client, can be the same as PMM Agent's.
   meta {
     pmm-agent = "1"
@@ -110,22 +116,22 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 
 	tdp := models.TemplateDelimsPair()
 
-	config, err := generateNomadAgentConfig(node, exporter, tdp)
+	config, err := generateNomadAgentConfig(node, exporter, tdp, n.GetClientConfig())
 	if err != nil {
 		return nil, err
 	}
 
 	caCert, err := n.GetCACert()
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to read CA certificate")
+		return nil, fmt.Errorf("failed to read CA certificate: %w", err)
 	}
 	certFile, err := n.GetClientCert()
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to read client certificate")
+		return nil, fmt.Errorf("failed to read client certificate: %w", err)
 	}
 	keyFile, err := n.GetClientKey()
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to read client key")
+		return nil, fmt.Errorf("failed to read client key: %w", err)
 	}
 	params := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT,
@@ -143,39 +149,44 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 	return params, nil
 }
 
-func generateNomadAgentConfig(node *models.Node, exporter *models.Agent, tdp models.DelimiterPair) (string, error) {
+func generateNomadAgentConfig(node *models.Node, exporter *models.Agent, tdp models.DelimiterPair, clientConfig models.NomadClient) (string, error) {
 	logLevel := "info"
 	if exporter.LogLevel != nil {
 		logLevel = *exporter.LogLevel
 	}
 	labels, err := models.MergeLabels(node, nil, exporter)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to get unified labels")
+		return "", fmt.Errorf("failed to get unified labels: %w", err)
 	}
 
-	nomadConfigParams := map[string]interface{}{
-		"NodeName":         node.NodeName,
-		"NodeID":           node.NodeID,
-		"Labels":           labels,
-		"PMMServerAddress": tdp.Left + " .server_host " + tdp.Right + ":4647",
-		"NodeAddress":      node.Address,
-		"CaFile":           tdp.Left + " .TextFiles.caCert " + tdp.Right,
-		"CertFile":         tdp.Left + " .TextFiles.certFile " + tdp.Right,
-		"KeyFile":          tdp.Left + " .TextFiles.keyFile " + tdp.Right,
-		"DataDir":          tdp.Left + " .nomad_data_dir " + tdp.Right,
-		"listen_port":      tdp.Left + " .listen_port " + tdp.Right,
-		"LogLevel":         strings.ToUpper(logLevel),
+	nomadConfigParams := map[string]any{
+		"NodeName":              node.NodeName,
+		"NodeID":                node.NodeID,
+		"Labels":                labels,
+		"PMMServerAddress":      tdp.Left + " .server_host " + tdp.Right + ":4647",
+		"NodeAddress":           node.Address,
+		"CaFile":                tdp.Left + " .TextFiles.caCert " + tdp.Right,
+		"CertFile":              tdp.Left + " .TextFiles.certFile " + tdp.Right,
+		"KeyFile":               tdp.Left + " .TextFiles.keyFile " + tdp.Right,
+		"DataDir":               tdp.Left + " .nomad_data_dir " + tdp.Right,
+		"listen_port":           tdp.Left + " .listen_port " + tdp.Right,
+		"LogLevel":              strings.ToUpper(logLevel),
+		"GCDiskUsageThreshold":  clientConfig.GCDiskUsageThreshold,
+		"GCInodeUsageThreshold": clientConfig.GCInodeUsageThreshold,
+		"GCInterval":            clientConfig.GCInterval,
+		"GCMaxAllocs":           clientConfig.GCMaxAllocs,
+		"GCParallelDestroys":    clientConfig.GCParallelDestroys,
 	}
 
 	var configBuffer bytes.Buffer
 	tmpl, err := template.New("nomadConfig").Parse(nomadConfigTemplate)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to parse nomad config template")
+		return "", fmt.Errorf("failed to parse nomad config template: %w", err)
 	}
 
 	err = tmpl.Execute(&configBuffer, nomadConfigParams)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to execute nomad config template")
+		return "", fmt.Errorf("failed to execute nomad config template: %w", err)
 	}
 	return configBuffer.String(), nil
 }

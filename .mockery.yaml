@@ -1,10 +1,12 @@
 # This is the top-level configuration file for mockery.
 disable-version-string: True
 with-expecter: False
+resolve-type-alias: False
+issue-845-fix: True
 inpackage: True
 dir: "{{.InterfaceDir}}"
 filename: "mock_{{ .InterfaceName | snakecase }}_test.go"
-mockname: "mock{{ .InterfaceName | camelcase }}"
+mockname: "mock{{ .InterfaceName | camelcase | firstUpper }}"
 packages:
   # managed
   github.com/percona/pmm/managed/services/backup:
@@ -16,20 +18,18 @@ packages:
       removalService:
       Storage:
         config:
-          mockname: "Mock{{ .InterfaceName | camelcase }}"
+          mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"
       versioner:
   github.com/percona/pmm/managed/services/checks:
     interfaces:
       agentsRegistry:
-  github.com/percona/pmm/managed/services/grafana:
-    interfaces:
-      awsInstanceChecker:
   github.com/percona/pmm/managed/services/inventory:
     interfaces:
       agentService:
       agentsRegistry:
       agentsStateUpdater:
       connectionChecker:
+      grafanaClient:
       inventoryMetrics:
       prometheusService:
       serviceInfoBroker:
@@ -43,12 +43,16 @@ packages:
       grafanaClient:
       jobsService:
       prometheusService:
+      scheduledTasksRemover:
       serviceInfoBroker:
       versionCache:
       victoriaMetricsClient:
   github.com/percona/pmm/managed/services/alerting:
     interfaces:
       grafanaClient:
+      grafanaProvisioningClient:
+      supervisordService:
+      leaderService:
   github.com/percona/pmm/managed/services/management/backup:
     interfaces:
       awsS3:
@@ -62,6 +66,10 @@ packages:
   github.com/percona/pmm/managed/services/qan:
     interfaces:
       qanCollectorClient:
+  github.com/percona/pmm/managed/services/realtimeanalytics:
+    interfaces:
+      agentsRegistry:
+      agentsStateUpdater:
   github.com/percona/pmm/managed/services/scheduler:
     interfaces:
       backupService:
@@ -69,20 +77,23 @@ packages:
     interfaces:
       agentsStateUpdater:
       checksService:
-      emailer:
       grafanaClient:
+      haService:
       prometheusService:
-      rulesService:
       supervisordService:
       telemetryService:
       templatesService:
       vmAlertExternalRules:
       nomadService:
+      omService:
   github.com/percona/pmm/managed/services/versioncache:
     interfaces:
       Versioner:
         config:
-          mockname: "Mock{{ .InterfaceName | camelcase }}"
+          mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"
+  github.com/percona/pmm/managed/services/victoriametrics:
+    interfaces:
+      haService:
   github.com/percona/pmm/managed/services/telemetry:
     interfaces:
       DataSource:
@@ -90,11 +101,6 @@ packages:
       distributionUtilService:
       sender:
   # admin
-  github.com/percona/pmm/admin/commands/pmm/server/docker:
-    interfaces:
-      Functions:
-        config:
-          mockname: "Mock{{ .InterfaceName | camelcase }}"
   # agent
   github.com/percona/pmm/agent/agentlocal:
     interfaces:
@@ -109,4 +115,4 @@ packages:
     interfaces:
       ExecFunctions:
         config:
-          mockname: "Mock{{ .InterfaceName | camelcase }}"
+          mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"

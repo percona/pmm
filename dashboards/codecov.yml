@@ -1,0 +1,15 @@
+codecov:
+  token: 3e5d4324-1a64-417c-bdab-3583c34f2911
+
+coverage:
+  range: "10...80"
+
+ignore:
+  - "config" # ignore configs
+  - "**/__mocks__/*" # ignore mocks
+  - "*.constants.tsx"
+  - "*.constants.ts"
+  - "*.styles.ts"
+  - "module.tsx"
+  - "module.ts"
+  - "types.ts"

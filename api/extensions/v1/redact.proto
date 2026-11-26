@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package extensions.v1;
+
+import "google/protobuf/descriptor.proto";
+
+enum RedactType {
+  // Default value, indicates that the field is not sensitive.
+  REDACT_TYPE_UNSPECIFIED = 0;
+  // Indicates that the entire field should be redacted.
+  // For example, test@domain.org -> ***REDACTED***
+  REDACT_TYPE_FULL = 1;
+  // Indicates that the field should be masked, preserving some information while hiding sensitive parts.
+  // For example, an email address might be masked as test@domain.org -> te***REDACTED***rg,
+  // a credit card number might be masked as 1234-5678-9012-3456 -> 12***REDACTED***56.
+  REDACT_TYPE_MASK = 2;
+  // Indicates that the field contains a Data Source Name (DSN) and should be redacted accordingly.
+  // It redacts the username and password while preserving the host, port information and parameters.
+  // For example, a DSN might be redacted as postgres://user:password@localhost:5432/dbname?param=value ->
+  // postgres://***REDACTED***:***REDACTED***@localhost:5432/dbname?param=value.
+  REDACT_TYPE_DSN = 3;
+}
+
+extend google.protobuf.FieldOptions {
+  optional RedactType sensitive = 50001;
+}

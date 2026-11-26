@@ -1,0 +1,205 @@
+/**
+ * Copyright (C) 2026 Percona LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * The one HTTP client both halves of OM use, and the wire facts they share.
+ *
+ * `/v1/om` serves two very different things - pmm-managed's own topology document and
+ * PMM Extensions' estate, proxied - but they arrive over the same origin with the same auth and
+ * the same error envelope, so the transport belongs in one place rather than in
+ * whichever hook file grew it first.
+ *
+ * Two consequences of pmm-managed serving both, and both are simplifications:
+ *
+ * - **No bearer.** `/v1` is PMM's own origin and authorises on the Grafana session
+ *   cookie, so there is no token to mint and no `ExtensionsAuthGate` to wait for. `fetch` with
+ *   `credentials: 'same-origin'` is the whole auth story. Before the proxy, the estate
+ *   was read from PMM Extensions directly with a bearer minted from the PMM session, which meant a
+ *   second HTTP client and a page that failed closed when PMM Extensions was unwell.
+ * - **snake_case survives.** gRPC-Gateway is configured with `UseProtoNames` and
+ *   `EmitUnpopulated`, and `types.ts` describes exactly that shape.
+ */
+
+import type {
+  OmBootstrapHost,
+  OmBootstrapRunStatus,
+  OmGetBootstrapRunResponse,
+  OmTopologyRunStatus,
+} from './types';
+
+const OM_BASE = '/v1/om';
+
+/**
+ * A failed request, carrying the status the caller has to branch on.
+ *
+ * The status has to survive onto the error: a 409 from either trigger is an expected
+ * outcome a button renders differently, not a failure.
+ */
+export class OmApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'OmApiError';
+    this.status = status;
+  }
+}
+
+/**
+ * One request against pmm-managed.
+ *
+ * Deliberately `fetch` rather than an axios instance: PMM's own axios client runs
+ * `axios-case-converter` and would camelCase the response out from under `types.ts`. A
+ * bare same-origin fetch is both smaller and the only one that leaves the wire shape
+ * alone.
+ */
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`${OM_BASE}${path}`, {
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    ...init,
+  });
+  if (!response.ok) {
+    // The gateway reports failures as {code, message, details}; the message is the only
+    // part worth showing, and its absence should not mask the status.
+    const body = (await response.json().catch(() => null)) as {
+      message?: string;
+    } | null;
+    throw new OmApiError(
+      response.status,
+      body?.message ?? `Request failed with ${response.status}`
+    );
+  }
+  return (await response.json()) as T;
+}
+
+/** How many times a retryable request may be retried before giving up. */
+const MAX_QUERY_RETRIES = 3;
+
+/**
+ * TanStack Query's `retry` option for a query that deliberately overrides the
+ * app-wide `retry: false` default (see useOmBootstrapRuns's own comment on
+ * why): retries a network failure (`request` rejects without ever completing
+ * a response, so `error` is not an `OmApiError`) and a 5xx, but not a 4xx --
+ * `request` throws `OmApiError` for those too, and retrying an already-
+ * completed "not found" or "bad request" response three times over just
+ * delays showing the caller an error nothing about retrying will fix.
+ */
+export function retryTransientRequestErrors(
+  failureCount: number,
+  error: unknown
+): boolean {
+  if (failureCount >= MAX_QUERY_RETRIES) {
+    return false;
+  }
+  return !(error instanceof OmApiError) || error.status >= 500;
+}
+
+/**
+ * True while a run has not reached a terminal status.
+ *
+ * Covers both kinds. A collection pass and an inventory refresh are very different
+ * operations, but they report the same `RunStatus` enum, so asking "is it still going"
+ * is one question and this is the one place that answers it. The inventory side used to
+ * carry a byte-identical `isRefreshActive`, which meant two functions to keep in step
+ * with one wire contract.
+ *
+ * Typed on the union rather than on `string`, because the compiler is the only thing
+ * that would have caught this comparison going stale when the wire values changed.
+ */
+export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
+  return status === 'RUN_STATUS_RUNNING';
+}
+
+/**
+ * True while any host's confirm_monitoring finalize step (PMM's own, appended
+ * to finalize_steps -- see its own proto comment) has not yet reached a
+ * terminal state. Shared by {@link isBootstrapRunActive} (should we keep
+ * polling) and {@link bootstrapRunDisplayStatus} (what should the badge say)
+ * -- both are asking the same underlying question of the same field.
+ *
+ * `pending` counts as unconfirmed alongside `running`. Nothing dispatches
+ * confirm_monitoring -- pmm-managed synthesizes it on every read from the run's
+ * own status (confirmMonitoringStep, and the field's own proto comment), so
+ * today a payload cannot report a succeeded run with the step still `pending`,
+ * and there is no window between the two to fall through. Accepting `pending`
+ * keeps that true if the step ever becomes something actually dispatched.
+ */
+function hasUnconfirmedMonitoring(
+  hosts: OmGetBootstrapRunResponse['hosts']
+): boolean {
+  return hosts.some((host) =>
+    host.finalize_steps.some(
+      (step) =>
+        step.name === 'confirm_monitoring' &&
+        (step.status === 'running' || step.status === 'pending')
+    )
+  );
+}
+
+export function isBootstrapRunActive(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'> | undefined
+): boolean {
+  if (!run) {
+    return false;
+  }
+  if (run.status === 'running') {
+    return true;
+  }
+  if (run.status !== 'succeeded') {
+    return false;
+  }
+  return hasUnconfirmedMonitoring(run.hosts);
+}
+
+/**
+ * The status a run's own badge should show -- not necessarily PMM Extensions' raw
+ * `status`. A run PMM Extensions reports `succeeded` still reads as `running` here while
+ * confirm_monitoring hasn't caught up on every host, for the same reason
+ * {@link isBootstrapRunActive} keeps polling through it: from the operator's
+ * point of view the run isn't actually done, the service isn't monitored yet,
+ * and a green "Succeeded" badge at that point is simply wrong.
+ */
+export function bootstrapRunDisplayStatus(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'>
+): OmBootstrapRunStatus {
+  if (run.status === 'succeeded' && hasUnconfirmedMonitoring(run.hosts)) {
+    return 'running';
+  }
+  return run.status;
+}
+
+/**
+ * True while a run can still be cancelled.
+ *
+ * Checks `status` directly rather than {@link bootstrapRunDisplayStatus}'s
+ * reinterpreted one: PMM Extensions' own `:cancel` route 409s the instant its `status`
+ * has left `running`, including the moment it flips to `succeeded` but
+ * `confirm_monitoring` hasn't caught up yet - the case where the display
+ * status still reads "running" for a different reason. Also false once
+ * `cancel_requested` is already set - see `useCancelBootstrapRun`'s own
+ * idempotency note; there is nothing left for a second click to request.
+ */
+export function canCancelBootstrapRun(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'cancel_requested'>
+): boolean {
+  return run.status === 'running' && !run.cancel_requested;
+}
+
+export function isHostRollingBack(host: OmBootstrapHost): boolean {
+  return host.rollback_steps.some((step) => step.status !== 'pending');
+}

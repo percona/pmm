@@ -1,0 +1,90 @@
+# Configure environment variables for PMM Server (AWS AMI)
+
+Set up environment variables in the `systemd` environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on an AWS AMI instance deployed from AWS Marketplace.
+
+AMI instances use a `systemd` user service that launches a Podman container, with environment variables configured through a dedicated environment file.
+
+## Configure environment variables
+Your PMM Server runs as a systemd user service that launches a Podman container. You can customize its behavior by setting environment variables in the `pmm-server.env` file on your virtual machine.
+
+To set environment variables for PMM Server on virtual machine deployments:
+{.power-number}
+
+1. Connect to your PMM Server virtual machine via SSH using the `admin` user (see [SSH configuration](../virtual/ssh.md) for authentication setup):
+    ```bash
+    ssh -i your-key admin@<pmm-server-ip>
+    ```
+
+2. Open `/home/admin/.config/systemd/user/pmm-server.env` and edit the environment variables file. This file is automatically loaded by the `systemd` service:
+
+    ```bash
+    nano ~/.config/systemd/user/pmm-server.env
+    ```
+
+3. Add your desired environment variables in `KEY=VALUE` format:
+
+    ```bash
+    PMM_METRICS_RESOLUTION_HR=10s
+    PMM_ENABLE_ACCESS_CONTROL=true
+    ```
+
+4. Restart the PMM Server service to apply the changes:
+
+    ```bash
+    systemctl --user restart pmm-server
+    ```
+
+5. Verify the service is running with the new configuration:
+
+    ```bash
+    systemctl --user status pmm-server
+    ```
+
+## Available variables
+
+Unlike Docker deployments that use `-e` flags, virtual machines configure PMM Server using the systemd environment file instructions above. However, PMM uses the same [list of environment variables](../docker/env_var.md) across all deployment methods.
+
+### Common examples for virtual machines
+
+These variables are particularly useful for AWS AMI deployments:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PMM_DATA_RETENTION` | `720h` | How long to keep metrics data, in hours. The default is 30 days. |
+| `PMM_ENABLE_UPDATES` | `true` | Allow version checks |
+| `PMM_ENABLE_ACCESS_CONTROL` | `true` | Enable label-based access control (LBAC) |
+| `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
+| `PMM_DEBUG` | `false` | Enable verbose logging |
+| `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval |
+
+Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. If you use days, such as `30d`, PMM Server won't start.
+
+### VictoriaMetrics performance tuning
+
+PMM Server uses VictoriaMetrics as its metrics storage engine. For high-volume environments or extended retention periods, you may need to tune VictoriaMetrics settings to optimize performance and resource usage. To do this: 
+{.power-number}
+
+1. Add the following variables to your `pmm-server.env` file:
+
+    ```bash
+    # Configure disk space limit per client during network outages
+    VMAGENT_remoteWrite_maxDiskUsagePerURL=52428800
+
+    # Configure temporary data storage path
+    VMAGENT_remoteWrite_tmpDataPath=/tmp/custom-vmagent
+
+    # Configure logging verbosity level
+    VMAGENT_loggerLevel=DEBUG
+
+    # Configure maximum scrape size per target
+    VMAGENT_promscrape_maxScrapeSize=128MiB
+    ```
+
+2. Restart the PMM Server service after changing environment variables for VictoriaMetrics and monitor disk space when extending retention periods.
+
+When to configure these settings:
+
+ - Large deployments (>100 monitored nodes): increase query timeout and adjust memory limits
+ - Extended retention (>30 days): Set `VM_retentionPeriod` independently from `PMM_DATA_RETENTION` for finer control
+ - Memory-constrained environments: reduce `VM_memory.allowedPercent` to prevent OOM issues
+ - High write volume: add merge speed optimization for better ingestion performance

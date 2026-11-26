@@ -55,6 +55,9 @@ func (res *addAgentQANMySQLPerfSchemaAgentResult) QueryExamples() string {
 
 // AddAgentQANMySQLPerfSchemaAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentQANMySQLPerfSchemaAgentCommand struct {
+	flags.CommentsParsingFlags
+	flags.LogLevelFatalFlags
+
 	PMMAgentID           string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID            string            `arg:"" help:"Service identifier"`
 	Username             string            `arg:"" optional:"" help:"MySQL username for scraping metrics"`
@@ -68,14 +71,11 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	TLSCAFile            string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile          string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile           string            `name:"tls-key" help:"Path to client key file"`
-
-	flags.CommentsParsingFlags
-	flags.LogLevelFatalFlags
 }
 
 // RunCmd runs the command for AddAgentQANMySQLPerfSchemaAgentCommand.
 func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	var (
 		err                    error
@@ -105,9 +105,9 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 				ServiceID:              cmd.ServiceID,
 				Username:               cmd.Username,
 				Password:               cmd.Password,
-				CustomLabels:           customLabels,
+				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.DisableQueryExamples,
 				TLS:                    cmd.TLS,
@@ -115,7 +115,7 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 				TLSCa:                  tlsCa,
 				TLSCert:                tlsCert,
 				TLSKey:                 tlsKey,
-				LogLevel:               cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:               cmd.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

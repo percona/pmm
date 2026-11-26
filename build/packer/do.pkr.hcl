@@ -13,7 +13,7 @@ packer {
 
 source "digitalocean" "pmm-ovf" {
   droplet_name  = "pmm-ovf-agent-builder"
-  image         = "centos-stream-9-x64"
+  image         = "almalinux-9-x64"
   region        = "ams3"
   size          = "s-4vcpu-8gb-intel"
   ssh_username  = "root"

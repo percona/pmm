@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
@@ -33,7 +32,7 @@ func TestAddAgentPostgresExporter(t *testing.T) {
 				Username:   "username",
 				ServiceID:  "1",
 				ListenPort: 42001,
-				Status:     pointer.ToString("RUNNING"),
+				Status:     new("RUNNING"),
 			},
 		}
 		expected := strings.TrimSpace(`

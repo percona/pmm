@@ -16,8 +16,8 @@ package filereader
 
 // Logger defines the interface for a MySQL slow log parser logger.
 type Logger interface {
-	Warnf(format string, v ...interface{})
-	Infof(format string, v ...interface{})
-	Debugf(format string, v ...interface{})
-	Tracef(format string, v ...interface{})
+	Warnf(format string, v ...any)
+	Infof(format string, v ...any)
+	Debugf(format string, v ...any)
+	Tracef(format string, v ...any)
 }

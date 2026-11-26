@@ -1,3 +1,4 @@
+---
 name: SBOM
 
 on:
@@ -5,37 +6,40 @@ on:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
+permissions:
+  contents: read
+
 jobs:
   sbom:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Create SBOM for PMM
-        uses: anchore/sbom-action@da167eac915b4e86f08b264dbdbc867b61be6f0c # v0.20.5
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           file: go.mod
           artifact-name: pmm.spdx.json
 
       - name: Publish SBOM for PMM
-        uses: anchore/sbom-action/publish-sbom@da167eac915b4e86f08b264dbdbc867b61be6f0c # v0.20.5
+        uses: anchore/sbom-action/publish-sbom@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           sbom-artifact-match: ".*\\.spdx\\.json$"
 
   vmproxy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Create SBOM for vmproxy
-        uses: anchore/sbom-action@da167eac915b4e86f08b264dbdbc867b61be6f0c # v0.20.5
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           path: ./vmproxy
           artifact-name: vmproxy.spdx.json
 
       - name: Publish SBOM for vmproxy
-        uses: anchore/sbom-action/publish-sbom@da167eac915b4e86f08b264dbdbc867b61be6f0c # v0.20.5
+        uses: anchore/sbom-action/publish-sbom@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           sbom-artifact-match: ".*\\.spdx\\.json$"

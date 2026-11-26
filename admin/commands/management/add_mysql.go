@@ -15,11 +15,13 @@
 package management
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/units"
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -90,6 +92,11 @@ func (res *addMySQLResult) TablestatStatus() string {
 //
 //nolint:lll
 type AddMySQLCommand struct {
+	AddCommonFlags
+	flags.MetricsModeFlags
+	flags.CommentsParsingFlags
+	flags.LogLevelNoFatalFlags
+
 	ServiceName   string `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
 	Address       string `arg:"" optional:"" help:"MySQL address and port (default: 127.0.0.1:3306)"`
 	Socket        string `help:"Path to MySQL socket"`
@@ -101,9 +108,9 @@ type AddMySQLCommand struct {
 	// TODO add "auto", make it default
 	QuerySource            string            `default:"${mysqlQuerySourceDefault}" enum:"${mysqlQuerySourcesEnum}" help:"Source of SQL queries, one of: ${mysqlQuerySourcesEnum} (default: ${mysqlQuerySourceDefault})"`
 	MaxQueryLength         int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
-	DisableQueryExamples   bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
+	DisableQueryExamples   bool              `negatable:"" name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize     units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: server-defined; negative value disables rotation). Ex.: 1GiB"`
-	DisableTablestats      bool              `help:"Disable table statistics collection"`
+	DisableTablestats      bool              `negatable:"" help:"Disable table statistics collection"`
 	DisableTablestatsLimit uint16            `placeholder:"NUMBER" help:"Table statistics collection will be disabled if there are more than specified number of tables (default: server-defined)"`
 	Environment            string            `help:"Environment name"`
 	Cluster                string            `help:"Cluster name"`
@@ -111,19 +118,15 @@ type AddMySQLCommand struct {
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	ExtraDSNParams         map[string]string `name:"extra-dsn-params" mapsep:"," help:"Additional DSN parameters, e.g. 'param1=value1,param2=value2'"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
-	TLS                    bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify          bool              `help:"Skip TLS certificate verification"`
+	TLS                    bool              `negatable:"" help:"Use TLS to connect to the database"`
+	TLSSkipVerify          bool              `negatable:"" help:"Skip TLS certificate verification"`
 	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
 	TLSCertFile            string            `name:"tls-cert" help:"Path to client certificate file"`
 	TLSKeyFile             string            `name:"tls-key" help:"Path to client key file"`
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
-
-	AddCommonFlags
-	flags.MetricsModeFlags
-	flags.CommentsParsingFlags
-	flags.LogLevelNoFatalFlags
+	ExposeExporter         bool              `negatable:"" name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }
 
 // GetServiceName returns the service name for AddMySQLCommand.
@@ -148,12 +151,12 @@ func (cmd *AddMySQLCommand) GetSocket() string {
 
 // RunCmd runs the command for AddMySQLCommand.
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
-	extraDSNParams := commands.ParseKeyValuePair(cmd.ExtraDSNParams)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
+	extraDSNParams := commands.ParseKeyValuePair(&cmd.ExtraDSNParams)
 
 	if cmd.CreateUser {
-		return nil, errors.New("Unrecognized option. To create a user, see " +
-			"'https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql.html#create-a-database-account-for-pmm'")
+		return nil, errors.New("unrecognized option. To create a user, see " +
+			"https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html#create-a-database-account-for-pmm") //nolint:lll
 	}
 
 	var (
@@ -198,7 +201,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 	tablestatsGroupTableLimit := int32(cmd.DisableTablestatsLimit)
 	if cmd.DisableTablestats {
 		if tablestatsGroupTableLimit != 0 {
-			return nil, errors.Errorf("both --disable-tablestats and --disable-tablestats-limit are passed")
+			return nil, errors.New("both --disable-tablestats and --disable-tablestats-limit are passed")
 		}
 
 		tablestatsGroupTableLimit = -1
@@ -220,14 +223,14 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				Username:       cmd.Username,
 				Password:       cmd.Password,
 				AgentPassword:  cmd.AgentPassword,
-				CustomLabels:   customLabels,
-				ExtraDsnParams: extraDSNParams,
+				CustomLabels:   pointer.Get(customLabels),
+				ExtraDsnParams: pointer.Get(extraDSNParams),
 
 				QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
 				QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.DisableQueryExamples,
 
@@ -238,9 +241,10 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 				TLSCert:                   tlsCert,
 				TLSKey:                    tlsKey,
 				TablestatsGroupTableLimit: tablestatsGroupTableLimit,
-				MetricsMode:               cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode:               cmd.MetricsMode.EnumValue(),
 				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-				LogLevel:                  cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                  cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:         commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

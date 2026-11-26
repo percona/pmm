@@ -13,16 +13,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package supervisord provides facilities for working with Supervisord.
 package supervisord
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"os"
 	"text/template"
 
-	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
+
+const wwrPermissions = 0o664
 
 // SavePMMConfig renders and saves pmm config.
 func SavePMMConfig(params map[string]any) error {
@@ -30,16 +33,19 @@ func SavePMMConfig(params map[string]any) error {
 	if err != nil {
 		return err
 	}
-	if err := saveConfig(pmmConfig, cfg); err != nil {
-		return errors.Wrapf(err, "failed to save pmm config")
+	err = saveConfig(pmmConfig, cfg)
+	if err != nil {
+		return fmt.Errorf("failed to save pmm config: %w", err)
 	}
+	logrus.Info("pmm.ini configuration has been updated.")
 	return nil
 }
 
 func marshalConfig(params map[string]any) ([]byte, error) {
 	var buf bytes.Buffer
-	if err := pmmTemplate.Execute(&buf, params); err != nil {
-		return nil, errors.Wrapf(err, "failed to render pmm template")
+	err := pmmTemplate.Execute(&buf, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to render pmm template: %w", err)
 	}
 	return buf.Bytes(), nil
 }
@@ -52,7 +58,7 @@ func saveConfig(path string, cfg []byte) (err error) {
 		err = nil
 	}
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to read config file %s: %w", path, err)
 	}
 
 	// compare with new config
@@ -66,27 +72,20 @@ func saveConfig(path string, cfg []byte) (err error) {
 		if err == nil {
 			return
 		}
-		if resErr := os.WriteFile(path, oldCfg, 0o664); resErr != nil { //nolint:gosec
-			err = errors.Wrap(err, errors.Wrap(resErr, "failed to restore config").Error())
+		resErr := os.WriteFile(path, oldCfg, wwrPermissions) //nolint:gosec
+		if resErr != nil {
+			err = errors.Join(fmt.Errorf("failed to restore config: %w", resErr), err)
 		}
 	}()
 
-	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec
-		err = errors.Wrap(err, "failed to write new config")
+	err = os.WriteFile(path, cfg, wwrPermissions)
+	if err != nil {
+		err = fmt.Errorf("failed to write new config: %w", err)
 	}
 	return err
 }
 
-var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[unix_http_server]
-chmod = 0700
-username = dummy
-password = dummy
-
-[supervisorctl]
-username = dummy
-password = dummy
-
-[program:pmm-init]
+var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[program:pmm-init]
 command = /usr/bin/ansible-playbook /opt/ansible/pmm-docker/init.yml
 directory = /
 autorestart = unexpected
@@ -96,7 +95,7 @@ autostart = true
 startretries = 3
 startsecs = 1
 stopsignal = TERM
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/pmm-init.log
 stdout_logfile_maxbytes = 20MB
 stdout_logfile_backups = 3
@@ -107,22 +106,23 @@ environment = ANSIBLE_CONFIG="/opt/ansible/ansible.cfg"
 [program:postgresql]
 priority = 1
 command =
-    /usr/pgsql-14/bin/postgres
-        -D /srv/postgres14
+    /usr/pgsql-18/bin/postgres
+        -D /srv/postgres18
         -c shared_preload_libraries=pg_stat_statements
         -c pg_stat_statements.max=10000
         -c pg_stat_statements.track=all
         -c pg_stat_statements.save=off
         -c logging_collector=off
+        -c max_connections=2000
 autorestart = true
 autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = INT  ; Fast Shutdown mode
-stopwaitsecs = 300
+stopwaitsecs = 30
 ; postgresql.conf contains settings to log to stdout,
 ; so we delegate logfile management to supervisord
-stdout_logfile = /srv/logs/postgresql14.log
+stdout_logfile = /srv/logs/postgresql.log
 stdout_logfile_maxbytes = 30MB
 stdout_logfile_backups = 2
 redirect_stderr = true
@@ -137,7 +137,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = TERM
-stopwaitsecs = 300
+stopwaitsecs = 30
 ; config.xml contains settings to log to stdout (console),
 ; so we delegate logfile managemenet to supervisord
 stdout_logfile = /srv/logs/clickhouse-server.log
@@ -171,7 +171,7 @@ autostart = true
 startretries = 1000
 startsecs = 1
 stopsignal = TERM
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/pmm-managed.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2
@@ -179,7 +179,7 @@ redirect_stderr = true
 
 [program:pmm-agent]
 priority = 15
-command = /usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml --paths-tempdir=/srv/pmm-agent/tmp --paths-nomad-data-dir=/srv/nomad/data
+command = /usr/sbin/pmm-agent --config-file={{ .AgentConfigFilePath }} --paths-tempdir=/srv/pmm-agent/tmp --paths-nomad-data-dir=/srv/nomad/data
 autorestart = true
 autostart = false
 startretries = 1000

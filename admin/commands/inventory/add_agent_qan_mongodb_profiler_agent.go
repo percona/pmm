@@ -47,6 +47,8 @@ func (res *addAgentQANMongoDBProfilerAgentResult) String() string {
 
 // AddAgentQANMongoDBProfilerAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentQANMongoDBProfilerAgentCommand struct {
+	flags.LogLevelFatalFlags
+
 	PMMAgentID                    string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string            `arg:"" help:"Service identifier"`
 	Username                      string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
@@ -61,13 +63,11 @@ type AddAgentQANMongoDBProfilerAgentCommand struct {
 	TLSCertificateKeyFilePassword string            `help:"Password for certificate"`
 	TLSCaFile                     string            `help:"Path to certificate authority file"`
 	AuthenticationMechanism       string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
-
-	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentQANMongoDBProfilerAgentCommand and returns the result.
 func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {
@@ -85,7 +85,7 @@ func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, er
 				ServiceID:                     cmd.ServiceID,
 				Username:                      cmd.Username,
 				Password:                      cmd.Password,
-				CustomLabels:                  customLabels,
+				CustomLabels:                  *customLabels,
 				SkipConnectionCheck:           cmd.SkipConnectionCheck,
 				MaxQueryLength:                cmd.MaxQueryLength,
 				TLS:                           cmd.TLS,
@@ -94,7 +94,7 @@ func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, er
 				TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
 				TLSCa:                         tlsCa,
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
-				LogLevel:                      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                      cmd.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

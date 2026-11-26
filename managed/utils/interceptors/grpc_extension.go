@@ -13,13 +13,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package interceptors contains gRPC wrappers for logging and Prometheus metrics.
 package interceptors
 
 import (
 	"context"
 
-	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -34,7 +32,7 @@ const (
 
 // GRPCMetricsExtension for extra labels in /debug/metrics.
 type GRPCMetricsExtension struct { //nolint:recvcheck
-	grpc_prometheus.DefaultExtension
+	DefaultExtension
 }
 
 // MetricsNameAdjust adjusts the given metric name and returns the adjusted name.
@@ -52,7 +50,7 @@ func (e *GRPCMetricsExtension) ServerStreamMsgReceivedCounterValues(ctx context.
 	return []string{getCallerOriginStr(ctx)}
 }
 
-var _ grpc_prometheus.ServerExtension = &GRPCMetricsExtension{}
+var _ ServerExtension = &GRPCMetricsExtension{}
 
 // SetCallerOrigin returns derived context with metric.
 func SetCallerOrigin(ctx context.Context, method string) context.Context {
@@ -68,7 +66,9 @@ func getCallerOriginStr(ctx context.Context) string {
 }
 
 func callerOriginFromRequest(ctx context.Context, method string) callerOrigin {
-	if method == "/server.v1.ServerService/Readiness" || method == "/agent.v1.AgentService/Connect" {
+	if method == "/server.v1.ServerService/Readiness" ||
+		method == "/agent.v1.AgentService/Connect" ||
+		method == "/realtimeanalytics.v1.CollectorService/Collect" {
 		return internalCallerOrigin
 	}
 

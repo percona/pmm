@@ -1,0 +1,21 @@
+# MongoDB CPU cores check
+
+## Description
+This advisor warns if the number of CPU cores does not meet the minimum requirements according to best practices.
+
+To avoid performance issues, see the following documentation to determine the number of CPU cores required for your environment: 
+
+-  [MongoDB 4.0 Production notes](https://www.mongodb.com/docs/v4.0/administration/production-notes/#std-label-prod-notes-ram)
+- [MongoDB 4.2 Production notes](https://www.mongodb.com/docs/v4.2/administration/production-notes/#std-label-prod-notes-ram)
+- [MongoDB 4.4 Production notes](https://www.mongodb.com/docs/v4.4/administration/production-notes/#std-label-prod-notes-ram)
+- [MongoDB 5.0 Production notes](https://www.mongodb.com/docs/v5.0/administration/production-notes/#std-label-prod-notes-ram)
+- [MongoDB 6.0 Production notes](https://www.mongodb.com/docs/v6.0/administration/production-notes/#std-label-prod-notes-ram)
+
+## Resolution
+Increase the number of CPU cores so that it does not impact the performance.
+
+## Need more support from Percona?
+
+Percona experts bring years of experience in tackling tough database performance issues and design challenges.
+
+<div data-tf-live="01JKGYABNVYHQ8A91QNW69A9TP"></div><script src="//embed.typeform.com/next/embed.js"></script>

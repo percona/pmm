@@ -6,8 +6,8 @@ To deploy [PMM Server][Docker image] in air-gapped or isolated environments with
 1. On an internet-connected host, download the [Docker][Docker] image and its checksum file:
 
     ```sh
-    wget https://downloads.percona.com/downloads/pmm/{{release}}/docker/pmm-server-{{release}}.docker
-    wget https://downloads.percona.com/downloads/pmm/{{release}}/docker/pmm-server-{{release}}.sha256sum
+    wget https://downloads.percona.com/downloads/pmm3/{{release}}/docker/pmm-server-{{release}}.docker
+    wget https://downloads.percona.com/downloads/pmm3/{{release}}/docker/pmm-server-{{release}}.sha256sum
     ```
 
 2. Transfer both files to the target host where you'll run PMM Server using a secure method (such as `scp`, physical media, or your organization's approved file transfer mechanism).

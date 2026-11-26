@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
@@ -33,7 +32,7 @@ func TestAddAgentMysqldExporter(t *testing.T) {
 				Username:   "username",
 				ServiceID:  "1",
 				ListenPort: 42001,
-				Status:     pointer.ToString("RUNNING"),
+				Status:     new("RUNNING"),
 
 				TablestatsGroupTableLimit: 1000,
 				TablestatsGroupDisabled:   false,
@@ -68,7 +67,7 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is 50
 				Username:   "username",
 				ServiceID:  "1",
 				ListenPort: 42001,
-				Status:     pointer.ToString("RUNNING"),
+				Status:     new("RUNNING"),
 
 				TablestatsGroupTableLimit: 0,
 				TablestatsGroupDisabled:   false,
@@ -103,7 +102,7 @@ Tablestat collectors  : enabled (the table count limit is not set).
 				Username:   "username",
 				ServiceID:  "1",
 				ListenPort: 42001,
-				Status:     pointer.ToString("RUNNING"),
+				Status:     new("RUNNING"),
 
 				TablestatsGroupTableLimit: 1000,
 				TablestatsGroupDisabled:   false,
@@ -138,7 +137,7 @@ Tablestat collectors  : enabled (the limit is 1000, the actual table count is un
 				Username:   "username",
 				ServiceID:  "1",
 				ListenPort: 42001,
-				Status:     pointer.ToString("RUNNING"),
+				Status:     new("RUNNING"),
 
 				TablestatsGroupTableLimit: 1000,
 				TablestatsGroupDisabled:   true,
@@ -173,7 +172,7 @@ Tablestat collectors  : disabled (the limit is 1000, the actual table count is 2
 				Username:   "username",
 				ServiceID:  "1",
 				ListenPort: 42001,
-				Status:     pointer.ToString("RUNNING"),
+				Status:     new("RUNNING"),
 
 				TablestatsGroupTableLimit: -1,
 				TablestatsGroupDisabled:   true,
@@ -208,7 +207,7 @@ Tablestat collectors  : disabled (always).
 				Username:   "username",
 				ServiceID:  "1",
 				ListenPort: 42001,
-				Status:     pointer.ToString("RUNNING"),
+				Status:     new("RUNNING"),
 
 				ExtraDsnParams: map[string]string{
 					"allowCleartextPasswords": "1",

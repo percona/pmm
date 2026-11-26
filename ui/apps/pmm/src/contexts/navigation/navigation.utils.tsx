@@ -1,0 +1,394 @@
+import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
+import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
+import Tune from '@mui/icons-material/Tune';
+import { NavItem } from 'types/navigation.types';
+import { ServiceType } from 'types/services.types';
+import { User, UserPreferences } from 'types/user.types';
+import { PMM_NEW_NAV_GRAFANA_PATH, OM_PATH } from 'lib/constants';
+import { ColorMode } from '@pmm/shared';
+import {
+  NAV_ACCOUNT,
+  NAV_ADVISORS,
+  NAV_ADVISORS_CHECKS,
+  NAV_ADVISORS_INSIGHTS,
+  NAV_ADVISORS_RUNS,
+  NAV_ADVISORS_SCHEDULER,
+  NAV_ALERTS_RULES,
+  NAV_ALERTS,
+  NAV_ALERTS_CONTACT_POINTS,
+  NAV_ALERTS_NOTIFICATION_POLICIES,
+  NAV_ALERTS_SETTINGS,
+  NAV_ALERTS_TEMPLATES,
+  NAV_ALERTS_STATUS,
+  NAV_CHANGE_PASSWORD,
+  NAV_CONFIGURATION,
+  NAV_DASHBOARDS,
+  NAV_DASHBOARDS_BROWSE,
+  NAV_DASHBOARDS_LIBRARY_PANELS,
+  NAV_DASHBOARDS_PLAYLISTS,
+  NAV_DASHBOARDS_SHARED,
+  NAV_DASHBOARDS_SNAPSHOTS,
+  NAV_EXPLORE,
+  NAV_EXPLORE_BUILDER,
+  NAV_EXPLORE_METRICS,
+  NAV_FOLDER_MAP,
+  NAV_HAPROXY,
+  NAV_MONGO,
+  NAV_MYSQL,
+  NAV_OS,
+  NAV_OTHER_DASHBOARDS_TEMPLATE,
+  NAV_POSTGRESQL,
+  NAV_PROXYSQL,
+  NAV_SIGN_OUT,
+  NAV_THEME_TOGGLE,
+  NAV_ALERTS_SILENCES,
+  NAV_ALERTS_GROUPS,
+  NAV_VALKEY,
+  NAV_HIGH_AVAILABILITY,
+  NAV_USERS_AND_ACCESS,
+  NAV_ACCESS_CONTROL,
+  NAV_HIGH_AVAILABILITY_NODES,
+  NAV_HIGH_AVAILABILITY_OVERVIEW,
+  NAV_HOME_PAGE,
+  NAV_MANAGEMENT,
+  NAV_EXTENSIONS_ATW,
+  NAV_EXTENSIONS_MYSQL_BACKUPS,
+} from './navigation.constants';
+import { CombinedSettings } from 'contexts/settings';
+import { DashboardFolder } from 'types/folders.types';
+import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
+import { HighAvailabilityIcon } from 'components/ha-icon';
+import { HighAvailabilityBadge } from 'components/ha-badge';
+import { PreviewChip } from 'components/preview-chip';
+import { HAInfo } from 'types/ha.types';
+
+export const addOtherDashboardsItem = (
+  rootNode: NavItem,
+  folders: DashboardFolder[]
+) => {
+  const id = rootNode.id + '-other-dashboards';
+  const folder = folders.find(
+    (f) => rootNode.id && NAV_FOLDER_MAP[rootNode.id] === f.title
+  );
+  const exists = rootNode.children?.some((i) => i.id === id);
+
+  if (folder && !exists) {
+    rootNode.children?.push({
+      ...NAV_OTHER_DASHBOARDS_TEMPLATE,
+      id,
+      url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards/f/${folder.uid}/${rootNode.id}`,
+    });
+  }
+};
+
+export const addAllDashboardItem = (
+  types: ServiceType[],
+  user?: User
+): NavItem => {
+  const children: NavItem[] = [NAV_DASHBOARDS_BROWSE];
+
+  if (types.includes(ServiceType.proxysql)) {
+    children.push(NAV_PROXYSQL);
+  }
+
+  if (types.includes(ServiceType.haproxy)) {
+    children.push(NAV_HAPROXY);
+  }
+
+  if (user) {
+    children.push(NAV_DASHBOARDS_SHARED);
+    children.push(NAV_DASHBOARDS_PLAYLISTS);
+    children.push(NAV_DASHBOARDS_SNAPSHOTS);
+    children.push(NAV_DASHBOARDS_LIBRARY_PANELS);
+  }
+
+  return { ...NAV_DASHBOARDS, children };
+};
+
+/**
+ * `mongoExtras` are appended to the MongoDB menu, and keep it in the sidebar when no
+ * MongoDB service is monitored yet: OM's Nodes and install pages exist for exactly
+ * that estate, so hiding the menu with the dashboards would hide them too.
+ */
+export const addDashboardItems = (
+  types: ServiceType[],
+  folders: DashboardFolder[],
+  user?: User,
+  mongoExtras: NavItem[] = []
+): NavItem[] => {
+  const children: NavItem[] = [];
+
+  if (types.includes(ServiceType.mysql)) {
+    addOtherDashboardsItem(NAV_MYSQL, folders);
+    children.push(NAV_MYSQL);
+  }
+
+  if (types.includes(ServiceType.mongodb)) {
+    addOtherDashboardsItem(NAV_MONGO, folders);
+    // A copy, so the extras never accumulate on the shared constant.
+    children.push({
+      ...NAV_MONGO,
+      children: [...(NAV_MONGO.children ?? []), ...mongoExtras],
+    });
+  } else if (mongoExtras.length) {
+    children.push({
+      ...NAV_MONGO,
+      url: mongoExtras[0].url,
+      children: mongoExtras,
+    });
+  }
+
+  if (types.includes(ServiceType.posgresql)) {
+    addOtherDashboardsItem(NAV_POSTGRESQL, folders);
+    children.push(NAV_POSTGRESQL);
+  }
+
+  if (types.includes(ServiceType.valkey)) {
+    addOtherDashboardsItem(NAV_VALKEY, folders);
+    children.push(NAV_VALKEY);
+  }
+
+  addOtherDashboardsItem(NAV_OS, folders);
+  children.push(NAV_OS);
+
+  children.push(addAllDashboardItem(types, user));
+
+  return children;
+};
+
+export const addAlerting = (
+  alertingEnabled = false,
+  unifiedAlertingEnabled = false,
+  user?: User
+): NavItem => {
+  const children: NavItem[] = [NAV_ALERTS_RULES];
+
+  if (alertingEnabled) {
+    children.push(NAV_ALERTS_STATUS);
+
+    if (user?.isEditor) {
+      children.push(NAV_ALERTS_TEMPLATES);
+    }
+  }
+
+  if (user) {
+    children.push(NAV_ALERTS_SILENCES);
+    children.push(NAV_ALERTS_GROUPS);
+
+    if (unifiedAlertingEnabled && user.isPMMAdmin) {
+      children.push(NAV_ALERTS_SETTINGS);
+    }
+
+    if (unifiedAlertingEnabled) {
+      children.push(NAV_ALERTS_CONTACT_POINTS);
+      children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
+    }
+  }
+
+  return { ...NAV_ALERTS, children };
+};
+
+export const addExplore = (exploreMetricsEnabled: boolean): NavItem => {
+  const children: NavItem[] = [NAV_EXPLORE_BUILDER];
+
+  if (exploreMetricsEnabled) {
+    children.push(NAV_EXPLORE_METRICS);
+  }
+
+  return { ...NAV_EXPLORE, children };
+};
+
+export const addAdvisors = (): NavItem => ({
+  ...NAV_ADVISORS,
+  children: [
+    NAV_ADVISORS_INSIGHTS,
+    NAV_ADVISORS_CHECKS,
+    NAV_ADVISORS_RUNS,
+    NAV_ADVISORS_SCHEDULER,
+  ],
+});
+
+export const addAccount = (
+  user: User,
+  colorMode: ColorMode,
+  toggleMode: () => void,
+  settings?: CombinedSettings
+): NavItem => {
+  const name = (user.name || '').split(' ')[0];
+  const children = [...(NAV_ACCOUNT.children || [])];
+  const targetMode = colorMode === 'light' ? 'dark' : 'light';
+
+  if (
+    !(
+      settings?.frontend.disableLoginForm ||
+      settings?.frontend.auth.disableLogin
+    )
+  ) {
+    children.push(NAV_CHANGE_PASSWORD);
+  }
+
+  children.push({
+    ...NAV_THEME_TOGGLE,
+    icon: colorMode === 'light' ? DarkModeOutlined : LightModeOutlined,
+    text: `Switch to ${targetMode} mode`,
+    onClick: toggleMode,
+  });
+
+  children.push(NAV_SIGN_OUT);
+
+  return {
+    ...NAV_ACCOUNT,
+    children,
+    text: NAV_ACCOUNT.text + (name ? `: ${name}` : ''),
+  };
+};
+
+export const addConfiguration = (
+  status: UpdateStatus,
+  versionInfo?: GetUpdatesResponse
+): NavItem => {
+  const updates = NAV_CONFIGURATION.children?.find((c) => c.id === 'updates');
+  const { updateAvailable, installed, latest } = versionInfo || {};
+
+  if (!updates) {
+    return NAV_CONFIGURATION;
+  }
+
+  if (updateAvailable) {
+    updates.secondaryText = `Update from v${installed?.version?.slice(0, 5)} to v${latest?.version}`;
+  } else if (installed?.version) {
+    updates.secondaryText = `Current: v${installed?.version} (up to date)`;
+  }
+
+  if (
+    status === UpdateStatus.Pending ||
+    status === UpdateStatus.UpdateClients
+  ) {
+    updates.badge = {
+      label: 'New',
+    };
+  } else {
+    updates.badge = undefined;
+  }
+
+  return NAV_CONFIGURATION;
+};
+
+export const addHighAvailability = ({ health, namespace }: HAInfo): NavItem => {
+  const item = { ...NAV_HIGH_AVAILABILITY };
+  const overview = { ...NAV_HIGH_AVAILABILITY_OVERVIEW };
+
+  if (namespace) {
+    const namespaceParam = `var-namespace=${encodeURIComponent(namespace)}`;
+    item.url = `${item.url}?${namespaceParam}`;
+    overview.url = `${overview.url}?${namespaceParam}`;
+  }
+
+  item.badge = <HighAvailabilityBadge health={health} />;
+  item.icon = <HighAvailabilityIcon health={health} />;
+  item.badgeAlwaysVisible = true;
+
+  item.children = [overview, NAV_HIGH_AVAILABILITY_NODES];
+
+  return item;
+};
+
+export const addUsersAndAccess = (settings?: CombinedSettings): NavItem => {
+  const children: NavItem[] = [...(NAV_USERS_AND_ACCESS.children || [])];
+
+  if (settings?.enableAccessControl) {
+    children.push(NAV_ACCESS_CONTROL);
+  }
+
+  return { ...NAV_USERS_AND_ACCESS, children };
+};
+
+export const addHomePage = (preferences?: UserPreferences): NavItem => {
+  if (preferences?.homeDashboardUID) {
+    return {
+      ...NAV_HOME_PAGE,
+      // highlight also the custom home dashboard
+      matches: [
+        ...(NAV_HOME_PAGE.matches || []),
+        `${PMM_NEW_NAV_GRAFANA_PATH}/d/${preferences.homeDashboardUID}`,
+      ],
+    };
+  }
+
+  return NAV_HOME_PAGE;
+};
+
+// PMM Extensions apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
+// is lifted from the side-car's appNavConfig as data only — no PMM Extensions nav component is used.
+// Deliberately unconditional: reachability is not the gate, the per-control
+// mutation capability is (PMM-15358, and NavigationProvider for placement).
+// A collapsible with no children renders as an expandable shell that opens on
+// nothing, so a section drops out with its last child rather than outliving it.
+// Callers spread the result, which is what lets it contribute no entry at all.
+export const addSection = (section: NavItem, children: NavItem[]): NavItem[] =>
+  children.length ? [{ ...section, children }] : [];
+
+export const addExtensionsApps = (): NavItem[] =>
+  addSection(
+    {
+      ...NAV_MANAGEMENT,
+      badge: <PreviewChip level="tech" />,
+      badgeAlwaysVisible: true,
+    },
+    [NAV_EXTENSIONS_MYSQL_BACKUPS, NAV_EXTENSIONS_ATW]
+  );
+
+/**
+ * OM's navigation, deliberately not part of `addExtensionsApps`. Shown inside the
+ * MongoDB menu, through `addDashboardItems`' `mongoExtras`.
+ *
+ * Those entries are gated as a group on PMM Extensions, and the group is expected to gain a
+ * flag gate with real auth. OM is served by pmm-managed and reads PMM's own data,
+ * so hiding it when PMM Extensions is off or unreachable would hide a working page.
+ */
+export const addOm = (): NavItem => ({
+  id: 'om',
+  text: 'Operations',
+  icon: Tune,
+  url: OM_PATH,
+  matches: [OM_PATH],
+  // "Preview" rather than "Dev Preview": the longer label overlaps "Operations" at
+  // this nesting level. The banner and Settings say which preview it is.
+  badge: {
+    label: 'Preview',
+    sx: {
+      ml: 1,
+      height: 18,
+      flexShrink: 0,
+      '& .MuiChip-label': { px: 0.75, fontSize: 10, lineHeight: 1 },
+    },
+  },
+  badgeAlwaysVisible: true,
+  children: [
+    {
+      id: 'om-fleet',
+      text: 'Fleet',
+      url: OM_PATH,
+    },
+    {
+      // The machines, including the ones with no database on them -- which no fleet
+      // reading can show, and which is where an install goes.
+      id: 'om-nodes',
+      text: 'Nodes',
+      url: `${OM_PATH}/nodes`,
+      matches: [`${OM_PATH}/nodes`],
+    },
+    {
+      id: 'om-automations',
+      text: 'Automations',
+      url: `${OM_PATH}/automations`,
+      matches: [`${OM_PATH}/automations`],
+    },
+    {
+      id: 'om-settings',
+      text: 'Settings',
+      url: `${OM_PATH}/settings`,
+      matches: [`${OM_PATH}/settings`],
+    },
+  ],
+});

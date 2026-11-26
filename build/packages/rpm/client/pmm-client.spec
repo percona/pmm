@@ -21,7 +21,7 @@ Requires(preun):  systemd
 Requires(postun): systemd
 
 AutoReq:        no
-Conflicts:      pmm-client
+Conflicts:      pmm-client < 3.0.0
 Obsoletes:      pmm2-client < 3.0.0
 
 %description
@@ -104,6 +104,7 @@ install -m 0755 bin/mongodb_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/expor
 install -m 0755 bin/proxysql_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/rds_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/azure_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
+install -m 0755 bin/valkey_exporter $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/vmagent $RPM_BUILD_ROOT/usr/local/percona/pmm/exporters
 install -m 0755 bin/pt-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
 install -m 0755 bin/pt-mysql-summary $RPM_BUILD_ROOT/usr/local/percona/pmm/tools
@@ -220,6 +221,9 @@ fi
 %changelog
 * Mon Aug 25 2025 Alex Demidoff <alexander.demidoff@percona.com>
 - PMM-12362 rootless systemd user
+
+* Wed May 21 2025 Talha Bin Rizwan <talha.rizwan@percona.com>
+- PKG-521 include valkey_exporter into pmm client
 
 * Fri Nov 8 2024 Nurlan Moldomurov <nurlan.moldomurov@percona.com>
 - PMM-13399 include nomad into pmm client

@@ -8,9 +8,9 @@
 The Microsoft Azure feature is turned off by default. To turn it on:
 {.power-number}
 
-1. Go to  **PMM Configuration > Settings > Advanced Settings**.
+1. Go to **Configuration > Settings > Advanced Settings**.
 
-2. Click the <i class="uil uil-toggle-off"></i> toggle in the **Technical preview features** section of the page.
+2. Click the :material-toggle-switch-off-outline: toggle in the **Technical preview features** section of the page.
 
 ## Prerequisites
 
@@ -105,8 +105,7 @@ To get the tenant ID, client ID and the client secret:
 ![!](../../../images/azure_app_secret_02.png)
 ![!](../../../images/azure_app_secret_03.png)
 
-5. Copy the **value** of the application secret. Once you leave this page you won't be able to see the secret again and you will have to generate a new
-   one.
+5. Copy the **value** of the application secret. Once you leave this page you won't be able to see the secret again and you will have to generate a new one.
 ![!](../../../images/azure_app_secret_04.png)
 
 
@@ -121,7 +120,7 @@ To get the tenant ID, client ID and the client secret:
 ![!](../../../images/azure_app_permissions_03.png)
 ![!](../../../images/azure_app_permissions_04.png)
 
-When you fill in all fields press the *Discover* button and you will see a list of available databases for monitoring.
+When you fill in all fields press the **Discover** button and you will see a list of available databases for monitoring.
 
 ![!](../../../images/PMM_Add_Instance_Azure_2.png)
 
@@ -140,13 +139,13 @@ You can find more details on how to create DB on Azure at:
 - <https://docs.microsoft.com/en-us/azure/mysql/>
 
 !!! hint alert alert-success "Tip"
-    You must set `pg_stat_statements.track = all` in your PostgreSQL Server settings to use PMM Query Analytics. [Read more](../connect-database/postgresql.md#configure-monitoring-extension.
+    You must set `pg_stat_statements.track = all` in your PostgreSQL Server settings to use PMM Query Analytics. [Read more](../connect-database/postgresql.md#configure-monitoring-extension).
 
 ![!](../../../images/PMM_Add_Instance_Azure_3.png)
 
-In the list of databases on the Discovery page click **Start Monitoring** to add the selected Azure Database to PMM.
+In the list of databases on the **Discovery** page click **Start Monitoring** to add the selected Azure Database to PMM.
 
-Fill in all required fields and click **Add service**.
+Fill in all required fields. To set how long PMM waits when connecting, enter a value in **Connection timeout**. Leave it empty to use the default of 5s. Click **Add service**.
 
 PMM can use 3 exporters to collect metrics:
 
@@ -165,26 +164,62 @@ PMM can use 3 exporters to collect metrics:
 
 - pmm-agent to collect queries related metrics using [`pg_stat_statements`](../connect-database/postgresql.md#configure-monitoring-extension) for PostgreSQL or Performance Schema for MySQL (MariaDB)
 
-### Adding an Azure Instance on PMM Client side
+### Adding an Azure instance on PMM Client side
 
-TLS/SSL is enforced on the server by default. So please download the certificate needed to communicate over SSL with your Azure Database.
-It can be done on Networking tab for your Azure Database instance.
-{.power-number}
+TLS/SSL is enforced on Azure MySQL servers by default. Download the CA certificate from the **Networking** tab of your Azure database instance. The certificate is typically named `DigiCertGlobalRootCA.crt.pem`.
 
-Also enforced TLS/SSL connection option can be disabled on server side.
+!!! note "Partial certificate support"
+    Azure MySQL Flexible Server requires only the CA certificate for TLS connections. Client certificates are optional and only needed if you've configured client certificate authentication on your Azure database.
 
-![!](../../../images/azure_certificate.png)
+=== "Without TLS/SSL (if disabled on server side)"
 
-Command for adding an azure database service for monitoring without TLS/SSL.
+    Use this option only if you've explicitly disabled TLS/SSL on your Azure MySQL server:
 
-```sh
-pmm-admin add mysql --username=azureuser --password=secure --host=azuremysql.mysql.database.azure.com --service-name=azure1 --query-source=perfschema
-```
+    ```bash
+    pmm-admin add mysql \
+      --username=azureuser \
+      --password=secure \
+      --host=azuremysql.mysql.database.azure.com \
+      --service-name=azure1 \
+      --query-source=perfschema
+    ```
 
-Downloaded certificate is named `DigiCertGlobalRootCA.crt.pem`.
+=== "With TLS/SSL using CA certificate only (recommended for Azure)"
 
-An example of the command for adding an Azure database service for monitoring with TLS/SSL would be:
+    This is the recommended approach for most Azure MySQL instances. Provide only the CA certificate to establish encrypted connections:
 
-```sh
-pmm-admin add mysql --username=azureuser --password=secure --host=azuremysql.mysql.database.azure.com --service-name=azure1 --query-source=perfschema --tls --tls-ca=DigiCertGlobalRootCA.crt.pem --tls-cert=client-cert.pem --tls-key=client-key.pem --tls-skip-verify
-```
+    ```bash
+    pmm-admin add mysql \
+      --username=azureuser \
+      --password=secure \
+      --host=azuremysql.mysql.database.azure.com \
+      --service-name=azure1 \
+      --query-source=perfschema \
+      --tls \
+      --tls-ca=DigiCertGlobalRootCA.crt.pem
+    ```
+
+=== "With TLS/SSL and client authentication (if required by your Azure configuration)"
+
+    Use this option only if you've configured client certificate authentication on your Azure database:
+    
+    ```bash
+    pmm-admin add mysql \
+      --username=azureuser \
+      --password=secure \
+      --host=azuremysql.mysql.database.azure.com \
+      --service-name=azure1 \
+      --query-source=perfschema \
+      --tls \
+      --tls-ca=DigiCertGlobalRootCA.crt.pem \
+      --tls-cert=client-cert.pem \
+      --tls-key=client-key.pem
+    ```
+
+#### Certificate file location
+
+When using TLS certificates with Azure MySQL, make sure to:
+
+- store the downloaded `DigiCertGlobalRootCA.crt.pem` file on the server where PMM Client is installed
+- provide the full path to the certificate in the `--tls-ca` parameter
+- use `--tls-skip-verify` only in development/testing environments to skip hostname validation

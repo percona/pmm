@@ -18,12 +18,14 @@ package checks
 import (
 	"strings"
 	"testing"
+	"time"
 
-	"github.com/percona/saas/pkg/check"
-	"github.com/percona/saas/pkg/common"
-	"github.com/percona/saas/pkg/starlark"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
+	"github.com/percona/pmm/managed/pi/starlark"
 )
 
 func TestVersion(t *testing.T) {
@@ -52,33 +54,33 @@ def check_context(rows, context):
 	env, err := starlark.NewEnv(t.Name(), script, funcs)
 	require.NoError(t, err)
 
-	input := []map[string]interface{}{
+	input := []map[string]any{
 		{"version": int64(1)},
 	}
 	res, err := env.Run("type", input, nil, t.Log)
 	expectedErr := strings.TrimSpace(`
-thread type: failed to execute function check_context: parse_version: expected string argument, got int64 (1)
+failed to execute function check_context: parse_version: expected string argument, got int64 (1)
 Traceback (most recent call last):
   TestVersion:2:22: in check_context
   <builtin>: in parse_version
 	`) + "\n"
-	assert.EqualError(t, err, expectedErr)
+	require.EqualError(t, err, expectedErr)
 	assert.Empty(t, res)
 
-	input = []map[string]interface{}{
+	input = []map[string]any{
 		{"version": "foo"},
 	}
 	res, err = env.Run("foo", input, nil, t.Log)
 	expectedErr = strings.TrimSpace(`
-thread foo: failed to execute function check_context: parse_version: failed to parse "foo"
+failed to execute function check_context: parse_version: failed to parse "foo"
 Traceback (most recent call last):
   TestVersion:2:22: in check_context
   <builtin>: in parse_version
 	`) + "\n"
-	assert.EqualError(t, err, expectedErr)
+	require.Error(t, err, expectedErr)
 	assert.Empty(t, res)
 
-	input = []map[string]interface{}{
+	input = []map[string]any{
 		{"version": "5.7.20-19-log"},
 	}
 	res, err = env.Run("valid", input, nil, t.Log)
@@ -122,7 +124,7 @@ def check_context(rows, context):
     }]
 	`),
 			err: strings.TrimSpace(`
-thread too many args: failed to execute function check_context: ip_is_private: expected 1 argument, got 2
+failed to execute function check_context: ip_is_private: expected 1 argument, got 2
 Traceback (most recent call last):
   TestAdditionalContext/too_many_args:7:55: in check_context
   <builtin>: in ip_is_private
@@ -161,7 +163,7 @@ def check_context(rows, context):
     }]
 	`),
 			err: strings.TrimSpace(`
-thread invalid arg type: failed to execute function check_context: ip_is_private: expected string argument, got int64 (1)
+failed to execute function check_context: ip_is_private: expected string argument, got int64 (1)
 Traceback (most recent call last):
   TestAdditionalContext/invalid_arg_type:7:55: in check_context
   <builtin>: in ip_is_private
@@ -266,7 +268,6 @@ def check_context(rows, context):
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			env, err := starlark.NewEnv(t.Name(), tc.script, predeclaredFuncs)
@@ -276,9 +277,120 @@ def check_context(rows, context):
 				require.NoError(t, err)
 				assert.Equal(t, tc.result, res)
 			} else {
-				assert.EqualError(t, err, tc.err)
+				require.Error(t, err, tc.err)
 				assert.Empty(t, res)
 			}
 		})
 	}
+}
+
+func TestIPIsPrivate(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		arg      string
+		expected any
+	}{
+		{arg: "10.1.2.3", expected: true},
+		{arg: "8.8.8.8", expected: false},
+		{arg: "::1", expected: true},
+		{arg: "0.0.0.0/0", expected: false},
+		{arg: "10.0.0.0/8", expected: true},
+		{arg: "10.0.0.0/7", expected: false},
+		{arg: "172.16.0.0/11", expected: false},
+		{arg: "192.168.1.0/24", expected: true},
+		{arg: "203.0.113.0/24", expected: false},
+		{arg: "fc00::/7", expected: true},
+		{arg: "fd00::/8", expected: true},
+		{arg: "::/0", expected: false},
+		{arg: "%", expected: nil},
+		{arg: "10.0.0.0/255.0.0.0", expected: nil},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.arg, func(t *testing.T) {
+			t.Parallel()
+			res, err := ipIsPrivate(tc.arg)
+			require.NoError(t, err)
+			assert.Equal(t, tc.expected, res)
+		})
+	}
+}
+
+// runDateScript runs expr in a check script with the clock fixed to 2026-11-13T01:30:00+02:00, which is 2026-11-12 in UTC.
+func runDateScript(t *testing.T, expr string) (string, error) {
+	t.Helper()
+
+	fixed, err := time.Parse(time.RFC3339, "2026-11-13T01:30:00+02:00")
+	require.NoError(t, err)
+
+	script := "def check_context(rows, context):\n" +
+		"    current_date = context.get(\"current_date\", fail)\n" +
+		"    days_until = context.get(\"days_until\", fail)\n" +
+		"    return [{\"summary\": str(" + expr + "), \"severity\": \"warning\"}]\n"
+
+	funcs, err := GetFuncsForVersion(2)
+	require.NoError(t, err)
+	env, err := starlark.NewEnv(t.Name(), script, funcs)
+	require.NoError(t, err)
+
+	res, err := env.Run("date", nil, additionalContext(func() time.Time { return fixed }), t.Log)
+	if err != nil {
+		return "", err
+	}
+	require.Len(t, res, 1)
+
+	return res[0].Summary, nil
+}
+
+func TestCurrentDate(t *testing.T) {
+	t.Parallel()
+
+	got, err := runDateScript(t, "current_date()")
+	require.NoError(t, err)
+	assert.Equal(t, "2026-11-12", got)
+
+	_, err = runDateScript(t, `current_date("2026-11-12")`)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "expected 0 arguments, got 1")
+}
+
+func TestDaysUntil(t *testing.T) {
+	t.Parallel()
+
+	for date, expected := range map[string]string{
+		"2026-11-12": "0",
+		"2026-11-13": "1",
+		"2026-11-11": "-1",
+		"2027-05-14": "183",
+		"2026-04-30": "-196",
+	} {
+		t.Run(date, func(t *testing.T) {
+			t.Parallel()
+			got, err := runDateScript(t, `days_until("`+date+`")`)
+			require.NoError(t, err)
+			assert.Equal(t, expected, got)
+		})
+	}
+
+	t.Run("malformed", func(t *testing.T) {
+		t.Parallel()
+		_, err := runDateScript(t, `days_until("2026-13-01")`)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), `days_until: failed to parse '2026-13-01': parsing time "2026-13-01": month out of range`)
+	})
+
+	t.Run("not a string", func(t *testing.T) {
+		t.Parallel()
+		_, err := runDateScript(t, `days_until(1)`)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "expected string argument")
+	})
+
+	t.Run("wrong arg count", func(t *testing.T) {
+		t.Parallel()
+		_, err := runDateScript(t, `days_until("2026-11-12", 1)`)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "expected 1 argument, got 2")
+	})
 }

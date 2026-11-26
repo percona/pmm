@@ -1,12 +1,16 @@
-# Overview Panel
+# QAN Stored metrics: Overview panel
 
-To the right of the Filters panel and occupying the upper part of the dashboard is the Overview panel.
+The Overview panel displays query performance data from the **Stored metrics** tab. It shows aggregated metrics for completed queries, helping you identify slow queries and optimization opportunities.
+
+This panel is not available in the **Real-time** tab. For live query monitoring, see [Real-time Query Analytics](../panels/overview.md)
+
+The Overview panel appears to the right of the **Filters** panel.
 
 ![!image](../../../images/PMM_Query_Analytics_overview-table.jpg)
 
 Each row of the table represents the metrics for a chosen object type, one of:
 
-- Query;
+- Query; 
 - Service Name;
 - Database;
 - Schema;

@@ -13,8 +13,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package inventoryv1 provides the inventory API.
-package inventoryv1
+// The package comment is in the generated *.pb.gw.go files.
+
+package inventoryv1 //nolint:revive
 
 //go-sumtype:decl Agent
 
@@ -42,3 +43,5 @@ func (*QANPostgreSQLPgStatMonitorAgent) sealedAgent() {}
 func (*RDSExporter) sealedAgent()                     {}
 func (*ExternalExporter) sealedAgent()                {}
 func (*AzureDatabaseExporter) sealedAgent()           {}
+func (*ValkeyExporter) sealedAgent()                  {}
+func (*RTAMongoDBAgent) sealedAgent()                 {}

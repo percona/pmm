@@ -1,0 +1,76 @@
+---
+checks:
+  - version: 2
+    name: postgresql_wal_retention_check
+    summary: Check for WAL file accumulation
+    description: Checks to see if there are too many WAL files retained in the WAL directory
+    # author: Jorge Torralba
+    category: Resources
+    technology: POSTGRESQL
+    queries:
+      - type: POSTGRESQL_SELECT
+        query: "* FROM ( WITH cte1 AS ( SELECT current_setting('server_version_num') AS version, name, setting, unit, CASE WHEN current_setting('server_version_num')::int >= 100000 THEN substring(query_to_xml('SELECT count(*) AS c FROM pg_ls_waldir() WHERE name ~ ''^[0-9A-F]{24}$''', false, true, '')::text FROM '<c>([0-9]+)</c>')::bigint END AS wal_cnt, CASE WHEN current_setting('server_version_num')::int >= 130000 THEN (SELECT setting::bigint FROM pg_settings WHERE name = 'wal_keep_size') ELSE (SELECT setting::int FROM pg_settings WHERE name = 'wal_keep_segments') END AS wal_keep, COALESCE(substring(unit, '[0-9]+')::bigint, 1) * CASE lower(substring(unit, '[A-Za-z]+')) WHEN 'b' THEN 1 WHEN 'kb' THEN 1024 WHEN 'mb' THEN 1024*1024 WHEN 'gb' THEN 1024*1024*1024 WHEN 'tb' THEN 1024*1024*1024*1024::bigint END AS multiplyer FROM pg_settings WHERE name = 'wal_segment_size') SELECT version, name, setting, unit, multiplyer, (multiplyer::bigint * setting::bigint) AS bytes, pg_size_pretty((multiplyer::bigint * setting::bigint)), wal_cnt, wal_keep, (wal_cnt * (multiplyer::bigint * setting::bigint) ) AS space_used, pg_size_pretty((wal_cnt * (multiplyer::bigint * setting::bigint)) ) AS pretty_space_used, CASE WHEN wal_keep::bigint = 0 THEN 0::text WHEN wal_keep::bigint > 0 AND version::int >= 130000 THEN pg_size_pretty(wal_keep*1024*1024::bigint) WHEN wal_keep::int > 0 AND version::int < 130000 THEN  pg_size_pretty(wal_keep * (multiplyer::bigint * setting::bigint)) END AS potential_space_used FROM cte1) AS foo"
+    script: |
+      def check_context(rows, context):
+           results = []
+           read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+           description = ""
+           keeping = ""
+           for row in rows[0]:
+               ver = row["version"]
+               name = row["name"]
+               setting = row["setting"]
+               unit = row["unit"]
+               multiplyer = row["multiplyer"]
+               bytes = row["bytes"]
+               prettysize = row["pg_size_pretty"]
+               walcnt = row["wal_cnt"]
+               walkeep = row["wal_keep"] or 0
+               spaceused = row["space_used"]
+               prettyspaceused = row["pretty_space_used"]
+               potentialspaceused = row["potential_space_used"]
+
+               major = int(ver) // 10000
+
+               # PostgreSQL 9.x has no pg_ls_waldir(), so the query returns no WAL count for it.
+               if major < 10:
+                  results.append({
+                      "summary": "WAL retention check needs PostgreSQL 10 or later",
+                      "description": "PostgreSQL {}.{} reached end of life, and this check can't count its WAL files. Upgrade to a supported major version.".format(major, int(ver) // 100 % 100),
+                      "read_more_url": read_url.format("postgresql-wal-retention-check"),
+                      "severity": "warning",
+                      "labels": {},
+                  })
+                  continue
+
+               #hard code for testing
+               #walcnt = 5324
+
+               if str(major) == "":
+                  results.append({
+                      "summary": "Could not determine version information needed for check",
+                      "description": "Unknown version",
+                      "read_more_url": "",
+                      "severity": "error",
+                      "labels": {},
+                  })
+                  return results
+
+               if major < 13 and int(walkeep) > 0:
+                  keeping = " The current configuration is set to retain {} WAL files with a potential minimum disk usage of {}.".format(walkeep, potentialspaceused)
+
+               if major >= 13 and int(walkeep) > 0:
+                  keeping = " The current configuration is set to retain {} of WAL files.".format(potentialspaceused)
+
+               description = "There are currently {} WAL file(s) being retained. This is consuming {} of disk space.".format(walcnt, prettyspaceused)
+               description = description + keeping
+
+               results.append({
+                   "summary": "WAL retention check",
+                   "description": description,
+                   "read_more_url":read_url.format("postgresql-wal-retention-check"),
+                   "severity": "warning",
+                   "labels": {},
+               })
+
+           return results

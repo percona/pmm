@@ -1,0 +1,44 @@
+---
+templates:
+  - name: pmm_clickhouse_down
+    version: 1
+    summary: PMM ClickHouse is down
+    # up is 0 while the target is scraped but not answering, so == bool 0 yields a firing
+    # sample rather than the empty result that NoDataState treats as normal. last_over_time
+    # bounds the metrics database's staleness window so a target that stops being scraped
+    # altogether drops out in 2 minutes instead of five.
+    #
+    # One alert covers ClickHouse as a whole, however many replicas run. A standalone PMM Server
+    # scrapes its bundled ClickHouse with instance set to its node name, which becomes node_name.
+    # A clustered deployment scrapes operator-managed pods (they carry a pod label): A counts the
+    # replicas that are down and B all of them, both summed into one series named
+    # service_name="clickhouse", so the summary can say how many are affected. A and B must keep
+    # the same labels in both branches, or Grafana cannot pair $values.B with the alert.
+    queries:
+      - ref_id: A
+        expr: |-
+          label_replace(sum by(job) (last_over_time(up{job="clickhouse",pod!=""}[2m]) == bool 0), "service_name", "$1", "job", "(.*)")
+          or label_replace(last_over_time(up{job="clickhouse",pod=""}[2m]) == bool 0, "node_name", "$1", "instance", "(.*)")
+      - ref_id: B
+        expr: |-
+          label_replace(count by(job) (last_over_time(up{job="clickhouse",pod!=""}[2m])), "service_name", "$1", "job", "(.*)")
+          or label_replace(count by(job, instance) (last_over_time(up{job="clickhouse",pod=""}[2m])), "node_name", "$1", "instance", "(.*)")
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "$A > 0"
+    condition: C
+    for: 5m
+    severity: critical
+    annotations:
+      summary: "{{ if $labels.node_name }}PMM ClickHouse is down on '{{ $labels.node_name }}'{{ else }}{{ $values.A.Value }} of {{ $values.B.Value }} PMM ClickHouse replicas are down{{ end }}"
+      description: |-
+        {{ if $labels.node_name }}The ClickHouse instance on '{{ $labels.node_name }}' that PMM Server stores Query Analytics data in is not responding.{{ else }}{{ $values.A.Value }} of the {{ $values.B.Value }} ClickHouse replicas that PMM stores Query Analytics data in are not responding.{{ end }}
+        Query Analytics may stop collecting and existing QAN data may not be readable while this lasts. Metrics are unaffected.
+
+        Remediation steps:
+          1. Find the ClickHouse process or pod that is not running (in Kubernetes, list the ClickHouse pods) and restart it.
+          2. Check free disk space. ClickHouse refuses writes and can shut down when its data directory fills up.
+          3. Review the ClickHouse logs for startup failures, corrupted parts or out-of-memory kills.
+          4. Confirm PMM Server can reach the configured address in PMM_CLICKHOUSE_ADDR.
+          5. Once it is back, confirm new data is arriving on the Query Analytics page.

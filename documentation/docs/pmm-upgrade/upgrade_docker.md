@@ -5,13 +5,15 @@
 Before starting the upgrade, complete these preparation steps to ensure you can recover your system if needed and confirm compatibility with the new version:
 {.power-number}
 
-1. [Create a backup](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md) before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires an backup made prior to the upgrade.
+1. [Create a backup](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md) before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires a backup made prior to the upgrade.
 
-2. Verify your current PMM version: Check your current PMM version by navigating to **PMM Configuration > Updates** or by running the following command: 
+2. Verify your current PMM version: Check your current PMM version by navigating to **Configuration > Updates** or by running the following command: 
 
     ```sh
     docker exec -it pmm-server curl -ku admin:admin https://localhost:8443/v1/version
     ```
+
+3. If your current version is PMM 3.9.1 or earlier and you use the built-in database, this upgrade also migrates your PMM Server data from PostgreSQL 14 to PostgreSQL 18, so the first start takes longer than usual. [Prepare for the PostgreSQL migration](prepare_postgresql_14_removal.md#check-whether-this-affects-you).
 
 ## Upgrade steps
 
@@ -43,10 +45,10 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
     --detach \
     --restart always \
     --publish 443:8443 \
-    --volumes-from pmm-data \
+    --volumes-from pmm-server-old \
     --name pmm-server \
     percona/pmm-server:3
     ```
     
-5. After upgrading, verify that PMM Server is running correctly and all your data is accessible. You can always [rerestore your PMM Server](../install-pmm/install-pmm-server/deployment-options/docker/restore_container.md) using the backup you created above.
+5. After upgrading, verify that PMM Server is running correctly and all your data is accessible. You can always [restore your PMM Server](../install-pmm/install-pmm-server/deployment-options/docker/restore_container.md) using the backup you created above.
 

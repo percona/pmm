@@ -89,6 +89,9 @@ var sparklinePointAllFields = []string{
 	"m_wal_records_sum_per_sec",
 	"m_wal_fpi_sum_per_sec",
 	"m_wal_bytes_sum_per_sec",
+	"m_wal_buffers_full_sum_per_sec",
+	"m_parallel_workers_to_launch_sum_per_sec",
+	"m_parallel_workers_launched_sum_per_sec",
 	"m_plan_time_sum_per_sec",
 	"m_docs_examined_sum_per_sec",
 	"m_keys_examined_sum_per_sec",
@@ -102,8 +105,8 @@ var sparklinePointAllFields = []string{
 	"m_storage_time_reading_micros_sum_per_sec",
 }
 
-func getPointFieldsList(point *qanv1.Point, fields []string) []interface{} {
-	sparklinePointValuesMap := map[string]interface{}{
+func getPointFieldsList(point *qanv1.Point, fields []string) []any {
+	sparklinePointValuesMap := map[string]any{
 		"point":                                                          &point.Point,
 		"timestamp":                                                      &point.Timestamp,
 		"time_frame":                                                     &point.TimeFrame,
@@ -167,6 +170,9 @@ func getPointFieldsList(point *qanv1.Point, fields []string) []interface{} {
 		"m_wal_records_sum_per_sec":                                      &point.MWalRecordsSumPerSec,
 		"m_wal_fpi_sum_per_sec":                                          &point.MWalFpiSumPerSec,
 		"m_wal_bytes_sum_per_sec":                                        &point.MWalBytesSumPerSec,
+		"m_wal_buffers_full_sum_per_sec":                                 &point.MWalBuffersFullSumPerSec,
+		"m_parallel_workers_to_launch_sum_per_sec":                       &point.MParallelWorkersToLaunchSumPerSec,
+		"m_parallel_workers_launched_sum_per_sec":                        &point.MParallelWorkersLaunchedSumPerSec,
 		"m_plan_time_sum_per_sec":                                        &point.MPlanTimeSumPerSec,
 		"m_docs_examined_sum_per_sec":                                    &point.MDocsExaminedSumPerSec,
 		"m_keys_examined_sum_per_sec":                                    &point.MKeysExaminedSumPerSec,
@@ -180,7 +186,7 @@ func getPointFieldsList(point *qanv1.Point, fields []string) []interface{} {
 		"m_storage_time_reading_micros_sum_per_sec":                      &point.MStorageTimeReadingMicrosSumPerSec,
 	}
 
-	sparklinePointValuesList := []interface{}{}
+	sparklinePointValuesList := make([]any, 0, len(fields))
 	for _, v := range fields {
 		sparklinePointValuesList = append(sparklinePointValuesList, sparklinePointValuesMap[v])
 	}
@@ -369,6 +375,12 @@ func isValidMetricColumn(name string) bool {
 		"m_wal_fpi_sum":                                       {},
 		"m_wal_bytes_cnt":                                     {},
 		"m_wal_bytes_sum":                                     {},
+		"m_wal_buffers_full_cnt":                              {},
+		"m_wal_buffers_full_sum":                              {},
+		"m_parallel_workers_to_launch_cnt":                    {},
+		"m_parallel_workers_to_launch_sum":                    {},
+		"m_parallel_workers_launched_cnt":                     {},
+		"m_parallel_workers_launched_sum":                     {},
 		"m_plan_total_time":                                   {},
 		"m_plan_min_time":                                     {},
 		"m_plan_max_time":                                     {},

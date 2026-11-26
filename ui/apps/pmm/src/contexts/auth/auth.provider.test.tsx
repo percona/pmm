@@ -1,0 +1,431 @@
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { StrictMode, useEffect, useRef, type ReactElement } from 'react';
+import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom';
+import { QueryClient } from '@tanstack/react-query';
+import { useAuth } from './auth.hooks';
+import { wrapWithQueryProvider } from 'utils/testUtils';
+import { AuthProvider } from './auth.provider';
+import { constructUrl } from 'utils/link.utils';
+import { MIN_ROTATE_DELAY_MS } from './auth.constants';
+import { ROTATE_TOKEN_QUERY_KEY } from './auth.queryKeys';
+import { handleGrafanaUserLoggedOut } from './auth.grafanaLogout';
+
+const mocks = vi.hoisted(() => ({
+  rotateToken: vi.fn(),
+  useFrontendSettings: vi.fn(),
+}));
+
+vi.mock('api/auth', () => ({
+  rotateToken: mocks.rotateToken,
+}));
+
+vi.mock('hooks/api/useSettings', async (importOriginal) => ({
+  ...(await importOriginal()),
+  useFrontendSettings: mocks.useFrontendSettings,
+}));
+
+const DEEP_LINK = '/graph/d/node-cpu?viewPanel=22';
+const RETURN_TO_KEY = 'pmm-ui.auth.returnTo';
+
+let renderedLocations: string[] = [];
+let probeMounts = 0;
+let sawAuthLoading = false;
+
+/**
+ * Records "<url>|<isLoggedIn>" for every render. The invariant that protects the Grafana iframe
+ * is that children never render at the stale location *while authenticated* — GrafanaPage
+ * snapshots window.location into its iframe src the moment GrafanaProvider reports a session, so
+ * a stale render after login would pin the iframe to the wrong dashboard. Renders before the
+ * session resolves are harmless: no iframe exists yet. Mounts are counted too: a re-mount of the
+ * tree under AuthProvider replaces the Grafana iframe.
+ */
+const Probe = () => {
+  const location = useLocation();
+  const { isLoggedIn, isLoading } = useAuth();
+  sawAuthLoading ||= isLoading;
+  useEffect(() => {
+    probeMounts += 1;
+  }, []);
+  renderedLocations.push(
+    `${location.pathname}${location.search}${location.hash}|${isLoggedIn}`
+  );
+  return <div data-testid="probe" />;
+};
+
+const renderProvider = (
+  initialEntry: string,
+  strict = false,
+  client?: QueryClient
+) => {
+  const tree: ReactElement = (
+    <MemoryRouter initialEntries={[initialEntry]}>
+      {wrapWithQueryProvider(
+        <AuthProvider>
+          <Probe />
+        </AuthProvider>,
+        client
+      )}
+    </MemoryRouter>
+  );
+
+  return render(strict ? <StrictMode>{tree}</StrictMode> : tree);
+};
+
+const storeReturnTo = (path: string) =>
+  sessionStorage.setItem(
+    RETURN_TO_KEY,
+    JSON.stringify({ path, at: Date.now() })
+  );
+
+const setSessionExpiry = (unixSeconds: number) => {
+  document.cookie = `grafana_session_expiry=${unixSeconds}`;
+};
+
+const unauthorized = { response: { status: 401 } };
+
+const enableAnonymousAccess = () =>
+  mocks.useFrontendSettings.mockReturnValue({
+    data: { anonymousEnabled: true },
+    isLoading: false,
+  });
+
+/** Leaves the next rotation in flight until the returned callback settles it with a 401. */
+const holdNextRotation = () => {
+  let reject: (reason: unknown) => void = () => {};
+  mocks.rotateToken.mockReturnValueOnce(
+    new Promise((_, rejectRotation) => {
+      reject = rejectRotation;
+    })
+  );
+  return () => reject(unauthorized);
+};
+
+/**
+ * Stands in for GrafanaProvider relaying the iframe's own URL rewrite back into the shell router:
+ * Grafana appends timezone/var-* once a dashboard loads and reports it via LOCATION_CHANGE.
+ */
+const GrafanaUrlEcho = ({ from, to }: { from: string; to: string }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const echoed = useRef(false);
+
+  useEffect(() => {
+    if (echoed.current || constructUrl(location) !== from) {
+      return;
+    }
+    echoed.current = true;
+    navigate(to, { replace: true });
+  }, [from, location, navigate, to]);
+
+  return null;
+};
+
+describe('AuthProvider', () => {
+  const originalLocation = window.location;
+  const replaceMock = vi.fn();
+
+  beforeEach(() => {
+    renderedLocations = [];
+    probeMounts = 0;
+    sawAuthLoading = false;
+    replaceMock.mockClear();
+    mocks.rotateToken.mockReset();
+    mocks.useFrontendSettings.mockReturnValue({
+      data: { anonymousEnabled: false },
+      isLoading: false,
+    });
+    // Kept in place for the whole file: a render flushed after a test finishes must still hit the
+    // mock, otherwise jsdom logs "Not implemented: navigation".
+    Object.defineProperty(window, 'location', {
+      value: {
+        ...originalLocation,
+        pathname: '/pmm-ui/graph/d/node-cpu',
+        search: '?viewPanel=22',
+        hash: '',
+        replace: replaceMock,
+      },
+      writable: true,
+    });
+  });
+
+  afterEach(() => {
+    // Unmount first: a pending render flushed during cleanup can still write a return-to entry,
+    // which would then leak into the next test.
+    cleanup();
+    vi.useRealTimers();
+    sessionStorage.clear();
+    localStorage.clear();
+    document.cookie =
+      'grafana_session_expiry=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  });
+
+  afterAll(() => {
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
+  });
+
+  it('remembers the requested URL and leaves for login on 401', async () => {
+    mocks.rotateToken.mockRejectedValue({ response: { status: 401 } });
+
+    renderProvider('/graph/d/node-cpu?viewPanel=22');
+
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledWith('/graph/login');
+    });
+    const stored = sessionStorage.getItem(RETURN_TO_KEY);
+    expect(stored).not.toBeNull();
+    expect(JSON.parse(stored ?? '{}').path).toBe(DEEP_LINK);
+    expect(screen.queryByTestId('probe')).not.toBeInTheDocument();
+    // this query gates the first paint, so a failure must not sit behind a backoff
+    expect(mocks.rotateToken).toHaveBeenCalledTimes(1);
+  });
+
+  it('restores the remembered URL before rendering children', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+    storeReturnTo(DEEP_LINK);
+
+    renderProvider('/graph');
+
+    await screen.findByTestId('probe');
+    expect(renderedLocations).not.toContain('/graph|true');
+    expect(renderedLocations).toContain(`${DEEP_LINK}|true`);
+    expect(sessionStorage.getItem(RETURN_TO_KEY)).toBeNull();
+  });
+
+  it('does not navigate when the remembered URL is already the current one', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+    storeReturnTo(DEEP_LINK);
+
+    renderProvider(DEEP_LINK);
+
+    await screen.findByTestId('probe');
+    expect(renderedLocations).toContain(`${DEEP_LINK}|true`);
+    expect(sessionStorage.getItem(RETURN_TO_KEY)).toBeNull();
+  });
+
+  it('renders children in place when nothing was remembered', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+
+    renderProvider('/graph');
+
+    await screen.findByTestId('probe');
+    expect(renderedLocations).toContain('/graph|true');
+    expect(replaceMock).not.toHaveBeenCalled();
+    expect(mocks.rotateToken).toHaveBeenCalledTimes(1);
+  });
+
+  it('neither redirects nor remembers anything when anonymous access is on', async () => {
+    mocks.rotateToken.mockRejectedValue({ response: { status: 401 } });
+    mocks.useFrontendSettings.mockReturnValue({
+      data: { anonymousEnabled: true },
+      isLoading: false,
+    });
+
+    renderProvider('/graph/d/node-cpu?viewPanel=22');
+
+    await screen.findByTestId('probe');
+    expect(replaceMock).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem(RETURN_TO_KEY)).toBeNull();
+  });
+
+  it('restores once under StrictMode', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+    storeReturnTo(DEEP_LINK);
+
+    renderProvider('/graph', true);
+
+    await screen.findByTestId('probe');
+    expect(renderedLocations).not.toContain('/graph|true');
+    expect(renderedLocations[renderedLocations.length - 1]).toBe(
+      `${DEEP_LINK}|true`
+    );
+    expect(sessionStorage.getItem(RETURN_TO_KEY)).toBeNull();
+  });
+
+  it('does not fight a later URL change once the restore has landed', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+    storeReturnTo(DEEP_LINK);
+    const expanded = `${DEEP_LINK}&var-node_name=All&timezone=browser`;
+
+    render(
+      <MemoryRouter initialEntries={['/graph']}>
+        {wrapWithQueryProvider(
+          <AuthProvider>
+            <GrafanaUrlEcho from={DEEP_LINK} to={expanded} />
+            <Probe />
+          </AuthProvider>
+        )}
+      </MemoryRouter>
+    );
+
+    await screen.findByTestId('probe');
+    await waitFor(() => {
+      expect(renderedLocations).toContain(`${expanded}|true`);
+    });
+    // Must settle on Grafana's expanded URL, not snap back to the original target forever.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(renderedLocations[renderedLocations.length - 1]).toBe(
+      `${expanded}|true`
+    );
+  });
+
+  // Timers are frozen in hidden tabs, so the scheduled rotation can be missed outright.
+  it('rotates on return to the tab when the deadline has passed', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+
+    renderProvider('/graph');
+    await screen.findByTestId('probe');
+
+    setSessionExpiry(Math.floor(Date.now() / 1000) - 60);
+    // React Query's focus manager listens on `window`, which the real event reaches by
+    // bubbling up from `document`.
+    document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
+
+    await waitFor(() => expect(mocks.rotateToken).toHaveBeenCalledTimes(2));
+  });
+
+  it('does not rotate on return to the tab while the session is still valid', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+    setSessionExpiry(Math.floor(Date.now() / 1000) + 3600);
+
+    renderProvider('/graph');
+    await screen.findByTestId('probe');
+
+    // React Query's focus manager listens on `window`, which the real event reaches by
+    // bubbling up from `document`.
+    document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
+
+    await waitFor(() => expect(mocks.rotateToken).toHaveBeenCalledTimes(1));
+  });
+
+  it('keeps the app mounted while an anonymous visitor is re-checked', async () => {
+    mocks.rotateToken.mockRejectedValue(unauthorized);
+    enableAnonymousAccess();
+    const queryClient = new QueryClient();
+
+    renderProvider('/graph', false, queryClient);
+    await screen.findByTestId('probe');
+
+    const settleRotation = holdNextRotation();
+    act(() => {
+      void queryClient.refetchQueries({ queryKey: ROTATE_TOKEN_QUERY_KEY });
+    });
+    await waitFor(() => expect(mocks.rotateToken).toHaveBeenCalledTimes(2));
+
+    expect(screen.getByTestId('probe')).toBeInTheDocument();
+    expect(sawAuthLoading).toBe(false);
+
+    await act(async () => settleRotation());
+
+    expect(screen.getByTestId('probe')).toBeInTheDocument();
+    expect(probeMounts).toBe(1);
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
+
+  it('does not poll for an anonymous visitor', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    mocks.rotateToken.mockRejectedValue(unauthorized);
+    enableAnonymousAccess();
+
+    renderProvider('/graph');
+    await screen.findByTestId('probe');
+
+    await act(() => vi.advanceTimersByTimeAsync(3 * MIN_ROTATE_DELAY_MS));
+
+    expect(mocks.rotateToken).toHaveBeenCalledTimes(1);
+    expect(probeMounts).toBe(1);
+  });
+
+  it('retries a failed first check after 30 s, ahead of the session deadline', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    setSessionExpiry(Math.floor(Date.now() / 1000) + 3600);
+    mocks.rotateToken
+      .mockRejectedValueOnce({ response: { status: 502 } })
+      .mockResolvedValue({ token: 'ok' });
+
+    renderProvider('/graph');
+    await screen.findByTestId('probe');
+    expect(renderedLocations[renderedLocations.length - 1]).toBe(
+      '/graph|false'
+    );
+
+    await act(() => vi.advanceTimersByTimeAsync(MIN_ROTATE_DELAY_MS + 1000));
+
+    expect(mocks.rotateToken).toHaveBeenCalledTimes(2);
+    expect(renderedLocations[renderedLocations.length - 1]).toBe('/graph|true');
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
+
+  it('picks up a sign-in from another tab on return to the tab', async () => {
+    mocks.rotateToken.mockRejectedValueOnce(unauthorized);
+    enableAnonymousAccess();
+
+    renderProvider('/graph');
+    await screen.findByTestId('probe');
+    expect(renderedLocations[renderedLocations.length - 1]).toBe(
+      '/graph|false'
+    );
+
+    mocks.rotateToken.mockResolvedValueOnce({ token: 'ok' });
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange', { bubbles: true }));
+    });
+
+    await waitFor(() =>
+      expect(renderedLocations[renderedLocations.length - 1]).toBe(
+        '/graph|true'
+      )
+    );
+    expect(mocks.rotateToken).toHaveBeenCalledTimes(2);
+    expect(probeMounts).toBe(1);
+  });
+
+  it('keeps rotating a signed-in session that has no expiry cookie', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+
+    renderProvider('/graph');
+    await screen.findByTestId('probe');
+
+    await act(() => vi.advanceTimersByTimeAsync(MIN_ROTATE_DELAY_MS + 1000));
+
+    expect(mocks.rotateToken).toHaveBeenCalledTimes(2);
+    expect(probeMounts).toBe(1);
+  });
+
+  it('drops to the anonymous view in place when Grafana logs the user out', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+    enableAnonymousAccess();
+    const queryClient = new QueryClient();
+
+    renderProvider('/graph', false, queryClient);
+    await screen.findByTestId('probe');
+
+    const settleRotation = holdNextRotation();
+    act(() => handleGrafanaUserLoggedOut(queryClient));
+    await waitFor(() => expect(mocks.rotateToken).toHaveBeenCalledTimes(2));
+
+    expect(screen.getByTestId('probe')).toBeInTheDocument();
+    expect(renderedLocations[renderedLocations.length - 1]).toBe(
+      '/graph|false'
+    );
+    expect(sawAuthLoading).toBe(false);
+
+    await act(async () => settleRotation());
+
+    expect(screen.getByTestId('probe')).toBeInTheDocument();
+    expect(probeMounts).toBe(1);
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
+});

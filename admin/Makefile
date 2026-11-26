@@ -44,8 +44,8 @@ TEST_FLAGS ?= -timeout=20s
 test:                           ## Run tests
 	go test $(TEST_FLAGS) -race ./...
 
-test-cover:                     ## Run tests and collect cross-package coverage information
-	go test $(TEST_FLAGS) -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
+test-cover:                     ## Run tests and collect per-package coverage information
+	go test $(TEST_FLAGS) -race -coverprofile=cover.out -covermode=atomic ./...
 
 env-up:                         ## Start development environment
 	docker compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans

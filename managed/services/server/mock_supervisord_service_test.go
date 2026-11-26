@@ -3,6 +3,8 @@
 package server
 
 import (
+	context "context"
+
 	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/percona/pmm/managed/models"
@@ -13,17 +15,35 @@ type mockSupervisordService struct {
 	mock.Mock
 }
 
-// UpdateConfiguration provides a mock function with given fields: settings, ssoDetails
-func (_m *mockSupervisordService) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error {
-	ret := _m.Called(settings, ssoDetails)
+// ProgramRunning provides a mock function with given fields: ctx, program
+func (_m *mockSupervisordService) ProgramRunning(ctx context.Context, program string) bool {
+	ret := _m.Called(ctx, program)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ProgramRunning")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, program)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// UpdateConfiguration provides a mock function with given fields: settings
+func (_m *mockSupervisordService) UpdateConfiguration(settings *models.Settings) error {
+	ret := _m.Called(settings)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateConfiguration")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Settings, *models.PerconaSSODetails) error); ok {
-		r0 = rf(settings, ssoDetails)
+	if rf, ok := ret.Get(0).(func(*models.Settings) error); ok {
+		r0 = rf(settings)
 	} else {
 		r0 = ret.Error(0)
 	}

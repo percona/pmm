@@ -1,0 +1,74 @@
+import { css } from '@emotion/css';
+import { GrafanaTheme } from '@grafana/data';
+import { stylesFactory } from '@grafana/ui';
+import { getPmmTheme } from 'shared/components/helpers/getPmmTheme';
+import { TABLE_HEIGHT, TABLE_HEIGHT_QUERY_SELECTED } from './components/Filters/Filters.constants';
+
+export const getStyles = stylesFactory((theme: GrafanaTheme, querySelected: boolean) => {
+  const parameters = getPmmTheme(theme);
+  const tableHeight = querySelected ? TABLE_HEIGHT_QUERY_SELECTED : TABLE_HEIGHT;
+
+  return {
+    overviewHeader: css`
+      display: flex;
+      justify-content: flex-end;
+      padding: 13px 2px 5px 0px;
+      height: 50px;
+
+      button {
+        margin-right: ${theme.spacing.sm} !important;
+      }
+    `,
+    overviewFooter: css`
+      display: flex;
+      justify-content: flex-start;
+      padding: 13px 2px 5px 0px;
+      height: 50px;
+    `,
+    splitterWrapper: css`
+      height: 1200px;
+      position: relative;
+    `,
+    detailsWrapper: css`
+      height: 100%;
+    `,
+    paginationWrapper: css`
+      display: flex;
+      align-items: center;
+
+      .ant-pagination-item-link,
+      .ant-select-selection,
+      svg,
+      a {
+        background-color: ${parameters.table.backgroundColor} !important;
+        color: ${parameters.mainTextColor} !important;
+      }
+    `,
+    showTotal: css`
+      margin-left: 10px;
+      color: ${parameters.mainTextColor};
+    `,
+    tableWrapper: css`
+      min-height: 1000px;
+    `,
+    link: css`
+      display: block;
+      margin-top: ${theme.spacing.sm};
+      text-decoration: underline;
+    `,
+    queryAnalyticsData: css`
+      height: ${tableHeight};
+    `,
+    queryTableWrapper: css`
+      height: ${tableHeight};
+
+      .table-body,
+      .table-body > div,
+      div:has([data-testid="table-loading"]),
+      [data-testid="table-loading"] {
+        height: ${tableHeight};
+        max-height: ${tableHeight};
+      }
+    `,
+  };
+});

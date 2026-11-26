@@ -12,18 +12,18 @@ Before you can contribute, we kindly ask you to sign our [Contributor License Ag
 
 ### 2. Code of Conduct
 
-Please make sure to read and agree to our [Code of Conduct](https://github.com/percona/pmm/blob/main/code-of-conduct.md).
+Please make sure to read and agree to our [Code of Conduct](https://github.com/percona/pmm/blob/main/CODE_OF_CONDUCT.md).
 
 ## Submitting Bug Reports
 
-If you find a bug in Percona Monitoring and Management or one of the related projects, you can submit a bug report to that project's [JIRA](https://jira.percona.com) issue tracker.
+If you find a bug in Percona Monitoring and Management or one of the related projects, you can submit a bug report to that project's [JIRA](https://perconadev.atlassian.net) issue tracker.
 
-Your first step should be [to search](https://jira.percona.com/issues/?jql=project=PMM) for existing ticket on the same subject. If you find that someone else has already reported your problem, then you can upvote that bug report to attract our attention to it.
+Your first step should be [to search](https://perconadev.atlassian.net/issues/?jql=project=PMM) for existing ticket on the same subject. If you find that someone else has already reported your problem, then you can upvote that bug report to attract our attention to it.
 
 If there is no existing bug report, you can submit one following these steps:
 
-1. [Sign in to Percona JIRA.](https://jira.percona.com/login.jsp) You will need to create an account if you do not already have one.
-2. [Go to the Create Issue screen and select the relevant project.](https://jira.percona.com/secure/CreateIssueDetails!init.jspa?pid=11600&issuetype=1&priority=3)
+1. [Sign in to Percona JIRA](https://perconadev.atlassian.net). You will need to create an account if you do not already have one.
+2. From the top navigation bar, click **Create** and select the **PMM** project.
 3. Fill in the fields of *Summary*, *Description*, *Steps To Reproduce*, and *Affects Version* the best you can. If the bug corresponds to a crash, attach the stack trace from the logs.
 
 An excellent resource is [Elika Etemad's article on filing good bug reports.](http://fantasai.inkedblade.net/style/talks/filing-good-bugs/).
@@ -44,23 +44,22 @@ This project relies on the following dependencies:
 
 ## Local setup
 
-1. Run `make -C api init` to install dependencies.
+1. Run `make init` to install dependencies.
 
-### To run nginx
+### To check API documentation locally
 
 1. Install latest nginx.
-2. Change directory to `api`.
-3. Run `make serve` to start nginx server.
-4. Swagger UI will be available on http://127.0.0.1:8080/swagger-ui.html.
+2. Run `make serve` to start nginx server.
+3. Swagger UI will be available on http://127.0.0.1:8080/swagger-ui.html.
 
 ### To update API
 
-1. Make changes in proto files.
-2. Run `make gen` in `api` directory to generate go files and swagger.json.
+1. Update proto files.
+2. Run `make gen` to generate Go files and swagger.json.
 
-## Run PMM-Server in Docker
+## Run PMM Server in Docker
 
-1. Run `docker run -d -p 80:8080 -p 443:8443  --name pmm-server public.ecr.aws/e7j3v3n0/pmm-server:3-dev-latest`.
-2. Open http://localhost/.
+1. Run `docker run -d -p 443:8443 --name pmm-server perconalab/pmm-server:3-dev-latest`.
+2. Open https://localhost/.
 
 Please note, the use of port 80 is discouraged and should be avoided. For optimal security, use port 443 along with a valid SSL certificate.

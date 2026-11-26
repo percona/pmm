@@ -90,7 +90,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -156,7 +156,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -239,7 +239,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -801,7 +801,7 @@
                         "x-order": 0
                       }
                     },
-                    "additionalProperties": {}
+                    "additionalProperties": true
                   },
                   "x-order": 2
                 }
@@ -814,6 +814,7 @@
   },
   "tags": [
     {
+      "description": "Actions service provides public Management API methods for Actions.",
       "name": "ActionsService"
     }
   ]

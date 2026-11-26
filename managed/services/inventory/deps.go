@@ -48,6 +48,9 @@ type agentsStateUpdater interface {
 // FIXME Rename to victoriaMetrics.Service, update tests.
 type prometheusService interface {
 	RequestConfigurationUpdate()
+	// ForceConfigurationUpdate triggers immediate synchronous configuration update,
+	// bypassing the batch delay. Use this for critical updates like port changes.
+	ForceConfigurationUpdate(ctx context.Context) error
 }
 
 // connectionChecker is a subset of methods of agents.ConnectionCheck.
@@ -71,4 +74,10 @@ type inventoryMetrics interface {
 	GetAgentMetrics(ctx context.Context) (metrics []Metric, err error)
 	GetNodeMetrics(ctx context.Context) (metrics []Metric, err error)
 	GetServiceMetrics(ctx context.Context) (metrics []Metric, err error)
+}
+
+// grafanaClient is a subset of methods of grafana.Client used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type grafanaClient interface {
+	DeleteServiceAccount(ctx context.Context, nodeName string, force bool) (string, error)
 }

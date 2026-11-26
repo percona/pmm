@@ -1,0 +1,584 @@
+/**
+ * Copyright (C) 2026 Percona LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import { describe, expect, it } from 'vitest';
+import {
+  clusterHealth,
+  clusterHealthRank,
+  compareVersions,
+  downFirst,
+  serviceStatusRank,
+  toClusterRows,
+  toEnvironmentSections,
+} from '../src/topology';
+import type {
+  OmCluster,
+  OmService,
+  OmServiceStatus,
+  OmTopologyResponse,
+} from '../src/types';
+
+let nextClusterID = 0;
+
+// The id is opaque and server-derived in production; these tests only need it unique
+// per cluster, since nothing here asserts on its value.
+const cluster = (overrides: Partial<OmCluster>): OmCluster => ({
+  name: null,
+  services: [],
+  id: `cluster-${nextClusterID++}`,
+  type: 'CLUSTER_TYPE_REPLICA_SET',
+  ...overrides,
+});
+
+const service = (overrides: Partial<OmService>): OmService => ({
+  service_name: 'svc',
+  host: 'node00',
+  endpoint: 'node00:27017',
+  service_id: '30',
+  service_type: 'mongodb',
+  version: '7.0.39-21',
+  vendor: 'percona',
+  edition: 'Community',
+  replication_set: 'rs0',
+  state: 'PRIMARY',
+  status: 'SERVICE_STATUS_UP' as OmServiceStatus,
+  cpu_usage_percent: 1,
+  connections_free_percent: 99,
+  process_role: 'PROCESS_ROLE_MONGOD',
+  replication_lag_seconds: null,
+  oplog_window_seconds: null,
+  installed_version: null,
+  config_path: null,
+  argv: null,
+  ...overrides,
+});
+
+const topology = (
+  environments: OmTopologyResponse['environments']
+): OmTopologyResponse => ({
+  snapshot: {
+    generated_at: '2026-08-12T09:00:00Z',
+    observed_at: '2026-08-12T09:00:00Z',
+    stale: false,
+    schema_version: 1,
+    run_id: 'run',
+  },
+  origin_node: null,
+  source_queries: [],
+  summary: {
+    environments: environments.length,
+    clusters: 0,
+    total_services: 0,
+    up_services: 0,
+    down_services: 0,
+    process_role_counts: {},
+  },
+  environments,
+});
+
+describe('toClusterRows', () => {
+  it('is empty before the document arrives', () => {
+    expect(toClusterRows(undefined)).toEqual([]);
+  });
+
+  it('rolls each cluster up and keeps its environment', () => {
+    const rows = toClusterRows(
+      topology([
+        {
+          env_name: 'sandbox',
+          clusters: [
+            cluster({
+              name: 'rs0',
+              services: [
+                service({ service_name: 'a', state: 'PRIMARY' }),
+                service({
+                  service_name: 'b',
+                  state: 'SECONDARY',
+                  status: 'SERVICE_STATUS_DOWN',
+                }),
+                service({ service_name: 'c', state: 'SECONDARY' }),
+              ],
+            }),
+          ],
+        },
+      ])
+    );
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      env_name: 'sandbox',
+      cluster_name: 'rs0',
+      total_services: 3,
+      up_services: 2,
+      down_services: 1,
+      by_process_role: { PROCESS_ROLE_MONGOD: 3 },
+      by_state: { PRIMARY: 1, SECONDARY: 2 },
+      versions: ['7.0.39-21'],
+    });
+  });
+
+  it('flattens every environment into one list of clusters', () => {
+    const rows = toClusterRows(
+      topology([
+        {
+          env_name: 'sandbox',
+          clusters: [
+            cluster({ name: 'rs0', services: [service({})] }),
+            cluster({ name: 'rs1', services: [service({})] }),
+          ],
+        },
+        { env_name: null, clusters: [cluster({ name: null, services: [] })] },
+      ])
+    );
+
+    expect(rows.map((row) => [row.env_name, row.cluster_name])).toEqual([
+      ['sandbox', 'rs0'],
+      ['sandbox', 'rs1'],
+      [null, null],
+    ]);
+    expect(rows[2].total_services).toBe(0);
+  });
+
+  // The two ends are deliberate: lag is a problem at its worst member, an oplog
+  // window is a budget that runs out at its tightest one.
+  it('takes the worst lag and the tightest oplog window', () => {
+    const rows = toClusterRows(
+      topology([
+        {
+          env_name: 'sandbox',
+          clusters: [
+            cluster({
+              name: 'rs0',
+              services: [
+                service({
+                  replication_lag_seconds: 2,
+                  oplog_window_seconds: 7200,
+                }),
+                service({
+                  replication_lag_seconds: 47,
+                  oplog_window_seconds: 3600,
+                }),
+              ],
+            }),
+          ],
+        },
+      ])
+    );
+
+    expect(rows[0].max_replication_lag_seconds).toBe(47);
+    expect(rows[0].min_oplog_window_seconds).toBe(3600);
+  });
+
+  // A router has no oplog, so it must not drag the cluster's window down to zero.
+  it('skips services that report neither, and keeps null when nobody does', () => {
+    const rows = toClusterRows(
+      topology([
+        {
+          env_name: 'sandbox',
+          clusters: [
+            cluster({
+              name: 'sharded',
+              services: [
+                service({ process_role: 'PROCESS_ROLE_MONGOS', state: null }),
+                service({
+                  process_role: 'PROCESS_ROLE_SHARDSVR',
+                  replication_lag_seconds: 0,
+                  oplog_window_seconds: 86400,
+                }),
+              ],
+            }),
+            cluster({
+              name: 'routers-only',
+              services: [service({ process_role: 'PROCESS_ROLE_MONGOS' })],
+            }),
+          ],
+        },
+      ])
+    );
+
+    expect(rows[0].max_replication_lag_seconds).toBe(0);
+    expect(rows[0].min_oplog_window_seconds).toBe(86400);
+    expect(rows[0].by_process_role).toEqual({
+      PROCESS_ROLE_MONGOS: 1,
+      PROCESS_ROLE_SHARDSVR: 1,
+    });
+    expect(rows[1].max_replication_lag_seconds).toBeNull();
+    expect(rows[1].min_oplog_window_seconds).toBeNull();
+  });
+
+  it('reports every distinct running version, sorted', () => {
+    const rows = toClusterRows(
+      topology([
+        {
+          env_name: 'sandbox',
+          clusters: [
+            cluster({
+              name: 'rs0',
+              services: [
+                service({ version: '8.0.4-1' }),
+                service({ version: '7.0.39-21' }),
+                service({ version: '7.0.39-21' }),
+                service({ version: null }),
+              ],
+            }),
+          ],
+        },
+      ])
+    );
+
+    expect(rows[0].versions).toEqual(['7.0.39-21', '8.0.4-1']);
+  });
+
+  // The unfolded row renders these, so the roll-up has to keep them rather than
+  // count them and throw them away.
+  it('keeps the cluster its services were rolled up from', () => {
+    const rows = toClusterRows(
+      topology([
+        {
+          env_name: 'sandbox',
+          clusters: [
+            cluster({
+              name: 'rs0',
+              services: [
+                service({ service_name: 'a' }),
+                service({ service_name: 'b' }),
+              ],
+            }),
+          ],
+        },
+      ])
+    );
+
+    expect(rows[0].services.map((s) => s.service_name)).toEqual(['a', 'b']);
+  });
+});
+
+describe('toEnvironmentSections', () => {
+  it('is empty before the document arrives', () => {
+    expect(toEnvironmentSections(undefined)).toEqual([]);
+  });
+
+  it('gives each environment its own clusters and its own counts', () => {
+    const sections = toEnvironmentSections(
+      topology([
+        {
+          env_name: 'sandbox',
+          clusters: [
+            cluster({
+              name: 'rs0',
+              services: [
+                service({}),
+                service({ status: 'SERVICE_STATUS_DOWN' }),
+              ],
+            }),
+            cluster({ name: 'rs1', services: [service({})] }),
+          ],
+        },
+        {
+          env_name: 'production',
+          clusters: [
+            cluster({
+              name: 'rs2',
+              services: [service({ status: 'SERVICE_STATUS_DOWN' })],
+            }),
+          ],
+        },
+      ])
+    );
+
+    expect(sections).toHaveLength(2);
+    expect(sections[0]).toMatchObject({
+      env_name: 'sandbox',
+      total_services: 3,
+      up_services: 2,
+      down_services: 1,
+    });
+    expect(sections[0].clusters.map((cluster) => cluster.cluster_name)).toEqual(
+      ['rs0', 'rs1']
+    );
+    expect(sections[1]).toMatchObject({
+      env_name: 'production',
+      total_services: 1,
+      up_services: 0,
+      down_services: 1,
+    });
+  });
+
+  // An environment nobody labelled is still an environment; it must get a section
+  // rather than be folded into a neighbour.
+  it('keeps an unnamed environment as its own section', () => {
+    const sections = toEnvironmentSections(
+      topology([
+        { env_name: null, clusters: [cluster({ name: null, services: [] })] },
+      ])
+    );
+
+    expect(sections).toHaveLength(1);
+    expect(sections[0].env_name).toBeNull();
+    expect(sections[0].total_services).toBe(0);
+  });
+});
+
+describe('clusterHealth', () => {
+  it.each([
+    ['healthy', 3, 3, 0],
+    ['degraded', 3, 2, 1],
+    ['degraded', 3, 0, 1],
+    ['down', 3, 0, 3],
+    ['down', 1, 0, 1],
+    ['unknown', 0, 0, 0],
+    ['unknown', 3, 2, 0],
+  ])('is %s with %i members, %i up and %i down', (health, total, up, down) => {
+    expect(clusterHealth(total, up, down)).toBe(health);
+  });
+
+  it('lands on each rolled-up row', () => {
+    const [row] = toClusterRows(
+      topology([
+        {
+          env_name: 'prod',
+          clusters: [
+            cluster({
+              name: 'rs0',
+              services: [
+                service({}),
+                service({ status: 'SERVICE_STATUS_DOWN' }),
+              ],
+            }),
+          ],
+        },
+      ])
+    );
+
+    expect(row.health).toBe('degraded');
+  });
+
+  it('ranks the worst state first', () => {
+    const order = (['healthy', 'unknown', 'down', 'degraded'] as const)
+      .slice()
+      .sort((a, b) => clusterHealthRank(a) - clusterHealthRank(b));
+
+    expect(order).toEqual(['down', 'degraded', 'unknown', 'healthy']);
+  });
+});
+
+describe('downFirst', () => {
+  it('moves down members to the front and keeps everyone else in order', () => {
+    const members = [
+      service({ service_name: 'a' }),
+      service({ service_name: 'b', status: 'SERVICE_STATUS_DOWN' }),
+      service({ service_name: 'c', status: 'SERVICE_STATUS_UNSPECIFIED' }),
+      service({ service_name: 'd' }),
+      service({ service_name: 'e', status: 'SERVICE_STATUS_DOWN' }),
+    ];
+
+    expect(downFirst(members).map((m) => m.service_name)).toEqual([
+      'b',
+      'e',
+      'c',
+      'a',
+      'd',
+    ]);
+    expect(members.map((m) => m.service_name)).toEqual([
+      'a',
+      'b',
+      'c',
+      'd',
+      'e',
+    ]);
+  });
+
+  it('ranks an unrecognised status as unknown, not as up', () => {
+    expect(serviceStatusRank('SOMETHING_NEW' as OmServiceStatus)).toBe(
+      serviceStatusRank('SERVICE_STATUS_UNSPECIFIED')
+    );
+  });
+});
+
+/** One cluster's roll-up, from its services alone. */
+const rollUp = (services: OmService[], overrides: Partial<OmCluster> = {}) =>
+  toClusterRows(
+    topology([
+      {
+        env_name: 'production',
+        clusters: [cluster({ name: 'orders', services, ...overrides })],
+      },
+    ])
+  )[0];
+
+describe('cluster roll-ups (PMM-15806)', () => {
+  it('carries the cluster type', () => {
+    expect(rollUp([], { type: 'CLUSTER_TYPE_SHARDED' }).type).toBe(
+      'CLUSTER_TYPE_SHARDED'
+    );
+  });
+
+  it('reads Last seen off the stalest member, skipping one never observed', () => {
+    const row = rollUp([
+      service({ observed_at: '2026-08-12T09:00:00Z' }),
+      service({ observed_at: '2026-08-12T08:00:00Z' }),
+      service({ observed_at: null }),
+    ]);
+
+    expect(row.last_seen_at).toBe('2026-08-12T08:00:00Z');
+  });
+
+  it('has no Last seen when no member was observed', () => {
+    expect(rollUp([service({}), service({})]).last_seen_at).toBeNull();
+  });
+
+  it('takes the busiest CPU and the tightest free connections, ignoring -1', () => {
+    const row = rollUp([
+      service({ cpu_usage_percent: 12, connections_free_percent: 80 }),
+      service({ cpu_usage_percent: 0, connections_free_percent: 0 }),
+      service({ cpu_usage_percent: 90, connections_free_percent: -1 }),
+      service({ cpu_usage_percent: -1, connections_free_percent: 55 }),
+    ]);
+
+    expect(row.max_cpu_percent).toBe(90);
+    // 0 is a reading, not a missing one.
+    expect(row.min_connections_free_percent).toBe(0);
+  });
+
+  it('leaves CPU and connections empty when no member measures them', () => {
+    const row = rollUp([
+      service({ cpu_usage_percent: -1, connections_free_percent: -1 }),
+    ]);
+
+    expect(row.max_cpu_percent).toBeNull();
+    expect(row.min_connections_free_percent).toBeNull();
+  });
+
+  it('sorts versions numerically, build suffix included', () => {
+    const row = rollUp([
+      service({ version: '7.0.24-13' }),
+      service({ version: '7.0.9-1' }),
+      service({ version: '7.0.9-10' }),
+    ]);
+
+    expect(row.versions).toEqual(['7.0.9-1', '7.0.9-10', '7.0.24-13']);
+  });
+
+  describe('version drift', () => {
+    it('is drift when one replica set runs two versions', () => {
+      const row = rollUp([
+        service({ version: '7.0.24-13' }),
+        service({ version: '7.0.9-1' }),
+      ]);
+
+      expect(row.version_drift).toBe(true);
+      expect(row.version_sets).toEqual([
+        { replication_set: 'rs0', versions: ['7.0.9-1', '7.0.24-13'] },
+      ]);
+    });
+
+    it('is not drift when each shard is consistent but they differ', () => {
+      const row = rollUp(
+        [
+          service({ replication_set: 'shard0', version: '7.0.9-1' }),
+          service({ replication_set: 'shard0', version: '7.0.9-1' }),
+          service({ replication_set: 'shard1', version: '8.0.4-1' }),
+        ],
+        { type: 'CLUSTER_TYPE_SHARDED' }
+      );
+
+      expect(row.version_drift).toBe(false);
+      expect(row.versions).toEqual(['7.0.9-1', '8.0.4-1']);
+      expect(row.version_sets.map((set) => set.replication_set)).toEqual([
+        'shard0',
+        'shard1',
+      ]);
+    });
+
+    it('ignores routers and arbiters, which hold no data', () => {
+      const row = rollUp([
+        service({ version: '7.0.9-1' }),
+        service({ version: '6.0.1-1', state: 'ARBITER' }),
+        service({
+          version: '8.0.4-1',
+          replication_set: null,
+          state: null,
+          process_role: 'PROCESS_ROLE_MONGOS',
+        }),
+      ]);
+
+      expect(row.version_drift).toBe(false);
+      expect(row.version_sets).toEqual([
+        { replication_set: 'rs0', versions: ['7.0.9-1'] },
+      ]);
+    });
+
+    it('ignores a stopped arbiter, which keeps its role but loses its state', () => {
+      const row = rollUp([
+        service({ version: '7.0.9-1' }),
+        service({
+          version: '6.0.1-1',
+          state: null,
+          status: 'SERVICE_STATUS_DOWN' as OmServiceStatus,
+          process_role: 'PROCESS_ROLE_ARBITER',
+        }),
+      ]);
+
+      expect(row.version_drift).toBe(false);
+      expect(row.version_sets).toEqual([
+        { replication_set: 'rs0', versions: ['7.0.9-1'] },
+      ]);
+    });
+
+    it('ignores a data-bearing member with no replication set', () => {
+      const row = rollUp([
+        service({ version: '7.0.9-1' }),
+        service({ version: '8.0.4-1', replication_set: null }),
+      ]);
+
+      expect(row.version_drift).toBe(false);
+      expect(row.version_sets).toEqual([
+        { replication_set: 'rs0', versions: ['7.0.9-1'] },
+      ]);
+    });
+  });
+});
+
+describe('compareVersions', () => {
+  it.each([
+    ['7.0.9-1', '7.0.24-13', -1],
+    ['7.0.24-13', '7.0.9-1', 1],
+    ['7.0.9-1', '7.0.9-10', -1],
+    ['7.0.9', '7.0.9-1', -1],
+    ['8.0.4-1', '8.0.4-1', 0],
+    ['8.0.0-rc0', '8.0.0', -1],
+    ['8.0.0', '8.0.0-rc0', 1],
+    ['8.0.0-rc0', '8.0.0-rc1', -1],
+    ['8.0.0-rc0', '8.0.0-1', -1],
+    ['8.0.0-1', '8.0.0-rc0', 1],
+    ['7.0.0-rc2', '7.0.0-rc10', -1],
+  ])('orders %s against %s', (a, b, sign) => {
+    expect(Math.sign(compareVersions(a, b))).toBe(sign);
+  });
+
+  it.each([
+    [['8.0.0-1', '8.0.0', '8.0.0-rc0']],
+    [['8.0.0', '8.0.0-1', '8.0.0-rc0']],
+    [['8.0.0-rc0', '8.0.0-1', '8.0.0']],
+  ])('sorts %j the same whatever the input order', (versions) => {
+    expect([...versions].sort(compareVersions)).toEqual([
+      '8.0.0-rc0',
+      '8.0.0',
+      '8.0.0-1',
+    ]);
+  });
+});

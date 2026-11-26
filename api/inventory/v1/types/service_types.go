@@ -15,13 +15,12 @@
 
 package types
 
-import "fmt"
-
 // this list should be in sync with inventory/services.pb.go.
 const (
 	ServiceTypeMySQLService      = "SERVICE_TYPE_MYSQL_SERVICE"
 	ServiceTypeMongoDBService    = "SERVICE_TYPE_MONGODB_SERVICE"
 	ServiceTypePostgreSQLService = "SERVICE_TYPE_POSTGRESQL_SERVICE"
+	ServiceTypeValkeyService     = "SERVICE_TYPE_VALKEY_SERVICE"
 	ServiceTypeProxySQLService   = "SERVICE_TYPE_PROXYSQL_SERVICE"
 	ServiceTypeHAProxyService    = "SERVICE_TYPE_HAPROXY_SERVICE"
 	ServiceTypeExternalService   = "SERVICE_TYPE_EXTERNAL_SERVICE"
@@ -32,6 +31,7 @@ var serviceTypeNames = map[string]string{
 	ServiceTypeMySQLService:      "MySQL",
 	ServiceTypeMongoDBService:    "MongoDB",
 	ServiceTypePostgreSQLService: "PostgreSQL",
+	ServiceTypeValkeyService:     "Valkey",
 	ServiceTypeProxySQLService:   "ProxySQL",
 	ServiceTypeHAProxyService:    "HAProxy",
 	ServiceTypeExternalService:   "External",
@@ -41,7 +41,7 @@ var serviceTypeNames = map[string]string{
 func ServiceTypeName(t string) string {
 	res := serviceTypeNames[t]
 	if res == "" {
-		panic(fmt.Sprintf("no nice string for Service Type %s", t))
+		panic("no nice string for Service Type " + t)
 	}
 
 	return res

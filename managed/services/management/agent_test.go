@@ -20,16 +20,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	agentv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -49,7 +50,7 @@ func setup(t *testing.T) (context.Context, *ManagementService, func(t *testing.T
 		return now
 	}
 
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -96,7 +97,7 @@ func setup(t *testing.T) (context.Context, *ManagementService, func(t *testing.T
 		vmClient.AssertExpectations(t)
 	}
 
-	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, nil, false)
 
 	return ctx, s, teardown
 }
@@ -148,13 +149,14 @@ func TestAgentService(t *testing.T) {
 
 			expected := []*agentv1.UniversalAgent{
 				{
-					AgentId:     pgExporterID,
-					AgentType:   "postgres_exporter",
-					PmmAgentId:  models.PMMServerAgentID,
-					IsConnected: false,
-					CreatedAt:   timestamppb.New(now),
-					UpdatedAt:   timestamppb.New(now),
-					Username:    "postgres",
+					AgentId:       pgExporterID,
+					AgentType:     "postgres_exporter",
+					PmmAgentId:    models.PMMServerAgentID,
+					IsConnected:   false,
+					CreatedAt:     timestamppb.New(now),
+					UpdatedAt:     timestamppb.New(now),
+					Username:      "postgres",
+					IsPasswordSet: true,
 					PostgresqlOptions: &agentv1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
@@ -164,20 +166,22 @@ func TestAgentService(t *testing.T) {
 					CommentsParsingDisabled: true,
 				},
 				{
-					AgentId:     pgStatStatementID,
-					AgentType:   "qan-postgresql-pgstatements-agent",
-					PmmAgentId:  models.PMMServerAgentID,
-					IsConnected: false,
-					CreatedAt:   timestamppb.New(now),
-					UpdatedAt:   timestamppb.New(now),
-					Username:    "postgres",
+					AgentId:       pgStatStatementID,
+					AgentType:     "qan-postgresql-pgstatements-agent",
+					PmmAgentId:    models.PMMServerAgentID,
+					IsConnected:   false,
+					CreatedAt:     timestamppb.New(now),
+					UpdatedAt:     timestamppb.New(now),
+					Username:      "postgres",
+					IsPasswordSet: true,
 					PostgresqlOptions: &agentv1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
 					ServiceId:               "00000000-0000-4000-8000-000000000002",
-					Status:                  "AGENT_STATUS_UNKNOWN",
+					Status:                  "AGENT_STATUS_DONE",
 					Tls:                     true,
 					CommentsParsingDisabled: true,
+					Disabled:                true,
 				},
 				{
 					AgentId:      models.PMMServerAgentID,
@@ -197,17 +201,18 @@ func TestAgentService(t *testing.T) {
 			t.Cleanup(func() { teardown(t) })
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
-				NodeName: "test",
-				Address:  "test-address",
-				Region:   pointer.ToString("test-region"),
+				NodeName:   "test",
+				Address:    "test-address",
+				InstanceID: "test-instance-id",
+				Region:     new("test-region"),
 			})
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -249,15 +254,15 @@ func TestAgentService(t *testing.T) {
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
 				NodeName: "test",
 				Address:  "test-address",
-				Region:   pointer.ToString("test-region"),
+				Region:   new("test-region"),
 			})
 			require.NoError(t, err)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      node.NodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -292,6 +297,65 @@ func TestAgentService(t *testing.T) {
 			}
 			assert.Equal(t, expected, response.Agents)
 		})
+
+		t.Run("should output a list of agents provisioned for MongoDB service", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			node, err := models.CreateNode(s.db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+				NodeName: "test",
+				Address:  "test-address",
+				Region:   new("test-region"),
+			})
+			require.NoError(t, err)
+
+			service, err := models.AddNewService(s.db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "test-mongodb",
+				NodeID:      node.NodeID,
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(27017)),
+				Cluster:     "test-cluster",
+			})
+			require.NoError(t, err)
+
+			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
+			require.NoError(t, err)
+
+			rtaAgent, err := models.CreateAgent(s.db.Querier, models.RTAMongoDBAgentType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgent.AgentID,
+				ServiceID:  service.ServiceID,
+				Username:   "test-user",
+				Password:   "test-pass",
+			})
+			require.NoError(t, err)
+
+			s.r.(*mockAgentsRegistry).On("IsConnected", rtaAgent.AgentID).Return(false).Once()
+
+			response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{
+				ServiceId: service.ServiceID,
+			})
+			require.NoError(t, err)
+
+			expected := []*agentv1.UniversalAgent{
+				{
+					AgentId:       rtaAgent.AgentID,
+					AgentType:     "rta-mongodb-agent",
+					PmmAgentId:    "00000000-0000-4000-8000-000000000007",
+					IsConnected:   false,
+					CreatedAt:     timestamppb.New(now),
+					UpdatedAt:     timestamppb.New(now),
+					ServiceId:     "00000000-0000-4000-8000-000000000006",
+					Status:        "AGENT_STATUS_UNKNOWN",
+					Username:      "test-user",
+					IsPasswordSet: true,
+					RtaOptions: &inventoryv1.RTAOptions{
+						CollectInterval: durationpb.New(2 * time.Second),
+					},
+					MongoDbOptions: &agentv1.UniversalAgent_MongoDBOptions{},
+				},
+			}
+			assert.Equal(t, expected, response.Agents)
+		})
 	})
 }
 
@@ -303,8 +367,8 @@ func TestListAgentVersions(t *testing.T) {
 		pmmAgent := &models.Agent{
 			AgentID:      uuid.New().String(),
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
-			Version:      pointer.ToString("2.0.0"),
+			RunsOnNodeID: new(models.PMMServerNodeID),
+			Version:      new("2.0.0"),
 		}
 
 		err := s.db.Insert(pmmAgent)
@@ -325,8 +389,8 @@ func TestListAgentVersions(t *testing.T) {
 		pmmAgent := &models.Agent{
 			AgentID:      uuid.New().String(),
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
-			Version:      pointer.ToString("3.0.0"),
+			RunsOnNodeID: new(models.PMMServerNodeID),
+			Version:      new("3.0.0"),
 		}
 
 		err := s.db.Insert(pmmAgent)
@@ -347,8 +411,8 @@ func TestListAgentVersions(t *testing.T) {
 		pmmAgent := &models.Agent{
 			AgentID:      uuid.New().String(),
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
-			Version:      pointer.ToString("3.0.0"),
+			RunsOnNodeID: new(models.PMMServerNodeID),
+			Version:      new("3.0.0"),
 		}
 
 		err := s.db.Insert(pmmAgent)
@@ -369,8 +433,8 @@ func TestListAgentVersions(t *testing.T) {
 		pmmAgent := &models.Agent{
 			AgentID:      uuid.New().String(),
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
-			Version:      pointer.ToString("3.0.0"),
+			RunsOnNodeID: new(models.PMMServerNodeID),
+			Version:      new("3.0.0"),
 		}
 
 		err := s.db.Insert(pmmAgent)
@@ -391,8 +455,8 @@ func TestListAgentVersions(t *testing.T) {
 		pmmAgent := &models.Agent{
 			AgentID:      uuid.New().String(),
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToString(models.PMMServerNodeID),
-			Version:      pointer.ToString("3.0.0"),
+			RunsOnNodeID: new(models.PMMServerNodeID),
+			Version:      new("3.0.0"),
 		}
 
 		err := s.db.Insert(pmmAgent)
@@ -405,4 +469,22 @@ func TestListAgentVersions(t *testing.T) {
 
 		assert.Equal(t, agentv1.UpdateSeverity_UPDATE_SEVERITY_UNSUPPORTED, res.AgentVersions[0].Severity)
 	})
+}
+
+// TestAgentToAPIEnvironmentVariableNames checks that UniversalAgent reports the names of the environment variables
+// an Agent gets, which pmm-agent resolves to values.
+func TestAgentToAPIEnvironmentVariableNames(t *testing.T) {
+	t.Parallel()
+
+	r := &mockAgentsRegistry{}
+	r.Test(t)
+	r.On("IsConnected", "agent-id").Return(false)
+	t.Cleanup(func() { r.AssertExpectations(t) })
+
+	agent := &models.Agent{AgentID: "agent-id", AgentType: models.MongoDBExporterType}
+	require.NoError(t, agent.SetEnvironmentVariableNames([]string{"PMM_TEST_VAR"}))
+
+	ua, err := (&ManagementService{r: r}).agentToAPI(agent)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"PMM_TEST_VAR"}, ua.EnvironmentVariableNames)
 }

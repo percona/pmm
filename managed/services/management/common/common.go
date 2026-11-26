@@ -18,8 +18,9 @@ package common
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	backuppb "github.com/percona/pmm/api/backup/v1"
@@ -44,37 +45,17 @@ func NewMgmtServices(bs *managementbackup.BackupService, rs *managementbackup.Re
 	}
 }
 
-// RemoveScheduledTasks removes scheduled backup tasks and check there are no running backup/restore tasks in case user changes service cluster label.
+// RemoveScheduledTasks removes the scheduled backups of the Services that a cluster change affects. It first checks
+// that none of them has a backup or restore running, so a change that is rejected removes nothing.
 func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, params *models.ChangeStandardLabelsParams) error {
-	if params.Cluster == nil || *params.Cluster == "" {
-		return nil
-	}
-
-	service, err := models.FindServiceByID(db.Querier, params.ServiceID)
-	if err != nil {
+	affected, err := affectedServices(db, params)
+	if err != nil || affected == nil {
 		return err
 	}
 
-	var servicesInCurrentCluster, servicesInNewCluster []*models.Service
-
-	if service.Cluster != "" {
-		servicesInCurrentCluster, err = models.FindServices(db.Querier, models.ServiceFilters{Cluster: service.Cluster})
-		if err != nil {
-			return err
-		}
-	}
-
-	servicesInNewCluster, err = models.FindServices(db.Querier, models.ServiceFilters{Cluster: *params.Cluster})
+	err = s.checkNoRunningJobs(ctx, params.ServiceID, affected)
 	if err != nil {
 		return err
-	}
-
-	allServices := append(servicesInCurrentCluster, servicesInNewCluster...) //nolint:gocritic
-	allServices = append(allServices, service)
-
-	sMap := make(map[string]struct{})
-	for _, service := range allServices {
-		sMap[service.ServiceID] = struct{}{}
 	}
 
 	scheduledTasks, err := s.BackupService.ListScheduledBackups(ctx, &backuppb.ListScheduledBackupsRequest{})
@@ -82,9 +63,8 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 		return err
 	}
 
-	// Remove scheduled tasks.
 	for _, task := range scheduledTasks.ScheduledBackups {
-		if _, ok := sMap[task.ServiceId]; ok {
+		if _, ok := affected[task.ServiceId]; ok {
 			_, err = s.BackupService.RemoveScheduledBackup(ctx, &backuppb.RemoveScheduledBackupRequest{ScheduledBackupId: task.ScheduledBackupId})
 			if err != nil {
 				return err
@@ -92,6 +72,61 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 		}
 	}
 
+	return nil
+}
+
+// CheckClusterUnlocked returns ErrClusterLocked if a Service that a cluster change affects has a backup or restore
+// running, as RemoveScheduledTasks does, without removing anything.
+func (s *MgmtServices) CheckClusterUnlocked(ctx context.Context, db *reform.DB, params *models.ChangeStandardLabelsParams) error {
+	affected, err := affectedServices(db, params)
+	if err != nil || affected == nil {
+		return err
+	}
+
+	return s.checkNoRunningJobs(ctx, params.ServiceID, affected)
+}
+
+// affectedServices returns the IDs of the Services that a cluster change affects: the Service itself and the
+// Services in its current and in its new cluster. It returns nil if the change sets no cluster.
+func affectedServices(db *reform.DB, params *models.ChangeStandardLabelsParams) (map[string]struct{}, error) {
+	if params.Cluster == nil || *params.Cluster == "" {
+		return nil, nil //nolint:nilnil
+	}
+
+	service, err := models.FindServiceByID(db.Querier, params.ServiceID)
+	if err != nil {
+		return nil, err
+	}
+
+	var servicesInCurrentCluster, servicesInNewCluster []*models.Service
+
+	if service.Cluster != "" {
+		servicesInCurrentCluster, err = models.FindServices(db.Querier, models.ServiceFilters{Cluster: service.Cluster})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	servicesInNewCluster, err = models.FindServices(db.Querier, models.ServiceFilters{Cluster: *params.Cluster})
+	if err != nil {
+		return nil, err
+	}
+
+	allServices := make([]*models.Service, 0, len(servicesInCurrentCluster)+len(servicesInNewCluster)+1)
+	allServices = append(allServices, servicesInCurrentCluster...)
+	allServices = append(allServices, servicesInNewCluster...)
+	allServices = append(allServices, service)
+
+	sMap := make(map[string]struct{}, len(allServices))
+	for _, service := range allServices {
+		sMap[service.ServiceID] = struct{}{}
+	}
+
+	return sMap, nil
+}
+
+// checkNoRunningJobs returns ErrClusterLocked if any of the affected Services has a backup or restore running.
+func (s *MgmtServices) checkNoRunningJobs(ctx context.Context, serviceID string, sMap map[string]struct{}) error {
 	// Check no backup tasks running.
 	artifacts, err := s.BackupService.ListArtifacts(ctx, &backuppb.ListArtifactsRequest{})
 	if err != nil {
@@ -112,7 +147,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 
 	for _, artifact := range artifacts.Artifacts {
 		if _, ok := sMap[artifact.ServiceId]; ok && statusNotFinal(artifact.Status) {
-			return errors.Wrapf(ErrClusterLocked, "there is an unfinished backup job for service %s or other service in the same cluster", service.ServiceID)
+			return fmt.Errorf("there is an unfinished backup job for service %s or other service in the same cluster: %w", serviceID, ErrClusterLocked)
 		}
 	}
 
@@ -124,7 +159,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 
 	for _, restoreItem := range restores.Items {
 		if _, ok := sMap[restoreItem.ServiceId]; ok && restoreItem.Status == backuppb.RestoreStatus_RESTORE_STATUS_IN_PROGRESS {
-			return errors.Wrapf(ErrClusterLocked, "there is an unfinished restore job for service %s or other service in the same cluster", service.ServiceID)
+			return fmt.Errorf("there is an unfinished restore job for service %s or other service in the same cluster: %w", serviceID, ErrClusterLocked)
 		}
 	}
 

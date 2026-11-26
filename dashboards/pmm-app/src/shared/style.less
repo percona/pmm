@@ -1,0 +1,42 @@
+#query-analytics-details {
+  background-color: rgb(22, 23, 25);
+}
+
+#antd {
+  .ant-tabs-ink-bar {
+    background: #79a70a;
+    background: linear-gradient(to right, #f79e05 0%, #8f5408 100%);
+    top: 1px !important;
+  }
+
+  .ant-tabs-tab-disabled span {
+    color: gray !important;
+  }
+  .ant-select-arrow {
+    color: white;
+  }
+}
+
+.overview-content-column {
+  @tooltip-bg: #161719;
+}
+
+// TODO: remove hack, need to find out why arrow highlight doesn't work
+.ant-table-thead
+  > tr
+  > th
+  .ant-table-column-sorter
+  .ant-table-column-sorter-inner
+  .ant-table-column-sorter-up.on,
+.ant-table-thead
+  > tr
+  > th
+  .ant-table-column-sorter
+  .ant-table-column-sorter-inner
+  .ant-table-column-sorter-down.on {
+  color: rgb(24, 144, 255) !important;
+}
+
+#antd .ant-table-thead {
+  height: 40px;
+}

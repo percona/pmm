@@ -1,0 +1,171 @@
+import { FC, PropsWithChildren, useMemo } from 'react';
+import { NavigationContext } from './navigation.context';
+import { NavItem } from 'types/navigation.types';
+import { useServiceTypes } from 'hooks/api/useServices';
+import {
+  addAccount,
+  addAdvisors,
+  addAlerting,
+  addConfiguration,
+  addDashboardItems,
+  addExplore,
+  addHighAvailability,
+  addUsersAndAccess,
+  addHomePage,
+  addExtensionsApps,
+  addOm,
+} from './navigation.utils';
+import { useUser } from 'contexts/user';
+import { useColorMode } from 'hooks/theme';
+import { INTERVALS_MS } from 'lib/constants';
+import { useSettings } from 'contexts/settings';
+import {
+  NAV_BACKUPS,
+  NAV_DIVIDERS,
+  NAV_HELP,
+  NAV_INVENTORY,
+  NAV_QAN,
+  NAV_SIGN_IN,
+} from './navigation.constants';
+import { useFolders } from 'hooks/api/useFolders';
+import { useUpdates } from 'contexts/updates';
+import { useLocalStorage } from 'hooks/utils/useLocalStorage';
+import { useHaInfo } from 'hooks/api/useHA';
+import { useAuth } from 'contexts/auth';
+import { ServiceType } from 'types/services.types';
+
+export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
+  const { user } = useUser();
+  const { isLoggedIn, isAnonymous } = useAuth();
+  const { data: serviceTypes } = useServiceTypes({
+    enabled: !!user,
+    refetchInterval: INTERVALS_MS.SERVICE_TYPES,
+  });
+  const { settings } = useSettings();
+  const { data: folders = [] } = useFolders();
+  const { colorMode, toggleColorMode } = useColorMode();
+  const { status, versionInfo } = useUpdates();
+  const [navOpen, setNavOpen] = useLocalStorage<boolean>(
+    'pmm-ui.sidebar.expanded',
+    true
+  );
+  const { data: haInfo } = useHaInfo({
+    enabled: !!user,
+  });
+
+  const navTree = useMemo<NavItem[]>(() => {
+    const items: NavItem[] = [];
+    // Anonymous visitors can't list service types, so they get every database's dashboards;
+    // otherwise use the fetched ones, falling back to an empty list while unavailable.
+    const currentServiceTypes = isAnonymous
+      ? Object.values(ServiceType)
+      : serviceTypes?.serviceTypes || [];
+
+    items.push(addHomePage(user?.preferences));
+
+    if (haInfo.enabled) {
+      items.push(addHighAvailability(haInfo));
+    }
+
+    items.push(NAV_DIVIDERS.home);
+
+    // Served by pmm-managed, so it is not gated with the PMM Extensions group: any
+    // signed-in user while the switch is on. Actions inside are admin-only.
+    const mongoExtras = user && settings?.omEnabled ? [addOm()] : [];
+
+    items.push(
+      ...addDashboardItems(currentServiceTypes, folders, user, mongoExtras)
+    );
+
+    if (user) {
+      items.push(NAV_QAN);
+
+      if (settings?.frontend.exploreEnabled && user.isEditor) {
+        items.push(
+          addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps)
+        );
+      }
+
+      items.push(
+        addAlerting(
+          settings?.alertingEnabled,
+          settings?.frontend.unifiedAlertingEnabled,
+          user
+        )
+      );
+
+      if (user.isEditor && settings?.advisorEnabled) {
+        items.push(addAdvisors());
+      }
+
+      items.push(NAV_DIVIDERS.inventory);
+
+      if (user.isPMMAdmin) {
+        items.push(NAV_INVENTORY);
+      }
+
+      // PMM Extensions apps mounted as native routes, grouped under "Apps" and
+      // placed right below Inventory so no pre-existing entry moves. Offered to
+      // every signed-in user, not only admins: the side-car's API serves its reads to
+      // any authenticated session and holds every unsafe method to
+      // administrators, so a non-admin gets a read-only view with no write
+      // control rendered (PMM-15358).
+      //
+      // PMM Extensions navigation is withheld when the integration is disabled
+      // (PMM_ENABLE_EXTENSIONS).
+      if (settings?.extensionsEnabled) {
+        items.push(...addExtensionsApps());
+      }
+
+      if (user.isPMMAdmin) {
+        if (settings?.backupManagementEnabled) {
+          items.push(NAV_BACKUPS);
+        }
+
+        items.push(NAV_DIVIDERS.backups);
+
+        items.push(addConfiguration(status, versionInfo));
+
+        if (settings) {
+          items.push(addUsersAndAccess(settings));
+        }
+      }
+
+      if (isLoggedIn) {
+        items.push(addAccount(user, colorMode, toggleColorMode));
+      }
+
+      items.push(NAV_HELP);
+    }
+
+    if (!isLoggedIn) {
+      items.push(NAV_SIGN_IN);
+    }
+
+    return items;
+  }, [
+    serviceTypes?.serviceTypes,
+    user,
+    haInfo,
+    folders,
+    settings,
+    colorMode,
+    toggleColorMode,
+    status,
+    versionInfo,
+    isLoggedIn,
+    isAnonymous,
+  ]);
+
+  return (
+    <NavigationContext.Provider
+      value={{
+        navTree,
+        navOpen,
+        setNavOpen,
+      }}
+    >
+      {children}
+    </NavigationContext.Provider>
+  );
+};

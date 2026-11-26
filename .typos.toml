@@ -1,6 +1,0 @@
-[default]
-extend-ignore-identifiers-re = [
-    "LKE",
-    "ue",
-    "ba"
-]

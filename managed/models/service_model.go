@@ -16,12 +16,13 @@
 package models
 
 import (
+	"maps"
 	"time"
 
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // ServiceType represents Service type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
@@ -44,6 +45,7 @@ const (
 	ProxySQLServiceType   ServiceType = "proxysql"
 	HAProxyServiceType    ServiceType = "haproxy"
 	ExternalServiceType   ServiceType = "external"
+	ValkeyServiceType     ServiceType = "valkey"
 )
 
 // Service represents Service as stored in database.
@@ -125,11 +127,10 @@ func (s *Service) UnifiedLabels() (map[string]string, error) {
 		"replication_set": s.ReplicationSet,
 		"external_group":  s.ExternalGroup,
 	}
-	for name, value := range custom {
-		res[name] = value
-	}
+	maps.Copy(res, custom)
 
-	if err = prepareLabels(res, true); err != nil {
+	err = prepareLabels(res, true)
+	if err != nil {
 		return nil, err
 	}
 	return res, nil

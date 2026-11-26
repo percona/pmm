@@ -35,10 +35,10 @@ Replace the self-signed certificate with a proper SSL certificate for production
     systemctl --user stop pmm-server
 
     # Configure PMM to use the certificate
-    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/fullchain.pem /home/admin/volume/pmm-certs/certificate.crt
-    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/privkey.pem /home/admin/volume/pmm-certs/certificate.key
-    sudo chown pmm:pmm /home/admin/volume/pmm-certs/certificate.*
-    sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
+    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/fullchain.pem /home/admin/volume/srv/nginx/certificate.crt
+    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/privkey.pem /home/admin/volume/srv/nginx/certificate.key
+    sudo chown admin:admin /home/admin/volume/srv/nginx/certificate.*
+    sudo chmod 600 /home/admin/volume/srv/nginx/certificate.*
 
     # Restart PMM Server
     systemctl --user start pmm-server
@@ -56,10 +56,10 @@ Replace the self-signed certificate with a proper SSL certificate for production
 
     2. Install certificates:
        ```bash
-       sudo mv /tmp/certificate.crt /home/admin/volume/pmm-certs/
-       sudo mv /tmp/private.key /home/admin/volume/pmm-certs/certificate.key
-       sudo chown pmm:pmm /home/admin/volume/pmm-certs/certificate.*
-       sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
+       sudo mv /tmp/certificate.crt /home/admin/volume/srv/nginx/
+       sudo mv /tmp/private.key /home/admin/volume/srv/nginx/certificate.key
+       sudo chown admin:admin /home/admin/volume/srv/nginx/certificate.*
+       sudo chmod 600 /home/admin/volume/srv/nginx/certificate.*
        systemctl --user restart pmm-server
        ```
 
@@ -81,7 +81,7 @@ sudo ufw --force enable
 After the initial setup, create additional user accounts in PMM for your team members. Follow the principle of least privilege when assigning user roles.
 {.power-number}
 
-1. Go to **Administration > Users and access > Users**.
+1. Go to **Users and access > Users**.
 2. Click **New user** and configure the user with an appropriate role:
 
     - **Admin**: Full system access
@@ -374,7 +374,6 @@ To permanently delete your PMM Server instance and clean up resources:
 With your PMM Server fully configured and secured:
 
 - [Configure PMM clients](../../../install-pmm-client/index.md) to start monitoring your infrastructure
-- [Register client nodes](../../../register-client-node/index.md) with your PMM Server
 - [Configure SSL certificates](../../../../admin/security/ssl_encryption.md) for production use
 - [Set up monitoring alerts](../../../../alert/index.md) for proactive monitoring
 

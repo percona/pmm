@@ -32,6 +32,7 @@ Install PMM Client using one of the following deployment methods:
 | **Production** environments on supported Linux distributions | **[Package Manager →](package_manager.md)** |
 | Unsupported Linux distributions or **non-root** installation | **[Binary Package →](binary_package.md)** |
 | **Containerized** environments or testing | **[Docker →](docker.md)** |
+| **Kubernetes** environment | **[Kubernetes →](kubernetes.md)** |
 
 ## Connect services
 
@@ -40,6 +41,7 @@ Each database service requires specific configuration parameters. Configure your
 - [MySQL](connect-database/mysql/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
 - [MongoDB](connect-database/mongodb.md)
 - [PostgreSQL](connect-database/postgresql.md)
+- [Valkey/Redis](connect-database/valkey-redis.md)
 - [ProxySQL](connect-database/proxysql.md)
 - [Amazon RDS](connect-database/aws.md)
 - [Microsoft Azure](connect-database/azure.md)

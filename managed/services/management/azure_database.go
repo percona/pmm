@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/AlekSi/pointer"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph"
 	"github.com/sirupsen/logrus"
@@ -31,6 +30,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -65,15 +65,15 @@ func (s *ManagementService) isAzureEnabled() bool {
 
 // AzureDatabaseInstanceData reflects Azure Database Instance Data of Discovery Response.
 type AzureDatabaseInstanceData struct {
-	ID            string                 `json:"id"`
-	Location      string                 `json:"location"`
-	Name          string                 `json:"name"`
-	Properties    map[string]interface{} `json:"properties"`
-	Tags          map[string]string      `json:"tags"`
-	Sku           map[string]interface{} `json:"sku"`
-	ResourceGroup string                 `json:"resourceGroup"`
-	Type          string                 `json:"type"`
-	Zones         string                 `json:"zones"`
+	ID            string            `json:"id"`
+	Location      string            `json:"location"`
+	Name          string            `json:"name"`
+	Properties    map[string]any    `json:"properties"`
+	Tags          map[string]string `json:"tags"`
+	Sku           map[string]any    `json:"sku"`
+	ResourceGroup string            `json:"resourceGroup"`
+	Type          string            `json:"type"`
+	Zones         string            `json:"zones"`
 }
 
 func (s *ManagementService) getAzureClient(req *managementv1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {
@@ -96,13 +96,11 @@ func (s *ManagementService) fetchAzureDatabaseInstancesData(
 	req *managementv1.DiscoverAzureDatabaseRequest,
 	client *armresourcegraph.Client,
 ) ([]AzureDatabaseInstanceData, error) {
-	query := azureDatabaseResourceQuery
-	resultFormat := armresourcegraph.ResultFormatObjectArray
 	request := armresourcegraph.QueryRequest{
 		Subscriptions: []*string{&req.AzureSubscriptionId},
-		Query:         &query,
+		Query:         new(azureDatabaseResourceQuery),
 		Options: &armresourcegraph.QueryRequestOptions{
-			ResultFormat: &resultFormat,
+			ResultFormat: new(armresourcegraph.ResultFormatObjectArray),
 		},
 	}
 
@@ -189,12 +187,29 @@ func (s *ManagementService) DiscoverAzureDatabase(
 }
 
 // AddAzureDatabase add azure database to monitoring.
+//
+//nolint:gocognit
 func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managementv1.AddAzureDatabaseRequest) (*managementv1.AddAzureDatabaseResponse, error) {
 	if !s.isAzureEnabled() {
 		return nil, services.ErrAzureDisabled
 	}
 
 	l := logger.Get(ctx).WithField("component", "discover/azureDatabase")
+
+	pmmAgentID := models.PMMServerAgentID
+	if req.GetPmmAgentId() != "" {
+		pmmAgentID = req.GetPmmAgentId()
+	}
+	err := s.checkNodeIsEligible(ctx, pmmAgentID, req.Address)
+	if err != nil {
+		return nil, err
+	}
+	// As for RDS: PMM Server's own pmm-agent is scraped, others push, since HA scrapes no pull-mode Agents.
+	metricsMode, err := supportedMetricsMode(managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED, pmmAgentID)
+	if err != nil {
+		return nil, err
+	}
+
 	// tweak according to API docs
 	if req.NodeName == "" {
 		req.NodeName = req.InstanceId
@@ -230,7 +245,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		return nil, status.Errorf(codes.InvalidArgument, "Unsupported Azure Database type %q.", req.Type)
 	}
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	e := s.db.InTransaction(func(tx *reform.TX) error {
 		// add Remote Azure Database Node
 		node, err := models.CreateNode(tx.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
 			NodeName:     req.NodeName,
@@ -251,7 +266,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 			Environment:  req.Environment,
 			CustomLabels: req.CustomLabels,
 			Address:      &req.Address,
-			Port:         pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is a uint16
+			Port:         new(uint16(req.Port)), //nolint:gosec // port is a uint16
 		})
 		if err != nil {
 			return err
@@ -260,9 +275,12 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 
 		if req.AzureDatabaseExporter {
 			azureDatabaseExporter, err := models.CreateAgent(tx.Querier, models.AzureDatabaseExporterType, &models.CreateAgentParams{
-				PMMAgentID:   models.PMMServerAgentID,
+				PMMAgentID:   pmmAgentID,
 				ServiceID:    service.ServiceID,
 				AzureOptions: models.AzureOptionsFromRequest(req),
+				ExporterOptions: models.ExporterOptions{
+					PushMetrics: isPushMode(metricsMode),
+				},
 			})
 			if err != nil {
 				return err
@@ -271,12 +289,16 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		}
 
 		metricsExporter, err := models.CreateAgent(tx.Querier, exporterType, &models.CreateAgentParams{
-			PMMAgentID:    models.PMMServerAgentID,
+			PMMAgentID:    pmmAgentID,
 			ServiceID:     service.ServiceID,
 			Username:      req.Username,
 			Password:      req.Password,
 			TLS:           req.Tls,
 			TLSSkipVerify: req.TlsSkipVerify,
+			ExporterOptions: models.ExporterOptions{
+				ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
+				PushMetrics:       isPushMode(metricsMode),
+			},
 			MySQLOptions: models.MySQLOptions{
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 			},
@@ -287,17 +309,19 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		l.Infof("Added %s with AgentID: %s", metricsExporter.AgentType, metricsExporter.AgentID)
 
 		if !req.SkipConnectionCheck {
-			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, metricsExporter); err != nil {
+			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, metricsExporter)
+			if err != nil {
 				return err
 			}
-			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, metricsExporter); err != nil {
+			err = s.sib.GetInfoFromService(ctx, tx.Querier, service, metricsExporter)
+			if err != nil {
 				return err
 			}
 		}
 
 		if req.Qan {
 			qanAgent, err := models.CreateAgent(tx.Querier, qanAgentType, &models.CreateAgentParams{
-				PMMAgentID:    models.PMMServerAgentID,
+				PMMAgentID:    pmmAgentID,
 				ServiceID:     service.ServiceID,
 				Username:      req.Username,
 				Password:      req.Password,
@@ -314,10 +338,11 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		}
 
 		return nil
-	}); e != nil {
+	})
+	if e != nil {
 		return nil, e
 	}
 
-	s.state.RequestStateUpdate(ctx, models.PMMServerAgentID)
+	s.state.RequestStateUpdate(ctx, pmmAgentID)
 	return &managementv1.AddAzureDatabaseResponse{}, nil
 }

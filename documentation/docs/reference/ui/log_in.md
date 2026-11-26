@@ -1,26 +1,37 @@
 # Log into PMM
 
-To log into PMM:
+## Basic authentication
+
+Basic authentication is the default method, using usernames and passwords stored in PMM.
+
+To log into PMM with basic authentication:
 {.power-number}
 
-1. Start a web browser and enter the server name or IP address of the PMM Server host in the address bar.
+1. Open a web browser and enter the server name or IP address of the PMM Server host: 
 
-2. The page loads showing the PMM log in screen.
+   ![PMM Login](../../images/PMM_Login.jpg)
 
-    ![PMM Login](../../images/PMM_Login.jpg)
+2. Enter your username and password:
+   - **Default credentials:** `admin`/`admin` 
+   - **AWS deployments:** The default password is your EC2 Instance ID (found in the AWS Console).
 
-3. Enter the username and password given to you by your system administrator. The defaults are:
+3. Click **Log in**.
 
-    - Username: `admin`
-    - Password: `admin`
+4. On first login, you'll be prompted to set a new password. Enter a new password that meets the [password requirements](../../admin/manage-users/add_users.md#password-requirements) and click **Submit**.
 
-4. Click **Log in**.
+![PMM Home dashboard](../../images/PMM_Home_Dashboard.png)
 
-5. If this is your first time logging in, you'll be asked to set a new password. We recommend you do.
+## Other authentication methods
 
-    - enter a new password in both fields and click **Submit**, or,
-    - click **Skip** to use the default password.
+PMM supports all authentication methods available in Grafana, including:
 
-6. The PMM Home dashboard loads:
+- **LDAP** - Integrate with your directory service
+- **OAuth 2.0** - GitHub, GitLab, Google, Azure AD, Okta, and other providers
+- **SAML** - Enterprise single sign-on
 
-    ![PMM Home dashboard](../../images/PMM_Home_Dashboard.png)
+For setup instructions, see [Grafana's authentication documentation](https://grafana.com/docs/grafana/latest/setup-grafana/configure-security/configure-authentication/).
+
+## Next steps
+
+- [Create additional users](../../admin/manage-users/add_users.md)
+- [Configure user roles and permissions](../../admin/roles/index.md)

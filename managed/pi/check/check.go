@@ -1,0 +1,487 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// Package check implements checks parsing and validation.
+package check
+
+import (
+	"bytes"
+	"crypto/ed25519"
+	"encoding/base64"
+	"errors"
+	"fmt"
+	"io"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+
+	"golang.org/x/crypto/blake2b"
+	"gopkg.in/yaml.v3"
+)
+
+// The same as Prometheus label format.
+var nameRE = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+
+// Verify checks signature of passed data with provided public key and
+// returns error in case of any problem.
+func Verify(data []byte, publicKey, sig string) error {
+	lines := strings.SplitN(sig, "\n", 4) //nolint:mnd
+	if len(lines) < 4 {                   //nolint:mnd
+		return errors.New("incomplete signature")
+	}
+
+	sBin, err := base64.StdEncoding.DecodeString(lines[1])
+	if err != nil || len(sBin) != 74 {
+		return errors.New("invalid signature")
+	}
+
+	gBin, err := base64.StdEncoding.DecodeString(lines[3])
+	if err != nil || len(gBin) != 64 {
+		return errors.New("invalid global signature")
+	}
+
+	kBin, err := base64.StdEncoding.DecodeString(publicKey)
+	if err != nil || len(kBin) != 42 {
+		return errors.New("invalid public key")
+	}
+
+	sAlg, sKeyID, sSig := sBin[0:2], sBin[2:10], sBin[10:74]
+	kAlg, kKeyID, kKey := kBin[0:2], kBin[2:10], kBin[10:42]
+
+	// Key algorithm should be `Ed`.
+	if kAlg[0] != 0x45 || kAlg[1] != 0x64 {
+		return errors.New("unsupported key algorithm")
+	}
+	// Signature algorithm can be `Ed`(legacy) or `ED`(pre-hashed).
+	if sAlg[0] != 0x45 || (sAlg[1] != 0x64 && sAlg[1] != 0x44) {
+		return errors.New("unsupported signature algorithm")
+	}
+
+	// For pre-hashed signature get data hash.
+	if sAlg[1] == 0x44 { //nolint:mnd
+		h, _ := blake2b.New512(nil)
+		h.Write(data)
+		data = h.Sum(nil)
+	}
+
+	if !bytes.Equal(kKeyID, sKeyID) {
+		return errors.New("incompatible key identifiers")
+	}
+
+	if !strings.HasPrefix(lines[2], "trusted comment: ") {
+		return errors.New("unexpected format for the trusted comment")
+	}
+
+	if !ed25519.Verify(kKey, data, sSig) {
+		return errors.New("invalid signature")
+	}
+
+	if !ed25519.Verify(kKey, append(sSig, []byte(lines[2])[17:]...), gBin) {
+		return errors.New("invalid global signature")
+	}
+
+	return nil
+}
+
+// ParseParams represents optional Parse function parameters.
+type ParseParams struct {
+	DisallowUnknownFields bool // if true, return errors for unexpected YAML fields
+	DisallowInvalidChecks bool // if true, return errors for invalid checks instead of skipping them
+}
+
+// ParseChecks returns a slice of validated checks parsed from YAML passed via a reader.
+// It can handle multi-document YAMLs: parsing result will be a single slice
+// that contains checks from every parsed document.
+func ParseChecks(reader io.Reader, params *ParseParams) ([]Check, error) {
+	if params == nil {
+		params = &ParseParams{}
+	}
+
+	d := yaml.NewDecoder(reader)
+	d.KnownFields(params.DisallowUnknownFields)
+
+	type checks struct {
+		Checks []Check `yaml:"checks"`
+	}
+
+	var res []Check
+
+	for {
+		var c checks
+
+		err := d.Decode(&c) //nolint:musttag
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return res, nil
+			}
+
+			return nil, err
+		}
+
+		for _, check := range c.Checks {
+			err := check.Validate()
+			if err != nil {
+				if params.DisallowInvalidChecks {
+					return nil, err
+				}
+
+				continue // skip invalid check
+			}
+
+			res = append(res, check)
+		}
+	}
+}
+
+// Supported query types.
+const (
+	MySQLShow                = Type("MYSQL_SHOW")
+	MySQLSelect              = Type("MYSQL_SELECT")
+	PostgreSQLShow           = Type("POSTGRESQL_SHOW")
+	PostgreSQLSelect         = Type("POSTGRESQL_SELECT")
+	MongoDBGetParameter      = Type("MONGODB_GETPARAMETER")
+	MongoDBBuildInfo         = Type("MONGODB_BUILDINFO")
+	MongoDBGetCmdLineOpts    = Type("MONGODB_GETCMDLINEOPTS")
+	MongoDBReplSetGetStatus  = Type("MONGODB_REPLSETGETSTATUS")
+	MongoDBGetDiagnosticData = Type("MONGODB_GETDIAGNOSTICDATA")
+	MetricsInstant           = Type("METRICS_INSTANT")
+	MetricsRange             = Type("METRICS_RANGE")
+	ClickHouseSelect         = Type("CLICKHOUSE_SELECT")
+)
+
+// Type represents query type.
+type Type string
+
+// Validate validates query type.
+func (t Type) Validate() error {
+	switch t {
+	case MySQLShow, MySQLSelect, PostgreSQLShow, PostgreSQLSelect,
+		MongoDBGetParameter, MongoDBBuildInfo, MongoDBGetCmdLineOpts, MongoDBReplSetGetStatus,
+		MongoDBGetDiagnosticData, ClickHouseSelect, MetricsInstant, MetricsRange:
+		return nil
+	case "":
+		return errors.New("check type is empty")
+	default:
+		return fmt.Errorf("unknown check type: %s", t)
+	}
+}
+
+// Supported DB technologies.
+const (
+	MySQL      = Technology("MYSQL")
+	PostgreSQL = Technology("POSTGRESQL")
+	MongoDB    = Technology("MONGODB")
+)
+
+// Technology represents monitored service technology.
+type Technology string
+
+// Validate validates check technology.
+func (f Technology) Validate() error {
+	switch f {
+	case MySQL, PostgreSQL, MongoDB:
+		return nil
+	case "":
+		return errors.New("check technology is empty")
+	default:
+		return fmt.Errorf("unknown check technology: %s", f)
+	}
+}
+
+// Parameter represents query parameter.
+type Parameter string
+
+// Available query parameters.
+const (
+	Lookback = Parameter("lookback")
+	Range    = Parameter("range")
+	Step     = Parameter("step")
+	AllDBs   = Parameter("all_dbs")
+)
+
+// Query represents DB query of specified type.
+type Query struct {
+	Query      string               `json:"query"`
+	Type       Type                 `json:"type"`
+	Parameters map[Parameter]string `json:"parameters,omitempty"`
+}
+
+// Validate validates query.
+func (q Query) Validate() error {
+	err := q.Type.Validate()
+	if err != nil {
+		return err
+	}
+
+	err = validateQuery(q.Type, q.Query)
+	if err != nil {
+		return err
+	}
+
+	return validateQueryParameters(q.Type, q.Parameters)
+}
+
+// Supported advisor check format versions. Version 1 is deprecated and rejected.
+const (
+	// MinSupportedVersion is the minimum supported advisor check format version.
+	MinSupportedVersion uint32 = 2
+	// MaxSupportedVersion is the maximum supported advisor check format version.
+	MaxSupportedVersion uint32 = 2
+)
+
+// UserCheckNamePrefix is the name prefix reserved for user-authored checks.
+// Check names are primary identifiers, so the prefix keeps the user namespace
+// from ever colliding with Percona-shipped checks: user checks must carry it,
+// Percona checks must not (enforced by pi-validator).
+const UserCheckNamePrefix = "custom_"
+
+// Check represents a self-contained advisor check. Category is authored as an
+// exact display string; the advisor "group" is the set of distinct categories
+// across all loaded checks.
+type Check struct {
+	Version     uint32     `yaml:"version"`
+	Name        string     `yaml:"name"`
+	Summary     string     `yaml:"summary"`
+	Description string     `yaml:"description"`
+	Category    string     `yaml:"category"`
+	Technology  Technology `yaml:"technology"`
+	Queries     []Query    `yaml:"queries"`
+	Script      string     `yaml:"script"`
+	// UserDefined is true for checks authored by a user and stored in the DB,
+	// false for Percona-shipped checks loaded from disk. It is not part of the
+	// check's YAML/JSON representation.
+	UserDefined bool `yaml:"-" json:"-"`
+}
+
+// Validate validates check for minimal correctness.
+func (c *Check) Validate() error {
+	if !nameRE.MatchString(c.Name) {
+		return errors.New("invalid check name")
+	}
+
+	if c.Version < MinSupportedVersion {
+		return fmt.Errorf("check %s: format version %d is no longer supported, minimum supported version is %d",
+			c.Name, c.Version, MinSupportedVersion)
+	}
+
+	if c.Version > MaxSupportedVersion {
+		return fmt.Errorf("check %s: format version %d is not supported, maximum supported version is %d",
+			c.Name, c.Version, MaxSupportedVersion)
+	}
+
+	err := c.validateScript()
+	if err != nil {
+		return err
+	}
+
+	if c.Script == "" {
+		return errors.New("check script is empty")
+	}
+
+	if c.Summary == "" {
+		return errors.New("summary is empty")
+	}
+
+	if c.Description == "" {
+		return errors.New("description is empty")
+	}
+
+	if c.Category == "" {
+		return errors.New("category is empty")
+	}
+
+	err = c.Technology.Validate()
+	if err != nil {
+		return err
+	}
+
+	return c.validateQueries()
+}
+
+func (c *Check) validateScript() error {
+	if strings.ContainsRune(c.Script, '\t') {
+		return errors.New("script should use spaces for indentation, not tabs")
+	}
+
+	return nil
+}
+
+func validateQuery(typ Type, query string) error {
+	switch typ {
+	case PostgreSQLShow, MongoDBGetParameter, MongoDBBuildInfo, MongoDBGetCmdLineOpts,
+		MongoDBReplSetGetStatus, MongoDBGetDiagnosticData:
+		if query != "" {
+			return fmt.Errorf("query should be empty for '%s' type", typ)
+		}
+	case PostgreSQLSelect, MySQLShow, MySQLSelect, ClickHouseSelect,
+		MetricsInstant, MetricsRange:
+		if query == "" {
+			return errors.New("query is empty")
+		}
+	}
+
+	return nil
+}
+
+func validateQueryParameters(typ Type, params map[Parameter]string) error {
+	switch typ { //nolint:exhaustive
+	case PostgreSQLShow, MongoDBGetParameter, MongoDBBuildInfo, MongoDBGetCmdLineOpts,
+		MongoDBReplSetGetStatus, MongoDBGetDiagnosticData, MySQLShow, MySQLSelect:
+		if len(params) != 0 {
+			return fmt.Errorf("query for '%s' type should not have any parameters", typ)
+		}
+
+	case PostgreSQLSelect:
+		return validateParametersForPostgreSQLSelectQuery(params)
+
+	case MetricsInstant:
+		return validateParametersForMetricsInstantQuery(params)
+	case MetricsRange:
+		return validateParametersForMetricsRangeQuery(params)
+	}
+
+	return nil
+}
+
+func validateParametersForPostgreSQLSelectQuery(params map[Parameter]string) error {
+	for param, value := range params {
+		if param != AllDBs {
+			return fmt.Errorf("unsupported parameter '%s' for postgreSQL select query", param)
+		}
+
+		_, err := strconv.ParseBool(value)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func validateParametersForMetricsInstantQuery(params map[Parameter]string) error {
+	for param, value := range params {
+		if param != Lookback {
+			return fmt.Errorf("unsupported parameter '%s' for instant metrics query", param)
+		}
+
+		_, err := time.ParseDuration(value)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func validateParametersForMetricsRangeQuery(params map[Parameter]string) error {
+	if _, ok := params[Range]; !ok {
+		return errors.New("query parameter 'range' is required for metrics range queries")
+	}
+
+	if _, ok := params[Step]; !ok {
+		return errors.New("query parameter 'step' is required for metrics range queries")
+	}
+
+	for param, value := range params {
+		switch param {
+		case Lookback, Range, Step:
+			_, err := time.ParseDuration(value)
+			if err != nil {
+				return err
+			}
+		default:
+			return fmt.Errorf("unsupported parameter '%s' for range metrics query", param)
+		}
+	}
+
+	return nil
+}
+
+func (c *Check) validateQueries() error {
+	if len(c.Queries) == 0 {
+		return errors.New("check should have at least one query")
+	}
+
+	var err error
+	for _, q := range c.Queries {
+		err = q.Validate()
+		if err != nil {
+			return err
+		}
+	}
+
+	switch c.Technology {
+	case MySQL:
+		return checkQueryForCompatibilityWithMySQLTechnology(c.Queries)
+	case PostgreSQL:
+		return checkQueryForCompatibilityWithPostgreSQLTechnology(c.Queries)
+	case MongoDB:
+		return checkQueryCompatibilityWithMongoDBTechnology(c.Queries)
+	default:
+		return fmt.Errorf("unknown check technology: %s", c.Technology)
+	}
+}
+
+func checkQueryForCompatibilityWithMySQLTechnology(queries []Query) error {
+	for _, q := range queries {
+		switch q.Type {
+		case MySQLShow:
+		case MySQLSelect:
+		case MetricsInstant:
+		case MetricsRange:
+		case ClickHouseSelect:
+		default:
+			return fmt.Errorf("unsupported query type '%s' for mySQL technology", q.Type)
+		}
+	}
+
+	return nil
+}
+
+func checkQueryForCompatibilityWithPostgreSQLTechnology(queries []Query) error {
+	for _, q := range queries {
+		switch q.Type {
+		case PostgreSQLShow:
+		case PostgreSQLSelect:
+		case MetricsInstant:
+		case MetricsRange:
+		case ClickHouseSelect:
+		default:
+			return fmt.Errorf("unsupported query type '%s' for postgreSQL technology", q.Type)
+		}
+	}
+
+	return nil
+}
+
+func checkQueryCompatibilityWithMongoDBTechnology(queries []Query) error {
+	for _, q := range queries {
+		switch q.Type {
+		case MongoDBGetParameter:
+		case MongoDBBuildInfo:
+		case MongoDBGetCmdLineOpts:
+		case MongoDBGetDiagnosticData:
+		case MongoDBReplSetGetStatus:
+		case MetricsInstant:
+		case MetricsRange:
+		case ClickHouseSelect:
+		default:
+			return fmt.Errorf("unsupported query type '%s' for mongoDB technology", q.Type)
+		}
+	}
+
+	return nil
+}

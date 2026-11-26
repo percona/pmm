@@ -28,13 +28,13 @@ import (
 //nolint:goconst
 func (s *Service) GetFilteredMetricsNames(ctx context.Context, in *qanpb.GetFilteredMetricsNamesRequest) (*qanpb.GetFilteredMetricsNamesResponse, error) {
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
-		return nil, fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, fmt.Errorf("from-date: %v or to-date: %v cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	periodStartToSec := in.PeriodStartTo.Seconds
 	if periodStartFromSec > periodStartToSec {
-		return nil, fmt.Errorf("from-date %s cannot be later then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, fmt.Errorf("from-date %v cannot be later then to-date %v", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 
 	labels := make(map[string][]string)

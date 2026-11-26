@@ -18,8 +18,8 @@ package management
 
 import (
 	"context"
+	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -35,50 +35,50 @@ import (
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
 var AgentStatusUnknown = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)]
 
-// RegisterGenericNode registers a generic node using the provided parameters.
-func RegisterGenericNode(t pmmapitests.TestingT, body mservice.RegisterNodeBody) (string, string) {
-	t.Helper()
-	params := mservice.RegisterNodeParams{
-		Context: pmmapitests.Context,
-		Body:    body,
-	}
-	registerOK, err := client.Default.ManagementService.RegisterNode(&params)
-	require.NoError(t, err)
-	require.NotNil(t, registerOK)
-	require.NotNil(t, registerOK.Payload.PMMAgent)
-	require.NotNil(t, registerOK.Payload.PMMAgent.AgentID)
-	require.NotNil(t, registerOK.Payload.GenericNode)
-	require.NotNil(t, registerOK.Payload.GenericNode.NodeID)
-
-	return registerOK.Payload.GenericNode.NodeID, registerOK.Payload.PMMAgent.AgentID
-}
-
-func registerContainerNode(t pmmapitests.TestingT, body mservice.RegisterNodeBody) (string, string) {
+// RegisterNode registers a node using the provided parameters.
+// It returns the registered node's ID and the associated PMM Agent's ID.
+// The function also ensures that the registered node is cleaned up after the test by using t.Cleanup.
+func RegisterNode(t *testing.T, body mservice.RegisterNodeBody) (string, string) {
 	t.Helper()
 
-	params := mservice.RegisterNodeParams{
-		Context: pmmapitests.Context,
+	require.NotNil(t, body.NodeType)
+	params := &mservice.RegisterNodeParams{
+		Context: t.Context(),
 		Body:    body,
 	}
-	registerOK, err := client.Default.ManagementService.RegisterNode(&params)
+
+	registerOK, err := client.Default.ManagementService.RegisterNode(params)
 	require.NoError(t, err)
 	require.NotNil(t, registerOK)
+	require.NotNil(t, registerOK.Payload)
 	require.NotNil(t, registerOK.Payload.PMMAgent)
-	require.NotNil(t, registerOK.Payload.PMMAgent.AgentID)
-	require.NotNil(t, registerOK.Payload.ContainerNode)
-	require.NotNil(t, registerOK.Payload.ContainerNode.NodeID)
+	require.NotEmpty(t, registerOK.Payload.PMMAgent.AgentID)
 
-	return registerOK.Payload.ContainerNode.NodeID, registerOK.Payload.PMMAgent.AgentID
+	var nodeID string
+	switch *body.NodeType {
+	case mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE:
+		require.NotNil(t, registerOK.Payload.GenericNode)
+		nodeID = registerOK.Payload.GenericNode.NodeID
+	case mservice.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE:
+		require.NotNil(t, registerOK.Payload.ContainerNode)
+		nodeID = registerOK.Payload.ContainerNode.NodeID
+	}
+	require.NotEmpty(t, nodeID)
+	t.Cleanup(func() {
+		pmmapitests.UnregisterNodes(t, nodeID)
+	})
+
+	return nodeID, registerOK.Payload.PMMAgent.AgentID
 }
 
-func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (string, bool) {
+func assertNodeExporterCreated(t *testing.T, pmmAgentID string) (string, bool) {
 	t.Helper()
 
 	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-		PMMAgentID: pointer.ToString(pmmAgentID),
+		PMMAgentID: new(pmmAgentID),
 		Context:    pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.Len(t, listAgentsOK.Payload.NodeExporter, 1)
 	nodeExporterAgentID := listAgentsOK.Payload.NodeExporter[0].AgentID
 	asserted := assert.Equal(t, agents.ListAgentsOKBodyNodeExporterItems0{
@@ -88,19 +88,19 @@ func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (strin
 		Status:             &AgentStatusUnknown,
 		CustomLabels:       make(map[string]string),
 		DisabledCollectors: make([]string, 0),
-		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 	}, *listAgentsOK.Payload.NodeExporter[0])
 	return nodeExporterAgentID, asserted
 }
 
-func assertPMMAgentCreated(t pmmapitests.TestingT, nodeID string, pmmAgentID string) {
+func assertPMMAgentCreated(t *testing.T, nodeID string, pmmAgentID string) {
 	t.Helper()
 
 	agentOK, err := inventoryClient.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 		AgentID: pmmAgentID,
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, agents.GetAgentOKBody{
 		PMMAgent: &agents.GetAgentOKBodyPMMAgent{
 			AgentID:      pmmAgentID,
@@ -110,48 +110,52 @@ func assertPMMAgentCreated(t pmmapitests.TestingT, nodeID string, pmmAgentID str
 	}, *agentOK.Payload)
 }
 
-func assertNodeCreated(t pmmapitests.TestingT, nodeID string, expectedResult nodes.GetNodeOKBody) {
+func assertNodeCreated(t *testing.T, nodeID string, expectedResult nodes.GetNodeOKBody) {
 	t.Helper()
 
 	nodeOK, err := inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
 		NodeID:  nodeID,
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expectedResult, *nodeOK.Payload)
 }
 
 // RemovePMMAgentWithSubAgents removes a PMM Agent along with its sub-agents.
-func RemovePMMAgentWithSubAgents(t pmmapitests.TestingT, pmmAgentID string) {
+func RemovePMMAgentWithSubAgents(t *testing.T, pmmAgentID string) {
 	t.Helper()
 
 	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-		PMMAgentID: pointer.ToString(pmmAgentID),
+		PMMAgentID: new(pmmAgentID),
 		Context:    context.Background(),
 	})
-	assert.NoError(t, err)
-	removeAllAgentsInList(t, listAgentsOK)
-	pmmapitests.RemoveAgents(t, pmmAgentID)
+	if err == nil {
+		removeAllAgentsInList(t, listAgentsOK)
+		pmmapitests.RemoveAgents(t, pmmAgentID)
+	}
 }
 
-func removeServiceAgents(t pmmapitests.TestingT, serviceID string) {
-	t.Helper()
-
-	listAgentsOK, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-		ServiceID: pointer.ToString(serviceID),
-		Context:   context.Background(),
-	})
-	assert.NoError(t, err)
-	removeAllAgentsInList(t, listAgentsOK)
-}
-
-func removeAllAgentsInList(t pmmapitests.TestingT, listAgentsOK *agents.ListAgentsOK) {
+func removeAllAgentsInList(t *testing.T, listAgentsOK *agents.ListAgentsOK) {
 	t.Helper()
 
 	require.NotNil(t, listAgentsOK)
 	require.NotNil(t, listAgentsOK.Payload)
 
-	var agentIDs []string //nolint:prealloc
+	agentIDs := make([]string, 0,
+		len(listAgentsOK.Payload.NodeExporter)+
+			len(listAgentsOK.Payload.PMMAgent)+
+			len(listAgentsOK.Payload.PostgresExporter)+
+			len(listAgentsOK.Payload.MysqldExporter)+
+			len(listAgentsOK.Payload.ProxysqlExporter)+
+			len(listAgentsOK.Payload.QANMysqlPerfschemaAgent)+
+			len(listAgentsOK.Payload.MongodbExporter)+
+			len(listAgentsOK.Payload.QANMongodbProfilerAgent)+
+			len(listAgentsOK.Payload.QANMongodbMongologAgent)+
+			len(listAgentsOK.Payload.QANMysqlSlowlogAgent)+
+			len(listAgentsOK.Payload.QANPostgresqlPgstatementsAgent)+
+			len(listAgentsOK.Payload.ExternalExporter)+
+			len(listAgentsOK.Payload.VMAgent)+
+			len(listAgentsOK.Payload.RtaMongodbAgent))
 	for _, agent := range listAgentsOK.Payload.NodeExporter {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}
@@ -189,6 +193,9 @@ func removeAllAgentsInList(t pmmapitests.TestingT, listAgentsOK *agents.ListAgen
 		agentIDs = append(agentIDs, agent.AgentID)
 	}
 	for _, agent := range listAgentsOK.Payload.VMAgent {
+		agentIDs = append(agentIDs, agent.AgentID)
+	}
+	for _, agent := range listAgentsOK.Payload.RtaMongodbAgent {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}
 

@@ -16,72 +16,65 @@
 package services
 
 import (
-	"github.com/percona/saas/pkg/check"
+	"maps"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/check"
 )
 
 // Target contains required info about advisor check target.
 type Target struct {
-	AgentID       string
-	ServiceID     string
-	ServiceName   string
-	ServiceType   models.ServiceType
-	NodeName      string
-	Labels        map[string]string
-	DSN           string
-	Files         map[string]string
-	TDP           *models.DelimiterPair
-	TLSSkipVerify bool
+	AgentID        string
+	ServiceID      string
+	ServiceName    string
+	ServiceType    models.ServiceType
+	NodeID         string
+	NodeName       string
+	Environment    string
+	Cluster        string
+	ReplicationSet string
+	Region         string
+	AZ             string
+	Labels         map[string]string
+	DSN            string
+	Files          map[string]string
+	TDP            *models.DelimiterPair
+	TLSSkipVerify  bool
 }
 
 // Copy creates a copy of the Target instance.
 func (t *Target) Copy() Target {
 	labels := make(map[string]string, len(t.Labels))
-	for k, v := range t.Labels {
-		labels[k] = v
-	}
+	maps.Copy(labels, t.Labels)
 
 	files := make(map[string]string, len(t.Files))
-	for k, v := range t.Files {
-		files[k] = v
-	}
-
-	tdp := *t.TDP
+	maps.Copy(files, t.Files)
 
 	return Target{
-		AgentID:       t.AgentID,
-		ServiceID:     t.ServiceID,
-		ServiceName:   t.ServiceName,
-		ServiceType:   t.ServiceType,
-		NodeName:      t.NodeName,
-		Labels:        labels,
-		DSN:           t.DSN,
-		Files:         files,
-		TDP:           &tdp,
-		TLSSkipVerify: t.TLSSkipVerify,
+		AgentID:        t.AgentID,
+		ServiceID:      t.ServiceID,
+		ServiceName:    t.ServiceName,
+		ServiceType:    t.ServiceType,
+		NodeID:         t.NodeID,
+		NodeName:       t.NodeName,
+		Environment:    t.Environment,
+		Cluster:        t.Cluster,
+		ReplicationSet: t.ReplicationSet,
+		Region:         t.Region,
+		AZ:             t.AZ,
+		Labels:         labels,
+		DSN:            t.DSN,
+		Files:          files,
+		TDP:            new(*t.TDP),
+		TLSSkipVerify:  t.TLSSkipVerify,
 	}
 }
 
 // CheckResult contains the output from the check file and other information.
 type CheckResult struct {
 	CheckName   string
-	AdvisorName string
-	Interval    check.Interval
+	Category    string
+	UserDefined bool
 	Target      Target
 	Result      check.Result
-}
-
-// CheckResultSummary contains the summary of failed checks for a service.
-type CheckResultSummary struct {
-	ServiceName    string
-	ServiceID      string
-	EmergencyCount uint32
-	AlertCount     uint32
-	CriticalCount  uint32
-	ErrorCount     uint32
-	WarningCount   uint32
-	NoticeCount    uint32
-	InfoCount      uint32
-	DebugCount     uint32
 }

@@ -16,7 +16,6 @@
 package agents
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -28,6 +27,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/version"
 )
 
@@ -55,13 +55,22 @@ var defaultPostgresExporterCollectors = []string{
 
 const defaultAutoDiscoveryDatabaseLimit = 50
 
+func pmmServerPostgresPasswordFile() string {
+	if !secrets.Exists(secrets.PostgresPassword) {
+		return ""
+	}
+	return secrets.Path(secrets.PostgresPassword)
+}
+
 func postgresExcludedDatabases() []string {
 	return []string{"template0", "template1", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance", "rdsadmin"}
 }
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
-func postgresExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
-	pmmAgentVersion *version.Parsed,
+// The node argument is the pmm-agent's Node, serviceNode is the monitored Service's Node.
+// The passwordFile argument is the file with the password of PMM Server's PostgreSQL user, or empty when there is none.
+func postgresExporterConfig(node, serviceNode *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
+	pmmAgentVersion *version.Parsed, passwordFile string,
 ) (*agentv1.SetStateRequest_AgentProcess, error) {
 	if service.DatabaseName == "" {
 		panic("database name not set")
@@ -101,7 +110,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	if autoDiscovery {
 		args = append(args,
 			"--auto-discover-databases",
-			fmt.Sprintf("--exclude-databases=%s", strings.Join(postgresExcludedDatabases(), ",")))
+			"--exclude-databases="+strings.Join(postgresExcludedDatabases(), ","))
 	}
 
 	if !pmmAgentVersion.Less(postgresMaxExporterConnsVersion) &&
@@ -116,7 +125,11 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 
 	if !pmmAgentVersion.Less(postgresExporterCollectorsVersion) {
-		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultPostgresExporterCollectors, exporter.ExporterOptions.DisabledCollectors) //nolint:lll
+		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors(
+			"--no-collector.",
+			defaultPostgresExporterCollectors,
+			exporter.ExporterOptions.DisabledCollectors,
+		)
 		args = append(args, disableCollectorArgs...)
 	}
 
@@ -125,20 +138,16 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	sort.Strings(args)
 
 	dsnParams := models.DSNParams{
-		DialTimeout:              1 * time.Second,
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
 
-	// On AWS and Azure, we need to have a higher value for DialTimeout to avoid connection issues
+	dsnParams.DialTimeout = dbExporterDialTimeout(serviceNode, exporter)
 
-	// TODO: refactor with https://perconadev.atlassian.net/browse/PMM-12832
-	if node.NodeType == models.RemoteRDSNodeType {
-		dsnParams.DialTimeout = 5 * time.Second
-	}
-
-	if exporter.AzureOptions.ClientID != "" {
-		dsnParams.DialTimeout = 5 * time.Second
+	env := []string{"DATA_SOURCE_NAME=" + exporter.DSN(service, dsnParams, nil, pmmAgentVersion)}
+	if passwordFile != "" && service.ServiceName == models.PMMServerPostgreSQLServiceName &&
+		pointer.GetString(exporter.PMMAgentID) == models.PMMServerAgentID {
+		env = passwordFileEnv(service, exporter, dsnParams, tdp, pmmAgentVersion, passwordFile)
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{
@@ -146,28 +155,53 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dsnParams, nil, pmmAgentVersion)),
-		},
-		TextFiles: exporter.Files(),
+		Env:                env,
+		TextFiles:          exporter.Files(),
 	}
 
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false); err != nil {
+	err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false)
+	if err != nil {
 		return nil, err
 	}
 
 	return res, nil
 }
 
+// passwordFileEnv returns the environment that makes postgres_exporter read its password from a file and build the
+// data source name from the other variables.
+func passwordFileEnv(
+	service *models.Service,
+	exporter *models.Agent,
+	dsnParams models.DSNParams,
+	tdp *models.DelimiterPair,
+	pmmAgentVersion *version.Parsed,
+	file string,
+) []string {
+	withoutCredentials := *exporter
+	withoutCredentials.Username = nil
+	withoutCredentials.Password = nil
+	uri := strings.TrimPrefix(withoutCredentials.DSN(service, dsnParams, tdp, pmmAgentVersion), "postgres://")
+
+	return []string{
+		"DATA_SOURCE_URI=" + uri,
+		"DATA_SOURCE_USER=" + pointer.GetString(exporter.Username),
+		"DATA_SOURCE_PASS_FILE=" + file,
+	}
+}
+
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
-func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
+func qanPostgreSQLPgStatementsAgentConfig(
+	service *models.Service,
+	agent *models.Agent,
+	pmmAgentVersion *version.Parsed,
+) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	dnsParams := models.DSNParams{
-		DialTimeout:              5 * time.Second,
+		DialTimeout:              5 * time.Second, //nolint:mnd
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}

@@ -16,13 +16,14 @@
 package checks
 
 import (
+	"fmt"
 	"net"
 	"strconv"
+	"time"
 
-	"github.com/percona/saas/pkg/starlark"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/managed/pi/starlark"
 	"github.com/percona/pmm/version"
 )
 
@@ -31,26 +32,26 @@ var privateNetworks []*net.IPNet
 // GetFuncsForVersion returns predefined functions for specified check version.
 func GetFuncsForVersion(version uint32) (map[string]starlark.GoFunc, error) {
 	switch version {
-	case 1, 2:
+	case 1, 2: //nolint:mnd
 		return map[string]starlark.GoFunc{
 			"parse_version":      parseVersion,
 			"format_version_num": formatVersionNum,
 		}, nil
 	default:
-		return nil, errors.Errorf("unsupported check version: %d", version)
+		return nil, fmt.Errorf("unsupported check version: %d", version)
 	}
 }
 
 // parseVersion accepts a single string argument (version), and returns map[string]interface{}
 // with keys: major, minor, patch (int64), num (MMmmpp, int64), and rest (string).
-func parseVersion(args ...interface{}) (interface{}, error) {
+func parseVersion(args ...any) (any, error) {
 	if l := len(args); l != 1 {
-		return nil, errors.Errorf("expected 1 argument, got %d", l)
+		return nil, fmt.Errorf("expected 1 argument, got %d", l)
 	}
 
 	s, ok := args[0].(string)
 	if !ok {
-		return nil, errors.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
+		return nil, fmt.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
 	}
 
 	p, err := version.Parse(s)
@@ -58,7 +59,7 @@ func parseVersion(args ...interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	return map[string]interface{}{
+	return map[string]any{
 		"major":   int64(p.Major),
 		"minor":   int64(p.Minor),
 		"patch":   int64(p.Patch),
@@ -70,32 +71,32 @@ func parseVersion(args ...interface{}) (interface{}, error) {
 
 // formatVersionNum accepts a single int64 argument (version num MMmmpp or MMmmppRRR), and returns
 // MM.mm.pp or MM.mm.pp-RRR as a string.
-func formatVersionNum(args ...interface{}) (interface{}, error) {
+func formatVersionNum(args ...any) (any, error) {
 	if l := len(args); l != 1 {
-		return nil, errors.Errorf("expected 1 argument, got %d", l)
+		return nil, fmt.Errorf("expected 1 argument, got %d", l)
 	}
 
 	num, ok := args[0].(int64)
 	if !ok {
-		return nil, errors.Errorf("expected int64 argument, got %[1]T (%[1]v)", args[0])
+		return nil, fmt.Errorf("expected int64 argument, got %[1]T (%[1]v)", args[0])
 	}
 	// process numbers with a rest part included
-	if num > 10000000 {
+	if num > 10000000 { //nolint:mnd
 		p := &version.Parsed{
-			Major:   int(num / 10000000),
-			Minor:   int(num / 100000 % 100),
-			Patch:   int(num / 1000 % 100),
+			Major:   int(num / 10000000),     //nolint:mnd
+			Minor:   int(num / 100000 % 100), //nolint:mnd
+			Patch:   int(num / 1000 % 100),   //nolint:mnd
 			Rest:    "-" + strconv.FormatInt(num%1000, 10),
-			NumRest: int(num % 1000),
+			NumRest: int(num % 1000), //nolint:mnd
 		}
 
 		return p.String(), nil
 	}
 
 	p := &version.Parsed{
-		Major: int(num / 10000),
-		Minor: int(num / 100 % 100),
-		Patch: int(num % 100),
+		Major: int(num / 10000),     //nolint:mnd
+		Minor: int(num / 100 % 100), //nolint:mnd
+		Patch: int(num % 100),       //nolint:mnd
 	}
 
 	return p.String(), nil
@@ -103,39 +104,85 @@ func formatVersionNum(args ...interface{}) (interface{}, error) {
 
 // GetAdditionalContext returns additional functions to be used in check scripts.
 func GetAdditionalContext() map[string]starlark.GoFunc {
+	return additionalContext(time.Now)
+}
+
+// additionalContext returns the functions of GetAdditionalContext, with current_date and days_until reading the clock now.
+// Tests pass a fixed clock, so they don't share any state.
+func additionalContext(now func() time.Time) map[string]starlark.GoFunc {
 	return map[string]starlark.GoFunc{
 		"ip_is_private":      ipIsPrivate,
 		"parse_version":      parseVersion,
 		"format_version_num": formatVersionNum,
+		"current_date":       currentDate(now),
+		"days_until":         daysUntil(now),
 	}
 }
 
-// ipIsPrivate accepts a single string argument (IP address or a network) and
-// returns true for a private address, otherwise false. It returns nil in case of an invalid argument.
-func ipIsPrivate(args ...interface{}) (interface{}, error) {
+const dateLayout = "2006-01-02"
+
+// currentDate returns a function that takes no arguments and returns today's UTC date, by the clock now, as a YYYY-MM-DD string.
+func currentDate(now func() time.Time) starlark.GoFunc {
+	return func(args ...any) (any, error) {
+		if l := len(args); l != 0 {
+			return nil, fmt.Errorf("expected 0 arguments, got %d", l)
+		}
+
+		return now().UTC().Format(dateLayout), nil
+	}
+}
+
+// daysUntil returns a function that returns the whole days from today (UTC), by the clock now,
+// until a YYYY-MM-DD date as int64, negative for a past date.
+func daysUntil(now func() time.Time) starlark.GoFunc {
+	return func(args ...any) (any, error) {
+		if l := len(args); l != 1 {
+			return nil, fmt.Errorf("expected 1 argument, got %d", l)
+		}
+
+		s, ok := args[0].(string)
+		if !ok {
+			return nil, fmt.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
+		}
+
+		d, err := time.Parse(dateLayout, s)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse '%s': %w", s, err)
+		}
+
+		today := now().UTC().Truncate(24 * time.Hour) //nolint:mnd
+
+		return int64(d.Sub(today) / (24 * time.Hour)), nil //nolint:mnd
+	}
+}
+
+// ipIsPrivate accepts a single string argument (IP address or a network in CIDR notation) and
+// returns true for a private address or a network that lies fully inside a private block, otherwise false.
+// It returns nil in case of an invalid argument.
+func ipIsPrivate(args ...any) (any, error) {
 	log := logrus.WithField("component", "checks")
 
 	if l := len(args); l != 1 {
-		return nil, errors.Errorf("expected 1 argument, got %d", l)
+		return nil, fmt.Errorf("expected 1 argument, got %d", l)
 	}
 
 	ip, ok := args[0].(string)
 	if !ok {
-		return nil, errors.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
+		return nil, fmt.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
 	}
 
 	ipAddress := net.ParseIP(ip)
 	if ipAddress == nil {
 		// check if string was in CIDR notation
-		_, net, err := net.ParseCIDR(ip)
+		_, ipNet, err := net.ParseCIDR(ip)
 		if err != nil {
 			log.Errorf("invalid ip/network address: %q", ip)
 			return nil, nil //nolint:nilnil,nilerr
 		}
+		ones, bits := ipNet.Mask.Size()
 		for _, network := range privateNetworks {
-			// check if the two networks intersect
-			// https://stackoverflow.com/questions/34729158/how-to-detect-if-two-golang-net-ipnet-objects-intersect/34729915#34729915
-			if net.Contains(network.IP) || network.Contains(net.IP) {
+			privateOnes, privateBits := network.Mask.Size()
+			if bits == privateBits && ones >= privateOnes && network.Contains(ipNet.IP) {
 				return true, nil
 			}
 		}

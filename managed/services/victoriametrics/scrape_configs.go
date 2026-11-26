@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -43,11 +44,11 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	case interval <= 2*time.Second:
 		return config.Duration(time.Second)
 	default:
-		return config.Duration(float64(interval) * 0.9)
+		return config.Duration(float64(interval) * 0.9) //nolint:mnd
 	}
 }
 
-func scrapeConfigForClickhouse(mr time.Duration) *config.ScrapeConfig {
+func scrapeConfigForClickhouse(mr time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "clickhouse",
 		ScrapeInterval: config.Duration(mr),
@@ -55,14 +56,14 @@ func scrapeConfigForClickhouse(mr time.Duration) *config.ScrapeConfig {
 		MetricsPath:    "/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:9363"},
-				Labels:  map[string]string{"instance": "pmm-server"},
+				Targets: []string{models.LocalhostAddr + ":9363"},
+				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
 	}
 }
 
-func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
+func scrapeConfigForGrafana(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "grafana",
 		ScrapeInterval: config.Duration(interval),
@@ -70,14 +71,14 @@ func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 		MetricsPath:    "/graph/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:3000"},
-				Labels:  map[string]string{"instance": "pmm-server"},
+				Targets: []string{models.LocalhostAddr + ":3000"},
+				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
 	}
 }
 
-func scrapeConfigForPMMManaged(interval time.Duration) *config.ScrapeConfig {
+func scrapeConfigForPMMManaged(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "pmm-managed",
 		ScrapeInterval: config.Duration(interval),
@@ -85,14 +86,14 @@ func scrapeConfigForPMMManaged(interval time.Duration) *config.ScrapeConfig {
 		MetricsPath:    "/debug/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:7773"},
-				Labels:  map[string]string{"instance": "pmm-server"},
+				Targets: []string{models.LocalhostAddr + ":7773"},
+				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
 	}
 }
 
-func scrapeConfigForQANAPI2(interval time.Duration) *config.ScrapeConfig {
+func scrapeConfigForQANAPI2(interval time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "qan-api2",
 		ScrapeInterval: config.Duration(interval),
@@ -100,14 +101,14 @@ func scrapeConfigForQANAPI2(interval time.Duration) *config.ScrapeConfig {
 		MetricsPath:    "/debug/metrics",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:9933"},
-				Labels:  map[string]string{"instance": "pmm-server"},
+				Targets: []string{models.LocalhostAddr + ":9933"},
+				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
 	}
 }
 
-func scrapeConfigForNomadServer(resolution time.Duration) *config.ScrapeConfig {
+func scrapeConfigForNomadServer(resolution time.Duration, pmmServerNodeName string) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "nomad",
 		ScrapeInterval: config.Duration(resolution),
@@ -116,8 +117,8 @@ func scrapeConfigForNomadServer(resolution time.Duration) *config.ScrapeConfig {
 		Scheme:         "https",
 		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
 			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:4646"},
-				Labels:  map[string]string{"instance": "pmm-server"},
+				Targets: []string{models.LocalhostAddr + ":4646"},
+				Labels:  map[string]string{"instance": pmmServerNodeName},
 			}},
 		},
 		HTTPClientConfig: config.HTTPClientConfig{
@@ -138,6 +139,7 @@ func scrapeConfigsForNomadAgent(m *models.MetricsResolutions, s *scrapeConfigPar
 		JobName:        jobName(s.agent, "mr"),
 		ScrapeInterval: config.Duration(m.MR),
 		ScrapeTimeout:  scrapeTimeout(m.MR),
+		Scheme:         "https",
 		MetricsPath:    "/v1/metrics",
 	}
 
@@ -301,7 +303,8 @@ func scrapeConfigsForNodeExporter(params *scrapeConfigParams) ([]*config.ScrapeC
 		"loadavg",
 		"meminfo",
 		"netdev",
-		"time")
+		"time",
+	)
 	hrCollect = collectors.FilterOutCollectors("", hrCollect, params.agent.ExporterOptions.DisabledCollectors)
 
 	hr, err = scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, hrCollect)
@@ -369,6 +372,7 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 		"info_schema.clientstats",
 		"info_schema.userstats",
 		"perf_schema.eventsstatements",
+		"perf_schema.memory_events",
 		"perf_schema.file_instances",
 		"custom_query.lr",
 		"plugins",
@@ -388,6 +392,14 @@ func scrapeConfigsForMySQLdExporter(params *scrapeConfigParams) ([]*config.Scrap
 	lr, err := scrapeConfigForStandardExporter("lr", params.metricsResolution.LR, params, lrOptions)
 	if err != nil {
 		return nil, err
+	}
+	if lr != nil && slices.Contains(lrOptions, "perf_schema.file_instances") {
+		// MySQL 8.0.30+ numbers redo log files ever higher, so per-file series would never stop growing.
+		lr.MetricRelabelConfigs = []*config.RelabelConfig{{
+			SourceLabels: []string{"__name__", "file_name"},
+			Regex:        "mysql_perf_schema_file_instances_.+;.*#innodb_redo/.*",
+			Action:       "drop",
+		}}
 	}
 
 	var r []*config.ScrapeConfig
@@ -508,6 +520,19 @@ func scrapeConfigsForPostgresExporter(params *scrapeConfigParams) ([]*config.Scr
 	return r, nil
 }
 
+func scrapeConfigForValkeyExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
+	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var r []*config.ScrapeConfig
+	if hr != nil {
+		r = append(r, hr)
+	}
+	return r, nil
+}
+
 func scrapeConfigsForProxySQLExporter(params *scrapeConfigParams) ([]*config.ScrapeConfig, error) {
 	hr, err := scrapeConfigForStandardExporter("hr", params.metricsResolution.HR, params, nil) // TODO https://jira.percona.com/browse/PMM-4619
 	if err != nil {
@@ -535,7 +560,7 @@ func scrapeConfigsForRDSExporter(params []*scrapeConfigParams) []*config.ScrapeC
 	}
 	sort.Strings(hostports)
 
-	r := make([]*config.ScrapeConfig, 0, len(hostports)*2)
+	r := make([]*config.ScrapeConfig, 0, len(hostports)*2) //nolint:mnd
 	for _, hostport := range hostports {
 		metricsResolutions := hostportMap[hostport]
 		mr := scrapeConfigForRDSExporter("mr", metricsResolutions.MR, hostport, "/enhanced")

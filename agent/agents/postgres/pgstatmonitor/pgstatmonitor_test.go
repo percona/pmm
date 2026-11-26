@@ -25,7 +25,7 @@ import (
 	"time"
 
 	ver "github.com/hashicorp/go-version"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -38,14 +38,14 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
-func setup(t *testing.T, db *reform.DB, disableCommentsParsing, disableQueryExamples bool) *PGStatMonitorQAN { //nolint:unparam
+func setup(t *testing.T, db *reform.DB) *PGStatMonitorQAN {
 	t.Helper()
 
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
 	_, err := db.Exec(selectQuery + "* from pg_stat_monitor_reset()")
 	require.NoError(t, err)
 
-	pgStatMonitorQAN, err := newPgStatMonitorQAN(db.WithTag(queryTag), nil, "agent_id", disableCommentsParsing, disableQueryExamples, truncate.GetDefaultMaxQueryLength(), logrus.WithField("test", t.Name()))
+	pgStatMonitorQAN, err := newPgStatMonitorQAN(db.WithTag(queryTag), nil, "agent_id", false, false, truncate.GetDefaultMaxQueryLength(), logrus.WithField("test", t.Name()))
 	require.NoError(t, err)
 
 	return pgStatMonitorQAN
@@ -98,27 +98,29 @@ func TestVersion(t *testing.T) {
 func TestPGStatMonitorSchema(t *testing.T) {
 	t.Skip("Skip it until the sandbox supports pg_stat_monitor by default. The current PostgreSQL image is the official, not the one from PerconaLab")
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
-	if !supportedVersion(engineVersion) || !extensionExists(db) {
+	majorVersion, _ := tests.PostgreSQLVersion(t, sqlDB)
+	if !supportedVersion(majorVersion) || !extensionExists(db) {
 		t.Skip()
 	}
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_monitor SCHEMA public")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	defer func() {
 		_, err = db.Exec("DROP EXTENSION pg_stat_monitor")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	vPG, err := getPGVersion(db.Querier)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	vPGSM, _, err := getPGMonitorVersion(db.Querier)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, view := newPgStatMonitorStructs(vPGSM, vPG)
 	structs, err := db.SelectAllFrom(view, "")
@@ -147,7 +149,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		"$341, $342, $343, $3 ..."
 
 	var digests map[string]string
-	switch engineVersion {
+	switch majorVersion {
 	case "11":
 		digests = map[string]string{
 			selectAllCountries:     "8055E3FCBD5A55B1",
@@ -181,7 +183,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	var selectCMDType, insertCMDType string
 	var mPlansCallsCnt, mPlansTimeCnt float32
 	pgsmVersion, _, err := getPGMonitorVersion(db.Querier)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	switch pgsmVersion {
 	case pgStatMonitorVersion06:
 	case pgStatMonitorVersion08:
@@ -205,7 +207,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	}
 
 	t.Run("AllCountries", func(t *testing.T) {
-		m := setup(t, db, false, false)
+		m := setup(t, db)
 
 		_, err := db.Exec(selectAllCountries)
 		require.NoError(t, err)
@@ -224,7 +226,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		actual := buckets[0]
 		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InEpsilon(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
+		assert.InDelta(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		example := ""
 
@@ -339,12 +341,12 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	})
 
 	t.Run("AllCountriesTruncated", func(t *testing.T) {
-		m := setup(t, db, false, false)
+		m := setup(t, db)
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
-		args := make([]interface{}, n)
-		for i := 0; i < n; i++ {
+		args := make([]any, n)
+		for i := range n {
 			args[i] = i
 		}
 		q := fmt.Sprintf("SELECT /* AllCountriesTruncated:PGStatMonitor controller='test' */ * FROM country WHERE capital IN (%s)", strings.Join(placeholders, ", "))
@@ -478,7 +480,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
-		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
+		r := rand.New(rand.NewSource(time.Now().Unix()))
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
 		CREATE TABLE %s (
@@ -489,22 +491,20 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		)`, tableName))
 		require.NoError(t, err)
 		t.Cleanup(func() {
-			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
+			_, err := db.Exec("DROP TABLE " + tableName)
 			require.NoError(t, err)
 		})
-		m := setup(t, db, false, false)
+		m := setup(t, db)
 
 		var waitGroup sync.WaitGroup
 		n := 1000
-		for i := 0; i < n; i++ {
+		for i := range n {
 			id := i
 			query := fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id)
-			waitGroup.Add(1)
-			go func() {
-				defer waitGroup.Done()
+			waitGroup.Go(func() {
 				_, err := db.Exec(query)
 				require.NoError(t, err)
-			}()
+			})
 		}
 		waitGroup.Wait()
 
@@ -514,7 +514,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		require.NoError(t, err)
 
 		var buckets []*agentv1.MetricsBucket
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			buckets, err = m.getNewBuckets(context.Background(), 60, normalizedQuery)
 			require.NoError(t, err)
 			buckets = filter(buckets)
@@ -548,43 +548,130 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MQueryTimeCnt:       float32(n),
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 				// FIXME: Why tables is empty here? this will error.
-				Tables: []string{fmt.Sprintf("public.%s", tableName)},
+				Tables: []string{"public." + tableName},
 			},
 			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
-				MSharedBlkReadTimeCnt: float32(n),
-				MSharedBlkReadTimeSum: actual.Postgresql.MSharedBlkReadTimeSum,
-				MLocalBlkReadTimeCnt:  actual.Postgresql.MLocalBlkReadTimeCnt,
-				MLocalBlkReadTimeSum:  actual.Postgresql.MLocalBlkReadTimeSum,
-				MSharedBlksReadCnt:    actual.Postgresql.MSharedBlksReadCnt,
-				MSharedBlksReadSum:    actual.Postgresql.MSharedBlksReadSum,
-				MSharedBlksWrittenCnt: actual.Postgresql.MSharedBlksWrittenCnt,
-				MSharedBlksWrittenSum: actual.Postgresql.MSharedBlksWrittenSum,
-				MSharedBlksDirtiedCnt: actual.Postgresql.MSharedBlksDirtiedCnt,
-				MSharedBlksDirtiedSum: actual.Postgresql.MSharedBlksDirtiedSum,
-				MSharedBlksHitCnt:     actual.Postgresql.MSharedBlksHitCnt,
-				MSharedBlksHitSum:     actual.Postgresql.MSharedBlksHitSum,
-				MRowsCnt:              float32(n),
-				MRowsSum:              float32(n),
-				MCpuUserTimeCnt:       actual.Postgresql.MCpuUserTimeCnt,
-				MCpuUserTimeSum:       actual.Postgresql.MCpuUserTimeSum,
-				MCpuSysTimeCnt:        actual.Postgresql.MCpuSysTimeCnt,
-				MCpuSysTimeSum:        actual.Postgresql.MCpuSysTimeSum,
-				CmdType:               insertCMDType,
-				HistogramItems:        actual.Postgresql.HistogramItems,
-				MPlansCallsSum:        actual.Postgresql.MPlansCallsSum,
-				MPlansCallsCnt:        actual.Postgresql.MPlansCallsCnt,
-				MPlanTimeCnt:          actual.Postgresql.MPlanTimeCnt,
-				MPlanTimeSum:          actual.Postgresql.MPlanTimeSum,
-				MPlanTimeMin:          actual.Postgresql.MPlanTimeMin,
-				MPlanTimeMax:          actual.Postgresql.MPlanTimeMax,
-				MWalBytesCnt:          actual.Postgresql.MWalBytesCnt,
-				MWalBytesSum:          actual.Postgresql.MWalBytesSum,
-				MWalRecordsSum:        actual.Postgresql.MWalRecordsSum,
-				MWalRecordsCnt:        actual.Postgresql.MWalRecordsCnt,
+				MSharedBlkReadTimeCnt:       float32(n),
+				MSharedBlkReadTimeSum:       actual.Postgresql.MSharedBlkReadTimeSum,
+				MLocalBlkReadTimeCnt:        actual.Postgresql.MLocalBlkReadTimeCnt,
+				MLocalBlkReadTimeSum:        actual.Postgresql.MLocalBlkReadTimeSum,
+				MSharedBlksReadCnt:          actual.Postgresql.MSharedBlksReadCnt,
+				MSharedBlksReadSum:          actual.Postgresql.MSharedBlksReadSum,
+				MSharedBlksWrittenCnt:       actual.Postgresql.MSharedBlksWrittenCnt,
+				MSharedBlksWrittenSum:       actual.Postgresql.MSharedBlksWrittenSum,
+				MSharedBlksDirtiedCnt:       actual.Postgresql.MSharedBlksDirtiedCnt,
+				MSharedBlksDirtiedSum:       actual.Postgresql.MSharedBlksDirtiedSum,
+				MSharedBlksHitCnt:           actual.Postgresql.MSharedBlksHitCnt,
+				MSharedBlksHitSum:           actual.Postgresql.MSharedBlksHitSum,
+				MRowsCnt:                    float32(n),
+				MRowsSum:                    float32(n),
+				MCpuUserTimeCnt:             actual.Postgresql.MCpuUserTimeCnt,
+				MCpuUserTimeSum:             actual.Postgresql.MCpuUserTimeSum,
+				MCpuSysTimeCnt:              actual.Postgresql.MCpuSysTimeCnt,
+				MCpuSysTimeSum:              actual.Postgresql.MCpuSysTimeSum,
+				CmdType:                     insertCMDType,
+				HistogramItems:              actual.Postgresql.HistogramItems,
+				MPlansCallsSum:              actual.Postgresql.MPlansCallsSum,
+				MPlansCallsCnt:              actual.Postgresql.MPlansCallsCnt,
+				MPlanTimeCnt:                actual.Postgresql.MPlanTimeCnt,
+				MPlanTimeSum:                actual.Postgresql.MPlanTimeSum,
+				MPlanTimeMin:                actual.Postgresql.MPlanTimeMin,
+				MPlanTimeMax:                actual.Postgresql.MPlanTimeMax,
+				MWalBytesCnt:                actual.Postgresql.MWalBytesCnt,
+				MWalBytesSum:                actual.Postgresql.MWalBytesSum,
+				MWalRecordsSum:              actual.Postgresql.MWalRecordsSum,
+				MWalRecordsCnt:              actual.Postgresql.MWalRecordsCnt,
+				MWalBuffersFullCnt:          actual.Postgresql.MWalBuffersFullCnt,
+				MWalBuffersFullSum:          actual.Postgresql.MWalBuffersFullSum,
+				MParallelWorkersToLaunchCnt: actual.Postgresql.MParallelWorkersToLaunchCnt,
+				MParallelWorkersToLaunchSum: actual.Postgresql.MParallelWorkersToLaunchSum,
+				MParallelWorkersLaunchedCnt: actual.Postgresql.MParallelWorkersLaunchedCnt,
+				MParallelWorkersLaunchedSum: actual.Postgresql.MParallelWorkersLaunchedSum,
 			},
 		}
 		tests.AssertBucketsEqual(t, expected, actual)
 		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 		assert.Regexp(t, `\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`, actual.Common.ClientHost)
+	})
+}
+
+func TestParseHistogramFromRespCalls(t *testing.T) {
+	t.Parallel()
+
+	vPGSM := pgStatMonitorVersion20PG12 // This version expects 22 histogram buckets
+	l := logrus.WithField("component", "pgstatmonitor-test")
+
+	t.Run("Normal", func(t *testing.T) {
+		t.Parallel()
+		current := pq.StringArray{"10", "20", "30"}
+		prev := pq.StringArray{"5", "10", "15"}
+		res, err := parseHistogramFromRespCalls(current, prev, vPGSM, l)
+		require.NoError(t, err)
+		require.NotNil(t, res)
+		assert.Equal(t, uint32(5), res[0].Frequency)
+		assert.Equal(t, uint32(10), res[1].Frequency)
+		assert.Equal(t, uint32(15), res[2].Frequency)
+	})
+
+	t.Run("MoreBucketsThanExpected", func(t *testing.T) {
+		t.Parallel()
+		// Create more items than the internal getHistogramRangesArray provides
+		largeResp := make(pq.StringArray, 50)
+		for i := range largeResp {
+			largeResp[i] = "1"
+		}
+		res, err := parseHistogramFromRespCalls(largeResp, nil, vPGSM, l)
+		require.NoError(t, err)
+		// Should not panic and should cap at the length of our static ranges
+		expectedLen := len(getHistogramRangesArray(vPGSM))
+		assert.Len(t, res, expectedLen)
+	})
+
+	t.Run("CounterReset", func(t *testing.T) {
+		t.Parallel()
+		// Previous values higher than current (e.g. pg_stat_monitor_reset called)
+		current := pq.StringArray{"10"}
+		prev := pq.StringArray{"20"}
+		res, err := parseHistogramFromRespCalls(current, prev, vPGSM, l)
+		require.NoError(t, err)
+		// Should be 0, not a huge wrapped-around uint32
+		assert.Equal(t, uint32(0), res[0].Frequency)
+	})
+
+	t.Run("InvalidData", func(t *testing.T) {
+		t.Parallel()
+		current := pq.StringArray{"not-a-number"}
+		res, err := parseHistogramFromRespCalls(current, nil, vPGSM, l)
+		require.Error(t, err)
+		assert.Nil(t, res)
+	})
+
+	t.Run("NegativeValues", func(t *testing.T) {
+		t.Parallel()
+		// ParseUint should fail on negative numbers
+		current := pq.StringArray{"-1"}
+		res, err := parseHistogramFromRespCalls(current, nil, vPGSM, l)
+		require.Error(t, err)
+		assert.Nil(t, res)
+	})
+}
+
+func TestGetHistogramRangesArray(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Version20Plus", func(t *testing.T) {
+		t.Parallel()
+		res := getHistogramRangesArray(pgStatMonitorVersion20PG12)
+		assert.Len(t, res, 22)
+		assert.Equal(t, "(0 - 1)", res[0].Range)
+		assert.Equal(t, "(100000 - ...)", res[21].Range)
+	})
+
+	t.Run("OldVersion", func(t *testing.T) {
+		t.Parallel()
+		res := getHistogramRangesArray(pgStatMonitorVersion09)
+		assert.Len(t, res, 10)
+		assert.Equal(t, "(0 - 3)", res[0].Range)
+		assert.Equal(t, "(31622 - 100000)", res[9].Range)
 	})
 }

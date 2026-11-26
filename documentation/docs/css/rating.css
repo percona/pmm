@@ -1,0 +1,43 @@
+.rating-widget:hover,
+#feedback-form:hover {
+  box-shadow:
+    0px 1px 10px 0px rgba(0, 0, 0, 0.12),
+    0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+    0px 2px 4px -1px rgba(0, 0, 0, 0.20);
+}
+
+/* Title color */
+.rating-widget .rating-title {
+  color: var(--md-typeset-a-color, #0E5FB5);
+}
+
+/* Dark mode title */
+@media (prefers-color-scheme: dark) {
+  .rating-widget .rating-title {
+    color: var(--md-typeset-a-color, #93C7FF);
+  }
+}
+
+/* Feedback status */
+#feedback-status {
+  color: var(--md-typeset-a-color);
+}
+
+@media (prefers-color-scheme: dark) {
+  #feedback-status {
+    color: var(--md-typeset-a-color, #93C7FF);
+  }
+}
+
+/* Light mode: Send button */
+#submit-feedback {
+  color: white;
+}
+
+/* Dark mode: Send button */
+@media (prefers-color-scheme: dark) {
+  #submit-feedback {
+    background-color: var(--md-typeset-a-color, #93C7FF);
+    color: #999;
+  }
+}

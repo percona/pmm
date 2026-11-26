@@ -22,9 +22,9 @@ PMM Client supports:
 - Architectures: x86_64 (AMD64) and ARM64 (aarch64)
 - Operating systems:
 
-    - Red Hat/CentOS/Oracle Linux 8 and 9
-    - Debian 11 (Bullseye) and 12 (Bookworm)
-    - Ubuntu 22.04 (Jammy) and 24.04 (Noble)
+    - Red Hat/CentOS/Oracle Linux 8, 9 and 10
+    - Debian 12 (Bookworm) and 13 (Trixie)
+    - Ubuntu 22.04 (Jammy), 24.04 (Noble) and 26.04 (Resolute)
     - Amazon Linux 2023
 
 The package manager will automatically select the appropriate version for your system architecture.
@@ -115,10 +115,10 @@ Registration requires authentication to verify that your PMM Client has permissi
     {.power-number}
 
     1. Log into PMM web interface.
-    2. Navigate to **Administration > Users and access > Service Accounts**.
-    3. Click **Add Service account**.
+    2. Navigate to **Users and access > Service accounts**.
+    3. Click **Add service account**.
     4. Enter a descriptive name (e.g.: `pmm-client-prod-db01`). PMM automatically shortens names exceeding 200 characters using a `{prefix}_{hash}` pattern.
-    5. Select the **Editor** role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md).
+    5. Select the **Admin** role from the drop-down. For detailed information about what each role can do, see [Role types in PMM](../../admin/roles/index.md).
     6. Click **Create > Add service account token**.
     7. (Optional) Name your token or leave blank for auto-generated name.
     8. (Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.
@@ -128,9 +128,7 @@ Registration requires authentication to verify that your PMM Client has permissi
 
     ```bash
     pmm-admin config --server-insecure-tls \
-        --server-url=https://YOUR_PMM_SERVER:443 \
-        --server-username=service_token \
-        --server-password=YOUR_GLSA_TOKEN
+        --server-url=https://service_token:YOUR_GLSA_TOKEN@YOUR_PMM_SERVER:443 \
     ```
 
     **Parameters explained:**
@@ -139,13 +137,11 @@ Registration requires authentication to verify that your PMM Client has permissi
     - `YOUR_PMM_SERVER` - Your PMM Server's IP address or hostname
     - `service_token` - Use this exact string as the username (not a placeholder!)
     - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
-
+    
     ??? example "Full example with node details"
         ```bash
         pmm-admin config --server-insecure-tls \
-            --server-url=https://192.168.33.14:443 \
-            --server-username=service_token \
-            --server-password=glsa_aBc123XyZ456... \
+            --server-url=https://service_token:glsa_aBc123XyZ456...@192.168.33.14:443 \
             192.168.33.23 generic prod-db01
             ```
         This registers node `192.168.33.23` with type `generic` and name `prod-db01`.
@@ -201,7 +197,7 @@ pmm-admin status
 
 - [Install PMM Client using Docker](../install-pmm-client/docker.md) 
 - [Connect database services](../install-pmm-client/connect-database/index.md) 
-- [PMM Client command reference](../../use/commands/pmm-admin.md) 
+- [PMM Client command reference](../../use/commands/pmm-admin/pmm-admin.md) 
 - [Upgrade PMM Client](../../pmm-upgrade/upgrade_client.md) 
 - [Uninstall PMM Client](../../uninstall-pmm/index.md)
 - [Unregister PMM Client](../../uninstall-pmm/unregister_client.md)

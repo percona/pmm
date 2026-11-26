@@ -1,0 +1,12 @@
+---
+# Collections the agent-aws.yml playbook needs on the CONTROL node: the
+# builder's throwaway venv during a bake, the GitHub runner for the syntax
+# check. The playbook's own ansible-galaxy task installs collections on the
+# baked image for jobs that run Ansible there, not here. Pinned exact.
+collections:
+  - name: community.docker
+    version: "5.3.0"
+  - name: community.general
+    version: "13.4.0"
+  - name: ansible.posix
+    version: "2.2.2"

@@ -1,0 +1,15 @@
+---
+templates:
+  - name: pmm_postgresql_not_autoanalyzed
+    version: 1
+    summary: PostgreSQL tables not auto analyzed
+    expr: |-
+      (pg_stat_user_tables_last_autoanalyze > 0) and (time() - pg_stat_user_tables_last_autoanalyze) > 24 * 60 * 60 * 10
+    for: 1h
+    severity: warning
+    annotations:
+      summary: Postgresql table not auto analyzed (instance {{ $labels.instance }})
+      description: |-
+        Table {{ $labels.relname }} has not been auto analyzed for 10 days
+        VALUE = {{ $value }}
+        LABELS = {{ $labels }}

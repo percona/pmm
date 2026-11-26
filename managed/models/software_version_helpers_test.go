@@ -52,7 +52,7 @@ func TestSoftwareVersions(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 1",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 			&models.Service{
@@ -60,7 +60,7 @@ func TestSoftwareVersions(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service 2",
 				NodeID:      nodeID1,
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(777),
 			},
 		} {
@@ -153,7 +153,6 @@ func TestSoftwareVersions(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, ssv2)
 
-		// TODO Add tests for non-empty FindServicesSoftwareVersionsFilter
 		actual, err := models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{}, models.SoftwareVersionsOrderByNextCheckAt)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
@@ -180,6 +179,83 @@ func TestSoftwareVersions(t *testing.T) {
 		actual, err = models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{}, models.SoftwareVersionsOrderByNextCheckAt)
 		require.NoError(t, err)
 		require.Empty(t, actual)
+	})
+
+	t.Run("filter by service type", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		q := tx.Querier
+
+		require.NoError(t, q.Insert(&models.Node{
+			NodeID:   nodeID1,
+			NodeType: models.GenericNodeType,
+			NodeName: "Node 1",
+		}))
+
+		require.NoError(t, q.Insert(&models.Service{
+			ServiceID:   serviceID1,
+			ServiceType: models.MySQLServiceType,
+			ServiceName: "MySQL Service",
+			NodeID:      nodeID1,
+			Address:     new("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(3306),
+		}))
+
+		require.NoError(t, q.Insert(&models.Service{
+			ServiceID:   serviceID2,
+			ServiceType: models.MongoDBServiceType,
+			ServiceName: "MongoDB Service",
+			NodeID:      nodeID1,
+			Address:     new("127.0.0.1"),
+			Port:        pointer.ToUint16OrNil(27017),
+		}))
+
+		_, err = models.CreateServiceSoftwareVersions(q, models.CreateServiceSoftwareVersionsParams{
+			ServiceID:   serviceID1,
+			ServiceType: models.MySQLServiceType,
+			SoftwareVersions: []models.SoftwareVersion{
+				{Name: models.MysqldSoftwareName, Version: "8.0.0"},
+			},
+			NextCheckAt: time.Now().UTC().Truncate(time.Second),
+		})
+		require.NoError(t, err)
+
+		_, err = models.CreateServiceSoftwareVersions(q, models.CreateServiceSoftwareVersionsParams{
+			ServiceID:   serviceID2,
+			ServiceType: models.MongoDBServiceType,
+			SoftwareVersions: []models.SoftwareVersion{
+				{Name: models.MongoDBSoftwareName, Version: "6.0.0"},
+				{Name: models.PBMSoftwareName, Version: "2.0.0"},
+			},
+			NextCheckAt: time.Now().UTC().Truncate(time.Second),
+		})
+		require.NoError(t, err)
+
+		actual, err := models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{
+			ServiceType: new(models.MySQLServiceType),
+		}, models.SoftwareVersionsOrderByServiceID)
+		require.NoError(t, err)
+		require.Len(t, actual, 1)
+		assert.Equal(t, serviceID1, actual[0].ServiceID)
+		assert.Equal(t, models.MySQLServiceType, actual[0].ServiceType)
+
+		// Filter by MongoDB - should return only MongoDB service
+		actual, err = models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{
+			ServiceType: new(models.MongoDBServiceType),
+		}, models.SoftwareVersionsOrderByServiceID)
+		require.NoError(t, err)
+		require.Len(t, actual, 1)
+		assert.Equal(t, serviceID2, actual[0].ServiceID)
+		assert.Equal(t, models.MongoDBServiceType, actual[0].ServiceType)
+
+		// No filter - should return both
+		actual, err = models.FindServicesSoftwareVersions(q, models.FindServicesSoftwareVersionsFilter{}, models.SoftwareVersionsOrderByServiceID)
+		require.NoError(t, err)
+		require.Len(t, actual, 2)
 	})
 
 	t.Run("update", func(t *testing.T) {
@@ -310,7 +386,7 @@ func TestSoftwareVersionsParamsValidation(t *testing.T) {
 
 			c, err := models.CreateServiceSoftwareVersions(q, test.params)
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 				assert.Nil(t, c)
 				return
 			}
@@ -331,7 +407,7 @@ func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
 			name: "invalid software name",
 			params: models.UpdateServiceSoftwareVersionsParams{
 				SoftwareVersions: []models.SoftwareVersion{{Name: "invalid", Version: "8.0.0"}},
-				NextCheckAt:      pointer.ToTime(time.Now().UTC().Truncate(time.Second)),
+				NextCheckAt:      new(time.Now().UTC().Truncate(time.Second)),
 			},
 			errorMsg: "invalid argument: invalid software name \"invalid\"",
 		},
@@ -339,7 +415,7 @@ func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
 			name: "empty software version",
 			params: models.UpdateServiceSoftwareVersionsParams{
 				SoftwareVersions: []models.SoftwareVersion{{Name: models.MysqldSoftwareName}},
-				NextCheckAt:      pointer.ToTime(time.Now().UTC().Truncate(time.Second)),
+				NextCheckAt:      new(time.Now().UTC().Truncate(time.Second)),
 			},
 			errorMsg: "invalid argument: empty version for software name \"mysqld\"",
 		},
@@ -355,7 +431,7 @@ func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
 			name: "all parameters are filled up",
 			params: models.UpdateServiceSoftwareVersionsParams{
 				SoftwareVersions: []models.SoftwareVersion{{Name: models.MysqldSoftwareName, Version: "8.0.0"}},
-				NextCheckAt:      pointer.ToTime(time.Now().UTC().Truncate(time.Second)),
+				NextCheckAt:      new(time.Now().UTC().Truncate(time.Second)),
 			},
 			errorMsg: "",
 		},
@@ -363,9 +439,9 @@ func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			err := test.params.Validate()
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}

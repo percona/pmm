@@ -1,7 +1,6 @@
-
 # QAN issues
 
-This section focuses on problems with QAN, such as queries not being retrieved so on.
+This section focuses on problems with QAN, such as queries not being retrieved.
 
 ## Missing data
 
@@ -9,13 +8,13 @@ This section focuses on problems with QAN, such as queries not being retrieved s
 
 There might be multiple places where the problem might come from:
 
-- Connection problem between pmm-agent and pmm-managed
+- connection problem between pmm-agent and pmm-managed
 - PMM-agent cannot connect to the database.
-- Data source is not properly configured.
+- data source is not properly configured.
 
 ### Why don't I see the whole query?
 
-Long query examples and fingerprints is truncated to 2048 symbols by default to reduce space usage. In this case, the query explains section will not work. Max query size can be configured using flag `--max-query-length` while adding a service.
+Long query examples and fingerprints are truncated to 2048 symbols by default to reduce space usage. In this case, the Explain section will not work. Max query size can be configured using flag `--max-query-length` while adding a service.
 
 ## Incorrect metrics: unrealistic query execution times 
 
@@ -37,4 +36,116 @@ SELECT pg_reload_conf();
 SHOW pg_stat_monitor.pgsm_enable_query_plan;
 ```
 
-After disabling query plan collection, new metrics should show realistic execution times within minutes.
+After disabling query plan collection, new metrics should show realistic execution times within minutes. 
+
+### Why do I see `?` instead of real query values?
+
+Your application is likely using server-side prepared statements (common with JDBC and ORM frameworks). 
+
+Performance Schema exposes prepared statement parameters as placeholders rather than real values. See [Prepared statements show placeholders instead of values](../use/qan/mysql.md#prepared-statements-show-placeholders-instead-of-values).
+
+
+## QAN service fails after upgrade
+
+After upgrading PMM Server, the QAN service may fail to start with `BACKOFF`, `FATAL`, or `EXITED` status, preventing the QAN dashboard from loading. You'll see the following error in `/srv/logs/qan-api2.log`, where `x` is the migration version number:
+```
+stdlog: Migrations: Dirty database version x. Fix and force version.
+```
+
+This happens when the ClickHouse schema migration is interrupted during the upgrade.
+
+### Resolution
+
+- **PMM 3.5.0 and later:** The issue is **fixed automatically**. PMM detects and completes the interrupted schema migration upon restart.
+- **Earlier versions:** Use the following manual workaround:
+    {.power-number}
+
+    1. Access the PMM container:
+    ```bash
+    podman exec -it pmm-server /bin/bash
+    ```
+
+    2. Connect to ClickHouse:
+    ```bash
+    clickhouse client --username=<clickhouse_user> --password=<clickhouse_password> -d pmm
+    ```
+
+    3. Fix the migration state. **Replace `x` with the version number from your error logs.**
+    ```sql
+    USE pmm;
+    INSERT INTO schema_migrations (version, dirty, sequence) 
+    VALUES (x, 0, toUnixTimestamp(NOW())*1000000000);
+    EXIT;
+    ```
+
+    4. Restart QAN:
+    ```bash
+    supervisorctl restart qan-api2
+    ```
+
+    5. Verify QAN is running:
+    ```bash
+    supervisorctl status qan-api2
+    ```
+
+## ClickHouse memory issues in low-memory environments
+
+If you're running PMM Server with less than 16 GB RAM and seeing "memory limit exceeded" errors in ClickHouse logs, switch to the low-memory configuration.
+
+PMM includes two built-in ClickHouse profiles:
+
+- **default**: optimized for performance on hosts with 16 GB RAM or more
+- **low-memory**: optimized for constrained environments, based on [ClickHouse recommendations](https://clickhouse.com/docs/operations/tips#using-less-than-16gb-of-ram)
+
+### Switch to low-memory configuration
+
+Set the `PMM_CLICKHOUSE_CONFIG` environment variable when starting PMM Server:
+
+=== "Docker"
+    ```bash
+    docker run ... -e PMM_CLICKHOUSE_CONFIG=low-memory percona/pmm-server:3
+    ```
+
+=== "Podman"
+    ```bash
+    podman run ... -e PMM_CLICKHOUSE_CONFIG=low-memory percona/pmm-server:3
+    ```
+
+The setting persists across container restarts and upgrades without any additional steps.
+
+To switch back to the default profile, set `PMM_CLICKHOUSE_CONFIG=default` or remove the variable.
+
+!!! note "Configuration details"
+    Both configuration files are located in `/etc/clickhouse-server/` inside the PMM Server container:
+    
+    - `default-config.xml`: default profile
+    - `low-memory-config.xml`: low-memory profile
+
+    PMM points ClickHouse at `config.xml` and `users.xml`, which are symlinks to the files of the selected profile.
+
+!!! warning "Deprecated: switch-config.sh"
+    The `switch-config.sh` script previously used to switch profiles is deprecated as of PMM 3.9.0 and will be removed in a future release. Use `PMM_CLICKHOUSE_CONFIG` instead.
+
+### Override built-in ClickHouse settings
+
+To change settings without editing the profile files, add a drop-in file inside the PMM Server container:
+
+- `/etc/clickhouse-server/config.d/` for server settings
+- `/etc/clickhouse-server/users.d/` for users, profiles and quotas
+
+ClickHouse merges drop-ins over the profile in use, so the same files apply to both the default and low-memory profiles. For example, to change the password of the read-only data source user, create `/etc/clickhouse-server/users.d/pmm-datasource.xml`:
+
+```xml
+<clickhouse>
+    <users>
+        <grafana>
+            <password_sha256_hex>your-sha256-hash</password_sha256_hex>
+        </grafana>
+    </users>
+</clickhouse>
+```
+
+Set `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to the same password so Grafana connects with the new credentials, then restart ClickHouse. Drop-ins are not preserved when the container is recreated, so mount them from the host if you need them to persist.
+
+If you set `PMM_CLICKHOUSE_DATABASE` to something other than `pmm`, use a drop-in to update the data source user's grant, since the shipped grant names `pmm` explicitly.
+

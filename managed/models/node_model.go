@@ -23,7 +23,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // NodeType represents Node type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
@@ -38,8 +38,13 @@ const (
 	RemoteAzureDatabaseNodeType NodeType = "remote_azure_database"
 )
 
+// defaultPMMServerNodeID is the PMM Server Node ID that never changes at runtime.
+const defaultPMMServerNodeID = "pmm-server"
+
 // PMMServerNodeID is a special Node ID representing PMM Server Node.
-const PMMServerNodeID = string("pmm-server") // A special ID reserved for PMM Server Node.
+// It takes the value of "pmm-server" in non-HA setups, while in HA setups it is set to a dynamically
+// generated UUID: every replica registers a PMM Server Node of its own.
+var PMMServerNodeID = defaultPMMServerNodeID
 
 // Node represents Node as stored in database.
 //
@@ -67,6 +72,9 @@ type Node struct {
 	ContainerName *string `reform:"container_name"`
 
 	Region *string `reform:"region"` // non-nil value must be unique in combination with instance/address
+
+	// IsPMMServerNode indicates if this node is a PMM Server node.
+	IsPMMServerNode bool `reform:"is_pmm_server_node"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -129,7 +137,8 @@ func (s *Node) UnifiedLabels() (map[string]string, error) {
 	}
 	maps.Copy(res, custom)
 
-	if err = prepareLabels(res, true); err != nil {
+	err = prepareLabels(res, true)
+	if err != nil {
 		return nil, err
 	}
 	return res, nil

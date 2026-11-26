@@ -1,0 +1,41 @@
+import { LOCATORS } from 'lib/constants';
+
+export const applyCustomStyles = () => {
+  const style = document.createElement('style');
+
+  // Hide toolbar elements
+  style.innerText = `
+    ${LOCATORS.menuToggle},
+    ${LOCATORS.helpButton},
+    ${LOCATORS.searchButton},
+    ${LOCATORS.toolbarSignIn},
+    ${LOCATORS.profileButton} {
+      display: none;
+
+      & + div[data-testid="nav-toolbar-separator"] {
+        display: none;
+      }
+    }
+
+    ${LOCATORS.commandPaletteTrigger},
+    ${LOCATORS.searchButton} {
+      visibility: hidden;
+      order: -1;
+    }
+
+    /* QAN Page custom styles */
+    ${LOCATORS.qanPageHeader} {
+      display: none;
+    }
+
+    ${LOCATORS.qanPageHeaderNextDiv} {
+      padding-top: 0;
+    }
+
+    ${LOCATORS.qanPageCanvasWrapper} {
+      top: 0;
+    }
+  `;
+
+  document.head.appendChild(style);
+};

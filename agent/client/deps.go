@@ -21,6 +21,7 @@ import (
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
+	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
 // connectionChecker is a subset of methods of connectionchecker.ConnectionChecker used by this package.
@@ -50,7 +51,8 @@ type supervisor interface {
 	ClearChangesChannel()
 	Changes() <-chan *agentv1.StateChangedRequest
 	QANRequests() <-chan *agentv1.QANCollectRequest
-	SetState(*agentv1.SetStateRequest)
+	RTARequests() <-chan *rtav1.CollectRequest
+	SetState(ctx context.Context, state *agentv1.SetStateRequest)
 	RestartAgents()
 	AgentLogByID(string) ([]string, uint)
 	AgentsList() []*agentlocal.AgentInfo

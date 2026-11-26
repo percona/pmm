@@ -17,11 +17,11 @@ package versioner
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os/exec"
 	"regexp"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 const (
@@ -67,7 +67,7 @@ func (RealExecFunctions) LookPath(file string) (string, error) {
 
 // CommandContext calls Go's implementation of the CommandContext() function.
 func (RealExecFunctions) CommandContext(ctx context.Context, name string, arg ...string) CombinedOutputer { //nolint:ireturn
-	return exec.CommandContext(ctx, name, arg...)
+	return exec.CommandContext(ctx, name, arg...) //nolint:gosec
 }
 
 // Versioner implements version retrieving functions for different software.
@@ -91,28 +91,29 @@ func (v *Versioner) binaryVersion(
 	ctx, cancel := context.WithTimeout(context.Background(), versionCheckTimeout)
 	defer cancel()
 
-	if _, err := v.ef.LookPath(binaryName); err != nil {
+	_, err := v.ef.LookPath(binaryName)
+	if err != nil {
 		if errors.Is(err.(*exec.Error).Err, exec.ErrNotFound) { //nolint:forcetypeassert,errorlint
 			return "", ErrNotFound
 		}
 
-		return "", errors.Wrapf(err, "lookpath: %s", binaryName)
+		return "", fmt.Errorf("lookpath: %s: %w", binaryName, err)
 	}
 
 	versionBytes, err := v.ef.CommandContext(ctx, binaryName, arg...).CombinedOutput()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok { //nolint:errorlint
 			if exitError.ExitCode() != expectedExitCode {
-				return "", errors.WithStack(err)
+				return "", err
 			}
 		} else {
-			return "", errors.WithStack(err)
+			return "", err
 		}
 	}
 
 	matches := versionRegexp.FindStringSubmatch(string(versionBytes))
-	if len(matches) != 2 {
-		return "", errors.Errorf("cannot match version from output %q", string(versionBytes))
+	if len(matches) != 2 { //nolint:mnd
+		return "", fmt.Errorf("cannot match version from output %q", string(versionBytes))
 	}
 
 	return matches[1], nil
@@ -135,7 +136,7 @@ func (v *Versioner) XbcloudVersion() (string, error) {
 
 // QpressVersion retrieves qpress binary version.
 func (v *Versioner) QpressVersion() (string, error) {
-	return v.binaryVersion(qpressBin, 255, qpressVersionRegexp)
+	return v.binaryVersion(qpressBin, 255, qpressVersionRegexp) //nolint:mnd
 }
 
 // MongoDBVersion retrieves mongodb binary version.

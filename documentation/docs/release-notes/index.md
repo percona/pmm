@@ -1,5 +1,17 @@
 # Release notes
-
+- [Percona Monitoring and Management 3.11.0](3.11.0.md)
+- [Percona Monitoring and Management 3.10.0](3.10.0.md)
+- [Percona Monitoring and Management 3.9.1](3.9.1.md)
+- [Percona Monitoring and Management 3.9.0](3.9.0.md)
+- [Percona Monitoring and Management 3.8.1](3.8.1.md)
+- [Percona Monitoring and Management 3.8.0](3.8.0.md)
+- [Percona Monitoring and Management 3.7.1](3.7.1.md)
+- [Percona Monitoring and Management 3.7.0](3.7.0.md)
+- [Percona Monitoring and Management 3.6.0](3.6.0.md)
+- [Percona Monitoring and Management 3.5.0](3.5.0.md)
+- [Percona Monitoring and Management 3.4.1](3.4.1.md)
+- [Percona Monitoring and Management 3.4.0](3.4.0.md)
+- [Percona Monitoring and Management 3.3.1](3.3.1.md)
 - [Percona Monitoring and Management 3.3.0](3.3.0.md)
 - [Percona Monitoring and Management 3.2.0](3.2.0.md)
 - [Percona Monitoring and Management 3.1.0](3.1.0.md)

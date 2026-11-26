@@ -15,7 +15,7 @@
 
 package backup
 
-import "github.com/pkg/errors"
+import "errors"
 
 var (
 	// ErrIncompatibleService is returned when the service is incompatible for making a backup or restore.

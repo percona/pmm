@@ -16,16 +16,20 @@
 package supervisord
 
 import (
+	"context"
+	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/secrets"
 )
 
 func TestConfig(t *testing.T) {
@@ -38,21 +42,19 @@ func TestConfig(t *testing.T) {
 		Addr:        "127.0.0.1:5432",
 		DBName:      "postgres",
 		DBUsername:  "db_username",
-		DBPassword:  "db_password",
 		SSLMode:     "verify",
 		SSLCAPath:   "path-to-CA-cert",
 		SSLKeyPath:  "path-to-key",
 		SSLCertPath: "path-to-cert",
 	}
 	s := New(configDir, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}})
+	s.secretExists = func(secrets.Name) bool { return false }
 	settings := &models.Settings{
 		DataRetention:    30 * 24 * time.Hour,
 		PMMPublicAddress: "192.168.0.42:8443",
 	}
-	settings.VictoriaMetrics.CacheEnabled = pointer.ToBool(false)
-
-	err = s.UpdateConfiguration(settings, nil)
-	require.NoError(t, err)
+	settings.VictoriaMetrics.CacheEnabled = new(false)
+	settings.Nomad.Enabled = new(true)
 
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
@@ -61,13 +63,42 @@ func TestConfig(t *testing.T) {
 		}
 		t.Run(tmpl.Name(), func(t *testing.T) {
 			t.Parallel()
-			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
+			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini"))
 			require.NoError(t, err)
-			actual, err := s.marshalConfig(tmpl, settings, nil)
+			actual, err := s.marshalConfig(tmpl, settings)
 			require.NoError(t, err)
 			assert.Equal(t, string(expected), string(actual))
 		})
 	}
+}
+
+func TestConfigCredentialFiles(t *testing.T) {
+	t.Parallel()
+
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	pgParams := &models.PGParams{Addr: "127.0.0.1:5432", DBName: "postgres", DBUsername: "db_username"}
+	s := New(t.TempDir(), &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}})
+	s.secretExists = func(secrets.Name) bool { return true }
+	settings := &models.Settings{DataRetention: 30 * 24 * time.Hour}
+
+	configs := make(map[string]string)
+	for _, tmpl := range templates.Templates() {
+		if tmpl.Name() == "" {
+			continue
+		}
+		b, err := s.marshalConfig(tmpl, settings)
+		require.NoError(t, err)
+		configs[tmpl.Name()] = string(b)
+	}
+
+	assert.Contains(t, configs["qan-api2"], `PMM_CLICKHOUSE_PASSWORD_FILE="/run/pmm/secrets/clickhouse-password",`)
+	assert.NotContains(t, configs["qan-api2"], "PMM_CLICKHOUSE_PASSWORD=")
+	assert.NotContains(t, configs["grafana"], "PMM_CLICKHOUSE_DATASOURCE_PASSWORD=")
+	// grafana.ini reads Grafana's database password from its file.
+	assert.NotContains(t, configs["grafana"], "GF_DATABASE_PASSWORD")
+	assert.Contains(t, configs["grafana"], `GF_SECURITY_ADMIN_PASSWORD="$__file{/run/pmm/secrets/admin-password}",`)
+	assert.Contains(t, configs["grafana"], `cfg:security.secret_key=$__file{/run/pmm/secrets/grafana-secret-key}`)
 }
 
 func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
@@ -78,18 +109,18 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		Addr:        "127.0.0.1:5432",
 		DBName:      "postgres",
 		DBUsername:  "db_username",
-		DBPassword:  "db_password",
 		SSLMode:     "verify",
 		SSLCAPath:   "path-to-CA-cert",
 		SSLKeyPath:  "path-to-key",
 		SSLCertPath: "path-to-cert",
 	}
 	s := New(configDir, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}})
+	s.secretExists = func(secrets.Name) bool { return false }
 	settings := &models.Settings{
 		DataRetention:    30 * 24 * time.Hour,
 		PMMPublicAddress: "192.168.0.42:8443",
 	}
-	settings.VictoriaMetrics.CacheEnabled = pointer.ToBool(false)
+	settings.VictoriaMetrics.CacheEnabled = new(false)
 
 	// Test environment variables being passed to VictoriaMetrics.
 	t.Setenv("VM_search_maxQueryLen", "2MB")
@@ -100,6 +131,7 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	t.Setenv("VM_search_logSlowQueryDuration", "300s")
 	t.Setenv("VM_search_maxQueryDuration", "9s")
 	t.Setenv("VM_promscrape_streamParse", "false")
+	t.Setenv("VM_maxIngestionRate", "5000000")
 
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
@@ -108,24 +140,153 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		}
 
 		t.Run(tmpl.Name(), func(t *testing.T) {
-			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini")) //nolint:gosec
+			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini"))
 			require.NoError(t, err)
-			actual, err := s.marshalConfig(tmpl, settings, nil)
+			actual, err := s.marshalConfig(tmpl, settings)
 			require.NoError(t, err)
 			assert.Equal(t, string(expected), string(actual))
 		})
 	}
 }
 
-func TestParseStatus(t *testing.T) {
+func TestDevContainer(t *testing.T) {
+	t.Run("UpdateConfiguration", func(t *testing.T) {
+		// logrus.SetLevel(logrus.DebugLevel)
+		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+		require.NoError(t, err)
+
+		s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
+
+		// This test rewrites /etc/supervisord.d and reloads supervisord, so it only runs
+		// where PMM's supervisord is present: the dev container or the PMM Server image.
+		_, statErr := os.Stat("/etc/supervisord.d")
+		if s.supervisorctlPath == "" || statErr != nil {
+			t.Skip("supervisord is not installed, skipping")
+		}
+
+		// restore original files after test, and remove any the test creates
+		originals := make(map[string][]byte)
+		matches, err := filepath.Glob("/etc/supervisord.d/*.ini")
+		require.NoError(t, err)
+		for _, m := range matches {
+			b, err := os.ReadFile(m)
+			require.NoError(t, err)
+			originals[m] = b
+		}
+		defer func() {
+			current, globErr := filepath.Glob("/etc/supervisord.d/*.ini")
+			require.NoError(t, globErr)
+			for _, name := range current {
+				if _, ok := originals[name]; !ok {
+					require.NoError(t, os.Remove(name))
+				}
+			}
+			for name, b := range originals {
+				err = os.WriteFile(name, b, 0)
+				require.NoError(t, err)
+			}
+			// force update supervisor config
+			_, err = s.supervisorctl(t.Context(), "update")
+			require.NoError(t, err)
+		}()
+
+		settings := &models.Settings{
+			DataRetention: 3600 * time.Hour,
+		}
+
+		b, err := s.marshalConfig(templates.Lookup("victoriametrics"), settings)
+		require.NoError(t, err)
+		changed, err := s.saveConfigAndReload("victoriametrics", b)
+		require.NoError(t, err)
+		assert.True(t, changed)
+		changed, err = s.saveConfigAndReload("victoriametrics", b)
+		require.NoError(t, err)
+		assert.False(t, changed)
+
+		err = s.UpdateConfiguration(settings)
+		require.NoError(t, err)
+	})
+}
+
+func TestProgramRunning(t *testing.T) {
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+
+	s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
+	if s.supervisorctlPath == "" {
+		t.Skip("supervisorctl not found")
+	}
+
+	assert.True(t, s.ProgramRunning(t.Context(), "nginx"))
+	assert.False(t, s.ProgramRunning(t.Context(), "no-such-program"))
+}
+
+func TestSupervisorctlCancellation(t *testing.T) {
 	t.Parallel()
 
-	for str, expected := range map[string]*bool{
-		`pmm-agent                        STOPPED   Sep 20 08:55 AM`:         pointer.ToBool(false),
-		`pmm-managed                      RUNNING   pid 826, uptime 0:19:36`: pointer.ToBool(true),
-		`pmm-init                         EXITED    Sep 20 07:42 AM`:         nil,
-		`pmm-init                         STARTING`:                          pointer.ToBool(true), // no last column in that case
+	sleep, err := exec.LookPath("sleep")
+	require.NoError(t, err)
+
+	s := &Service{
+		supervisorctlPath: sleep,
+		l:                 logrus.WithField("component", "supervisord-test"),
+	}
+
+	ctx, cancel := context.WithCancel(t.Context())
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		cancel()
+	}()
+
+	start := time.Now()
+	_, err = s.supervisorctl(ctx, "60")
+	require.Error(t, err)
+	assert.Less(t, time.Since(start), 10*time.Second, "cancellation should kill the blocked process")
+}
+
+// fakeSupervisorctl returns the path to a script that prints the given `supervisorctl status`
+// output and exits with the given code.
+func fakeSupervisorctl(t *testing.T, output string, exitCode int) string {
+	t.Helper()
+
+	script := "#!/bin/sh\n"
+	if output != "" {
+		script += fmt.Sprintf("printf '%%s\\n' '%s'\n", output)
+	}
+	script += fmt.Sprintf("exit %d\n", exitCode)
+
+	path := filepath.Join(t.TempDir(), "supervisorctl")
+	require.NoError(t, os.WriteFile(path, []byte(script), 0o700))
+	return path
+}
+
+// Not parallel: on Linux, exec of a fake script fails with ETXTBSY while another test is writing one.
+func TestProgramRunningStatuses(t *testing.T) {
+	// Output and exit codes below were captured from supervisorctl in a PMM Server container.
+	// UNKNOWN is the one state that cannot be induced on demand, so its line is synthetic.
+	for _, tc := range []struct {
+		name     string
+		output   string
+		exitCode int
+		running  bool
+	}{
+		{"running", "nginx                            RUNNING   pid 87, uptime 0:02:44", 0, true},
+		{"starting", "t-starting                       STARTING  ", 0, true},
+		{"backoff", "t-backoff                        BACKOFF   Exited too quickly (process log may have details)", 0, true},
+		{"stopping", "t-stopping                       STOPPING  ", 0, true},
+		{"stopped", "t-starting                       STOPPED   Aug 26 06:51 AM", 3, false},
+		{"exited", "pmm-init                         EXITED    Aug 26 06:49 AM", 3, false},
+		{"fatal", "t-fatal                          FATAL     Exited too quickly (process log may have details)", 3, false},
+		{"unknown", "t-unknown                        UNKNOWN   ", 3, false},
+		{"no such process", "no-such-program: ERROR (no such process)", 4, false},
+		{"no output", "", 4, false},
 	} {
-		assert.Equal(t, expected, parseStatus(str), "%q", str)
+		t.Run(tc.name, func(t *testing.T) {
+			s := &Service{
+				supervisorctlPath: fakeSupervisorctl(t, tc.output, tc.exitCode),
+				l:                 logrus.WithField("component", "supervisord-test"),
+			}
+			assert.Equal(t, tc.running, s.ProgramRunning(t.Context(), "program"))
+		})
 	}
 }

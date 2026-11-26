@@ -54,31 +54,49 @@
       host: 127.0.0.1
       port: 5432
       timeout: 150
-    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') == ''
+    when:
+      - lookup('env','GF_DATABASE_URL') == ''
+      - lookup('env','GF_DATABASE_HOST') == ''
+      - lookup('env','PMM_DISABLE_BUILTIN_POSTGRES') == ''
 
   - name: Create Grafana DB
     block:
-      - name: Create grafana database in postgres
-        postgresql_db:
-          name: grafana
-          login_user: postgres
-          state: present
-
       - name: Create grafana user in postgres
         postgresql_user:
-          db: grafana
           name: grafana
-          password: grafana
-          priv: 'ALL'
+          password: "{{ lookup('file', '/run/pmm/secrets/grafana-db-password') | trim }}"
           expires: infinity
           login_user: postgres
           state: present
-        when: not ansible_check_mode
-    when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '' and need_initialization
+        environment:
+          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+          # The statement carries the password, which pg_stat_statements would otherwise record.
+          PGOPTIONS: "-c pg_stat_statements.track_utility=off"
 
-  - name: Upgrade/Install dashboards
-    include_role:
-      name: dashboards
+      # Since PostgreSQL 15 the public schema belongs to pg_database_owner, so owning the
+      # database is what lets the user create tables in it.
+      - name: Create grafana database in postgres
+        postgresql_db:
+          name: grafana
+          owner: grafana
+          login_user: postgres
+          state: present
+        environment:
+          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
+    when:
+      - lookup('env','GF_DATABASE_URL') == ''
+      - lookup('env','GF_DATABASE_HOST') == ''
+      - need_initialization
+
+  # Bundled Grafana plugins are synced by the container entrypoint.
+  # Only the version marker is managed here; it also drives the
+  # need_initialization/need_upgrade facts above.
+  - name: Synchronize Percona Dashboards version file after upgrade
+    copy:
+      src: /usr/share/percona-dashboards/VERSION
+      dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+      mode: 0664
+      remote_src: yes
 
   - name: Create a backup directory
     file:
@@ -86,10 +104,6 @@
       state: directory
       mode: 0775
     when: need_upgrade
-
-  # Note: we want to leave this for some time until we achieve stable builds
-  - name: Output pmm-managed logs
-    shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
 
   - name: Wait for PMM to be ready
     ansible.builtin.uri:
@@ -105,7 +119,10 @@
   - name: Initialize admin password for AMI if needed
     include_role:
       name: init-admin-password-ami
-    when: need_initialization and is_ami
+    when:
+      - need_initialization
+      - is_ami
+
   when: need_initialization or need_upgrade
 
 - name: Disable maintenance mode
@@ -113,7 +130,8 @@
     state: absent
     path: /usr/share/pmm-server/maintenance/maintenance.html
 
-- name: Remove the file provisioned by 'getStatus'
+# Written by 'updates:start' up to PMM 3.8; nothing uses it now, so clean it off upgraded volumes.
+- name: Remove the update auth token file left by older PMM versions
   file:
     state: absent
     path: /srv/pmm-update.json

@@ -21,7 +21,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // RestoreStatus shows current status of restore.
 type RestoreStatus string

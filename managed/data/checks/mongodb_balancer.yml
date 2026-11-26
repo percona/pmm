@@ -1,0 +1,34 @@
+---
+checks:
+  - version: 2
+    name: mongodb_balancer
+    summary: MongoDB Balancer is disabled
+    description: This check warns if the balancer process is disabled
+    technology: MONGODB
+    category: Replication
+    # author: Parag bhayani
+    queries:
+      - type: METRICS_INSTANT
+        query: min by(cluster) (mongodb_mongos_sharding_balancer_enabled{node_name=~"{{.NodeName}}"})
+    script: |
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          results = []
+
+          clusters = []
+          for row in docs[0]:
+              cluster = row["metric"].get("cluster", "unknown")
+              enabled = int(row["value"][1])
+              if enabled != 1:
+                  clusters.append(cluster)
+
+          if clusters:
+              results.append({
+                  "summary": "The balancer is disabled on {} cluster(s)".format(len(clusters)),
+                  "description": "The balancer process is disabled on the following cluster(s): {}. This causes uneven data distribution between shards. Please check the following documentation to learn more.".format(", ".join(clusters)),
+                  "read_more_url": read_url.format("mongodb-chunk-imbalance"),
+                  "severity": "warning",
+                  "labels": {"count": str(len(clusters))},
+              })
+          return results

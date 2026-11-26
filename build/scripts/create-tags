@@ -14,7 +14,6 @@ set -o xtrace
 declare repos=(
     "sources/pmm/src/github.com/percona/pmm"
     "sources/grafana/src/github.com/grafana/grafana"
-    "sources/grafana-dashboards"
     "."
 )
 

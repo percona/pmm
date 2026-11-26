@@ -71,8 +71,9 @@ type ContextService struct {
 
 	startFunc func(context.Context) error
 
-	m      sync.Mutex
-	cancel context.CancelFunc
+	m       sync.Mutex
+	cancel  context.CancelFunc
+	stopped bool
 }
 
 // NewContextService creates a new context service.
@@ -90,15 +91,39 @@ func (s *ContextService) ID() string {
 
 // Start starts the context service.
 func (s *ContextService) Start(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
+
 	s.m.Lock()
-	ctx, s.cancel = context.WithCancel(ctx)
+	if s.stopped {
+		// Stop was requested before Start recorded its cancel func; honor it
+		// and reset for the next leadership cycle.
+		s.stopped = false
+		s.m.Unlock()
+		cancel()
+		return nil
+	}
+	s.cancel = cancel
 	s.m.Unlock()
-	return s.startFunc(ctx)
+
+	err := s.startFunc(ctx)
+
+	s.m.Lock()
+	s.cancel = nil
+	s.m.Unlock()
+
+	return err
 }
 
 // Stop stops the context service.
 func (s *ContextService) Stop() {
 	s.m.Lock()
 	defer s.m.Unlock()
-	s.cancel()
+	if s.cancel != nil {
+		s.cancel()
+		s.cancel = nil
+		return
+	}
+	// Start has not recorded its cancel func yet; record the intent so Start
+	// stops immediately once it runs.
+	s.stopped = true
 }

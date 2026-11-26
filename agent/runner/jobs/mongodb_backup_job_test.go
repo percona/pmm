@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	backuppb "github.com/percona/pmm/api/backup/v1"
 )
@@ -105,7 +106,7 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 			name:      "pitr fails for physical backups",
 			pitr:      true,
 			dataModel: backuppb.DataModel_DATA_MODEL_PHYSICAL,
-			errMsg:    "PITR is only supported for logical backups",
+			errMsg:    "pitr is only supported for logical backups",
 		},
 	}
 
@@ -114,9 +115,9 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 			t.Parallel()
 			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), "", BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")
 			if tc.errMsg == "" {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			} else {
-				assert.ErrorContains(t, err, tc.errMsg)
+				require.ErrorContains(t, err, tc.errMsg)
 			}
 		})
 	}

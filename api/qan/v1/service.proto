@@ -18,6 +18,12 @@ message GetMetricsNamesResponse {
   map<string, string> data = 1;
 }
 
+// HealthCheckRequest is empty.
+message HealthCheckRequest {}
+
+// HealthCheckResponse is empty, based on returned error qan-api2 is ready or not.
+message HealthCheckResponse {}
+
 // QANService provides an API to interact with PMM Query Analytics.
 service QANService {
   // GetReport returns a list of metrics grouped by queryid or other dimensions.
@@ -136,6 +142,15 @@ service QANService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Query Example"
       description: "Provides a list of query examples."
+    };
+  }
+
+  // HealthCheck returns readiness of QAN API2 service.
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse) {
+    option (google.api.http) = {get: "/v1/qan/health"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Health Check"
+      description: "Returns readiness of QAN API2 service."
     };
   }
 }

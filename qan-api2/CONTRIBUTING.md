@@ -18,7 +18,3 @@ where PMM_CONTAINER is a name of PMM-Server container.
 ## Testing
 Run `make test-env-up` to set-up environment for tests
 Run `make test` to run tests. 
-
-## Vendoring
-
-We use [dep](https://github.com/golang/dep) to vendor dependencies.

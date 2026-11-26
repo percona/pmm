@@ -18,13 +18,16 @@ package models
 // HAParams defines parameters related to High Availability.
 type HAParams struct {
 	GrafanaGossipPort int
-	Enabled           bool
-	Bootstrap         bool
-	NodeID            string
-	AdvertiseAddress  string
-	Nodes             []string
-	RaftPort          int
-	GossipPort        int
+	// Enabled indicates whether HA is enabled.
+	Enabled          bool
+	NodeID           string
+	AdvertiseAddress string
+	// Nodes is a list of initial cluster node addresses.
+	Nodes      []string
+	RaftPort   int
+	GossipPort int
+	// Namespace is the Kubernetes namespace this instance is running in, if known.
+	Namespace string
 }
 
 // Params defines parameters for supervisor.

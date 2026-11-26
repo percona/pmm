@@ -19,8 +19,9 @@ package alerting
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
-	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
 	"sort"
@@ -31,9 +32,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/saas/pkg/alert"
-	"github.com/percona/saas/pkg/common"
-	"github.com/pkg/errors"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -43,18 +42,16 @@ import (
 
 	alerting "github.com/percona/pmm/api/alerting/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/alert"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/dir"
-	"github.com/percona/pmm/managed/utils/envvars"
-	"github.com/percona/pmm/managed/utils/platform"
-	"github.com/percona/pmm/managed/utils/signatures"
 )
 
 const (
-	templatesDir              = "/srv/alerting/templates"
-	portalRequestTimeout      = 2 * time.Minute // time limit to get templates list from the portal
+	builtinTemplatesDir       = "/usr/local/percona/alerting-templates"
+	userTemplatesDir          = "/srv/alerting/templates"
 	defaultEvaluationInterval = time.Minute
 
 	dirPerm = os.FileMode(0o775)
@@ -62,42 +59,44 @@ const (
 
 // Service is responsible alerting templates and rules creation from them.
 type Service struct {
-	db                 *reform.DB
-	l                  *logrus.Entry
-	platformClient     *platform.Client
-	grafanaClient      grafanaClient
-	userTemplatesPath  string
-	platformPublicKeys []string
+	alerting.UnimplementedAlertingServiceServer
+
+	db                *reform.DB
+	l                 *logrus.Entry
+	grafanaClient     grafanaClient
+	userTemplatesPath string
 
 	rw        sync.RWMutex
 	templates map[string]models.Template
+	// convertedTemplates holds the fully converted API form of each collected
+	// template, keyed by name, built once at collect time so the hot ListTemplates
+	// path need not parse/convert per request. These protos are shared across
+	// concurrent responses and MUST be treated as immutable by consumers.
+	convertedTemplates map[string]*alerting.Template
 
-	alerting.UnimplementedAlertingServiceServer
+	// sweepMu guards lastSweep, the reconciler's throttle. Separate from rw, which guards
+	// unrelated template state.
+	sweepMu   sync.Mutex
+	lastSweep time.Time
 }
 
 // NewService creates a new Service.
-func NewService(db *reform.DB, platformClient *platform.Client, grafanaClient grafanaClient) (*Service, error) { //nolint:unparam
+func NewService(db *reform.DB, grafanaClient grafanaClient) (*Service, error) {
 	l := logrus.WithField("component", "management/alerting")
 
-	err := dir.CreateDataDir(templatesDir, dirPerm)
+	err := dir.CreateDataDir(userTemplatesDir, dirPerm)
 	if err != nil {
 		l.Error(err)
-	}
-
-	var platformPublicKeys []string
-	if k := envvars.GetPlatformPublicKeys(); k != nil {
-		l.Warnf("Percona Platform public keys changed to %q.", k)
-		platformPublicKeys = k
+		return nil, err
 	}
 
 	s := &Service{
 		db:                 db,
 		l:                  l,
-		platformClient:     platformClient,
 		grafanaClient:      grafanaClient,
-		userTemplatesPath:  templatesDir,
-		platformPublicKeys: platformPublicKeys,
+		userTemplatesPath:  userTemplatesDir,
 		templates:          make(map[string]models.Template),
+		convertedTemplates: make(map[string]*alerting.Template),
 	}
 
 	return s, nil
@@ -119,20 +118,28 @@ func (s *Service) GetTemplates() map[string]models.Template {
 	defer s.rw.RUnlock()
 
 	res := make(map[string]models.Template, len(s.templates))
-	for n, r := range s.templates {
-		res[n] = r
-	}
+	maps.Copy(res, s.templates)
 	return res
+}
+
+// convertedSnapshot returns the cache of converted templates. Unlike GetTemplates,
+// the returned map is not copied: callers may read it after releasing the lock
+// because CollectTemplates always replaces the map wholesale under the write lock
+// and never mutates a published map in place, so a reader keeps a stable snapshot.
+// Callers must not mutate the returned map or the protos it holds.
+func (s *Service) convertedSnapshot() map[string]*alerting.Template {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+	return s.convertedTemplates
 }
 
 // CollectTemplates collects Percona Alerting rule templates from various sources like:
 // builtin templates: read from the generated variable of type embed.FS
-// SaaS templates: templates downloaded from checks service.
 // User file templates: read from yaml files created by the user in `/srv/alerting/templates`.
 // User API templates: in the DB created using the API.
 func (s *Service) CollectTemplates(ctx context.Context) {
 	var templates []*models.Template
-	builtInTemplates, err := s.loadTemplatesFromAssets(ctx)
+	builtInTemplates, err := s.loadBuiltinTemplates()
 	if err != nil {
 		s.l.Errorf("Failed to load built-in rule templates: %s.", err)
 		return
@@ -153,13 +160,27 @@ func (s *Service) CollectTemplates(ctx context.Context) {
 	}
 	templates = append(templates, dbTemplates...)
 
-	saasTemplates, err := s.downloadTemplates(ctx)
-	if err != nil {
-		// just log the error and don't return, if the user is not connected to SaaS
-		// we should still collect and show the Built-In templates.
-		s.l.Errorf("Failed to download rule templates from SaaS: %s.", err)
+	// Parse and convert each template once here so the hot ListTemplates path can
+	// serve ready-made protos without parsing/converting per request.
+	converted := make(map[string]*alerting.Template, len(templates))
+	for _, t := range templates {
+		at, err := parseAlertTemplate(t.Yaml)
+		if err != nil {
+			// A template stored by an older PMM can fail stricter validation. Still list it, so it
+			// can be found and replaced, without its multi-expression fields; CreateRule rejects it.
+			s.l.Errorf("template %q produced YAML that failed to re-parse; listed without multi-expression fields: %s", t.Name, err)
+			at = nil
+		}
+		proto, err := convertTemplate(s.l, *t, at)
+		if err != nil {
+			// convertTemplate only errors on malformed labels/annotations/created_at, which
+			// are machine-generated and thus effectively unreachable. Log and skip the one
+			// template rather than dropping the whole collected set.
+			s.l.Errorf("template %q failed to convert; dropped from list: %s", t.Name, err)
+			continue
+		}
+		converted[t.Name] = proto
 	}
-	templates = append(templates, saasTemplates...)
 
 	// replace previously stored templates with newly collected ones.
 	s.rw.Lock()
@@ -168,74 +189,67 @@ func (s *Service) CollectTemplates(ctx context.Context) {
 	for _, t := range templates {
 		s.templates[t.Name] = *t
 	}
+	s.convertedTemplates = converted
 }
 
-// loadTemplatesFromAssets loads built-in alerting rule templates from pmm-managed binary's assets.
-func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]*models.Template, error) {
-	var res []*models.Template
-	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
+// loadBuiltinTemplates loads built-in alerting rule templates.
+func (s *Service) loadBuiltinTemplates() ([]*models.Template, error) {
+	s.l.Infof("Loading alerting templates from dir=%s", builtinTemplatesDir)
+	return loadBuiltinTemplatesFromDir(builtinTemplatesDir)
+}
+
+// loadBuiltinTemplatesFromDir loads built-in alerting rule templates from the given directory.
+// Kept separate from the method so that the rule provisioner and the tests can read the shipped
+// templates without depending on the image layout.
+func loadBuiltinTemplatesFromDir(builtinTemplatesDir string) ([]*models.Template, error) {
+	templateFiles, err := filepath.Glob(filepath.Join(builtinTemplatesDir, "*.yml"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to list rule template assets: %w", err)
+	}
+
+	res := make([]*models.Template, 0, len(templateFiles))
+	for _, file := range templateFiles {
+		b, err := os.ReadFile(file) //nolint:gosec
 		if err != nil {
-			return errors.Wrapf(err, "error occurred while traversing templates folder: %s", path)
+			return nil, fmt.Errorf("failed to read rule template asset: %s: %w", file, err)
 		}
-
-		if ctx.Err() != nil {
-			return ctx.Err()
-		}
-
-		if d.IsDir() {
-			return nil
-		}
-
-		data, err := fs.ReadFile(data.AlertRuleTemplates, path)
-		if err != nil {
-			return errors.Wrapf(err, "failed to read rule template asset: %s", path)
-		}
-
 		// be strict about built-in templates
 		params := &alert.ParseParams{
 			DisallowUnknownFields:    true,
 			DisallowInvalidTemplates: true,
 		}
-		templates, err := alert.Parse(bytes.NewReader(data), params)
+		templates, err := alert.Parse(bytes.NewReader(b), params)
 		if err != nil {
-			return errors.Wrapf(err, "failed to parse rule template asset: %s", path)
+			return nil, fmt.Errorf("failed to parse rule template asset: %s: %w", file, err)
 		}
 
-		// built-in-specific validations
-		// TODO move to some better / common place
-
 		if l := len(templates); l != 1 {
-			return errors.Errorf("%q should contain exactly one template, got %d", path, l)
+			return nil, fmt.Errorf("%q should contain exactly one template, got %d", file, l)
 		}
 
 		t := templates[0]
 
-		filename := filepath.Base(path)
+		filename := filepath.Base(file)
 		if strings.HasPrefix(filename, "pmm_") {
-			return errors.Errorf("%q file name should not start with 'pmm_' prefix", path)
+			return nil, fmt.Errorf("%q file name should not start with 'pmm_' prefix", file)
 		}
 		if !strings.HasPrefix(t.Name, "pmm_") {
-			return errors.Errorf("%s %q: template name should start with 'pmm_' prefix", path, t.Name)
+			return nil, fmt.Errorf("%s %q: template name should start with 'pmm_' prefix", file, t.Name)
 		}
 		if expected := strings.TrimPrefix(t.Name, "pmm_") + ".yml"; filename != expected {
-			return errors.Errorf("template file name %q should be %q", filename, expected)
+			return nil, fmt.Errorf("template file name %q should be %q", filename, expected)
 		}
 		if len(t.Annotations) != 2 || t.Annotations["summary"] == "" || t.Annotations["description"] == "" {
-			return errors.Errorf("%s %q: template should contain exactly two annotations: summary and description", path, t.Name)
+			return nil, fmt.Errorf("%s %q: template should contain exactly two annotations: summary and description", file, t.Name)
 		}
 
 		tm, err := models.ConvertTemplate(&t, models.BuiltInSource)
 		if err != nil {
-			return errors.Wrap(err, "failed to convert alert rule template")
+			return nil, fmt.Errorf("failed to convert alert rule template: %w", err)
 		}
-
 		res = append(res, tm)
-		return nil
 	}
-	err := fs.WalkDir(data.AlertRuleTemplates, ".", walkDirFunc)
-	if err != nil {
-		return nil, err
-	}
+
 	return res, nil
 }
 
@@ -243,7 +257,7 @@ func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]*models.Templa
 func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]*models.Template, error) {
 	paths, err := dir.FindFilesWithExtensions(s.userTemplatesPath, "yml", "yaml")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get paths")
+		return nil, fmt.Errorf("failed to get paths: %w", err)
 	}
 
 	res := make([]*models.Template, 0, len(paths))
@@ -270,14 +284,15 @@ func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]*models.Tem
 		}
 
 		for _, t := range templates {
-			if err = validateUserTemplate(&t); err != nil {
+			err = validateUserTemplate(&t)
+			if err != nil {
 				s.l.Warnf("%s %s", path, err)
 				continue
 			}
 
 			tm, err := models.ConvertTemplate(&t, models.UserFileSource)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to convert alert rule template")
+				return nil, fmt.Errorf("failed to convert alert rule template: %w", err)
 			}
 
 			res = append(res, tm)
@@ -294,56 +309,10 @@ func (s *Service) loadTemplatesFromDB() ([]*models.Template, error) {
 		return err
 	})
 	if errTx != nil {
-		return nil, errors.Wrap(errTx, "failed to load rule templates from DB")
+		return nil, fmt.Errorf("failed to load rule templates from DB: %w", errTx)
 	}
 
 	return templates, nil
-}
-
-// downloadTemplates downloads Percona Alerting templates from Percona Portal.
-func (s *Service) downloadTemplates(ctx context.Context) ([]*models.Template, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IsTelemetryEnabled() {
-		s.l.Debug("Alert templates downloading skipped due to disabled telemetry.")
-		return nil, nil
-	}
-
-	nCtx, cancel := context.WithTimeout(ctx, portalRequestTimeout)
-	defer cancel()
-
-	resp, err := s.platformClient.GetTemplates(nCtx)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	if err = signatures.Verify(s.l, resp.File, resp.Signatures, s.platformPublicKeys); err != nil {
-		return nil, err
-	}
-
-	// be liberal about files from SaaS for smooth transition to future versions
-	params := &alert.ParseParams{
-		DisallowUnknownFields:    false,
-		DisallowInvalidTemplates: false,
-	}
-	templates, err := alert.Parse(strings.NewReader(resp.File), params)
-	if err != nil {
-		return nil, err
-	}
-
-	res := make([]*models.Template, 0, len(templates))
-	for _, t := range templates {
-		tm, err := models.ConvertTemplate(&t, models.SAASSource)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to convert alert rule template")
-		}
-		res = append(res, tm)
-	}
-
-	return res, nil
 }
 
 // validateUserTemplate validates user-provided template (API or file).
@@ -351,7 +320,7 @@ func validateUserTemplate(t *alert.Template) error {
 	// TODO move to some better place
 
 	if strings.HasPrefix(t.Name, "pmm_") || strings.HasPrefix(t.Name, "saas_") {
-		return errors.Errorf("%s: template name should not start with 'pmm_' or 'saas_' prefix", t.Name)
+		return fmt.Errorf("%s: template name should not start with 'pmm_' or 'saas_' prefix", t.Name)
 	}
 
 	// TODO more validations
@@ -368,17 +337,32 @@ func validateUserTemplate(t *alert.Template) error {
 		case alert.String:
 			value = "param_text"
 		default:
-			return errors.Errorf("invalid parameter type %s", p.Type)
+			return fmt.Errorf("invalid parameter type %s", p.Type)
 		}
 
 		params[p.Name] = value
 	}
 
-	if _, err := fillExprWithParams(t.Expr, params); err != nil {
-		return err
+	if t.UsesMultipleExpressions() {
+		for _, query := range t.Queries {
+			_, err := fillExprWithParams(query.Expr, params)
+			if err != nil {
+				return err
+			}
+		}
+
+		for _, expression := range t.Expressions {
+			_, err := fillExprWithParams(expression.Expression, params)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
 	}
 
-	return nil
+	_, err := fillExprWithParams(t.Expr, params)
+	return err
 }
 
 func convertSource(source models.Source) alerting.TemplateSource {
@@ -435,7 +419,7 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 		s.CollectTemplates(ctx)
 	}
 
-	templates := s.GetTemplates()
+	templates := s.convertedSnapshot()
 	res := &alerting.ListTemplatesResponse{
 		Templates:  make([]*alerting.Template, 0, len(templates)),
 		TotalItems: int32(len(templates)),
@@ -465,12 +449,7 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 	}
 
 	for _, name := range names[from:to] {
-		t, err := convertTemplate(s.l, templates[name])
-		if err != nil {
-			return nil, err
-		}
-
-		res.Templates = append(res.Templates, t)
+		res.Templates = append(res.Templates, templates[name])
 	}
 
 	return res, nil
@@ -494,27 +473,29 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), pParams)
 	if err != nil {
-		s.l.Errorf("failed to parse rule template form request: +%v", err)
+		s.l.Errorf("failed to parse rule template form request: %+v", err)
 		return nil, status.Errorf(codes.InvalidArgument, "Failed to parse rule template: %v.", err)
 	}
 
 	uniqueNames := make(map[string]struct{}, len(templates))
 	for _, t := range templates {
 		if _, ok := uniqueNames[t.Name]; ok {
-			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more that once.", t.Name)
+			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more than once.", t.Name)
 		}
 		uniqueNames[t.Name] = struct{}{}
-		if err = validateUserTemplate(&t); err != nil {
+		err = validateUserTemplate(&t)
+		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 		}
 	}
 
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
 		for _, t := range templates {
-			if _, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
+			_, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
 				Template: &t,
 				Source:   models.UserAPISource,
-			}); err != nil {
+			})
+			if err != nil {
 				return err
 			}
 		}
@@ -547,7 +528,7 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), parseParams)
 	if err != nil {
-		s.l.Errorf("failed to parse rule template form request: +%v", err)
+		s.l.Errorf("failed to parse rule template form request: %+v", err)
 		return nil, status.Error(codes.InvalidArgument, "Failed to parse rule template.")
 	}
 
@@ -557,7 +538,8 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 	tmpl := templates[0]
 
-	if err = validateUserTemplate(&tmpl); err != nil {
+	err = validateUserTemplate(&tmpl)
+	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 	}
 
@@ -603,14 +585,14 @@ func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTempla
 	return &alerting.DeleteTemplateResponse{}, nil
 }
 
-func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Template, error) {
+func convertTemplate(l *logrus.Entry, template models.Template, at *alert.Template) (*alerting.Template, error) {
 	labels, err := template.GetLabels()
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	annotations, err := template.GetAnnotations()
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	t := &alerting.Template{
@@ -627,21 +609,53 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 	}
 
 	t.CreatedAt = timestamppb.New(template.CreatedAt)
-	if err = t.CreatedAt.CheckValid(); err != nil {
+	err = t.CreatedAt.CheckValid()
+	if err != nil {
 		return nil, err
 	}
 
+	applyMultiExpressionFields(t, at)
+
 	return t, nil
+}
+
+// applyMultiExpressionFields fills the multi-query fields (queries/expressions/condition)
+// from a template that was parsed at collect time. A nil or single-expression at has
+// nothing to fill.
+func applyMultiExpressionFields(t *alerting.Template, at *alert.Template) {
+	if at == nil || !at.UsesMultipleExpressions() {
+		return
+	}
+
+	queries := make([]*alerting.TemplateQuery, 0, len(at.Queries))
+	for _, q := range at.Queries {
+		queries = append(queries, &alerting.TemplateQuery{RefId: q.RefID, Expr: q.Expr, Datasource: convertDatasource(q.Datasource)})
+	}
+
+	expressions := make([]*alerting.TemplateExpression, 0, len(at.Expressions))
+	for _, e := range at.Expressions {
+		expressions = append(expressions, &alerting.TemplateExpression{
+			RefId:      e.RefID,
+			Type:       e.Type,
+			Expression: e.Expression,
+			Reducer:    e.Reducer,
+		})
+	}
+
+	t.Queries = queries
+	t.Expressions = expressions
+	t.Condition = at.Condition
 }
 
 func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefinitions) []*alerting.ParamDefinition {
 	res := make([]*alerting.ParamDefinition, 0, len(params))
 	for _, p := range params {
 		pd := &alerting.ParamDefinition{
-			Name:    p.Name,
-			Summary: p.Summary,
-			Unit:    convertParamUnit(p.Unit),
-			Type:    convertParamType(p.Type),
+			Name:        p.Name,
+			Summary:     p.Summary,
+			Unit:        convertParamUnit(p.Unit),
+			Type:        convertParamType(p.Type),
+			Overridable: p.Overridable,
 		}
 
 		switch p.Type {
@@ -697,12 +711,12 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified.")
 	}
 
-	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByID(ctx, 1) // 1 - it's id of Metrics datasource in PMM
+	err = validateFilters(req.Filters)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid filter: %v.", err)
 	}
 
-	template, ok := s.GetTemplates()[req.TemplateName]
+	sourceTemplate, ok := s.GetTemplates()[req.TemplateName]
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
 	}
@@ -712,56 +726,90 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err
 	}
 
-	if err := validateParameters(template.Params, paramsValues); err != nil {
+	err = validateParameters(sourceTemplate.Params, paramsValues)
+	if err != nil {
 		return nil, err
 	}
 
-	forDuration := template.For
+	forDuration := sourceTemplate.For
 	if req.For != nil {
 		forDuration = req.For.AsDuration()
 	}
 
-	expr, err := fillExprWithParams(template.Expr, paramsValues.AsStringMap())
+	alertTemplate, err := parseAlertTemplate(sourceTemplate.Yaml)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to fill rule expression with parameters")
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid template %s: %v.", req.TemplateName, err)
 	}
 
-	for _, filter := range req.Filters {
-		switch filter.Type {
-		case alerting.FilterType_FILTER_TYPE_MATCH:
-			expr = fmt.Sprintf(`label_match(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
-		case alerting.FilterType_FILTER_TYPE_MISMATCH:
-			expr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
-		default:
-			return nil, errors.Errorf("unknown filter type: %T", filter)
+	// A rule only carries threshold steps once it has a PMM-minted ID to key its
+	// overrides on. The ID is minted first because it is the idempotency key for every
+	// step that follows; a rule with no overridable parameters never gets one, and is
+	// generated exactly as it was before this feature.
+	var (
+		ruleID     string
+		ruleParams models.AlertRuleParams
+	)
+
+	if len(alertTemplate.OverridableParams()) != 0 {
+		ruleID = uuid.New().String()
+
+		ruleParams, err = collectOverridableParams(alertTemplate, paramsValues)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "Invalid overridable parameters: %v.", err)
 		}
 	}
 
-	ta, err := template.GetAnnotations()
+	// Metrics is always needed for threshold steps; ClickHouse only when a query runs on it.
+	metricsUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, metricsDatasourceName)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get template annotations")
+		return nil, err
 	}
+
+	datasourceUIDs := map[alert.Datasource]string{alert.Metrics: metricsUID}
+	if alertTemplate.UsesDatasource(alert.ClickHouse) {
+		clickhouseUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, clickhouseDatasourceName)
+		if err != nil {
+			return nil, err
+		}
+
+		datasourceUIDs[alert.ClickHouse] = clickhouseUID
+	}
+
+	built, err := buildGrafanaRuleData(alertTemplate, datasourceUIDs, ruleID, paramsValues.AsStringMap(), req.Filters)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build alert rule data: %w", err)
+	}
+
+	ta, err := sourceTemplate.GetAnnotations()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get template annotations: %w", err)
+	}
+
+	rewriteOverridableAnnotations(ta, built.thresholdRefs)
 
 	// Copy annotations form template
 	annotations := make(map[string]string)
-	if err = transformMaps(ta, annotations, paramsValues.AsStringMap()); err != nil {
-		return nil, errors.Wrap(err, "failed to fill template annotations placeholders")
+	err = transformMaps(ta, annotations, paramsValues.AsStringMap())
+	if err != nil {
+		return nil, fmt.Errorf("failed to fill template annotations placeholders: %w", err)
 	}
 
 	labels := make(map[string]string)
 	// Copy labels form template
-	if err = transformMaps(req.CustomLabels, labels, paramsValues.AsStringMap()); err != nil {
-		return nil, errors.Wrap(err, "failed to fill rule labels placeholders")
+	err = transformMaps(req.CustomLabels, labels, paramsValues.AsStringMap())
+	if err != nil {
+		return nil, fmt.Errorf("failed to fill rule labels placeholders: %w", err)
 	}
 
-	tl, err := template.GetLabels()
+	tl, err := sourceTemplate.GetLabels()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get template labels")
+		return nil, fmt.Errorf("failed to get template labels: %w", err)
 	}
 
 	// Add rule labels
-	if err = transformMaps(tl, labels, paramsValues.AsStringMap()); err != nil {
-		return nil, errors.Wrap(err, "failed to fill template labels placeholders")
+	err = transformMaps(tl, labels, paramsValues.AsStringMap())
+	if err != nil {
+		return nil, fmt.Errorf("failed to fill template labels placeholders: %w", err)
 	}
 
 	// Do not add volatile values like `{{ $value }}` to labels as it will break alerts identity.
@@ -769,25 +817,24 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	labels["severity"] = common.Severity(req.Severity).String()
 	labels["template_name"] = req.TemplateName
 
+	// The rule's identity for threshold purposes travels on the rule itself, so a rule
+	// can still be matched back to its registry row after being copied or renamed in
+	// Grafana. The stored Grafana UID is only a cache of where it currently lives.
+	if ruleID != "" {
+		labels[services.PMMRuleIDLabel] = ruleID
+	}
+
+	labelSourceRefID := queryRefForRuleLabels(alertTemplate)
+	ensureRuleLabel(labels, "node_name", buildRuleLabelTemplate("node_name", labelSourceRefID))
+	ensureRuleLabel(labels, "service_name", buildRuleLabelTemplate("service_name", labelSourceRefID))
+
 	rule := services.Rule{
 		GrafanaAlert: services.GrafanaAlert{
 			Title:        req.Name,
-			Condition:    "A",
+			Condition:    built.condition,
 			NoDataState:  "OK",
 			ExecErrState: "Alerting",
-			Data: []services.Data{
-				{
-					RefID:         "A",
-					DatasourceUID: metricsDatasourceUID,
-					// TODO: https://community.grafana.com/t/grafana-requires-time-range-for-alert-rule-creation-with-instant-promql-quieriy/70919
-					RelativeTimeRange: services.RelativeTimeRange{From: 600, To: 0},
-					Model: services.Model{
-						Expr:    expr,
-						RefID:   "A",
-						Instant: true,
-					},
-				},
-			},
+			Data:         built.data,
 		},
 		For:         forDuration.String(),
 		Annotations: annotations,
@@ -800,12 +847,74 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		interval = req.Interval.AsDuration().String()
 	}
 
+	// Registered first and kept on failure: a lost response may hide a rule that exists.
+	if ruleID != "" {
+		err = s.db.InTransaction(func(tx *reform.TX) error {
+			_, err := models.CreateAlertRule(tx.Querier, &models.CreateAlertRuleParams{
+				RuleID: ruleID,
+				Params: ruleParams,
+			})
+
+			return err
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to register alert rule: %w", err)
+		}
+	}
+
 	err = s.grafanaClient.CreateAlertRule(ctx, req.FolderUid, req.Group, interval, &rule)
 	if err != nil {
 		return nil, err
 	}
 
-	return &alerting.CreateRuleResponse{}, nil
+	return &alerting.CreateRuleResponse{RuleId: ruleID}, nil
+}
+
+// collectOverridableParams snapshots what an overridable parameter needs in order to be
+// resolved later. The template it came from can be edited or deleted afterwards, so this
+// is the only durable record of the default the rule actually evaluates against, and of
+// the range an override is validated within.
+func collectOverridableParams(template *alert.Template, values AlertExprParamsValues) (models.AlertRuleParams, error) {
+	overridable := template.OverridableParams()
+	if len(overridable) == 0 {
+		// A nil AlertRuleParams map is the valid "nothing to snapshot" result: the rule
+		// is registered without params rather than being an error.
+		return nil, nil //nolint:nilnil
+	}
+
+	byName := make(map[string]AlertExprParamValue, len(values))
+	for _, value := range values {
+		byName[value.Name] = value
+	}
+
+	params := make(models.AlertRuleParams, len(overridable))
+
+	for _, param := range overridable {
+		supplied, ok := byName[param.Name]
+		if !ok {
+			return nil, fmt.Errorf("no value supplied for overridable parameter '%s'", param.Name)
+		}
+
+		snapshot := models.AlertRuleParam{
+			Default: supplied.FloatValue,
+			Scopes:  param.GetOverrideScopes(),
+			Unit:    string(param.Unit),
+			Summary: param.Summary,
+		}
+
+		if len(param.Range) != 0 {
+			pMin, pMax, err := param.GetRangeForFloat()
+			if err != nil {
+				return nil, fmt.Errorf("parameter '%s': failed to parse range: %w", param.Name, err)
+			}
+
+			snapshot.Min, snapshot.Max = new(pMin), new(pMax)
+		}
+
+		params[param.Name] = snapshot
+	}
+
+	return params, nil
 }
 
 func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsValues, error) {
@@ -843,12 +952,58 @@ func transformMaps(src map[string]string, dest map[string]string, data map[strin
 		if err != nil {
 			return err
 		}
-		if err = t.Execute(&buf, data); err != nil {
+		err = t.Execute(&buf, data)
+		if err != nil {
 			return err
 		}
 		dest[k] = buf.String()
 	}
 	return nil
+}
+
+func ensureRuleLabel(labels map[string]string, key, value string) {
+	if _, ok := labels[key]; ok {
+		return
+	}
+
+	labels[key] = value
+}
+
+func queryRefForRuleLabels(t *alert.Template) string {
+	// $values holds a ClickHouse time series only once reduced, while the condition always
+	// carries the alert instance's own labels.
+	if t.UsesDatasource(alert.ClickHouse) {
+		return t.Condition
+	}
+
+	if len(t.Queries) > 0 && t.Queries[0].RefID != "" {
+		return t.Queries[0].RefID
+	}
+
+	return "A"
+}
+
+func buildRuleLabelTemplate(labelName, refID string) string {
+	return fmt.Sprintf(
+		"{{ if $labels.%s }}{{ $labels.%s }}{{ else }}{{ $values.%s.Labels.%s }}{{ end }}",
+		labelName,
+		labelName,
+		refID,
+		labelName,
+	)
+}
+
+func convertDatasource(d alert.Datasource) alerting.DatasourceType {
+	switch d {
+	case "", alert.Metrics:
+		return alerting.DatasourceType_DATASOURCE_TYPE_METRICS
+	case alert.ClickHouse:
+		return alerting.DatasourceType_DATASOURCE_TYPE_CLICKHOUSE
+	}
+
+	// do not add `default:` to make exhaustive linter do its job
+
+	return alerting.DatasourceType_DATASOURCE_TYPE_UNSPECIFIED
 }
 
 func convertParamUnit(u models.ParamUnit) alerting.ParamUnit {
@@ -872,10 +1027,11 @@ func fillExprWithParams(expr string, values map[string]string) (string, error) {
 	var buf bytes.Buffer
 	t, err := newParamTemplate().Parse(expr)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to parse expression")
+		return "", fmt.Errorf("failed to parse expression: %w", err)
 	}
-	if err = t.Execute(&buf, values); err != nil {
-		return "", errors.Wrap(err, "failed to fill expression placeholders")
+	err = t.Execute(&buf, values)
+	if err != nil {
+		return "", fmt.Errorf("failed to fill expression placeholders: %w", err)
 	}
 	return buf.String(), nil
 }

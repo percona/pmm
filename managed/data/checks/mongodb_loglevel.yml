@@ -1,0 +1,40 @@
+---
+checks:
+  - version: 2
+    name: mongodb_loglevel
+    summary: MongoDB Non-Default Log Level
+    description: This check returns warnings if MongoDB is not using the default log level.
+    technology: MONGODB
+    # author: Vinicius Grippa
+    category: Logging
+    queries:
+      - type: MONGODB_GETCMDLINEOPTS
+    script: |
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          """
+          This check returns warnings if MongoDB is explicitly set to a non-default log level.
+          """
+
+          rows = docs[0]
+          if len(rows) != 1:
+              return "unexpected number of documents: {}".format(len(rows))
+
+          results = []
+          parsed = rows[0]["parsed"]
+          setParameter = parsed.get("setParameter", {})
+          verbosity = parsed.get("systemLog", {}).get("verbosity")
+          non_default = False
+          for level in [setParameter.get("logLevel"), verbosity]:
+              if level != None and str(level) != "0":
+                  non_default = True
+
+          if non_default:
+              results.append({
+                  "summary": "MongoDB is not using the default log level.",
+                  "description": "To avoid high disk usage, see the following to set it to default",
+                  "read_more_url": read_url.format("mongodb-log-messages"),
+                  "severity": "warning",
+              })
+          return results

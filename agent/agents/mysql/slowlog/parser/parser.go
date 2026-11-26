@@ -90,18 +90,6 @@ func NewSlowLogParser(r filereader.Reader, opts log.Options) *SlowLogParser {
 	return p
 }
 
-// logf logs with configured logger.
-func (p *SlowLogParser) logf(format string, v ...interface{}) {
-	if !p.opts.Debug {
-		return
-	}
-	if p.opts.Debugf != nil {
-		p.opts.Debugf(format, v...)
-		return
-	}
-	stdlog.Printf(format, v...)
-}
-
 // Parse returns next parsed event, or nil, when parsing is done.
 func (p *SlowLogParser) Parse() *log.Event {
 	return <-p.eventChan
@@ -173,6 +161,18 @@ func (p *SlowLogParser) Run() {
 	}
 }
 
+// logf logs with configured logger.
+func (p *SlowLogParser) logf(format string, v ...any) {
+	if !p.opts.Debug {
+		return
+	}
+	if p.opts.Debugf != nil {
+		p.opts.Debugf(format, v...)
+		return
+	}
+	stdlog.Printf(format, v...)
+}
+
 func (p *SlowLogParser) parseHeader(line string) {
 	p.logf("header")
 
@@ -207,11 +207,11 @@ func (p *SlowLogParser) parseHeader(line string) {
 func (p *SlowLogParser) parseTime(line string) {
 	p.logf("time")
 	m := timeRe.FindStringSubmatch(line)
-	if len(m) == 2 {
+	if len(m) == 2 { //nolint:mnd
 		p.event.Ts, _ = time.ParseInLocation("060102 15:04:05", m[1], p.opts.DefaultLocation)
 	} else {
 		m = timeNewRe.FindStringSubmatch(line)
-		if len(m) == 2 {
+		if len(m) == 2 { //nolint:mnd
 			p.event.Ts, _ = time.ParseInLocation(time.RFC3339Nano, m[1], p.opts.DefaultLocation)
 		} else {
 			return
@@ -228,7 +228,7 @@ func (p *SlowLogParser) parseTime(line string) {
 func (p *SlowLogParser) parseUser(line string) {
 	p.logf("user")
 	m := userRe.FindStringSubmatch(line)
-	if len(m) < 3 {
+	if len(m) < 3 { //nolint:mnd
 		p.logf("[parseUser] cannot be  %s", line)
 		return
 	}
@@ -239,7 +239,7 @@ func (p *SlowLogParser) parseUser(line string) {
 func (p *SlowLogParser) parseMetrics(line string) {
 	p.logf("metrics")
 	submatch := schema.FindStringSubmatch(line)
-	if len(submatch) == 2 {
+	if len(submatch) == 2 { //nolint:mnd
 		p.event.Db = submatch[1]
 	}
 
@@ -249,8 +249,8 @@ func (p *SlowLogParser) parseMetrics(line string) {
 	}
 
 	// we need to skip redundant space to correct the split process
-	line = strings.Replace(line, ": ", ":", -1) //nolint:gocritic
-	for _, kv := range strings.Split(line, " ") {
+	line = strings.ReplaceAll(line, ": ", ":")
+	for kv := range strings.SplitSeq(line, " ") {
 		if len(kv) == 0 {
 			continue
 		}

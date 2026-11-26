@@ -1,0 +1,103 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "import", "typescript", "unicorn", "oxc"],
+  "rules": {
+    "no-console": "warn",
+    "no-debugger": "error",
+    "no-unused-vars": "warn",
+    "no-duplicate-imports": "warn",
+    "eqeqeq": ["warn", "always", { "null": "ignore" }],
+    "no-var": "error",
+    "prefer-const": "error",
+    "curly": "warn",
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "@percona/percona-ui",
+            "message": "Former name of @percona/peak-ui; import from '@percona/peak-ui'."
+          },
+          {
+            "name": "material-react-table",
+            "importNames": ["MaterialReactTable", "useMaterialReactTable"],
+            "message": "Build tables with Table from '@percona/peak-ui' (ui/AGENTS.md, Tables)."
+          }
+        ]
+      }
+    ],
+
+    "react/no-direct-mutation-state": "error",
+    "react/no-unescaped-entities": "warn",
+    "react/jsx-no-duplicate-props": "error",
+    "react/jsx-no-undef": "error",
+    "react/jsx-key": "error",
+    "react/no-children-prop": "error",
+    "react/self-closing-comp": "warn",
+
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-non-null-assertion": "warn",
+    "typescript/no-unused-vars": "warn",
+    "typescript/consistent-type-imports": "warn",
+
+    "import/no-duplicates": "error",
+    "import/no-self-import": "error",
+    "import/no-cycle": "warn",
+
+    "unicorn/no-instanceof-array": "error",
+    "unicorn/no-typeof-undefined": "warn",
+    "unicorn/prefer-array-flat-map": "warn",
+    "unicorn/prefer-includes": "warn"
+  },
+  "overrides": [
+    // Files that predate no-restricted-imports, each exempted only from the
+    // restriction it breaks. Remove an entry once its file moves to peak-ui, and
+    // add none.
+    {
+      "files": [
+        "packages/plugins/om/src/AutomationsPage.tsx",
+        "packages/plugins/om/src/AutomationsScansTab.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "material-react-table",
+                "importNames": ["MaterialReactTable", "useMaterialReactTable"],
+                "message": "Build tables with Table from '@percona/peak-ui' (ui/AGENTS.md, Tables)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "packages/extensions/framework/src/components/SchemaListView/SchemaListView.tsx",
+        "packages/extensions/framework/src/components/TaskHistoryTable/TaskHistoryTable.tsx",
+        "packages/plugins/om/src/FleetClustersTab.tsx",
+        "packages/plugins/om/src/FleetServicesTab.tsx",
+        "packages/plugins/om/src/NodesPage.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@percona/percona-ui",
+                "message": "Former name of @percona/peak-ui; import from '@percona/peak-ui'."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "ignorePatterns": ["dist", "node_modules", "storybook-static", ".config"]
+}

@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _agents_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on PMMAgent with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -604,6 +607,35 @@ func (m *MySQLdExporter) validate(all bool) error {
 
 	// no validation rules for ExtraDsnParams
 
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MySQLdExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MySQLdExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MySQLdExporterValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MySQLdExporterMultiError(errors)
 	}
@@ -765,6 +797,37 @@ func (m *MongoDBExporter) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MongoDBExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MongoDBExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MongoDBExporterValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for EnableDiagnosticDataHistograms
+
 	if len(errors) > 0 {
 		return MongoDBExporterMultiError(errors)
 	}
@@ -920,6 +983,35 @@ func (m *PostgresExporter) validate(all bool) error {
 		if err := v.Validate(); err != nil {
 			return PostgresExporterValidationError{
 				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, PostgresExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, PostgresExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PostgresExporterValidationError{
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -1083,6 +1175,35 @@ func (m *ProxySQLExporter) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ProxySQLExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ProxySQLExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ProxySQLExporterValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ProxySQLExporterMultiError(errors)
 	}
@@ -1160,6 +1281,190 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ProxySQLExporterValidationError{}
+
+// Validate checks the field values on ValkeyExporter with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ValkeyExporter) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ValkeyExporter with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ValkeyExporterMultiError,
+// or nil if none found.
+func (m *ValkeyExporter) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ValkeyExporter) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for Disabled
+
+	// no validation rules for ServiceId
+
+	// no validation rules for Username
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for PushMetricsEnabled
+
+	// no validation rules for Status
+
+	// no validation rules for ListenPort
+
+	// no validation rules for ProcessExecPath
+
+	// no validation rules for ExposeExporter
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ValkeyExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ValkeyExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ValkeyExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ValkeyExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ValkeyExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ValkeyExporterValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ValkeyExporterMultiError(errors)
+	}
+
+	return nil
+}
+
+// ValkeyExporterMultiError is an error wrapping multiple validation errors
+// returned by ValkeyExporter.ValidateAll() if the designated constraints
+// aren't met.
+type ValkeyExporterMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ValkeyExporterMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ValkeyExporterMultiError) AllErrors() []error { return m }
+
+// ValkeyExporterValidationError is the validation error returned by
+// ValkeyExporter.Validate if the designated constraints aren't met.
+type ValkeyExporterValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ValkeyExporterValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ValkeyExporterValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ValkeyExporterValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ValkeyExporterValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ValkeyExporterValidationError) ErrorName() string { return "ValkeyExporterValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ValkeyExporterValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sValkeyExporter.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ValkeyExporterValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ValkeyExporterValidationError{}
 
 // Validate checks the field values on QANMySQLPerfSchemaAgent with the rules
 // defined in the proto definition for this message. If any rules are
@@ -1691,6 +1996,284 @@ var _ interface {
 	ErrorName() string
 } = QANMongoDBMongologAgentValidationError{}
 
+// Validate checks the field values on RTAOptions with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *RTAOptions) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RTAOptions with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in RTAOptionsMultiError, or
+// nil if none found.
+func (m *RTAOptions) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RTAOptions) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if d := m.GetCollectInterval(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = RTAOptionsValidationError{
+				field:  "CollectInterval",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(1*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := RTAOptionsValidationError{
+					field:  "CollectInterval",
+					reason: "value must be greater than or equal to 1s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	if len(errors) > 0 {
+		return RTAOptionsMultiError(errors)
+	}
+
+	return nil
+}
+
+// RTAOptionsMultiError is an error wrapping multiple validation errors
+// returned by RTAOptions.ValidateAll() if the designated constraints aren't met.
+type RTAOptionsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RTAOptionsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RTAOptionsMultiError) AllErrors() []error { return m }
+
+// RTAOptionsValidationError is the validation error returned by
+// RTAOptions.Validate if the designated constraints aren't met.
+type RTAOptionsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RTAOptionsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RTAOptionsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RTAOptionsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RTAOptionsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RTAOptionsValidationError) ErrorName() string { return "RTAOptionsValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RTAOptionsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRTAOptions.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RTAOptionsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RTAOptionsValidationError{}
+
+// Validate checks the field values on RTAMongoDBAgent with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *RTAMongoDBAgent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RTAMongoDBAgent with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RTAMongoDBAgentMultiError, or nil if none found.
+func (m *RTAMongoDBAgent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RTAMongoDBAgent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for Disabled
+
+	// no validation rules for ServiceId
+
+	// no validation rules for Username
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for CustomLabels
+
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RTAMongoDBAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RTAMongoDBAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RTAMongoDBAgentValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Status
+
+	// no validation rules for LogLevel
+
+	if len(errors) > 0 {
+		return RTAMongoDBAgentMultiError(errors)
+	}
+
+	return nil
+}
+
+// RTAMongoDBAgentMultiError is an error wrapping multiple validation errors
+// returned by RTAMongoDBAgent.ValidateAll() if the designated constraints
+// aren't met.
+type RTAMongoDBAgentMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RTAMongoDBAgentMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RTAMongoDBAgentMultiError) AllErrors() []error { return m }
+
+// RTAMongoDBAgentValidationError is the validation error returned by
+// RTAMongoDBAgent.Validate if the designated constraints aren't met.
+type RTAMongoDBAgentValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RTAMongoDBAgentValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RTAMongoDBAgentValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RTAMongoDBAgentValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RTAMongoDBAgentValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RTAMongoDBAgentValidationError) ErrorName() string { return "RTAMongoDBAgentValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RTAMongoDBAgentValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRTAMongoDBAgent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RTAMongoDBAgentValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RTAMongoDBAgentValidationError{}
+
 // Validate checks the field values on QANPostgreSQLPgStatementsAgent with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1985,6 +2568,8 @@ func (m *RDSExporter) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for AwsRoleArn
+
 	// no validation rules for Status
 
 	// no validation rules for ListenPort
@@ -2181,6 +2766,8 @@ func (m *ExternalExporter) validate(all bool) error {
 	}
 
 	// no validation rules for TlsSkipVerify
+
+	// no validation rules for Status
 
 	if len(errors) > 0 {
 		return ExternalExporterMultiError(errors)
@@ -3295,6 +3882,74 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetValkeyExporter() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("ValkeyExporter[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("ValkeyExporter[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("ValkeyExporter[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetRtaMongodbAgent() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RtaMongodbAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RtaMongodbAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("RtaMongodbAgent[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ListAgentsResponseMultiError(errors)
 	}
@@ -4200,6 +4855,88 @@ func (m *GetAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "NomadAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *GetAgentResponse_ValkeyExporter:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkeyExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "ValkeyExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "ValkeyExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkeyExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *GetAgentResponse_RtaMongodbAgent:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "RtaMongodbAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -5145,6 +5882,88 @@ func (m *AddAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddAgentRequest_ValkeyExporter:
+		if v == nil {
+			err := AddAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkeyExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "ValkeyExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "ValkeyExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkeyExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentRequestValidationError{
+					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddAgentRequest_RtaMongodbAgent:
+		if v == nil {
+			err := AddAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentRequestValidationError{
+					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -5859,6 +6678,88 @@ func (m *AddAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return AddAgentResponseValidationError{
 					field:  "QanPostgresqlPgstatmonitorAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddAgentResponse_ValkeyExporter:
+		if v == nil {
+			err := AddAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkeyExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "ValkeyExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "ValkeyExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkeyExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentResponseValidationError{
+					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddAgentResponse_RtaMongodbAgent:
+		if v == nil {
+			err := AddAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentResponseValidationError{
+					field:  "RtaMongodbAgent",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -6596,6 +7497,88 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *ChangeAgentRequest_ValkeyExporter:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkeyExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "ValkeyExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "ValkeyExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkeyExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentRequest_RtaMongodbAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -7318,6 +8301,88 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 			}
 		}
 
+	case *ChangeAgentResponse_ValkeyExporter:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetValkeyExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "ValkeyExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "ValkeyExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetValkeyExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "ValkeyExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *ChangeAgentResponse_RtaMongodbAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMongodbAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "RtaMongodbAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMongodbAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "RtaMongodbAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -7728,6 +8793,14 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
 	if len(errors) > 0 {
 		return ChangeNodeExporterParamsMultiError(errors)
 	}
@@ -7891,6 +8964,36 @@ func (m *AddMySQLdExporterParams) validate(all bool) error {
 
 	// no validation rules for ExtraDsnParams
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddMySQLdExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddMySQLdExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddMySQLdExporterParamsMultiError(errors)
 	}
@@ -8022,6 +9125,36 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeMySQLdExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeMySQLdExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -8059,6 +9192,54 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.TablestatsGroupTableLimit != nil {
+		// no validation rules for TablestatsGroupTableLimit
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
 	}
 
 	if len(errors) > 0 {
@@ -8217,6 +9398,40 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	// no validation rules for EnableAllCollectors
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddMongoDBExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddMongoDBExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	// no validation rules for EnableDiagnosticDataHistograms
+
 	if len(errors) > 0 {
 		return AddMongoDBExporterParamsMultiError(errors)
 	}
@@ -8348,6 +9563,36 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeMongoDBExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeMongoDBExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -8385,6 +9630,101 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.AuthenticationDatabase != nil {
+		// no validation rules for AuthenticationDatabase
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.CollectionsLimit != nil {
+		// no validation rules for CollectionsLimit
+	}
+
+	if m.EnableAllCollectors != nil {
+		// no validation rules for EnableAllCollectors
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
+	if m.EnableDiagnosticDataHistograms != nil {
+		// no validation rules for EnableDiagnosticDataHistograms
+	}
+
+	if m.EnvironmentVariableNames != nil {
+		if all {
+			switch v := interface{}(m.GetEnvironmentVariableNames()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeMongoDBExporterParamsValidationError{
+						field:  "EnvironmentVariableNames",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeMongoDBExporterParamsValidationError{
+						field:  "EnvironmentVariableNames",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetEnvironmentVariableNames()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeMongoDBExporterParamsValidationError{
+					field:  "EnvironmentVariableNames",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
 	}
 
 	if len(errors) > 0 {
@@ -8551,6 +9891,36 @@ func (m *AddPostgresExporterParams) validate(all bool) error {
 
 	// no validation rules for MaxExporterConnections
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddPostgresExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddPostgresExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddPostgresExporterParamsMultiError(errors)
 	}
@@ -8682,6 +10052,36 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangePostgresExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangePostgresExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -8719,6 +10119,58 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.AutoDiscoveryLimit != nil {
+		// no validation rules for AutoDiscoveryLimit
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
+	if m.MaxExporterConnections != nil {
+		// no validation rules for MaxExporterConnections
 	}
 
 	if len(errors) > 0 {
@@ -8875,6 +10327,36 @@ func (m *AddProxySQLExporterParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddProxySQLExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddProxySQLExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddProxySQLExporterParamsMultiError(errors)
 	}
@@ -9006,6 +10488,36 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 		}
 	}
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeProxySQLExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeProxySQLExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if m.Enable != nil {
 		// no validation rules for Enable
 	}
@@ -9043,6 +10555,38 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -9379,6 +10923,54 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
 	}
 
 	if len(errors) > 0 {
@@ -9718,6 +11310,58 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
+	if m.MaxSlowlogFileSize != nil {
+		// no validation rules for MaxSlowlogFileSize
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMySQLSlowlogAgentParamsMultiError(errors)
 	}
@@ -10044,6 +11688,54 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.AuthenticationDatabase != nil {
+		// no validation rules for AuthenticationDatabase
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMongoDBProfilerAgentParamsMultiError(errors)
 	}
@@ -10368,6 +12060,54 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.AuthenticationDatabase != nil {
+		// no validation rules for AuthenticationDatabase
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -10703,6 +12443,50 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -11042,6 +12826,54 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.MaxQueryLength != nil {
+		// no validation rules for MaxQueryLength
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
+	if m.DisableCommentsParsing != nil {
+		// no validation rules for DisableCommentsParsing
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANPostgreSQLPgStatMonitorAgentParamsMultiError(errors)
 	}
@@ -11184,6 +13016,19 @@ func (m *AddRDSExporterParams) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	if m.GetAwsRoleArn() != "" {
+		if !_AddRDSExporterParams_AwsRoleArn_Pattern.MatchString(m.GetAwsRoleArn()) {
+			err := AddRDSExporterParamsValidationError{
+				field:  "AwsRoleArn",
+				reason: "value does not match regex pattern \"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\"",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddRDSExporterParamsMultiError(errors)
 	}
@@ -11263,6 +13108,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddRDSExporterParamsValidationError{}
+
+var _AddRDSExporterParams_AwsRoleArn_Pattern = regexp.MustCompile("^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$")
 
 // Validate checks the field values on ChangeRDSExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -11354,6 +13201,41 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.AwsAccessKey != nil {
+		// no validation rules for AwsAccessKey
+	}
+
+	if m.AwsSecretKey != nil {
+		// no validation rules for AwsSecretKey
+	}
+
+	if m.DisableBasicMetrics != nil {
+		// no validation rules for DisableBasicMetrics
+	}
+
+	if m.DisableEnhancedMetrics != nil {
+		// no validation rules for DisableEnhancedMetrics
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.AwsRoleArn != nil {
+		if m.GetAwsRoleArn() != "" {
+			if !_ChangeRDSExporterParams_AwsRoleArn_Pattern.MatchString(m.GetAwsRoleArn()) {
+				err := ChangeRDSExporterParamsValidationError{
+					field:  "AwsRoleArn",
+					reason: "value does not match regex pattern \"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\"",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ChangeRDSExporterParamsMultiError(errors)
 	}
@@ -11433,6 +13315,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeRDSExporterParamsValidationError{}
+
+var _ChangeRDSExporterParams_AwsRoleArn_Pattern = regexp.MustCompile("^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$")
 
 // Validate checks the field values on AddExternalExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
@@ -11662,6 +13546,26 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 
 	if m.EnablePushMetrics != nil {
 		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Scheme != nil {
+		// no validation rules for Scheme
+	}
+
+	if m.MetricsPath != nil {
+		// no validation rules for MetricsPath
+	}
+
+	if m.ListenPort != nil {
+		// no validation rules for ListenPort
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -11990,6 +13894,30 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 		// no validation rules for EnablePushMetrics
 	}
 
+	if m.AzureClientId != nil {
+		// no validation rules for AzureClientId
+	}
+
+	if m.AzureClientSecret != nil {
+		// no validation rules for AzureClientSecret
+	}
+
+	if m.AzureTenantId != nil {
+		// no validation rules for AzureTenantId
+	}
+
+	if m.AzureSubscriptionId != nil {
+		// no validation rules for AzureSubscriptionId
+	}
+
+	if m.AzureResourceGroup != nil {
+		// no validation rules for AzureResourceGroup
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
 	if len(errors) > 0 {
 		return ChangeAzureDatabaseExporterParamsMultiError(errors)
 	}
@@ -12177,6 +14105,841 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeNomadAgentParamsValidationError{}
+
+// Validate checks the field values on AddValkeyExporterParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddValkeyExporterParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddValkeyExporterParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddValkeyExporterParamsMultiError, or nil if none found.
+func (m *AddValkeyExporterParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddValkeyExporterParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddValkeyExporterParamsValidationError{
+			field:  "PmmAgentId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if err := m._validateUuid(m.GetServiceId()); err != nil {
+		err = AddValkeyExporterParamsValidationError{
+			field:  "ServiceId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetUsername()) < 1 {
+		err := AddValkeyExporterParamsValidationError{
+			field:  "Username",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Password
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for SkipConnectionCheck
+
+	// no validation rules for PushMetrics
+
+	// no validation rules for TlsCa
+
+	// no validation rules for TlsCert
+
+	// no validation rules for TlsKey
+
+	// no validation rules for AgentPassword
+
+	// no validation rules for ExposeExporter
+
+	// no validation rules for LogLevel
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddValkeyExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddValkeyExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	if len(errors) > 0 {
+		return AddValkeyExporterParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *AddValkeyExporterParams) _validateUuid(uuid string) error {
+	if matched := _agents_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
+	}
+
+	return nil
+}
+
+// AddValkeyExporterParamsMultiError is an error wrapping multiple validation
+// errors returned by AddValkeyExporterParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddValkeyExporterParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddValkeyExporterParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddValkeyExporterParamsMultiError) AllErrors() []error { return m }
+
+// AddValkeyExporterParamsValidationError is the validation error returned by
+// AddValkeyExporterParams.Validate if the designated constraints aren't met.
+type AddValkeyExporterParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddValkeyExporterParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddValkeyExporterParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddValkeyExporterParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddValkeyExporterParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddValkeyExporterParamsValidationError) ErrorName() string {
+	return "AddValkeyExporterParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddValkeyExporterParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddValkeyExporterParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddValkeyExporterParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddValkeyExporterParamsValidationError{}
+
+// Validate checks the field values on ChangeValkeyExporterParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeValkeyExporterParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeValkeyExporterParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeValkeyExporterParamsMultiError, or nil if none found.
+func (m *ChangeValkeyExporterParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeValkeyExporterParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeValkeyExporterParamsValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeValkeyExporterParamsValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeValkeyExporterParamsValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeValkeyExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeValkeyExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
+
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeValkeyExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeValkeyExporterParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeValkeyExporterParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if m.EnablePushMetrics != nil {
+		// no validation rules for EnablePushMetrics
+	}
+
+	if m.Username != nil {
+		if utf8.RuneCountInString(m.GetUsername()) < 1 {
+			err := ChangeValkeyExporterParamsValidationError{
+				field:  "Username",
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.AgentPassword != nil {
+		// no validation rules for AgentPassword
+	}
+
+	if m.ExposeExporter != nil {
+		// no validation rules for ExposeExporter
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if len(errors) > 0 {
+		return ChangeValkeyExporterParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeValkeyExporterParamsMultiError is an error wrapping multiple
+// validation errors returned by ChangeValkeyExporterParams.ValidateAll() if
+// the designated constraints aren't met.
+type ChangeValkeyExporterParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeValkeyExporterParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeValkeyExporterParamsMultiError) AllErrors() []error { return m }
+
+// ChangeValkeyExporterParamsValidationError is the validation error returned
+// by ChangeValkeyExporterParams.Validate if the designated constraints aren't met.
+type ChangeValkeyExporterParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeValkeyExporterParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeValkeyExporterParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeValkeyExporterParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeValkeyExporterParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeValkeyExporterParamsValidationError) ErrorName() string {
+	return "ChangeValkeyExporterParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeValkeyExporterParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeValkeyExporterParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeValkeyExporterParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeValkeyExporterParamsValidationError{}
+
+// Validate checks the field values on AddRTAMongoDBAgentParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddRTAMongoDBAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddRTAMongoDBAgentParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddRTAMongoDBAgentParamsMultiError, or nil if none found.
+func (m *AddRTAMongoDBAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddRTAMongoDBAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddRTAMongoDBAgentParamsValidationError{
+			field:  "PmmAgentId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := AddRTAMongoDBAgentParamsValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Username
+
+	// no validation rules for Password
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for LogLevel
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for TlsCertificateKey
+
+	// no validation rules for TlsCertificateKeyFilePassword
+
+	// no validation rules for TlsCa
+
+	// no validation rules for SkipConnectionCheck
+
+	// no validation rules for AuthenticationMechanism
+
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AddRTAMongoDBAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AddRTAMongoDBAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AddRTAMongoDBAgentParamsValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return AddRTAMongoDBAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddRTAMongoDBAgentParamsMultiError is an error wrapping multiple validation
+// errors returned by AddRTAMongoDBAgentParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddRTAMongoDBAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddRTAMongoDBAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddRTAMongoDBAgentParamsMultiError) AllErrors() []error { return m }
+
+// AddRTAMongoDBAgentParamsValidationError is the validation error returned by
+// AddRTAMongoDBAgentParams.Validate if the designated constraints aren't met.
+type AddRTAMongoDBAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddRTAMongoDBAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddRTAMongoDBAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddRTAMongoDBAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddRTAMongoDBAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddRTAMongoDBAgentParamsValidationError) ErrorName() string {
+	return "AddRTAMongoDBAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddRTAMongoDBAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddRTAMongoDBAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddRTAMongoDBAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddRTAMongoDBAgentParamsValidationError{}
+
+// Validate checks the field values on ChangeRTAMongoDBAgentParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeRTAMongoDBAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeRTAMongoDBAgentParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeRTAMongoDBAgentParamsMultiError, or nil if none found.
+func (m *ChangeRTAMongoDBAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
+
+	if m.CustomLabels != nil {
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeRTAMongoDBAgentParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCertificateKey != nil {
+		// no validation rules for TlsCertificateKey
+	}
+
+	if m.TlsCertificateKeyFilePassword != nil {
+		// no validation rules for TlsCertificateKeyFilePassword
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.AuthenticationMechanism != nil {
+		// no validation rules for AuthenticationMechanism
+	}
+
+	if m.RtaOptions != nil {
+		if all {
+			switch v := interface{}(m.GetRtaOptions()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRTAMongoDBAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeRTAMongoDBAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
+	if len(errors) > 0 {
+		return ChangeRTAMongoDBAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeRTAMongoDBAgentParamsMultiError is an error wrapping multiple
+// validation errors returned by ChangeRTAMongoDBAgentParams.ValidateAll() if
+// the designated constraints aren't met.
+type ChangeRTAMongoDBAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeRTAMongoDBAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeRTAMongoDBAgentParamsMultiError) AllErrors() []error { return m }
+
+// ChangeRTAMongoDBAgentParamsValidationError is the validation error returned
+// by ChangeRTAMongoDBAgentParams.Validate if the designated constraints
+// aren't met.
+type ChangeRTAMongoDBAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeRTAMongoDBAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeRTAMongoDBAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeRTAMongoDBAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeRTAMongoDBAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeRTAMongoDBAgentParamsValidationError) ErrorName() string {
+	return "ChangeRTAMongoDBAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeRTAMongoDBAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeRTAMongoDBAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeRTAMongoDBAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeRTAMongoDBAgentParamsValidationError{}
 
 // Validate checks the field values on RemoveAgentRequest with the rules
 // defined in the proto definition for this message. If any rules are

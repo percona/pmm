@@ -4,6 +4,13 @@ set -o errexit
 declare PMM_DISTRIBUTION_METHOD="${PMM_DISTRIBUTION_METHOD:-docker}"
 declare CURRENT_GID CURRENT_UID CURRENT_USER
 
+# Returns 0 (true) if the given variable is set to "1" or "true".
+is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
+declare POSTGRES_DATA_DIR="/srv/postgres18"
+declare POSTGRES_OLD_DATA_DIR="/srv/postgres14"
+declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
+declare POSTGRES_BIN_DIR="/usr/pgsql-18/bin"
+
 # Get current user info - handle cases where user doesn't exist in passwd
 CURRENT_UID=$(id -u)
 CURRENT_GID=$(id -g)
@@ -31,56 +38,41 @@ if [ "$CURRENT_UID" != "1000" ] || [ "$CURRENT_GID" != "0" ]; then
         exit 1
     fi
 
-    if [ -n "$NSS_WRAPPER_LIB" ]; then
-        echo "Setting up NSS wrapper..."
-        declare NSS_WRAPPER_PASSWD NSS_WRAPPER_GROUP
-        # Set up NSS wrapper for arbitrary UID support
-        NSS_WRAPPER_PASSWD=$(mktemp)
-        NSS_WRAPPER_GROUP=$(mktemp)
-        export NSS_WRAPPER_PASSWD NSS_WRAPPER_GROUP
+    echo "Setting up NSS wrapper..."
+    declare NSS_WRAPPER_PASSWD NSS_WRAPPER_GROUP
+    # Set up NSS wrapper for arbitrary UID support
+    NSS_WRAPPER_PASSWD=$(mktemp)
+    NSS_WRAPPER_GROUP=$(mktemp)
+    export NSS_WRAPPER_PASSWD NSS_WRAPPER_GROUP
 
-        # Cleanup temp files on exit
-        cleanup_nss_wrapper() {
-            [ -f "$NSS_WRAPPER_PASSWD" ] && rm -f "$NSS_WRAPPER_PASSWD"
-            [ -f "$NSS_WRAPPER_GROUP" ] && rm -f "$NSS_WRAPPER_GROUP"
-        }
-        trap cleanup_nss_wrapper EXIT
+    # Cleanup temp files on exit
+    cleanup_nss_wrapper() {
+        [ -f "$NSS_WRAPPER_PASSWD" ] && rm -f "$NSS_WRAPPER_PASSWD"
+        [ -f "$NSS_WRAPPER_GROUP" ] && rm -f "$NSS_WRAPPER_GROUP"
+    }
+    trap cleanup_nss_wrapper EXIT
 
-        # Copy existing passwd and group entries
-        cat /etc/passwd > "$NSS_WRAPPER_PASSWD"
-        cat /etc/group > "$NSS_WRAPPER_GROUP"
+    # Copy existing passwd and group entries
+    cat /etc/passwd > "$NSS_WRAPPER_PASSWD"
+    cat /etc/group > "$NSS_WRAPPER_GROUP"
 
-        # Add current user if not exists (suppress errors if NSS wrapper is not yet active)
-        if ! getent passwd "$CURRENT_UID" > /dev/null 2>&1; then
-            echo "${CURRENT_USER}:x:${CURRENT_UID}:${CURRENT_GID}:PMM User:/srv:/bin/bash" >> "$NSS_WRAPPER_PASSWD"
-        fi
-
-        # Add current group if not exists (suppress errors if NSS wrapper is not yet active)
-        if ! getent group "$CURRENT_GID" > /dev/null 2>&1; then
-            echo "${CURRENT_USER}:x:${CURRENT_GID}:" >> "$NSS_WRAPPER_GROUP"
-        fi
-
-        # Fix LD_PRELOAD assignment to avoid leading colon
-        if [ -n "$LD_PRELOAD" ]; then
-            export LD_PRELOAD="$NSS_WRAPPER_LIB:$LD_PRELOAD"
-        else
-            export LD_PRELOAD="$NSS_WRAPPER_LIB"
-        fi
-        echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
+    # Add current user if not exists (suppress errors if NSS wrapper is not yet active)
+    if ! getent passwd "$CURRENT_UID" > /dev/null 2>&1; then
+        echo "${CURRENT_USER}:x:${CURRENT_UID}:${CURRENT_GID}:PMM User:/srv:/bin/bash" >> "$NSS_WRAPPER_PASSWD"
     fi
-fi
 
-# Check /usr/share/pmm-server directory on every start
-echo "Checking /usr/share/pmm-server directory structure..."
-# Still ensure critical directories exist, but don't create empty ones
-if [ ! -d "/usr/share/pmm-server/nginx" ]; then 
-    echo "Creating nginx temp directories..."
-    mkdir -p /usr/share/pmm-server/nginx/{client_temp,proxy_temp,fastcgi_temp,uwsgi_temp,scgi_temp}
-fi
+    # Add current group if not exists (suppress errors if NSS wrapper is not yet active)
+    if ! getent group "$CURRENT_GID" > /dev/null 2>&1; then
+        echo "${CURRENT_USER}:x:${CURRENT_GID}:" >> "$NSS_WRAPPER_GROUP"
+    fi
 
-if [ ! -d "/srv/pmm-agent/tmp" ]; then
-    echo "Creating pmm-agent temp directory..."
-    install -d -m 770 /srv/pmm-agent/tmp
+    # Fix LD_PRELOAD assignment to avoid leading colon
+    if [ -n "$LD_PRELOAD" ]; then
+        export LD_PRELOAD="$NSS_WRAPPER_LIB:$LD_PRELOAD"
+    else
+        export LD_PRELOAD="$NSS_WRAPPER_LIB"
+    fi
+    echo "NSS wrapper enabled with $NSS_WRAPPER_LIB"
 fi
 
 # Initialize /srv if empty
@@ -88,29 +80,218 @@ declare DIST_FILE=/srv/pmm-distribution
 if [ ! -f "$DIST_FILE" ]; then
     echo -n "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
     echo "Initializing /srv..."
-    mkdir -p /srv/{backup,clickhouse,grafana,logs,nginx,prometheus,victoriametrics}
-    echo "Copying grafana plugins and the VERSION file..."
-    mkdir -p /srv/grafana/plugins
-    cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
-
-    echo "Initializing Postgres..."
-    install -d -m 750 /srv/postgres14
-    /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust --username=postgres
-
-    echo "Enabling pg_stat_statements extension for PostgreSQL..."
-    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
-    /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
-    /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+    mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,prometheus/rules,victoriametrics}
 fi
 
-echo "Generating self-signed certificates for nginx..."
-bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
+# Sync bundled Grafana plugins into /srv when the bundled set changes. 
+# This must happen before supervisord starts.
+declare PLUGINS_SRC=/usr/share/percona-dashboards/panels
+declare PLUGINS_DST=/srv/grafana/plugins
+declare PLUGINS_MARKER="$PLUGINS_DST/.pmm-synced-version"
+declare BUNDLED_VERSION SYNCED_VERSION=""
+BUNDLED_VERSION=$(< /usr/share/percona-dashboards/VERSION)
+if [ -f "$PLUGINS_MARKER" ]; then
+    SYNCED_VERSION=$(< "$PLUGINS_MARKER")
+fi
+if [ "$BUNDLED_VERSION" != "$SYNCED_VERSION" ]; then
+    echo "Synchronizing Grafana plugins..."
+    mkdir -p "$PLUGINS_DST"
+    for panel in "$PLUGINS_SRC"/*/; do
+        rm -rf "${PLUGINS_DST:?}/$(basename "$panel")"
+    done
+    cp -r "$PLUGINS_SRC"/* "$PLUGINS_DST"
+    echo -n "$BUNDLED_VERSION" > "$PLUGINS_MARKER"
+fi
+unset PLUGINS_SRC PLUGINS_DST PLUGINS_MARKER BUNDLED_VERSION SYNCED_VERSION
 
-# Ensure /srv/postgres14 has the correct permissions
-chmod 750 /srv/postgres14 || true
+echo "Creating nginx temp directories..."
+mkdir -p /srv/tmp/{client,proxy,fastcgi,uwsgi,scgi}
+
+if [ ! -d "/srv/pmm-agent/tmp" ]; then
+    echo "Creating pmm-agent temp directory..."
+    install -d -m 770 /srv/pmm-agent/tmp
+fi
+
+# Resolved before postgres-extensions, which sets the pmm_extensions role's password, and
+# extensions-secrets, which publishes it - both read it from the environment and neither
+# can generate it for the other. An operator value wins and is not persisted, so unsetting
+# it returns to the generated one rather than pinning whatever was passed once.
+#
+# Gated on the same two flags as the migration branch below, which is what decides whether
+# postgres-extensions runs at all: under either of them extensions-secrets bails too, so
+# generating here would persist a credential on /srv that nothing ever reads.
+if is_enabled "$PMM_ENABLE_EXTENSIONS" && [ -z "$PMM_EXTENSIONS_POSTGRES_PASSWORD" ] &&
+    ! is_enabled "$PMM_HA_ENABLE" && ! is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
+    declare EXTENSIONS_PG_PASSWORD_FILE="/srv/.extensions_postgres_password"
+    declare EXTENSIONS_PG_MODE
+
+    if [ ! -s "$EXTENSIONS_PG_PASSWORD_FILE" ]; then
+        echo "Generating the PostgreSQL password for PMM Extensions..."
+        EXTENSIONS_PG_TMP=$(mktemp "$EXTENSIONS_PG_PASSWORD_FILE.XXXXXX")
+        # Removed here rather than from an EXIT trap: the only trap this file installs is
+        # the NSS wrapper's, and a second one would replace it rather than chain onto it.
+        if ! openssl rand -hex 24 > "$EXTENSIONS_PG_TMP"; then
+            rm -f "$EXTENSIONS_PG_TMP"
+            echo "FATAL: could not generate the PostgreSQL password for PMM Extensions." >&2
+            exit 1
+        fi
+        mv "$EXTENSIONS_PG_TMP" "$EXTENSIONS_PG_PASSWORD_FILE"
+        unset EXTENSIONS_PG_TMP
+    fi
+
+    # chmod needs ownership rather than write permission, and the arbitrary-uid path lets a
+    # later start run as a uid that does not own what an earlier one persisted - so a failed
+    # chmod is not by itself a reason to stop. A mode that still leaves the credential
+    # readable beyond its owner is, because the value is about to be exported: refusing to
+    # start beats publishing a password this uid cannot narrow.
+    if ! chmod 600 "$EXTENSIONS_PG_PASSWORD_FILE" 2> /dev/null; then
+        EXTENSIONS_PG_MODE=$(stat -c '%a' "$EXTENSIONS_PG_PASSWORD_FILE")
+        if [ $((8#$EXTENSIONS_PG_MODE & 8#077)) -ne 0 ]; then
+            echo "FATAL: $EXTENSIONS_PG_PASSWORD_FILE is mode $EXTENSIONS_PG_MODE and could not be narrowed to 600." >&2
+            echo "Please make sure it is owned by uid $(id -u), or narrow it by hand, and try again." >&2
+            exit 1
+        fi
+    fi
+
+    PMM_EXTENSIONS_POSTGRES_PASSWORD=$(< "$EXTENSIONS_PG_PASSWORD_FILE")
+    export PMM_EXTENSIONS_POSTGRES_PASSWORD
+    unset EXTENSIONS_PG_PASSWORD_FILE EXTENSIONS_PG_MODE
+fi
+
+# Resolves every credential to a file under /run/pmm/secrets, the only place PMM's programs read them from.
+# It fails on a contradictory or unreadable configuration, listing every problem.
+pmm-managed-init secrets
+
+# The values now live in files (see managed/utils/secrets), so no child may inherit them.
+unset PMM_POSTGRES_DBPASSWORD GF_DATABASE_PASSWORD PMM_CLICKHOUSE_PASSWORD PMM_CLICKHOUSE_DATASOURCE_PASSWORD \
+    PMM_ADMIN_PASSWORD GF_SECURITY_ADMIN_PASSWORD
+# A secret key with leading or trailing whitespace gets no link and stays here for Grafana, which encrypted with it as
+# written; a file would lose the whitespace.
+if [ -L /run/pmm/secrets/grafana-secret-key ]; then
+    unset GF_SECURITY_SECRET_KEY
+fi
+# The pmm-ha chart also passes the database passwords under its Secret's key names, which PMM doesn't read.
+unset PG_PASSWORD GF_PASSWORD
+
+# The script owns the embedded cluster: it upgrades a PostgreSQL 14 data directory,
+# creates the cluster on a fresh installation, and repairs older ones.
+if is_enabled "$PMM_HA_ENABLE"; then
+    echo "Skipping embedded PostgreSQL setup in HA mode."
+elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
+    echo "Skipping embedded PostgreSQL setup (builtin PostgreSQL is disabled)."
+else
+    mkdir -p /run/postgresql
+    # PostgreSQL is not running yet, so these locks are left over from an unclean stop, and it
+    # refuses to start while the PID they record belongs to another live process.
+    rm -f "$POSTGRES_DATA_DIR/postmaster.pid" /run/postgresql/.s.PGSQL.5432.lock /tmp/.s.PGSQL.5432.lock
+    # Kubernetes applies fsGroup by recursively adding group permissions to the volume, which
+    # turns an initdb-created 0700 data directory into 2770 — a mode PostgreSQL refuses. Repair
+    # the current cluster and a PostgreSQL 14 directory awaiting migration, which
+    # postgres-migration has to start in order to dump it. chmod keeps the setgid bit on a
+    # directory, so the result is 2750, which PostgreSQL accepts.
+    for dir in "$POSTGRES_DATA_DIR" "$POSTGRES_OLD_DATA_DIR"; do
+        if [ -d "$dir" ]; then
+            chmod 750 "$dir" || true
+        fi
+    done
+    unset dir
+    # Scoped to this subshell so the helper scripts inherit them without polluting
+    # the environment that supervisord and its children are started with.
+    (
+        export POSTGRES_DATA_DIR POSTGRES_OLD_DATA_DIR POSTGRES_PASSWORD_FILE POSTGRES_BIN_DIR
+        bash /opt/ansible/roles/postgres/files/postgres-migration
+        bash /opt/ansible/roles/postgres/files/postgres-extensions
+    )
+fi
+
+if is_enabled "$PMM_ENABLE_EXTENSIONS" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; }; then
+    echo "WARNING: not exposing a database to PMM Extensions, the embedded PostgreSQL is not in use." >&2
+fi
+
+# The reverse proxy is independent of which database the side-car uses, so it is not
+# nested in the embedded-PostgreSQL branch above.
+declare EXTENSIONS_NGINX_DIR=/etc/nginx/extensions.d
+declare EXTENSIONS_NGINX_TEMPLATE=/opt/ansible/roles/nginx/files/extensions/extensions.conf.template
+if is_enabled "$PMM_ENABLE_EXTENSIONS"; then
+    declare EXTENSIONS_ADDRESS="${PMM_EXTENSIONS_ADDRESS:-pmm-extensions:9000}"
+    # The address is interpolated into an nginx config, so an unvalidated value
+    # is a config-injection vector. The digit count is capped so the range test
+    # below cannot be handed a value that overflows the shell's integer parsing
+    # and fails open.
+    if ! [[ "$EXTENSIONS_ADDRESS" =~ ^[A-Za-z0-9._-]+:[0-9]{1,5}$ ]]; then
+        echo "FATAL: PMM_EXTENSIONS_ADDRESS must be <host>:<port>, got '${EXTENSIONS_ADDRESS}'." >&2
+        exit 1
+    fi
+    # A variable proxy_pass resolves per request, so an out-of-range port would
+    # pass nginx -t and only surface as a 502 at runtime.
+    if [ "${EXTENSIONS_ADDRESS##*:}" -lt 1 ] || [ "${EXTENSIONS_ADDRESS##*:}" -gt 65535 ]; then
+        echo "FATAL: PMM_EXTENSIONS_ADDRESS port must be 1-65535, got '${EXTENSIONS_ADDRESS##*:}'." >&2
+        exit 1
+    fi
+
+    # Container DNS: 127.0.0.11 under Docker, an aardvark address under Podman.
+    # IPv4 first, then an unscoped IPv6 in brackets -- nginx requires the brackets
+    # and rejects a bare address, which fails nginx -t and so blocks the whole
+    # server from starting.
+    declare EXTENSIONS_RESOLVER
+    EXTENSIONS_RESOLVER=$(awk '/^nameserver/ && $2 != "" && $2 !~ /:/ { print $2; exit }' /etc/resolv.conf 2>/dev/null || true)
+    if [ -z "$EXTENSIONS_RESOLVER" ]; then
+        # Scoped addresses are skipped rather than stripped of their zone: nginx has
+        # no syntax for the interface scope, so a stripped fe80:: address yields a
+        # config that passes nginx -t and can never route DNS -- trading a startup
+        # failure for every /extensions/ request timing out into the 503.
+        EXTENSIONS_RESOLVER=$(awk '/^nameserver/ && $2 != "" && $2 !~ /%/ { print "[" $2 "]"; exit }' /etc/resolv.conf 2>/dev/null || true)
+    fi
+    if [ -z "$EXTENSIONS_RESOLVER" ]; then
+        if awk '/^nameserver/ && $2 ~ /%/ { found = 1 } END { exit !found }' /etc/resolv.conf 2>/dev/null; then
+            echo "FATAL: /etc/resolv.conf lists only scoped IPv6 nameservers, such as fe80::1%eth0." >&2
+            echo "nginx cannot express the interface scope, so such an address cannot be used." >&2
+            echo "Please attach the container to a network with an IPv4 or unscoped IPv6 nameserver, or unset PMM_ENABLE_EXTENSIONS." >&2
+        else
+            echo "FATAL: PMM_ENABLE_EXTENSIONS is set but no nameserver found in /etc/resolv.conf." >&2
+            echo "Please attach the container to a network with working DNS, or unset PMM_ENABLE_EXTENSIONS." >&2
+        fi
+        exit 1
+    fi
+    # Interpolated into the same config as EXTENSIONS_ADDRESS, so it needs the same
+    # guard: awk yields a whitespace-delimited field, and a nameserver line
+    # carrying anything else would close the /extensions/ block and open its own.
+    if ! [[ "$EXTENSIONS_RESOLVER" =~ ^([0-9.]+|\[[0-9a-fA-F:]+\])$ ]]; then
+        echo "FATAL: /etc/resolv.conf nameserver '${EXTENSIONS_RESOLVER}' is not a usable address." >&2
+        echo "Please attach the container to a network with working DNS, or unset PMM_ENABLE_EXTENSIONS." >&2
+        exit 1
+    fi
+
+    if [ ! -f "$EXTENSIONS_NGINX_TEMPLATE" ]; then
+        echo "FATAL: missing ${EXTENSIONS_NGINX_TEMPLATE}, cannot configure the PMM Extensions reverse proxy." >&2
+        exit 1
+    fi
+
+    echo "Installing nginx reverse-proxy configuration for PMM Extensions at ${EXTENSIONS_ADDRESS}..."
+    mkdir -p "$EXTENSIONS_NGINX_DIR"
+    sed -e "s|__EXTENSIONS_ADDRESS__|${EXTENSIONS_ADDRESS}|" \
+        -e "s|__EXTENSIONS_RESOLVER__|${EXTENSIONS_RESOLVER}|" \
+        "$EXTENSIONS_NGINX_TEMPLATE" > "$EXTENSIONS_NGINX_DIR/extensions.conf"
+else
+    # Clears the whole directory, not just the file this version writes: an older
+    # build or an operator may have left others behind in the writable layer.
+    rm -f "$EXTENSIONS_NGINX_DIR"/*.conf
+fi
+
+# Unconditional: the script owns its own gates, so the files it published are still
+# removed on the start after PMM_ENABLE_EXTENSIONS is cleared.
+bash /opt/ansible/roles/extensions/files/extensions-secrets
+
+# The last consumer has run, so drop the password before exec'ing supervisord: otherwise
+# every supervisord child inherits it, and anything sharing the container's PID namespace
+# can then read it out of /proc/<pid>/environ.
+unset PMM_EXTENSIONS_POSTGRES_PASSWORD
+
+echo "Generating self-signed certificates for nginx..."
+bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
 
 echo "Checking nginx configuration..."
-if ! nginx -t; then
+if ! nginx -t -e /dev/stdout; then
     echo "Nginx configuration test failed, exiting..."
     exit 1
 fi
@@ -118,5 +299,37 @@ fi
 # pmm-managed-init validates environment variables.
 pmm-managed-init
 
-# Start supervisor in foreground
+declare AGENT_CONFIG_DIR="/usr/local/percona/pmm/config"
+declare AGENT_ID=pmm-server
+
+if is_enabled "$PMM_HA_ENABLE"; then
+    echo "High Availability mode is enabled."
+    if [ -f "$AGENT_CONFIG_DIR/pmm-agent.yaml" ]; then
+        rm -f "$AGENT_CONFIG_DIR/pmm-agent.yaml"
+    fi
+
+    AGENT_CONFIG_DIR="/srv/pmm-agent/config"
+    if [ ! -d "$AGENT_CONFIG_DIR" ]; then
+        echo "Creating pmm-agent config directory..."
+        install -d -m 770 "$AGENT_CONFIG_DIR"
+    fi
+
+    AGENT_ID="$(uuidgen)"
+fi
+
+if [ ! -f "$AGENT_CONFIG_DIR/pmm-agent.yaml" ]; then
+  echo "Creating pmm-agent configuration..."
+  pmm-agent setup \
+      --config-file="$AGENT_CONFIG_DIR/pmm-agent.yaml" \
+      --skip-registration \
+      --id="$AGENT_ID" \
+      --paths-tempdir=/srv/pmm-agent/tmp \
+      --paths-nomad-data-dir=/srv/nomad/data \
+      --server-address=127.0.0.1:8443 \
+      --server-insecure-tls
+fi
+
+unset AGENT_CONFIG_DIR AGENT_ID
+
+# Start supervisor in foreground, i.e. as PID 1
 exec supervisord -n -c /etc/supervisord.conf

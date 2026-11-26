@@ -12,23 +12,26 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// Package main.
+// Package main provides ClickHouse database connectivity, schema migrations,
+// and partition management for the Query Analytics API.
 package main
 
 import (
-	"embed"
+	"context"
+	"errors"
 	"fmt"
-	"log"
 	"net/url"
 	"strings"
+	"time"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go/v2" // register database/sql driver
-	"github.com/golang-migrate/migrate/v4"
+	clickhouse "github.com/ClickHouse/clickhouse-go/v2"          // register database/sql driver
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
-	"github.com/golang-migrate/migrate/v4/source/iofs"
-	"github.com/jmoiron/sqlx" // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
+	"github.com/jmoiron/sqlx"                                    // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
-	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/qan-api2/migrations"
+	"github.com/percona/pmm/utils/dsnutils"
 )
 
 const (
@@ -36,20 +39,51 @@ const (
 )
 
 // NewDB return updated db.
-func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
+func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string, nodes []chNode) *sqlx.DB {
+	l := logrus.WithField("component", "db")
+	// If ClickHouse is a cluster, wait until the cluster is ready.
+	if isCluster {
+		l.Info("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
+		dsnURL, err := url.Parse(dsn)
+		if err != nil {
+			l.Fatalf("Error parsing DSN: %v", err)
+		}
+		dsnURL.Path = "/default"
+		dsnDefault := dsnURL.String()
+		l.Infof("DSN for cluster check: %s", dsnutils.RedactDSN(dsnDefault))
+
+		for {
+			isClusterReady, err := migrations.IsClickhouseClusterReady(dsnDefault, clusterName)
+			if err != nil {
+				l.Fatalf("Error checking ClickHouse cluster status: %v", err)
+			}
+			if isClusterReady {
+				l.Info("ClickHouse cluster is ready")
+				break
+			}
+
+			l.Info("Waiting for ClickHouse cluster to be ready... (system.clusters where remote_hosts > 0)")
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	l.Infof("New connection with DSN: %s", dsnutils.RedactDSN(dsn))
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
-			err = createDB(dsn)
+		l.Errorf("Error connecting to ClickHouse: %v", err)
+		exception, ok := errors.AsType[*clickhouse.Exception](err)
+		if ok && exception.Code == databaseNotExistErrorCode {
+			err = createDB(dsn, clusterName, nodes)
 			if err != nil {
-				log.Fatalf("Database wasn't created: %v", err)
+				l.Fatalf("Database wasn't created: %v", err)
 			}
+			l.Infof("Connecting again to %s", dsnutils.RedactDSN(dsn))
 			db, err = sqlx.Connect("clickhouse", dsn)
 			if err != nil {
-				log.Fatalf("Connection: %v", err)
+				l.Fatalf("Connection: %v", err)
 			}
 		} else {
-			log.Fatalf("Connection: %v", err)
+			l.Fatalf("Connection: %v", err)
 		}
 	}
 
@@ -65,20 +99,30 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db.SetMaxIdleConns(maxIdleConns)
 	db.SetMaxOpenConns(maxOpenConns)
 
-	if err := runMigrations(dsn); err != nil {
-		log.Fatal("Migrations: ", err)
+	data := map[string]any{
+		"engine": migrations.GetEngine(isCluster),
 	}
-	log.Println("Migrations applied.")
+	err = migrations.Run(dsn, data, isCluster, clusterName)
+	if err != nil {
+		l.Fatalf("migrations: %v", err)
+	}
+	l.Info("Migrations applied successfully")
+
 	return db
 }
 
-func createDB(dsn string) error {
-	log.Println("Creating database")
+func createDB(dsn string, clusterName string, nodes []chNode) error {
+	l := logrus.WithField("component", "db")
+	l.Info("Creating database...")
 	clickhouseURL, err := url.Parse(dsn)
 	if err != nil {
 		return err
 	}
 	databaseName := strings.Replace(clickhouseURL.Path, "/", "", 1)
+	if len(nodes) > 0 {
+		// Reuse the UUID other nodes already have: a new one would split pmm, see PMM-15785.
+		return fixPmm(context.Background(), nodes, databaseName, false)
+	}
 	clickhouseURL.Path = "/default"
 
 	defaultDB, err := sqlx.Connect("clickhouse", clickhouseURL.String())
@@ -87,57 +131,94 @@ func createDB(dsn string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
+	sql := "CREATE DATABASE IF NOT EXISTS " + databaseName
+	if clusterName != "" {
+		l.Infof("Using ClickHouse cluster name: %s", clusterName)
+		sql += " ON CLUSTER \"" + clusterName + "\""
+		sql += " ENGINE = Replicated('/clickhouse/databases/{uuid}', '{shard}', '{replica}')"
+	} else {
+		sql += " ENGINE = Atomic"
+	}
+
+	result, err := defaultDB.Exec(sql)
 	if err != nil {
-		log.Printf("Result: %v", result)
+		l.Infof("Result: %v", result)
 		return err
 	}
-	log.Println("Database was created")
-	return nil
+	l.Infof("Database %s created using sql: %s", databaseName, sql)
+
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
-}
-
-//go:embed migrations/sql/*.sql
-var fs embed.FS
-
-func runMigrations(dsn string) error {
-	d, err := iofs.New(fs, "migrations/sql")
-	if err != nil {
-		return err
-	}
-
-	m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
-	if err != nil {
-		return err
-	}
-
-	// run up to the latest migration
-	err = m.Up()
-	if errors.Is(err, migrate.ErrNoChange) {
-		return nil
-	}
-	return err
+	return nil
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
-func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
+//
+// One unusable partition does not strand the rest, so every failure is collected and returned
+// together. Errors are returned rather than logged: the caller decides how loudly to report
+// them and when to try again.
+//
+// Every statement is bound to ctx so that a ClickHouse call blocking here cannot hold up
+// shutdown.
+func DropOldPartition(ctx context.Context, db *sqlx.DB, dbName string, days uint) error {
+	l := logrus.WithField("component", "db")
 	partitions := []string{}
 	const query = `
 		SELECT DISTINCT partition
 		FROM system.parts
-		WHERE toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?)) AND database = ? and visible = 1 ORDER BY partition
+		WHERE database = ?
+			AND table = 'metrics'
+			AND visible = 1
+			AND match(partition, '^[0-9]{8}$')
+			AND toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?))
+		ORDER BY partition
 	`
-	err := db.Select(
+	err := db.SelectContext(
+		ctx,
 		&partitions,
 		query,
+		dbName,
 		days,
-		dbName)
+	)
 	if err != nil {
-		log.Printf("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
-		return
+		return fmt.Errorf("failed to select partitions older than %d days: %w", days, err)
 	}
+
+	var errs []error
+	dropped := 0
 	for _, part := range partitions {
-		result, err := db.Exec(fmt.Sprintf(`ALTER TABLE metrics DROP PARTITION %s`, part))
-		log.Printf("Drop %s partitions of metrics. Result: %v, Error: %v", part, result, err)
+		// A canceled ctx fails every remaining statement anyway, so carrying on would only
+		// turn one shutdown into one cancellation error per partition left.
+		err := ctx.Err()
+		if err != nil {
+			errs = append(errs, err)
+			break
+		}
+
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER TABLE %s.metrics DROP PARTITION %s`, dbName, part))
+		if err != nil {
+			errs = append(errs, fmt.Errorf("failed to drop partition %s of %s.metrics: %w", part, dbName, err))
+			continue
+		}
+		dropped++
 	}
+
+	// A pass that dropped nothing because every statement failed must not leave the same
+	// evidence as a healthy one: an operator grepping for the line below to confirm retention
+	// works would find it on a node that has deleted nothing for weeks. The counts travel with
+	// the error instead, which the caller reports at error level.
+	if len(errs) != 0 {
+		return fmt.Errorf("dropped %d of %d partitions of %s.metrics older than %d days: %w",
+			dropped, len(partitions), dbName, days, errors.Join(errs...))
+	}
+
+	// Logged even when nothing was old enough, so a healthy deployment leaves evidence that
+	// retention is running at all.
+	l.WithFields(logrus.Fields{
+		"table":      dbName + ".metrics",
+		"dropped":    dropped,
+		"partitions": len(partitions),
+		"days":       days,
+	}).Info("Data retention applied: checked for partitions older than the retention period.")
+
+	return nil
 }

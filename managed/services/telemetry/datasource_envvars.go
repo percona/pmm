@@ -13,14 +13,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package telemetry provides telemetry functionality.
 package telemetry
 
 import (
 	"context"
 	"os"
 
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 )
 

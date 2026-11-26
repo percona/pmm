@@ -1,0 +1,134 @@
+syntax = "proto3";
+
+package management.v1;
+
+import "common/common.proto";
+import "extensions/v1/redact.proto";
+import "google/protobuf/duration.proto";
+import "inventory/v1/agents.proto";
+import "inventory/v1/log_level.proto";
+import "inventory/v1/services.proto";
+import "management/v1/metrics.proto";
+import "management/v1/node.proto";
+import "validate/validate.proto";
+
+message AddValkeyServiceParams {
+  // Node identifier on which the service is running.
+  // Only one of these parameters should be present: node_id, node_name, add_node.
+  string node_id = 1 [(validate.rules).string = {
+    min_len: 1
+    ignore_empty: true
+  }];
+  // Node name on which a service is running.
+  // Only one of these parameters should be present: node_id, node_name, add_node.
+  string node_name = 2 [(validate.rules).string = {
+    min_len: 1
+    ignore_empty: true
+  }];
+  // Create a new Node with those parameters.
+  // Only one of these parameters should be present: node_id, node_name, add_node.
+  AddNodeParams add_node = 3;
+  // User-defined name, it is required and should be unique across all services.
+  string service_name = 4 [(validate.rules).string.min_len = 1];
+  // Node and Service access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 5;
+  // Service access port.
+  // Port is required when the address is present.
+  uint32 port = 6;
+  // Service access socket.
+  // Address (and port) or socket is required.
+  string socket = 7;
+  // The "pmm-agent" identifier which should run agents. Required.
+  string pmm_agent_id = 8 [(validate.rules).string.min_len = 1];
+  // Valkey username for scraping metrics.
+  string username = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Valkey password for scraping metrics.
+  string password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Environment name.
+  string environment = 11;
+  // Cluster name.
+  string cluster = 12;
+  // Replication set name.
+  string replication_set = 13;
+  // Custom user-assigned labels for Service.
+  map<string, string> custom_labels = 14;
+  // Skip connection check.
+  bool skip_connection_check = 15;
+  // Use TLS for connection.
+  bool tls = 16;
+  // Skip TLS verification.
+  bool tls_skip_verify = 17;
+  // Defines metrics flow model for the Valkey exporter.
+  // Metrics could be pushed to the server with vmagent,
+  // pulled by the server, or the server could choose behavior automatically.
+  MetricsMode metrics_mode = 18;
+  // Exporter log level
+  inventory.v1.LogLevel log_level = 19;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 20;
+  // TLS CA certificate.
+  string tls_ca = 21;
+  // TLS Certifcate.
+  string tls_cert = 22 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // TLS Certificate Key.
+  string tls_key = 23 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 24 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 25 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
+}
+
+// UpdateValkeyServiceParams holds the Valkey Service settings to change. Only the fields that are set are changed.
+// A map or list field replaces the stored one, and an empty one clears it.
+message UpdateValkeyServiceParams {
+  // Node and Service access address (DNS name or IP). Replaces the socket.
+  optional string address = 1;
+  // Service access port. Replaces the socket.
+  optional uint32 port = 2 [(validate.rules).uint32.lt = 65536];
+  // Service access socket. Replaces the address and port.
+  optional string socket = 3;
+  // Environment name.
+  optional string environment = 4;
+  // Cluster name.
+  optional string cluster = 5;
+  // Replication set name.
+  optional string replication_set = 6;
+  // Replace all custom user-assigned labels for Service.
+  common.StringMap custom_labels = 7;
+  // Valkey username for scraping metrics.
+  optional string username = 8 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Valkey password for scraping metrics.
+  optional string password = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Custom password for exporter endpoint /metrics.
+  optional string agent_password = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for connection.
+  optional bool tls = 11;
+  // Skip TLS verification.
+  optional bool tls_skip_verify = 12;
+  // TLS CA certificate.
+  optional string tls_ca = 13;
+  // TLS Certificate.
+  optional string tls_cert = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // TLS Certificate Key.
+  optional string tls_key = 15 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Defines metrics flow model for the Valkey exporter.
+  optional MetricsMode metrics_mode = 16;
+  // Exporter log level. LOG_LEVEL_UNSPECIFIED resets it to Auto.
+  optional inventory.v1.LogLevel log_level = 17 [(validate.rules).enum.defined_only = true];
+  // Expose the exporter process on all public interfaces.
+  optional bool expose_exporter = 18;
+  // Connection timeout for exporter; zero restores the default.
+  google.protobuf.Duration connection_timeout = 19 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
+  // Skip connection check.
+  bool skip_connection_check = 20;
+}
+
+message ValkeyServiceResult {
+  inventory.v1.ValkeyService service = 1;
+  inventory.v1.ValkeyExporter valkey_exporter = 2;
+}

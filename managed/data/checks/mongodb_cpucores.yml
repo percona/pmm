@@ -1,0 +1,57 @@
+---
+checks:
+  - version: 2
+    name: mongodb_cpucores
+    summary: MongoDB CPU cores
+    description: This check returns warnings if the number of CPU cores does not meet the minimum recommended requirements according to best practices.
+    technology: MONGODB
+    # author: Parag Bhayani
+    category: Resources
+    queries:
+      - type: MONGODB_GETDIAGNOSTICDATA
+    script: |
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
+      def check_context(docs, context):
+          """
+          This check returns warnings if the number of CPU cores does not meet the minimum requirements according to best practices.
+          """
+
+          format_version_num = context.get("format_version_num", fail)
+          parse_version = context.get("parse_version", fail)
+
+          rows = docs[0]
+          if len(rows) != 1:
+              return "unexpected number of documents: {}".format(len(rows))
+
+          print(repr(rows[0]))
+          data = rows[0]["data"]
+          results = []
+
+          # Checking MongoDB version
+          version = parse_version(data["serverStatus"]["version"])
+          print("version =", repr(version))
+          num = version["num"]
+
+          # Checking no. of cores
+          print(repr(data))
+          if data.get("systemMetrics", {}):
+              systemMetrics = data.get("systemMetrics", {})
+              print(repr(systemMetrics))
+              if systemMetrics.get("cpu", {}):
+                  cpu = systemMetrics.get("cpu", {})
+                  print(repr(cpu))
+                  if cpu:
+                      numcpu = int(cpu.get("num_cpus", cpu.get("num_logical_cores", 0)))
+                      print("No. of CPU core:")
+                      print(numcpu)
+                      if numcpu > 0 and numcpu < 4:
+                          results.append({
+                              "summary": "MongoDB node as configured does not have the recommended number of CPU cores - {}".format(numcpu),
+                              "description": "The returned number of cores is lower than recommended. To avoid performance issues, see the following documentation to determine the number of CPU cores required for your environment",
+                              "read_more_url": read_url.format("mongodb-cpu-cores-check"),
+                              "severity": "warning",
+                          })
+                      # noresults = "no maxS result"
+                      # print(results if results else noresults)
+                      return results

@@ -29,6 +29,20 @@
 - name: Modify supervisord.conf
   ini_file:
     dest: /etc/supervisord.conf
+    section: unix_http_server
+    option: username
+    value: dummy
+
+- name: Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: unix_http_server
+    option: password
+    value: dummy
+
+- name: Modify supervisord.conf
+  ini_file:
+    dest: /etc/supervisord.conf
     section: supervisord
     option: logfile
     value: /srv/logs/supervisord.log
@@ -43,6 +57,14 @@
 - name: Create a directory for socket
   file:
     path: /run/supervisor
+    state: directory
+    owner: pmm
+    group: root
+    mode: 0770
+
+- name: Create a directory for credential files
+  file:
+    path: /run/pmm
     state: directory
     owner: pmm
     group: root

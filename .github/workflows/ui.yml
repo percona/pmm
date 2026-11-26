@@ -1,33 +1,26 @@
+---
 name: UI
 
 on:
-  push:
-    branches:
-      - main
-      - v3
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-
   pull_request:
     paths-ignore:
       - "admin/**"
       - "agent/**"
       - "api-tests/**"
-      - "docs/**"
+      - "dev/docs/**"
       - "documentation/**"
+      - "dashboards/**"
       - "managed/**"
-      - "managed-dev/**"
       - "qan-api2/**"
       - "vmproxy/**"
-      - "update/**"
+
+permissions:
+  contents: read
 
 jobs:
   ci:
     name: CI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     defaults:
       run:
@@ -35,17 +28,26 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Enable corepack
+        run: corepack enable
 
       - name: Setup nodejs
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: ui/.nvmrc
-          cache: yarn
-          cache-dependency-path: ui/yarn.lock
+          cache: pnpm
+          cache-dependency-path: ui/pnpm-lock.yaml
+
+      - name: Check formatting
+        run: make format-check
 
       - name: Run lint
         run: make lint
+
+      - name: Check types
+        run: make check-types
 
       - name: Run unit tests
         run: make test

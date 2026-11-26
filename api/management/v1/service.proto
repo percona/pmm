@@ -16,7 +16,9 @@ import "management/v1/node.proto";
 import "management/v1/postgresql.proto";
 import "management/v1/proxysql.proto";
 import "management/v1/rds.proto";
+import "management/v1/valkey.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
 
 message AddServiceRequest {
   oneof service {
@@ -27,6 +29,7 @@ message AddServiceRequest {
     AddHAProxyServiceParams haproxy = 5;
     AddExternalServiceParams external = 6;
     AddRDSServiceParams rds = 7;
+    AddValkeyServiceParams valkey = 8;
   }
 }
 
@@ -39,6 +42,7 @@ message AddServiceResponse {
     HAProxyServiceResult haproxy = 5;
     ExternalServiceResult external = 6;
     RDSServiceResult rds = 7;
+    ValkeyServiceResult valkey = 8;
   }
 }
 
@@ -50,6 +54,32 @@ message RemoveServiceRequest {
 }
 
 message RemoveServiceResponse {}
+
+message UpdateServiceRequest {
+  // Either a Service ID or a Service Name.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+  // Settings to change; the Service type must match the existing Service.
+  oneof service {
+    UpdateMySQLServiceParams mysql = 2;
+    UpdateMongoDBServiceParams mongodb = 3;
+    UpdatePostgreSQLServiceParams postgresql = 4;
+    UpdateProxySQLServiceParams proxysql = 5;
+    UpdateHAProxyServiceParams haproxy = 6;
+    UpdateExternalServiceParams external = 7;
+    UpdateValkeyServiceParams valkey = 8;
+  }
+  // Validate the change and return the result without applying it.
+  bool dry_run = 9;
+}
+
+message UpdateServiceResponse {
+  // Service with its Agents before the update. Its status is not filled in.
+  UniversalService before = 1;
+  // Service with its Agents after the update, or as it would be with dry_run. Its status is not filled in.
+  UniversalService after = 2;
+  // Warning message.
+  string warning = 3;
+}
 
 message UniversalService {
   // Service status.
@@ -211,6 +241,10 @@ service ManagementService {
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
 
+  // Valkey: adds a Valkey Service and starts an accompanying Valkey exporter.
+  // It automatically adds a service to inventory, which is running on provided "node_id",
+  // then adds a "valkey_exporter" agent to inventory, which is running on the provided "runs_on_node_id".
+
   // AddService adds a Service and starts several Agents.
   rpc AddService(AddServiceRequest) returns (AddServiceResponse) {
     option (google.api.http) = {
@@ -269,6 +303,17 @@ service ManagementService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove a Service"
       description: "Removes a Service along with its Agents."
+    };
+  }
+  // UpdateService changes the settings of a Service and its Agents in place.
+  rpc UpdateService(UpdateServiceRequest) returns (UpdateServiceResponse) {
+    option (google.api.http) = {
+      put: "/v1/management/services/{service_id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update a Service"
+      description: "Changes the settings of a Service and its Agents in place. Only the fields that are set are changed. The Service and the Agents that stay keep their IDs; QAN Agents that the change turns off are removed, and the ones it turns on are created with new IDs."
     };
   }
 }

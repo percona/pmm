@@ -1,0 +1,15 @@
+{
+  "extends": "./.config/tsconfig.json",
+  "include": ["src", "types"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["jest", "mocha", "grafana"],
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  }
+}

@@ -18,12 +18,15 @@ Configure both the Server and Client to implement SSL/TLS encryption in your PMM
     - [Copy certificates](#copy-certificates) directly into the PMM Server container
 2. **Restart PMM Server** to apply the new certificates
 3. **Configure client trust**: Ensure PMM Clients can verify the server certificate:
-    - Add the CA certificate to the system trust store ([Ubuntu guide](https://ubuntu.com/server/docs/install-a-root-ca-certificate-in-the-trust-store) | [Red Hat guide](https://www.redhat.com/sysadmin/configure-ca-trust-list))
+    - Add the CA certificate to the system trust store ([Ubuntu guide](https://documentation.ubuntu.com/server/how-to/security/install-a-root-ca-certificate-in-the-trust-store/) | [Red Hat guide](https://www.redhat.com/sysadmin/configure-ca-trust-list))
     - **Or use the `SSL_CERT_FILE` environment variable** for [custom CA certificates](#use-custom-ca-certificates-with-pmm-client)
 
 ### Certificate storage location
 
-With Docker, OVF, and AMI deployments, certificates are stored in `/srv/nginx` where self-signed certificates are placed by default.
+PMM Server stores certificates, including the default self-signed ones, in these locations:
+
+- **Docker**: `/srv/nginx` inside the PMM Server container.
+- **AMI**: `/home/admin/volume/srv/nginx` on the host.
 
 ## Configure server-side certificates
 
@@ -43,7 +46,7 @@ PMM Server requires these certificate files in `/srv/nginx`:
 For container-based installation, mount your certificate directory to `/srv/nginx`:
 
 ```sh
-docker run -d -p 443:8443 --volumes-from pmm-data \
+docker run -d -p 443:8443 --volume pmm-data:/srv \
   --name pmm-server -v /etc/pmm-certs:/srv/nginx \
   --restart always percona/pmm-server:3
 ```
@@ -51,10 +54,11 @@ docker run -d -p 443:8443 --volumes-from pmm-data \
 !!! warning "Certificate requirements"
     Before mounting certificates, make sure to configure them correctly:
 
-    - All certificates must be owned by root: `chown 0:0 /etc/pmm-certs/*`
+    - Put all four required files in the certificate directory
+    - Make all certificates owned by 1000:0: `chown 1000:0 /etc/pmm-certs/*`
     - Set proper permissions: `chmod 644 /etc/pmm-certs/*.crt /etc/pmm-certs/*.pem && chmod 600 /etc/pmm-certs/*.key`
-    - The certificate directory must contain all four required files
     - Use port `443` for SSL encryption instead of port `80`
+
 ### Copy certificates
 
 If PMM Server is already running, copy certificates directly into the container:
@@ -67,9 +71,9 @@ docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
 docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
 
 # Set proper ownership and permissions
-docker exec -it pmm-server chown pmm:root /srv/nginx/*
-docker exec -it pmm-server chmod 644 /srv/nginx/*.crt /srv/nginx/*.pem
-docker exec -it pmm-server chmod 600 /srv/nginx/*.key
+docker exec --user root pmm-server sh -c 'chown 1000:0 /srv/nginx/*'
+docker exec --user root pmm-server sh -c 'chmod 644 /srv/nginx/*.crt /srv/nginx/*.pem'
+docker exec --user root pmm-server sh -c 'chmod 600 /srv/nginx/*.key'
 ```
 
 ### Apply certificate changes
@@ -227,3 +231,29 @@ curl -v https://<server-hostname>/ping
 # Test pmm-admin connection
 pmm-admin status
 ```
+
+## Troubleshooting
+
+This section covers problems with certificates that you provide.
+
+### If PMM Server doesn't start after you add your own certificates
+
+In PMM 3.8.0 to 3.10.0, PMM Server doesn't start when it can't write to the directory that holds your certificates. The container log shows `mkdir: cannot create directory '/srv/nginx/tmp'`.
+
+=== "Docker"
+
+    Make the certificate directory owned by 1000:0 with `chown 1000:0 /etc/pmm-certs`, and mount it without `:ro`.
+
+=== "Helm"
+
+    The `pmm` and `pmm-ha` charts mount your certificates read-only, so in these versions PMM Server can't start with them. Removing them keeps your monitoring data.
+
+    To start PMM Server without your certificates:
+    {.power-number}
+
+    1. Remove the `certs` section from your values file.
+    2. If you use the `pmm` chart, also set `podSecurityContext.fsGroupChangePolicy` to `Always`. When the pod starts, Kubernetes then makes the certificate directory on the data volume writable for PMM Server.
+    3. Upgrade the release.
+    4. Delete the PMM Server pods that keep restarting, for example `kubectl delete pod pmm-0 -n <namespace>`. The StatefulSet doesn't replace them by itself.
+
+    To keep using your own certificate, with the `pmm-ha` chart put it in a TLS Secret and set `tls.existingTLSSecret`, so that HAProxy presents it to browsers and PMM Clients. With the `pmm` chart, use an [Ingress controller with TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls).

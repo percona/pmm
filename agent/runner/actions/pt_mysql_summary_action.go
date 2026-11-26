@@ -92,15 +92,20 @@ func (a *ptMySQLSummaryAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, fmt.Errorf("failed to create temporary file: %w", err)
 	}
 	defer os.Remove(tmpFile.Name()) //nolint:errcheck
+	// covers the error paths below; the happy path closes the file explicitly
+	defer tmpFile.Close() //nolint:errcheck
 
 	_, err = fmt.Fprint(tmpFile, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write to temporary file: %w", err)
 	}
-	tmpFile.Close() //nolint:errcheck
+	err = tmpFile.Close()
+	if err != nil {
+		return nil, fmt.Errorf("failed to close temporary file: %w", err)
+	}
 
 	cmd := exec.CommandContext(ctx, a.command, "--defaults-file="+tmpFile.Name()) //nolint:gosec
-	cmd.Env = []string{fmt.Sprintf("PATH=%s", os.Getenv("PATH"))}
+	cmd.Env = []string{"PATH=" + os.Getenv("PATH")}
 	cmd.Dir = "/"
 	pdeathsig.Set(cmd, unix.SIGKILL)
 
@@ -121,7 +126,8 @@ func (a *ptMySQLSummaryAction) buildMyCnfConfig() (string, error) {
 		return "[client]\n", nil
 	}
 
-	if err := checkArgs(a.params.Host, a.params.Socket, a.params.Username, a.params.Password); err != nil {
+	err := checkArgs(a.params.Host, a.params.Socket, a.params.Username, a.params.Password)
+	if err != nil {
 		return "", fmt.Errorf("invalid parameters: %w", err)
 	}
 
@@ -158,7 +164,8 @@ func (a *ptMySQLSummaryAction) buildMyCnfConfig() (string, error) {
 		myCnfParams.Password = a.params.Password
 	}
 
-	if err = tmpl.Execute(&myCnfBuffer, myCnfParams); err != nil {
+	err = tmpl.Execute(&myCnfBuffer, myCnfParams)
+	if err != nil {
 		return "", fmt.Errorf("failed to execute myCnf template: %w", err)
 	}
 

@@ -42,7 +42,7 @@ func GenEmail(tb testing.TB) string {
 func GenCredentials(tb testing.TB) (string, string) {
 	tb.Helper()
 	email := GenEmail(tb)
-	password := gofakeit.Password(true, true, true, false, false, 14)
+	password := gofakeit.Password(true, true, true, false, false, 14) //nolint:mnd
 	return email, password
 }
 

@@ -16,8 +16,6 @@
 // Package types contains various entities types.
 package types
 
-import "fmt"
-
 // this list should be in sync with inventory/agents.pb.go.
 const (
 	AgentTypePMMAgent                        = "AGENT_TYPE_PMM_AGENT"
@@ -27,6 +25,7 @@ const (
 	AgentTypeMySQLdExporter                  = "AGENT_TYPE_MYSQLD_EXPORTER"
 	AgentTypeMongoDBExporter                 = "AGENT_TYPE_MONGODB_EXPORTER"
 	AgentTypePostgresExporter                = "AGENT_TYPE_POSTGRES_EXPORTER"
+	AgentTypeValkeyExporter                  = "AGENT_TYPE_VALKEY_EXPORTER"
 	AgentTypeProxySQLExporter                = "AGENT_TYPE_PROXYSQL_EXPORTER"
 	AgentTypeQANMySQLPerfSchemaAgent         = "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT"
 	AgentTypeQANMySQLSlowlogAgent            = "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT"
@@ -37,6 +36,7 @@ const (
 	AgentTypeRDSExporter                     = "AGENT_TYPE_RDS_EXPORTER"
 	AgentTypeExternalExporter                = "AGENT_TYPE_EXTERNAL_EXPORTER"
 	AgentTypeAzureDatabaseExporter           = "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
+	AgentTypeRTAMongoDBAgent                 = "AGENT_TYPE_RTA_MONGODB_AGENT"
 )
 
 var agentTypeNames = map[string]string{
@@ -48,6 +48,7 @@ var agentTypeNames = map[string]string{
 	AgentTypeMySQLdExporter:                  "mysqld_exporter",
 	AgentTypeMongoDBExporter:                 "mongodb_exporter",
 	AgentTypePostgresExporter:                "postgres_exporter",
+	AgentTypeValkeyExporter:                  "valkey_exporter",
 	AgentTypeProxySQLExporter:                "proxysql_exporter",
 	AgentTypeQANMySQLPerfSchemaAgent:         "mysql_perfschema_agent",
 	AgentTypeQANMySQLSlowlogAgent:            "mysql_slowlog_agent",
@@ -58,13 +59,14 @@ var agentTypeNames = map[string]string{
 	AgentTypeRDSExporter:                     "rds_exporter",
 	AgentTypeExternalExporter:                "external-exporter",
 	AgentTypeAzureDatabaseExporter:           "azure_database_exporter",
+	AgentTypeRTAMongoDBAgent:                 "rta_mongodb_agent",
 }
 
 // AgentTypeName returns human friendly agent type to be used in reports.
 func AgentTypeName(t string) string {
 	res := agentTypeNames[t]
 	if res == "" {
-		panic(fmt.Sprintf("no nice string for Agent Type %s", t))
+		panic("no nice string for Agent Type " + t)
 	}
 
 	return res

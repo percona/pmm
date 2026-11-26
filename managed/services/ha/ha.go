@@ -1,0 +1,132 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package ha
+
+import (
+	"context"
+
+	"github.com/hashicorp/memberlist"
+
+	hav1 "github.com/percona/pmm/api/ha/v1"
+)
+
+// HAServer implements the HAService gRPC API.
+type HAServer struct { //nolint:revive
+	hav1.UnimplementedHAServiceServer
+
+	service *Service
+}
+
+// NewHAServer creates a new HAServer instance.
+func NewHAServer(service *Service) *HAServer {
+	return &HAServer{
+		service: service,
+	}
+}
+
+// Status returns the current HA mode status.
+func (s *HAServer) Status(_ context.Context, _ *hav1.StatusRequest) (*hav1.StatusResponse, error) { //nolint:unparam
+	status := "Disabled"
+	if s.service.params.Enabled {
+		status = "Enabled"
+	}
+	return &hav1.StatusResponse{Status: status, Namespace: s.service.params.Namespace}, nil
+}
+
+// ListNodes returns a list of all nodes in the High Availability cluster.
+func (s *HAServer) ListNodes(_ context.Context, _ *hav1.ListNodesRequest) (*hav1.ListNodesResponse, error) { //nolint:unparam
+	if !s.service.params.Enabled {
+		return &hav1.ListNodesResponse{Nodes: []*hav1.HANode{}}, nil
+	}
+
+	expectedNodes := s.service.expectedNodes()
+
+	s.service.rw.RLock()
+	ml := s.service.memberlist
+	raftNode := s.service.raftNode
+	s.service.rw.RUnlock()
+
+	if ml == nil {
+		return &hav1.ListNodesResponse{
+			Nodes:         []*hav1.HANode{},
+			ExpectedNodes: int32(expectedNodes), //nolint:gosec
+		}, nil
+	}
+
+	_, leaderID := raftNode.LeaderWithID()
+	role := func(name string) hav1.NodeRole {
+		if name == string(leaderID) {
+			return hav1.NodeRole_NODE_ROLE_LEADER
+		}
+		return hav1.NodeRole_NODE_ROLE_FOLLOWER
+	}
+
+	members := ml.Members()
+	nodes := []*hav1.HANode{}
+	listed := make(map[string]struct{}, len(members))
+	for _, member := range members {
+		nodes = append(nodes, &hav1.HANode{
+			NodeName: member.Name,
+			Role:     role(member.Name),
+			Status:   memberlistStateToString(member.State),
+		})
+		listed[member.Name] = struct{}{}
+	}
+
+	// memberlist drops dead and departed nodes from Members(), while Raft keeps a failed voter, see PMM-15787.
+	configFuture := raftNode.GetConfiguration()
+	err := configFuture.Error()
+	if err != nil {
+		s.service.l.Warnf("Couldn't get the Raft configuration: %s", err)
+	} else {
+		for _, server := range configFuture.Configuration().Servers {
+			name := string(server.ID)
+			if _, ok := listed[name]; ok {
+				continue
+			}
+			state := memberlist.StateDead
+			if s.service.hasLeft(name) {
+				state = memberlist.StateLeft
+			}
+			nodes = append(nodes, &hav1.HANode{
+				NodeName: name,
+				Role:     role(name),
+				Status:   memberlistStateToString(state),
+			})
+		}
+	}
+
+	return &hav1.ListNodesResponse{
+		Nodes:         nodes,
+		ExpectedNodes: int32(expectedNodes), //nolint:gosec
+	}, nil
+}
+
+// memberlistStateToString converts memberlist state to a string representation.
+func memberlistStateToString(state memberlist.NodeStateType) string {
+	switch state {
+	case memberlist.StateAlive:
+		return "alive"
+	case memberlist.StateSuspect:
+		return "suspect"
+	case memberlist.StateDead:
+		return "dead"
+	case memberlist.StateLeft:
+		return "left"
+	default:
+		return "unknown"
+	}
+}

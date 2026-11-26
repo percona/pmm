@@ -51,9 +51,19 @@ func (res *addExternalResult) String() string {
 }
 
 // AddExternalCommand is used by Kong for CLI flags and commands.
+type AddExternalCommand struct {
+	ExternalFlags
+
+	ListenPort uint16 `placeholder:"port" required:"" help:"Listen port of external exporter for scraping metrics. (Required)"`
+}
+
+// ExternalFlags holds the flags that adding and updating an External Service share. --listen-port is not one of
+// them: add requires it, and update must be able to leave it out.
 //
 //nolint:lll
-type AddExternalCommand struct {
+type ExternalFlags struct {
+	flags.MetricsModeFlags
+
 	ServiceName         string            `default:"${hostname}${externalDefaultServiceName}" help:"Service name (autodetected default: ${hostname}${externalDefaultServiceName})"`
 	RunsOnNodeID        string            `name:"agent-node-id" help:"Node ID where agent runs (default is autodetected)"`
 	Username            string            `help:"External username"`
@@ -61,7 +71,6 @@ type AddExternalCommand struct {
 	CredentialsSource   string            `type:"existingfile" help:"Credentials provider"`
 	Scheme              string            `placeholder:"http or https" help:"Scheme to generate URI to exporter metrics endpoints"`
 	MetricsPath         string            `placeholder:"/metrics" help:"Path under which metrics are exposed, used to generate URI"`
-	ListenPort          uint16            `placeholder:"port" required:"" help:"Listen port of external exporter for scraping metrics. (Required)"`
 	NodeID              string            `name:"service-node-id" help:"Node ID where service runs (default is autodetected)"`
 	Environment         string            `placeholder:"prod" help:"Environment name like 'production' or 'qa'"`
 	Cluster             string            `placeholder:"east-cluster" help:"Cluster name"`
@@ -69,9 +78,7 @@ type AddExternalCommand struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
-	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
-
-	flags.MetricsModeFlags
+	TLSSkipVerify       bool              `negatable:"" help:"Skip TLS certificate verification"`
 }
 
 // GetCredentials returns the credentials for AddExternalCommand.
@@ -89,7 +96,7 @@ func (cmd *AddExternalCommand) GetCredentials() error {
 
 // RunCmd runs the command for AddExternalCommand.
 func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
-	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
+	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
 
 	if cmd.RunsOnNodeID == "" || cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
@@ -112,11 +119,12 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
-		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
+		cmd.MetricsPath = "/" + cmd.MetricsPath
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
@@ -135,8 +143,8 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 				Environment:         cmd.Environment,
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
-				CustomLabels:        customLabels,
-				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				CustomLabels:        *customLabels,
+				MetricsMode:         cmd.MetricsMode.EnumValue(),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLSSkipVerify:       cmd.TLSSkipVerify,

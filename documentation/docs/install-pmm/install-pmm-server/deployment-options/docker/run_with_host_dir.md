@@ -25,24 +25,24 @@ To deploy PMM Server using a host directory:
 
 2. Create and identify a directory on the host where to store PMM data. For example, `/home/user/srv`.
 
-3. Run the PMM Server with the host image mounted, making sure to replace `your_watchtower_token` with the token created during [Watchtower setup](../docker/index.md#installation-options): 
+3. Run PMM Server with the host directory mounted:
 
     ```sh
     docker run --detach --restart always \
     --publish 443:8443 \
-    --env PMM_WATCHTOWER_HOST=http://your_watchtower_host:8080 \
-    --env PMM_WATCHTOWER_TOKEN=your_watchtower_token \
     --volume /home/user/srv:/srv \
     --network=pmm-network \
     --name pmm-server \
     percona/pmm-server:3
     ```
 
-4. Set a secure password for the default `admin` user, replacing `your_secure_password` with a strong, unique password:
+4. Set a secure password for the default `admin` user, replacing `your_secure_password` with a unique password that meets the [password requirements](../../../../admin/manage-users/add_users.md#password-requirements):
 
     ```sh
-    docker exec -t pmm-server change-admin-password your_secure_password
+    docker exec -t pmm-server change-admin-password 'your_secure_password'
     ```
+
+    Keep the single quotes so that your shell doesn't interpret the symbols in the password. If the password contains a single quote, write it as `'\''`.
 
 5. Access the PMM web interface at `https://localhost:443` in a web browser. If you're connecting from a different machine, replace `localhost` with your server's IP address or hostname.
 
@@ -64,7 +64,7 @@ docker volume create pmm-data
 ```
 2. Copy data from host directory to the volume:
 ```sh
-  docker run --rm -v /path/on/host:/source -v pmm-data:/target alpine cp -a /source/. /target/
+docker run --rm -v /path/on/host:/source -v pmm-data:/target alpine cp -a /source/. /target/
 ```
 
 3. Update your container to use the volume instead of the host directory. 

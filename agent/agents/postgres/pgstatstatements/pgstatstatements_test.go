@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -66,7 +67,9 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 
 func TestPGStatStatementsQAN(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
@@ -74,7 +77,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 	defer func() {
 		_, err := db.Exec("DROP EXTENSION pg_stat_statements")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	structs, err := db.SelectAllFrom(pgStatDatabaseView, "")
@@ -89,8 +92,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	require.NoError(t, err)
 	tests.LogTable(t, structs)
 
-	const selectAllCities = "SELECT /* AllCities:pgstatstatements controller='test' */ * FROM city"
-	const selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN " +
+	selectAllCities := "SELECT /* AllCities:pgstatstatements controller='test' */ * FROM city"
+	selectAllCitiesLong := "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN " +
 		"($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, " +
 		"$21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, " +
 		"$41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60, " +
@@ -112,14 +115,15 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 	// Need to detect vendor because result for mSharedBlksReadSum are different for different images for postgres.
 	mSharedBlksHitSum := float32(33)
-	if strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab") {
+	isPercona := strings.Contains(os.Getenv("POSTGRES_IMAGE"), "perconalab")
+	if isPercona {
 		mSharedBlksHitSum = 32
 	}
 	truncatedMSharedBlksHitSum := mSharedBlksHitSum
-
-	engineVersion := tests.PostgreSQLVersion(t, sqlDB)
+	isTruncated := true
+	majorVersion, minorVersion := tests.PostgreSQLVersion(t, sqlDB)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
-	switch engineVersion {
+	switch majorVersion {
 	case "10":
 		truncatedMSharedBlksHitSum = float32(1007)
 		digests = map[string]string{
@@ -160,6 +164,26 @@ func TestPGStatStatementsQAN(t *testing.T) {
 			selectAllCities:     "1563925687573067138",
 			selectAllCitiesLong: "-3196437048361615995",
 		}
+	case "18", "19":
+		selectAllCitiesLong = "SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN ($1 /*, ... */)"
+		truncatedMSharedBlksHitSum = float32(8)
+		isTruncated = false
+
+		minor, err := strconv.ParseInt(minorVersion, 10, 64) // just to make sure minor version is parsable
+		require.NoError(t, err)
+
+		switch {
+		case majorVersion == "19" || minor >= 2 && !isPercona || minor >= 3 && isPercona:
+			digests = map[string]string{
+				selectAllCities:     "-7353212999726668504",
+				selectAllCitiesLong: "954639919948531541",
+			}
+		default:
+			digests = map[string]string{
+				selectAllCities:     "2398197226709363629",
+				selectAllCitiesLong: "-1570108445478818403",
+			}
+		}
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{
@@ -182,7 +206,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InEpsilon(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
+		assert.InDelta(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
@@ -263,8 +287,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
-		args := make([]interface{}, n)
-		for i := 0; i < n; i++ {
+		args := make([]any, n)
+		for i := range n {
 			args[i] = i
 		}
 		q := fmt.Sprintf("SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN (%s)", strings.Join(placeholders, ", "))
@@ -291,7 +315,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				IsTruncated:         true,
+				IsTruncated:         isTruncated,
 				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -337,7 +361,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				IsTruncated:         true,
+				IsTruncated:         isTruncated,
 				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -360,7 +384,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
-		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
+		r := rand.New(rand.NewSource(time.Now().Unix()))
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
 		CREATE TABLE %s (
@@ -371,7 +395,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		)`, tableName))
 		require.NoError(t, err)
 		defer func() {
-			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
+			_, err := db.Exec("DROP TABLE " + tableName)
 			require.NoError(t, err)
 		}()
 		m := setup(t, db)
@@ -379,17 +403,16 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		var waitGroup sync.WaitGroup
 		n := 1000
 		errChan := make(chan error, 1)
-		for i := 0; i < n; i++ {
+		for i := range n {
 			id := i
-			waitGroup.Add(1)
-			go func() {
-				defer waitGroup.Done()
+			waitGroup.Go(func() {
 				_, err := db.Exec(
-					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
+					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id),
+				)
 				if err != nil {
 					errChan <- err
 				}
-			}()
+			})
 		}
 		go func() {
 			waitGroup.Wait()
@@ -414,7 +437,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum+actual.Postgresql.MSharedBlkWriteTimeSum)
-		assert.InEpsilon(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt, 0.0001)
+		assert.InDelta(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt, 0.0001)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
@@ -457,7 +480,9 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 func TestPGStatStatementsQPS(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
@@ -465,7 +490,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 
 	defer func() {
 		_, err := db.Exec("DROP EXTENSION pg_stat_statements")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	// filterInsertQueries retrieves only buckets for insert queries used by test.
@@ -496,12 +521,19 @@ func TestPGStatStatementsQPS(t *testing.T) {
 
 		runTimes := 7000
 		t.Cleanup(func() {
-			for i := 0; i < runTimes; i++ {
-				_, _ = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
+			// dropping all tables in a single statement would exceed max_locks_per_transaction
+			const dropBatchSize = 500
+			for i := 0; i < runTimes; i += dropBatchSize {
+				tables := make([]string, 0, dropBatchSize)
+				for j := i; j < min(i+dropBatchSize, runTimes); j++ {
+					tables = append(tables, fmt.Sprintf("t%d", j))
+				}
+				_, err := db.Exec("drop table if exists " + strings.Join(tables, ", "))
+				assert.NoError(t, err)
 			}
 		})
 
-		for i := 0; i < runTimes; i++ {
+		for i := range runTimes {
 			_, err = db.Exec(fmt.Sprintf("create /* controller='test' */ table t%d (id int);", i))
 			require.NoError(t, err)
 			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
@@ -513,14 +545,14 @@ func TestPGStatStatementsQPS(t *testing.T) {
 		insertBuckets := filterInsertQueries(t, buckets)
 		mismatchedCount := 0
 		for _, b := range insertBuckets {
-			assert.Equal(t, float32(1), b.Common.NumQueries)
+			assert.InDelta(t, float32(1), b.Common.NumQueries, 0.0001)
 			if b.Common.NumQueries != 1 {
 				mismatchedCount++
 			}
 		}
 		assert.Zero(t, mismatchedCount)
 
-		for i := 0; i < runTimes; i++ {
+		for i := range runTimes {
 			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
 			require.NoError(t, err)
 		}

@@ -17,9 +17,9 @@
 package supervisord
 
 import (
-	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"net/url"
@@ -31,15 +31,13 @@ import (
 	"strings"
 	"sync"
 	"text/template"
-	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/secrets"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -48,6 +46,8 @@ const (
 	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseUser               = "default"
 	defaultClickhousePassword           = "clickhouse"
+	defaultClickhouseDatasourceUser     = "grafana"
+	defaultClickhouseDatasourcePassword = "grafana"
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -56,6 +56,10 @@ const (
 	defaultVMSearchMaxQueryDuration     = "90s"
 	defaultVMSearchLogSlowQueryDuration = "30s"
 	defaultVMPromscrapeStreamParse      = "true"
+	// 0 keeps VictoriaMetrics' native default of no ingestion rate limit. A hard cap risks
+	// pausing ingestion on large legitimate fleets, so the limit is left opt-in via the
+	// VM_maxIngestionRate environment variable for deployments that need to throttle bursts.
+	defaultVMMaxIngestionRate = "0"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
@@ -64,20 +68,14 @@ type Service struct {
 	supervisorctlPath string
 	l                 *logrus.Entry
 
-	eventsM    sync.Mutex
-	subs       map[chan *event]sub
-	lastEvents map[string]eventType
-
 	supervisordConfigsM sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
 	pgParams *models.PGParams
 	haParams *models.HAParams
-}
 
-type sub struct {
-	program    string
-	eventTypes []eventType
+	// secretExists reports whether a credential was resolved; tests replace it.
+	secretExists func(secrets.Name) bool
 }
 
 // values from supervisord configuration.
@@ -92,139 +90,354 @@ func New(configDir string, params *models.Params) *Service {
 		configDir:         configDir,
 		supervisorctlPath: path,
 		l:                 logrus.WithField("component", "supervisord"),
-		subs:              make(map[chan *event]sub),
-		lastEvents:        make(map[string]eventType),
 		vmParams:          params.VMParams,
 		pgParams:          params.PGParams,
 		haParams:          params.HAParams,
+		secretExists:      secrets.Exists,
 	}
 }
 
-// Run reads supervisord's log (maintail) and sends events to subscribers.
-func (s *Service) Run(ctx context.Context) {
+// UpdateConfiguration updates VictoriaMetrics, Grafana and qan-api2 configurations, restarting them if needed.
+func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	if s.supervisorctlPath == "" {
-		s.l.Errorf("supervisorctl not found, updates are disabled.")
-		return
+		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
+		return nil
 	}
 
-	var lastEvent *event
-	for ctx.Err() == nil {
-		cmd := exec.CommandContext(ctx, s.supervisorctlPath, "maintail", "-f") //nolint:gosec
-		cmdLine := strings.Join(cmd.Args, " ")
-		pdeathsig.Set(cmd, unix.SIGKILL)
-		stdout, err := cmd.StdoutPipe()
-		if err != nil {
-			s.l.Errorf("%s: StdoutPipe failed: %s", cmdLine, err)
-			time.Sleep(time.Second)
+	s.supervisordConfigsM.Lock()
+	defer s.supervisordConfigsM.Unlock()
+
+	var err error
+
+	err = s.vmParams.UpdateParams()
+	if err != nil {
+		return err
+	}
+
+	for _, tmpl := range templates.Templates() {
+		if tmpl.Name() == "" {
 			continue
 		}
 
-		if err := cmd.Start(); err != nil {
-			s.l.Errorf("%s: Start failed: %s", cmdLine, err)
-			time.Sleep(time.Second)
+		if tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM() {
+			e := os.Remove(filepath.Join(s.configDir, tmpl.Name()+".ini"))
+			if e != nil && !errors.Is(e, fs.ErrNotExist) {
+				s.l.Warnf("Failed to remove %s config for external VM: %s.", tmpl.Name(), e)
+			}
 			continue
 		}
 
-		scanner := bufio.NewScanner(stdout)
-		for scanner.Scan() {
-			e := parseEvent(scanner.Text())
-			if e == nil {
-				continue
+		if tmpl.Name() == "nomad-server" && !settings.IsNomadEnabled() {
+			e := os.Remove(filepath.Join(s.configDir, tmpl.Name()+".ini"))
+			if e != nil && !errors.Is(e, fs.ErrNotExist) {
+				s.l.Warnf("Failed to remove %s config when disabled: %s.", tmpl.Name(), e)
 			}
-			s.l.Debugf("Got event: %+v", e)
-
-			// skip old events (and events with exactly the same time as old events) if maintail was restarted
-			if lastEvent != nil && !lastEvent.Time.Before(e.Time) {
-				continue
-			}
-			lastEvent = e
-
-			s.eventsM.Lock()
-
-			s.lastEvents[e.Program] = e.Type
-
-			var toDelete []chan *event
-			for ch, sub := range s.subs {
-				if e.Program == sub.program {
-					var found bool
-					for _, t := range sub.eventTypes {
-						if e.Type == t {
-							found = true
-							break
-						}
-					}
-					if found {
-						ch <- e
-						close(ch)
-						toDelete = append(toDelete, ch)
-					}
-				}
-			}
-
-			for _, ch := range toDelete {
-				delete(s.subs, ch)
-			}
-
-			s.eventsM.Unlock()
+			continue
 		}
 
-		if err := scanner.Err(); err != nil {
-			s.l.Errorf("Scanner: %s", err)
+		b, e := s.marshalConfig(tmpl, settings)
+		if e != nil {
+			s.l.Errorf("Failed to marshal config: %s.", e)
+			err = e
+			continue
 		}
+		_, e = s.saveConfigAndReload(tmpl.Name(), b)
+		if e != nil {
+			s.l.Errorf("Failed to save/reload: %s.", e)
+			err = e
+			continue
+		}
+	}
+	return err
+}
 
-		if err := cmd.Wait(); err != nil {
-			s.l.Errorf("%s: wait failed: %s", cmdLine, err)
-		}
+// StartSupervisedService starts given service.
+func (s *Service) StartSupervisedService(serviceName string) error {
+	_, err := s.supervisorctl(context.Background(), "start", serviceName)
+	return err
+}
+
+// StopSupervisedService stops given service.
+func (s *Service) StopSupervisedService(serviceName string) error {
+	_, err := s.supervisorctl(context.Background(), "stop", serviceName)
+	return err
+}
+
+// ProgramRunning returns true if the given supervisord program is running or is going to be
+// restarted, false if it is not running, has exited, or has failed for good.
+func (s *Service) ProgramRunning(ctx context.Context, program string) bool {
+	running := s.ProgramState(ctx, program)
+	return running != nil && *running
+}
+
+// ProgramState reports whether the given supervisord program is running, distinguishing the two
+// answers ProgramRunning has to collapse into false.
+//
+// A nil result means the state could not be determined - the program has EXITED and may yet be
+// restarted, or it is not configured at all, which is a container whose first boot has not written
+// its supervisord file yet. Callers must treat nil as "leave it alone": supervisord is about to act
+// and stepping in would fight it. A non-nil false means FATAL or STOPPED, the states supervisord
+// documents as "will not be restarted", so a caller that needs the program up has to start it
+// itself.
+//
+// See http://supervisord.org/subprocess.html#process-states
+func (s *Service) ProgramState(ctx context.Context, program string) *bool {
+	// supervisorctl exits with a non-zero code when the program is not running, so the exit code
+	// cannot tell a stopped program from a failed command. The output is what matters.
+	b, err := s.supervisorctl(ctx, "status", program)
+	if err != nil {
+		s.l.Debugf("Status command for '%s' failed: %s", program, err)
+	}
+
+	f := strings.Fields(string(b))
+	if len(f) < 2 { //nolint:mnd
+		s.l.Debugf("Cannot parse status of '%s': %s", program, b)
+		return nil
+	}
+
+	switch status := f[1]; status {
+	case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
+		return new(true)
+	case "STOPPED", "FATAL":
+		return new(false)
+	case "EXITED", "UNKNOWN":
+		return nil
+	default:
+		s.l.Debugf("Unhandled status '%s' of '%s', leaving it alone.", status, program)
+		return nil
 	}
 }
 
-func (s *Service) supervisorctl(args ...string) ([]byte, error) {
+// RestartSupervisedService restarts given service.
+//
+// Note that reload() is not a substitute: it runs `supervisorctl update`, which only acts when the
+// program's own configuration file has changed. Restarting because some other file the program
+// reads has changed needs this.
+func (s *Service) RestartSupervisedService(ctx context.Context, serviceName string) error {
+	_, err := s.supervisorctl(ctx, "restart", serviceName)
+	return err
+}
+
+var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
+
+{{define "victoriametrics"}}
+[program:victoriametrics]
+priority = 7
+command =
+	/usr/sbin/victoriametrics
+		--promscrape.config=/etc/victoriametrics-promscrape.yml
+		--retentionPeriod={{ .DataRetentionDays }}d
+		--storageDataPath=/srv/victoriametrics/data
+		--httpListenAddr={{ .InterfaceToBind }}:9090
+		--search.disableCache={{ .VMSearchDisableCache }}
+		--search.maxQueryLen={{ .VMSearchMaxQueryLen }}
+		--search.latencyOffset={{ .VMSearchLatencyOffset }}
+		--search.maxUniqueTimeseries={{ .VMSearchMaxUniqueTimeseries }}
+		--search.maxSamplesPerQuery={{ .VMSearchMaxSamplesPerQuery }}
+		--search.maxQueueDuration={{ .VMSearchMaxQueueDuration }}
+		--search.logSlowQueryDuration={{ .VMSearchLogSlowQueryDuration }}
+		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
+		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
+		--maxIngestionRate={{ .VMMaxIngestionRate }}
+		--http.pathPrefix=/prometheus
+		--envflag.enable
+		--envflag.prefix=VM_
+autorestart = true
+autostart = {{ not .ExternalVM }}
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 30
+stdout_logfile = /srv/logs/victoriametrics.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "vmalert"}}
+[program:vmalert]
+priority = 7
+command =
+	/usr/sbin/vmalert
+		--external.url={{ .VMURL }}
+		--datasource.url={{ .VMURL }}
+		--remoteRead.url={{ .VMURL }}
+		--remoteWrite.url={{ .VMURL }}
+		--rule=/srv/prometheus/rules/*.yml
+		--httpListenAddr={{ .InterfaceToBind }}:8880
+{{- range $index, $param := .VMAlertFlags }}
+		{{ $param }}
+{{- end }}
+autorestart = true
+autostart = true
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 10
+stdout_logfile = /srv/logs/vmalert.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "vmproxy"}}
+[program:vmproxy]
+priority = 9
+command =
+    /usr/sbin/vmproxy
+      --target-url={{ .VMURL }}
+      --listen-port=8430
+      --listen-address={{ .InterfaceToBind }}
+      --header-name=X-Proxy-Filter
+autorestart = true
+autostart = true
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 10
+stdout_logfile = /srv/logs/vmproxy.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "qan-api2"}}
+[program:qan-api2]
+priority = 13
+command =
+	/usr/sbin/percona-qan-api2
+		--data-retention={{ .DataRetentionDays }}
+environment =
+	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
+	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
+	PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
+{{- if .ClickhousePasswordFile }}
+	PMM_CLICKHOUSE_PASSWORD_FILE="{{ .ClickhousePasswordFile }}",
+{{- else }}
+	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
+{{- end }}
+
+
+autorestart = true
+autostart = true
+startretries = 1000
+startsecs = 1
+stopsignal = TERM
+stopwaitsecs = 10
+stdout_logfile = /srv/logs/qan-api2.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+
+{{define "grafana"}}
+[program:grafana]
+priority = 3
+command =
+    /usr/sbin/grafana server
+        --homepath=/usr/share/grafana
+        --config=/etc/grafana/grafana.ini
+        {{- if .GrafanaSecretKeyFile }}
+        cfg:security.secret_key=$__file{{ "{" }}{{ .GrafanaSecretKeyFile }}{{ "}" }}
+        {{- end }}
+environment =
+    PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
+    PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
+    PMM_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
+    PMM_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
+    PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
+    PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
+    PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
+    PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
+    PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
+    PMM_CLICKHOUSE_DATASOURCE_USER="{{ .ClickhouseDatasourceUser }}",
+    {{- if not .DatasourcePasswordFile }}
+    PMM_CLICKHOUSE_DATASOURCE_PASSWORD="{{ .ClickhouseDatasourcePassword }}",
+    {{- end }}
+    {{- if .AdminPasswordFile }}
+    GF_SECURITY_ADMIN_PASSWORD="$__file{{ "{" }}{{ .AdminPasswordFile }}{{ "}" }}",
+    {{- end }}
+    {{- if .PMMServerHost}}
+    GF_SERVER_DOMAIN="{{ .PMMServerHost }}",
+    {{- end}}
+    {{- if .HAEnabled}}
+    GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
+    GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
+    GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
+    {{- end}}
+directory = /usr/share/grafana
+autorestart = true
+autostart = true
+startretries = 10
+startsecs = 1
+stopsignal = TERM
+stopwaitsecs = 10
+stdout_logfile = /srv/logs/grafana.log
+stdout_logfile_maxbytes = 50MB
+stdout_logfile_backups = 2
+redirect_stderr = true
+{{end}}
+
+{{define "nomad-server"}}
+[program:nomad-server]
+priority = 5
+command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
+autorestart = true
+autostart = {{ .NomadEnabled }}
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 10
+stdout_logfile = /srv/logs/nomad-server.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
+`))
+
+func (s *Service) supervisorctl(ctx context.Context, args ...string) ([]byte, error) {
 	if s.supervisorctlPath == "" {
 		return nil, errors.New("supervisorctl not found")
 	}
 
-	cmd := exec.Command(s.supervisorctlPath, args...) //nolint:gosec
+	cmd := exec.CommandContext(ctx, s.supervisorctlPath, args...) //nolint:gosec
 	cmdLine := strings.Join(cmd.Args, " ")
 	s.l.Debugf("Running %q...", cmdLine)
 	pdeathsig.Set(cmd, unix.SIGKILL)
 	b, err := cmd.Output()
-	return b, errors.Wrapf(err, "%s failed", cmdLine)
-}
-
-// parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
-// false if definitely not, and nil if status can't be determined.
-func parseStatus(status string) *bool {
-	if f := strings.Fields(status); len(f) > 1 {
-		switch status := f[1]; status {
-		case "FATAL", "STOPPED": // will not be restarted
-			return pointer.ToBool(false)
-		case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
-			return pointer.ToBool(true)
-		case "EXITED":
-			// it might be restarted - we need to inspect last event
-		default:
-			// something else - we need to inspect last event
-		}
+	if err != nil {
+		return b, fmt.Errorf("%s failed: %w", cmdLine, err)
 	}
-	return nil
+	return b, nil
 }
 
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
-	if _, err := s.supervisorctl("reread"); err != nil {
+	_, err := s.supervisorctl(context.Background(), "reread")
+	if err != nil {
 		s.l.Warn(err)
 	}
-	_, err := s.supervisorctl("update", name)
+
+	path := filepath.Join(s.configDir, name+".ini")
+	_, err = os.Stat(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		s.l.Warnf("Config file %s does not exist, skipping update", path)
+		return nil
+	}
+
+	_, err = s.supervisorctl(context.Background(), "update", name)
 	return err
 }
 
 // marshalConfig marshals supervisord program configuration.
-func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
+func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
 	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
+	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
 	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
 	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	clickhouseDatasourceUser := envvars.GetEnv("PMM_CLICKHOUSE_DATASOURCE_USER", defaultClickhouseDatasourceUser)
+	clickhouseDatasourcePassword := envvars.GetEnv("PMM_CLICKHOUSE_DATASOURCE_PASSWORD", defaultClickhouseDatasourcePassword)
 	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
@@ -234,10 +447,10 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmSearchMaxQueryDuration := envvars.GetEnv("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
 	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
 	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
+	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
-	templateParams := map[string]interface{}{
-		"DataRetentionHours":           int(settings.DataRetention.Hours()),
-		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24),
+	templateParams := map[string]any{
+		"DataRetentionDays":            settings.DataRetentionDays(),
 		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
 		"VMSearchDisableCache":         vmSearchDisableCache,
 		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
@@ -248,8 +461,10 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMSearchMaxQueryDuration":     vmSearchMaxQueryDuration,
 		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
+		"VMMaxIngestionRate":           vmMaxIngestionRate,
 		"VMURL":                        s.vmParams.URL(),
 		"ExternalVM":                   s.vmParams.ExternalVM(),
+		"NomadEnabled":                 settings.IsNomadEnabled(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":               clickhouseAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
@@ -257,12 +472,18 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhousePort":               clickhouseAddrPair[1],
 		"ClickhouseUser":               clickhouseUser,
 		"ClickhousePassword":           clickhousePassword,
+		"ClickhousePasswordFile":       s.credentialFile(secrets.ClickHousePassword),
+		"ClickhouseDatasourceUser":     clickhouseDatasourceUser,
+		"ClickhouseDatasourcePassword": clickhouseDatasourcePassword,
+		"DatasourcePasswordFile":       s.credentialFile(secrets.ClickHouseDatasourcePassword),
+		"AdminPasswordFile":            s.credentialFile(secrets.AdminPassword),
+		"GrafanaSecretKeyFile":         s.credentialFile(secrets.GrafanaSecretKey),
+		"PMMServerHost":                "",
 	}
 
 	s.addPostgresParams(templateParams)
 	s.addClusterParams(templateParams)
 
-	templateParams["PMMServerHost"] = ""
 	if settings.PMMPublicAddress != "" {
 		pmmPublicAddress := settings.PMMPublicAddress
 		if !strings.HasPrefix(pmmPublicAddress, "https://") && !strings.HasPrefix(pmmPublicAddress, "http://") {
@@ -270,53 +491,44 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		}
 		publicURL, err := url.Parse(pmmPublicAddress)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse PMM public address.") //nolint:revive
+			return nil, fmt.Errorf("failed to parse PMM public address: %w", err)
 		}
 		templateParams["PMMServerHost"] = publicURL.Host
 	}
-	if ssoDetails != nil {
-		u, err := url.Parse(ssoDetails.IssuerURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse host of IssuerURL")
-		}
-		templateParams["PerconaSSODetails"] = ssoDetails
-		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
-		templateParams["PMMServerID"] = settings.PMMServerID
-		templateParams["IssuerDomain"] = u.Host
-	} else {
-		templateParams["PerconaSSODetails"] = nil
-	}
-
-	if settings.IsNomadEnabled() {
-		templateParams["NomadEnabled"] = "true"
-	} else {
-		templateParams["NomadEnabled"] = "false"
-	}
 
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, templateParams); err != nil {
-		return nil, errors.Wrapf(err, "failed to render template %q", tmpl.Name())
+	err := tmpl.Execute(&buf, templateParams)
+	if err != nil {
+		return nil, fmt.Errorf("failed to render template %q: %w", tmpl.Name(), err)
 	}
 	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
 	return b, nil
 }
 
+// credentialFile returns the path of a resolved credential, or "" for one left unset or not resolved by the entrypoint
+// (the development container), in which case the program gets the value or nothing.
+func (s *Service) credentialFile(name secrets.Name) string {
+	if !s.secretExists(name) {
+		return ""
+	}
+	return secrets.Path(name)
+}
+
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
-func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
+func (s *Service) addPostgresParams(templateParams map[string]any) {
 	if s.pgParams == nil {
 		return
 	}
 	templateParams["PostgresAddr"] = s.pgParams.Addr
 	templateParams["PostgresDBName"] = s.pgParams.DBName
 	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername
-	templateParams["PostgresDBPassword"] = s.pgParams.DBPassword
 	templateParams["PostgresSSLMode"] = s.pgParams.SSLMode
 	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
 	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath
 	templateParams["PostgresSSLCertPath"] = s.pgParams.SSLCertPath
 }
 
-func (s *Service) addClusterParams(templateParams map[string]interface{}) {
+func (s *Service) addClusterParams(templateParams map[string]any) {
 	templateParams["HAEnabled"] = s.haParams.Enabled
 	if s.haParams.Enabled {
 		templateParams["GrafanaGossipPort"] = s.haParams.GrafanaGossipPort
@@ -342,7 +554,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 		err = nil
 	}
 	if err != nil {
-		return false, errors.WithStack(err)
+		return false, err
 	}
 
 	// compare with new config
@@ -352,264 +564,31 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}
 
 	// restore old content and reload in case of error
-	restore := true
+	restore := oldCfg != nil
 	defer func() {
 		if restore {
-			if err = os.WriteFile(path, oldCfg, 0o664); err != nil { //nolint:gosec
-				s.l.Errorf("Failed to restore: %s.", err)
+			err = os.WriteFile(path, oldCfg, 0o664) //nolint:gosec,mnd
+			if err != nil {
+				s.l.Errorf("Failed to restore: %v.", err)
 			}
-			if err = s.reload(name); err != nil {
+			err = s.reload(name)
+			if err != nil {
 				s.l.Errorf("Failed to restore/reload: %s.", err)
 			}
 		}
 	}()
 
 	// write and reload
-	if err = os.WriteFile(path, cfg, 0o664); err != nil { //nolint:gosec
-		return false, errors.WithStack(err)
+	err = os.WriteFile(path, cfg, 0o664) //nolint:gosec,mnd
+	if err != nil {
+		return false, err
 	}
-	if err = s.reload(name); err != nil {
+
+	err = s.reload(name)
+	if err != nil {
 		return false, err
 	}
 	s.l.Infof("%s configuration reloaded.", name)
 	restore = false
 	return true, nil
 }
-
-// UpdateConfiguration updates VictoriaMetrics, Grafana and qan-api2 configurations, restarting them if needed.
-func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error {
-	if s.supervisorctlPath == "" {
-		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
-		return nil
-	}
-
-	s.supervisordConfigsM.Lock()
-	defer s.supervisordConfigsM.Unlock()
-
-	var err error
-
-	err = s.vmParams.UpdateParams()
-	if err != nil {
-		return err
-	}
-
-	for _, tmpl := range templates.Templates() {
-		if tmpl.Name() == "" || (tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM()) {
-			continue
-		}
-
-		b, e := s.marshalConfig(tmpl, settings, ssoDetails)
-		if e != nil {
-			s.l.Errorf("Failed to marshal config: %s.", e)
-			err = e
-			continue
-		}
-		if _, e = s.saveConfigAndReload(tmpl.Name(), b); e != nil {
-			s.l.Errorf("Failed to save/reload: %s.", e)
-			err = e
-			continue
-		}
-	}
-	return err
-}
-
-// RestartSupervisedService restarts given service.
-func (s *Service) RestartSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("restart", serviceName)
-	return err
-}
-
-// StartSupervisedService starts given service.
-func (s *Service) StartSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("start", serviceName)
-	return err
-}
-
-// StopSupervisedService stops given service.
-func (s *Service) StopSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("stop", serviceName)
-	return err
-}
-
-//nolint:lll
-var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
-
-{{define "victoriametrics"}}
-{{- if not .ExternalVM }}
-[program:victoriametrics]
-priority = 7
-command =
-	/usr/sbin/victoriametrics
-		--promscrape.config=/etc/victoriametrics-promscrape.yml
-		--retentionPeriod={{ .DataRetentionDays }}d
-		--storageDataPath=/srv/victoriametrics/data
-		--httpListenAddr={{ .InterfaceToBind }}:9090
-		--search.disableCache={{ .VMSearchDisableCache }}
-		--search.maxQueryLen={{ .VMSearchMaxQueryLen }}
-		--search.latencyOffset={{ .VMSearchLatencyOffset }}
-		--search.maxUniqueTimeseries={{ .VMSearchMaxUniqueTimeseries }}
-		--search.maxSamplesPerQuery={{ .VMSearchMaxSamplesPerQuery }}
-		--search.maxQueueDuration={{ .VMSearchMaxQueueDuration }}
-		--search.logSlowQueryDuration={{ .VMSearchLogSlowQueryDuration }}
-		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
-		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
-		--http.pathPrefix=/prometheus
-		--envflag.enable
-		--envflag.prefix=VM_
-autorestart = true
-autostart = true
-startretries = 10
-startsecs = 1
-stopsignal = INT
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/victoriametrics.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end -}}
-{{end}}
-
-{{define "vmalert"}}
-[program:vmalert]
-priority = 7
-command =
-	/usr/sbin/vmalert
-		--external.url={{ .VMURL }}
-		--datasource.url={{ .VMURL }}
-		--remoteRead.url={{ .VMURL }}
-		--remoteWrite.url={{ .VMURL }}
-		--rule=/srv/prometheus/rules/*.yml
-		--httpListenAddr={{ .InterfaceToBind }}:8880
-{{- range $index, $param := .VMAlertFlags }}
-		{{ $param }}
-{{- end }}
-autorestart = true
-autostart = true
-startretries = 10
-startsecs = 1
-stopsignal = INT
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/vmalert.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "vmproxy"}}
-[program:vmproxy]
-priority = 9
-command =
-    /usr/sbin/vmproxy
-      --target-url={{ .VMURL }}
-      --listen-port=8430
-      --listen-address={{ .InterfaceToBind }}
-      --header-name=X-Proxy-Filter
-autorestart = true
-autostart = true
-startretries = 10
-startsecs = 1
-stopsignal = INT
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/vmproxy.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "qan-api2"}}
-[program:qan-api2]
-priority = 13
-command =
-	/usr/sbin/percona-qan-api2
-		--data-retention={{ .DataRetentionDays }}
-environment =
-	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
-	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
-	PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
-	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
-
-
-autorestart = true
-autostart = true
-startretries = 1000
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 10
-stdout_logfile = /srv/logs/qan-api2.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "grafana"}}
-[program:grafana]
-priority = 3
-command =
-    /usr/sbin/grafana server
-        --homepath=/usr/share/grafana
-        --config=/etc/grafana/grafana.ini
-        {{- if .PMMServerHost}}
-        cfg:default.server.domain="{{ .PMMServerHost }}"
-        {{- end}}
-        {{- if .PerconaSSODetails}}
-        cfg:default.auth.generic_oauth.enabled=true
-        cfg:default.auth.generic_oauth.name="Percona Account"
-        cfg:default.auth.generic_oauth.client_id="{{ .PerconaSSODetails.GrafanaClientID }}"
-        cfg:default.auth.generic_oauth.scopes="openid profile email offline_access percona"
-        cfg:default.auth.generic_oauth.auth_url="{{ .PerconaSSODetails.IssuerURL }}/authorize"
-        cfg:default.auth.generic_oauth.token_url="{{ .PerconaSSODetails.IssuerURL }}/token"
-        cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
-        cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
-        cfg:default.auth.generic_oauth.use_pkce="true"
-        cfg:default.auth.oauth_allow_insecure_email_lookup="true"
-        {{- end}}
-environment =
-    PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
-    PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
-    PMM_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
-    PMM_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
-    PMM_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
-    PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
-    PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
-    PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
-    PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
-    PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
-    PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
-    PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
-    {{- if .PerconaSSODetails}}
-    GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
-    {{- end}}
-    {{- if .HAEnabled}}
-    GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
-    GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
-    GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
-    {{- end}}
-directory = /usr/share/grafana
-autorestart = true
-autostart = true
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/grafana.log
-stdout_logfile_maxbytes = 50MB
-stdout_logfile_backups = 2
-redirect_stderr = true
-{{end}}
-
-{{define "nomad-server"}}
-[program:nomad-server]
-priority = 5
-command = /usr/local/percona/pmm/tools/nomad agent -config /srv/nomad/nomad-server-{{ .PMMServerHost }}.hcl
-autorestart = {{ .NomadEnabled }}
-autostart = {{ .NomadEnabled }}
-startretries = 10
-startsecs = 1
-stopsignal = INT
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/nomad-server.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-`))

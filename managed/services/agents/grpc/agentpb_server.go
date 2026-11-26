@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package grpc contains functionality for agent <-> server connection.
 package grpc
 
 import (
@@ -23,9 +22,9 @@ import (
 
 // agentPBServer provides methods for pmm-agent <-> pmm-managed interactions.
 type agentPBServer struct {
-	handler *agents.Handler
-
 	agentpb.UnimplementedAgentServer
+
+	handler *agents.Handler
 }
 
 // NewAgentPBServer creates new agent server.

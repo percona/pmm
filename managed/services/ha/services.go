@@ -35,6 +35,7 @@ type services struct {
 	l *logrus.Entry
 }
 
+// newServices creates a new services manager.
 func newServices() *services {
 	return &services{
 		all:     make(map[string]LeaderService),
@@ -44,6 +45,7 @@ func newServices() *services {
 	}
 }
 
+// Add registers a new leader service.
 func (s *services) Add(service LeaderService) error {
 	s.rw.Lock()
 	defer s.rw.Unlock()
@@ -60,41 +62,51 @@ func (s *services) Add(service LeaderService) error {
 	return nil
 }
 
+// StartAllServices starts all registered services that are not currently running.
 func (s *services) StartAllServices(ctx context.Context) {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
 	for id, service := range s.all {
-		if _, ok := s.running[id]; !ok {
-			s.wg.Add(1)
-			s.running[id] = service
-			go func() {
-				s.l.Infoln("Starting", service.ID())
-				err := service.Start(ctx)
-				if err != nil {
-					s.l.Errorln(err)
-				}
-			}()
+		if _, ok := s.running[id]; ok {
+			continue
 		}
+		s.running[id] = service
+
+		svc, svcID := service, id
+		s.wg.Go(func() {
+			s.l.Infoln("Starting", svcID)
+			err := svc.Start(ctx)
+			if err != nil {
+				s.l.Errorln(err)
+			}
+			// Remove the service only once it has actually stopped, so the
+			// WaitGroup is balanced by the same goroutine that owns it.
+			s.rw.Lock()
+			delete(s.running, svcID)
+			s.rw.Unlock()
+		})
 	}
 }
 
-func (s *services) StopRunningServices() {
+// StopAllServices signals all running services to stop. Each service's goroutine
+// removes itself from the running set once Start returns.
+func (s *services) StopAllServices() {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
-	for id, service := range s.running {
+	for _, service := range s.running {
 		s.l.Infoln("Stopping", service.ID())
 		service.Stop()
-		s.wg.Done()
-		delete(s.running, id)
 	}
 }
 
+// Refresh returns a channel that signals when services should be refreshed.
 func (s *services) Refresh() chan struct{} {
 	return s.refresh
 }
 
+// Wait waits for all services to stop.
 func (s *services) Wait() {
 	s.wg.Wait()
 }

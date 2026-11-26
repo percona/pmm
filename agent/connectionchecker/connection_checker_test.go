@@ -131,6 +131,15 @@ func TestConnectionChecker(t *testing.T) {
 			},
 			expectedErr: `error parsing uri: must have a / before the query \?`,
 		},
+		{
+			// An arbiter stores no users, so it is added without credentials even with authentication enabled.
+			name: "MongoDB arbiter",
+			req: &agentv1.CheckConnectionRequest{
+				Dsn:     "mongodb://127.0.0.1:27025/admin?connectTimeoutMS=1000&directConnection=true",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+		},
 
 		{
 			name: "PostgreSQL",
@@ -147,7 +156,7 @@ func TestConnectionChecker(t *testing.T) {
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
-			expectedErr: `pq: password authentication failed for user "pmm-agent"`,
+			expectedErr: `pq: password authentication failed for user "pmm-agent"( \(\w+\))?`,
 		},
 		{
 			name: "PostgreSQL timeout",
@@ -157,6 +166,32 @@ func TestConnectionChecker(t *testing.T) {
 				Timeout: durationpb.New(time.Nanosecond),
 			},
 			expectedErr: `context deadline exceeded`,
+		},
+		{
+			name: "Valkey",
+			req: &agentv1.CheckConnectionRequest{
+				Dsn:     "redis://default:pmm-agent_password@127.0.0.1:6379",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+		},
+		{
+			name: "Valkey wrong params",
+			req: &agentv1.CheckConnectionRequest{
+				Dsn:     "redis://default:pmm-agent_wrong_password@127.0.0.1:6379",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+				Timeout: durationpb.New(3 * time.Second),
+			},
+			expectedErr: `WRONGPASS invalid username-password pair or user is disabled.`,
+		},
+		{
+			name: "Valkey timeout",
+			req: &agentv1.CheckConnectionRequest{
+				Dsn:     "redis://default:pmm-agent_password@127.0.0.1:6379",
+				Type:    inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
+				Timeout: durationpb.New(time.Nanosecond),
+			},
+			expectedErr: `dial tcp 127.0.0.1:6379: i/o timeout`,
 		},
 
 		// Use MySQL for ProxySQL tests for now.
@@ -210,7 +245,6 @@ func TestConnectionChecker(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -262,7 +296,7 @@ func TestConnectionChecker(t *testing.T) {
 			Type:      inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 			Timeout:   durationpb.New(30 * time.Second),
 			TextFiles: mongoDBTextFiles,
-		}, rand.Uint32()) //nolint:gosec
+		}, rand.Uint32())
 		require.NotNil(t, resp)
 		assert.Empty(t, resp.Error)
 	})

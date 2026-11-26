@@ -21,7 +21,7 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
@@ -29,6 +29,11 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 )
+
+// convertersL logs rows this package has to convert around rather than reject. These converters are
+// pure functions with no request-scoped entry to thread in — ToAPIAgent alone has 25 call sites — so
+// they use a component-scoped entry, the same shape the rest of pmm-managed names its loggers with.
+var convertersL = logrus.WithField("component", "converters")
 
 // ToAPINode converts Node database model to API model.
 func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
@@ -40,29 +45,31 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 	switch node.NodeType {
 	case models.GenericNodeType:
 		return &inventoryv1.GenericNode{
-			NodeId:       node.NodeID,
-			NodeName:     node.NodeName,
-			MachineId:    pointer.GetString(node.MachineID),
-			Distro:       node.Distro,
-			NodeModel:    node.NodeModel,
-			Region:       pointer.GetString(node.Region),
-			Az:           node.AZ,
-			CustomLabels: labels,
-			Address:      node.Address,
+			NodeId:          node.NodeID,
+			NodeName:        node.NodeName,
+			MachineId:       pointer.GetString(node.MachineID),
+			Distro:          node.Distro,
+			NodeModel:       node.NodeModel,
+			Region:          pointer.GetString(node.Region),
+			Az:              node.AZ,
+			CustomLabels:    labels,
+			Address:         node.Address,
+			IsPmmServerNode: node.IsPMMServerNode,
 		}, nil
 
 	case models.ContainerNodeType:
 		return &inventoryv1.ContainerNode{
-			NodeId:        node.NodeID,
-			NodeName:      node.NodeName,
-			MachineId:     pointer.GetString(node.MachineID),
-			ContainerId:   pointer.GetString(node.ContainerID),
-			ContainerName: pointer.GetString(node.ContainerName),
-			NodeModel:     node.NodeModel,
-			Region:        pointer.GetString(node.Region),
-			Az:            node.AZ,
-			CustomLabels:  labels,
-			Address:       node.Address,
+			NodeId:          node.NodeID,
+			NodeName:        node.NodeName,
+			MachineId:       pointer.GetString(node.MachineID),
+			ContainerId:     pointer.GetString(node.ContainerID),
+			ContainerName:   pointer.GetString(node.ContainerName),
+			NodeModel:       node.NodeModel,
+			Region:          pointer.GetString(node.Region),
+			Az:              node.AZ,
+			CustomLabels:    labels,
+			Address:         node.Address,
+			IsPmmServerNode: node.IsPMMServerNode,
 		}, nil
 
 	case models.RemoteNodeType:
@@ -155,6 +162,20 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 			CustomLabels:   labels,
 		}, nil
 
+	case models.ValkeyServiceType:
+		return &inventoryv1.ValkeyService{
+			ServiceId:      service.ServiceID,
+			ServiceName:    service.ServiceName,
+			NodeId:         service.NodeID,
+			Address:        pointer.GetString(service.Address),
+			Port:           uint32(pointer.GetUint16(service.Port)),
+			Socket:         pointer.GetString(service.Socket),
+			Environment:    service.Environment,
+			Cluster:        service.Cluster,
+			ReplicationSet: service.ReplicationSet,
+			CustomLabels:   labels,
+		}, nil
+
 	case models.ProxySQLServiceType:
 		return &inventoryv1.ProxySQLService{
 			ServiceId:      service.ServiceID,
@@ -181,6 +202,16 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 		}, nil
 
 	case models.ExternalServiceType:
+		var address string
+		if service.Address != nil {
+			address = *service.Address
+		}
+
+		var port uint32
+		if service.Port != nil {
+			port = uint32(*service.Port)
+		}
+
 		return &inventoryv1.ExternalService{
 			ServiceId:      service.ServiceID,
 			ServiceName:    service.ServiceName,
@@ -190,6 +221,8 @@ func ToAPIService(service *models.Service) (inventoryv1.Service, error) { //noli
 			ReplicationSet: service.ReplicationSet,
 			CustomLabels:   labels,
 			Group:          service.ExternalGroup,
+			Address:        address,
+			Port:           port,
 		}, nil
 
 	default:
@@ -231,7 +264,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.NodeExporterType:
-		return &inventoryv1.NodeExporter{
+		exporter := &inventoryv1.NodeExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			Disabled:           agent.Disabled,
@@ -244,10 +277,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		return exporter, nil
 
 	case models.MySQLdExporterType:
-		return &inventoryv1.MySQLdExporter{
+		exporter := &inventoryv1.MySQLdExporter{
 			AgentId:                   agent.AgentID,
 			PmmAgentId:                pointer.GetString(agent.PMMAgentID),
 			ServiceId:                 serviceID,
@@ -268,7 +302,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:            agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions:        ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 			ExtraDsnParams:            agent.MySQLOptions.ExtraDSNParams,
-		}, nil
+		}
+		if agent.ExporterOptions.ConnectionTimeout != nil {
+			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+		}
+		return exporter, nil
 
 	case models.MongoDBExporterType:
 		exporter := &inventoryv1.MongoDBExporter{
@@ -289,10 +327,24 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-
+		if agent.ExporterOptions.ConnectionTimeout != nil {
+			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+		}
 		exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
 		exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
 		exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
+		exporter.EnableDiagnosticDataHistograms = agent.MongoDBOptions.EnableDiagnosticDataHistograms
+
+		// A stored value that cannot be decoded (hand-edited row, failed migration, an older
+		// writer) must not fail the conversion: ListAgents calls ToAPIAgent once per row, so
+		// propagating the error would drop the entire inventory listing because of one unrelated
+		// column on one agent. Report the field as empty and log instead; sending a new list
+		// repairs the row.
+		envVarNames, err := agent.GetEnvironmentVariableNames()
+		if err != nil {
+			convertersL.WithField("agent_id", agent.AgentID).Warnf("Ignoring undecodable environment variable names: %s.", err)
+		}
+		exporter.EnvironmentVariableNames = envVarNames
 
 		return exporter, nil
 
@@ -315,11 +367,14 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 		}
-
+		if agent.ExporterOptions.ConnectionTimeout != nil {
+			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+		}
 		exporter.AutoDiscoveryLimit = pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit)
 		exporter.MaxExporterConnections = agent.PostgreSQLOptions.MaxExporterConnections
 
 		return exporter, nil
+
 	case models.QANMySQLPerfSchemaAgentType:
 		return &inventoryv1.QANMySQLPerfSchemaAgent{
 			AgentId:                agent.AgentID,
@@ -349,6 +404,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			CustomLabels:           labels,
 			Tls:                    agent.TLS,
 			TlsSkipVerify:          agent.TLSSkipVerify,
+			MaxQueryLength:         agent.QANOptions.MaxQueryLength,
 			QueryExamplesDisabled:  agent.QANOptions.QueryExamplesDisabled,
 			DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 			MaxSlowlogFileSize:     agent.QANOptions.MaxQueryLogSize,
@@ -391,7 +447,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.ProxySQLExporterType:
-		return &inventoryv1.ProxySQLExporter{
+		exporter := &inventoryv1.ProxySQLExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			ServiceId:          serviceID,
@@ -408,7 +464,11 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		if agent.ExporterOptions.ConnectionTimeout != nil {
+			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+		}
+		return exporter, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:
 		return &inventoryv1.QANPostgreSQLPgStatementsAgent{
@@ -446,12 +506,13 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		}, nil
 
 	case models.RDSExporterType:
-		return &inventoryv1.RDSExporter{
+		exporter := &inventoryv1.RDSExporter{
 			AgentId:                 agent.AgentID,
 			PmmAgentId:              pointer.GetString(agent.PMMAgentID),
 			NodeId:                  nodeID,
 			Disabled:                agent.Disabled,
 			AwsAccessKey:            agent.AWSOptions.AWSAccessKey,
+			AwsRoleArn:              agent.AWSOptions.AWSRoleARN,
 			Status:                  inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:              uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:            labels,
@@ -461,17 +522,18 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:         processExecPath,
 			LogLevel:                inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:      ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		return exporter, nil
 
 	case models.ExternalExporterType:
 		if agent.RunsOnNodeID == nil && agent.PMMAgentID != nil {
 			pmmAgent, err := models.FindAgentByID(q, *agent.PMMAgentID)
 			if err != nil {
-				return nil, errors.Wrapf(err, "cannot find pmm_agent by id: %s, for external_exporter id: %s without node_id", *agent.PMMAgentID, agent.AgentID)
+				return nil, fmt.Errorf("cannot find pmm_agent by id %s, for external_exporter id %s without node_id: %w", *agent.PMMAgentID, agent.AgentID, err)
 			}
 			agent.RunsOnNodeID = pmmAgent.RunsOnNodeID
 		}
-		return &inventoryv1.ExternalExporter{
+		ext := &inventoryv1.ExternalExporter{
 			AgentId:            agent.AgentID,
 			RunsOnNodeId:       pointer.GetString(agent.RunsOnNodeID),
 			ServiceId:          pointer.GetString(agent.ServiceID),
@@ -485,10 +547,12 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ProcessExecPath:    processExecPath,
 			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
 			TlsSkipVerify:      agent.TLSSkipVerify,
-		}, nil
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+		}
+		return ext, nil
 
 	case models.AzureDatabaseExporterType:
-		return &inventoryv1.AzureDatabaseExporter{
+		exporter := &inventoryv1.AzureDatabaseExporter{
 			AgentId:                     agent.AgentID,
 			PmmAgentId:                  pointer.GetString(agent.PMMAgentID),
 			NodeId:                      nodeID,
@@ -497,10 +561,12 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			Status:                      inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:                  uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:                labels,
+			PushMetricsEnabled:          agent.ExporterOptions.PushMetrics,
 			ProcessExecPath:             processExecPath,
 			LogLevel:                    inventoryv1.LogLevelAPIValue(agent.LogLevel),
 			MetricsResolutions:          ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
-		}, nil
+		}
+		return exporter, nil
 
 	case models.VMAgentType:
 		return &inventoryv1.VMAgent{
@@ -521,9 +587,61 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),
 		}, nil
 
+	case models.ValkeyExporterType:
+		exporter := &inventoryv1.ValkeyExporter{
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			ServiceId:          serviceID,
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Status:             inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			Tls:                agent.TLS,
+			TlsSkipVerify:      agent.TLSSkipVerify,
+			PushMetricsEnabled: agent.ExporterOptions.PushMetrics,
+			DisabledCollectors: agent.ExporterOptions.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
+			ExposeExporter:     agent.ExporterOptions.ExposeExporter,
+			MetricsResolutions: ConvertMetricsResolutions(agent.ExporterOptions.MetricsResolutions),
+		}
+		if agent.ExporterOptions.ConnectionTimeout != nil {
+			exporter.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+		}
+		return exporter, nil
+
+	case models.RTAMongoDBAgentType:
+		return &inventoryv1.RTAMongoDBAgent{
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Disabled:      agent.Disabled,
+			Status:        inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
+			LogLevel:      inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			RtaOptions:    ToAPIRTAOptions(&agent.RTAOptions),
+		}, nil
+
 	default:
-		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))
+		panic(fmt.Errorf("cannot convert unknown agent type %s", agent.AgentType))
 	}
+}
+
+// ToAPIRTAOptions converts RTAOptions database model to API model.
+func ToAPIRTAOptions(rtaOptions *models.RTAOptions) *inventoryv1.RTAOptions {
+	if pointer.Get(rtaOptions).IsEmpty() {
+		return nil
+	}
+
+	apiRTAOptions := &inventoryv1.RTAOptions{}
+	if rtaOptions.CollectInterval != nil {
+		apiRTAOptions.CollectInterval = durationpb.New(*rtaOptions.CollectInterval)
+	}
+	// Add more fields here when RTAOptions gets extended.
+	return apiRTAOptions
 }
 
 // ConvertMetricsResolutions converts MetricsResolutions from model to API.
@@ -573,8 +691,7 @@ func ProtoToModelNodeType(nodeType inventoryv1.NodeType) *models.NodeType {
 	if nodeType == inventoryv1.NodeType_NODE_TYPE_UNSPECIFIED {
 		return nil
 	}
-	result := nodeTypes[nodeType]
-	return &result
+	return new(nodeTypes[nodeType])
 }
 
 // ServiceTypes maps protobuf types to their string types.
@@ -585,6 +702,7 @@ var ServiceTypes = map[inventoryv1.ServiceType]models.ServiceType{
 	inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
 	inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE:     models.ValkeyServiceType,
 }
 
 // ProtoToModelServiceType converts a ServiceType from protobuf to model.
@@ -592,6 +710,5 @@ func ProtoToModelServiceType(serviceType inventoryv1.ServiceType) *models.Servic
 	if serviceType == inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 		return nil
 	}
-	result := ServiceTypes[serviceType]
-	return &result
+	return new(ServiceTypes[serviceType])
 }

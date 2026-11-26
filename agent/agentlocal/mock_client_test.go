@@ -3,6 +3,7 @@
 package agentlocal
 
 import (
+	context "context"
 	time "time"
 
 	prometheus "github.com/prometheus/client_golang/prometheus"
@@ -44,9 +45,9 @@ func (_m *mockClient) GetConnectionUpTime() float32 {
 	return r0
 }
 
-// GetNetworkInformation provides a mock function with no fields
-func (_m *mockClient) GetNetworkInformation() (time.Duration, time.Duration, error) {
-	ret := _m.Called()
+// GetNetworkInformation provides a mock function with given fields: ctx
+func (_m *mockClient) GetNetworkInformation(ctx context.Context) (time.Duration, time.Duration, error) {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetNetworkInformation")
@@ -55,23 +56,23 @@ func (_m *mockClient) GetNetworkInformation() (time.Duration, time.Duration, err
 	var r0 time.Duration
 	var r1 time.Duration
 	var r2 error
-	if rf, ok := ret.Get(0).(func() (time.Duration, time.Duration, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(context.Context) (time.Duration, time.Duration, error)); ok {
+		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func() time.Duration); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) time.Duration); ok {
+		r0 = rf(ctx)
 	} else {
 		r0 = ret.Get(0).(time.Duration)
 	}
 
-	if rf, ok := ret.Get(1).(func() time.Duration); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context) time.Duration); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Get(1).(time.Duration)
 	}
 
-	if rf, ok := ret.Get(2).(func() error); ok {
-		r2 = rf()
+	if rf, ok := ret.Get(2).(func(context.Context) error); ok {
+		r2 = rf(ctx)
 	} else {
 		r2 = ret.Error(2)
 	}

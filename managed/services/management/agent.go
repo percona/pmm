@@ -20,9 +20,9 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -144,28 +144,34 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		return nil, err
 	}
 
+	envVarNames, err := agent.GetEnvironmentVariableNames()
+	if err != nil {
+		return nil, err
+	}
+
 	ua := &managementv1.UniversalAgent{
-		AgentId:            agent.AgentID,
-		AgentType:          string(agent.AgentType),
-		CreatedAt:          timestamppb.New(agent.CreatedAt),
-		CustomLabels:       labels,
-		Disabled:           agent.Disabled,
-		IsConnected:        s.r.IsConnected(agent.AgentID),
-		IsAgentPasswordSet: pointer.GetString(agent.AgentPassword) != "",
-		IsPasswordSet:      pointer.GetString(agent.Password) != "",
-		ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
-		LogLevel:           inventoryv1.LogLevelAPIValue(agent.LogLevel),
-		NodeId:             pointer.GetString(agent.NodeID),
-		PmmAgentId:         pointer.GetString(agent.PMMAgentID),
-		ProcessExecPath:    pointer.GetString(agent.ProcessExecPath),
-		RunsOnNodeId:       pointer.GetString(agent.RunsOnNodeID),
-		ServiceId:          pointer.GetString(agent.ServiceID),
-		Status:             agent.Status,
-		Tls:                agent.TLS,
-		TlsSkipVerify:      agent.TLSSkipVerify,
-		Username:           pointer.GetString(agent.Username),
-		UpdatedAt:          timestamppb.New(agent.UpdatedAt),
-		Version:            pointer.GetString(agent.Version),
+		AgentId:                  agent.AgentID,
+		EnvironmentVariableNames: envVarNames,
+		AgentType:                string(agent.AgentType),
+		CreatedAt:                timestamppb.New(agent.CreatedAt),
+		CustomLabels:             labels,
+		Disabled:                 agent.Disabled,
+		IsConnected:              s.r.IsConnected(agent.AgentID),
+		IsAgentPasswordSet:       pointer.GetString(agent.AgentPassword) != "",
+		IsPasswordSet:            pointer.GetString(agent.Password) != "",
+		ListenPort:               uint32(pointer.GetUint16(agent.ListenPort)),
+		LogLevel:                 inventoryv1.LogLevelAPIValue(agent.LogLevel),
+		NodeId:                   pointer.GetString(agent.NodeID),
+		PmmAgentId:               pointer.GetString(agent.PMMAgentID),
+		ProcessExecPath:          pointer.GetString(agent.ProcessExecPath),
+		RunsOnNodeId:             pointer.GetString(agent.RunsOnNodeID),
+		ServiceId:                pointer.GetString(agent.ServiceID),
+		Status:                   agent.Status,
+		Tls:                      agent.TLS,
+		TlsSkipVerify:            agent.TLSSkipVerify,
+		Username:                 pointer.GetString(agent.Username),
+		UpdatedAt:                timestamppb.New(agent.UpdatedAt),
+		Version:                  pointer.GetString(agent.Version),
 	}
 
 	// Exporter options
@@ -174,12 +180,22 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	ua.MetricsScheme = agent.ExporterOptions.MetricsScheme
 	ua.PushMetrics = agent.ExporterOptions.PushMetrics
 	ua.ExposeExporter = agent.ExporterOptions.ExposeExporter
+	if agent.ExporterOptions.ConnectionTimeout != nil {
+		ua.ConnectionTimeout = durationpb.New(*agent.ExporterOptions.ConnectionTimeout)
+	}
 
 	// QAN options
 	ua.MaxQueryLength = agent.QANOptions.MaxQueryLength
 	ua.MaxQueryLogSize = agent.QANOptions.MaxQueryLogSize
 	ua.QueryExamplesDisabled = agent.QANOptions.QueryExamplesDisabled
 	ua.CommentsParsingDisabled = agent.QANOptions.CommentsParsingDisabled
+
+	// RTA options
+	if !agent.RTAOptions.IsEmpty() {
+		ua.RtaOptions = &inventoryv1.RTAOptions{
+			CollectInterval: durationpb.New(pointer.Get(agent.RTAOptions.CollectInterval)),
+		}
+	}
 
 	switch agent.AgentType {
 	case models.AzureDatabaseExporterType:
@@ -190,12 +206,13 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 			SubscriptionId:    agent.AzureOptions.SubscriptionID,
 			ResourceGroup:     agent.AzureOptions.ResourceGroup,
 		}
-	case models.MongoDBExporterType, models.QANMongoDBProfilerAgentType:
+	case models.MongoDBExporterType, models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType, models.RTAMongoDBAgentType:
 		ua.MongoDbOptions = &managementv1.UniversalAgent_MongoDBOptions{
 			AuthenticationMechanism:            agent.MongoDBOptions.AuthenticationMechanism,
 			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,
 			CollectionsLimit:                   agent.MongoDBOptions.CollectionsLimit,
 			EnableAllCollectors:                agent.MongoDBOptions.EnableAllCollectors,
+			EnableDiagnosticDataHistograms:     agent.MongoDBOptions.EnableDiagnosticDataHistograms,
 			StatsCollections:                   agent.MongoDBOptions.StatsCollections,
 			IsTlsCertificateKeySet:             agent.MongoDBOptions.TLSCertificateKey != "",
 			IsTlsCertificateKeyFilePasswordSet: agent.MongoDBOptions.TLSCertificateKeyFilePassword != "",
@@ -206,7 +223,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		}
 		ua.TableCount = pointer.GetInt32(agent.MySQLOptions.TableCount)
 		ua.TableCountTablestatsGroupLimit = agent.MySQLOptions.TableCountTablestatsGroupLimit
-		if (agent.MySQLOptions.ExtraDSNParams != nil) && len(agent.MySQLOptions.ExtraDSNParams) != 0 {
+		if len(agent.MySQLOptions.ExtraDSNParams) != 0 {
 			ua.MysqlOptions.ExtraDsnParams = agent.MySQLOptions.ExtraDSNParams
 		}
 	case models.PostgresExporterType, models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
@@ -218,6 +235,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	case models.RDSExporterType:
 		ua.IsAwsSecretKeySet = agent.AWSOptions.AWSAccessKey != ""
 		ua.AwsAccessKey = agent.AWSOptions.AWSAccessKey
+		ua.AwsRoleArn = agent.AWSOptions.AWSRoleARN
 		ua.RdsBasicMetricsDisabled = agent.AWSOptions.RDSBasicMetricsDisabled
 		ua.RdsEnhancedMetricsDisabled = agent.AWSOptions.RDSEnhancedMetricsDisabled
 	default:
@@ -245,9 +263,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		agentType := models.PMMAgentType
-
-		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: &agentType})
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
 		}
@@ -259,12 +275,12 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 		nodeNames := make(map[string]*string, len(nodes))
 		for _, node := range nodes {
-			nodeNames[node.NodeID] = pointer.ToString(node.NodeName)
+			nodeNames[node.NodeID] = new(node.NodeName)
 		}
 
 		serverVersion, err := version.Parse(version.PMMVersion)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("could not parse the server version: %s", version.PMMVersion))
+			return fmt.Errorf("could not parse the server version '%s': %w", version.PMMVersion, err)
 		}
 
 		for _, agent := range agents {

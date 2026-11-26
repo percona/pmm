@@ -17,13 +17,14 @@ package jobs
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path"
 	"strconv"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -83,12 +84,14 @@ func (j *MySQLBackupJob) DSN() string {
 
 // Run starts Job execution.
 func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
-	if err := j.binariesInstalled(); err != nil {
-		return errors.WithStack(err)
+	err := j.binariesInstalled()
+	if err != nil {
+		return err
 	}
 
-	if err := j.backup(ctx); err != nil {
-		return errors.WithStack(err)
+	err = j.backup(ctx)
+	if err != nil {
+		return err
 	}
 
 	// mysqlArtifactFiles returns list of files and folders the backup consists of (hardcoded).
@@ -115,17 +118,20 @@ func (j *MySQLBackupJob) Run(ctx context.Context, send Send) error {
 }
 
 func (j *MySQLBackupJob) binariesInstalled() error {
-	if _, err := exec.LookPath(xtrabackupBin); err != nil {
-		return errors.Wrapf(err, "lookpath: %s", xtrabackupBin)
+	_, err := exec.LookPath(xtrabackupBin)
+	if err != nil {
+		return fmt.Errorf("lookpath=%s: %w", xtrabackupBin, err)
 	}
 
-	if _, err := exec.LookPath(qpressBin); err != nil {
-		return errors.Wrapf(err, "lookpath: %s", qpressBin)
+	_, err = exec.LookPath(qpressBin)
+	if err != nil {
+		return fmt.Errorf("lookpath=%s: %w", qpressBin, err)
 	}
 
 	if j.locationConfig.Type == S3BackupLocationType {
-		if _, err := exec.LookPath(xbcloudBin); err != nil {
-			return errors.Wrapf(err, "lookpath: %s", xbcloudBin)
+		_, err = exec.LookPath(xbcloudBin)
+		if err != nil {
+			return fmt.Errorf("lookpath=%s: %w", xbcloudBin, err)
 		}
 	}
 
@@ -138,11 +144,12 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 
 	tmpDir, err := os.MkdirTemp("", "mysql-backup")
 	if err != nil {
-		return errors.Wrapf(err, "failed to create tempdir")
+		return fmt.Errorf("failed to create tempdir: %w", err)
 	}
 
 	defer func() {
-		if err := os.RemoveAll(tmpDir); err != nil {
+		err := os.RemoveAll(tmpDir)
+		if err != nil {
 			j.l.WithError(err).Warn("failed to remove temporary directory")
 		}
 	}()
@@ -171,8 +178,8 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	}
 
 	var xbcloudCmd *exec.Cmd
-	switch {
-	case j.locationConfig.Type == S3BackupLocationType:
+	switch j.locationConfig.Type {
+	case S3BackupLocationType:
 		xtrabackupCmd.Args = append(xtrabackupCmd.Args, "--stream=xbstream")
 
 		artifactFolder := path.Join(j.folder, j.name)
@@ -190,7 +197,7 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 			"--parallel=10",
 			artifactFolder) // #nosec G204
 	default:
-		return errors.Errorf("unknown location config")
+		return errors.New("unknown location config")
 	}
 
 	var outBuffer bytes.Buffer
@@ -200,26 +207,28 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 
 	xtrabackupStdout, err := xtrabackupCmd.StdoutPipe()
 	if err != nil {
-		return errors.Wrapf(err, "failed to get xtrabackup stdout pipe")
+		return fmt.Errorf("failed to get xtrabackup stdout pipe: %w", err)
 	}
 
 	wrapError := func(err error) error {
-		return errors.Wrapf(err, "xtrabackup err: %s\n xbcloud out: %s\n xbcloud err: %s",
-			errBackupBuffer.String(), outBuffer.String(), errCloudBuffer.String())
+		return fmt.Errorf("xtrabackup stderr: %s\n xbcloud stdout: %s\n xbcloud stderr: %s\nerr: %w",
+			errBackupBuffer.String(), outBuffer.String(), errCloudBuffer.String(), err)
 	}
 
-	if err := xtrabackupCmd.Start(); err != nil {
+	err = xtrabackupCmd.Start()
+	if err != nil {
 		cancel()
-		return wrapError(err)
+		return fmt.Errorf("xtrabackup start failed: %w", wrapError(err))
 	}
 
 	defer func() {
-		if err := xtrabackupCmd.Wait(); err != nil {
+		err := xtrabackupCmd.Wait()
+		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = errors.Wrapf(rerr, "xtrabackup wait error: %s", err)
+				rerr = errors.Join(rerr, fmt.Errorf("xtrabackup wait failed: %w", err))
 			} else {
-				rerr = wrapError(err)
+				rerr = fmt.Errorf("xtrabackup wait failed: %w", wrapError(err))
 			}
 		}
 	}()
@@ -231,18 +240,20 @@ func (j *MySQLBackupJob) backup(ctx context.Context) (rerr error) {
 	xbcloudCmd.Stdin = xtrabackupStdout
 	xbcloudCmd.Stdout = &outBuffer
 	xbcloudCmd.Stderr = &errCloudBuffer
-	if err := xbcloudCmd.Start(); err != nil {
+	err = xbcloudCmd.Start()
+	if err != nil {
 		cancel()
-		return wrapError(err)
+		return fmt.Errorf("xbcloud start failed: %w", wrapError(err))
 	}
 
 	defer func() {
-		if err := xbcloudCmd.Wait(); err != nil {
+		err := xbcloudCmd.Wait()
+		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = errors.Wrapf(rerr, "xbcloud wait error: %s", err)
+				rerr = errors.Join(rerr, fmt.Errorf("xbcloud wait failed: %w", err))
 			} else {
-				rerr = wrapError(err)
+				rerr = fmt.Errorf("xbcloud wait failed: %w", wrapError(err))
 			}
 		}
 	}()

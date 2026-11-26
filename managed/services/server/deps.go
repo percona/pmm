@@ -18,8 +18,8 @@ package server
 import (
 	"context"
 	"net/url"
-	"time"
 
+	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 )
@@ -40,23 +40,25 @@ type grafanaClient interface { //nolint:iface
 // We use it instead of real type to avoid dependency cycle.
 //
 // FIXME Rename to victoriaMetrics.Service, update tests.
-type prometheusService interface { //nolint:iface
+type prometheusService interface {
 	RequestConfigurationUpdate()
+	// ForceConfigurationUpdate triggers immediate synchronous configuration update,
+	// bypassing the batch delay. Use this for critical updates like port changes.
+	ForceConfigurationUpdate(ctx context.Context) error
 	healthChecker
 }
 
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
-	StartChecks(checkNames []string) error
-	CollectAdvisors(ctx context.Context)
-	CleanupAlerts()
-	UpdateIntervals(rare, standard, frequent time.Duration)
+	CreateDefaultSchedule(ctx context.Context) error
+	UpdateAdvisorsList(ctx context.Context)
+	CleanupCheckResults()
 }
 
 // vmAlertService is a subset of methods of vmalert.Service used by this package.
 // We use it instead of real type to avoid dependency cycle.
-type vmAlertService interface { //nolint:iface
+type vmAlertService interface {
 	RequestConfigurationUpdate()
 	healthChecker
 }
@@ -73,7 +75,8 @@ type vmAlertExternalRules interface {
 // supervisordService is a subset of methods of supervisord.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisordService interface {
-	UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error
+	UpdateConfiguration(settings *models.Settings) error
+	ProgramRunning(ctx context.Context, program string) bool
 }
 
 // telemetryService is a subset of methods of telemetry.Service used by this package.
@@ -87,6 +90,7 @@ type telemetryService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type agentsStateUpdater interface {
 	UpdateAgentsState(ctx context.Context) error
+	RequestStateUpdate(ctx context.Context, pmmAgentID string)
 }
 
 // templatesService is a subset of methods of alerting.Service used by this package.
@@ -99,6 +103,7 @@ type templatesService interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type haService interface {
 	IsLeader() bool
+	Params() *models.HAParams
 }
 
 // victoriaMetricsParams is a subset of methods of models.VMParams used by this package.
@@ -111,4 +116,13 @@ type victoriaMetricsParams interface {
 // nomadService represents an interface for managing and updating Nomad-related configurations in a given context.
 type nomadService interface {
 	UpdateConfiguration(settings *models.Settings) error
+}
+
+// omService is a subset of methods of om.Service used by this package.
+// We use it instead of the real type to avoid a dependency cycle.
+type omService interface {
+	// CheckAvailable returns why the PMM Extensions inventory app cannot be used, or nil when it can.
+	CheckAvailable(ctx context.Context) error
+	TriggerTopologyCollection(ctx context.Context, req *omv1.TriggerTopologyCollectionRequest) (*omv1.TriggerTopologyCollectionResponse, error)
+	SyncInventoryEnabled(ctx context.Context)
 }
