@@ -1,0 +1,91 @@
+# Reference DaemonSet for coroot-node-agent (PMM). Merge into the PMM Helm chart; validate mounts/args against upstream coroot-node-agent for your release.
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: pmm-coroot-node-agent
+  labels:
+    app.kubernetes.io/name: pmm-coroot-node-agent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pmm-coroot-node-agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pmm-coroot-node-agent
+    spec:
+      hostPID: true
+      hostNetwork: false
+      serviceAccountName: default
+      containers:
+        - name: coroot-node-agent
+          # Official image: https://github.com/coroot/coroot-node-agent/pkgs/container/coroot-node-agent
+          # Pin a tag you have tested (avoid :latest in production).
+          image: ghcr.io/coroot/coroot-node-agent:1.29.0
+          imagePullPolicy: IfNotPresent
+          # OTLP to PMM: set COLLECTOR_ENDPOINT (or LOGS_ENDPOINT / TRACES_ENDPOINT) to your PMM HTTPS base
+          # and OTLP path per nginx. Prometheus /metrics: set LISTEN (e.g. 0.0.0.0:19190) and the same
+          # host:port in inventory label pmm_coroot_metrics_listen for vmagent scrape.
+          # env:
+          #   - name: COLLECTOR_ENDPOINT
+          #     value: "https://pmm.example.com/otlp/"
+          #   - name: LISTEN
+          #     value: "0.0.0.0:19190"
+          #   - name: INSECURE_SKIP_VERIFY
+          #     value: "true"
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 0
+            runAsGroup: 0
+            capabilities:
+              add:
+                - BPF
+                - PERFMON
+                - SYS_ADMIN
+                - SYS_PTRACE
+                - DAC_READ_SEARCH
+                - NET_ADMIN
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: proc
+              mountPath: /host/proc
+              readOnly: true
+            - name: sys
+              mountPath: /host/sys
+              readOnly: true
+            - name: bpf
+              mountPath: /sys/fs/bpf
+            - name: cgroup
+              mountPath: /host/sys/fs/cgroup
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+            type: Directory
+        - name: sys
+          hostPath:
+            path: /sys
+            type: Directory
+        - name: bpf
+          hostPath:
+            path: /sys/fs/bpf
+            type: DirectoryOrCreate
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup
+            type: Directory
+        - name: tmp
+          emptyDir: {}

@@ -9,6 +9,7 @@ import { useSettings } from 'hooks/api/useSettings';
 import { SshKeyForm } from './components/ssh-key/SshKeyForm';
 import { MetricsResolutionForm } from './components/metrics-resolution/MetricsResolutionForm';
 import { AdvancedSettingsForm } from './components/advanced/AdvancedSettingsForm';
+import { OtelSettingsTab } from './components/otel/OtelSettingsTab';
 import { ServiceNowConnectionTab } from './components/servicenow';
 import { Messages } from './Settings.messages';
 import { TabValue } from './Settings.types';
@@ -77,6 +78,11 @@ export const Settings: FC = () => {
             value="advanced-settings"
             label={Messages.tabs.advanced}
           />
+          <Tab
+            data-testid="settings-tab-otel"
+            value="otel"
+            label={Messages.tabs.otel}
+          />
           {showSshKeyTab && (
             <Tab
               data-testid="settings-tab-ssh"
@@ -93,13 +99,23 @@ export const Settings: FC = () => {
           )}
         </Tabs>
 
-        <Box sx={{ flex: 1 }} data-testid="settings-tab-content">
+        <Box
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            minWidth: 0,
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+          }}
+          data-testid="settings-tab-content"
+        >
           {tab === 'metrics-resolution' && (
             <MetricsResolutionForm settings={settings!} />
           )}
           {tab === 'advanced-settings' && (
             <AdvancedSettingsForm settings={settings!} />
           )}
+          {tab === 'otel' && <OtelSettingsTab settings={settings!} />}
           {tab === 'ssh-key' && <SshKeyForm settings={settings!} />}
           {tab === 'servicenow-connection' && <ServiceNowConnectionTab />}
         </Box>

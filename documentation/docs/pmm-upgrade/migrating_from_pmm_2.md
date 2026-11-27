@@ -324,6 +324,9 @@ Once you're running PMM 3.7.0, upgrade to the latest version using the standard 
 - [Upgrade PMM Server using Podman](upgrade_podman.md)
 - [Upgrade PMM Server using Helm](upgrade_helm.md)
 
+!!! caution alert alert-warning "Important"
+    PMM 2 Clients are deprecated. Compatibility with PMM Server 3.4.0 and later is not guaranteed, and transitional support will be removed in a future release. Upgrade to PMM 3 Client as soon as possible to ensure full functionality.
+
 ## Step 5: Migrate PMM 2 Clients to PMM 3
 
 PMM 3 Server provides limited support for PMM 2 Clients (metrics and Query Analytics only). Upgrade to PMM 3 Client as soon as possible to ensure full functionality.

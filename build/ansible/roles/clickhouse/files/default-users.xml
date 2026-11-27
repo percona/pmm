@@ -131,6 +131,7 @@
 
             <grants>
                 <query>GRANT SELECT ON pmm.*</query>
+                <query>GRANT SELECT ON otel.*</query>
             </grants>
         </grafana>
     </users>

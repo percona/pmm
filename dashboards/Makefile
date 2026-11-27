@@ -10,10 +10,14 @@ release: install build
 install:
 	cd pmm-app \
 	&& npm version \
-	&& yarn install --frozen-lockfile \
+	&& yarn install --frozen-lockfile
+	cd pmm-service-map \
+	&& yarn install --frozen-lockfile
 
 build:
 	cd pmm-app \
+	&& yarn run build
+	cd pmm-service-map \
 	&& yarn run build
 
 test: release
@@ -21,7 +25,8 @@ test: release
 	&& yarn test:ci
 
 clean:
-	rm -r pmm-app/dist/
+	rm -rf pmm-app/dist/
+	rm -rf pmm-service-map/dist/
 
 docker_clean:
 	docker compose stop \
