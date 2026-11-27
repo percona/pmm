@@ -28,7 +28,7 @@ PMM UI / API clients
 |------|----------|---------|
 | 9911 | gRPC | `CollectorService` (data ingestion) and `QANService` (analytics) |
 | 9922 | HTTP/JSON | gRPC-Gateway REST API |
-| 9933 | HTTP | Debug endpoints (`/debug/metrics`, `/debug/pprof`, `/debug/vars`) |
+| 9933 | HTTP | Debug endpoints, listed at `/debug` |
 
 ## Domain Model
 
