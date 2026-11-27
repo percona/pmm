@@ -17,6 +17,8 @@ package om
 
 import (
 	"context"
+	"regexp"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -38,15 +40,49 @@ type stubVM struct {
 func (s stubVM) Query(_ context.Context, query string, _ time.Time, _ ...v1.Option) (model.Value, v1.Warnings, v1.Infos, error) {
 	for metric, vector := range s.lag {
 		if strings.HasPrefix(query, "lag("+metric+"{") {
-			return vector, nil, nil, nil
+			return matching(vector, query), nil, nil, nil
 		}
 	}
 	for metric, vector := range s.values {
-		if strings.HasPrefix(query, "last_over_time("+metric+"{") {
-			return vector, nil, nil, nil
+		if strings.HasPrefix(query, "last_over_time("+metric+"{") || strings.HasPrefix(query, "irate("+metric+"{") {
+			return matching(vector, query), nil, nil, nil
 		}
 	}
 	return model.Vector{}, nil, nil, nil
+}
+
+var equalityMatcher = regexp.MustCompile(`(\w+)="([^"]*)"`)
+
+// matching applies the query's label="value" matchers as VictoriaMetrics would; regex matchers are ignored.
+func matching(vector model.Vector, query string) model.Vector {
+	matchers := equalityMatcher.FindAllStringSubmatch(query, -1)
+	kept := model.Vector{}
+	for _, sample := range vector {
+		if !slices.ContainsFunc(matchers, func(m []string) bool {
+			return string(sample.Metric[model.LabelName(m[1])]) != m[2]
+		}) {
+			kept = append(kept, sample)
+		}
+	}
+	return kept
+}
+
+// testSeries is one series as both lag() and last_over_time() return it.
+type testSeries struct {
+	age, value float64
+	labels     []string
+}
+
+func collectSeries(t *testing.T, now time.Time, metric string, series ...testSeries) SourceResult {
+	t.Helper()
+
+	vm := stubVM{lag: map[string]model.Vector{}, values: map[string]model.Vector{}}
+	for _, s := range series {
+		vm.lag[metric] = append(vm.lag[metric], lagSample(s.age, s.labels...))
+		vm.values[metric] = append(vm.values[metric], valueSample(metric, s.value, s.labels...))
+	}
+	src := metricsSource{vm: vm, l: logrus.WithField("test", t.Name()), now: now, maxAge: projectionMaxAge}
+	return src.collect(t.Context(), []*models.Service{{ServiceID: testServiceID}})
 }
 
 type recordingVM struct {
@@ -89,57 +125,66 @@ func factFor(result SourceResult, field string) *Fact {
 	return found
 }
 
-func TestReducedValueCarriesItsOwnSeriesAge(t *testing.T) {
+// A primary's exporter reports its secondaries' lag, which must not read as its own.
+func TestReplicationLagIsTheMembersOwn(t *testing.T) {
 	t.Parallel()
 
-	now := time.Date(2026, 8, 21, 12, 0, 0, 0, time.UTC)
+	now := time.Date(2026, 11, 16, 12, 0, 0, 0, time.UTC)
 
-	lag := map[string]model.Vector{
-		metricReplicationLag: {
-			lagSample(30, "member_idx", "peer-a"),
-			lagSample(4*60*60, "member_idx", "peer-b"),
-		},
-	}
-
-	t.Run("the max is fresh", func(t *testing.T) {
+	t.Run("a primary has none", func(t *testing.T) {
 		t.Parallel()
 
-		vm := stubVM{lag: lag, values: map[string]model.Vector{
-			metricReplicationLag: {
-				valueSample(metricReplicationLag, 900, "member_idx", "peer-a"),
-				valueSample(metricReplicationLag, 100, "member_idx", "peer-b"),
-			},
-		}}
-		src := metricsSource{vm: vm, l: logrus.WithField("test", t.Name()), now: now}
-		fact := factFor(src.collect(t.Context(), []*models.Service{{ServiceID: testServiceID}}), fieldReplicationLag)
-
-		require.NotNil(t, fact, "expected a replication-lag fact")
-		assert.InDelta(t, 900.0, fact.Value, 0.001)
-		require.NotNil(t, fact.ObservedAt)
-		assert.Equal(t, now.Add(-30*time.Second), fact.ObservedAt.UTC(),
-			"the largest lag came from the 30s-old series, so that is its age")
+		result := collectSeries(t, now, metricReplicationLag,
+			testSeries{5, 166, []string{"name", "node01", "self", "0"}},
+			testSeries{5, 60, []string{"name", "node02", "self", "0"}},
+		)
+		assert.Nil(t, factFor(result, fieldReplicationLag))
 	})
 
-	t.Run("the max is stale", func(t *testing.T) {
+	t.Run("a secondary reads its own, not its peer's", func(t *testing.T) {
 		t.Parallel()
 
-		vm := stubVM{lag: lag, values: map[string]model.Vector{
-			metricReplicationLag: {
-				valueSample(metricReplicationLag, 100, "member_idx", "peer-a"),
-				valueSample(metricReplicationLag, 900, "member_idx", "peer-b"),
-			},
-		}}
-		src := metricsSource{vm: vm, l: logrus.WithField("test", t.Name()), now: now}
-		fact := factFor(src.collect(t.Context(), []*models.Service{{ServiceID: testServiceID}}), fieldReplicationLag)
-
+		result := collectSeries(t, now, metricReplicationLag,
+			testSeries{5, 166, []string{"name", "node01", "self", "0"}},
+			testSeries{5, 60, []string{"name", "node02", "self", "1"}},
+		)
+		fact := factFor(result, fieldReplicationLag)
 		require.NotNil(t, fact, "expected a replication-lag fact")
-		assert.InDelta(t, 900.0, fact.Value, 0.001)
-		require.NotNil(t, fact.ObservedAt)
-
-		// Dated 4h old so fieldSet.live drops it instead of reporting a stale maximum as current.
-		assert.Equal(t, now.Add(-4*time.Hour), fact.ObservedAt.UTC(),
-			"the largest lag came from the 4h-old series, so that is its age")
+		assert.InDelta(t, 60.0, fact.Value, 0.001)
 	})
+
+	t.Run("the freshest of its own series wins", func(t *testing.T) {
+		t.Parallel()
+
+		result := collectSeries(t, now, metricReplicationLag,
+			testSeries{4 * 60 * 60, 900, []string{"name", "node02", "state", "SECONDARY", "self", "1"}},
+			testSeries{10, 30, []string{"name", "node02", "state", "RECOVERING", "self", "1"}},
+		)
+		fact := factFor(result, fieldReplicationLag)
+		require.NotNil(t, fact, "expected a replication-lag fact")
+		assert.InDelta(t, 30.0, fact.Value, 0.001)
+		require.NotNil(t, fact.ObservedAt)
+		assert.Equal(t, now.Add(-10*time.Second), fact.ObservedAt.UTC())
+	})
+}
+
+// After a role switch the old rs_state series stays in the lookback, and mixing its counts with the live
+// series' misreports the ratio.
+func TestConnectionsFreeReadsTheLiveSeries(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 11, 16, 12, 0, 0, 0, time.UTC)
+	result := collectSeries(t, now, metricConnections,
+		testSeries{1213, 36, []string{"rs_state", "1", "state", "current"}},
+		testSeries{1213, 373, []string{"rs_state", "1", "state", "available"}},
+		testSeries{13, 245, []string{"rs_state", "2", "state", "current"}},
+		testSeries{13, 164, []string{"rs_state", "2", "state", "available"}},
+	)
+	merged := mergeFacts([]SourceResult{result}, defaultPrecedence)
+	free := connectionsFree(fieldSet{fields: merged[testServiceID], now: now, maxAge: projectionMaxAge})
+
+	require.NotNil(t, free)
+	assert.InDelta(t, 100*164.0/409, *free, 0.001)
 }
 
 // mongodb_up lacks cluster_role until the exporter learns its role, then continues as a new series.
@@ -211,6 +256,42 @@ func TestEveryQueryNarrowsToTheHighResolutionJob(t *testing.T) {
 		assert.Contains(t, query, highResolutionJob,
 			"every query must select the high-resolution job")
 	}
+}
+
+// irate needs two samples in its window, so the window scales with the scrape interval through the max age.
+func TestCPUIdleRateWindowIsTheMaxAge(t *testing.T) {
+	t.Parallel()
+
+	vm := &recordingVM{}
+	src := metricsSource{
+		vm:     vm,
+		l:      logrus.WithField("test", t.Name()),
+		now:    time.Date(2026, 11, 16, 12, 0, 0, 0, time.UTC),
+		maxAge: 4 * time.Minute,
+	}
+	src.collect(t.Context(), []*models.Service{{ServiceID: testServiceID}})
+
+	i := slices.IndexFunc(vm.queries, func(query string) bool { return strings.HasPrefix(query, "irate("+metricCPUIdle+"{") })
+	require.GreaterOrEqual(t, i, 0, "expected an idle-rate query")
+	assert.Contains(t, vm.queries[i], "[4m]")
+}
+
+// After a role switch the old rs_state series keeps an idle rate inside the irate window; CPU reads the live
+// series, not the larger idle of the two.
+func TestCPUUsageReadsTheLiveSeries(t *testing.T) {
+	t.Parallel()
+
+	now := time.Date(2026, 11, 16, 12, 0, 0, 0, time.UTC)
+	idle := collectSeries(t, now, metricCPUIdle,
+		testSeries{25, 950, []string{"rs_state", "2"}},
+		testSeries{5, 200, []string{"rs_state", "1"}},
+	)
+	cores := collectSeries(t, now, metricCPUCores, testSeries{5, 1, []string{"rs_state", "1"}})
+	merged := mergeFacts([]SourceResult{idle, cores}, defaultPrecedence)
+	usage := cpuUsage(fieldSet{fields: merged[testServiceID], now: now, maxAge: projectionMaxAge})
+
+	require.NotNil(t, usage)
+	assert.InDelta(t, 80.0, *usage, 0.001)
 }
 
 type lastUpVM struct {

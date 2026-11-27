@@ -367,7 +367,7 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 		return nil, nil, fmt.Errorf("failed to read inventory: %w", err)
 	}
 
-	sources := s.sources(nodes, startedAt)
+	sources := s.sources(nodes, startedAt, maxAge)
 	results := make([]SourceResult, 0, len(sources))
 	for _, source := range sources {
 		results = append(results, source.collect(ctx, services))
@@ -409,10 +409,10 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 	return response, run, nil
 }
 
-func (s *Service) sources(nodes map[string]*models.Node, startedAt time.Time) []factSource {
+func (s *Service) sources(nodes map[string]*models.Node, startedAt time.Time, maxAge time.Duration) []factSource {
 	sources := []factSource{
 		inventorySource{nodes: nodes},
-		metricsSource{vm: s.vmClient, l: s.l, now: startedAt},
+		metricsSource{vm: s.vmClient, l: s.l, now: startedAt, maxAge: maxAge},
 	}
 	if s.probe != nil {
 		sources = append(sources, *s.probe)

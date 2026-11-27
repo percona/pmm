@@ -169,7 +169,7 @@ func TestTriggerTopologyCollectionAbortsWhileRunInFlight(t *testing.T) {
 func TestSourcesOrdering(t *testing.T) {
 	t.Run("without a probe, just inventory and metrics", func(t *testing.T) {
 		svc := &Service{l: logrus.WithField("test", t.Name())}
-		sources := svc.sources(nil, time.Now())
+		sources := svc.sources(nil, time.Now(), minVolatileMaxAge)
 
 		require.Len(t, sources, 2)
 		assert.Equal(t, sourceInventory, sources[0].key())
@@ -182,7 +182,7 @@ func TestSourcesOrdering(t *testing.T) {
 			l:     logrus.WithField("test", t.Name()),
 			probe: &probeSource{app: client.app(probeAppModule), l: logrus.WithField("source", sourceProbe)},
 		}
-		sources := svc.sources(nil, time.Now())
+		sources := svc.sources(nil, time.Now(), minVolatileMaxAge)
 
 		require.Len(t, sources, 3)
 		assert.Equal(t, sourceInventory, sources[0].key())

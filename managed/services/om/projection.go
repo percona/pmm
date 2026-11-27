@@ -19,6 +19,7 @@ import (
 	"cmp"
 	"crypto/sha256"
 	"encoding/hex"
+	"maps"
 	"slices"
 	"time"
 
@@ -44,6 +45,11 @@ func buildDocument(services []*models.Service, merged map[string]map[string]Merg
 		fields := fieldSet{fields: merged[service.ServiceID], now: now, maxAge: maxAge}
 		if fields.fields == nil {
 			fields.fields = map[string]MergedField{}
+		}
+		// A primary has no lag of its own; just after a promotion, its last reading as a secondary is still held.
+		if fields.str(fieldState) == "PRIMARY" {
+			fields.fields = maps.Clone(fields.fields)
+			delete(fields.fields, fieldReplicationLag)
 		}
 		if stale := fields.staleVolatile(); stale > 0 {
 			out.staleServices++
@@ -118,8 +124,8 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologySer
 		ReplicationSet:         optional(fields.str(fieldReplicationSet)),
 		State:                  optional(state),
 		Status:                 serviceStatus(up),
-		CpuUsagePercent:        gauge(fields.f64(fieldCPUUsage), up),
-		ConnectionsFreePercent: gauge(fields.f64(fieldConnectionsFree), up),
+		CpuUsagePercent:        gauge(cpuUsage(fields), up),
+		ConnectionsFreePercent: gauge(connectionsFree(fields), up),
 		ProcessRole:            role,
 		ReplicationLagSeconds:  optionalDouble(fields.f64(fieldReplicationLag)),
 		OplogWindowSeconds:     optionalDouble(oplogWindow(fields)),
@@ -213,6 +219,27 @@ func oplogWindow(fields fieldSet) *float64 {
 	}
 	window := *head - *tail
 	return &window
+}
+
+// cpuUsage turns idle milliseconds per second, summed over every core, into a busy percentage, clamped
+// because scrape jitter can push the idle rate past the cores' capacity.
+func cpuUsage(fields fieldSet) *float64 {
+	idle, cores := fields.f64(fieldCPUIdleRate), fields.f64(fieldCPUCores)
+	if idle == nil || cores == nil || *cores <= 0 {
+		return nil
+	}
+	capacity := 1000 * *cores                         //nolint:mnd
+	usage := min(max(100*(1-*idle/capacity), 0), 100) //nolint:mnd
+	return &usage
+}
+
+func connectionsFree(fields fieldSet) *float64 {
+	current, available := fields.f64(fieldConnectionsCurrent), fields.f64(fieldConnectionsAvailable)
+	if current == nil || available == nil || *current+*available <= 0 {
+		return nil
+	}
+	free := 100 * *available / (*current + *available) //nolint:mnd
+	return &free
 }
 
 func buildSummary(environments []*omv1.Environment) *omv1.Summary {

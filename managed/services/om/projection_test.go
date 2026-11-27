@@ -48,15 +48,17 @@ func mongoService(id, name, cluster, replicationSet, environment string) *models
 func liveFacts(state string, extra map[string]MergedField) map[string]MergedField {
 	observed := projectionNow.Add(-5 * time.Second)
 	fields := map[string]MergedField{
-		fieldExporterUp:      {Value: 1.0, Source: sourceMetrics, ObservedAt: &observed},
-		fieldState:           {Value: state, Source: sourceMetrics, ObservedAt: &observed},
-		fieldVersion:         {Value: "7.0.39-21", Source: sourceMetrics, ObservedAt: &observed},
-		fieldVendor:          {Value: "Percona", Source: sourceMetrics, ObservedAt: &observed},
-		fieldEdition:         {Value: "Community", Source: sourceMetrics, ObservedAt: &observed},
-		fieldHost:            {Value: "host-a", Source: sourceMetrics, ObservedAt: &observed},
-		fieldEndpoint:        {Value: "host-a:27017", Source: sourceMetrics, ObservedAt: &observed},
-		fieldCPUUsage:        {Value: 12.5, Source: sourceMetrics, ObservedAt: &observed},
-		fieldConnectionsFree: {Value: 99.5, Source: sourceMetrics, ObservedAt: &observed},
+		fieldExporterUp:           {Value: 1.0, Source: sourceMetrics, ObservedAt: &observed},
+		fieldState:                {Value: state, Source: sourceMetrics, ObservedAt: &observed},
+		fieldVersion:              {Value: "7.0.39-21", Source: sourceMetrics, ObservedAt: &observed},
+		fieldVendor:               {Value: "Percona", Source: sourceMetrics, ObservedAt: &observed},
+		fieldEdition:              {Value: "Community", Source: sourceMetrics, ObservedAt: &observed},
+		fieldHost:                 {Value: "host-a", Source: sourceMetrics, ObservedAt: &observed},
+		fieldEndpoint:             {Value: "host-a:27017", Source: sourceMetrics, ObservedAt: &observed},
+		fieldCPUIdleRate:          {Value: 3500.0, Source: sourceMetrics, ObservedAt: &observed},
+		fieldCPUCores:             {Value: 4.0, Source: sourceMetrics, ObservedAt: &observed},
+		fieldConnectionsCurrent:   {Value: 2.0, Source: sourceMetrics, ObservedAt: &observed},
+		fieldConnectionsAvailable: {Value: 398.0, Source: sourceMetrics, ObservedAt: &observed},
 	}
 	maps.Copy(fields, extra)
 	return fields
@@ -96,7 +98,7 @@ func TestBuildDocument(t *testing.T) {
 		// The sample survives the lookback window, so only its age says it is not current.
 		stale := projectionNow.Add(-10 * time.Minute)
 		fields := liveFacts("PRIMARY", nil)
-		for _, key := range []string{fieldExporterUp, fieldState, fieldCPUUsage, fieldConnectionsFree} {
+		for _, key := range []string{fieldExporterUp, fieldState, fieldCPUIdleRate, fieldConnectionsCurrent, fieldConnectionsAvailable} {
 			held := fields[key]
 			held.ObservedAt = &stale
 			fields[key] = held
@@ -149,6 +151,31 @@ func TestBuildDocument(t *testing.T) {
 		// A standalone emits neither.
 		doc = buildDocument(services, map[string]map[string]MergedField{"s1": liveFacts("PRIMARY", nil)}, projectionNow, projectionMaxAge)
 		assert.Nil(t, onlyService(t, doc).OplogWindowSeconds)
+	})
+
+	t.Run("a primary has no lag, even with its last reading as a secondary still held", func(t *testing.T) {
+		t.Parallel()
+
+		withLag := func(state string, age time.Duration) map[string]map[string]MergedField {
+			observed := projectionNow.Add(-age)
+			return map[string]map[string]MergedField{"s1": liveFacts(state, map[string]MergedField{
+				fieldReplicationLag: {Value: 4.0, Source: sourceMetrics, ObservedAt: &observed},
+			})}
+		}
+		services := []*models.Service{mongoService("s1", "mongo-1", "c1", "rs0", "prod")}
+
+		doc := buildDocument(services, withLag("PRIMARY", 10*time.Second), projectionNow, projectionMaxAge)
+		assert.Nil(t, onlyService(t, doc).ReplicationLagSeconds)
+
+		doc = buildDocument(services, withLag("SECONDARY", 10*time.Second), projectionNow, projectionMaxAge)
+		assert.InDelta(t, 4.0, onlyService(t, doc).GetReplicationLagSeconds(), 0.001)
+
+		// The series ends with the promotion, so its aging out does not make the primary stale.
+		doc = buildDocument(services, withLag("PRIMARY", 10*time.Minute), projectionNow, projectionMaxAge)
+		assert.Equal(t, 0, doc.staleServices)
+
+		doc = buildDocument(services, withLag("SECONDARY", 10*time.Minute), projectionNow, projectionMaxAge)
+		assert.Equal(t, 1, doc.staleServices)
 	})
 
 	t.Run("the process role comes from the exporter, not a port convention", func(t *testing.T) {
@@ -390,4 +417,19 @@ func TestInventoryEndpoint(t *testing.T) {
 		portless := mongoService("s2", "mongo-2", "", "", "")
 		assert.Empty(t, inventoryEndpoint(portless, &models.Node{NodeName: "db-host-1"}))
 	})
+}
+
+// Scrape jitter can put the idle rate past the cores' capacity; that is an idle host, not negative load.
+func TestCPUUsageIsClamped(t *testing.T) {
+	t.Parallel()
+
+	observed := projectionNow.Add(-5 * time.Second)
+	fields := fieldSet{now: projectionNow, maxAge: projectionMaxAge, fields: map[string]MergedField{
+		fieldCPUIdleRate: {Value: 4012.0, Source: sourceMetrics, ObservedAt: &observed},
+		fieldCPUCores:    {Value: 4.0, Source: sourceMetrics, ObservedAt: &observed},
+	}}
+
+	usage := cpuUsage(fields)
+	require.NotNil(t, usage)
+	assert.InDelta(t, 0.0, *usage, 0.001)
 }

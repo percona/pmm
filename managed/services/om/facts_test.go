@@ -233,7 +233,7 @@ func TestFieldSetFreshness(t *testing.T) {
 		}
 		assert.Empty(t, fields.str(fieldVersion))
 		assert.Empty(t, fields.str(fieldVendor))
-		assert.Nil(t, fields.f64(fieldCPUUsage))
+		assert.Nil(t, fields.f64(fieldCPUIdleRate))
 		assert.False(t, fields.truthy(fieldIsMongos))
 	})
 }
