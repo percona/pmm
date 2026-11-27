@@ -73,7 +73,7 @@ func callerOriginFromRequest(ctx context.Context, method string) callerOrigin {
 
 	headers, _ := metadata.FromIncomingContext(ctx)
 
-	// if referer is present - the caller is an external one
+	// without a referer, the caller is an external one
 	if len(headers.Get("grpcgateway-referer")) == 0 {
 		return externalCallerOrigin
 	}
