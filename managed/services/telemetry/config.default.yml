@@ -916,7 +916,8 @@ telemetry:
   # API usage
   - id: APIUsageMetrics
     source: VM
-    query: grpc_server_msg_received_total{job="pmm-managed"}
+    # Sum by exactly the labels in data: in HA, each replica's pmm-managed is a separate instance.
+    query: sum by (caller_origin, grpc_method, grpc_service, grpc_type, job) (grpc_server_msg_received_total{job="pmm-managed"})
     transform:
       type: JSON
       metric: pmm_server_api_usage

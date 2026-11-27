@@ -399,11 +399,29 @@ func TestDefaultConfigReportsAPIUsage(t *testing.T) {
 	apiUsage := telemetry[idx]
 	assert.Equal(t, string(dsVM), apiUsage.Source)
 
-	matchers, err := parser.NewParser(parser.Options{}).ParseMetricSelector(apiUsage.Query)
+	expr, err := parser.NewParser(parser.Options{}).ParseExpr(apiUsage.Query)
 	require.NoError(t, err)
 
+	var dataLabels []string
+	for _, data := range apiUsage.Data {
+		if data.Label != "" {
+			dataLabels = append(dataLabels, data.Label)
+		}
+	}
+
+	// In HA, every replica's pmm-managed is scraped with its own instance label, so any label
+	// outside data would split one report item into one item per replica.
+	agg, ok := expr.(*parser.AggregateExpr)
+	require.True(t, ok, "query must aggregate: %s", apiUsage.Query)
+	assert.Equal(t, parser.ItemType(parser.SUM), agg.Op)
+	assert.False(t, agg.Without)
+	assert.ElementsMatch(t, dataLabels, agg.Grouping)
+
+	selectors := parser.ExtractSelectors(expr)
+	require.Len(t, selectors, 1)
+
 	var metricName, jobMatcher string
-	for _, m := range matchers {
+	for _, m := range selectors[0] {
 		switch m.Name {
 		case model.MetricNameLabel:
 			metricName = m.Value
@@ -451,10 +469,10 @@ func TestDefaultConfigReportsAPIUsage(t *testing.T) {
 	origins := make([]string, 0, len(series))
 	for _, labels := range series {
 		origins = append(origins, labels["caller_origin"])
-		for _, data := range apiUsage.Data {
+		for _, label := range dataLabels {
 			// The job label comes from the VictoriaMetrics scrape config, not from pmm-managed.
-			if data.Label != "" && data.Label != "job" {
-				assert.Contains(t, labels, data.Label)
+			if label != "job" {
+				assert.Contains(t, labels, label)
 			}
 		}
 	}
