@@ -12,7 +12,18 @@ Stored metrics supports MySQL, MongoDB, and PostgreSQL with the following requir
     - Percona Server 5.6+ (all Performance Schema and slow log features)
     - MariaDB 5.2+ (for user statistics), 10.0+ (for Performance Schema)
 
-    Some limitations and tuning options apply when using MySQL's Performance Schema. See [Query Analytics with MySQL](mysql.md#limitations-with-performance-schema).
+    **Slow query log requirements**
+
+    - Slow query log enabled and configured to write to a file
+    - PMM agent has read permissions to the slow query log file on the host
+    - MySQL monitoring user needs `SELECT` to read the log file path; `RELOAD` is required only for automatic log rotation
+
+    **Performance Schema requirements**
+
+    - Performance Schema enabled and configured
+    - MySQL monitoring user needs `SELECT` to read Performance Schema tables (no log file access required)
+
+    Some limitations and tuning options apply when using MySQL's Performance Schema. See [Query Analytics with MySQL](mysql.md#missing-query-examples-in-mysql-performance-schema).
 
 === "PostgreSQL"
     - PostgreSQL 11 or later
@@ -26,15 +37,15 @@ Stored metrics supports MySQL, MongoDB, and PostgreSQL with the following requir
     **Profiler requirements**
 
     - Profiling enabled for Query Analytics
-    - Appropriate user roles: `clusterMonitor`, `read` (local), and custom monitoring roles
+    - Appropriate user roles: `clusterMonitor`, `read` (local), and custom monitoring roles with `find` on `system.profile`
     - For MongoDB 8.0+: Additional `directShardOperations` role required for sharded clusters
 
     **Mongolog requirements**
 
     - MongoDB configured to log slow operations to a file
     - MongoDB server has write permissions to the log directory and file
-    - PMM agent has read permissions to the MongoDB log file
-    - Appropriate user roles: `clusterMonitor`, or custom monitoring roles (`getCmdLineOpts` privilege on `{ cluster: true }`)
+    - PMM agent has read permissions to the MongoDB log file on the host (no `system.profile` database privileges required)
+    - MongoDB monitoring user needs `getCmdLineOpts` privilege to discover the log file path (included in the built-in `clusterMonitor` role)
 
 ## Dashboard layout
 
