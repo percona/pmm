@@ -916,7 +916,7 @@ func (s *Service) GetBootstrapRun(ctx context.Context, req *omv1.GetBootstrapRun
 	}
 
 	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
-	return bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster), nil
+	return bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), s.bootstrapRunRegistered(run.ID), environment, cluster), nil
 }
 
 // CancelBootstrapRun asks PMM Extensions to flag a run for cancellation and, best-effort, stop its
@@ -934,7 +934,7 @@ func (s *Service) CancelBootstrapRun(ctx context.Context, req *omv1.CancelBootst
 
 	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
 	return &omv1.CancelBootstrapRunResponse{
-		Run: bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster),
+		Run: bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), s.bootstrapRunRegistered(run.ID), environment, cluster),
 	}, nil
 }
 
@@ -967,9 +967,25 @@ func (s *Service) ListBootstrapRuns(ctx context.Context, req *omv1.ListBootstrap
 	proto := make([]*omv1.GetBootstrapRunResponse, 0, len(runs))
 	for i := range runs {
 		environment, cluster := s.bootstrapRunConfigLabels(runs[i].ID)
-		proto = append(proto, bootstrapRunToProto(&runs[i], hostsByExecutor, environment, cluster))
+		proto = append(proto, bootstrapRunToProto(&runs[i], hostsByExecutor, s.bootstrapRunRegistered(runs[i].ID), environment, cluster))
 	}
 	return &omv1.ListBootstrapRunsResponse{Runs: proto}, nil
+}
+
+// bootstrapRunRegistered reports whether PMM has registered every host of the run. A missing config row means
+// the run was never registered, as MarkOmBootstrapRunRegistered is what creates it.
+func (s *Service) bootstrapRunRegistered(runID string) bool {
+	if s.db == nil {
+		return false
+	}
+	config, err := models.FindOmBootstrapRunConfigByRunID(s.db.Querier, runID)
+	if err != nil {
+		if !errors.Is(err, models.ErrNotFound) {
+			s.l.Warnf("bootstrap run %s: failed to load whether it is registered: %s", runID, err)
+		}
+		return false
+	}
+	return config.RegisteredAt != nil
 }
 
 func (s *Service) bootstrapRunConfigLabels(runID string) (string, string) {
@@ -1005,23 +1021,28 @@ func (s *Service) confirmMonitoringLookup(ctx context.Context, statuses ...strin
 // has noticed the registered service. It is appended to finalize_steps so it renders wherever steps do.
 const confirmMonitoringStepName = "confirm_monitoring"
 
-func confirmMonitoringStep(runStatus, executorHost string, hostsByExecutor map[string]extensionsHost) *omv1.BootstrapStep {
+// A registered run was confirmed once, before PMM marked it registered (see completeSucceededRun), so it stays
+// confirmed. Checking the live inventory instead would make it pending again as soon as the service is removed
+// by an uninstall, and the run would keep its node busy ("Installing") for good.
+func confirmMonitoringStep(runStatus, executorHost string, registered bool, hostsByExecutor map[string]extensionsHost) *omv1.BootstrapStep {
 	stepStatus := bootstrapStepPending
 	if runStatus == bootstrapRunSucceeded {
 		stepStatus = bootstrapStepRunning
-		if host, ok := hostsByExecutor[executorHost]; ok && len(host.Services) > 0 {
+		if registered {
+			stepStatus = bootstrapStepSucceeded
+		} else if host, ok := hostsByExecutor[executorHost]; ok && len(host.Services) > 0 {
 			stepStatus = bootstrapStepSucceeded
 		}
 	}
 	return &omv1.BootstrapStep{Name: confirmMonitoringStepName, Status: stepStatus}
 }
 
-func bootstrapRunToProto(run *extensionsBootstrapRun, hostsByExecutor map[string]extensionsHost, environment, cluster string) *omv1.GetBootstrapRunResponse {
+func bootstrapRunToProto(run *extensionsBootstrapRun, hostsByExecutor map[string]extensionsHost, registered bool, environment, cluster string) *omv1.GetBootstrapRunResponse {
 	hosts := make([]*omv1.BootstrapHost, 0, len(run.Hosts))
 	for _, host := range run.Hosts {
 		finalizeSteps := bootstrapStepsToProto(host.FinalizeSteps)
 		finalizeSteps = append(finalizeSteps,
-			confirmMonitoringStep(run.Status, host.Host, hostsByExecutor))
+			confirmMonitoringStep(run.Status, host.Host, registered, hostsByExecutor))
 		hosts = append(hosts, &omv1.BootstrapHost{
 			Host:          host.Host,
 			Steps:         bootstrapStepsToProto(host.Steps),
