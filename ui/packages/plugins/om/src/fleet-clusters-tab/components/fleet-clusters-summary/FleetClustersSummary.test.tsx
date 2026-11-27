@@ -16,7 +16,6 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   cluster,
@@ -25,6 +24,7 @@ import {
   topology,
 } from '../../../../tests/fixtures';
 import { FleetClustersSummary } from './FleetClustersSummary';
+import { PmmTheme } from '../../../../tests/testUtils';
 
 const { useOmTopology } = vi.hoisted(() => ({ useOmTopology: vi.fn() }));
 
@@ -32,9 +32,9 @@ vi.mock('../../../topologyHooks', () => ({ useOmTopology }));
 
 const renderSummary = () =>
   render(
-    <ThemeContextProvider themeOptions={pmmThemeOptions}>
+    <PmmTheme>
       <FleetClustersSummary fallback="The fleet's clusters." />
-    </ThemeContextProvider>
+    </PmmTheme>
   );
 
 describe('FleetClustersSummary', () => {

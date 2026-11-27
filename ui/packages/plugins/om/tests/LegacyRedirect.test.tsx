@@ -16,17 +16,13 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { OM_LEGACY_REDIRECTS } from '../src/constants';
 import { LegacyRedirect, legacyRedirectTarget } from '../src/LegacyRedirect';
+import { LocationProbe } from './testUtils';
 
 const MOUNT = '/operations';
-
-const Where = () => {
-  const { pathname, search } = useLocation();
-  return <div data-testid="where">{`${pathname}${search}`}</div>;
-};
 
 // Mounted as the shell mounts the plugin, a splat under a path of its own, because a
 // redirect that ignores the mount only shows up when there is one.
@@ -45,15 +41,18 @@ const landsOn = (from: string) => {
                   element={<LegacyRedirect to={to} />}
                 />
               ))}
-              <Route path="*" element={<Where />} />
+              <Route path="*" element={<LocationProbe />} />
             </Routes>
           }
         />
-        <Route path="*" element={<div data-testid="where">outside</div>} />
+        <Route
+          path="*"
+          element={<output data-testid="location">outside</output>}
+        />
       </Routes>
     </MemoryRouter>
   );
-  return screen.getByTestId('where').textContent;
+  return screen.getByTestId('location').textContent;
 };
 
 describe('LegacyRedirect', () => {

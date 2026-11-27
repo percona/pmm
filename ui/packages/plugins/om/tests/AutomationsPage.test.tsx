@@ -16,13 +16,14 @@
  */
 
 import { fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
 import { AutomationsPage } from '../src/AutomationsPage';
 import { ADMIN_REQUIRED } from '../src/components/AdminAction';
 import { asReadOnlyReader } from './auth';
 import type { OmGetBootstrapRunResponse } from '../src/types';
+import { LocationProbe } from './testUtils';
 
 const { useOmBootstrapRuns } = vi.hoisted(() => ({
   useOmBootstrapRuns: vi.fn(),
@@ -95,11 +96,6 @@ describe('AutomationsPage installs', () => {
 });
 
 describe('AutomationsPage header', () => {
-  const NodesProbe = () => {
-    const { pathname, search } = useLocation();
-    return <output data-testid="location">{`${pathname}${search}`}</output>;
-  };
-
   beforeEach(() => {
     useOmBootstrapRuns.mockReturnValue({
       data: [run('recent', RECENT)],
@@ -128,7 +124,7 @@ describe('AutomationsPage header', () => {
       <MemoryRouter initialEntries={['/operations/automations']}>
         <Routes>
           <Route path="/operations/automations" element={<AutomationsPage />} />
-          <Route path="/operations/nodes" element={<NodesProbe />} />
+          <Route path="/operations/nodes" element={<LocationProbe />} />
         </Routes>
       </MemoryRouter>
     );

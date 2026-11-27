@@ -15,10 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { ReactNode } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
-import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { OmTopologyResponse } from '../types';
 import {
@@ -28,6 +26,7 @@ import {
   shardedCluster,
   topology,
 } from '../../tests/fixtures';
+import { LocationProbe, PmmTheme } from '../../tests/testUtils';
 import { ClusterDetailsPage } from './ClusterDetailsPage';
 
 const { useOmTopology } = vi.hoisted(() => ({ useOmTopology: vi.fn() }));
@@ -36,14 +35,6 @@ vi.mock('../topologyHooks', () => ({ useOmTopology }));
 vi.mock('../inventoryHooks', () => ({
   useLastScanFinishedAt: () => ({ status: 'ready', finishedAt: null }),
 }));
-
-const Theme = ({ children }: { children: ReactNode }) => (
-  <ThemeContextProvider themeOptions={pmmThemeOptions}>
-    {children}
-  </ThemeContextProvider>
-);
-
-const Where = () => <div data-testid="location">{useLocation().pathname}</div>;
 
 const loaded = (data: OmTopologyResponse) =>
   useOmTopology.mockReturnValue({
@@ -80,14 +71,14 @@ const renderPage = (clusterId: string) =>
           element={
             <>
               <ClusterDetailsPage />
-              <Where />
+              <LocationProbe />
             </>
           }
         />
-        <Route path="*" element={<Where />} />
+        <Route path="*" element={<LocationProbe />} />
       </Routes>
     </MemoryRouter>,
-    { wrapper: Theme }
+    { wrapper: PmmTheme }
   );
 
 const memberRows = () =>
