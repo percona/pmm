@@ -30,7 +30,11 @@ import { OmApiError } from '../src/api';
 import { NodesPage } from '../src/NodesPage';
 import { ADMIN_REQUIRED } from '../src/components/AdminAction';
 import { asReadOnlyReader } from './auth';
-import type { OmInventoryHost } from '../src/types';
+import type {
+  OmInventoryHost,
+  OmInventoryService,
+  OmOperation,
+} from '../src/types';
 
 const {
   useOmInventoryHosts,
@@ -39,6 +43,7 @@ const {
   useForgetHost,
   useOmBootstrapRuns,
   useActiveInventoryRun,
+  useOmOperations,
 } = vi.hoisted(() => ({
   useOmInventoryHosts: vi.fn(),
   useRefreshInventory: vi.fn(),
@@ -46,6 +51,7 @@ const {
   useForgetHost: vi.fn(),
   useOmBootstrapRuns: vi.fn(),
   useActiveInventoryRun: vi.fn(),
+  useOmOperations: vi.fn(),
 }));
 
 vi.mock('../src/inventoryHooks', () => ({
@@ -56,6 +62,15 @@ vi.mock('../src/inventoryHooks', () => ({
   useOmBootstrapRuns,
   useActiveInventoryRun,
   useScanInFlight: () => ({ run: undefined, expectedSeconds: null }),
+}));
+
+// Only the query is stubbed; isOperationBusy stays real so the busy-cluster gate is
+// exercised with whatever operations a test supplies.
+vi.mock('../src/operationHooks', async () => ({
+  ...(await vi.importActual<typeof import('../src/operationHooks')>(
+    '../src/operationHooks'
+  )),
+  useOmOperations,
 }));
 
 const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
@@ -80,6 +95,21 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
 });
 
 const forgetOne = vi.fn();
+
+/** A monitored service that belongs to a managed cluster PMM installed as a replica set. */
+const managedService = (
+  overrides: Partial<OmInventoryService> = {}
+): OmInventoryService => ({
+  service_id: 'svc-m',
+  node_id: 'node-1',
+  observed: {},
+  freshness: { consecutive_failures: 0 },
+  om_cluster_id: 'cluster-a',
+  cluster_origin: 'installed',
+  cluster_kind: 'replica_set',
+  replication_set: 'rs-a',
+  ...overrides,
+});
 
 /** Where the page has sent the router: its own filter, or the install wizard. */
 const LocationProbe = () => {
@@ -155,6 +185,7 @@ describe('NodesPage', () => {
     useActiveInventoryRun.mockReturnValue({ run: undefined, updatedAt: 0 });
     useForgetHost.mockReturnValue({ mutateAsync: forgetOne, isPending: false });
     useOmBootstrapRuns.mockReturnValue({ data: [] });
+    useOmOperations.mockReturnValue({ data: [] });
     forgetOne.mockResolvedValue(undefined);
   });
 
@@ -1117,6 +1148,35 @@ describe('NodesPage', () => {
         screen.getByText(/There are no scan results yet\.$/)
       ).toBeInTheDocument();
       expect(screen.queryByText(/press Scan all/)).toBeNull();
+    });
+  });
+
+  describe('the per-cluster Uninstall action', () => {
+    it('offers Uninstall for an installed replica-set cluster the host carries', () => {
+      renderPage([host({ services: [managedService()] })]);
+      openRowMenu('node00');
+      expect(
+        screen.getByRole('menuitem', { name: 'Uninstall rs-a' })
+      ).toBeInTheDocument();
+    });
+
+    it('offers no Uninstall for an imported cluster', () => {
+      renderPage([
+        host({ services: [managedService({ cluster_origin: 'imported' })] }),
+      ]);
+      openRowMenu('node00');
+      expect(screen.queryByText(/^Uninstall /)).toBeNull();
+    });
+
+    it('disables Uninstall while that cluster already has an operation', () => {
+      useOmOperations.mockReturnValue({
+        data: [{ cluster_id: 'cluster-a', status: 'running' } as OmOperation],
+      });
+      renderPage([host({ services: [managedService()] })]);
+      openRowMenu('node00');
+      expect(
+        screen.getByRole('menuitem', { name: 'Uninstall rs-a' })
+      ).toHaveAttribute('aria-disabled', 'true');
     });
   });
 });

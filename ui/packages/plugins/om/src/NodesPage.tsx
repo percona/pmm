@@ -67,6 +67,7 @@ import {
   describeScanFailure,
   isFailing,
   toHostRows,
+  uninstallableClustersOf,
   type ScanFailure,
 } from './inventory';
 import {
@@ -76,6 +77,8 @@ import {
   useOmInventoryHosts,
   useRefreshInventory,
 } from './inventoryHooks';
+import { isOperationBusy, useOmOperations } from './operationHooks';
+import { UninstallDialog } from './components/UninstallDialog';
 import { isBootstrapRunActive } from './api';
 import { useScanConflict } from './ScanFeedback';
 import { AdminAction } from './components/AdminAction';
@@ -247,6 +250,9 @@ const ExecutorCell = ({
  * others. Three copies would drift the first time one is reworded.
  */
 const BUSY_TITLE = 'Already part of an install in progress.';
+
+/** Why a cluster's Uninstall is disabled: it already has an operation holding it. */
+const CLUSTER_BUSY_TITLE = 'This cluster already has an operation in progress.';
 
 const PMM_SERVER_TITLE =
   "This is the PMM Server. Operations can't install or change databases here.";
@@ -838,6 +844,10 @@ export const NodesPage = () => {
   const omBase = useOmBase();
   const { canMutate } = useAuth();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
+  const [uninstalling, setUninstalling] = useState<{
+    clusterId: string;
+    clusterName: string;
+  } | null>(null);
   const { enqueueSnackbar } = useSnackbar();
   // In the URL rather than in state, so another page can link straight to a filtered
   // view (Automations' Install MongoDB opens this page on `unmonitored`).
@@ -875,6 +885,18 @@ export const NodesPage = () => {
     }
     return busy;
   }, [bootstrapRuns.data]);
+  const operations = useOmOperations();
+  // Clusters with an open operation, so a second trigger stays visible but disabled. Gated
+  // on the cluster id, not a row's executor, so it is not wrongly enabled on a sibling member.
+  const busyClusterIds = useMemo(() => {
+    const busy = new Set<string>();
+    for (const op of operations.data ?? []) {
+      if (op.cluster_id && isOperationBusy(op)) {
+        busy.add(op.cluster_id);
+      }
+    }
+    return busy;
+  }, [operations.data]);
   const isHostBusy = (row: OmHostRow) =>
     Boolean(row.executor_host && busyExecutorHosts.has(row.executor_host));
   const rows = useMemo(() => toHostRows(data), [data]);
@@ -1077,6 +1099,33 @@ export const NodesPage = () => {
                   </MenuItem>
                 </Box>
               </Tooltip>,
+              /* One Uninstall item per cluster the host's services belong to - a host can
+                 carry more than one, and Uninstall is cluster-scoped. Visible but disabled
+                 while that cluster already has an operation, like Install's busy state. */
+              ...uninstallableClustersOf(row.original).map((cluster) => {
+                const clusterBusy = busyClusterIds.has(cluster.cluster_id);
+                return (
+                  <Tooltip
+                    key={`uninstall-${cluster.cluster_id}`}
+                    title={clusterBusy ? CLUSTER_BUSY_TITLE : ''}
+                  >
+                    <Box component="span">
+                      <MenuItem
+                        disabled={clusterBusy}
+                        onClick={() => {
+                          setUninstalling({
+                            clusterId: cluster.cluster_id,
+                            clusterName: cluster.name,
+                          });
+                          close();
+                        }}
+                      >
+                        Uninstall {cluster.name}
+                      </MenuItem>
+                    </Box>
+                  </Tooltip>
+                );
+              }),
             ]}
           </RowOverflowMenu>
         )}
@@ -1296,6 +1345,13 @@ export const NodesPage = () => {
           setRowSelection({});
         }}
       />
+      {uninstalling && (
+        <UninstallDialog
+          clusterId={uninstalling.clusterId}
+          clusterName={uninstalling.clusterName}
+          onClose={() => setUninstalling(null)}
+        />
+      )}
     </Box>
   );
 };

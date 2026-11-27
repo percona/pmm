@@ -22,6 +22,7 @@ import type {
   OmClusterHealth,
   OmClusterType,
   OmHostDatabaseState,
+  OmOperationStatus,
   OmProcessRole,
   OmScanErrorCode,
   OmTopologyRunStatus,
@@ -432,6 +433,23 @@ export const BOOTSTRAP_STEP_NAME_LABEL: Record<string, string> = {
   remove_data: 'Removing data directories',
 };
 
+/**
+ * What each uninstall step does on a member, keyed by the step's name on the wire, in the
+ * order pmm-managed runs them. An uninstall step is an operation step
+ * (`GET /v1/om/operations/{id}`), not a bootstrap step, so it has its own names.
+ */
+export const UNINSTALL_STEP_LABEL: Record<string, string> = {
+  uninstall_stop: 'Stopping mongod',
+  uninstall_remove: 'Removing packages, files, logs and data',
+  uninstall_forget: 'Forgetting the service in the inventory',
+};
+
+/** An uninstall step's position in {@link UNINSTALL_STEP_LABEL}; a step it does not know sorts last. */
+export function uninstallStepOrder(step: string): number {
+  const index = Object.keys(UNINSTALL_STEP_LABEL).indexOf(step);
+  return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+}
+
 /** A step's human label, or its raw key when {@link BOOTSTRAP_STEP_NAME_LABEL} has none. */
 export function bootstrapStepLabel(name: string): string {
   // Not Object.hasOwn: the PMM app compiles this plugin against lib ES2020.
@@ -469,6 +487,39 @@ export const BOOTSTRAP_RUN_COLOR: Record<
   succeeded: 'success',
   failed: 'error',
   rolled_back: 'warning',
+};
+
+/** An operation's lifecycle status, as a short label: what the Uninstalls tab's chip says. */
+export const OPERATION_STATUS_LABEL: Record<OmOperationStatus, string> = {
+  checking: 'Checking',
+  awaiting_confirmation: 'Awaiting confirmation',
+  queued: 'Queued',
+  running: 'Running',
+  cancelling: 'Cancelling',
+  succeeded: 'Succeeded',
+  failed: 'Failed',
+  cancelled: 'Cancelled',
+  rolled_back: 'Rolled back',
+  abandoned: 'Abandoned',
+  external: 'External',
+};
+
+/** Same palette convention as {@link BOOTSTRAP_RUN_COLOR}. */
+export const OPERATION_STATUS_COLOR: Record<
+  OmOperationStatus,
+  ChipProps['color']
+> = {
+  checking: 'info',
+  awaiting_confirmation: 'default',
+  queued: 'info',
+  running: 'info',
+  cancelling: 'warning',
+  succeeded: 'success',
+  failed: 'error',
+  cancelled: 'default',
+  rolled_back: 'warning',
+  abandoned: 'warning',
+  external: 'default',
 };
 
 /**

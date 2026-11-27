@@ -35,6 +35,7 @@ import {
   scanErrorCode,
   serverRunning,
   toHostRows,
+  uninstallableClustersOf,
 } from '../src/inventory';
 import type {
   OmInventoryFreshness,
@@ -240,6 +241,61 @@ describe('toHostRows', () => {
 
   it('returns nothing while the estate is still loading', () => {
     expect(toHostRows(undefined)).toEqual([]);
+  });
+});
+
+describe('uninstallableClustersOf', () => {
+  const installed = (overrides: Partial<OmInventoryService> = {}) =>
+    service({
+      om_cluster_id: 'cluster-a',
+      cluster_origin: 'installed',
+      cluster_kind: 'replica_set',
+      replication_set: 'rs-a',
+      ...overrides,
+    });
+
+  it('offers one entry per installed replica-set cluster the host carries', () => {
+    const clusters = uninstallableClustersOf({
+      services: [installed(), installed({ service_id: 'svc-2' })],
+    });
+    expect(clusters).toEqual([{ cluster_id: 'cluster-a', name: 'rs-a' }]);
+  });
+
+  it('offers one item per distinct cluster on a host with several', () => {
+    const clusters = uninstallableClustersOf({
+      services: [
+        installed(),
+        installed({
+          service_id: 'svc-b',
+          om_cluster_id: 'cluster-b',
+          replication_set: 'rs-b',
+        }),
+      ],
+    });
+    expect(clusters.map((entry) => entry.cluster_id)).toEqual([
+      'cluster-a',
+      'cluster-b',
+    ]);
+  });
+
+  it('excludes imported, sharded and unmanaged services', () => {
+    expect(
+      uninstallableClustersOf({
+        services: [
+          installed({ cluster_origin: 'imported' }),
+          installed({ service_id: 's2', cluster_kind: 'sharded' }),
+          service({ service_id: 's3' }),
+        ],
+      })
+    ).toEqual([]);
+  });
+
+  it('falls back to the cluster id when a member carries no replica-set label', () => {
+    expect(
+      uninstallableClustersOf({
+        services: [installed({ replication_set: null })],
+      })
+    ).toEqual([{ cluster_id: 'cluster-a', name: 'cluster-a' }]);
   });
 });
 

@@ -34,19 +34,27 @@ import {
   BOOTSTRAP_RUN_COLOR,
   BOOTSTRAP_RUN_LABEL,
   OM_ROUTE_NODES,
+  OPERATION_STATUS_COLOR,
+  OPERATION_STATUS_LABEL,
 } from './constants';
 import { useAuth } from '@pmm-extensions/api';
 import { AdminAction } from './components/AdminAction';
 import { OmHeader } from './components/OmHeader';
 import { EmptyState } from './components/EmptyState';
 import { RunProgress } from './components/RunProgress';
+import { UninstallProgress } from './components/UninstallProgress';
 import { AutomationsScansTab } from './AutomationsScansTab';
 import { formatRunElapsed, runDurationSeconds } from './format';
 import { useOmBootstrapRuns } from './inventoryHooks';
+import {
+  isOperationProgressing,
+  useOmOperations,
+  useUninstallReport,
+} from './operationHooks';
 import { tabPanelProps, tabProps } from './tabA11y';
 import { useOmBase } from './useOmBase';
 import { useNow } from './useNow';
-import type { OmGetBootstrapRunResponse } from './types';
+import type { OmGetBootstrapRunResponse, OmOperation } from './types';
 import { OmError } from './components/OmError';
 
 /**
@@ -221,14 +229,180 @@ const AutomationsInstallsTab = () => {
   );
 };
 
+/**
+ * An uninstall's duration, counting up until it settles. Same reasoning as
+ * {@link RunDuration}: sorted on a number that stays null in flight.
+ */
+const UninstallDuration = ({ operation }: { operation: OmOperation }) => {
+  const now = useNow(
+    isOperationProgressing(operation) && !operation.finished_at
+  );
+  return operation.started_at ? (
+    <>{formatRunElapsed(operation.started_at, operation.finished_at, now)}</>
+  ) : null;
+};
+
+/**
+ * The cluster an uninstall removes, and how many nodes it covers. The operation row
+ * does not carry the name (its params are withheld, they can hold secrets), so both
+ * come from the redacted uninstall report - the same query the expanded row reads, so
+ * opening a row costs nothing more.
+ */
+const UninstallTarget = ({
+  operation,
+  part,
+}: {
+  operation: OmOperation;
+  part: 'cluster' | 'nodes';
+}) => {
+  const { data: report } = useUninstallReport(
+    operation.id,
+    true,
+    operation.version
+  );
+  if (part === 'nodes') {
+    return <>{report ? report.members.length : '—'}</>;
+  }
+  return <>{report?.cluster_name ?? report?.cluster_id ?? '—'}</>;
+};
+
+const UNINSTALL_COLUMNS: MRT_ColumnDef<OmOperation>[] = [
+  {
+    accessorFn: (row) => OPERATION_STATUS_LABEL[row.status] ?? row.status,
+    id: 'status',
+    header: 'Status',
+    Cell: ({ row: { original } }) => (
+      <Chip
+        size="small"
+        label={OPERATION_STATUS_LABEL[original.status] ?? original.status}
+        color={OPERATION_STATUS_COLOR[original.status] ?? 'default'}
+      />
+    ),
+  },
+  {
+    accessorFn: () => '',
+    id: 'cluster',
+    header: 'Cluster',
+    enableSorting: false,
+    Cell: ({ row: { original } }) => (
+      <UninstallTarget operation={original} part="cluster" />
+    ),
+  },
+  {
+    accessorFn: () => '',
+    id: 'nodes',
+    header: 'Nodes',
+    enableSorting: false,
+    Cell: ({ row: { original } }) => (
+      <UninstallTarget operation={original} part="nodes" />
+    ),
+  },
+  {
+    accessorKey: 'started_at',
+    header: 'Started',
+    size: 230,
+    muiTableBodyCellProps: { sx: { whiteSpace: 'nowrap' } },
+    Cell: ({ row: { original } }) =>
+      original.started_at ? <RunTime value={original.started_at} /> : null,
+  },
+  {
+    accessorFn: (row) =>
+      isOperationProgressing(row) || !row.started_at
+        ? null
+        : runDurationSeconds(row.started_at, row.finished_at),
+    id: 'duration',
+    header: 'Duration',
+    Cell: ({ row: { original } }) => <UninstallDuration operation={original} />,
+  },
+];
+
+/**
+ * Every uninstall this server has run, newest first, each expandable to the teardown's
+ * steps per node - the uninstall counterpart of {@link AutomationsInstallsTab}.
+ *
+ * Only uninstalls that were confirmed appear. One that was dismissed while still
+ * checking or awaiting confirmation never started, so it removed nothing and is not a
+ * thing that ran.
+ *
+ * `?expand=<operation_id>` unfolds that row on landing - the uninstall dialog navigates
+ * here with it set the moment the operator confirms, as an install does, so confirming
+ * goes straight to watching the teardown.
+ */
+const AutomationsUninstallsTab = () => {
+  const omBase = useOmBase();
+  const { data: operations, isLoading, error } = useOmOperations();
+  const rows = useMemo(
+    () =>
+      (operations ?? []).filter(
+        (operation) => operation.kind === 'uninstall' && operation.started_at
+      ),
+    [operations]
+  );
+  const [params] = useSearchParams();
+  const expandId = params.get('expand');
+
+  if (isLoading && !operations) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <OmError
+        placement="load"
+        title="Could not load uninstalls"
+        messages={(error as Error).message}
+      />
+    );
+  }
+
+  return (
+    <Stack gap={2}>
+      {rows.length === 0 ? (
+        <EmptyState
+          title="No uninstalls yet"
+          action={{ label: 'Go to Clusters', to: omBase }}
+        >
+          Every cluster Operations removes is recorded here, so you can watch
+          one happen and come back to what it did.
+        </EmptyState>
+      ) : (
+        <Table
+          tableName="om-automations-uninstalls"
+          columns={UNINSTALL_COLUMNS}
+          data={rows}
+          getRowId={(row) => row.id}
+          enableGlobalFilter={false}
+          enableColumnFilters={false}
+          enableHiding={false}
+          enablePagination={false}
+          enableStickyHeader
+          enableExpanding
+          initialState={
+            expandId ? { expanded: { [expandId]: true } } : undefined
+          }
+          renderDetailPanel={({ row }) => (
+            <UninstallProgress operation={row.original} />
+          )}
+        />
+      )}
+    </Stack>
+  );
+};
+
 /** The tabs, and the query-parameter values that address them. */
-const TABS = ['installs', 'scans'] as const;
+const TABS = ['installs', 'uninstalls', 'scans'] as const;
 
 type TabId = (typeof TABS)[number];
 
 const SUBTITLE: Record<TabId, string> = {
   installs:
     'Every MongoDB install this server has driven, newest first. Expand one to watch it live or review what it did.',
+  uninstalls:
+    'Every cluster this server has removed, newest first. Expand one to watch the teardown live or review what it did.',
   scans: 'Every pass Operations made over your nodes, and what each one found.',
 };
 
@@ -291,17 +465,20 @@ export const AutomationsPage = () => {
           {...tabProps('automations', 'installs')}
         />
         <Tab
+          value="uninstalls"
+          label="Uninstalls"
+          {...tabProps('automations', 'uninstalls')}
+        />
+        <Tab
           value="scans"
           label="Scans"
           {...tabProps('automations', 'scans')}
         />
       </Tabs>
       <Box {...tabPanelProps('automations', tab)}>
-        {tab === 'installs' ? (
-          <AutomationsInstallsTab />
-        ) : (
-          <AutomationsScansTab />
-        )}
+        {tab === 'installs' && <AutomationsInstallsTab />}
+        {tab === 'uninstalls' && <AutomationsUninstallsTab />}
+        {tab === 'scans' && <AutomationsScansTab />}
       </Box>
     </Box>
   );
