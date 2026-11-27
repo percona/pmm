@@ -1,0 +1,63 @@
+---
+templates:
+  - name: pmm_mongodb_cluster_no_active_mongos
+    version: 1
+    summary: MongoDB sharded cluster has no active mongos
+    # A down mongos loses its cluster_role and a lost host reports nothing, so a cluster's mongos
+    # are the enabled inventory services that had the mongos role in the last 7d.
+    # The inventory is read per pmm-managed instance, each scraped at its own time, and 15s in the
+    # past, since a scrape that is still being ingested shows only part of it.
+    expr: |-
+      (
+        count by (cluster, environment) (
+          max by (cluster, environment, service_id) (
+            tlast_over_time(pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0", cluster!=""}[5m] offset 15s)
+            == on (instance) group_left () (
+              max by (instance) (tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s))
+              > on () group_left () (max(tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s)) - 60)
+            )
+          )
+          and on (service_id) max by (service_id) (last_over_time(mongodb_up{cluster_role="mongos"}[7d] offset 15s))
+        )
+        unless on (cluster, environment) (
+          max by (cluster, environment, service_id) (
+            tlast_over_time(pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0", cluster!=""}[5m] offset 15s)
+            == on (instance) group_left () (
+              max by (instance) (tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s))
+              > on () group_left () (max(tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s)) - 60)
+            )
+          )
+          and on (service_id) (
+            max by (service_id) (
+              mongodb_up{cluster_role="mongos"} offset 15s
+              and last_over_time(mongodb_up{cluster_role="mongos"}[2m] offset 15s)
+            ) == 1
+          )
+        )
+      )
+      or on (cluster, environment) 0 * count by (cluster, environment) (
+        max by (cluster, environment, service_id) (
+          tlast_over_time(pmm_managed_inventory_agents{agent_type="mongodb_exporter", disabled="0", cluster!=""}[5m] offset 15s)
+          == on (instance) group_left () (
+            max by (instance) (tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s))
+            > on () group_left () (max(tlast_over_time(pmm_managed_inventory_agents[5m] offset 15s)) - 60)
+          )
+        )
+        and on (service_id) max by (service_id) (last_over_time(mongodb_up{cluster_role="mongos"}[7d] offset 15s))
+      )
+      or on () vector(0)
+    for: 1m
+    severity: critical
+    annotations:
+      summary: "MongoDB sharded cluster '{{ $labels.cluster }}'{{ if $labels.environment }} ({{ $labels.environment }}){{ end }} has no active mongos"
+      description: |-
+        None of the {{ $values.A.Value }} mongos routers monitored in cluster '{{ $labels.cluster }}'{{ if $labels.environment }} ({{ $labels.environment }}){{ end }} is responding.
+        Applications can't read from or write to the sharded cluster until at least one mongos is back.
+
+        Remediation steps:
+          1. Check that the mongos processes are running on their hosts and restart them.
+          2. Check that the mongos hosts and their PMM Clients are reachable.
+          3. Check that the mongos can reach the config server replica set; mongos exits or stops serving without it.
+          4. Review the mongos logs for startup or connection errors.
+
+        If this cluster was decommissioned, remove its mongos services from PMM and the alert resolves.

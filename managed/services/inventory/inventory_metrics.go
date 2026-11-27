@@ -71,7 +71,7 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 		mAgentsDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
 			"Inventory Agent",
-			[]string{"agent_id", "agent_type", "service_id", "service_name", "node_id", "node_name", "environment", "pmm_agent_id", "disabled", "version"},
+			[]string{"agent_id", "agent_type", "service_id", "service_name", "node_id", "node_name", "environment", "cluster", "pmm_agent_id", "disabled", "version"},
 			nil,
 		),
 		mNodesDesc: prom.NewDesc(
@@ -98,6 +98,87 @@ func getRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) stri
 		}
 	}
 	return ""
+}
+
+// scrapedEnvironmentAndCluster returns the environment and cluster labels that the metrics of
+// the service are scraped with: its Node, Service and Agent labels merged.
+func scrapedEnvironmentAndCluster(node *models.Node, service *models.Service, agent *models.Agent) (string, string, error) {
+	labels, err := models.MergeLabels(node, service, agent)
+	if err != nil {
+		return service.Environment, service.Cluster, err
+	}
+
+	return labels["environment"], labels["cluster"], nil
+}
+
+// agentMetric returns the pmm_managed_inventory_agents series of one agent, with an environment
+// and a cluster only for an agent of a service.
+func (i *InventoryMetrics) agentMetric(
+	ctx context.Context,
+	agent *models.Agent,
+	agents []*models.Agent,
+	nodes map[string]*models.Node,
+	services map[string]*models.Service,
+) Metric {
+	runsOnNodeID := ""
+	disabled := "0"
+	metricValue := float64(0)
+
+	pmmAgentID := pointer.GetString(agent.PMMAgentID)
+
+	if agent.Disabled {
+		disabled = "1"
+	}
+
+	if agent.AgentType == models.PMMAgentType {
+		if i.registry.IsConnected(agent.AgentID) {
+			metricValue = 1
+		}
+		runsOnNodeID = pointer.GetString(agent.RunsOnNodeID)
+	} else {
+		metricValue = float64(inventoryv1.AgentStatus_value[agent.Status])
+		runsOnNodeID = getRunsOnNodeIDByPMMAgentID(agents, pmmAgentID)
+	}
+
+	nodeName := ""
+	if node, ok := nodes[runsOnNodeID]; ok {
+		nodeName = node.NodeName
+	}
+
+	serviceID := pointer.GetString(agent.ServiceID)
+	serviceName := ""
+	environment := ""
+	cluster := ""
+
+	if service, ok := services[serviceID]; ok {
+		serviceName = service.ServiceName
+
+		// The Node is the one the Service belongs to, not the one the Agent runs on, which
+		// differs for remote monitoring.
+		var err error
+		environment, cluster, err = scrapedEnvironmentAndCluster(nodes[service.NodeID], service, agent)
+		if err != nil {
+			logger.Get(ctx).WithError(err).WithField("agent_id", agent.AgentID).
+				Warn("Failed to merge the labels of the agent, using the environment and cluster of its service.")
+		}
+	}
+
+	return Metric{
+		labels: []string{
+			agent.AgentID,
+			string(agent.AgentType),
+			serviceID,
+			serviceName,
+			runsOnNodeID,
+			nodeName,
+			environment,
+			cluster,
+			pmmAgentID,
+			disabled,
+			pointer.GetString(agent.Version),
+		},
+		value: metricValue,
+	}
 }
 
 // GetAgentMetrics retrieves agent metrics from InventoryMetrics.
@@ -127,61 +208,18 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 			return err
 		}
 
-		nodeMap := make(map[string]string, len(dbNodes))
+		nodes := make(map[string]*models.Node, len(dbNodes))
 		for _, node := range dbNodes {
-			nodeMap[node.NodeID] = node.NodeName
+			nodes[node.NodeID] = node
 		}
 
-		serviceMap := make(map[string]*models.Service, len(dbServices))
+		services := make(map[string]*models.Service, len(dbServices))
 		for _, service := range dbServices {
-			serviceMap[service.ServiceID] = service
+			services[service.ServiceID] = service
 		}
 
 		for _, agent := range dbAgents {
-			runsOnNodeID := ""
-			disabled := "0"
-			metricValue := float64(0)
-
-			pmmAgentID := pointer.GetString(agent.PMMAgentID)
-
-			if agent.Disabled {
-				disabled = "1"
-			}
-
-			if agent.AgentType == models.PMMAgentType {
-				if i.registry.IsConnected(agent.AgentID) {
-					metricValue = 1
-				}
-				runsOnNodeID = pointer.GetString(agent.RunsOnNodeID)
-			} else {
-				metricValue = float64(inventoryv1.AgentStatus_value[agent.Status])
-				runsOnNodeID = getRunsOnNodeIDByPMMAgentID(dbAgents, pmmAgentID)
-			}
-
-			nodeName := nodeMap[runsOnNodeID]
-			serviceID := pointer.GetString(agent.ServiceID)
-			serviceName := ""
-			environment := ""
-
-			if service, ok := serviceMap[serviceID]; ok {
-				serviceName = service.ServiceName
-				environment = service.Environment
-			}
-
-			agentMetricLabels := []string{
-				agent.AgentID,
-				string(agent.AgentType),
-				serviceID,
-				serviceName,
-				runsOnNodeID,
-				nodeName,
-				environment,
-				pmmAgentID,
-				disabled,
-				pointer.GetString(agent.Version),
-			}
-
-			metrics = append(metrics, Metric{labels: agentMetricLabels, value: metricValue})
+			metrics = append(metrics, i.agentMetric(ctx, agent, dbAgents, nodes, services))
 		}
 		return nil
 	})
