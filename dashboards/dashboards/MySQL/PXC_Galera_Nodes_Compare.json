@@ -16,14 +16,14 @@
                 "showIn": 0,
                 "tags": [
                     "pmm_annotation",
-                    "$service_name"
+                    "pmm_scope:service_name:mysql_galera_variables_info{wsrep_cluster_name=~\"${cluster:regex}\",service_name=~\"${service_name:regex}\"}"
                 ],
                 "target": {
                     "limit": 100,
                     "matchAny": true,
                     "tags": [
                         "pmm_annotation",
-                        "$service_name"
+                        "pmm_scope:service_name:mysql_galera_variables_info{wsrep_cluster_name=~\"${cluster:regex}\",service_name=~\"${service_name:regex}\"}"
                     ],
                     "type": "tags"
                 },
@@ -2379,7 +2379,8 @@
                 "tagValuesQuery": "",
                 "tagsQuery": "",
                 "type": "query",
-                "useTags": false
+                "useTags": false,
+                "allValue": ".+"
             },
             {
                 "allValue": ".*",

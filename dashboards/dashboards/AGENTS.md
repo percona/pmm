@@ -40,6 +40,7 @@ dashboards/dashboards/*.json
 - Design dashboards in the Grafana UI, then export the JSON
 - Use `misc/cleanup-dash.py` to normalize exported JSON before committing
 - Run `python3 -m unittest discover -s dashboards/misc -p 'test_*.py'` from the repo root after changing a dashboard or the cleanup script; it re-checks every dashboard in the tree
+- Run `python3 dashboards/misc/scope-annotations.py <file>` after changing a variable query or a "PMM Annotations" definition: a node or service variable whose All sends a pattern (`allValue` `.+` or `.*`) is tagged with a `pmm_scope:` tag built from its query, which pmm-managed expands into names. `test_scope_annotations.py` fails while any dashboard needs it
 - Follow the existing directory structure when adding dashboards for a new domain
 - Keep one dashboard per JSON file, named to match the dashboard title
 - Register new dashboards in `pmm-app/src/plugin.json` under the `includes` array

@@ -17,7 +17,7 @@
                 "tags": [
                     "pmm_annotation",
                     "$node_name",
-                    "$service_name"
+                    "pmm_scope:service_name:{__name__=~\"node_load1|process_start_time_seconds|pg_exporter_scrapes_total\", node_name=~\"${node_name:regex}\",service_name=~\"${service_name:regex}\"}"
                 ],
                 "target": {
                     "limit": 100,
@@ -25,7 +25,7 @@
                     "tags": [
                         "pmm_annotation",
                         "$node_name",
-                        "$service_name"
+                        "pmm_scope:service_name:{__name__=~\"node_load1|process_start_time_seconds|pg_exporter_scrapes_total\", node_name=~\"${node_name:regex}\",service_name=~\"${service_name:regex}\"}"
                     ],
                     "type": "tags"
                 },
@@ -5313,6 +5313,7 @@
             },
             {
                 "allFormat": "glob",
+                "allValue": ".+",
                 "current": {
                     "selected": false,
                     "text": "All",

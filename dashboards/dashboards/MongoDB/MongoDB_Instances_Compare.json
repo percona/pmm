@@ -16,14 +16,14 @@
                 "showIn": 0,
                 "tags": [
                     "pmm_annotation",
-                    "$service_name"
+                    "pmm_scope:service_name:mongodb_mongod_replset_my_state{environment=~\"${environment:regex}\",cluster=~\"${cluster:regex}\",set=~\"${replication_set:regex}\",service_name=~\"${service_name:regex}\"}"
                 ],
                 "target": {
                     "limit": 100,
                     "matchAny": true,
                     "tags": [
                         "pmm_annotation",
-                        "$service_name"
+                        "pmm_scope:service_name:mongodb_mongod_replset_my_state{environment=~\"${environment:regex}\",cluster=~\"${cluster:regex}\",set=~\"${replication_set:regex}\",service_name=~\"${service_name:regex}\"}"
                     ],
                     "type": "tags"
                 },
@@ -693,7 +693,7 @@
             "repeatDirection": "h",
             "targets": [
                 {
-                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\"}",
+                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\",environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}",
                     "format": "table",
                     "interval": "$interval",
                     "legendFormat": "{{set}}",
@@ -801,7 +801,7 @@
             "repeatDirection": "h",
             "targets": [
                 {
-                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\"}",
+                    "expr": "mongodb_mongod_replset_my_state{service_name=~\"$service_name\",environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}",
                     "format": "time_series",
                     "interval": "$interval",
                     "legendFormat": "",
@@ -2031,6 +2031,7 @@
                 "useTags": false
             },
             {
+                "allValue": ".*",
                 "current": {
                     "selected": true,
                     "text": [
@@ -2086,9 +2087,11 @@
                 "skipUrlSync": false,
                 "sort": 5,
                 "type": "query",
-                "useTags": false
+                "useTags": false,
+                "allValue": ".+"
             },
             {
+                "allValue": ".*",
                 "current": {
                     "selected": true,
                     "text": [
@@ -2147,7 +2150,8 @@
                 "skipUrlSync": false,
                 "sort": 5,
                 "type": "query",
-                "useTags": false
+                "useTags": false,
+                "allValue": ".+"
             }
         ]
     },

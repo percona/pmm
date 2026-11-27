@@ -56,6 +56,61 @@ func TestGetAuthUserWithoutCredentials(t *testing.T) {
 	assert.Equal(t, none, u.role)
 }
 
+func TestGetUserID(t *testing.T) {
+	t.Parallel()
+
+	newClient := func(t *testing.T, status int, body string) *Client {
+		t.Helper()
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/api/user" || r.Header.Get("Authorization") != "Bearer glsa_abc" {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			w.WriteHeader(status)
+			_, _ = fmt.Fprint(w, body)
+		}))
+		t.Cleanup(ts.Close)
+		return NewClient(strings.TrimPrefix(ts.URL, "http://"))
+	}
+	newContext := func(t *testing.T) context.Context {
+		t.Helper()
+		return metadata.NewIncomingContext(t.Context(), metadata.Pairs("Authorization", "Bearer glsa_abc"))
+	}
+
+	for name, tc := range map[string]struct {
+		body   string
+		userID int
+	}{
+		"a user":            {body: `{"id":7,"login":"ana"}`, userID: 7},
+		"a service account": {body: `{"id":0,"uid":"service-account:3"}`, userID: 0},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			userID, err := newClient(t, http.StatusOK, tc.body).GetUserID(newContext(t))
+			require.NoError(t, err)
+			assert.Equal(t, tc.userID, userID)
+		})
+	}
+
+	t.Run("a profile without an ID is an error", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := newClient(t, http.StatusOK, `{"login":"ana"}`).GetUserID(newContext(t))
+		require.EqualError(t, err, "missing user ID in Grafana response")
+	})
+
+	t.Run("a refused caller gets Grafana's error", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := newClient(t, http.StatusUnauthorized, `{"message":"Invalid API key"}`).GetUserID(newContext(t))
+		cErr, ok := errors.AsType[*clientError](err)
+		require.True(t, ok, "%v", err)
+		assert.Equal(t, http.StatusUnauthorized, cErr.Code)
+		assert.Equal(t, "Invalid API key", cErr.ErrorMessage)
+	})
+}
+
 func TestCreateServiceAccount(t *testing.T) {
 	t.Parallel()
 

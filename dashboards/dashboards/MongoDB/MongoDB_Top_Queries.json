@@ -33,8 +33,8 @@
                     "matchAny": true,
                     "tags": [
                         "pmm_annotation",
-                        "$service_name",
-                        "$node_name"
+                        "pmm_scope:service_name:mongodb_up{environment=~\"${environment:regex}\", cluster=~\"${cluster:regex}\", node_name=~\"${node_name:regex}\",service_name=~\"${service_name:regex}\"}",
+                        "pmm_scope:node_name:mongodb_up{environment=~\"${environment:regex}\", cluster=~\"${cluster:regex}\",node_name=~\"${node_name:regex}\"}"
                     ],
                     "type": "tags"
                 }

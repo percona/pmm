@@ -251,6 +251,8 @@ type cacheItem struct {
 type clientInterface interface {
 	getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error)
 	rotateSessionToken(ctx context.Context, authHeaders http.Header) ([]string, error)
+	getUserID(ctx context.Context, authHeaders http.Header) (int, error)
+	queryAnnotations(ctx context.Context, authHeaders http.Header, params url.Values) ([]json.RawMessage, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
@@ -499,6 +501,54 @@ func (s *AuthServer) shallAddLBACFilters(cleanedPath string) bool {
 func dropsFilters(cleanedPath string) bool {
 	dsUID, ok := strings.CutPrefix(cleanedPath, "/graph/api/v1/rule/test/")
 	return ok && strings.TrimSuffix(dsUID, "/") != "grafana"
+}
+
+// callerFilters authenticates the request with Grafana and returns the caller's LBAC filters and whether its scope tags may be expanded.
+func (s *AuthServer) callerFilters(ctx context.Context, req *http.Request, l *logrus.Entry) ([]string, bool, *authError) {
+	authHeaders := s.authHeaders(req)
+
+	if !s.accessControl.isEnabled() {
+		// Grafana refuses /api/user to anonymous visitors, who may still read annotations.
+		_, err := s.c.queryAnnotations(ctx, authHeaders, url.Values{"from": {"1"}, "to": {"1"}, "limit": {"1"}, "type": {"annotation"}})
+		if err != nil {
+			return nil, false, grafanaAuthError(err, l)
+		}
+		return nil, true, nil
+	}
+
+	// Only the user ID matters here. getAuthUser also looks up the role, which Grafana refuses
+	// for identities that aren't users, such as the renderer taking alert screenshots.
+	userID, err := s.c.getUserID(ctx, authHeaders)
+	if err != nil {
+		return nil, false, grafanaAuthError(err, l)
+	}
+
+	// Service account tokens and the renderer have no access roles, so their selectors never reach VictoriaMetrics.
+	if userID <= 0 {
+		return nil, false, nil
+	}
+
+	filters, err := s.getLBACFilters(ctx, userID)
+	if err != nil {
+		l.Errorf("Failed to get LBAC filters: %s", err)
+		return nil, false, &authError{code: codes.Internal, message: "Internal server error."}
+	}
+
+	return filters, true, nil
+}
+
+// grafanaAuthError returns the authError matching Grafana's refusal of a caller.
+func grafanaAuthError(err error, l *logrus.Entry) *authError {
+	cErr, ok := errors.AsType[*clientError](err)
+	switch {
+	case ok && cErr.Code == http.StatusUnauthorized:
+		return &authError{code: codes.Unauthenticated, message: cErr.ErrorMessage}
+	case ok && cErr.Code == http.StatusForbidden:
+		return &authError{code: codes.PermissionDenied, message: cErr.ErrorMessage}
+	default:
+		l.Errorf("Failed to authenticate with Grafana: %s", err)
+		return &authError{code: codes.Internal, message: "Internal server error."}
+	}
 }
 
 // getLBACFilters retrieves LBAC filters for the user.
