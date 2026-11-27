@@ -1099,7 +1099,7 @@ To set other PMM environment variables, add them to `pmmEnv`. For all available 
 |-----------|-------------|---------|
 | `replicas` | Number of PMM server replicas | `3` |
 | `image.repository` | PMM server image repository | `percona/pmm-server` |
-| `image.tag` | PMM server image tag | `3.6.0` |
+| `image.tag` | PMM server image tag | The chart's app version |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
 | `secret.create` | Create secret automatically | `false` |
 | `secret.name` | Name of the PMM secret | `pmm-secret` |
