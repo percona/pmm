@@ -101,8 +101,7 @@ func getRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) stri
 }
 
 // scrapedEnvironmentAndCluster returns the environment and cluster labels that the metrics of
-// the service are scraped with: its Node, Service and Agent labels merged. If they can't be
-// merged, it returns the service's own values along with the error.
+// the service are scraped with: its Node, Service and Agent labels merged.
 func scrapedEnvironmentAndCluster(node *models.Node, service *models.Service, agent *models.Agent) (string, string, error) {
 	labels, err := models.MergeLabels(node, service, agent)
 	if err != nil {
@@ -112,8 +111,8 @@ func scrapedEnvironmentAndCluster(node *models.Node, service *models.Service, ag
 	return labels["environment"], labels["cluster"], nil
 }
 
-// agentMetric returns the pmm_managed_inventory_agents series of one agent. Only an agent of a
-// service gets an environment and a cluster, since nothing reads them for an agent of a node.
+// agentMetric returns the pmm_managed_inventory_agents series of one agent, with an environment
+// and a cluster only for an agent of a service.
 func (i *InventoryMetrics) agentMetric(
 	ctx context.Context,
 	agent *models.Agent,
