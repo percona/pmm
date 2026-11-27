@@ -450,7 +450,7 @@ const file_management_v1_haproxy_proto_rawDesc = "" +
 	"\x0ftls_skip_verify\x18\x11 \x01(\bR\rtlsSkipVerify\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xce\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd8\x05\n" +
 	"\x1aUpdateHAProxyServiceParams\x12%\n" +
 	"\busername\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01H\x00R\busername\x88\x01\x01\x12%\n" +
 	"\bpassword\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01H\x01R\bpassword\x88\x01\x01\x12\x1b\n" +
@@ -461,9 +461,9 @@ const file_management_v1_haproxy_proto_rawDesc = "" +
 	"\venvironment\x18\x06 \x01(\tH\x05R\venvironment\x88\x01\x01\x12\x1d\n" +
 	"\acluster\x18\a \x01(\tH\x06R\acluster\x88\x01\x01\x12,\n" +
 	"\x0freplication_set\x18\b \x01(\tH\aR\x0ereplicationSet\x88\x01\x01\x126\n" +
-	"\rcustom_labels\x18\t \x01(\v2\x11.common.StringMapR\fcustomLabels\x12B\n" +
+	"\rcustom_labels\x18\t \x01(\v2\x11.common.StringMapR\fcustomLabels\x12L\n" +
 	"\fmetrics_mode\x18\n" +
-	" \x01(\x0e2\x1a.management.v1.MetricsModeH\bR\vmetricsMode\x88\x01\x01\x12+\n" +
+	" \x01(\x0e2\x1a.management.v1.MetricsModeB\b\xfaB\x05\x82\x01\x02\x10\x01H\bR\vmetricsMode\x88\x01\x01\x12+\n" +
 	"\x0ftls_skip_verify\x18\v \x01(\bH\tR\rtlsSkipVerify\x88\x01\x01\x122\n" +
 	"\x15skip_connection_check\x18\f \x01(\bR\x13skipConnectionCheckB\v\n" +
 	"\t_usernameB\v\n" +

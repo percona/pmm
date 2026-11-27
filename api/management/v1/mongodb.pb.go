@@ -851,7 +851,7 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"!enable_diagnostic_data_histograms\x18' \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xf0\x10\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\xfa\x10\n" +
 	"\x1aUpdateMongoDBServiceParams\x12\x1d\n" +
 	"\aaddress\x18\x01 \x01(\tH\x00R\aaddress\x88\x01\x01\x12\"\n" +
 	"\x04port\x18\x02 \x01(\rB\t\xfaB\x06*\x04\x10\x80\x80\x04H\x01R\x04port\x88\x01\x01\x12\x1b\n" +
@@ -874,8 +874,8 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\x17authentication_database\x18\x11 \x01(\tH\x0fR\x16authenticationDatabase\x88\x01\x01\x125\n" +
 	"\x14qan_mongodb_profiler\x18\x12 \x01(\bH\x10R\x12qanMongodbProfiler\x88\x01\x01\x125\n" +
 	"\x14qan_mongodb_mongolog\x18\x13 \x01(\bH\x11R\x12qanMongodbMongolog\x88\x01\x01\x12-\n" +
-	"\x10max_query_length\x18\x14 \x01(\x05H\x12R\x0emaxQueryLength\x88\x01\x01\x12B\n" +
-	"\fmetrics_mode\x18\x15 \x01(\x0e2\x1a.management.v1.MetricsModeH\x13R\vmetricsMode\x88\x01\x01\x12B\n" +
+	"\x10max_query_length\x18\x14 \x01(\x05H\x12R\x0emaxQueryLength\x88\x01\x01\x12L\n" +
+	"\fmetrics_mode\x18\x15 \x01(\x0e2\x1a.management.v1.MetricsModeB\b\xfaB\x05\x82\x01\x02\x10\x01H\x13R\vmetricsMode\x88\x01\x01\x12B\n" +
 	"\x12disable_collectors\x18\x16 \x01(\v2\x13.common.StringArrayR\x11disableCollectors\x12@\n" +
 	"\x11stats_collections\x18\x17 \x01(\v2\x13.common.StringArrayR\x10statsCollections\x120\n" +
 	"\x11collections_limit\x18\x18 \x01(\x05H\x14R\x10collectionsLimit\x88\x01\x01\x127\n" +

@@ -164,8 +164,8 @@ func (f *UpdateCommonFlags) connectionTimeout(value string) string {
 	return value
 }
 
-// credentials returns the credentials given by the flags or read from --credentials-source,
-// where only the values present in the file are changed.
+// credentials returns the credentials given by the flags or read from --credentials-source, where an empty value
+// leaves the setting unchanged; the flags with an empty value clear it.
 func (f *UpdateCommonFlags) credentials(username, password, agentPassword, source string) (*string, *string, *string, error) {
 	u, p, a := f.str("username", username), f.str("password", password), f.str("agent-password", agentPassword)
 	if !f.typed["credentials-source"] {

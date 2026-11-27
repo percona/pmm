@@ -116,13 +116,24 @@ func (s *ManagementService) UpdateService(ctx context.Context, req *managementv1
 	return res, nil
 }
 
-// findService finds a Service by ID or, if the value does not look like an ID, by name.
+// findService finds a Service by ID or, if there is no Service with that ID, by name.
 func (s *ManagementService) findService(q *reform.Querier, idOrName string) (*models.Service, error) {
-	if LooksLikeID(idOrName) {
-		return models.FindServiceByID(q, idOrName)
+	if !LooksLikeID(idOrName) {
+		return models.FindServiceByName(q, idOrName)
 	}
 
-	return models.FindServiceByName(q, idOrName)
+	service, err := models.FindServiceByID(q, idOrName)
+	if status.Code(err) != codes.NotFound {
+		return service, err
+	}
+
+	// A Service name can end with an ID, too.
+	service, nameErr := models.FindServiceByName(q, idOrName)
+	if status.Code(nameErr) == codes.NotFound {
+		return nil, err
+	}
+
+	return service, nameErr
 }
 
 // serviceUpdate applies a serviceChange to a Service and its Agents within one transaction.
@@ -196,9 +207,10 @@ func (u *serviceUpdate) run(ctx context.Context, serviceID string) error {
 	return err
 }
 
-// loadAgents loads the Agents of the Service and finds its exporter.
+// loadAgents loads and locks the Agents of the Service, so that the update doesn't write back stale values, and
+// finds its exporter.
 func (u *serviceUpdate) loadAgents() error {
-	agents, err := models.FindAgents(u.q, models.AgentFilters{ServiceID: u.service.ServiceID})
+	agents, err := models.FindAgents(u.q, models.AgentFilters{ServiceID: u.service.ServiceID, ForUpdate: true})
 	if err != nil {
 		return err
 	}
@@ -286,7 +298,7 @@ func (u *serviceUpdate) qanAgentChanges() ([]models.AgentType, []models.AgentTyp
 			continue
 		}
 
-		exists := slices.ContainsFunc(u.agents, func(a *models.Agent) bool { return a.AgentType == agentType })
+		exists := u.hasAgent(agentType)
 		switch {
 		case requested && !exists:
 			add = append(add, agentType)
@@ -314,7 +326,8 @@ func (u *serviceUpdate) changeQANAgents(ctx context.Context) error {
 		return err
 	}
 
-	if !u.c.skipConnectionCheck && (u.connectionChanged || len(add) != 0) {
+	checked := !u.c.skipConnectionCheck && (u.connectionChanged || len(add) != 0)
+	if checked {
 		err = u.s.cc.CheckConnectionToService(ctx, u.q, u.service, u.exporter)
 		if err != nil {
 			return err
@@ -326,19 +339,17 @@ func (u *serviceUpdate) changeQANAgents(ctx context.Context) error {
 		}
 	}
 
-	// Without the pg_stat_monitor extension pg_stat_statements is used instead, as when the Service is added.
-	if slices.Contains(add, models.QANPostgreSQLPgStatMonitorAgentType) {
+	// Without the pg_stat_monitor extension pg_stat_statements is used instead, as when the Service is added; only
+	// a connection check in this update tells whether the server has it.
+	keepsMonitor, ok := u.c.qanAgents[models.QANPostgreSQLPgStatMonitorAgentType]
+	if !ok {
+		keepsMonitor = u.hasAgent(models.QANPostgreSQLPgStatMonitorAgentType)
+	}
+
+	if checked && keepsMonitor {
 		pgsmVersion := u.exporter.PostgreSQLOptions.PGSMVersion
 		if pgsmVersion != nil && *pgsmVersion == "" {
-			u.warning = "Could not to detect the pg_stat_monitor extension on your system. Falling back to the pg_stat_statements."
-			add = slices.DeleteFunc(add, func(t models.AgentType) bool { return t == models.QANPostgreSQLPgStatMonitorAgentType })
-			hasStatements := slices.ContainsFunc(u.agents, func(a *models.Agent) bool {
-				return a.AgentType == models.QANPostgreSQLPgStatementsAgentType
-			})
-			if !hasStatements {
-				add = append(add, models.QANPostgreSQLPgStatementsAgentType)
-			}
-			remove = slices.DeleteFunc(remove, func(t models.AgentType) bool { return t == models.QANPostgreSQLPgStatementsAgentType })
+			add, remove = u.pgStatStatementsFallback(add, remove)
 		}
 	}
 
@@ -363,6 +374,30 @@ func (u *serviceUpdate) changeQANAgents(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// pgStatStatementsFallback replaces the pg_stat_monitor Agent that the Service gets or keeps with a pg_stat_statements one.
+func (u *serviceUpdate) pgStatStatementsFallback(add, remove []models.AgentType) ([]models.AgentType, []models.AgentType) {
+	u.warning = "Could not to detect the pg_stat_monitor extension on your system. Falling back to the pg_stat_statements."
+
+	monitor, statements := models.QANPostgreSQLPgStatMonitorAgentType, models.QANPostgreSQLPgStatementsAgentType
+
+	add = slices.DeleteFunc(add, func(t models.AgentType) bool { return t == monitor })
+	if u.hasAgent(monitor) {
+		remove = append(remove, monitor)
+	}
+
+	remove = slices.DeleteFunc(remove, func(t models.AgentType) bool { return t == statements })
+	if !u.hasAgent(statements) && !slices.Contains(add, statements) {
+		add = append(add, statements)
+	}
+
+	return add, remove
+}
+
+// hasAgent reports whether the Service has an Agent of the given type.
+func (u *serviceUpdate) hasAgent(agentType models.AgentType) bool {
+	return slices.ContainsFunc(u.agents, func(a *models.Agent) bool { return a.AgentType == agentType })
 }
 
 // cloudQANAgentTypes are the only QAN Agent types that adding a Service on a remote RDS or Azure Node creates. They

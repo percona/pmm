@@ -154,7 +154,7 @@ message UpdateMongoDBServiceParams {
   // Limit query length in QAN (zero: server-defined; -1: no limit).
   optional int32 max_query_length = 20;
   // Defines metrics flow model for this exporter.
-  optional MetricsMode metrics_mode = 21;
+  optional MetricsMode metrics_mode = 21 [(validate.rules).enum.defined_only = true];
   // Replace the list of collector names to disable in this exporter.
   common.StringArray disable_collectors = 22;
   // Replace the list of collections to get stats from. Can use * .

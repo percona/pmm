@@ -636,6 +636,23 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Empty(t, agents)
 	})
 
+	t.Run("FindAgentsForUpdateLocksTheRows", func(t *testing.T) {
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		defer func() { require.NoError(t, tx.Rollback()) }()
+
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{PMMAgentID: models.PMMServerAgentID, ForUpdate: true})
+		require.NoError(t, err)
+		require.NotEmpty(t, agents)
+
+		other, err := db.Begin()
+		require.NoError(t, err)
+		defer func() { require.NoError(t, other.Rollback()) }()
+		_, err = other.Exec(`SELECT 1 FROM agents WHERE agent_id = $1 FOR UPDATE NOWAIT`, agents[0].AgentID)
+		require.ErrorContains(t, err, "could not obtain lock")
+	})
+
 	t.Run("FindAgentsByOnNodeID", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)

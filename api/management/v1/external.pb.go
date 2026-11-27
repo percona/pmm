@@ -481,7 +481,7 @@ const file_management_v1_external_proto_rawDesc = "" +
 	"\x0ftls_skip_verify\x18\x13 \x01(\bR\rtlsSkipVerify\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf4\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfe\x05\n" +
 	"\x1bUpdateExternalServiceParams\x12%\n" +
 	"\busername\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01H\x00R\busername\x88\x01\x01\x12%\n" +
 	"\bpassword\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01H\x01R\bpassword\x88\x01\x01\x12\x1b\n" +
@@ -494,8 +494,8 @@ const file_management_v1_external_proto_rawDesc = "" +
 	"\x0freplication_set\x18\b \x01(\tH\aR\x0ereplicationSet\x88\x01\x01\x126\n" +
 	"\rcustom_labels\x18\t \x01(\v2\x11.common.StringMapR\fcustomLabels\x12\x19\n" +
 	"\x05group\x18\n" +
-	" \x01(\tH\bR\x05group\x88\x01\x01\x12B\n" +
-	"\fmetrics_mode\x18\v \x01(\x0e2\x1a.management.v1.MetricsModeH\tR\vmetricsMode\x88\x01\x01\x12+\n" +
+	" \x01(\tH\bR\x05group\x88\x01\x01\x12L\n" +
+	"\fmetrics_mode\x18\v \x01(\x0e2\x1a.management.v1.MetricsModeB\b\xfaB\x05\x82\x01\x02\x10\x01H\tR\vmetricsMode\x88\x01\x01\x12+\n" +
 	"\x0ftls_skip_verify\x18\f \x01(\bH\n" +
 	"R\rtlsSkipVerify\x88\x01\x01\x122\n" +
 	"\x15skip_connection_check\x18\r \x01(\bR\x13skipConnectionCheckB\v\n" +

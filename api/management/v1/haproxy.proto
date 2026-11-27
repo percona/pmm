@@ -88,7 +88,7 @@ message UpdateHAProxyServiceParams {
   // Replace all custom user-assigned labels for Service.
   common.StringMap custom_labels = 9;
   // Defines metrics flow model for this exporter.
-  optional MetricsMode metrics_mode = 10;
+  optional MetricsMode metrics_mode = 10 [(validate.rules).enum.defined_only = true];
   // Skip TLS certificate and hostname validation.
   optional bool tls_skip_verify = 11;
   // Skip connection check.

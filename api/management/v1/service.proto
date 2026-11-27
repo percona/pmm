@@ -313,7 +313,7 @@ service ManagementService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update a Service"
-      description: "Changes the settings of a Service and its Agents in place. Only the fields that are set are changed. The Service and the Agents that stay keep their IDs; QAN Agents that the change turns off are removed, and the ones it turns on are created with new IDs."
+      description: "Changes the settings of a Service and its Agents in place, given as the parameters of the Service's type. Only the fields that are set are changed. The Service and the Agents that stay keep their IDs; QAN Agents that the change turns off are removed, and the ones it turns on are created with new IDs."
     };
   }
 }

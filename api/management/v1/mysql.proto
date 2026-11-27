@@ -163,7 +163,7 @@ message UpdateMySQLServiceParams {
   // Use negative value to disable them.
   optional int32 tablestats_group_table_limit = 23;
   // Defines metrics flow model for this exporter.
-  optional MetricsMode metrics_mode = 24;
+  optional MetricsMode metrics_mode = 24 [(validate.rules).enum.defined_only = true];
   // Replace the list of collector names to disable in this exporter.
   common.StringArray disable_collectors = 25;
   // Log level for all Agents of the Service. LOG_LEVEL_UNSPECIFIED resets it to Auto.
