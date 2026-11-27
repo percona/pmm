@@ -201,8 +201,8 @@ func uninstallMarkerMatchRule(params uninstallParams) BlockingRule {
 	}
 }
 
-// uninstallPackageDriftRule refuses when a member's live owned-package set differs from the plan's, so a
-// teardown never removes packages the plan did not record; the operator adopts the live set to proceed.
+// uninstallPackageDriftRule blocks when a sealed package is no longer owned; a live superset is the
+// install's own metapackage family, which the removal purges itself and the plan's list never names.
 func uninstallPackageDriftRule(params uninstallParams) BlockingRule {
 	return func(ctx CheckContext) RuleResult {
 		for _, member := range params.Members {
@@ -210,7 +210,7 @@ func uninstallPackageDriftRule(params uninstallParams) BlockingRule {
 			if !ok {
 				continue
 			}
-			if !sameStringSet(member.Packages, live) {
+			if !sealedPackagesOwned(member.Packages, live) {
 				return RuleResult{Blocked: true, Reason: uninstallReasonDrift, Path: member.MemberID}
 			}
 		}
@@ -236,17 +236,15 @@ func stringListFact(value any) ([]string, bool) {
 	return list, true
 }
 
-// sameStringSet reports whether two string lists hold the same values, order and duplicates aside.
-func sameStringSet(a, b []string) bool {
-	counts := make(map[string]int, len(a))
-	for _, s := range a {
-		counts[s]++
+// sealedPackagesOwned reports whether every package the plan sealed is still among the host's owned
+// packages, so a live set that merely holds more (the install's own metapackage family) is not drift.
+func sealedPackagesOwned(sealed, owned []string) bool {
+	set := make(map[string]struct{}, len(owned))
+	for _, name := range owned {
+		set[name] = struct{}{}
 	}
-	for _, s := range b {
-		counts[s]--
-	}
-	for _, n := range counts {
-		if n != 0 {
+	for _, name := range sealed {
+		if _, ok := set[name]; !ok {
 			return false
 		}
 	}

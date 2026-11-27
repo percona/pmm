@@ -160,11 +160,18 @@ func TestUninstallReadinessAbsentMarkerIsNotMismatch(t *testing.T) {
 
 func TestUninstallReadinessBlocksPackageDrift(t *testing.T) {
 	ctx := passingUninstallContext(t)
-	ctx.SubjectFacts["member-a"][factOwnedPackages] = []any{"percona-server-mongodb", "percona-server-mongodb-tools"}
+	ctx.SubjectFacts["member-a"][factOwnedPackages] = []any{"percona-server-mongodb-tools"}
 	got := runBlockingRules(readinessSet(t), ctx)
 	assert.True(t, got.Blocked)
 	assert.Equal(t, uninstallReasonDrift, got.Reason)
 	assert.Equal(t, "member-a", got.Path)
+}
+
+func TestUninstallReadinessAcceptsOwnedSuperset(t *testing.T) {
+	ctx := passingUninstallContext(t)
+	ctx.SubjectFacts["member-a"][factOwnedPackages] = []any{"percona-server-mongodb", "percona-server-mongodb-tools"}
+	got := runBlockingRules(readinessSet(t), ctx)
+	assert.False(t, got.Blocked)
 }
 
 func TestUninstallReadinessAbsentPackagesIsNotDrift(t *testing.T) {
@@ -190,11 +197,14 @@ func TestStringListFact(t *testing.T) {
 	assert.False(t, ok)
 }
 
-func TestSameStringSet(t *testing.T) {
-	assert.True(t, sameStringSet([]string{"a", "b"}, []string{"b", "a"}))
-	assert.True(t, sameStringSet(nil, []string{}))
-	assert.False(t, sameStringSet([]string{"a"}, []string{"a", "b"}))
-	assert.False(t, sameStringSet([]string{"a", "a"}, []string{"a", "b"}))
+func TestSealedPackagesOwned(t *testing.T) {
+	assert.True(t, sealedPackagesOwned([]string{"a", "b"}, []string{"b", "a"}))
+	assert.True(t, sealedPackagesOwned(nil, []string{}))
+	// A live superset is the install's own package family, not drift.
+	assert.True(t, sealedPackagesOwned([]string{"a"}, []string{"a", "b"}))
+	// A sealed package the host no longer owns is drift.
+	assert.False(t, sealedPackagesOwned([]string{"a", "c"}, []string{"a", "b"}))
+	assert.False(t, sealedPackagesOwned([]string{"a"}, nil))
 }
 
 func TestUninstallKindLocksClusterAndMembers(t *testing.T) {

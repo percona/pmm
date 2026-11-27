@@ -108,7 +108,7 @@ func uninstallMemberReadiness(member uninstallMember, facts map[string]any, inst
 	if !canElevate {
 		return uninstallReasonCannotElevate
 	}
-	if live, ok := stringListFact(facts[factOwnedPackages]); ok && !sameStringSet(member.Packages, live) {
+	if live, ok := stringListFact(facts[factOwnedPackages]); ok && !sealedPackagesOwned(member.Packages, live) {
 		return uninstallReasonDrift
 	}
 	return uninstallReadinessReady

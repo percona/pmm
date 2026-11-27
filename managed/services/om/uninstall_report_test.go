@@ -60,7 +60,8 @@ func TestUninstallMemberReadiness(t *testing.T) {
 		{"marker mismatch", with(func(f map[string]any) { f[factMarkerRunID] = "run-other" }), uninstallReasonMarkerMismatch},
 		{"host unreachable", with(func(f map[string]any) { f[factHostReachable] = false }), uninstallReasonHostUnreachable},
 		{"cannot elevate", with(func(f map[string]any) { f[factCanElevate] = false }), uninstallReasonCannotElevate},
-		{"drift", with(func(f map[string]any) { f[factOwnedPackages] = []any{"percona-server-mongodb", "extra"} }), uninstallReasonDrift},
+		{"drift", with(func(f map[string]any) { f[factOwnedPackages] = []any{"percona-server-mongodb-tools"} }), uninstallReasonDrift},
+		{"owned superset is not drift", with(func(f map[string]any) { f[factOwnedPackages] = []any{"percona-server-mongodb", "percona-server-mongodb-tools"} }), uninstallReadinessReady},
 		{"reachable missing reads as checking", with(func(f map[string]any) { delete(f, factHostReachable) }), uninstallReadinessChecking},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -154,7 +155,7 @@ func TestGetUninstallReportDrifted(t *testing.T) {
 			factMarkerRunID:   "run-7",
 			factHostReachable: true,
 			factCanElevate:    true,
-			factOwnedPackages: []any{"percona-server-mongodb", "percona-server-mongodb-tools"},
+			factOwnedPackages: []any{"percona-server-mongodb-tools"},
 		}},
 		at: map[string]time.Time{"member-a": time.Now()},
 	}
