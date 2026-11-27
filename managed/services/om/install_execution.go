@@ -82,7 +82,10 @@ func (e *installStepExecutor) Run(ctx context.Context, _ StepPlan, idempotencyKe
 	}
 	switch run.Status {
 	case bootstrapRunSucceeded:
-		e.recordInstalledManifest(run)
+		err := e.recordInstalledManifest(run)
+		if err != nil {
+			return "", nil, err
+		}
 		return stepResult(StepResultOk, runID)
 	case bootstrapRunFailed, bootstrapRunRolledBack:
 		return stepResult(StepResultFailed, runID)
@@ -158,26 +161,25 @@ func (e *installStepExecutor) plannedRun() extensionsTriggerBootstrapRunRequest 
 }
 
 // recordInstalledManifest stores the repo, package set and control unit a succeeded bootstrap run
-// installed on the operation's params, best-effort, so the accepted state records what to later uninstall.
-func (e *installStepExecutor) recordInstalledManifest(run *extensionsBootstrapRun) {
+// installed on the operation's params, so the accepted state records what a later uninstall removes.
+func (e *installStepExecutor) recordInstalledManifest(run *extensionsBootstrapRun) error {
 	params := installParamsOf(e.op)
 	if params.Repo == run.Repo && params.ControlUnit == run.ControlUnit && slices.Equal(params.Packages, run.Packages) {
-		return
+		return nil
 	}
 	params.Repo = run.Repo
 	params.Packages = run.Packages
 	params.ControlUnit = run.ControlUnit
 	encoded, err := json.Marshal(params)
 	if err != nil {
-		e.l.Warnf("install %s: failed to encode the install manifest: %s", e.op.ID, err)
-		return
+		return fmt.Errorf("install %s: failed to encode the install manifest: %w", e.op.ID, err)
 	}
 	_, err = e.db.Exec("UPDATE om_operations SET params = $1 WHERE id = $2", encoded, e.op.ID)
 	if err != nil {
-		e.l.Warnf("install %s: failed to record the install manifest: %s", e.op.ID, err)
-		return
+		return fmt.Errorf("install %s: failed to record the install manifest: %w", e.op.ID, err)
 	}
 	e.op.Params = encoded
+	return nil
 }
 
 // installStepExecutorProvider hands the install step executor to an install operation and the pending
