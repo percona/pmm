@@ -60,15 +60,20 @@ func TestUninstallReadinessPasses(t *testing.T) {
 }
 
 func TestUninstallReadinessBlocksEachFailedBoolFact(t *testing.T) {
-	facts := []string{factMarkerPresent, factHostReachable, factCanElevate}
+	codes := map[string]string{
+		factMarkerPresent: uninstallReasonMarkerAbsent,
+		factHostReachable: uninstallReasonHostUnreachable,
+		factCanElevate:    uninstallReasonCannotElevate,
+	}
 	set := uninstallReadinessCheckSet()
-	for _, fact := range facts {
+	for fact, code := range codes {
 		t.Run(fact, func(t *testing.T) {
 			values := passingUninstallFacts()
 			values[fact] = false
 			got := runBlockingRules(set, CheckContext{Facts: values})
 			assert.True(t, got.Blocked)
 			assert.Equal(t, fact, got.Path)
+			assert.Equal(t, code, got.Reason)
 		})
 	}
 }

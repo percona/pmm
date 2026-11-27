@@ -36,6 +36,14 @@ const (
 	factBinaryVersion = "uninstall_check.binary_version"
 )
 
+// Uninstall readiness reason-codes stored in om_operations.error_code when a rule blocks, for a
+// client to render. marker_mismatch and drift arrive with an op-scoped check set that reads the plan.
+const (
+	uninstallReasonMarkerAbsent    = "marker_absent"
+	uninstallReasonHostUnreachable = "host_unreachable"
+	uninstallReasonCannotElevate   = "cannot_elevate"
+)
+
 // uninstallFactMaxAge bounds how old an uninstall-readiness fact may be before it reads as missing.
 const uninstallFactMaxAge = 10 * time.Minute
 
@@ -163,9 +171,9 @@ func uninstallReadinessCheckSet() CheckSet {
 			{Name: factBinaryVersion, MaxAge: uninstallFactMaxAge},
 		},
 		Rules: []BlockingRule{
-			boolFactRule(factMarkerPresent, "a member host has no PMM install marker, so it is not ours to remove"),
-			boolFactRule(factHostReachable, "a member host is unreachable, so the teardown cannot finish"),
-			boolFactRule(factCanElevate, "a member host cannot elevate to root, so the destructive removal is blocked"),
+			boolFactRule(factMarkerPresent, uninstallReasonMarkerAbsent),
+			boolFactRule(factHostReachable, uninstallReasonHostUnreachable),
+			boolFactRule(factCanElevate, uninstallReasonCannotElevate),
 		},
 	}
 }
