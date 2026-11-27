@@ -23,6 +23,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -438,6 +439,36 @@ func TestConvertTemplate(t *testing.T) {
 		assert.Empty(t, dto.Queries)
 		assert.Empty(t, dto.Expressions)
 		assert.Empty(t, dto.Condition)
+	})
+
+	t.Run("sets created_at only for stored templates", func(t *testing.T) {
+		t.Parallel()
+
+		const yaml = `templates:
+  - name: pmm_created_at_test
+    version: 1
+    summary: Created at
+    expr: up == 0
+    for: 5m
+    severity: warning
+    annotations:
+      summary: s
+      description: d
+`
+
+		tm := parse(t, yaml)
+		require.True(t, tm.CreatedAt.IsZero())
+
+		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm, nil)
+		require.NoError(t, err)
+		assert.Nil(t, dto.CreatedAt, "built-in and file templates are never stored and have no creation time")
+
+		created := time.Date(2026, 11, 25, 10, 30, 0, 0, time.UTC)
+		tm.CreatedAt = created
+		dto, err = convertTemplate(logrus.WithField("test", t.Name()), tm, nil)
+		require.NoError(t, err)
+		require.NotNil(t, dto.CreatedAt)
+		assert.Equal(t, created, dto.CreatedAt.AsTime())
 	})
 
 	t.Run("rejects unparseable YAML at parse time", func(t *testing.T) {
