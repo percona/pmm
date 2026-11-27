@@ -182,20 +182,25 @@ func (e *installStepExecutor) recordInstalledManifest(run *extensionsBootstrapRu
 	return nil
 }
 
-// installStepExecutorProvider hands the install step executor to an install operation and the pending
-// stub to any other kind, which has no steps yet.
+// installStepExecutorProvider hands the install step executor to an install operation, the uninstall
+// executor to an uninstall operation, and the pending stub to any other kind.
 type installStepExecutorProvider struct {
 	db        *reform.DB
-	bootstrap bootstrapRunner
+	bootstrap *bootstrapClient
+	forgetter serviceForgetter
+	reader    factObservationReader
 	l         *logrus.Entry
 }
 
-// Executor returns the install executor for an install operation, else the pending stub.
+// Executor returns the install or uninstall executor for its operation, else the pending stub.
 //
 //nolint:ireturn
 func (p installStepExecutorProvider) Executor(op *models.OmOperation, kind OperationKind) (StepExecutor, error) {
-	if kind.Kind == installKind {
+	switch kind.Kind {
+	case installKind:
 		return &installStepExecutor{db: p.db, bootstrap: p.bootstrap, op: op, l: p.l}, nil
+	case uninstallKind:
+		return &uninstallStepExecutor{db: p.db, bootstrap: p.bootstrap, forgetter: p.forgetter, reader: p.reader, op: op, l: p.l}, nil
 	}
 	return pendingStepExecutor{}, nil
 }

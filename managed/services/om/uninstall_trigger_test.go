@@ -130,12 +130,24 @@ func TestTriggerUninstallSealsRemovalPlan(t *testing.T) {
 	clusterID := lockCluster(t, db.Querier)
 	opID := lockOperation(t, db.Querier, clusterID)
 
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{NodeName: "node00-seal"})
+	require.NoError(t, err)
+	installOpID := uuid.New().String()
+	installParamsRaw, err := json.Marshal(installParams{OS: "ubuntu"})
+	require.NoError(t, err)
+	require.NoError(t, db.Insert(&models.OmOperation{
+		ID: installOpID, Kind: installKind, KindVersion: 1, ClusterID: &clusterID,
+		Status: models.OmOperationSucceeded, Trigger: models.OmTriggerUser, Principal: []byte(`{}`), Params: installParamsRaw,
+	}))
+	_, err = db.Exec("UPDATE om_clusters SET created_by = $1 WHERE id = $2", installOpID, clusterID)
+	require.NoError(t, err)
+
 	rs := &models.OmReplicaSet{ID: uuid.New().String(), ClusterID: clusterID, Name: "rs0", Role: models.OmReplicaSetRolePlain}
 	require.NoError(t, db.Insert(rs))
 	rsMemberID := int32(0)
 	member := &models.OmClusterMember{
 		ID: uuid.New().String(), ClusterID: clusterID, ReplicaSetRef: &rs.ID, Process: models.OmMemberMongod,
-		Host: "node00", RSMemberID: &rsMemberID, State: models.OmMemberAccepted, AddedByOperation: opID,
+		Host: "node00", NodeID: &node.NodeID, RSMemberID: &rsMemberID, State: models.OmMemberAccepted, AddedByOperation: opID,
 	}
 	require.NoError(t, db.Insert(member))
 	insertUninstallMarker(t, db, clusterID, "run-77")
@@ -182,11 +194,13 @@ func TestTriggerUninstallSealsRemovalPlan(t *testing.T) {
 	assert.Equal(t, clusterID, params.ClusterID)
 	assert.Equal(t, "rs0", params.ClusterName)
 	assert.Equal(t, "run-77", params.InstallRunID)
+	assert.Equal(t, "ubuntu", params.OS)
 	require.Len(t, params.Members, 1)
 
 	sealed := params.Members[0]
 	assert.Equal(t, member.ID, sealed.MemberID)
 	assert.Equal(t, "node00", sealed.Host)
+	assert.Equal(t, node.NodeID, sealed.NodeID)
 	assert.Equal(t, []string{"percona-server-mongodb"}, sealed.Packages)
 	assert.Equal(t, "/var/lib/mongodb", sealed.DataPath)
 	assert.Equal(t, "/etc/mongod.conf", sealed.ConfigFile)

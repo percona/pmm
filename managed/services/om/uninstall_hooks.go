@@ -17,7 +17,10 @@ package om
 
 import (
 	"errors"
+	"fmt"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
@@ -38,6 +41,10 @@ func uninstallOnEnterRunning(tx *reform.TX, op *models.OmOperation) error {
 func uninstallOnSucceeded(tx *reform.TX, op *models.OmOperation) error {
 	params := uninstallParamsOf(op)
 	err := settleClusterRecords(tx, op, params.ClusterID)
+	if err != nil {
+		return err
+	}
+	err = deregisterClusterServices(tx, params.ClusterID)
 	if err != nil {
 		return err
 	}
@@ -70,7 +77,35 @@ func uninstallOnTerminal(tx *reform.TX, op *models.OmOperation) error {
 	if err != nil {
 		return err
 	}
+	err = deregisterClusterServices(tx, params.ClusterID)
+	if err != nil {
+		return err
+	}
 	return tombstoneCluster(tx, op, params.ClusterID)
+}
+
+// deregisterClusterServices removes the inventory services and exporters install registered for the
+// cluster's live members, so a removed cluster leaves no monitoring behind; it is idempotent.
+func deregisterClusterServices(tx *reform.TX, clusterID string) error {
+	rows, err := tx.SelectAllFrom(models.OmClusterMemberTable,
+		"WHERE cluster_id = $1 AND removed_at IS NULL AND service_id IS NOT NULL", clusterID)
+	if err != nil {
+		return err
+	}
+	for _, row := range rows {
+		serviceID := row.(*models.OmClusterMember).ServiceID //nolint:forcetypeassert
+		if serviceID == nil {
+			continue
+		}
+		err = models.RemoveService(tx.Querier, *serviceID, models.RemoveCascade)
+		if err != nil {
+			if status.Code(err) == codes.NotFound {
+				continue
+			}
+			return fmt.Errorf("failed to deregister service %s: %w", *serviceID, err)
+		}
+	}
+	return nil
 }
 
 // settleClusterRecords settles the cluster's owned items (clearing before_secret_id to lift the

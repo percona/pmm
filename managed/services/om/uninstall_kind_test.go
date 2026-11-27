@@ -99,13 +99,16 @@ func TestUninstallKindLocksClusterAndMembers(t *testing.T) {
 	}
 }
 
-func TestUninstallKindStepsStopThenRemovePerMember(t *testing.T) {
+func TestUninstallKindStepsStopRemoveThenForgetPerMember(t *testing.T) {
 	steps := UninstallKind().Steps(uninstallOp(t, sampleUninstallParams()))
-	require.Len(t, steps, 4)
+	require.Len(t, steps, 6)
 	assert.Equal(t, uninstallStopStep, steps[0].Step)
 	assert.Equal(t, uninstallRemoveStep, steps[1].Step)
+	assert.Equal(t, uninstallForgetStep, steps[2].Step)
 	assert.Equal(t, "member-a", steps[0].TargetID)
-	assert.Equal(t, "member-b", steps[2].TargetID)
+	assert.Equal(t, "member-a", steps[2].TargetID)
+	assert.Equal(t, uninstallStopStep, steps[3].Step)
+	assert.Equal(t, "member-b", steps[3].TargetID)
 	for _, step := range steps {
 		assert.Equal(t, models.OmStepTargetMember, step.TargetKind)
 		assert.Equal(t, uninstallHostPhase, step.Phase)

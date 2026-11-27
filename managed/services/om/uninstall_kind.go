@@ -42,18 +42,28 @@ const uninstallFactMaxAge = 10 * time.Minute
 // uninstallDeadline bounds how long an uninstall may stay queued and running before it is timed out.
 const uninstallDeadline = 30 * time.Minute
 
-// Uninstall step phase and names: a stop then a path-safe remove run on each member host.
+// Uninstall step phase and names: a stop then a path-safe remove run on each member host, then the member's
+// service is forgotten from om_inventory so install no longer sees a MongoDB service on the emptied host.
 const (
 	uninstallHostPhase   = "host"
 	uninstallStopStep    = "uninstall_stop"
 	uninstallRemoveStep  = "uninstall_remove"
+	uninstallForgetStep  = "uninstall_forget"
 	uninstallConfirmVerb = "REMOVE"
 )
+
+// uninstallStepsPerMember is how many steps a teardown runs on each member: a stop, a remove, then a forget.
+const uninstallStepsPerMember = 3
+
+// uninstallConfirmShortIDLen bounds the operation-id prefix the confirm phrase shows to disambiguate
+// non-unique cluster names.
+const uninstallConfirmShortIDLen = 6
 
 // uninstallMember is one member's sealed removal plan: what a teardown deletes on that host.
 type uninstallMember struct {
 	MemberID    string   `json:"member_id"`
 	Host        string   `json:"host"`
+	NodeID      string   `json:"node_id,omitempty"`
 	Packages    []string `json:"packages,omitempty"`
 	DataPath    string   `json:"data_path,omitempty"`
 	ConfigFile  string   `json:"config_file,omitempty"`
@@ -69,6 +79,7 @@ type uninstallParams struct {
 	ClusterID    string            `json:"cluster_id"`
 	ClusterName  string            `json:"cluster_name"`
 	InstallRunID string            `json:"install_run_id"`
+	OS           string            `json:"os,omitempty"`
 	Members      []uninstallMember `json:"members"`
 }
 
@@ -87,8 +98,8 @@ func uninstallParamsOf(op *models.OmOperation) uninstallParams {
 func uninstallConfirmPhrase(op *models.OmOperation) string {
 	params := uninstallParamsOf(op)
 	shortID := op.ID
-	if len(shortID) > 6 {
-		shortID = shortID[:6]
+	if len(shortID) > uninstallConfirmShortIDLen {
+		shortID = shortID[:uninstallConfirmShortIDLen]
 	}
 	return fmt.Sprintf("%s %s %s", uninstallConfirmVerb, params.ClusterName, shortID)
 }
@@ -115,11 +126,12 @@ func UninstallKind() OperationKind {
 		},
 		Steps: func(op *models.OmOperation) []StepPlan {
 			params := uninstallParamsOf(op)
-			plans := make([]StepPlan, 0, len(params.Members)*2)
+			plans := make([]StepPlan, 0, len(params.Members)*uninstallStepsPerMember)
 			for _, member := range params.Members {
 				plans = append(plans,
 					StepPlan{Phase: uninstallHostPhase, Step: uninstallStopStep, TargetKind: models.OmStepTargetMember, TargetID: member.MemberID},
 					StepPlan{Phase: uninstallHostPhase, Step: uninstallRemoveStep, TargetKind: models.OmStepTargetMember, TargetID: member.MemberID},
+					StepPlan{Phase: uninstallHostPhase, Step: uninstallForgetStep, TargetKind: models.OmStepTargetMember, TargetID: member.MemberID},
 				)
 			}
 			return plans

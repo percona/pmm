@@ -154,6 +154,10 @@ func sealUninstallPlan(tx *reform.TX, cluster *models.OmCluster) ([]byte, error)
 	if err != nil {
 		return nil, err
 	}
+	os, err := clusterInstallOS(tx, cluster)
+	if err != nil {
+		return nil, err
+	}
 	manifest, err := acceptedMembers(tx, cluster)
 	if err != nil {
 		return nil, err
@@ -170,6 +174,9 @@ func sealUninstallPlan(tx *reform.TX, cluster *models.OmCluster) ([]byte, error)
 	for _, row := range memberRows {
 		member := row.(*models.OmClusterMember) //nolint:forcetypeassert
 		plan := uninstallMember{MemberID: member.ID, Host: member.Host, MarkerPath: uninstallMarkerPath}
+		if member.NodeID != nil {
+			plan.NodeID = *member.NodeID
+		}
 		accepted, ok := manifest[member.ID]
 		if ok {
 			plan.Packages = accepted.Install.Packages
@@ -186,12 +193,30 @@ func sealUninstallPlan(tx *reform.TX, cluster *models.OmCluster) ([]byte, error)
 		ClusterID:    cluster.ID,
 		ClusterName:  cluster.Name,
 		InstallRunID: runID,
+		OS:           os,
 		Members:      members,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to seal the uninstall plan: %s", err)
 	}
 	return params, nil
+}
+
+// clusterInstallOS reads the host OS the install operation recorded, so the teardown's package removal
+// targets the right package manager without an inventory lookup.
+func clusterInstallOS(tx *reform.TX, cluster *models.OmCluster) (string, error) {
+	if cluster.CreatedBy == "" {
+		return "", nil
+	}
+	row, err := tx.FindByPrimaryKeyFrom(models.OmOperationTable, cluster.CreatedBy)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return "", nil
+		}
+		return "", status.Errorf(codes.Internal, "failed to read the install operation: %s", err)
+	}
+	op := row.(*models.OmOperation) //nolint:forcetypeassert
+	return installParamsOf(op).OS, nil
 }
 
 // installMarkerRunID reads the run id from the cluster's install marker owned item; a cluster with no
