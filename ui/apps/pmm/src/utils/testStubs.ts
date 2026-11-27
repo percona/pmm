@@ -1,3 +1,4 @@
+import { type Dump, DumpStatus } from 'types/dump.types';
 import {
   QueryData,
   RawQueryData,
@@ -175,4 +176,14 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
 export const TEST_RAW_MONGO_DB_QUERY_DATA: RawQueryData = {
   ...TEST_MONGO_DB_QUERY_DATA,
   queryExecutionDuration: '10s',
+};
+
+export const TEST_DUMP: Dump = {
+  dumpId: 'dump-1',
+  status: DumpStatus.Success,
+  serviceNames: ['mysql-1', 'pg-1'],
+  startTime: '2026-10-26T18:39:00Z',
+  endTime: '2026-10-27T06:39:00Z',
+  createdAt: '2026-10-27T06:40:00Z',
+  encrypted: false,
 };

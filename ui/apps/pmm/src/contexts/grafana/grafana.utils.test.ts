@@ -6,6 +6,8 @@ describe('isMigratedPage', () => {
     '/graph/advisors',
     '/graph/advisors/insights',
     '/graph/pmm-database-checks/failed-checks',
+    '/graph/pmm-dump',
+    '/graph/pmm-dump/new',
   ])('treats %s as migrated', (src) => {
     expect(isMigratedPage(src)).toBe(true);
   });

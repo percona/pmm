@@ -1,0 +1,311 @@
+import { QueryClient } from '@tanstack/react-query';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
+import { deleteDumps, getDumpLogs, listDumps } from 'api/dump';
+import { type Dump, DumpStatus } from 'types/dump.types';
+import { TEST_DUMP, TEST_USER_VIEWER } from 'utils/testStubs';
+import {
+  wrapWithQueryProvider,
+  wrapWithSnackbarProvider,
+} from 'utils/testUtils';
+import { TestWrapper } from 'utils/testWrapper';
+import { DumpPage } from './DumpPage';
+
+vi.mock('api/dump');
+
+const dump = (dumpId: string, overrides: Partial<Dump> = {}): Dump => ({
+  ...TEST_DUMP,
+  dumpId,
+  ...overrides,
+});
+
+const READY = dump('ready', { createdAt: '2026-10-27T06:40:00Z' });
+const CREATING = dump('creating', {
+  status: DumpStatus.InProgress,
+  serviceNames: [],
+  createdAt: '2026-10-27T07:00:00Z',
+});
+const FAILED = dump('failed', {
+  status: DumpStatus.Error,
+  createdAt: '2026-10-26T06:00:00Z',
+});
+
+const renderPage = (
+  dumps: Dump[] | Error,
+  userContext?: Parameters<typeof TestWrapper>[0]['userContext']
+) => {
+  if (dumps instanceof Error) {
+    vi.mocked(listDumps).mockRejectedValue(dumps);
+  } else {
+    vi.mocked(listDumps).mockResolvedValue({ dumps });
+  }
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  render(
+    <TestWrapper userContext={userContext}>
+      {wrapWithQueryProvider(wrapWithSnackbarProvider(<DumpPage />), client)}
+    </TestWrapper>
+  );
+
+  return { client };
+};
+
+const row = (dumpId: string) => screen.findByTestId(`dump-row-${dumpId}`);
+
+const selectRows = async (...dumpIds: string[]) => {
+  for (const dumpId of dumpIds) {
+    fireEvent.click(
+      within(await row(dumpId)).getByRole('checkbox', {
+        name: 'Toggle select row',
+      })
+    );
+  }
+};
+
+const openRowAction = async (dumpId: string, name: string) => {
+  fireEvent.click(
+    within(await row(dumpId)).getByRole('button', { name: 'Row Actions' })
+  );
+  fireEvent.click(await screen.findByRole('menuitem', { name }));
+};
+
+const hover = async (element: HTMLElement) => {
+  fireEvent.mouseOver(element.parentElement as HTMLElement);
+  return screen.findByRole('tooltip');
+};
+
+describe('DumpPage', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-27T08:00:00Z'));
+    vi.mocked(deleteDumps).mockResolvedValue({});
+    vi.mocked(getDumpLogs).mockResolvedValue({ logs: [], end: true });
+  });
+
+  afterEach(() => vi.useRealTimers());
+
+  it('shows the empty state when there are no datasets', async () => {
+    renderPage([]);
+
+    expect(
+      await screen.findByRole('heading', { name: 'No datasets yet' })
+    ).toBeVisible();
+    expect(screen.queryByTestId(/^dump-row-/)).not.toBeInTheDocument();
+  });
+
+  it('lists datasets with status, services, data window and created time', async () => {
+    renderPage([READY, CREATING]);
+
+    const ready = await row('ready');
+    expect(ready).toHaveTextContent('Ready');
+    expect(ready).toHaveTextContent('mysql-1');
+    expect(ready).toHaveTextContent('Oct 26, 18:39 – Oct 27, 06:39');
+    expect(ready).toHaveTextContent('1 hour ago');
+    expect(await row('creating')).toHaveTextContent('All services');
+  });
+
+  it('orders datasets newest first by default', async () => {
+    renderPage([FAILED, READY, CREATING]);
+    await row('ready');
+
+    expect(
+      screen
+        .getAllByTestId(/^dump-row-/)
+        .map((element) => element.dataset.testid)
+    ).toEqual(['dump-row-creating', 'dump-row-ready', 'dump-row-failed']);
+  });
+
+  it('disables Download with a reason until the dataset is ready', async () => {
+    renderPage([CREATING]);
+    const download = within(await row('creating')).getByTestId(
+      'dump-download-creating'
+    );
+
+    expect(download).toBeDisabled();
+    expect(await hover(download)).toHaveTextContent(
+      'Available once the dataset is ready'
+    );
+  });
+
+  it('warns that deleting a dataset being created does not stop its export', async () => {
+    renderPage([CREATING]);
+
+    await openRowAction('creating', 'Delete');
+
+    expect(await screen.findByTestId('dump-delete-modal')).toHaveTextContent(
+      "Deleting a dataset that is still being created doesn't stop its export."
+    );
+  });
+
+  it('opens the logs from the Failed status', async () => {
+    renderPage([FAILED]);
+
+    fireEvent.click(
+      within(await row('failed')).getByRole('button', {
+        name: 'See what went wrong',
+      })
+    );
+
+    expect(await screen.findByTestId('dump-logs-modal')).toBeVisible();
+  });
+
+  it('counts only datasets still in the list as selected', async () => {
+    const { client } = renderPage([READY, FAILED]);
+    await selectRows('ready');
+    expect(screen.getByTestId('dump-selected-count')).toHaveTextContent(
+      '1 selected'
+    );
+
+    act(() => client.setQueryData(['dumps:list'], { dumps: [FAILED] }));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('dump-selected-count')
+      ).not.toBeInTheDocument()
+    );
+  });
+
+  it('clears the select-all checkbox once selected datasets leave the list', async () => {
+    const { client } = renderPage([READY, FAILED, CREATING]);
+    await selectRows('ready');
+
+    act(() =>
+      client.setQueryData(['dumps:list'], { dumps: [FAILED, CREATING] })
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('checkbox', { name: 'Toggle select all' })
+      ).toHaveAttribute('data-indeterminate', 'false')
+    );
+  });
+
+  it('keeps the other selected datasets after deleting one from its menu', async () => {
+    renderPage([READY, FAILED, CREATING]);
+    await selectRows('ready', 'failed');
+
+    await openRowAction('creating', 'Delete');
+    vi.mocked(listDumps).mockResolvedValue({ dumps: [READY, FAILED] });
+    fireEvent.click(
+      within(await screen.findByTestId('dump-delete-modal')).getByTestId(
+        'dump-delete-modal-confirm'
+      )
+    );
+
+    expect(
+      await screen.findByText('Dataset deleted successfully.')
+    ).toBeVisible();
+    expect(screen.getByTestId('dump-selected-count')).toHaveTextContent(
+      '2 selected'
+    );
+  });
+
+  it('keeps naming the datasets while the Delete dialog closes', async () => {
+    renderPage([READY, FAILED]);
+    await selectRows('ready', 'failed');
+    fireEvent.click(screen.getByTestId('dump-delete-selected'));
+    const modal = await screen.findByTestId('dump-delete-modal');
+
+    fireEvent.click(within(modal).getByTestId('dump-delete-modal-cancel'));
+
+    expect(modal).toBeInTheDocument();
+    expect(
+      within(modal).getByTestId('dump-delete-modal-title')
+    ).toHaveTextContent('Delete 2 datasets?');
+  });
+
+  it('keeps naming the datasets while Send to Support closes', async () => {
+    renderPage([READY, dump('ready-2')]);
+    await selectRows('ready', 'ready-2');
+    fireEvent.click(screen.getByTestId('dump-sendToSupport'));
+    const dialog = await screen.findByTestId('dump-send-to-support-dialog');
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveTextContent('Send 2 datasets to Percona Support');
+  });
+
+  it('shows only the error when the first load fails', async () => {
+    renderPage(new Error('Network Error'));
+
+    expect(await screen.findByText('Could not load datasets.')).toBeVisible();
+    expect(screen.queryByText('No datasets yet')).not.toBeInTheDocument();
+  });
+
+  it('explains disabled bulk actions', async () => {
+    renderPage([READY, CREATING]);
+    await selectRows('ready', 'creating');
+    const download = screen.getByTestId('dump-download-selected');
+
+    expect(download).toBeDisabled();
+    expect(await hover(download)).toHaveTextContent(
+      "1 of 2 selected datasets isn't ready"
+    );
+  });
+
+  it('keeps Create dataset available while a dataset is being created', async () => {
+    renderPage([CREATING]);
+    await row('creating');
+
+    expect(screen.getByTestId('create-dataset')).not.toHaveAttribute(
+      'aria-disabled'
+    );
+  });
+
+  it('deletes selected datasets after confirming', async () => {
+    renderPage([READY, FAILED]);
+    await selectRows('ready', 'failed');
+
+    fireEvent.click(screen.getByTestId('dump-delete-selected'));
+
+    const modal = await screen.findByTestId('dump-delete-modal');
+    expect(
+      within(modal).getByTestId('dump-delete-modal-title')
+    ).toHaveTextContent('Delete 2 datasets?');
+    fireEvent.click(within(modal).getByTestId('dump-delete-modal-confirm'));
+
+    await waitFor(() =>
+      expect(vi.mocked(deleteDumps).mock.calls[0][0]).toEqual({
+        dumpIds: ['ready', 'failed'],
+      })
+    );
+    expect(
+      await screen.findByText('Datasets deleted successfully.')
+    ).toBeVisible();
+  });
+
+  it('warns before a bulk download', async () => {
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => undefined);
+    renderPage([READY, dump('ready-2')]);
+    await selectRows('ready', 'ready-2');
+
+    fireEvent.click(screen.getByTestId('dump-download-selected'));
+
+    expect(await screen.findByText(/^Downloading 2 archives/)).toBeVisible();
+    await waitFor(() => expect(click).toHaveBeenCalledTimes(2), {
+      timeout: 2000,
+    });
+    click.mockRestore();
+  });
+
+  it('shows the unauthorized state to non-admin users', () => {
+    renderPage([READY], { user: TEST_USER_VIEWER, isLoading: false });
+
+    expect(screen.getByTestId('unauthorized')).toBeInTheDocument();
+    expect(screen.queryByTestId('pmm-dump-page')).not.toBeInTheDocument();
+    expect(listDumps).not.toHaveBeenCalled();
+  });
+});

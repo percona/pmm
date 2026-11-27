@@ -16,6 +16,7 @@ const MIGRATED_GRAFANA_PATHS = [
   '/graph/edit-instance',
   '/graph/advisors',
   '/graph/pmm-database-checks',
+  '/graph/pmm-dump',
 ];
 
 export const isMigratedPage = (src: string) =>

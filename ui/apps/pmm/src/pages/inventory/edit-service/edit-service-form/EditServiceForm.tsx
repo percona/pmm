@@ -30,7 +30,7 @@ import {
 import { MetricsSettings } from '../metrics-settings';
 import { QueryAnalyticsSettings } from '../query-analytics-settings';
 import { RdsCredentials } from '../rds-credentials';
-import { SectionHeader } from '../section-header';
+import { SectionHeader } from 'components/section-header';
 import { ServiceDetails } from '../service-details';
 import { TlsSettings } from '../tls-settings';
 

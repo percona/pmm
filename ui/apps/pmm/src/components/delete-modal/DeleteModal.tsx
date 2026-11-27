@@ -7,16 +7,18 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import Typography from '@mui/material/Typography';
 import { Dialog, DialogTitle } from '@percona/peak-ui';
-import { type FC, useState } from 'react';
-import { Messages } from '../../Inventory.messages';
+import { type FC, type ReactNode, useState } from 'react';
+import { Messages } from './DeleteModal.messages';
 
 interface Props {
   open: boolean;
   title: string;
-  warning?: string;
   message: string;
-  forceDescription: string;
   confirmLabel: string;
+  testId: string;
+  warning?: string;
+  forceDescription?: string;
+  children?: ReactNode;
   onConfirm: (force: boolean) => Promise<void>;
   onClose: () => void;
 }
@@ -24,10 +26,12 @@ interface Props {
 export const DeleteModal: FC<Props> = ({
   open,
   title,
-  warning,
   message,
-  forceDescription,
   confirmLabel,
+  testId,
+  warning,
+  forceDescription,
+  children,
   onConfirm,
   onClose,
 }) => {
@@ -51,14 +55,18 @@ export const DeleteModal: FC<Props> = ({
 
   return (
     <Dialog
-      data-testid="inventory-delete-modal"
-      aria-labelledby="inventory-delete-modal-title"
+      data-testid={testId}
+      aria-labelledby={`${testId}-title`}
       open={open}
       onClose={handleClose}
       maxWidth="sm"
       fullWidth
     >
-      <DialogTitle id="inventory-delete-modal-title" onClose={handleClose}>
+      <DialogTitle
+        id={`${testId}-title`}
+        data-testid={`${testId}-title`}
+        onClose={handleClose}
+      >
         {title}
       </DialogTitle>
       <DialogContent>
@@ -67,32 +75,35 @@ export const DeleteModal: FC<Props> = ({
             {warning}
           </Alert>
         )}
-        <Typography data-testid="inventory-delete-modal-message">
-          {message}
-        </Typography>
-        <FormControlLabel
-          sx={{ mt: 2 }}
-          label={Messages.deleteModal.forceMode}
-          control={
-            <Checkbox
-              checked={force}
-              onChange={(e) => setForce(e.target.checked)}
-              data-testid="inventory-delete-modal-force"
+        <Typography data-testid={`${testId}-message`}>{message}</Typography>
+        {children}
+        {forceDescription && (
+          <>
+            <FormControlLabel
+              sx={{ mt: 2 }}
+              label={Messages.forceMode}
+              control={
+                <Checkbox
+                  checked={force}
+                  onChange={(e) => setForce(e.target.checked)}
+                  data-testid={`${testId}-force`}
+                />
+              }
             />
-          }
-        />
-        <FormHelperText sx={{ mt: 0 }}>{forceDescription}</FormHelperText>
+            <FormHelperText sx={{ mt: 0 }}>{forceDescription}</FormHelperText>
+          </>
+        )}
       </DialogContent>
       <DialogActions>
         <Button
-          data-testid="inventory-delete-modal-cancel"
+          data-testid={`${testId}-cancel`}
           variant="text"
           onClick={handleClose}
         >
-          {Messages.deleteModal.cancel}
+          {Messages.cancel}
         </Button>
         <Button
-          data-testid="inventory-delete-modal-confirm"
+          data-testid={`${testId}-confirm`}
           variant="contained"
           color="error"
           onClick={handleConfirm}

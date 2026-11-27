@@ -1,16 +1,17 @@
-import { FC, useState } from 'react';
+import { type FC, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { TextInput } from '@percona/peak-ui';
-import { Messages } from '../../Settings.messages';
+import { Messages } from './SecretField.messages';
 
 interface Props {
   name: string;
   label: string;
-  helperText: string;
   testId: string;
+  helperText?: string;
+  isRequired?: boolean;
 }
 
 /**
@@ -21,15 +22,21 @@ interface Props {
  * password input — `TextInput` forwards `textFieldProps` to MUI's `TextField`,
  * which is where the adornment goes.
  */
-export const SecretField: FC<Props> = ({ name, label, helperText, testId }) => {
+export const SecretField: FC<Props> = ({
+  name,
+  label,
+  testId,
+  helperText,
+  isRequired,
+}) => {
   const [isRevealed, setIsRevealed] = useState(false);
-  const { revealSecret, hideSecret } = Messages.serviceNow;
-  const toggleLabel = isRevealed ? hideSecret : revealSecret;
+  const toggleLabel = isRevealed ? Messages.hideSecret : Messages.revealSecret;
 
   return (
     <TextInput
       name={name}
       label={label}
+      isRequired={isRequired}
       textFieldProps={{
         type: isRevealed ? 'text' : 'password',
         autoComplete: 'off',

@@ -37,9 +37,4 @@ export const Messages = {
     delete: 'Delete',
     rowActions: 'Row actions',
   },
-  deleteModal: {
-    cancel: 'Cancel',
-    forceMode: 'Force mode',
-  },
-  selected: (count: number) => `${count} selected`,
 };

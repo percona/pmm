@@ -166,6 +166,11 @@ export default defineConfig({
         secure: false,
         changeOrigin: true,
       },
+      '/dump': {
+        target,
+        secure: false,
+        changeOrigin: true,
+      },
       [EXTENSIONS_BASE_PATH]: extensionsProxy(),
     },
     host: '0.0.0.0',

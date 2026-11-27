@@ -62,6 +62,8 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/updates`                                | PMM Server updates                                               |
 | `/updates/clients`                        | Client updates                                                   |
 | `/help`                                   | Help center                                                      |
+| `/pmm-dump`                               | PMM Dump datasets                                                |
+| `/pmm-dump/new`                           | Create a PMM Dump dataset                                        |
 | `/alerting/status`                        | Fired alerts                                                     |
 | `/settings/:tab?`                         | PMM Server settings                                              |
 | `/inventory/services`, `/inventory/nodes` | Inventory                                                        |

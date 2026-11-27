@@ -5,7 +5,7 @@ import type { ServiceAgent } from 'types/agent.types';
 import type { ManagedServiceType } from 'types/services.types';
 import { Messages } from '../EditService.messages';
 import type { EditServiceFormValues } from '../EditService.schema';
-import { SectionHeader } from '../section-header';
+import { SectionHeader } from 'components/section-header';
 import { useIsSettingShown } from '../useIsSettingShown';
 import { SCHEME_OPTIONS } from './ConnectionSettings.constants';
 

@@ -19,10 +19,12 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import {
   EditServiceRedirect,
   InventoryRedirect,
+  PmmDumpRedirect,
   Redirect,
   SettingsRedirect,
   advisorsRedirects,
 } from 'components/redirect';
+import { DumpPage, ExportDataset } from 'pages/dump';
 import {
   Agents,
   EditService,
@@ -81,6 +83,19 @@ const router = createBrowserRouter(
             {
               path: 'help',
               element: <HelpCenter />,
+            },
+            {
+              path: 'pmm-dump',
+              children: [
+                {
+                  path: '',
+                  element: <DumpPage />,
+                },
+                {
+                  path: 'new',
+                  element: <ExportDataset />,
+                },
+              ],
             },
             {
               path: 'alerting',
@@ -260,6 +275,10 @@ const router = createBrowserRouter(
             {
               path: 'graph/inventory/*',
               element: <InventoryRedirect />,
+            },
+            {
+              path: 'graph/pmm-dump/*',
+              element: <PmmDumpRedirect />,
             },
             {
               path: 'graph/edit-instance/:serviceId',

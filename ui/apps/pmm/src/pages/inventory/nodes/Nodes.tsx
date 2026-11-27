@@ -15,11 +15,12 @@ import { useNodes, useRemoveNodes } from 'hooks/api/useNodes';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
 import { enqueueSnackbar } from 'notistack';
 import { type FC, useMemo, useState } from 'react';
-import { DeleteModal } from '../components/delete-modal';
+import { DeleteModal } from 'components/delete-modal';
+import { DEFAULT_TABLE_OPTIONS } from 'lib/table.constants';
+import { TableMessages } from 'lib/table.messages';
 import {
   getUrlStateOptions,
   INVENTORY_REFETCH_INTERVAL,
-  INVENTORY_TABLE_OPTIONS,
 } from '../Inventory.constants';
 import { Messages as InventoryMessages } from '../Inventory.messages';
 import { useIdColumnVisibility } from '../useIdColumnVisibility';
@@ -90,7 +91,7 @@ export const Nodes: FC = () => {
   return (
     <>
       <Table
-        {...INVENTORY_TABLE_OPTIONS}
+        {...DEFAULT_TABLE_OPTIONS}
         {...tableProps}
         state={{
           ...tableProps.state,
@@ -166,7 +167,7 @@ export const Nodes: FC = () => {
               </Button>
               {!!selectedNodes.length && (
                 <Typography variant="body2">
-                  {InventoryMessages.selected(selectedNodes.length)}
+                  {TableMessages.selected(selectedNodes.length)}
                 </Typography>
               )}
               {(ha.enabled || pmmServerOnly) && (
@@ -191,6 +192,7 @@ export const Nodes: FC = () => {
         onClose={() => setThresholdsNode(null)}
       />
       <DeleteModal
+        testId="inventory-delete-modal"
         open={!!nodesToDelete.length}
         title={Messages.delete.title}
         message={Messages.delete.message(nodesToDelete.length)}
