@@ -84,12 +84,27 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		actual := proxysqlExporterConfig(node, proxysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
 			Args: []string{
+				"-collect.mysql_connection_list=false",
 				"-collect.mysql_connection_pool",
 				"-collect.mysql_status",
 				"-web.listen-address=0.0.0.0:{{ .listen_port }}",
 			},
 		}
 		require.Equal(t, expected.Args, actual.Args)
+	})
+
+	t.Run("DisabledDefaultCollectors", func(t *testing.T) {
+		// The exporter runs these collectors unless told otherwise, so each needs an explicit false.
+		// A repeated name gives one flag, and an unknown one none: the exporter refuses unknown flags.
+		exporter.ExporterOptions.DisabledCollectors = []string{"mysql_status", "mysql_connection_pool", "mysql_status", "no_such_collector"}
+		actual := proxysqlExporterConfig(node, proxysql, exporter, exposeSecrets, pmmAgentVersion)
+		require.Equal(t, []string{
+			"-collect.mysql_connection_list",
+			"-collect.mysql_connection_pool=false",
+			"-collect.mysql_status=false",
+			"-collect.stats_memory_metrics",
+			"-web.listen-address=0.0.0.0:{{ .listen_port }}",
+		}, actual.Args)
 	})
 
 	t.Run("StatsCommandCounter", func(t *testing.T) {
