@@ -16,7 +16,6 @@
 package interceptors
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,22 +25,24 @@ import (
 func TestCallerOriginFromRequest(t *testing.T) {
 	t.Parallel()
 
-	uiCtx := metadata.NewIncomingContext(t.Context(), metadata.Pairs("grpcgateway-referer", "https://pmm-server/"))
-
 	for name, tc := range map[string]struct {
-		ctx      context.Context
+		referer  string
 		method   string
 		expected callerOrigin
 	}{
-		"API client":             {ctx: t.Context(), method: "/server.v1.ServerService/Version", expected: externalCallerOrigin},
-		"UI":                     {ctx: uiCtx, method: "/server.v1.ServerService/Version", expected: internalCallerOrigin},
-		"HAProxy health check":   {ctx: t.Context(), method: "/server.v1.ServerService/LeaderHealthCheck", expected: internalCallerOrigin},
-		"PMM 2 pmm-agent stream": {ctx: t.Context(), method: "/agent.Agent/Connect", expected: internalCallerOrigin},
+		"API client":             {method: "/server.v1.ServerService/Version", expected: externalCallerOrigin},
+		"UI":                     {referer: "https://pmm-server/", method: "/server.v1.ServerService/Version", expected: internalCallerOrigin},
+		"HAProxy health check":   {method: "/server.v1.ServerService/LeaderHealthCheck", expected: internalCallerOrigin},
+		"PMM 2 pmm-agent stream": {method: "/agent.Agent/Connect", expected: internalCallerOrigin},
 	} {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tc.expected, callerOriginFromRequest(tc.ctx, tc.method))
+			ctx := t.Context()
+			if tc.referer != "" {
+				ctx = metadata.NewIncomingContext(ctx, metadata.Pairs("grpcgateway-referer", tc.referer))
+			}
+			assert.Equal(t, tc.expected, callerOriginFromRequest(ctx, tc.method))
 		})
 	}
 }
