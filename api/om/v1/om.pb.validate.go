@@ -7338,6 +7338,265 @@ var _ interface {
 	ErrorName() string
 } = TriggerUninstallResponseValidationError{}
 
+// Validate checks the field values on ConfirmUninstallLivePlanRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ConfirmUninstallLivePlanRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ConfirmUninstallLivePlanRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ConfirmUninstallLivePlanRequestMultiError, or nil if none found.
+func (m *ConfirmUninstallLivePlanRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ConfirmUninstallLivePlanRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetOperationId()) < 1 {
+		err := ConfirmUninstallLivePlanRequestValidationError{
+			field:  "OperationId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetVersion() < 1 {
+		err := ConfirmUninstallLivePlanRequestValidationError{
+			field:  "Version",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return ConfirmUninstallLivePlanRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ConfirmUninstallLivePlanRequestMultiError is an error wrapping multiple
+// validation errors returned by ConfirmUninstallLivePlanRequest.ValidateAll()
+// if the designated constraints aren't met.
+type ConfirmUninstallLivePlanRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ConfirmUninstallLivePlanRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ConfirmUninstallLivePlanRequestMultiError) AllErrors() []error { return m }
+
+// ConfirmUninstallLivePlanRequestValidationError is the validation error
+// returned by ConfirmUninstallLivePlanRequest.Validate if the designated
+// constraints aren't met.
+type ConfirmUninstallLivePlanRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ConfirmUninstallLivePlanRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ConfirmUninstallLivePlanRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ConfirmUninstallLivePlanRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ConfirmUninstallLivePlanRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ConfirmUninstallLivePlanRequestValidationError) ErrorName() string {
+	return "ConfirmUninstallLivePlanRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ConfirmUninstallLivePlanRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfirmUninstallLivePlanRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ConfirmUninstallLivePlanRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ConfirmUninstallLivePlanRequestValidationError{}
+
+// Validate checks the field values on ConfirmUninstallLivePlanResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *ConfirmUninstallLivePlanResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ConfirmUninstallLivePlanResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ConfirmUninstallLivePlanResponseMultiError, or nil if none found.
+func (m *ConfirmUninstallLivePlanResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ConfirmUninstallLivePlanResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetOperation()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ConfirmUninstallLivePlanResponseValidationError{
+					field:  "Operation",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ConfirmUninstallLivePlanResponseValidationError{
+					field:  "Operation",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetOperation()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ConfirmUninstallLivePlanResponseValidationError{
+				field:  "Operation",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ConfirmUninstallLivePlanResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ConfirmUninstallLivePlanResponseMultiError is an error wrapping multiple
+// validation errors returned by
+// ConfirmUninstallLivePlanResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ConfirmUninstallLivePlanResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ConfirmUninstallLivePlanResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ConfirmUninstallLivePlanResponseMultiError) AllErrors() []error { return m }
+
+// ConfirmUninstallLivePlanResponseValidationError is the validation error
+// returned by ConfirmUninstallLivePlanResponse.Validate if the designated
+// constraints aren't met.
+type ConfirmUninstallLivePlanResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ConfirmUninstallLivePlanResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ConfirmUninstallLivePlanResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ConfirmUninstallLivePlanResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ConfirmUninstallLivePlanResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ConfirmUninstallLivePlanResponseValidationError) ErrorName() string {
+	return "ConfirmUninstallLivePlanResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ConfirmUninstallLivePlanResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfirmUninstallLivePlanResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ConfirmUninstallLivePlanResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ConfirmUninstallLivePlanResponseValidationError{}
+
 // Validate checks the field values on BootstrapStep with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.

@@ -50,6 +50,7 @@ const (
 	OmService_ResumeOperation_FullMethodName               = "/om.v1.OmService/ResumeOperation"
 	OmService_AbandonOperation_FullMethodName              = "/om.v1.OmService/AbandonOperation"
 	OmService_TriggerUninstall_FullMethodName              = "/om.v1.OmService/TriggerUninstall"
+	OmService_ConfirmUninstallLivePlan_FullMethodName      = "/om.v1.OmService/ConfirmUninstallLivePlan"
 )
 
 // OmServiceClient is the client API for OmService service.
@@ -155,6 +156,8 @@ type OmServiceClient interface {
 	AbandonOperation(ctx context.Context, in *AbandonOperationRequest, opts ...grpc.CallOption) (*AbandonOperationResponse, error)
 	// TriggerUninstall starts uninstalling a managed cluster PMM installed, from its hosts.
 	TriggerUninstall(ctx context.Context, in *TriggerUninstallRequest, opts ...grpc.CallOption) (*TriggerUninstallResponse, error)
+	// ConfirmUninstallLivePlan re-seals an uninstall plan that readiness blocked on drift.
+	ConfirmUninstallLivePlan(ctx context.Context, in *ConfirmUninstallLivePlanRequest, opts ...grpc.CallOption) (*ConfirmUninstallLivePlanResponse, error)
 }
 
 type omServiceClient struct {
@@ -465,6 +468,16 @@ func (c *omServiceClient) TriggerUninstall(ctx context.Context, in *TriggerUnins
 	return out, nil
 }
 
+func (c *omServiceClient) ConfirmUninstallLivePlan(ctx context.Context, in *ConfirmUninstallLivePlanRequest, opts ...grpc.CallOption) (*ConfirmUninstallLivePlanResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfirmUninstallLivePlanResponse)
+	err := c.cc.Invoke(ctx, OmService_ConfirmUninstallLivePlan_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OmServiceServer is the server API for OmService service.
 // All implementations must embed UnimplementedOmServiceServer
 // for forward compatibility.
@@ -568,6 +581,8 @@ type OmServiceServer interface {
 	AbandonOperation(context.Context, *AbandonOperationRequest) (*AbandonOperationResponse, error)
 	// TriggerUninstall starts uninstalling a managed cluster PMM installed, from its hosts.
 	TriggerUninstall(context.Context, *TriggerUninstallRequest) (*TriggerUninstallResponse, error)
+	// ConfirmUninstallLivePlan re-seals an uninstall plan that readiness blocked on drift.
+	ConfirmUninstallLivePlan(context.Context, *ConfirmUninstallLivePlanRequest) (*ConfirmUninstallLivePlanResponse, error)
 	mustEmbedUnimplementedOmServiceServer()
 }
 
@@ -696,6 +711,10 @@ func (UnimplementedOmServiceServer) AbandonOperation(context.Context, *AbandonOp
 
 func (UnimplementedOmServiceServer) TriggerUninstall(context.Context, *TriggerUninstallRequest) (*TriggerUninstallResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TriggerUninstall not implemented")
+}
+
+func (UnimplementedOmServiceServer) ConfirmUninstallLivePlan(context.Context, *ConfirmUninstallLivePlanRequest) (*ConfirmUninstallLivePlanResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConfirmUninstallLivePlan not implemented")
 }
 func (UnimplementedOmServiceServer) mustEmbedUnimplementedOmServiceServer() {}
 func (UnimplementedOmServiceServer) testEmbeddedByValue()                   {}
@@ -1258,6 +1277,24 @@ func _OmService_TriggerUninstall_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OmService_ConfirmUninstallLivePlan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfirmUninstallLivePlanRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).ConfirmUninstallLivePlan(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_ConfirmUninstallLivePlan_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).ConfirmUninstallLivePlan(ctx, req.(*ConfirmUninstallLivePlanRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OmService_ServiceDesc is the grpc.ServiceDesc for OmService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1384,6 +1421,10 @@ var OmService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TriggerUninstall",
 			Handler:    _OmService_TriggerUninstall_Handler,
+		},
+		{
+			MethodName: "ConfirmUninstallLivePlan",
+			Handler:    _OmService_ConfirmUninstallLivePlan_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

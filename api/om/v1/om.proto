@@ -1018,6 +1018,21 @@ message TriggerUninstallResponse {
   string operation_id = 1;
 }
 
+// ConfirmUninstallLivePlanRequest asks to re-seal an uninstall plan that readiness blocked on drift to
+// the hosts' live package sets, so the operator adopts what is on the hosts now and readiness re-runs.
+message ConfirmUninstallLivePlanRequest {
+  // The uninstall operation blocked on drift.
+  string operation_id = 1 [(validate.rules).string.min_len = 1];
+  // The version the caller read, fencing the reseal against a concurrent change.
+  int32 version = 2 [(validate.rules).int32.gte = 1];
+}
+
+// ConfirmUninstallLivePlanResponse returns the re-sealed operation, back in checking.
+message ConfirmUninstallLivePlanResponse {
+  // The operation.
+  Operation operation = 1;
+}
+
 // BootstrapStep is one step's progress -- a host's own, one of its rollback
 // steps, or one of the run's run-level steps. One shape for all three, the
 // same way om_bootstrap's own StepRecord is (see its doc comment): none of
@@ -1789,6 +1804,18 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Uninstall a managed cluster"
       description: "Records a checking uninstall operation that removes a managed cluster PMM installed: it stops the members and deletes the packages, data and config PMM put on each host. Returns as soon as the operation is recorded; the operator confirms it before any host is touched. Poll GetOperation for progress."
+    };
+  }
+
+  // ConfirmUninstallLivePlan re-seals an uninstall plan that readiness blocked on drift.
+  rpc ConfirmUninstallLivePlan(ConfirmUninstallLivePlanRequest) returns (ConfirmUninstallLivePlanResponse) {
+    option (google.api.http) = {
+      post: "/v1/om/operations/{operation_id}:confirmLivePlan"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Adopt the live plan of a drifted uninstall"
+      description: "Re-seals an uninstall operation that readiness blocked on package drift to the hosts' live package sets, bumps its plan revision and returns it to checking so readiness re-runs. The operator still confirms the re-sealed plan before any host is touched. Fenced by version."
     };
   }
 }

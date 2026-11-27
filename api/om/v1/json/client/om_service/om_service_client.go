@@ -59,6 +59,8 @@ type ClientService interface {
 
 	ConfirmOperation(params *ConfirmOperationParams, opts ...ClientOption) (*ConfirmOperationOK, error)
 
+	ConfirmUninstallLivePlan(params *ConfirmUninstallLivePlanParams, opts ...ClientOption) (*ConfirmUninstallLivePlanOK, error)
+
 	DeleteInventoryConfigOverride(params *DeleteInventoryConfigOverrideParams, opts ...ClientOption) (*DeleteInventoryConfigOverrideOK, error)
 
 	DeleteInventoryHost(params *DeleteInventoryHostParams, opts ...ClientOption) (*DeleteInventoryHostOK, error)
@@ -286,6 +288,50 @@ func (a *Client) ConfirmOperation(params *ConfirmOperationParams, opts ...Client
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ConfirmOperationDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ConfirmUninstallLivePlan adopts the live plan of a drifted uninstall
+
+Re-seals an uninstall operation that readiness blocked on package drift to the hosts' live package sets, bumps its plan revision and returns it to checking so readiness re-runs. The operator still confirms the re-sealed plan before any host is touched. Fenced by version.
+*/
+func (a *Client) ConfirmUninstallLivePlan(params *ConfirmUninstallLivePlanParams, opts ...ClientOption) (*ConfirmUninstallLivePlanOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewConfirmUninstallLivePlanParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ConfirmUninstallLivePlan",
+		Method:             "POST",
+		PathPattern:        "/v1/om/operations/{operation_id}:confirmLivePlan",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ConfirmUninstallLivePlanReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ConfirmUninstallLivePlanOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ConfirmUninstallLivePlanDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

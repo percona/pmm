@@ -78,6 +78,9 @@ type Service struct {
 	// operationRunner drives registered operation kinds on a cadence; nil leaves the driver off.
 	operationRunner *Runner
 
+	// uninstallFactReader reads a member's live facts for ConfirmUninstallLivePlan; nil leaves the driver off.
+	uninstallFactReader factObservationReader
+
 	// tick overrides refreshInterval; only tests set it.
 	tick time.Duration
 
@@ -227,6 +230,7 @@ func (s *Service) WithOperationRunner(extensionsURL, token string) *Service {
 		s.db, l, s.operationRegistry,
 		checks, executors, requester,
 	).WithLeader(s.ha, "")
+	s.uninstallFactReader = newFactReader(client)
 	return s
 }
 

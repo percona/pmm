@@ -54,8 +54,29 @@ func sampleUninstallParams() uninstallParams {
 	}
 }
 
+func passingUninstallContext(t *testing.T) CheckContext {
+	t.Helper()
+	params := sampleUninstallParams()
+	subjects := map[string]map[string]any{}
+	for _, member := range params.Members {
+		subjects[member.MemberID] = map[string]any{
+			factMarkerRunID:   params.InstallRunID,
+			factOwnedPackages: []any{"percona-server-mongodb"},
+		}
+	}
+	return CheckContext{Facts: passingUninstallFacts(), SubjectFacts: subjects}
+}
+
+func readinessSet(t *testing.T) CheckSet {
+	t.Helper()
+	params := sampleUninstallParams()
+	params.Members[0].Packages = []string{"percona-server-mongodb"}
+	params.Members[1].Packages = []string{"percona-server-mongodb"}
+	return uninstallReadinessCheckSet(uninstallOp(t, params))
+}
+
 func TestUninstallReadinessPasses(t *testing.T) {
-	got := runBlockingRules(uninstallReadinessCheckSet(), CheckContext{Facts: passingUninstallFacts()})
+	got := runBlockingRules(readinessSet(t), passingUninstallContext(t))
 	assert.False(t, got.Blocked)
 }
 
@@ -65,12 +86,12 @@ func TestUninstallReadinessBlocksEachFailedBoolFact(t *testing.T) {
 		factHostReachable: uninstallReasonHostUnreachable,
 		factCanElevate:    uninstallReasonCannotElevate,
 	}
-	set := uninstallReadinessCheckSet()
+	set := readinessSet(t)
 	for fact, code := range codes {
 		t.Run(fact, func(t *testing.T) {
-			values := passingUninstallFacts()
-			values[fact] = false
-			got := runBlockingRules(set, CheckContext{Facts: values})
+			ctx := passingUninstallContext(t)
+			ctx.Facts[fact] = false
+			got := runBlockingRules(set, ctx)
 			assert.True(t, got.Blocked)
 			assert.Equal(t, fact, got.Path)
 			assert.Equal(t, code, got.Reason)
@@ -79,16 +100,71 @@ func TestUninstallReadinessBlocksEachFailedBoolFact(t *testing.T) {
 }
 
 func TestUninstallReadinessBlocksMissingFacts(t *testing.T) {
-	got := runBlockingRules(uninstallReadinessCheckSet(), CheckContext{Facts: map[string]any{}})
+	got := runBlockingRules(readinessSet(t), CheckContext{Facts: map[string]any{}})
 	assert.True(t, got.Blocked)
 }
 
 func TestUninstallReadinessIgnoresConfigAndBinaryChange(t *testing.T) {
-	values := passingUninstallFacts()
-	values[factConfigSHA256] = "drifted"
-	values[factBinaryVersion] = "7.0.99"
-	got := runBlockingRules(uninstallReadinessCheckSet(), CheckContext{Facts: values})
+	ctx := passingUninstallContext(t)
+	ctx.Facts[factConfigSHA256] = "drifted"
+	ctx.Facts[factBinaryVersion] = "7.0.99"
+	got := runBlockingRules(readinessSet(t), ctx)
 	assert.False(t, got.Blocked)
+}
+
+func TestUninstallReadinessBlocksMarkerMismatch(t *testing.T) {
+	ctx := passingUninstallContext(t)
+	ctx.SubjectFacts["member-b"][factMarkerRunID] = "run-other"
+	got := runBlockingRules(readinessSet(t), ctx)
+	assert.True(t, got.Blocked)
+	assert.Equal(t, uninstallReasonMarkerMismatch, got.Reason)
+	assert.Equal(t, "member-b", got.Path)
+}
+
+func TestUninstallReadinessAbsentMarkerIsNotMismatch(t *testing.T) {
+	ctx := passingUninstallContext(t)
+	delete(ctx.SubjectFacts["member-a"], factMarkerRunID)
+	got := runBlockingRules(readinessSet(t), ctx)
+	assert.False(t, got.Blocked)
+}
+
+func TestUninstallReadinessBlocksPackageDrift(t *testing.T) {
+	ctx := passingUninstallContext(t)
+	ctx.SubjectFacts["member-a"][factOwnedPackages] = []any{"percona-server-mongodb", "percona-server-mongodb-tools"}
+	got := runBlockingRules(readinessSet(t), ctx)
+	assert.True(t, got.Blocked)
+	assert.Equal(t, uninstallReasonDrift, got.Reason)
+	assert.Equal(t, "member-a", got.Path)
+}
+
+func TestUninstallReadinessAbsentPackagesIsNotDrift(t *testing.T) {
+	ctx := passingUninstallContext(t)
+	delete(ctx.SubjectFacts["member-a"], factOwnedPackages)
+	delete(ctx.SubjectFacts["member-b"], factOwnedPackages)
+	got := runBlockingRules(readinessSet(t), ctx)
+	assert.False(t, got.Blocked)
+}
+
+func TestStringListFact(t *testing.T) {
+	list, ok := stringListFact([]any{"a", "b"})
+	require.True(t, ok)
+	assert.Equal(t, []string{"a", "b"}, list)
+
+	_, ok = stringListFact([]any{"a", 2})
+	assert.False(t, ok)
+
+	_, ok = stringListFact("a")
+	assert.False(t, ok)
+
+	_, ok = stringListFact(nil)
+	assert.False(t, ok)
+}
+
+func TestSameStringSet(t *testing.T) {
+	assert.True(t, sameStringSet([]string{"a", "b"}, []string{"b", "a"}))
+	assert.True(t, sameStringSet(nil, []string{}))
+	assert.False(t, sameStringSet([]string{"a"}, []string{"a", "b"}))
+	assert.False(t, sameStringSet([]string{"a", "a"}, []string{"a", "b"}))
 }
 
 func TestUninstallKindLocksClusterAndMembers(t *testing.T) {

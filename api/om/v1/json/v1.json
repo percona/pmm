@@ -4563,6 +4563,223 @@
         }
       }
     },
+    "/v1/om/operations/{operation_id}:confirmLivePlan": {
+      "post": {
+        "description": "Re-seals an uninstall operation that readiness blocked on package drift to the hosts' live package sets, bumps its plan revision and returns it to checking so readiness re-runs. The operator still confirms the re-sealed plan before any host is touched. Fenced by version.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Adopt the live plan of a drifted uninstall",
+        "operationId": "ConfirmUninstallLivePlan",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The uninstall operation blocked on drift.",
+            "name": "operation_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ConfirmUninstallLivePlanRequest asks to re-seal an uninstall plan that readiness blocked on drift to\nthe hosts' live package sets, so the operator adopts what is on the hosts now and readiness re-runs.",
+              "type": "object",
+              "properties": {
+                "version": {
+                  "description": "The version the caller read, fencing the reseal against a concurrent change.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ConfirmUninstallLivePlanResponse returns the re-sealed operation, back in checking.",
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "description": "Operation is one managed-cluster operation's history row: its lifecycle status and the\nprovenance around it.\n\nThe inputs (params) and the review report are deliberately not on this surface. Both can\ncarry secrets, and until a caller's role reaches this service there is nothing to redact\nthem against, so they are withheld from every reader rather than shown to the wrong one.\nreport_digest, a hash, is safe and stands in for the reviewed report.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "The operation's ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "The operation kind, a feature's registered name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "kind_version": {
+                      "description": "The kind's contract version at creation; a resume refuses a different one.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
+                    },
+                    "cluster_id": {
+                      "description": "The cluster it acts on; unset for a cluster-less operation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "parent_operation_id": {
+                      "description": "The parent operation, when this is a child.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "One of: checking, awaiting_confirmation, queued, running, cancelling, succeeded,\nfailed, cancelled, rolled_back, abandoned, external. A string, not an enum, because\nthe set is this service's own and a caller renders it rather than branching on it.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "version": {
+                      "description": "The monotonic version the optimistic-concurrency fence reads; pass it back to a\nconfirm, cancel, resume or abandon to bind the action to the state that was read.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 6
+                    },
+                    "params_revision": {
+                      "description": "The plan revision a confirm binds to; a return-to-checking bumps it.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "trigger": {
+                      "description": "What started it: user, schedule or policy.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "report_digest": {
+                      "description": "The reviewed report's digest, sealed when the operation awaits confirmation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "error_code": {
+                      "description": "A stable machine-readable failure code, set once it fails.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "confirmed_by": {
+                      "description": "Who confirmed it, when a confirmation was required.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "cancelled_by": {
+                      "description": "Who cancelled it.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "created_at": {
+                      "description": "When it was created.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    },
+                    "started_at": {
+                      "description": "When it entered running. Unset until it does.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 14
+                    },
+                    "finished_at": {
+                      "description": "When it reached a terminal status. Unset while not terminal.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 15
+                    },
+                    "not_before": {
+                      "description": "The earliest it may run, for a scheduled operation.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 16
+                    },
+                    "deadline_at": {
+                      "description": "When it will be abandoned if still unfinished.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/om/operations/{operation_id}:resume": {
       "post": {
         "description": "Returns a failed, resumable operation to running, keeping the locks it held and clearing the attention it raised. Refused when the kind's contract version has moved. Fenced by version.",

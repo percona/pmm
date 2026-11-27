@@ -27,21 +27,26 @@ import (
 // provider reads is derived from this name as 'uninstall_check'.
 const uninstallKind = "uninstall"
 
-// Uninstall-teardown fact names, as PMM Extensions' uninstall_check scan stores them per member.
+// Uninstall-teardown fact names, as PMM Extensions' uninstall_check scan stores them per member;
+// marker_run_id and owned_packages are read per member from the subject facts, which the aggregate drops.
 const (
 	factMarkerPresent = "uninstall_check.marker_present"
 	factHostReachable = "uninstall_check.host_reachable"
 	factCanElevate    = "uninstall_check.can_elevate"
 	factConfigSHA256  = "uninstall_check.config_sha256"
 	factBinaryVersion = "uninstall_check.binary_version"
+	factMarkerRunID   = "uninstall_check.marker_run_id"
+	factOwnedPackages = "uninstall_check.owned_packages"
 )
 
 // Uninstall readiness reason-codes stored in om_operations.error_code when a rule blocks, for a
 // client to render.
 const (
 	uninstallReasonMarkerAbsent    = "marker_absent"
+	uninstallReasonMarkerMismatch  = "marker_mismatch"
 	uninstallReasonHostUnreachable = "host_unreachable"
 	uninstallReasonCannotElevate   = "cannot_elevate"
+	uninstallReasonDrift           = "drift"
 )
 
 // uninstallFactMaxAge bounds how old an uninstall-readiness fact may be before it reads as missing.
@@ -147,7 +152,7 @@ func UninstallKind() OperationKind {
 		OnEnterRunning: uninstallOnEnterRunning,
 		OnSucceeded:    uninstallOnSucceeded,
 		OnTerminal:     uninstallOnTerminal,
-		CheckSet:       func(*models.OmOperation) CheckSet { return uninstallReadinessCheckSet() },
+		CheckSet:       uninstallReadinessCheckSet,
 		Subjects: func(op *models.OmOperation) []CheckSubject {
 			params := uninstallParamsOf(op)
 			subjects := make([]CheckSubject, 0, len(params.Members))
@@ -161,7 +166,9 @@ func UninstallKind() OperationKind {
 
 // uninstallReadinessCheckSet declares uninstall readiness's facts and rules; config_sha256 and
 // binary_version are digest-bearing warning facts, not blocking rules, and sizes are not declared.
-func uninstallReadinessCheckSet() CheckSet {
+// The marker-match and package-drift rules close over the operation's sealed plan.
+func uninstallReadinessCheckSet(op *models.OmOperation) CheckSet {
+	params := uninstallParamsOf(op)
 	return CheckSet{
 		Facts: []CheckFact{
 			{Name: factMarkerPresent, MaxAge: uninstallFactMaxAge},
@@ -172,8 +179,79 @@ func uninstallReadinessCheckSet() CheckSet {
 		},
 		Rules: []BlockingRule{
 			boolFactRule(factMarkerPresent, uninstallReasonMarkerAbsent),
+			uninstallMarkerMatchRule(params),
 			boolFactRule(factHostReachable, uninstallReasonHostUnreachable),
 			boolFactRule(factCanElevate, uninstallReasonCannotElevate),
+			uninstallPackageDriftRule(params),
 		},
 	}
+}
+
+// uninstallMarkerMatchRule refuses when a member's host holds an install marker whose run id is not the
+// one the plan sealed, so a teardown never removes a different PMM install; an absent marker is ignored.
+func uninstallMarkerMatchRule(params uninstallParams) BlockingRule {
+	return func(ctx CheckContext) RuleResult {
+		for _, member := range params.Members {
+			runID, ok := ctx.SubjectFacts[member.MemberID][factMarkerRunID].(string)
+			if !ok || runID == "" {
+				continue
+			}
+			if runID != params.InstallRunID {
+				return RuleResult{Blocked: true, Reason: uninstallReasonMarkerMismatch, Path: member.MemberID}
+			}
+		}
+		return RuleResult{}
+	}
+}
+
+// uninstallPackageDriftRule refuses when a member's live owned-package set differs from the plan's, so a
+// teardown never removes packages the plan did not record; the operator adopts the live set to proceed.
+func uninstallPackageDriftRule(params uninstallParams) BlockingRule {
+	return func(ctx CheckContext) RuleResult {
+		for _, member := range params.Members {
+			live, ok := stringListFact(ctx.SubjectFacts[member.MemberID][factOwnedPackages])
+			if !ok {
+				continue
+			}
+			if !sameStringSet(member.Packages, live) {
+				return RuleResult{Blocked: true, Reason: uninstallReasonDrift, Path: member.MemberID}
+			}
+		}
+		return RuleResult{}
+	}
+}
+
+// stringListFact reads a subject fact as a list of strings, reporting not-ok when the fact is absent or
+// is not a list of strings, so a missing or malformed fact never reads as an empty set.
+func stringListFact(value any) ([]string, bool) {
+	raw, ok := value.([]any)
+	if !ok {
+		return nil, false
+	}
+	list := make([]string, 0, len(raw))
+	for _, item := range raw {
+		s, ok := item.(string)
+		if !ok {
+			return nil, false
+		}
+		list = append(list, s)
+	}
+	return list, true
+}
+
+// sameStringSet reports whether two string lists hold the same values, order and duplicates aside.
+func sameStringSet(a, b []string) bool {
+	counts := make(map[string]int, len(a))
+	for _, s := range a {
+		counts[s]++
+	}
+	for _, s := range b {
+		counts[s]--
+	}
+	for _, n := range counts {
+		if n != 0 {
+			return false
+		}
+	}
+	return true
 }

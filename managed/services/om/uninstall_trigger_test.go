@@ -209,3 +209,77 @@ func TestTriggerUninstallSealsRemovalPlan(t *testing.T) {
 	assert.Equal(t, "mongod", sealed.ControlUnit)
 	assert.Equal(t, uninstallMarkerPath, sealed.MarkerPath)
 }
+
+func insertDriftFailedUninstall(t *testing.T, db *reform.DB, clusterID string, members []uninstallMember) string {
+	t.Helper()
+	raw, err := json.Marshal(uninstallParams{ClusterID: clusterID, ClusterName: "rs0", InstallRunID: "run-7", Members: members})
+	require.NoError(t, err)
+	drift := uninstallReasonDrift
+	op := &models.OmOperation{
+		ID: uuid.New().String(), Kind: uninstallKind, KindVersion: 1, ClusterID: &clusterID,
+		Status: models.OmOperationFailed, Version: 1, ParamsRevision: 1,
+		Trigger: models.OmTriggerUser, Principal: []byte(`{}`), Params: raw,
+		ErrorCode: &drift, ErrorFields: []byte("{}"),
+	}
+	require.NoError(t, db.Insert(op))
+	return op.ID
+}
+
+func TestConfirmUninstallLivePlanAdoptsLivePackages(t *testing.T) {
+	db := lockTestDB(t)
+	svc := uninstallService(t, db)
+	clusterID := lockCluster(t, db.Querier)
+	opID := insertDriftFailedUninstall(t, db, clusterID, []uninstallMember{
+		{MemberID: "member-a", Host: "host-a", Packages: []string{"percona-server-mongodb"}},
+	})
+	svc.uninstallFactReader = &fakeFactReader{facts: map[string]map[string]any{
+		"member-a": {factOwnedPackages: []any{"percona-server-mongodb", "percona-server-mongodb-tools"}},
+	}}
+
+	resp, err := svc.ConfirmUninstallLivePlan(t.Context(), &omv1.ConfirmUninstallLivePlanRequest{OperationId: opID, Version: 1})
+	require.NoError(t, err)
+	assert.Equal(t, string(models.OmOperationChecking), resp.Operation.Status)
+
+	reloaded, _, err := getOperation(db.Querier, opID)
+	require.NoError(t, err)
+	assert.Equal(t, models.OmOperationChecking, reloaded.Status)
+	assert.Nil(t, reloaded.ErrorCode)
+	assert.Nil(t, reloaded.ReportDigest)
+	assert.Nil(t, reloaded.FinishedAt)
+	assert.Equal(t, int32(2), reloaded.ParamsRevision)
+	assert.Equal(t, int32(2), reloaded.Version)
+	assert.Equal(t, []string{"percona-server-mongodb", "percona-server-mongodb-tools"}, uninstallParamsOf(reloaded).Members[0].Packages)
+}
+
+func TestConfirmUninstallLivePlanRejectsNonDrift(t *testing.T) {
+	db := lockTestDB(t)
+	svc := uninstallService(t, db)
+	svc.uninstallFactReader = &fakeFactReader{}
+	clusterID := lockCluster(t, db.Querier)
+	raw, err := json.Marshal(uninstallParams{ClusterID: clusterID, Members: []uninstallMember{{MemberID: "member-a"}}})
+	require.NoError(t, err)
+	reason := uninstallReasonHostUnreachable
+	opID := uuid.New().String()
+	require.NoError(t, db.Insert(&models.OmOperation{
+		ID: opID, Kind: uninstallKind, KindVersion: 1, ClusterID: &clusterID,
+		Status: models.OmOperationFailed, Version: 1, ParamsRevision: 1,
+		Trigger: models.OmTriggerUser, Principal: []byte(`{}`), Params: raw,
+		ErrorCode: &reason, ErrorFields: []byte("{}"),
+	}))
+
+	_, err = svc.ConfirmUninstallLivePlan(t.Context(), &omv1.ConfirmUninstallLivePlanRequest{OperationId: opID, Version: 1})
+	require.Error(t, err)
+	assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+}
+
+func TestConfirmUninstallLivePlanStaleVersionMovesNothing(t *testing.T) {
+	db := lockTestDB(t)
+	svc := uninstallService(t, db)
+	clusterID := lockCluster(t, db.Querier)
+	opID := insertDriftFailedUninstall(t, db, clusterID, []uninstallMember{{MemberID: "member-a", Packages: []string{"percona-server-mongodb"}}})
+	svc.uninstallFactReader = &fakeFactReader{facts: map[string]map[string]any{"member-a": {}}}
+
+	_, err := svc.ConfirmUninstallLivePlan(t.Context(), &omv1.ConfirmUninstallLivePlanRequest{OperationId: opID, Version: 99})
+	require.Error(t, err)
+	assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+}

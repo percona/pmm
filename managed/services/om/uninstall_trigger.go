@@ -89,6 +89,81 @@ func (s *Service) TriggerUninstall(ctx context.Context, req *omv1.TriggerUninsta
 	return &omv1.TriggerUninstallResponse{OperationId: operationID}, nil
 }
 
+// errResealNotMoved marks a reseal whose version fence matched no failed operation, mapped to the
+// not-moved precondition so a stale or concurrent reseal changes nothing.
+var errResealNotMoved = errors.New("reseal moved no operation")
+
+// ConfirmUninstallLivePlan re-seals a drift-blocked uninstall plan to the members' live package sets and
+// returns it to checking so readiness re-runs; it is fenced by version and applies only to drift.
+func (s *Service) ConfirmUninstallLivePlan(ctx context.Context, req *omv1.ConfirmUninstallLivePlanRequest) (*omv1.ConfirmUninstallLivePlanResponse, error) {
+	op, _, err := getOperation(s.db.Querier, req.GetOperationId())
+	if err != nil {
+		return nil, operationReadError(err)
+	}
+	if op.Kind != uninstallKind {
+		return nil, status.Error(codes.FailedPrecondition, "operation is not an uninstall")
+	}
+	if op.Status != models.OmOperationFailed || op.ErrorCode == nil || *op.ErrorCode != uninstallReasonDrift {
+		return nil, status.Error(codes.FailedPrecondition, "operation is not blocked on plan drift")
+	}
+	if s.uninstallFactReader == nil {
+		return nil, status.Error(codes.Unavailable, "the operation driver is not configured")
+	}
+	resealed, err := s.resealLivePackages(ctx, uninstallParamsOf(op))
+	if err != nil {
+		return nil, err
+	}
+	encoded, err := json.Marshal(resealed)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to re-seal the uninstall plan: %s", err)
+	}
+	err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		res, txErr := tx.Exec(
+			"UPDATE om_operations SET params = $1, params_revision = params_revision + 1, "+
+				"report_digest = NULL, error_code = NULL, finished_at = NULL, status = 'checking', version = version + 1 "+
+				"WHERE id = $2 AND status = 'failed' AND version = $3",
+			encoded, op.ID, req.GetVersion())
+		if txErr != nil {
+			return txErr
+		}
+		affected, txErr := res.RowsAffected()
+		if txErr != nil {
+			return txErr
+		}
+		if affected == 0 {
+			return errResealNotMoved
+		}
+		return nil
+	})
+	if errors.Is(err, errResealNotMoved) {
+		return nil, operationNotMoved(op.Status)
+	}
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to re-seal the uninstall plan: %s", err)
+	}
+	refreshed, err := s.reloadOperation(op.ID)
+	if err != nil {
+		return nil, err
+	}
+	return &omv1.ConfirmUninstallLivePlanResponse{Operation: refreshed}, nil
+}
+
+// resealLivePackages reads each member's live owned-package set and replaces the plan's with it, leaving
+// a member with no owned-package fact as the plan sealed it.
+func (s *Service) resealLivePackages(ctx context.Context, params uninstallParams) (uninstallParams, error) {
+	for i, member := range params.Members {
+		facts, _, err := s.uninstallFactReader.Observation(ctx, subjectKindMember, member.MemberID, uninstallKind+"_check")
+		if err != nil {
+			return uninstallParams{}, status.Errorf(codes.Internal, "failed to read the live facts of member %s: %s", member.MemberID, err)
+		}
+		live, ok := stringListFact(facts[factOwnedPackages])
+		if ok {
+			params.Members[i].Packages = live
+		}
+	}
+	return params, nil
+}
+
 // findUninstallableCluster loads a cluster and refuses one uninstall does not apply to: it removes only a
 // PMM-installed replica set that is still a live managed cluster, never an imported or sharded one.
 func findUninstallableCluster(tx *reform.TX, clusterID string) (*models.OmCluster, error) {
@@ -154,7 +229,7 @@ func sealUninstallPlan(tx *reform.TX, cluster *models.OmCluster) ([]byte, error)
 	if err != nil {
 		return nil, err
 	}
-	os, err := clusterInstallOS(tx, cluster)
+	install, err := clusterInstallParams(tx, cluster)
 	if err != nil {
 		return nil, err
 	}
@@ -177,6 +252,10 @@ func sealUninstallPlan(tx *reform.TX, cluster *models.OmCluster) ([]byte, error)
 		if member.NodeID != nil {
 			plan.NodeID = *member.NodeID
 		}
+		plan.Packages = install.Packages
+		plan.DataPath = install.DataPath
+		plan.LogPath = install.LogPath
+		plan.ControlUnit = install.ControlUnit
 		accepted, ok := manifest[member.ID]
 		if ok {
 			plan.Packages = accepted.Install.Packages
@@ -193,7 +272,7 @@ func sealUninstallPlan(tx *reform.TX, cluster *models.OmCluster) ([]byte, error)
 		ClusterID:    cluster.ID,
 		ClusterName:  cluster.Name,
 		InstallRunID: runID,
-		OS:           os,
+		OS:           install.OS,
 		Members:      members,
 	})
 	if err != nil {
@@ -202,21 +281,21 @@ func sealUninstallPlan(tx *reform.TX, cluster *models.OmCluster) ([]byte, error)
 	return params, nil
 }
 
-// clusterInstallOS reads the host OS the install operation recorded, so the teardown's package removal
-// targets the right package manager without an inventory lookup.
-func clusterInstallOS(tx *reform.TX, cluster *models.OmCluster) (string, error) {
+// clusterInstallParams reads the install operation's sealed params, so the teardown takes the OS, data and
+// log paths, packages and control unit the install laid down even before an accepted state is recorded.
+func clusterInstallParams(tx *reform.TX, cluster *models.OmCluster) (installParams, error) {
 	if cluster.CreatedBy == "" {
-		return "", nil
+		return installParams{}, nil
 	}
 	row, err := tx.FindByPrimaryKeyFrom(models.OmOperationTable, cluster.CreatedBy)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return "", nil
+			return installParams{}, nil
 		}
-		return "", status.Errorf(codes.Internal, "failed to read the install operation: %s", err)
+		return installParams{}, status.Errorf(codes.Internal, "failed to read the install operation: %s", err)
 	}
 	op := row.(*models.OmOperation) //nolint:forcetypeassert
-	return installParamsOf(op).OS, nil
+	return installParamsOf(op), nil
 }
 
 // installMarkerRunID reads the run id from the cluster's install marker owned item; a cluster with no
