@@ -33,7 +33,7 @@ Use the following table to find your binary and the compression algorithms you c
 | xtrabackup (PXB 8.0) | 8.0.35-36 | lz4, zstd | zstd | |
 | xtrabackup / innobackupex (PXB 2.4) | 2.4.29 | quicklz only | quicklz | `innobackupex` absent from PXB 8.x |
 | mariadb-backup | MariaDB 12.3.3 | quicklz only | — | quicklz deprecated since MariaDB 10.1.31 / 10.2.13 |
-| mydumper | — | gzip, zstd | — | Logical backup; connects over the network, no datadir access or binary version constraints |
+| mydumper | — | gzip, zstd | gzip | Logical backup; connects over the network, no datadir access or binary version constraints |
 
 ## Prerequisites
 
@@ -44,7 +44,7 @@ Complete the following steps before creating your first backup:
 
 2. Make sure PMM Client 3.10.0 or later is installed on the execution host, registered with this PMM Server, and deployed with Nomad enabled. PMM Client ships the Nomad client, so no separate installation is needed. If PMM Client is not yet installed, see [Install PMM Client](../install-pmm/install-pmm-client/index.md).
 
-3. Install the tool for your backup type and make sure it is available on `$PATH`:
+3. Install the tool for your backup type on the execution host. PMM runs each tool from `/usr/bin` and doesn't search `$PATH`. A tool that is installed in another directory is not found, except `mysqlbinlog`, whose path you can enter when you create the backup:
 
     === "XtraBackup"
 
@@ -70,14 +70,14 @@ Complete the following steps before creating your first backup:
 
     === "Binlog"
 
-        Install [`mysqlbinlog`](https://dev.mysql.com/doc/refman/8.0/en/mysqlbinlog.html); it ships with the MySQL server and client packages.
+        Install [`mysqlbinlog`](https://dev.mysql.com/doc/refman/8.0/en/mysqlbinlog.html); it ships with the MySQL server and client packages. If `mysqlbinlog` is not at `/usr/bin/mysqlbinlog`, enter its path in the **Binlog command** field when you create the backup.
 
         No root access needed. Pick any host that can reach the database over the network, including a remote or cloud-hosted one.
 
-4. Create two MySQL credential files on the execution host so that PMM and the backup binary can each authenticate to MySQL. PMM reads from these files and will not prompt for a password:
+4. Create a MySQL credential file on the execution host. PMM reads the credentials from this file and will not prompt for a password. The default path is `~/.my.cnf`. To use another path, enter it in the **MySQL defaults file** field when you create the backup. The file must exist and be readable before you run a backup. How PMM uses the file depends on the backup type:
 
-    - **PMM's own connection**: `~/.my.cnf`. This file must exist and be readable before you run a backup.
-    - **The backup binary's connection**: a separate file passed as `--defaults-file`. This file is not merged with the system configuration, so it must be self-contained and include everything the binary needs to connect.
+    - **Mydumper and Binlog**: one file serves both connections. PMM uses the file for its own connection to MySQL. PMM also passes the file to `mydumper` as `--defaults-file`, and to `mysqlbinlog` when the **MySQL defaults file** field is set. A file that is passed as `--defaults-file` is not merged with the system configuration, so the file must include everything the tool needs to connect.
+    - **XtraBackup**: PMM uses the file only for its own connection to MySQL. The backup binary reads the standard MySQL option files, such as `~/.my.cnf`, unless you enter a path in the **XtraBackup defaults file** field. PMM passes that file to the backup binary as `--defaults-file`, so the file must include everything the binary needs to connect. If your credential file is not at `~/.my.cnf`, enter its path in both fields.
 
     For XtraBackup on MySQL 8.0+, the MySQL user must have the `BACKUP_ADMIN` privilege.
 
@@ -93,14 +93,15 @@ To run a MySQL backup:
 1. Go to **Apps > MySQL Backups** in the sidebar.
 2. Click **New backup**.
 3. Enter a task name and select the **database host**, **execution host**, and **backup type**. For XtraBackup, the execution host must be the host running the MySQL service.
-4. Under **Upload**, select one or more **Upload providers** and fill in the destination fields if uploading off-host.
-5. (Optional) Configure compression, encryption, or retention in the relevant sections of the form.
-6. (Optional) Check **Alert on failure** to receive an alert if the backup task fails.
-7. Click **Create backup** to save the task.
-8. Click the task's row to open its detail page.
-9. (Optional) Click **Edit** to change the task's configuration before running it, for example, to switch the execution host, turn on compression or encryption, or add upload destinations.
-10. Click **Execute** to run the task immediately. To run it on a recurring schedule instead, see [Schedule a backup](#schedule-a-backup).
-11. Click **Execution History** to see past runs. XtraBackup and Mydumper runs that completed successfully appear there with their location, upload destination, size, and timestamps. Binlog runs are not catalogued.
+4. For a Binlog backup, enter the base name of the server's binary logs, such as `binlog` or `mysql-bin`, in the **Binlog prefix** field. To find the base name, run `SELECT @@log_bin_basename;` on the database host and use the file name without the directory. Without the prefix, a Binlog backup fails as soon as it starts. With a wrong prefix, PMM doesn't compress or purge the stored binlog files.
+5. Under **Upload**, select one or more **Upload providers** and fill in the destination fields if uploading off-host.
+6. (Optional) Configure compression, encryption, or retention in the relevant sections of the form.
+7. (Optional) Check **Alert on failure** to receive an alert if the backup task fails.
+8. Click **Create backup** to save the task.
+9. Click the task's row to open its detail page.
+10. (Optional) Click **Edit** to change the task's configuration before running it, for example, to switch the execution host, turn on compression or encryption, or add upload destinations.
+11. Click **Execute** to run the task immediately. To run it on a recurring schedule instead, see [Schedule a backup](#schedule-a-backup).
+12. Click **Execution History** to see past runs. XtraBackup and Mydumper runs that completed successfully appear there with their location, upload destination, size, and timestamps. Binlog runs are not catalogued.
 
 ### Schedule a backup
 
@@ -215,7 +216,9 @@ The algorithms shown after enabling **Compress backup data** depend on your back
 - XtraBackup on PXB 2.4: `quicklz`
 - Mydumper: `gzip`, `zstd`
 - `mariadb-backup`: `quicklz`
-- Binlog: always compresses completed binlog files with `gzip`, whatever this setting says
+- Binlog: `gzip` for every completed binlog file, whether **Compress backup data** is on or off
+
+To compress binlog files with another command, enter it in the **Compress command** field. PMM adds the path of the binlog file to the end of the command. The command must replace that file with a file of the same name plus `.gz`, because PMM purges only the stored binlog files that end in `.gz`.
 
 If you manage databases across multiple MySQL versions, make sure the algorithm you pick is supported on the host you plan to restore on. A backup compressed with `quicklz` on a MySQL 5.7 host can't be read by a PXB 8.x binary.
 
