@@ -463,14 +463,38 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 		return nil, err
 	}
 
+	agentFilter := models.AgentFilters{ServiceID: req.ServiceId, AgentType: new(models.PostgresExporterType)}
+	postgresExporters, err := models.FindAgents(s.db.Querier, agentFilter)
+	if err != nil {
+		return nil, err
+	}
+
+	exportersCount := len(postgresExporters)
+	if exportersCount < 1 {
+		return nil, status.Errorf(codes.FailedPrecondition, "No postgres exporter")
+	}
+	if exportersCount > 1 {
+		return nil, status.Errorf(codes.FailedPrecondition, "Found more than one postgres exporter")
+	}
+
 	var pmmAgentID string
 	switch node.NodeType {
-	case models.RemoteNodeType:
-		pmmAgentID = models.PMMServerAgentID
+	case models.RemoteNodeType, models.RemoteRDSNodeType, models.RemoteAzureDatabaseNodeType:
+		// The summary uses the exporter's credentials and network path, so it runs on the exporter's pmm-agent.
+		pmmAgentID = pointer.GetString(postgresExporters[0].PMMAgentID)
+		if pmmAgentID == "" {
+			return nil, status.Errorf(codes.FailedPrecondition, "No pmm-agent found for service %s", req.ServiceId)
+		}
+		if req.PmmAgentId != "" && req.PmmAgentId != pmmAgentID {
+			return nil, status.Error(codes.FailedPrecondition, "Couldn't find pmm-agent-id to run action")
+		}
 	default:
 		pmmAgents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, service.NodeID)
 		if err != nil {
 			return nil, status.Errorf(codes.NotFound, "No pmm-agent running node %s", service.NodeID)
+		}
+		if len(pmmAgents) == 0 {
+			return nil, status.Errorf(codes.FailedPrecondition, "No pmm-agent running on node %s", service.NodeID)
 		}
 		pmmAgents = models.FindPMMAgentsForVersion(s.l, pmmAgents, pmmAgent2150)
 		if len(pmmAgents) == 0 {
@@ -485,20 +509,6 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 	res, err := models.CreateActionResult(s.db.Querier, pmmAgentID)
 	if err != nil {
 		return nil, err
-	}
-
-	agentFilter := models.AgentFilters{ServiceID: req.ServiceId, AgentType: new(models.PostgresExporterType)}
-	postgresExporters, err := models.FindAgents(s.db.Querier, agentFilter)
-	if err != nil {
-		return nil, err
-	}
-
-	exportersCount := len(postgresExporters)
-	if exportersCount < 1 {
-		return nil, status.Errorf(codes.FailedPrecondition, "No postgres exporter")
-	}
-	if exportersCount > 1 {
-		return nil, status.Errorf(codes.FailedPrecondition, "Found more than one postgres exporter")
 	}
 
 	if pointer.GetString(service.Socket) != "" {
@@ -602,7 +612,7 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *acti
 
 	var pmmAgentID string
 	switch node.NodeType {
-	case models.RemoteNodeType:
+	case models.RemoteNodeType, models.RemoteRDSNodeType, models.RemoteAzureDatabaseNodeType:
 		// Remove this error after: https://jira.percona.com/browse/PMM-7562
 		return nil, status.Errorf(codes.FailedPrecondition, "PTMySQL Summary doesn't work with remote instances yet")
 
@@ -611,6 +621,9 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *acti
 		pmmAgents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, service.NodeID)
 		if err != nil {
 			return nil, status.Errorf(codes.NotFound, "No pmm-agent running node %s", service.NodeID)
+		}
+		if len(pmmAgents) == 0 {
+			return nil, status.Errorf(codes.FailedPrecondition, "No pmm-agent running on node %s", service.NodeID)
 		}
 		pmmAgents = models.FindPMMAgentsForVersion(s.l, pmmAgents, pmmAgent2150)
 		if len(pmmAgents) == 0 {
