@@ -377,7 +377,7 @@ export const SETTING_HELP: Record<string, string> = {
   SCHEDULE__every:
     'How often every node is scanned. Each scan sends a job to every node.',
   PROBE_DATABASE:
-    "On also asks each mongod for its replica-set state and running version. It logs in with the URI in .mongodb_uri in the home directory of the user pmm-agent runs as (/root by default); without that file it connects unauthenticated, so a mongod that requires authentication doesn't report its replica-set state. Off collects process and OS facts only, which needs no credentials - and still yields the installed version.",
+    'On also asks each mongod for its replica-set state and running version, with commands MongoDB answers without a login, so it needs no credentials. Off collects process and OS facts only - and still yields the installed version.',
   REPO_URL:
     'The file each node fetches to prove it can install packages. Point it at a mirror on an air-gapped network, or every node reports as failing.',
   REPO_TIMEOUT:
