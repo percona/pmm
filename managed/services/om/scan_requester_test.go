@@ -73,24 +73,41 @@ func scanRequesterFor(t *testing.T, db *reform.DB, handler http.HandlerFunc) *in
 	return newInventoryScanRequester(db, logrus.WithField("test", t.Name()), client)
 }
 
+// insertClusterlessOperation stores a checking operation with no cluster, which a non-install profile reads
+// as having no members to scan.
+func insertClusterlessOperation(t *testing.T, db *reform.DB) *models.OmOperation {
+	t.Helper()
+	op := &models.OmOperation{
+		ID: uuid.New().String(), Kind: "import", KindVersion: 1,
+		Status: models.OmOperationChecking, Version: 1, ParamsRevision: 1,
+		Trigger: models.OmTriggerUser, Principal: []byte(`{}`), Params: []byte(`{}`), ErrorFields: []byte("{}"),
+	}
+	require.NoError(t, db.Insert(op))
+	return op
+}
+
 func TestRequestScanPostsOperationRequest(t *testing.T) {
+	db := lockTestDB(t)
+	op := insertClusterlessOperation(t, db)
+
 	var gotPath, gotMethod string
 	var gotBody scanRequest
-	requester := scanRequesterFor(t, nil, func(w http.ResponseWriter, r *http.Request) {
+	requester := scanRequesterFor(t, db, func(w http.ResponseWriter, r *http.Request) {
 		gotPath, gotMethod = r.URL.Path, r.Method
 		assert.NoError(t, json.NewDecoder(r.Body).Decode(&gotBody))
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	err := requester.RequestScan("op-1", scanProfileImportCheck, "op-1:3")
+	err := requester.RequestScan(op.ID, scanProfileImportCheck, op.ID+":3")
 	require.NoError(t, err)
 	assert.Equal(t, http.MethodPost, gotMethod)
 	assert.Equal(t, "/api/apps/om_inventory/scans", gotPath)
 	assert.Equal(t, scanProfileImportCheck, gotBody.Profile)
-	assert.Equal(t, "op-1:3", gotBody.IdempotencyKey)
-	assert.Equal(t, "op-1", gotBody.OperationID)
+	assert.Equal(t, op.ID+":3", gotBody.IdempotencyKey)
+	assert.Equal(t, op.ID, gotBody.OperationID)
 	assert.Empty(t, gotBody.ClusterID)
 	assert.Empty(t, gotBody.Subjects)
+	assert.NotNil(t, gotBody.Subjects, "subjects must be a list on the wire, never null: SEP rejects null with a 422")
 }
 
 func TestRequestScanPostsInstallNodeSubjects(t *testing.T) {
@@ -156,11 +173,13 @@ func TestRequestClusterScanPostsMemberSubjects(t *testing.T) {
 }
 
 func TestRequestScanSurfacesAnExtensionsFailure(t *testing.T) {
-	requester := scanRequesterFor(t, nil, func(w http.ResponseWriter, _ *http.Request) {
+	db := lockTestDB(t)
+	op := insertClusterlessOperation(t, db)
+	requester := scanRequesterFor(t, db, func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	})
 
-	err := requester.RequestScan("op-1", scanProfileManaged, "op-1:1")
+	err := requester.RequestScan(op.ID, scanProfileManaged, op.ID+":1")
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "managed")
 }

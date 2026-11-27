@@ -37,7 +37,7 @@ const (
 )
 
 // Uninstall readiness reason-codes stored in om_operations.error_code when a rule blocks, for a
-// client to render. marker_mismatch and drift arrive with an op-scoped check set that reads the plan.
+// client to render.
 const (
 	uninstallReasonMarkerAbsent    = "marker_absent"
 	uninstallReasonHostUnreachable = "host_unreachable"
@@ -147,7 +147,7 @@ func UninstallKind() OperationKind {
 		OnEnterRunning: uninstallOnEnterRunning,
 		OnSucceeded:    uninstallOnSucceeded,
 		OnTerminal:     uninstallOnTerminal,
-		CheckSet:       uninstallReadinessCheckSet(),
+		CheckSet:       func(*models.OmOperation) CheckSet { return uninstallReadinessCheckSet() },
 		Subjects: func(op *models.OmOperation) []CheckSubject {
 			params := uninstallParamsOf(op)
 			subjects := make([]CheckSubject, 0, len(params.Members))

@@ -74,24 +74,47 @@ func newInventoryScanRequester(db *reform.DB, l *logrus.Entry, client *extension
 }
 
 // RequestScan fulfils the driver's rescan seam: it asks om_inventory to scan an operation under the
-// profile the check set named, keyed so a retried request fulfils once. An install carries its target
-// nodes as subjects, since a bare operation has no cluster for om_inventory to resolve them from.
+// profile the check set named, keyed so a retried request fulfils once. An install names its target
+// nodes and a cluster operation its members, so the request always carries a non-null subject list.
 func (r *inventoryScanRequester) RequestScan(operationID, profile, idempotencyKey string) error {
-	var subjects []scanSubject
+	subjects := []scanSubject{}
 	if profile == scanProfileInstallCheck {
-		var err error
-		subjects, err = r.installSubjects(operationID)
+		nodes, err := r.installSubjects(operationID)
 		if err != nil {
 			return err
 		}
+		subjects = append(subjects, nodes...)
+	} else {
+		members, err := r.operationMemberSubjects(operationID)
+		if err != nil {
+			return err
+		}
+		subjects = append(subjects, members...)
 	}
 	return r.post(context.Background(), scanRequest{
 		Profile: profile, IdempotencyKey: idempotencyKey, OperationID: operationID, Subjects: subjects,
 	})
 }
 
-// installSubjects lists an install operation's target nodes as install-node scan subjects; a kind that
-// is not install carries none, so om_inventory resolves its subjects from the operation's cluster.
+// operationMemberSubjects lists a cluster operation's members as the per-host subjects its scan collects
+// facts for; an operation with no cluster carries none, and om_inventory keys the scan on the operation.
+func (r *inventoryScanRequester) operationMemberSubjects(operationID string) ([]scanSubject, error) {
+	row, err := r.db.FindByPrimaryKeyFrom(models.OmOperationTable, operationID)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to read operation '%s': %w", operationID, err)
+	}
+	op := row.(*models.OmOperation) //nolint:forcetypeassert
+	if op.ClusterID == nil {
+		return nil, nil
+	}
+	return r.memberSubjects(*op.ClusterID)
+}
+
+// installSubjects lists an install operation's target nodes as install-node scan subjects; an operation
+// of another kind carries none here, its subjects coming from operationMemberSubjects instead.
 func (r *inventoryScanRequester) installSubjects(operationID string) ([]scanSubject, error) {
 	row, err := r.db.FindByPrimaryKeyFrom(models.OmOperationTable, operationID)
 	if err != nil {
